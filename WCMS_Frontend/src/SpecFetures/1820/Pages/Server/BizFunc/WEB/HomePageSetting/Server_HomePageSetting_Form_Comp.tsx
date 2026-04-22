@@ -276,7 +276,6 @@ const Section1Comp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
 };
 const BannerMediaComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<HomePageSet>; lang: string; }) =>
 {
-    const setField = useSetTableField<HomePageSet>(prop.formData);
     const setFileField = useSetTableFileField(prop.formData);
     const rows = prop.formData.data?.SpecHomePage1820_BannerMedia ?? [];
 

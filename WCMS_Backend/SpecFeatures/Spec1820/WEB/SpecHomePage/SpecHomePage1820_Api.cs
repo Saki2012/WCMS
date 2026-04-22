@@ -15,12 +15,15 @@ public class SpecHomePageApiController : ApiDataController<SpecHomePage1820Set, 
     /// <summary>
     /// 獲取天氣資訊
     /// </summary>
+    /// <param name="req">查詢條件</param>
+    /// <param name="ct">取消權杖</param>
     /// <returns></returns>
-    [HttpGet(nameof(GetWeatherData)), OutputCache(PolicyName = SysParam.PermanentCache), AllowAnonymous, IgnoreAntiforgeryToken]
-    public IActionResult GetWeatherData()
+    [HttpGet(nameof(GetWeatherData)), AllowAnonymous, IgnoreAntiforgeryToken]
+    [ProducesResponseType(typeof(ApiResponse<SpecHomePageWeather_DTO>), StatusCodes.Status200OK)]
+    public async Task<ApiResponse<SpecHomePageWeather_DTO>> GetWeatherData(CancellationToken ct)
     {
-        var response = new ApiResponse<Dictionary<string, string>>() { Data = [], SysMessage = Message.Messages };
-        return Ok(response);
+        SpecHomePageWeather_DTO result = await ((SpecHomePage1820_Biz)Service).GetWeatherDataAsync(ct);
+        return new ApiResponse<SpecHomePageWeather_DTO>() { Data = [result], SysMessage = Message.Messages };
     }
     #endregion
 

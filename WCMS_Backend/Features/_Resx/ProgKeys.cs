@@ -156,6 +156,10 @@ public static partial class ProgKeys
         /// 網站資源管理
         /// </summary>
         public const  string WebResource = nameof(WebResource);
+        /// <summary>
+        /// 紀事表
+        /// </summary>
+        public const  string Timeline = nameof(Timeline);
     }
     /// <summary>
     /// 客製功能模塊

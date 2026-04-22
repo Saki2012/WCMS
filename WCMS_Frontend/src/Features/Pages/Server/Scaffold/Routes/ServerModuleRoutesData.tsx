@@ -21,10 +21,13 @@ import { WebResourceFormComp } from "@/Features/Pages/Server/BizFunc/WEB/WebReso
 import { WebResourceListComp } from "@/Features/Pages/Server/BizFunc/WEB/WebResource/Server_WebResource_List_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
+import { PGID } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
 import { Server_ResetPassword_Comp } from "../../BizFunc/IAM/Account/Server_ResetPassword_Comp";
 import { Server_RolePermission_Form_Comp } from "../../BizFunc/IAM/RolePermission/Server_RolePermission_Form_Comp";
 import { Server_RolePermission_Comp } from "../../BizFunc/IAM/RolePermission/Server_RolePermission_List_Comp";
+import { Server_Timeline_Form_Comp } from "../../BizFunc/WEB/Timeline/Server_Timeline_Form_Comp";
+import { Server_Timeline_List_Comp } from "../../BizFunc/WEB/Timeline/Server_Timeline_List_Comp";
 
 // #region Interface
 export interface IModuleMeta
@@ -373,6 +376,29 @@ const ServerModuleRoutesData: IModuleMeta[] = [
                                 lang={ctx.lang}
                             />
                         ),
+                    },
+                ],
+            },
+            // 紀事表
+            {
+                ProgId: PGID.Timeline,
+                Title: "紀事表",
+                DefaultActionCode: "List",
+                IconClassName: "fas fa-link",
+                Actions: [
+                    {
+                        ActionCode: "List",
+                        Title: "紀事表列表",
+                        RoutePath: "List",
+                        elementFactory: (ctx) => (
+                            <Server_Timeline_List_Comp title="紀事表列表" theme={ctx.theme} lang={ctx.lang} />
+                        ),
+                    },
+                    {
+                        ActionCode: "Form",
+                        Title: "紀事表維護",
+                        RoutePath: "Form/:internalId?",
+                        elementFactory: (ctx) => <Server_Timeline_Form_Comp theme={ctx.theme} lang={ctx.lang} />,
                     },
                 ],
             },

@@ -7180,7 +7180,11 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["SpecHomePageWeather_DTOApiResponse"];
+                        "application/json": components["schemas"]["SpecHomePageWeather_DTOApiResponse"];
+                        "text/json": components["schemas"]["SpecHomePageWeather_DTOApiResponse"];
+                    };
                 };
             };
         };
@@ -11022,6 +11026,455 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/Timeline/Create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["TimelineSet_DTO"];
+                    "text/json": components["schemas"]["TimelineSet_DTO"];
+                    "application/*+json": components["schemas"]["TimelineSet_DTO"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Timeline/InitialCreateData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["TimelineSet_DTO"][];
+                    "text/json": components["schemas"]["TimelineSet_DTO"][];
+                    "application/*+json": components["schemas"]["TimelineSet_DTO"][];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Timeline/Update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["TimelineSet_DTOApiRequest"];
+                    "text/json": components["schemas"]["TimelineSet_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["TimelineSet_DTOApiRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Timeline/Invalid/{pk}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path: {
+                    pk: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/Timeline/BatchInvalid": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: {
+                    isInvalid?: boolean;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/Service/Timeline/Delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Timeline/BatchDelete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Timeline/QueryData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    internalId?: string;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Timeline/QueryList": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Timeline/GetTotalCounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/Timeline/GetModelDisplayName": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/WebResource/Create": {
         parameters: {
             query?: never;
@@ -13144,6 +13597,26 @@ export interface components {
             Link?: string | null;
             _SpecHomePage1820?: components["schemas"]["SpecHomePage1820Model_DTO"];
         };
+        SpecHomePageWeather_DTO: {
+            CityCode?: string | null;
+            LocationName?: string | null;
+            Weather?: string | null;
+            Temperature?: string | null;
+            ApparentTemperature?: string | null;
+            RelativeHumidity?: string | null;
+            ProbabilityOfPrecipitation?: string | null;
+            /** Format: date-time */
+            StartTime?: string | null;
+            /** Format: date-time */
+            EndTime?: string | null;
+            /** Format: date-time */
+            FetchTime?: string;
+        };
+        SpecHomePageWeather_DTOApiResponse: {
+            readonly IsSuccess?: boolean;
+            SysMessage?: components["schemas"]["SysMessageModel"][] | null;
+            Data?: components["schemas"]["SpecHomePageWeather_DTO"][] | null;
+        };
         SpecJournalAuthor_DTO: {
             RowState?: components["schemas"]["RowState"];
             /** @description [Spec_JournalId] */
@@ -14203,6 +14676,82 @@ export interface components {
         TagSet_DTOApiRequest: {
             InternalId?: string | null;
             Data?: components["schemas"]["TagSet_DTO"];
+        };
+        TimelineItem_DTO: {
+            /** @description [TimelineId] */
+            TimelineId?: string | null;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number | null;
+            /**
+             * Format: date-time
+             * @description [Common_Date]
+             */
+            Date?: string | null;
+            _Timeline?: components["schemas"]["Timeline_DTO"];
+            _TimelineLangDetail?: components["schemas"]["TimelineLangDetail_DTO"][] | null;
+        };
+        TimelineLangDetail_DTO: {
+            /** @description [TimelineId] */
+            TimelineId?: string | null;
+            /**
+             * Format: int32
+             * @description 父行代碼
+             */
+            ParentRowId?: number | null;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number | null;
+            Lang?: components["schemas"]["LangCode"];
+            /** @description [Timeline_Title] */
+            Title?: string | null;
+            /** @description [Timeline_Content] */
+            Content?: string | null;
+            _TimelineItem?: components["schemas"]["TimelineItem_DTO"];
+        };
+        TimelineSet_DTO: {
+            Timeline?: components["schemas"]["Timeline_DTO"];
+            TimelineItem?: components["schemas"]["TimelineItem_DTO"][] | null;
+            TimelineLangDetail?: components["schemas"]["TimelineLangDetail_DTO"][] | null;
+        };
+        TimelineSet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["TimelineSet_DTO"];
+        };
+        Timeline_DTO: {
+            /**
+             * Format: date-time
+             * @description 創建時間
+             */
+            CreateTime?: string | null;
+            /** @description 創建人 */
+            CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["Account_DTO"];
+            /**
+             * Format: date-time
+             * @description 修改時間
+             */
+            ModifyTime?: string | null;
+            /** @description 修改人 */
+            ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["Account_DTO"];
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            InvalidTime?: string | null;
+            InvalidUserId?: string | null;
+            /** @description 內部唯一標示號 */
+            InternalId?: string | null;
+            OrgLvId?: string | null;
+            /** @description [TimelineId] */
+            TimelineId?: string | null;
+            /** @description [TimelineName] */
+            TimelineName?: string | null;
+            _TimelineItem?: components["schemas"]["TimelineItem_DTO"][] | null;
         };
         TryCountDetailViewRequest_DTO: {
             SiteIndex?: string | null;

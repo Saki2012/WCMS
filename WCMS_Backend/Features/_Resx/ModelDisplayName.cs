@@ -153,6 +153,11 @@ public static class ModelDisplayName
     /// 英：Is Hide
     /// </summary>
     public const string Common_IsHide = nameof(Common_IsHide);
+    /// <summary>
+    /// 中：日期
+    /// 英：Date
+    /// </summary>
+    public const string Common_Date = nameof(Common_Date);
     #endregion
 
     #region Enums
@@ -865,6 +870,28 @@ public static class ModelDisplayName
     /// 英：Content
     /// </summary>
     public const string WebResource_Content = nameof(WebResource_Content);
+    #endregion
+    #region 紀事表
+    /// <summary>
+    /// 中：紀事表Id
+    /// 英：Timeline ID
+    /// </summary>
+    public const string TimelineId = nameof(TimelineId);
+    /// <summary>
+    /// 中：紀事表名稱
+    /// 英：Timeline Name
+    /// </summary>
+    public const string TimelineName = nameof(TimelineName);
+    /// <summary>
+    /// 中：事件標題
+    /// 英：Timeline Title
+    /// </summary>
+    public const string Timeline_Title = nameof(Timeline_Title);
+    /// <summary>
+    /// 中：事件內容
+    /// 英：Timeline Content
+    /// </summary>
+    public const string Timeline_Content= nameof(Timeline_Content);
     #endregion
     #endregion
 

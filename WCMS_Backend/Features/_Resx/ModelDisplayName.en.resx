@@ -726,4 +726,19 @@
   <data name="Common_IsHide" xml:space="preserve">
     <value>Is Hide</value>
   </data>
+  <data name="Timeline_Content" xml:space="preserve">
+    <value>Content</value>
+  </data>
+  <data name="TimelineId" xml:space="preserve">
+    <value>Timeline ID</value>
+  </data>
+  <data name="TimelineName" xml:space="preserve">
+    <value>紀事表名稱</value>
+  </data>
+  <data name="Timeline_Title" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="Common_Date" xml:space="preserve">
+    <value>Date</value>
+  </data>
 </root>

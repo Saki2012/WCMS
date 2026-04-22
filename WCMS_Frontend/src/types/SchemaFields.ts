@@ -1214,6 +1214,29 @@ export const SpecHomePage1820_ResourceFields = {
 
 export type SpecHomePage1820_ResourceFieldKey = keyof typeof SpecHomePage1820_ResourceFields;
 
+export const SpecHomePageWeatherFields = {
+  CityCode: 'CityCode',
+  LocationName: 'LocationName',
+  Weather: 'Weather',
+  Temperature: 'Temperature',
+  ApparentTemperature: 'ApparentTemperature',
+  RelativeHumidity: 'RelativeHumidity',
+  ProbabilityOfPrecipitation: 'ProbabilityOfPrecipitation',
+  StartTime: 'StartTime',
+  EndTime: 'EndTime',
+  FetchTime: 'FetchTime',
+} as const;
+
+export type SpecHomePageWeatherFieldKey = keyof typeof SpecHomePageWeatherFields;
+
+export const SpecHomePageWeather_DTOApiResponseFields = {
+  IsSuccess: 'IsSuccess',
+  SysMessage: 'SysMessage',
+  Data: 'Data',
+} as const;
+
+export type SpecHomePageWeather_DTOApiResponseFieldKey = keyof typeof SpecHomePageWeather_DTOApiResponseFields;
+
 export const SpecJournalAuthorFields = {
   RowState: 'RowState',
   JournalId: 'JournalId',
@@ -1791,6 +1814,63 @@ export const TagSet_DTOApiRequestFields = {
 
 export type TagSet_DTOApiRequestFieldKey = keyof typeof TagSet_DTOApiRequestFields;
 
+export const TimelineItemFields = {
+  TimelineId: 'TimelineId',
+  RowId: 'RowId',
+  Date: 'Date',
+  _Timeline: '_Timeline',
+  _TimelineLangDetail: '_TimelineLangDetail',
+} as const;
+
+export type TimelineItemFieldKey = keyof typeof TimelineItemFields;
+
+export const TimelineLangDetailFields = {
+  TimelineId: 'TimelineId',
+  ParentRowId: 'ParentRowId',
+  RowId: 'RowId',
+  Lang: 'Lang',
+  Title: 'Title',
+  Content: 'Content',
+  _TimelineItem: '_TimelineItem',
+} as const;
+
+export type TimelineLangDetailFieldKey = keyof typeof TimelineLangDetailFields;
+
+export const TimelineSetFields = {
+  Timeline: 'Timeline',
+  TimelineItem: 'TimelineItem',
+  TimelineLangDetail: 'TimelineLangDetail',
+} as const;
+
+export type TimelineSetFieldKey = keyof typeof TimelineSetFields;
+
+export const TimelineSet_DTOApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type TimelineSet_DTOApiRequestFieldKey = keyof typeof TimelineSet_DTOApiRequestFields;
+
+export const TimelineFields = {
+  CreateTime: 'CreateTime',
+  CreateUserId: 'CreateUserId',
+  CreateUser: 'CreateUser',
+  ModifyTime: 'ModifyTime',
+  ModifyUserId: 'ModifyUserId',
+  ModifyUser: 'ModifyUser',
+  FormStatus: 'FormStatus',
+  DataStatus: 'DataStatus',
+  InvalidTime: 'InvalidTime',
+  InvalidUserId: 'InvalidUserId',
+  InternalId: 'InternalId',
+  OrgLvId: 'OrgLvId',
+  TimelineId: 'TimelineId',
+  TimelineName: 'TimelineName',
+  _TimelineItem: '_TimelineItem',
+} as const;
+
+export type TimelineFieldKey = keyof typeof TimelineFields;
+
 export const TryCountDetailViewRequestFields = {
   SiteIndex: 'SiteIndex',
   ProgId: 'ProgId',
@@ -1906,6 +1986,7 @@ export const PGID = {
     SpecUSR: "SpecUSR",
     SystemAPI: "SystemAPI",
     Tag: "Tag",
+    Timeline: "Timeline",
     WebResource: "WebResource",
 } as const satisfies Record<string, PGID>;
 
