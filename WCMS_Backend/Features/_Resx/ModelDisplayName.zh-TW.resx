@@ -423,11 +423,11 @@
   <data name="Announcement_FileName" xml:space="preserve">
     <value>附件名稱</value>
   </data>
-  <data name="Enum_TwoColumn" xml:space="preserve">
-    <value>雙欄式</value>
+  <data name="Enum_SidebarMenu" xml:space="preserve">
+    <value>側欄選單版型</value>
   </data>
-  <data name="Enum_Vertical" xml:space="preserve">
-    <value>直瀑式</value>
+  <data name="Enum_FullContent" xml:space="preserve">
+    <value>滿版內容版型</value>
   </data>
   <data name="SiteMenu_ItemSiteUrl" xml:space="preserve">
     <value>選單ID</value>
@@ -436,7 +436,7 @@
     <value>完整路徑</value>
   </data>
   <data name="SiteMenu_ItemType" xml:space="preserve">
-    <value>選單類型</value>
+    <value>版面類型</value>
   </data>
   <data name="SiteMenu_WindowTarget" xml:space="preserve">
     <value>開啟方式</value>

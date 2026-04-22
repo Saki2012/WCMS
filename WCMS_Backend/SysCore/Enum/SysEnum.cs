@@ -404,13 +404,13 @@ namespace WCMS.SysCore.Enum
         public enum ModulePageType : byte
         {
             /// <summary>
-            /// 雙欄式
+            /// 側欄選單版型
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_TwoColumn)]TwoColumn=0,
+            [LibDesc(ModelDisplayName.Enum_SidebarMenu)] SidebarMenu = 0,
             /// <summary>
-            /// 直瀑式
+            /// 滿版內容版型
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_Vertical)]Vertical=1,
+            [LibDesc(ModelDisplayName.Enum_FullContent)] FullContent = 1,
         }
         /// <summary>
         /// 模型功能顯示方式

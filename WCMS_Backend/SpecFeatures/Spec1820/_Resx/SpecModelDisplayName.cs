@@ -135,4 +135,8 @@ public static class SpecModelDisplayName
     /// 資源圖片來源
     /// </summary>
     public const string ResoourcePictureId = "Spec_ResourcePictureId";
+    /// <summary>
+    /// 資源圖片來源
+    /// </summary>
+    public const string Spec_ResourcePictureDescription = "Spec_ResourcePictureDescription";
 }

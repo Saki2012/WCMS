@@ -13053,7 +13053,7 @@ export interface components {
              * Format: int32
              * @description 行代碼
              */
-            RowId?: number;
+            RowId?: number | null;
             BannerFile?: components["schemas"]["FileManageModel_DTO"];
             /** @description 橫幅媒體來源 */
             BannerFileId?: string | null;
@@ -13069,7 +13069,7 @@ export interface components {
              * Format: int32
              * @description 行代碼
              */
-            RowId?: number;
+            RowId?: number | null;
             /** @description 標題 */
             Title?: string | null;
             /** @description 副標題 */
@@ -13112,7 +13112,7 @@ export interface components {
              * Format: int32
              * @description 行代碼
              */
-            RowId?: number;
+            RowId?: number | null;
             Picture?: components["schemas"]["FileManageModel_DTO"];
             /** @description 相片來源 */
             PictureId?: string | null;
@@ -13130,7 +13130,7 @@ export interface components {
              * Format: int32
              * @description 行代碼
              */
-            RowId?: number;
+            RowId?: number | null;
             /** @description 標題 */
             PicTitle?: string | null;
             /** @description 副標題 */
@@ -13138,6 +13138,8 @@ export interface components {
             PicFile?: components["schemas"]["FileManageModel_DTO"];
             /** @description 資源圖片來源 */
             PicFileId?: string | null;
+            /** @description [Spec_ResourcePictureDescription] */
+            PicFileDescription?: string | null;
             /** @description 網址 */
             Link?: string | null;
             _SpecHomePage1820?: components["schemas"]["SpecHomePage1820Model_DTO"];

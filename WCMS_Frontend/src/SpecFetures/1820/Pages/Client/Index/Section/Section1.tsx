@@ -1,3 +1,4 @@
+import btmImg from "@/SpecFetures/1820/Assets/Client/images/bg/bottom_img_2800x280.jpg";
 import { useCwaTownWeather } from "@/SpecFetures/1820/Hooks/CWA_Weather_Api";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
@@ -383,7 +384,7 @@ export const Section1 = (props: { homePage: HomePageModel; banners: BannerModel[
 
                 <div className="mv_botom mv_body">
                     <figure className="mv_botom_figure">
-                        <img src="/images/bg/bottom_img_2800x280.jpg" alt="下方裝飾風景底圖" />
+                        <img src={btmImg} alt="下方裝飾風景底圖" />
                     </figure>
                 </div>
 

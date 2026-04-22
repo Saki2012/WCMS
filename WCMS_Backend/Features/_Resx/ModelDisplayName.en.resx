@@ -423,11 +423,11 @@
   <data name="Announcement_FileName" xml:space="preserve">
     <value>Attachment Name</value>
   </data>
-  <data name="Enum_TwoColumn" xml:space="preserve">
-    <value>Two Columns</value>
+  <data name="Enum_SidebarMenu" xml:space="preserve">
+    <value>Sidebar Menu Layout</value>
   </data>
-  <data name="Enum_Vertical" xml:space="preserve">
-    <value>Vertical Waterfall</value>
+  <data name="Enum_FullContent" xml:space="preserve">
+    <value>Full Width Content Layout</value>
   </data>
   <data name="SiteMenu_ItemSiteUrl" xml:space="preserve">
     <value>Menu ID</value>

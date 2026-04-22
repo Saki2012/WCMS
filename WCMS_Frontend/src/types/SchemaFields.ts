@@ -1207,6 +1207,7 @@ export const SpecHomePage1820_ResourceFields = {
   PicSubTitle: 'PicSubTitle',
   PicFile: 'PicFile',
   PicFileId: 'PicFileId',
+  PicFileDescription: 'PicFileDescription',
   Link: 'Link',
   _SpecHomePage1820: '_SpecHomePage1820',
 } as const;

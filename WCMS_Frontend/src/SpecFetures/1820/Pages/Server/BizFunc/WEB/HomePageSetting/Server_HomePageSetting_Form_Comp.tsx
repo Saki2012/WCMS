@@ -7,6 +7,7 @@ import { LibFileInput, LibTextBox, LibTinyMCE } from "@/SysCore/Components/FormF
 import { useSetTableField, useSetTableFileField } from "@/SysCore/Components/FormField/useSetTableField";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
 import { type Lang, LangLabelMap, SUPPORTED_LANGS } from "@/SysCore/i18n/lang";
+import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import type { components } from "@/types/api";
 import {
@@ -35,18 +36,71 @@ const getLangDisplayName = (lang?: string) =>
 
 const getNextRowId = (rows?: Array<{ RowId?: number | null; }> | null) =>
 {
+    // 取得下一筆 RowId
     return (rows ?? []).reduce((max, row) => Math.max(max, Number(row?.RowId ?? 0)), 0) + 1;
 };
+
 const buildRowKeys = (row: { HomePageId?: string | null; RowId?: number | null; }) =>
 {
     // 建立子表複合鍵
     return { HomePageId: row.HomePageId ?? "", RowId: row.RowId ?? 0 };
 };
 
+const buildTabLabel = (prefix: string, index: number, value?: string | null) =>
+{
+    // 建立頁籤標題
+    const text = String(value ?? "").trim();
+    return text.length > 0 ? text : `${prefix}${index + 1}`;
+};
+
+const getPreviewUrl = (fileId?: string | null) =>
+{
+    // 取得預覽圖片網址
+    const internalId = String(fileId ?? "").trim();
+    if (internalId.length === 0) return "";
+    return FileManagementAPI.get_Server_Preview_Url(internalId) ?? "";
+};
+const buildChildTabKey = (lang: string, section: string, rowId?: number | null, index?: number) =>
+{
+    // 建立子頁籤唯一 key，避免多組 Tab 衝突
+    return `${lang}_${section}_${rowId ?? index ?? 0}`;
+};
+
+const parseChildTabRowId = (tabKey: string) =>
+{
+    // 從 tab key 解析 RowId
+    return Number(String(tabKey).split("_").pop() ?? 0);
+};
+
+const PreviewImageComp = (prop: { fileId?: string | null; alt: string; emptyText?: string; }) =>
+{
+    // 顯示圖片預覽
+    const src = getPreviewUrl(prop.fileId);
+    if (src.length === 0)
+    {
+        return (
+            <div className="col-12 mb-3">
+                <div className="border rounded p-3 text-muted">{prop.emptyText ?? "尚無預覽圖片"}</div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="col-12 mb-3">
+            <img
+                src={src}
+                alt={prop.alt}
+                title={prop.alt}
+                className="img-fluid border rounded"
+                style={{ maxHeight: "260px", objectFit: "contain" }}
+            />
+        </div>
+    );
+};
+
 export const Server_HomePage1820_Form_Comp = (prop: { theme: IBETheme; lang: Lang; }) =>
 {
     // 先用固定語系，之後再改成站台設定來源
-
     const summary = useHomePage1820SummaryFetchData({ supportLangs: SUPPORTED_LANGS });
 
     const formProp: FormCompProp = {
@@ -95,12 +149,14 @@ const LangFormTabComp = (prop: {
     summary: ReturnType<typeof useHomePage1820SummaryFetchData>;
 }) =>
 {
+    // 讀取當前語系表單資料
     const internalId = prop.summary.rawData.langInternalIdMap[prop.lang] ?? "";
     const getData = useHomePage1820FormDataByAdapter(prop.summary.adapter.HomePage, prop.lang, internalId);
     const isSaving = Boolean(prop.summary.rawData.savingMap[prop.lang]);
 
     const handleSave = async () =>
     {
+        // 儲存當前語系資料
         await prop.summary.rawData.saveLang(prop.lang, getData.rawData.formData.data);
     };
 
@@ -125,6 +181,7 @@ const LangSetTabComp = (prop: {
     onSave: () => Promise<void>;
 }) =>
 {
+    // 建立區塊頁籤 key
     const buildSectionKey = (section: string) => `${prop.lang}_${section}`;
 
     const sectionTabs: LibTabsProp = {
@@ -217,7 +274,6 @@ const Section1Comp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
         </>
     );
 };
-
 const BannerMediaComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<HomePageSet>; lang: string; }) =>
 {
     const setField = useSetTableField<HomePageSet>(prop.formData);
@@ -252,38 +308,59 @@ const BannerMediaComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResu
         }));
     };
 
+    const getTabKey = (row: { RowId?: number | null; }, idx: number) =>
+    {
+        // 取得 Banner tab key
+        return buildChildTabKey(prop.lang, "Section1", row.RowId, idx + 1);
+    };
+
+    const tabInfos: LibTabsProp = {
+        Style: prop.theme.Tabs,
+        item: rows.reduce<Record<string, string>>((acc, row, idx) =>
+        {
+            acc[getTabKey(row, idx)] = buildTabLabel("Banner", idx, row.BannerFileDescription);
+            return acc;
+        }, {}),
+        onAddTab: () =>
+        {
+            addRow();
+        },
+        onRemoveTab: key => removeRow(parseChildTabRowId(key)),
+    };
+
+    const components: Record<string, ReactNode[]> = rows.reduce<Record<string, ReactNode[]>>((acc, row, idx) =>
+    {
+        const rowKeys = buildRowKeys(row);
+        const key = getTabKey(row, idx);
+        const previewAlt = `${buildTabLabel("Banner", idx, row.BannerFileDescription)} 預覽圖片`;
+
+        acc[key] = [
+            <PreviewImageComp
+                key={`banner-preview-${key}`}
+                fileId={row.BannerFileId}
+                alt={previewAlt}
+                emptyText="尚無 Banner 預覽圖片"
+            />,
+            <LibFileInput
+                key={`banner-file-${key}`}
+                {...setFileField(
+                    SpecHomePage1820SetFields.SpecHomePage1820_BannerMedia,
+                    SpecHomePage1820_BannerMediaFields.BannerFileId,
+                    SpecHomePage1820_BannerMediaFields.BannerFileDescription,
+                    rowKeys,
+                )}
+                Accept="image/*"
+            />,
+        ];
+
+        return acc;
+    }, {});
+
+    const renderKey = rows.map((row, idx) => getTabKey(row, idx)).join("|");
+
     return (
         <div className="col-12">
-            <button type="button" className="btn btn-outline-primary mb-3" onClick={addRow}>新增 Banner</button>
-
-            {rows.map(row =>
-            {
-                const rowKeys = buildRowKeys(row);
-                return (
-                    <div key={`banner-${row.RowId}`} className="border rounded p-3 mb-3">
-                        <LibFileInput
-                            {...setFileField(
-                                SpecHomePage1820SetFields.SpecHomePage1820_BannerMedia,
-                                SpecHomePage1820_BannerMediaFields.BannerFileId,
-                                undefined,
-                                rowKeys,
-                            )}
-                            Accept="image/*"
-                            onDelete={() => removeRow(Number(row.RowId ?? 0))}
-                        />
-                        <LibTextBox
-                            Style={prop.theme.TextBox}
-                            DefaultInputDisplay="請輸入圖片說明"
-                            {...setField(
-                                SpecHomePage1820SetFields.SpecHomePage1820_BannerMedia,
-                                SpecHomePage1820_BannerMediaFields.BannerFileDescription,
-                                "string",
-                                rowKeys,
-                            )}
-                        />
-                    </div>
-                );
-            })}
+            <TabContentComp key={`banner-tabs-${renderKey}`} tabInfos={tabInfos} components={components} />
         </div>
     );
 };
@@ -390,6 +467,21 @@ const Section4Comp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
                 {
                     HomePageId: prev?.SpecHomePage1820?.HomePageId ?? "",
                     RowId: getNextRowId(prev?.SpecHomePage1820_Detail),
+                    Title: "",
+                    SubTitle: "",
+                    MainPictureId: "",
+                    MainPictureDescription: "",
+                    SubPictureId: "",
+                    SubPictureDescription: "",
+                    Intro: "",
+                    MainLinkTitle: "",
+                    MainLink: "",
+                    SubLinkTitle1: "",
+                    SubLink1: "",
+                    SubLinkTitle2: "",
+                    SubLink2: "",
+                    SubLinkTitle3: "",
+                    SubLink3: "",
                 },
             ],
         }));
@@ -404,180 +496,195 @@ const Section4Comp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
         }));
     };
 
+    const getTabKey = (row: { RowId?: number | null; }, idx: number) =>
+    {
+        // 取得 Detail tab key
+        return buildChildTabKey(prop.lang, "Section4", row.RowId, idx + 1);
+    };
+
+    const tabInfos: LibTabsProp = {
+        Style: prop.theme.Tabs,
+        item: rows.reduce<Record<string, string>>((acc, row, idx) =>
+        {
+            acc[getTabKey(row, idx)] = buildTabLabel("內容", idx, row.Title);
+            return acc;
+        }, {}),
+        onAddTab: () =>
+        {
+            addRow();
+        },
+        onRemoveTab: key => removeRow(parseChildTabRowId(key)),
+    };
+
+    const components: Record<string, ReactNode[]> = rows.reduce<Record<string, ReactNode[]>>((acc, row, idx) =>
+    {
+        const rowKeys = buildRowKeys(row);
+        const key = getTabKey(row, idx);
+        const tabLabel = buildTabLabel("內容", idx, row.Title);
+
+        acc[key] = [
+            <LibTextBox
+                key={`detail-title-${key}`}
+                Style={prop.theme.TextBox}
+                DefaultInputDisplay="請輸入"
+                {...setField(
+                    SpecHomePage1820SetFields.SpecHomePage1820_Detail,
+                    SpecHomePage1820_DetailFields.Title,
+                    "string",
+                    rowKeys,
+                )}
+            />,
+            <LibTextBox
+                key={`detail-subtitle-${key}`}
+                Style={prop.theme.TextBox}
+                DefaultInputDisplay="請輸入"
+                {...setField(
+                    SpecHomePage1820SetFields.SpecHomePage1820_Detail,
+                    SpecHomePage1820_DetailFields.SubTitle,
+                    "string",
+                    rowKeys,
+                )}
+            />,
+            <PreviewImageComp
+                key={`detail-main-preview-${key}`}
+                fileId={row.MainPictureId}
+                alt={`${tabLabel} 主視覺預覽圖片`}
+                emptyText="尚無主視覺預覽圖片"
+            />,
+            <LibFileInput
+                key={`detail-mainpic-${key}`}
+                {...setFileField(
+                    SpecHomePage1820SetFields.SpecHomePage1820_Detail,
+                    SpecHomePage1820_DetailFields.MainPictureId,
+                    SpecHomePage1820_DetailFields.MainPictureDescription,
+                    rowKeys,
+                )}
+                Accept="image/*"
+            />,
+            <PreviewImageComp
+                key={`detail-sub-preview-${key}`}
+                fileId={row.SubPictureId}
+                alt={`${tabLabel} 延伸圖片預覽`}
+                emptyText="尚無延伸圖片預覽"
+            />,
+            <LibFileInput
+                key={`detail-subpic-${key}`}
+                {...setFileField(
+                    SpecHomePage1820SetFields.SpecHomePage1820_Detail,
+                    SpecHomePage1820_DetailFields.SubPictureId,
+                    SpecHomePage1820_DetailFields.SubPictureDescription,
+                    rowKeys,
+                )}
+                Accept="image/*"
+            />,
+            <LibTinyMCE
+                key={`detail-intro-${key}`}
+                Style={prop.theme.TinyMCE}
+                {...setField(
+                    SpecHomePage1820SetFields.SpecHomePage1820_Detail,
+                    SpecHomePage1820_DetailFields.Intro,
+                    "string",
+                    rowKeys,
+                )}
+            />,
+            <LibTextBox
+                key={`detail-mainlink-title-${key}`}
+                Style={prop.theme.TextBox}
+                DefaultInputDisplay="請輸入主連結標題"
+                {...setField(
+                    SpecHomePage1820SetFields.SpecHomePage1820_Detail,
+                    SpecHomePage1820_DetailFields.MainLinkTitle,
+                    "string",
+                    rowKeys,
+                )}
+            />,
+            <LibTextBox
+                key={`detail-mainlink-${key}`}
+                Style={prop.theme.TextBox}
+                DefaultInputDisplay="請輸入主連結"
+                {...setField(
+                    SpecHomePage1820SetFields.SpecHomePage1820_Detail,
+                    SpecHomePage1820_DetailFields.MainLink,
+                    "string",
+                    rowKeys,
+                )}
+            />,
+            <LibTextBox
+                key={`detail-sublink-title1-${key}`}
+                Style={prop.theme.TextBox}
+                DefaultInputDisplay="請輸入次連結標題1"
+                {...setField(
+                    SpecHomePage1820SetFields.SpecHomePage1820_Detail,
+                    SpecHomePage1820_DetailFields.SubLinkTitle1,
+                    "string",
+                    rowKeys,
+                )}
+            />,
+            <LibTextBox
+                key={`detail-sublink1-${key}`}
+                Style={prop.theme.TextBox}
+                DefaultInputDisplay="請輸入次連結1"
+                {...setField(
+                    SpecHomePage1820SetFields.SpecHomePage1820_Detail,
+                    SpecHomePage1820_DetailFields.SubLink1,
+                    "string",
+                    rowKeys,
+                )}
+            />,
+            <LibTextBox
+                key={`detail-sublink-title2-${key}`}
+                Style={prop.theme.TextBox}
+                DefaultInputDisplay="請輸入次連結標題2"
+                {...setField(
+                    SpecHomePage1820SetFields.SpecHomePage1820_Detail,
+                    SpecHomePage1820_DetailFields.SubLinkTitle2,
+                    "string",
+                    rowKeys,
+                )}
+            />,
+            <LibTextBox
+                key={`detail-sublink2-${key}`}
+                Style={prop.theme.TextBox}
+                DefaultInputDisplay="請輸入次連結2"
+                {...setField(
+                    SpecHomePage1820SetFields.SpecHomePage1820_Detail,
+                    SpecHomePage1820_DetailFields.SubLink2,
+                    "string",
+                    rowKeys,
+                )}
+            />,
+            <LibTextBox
+                key={`detail-sublink-title3-${key}`}
+                Style={prop.theme.TextBox}
+                DefaultInputDisplay="請輸入次連結標題3"
+                {...setField(
+                    SpecHomePage1820SetFields.SpecHomePage1820_Detail,
+                    SpecHomePage1820_DetailFields.SubLinkTitle3,
+                    "string",
+                    rowKeys,
+                )}
+            />,
+            <LibTextBox
+                key={`detail-sublink3-${key}`}
+                Style={prop.theme.TextBox}
+                DefaultInputDisplay="請輸入次連結3"
+                {...setField(
+                    SpecHomePage1820SetFields.SpecHomePage1820_Detail,
+                    SpecHomePage1820_DetailFields.SubLink3,
+                    "string",
+                    rowKeys,
+                )}
+            />,
+        ];
+
+        return acc;
+    }, {});
+
+    const renderKey = rows.map((row, idx) => getTabKey(row, idx)).join("|");
+
     return (
         <div className="col-12">
-            <button type="button" className="btn btn-outline-primary mb-3" onClick={addRow}>新增內容</button>
-
-            {rows.map(row =>
-            {
-                const rowKeys = buildRowKeys(row);
-                return (
-                    <div key={`detail-${row.RowId}`} className="border rounded p-3 mb-3">
-                        <LibTextBox
-                            Style={prop.theme.TextBox}
-                            DefaultInputDisplay="請輸入"
-                            {...setField(
-                                SpecHomePage1820SetFields.SpecHomePage1820_Detail,
-                                SpecHomePage1820_DetailFields.Title,
-                                "string",
-                                rowKeys,
-                            )}
-                        />
-                        <LibTextBox
-                            Style={prop.theme.TextBox}
-                            DefaultInputDisplay="請輸入"
-                            {...setField(
-                                SpecHomePage1820SetFields.SpecHomePage1820_Detail,
-                                SpecHomePage1820_DetailFields.SubTitle,
-                                "string",
-                                rowKeys,
-                            )}
-                        />
-
-                        <LibFileInput
-                            {...setFileField(
-                                SpecHomePage1820SetFields.SpecHomePage1820_Detail,
-                                SpecHomePage1820_DetailFields.MainPictureId,
-                                undefined,
-                                rowKeys,
-                            )}
-                            Accept="image/*"
-                        />
-                        <LibTextBox
-                            Style={prop.theme.TextBox}
-                            DefaultInputDisplay="請輸入主圖說明"
-                            {...setField(
-                                SpecHomePage1820SetFields.SpecHomePage1820_Detail,
-                                SpecHomePage1820_DetailFields.MainPictureDescription,
-                                "string",
-                                rowKeys,
-                            )}
-                        />
-
-                        <LibFileInput
-                            {...setFileField(
-                                SpecHomePage1820SetFields.SpecHomePage1820_Detail,
-                                SpecHomePage1820_DetailFields.SubPictureId,
-                                undefined,
-                                rowKeys,
-                            )}
-                            Accept="image/*"
-                        />
-                        <LibTextBox
-                            Style={prop.theme.TextBox}
-                            DefaultInputDisplay="請輸入副圖說明"
-                            {...setField(
-                                SpecHomePage1820SetFields.SpecHomePage1820_Detail,
-                                SpecHomePage1820_DetailFields.SubPictureDescription,
-                                "string",
-                                rowKeys,
-                            )}
-                        />
-
-                        <LibTinyMCE
-                            Style={prop.theme.TinyMCE}
-                            {...setField(
-                                SpecHomePage1820SetFields.SpecHomePage1820_Detail,
-                                SpecHomePage1820_DetailFields.Intro,
-                                "string",
-                                rowKeys,
-                            )}
-                        />
-
-                        <LibTextBox
-                            Style={prop.theme.TextBox}
-                            DefaultInputDisplay="請輸入主連結標題"
-                            {...setField(
-                                SpecHomePage1820SetFields.SpecHomePage1820_Detail,
-                                SpecHomePage1820_DetailFields.MainLinkTitle,
-                                "string",
-                                rowKeys,
-                            )}
-                        />
-                        <LibTextBox
-                            Style={prop.theme.TextBox}
-                            DefaultInputDisplay="請輸入主連結"
-                            {...setField(
-                                SpecHomePage1820SetFields.SpecHomePage1820_Detail,
-                                SpecHomePage1820_DetailFields.MainLink,
-                                "string",
-                                rowKeys,
-                            )}
-                        />
-
-                        <LibTextBox
-                            Style={prop.theme.TextBox}
-                            DefaultInputDisplay="請輸入次連結標題1"
-                            {...setField(
-                                SpecHomePage1820SetFields.SpecHomePage1820_Detail,
-                                SpecHomePage1820_DetailFields.SubLinkTitle1,
-                                "string",
-                                rowKeys,
-                            )}
-                        />
-                        <LibTextBox
-                            Style={prop.theme.TextBox}
-                            DefaultInputDisplay="請輸入次連結1"
-                            {...setField(
-                                SpecHomePage1820SetFields.SpecHomePage1820_Detail,
-                                SpecHomePage1820_DetailFields.SubLink1,
-                                "string",
-                                rowKeys,
-                            )}
-                        />
-
-                        <LibTextBox
-                            Style={prop.theme.TextBox}
-                            DefaultInputDisplay="請輸入次連結標題2"
-                            {...setField(
-                                SpecHomePage1820SetFields.SpecHomePage1820_Detail,
-                                SpecHomePage1820_DetailFields.SubLinkTitle2,
-                                "string",
-                                rowKeys,
-                            )}
-                        />
-                        <LibTextBox
-                            Style={prop.theme.TextBox}
-                            DefaultInputDisplay="請輸入次連結2"
-                            {...setField(
-                                SpecHomePage1820SetFields.SpecHomePage1820_Detail,
-                                SpecHomePage1820_DetailFields.SubLink2,
-                                "string",
-                                rowKeys,
-                            )}
-                        />
-
-                        <LibTextBox
-                            Style={prop.theme.TextBox}
-                            DefaultInputDisplay="請輸入次連結標題3"
-                            {...setField(
-                                SpecHomePage1820SetFields.SpecHomePage1820_Detail,
-                                SpecHomePage1820_DetailFields.SubLinkTitle3,
-                                "string",
-                                rowKeys,
-                            )}
-                        />
-                        <LibTextBox
-                            Style={prop.theme.TextBox}
-                            DefaultInputDisplay="請輸入次連結3"
-                            {...setField(
-                                SpecHomePage1820SetFields.SpecHomePage1820_Detail,
-                                SpecHomePage1820_DetailFields.SubLink3,
-                                "string",
-                                rowKeys,
-                            )}
-                        />
-
-                        <button
-                            type="button"
-                            className="btn btn-outline-danger mt-2"
-                            onClick={() => removeRow(Number(row.RowId ?? 0))}
-                        >
-                            刪除此筆
-                        </button>
-                    </div>
-                );
-            })}
+            <TabContentComp key={`detail-tabs-${renderKey}`} tabInfos={tabInfos} components={components} />
         </div>
     );
 };
@@ -592,7 +699,7 @@ const Section5Comp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
 
     const addRow = () =>
     {
-        // 新增 Marquee 明細
+        // 新增跑馬燈明細
         prop.formData.setFormData(prev => ({
             ...(prev ?? createEmptyHomePage1820Set(prop.lang)),
             SpecHomePage1820_Marquee: [
@@ -610,62 +717,77 @@ const Section5Comp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
 
     const removeRow = (rowId: number) =>
     {
-        // 移除 Marquee 明細
+        // 移除跑馬燈明細
         prop.formData.setFormData(prev => ({
             ...(prev ?? createEmptyHomePage1820Set(prop.lang)),
             SpecHomePage1820_Marquee: (prev?.SpecHomePage1820_Marquee ?? []).filter(a => Number(a.RowId) !== rowId),
         }));
     };
 
+    const getTabKey = (row: { RowId?: number | null; }, idx: number) =>
+    {
+        // 取得跑馬燈 tab key
+        return buildChildTabKey(prop.lang, "Section5", row.RowId, idx + 1);
+    };
+
+    const tabInfos: LibTabsProp = {
+        Style: prop.theme.Tabs,
+        item: rows.reduce<Record<string, string>>((acc, row, idx) =>
+        {
+            acc[getTabKey(row, idx)] = buildTabLabel("跑馬燈", idx, row.PictureTitle);
+            return acc;
+        }, {}),
+        onAddTab: () =>
+        {
+            addRow();
+        },
+        onRemoveTab: key => removeRow(parseChildTabRowId(key)),
+    };
+
+    const components: Record<string, ReactNode[]> = rows.reduce<Record<string, ReactNode[]>>((acc, row, idx) =>
+    {
+        const rowKeys = buildRowKeys(row);
+        const key = getTabKey(row, idx);
+        const tabLabel = buildTabLabel("跑馬燈", idx, row.PictureTitle);
+
+        acc[key] = [
+            <PreviewImageComp
+                key={`marquee-preview-${key}`}
+                fileId={row.PictureId}
+                alt={`${tabLabel} 預覽圖片`}
+                emptyText="尚無跑馬燈預覽圖片"
+            />,
+            <LibFileInput
+                key={`marquee-file-${key}`}
+                {...setFileField(
+                    SpecHomePage1820SetFields.SpecHomePage1820_Marquee,
+                    SpecHomePage1820_MarqueeFields.PictureId,
+                    SpecHomePage1820_MarqueeFields.PictureTitle,
+                    rowKeys,
+                )}
+                Accept="image/*"
+            />,
+            <LibCheckBox
+                key={`marquee-hide-${key}`}
+                Style={prop.theme.CheckBox}
+                options={{ IsHide: "隱藏" }}
+                {...setField(
+                    SpecHomePage1820SetFields.SpecHomePage1820_Marquee,
+                    SpecHomePage1820_MarqueeFields.IsHide,
+                    "boolean",
+                    rowKeys,
+                )}
+            />,
+        ];
+
+        return acc;
+    }, {});
+
+    const renderKey = rows.map((row, idx) => getTabKey(row, idx)).join("|");
+
     return (
         <div className="col-12">
-            <button type="button" className="btn btn-outline-primary mb-3" onClick={addRow}>新增跑馬燈</button>
-
-            {rows.map(row =>
-            {
-                const rowKeys = buildRowKeys(row);
-                return (
-                    <div key={`marquee-${row.RowId}`} className="border rounded p-3 mb-3">
-                        <LibFileInput
-                            {...setFileField(
-                                SpecHomePage1820SetFields.SpecHomePage1820_Marquee,
-                                SpecHomePage1820_MarqueeFields.PictureId,
-                                undefined,
-                                rowKeys,
-                            )}
-                            Accept="image/*"
-                        />
-                        <LibTextBox
-                            Style={prop.theme.TextBox}
-                            DefaultInputDisplay="請輸入標題"
-                            {...setField(
-                                SpecHomePage1820SetFields.SpecHomePage1820_Marquee,
-                                SpecHomePage1820_MarqueeFields.PictureTitle,
-                                "string",
-                                rowKeys,
-                            )}
-                        />
-                        <LibCheckBox
-                            Style={prop.theme.CheckBox}
-                            options={{ IsHide: "隱藏" }}
-                            {...setField(
-                                SpecHomePage1820SetFields.SpecHomePage1820_Marquee,
-                                SpecHomePage1820_MarqueeFields.IsHide,
-                                "boolean",
-                                rowKeys,
-                            )}
-                        />
-
-                        <button
-                            type="button"
-                            className="btn btn-outline-danger mt-2"
-                            onClick={() => removeRow(Number(row.RowId ?? 0))}
-                        >
-                            刪除此筆
-                        </button>
-                    </div>
-                );
-            })}
+            <TabContentComp key={`marquee-tabs-${renderKey}`} tabInfos={tabInfos} components={components} />
         </div>
     );
 };
@@ -735,65 +857,92 @@ const ResourceComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
         }));
     };
 
+    const getTabKey = (row: { RowId?: number | null; }, idx: number) =>
+    {
+        // 取得 Resource tab key
+        return buildChildTabKey(prop.lang, "Section6", row.RowId, idx + 1);
+    };
+
+    const tabInfos: LibTabsProp = {
+        Style: prop.theme.Tabs,
+        item: rows.reduce<Record<string, string>>((acc, row, idx) =>
+        {
+            acc[getTabKey(row, idx)] = buildTabLabel("卡片", idx, row.PicTitle);
+            return acc;
+        }, {}),
+        onAddTab: () =>
+        {
+            addRow();
+        },
+        onRemoveTab: key => removeRow(parseChildTabRowId(key)),
+    };
+
+    const components: Record<string, ReactNode[]> = rows.reduce<Record<string, ReactNode[]>>((acc, row, idx) =>
+    {
+        const rowKeys = buildRowKeys(row);
+        const key = getTabKey(row, idx);
+        const tabLabel = buildTabLabel("卡片", idx, row.PicTitle);
+
+        acc[key] = [
+            <PreviewImageComp
+                key={`resource-preview-${key}`}
+                fileId={row.PicFileId}
+                alt={`${tabLabel} 預覽圖片`}
+                emptyText="尚無資源卡片預覽圖片"
+            />,
+            <LibTextBox
+                key={`resource-title-${key}`}
+                Style={prop.theme.TextBox}
+                DefaultInputDisplay="請輸入標題"
+                {...setField(
+                    SpecHomePage1820SetFields.SpecHomePage1820_Resource,
+                    SpecHomePage1820_ResourceFields.PicTitle,
+                    "string",
+                    rowKeys,
+                )}
+            />,
+            <LibTextBox
+                key={`resource-subtitle-${key}`}
+                Style={prop.theme.TextBox}
+                DefaultInputDisplay="請輸入副標題"
+                {...setField(
+                    SpecHomePage1820SetFields.SpecHomePage1820_Resource,
+                    SpecHomePage1820_ResourceFields.PicSubTitle,
+                    "string",
+                    rowKeys,
+                )}
+            />,
+            <LibFileInput
+                key={`resource-file-${key}`}
+                {...setFileField(
+                    SpecHomePage1820SetFields.SpecHomePage1820_Resource,
+                    SpecHomePage1820_ResourceFields.PicFileId,
+                    SpecHomePage1820_ResourceFields.PicFileDescription,
+                    rowKeys,
+                )}
+                Accept="image/*"
+            />,
+            <LibTextBox
+                key={`resource-link-${key}`}
+                Style={prop.theme.TextBox}
+                DefaultInputDisplay="請輸入連結"
+                {...setField(
+                    SpecHomePage1820SetFields.SpecHomePage1820_Resource,
+                    SpecHomePage1820_ResourceFields.Link,
+                    "string",
+                    rowKeys,
+                )}
+            />,
+        ];
+
+        return acc;
+    }, {});
+
+    const renderKey = rows.map((row, idx) => getTabKey(row, idx)).join("|");
+
     return (
         <div className="col-12">
-            <button type="button" className="btn btn-outline-primary mb-3" onClick={addRow}>新增資源卡片</button>
-
-            {rows.map(row =>
-            {
-                const rowKeys = buildRowKeys(row);
-                return (
-                    <div key={`resource-${row.RowId}`} className="border rounded p-3 mb-3">
-                        <LibTextBox
-                            Style={prop.theme.TextBox}
-                            DefaultInputDisplay="請輸入標題"
-                            {...setField(
-                                SpecHomePage1820SetFields.SpecHomePage1820_Resource,
-                                SpecHomePage1820_ResourceFields.PicTitle,
-                                "string",
-                                rowKeys,
-                            )}
-                        />
-                        <LibTextBox
-                            Style={prop.theme.TextBox}
-                            DefaultInputDisplay="請輸入副標題"
-                            {...setField(
-                                SpecHomePage1820SetFields.SpecHomePage1820_Resource,
-                                SpecHomePage1820_ResourceFields.PicSubTitle,
-                                "string",
-                                rowKeys,
-                            )}
-                        />
-                        <LibFileInput
-                            {...setFileField(
-                                SpecHomePage1820SetFields.SpecHomePage1820_Resource,
-                                SpecHomePage1820_ResourceFields.PicFileId,
-                                undefined,
-                                rowKeys,
-                            )}
-                            Accept="image/*"
-                        />
-                        <LibTextBox
-                            Style={prop.theme.TextBox}
-                            DefaultInputDisplay="請輸入連結"
-                            {...setField(
-                                SpecHomePage1820SetFields.SpecHomePage1820_Resource,
-                                SpecHomePage1820_ResourceFields.Link,
-                                "string",
-                                rowKeys,
-                            )}
-                        />
-
-                        <button
-                            type="button"
-                            className="btn btn-outline-danger mt-2"
-                            onClick={() => removeRow(Number(row.RowId ?? 0))}
-                        >
-                            刪除此筆
-                        </button>
-                    </div>
-                );
-            })}
+            <TabContentComp key={`resource-tabs-${renderKey}`} tabInfos={tabInfos} components={components} />
         </div>
     );
 };

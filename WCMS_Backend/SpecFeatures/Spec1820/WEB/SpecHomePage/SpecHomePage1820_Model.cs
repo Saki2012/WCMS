@@ -131,6 +131,8 @@ public class SpecHomePage1820_Resource : DetailRowModel
     [LibDesc(ModelDisplayName.Common_SubTitle), StringLength(SysLengthParam.Title_en)] public string PicSubTitle { get; set; }
     [ForeignKey(nameof(PicFileId))] public FileManageModel PicFile { get; set; }
     [LibDesc(SpecModelDisplayName.ResoourcePictureId), StringLength(SysLengthParam.InternalId)]public string PicFileId { get; set; }
+    [LibDesc(SpecModelDisplayName.ResoourcePictureId), StringLength(SysLengthParam.Title_en)] public string PicFileDescription { get; set; }
+
     [LibDesc(ModelDisplayName.Common_Url), StringLength(SysLengthParam.Url)] public string Link { get; set; }
 
     #region 主子表關聯
