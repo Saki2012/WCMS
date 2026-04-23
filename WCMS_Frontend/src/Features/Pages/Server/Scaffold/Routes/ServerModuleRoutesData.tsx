@@ -384,7 +384,7 @@ const ServerModuleRoutesData: IModuleMeta[] = [
                 ProgId: PGID.Timeline,
                 Title: "紀事表",
                 DefaultActionCode: "List",
-                IconClassName: "fas fa-link",
+                IconClassName: "fas fa-stream",
                 Actions: [
                     {
                         ActionCode: "List",

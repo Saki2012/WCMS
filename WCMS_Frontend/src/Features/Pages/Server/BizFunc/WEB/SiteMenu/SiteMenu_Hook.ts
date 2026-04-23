@@ -3,6 +3,7 @@ import { TagAdapter } from "@/Features/Hooks/BizFunc/COMM/Tag_Api";
 import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WEB/BannerSlider_Api";
 import { PageManagementAdapter } from "@/Features/Hooks/BizFunc/WEB/PageManagement_Api";
 import { SiteMenuAdapter } from "@/Features/Hooks/BizFunc/WEB/SiteMenu_Api";
+import { TimelineAdapter } from "@/Features/Hooks/BizFunc/WEB/Timeline_Api";
 import type { UseActionsResult } from "@/Features/Hooks/Common/useActions";
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import { DefaultLang, type Lang, LangLabelMap, useEnsureLangDetails } from "@/SysCore/i18n/lang";
@@ -24,6 +25,7 @@ import {
     SiteMenuSetFields,
     TagDataFields,
     TagDetailFields,
+    TimelineFields,
 } from "@/types/SchemaFields";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -36,6 +38,7 @@ type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 type TagSet = components["schemas"]["TagSet_DTO"];
 type PageSet = components["schemas"]["PageManagementSet_DTO"];
 type BannerSet = components["schemas"]["BannerSet_DTO"];
+type TimelineSet = components["schemas"]["TimelineSet_DTO"];
 
 const emptyData: SiteMenuSet = {};
 
@@ -69,6 +72,7 @@ export type SiteMenuFetchRawData = {
     categorySets: CategorySet[];
     tagSets: TagSet[];
     pageMap: Record<string, string>;
+    timelineMap: Map<string, string>;
 };
 
 export type SiteMenuFetchAdapter = {
@@ -77,6 +81,7 @@ export type SiteMenuFetchAdapter = {
     Tag: ReturnType<typeof TagAdapter>;
     Page: ReturnType<typeof PageManagementAdapter>;
     Banner: ReturnType<typeof BannerSliderAdapter>;
+    Timeline: ReturnType<typeof TimelineAdapter>;
 };
 // #endregion
 
@@ -101,6 +106,7 @@ export const useSiteMenuFetchData = (
             Tag: TagAdapter(),
             Page: PageManagementAdapter(),
             Banner: BannerSliderAdapter(),
+            Timeline: TimelineAdapter(),
         };
     }, []);
 
@@ -151,6 +157,7 @@ export const useSiteMenuFetchData = (
             categorySets: ref.categorySets,
             tagSets: ref.tagSets,
             pageMap: ref.pageMap,
+            timelineMap: ref.timelineMap,
             siteMenuItems,
         };
     }, [actions, main.formData, main.internalId, ref, siteMenuItems]);
@@ -520,6 +527,7 @@ type SiteMenuRefDataResult = {
     categorySets: CategorySet[];
     tagSets: TagSet[];
     pageMap: Record<string, string>;
+    timelineMap: Map<string, string>;
     isLoading: boolean;
     errors: Array<string | null | undefined>;
     refetch: () => Promise<void>;
@@ -606,11 +614,37 @@ const useSiteMenuRefDataByAdapter = (
         }, {});
     }, [page.data, lang]);
 
+    const timeline = adapter.Timeline.hooks.useQueryList({
+        condition: {
+            Fields: [
+                TimelineFields.TimelineId,
+                TimelineFields.TimelineName,
+                TimelineFields.InternalId,
+            ],
+            PageNumber: 0,
+            PageSize: 5000,
+        },
+        deps: [lang],
+        onError,
+    });
+
+    const timelineMap = useMemo<Map<string, string>>(() =>
+    {
+        const src = timeline.data ?? [];
+        return src.reduce<Map<string, string>>((acc, item: TimelineSet) =>
+        {
+            const key = item.Timeline?.TimelineId?.toString?.();
+            if (!key) return acc;
+            acc.set(key, item.Timeline?.TimelineName ?? "");
+            return acc;
+        }, new Map<string, string>());
+    }, [timeline.data, lang]);
+
     const isLoading = useMemo(() =>
     {
         return Boolean(
             windowTarget.isLoading || menuUrlType.isLoading || modulePageType.isLoading || moduleDisplayStyle.isLoading
-                || category.isLoading || tag.isLoading || page.isLoading || banner.isLoading,
+                || category.isLoading || tag.isLoading || page.isLoading || banner.isLoading || timeline.isLoading,
         );
     }, [
         banner.isLoading,
@@ -621,6 +655,7 @@ const useSiteMenuRefDataByAdapter = (
         page.isLoading,
         tag.isLoading,
         windowTarget.isLoading,
+        timeline.isLoading,
     ]);
 
     const errors = useMemo(() =>
@@ -634,6 +669,7 @@ const useSiteMenuRefDataByAdapter = (
             tag.errorText,
             page.errorText,
             banner.errorText,
+            timeline.errorText,
         ];
     }, [
         banner.errorText,
@@ -644,6 +680,7 @@ const useSiteMenuRefDataByAdapter = (
         page.errorText,
         tag.errorText,
         windowTarget.error,
+        timeline.errorText,
     ]);
 
     const refetch = useCallback(async () =>
@@ -653,6 +690,7 @@ const useSiteMenuRefDataByAdapter = (
             Promise.resolve(tag.refetch()),
             Promise.resolve(page.refetch()),
             Promise.resolve(banner.refetch()),
+            Promise.resolve(timeline.refetch()),
         ]);
     }, [banner, category, page, tag]);
 
@@ -665,6 +703,7 @@ const useSiteMenuRefDataByAdapter = (
         categorySets: category.data,
         tagSets: tag.data,
         pageMap,
+        timelineMap,
         isLoading,
         errors,
         refetch,

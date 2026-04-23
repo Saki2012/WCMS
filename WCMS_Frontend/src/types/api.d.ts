@@ -14678,7 +14678,7 @@ export interface components {
             Data?: components["schemas"]["TagSet_DTO"];
         };
         TimelineItem_DTO: {
-            /** @description [TimelineId] */
+            /** @description 紀事表ID */
             TimelineId?: string | null;
             /**
              * Format: int32
@@ -14687,14 +14687,14 @@ export interface components {
             RowId?: number | null;
             /**
              * Format: date-time
-             * @description [Common_Date]
+             * @description 日期
              */
             Date?: string | null;
             _Timeline?: components["schemas"]["Timeline_DTO"];
             _TimelineLangDetail?: components["schemas"]["TimelineLangDetail_DTO"][] | null;
         };
         TimelineLangDetail_DTO: {
-            /** @description [TimelineId] */
+            /** @description 紀事表ID */
             TimelineId?: string | null;
             /**
              * Format: int32
@@ -14707,9 +14707,9 @@ export interface components {
              */
             RowId?: number | null;
             Lang?: components["schemas"]["LangCode"];
-            /** @description [Timeline_Title] */
+            /** @description 事件標題 */
             Title?: string | null;
-            /** @description [Timeline_Content] */
+            /** @description 事件內容 */
             Content?: string | null;
             _TimelineItem?: components["schemas"]["TimelineItem_DTO"];
         };
@@ -14747,9 +14747,9 @@ export interface components {
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
             OrgLvId?: string | null;
-            /** @description [TimelineId] */
+            /** @description 紀事表ID */
             TimelineId?: string | null;
-            /** @description [TimelineName] */
+            /** @description 紀事表名稱 */
             TimelineName?: string | null;
             _TimelineItem?: components["schemas"]["TimelineItem_DTO"][] | null;
         };

@@ -117,15 +117,26 @@ const buildTimelineRows = (raw: TimelineListRawData, lang: Lang, columns: Column
         const keyId = LibMerge("|", false, set.Timeline?.InternalId);
         const detail = (
             <ul className="m-0 p-0" style={{ listStylePosition: "inside" }}>
-                {set.TimelineItem?.flatMap((item) =>
-                    item._TimelineLangDetail
-                        ?.filter((p) => p.Lang === lang)
-                        .map((dt) => (
-                            <li key={`${dt.ParentRowId}-${dt.RowId}-${dt.Lang}`} className="m-0 p-0">
-                                【{FormatDate(item.Date)}】{dt.Title}
-                            </li>
-                        )) ?? []
-                )}
+                {(() =>
+                {
+                    const items = set.TimelineItem?.flatMap((item) =>
+                        item._TimelineLangDetail
+                            ?.filter((p) => p.Lang === lang)
+                            .map((dt) => (
+                                <li key={`${dt.ParentRowId}-${dt.RowId}-${dt.Lang}`} className="m-0 p-0">
+                                    【{FormatDate(item.Date)}】{dt.Title}
+                                </li>
+                            )) ?? []
+                    ) ?? [];
+                    const showItems = items.slice(0, 5);
+                    const hasMore = items.length > 5;
+                    return (
+                        <>
+                            {showItems}
+                            {hasMore && <li className="m-0 p-0">...</li>}
+                        </>
+                    );
+                })()}
             </ul>
         );
         const cells: RowCell[] = [

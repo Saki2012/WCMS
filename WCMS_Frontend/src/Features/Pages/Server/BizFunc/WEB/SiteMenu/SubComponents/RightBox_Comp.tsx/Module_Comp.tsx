@@ -6,7 +6,7 @@ import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import { resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
 import type { components } from "@/types/api";
-import { PGID, SiteMenu_Item_ModuleFields, SiteMenuSetFields } from "@/types/SchemaFields";
+import { PGID, SiteMenu_Item_ModuleFields, SiteMenuSetFields, TimelineFields } from "@/types/SchemaFields";
 import { type ReactNode, useEffect, useMemo } from "react";
 import type { SiteMenuItem } from "../../SiteMenu_Hook";
 import type { ModelKey } from "../RenderRightBox_Comp";
@@ -23,7 +23,14 @@ const BaseModuleOpts: Record<string, string> = {
     Gallery: "相簿",
     PageManagement: "頁面",
     WebResource: "網路資源",
+    Timeline: "紀事表",
 };
+
+interface ModuleTimelineOptionsJson
+{
+    TimelineId: string;
+    IsDesc: boolean;
+}
 
 interface ModuleOptionsJson
 {
@@ -52,6 +59,7 @@ interface ModuleSettingTabExtensionContext
     categorySets: CategorySet[];
     tagSets: TagSet[];
     pageMap: Record<string, string>;
+    timelineMap: Map<string, string>;
 }
 export interface ModuleSettingTabExtension
 {
@@ -88,6 +96,7 @@ interface ModuleSettingTabProps
     categorySets: CategorySet[];
     tagSets: TagSet[];
     pageMap: Record<string, string>;
+    timelineMap: Map<string, string>;
 }
 
 export const ModuleSettingTab = (prop: ModuleSettingTabProps) =>
@@ -153,6 +162,7 @@ export const ModuleSettingTab = (prop: ModuleSettingTabProps) =>
             categorySets: prop.categorySets,
             tagSets: prop.tagSets,
             pageMap: prop.pageMap,
+            timelineMap: prop.timelineMap,
         };
     }, [
         prop.theme,
@@ -165,6 +175,7 @@ export const ModuleSettingTab = (prop: ModuleSettingTabProps) =>
         prop.categorySets,
         prop.tagSets,
         prop.pageMap,
+        prop.timelineMap,
     ]);
 
     const baseRendererMap = useMemo<Record<string, ModuleRenderFactory>>(() =>
@@ -220,6 +231,15 @@ export const ModuleSettingTab = (prop: ModuleSettingTabProps) =>
                     styleDict={ctx.moduleDisplayStyle}
                     categorySets={ctx.categorySets}
                     tagSets={ctx.tagSets}
+                    lang={DefaultLang}
+                />
+            ),
+            Timeline: (ctx) => (
+                <Module_Timeline_Comp
+                    theme={ctx.theme}
+                    formData={ctx.formData}
+                    selectedItemEdit={ctx.selectedItemEdit}
+                    timelineMap={ctx.timelineMap}
                     lang={DefaultLang}
                 />
             ),
@@ -392,7 +412,7 @@ const Module_Pagemanagement_Comp = (prop: {
     return (
         <LibDropList
             Style={prop.theme.DropList}
-            ColumnDisplayName="頁面選擇"
+            ColumnDisplayName="選擇頁面"
             Options={pageOpts}
             AutoDefaultFirst={false}
             InputValue={pageBind.value}
@@ -558,6 +578,76 @@ const Module_WebResource_Comp = (prop: {
                 InputValue={styleBind.value}
                 onChange={styleBind.onChange}
                 AutoDefaultFirst={false}
+            />
+        </>
+    );
+};
+
+const normalizeBool = (value: unknown): boolean =>
+{
+    if (value === true) return true;
+    if (value === false) return false;
+
+    const raw = `${value ?? ""}`.trim().toLowerCase();
+    return raw === "true" || raw === "1";
+};
+
+const toCheckboxBool = (value: unknown): boolean =>
+{
+    const raw = Array.isArray(value) ? value : `${value ?? ""}`.split(",");
+    return raw.map(s => `${s}`.trim()).includes("1");
+};
+
+const Module_Timeline_Comp = (prop: {
+    theme: IBETheme;
+    formData: UseFetchFormDataResult<SiteMenuSet>;
+    selectedItemEdit: SiteMenuItem | null;
+    timelineMap: Map<string, string>;
+    lang: Lang;
+}): React.ReactNode =>
+{
+    const curRowKeys = getModuleRowKeys(prop.selectedItemEdit);
+    const binder = useSetJsonField<SiteMenuSet, ModuleTimelineOptionsJson>(
+        prop.formData,
+        SiteMenuSetFields.SiteMenu_Item_Module,
+        SiteMenu_Item_ModuleFields.ModuleOptions,
+        curRowKeys,
+        { TimelineId: "", IsDesc: false },
+    );
+
+    const timelineBind = binder.bind(TimelineFields.TimelineId, "string");
+    const isDescBind = binder.bind("IsDesc", "boolean");
+
+    const orderOpts = useMemo<Record<string, string>>(() =>
+    {
+        return { 1: "由新到舊" };
+    }, []);
+
+    const isDescChecked = useMemo(() =>
+    {
+        return normalizeBool(isDescBind.value);
+    }, [isDescBind.value]);
+
+    return (
+        <>
+            <LibDropList
+                Style={prop.theme.DropList}
+                ColumnDisplayName="選擇紀事表"
+                Options={prop.timelineMap}
+                AutoDefaultFirst={false}
+                InputValue={timelineBind.value}
+                onChange={timelineBind.onChange}
+            />
+            <LibCheckBox
+                Style={prop.theme.CheckBox}
+                ColumnDisplayName="時間順序"
+                options={orderOpts}
+                InputValue={isDescChecked ? "1" : ""}
+                onChange={(v) =>
+                {
+                    const checked = toCheckboxBool(v);
+                    isDescBind.onChange?.(checked);
+                }}
             />
         </>
     );

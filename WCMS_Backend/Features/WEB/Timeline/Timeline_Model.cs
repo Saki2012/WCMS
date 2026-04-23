@@ -25,11 +25,11 @@ public class Timeline: MasterDataModel
     /// <summary>
     /// 紀事表ID
     /// </summary>
-    [LibDesc(ModelDisplayName.TimelineId), Key, StringLength(SysLengthParam.ID)] public string? TimelineId { get; set; }
+    [LibDesc(ModelDisplayName.TimelineId), Key, StringLength(SysLengthParam.ID)] public string TimelineId { get; set; }
     /// <summary>
     /// 紀事表名稱
     /// </summary>
-    [LibDesc(ModelDisplayName.TimelineName), StringLength(SysLengthParam.Name)] public string? TimelineName { get; set; } = string.Empty;
+    [LibDesc(ModelDisplayName.TimelineName), StringLength(SysLengthParam.Name)] public string TimelineName { get; set; } = string.Empty;
 
     #region 主子表關聯
     [InverseProperty(nameof(TimelineItem._Timeline))] public List<TimelineItem> _TimelineItem { get; set; }
@@ -43,11 +43,11 @@ public class TimelineItem : DetailRowModel
     /// <summary>
     /// 紀事代碼
     /// </summary>
-    [LibDesc(ModelDisplayName.TimelineId), Key, StringLength(SysLengthParam.ID)] public string? TimelineId { get; set; }
+    [LibDesc(ModelDisplayName.TimelineId), Key, StringLength(SysLengthParam.ID)] public string TimelineId { get; set; }
     /// <summary>
     /// 行代碼
     /// </summary>
-    [LibDesc(ModelDisplayName.Common_RowId), Key] public int? RowId { get; set; }
+    [LibDesc(ModelDisplayName.Common_RowId), Key] public int RowId { get; set; }
     /// <summary>
     /// 日期
     /// </summary>
@@ -78,7 +78,7 @@ public class TimelineLangDetail : DetailRowModel
     /// <summary>
     /// 語系
     /// </summary>
-    [LibDesc(ModelDisplayName.Common_Lang)] public LangCode? Lang { get; set; }
+    [LibDesc(ModelDisplayName.Common_Lang)] public LangCode Lang { get; set; }
     /// <summary>
     /// 事件標題
     /// </summary>

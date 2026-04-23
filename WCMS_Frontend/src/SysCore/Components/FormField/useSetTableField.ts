@@ -64,7 +64,12 @@ const coerce = (mode: CoerceMode, val: unknown) =>
         case "number":
             return Number(val) || 0;
         case "boolean":
-            return Boolean(val);
+        {
+            if (val === true) return true;
+            if (val === false) return false;
+            const raw = `${val ?? ""}`.trim().toLowerCase();
+            return raw === "true" || raw === "1";
+        }
         case "datetime":
         {
             // 空值一律回 null
@@ -569,7 +574,7 @@ export interface JsonFieldBinder<TJson extends object>
      */
     bind: <K extends keyof TJson>(
         key: K,
-        mode?: "string" | "number" | "csv",
+        mode?: "string" | "number" | "csv" | "boolean",
     ) => {
         value: any; // 給 UI 用的值（csv 會是 string[]）
         onChange: (v: any) => void; // 給 UI 用的改變事件
@@ -611,29 +616,47 @@ export const useSetJsonField = <TSet, TJson extends Record<string, any>>(
     const get = () => safeParse<TJson>(base.InputValue as any, defaults); // 🟢 2) 用 InputValue
     const set = (next: TJson) => base.onChange?.(JSON.stringify(next)); // 🟢 2) 用 onChange
 
-    const bind = <K extends keyof TJson>(key: K, mode: "string" | "number" | "csv" = "string") =>
+    const bind = <K extends keyof TJson>(key: K, mode: "string" | "number" | "csv" | "boolean" = "string") =>
     {
         const json = get();
         const rawVal = (json as any)[key];
+
+        const normalizeBool = (value: unknown): boolean =>
+        {
+            if (value === true) return true;
+            if (value === false) return false;
+
+            const raw = `${value ?? ""}`.trim().toLowerCase();
+            return raw === "true" || raw === "1";
+        };
 
         const value = mode === "csv"
             ? fromCSV(String(rawVal ?? ""))
             : mode === "number"
             ? Number(rawVal ?? 0)
+            : mode === "boolean"
+            ? normalizeBool(rawVal)
             : String(rawVal ?? "");
 
         const onChange = (uiVal: any) =>
         {
-            const next: any = { ...json }; // 🟢 3) 用 any 解除 TJson[K] 限制
-            if (mode === "csv") next[key as any] = toCSV(uiVal as string[]);
-            else if (mode === "number")
+            const next: any = { ...json };
+
+            if (mode === "csv")
+            {
+                next[key as any] = toCSV(uiVal as string[]);
+            } else if (mode === "number")
             {
                 const n = Number(uiVal);
                 next[key as any] = Number.isFinite(n) ? n : 0;
+            } else if (mode === "boolean")
+            {
+                next[key as any] = normalizeBool(uiVal);
             } else
             {
                 next[key as any] = String(uiVal ?? "");
             }
+
             set(next);
         };
 

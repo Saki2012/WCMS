@@ -38,6 +38,8 @@ import {
 } from "./Site-Routing";
 
 import { getSpecClientEntries } from "../../AppRoute";
+import TimelineForm from "../BizFunc/WEB/Timeline/Client_Timeline_Form_Comp";
+import { type ITimelineOptions, TimelineForm_Loader } from "../BizFunc/WEB/Timeline/Client_Timeline_Form_Loader";
 import { loadSitesForRouting, type SiteRoutingInitialState } from "./ClientRouter_Loader";
 
 export const loadClientChildren = async (
@@ -189,6 +191,20 @@ const clientEntries: Record<string, ModuleEntry> = {
                         title={node.title}
                     />
                 ),
+            },
+        ],
+    },
+
+    [PGID.Timeline]: {
+        kind: "routes",
+        element: (lang: Lang, site: INormSite, node: INormNode) => (
+            <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />
+        ),
+        children: (opts, lang, site, node) => [
+            {
+                index: true,
+                loader: withRequestLang((lang) => TimelineForm_Loader({ lang: lang, opts: opts as ITimelineOptions })),
+                element: <TimelineForm lang={lang} options={opts as ITimelineOptions} site={site} node={node} />,
             },
         ],
     },
