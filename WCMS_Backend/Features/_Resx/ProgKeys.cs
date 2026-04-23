@@ -93,9 +93,13 @@ public static partial class ProgKeys
         /// </summary>
         public const ModuleCodeEnum Code = ModuleCodeEnum.MAT;
         /// <summary>
-        /// 商品物品管理
+        /// 物件管理
         /// </summary>
         public const  string Material = nameof(Material);
+        /// <summary>
+        /// 物件類別
+        /// </summary>
+        public const string MatCategory = nameof(MatCategory);
     }
     /// <summary>
     /// 系統管理模塊

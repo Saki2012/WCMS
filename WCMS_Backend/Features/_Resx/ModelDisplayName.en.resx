@@ -709,10 +709,10 @@
     <value>共用模組</value>
   </data>
   <data name="IAM" xml:space="preserve">
-    <value>帳號管理模組</value>
+    <value>IAM</value>
   </data>
   <data name="MAT" xml:space="preserve">
-    <value>商品管理模組</value>
+    <value>MAT</value>
   </data>
   <data name="WEB" xml:space="preserve">
     <value>網站功能管理模組</value>
@@ -740,5 +740,23 @@
   </data>
   <data name="Common_Date" xml:space="preserve">
     <value>Date</value>
+  </data>
+  <data name="MaterialId" xml:space="preserve">
+    <value>Material ID</value>
+  </data>
+  <data name="MaterialName" xml:space="preserve">
+    <value>Material Name</value>
+  </data>
+  <data name="Material_Info" xml:space="preserve">
+    <value>Infomation</value>
+  </data>
+  <data name="Material_Memo" xml:space="preserve">
+    <value>Introduction</value>
+  </data>
+  <data name="Common_Picture" xml:space="preserve">
+    <value>圖片</value>
+  </data>
+  <data name="Common_PictureName" xml:space="preserve">
+    <value>圖片名稱</value>
   </data>
 </root>

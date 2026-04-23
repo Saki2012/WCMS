@@ -158,6 +158,16 @@ public static class ModelDisplayName
     /// 英：Date
     /// </summary>
     public const string Common_Date = nameof(Common_Date);
+    /// <summary>
+    /// 中：圖片
+    /// 英：Picture
+    /// </summary>
+    public const string Common_Picture = nameof(Common_Picture);
+    /// <summary>
+    /// 中：圖片名稱
+    /// 英：Picture Name
+    /// </summary>
+    public const string Common_PictureName = nameof(Common_PictureName);
     #endregion
 
     #region Enums
@@ -1004,4 +1014,30 @@ public static class ModelDisplayName
     public const string FileManage_DownloadCount = nameof(FileManage_DownloadCount);
     #endregion
 
+    #region MAT
+
+    #region 物件模組 (Material)
+    /// <summary>
+    /// 中：物件代號
+    /// 英：Material ID
+    /// </summary>
+    public const string MaterialId = nameof(MaterialId);
+    /// <summary>
+    /// 中：物件名稱
+    /// 英：Material Name
+    /// </summary>
+    public const string MaterialName = nameof(MaterialName);
+    /// <summary>
+    /// 中：物件資訊
+    /// 英：Material Infomation
+    /// </summary>
+    public const string Material_Info = nameof(Material_Info);
+    /// <summary>
+    /// 中：物件說明
+    /// 英：Introduction
+    /// </summary>
+    public const string Material_Memo = nameof(Material_Memo);
+    #endregion
+
+    #endregion
 }

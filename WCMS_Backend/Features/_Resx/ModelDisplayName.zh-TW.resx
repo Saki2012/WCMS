@@ -741,4 +741,22 @@
   <data name="Common_Date" xml:space="preserve">
     <value>日期</value>
   </data>
+  <data name="MaterialId" xml:space="preserve">
+    <value>物件代號</value>
+  </data>
+  <data name="MaterialName" xml:space="preserve">
+    <value>物件名稱</value>
+  </data>
+  <data name="Material_Info" xml:space="preserve">
+    <value>物件資訊</value>
+  </data>
+  <data name="Material_Memo" xml:space="preserve">
+    <value>物件說明</value>
+  </data>
+  <data name="Common_Picture" xml:space="preserve">
+    <value>圖片</value>
+  </data>
+  <data name="Common_PictureName" xml:space="preserve">
+    <value>圖片名稱</value>
+  </data>
 </root>
