@@ -1,7 +1,7 @@
 import { ImgListComp } from '@/Features/Pages/Server/Scaffold/Content/ImgList_Comp';
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { LibUserCard } from "@/SysCore/Components/FormField/LibFormField";
-import { Paginator } from '@/SysCore/Components/Paginator/Paginator_Comp';
+import { NewPaginatorCanInputPage } from "@/SysCore/Components/Paginator/Paginator_Comp";
 import { FileManagementAPI } from '@/SysCore/Utils/API/APIClient';
 import { useServerPersonList } from './Server_Person_List_Hook';
 
@@ -24,7 +24,7 @@ export const Server_Person_List_Comp = (props: { theme: IBETheme }) => {
                     );
                 })}
             </div>
-            <Paginator currentPage={vm.gridProps.CurrentPage} totalPages={vm.gridProps.TotalPage} onPageChange={vm.gridProps.onPageChange} style={props.theme.Paginator}/>
+            <NewPaginatorCanInputPage currentPage={vm.gridProps.CurrentPage} totalPages={vm.gridProps.TotalPage} onPageChange={vm.gridProps.onPageChange} style={props.theme.Paginator}/>
         </ImgListComp>
     );
 };

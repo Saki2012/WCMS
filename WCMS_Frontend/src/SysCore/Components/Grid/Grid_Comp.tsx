@@ -1,6 +1,6 @@
 import type { GridProps, GridRow, ColumnConfig } from "./Grid_Data";
 import { useEffect, useState } from "react";
-import { Paginator } from "../Paginator/Paginator_Comp";
+import { NewPaginatorCanInputPage } from "../Paginator/Paginator_Comp";
 import type { IGridView_Style } from "./Grid_Clsx";
 import type { IPaginator_Style } from "../Paginator/Paginator_Clsx";
 
@@ -96,7 +96,7 @@ export const Grid = (props: { gridData: GridProps; style: IGridView_Style; pageS
                     </table>
                 </div>
             </div>
-            {props.gridData.TotalPage > 1 && (<Paginator currentPage={props.gridData.CurrentPage} totalPages={props.gridData.TotalPage} onPageChange={handlePageChange} style={props.pageStyle} />)}
+            {props.gridData.TotalPage > 1 && (<NewPaginatorCanInputPage currentPage={props.gridData.CurrentPage} totalPages={props.gridData.TotalPage} onPageChange={handlePageChange} style={props.pageStyle} />)}
         </>
     );
 };

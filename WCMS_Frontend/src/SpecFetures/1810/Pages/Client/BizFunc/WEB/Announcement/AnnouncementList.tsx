@@ -5,7 +5,7 @@ import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
 import type { GridProps } from "@/SysCore/Components/Grid/Grid_Data";
 import type { GridRow } from "@/SysCore/Components/Grid/Grid_Data";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
-import { Paginator } from "@/SysCore/Components/Paginator/Paginator_Comp";
+import { NewPaginatorCanInputPage } from "@/SysCore/Components/Paginator/Paginator_Comp";
 import { type ISearchQuery, SearchBarComp } from "@/SysCore/Components/SearchBar/SearchBar_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
@@ -314,7 +314,7 @@ const PictureList_Comp = (prop: {
                 })}
             </div>
             {(prop.totalPages > 1) && (
-                <Paginator
+                <NewPaginatorCanInputPage
                     currentPage={prop.currentPage}
                     totalPages={prop.totalPages}
                     onPageChange={prop.onPageChange}
@@ -409,7 +409,7 @@ const QAList_Comp = (prop: {
                 </div>
             </div>
             {(prop.totalPages > 1) && (
-                <Paginator
+                <NewPaginatorCanInputPage
                     currentPage={prop.currentPage}
                     totalPages={prop.totalPages}
                     onPageChange={prop.onPageChange}

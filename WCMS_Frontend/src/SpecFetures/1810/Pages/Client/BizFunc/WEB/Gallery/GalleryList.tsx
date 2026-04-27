@@ -2,7 +2,7 @@ import type { IGalleryListProps } from "@/Features/Pages/Client/BizFunc/WEB/Gall
 import { useGalleryListFetchData } from "@/Features/Pages/Client/BizFunc/WEB/Gallery/GalleryList_Loader";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
-import { Paginator } from "@/SysCore/Components/Paginator/Paginator_Comp";
+import { NewPaginatorCanInputPage } from "@/SysCore/Components/Paginator/Paginator_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
@@ -185,7 +185,7 @@ const MainContent = (
                 ))}
             </div>
             {!(gridProps.CurrentPage === 1 && gridProps.TotalPage === 1) && (
-                <Paginator
+                <NewPaginatorCanInputPage
                     currentPage={gridProps.CurrentPage}
                     totalPages={gridProps.TotalPage}
                     onPageChange={gridProps.onPageChange}
