@@ -13,6 +13,8 @@
 **	內頁  H1~H6
 **	內頁  HR
 **	內頁  分頁按鍵
+**  內頁  新分頁按鍵  /////  ( pagination )
+
 **	內頁  按鍵
 **	內頁  公告日期+系統管理員 ICON / 文字設定
 **	內頁  下載檔案表格_按鈕(WORD/EXCEL/PDF...)設定
@@ -1489,7 +1491,240 @@
 /* ================================================================== */
 /* ==  內頁  分頁按鍵 ================================================ */
 /* ================================================================== */
+/* =============================================================== */
+/* =====  內頁  新分頁按鍵  /////  ( pagination )  =================== */
+/* =============================================================== */
+.All_Standard_Content_CSS .pagination,
+#ContentPlaceContent_ContentConentA .pagination {
+	display: -ms-flexbox;
+	display: flex;
+	padding-left: 0;
+	list-style: none;
+	border-radius: .25rem;
+	margin-top: 2rem;
+	margin-bottom: 2rem;
+}
 
+.All_Standard_Content_CSS .pagination > li,
+#ContentPlaceContent_ContentConentA .pagination > li {
+	display: inline
+}
+
+.All_Standard_Content_CSS .pagination > li > a,
+.All_Standard_Content_CSS .pagination > li > span,
+#ContentPlaceContent_ContentConentA .pagination > li > a,
+#ContentPlaceContent_ContentConentA .pagination > li > span {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+	position: relative;
+	float: left;
+	padding: 6px 12px;
+	margin-left: -1px;
+	
+	font-size: 93.75%;
+    font-weight: bold;
+	line-height: 1.42857143;
+	color: var(--blackcolor);
+	text-decoration: none;
+	background-color: #fff;
+	border: 1px solid #ddd;
+	height: 36.8px;
+}
+@media (max-width: 991px) {
+	.All_Standard_Content_CSS .pagination > li > a,
+	.All_Standard_Content_CSS .pagination > li > span,
+	#ContentPlaceContent_ContentConentA .pagination > li > a,
+	#ContentPlaceContent_ContentConentA .pagination > li > span {
+		padding: 6px 10px !important;
+	}
+}
+@media (max-width: 424px) {
+	.All_Standard_Content_CSS .pagination > li > a,
+	.All_Standard_Content_CSS .pagination > li > span,
+	#ContentPlaceContent_ContentConentA .pagination > li > a,
+	#ContentPlaceContent_ContentConentA .pagination > li > span {
+		font-size: 81.25%;
+		padding: 6px 9px !important;
+	}
+}
+
+.All_Standard_Content_CSS .pagination > li:first-child > a,
+.All_Standard_Content_CSS .pagination > li:first-child > span,
+#ContentPlaceContent_ContentConentA .pagination > li:first-child > a,
+#ContentPlaceContent_ContentConentA .pagination > li:first-child > span {
+	margin-left: 0;
+	border-top-left-radius: 4px;
+	border-bottom-left-radius: 4px;
+}
+
+.All_Standard_Content_CSS .pagination > li:last-child > a,
+.All_Standard_Content_CSS .pagination > li:last-child > span,
+#ContentPlaceContent_ContentConentA .pagination > li:last-child > a,
+#ContentPlaceContent_ContentConentA .pagination > li:last-child > span {
+	border-top-right-radius: 4px;
+	border-bottom-right-radius: 4px;
+}
+
+.All_Standard_Content_CSS .pagination > li > a:focus,
+.All_Standard_Content_CSS .pagination > li > a:hover,
+.All_Standard_Content_CSS .pagination > li > span:focus,
+.All_Standard_Content_CSS .pagination > li > span:hover,
+
+#ContentPlaceContent_ContentConentA .pagination > li > a:focus,
+#ContentPlaceContent_ContentConentA .pagination > li > a:hover,
+#ContentPlaceContent_ContentConentA .pagination > li > span:focus,
+#ContentPlaceContent_ContentConentA .pagination > li > span:hover {
+	z-index: 2;
+	color: var(--FFFcolor);
+	background-color: var(--Customize_color);
+	border-color: var(--Customize_color);
+}
+
+.All_Standard_Content_CSS .pagination > .active > a,
+.All_Standard_Content_CSS .pagination > .active > a:focus,
+.All_Standard_Content_CSS .pagination > .active > a:hover,
+.All_Standard_Content_CSS .pagination > .active > span,
+.All_Standard_Content_CSS .pagination > .active > span:focus,
+.All_Standard_Content_CSS .pagination > .active > span:hover,
+
+#ContentPlaceContent_ContentConentA .pagination > .active > a,
+#ContentPlaceContent_ContentConentA .pagination > .active > a:focus,
+#ContentPlaceContent_ContentConentA .pagination > .active > a:hover,
+#ContentPlaceContent_ContentConentA .pagination > .active > span,
+#ContentPlaceContent_ContentConentA .pagination > .active > span:focus,
+#ContentPlaceContent_ContentConentA .pagination > .active > span:hover {
+	z-index: 3;
+	color: var(--FFFcolor);
+	cursor: default;
+	background-color: var(--Customize_color);
+	border-color: var(--Customize_color);
+}
+
+.All_Standard_Content_CSS .pagination > .disabled > a,
+.All_Standard_Content_CSS .pagination > .disabled > a:focus,
+.All_Standard_Content_CSS .pagination > .disabled > a:hover,
+.All_Standard_Content_CSS .pagination > .disabled > span,
+.All_Standard_Content_CSS .pagination > .disabled > span:focus,
+.All_Standard_Content_CSS .pagination > .disabled > span:hover,
+
+#ContentPlaceContent_ContentConentA .pagination > .disabled > a,
+#ContentPlaceContent_ContentConentA .pagination > .disabled > a:focus,
+#ContentPlaceContent_ContentConentA .pagination > .disabled > a:hover,
+#ContentPlaceContent_ContentConentA .pagination > .disabled > span,
+#ContentPlaceContent_ContentConentA .pagination > .disabled > span:focus,
+#ContentPlaceContent_ContentConentA .pagination > .disabled > span:hover {
+	color: var(--blackcolor);
+	cursor: not-allowed;
+	background-color: var(--FFFcolor);
+	border-color: #dddddd;
+}
+
+.All_Standard_Content_CSS .pagination-lg > li > a,
+.All_Standard_Content_CSS .pagination-lg > li > span,
+#ContentPlaceContent_ContentConentA .pagination-lg > li > a,
+#ContentPlaceContent_ContentConentA .pagination-lg > li > span {
+	padding: 10px 16px;
+	font-size: 112.5%; /*1.125em*/ /*18*/
+	line-height: 1.3333333;
+}
+
+.All_Standard_Content_CSS .pagination-lg > li:first-child > a,
+.All_Standard_Content_CSS .pagination-lg > li:first-child > span,
+#ContentPlaceContent_ContentConentA .pagination-lg > li:first-child > a,
+#ContentPlaceContent_ContentConentA .pagination-lg > li:first-child > span {
+	border-top-left-radius: 6px;
+	border-bottom-left-radius: 6px;
+}
+
+.All_Standard_Content_CSS .pagination-lg > li:last-child > a,
+.All_Standard_Content_CSS .pagination-lg > li:last-child > span,
+#ContentPlaceContent_ContentConentA .pagination-lg > li:last-child > a,
+#ContentPlaceContent_ContentConentA .pagination-lg > li:last-child > span {
+	border-top-right-radius: 6px;
+	border-bottom-right-radius: 6px;
+}
+
+
+.All_Standard_Content_CSS .pagination-sm > li > a,
+.All_Standard_Content_CSS .pagination-sm > li > span,
+#ContentPlaceContent_ContentConentA .pagination-sm > li > a,
+#ContentPlaceContent_ContentConentA .pagination-sm > li > span{
+	padding: 5px 10px;
+	font-size: 75%; /*0.75rem*/ /*12*/
+	line-height: 1.5;
+}
+
+.All_Standard_Content_CSS .pagination-sm > li:first-child > a,
+.All_Standard_Content_CSS .pagination-sm > li:first-child > span,
+#ContentPlaceContent_ContentConentA .pagination-sm > li:first-child > a,
+#ContentPlaceContent_ContentConentA .pagination-sm > li:first-child > span {
+	border-top-left-radius: 3px;
+	border-bottom-left-radius: 3px;
+}
+
+.All_Standard_Content_CSS .pagination-sm > li:last-child > a,
+.All_Standard_Content_CSS .pagination-sm > li:last-child > span,
+#ContentPlaceContent_ContentConentA .pagination-sm > li:last-child > a,
+#ContentPlaceContent_ContentConentA .pagination-sm > li:last-child > span {
+	border-top-right-radius: 3px;
+	border-bottom-right-radius: 3px;
+}  
+
+#ContentPlaceContent_ContentConentA .pagination .page-link,
+.All_Standard_Content_CSS .pagination .page-link{
+	color: var(--blackcolor);
+	font-size: 93.75%;
+	height: 36.8px;
+	border-left: 0px;
+	padding-top: 4px;
+	padding-bottom: 6px;
+    background-color: var(--FFFcolor);
+}
+#ContentPlaceContent_ContentConentA .pagination .page-link.go,
+.All_Standard_Content_CSS .pagination .page-link.go{
+	padding-bottom: 4px;
+}
+#ContentPlaceContent_ContentConentA .pagination .page-link:hover,
+.All_Standard_Content_CSS .pagination .page-link:hover,
+#ContentPlaceContent_ContentConentA .pagination .page-link:focus,
+.All_Standard_Content_CSS .pagination .page-link:focus{
+	color: var(--FFFcolor);
+	background-color: var(--Customize_color);
+	border-color: var(--Customize_color);
+}
+#ContentPlaceContent_ContentConentA .pagination .page-input-box,
+.All_Standard_Content_CSS .pagination .page-input-box{
+	border: 1px solid #dddddd;
+	height: 36.8px !important;
+    background-color: var(--FFFcolor);
+}
+#ContentPlaceContent_ContentConentA .pagination .page-input,
+.All_Standard_Content_CSS .pagination .page-input{
+	border: 0;
+	border-radius: 0;
+	width: 55px;
+	font-size:87.5%;
+	height: 34.8px !important;
+}
+@media (max-width:991px){
+	#ContentPlaceContent_ContentConentA .pagination .page-link,
+	.All_Standard_Content_CSS .pagination .page-link,
+	#ContentPlaceContent_ContentConentA .pagination .page-input,
+	.All_Standard_Content_CSS .pagination .page-input{
+		font-size: 81.25%;
+	}
+}
+/* ------------------------------------------------------------*/
+/* =============================================================== */
+/* =====  內頁  新分頁按鍵  /////  ( pagination )  =================== */
+/* =============================================================== */
 
 
 /* ================================================================== */

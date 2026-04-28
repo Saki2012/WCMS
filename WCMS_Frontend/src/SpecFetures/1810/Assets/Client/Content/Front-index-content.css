@@ -1703,7 +1703,7 @@ body .subpage_body_bg {
   }
 }
 /* --// 首頁 右邊區塊 ICON BAR //----------------------- */
-.sidebar {
+.sidebar-index {
     position: absolute;
     top: 0;
     left: 0;
