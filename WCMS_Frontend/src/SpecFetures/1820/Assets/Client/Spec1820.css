@@ -1,0 +1,2107 @@
+/* =============================================================== */
+/* =====  內頁  客製 共用元件  /////  ( 客製化 用 )  ================= */
+/* =============================================================== */
+.Text_P p {
+	/*font-size: 112.5%;*/
+	/*font-size: clamp(93.75%, 3.25vw, 112.5%);*/
+	line-height: 2;
+}
+@media screen and (max-width: 991px) {
+	.Text_P p {
+		margin-top: 0rem;
+		margin-bottom: 1rem;
+	}
+}
+@media screen and (min-width: 992px) {
+	.Text_P p {
+		margin-top: 1.5rem;
+		margin-bottom: 1rem;
+	}
+}
+/* ---------------------------------------------------- */
+.content,
+.Info_All_Content {
+	width: 100%;
+}
+@media screen and (max-width: 767px) {
+    .content,
+	.Info_All_Content {
+        width: auto;
+    }
+}
+/* ---------------------------------------------------- */
+.Info_All_Content ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	border-top: 1px solid var(--blackcolor);;
+}
+.Info_All_Content li.li_row {
+	--bs-gutter-x: 1.5rem;
+	--bs-gutter-y: 0;
+	display: flex;
+	flex-wrap: wrap;
+	
+	/*font-size: clamp(93.75%, 3.25vw, 106.25%);*/
+	/*font-weight: 600;*/
+	
+	width: 100%;
+	padding: 1.5rem 0 1.5rem 0;
+	margin-top: calc(-1 * var(--bs-gutter-y));
+	margin-right: 0;
+	margin-left: 0;	
+	border-bottom: 1px solid rgba(0, 0, 0, 0.175);
+}
+@media screen and (max-width: 767px) {
+    .Info_All_Content li.li_row {
+        padding: 1.5rem 0;
+    }
+}
+
+.Info_All_Content li.li_row_50 {
+	--bs-gutter-x: 1.5rem;
+	--bs-gutter-y: 0;
+	display: flex;
+	flex-wrap: wrap;
+	margin-top: calc(-1 * var(--bs-gutter-y));
+	margin-right: 0;
+	margin-left: 0;
+
+	font-size: clamp(93.75%, 3.25vw, 112.5%);
+	/*font-weight: 600;*/
+	padding: 2rem 0;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.175);
+	
+	width: 50%;
+	float: left;
+}
+@media screen and (max-width: 767px) {
+    .Info_All_Content li.li_row_50 {
+        padding: 1.5rem 0;
+		width: 100%;
+    }
+}
+/* ---------------------------------------------------- */
+.Info_All_Content ol {
+	list-style-type: decimal;
+	line-height: 1.75;
+	line-height: 2;
+	margin: 0;
+	padding-left: 21px;
+}
+
+.Editor_All_Content ol {
+	list-style-type: decimal;
+	line-height: 1.75;
+	line-height: 2;
+	margin: 0;
+	padding-left: 21px;
+}
+
+@media screen and (min-width: 768px) {
+	/* // 編輯器區專用 // */
+	.All_Standard_Content_CSS .Editor_All_Content th:nth-child(2),
+	.All_Standard_Content_CSS .Editor_All_Content td.table_td_vertical_align:nth-child(2) {
+		text-align: left!important;
+	}
+}
+/* ---------------------------------------------------- */
+/* =============================================================== */
+/* =====  內頁  客製 共用元件  /////  ( 客製化 用 )  ================= */
+/* =============================================================== */
+
+
+
+/* =============================================================== */
+/* =====  內頁  客製 共用說明圖片區  /////  ( 客製化 用 )  ============ */
+/* =============================================================== */
+/* DivBox_style Sub 內容 區塊 */
+.SubDivBox_style.Sub .Text_Area {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 2rem;
+}
+@media screen and (max-width: 991px) {
+	.SubDivBox_style.Sub .Text_Area {
+		padding: 0rem 0rem;
+	}
+}
+@media screen and (min-width: 992px) {
+	.SubDivBox_style.Sub .Text_Area {
+		padding: 0rem 1rem 0rem 0rem;
+	}
+}
+/* ---------------------------------------------------- */
+.SubDivBox_style.Sub .Text_title .ttl {
+	/*font-size: 112.5%;*/
+	font-size: clamp(150%, 3.25vw, 200%);
+}
+@media screen and (max-width: 991px) {
+	.SubDivBox_style.Sub .Text_title .ttl {
+		margin-top: 0rem;
+		margin-bottom: 1rem;
+	}
+}
+@media screen and (min-width: 992px) {
+	.SubDivBox_style.Sub .Text_title .ttl {
+		margin-top: 4.5rem;
+		margin-bottom: 1rem;
+	}
+}
+/* ---------------------------------------------------- */
+@media (max-width: 767px) {
+  .SubDivBox_style.Sub .offset-left-1 {
+    margin-left: 0%;
+  }
+}
+@media (min-width: 768px) {
+  .SubDivBox_style.Sub .offset-left-1 {
+    margin-left: 8.33333333%;
+  }
+}
+/* ---------------------------------------------------- */
+/* 右下大圖容器 */
+.SubDivBox_style.Sub .big-img-wrapper {
+    position: relative;
+    display: inline-block;
+}
+/* ---------------------------------------------------- */
+/* ---------------------------------------------------- */
+/* 左邊小圖出血 */
+.SubDivBox_style.Sub .bleed-right {    
+    position: relative;
+	width: auto;
+}
+@media screen and (max-width: 1199px) {
+	.SubDivBox_style.Sub .bleed-right {
+		margin-right: 0;
+	}
+}
+@media screen and (min-width: 1200px) {
+	.SubDivBox_style.Sub .bleed-right {
+		/*margin-right: calc(-50% + 8.33333333%);*/
+		/*margin-right: calc(50% - 50vw);*/
+		/*margin-right: calc(50% - 37.25vw);*/
+		margin-right: calc(50% - 37.2215vw);
+	}
+}
+/* ---------------------------------------------------- */
+
+/* ---------------------------------------------------- */
+/* 圖片容器 */
+.SubDivBox_style.Sub .left_figure,
+.SubDivBox_style.Sub .right_figure {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    /* 隱藏超出的部分 */
+    background-color: rgba(0, 0, 0, 0.1);
+}
+.SubDivBox_style.Sub .left_figure {
+    aspect-ratio: 16 / 9;
+}
+.SubDivBox_style.Sub .right_figure {
+    aspect-ratio: 16 / 9;
+}
+/* ---------------------------------------------------- */
+.SubDivBox_style.Sub .img-wrapper {
+    width: 100%;
+    height: 100%;
+	z-index: 0;	
+}
+.SubDivBox_style.Sub .img-wrapper::before {
+	position: absolute;
+	top: 0;
+	left: 0;
+	content: url("../../../images/bg/img_before_1080x200.png");
+	z-index: 1;	
+}
+.SubDivBox_style.Sub .img-wrapper::after {
+	position: absolute;
+	bottom: -6px;
+	left: 0;
+	content: url("../../../images/bg/img_after_1080x200.png");
+	z-index: 1;	
+}
+/* ---------------------------------------------------- */
+.SubDivBox_style.Sub .img-wrapper img.card_image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* 讓 16:9 的圖片自動填滿並置中裁切 */
+    display: block;
+    /* 移除圖片下方的小間隙 */
+}
+/* 圖片容器 */
+/* ---------------------------------------------------- */
+
+/* DivBox_style Sub 內容 區塊 */
+/*======================================================*/
+
+/* 手機板時，影藏 內容 區塊 */
+@media (max-width: 575px) {
+	.SubDivBox_style.Sub .img-wrapper::before {
+		display: none;
+	}
+	.SubDivBox_style.Sub .img-wrapper::after {
+		display: none;
+	}
+}
+/* 手機板時，影藏 內容 區塊 */
+/* =============================================================== */
+/* =====  內頁  客製 共用說明圖片區  /////  ( 客製化 用 )  ============ */
+/* =============================================================== */
+
+
+
+/* =============================================================== */
+/* =====  內頁  客製 共用資訊區  /////  ( 客製化 用 )  =============== */
+/* =============================================================== */
+.SubInfoDivBox_Style {
+    display: flex;
+}
+@media screen and (max-width: 767px) {
+    .SubInfoDivBox_Style {
+        display: block;
+    }
+}
+/* ---------------------------------------------------- */
+.SubInfoDivBox_Style .heading {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: flex-start;
+	height: 100%;
+	margin-bottom: 0;
+}
+@media screen and (max-width: 991px) {
+	.SubInfoDivBox_Style .heading {
+		margin-bottom: 1rem;
+	}
+}
+/* ---------------------------------------------------- */
+/* ---------------------------------------------------- */
+.SubInfoDivBox_Style .title_box {
+    display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	/*-ms-flex-wrap: wrap;*/
+	/*flex-wrap: wrap;*/
+	justify-content: flex-start;
+	align-items: flex-start;
+}
+@media screen and (max-width: 991px) {
+	.SubInfoDivBox_Style .title_box {
+		align-items: center;
+		width: 100%;
+	}
+}
+/* ---------------------------------------------------- */
+.SubInfoDivBox_Style .title_tw {
+    font-size: clamp(150%, 3.25vw, 200%);
+    line-height: 140%;
+	letter-spacing: 0.25rem;
+}
+@media screen and (max-width: 991px) {
+    .SubInfoDivBox_Style .title_tw {		
+        -webkit-writing-mode: horizontal-tb;
+        -ms-writing-mode: lr-tb;
+        writing-mode: horizontal-tb;
+        font-feature-settings: normal;
+    }
+}
+@media screen and (min-width: 992px) {
+    .SubInfoDivBox_Style .title_tw {		
+        -webkit-writing-mode: vertical-rl;
+		-ms-writing-mode: tb-rl;
+		writing-mode: vertical-rl;
+		font-feature-settings: initial;
+    }
+}
+/* ---------------------------------------------------- */
+.SubInfoDivBox_Style .title_en {    
+    font-size: clamp(93.75%, 3.25vw, 100%);  
+	letter-spacing: 0.075rem;
+    line-height: 120%;
+	margin-left: 15px;
+	margin-bottom: 0;
+}
+@media screen and (max-width: 991px) {
+    .SubInfoDivBox_Style .title_en {		
+        -webkit-writing-mode: horizontal-tb;
+        -ms-writing-mode: lr-tb;
+        writing-mode: horizontal-tb;
+        font-feature-settings: normal;
+    }
+}
+@media screen and (min-width: 992px) {
+    .SubInfoDivBox_Style .title_en {		
+        -webkit-writing-mode: vertical-rl;
+		-ms-writing-mode: tb-rl;
+		writing-mode: vertical-rl;
+		font-feature-settings: initial;
+    }
+}
+/* ---------------------------------------------------- */
+/* ---------------------------------------------------- */
+.SubInfoDivBox_Style .title_box_c {
+    display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	/*-ms-flex-wrap: wrap;*/
+	/*flex-wrap: wrap;*/
+	justify-content: flex-start;
+	align-items: center;
+	
+	position: relative;
+	top: -0.85rem;
+}
+@media screen and (max-width: 991px) {
+	.SubInfoDivBox_Style .title_box_c {
+		align-items: center;
+		width: 100%;		
+		top: 0rem;
+	}
+}
+/* ---------------------------------------------------- */
+.SubInfoDivBox_Style .title_hl_tw {
+    font-size: clamp(175%, 3.25vw, 200%);
+    line-height: 140%;
+	letter-spacing: 0.25rem;
+}
+@media screen and (max-width: 991px) {
+    .SubInfoDivBox_Style .title_hl_tw {		
+        -webkit-writing-mode: horizontal-tb;
+        -ms-writing-mode: lr-tb;
+        writing-mode: horizontal-tb;
+        font-feature-settings: normal;
+    }
+}
+@media screen and (min-width: 992px) {
+    .SubInfoDivBox_Style .title_hl_tw {		
+        -webkit-writing-mode: horizontal-tb;
+        -ms-writing-mode: lr-tb;
+        writing-mode: horizontal-tb;
+        font-feature-settings: normal;
+    }
+}
+/* ---------------------------------------------------- */
+.SubInfoDivBox_Style .year_hl {
+	position: relative;
+	top: -0.2rem;
+    font-size: clamp(93.75%, 3.25vw, 100%);  
+	letter-spacing: 0.075rem;
+    line-height: 120%;
+}
+@media screen and (max-width: 991px) {
+    .SubInfoDivBox_Style .year_hl {		
+        -webkit-writing-mode: horizontal-tb;
+        -ms-writing-mode: lr-tb;
+        writing-mode: horizontal-tb;
+        font-feature-settings: normal;
+		
+		margin-top: 0.5rem;
+		margin-left: 0.5rem;
+		margin-bottom: 0;
+    }
+}
+@media screen and (min-width: 992px) {
+    .SubInfoDivBox_Style .year_hl {		
+        -webkit-writing-mode: horizontal-tb;
+        -ms-writing-mode: lr-tb;
+        writing-mode: horizontal-tb;
+        font-feature-settings: normal;
+		
+		margin-top: 0.125rem;
+		margin-left: 0.5rem;
+		margin-bottom: 0;
+    }
+}
+/* =============================================================== */
+/* =====  內頁  客製 共用資訊區  /////  ( 客製化 用 )  =============== */
+/* =============================================================== */
+
+
+
+/* =============================================================== */
+/* =====  內頁  客製 共用資訊區 --> 圖 + 文  /////  ( 客製化 用 )  ==== */
+/* =============================================================== */
+.sharedbox-card {
+	position: relative;
+	border: none;
+	background-color: transparent;
+	margin-bottom: 2rem;
+}
+/* ---------------------------------------------------- */
+/* 房間類型 圖片 */
+.sharedbox-card .shared_figure {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+	aspect-ratio: 16/9;  /*1/1*//*4/3*//*6/4*//*16/9*/
+	overflow: hidden;
+	border-radius: 0;
+	margin: 0;
+	
+	background-color: transparent; /* 圖片區 預設 背景色 JESS */
+	background-color: rgba(0, 0, 0, 0.1); /* 圖片區 預設 背景色 JESS */
+}
+/* ---------------------------------------------------- */
+.sharedbox-card .shared-img-wrapper {
+	position: relative;
+	width: 100%;
+	height: auto;
+}
+.sharedbox-card img.shared_image {
+	display: block;
+	width: 100%;
+	height: auto;
+	object-fit: cover;
+	/* 若想微調圖片高度感，可加 min-height: 300px; object-fit: cover; */
+	
+	-webkit-transition: all 0.5s ease 0s;
+	-moz-transition: all 0.5s ease 0s;
+	-ms-transition: all 0.5s ease 0s;
+	-o-transition: all 0.5s ease 0s;
+	transition: all 0.5s ease 0s;
+	
+	transition-duration: .7s;
+    transition-property: -webkit-transform;
+    transition-property: transform;
+    transition-property: transform, -webkit-transform;
+    transition-timing-function: cubic-bezier(.19, 1, .22, 1)
+}
+.sharedbox-card img:hover.shared_image {
+	-webkit-transform: scale(1.05);
+	-ms-transform: scale(1.05);
+	-moz-transform: scale(1.05);
+	-o-transform: scale(1.05);
+	transform: scale(1.05);
+}
+/* 房間類型 圖片 */
+/* ---------------------------------------------------- */
+/* 房間類型 標題文字 */
+.sharedbox-card a .shared-title {
+	font-size: clamp(131.3%, 3.5vw, 150%);
+	color: var(--blackcolor);
+	font-weight: 700;
+	letter-spacing: 1px;
+	margin-bottom: 1rem;
+}
+.sharedbox-card a:hover .shared-title {
+	color: var(--Customize_HRcolor);
+}
+/* ---------------------------------------------------- */
+.sharedbox-card .shared-subtitle {
+	font-size: clamp(93.75%, 3.5vw, 112.5%);
+	color: var(--G444color);
+	margin-bottom: 0.25rem;
+}
+/* ---------------------------------------------------- */
+.sharedbox-card .shared-info {	
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	
+	font-size: clamp(100%, 3.5vw, 106.25%);
+	color: var(--blackcolor);
+	font-weight: 600;
+}
+/* 房間類型 標題文字 */
+/* ---------------------------------------------------- */
+/* 箭頭按鈕 */
+.sharedbox-card a .sharedbtn-more {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+	width: var(--Customize_size_24);
+	height: var(--Customize_size_24);
+	
+	text-decoration: none;
+	transition: 0.3s;
+}
+.sharedbtn-more {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+	width: var(--Customize_size_24);
+	height: var(--Customize_size_24);
+	color: var(--FFFcolor);
+	border-radius: 50%;
+	background-color: var(--Customize_color02);
+}
+.sharedbox-card a:hover .sharedbtn-more {
+	background-color: var(--Customize_HRcolor);
+}
+.sharedbox-card a .sharedbtn-more i {
+	font-size: 81.25%;
+	font-weight: 800;
+}
+/* 箭頭按鈕 */
+/* ---------------------------------------------------- */
+/* =============================================================== */
+/* =====  內頁  客製 共用資訊區 --> 圖 + 文  /////  ( 客製化 用 )  ==== */
+/* =============================================================== */
+
+
+
+/* =============================================================== */
+/* =====  內頁  客製 共用標語區  /////  ( 客製化 用 )  =============== */
+/* =============================================================== */
+.Sloganblock_Style {
+	position: relative;
+	width: calc(100% + (50vw - 50%));
+	overflow: hidden;
+}
+/* ---------------------------------------------------- */
+.Sloganblock_Style .wbox_figure {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+	aspect-ratio: 16/3;  /*1/1*//*4/3*//*6/4*//*16/9*/
+	overflow: hidden;
+	border-radius: 0;
+	margin: 0;
+	
+	background-color: transparent; /* 圖片區 預設 背景色 JESS */
+	background-color: rgba(0, 0, 0, 0.1); /* 圖片區 預設 背景色 JESS */
+}
+/* ---------------------------------------------------- */
+.Sloganblock_Style .wbox-img-wrapper {
+	position: relative;
+	width: 100%;
+	height: auto;
+}
+/* ---------------------------------------------------- */
+.Sloganblock_Style .wbox-image {
+	display: block;
+	width: 100%;
+	height: auto;
+	object-fit: cover;	
+	/* 若想微調圖片高度感，可加 min-height: 300px; object-fit: cover; */
+}
+/* ---------------------------------------------------- */
+/* 文字疊加層：置中對齊 */
+.Sloganblock_Style .wbox-overlay {
+	position: absolute;
+	top: 50%;
+	left: 0;
+	transform: translateY(-50%);
+	width: 100%;
+	/*background-color: rgba(255, 255, 255, 0.45);*/
+	
+
+	background: -webkit-linear-gradient(left, rgba(255,255,255, 0.45) 0%, rgba(255,255,255, 0.45) 50%, rgba(255,255,255,0) 100%);
+	background: -o-linear-gradient(left, rgba(255,255,255, 0.45) 0%, rgba(255,255,255, 0.45) 50%, rgba(255,255,255,0) 100%);
+	background: linear-gradient(to right, rgba(255,255,255, 0.45) 0%, rgba(255,255,255, 0.45) 50%, rgba(255,255,255,0) 100%); 
+	
+	backdrop-filter: blur(4px); /* 磨砂玻璃效果 */
+	padding: 1.5rem 0;
+	text-align: center;
+}
+/* ---------------------------------------------------- */
+.Sloganblock_Style .wbox-container {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: center;
+	
+	width: 100%;
+	padding-right: 30px;
+	padding-left: 30px;
+	margin-right: auto;
+	margin-left: auto;
+}
+@media screen and (min-width: 576px) {
+	.Sloganblock_Style .wbox-container {
+		max-width: 540px
+	}
+}
+@media screen and (min-width: 768px) {
+	.Sloganblock_Style .wbox-container {
+		max-width: 720px
+	}
+}
+@media screen and (min-width: 992px) {
+	.Sloganblock_Style .wbox-container {
+		max-width: 960px
+	}
+}
+@media screen and (min-width: 1200px) {
+	.Sloganblock_Style .wbox-container {
+		max-width: 1170px; /*1140*/
+	}
+}
+/* ---------------------------------------------------- */
+.Sloganblock_Style .wbox-title {
+	font-size: clamp(131.3%, 3.25vw, 200%); /* 隨螢幕大小自動縮放字體 */
+	font-weight: 700;	
+	letter-spacing: 0.025rem;
+	color: var(--blackcolor);
+	text-shadow: rgba(255, 255, 255, 0.75) 2px 3px;
+}
+@media screen and (max-width: 991px) {
+	.Sloganblock_Style .wbox-title {
+		text-shadow: rgba(255, 255, 255, 0.5) 2px 2px;
+	}
+}
+/* =============================================================== */
+/* =====  內頁  客製 共用標語區  /////  ( 客製化 用 )  =============== */
+/* =============================================================== */
+
+
+
+/* =============================================================== */
+/* =====  內頁  客製 共用詳細說明介紹區  /////  ( 客製化 用 )  ========= */
+/* =============================================================== */
+.All_block_Style {
+	position: relative;
+}
+
+.All_block_Style .ShareAll_figure {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+	aspect-ratio: 16/9;  /*1/1*//*4/3*//*6/4*//*16/9*/
+	overflow: hidden;
+	border-radius: 0;
+	margin: 0 auto;
+	
+	background-color: transparent; /* 圖片區 預設 背景色 JESS */
+	background-color: rgba(0, 0, 0, 0.1); /* 圖片區 預設 背景色 JESS */
+}
+/* ---------------------------------------------------- */
+.All_block_Style .ShareAll_img-wrapper {
+	position: relative;
+	width: 100%;
+	height: auto;
+}
+.All_block_Style .ShareAll_img-wrapper::before {
+	position: absolute;
+	top: -1px;
+	left: -1px;
+	content: url("../../../images/bg/img_before_1920x300.png");
+	z-index: 1;	
+}
+.All_block_Style .ShareAll_img-wrapper::after {
+	position: absolute;
+	bottom: -6px;
+	left: -1px;
+	content: url("../../../images/bg/img_after_1920x300.png");
+	z-index: 1;	
+}
+@media (max-width: 575px) {
+	.All_block_Style .ShareAll_img-wrapper::before,
+	.All_block_Style .ShareAll_img-wrapper::before {
+		display: none;
+	}
+	.All_block_Style .ShareAll_img-wrapper::after,
+	.All_block_Style .ShareAll_img-wrapper::after {
+		display: none;
+	}
+}
+/* ---------------------------------------------------- */
+.All_block_Style img.ShareAll_image {
+	display: block;
+	width: 100%;
+	height: auto;
+	object-fit: cover;
+	/* 若想微調圖片高度感，可加 min-height: 300px; object-fit: cover; */
+	
+	-webkit-transition: all 0.5s ease 0s;
+	-moz-transition: all 0.5s ease 0s;
+	-ms-transition: all 0.5s ease 0s;
+	-o-transition: all 0.5s ease 0s;
+	transition: all 0.5s ease 0s;
+	
+	transition-duration: .7s;
+    transition-property: -webkit-transform;
+    transition-property: transform;
+    transition-property: transform, -webkit-transform;
+    transition-timing-function: cubic-bezier(.19, 1, .22, 1)
+}
+.All_block_Style img:hover.ShareAll_image {
+	-webkit-transform: scale(1.05);
+	-ms-transform: scale(1.05);
+	-moz-transform: scale(1.05);
+	-o-transform: scale(1.05);
+	transform: scale(1.05);
+}
+/* 房間類型 圖片 */
+/* ---------------------------------------------------- */
+/* ---------------------------------------------------- */
+/* 內容區塊排版 */
+.All_block_content {
+	position: relative;
+}
+/* ---------------------------------------------------- */
+@media (max-width: 767px) {
+  .All_block_content .offset-left-1 {
+    margin-left: 0%;
+  }
+}
+@media (min-width: 768px) {
+  .All_block_content .offset-left-1 {
+    margin-left: 8.33333333%;
+  }
+}
+/* ---------------------------------------------------- */
+.All_block_content .Price-section {
+	margin-top: 48px;
+}
+/* ---------------------------------------------------- */
+.All_block_content .Price-Title,
+.All_block_content .Price-Dollar {
+	font-size: clamp(150.0%, 3.5vw, 162.5%);
+	font-weight: 700;
+}
+/* ---------------------------------------------------- */
+.All_block_content .Discount-text {
+	font-size: clamp(93.75%, 3.5vw, 112.5%);
+	font-weight: 500;
+	color: var(--G444color)
+}
+.All_block_content .Weekdays-Price-Dollar {
+	font-size: clamp(131.3%, 3.5vw, 150.0%);
+	font-weight: 700;
+	color: var(--G444color)
+}
+/* 內容區塊排版 */
+/* ---------------------------------------------------- */
+/* =============================================================== */
+/* =====  內頁  客製 共用詳細說明介紹區  /////  ( 客製化 用 )  ========= */
+/* =============================================================== */
+
+
+/* =============================================================== */
+/* =====  內頁  客製 圖文區塊 ITEM  /////  ( 美食 用 )  ============== */
+/* =============================================================== */
+/* ( Row 排 )_列表 ================= */
+.SubPage_food_itemBoxs {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+	padding: 0;
+}
+/* =========================================================== */
+.SubPage_food_itemBoxs .food_cardbox {
+	position: relative;
+	display: block;
+	margin-bottom: 1rem;
+}
+
+/* ( card_figure )_圖 ================= */
+.SubPage_food_itemBoxs figure.food_figure_Box {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+	margin: 0;
+}
+.SubPage_food_itemBoxs a {
+	position: relative;
+	display: inline-block;
+}
+.SubPage_food_itemBoxs a:focus {
+	outline: 4px solid var(--a_focusbordercolor) !important;
+	outline-offset: 0px !important;
+	background-color: var(--FFFcolor) !important;
+}
+
+.SubPage_food_itemBoxs a .food_card_figure,
+.SubPage_food_itemBoxs .food_card_figure {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+	aspect-ratio: 4/4;  /*1/1*//*4/3*//*6/4*//*16/9*/
+	overflow: hidden;
+	border-radius: 0rem;
+	margin: 0;
+	
+	background-color: transparent; /* 圖片區 預設 背景色 JESS */
+	background-color: rgba(0, 0, 0, 0.1); /* 圖片區 預設 背景色 JESS */
+}
+
+.SubPage_food_itemBoxs a .food_card_figure .food_img-wrapper,
+.SubPage_food_itemBoxs .food_card_figure .food_img-wrapper {
+	position: relative;
+	width: 100%;
+	height: auto;
+	height: 100%;
+}
+.SubPage_food_itemBoxs a .food_card_figure .food_img-wrapper img.food_image,
+.SubPage_food_itemBoxs .food_card_figure .food_img-wrapper img.food_image {
+	-webkit-transition: all 0.5s ease 0s;
+	-moz-transition: all 0.5s ease 0s;
+	-ms-transition: all 0.5s ease 0s;
+	-o-transition: all 0.5s ease 0s;
+	transition: all 0.5s ease 0s;
+	
+	transition-duration: .7s;
+    transition-property: -webkit-transform;
+    transition-property: transform;
+    transition-property: transform, -webkit-transform;
+    transition-timing-function: cubic-bezier(.19, 1, .22, 1)
+}
+.SubPage_food_itemBoxs a:hover .food_card_figure .food_img-wrapper img.food_image,
+.SubPage_food_itemBoxs .food_card_figure:hover .food_img-wrapper img.food_image {
+	-webkit-transform: scale(1.05);
+	-ms-transform: scale(1.05);
+	-moz-transform: scale(1.05);
+	-o-transform: scale(1.05);
+	transform: scale(1.05);
+}
+/* ( card_figure )_圖 ================= */
+/* =========================================================== */
+.SubPage_food_itemBoxs .food_card_content {
+	position: relative;
+	display: block;
+	padding: 1rem 0;
+}
+
+.SubPage_food_itemBoxs .food_card_content .food_card_placeDiv {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+@media screen and (min-width: 320px) and (max-width: 1199px) {
+	.SubPage_food_itemBoxs .food_card_content .food_card_placeDiv {
+		flex-direction: column;
+    	justify-content: flex-start;
+		align-items: flex-start;
+	}
+}
+/* ------------------------------------------------------------*/
+.SubPage_food_itemBoxs .food_card_content span.place_tle {	
+	display: -webkit-box;
+	/* 第一步：設定 display 為 -webkit-box 元素。 */
+	-webkit-box-orient: vertical;
+	/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/
+	-webkit-line-clamp: 1;
+	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
+	overflow: hidden;
+	/* 第四步：設定超過上述指定之行數時隱藏。 */
+	max-height: 27px;
+  	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
+	
+	position: relative;
+	font-size: clamp(93.75%, 3.25vw, 100%);
+	font-weight: 600;
+	color: var(--blackcolor);
+}
+/* ------------------------------------------------------------*/
+.SubPage_food_itemBoxs .food_card_content .food_card_title {
+	font-size: clamp(125.0%, 3.5vw, 137.5%);
+	color: var(--blackcolor);
+	font-weight: 700;
+    display: -webkit-box;
+	/* 第一步：設定 display 為 -webkit-box 元素。 */
+	-webkit-box-orient: vertical;
+	/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/
+	-webkit-line-clamp: 1;
+	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
+	overflow: hidden;
+	/* 第四步：設定超過上述指定之行數時隱藏。 */
+	max-height: 36px;
+  	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
+}
+.SubPage_food_itemBoxs .food_card_content .food_card_title:hover,
+.SubPage_food_itemBoxs .food_card_content .food_card_title:focus,
+.SubPage_food_itemBoxs .food_card_content .food_card_title:active {
+    color: var(--Customize_color);
+}
+/* ------------------------------------------------------------*/
+.SubPage_food_itemBoxs .food_card_content .food_card_subtitle {
+    font-size: clamp(93.75%, 3.25vw, 100%);
+	font-weight: 600;
+    color: var(--blackcolor);
+    display: -webkit-box;
+	/* 第一步：設定 display 為 -webkit-box 元素。 */
+	-webkit-box-orient: vertical;
+	/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/
+	-webkit-line-clamp: 2;
+	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
+	overflow: hidden;
+	/* 第四步：設定超過上述指定之行數時隱藏。 */
+	max-height: 45px;
+  	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
+}
+/* =============================================================== */
+/* =====  內頁  客製 圖文區塊 ITEM  /////  ( 美食 用 )  ============== */
+/* =============================================================== */
+
+
+
+/* =============================================================== */
+/* =====  內頁  客製 商品項目說明 ITEM  /////  ( 小圖切換大圖 用 )  ==== */
+/* =============================================================== */
+.commodity_wrapper {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+}
+
+.commodity_big_image_box {
+	position: relative;
+	padding: var(--Customize_size_16);
+	border: 1px solid var(--Gdddcolor);
+}
+/* =========================================================== */
+/* ( card_figure )_圖 ================= */
+.commodity_wrapper figure.figure_Box {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+	margin: 0;
+}
+.commodity_wrapper a {
+	position: relative;
+	display: block;
+}
+.commodity_wrapper a:focus {
+	outline: 4px solid var(--a_focusbordercolor) !important;
+	outline-offset: -2px !important;
+	background-color: var(--FFFcolor) !important;
+	padding: 2px;
+}
+
+.commodity_wrapper a .card_figure,
+.commodity_wrapper .card_figure {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+	aspect-ratio: 4/4;  /*1/1*//*4/3*//*6/4*//*16/9*/
+	overflow: hidden;
+	border-radius: 1rem;
+	margin: 0;
+	
+	background-color: transparent; /* 圖片區 預設 背景色 JESS */
+	background-color: rgba(0, 0, 0, 0.1); /* 圖片區 預設 背景色 JESS */
+}
+
+.commodity_wrapper a .card_figure .img-wrapper,
+.commodity_wrapper .card_figure .img-wrapper {
+	position: relative;
+	width: 100%;
+	height: auto;
+	height: 100%;
+}
+.commodity_wrapper a .card_figure .img-wrapper img.card_image,
+.commodity_wrapper .card_figure .img-wrapper img.card_image {
+	-webkit-transition: all 0.5s ease 0s;
+	-moz-transition: all 0.5s ease 0s;
+	-ms-transition: all 0.5s ease 0s;
+	-o-transition: all 0.5s ease 0s;
+	transition: all 0.5s ease 0s;
+	
+	transition-duration: .7s;
+    transition-property: -webkit-transform;
+    transition-property: transform;
+    transition-property: transform, -webkit-transform;
+    transition-timing-function: cubic-bezier(.19, 1, .22, 1)
+}
+.commodity_wrapper a:hover .card_figure .img-wrapper img.card_image,
+.commodity_wrapper .card_figure:hover .img-wrapper img.card_image {
+	-webkit-transform: scale(1.05);
+	-ms-transform: scale(1.05);
+	-moz-transform: scale(1.05);
+	-o-transform: scale(1.05);
+	transform: scale(1.05);
+}
+/* ( card_figure )_圖 ================= */
+/* =========================================================== */
+
+/* =============================================================== */
+/* =====  commodity_ZoomIn_btn ( 影像放大 用 )  ==================== */
+.commodity_ZoomIn_btn {
+    position: absolute;
+	top: var(--Customize_size_16);
+	right: var(--Customize_size_16);
+    display: inline-block;
+    margin-left: 0 !important;
+	z-index: 2;
+}
+@media only screen and (max-width: 991px) {
+    .commodity_ZoomIn_btn {}
+}
+/* ---------------------------------------------------- */
+.commodity_ZoomIn_btn .Btn_zm1 {
+	position: relative;
+	top: 1rem;
+	right: 1rem;
+		
+    display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+    
+    line-height: 1.75;
+    letter-spacing: normal;
+      
+    width: 2rem;
+	height: 2rem;
+    overflow: hidden;
+    z-index: 1;
+    
+    color: var(--Customize_color);
+    border-radius: 999999px;
+    border: 1px solid var(--Gdddcolor);;
+    background-color: var(--FFFcolor);
+    
+    -webkit-transition-property: color;
+    transition-property: color;
+    -webkit-transition-duration: 0.3s;
+    transition-duration: 0.3s;
+}
+@media screen and (max-width: 575px) {
+	.commodity_ZoomIn_btn .Btn_zm1 {
+        font-size: 62.5%;
+        /*padding: 0.25rem 1rem;*/
+    }
+}
+@media screen and (min-width: 575px) {
+	.commodity_ZoomIn_btn .Btn_s1 {
+        font-size: 68.75%;
+        font-weight: 600;
+        /*padding: 0.3725rem 1.5rem;*/
+    }
+}
+/* ---------------------------------------------------- */
+.commodity_ZoomIn_btn .Btn_zm1::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    
+    color: var(--FFFcolor);
+    border-radius: 999999px;
+    border: 1px solid var(--Customize_color);
+    background-color: var(--Customize_color);    
+    
+    -webkit-transform: scale(0);
+    transform: scale(0);
+    -webkit-transition-property: transform;
+    transition-property: transform;
+    -webkit-transition-duration: 0.3s;
+    transition-duration: 0.3s;
+    -webkit-transition-timing-function: ease-out;
+    transition-timing-function: ease-out;
+}
+.commodity_ZoomIn_btn .Btn_zm1:hover {
+    color: var(--FFFcolor);
+}
+.commodity_ZoomIn_btn .Btn_zm1:hover::before {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+}
+/* ---------------------------------------------------- */
+.commodity_ZoomIn_btn .Btn_zm1 i {
+	font-size: 87.5%;
+}
+/* =====  commodity_ZoomIn_btn ( 影像放大 用 )  ==================== */
+/* =============================================================== */
+
+/* =========================================================== */
+/* ( 小圖 Owl-Carousel 區域 ) ================================= */
+.commodity_slider_box {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+	padding: var(--Customize_size_16) var(--Customize_size_16) var(--Customize_size_12) var(--Customize_size_16);	
+	border: 1px solid transparent;
+}
+
+.commodity_slider_box .item {
+	display: inline-block;
+	border: 1px solid var(--Gdddcolor);
+}
+.commodity_slider_box .item.active {
+	display: inline-block;
+	border: 1px solid var(--Customize_color);
+}
+/*=============================================*/
+/* ==   左右選擇鍵 [ 中間 CENTER 中間 ]   ========*/
+/*=============================================*/
+.commodity_slider_box.owl-box .owl-carousel .owl-nav {
+    margin-top: 0px;	
+	/*display: none;*/
+}
+@media screen and (max-width: 768px) {
+    .commodity_slider_box.owl-box .owl-carousel .owl-nav {
+		display: flex;
+    }
+}
+/* ------------------------------------------------------------*/
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-prev,
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-next {
+    cursor: pointer;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-prev,
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-next { 
+	/*position: relative;*/ 
+	top: calc((100% - 40px) / 2 );
+	font: inherit;
+	color: inherit;	
+	background: 0 0;
+	z-index: 2;
+		
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	padding: 0.25rem 0.25rem !important;
+	
+	border: 1px solid var(--G999color); 
+	border: 2px solid var(--FFFcolor);
+	
+	background-color: var(--FFFcolor);
+	background-color: rgba(243, 241, 234, 0.85);
+	
+	overflow: hidden;
+	border-radius: 2rem;
+}
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-prev,
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-next {
+	width: var(--Customize_size_40);
+	height: var(--Customize_size_40);	
+}
+@media screen and (max-width: 768px) {
+    .commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-prev,
+    .commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-next {
+        width: var(--Customize_size_32);
+		height: var(--Customize_size_32);
+    }
+}
+/*..............................................................................*/
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-prev {
+	position: absolute;
+	left: calc(0% - var(--Customize_size_16) - 1px);
+	margin: 0 0px;	
+}
+/*..............................................................................*/
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-next {
+	position: absolute;
+	right: calc(0% - var(--Customize_size_16) - 1px);
+	margin: 0 0px;	
+}
+/*..............................................................................*/
+/* HOVER + ACTIVE */
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-prev:hover,
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-next:hover,
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-prev:active,
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-next:active {
+    background-color: var(--Customize_HRcolor) !important;        /*★★★ 重要 HOVER變色 ★★★*/
+}
+/*..............................................................................*/
+/* FOCUS */
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-prev:focus,
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-next:focus {
+	display: block;
+	outline: 2px solid #43B5FC !important;
+    outline-offset: -2px;
+    background-color: #ffa700 !important;        /*★★★ 重要 焦點變色 ★★★*/
+}
+/*..............................................................................*/
+/*..............................................................................*/
+/*..............................................................................*/
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-prev span,
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-next span {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	height: 100px;
+	transform: translate(-50%, -50%);
+	
+	border: none !important;
+	background-color: transparent !important;
+	border-radius: 0%;
+} 
+/*@media(max-width: 991px) {
+	.newsbox-section.swiper-box .owl-carousel .owl-nav button.owl-prev span,
+    .newsbox-section.swiper-box .owl-carousel .owl-nav button.owl-next span {
+		border: 1px solid transparent !important;
+	    background-color: transparent !important;
+	}
+}*/
+/*..............................................................................*/
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-prev span {
+	content: url("../../../images/owl-carousel/prev-B.svg");
+	width: var(--Customize_size_24);
+	height: var(--Customize_size_24);
+}
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-next span {
+	content: url("../../../images/owl-carousel/next-B.svg");
+	width: var(--Customize_size_24);
+	height: var(--Customize_size_24);
+}
+@media screen and (max-width: 768px) {
+    .commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-prev span {
+        width: var(--Customize_size_20);
+		height: var(--Customize_size_20);
+    }
+    .commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-next span {
+		width: var(--Customize_size_20);
+		height: var(--Customize_size_20);
+    }
+}
+/*..............................................................................*/
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-prev:hover span {
+	content: url("../../../images/owl-carousel/prev-W.svg");
+	border: none !important;
+	background-color: none !important;
+}
+.commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-next:hover span {
+	content: url("../../../images/owl-carousel/next-W.svg");
+	border: none !important;
+	background-color: none !important;
+} 
+/*=============================================*/
+/* ==   左右選擇鍵 [ 中間 CENTER 中間 ]   ========*/
+/*=============================================*/
+/* ( 小圖 Owl-Carousel 區域 ) ================================= */
+/* =========================================================== */
+/* =============================================================== */
+/* =====  內頁  客製 商品項目說明 ITEM  /////  ( 小圖切換大圖 用 )  ==== */
+/* =============================================================== */
+
+/* =============================================================== */
+/* =====  內頁  客製 商品項目說明 ITEM  /////  ( 圖右邊說明 用 )  ===== */
+/* =============================================================== */
+/* =========================================================== */
+/* ( 右邊 產品說明 區域 ) ======================================= */
+.details_RightContent .commodity_title {
+    display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: center;
+	margin-bottom: 5px;
+	
+	/*display: none;*/
+}
+.details_RightContent .commodity_title::after {
+	content: "";
+	width: 100%;
+	height: 1px;
+	position: relative;
+	display: block;
+	bottom: 0px;
+	left: 0;
+	background-color: rgba(0, 0, 0, 0.175);
+}
+.details_RightContent .commodity_title .tit {
+    font-size: clamp(112.5%, 3.25vw, 150%);
+	color: var(--blackcolor);
+    text-transform: capitalize;
+    font-weight: 700;
+	padding: var(--bs-padding-x) var(--bs-padding-y);
+}
+
+
+/* ( 數字金額 ) ================= */
+.details_RightContent .Pricing_Meta {    
+    display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+	/*display: none;*/
+}
+
+.details_RightContent .Pricing_Meta ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+	width: 100%;
+}
+
+.details_RightContent .Pricing_Meta ul li {
+	float: left;
+    /*width: calc((100% - (2.5px * 4)) / 2);*/    /* =col4 x 2個 */
+    /*width: calc((100% - (2.5px * 6)) / 3);*/    /* =col4 x 3個 */
+    /*width: calc((100% - (2.5px * 8)) / 4);*/        /* =col3 x 4個 */
+    /*width: calc((100% - (2.5px * 10)) / 5);*/        /* =col-? x 5個 */
+    /*width: calc((100% - (2.5px * 12)) / 6);*/        /* =col2 x 5個 */
+    margin-left: 2.5px;
+    margin-right: 2.5px;
+    margin-bottom: 5px;
+	
+    width: 100%
+}
+@media screen and (max-width: 1199px) {
+	.details_RightContent .Pricing_Meta ul li {
+		width: 100%
+	}
+}
+.details_RightContent .Pricing_Meta ul li::after {
+	content: "";
+	width: 100%;
+	height: 1px;
+	position: relative;
+	display: block;
+	bottom: 0px;
+	left: 0;
+	background-color: rgba(0, 0, 0, 0.175);
+}
+
+.details_RightContent .Pricing_Meta ul li .Price {
+	font-size: clamp(112.5%, 3.25vw, 150%);
+	font-weight: 700;
+    color: var(--blackcolor);
+    line-height: 30px;
+	padding: var(--bs-padding-x) var(--bs-padding-y);
+}
+
+/* ( 數字金額 ) ================= */
+
+/* ( 規格文字 ) ================= */
+.details_RightContent .Specifications {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+}
+
+.details_RightContent .Specifications ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+	width: 100%;
+}
+.details_RightContent .Specifications ul li {
+	float: left;
+	width: 100%;
+    /*width: calc((100% - (2.5px * 4)) / 2);*/    /* =col4 x 2個 */
+    /*width: calc((100% - (2.5px * 6)) / 3);*/    /* =col4 x 3個 */
+    /*width: calc((100% - (2.5px * 8)) / 4); */       /* =col3 x 4個 */
+    /*width: calc((100% - (2.5px * 10)) / 5);*/        /* =col-? x 5個 */
+    /*width: calc((100% - (2.5px * 12)) / 6);*/        /* =col2 x 5個 */
+    margin-left: 2.5px;
+    margin-right: 2.5px;
+    margin-bottom: 5px; 
+}
+@media screen and (max-width: 1199px) {
+	.details_RightContent .Specifications ul li {
+		width: 100%
+	}
+}
+
+.details_RightContent .Specifications ul li::after {
+	content: "";
+	width: 100%;
+	height: 1px;
+	position: relative;
+	display: block;
+	bottom: 0px;
+	left: 0;
+	background-color: rgba(0, 0, 0, 0.175);
+}
+
+.details_RightContent .Specifications ul li .list-group-item {
+	position: relative;
+	display: block;
+	font-size: clamp(93.75%, 3.25vw, 106.25%);
+	color: var(--blackcolor);
+	padding: var(--bs-padding-x) var(--bs-padding-y);
+	background-color: transparent;
+	/*border: 1px solid #dddddd;*/
+}
+/* ( 規格文字 ) ================= */
+
+/* ( 文字簡述 ) ================= */
+.details_RightContent .Description_Text {
+    display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+	position: relative;
+	margin-bottom: var(--Customize_size_24);
+}
+/* [ 全文展開 ] */
+.open_wrapper {
+    display: flex;
+    width: 100%;
+    overflow: hidden;
+}
+
+.message_text {
+    overflow: hidden;
+    text-align: justify;
+	
+	position: relative;
+	padding: var(--bs-padding-x) var(--bs-padding-y) 0rem var(--bs-padding-y);
+	line-height: 1.5;
+	max-height: 10.75rem; /* 設定顯示高度 */
+	transition: .3s max-height;
+	
+	font-size: clamp(93.75%, 3.25vw, 106.25%);
+}
+/* 展開後 */
+.message_text.open {
+	max-height: none;
+}
+
+/*.message_text::before {
+    content: '';
+    height: calc(100% - 26px);
+    float: right;
+}
+.message_text::after {
+    content: "";
+    width: 999vw;
+    height: 999vw;
+    position: absolute;
+    box-shadow: inset calc(100px - 999vw) calc(30px - 999vw) 0 0 var(--FFFcolor);
+    margin-left: -100px;
+}*/
+/* ------------------------------------------------------------*/
+.label_btn {
+	position: absolute;
+	display: inline-block;
+	right: 1rem;
+	bottom: -20px;
+	float: right;
+	clear: both;  
+	cursor: pointer;
+	
+	font-weight: 400;
+	color: var(--Customize_TXTcolor);
+	text-align: left;
+	vertical-align: middle;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	
+	background-color: transparent;
+	border: none;
+	padding-top: 0;
+	padding-right: 0 !important;
+	padding-bottom: 0;
+	padding-left: 0 !important;	
+	margin: 0 !important;
+	
+	border-radius: .25rem;
+	transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+@media screen and (max-width: 575px) {
+	.label_btn {
+		font-size: 81.25%;
+	}
+}
+@media screen and (min-width: 576px) {
+	.label_btn {
+		font-size: 87.5%;
+	}
+}
+
+.label_btn::before {
+    content: "...";
+    position: absolute;
+    left: -4px;
+    color: var(--Customize_TXTcolor);	
+	background-color: transparent;
+    transform: translateX(-100%)
+}
+
+.label_btn::after {
+    content: "[ 全文展開 ]";
+	color: var(--Customize_TXTcolor);	
+}
+/* ------------------------------------------------------------*/
+.label_btn.active::before {
+    visibility: hidden;
+}
+
+.label_btn.active::after {
+    content: "[ 全文收起 ]";
+	color: var(--Customize_TXTcolor);	
+}
+/* [ 全文展開 ] */
+/* ( 文字簡述 ) ================= */
+
+/* ( 數量選擇 ) ================= */
+.Select_Quantity .Plus-Minus_wrapper {
+	position: relative;
+    display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+	width: auto;
+    height: auto;
+	padding: 0;    
+	border-radius: 2.25rem;
+	border: 1px solid var(--Customize_color);
+	overflow: hidden;
+}
+/*----------------------------------------------*/
+.Select_Quantity .Plus-Minus_wrapper .QuantityButton {
+    position: absolute;
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+    cursor: pointer;
+    float: inherit;
+    
+    font-weight: 500;
+    line-height: 20px;
+	text-align: center;
+	color: var(--Customize_color);
+	background-color: transparent;
+	
+	margin: 0; 	
+    transition: all .3s ease 0s;
+}
+.Select_Quantity .Plus-Minus_wrapper .QuantityButton:hover {
+	color: var(--FFFcolor);
+	background-color: var(--Customize_HRcolor);
+}
+@media screen and (max-width: 575px) {
+    .Select_Quantity .Plus-Minus_wrapper .QuantityButton {
+        font-size: 81.25%;
+		width:  var(--Customize_size_32);
+		height: calc(var(--Customize_size_32) + 6px);
+    }
+}
+@media screen and (min-width: 576px) {
+    .Select_Quantity .Plus-Minus_wrapper .QuantityButton {
+        font-size: 87.5%;
+		width:  var(--Customize_size_40);
+		height: var(--Customize_size_40);
+    }
+}
+/*----------------------------------------------*/
+.Select_Quantity .Plus-Minus_wrapper .QuantityButton.Minus_icon {
+	top: 0;
+    left: 0;
+}
+.Select_Quantity .Plus-Minus_wrapper .QuantityButton.Plus_icon {
+	top: 0;
+    right: 0;
+}
+@media screen and (max-width: 575px) {
+    .Select_Quantity .Plus-Minus_wrapper .QuantityButton.Minus_icon {
+        border-top-left-radius: 2.25rem;
+		border-top-right-radius: 0rem;
+		border-bottom-right-radius: 0rem;
+		border-bottom-left-radius: 2.25rem;
+    }
+	/*----------------------------------------------*/
+	/*----------------------------------------------*/
+	.Select_Quantity .Plus-Minus_wrapper .QuantityButton.Plus_icon {
+		border-top-left-radius: 0rem;
+		border-top-right-radius: 2.25rem;
+		border-bottom-right-radius: 2.25rem;
+		border-bottom-left-radius: 0rem;
+	}
+}
+@media screen and (min-width: 576px) {
+    .Select_Quantity .Plus-Minus_wrapper .QuantityButton.Minus_icon {
+        border-top-left-radius: 0rem;
+		border-top-right-radius: 2.25rem;
+		border-bottom-right-radius: 2.25rem;
+		border-bottom-left-radius: 0rem;
+    }
+	/*----------------------------------------------*/
+	/*----------------------------------------------*/
+	.Select_Quantity .Plus-Minus_wrapper .QuantityButton.Plus_icon {
+		border-top-left-radius: 2.25rem;
+		border-top-right-radius: 0rem;
+		border-bottom-right-radius: 0rem;
+		border-bottom-left-radius: 2.25rem;
+	}
+}
+/*----------------------------------------------*/
+.Select_Quantity .Plus-Minus_wrapper input.Display_Numbers {
+	float: left;  
+    color: var(--Customize_color);
+    text-align: center;
+    margin: 0;
+    padding: 0;
+	border: medium none;
+	background: transparent none repeat scroll 0 0;
+    outline: 0
+}
+@media screen and (max-width: 575px) {
+    .Select_Quantity .Plus-Minus_wrapper input.Display_Numbers {
+        font-size: 93.75%;
+		/*width: calc(var(--Customize_size_32) * 3);*/
+		width: calc(var(--Customize_size_10) * 3);
+		height: calc(var(--Customize_size_32) + 6px);
+    }
+}
+@media screen and (min-width: 576px) {
+    .Select_Quantity .Plus-Minus_wrapper input.Display_Numbers {
+        font-size: 112.25%;
+		/*width: calc(var(--Customize_size_40) * 3);*/
+		width: calc(var(--Customize_size_16) * 3);
+		height: var(--Customize_size_40);
+    }
+}
+/*移除 input type="number" 时浏览器自带的上下箭头*/
+.Select_Quantity .Plus-Minus_wrapper input::-webkit-outer-spin-button, 
+.Select_Quantity .Plus-Minus_wrapper input::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+}
+.Select_Quantity .Plus-Minus_wrapper input[type='number'] {
+	-moz-appearance: textfield;
+}
+/*移除 input type="number" 时浏览器自带的上下箭头*/
+/*----------------------------------------------*/
+/* ( 數量選擇 ) ================= */
+
+/* ( 按鈕區 Normal_btn ) ================= */
+.Button_Area {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	padding: var(--bs-padding-x) var(--bs-padding-y);
+}
+
+.block_box {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
+}
+/*----------------------------------------------*/
+.Buttons_wrapper {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: space-around;
+	align-items: center;
+}
+/*----------------------------------------------*/
+.Buttons_wrapper a.Normal_btn {
+	position: relative;
+	display: inline-block;
+	font-weight: 600;
+	overflow: hidden;
+	
+	color: var(--Customize_color);
+    border-radius: 2.25rem;
+	border: 1px solid var(--Customize_color);
+    background-color: transparent;
+	
+	transition: all 0.5s ease;
+	transform: perspective(1px) translateZ(0);
+}
+@media screen and (max-width: 575px) {
+    .Buttons_wrapper a.Normal_btn {
+        font-size: 87.5%;
+    	padding: 0.5rem 1rem 0.5rem 1rem;
+    }
+}
+@media screen and (min-width: 576px) {
+    .Buttons_wrapper a.Normal_btn {
+        font-size: 93.75%;
+        font-weight: 600;
+		padding: 0.5rem 2rem 0.5rem 2rem;
+    }
+}
+.Buttons_wrapper a:hover.Normal_btn {
+	color: var(--FFFcolor);
+	background-color: var(--Customize_HRcolor);
+}
+/*----------------------------------------------*/
+@media screen and (max-width: 575px) {	
+	.Buttons_wrapper .Order_1 {
+		order: 1 !important;
+	}
+	.Buttons_wrapper .Order_2 {
+		order: 3 !important;
+	}
+	.Buttons_wrapper .Order_3 {
+		order: 2 !important;
+	}
+}
+@media screen and (min-width: 576px) {
+	.Buttons_wrapper .Order_1 {
+		order: 1 !important;
+	}
+	.Buttons_wrapper .Order_2 {
+		order: 2 !important;
+	}
+	.Buttons_wrapper .Order_3 {
+		order: 3 !important;
+	}
+}	
+/* ( 按鈕區 Normal_btn ) ================= */
+
+/* ( 購物車區 Add_Cart_btn ) ================= */
+.Buttons_wrapper a.Add_Cart_btn {
+	position: relative;
+	display: inline-block;
+	font-weight: 600;
+	overflow: hidden;
+	
+	color: var(--Customize_color);
+    border-radius: 2.25rem;
+	border: 1px solid var(--Customize_color);
+    background-color: transparent;
+	
+	transition: all 0.5s ease;
+	transform: perspective(1px) translateZ(0);
+}
+@media screen and (max-width: 575px) {
+    .Buttons_wrapper a.Add_Cart_btn {
+        font-size: 87.5%;
+    	padding: 0.5rem 1rem 0.5rem 1rem;
+    }
+}
+@media screen and (min-width: 576px) {
+    .Buttons_wrapper a.Add_Cart_btn {
+        font-size: 93.75%;
+        font-weight: 600;
+		padding: 0.5rem 2rem 0.5rem 2rem;
+    }
+}
+.Buttons_wrapper a:hover.Add_Cart_btn {
+	color: var(--FFFcolor);
+	background-color: var(--Customize_HRcolor);
+}
+/* ( 購物車區 Add_Cart_btn ) ================= */
+
+/* ( 右邊 產品說明 區域 ) ======================================= */
+/* =========================================================== */
+
+/* =========================================================== */
+/* ( 下方 TAB 頁籤說明 區域 ) =================================== */
+/* ========================================== */
+/* ------ Horizontal橫向式TAB ---------------- */
+/* ------ ul.nav-tabs + nav-fill ------------ */
+#commodity_Horizontal.H-commodity-nav-tabs-content-box {
+	display: block;
+	margin-bottom: 3rem;
+}
+@media screen and (min-width: 320px) and (max-width: 992px) {
+	#commodity_Horizontal.H-commodity-nav-tabs-content-box {
+		display: block;
+		margin-bottom: 1.5rem;
+	}
+}
+/* ---------------------------------------------------- */
+#commodity_Horizontal .nav-tabs-list ul.nav-tabs {
+	display: flex;
+	flex-wrap: wrap;
+	padding-left: 0;
+	margin-bottom: 0;
+	list-style: none;
+	
+	width: 100%; 
+    margin-bottom: 2rem;
+	border-bottom: none;
+}
+/* ------ ul.nav-tabs + nav-fill --------------- */
+/* ============================================= */
+
+/* ============================================= */
+/* ------ ul.nav-tabs li ----------------------- */
+#commodity_Horizontal .nav-tabs-list ul.nav-tabs.nav-fill li.nav-item {
+    flex: 1 1 auto;
+    text-align: center;
+}
+@media screen and (min-width: 320px) and (max-width: 992px) {
+	#commodity_Horizontal .nav-tabs-list ul.nav-tabs.nav-fill li.nav-item {
+		flex: none;
+		text-align: center;
+	}
+}
+#commodity_Horizontal .nav-tabs-list ul.nav-tabs li {
+	float: left;
+	margin-left: 0px;
+    margin-right: 2.5px;
+    border-radius: 4px;
+	background-color: transparent;
+	
+	/* ====================================== */
+	/* =col4 x 2個 */
+    /*width: calc((100% - (2.5px * 4)) / 2);*/
+	
+	/* =col4 x 3個 */
+    /*width: calc((100% - (2.5px * 6)) / 3);*/
+	
+	/* =col3 x 4個 */
+    /*width: calc((100% - (2.5px * 8)) / 4);*/
+	
+	/* =col-? x 5個 */
+    /*width: calc((100% - (2.5px * 10)) / 5);*/ 
+	
+	/* =col2 x 5個 */
+    /*width: calc((100% - (2.5px * 12)) / 6);*/  
+	/* ====================================== */
+}
+#commodity_Horizontal .nav-tabs-list ul.nav-tabs li:first-child {
+	margin-left: 0
+}
+#commodity_Horizontal .nav-tabs-list ul.nav-tabs li:last-child {
+	margin-right: 0
+}
+@media screen and (min-width: 320px) and (max-width: 992px) {
+	#commodity_Horizontal .nav-tabs-list ul.nav-tabs li {
+		display: flex;
+		align-content: center;
+		margin-left: 0px;
+        margin-right: 2.5px;
+		margin-bottom: 5px;
+		
+		/* =col4 x 2個 */
+        width: calc((100% - (2.5px * 4)) / 2);
+        
+		min-height: 1px;
+	}
+}
+/* ------ ul.nav-tabs li ----------------------- */
+/* ============================================= */
+
+/* ============================================= */
+/* ------ ul.nav-tabs .nav-link ---------------- */
+#commodity_Horizontal .nav-tabs-list ul.nav-tabs .nav-link {	
+	font-size: 106.25%;
+	font-weight: 700;
+	text-transform: capitalize;
+	color: var(--blackcolor);
+	text-decoration: none;
+	min-width: auto;
+	
+	padding: 5px 5px;
+	padding: 16px 16px 16px 16px;
+	border-radius: 0px;	
+	margin-bottom: calc(-1 * 1px);
+	
+	position: relative;
+	display: block;
+	border: 1px solid transparent;
+	background-color: transparent;
+	overflow: hidden;	
+	
+	cursor: pointer;
+	transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out;
+}
+/* after */
+#commodity_Horizontal .nav-tabs-list ul.nav-tabs .nav-link::after {
+	content: "";
+	position: absolute;
+	display: block;
+	left: 50%;
+	bottom: 0;
+	width: 0;
+	height: 1px;
+	background-color: var(--Customize_color);
+	transition: width 0.3s ease 0s, left 0.3s ease 0s;
+}
+#commodity_Horizontal .nav-tabs-list ul.nav-tabs .nav-link:hover::after,
+#commodity_Horizontal .nav-tabs-list ul.nav-tabs .nav-link:focus::after,
+#commodity_Horizontal .nav-tabs-list ul.nav-tabs .nav-link.active::after {
+	width: 100%;
+	left: 0;
+}
+/* after */
+
+/* a : HOVER */
+#commodity_Horizontal .nav-tabs-list ul.nav-tabs .nav-link:hover,
+#commodity_Horizontal .nav-tabs-list ul.nav-tabs .nav-link:focus {
+	color: var(--Customize_color);
+}
+/* a : HOVER */
+
+/* a : ACTIVE */
+#commodity_Horizontal .nav-tabs-list ul.nav-tabs .nav-link.active {
+	color: var(--Customize_color);
+}
+/* a : ACTIVE */
+/* ------ ul.nav-tabs .nav-link ------------- */
+
+/* ------ tab-content ----------------------- */
+#commodity_Horizontal .tab-content {
+	width: calc(100% - 0px);
+}
+
+#commodity_Horizontal .tab-content .Spec_title {
+    display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: center;
+	margin-bottom: 5px;
+	
+	color: var(--blackcolor);
+	
+	/*display: none;*/
+}
+#commodity_Horizontal .tab-content .Spec_title::after {
+	content: "";
+	width: 100%;
+	height: 1px;
+	position: relative;
+	display: block;
+	bottom: 0px;
+	left: 0;
+	background-color: var(--Customize_color);
+}
+
+#commodity_Horizontal .tab-content .Spec_title i {
+	margin-top: 3px;
+	font-size: 137.5%;
+}
+#commodity_Horizontal .tab-content .Spec_title .S_tit {
+    font-size: 150%;
+	font-weight: 600;
+    text-transform: capitalize;
+	padding: var(--bs-padding-x) var(--bs-padding-y);
+}
+/* ------ tab-content ----------------------- */
+/* ------ Horizontal橫向式TAB ---------------- */
+/* ========================================== */
+/* =============================================================== */
+/* =====  內頁  客製 商品項目說明 ITEM  /////  ( 圖右邊說明 用 )  ===== */
+/* =============================================================== */

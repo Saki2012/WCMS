@@ -33,8 +33,19 @@
 /* 所有 內頁 CSS 設定 ( 以下 )  OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO */
 /* ======================================================================================================================= */
 
-
-
+/* 設定內容寬度 */
+@media screen and (min-width: 1200px) {
+	.container-content {
+		max-width: 1260px; 
+	}
+}
+.container-content {
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+}
 /* =============================================================== */
 /* =====  內頁  標準  內容區 H3 標題  ///// .page-header H3  ======== */
 /* =============================================================== */

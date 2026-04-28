@@ -19,7 +19,7 @@
 
 /* ------ 內頁內容 subpage content ----------------------- */
 /*@import url("css_import/style_subpage_content/subpage-content.css");*/
-@import url("css_import/style_subpage_content/subpage-content_1.css");
+/* @import url("css_import/style_subpage_content/subpage-content_1.css"); */
 /*@import url("css_import/style_subpage_content/subpage-content_2.css");*/
 /*@import url("css_import/style_subpage_content/subpage-content_3.css");*/
 
@@ -50,8 +50,8 @@
 /* ============================================= */
 /* 輔助套件 Kits */
 /* ------ Accesskey --------------------- */
-@import url("css_import/assets/accesskey/custom_sr-only.css");
-@import url("css_import/assets/accesskey/custom_accesskey.css");
+/* @import url("css_import/assets/accesskey/custom_sr-only.css"); */
+/* @import url("css_import/assets/accesskey/custom_accesskey.css"); */
 
 /* ------ 動畫 animate ----------------------- */
 @import url("css_import/assets/animate/animate.css");

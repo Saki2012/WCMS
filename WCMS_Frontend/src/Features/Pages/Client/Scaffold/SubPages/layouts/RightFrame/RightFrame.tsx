@@ -8,6 +8,7 @@ import { ThirdMenu_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module
 import type { Lang } from "@/SysCore/i18n/lang";
 import clsx from "clsx";
 import { Outlet } from "react-router";
+import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 
 interface IRightFrameProps
 {
@@ -39,6 +40,7 @@ const RightFrame = (props: IRightFrameProps) =>
                     id="ContentPlaceContent_ContentConentA"
                     className="col-sm-12 col-12 + All_Standard_Content_CSS + mb-5 mt-1"
                 >
+                    <Accesskey type="C" lang={props.lang} />
                     <Outlet context={{ lang: props.lang, site: props.site, node: props.node }} /> 
                 </div>
             </div>

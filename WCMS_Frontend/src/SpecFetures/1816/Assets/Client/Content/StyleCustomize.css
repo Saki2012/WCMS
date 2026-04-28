@@ -47,8 +47,8 @@
 /* ============================================= */
 /* 輔助套件 Kits */
 /* ------ Accesskey --------------------- */
-@import url("css_import/assets/accesskey/custom_sr-only.css");
-@import url("css_import/assets/accesskey/custom_accesskey.css");
+/* @import url("css_import/assets/accesskey/custom_sr-only.css"); */
+/* @import url("css_import/assets/accesskey/custom_accesskey.css"); */
 
 /* ------ 動畫 animate ----------------------- */
 @import url("css_import/assets/animate/animate.css");
@@ -143,6 +143,7 @@
 	--bs-gutter-x: 1.5rem;
 	--bs-gutter-y: 0rem;
 	--menu-section-height: 90px;
+	--bs-body-font-size: medium;
 	
 	/* =================================== */
 	
@@ -175,6 +176,7 @@
 body {
     font-family: "open sans","微軟正黑體",sans-serif,"Noto Sans TC";
     font-size: 100%;
+		font-size: medium;
     font-weight: 400;
     line-height: 1.5;
     text-align: left;    
@@ -184,255 +186,6 @@ body {
 a { color: var(--a_linkcolor); }
 
 a, a:hover { text-decoration: none; }
-/* a focus 客製 */
-/* 淺橘底紅橘框 */
-a:focus,
-a:focus-visible,
-a.btn:focus-visible{
-  text-decoration: none;    
-	outline: thin dotted;
-  outline: 2px dashed var(--Customize_FOCUScolor) !important;
-	outline-offset: 0px;    
-  color: var(--blackcolor) !important;
-	background-color: var(--a_focuscolor) !important;
-	display: inline-block;
-}
-.navbar-toggler:focus{
-  outline: 2px dashed var(--Customize_FOCUScolor);
-	outline-offset: 0px;    
-}
-#gotocenter{
-	background: var(--a_focuscolor) !important;
-}
-/* 蓋過menu的a focus + TAB的a focus */
-.nav-link:focus-visible{
-	box-shadow: none;
-	outline: 2px dashed var(--Customize_FOCUScolor);
-	outline-offset: 0px;
-}
-#navbar-content a.nav-link:focus-visible {
-	outline: 2px dashed var(--Customize_FOCUScolor) !important;
-	box-shadow: none !important;
-}
-/* 修改header的a focus */
-.header_Box a:focus .fa-search, .header_Box a:focus .LMS-text, .header_Box a:focus .link-text {
-	color: var(--FFFcolor) !important; 
-  background-color: var(--blackcolor) !important;
-}
-.header_Box a:focus.active .fa-search, .header_Box a:focus.active .LMS-text, .header_Box a:focus.active .link-text {
-	color: var(--FFFcolor) !important; 
-  background-color: var(--Customize_color) !important;
-}
-/* 修改 search的focus */
-.Form_Search_DIV .Searchform-control:focus-visible{
-	outline: 2px dashed var(--Customize_FOCUScolor);
-	outline-offset: 0px;  	
-	background-color: var(--a_focuscolor) !important;
-	border: 1px solid transparent;
-}
-.Form_Search_DIV .Searchform-control:focus-visible::placeholder{
-	color: var(--G666color);
-}
-.Form_Search_DIV .Search_btn:focus {
-	outline: 2px dashed var(--Customize_FOCUScolor) !important;
-}
-/* 修改Link-icons的a focus */
-.Link-icons_section a:focus{
-	outline: 2px dashed var(--Customize_FOCUScolor) !important;
-	outline-offset: -3px !important;
-	background-color: var(--a_focuscolor) !important;
-}
-.Link-icons-pos a:focus .tit-contents .Link-icons-title {
-  color: var(--blackcolor) !important;
-}
-.Link-icons-pos a:focus .icon-type-image img {
-  filter: invert(1) grayscale(1);
-}
-/* 蓋過opening的a focus */
-.Opening_hours_DIV .Open_btn:focus {
-	text-decoration: none !important;
-	outline: 2px dashed var(--Customize_FOCUScolor) !important;
-	outline-offset: -3px;
-	background-color: var(--a_focuscolor) !important;
-}
-/* 修改輪播的img a focus */
-.Carousel_slide_section .carousel-item a:focus{
-	outline: 2px dashed var(--Customize_FOCUScolor) !important;
-	outline-offset: -2px;
-	border-radius: 10px;
-	border: 2px solid var(--FFFcolor);
-}
-/* 修改輪播的暫停撥放上下頁 a focus */
-.Carousel_slide_section .control-toggle a:focus {
-	text-decoration: none;
-	outline: 2px dashed var(--Customize_FOCUScolor) !important;	
-	outline-offset: -2px !important;
-	color: var(--blackcolor) !important;
-	background-color: var(--a_focuscolor) !important;
-}
-.carousel_btn-icon-prev a:focus,
-.carousel_btn-icon-next a:focus{
-	text-decoration: none;
-	outline: 0px;
-	outline-offset: -2px !important;
-	color: var(--blackcolor) !important;
-	background-color: var(--a_focuscolor) !important;
-}
-.carousel_btn-icon-prev a:focus .carousel-control-prev,
-.carousel_btn-icon-next a:focus .carousel-control-next{
-	background-color: var(--a_focuscolor) !important;
-	outline: 2px dashed var(--Customize_FOCUScolor) !important;	
-	outline-offset: -2px !important;
-}
-/* 修改Collections的a focus */
-.Collections_section .item a:focus {
-	text-decoration: none;
-	outline: 0px transparent;
-}
-.Collections_section a:focus .wrapper_box::after{
-	content: "";
-	background-color: rgba(255, 255, 255, 0);
-	width: 100%;
-	height: 100%;
-	position: absolute;
-	top: 0;
-	left: 0;
-	z-index: 1;
-	text-decoration: none;
-	border: 3px solid var(--FFFcolor);
-	opacity: 1;
-}
-.Collections_section a:focus .wrapper_box::before{
-	content: "";
-	background-color: rgba(255, 255, 255, 0);
-	width: 100%;
-	height: 100%;
-	position: absolute;
-	top: 0;
-	left: 0;
-	z-index: 2;
-	text-decoration: none;
-	border: 2px dashed var(--Customize_FOCUScolor);
-	opacity: 1;
-}
-.Collections_section a:focus .wrapper_box .card_catname {
-	text-shadow: none;
-	background-color: var(--a_focuscolor) !important;
-	color: var(--blackcolor);
-	border-radius: 8px;
-}
-/* 修改Event的a focus */
-.Event_section .item a:focus {
-	text-decoration: none;
-	outline: 0px transparent;
-	outline-offset: -2px;
-}
-.Event_section a:focus .wrapper_box::before {
-	content: "";
-	width: 100%;
-	height: 100%;
-	position: absolute;
-	top: 0;
-	left: 0;
-	z-index: 2;
-	border: 3px solid var(--FFFcolor);
-}
-.Event_section a:focus .wrapper_box::after {
-	content: "";
-	width: 100%;
-	height: 100%;
-	position: absolute;
-	top: 0;
-	left: 0;
-	z-index: 3;
-	border: 2px dashed var(--Customize_FOCUScolor);
-}
-/* 修改Links的a focus */
-.Links_section .item a:focus {
-	text-decoration: none;
-	outline: 2px dashed var(--Customize_FOCUScolor);
-	outline-offset: -2px;
-}
-.Links_section a:focus .wrapper_box::before {
-	content: "";
-	width: 100%;
-	height: 100%;
-	position: absolute;
-	top: 0;
-	left: 0;
-	z-index: 2;
-	border: 3px solid var(--FFFcolor);
-}
-.Links_section a:focus .wrapper_box::after {
-	content: "";
-	width: 100%;
-	height: 100%;
-	position: absolute;
-	top: 0;
-	left: 0;
-	z-index: 3;
-	border: 2px dashed var(--Customize_FOCUScolor);
-}
-/* 修改Footer的a focus */
-.Footer_section .accesskey_footer.B{ /* 為了加底反黑字，讓字與框線有間格 */
-	padding: 3px;
-	display: inline-block;
-	width: 16.5px;
-}
-.Footer_section .footer-black .info-widget .list li a{ /* 為了加底反黑字，讓字與框線有間格 */
-	padding: 0 3px;
-	display: inline-block;
-}
-.Footer_section .Accessibility-Badge{ /* 為了加底反黑字，讓字與框線有間格 */
-	padding: 3px;
-}
-.Footer_section .copyright_section a{ /* 為了加底反黑字，讓字與框線有間格 */
-	padding: 0 3px;
-	display: inline-block;
-}
-.Footer_section a:focus{
-	text-decoration: none;
-	outline: 2px dashed var(--Customize_FOCUScolor) !important;	
-	outline-offset: -3px !important;
-	color: var(--blackcolor) !important;
-	background-color: var(--a_focuscolor) !important;	
-	z-index: 1;
-}
-/* 修改gototop focus */
-#gotop_btn.show:focus {
-	background-color:var(--Customize_FOCUScolor) !important;	
-	text-decoration: none;
-	outline: 2px dashed var(--FFFcolor) !important;	
-}
-/* 內頁breadcrumb-print+share的a focus */
-.PrintingSite__wrapper .Print-box .nav-link:focus-visible {
-	outline: 2px dashed var(--Customize_FOCUScolor);
-	box-shadow: none;
-}
-/* 內頁breadcrumb-returnbox的a focus */
-.breadcrumb__wrapper a:focus .return-box {
-	text-decoration: none;
-	outline: thin dotted;
-	outline: 2px solid transparent;
-	outline-offset: 0px;
-	color: var(--blackcolor) !important;
-	background-color: var(--a_focuscolor) !important;
-}
-/* 內頁sidebar的a focus */
-.sidebar .list-group-item:focus {
-	outline: 2px dashed var(--Customize_FOCUScolor) !important;
-	outline-offset: 0px !important;
-}
-/* 內頁的a focus */
-.SubPage_Standard_itemBoxs a:focus {
-	outline: 2px dashed var(--Customize_FOCUScolor) !important;
-	outline-offset: 0px !important;
-}
-/* accesskey_main */
-.accesskey_main.C{
-	left: -18px;
-	top: 8px;
-}
 
 [tabindex="-1"]:focus:not(:focus-visible) {
 	text-decoration: none;

@@ -45,3 +45,8 @@
 	border-bottom: none;
 	border: 1px solid #ddd;
 }
+
+/* 頁尾 accesskey CSS客製 */
+.accesskey_header{
+  color: var(--G999color) !important;
+}

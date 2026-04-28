@@ -1,0 +1,119 @@
+@charset "utf-8";
+/* CSS Document */
+
+/* ----- ****** 以下文字 需放在-- 網站導覽 裡 上方位置 ****** ----- */
+/* -------------------------------------------------------
+
+HTML : <p> ...以下文字... </p>
+
+
+本網站依無障礙網頁設計原則建置，網站的主要內容分為二大區塊：
+1.上方主選單連結區(U)、2.中間內容區(C)、3.下方連結區(Z)。
+
+本網站的快速鍵﹝Accesskey﹞設定如下：
+Alt + U：上方主選單連結區(U)
+Alt + C：中間內容區(C)
+Alt + L：左方選單區(L)
+Alt + Z：下方連結區(Z)
+* Alt + S：網站搜尋(S) - 很少用到
+* Alt + R：右方連結區(R) - 很少用到
+
+--------------------------------------------------------*/
+/* ----- ****** 以下文字 需放在-- 網站導覽 裡 ****** ----- */
+.accesskey_section{
+	position: relative;
+	width: 15px;
+	height: 18px;
+}
+
+.accesskey_header,
+.accesskey_main,
+.accesskey_left,
+.accesskey_footer,
+.accesskey_search,
+.accesskey_right {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 2;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	-ms-flex-direction: column;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	font-size: 100%;
+	color: var(--bs-gray-600) !important;
+	width: 15px;
+	height: 18px;
+	padding-bottom: 2.5px;
+}
+
+.accesskey_header:focus,
+.accesskey_main:focus,
+.accesskey_left:focus,
+.accesskey_footer:focus,
+.accesskey_search:focus,
+.accesskey_right:focus {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 2;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	-ms-flex-direction: column;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	font-size: 100%;
+	color: transparent;
+	width: 15px;
+	height: 18px;
+	padding-bottom: 2.5px;
+	outline: 2px solid var(--a_focusbordercolor);
+	outline-offset: -2px;
+	background-color: var(--a_focuscolor);
+	color: var(--blackcolor) !important;
+}
+
+.accesskey_footer{
+	margin-top: 5px;
+}
+
+/* 內頁 accesskey */
+.subpage_body_bg .accesskey_section:has(.accesskey_main),
+.subpage_body_bg .accesskey_section:has(.accesskey_left) {
+  margin-top: -18px;
+}
+
+.subpage_body_bg .accesskey_main{
+  left: -19px;
+  top: 24px;
+}
+
+.subpage_body_bg .accesskey_left{
+  left: -19px;
+  top: 28px;
+}
+
+@media (max-width:991px) {
+	.subpage_body_bg .accesskey_section:has(.accesskey_main),
+	.subpage_body_bg .accesskey_section:has(.accesskey_left) {
+		margin-top: 0px;
+	}
+	.subpage_body_bg .accesskey_main{
+		left: 0px;
+		top: 0px;
+	}
+
+	.subpage_body_bg .accesskey_left{
+		left: 0px;
+		top: 0px;
+	}
+}

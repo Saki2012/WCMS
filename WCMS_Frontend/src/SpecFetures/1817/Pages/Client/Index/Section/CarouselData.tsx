@@ -11,6 +11,7 @@ import clsx from "clsx";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { KeyboardEvent, MouseEvent } from "react";
 import { PerformancesPage } from "./PerformancesPage";
+import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 
 type BannerSet = components["schemas"]["BannerSet_DTO"];
 type BannerDetail = NonNullable<BannerSet["BannerDetail"]>[number];
@@ -495,7 +496,9 @@ export const CarouselData = (props: CarouselDataProps) =>
                     </div>
                 </div>
             </section>
-
+            <div className="container-customize3" style={{ height: "0px" }}>
+                <Accesskey type="C" lang={props.lang} />
+            </div>
             <PerformancesPage
                 title={performanceData.title}
                 subTitle={performanceData.subTitle}

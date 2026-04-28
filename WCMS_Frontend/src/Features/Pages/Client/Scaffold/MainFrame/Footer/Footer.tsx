@@ -4,6 +4,7 @@ import type { Lang } from "@/SysCore/i18n/lang"
 import { GoTop } from  "@/Features/Pages/Client/Scaffold/MainFrame/GoTop/GoTop"
 import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds"
 import parse from 'html-react-parser';
+import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 import "./Footer.css"
 
 export interface FooterRuntimeInfo {
@@ -134,16 +135,15 @@ const Footer = (props: FooterProps) => {
         <footer className="Footer_section">
             <section className="tinyMCE_section">
                 <div className="container-tinyMCEfooter">
-                    <span>
-                        <a accessKey="B" href="#B" className="accesskey_footer B" title="下方內容區(B)(B)" >:::</a>
-                    </span>
+                    {/* <a accessKey="B" href="#B" className="accesskey_footer B" title="下方內容區(B)(B)" >:::</a> */}
+                    <Accesskey type="Z" lang={props.lang} />
                     {footerContentHtml}
                 </div>
             </section>
             <section className="copyright_section">
                 <div className="container-copyright">
                     <div className="copyright_wrapper">
-                        <div className="wrapper_box">
+                        <div className="wrapper_box">   
                             <div className="info_box_1">
                                 <span className="content">{statusLine}</span>
                             </div>

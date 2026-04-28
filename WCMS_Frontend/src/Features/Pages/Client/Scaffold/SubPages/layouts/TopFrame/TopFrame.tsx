@@ -26,7 +26,7 @@ const TopFrame = (props: ITopFrameProps) =>
             {/* Banner 區塊 */}
             <Banner_Comp lang={props.lang} node={props.node} initialBanner={props.initialBanner} />
 
-            <div className="container-customize2 + Layout_Padding_0_top Layout_Padding_4_bottom">
+            <div className="container-content Layout_Padding_0_top Layout_Padding_4_bottom">
                 {/* BreadCrumb / Toolbar 區塊 */}
                 <div className="row">
                     <BreadCrumb_Comp

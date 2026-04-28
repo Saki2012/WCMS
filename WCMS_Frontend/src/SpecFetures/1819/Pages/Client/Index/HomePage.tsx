@@ -7,6 +7,7 @@ import { IndexedSection } from "./Section/IndexedSection";
 import { AboutPublicationSection } from "./Section/AboutPublicationSection";
 import { NewsSection } from "./Section/NewsSection";
 import { RelatedLinksSection } from "./Section/RelatedLinksSection";
+import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 
 /**
  * 1819 - HomePage
@@ -27,7 +28,9 @@ const HomePage = (props: { lang: Lang }) => {
         {/* 最新卷期 */}
         <LatestIssueSection lang={props.lang} initialData={{latestIssueBgBanner: rawData.latestIssueBgBanner, latestIssueCoverBanner: rawData.latestIssueCoverBanner, latestIssuePublishedList: rawData.latestIssuePublishedList, latestIssueUnpublishedList: rawData.latestIssueUnpublishedList, }}/>
         {/* accesskey C（中央主要內容） */}
-        <AccessKeyCSection />
+        <div className="container-customize2" style={{height: 0}}>
+          <Accesskey type="C" lang={props.lang} />
+        </div>
         {/* 索引 */}
         <IndexedSection lang={props.lang} initialData={{indexedBanner: rawData.indexedBanner,}}/>
         {/* 最新消息 */}

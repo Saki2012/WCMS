@@ -10,6 +10,7 @@ import { buildMenuItems } from "@/Features/Hooks/Common/BuildMenuItems";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { SITEMAP_SEGMENT } from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap/Sitemap";
 import { LangSwitchBtn } from "@/Features/Pages/Client/Scaffold/MainFrame/LangSwitchBtn";
+import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 
 type HeaderA11yText = {
     mainNavLabel: string;
@@ -172,6 +173,9 @@ const Header_Section = (props: { lang: Lang; site: INormSite }) => {
                 <div className="navsBox">
                     <div className="container-customize0">
                         <ul className="nav custom_nav justify-content-xl-end justify-content-center" ref={sizeGroupRef}>
+                            <li className="nav-item">
+                                <Accesskey type="U" lang={props.lang} />
+                            </li>
                             <NavBar lang={props.lang} />
                             <LangSwitchBtn site={props.site} />
                         </ul>
@@ -193,9 +197,6 @@ const NavBar = (props: { lang: Lang }) => {
     return (
         <li>
             <ul className="nav custom_nav py-0 justify-content-center my-1">
-                <a accessKey="U" href="#U" className="accesskey_header U" title="上方導覽區(U)" tabIndex={0}>
-                    :::
-                </a>
                 <li className="nav-item">
                     <LangLink className="nav-link" to="/" tabIndex={0} title={title.Home}>
                         {title.Home}

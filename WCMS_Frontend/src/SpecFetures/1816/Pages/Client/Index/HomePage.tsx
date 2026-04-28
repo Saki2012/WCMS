@@ -8,6 +8,7 @@ import { NewsData } from "@/SpecFetures/1816/Pages/Client/Index/Section/NewsData
 import type { Lang } from "@/SysCore/i18n/lang";
 import { useLoaderData } from "react-router";
 import type { HomePageLoaderData } from "./HomePage_Loader";
+import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 
 const HomePage = (props: { lang: Lang }) => {
   const loaderData = useLoaderData() as HomePageLoaderData;
@@ -21,13 +22,9 @@ const HomePage = (props: { lang: Lang }) => {
         {/* Opening hours */}
         <NewsCalendarData lang={props.lang} initialOpenTime={rawData.currentOpenTime} />
 
-        <section className="accesskey_C_H">
-          <div className="container-customize4">
-            <a id="content" accessKey="C" href="#C" className="accesskey_main C" title="中央主要內容區(C)">
-              :::
-            </a>
-          </div>
-        </section>
+        <div className="container-customize4">
+          <Accesskey type="C" lang={props.lang} />
+        </div>
 
         {/* 輪播+最新消息（DOM 對標原本 BannerNews） */}
         <section className="container-customize4">

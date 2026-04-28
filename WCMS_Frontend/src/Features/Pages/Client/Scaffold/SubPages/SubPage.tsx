@@ -1,5 +1,5 @@
 /**
- * AccessKeySection
+ * Accesskey
  * TopFrame
  * ContentContainer = LeftFrame + RightFrame
  */
@@ -17,6 +17,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { useState } from "react";
 import { useLoaderData } from "react-router";
 import type { ISubPageLoaderData } from "./SubPage_Loader";
+// import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 import "./subpage-content.css";
 
 interface ISubPageProps
@@ -39,7 +40,9 @@ const SubPage = (props: ISubPageProps) =>
     return (
         <>
             <BreadcrumbContext.Provider value={{ items, setItems }}>
-                <AccessKeySection />
+                {/* <div className="container-content">
+                    <Accesskey type="C" lang={props.lang}/>
+                </div> */}
                 <ContentContainer
                     style={props.style}
                     lang={props.lang}
@@ -54,26 +57,6 @@ const SubPage = (props: ISubPageProps) =>
 };
 
 export default SubPage;
-
-const AccessKeySection = () =>
-{
-    return (
-        <section className="accesskey_C_H">
-            <div className="container-customize2">
-                <a
-                    id="content"
-                    accessKey="C"
-                    href="#C"
-                    className="accesskey_main C"
-                    title="中央主要內容區(C)"
-                    tabIndex={0}
-                >
-                    :::
-                </a>
-            </div>
-        </section>
-    );
-};
 
 interface IContentContainerProps extends ISubPageProps
 {
@@ -93,7 +76,7 @@ const ContentContainer = (props: IContentContainerProps) =>
                     backHref={props.backHref}
                     initialBanner={props.bannerInitial}
                 />
-                <div className="container-customize2 + Layout_Padding_0_top Layout_Padding_5_bottom">
+                <div className="container-content + Layout_Padding_0_top Layout_Padding_5_bottom">
                     <div className="row">
                         <LeftFrame lang={props.lang} site={props.site} node={props.node} />
                         <RightFrame lang={props.lang} site={props.site} node={props.node} />

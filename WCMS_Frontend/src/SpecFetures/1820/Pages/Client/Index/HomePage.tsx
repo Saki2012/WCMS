@@ -9,6 +9,7 @@ import { Section3 } from "./Section/Section3";
 import { Section4 } from "./Section/Section4";
 import { Section5 } from "./Section/Section5";
 import { Section6 } from "./Section/Section6";
+import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 
 const HomePage = (props: { lang: Lang; }) =>
 {
@@ -34,19 +35,9 @@ const HomePage = (props: { lang: Lang; }) =>
 
             <main id="Site-Main" className="ALL_Main_DivBar main-fullpage-wraper">
                 <div className="background_area">
-                    <section className="accesskey_C_H">
-                        <div className="container-customize3">
-                            <a
-                                accessKey="C"
-                                className="accesskey_main C"
-                                href="#C"
-                                id="content"
-                                title="中央主要內容區(C)"
-                            >
-                                :::
-                            </a>
-                        </div>
-                    </section>
+                    <div className="container-customize3" style={{height: 0}}>
+                        <Accesskey type="C" lang={props.lang} />
+                    </div>
 
                     <Section2 lang={props.lang} homePage={homePage} />
                     <Section3

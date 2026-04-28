@@ -11,11 +11,31 @@ import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import React from "react";
+import clsx from "clsx";
+import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 
-const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
+/** 判斷是否為首頁（支援多語系首頁） */
+const isHomePage = (pathname: string, lang: Lang) =>
+{
+    const cleanPath = pathname.replace(/\/+$/, "") || "/";
+
+    const homePaths = [
+        "/",
+        `/${lang}`,
+    ];
+
+    return homePaths.includes(cleanPath);
+};
+
+const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) =>
 {
     const headerRef = useRef<HTMLDivElement | null>(null);
+    const location = useLocation();
+
+    const isHome = isHomePage(location.pathname, props.lang);
+
     useMobileMenuCollapse({
         headerRef,
         collapseSelector: "#navbar-content",
@@ -29,26 +49,47 @@ const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
 
     useEffect(() =>
     {
-        // 同步首頁 Header 捲動樣式
+        const el = headerRef.current;
+        if (!el) return;
+
         const syncHeaderStyle = () =>
         {
-            const el = headerRef.current;
-            if (!el) return;
-
             const isScrolled = window.scrollY >= 180;
+
             el.classList.toggle("shadow", isScrolled);
             el.classList.toggle("filter-custom", isScrolled);
         };
 
-        syncHeaderStyle();
-        window.addEventListener("scroll", syncHeaderStyle, { passive: true });
-        return () => window.removeEventListener("scroll", syncHeaderStyle);
-    }, []);
+        if (isHome)
+        {
+            syncHeaderStyle();
+            window.addEventListener("scroll", syncHeaderStyle, { passive: true });
+        }
+        else
+        {
+            el.classList.remove("shadow");
+            el.classList.remove("filter-custom");
+        }
+
+        return () =>
+        {
+            window.removeEventListener("scroll", syncHeaderStyle);
+        };
+    }, [isHome]);
 
     return (
         <>
             <A11yContent />
-            <div id="Site-Header" className="ALL_Header_DivBar main-header position-fixed" ref={headerRef}>
+
+            <div
+                id="Site-Header"
+                ref={headerRef}
+                className={clsx(
+                    "ALL_Header_DivBar",
+                    "main-header",
+                    isHome && "position-fixed"
+                )}
+            >
                 <Header_Section lang={props.lang} site={props.site} />
                 <Menu_Section {...props} />
                 <div className="overlayer" aria-hidden="true" />
@@ -56,6 +97,7 @@ const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
         </>
     );
 };
+
 export default Header;
 
 const Header_Section = (props: { lang: Lang; site: INormSite; }) =>
@@ -94,8 +136,10 @@ const NavBar = (props: { lang: Lang; }) =>
     return (
         <li>
             <ul className="nav custom_nav py-0 justify-content-center my-1">
-                <a accessKey="U" href="#U" className="accesskey_header U" title="上方導覽區(U)">:::</a>
-                <li className="nav-item">
+                <li className="nav-item pe-2">
+                    <Accesskey type="U" lang={props.lang}/>
+                </li>
+                <li className="nav-item no-divider-line">
                     <LangLink className="nav-link" to="/" target="_self" title={title.Home}>
                         {title.Home}
                     </LangLink>

@@ -12,6 +12,7 @@ import { LangSwitchBtn } from "@/Features/Pages/Client/Scaffold/MainFrame/LangSw
 import { SITEMAP_SEGMENT } from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap/Sitemap";
 import React from "react";
 import { useMobileMenuCollapse } from "@/Features/Hooks/UIAction/Mobile/useMobileMenuCollapse";
+import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 
 const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
     const headerRef = useRef<HTMLDivElement | null>(null);
@@ -89,7 +90,9 @@ const NavBar = (props: { lang: Lang; }) => {
 
     return (<li>
         <ul className="nav custom_nav py-0 justify-content-center my-1">
-            <a accessKey="U" href="#U" className="accesskey_header U" title="上方導覽區(U)" tabIndex={0}>:::</a>
+            <li className="nav-item">
+                <Accesskey type="U" lang={props.lang} />
+            </li>
             <li className="nav-item">
                 <LangLink className="nav-link" to="/" tabIndex={0} target="_self" title={title.Home}>{title.Home}</LangLink>
             </li>

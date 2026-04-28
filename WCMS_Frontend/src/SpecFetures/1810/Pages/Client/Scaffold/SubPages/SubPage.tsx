@@ -16,6 +16,7 @@ import type { components } from "@/types/api";
 import clsx from "clsx";
 import { type MouseEvent, type ReactNode, useEffect, useMemo, useState } from "react";
 import { Outlet, useLoaderData, useLocation, useNavigate } from "react-router-dom";
+import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 
 type BannerSet = components["schemas"]["BannerSet_DTO"];
 type BannerDetail = components["schemas"]["BannerDetail_DTO"];
@@ -36,6 +37,7 @@ interface ISideMenuProps
     title: string;
     items: MenuItemData[];
     pathname: string;
+    lang: Lang;
 }
 
 const getHomeTitle = (lang: Lang): string =>
@@ -442,9 +444,7 @@ const SideMenuComp = (props: ISideMenuProps) =>
     return (
         <div className="col-lg-2 col-md-12 col-sm-12 col-12">
             <div id="ContentPlaceContent_ContentSubMenu" className="col-sm-12 col-12 px-0 page-leftmenu">
-                <a accessKey="L" href="#" className="accesskey_left L" title="左方選單區(L)">
-                    :::
-                </a>
+                <Accesskey type="L" lang={props.lang} />
                 <h2>{props.title}</h2>
                 <p></p>
                 <nav className="Left-Second-navBox">
@@ -509,21 +509,6 @@ const SubPageBase = (props: ISubPagesProps & { renderMain: () => ReactNode; }) =
         <>
             {!!bannerUrl && <SubBannerComp title={title} srcImg={bannerUrl}></SubBannerComp>}
 
-            <section style={{ height: "0px" }}>
-                <div className="container-customize1">
-                    <a
-                        id="content"
-                        accessKey="C"
-                        href="#content"
-                        className="accesskey_main C"
-                        title="中間內容區(C)"
-                        tabIndex={0}
-                    >
-                        :::
-                    </a>
-                </div>
-            </section>
-
             <div className="ContentPlaceContent_Area">
                 <section className="Template content area">
                     <div className="container-customize1 layout_padding3-bottom">
@@ -546,10 +531,16 @@ const SubPageBase = (props: ISubPagesProps & { renderMain: () => ReactNode; }) =
                                     title={title}
                                     items={sideMenuData}
                                     pathname={location.pathname}
+                                    lang={props.lang}
                                 />
                             )}
 
                             <div className="col-lg-10 col-md-12 col-sm-12 col-12" id="div_ThirdMenu">
+                                <section style={{ height: "0px" }}>
+                                    <div className="container-customize1">
+                                        <Accesskey type="C" lang={props.lang} />
+                                    </div>
+                                </section>
                                 <div className="col-sm-12 col-12 px-0 page-righttopmenu"></div>
                                 <ThirdMenuComp item={topMenuData}></ThirdMenuComp>
                                 <div id="ContentPlaceContent_ContentConentA" className="col-sm-12 col-12 px-0">

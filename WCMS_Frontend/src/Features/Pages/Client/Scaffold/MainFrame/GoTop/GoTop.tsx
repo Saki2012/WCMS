@@ -1,13 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { DefaultLang } from "@/SysCore/i18n/lang";
+import type { Lang } from "@/SysCore/i18n/lang";
 import "./GoTop.css"
 
 /* =========================
  * i18n types
  * ========================= */
-
-export type Lang = "zh-tw" | "zh-cn" | "en";
-
-const DefaultLang: Lang = "zh-tw";
 
 type GoTopA11yText = {
   label: string;
@@ -39,7 +37,7 @@ const getGoTopA11y = (lang?: Lang): GoTopA11yText => {
   const byLang = GOTOP_A11Y_MAP[key];
   const byDefault = GOTOP_A11Y_MAP[DefaultLang];
 
-  return byLang ?? byDefault ?? { label: "Back to top" };
+  return byLang ?? byDefault ?? { label: "回到頂端" };
 };
 
 /* =========================

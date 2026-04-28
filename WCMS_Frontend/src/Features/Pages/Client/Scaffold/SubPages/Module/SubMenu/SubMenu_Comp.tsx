@@ -6,6 +6,7 @@ import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import clsx from "clsx";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 import "./SubMenu.css";
 
 type SubMenuProps = { lang: Lang; site: INormSite; node: INormNode; maxDepth?: number };
@@ -353,6 +354,7 @@ const SubMenu_1816_Comp: React.FC<{
     activeIds: Set<string>;
     expandedIdsByPath: Set<string>;
     pathname: string;
+    lang: Lang;
 }> = (props) => {
     const { menuItems, activeIds, expandedIdsByPath, pathname } = props;
     const { expandedIds, toggleExpand } = useExpandedMenuState(menuItems, pathname, expandedIdsByPath, true);
@@ -401,6 +403,7 @@ const SubMenu_1816_Comp: React.FC<{
 
     return (
         <div className="col-xl-2 col-lg-3 col-md-12 col-sm-12 col-12">
+            <Accesskey type="L" lang={props.lang} />
             <div id="ContentPlaceContent_ContentSubMenu" className="col-sm-12 col-12 px-0 SubPage-leftMenu">
                 <div id="SubPage-SidebarMenu">
                     <nav className="sidebar sidebar-custom mb-5">
@@ -424,6 +427,7 @@ const SubMenu_Default_Comp: React.FC<{
     activeIds: Set<string>;
     expandedIdsByPath: Set<string>;
     pathname: string;
+    lang: Lang;
 }> = (props) => {
     const { menuItems, activeIds, expandedIdsByPath, pathname } = props;
     const { expandedIds, toggleExpand } = useExpandedMenuState(menuItems, pathname, expandedIdsByPath, true);
@@ -467,6 +471,7 @@ const SubMenu_Default_Comp: React.FC<{
 
     return (
         <div className="col-xl-2 col-lg-3 col-md-12 col-sm-12 col-12 mb-4">
+            <Accesskey type="L" lang={props.lang} />
             <nav className="sidebar">
                 <ul className="list-group">{renderItems(menuItems)}</ul>
             </nav>
@@ -496,6 +501,7 @@ export const SubMenu_Comp: React.FC<SubMenuProps> = (props) => {
                 activeIds={activeIds}
                 expandedIdsByPath={expandedIdsByPath}
                 pathname={location.pathname}
+                lang={props.lang}
             />
         );
     }
@@ -506,6 +512,7 @@ export const SubMenu_Comp: React.FC<SubMenuProps> = (props) => {
             activeIds={activeIds}
             expandedIdsByPath={expandedIdsByPath}
             pathname={location.pathname}
+            lang={props.lang}
         />
     );
 };

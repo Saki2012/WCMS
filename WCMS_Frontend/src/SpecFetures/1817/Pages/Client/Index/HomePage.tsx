@@ -7,6 +7,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { Navigate, useLoaderData } from "react-router";
 import type { HomePageLoaderData } from "./HomePage_Loader";
 
+
 const HomePage = (props: { lang: Lang }) => {
   // 宣告變數：SSR loader 資料
   const loaderData = useLoaderData() as HomePageLoaderData;
@@ -27,20 +28,6 @@ const HomePage = (props: { lang: Lang }) => {
     <main id="fullpage" className="fullpage-wrapper">
       <div className="bg_area">
         <div className="mainArea" id="mainArea">
-          <section className="accesskey_C_H">
-            <div className="container-customize3">
-              <a
-                accessKey="C"
-                className="accesskey_main C"
-                href="#C"
-                id="content"
-                tabIndex={0}
-                title="中央主要內容區(C)"
-              >
-                :::
-              </a>
-            </div>
-          </section>
 
           {/* 輪播 BANNER */}
           <CarouselData

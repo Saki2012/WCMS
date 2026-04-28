@@ -76,8 +76,12 @@
 
 .header_Box .nav-item + .nav-item::before {
 	float: left;
-    color: rgba(0,0,0,0.35); /* #1e2d40 */
+  color: rgba(0,0,0,0.35); /* #1e2d40 */
 	content: "│";
+}
+
+.header_Box .nav-item + .nav-item.no-divider-line::before {
+	content: "";
 }
 
 .header_Box .nav-item {

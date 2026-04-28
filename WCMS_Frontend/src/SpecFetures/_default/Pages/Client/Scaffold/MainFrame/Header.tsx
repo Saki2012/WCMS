@@ -2,23 +2,21 @@
 import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
+import SkipToContent from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/SkipToContent"; // 👈 新增
 
 
 export interface HeaderProps { lang: Lang; site: INormSite; style: IFETheme }
 
 
 const Header = (props: HeaderProps) => {
-    return (<A11yContent />);
+    return (<A11yContent lang={props.lang}/>);
 }
 export default Header
 
-export const A11yContent = () => {
+export const A11yContent = ({ lang }: { lang?: Lang }) => {
     return (
         <>
-            <noscript>
-                <div style={{ color: 'red' }}>{"您的瀏覽器不支援 JavaScript，請開啟 Javascript 功能。"}</div>
-            </noscript>
-            <a href="#content" id="gotocenter" title="跳到頁面主要內容區" tabIndex={1} className="sr-only sr-only-focusable">跳到頁面主要內容區</a>
+            <SkipToContent lang={lang} />
         </>
     )
 }

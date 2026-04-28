@@ -351,7 +351,7 @@ export const BannerSlider = (props: BannerSliderProps) =>
 
     return (
         <section className="carousel_slide_section">
-            <div className="sidebar">
+            <div className="sidebar-index">
                 <div className="scroll_Down">
                     <a href="#content" className="eng_font">SCROLL</a>
                 </div>

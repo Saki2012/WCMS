@@ -75,6 +75,10 @@
 	content: "│";
 }
 
+.header_Box .nav-item + .nav-item.no-divider-line::before {
+	content: "";
+}
+
 .header_Box .nav-item {
 	display: flex;
 	justify-content: center;

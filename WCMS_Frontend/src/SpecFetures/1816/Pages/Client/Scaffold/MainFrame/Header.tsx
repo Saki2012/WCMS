@@ -10,6 +10,7 @@ import LogoImg from "@/SpecFetures/1816/Assets/Client/images/logo/LOGO_266x41.sv
 import { SearchData } from "../../Index/Section/SearchData";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LangSwitchBtn } from "@/Features/Pages/Client/Scaffold/MainFrame/LangSwitchBtn";
+import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 import clsx from "clsx";
 
 const MOBILE_BREAKPOINT = 991.98;
@@ -252,15 +253,8 @@ const NavbarContent = (
 			ref={menuRootRef}
 		>
 			<ul className="navbar-nav mb-2 mb-lg-0 overflow-scroll-Y ps-2">
-				<li>
-					<a
-						accessKey="U"
-						href="#U"
-						className="accesskey_header U d-none d-lg-block"
-						title="上方導覽區(U)"
-					>
-						:::
-					</a>
+				<li>	
+					<Accesskey type="U" lang={props.lang} />
 				</li>
 
 				<MainMenu
@@ -403,9 +397,9 @@ const SizeChange = () => {
 								onClick={(event) => handleZoomClick(event, 112.5)}
 								role="button"
 								title="字型-大"
-								data-size="18"
+								data-size="112.5%"
 							>
-								<div className="LMS-text" style={{ fontSize: "100%" }}>
+								<div className="LMS-text" style={{ fontSize: "medium" }}>
 									A+
 								</div>
 							</a>
@@ -422,9 +416,9 @@ const SizeChange = () => {
 								onClick={(event) => handleZoomClick(event, 100)}
 								role="button"
 								title="字型-中"
-								data-size="16"
+								data-size="100%"
 							>
-								<div className="LMS-text" style={{ fontSize: "100%" }}>
+								<div className="LMS-text" style={{ fontSize: "medium" }}>
 									A
 								</div>
 							</a>
@@ -441,9 +435,9 @@ const SizeChange = () => {
 								onClick={(event) => handleZoomClick(event, 87.5)}
 								role="button"
 								title="字型-小"
-								data-size="14"
+								data-size="87.5%"
 							>
-								<div className="LMS-text" style={{ fontSize: "100%" }}>
+								<div className="LMS-text" style={{ fontSize: "medium" }}>
 									A-
 								</div>
 							</a>
