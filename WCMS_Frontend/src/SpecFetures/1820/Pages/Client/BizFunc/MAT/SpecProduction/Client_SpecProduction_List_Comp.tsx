@@ -6,6 +6,7 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import parse from "html-react-parser";
 import { useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router";
 import { useClientSpecProductionListFetchData } from "./Client_SpecProduction_List_Loader";
 
 type MaterialSet = components["schemas"]["MaterialSet_DTO"];
@@ -379,8 +380,8 @@ const ProductionCard = (props: { lang: Lang; item: MaterialSet; viewMoreText: st
     const langInfo = getMaterialLangInfo(props.item, props.lang);
     const matName = langInfo?.MaterialName ?? "";
     const infoRows = buildMaterialInfoRows(props.item, props.lang);
-
     const imageUrl = image?.PictureId ? FileManagementAPI.get_Public_Preview_Url(image.PictureId) : "";
+    const dirUrl = useLocation().pathname.replace(/\/List$/, "");
     return (
         <div className="sc-item">
             <div className="SC-row">
@@ -401,7 +402,7 @@ const ProductionCard = (props: { lang: Lang; item: MaterialSet; viewMoreText: st
                             <div className="d-flex justify-content-start align-items-center">
                                 <div className="more-link-box">
                                     <a
-                                        href={props.item.Material?.InternalId ?? ""}
+                                        href={`${dirUrl}/${props.item.Material?.InternalId}`}
                                         className="more-link font-wt-lg"
                                         aria-label={`查看更多：${matName}`}
                                         title={`查看更多：${matName}`}

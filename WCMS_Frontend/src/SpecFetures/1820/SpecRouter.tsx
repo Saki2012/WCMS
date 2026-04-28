@@ -1,3 +1,5 @@
+import Client_Material_Form_Comp from "@/Features/Pages/Client/BizFunc/MAT/Client_Material_Form_Comp";
+import { Client_Material_Form_Loader } from "@/Features/Pages/Client/BizFunc/MAT/Client_Material_Form_Loader";
 import { withRequestLang } from "@/Features/Pages/Client/Route/ClientRouter";
 import { type INormNode, type INormSite, type ModuleEntry } from "@/Features/Pages/Client/Route/Site-Routing";
 import SubPage from "@/Features/Pages/Client/Scaffold/SubPages/SubPage";
@@ -19,11 +21,11 @@ export const specClientEntries: Record<string, ModuleEntry> = {
                 loader: withRequestLang((lang) => Client_SpecProduction_List_Loader({ lang: lang, opts: opts as Module_SpecProduction_OptionsJson })),
                 element: <Client_SpecProduction_List_Comp site={site} node={node} lang={lang} opts={opts as Module_SpecProduction_OptionsJson} />,
             },
-            // {
-            //     path: ":internalId",
-            //     loader: withRequestLang((lang) => AnnouncementFormLoader({ lang })),
-            //     element: <AnnouncementForm site={site} node={node} theme={Classic_FETheme} lang={lang} />,
-            // },
+            {
+                path: ":internalId",
+                loader: withRequestLang((lang) => Client_Material_Form_Loader({ lang })),
+                element: <Client_Material_Form_Comp site={site} node={node} theme={Classic_FETheme} lang={lang} />,
+            },
         ],
     },
 };
