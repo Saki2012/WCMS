@@ -29,18 +29,9 @@ export const useUploadFile = (opts?: UseUploadFileOptions) =>
     const enablePreview = opts?.enablePreview ?? true;
     const keepOriginalName = opts?.keepOriginalName ?? true;
 
-    const [result, setResult] = useState<UploadResult>({
-        internalId: null,
-        fileName: null,
-        previewUrl: null,
-        uploading: false,
-        error: null,
-    });
+    const [result, setResult] = useState<UploadResult>({ internalId: null, fileName: null, previewUrl: null, uploading: false, error: null });
 
-    const handleFileChange = async (
-        files: File[] | FileList | null | undefined,
-        onUploaded?: UploadedCallback,
-    ) =>
+    const handleFileChange = async (files: File[] | FileList | null | undefined, onUploaded?: UploadedCallback) =>
     {
         const list = files ? Array.from(files) : [];
         if (list.length === 0) return;
@@ -90,8 +81,7 @@ export const useUploadFile = (opts?: UseUploadFileOptions) =>
         }
     };
 
-    const reset = () =>
-        setResult({ internalId: null, fileName: null, previewUrl: null, uploading: false, error: null });
+    const reset = () => setResult({ internalId: null, fileName: null, previewUrl: null, uploading: false, error: null });
 
     return { result, handleFileChange, reset };
 };

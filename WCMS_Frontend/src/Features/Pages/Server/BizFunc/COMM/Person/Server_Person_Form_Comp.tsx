@@ -1,56 +1,52 @@
 import { useCallback } from "react";
 
-import type { components } from "@/types/api";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
+import type { components } from "@/types/api";
 
 import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
 import { LibCheckBox, LibTextBox, LibUserCard } from "@/SysCore/Components/FormField/LibFormField";
 
 import pic from "@/Features/Assets/Server/images/avatar/avatar_M_480x480.jpg";
-import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
+import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { PersonModelFields, PersonSetFields } from "@/types/SchemaFields";
 
 import { useServerPersonForm } from "./Server_Person_Form_Hook";
 
 type PersonSet = components["schemas"]["PersonSet_DTO"];
 
-export const Server_Person_Form_Comp = (props: { theme: IBETheme }) => {
+export const Server_Person_Form_Comp = (props: { theme: IBETheme; }) =>
+{
     // 宣告變數
     const vm = useServerPersonForm(props.theme);
 
     // return（DOM 不動）
     return (
         <FormComp prop={vm.prop}>
-            <Person_Comp
-                theme={props.theme}
-                formData={vm.formData}
-                genderOpt={vm.genderOpt}
-            />
+            <Person_Comp theme={props.theme} formData={vm.formData} genderOpt={vm.genderOpt} />
         </FormComp>
     );
 };
 
-const updatePersonImgId = (prev: PersonSet, id: string): PersonSet => {
+const updatePersonImgId = (prev: PersonSet, id: string): PersonSet =>
+{
     // 宣告變數
     const cur = prev ?? {};
-    const nextPerson = {
-        ...(cur.Person ?? {}),
-        PersonImgId: id,
-    };
+    const nextPerson = { ...(cur.Person ?? {}), PersonImgId: id };
 
     // return
-    return {
-        ...cur,
-        Person: nextPerson,
-    };
+    return { ...cur, Person: nextPerson };
 };
 
-const Person_Comp = (props: {theme: IBETheme; formData: UseFetchFormDataResult<PersonSet>; genderOpt: Record<string, string>;}) => {
+const Person_Comp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<PersonSet>; genderOpt: Record<string, string>; }) =>
+{
     const setField = useSetTableField<PersonSet>(props.formData);
     const userPic = FileManagementAPI.get_Server_Preview_Url(props.formData.data?.Person?.PersonImgId) ?? pic;
-    const setPersonImgId = useCallback((id: string) => { props.formData.setFormData((prev) => updatePersonImgId(prev, id)); }, [props.formData]);
+    const setPersonImgId = useCallback((id: string) =>
+    {
+        props.formData.setFormData((prev) => updatePersonImgId(prev, id));
+    }, [props.formData]);
     return (
         <div className="row">
             <div className="col-xl-3 col-lg-4 col-md-4 col-sm-4 col-12">

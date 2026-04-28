@@ -15,35 +15,22 @@ const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] =>
         Title: "琵琶介紹",
         DefaultActionCode: "List",
         IconClassName: "fas fa-music",
-        Actions: [
-            {
-                ActionCode: "List",
-                Title: "琵琶列表",
-                RoutePath: "List",
-                elementFactory: (ctx) => (
-                    <Server_SpecMusical_List_Comp title="琵琶介紹列表" theme={ctx.theme} lang={ctx.lang} />
-                ),
-            },
-            {
-                ActionCode: "Form",
-                Title: "新增資料",
-                RoutePath: "Form/:internalId?",
-                elementFactory: (ctx) => <Server_SpecMusical_Form_Comp theme={ctx.theme} lang={ctx.lang} />,
-            },
-            {
-                ActionCode: "Category",
-                Title: "類別",
-                RoutePath: "Category/:internalId?",
-                elementFactory: (ctx) => (
-                    <Server_CategoryListFormComp
-                        progId={PGID.SpecMusical}
-                        title="類別"
-                        theme={ctx.theme}
-                        lang={ctx.lang}
-                    />
-                ),
-            },
-        ],
+        Actions: [{
+            ActionCode: "List",
+            Title: "琵琶列表",
+            RoutePath: "List",
+            elementFactory: (ctx) => <Server_SpecMusical_List_Comp title="琵琶介紹列表" theme={ctx.theme} lang={ctx.lang} />,
+        }, {
+            ActionCode: "Form",
+            Title: "新增資料",
+            RoutePath: "Form/:internalId?",
+            elementFactory: (ctx) => <Server_SpecMusical_Form_Comp theme={ctx.theme} lang={ctx.lang} />,
+        }, {
+            ActionCode: "Category",
+            Title: "類別",
+            RoutePath: "Category/:internalId?",
+            elementFactory: (ctx) => <Server_CategoryListFormComp progId={PGID.SpecMusical} title="類別" theme={ctx.theme} lang={ctx.lang} />,
+        }],
     };
     web.Progs.push(prog);
     return modules;

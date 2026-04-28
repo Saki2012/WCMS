@@ -1,8 +1,4 @@
-import {
-    createGridCrudActions,
-    enhanceGridWithAdjustCell,
-    type GridConfirmFn,
-} from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
+import { createGridCrudActions, enhanceGridWithAdjustCell, type GridConfirmFn } from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
 import { ListComp } from "@/Features/Pages/Server/Scaffold/Content/List_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
@@ -22,12 +18,7 @@ type TimelineSet = components["schemas"]["TimelineSet_DTO"];
 export const Server_Timeline_List_Comp = (prop: { title: string; theme: IBETheme; lang: Lang; }) =>
 {
     const [kw, setKw] = useState<string>("");
-    const searchCompProp: SearchBarProps = {
-        title: "紀事表搜尋",
-        subTitle: "搜尋紀事表 ...",
-        onSubmit: setKw,
-        onReset: () => setKw(""),
-    };
+    const searchCompProp: SearchBarProps = { title: "紀事表搜尋", subTitle: "搜尋紀事表 ...", onSubmit: setKw, onReset: () => setKw("") };
     const pathname = useLocation().pathname;
     const dirUrl = useMemo(() => pathname.replace(/\/List$/, `/Form`), [pathname]);
     const getData = useTimelineListFetchData({ lang: prop.lang, kw: kw });
@@ -75,13 +66,7 @@ const buildTimelineGridProps = (
     // 執行 function：Grid 基礎資料
     const columns = buildColumns(visibleCols, opt.raw);
     const rows = buildTimelineRows(opt.raw, opt.lang, columns);
-    const baseGrid: GridProps = {
-        columns,
-        rows,
-        CurrentPage: opt.raw.pageNumber ?? 1,
-        TotalPage: opt.raw.totalPages ?? 1,
-        onPageChange: opt.raw.onPageChange,
-    };
+    const baseGrid: GridProps = { columns, rows, CurrentPage: opt.raw.pageNumber ?? 1, TotalPage: opt.raw.totalPages ?? 1, onPageChange: opt.raw.onPageChange };
     // 執行 function：動作按鈕（Edit/Delete）
     const actions = createGridCrudActions<TimelineSet>({
         onEdit: (internalId) => opt.crud.navigate(`${opt.crud.dirUrl}/${internalId}`),
@@ -120,31 +105,20 @@ const buildTimelineRows = (raw: TimelineListRawData, lang: Lang, columns: Column
                 {(() =>
                 {
                     const items = set.TimelineItem?.flatMap((item) =>
-                        item._TimelineLangDetail
-                            ?.filter((p) => p.Lang === lang)
-                            .map((dt) => (
-                                <li key={`${dt.ParentRowId}-${dt.RowId}-${dt.Lang}`} className="m-0 p-0">
-                                    【{FormatDate(item.Date)}】{dt.Title}
-                                </li>
-                            )) ?? []
+                        item._TimelineLangDetail?.filter((p) => p.Lang === lang).map((dt) => (
+                            <li key={`${dt.ParentRowId}-${dt.RowId}-${dt.Lang}`} className="m-0 p-0">【{FormatDate(item.Date)}】{dt.Title}</li>
+                        )) ?? []
                     ) ?? [];
                     const showItems = items.slice(0, 5);
                     const hasMore = items.length > 5;
-                    return (
-                        <>
-                            {showItems}
-                            {hasMore && <li className="m-0 p-0">...</li>}
-                        </>
-                    );
+                    return <>{showItems} {hasMore && <li className="m-0 p-0">...</li>}</>;
                 })()}
             </ul>
         );
-        const cells: RowCell[] = [
-            { col: columns[0], content: set.Timeline?.TimelineName },
-            { col: columns[1], content: detail },
-            { col: columns[2], content: set.Timeline?.ModifyUser?.AccountName ?? "" },
-            { col: columns[3], content: FormatDateTime(set.Timeline?.ModifyTime) },
-        ];
+        const cells: RowCell[] = [{ col: columns[0], content: set.Timeline?.TimelineName }, { col: columns[1], content: detail }, {
+            col: columns[2],
+            content: set.Timeline?.ModifyUser?.AccountName ?? "",
+        }, { col: columns[3], content: FormatDateTime(set.Timeline?.ModifyTime) }];
         return { keyId, cells };
     });
 };

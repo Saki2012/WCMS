@@ -38,17 +38,10 @@ export const RelatedLinksSection = (props: RelatedLinksSectionProps) =>
 
     const initial = useMemo(() =>
     {
-        return toListInitial(
-            props.relatedLinksParam,
-            props.initialData.relatedLinksList ?? [],
-        );
+        return toListInitial(props.relatedLinksParam, props.initialData.relatedLinksList ?? []);
     }, [props.relatedLinksParam, props.initialData.relatedLinksList]);
 
-    const useWebSrc = adapter.hooks.useQueryList({
-        condition: props.relatedLinksParam,
-        initial,
-        deps: [props.relatedLinksParam.Condition ?? "", props.lang],
-    });
+    const useWebSrc = adapter.hooks.useQueryList({ condition: props.relatedLinksParam, initial, deps: [props.relatedLinksParam.Condition ?? "", props.lang] });
 
     // 執行 function
     if (!useWebSrc.data || useWebSrc.data.length === 0) return null;
@@ -76,10 +69,7 @@ export const RelatedLinksSection = (props: RelatedLinksSectionProps) =>
                                             // 宣告變數
                                             const id = data.WebResource?.WebResourceId;
                                             const picTitle = data.WebResource?.PicDescription ?? "";
-                                            const picSrc = FileManagementAPI.get_Public_Preview_Url(
-                                                data.WebResource?.PicId,
-                                                picTitle,
-                                            );
+                                            const picSrc = FileManagementAPI.get_Public_Preview_Url(data.WebResource?.PicId, picTitle);
                                             const dt = data.WebResourceInfo?.find(p => p.Lang === props.lang);
                                             const title = dt?.Title ?? "";
                                             const url = dt?.ResUrl ?? "";
@@ -87,27 +77,18 @@ export const RelatedLinksSection = (props: RelatedLinksSectionProps) =>
 
                                             // return
                                             return (
-                                                <div
-                                                    key={id}
-                                                    className="col-xl-3 col-lg-4 col-md-4 col-sm-6 col-6 + mb-4"
-                                                >
+                                                <div key={id} className="col-xl-3 col-lg-4 col-md-4 col-sm-6 col-6 + mb-4">
                                                     <figure className="figure_Box">
                                                         <LangNavLink
                                                             to={url}
                                                             className="card_image_link"
                                                             title={title}
                                                             target={tar}
-                                                            rel={dt?.Url_OpenType === 0
-                                                                ? undefined
-                                                                : "noopener noreferrer"}
+                                                            rel={dt?.Url_OpenType === 0 ? undefined : "noopener noreferrer"}
                                                         >
                                                             <div className="card_figure">
                                                                 <div className="img-wrapper">
-                                                                    <img
-                                                                        className="card_image"
-                                                                        src={picSrc}
-                                                                        alt={picTitle}
-                                                                    />
+                                                                    <img className="card_image" src={picSrc} alt={picTitle} />
                                                                 </div>
                                                             </div>
                                                         </LangNavLink>
@@ -120,13 +101,7 @@ export const RelatedLinksSection = (props: RelatedLinksSectionProps) =>
 
                                 <div className="btn-w100-wrapper justify-content-center">
                                     <div className="customize_btn">
-                                        <LangNavLink
-                                            to={"/About/About-others/Links"}
-                                            className="Btn_a"
-                                            role="button"
-                                            target="_self"
-                                            title="VIEW MORE"
-                                        >
+                                        <LangNavLink to={"/About/About-others/Links"} className="Btn_a" role="button" target="_self" title="VIEW MORE">
                                             <div className="BtnBox">
                                                 <span>VIEW MORE</span>
                                                 <span className="ml-2">

@@ -20,25 +20,16 @@ export class RolePermissionService extends ApiDataService<RolePermissionSet>
     /** 讀取權限目錄（custom endpoint） */
     async getPermissionCatalog(): Promise<ApiResponse<PermissionCatalog[]>>
     {
-        return await this.CallApi<PermissionCatalog[]>(() =>
-            this.Api.get<ApiResponse<PermissionCatalog[]>>(`${this.Module}/GetPermissionCatalog`)
-        );
+        return await this.CallApi<PermissionCatalog[]>(() => this.Api.get<ApiResponse<PermissionCatalog[]>>(`${this.Module}/GetPermissionCatalog`));
     }
 }
 
-export type UsePermissionCatalogOptions = {
-    lang: Lang;
-    apiInstance?: AxiosInstance;
-    deps?: EffectDeps;
-    onError?: (e: ApiAdapterError) => void;
-};
+export type UsePermissionCatalogOptions = { lang: Lang; apiInstance?: AxiosInstance; deps?: EffectDeps; onError?: (e: ApiAdapterError) => void; };
 
 export const RolePermissionAdapter = (apiInstance?: AxiosInstance) =>
 {
     // 宣告變數
-    const adapter = new ApiDataAdapter<RolePermissionSet, RolePermissionService>(
-        (api?: AxiosInstance) => new RolePermissionService(api ?? apiInstance),
-    );
+    const adapter = new ApiDataAdapter<RolePermissionSet, RolePermissionService>((api?: AxiosInstance) => new RolePermissionService(api ?? apiInstance));
 
     const usePermissionCatalog = (opt: UsePermissionCatalogOptions) =>
     {
@@ -63,10 +54,7 @@ export const RolePermissionAdapter = (apiInstance?: AxiosInstance) =>
 
                 if (!res.IsSuccess)
                 {
-                    const msg = (res.SysMessage ?? [])
-                        .map(m => m?.Message)
-                        .filter(Boolean)
-                        .join("；");
+                    const msg = (res.SysMessage ?? []).map(m => m?.Message).filter(Boolean).join("；");
 
                     setErrorText(msg || "讀取權限目錄失敗");
                     return;
@@ -76,10 +64,7 @@ export const RolePermissionAdapter = (apiInstance?: AxiosInstance) =>
             } catch (e)
             {
                 // 宣告變數：維持你們 adapter error 型別
-                const err: ApiAdapterError = {
-                    messageText: "讀取權限目錄失敗",
-                    sysMessages: [],
-                };
+                const err: ApiAdapterError = { messageText: "讀取權限目錄失敗", sysMessages: [] };
 
                 setErrorText(err.messageText);
                 opt.onError?.(err);
@@ -96,12 +81,7 @@ export const RolePermissionAdapter = (apiInstance?: AxiosInstance) =>
         }, deps); // eslint-disable-line react-hooks/exhaustive-deps
 
         // return（維持 query hook 的回傳風格）
-        return useMemo(() => ({
-            data,
-            isLoading,
-            errorText,
-            refetch,
-        }), [data, isLoading, errorText, refetch]);
+        return useMemo(() => ({ data, isLoading, errorText, refetch }), [data, isLoading, errorText, refetch]);
     };
 
     // ✅ 關鍵：擴充 hooks，但不把 adapter 展平成 plain object（保留 prototype：useServerActions）
@@ -109,10 +89,7 @@ export const RolePermissionAdapter = (apiInstance?: AxiosInstance) =>
         hooks: typeof adapter.hooks & { usePermissionCatalog: typeof usePermissionCatalog; };
     };
 
-    extAdapter.hooks = {
-        ...adapter.hooks,
-        usePermissionCatalog,
-    };
+    extAdapter.hooks = { ...adapter.hooks, usePermissionCatalog };
 
     // return：仍是 ApiDataAdapter instance
     return extAdapter;

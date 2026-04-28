@@ -48,9 +48,7 @@ export interface UseExecuteApiResult<TData>
 }
 
 /** ✅ 通用 API 執行器：把任意 Promise 包成「有 loading/error/data」的流程 */
-export const useExecuteApi = <TData = unknown>(
-    opt?: UseExecuteApiOptions<TData>,
-): UseExecuteApiResult<TData> =>
+export const useExecuteApi = <TData = unknown>(opt?: UseExecuteApiOptions<TData>): UseExecuteApiResult<TData> =>
 {
     const options = useMemo<Required<UseExecuteApiOptions<TData>>>(() => ({
         onSuccess: opt?.onSuccess ?? (() =>

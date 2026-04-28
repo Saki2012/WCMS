@@ -22,17 +22,19 @@ const toInitial = <TArgs, TData>(args: TArgs, data: TData) =>
     return { args, apiRes: { IsSuccess: true, Data: data, SysMessage: [] } };
 };
 
-export const AboutPage = (props: {
-    lang: Lang;
+export const AboutPage = (
+    props: {
+        lang: Lang;
 
-    webInternalId: string;
-    pageInternalId: string;
-    admissionsInternalId: string;
+        webInternalId: string;
+        pageInternalId: string;
+        admissionsInternalId: string;
 
-    initialWebResource: WebResourceSet | null;
-    initialPage: PageManagementSet | null;
-    initialAdmissionsBanner: BannerSet | null;
-}) =>
+        initialWebResource: WebResourceSet | null;
+        initialPage: PageManagementSet | null;
+        initialAdmissionsBanner: BannerSet | null;
+    },
+) =>
 {
     // 宣告變數：adapters
     const webAdapter = useMemo(() => WebResourceAdapter(), []);
@@ -52,17 +54,9 @@ export const AboutPage = (props: {
     }, [props.pageInternalId, props.initialPage]);
 
     // 執行 function：CSR hooks 接手（SSR 有 initial → 不重抓；CSR 無 initial → 會自動抓）
-    const webQ = webAdapter.hooks.useQueryData({
-        internalId: props.webInternalId,
-        initial: webInitial,
-        deps: [props.webInternalId],
-    });
+    const webQ = webAdapter.hooks.useQueryData({ internalId: props.webInternalId, initial: webInitial, deps: [props.webInternalId] });
 
-    const pageQ = pageAdapter.hooks.useQueryData({
-        internalId: props.pageInternalId,
-        initial: pageInitial,
-        deps: [props.pageInternalId],
-    });
+    const pageQ = pageAdapter.hooks.useQueryData({ internalId: props.pageInternalId, initial: pageInitial, deps: [props.pageInternalId] });
 
     // 宣告變數：依語系取對應 detail
     const webSrcDt = webQ.data?.WebResourceInfo?.find(p => p.Lang === props.lang);
@@ -98,9 +92,7 @@ export const AboutPage = (props: {
                                 </div>
 
                                 <div className="about-left">
-                                    <div className="about-txt">
-                                        {content}
-                                    </div>
+                                    <div className="about-txt">{content}</div>
 
                                     <div className="btn-w100-wrapper justify-content-start mt-sm-5 mt-4">
                                         <div className="customize_btn">
@@ -124,11 +116,7 @@ export const AboutPage = (props: {
                         </div>
 
                         {/* ✅ Admissions 也一起改成吃 loader initial + adapter hook */}
-                        <AdmissionsCarouselData
-                            lang={props.lang}
-                            internalId={props.admissionsInternalId}
-                            initialBanner={props.initialAdmissionsBanner}
-                        />
+                        <AdmissionsCarouselData lang={props.lang} internalId={props.admissionsInternalId} initialBanner={props.initialAdmissionsBanner} />
                     </div>
                 </div>
             </div>

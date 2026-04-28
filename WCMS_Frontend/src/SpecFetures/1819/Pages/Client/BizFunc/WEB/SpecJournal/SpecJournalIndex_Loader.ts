@@ -45,37 +45,21 @@ const buildBaseParam = (pageSize: number): QueryListParam =>
     };
 };
 /** ✅ SSR loader：Index 年度清單（含明細）首屏預載 */
-export const SpecJournalIndex_Loader =
-    (p?: { pageSize?: number; }) => async ({ request }: LoaderFunctionArgs): Promise<SpecJournalIndexLoaderData> =>
-    {
-        // 宣告變數
-        const pageSize = p?.pageSize ?? 10;
-        const baseParam = buildBaseParam(pageSize);
-        const ssrApi = getSsrApi(request);
-        const adapter = SpecJournalIndexAdapter(ssrApi);
+export const SpecJournalIndex_Loader = (p?: { pageSize?: number; }) => async ({ request }: LoaderFunctionArgs): Promise<SpecJournalIndexLoaderData> =>
+{
+    // 宣告變數
+    const pageSize = p?.pageSize ?? 10;
+    const baseParam = buildBaseParam(pageSize);
+    const ssrApi = getSsrApi(request);
+    const adapter = SpecJournalIndexAdapter(ssrApi);
 
-        // 執行 function：count/list
-        const countLoader = adapter.loader.createQueryCountLoader({
-            getCondition: () => baseParam,
-            getApiInstance: () => ssrApi,
-        });
+    // 執行 function：count/list
+    const countLoader = adapter.loader.createQueryCountLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
 
-        const listLoader = adapter.loader.createQueryListLoader({
-            getCondition: () => baseParam,
-            getApiInstance: () => ssrApi,
-        });
+    const listLoader = adapter.loader.createQueryListLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
 
-        const [countLD, listLD] = await Promise.all([
-            countLoader({ request } as LoaderFunctionArgs),
-            listLoader({ request } as LoaderFunctionArgs),
-        ]);
+    const [countLD, listLD] = await Promise.all([countLoader({ request } as LoaderFunctionArgs), listLoader({ request } as LoaderFunctionArgs)]);
 
-        // return
-        return {
-            args: { pageSize, baseParam },
-            res: {
-                countRes: countLD.apiRes.Data ?? 0,
-                listRes: listLD.apiRes.Data ?? [],
-            },
-        };
-    };
+    // return
+    return { args: { pageSize, baseParam }, res: { countRes: countLD.apiRes.Data ?? 0, listRes: listLD.apiRes.Data ?? [] } };
+};

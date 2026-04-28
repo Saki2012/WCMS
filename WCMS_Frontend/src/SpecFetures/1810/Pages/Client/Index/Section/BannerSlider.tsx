@@ -32,13 +32,16 @@ const SLIDE_INTERVAL = 5000;
 
 const emptyData: BannerSet = {
     Banner: {},
-    BannerDetail: [
-        { RowId: 1, Validate_Start: "", Validate_End: "", PicSrcId: "", FontColor: "" },
-    ],
-    BannerDetailInfo: [
-        { ParentRowId: 1, RowId: 1, Lang: "zh-tw", Title: "", Content: "", URL: "", URL_Open: 1 },
-        { ParentRowId: 1, RowId: 2, Lang: "en", Title: "", Content: "", URL: "", URL_Open: 1 },
-    ],
+    BannerDetail: [{ RowId: 1, Validate_Start: "", Validate_End: "", PicSrcId: "", FontColor: "" }],
+    BannerDetailInfo: [{ ParentRowId: 1, RowId: 1, Lang: "zh-tw", Title: "", Content: "", URL: "", URL_Open: 1 }, {
+        ParentRowId: 1,
+        RowId: 2,
+        Lang: "en",
+        Title: "",
+        Content: "",
+        URL: "",
+        URL_Open: 1,
+    }],
 };
 
 /// 取得 bootstrap carousel 類別
@@ -113,9 +116,7 @@ const getSortedDetails = (bannerData: BannerSet) =>
 /// 依語系取得 banner 文字資料
 const getBannerInfo = (bannerData: BannerSet, rowId?: number | null, bannerId?: string | null, lang?: Lang) =>
 {
-    return bannerData?.BannerDetailInfo?.find((item) =>
-        item.BannerId === bannerId && item.ParentRowId === rowId && item.Lang === lang
-    ) ?? null;
+    return bannerData?.BannerDetailInfo?.find((item) => item.BannerId === bannerId && item.ParentRowId === rowId && item.Lang === lang) ?? null;
 };
 
 /// 組出圖片預覽網址
@@ -144,18 +145,12 @@ const PCBanner = (props: { bannerData: BannerSet; lang: Lang; sortedDetails: Ban
                         const src = getPreviewUrl(item.PicSrcId);
 
                         return (
-                            <div
-                                key={`${item.RowId}-${index}`}
-                                className={clsx("carousel-item", index === 0 && "active")}
-                                data-bs-interval={SLIDE_INTERVAL}
-                            >
-                                {!url
-                                    ? <img src={src} className="d-block w-100" alt={alt} />
-                                    : (
-                                        <a href={url} target={target} rel="noopener noreferrer">
-                                            <img src={src} className="d-block w-100" alt={alt} />
-                                        </a>
-                                    )}
+                            <div key={`${item.RowId}-${index}`} className={clsx("carousel-item", index === 0 && "active")} data-bs-interval={SLIDE_INTERVAL}>
+                                {!url ? <img src={src} className="d-block w-100" alt={alt} /> : (
+                                    <a href={url} target={target} rel="noopener noreferrer">
+                                        <img src={src} className="d-block w-100" alt={alt} />
+                                    </a>
+                                )}
                             </div>
                         );
                     })}
@@ -233,15 +228,8 @@ const PCBanner = (props: { bannerData: BannerSet; lang: Lang; sortedDetails: Ban
 const MobileBanner = (props: { bannerData: BannerSet; lang: Lang; sortedDetails: BannerSet["BannerDetail"]; }) =>
 {
     return (
-        <div
-            className="customize_visualBox + animate__animated animate__slow wow fadeInRight d-xl-none d-lg-none d-md-none d-sm-block"
-            data-wow-delay="0.05s"
-        >
-            <div
-                id="carousel-Controls_MB"
-                className="carousel carousel-dark slide carousel-fade"
-                data-bs-ride="carousel"
-            >
+        <div className="customize_visualBox + animate__animated animate__slow wow fadeInRight d-xl-none d-lg-none d-md-none d-sm-block" data-wow-delay="0.05s">
+            <div id="carousel-Controls_MB" className="carousel carousel-dark slide carousel-fade" data-bs-ride="carousel">
                 <div className="carousel-inner">
                     {props.sortedDetails?.map((item, index) =>
                     {
@@ -249,11 +237,7 @@ const MobileBanner = (props: { bannerData: BannerSet; lang: Lang; sortedDetails:
                         const src = getPreviewUrl(item.PicSrcId);
 
                         return (
-                            <div
-                                key={`${item.RowId}-${index}`}
-                                className={clsx("carousel-item", index === 0 && "active")}
-                                data-bs-interval={SLIDE_INTERVAL}
-                            >
+                            <div key={`${item.RowId}-${index}`} className={clsx("carousel-item", index === 0 && "active")} data-bs-interval={SLIDE_INTERVAL}>
                                 <img src={src} className="d-block w-100" alt={alt} />
                             </div>
                         );

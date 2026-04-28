@@ -8,12 +8,13 @@ import { renderToString } from "react-dom/server";
 import * as HelmetAsync from "react-helmet-async";
 import { StaticRouterProvider } from "react-router-dom/server";
 
-const HelmetProvider = (HelmetAsync as any).HelmetProvider ?? (HelmetAsync as any).default?.HelmetProvider
-    // 萬一還是取不到，就用 no-op provider 避免 SSR 直接當掉
+const HelmetProvider = (HelmetAsync as any).HelmetProvider ?? (HelmetAsync as any).default?.HelmetProvider // 萬一還是取不到，就用 no-op provider 避免 SSR 直接當掉
     ?? (({ children }: any) => <>{children}</>);
-type RenderResult =
-    | { kind: "html"; appHtml: string; headTags: string; initialState: any; }
-    | { kind: "response"; status: number; headers: Record<string, string>; };
+type RenderResult = { kind: "html"; appHtml: string; headTags: string; initialState: any; } | {
+    kind: "response";
+    status: number;
+    headers: Record<string, string>;
+};
 
 export const SSR_Render = async (url: string, headers: Record<string, string> = {}): Promise<RenderResult> =>
 {
@@ -29,21 +30,13 @@ export const SSR_Render = async (url: string, headers: Record<string, string> = 
     }
 
     const siteHeaderMeta = getSiteHeaderMeta();
-    const boot = {
-        module: new AppRouteModule() as IRouteModule,
-        lang: headers["accept-language"] ?? "",
-        cookieLang: headers["cookie"] ?? "",
-    };
+    const boot = { module: new AppRouteModule() as IRouteModule, lang: headers["accept-language"] ?? "", cookieLang: headers["cookie"] ?? "" };
     const request = new Request("http://localhost" + url, { method: "GET", headers });
     const built = await createServerRouter(boot as any, request);
 
     if (built.kind === "response")
     {
-        return {
-            kind: "response",
-            status: built.response.status,
-            headers: Object.fromEntries(built.response.headers.entries()),
-        };
+        return { kind: "response", status: built.response.status, headers: Object.fromEntries(built.response.headers.entries()) };
     }
 
     const { router, context } = built;
@@ -52,11 +45,7 @@ export const SSR_Render = async (url: string, headers: Record<string, string> = 
 
     const initialState = {
         lang: (headers["accept-language"] ?? "zh-tw"),
-        hydrationData: {
-            loaderData: context.loaderData,
-            actionData: context.actionData,
-            errors: context.errors,
-        },
+        hydrationData: { loaderData: context.loaderData, actionData: context.actionData, errors: context.errors },
     };
 
     const appHtml = renderToString(
@@ -68,10 +57,7 @@ export const SSR_Render = async (url: string, headers: Record<string, string> = 
         </MessageProvider>,
     );
 
-    const headTags = [
-        helmetContext.helmet?.title?.toString() ?? "",
-        helmetContext.helmet?.meta?.toString() ?? "",
-    ].join("");
+    const headTags = [helmetContext.helmet?.title?.toString() ?? "", helmetContext.helmet?.meta?.toString() ?? ""].join("");
     return { kind: "html", appHtml, headTags, initialState };
 };
 

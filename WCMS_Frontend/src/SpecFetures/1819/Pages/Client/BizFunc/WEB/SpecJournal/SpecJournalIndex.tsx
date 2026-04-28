@@ -1,7 +1,5 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import ModuleContent, {
-    type ModuleViewCountConfig,
-} from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
+import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import { SpecJournalKeywordSearch_Comp } from "@/SpecFetures/1819/Pages/Client/BizFunc/WEB/SpecJournal/SpecJournalKeywordSearchComp";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
@@ -38,11 +36,7 @@ export const SpecJournalIndex = (props: { site: INormSite; node: INormNode; lang
     const useIndex = useSpecJournalIndex(adapter, pageSize, loaderData);
     const loadingList = useIndex.isLoading;
     const errorList = [useIndex.error];
-    const paginprops: PaginatorProps = {
-        currentPage: useIndex.pageNumber,
-        totalPages: useIndex.totalPages,
-        onPageChange: useIndex.onPageChange,
-    };
+    const paginprops: PaginatorProps = { currentPage: useIndex.pageNumber, totalPages: useIndex.totalPages, onPageChange: useIndex.onPageChange };
     const viewCountConfig: ModuleViewCountConfig = { mode: "list" };
     return (
         <ModuleContent
@@ -162,11 +156,7 @@ const animateAccordionPanel = (el: HTMLDivElement, isOpen: boolean): void =>
     el.dataset.timerId = String(timerId);
 };
 
-const useSpecJournalIndex = (
-    adapter: ReturnType<typeof SpecJournalIndexAdapter>,
-    pageSize: number,
-    loaderData: SpecJournalIndexLoaderData | null,
-) =>
+const useSpecJournalIndex = (adapter: ReturnType<typeof SpecJournalIndexAdapter>, pageSize: number, loaderData: SpecJournalIndexLoaderData | null) =>
 {
     // 宣告變數
     const baseParam = useMemo<QueryListParam>(() =>
@@ -189,10 +179,7 @@ const useSpecJournalIndex = (
         if (!loaderData?.args?.baseParam) return null;
         if (loaderData.args.pageSize !== pageSize) return null;
 
-        return {
-            args: loaderData.args.baseParam,
-            apiRes: { IsSuccess: true, Data: loaderData.res.countRes ?? 0, SysMessage: [] },
-        };
+        return { args: loaderData.args.baseParam, apiRes: { IsSuccess: true, Data: loaderData.res.countRes ?? 0, SysMessage: [] } };
     }, [loaderData, pageSize]);
 
     const initialList = useMemo<ApiLoaderData<QueryListParam, SpecJournalIndexSet[]> | null>(() =>
@@ -200,18 +187,12 @@ const useSpecJournalIndex = (
         if (!loaderData?.args?.baseParam) return null;
         if (loaderData.args.pageSize !== pageSize) return null;
 
-        return {
-            args: loaderData.args.baseParam,
-            apiRes: { IsSuccess: true, Data: loaderData.res.listRes ?? [], SysMessage: [] },
-        };
+        return { args: loaderData.args.baseParam, apiRes: { IsSuccess: true, Data: loaderData.res.listRes ?? [], SysMessage: [] } };
     }, [loaderData, pageSize]);
 
     const queryKey = useMemo(() =>
     {
-        return JSON.stringify({
-            condition: baseParam.Condition ?? "",
-            pageSize,
-        });
+        return JSON.stringify({ condition: baseParam.Condition ?? "", pageSize });
     }, [baseParam.Condition, pageSize]);
 
     const [hasPaged, setHasPaged] = useState<boolean>(false);
@@ -222,26 +203,14 @@ const useSpecJournalIndex = (
     }, [queryKey]);
 
     // 執行 function：count
-    const useCount = adapter.hooks.useQueryCount({
-        condition: baseParam,
-        initial: initialCount,
-        deps: [
-            queryKey,
-            baseParam.Condition,
-            baseParam.PageSize,
-        ],
-    });
+    const useCount = adapter.hooks.useQueryCount({ condition: baseParam, initial: initialCount, deps: [queryKey, baseParam.Condition, baseParam.PageSize] });
 
     // 執行 function：list
     const useList = adapter.hooks.usePagedQueryList({
         baseParam,
         count: useCount.data ?? 0,
         initial: hasPaged ? null : initialList,
-        deps: [
-            queryKey,
-            baseParam.Condition,
-            baseParam.PageSize,
-        ],
+        deps: [queryKey, baseParam.Condition, baseParam.PageSize],
     });
 
     const handlePageChange = (page: number): void =>
@@ -283,9 +252,7 @@ const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalInde
     useEffect(() =>
     {
         // 宣告變數：目前頁面上的所有 panel id
-        const panelIds = (props.data ?? [])
-            .map((group) => group.SpecJournalIndex?.IndexId ?? "")
-            .filter((id): id is string => id !== "");
+        const panelIds = (props.data ?? []).map((group) => group.SpecJournalIndex?.IndexId ?? "").filter((id): id is string => id !== "");
 
         panelIds.forEach((panelId) =>
         {
@@ -417,11 +384,7 @@ const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalInde
                                                         }}
                                                     >
                                                         <span className="fs-5">
-                                                            <i
-                                                                className={clsx("fas", "fa-folder-open", "me-3")}
-                                                                aria-hidden="true"
-                                                            >
-                                                            </i>
+                                                            <i className={clsx("fas", "fa-folder-open", "me-3")} aria-hidden="true"></i>
                                                             {indexTitle} {volTitle}
                                                         </span>
                                                     </a>
@@ -452,15 +415,9 @@ const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalInde
                                                                         >
                                                                             <div className="icontxtbox">
                                                                                 <span className="page_icon">
-                                                                                    <i
-                                                                                        className="far fa-file-alt"
-                                                                                        aria-hidden="true"
-                                                                                    >
-                                                                                    </i>
+                                                                                    <i className="far fa-file-alt" aria-hidden="true"></i>
                                                                                 </span>
-                                                                                <span className="icontxt">
-                                                                                    {volumeTitle}
-                                                                                </span>
+                                                                                <span className="icontxt">{volumeTitle}</span>
                                                                             </div>
                                                                         </LangLink>
                                                                     </li>

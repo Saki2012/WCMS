@@ -1,25 +1,16 @@
-/*Header模塊*/
-import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
-import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-import { A11yContent } from "@/SpecFetures/_default/Pages/Client/Scaffold/MainFrame/Header";
-import LogoImg from '@/SpecFetures/1817/Assets/Client/images/logo/LOGO_475x120.svg'
-import { useEffect, useRef } from "react";
-import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
-import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import { buildMenuItems } from "@/Features/Hooks/Common/BuildMenuItems";
-import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { SITEMAP_SEGMENT } from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap/Sitemap";
-import { LangSwitchBtn } from "@/Features/Pages/Client/Scaffold/MainFrame/LangSwitchBtn";
+import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
-
-type HeaderA11yText = {
-    mainNavLabel: string;
-    openNewWindowSuffix: string;
-    hamburger: string;
-    search: string;
-    logoLink: string;
-    logoAlt: string;
-};
+import { LangSwitchBtn } from "@/Features/Pages/Client/Scaffold/MainFrame/LangSwitchBtn";
+import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
+import LogoImg from "@/SpecFetures/1817/Assets/Client/images/logo/LOGO_475x120.svg";
+import { A11yContent } from "@/SpecFetures/_default/Pages/Client/Scaffold/MainFrame/Header";
+import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
+import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
+import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
+import { useEffect, useRef } from "react";
+type HeaderA11yText = { mainNavLabel: string; openNewWindowSuffix: string; hamburger: string; search: string; logoLink: string; logoAlt: string; };
 
 const HEADER_A11Y_TEXT: Partial<Record<Lang, HeaderA11yText>> = {
     "zh-tw": {
@@ -40,32 +31,35 @@ const HEADER_A11Y_TEXT: Partial<Record<Lang, HeaderA11yText>> = {
     },
 };
 
-const getHeaderA11y = (lang?: Lang): HeaderA11yText => {
+const getHeaderA11y = (lang?: Lang): HeaderA11yText =>
+{
     const key = (lang ?? DefaultLang) as Lang;
-    return HEADER_A11Y_TEXT[key] ?? HEADER_A11Y_TEXT[DefaultLang] ?? {
-        mainNavLabel: "Main menu",
-        openNewWindowSuffix: " (opens in a new window)",
-        hamburger: "Open main menu",
-        search: "Search",
-        logoLink: "Home",
-        logoAlt: "Site logo",
-    };
+    return HEADER_A11Y_TEXT[key] ?? HEADER_A11Y_TEXT[DefaultLang]
+        ?? {
+            mainNavLabel: "Main menu",
+            openNewWindowSuffix: " (opens in a new window)",
+            hamburger: "Open main menu",
+            search: "Search",
+            logoLink: "Home",
+            logoAlt: "Site logo",
+        };
 };
 
 const isBlankTarget = (t?: string) => String(t ?? "").toLowerCase() === "_blank";
 
-const withNewWindowSuffix = (a11y: HeaderA11yText, text: string, target?: string) => {
+const withNewWindowSuffix = (a11y: HeaderA11yText, text: string, target?: string) =>
+{
     return isBlankTarget(target) ? `${text}${a11y.openNewWindowSuffix}` : text;
 };
 
 const getRelByTarget = (target?: string) => (isBlankTarget(target) ? "noopener noreferrer" : undefined);
 
-
-
-const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
+const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
+{
     const headerRef = useRef<HTMLDivElement | null>(null);
 
-    useEffect(() => {
+    useEffect(() =>
+    {
         if (typeof window === "undefined") return;
 
         // 宣告變數
@@ -73,11 +67,11 @@ const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
         if (!header) return;
 
         // 執行 function：判斷是否手機寬度（Bootstrap lg 以下）
-        const isMobileWidth = (): boolean =>
-            window.matchMedia?.("(max-width: 991.98px)")?.matches ?? (window.innerWidth < 992);
+        const isMobileWidth = (): boolean => window.matchMedia?.("(max-width: 991.98px)")?.matches ?? (window.innerWidth < 992);
 
         // 執行 function：收起 navbar collapse + hamburger 狀態（避免手機預設展開）
-        const resetNavbarCollapse = () => {
+        const resetNavbarCollapse = () =>
+        {
             const collapse = header.querySelector<HTMLElement>("#navbar-content");
             collapse?.classList.remove("show");
 
@@ -88,7 +82,8 @@ const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
         };
 
         // 執行 function：控制 header overlay 開關
-        const setOpen = (open: boolean) => {
+        const setOpen = (open: boolean) =>
+        {
             header.classList.toggle("active", open);
             document.body.style.overflow = open ? "hidden" : "auto";
             if (!open) resetNavbarCollapse();
@@ -98,7 +93,8 @@ const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
         setOpen(false);
 
         // 執行 function：點擊事件（hamburger / overlay）
-        const onClick = (ev: MouseEvent) => {
+        const onClick = (ev: MouseEvent) =>
+        {
             const el = ev.target as Element;
 
             // 1) 點到 .navbar-toggler → 開/關
@@ -110,7 +106,8 @@ const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
         };
 
         // 執行 function：resize 進手機寬度時，清掉 dropdown/collapse 的殘留狀態
-        const onResize = () => {
+        const onResize = () =>
+        {
             if (!isMobileWidth()) return;
             setOpen(false);
         };
@@ -119,7 +116,8 @@ const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
         window.addEventListener("resize", onResize);
         window.addEventListener("orientationchange", onResize);
 
-        return () => {
+        return () =>
+        {
             header.removeEventListener("click", onClick);
             window.removeEventListener("resize", onResize);
             window.removeEventListener("orientationchange", onResize);
@@ -139,22 +137,26 @@ const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
 };
 export default Header;
 
-const Header_Section = (props: { lang: Lang; site: INormSite }) => {
+const Header_Section = (props: { lang: Lang; site: INormSite; }) =>
+{
     const sizeGroupRef = useRef<HTMLUListElement | null>(null);
 
-    useEffect(() => {
+    useEffect(() =>
+    {
         // 宣告變數
         const root = sizeGroupRef.current;
         if (!root) return;
 
         // 執行 function：字級按鈕互斥
-        const onClick = (ev: MouseEvent) => {
+        const onClick = (ev: MouseEvent) =>
+        {
             const target = (ev.target as Element).closest(".A-LMS") as HTMLElement | null;
             if (!target || !root.contains(target)) return;
 
             if (target.tagName === "A") ev.preventDefault();
 
-            root.querySelectorAll<HTMLElement>(".A-LMS").forEach(btn => {
+            root.querySelectorAll<HTMLElement>(".A-LMS").forEach(btn =>
+            {
                 btn.classList.remove("active");
                 btn.setAttribute("aria-pressed", "false");
             });
@@ -186,94 +188,92 @@ const Header_Section = (props: { lang: Lang; site: INormSite }) => {
     );
 };
 
-const NavBar = (props: { lang: Lang }) => {
-    const title =
-        props.lang === "zh-tw"
-            ? { Home: "首頁", TNUA: "臺北藝術大學", FB: "FB粉絲團", SiteMap: "網站導覽" }
-            : props.lang === "en"
-                ? { Home: "Home", TNUA: "TNUA", FB: "Facebook", SiteMap: "SiteMap" }
-                : ({} as any);
+const NavBar = (props: { lang: Lang; }) =>
+{
+    const title = props.lang === "zh-tw"
+        ? { Home: "首頁", TNUA: "臺北藝術大學", FB: "FB粉絲團", SiteMap: "網站導覽" }
+        : props.lang === "en"
+        ? { Home: "Home", TNUA: "TNUA", FB: "Facebook", SiteMap: "SiteMap" }
+        : ({} as any);
 
     return (
         <li>
             <ul className="nav custom_nav py-0 justify-content-center my-1">
                 <li className="nav-item">
-                    <LangLink className="nav-link" to="/" tabIndex={0} title={title.Home}>
-                        {title.Home}
-                    </LangLink>
+                    <LangLink className="nav-link" to="/" tabIndex={0} title={title.Home}>{title.Home}</LangLink>
                 </li>
                 <li className="nav-item">
-                    <a className="nav-link" href="https://w3.tnua.edu.tw/" tabIndex={0} target="_blank" title={title.TNUA}>
-                        {title.TNUA}
-                    </a>
+                    <a className="nav-link" href="https://w3.tnua.edu.tw/" tabIndex={0} target="_blank" title={title.TNUA}>{title.TNUA}</a>
                 </li>
                 <li className="nav-item">
-                    <a className="nav-link" href="https://www.facebook.com/TaiwanTraditionalMusic/" tabIndex={0} target="_blank" title={title.FB}>
-                        {title.FB}
-                    </a>
+                    <a className="nav-link" href="https://www.facebook.com/TaiwanTraditionalMusic/" tabIndex={0} target="_blank" title={title.FB}>{title.FB}</a>
                 </li>
                 <li className="nav-item">
-                    <LangLink className="nav-link" to={`/${SITEMAP_SEGMENT}`} tabIndex={0} target="_self" title={title.SiteMap}>
-                        {title.SiteMap}
-                    </LangLink>
+                    <LangLink className="nav-link" to={`/${SITEMAP_SEGMENT}`} tabIndex={0} target="_self" title={title.SiteMap}>{title.SiteMap}</LangLink>
                 </li>
             </ul>
         </li>
     );
 };
 
-const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
+const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
+{
     const menuRef = useRef<HTMLDivElement | null>(null);
 
-    useEffect(() => {
+    useEffect(() =>
+    {
         if (typeof window === "undefined") return;
 
         // 宣告變數
         const root = menuRef.current;
         if (!root) return;
 
-        const isMobileWidth = (): boolean =>
-            window.matchMedia?.("(max-width: 991.98px)")?.matches ?? (window.innerWidth < 992);
+        const isMobileWidth = (): boolean => window.matchMedia?.("(max-width: 991.98px)")?.matches ?? (window.innerWidth < 992);
 
         // ---------- 1) submenu 超出右緣 → 切換 show-left ----------
-        const updateDir = (hostEl: HTMLElement) => {
+        const updateDir = (hostEl: HTMLElement) =>
+        {
             const submenu = hostEl.querySelector<HTMLElement>(".dropdown-menu");
             if (!submenu) return;
             // 先清掉再判斷（避免殘留）
             hostEl.classList.remove("show-left");
             const rect = submenu.getBoundingClientRect();
             const winW = window.innerWidth || document.documentElement.clientWidth;
-            if (rect.right > winW) {
+            if (rect.right > winW)
+            {
                 hostEl.classList.add("show-left");
             }
         };
 
         const submenuEls = Array.from(root.querySelectorAll<HTMLElement>(".submenu"));
-        const onMouseEnter = (e: Event) => {
+        const onMouseEnter = (e: Event) =>
+        {
             const el = e.currentTarget as HTMLElement;
             requestAnimationFrame(() => updateDir(el));
         };
-        const onKeyEnter = (e: KeyboardEvent) => {
+        const onKeyEnter = (e: KeyboardEvent) =>
+        {
             if (e.key === "Enter") updateDir(e.currentTarget as HTMLElement);
         };
 
-        submenuEls.forEach(el => {
+        submenuEls.forEach(el =>
+        {
             el.addEventListener("mouseenter", onMouseEnter);
             el.addEventListener("keydown", onKeyEnter);
         });
 
         // ---------- 2) Enter 可切換（桌機） ----------
-        const toggleKeyHandler = (e: KeyboardEvent) => {
+        const toggleKeyHandler = (e: KeyboardEvent) =>
+        {
             if (e.key !== "Enter") return;
             e.preventDefault();
 
             // 手機板 Enter 也走「手動 toggle」
             const mobile = isMobileWidth();
-            if (mobile) {
+            if (mobile)
+            {
                 const toggle = e.currentTarget as HTMLElement;
-                const host =
-                    (toggle.closest("li.dropend.submenu") as HTMLElement | null) ||
-                    (toggle.closest("li.nav-item.dropdown") as HTMLElement | null);
+                const host = (toggle.closest("li.dropend.submenu") as HTMLElement | null) || (toggle.closest("li.nav-item.dropdown") as HTMLElement | null);
                 if (host) toggleHostManual(host);
                 return;
             }
@@ -295,7 +295,8 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
         navbarToggler?.removeAttribute("data-bs-target");
         navbarToggler?.removeAttribute("data-bs-parent");
 
-        const setHamburgerOpen = (open: boolean) => {
+        const setHamburgerOpen = (open: boolean) =>
+        {
             // 宣告變數
             const toggler = navbarToggler;
             if (!toggler) return;
@@ -313,7 +314,8 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
             document.body.style.overflow = open ? "hidden" : "auto";
         };
 
-        const onBurgerClick = (e: Event) => {
+        const onBurgerClick = (e: Event) =>
+        {
             e.preventDefault();
             e.stopPropagation();
 
@@ -327,14 +329,16 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
         navbarToggler?.addEventListener("click", onBurgerClick);
 
         // ---------- 4) 關閉/開啟工具 ----------
-        const closeAllDropdownStates = () => {
+        const closeAllDropdownStates = () =>
+        {
             // 關閉所有 show（包含 submenu）
             root.querySelectorAll<HTMLElement>(".dropdown-menu.show").forEach(m => m.classList.remove("show"));
             root.querySelectorAll<HTMLElement>("li.show").forEach(li => li.classList.remove("show"));
             root.querySelectorAll<HTMLElement>(".dropdown-toggle[aria-expanded='true']").forEach(t => t.setAttribute("aria-expanded", "false"));
         };
 
-        const closeSubtree = (host: HTMLElement) => {
+        const closeSubtree = (host: HTMLElement) =>
+        {
             host.classList.remove("show");
             const directMenu = host.querySelector<HTMLElement>(":scope > .dropdown-menu");
             directMenu?.classList.remove("show");
@@ -342,35 +346,42 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
             host.querySelectorAll<HTMLElement>(".dropdown-toggle").forEach(t => t.setAttribute("aria-expanded", "false"));
         };
 
-        const closeSiblings = (host: HTMLElement) => {
+        const closeSiblings = (host: HTMLElement) =>
+        {
             const parentMenu = host.parentElement?.closest("ul.dropdown-menu");
             if (!parentMenu) return;
-            Array.from(parentMenu.children).forEach(ch => {
+            Array.from(parentMenu.children).forEach(ch =>
+            {
                 const li = ch as HTMLElement;
                 if (li === host) return;
                 if (li.matches("li.dropend.submenu")) closeSubtree(li);
             });
         };
 
-        const toggleHostManual = (host: HTMLElement) => {
+        const toggleHostManual = (host: HTMLElement) =>
+        {
             // 宣告變數
             const directMenu = host.querySelector<HTMLElement>(":scope > .dropdown-menu");
             const toggle = host.querySelector<HTMLElement>(":scope > .dropdown-toggle");
 
             const isOpen = host.classList.contains("show") || !!directMenu?.classList.contains("show");
-            if (isOpen) {
+            if (isOpen)
+            {
                 // 執行 function：點同一個可以收回
                 closeSubtree(host);
                 return;
             }
 
             // 執行 function：互斥（同層）
-            if (host.matches("li.nav-item.dropdown")) {
+            if (host.matches("li.nav-item.dropdown"))
+            {
                 // 第一層互斥
-                Array.from(root.querySelectorAll<HTMLElement>(".navbar-nav > .nav-item.dropdown")).forEach(h => {
+                Array.from(root.querySelectorAll<HTMLElement>(".navbar-nav > .nav-item.dropdown")).forEach(h =>
+                {
                     if (h !== host) closeSubtree(h);
                 });
-            } else {
+            } else
+            {
                 // submenu 同層互斥
                 closeSiblings(host);
             }
@@ -381,7 +392,8 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
             toggle?.setAttribute("aria-expanded", "true");
         };
 
-        const closeMobileWholeMenu = () => {
+        const closeMobileWholeMenu = () =>
+        {
             // 關掉 dropdown
             closeAllDropdownStates();
 
@@ -404,7 +416,8 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
         // ---------- 5) 桌機 hover / focus 互斥 ----------
         let lastHoverHost: HTMLElement | null = null;
 
-        const onPointerOver = (e: Event) => {
+        const onPointerOver = (e: Event) =>
+        {
             if (isMobileWidth()) return;
 
             const host = (e.target as Element | null)?.closest?.(".navbar-nav > .nav-item.dropdown") as HTMLElement | null;
@@ -412,39 +425,43 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
             if (lastHoverHost === host) return;
             lastHoverHost = host;
 
-            Array.from(root.querySelectorAll<HTMLElement>(".navbar-nav > .nav-item.dropdown")).forEach(h => {
+            Array.from(root.querySelectorAll<HTMLElement>(".navbar-nav > .nav-item.dropdown")).forEach(h =>
+            {
                 if (h !== host) closeSubtree(h);
             });
         };
 
-        const onFocusIn = (e: Event) => {
+        const onFocusIn = (e: Event) =>
+        {
             if (isMobileWidth()) return;
 
             const host = (e.target as Element | null)?.closest?.(".navbar-nav > .nav-item.dropdown") as HTMLElement | null;
             if (!host || !root.contains(host)) return;
 
-            Array.from(root.querySelectorAll<HTMLElement>(".navbar-nav > .nav-item.dropdown")).forEach(h => {
+            Array.from(root.querySelectorAll<HTMLElement>(".navbar-nav > .nav-item.dropdown")).forEach(h =>
+            {
                 if (h !== host) closeSubtree(h);
             });
         };
 
         // ---------- 6) click：手機板手動開關 + 點 leaf 自動收合 ----------
-        const onRootClick = (e: MouseEvent) => {
+        const onRootClick = (e: MouseEvent) =>
+        {
             const el = e.target as Element | null;
             if (!el) return;
 
             const mobile = isMobileWidth();
 
             // A) 手機板：點 toggle（含 submenu）→ 可開可關
-            if (mobile) {
+            if (mobile)
+            {
                 const toggle = el.closest(".dropdown-toggle") as HTMLElement | null;
-                if (toggle && root.contains(toggle)) {
+                if (toggle && root.contains(toggle))
+                {
                     e.preventDefault();
                     e.stopPropagation();
 
-                    const host =
-                        (toggle.closest("li.dropend.submenu") as HTMLElement | null) ||
-                        (toggle.closest("li.nav-item.dropdown") as HTMLElement | null);
+                    const host = (toggle.closest("li.dropend.submenu") as HTMLElement | null) || (toggle.closest("li.nav-item.dropdown") as HTMLElement | null);
 
                     if (host) toggleHostManual(host);
                     return;
@@ -453,7 +470,8 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
                 // B) 手機板：點 leaf item → 收起整個 menu（含 overlay/collapse）
                 const leaf = el.closest("a.dropdown-item") as HTMLElement | null;
                 const isLeafToggle = !!el.closest("a.dropdown-item.dropdown-toggle");
-                if (leaf && !isLeafToggle) {
+                if (leaf && !isLeafToggle)
+                {
                     closeMobileWholeMenu();
                     return;
                 }
@@ -461,7 +479,8 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
                 // 手機板：點 nav-link（第一層沒有子項）也要收
                 const topNav = el.closest("a.nav-link") as HTMLElement | null;
                 const isTopToggle = !!el.closest("a.nav-link.dropdown-toggle");
-                if (topNav && !isTopToggle) {
+                if (topNav && !isTopToggle)
+                {
                     closeMobileWholeMenu();
                     return;
                 }
@@ -471,10 +490,13 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
 
             // 桌機：點第一層 toggle → 互斥（讓 Bootstrap 只留一個）
             const topToggle = el.closest(".navbar-nav > .nav-item.dropdown > .dropdown-toggle") as HTMLElement | null;
-            if (topToggle && root.contains(topToggle)) {
+            if (topToggle && root.contains(topToggle))
+            {
                 const host = topToggle.closest(".navbar-nav > .nav-item.dropdown") as HTMLElement | null;
-                if (host) {
-                    Array.from(root.querySelectorAll<HTMLElement>(".navbar-nav > .nav-item.dropdown")).forEach(h => {
+                if (host)
+                {
+                    Array.from(root.querySelectorAll<HTMLElement>(".navbar-nav > .nav-item.dropdown")).forEach(h =>
+                    {
                         if (h !== host) closeSubtree(h);
                     });
                 }
@@ -488,16 +510,19 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
             if (insideMenu && isAnchor && !isToggle) closeAllDropdownStates();
         };
 
-        const onDocPointerDown = (e: Event) => {
+        const onDocPointerDown = (e: Event) =>
+        {
             // 點外面就關 dropdown（桌機/手機皆可）
             if (!root.contains(e.target as Node)) closeAllDropdownStates();
         };
 
-        const onDocKeyDown = (e: KeyboardEvent) => {
+        const onDocKeyDown = (e: KeyboardEvent) =>
+        {
             if (e.key === "Escape") closeAllDropdownStates();
         };
 
-        const onResize = () => {
+        const onResize = () =>
+        {
             if (!isMobileWidth()) return;
             closeAllDropdownStates();
         };
@@ -510,8 +535,10 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
         window.addEventListener("resize", onResize);
         window.addEventListener("orientationchange", onResize);
 
-        return () => {
-            submenuEls.forEach(el => {
+        return () =>
+        {
+            submenuEls.forEach(el =>
+            {
                 el.removeEventListener("mouseenter", onMouseEnter);
                 el.removeEventListener("keydown", onKeyEnter);
             });
@@ -535,7 +562,12 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
             <div className="customMENU_Box bg-custom-Customize_color">
                 <div className="menuBox">
                     <div className="container-customize0">
-                        <div className="navbar navbar-expand-lg navbar-dark px-0 py-0" ref={menuRef} role="navigation" aria-label={getHeaderA11y(props.lang).mainNavLabel}>
+                        <div
+                            className="navbar navbar-expand-lg navbar-dark px-0 py-0"
+                            ref={menuRef}
+                            role="navigation"
+                            aria-label={getHeaderA11y(props.lang).mainNavLabel}
+                        >
                             <LogoComp lang={props.lang} />
                             <MobileBtn lang={props.lang} />
                             <MainMenu {...props} />
@@ -546,27 +578,23 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme }) =
         </section>
     );
 };
-const LogoComp = (props: { lang: Lang }) => {
+const LogoComp = (props: { lang: Lang; }) =>
+{
     // 宣告變數
     const a11y = getHeaderA11y(props.lang);
 
     // return
     return (
         <h1 className="logo">
-            <LangLink
-                className="navbar-brand"
-                to="/"
-                tabIndex={0}
-                title={a11y.logoLink}
-                aria-label={a11y.logoLink}
-            >
+            <LangLink className="navbar-brand" to="/" tabIndex={0} title={a11y.logoLink} aria-label={a11y.logoLink}>
                 <img src={LogoImg} alt={a11y.logoAlt} />
             </LangLink>
         </h1>
     );
 };
 
-const MobileBtn = (props: { lang: Lang }) => {
+const MobileBtn = (props: { lang: Lang; }) =>
+{
     // 宣告變數
     const a11y = getHeaderA11y(props.lang);
 
@@ -621,7 +649,8 @@ const MobileBtn = (props: { lang: Lang }) => {
     );
 };
 
-const MainMenu = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
+const MainMenu = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
+{
     const menuItems = GetMenuData(props.lang, props.site);
 
     return (
@@ -631,8 +660,7 @@ const MainMenu = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
                     <div key={idx}>
                         {item.SubItem?.length === 0
                             ? <SingleMenuItem lang={props.lang} menuItem={item} />
-                            : <DropdownMenuItem lang={props.lang} menuItem={item} />
-                        }
+                            : <DropdownMenuItem lang={props.lang} menuItem={item} />}
                     </div>
                 ))}
             </ul>
@@ -641,7 +669,8 @@ const MainMenu = (props: { lang: Lang; site: INormSite; style: IFETheme }) => {
 };
 
 /** 1. 一般單選 */
-const SingleMenuItem = (props: { lang: Lang; menuItem: MenuItemData }) => {
+const SingleMenuItem = (props: { lang: Lang; menuItem: MenuItemData; }) =>
+{
     // 宣告變數
     const a11y = getHeaderA11y(props.lang);
     const label = withNewWindowSuffix(a11y, props.menuItem.SrcData, props.menuItem.URL_Open);
@@ -659,18 +688,16 @@ const SingleMenuItem = (props: { lang: Lang; menuItem: MenuItemData }) => {
                 title={label}
                 aria-label={label}
             >
-                {/^https?:\/\//i.test(props.menuItem.Url || "") && (
-					<i className="fad fa-link me-2"></i>
-				)}
+                {/^https?:\/\//i.test(props.menuItem.Url || "") && <i className="fad fa-link me-2"></i>}
                 {props.menuItem.SrcData}
             </LangNavLink>
         </li>
     );
 };
 
-
 /** 2. 多層下拉 */
-const DropdownMenuItem = (props: { lang: Lang; menuItem: MenuItemData }) => {
+const DropdownMenuItem = (props: { lang: Lang; menuItem: MenuItemData; }) =>
+{
     // 宣告變數
     const a11y = getHeaderA11y(props.lang);
     const label = withNewWindowSuffix(a11y, props.menuItem.SrcData, props.menuItem.URL_Open);
@@ -695,14 +722,13 @@ const DropdownMenuItem = (props: { lang: Lang; menuItem: MenuItemData }) => {
                 {props.menuItem.SrcData}
             </LangNavLink>
 
-            <ul className="dropdown-menu">
-                {renderDropdownItems(props.menuItem.SubItem, 0, props.lang)}
-            </ul>
+            <ul className="dropdown-menu">{renderDropdownItems(props.menuItem.SubItem, 0, props.lang)}</ul>
         </li>
     );
 };
 
-const GetMenuData = (lang: Lang, site: INormSite): MenuItemData[] => {
+const GetMenuData = (lang: Lang, site: INormSite): MenuItemData[] =>
+{
     const roots = site.treeByLang?.[lang] ?? [];
     if (!roots) return [];
     return buildMenuItems(roots, 0);
@@ -711,18 +737,21 @@ const GetMenuData = (lang: Lang, site: INormSite): MenuItemData[] => {
 /**
  * 遞迴渲染多層選單
  */
-const renderDropdownItems = (items: MenuItemData[], parentDepth: number, lang: Lang): JSX.Element[] => {
+const renderDropdownItems = (items: MenuItemData[], parentDepth: number, lang: Lang): JSX.Element[] =>
+{
     // 宣告變數
     const a11y = getHeaderA11y(lang);
 
     // return
-    return items.map((item, index) => {
+    return items.map((item, index) =>
+    {
         const hasChildren = (item.SubItem ?? []).length > 0;
         const key = `${parentDepth}-${index}`;
         const label = withNewWindowSuffix(a11y, item.SrcData, item.URL_Open);
         const isExternal = /^https?:\/\//i.test(item.Url || "");
 
-        if (!hasChildren) {
+        if (!hasChildren)
+        {
             return (
                 <li key={key}>
                     <LangNavLink
@@ -763,9 +792,7 @@ const renderDropdownItems = (items: MenuItemData[], parentDepth: number, lang: L
                     {item.SrcData}
                 </LangNavLink>
 
-                <ul className={submenuClassName}>
-                    {renderDropdownItems(item.SubItem ?? [], parentDepth + 1, lang)}
-                </ul>
+                <ul className={submenuClassName}>{renderDropdownItems(item.SubItem ?? [], parentDepth + 1, lang)}</ul>
             </li>
         );
     });

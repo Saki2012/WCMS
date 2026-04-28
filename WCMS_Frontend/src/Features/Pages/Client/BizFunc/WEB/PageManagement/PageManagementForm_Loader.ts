@@ -43,127 +43,65 @@ export interface PageManagementFormFetchDataResult
 }
 
 /** 預設空資料，避免 component 端一直判空 */
-const emptyData: PageManagementSet = {
-    PageManagement: {},
-    PageManagementDetail: [],
-};
+const emptyData: PageManagementSet = { PageManagement: {}, PageManagementDetail: [] };
 
 /** 建立 SSR initial，讓 hydration 不重抓第一筆資料 */
 const buildInitialData = (
-    p: {
-        loaderData: PageManagementFormLoaderData | null;
-        pageId: string;
-        fallbackData: PageManagementSet;
-    },
+    p: { loaderData: PageManagementFormLoaderData | null; pageId: string; fallbackData: PageManagementSet; },
 ): ApiLoaderData<string, PageManagementSet> | null =>
 {
     if (!p.loaderData?.args?.pageId) return null;
     if (p.loaderData.args.pageId !== p.pageId) return null;
 
-    return {
-        args: p.pageId,
-        apiRes: {
-            IsSuccess: true,
-            Data: p.loaderData.res.dataRes ?? p.fallbackData,
-            SysMessage: [],
-        },
-    };
+    return { args: p.pageId, apiRes: { IsSuccess: true, Data: p.loaderData.res.dataRes ?? p.fallbackData, SysMessage: [] } };
 };
 
 /** 依語系取目前 detail */
-const findLangDetail = (
-    p: {
-        data: PageManagementSet;
-        lang: Lang;
-    },
-): PageManagementDetail | null =>
+const findLangDetail = (p: { data: PageManagementSet; lang: Lang; }): PageManagementDetail | null =>
 {
-    const detail = p.data.PageManagementDetail?.find(
-        (item) => (item.Lang ?? "").toLowerCase() === p.lang.toLowerCase(),
-    );
+    const detail = p.data.PageManagementDetail?.find((item) => (item.Lang ?? "").toLowerCase() === p.lang.toLowerCase());
 
     return detail ?? null;
 };
 
 /** SSR loader：預載指定 PageId 的單筆資料 */
 export const PageManagementForm_Loader =
-    (p: { lang: Lang; opts: IPageManagementOptions; }) =>
-    async ({ request }: LoaderFunctionArgs): Promise<PageManagementFormLoaderData> =>
+    (p: { lang: Lang; opts: IPageManagementOptions; }) => async ({ request }: LoaderFunctionArgs): Promise<PageManagementFormLoaderData> =>
     {
         const pageId = `${p.opts.PageId ?? ""}`.trim();
         const ssrApi = getSsrApi(request);
 
         if (!pageId)
         {
-            return {
-                args: { pageId },
-                res: { dataRes: null },
-            };
+            return { args: { pageId }, res: { dataRes: null } };
         }
 
         const adapter = PageManagementAdapter(ssrApi);
-        const dataLoader = adapter.loader.createQueryDataLoader({
-            getInternalId: () => pageId,
-            getApiInstance: () => ssrApi,
-        });
+        const dataLoader = adapter.loader.createQueryDataLoader({ getInternalId: () => pageId, getApiInstance: () => ssrApi });
 
         const dataLD = await dataLoader({ request } as LoaderFunctionArgs);
 
-        return {
-            args: { pageId },
-            res: {
-                dataRes: dataLD.apiRes.Data ?? null,
-            },
-        };
+        return { args: { pageId }, res: { dataRes: dataLD.apiRes.Data ?? null } };
     };
 
 /** 單一入口：PageManagement form 所有 data 都從這裡出去 */
-export const usePageManagementFormFetchData = (
-    p: {
-        lang: Lang;
-        pageId: string;
-        emptyData?: PageManagementSet;
-    },
-): PageManagementFormFetchDataResult =>
+export const usePageManagementFormFetchData = (p: { lang: Lang; pageId: string; emptyData?: PageManagementSet; }): PageManagementFormFetchDataResult =>
 {
     const loaderData = useLoaderData() as PageManagementFormLoaderData | null;
     const adapter = useMemo(() => PageManagementAdapter(), []);
     const fallbackData = p.emptyData ?? emptyData;
 
-    const initialData = useMemo(
-        () =>
-            buildInitialData({
-                loaderData,
-                pageId: p.pageId,
-                fallbackData,
-            }),
-        [loaderData, p.pageId, fallbackData],
-    );
+    const initialData = useMemo(() => buildInitialData({ loaderData, pageId: p.pageId, fallbackData }), [loaderData, p.pageId, fallbackData]);
 
-    const pageData = adapter.hooks.useQueryData({
-        internalId: p.pageId,
-        initial: initialData,
-        deps: [p.pageId, p.lang],
-    });
+    const pageData = adapter.hooks.useQueryData({ internalId: p.pageId, initial: initialData, deps: [p.pageId, p.lang] });
 
-    const data = useMemo(
-        () => pageData.data ?? fallbackData,
-        [pageData.data, fallbackData],
-    );
+    const data = useMemo(() => pageData.data ?? fallbackData, [pageData.data, fallbackData]);
 
-    const detail = useMemo(
-        () => findLangDetail({ data, lang: p.lang }),
-        [data, p.lang],
-    );
+    const detail = useMemo(() => findLangDetail({ data, lang: p.lang }), [data, p.lang]);
 
-    const parsed = useResolveInternalIds(detail?.Content ?? "", {
-        locale: p.lang,
-    });
+    const parsed = useResolveInternalIds(detail?.Content ?? "", { locale: p.lang });
 
-    const errorList = useMemo(
-        () => [pageData.errorText],
-        [pageData.errorText],
-    );
+    const errorList = useMemo(() => [pageData.errorText], [pageData.errorText]);
 
     return {
         data,

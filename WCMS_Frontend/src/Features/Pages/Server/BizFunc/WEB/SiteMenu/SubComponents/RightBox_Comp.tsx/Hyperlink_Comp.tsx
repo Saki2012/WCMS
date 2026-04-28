@@ -47,9 +47,7 @@ export const HyperlinkSettingTab = (prop: HyperlinkSettingTabProps) =>
     useEffect(() =>
     {
         if (siteIndex == null || rowId == null) return;
-        const exists = (prop.formData.data.SiteMenu_Item_Url ?? []).some((item) =>
-            item.SiteIndex === siteIndex && Number(item.ItemRowId) === Number(rowId)
-        );
+        const exists = (prop.formData.data.SiteMenu_Item_Url ?? []).some((item) => item.SiteIndex === siteIndex && Number(item.ItemRowId) === Number(rowId));
         if (!exists)
         {
             prop.formData.setFormData((prev) =>
@@ -58,15 +56,7 @@ export const HyperlinkSettingTab = (prop: HyperlinkSettingTabProps) =>
                 const list = [...(data.SiteMenu_Item_Url ?? [])];
                 return {
                     ...data,
-                    SiteMenu_Item_Url: [
-                        ...list,
-                        {
-                            SiteIndex: siteIndex,
-                            ItemRowId: Number(rowId),
-                            RedirectType: 1,
-                            RedirectUrl: "",
-                        } as SiteMenu_Item_Url,
-                    ],
+                    SiteMenu_Item_Url: [...list, { SiteIndex: siteIndex, ItemRowId: Number(rowId), RedirectType: 1, RedirectUrl: "" } as SiteMenu_Item_Url],
                 };
             });
         }
@@ -81,24 +71,14 @@ export const HyperlinkSettingTab = (prop: HyperlinkSettingTabProps) =>
         });
         prop.setNavType(Number(row?.RedirectType ?? 1) as MenuUrlType);
     }, [siteIndex, rowId, prop.formData.data.SiteMenu_Item_Url, prop.setNavType]);
-    const redirectTypeBind = prop.setField(
-        SiteMenuSetFields.SiteMenu_Item_Url,
-        SiteMenu_Item_UrlFields.RedirectType,
-        "number",
-        curRowKeys,
-    );
+    const redirectTypeBind = prop.setField(SiteMenuSetFields.SiteMenu_Item_Url, SiteMenu_Item_UrlFields.RedirectType, "number", curRowKeys);
     const effectiveNavType = useMemo(() =>
     {
         const raw = redirectTypeBind.InputValue;
         const value = Number(raw === "" || raw == null ? prop.navType ?? 1 : raw);
         return (Number.isFinite(value) && value > 0 ? value : 1).toString();
     }, [redirectTypeBind.InputValue, prop.navType]);
-    const redirectUrlBind = prop.setField(
-        SiteMenuSetFields.SiteMenu_Item_Url,
-        SiteMenu_Item_UrlFields.RedirectUrl,
-        "string",
-        curRowKeys,
-    );
+    const redirectUrlBind = prop.setField(SiteMenuSetFields.SiteMenu_Item_Url, SiteMenu_Item_UrlFields.RedirectUrl, "string", curRowKeys);
 
     return (
         <>
@@ -114,21 +94,8 @@ export const HyperlinkSettingTab = (prop: HyperlinkSettingTabProps) =>
                 }}
             />
             {effectiveNavType === "1"
-                ? (
-                    <LibTextBox
-                        Style={prop.theme.TextBox}
-                        DefaultInputDisplay="請輸入數字或英文，不可使用空白的"
-                        {...redirectUrlBind}
-                    />
-                )
-                : (
-                    <LibDropList
-                        Style={prop.theme.DropList}
-                        Options={internalUrlOptions}
-                        AutoDefaultFirst={false}
-                        {...redirectUrlBind}
-                    />
-                )}
+                ? <LibTextBox Style={prop.theme.TextBox} DefaultInputDisplay="請輸入數字或英文，不可使用空白的" {...redirectUrlBind} />
+                : <LibDropList Style={prop.theme.DropList} Options={internalUrlOptions} AutoDefaultFirst={false} {...redirectUrlBind} />}
         </>
     );
 };

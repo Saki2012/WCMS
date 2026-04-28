@@ -1,13 +1,7 @@
 // stringTools.ts
 
 /** 重新排序的模式 */
-export const RemergeSortMode = {
-    Auto: "Auto",
-    Number: "Number",
-    Natural: "Natural",
-    String: "String",
-    None: "None",
-};
+export const RemergeSortMode = { Auto: "Auto", Number: "Number", Natural: "Natural", String: "String", None: "None" };
 export type RemergeSortMode = typeof RemergeSortMode[keyof typeof RemergeSortMode];
 
 export interface RemergeOptions

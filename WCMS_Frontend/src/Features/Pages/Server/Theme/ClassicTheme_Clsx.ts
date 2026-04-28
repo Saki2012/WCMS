@@ -23,37 +23,21 @@ import type { IPaginator_Style } from "@/SysCore/Components/Paginator/Paginator_
 import { clsx } from "clsx";
 
 /** 後台BreadCrumb樣式 */
-export const Classic_BreadCrumb: IBreadCrumbStyle = {
-    ul: clsx("breadcrumb", "mb-0"),
-    li: (isLast: boolean) => clsx("breadcrumb-item", { "active": isLast }),
-};
+export const Classic_BreadCrumb: IBreadCrumbStyle = { ul: clsx("breadcrumb", "mb-0"), li: (isLast: boolean) => clsx("breadcrumb-item", { "active": isLast }) };
 
 /** 經典樣式 */
-export const Classic_NaviBarMenu: INaviBarStyle = {
-    ul: clsx("navbar-nav", "me-auto", "mb-2", "mb-lg-0"),
-    li: clsx("nav-item"),
-};
+export const Classic_NaviBarMenu: INaviBarStyle = { ul: clsx("navbar-nav", "me-auto", "mb-2", "mb-lg-0"), li: clsx("nav-item") };
 
 /** 經典Menu樣式 */
 export const Classic_SidebarMenu: IMenu_Style = {
     isUl: true,
-    ul: (lv: number, isExpanded?: boolean) =>
-        clsx(lv == 1 ? "pc-navbar" : "pc-submenu", { show: isExpanded, hide: !isExpanded }),
+    ul: (lv: number, isExpanded?: boolean) => clsx(lv == 1 ? "pc-navbar" : "pc-submenu", { show: isExpanded, hide: !isExpanded }),
     li: (lv, isFirst, hasMenu, isExpanded = false) =>
-        clsx("pc-item", {
-            "pc-caption": isFirst,
-            "Left_line": isFirst,
-            "pc-hasmenu": hasMenu,
-            "open-trigger": isExpanded,
-        }),
+        clsx("pc-item", { "pc-caption": isFirst, "Left_line": isFirst, "pc-hasmenu": hasMenu, "open-trigger": isExpanded }),
 };
 
 /** 頁籤樣式 */
-export const Classic_LibTabs: ILibTabsStyle = {
-    UlStyle: clsx("nav", "nav-tabs", "wcms-tabs"),
-    LiStyle: clsx("nav-item"),
-    BtnStyle: clsx("nav-link"),
-};
+export const Classic_LibTabs: ILibTabsStyle = { UlStyle: clsx("nav", "nav-tabs", "wcms-tabs"), LiStyle: clsx("nav-item"), BtnStyle: clsx("nav-link") };
 
 /** 下拉選單樣式 */
 export const Classic_LibDropList: ILibDropListStyle = {
@@ -119,18 +103,9 @@ export const Classic_LibFileInput: ILibFileInputStyle = {
     InputStyle: clsx("form-control"),
 };
 
-export const Classic_LibUserEditCard: ILibUserCardStyle = {
-    Bgstyle: clsx(""),
-    LinkType: "Edit",
-};
-export const Classic_LibUserImageUploadCard: ILibUserCardStyle = {
-    Bgstyle: clsx(""),
-    LinkType: "ImageUpload",
-};
-export const Classic_LibUserCard: ILibUserCardStyle = {
-    Bgstyle: clsx(""),
-    LinkType: "None",
-};
+export const Classic_LibUserEditCard: ILibUserCardStyle = { Bgstyle: clsx(""), LinkType: "Edit" };
+export const Classic_LibUserImageUploadCard: ILibUserCardStyle = { Bgstyle: clsx(""), LinkType: "ImageUpload" };
+export const Classic_LibUserCard: ILibUserCardStyle = { Bgstyle: clsx(""), LinkType: "None" };
 
 /** Grid表樣式 */
 export const Classic_GridView: IGridView_Style = {
@@ -153,23 +128,11 @@ export const Classic_Paginator: IPaginator_Style = {
     LastPage: clsx("far", "fa-arrow-to-right"),
 };
 /** 類別/標籤用的list表 */
-export const Classic_CategoryListTag: IMenu_Style = {
-    isUl: true,
-    ul: () => clsx("list-group", "p-0"),
-    li: () => clsx("list-group-item"),
-};
+export const Classic_CategoryListTag: IMenu_Style = { isUl: true, ul: () => clsx("list-group", "p-0"), li: () => clsx("list-group-item") };
 
-export const Classic_CheckBox: ILibCheckBoxStyle = {
-    Labelstyle: "",
-    SelectStyle: "",
-    OptionsStyle: "checkbox",
-};
+export const Classic_CheckBox: ILibCheckBoxStyle = { Labelstyle: "", SelectStyle: "", OptionsStyle: "checkbox" };
 
-export const Classic_RadioBox: ILibCheckBoxStyle = {
-    Labelstyle: "",
-    SelectStyle: "",
-    OptionsStyle: "radio",
-};
+export const Classic_RadioBox: ILibCheckBoxStyle = { Labelstyle: "", SelectStyle: "", OptionsStyle: "radio" };
 
 /** 經典主題 */
 export const Classic_BETheme: IBETheme = {

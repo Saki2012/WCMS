@@ -19,19 +19,11 @@ const emptyClientEntries = (): Record<string, ModuleEntry> => ({});
 const emptyCustomRoutes = async (): Promise<RouteObject[]> => [];
 export const getSpecClientEntries = (): Record<string, ModuleEntry> =>
 {
-    return resolveSpecFunc<Record<string, ModuleEntry>>(
-        "SpecRouter.tsx",
-        emptyClientEntries(),
-        ["specClientEntries", "default"],
-    );
+    return resolveSpecFunc<Record<string, ModuleEntry>>("SpecRouter.tsx", emptyClientEntries(), ["specClientEntries", "default"]);
 };
 export const getCustomRoutes = async (): Promise<RouteObject[]> =>
 {
-    const resolver = resolveSpecFunc<() => Promise<RouteObject[]>>(
-        "Pages/Route/CustomRoutes.ts",
-        emptyCustomRoutes,
-        ["getCustomRoutes", "default"],
-    );
+    const resolver = resolveSpecFunc<() => Promise<RouteObject[]>>("Pages/Route/CustomRoutes.ts", emptyCustomRoutes, ["getCustomRoutes", "default"]);
 
     return await resolver();
 };
@@ -39,9 +31,5 @@ export const getCustomRoutes = async (): Promise<RouteObject[]> =>
 const defaultSiteHeaderMeta: IHeaderMetaProps = { title: "網站標題", description: "網站標題描述" };
 export const getSiteHeaderMeta = (): IHeaderMetaProps =>
 {
-    return resolveSpecFunc<IHeaderMetaProps>(
-        "SpecRouter.tsx",
-        defaultSiteHeaderMeta,
-        ["siteHeaderMeta", "default"],
-    );
+    return resolveSpecFunc<IHeaderMetaProps>("SpecRouter.tsx", defaultSiteHeaderMeta, ["siteHeaderMeta", "default"]);
 };

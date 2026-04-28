@@ -37,9 +37,7 @@ type SiteViewCountDetailRow = {
     LinkClickCount?: number | null;
 };
 
-type SiteViewCountSetLike = SiteViewCountSet & {
-    SiteViewCountDetail?: SiteViewCountDetailRow[] | null;
-};
+type SiteViewCountSetLike = SiteViewCountSet & { SiteViewCountDetail?: SiteViewCountDetailRow[] | null; };
 
 export interface SpecJournalFormLoaderArgs
 {
@@ -171,9 +169,7 @@ const buildBaseParam = (journalId: string): QueryListParam =>
             `${SpecJournalModelFields._SpecJournalDocument}.${SpecJournalDocumentFields.DocumentType}`,
         ],
         Condition: condition,
-        RankGroups: [{
-            Condition: `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorType} = 0`,
-        }],
+        RankGroups: [{ Condition: `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorType} = 0` }],
         PageNumber: 1,
         PageSize: 1,
     };
@@ -217,22 +213,14 @@ const buildViewCountQuery = (internalId: string): QueryListParam =>
 /** 建立 loader initial 資料 */
 const buildLoaderInitial = <TArgs, TData>(args: TArgs, data: TData): ApiLoaderData<TArgs, TData> =>
 {
-    const apiRes: ApiResponse<TData> = {
-        IsSuccess: true,
-        Data: data,
-        SysMessage: [],
-    };
+    const apiRes: ApiResponse<TData> = { IsSuccess: true, Data: data, SysMessage: [] };
 
     // return
     return { args, apiRes };
 };
 
 /** 比對目前參數是否可沿用 loader 初始值 */
-const matchInitialArgs = <TArgs, TData>(
-    currentArgs: TArgs,
-    initialArgs: TArgs,
-    initialData: TData,
-): ApiLoaderData<TArgs, TData> | null =>
+const matchInitialArgs = <TArgs, TData>(currentArgs: TArgs, initialArgs: TArgs, initialData: TData): ApiLoaderData<TArgs, TData> | null =>
 {
     const currentKey = JSON.stringify(currentArgs ?? null);
     const initialKey = JSON.stringify(initialArgs ?? null);
@@ -257,12 +245,7 @@ const getSiteViewCountDetails = (item: SiteViewCountSet): SiteViewCountDetailRow
 /** 彙整瀏覽相關統計 */
 const buildViewCountData = (rows: SiteViewCountSet[]): SpecJournalViewCountData =>
 {
-    const result: SpecJournalViewCountData = {
-        pageViewCount: 0,
-        filePreviewCount: 0,
-        fileDownloadCount: 0,
-        linkClickCount: 0,
-    };
+    const result: SpecJournalViewCountData = { pageViewCount: 0, filePreviewCount: 0, fileDownloadCount: 0, linkClickCount: 0 };
 
     rows.forEach((item) =>
     {
@@ -282,60 +265,40 @@ const buildViewCountData = (rows: SiteViewCountSet[]): SpecJournalViewCountData 
 };
 
 /** ✅ SSR loader：文章 detail 首屏預載（1 筆 + viewCount） */
-export const SpecJournalForm_Loader =
-    () => async ({ request, params }: LoaderFunctionArgs): Promise<SpecJournalFormLoaderData> =>
-    {
-        const indexId = `${params?.indexId ?? ""}`.trim();
-        const rowId = `${params?.rowId ?? ""}`.trim();
-        const journalId = `${params?.journalId ?? ""}`.trim();
-        const baseParam = buildBaseParam(journalId);
+export const SpecJournalForm_Loader = () => async ({ request, params }: LoaderFunctionArgs): Promise<SpecJournalFormLoaderData> =>
+{
+    const indexId = `${params?.indexId ?? ""}`.trim();
+    const rowId = `${params?.rowId ?? ""}`.trim();
+    const journalId = `${params?.journalId ?? ""}`.trim();
+    const baseParam = buildBaseParam(journalId);
 
-        const ssrApi = getSsrApi(request);
-        const adapter = SpecJournalAdapter(ssrApi);
-        const siteViewAdapter = SiteViewCountAdapter(ssrApi);
+    const ssrApi = getSsrApi(request);
+    const adapter = SpecJournalAdapter(ssrApi);
+    const siteViewAdapter = SiteViewCountAdapter(ssrApi);
 
-        const countLoader = adapter.loader.createQueryCountLoader({
-            getCondition: () => baseParam,
-            getApiInstance: () => ssrApi,
-        });
+    const countLoader = adapter.loader.createQueryCountLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
 
-        const listLoader = adapter.loader.createQueryListLoader({
-            getCondition: () => baseParam,
-            getApiInstance: () => ssrApi,
-        });
+    const listLoader = adapter.loader.createQueryListLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
 
-        const [countLD, listLD] = await Promise.all([
-            countLoader({ request, params } as LoaderFunctionArgs),
-            listLoader({ request, params } as LoaderFunctionArgs),
-        ]);
+    const [countLD, listLD] = await Promise.all([
+        countLoader({ request, params } as LoaderFunctionArgs),
+        listLoader({ request, params } as LoaderFunctionArgs),
+    ]);
 
-        const listRes = listLD.apiRes.Data ?? [];
-        const currentInternalId = getSpecJournalInternalId(listRes);
-        const viewCountParam = buildViewCountQuery(currentInternalId);
+    const listRes = listLD.apiRes.Data ?? [];
+    const currentInternalId = getSpecJournalInternalId(listRes);
+    const viewCountParam = buildViewCountQuery(currentInternalId);
 
-        const viewCountLoader = siteViewAdapter.loader.createQueryListLoader({
-            getCondition: () => viewCountParam,
-            getApiInstance: () => ssrApi,
-        });
+    const viewCountLoader = siteViewAdapter.loader.createQueryListLoader({ getCondition: () => viewCountParam, getApiInstance: () => ssrApi });
 
-        const viewCountLD = await viewCountLoader({ request, params } as LoaderFunctionArgs);
+    const viewCountLD = await viewCountLoader({ request, params } as LoaderFunctionArgs);
 
-        // return
-        return {
-            args: {
-                indexId,
-                rowId,
-                journalId,
-                baseParam,
-                viewCountParam,
-            },
-            res: {
-                countRes: countLD.apiRes.Data ?? 0,
-                listRes,
-                viewCountRes: viewCountLD.apiRes.Data ?? [],
-            },
-        };
+    // return
+    return {
+        args: { indexId, rowId, journalId, baseParam, viewCountParam },
+        res: { countRes: countLD.apiRes.Data ?? 0, listRes, viewCountRes: viewCountLD.apiRes.Data ?? [] },
     };
+};
 
 /** CSR Hook：Component 最後一行直接取 detail + viewCount */
 export const useSpecJournalFormData = (): UseSpecJournalFormDataResult =>
@@ -354,11 +317,7 @@ export const useSpecJournalFormData = (): UseSpecJournalFormDataResult =>
         return buildLoaderInitial(initial.args.baseParam, initial.res.listRes);
     }, [initial.args.baseParam, initial.res.listRes]);
 
-    const useCount = adapter.hooks.useQueryCount({
-        condition: initial.args.baseParam,
-        initial: countInitial,
-        deps: [initial.args.journalId],
-    });
+    const useCount = adapter.hooks.useQueryCount({ condition: initial.args.baseParam, initial: countInitial, deps: [initial.args.journalId] });
 
     const useList = adapter.hooks.usePagedQueryList({
         baseParam: initial.args.baseParam,
@@ -379,11 +338,7 @@ export const useSpecJournalFormData = (): UseSpecJournalFormDataResult =>
 
     const viewCountInitial = useMemo(() =>
     {
-        return matchInitialArgs(
-            viewCountParam,
-            initial.args.viewCountParam,
-            initial.res.viewCountRes,
-        );
+        return matchInitialArgs(viewCountParam, initial.args.viewCountParam, initial.res.viewCountRes);
     }, [viewCountParam, initial.args.viewCountParam, initial.res.viewCountRes]);
 
     const viewCountParamKey = useMemo(() =>
@@ -391,11 +346,7 @@ export const useSpecJournalFormData = (): UseSpecJournalFormDataResult =>
         return JSON.stringify(viewCountParam ?? null);
     }, [viewCountParam]);
 
-    const useViewCount = siteViewAdapter.hooks.useQueryList({
-        condition: viewCountParam,
-        initial: viewCountInitial,
-        deps: [viewCountParamKey],
-    });
+    const useViewCount = siteViewAdapter.hooks.useQueryList({ condition: viewCountParam, initial: viewCountInitial, deps: [viewCountParamKey] });
 
     const viewCountData = useMemo(() =>
     {
@@ -404,11 +355,7 @@ export const useSpecJournalFormData = (): UseSpecJournalFormDataResult =>
 
     const errorList = useMemo(() =>
     {
-        return [
-            useCount.errorText,
-            useList.errorText,
-            useViewCount.errorText,
-        ].filter((x): x is string => Boolean(x));
+        return [useCount.errorText, useList.errorText, useViewCount.errorText].filter((x): x is string => Boolean(x));
     }, [useCount.errorText, useList.errorText, useViewCount.errorText]);
 
     // return

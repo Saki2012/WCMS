@@ -1,7 +1,7 @@
-import clsx from "clsx";
-import { useEffect, useId, useState, type ChangeEvent, type KeyboardEvent, type MouseEvent } from "react";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data.ts";
 import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
+import clsx from "clsx";
+import { type ChangeEvent, type KeyboardEvent, type MouseEvent, useEffect, useId, useState } from "react";
 
 /** 分頁 a11y 文案結構 */
 type PaginatorA11yText = {
@@ -10,10 +10,10 @@ type PaginatorA11yText = {
     prev: string;
     next: string;
     last: string;
-    input: string; //20260415
-    go: string; //20260415
-    goBtn: string; //20260415
-    total: (p: number) => string; //20260415
+    input: string; // 20260415
+    go: string; // 20260415
+    goBtn: string; // 20260415
+    total: (p: number) => string; // 20260415
     page: (p: number) => string;
     currentPage: (p: number) => string;
 };
@@ -28,10 +28,10 @@ const PAGINATOR_A11Y_MAP: Partial<Record<Lang, PaginatorA11yText>> = {
         last: "最後一頁",
         page: (p) => `第 ${p} 頁`,
         currentPage: (p) => `第 ${p} 頁，目前頁面`,
-        input: "輸入頁碼", //20260415
-        go: "前往頁面", //20260415
-        goBtn: "前往", //20260416
-        total: (p) => `/　${p}`, //20260415
+        input: "輸入頁碼", // 20260415
+        go: "前往頁面", // 20260415
+        goBtn: "前往", // 20260416
+        total: (p) => `/　${p}`, // 20260415
     },
     "zh-cn": {
         navLabel: "分页",
@@ -41,10 +41,10 @@ const PAGINATOR_A11Y_MAP: Partial<Record<Lang, PaginatorA11yText>> = {
         last: "最后一页",
         page: (p) => `第 ${p} 页`,
         currentPage: (p) => `第 ${p} 页，当前页`,
-        input: "输入页码", //20260415
-        go: "前往页面", //20260415
-        goBtn: "前往", //20260416
-        total: (p) => `/　${p}`, //20260415
+        input: "输入页码", // 20260415
+        go: "前往页面", // 20260415
+        goBtn: "前往", // 20260416
+        total: (p) => `/　${p}`, // 20260415
     },
     en: {
         navLabel: "Pagination",
@@ -54,15 +54,16 @@ const PAGINATOR_A11Y_MAP: Partial<Record<Lang, PaginatorA11yText>> = {
         last: "Last page",
         page: (p) => `Page ${p}`,
         currentPage: (p) => `Page ${p}, current page`,
-        input: "Enter page number", //20260415
-        go: "Go to page", //20260415
-        goBtn: "GO", //20260416
-        total: (p) => `of　${p}`, //20260415
+        input: "Enter page number", // 20260415
+        go: "Go to page", // 20260415
+        goBtn: "GO", // 20260416
+        total: (p) => `of　${p}`, // 20260415
     },
 };
 
 /** 取得分頁 a11y 文案（語系不在表內時，回退到 DefaultLang） */
-const getPaginatorA11y = (lang?: Lang): PaginatorA11yText => {
+const getPaginatorA11y = (lang?: Lang): PaginatorA11yText =>
+{
     // 宣告：fallback key
     const key = (lang ?? DefaultLang) as Lang;
 
@@ -79,10 +80,10 @@ const getPaginatorA11y = (lang?: Lang): PaginatorA11yText => {
         last: "最後一頁",
         page: (p) => `第 ${p} 頁`,
         currentPage: (p) => `第 ${p} 頁，目前頁面`,
-        input: "輸入頁碼", //20260415
-        go: "前往頁面", //20260415
-        goBtn: "前往", //20260416
-        total: (p) => `/　${p}`, //20260415
+        input: "輸入頁碼", // 20260415
+        go: "前往頁面", // 20260415
+        goBtn: "前往", // 20260416
+        total: (p) => `/　${p}`, // 20260415
     };
 };
 
@@ -101,14 +102,16 @@ const normalizePageInput = (value: string): string =>
 };
 
 /** 計算可視頁碼（最多顯示 maxVisible 個） */
-const buildVisiblePages = (currentPage: number, totalPages: number, maxVisible = 5): number[] => {
+const buildVisiblePages = (currentPage: number, totalPages: number, maxVisible = 5): number[] =>
+{
     // 宣告變數：計算左右範圍
     const half = Math.floor(maxVisible / 2);
     let start = Math.max(currentPage - half, 1);
     let end = start + maxVisible - 1;
 
     // 執行：向右超出就回推
-    if (end > totalPages) {
+    if (end > totalPages)
+    {
         end = totalPages;
         start = Math.max(end - maxVisible + 1, 1);
     }
@@ -121,11 +124,8 @@ const buildVisiblePages = (currentPage: number, totalPages: number, maxVisible =
 const isActivateKey = (key: string) => key === "Enter" || key === " ";
 
 /** a(role=button) 的 click 行為：disabled 時不動作 */
-const handleAnchorClick = (
-    e: MouseEvent<HTMLAnchorElement>,
-    isDisabled: boolean,
-    action: () => void
-) => {
+const handleAnchorClick = (e: MouseEvent<HTMLAnchorElement>, isDisabled: boolean, action: () => void) =>
+{
     // 執行：避免未來加 href 造成跳動
     e.preventDefault();
 
@@ -149,11 +149,8 @@ const handleAnchorClick = (
 //     action();
 // };
 /** a(role=button) 的鍵盤行為：Enter/Space 觸發 */
-const handleAnchorKeyDown = (
-    e: KeyboardEvent<HTMLAnchorElement>,
-    isDisabled: boolean,
-    action: () => void
-) => {
+const handleAnchorKeyDown = (e: KeyboardEvent<HTMLAnchorElement>, isDisabled: boolean, action: () => void) =>
+{
     // 執行：disabled 不處理
     if (isDisabled) return;
 
@@ -163,7 +160,8 @@ const handleAnchorKeyDown = (
     action();
 };
 /** 第一版本 無樣式 */
-export const Paginator = (props: PaginatorProps) => {
+export const Paginator = (props: PaginatorProps) =>
+{
     // 宣告：只有 1 頁就不渲染
     if (props.currentPage <= 1 && props.totalPages <= 1) return null;
 
@@ -196,7 +194,9 @@ export const Paginator = (props: PaginatorProps) => {
                             aria-label={a11y.first}
                             title={a11y.first}
                         >
-                            <span aria-hidden="true"><i className={props.style?.FirstPage}></i></span>
+                            <span aria-hidden="true">
+                                <i className={props.style?.FirstPage}></i>
+                            </span>
                         </a>
                     </li>
 
@@ -212,12 +212,15 @@ export const Paginator = (props: PaginatorProps) => {
                             aria-label={a11y.prev}
                             title={a11y.prev}
                         >
-                            <span aria-hidden="true"><i className={props.style?.PrePage}></i></span>
+                            <span aria-hidden="true">
+                                <i className={props.style?.PrePage}></i>
+                            </span>
                         </a>
                     </li>
 
                     {/* 中間頁碼 */}
-                    {visiblePages.map((page) => {
+                    {visiblePages.map((page) =>
+                    {
                         // 宣告：目前頁（不可 Tab focus）
                         const isCurrent = page === props.currentPage;
 
@@ -252,7 +255,9 @@ export const Paginator = (props: PaginatorProps) => {
                             aria-label={a11y.next}
                             title={a11y.next}
                         >
-                            <span aria-hidden="true"><i className={props.style?.NextPage}></i></span>
+                            <span aria-hidden="true">
+                                <i className={props.style?.NextPage}></i>
+                            </span>
                         </a>
                     </li>
 
@@ -268,7 +273,9 @@ export const Paginator = (props: PaginatorProps) => {
                             aria-label={a11y.last}
                             title={a11y.last}
                         >
-                            <span aria-hidden="true"><i className={props.style?.LastPage}></i></span>
+                            <span aria-hidden="true">
+                                <i className={props.style?.LastPage}></i>
+                            </span>
                         </a>
                     </li>
                 </ul>
@@ -278,7 +285,8 @@ export const Paginator = (props: PaginatorProps) => {
 };
 
 /** 第二版本 前台BaseLine用的格式，待確認這邊使用方式及邏輯*/
-export const NewPaginator = (props: PaginatorProps) => {
+export const NewPaginator = (props: PaginatorProps) =>
+{
     // 宣告：只有 1 頁就不渲染
     if (props.currentPage <= 1 && props.totalPages <= 1) return <></>;
 
@@ -340,7 +348,8 @@ export const NewPaginator = (props: PaginatorProps) => {
                         </li>
 
                         {/* 中間頁碼 */}
-                        {visiblePages.map((page) => {
+                        {visiblePages.map((page) =>
+                        {
                             // 宣告：目前頁（不可 Tab focus）
                             const isCurrent = page === props.currentPage;
 
@@ -402,7 +411,7 @@ export const NewPaginator = (props: PaginatorProps) => {
     );
 };
 
-//************************** */
+// ************************** */
 
 /** 第三版本 最新前台 BaseLine 用的格式 */
 export const NewPaginatorCanInputPage = (props: PaginatorProps) =>
@@ -412,7 +421,7 @@ export const NewPaginatorCanInputPage = (props: PaginatorProps) =>
 
     // 宣告變數：語系文案與 input id
     const a11y = getPaginatorA11y(props.lang);
-    
+
     const inputId = useId();
 
     // 宣告變數：輸入框頁碼
@@ -446,7 +455,8 @@ export const NewPaginatorCanInputPage = (props: PaginatorProps) =>
     const submitInputPage = () =>
     {
         // 宣告變數：空值時回復目前頁
-        if (!inputPage) {
+        if (!inputPage)
+        {
             syncInputPage(props.currentPage);
             return;
         }
@@ -493,7 +503,8 @@ export const NewPaginatorCanInputPage = (props: PaginatorProps) =>
         const raw = e.target.value;
 
         // 執行：允許清空，避免使用者刪除時卡住
-        if (raw === "") {
+        if (raw === "")
+        {
             setInputPage("");
             return;
         }
@@ -602,20 +613,16 @@ export const NewPaginatorCanInputPage = (props: PaginatorProps) =>
                                 </div>
                                 <div>
                                     {/* 總頁數 */}
-                                    <span className="page-link border-0 bg-transparent text-dark ps-0 d-flex align-items-center">{a11y.total(props.totalPages)}</span>
+                                    <span className="page-link border-0 bg-transparent text-dark ps-0 d-flex align-items-center">
+                                        {a11y.total(props.totalPages)}
+                                    </span>
                                 </div>
                             </div>
                         </li>
 
                         {/* GO */}
                         <li className="paginate_button pe-1">
-                            <button
-                                type="button"
-                                className="page-link go px-2"
-                                aria-label={a11y.go}
-                                title={a11y.go}
-                                onClick={handleGoPage}
-                            >
+                            <button type="button" className="page-link go px-2" aria-label={a11y.go} title={a11y.go} onClick={handleGoPage}>
                                 {a11y.goBtn}
                             </button>
                         </li>
@@ -653,7 +660,6 @@ export const NewPaginatorCanInputPage = (props: PaginatorProps) =>
                                 </span>
                             </a>
                         </li>
-
                     </ul>
                 </nav>
             </div>

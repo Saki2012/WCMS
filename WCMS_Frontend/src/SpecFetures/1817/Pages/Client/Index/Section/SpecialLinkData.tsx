@@ -19,9 +19,7 @@ interface SpecialLinkDataProps
     initialBanner: BannerSet | null;
 }
 
-type OwlResponsiveOption = {
-    items: number;
-};
+type OwlResponsiveOption = { items: number; };
 
 type OwlCarouselOptions = {
     items: number;
@@ -35,31 +33,16 @@ type OwlCarouselOptions = {
     responsive: Record<number, OwlResponsiveOption>;
 };
 
-type OwlJQueryElement = JQuery<HTMLElement> & {
-    owlCarousel: (options: OwlCarouselOptions) => OwlJQueryElement;
-};
+type OwlJQueryElement = JQuery<HTMLElement> & { owlCarousel: (options: OwlCarouselOptions) => OwlJQueryElement; };
 
-type JQueryGlobal =
-    & Window
-    & typeof globalThis
-    & {
-        $?: JQueryStatic;
-        jQuery?: JQueryStatic;
-    };
+type JQueryGlobal = Window & typeof globalThis & { $?: JQueryStatic; jQuery?: JQueryStatic; };
 
-const buildQueryDataInitial = (
-    internalId: string,
-    banner: BannerSet | null,
-): ApiLoaderData<string, BannerSet> | null =>
+const buildQueryDataInitial = (internalId: string, banner: BannerSet | null): ApiLoaderData<string, BannerSet> | null =>
 {
     // 宣告變數：沒有 SSR 初始資料時直接回 null
     if (!banner) return null;
 
-    const apiRes: ApiResponse<BannerSet> = {
-        IsSuccess: true,
-        Data: banner,
-        SysMessage: [],
-    };
+    const apiRes: ApiResponse<BannerSet> = { IsSuccess: true, Data: banner, SysMessage: [] };
 
     // return：Hydration 初始資料
     return { args: internalId, apiRes };
@@ -82,12 +65,8 @@ const sortBannerDetails = (banner: BannerSet | null): BannerDetail[] =>
     // return：依 Sort 與 RowId 穩定排序
     return [...list].sort((a, b) =>
     {
-        const aSort = Number.isFinite(a?.Sort)
-            ? Number(a.Sort)
-            : Number.MAX_SAFE_INTEGER;
-        const bSort = Number.isFinite(b?.Sort)
-            ? Number(b.Sort)
-            : Number.MAX_SAFE_INTEGER;
+        const aSort = Number.isFinite(a?.Sort) ? Number(a.Sort) : Number.MAX_SAFE_INTEGER;
+        const bSort = Number.isFinite(b?.Sort) ? Number(b.Sort) : Number.MAX_SAFE_INTEGER;
 
         return aSort - bSort || (a.RowId ?? 0) - (b.RowId ?? 0);
     });
@@ -99,11 +78,7 @@ const buildOwlKey = (lang: Lang, banner: BannerSet | null): string =>
     const details = sortBannerDetails(banner);
 
     // return：資料變更時用來強制重建 owl
-    return `${lang}|${
-        details
-            .map((item) => `${item.RowId ?? ""}_${item.PicSrcId ?? ""}_${item.Sort ?? ""}`)
-            .join("|")
-    }`;
+    return `${lang}|${details.map((item) => `${item.RowId ?? ""}_${item.PicSrcId ?? ""}_${item.Sort ?? ""}`).join("|")}`;
 };
 
 const initOwlCarousel = ($owl: OwlJQueryElement): void =>
@@ -118,13 +93,7 @@ const initOwlCarousel = ($owl: OwlJQueryElement): void =>
         autoplay: false,
         autoplayTimeout: 5000,
         autoplayHoverPause: true,
-        responsive: {
-            0: { items: 2 },
-            575: { items: 2 },
-            767: { items: 3 },
-            991: { items: 4 },
-            1199: { items: 5 },
-        },
+        responsive: { 0: { items: 2 }, 575: { items: 2 }, 767: { items: 3 }, 991: { items: 4 }, 1199: { items: 5 } },
     });
 };
 
@@ -140,10 +109,7 @@ const destroyOwlSafe = ($owl: JQuery<HTMLElement>): void =>
     }
 };
 
-const updateToggleButton = (
-    toggleEl: HTMLAnchorElement,
-    isPlaying: boolean,
-): void =>
+const updateToggleButton = (toggleEl: HTMLAnchorElement, isPlaying: boolean): void =>
 {
     // 宣告變數：按鈕內 icon / sr-only
     const iconBox = toggleEl.querySelector(".control-toggle");
@@ -189,28 +155,17 @@ const findBannerInfo = (
     // return：依語系找對應資訊
     return banner?.BannerDetailInfo?.find((item) =>
     {
-        return (
-            item.BannerId === bannerId
-            && item.ParentRowId === rowId
-            && item.Lang === lang
-        );
+        return (item.BannerId === bannerId && item.ParentRowId === rowId && item.Lang === lang);
     });
 };
 
-const renderLinkCard = (props: {
-    item: BannerDetail;
-    info: BannerDetailInfo | undefined;
-    index: number;
-}) =>
+const renderLinkCard = (props: { item: BannerDetail; info: BannerDetailInfo | undefined; index: number; }) =>
 {
     // 宣告變數：畫面資料
     const alt = props.info?.Title ?? "";
     const url = props.info?.URL ?? "";
     const target = props.info?.URL_Open === 0 ? "_self" : "_blank";
-    const imgUrl = FileManagementAPI.get_Public_Preview_Url(
-        props.item.PicSrcId,
-        alt,
-    );
+    const imgUrl = FileManagementAPI.get_Public_Preview_Url(props.item.PicSrcId, alt);
 
     const cardBody = (
         <article className="cardbox">
@@ -242,11 +197,7 @@ const renderLinkCard = (props: {
     // return：有連結就渲染 LangLink，否則維持卡片
     if (!url)
     {
-        return (
-            <div className="item" key={props.item.RowId ?? props.index}>
-                {cardBody}
-            </div>
-        );
+        return <div className="item" key={props.item.RowId ?? props.index}>{cardBody}</div>;
     }
 
     return (
@@ -278,11 +229,7 @@ export const SpecialLinkData = (props: SpecialLinkDataProps) =>
     }, [props.internalId, props.initialBanner]);
 
     // 執行 function：Banner QueryData
-    const bannerQuery = adapter.hooks.useQueryData({
-        internalId: props.internalId,
-        initial,
-        deps: [props.internalId],
-    });
+    const bannerQuery = adapter.hooks.useQueryData({ internalId: props.internalId, initial, deps: [props.internalId] });
 
     // 宣告變數：排序後明細
     const sortedDetails = useMemo(() =>
@@ -411,26 +358,12 @@ export const SpecialLinkData = (props: SpecialLinkDataProps) =>
                                         </div>
                                     </div>
 
-                                    <div
-                                        className="owl-carousel owl-theme"
-                                        id="Zone_owl_carousel"
-                                        key={owlKey}
-                                        ref={carouselRef}
-                                    >
+                                    <div className="owl-carousel owl-theme" id="Zone_owl_carousel" key={owlKey} ref={carouselRef}>
                                         {sortedDetails.map((item, index) =>
                                         {
-                                            const info = findBannerInfo(
-                                                bannerQuery.data ?? null,
-                                                item.BannerId,
-                                                item.RowId,
-                                                props.lang,
-                                            );
+                                            const info = findBannerInfo(bannerQuery.data ?? null, item.BannerId, item.RowId, props.lang);
 
-                                            return renderLinkCard({
-                                                item,
-                                                info,
-                                                index,
-                                            });
+                                            return renderLinkCard({ item, info, index });
                                         })}
                                     </div>
                                 </div>

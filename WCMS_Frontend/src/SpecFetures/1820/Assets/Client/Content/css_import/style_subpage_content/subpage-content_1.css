@@ -79,6 +79,7 @@
     height: 100%;
     /*background-color: rgba(0, 0, 0, 0.35);*/
 	background-color: rgba(0, 0, 0, 0.125);
+	background-color: rgba(255, 255, 255, 0.35);
 }
 /*----------------------------------------------*/
 .Mask_before {
@@ -3552,7 +3553,8 @@
     flex-direction: column;
     min-width: 0;
     word-wrap: break-word;
-    background-color: var(--FFFcolor);
+    /*background-color: var(--FFFcolor);*/
+	background-color: transparent;
     background-clip: border-box;
     border: none;
     border-radius: 4px;
@@ -3604,6 +3606,7 @@
 .FAQBar .card-header a.card-link[aria-expanded="true"] {
     color: var(--FFFcolor);                    /* 展開改變文字顏色 */
     background-color: var(--Customize_color);  /* 展開改變背景顏色 */
+	border: 1px solid var(--Customize_color);
 }ㄋ
 /* ===== [ card-link 標題 ] ===== */
 /* =============================================================== */
@@ -3632,7 +3635,8 @@
 /* =============================================================== */
 /* FAQ 內容顯示 =================================================== */
 .FAQBar .card-body {
-    border-top: 1px solid rgba(0, 0, 0, .1);
+    /*border-top: 1px solid rgba(0, 0, 0, .1);*/
+	border: 1px solid var(--Customize_color);
     padding-top: 1.85rem;
 	padding-right: 1.375rem;
 	padding-left: 1.375rem;
@@ -6764,6 +6768,724 @@
 /* =============================================================== */
 /* =====  內頁  客製 商品項目說明 ITEM  /////  ( 圖右邊說明 用 )  ===== */
 /* =============================================================== */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ====================================================== */
+/* =====  首頁 展演活動 區 SharedCarouselDivBox ============= */
+/* ====================================================== */
+.SharedCarouselDivBox {
+    position: relative;
+	display: block;
+	background-color: transparent;
+	/*background-image: url(images/bg/.....);*/
+	/*background-size: cover;*/
+	background-repeat: no-repeat;
+	background-position: center top;
+}
+
+.SharedCarouselDivBox .Mask-DivBox {
+	position: relative;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: cover;
+	background-attachment: fixed;
+	width: 100%;
+	margin: 0 auto;
+}
+/* ============================================= */
+/* ------ content-box -------------------------- */
+.SharedCarouselDivBox.owl-box .content-box {
+    display: block;
+    position: relative;
+    padding: 0;
+}
+/* ------ content-box -------------------------- */
+
+/* ------ owl-stage-outer ---------------------- */
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-stage-outer {
+	position: relative;
+	overflow: hidden;
+	-webkit-transform: translate3d(0, 0, 0);
+	transform: translate3d(0, 0, 0);
+	margin-bottom: 2rem;
+}
+
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-item .item {
+	margin: 1px;
+}
+/* ------ owl-stage-outer ---------------------- */
+/* ============================================= */
+
+/*=============================================*/
+/* ==   輪播 內容ITEM   =========================*/
+/*=============================================*/
+.SharedCarouselDivBox .item a {
+	position: relative;
+	display: block;
+	margin-bottom: 1rem;
+}
+.SharedCarouselDivBox .item a:focus {
+    text-decoration: none;
+    outline: 2px solid #43B5FC;
+	outline-offset: -2px;
+}
+/*=============================================*/
+/* ==   ITEM 內容區塊 開始   ====================*/
+.SC-headerBox {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
+	
+	padding: 1.25rem;
+	margin: 2rem 0 3rem 0;
+	border: 1px solid var(--Customize_ACcolor);
+}
+/*----------------------------------------------*/
+.SC-header-title {
+	font-size: clamp(150%, 3.25vw, 200%);
+	font-weight: 700;
+}
+/*----------------------------------------------*/
+.SC-header-small {
+	font-size: clamp(93.75%, 3.25vw, 100%);
+	font-weight: 700;
+}
+/*----------------------------------------------*/
+/* 容器設定 */
+.SC-row {
+	display: flex;
+	flex-direction: column; /* 手機版：由上而下 (圖片先出現) */
+	align-items: center;
+	position: relative;
+}
+@media (min-width: 992px) {
+	.SC-row {
+		flex-direction: row-reverse; /* 翻轉：圖片在右，文字在左 */
+	}
+}
+/*----------------------------------------------*/
+/* 圖片樣式 */
+.SC-image-container {
+	width: 100%;
+	z-index: 1;
+}
+@media (min-width: 992px) {
+	.SC-image-container {
+		flex: 0 0 65%; /* 圖片佔 65% */
+	}
+}
+/*----------------------------------------------*/
+.SC-image-container img {
+	width: 100%;
+	height: 300px;
+	object-fit: cover;
+	display: block;
+}
+@media (min-width: 992px) {
+	.SC-image-container img {
+		height: 500px;
+	}
+}
+/*----------------------------------------------*/
+/* 文字方塊樣式 */
+.SC-info-card {	
+	width: 100%; /* 手機版稍微縮排 */
+	margin-top: -30px; /* 手機版稍微壓在圖片上，若不需要可改 0 */
+	padding: 30px;
+	z-index: 1;
+	border: 1px solid var(--Customize_ACcolor);
+	background-color: rgba(255, 255, 255, 0.5);
+	box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+@media (min-width: 992px) {
+	.SC-info-card {
+		flex: 0 0 40%; /* 文字佔 45% */
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		
+		margin-top: 0;
+		margin-right: -5%; /* 關鍵：向右偏移壓在圖片上 */
+		padding: 30px;
+		min-height: 400px;		
+	}
+}
+/*----------------------------------------------*/
+.SC-content {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	background-color: var(--FFFcolor);
+}
+/*----------------------------------------------*/
+.SC-info-card ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	border-top: none;
+}
+.SC-info-card li.li_row {
+	--bs-gutter-x: 1.5rem;
+	--bs-gutter-y: 0;
+	display: flex;
+	flex-wrap: wrap;
+	
+	/*font-size: clamp(93.75%, 3.25vw, 106.25%);*/
+	/*font-weight: 600;*/
+	
+	width: 100%;
+	padding: 1.0rem 0 1.0rem 0;
+	margin-top: calc(-1 * var(--bs-gutter-y));
+	margin-right: 0;
+	margin-left: 0;	
+	border-bottom: 1px solid rgba(0, 0, 0, 0.175);
+}
+@media screen and (max-width: 767px) {
+    .SC-info-card li.li_row {
+        padding: 1.25rem 0;
+    }
+}
+/*=============================================*/
+/* ==   輪播 內容ITEM   =========================*/
+/*=============================================*/
+
+/* ******************************************************** */
+/* ******************************************************** */
+
+/*=============================================*/
+/* ==   左右選擇鍵 [ 下方 LEFT 左邊 ]   ==========*/
+/*=============================================*/
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav {
+    display: flex;
+    flex-direction: row;
+	flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    margin-top: 0px;
+    /*width: calc(4px + var(--Customize_size_80) + 4px  + 4px + var(--Customize_size_80) + 4px);*/
+	
+	position: relative;
+	left: 0;
+	bottom: 0px;
+	
+	/*display: none;*/
+}
+@media screen and (max-width: 768px) {
+    .SharedCarouselDivBox.owl-box .owl-carousel .owl-nav {
+		width: calc(4px + 1rem + var(--Customize_size_40) + 1rem + 4px + 4px + 1rem + var(--Customize_size_40) + 1rem + 4px);
+        bottom: 0px;
+		
+		display: flex;
+    }
+}
+/* ------------------------------------------------------------*/
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-prev,
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-next {
+    cursor: pointer;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-prev,
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-next { 
+	position: relative; 
+	top: 45%;
+	font: inherit;
+	color: inherit;	
+	background: 0 0;
+	z-index: 2;
+		
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	padding: 0.25rem 0.25rem !important;
+	border: 1px solid var(--G999color); 
+	background-color: transparent;
+	overflow: hidden;
+	border-radius: 2rem;
+}
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-prev,
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-next {
+	width: var(--Customize_size_80);
+	height: var(--Customize_size_40);	
+}
+@media screen and (max-width: 768px) {
+    .SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-prev,
+    .SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-next {
+        width: var(--Customize_size_48);
+		height: var(--Customize_size_32);
+    }
+}
+/*..............................................................................*/
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-prev {
+	position: relative;
+	left: 0;
+	/*right: 0px;*/
+	margin: 0 4px;	
+}
+/*..............................................................................*/
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-next {
+	position: relative;
+	left: 0;
+	/*right: 0px;*/
+	margin: 0 4px;	
+}
+/*..............................................................................*/
+/* HOVER + ACTIVE */
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-prev:hover,
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-next:hover,
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-prev:active,
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-next:active {
+    background-color: var(--Customize_HRcolor) !important;        /*★★★ 重要 HOVER變色 ★★★*/
+}
+/*..............................................................................*/
+/* FOCUS */
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-prev:focus,
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-next:focus {
+	display: block;
+	outline: 2px solid #43B5FC !important;
+    outline-offset: -2px;
+    background-color: #ffa700 !important;        /*★★★ 重要 焦點變色 ★★★*/
+}
+/*..............................................................................*/
+/*..............................................................................*/
+/*..............................................................................*/
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-prev span,
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-next span {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	height: 100px;
+	transform: translate(-50%, -50%);
+	
+	border: none !important;
+	background-color: transparent !important;
+	border-radius: 0%;
+} 
+/*@media(max-width: 991px) {
+	.newsbox-section.swiper-box .owl-carousel .owl-nav button.owl-prev span,
+    .newsbox-section.swiper-box .owl-carousel .owl-nav button.owl-next span {
+		border: 1px solid transparent !important;
+	    background-color: transparent !important;
+	}
+}*/
+/*..............................................................................*/
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-prev span {
+	content: url("../../../images/owl-carousel/prev_long_arrow_B.svg");
+	width: var(--Customize_size_32);
+	height: var(--Customize_size_32);
+}
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-next span {
+	content: url("../../../images/owl-carousel/next_long_arrow_B.svg");
+	width: var(--Customize_size_32);
+	height: var(--Customize_size_32);
+}
+@media screen and (max-width: 768px) {
+    .SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-prev span {
+        width: var(--Customize_size_24);
+		height: var(--Customize_size_24);
+    }
+    .SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-next span {
+		width: var(--Customize_size_24);
+		height: var(--Customize_size_24);
+    }
+}
+/*..............................................................................*/
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-prev:hover span {
+	content: url("../../../images/owl-carousel/prev_long_arrow_W.svg");
+	border: none !important;
+	background-color: none !important;
+}
+.SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-next:hover span {
+	content: url("../../../images/owl-carousel/next_long_arrow_W.svg");
+	border: none !important;
+	background-color: none !important;
+} 
+/*=============================================*/
+/* ==   左右選擇鍵 [ 下方 LEFT 左邊 ]   ==========*/
+/*=============================================*/
+
+/* ******************************************************** */
+/* ******************************************************** */
+
+/*=============================================*/
+/* ==   單一顆 暫停 / 撥放 [ 輪播 ]   ============*/
+/*=============================================*/
+.SharedCarouselDivBox .DIV-singleBox {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	align-items: center;
+
+    position: absolute;
+	/*width: 32px;*/
+	
+	/*display: none;*/
+}
+@media screen and (max-width: 767px) {
+	.SharedCarouselDivBox .DIV-singleBox {
+		right: 0;
+        top: -39px;
+		
+		display: flex;
+	}
+}
+@media screen and (min-width: 768px) {
+	.SharedCarouselDivBox .DIV-singleBox {
+		right: 0;
+		top: -39px;
+	}
+}
+
+.SharedCarouselDivBox .control-singlebox {
+    display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	
+    position: relative;
+    z-index: 2;
+}
+
+.SharedCarouselDivBox .control-singlebox a {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	
+	width: var(--Customize_size_48);
+	height: var(--Customize_size_32);
+	padding: 0.25rem 0.25rem;
+	border-radius: 2rem;
+	border: 1px solid var(--G999color);
+	background-color: rgba(255, 255, 255, 0.25);
+	overflow: hidden;
+}
+@media screen and (max-width: 767px) {
+	.SharedCarouselDivBox .control-singlebox a {
+		width: var(--Customize_size_40);
+		height: var(--Customize_size_32);
+	}
+}
+/*..............................................................................*/
+/* HOVER + ACTIVE */
+.SharedCarouselDivBox .control-singlebox a:hover,
+.SharedCarouselDivBox .control-singlebox a:active {
+    background-color: var(--Customize_HRcolor) !important;        /*★★★ 重要 HOVER變色 ★★★*/
+}
+/*..............................................................................*/
+/* FOCUS */
+.SharedCarouselDivBox .control-singlebox a:focus {
+	display: block;
+	outline: 2px solid #43B5FC !important;
+    outline-offset: -2px;
+    background-color: #ffa700 !important;        /*★★★ 重要 焦點變色 ★★★*/
+}
+/*..............................................................................*/
+/*..............................................................................*/
+/*..............................................................................*/
+.SharedCarouselDivBox .control-singlebox a > .control-toggle {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+
+	width: var(--Customize_size_32);
+	height: var(--Customize_size_32);
+	border-radius: 100%;
+	border: 1px solid transparent !important;
+	background-color: transparent !important;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: cover;
+	outline: none;
+}
+/*..............................................................................*/
+.SharedCarouselDivBox .control-singlebox a > .control-pause-icon {
+    content: url(../../../images/owl-carousel/control-pause-B-icon.svg);
+	background-image: none;
+}
+
+.SharedCarouselDivBox .control-singlebox a > .control-play-icon {
+    content: url(../../../images/owl-carousel/control-start-B-icon.svg);
+	background-image: none;
+}
+
+.SharedCarouselDivBox .control-singlebox a:hover > .control-pause-icon,
+.SharedCarouselDivBox .control-singlebox a:focus > .control-pause-icon {
+    content: url(../../../images/owl-carousel/control-pause-W-icon.svg);
+}
+
+.SharedCarouselDivBox .control-singlebox a:hover > .control-play-icon,
+.SharedCarouselDivBox .control-singlebox a:focus > .control-play-icon {
+    content: url(../../../images/owl-carousel/control-start-W-icon.svg);
+}
+/*=============================================*/
+/* ==   單一顆 暫停 / 撥放 [ 輪播 ] END   ========*/
+/*=============================================*/
+/* ******************************************************** */
+/* ******************************************************** */
+/*=============================================*/
+/* ==   兩顆 暫停 / 撥放 [ 輪播 ]   ==============*/
+/*=============================================*/
+.SharedCarouselDivBox .DIV-Box {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+	
+	position: absolute;
+	/*width: 150px;*/
+	padding: 0;
+	
+	display: none;
+}
+@media screen and (max-width: 767px) {
+	.SharedCarouselDivBox .DIV-Box {
+		right: 0px;
+        top: -55px;
+	}
+}
+@media screen and (min-width: 768px) {
+	.SharedCarouselDivBox .DIV-Box {
+		right: 0;
+		top: -80px;
+	}
+}
+/*.SharedCarouselDivBox .DIV-Box::before {
+    content: "";
+    position: relative;
+    height: 1px;
+    width: 75%;
+    background-color: #006d66;
+    left: 0;
+    top: 24px;
+}*/
+
+.SharedCarouselDivBox .control-box {	
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+    
+	position: relative;
+    left: calc((100% - 1170px) / 2);
+    left: 0;
+    z-index: 2;
+        
+    color: var(--FFFcolor);
+    text-align: center;
+}
+@media screen and (max-width: 768px) {
+	.SharedCarouselDivBox .control-box {	
+		padding: 0px; 
+	}
+}
+/*..............................................................................*/
+.SharedCarouselDivBox a.play,
+.SharedCarouselDivBox a.stop {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	width: var(--Customize_size_48);
+	height: var(--Customize_size_32);
+	padding: 0.25rem 0.25rem;
+	border-radius: 2rem;
+	border: 1px solid var(--G999color);
+	background-color: transparent;
+	overflow: hidden;
+}
+@media screen and (max-width: 767px) {
+	.SharedCarouselDivBox a.play,
+	.SharedCarouselDivBox a.stop {
+		width: var(--Customize_size_40);
+  		height: var(--Customize_size_32);
+	}
+}
+/*..............................................................................*/
+/* HOVER + ACTIVE */
+.SharedCarouselDivBox a:hover.play,
+.SharedCarouselDivBox a:hover.stop
+.SharedCarouselDivBox a:active.play,
+.SharedCarouselDivBox a:active.stop {
+	background-color: var(--Customize_HRcolor) !important;        /*★★★ 重要 HOVER變色 ★★★*/
+}/*..............................................................................*/
+/* FOCUS */
+.SharedCarouselDivBox a:focus.play,
+.SharedCarouselDivBox a:focus.stop {
+	text-decoration: none;
+	outline: thin dotted;
+	outline: 2px solid var(--a_focusbordercolor);
+	outline-offset: 0px;
+	color: var(--blackcolor) !important;
+	background-color: var(--a_focuscolor) !important;
+}
+/*..............................................................................*/
+/*..............................................................................*/
+/*..............................................................................*/
+.SharedCarouselDivBox .contrl_start,
+.SharedCarouselDivBox .contrl_pause {
+	position: relative;
+	width: var(--Customize_size_32);
+	height: var(--Customize_size_32);
+	
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	
+	border-radius: 2rem;
+	z-index: 2; /*999*/
+}
+@media screen and (max-width: 767px) {
+	.SharedCarouselDivBox .contrl_start,
+	.SharedCarouselDivBox .contrl_pause {
+		width: var(--Customize_size_32);
+  		height: var(--Customize_size_32);
+	}
+    /*...................................*/
+	.SharedCarouselDivBox .control-start {
+		right: calc(1.5% + 5px);
+	}
+	.SharedCarouselDivBox .control-pause {
+		right: 1.5%;
+	}
+}
+/*..............................................................................*/
+.SharedCarouselDivBox .control-start-icon,
+.SharedCarouselDivBox .control-pause-icon {
+	display: inline-block;
+	width: var(--Customize_size_32);
+  	height: var(--Customize_size_32);
+	background-position-x: 50%;
+	background-position-y: center;
+	background-repeat: no-repeat;
+	background-attachment: scroll;
+	background-image: none;
+	background-size: 100% 100%;
+	background-origin: padding-box;
+	background-clip: border-box;
+}
+.SharedCarouselDivBox .control-start-icon:hover,
+.SharedCarouselDivBox .control-pause-icon:hover {
+	opacity: 1;
+}
+/*..............................................................................*/
+.SharedCarouselDivBox .control-start-icon {
+    background-image: url(../../../images/owl-carousel/control-start-B-icon.svg);
+    opacity: .85;
+}
+/*..............................................................................*/
+.SharedCarouselDivBox .control-pause-icon {
+    background-image: url(../../../images/owl-carousel/control-pause-B-icon.svg);
+    opacity: .85;
+}
+/*..............................................................................*/
+.SharedCarouselDivBox a:hover .control-start-icon,
+.SharedCarouselDivBox a:focus .control-start-icon {
+    background-image: url(../../../images/owl-carousel/control-start-W-icon.svg);
+    opacity: .85;
+}
+.SharedCarouselDivBox a:hover .control-pause-icon,
+.SharedCarouselDivBox a:focus .control-pause-icon {
+    background-image: url(../../../images/owl-carousel/control-pause-W-icon.svg);
+    opacity: .85;
+}
+/*..............................................................................*/
+
+.SharedCarouselDivBox .control-start:focus, 
+.SharedCarouselDivBox .control-pause:focus {
+    text-decoration: none;
+    outline: 2px solid #43B5FC;
+	outline-offset: -2px;
+	background-color: var(--Customize_HRcolor);        /*★★★ 重要 焦點變色 ★★★*/
+	border-radius: 2rem;
+}
+/*..............................................................................*/
+
+/*=============================================*/
+/* ==   兩顆 暫停 / 撥放 [ 輪播 ] END   ==========*/
+/*=============================================*/
+/* ====================================================== */
+/* =====  首頁 展演活動 區 SharedCarouselDivBox ============= */
+/* ====================================================== */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

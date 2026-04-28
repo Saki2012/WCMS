@@ -57,13 +57,7 @@ export class ApiBaseService
         const env: ApiResponse<U> = {
             IsSuccess: false,
             Data: null,
-            SysMessage: [
-                {
-                    Status: MessageStatus.Error,
-                    MessageCode: `Http Error ${httpStatus}`,
-                    Message: message,
-                } as SysMessageModel,
-            ],
+            SysMessage: [{ Status: MessageStatus.Error, MessageCode: `Http Error ${httpStatus}`, Message: message } as SysMessageModel],
         };
         return env;
     }
@@ -78,20 +72,20 @@ export class ApiDataService<T> extends ApiBaseService
     }
     async update(internalId: string, data: T): Promise<ApiResponse<T>>
     {
-        return await this.CallApi<T>(() =>this.Api.put<ApiResponse<T>>(`${this.Module}/Update`, { InternalId: internalId, Data: data }));
+        return await this.CallApi<T>(() => this.Api.put<ApiResponse<T>>(`${this.Module}/Update`, { InternalId: internalId, Data: data }));
     }
     async delete(internalId: string): Promise<ApiResponse<T>>
     {
-        return await this.CallApi<T>(() =>this.Api.delete<ApiResponse<T>>(`${this.Module}/Delete`, { params: { internalId } }));
+        return await this.CallApi<T>(() => this.Api.delete<ApiResponse<T>>(`${this.Module}/Delete`, { params: { internalId } }));
     }
     async invalid(internalId: string, isInvalid: boolean): Promise<ApiResponse<T>>
     {
-        return await this.CallApi<T>(() =>this.Api.delete<ApiResponse<T>>(`${this.Module}/Invalid`, { data: { internalId, isInvalid } }));
+        return await this.CallApi<T>(() => this.Api.delete<ApiResponse<T>>(`${this.Module}/Invalid`, { data: { internalId, isInvalid } }));
     }
     async queryData(internalId: string): Promise<ApiResponse<T>>
     {
-        const query= await this.CallApi<T>(() =>this.Api.get<ApiResponse<T>>(`${this.Module}/QueryData`, { params: { internalId } }));
-        return query
+        const query = await this.CallApi<T>(() => this.Api.get<ApiResponse<T>>(`${this.Module}/QueryData`, { params: { internalId } }));
+        return query;
     }
     async queryList(condition: QueryListParam): Promise<ApiResponse<T[]>>
     {
@@ -99,11 +93,11 @@ export class ApiDataService<T> extends ApiBaseService
     }
     async queryCount(condition: QueryListParam): Promise<ApiResponse<number>>
     {
-        return await this.CallApi<number>(() =>this.Api.post<ApiResponse<number>>(`${this.Module}/GetTotalCounts`, condition));
+        return await this.CallApi<number>(() => this.Api.post<ApiResponse<number>>(`${this.Module}/GetTotalCounts`, condition));
     }
     async getModelDisplayName(): Promise<ApiResponse<ModelDisplaySchema[]>>
     {
-        return await this.CallApi<ModelDisplaySchema[]>(() =>this.Api.get<ApiResponse<ModelDisplaySchema[]>>(`${this.Module}/GetModelDisplayName`));
+        return await this.CallApi<ModelDisplaySchema[]>(() => this.Api.get<ApiResponse<ModelDisplaySchema[]>>(`${this.Module}/GetModelDisplayName`));
     }
 }
 
@@ -115,100 +109,98 @@ export class SystemAPI extends ApiBaseService
     }
     async getEnumOptions(enumName: string): Promise<ApiResponse<EnumOption[]>>
     {
-        return await this.CallApi<EnumOption[]>(() =>this.Api.get(`${this.Module}/GetEnumOptions`, { params: { enumName } }));
+        return await this.CallApi<EnumOption[]>(() => this.Api.get(`${this.Module}/GetEnumOptions`, { params: { enumName } }));
     }
 }
 
 export class FileManagementAPI
 {
-    //#region property
+    // #region property
     private static readonly BASEURL = PGID.FileManagement;
     private static readonly baseUrl = "/Service";
 
-    //#region 前台使用公開API
+    // #region 前台使用公開API
     private static readonly PUBLIC_PREVIEW_URL: string = `${this.baseUrl}/${this.BASEURL}/Public_Preview`;
     private static readonly PUBLIC_DOWNLOAD_URL: string = `${this.baseUrl}/${this.BASEURL}/Public_Download`;
-    //#endregion
+    // #endregion
 
-    //#region 後台權限使用API
+    // #region 後台權限使用API
     private static readonly SERVER_Preview_URL: string = `${this.baseUrl}/${this.BASEURL}/Server_Preview`;
     private static readonly SERVER_DOWNLOAD_URL: string = `${this.baseUrl}/${this.BASEURL}/Server_Download`;
     /** 後台上傳檔案url (但流程應該可以優化共用，待處理) */
     public static readonly Server_UploadTemp: string = `${this.baseUrl}/${this.BASEURL}/Server_UploadTemp`;
-    //#endregion
+    // #endregion
 
-    //#endregion
-    
-    //#region Public
+    // #endregion
 
-    //#region 前台使用公開API
+    // #region Public
+
+    // #region 前台使用公開API
     /** 取得前台預覽網址
-     * 
-     * @param internalId 
-     * @param fileName 
-     * @returns 
+     *
+     * @param internalId
+     * @param fileName
+     * @returns
      */
     public static get_Public_Preview_Url(internalId: string | null | undefined, fileName?: string | null | undefined): string
     {
-        if(!internalId?.trim()) return "";
+        if (!internalId?.trim()) return "";
         const baseUrl = `${this.PUBLIC_PREVIEW_URL}/${encodeURIComponent(internalId)}`;
         return `${baseUrl}${this.buildQueryString(fileName)}`;
     }
     /** 取得前台下載網址
-     * 
-     * @param internalId 
-     * @param fileName 
-     * @returns 
+     *
+     * @param internalId
+     * @param fileName
+     * @returns
      */
     public static get_Public_Download_Url(internalId: string | null | undefined, fileName?: string | null | undefined): string
     {
-        if(!internalId?.trim()) return "";
+        if (!internalId?.trim()) return "";
         const baseUrl = `${this.PUBLIC_DOWNLOAD_URL}/${encodeURIComponent(internalId)}`;
         return `${baseUrl}${this.buildQueryString(fileName)}`;
     }
-    //#endregion
+    // #endregion
 
-    //#region 後台權限使用API
+    // #region 後台權限使用API
     /** 取得前台預覽網址
-     * 
-     * @param internalId 
-     * @param fileName 
-     * @returns 
+     *
+     * @param internalId
+     * @param fileName
+     * @returns
      */
     public static get_Server_Preview_Url(internalId: string | null | undefined, fileName?: string | null | undefined): string
     {
-        if(!internalId?.trim()) return "";
+        if (!internalId?.trim()) return "";
         const baseUrl = `${this.SERVER_Preview_URL}/${encodeURIComponent(internalId)}`;
         return `${baseUrl}${this.buildQueryString(fileName)}`;
     }
     /** 取得後台下載網址
-     * 
-     * @param internalId 
-     * @param fileName 
-     * @returns 
+     *
+     * @param internalId
+     * @param fileName
+     * @returns
      */
     public static get_Server_Download_Url(internalId: string | null | undefined, fileName?: string | null | undefined): string
     {
-        if(!internalId?.trim()) return "";
+        if (!internalId?.trim()) return "";
         const baseUrl = `${this.SERVER_DOWNLOAD_URL}/${encodeURIComponent(internalId)}`;
         return `${baseUrl}${this.buildQueryString(fileName)}`;
     }
-    //#endregion
+    // #endregion
 
-    //#endregion
-    
-    //#region Private
+    // #endregion
+
+    // #region Private
     /** 組合 query string；有值才附加
-     * @param fileName 
-     * @returns 
+     * @param fileName
+     * @returns
      */
     private static buildQueryString(fileName?: string | null | undefined): string
     {
         if (!fileName?.trim()) return "";
-        const query = new URLSearchParams({fileName: fileName,});
+        const query = new URLSearchParams({ fileName: fileName });
         return `?${query.toString()}`;
     }
-    //#endregion
-    
+    // #endregion
 }
-

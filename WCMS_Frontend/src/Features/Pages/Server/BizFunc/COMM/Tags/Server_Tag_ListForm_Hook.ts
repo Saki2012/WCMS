@@ -14,12 +14,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 type QueryListParam = components["schemas"]["QueryListParam"];
 type TagSet = components["schemas"]["TagSet_DTO"];
-type TagListFormRawData = {
-    editForm: UseFetchFormDataResult<TagSet>;
-    actions: UseActionsResult;
-    list: TagSet[];
-    param: QueryListParam;
-};
+type TagListFormRawData = { editForm: UseFetchFormDataResult<TagSet>; actions: UseActionsResult; list: TagSet[]; param: QueryListParam; };
 type TagListFormAdapter = { Tag: ReturnType<typeof TagAdapter>; };
 
 // #region Public
@@ -38,20 +33,8 @@ export const useTagListFormFetchData = (
     }, []);
     const formData = useTagListFormDataByAdapter(adapter.Tag, opt.internalId, opt.emptyData, onError);
     const baseParam = useTagListQueryParam({ lang: opt.lang, pgId: opt.pgId });
-    const grid = adapter.Tag.hooks.useQueryGridData({
-        baseParam,
-        deps: [baseParam.Condition ?? "", baseParam.PageSize ?? 0],
-        modelDeps: [opt.lang],
-        onError,
-    });
-    const actions = useTagListFormActionsFromAdapter(
-        opt.dirUrl,
-        adapter.Tag,
-        opt.internalId,
-        formData,
-        opt.emptyData,
-        grid.refetchData,
-    );
+    const grid = adapter.Tag.hooks.useQueryGridData({ baseParam, deps: [baseParam.Condition ?? "", baseParam.PageSize ?? 0], modelDeps: [opt.lang], onError });
+    const actions = useTagListFormActionsFromAdapter(opt.dirUrl, adapter.Tag, opt.internalId, formData, opt.emptyData, grid.refetchData);
     const isLoading = useMemo(() =>
     {
         return [grid.isLoading, formData.isLoading].some(Boolean);
@@ -204,11 +187,7 @@ const useTagListQueryParam = (p: { lang: Lang; pgId: PGID; }): QueryListParam =>
     }, [p.lang, p.pgId]);
     return useMemo(() =>
     {
-        return {
-            Fields: fields,
-            Condition: condition,
-            OrderBy: [{ Col: TagDataFields.CreateTime, Desc: true }],
-        };
+        return { Fields: fields, Condition: condition, OrderBy: [{ Col: TagDataFields.CreateTime, Desc: true }] };
     }, [fields, condition]);
 };
 // #endregion

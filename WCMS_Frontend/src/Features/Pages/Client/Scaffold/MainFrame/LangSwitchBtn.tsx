@@ -28,18 +28,12 @@ export const LangSwitchBtn: React.FC<{ site: INormSite; }> = ({ site }) =>
     // 執行 function：hover / focus / touch 就先 prefetch（AA：鍵盤也吃得到）
     const getIntentPrefetchHandlers = useCallback((url: string) =>
     {
-        return {
-            onMouseEnter: () => prefetchUrl(url),
-            onFocus: () => prefetchUrl(url),
-            onTouchStart: () => prefetchUrl(url),
-        };
+        return { onMouseEnter: () => prefetchUrl(url), onFocus: () => prefetchUrl(url), onTouchStart: () => prefetchUrl(url) };
     }, [prefetchUrl]);
     // 從 site 推導可用語系清單（default 一定要存在）
     const supportedLangs = useMemo(() =>
     {
-        const fromIndex = Object.keys(site.indexInfoByLang ?? {}).map(s => s.toLowerCase()).filter(
-            isSupportedLang,
-        ) as Lang[];
+        const fromIndex = Object.keys(site.indexInfoByLang ?? {}).map(s => s.toLowerCase()).filter(isSupportedLang) as Lang[];
         const fromTree = Object.keys(site.treeByLang ?? {}).map(s => s.toLowerCase()).filter(isSupportedLang) as Lang[];
         const uniq = Array.from(new Set<Lang>([DefaultLang, ...fromIndex, ...fromTree]));
         return uniq;
@@ -55,9 +49,7 @@ export const LangSwitchBtn: React.FC<{ site: INormSite; }> = ({ site }) =>
         if (parts[0] && isSupportedLang(parts[0])) parts.shift();
         const base = "/" + parts.join("/");
         const cleanBase = base === "/" ? "/" : base;
-        const nextPath = target === DefaultLang
-            ? cleanBase
-            : (cleanBase === "/" ? `/${target}` : `/${target}${cleanBase}`);
+        const nextPath = target === DefaultLang ? cleanBase : (cleanBase === "/" ? `/${target}` : `/${target}${cleanBase}`);
         return `${nextPath}${location.search}${location.hash}`;
     }, [location.pathname, location.search, location.hash]);
 
@@ -66,9 +58,7 @@ export const LangSwitchBtn: React.FC<{ site: INormSite; }> = ({ site }) =>
         if (typeof document === "undefined") return;
         const maxAge = 60 * 60 * 24 * 365;
         const secure = (typeof window !== "undefined" && window.location.protocol === "https:") ? "; Secure" : "";
-        document.cookie = `${LANG_COOKIE_KEY}=${
-            encodeURIComponent(lang)
-        }; Path=/; Max-Age=${maxAge}; SameSite=Lax${secure}`;
+        document.cookie = `${LANG_COOKIE_KEY}=${encodeURIComponent(lang)}; Path=/; Max-Age=${maxAge}; SameSite=Lax${secure}`;
     };
 
     // 執行切換（同語系就不動）
@@ -126,11 +116,7 @@ export const LangSwitchBtn: React.FC<{ site: INormSite; }> = ({ site }) =>
                                         {other === "zh-tw" ? "中文" : "ＥＮ"}
                                     </div>
                                 )
-                                : (
-                                    <div className="link-text">
-                                        {LangLabelMap?.[other] ?? other}
-                                    </div>
-                                )}
+                                : <div className="link-text">{LangLabelMap?.[other] ?? other}</div>}
                         </a>
                     </div>
                 </div>

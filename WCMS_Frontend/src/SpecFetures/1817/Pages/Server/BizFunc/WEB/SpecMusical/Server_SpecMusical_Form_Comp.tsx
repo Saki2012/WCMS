@@ -19,12 +19,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import type { components } from "@/types/api";
-import {
-    SpecMusicalModelFields,
-    SpecMusicalPictureListFields,
-    SpecMusicalSetFields,
-    SpecMusicalSoundListFields,
-} from "@/types/SchemaFields";
+import { SpecMusicalModelFields, SpecMusicalPictureListFields, SpecMusicalSetFields, SpecMusicalSoundListFields } from "@/types/SchemaFields";
 import { type ReactNode, useCallback, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useSpecMusicalFormFetchData } from "./Server_SpecMusical_Form_Hook";
@@ -33,11 +28,7 @@ type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"];
 type SpecMusicalSoundList = components["schemas"]["SpecMusicalSoundList_DTO"];
 type SpecMusicalPictureList = components["schemas"]["SpecMusicalPictureList_DTO"];
 
-const emptyData: SpecMusicalSet = {
-    SpecMusical: {},
-    SpecMusicalPictureList: [],
-    SpecMusicalSoundList: [],
-};
+const emptyData: SpecMusicalSet = { SpecMusical: {}, SpecMusicalPictureList: [], SpecMusicalSoundList: [] };
 
 export const Server_SpecMusical_Form_Comp = (prop: { theme: IBETheme; lang: Lang; }) =>
 {
@@ -58,12 +49,7 @@ export const Server_SpecMusical_Form_Comp = (prop: { theme: IBETheme; lang: Lang
     }, [onBackToList]);
 
     /** 所有資料從 Hook 取出 */
-    const getData = useSpecMusicalFormFetchData({
-        lang: prop.lang,
-        internalId: internalId ?? "",
-        emptyData,
-        actionsOpt,
-    });
+    const getData = useSpecMusicalFormFetchData({ lang: prop.lang, internalId: internalId ?? "", emptyData, actionsOpt });
     const cateOpts = useMemo(() =>
     {
         return new Map<string, string>(Object.entries(getData.rawData.categoryMap ?? {}));
@@ -79,70 +65,30 @@ export const Server_SpecMusical_Form_Comp = (prop: { theme: IBETheme; lang: Lang
 
     return (
         <FormComp prop={formProp}>
-            <MainFormComp
-                theme={prop.theme}
-                formData={getData.rawData.formData}
-                cateOpts={cateOpts}
-            />
+            <MainFormComp theme={prop.theme} formData={getData.rawData.formData} cateOpts={cateOpts} />
         </FormComp>
     );
 };
 
-const MainFormComp = (prop: {
-    theme: IBETheme;
-    formData: UseFetchFormDataResult<SpecMusicalSet>;
-    cateOpts: Map<string, string>;
-}) =>
+const MainFormComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<SpecMusicalSet>; cateOpts: Map<string, string>; }) =>
 {
     /** 頁籤資訊 */
-    const tabInfo: LibTabsProp = {
-        Style: prop.theme.Tabs,
-        item: {
-            Basic: "基本資料",
-            Photo: "相片",
-            Sound: "音檔",
-        },
-    };
+    const tabInfo: LibTabsProp = { Style: prop.theme.Tabs, item: { Basic: "基本資料", Photo: "相片", Sound: "音檔" } };
 
     /** 頁籤內容 */
     const components: Record<string, ReactNode[]> = {
-        Basic: [
-            <AlbumComp
-                key="basic"
-                theme={prop.theme}
-                formData={prop.formData}
-                cateOpts={prop.cateOpts}
-            />,
-        ],
+        Basic: [<AlbumComp key="basic" theme={prop.theme} formData={prop.formData} cateOpts={prop.cateOpts} />],
         Photo: [
-            <UploadPicComp
-                key="upload-pic"
-                theme={prop.theme}
-                formData={prop.formData}
-            />,
-            <PhotoComp
-                key="photo-list"
-                theme={prop.theme}
-                formData={prop.formData}
-            />,
+            <UploadPicComp key="upload-pic" theme={prop.theme} formData={prop.formData} />,
+            <PhotoComp key="photo-list" theme={prop.theme} formData={prop.formData} />,
         ],
-        Sound: [
-            <SoundFileComp
-                key="sound-file"
-                theme={prop.theme}
-                formData={prop.formData}
-            />,
-        ],
+        Sound: [<SoundFileComp key="sound-file" theme={prop.theme} formData={prop.formData} />],
     };
 
     return <TabContentComp tabInfos={tabInfo} components={components} />;
 };
 
-const AlbumComp = (props: {
-    theme: IBETheme;
-    formData: UseFetchFormDataResult<SpecMusicalSet>;
-    cateOpts: Map<string, string>;
-}) =>
+const AlbumComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<SpecMusicalSet>; cateOpts: Map<string, string>; }) =>
 {
     /** 表單欄位綁定 */
     const setField = useSetTableField<SpecMusicalSet>(props.formData);
@@ -153,11 +99,7 @@ const AlbumComp = (props: {
                 <LibDropList
                     Style={props.theme.DropList}
                     Options={props.cateOpts}
-                    {...setField(
-                        SpecMusicalSetFields.SpecMusical,
-                        SpecMusicalModelFields.CategoryId,
-                        "string",
-                    )}
+                    {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.CategoryId, "string")}
                 />
             </div>
 
@@ -165,11 +107,7 @@ const AlbumComp = (props: {
                 <LibTextBox
                     Style={props.theme.TextBox}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecMusicalSetFields.SpecMusical,
-                        SpecMusicalModelFields.MusicalName,
-                        "string",
-                    )}
+                    {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.MusicalName, "string")}
                 />
             </div>
 
@@ -177,20 +115,12 @@ const AlbumComp = (props: {
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecMusicalSetFields.SpecMusical,
-                        SpecMusicalModelFields.Specification,
-                        "string",
-                    )}
+                    {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.Specification, "string")}
                 />
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecMusicalSetFields.SpecMusical,
-                        SpecMusicalModelFields.Headstock,
-                        "string",
-                    )}
+                    {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.Headstock, "string")}
                 />
             </div>
 
@@ -198,20 +128,12 @@ const AlbumComp = (props: {
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecMusicalSetFields.SpecMusical,
-                        SpecMusicalModelFields.Backboard,
-                        "string",
-                    )}
+                    {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.Backboard, "string")}
                 />
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecMusicalSetFields.SpecMusical,
-                        SpecMusicalModelFields.ScaleLength,
-                        "string",
-                    )}
+                    {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.ScaleLength, "string")}
                 />
             </div>
 
@@ -219,20 +141,12 @@ const AlbumComp = (props: {
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecMusicalSetFields.SpecMusical,
-                        SpecMusicalModelFields.Bridge,
-                        "string",
-                    )}
+                    {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.Bridge, "string")}
                 />
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecMusicalSetFields.SpecMusical,
-                        SpecMusicalModelFields.BodyForm,
-                        "string",
-                    )}
+                    {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.BodyForm, "string")}
                 />
             </div>
 
@@ -240,11 +154,7 @@ const AlbumComp = (props: {
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecMusicalSetFields.SpecMusical,
-                        SpecMusicalModelFields.Material,
-                        "string",
-                    )}
+                    {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.Material, "string")}
                 />
             </div>
 
@@ -252,21 +162,14 @@ const AlbumComp = (props: {
                 <LibTextArea
                     Style={props.theme.TextArea}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecMusicalSetFields.SpecMusical,
-                        SpecMusicalModelFields.Info,
-                        "string",
-                    )}
+                    {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.Info, "string")}
                 />
             </div>
         </>
     );
 };
 
-const UploadPicComp = (prop: {
-    theme: IBETheme;
-    formData: UseFetchFormDataResult<SpecMusicalSet>;
-}) =>
+const UploadPicComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<SpecMusicalSet>; }) =>
 {
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
     const [isUploading, setIsUploading] = useState(false);
@@ -286,12 +189,7 @@ const UploadPicComp = (prop: {
         const fd = new FormData();
         fd.append(fieldName, file, file.name);
 
-        const resp = await fetch(FileManagementAPI.Server_UploadTemp, {
-            method: "POST",
-            body: fd,
-            credentials: "include",
-            mode: "cors",
-        });
+        const resp = await fetch(FileManagementAPI.Server_UploadTemp, { method: "POST", body: fd, credentials: "include", mode: "cors" });
 
         if (!resp.ok)
         {
@@ -362,22 +260,14 @@ const UploadPicComp = (prop: {
             {
                 const nextRowId = maxRowId + idx + 1;
 
-                return {
-                    MusicalId: musicalId,
-                    RowId: nextRowId,
-                    PicSrcId: picId,
-                    Sort: nextRowId,
-                };
+                return { MusicalId: musicalId, RowId: nextRowId, PicSrcId: picId, Sort: nextRowId };
             });
 
             const nextCoverPicId = header.CoverPicId ?? picIds[0] ?? null;
 
             return {
                 ...base,
-                SpecMusical: {
-                    ...header,
-                    CoverPicId: nextCoverPicId,
-                },
+                SpecMusical: { ...header, CoverPicId: nextCoverPicId },
                 SpecMusicalPictureList: [...list, ...newItems],
                 SpecMusicalSoundList: base.SpecMusicalSoundList ?? [],
             };
@@ -428,19 +318,13 @@ const UploadPicComp = (prop: {
                         />
                     </div>
 
-                    {error && (
-                        <div className="col-12 alert alert-danger mt-2">
-                            {error}
-                        </div>
-                    )}
+                    {error && <div className="col-12 alert alert-danger mt-2">{error}</div>}
                 </div>
 
                 {selectedFiles.length > 0 && (
                     <div className="col-12">
                         <div className="row mt-3 mx-0">
-                            <div className="col-12 col-form-label bg-secondary mb-1">
-                                預覽圖片
-                            </div>
+                            <div className="col-12 col-form-label bg-secondary mb-1">預覽圖片</div>
 
                             {selectedFiles.map((file, index) =>
                             {
@@ -449,11 +333,7 @@ const UploadPicComp = (prop: {
                                 return (
                                     <div key={index} className="col-12 border-bottom">
                                         <div className="d-flex align-items-center">
-                                            <LibPicturePreview
-                                                ColumnDisplayName={file.name}
-                                                PicSrc={url}
-                                                PicDescription={`選中的圖片 ${file.name}`}
-                                            />
+                                            <LibPicturePreview ColumnDisplayName={file.name} PicSrc={url} PicDescription={`選中的圖片 ${file.name}`} />
                                         </div>
                                     </div>
                                 );
@@ -466,9 +346,7 @@ const UploadPicComp = (prop: {
     );
 };
 
-const useCoverPicSelector = (
-    formData: UseFetchFormDataResult<SpecMusicalSet>,
-) =>
+const useCoverPicSelector = (formData: UseFetchFormDataResult<SpecMusicalSet>) =>
 {
     /** 目前封面 */
     const selected = formData.data?.SpecMusical?.CoverPicId ?? null;
@@ -481,22 +359,14 @@ const useCoverPicSelector = (
             const base = prev ?? emptyData;
             const header = base.SpecMusical ?? {};
 
-            return {
-                ...base,
-                SpecMusical: {
-                    ...header,
-                    CoverPicId: picId,
-                },
-            };
+            return { ...base, SpecMusical: { ...header, CoverPicId: picId } };
         });
     };
 
     return { selected, select };
 };
 
-const usePhotoRemove = (
-    formData: UseFetchFormDataResult<SpecMusicalSet>,
-) =>
+const usePhotoRemove = (formData: UseFetchFormDataResult<SpecMusicalSet>) =>
 {
     /** 刪除相片 */
     const remove = (musicalId?: string, rowId?: number, picSrcId?: string) =>
@@ -520,21 +390,14 @@ const usePhotoRemove = (
                 nextHeader.CoverPicId = nextPhotos[0]?.PicSrcId ?? null;
             }
 
-            return {
-                ...base,
-                SpecMusical: nextHeader,
-                SpecMusicalPictureList: nextPhotos,
-            };
+            return { ...base, SpecMusical: nextHeader, SpecMusicalPictureList: nextPhotos };
         });
     };
 
     return { remove };
 };
 
-const PhotoComp = (prop: {
-    theme: IBETheme;
-    formData: UseFetchFormDataResult<SpecMusicalSet>;
-}) =>
+const PhotoComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<SpecMusicalSet>; }) =>
 {
     /** 欄位綁定 */
     const setField = useSetTableField<SpecMusicalSet>(prop.formData);
@@ -548,10 +411,7 @@ const PhotoComp = (prop: {
             {
                 const picId = String(item.PicSrcId ?? "");
                 const picUrl = FileManagementAPI.get_Server_Preview_Url(item.PicSrcId);
-                const rowKeys = {
-                    [SpecMusicalPictureListFields.MusicalId]: item.MusicalId,
-                    [SpecMusicalPictureListFields.RowId]: item.RowId,
-                };
+                const rowKeys = { [SpecMusicalPictureListFields.MusicalId]: item.MusicalId, [SpecMusicalPictureListFields.RowId]: item.RowId };
 
                 return (
                     <LibPicture
@@ -571,7 +431,10 @@ const PhotoComp = (prop: {
                                     onChange={(ids) =>
                                     {
                                         const id = ids?.[0];
-                                        if (id) cover.select(id);
+                                        if (id)
+                                        {
+                                            cover.select(id);
+                                        }
                                     }}
                                 />
                             </div>
@@ -591,11 +454,7 @@ const PhotoComp = (prop: {
                                                 return;
                                             }
 
-                                            remover.remove(
-                                                String(item.MusicalId ?? ""),
-                                                Number(item.RowId ?? 0),
-                                                picId,
-                                            );
+                                            remover.remove(String(item.MusicalId ?? ""), Number(item.RowId ?? 0), picId);
                                         }}
                                         title=""
                                         data-bs-toggle="modal"
@@ -619,23 +478,13 @@ const PhotoComp = (prop: {
                         <LibTextBox
                             Style={prop.theme.TextBox2}
                             DefaultInputDisplay="請輸入"
-                            {...setField(
-                                SpecMusicalSetFields.SpecMusicalPictureList,
-                                SpecMusicalPictureListFields.Sort,
-                                "number",
-                                rowKeys,
-                            )}
+                            {...setField(SpecMusicalSetFields.SpecMusicalPictureList, SpecMusicalPictureListFields.Sort, "number", rowKeys)}
                         />
 
                         <LibTextBox
                             Style={prop.theme.TextBox2}
                             DefaultInputDisplay="請輸入"
-                            {...setField(
-                                SpecMusicalSetFields.SpecMusicalPictureList,
-                                SpecMusicalPictureListFields.Info,
-                                "string",
-                                rowKeys,
-                            )}
+                            {...setField(SpecMusicalSetFields.SpecMusicalPictureList, SpecMusicalPictureListFields.Info, "string", rowKeys)}
                         />
                     </LibPicture>
                 );
@@ -644,10 +493,7 @@ const PhotoComp = (prop: {
     );
 };
 
-const SoundFileComp = (props: {
-    theme: IBETheme;
-    formData: UseFetchFormDataResult<SpecMusicalSet>;
-}) =>
+const SoundFileComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<SpecMusicalSet>; }) =>
 {
     /** 檔案欄位綁定 */
     const setFileField = useSetTableFileField(props.formData);
@@ -666,10 +512,7 @@ const SoundFileComp = (props: {
         {
             const base = prev ?? emptyData;
 
-            return {
-                ...base,
-                SpecMusicalSoundList: nextFiles,
-            };
+            return { ...base, SpecMusicalSoundList: nextFiles };
         });
     };
 
@@ -679,11 +522,7 @@ const SoundFileComp = (props: {
         const list = getFiles();
         const nextRowId = (list.at(-1)?.RowId ?? 0) + 1;
 
-        const newItem: SpecMusicalSoundList = {
-            RowId: nextRowId,
-            SoundSrcId: "",
-            Info: "",
-        };
+        const newItem: SpecMusicalSoundList = { RowId: nextRowId, SoundSrcId: "", Info: "" };
 
         commitFiles([...allFiles, newItem]);
     };
@@ -701,27 +540,14 @@ const SoundFileComp = (props: {
     return (
         <>
             <div role="group" className="mt-4">
-                <button
-                    type="button"
-                    onClick={addFile}
-                    aria-label="新增附件"
-                    className="btn btn-outline-primary mb-2"
-                >
-                    新增附件
-                </button>
+                <button type="button" onClick={addFile} aria-label="新增附件" className="btn btn-outline-primary mb-2">新增附件</button>
 
                 {getFiles().map((file, index) =>
                 {
-                    const rowKeys = {
-                        [SpecMusicalSoundListFields.MusicalId]: file.MusicalId,
-                        [SpecMusicalSoundListFields.RowId]: file.RowId,
-                    };
+                    const rowKeys = { [SpecMusicalSoundListFields.MusicalId]: file.MusicalId, [SpecMusicalSoundListFields.RowId]: file.RowId };
 
                     return (
-                        <div
-                            key={`${file.RowId}`}
-                            className="flex items-center gap-2 mb-2"
-                        >
+                        <div key={`${file.RowId}`} className="flex items-center gap-2 mb-2">
                             <LibFileInput
                                 {...setFileField(
                                     SpecMusicalSetFields.SpecMusicalSoundList,

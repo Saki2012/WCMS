@@ -2,10 +2,10 @@
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import { MessageStatus, type SysMessageModel } from "@/SysCore/Utils/API/APIBase";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import { PGID } from "@/types/SchemaFields";
 import { useMemo, useRef } from "react";
 import type { Editor as TinyMCEEditor } from "tinymce";
 import { useContentTransform } from "./useContentTransform";
-import { PGID } from "@/types/SchemaFields";
 
 export interface TinyMceHookOptions
 {
@@ -50,7 +50,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
     const { publish } = useToast();
     // 1) 掛上內容轉換（prefix 可自訂；不給就用預設）
     const { toDb, toEditor } = useContentTransform({
-        previewPrefix: `/Service/${PGID.FileManagement}/Public_Preview`,//這邊暫時寫死，後續橋
+        previewPrefix: `/Service/${PGID.FileManagement}/Public_Preview`, // 這邊暫時寫死，後續橋
         attrName: INTERNAL_ATTR,
     });
 
@@ -107,10 +107,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                     { type: "input", name: "height", label: "高度(px，建議 315/360/480...)" },
                 ],
             },
-            buttons: [
-                { type: "cancel", text: "取消" },
-                { type: "submit", text: "插入", primary: true },
-            ],
+            buttons: [{ type: "cancel", text: "取消" }, { type: "submit", text: "插入", primary: true }],
             onSubmit(api)
             {
                 const data: any = api.getData();
@@ -186,8 +183,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
             toolbar_mode: "wrap",
 
             // ★06 字體大小、字型
-            font_size_formats:
-                "8=8px 9=9px 10=10px 11=11px 12=12px 14=14px 16=16px 18=18px 20=20px 24=24px 28=28px 32=32px 36=36px 48=48px 72=72px",
+            font_size_formats: "8=8px 9=9px 10=10px 11=11px 12=12px 14=14px 16=16px 18=18px 20=20px 24=24px 28=28px 32=32px 36=36px 48=48px 72=72px",
             font_family_formats: `
         Arial=arial,helvetica,sans-serif;
         Courier New=courier new,courier;
@@ -284,11 +280,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                         {
                             const src = toUrl(internalId, "image");
                             // 先用 100% RWD
-                            callback(src, {
-                                alt: name ?? file.name,
-                                "class": "rwd-img",
-                                [INTERNAL_ATTR]: internalId,
-                            });
+                            callback(src, { alt: name ?? file.name, "class": "rwd-img", [INTERNAL_ATTR]: internalId });
                         }
                     } catch
                     {
@@ -351,13 +343,11 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                     copiedSupSub = el.tagName === "SUP" ? "sup" : el.tagName === "SUB" ? "sub" : null;
                     // 解析 inline style
                     const inlineMap = new Map<string, string>();
-                    (el.getAttribute("style") ?? "")
-                        .split(";")
-                        .forEach(s =>
-                        {
-                            const [k, v] = s.split(":").map(x => x?.trim());
-                            if (k && v) inlineMap.set(k.toLowerCase(), v);
-                        });
+                    (el.getAttribute("style") ?? "").split(";").forEach(s =>
+                    {
+                        const [k, v] = s.split(":").map(x => x?.trim());
+                        if (k && v) inlineMap.set(k.toLowerCase(), v);
+                    });
 
                     const cs = getCS(el);
 
@@ -398,10 +388,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                 };
                 // ✅ 轉成 style 屬性字串
                 const toStyleAttr = (styles: Partial<Record<keyof CSSStyleDeclaration, string>>) =>
-                    Object.entries(styles)
-                        .filter(([, v]) => !!v)
-                        .map(([k, v]) => `${k.replace(/[A-Z]/g, m => "-" + m.toLowerCase())}:${v}`)
-                        .join(";");
+                    Object.entries(styles).filter(([, v]) => !!v).map(([k, v]) => `${k.replace(/[A-Z]/g, m => "-" + m.toLowerCase())}:${v}`).join(";");
 
                 if (p.initExtras && typeof p.initExtras.setup === "function")
                 {
@@ -550,21 +537,14 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                     {
                         if (!copiedStyles || Object.keys(copiedStyles).length === 0)
                         {
-                            editor.notificationManager.open({
-                                text: "尚未複製任何格式",
-                                type: "warning",
-                                timeout: 1500,
-                            });
+                            editor.notificationManager.open({ text: "尚未複製任何格式", type: "warning", timeout: 1500 });
                             return;
                         }
                         const styleAttr = toStyleAttr(copiedStyles);
                         if (!styleAttr) return;
                         if (styleAttr)
                         {
-                            editor.formatter.register("__wcms_format_painter__", {
-                                inline: "span",
-                                attributes: { style: styleAttr },
-                            });
+                            editor.formatter.register("__wcms_format_painter__", { inline: "span", attributes: { style: styleAttr } });
                             editor.formatter.apply("__wcms_format_painter__");
                         }
 
@@ -662,12 +642,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                                 const { isSuccess, internalId, name } = await uploadAndReturn(file);
                                 if (!isSuccess) return;
                                 const href = toUrl(internalId, "file");
-                                applyFileLinkToSelection(editor, {
-                                    href,
-                                    title: name ?? file.name,
-                                    internalId,
-                                    download: true,
-                                });
+                                applyFileLinkToSelection(editor, { href, title: name ?? file.name, internalId, download: true });
                             } catch
                             {
                                 alert("上傳失敗");
@@ -698,8 +673,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
             paste_merge_formats: true,
             paste_word_valid_elements:
                 "b,strong,i,em,u,strike,sub,sup,p,h1,h2,h3,h4,h5,h6,table,tr,td,th,thead,tbody,tfoot,colgroup,col,span,div,ol,ul,li,img,a,br,hr",
-            paste_webkit_styles:
-                "color font-size font-family background-color text-decoration font-style font-weight line-height",
+            paste_webkit_styles: "color font-size font-family background-color text-decoration font-style font-weight line-height",
             paste_filter_drop: false,
             valid_elements: "*[*]",
             extended_valid_elements: undefined,
@@ -746,10 +720,7 @@ export interface UseTinyMceInternalImageResult
 
 export const INTERNAL_ATTR = "data-internalid";
 
-const applyFileLinkToSelection = (
-    ed: TinyMCEEditor,
-    opts: { href: string; title?: string; internalId?: string; download?: boolean; targetBlank?: boolean; },
-) =>
+const applyFileLinkToSelection = (ed: TinyMCEEditor, opts: { href: string; title?: string; internalId?: string; download?: boolean; targetBlank?: boolean; }) =>
 {
     const { href, title, internalId, download, targetBlank } = opts;
     const sel = ed.selection;
@@ -826,9 +797,7 @@ const doTransformForDb = (html: string, enforceAlt: boolean) =>
     return doc.body.innerHTML;
 };
 
-export const useTinyMceInternalImage = (
-    opts: UseTinyMceInternalImageOptions,
-): UseTinyMceInternalImageResult =>
+export const useTinyMceInternalImage = (opts: UseTinyMceInternalImageOptions): UseTinyMceInternalImageResult =>
 {
     const { resolvePreviewUrl, enforceAlt = true } = opts;
 
@@ -930,18 +899,17 @@ export const useTinyMceIframeEdit = (): TinySetup =>
         const ifr = resolveIframeElm(editor, node);
         const dom = editor.dom;
         const wrapper = ifr
-            ? dom.getParent(ifr, (n: any) =>
-                dom.hasClass(n, "mce-preview-object")
-                || dom.hasClass(n, "mce-object")
-                || dom.hasClass(n, "mce-object-iframe")
-                || n.nodeName === "FIGURE")
+            ? dom.getParent(
+                ifr,
+                (n: any) =>
+                    dom.hasClass(n, "mce-preview-object") || dom.hasClass(n, "mce-object") || dom.hasClass(n, "mce-object-iframe") || n.nodeName === "FIGURE",
+            )
             : null;
 
         const data = {
             src: node.getAttribute("src") || "",
             "data-mce-src": node.getAttribute("src") || "",
-            title: (ifr?.getAttribute("title") || "") || (wrapper ? dom.getAttrib(wrapper, "data-mce-p-title") : "")
-                || (ifr?.getAttribute("aria-label") || ""),
+            title: (ifr?.getAttribute("title") || "") || (wrapper ? dom.getAttrib(wrapper, "data-mce-p-title") : "") || (ifr?.getAttribute("aria-label") || ""),
             width: node.getAttribute("width") || dom.getStyle(node, "width") || "", // 可能是屬性或 style
             height: node.getAttribute("height") || dom.getStyle(node, "height") || "",
         };
@@ -951,18 +919,14 @@ export const useTinyMceIframeEdit = (): TinySetup =>
             size: "normal",
             body: {
                 type: "panel",
-                items: [
-                    { type: "input", name: "src", label: "來源網址 (src)" },
-                    { type: "input", name: "title", label: "替代文字 / 描述 (AA)" },
-                    { type: "input", name: "width", label: "寬度 (留空=100%, 例: 640, 640px, 80%)" },
-                    { type: "input", name: "height", label: "高度 (例: 360, 360px)" },
-                ],
+                items: [{ type: "input", name: "src", label: "來源網址 (src)" }, { type: "input", name: "title", label: "替代文字 / 描述 (AA)" }, {
+                    type: "input",
+                    name: "width",
+                    label: "寬度 (留空=100%, 例: 640, 640px, 80%)",
+                }, { type: "input", name: "height", label: "高度 (例: 360, 360px)" }],
             },
             initialData: data,
-            buttons: [
-                { type: "cancel", text: "取消" },
-                { type: "submit", text: "套用", primary: true },
-            ],
+            buttons: [{ type: "cancel", text: "取消" }, { type: "submit", text: "套用", primary: true }],
 
             onSubmit: (api: any) =>
             {
@@ -1003,11 +967,14 @@ export const useTinyMceIframeEdit = (): TinySetup =>
                     dom.setStyle(ifr, "border", "0");
 
                     // 2) 找到 wrapper，更新「序列化會參考的快取屬性」
-                    const wrapper = dom.getParent(ifr, (n: any) =>
-                        dom.hasClass(n, "mce-preview-object")
-                        || dom.hasClass(n, "mce-object")
-                        || dom.hasClass(n, "mce-object-iframe")
-                        || n.nodeName === "FIGURE");
+                    const wrapper = dom.getParent(
+                        ifr,
+                        (n: any) =>
+                            dom.hasClass(n, "mce-preview-object")
+                            || dom.hasClass(n, "mce-object")
+                            || dom.hasClass(n, "mce-object-iframe")
+                            || n.nodeName === "FIGURE",
+                    );
 
                     if (wrapper)
                     {
@@ -1084,9 +1051,7 @@ export const useTinyMceIframeEdit = (): TinySetup =>
         });
 
         // 🟢 4) 只有在滑鼠正壓在 iframe 上時才顯示選單
-        editor.ui.registry.addContextMenu("wcms-iframe-menu", {
-            update: () => (getIframeAtPoint() ? ["iframeedit"] : []),
-        });
+        editor.ui.registry.addContextMenu("wcms-iframe-menu", { update: () => (getIframeAtPoint() ? ["iframeedit"] : []) });
 
         // 🟢 5) 雙擊也能開（同樣用座標判斷）
         editor.on("DblClick", () =>

@@ -150,11 +150,7 @@ const LibFileInput = (props: LibFileInputProps) =>
         <div className={rowClass}>
             {/* 左：label（跟其他欄位同一套 col） */}
             <div className={labelCol}>
-                {props.ColumnDisplayName && (
-                    <label htmlFor={nameInputId} className="col-form-label">
-                        {props.ColumnDisplayName}
-                    </label>
-                )}
+                {props.ColumnDisplayName && <label htmlFor={nameInputId} className="col-form-label">{props.ColumnDisplayName}</label>}
             </div>
 
             {/* 右：內容（同一套 col，裡面維持兩行） */}
@@ -219,7 +215,10 @@ const LibFileInput = (props: LibFileInputProps) =>
                             onClick={() => canDownload && openDownload()}
                             onKeyDown={(e) =>
                             {
-                                if (!canDownload) return;
+                                if (!canDownload)
+                                {
+                                    return;
+                                }
 
                                 if (e.key === "Enter" || e.key === " ")
                                 {
@@ -249,17 +248,9 @@ const LibFileInput = (props: LibFileInputProps) =>
                     )}
                 </div>
 
-                {result.uploading && (
-                    <div className="form-text mt-1" aria-live="polite">
-                        上傳中…
-                    </div>
-                )}
+                {result.uploading && <div className="form-text mt-1" aria-live="polite">上傳中…</div>}
 
-                {!!result.error && (
-                    <div className="text-danger mt-1" role="alert">
-                        上傳失敗：{result.error}
-                    </div>
-                )}
+                {!!result.error && <div className="text-danger mt-1" role="alert">上傳失敗：{result.error}</div>}
             </div>
         </div>
     );

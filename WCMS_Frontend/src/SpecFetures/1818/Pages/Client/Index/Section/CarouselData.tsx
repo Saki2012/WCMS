@@ -68,11 +68,7 @@ export const CarouselData = (props: { lang: Lang; internalId: string; initialBan
                                     const tar = info?.URL_Open === 0 ? "_self" : "_blank";
                                     const imgUrl = FileManagementAPI.get_Public_Preview_Url(p.PicSrcId, alt);
                                     return (
-                                        <div
-                                            key={i}
-                                            className={clsx("carousel-item", i === 0 ? "active" : "")}
-                                            data-bs-interval="5000"
-                                        >
+                                        <div key={i} className={clsx("carousel-item", i === 0 ? "active" : "")} data-bs-interval="5000">
                                             {url
                                                 ? (
                                                     <LangNavLink
@@ -173,22 +169,10 @@ export const CarouselData = (props: { lang: Lang; internalId: string; initialBan
                                     />
                                 </a>
                                 <a href="#" tabIndex={0} title="上一張" onClick={onClickLink}>
-                                    <button
-                                        aria-label="Slide 2"
-                                        className=""
-                                        data-bs-slide-to="1"
-                                        data-bs-target="#B5_default_carousel"
-                                        type="button"
-                                    />
+                                    <button aria-label="Slide 2" className="" data-bs-slide-to="1" data-bs-target="#B5_default_carousel" type="button" />
                                 </a>
                                 <a href="#" tabIndex={0} title="上一張" onClick={onClickLink}>
-                                    <button
-                                        aria-label="Slide 3"
-                                        className=""
-                                        data-bs-slide-to="2"
-                                        data-bs-target="#B5_default_carousel"
-                                        type="button"
-                                    />
+                                    <button aria-label="Slide 3" className="" data-bs-slide-to="2" data-bs-target="#B5_default_carousel" type="button" />
                                 </a>
                             </div>
                         </div>

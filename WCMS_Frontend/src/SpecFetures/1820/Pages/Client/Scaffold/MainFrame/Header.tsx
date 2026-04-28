@@ -3,6 +3,7 @@ import { buildMenuItems } from "@/Features/Hooks/Common/BuildMenuItems";
 import { useMobileMenuCollapse } from "@/Features/Hooks/UIAction/Mobile/useMobileMenuCollapse";
 import { SITEMAP_SEGMENT } from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap/Sitemap";
 import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
+import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 import { LangSwitchBtn } from "@/Features/Pages/Client/Scaffold/MainFrame/LangSwitchBtn";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import LogoImg from "@/SpecFetures/1820/Assets/Client/images/logo/LOGO_400x95.png";
@@ -10,26 +11,22 @@ import { A11yContent } from "@/SpecFetures/_default/Pages/Client/Scaffold/MainFr
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
-import { useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom";
-import React from "react";
 import clsx from "clsx";
-import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
+import { useEffect, useRef } from "react";
+import React from "react";
+import { useLocation } from "react-router-dom";
 
 /** 判斷是否為首頁（支援多語系首頁） */
 const isHomePage = (pathname: string, lang: Lang) =>
 {
     const cleanPath = pathname.replace(/\/+$/, "") || "/";
 
-    const homePaths = [
-        "/",
-        `/${lang}`,
-    ];
+    const homePaths = ["/", `/${lang}`];
 
     return homePaths.includes(cleanPath);
 };
 
-const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) =>
+const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
 {
     const headerRef = useRef<HTMLDivElement | null>(null);
     const location = useLocation();
@@ -64,8 +61,7 @@ const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) =>
         {
             syncHeaderStyle();
             window.addEventListener("scroll", syncHeaderStyle, { passive: true });
-        }
-        else
+        } else
         {
             el.classList.remove("shadow");
             el.classList.remove("filter-custom");
@@ -81,15 +77,7 @@ const Header = (props: { lang: Lang; site: INormSite; style: IFETheme }) =>
         <>
             <A11yContent />
 
-            <div
-                id="Site-Header"
-                ref={headerRef}
-                className={clsx(
-                    "ALL_Header_DivBar",
-                    "main-header",
-                    isHome && "position-fixed"
-                )}
-            >
+            <div id="Site-Header" ref={headerRef} className={clsx("ALL_Header_DivBar", "main-header", isHome && "position-fixed")}>
                 <Header_Section lang={props.lang} site={props.site} />
                 <Menu_Section {...props} />
                 <div className="overlayer" aria-hidden="true" />
@@ -120,50 +108,27 @@ const Header_Section = (props: { lang: Lang; site: INormSite; }) =>
 const NavBar = (props: { lang: Lang; }) =>
 {
     const title = props.lang === "zh-tw"
-        ? {
-            Home: "回首頁",
-            NCHU: "中興大學",
-            SiteMap: "網站導覽",
-        }
+        ? { Home: "回首頁", NCHU: "中興大學", SiteMap: "網站導覽" }
         : props.lang === "en"
-        ? {
-            Home: "Home",
-            NCHU: "NCHU",
-            SiteMap: "SiteMap",
-        }
+        ? { Home: "Home", NCHU: "NCHU", SiteMap: "SiteMap" }
         : {};
 
     return (
         <li>
             <ul className="nav custom_nav py-0 justify-content-center my-1">
                 <li className="nav-item pe-2">
-                    <Accesskey type="U" lang={props.lang}/>
+                    <Accesskey type="U" lang={props.lang} />
                 </li>
                 <li className="nav-item no-divider-line">
-                    <LangLink className="nav-link" to="/" target="_self" title={title.Home}>
-                        {title.Home}
-                    </LangLink>
+                    <LangLink className="nav-link" to="/" target="_self" title={title.Home}>{title.Home}</LangLink>
                 </li>
                 <li className="nav-item">
-                    <a
-                        className="nav-link"
-                        href="https://www.nchu.edu.tw/index1.php"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title={title.NCHU}
-                    >
+                    <a className="nav-link" href="https://www.nchu.edu.tw/index1.php" target="_blank" rel="noopener noreferrer" title={title.NCHU}>
                         {title.NCHU}
                     </a>
                 </li>
                 <li className="nav-item">
-                    <LangNavLink
-                        to={`/${SITEMAP_SEGMENT}`}
-                        className="nav-link"
-                        target="_self"
-                        title={title.SiteMap}
-                    >
-                        {title.SiteMap}
-                    </LangNavLink>
+                    <LangNavLink to={`/${SITEMAP_SEGMENT}`} className="nav-link" target="_self" title={title.SiteMap}>{title.SiteMap}</LangNavLink>
                 </li>
             </ul>
         </li>
@@ -257,9 +222,7 @@ const MainMenu = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
                 {
                     return (
                         <React.Fragment key={idx}>
-                            {item.SubItem?.length === 0
-                                ? <SingleMenuItem menuItem={item} />
-                                : <DropdownMenuItem menuItem={item} />}
+                            {item.SubItem?.length === 0 ? <SingleMenuItem menuItem={item} /> : <DropdownMenuItem menuItem={item} />}
                         </React.Fragment>
                     );
                 })}
@@ -294,13 +257,7 @@ const SingleMenuItem = (props: { menuItem: MenuItemData; }) =>
 {
     return (
         <li className="nav-item">
-            <LangLink
-                className="nav-link"
-                to={props.menuItem.Url}
-                role="button"
-                title={props.menuItem.SrcData}
-                aria-label={props.menuItem.SrcData}
-            >
+            <LangLink className="nav-link" to={props.menuItem.Url} role="button" title={props.menuItem.SrcData} aria-label={props.menuItem.SrcData}>
                 {/^https?:\/\//i.test(props.menuItem.Url || "") && <i className="fad fa-link me-2"></i>}
                 {props.menuItem.SrcData}
             </LangLink>
@@ -324,9 +281,7 @@ const DropdownMenuItem = (props: { menuItem: MenuItemData; }) =>
                 {props.menuItem.SrcData}
             </LangLink>
             {/* 第二層（原本的 <ul className="dropdown-menu">） */}
-            <ul className="dropdown-menu">
-                {renderDropdownItems(props.menuItem.SubItem, 0)}
-            </ul>
+            <ul className="dropdown-menu">{renderDropdownItems(props.menuItem.SubItem, 0)}</ul>
         </li>
     );
 };
@@ -357,12 +312,7 @@ const renderDropdownItems = (items: MenuItemData[], parentDepth: number): JSX.El
             // 純連結項目
             return (
                 <li key={key}>
-                    <LangNavLink
-                        className="dropdown-item"
-                        to={item.Url || "#"}
-                        role="button"
-                        target={item.URL_Open}
-                    >
+                    <LangNavLink className="dropdown-item" to={item.Url || "#"} role="button" target={item.URL_Open}>
                         {isExternal && <i className="fad fa-link me-2"></i>}
                         {item.SrcData}
                     </LangNavLink>
@@ -384,9 +334,7 @@ const renderDropdownItems = (items: MenuItemData[], parentDepth: number): JSX.El
                     {item.SrcData}
                 </LangLink>
 
-                <ul className={submenuClassName}>
-                    {renderDropdownItems(item.SubItem ?? [], parentDepth + 1)}
-                </ul>
+                <ul className={submenuClassName}>{renderDropdownItems(item.SubItem ?? [], parentDepth + 1)}</ul>
             </li>
         );
     });

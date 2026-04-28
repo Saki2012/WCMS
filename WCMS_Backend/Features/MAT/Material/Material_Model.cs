@@ -35,9 +35,17 @@ public class Material: MasterDataModel
     /// </summary>
     [ForeignKey(nameof(CategoryId))] public Category Category { get; set; }
     [LibDesc(ModelDisplayName.CategoryId), StringLength(SysLengthParam.ID)] public string CategoryId { get; set; }
+    /// <summary>
+    /// 商品價格 (未來要移動到商品資料，而非物件資料)
+    /// </summary>
+    [LibDesc(ModelDisplayName.Product_Price)] public decimal Price { get; set; }
 
     #region 主子表關聯
     [InverseProperty(nameof(MaterialLangInfo._Material))] public List<MaterialLangInfo> _MaterialLangInfo { get; set; }
+    [InverseProperty(nameof(MaterialPicture._Material))] public List<MaterialPicture> _MaterialPicture { get; set; }
+    [InverseProperty(nameof(MaterialTags._Material))] public List<MaterialTags> _MaterialTags { get; set; }
+    
+
     #endregion
 }
 /// <summary>

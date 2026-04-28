@@ -21,10 +21,7 @@ type SwiperOptions = {
     grabCursor?: boolean;
 };
 
-type SwiperInstance = {
-    destroy: (deleteInstance?: boolean, cleanStyles?: boolean) => void;
-    update?: () => void;
-};
+type SwiperInstance = { destroy: (deleteInstance?: boolean, cleanStyles?: boolean) => void; update?: () => void; };
 
 type SwiperConstructor = new(el: Element, options: SwiperOptions) => SwiperInstance;
 
@@ -57,11 +54,7 @@ export const LinkData = (props: LinkDataProps) =>
     }, [props.internalId, props.initialBanner]);
 
     // 執行 function：CSR 用 adapter hook 接手（SSR 有 initial → 不重抓）
-    const useBanner = adapter.hooks.useQueryData({
-        internalId: props.internalId,
-        initial,
-        deps: [props.internalId, props.lang],
-    });
+    const useBanner = adapter.hooks.useQueryData({ internalId: props.internalId, initial, deps: [props.internalId, props.lang] });
 
     // 宣告變數：依 Sort 排序（穩定排序）
     const sortedDetails = useMemo(() =>
@@ -160,8 +153,7 @@ export const LinkData = (props: LinkDataProps) =>
                                         {sortedDetails.map((p, i) =>
                                         {
                                             const info = useBanner.data?.BannerDetailInfo?.find((x) =>
-                                                x.BannerId === p.BannerId && x.ParentRowId === p.RowId
-                                                && x.Lang === props.lang
+                                                x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang
                                             );
                                             const title = info?.Title ?? "";
                                             const url = info?.URL ?? "";
@@ -169,10 +161,7 @@ export const LinkData = (props: LinkDataProps) =>
                                             // 對標 prototype：img-1 ~ img-6（超過 6 迴圈）
                                             const iconIdx = ((i % 6) + 1) as 1 | 2 | 3 | 4 | 5 | 6;
                                             const iconClass = `icon-type-image img-${iconIdx}`;
-                                            const imgSrcUrl = FileManagementAPI.get_Public_Preview_Url(
-                                                p.PicSrcId,
-                                                title,
-                                            );
+                                            const imgSrcUrl = FileManagementAPI.get_Public_Preview_Url(p.PicSrcId, title);
                                             return (
                                                 <div key={p.RowId ?? i} className="swiper-slide">
                                                     <div className="item">
@@ -187,9 +176,7 @@ export const LinkData = (props: LinkDataProps) =>
                                                             <div className="icon-wrapper">
                                                                 <div className="icon-area">
                                                                     <div className={iconClass}>
-                                                                        {imgSrcUrl
-                                                                            ? <img src={imgSrcUrl} aria-hidden="true" />
-                                                                            : null}
+                                                                        {imgSrcUrl ? <img src={imgSrcUrl} aria-hidden="true" /> : null}
                                                                     </div>
                                                                 </div>
                                                                 <div className="tit-contents">
@@ -287,21 +274,9 @@ const buildSwiperOptions = (els: { nextBtn: Element; prevBtn: Element; paginatio
         direction: "horizontal",
         slidesPerView: 1,
         spaceBetween: 0,
-        breakpoints: {
-            1200: { slidesPerView: 6 },
-            992: { slidesPerView: 5 },
-            768: { slidesPerView: 4 },
-            680: { slidesPerView: 3 },
-            480: { slidesPerView: 2 },
-        },
-        navigation: {
-            nextEl: els.nextBtn,
-            prevEl: els.prevBtn,
-        },
-        pagination: {
-            el: els.paginationEl,
-            clickable: false,
-        },
+        breakpoints: { 1200: { slidesPerView: 6 }, 992: { slidesPerView: 5 }, 768: { slidesPerView: 4 }, 680: { slidesPerView: 3 }, 480: { slidesPerView: 2 } },
+        navigation: { nextEl: els.nextBtn, prevEl: els.prevBtn },
+        pagination: { el: els.paginationEl, clickable: false },
         simulateTouch: true,
         grabCursor: true,
     };
@@ -326,12 +301,8 @@ const ensureSwiper = (() =>
             promise = (async () =>
             {
                 const [{ default: jsUrl }, { default: cssUrl }] = await Promise.all([
-                    import(
-                        "@/SpecFetures/1816/Assets/Client/Content/css_import/assets/swiper-11.1.14/swiper-bundle.min.js?url"
-                    ),
-                    import(
-                        "@/SpecFetures/1816/Assets/Client/Content/css_import/assets/swiper-11.1.14/swiper-bundle.min.css?url"
-                    ),
+                    import("@/SpecFetures/1816/Assets/Client/Content/css_import/assets/swiper-11.1.14/swiper-bundle.min.js?url"),
+                    import("@/SpecFetures/1816/Assets/Client/Content/css_import/assets/swiper-11.1.14/swiper-bundle.min.css?url"),
                 ]);
 
                 // 插入 CSS

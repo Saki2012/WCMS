@@ -24,6 +24,7 @@ const BaseModuleOpts: Record<string, string> = {
     PageManagement: "頁面",
     WebResource: "網路資源",
     Timeline: "紀事表",
+    Material: "產品物件",
 };
 
 interface ModuleTimelineOptionsJson
@@ -40,12 +41,7 @@ interface ModuleOptionsJson
     Style: number;
 }
 
-const moduleOptionsDefaults: ModuleOptionsJson = {
-    PageId: "",
-    Category: "",
-    Tag: "",
-    Style: 1,
-};
+const moduleOptionsDefaults: ModuleOptionsJson = { PageId: "", Category: "", Tag: "", Style: 1 };
 
 interface ModuleSettingTabExtensionContext
 {
@@ -77,7 +73,7 @@ const useModuleSettingTabExtensionBase: UseModuleSettingTabExtensionSlot = () =>
 
 /** 解析 ModuleSettingTab Spec 擴充 */
 const useResolvedModuleSettingTabExtension = resolveSpecFunc<UseModuleSettingTabExtensionSlot>(
-    "Pages/Server/BizFunc/WEB/SiteMenu/Module_Extension.ts",
+    "Pages/Server/BizFunc/WEB/SiteMenu/Module_Extension.tsx",
     useModuleSettingTabExtensionBase,
     ["useModuleSettingTabSpecExtension"],
 );
@@ -122,31 +118,23 @@ export const ModuleSettingTab = (prop: ModuleSettingTabProps) =>
             const exists = list.some((r) => r.SiteIndex === siteIndex && Number(r.ItemRowId) === Number(rowId));
             if (exists) return prev;
 
-            list.push({
-                SiteIndex: siteIndex,
-                ItemRowId: Number(rowId),
-                PageType: 0,
-                ModuleProgId: "",
-                ModuleOptions: "",
-            } as SiteMenu_Item_Module);
+            list.push({ SiteIndex: siteIndex, ItemRowId: Number(rowId), PageType: 0, ModuleProgId: "", ModuleOptions: "" } as SiteMenu_Item_Module);
 
             return { ...data, SiteMenu_Item_Module: list };
         });
     }, [siteIndex, rowId, prop.formData]);
 
-    const moduleKeyBind = prop.setField(
-        SiteMenuSetFields.SiteMenu_Item_Module,
-        SiteMenu_Item_ModuleFields.ModuleProgId,
-        "string",
-        curRowKeys,
-    );
+    const moduleKeyBind = prop.setField(SiteMenuSetFields.SiteMenu_Item_Module, SiteMenu_Item_ModuleFields.ModuleProgId, "string", curRowKeys);
 
     const moduleOpts = useMemo(() =>
     {
-        return new Map<string, string>(Object.entries({
-            ...BaseModuleOpts,
-            ...(specExtension.moduleOptions ?? {}),
-        }));
+        const merged: Record<string, string> = { ...BaseModuleOpts };
+        Object.entries(specExtension.moduleOptions ?? {}).forEach(([key, value]) =>
+        {
+            if (!value) return;
+            merged[key] = value;
+        });
+        return new Map<string, string>(Object.entries(merged));
     }, [specExtension.moduleOptions]);
 
     const extensionContext = useMemo<ModuleSettingTabExtensionContext>(() =>
@@ -181,6 +169,7 @@ export const ModuleSettingTab = (prop: ModuleSettingTabProps) =>
     const baseRendererMap = useMemo<Record<string, ModuleRenderFactory>>(() =>
     {
         return {
+            // #region WEB
             Announcement: (ctx) => (
                 <Module_Announcement_Comp
                     theme={ctx.theme}
@@ -243,12 +232,31 @@ export const ModuleSettingTab = (prop: ModuleSettingTabProps) =>
                     lang={DefaultLang}
                 />
             ),
+            // #endregion
+            // #region MAT
+            Material: (ctx) => (
+                <Module_Material_Comp
+                    theme={ctx.theme}
+                    formData={ctx.formData}
+                    selectedItemEdit={ctx.selectedItemEdit}
+                    categorySets={ctx.categorySets}
+                    tagSets={ctx.tagSets}
+                    lang={DefaultLang}
+                />
+            ),
+            // #endregion
         };
     }, []);
 
     const moduleRendererMap = useMemo<Record<string, ModuleRenderFactory>>(() =>
     {
-        return { ...baseRendererMap, ...(specExtension.moduleRenderers ?? {}) };
+        const merged: Record<string, ModuleRenderFactory> = { ...baseRendererMap };
+        Object.entries(specExtension.moduleRenderers ?? {}).forEach(([key, value]) =>
+        {
+            if (!value) return;
+            merged[key] = value;
+        });
+        return merged;
     }, [baseRendererMap, specExtension.moduleRenderers]);
 
     const activeModelKey = useMemo<ModelKey>(() =>
@@ -270,19 +278,9 @@ export const ModuleSettingTab = (prop: ModuleSettingTabProps) =>
                 <LibCheckBox
                     Style={prop.theme.RadioBox}
                     options={prop.modulePageType}
-                    {...prop.setField(
-                        SiteMenuSetFields.SiteMenu_Item_Module,
-                        SiteMenu_Item_ModuleFields.PageType,
-                        "number",
-                        curRowKeys,
-                    )}
+                    {...prop.setField(SiteMenuSetFields.SiteMenu_Item_Module, SiteMenu_Item_ModuleFields.PageType, "number", curRowKeys)}
                 />
-                <Module_Banner_Comp
-                    theme={prop.theme}
-                    formData={prop.formData}
-                    selectedItemEdit={selectedNode}
-                    bannerDict={prop.bannerDict}
-                />
+                <Module_Banner_Comp theme={prop.theme} formData={prop.formData} selectedItemEdit={selectedNode} bannerDict={prop.bannerDict} />
                 <LibDropList
                     key="model"
                     Style={prop.theme.DropList}
@@ -298,19 +296,14 @@ export const ModuleSettingTab = (prop: ModuleSettingTabProps) =>
                 />
             </LibSelectCard>
 
-            <LibSelectCard key="onlyOne" ColDisplayName="模型功能參數">
-                {activeModuleNode}
-            </LibSelectCard>
+            <LibSelectCard key="onlyOne" ColDisplayName="模型功能參數">{activeModuleNode}</LibSelectCard>
         </>
     );
 };
 
-const Module_Banner_Comp = (prop: {
-    theme: IBETheme;
-    formData: UseFetchFormDataResult<SiteMenuSet>;
-    selectedItemEdit: SiteMenuItem | null;
-    bannerDict: Record<string, string>;
-}): React.ReactNode[] =>
+const Module_Banner_Comp = (
+    prop: { theme: IBETheme; formData: UseFetchFormDataResult<SiteMenuSet>; selectedItemEdit: SiteMenuItem | null; bannerDict: Record<string, string>; },
+): React.ReactNode[] =>
 {
     const curRowKeys = getModuleRowKeys(prop.selectedItemEdit);
     const setField = useSetTableField<SiteMenuSet>(prop.formData);
@@ -324,25 +317,22 @@ const Module_Banner_Comp = (prop: {
             Style={prop.theme.DropList}
             Options={bannerOpts}
             AutoDefaultFirst={false}
-            {...setField(
-                SiteMenuSetFields.SiteMenu_Item_Module,
-                SiteMenu_Item_ModuleFields.BannerId,
-                "string",
-                curRowKeys,
-            )}
+            {...setField(SiteMenuSetFields.SiteMenu_Item_Module, SiteMenu_Item_ModuleFields.BannerId, "string", curRowKeys)}
         />,
     ];
 };
 
-const Module_Announcement_Comp = (prop: {
-    theme: IBETheme;
-    formData: UseFetchFormDataResult<SiteMenuSet>;
-    selectedItemEdit: SiteMenuItem | null;
-    styleDict: Record<string, string>;
-    lang: Lang;
-    categorySets: CategorySet[];
-    tagSets: TagSet[];
-}) =>
+const Module_Announcement_Comp = (
+    prop: {
+        theme: IBETheme;
+        formData: UseFetchFormDataResult<SiteMenuSet>;
+        selectedItemEdit: SiteMenuItem | null;
+        styleDict: Record<string, string>;
+        lang: Lang;
+        categorySets: CategorySet[];
+        tagSets: TagSet[];
+    },
+) =>
 {
     const curRowKeys = getModuleRowKeys(prop.selectedItemEdit);
     const binder = useSetJsonField<SiteMenuSet, ModuleOptionsJson>(
@@ -362,20 +352,8 @@ const Module_Announcement_Comp = (prop: {
     }, [prop.styleDict]);
     return (
         <>
-            <LibCheckBox
-                Style={prop.theme.CheckBox}
-                ColumnDisplayName="類別"
-                options={cateDic}
-                InputValue={catBind.value}
-                onChange={catBind.onChange}
-            />
-            <LibCheckBox
-                Style={prop.theme.CheckBox}
-                ColumnDisplayName="標籤"
-                options={tagDic}
-                InputValue={tagBind.value}
-                onChange={tagBind.onChange}
-            />
+            <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="類別" options={cateDic} InputValue={catBind.value} onChange={catBind.onChange} />
+            <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="標籤" options={tagDic} InputValue={tagBind.value} onChange={tagBind.onChange} />
             <LibDropList
                 Style={prop.theme.DropList}
                 ColumnDisplayName="清單樣式"
@@ -388,13 +366,15 @@ const Module_Announcement_Comp = (prop: {
     );
 };
 
-const Module_Pagemanagement_Comp = (prop: {
-    theme: IBETheme;
-    formData: UseFetchFormDataResult<SiteMenuSet>;
-    selectedItemEdit: SiteMenuItem | null;
-    pageMap: Record<string, string>;
-    lang: Lang;
-}): React.ReactNode =>
+const Module_Pagemanagement_Comp = (
+    prop: {
+        theme: IBETheme;
+        formData: UseFetchFormDataResult<SiteMenuSet>;
+        selectedItemEdit: SiteMenuItem | null;
+        pageMap: Record<string, string>;
+        lang: Lang;
+    },
+): React.ReactNode =>
 {
     const curRowKeys = getModuleRowKeys(prop.selectedItemEdit);
     const binder = useSetJsonField<SiteMenuSet, ModuleOptionsJson>(
@@ -421,15 +401,17 @@ const Module_Pagemanagement_Comp = (prop: {
     );
 };
 
-const Module_Gallery_Comp = (prop: {
-    theme: IBETheme;
-    formData: UseFetchFormDataResult<SiteMenuSet>;
-    selectedItemEdit: SiteMenuItem | null;
-    styleDict: Record<string, string>;
-    lang: Lang;
-    categorySets: CategorySet[];
-    tagSets: TagSet[];
-}): React.ReactNode =>
+const Module_Gallery_Comp = (
+    prop: {
+        theme: IBETheme;
+        formData: UseFetchFormDataResult<SiteMenuSet>;
+        selectedItemEdit: SiteMenuItem | null;
+        styleDict: Record<string, string>;
+        lang: Lang;
+        categorySets: CategorySet[];
+        tagSets: TagSet[];
+    },
+): React.ReactNode =>
 {
     const curRowKeys = getModuleRowKeys(prop.selectedItemEdit);
     const binder = useSetJsonField<SiteMenuSet, ModuleOptionsJson>(
@@ -449,20 +431,8 @@ const Module_Gallery_Comp = (prop: {
     }, [prop.styleDict]);
     return (
         <>
-            <LibCheckBox
-                Style={prop.theme.CheckBox}
-                ColumnDisplayName="類別"
-                options={cateDic}
-                InputValue={catBind.value}
-                onChange={catBind.onChange}
-            />
-            <LibCheckBox
-                Style={prop.theme.CheckBox}
-                ColumnDisplayName="標籤"
-                options={tagDic}
-                InputValue={tagBind.value}
-                onChange={tagBind.onChange}
-            />
+            <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="類別" options={cateDic} InputValue={catBind.value} onChange={catBind.onChange} />
+            <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="標籤" options={tagDic} InputValue={tagBind.value} onChange={tagBind.onChange} />
             <LibDropList
                 Style={prop.theme.DropList}
                 ColumnDisplayName="清單樣式"
@@ -475,15 +445,17 @@ const Module_Gallery_Comp = (prop: {
     );
 };
 
-const Module_FileArchive_Comp = (prop: {
-    theme: IBETheme;
-    formData: UseFetchFormDataResult<SiteMenuSet>;
-    selectedItemEdit: SiteMenuItem | null;
-    styleDict: Record<string, string>;
-    lang: Lang;
-    categorySets: CategorySet[];
-    tagSets: TagSet[];
-}): React.ReactNode =>
+const Module_FileArchive_Comp = (
+    prop: {
+        theme: IBETheme;
+        formData: UseFetchFormDataResult<SiteMenuSet>;
+        selectedItemEdit: SiteMenuItem | null;
+        styleDict: Record<string, string>;
+        lang: Lang;
+        categorySets: CategorySet[];
+        tagSets: TagSet[];
+    },
+): React.ReactNode =>
 {
     const curRowKeys = getModuleRowKeys(prop.selectedItemEdit);
     const binder = useSetJsonField<SiteMenuSet, ModuleOptionsJson>(
@@ -503,20 +475,8 @@ const Module_FileArchive_Comp = (prop: {
     }, [prop.styleDict]);
     return (
         <>
-            <LibCheckBox
-                Style={prop.theme.CheckBox}
-                ColumnDisplayName="類別"
-                options={cateDic}
-                InputValue={catBind.value}
-                onChange={catBind.onChange}
-            />
-            <LibCheckBox
-                Style={prop.theme.CheckBox}
-                ColumnDisplayName="標籤"
-                options={tagDic}
-                InputValue={tagBind.value}
-                onChange={tagBind.onChange}
-            />
+            <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="類別" options={cateDic} InputValue={catBind.value} onChange={catBind.onChange} />
+            <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="標籤" options={tagDic} InputValue={tagBind.value} onChange={tagBind.onChange} />
             <LibDropList
                 Style={prop.theme.DropList}
                 ColumnDisplayName="清單樣式"
@@ -529,15 +489,17 @@ const Module_FileArchive_Comp = (prop: {
     );
 };
 
-const Module_WebResource_Comp = (prop: {
-    theme: IBETheme;
-    formData: UseFetchFormDataResult<SiteMenuSet>;
-    selectedItemEdit: SiteMenuItem | null;
-    styleDict: Record<string, string>;
-    lang: Lang;
-    categorySets: CategorySet[];
-    tagSets: TagSet[];
-}): React.ReactNode =>
+const Module_WebResource_Comp = (
+    prop: {
+        theme: IBETheme;
+        formData: UseFetchFormDataResult<SiteMenuSet>;
+        selectedItemEdit: SiteMenuItem | null;
+        styleDict: Record<string, string>;
+        lang: Lang;
+        categorySets: CategorySet[];
+        tagSets: TagSet[];
+    },
+): React.ReactNode =>
 {
     const curRowKeys = getModuleRowKeys(prop.selectedItemEdit);
     const binder = useSetJsonField<SiteMenuSet, ModuleOptionsJson>(
@@ -557,20 +519,8 @@ const Module_WebResource_Comp = (prop: {
     }, [prop.styleDict]);
     return (
         <>
-            <LibCheckBox
-                Style={prop.theme.CheckBox}
-                ColumnDisplayName="類別"
-                options={cateDic}
-                InputValue={catBind.value}
-                onChange={catBind.onChange}
-            />
-            <LibCheckBox
-                Style={prop.theme.CheckBox}
-                ColumnDisplayName="標籤"
-                options={tagDic}
-                InputValue={tagBind.value}
-                onChange={tagBind.onChange}
-            />
+            <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="類別" options={cateDic} InputValue={catBind.value} onChange={catBind.onChange} />
+            <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="標籤" options={tagDic} InputValue={tagBind.value} onChange={tagBind.onChange} />
             <LibDropList
                 Style={prop.theme.DropList}
                 ColumnDisplayName="清單樣式"
@@ -582,29 +532,15 @@ const Module_WebResource_Comp = (prop: {
         </>
     );
 };
-
-const normalizeBool = (value: unknown): boolean =>
-{
-    if (value === true) return true;
-    if (value === false) return false;
-
-    const raw = `${value ?? ""}`.trim().toLowerCase();
-    return raw === "true" || raw === "1";
-};
-
-const toCheckboxBool = (value: unknown): boolean =>
-{
-    const raw = Array.isArray(value) ? value : `${value ?? ""}`.split(",");
-    return raw.map(s => `${s}`.trim()).includes("1");
-};
-
-const Module_Timeline_Comp = (prop: {
-    theme: IBETheme;
-    formData: UseFetchFormDataResult<SiteMenuSet>;
-    selectedItemEdit: SiteMenuItem | null;
-    timelineMap: Map<string, string>;
-    lang: Lang;
-}): React.ReactNode =>
+const Module_Timeline_Comp = (
+    prop: {
+        theme: IBETheme;
+        formData: UseFetchFormDataResult<SiteMenuSet>;
+        selectedItemEdit: SiteMenuItem | null;
+        timelineMap: Map<string, string>;
+        lang: Lang;
+    },
+): React.ReactNode =>
 {
     const curRowKeys = getModuleRowKeys(prop.selectedItemEdit);
     const binder = useSetJsonField<SiteMenuSet, ModuleTimelineOptionsJson>(
@@ -651,6 +587,51 @@ const Module_Timeline_Comp = (prop: {
             />
         </>
     );
+};
+
+const Module_Material_Comp = (
+    prop: {
+        theme: IBETheme;
+        formData: UseFetchFormDataResult<SiteMenuSet>;
+        selectedItemEdit: SiteMenuItem | null;
+        lang: Lang;
+        categorySets: CategorySet[];
+        tagSets: TagSet[];
+    },
+) =>
+{
+    const curRowKeys = getModuleRowKeys(prop.selectedItemEdit);
+    const binder = useSetJsonField<SiteMenuSet, ModuleOptionsJson>(
+        prop.formData,
+        SiteMenuSetFields.SiteMenu_Item_Module,
+        SiteMenu_Item_ModuleFields.ModuleOptions,
+        curRowKeys,
+        moduleOptionsDefaults,
+    );
+    const catBind = binder.bind("Category", "csv");
+    const tagBind = binder.bind("Tag", "csv");
+    const { cateDic, tagDic } = useGetCategoryTagDict(PGID.Material, prop.lang, prop.categorySets, prop.tagSets);
+    return (
+        <>
+            <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="類別" options={cateDic} InputValue={catBind.value} onChange={catBind.onChange} />
+            <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="標籤" options={tagDic} InputValue={tagBind.value} onChange={tagBind.onChange} />
+        </>
+    );
+};
+
+const normalizeBool = (value: unknown): boolean =>
+{
+    if (value === true) return true;
+    if (value === false) return false;
+
+    const raw = `${value ?? ""}`.trim().toLowerCase();
+    return raw === "true" || raw === "1";
+};
+
+const toCheckboxBool = (value: unknown): boolean =>
+{
+    const raw = Array.isArray(value) ? value : `${value ?? ""}`.split(",");
+    return raw.map(s => `${s}`.trim()).includes("1");
 };
 
 const useSelectedMenuItem = (data: SiteMenuSet, selected?: SiteMenuItem | null): SiteMenu_Item | null =>

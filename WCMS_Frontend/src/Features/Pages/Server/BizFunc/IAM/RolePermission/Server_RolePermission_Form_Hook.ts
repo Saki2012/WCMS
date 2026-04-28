@@ -36,11 +36,7 @@ export interface PermissionCatalogModuleDTO
 }
 
 /** 單列權限資料（避免 any） */
-type RolePermissionRow = {
-    PermissionKey?: string | null;
-    GrantMask?: number | string | null;
-    RoleId?: string | null;
-};
+type RolePermissionRow = { PermissionKey?: string | null; GrantMask?: number | string | null; RoleId?: string | null; };
 
 /** Form Hook 回傳 */
 export interface UseServerRolePermissionFormResult
@@ -85,18 +81,12 @@ const buildGrantMapFromForm = (set?: RolePermissionSet | null): Record<string, n
 };
 
 /** 寫回單一 progId 對應的 GrantMask */
-const applyGrantToForm = (
-    prev: RolePermissionSet,
-    progId: string,
-    nextGrantMask: number,
-): RolePermissionSet =>
+const applyGrantToForm = (prev: RolePermissionSet, progId: string, nextGrantMask: number): RolePermissionSet =>
 {
     // 宣告變數
     const next: RolePermissionSet = { ...(prev as RolePermissionSet) };
     const roleId = next?.RoleData?.RoleId ?? null;
-    const list = Array.isArray(next?.RolePermission)
-        ? ([...next.RolePermission] as RolePermissionRow[])
-        : [];
+    const list = Array.isArray(next?.RolePermission) ? ([...next.RolePermission] as RolePermissionRow[]) : [];
 
     const index = list.findIndex((item) => String(item?.PermissionKey ?? "").trim() === progId);
 
@@ -147,16 +137,9 @@ const useRolePermissionFormDataByAdapter = (
     {
         if (!isNew) return null;
 
-        const ok: ApiResponse<RolePermissionSet> = {
-            IsSuccess: true,
-            Data: empty,
-            SysMessage: [],
-        };
+        const ok: ApiResponse<RolePermissionSet> = { IsSuccess: true, Data: empty, SysMessage: [] };
 
-        return {
-            args: internalKey,
-            apiRes: ok,
-        };
+        return { args: internalKey, apiRes: ok };
     }, [isNew, empty, internalKey]);
 
     const onError = useCallback((e: ApiAdapterError) =>
@@ -165,17 +148,9 @@ const useRolePermissionFormDataByAdapter = (
         publish({ level: MessageStatus.Error, title: e.messageText });
     }, [publish]);
 
-    const model = adapter.hooks.useModelDisplayName({
-        deps: [],
-        onError,
-    });
+    const model = adapter.hooks.useModelDisplayName({ deps: [], onError });
 
-    const query = adapter.hooks.useQueryData({
-        internalId: internalKey,
-        initial,
-        deps: [internalKey],
-        onError,
-    });
+    const query = adapter.hooks.useQueryData({ internalId: internalKey, initial, deps: [internalKey], onError });
 
     const [data, setData] = useState<RolePermissionSet>(empty);
 
@@ -210,11 +185,7 @@ const useRolePermissionFormDataByAdapter = (
         isLoading,
         error,
         refetch,
-        displayName: (model.data ?? {
-            ModelId: "",
-            ModelDisplayName: "",
-            Tables: [],
-        }) as ModelDisplaySchema,
+        displayName: (model.data ?? { ModelId: "", ModelDisplayName: "", Tables: [] }) as ModelDisplaySchema,
     };
 };
 
@@ -229,13 +200,7 @@ const useRolePermissionFormActionsFromAdapter = (
     // 宣告變數
     const isNew = useMemo(() => !internalId, [internalId]);
 
-    const actions = adapter.useServerActions({
-        onSuccessByMode: {
-            create: () => onBackToList(),
-            update: () => onBackToList(),
-            delete: () => onBackToList(),
-        },
-    });
+    const actions = adapter.useServerActions({ onSuccessByMode: { create: () => onBackToList(), update: () => onBackToList(), delete: () => onBackToList() } });
 
     // return
     return {
@@ -261,10 +226,7 @@ const useRolePermissionFormActionsFromAdapter = (
 };
 
 /** RolePermission Form 主 Hook */
-export const useServerRolePermissionForm = (props: {
-    theme: IBETheme;
-    lang: Lang;
-}): UseServerRolePermissionFormResult =>
+export const useServerRolePermissionForm = (props: { theme: IBETheme; lang: Lang; }): UseServerRolePermissionFormResult =>
 {
     // 宣告變數
     const { internalId } = useParams();
@@ -281,11 +243,7 @@ export const useServerRolePermissionForm = (props: {
         publish({ level: MessageStatus.Error, title: e.messageText });
     }, [publish]);
 
-    const catalog = adapter.hooks.usePermissionCatalog({
-        lang: props.lang,
-        deps: [props.lang],
-        onError: onCatalogError,
-    });
+    const catalog = adapter.hooks.usePermissionCatalog({ lang: props.lang, deps: [props.lang], onError: onCatalogError });
 
     const formData = useRolePermissionFormDataByAdapter(adapter, internalId ?? "", emptyData);
 
@@ -295,12 +253,7 @@ export const useServerRolePermissionForm = (props: {
         navigate(pathname.replace(/\/Form(\/[^/]*)?$/, "/List"));
     }, [navigate, pathname]);
 
-    const actions = useRolePermissionFormActionsFromAdapter(
-        adapter,
-        internalId ?? "",
-        formData.data,
-        onBackToList,
-    );
+    const actions = useRolePermissionFormActionsFromAdapter(adapter, internalId ?? "", formData.data, onBackToList);
 
     const funcAction = useFetchEnumOptions("FuncAction");
 
@@ -314,16 +267,7 @@ export const useServerRolePermissionForm = (props: {
             ErrorList: [formData.error, catalog.errorText ?? undefined, funcAction.error],
             Actions: actions,
         };
-    }, [
-        props.theme,
-        formData.isLoading,
-        formData.error,
-        catalog.isLoading,
-        catalog.errorText,
-        funcAction.isLoading,
-        funcAction.error,
-        actions,
-    ]);
+    }, [props.theme, formData.isLoading, formData.error, catalog.isLoading, catalog.errorText, funcAction.isLoading, funcAction.error, actions]);
 
     const [grantMap, setGrantMap] = useState<Record<string, number>>({});
 
@@ -365,15 +309,7 @@ export const useServerRolePermissionForm = (props: {
     }, [funcAction.data]);
 
     // return
-    return {
-        prop,
-        formData,
-        isAddNew,
-        modules,
-        grantMap,
-        actionNameMap,
-        onGrantChange,
-    };
+    return { prop, formData, isAddNew, modules, grantMap, actionNameMap, onGrantChange };
 };
 
 // UI相關:
@@ -400,18 +336,9 @@ export const FuncAction = {
 
 export type FuncAction = (typeof FuncAction)[keyof typeof FuncAction];
 
-type IActionOption = {
-    key: string;
-    label: string;
-    value: FuncAction;
-    visible: boolean;
-};
+type IActionOption = { key: string; label: string; value: FuncAction; visible: boolean; };
 
-type IActionBase = {
-    key: string;
-    value: FuncAction;
-    fallbackLabel: string;
-};
+type IActionBase = { key: string; value: FuncAction; fallbackLabel: string; };
 
 const ACTION_BASE: IActionBase[] = [
     { key: "use", value: FuncAction.Use, fallbackLabel: "使用" },
@@ -444,9 +371,7 @@ export interface UseRolePermissionPermissionUIResult
 }
 
 /** RolePermission Form：UI 行為 hook（accordion / checkbox / 全選） */
-export const useRolePermissionPermissionUI = (
-    props: IRolePermissionCatalogAccordionProps,
-): UseRolePermissionPermissionUIResult =>
+export const useRolePermissionPermissionUI = (props: IRolePermissionCatalogAccordionProps): UseRolePermissionPermissionUIResult =>
 {
     // 宣告變數（防呆）
     const modules = props.modules ?? [];
@@ -483,22 +408,13 @@ export const useRolePermissionPermissionUI = (
     const getCollapseStyle = useCallback((isOpen: boolean) =>
     {
         // return
-        return {
-            display: "grid" as const,
-            gridTemplateRows: isOpen ? "1fr" : "0fr",
-            transition: "grid-template-rows 220ms ease",
-            overflow: "hidden" as const,
-        };
+        return { display: "grid" as const, gridTemplateRows: isOpen ? "1fr" : "0fr", transition: "grid-template-rows 220ms ease", overflow: "hidden" as const };
     }, []);
 
     const getCollapseBodyStyle = useCallback((isOpen: boolean) =>
     {
         // return
-        return {
-            overflow: "hidden" as const,
-            minHeight: 0,
-            padding: isOpen ? undefined : 0,
-        };
+        return { overflow: "hidden" as const, minHeight: 0, padding: isOpen ? undefined : 0 };
     }, []);
 
     const setAllExpanded = useCallback((next: boolean) =>
@@ -555,12 +471,7 @@ export const useRolePermissionPermissionUI = (
         // 執行 function
         for (const a of ACTION_BASE)
         {
-            list.push({
-                key: a.key,
-                value: a.value,
-                label: actionNameMap[String(a.value)] ?? a.fallbackLabel,
-                visible: true,
-            });
+            list.push({ key: a.key, value: a.value, label: actionNameMap[String(a.value)] ?? a.fallbackLabel, visible: true });
         }
 
         // return
@@ -611,11 +522,7 @@ export const useRolePermissionPermissionUI = (
         return validProgs.every((prog) => isAllSupportedChecked(prog));
     }, [getSupportedActionMask, isAllSupportedChecked]);
 
-    const onToggleAction = useCallback((
-        prog: PermissionCatalogProgDTO,
-        act: IActionOption,
-        checked: boolean,
-    ) =>
+    const onToggleAction = useCallback((prog: PermissionCatalogProgDTO, act: IActionOption, checked: boolean) =>
     {
         // 宣告變數
         const support = prog.SupportMask ?? 0;
@@ -634,9 +541,7 @@ export const useRolePermissionPermissionUI = (
         const supportMask = prog.SupportMask ?? 0;
         const supportedActionMask = getSupportedActionMask(supportMask);
         const currentGrantMask = getGrantMask(prog.ProgId);
-        const nextGrantMask = checked
-            ? (currentGrantMask | supportedActionMask)
-            : (currentGrantMask & ~supportedActionMask);
+        const nextGrantMask = checked ? (currentGrantMask | supportedActionMask) : (currentGrantMask & ~supportedActionMask);
 
         // 執行 function
         if (!supportedActionMask) return;
@@ -657,9 +562,7 @@ export const useRolePermissionPermissionUI = (
 
             if (!supportedActionMask) continue;
 
-            const nextGrantMask = checked
-                ? (currentGrantMask | supportedActionMask)
-                : (currentGrantMask & ~supportedActionMask);
+            const nextGrantMask = checked ? (currentGrantMask | supportedActionMask) : (currentGrantMask & ~supportedActionMask);
 
             onGrantChange(prog.ProgId, nextGrantMask);
         }

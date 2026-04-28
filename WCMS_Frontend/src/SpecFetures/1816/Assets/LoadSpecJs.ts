@@ -24,10 +24,7 @@ const loadScript = (src: string) =>
 /** 先載 Bootstrap / Swiper（不依賴 jQuery） */
 const loadBootstrapAndSwiper = async () =>
 {
-    await Promise.all([
-        loadScript(bootstrapUrl),
-        loadScript(swiperUrl),
-    ]);
+    await Promise.all([loadScript(bootstrapUrl), loadScript(swiperUrl)]);
 };
 
 /** 再載 jQuery + 相關外掛（owl / ekko） */
@@ -42,11 +39,7 @@ const loadJQueryAndPlugins = async () =>
         w.$ = w.jQuery;
     }
 
-    await Promise.all([
-        loadScript(owlUrl),
-        loadScript(ekkoUrl),
-        loadScript(venoUrl),
-    ]);
+    await Promise.all([loadScript(owlUrl), loadScript(ekkoUrl), loadScript(venoUrl)]);
 };
 
 // 這支檔案一被 import 就開始載入

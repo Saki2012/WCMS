@@ -1,14 +1,15 @@
 /** breadcrumb + return-box */
 
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
+import { type Lang, SUPPORTED_LANGS } from "@/SysCore/i18n/lang";
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
-import { SUPPORTED_LANGS, type Lang } from "@/SysCore/i18n/lang";
-import { createContext, Fragment, useContext, useMemo, type MouseEvent, type ReactNode } from "react";
+import { createContext, Fragment, type MouseEvent, type ReactNode, useContext, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import "./BreadCrumb.css";
 
 /** 取得目前網址的 module base（例：/Issues/Form/... -> /Issues；/en/Issues/... -> /Issues） */
-const resolveModuleBaseFromPathname = (pathname: string): string => {
+const resolveModuleBaseFromPathname = (pathname: string): string =>
+{
     // 宣告變數
     const segs = (pathname ?? "").split("/").filter(Boolean);
     const s0 = (segs[0] ?? "").toLowerCase();
@@ -28,7 +29,8 @@ type GetBreadCrumbDataOptions = {
 };
 
 /** 站台 menu breadcrumb（原本既有邏輯 + 支援 dynamic crumbs 時 current node 可點回 module） */
-const GetBreadCrumbData = (lang: Lang, site: INormSite, node: INormNode, opts?: GetBreadCrumbDataOptions): ReactNode[] => {
+const GetBreadCrumbData = (lang: Lang, site: INormSite, node: INormNode, opts?: GetBreadCrumbDataOptions): ReactNode[] =>
+{
     // 宣告變數
     const result: ReactNode[] = [];
     let curNodes = site.treeByLang[lang];
@@ -36,7 +38,8 @@ const GetBreadCrumbData = (lang: Lang, site: INormSite, node: INormNode, opts?: 
     const currentNodeFallbackTo = opts?.currentNodeFallbackTo ?? "";
 
     // 執行 function
-    node.absIds?.forEach((id) => {
+    node.absIds?.forEach((id) =>
+    {
         const curNode = curNodes?.find((n: INormNode) => n.id === id);
         if (!curNode) return;
 
@@ -44,29 +47,27 @@ const GetBreadCrumbData = (lang: Lang, site: INormSite, node: INormNode, opts?: 
 
         // ✅ 原本：current node 一律純文字
         // ✅ 修正：如果有 dynamic crumbs，current node 改成可點（導回 module root / redirectTo）
-        if (isCurrent) {
+        if (isCurrent)
+        {
             const rawTo = (curNode.redirectTo ?? "").trim();
             const canUseRawTo = rawTo !== "" && rawTo !== "/";
             const finalTo = canUseRawTo ? rawTo : currentNodeFallbackTo;
 
-            if (treatCurrentAsLink && finalTo) {
-                result.push(
-                    <LangNavLink key={id} to={finalTo} title={curNode.title} aria-label={curNode.title}>
-                        {curNode.title}
-                    </LangNavLink>
-                );
-            } else {
+            if (treatCurrentAsLink && finalTo)
+            {
+                result.push(<LangNavLink key={id} to={finalTo} title={curNode.title} aria-label={curNode.title}>{curNode.title}</LangNavLink>);
+            } else
+            {
                 result.push(<Fragment key={id}>{curNode.title}</Fragment>);
             }
-        } else {
+        } else
+        {
             const to = (curNode.redirectTo ?? "").trim();
-            if (to) {
-                result.push(
-                    <LangNavLink key={id} to={to} title={curNode.title} aria-label={curNode.title}>
-                        {curNode.title}
-                    </LangNavLink>
-                );
-            } else {
+            if (to)
+            {
+                result.push(<LangNavLink key={id} to={to} title={curNode.title} aria-label={curNode.title}>{curNode.title}</LangNavLink>);
+            } else
+            {
                 result.push(<Fragment key={id}>{curNode.title}</Fragment>);
             }
         }
@@ -78,26 +79,20 @@ const GetBreadCrumbData = (lang: Lang, site: INormSite, node: INormNode, opts?: 
     return result;
 };
 
-export type BreadcrumbItem = {
-    label: string;
-    to?: string;
-};
+export type BreadcrumbItem = { label: string; to?: string; };
 
-type CrumbPart = {
-    key: string;
-    label: string;
-    to?: string;
-    isActive: boolean;
-};
+type CrumbPart = { key: string; label: string; to?: string; isActive: boolean; };
 
 /** 取得 menu path nodes（用 absIds 往下找） */
-const GetMenuPathNodes = (lang: Lang, site: INormSite, node: INormNode): Array<{ id: string; title: string; to: string }> => {
+const GetMenuPathNodes = (lang: Lang, site: INormSite, node: INormNode): Array<{ id: string; title: string; to: string; }> =>
+{
     // 宣告變數
-    const result: Array<{ id: string; title: string; to: string }> = [];
+    const result: Array<{ id: string; title: string; to: string; }> = [];
     let curNodes = site.treeByLang[lang];
 
     // 執行 function：依 absIds 往下找
-    node.absIds?.forEach((id) => {
+    node.absIds?.forEach((id) =>
+    {
         const curNode = curNodes?.find((n: INormNode) => n.id === id);
         if (!curNode) return;
 
@@ -110,19 +105,22 @@ const GetMenuPathNodes = (lang: Lang, site: INormSite, node: INormNode): Array<{
 };
 
 /** 組合 menu crumbs + dynamic crumbs（最後一個為 active） */
-const Build1816CrumbParts = (lang: Lang, site: INormSite, node: INormNode, dynamicItems: BreadcrumbItem[]): CrumbPart[] => {
+const Build1816CrumbParts = (lang: Lang, site: INormSite, node: INormNode, dynamicItems: BreadcrumbItem[]): CrumbPart[] =>
+{
     // 宣告變數
     const menuNodes = GetMenuPathNodes(lang, site, node);
-    const raw: Array<{ key: string; label: string; to?: string }> = [];
+    const raw: Array<{ key: string; label: string; to?: string; }> = [];
 
     // 執行 function：menu crumbs
-    menuNodes.forEach((n) => {
+    menuNodes.forEach((n) =>
+    {
         const isLastMenu = String(n.id) === String(node.id);
         raw.push({ key: `m-${n.id}`, label: n.title, to: isLastMenu ? undefined : n.to });
     });
 
     // 執行 function：append dynamic crumbs
-    (dynamicItems ?? []).forEach((d, idx) => {
+    (dynamicItems ?? []).forEach((d, idx) =>
+    {
         raw.push({ key: `d-${idx}`, label: d.label, to: d.to });
     });
 
@@ -133,29 +131,30 @@ const Build1816CrumbParts = (lang: Lang, site: INormSite, node: INormNode, dynam
 };
 
 // --- Breadcrumb Context（給頁面動態設定） ---
-type BreadcrumbContextValue = {
-    items: BreadcrumbItem[];
-    setItems: (items: BreadcrumbItem[]) => void;
-};
+type BreadcrumbContextValue = { items: BreadcrumbItem[]; setItems: (items: BreadcrumbItem[]) => void; };
 
 export const BreadcrumbContext = createContext<BreadcrumbContextValue | null>(null);
 
-export const useBreadcrumb = () => {
+export const useBreadcrumb = () =>
+{
     const ctx = useContext(BreadcrumbContext);
     if (!ctx) throw new Error("useBreadcrumb must be used within BreadcrumbProvider");
     return ctx;
 };
 
 /** 1816：prototype DOM（先內嵌在同檔，後續好搬移） */
-const BreadCrumb1816Comp = (props: {
-    homepageTitle: string;
-    gobackTitle: string;
-    printTitle: string;
-    shareTitle: string;
-    isZh: boolean;
-    crumbParts: CrumbPart[];
-    onGoBack: (e: MouseEvent<HTMLAnchorElement>) => void;
-}) => {
+const BreadCrumb1816Comp = (
+    props: {
+        homepageTitle: string;
+        gobackTitle: string;
+        printTitle: string;
+        shareTitle: string;
+        isZh: boolean;
+        crumbParts: CrumbPart[];
+        onGoBack: (e: MouseEvent<HTMLAnchorElement>) => void;
+    },
+) =>
+{
     // return
     return (
         <div className="col-md-12">
@@ -171,17 +170,15 @@ const BreadCrumb1816Comp = (props: {
                                 </LangNavLink>
                             </li>
 
-                            {props.crumbParts.map((c) => {
-                                if (!c.isActive) {
+                            {props.crumbParts.map((c) =>
+                            {
+                                if (!c.isActive)
+                                {
                                     return (
                                         <li className="breadcrumb-item" key={c.key}>
-                                            {c.to ? (
-                                                <LangNavLink to={c.to} aria-label={c.label} title={c.label}>
-                                                    {c.label}
-                                                </LangNavLink>
-                                            ) : (
-                                                <span>{c.label}</span>
-                                            )}
+                                            {c.to
+                                                ? <LangNavLink to={c.to} aria-label={c.label} title={c.label}>{c.label}</LangNavLink>
+                                                : <span>{c.label}</span>}
                                         </li>
                                     );
                                 }
@@ -207,14 +204,7 @@ const BreadCrumb1816Comp = (props: {
                     </div>
 
                     <div className="retrun-wrap ms-xl-3 ms-0 mt-xl-0 mt-2">
-                        <a
-                            href="#"
-                            onClick={props.onGoBack}
-                            role="button"
-                            aria-label={props.gobackTitle}
-                            title={props.gobackTitle}
-                            className="mb-0 pb-0"
-                        >
+                        <a href="#" onClick={props.onGoBack} role="button" aria-label={props.gobackTitle} title={props.gobackTitle} className="mb-0 pb-0">
                             <div className="return-box">
                                 <i className="fas fa-chevron-left me-2"></i>
                                 {props.gobackTitle}
@@ -229,13 +219,16 @@ const BreadCrumb1816Comp = (props: {
 };
 
 /** 其他 spec：維持原本 DOM（先內嵌在同檔，後續好搬移） */
-const BreadCrumbDefaultComp = (props: {
-    homepageTitle: string;
-    gobackTitle: string;
-    breadCrumbData: ReactNode[];
-    items: BreadcrumbItem[];
-    onGoBack: (e: MouseEvent<HTMLAnchorElement>) => void;
-}) => {
+const BreadCrumbDefaultComp = (
+    props: {
+        homepageTitle: string;
+        gobackTitle: string;
+        breadCrumbData: ReactNode[];
+        items: BreadcrumbItem[];
+        onGoBack: (e: MouseEvent<HTMLAnchorElement>) => void;
+    },
+) =>
+{
     // return
     return (
         <div className="col-md-12">
@@ -252,22 +245,12 @@ const BreadCrumbDefaultComp = (props: {
                             </li>
 
                             {/* ✅ menu crumbs */}
-                            {props.breadCrumbData?.map((i, idx) => (
-                                <li className="breadcrumb-item" key={`menu-${idx}`}>
-                                    {i}
-                                </li>
-                            ))}
+                            {props.breadCrumbData?.map((i, idx) => <li className="breadcrumb-item" key={`menu-${idx}`}>{i}</li>)}
 
                             {/* ✅ dynamic crumbs（append） */}
                             {props.items?.map((c, idx) => (
                                 <li className="breadcrumb-item" key={`dyn-${idx}`}>
-                                    {c.to ? (
-                                        <LangNavLink to={c.to} aria-label={c.label} title={c.label}>
-                                            {c.label}
-                                        </LangNavLink>
-                                    ) : (
-                                        <span>{c.label}</span>
-                                    )}
+                                    {c.to ? <LangNavLink to={c.to} aria-label={c.label} title={c.label}>{c.label}</LangNavLink> : <span>{c.label}</span>}
                                 </li>
                             ))}
                         </ol>
@@ -289,7 +272,8 @@ const BreadCrumbDefaultComp = (props: {
 };
 
 // --- Component ---
-export const BreadCrumb_Comp = (props: { lang: Lang; site: INormSite; node: INormNode; backHref?: string }) => {
+export const BreadCrumb_Comp = (props: { lang: Lang; site: INormSite; node: INormNode; backHref?: string; }) =>
+{
     // 宣告變數
     const is1816 = import.meta.env.VITE_SPEC_CODE === "1816";
 
@@ -307,23 +291,22 @@ export const BreadCrumb_Comp = (props: { lang: Lang; site: INormSite; node: INor
     const treatCurrentAsLink = (items?.length ?? 0) > 0;
 
     // ✅ 原本 menu breadcrumb（修正：有 dynamic crumbs 時 current node 也可點）
-    const breadCrumbData: ReactNode[] = GetBreadCrumbData(props.lang, props.site, props.node, {
-        treatCurrentAsLink,
-        currentNodeFallbackTo: moduleBase,
-    });
+    const breadCrumbData: ReactNode[] = GetBreadCrumbData(props.lang, props.site, props.node, { treatCurrentAsLink, currentNodeFallbackTo: moduleBase });
 
     // ✅ 1816 crumbs（menu + dynamic，最後一個 active）
     const crumbParts1816 = Build1816CrumbParts(props.lang, props.site, props.node, items);
 
     // 返回上一層
-    const handleGoBack = (e: MouseEvent<HTMLAnchorElement>) => {
+    const handleGoBack = (e: MouseEvent<HTMLAnchorElement>) =>
+    {
         // 避免 # 跳動
         e.preventDefault();
         history.back();
     };
 
     // ✅ 1816：prototype DOM
-    if (is1816) {
+    if (is1816)
+    {
         return (
             <BreadCrumb1816Comp
                 homepageTitle={homepageTitle}
@@ -338,5 +321,7 @@ export const BreadCrumb_Comp = (props: { lang: Lang; site: INormSite; node: INor
     }
 
     // ✅ 其他 spec：維持原本 DOM
-    return <BreadCrumbDefaultComp homepageTitle={homepageTitle} gobackTitle={gobackTitle} breadCrumbData={breadCrumbData} items={items} onGoBack={handleGoBack} />;
+    return (
+        <BreadCrumbDefaultComp homepageTitle={homepageTitle} gobackTitle={gobackTitle} breadCrumbData={breadCrumbData} items={items} onGoBack={handleGoBack} />
+    );
 };

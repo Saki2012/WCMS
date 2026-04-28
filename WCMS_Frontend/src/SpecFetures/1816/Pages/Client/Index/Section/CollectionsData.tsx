@@ -38,11 +38,7 @@ export const CollectionsData = (props: { lang: Lang; internalId: string; initial
     }, [props.internalId, props.initialBanner]);
 
     // 宣告變數：取得館藏櫥窗 Banner 資料（SSR 有 initial → hydration 不重抓）
-    const useBanner = adapter.hooks.useQueryData({
-        internalId: props.internalId,
-        initial,
-        deps: [props.internalId, props.lang],
-    });
+    const useBanner = adapter.hooks.useQueryData({ internalId: props.internalId, initial, deps: [props.internalId, props.lang] });
 
     const carouselRef = useRef<HTMLDivElement | null>(null);
     const toggleRef = useRef<HTMLAnchorElement | null>(null);
@@ -169,18 +165,12 @@ export const CollectionsData = (props: { lang: Lang; internalId: string; initial
 
             if (isPlaying)
             {
-                $toggle.attr("aria-pressed", "true").attr("title", "暫停").attr(
-                    "aria-label",
-                    "圖片輪播播放中，點擊暫停",
-                );
+                $toggle.attr("aria-pressed", "true").attr("title", "暫停").attr("aria-label", "圖片輪播播放中，點擊暫停");
                 $iconBox.addClass("control-pause-icon");
                 $srText.text("圖片輪播播放中，點擊暫停");
             } else
             {
-                $toggle.attr("aria-pressed", "false").attr("title", "播放").attr(
-                    "aria-label",
-                    "圖片輪播已暫停，點擊播放",
-                );
+                $toggle.attr("aria-pressed", "false").attr("title", "播放").attr("aria-label", "圖片輪播已暫停，點擊播放");
                 $iconBox.addClass("control-play-icon");
                 $srText.text("圖片輪播已暫停，點擊播放");
             }
@@ -211,13 +201,7 @@ export const CollectionsData = (props: { lang: Lang; internalId: string; initial
                 autoplay: true,
                 autoplayTimeout: 10000,
                 autoplayHoverPause: true,
-                responsive: {
-                    0: { items: 2 },
-                    575: { items: 2 },
-                    767: { items: 2 },
-                    991: { items: 3 },
-                    1199: { items: 4 },
-                },
+                responsive: { 0: { items: 2 }, 575: { items: 2 }, 767: { items: 2 }, 991: { items: 3 }, 1199: { items: 4 } },
             };
 
             const $owl = $(root);
@@ -336,26 +320,18 @@ export const CollectionsData = (props: { lang: Lang; internalId: string; initial
                                                 <span className="headDiv-txt">Collection Showcase</span>
                                             </>
                                         )
-                                        : (
-                                            ""
-                                        )}
+                                        : ("")}
                                 </div>
                                 {/* 標題 end */}
                             </div>
 
                             <div className="col-12">
                                 <div className="content-box px-0 mb-0">
-                                    <div
-                                        className="owl-carousel owl-theme"
-                                        id="Collections_owl_carousel"
-                                        ref={carouselRef}
-                                    >
+                                    <div className="owl-carousel owl-theme" id="Collections_owl_carousel" ref={carouselRef}>
                                         {sortedDetails.map((p, i) =>
                                         {
-                                            const detail = useBanner.data?.BannerDetailInfo?.find(
-                                                (x) =>
-                                                    x.BannerId === p.BannerId && x.ParentRowId === p.RowId
-                                                    && x.Lang === props.lang,
+                                            const detail = useBanner.data?.BannerDetailInfo?.find((x) =>
+                                                x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang
                                             );
                                             const alt = detail?.Title ?? "";
                                             const url = detail?.URL ?? "#";
@@ -364,21 +340,12 @@ export const CollectionsData = (props: { lang: Lang; internalId: string; initial
                                             const imgUrl = FileManagementAPI.get_Public_Preview_Url(p.PicSrcId, alt);
                                             return (
                                                 <div key={i} className="item">
-                                                    <LangLink
-                                                        to={url}
-                                                        tabIndex={0}
-                                                        target={urlopen === 1 ? "_blank" : "_self"}
-                                                    >
+                                                    <LangLink to={url} tabIndex={0} target={urlopen === 1 ? "_blank" : "_self"}>
                                                         <div className="wrapper_box">
                                                             <figure className="card_figure">
                                                                 <div className="card_image_link">
                                                                     <picture>
-                                                                        <img
-                                                                            className="card_image"
-                                                                            src={imgUrl}
-                                                                            alt={alt}
-                                                                            aria-hidden="true"
-                                                                        />
+                                                                        <img className="card_image" src={imgUrl} alt={alt} aria-hidden="true" />
                                                                     </picture>
                                                                 </div>
                                                             </figure>
@@ -386,11 +353,7 @@ export const CollectionsData = (props: { lang: Lang; internalId: string; initial
                                                             <div className="txtarea">
                                                                 <div className="card_catinfo d-flex flex-column">
                                                                     <div className="mb-1">
-                                                                        <img
-                                                                            src={iconList[i]}
-                                                                            alt=""
-                                                                            aria-hidden="true"
-                                                                        />
+                                                                        <img src={iconList[i]} alt="" aria-hidden="true" />
                                                                     </div>
                                                                     <span className="card_catname mb-4">
                                                                         <span className="mx-1">{alt}</span>

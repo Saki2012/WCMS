@@ -23,16 +23,18 @@ interface VenoBoxInstance
 
 interface VenoBoxConstructor
 {
-    new(options: {
-        selector: string;
-        autoplay: boolean;
-        maxWidth: string;
-        border: string;
-        titleattr: string;
-        numeration: boolean;
-        infinigall: boolean;
-        share: boolean;
-    }): VenoBoxInstance;
+    new(
+        options: {
+            selector: string;
+            autoplay: boolean;
+            maxWidth: string;
+            border: string;
+            titleattr: string;
+            numeration: boolean;
+            infinigall: boolean;
+            share: boolean;
+        },
+    ): VenoBoxInstance;
 }
 
 interface JQueryCarousel
@@ -55,20 +57,13 @@ const getDataProps = (lang: string, rawData: WebResourceSet[]): DataProp[] =>
     {
         const detail = item.WebResourceInfo?.find((p) => p.Lang === lang);
 
-        result.push({
-            internalId: item.WebResource?.InternalId ?? "",
-            title: detail?.Title ?? "",
-            ResUrl: detail?.ResUrl ?? "",
-        });
+        result.push({ internalId: item.WebResource?.InternalId ?? "", title: detail?.Title ?? "", ResUrl: detail?.ResUrl ?? "" });
     });
 
     return result;
 };
 
-export const VideoSession = (props: {
-    lang: Lang;
-    hydrationData: HomePageVideoHookResult;
-}) =>
+export const VideoSession = (props: { lang: Lang; hydrationData: HomePageVideoHookResult; }) =>
 {
     // 宣告變數：統一吃 Homepage hydration source
     const source = props.hydrationData;
@@ -152,12 +147,7 @@ export const VideoSession = (props: {
                 margin: 30,
                 autoplayTimeout: 3000,
                 autoplayHoverPause: true,
-                responsive: {
-                    0: { items: 1 },
-                    767: { items: 2 },
-                    991: { items: 2 },
-                    1200: { items: 2 },
-                },
+                responsive: { 0: { items: 1 }, 767: { items: 2 }, 991: { items: 2 }, 1200: { items: 2 } },
             });
 
             isOwlInitedRef.current = true;
@@ -166,19 +156,15 @@ export const VideoSession = (props: {
             $("#Video .owl-nav button").attr("tabindex", "7");
 
             // 執行 function：播放與暫停控制
-            $("#Video_start")
-                .off("click.videoSession")
-                .on("click.videoSession", () =>
-                {
-                    $owl.trigger("play.owl.autoplay", [6000]);
-                });
+            $("#Video_start").off("click.videoSession").on("click.videoSession", () =>
+            {
+                $owl.trigger("play.owl.autoplay", [6000]);
+            });
 
-            $("#Video_pause")
-                .off("click.videoSession")
-                .on("click.videoSession", () =>
-                {
-                    $owl.trigger("stop.owl.autoplay");
-                });
+            $("#Video_pause").off("click.videoSession").on("click.videoSession", () =>
+            {
+                $owl.trigger("stop.owl.autoplay");
+            });
 
             // 執行 function：初始化 venobox
             if (typeof window !== "undefined")
@@ -215,16 +201,8 @@ export const VideoSession = (props: {
                     <div className="container">
                         <div className="row">
                             <div className="col-12 + p-0">
-                                <div
-                                    className="content-box + animate__animated animate__slow wow animate__zoomIn"
-                                    data-wow-delay="0.15s"
-                                >
-                                    <div
-                                        id="Video"
-                                        className="owl-carousel owl-theme px-2"
-                                        ref={carouselRef}
-                                        key={videoKey}
-                                    >
+                                <div className="content-box + animate__animated animate__slow wow animate__zoomIn" data-wow-delay="0.15s">
+                                    <div id="Video" className="owl-carousel owl-theme px-2" ref={carouselRef} key={videoKey}>
                                         {result.map((item) =>
                                         {
                                             const urlRaw = item?.ResUrl ?? "";
@@ -279,13 +257,8 @@ export const VideoSession = (props: {
                                                                                     justifyContent: "center",
                                                                                 }}
                                                                             >
-                                                                                <i
-                                                                                    className="fa fa-play"
-                                                                                    aria-hidden="true"
-                                                                                />
-                                                                                <span className="sr-only">
-                                                                                    播放 {item.title}
-                                                                                </span>
+                                                                                <i className="fa fa-play" aria-hidden="true" />
+                                                                                <span className="sr-only">播放 {item.title}</span>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -338,12 +311,7 @@ export const VideoSession = (props: {
 
                                     <div className="btn_Div justify-content-end px-2">
                                         <div className="customize_btn my-3">
-                                            <LangLink
-                                                to="/EventHighlights/Event-video"
-                                                className="Btn_s1"
-                                                tabIndex={14}
-                                                title="更多影音"
-                                            >
+                                            <LangLink to="/EventHighlights/Event-video" className="Btn_s1" tabIndex={14} title="更多影音">
                                                 VIEW ALL<span className="ml-2">+</span>
                                             </LangLink>
                                         </div>

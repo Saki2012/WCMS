@@ -26,6 +26,10 @@ import type { ReactNode } from "react";
 import { Server_ResetPassword_Comp } from "../../BizFunc/IAM/Account/Server_ResetPassword_Comp";
 import { Server_RolePermission_Form_Comp } from "../../BizFunc/IAM/RolePermission/Server_RolePermission_Form_Comp";
 import { Server_RolePermission_Comp } from "../../BizFunc/IAM/RolePermission/Server_RolePermission_List_Comp";
+import { Server_MatCategory_Form_Comp } from "../../BizFunc/MAT/MatCategory/Server_MatCategory_Form_Comp";
+import { Server_MatCategory_List_Comp } from "../../BizFunc/MAT/MatCategory/Server_MatCategory_List_Comp";
+import { Server_Material_Form_Comp } from "../../BizFunc/MAT/Material/Server_Material_Form_Comp";
+import { Server_Material_List_Comp } from "../../BizFunc/MAT/Material/Server_Material_List_Comp";
 import { Server_Timeline_Form_Comp } from "../../BizFunc/WEB/Timeline/Server_Timeline_Form_Comp";
 import { Server_Timeline_List_Comp } from "../../BizFunc/WEB/Timeline/Server_Timeline_List_Comp";
 
@@ -90,32 +94,26 @@ const ServerModuleRoutesData: IModuleMeta[] = [
                 Title: "網站導覽",
                 DefaultActionCode: "List",
                 IconClassName: "fas fa-sitemap",
-                Actions: [
-                    {
-                        ActionCode: "List",
-                        Title: "網站導覽",
-                        RoutePath: "List",
-                        elementFactory: (ctx) => <SiteMenu_Comp theme={ctx.theme} lang={ctx.lang} />,
-                    },
-                ],
+                Actions: [{
+                    ActionCode: "List",
+                    Title: "網站導覽",
+                    RoutePath: "List",
+                    elementFactory: (ctx) => <SiteMenu_Comp theme={ctx.theme} lang={ctx.lang} />,
+                }],
             },
             ...(isSpec1816
-                ? [
-                    {
-                        ProgId: "Calendar",
+                ? [{
+                    ProgId: "Calendar",
+                    Title: "行事曆",
+                    DefaultActionCode: "Index",
+                    IconClassName: "fas fa-calendar-alt",
+                    Actions: [{
+                        ActionCode: "Index",
                         Title: "行事曆",
-                        DefaultActionCode: "Index",
-                        IconClassName: "fas fa-calendar-alt",
-                        Actions: [
-                            {
-                                ActionCode: "Index",
-                                Title: "行事曆",
-                                RoutePath: "Index",
-                                elementFactory: () => <CalendarPageComp defaultYear={new Date().getFullYear()} />,
-                            },
-                        ],
-                    },
-                ]
+                        RoutePath: "Index",
+                        elementFactory: () => <CalendarPageComp defaultYear={new Date().getFullYear()} />,
+                    }],
+                }]
                 : []),
         ],
     },
@@ -134,22 +132,17 @@ const ServerModuleRoutesData: IModuleMeta[] = [
                 Title: "廣告輪播",
                 DefaultActionCode: "List",
                 IconClassName: "fas fa-bring-front",
-                Actions: [
-                    {
-                        ActionCode: "List",
-                        Title: "廣告輪播列表",
-                        RoutePath: "List",
-                        elementFactory: (ctx) => (
-                            <BannerSliderListComp title="廣告輪播列表" theme={ctx.theme} lang={ctx.lang} />
-                        ),
-                    },
-                    {
-                        ActionCode: "Form",
-                        Title: "廣告輪播設定",
-                        RoutePath: "Form/:internalId?",
-                        elementFactory: (ctx) => <BannerSliderFormComp theme={ctx.theme} lang={ctx.lang} />,
-                    },
-                ],
+                Actions: [{
+                    ActionCode: "List",
+                    Title: "廣告輪播列表",
+                    RoutePath: "List",
+                    elementFactory: (ctx) => <BannerSliderListComp title="廣告輪播列表" theme={ctx.theme} lang={ctx.lang} />,
+                }, {
+                    ActionCode: "Form",
+                    Title: "廣告輪播設定",
+                    RoutePath: "Form/:internalId?",
+                    elementFactory: (ctx) => <BannerSliderFormComp theme={ctx.theme} lang={ctx.lang} />,
+                }],
             },
             // 公告
             {
@@ -157,48 +150,27 @@ const ServerModuleRoutesData: IModuleMeta[] = [
                 Title: "公告",
                 DefaultActionCode: "List",
                 IconClassName: "fas fa-bullhorn",
-                Actions: [
-                    {
-                        ActionCode: "List",
-                        Title: "公告列表",
-                        RoutePath: "List",
-                        elementFactory: (ctx) => (
-                            <Server_AnnouncementListComp title="公告列表" theme={ctx.theme} lang={ctx.lang} />
-                        ),
-                    },
-                    {
-                        ActionCode: "Form",
-                        Title: "公告維護",
-                        RoutePath: "Form/:internalId?",
-                        elementFactory: (ctx) => <Server_Announcement_Form_Comp theme={ctx.theme} lang={ctx.lang} />,
-                    },
-                    {
-                        ActionCode: "Category",
-                        Title: "公告類別",
-                        RoutePath: "Category/:internalId?",
-                        elementFactory: (ctx) => (
-                            <Server_CategoryListFormComp
-                                progId="Announcement"
-                                title="類別"
-                                theme={ctx.theme}
-                                lang={ctx.lang}
-                            />
-                        ),
-                    },
-                    {
-                        ActionCode: "Tag",
-                        Title: "公告標籤",
-                        RoutePath: "Tag/:internalId?",
-                        elementFactory: (ctx) => (
-                            <Server_Tag_ListForm_Comp
-                                progId="Announcement"
-                                title="標籤"
-                                theme={ctx.theme}
-                                lang={ctx.lang}
-                            />
-                        ),
-                    },
-                ],
+                Actions: [{
+                    ActionCode: "List",
+                    Title: "公告列表",
+                    RoutePath: "List",
+                    elementFactory: (ctx) => <Server_AnnouncementListComp title="公告列表" theme={ctx.theme} lang={ctx.lang} />,
+                }, {
+                    ActionCode: "Form",
+                    Title: "公告維護",
+                    RoutePath: "Form/:internalId?",
+                    elementFactory: (ctx) => <Server_Announcement_Form_Comp theme={ctx.theme} lang={ctx.lang} />,
+                }, {
+                    ActionCode: "Category",
+                    Title: "公告類別",
+                    RoutePath: "Category/:internalId?",
+                    elementFactory: (ctx) => <Server_CategoryListFormComp progId="Announcement" title="類別" theme={ctx.theme} lang={ctx.lang} />,
+                }, {
+                    ActionCode: "Tag",
+                    Title: "公告標籤",
+                    RoutePath: "Tag/:internalId?",
+                    elementFactory: (ctx) => <Server_Tag_ListForm_Comp progId="Announcement" title="標籤" theme={ctx.theme} lang={ctx.lang} />,
+                }],
             },
 
             // 頁面
@@ -207,33 +179,22 @@ const ServerModuleRoutesData: IModuleMeta[] = [
                 Title: "頁面管理",
                 DefaultActionCode: "List",
                 IconClassName: "fas fa-file-signature",
-                Actions: [
-                    {
-                        ActionCode: "List",
-                        Title: "頁面列表",
-                        RoutePath: "List",
-                        elementFactory: (ctx) => <PageListComp title="頁面列表" theme={ctx.theme} lang={ctx.lang} />,
-                    },
-                    {
-                        ActionCode: "Form",
-                        Title: "頁面維護",
-                        RoutePath: "Form/:internalId?",
-                        elementFactory: (ctx) => <Server_PageManagement_Form_Comp theme={ctx.theme} lang={ctx.lang} />,
-                    },
-                    {
-                        ActionCode: "Category",
-                        Title: "頁面類別",
-                        RoutePath: "Category/:internalId?",
-                        elementFactory: (ctx) => (
-                            <Server_CategoryListFormComp
-                                progId="PageManagement"
-                                title="類別"
-                                theme={ctx.theme}
-                                lang={ctx.lang}
-                            />
-                        ),
-                    },
-                ],
+                Actions: [{
+                    ActionCode: "List",
+                    Title: "頁面列表",
+                    RoutePath: "List",
+                    elementFactory: (ctx) => <PageListComp title="頁面列表" theme={ctx.theme} lang={ctx.lang} />,
+                }, {
+                    ActionCode: "Form",
+                    Title: "頁面維護",
+                    RoutePath: "Form/:internalId?",
+                    elementFactory: (ctx) => <Server_PageManagement_Form_Comp theme={ctx.theme} lang={ctx.lang} />,
+                }, {
+                    ActionCode: "Category",
+                    Title: "頁面類別",
+                    RoutePath: "Category/:internalId?",
+                    elementFactory: (ctx) => <Server_CategoryListFormComp progId="PageManagement" title="類別" theme={ctx.theme} lang={ctx.lang} />,
+                }],
             },
 
             // 相簿
@@ -242,43 +203,27 @@ const ServerModuleRoutesData: IModuleMeta[] = [
                 Title: "相簿",
                 DefaultActionCode: "List",
                 IconClassName: "fas fa-images",
-                Actions: [
-                    {
-                        ActionCode: "List",
-                        Title: "相簿列表",
-                        RoutePath: "List",
-                        elementFactory: (ctx) => (
-                            <Server_GalleryListComp title="相簿列表" theme={ctx.theme} lang={ctx.lang} />
-                        ),
-                    },
-                    {
-                        ActionCode: "Form",
-                        Title: "相簿維護",
-                        RoutePath: "Form/:internalId?",
-                        elementFactory: (ctx) => <Server_GalleryFormComp theme={ctx.theme} lang={ctx.lang} />,
-                    },
-                    {
-                        ActionCode: "Category",
-                        Title: "相簿類別",
-                        RoutePath: "Category/:internalId?",
-                        elementFactory: (ctx) => (
-                            <Server_CategoryListFormComp
-                                progId="Gallery"
-                                title="類別"
-                                theme={ctx.theme}
-                                lang={ctx.lang}
-                            />
-                        ),
-                    },
-                    {
-                        ActionCode: "Tag",
-                        Title: "相簿標籤",
-                        RoutePath: "Tag/:internalId?",
-                        elementFactory: (ctx) => (
-                            <Server_Tag_ListForm_Comp progId="Gallery" title="標籤" theme={ctx.theme} lang={ctx.lang} />
-                        ),
-                    },
-                ],
+                Actions: [{
+                    ActionCode: "List",
+                    Title: "相簿列表",
+                    RoutePath: "List",
+                    elementFactory: (ctx) => <Server_GalleryListComp title="相簿列表" theme={ctx.theme} lang={ctx.lang} />,
+                }, {
+                    ActionCode: "Form",
+                    Title: "相簿維護",
+                    RoutePath: "Form/:internalId?",
+                    elementFactory: (ctx) => <Server_GalleryFormComp theme={ctx.theme} lang={ctx.lang} />,
+                }, {
+                    ActionCode: "Category",
+                    Title: "相簿類別",
+                    RoutePath: "Category/:internalId?",
+                    elementFactory: (ctx) => <Server_CategoryListFormComp progId="Gallery" title="類別" theme={ctx.theme} lang={ctx.lang} />,
+                }, {
+                    ActionCode: "Tag",
+                    Title: "相簿標籤",
+                    RoutePath: "Tag/:internalId?",
+                    elementFactory: (ctx) => <Server_Tag_ListForm_Comp progId="Gallery" title="標籤" theme={ctx.theme} lang={ctx.lang} />,
+                }],
             },
 
             // 檔案室
@@ -287,48 +232,27 @@ const ServerModuleRoutesData: IModuleMeta[] = [
                 Title: "檔案室",
                 DefaultActionCode: "List",
                 IconClassName: "fas fa-cabinet-filing",
-                Actions: [
-                    {
-                        ActionCode: "List",
-                        Title: "檔案室列表",
-                        RoutePath: "List",
-                        elementFactory: (ctx) => (
-                            <Server_FileArchiveListComp title="檔案室列表" theme={ctx.theme} lang={ctx.lang} />
-                        ),
-                    },
-                    {
-                        ActionCode: "Form",
-                        Title: "檔案室維護",
-                        RoutePath: "Form/:internalId?",
-                        elementFactory: (ctx) => <Server_FileArchive_Form_Comp theme={ctx.theme} lang={ctx.lang} />,
-                    },
-                    {
-                        ActionCode: "Category",
-                        Title: "檔案類別",
-                        RoutePath: "Category/:internalId?",
-                        elementFactory: (ctx) => (
-                            <Server_CategoryListFormComp
-                                progId="FileArchive"
-                                title="類別"
-                                theme={ctx.theme}
-                                lang={ctx.lang}
-                            />
-                        ),
-                    },
-                    {
-                        ActionCode: "Tag",
-                        Title: "檔案標籤",
-                        RoutePath: "Tag/:internalId?",
-                        elementFactory: (ctx) => (
-                            <Server_Tag_ListForm_Comp
-                                progId="FileArchive"
-                                title="標籤"
-                                theme={ctx.theme}
-                                lang={ctx.lang}
-                            />
-                        ),
-                    },
-                ],
+                Actions: [{
+                    ActionCode: "List",
+                    Title: "檔案室列表",
+                    RoutePath: "List",
+                    elementFactory: (ctx) => <Server_FileArchiveListComp title="檔案室列表" theme={ctx.theme} lang={ctx.lang} />,
+                }, {
+                    ActionCode: "Form",
+                    Title: "檔案室維護",
+                    RoutePath: "Form/:internalId?",
+                    elementFactory: (ctx) => <Server_FileArchive_Form_Comp theme={ctx.theme} lang={ctx.lang} />,
+                }, {
+                    ActionCode: "Category",
+                    Title: "檔案類別",
+                    RoutePath: "Category/:internalId?",
+                    elementFactory: (ctx) => <Server_CategoryListFormComp progId="FileArchive" title="類別" theme={ctx.theme} lang={ctx.lang} />,
+                }, {
+                    ActionCode: "Tag",
+                    Title: "檔案標籤",
+                    RoutePath: "Tag/:internalId?",
+                    elementFactory: (ctx) => <Server_Tag_ListForm_Comp progId="FileArchive" title="標籤" theme={ctx.theme} lang={ctx.lang} />,
+                }],
             },
             // 網路資源
             {
@@ -336,48 +260,27 @@ const ServerModuleRoutesData: IModuleMeta[] = [
                 Title: "網路資源",
                 DefaultActionCode: "List",
                 IconClassName: "fas fa-link",
-                Actions: [
-                    {
-                        ActionCode: "List",
-                        Title: "網路資源列表",
-                        RoutePath: "List",
-                        elementFactory: (ctx) => (
-                            <WebResourceListComp title="網路資源列表" theme={ctx.theme} lang={ctx.lang} />
-                        ),
-                    },
-                    {
-                        ActionCode: "Form",
-                        Title: "網路資源維護",
-                        RoutePath: "Form/:internalId?",
-                        elementFactory: (ctx) => <WebResourceFormComp theme={ctx.theme} lang={ctx.lang} />,
-                    },
-                    {
-                        ActionCode: "Category",
-                        Title: "資源類別",
-                        RoutePath: "Category/:internalId?",
-                        elementFactory: (ctx) => (
-                            <Server_CategoryListFormComp
-                                progId="WebResource"
-                                title="類別"
-                                theme={ctx.theme}
-                                lang={ctx.lang}
-                            />
-                        ),
-                    },
-                    {
-                        ActionCode: "Tag",
-                        Title: "資源標籤",
-                        RoutePath: "Tag/:internalId?",
-                        elementFactory: (ctx) => (
-                            <Server_Tag_ListForm_Comp
-                                progId="WebResource"
-                                title="標籤"
-                                theme={ctx.theme}
-                                lang={ctx.lang}
-                            />
-                        ),
-                    },
-                ],
+                Actions: [{
+                    ActionCode: "List",
+                    Title: "網路資源列表",
+                    RoutePath: "List",
+                    elementFactory: (ctx) => <WebResourceListComp title="網路資源列表" theme={ctx.theme} lang={ctx.lang} />,
+                }, {
+                    ActionCode: "Form",
+                    Title: "網路資源維護",
+                    RoutePath: "Form/:internalId?",
+                    elementFactory: (ctx) => <WebResourceFormComp theme={ctx.theme} lang={ctx.lang} />,
+                }, {
+                    ActionCode: "Category",
+                    Title: "資源類別",
+                    RoutePath: "Category/:internalId?",
+                    elementFactory: (ctx) => <Server_CategoryListFormComp progId="WebResource" title="類別" theme={ctx.theme} lang={ctx.lang} />,
+                }, {
+                    ActionCode: "Tag",
+                    Title: "資源標籤",
+                    RoutePath: "Tag/:internalId?",
+                    elementFactory: (ctx) => <Server_Tag_ListForm_Comp progId="WebResource" title="標籤" theme={ctx.theme} lang={ctx.lang} />,
+                }],
             },
             // 紀事表
             {
@@ -385,23 +288,63 @@ const ServerModuleRoutesData: IModuleMeta[] = [
                 Title: "紀事表",
                 DefaultActionCode: "List",
                 IconClassName: "fas fa-stream",
-                Actions: [
-                    {
-                        ActionCode: "List",
-                        Title: "紀事表列表",
-                        RoutePath: "List",
-                        elementFactory: (ctx) => (
-                            <Server_Timeline_List_Comp title="紀事表列表" theme={ctx.theme} lang={ctx.lang} />
-                        ),
-                    },
-                    {
-                        ActionCode: "Form",
-                        Title: "紀事表維護",
-                        RoutePath: "Form/:internalId?",
-                        elementFactory: (ctx) => <Server_Timeline_Form_Comp theme={ctx.theme} lang={ctx.lang} />,
-                    },
-                ],
+                Actions: [{
+                    ActionCode: "List",
+                    Title: "紀事表列表",
+                    RoutePath: "List",
+                    elementFactory: (ctx) => <Server_Timeline_List_Comp title="紀事表列表" theme={ctx.theme} lang={ctx.lang} />,
+                }, {
+                    ActionCode: "Form",
+                    Title: "紀事表維護",
+                    RoutePath: "Form/:internalId?",
+                    elementFactory: (ctx) => <Server_Timeline_Form_Comp theme={ctx.theme} lang={ctx.lang} />,
+                }],
             },
+        ],
+    },
+    // #endregion
+
+    // #region 物件資料管理模組
+    {
+        ModuleCode: "MAT",
+        Title: "物件資料管理",
+        DefaultPath: `/Server/MAT/${PGID.Material}/List`,
+        IconClassName: "fas fa-boxes",
+        Progs: [
+            // #region 物件基礎資料
+            {
+                ProgId: PGID.Material,
+                Title: "物件基礎資料",
+                DefaultActionCode: "Form",
+                IconClassName: "fas fa-box",
+                Actions: [{
+                    ActionCode: "List",
+                    Title: "物件列表",
+                    RoutePath: "List",
+                    elementFactory: (ctx) => <Server_Material_List_Comp title="物件" theme={ctx.theme} lang={ctx.lang} />,
+                }, {
+                    ActionCode: "Form",
+                    Title: "新增物件",
+                    RoutePath: "Form/:internalId?",
+                    elementFactory: (ctx) => <Server_Material_Form_Comp title="物件" theme={ctx.theme} lang={ctx.lang} />,
+                }, {
+                    ActionCode: "MatCategoryList",
+                    Title: "物件類別列表",
+                    RoutePath: "MatCategory/List",
+                    elementFactory: (ctx) => <Server_MatCategory_List_Comp title="物件類別" theme={ctx.theme} lang={ctx.lang} />,
+                }, {
+                    ActionCode: "MatCategory",
+                    Title: "新增物件類別",
+                    RoutePath: "MatCategory/Form/:internalId?",
+                    elementFactory: (ctx) => <Server_MatCategory_Form_Comp progId={PGID.Material} title="類別" theme={ctx.theme} lang={ctx.lang} />,
+                }, {
+                    ActionCode: "Tag",
+                    Title: "物件標籤",
+                    RoutePath: "Tag/:internalId?",
+                    elementFactory: (ctx) => <Server_Tag_ListForm_Comp progId={PGID.Material} title="標籤" theme={ctx.theme} lang={ctx.lang} />,
+                }],
+            },
+            // #endregion
         ],
     },
     // #endregion
@@ -420,12 +363,7 @@ const ServerModuleRoutesData: IModuleMeta[] = [
                 DefaultActionCode: "Form",
                 IconClassName: "fas fa-user-cog",
                 Actions: [
-                    {
-                        ActionCode: "List",
-                        Title: "帳號列表",
-                        RoutePath: "List",
-                        elementFactory: (ctx) => <Server_Account_List_Comp theme={ctx.theme} />,
-                    },
+                    { ActionCode: "List", Title: "帳號列表", RoutePath: "List", elementFactory: (ctx) => <Server_Account_List_Comp theme={ctx.theme} /> },
                     {
                         ActionCode: "Form",
                         Title: "帳號維護",
@@ -454,12 +392,7 @@ const ServerModuleRoutesData: IModuleMeta[] = [
                 DefaultActionCode: "Form",
                 IconClassName: "fas fa-id-card",
                 Actions: [
-                    {
-                        ActionCode: "List",
-                        Title: "人員列表",
-                        RoutePath: "List",
-                        elementFactory: (ctx) => <Server_Person_List_Comp theme={ctx.theme} />,
-                    },
+                    { ActionCode: "List", Title: "人員列表", RoutePath: "List", elementFactory: (ctx) => <Server_Person_List_Comp theme={ctx.theme} /> },
                     {
                         ActionCode: "Form",
                         Title: "人員維護",
@@ -474,37 +407,24 @@ const ServerModuleRoutesData: IModuleMeta[] = [
                 Title: "角色權限",
                 DefaultActionCode: "List",
                 IconClassName: "fas fa-user-shield",
-                Actions: [
-                    {
-                        ActionCode: "List",
-                        Title: "角色列表",
-                        RoutePath: "List",
-                        elementFactory: (ctx) => (
-                            <Server_RolePermission_Comp title={"角色列表"} lang={DefaultLang} theme={ctx.theme} />
-                        ),
-                    },
-                    {
-                        ActionCode: "Form",
-                        Title: "角色維護",
-                        RoutePath: "Form/:internalId?",
-                        elementFactory: (ctx) => (
-                            <Server_RolePermission_Form_Comp theme={ctx.theme} lang={DefaultLang} />
-                        ),
-                    },
-                ],
+                Actions: [{
+                    ActionCode: "List",
+                    Title: "角色列表",
+                    RoutePath: "List",
+                    elementFactory: (ctx) => <Server_RolePermission_Comp title={"角色列表"} lang={DefaultLang} theme={ctx.theme} />,
+                }, {
+                    ActionCode: "Form",
+                    Title: "角色維護",
+                    RoutePath: "Form/:internalId?",
+                    elementFactory: (ctx) => <Server_RolePermission_Form_Comp theme={ctx.theme} lang={DefaultLang} />,
+                }],
             },
         ],
     },
     // #endregion
 
     // #region 登出系統
-    {
-        ModuleCode: "Logout",
-        Title: "登出系統",
-        DefaultPath: "/Server/Logout",
-        IconClassName: "far fa-sign-out",
-        Progs: [],
-    },
+    { ModuleCode: "Logout", Title: "登出系統", DefaultPath: "/Server/Logout", IconClassName: "far fa-sign-out", Progs: [] },
     // #endregion
 ];
 
@@ -515,9 +435,7 @@ export interface IServerMenuExtModule
     default?: (modules: IModuleMeta[]) => IModuleMeta[];
 }
 const SPEC_CODE = import.meta.env.VITE_SPEC_CODE as string | undefined;
-const extModules = import.meta.glob("/src/SpecFetures/*/Pages/Server/Scaffold/ServerModuleRoutesExtData.tsx", {
-    eager: true,
-}) as Record<string, any>;
+const extModules = import.meta.glob("/src/SpecFetures/*/Pages/Server/Scaffold/ServerModuleRoutesExtData.tsx", { eager: true }) as Record<string, any>;
 const resolveServerMenuExt = (): unknown =>
 {
     const EXT_PATH = "Pages/Server/Scaffold/ServerModuleRoutesExtData.tsx";

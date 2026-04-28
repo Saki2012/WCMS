@@ -1,8 +1,5 @@
 /**公告清單 */
-import {
-    type IWebResourceListProps,
-    resolveYoutubeEmbedUrl,
-} from "@/Features/Pages/Client/BizFunc/WEB/WebResource/WebResourceList";
+import { type IWebResourceListProps, resolveYoutubeEmbedUrl } from "@/Features/Pages/Client/BizFunc/WEB/WebResource/WebResourceList";
 import { useWebResourceListFetchData } from "@/Features/Pages/Client/BizFunc/WEB/WebResource/WebResourceList_Loader";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import DefaultImg from "@/SpecFetures/1810/Assets/Custom/WebResource_Default.png";
@@ -36,13 +33,7 @@ const formatCategoriesNameByMap = (content: string, categoryMap: CategoryMap) =>
     const raw = (content?.toString?.() ?? "").trim();
     if (!raw) return "";
 
-    return raw
-        .split(",")
-        .map(s => s.trim())
-        .filter(Boolean)
-        .map(id => categoryMap[id] ?? "")
-        .filter(Boolean)
-        .join("、");
+    return raw.split(",").map(s => s.trim()).filter(Boolean).map(id => categoryMap[id] ?? "").filter(Boolean).join("、");
 };
 
 const WebResourceListComp = (props: IWebResourceListProps) =>
@@ -64,23 +55,11 @@ const WebResourceListComp = (props: IWebResourceListProps) =>
             case 1:
             default:
             {
-                const adjustedGrid = SetAdjustFunction(
-                    props.lang,
-                    getData.rawData.gridProps,
-                    getData.rawData.listData,
-                    getData.rawData.categoryMap,
-                );
+                const adjustedGrid = SetAdjustFunction(props.lang, getData.rawData.gridProps, getData.rawData.listData, getData.rawData.categoryMap);
                 return <GridList_Comp key="grid" lang={props.lang} GridData={adjustedGrid} Theme={props.theme} />;
             }
         }
-    }, [
-        style,
-        props.lang,
-        props.theme,
-        getData.rawData.gridProps,
-        getData.rawData.listData,
-        getData.rawData.categoryMap,
-    ]);
+    }, [style, props.lang, props.theme, getData.rawData.gridProps, getData.rawData.listData, getData.rawData.categoryMap]);
 
     // return
     return (
@@ -188,12 +167,7 @@ const PictureListContent = (prop: { lang: string; datas: WebResourceSet[]; }) =>
 
                     return (
                         <div className="col-lg-4 col-md-6 col-sm-6 col-12 photo_standardbox">
-                            <a
-                                href={detail?.ResUrl ?? ""}
-                                title={`${detail?.Title}(另開新視窗)`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
+                            <a href={detail?.ResUrl ?? ""} title={`${detail?.Title}(另開新視窗)`} target="_blank" rel="noopener noreferrer">
                                 <div className="img-box">
                                     <img className="img-fluid" src={picUrl} alt={header?.PicDescription ?? ""} />
                                 </div>
@@ -219,12 +193,7 @@ const GridList_Comp = (prop: { lang: Lang; Theme: IFETheme; GridData: GridProps;
     );
 };
 
-const SetAdjustFunction = (
-    lang: Lang,
-    gridProps: GridProps,
-    rawData: WebResourceSet[],
-    catMap: CategoryMap,
-): GridProps =>
+const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: WebResourceSet[], catMap: CategoryMap): GridProps =>
 {
     const newRows: GridRow[] = (gridProps.rows ?? []).map((row, index) =>
     {
@@ -253,9 +222,7 @@ const SetAdjustFunction = (
                     {nextContent}
                     {isTitle && (
                         <>
-                            {isWithinLastNDaysFromString(curRow?.WebResource?.CreateTime ?? "") && (
-                                <span className="label label-warning">最新</span>
-                            )}
+                            {isWithinLastNDaysFromString(curRow?.WebResource?.CreateTime ?? "") && <span className="label label-warning">最新</span>}
                             {Boolean(contentStatus & 1) && <span className="label label-success">置頂</span>}
                             {Boolean(contentStatus & 2) && <span className="label label-danger">熱門</span>}
                         </>

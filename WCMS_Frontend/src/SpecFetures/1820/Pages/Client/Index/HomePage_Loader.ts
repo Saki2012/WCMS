@@ -68,15 +68,7 @@ const sortByRowId = <T extends { RowId?: number | null; }>(rows?: T[] | null) =>
 /** 建立空資料 */
 const createEmptyRawData = (): HomePageRawData =>
 {
-    return {
-        homePage: null,
-        banners: [],
-        details: [],
-        marquees: [],
-        resources: [],
-        announcements: [],
-        announcementCategoryMap: {},
-    };
+    return { homePage: null, banners: [], details: [], marquees: [], resources: [], announcements: [], announcementCategoryMap: {} };
 };
 
 /** 正規化首頁 set */
@@ -103,11 +95,7 @@ const loadAnnouncementCategoryMap = async (
 {
     const api = getSsrApi(args.request);
 
-    const mapLoader = adapter.loader.createMapByProgIdLoader({
-        progId: PGID.Announcement,
-        lang,
-        getApiInstance: () => api,
-    });
+    const mapLoader = adapter.loader.createMapByProgIdLoader({ progId: PGID.Announcement, lang, getApiInstance: () => api });
 
     const env = await mapLoader(args);
     return env.apiRes.IsSuccess ? (env.apiRes.Data ?? {}) : {};
@@ -120,10 +108,7 @@ const buildHomePageQueryParam = (lang?: Lang): QueryListParam =>
     return {
         Fields: ["InternalId", "Lang", "CreateTime", "ModifyTime"],
         Condition: safeLang ? `Lang = "${safeLang}"` : "",
-        OrderBy: [
-            { Col: "ModifyTime", Desc: true },
-            { Col: "CreateTime", Desc: true },
-        ],
+        OrderBy: [{ Col: "ModifyTime", Desc: true }, { Col: "CreateTime", Desc: true }],
         PageNumber: 1,
         PageSize: 1,
     };
@@ -147,10 +132,7 @@ const loadFirstHomePageRow = async (
 {
     const api = getSsrApi(args.request);
 
-    const queryListLoader = adapter.loader.createQueryListLoader({
-        getApiInstance: () => api,
-        getCondition: () => condition,
-    });
+    const queryListLoader = adapter.loader.createQueryListLoader({ getApiInstance: () => api, getCondition: () => condition });
 
     const env = await queryListLoader(args);
     const list = (env.apiRes.IsSuccess ? (env.apiRes.Data ?? []) : []) as SpecHomePage1820Set[];
@@ -169,21 +151,14 @@ const loadHomePageSet = async (
 
     const api = getSsrApi(args.request);
 
-    const queryDataLoader = adapter.loader.createQueryDataLoader({
-        getApiInstance: () => api,
-        getInternalId: () => internalId,
-    });
+    const queryDataLoader = adapter.loader.createQueryDataLoader({ getApiInstance: () => api, getInternalId: () => internalId });
 
     const env = await queryDataLoader(args);
     return env.apiRes.IsSuccess ? (env.apiRes.Data ?? null) : null;
 };
 
 /** 依語系解析首頁 InternalId */
-const resolveHomePageInternalId = async (
-    args: LoaderFunctionArgs,
-    adapter: ReturnType<typeof SpecHomePage1820Adapter>,
-    lang: Lang,
-): Promise<string> =>
+const resolveHomePageInternalId = async (args: LoaderFunctionArgs, adapter: ReturnType<typeof SpecHomePage1820Adapter>, lang: Lang): Promise<string> =>
 {
     const currentRow = await loadFirstHomePageRow(args, adapter, buildHomePageQueryParam(lang));
     const currentId = getInternalIdFromListRow(currentRow);
@@ -229,12 +204,7 @@ const buildAnnouncementCondition = (p: { lang: Lang; categoryIds?: string | null
 
     if (!categoryIds) return "";
 
-    condition = LibMerge(
-        " And ",
-        false,
-        condition,
-        `${AnnouncementFields.Categories} HasAny [${categoryIds}]`,
-    );
+    condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Categories} HasAny [${categoryIds}]`);
 
     return condition;
 };
@@ -261,25 +231,17 @@ const buildAnnouncementQueryParam = (p: { lang: Lang; categoryIds?: string | nul
         ],
         Condition: condition,
         RankGroups: [{ Condition: `${AnnouncementFields.ContentStatus} & 1` }],
-        OrderBy: [
-            { Col: AnnouncementFields.Validate_Start, Desc: true },
-            { Col: AnnouncementFields.CreateTime, Desc: true },
-        ],
+        OrderBy: [{ Col: AnnouncementFields.Validate_Start, Desc: true }, { Col: AnnouncementFields.CreateTime, Desc: true }],
         PageNumber: 1,
         PageSize: 12,
     };
 };
 /** 讀取首頁天氣資料 */
-const loadWeatherInitial = async (
-    args: LoaderFunctionArgs,
-    adapter: ReturnType<typeof SpecHomePage1820Adapter>,
-): Promise<WeatherLoaderData | null> =>
+const loadWeatherInitial = async (args: LoaderFunctionArgs, adapter: ReturnType<typeof SpecHomePage1820Adapter>): Promise<WeatherLoaderData | null> =>
 {
     const api = getSsrApi(args.request);
 
-    const weatherLoader = adapter.loader.createWeatherLoader({
-        getApiInstance: () => api,
-    });
+    const weatherLoader = adapter.loader.createWeatherLoader({ getApiInstance: () => api });
 
     const env = await weatherLoader(args);
     return env?.apiRes?.IsSuccess ? env : null;
@@ -295,10 +257,7 @@ const loadAnnouncementList = async (
 
     const api = getSsrApi(args.request);
 
-    const queryListLoader = adapter.loader.createQueryListLoader({
-        getApiInstance: () => api,
-        getCondition: () => condition,
-    });
+    const queryListLoader = adapter.loader.createQueryListLoader({ getApiInstance: () => api, getCondition: () => condition });
 
     const env = await queryListLoader(args);
     return env.apiRes.IsSuccess ? (env.apiRes.Data ?? []) : [];
@@ -307,63 +266,38 @@ const loadAnnouncementList = async (
 /** 建立 loader args */
 export const buildHomePageLoaderArgs = (p: { lang: Lang; internalId: string; }): HomePageLoaderArgs =>
 {
-    return {
-        lang: p.lang,
-        internalId: getSafeString(p.internalId),
-    };
+    return { lang: p.lang, internalId: getSafeString(p.internalId) };
 };
 
 /** 1820 首頁 loader */
 /** 1820 首頁 loader */
-export const HomePageLoader =
-    (props: { lang: Lang; }) => async (args: LoaderFunctionArgs): Promise<HomePageLoaderData> =>
+export const HomePageLoader = (props: { lang: Lang; }) => async (args: LoaderFunctionArgs): Promise<HomePageLoaderData> =>
+{
+    const api = getSsrApi(args.request);
+    const adapter = SpecHomePage1820Adapter(api);
+    const announcementAdapter = AnnouncementAdapter(api);
+    const categoryAdapter = CategoryAdapter(api);
+
+    const internalId = await resolveHomePageInternalId(args, adapter, props.lang);
+    const loaderArgs = buildHomePageLoaderArgs({ lang: props.lang, internalId });
+
+    if (!loaderArgs.internalId)
     {
-        const api = getSsrApi(args.request);
-        const adapter = SpecHomePage1820Adapter(api);
-        const announcementAdapter = AnnouncementAdapter(api);
-        const categoryAdapter = CategoryAdapter(api);
+        return { args: loaderArgs, res: { rawData: createEmptyRawData(), setData: null, weatherInitial: null } };
+    }
 
-        const internalId = await resolveHomePageInternalId(args, adapter, props.lang);
-        const loaderArgs = buildHomePageLoaderArgs({ lang: props.lang, internalId });
+    const setData = await loadHomePageSet(args, adapter, loaderArgs.internalId);
+    const rawData = normalizeSetData(setData);
 
-        if (!loaderArgs.internalId)
-        {
-            return {
-                args: loaderArgs,
-                res: {
-                    rawData: createEmptyRawData(),
-                    setData: null,
-                    weatherInitial: null,
-                },
-            };
-        }
+    const announcementParam = buildAnnouncementQueryParam({ lang: props.lang, categoryIds: rawData.homePage?.AnnouncementCategoryIds });
 
-        const setData = await loadHomePageSet(args, adapter, loaderArgs.internalId);
-        const rawData = normalizeSetData(setData);
+    const [announcements, announcementCategoryMap, weatherInitial] = await Promise.all([
+        loadAnnouncementList(args, announcementAdapter, announcementParam),
+        loadAnnouncementCategoryMap(args, categoryAdapter, props.lang),
+        loadWeatherInitial(args, adapter),
+    ]);
 
-        const announcementParam = buildAnnouncementQueryParam({
-            lang: props.lang,
-            categoryIds: rawData.homePage?.AnnouncementCategoryIds,
-        });
-
-        const [announcements, announcementCategoryMap, weatherInitial] = await Promise.all([
-            loadAnnouncementList(args, announcementAdapter, announcementParam),
-            loadAnnouncementCategoryMap(args, categoryAdapter, props.lang),
-            loadWeatherInitial(args, adapter),
-        ]);
-
-        return {
-            args: loaderArgs,
-            res: {
-                rawData: {
-                    ...rawData,
-                    announcements,
-                    announcementCategoryMap,
-                },
-                setData,
-                weatherInitial,
-            },
-        };
-    };
+    return { args: loaderArgs, res: { rawData: { ...rawData, announcements, announcementCategoryMap }, setData, weatherInitial } };
+};
 
 export default HomePageLoader;

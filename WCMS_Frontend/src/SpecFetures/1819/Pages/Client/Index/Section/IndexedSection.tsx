@@ -1,22 +1,24 @@
-import type { components } from "@/types/api";
-import type { Lang } from "@/SysCore/i18n/lang";
 import BgTransparentImg from "@/SpecFetures/1819/Assets/Client/images/bg/background-transparent-image_1920x600.png";
 import IndexPic from "@/SpecFetures/1819/Assets/Client/images/Indexed_150x150.svg";
-import { useMemo } from "react";
+import type { Lang } from "@/SysCore/i18n/lang";
 import { isInValidTimeRange } from "@/SysCore/Utils/Library/DateRangeHelper";
+import type { components } from "@/types/api";
+import { useMemo } from "react";
 import type { HomePageRawData } from "../HomePage_Loader";
 
 type BannerSet = components["schemas"]["BannerSet_DTO"];
 type BannerDetail = NonNullable<BannerSet["BannerDetail"]>[number];
 type BannerDetailInfo = NonNullable<BannerDetail["_BannerDetailInfo"]>[number];
 
-interface IndexedSectionProps {
+interface IndexedSectionProps
+{
     lang: Lang;
     initialData: Pick<HomePageRawData, "indexedBanner">;
 }
 
 /** 取得對應語系的索引資訊 */
-const getBannerInfo = (dt: BannerDetail, lang: Lang): BannerDetailInfo | null => {
+const getBannerInfo = (dt: BannerDetail, lang: Lang): BannerDetailInfo | null =>
+{
     // 宣告變數
     const info = dt._BannerDetailInfo?.find(p => p.Lang === lang) ?? null;
 
@@ -25,12 +27,14 @@ const getBannerInfo = (dt: BannerDetail, lang: Lang): BannerDetailInfo | null =>
 };
 
 /** 過濾可顯示的索引項目 */
-const getVisibleDetails = (banner: BannerSet | null, lang: Lang): BannerDetail[] => {
+const getVisibleDetails = (banner: BannerSet | null, lang: Lang): BannerDetail[] =>
+{
     // 宣告變數
     const details = banner?.BannerDetail ?? [];
 
     // return
-    return details.filter(dt => {
+    return details.filter(dt =>
+    {
         const inRange = isInValidTimeRange(dt.Validate_Start, dt.Validate_End);
         const info = getBannerInfo(dt, lang);
         const hasTitle = Boolean(info?.Title && info.Title.trim() !== "");
@@ -40,11 +44,13 @@ const getVisibleDetails = (banner: BannerSet | null, lang: Lang): BannerDetail[]
 };
 
 /** 索引（Prototype: .Indexed_section） */
-export const IndexedSection = (props: IndexedSectionProps) => {
+export const IndexedSection = (props: IndexedSectionProps) =>
+{
     // 宣告變數
     const banner = props.initialData.indexedBanner;
 
-    const visibleDetails = useMemo(() => {
+    const visibleDetails = useMemo(() =>
+    {
         return getVisibleDetails(banner, props.lang);
     }, [banner, props.lang]);
 
@@ -53,8 +59,7 @@ export const IndexedSection = (props: IndexedSectionProps) => {
 
     // return
     return (
-        <section className="Indexed_section + Layout_Padding_3_top + Layout_Padding_5_bottom"
-            style={{ backgroundImage: `url(${BgTransparentImg})` }} >
+        <section className="Indexed_section + Layout_Padding_3_top + Layout_Padding_5_bottom" style={{ backgroundImage: `url(${BgTransparentImg})` }}>
             <div className="Mask-DivBox">
                 <div className="customizeBox">
                     <div className="container-customize2">
@@ -67,8 +72,8 @@ export const IndexedSection = (props: IndexedSectionProps) => {
 
                             <div className="IndexedRowBody">
                                 <ul className="IndexedRowMenu">
-
-                                    {visibleDetails.map((dt, idx) => {
+                                    {visibleDetails.map((dt, idx) =>
+                                    {
                                         // 宣告變數
                                         const info = getBannerInfo(dt, props.lang);
                                         const url = info?.URL ?? "";
@@ -87,7 +92,6 @@ export const IndexedSection = (props: IndexedSectionProps) => {
                                             </li>
                                         );
                                     })}
-
                                 </ul>
                             </div>
                         </div>

@@ -213,9 +213,7 @@ export const useMobileMenuCollapse = (opts: UseMobileMenuCollapseOptions): UseMo
 
             host.querySelectorAll<HTMLElement>(".dropdown-menu.show").forEach(m => m.classList.remove("show"));
             host.querySelectorAll<HTMLElement>(".dropdown-toggle.show").forEach(t => t.classList.remove("show"));
-            host.querySelectorAll<HTMLElement>(".dropdown-toggle[aria-expanded=\"true\"]").forEach(t =>
-                t.setAttribute("aria-expanded", "false")
-            );
+            host.querySelectorAll<HTMLElement>(".dropdown-toggle[aria-expanded=\"true\"]").forEach(t => t.setAttribute("aria-expanded", "false"));
         };
 
         const isHostOpen = (host: HTMLElement): boolean =>
@@ -236,14 +234,10 @@ export const useMobileMenuCollapse = (opts: UseMobileMenuCollapseOptions): UseMo
         const closeAllDropdownStates = () =>
         {
             // 註解：收掉整個 navbar 內所有 dropdown/submenu
-            collapseEl.querySelectorAll<HTMLElement>("li.nav-item.dropdown.show, li.dropend.submenu.show").forEach(h =>
-                closeSubtree(h)
-            );
+            collapseEl.querySelectorAll<HTMLElement>("li.nav-item.dropdown.show, li.dropend.submenu.show").forEach(h => closeSubtree(h));
             collapseEl.querySelectorAll<HTMLElement>(".dropdown-menu.show").forEach(m => m.classList.remove("show"));
             collapseEl.querySelectorAll<HTMLElement>(".dropdown-toggle.show").forEach(t => t.classList.remove("show"));
-            collapseEl.querySelectorAll<HTMLElement>(".dropdown-toggle[aria-expanded=\"true\"]").forEach(t =>
-                t.setAttribute("aria-expanded", "false")
-            );
+            collapseEl.querySelectorAll<HTMLElement>(".dropdown-toggle[aria-expanded=\"true\"]").forEach(t => t.setAttribute("aria-expanded", "false"));
         };
 
         const closeSiblings = (host: HTMLElement) =>
@@ -364,8 +358,7 @@ export const useMobileMenuCollapse = (opts: UseMobileMenuCollapseOptions): UseMo
                 ev.preventDefault();
                 ev.stopPropagation();
 
-                const host = (toggleEl.closest("li.dropend.submenu") as HTMLElement | null)
-                    || (toggleEl.closest("li.nav-item.dropdown") as HTMLElement | null);
+                const host = (toggleEl.closest("li.dropend.submenu") as HTMLElement | null) || (toggleEl.closest("li.nav-item.dropdown") as HTMLElement | null);
 
                 if (host) toggleHostByClick(host);
                 return;
@@ -419,9 +412,7 @@ export const useMobileMenuCollapse = (opts: UseMobileMenuCollapseOptions): UseMo
             if (!stopHoverAutoClose) return;
 
             // 註解：抓所有可能被綁 mouseenter 的節點（主 dropdown + submenu）
-            const targets = collapseEl.querySelectorAll<HTMLElement>(
-                ".navbar-nav > .nav-item.dropdown, li.dropend.submenu",
-            );
+            const targets = collapseEl.querySelectorAll<HTMLElement>(".navbar-nav > .nav-item.dropdown, li.dropend.submenu");
             targets.forEach(t =>
             {
                 hoverGuardTargets.push(t);

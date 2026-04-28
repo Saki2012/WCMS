@@ -168,6 +168,16 @@ public static class ModelDisplayName
     /// 英：Picture Name
     /// </summary>
     public const string Common_PictureName = nameof(Common_PictureName);
+    /// <summary>
+    /// 中：欄位代號
+    /// 英：Field Id
+    /// </summary>
+    public const string Common_Field = nameof(Common_Field);
+    /// <summary>
+    /// 中：欄位顯示名稱
+    /// 英：Field DisplayName
+    /// </summary>
+    public const string Common_FieldDisplayName = nameof(Common_FieldDisplayName);
     #endregion
 
     #region Enums
@@ -1037,6 +1047,11 @@ public static class ModelDisplayName
     /// 英：Introduction
     /// </summary>
     public const string Material_Memo = nameof(Material_Memo);
+    /// <summary>
+    /// 中：商品價格
+    /// 英：Price
+    /// </summary>
+    public const string Product_Price = nameof(Product_Price);
     #endregion
 
     #endregion

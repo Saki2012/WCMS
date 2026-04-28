@@ -13,6 +13,4 @@ class SpecMusicalService extends ApiDataService<SpecMusicalSet>
     }
 }
 export const SpecMusicalAdapter = (apiInstance?: AxiosInstance) =>
-    new ApiDataAdapter<SpecMusicalSet, SpecMusicalService>((api?: AxiosInstance) =>
-        new SpecMusicalService(api ?? apiInstance)
-    );
+    new ApiDataAdapter<SpecMusicalSet, SpecMusicalService>((api?: AxiosInstance) => new SpecMusicalService(api ?? apiInstance));

@@ -8,23 +8,14 @@ type HomePageModel = components["schemas"]["SpecHomePage1820Model_DTO"];
 export const Section2 = (props: { lang: Lang; homePage: HomePageModel; }) =>
 {
     const data = props.homePage;
-    const textMap: Record<string, { ViewMoreText: string; }> = {
-        en: { ViewMoreText: "View More" },
-        "zh-tw": { ViewMoreText: "查看更多" },
-    };
+    const textMap: Record<string, { ViewMoreText: string; }> = { en: { ViewMoreText: "View More" }, "zh-tw": { ViewMoreText: "查看更多" } };
     const text = textMap[props.lang] ?? textMap["zh-tw"];
 
-    const heroText = useMemo(
-        () => (data.HeroText ? parse(data.HeroText) : null),
-        [data.HeroText],
-    );
+    const heroText = useMemo(() => (data.HeroText ? parse(data.HeroText) : null), [data.HeroText]);
 
     return (
         <section className="After_content_section + Layout_Padding_3_bottom + bg-custom">
-            <div
-                className="Mask-DivBox"
-                style={{ backgroundImage: `url(${bgImg})` }}
-            >
+            <div className="Mask-DivBox" style={{ backgroundImage: `url(${bgImg})` }}>
                 <div className="customizeBox">
                     <div className="container-customize2">
                         <div className="row">

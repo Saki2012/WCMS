@@ -30,18 +30,10 @@ const AnnouncementForm = (props: IAnnouncementFormProps) =>
     const viewCountConfig = useMemo<ModuleViewCountConfig>(() =>
     {
         // 宣告變數
-        const request: TryCountDetailViewRequest = {
-            SiteIndex: props.site.siteIndex,
-            ProgId: PGID.Announcement,
-            InternalId: safeInternalId,
-        };
+        const request: TryCountDetailViewRequest = { SiteIndex: props.site.siteIndex, ProgId: PGID.Announcement, InternalId: safeInternalId };
 
         // return
-        return {
-            mode: "form",
-            contentKey: safeInternalId,
-            request,
-        };
+        return { mode: "form", contentKey: safeInternalId, request };
     }, [props.site.siteIndex, safeInternalId]);
     const detailViewCountOptions = useMemo(() =>
     {
@@ -51,13 +43,7 @@ const AnnouncementForm = (props: IAnnouncementFormProps) =>
     return (
         <>
             <LoadingErrorHandler isLoading={getData.isLoading} errorList={getData.errors}>
-                <Content
-                    lang={props.lang}
-                    theme={props.theme}
-                    data={formData}
-                    categoryNameText={categoryNameText}
-                    tagNameText={tagNameText}
-                />
+                <Content lang={props.lang} theme={props.theme} data={formData} categoryNameText={categoryNameText} tagNameText={tagNameText} />
             </LoadingErrorHandler>
         </>
     );
@@ -65,23 +51,12 @@ const AnnouncementForm = (props: IAnnouncementFormProps) =>
 
 export default AnnouncementForm;
 
-const Content = (prop: {
-    lang: string;
-    theme: IFETheme;
-    data: AnnouncementSet;
-    categoryNameText: string;
-    tagNameText: string;
-}) =>
+const Content = (prop: { lang: string; theme: IFETheme; data: AnnouncementSet; categoryNameText: string; tagNameText: string; }) =>
 {
     // 宣告變數
-    const langData = prop.data?.AnnouncementDetail?.find(
-        p => (p.Lang ?? "").toLowerCase() === prop.lang,
-    );
+    const langData = prop.data?.AnnouncementDetail?.find(p => (p.Lang ?? "").toLowerCase() === prop.lang);
 
-    const files = prop.data?.AnnouncementDetailFile?.filter(
-        p => p.AnnouncementId === langData?.AnnouncementId
-            && p.ParentRowId === langData?.RowId,
-    ) ?? [];
+    const files = prop.data?.AnnouncementDetailFile?.filter(p => p.AnnouncementId === langData?.AnnouncementId && p.ParentRowId === langData?.RowId) ?? [];
 
     const title = langData?.Title;
     const startDate = FormatDate(prop.data?.Announcement?.Validate_Start);
@@ -126,12 +101,7 @@ const Content = (prop: {
                 <ul className="list-group">
                     {href && href.length > 0 && (
                         <li>
-                            <a
-                                href={href}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="btn btn-default"
-                            >
+                            <a href={href} target="_blank" rel="noopener noreferrer" className="btn btn-default">
                                 <i className="fa fa-link"></i> {hrefName !== "" ? hrefName : href}
                             </a>
                         </li>
@@ -142,10 +112,7 @@ const Content = (prop: {
                             {files.map((file: AnnouncementDetailFile, idx: number) =>
                             {
                                 // 宣告變數
-                                const downloadUrl = FileManagementAPI.get_Public_Download_Url(
-                                    file.FileId,
-                                    file.FileName,
-                                );
+                                const downloadUrl = FileManagementAPI.get_Public_Download_Url(file.FileId, file.FileName);
 
                                 // return
                                 return (
@@ -177,14 +144,11 @@ const GoBackRow: React.FC = () =>
     const navigate = useNavigate();
     const title = "回上一頁";
 
-    const handleBack = useCallback(
-        (e: React.MouseEvent<HTMLButtonElement>) =>
-        {
-            e.preventDefault();
-            navigate(-1);
-        },
-        [navigate],
-    );
+    const handleBack = useCallback((e: React.MouseEvent<HTMLButtonElement>) =>
+    {
+        e.preventDefault();
+        navigate(-1);
+    }, [navigate]);
 
     // return
     return (
@@ -192,15 +156,7 @@ const GoBackRow: React.FC = () =>
             <div className="col-lg-8 col-md-8 col-sm-6 col-4" />
             <div className="col-lg-2 col-md-2 col-sm-3 col-4 text-right" />
             <div className="col-lg-2 col-md-2 col-sm-3 col-4 text-right">
-                <button
-                    type="button"
-                    className="btn btn-primary btn-custom-color"
-                    title={title}
-                    aria-label={title}
-                    onClick={handleBack}
-                >
-                    {title}
-                </button>
+                <button type="button" className="btn btn-primary btn-custom-color" title={title} aria-label={title} onClick={handleBack}>{title}</button>
             </div>
         </div>
     );
@@ -212,11 +168,5 @@ const buildDetailViewCountOptions = (config: ModuleViewCountConfig) =>
     {
         return { enabled: false, contentKey: "", request: null, cooldownMs: undefined, apiInstance: undefined };
     }
-    return {
-        enabled: true,
-        contentKey: config.contentKey,
-        request: config.request,
-        cooldownMs: config.cooldownMs,
-        apiInstance: config.apiInstance,
-    };
+    return { enabled: true, contentKey: config.contentKey, request: config.request, cooldownMs: config.cooldownMs, apiInstance: config.apiInstance };
 };

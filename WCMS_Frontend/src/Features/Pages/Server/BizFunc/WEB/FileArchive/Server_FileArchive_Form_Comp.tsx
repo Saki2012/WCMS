@@ -11,12 +11,7 @@ import { type Lang, LangLabelMap, useEnsureLangDetails } from "@/SysCore/i18n/la
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
-import {
-    FileArchiveDetailFields,
-    FileArchiveFields,
-    FileArchiveInfoFields,
-    FileArchiveSetFields,
-} from "@/types/SchemaFields";
+import { FileArchiveDetailFields, FileArchiveFields, FileArchiveInfoFields, FileArchiveSetFields } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { SystemInfoTabComp } from "../../../Scaffold/SystemTab/SystemTab";
@@ -24,12 +19,7 @@ import { useFileArchiveFormFetchData } from "./Server_FileArchive_Form_Hook";
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];
 type FileArchiveDetail = components["schemas"]["FileArchiveDetail_DTO"];
 type FileArchiveUrlDetail = components["schemas"]["FileArchiveUrlDetail_DTO"];
-const emptyData: FileArchiveSet = {
-    FileArchive: {},
-    FileArchiveInfo: [],
-    FileArchiveDetail: [],
-    FileArchiveUrlDetail: [],
-};
+const emptyData: FileArchiveSet = { FileArchive: {}, FileArchiveInfo: [], FileArchiveDetail: [], FileArchiveUrlDetail: [] };
 
 export const Server_FileArchive_Form_Comp = (prop: { theme: IBETheme; lang: Lang; }) =>
 {
@@ -45,12 +35,7 @@ export const Server_FileArchive_Form_Comp = (prop: { theme: IBETheme; lang: Lang
     {
         return { onBackToList };
     }, [onBackToList]);
-    const getData = useFileArchiveFormFetchData({
-        lang: prop.lang,
-        internalId: internalId ?? "",
-        emptyData,
-        actionsOpt,
-    });
+    const getData = useFileArchiveFormFetchData({ lang: prop.lang, internalId: internalId ?? "", emptyData, actionsOpt });
     useEnsureLangDetails(getData.rawData.formData, {
         headerName: FileArchiveSetFields.FileArchive,
         detailName: FileArchiveSetFields.FileArchiveInfo,
@@ -89,22 +74,13 @@ const HeaderComp = (
 ) =>
 {
     const setField = useSetTableField<FileArchiveSet>(prop.formData);
-    const LibTabsPropA: LibTabsProp = {
-        Style: prop.theme.Tabs,
-        item: { Basic: "基本", Status: "狀態", Tags: "標籤", System: "系統資訊" },
-    };
+    const LibTabsPropA: LibTabsProp = { Style: prop.theme.Tabs, item: { Basic: "基本", Status: "狀態", Tags: "標籤", System: "系統資訊" } };
     const componentsA: Record<string, React.ReactNode[]> = {
         Basic: [
             <LibCheckBox
                 Style={prop.theme.CheckBox}
                 options={prop.cateOpts}
-                {...setField(
-                    FileArchiveSetFields.FileArchive,
-                    FileArchiveFields.CategoriesId,
-                    "string",
-                    undefined,
-                    "csv",
-                )}
+                {...setField(FileArchiveSetFields.FileArchive, FileArchiveFields.CategoriesId, "string", undefined, "csv")}
             />,
         ],
         Status: [
@@ -124,9 +100,7 @@ const HeaderComp = (
                 {...setField(FileArchiveSetFields.FileArchive, FileArchiveFields.TagsId, "string", undefined, "csv")}
             />,
         ],
-        System: [
-            <SystemInfoTabComp theme={prop.theme} formData={prop.formData} setKey={FileArchiveSetFields.FileArchive} />,
-        ],
+        System: [<SystemInfoTabComp theme={prop.theme} formData={prop.formData} setKey={FileArchiveSetFields.FileArchive} />],
     };
     return <TabContentComp tabInfos={LibTabsPropA} components={componentsA}></TabContentComp>;
 };
@@ -144,41 +118,32 @@ const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Fi
             return tabItems;
         }, {}),
     };
-    const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>(
-        (compMap, info, idx) =>
-        {
-            const detailRowId = info.RowId ?? idx;
-            const langKey = LibMerge("_", true, info.FileArchiveId, info.RowId, info.Lang);
-            const rowKeys = {
-                [FileArchiveInfoFields.FileArchiveId]: info.FileArchiveId,
-                [FileArchiveInfoFields.RowId]: info.RowId,
-            };
-            compMap[langKey] = [
-                <LibTextBox
-                    Style={prop.theme.TextBox}
-                    DefaultInputDisplay="請輸入"
-                    {...setField(FileArchiveSetFields.FileArchiveInfo, FileArchiveInfoFields.Title, "string", rowKeys)}
-                />,
-                <DividerComp />,
-                <SubFilesComp theme={prop.theme} formData={prop.formData} parentRowId={detailRowId} />,
-                <DividerComp />,
-                <SubUrlComp theme={prop.theme} formData={prop.formData} parentRowId={detailRowId} />,
-            ];
-            return compMap;
-        },
-        {},
-    );
+    const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>((compMap, info, idx) =>
+    {
+        const detailRowId = info.RowId ?? idx;
+        const langKey = LibMerge("_", true, info.FileArchiveId, info.RowId, info.Lang);
+        const rowKeys = { [FileArchiveInfoFields.FileArchiveId]: info.FileArchiveId, [FileArchiveInfoFields.RowId]: info.RowId };
+        compMap[langKey] = [
+            <LibTextBox
+                Style={prop.theme.TextBox}
+                DefaultInputDisplay="請輸入"
+                {...setField(FileArchiveSetFields.FileArchiveInfo, FileArchiveInfoFields.Title, "string", rowKeys)}
+            />,
+            <DividerComp />,
+            <SubFilesComp theme={prop.theme} formData={prop.formData} parentRowId={detailRowId} />,
+            <DividerComp />,
+            <SubUrlComp theme={prop.theme} formData={prop.formData} parentRowId={detailRowId} />,
+        ];
+        return compMap;
+    }, {});
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
 
-const SubFilesComp = (
-    prop: { theme: IBETheme; formData: UseFetchFormDataResult<FileArchiveSet>; parentRowId: number; },
-) =>
+const SubFilesComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<FileArchiveSet>; parentRowId: number; }) =>
 {
     const setFileField = useSetTableFileField(prop.formData);
     const allFiles: FileArchiveDetail[] = prop.formData.data?.FileArchiveDetail ?? [];
-    const getFiles = (): FileArchiveDetail[] =>
-        allFiles.filter(f => f.ParentRowId === prop.parentRowId).sort((a, b) => (a.RowId ?? 0) - (b.RowId ?? 0));
+    const getFiles = (): FileArchiveDetail[] => allFiles.filter(f => f.ParentRowId === prop.parentRowId).sort((a, b) => (a.RowId ?? 0) - (b.RowId ?? 0));
     // 提交回整份表單（關鍵：真正更新 formData）
     const commitFiles = (nextFiles: FileArchiveDetail[]) =>
     {
@@ -192,12 +157,7 @@ const SubFilesComp = (
     {
         const list = getFiles();
         const nextRowId = (list.at(-1)?.RowId ?? 0) + 1;
-        const newItem: FileArchiveDetail = {
-            ParentRowId: prop.parentRowId,
-            RowId: nextRowId,
-            FileSrcId: "",
-            FileName: "",
-        };
+        const newItem: FileArchiveDetail = { ParentRowId: prop.parentRowId, RowId: nextRowId, FileSrcId: "", FileName: "" };
         commitFiles([...allFiles, newItem]);
     };
 
@@ -261,9 +221,7 @@ const SubFilesComp = (
     );
 };
 
-const SubUrlComp = (
-    prop: { theme: IBETheme; formData: UseFetchFormDataResult<FileArchiveSet>; parentRowId: number; },
-) =>
+const SubUrlComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<FileArchiveSet>; parentRowId: number; }) =>
 {
     const allUrls: FileArchiveUrlDetail[] = prop.formData.data?.FileArchiveUrlDetail ?? [];
 
@@ -280,22 +238,10 @@ const SubUrlComp = (
             items={allUrls}
             onChange={handleChangeAll}
             parentValue={prop.parentRowId}
-            fields={{
-                parentRowId: "ParentRowId",
-                rowId: "RowId",
-                title: "UrlDescription",
-                url: "Url",
-                target: "WindowTarget",
-            }}
+            fields={{ parentRowId: "ParentRowId", rowId: "RowId", title: "UrlDescription", url: "Url", target: "WindowTarget" }}
             label="外部連結"
             targets={{ 0: "本頁開啟", 1: "另開分頁" }}
-            getDefault={({ rowId, parentValue }) => ({
-                RowId: rowId,
-                ParentRowId: parentValue,
-                UrlDescription: "",
-                Url: "",
-                WindowTarget: 0,
-            })}
+            getDefault={({ rowId, parentValue }) => ({ RowId: rowId, ParentRowId: parentValue, UrlDescription: "", Url: "", WindowTarget: 0 })}
         />
     );
 };

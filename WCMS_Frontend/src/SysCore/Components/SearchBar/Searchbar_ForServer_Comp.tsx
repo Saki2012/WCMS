@@ -1,6 +1,7 @@
-import { useCallback, useId, useState, type ReactNode } from "react";
+import { type ReactNode, useCallback, useId, useState } from "react";
 
-export interface SearchBarProps {
+export interface SearchBarProps
+{
     /** 標題 */
     title: string;
     /** placeholder */
@@ -51,9 +52,7 @@ export const LibSearchBar: React.FC<SearchBarProps> = (prop) =>
                 <div className="row mx-0">
                     <div className="col-sm-12 col-12 form-group">
                         <div className="row mx-0">
-                            <label htmlFor={`${id}-site-search`} className="col-md-2 col-sm-12 float-md-left float-sm-none col-form-label">
-                                搜尋
-                            </label>
+                            <label htmlFor={`${id}-site-search`} className="col-md-2 col-sm-12 float-md-left float-sm-none col-form-label">搜尋</label>
                             <div className="col-md-4 col-sm-12 float-md-left float-sm-none">
                                 <input
                                     id={`${id}-site-search`}
@@ -69,23 +68,15 @@ export const LibSearchBar: React.FC<SearchBarProps> = (prop) =>
                                 />
                             </div>
                         </div>
-                        {prop.extraFields && (
-                            <div aria-label="搜尋附加條件">
-                                {prop.extraFields}
-                            </div>
-                        )}
-                            <div className="row mx-0">
-                                <div className="offset-md-2 col-md-4 col-sm-12 px-0 mt-3 text-end">
-                                    <div className="d-flex justify-content-end gap-2">
-                                        <button type="button" className="btn btn-custom btn-rounded" onClick={handleReset}>
-                                            重置
-                                        </button>
-                                        <button type="submit" className="btn btn-custom btn-rounded">
-                                            搜尋
-                                        </button>
-                                    </div>
+                        {prop.extraFields && <div aria-label="搜尋附加條件">{prop.extraFields}</div>}
+                        <div className="row mx-0">
+                            <div className="offset-md-2 col-md-4 col-sm-12 px-0 mt-3 text-end">
+                                <div className="d-flex justify-content-end gap-2">
+                                    <button type="button" className="btn btn-custom btn-rounded" onClick={handleReset}>重置</button>
+                                    <button type="submit" className="btn btn-custom btn-rounded">搜尋</button>
                                 </div>
                             </div>
+                        </div>
                     </div>
                 </div>
             </div>

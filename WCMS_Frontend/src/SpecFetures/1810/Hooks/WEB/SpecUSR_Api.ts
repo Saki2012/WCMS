@@ -13,6 +13,4 @@ class SpecUSRService extends ApiDataService<SpecUSRSet>
     }
 }
 export const SpecUSRAdapter = (apiInstance?: AxiosInstance) =>
-    new ApiDataAdapter<SpecUSRSet, SpecUSRService>(
-        (api?: AxiosInstance) => new SpecUSRService(api ?? apiInstance),
-    );
+    new ApiDataAdapter<SpecUSRSet, SpecUSRService>((api?: AxiosInstance) => new SpecUSRService(api ?? apiInstance));

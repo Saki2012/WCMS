@@ -44,9 +44,7 @@ interface NewsItemViewModel
     pictureId: string;
 }
 
-type OwlResponsiveOption = {
-    items: number;
-};
+type OwlResponsiveOption = { items: number; };
 
 type OwlCarouselOptions = {
     items: number;
@@ -60,37 +58,19 @@ type OwlCarouselOptions = {
     responsive: Record<number, OwlResponsiveOption>;
 };
 
-type OwlJQueryElement = JQuery<HTMLElement> & {
-    owlCarousel: (options: OwlCarouselOptions) => OwlJQueryElement;
-};
+type OwlJQueryElement = JQuery<HTMLElement> & { owlCarousel: (options: OwlCarouselOptions) => OwlJQueryElement; };
 
-type JQueryGlobal =
-    & Window
-    & typeof globalThis
-    & {
-        $?: JQueryStatic;
-        jQuery?: JQueryStatic;
-    };
+type JQueryGlobal = Window & typeof globalThis & { $?: JQueryStatic; jQuery?: JQueryStatic; };
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 const toListInitial = <TArgs, TItem>(args: TArgs, data: TItem[]) =>
 {
     // return：符合 adapter hook 的 initial 結構
-    return {
-        args,
-        apiRes: {
-            IsSuccess: true,
-            Data: data,
-            SysMessage: [],
-        },
-    };
+    return { args, apiRes: { IsSuccess: true, Data: data, SysMessage: [] } };
 };
 
-const buildCategoryDict = (
-    rows: CategoryDataSet[],
-    lang: Lang,
-): Record<string, string> =>
+const buildCategoryDict = (rows: CategoryDataSet[], lang: Lang): Record<string, string> =>
 {
     // return：分類 id -> 名稱
     return rows.reduce<Record<string, string>>((acc, row) =>
@@ -98,8 +78,7 @@ const buildCategoryDict = (
         const id = row.Category?.CategoryId;
         if (!id) return acc;
 
-        const name = row.CategoryDetail?.find((item) => item.Lang === lang)?.CategoryName
-            ?? "";
+        const name = row.CategoryDetail?.find((item) => item.Lang === lang)?.CategoryName ?? "";
 
         acc[String(id)] = name;
         return acc;
@@ -127,32 +106,19 @@ const formatDate = (dateStr: string) =>
     const date = new Date(dateStr);
 
     // return：首頁列表顯示格式
-    return {
-        day: date.getDate().toString().padStart(2, "0"),
-        month: (date.getMonth() + 1).toString().padStart(2, "0"),
-        year: date.getFullYear().toString(),
-    };
+    return { day: date.getDate().toString().padStart(2, "0"), month: (date.getMonth() + 1).toString().padStart(2, "0"), year: date.getFullYear().toString() };
 };
 
 const splitCsvIds = (value: string | null | undefined): string[] =>
 {
     // return：把 csv id 字串拆成陣列
-    return (value ?? "")
-        .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean);
+    return (value ?? "").split(",").map((item) => item.trim()).filter(Boolean);
 };
 
-const joinDisplayNames = (
-    ids: string[],
-    dict: Record<string, string>,
-): string =>
+const joinDisplayNames = (ids: string[], dict: Record<string, string>): string =>
 {
     // return：依字典把 id 轉成顯示名稱
-    return ids
-        .map((id) => dict[id] ?? "")
-        .filter(Boolean)
-        .join(", ");
+    return ids.map((id) => dict[id] ?? "").filter(Boolean).join(", ");
 };
 
 const getNewsDataProps = (
@@ -193,21 +159,13 @@ const getNewsDataProps = (
     });
 };
 
-const isWithinLastNDaysFromMD = (
-    month1to12?: number,
-    day1to31?: number,
-    n: number = 8,
-): boolean =>
+const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: number = 8): boolean =>
 {
     // 宣告變數：缺值直接不是最新
     if (!month1to12 || !day1to31) return false;
 
     const now = new Date();
-    const nowUTC = Date.UTC(
-        now.getUTCFullYear(),
-        now.getUTCMonth(),
-        now.getUTCDate(),
-    );
+    const nowUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
 
     let year = now.getUTCFullYear();
     let candidateUTC = Date.UTC(year, month1to12 - 1, day1to31);
@@ -251,20 +209,11 @@ const initOwlCarousel = ($owl: OwlJQueryElement): void =>
         autoplay: false,
         autoplayTimeout: 5000,
         autoplayHoverPause: true,
-        responsive: {
-            0: { items: 2 },
-            575: { items: 2 },
-            767: { items: 2 },
-            991: { items: 3 },
-            1199: { items: 3 },
-        },
+        responsive: { 0: { items: 2 }, 575: { items: 2 }, 767: { items: 2 }, 991: { items: 3 }, 1199: { items: 3 } },
     });
 };
 
-const updateToggleButton = (
-    $toggle: JQuery<HTMLElement>,
-    isPlaying: boolean,
-): void =>
+const updateToggleButton = ($toggle: JQuery<HTMLElement>, isPlaying: boolean): void =>
 {
     // 宣告變數：按鈕內 icon / sr-only
     const $iconBox = $toggle.find(".control-toggle");
@@ -276,27 +225,20 @@ const updateToggleButton = (
     // 執行 function：依播放狀態更新按鈕
     if (isPlaying)
     {
-        $toggle
-            .attr("aria-pressed", "true")
-            .attr("aria-label", "圖片輪播播放中，點擊暫停");
+        $toggle.attr("aria-pressed", "true").attr("aria-label", "圖片輪播播放中，點擊暫停");
 
         $iconBox.addClass("control-pause-icon");
         $srText.text("圖片輪播播放中，點擊暫停");
         return;
     }
 
-    $toggle
-        .attr("aria-pressed", "false")
-        .attr("aria-label", "圖片輪播已暫停，點擊播放");
+    $toggle.attr("aria-pressed", "false").attr("aria-label", "圖片輪播已暫停，點擊播放");
 
     $iconBox.addClass("control-play-icon");
     $srText.text("圖片輪播已暫停，點擊播放");
 };
 
-const useExhibitionList = (props: {
-    listParam: QueryListParam;
-    initialList: AnnouncementSet[];
-}) =>
+const useExhibitionList = (props: { listParam: QueryListParam; initialList: AnnouncementSet[]; }) =>
 {
     // 宣告變數：adapter / initial
     const adapter = useMemo(() => AnnouncementAdapter(), []);
@@ -309,21 +251,13 @@ const useExhibitionList = (props: {
     return adapter.hooks.useQueryList({
         condition: props.listParam,
         initial,
-        deps: [
-            props.listParam.Condition ?? "",
-            props.listParam.PageNumber ?? 0,
-            props.listParam.PageSize ?? 0,
-        ],
+        deps: [props.listParam.Condition ?? "", props.listParam.PageNumber ?? 0, props.listParam.PageSize ?? 0],
     });
 };
 
-const useCategoryTagDict = (props: {
-    lang: Lang;
-    cateParam: QueryListParam;
-    tagParam: QueryListParam;
-    initialCategories: CategoryDataSet[];
-    initialTags: TagSet[];
-}) =>
+const useCategoryTagDict = (
+    props: { lang: Lang; cateParam: QueryListParam; tagParam: QueryListParam; initialCategories: CategoryDataSet[]; initialTags: TagSet[]; },
+) =>
 {
     // 宣告變數：adapter / initial
     const cateAdapter = useMemo(() => CategoryAdapter(), []);
@@ -340,17 +274,9 @@ const useCategoryTagDict = (props: {
     }, [props.tagParam, props.initialTags]);
 
     // 執行 function：分類 / 標籤 hydration query
-    const cateQuery = cateAdapter.hooks.useQueryList({
-        condition: props.cateParam,
-        initial: cateInitial,
-        deps: [props.cateParam.Condition ?? ""],
-    });
+    const cateQuery = cateAdapter.hooks.useQueryList({ condition: props.cateParam, initial: cateInitial, deps: [props.cateParam.Condition ?? ""] });
 
-    const tagQuery = tagAdapter.hooks.useQueryList({
-        condition: props.tagParam,
-        initial: tagInitial,
-        deps: [props.tagParam.Condition ?? ""],
-    });
+    const tagQuery = tagAdapter.hooks.useQueryList({ condition: props.tagParam, initial: tagInitial, deps: [props.tagParam.Condition ?? ""] });
 
     // 宣告變數：字典
     const categoryDict = useMemo(() =>
@@ -378,12 +304,7 @@ const GetData = ({ prop }: { prop: NewsItemViewModel[]; }) =>
 
                 return (
                     <div className="item" key={item.announceInternalId}>
-                        <LangLink
-                            to={`${item.redir}/${item.internalId}`}
-                            title={item.title}
-                            tabIndex={0}
-                            className="item-inner"
-                        >
+                        <LangLink to={`${item.redir}/${item.internalId}`} title={item.title} tabIndex={0} className="item-inner">
                             <article className="cardbox">
                                 <div className="card_content">
                                     <figure className="figure_Box">
@@ -422,28 +343,15 @@ const GetData = ({ prop }: { prop: NewsItemViewModel[]; }) =>
                                             </div>
 
                                             <div className="CustomState">
-                                                {isWithinLastNDaysFromMD(
-                                                    Number(item.monthNum),
-                                                    Number(item.date),
-                                                ) && (
-                                                    <span className="label icon-small label-warning">
-                                                        最新
-                                                    </span>
+                                                {isWithinLastNDaysFromMD(Number(item.monthNum), Number(item.date)) && (
+                                                    <span className="label icon-small label-warning">最新</span>
                                                 )}
 
                                                 {item.contentStatus !== 0 && (
                                                     <>
-                                                        {Boolean(item.contentStatus & 1) && (
-                                                            <span className="label icon-small label-success">
-                                                                置頂
-                                                            </span>
-                                                        )}
+                                                        {Boolean(item.contentStatus & 1) && <span className="label icon-small label-success">置頂</span>}
 
-                                                        {Boolean(item.contentStatus & 2) && (
-                                                            <span className="label icon-small label-danger">
-                                                                熱門
-                                                            </span>
-                                                        )}
+                                                        {Boolean(item.contentStatus & 2) && <span className="label icon-small label-danger">熱門</span>}
                                                     </>
                                                 )}
                                             </div>
@@ -477,10 +385,7 @@ const GetData = ({ prop }: { prop: NewsItemViewModel[]; }) =>
 export const ExhibitionNewsData = (props: ExhibitionNewsDataProps) =>
 {
     // 宣告變數：展演公告 hydration
-    const newsQuery = useExhibitionList({
-        listParam: props.listParam,
-        initialList: props.initialList,
-    });
+    const newsQuery = useExhibitionList({ listParam: props.listParam, initialList: props.initialList });
 
     // 宣告變數：分類 / 標籤 hydration
     const dicts = useCategoryTagDict({
@@ -494,13 +399,7 @@ export const ExhibitionNewsData = (props: ExhibitionNewsDataProps) =>
     // 宣告變數：畫面資料
     const allNews = useMemo(() =>
     {
-        return getNewsDataProps(
-            newsQuery.data ?? [],
-            props.lang,
-            "/News/News-01",
-            dicts.categoryDict,
-            dicts.tagDict,
-        );
+        return getNewsDataProps(newsQuery.data ?? [], props.lang, "/News/News-01", dicts.categoryDict, dicts.tagDict);
     }, [newsQuery.data, props.lang, dicts.categoryDict, dicts.tagDict]);
 
     // 宣告變數：重新初始化 owl 的 key
@@ -570,10 +469,7 @@ export const ExhibitionNewsData = (props: ExhibitionNewsDataProps) =>
     }, [owlKey, allNews.length]);
 
     return (
-        <section
-            className="Exhibition_section + owl-box + Layout_Padding_1_top + Layout_Padding_5_bottom"
-            style={{ backgroundImage: `url(${bgImg})` }}
-        >
+        <section className="Exhibition_section + owl-box + Layout_Padding_1_top + Layout_Padding_5_bottom" style={{ backgroundImage: `url(${bgImg})` }}>
             <div className="circle-1 iMG-Shape-1" />
 
             <div className="Mask-DivBox">
@@ -583,11 +479,7 @@ export const ExhibitionNewsData = (props: ExhibitionNewsDataProps) =>
                             <div className="col-12">
                                 <div className="headDiv mb-sm-5 mb-4">
                                     <span className="headDiv-subtxt">Exhibition activities</span>
-                                    <img
-                                        alt="標題裝飾線條圖示"
-                                        className="headDiv-title-line"
-                                        src={lineTitleImg}
-                                    />
+                                    <img alt="標題裝飾線條圖示" className="headDiv-title-line" src={lineTitleImg} />
                                     <span className="headDiv-txt">展演活動</span>
                                 </div>
                             </div>
@@ -606,19 +498,13 @@ export const ExhibitionNewsData = (props: ExhibitionNewsDataProps) =>
                                                 title="暫停"
                                             >
                                                 <div className="control-toggle control-pause-icon">
-                                                    <span className="sr-only">
-                                                        圖片輪播播放中，點擊暫停
-                                                    </span>
+                                                    <span className="sr-only">圖片輪播播放中，點擊暫停</span>
                                                 </div>
                                             </a>
                                         </div>
                                     </div>
 
-                                    <div
-                                        className="owl-carousel owl-theme"
-                                        id="Exhibition_owl_carousel"
-                                        key={owlKey}
-                                    >
+                                    <div className="owl-carousel owl-theme" id="Exhibition_owl_carousel" key={owlKey}>
                                         <GetData prop={allNews} />
                                     </div>
 

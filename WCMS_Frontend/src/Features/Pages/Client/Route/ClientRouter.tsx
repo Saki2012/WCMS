@@ -20,31 +20,25 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter";
 import { PGID } from "@/types/SchemaFields";
 import { type LoaderFunction, type LoaderFunctionArgs, type RouteObject } from "react-router-dom";
+import { getSpecClientEntries } from "../../AppRoute";
 import { Sitemap, SITEMAP_SEGMENT } from "../BizFunc/MainPage/Sitemap/Sitemap";
+import Client_Material_Form_Comp from "../BizFunc/MAT/Client_Material_Form_Comp";
+import { Client_Material_Form_Loader } from "../BizFunc/MAT/Client_Material_Form_Loader";
+import { Client_Material_List_Comp } from "../BizFunc/MAT/Client_Material_List_Comp";
+import { Client_Material_List_Loader, type IMaterialListOptions } from "../BizFunc/MAT/Client_Material_List_Loader";
 import { AnnouncementFormLoader } from "../BizFunc/WEB/Announcement/AnnouncementForm_Loader";
 import { AnnouncementListLoader } from "../BizFunc/WEB/Announcement/AnnouncementList_Loader";
 import { FileArchiveList_Loader } from "../BizFunc/WEB/FileArchive/FileArchiveList_Loader";
 import { GalleryForm_Loader } from "../BizFunc/WEB/Gallery/GalleryForm_Loader";
 import { GalleryList_Loader } from "../BizFunc/WEB/Gallery/GalleryList_Loader";
 import { PageManagementForm_Loader } from "../BizFunc/WEB/PageManagement/PageManagementForm_Loader";
-import { WebResourceList_Loader } from "../BizFunc/WEB/WebResource/WebResourceList_Loader";
-import {
-    configureModuleRegistry,
-    createRoutesFromSite,
-    type INormNode,
-    type INormSite,
-    type ModuleEntry,
-    resolveRouteLangFromRequest,
-} from "./Site-Routing";
-
-import { getSpecClientEntries } from "../../AppRoute";
 import TimelineForm from "../BizFunc/WEB/Timeline/Client_Timeline_Form_Comp";
 import { type ITimelineOptions, TimelineForm_Loader } from "../BizFunc/WEB/Timeline/Client_Timeline_Form_Loader";
+import { WebResourceList_Loader } from "../BizFunc/WEB/WebResource/WebResourceList_Loader";
 import { loadSitesForRouting, type SiteRoutingInitialState } from "./ClientRouter_Loader";
+import { configureModuleRegistry, createRoutesFromSite, type INormNode, type INormSite, type ModuleEntry, resolveRouteLangFromRequest } from "./Site-Routing";
 
-export const loadClientChildren = async (
-    opt?: { request?: Request; initialState?: SiteRoutingInitialState; },
-): Promise<RouteObject[]> =>
+export const loadClientChildren = async (opt?: { request?: Request; initialState?: SiteRoutingInitialState; }): Promise<RouteObject[]> =>
 {
     // 宣告變數
     ensureClientRegistryInstalled();
@@ -71,150 +65,98 @@ class FrontendRouteModule implements IRouteModule
 }
 
 const clientEntries: Record<string, ModuleEntry> = {
+    // #region WEB
     [PGID.PageManagement]: {
         kind: "routes",
-        element: (lang: Lang, site: INormSite, node: INormNode) => (
-            <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />
-        ),
-        children: (opts, lang, site, node) => [
-            {
-                index: true,
-                loader: withRequestLang((lang) =>
-                    PageManagementForm_Loader({ lang: lang, opts: opts as IPageManagementOptions })
-                ),
-                element: (
-                    <PageManagementForm lang={lang} options={opts as IPageManagementOptions} site={site} node={node} />
-                ),
-            },
-        ],
+        element: (lang: Lang, site: INormSite, node: INormNode) => <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />,
+        children: (opts, lang, site, node) => [{
+            index: true,
+            loader: withRequestLang((lang) => PageManagementForm_Loader({ lang: lang, opts: opts as IPageManagementOptions })),
+            element: <PageManagementForm lang={lang} options={opts as IPageManagementOptions} site={site} node={node} />,
+        }],
     },
 
     [PGID.Announcement]: {
         kind: "routes",
-        element: (lang: Lang, site: INormSite, node: INormNode) => (
-            <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />
-        ),
-        children: (opts, lang, site, node) => [
-            {
-                index: true,
-                loader: withRequestLang((lang) =>
-                    AnnouncementListLoader({ lang, opts: opts as IAnnouncementListOptions })
-                ),
-                element: (
-                    <AnnouncementList
-                        theme={Classic_FETheme}
-                        lang={lang}
-                        options={opts as IAnnouncementListOptions}
-                        site={site}
-                        node={node}
-                    />
-                ),
-            },
-            {
-                path: ":internalId",
-                loader: withRequestLang((lang) => AnnouncementFormLoader({ lang })),
-                element: <AnnouncementForm site={site} node={node} theme={Classic_FETheme} lang={lang} />,
-            },
-        ],
+        element: (lang: Lang, site: INormSite, node: INormNode) => <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />,
+        children: (opts, lang, site, node) => [{
+            index: true,
+            loader: withRequestLang((lang) => AnnouncementListLoader({ lang, opts: opts as IAnnouncementListOptions })),
+            element: <AnnouncementList theme={Classic_FETheme} lang={lang} options={opts as IAnnouncementListOptions} site={site} node={node} />,
+        }, {
+            path: ":internalId",
+            loader: withRequestLang((lang) => AnnouncementFormLoader({ lang })),
+            element: <AnnouncementForm site={site} node={node} theme={Classic_FETheme} lang={lang} />,
+        }],
     },
 
     [PGID.FileArchive]: {
         kind: "routes",
-        element: (lang: Lang, site: INormSite, node: INormNode) => (
-            <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />
-        ),
-        children: (opts, lang, site, node) => [
-            {
-                index: true,
-                loader: withRequestLang((lang) =>
-                    FileArchiveList_Loader({ lang: lang, opts: opts as IFileArchiveOptions })
-                ),
-                element: (
-                    <FileArchiveList
-                        theme={Classic_FETheme}
-                        lang={lang}
-                        options={opts as IFileArchiveOptions}
-                        site={site}
-                        node={node}
-                    />
-                ),
-            },
-        ],
+        element: (lang: Lang, site: INormSite, node: INormNode) => <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />,
+        children: (opts, lang, site, node) => [{
+            index: true,
+            loader: withRequestLang((lang) => FileArchiveList_Loader({ lang: lang, opts: opts as IFileArchiveOptions })),
+            element: <FileArchiveList theme={Classic_FETheme} lang={lang} options={opts as IFileArchiveOptions} site={site} node={node} />,
+        }],
     },
 
     [PGID.Gallery]: {
         kind: "routes",
-        element: (lang: Lang, site: INormSite, node: INormNode) => (
-            <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />
-        ),
-        children: (opts, lang, site, node) => [
-            {
-                index: true,
-                loader: withRequestLang((lang) => GalleryList_Loader({ lang, opts: opts as IGalleryListOptions })),
-                element: (
-                    <GalleryListComp
-                        node={node}
-                        theme={Classic_FETheme}
-                        lang={lang}
-                        options={opts as IGalleryListOptions}
-                        site={site}
-                        title={node.title}
-                    />
-                ),
-            },
-            {
-                path: ":internalId",
-                loader: withRequestLang((lang) => GalleryForm_Loader({ lang })),
-                element: <GalleryForm site={site} node={node} theme={Classic_FETheme} lang={lang} />,
-            },
-        ],
+        element: (lang: Lang, site: INormSite, node: INormNode) => <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />,
+        children: (opts, lang, site, node) => [{
+            index: true,
+            loader: withRequestLang((lang) => GalleryList_Loader({ lang, opts: opts as IGalleryListOptions })),
+            element: <GalleryListComp node={node} theme={Classic_FETheme} lang={lang} options={opts as IGalleryListOptions} site={site} title={node.title} />,
+        }, {
+            path: ":internalId",
+            loader: withRequestLang((lang) => GalleryForm_Loader({ lang })),
+            element: <GalleryForm site={site} node={node} theme={Classic_FETheme} lang={lang} />,
+        }],
     },
 
     [PGID.WebResource]: {
         kind: "routes",
-        element: (lang: Lang, site: INormSite, node: INormNode) => (
-            <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />
-        ),
-        children: (opts, lang, site, node) => [
-            {
-                index: true,
-                loader: withRequestLang((lang) =>
-                    WebResourceList_Loader({ lang: lang, opts: opts as IWebResourceListOptions })
-                ),
-                element: (
-                    <WebResourceListComp
-                        site={site}
-                        node={node}
-                        theme={Classic_FETheme}
-                        lang={lang}
-                        options={opts as IWebResourceListOptions}
-                        title={node.title}
-                    />
-                ),
-            },
-        ],
+        element: (lang: Lang, site: INormSite, node: INormNode) => <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />,
+        children: (opts, lang, site, node) => [{
+            index: true,
+            loader: withRequestLang((lang) => WebResourceList_Loader({ lang: lang, opts: opts as IWebResourceListOptions })),
+            element: (
+                <WebResourceListComp site={site} node={node} theme={Classic_FETheme} lang={lang} options={opts as IWebResourceListOptions} title={node.title} />
+            ),
+        }],
     },
 
     [PGID.Timeline]: {
         kind: "routes",
-        element: (lang: Lang, site: INormSite, node: INormNode) => (
-            <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />
-        ),
-        children: (opts, lang, site, node) => [
-            {
-                index: true,
-                loader: withRequestLang((lang) => TimelineForm_Loader({ lang: lang, opts: opts as ITimelineOptions })),
-                element: <TimelineForm lang={lang} options={opts as ITimelineOptions} site={site} node={node} />,
-            },
-        ],
+        element: (lang: Lang, site: INormSite, node: INormNode) => <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />,
+        children: (opts, lang, site, node) => [{
+            index: true,
+            loader: withRequestLang((lang) => TimelineForm_Loader({ lang: lang, opts: opts as ITimelineOptions })),
+            element: <TimelineForm lang={lang} options={opts as ITimelineOptions} site={site} node={node} />,
+        }],
     },
+    // #endregion
+
+    // #region MAT
+    [PGID.Material]: {
+        kind: "routes",
+        element: (lang: Lang, site: INormSite, node: INormNode) => <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />,
+        children: (opts, lang, site, node) => [{
+            index: true,
+            loader: withRequestLang((lang) => Client_Material_List_Loader({ lang, opts: opts as IMaterialListOptions })),
+            element: <Client_Material_List_Comp theme={Classic_FETheme} lang={lang} options={opts as IMaterialListOptions} site={site} node={node} />,
+        }, {
+            path: ":internalId",
+            loader: withRequestLang((lang) => Client_Material_Form_Loader({ lang })),
+            element: <Client_Material_Form_Comp site={site} node={node} theme={Classic_FETheme} lang={lang} />,
+        }],
+    },
+    // #endregion
 
     [SITEMAP_SEGMENT]: {
         kind: "routes",
         element: (lang, site, node) => <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />,
-        children: (_opts, lang, site, _node) => [
-            { index: true, element: <Sitemap lang={lang} site={site} /> },
-        ],
+        children: (_opts, lang, site, _node) => [{ index: true, element: <Sitemap lang={lang} site={site} /> }],
     },
 };
 
@@ -229,11 +171,7 @@ const ensureClientRegistryInstalled = (): void =>
     // 執行 function
     if (installed) return;
 
-    configureModuleRegistry(base => ({
-        ...base,
-        ...clientEntries,
-        ...getSpecClientEntries(),
-    }));
+    configureModuleRegistry(base => ({ ...base, ...clientEntries, ...getSpecClientEntries() }));
 
     registryInstalled = true;
 

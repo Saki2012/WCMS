@@ -52,12 +52,7 @@ export const useFileArchiveFormFetchData = (
     }, []);
     // 執行 function：主資料（ModelDisplayName + QueryData + editable state）
     const formData = useFileArchiveFormDataByAdapter(adapter.FileArchive, opt.internalId, opt.emptyData, onError);
-    const actions = useFileArchiveFormActionsByAdapter(
-        adapter.FileArchive,
-        opt.internalId,
-        formData.data,
-        opt.actionsOpt,
-    );
+    const actions = useFileArchiveFormActionsByAdapter(adapter.FileArchive, opt.internalId, formData.data, opt.actionsOpt);
     // 執行 function：關聯資料（Category / Tag / ContentStatus）
     const category = adapter.Category.hooks.useMapByProgId({ progId: PGID.FileArchive, lang: opt.lang });
     const tag = adapter.Tag.hooks.useMapByProgId({ progId: PGID.FileArchive, lang: opt.lang });
@@ -65,12 +60,7 @@ export const useFileArchiveFormFetchData = (
     // 宣告變數：Loading / Error（給 LoadingErrorHandler）
     const loadingList = useMemo<boolean[]>(() =>
     {
-        return [
-            Boolean(category.isLoading),
-            Boolean(tag.isLoading),
-            Boolean(formData.isLoading),
-            Boolean(statusOpts.isLoading),
-        ];
+        return [Boolean(category.isLoading), Boolean(tag.isLoading), Boolean(formData.isLoading), Boolean(statusOpts.isLoading)];
     }, [category.isLoading, tag.isLoading, formData.isLoading, statusOpts.isLoading]);
     const errorList = useMemo<(string | null | undefined)[]>(() =>
     {
@@ -81,13 +71,7 @@ export const useFileArchiveFormFetchData = (
     const errors = useMemo(() => errorList.filter((x): x is string => Boolean(x)), [errorList]);
     const rawData = useMemo<FileArchiveFormRawData>(() =>
     {
-        return {
-            formData,
-            categoryMap: category.map ?? {},
-            tagMap: tag.map ?? {},
-            statusOpts: statusOpts.data,
-            actions,
-        };
+        return { formData, categoryMap: category.map ?? {}, tagMap: tag.map ?? {}, statusOpts: statusOpts.data, actions };
     }, [formData, actions, category.map, tag.map, statusOpts.data]);
     const refetchData = useCallback(async () =>
     {
@@ -171,11 +155,7 @@ const useFileArchiveFormActionsByAdapter = (
     // 宣告變數
     const isNew = useMemo(() => !internalId, [internalId]);
     const actions = adapter.useServerActions({
-        onSuccessByMode: {
-            create: () => opt.onBackToList(),
-            update: () => opt.onBackToList(),
-            delete: () => opt.onBackToList(),
-        },
+        onSuccessByMode: { create: () => opt.onBackToList(), update: () => opt.onBackToList(), delete: () => opt.onBackToList() },
     });
 
     // return

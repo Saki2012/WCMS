@@ -11,8 +11,7 @@ import { GoTopButton } from "../../Client/Scaffold/MainFrame/GoTopButton";
 export const DashboardPage = ({ theme }: { theme: IBETheme; }) =>
 {
     const matches = useMatches();
-    const lastHandle = [...matches].reverse().find(m => (m.handle as RouteHandleMeta | undefined))
-        ?.handle as RouteHandleMeta;
+    const lastHandle = [...matches].reverse().find(m => (m.handle as RouteHandleMeta | undefined))?.handle as RouteHandleMeta;
     const pageTitle = lastHandle?.title;
     const lastModule = [...matches].reverse().find(m => (m.handle as RouteHandleMeta | undefined)?.moduleCode);
     const moduleCode = (lastModule?.handle as RouteHandleMeta | undefined)?.moduleCode ?? "WebManagement"; // 你的預設

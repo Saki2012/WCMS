@@ -21,11 +21,7 @@ import type { ServerFormActions } from "@/SysCore/Utils/API/APIAdapter";
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import type { components } from "@/types/api";
-import {
-    SpecJournalIndexDetailFields,
-    SpecJournalIndexModelFields,
-    SpecJournalIndexSetFields,
-} from "@/types/SchemaFields";
+import { SpecJournalIndexDetailFields, SpecJournalIndexModelFields, SpecJournalIndexSetFields } from "@/types/SchemaFields";
 import { PGID } from "@/types/SchemaFields";
 
 type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
@@ -47,21 +43,10 @@ export const Server_SpecJournalIndex_Form_Comp = (prop: { theme: IBETheme; lang:
     {
         navigate(pathname.replace(/\/Form(\/[^\/]*)?$/, "/List"));
     }, [navigate, pathname]);
-    const actions = useSpecJournalIndexFormActionsFromAdapter(
-        adapter,
-        internalId ?? "",
-        formData.data,
-        onBackToList,
-    );
+    const actions = useSpecJournalIndexFormActionsFromAdapter(adapter, internalId ?? "", formData.data, onBackToList);
     const isLoading = [formData.isLoading, useCategory.isLoading].some(Boolean);
     const errors = [formData.error, useCategory.errorText];
-    const formProp: FormCompProp = {
-        Title: "期刊目次",
-        Theme: prop.theme,
-        IsLoading: isLoading,
-        ErrorList: errors,
-        Actions: actions,
-    };
+    const formProp: FormCompProp = { Title: "期刊目次", Theme: prop.theme, IsLoading: isLoading, ErrorList: errors, Actions: actions };
     return (
         <FormComp prop={formProp}>
             <MainFormComp theme={prop.theme} formData={formData} />
@@ -136,13 +121,7 @@ const useSpecJournalIndexFormActionsFromAdapter = (
     // 宣告變數
     const isNew = useMemo(() => !internalId, [internalId]);
 
-    const actions = adapter.useServerActions({
-        onSuccessByMode: {
-            create: () => onBackToList(),
-            update: () => onBackToList(),
-            delete: () => onBackToList(),
-        },
-    });
+    const actions = adapter.useServerActions({ onSuccessByMode: { create: () => onBackToList(), update: () => onBackToList(), delete: () => onBackToList() } });
 
     // return（不動 UI 結構）
     return {
@@ -161,33 +140,17 @@ const useSpecJournalIndexFormActionsFromAdapter = (
     };
 };
 
-const MainFormComp = (
-    prop: {
-        theme: IBETheme;
-        formData: UseFetchFormDataResult<SpecJournalIndexSet>;
-    },
-) =>
+const MainFormComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<SpecJournalIndexSet>; }) =>
 {
     const tabInfo: LibTabsProp = { Style: prop.theme.Tabs, item: { "Basic": "基本資料", "System": "系統資訊" } };
     const components: Record<string, React.ReactNode[]> = {
         Basic: [<BasicComp theme={prop.theme} formData={prop.formData} />],
-        System: [
-            <SystemInfoTabComp
-                theme={prop.theme}
-                formData={prop.formData}
-                setKey={SpecJournalIndexSetFields.SpecJournalIndex}
-            />,
-        ],
+        System: [<SystemInfoTabComp theme={prop.theme} formData={prop.formData} setKey={SpecJournalIndexSetFields.SpecJournalIndex} />],
     };
     return <TabContentComp tabInfos={tabInfo} components={components}></TabContentComp>;
 };
 
-const BasicComp = (
-    props: {
-        theme: IBETheme;
-        formData: UseFetchFormDataResult<SpecJournalIndexSet>;
-    },
-) =>
+const BasicComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<SpecJournalIndexSet>; }) =>
 {
     const setField = useSetTableField<SpecJournalIndexSet>(props.formData);
 
@@ -196,11 +159,7 @@ const BasicComp = (
             <LibTextBox
                 Style={props.theme.TextBox}
                 DefaultInputDisplay="請輸入"
-                {...setField(
-                    SpecJournalIndexSetFields.SpecJournalIndex,
-                    SpecJournalIndexModelFields.IndexName,
-                    "string",
-                )}
+                {...setField(SpecJournalIndexSetFields.SpecJournalIndex, SpecJournalIndexModelFields.IndexName, "string")}
             />
         </div>
     );
@@ -229,9 +188,7 @@ const DetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<S
         const handleClick = (e: MouseEvent) =>
         {
             const el = e.target as HTMLElement | null;
-            const btn = el?.closest?.("button[data-bs-toggle=\"tab\"][data-bs-target^=\"#Tab_TWEN_\"]") as
-                | HTMLButtonElement
-                | null;
+            const btn = el?.closest?.("button[data-bs-toggle=\"tab\"][data-bs-target^=\"#Tab_TWEN_\"]") as HTMLButtonElement | null;
             if (!btn) return;
             const target = btn.getAttribute("data-bs-target") ?? "";
             const m = target.match(/^#Tab_TWEN_(.+)$/);
@@ -297,25 +254,15 @@ const DetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<S
         const current = props.formData.data.SpecJournalIndexDetail ?? [];
         if (current.length > 0) return;
 
-        const firstItem: SpecJournalIndexDetail = {
-            IndexId: props.formData.data.SpecJournalIndex?.IndexId,
-            RowId: 1,
-            Volume: 1,
-            Issue: "1",
-        };
+        const firstItem: SpecJournalIndexDetail = { IndexId: props.formData.data.SpecJournalIndex?.IndexId, RowId: 1, Volume: 1, Issue: "1" };
 
-        props.formData.setFormData({
-            ...props.formData.data,
-            SpecJournalIndexDetail: [firstItem],
-        });
+        props.formData.setFormData({ ...props.formData.data, SpecJournalIndexDetail: [firstItem] });
     };
 
     const activateTabByKey = (key: string): void =>
     {
         // 觸發 click 讓 bootstrap 切換 tab
-        const btn = document.querySelector<HTMLButtonElement>(
-            `button[data-bs-toggle="tab"][data-bs-target="#Tab_TWEN_${key}"]`,
-        );
+        const btn = document.querySelector<HTMLButtonElement>(`button[data-bs-toggle="tab"][data-bs-target="#Tab_TWEN_${key}"]`);
         btn?.click();
     };
 
@@ -455,100 +402,62 @@ const DetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<S
         });
     }, [props.formData]);
 
-    const tabContent: Record<string, React.ReactNode[]> = details.reduce<Record<string, React.ReactNode[]>>(
-        (acc, d, idx) =>
-        {
-            const detailRowId = d.RowId ?? idx;
-            const rowKeys = {
-                [SpecJournalIndexDetailFields.IndexId]: d.IndexId,
-                [SpecJournalIndexDetailFields.RowId]: d.RowId,
-            };
+    const tabContent: Record<string, React.ReactNode[]> = details.reduce<Record<string, React.ReactNode[]>>((acc, d, idx) =>
+    {
+        const detailRowId = d.RowId ?? idx;
+        const rowKeys = { [SpecJournalIndexDetailFields.IndexId]: d.IndexId, [SpecJournalIndexDetailFields.RowId]: d.RowId };
 
-            acc[String(detailRowId)] = [
-                <div className="col-12 form-group">
-                    <LibTextBox
-                        Style={props.theme.TextBox3}
-                        DefaultInputDisplay="請輸入"
-                        {...setField(
+        acc[String(detailRowId)] = [
+            <div className="col-12 form-group">
+                <LibTextBox
+                    Style={props.theme.TextBox3}
+                    DefaultInputDisplay="請輸入"
+                    {...setField(SpecJournalIndexSetFields.SpecJournalIndexDetail, SpecJournalIndexDetailFields.Volume, "number", rowKeys)}
+                />
+                <LibTextBox
+                    Style={props.theme.TextBox3}
+                    DefaultInputDisplay="請輸入"
+                    {...setField(SpecJournalIndexSetFields.SpecJournalIndexDetail, SpecJournalIndexDetailFields.Issue, "string", rowKeys)}
+                />
+            </div>,
+            <div className="col-12 form-group">
+                <LibCheckBox
+                    Style={props.theme.CheckBox}
+                    options={{ [SpecJournalIndexDetailFields.IsSpecial]: "" }}
+                    {...setField(SpecJournalIndexSetFields.SpecJournalIndexDetail, SpecJournalIndexDetailFields.IsSpecial, "boolean", rowKeys)}
+                />
+            </div>,
+            <div className="col-12 form-group">
+                <LibCalendar {...setField(SpecJournalIndexSetFields.SpecJournalIndexDetail, SpecJournalIndexDetailFields.PublishDate, "datetime", rowKeys)} />
+            </div>,
+            <div className="col-12 form-group">
+                <LibTextBox
+                    Style={props.theme.TextBox3}
+                    DefaultInputDisplay="請輸入"
+                    {...setField(SpecJournalIndexSetFields.SpecJournalIndexDetail, SpecJournalIndexDetailFields.SeasonNo, "string", rowKeys)}
+                />
+            </div>,
+            <div className="col-12 form-group">
+                <LibFileInput
+                    {
+                        // 直接展開！只要給：表名、id欄位、name欄位(可選)、rowKeys(可選)、options(可選)
+                        ...setFileField(
                             SpecJournalIndexSetFields.SpecJournalIndexDetail,
-                            SpecJournalIndexDetailFields.Volume,
-                            "number",
+                            SpecJournalIndexDetailFields.SummaryFileId,
+                            SpecJournalIndexDetailFields.SummaryFileName,
                             rowKeys,
-                        )}
-                    />
-                    <LibTextBox
-                        Style={props.theme.TextBox3}
-                        DefaultInputDisplay="請輸入"
-                        {...setField(
-                            SpecJournalIndexSetFields.SpecJournalIndexDetail,
-                            SpecJournalIndexDetailFields.Issue,
-                            "string",
-                            rowKeys,
-                        )}
-                    />
-                </div>,
-                <div className="col-12 form-group">
-                    <LibCheckBox
-                        Style={props.theme.CheckBox}
-                        options={{ [SpecJournalIndexDetailFields.IsSpecial]: "" }}
-                        {...setField(
-                            SpecJournalIndexSetFields.SpecJournalIndexDetail,
-                            SpecJournalIndexDetailFields.IsSpecial,
-                            "boolean",
-                            rowKeys,
-                        )}
-                    />
-                </div>,
-                <div className="col-12 form-group">
-                    <LibCalendar
-                        {...setField(
-                            SpecJournalIndexSetFields.SpecJournalIndexDetail,
-                            SpecJournalIndexDetailFields.PublishDate,
-                            "datetime",
-                            rowKeys,
-                        )}
-                    />
-                </div>,
-                <div className="col-12 form-group">
-                    <LibTextBox
-                        Style={props.theme.TextBox3}
-                        DefaultInputDisplay="請輸入"
-                        {...setField(
-                            SpecJournalIndexSetFields.SpecJournalIndexDetail,
-                            SpecJournalIndexDetailFields.SeasonNo,
-                            "string",
-                            rowKeys,
-                        )}
-                    />
-                </div>,
-                <div className="col-12 form-group">
-                    <LibFileInput
-                        {
-                            // 直接展開！只要給：表名、id欄位、name欄位(可選)、rowKeys(可選)、options(可選)
-                            ...setFileField(
-                                SpecJournalIndexSetFields.SpecJournalIndexDetail,
-                                SpecJournalIndexDetailFields.SummaryFileId,
-                                SpecJournalIndexDetailFields.SummaryFileName,
-                                rowKeys,
-                                { defaultNameFromOriginal: "basename", fileName: d.SummaryFile?.FileName ?? "" },
-                            )
-                        }
-                        // 其他 UI 行為仍由你自己控制
-                        Accept="application/pdf"
-                        onDelete={() =>
-                            clearDetailFileField(
-                                detailRowId,
-                                SpecJournalIndexDetailFields.SummaryFileId,
-                                SpecJournalIndexDetailFields.SummaryFileName,
-                            )}
-                    />
-                </div>,
-            ];
+                            { defaultNameFromOriginal: "basename", fileName: d.SummaryFile?.FileName ?? "" },
+                        )
+                    }
+                    // 其他 UI 行為仍由你自己控制
+                    Accept="application/pdf"
+                    onDelete={() => clearDetailFileField(detailRowId, SpecJournalIndexDetailFields.SummaryFileId, SpecJournalIndexDetailFields.SummaryFileName)}
+                />
+            </div>,
+        ];
 
-            return acc;
-        },
-        {},
-    );
+        return acc;
+    }, {});
 
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };

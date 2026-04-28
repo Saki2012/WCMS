@@ -63,9 +63,7 @@ export const SubPageLoader = (ctx: { lang: Lang; site: INormSite; node: INormNod
         if (!canLoadBanner(node)) return { bannerInitial: null };
 
         const adapter = BannerSliderAdapter();
-        const loader = adapter.loader.createQueryListLoader({
-            getCondition: () => buildBannerQueryCondition(bannerId),
-        });
+        const loader = adapter.loader.createQueryListLoader({ getCondition: () => buildBannerQueryCondition(bannerId) });
 
         const bannerInitial = await loader(args);
 

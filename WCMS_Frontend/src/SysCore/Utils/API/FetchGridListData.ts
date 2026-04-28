@@ -160,14 +160,7 @@ export const useFetchGridListData = <T>(props: UseGridListOptions<T>) =>
     const gridProps: GridProps = useMemo(() =>
     {
         // return xxx
-        return {
-            columns,
-            rows,
-            rawData,
-            CurrentPage: currentPage,
-            TotalPage: totalPages,
-            onPageChange: (page: number) => setCurrentPage(page),
-        };
+        return { columns, rows, rawData, CurrentPage: currentPage, TotalPage: totalPages, onPageChange: (page: number) => setCurrentPage(page) };
     }, [columns, rows, rawData, currentPage, totalPages]);
 
     const refetchCurrent = useCallback(async () => refetch({ mode: "current" }), [refetch]);
@@ -194,16 +187,14 @@ const BuildVisibleColumns = async (
     const schema = await getModelDisplayFn();
     if (!schema?.Tables?.length) return [];
 
-    const columns = visibleKeys
-        .map(([tableId, columnId]) =>
-        {
-            const table = schema.Tables.find(t => t.TableId === tableId);
-            const col = table?.Columns.find(c => c.ColumnId === columnId);
-            if (!col) return null;
+    const columns = visibleKeys.map(([tableId, columnId]) =>
+    {
+        const table = schema.Tables.find(t => t.TableId === tableId);
+        const col = table?.Columns.find(c => c.ColumnId === columnId);
+        if (!col) return null;
 
-            return { key: col.ColumnId, title: col.ColumnDisplayName } as ColumnConfig;
-        })
-        .filter((x): x is ColumnConfig => !!x);
+        return { key: col.ColumnId, title: col.ColumnDisplayName } as ColumnConfig;
+    }).filter((x): x is ColumnConfig => !!x);
 
     // return xxx
     return columns;

@@ -47,22 +47,11 @@ const AnnouncementList = (props: IAnnouncementListProps) =>
     const [keyword] = useState<string | undefined>(undefined);
 
     // 執行 function：先開 kw 入口，但目前只給 CSR hooks 使用
-    const vm = useAnnouncementListData({
-        lang: props.lang,
-        opts: props.options,
-        kw: keyword,
-    });
+    const vm = useAnnouncementListData({ lang: props.lang, opts: props.options, kw: keyword });
 
     const adjustedGrid = useMemo(() =>
     {
-        return SetAdjustFunction(
-            props.lang,
-            dirUrl,
-            vm.gridPropsFromList,
-            vm.listData,
-            vm.categoryData,
-            vm.tagData,
-        );
+        return SetAdjustFunction(props.lang, dirUrl, vm.gridPropsFromList, vm.listData, vm.categoryData, vm.tagData);
     }, [props.lang, dirUrl, vm.gridPropsFromList, vm.listData, vm.categoryData, vm.tagData]);
 
     // TODO(AnnouncementList kw):
@@ -75,62 +64,19 @@ const AnnouncementList = (props: IAnnouncementListProps) =>
         switch (props.options?.Style)
         {
             case 8:
-                return (
-                    <TimelineSlider
-                        dirUrl={dirUrl}
-                        lang={props.lang}
-                        data={vm.listData}
-                    />
-                );
+                return <TimelineSlider dirUrl={dirUrl} lang={props.lang} data={vm.listData} />;
             case 3:
-                return (
-                    <QAList_Comp
-                        lang={props.lang}
-                        gridData={vm.listData}
-                        currentPage={vm.pageNumber}
-                        pageSize={vm.pageSize}
-                    />
-                );
+                return <QAList_Comp lang={props.lang} gridData={vm.listData} currentPage={vm.pageNumber} pageSize={vm.pageSize} />;
             case 2:
-                return (
-                    <PictureList_Row_Comp
-                        dirUrl={dirUrl}
-                        lang={props.lang}
-                        gridData={vm.listData}
-                        categoryData={vm.categoryData}
-                    />
-                );
+                return <PictureList_Row_Comp dirUrl={dirUrl} lang={props.lang} gridData={vm.listData} categoryData={vm.categoryData} />;
             case 1:
-                return (
-                    <GridList_Comp
-                        key={`grid-${props.lang}`}
-                        lang={props.lang}
-                        gridData={adjustedGrid}
-                        title={props.node.title}
-                    />
-                );
+                return <GridList_Comp key={`grid-${props.lang}`} lang={props.lang} gridData={adjustedGrid} title={props.node.title} />;
             default:
                 return null;
         }
-    }, [
-        props.options?.Style,
-        dirUrl,
-        props.lang,
-        props.node.title,
-        vm.listData,
-        vm.pageNumber,
-        vm.pageSize,
-        vm.categoryData,
-        adjustedGrid,
-    ]);
+    }, [props.options?.Style, dirUrl, props.lang, props.node.title, vm.listData, vm.pageNumber, vm.pageSize, vm.categoryData, adjustedGrid]);
 
-    const paginprops = props.options?.Style === 8
-        ? undefined
-        : {
-            currentPage: vm.pageNumber,
-            totalPages: vm.totalPages,
-            onPageChange: vm.onPageChange,
-        };
+    const paginprops = props.options?.Style === 8 ? undefined : { currentPage: vm.pageNumber, totalPages: vm.totalPages, onPageChange: vm.onPageChange };
 
     // return
     return (
@@ -162,11 +108,7 @@ const GridList_Comp = (props: { lang: Lang; title: string; gridData: GridProps; 
             setColumns((prev) =>
                 prev.map((col) => ({
                     ...col,
-                    width: typeof widths[col.key] === "number"
-                        ? widths[col.key]
-                        : typeof col.width === "number"
-                        ? col.width
-                        : undefined,
+                    width: typeof widths[col.key] === "number" ? widths[col.key] : typeof col.width === "number" ? col.width : undefined,
                 }))
             );
         }
@@ -193,10 +135,7 @@ const GridList_Comp = (props: { lang: Lang; title: string; gridData: GridProps; 
     return (
         <>
             <OperationGuideHelp_Comp lang={props.lang} />
-            <table
-                className={"table table-striped table-bordered table-hover + table-rwd"}
-                summary={props.title}
-            >
+            <table className={"table table-striped table-bordered table-hover + table-rwd"} summary={props.title}>
                 <caption>{props.title}</caption>
                 <ColRender columns={columns} onResize={handleResize} />
                 <RowRender rows={props.gridData.rows} />
@@ -205,18 +144,10 @@ const GridList_Comp = (props: { lang: Lang; title: string; gridData: GridProps; 
     );
 };
 
-const PictureList_Row_Comp = (props: {
-    dirUrl: string;
-    lang: Lang;
-    gridData: AnnouncementSet[];
-    categoryData: CategorySet[];
-}) =>
+const PictureList_Row_Comp = (props: { dirUrl: string; lang: Lang; gridData: AnnouncementSet[]; categoryData: CategorySet[]; }) =>
 {
     // 宣告變數
-    const defaultAnnouncePic = useOptionalSpecAssetUrl({
-        relativePath: "Assets/Custom/DefaultEventPic.jpg",
-        fallbackToDefault: true,
-    }) ?? "";
+    const defaultAnnouncePic = useOptionalSpecAssetUrl({ relativePath: "Assets/Custom/DefaultEventPic.jpg", fallbackToDefault: true }) ?? "";
 
     // return
     return (
@@ -224,42 +155,21 @@ const PictureList_Row_Comp = (props: {
             {props.gridData && props.gridData.map((item) =>
             {
                 const linkUrl = `${props.dirUrl}/${item.Announcement?.InternalId}`;
-                const title = item.AnnouncementDetail?.find(
-                    p => p.Lang === props.lang,
-                )?.Title ?? "";
-                const picUrl = FileManagementAPI.get_Public_Preview_Url(
-                    item.Announcement?.PictureId,
-                    item.Announcement?.PicDescription,
-                ) ?? defaultAnnouncePic;
+                const title = item.AnnouncementDetail?.find(p => p.Lang === props.lang)?.Title ?? "";
+                const picUrl = FileManagementAPI.get_Public_Preview_Url(item.Announcement?.PictureId, item.Announcement?.PicDescription) ?? defaultAnnouncePic;
                 const picDesc = item.Announcement?.PicDescription ?? title;
                 const validate = FormatDate(item.Announcement?.Validate_Start);
-                const catName = formatCategoriesName(
-                    item.Announcement?.Categories ?? "",
-                    props.categoryData,
-                    props.lang,
-                );
+                const catName = formatCategoriesName(item.Announcement?.Categories ?? "", props.categoryData, props.lang);
 
                 return (
-                    <div
-                        key={item.Announcement?.InternalId}
-                        className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 + Standard_ItemDiv"
-                    >
+                    <div key={item.Announcement?.InternalId} className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 + Standard_ItemDiv">
                         <article className="cardbox">
                             <div className="card_content">
-                                <LangNavLink
-                                    to={linkUrl}
-                                    className="card_image_link venobox vbox-item"
-                                    data-gall="myGallery"
-                                    title={title}
-                                >
+                                <LangNavLink to={linkUrl} className="card_image_link venobox vbox-item" data-gall="myGallery" title={title}>
                                     <figure className="figure_Box">
                                         <div className="card_figure">
                                             <div className="img-wrapper">
-                                                <img
-                                                    className="card_image"
-                                                    src={picUrl}
-                                                    alt={picDesc}
-                                                />
+                                                <img className="card_image" src={picUrl} alt={picDesc} />
                                             </div>
                                         </div>
                                     </figure>
@@ -284,13 +194,7 @@ const PictureList_Row_Comp = (props: {
 
                                     <div className="card_StateDiv">
                                         <div className="More customize_btn">
-                                            <LangNavLink
-                                                className="Btn_s1"
-                                                type="button"
-                                                role="button"
-                                                title="觀看更多"
-                                                to={linkUrl}
-                                            >
+                                            <LangNavLink className="Btn_s1" type="button" role="button" title="觀看更多" to={linkUrl}>
                                                 VIEW ALL<span className="ml-2">+</span>
                                             </LangNavLink>
                                         </div>
@@ -305,16 +209,9 @@ const PictureList_Row_Comp = (props: {
     );
 };
 
-type NativeMouseEventWithStopImmediate = MouseEvent & {
-    stopImmediatePropagation?: () => void;
-};
+type NativeMouseEventWithStopImmediate = MouseEvent & { stopImmediatePropagation?: () => void; };
 
-const QAList_Comp = (props: {
-    lang: Lang;
-    gridData: AnnouncementSet[];
-    currentPage: number;
-    pageSize: number;
-}) =>
+const QAList_Comp = (props: { lang: Lang; gridData: AnnouncementSet[]; currentPage: number; pageSize: number; }) =>
 {
     // 宣告變數
     const startIndex = (props.currentPage - 1) * props.pageSize;
@@ -442,16 +339,18 @@ const QAList_Comp = (props: {
     );
 };
 
-const QAItem_Comp = (props: {
-    item: AnnouncementSet;
-    idx: number;
-    lang: Lang;
-    startIndex: number;
-    openKey: string | null;
-    getCollapseClass: (key: string, isOpen: boolean) => string;
-    onToggle: (key: string) => void;
-    onSetRef: (key: string, el: HTMLDivElement | null) => void;
-}) =>
+const QAItem_Comp = (
+    props: {
+        item: AnnouncementSet;
+        idx: number;
+        lang: Lang;
+        startIndex: number;
+        openKey: string | null;
+        getCollapseClass: (key: string, isOpen: boolean) => string;
+        onToggle: (key: string) => void;
+        onSetRef: (key: string, el: HTMLDivElement | null) => void;
+    },
+) =>
 {
     // 宣告變數
     const detail = props.item.AnnouncementDetail?.find(p => p.Lang === props.lang);
@@ -496,9 +395,7 @@ const QAItem_Comp = (props: {
                         props.onSetRef(key, el);
                     }}
                 >
-                    <div className="card-body">
-                        {contentNode}
-                    </div>
+                    <div className="card-body">{contentNode}</div>
                 </div>
             </div>
         </li>
@@ -543,13 +440,7 @@ const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementS
             autoplay: false,
             autoplayTimeout: 5000,
             autoplayHoverPause: true,
-            responsive: {
-                0: { items: 2 },
-                575: { items: 2 },
-                767: { items: 3 },
-                991: { items: 4 },
-                1199: { items: 4 },
-            },
+            responsive: { 0: { items: 2 }, 575: { items: 2 }, 767: { items: 3 }, 991: { items: 4 }, 1199: { items: 4 } },
         });
 
         const updateToggleButton = () =>
@@ -561,16 +452,12 @@ const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementS
 
             if (isPlaying)
             {
-                $toggle
-                    .attr("aria-pressed", "true")
-                    .attr("aria-label", "圖片輪播播放中，點擊暫停");
+                $toggle.attr("aria-pressed", "true").attr("aria-label", "圖片輪播播放中，點擊暫停");
                 $iconBox.addClass("control-pause-icon");
                 $srText.text("圖片輪播播放中，點擊暫停");
             } else
             {
-                $toggle
-                    .attr("aria-pressed", "false")
-                    .attr("aria-label", "圖片輪播已暫停，點擊播放");
+                $toggle.attr("aria-pressed", "false").attr("aria-label", "圖片輪播已暫停，點擊播放");
                 $iconBox.addClass("control-play-icon");
                 $srText.text("圖片輪播已暫停，點擊播放");
             }
@@ -641,10 +528,7 @@ const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementS
                                 const linkUrl = `${props.dirUrl}/${item.Announcement?.InternalId}`;
                                 const title = detail?.Title ?? "";
                                 const subTitle = detail?.SubTitle ?? "";
-                                const picUrl = FileManagementAPI.get_Public_Preview_Url(
-                                    item.Announcement?.PictureId,
-                                    item.Announcement?.PicDescription,
-                                );
+                                const picUrl = FileManagementAPI.get_Public_Preview_Url(item.Announcement?.PictureId, item.Announcement?.PicDescription);
                                 const date = FormatDate(item.Announcement?.Validate_Start);
 
                                 return (
@@ -655,11 +539,7 @@ const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementS
                                                     <figure className="figure_Box">
                                                         <div className="card_figure">
                                                             <div className="img-wrapper">
-                                                                <img
-                                                                    className="card_image"
-                                                                    src={picUrl}
-                                                                    alt={item.Announcement?.PicDescription ?? ""}
-                                                                />
+                                                                <img className="card_image" src={picUrl} alt={item.Announcement?.PicDescription ?? ""} />
                                                             </div>
                                                         </div>
                                                     </figure>
@@ -692,15 +572,9 @@ const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementS
     );
 };
 
-const resolveAdjustedCellText = (p: {
-    colKey: string;
-    rawContent: string;
-    rowTitle: string;
-    curRow: AnnouncementSet;
-    catData: CategorySet[];
-    tagData: TagSet[];
-    lang: Lang;
-}): string =>
+const resolveAdjustedCellText = (
+    p: { colKey: string; rawContent: string; rowTitle: string; curRow: AnnouncementSet; catData: CategorySet[]; tagData: TagSet[]; lang: Lang; },
+): string =>
 {
     // 宣告變數
     if (p.colKey === AnnouncementDetailFields.Title) return p.rowTitle;

@@ -14,14 +14,9 @@ import { AutoRedirect } from "@/SysCore/Utils/Route/AutoRedirect";
 export const specClientEntries: Record<string, ModuleEntry> = {
     SpecJournal: {
         kind: "routes",
-        element: (lang: Lang, site: INormSite, node: INormNode) => (
-            <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />
-        ),
+        element: (lang: Lang, site: INormSite, node: INormNode) => <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />,
         children: (_, lang, site, node) => [
-            {
-                index: true,
-                element: <AutoRedirect to="Index" replace />,
-            },
+            { index: true, element: <AutoRedirect to="Index" replace /> },
 
             // Index：年份 / 卷期索引
             {
@@ -57,7 +52,4 @@ export const specClientEntries: Record<string, ModuleEntry> = {
 };
 
 // 暫時先這樣做，之後將會把這些資訊改從後端設定回傳回來處理
-export const siteHeaderMeta: IHeaderMetaProps = {
-    title: "淡江大學教育資料與圖書館學",
-    description: "淡江大學教育資料與圖書館學",
-};
+export const siteHeaderMeta: IHeaderMetaProps = { title: "淡江大學教育資料與圖書館學", description: "淡江大學教育資料與圖書館學" };

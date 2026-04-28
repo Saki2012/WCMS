@@ -13,13 +13,7 @@ type BannerSet = components["schemas"]["BannerSet_DTO"];
 interface LatestIssueSectionProps
 {
     lang: Lang;
-    initialData: Pick<
-        HomePageRawData,
-        | "latestIssueBgBanner"
-        | "latestIssueCoverBanner"
-        | "latestIssuePublishedList"
-        | "latestIssueUnpublishedList"
-    >;
+    initialData: Pick<HomePageRawData, "latestIssueBgBanner" | "latestIssueCoverBanner" | "latestIssuePublishedList" | "latestIssueUnpublishedList">;
 }
 
 /** 取得 Banner 圖片網址 */
@@ -60,10 +54,7 @@ const buildIssueTo = (data?: SpecJournalIndexSet | null): string =>
 /** Summary 檔案下載連結 */
 const buildSummaryDownloadHref = (data?: SpecJournalIndexSet | null): string =>
 {
-    return FileManagementAPI.get_Public_Download_Url(
-        data?.SpecJournalIndexDetail?.[0]?.SummaryFileId,
-        data?.SpecJournalIndexDetail?.[0]?.SummaryFileName,
-    );
+    return FileManagementAPI.get_Public_Download_Url(data?.SpecJournalIndexDetail?.[0]?.SummaryFileId, data?.SpecJournalIndexDetail?.[0]?.SummaryFileName);
 };
 
 /** 只取 yyyy/MM */
@@ -105,9 +96,7 @@ const LastIssueComp = (props: { data: SpecJournalIndexSet | null; }) =>
                 <div className="HD-txt">最新卷期</div>
                 <div className="TW-file + my-1" style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <i className="fas fa-link" aria-hidden="true" />
-                    <LangNavLink to={issueTo} style={{ color: "inherit", textDecoration: "none" }}>
-                        {title}
-                    </LangNavLink>
+                    <LangNavLink to={issueTo} style={{ color: "inherit", textDecoration: "none" }}>{title}</LangNavLink>
                 </div>
                 {!!downloadHref && (
                     <div className="EN-file + my-1" style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -138,9 +127,7 @@ const PreprintComp = () =>
             <div className="HD-txt">先知先覺</div>
             <div className="TW-file + my-1" style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <i className="fas fa-link" aria-hidden="true" />
-                <LangNavLink to={issueTo} style={{ color: "inherit", textDecoration: "none" }}>
-                    預刊本
-                </LangNavLink>
+                <LangNavLink to={issueTo} style={{ color: "inherit", textDecoration: "none" }}>預刊本</LangNavLink>
             </div>
         </div>
     );
@@ -176,12 +163,7 @@ export const LatestIssueSection = (props: LatestIssueSectionProps) =>
                                     <div className="col-md-6 col-sm-12 col-12 + Right_Imgbox + order-md-2 + order-sm-1 + order-1">
                                         <div className="Background_IMG_DIV">
                                             <div className="IMG_wrapperBOX">
-                                                <div
-                                                    className="inner_body"
-                                                    style={bgInnerImg
-                                                        ? { backgroundImage: `url(${bgInnerImg})` }
-                                                        : undefined}
-                                                >
+                                                <div className="inner_body" style={bgInnerImg ? { backgroundImage: `url(${bgInnerImg})` } : undefined}>
                                                     <div className="Journal-content">
                                                         <div className="card_figure">
                                                             <div className="img-wrapper">

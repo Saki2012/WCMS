@@ -4,17 +4,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 export type PreviewModule = "announcement" | "pagemanagement";
 
-export type PreviewPayload =
-    | {
-        type: "wcms:preview";
-        module: PreviewModule;
-        payload: { kind: "dto"; lang?: string; dto: any; };
-    }
-    | {
-        type: "wcms:preview";
-        module: PreviewModule;
-        payload: { kind: "internalId"; lang?: string; mode?: "db" | "public"; internalId: string; };
-    };
+export type PreviewPayload = { type: "wcms:preview"; module: PreviewModule; payload: { kind: "dto"; lang?: string; dto: any; }; } | {
+    type: "wcms:preview";
+    module: PreviewModule;
+    payload: { kind: "internalId"; lang?: string; mode?: "db" | "public"; internalId: string; };
+};
 
 export interface UseActionsResult
 {
@@ -62,9 +56,7 @@ export const useActions = <T>(
         try
         {
             setIsExcuting(true);
-            const res = await (internalId
-                ? apiProvider.updateData(internalId, formRef.current)
-                : apiProvider.createData(formRef.current));
+            const res = await (internalId ? apiProvider.updateData(internalId, formRef.current) : apiProvider.createData(formRef.current));
             if (res.IsSuccess)
             {
                 (res.SysMessage ?? []).forEach(item =>
@@ -76,19 +68,13 @@ export const useActions = <T>(
                 return true;
             } else
             {
-                (res.SysMessage ?? []).forEach(item =>
-                    publish({ level: item.Status, code: item.MessageCode, title: "保存失敗", text: item.Message })
-                );
+                (res.SysMessage ?? []).forEach(item => publish({ level: item.Status, code: item.MessageCode, title: "保存失敗", text: item.Message }));
                 return false;
             }
         } catch (err: any)
         {
             const data = err.response.data;
-            publish({
-                level: MessageStatus.Error,
-                title: "保存失敗",
-                text: JSON.stringify(data, null, 2),
-            });
+            publish({ level: MessageStatus.Error, title: "保存失敗", text: JSON.stringify(data, null, 2) });
             return false;
         } finally
         {
@@ -110,15 +96,11 @@ export const useActions = <T>(
             const res = await apiProvider.deleteData(internalId);
             if (res.IsSuccess)
             {
-                (res.SysMessage ?? []).forEach(item =>
-                    publish({ level: item.Status, code: item.MessageCode, title: item.Message })
-                );
+                (res.SysMessage ?? []).forEach(item => publish({ level: item.Status, code: item.MessageCode, title: item.Message }));
                 await onSuccess?.();
             } else
             {
-                (res.SysMessage ?? []).forEach(item =>
-                    publish({ level: item.Status, code: item.MessageCode, title: "刪除失敗", text: item.Message })
-                );
+                (res.SysMessage ?? []).forEach(item => publish({ level: item.Status, code: item.MessageCode, title: "刪除失敗", text: item.Message }));
             }
         } catch (err: any)
         {
@@ -160,23 +142,11 @@ export const useActions = <T>(
             onEdit: handleEdit,
             onPreview: handlePreview,
         }),
-        [
-            isExecuting,
-            handleSave,
-            handleDelete,
-            handleInvalid,
-            handleCancelBack,
-            handleAddNew,
-            handleEdit,
-            handlePreview,
-        ],
+        [isExecuting, handleSave, handleDelete, handleInvalid, handleCancelBack, handleAddNew, handleEdit, handlePreview],
     );
 };
 
-export const useWrapAfter = <T extends (...args: any[]) => Promise<any>>(
-    fn: T,
-    after: (result: Awaited<ReturnType<T>>) => Promise<void>,
-): T =>
+export const useWrapAfter = <T extends (...args: any[]) => Promise<any>>(fn: T, after: (result: Awaited<ReturnType<T>>) => Promise<void>): T =>
 {
     return (async (...args: Parameters<T>) =>
     {

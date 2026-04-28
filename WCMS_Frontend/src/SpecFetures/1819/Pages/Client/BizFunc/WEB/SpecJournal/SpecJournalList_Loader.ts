@@ -128,12 +128,7 @@ const buildCondition = (p: BuildConditionArgs): string =>
 
     if (f.articleLang)
     {
-        condition = LibMerge(
-            " And ",
-            false,
-            condition,
-            `${SpecJournalModelFields.ArticleLang} = '${escapeSqlValue(f.articleLang)}'`,
-        );
+        condition = LibMerge(" And ", false, condition, `${SpecJournalModelFields.ArticleLang} = '${escapeSqlValue(f.articleLang)}'`);
     }
 
     if (f.tagId)
@@ -142,9 +137,7 @@ const buildCondition = (p: BuildConditionArgs): string =>
             " And ",
             false,
             condition,
-            `${SpecJournalModelFields._SpecJournalTypes}.${SpecJournalTypesFields.TagId} = '${
-                escapeSqlValue(f.tagId)
-            }'`,
+            `${SpecJournalModelFields._SpecJournalTypes}.${SpecJournalTypesFields.TagId} = '${escapeSqlValue(f.tagId)}'`,
         );
     }
 
@@ -156,9 +149,7 @@ const buildCondition = (p: BuildConditionArgs): string =>
             condition,
             `(${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName} = '${
                 escapeSqlValue(f.author)
-            }' Or ${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName_en} = '${
-                escapeSqlValue(f.author)
-            }')`,
+            }' Or ${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName_en} = '${escapeSqlValue(f.author)}')`,
         );
     }
 
@@ -168,9 +159,7 @@ const buildCondition = (p: BuildConditionArgs): string =>
             " And ",
             false,
             condition,
-            `${SpecJournalModelFields._SpecJournalKeywords}.${SpecJournalKeywordsFields.Keyword} = '${
-                escapeSqlValue(f.keyword)
-            }'`,
+            `${SpecJournalModelFields._SpecJournalKeywords}.${SpecJournalKeywordsFields.Keyword} = '${escapeSqlValue(f.keyword)}'`,
         );
     }
 
@@ -213,10 +202,7 @@ const buildBaseParam = (p: BuildBaseParamArgs): QueryListParam =>
         ],
         Condition: condition,
         OrderBy: [{ Col: SpecJournalModelFields.PageStart, Desc: false }],
-        RankGroups: [{
-            Condition: `${SpecJournalModelFields.PageStart} != 0`,
-            OrderBy: [{ Col: SpecJournalModelFields.PageStart, Desc: false }],
-        }],
+        RankGroups: [{ Condition: `${SpecJournalModelFields.PageStart} != 0`, OrderBy: [{ Col: SpecJournalModelFields.PageStart, Desc: false }] }],
         PageNumber: 1,
         PageSize: p.pageSize,
     };
@@ -225,8 +211,7 @@ const buildBaseParam = (p: BuildBaseParamArgs): QueryListParam =>
  * SpecJournal List Loader
  */
 export const SpecJournalList_Loader =
-    (opt: SpecJournalListLoaderOptions) =>
-    async ({ request, params }: LoaderFunctionArgs): Promise<SpecJournalListLoaderData> =>
+    (opt: SpecJournalListLoaderOptions) => async ({ request, params }: LoaderFunctionArgs): Promise<SpecJournalListLoaderData> =>
     {
         // 宣告變數
         const pageSize = opt.pageSize ?? 10;
@@ -239,14 +224,8 @@ export const SpecJournalList_Loader =
         const ssrApi = getSsrApi(request);
         const adapter = SpecJournalAdapter(ssrApi);
         // 執行 function：count / list
-        const countLoader = adapter.loader.createQueryCountLoader({
-            getCondition: () => baseParam,
-            getApiInstance: () => ssrApi,
-        });
-        const listLoader = adapter.loader.createQueryListLoader({
-            getCondition: () => baseParam,
-            getApiInstance: () => ssrApi,
-        });
+        const countLoader = adapter.loader.createQueryCountLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
+        const listLoader = adapter.loader.createQueryListLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
         const [countLD, listLD] = await Promise.all([
             countLoader({ request, params } as LoaderFunctionArgs),
             listLoader({ request, params } as LoaderFunctionArgs),
@@ -271,24 +250,14 @@ const buildScopeCondition = (p: BuildConditionArgs): string =>
     // 執行 function：預刊本
     if (p.isPreprint)
     {
-        return LibMerge(
-            " And ",
-            false,
-            `${SpecJournalModelFields.JournalIndexId} is null`,
-            `${SpecJournalModelFields.JournalIndexRowId} is null`,
-        );
+        return LibMerge(" And ", false, `${SpecJournalModelFields.JournalIndexId} is null`, `${SpecJournalModelFields.JournalIndexRowId} is null`);
     }
 
     // 執行 function：正式卷期
     if (!indexId || !rowId) return "";
 
     // return
-    return LibMerge(
-        " And ",
-        false,
-        `${SpecJournalModelFields.JournalIndexId} = '${indexId}'`,
-        `${SpecJournalModelFields.JournalIndexRowId} = '${rowId}'`,
-    );
+    return LibMerge(" And ", false, `${SpecJournalModelFields.JournalIndexId} = '${indexId}'`, `${SpecJournalModelFields.JournalIndexRowId} = '${rowId}'`);
 };
 const hasSearchFilters = (f: SpecJournalListFilters): boolean =>
 {

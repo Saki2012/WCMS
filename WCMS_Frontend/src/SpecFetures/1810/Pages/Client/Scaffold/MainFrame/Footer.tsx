@@ -5,9 +5,8 @@ import { LangNavLink } from "@/SysCore/i18n/LangLink";
 
 type NavItem = { Title: string; URL: string; TitleAttr?: string; Target?: "_self" | "_blank"; Rel?: string; };
 
-
-
-const getNavByLang = (lang: Lang) => {
+const getNavByLang = (lang: Lang) =>
+{
     // NOTE: 分離資料，避免 JSX 太肥，也方便後續 DB 化
     const zhLeft: NavItem[] = [
         { Title: "關於本處", URL: "/About/About-Intro", TitleAttr: "關於本處" },
@@ -26,32 +25,22 @@ const getNavByLang = (lang: Lang) => {
     ];
 
     const enLeft: NavItem[] = [
-        {
-            Title: "About ORD", URL: "/About-ORD-en/Introduction-en", TitleAttr: "About ORD",
-        },
-        {
-            Title: "Division of Research & Planning", URL: "/Division-Planning-en", TitleAttr: "Division of Research & Planning",
-        },
-        {
-            Title: "Division of Academic Development", URL: "/Division-Academic-en", TitleAttr: "Division of Academic Development",
-        },
-        {
-            Title: "Industry Collaboration and Incubation Center", URL: "/IIC-en", TitleAttr: "Industry Collaboration and Incubation Center",
-        },
-        {
-            Title: "Think Tank for Taiwan Cultural Policy", URL: "/TTTCP-en", TitleAttr: "Think Tank for Taiwan Cultural Policy",
-        },
-        {
-            Title: "Office for USR Project Promotion", URL: "/USR-en", TitleAttr: "Office for USR Project Promotion",
-        },
+        { Title: "About ORD", URL: "/About-ORD-en/Introduction-en", TitleAttr: "About ORD" },
+        { Title: "Division of Research & Planning", URL: "/Division-Planning-en", TitleAttr: "Division of Research & Planning" },
+        { Title: "Division of Academic Development", URL: "/Division-Academic-en", TitleAttr: "Division of Academic Development" },
+        { Title: "Industry Collaboration and Incubation Center", URL: "/IIC-en", TitleAttr: "Industry Collaboration and Incubation Center" },
+        { Title: "Think Tank for Taiwan Cultural Policy", URL: "/TTTCP-en", TitleAttr: "Think Tank for Taiwan Cultural Policy" },
+        { Title: "Office for USR Project Promotion", URL: "/USR-en", TitleAttr: "Office for USR Project Promotion" },
     ];
     const enRight: NavItem[] = []; // NOTE: 先留空，保持版面結構一致（右欄不塞連結）
     return lang === "en" ? { left: enLeft, right: enRight } : { left: zhLeft, right: zhRight };
 };
 
-const getTextByLang = (lang: "zh-tw" | "en") => {
+const getTextByLang = (lang: "zh-tw" | "en") =>
+{
     // NOTE: 集中管理文案，後續要接 i18n 也好替換
-    if (lang === "en") {
+    if (lang === "en")
+    {
         return {
             logoAlt: "National Taiwan University of Arts - Office of Research and Development LOGO",
             contactTitle: "Contact",
@@ -82,7 +71,8 @@ const getTextByLang = (lang: "zh-tw" | "en") => {
     };
 };
 
-export const Footer = (props: { lang: Lang }) => {
+export const Footer = (props: { lang: Lang; }) =>
+{
     // NOTE: 預設中文
     const lang: "zh-tw" | "en" = props.lang === "en" ? "en" : "zh-tw";
     const nav = getNavByLang(lang);
@@ -114,12 +104,19 @@ export const Footer = (props: { lang: Lang }) => {
                                                     <div className="row">
                                                         <div className="col-xl-7 col-lg-6 col-md-6 col-sm-12 col-12 p-0">
                                                             <ul className="list">
-                                                                {nav.left.map((x) => {
+                                                                {nav.left.map((x) =>
+                                                                {
                                                                     const target = x.Target ?? "_self";
                                                                     const rel = x.Rel ?? (target === "_blank" ? "noopener noreferrer" : undefined);
                                                                     return (
                                                                         <li key={`${x.Title}-${x.URL}`}>
-                                                                            <LangNavLink to={x.URL} tabIndex={5} title={x.TitleAttr ?? x.Title} target={target} rel={rel}>
+                                                                            <LangNavLink
+                                                                                to={x.URL}
+                                                                                tabIndex={5}
+                                                                                title={x.TitleAttr ?? x.Title}
+                                                                                target={target}
+                                                                                rel={rel}
+                                                                            >
                                                                                 {x.Title}
                                                                             </LangNavLink>
                                                                         </li>
@@ -130,19 +127,19 @@ export const Footer = (props: { lang: Lang }) => {
 
                                                         <div className="col-xl-5 col-lg-6 col-md-6 col-sm-12 col-12 p-0">
                                                             {/* NOTE: 英文版暫時留空，保持原 template 的右欄 */}
-                                                            {nav.right.length > 0 ? (
-                                                                <ul className="list">
-                                                                    {nav.right.map((x) => (
-                                                                        <li key={`${x.Title}-${x.URL}`}>
-                                                                            <LangNavLink to={x.URL} tabIndex={5} title={x.TitleAttr ?? x.Title}>
-                                                                                {x.Title}
-                                                                            </LangNavLink>
-                                                                        </li>
-                                                                    ))}
-                                                                </ul>
-                                                            ) : (
-                                                                <p>&nbsp;</p>
-                                                            )}
+                                                            {nav.right.length > 0
+                                                                ? (
+                                                                    <ul className="list">
+                                                                        {nav.right.map((x) => (
+                                                                            <li key={`${x.Title}-${x.URL}`}>
+                                                                                <LangNavLink to={x.URL} tabIndex={5} title={x.TitleAttr ?? x.Title}>
+                                                                                    {x.Title}
+                                                                                </LangNavLink>
+                                                                            </li>
+                                                                        ))}
+                                                                    </ul>
+                                                                )
+                                                                : <p>&nbsp;</p>}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -166,9 +163,7 @@ export const Footer = (props: { lang: Lang }) => {
                                                         <li>{t.fax}</li>
                                                         <li>
                                                             {t.mailLabel}
-                                                            <a href="mailto:rd@ntua.edu.tw" title="Mail">
-                                                                rd@ntua.edu.tw
-                                                            </a>
+                                                            <a href="mailto:rd@ntua.edu.tw" title="Mail">rd@ntua.edu.tw</a>
                                                         </li>
                                                         <li>{t.address}</li>
                                                     </ul>
@@ -177,7 +172,6 @@ export const Footer = (props: { lang: Lang }) => {
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                     </div>
@@ -226,7 +220,6 @@ export const Footer = (props: { lang: Lang }) => {
                                         </div>
                                     </section>
                                 </div>
-
                             </div>
                         </div>
                     </div>

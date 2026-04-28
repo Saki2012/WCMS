@@ -8,10 +8,7 @@ import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
 
-import ModuleContent, {
-    type ModuleViewCountConfig,
-    type SubTitleProps,
-} from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
+import ModuleContent, { type ModuleViewCountConfig, type SubTitleProps } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { FormatDate } from "@/SysCore/Utils/Library/LibData";
@@ -21,10 +18,7 @@ import { useAnnouncementFormFetchData } from "./AnnouncementForm_Loader";
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 
-const emptyData: AnnouncementSet = {
-    Announcement: {},
-    AnnouncementDetail: [],
-};
+const emptyData: AnnouncementSet = { Announcement: {}, AnnouncementDetail: [] };
 
 export interface IAnnouncementFormProps
 {
@@ -41,11 +35,7 @@ const AnnouncementForm = (props: IAnnouncementFormProps) =>
     const safeInternalId = `${internalId ?? ""}`.trim();
 
     // 執行 function：統一由 loader.ts 提供 form 需要的資料
-    const getData = useAnnouncementFormFetchData({
-        lang: props.lang,
-        internalId: safeInternalId,
-        emptyData,
-    });
+    const getData = useAnnouncementFormFetchData({ lang: props.lang, internalId: safeInternalId, emptyData });
 
     const formData = getData.rawData.formData;
     const categoryNameText = getData.rawData.categoryNameText;
@@ -53,9 +43,7 @@ const AnnouncementForm = (props: IAnnouncementFormProps) =>
 
     const detail = useMemo(() =>
     {
-        return formData.AnnouncementDetail?.find(
-            p => (p.Lang ?? "").toLowerCase() === props.lang,
-        );
+        return formData.AnnouncementDetail?.find(p => (p.Lang ?? "").toLowerCase() === props.lang);
     }, [formData.AnnouncementDetail, props.lang]);
 
     const startDate = useMemo(() =>
@@ -65,28 +53,16 @@ const AnnouncementForm = (props: IAnnouncementFormProps) =>
 
     const subTitle = useMemo<SubTitleProps>(() =>
     {
-        return {
-            cat: categoryNameText,
-            tag: tagNameText,
-            date: startDate,
-        };
+        return { cat: categoryNameText, tag: tagNameText, date: startDate };
     }, [categoryNameText, tagNameText, startDate]);
 
     const viewCountConfig = useMemo<ModuleViewCountConfig>(() =>
     {
         // 宣告變數
-        const request: TryCountDetailViewRequest = {
-            SiteIndex: props.site.siteIndex,
-            ProgId: PGID.Announcement,
-            InternalId: safeInternalId,
-        };
+        const request: TryCountDetailViewRequest = { SiteIndex: props.site.siteIndex, ProgId: PGID.Announcement, InternalId: safeInternalId };
 
         // return
-        return {
-            mode: "form",
-            contentKey: safeInternalId,
-            request,
-        };
+        return { mode: "form", contentKey: safeInternalId, request };
     }, [props.site.siteIndex, safeInternalId]);
 
     // return
@@ -109,18 +85,11 @@ export default AnnouncementForm;
 const Content = (props: { lang: Lang; data: AnnouncementSet; }) =>
 {
     // 宣告變數
-    const detail = props.data.AnnouncementDetail?.find(
-        p => (p.Lang ?? "").toLowerCase() === props.lang,
-    );
+    const detail = props.data.AnnouncementDetail?.find(p => (p.Lang ?? "").toLowerCase() === props.lang);
 
-    const fileDetail = props.data.AnnouncementDetailFile?.filter(
-        p => p.AnnouncementId === detail?.AnnouncementId
-            && p.ParentRowId === detail?.RowId,
-    );
+    const fileDetail = props.data.AnnouncementDetailFile?.filter(p => p.AnnouncementId === detail?.AnnouncementId && p.ParentRowId === detail?.RowId);
 
-    const parseContent = useResolveInternalIds(detail?.Content ?? "", {
-        locale: props.lang,
-    });
+    const parseContent = useResolveInternalIds(detail?.Content ?? "", { locale: props.lang });
 
     const content = parseContent.html ? parse(parseContent.html) : null;
     const url = detail?.Url;
@@ -148,13 +117,9 @@ const Content = (props: { lang: Lang; data: AnnouncementSet; }) =>
                                 >
                                     <span>
                                         <i className="fas fa-link + link + ml-0 mr-2"></i>
-                                        <span className="sr-only">
-                                            {detail?.UrlDescription ?? ""}
-                                        </span>
+                                        <span className="sr-only">{detail?.UrlDescription ?? ""}</span>
                                     </span>
-                                    <span className="URL_link_NEWS">
-                                        {detail?.UrlDescription ?? ""}
-                                    </span>
+                                    <span className="URL_link_NEWS">{detail?.UrlDescription ?? ""}</span>
                                 </a>
                             </div>
                         </div>
@@ -169,17 +134,11 @@ const Content = (props: { lang: Lang; data: AnnouncementSet; }) =>
                         {fileDetail.map(item =>
                         {
                             // 宣告變數
-                            const downloadUrl = FileManagementAPI.get_Public_Download_Url(
-                                item.FileId,
-                                item.FileName,
-                            );
+                            const downloadUrl = FileManagementAPI.get_Public_Download_Url(item.FileId, item.FileName);
 
                             // return
                             return (
-                                <div
-                                    key={`${item.FileId ?? ""}`}
-                                    className="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12"
-                                >
+                                <div key={`${item.FileId ?? ""}`} className="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12">
                                     <div className="Standard_btnDiv">
                                         <a
                                             href={downloadUrl}
@@ -192,13 +151,9 @@ const Content = (props: { lang: Lang; data: AnnouncementSet; }) =>
                                         >
                                             <span>
                                                 <i className="fas fa-paperclip + link + ml-0 mr-2"></i>
-                                                <span className="sr-only">
-                                                    {item.FileName}
-                                                </span>
+                                                <span className="sr-only">{item.FileName}</span>
                                             </span>
-                                            <span className="URL_link_NEWS">
-                                                {item.FileName}
-                                            </span>
+                                            <span className="URL_link_NEWS">{item.FileName}</span>
                                         </a>
                                     </div>
                                 </div>

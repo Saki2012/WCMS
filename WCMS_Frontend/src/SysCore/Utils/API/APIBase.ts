@@ -35,14 +35,9 @@ export const createUniversalApi = (opts?: UniversalApiOptions): AxiosInstance =>
     if (isBrowser)
     {
         // --------- CSR：相對路徑 + XSRF + 403 補票 ----------
-        const baseURL = opts?.csr?.baseURL
-            ?? ((typeof import.meta !== "undefined" && (import.meta as any).env?.VITE_API_BASE_URL) || "/Service");
+        const baseURL = opts?.csr?.baseURL ?? ((typeof import.meta !== "undefined" && (import.meta as any).env?.VITE_API_BASE_URL) || "/Service");
 
-        const api = axios.create({
-            baseURL,
-            withCredentials: true,
-            timeout,
-        });
+        const api = axios.create({ baseURL, withCredentials: true, timeout });
 
         // #region cookie相關
         const getCookieValue = (cookieStr: string, name: string): string | undefined =>
@@ -108,20 +103,17 @@ export const createUniversalApi = (opts?: UniversalApiOptions): AxiosInstance =>
         };
 
         // 403 多半是 XSRF 失效 → 自動補票並重試一次
-        api.interceptors.response.use(
-            r => r,
-            async (err) =>
+        api.interceptors.response.use(r => r, async (err) =>
+        {
+            const cfg = err?.config, s = err?.response?.status;
+            if (s === 403 && cfg && !cfg.__xsrfRetried)
             {
-                const cfg = err?.config, s = err?.response?.status;
-                if (s === 403 && cfg && !cfg.__xsrfRetried)
-                {
-                    cfg.__xsrfRetried = true;
-                    await ensureXsrf();
-                    return api(cfg);
-                }
-                return Promise.reject(err);
-            },
-        );
+                cfg.__xsrfRetried = true;
+                await ensureXsrf();
+                return api(cfg);
+            }
+            return Promise.reject(err);
+        });
 
         return api;
     }

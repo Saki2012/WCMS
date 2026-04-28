@@ -759,4 +759,22 @@
   <data name="Common_PictureName" xml:space="preserve">
     <value>圖片名稱</value>
   </data>
+  <data name="Common_Field" xml:space="preserve">
+    <value>欄位代號</value>
+  </data>
+  <data name="Common_FieldDisplayName" xml:space="preserve">
+    <value>欄位顯示名稱</value>
+  </data>
+  <data name="Timeline" xml:space="preserve">
+    <value>紀事表</value>
+  </data>
+  <data name="SiteViewCount" xml:space="preserve">
+    <value>網站瀏覽統計</value>
+  </data>
+  <data name="Material" xml:space="preserve">
+    <value>物件管理</value>
+  </data>
+  <data name="MatCategory" xml:space="preserve">
+    <value>物件類別</value>
+  </data>
 </root>

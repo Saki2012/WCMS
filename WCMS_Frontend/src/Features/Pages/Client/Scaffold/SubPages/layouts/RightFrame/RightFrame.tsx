@@ -4,11 +4,11 @@
  */
 
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
+import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 import { ThirdMenu_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/ThirdMenu/ThirdMenu_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
 import clsx from "clsx";
 import { Outlet } from "react-router";
-import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 
 interface IRightFrameProps
 {
@@ -23,25 +23,16 @@ const RightFrame = (props: IRightFrameProps) =>
     const hasSubMenu = (props.node.level ?? 0) > 0 || (props.node.children?.length ?? 0) > 0;
 
     // 右側內容區欄寬
-    const contentCss = clsx(
-        "col-md-12",
-        "col-sm-12",
-        "col-12",
-        hasSubMenu ? "col-xl-10" : "col-xl-12",
-        hasSubMenu ? "col-lg-9" : "col-lg-12",
-    );
+    const contentCss = clsx("col-md-12", "col-sm-12", "col-12", hasSubMenu ? "col-xl-10" : "col-xl-12", hasSubMenu ? "col-lg-9" : "col-lg-12");
 
     // return
     return (
         <div className={contentCss}>
             <ThirdMenu_Comp lang={props.lang} site={props.site} node={props.node} />
             <div className="row">
-                <div
-                    id="ContentPlaceContent_ContentConentA"
-                    className="col-sm-12 col-12 + All_Standard_Content_CSS + mb-5 mt-1"
-                >
+                <div id="ContentPlaceContent_ContentConentA" className="col-sm-12 col-12 + All_Standard_Content_CSS + mb-5 mt-1">
                     <Accesskey type="C" lang={props.lang} />
-                    <Outlet context={{ lang: props.lang, site: props.site, node: props.node }} /> 
+                    <Outlet context={{ lang: props.lang, site: props.site, node: props.node }} />
                 </div>
             </div>
         </div>

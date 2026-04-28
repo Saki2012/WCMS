@@ -22,12 +22,8 @@ export type BannerSliderListRawData = {
     onPageChange: (page: number) => void;
     param: QueryListParam;
 };
-export type BannerSliderListAdapter = {
-    BannerSlider: ReturnType<typeof BannerSliderAdapter>;
-};
-export const useBannerSliderListFetchData = (
-    opt: { lang: Lang; kw: string; },
-): UseFetchDataResult<BannerSliderListRawData, BannerSliderListAdapter> =>
+export type BannerSliderListAdapter = { BannerSlider: ReturnType<typeof BannerSliderAdapter>; };
+export const useBannerSliderListFetchData = (opt: { lang: Lang; kw: string; }): UseFetchDataResult<BannerSliderListRawData, BannerSliderListAdapter> =>
 {
     const { publish } = useToast();
     const onError = useCallback((e: ApiAdapterError) =>
@@ -98,13 +94,7 @@ const useBannerSliderListQueryParam = (p: { kw: string; }): QueryListParam =>
     }, [p.kw]);
     return useMemo(() =>
     {
-        return {
-            Fields: fields,
-            Condition: condition,
-            OrderBy: [{ Col: BannerFields.CreateTime, Desc: true }],
-            PageNumber: 1,
-            PageSize: 10,
-        };
+        return { Fields: fields, Condition: condition, OrderBy: [{ Col: BannerFields.CreateTime, Desc: true }], PageNumber: 1, PageSize: 10 };
     }, [fields, condition]);
 };
 // #endregion

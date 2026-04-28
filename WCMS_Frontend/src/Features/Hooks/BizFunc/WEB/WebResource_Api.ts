@@ -12,6 +12,4 @@ class WebResourceService extends ApiDataService<WebResourceSet>
     }
 }
 export const WebResourceAdapter = (apiInstance?: AxiosInstance) =>
-    new ApiDataAdapter<WebResourceSet, WebResourceService>(
-        (api?: AxiosInstance) => new WebResourceService(api ?? apiInstance),
-    );
+    new ApiDataAdapter<WebResourceSet, WebResourceService>((api?: AxiosInstance) => new WebResourceService(api ?? apiInstance));

@@ -53,42 +53,21 @@ export const useServerPersonList = (theme: IBETheme): UseServerPersonListResult 
     const searchCompProp = useMemo<SearchBarProps>(() =>
     {
         // return
-        return {
-            title: "人員搜尋",
-            subTitle: "搜尋人員 ...",
-            settingTitle: "搜尋設定",
-            onSubmit: setKw,
-            onReset: () => setKw(""),
-        };
+        return { title: "人員搜尋", subTitle: "搜尋人員 ...", settingTitle: "搜尋設定", onSubmit: setKw, onReset: () => setKw("") };
     }, []);
 
     const prop = useMemo<FormCompProp>(() =>
     {
         // return
-        return {
-            Title: "會員管理",
-            Theme: theme,
-            IsLoading: dataList.isLoading,
-            ErrorList: [dataList.error],
-            Actions: actions,
-            SearchBar: searchCompProp,
-        };
+        return { Title: "會員管理", Theme: theme, IsLoading: dataList.isLoading, ErrorList: [dataList.error], Actions: actions, SearchBar: searchCompProp };
     }, [theme, dataList.isLoading, dataList.error, actions, searchCompProp]);
 
     // return
-    return {
-        prop,
-        rawData: dataList.rawData,
-        gridProps: dataList.gridProps,
-        dirUrl,
-    };
+    return { prop, rawData: dataList.rawData, gridProps: dataList.gridProps, dirUrl };
 };
 
 /** 用 Adapter 取得人員列表（含 Count + 分頁） */
-const usePersonListByAdapter = (
-    adapter: ReturnType<typeof PersonAdapter>,
-    query: string,
-): UsePersonListDataResult =>
+const usePersonListByAdapter = (adapter: ReturnType<typeof PersonAdapter>, query: string): UsePersonListDataResult =>
 {
     // 宣告變數
     const { publish } = useToast();
@@ -116,35 +95,20 @@ const usePersonListByAdapter = (
                 `${PersonModelFields.ModifyUser}.${AccountModelFields.AccountName}`,
             ],
             Condition: condition,
-            OrderBy: [
-                { Col: PersonModelFields.CreateTime, Desc: true },
-            ],
+            OrderBy: [{ Col: PersonModelFields.CreateTime, Desc: true }],
             PageNumber: 1,
             PageSize: 12,
         };
     }, [condition]);
 
-    const count = adapter.hooks.useQueryCount({
-        condition: baseParam,
-        deps: [baseParam.Condition ?? ""],
-        onError,
-    });
+    const count = adapter.hooks.useQueryCount({ condition: baseParam, deps: [baseParam.Condition ?? ""], onError });
 
-    const paged = adapter.hooks.usePagedQueryList({
-        baseParam,
-        count: count.data ?? 0,
-        deps: [baseParam.Condition ?? ""],
-        onError,
-    });
+    const paged = adapter.hooks.usePagedQueryList({ baseParam, count: count.data ?? 0, deps: [baseParam.Condition ?? ""], onError });
 
     const gridProps = useMemo<PersonListGridProps>(() =>
     {
         // return
-        return {
-            CurrentPage: paged.pageNumber,
-            TotalPage: paged.totalPages,
-            onPageChange: (page: number) => paged.onPageChange(page),
-        };
+        return { CurrentPage: paged.pageNumber, TotalPage: paged.totalPages, onPageChange: (page: number) => paged.onPageChange(page) };
     }, [paged.pageNumber, paged.totalPages, paged.onPageChange]);
 
     const refetchCurrent = useCallback(async () =>
@@ -158,13 +122,7 @@ const usePersonListByAdapter = (
     const error = count.errorText ?? paged.errorText ?? null;
 
     // return
-    return {
-        rawData: paged.data ?? [],
-        gridProps,
-        isLoading,
-        error,
-        refetchCurrent,
-    };
+    return { rawData: paged.data ?? [], gridProps, isLoading, error, refetchCurrent };
 };
 
 /** 組搜尋條件字串 */
@@ -179,12 +137,7 @@ const usePersonCondition = (query: string): string =>
         // 執行 function：有關鍵字時組查詢條件
         if (query)
         {
-            condition = LibMerge(
-                " And ",
-                false,
-                condition,
-                `(${PersonModelFields.PersonName} Like ${query} Or ${PersonModelFields.PersonId} Like ${query})`,
-            );
+            condition = LibMerge(" And ", false, condition, `(${PersonModelFields.PersonName} Like ${query} Or ${PersonModelFields.PersonId} Like ${query})`);
         }
 
         // return
@@ -193,19 +146,13 @@ const usePersonCondition = (query: string): string =>
 };
 
 /** 後台 actions */
-const usePersonActionsFromAdapter = (
-    dirUrl: string,
-    adapter: ReturnType<typeof PersonAdapter>,
-    afterChanged: () => Promise<void>,
-): UseActionsResult =>
+const usePersonActionsFromAdapter = (dirUrl: string, adapter: ReturnType<typeof PersonAdapter>, afterChanged: () => Promise<void>): UseActionsResult =>
 {
     // 宣告變數
     const navigate = useNavigate();
     const { publish } = useToast();
 
-    const cud = adapter.hooks.useCudActions({
-        onError: (e: ApiAdapterError) => publish({ level: MessageStatus.Error, title: e.messageText }),
-    });
+    const cud = adapter.hooks.useCudActions({ onError: (e: ApiAdapterError) => publish({ level: MessageStatus.Error, title: e.messageText }) });
 
     const onAddNew = useCallback(() =>
     {

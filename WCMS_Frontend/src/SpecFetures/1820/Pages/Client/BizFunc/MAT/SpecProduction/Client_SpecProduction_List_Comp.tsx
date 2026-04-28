@@ -1,0 +1,437 @@
+import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
+import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
+import type { Module_SpecProduction_OptionsJson } from "@/SpecFetures/1820/Pages/Server/BizFunc/WEB/SiteMenu/SpecModule_Comp";
+import type { Lang } from "@/SysCore/i18n/lang";
+import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import type { components } from "@/types/api";
+import parse from "html-react-parser";
+import { useEffect, useMemo, useState } from "react";
+import { useClientSpecProductionListFetchData } from "./Client_SpecProduction_List_Loader";
+
+type MaterialSet = components["schemas"]["MaterialSet_DTO"];
+type MaterialTag = components["schemas"]["MaterialTags_DTO"];
+
+export interface ClientSpecProductionListProps
+{
+    site: INormSite;
+    node: INormNode;
+    lang: Lang;
+    opts?: Module_SpecProduction_OptionsJson;
+}
+
+/// <summary>
+/// 前台情境圖文導覽列表頁，ModuleContent 負責共用內頁外框。
+/// </summary>
+export const Client_SpecProduction_List_Comp = (props: ClientSpecProductionListProps) =>
+{
+    const fetchData = useClientSpecProductionListFetchData({ lang: props.lang, options: props.opts });
+    const viewCountConfig = useMemo<ModuleViewCountConfig>(() => ({ mode: "list" }), []);
+
+    return (
+        <ModuleContent nodeTitle={props.node.title} isLoading={fetchData.isLoading} errorList={fetchData.errorList} viewCountConfig={viewCountConfig}>
+            <SpecProductionContent
+                lang={props.lang}
+                intro={fetchData.rawData.pageContent}
+                catName={fetchData.rawData.catName}
+                matDataList={fetchData.rawData.prodData}
+                viewMoreText={"View More"}
+            />
+        </ModuleContent>
+    );
+};
+
+/// <summary>
+/// 渲染情境圖文導覽主要內容。
+/// </summary>
+const SpecProductionContent = (props: { lang: Lang; intro?: string; catName?: string; matDataList: Map<MaterialTag, MaterialSet[]>; viewMoreText: string; }) =>
+{
+    const [activeTabId, setActiveTabId] = useState<string>("");
+    const [isTabVisible, setIsTabVisible] = useState(true);
+
+    /// <summary>
+    /// 切換 Tab 時先淡出，再更新目前分類。
+    /// </summary>
+    const changeTab = (id: string) =>
+    {
+        if (!id || id === activeTabId) return;
+
+        setIsTabVisible(false);
+        window.setTimeout(() =>
+        {
+            setActiveTabId(id);
+            window.requestAnimationFrame(() => setIsTabVisible(true));
+        }, 160);
+    };
+
+    const tagList = useMemo<MaterialTag[]>(() => Array.from(props.matDataList.keys()).filter((tag) => Boolean(tag.TagId)), [props.matDataList]);
+
+    useEffect(() =>
+    {
+        setActiveTabId(tagList[0]?.TagId ?? "");
+        setIsTabVisible(true);
+    }, [tagList]);
+
+    const activeTab = useMemo(() => tagList.find((p) => p.TagId === activeTabId), [tagList, activeTabId]);
+
+    const activeItems = useMemo<MaterialSet[]>(() =>
+    {
+        if (!activeTab) return [];
+        return props.matDataList.get(activeTab) ?? [];
+    }, [props.matDataList, activeTab]);
+
+    const pageContent = useMemo(() => (props.intro ? parse(props.intro) : null), [props.intro]);
+    const titleText = `查看${props.catName ?? ""}類型`;
+
+    return (
+        <>
+            <div className="SubDivBox_style + Sub + Layout_Padding_4">{pageContent}</div>
+
+            <div className="page-header mb-3">
+                <div className="Div_H3_Title">{titleText}</div>
+            </div>
+
+            <hr className="hr-my-4" />
+
+            <div className="SubInfoDivBox_Style + Layout_Padding_4_bottom + SharedCarouselDivBox owl-box">
+                <div id="Horizontal" className="H-nav-tabs-content-box">
+                    {props.matDataList.size > 0 && (
+                        <>
+                            <ProductionTabs lang={props.lang} tagList={tagList} activeTabId={activeTab?.TagId ?? ""} onChange={changeTab} />
+                            <div style={{ opacity: isTabVisible ? 1 : 0, transition: "opacity 220ms ease" }}>
+                                {activeTab && (
+                                    <ProductionTabPanel lang={props.lang} activeTab={activeTab} items={activeItems} viewMoreText={props.viewMoreText} />
+                                )}
+                            </div>
+                        </>
+                    )}
+                </div>
+            </div>
+        </>
+    );
+};
+
+/// <summary>
+/// 取得 Tag 顯示名稱。
+/// </summary>
+const getTagName = (tag: MaterialTag, lang: Lang): string =>
+{
+    return tag.Tag?._TagDetail?.find((p) => p.Lang === lang)?.TagName ?? "";
+};
+
+/// <summary>
+/// 渲染物件類別 Tab。
+/// </summary>
+const ProductionTabs = (
+    { lang, tagList, activeTabId, onChange }: { lang: Lang; tagList: MaterialTag[]; activeTabId: string; onChange: (id: string) => void; },
+) =>
+{
+    return (
+        <div className="Horizontal nav-tabs-list">
+            <ul className="nav nav-tabs" role="tablist">
+                {tagList.map((tag) =>
+                {
+                    const id = tag.TagId ?? "";
+                    const name = getTagName(tag, lang);
+
+                    return (
+                        <li key={id} className="nav-item + me-3" role="presentation">
+                            <a
+                                type="button"
+                                className={`more-link font-wt-lg ${id === activeTabId ? "active" : ""}`}
+                                role="tab"
+                                aria-selected={id === activeTabId}
+                                aria-controls={`H-navTabs-${id}`}
+                                id={`H-Tabs__${id}`}
+                                onClick={() => onChange(id)}
+                            >
+                                <span className="vm">{name}</span>
+                                <span className="ms-1">〉</span>
+                            </a>
+                        </li>
+                    );
+                })}
+            </ul>
+        </div>
+    );
+};
+
+/// <summary>
+/// 渲染目前選取的 Tab 內容。
+/// </summary>
+const ProductionTabPanel = ({ lang, activeTab, items, viewMoreText }: { lang: Lang; activeTab: MaterialTag; items: MaterialSet[]; viewMoreText: string; }) =>
+{
+    const tagName = getTagName(activeTab, lang);
+
+    return (
+        <div className="tab-content" id="H-nav-tabContent">
+            <div id={`H-navTabs-${activeTab.TagId}`} className="tab-pane fade show active" role="tabpanel" aria-labelledby={`H-Tabs__${activeTab.TagId}`}>
+                <div className="SC-headerBox">
+                    <div className="d-flex align-items-center">
+                        <div className="SC-header-title + me-3">{tagName}</div>
+                        <span className="text-muted opacity-50">...</span>
+                    </div>
+                    <div className="SC-header-smalll">{`${items.length} 筆資料`}</div>
+                </div>
+                <ProductionCarousel lang={lang} items={items} viewMoreText={viewMoreText} />
+            </div>
+        </div>
+    );
+};
+
+/// <summary>
+/// 用 React 狀態模擬 Owl 結構，處理播放、暫停、自動輪播與左右滑動。
+/// </summary>
+const ProductionCarousel = (props: { lang: Lang; items: MaterialSet[]; viewMoreText: string; }) =>
+{
+    const [index, setIndex] = useState(0);
+    const [isPlaying, setIsPlaying] = useState(false);
+
+    const hasMany = props.items.length > 1;
+    const isFirst = index <= 0;
+    const isLast = index >= props.items.length - 1;
+    const toggleLabel = isPlaying ? "圖片輪播播放中，點擊暫停" : "圖片輪播已暫停，點擊播放";
+    const toggleIconClass = isPlaying ? "control-pause-icon" : "control-play-icon";
+
+    /// <summary>
+    /// 切換分類或資料時回到第一筆並暫停。
+    /// </summary>
+    useEffect(() =>
+    {
+        setIndex(0);
+        setIsPlaying(false);
+    }, [props.items]);
+
+    /// <summary>
+    /// 播放狀態下每五秒往下一筆滑動，最後一筆後回到第一筆。
+    /// </summary>
+    useEffect(() =>
+    {
+        if (!isPlaying || !hasMany) return;
+        const timer = window.setInterval(() => setIndex((p) => p >= props.items.length - 1 ? 0 : p + 1), 5000);
+        return () => window.clearInterval(timer);
+    }, [isPlaying, hasMany, props.items.length]);
+
+    /// <summary>
+    /// 切到上一筆資料。
+    /// </summary>
+    const goPrev = () =>
+    {
+        if (isFirst) return;
+        setIndex((p) => p - 1);
+    };
+
+    /// <summary>
+    /// 切到下一筆資料。
+    /// </summary>
+    const goNext = () =>
+    {
+        if (isLast) return;
+        setIndex((p) => p + 1);
+    };
+
+    /// <summary>
+    /// 切換播放與暫停狀態。
+    /// </summary>
+    const togglePlay = (e: React.MouseEvent<HTMLAnchorElement>) =>
+    {
+        e.preventDefault();
+        if (!hasMany) return;
+        setIsPlaying((p) => !p);
+    };
+
+    if (props.items.length <= 0) return null;
+
+    return (
+        <div className="content-box px-0 mb-5">
+            <div className="DIV-singleBox">
+                <div className="control-singlebox">
+                    <a
+                        href="javascript:void(0);"
+                        className="toggle ms-1"
+                        aria-label={toggleLabel}
+                        aria-pressed={isPlaying}
+                        tabIndex={0}
+                        title={isPlaying ? "暫停" : "播放"}
+                        onClick={togglePlay}
+                    >
+                        <div className={`control-toggle ${toggleIconClass}`}>
+                            <span className="sr-only">{toggleLabel}</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <div className="owl-carousel owl-theme owl-loaded owl-drag">
+                <div className="owl-stage-outer">
+                    <div
+                        className="owl-stage"
+                        style={{ display: "flex", width: "100%", transform: `translate3d(-${index * 100}%, 0, 0)`, transition: "transform 450ms ease" }}
+                    >
+                        {props.items.map((item, idx) => (
+                            <div
+                                key={`${item.Material?.InternalId ?? "mat"}_${idx}`}
+                                className={`owl-item ${idx === index ? "active" : ""}`}
+                                style={{ flex: "0 0 100%", width: "100%" }}
+                            >
+                                <div className="item">
+                                    <ProductionCard lang={props.lang} item={item} viewMoreText={props.viewMoreText} />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {hasMany && (
+                    <div className="owl-nav" aria-label="圖片輪播控制">
+                        <button
+                            type="button"
+                            role="presentation"
+                            tabIndex={0}
+                            className={`owl-prev ${isFirst ? "disabled" : ""}`}
+                            onClick={goPrev}
+                            disabled={isFirst}
+                        >
+                            <span aria-label="Previous" title="上一張">
+                                <span className="d-none">上一張</span>
+                            </span>
+                        </button>
+                        <button
+                            type="button"
+                            role="presentation"
+                            tabIndex={0}
+                            className={`owl-next ${isLast ? "disabled" : ""}`}
+                            onClick={goNext}
+                            disabled={isLast}
+                        >
+                            <span aria-label="Next" title="下一張">
+                                <span className="d-none">下一張</span>
+                            </span>
+                        </button>
+                    </div>
+                )}
+
+                <div className="owl-dots disabled"></div>
+            </div>
+        </div>
+    );
+};
+type MaterialInfoJsonValue = string | number | boolean | null;
+type MaterialInfoJsonMap = Record<string, MaterialInfoJsonValue>;
+/// <summary>
+/// 解析 MaterialInfoJson，支援後端回傳物件或 JSON 字串。
+/// </summary>
+const parseMaterialInfoJson = (source?: string | MaterialInfoJsonMap | null): MaterialInfoJsonMap =>
+{
+    if (!source) return {};
+    if (typeof source !== "string") return source;
+
+    try
+    {
+        return JSON.parse(source) as MaterialInfoJsonMap;
+    } catch
+    {
+        return {};
+    }
+};
+
+/// <summary>
+/// 取得目前語系的物件語系資料。
+/// </summary>
+const getMaterialLangInfo = (item: MaterialSet, lang: Lang) =>
+{
+    return item.MaterialLangInfo?.find((p) => p.Lang === lang);
+};
+
+/// <summary>
+/// 將 Json 欄位值轉成畫面文字。
+/// </summary>
+const formatInfoValue = (value: MaterialInfoJsonValue): string =>
+{
+    if (value === null) return "";
+    if (typeof value === "boolean") return value ? "是" : "否";
+    return String(value);
+};
+
+/// <summary>
+/// 依類別欄位設定產生動態資訊列。
+/// </summary>
+const buildMaterialInfoRows = (item: MaterialSet, lang: Lang) =>
+{
+    const langInfo = getMaterialLangInfo(item, lang);
+    const infoJson = parseMaterialInfoJson(langInfo?.MaterialInfoJson);
+    const fields = item.Material?.Category?._MatCategoryInfoField ?? [];
+
+    return fields.map((field) =>
+    {
+        const fieldKey = field.Field ?? "";
+        const displayName = field._MatCategoryInfoFieldDisplay?.find((p) => p.Lang === lang)?.FieldDisplayName ?? fieldKey;
+        const valueText = formatInfoValue(infoJson[fieldKey] ?? null);
+
+        return { fieldKey, displayName, valueText };
+    }).filter((p) => p.fieldKey && p.valueText);
+};
+/// <summary>
+/// 渲染單一物件資訊卡。
+/// </summary>
+const ProductionCard = (props: { lang: Lang; item: MaterialSet; viewMoreText: string; }) =>
+{
+    const image = props.item.MaterialPicture?.[0];
+    const langInfo = getMaterialLangInfo(props.item, props.lang);
+    const matName = langInfo?.MaterialName ?? "";
+    const infoRows = buildMaterialInfoRows(props.item, props.lang);
+
+    const imageUrl = image?.PictureId ? FileManagementAPI.get_Public_Preview_Url(image.PictureId) : "";
+    return (
+        <div className="sc-item">
+            <div className="SC-row">
+                <div className="SC-image-container">
+                    {imageUrl ? <img src={imageUrl} alt={image?.PictureName ?? ""} /> : <div className="SC-image-placeholder" aria-hidden="true"></div>}
+                </div>
+
+                <div className="SC-info-card">
+                    <div className="SC-content">
+                        <div className="Info_All_Content">
+                            <ul>
+                                <InfoRow className="Div_H3_Title fw-bold" text={matName} />
+                                {infoRows.map((row) => <InfoRow key={row.fieldKey} text={`${row.displayName}：${row.valueText}`} />)}
+                            </ul>
+                        </div>
+
+                        {props.item && (
+                            <div className="d-flex justify-content-start align-items-center">
+                                <div className="more-link-box">
+                                    <a
+                                        href={props.item.Material?.InternalId ?? ""}
+                                        className="more-link font-wt-lg"
+                                        aria-label={`查看更多：${matName}`}
+                                        title={`查看更多：${matName}`}
+                                        tabIndex={0}
+                                    >
+                                        <span className="vm">{props.viewMoreText}</span>
+                                        <span className="ms-1">〉</span>
+                                    </a>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+/// <summary>
+/// 渲染資訊列，空資料不輸出。
+/// </summary>
+const InfoRow = ({ text, className }: { text: string; className?: string; }) =>
+{
+    if (!text) return null;
+
+    return (
+        <li className="li_row">
+            <div className={`col-12 ${className ?? ""}`}>{text}</div>
+        </li>
+    );
+};
+
+export default Client_SpecProduction_List_Comp;

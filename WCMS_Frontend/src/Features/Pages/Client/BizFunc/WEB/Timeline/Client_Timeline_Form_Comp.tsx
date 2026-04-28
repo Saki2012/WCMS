@@ -45,10 +45,7 @@ const resolveYearText = (date: TimelineItem["Date"]): string =>
 };
 
 /** 依時間順序排序 */
-const sortTimelineItems = (
-    items: TimelineItem[],
-    isDescOverride?: boolean,
-): TimelineItem[] =>
+const sortTimelineItems = (items: TimelineItem[], isDescOverride?: boolean): TimelineItem[] =>
 {
     const isDesc = isDescOverride;
     return [...items].sort((a, b) =>
@@ -61,23 +58,15 @@ const sortTimelineItems = (
 };
 
 /** 依 TimelineItem 取出目前語系明細 */
-const getDetailRowsByItem = (
-    item: TimelineItem,
-    details: TimelineLangDetail[],
-    lang: Lang,
-): TimelineLangDetail[] =>
+const getDetailRowsByItem = (item: TimelineItem, details: TimelineLangDetail[], lang: Lang): TimelineLangDetail[] =>
 {
-    return (details ?? [])
-        .filter(p => Number(p.ParentRowId ?? 0) === Number(item.RowId ?? 0) && `${p.Lang ?? ""}` === `${lang}`)
-        .sort((a, b) => Number(a.RowId ?? 0) - Number(b.RowId ?? 0));
+    return (details ?? []).filter(p => Number(p.ParentRowId ?? 0) === Number(item.RowId ?? 0) && `${p.Lang ?? ""}` === `${lang}`).sort((a, b) =>
+        Number(a.RowId ?? 0) - Number(b.RowId ?? 0)
+    );
 };
 
 /** 依 listData 組出年份區塊 */
-const buildTimelineBlocksFromList = (
-    listData: TimelineSet[],
-    lang: Lang,
-    isDescOverride?: boolean,
-): ITimelineYearBlockVm[] =>
+const buildTimelineBlocksFromList = (listData: TimelineSet[], lang: Lang, isDescOverride?: boolean): ITimelineYearBlockVm[] =>
 {
     const yearMap = new Map<string, ITimelineYearBlockVm>();
     listData.forEach((setData) =>
@@ -92,11 +81,7 @@ const buildTimelineBlocksFromList = (
             if (matched.length === 0) return;
             if (!yearMap.has(yearText))
             {
-                yearMap.set(yearText, {
-                    key: `year-${yearText}`,
-                    yearText,
-                    rows: [],
-                });
+                yearMap.set(yearText, { key: `year-${yearText}`, yearText, rows: [] });
             }
             const block = yearMap.get(yearText);
             if (!block) return;
@@ -114,21 +99,13 @@ const buildTimelineBlocksFromList = (
 };
 
 /** 建立分頁設定 */
-const usePaginatorProps = (vm: {
-    pageNumber: number;
-    totalPages: number;
-    onPageChange?: (page: number) => void;
-}) =>
+const usePaginatorProps = (vm: { pageNumber: number; totalPages: number; onPageChange?: (page: number) => void; }) =>
 {
     return useMemo(() =>
     {
         if (!vm.onPageChange) return undefined;
 
-        return {
-            currentPage: vm.pageNumber,
-            totalPages: vm.totalPages,
-            onPageChange: vm.onPageChange,
-        };
+        return { currentPage: vm.pageNumber, totalPages: vm.totalPages, onPageChange: vm.onPageChange };
     }, [vm.onPageChange, vm.pageNumber, vm.totalPages]);
 };
 /** 註:2026/04/23，目前後端還沒有開放可透過detail(即某model)直接搜尋的功能，故暫時還沒得做分頁
@@ -137,10 +114,7 @@ const usePaginatorProps = (vm: {
  */
 const TimelineForm = (props: ITimelineFormProps) =>
 {
-    const vm = useTimelineFormFetchData({
-        lang: props.lang,
-        opts: props.options,
-    });
+    const vm = useTimelineFormFetchData({ lang: props.lang, opts: props.options });
 
     const blocks = useMemo(() =>
     {
@@ -163,20 +137,14 @@ const TimelineForm = (props: ITimelineFormProps) =>
             paginatorProps={paginatorProps}
             viewCountConfig={{ mode: "list" }}
         >
-            <TimelineBlocks_Comp
-                lang={props.lang}
-                blocks={blocks}
-            />
+            <TimelineBlocks_Comp lang={props.lang} blocks={blocks} />
         </ModuleContent>
     );
 };
 
 export default TimelineForm;
 
-const TimelineBlocks_Comp = (props: {
-    lang: Lang;
-    blocks: ITimelineYearBlockVm[];
-}) =>
+const TimelineBlocks_Comp = (props: { lang: Lang; blocks: ITimelineYearBlockVm[]; }) =>
 {
     if (!props.blocks.length) return null;
 
@@ -204,13 +172,7 @@ const TimelineBlocks_Comp = (props: {
                                                 <ul>
                                                     {block.rows.map((row) =>
                                                     {
-                                                        return (
-                                                            <TimelineRow_Comp
-                                                                key={row.key}
-                                                                lang={props.lang}
-                                                                row={row}
-                                                            />
-                                                        );
+                                                        return <TimelineRow_Comp key={row.key} lang={props.lang} row={row} />;
                                                     })}
                                                 </ul>
                                             )
@@ -218,13 +180,7 @@ const TimelineBlocks_Comp = (props: {
                                                 <>
                                                     {block.rows.map((row) =>
                                                     {
-                                                        return (
-                                                            <TimelineRow_Comp
-                                                                key={row.key}
-                                                                lang={props.lang}
-                                                                row={row}
-                                                            />
-                                                        );
+                                                        return <TimelineRow_Comp key={row.key} lang={props.lang} row={row} />;
                                                     })}
                                                 </>
                                             )}
@@ -239,10 +195,7 @@ const TimelineBlocks_Comp = (props: {
     );
 };
 
-const TimelineRow_Comp = (props: {
-    lang: Lang;
-    row: ITimelineEntryVm;
-}) =>
+const TimelineRow_Comp = (props: { lang: Lang; row: ITimelineEntryVm; }) =>
 {
     const contentNode = useTimelineContentNode(props.row.content, props.lang);
     const hasTitle = props.row.title.length > 0;

@@ -22,10 +22,7 @@ interface EventData
     contentStatus: number;
 }
 
-export const EventSession = (props: {
-    lang: Lang;
-    hydrationData: HomePageEventHookResult;
-}) =>
+export const EventSession = (props: { lang: Lang; hydrationData: HomePageEventHookResult; }) =>
 {
     // 宣告變數：統一吃 Homepage hydration source
     const source = props.hydrationData;
@@ -101,12 +98,7 @@ export const EventSession = (props: {
                 margin: 30,
                 autoplayTimeout: 3000,
                 autoplayHoverPause: true,
-                responsive: {
-                    0: { items: 1 },
-                    767: { items: 2 },
-                    991: { items: 3 },
-                    1200: { items: 4 },
-                },
+                responsive: { 0: { items: 1 }, 767: { items: 2 }, 991: { items: 3 }, 1200: { items: 4 } },
             });
 
             isOwlInitedRef.current = true;
@@ -115,19 +107,15 @@ export const EventSession = (props: {
             $("#Event .owl-nav button").attr("tabindex", "7");
 
             // 執行：播放/暫停（namespace 綁定）
-            $("#Event_start")
-                .off("click.eventSession")
-                .on("click.eventSession", () =>
-                {
-                    $owl.trigger("play.owl.autoplay", [6000]);
-                });
+            $("#Event_start").off("click.eventSession").on("click.eventSession", () =>
+            {
+                $owl.trigger("play.owl.autoplay", [6000]);
+            });
 
-            $("#Event_pause")
-                .off("click.eventSession")
-                .on("click.eventSession", () =>
-                {
-                    $owl.trigger("stop.owl.autoplay");
-                });
+            $("#Event_pause").off("click.eventSession").on("click.eventSession", () =>
+            {
+                $owl.trigger("stop.owl.autoplay");
+            });
         }, 0);
 
         return cleanup;
@@ -140,10 +128,7 @@ export const EventSession = (props: {
                 <div className="customizeBox">
                     <div className="container-customize1">
                         <div className="row">
-                            <div
-                                className="col-12 px-4 + animate__animated animate__slow wow animate__bounceInUp"
-                                data-wow-delay="0.1s"
-                            >
+                            <div className="col-12 px-4 + animate__animated animate__slow wow animate__bounceInUp" data-wow-delay="0.1s">
                                 {/* // 標題 start // */}
                                 <div className="Standard-TitleDiv div-header">
                                     <div className="TextDIV">
@@ -163,16 +148,8 @@ export const EventSession = (props: {
                     <div className="container-customize1">
                         <div className="row">
                             <div className="col-12 + p-0">
-                                <div
-                                    className="content-box + animate__animated animate__slow wow animate__bounceInUp"
-                                    data-wow-delay="0.1s"
-                                >
-                                    <div
-                                        id="Event"
-                                        className="owl-carousel owl-theme px-2"
-                                        ref={carouselRef}
-                                        key={eventKey}
-                                    >
+                                <div className="content-box + animate__animated animate__slow wow animate__bounceInUp" data-wow-delay="0.1s">
+                                    <div id="Event" className="owl-carousel owl-theme px-2" ref={carouselRef} key={eventKey}>
                                         {/* <asp:Literal ID="Lit_Event" runat="server" /> 輪播項目 */}
                                         {eventList.map((item, index) =>
                                         {
@@ -199,29 +176,16 @@ export const EventSession = (props: {
                                                                 </div>
                                                                 <div className="m-news_detail">
                                                                     <div className="customstyle-hotop">
-                                                                        {isWithinLastNDaysFromMD(
-                                                                            Number(month),
-                                                                            Number(day),
-                                                                        ) && (
-                                                                            <div
-                                                                                className="icon-small new-bg"
-                                                                                role="status"
-                                                                                aria-label="最新"
-                                                                            >
-                                                                                最新
-                                                                            </div>
+                                                                        {isWithinLastNDaysFromMD(Number(month), Number(day)) && (
+                                                                            <div className="icon-small new-bg" role="status" aria-label="最新">最新</div>
                                                                         )}
                                                                         {item.contentStatus != 0 && (
                                                                             <>
                                                                                 {Boolean(item.contentStatus & 1) && (
-                                                                                    <div className="icon-small top-bg">
-                                                                                        置頂
-                                                                                    </div>
+                                                                                    <div className="icon-small top-bg">置頂</div>
                                                                                 )}
                                                                                 {Boolean(item.contentStatus & 2) && (
-                                                                                    <div className="icon-small hot-bg">
-                                                                                        熱門
-                                                                                    </div>
+                                                                                    <div className="icon-small hot-bg">熱門</div>
                                                                                 )}
                                                                             </>
                                                                         )}
@@ -229,30 +193,18 @@ export const EventSession = (props: {
 
                                                                     <div className="category_box">
                                                                         <div className="m-news_category">
-                                                                            <i
-                                                                                className="fa fa-bookmark"
-                                                                                aria-hidden="true"
-                                                                            >
-                                                                            </i>
+                                                                            <i className="fa fa-bookmark" aria-hidden="true"></i>
                                                                             <div className="tags-text">{item.Tags}</div>
                                                                         </div>
                                                                     </div>
 
                                                                     <div className="TimeBoxDiv">
                                                                         <div className="card_time">
-                                                                            <i
-                                                                                className="fa fa-clock-o"
-                                                                                aria-hidden="true"
-                                                                            >
-                                                                            </i>
+                                                                            <i className="fa fa-clock-o" aria-hidden="true"></i>
                                                                             {FormatDate(item.date)}
                                                                         </div>
                                                                         <div className="card_arrow">
-                                                                            <i
-                                                                                className="fa fa-arrow-circle-right"
-                                                                                aria-hidden="true"
-                                                                            >
-                                                                            </i>
+                                                                            <i className="fa fa-arrow-circle-right" aria-hidden="true"></i>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -324,11 +276,7 @@ export const EventSession = (props: {
     );
 };
 
-const getData = (
-    lang: string,
-    rawData: AnnouncementSet[],
-    tagDict: Record<string, string>,
-): EventData[] =>
+const getData = (lang: string, rawData: AnnouncementSet[], tagDict: Record<string, string>): EventData[] =>
 {
     const result: EventData[] = [];
 
@@ -337,9 +285,7 @@ const getData = (
         const tags = (item.Announcement?.Tags ?? "").split(",").map(s => s.trim()).filter(Boolean);
         const tagsName = tags.map(id => tagDict[id] ?? "").filter(Boolean).join(", ");
         const pictureId = item.Announcement?.PictureId ?? "";
-        const img = pictureId
-            ? FileManagementAPI.get_Public_Preview_Url(pictureId)
-            : defaulteventpic;
+        const img = pictureId ? FileManagementAPI.get_Public_Preview_Url(pictureId) : defaulteventpic;
 
         result.push({
             Id: item.Announcement?.AnnouncementId ?? "",
@@ -362,19 +308,12 @@ const getMonthDayNums = (d?: string | Date | null): { month?: number; day?: numb
     const dt = typeof d === "string" ? new Date(d) : d;
     if (isNaN(dt.getTime())) return {};
 
-    return {
-        month: dt.getUTCMonth() + 1,
-        day: dt.getUTCDate(),
-    };
+    return { month: dt.getUTCMonth() + 1, day: dt.getUTCDate() };
 };
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-const isWithinLastNDaysFromMD = (
-    month1to12?: number,
-    day1to31?: number,
-    n: number = 8,
-): boolean =>
+const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: number = 8): boolean =>
 {
     if (!month1to12 || !day1to31) return false;
 

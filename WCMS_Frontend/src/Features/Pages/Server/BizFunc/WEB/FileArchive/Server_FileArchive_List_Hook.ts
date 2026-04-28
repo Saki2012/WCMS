@@ -35,9 +35,7 @@ export type FileArchiveListAdapter = {
     Category: ReturnType<typeof CategoryAdapter>;
     Tag: ReturnType<typeof TagAdapter>;
 };
-export const useFileArchiveListFetchData = (
-    opt: { lang: Lang; kw: string; },
-): UseFetchDataResult<FileArchiveListRawData, FileArchiveListAdapter> =>
+export const useFileArchiveListFetchData = (opt: { lang: Lang; kw: string; }): UseFetchDataResult<FileArchiveListRawData, FileArchiveListAdapter> =>
 {
     const { publish } = useToast();
     const onError = useCallback((e: ApiAdapterError) =>
@@ -131,12 +129,7 @@ const useFileArchiveListQueryParam = (p: { lang: Lang; kw: string; }): QueryList
         let cdt = `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.Lang} = ${p.lang}`;
         if (!!p.kw)
         {
-            cdt = LibMerge(
-                " And ",
-                false,
-                cdt,
-                `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.Title} Like ${p.kw}`,
-            );
+            cdt = LibMerge(" And ", false, cdt, `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.Title} Like ${p.kw}`);
         }
         return cdt;
     }, [p.lang, p.kw]);

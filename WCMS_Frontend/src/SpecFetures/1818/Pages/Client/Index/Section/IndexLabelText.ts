@@ -20,15 +20,7 @@ const labels = {
         AlbumTitle: "Event",
         MoreInfo: "More Info",
     },
-    "zh-cn": {
-        LinkDataTitle: "",
-        AboutUsTitle: "",
-        AdmissionsTitle: "",
-        AdmissionsContent: "",
-        NewsTitle: "",
-        AlbumTitle: "",
-        MoreInfo: "",
-    },
+    "zh-cn": { LinkDataTitle: "", AboutUsTitle: "", AdmissionsTitle: "", AdmissionsContent: "", NewsTitle: "", AlbumTitle: "", MoreInfo: "" },
 } as const satisfies Record<Lang, {}>;
 
 export const IndexLabel = (lang?: Lang) => labels[lang ?? DefaultLang] ?? labels[DefaultLang];

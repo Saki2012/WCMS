@@ -1,7 +1,8 @@
 // src/preview/PreviewFrame.tsx
 import React, { useEffect, useMemo, useRef } from "react";
 
-export interface PreviewFrameProps {
+export interface PreviewFrameProps
+{
     /** 是否顯示 */
     open: boolean;
     /** 站台索引：會導向 `/${siteIndex}/Template` */
@@ -34,7 +35,8 @@ export interface PreviewFrameProps {
     widthClassName?: string;
 }
 
-export const PreviewFrame: React.FC<PreviewFrameProps> = (props) => {
+export const PreviewFrame: React.FC<PreviewFrameProps> = (props) =>
+{
     const {
         open,
         siteIndex,
@@ -50,18 +52,22 @@ export const PreviewFrame: React.FC<PreviewFrameProps> = (props) => {
     } = props;
 
     // 單一路由：/{siteIndex}/Template
-    const src = useMemo(() => siteIndex === '' ? `/Template` : `/${siteIndex}/Template`, [siteIndex]);
+    const src = useMemo(() => siteIndex === "" ? `/Template` : `/${siteIndex}/Template`, [siteIndex]);
 
     const iframeRef = useRef<HTMLIFrameElement>(null);
     const dialogRef = useRef<HTMLDivElement>(null);
     const lastActiveEl = useRef<HTMLElement | null>(null);
 
     // 開啟時：鎖捲動、監聽 ESC、聚焦到對話框；關閉時還原
-    useEffect(() => {
+    useEffect(() =>
+    {
         if (!open) return;
         lastActiveEl.current = (document.activeElement as HTMLElement) ?? null;
 
-        const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+        const handleKey = (e: KeyboardEvent) =>
+        {
+            if (e.key === "Escape") onClose();
+        };
         document.addEventListener("keydown", handleKey);
 
         const prevOverflow = document.body.style.overflow;
@@ -70,7 +76,8 @@ export const PreviewFrame: React.FC<PreviewFrameProps> = (props) => {
         // 對話框取得焦點（AA）
         dialogRef.current?.focus?.();
 
-        return () => {
+        return () =>
+        {
             document.removeEventListener("keydown", handleKey);
             document.body.style.overflow = prevOverflow;
             lastActiveEl.current?.focus?.();
@@ -78,15 +85,20 @@ export const PreviewFrame: React.FC<PreviewFrameProps> = (props) => {
     }, [open, onClose]);
 
     // iFrame 載入完成 → 若有 payload，送進去（postMessage）
-    useEffect(() => {
+    useEffect(() =>
+    {
         if (!open || !iframeRef.current) return;
 
         const frame = iframeRef.current;
-        const handleLoad = () => {
-            if (payload != null) {
-                try {
+        const handleLoad = () =>
+        {
+            if (payload != null)
+            {
+                try
+                {
                     frame.contentWindow?.postMessage(payload, targetOrigin);
-                } catch {
+                } catch
+                {
                     // 靜默失敗（跨網域或 iFrame 尚未可用）
                 }
             }
@@ -100,46 +112,23 @@ export const PreviewFrame: React.FC<PreviewFrameProps> = (props) => {
     if (!open) return null;
 
     return (
-        <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="preview-title"
-            className="fixed inset-0 z-[1000] flex"
-        >
+        <div role="dialog" aria-modal="true" aria-labelledby="preview-title" className="fixed inset-0 z-[1000] flex">
             {/* 背景遮罩（點擊關閉） */}
             <div className="flex-1 bg-black/40" aria-hidden onClick={onClose} />
 
             {/* 視窗主體 */}
-            <div
-                ref={dialogRef}
-                tabIndex={-1}
-                className={`${widthClassName} h-full bg-white shadow-2xl outline-none flex flex-col`}
-            >
+            <div ref={dialogRef} tabIndex={-1} className={`${widthClassName} h-full bg-white shadow-2xl outline-none flex flex-col`}>
                 {/* 標題列 */}
                 <div className="flex items-center justify-between border-b px-3 py-2">
                     <h2 id="preview-title" className="text-base font-semibold">{title}</h2>
                     <div className="flex items-center gap-2">
                         {headerRight}
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            aria-label="關閉預覽"
-                            className="px-2 py-1"
-                        >
-                            ✕
-                        </button>
+                        <button type="button" onClick={onClose} aria-label="關閉預覽" className="px-2 py-1">✕</button>
                     </div>
                 </div>
 
                 {/* iFrame 主體（填滿） */}
-                <iframe
-                    ref={iframeRef}
-                    title={title}
-                    src={src}
-                    className="w-full flex-1"
-                    allow={allow}
-                    sandbox={sandbox}
-                />
+                <iframe ref={iframeRef} title={title} src={src} className="w-full flex-1" allow={allow} sandbox={sandbox} />
 
                 {/* 底部（選用） */}
                 {footer ? <div className="border-t px-3 py-2">{footer}</div> : null}

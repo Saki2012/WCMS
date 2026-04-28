@@ -42,18 +42,11 @@ const AnnouncementList = (props: IAnnouncementListProps) =>
     }, [props.options, query.tag]);
 
     // 執行 function：1810 list 資料統一改由 feature 提供
-    const vm = useAnnouncementListData({
-        lang: props.lang,
-        opts: effectiveOptions,
-        kw: `${query.keyword ?? ""}`.trim() || undefined,
-    });
+    const vm = useAnnouncementListData({ lang: props.lang, opts: effectiveOptions, kw: `${query.keyword ?? ""}`.trim() || undefined });
 
     const tags = useMemo(() =>
     {
-        return (vm.tagData ?? []).map(t => ({
-            id: t.TagData?.TagId ?? "",
-            name: t.TagDetail?.find(p => p.Lang === props.lang)?.TagName ?? "",
-        }));
+        return (vm.tagData ?? []).map(t => ({ id: t.TagData?.TagId ?? "", name: t.TagDetail?.find(p => p.Lang === props.lang)?.TagName ?? "" }));
     }, [vm.tagData, props.lang]);
 
     const searchSlot = (
@@ -72,22 +65,8 @@ const AnnouncementList = (props: IAnnouncementListProps) =>
 
     const adjustedGrid = useMemo(() =>
     {
-        return SetAdjustFunction(
-            props.lang,
-            dirUrl,
-            vm.gridPropsFromList,
-            vm.listData,
-            vm.categoryData,
-            vm.tagData,
-        );
-    }, [
-        props.lang,
-        dirUrl,
-        vm.gridPropsFromList,
-        vm.listData,
-        vm.categoryData,
-        vm.tagData,
-    ]);
+        return SetAdjustFunction(props.lang, dirUrl, vm.gridPropsFromList, vm.listData, vm.categoryData, vm.tagData);
+    }, [props.lang, dirUrl, vm.gridPropsFromList, vm.listData, vm.categoryData, vm.tagData]);
 
     const content: React.ReactElement | null = useMemo(() =>
     {
@@ -120,34 +99,15 @@ const AnnouncementList = (props: IAnnouncementListProps) =>
                 );
             case 1:
             default:
-                return (
-                    <GridList_Comp
-                        key="grid"
-                        lang={props.lang}
-                        Theme={props.theme}
-                        GridData={adjustedGrid}
-                    />
-                );
+                return <GridList_Comp key="grid" lang={props.lang} Theme={props.theme} GridData={adjustedGrid} />;
         }
-    }, [
-        props.options?.Style,
-        props.lang,
-        props.theme,
-        vm.listData,
-        vm.pageNumber,
-        vm.totalPages,
-        vm.onPageChange,
-        vm.categoryData,
-        adjustedGrid,
-    ]);
+    }, [props.options?.Style, props.lang, props.theme, vm.listData, vm.pageNumber, vm.totalPages, vm.onPageChange, vm.categoryData, adjustedGrid]);
 
     // return
     return (
         <>
             {searchSlot}
-            <LoadingErrorHandler isLoading={vm.isLoading} errorList={vm.errorList}>
-                {content}
-            </LoadingErrorHandler>
+            <LoadingErrorHandler isLoading={vm.isLoading} errorList={vm.errorList}>{content}</LoadingErrorHandler>
         </>
     );
 };
@@ -178,18 +138,10 @@ const SetAdjustFunction = (
             switch (cell.col.key)
             {
                 case AnnouncementFields.Categories:
-                    cell.content = formatCategoriesName(
-                        curRow.Announcement?.Categories ?? "",
-                        catData,
-                        lang,
-                    );
+                    cell.content = formatCategoriesName(curRow.Announcement?.Categories ?? "", catData, lang);
                     break;
                 case AnnouncementFields.Tags:
-                    cell.content = formatTagsName(
-                        curRow.Announcement?.Tags ?? "",
-                        tagData,
-                        lang,
-                    );
+                    cell.content = formatTagsName(curRow.Announcement?.Tags ?? "", tagData, lang);
                     break;
             }
 
@@ -208,9 +160,7 @@ const SetAdjustFunction = (
 
                         {isTitle && (
                             <>
-                                {isWithinLastNDaysFromString(curRow.Announcement?.Validate_Start ?? "") && (
-                                    <span className="label label-warning">最新</span>
-                                )}
+                                {isWithinLastNDaysFromString(curRow.Announcement?.Validate_Start ?? "") && <span className="label label-warning">最新</span>}
                                 {Boolean(contentStatus & 1) && <span className="label label-success">置頂</span>}
                                 {Boolean(contentStatus & 2) && <span className="label label-danger">熱門</span>}
                             </>
@@ -228,15 +178,17 @@ const SetAdjustFunction = (
 };
 
 /** 圖文式公告 */
-const PictureList_Comp = (prop: {
-    lang: Lang;
-    Theme: IFETheme;
-    rawData: AnnouncementSet[];
-    categoryData: CategorySet[];
-    currentPage: number;
-    totalPages: number;
-    onPageChange: (page: number) => void;
-}) =>
+const PictureList_Comp = (
+    prop: {
+        lang: Lang;
+        Theme: IFETheme;
+        rawData: AnnouncementSet[];
+        categoryData: CategorySet[];
+        currentPage: number;
+        totalPages: number;
+        onPageChange: (page: number) => void;
+    },
+) =>
 {
     // 宣告變數
     const dirUrl = useLocation().pathname.replace(/\/List$/, "");
@@ -249,25 +201,13 @@ const PictureList_Comp = (prop: {
                 {
                     const internalId = `${dirUrl}/${row.Announcement?.InternalId ?? ""}`;
                     const picDesc = row.Announcement?.PicDescription ?? "";
-                    const picUrl = FileManagementAPI.get_Public_Preview_Url(
-                        row.Announcement?.PictureId,
-                        picDesc,
-                    ) ?? DefaultEventImg;
-                    const title = row.AnnouncementDetail?.find(
-                        p => p.Lang === prop.lang,
-                    )?.Title ?? "";
+                    const picUrl = FileManagementAPI.get_Public_Preview_Url(row.Announcement?.PictureId, picDesc) ?? DefaultEventImg;
+                    const title = row.AnnouncementDetail?.find(p => p.Lang === prop.lang)?.Title ?? "";
                     const date = FormatDate(row.Announcement?.Validate_Start) ?? "";
-                    const catName = formatCategoriesName(
-                        row.Announcement?.Categories ?? "",
-                        prop.categoryData,
-                        prop.lang,
-                    );
+                    const catName = formatCategoriesName(row.Announcement?.Categories ?? "", prop.categoryData, prop.lang);
 
                     return (
-                        <div
-                            key={internalId}
-                            className="articles_item col-xl-4 col-lg-4 col-md-6 col-sm-12 col-12"
-                        >
+                        <div key={internalId} className="articles_item col-xl-4 col-lg-4 col-md-6 col-sm-12 col-12">
                             <article className="cardbox">
                                 <div className="card_content">
                                     <figure className="card_figure">
@@ -287,19 +227,13 @@ const PictureList_Comp = (prop: {
                                         <div className="card_time">{date}</div>
                                     </div>
                                     <div className="card_titleDiv">
-                                        <LangLink to={internalId} className="card_title" title={title}>
-                                            {title}
-                                        </LangLink>
+                                        <LangLink to={internalId} className="card_title" title={title}>{title}</LangLink>
                                         <>
                                             {isWithinLastNDaysFromString(row.Announcement?.Validate_Start ?? "") && (
                                                 <span className="label label-warning">最新</span>
                                             )}
-                                            {Boolean((row.Announcement?.ContentStatus ?? 0) & 1) && (
-                                                <span className="label label-success">置頂</span>
-                                            )}
-                                            {Boolean((row.Announcement?.ContentStatus ?? 0) & 2) && (
-                                                <span className="label label-danger">熱門</span>
-                                            )}
+                                            {Boolean((row.Announcement?.ContentStatus ?? 0) & 1) && <span className="label label-success">置頂</span>}
+                                            {Boolean((row.Announcement?.ContentStatus ?? 0) & 2) && <span className="label label-danger">熱門</span>}
                                         </>
                                     </div>
                                     <div className="customize_btn mr-auto mt-2">
@@ -332,26 +266,15 @@ const GridList_Comp = (prop: { lang: Lang; Theme: IFETheme; GridData: GridProps;
     return (
         <>
             <OperationGuideHelp_Comp lang={prop.lang} />
-            <Grid
-                gridData={prop.GridData}
-                style={prop.Theme.GridView}
-                pageStyle={prop.Theme.Paginator}
-            />
+            <Grid gridData={prop.GridData} style={prop.Theme.GridView} pageStyle={prop.Theme.Paginator} />
         </>
     );
 };
 
-const QAItem_Comp = (prop: {
-    idx: number;
-    row: AnnouncementSet;
-    lang: Lang;
-}) =>
+const QAItem_Comp = (prop: { idx: number; row: AnnouncementSet; lang: Lang; }) =>
 {
     // 宣告變數
-    const parseContent = useResolveInternalIds(
-        prop.row.AnnouncementDetail?.find(p => p.Lang === prop.lang)?.Content ?? "",
-        { locale: prop.lang },
-    );
+    const parseContent = useResolveInternalIds(prop.row.AnnouncementDetail?.find(p => p.Lang === prop.lang)?.Content ?? "", { locale: prop.lang });
 
     const content = parseContent.html ? parse(parseContent.html) : null;
 
@@ -359,35 +282,21 @@ const QAItem_Comp = (prop: {
     return (
         <div className={`QA${prop.idx} card`}>
             <div className="card-header">
-                <a
-                    className="card-link darkcolor collapsed"
-                    data-bs-toggle="collapse"
-                    href={`#collapse${prop.idx}`}
-                    aria-expanded="false"
-                >
-                    {`${(prop.idx + 1).toString().padStart(2, "0")}. ${
-                        prop.row.AnnouncementDetail?.find(p => p.Lang === prop.lang)?.Title
-                    }`}
+                <a className="card-link darkcolor collapsed" data-bs-toggle="collapse" href={`#collapse${prop.idx}`} aria-expanded="false">
+                    {`${(prop.idx + 1).toString().padStart(2, "0")}. ${prop.row.AnnouncementDetail?.find(p => p.Lang === prop.lang)?.Title}`}
                 </a>
             </div>
             <div id={`collapse${prop.idx}`} className="collapse" data-bs-parent="#accordion">
-                <div className="card-body">
-                    {content}
-                </div>
+                <div className="card-body">{content}</div>
             </div>
         </div>
     );
 };
 
 /** QA列表式 */
-const QAList_Comp = (prop: {
-    lang: Lang;
-    Theme: IFETheme;
-    rawData: AnnouncementSet[];
-    currentPage: number;
-    totalPages: number;
-    onPageChange: (page: number) => void;
-}) =>
+const QAList_Comp = (
+    prop: { lang: Lang; Theme: IFETheme; rawData: AnnouncementSet[]; currentPage: number; totalPages: number; onPageChange: (page: number) => void; },
+) =>
 {
     // return
     return (
@@ -396,14 +305,12 @@ const QAList_Comp = (prop: {
                 <div className="row">
                     <div className="col-12">
                         <div id="accordion" className="FAQBar">
-                            {prop.rawData.map((row, idx) => (
-                                <QAItem_Comp
-                                    key={row.Announcement?.InternalId ?? `${idx}`}
-                                    idx={idx}
-                                    row={row}
-                                    lang={prop.lang}
-                                />
-                            ))}
+                            {prop.rawData.map((row, idx) => <QAItem_Comp
+                                key={row.Announcement?.InternalId ?? `${idx}`}
+                                idx={idx}
+                                row={row}
+                                lang={prop.lang}
+                            />)}
                         </div>
                     </div>
                 </div>
@@ -428,10 +335,7 @@ interface WithinLastOptions
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-const parseDateTimeToEpochMs = (
-    input: string,
-    assumeOffsetMinutes: number = 0,
-): number | null =>
+const parseDateTimeToEpochMs = (input: string, assumeOffsetMinutes: number = 0): number | null =>
 {
     // 宣告變數
     if (!input) return null;
@@ -455,8 +359,7 @@ const parseDateTimeToEpochMs = (
     {
         const [_, y, mo, d, hh = "0", mm = "0", ss = "0", fff = "0"] = m;
         const ms = parseInt(fff.padEnd(3, "0"), 10);
-        const asUTC = Date.UTC(+y, +mo - 1, +d, +hh, +mm, +ss, ms)
-            - assumeOffsetMinutes * 60 * 1000;
+        const asUTC = Date.UTC(+y, +mo - 1, +d, +hh, +mm, +ss, ms) - assumeOffsetMinutes * 60 * 1000;
         return asUTC;
     }
 
@@ -465,11 +368,7 @@ const parseDateTimeToEpochMs = (
     return Number.isNaN(fallback) ? null : fallback;
 };
 
-export const isWithinLastNDaysFromString = (
-    dateTimeStr?: string,
-    n: number = 8,
-    opts?: WithinLastOptions,
-): boolean =>
+export const isWithinLastNDaysFromString = (dateTimeStr?: string, n: number = 8, opts?: WithinLastOptions): boolean =>
 {
     // 宣告變數
     if (!dateTimeStr) return false;

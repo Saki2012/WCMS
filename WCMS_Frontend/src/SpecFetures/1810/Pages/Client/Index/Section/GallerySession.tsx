@@ -21,11 +21,7 @@ interface DataProp
     catName: string;
 }
 
-const getDataProps = (
-    lang: string,
-    galleryData: GallerySet[],
-    categoryDict: Record<string, string>,
-): DataProp[] =>
+const getDataProps = (lang: string, galleryData: GallerySet[], categoryDict: Record<string, string>): DataProp[] =>
 {
     const result: DataProp[] = [];
 
@@ -46,10 +42,7 @@ const getDataProps = (
     return result;
 };
 
-export const GallerySession = (props: {
-    lang: Lang;
-    hydrationData: HomePageGalleryHookResult;
-}) =>
+export const GallerySession = (props: { lang: Lang; hydrationData: HomePageGalleryHookResult; }) =>
 {
     // 宣告變數：統一吃 Homepage hydration source
     const source = props.hydrationData;
@@ -119,12 +112,7 @@ export const GallerySession = (props: {
                 margin: 30,
                 autoplayTimeout: 3000,
                 autoplayHoverPause: true,
-                responsive: {
-                    0: { items: 1 },
-                    767: { items: 2 },
-                    991: { items: 3 },
-                    1200: { items: 3 },
-                },
+                responsive: { 0: { items: 1 }, 767: { items: 2 }, 991: { items: 3 }, 1200: { items: 3 } },
             });
 
             isOwlInitedRef.current = true;
@@ -133,19 +121,15 @@ export const GallerySession = (props: {
             $("#Gallery .owl-nav button").attr("tabindex", "7");
 
             // 執行 function：播放 / 暫停控制
-            $("#Gallery_start")
-                .off("click.gallerySession")
-                .on("click.gallerySession", () =>
-                {
-                    $owl.trigger("play.owl.autoplay", [6000]);
-                });
+            $("#Gallery_start").off("click.gallerySession").on("click.gallerySession", () =>
+            {
+                $owl.trigger("play.owl.autoplay", [6000]);
+            });
 
-            $("#Gallery_pause")
-                .off("click.gallerySession")
-                .on("click.gallerySession", () =>
-                {
-                    $owl.trigger("stop.owl.autoplay");
-                });
+            $("#Gallery_pause").off("click.gallerySession").on("click.gallerySession", () =>
+            {
+                $owl.trigger("stop.owl.autoplay");
+            });
         }, 0);
 
         return cleanup;
@@ -158,10 +142,7 @@ export const GallerySession = (props: {
                 <div className="customizeBox">
                     <div className="container-customize1">
                         <div className="row">
-                            <div
-                                className="col-12 px-4 + animate__animated animate__slow wow animate__bounceInUp"
-                                data-wow-delay="0.1s"
-                            >
+                            <div className="col-12 px-4 + animate__animated animate__slow wow animate__bounceInUp" data-wow-delay="0.1s">
                                 {/* // 標題 start // */}
                                 <div className="Standard-TitleDiv div-header">
                                     <div className="TextDIV">
@@ -182,31 +163,16 @@ export const GallerySession = (props: {
                     <div className="container-customize1">
                         <div className="row">
                             <div className="col-12 + p-0">
-                                <div
-                                    className="content-box + animate__animated animate__slow wow animate__zoomIn"
-                                    data-wow-delay="0.15s"
-                                >
-                                    <div
-                                        id="Gallery"
-                                        className="owl-carousel owl-theme px-2"
-                                        ref={carouselRef}
-                                        key={galleryKey}
-                                    >
+                                <div className="content-box + animate__animated animate__slow wow animate__zoomIn" data-wow-delay="0.15s">
+                                    <div id="Gallery" className="owl-carousel owl-theme px-2" ref={carouselRef} key={galleryKey}>
                                         {/* <asp:Literal ID="Li_Album" runat="server" /> */}
                                         {result.map((item) =>
                                         {
-                                            const imgUrl = FileManagementAPI.get_Public_Preview_Url(
-                                                item.picInternalId,
-                                                item.title,
-                                            );
+                                            const imgUrl = FileManagementAPI.get_Public_Preview_Url(item.picInternalId, item.title);
 
                                             return item && (
                                                 <div className="item" key={item.internalId}>
-                                                    <LangLink
-                                                        to={`/EventHighlights/event-album/${item.internalId}`}
-                                                        tabIndex={13}
-                                                        title={item.title}
-                                                    >
+                                                    <LangLink to={`/EventHighlights/event-album/${item.internalId}`} tabIndex={13} title={item.title}>
                                                         <div className="DivBox_content v_itemBOX">
                                                             <div className="Picture_Div">
                                                                 <div className="img_wrapper">
@@ -224,32 +190,18 @@ export const GallerySession = (props: {
                                                                 <div className="m-news_detail">
                                                                     <div className="category_box">
                                                                         <div className="m-news_category">
-                                                                            <i
-                                                                                className="fa fa-bookmark"
-                                                                                aria-hidden="true"
-                                                                            >
-                                                                            </i>
-                                                                            <div className="tags-text">
-                                                                                {item.catName}
-                                                                            </div>
+                                                                            <i className="fa fa-bookmark" aria-hidden="true"></i>
+                                                                            <div className="tags-text">{item.catName}</div>
                                                                         </div>
                                                                     </div>
 
                                                                     <div className="TimeBoxDiv">
                                                                         <div className="card_time">
-                                                                            <i
-                                                                                className="fa fa-clock-o"
-                                                                                aria-hidden="true"
-                                                                            >
-                                                                            </i>
+                                                                            <i className="fa fa-clock-o" aria-hidden="true"></i>
                                                                             {item.date}
                                                                         </div>
                                                                         <div className="card_arrow">
-                                                                            <i
-                                                                                className="fa fa-arrow-circle-right"
-                                                                                aria-hidden="true"
-                                                                            >
-                                                                            </i>
+                                                                            <i className="fa fa-arrow-circle-right" aria-hidden="true"></i>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -302,12 +254,7 @@ export const GallerySession = (props: {
 
                                     <div className="btn_Div justify-content-end px-2">
                                         <div className="customize_btn my-3">
-                                            <LangLink
-                                                to="/EventHighlights/event-album"
-                                                className="Btn_s1"
-                                                tabIndex={13}
-                                                title="更多活動花絮"
-                                            >
+                                            <LangLink to="/EventHighlights/event-album" className="Btn_s1" tabIndex={13} title="更多活動花絮">
                                                 VIEW ALL<span className="ml-2">+</span>
                                             </LangLink>
                                         </div>

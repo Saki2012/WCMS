@@ -1,13 +1,14 @@
-
-export interface ILibPicturePreviewStyle{
-    Labelstyle:string,
-    SelectStyle:string,
-    InputStyle:string,
+export interface ILibPicturePreviewStyle
+{
+    Labelstyle: string;
+    SelectStyle: string;
+    InputStyle: string;
 }
 
-export interface ILibPicturePreviewProp{
+export interface ILibPicturePreviewProp
+{
     // Style:ILibPicturePreviewStyle,
-    ColumnDisplayName:string,
-    PicSrc:string,
-    PicDescription:string,
+    ColumnDisplayName: string;
+    PicSrc: string;
+    PicDescription: string;
 }

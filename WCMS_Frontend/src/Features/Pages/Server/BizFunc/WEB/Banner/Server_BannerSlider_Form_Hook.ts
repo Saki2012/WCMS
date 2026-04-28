@@ -13,19 +13,14 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 type BannerSet = components["schemas"]["BannerSet_DTO"];
 
 // #region Public
-export type BannerSliderFormRawData = {
-    formData: UseFetchFormDataResult<BannerSet>;
-    actions: ServerFormActions;
-};
+export type BannerSliderFormRawData = { formData: UseFetchFormDataResult<BannerSet>; actions: ServerFormActions; };
 
 export type BannerSliderFormActionsOpt = {
     /** 儲存成功後要回到列表（或其他導頁） */
     onBackToList: () => void;
 };
 
-export type BannerSliderFormAdapter = {
-    BannerSlider: ReturnType<typeof BannerSliderAdapter>;
-};
+export type BannerSliderFormAdapter = { BannerSlider: ReturnType<typeof BannerSliderAdapter>; };
 
 /** ✅ 主入口：Server Announcement Form 的所有「讀取資料」都集中在這裡 */
 export const useBannerSliderFormFetchData = (
@@ -43,12 +38,7 @@ export const useBannerSliderFormFetchData = (
     }, []);
     // 執行 function：主資料（ModelDisplayName + QueryData + editable state）
     const formData = useAnnouncementFormDataByAdapter(adapter.BannerSlider, opt.internalId, opt.emptyData, onError);
-    const actions = useAnnouncementFormActionsByAdapter(
-        adapter.BannerSlider,
-        opt.internalId,
-        formData.data,
-        opt.actionsOpt,
-    );
+    const actions = useAnnouncementFormActionsByAdapter(adapter.BannerSlider, opt.internalId, formData.data, opt.actionsOpt);
     // 執行 function：關聯資料（Category / Tag / ContentStatus）
     // 宣告變數：Loading / Error（給 LoadingErrorHandler）
     const loadingList = useMemo<boolean[]>(() =>
@@ -132,11 +122,7 @@ const useAnnouncementFormActionsByAdapter = (
     // 宣告變數
     const isNew = useMemo(() => !internalId, [internalId]);
     const actions = adapter.useServerActions({
-        onSuccessByMode: {
-            create: () => opt.onBackToList(),
-            update: () => opt.onBackToList(),
-            delete: () => opt.onBackToList(),
-        },
+        onSuccessByMode: { create: () => opt.onBackToList(), update: () => opt.onBackToList(), delete: () => opt.onBackToList() },
     });
 
     // return

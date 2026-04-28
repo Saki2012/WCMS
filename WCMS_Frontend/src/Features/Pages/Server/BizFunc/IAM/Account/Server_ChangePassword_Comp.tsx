@@ -1,10 +1,11 @@
-import { FormComp } from '@/Features/Pages/Server/Scaffold/Content/Form_Comp';
+import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
+import LibPwdTextBox from "@/SysCore/Components/FormField/FieldComponets/LibPwdTextBox_Comp";
 import { LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
-import LibPwdTextBox from '@/SysCore/Components/FormField/FieldComponets/LibPwdTextBox_Comp';
-import { useServerChangePassword } from './Server_ChangePassword_Hook';
+import { useServerChangePassword } from "./Server_ChangePassword_Hook";
 
-export const Server_ChangePassword_Comp = (props: { theme: IBETheme }) => {
+export const Server_ChangePassword_Comp = (props: { theme: IBETheme; }) =>
+{
     const vm = useServerChangePassword(props.theme);
     return (
         <FormComp prop={vm.prop}>
@@ -16,7 +17,13 @@ export const Server_ChangePassword_Comp = (props: { theme: IBETheme }) => {
                                 <div className="row mx-0">
                                     <div className="col form-group">
                                         <div className="row mx-0">
-                                            <LibTextBox Style={props.theme.TextBox3} ColumnDisplayName="帳號" DefaultInputDisplay="請輸入" disabled={true} InputValue={vm.displayName}/>
+                                            <LibTextBox
+                                                Style={props.theme.TextBox3}
+                                                ColumnDisplayName="帳號"
+                                                DefaultInputDisplay="請輸入"
+                                                disabled={true}
+                                                InputValue={vm.displayName}
+                                            />
                                         </div>
                                     </div>
                                 </div>
@@ -24,7 +31,13 @@ export const Server_ChangePassword_Comp = (props: { theme: IBETheme }) => {
                                 <div className="row mx-0">
                                     <div className="col form-group">
                                         <div className="row mx-0">
-                                            <LibPwdTextBox Style={props.theme.TextBox3} ColumnDisplayName="舊密碼" DefaultInputDisplay="請輸入" InputValue={vm.oldPwd} OnChange={vm.onOldPwdChange}/>
+                                            <LibPwdTextBox
+                                                Style={props.theme.TextBox3}
+                                                ColumnDisplayName="舊密碼"
+                                                DefaultInputDisplay="請輸入"
+                                                InputValue={vm.oldPwd}
+                                                OnChange={vm.onOldPwdChange}
+                                            />
                                         </div>
                                     </div>
                                 </div>
@@ -32,7 +45,13 @@ export const Server_ChangePassword_Comp = (props: { theme: IBETheme }) => {
                                 <div className="row mx-0">
                                     <div className="col form-group">
                                         <div className="row mx-0">
-                                            <LibPwdTextBox Style={props.theme.TextBox3} ColumnDisplayName="新密碼" DefaultInputDisplay="請輸入" InputValue={vm.newPwd} OnChange={vm.onNewPwdChange}/>
+                                            <LibPwdTextBox
+                                                Style={props.theme.TextBox3}
+                                                ColumnDisplayName="新密碼"
+                                                DefaultInputDisplay="請輸入"
+                                                InputValue={vm.newPwd}
+                                                OnChange={vm.onNewPwdChange}
+                                            />
                                         </div>
                                     </div>
                                 </div>
@@ -40,11 +59,16 @@ export const Server_ChangePassword_Comp = (props: { theme: IBETheme }) => {
                                 <div className="row mx-0">
                                     <div className="col form-group">
                                         <div className="row mx-0">
-                                            <LibPwdTextBox Style={props.theme.TextBox3} DefaultInputDisplay="請輸入" ColumnDisplayName="再次輸入密碼" InputValue={vm.confirmPwd} OnChange={vm.onConfirmPwdChange}/>
+                                            <LibPwdTextBox
+                                                Style={props.theme.TextBox3}
+                                                DefaultInputDisplay="請輸入"
+                                                ColumnDisplayName="再次輸入密碼"
+                                                InputValue={vm.confirmPwd}
+                                                OnChange={vm.onConfirmPwdChange}
+                                            />
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                     </div>

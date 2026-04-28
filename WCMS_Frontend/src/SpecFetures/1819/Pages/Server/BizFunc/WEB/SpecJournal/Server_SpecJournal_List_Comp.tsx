@@ -1,8 +1,4 @@
-import {
-    createGridCrudActions,
-    enhanceGridWithAdjustCell,
-    type GridConfirmFn,
-} from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
+import { createGridCrudActions, enhanceGridWithAdjustCell, type GridConfirmFn } from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
 import { ListComp } from "@/Features/Pages/Server/Scaffold/Content/List_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
@@ -43,12 +39,7 @@ const SpecJournalVolumeSearchField = (prop: SpecJournalVolumeSearchFieldProps) =
         <>
             {prop.showVolume && (
                 <div className="col-12 px-0 mt-4 row mx-0">
-                    <label
-                        htmlFor={`${id}-volume`}
-                        className="col-md-2 col-sm-12 float-md-left float-sm-none col-form-label"
-                    >
-                        卷數
-                    </label>
+                    <label htmlFor={`${id}-volume`} className="col-md-2 col-sm-12 float-md-left float-sm-none col-form-label">卷數</label>
                     <div className="col-md-4 col-sm-12 float-md-left float-sm-none">
                         <input
                             id={`${id}-volume`}
@@ -68,12 +59,7 @@ const SpecJournalVolumeSearchField = (prop: SpecJournalVolumeSearchFieldProps) =
             )}
 
             <div className="col-12 px-0 mt-4 row mx-0">
-                <label
-                    htmlFor={`${id}-author`}
-                    className="col-md-2 col-sm-12 float-md-left float-sm-none col-form-label"
-                >
-                    作者
-                </label>
+                <label htmlFor={`${id}-author`} className="col-md-2 col-sm-12 float-md-left float-sm-none col-form-label">作者</label>
                 <div className="col-md-4 col-sm-12 float-md-left float-sm-none">
                     <input
                         id={`${id}-author`}
@@ -94,9 +80,7 @@ const SpecJournalVolumeSearchField = (prop: SpecJournalVolumeSearchFieldProps) =
 };
 
 /** 後台期刊列表 */
-export const Server_SpecJournal_List_Comp = (
-    prop: { title: string; theme: IBETheme; lang: Lang; mode: SpecJournalMode; },
-) =>
+export const Server_SpecJournal_List_Comp = (prop: { title: string; theme: IBETheme; lang: Lang; mode: SpecJournalMode; }) =>
 {
     const [kw, setKw] = useState<string>("");
     const [volume, setVolume] = useState<string>("");
@@ -183,13 +167,7 @@ const buildSpecJournalGridProps = (
 {
     const columns = buildColumns(opt.raw, opt.mode);
     const rows = buildSpecJournalRows(opt.raw, columns, opt.mode);
-    const baseGrid: GridProps = {
-        columns,
-        rows,
-        CurrentPage: opt.raw.pageNumber ?? 1,
-        TotalPage: opt.raw.totalPages ?? 1,
-        onPageChange: opt.raw.onPageChange,
-    };
+    const baseGrid: GridProps = { columns, rows, CurrentPage: opt.raw.pageNumber ?? 1, TotalPage: opt.raw.totalPages ?? 1, onPageChange: opt.raw.onPageChange };
 
     const actions = createGridCrudActions<SpecJournalSet>({
         onEdit: (internalId) => opt.crud.navigate(`${opt.crud.dirUrl}/${internalId}`),
@@ -230,11 +208,7 @@ const buildSchemaColumn = (colId: string, raw: SpecJournalListRawData): ColumnCo
 };
 
 /** 建立 Grid rows */
-const buildSpecJournalRows = (
-    raw: SpecJournalListRawData,
-    columns: ColumnConfig[],
-    mode: SpecJournalMode,
-): GridRow[] =>
+const buildSpecJournalRows = (raw: SpecJournalListRawData, columns: ColumnConfig[], mode: SpecJournalMode): GridRow[] =>
 {
     return (raw.list ?? []).map((set) =>
     {
@@ -292,11 +266,7 @@ const renderAuthorName = (set: SpecJournalSet): ReactNode =>
                     : author.AuthorName
                     ? author.AuthorName
                     : author.AuthorName_en;
-                return (
-                    <li key={`${author}-${i}`} className="m-0 p-0">
-                        {display}
-                    </li>
-                );
+                return <li key={`${author}-${i}`} className="m-0 p-0">{display}</li>;
             })}
         </ul>
     );

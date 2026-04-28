@@ -40,88 +40,47 @@ export interface GridViewContentProps
 }
 
 /** 將 feature 資料轉成 1810 畫面需要的結構 */
-const getGridViewContentProps = (
-    p: {
-        lang: Lang;
-        rawData: GallerySet[];
-        categoryMap: Record<string, string>;
-    },
-): MainGridContentProp[] =>
+const getGridViewContentProps = (p: { lang: Lang; rawData: GallerySet[]; categoryMap: Record<string, string>; }): MainGridContentProp[] =>
 {
     return p.rawData.map((item) =>
     {
         const gly = item.Gallery;
         const galleryId = gly?.InternalId ?? "";
-        const title = item.GalleryInfo?.find(
-            (row) => row?.Lang?.toLowerCase() === p.lang.toLowerCase(),
-        )?.Title ?? "未命名";
+        const title = item.GalleryInfo?.find((row) => row?.Lang?.toLowerCase() === p.lang.toLowerCase())?.Title ?? "未命名";
 
         const coverPic = gly?.CoverPicSrcId ?? "";
-        const categoryIds = (gly?.Categories ?? "")
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean);
+        const categoryIds = (gly?.Categories ?? "").split(",").map((s) => s.trim()).filter(Boolean);
 
-        const categories = categoryIds
-            .map((catId) => p.categoryMap[catId] ?? "")
-            .filter((x): x is string => Boolean(x))
-            .join("、");
+        const categories = categoryIds.map((catId) => p.categoryMap[catId] ?? "").filter((x): x is string => Boolean(x)).join("、");
 
         const validateStart = FormatDate(gly?.Validate_Start) ?? "";
 
-        return {
-            galleryInternalId: galleryId,
-            Title: title,
-            CoverPicInternlId: coverPic,
-            CategoryNames: categories,
-            Validate_StartDate: validateStart,
-        };
+        return { galleryInternalId: galleryId, Title: title, CoverPicInternlId: coverPic, CategoryNames: categories, Validate_StartDate: validateStart };
     });
 };
 
 /** 將 feature 分頁資料轉成 1810 paginator 需要的格式 */
-const useGalleryPageProps = (
-    p: {
-        currentPage: number;
-        totalPages: number;
-        onPageChange: (page: number) => void;
-    },
-): GalleryPageProps =>
+const useGalleryPageProps = (p: { currentPage: number; totalPages: number; onPageChange: (page: number) => void; }): GalleryPageProps =>
 {
     return useMemo(() =>
     {
-        return {
-            CurrentPage: p.currentPage,
-            TotalPage: p.totalPages,
-            onPageChange: p.onPageChange,
-        };
+        return { CurrentPage: p.currentPage, TotalPage: p.totalPages, onPageChange: p.onPageChange };
     }, [p.currentPage, p.totalPages, p.onPageChange]);
 };
 
 const GalleryListComp = (props: IGalleryListProps) =>
 {
     // 讀取 feature 收斂後的資料入口
-    const galleryData = useGalleryListFetchData({
-        lang: props.lang,
-        opts: props.options,
-    });
+    const galleryData = useGalleryListFetchData({ lang: props.lang, opts: props.options });
 
     // 整理成 1810 畫面需要的資料
     const compProps = useMemo(() =>
     {
-        return getGridViewContentProps({
-            lang: props.lang,
-            rawData: galleryData.list,
-            categoryMap: galleryData.categoryMap,
-        });
+        return getGridViewContentProps({ lang: props.lang, rawData: galleryData.list, categoryMap: galleryData.categoryMap });
     }, [props.lang, galleryData.list, galleryData.categoryMap]);
 
     // 整理成 1810 paginator 需要的格式
-    const gridProps = useGalleryPageProps({
-        currentPage: galleryData.pageNumber,
-        totalPages: galleryData.totalPages,
-        onPageChange: galleryData.onPageChange,
-    });
+    const gridProps = useGalleryPageProps({ currentPage: galleryData.pageNumber, totalPages: galleryData.totalPages, onPageChange: galleryData.onPageChange });
 
     return (
         <LoadingErrorHandler isLoading={galleryData.isLoading} errorList={galleryData.errors}>
@@ -138,17 +97,7 @@ const GalleryListComp = (props: IGalleryListProps) =>
 
 export default GalleryListComp;
 
-const MainContent = (
-    {
-        props,
-        gridProps,
-        theme,
-    }: {
-        props: MainGridContentProp[];
-        gridProps: GalleryPageProps;
-        theme: IFETheme;
-    },
-) =>
+const MainContent = ({ props, gridProps, theme }: { props: MainGridContentProp[]; gridProps: GalleryPageProps; theme: IFETheme; }) =>
 {
     const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
 

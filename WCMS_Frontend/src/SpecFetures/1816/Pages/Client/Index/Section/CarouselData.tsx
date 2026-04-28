@@ -73,9 +73,7 @@ const sortBannerDetails = (banner: BannerSet | null): BannerDetail[] =>
 const findBannerInfo = (banner: BannerSet | null, detail: BannerDetail, lang: Lang): BannerDetailInfo | undefined =>
 {
     // return：找對應語系資料
-    return banner?.BannerDetailInfo?.find(
-        (x) => x.BannerId === detail.BannerId && x.ParentRowId === detail.RowId && x.Lang === lang,
-    );
+    return banner?.BannerDetailInfo?.find((x) => x.BannerId === detail.BannerId && x.ParentRowId === detail.RowId && x.Lang === lang);
 };
 
 const clampIndex = (index: number, total: number): number =>
@@ -133,20 +131,12 @@ const buildSlidingItemClass = (itemIndex: number, activeIndex: number, slideStat
     // 執行 function：animate 階段
     if (isFrom)
     {
-        return clsx(
-            "carousel-item",
-            "active",
-            isNext ? "carousel-item-start" : "carousel-item-end",
-        );
+        return clsx("carousel-item", "active", isNext ? "carousel-item-start" : "carousel-item-end");
     }
 
     if (isTo)
     {
-        return clsx(
-            "carousel-item",
-            isNext ? "carousel-item-next" : "carousel-item-prev",
-            isNext ? "carousel-item-start" : "carousel-item-end",
-        );
+        return clsx("carousel-item", isNext ? "carousel-item-next" : "carousel-item-prev", isNext ? "carousel-item-start" : "carousel-item-end");
     }
 
     // return：保底
@@ -173,11 +163,7 @@ export const CarouselData = (props: CarouselDataProps) =>
     }, [props.internalId, props.initialBanner]);
 
     // 執行 function：QueryData（SSR 有 initial → hydration 不重抓）
-    const q = adapter.hooks.useQueryData({
-        internalId: props.internalId,
-        initial,
-        deps: [props.internalId],
-    });
+    const q = adapter.hooks.useQueryData({ internalId: props.internalId, initial, deps: [props.internalId] });
 
     // 宣告變數：統一資料來源
     const banner = q.data ?? null;
@@ -230,17 +216,10 @@ export const CarouselData = (props: CarouselDataProps) =>
         if (total <= 1) return;
         if (slideState) return;
 
-        const toIndex = direction === "next"
-            ? getNextIndex(activeIndex, total)
-            : getPrevIndex(activeIndex, total);
+        const toIndex = direction === "next" ? getNextIndex(activeIndex, total) : getPrevIndex(activeIndex, total);
 
         // 執行 function：進入 prepare 階段
-        setSlideState({
-            fromIndex: activeIndex,
-            toIndex,
-            direction,
-            phase: "prepare",
-        });
+        setSlideState({ fromIndex: activeIndex, toIndex, direction, phase: "prepare" });
     }, [activeIndex, slideState, sortedDetails.length]);
 
     const goToIndex = useCallback((targetIndex: number): void =>
@@ -257,12 +236,7 @@ export const CarouselData = (props: CarouselDataProps) =>
         const direction: SlideDirection = safeIndex > activeIndex ? "next" : "prev";
 
         // 執行 function：進入 prepare 階段
-        setSlideState({
-            fromIndex: activeIndex,
-            toIndex: safeIndex,
-            direction,
-            phase: "prepare",
-        });
+        setSlideState({ fromIndex: activeIndex, toIndex: safeIndex, direction, phase: "prepare" });
     }, [activeIndex, slideState, sortedDetails.length]);
 
     const handleToggle = useCallback((): void =>
@@ -405,9 +379,7 @@ export const CarouselData = (props: CarouselDataProps) =>
                                         <div
                                             key={`${p.BannerId}-${p.RowId}-${i}`}
                                             className={itemClassName}
-                                            aria-hidden={!isActive && !(slideState && i === slideState.toIndex)
-                                                ? true
-                                                : undefined}
+                                            aria-hidden={!isActive && !(slideState && i === slideState.toIndex) ? true : undefined}
                                         >
                                             {url
                                                 ? (

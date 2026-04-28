@@ -15,11 +15,7 @@ type HomePageSet = components["schemas"]["SpecHomePage1820Set_DTO"];
 type HomePageModel = components["schemas"]["SpecHomePage1820Model_DTO"];
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-export type HomePage1820SummaryRow = {
-    InternalId: string;
-    HomePageId: string;
-    Lang: string;
-};
+export type HomePage1820SummaryRow = { InternalId: string; HomePageId: string; Lang: string; };
 
 export type HomePage1820SummaryRawData = {
     supportLangs: Lang[];
@@ -28,19 +24,11 @@ export type HomePage1820SummaryRawData = {
     savingMap: Record<string, boolean>;
     saveLang: (lang: string, formData: HomePageSet) => Promise<void>;
 };
-export type HomePage1820FormRawData = {
-    formData: UseFetchFormDataResult<HomePageSet>;
-    categoryMap: Record<string, string>;
-};
+export type HomePage1820FormRawData = { formData: UseFetchFormDataResult<HomePageSet>; categoryMap: Record<string, string>; };
 
-export type HomePage1820FormAdapter = {
-    HomePage: ReturnType<typeof SpecHomePage1820Adapter>;
-    Category: ReturnType<typeof CategoryAdapter>;
-};
+export type HomePage1820FormAdapter = { HomePage: ReturnType<typeof SpecHomePage1820Adapter>; Category: ReturnType<typeof CategoryAdapter>; };
 
-export type HomePage1820SummaryAdapter = {
-    HomePage: ReturnType<typeof SpecHomePage1820Adapter>;
-};
+export type HomePage1820SummaryAdapter = { HomePage: ReturnType<typeof SpecHomePage1820Adapter>; };
 
 const emptyDisplayName: ModelDisplaySchema = { ModelId: "", ModelDisplayName: "", Tables: [] };
 
@@ -95,11 +83,7 @@ const normalizeSet = (lang: string, data?: HomePageSet | null): HomePageSet =>
     const base = data ?? createEmptyHomePage1820Set(lang);
 
     return {
-        SpecHomePage1820: {
-            ...createEmptyModel(lang),
-            ...(base.SpecHomePage1820 ?? {}),
-            Lang: base.SpecHomePage1820?.Lang || lang,
-        },
+        SpecHomePage1820: { ...createEmptyModel(lang), ...(base.SpecHomePage1820 ?? {}), Lang: base.SpecHomePage1820?.Lang || lang },
         SpecHomePage1820_BannerMedia: [...(base.SpecHomePage1820_BannerMedia ?? [])],
         SpecHomePage1820_Detail: [...(base.SpecHomePage1820_Detail ?? [])],
         SpecHomePage1820_Marquee: [...(base.SpecHomePage1820_Marquee ?? [])],
@@ -129,36 +113,21 @@ const sanitizeSetBeforeSave = (lang: string, data: HomePageSet): HomePageSet =>
 
     return {
         ...set,
-        SpecHomePage1820: {
-            ...set.SpecHomePage1820,
-            Lang: set.SpecHomePage1820?.Lang || lang,
-            HomePageId: homePageId,
-        },
+        SpecHomePage1820: { ...set.SpecHomePage1820, Lang: set.SpecHomePage1820?.Lang || lang, HomePageId: homePageId },
         SpecHomePage1820_BannerMedia: (set.SpecHomePage1820_BannerMedia ?? []).map(a => ({
             ...a,
             HomePageId: resolveChildHomePageId(a.HomePageId, homePageId),
         })),
-        SpecHomePage1820_Detail: (set.SpecHomePage1820_Detail ?? []).map(a => ({
-            ...a,
-            HomePageId: resolveChildHomePageId(a.HomePageId, homePageId),
-        })),
-        SpecHomePage1820_Marquee: (set.SpecHomePage1820_Marquee ?? []).map(a => ({
-            ...a,
-            HomePageId: resolveChildHomePageId(a.HomePageId, homePageId),
-        })),
-        SpecHomePage1820_Resource: (set.SpecHomePage1820_Resource ?? []).map(a => ({
-            ...a,
-            HomePageId: resolveChildHomePageId(a.HomePageId, homePageId),
-        })),
+        SpecHomePage1820_Detail: (set.SpecHomePage1820_Detail ?? []).map(a => ({ ...a, HomePageId: resolveChildHomePageId(a.HomePageId, homePageId) })),
+        SpecHomePage1820_Marquee: (set.SpecHomePage1820_Marquee ?? []).map(a => ({ ...a, HomePageId: resolveChildHomePageId(a.HomePageId, homePageId) })),
+        SpecHomePage1820_Resource: (set.SpecHomePage1820_Resource ?? []).map(a => ({ ...a, HomePageId: resolveChildHomePageId(a.HomePageId, homePageId) })),
     };
 };
 
 const buildInitialSummaryMap = (supportLangs: string[]) =>
 {
     // 建立空摘要 map
-    return Object.fromEntries(
-        supportLangs.map(lang => [lang, { InternalId: "", HomePageId: "", Lang: lang }]),
-    ) as Record<string, HomePage1820SummaryRow>;
+    return Object.fromEntries(supportLangs.map(lang => [lang, { InternalId: "", HomePageId: "", Lang: lang }])) as Record<string, HomePage1820SummaryRow>;
 };
 
 const buildSummaryMap = (supportLangs: string[], list?: HomePageSet[] | null) =>
@@ -172,11 +141,7 @@ const buildSummaryMap = (supportLangs: string[], list?: HomePageSet[] | null) =>
         const key = resolveLangKey(supportLangs, model?.Lang ?? DefaultLang);
         if (!key) continue;
 
-        next[key] = {
-            InternalId: model?.InternalId ?? "",
-            HomePageId: model?.HomePageId ?? "",
-            Lang: model?.Lang ?? key,
-        };
+        next[key] = { InternalId: model?.InternalId ?? "", HomePageId: model?.HomePageId ?? "", Lang: model?.Lang ?? key };
     }
 
     return next;
@@ -191,9 +156,7 @@ const resolveNextFormData = (lang: string, prev: HomePageSet, next: SetStateActi
 };
 
 /** 外層：只撈 lang + internalId */
-export const useHomePage1820SummaryFetchData = (
-    opt: { supportLangs: Lang[]; },
-): UseFetchDataResult<HomePage1820SummaryRawData, HomePage1820SummaryAdapter> =>
+export const useHomePage1820SummaryFetchData = (opt: { supportLangs: Lang[]; }): UseFetchDataResult<HomePage1820SummaryRawData, HomePage1820SummaryAdapter> =>
 {
     const { publish } = useToast();
 
@@ -213,11 +176,7 @@ export const useHomePage1820SummaryFetchData = (
     const listCondition = useMemo<QueryListParam>(() =>
     {
         return {
-            Fields: [
-                SpecHomePage1820ModelFields.InternalId,
-                SpecHomePage1820ModelFields.HomePageId,
-                SpecHomePage1820ModelFields.Lang,
-            ],
+            Fields: [SpecHomePage1820ModelFields.InternalId, SpecHomePage1820ModelFields.HomePageId, SpecHomePage1820ModelFields.Lang],
             Condition: "",
             PageNumber: 0,
             PageSize: 0,
@@ -225,11 +184,7 @@ export const useHomePage1820SummaryFetchData = (
     }, []);
 
     /** 全搜摘要 */
-    const list = adapter.HomePage.hooks.useQueryList({
-        condition: listCondition,
-        deps: [],
-        onError,
-    });
+    const list = adapter.HomePage.hooks.useQueryList({ condition: listCondition, deps: [], onError });
 
     /** 建立 actions */
     const actions = adapter.HomePage.useServerActions();
@@ -246,9 +201,7 @@ export const useHomePage1820SummaryFetchData = (
     /** 語系 internalId map */
     const langInternalIdMap = useMemo<Record<string, string>>(() =>
     {
-        return Object.fromEntries(
-            opt.supportLangs.map(lang => [lang, langSummaryMap[lang]?.InternalId ?? ""]),
-        );
+        return Object.fromEntries(opt.supportLangs.map(lang => [lang, langSummaryMap[lang]?.InternalId ?? ""]));
     }, [langSummaryMap, opt.supportLangs]);
 
     const saveLang = useCallback(async (lang: string, formData: HomePageSet) =>
@@ -284,13 +237,7 @@ export const useHomePage1820SummaryFetchData = (
 
     const rawData = useMemo<HomePage1820SummaryRawData>(() =>
     {
-        return {
-            supportLangs: opt.supportLangs,
-            langInternalIdMap,
-            langSummaryMap,
-            savingMap,
-            saveLang,
-        };
+        return { supportLangs: opt.supportLangs, langInternalIdMap, langSummaryMap, savingMap, saveLang };
     }, [langInternalIdMap, langSummaryMap, opt.supportLangs, saveLang, savingMap]);
 
     const refetchData = useCallback(async () =>
@@ -304,14 +251,7 @@ export const useHomePage1820SummaryFetchData = (
         // 此 hook 無參考資料
     }, []);
 
-    return {
-        adapter,
-        rawData,
-        isLoading: list.isLoading,
-        errors: [list.errorText].filter((x): x is string => Boolean(x)),
-        refetchData,
-        refetchRefData,
-    };
+    return { adapter, rawData, isLoading: list.isLoading, errors: [list.errorText].filter((x): x is string => Boolean(x)), refetchData, refetchRefData };
 };
 
 /** 內層：單一語系用 internalId 組一般 formData */
@@ -332,10 +272,7 @@ export const useHomePage1820FormDataByAdapter = (
     /** 建立 adapter */
     const formAdapter = useMemo<HomePage1820FormAdapter>(() =>
     {
-        return {
-            HomePage: adapter,
-            Category: CategoryAdapter(),
-        };
+        return { HomePage: adapter, Category: CategoryAdapter() };
     }, [adapter]);
 
     const langKey = useMemo(() => normalizeLang(lang), [lang]);
@@ -364,31 +301,16 @@ export const useHomePage1820FormDataByAdapter = (
         // 新增模式時提供初始資料，避免 query "__new__"
         if (!isNew) return null;
 
-        const apiRes: ApiResponse<HomePageSet> = {
-            IsSuccess: true,
-            Data: empty,
-            SysMessage: [],
-        };
+        const apiRes: ApiResponse<HomePageSet> = { IsSuccess: true, Data: empty, SysMessage: [] };
 
         return { args: internalKey, apiRes };
     }, [empty, internalKey, isNew]);
 
-    const model = formAdapter.HomePage.hooks.useModelDisplayName({
-        deps: [],
-        onError,
-    });
+    const model = formAdapter.HomePage.hooks.useModelDisplayName({ deps: [], onError });
 
-    const query = formAdapter.HomePage.hooks.useQueryData({
-        internalId: internalKey,
-        initial,
-        deps: [internalKey],
-        onError,
-    });
+    const query = formAdapter.HomePage.hooks.useQueryData({ internalId: internalKey, initial, deps: [internalKey], onError });
 
-    const category = formAdapter.Category.hooks.useMapByProgId({
-        progId: PGID.Announcement,
-        lang,
-    });
+    const category = formAdapter.Category.hooks.useMapByProgId({ progId: PGID.Announcement, lang });
 
     /** 可編輯 form state */
     const [data, setData] = useState<HomePageSet>(empty);
@@ -427,10 +349,7 @@ export const useHomePage1820FormDataByAdapter = (
 
     const rawData = useMemo<HomePage1820FormRawData>(() =>
     {
-        return {
-            formData,
-            categoryMap: category.map ?? {},
-        };
+        return { formData, categoryMap: category.map ?? {} };
     }, [category.map, formData]);
 
     const isLoading = useMemo(() =>
@@ -453,14 +372,7 @@ export const useHomePage1820FormDataByAdapter = (
         await Promise.resolve(category.refetch());
     }, [category]);
 
-    return {
-        adapter: formAdapter,
-        rawData,
-        isLoading,
-        errors,
-        refetchData,
-        refetchRefData,
-    };
+    return { adapter: formAdapter, rawData, isLoading, errors, refetchData, refetchRefData };
 };
 
 /** 可選：若你要在這頁直接組當前語系 actions，可用這個 */
@@ -471,10 +383,7 @@ export const useHomePage1820LangFormActions = (
     onAfterSave?: () => void,
 ): ServerFormActions =>
 {
-    const key = useMemo(() => resolveLangKey(summary.rawData.supportLangs, lang) || lang, [
-        summary.rawData.supportLangs,
-        lang,
-    ]);
+    const key = useMemo(() => resolveLangKey(summary.rawData.supportLangs, lang) || lang, [summary.rawData.supportLangs, lang]);
     const isSaving = Boolean(summary.rawData.savingMap[key]);
 
     return {

@@ -37,9 +37,15 @@ public class Material_DTO : DTOBasicDataModel
     /// </summary>
     [ForeignKey(nameof(CategoryId))] public Category_DTO? Category { get; set; }
     [LibDesc(ModelDisplayName.CategoryId), StringLength(SysLengthParam.ID)] public string? CategoryId { get; set; }
+    /// <summary>
+    /// 商品價格 (未來要移動到商品資料，而非物件資料)
+    /// </summary>
+    [LibDesc(ModelDisplayName.Product_Price)] public decimal? Price { get; set; }
 
     #region 主子表關聯
     [InverseProperty(nameof(MaterialLangInfo_DTO._Material))] public List<MaterialLangInfo_DTO>? _MaterialLangInfo { get; set; }
+    [InverseProperty(nameof(MaterialPicture_DTO._Material))] public List<MaterialPicture_DTO>? _MaterialPicture { get; set; }
+    [InverseProperty(nameof(MaterialTags_DTO._Material))] public List<MaterialTags_DTO>? _MaterialTags { get; set; }
     #endregion
 }
 /// <summary>

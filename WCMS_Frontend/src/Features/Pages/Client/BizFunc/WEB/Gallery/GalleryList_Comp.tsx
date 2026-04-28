@@ -1,7 +1,5 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import ModuleContent, {
-    type ModuleViewCountConfig,
-} from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
+import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
@@ -30,11 +28,7 @@ const GalleryList = (props: IGalleryListProps) =>
 
     const paginatorProps = useMemo<PaginatorProps>(() =>
     {
-        return {
-            currentPage: galleryData.pageNumber,
-            totalPages: galleryData.totalPages,
-            onPageChange: galleryData.onPageChange,
-        };
+        return { currentPage: galleryData.pageNumber, totalPages: galleryData.totalPages, onPageChange: galleryData.onPageChange };
     }, [galleryData.pageNumber, galleryData.totalPages, galleryData.onPageChange]);
 
     const viewCountConfig = useMemo<ModuleViewCountConfig>(() =>
@@ -51,11 +45,7 @@ const GalleryList = (props: IGalleryListProps) =>
             paginatorProps={paginatorProps}
             viewCountConfig={viewCountConfig}
         >
-            <Gallery
-                lang={props.lang}
-                data={galleryData.list}
-                categoryMap={galleryData.categoryMap}
-            />
+            <Gallery lang={props.lang} data={galleryData.list} categoryMap={galleryData.categoryMap} />
         </ModuleContent>
     );
 };
@@ -72,29 +62,15 @@ const Gallery = (props: { lang: Lang; data: GallerySet[]; categoryMap: Record<st
                 {
                     const catId = item.Gallery?.Categories;
                     const title = item.GalleryInfo?.find((p) => p.Lang === props.lang)?.Title ?? "";
-                    const coverPicDesc = item.GalleryPhotos
-                        ?.find((p) => p.PicSrcId)
-                        ?.GalleryPhotosInfo
-                        ?.find((p) => p.Lang === props.lang)
-                        ?.Title
-                        ?? title;
+                    const coverPicDesc = item.GalleryPhotos?.find((p) => p.PicSrcId)?.GalleryPhotosInfo?.find((p) => p.Lang === props.lang)?.Title ?? title;
 
-                    const coverPicUrl = FileManagementAPI.get_Public_Preview_Url(
-                        item.Gallery?.CoverPicSrcId,
-                        coverPicDesc,
-                    );
+                    const coverPicUrl = FileManagementAPI.get_Public_Preview_Url(item.Gallery?.CoverPicSrcId, coverPicDesc);
 
                     const linkUrl = `${dirUrl}/${item.Gallery?.InternalId}`;
 
-                    const categoryIds = (catId ?? "")
-                        .split(",")
-                        .map((s) => s.trim())
-                        .filter(Boolean);
+                    const categoryIds = (catId ?? "").split(",").map((s) => s.trim()).filter(Boolean);
 
-                    const categories = categoryIds
-                        .map((id) => props.categoryMap[id] ?? "")
-                        .filter((x): x is string => Boolean(x))
-                        .join("、");
+                    const categories = categoryIds.map((id) => props.categoryMap[id] ?? "").filter((x): x is string => Boolean(x)).join("、");
 
                     const validateStart = FormatDate(item.Gallery?.Validate_Start);
                     const content = item.GalleryInfo?.find((p) => p.Lang === props.lang)?.Title ?? "";
@@ -105,12 +81,7 @@ const Gallery = (props: { lang: Lang; data: GallerySet[]; categoryMap: Record<st
                             <article className="cardbox">
                                 <div className="card_content">
                                     <figure className="figure_Box">
-                                        <LangLink
-                                            to={linkUrl}
-                                            className="card_image_link venobox"
-                                            data-gall="myGallery"
-                                            title={title}
-                                        >
+                                        <LangLink to={linkUrl} className="card_image_link venobox" data-gall="myGallery" title={title}>
                                             <div className="card_figure">
                                                 <div className="img-wrapper">
                                                     <img className="card_image" src={coverPicUrl} alt={coverPicDesc} />
@@ -134,28 +105,16 @@ const Gallery = (props: { lang: Lang; data: GallerySet[]; categoryMap: Record<st
                                     </div>
 
                                     <div className="card_titleDiv + mb-md-4 mb-sm-3 mb-2">
-                                        <LangLink to={linkUrl} className="card_title">
-                                            {content}
-                                        </LangLink>
+                                        <LangLink to={linkUrl} className="card_title">{content}</LangLink>
                                         <div className="d-flex gap-1 flex-wrap">
-                                            {Boolean(contentStatus & 1) && (
-                                                <span className="label label-success">置頂</span>
-                                            )}
-                                            {Boolean(contentStatus & 2) && (
-                                                <span className="label label-danger">熱門</span>
-                                            )}
+                                            {Boolean(contentStatus & 1) && <span className="label label-success">置頂</span>}
+                                            {Boolean(contentStatus & 2) && <span className="label label-danger">熱門</span>}
                                         </div>
                                     </div>
 
                                     <div className="card_StateDiv">
                                         <div className="More customize_btn">
-                                            <LangLink
-                                                to={linkUrl}
-                                                className="Btn_s1"
-                                                type="button"
-                                                role="button"
-                                                title="觀看更多"
-                                            >
+                                            <LangLink to={linkUrl} className="Btn_s1" type="button" role="button" title="觀看更多">
                                                 VIEW ALL<span className="ml-2">+</span>
                                             </LangLink>
                                         </div>

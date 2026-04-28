@@ -13,14 +13,12 @@ const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] =>
         Title: "首頁設定",
         DefaultActionCode: "Form",
         IconClassName: "fas fa-home",
-        Actions: [
-            {
-                ActionCode: "Form",
-                Title: "首頁設定",
-                RoutePath: "Form",
-                elementFactory: (ctx) => <Server_HomePage1820_Form_Comp theme={ctx.theme} lang={ctx.lang} />,
-            },
-        ],
+        Actions: [{
+            ActionCode: "Form",
+            Title: "首頁設定",
+            RoutePath: "Form",
+            elementFactory: (ctx) => <Server_HomePage1820_Form_Comp theme={ctx.theme} lang={ctx.lang} />,
+        }],
     };
     // 建立首頁設定 prog
     // const prog: IProgMeta = {

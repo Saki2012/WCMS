@@ -8,10 +8,7 @@ import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Ro
 import LeftFrame from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/LeftFrame/LeftFrame";
 import RightFrame from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/RightFrame";
 import TopFrame from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/TopFrame/TopFrame";
-import {
-    BreadcrumbContext,
-    type BreadcrumbItem,
-} from "@/Features/Pages/Client/Scaffold/SubPages/Module/BreadCrumb/BreadCrumb_Comp";
+import { BreadcrumbContext, type BreadcrumbItem } from "@/Features/Pages/Client/Scaffold/SubPages/Module/BreadCrumb/BreadCrumb_Comp";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { useState } from "react";
@@ -40,9 +37,11 @@ const SubPage = (props: ISubPageProps) =>
     return (
         <>
             <BreadcrumbContext.Provider value={{ items, setItems }}>
-                {/* <div className="container-content">
+                {
+                    /* <div className="container-content">
                     <Accesskey type="C" lang={props.lang}/>
-                </div> */}
+                </div> */
+                }
                 <ContentContainer
                     style={props.style}
                     lang={props.lang}
@@ -69,13 +68,7 @@ const ContentContainer = (props: IContentContainerProps) =>
         <div className="ContentPlaceContent_Area">
             <section className="Template content area">
                 {/* 子頁上方區塊 */}
-                <TopFrame
-                    lang={props.lang}
-                    site={props.site}
-                    node={props.node}
-                    backHref={props.backHref}
-                    initialBanner={props.bannerInitial}
-                />
+                <TopFrame lang={props.lang} site={props.site} node={props.node} backHref={props.backHref} initialBanner={props.bannerInitial} />
                 <div className="container-content + Layout_Padding_0_top Layout_Padding_5_bottom">
                     <div className="row">
                         <LeftFrame lang={props.lang} site={props.site} node={props.node} />

@@ -1,9 +1,7 @@
 import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
 import { useGalleryFormFetchData } from "@/Features/Pages/Client/BizFunc/WEB/Gallery/GalleryForm_Loader";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import ModuleContent, {
-    type ModuleViewCountConfig,
-} from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
+import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
@@ -21,16 +19,8 @@ const GalleryForm = (props: { site: INormSite; node: INormNode; theme: IFETheme;
     // 建立瀏覽次數設定
     const viewCountConfig = useMemo<ModuleViewCountConfig>(() =>
     {
-        const request: TryCountDetailViewRequest = {
-            SiteIndex: props.site.siteIndex,
-            ProgId: PGID.Gallery,
-            InternalId: formData.internalId,
-        };
-        return {
-            mode: "form",
-            contentKey: formData.internalId,
-            request,
-        };
+        const request: TryCountDetailViewRequest = { SiteIndex: props.site.siteIndex, ProgId: PGID.Gallery, InternalId: formData.internalId };
+        return { mode: "form", contentKey: formData.internalId, request };
     }, [props.site.siteIndex, formData.internalId]);
 
     return (
@@ -41,10 +31,7 @@ const GalleryForm = (props: { site: INormSite; node: INormNode; theme: IFETheme;
             errorList={formData.errorList}
             viewCountConfig={viewCountConfig}
         >
-            <GalleryFormList
-                lang={props.lang}
-                data={formData.data}
-            />
+            <GalleryFormList lang={props.lang} data={formData.data} />
         </ModuleContent>
     );
 };
@@ -99,9 +86,7 @@ const GalleryFormList = (props: { lang: Lang; data: GallerySet; }) =>
             <div id="Row_Colitem" className="SubPage_Standard_itemBoxs">
                 {props.data?.GalleryPhotos?.map((item, idx) =>
                 {
-                    const infoDt = props.data.GalleryPhotosInfo?.find(
-                        (p) => p.ParentRowId === item.RowId && p.Lang === props.lang,
-                    );
+                    const infoDt = props.data.GalleryPhotosInfo?.find((p) => p.ParentRowId === item.RowId && p.Lang === props.lang);
                     const photoTitle = infoDt?.Title ?? "";
                     const photoUrl = FileManagementAPI.get_Public_Preview_Url(item.PicSrcId);
 
@@ -110,12 +95,7 @@ const GalleryFormList = (props: { lang: Lang; data: GallerySet; }) =>
                             <article className="cardbox">
                                 <div className="card_content">
                                     <figure className="figure_Box">
-                                        <a
-                                            href={photoUrl}
-                                            className="card_image_link venobox"
-                                            data-gall="myGallery"
-                                            title={photoTitle}
-                                        >
+                                        <a href={photoUrl} className="card_image_link venobox" data-gall="myGallery" title={photoTitle}>
                                             <div className="card_figure">
                                                 <div className="img-wrapper">
                                                     <img className="card_image" src={photoUrl} alt="" />

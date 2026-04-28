@@ -1,27 +1,19 @@
 import { ServerModuleRoutes } from "@/Features/Pages/Server/Scaffold/Routes/ServerModuleRoutesData";
-import type {
-    IActionMeta,
-    IModuleMeta,
-    IProgMeta,
-    IServerElementFactoryCtx,
-} from "@/Features/Pages/Server/Scaffold/Routes/ServerModuleRoutesData";
+import type { IActionMeta, IModuleMeta, IProgMeta, IServerElementFactoryCtx } from "@/Features/Pages/Server/Scaffold/Routes/ServerModuleRoutesData";
 import type { RouteHandleMeta } from "@/Features/Pages/Server/Scaffold/Routes/ServerRouter";
 import { AutoRedirect } from "@/SysCore/Utils/Route/AutoRedirect";
 import type { IndexRouteObject, NonIndexRouteObject, RouteObject } from "react-router-dom";
 
 type ActionKey = `${string}/${string}/${string}`; // module/prog/action
 
-let cached:
-    | {
-        modules: Map<string, IModuleMeta>;
-        progs: Map<string, IProgMeta>; // module/prog
-        actions: Map<ActionKey, IActionMeta>;
-    }
-    | undefined;
+let cached: {
+    modules: Map<string, IModuleMeta>;
+    progs: Map<string, IProgMeta>; // module/prog
+    actions: Map<ActionKey, IActionMeta>;
+} | undefined;
 
 const progKey = (moduleCode: string, progId: string) => `${moduleCode}/${progId}` as const;
-const actionKey = (moduleCode: string, progId: string, actionCode: string) =>
-    `${moduleCode}/${progId}/${actionCode}` as ActionKey;
+const actionKey = (moduleCode: string, progId: string, actionCode: string) => `${moduleCode}/${progId}/${actionCode}` as ActionKey;
 
 export const getServerMenuIndex = () =>
 {
@@ -50,8 +42,7 @@ export const getServerMenuIndex = () =>
 };
 
 export const findModuleMeta = (moduleCode: string) => getServerMenuIndex().modules.get(moduleCode);
-export const findProgMeta = (moduleCode: string, progId: string) =>
-    getServerMenuIndex().progs.get(`${moduleCode}/${progId}`);
+export const findProgMeta = (moduleCode: string, progId: string) => getServerMenuIndex().progs.get(`${moduleCode}/${progId}`);
 export const findActionMeta = (moduleCode: string, progId: string, actionCode: string) =>
     getServerMenuIndex().actions.get(`${moduleCode}/${progId}/${actionCode}` as ActionKey);
 
@@ -86,12 +77,7 @@ const buildActionHandleFromMeta = (moduleCode: string, progId: string, a: IActio
     return { moduleCode, progId, actionCode: a.ActionCode, title: a.Title };
 };
 /** 建 action route（支援 index action：RoutePath === ""） */
-const buildActionRoute = (
-    moduleCode: string,
-    progId: string,
-    a: IActionMeta,
-    ctx: IServerElementFactoryCtx,
-): RouteObject =>
+const buildActionRoute = (moduleCode: string, progId: string, a: IActionMeta, ctx: IServerElementFactoryCtx): RouteObject =>
 {
     const path = getActionPath(a);
     const element = a.elementFactory ? a.elementFactory(ctx) : <div>Missing elementFactory</div>;
@@ -127,7 +113,6 @@ const buildModuleRoute = (m: IModuleMeta, ctx: IServerElementFactoryCtx): NonInd
 /** 從 Data 產生 /Server 的 children routes */
 export const buildServerChildrenFromData = (modules: IModuleMeta[], ctx: IServerElementFactoryCtx): RouteObject[] =>
 {
-    return (modules ?? [])
-        .filter(m => (m.Progs?.length ?? 0) > 0) // ✅ 避免把 Logout 這種空 module 生成進 /Server children
+    return (modules ?? []).filter(m => (m.Progs?.length ?? 0) > 0) // ✅ 避免把 Logout 這種空 module 生成進 /Server children
         .map(m => buildModuleRoute(m, ctx));
 };

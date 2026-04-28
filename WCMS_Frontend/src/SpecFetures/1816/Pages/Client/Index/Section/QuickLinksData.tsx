@@ -40,11 +40,7 @@ export const QuickLinksData = (props: QuickLinksDataProps) =>
     }, [props.internalId, props.initialBanner]);
 
     // 宣告變數：QueryData（SSR 有 initial → hydration 不重抓）
-    const useBanner = adapter.hooks.useQueryData({
-        internalId: props.internalId,
-        initial,
-        deps: [props.internalId, props.lang],
-    });
+    const useBanner = adapter.hooks.useQueryData({ internalId: props.internalId, initial, deps: [props.internalId, props.lang] });
 
     const sortedDetails = useMemo(() =>
     {
@@ -91,14 +87,9 @@ export const QuickLinksData = (props: QuickLinksDataProps) =>
             responsive: Record<number, { items: number; }>;
         }
 
-        type JQueryOwl = {
-            owlCarousel?: (opt: OwlOptions) => void;
-            trigger: (eventName: string, args?: unknown[]) => void;
-        };
+        type JQueryOwl = { owlCarousel?: (opt: OwlOptions) => void; trigger: (eventName: string, args?: unknown[]) => void; };
 
-        type JQueryStaticLike = ((el: Element) => JQueryOwl) & {
-            fn?: { owlCarousel?: unknown; };
-        };
+        type JQueryStaticLike = ((el: Element) => JQueryOwl) & { fn?: { owlCarousel?: unknown; }; };
 
         let cancelled = false;
         let isPlaying = true;
@@ -123,13 +114,7 @@ export const QuickLinksData = (props: QuickLinksDataProps) =>
                 autoplay: true,
                 autoplayTimeout: 10000,
                 autoplayHoverPause: true,
-                responsive: {
-                    0: { items: 2 },
-                    575: { items: 2 },
-                    767: { items: 2 },
-                    991: { items: 3 },
-                    1199: { items: 4 },
-                },
+                responsive: { 0: { items: 2 }, 575: { items: 2 }, 767: { items: 2 }, 991: { items: 3 }, 1199: { items: 4 } },
             };
 
             // return
@@ -144,8 +129,9 @@ export const QuickLinksData = (props: QuickLinksDataProps) =>
             // 宣告變數
             for (let i = 0; i < 40; i++)
             {
-                const $ = ((window as unknown as { jQuery?: unknown; $?: unknown; }).jQuery
-                    ?? (window as unknown as { jQuery?: unknown; $?: unknown; }).$) as JQueryStaticLike | undefined;
+                const $ = ((window as unknown as { jQuery?: unknown; $?: unknown; }).jQuery ?? (window as unknown as { jQuery?: unknown; $?: unknown; }).$) as
+                    | JQueryStaticLike
+                    | undefined;
 
                 // 執行 function
                 if ($?.fn?.owlCarousel) return $;
@@ -264,8 +250,9 @@ export const QuickLinksData = (props: QuickLinksDataProps) =>
         // ✅ 沒資料就 destroy（避免殘留 & Owl CSS 造成整段 display:none）
         if (sortedDetails.length === 0)
         {
-            const $maybe = ((window as unknown as { jQuery?: unknown; $?: unknown; }).jQuery
-                ?? (window as unknown as { jQuery?: unknown; $?: unknown; }).$) as JQueryStaticLike | undefined;
+            const $maybe = ((window as unknown as { jQuery?: unknown; $?: unknown; }).jQuery ?? (window as unknown as { jQuery?: unknown; $?: unknown; }).$) as
+                | JQueryStaticLike
+                | undefined;
 
             if ($maybe?.fn?.owlCarousel)
             {
@@ -342,9 +329,7 @@ export const QuickLinksData = (props: QuickLinksDataProps) =>
                                                 <span className="headDiv-txt">Links</span>
                                             </>
                                         )
-                                        : (
-                                            ""
-                                        )}
+                                        : ("")}
                                 </div>
                             </div>
                             <div className="col-12">
@@ -352,10 +337,8 @@ export const QuickLinksData = (props: QuickLinksDataProps) =>
                                     <div className="owl-carousel owl-theme" id="Links_owl_carousel">
                                         {sortedDetails.map((p, i) =>
                                         {
-                                            const info = useBanner.data?.BannerDetailInfo?.find(
-                                                (x) =>
-                                                    x.BannerId === p.BannerId && x.ParentRowId === p.RowId
-                                                    && x.Lang === props.lang,
+                                            const info = useBanner.data?.BannerDetailInfo?.find((x) =>
+                                                x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang
                                             );
                                             const alt = info?.Title ?? "";
                                             const url = info?.URL ?? "";
@@ -368,11 +351,7 @@ export const QuickLinksData = (props: QuickLinksDataProps) =>
                                                             <figure className="card_figure">
                                                                 <div className="card_image_link">
                                                                     <picture>
-                                                                        <img
-                                                                            className="card_image"
-                                                                            src={imgUrl}
-                                                                            alt={alt}
-                                                                        />
+                                                                        <img className="card_image" src={imgUrl} alt={alt} />
                                                                     </picture>
                                                                 </div>
                                                             </figure>

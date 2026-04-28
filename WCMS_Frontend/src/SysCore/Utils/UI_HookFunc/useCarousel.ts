@@ -49,14 +49,7 @@ export function useCarousel({ length, interval = 5000, autoPlay = true }: UseCar
     };
 
     // 滑入/聚焦暫停，滑出/失焦繼續
-    const bind = {
-        onMouseEnter: pause,
-        onMouseLeave: play,
-        onFocus: pause,
-        onBlur: play,
-        onTouchStart,
-        onTouchEnd,
-    } as const;
+    const bind = { onMouseEnter: pause, onMouseLeave: play, onFocus: pause, onBlur: play, onTouchStart, onTouchEnd } as const;
 
     return { index, goTo, next, prev, play, pause, playing, bind };
 }

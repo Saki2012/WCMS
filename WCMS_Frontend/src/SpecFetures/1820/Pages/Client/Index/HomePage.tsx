@@ -1,3 +1,4 @@
+import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 import { SpecHomePage1820Adapter } from "@/SpecFetures/1820/Hooks/WEB/HomePage_Api";
 import { Section1 } from "@/SpecFetures/1820/Pages/Client/Index/Section/Section1";
 import { type Lang } from "@/SysCore/i18n/lang";
@@ -9,7 +10,6 @@ import { Section3 } from "./Section/Section3";
 import { Section4 } from "./Section/Section4";
 import { Section5 } from "./Section/Section5";
 import { Section6 } from "./Section/Section6";
-import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 
 const HomePage = (props: { lang: Lang; }) =>
 {
@@ -17,9 +17,7 @@ const HomePage = (props: { lang: Lang; }) =>
     const loaderData = useLoaderData() as HomePageLoaderData | undefined;
     const rawData = loaderData?.res?.rawData;
     const adapter = useMemo(() => SpecHomePage1820Adapter(), []);
-    const weatherQuery = adapter.hooks.useWeatherData({
-        initial: loaderData?.res?.weatherInitial ?? null,
-    });
+    const weatherQuery = adapter.hooks.useWeatherData({ initial: loaderData?.res?.weatherInitial ?? null });
     // 執行 function：主資料不存在就先不渲染
     if (!rawData?.homePage) return null;
 
@@ -27,15 +25,11 @@ const HomePage = (props: { lang: Lang; }) =>
 
     return (
         <>
-            <Section1
-                homePage={homePage}
-                banners={rawData.banners}
-                weather={weatherQuery.weather}
-            />
+            <Section1 homePage={homePage} banners={rawData.banners} weather={weatherQuery.weather} />
 
             <main id="Site-Main" className="ALL_Main_DivBar main-fullpage-wraper">
                 <div className="background_area">
-                    <div className="container-customize3" style={{height: 0}}>
+                    <div className="container-customize3" style={{ height: 0 }}>
                         <Accesskey type="C" lang={props.lang} />
                     </div>
 

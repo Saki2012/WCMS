@@ -1,19 +1,21 @@
 // src/Components/QrCodeWithLogo_Comp.tsx
-import { QRCodeCanvas } from "qrcode.react";
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
+import { QRCodeCanvas } from "qrcode.react";
 
-export interface IQrCodeWithLogoProps {
+export interface IQrCodeWithLogoProps
+{
     value: string;
     size?: number;
     logoSrc?: string;
     logoSize?: number;
     ariaLabel?: string;
 
-    enableLink?: boolean;                 // ✅ 是否可點擊
-    linkTarget?: "_blank" | "_self";       // ✅ 另開/當前
+    enableLink?: boolean; // ✅ 是否可點擊
+    linkTarget?: "_blank" | "_self"; // ✅ 另開/當前
 }
 
-export const QrCodeWithLogo_Comp = (props: IQrCodeWithLogoProps) => {
+export const QrCodeWithLogo_Comp = (props: IQrCodeWithLogoProps) =>
+{
     // 宣告變數
     const size = props.size ?? 120;
     const logoSize = props.logoSize ?? Math.floor(size * 0.2);
@@ -30,11 +32,7 @@ export const QrCodeWithLogo_Comp = (props: IQrCodeWithLogoProps) => {
                 size={size}
                 level="M"
                 includeMargin={true}
-                imageSettings={
-                    props.logoSrc
-                        ? { src: props.logoSrc, height: logoSize, width: logoSize, excavate: true }
-                        : undefined
-                }
+                imageSettings={props.logoSrc ? { src: props.logoSrc, height: logoSize, width: logoSize, excavate: true } : undefined}
             />
         </div>
     );

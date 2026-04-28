@@ -14,12 +14,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 type QueryListParam = components["schemas"]["QueryListParam"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
-type CategoryListFormRawData = {
-    editForm: UseFetchFormDataResult<CategorySet>;
-    actions: UseActionsResult;
-    list: CategorySet[];
-    param: QueryListParam;
-};
+type CategoryListFormRawData = { editForm: UseFetchFormDataResult<CategorySet>; actions: UseActionsResult; list: CategorySet[]; param: QueryListParam; };
 type CategoryListFormAdapter = { Category: ReturnType<typeof CategoryAdapter>; };
 
 // #region Public
@@ -44,14 +39,7 @@ export const useCategoryListFormFetchData = (
         modelDeps: [opt.lang],
         onError,
     });
-    const actions = useCategoryListFormActionsFromAdapter(
-        opt.dirUrl,
-        adapter.Category,
-        opt.internalId,
-        formData,
-        opt.emptyData,
-        grid.refetchData,
-    );
+    const actions = useCategoryListFormActionsFromAdapter(opt.dirUrl, adapter.Category, opt.internalId, formData, opt.emptyData, grid.refetchData);
     const isLoading = useMemo(() =>
     {
         return [grid.isLoading, formData.isLoading].some(Boolean);
@@ -204,11 +192,7 @@ const useCategoryListQueryParam = (p: { lang: Lang; pgId: PGID; }): QueryListPar
     }, [p.lang, p.pgId]);
     return useMemo(() =>
     {
-        return {
-            Fields: fields,
-            Condition: condition,
-            OrderBy: [{ Col: CategoryFields.CreateTime, Desc: true }],
-        };
+        return { Fields: fields, Condition: condition, OrderBy: [{ Col: CategoryFields.CreateTime, Desc: true }] };
     }, [fields, condition]);
 };
 // #endregion

@@ -24,42 +24,28 @@ type SpecCategoryListFormRawData = {
     showCols: Record<string, string>;
 };
 
-type SpecCategoryListFormAdapter = {
-    SpecCategory: ReturnType<typeof SpecCategoryAdapter>;
-};
+type SpecCategoryListFormAdapter = { SpecCategory: ReturnType<typeof SpecCategoryAdapter>; };
 
 // #region Public
-export const useSpecCategoryListFormFetchData = (opt: {
-    dirUrl: string;
-    internalId: string;
-    emptyData: SpecCategorySet;
-    lang: Lang;
-    pgId: PGID;
-}): UseFetchDataResult<SpecCategoryListFormRawData, SpecCategoryListFormAdapter> =>
+export const useSpecCategoryListFormFetchData = (
+    opt: { dirUrl: string; internalId: string; emptyData: SpecCategorySet; lang: Lang; pgId: PGID; },
+): UseFetchDataResult<SpecCategoryListFormRawData, SpecCategoryListFormAdapter> =>
 {
     // 宣告變數
     const { publish } = useToast();
 
     // 執行 function
-    const onError = useCallback(
-        (e: ApiAdapterError) =>
-        {
-            publish({ level: MessageStatus.Error, title: e.messageText });
-        },
-        [publish],
-    );
+    const onError = useCallback((e: ApiAdapterError) =>
+    {
+        publish({ level: MessageStatus.Error, title: e.messageText });
+    }, [publish]);
 
     const adapter = useMemo<SpecCategoryListFormAdapter>(() =>
     {
         return { SpecCategory: SpecCategoryAdapter() };
     }, []);
 
-    const formData = useSpecCategoryListFormDataByAdapter(
-        adapter.SpecCategory,
-        opt.internalId,
-        opt.emptyData,
-        onError,
-    );
+    const formData = useSpecCategoryListFormDataByAdapter(adapter.SpecCategory, opt.internalId, opt.emptyData, onError);
 
     const baseParam = useSpecCategoryListQueryParam({ lang: opt.lang, pgId: opt.pgId });
 
@@ -71,11 +57,7 @@ export const useSpecCategoryListFormFetchData = (opt: {
     });
 
     // show column items（原本 comp 內的 useEffect + useState）
-    const showColQuery = adapter.SpecCategory.hooks.useGetShowColItems({
-        progId: opt.pgId,
-        deps: [opt.pgId],
-        onError,
-    });
+    const showColQuery = adapter.SpecCategory.hooks.useGetShowColItems({ progId: opt.pgId, deps: [opt.pgId], onError });
 
     const showCols = useMemo<Record<string, string>>(() =>
     {
@@ -83,14 +65,7 @@ export const useSpecCategoryListFormFetchData = (opt: {
         return first ?? {};
     }, [showColQuery.data]);
 
-    const actions = useSpecCategoryListFormActionsFromAdapter(
-        opt.dirUrl,
-        adapter.SpecCategory,
-        opt.internalId,
-        formData,
-        opt.emptyData,
-        grid.refetchData,
-    );
+    const actions = useSpecCategoryListFormActionsFromAdapter(opt.dirUrl, adapter.SpecCategory, opt.internalId, formData, opt.emptyData, grid.refetchData);
 
     const isLoading = useMemo(() =>
     {
@@ -99,23 +74,13 @@ export const useSpecCategoryListFormFetchData = (opt: {
 
     const errors = useMemo(() =>
     {
-        const list = [
-            ...(grid.errors ?? []),
-            formData.error,
-            showColQuery.errorText,
-        ];
+        const list = [...(grid.errors ?? []), formData.error, showColQuery.errorText];
         return list.filter((x): x is string => Boolean(x));
     }, [grid.errors, formData.error, showColQuery.errorText]);
 
     const rawData = useMemo<SpecCategoryListFormRawData>(() =>
     {
-        return {
-            editForm: formData,
-            actions,
-            list: grid.list ?? [],
-            param: grid.param,
-            showCols,
-        };
+        return { editForm: formData, actions, list: grid.list ?? [], param: grid.param, showCols };
     }, [formData, actions, grid.list, grid.param, showCols]);
 
     const refetchData = useCallback(async () =>
@@ -143,11 +108,7 @@ const useSpecCategoryListFormDataByAdapter = (
         // 宣告變數
         if (!isNew) return null;
 
-        const apiRes: ApiResponse<SpecCategorySet> = {
-            IsSuccess: true,
-            Data: empty,
-            SysMessage: [],
-        };
+        const apiRes: ApiResponse<SpecCategorySet> = { IsSuccess: true, Data: empty, SysMessage: [] };
 
         // return
         return { args: internalKey, apiRes };
@@ -155,12 +116,7 @@ const useSpecCategoryListFormDataByAdapter = (
 
     // 執行 function
     const model = adapter.hooks.useModelDisplayName({ deps: [], onError });
-    const query = adapter.hooks.useQueryData({
-        internalId: internalKey,
-        initial,
-        deps: [internalKey],
-        onError,
-    });
+    const query = adapter.hooks.useQueryData({ internalId: internalKey, initial, deps: [internalKey], onError });
 
     const [data, setData] = useState<SpecCategorySet>(empty);
 
@@ -186,12 +142,7 @@ const useSpecCategoryListFormDataByAdapter = (
         isLoading,
         error,
         refetch,
-        displayName: (model.data
-            ?? ({
-                ModelId: "",
-                ModelDisplayName: "",
-                Tables: [],
-            } as ModelDisplaySchema)),
+        displayName: (model.data ?? ({ ModelId: "", ModelDisplayName: "", Tables: [] } as ModelDisplaySchema)),
     };
 };
 
@@ -236,13 +187,10 @@ const useSpecCategoryListFormActionsFromAdapter = (
         navigate(dirUrl);
     }, [navigate, dirUrl]);
 
-    const onEdit = useCallback(
-        (id: string) =>
-        {
-            navigate(`${dirUrl}/${id}`);
-        },
-        [navigate, dirUrl],
-    );
+    const onEdit = useCallback((id: string) =>
+    {
+        navigate(`${dirUrl}/${id}`);
+    }, [navigate, dirUrl]);
 
     const onCancelBack = useCallback(() =>
     {
@@ -256,9 +204,7 @@ const useSpecCategoryListFormActionsFromAdapter = (
         if (!dto) return false;
 
         // 執行 function
-        const res = isNew
-            ? await server.createAsync(dto)
-            : await server.updateAsync(internalId, dto);
+        const res = isNew ? await server.createAsync(dto) : await server.updateAsync(internalId, dto);
 
         // return
         return Boolean(res.IsSuccess);
@@ -270,21 +216,18 @@ const useSpecCategoryListFormActionsFromAdapter = (
     }, [server]);
 
     // return
-    return useMemo(
-        () => ({
-            isExecuting: server.isSaving,
-            onSave,
-            onDelete,
-            onInvalid: () =>
-            {},
-            onCancelBack,
-            onAddNew,
-            onEdit,
-            onPreview: () =>
-            {},
-        }),
-        [server.isSaving, onSave, onDelete, onCancelBack, onAddNew, onEdit],
-    );
+    return useMemo(() => ({
+        isExecuting: server.isSaving,
+        onSave,
+        onDelete,
+        onInvalid: () =>
+        {},
+        onCancelBack,
+        onAddNew,
+        onEdit,
+        onPreview: () =>
+        {},
+    }), [server.isSaving, onSave, onDelete, onCancelBack, onAddNew, onEdit]);
 };
 
 const useSpecCategoryListQueryParam = (p: { lang: Lang; pgId: PGID; }): QueryListParam =>
@@ -313,11 +256,7 @@ const useSpecCategoryListQueryParam = (p: { lang: Lang; pgId: PGID; }): QueryLis
     // return
     return useMemo(() =>
     {
-        return {
-            Fields: fields,
-            Condition: condition,
-            OrderBy: [{ Col: SpecCategoryModelFields.ModifyTime, Desc: true }],
-        };
+        return { Fields: fields, Condition: condition, OrderBy: [{ Col: SpecCategoryModelFields.ModifyTime, Desc: true }] };
     }, [fields, condition]);
 };
 // #endregion

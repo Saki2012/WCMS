@@ -1,4 +1,5 @@
 import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WEB/BannerSlider_Api";
+import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 import img from "@/SpecFetures/1817/Assets/Client/images/Tradition_and_Art_900x210.svg";
 import { LinkData } from "@/SpecFetures/1817/Pages/Client/Index/Section/LinkData";
 import type { Lang } from "@/SysCore/i18n/lang";
@@ -11,7 +12,6 @@ import clsx from "clsx";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { KeyboardEvent, MouseEvent } from "react";
 import { PerformancesPage } from "./PerformancesPage";
-import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 
 type BannerSet = components["schemas"]["BannerSet_DTO"];
 type BannerDetail = NonNullable<BannerSet["BannerDetail"]>[number];
@@ -24,28 +24,13 @@ interface CarouselDataProps
     initialBanner: BannerSet | null;
 }
 
-type BootstrapCarouselConfig = {
-    interval: number;
-    ride: "carousel";
-    pause: false;
-};
+type BootstrapCarouselConfig = { interval: number; ride: "carousel"; pause: false; };
 
-type BootstrapCarouselInstance = {
-    cycle: () => void;
-    pause: () => void;
-    dispose?: () => void;
-};
+type BootstrapCarouselInstance = { cycle: () => void; pause: () => void; dispose?: () => void; };
 
-type BootstrapCarouselStatic = {
-    getOrCreateInstance: (
-        element: HTMLElement,
-        config: BootstrapCarouselConfig,
-    ) => BootstrapCarouselInstance;
-};
+type BootstrapCarouselStatic = { getOrCreateInstance: (element: HTMLElement, config: BootstrapCarouselConfig) => BootstrapCarouselInstance; };
 
-type SlideEvent = Event & {
-    to?: number;
-};
+type SlideEvent = Event & { to?: number; };
 
 const toOkEnv = <T,>(data: T): ApiResponse<T> =>
 {
@@ -53,10 +38,7 @@ const toOkEnv = <T,>(data: T): ApiResponse<T> =>
     return { IsSuccess: true, SysMessage: [], Data: data };
 };
 
-const toInitial = <TArgs, TData>(
-    args: TArgs,
-    data: TData,
-): ApiLoaderData<TArgs, TData> =>
+const toInitial = <TArgs, TData>(args: TArgs, data: TData): ApiLoaderData<TArgs, TData> =>
 {
     // return：SSR hydration 初始資料
     return { args, apiRes: toOkEnv(data) };
@@ -81,33 +63,21 @@ const sortBannerDetails = (banner: BannerSet | null): BannerDetail[] =>
     // return：依 Sort 與 RowId 穩定排序
     return [...list].sort((a, b) =>
     {
-        const aSort = Number.isFinite(a?.Sort)
-            ? Number(a.Sort)
-            : Number.MAX_SAFE_INTEGER;
-        const bSort = Number.isFinite(b?.Sort)
-            ? Number(b.Sort)
-            : Number.MAX_SAFE_INTEGER;
+        const aSort = Number.isFinite(a?.Sort) ? Number(a.Sort) : Number.MAX_SAFE_INTEGER;
+        const bSort = Number.isFinite(b?.Sort) ? Number(b.Sort) : Number.MAX_SAFE_INTEGER;
 
         return aSort - bSort || (a.RowId ?? 0) - (b.RowId ?? 0);
     });
 };
 
-const findBannerInfo = (
-    banner: BannerSet | null,
-    detail: BannerDetail | undefined,
-    lang: Lang,
-): BannerDetailInfo | undefined =>
+const findBannerInfo = (banner: BannerSet | null, detail: BannerDetail | undefined, lang: Lang): BannerDetailInfo | undefined =>
 {
     // return：依當前 slide + 語系找對應資訊
     if (!detail) return undefined;
 
     return banner?.BannerDetailInfo?.find((item) =>
     {
-        return (
-            item.BannerId === detail.BannerId
-            && item.ParentRowId === detail.RowId
-            && item.Lang === lang
-        );
+        return (item.BannerId === detail.BannerId && item.ParentRowId === detail.RowId && item.Lang === lang);
     });
 };
 
@@ -120,27 +90,16 @@ const getSafeIndex = (index: number, total: number): number =>
     return index;
 };
 
-const getPerformanceData = (
-    banner: BannerSet | null,
-    detail: BannerDetail | undefined,
-    lang: Lang,
-) =>
+const getPerformanceData = (banner: BannerSet | null, detail: BannerDetail | undefined, lang: Lang) =>
 {
     // 宣告變數：語系明細
     const info = findBannerInfo(banner, detail, lang);
 
     // return：下方展演資訊
-    return {
-        title: info?.SpecLatestShows ?? "",
-        subTitle: info?.SpecShowLocation ?? "",
-        showtime: info?.SpecShowDate ?? "",
-    };
+    return { title: info?.SpecLatestShows ?? "", subTitle: info?.SpecShowLocation ?? "", showtime: info?.SpecShowDate ?? "" };
 };
 
-const applyPlayState = (
-    carousel: BootstrapCarouselInstance | null,
-    isPlaying: boolean,
-): void =>
+const applyPlayState = (carousel: BootstrapCarouselInstance | null, isPlaying: boolean): void =>
 {
     // 執行 function：切換播放狀態
     if (!carousel) return;
@@ -148,21 +107,14 @@ const applyPlayState = (
     else carousel.pause();
 };
 
-const initBootstrapCarousel = async (
-    element: HTMLElement,
-    intervalMs: number,
-): Promise<BootstrapCarouselInstance> =>
+const initBootstrapCarousel = async (element: HTMLElement, intervalMs: number): Promise<BootstrapCarouselInstance> =>
 {
     // 宣告變數：動態載入 bootstrap carousel
     const mod = await import("bootstrap/js/dist/carousel");
     const CarouselClass = mod.default as BootstrapCarouselStatic;
 
     // return：建立或取得 carousel instance
-    return CarouselClass.getOrCreateInstance(element, {
-        interval: intervalMs,
-        ride: "carousel",
-        pause: false,
-    });
+    return CarouselClass.getOrCreateInstance(element, { interval: intervalMs, ride: "carousel", pause: false });
 };
 
 const buildToggleLabel = (isPlaying: boolean): string =>
@@ -196,11 +148,7 @@ export const CarouselData = (props: CarouselDataProps) =>
     }, [props.initialBanner, props.internalId]);
 
     // 執行 function：Banner QueryData
-    const query = adapter.hooks.useQueryData({
-        internalId: props.internalId,
-        initial,
-        deps: [props.internalId],
-    });
+    const query = adapter.hooks.useQueryData({ internalId: props.internalId, initial, deps: [props.internalId] });
 
     // 宣告變數：資料來源
     const banner = query.data ?? null;
@@ -365,12 +313,7 @@ export const CarouselData = (props: CarouselDataProps) =>
                                                         onClick={onTogglePlay}
                                                         onKeyDown={onTogglePlayKeyDown}
                                                     >
-                                                        <span
-                                                            className={clsx(
-                                                                "control-icon",
-                                                                isPlaying ? "pause" : "play",
-                                                            )}
-                                                        />
+                                                        <span className={clsx("control-icon", isPlaying ? "pause" : "play")} />
                                                         <span className="sr-only">{toggleLabel}</span>
                                                     </a>
                                                 </div>
@@ -379,51 +322,29 @@ export const CarouselData = (props: CarouselDataProps) =>
                                             <div className="carousel-inner">
                                                 {sortedDetails.map((detail, index) =>
                                                 {
-                                                    const info = findBannerInfo(
-                                                        banner,
-                                                        detail,
-                                                        props.lang,
-                                                    );
+                                                    const info = findBannerInfo(banner, detail, props.lang);
                                                     const alt = info?.Title ?? "";
                                                     const url = info?.URL;
                                                     const target = info?.URL_Open === 0 ? "_self" : "_blank";
-                                                    const imageUrl = FileManagementAPI.get_Public_Preview_Url(
-                                                        detail.PicSrcId,
-                                                        alt,
-                                                    );
+                                                    const imageUrl = FileManagementAPI.get_Public_Preview_Url(detail.PicSrcId, alt);
 
                                                     return (
                                                         <div
                                                             key={`${detail.BannerId}-${detail.RowId}-${index}`}
-                                                            className={clsx(
-                                                                "carousel-item",
-                                                                index === 0 ? "active" : "",
-                                                            )}
+                                                            className={clsx("carousel-item", index === 0 ? "active" : "")}
                                                         >
                                                             {url
                                                                 ? (
                                                                     <LangNavLink
                                                                         to={url}
                                                                         target={target}
-                                                                        rel={target === "_blank"
-                                                                            ? "noopener noreferrer"
-                                                                            : undefined}
+                                                                        rel={target === "_blank" ? "noopener noreferrer" : undefined}
                                                                         aria-label={alt || "banner link"}
                                                                     >
-                                                                        <img
-                                                                            src={imageUrl}
-                                                                            className="d-block w-100"
-                                                                            alt={alt}
-                                                                        />
+                                                                        <img src={imageUrl} className="d-block w-100" alt={alt} />
                                                                     </LangNavLink>
                                                                 )
-                                                                : (
-                                                                    <img
-                                                                        src={imageUrl}
-                                                                        className="d-block w-100"
-                                                                        alt={alt}
-                                                                    />
-                                                                )}
+                                                                : <img src={imageUrl} className="d-block w-100" alt={alt} />}
                                                         </div>
                                                     );
                                                 })}
@@ -458,10 +379,7 @@ export const CarouselData = (props: CarouselDataProps) =>
                                                     onClick={preventDefault}
                                                 >
                                                     <div className="carousel-control-prev">
-                                                        <span
-                                                            aria-hidden="true"
-                                                            className="carousel-control-prev-icon"
-                                                        />
+                                                        <span aria-hidden="true" className="carousel-control-prev-icon" />
                                                         <span className="sr-only">Previous</span>
                                                     </div>
                                                 </a>
@@ -478,10 +396,7 @@ export const CarouselData = (props: CarouselDataProps) =>
                                                     onClick={preventDefault}
                                                 >
                                                     <div className="carousel-control-next">
-                                                        <span
-                                                            aria-hidden="true"
-                                                            className="carousel-control-next-icon"
-                                                        />
+                                                        <span aria-hidden="true" className="carousel-control-next-icon" />
                                                         <span className="sr-only">Next</span>
                                                     </div>
                                                 </a>
@@ -499,11 +414,7 @@ export const CarouselData = (props: CarouselDataProps) =>
             <div className="container-customize3" style={{ height: "0px" }}>
                 <Accesskey type="C" lang={props.lang} />
             </div>
-            <PerformancesPage
-                title={performanceData.title}
-                subTitle={performanceData.subTitle}
-                showtime={performanceData.showtime}
-            />
+            <PerformancesPage title={performanceData.title} subTitle={performanceData.subTitle} showtime={performanceData.showtime} />
         </>
     );
 };

@@ -1,4 +1,1 @@
-export type INaviBarStyle={
-    ul: string;
-    li:string;
-}
+export type INaviBarStyle = { ul: string; li: string; };

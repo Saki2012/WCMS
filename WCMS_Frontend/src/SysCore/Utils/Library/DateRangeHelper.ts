@@ -22,11 +22,7 @@ const toDateOrNull = (value?: string | number | Date | null): Date | null =>
  * - start/end 未提供 -> 視為不設限
  * - start/end 解析失敗 -> 視為不設限（避免因髒資料把內容全隱藏）
  */
-export const isInValidTimeRange = (
-    start?: string | number | Date | null,
-    end?: string | number | Date | null,
-    now: Date = new Date(),
-): boolean =>
+export const isInValidTimeRange = (start?: string | number | Date | null, end?: string | number | Date | null, now: Date = new Date()): boolean =>
 {
     const s = toDateOrNull(start);
     const e = toDateOrNull(end);

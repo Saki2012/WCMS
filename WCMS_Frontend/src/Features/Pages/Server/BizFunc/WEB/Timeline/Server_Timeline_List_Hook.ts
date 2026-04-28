@@ -22,13 +22,9 @@ export type TimelineListRawData = {
     onPageChange: (page: number) => void;
     param: QueryListParam;
 };
-type TimelineListAdapter = {
-    Timeline: ReturnType<typeof TimelineAdapter>;
-};
+type TimelineListAdapter = { Timeline: ReturnType<typeof TimelineAdapter>; };
 /** ✅ 主入口：Server Timeline List 的所有 fetch 都集中在這裡 */
-export const useTimelineListFetchData = (
-    opt: { lang: Lang; kw: string; },
-): UseFetchDataResult<TimelineListRawData, TimelineListAdapter> =>
+export const useTimelineListFetchData = (opt: { lang: Lang; kw: string; }): UseFetchDataResult<TimelineListRawData, TimelineListAdapter> =>
 {
     const { publish } = useToast();
     const onError = useCallback((e: ApiAdapterError) =>
@@ -67,15 +63,7 @@ export const useTimelineListFetchData = (
             onPageChange: grid.onPageChange,
             param: grid.param,
         };
-    }, [
-        grid.modelDisplayName,
-        grid.count,
-        grid.list,
-        grid.pageNumber,
-        grid.totalPages,
-        grid.onPageChange,
-        grid.param,
-    ]);
+    }, [grid.modelDisplayName, grid.count, grid.list, grid.pageNumber, grid.totalPages, grid.onPageChange, grid.param]);
     const refetchData = useCallback(async () =>
     {
         await grid.refetchData();
@@ -105,8 +93,7 @@ const useTimelineListQueryParam = (p: { lang: Lang; kw: string; }): QueryListPar
     }, []);
     const condition = useMemo(() =>
     {
-        let cdt =
-            `${TimelineFields._TimelineItem}.${TimelineItemFields._TimelineLangDetail}.${TimelineLangDetailFields.Lang} = ${p.lang}`;
+        let cdt = `${TimelineFields._TimelineItem}.${TimelineItemFields._TimelineLangDetail}.${TimelineLangDetailFields.Lang} = ${p.lang}`;
         if (p.kw)
         {
             cdt = LibMerge(" And ", false, cdt, `${TimelineFields.TimelineName} Like ${p.kw}`);
@@ -115,13 +102,7 @@ const useTimelineListQueryParam = (p: { lang: Lang; kw: string; }): QueryListPar
     }, [p.lang, p.kw]);
     return useMemo(() =>
     {
-        return {
-            Fields: fields,
-            Condition: condition,
-            OrderBy: [{ Col: TimelineFields.CreateTime, Desc: true }],
-            PageNumber: 1,
-            PageSize: 10,
-        };
+        return { Fields: fields, Condition: condition, OrderBy: [{ Col: TimelineFields.CreateTime, Desc: true }], PageNumber: 1, PageSize: 10 };
     }, [fields, condition]);
 };
 // #endregion

@@ -1,5 +1,6 @@
 import { buildMenuItems, getAncestorAtLevel, GetMenuData } from "@/Features/Hooks/Common/BuildMenuItems";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
+import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 import { GoTopButton } from "@/Features/Pages/Client/Scaffold/MainFrame/GoTopButton";
 import type { ISubPageLoaderData } from "@/Features/Pages/Client/Scaffold/SubPages/SubPage_Loader";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
@@ -16,7 +17,6 @@ import type { components } from "@/types/api";
 import clsx from "clsx";
 import { type MouseEvent, type ReactNode, useEffect, useMemo, useState } from "react";
 import { Outlet, useLoaderData, useLocation, useNavigate } from "react-router-dom";
-import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 
 type BannerSet = components["schemas"]["BannerSet_DTO"];
 type BannerDetail = components["schemas"]["BannerDetail_DTO"];
@@ -142,7 +142,8 @@ const isExternalUrl = (url?: string | null): boolean =>
 };
 
 // 若為外部連結 新增icon
-const renderLinkIcon = (url?: string | null) => {
+const renderLinkIcon = (url?: string | null) =>
+{
     return isExternalUrl(url) ? <i className="fa fa-link me-2"></i> : null;
 };
 
@@ -282,11 +283,7 @@ const mergeExpandedIds = (prev: Set<string>, expandedIdsByPath: Set<string>): Se
     return next;
 };
 
-const closeOtherTopLevelBranches = (
-    menuItems: MenuItemData[],
-    expandedIdsByPath: Set<string>,
-    next: Set<string>,
-): void =>
+const closeOtherTopLevelBranches = (menuItems: MenuItemData[], expandedIdsByPath: Set<string>, next: Set<string>): void =>
 {
     // 執行 function
     menuItems.forEach(item =>
@@ -345,10 +342,7 @@ const useExpandedMenuState = (menuItems: MenuItemData[], pathname: string, expan
 const SideMenuComp = (props: ISideMenuProps) =>
 {
     // 宣告變數
-    const { activeIds, expandedIdsByPath } = useMemo(
-        () => calcActiveAndExpanded(props.items, props.pathname),
-        [props.items, props.pathname],
-    );
+    const { activeIds, expandedIdsByPath } = useMemo(() => calcActiveAndExpanded(props.items, props.pathname), [props.items, props.pathname]);
     const { expandedIds, toggleExpand } = useExpandedMenuState(props.items, props.pathname, expandedIdsByPath);
 
     const renderLeaf = (item: MenuItemData): ReactNode =>
@@ -406,23 +400,12 @@ const SideMenuComp = (props: ISideMenuProps) =>
                 <li key={`${item.Id}-${idx}`} className={liClass}>
                     {hasSub
                         ? (
-                            <a
-                                href="#"
-                                onClick={handleToggle}
-                                aria-expanded={expanded}
-                                aria-current={active ? "page" : undefined}
-                            >
+                            <a href="#" onClick={handleToggle} aria-expanded={expanded} aria-current={active ? "page" : undefined}>
                                 {item.SrcData}
-                                <i
-                                    className={clsx("fa", expanded ? "fa-angle-down" : "fa-angle-right", "arrow")}
-                                    aria-hidden="true"
-                                >
-                                </i>
+                                <i className={clsx("fa", expanded ? "fa-angle-down" : "fa-angle-right", "arrow")} aria-hidden="true"></i>
                             </a>
                         )
-                        : (
-                            renderLeaf(item)
-                        )}
+                        : (renderLeaf(item))}
 
                     {hasSub && (
                         <ul
@@ -448,9 +431,7 @@ const SideMenuComp = (props: ISideMenuProps) =>
                 <h2>{props.title}</h2>
                 <p></p>
                 <nav className="Left-Second-navBox">
-                    <ul className={props.style.SideMenu.ul(1)}>
-                        {renderItems(props.items)}
-                    </ul>
+                    <ul className={props.style.SideMenu.ul(1)}>{renderItems(props.items)}</ul>
                 </nav>
             </div>
         </div>
@@ -491,12 +472,7 @@ const SubPageBase = (props: ISubPagesProps & { renderMain: () => ReactNode; }) =
             <a href="#" onClick={handleBack}>
                 <div className="pos-relative d-inline-block">
                     <div className="return-box">
-                        <i
-                            className="fa fa-reply"
-                            aria-hidden="true"
-                            style={{ fontSize: "112.5%", marginRight: "10px" }}
-                        >
-                        </i>
+                        <i className="fa fa-reply" aria-hidden="true" style={{ fontSize: "112.5%", marginRight: "10px" }}></i>
                         {gobackTitle}
                     </div>
                 </div>
@@ -515,24 +491,12 @@ const SubPageBase = (props: ISubPagesProps & { renderMain: () => ReactNode; }) =
                         <div className="row">
                             <div className="col-md-12 w-100">
                                 <nav className="custom_breadcrumb" aria-label="breadcrumb">
-                                    <BreadCrumbComp
-                                        items={breadCrumbData}
-                                        style={props.style.BreadCrumb}
-                                        isUl={false}
-                                        externalDOM={back}
-                                    >
-                                    </BreadCrumbComp>
+                                    <BreadCrumbComp items={breadCrumbData} style={props.style.BreadCrumb} isUl={false} externalDOM={back}></BreadCrumbComp>
                                 </nav>
                             </div>
 
                             {!!sideMenuData?.length && (
-                                <SideMenuComp
-                                    style={props.style}
-                                    title={title}
-                                    items={sideMenuData}
-                                    pathname={location.pathname}
-                                    lang={props.lang}
-                                />
+                                <SideMenuComp style={props.style} title={title} items={sideMenuData} pathname={location.pathname} lang={props.lang} />
                             )}
 
                             <div className="col-lg-10 col-md-12 col-sm-12 col-12" id="div_ThirdMenu">
@@ -559,17 +523,9 @@ const SubPageBase = (props: ISubPagesProps & { renderMain: () => ReactNode; }) =
 };
 
 const SubPage = (props: ISubPagesProps) => (
-    <SubPageBase
-        {...props}
-        renderMain={() => <Outlet context={{ lang: props.lang, site: props.site, node: props.node }} />}
-    />
+    <SubPageBase {...props} renderMain={() => <Outlet context={{ lang: props.lang, site: props.site, node: props.node }} />} />
 );
 
 export default SubPage;
 
-export const SubPageShell = (props: ISubPagesProps & { children: ReactNode; }) => (
-    <SubPageBase
-        {...props}
-        renderMain={() => props.children}
-    />
-);
+export const SubPageShell = (props: ISubPagesProps & { children: ReactNode; }) => <SubPageBase {...props} renderMain={() => props.children} />;

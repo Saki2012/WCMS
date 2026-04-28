@@ -97,10 +97,7 @@ export const useServerChangePassword = (theme: IBETheme): UseServerChangePasswor
         // 執行 function：驗證後送出 API
         if (!ok) return false;
 
-        const payload: ChangePassword = {
-            OldPassword: oldPwd,
-            NewPassword: newPwd,
-        };
+        const payload: ChangePassword = { OldPassword: oldPwd, NewPassword: newPwd };
 
         const res = await changePwd.execute(payload);
 
@@ -143,24 +140,9 @@ export const useServerChangePassword = (theme: IBETheme): UseServerChangePasswor
     const prop = useMemo<FormCompProp>(() =>
     {
         // return：表單外層設定
-        return {
-            Title: handle?.Title ?? "修改密碼",
-            Theme: theme,
-            IsLoading: changePwd.isLoading,
-            ErrorList: [],
-            Actions: actions,
-        };
+        return { Title: handle?.Title ?? "修改密碼", Theme: theme, IsLoading: changePwd.isLoading, ErrorList: [], Actions: actions };
     }, [handle?.Title, theme, changePwd.isLoading, actions]);
 
     // return
-    return {
-        prop,
-        displayName,
-        oldPwd,
-        newPwd,
-        confirmPwd,
-        onOldPwdChange: setOldPwd,
-        onNewPwdChange: setNewPwd,
-        onConfirmPwdChange: setConfirmPwd,
-    };
+    return { prop, displayName, oldPwd, newPwd, confirmPwd, onOldPwdChange: setOldPwd, onNewPwdChange: setNewPwd, onConfirmPwdChange: setConfirmPwd };
 };

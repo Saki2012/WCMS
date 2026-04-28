@@ -1,8 +1,4 @@
-import {
-    SiteViewCountAdapter,
-    type TryCountDetailViewRequest,
-    type TryCountResultDto,
-} from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
+import { SiteViewCountAdapter, type TryCountDetailViewRequest, type TryCountResultDto } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import type { AxiosInstance } from "axios";
 import { useCallback, useEffect, useMemo, useRef } from "react";
@@ -94,19 +90,11 @@ const saveCountTime = (key: string): void =>
 /** 建立失敗用的空回應 */
 const buildFailedResponse = (): ApiResponse<TryCountResultDto | null> =>
 {
-    return {
-        IsSuccess: false,
-        Data: null,
-        SysMessage: [],
-    };
+    return { IsSuccess: false, Data: null, SysMessage: [] };
 };
 
 /** 執行真正的 count，內含 pending + cooldown 防重送 */
-const executeCountAsync = async (
-    key: string,
-    cooldownMs: number,
-    action: () => Promise<ApiResponse<TryCountResultDto | null>>,
-): Promise<boolean> =>
+const executeCountAsync = async (key: string, cooldownMs: number, action: () => Promise<ApiResponse<TryCountResultDto | null>>): Promise<boolean> =>
 {
     if (pendingMap.get(key)) return false;
     if (isCoolingDown(key, cooldownMs)) return false;
@@ -144,11 +132,7 @@ const useCountGuard = (options: UseCountGuardOptions) =>
     {
         if (options.enabled === false) return false;
 
-        return await executeCountAsync(
-            options.storageKey,
-            options.cooldownMs ?? DEFAULT_COOLDOWN_MS,
-            async () => await actionRef.current(),
-        );
+        return await executeCountAsync(options.storageKey, options.cooldownMs ?? DEFAULT_COOLDOWN_MS, async () => await actionRef.current());
     }, [options.enabled, options.storageKey, options.cooldownMs]);
 
     useEffect(() =>
@@ -225,8 +209,7 @@ export const useLinkClickCount = (options: UseLinkClickCountOptions) =>
     const { isCounting, tryCountLinkClickAsync } = adapter.hooks.useCountActions({ apiInstance: options.apiInstance });
 
     const targetKey = `${options.targetKey ?? ""}`.trim();
-    const enabled = Boolean(options.featureKey) && Boolean(targetKey) && Boolean(options.request)
-        && options.enabled !== false;
+    const enabled = Boolean(options.featureKey) && Boolean(targetKey) && Boolean(options.request) && options.enabled !== false;
 
     const storageKey = useMemo(() =>
     {

@@ -48,11 +48,7 @@ const getBannerContent = (banner: BannerSet | null, lang: Lang): string =>
     return content;
 };
 
-const getBannerTitleByParentRowId = (
-    banner: BannerSet | null,
-    parentRowId: BannerDetailInfo["ParentRowId"],
-    lang: Lang,
-): string =>
+const getBannerTitleByParentRowId = (banner: BannerSet | null, parentRowId: BannerDetailInfo["ParentRowId"], lang: Lang): string =>
 {
     // 宣告變數
     const infoList = banner?.BannerDetailInfo ?? [];
@@ -78,17 +74,10 @@ export const AboutPublicationSection = (props: AboutPublicationSectionProps) =>
 
     const initial = useMemo(() =>
     {
-        return toListInitial(
-            props.aboutPublicationParam,
-            props.initialAboutPublicationBanner ? [props.initialAboutPublicationBanner] : [],
-        );
+        return toListInitial(props.aboutPublicationParam, props.initialAboutPublicationBanner ? [props.initialAboutPublicationBanner] : []);
     }, [props.aboutPublicationParam, props.initialAboutPublicationBanner]);
 
-    const useIndex = adapter.hooks.useQueryList({
-        condition: props.aboutPublicationParam,
-        initial,
-        deps: [props.aboutPublicationParam.Condition ?? ""],
-    });
+    const useIndex = adapter.hooks.useQueryList({ condition: props.aboutPublicationParam, initial, deps: [props.aboutPublicationParam.Condition ?? ""] });
 
     const banner = useMemo(() =>
     {
@@ -104,11 +93,7 @@ export const AboutPublicationSection = (props: AboutPublicationSectionProps) =>
 
     const issueImg = useMemo(() =>
     {
-        return {
-            Img1: getIssueImage(banner, 0, props.lang),
-            Img2: getIssueImage(banner, 1, props.lang),
-            Img3: getIssueImage(banner, 2, props.lang),
-        };
+        return { Img1: getIssueImage(banner, 0, props.lang), Img2: getIssueImage(banner, 1, props.lang), Img3: getIssueImage(banner, 2, props.lang) };
     }, [banner, props.lang]);
 
     // 所有 hooks 都跑完後才做 early return
@@ -127,11 +112,7 @@ export const AboutPublicationSection = (props: AboutPublicationSectionProps) =>
                                             <div className="col-xl-5 col-lg-6 + col-customize-100">
                                                 <div className="headDiv-left mb-sm-5 mb-4">
                                                     <span className="headDiv-subtxt">About this journal</span>
-                                                    <img
-                                                        className="headDiv-title-line"
-                                                        src={TitleLine}
-                                                        alt="標題裝飾線條圖示"
-                                                    />
+                                                    <img className="headDiv-title-line" src={TitleLine} alt="標題裝飾線條圖示" />
                                                     <span className="headDiv-txt">關於本刊</span>
                                                 </div>
 
@@ -141,20 +122,11 @@ export const AboutPublicationSection = (props: AboutPublicationSectionProps) =>
 
                                                 <div className="btn-w100-wrapper justify-content-sart + mt-5">
                                                     <div className="customize_btn">
-                                                        <LangNavLink
-                                                            to="/About/About-people"
-                                                            className="Btn_a"
-                                                            role="button"
-                                                            target="_self"
-                                                            title="VIEW MORE"
-                                                        >
+                                                        <LangNavLink to="/About/About-people" className="Btn_a" role="button" target="_self" title="VIEW MORE">
                                                             <div className="BtnBox">
                                                                 <span>VIEW MORE</span>
                                                                 <span className="ml-2">
-                                                                    <i
-                                                                        className="fas fa-chevron-circle-right"
-                                                                        aria-hidden="true"
-                                                                    />
+                                                                    <i className="fas fa-chevron-circle-right" aria-hidden="true" />
                                                                 </span>
                                                             </div>
                                                         </LangNavLink>
@@ -167,42 +139,24 @@ export const AboutPublicationSection = (props: AboutPublicationSectionProps) =>
                                                     <div className="left">
                                                         <ul>
                                                             <li>
-                                                                <img
-                                                                    src={issueImg.Img1.src}
-                                                                    alt={issueImg.Img1.title}
-                                                                />
+                                                                <img src={issueImg.Img1.src} alt={issueImg.Img1.title} />
                                                             </li>
                                                             <li>
-                                                                <img
-                                                                    src={issueImg.Img2.src}
-                                                                    alt={issueImg.Img2.title}
-                                                                />
+                                                                <img src={issueImg.Img2.src} alt={issueImg.Img2.title} />
                                                             </li>
                                                             <li>
-                                                                <img
-                                                                    src={issueImg.Img3.src}
-                                                                    alt={issueImg.Img3.title}
-                                                                />
+                                                                <img src={issueImg.Img3.src} alt={issueImg.Img3.title} />
                                                             </li>
                                                         </ul>
                                                         <ul>
                                                             <li>
-                                                                <img
-                                                                    src={issueImg.Img1.src}
-                                                                    alt={issueImg.Img1.title}
-                                                                />
+                                                                <img src={issueImg.Img1.src} alt={issueImg.Img1.title} />
                                                             </li>
                                                             <li>
-                                                                <img
-                                                                    src={issueImg.Img2.src}
-                                                                    alt={issueImg.Img2.title}
-                                                                />
+                                                                <img src={issueImg.Img2.src} alt={issueImg.Img2.title} />
                                                             </li>
                                                             <li>
-                                                                <img
-                                                                    src={issueImg.Img3.src}
-                                                                    alt={issueImg.Img3.title}
-                                                                />
+                                                                <img src={issueImg.Img3.src} alt={issueImg.Img3.title} />
                                                             </li>
                                                         </ul>
                                                     </div>
@@ -210,42 +164,24 @@ export const AboutPublicationSection = (props: AboutPublicationSectionProps) =>
                                                     <div className="right">
                                                         <ul>
                                                             <li>
-                                                                <img
-                                                                    src={issueImg.Img1.src}
-                                                                    alt={issueImg.Img1.title}
-                                                                />
+                                                                <img src={issueImg.Img1.src} alt={issueImg.Img1.title} />
                                                             </li>
                                                             <li>
-                                                                <img
-                                                                    src={issueImg.Img2.src}
-                                                                    alt={issueImg.Img2.title}
-                                                                />
+                                                                <img src={issueImg.Img2.src} alt={issueImg.Img2.title} />
                                                             </li>
                                                             <li>
-                                                                <img
-                                                                    src={issueImg.Img3.src}
-                                                                    alt={issueImg.Img3.title}
-                                                                />
+                                                                <img src={issueImg.Img3.src} alt={issueImg.Img3.title} />
                                                             </li>
                                                         </ul>
                                                         <ul>
                                                             <li>
-                                                                <img
-                                                                    src={issueImg.Img1.src}
-                                                                    alt={issueImg.Img1.title}
-                                                                />
+                                                                <img src={issueImg.Img1.src} alt={issueImg.Img1.title} />
                                                             </li>
                                                             <li>
-                                                                <img
-                                                                    src={issueImg.Img2.src}
-                                                                    alt={issueImg.Img2.title}
-                                                                />
+                                                                <img src={issueImg.Img2.src} alt={issueImg.Img2.title} />
                                                             </li>
                                                             <li>
-                                                                <img
-                                                                    src={issueImg.Img3.src}
-                                                                    alt={issueImg.Img3.title}
-                                                                />
+                                                                <img src={issueImg.Img3.src} alt={issueImg.Img3.title} />
                                                             </li>
                                                         </ul>
                                                     </div>

@@ -1,26 +1,11 @@
 import React, { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
-export type SearchPatch = {
-    q?: string;
-    articleLang?: string;
-    tagId?: string;
-    tagName?: string;
-    author?: string;
-    keyword?: string;
-    includeRef?: boolean;
-};
+export type SearchPatch = { q?: string; articleLang?: string; tagId?: string; tagName?: string; author?: string; keyword?: string; includeRef?: boolean; };
 
-type SearchActions = {
-    setQuery: (patch: SearchPatch) => void;
-    clearQuery: () => void;
-};
+type SearchActions = { setQuery: (patch: SearchPatch) => void; clearQuery: () => void; };
 
-type Props = {
-    basePath: string;
-    placeholder?: string;
-    onBind?: (actions: SearchActions) => void;
-};
+type Props = { basePath: string; placeholder?: string; onBind?: (actions: SearchActions) => void; };
 
 const DEFAULT_PLACEHOLDER = "請輸入關鍵字進行搜尋...";
 const INCLUDE_REF_QS_KEY = "includeRef";
@@ -113,10 +98,7 @@ export const SpecJournalKeywordSearch_Comp: React.FC<Props> = (props) =>
         const search = qs.toString();
 
         // 執行 function
-        nav({
-            pathname,
-            search: search ? `?${search}` : "",
-        });
+        nav({ pathname, search: search ? `?${search}` : "" });
     }, [sp, props.basePath, location.pathname, nav]);
 
     const clearQuery = useCallback(() =>
@@ -132,10 +114,7 @@ export const SpecJournalKeywordSearch_Comp: React.FC<Props> = (props) =>
         const search = qs.toString();
 
         // 執行 function
-        nav({
-            pathname,
-            search: search ? `?${search}` : "",
-        });
+        nav({ pathname, search: search ? `?${search}` : "" });
     }, [sp, props.basePath, location.pathname, nav]);
 
     // 執行 function：綁定外部 actions
@@ -161,12 +140,7 @@ export const SpecJournalKeywordSearch_Comp: React.FC<Props> = (props) =>
     return (
         <>
             <div className="select-wrap" />
-            <form
-                className="Spec1819-JournalSearch search-wrap my-2"
-                onSubmit={onSubmit}
-                role="search"
-                aria-label="期刊關鍵字搜尋"
-            >
+            <form className="Spec1819-JournalSearch search-wrap my-2" onSubmit={onSubmit} role="search" aria-label="期刊關鍵字搜尋">
                 <div className="Spec1819-JournalSearch__row">
                     <div className="Spec1819-JournalSearch__field">
                         <div className="searchDIV">
@@ -188,16 +162,8 @@ export const SpecJournalKeywordSearch_Comp: React.FC<Props> = (props) =>
 
                 <div className="Spec1819-JournalSearch__checkRow">
                     <div className="form-check">
-                        <input
-                            id={includeRefId}
-                            className="form-check-input"
-                            type="checkbox"
-                            checked={includeRef}
-                            onChange={onToggleIncludeRef}
-                        />
-                        <label className="form-check-label" htmlFor={includeRefId}>
-                            包含參考文獻
-                        </label>
+                        <input id={includeRefId} className="form-check-input" type="checkbox" checked={includeRef} onChange={onToggleIncludeRef} />
+                        <label className="form-check-label" htmlFor={includeRefId}>包含參考文獻</label>
                     </div>
                 </div>
             </form>

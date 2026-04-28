@@ -1,7 +1,4 @@
-import {
-    type IPageManagementOptions,
-    usePageManagementFormFetchData,
-} from "@/Features/Pages/Client/BizFunc/WEB/PageManagement/PageManagementForm_Loader";
+import { type IPageManagementOptions, usePageManagementFormFetchData } from "@/Features/Pages/Client/BizFunc/WEB/PageManagement/PageManagementForm_Loader";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import type { Lang } from "@/SysCore/i18n/lang";
@@ -19,22 +16,11 @@ const PageManagementFormComp = (props: IPageManagementProps) =>
 {
     const pageId = `${props.options?.PageId ?? ""}`.trim();
     // 讀取 feature 收斂後的單一資料入口
-    const formData = usePageManagementFormFetchData({
-        lang: props.lang,
-        pageId,
-    });
+    const formData = usePageManagementFormFetchData({ lang: props.lang, pageId });
     // 將 html 轉成 ReactNode 顯示
     const content = useMemo(() => (formData.contentHtml ? parse(formData.contentHtml) : null), [formData.contentHtml]);
 
-    return (
-        <ContentComp
-            Theme={props.theme}
-            isLoading={formData.isLoading}
-            ErrorList={formData.errorList}
-            Title={formData.title}
-            Content={content}
-        />
-    );
+    return <ContentComp Theme={props.theme} isLoading={formData.isLoading} ErrorList={formData.errorList} Title={formData.title} Content={content} />;
 };
 
 export default PageManagementFormComp;
@@ -99,41 +85,35 @@ const Content = (prop: ContentCompProp) =>
             {prop.Content}
             <hr />
 
-            {((prop.Href && prop.Href.length > 0) || (prop.Files && prop.Files.length > 0))
-                && (
-                    <ul className="list-group">
-                        {prop.Href && prop.Href.length > 0 && (
-                            <li>
-                                <a
-                                    href={prop.Href}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="btn btn-default"
-                                >
-                                    <i className="fa fa-link"></i> {prop.Href}
-                                </a>
-                            </li>
-                        )}
-                        {prop.Files && prop.Files.length > 0 && (
-                            <>
-                                {prop.Files.map((file, idx) => (
-                                    <li key={idx}>
-                                        <a
-                                            href={file.url ?? ""}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="btn btn-default"
-                                            tabIndex={1}
-                                            title={`${file.name ?? ""}(另開新視窗)`}
-                                        >
-                                            <i className="fa fa-paperclip"></i> {file.name}
-                                        </a>
-                                    </li>
-                                ))}
-                            </>
-                        )}
-                    </ul>
-                )}
+            {((prop.Href && prop.Href.length > 0) || (prop.Files && prop.Files.length > 0)) && (
+                <ul className="list-group">
+                    {prop.Href && prop.Href.length > 0 && (
+                        <li>
+                            <a href={prop.Href} target="_blank" rel="noopener noreferrer" className="btn btn-default">
+                                <i className="fa fa-link"></i> {prop.Href}
+                            </a>
+                        </li>
+                    )}
+                    {prop.Files && prop.Files.length > 0 && (
+                        <>
+                            {prop.Files.map((file, idx) => (
+                                <li key={idx}>
+                                    <a
+                                        href={file.url ?? ""}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="btn btn-default"
+                                        tabIndex={1}
+                                        title={`${file.name ?? ""}(另開新視窗)`}
+                                    >
+                                        <i className="fa fa-paperclip"></i> {file.name}
+                                    </a>
+                                </li>
+                            ))}
+                        </>
+                    )}
+                </ul>
+            )}
         </>
     );
 };

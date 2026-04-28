@@ -12,6 +12,4 @@ class FileArchiveService extends ApiDataService<FileArchiveSet>
     }
 }
 export const FileArchiveAdapter = (apiInstance?: AxiosInstance) =>
-    new ApiDataAdapter<FileArchiveSet, FileArchiveService>(
-        (api?: AxiosInstance) => new FileArchiveService(api ?? apiInstance),
-    );
+    new ApiDataAdapter<FileArchiveSet, FileArchiveService>((api?: AxiosInstance) => new FileArchiveService(api ?? apiInstance));

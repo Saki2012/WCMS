@@ -47,13 +47,7 @@ export const Server_SpecJournal_Dialog_Comp = (props: IServerSpecJournalDialogCo
 
     const isSubmitting = publishAction.isLoading || unpublishAction.isLoading;
 
-    useSyncDialogState(
-        props.open,
-        props.initialIndexId,
-        props.initialIndexRowId,
-        setJournalIndexId,
-        setJournalIndexRowId,
-    );
+    useSyncDialogState(props.open, props.initialIndexId, props.initialIndexRowId, setJournalIndexId, setJournalIndexRowId);
 
     const handleClose = useCallback((): void =>
     {
@@ -103,12 +97,7 @@ export const Server_SpecJournal_Dialog_Comp = (props: IServerSpecJournalDialogCo
         }
 
         const res = isPublish
-            ? await executePublishAsync(
-                publishAction.execute,
-                props.internalId,
-                confirmPayload.journalIndexId,
-                confirmPayload.journalIndexRowId,
-            )
+            ? await executePublishAsync(publishAction.execute, props.internalId, confirmPayload.journalIndexId, confirmPayload.journalIndexRowId)
             : await unpublishAction.execute(props.internalId);
 
         (res.SysMessage ?? []).forEach(item =>
@@ -120,16 +109,7 @@ export const Server_SpecJournal_Dialog_Comp = (props: IServerSpecJournalDialogCo
 
         props.onConfirm?.(confirmPayload);
         props.onClose();
-    }, [
-        props.internalId,
-        props.onConfirm,
-        props.onClose,
-        isPublish,
-        confirmPayload,
-        publish,
-        publishAction.execute,
-        unpublishAction.execute,
-    ]);
+    }, [props.internalId, props.onConfirm, props.onClose, isPublish, confirmPayload, publish, publishAction.execute, unpublishAction.execute]);
 
     if (!props.open) return null;
 
@@ -183,11 +163,7 @@ const executePublishAsync = async (
     journalIndexRowId: number | null,
 ): Promise<ApiResponse<object>> =>
 {
-    const req: PublishJournalReq = {
-        InternalId: internalId,
-        JournalIndexId: journalIndexId,
-        JournalIndexRowId: journalIndexRowId,
-    };
+    const req: PublishJournalReq = { InternalId: internalId, JournalIndexId: journalIndexId, JournalIndexRowId: journalIndexRowId };
     return await execute(req);
 };
 
@@ -210,10 +186,7 @@ const useDialogConfirmText = (actionType: SpecJournalDialogActionType): string =
 };
 
 /** 依期刊目次取得卷期 options */
-const useRowOptions = (
-    indexRowOptionsByIndexId: Record<string, Map<string, string>>,
-    journalIndexId: string,
-): Map<string, string> =>
+const useRowOptions = (indexRowOptionsByIndexId: Record<string, Map<string, string>>, journalIndexId: string): Map<string, string> =>
 {
     return useMemo(() =>
     {
@@ -243,42 +216,19 @@ const DialogHeader = (props: { title: string; onClose: () => void; }) =>
 {
     return (
         <div className="modal-header">
-            <h5 id="spec-journal-dialog-title" className="modal-title">
-                {props.title}
-            </h5>
+            <h5 id="spec-journal-dialog-title" className="modal-title">{props.title}</h5>
             <button type="button" className="btn-close" aria-label="關閉視窗" onClick={props.onClose} />
         </div>
     );
 };
 
 /** Footer */
-const DialogFooter = (
-    props: {
-        confirmText: string;
-        disabled?: boolean;
-        onClose: () => void;
-        onConfirm: () => void;
-    },
-) =>
+const DialogFooter = (props: { confirmText: string; disabled?: boolean; onClose: () => void; onConfirm: () => void; }) =>
 {
     return (
         <div className="modal-footer">
-            <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={props.onClose}
-                aria-label="取消返回"
-                disabled={props.disabled}
-            >
-                取消返回
-            </button>
-            <button
-                type="button"
-                className="btn btn-primary"
-                onClick={props.onConfirm}
-                aria-label={props.confirmText}
-                disabled={props.disabled}
-            >
+            <button type="button" className="btn btn-secondary" onClick={props.onClose} aria-label="取消返回" disabled={props.disabled}>取消返回</button>
+            <button type="button" className="btn btn-primary" onClick={props.onConfirm} aria-label={props.confirmText} disabled={props.disabled}>
                 {props.confirmText}
             </button>
         </div>
@@ -311,9 +261,7 @@ const PublishDialogBodyComp = (
     return (
         <div className="row">
             <div className="col-12 form-group">
-                <label htmlFor="spec-journal-dialog-index" className="form-label fw-bold">
-                    期刊目次
-                </label>
+                <label htmlFor="spec-journal-dialog-index" className="form-label fw-bold">期刊目次</label>
                 <select
                     id="spec-journal-dialog-index"
                     className="form-select"
@@ -323,18 +271,12 @@ const PublishDialogBodyComp = (
                 >
                     <option value="">請選擇</option>
 
-                    {Array.from(props.indexOptions.entries()).map(([value, label]) => (
-                        <option key={value} value={value}>
-                            {label}
-                        </option>
-                    ))}
+                    {Array.from(props.indexOptions.entries()).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
                 </select>
             </div>
 
             <div className="col-12 form-group mt-3">
-                <label htmlFor="spec-journal-dialog-row" className="form-label fw-bold">
-                    卷期
-                </label>
+                <label htmlFor="spec-journal-dialog-row" className="form-label fw-bold">卷期</label>
                 <select
                     id="spec-journal-dialog-row"
                     className="form-select"
@@ -343,11 +285,7 @@ const PublishDialogBodyComp = (
                     aria-label="選擇卷期"
                 >
                     <option value="">請選擇</option>
-                    {Array.from(props.rowOptions.entries()).map(([value, label]) => (
-                        <option key={value} value={value}>
-                            {label}
-                        </option>
-                    ))}
+                    {Array.from(props.rowOptions.entries()).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
                 </select>
             </div>
         </div>

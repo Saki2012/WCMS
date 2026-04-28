@@ -42,16 +42,12 @@ type WeatherHookResult = {
 
 type ExtraLoaders = {
     /** SSR loader：取得首頁天氣資料 */
-    createWeatherLoader: (
-        opt?: ICreateWeatherLoader,
-    ) => (args: LoaderFunctionArgs) => Promise<WeatherLoaderData>;
+    createWeatherLoader: (opt?: ICreateWeatherLoader) => (args: LoaderFunctionArgs) => Promise<WeatherLoaderData>;
 };
 
 type ExtraHooks = {
     /** CSR / Hydration hook：取得首頁天氣資料 */
-    useWeatherData: (
-        opt?: IUseWeatherData,
-    ) => WeatherHookResult;
+    useWeatherData: (opt?: IUseWeatherData) => WeatherHookResult;
 };
 
 /** 取第一筆 weather 資料 */
@@ -75,9 +71,7 @@ export class SpecHomePage1820Service extends ApiDataService<SpecHomePage1820Set>
     public async getWeatherDataAsync(): Promise<ApiResponse<SpecHomePageWeather[]>>
     {
         // return
-        return await this.CallApi<SpecHomePageWeather[]>(() =>
-            this.Api.get<ApiResponse<SpecHomePageWeather[]>>(`${this.Module}/GetWeatherData`)
-        );
+        return await this.CallApi<SpecHomePageWeather[]>(() => this.Api.get<ApiResponse<SpecHomePageWeather[]>>(`${this.Module}/GetWeatherData`));
     }
     // #endregion
 }
@@ -90,9 +84,7 @@ export class SpecHomePage1820AdapterImpl extends ApiDataAdapter<SpecHomePage1820
     // #endregion
 
     // #region Protect Virtual Func
-    protected override buildExtendedLoader(
-        base: ApiDataLoaderGroup<SpecHomePage1820Set>,
-    ): ApiDataLoaderGroup<SpecHomePage1820Set> & ExtraLoaders
+    protected override buildExtendedLoader(base: ApiDataLoaderGroup<SpecHomePage1820Set>): ApiDataLoaderGroup<SpecHomePage1820Set> & ExtraLoaders
     {
         const wrapCreateWeatherLoader: ExtraLoaders["createWeatherLoader"] = (opt) =>
         {
@@ -101,9 +93,7 @@ export class SpecHomePage1820AdapterImpl extends ApiDataAdapter<SpecHomePage1820
         return { ...base, createWeatherLoader: wrapCreateWeatherLoader };
     }
 
-    protected override buildExtendedHooks(
-        base: ApiDataHookGroup<SpecHomePage1820Set>,
-    ): ApiDataHookGroup<SpecHomePage1820Set> & ExtraHooks
+    protected override buildExtendedHooks(base: ApiDataHookGroup<SpecHomePage1820Set>): ApiDataHookGroup<SpecHomePage1820Set> & ExtraHooks
     {
         const wrapUseWeatherData: ExtraHooks["useWeatherData"] = (opt) =>
         {

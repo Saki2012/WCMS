@@ -87,9 +87,7 @@ export type SiteMenuFetchAdapter = {
 
 // #region Public Hook
 /** SiteMenu 頁面資料總入口：主資料 / 參照資料 / actions 一次取回 */
-export const useSiteMenuFetchData = (
-    opt: { lang: Lang; },
-): UseFetchDataResult<SiteMenuFetchRawData, SiteMenuFetchAdapter> =>
+export const useSiteMenuFetchData = (opt: { lang: Lang; }): UseFetchDataResult<SiteMenuFetchRawData, SiteMenuFetchAdapter> =>
 {
     const { publish } = useToast();
 
@@ -185,16 +183,9 @@ type SiteMenuMainDataResult = {
     refetchData: () => Promise<void>;
 };
 
-const useSiteMenuMainDataByAdapter = (
-    adapter: ReturnType<typeof SiteMenuAdapter>,
-    onError: (e: ApiAdapterError) => void,
-): SiteMenuMainDataResult =>
+const useSiteMenuMainDataByAdapter = (adapter: ReturnType<typeof SiteMenuAdapter>, onError: (e: ApiAdapterError) => void): SiteMenuMainDataResult =>
 {
-    const siteList = adapter.hooks.useQueryList({
-        condition: { Fields: [SiteMenu_IndexFields.InternalId], PageNumber: 0, PageSize: 50 },
-        deps: [],
-        onError,
-    });
+    const siteList = adapter.hooks.useQueryList({ condition: { Fields: [SiteMenu_IndexFields.InternalId], PageNumber: 0, PageSize: 50 }, deps: [], onError });
 
     const internalId = useMemo(() =>
     {
@@ -214,12 +205,7 @@ const useSiteMenuMainDataByAdapter = (
         return { args: "__skip__", apiRes: { IsSuccess: true, Data: emptyData, SysMessage: [] } };
     }, [validInternalId]);
 
-    const query = adapter.hooks.useQueryData({
-        internalId: validInternalId ?? "__skip__",
-        initial: skipQueryInitial,
-        deps: [validInternalId ?? ""],
-        onError,
-    });
+    const query = adapter.hooks.useQueryData({ internalId: validInternalId ?? "__skip__", initial: skipQueryInitial, deps: [validInternalId ?? ""], onError });
 
     const model = adapter.hooks.useModelDisplayName({ deps: [], onError });
     const [data, setData] = useState<SiteMenuSet>(emptyData);
@@ -254,12 +240,7 @@ const useSiteMenuMainDataByAdapter = (
                 void refetchQuery();
                 void model.refetch();
             },
-            displayName: model.data
-                ?? ({
-                    ModelId: "",
-                    ModelDisplayName: "",
-                    Tables: [],
-                } as ModelDisplaySchema),
+            displayName: model.data ?? ({ ModelId: "", ModelDisplayName: "", Tables: [] } as ModelDisplaySchema),
         };
     }, [
         data,
@@ -277,11 +258,7 @@ const useSiteMenuMainDataByAdapter = (
 
     const refetchData = useCallback(async () =>
     {
-        await Promise.all([
-            Promise.resolve(siteList.refetch()),
-            Promise.resolve(refetchQuery()),
-            Promise.resolve(model.refetch()),
-        ]);
+        await Promise.all([Promise.resolve(siteList.refetch()), Promise.resolve(refetchQuery()), Promise.resolve(model.refetch())]);
     }, [model, refetchQuery, siteList]);
 
     const errors = useMemo(() =>
@@ -378,42 +355,20 @@ const useSiteMenuActionsByAdapter = (
             onPreview: () =>
             {},
         };
-    }, [
-        onCancelBack,
-        onSaveMenuItem,
-        onSaveMenuStructure,
-        onSaveSiteInfo,
-        saveMenuItem.isSaving,
-        saveMenuStructure.isSaving,
-        saveSiteInfo.isSaving,
-    ]);
+    }, [onCancelBack, onSaveMenuItem, onSaveMenuStructure, onSaveSiteInfo, saveMenuItem.isSaving, saveMenuStructure.isSaving, saveSiteInfo.isSaving]);
 };
 
 const buildSaveSiteInfoRequest = (internalId: string, data: SiteMenuSet): SaveSiteInfoDTO =>
 {
-    return {
-        InternalId: internalId,
-        SiteMenu_Index: data.SiteMenu_Index ?? {},
-        SiteMenu_IndexInfo: data.SiteMenu_IndexInfo ?? [],
-    } as SaveSiteInfoDTO;
+    return { InternalId: internalId, SiteMenu_Index: data.SiteMenu_Index ?? {}, SiteMenu_IndexInfo: data.SiteMenu_IndexInfo ?? [] } as SaveSiteInfoDTO;
 };
 
-const buildSaveMenuStructureRequest = (
-    internalId: string,
-    tree: SiteMenuItem[],
-    deletedRowIds: number[],
-): SaveMenuStructureDTO =>
+const buildSaveMenuStructureRequest = (internalId: string, tree: SiteMenuItem[], deletedRowIds: number[]): SaveMenuStructureDTO =>
 {
-    return {
-        InternalId: internalId,
-        Items: flattenStructureItems(tree),
-        DeletedRowIds: deletedRowIds.filter(x => x > 0),
-    } as SaveMenuStructureDTO;
+    return { InternalId: internalId, Items: flattenStructureItems(tree), DeletedRowIds: deletedRowIds.filter(x => x > 0) } as SaveMenuStructureDTO;
 };
 
-const flattenStructureItems = (
-    tree: SiteMenuItem[],
-): Array<{ RowId: number; ParentRowId: number | null; DisplayOrder: number; }> =>
+const flattenStructureItems = (tree: SiteMenuItem[]): Array<{ RowId: number; ParentRowId: number | null; DisplayOrder: number; }> =>
 {
     const result: Array<{ RowId: number; ParentRowId: number | null; DisplayOrder: number; }> = [];
 
@@ -456,17 +411,10 @@ const buildSaveMenuItemRequest = (internalId: string, data: SiteMenuSet, node: S
 
 const buildSaveMenuItemTitles = (data: SiteMenuSet, itemRowId: number) =>
 {
-    return (data.SiteMenu_Item_Title ?? [])
-        .filter(x => Number(x.ItemRowId) === itemRowId)
-        .map(x =>
-        {
-            return {
-                RowId: x.RowId,
-                Lang: x.Lang,
-                Title: x.Title,
-                IsShowOnMenu: x.IsShowOnMenu ?? false,
-            };
-        });
+    return (data.SiteMenu_Item_Title ?? []).filter(x => Number(x.ItemRowId) === itemRowId).map(x =>
+    {
+        return { RowId: x.RowId, Lang: x.Lang, Title: x.Title, IsShowOnMenu: x.IsShowOnMenu ?? false };
+    });
 };
 
 const buildSaveMenuItemUrl = (data: SiteMenuSet, itemRowId: number) =>
@@ -474,10 +422,7 @@ const buildSaveMenuItemUrl = (data: SiteMenuSet, itemRowId: number) =>
     const src = (data.SiteMenu_Item_Url ?? []).find(x => Number(x.ItemRowId) === itemRowId);
     if (!src) return null;
 
-    return {
-        RedirectType: src.RedirectType,
-        RedirectUrl: src.RedirectUrl,
-    };
+    return { RedirectType: src.RedirectType, RedirectUrl: src.RedirectUrl };
 };
 
 const buildSaveMenuItemModule = (data: SiteMenuSet, itemRowId: number) =>
@@ -485,12 +430,7 @@ const buildSaveMenuItemModule = (data: SiteMenuSet, itemRowId: number) =>
     const src = (data.SiteMenu_Item_Module ?? []).find(x => Number(x.ItemRowId) === itemRowId);
     if (!src) return null;
 
-    return {
-        BannerId: src.BannerId,
-        PageType: src.PageType,
-        ModuleProgId: src.ModuleProgId,
-        ModuleOptions: src.ModuleOptions,
-    };
+    return { BannerId: src.BannerId, PageType: src.PageType, ModuleProgId: src.ModuleProgId, ModuleOptions: src.ModuleOptions };
 };
 
 const findMenuItem = (data: SiteMenuSet, rowId: number): SiteMenu_Item | undefined =>
@@ -504,10 +444,7 @@ const toNullableNumber = (value: unknown): number | null =>
     return Number.isFinite(n) && n > 0 ? n : null;
 };
 
-const handleSaveResult = async <T>(
-    res: ApiResponse<T>,
-    refetchData: () => Promise<void>,
-): Promise<boolean> =>
+const handleSaveResult = async <T>(res: ApiResponse<T>, refetchData: () => Promise<void>): Promise<boolean> =>
 {
     const ok = Boolean(res?.IsSuccess);
     if (!ok) return false;
@@ -533,11 +470,7 @@ type SiteMenuRefDataResult = {
     refetch: () => Promise<void>;
 };
 
-const useSiteMenuRefDataByAdapter = (
-    adapter: SiteMenuFetchAdapter,
-    lang: Lang,
-    onError: (e: ApiAdapterError) => void,
-): SiteMenuRefDataResult =>
+const useSiteMenuRefDataByAdapter = (adapter: SiteMenuFetchAdapter, lang: Lang, onError: (e: ApiAdapterError) => void): SiteMenuRefDataResult =>
 {
     const windowTarget = useEnumOptions("WindowTarget");
     const menuUrlType = useEnumOptions("MenuUrlType");
@@ -615,15 +548,7 @@ const useSiteMenuRefDataByAdapter = (
     }, [page.data, lang]);
 
     const timeline = adapter.Timeline.hooks.useQueryList({
-        condition: {
-            Fields: [
-                TimelineFields.TimelineId,
-                TimelineFields.TimelineName,
-                TimelineFields.InternalId,
-            ],
-            PageNumber: 0,
-            PageSize: 5000,
-        },
+        condition: { Fields: [TimelineFields.TimelineId, TimelineFields.TimelineName, TimelineFields.InternalId], PageNumber: 0, PageSize: 5000 },
         deps: [lang],
         onError,
     });
@@ -710,9 +635,7 @@ const useSiteMenuRefDataByAdapter = (
     };
 };
 
-const useEnumOptions = (
-    enumName: string,
-): { data: Record<string, string>; isLoading: boolean; error: string | null; } =>
+const useEnumOptions = (enumName: string): { data: Record<string, string>; isLoading: boolean; error: string | null; } =>
 {
     const src = useFetchEnumOptions(enumName);
     return useMemo(() =>
@@ -747,10 +670,7 @@ const transSetToItem = (data: SiteMenuSet, lang: Lang): SiteMenuItem[] =>
         if (!langMap) return "";
 
         const primary = String(lang ?? DefaultLang).toLowerCase();
-        const candidates = [
-            primary,
-            ...Object.keys(LangLabelMap).map((x) => String(x).toLowerCase()).filter((x) => x !== primary),
-        ];
+        const candidates = [primary, ...Object.keys(LangLabelMap).map((x) => String(x).toLowerCase()).filter((x) => x !== primary)];
 
         for (const l of candidates)
         {
@@ -770,12 +690,7 @@ const transSetToItem = (data: SiteMenuSet, lang: Lang): SiteMenuItem[] =>
         const displayOrder = Number(it.DisplayOrder ?? 0);
         orderMap.set(rowId, displayOrder);
 
-        nodeMap.set(rowId, {
-            id: rowId,
-            name: resolveTitle(rowId),
-            menuItem: it,
-            children: [],
-        });
+        nodeMap.set(rowId, { id: rowId, name: resolveTitle(rowId), menuItem: it, children: [] });
     }
 
     const roots: SiteMenuItem[] = [];

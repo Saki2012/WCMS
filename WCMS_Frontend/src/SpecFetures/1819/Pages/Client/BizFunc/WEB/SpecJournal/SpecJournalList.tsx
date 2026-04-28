@@ -1,7 +1,5 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import ModuleContent, {
-    type ModuleViewCountConfig,
-} from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
+import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import { useBreadcrumb } from "@/Features/Pages/Client/Scaffold/SubPages/Module/BreadCrumb/BreadCrumb_Comp";
 import { SpecJournalAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/WEB/SpecJournal_Api";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
@@ -20,15 +18,7 @@ import { useSpecJournalSearchNav } from "./SpecJournalSearchUtils";
 type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type SpecJournalFilters = {
-    q: string;
-    articleLang: string;
-    tagId: string;
-    tagName: string;
-    author: string;
-    keyword: string;
-    includeRef: string;
-};
+type SpecJournalFilters = { q: string; articleLang: string; tagId: string; tagName: string; author: string; keyword: string; includeRef: string; };
 
 /** SpecJournal：用 ModuleContent 包住 Journal_List_content */
 export const SpecJournalList = (props: { site: INormSite; node: INormNode; lang: Lang; }) =>
@@ -44,15 +34,8 @@ export const SpecJournalList = (props: { site: INormSite; node: INormNode; lang:
     const routeRowId = (loaderData?.args?.rowId ?? params.rowId ?? "").trim();
     const pageTitle = (loaderData?.args?.pageTitle ?? "").trim();
 
-    const filters: SpecJournalFilters = loaderData?.args?.filters ?? {
-        q: "",
-        articleLang: "",
-        tagId: "",
-        tagName: "",
-        author: "",
-        keyword: "",
-        includeRef: "",
-    };
+    const filters: SpecJournalFilters = loaderData?.args?.filters
+        ?? { q: "", articleLang: "", tagId: "", tagName: "", author: "", keyword: "", includeRef: "" };
 
     const useVolume = useSpecJournalVolume(adapter, pageSize, loaderData);
 
@@ -95,8 +78,7 @@ export const SpecJournalList = (props: { site: INormSite; node: INormNode; lang:
     useEffect(() =>
     {
         // 宣告變數：只有卷期頁才掛第二層 breadcrumb，避免預刊 / 搜尋把 breadcrumb 弄亂
-        const shouldShowIssueCrumb = !isSearchMode && !!routeIndexId && !!routeRowId && !!issueLabel
-            && issueLabel !== pageTitle;
+        const shouldShowIssueCrumb = !isSearchMode && !!routeIndexId && !!routeRowId && !!issueLabel && issueLabel !== pageTitle;
 
         // 執行 function
         if (shouldShowIssueCrumb) setItems([{ label: issueLabel }]);
@@ -110,11 +92,7 @@ export const SpecJournalList = (props: { site: INormSite; node: INormNode; lang:
     const errorList = [useVolume.error];
     const moduleTitle = isSearchMode ? "搜尋結果" : (issueLabel || pageTitle);
 
-    const paginprops: PaginatorProps = {
-        currentPage: useVolume.pageNumber,
-        totalPages: useVolume.totalPages,
-        onPageChange: useVolume.onPageChange,
-    };
+    const paginprops: PaginatorProps = { currentPage: useVolume.pageNumber, totalPages: useVolume.totalPages, onPageChange: useVolume.onPageChange };
     const viewCountConfig: ModuleViewCountConfig = { mode: "list" };
     return (
         <ModuleContent
@@ -137,11 +115,7 @@ export const SpecJournalList = (props: { site: INormSite; node: INormNode; lang:
 };
 
 /** hooks：SSR loaderData initial → CSR 分頁接手 */
-const useSpecJournalVolume = (
-    adapter: ReturnType<typeof SpecJournalAdapter>,
-    pageSize: number,
-    loaderData: SpecJournalListLoaderData | null,
-) =>
+const useSpecJournalVolume = (adapter: ReturnType<typeof SpecJournalAdapter>, pageSize: number, loaderData: SpecJournalListLoaderData | null) =>
 {
     // 宣告變數
     const baseParam = useMemo<QueryListParam>(() =>
@@ -159,10 +133,7 @@ const useSpecJournalVolume = (
         if (!loaderData?.args?.baseParam) return null;
         if (loaderData.args.pageSize !== pageSize) return null;
 
-        return {
-            args: loaderData.args.baseParam,
-            apiRes: { IsSuccess: true, Data: loaderData.res.countRes ?? 0, SysMessage: [] },
-        };
+        return { args: loaderData.args.baseParam, apiRes: { IsSuccess: true, Data: loaderData.res.countRes ?? 0, SysMessage: [] } };
     }, [loaderData, pageSize]);
 
     const initialList = useMemo<ApiLoaderData<QueryListParam, SpecJournalSet[]> | null>(() =>
@@ -170,10 +141,7 @@ const useSpecJournalVolume = (
         if (!loaderData?.args?.baseParam) return null;
         if (loaderData.args.pageSize !== pageSize) return null;
 
-        return {
-            args: loaderData.args.baseParam,
-            apiRes: { IsSuccess: true, Data: loaderData.res.listRes ?? [], SysMessage: [] },
-        };
+        return { args: loaderData.args.baseParam, apiRes: { IsSuccess: true, Data: loaderData.res.listRes ?? [], SysMessage: [] } };
     }, [loaderData, pageSize]);
 
     const queryKey = useMemo(() =>
@@ -211,26 +179,14 @@ const useSpecJournalVolume = (
     }, [queryKey]);
 
     // 執行 function：count
-    const useCount = adapter.hooks.useQueryCount({
-        condition: baseParam,
-        initial: initialCount,
-        deps: [
-            queryKey,
-            baseParam.Condition,
-            baseParam.PageSize,
-        ],
-    });
+    const useCount = adapter.hooks.useQueryCount({ condition: baseParam, initial: initialCount, deps: [queryKey, baseParam.Condition, baseParam.PageSize] });
 
     // 執行 function：list
     const useList = adapter.hooks.usePagedQueryList({
         baseParam,
         count: useCount.data ?? 0,
         initial: hasPaged ? null : initialList,
-        deps: [
-            queryKey,
-            baseParam.Condition,
-            baseParam.PageSize,
-        ],
+        deps: [queryKey, baseParam.Condition, baseParam.PageSize],
     });
 
     const handlePageChange = (page: number): void =>
@@ -252,21 +208,15 @@ const useSpecJournalVolume = (
 };
 
 /** SpecJournalListContent：對齊 prototype 的 Journal_List_content DOM 結構 */
-const SpecJournalListContent = (props: {
-    lang: Lang;
-    rawData: SpecJournalSet[];
-    totalCount: number;
-    issueSummary: { fileId?: string; fileName?: string; downloadCount?: number; isPdf?: boolean; };
-    queryFilters: {
-        q?: string;
-        articleLang?: string;
-        tagId?: string;
-        tagName?: string;
-        author?: string;
-        keyword?: string;
-        includeRef?: string;
-    };
-}) =>
+const SpecJournalListContent = (
+    props: {
+        lang: Lang;
+        rawData: SpecJournalSet[];
+        totalCount: number;
+        issueSummary: { fileId?: string; fileName?: string; downloadCount?: number; isPdf?: boolean; };
+        queryFilters: { q?: string; articleLang?: string; tagId?: string; tagName?: string; author?: string; keyword?: string; includeRef?: string; };
+    },
+) =>
 {
     // 宣告變數
     const filters = props.queryFilters;
@@ -301,15 +251,7 @@ const SpecJournalListContent = (props: {
         if (filters.keyword) parts.push(`關鍵詞：${filters.keyword}`);
         const label = parts.join("；") || "未選擇條件";
         return `${label}（共 ${props.totalCount} 筆）`;
-    }, [
-        filters.q,
-        filters.articleLang,
-        filters.tagId,
-        filters.tagName,
-        filters.author,
-        filters.keyword,
-        props.totalCount,
-    ]);
+    }, [filters.q, filters.articleLang, filters.tagId, filters.tagName, filters.author, filters.keyword, props.totalCount]);
 
     return (
         <div className="Journal_List_content">
@@ -318,9 +260,7 @@ const SpecJournalListContent = (props: {
                     {hasSearch && (
                         <div className="page-TitleName">
                             <div className="Div_TitleName">
-                                <div className="custom_Name" aria-label="custom_Name">
-                                    {buildFilterLabel}
-                                </div>
+                                <div className="custom_Name" aria-label="custom_Name">{buildFilterLabel}</div>
                             </div>
                         </div>
                     )}
@@ -346,12 +286,7 @@ const SpecJournalListContent = (props: {
                                         target="_self"
                                         title={it.SpecJournal?.Title ?? ""}
                                     >
-                                        <JournalCard
-                                            item={it}
-                                            lang={props.lang}
-                                            onPickArticleLang={handlePickArticleLang}
-                                            onPickTypeTag={handlePickTypeTag}
-                                        />
+                                        <JournalCard item={it} lang={props.lang} onPickArticleLang={handlePickArticleLang} onPickTypeTag={handlePickTypeTag} />
                                     </LangLink>
 
                                     <div className="card_authorDiv">
@@ -362,10 +297,7 @@ const SpecJournalListContent = (props: {
                                                     {it.SpecJournalAuthor?.map((au) =>
                                                     {
                                                         return (
-                                                            <li
-                                                                key={`${it.SpecJournal?.JournalId}-au-${au.RowId}`}
-                                                                className="authorlist-item"
-                                                            >
+                                                            <li key={`${it.SpecJournal?.JournalId}-au-${au.RowId}`} className="authorlist-item">
                                                                 <LangLink
                                                                     to={`../Form/${it.SpecJournal?._JournalIndexDetail?.IndexId}/${it.SpecJournal?._JournalIndexDetail?.RowId}/${
                                                                         it.SpecJournal?.JournalId ?? ""
@@ -378,13 +310,12 @@ const SpecJournalListContent = (props: {
                                                                         const showZh = !!zh;
                                                                         const showEnOnly = !!en && !showZh;
 
-                                                                        const onPick =
-                                                                            (v: string) => (e: React.MouseEvent) =>
-                                                                            {
-                                                                                e.preventDefault();
-                                                                                e.stopPropagation();
-                                                                                handlePickAuthor(v);
-                                                                            };
+                                                                        const onPick = (v: string) => (e: React.MouseEvent) =>
+                                                                        {
+                                                                            e.preventDefault();
+                                                                            e.stopPropagation();
+                                                                            handlePickAuthor(v);
+                                                                        };
 
                                                                         return (
                                                                             <>
@@ -393,13 +324,8 @@ const SpecJournalListContent = (props: {
                                                                                         <a
                                                                                             href="#"
                                                                                             onClick={onPick(zh)}
-                                                                                            aria-label={`依作者篩選：${zh}${
-                                                                                                en ? ` (${en})` : ""
-                                                                                            }`}
-                                                                                            style={{
-                                                                                                color: "inherit",
-                                                                                                textDecoration: "none",
-                                                                                            }}
+                                                                                            aria-label={`依作者篩選：${zh}${en ? ` (${en})` : ""}`}
+                                                                                            style={{ color: "inherit", textDecoration: "none" }}
                                                                                         >
                                                                                             {zh}
                                                                                         </a>
@@ -412,10 +338,7 @@ const SpecJournalListContent = (props: {
                                                                                             href="#"
                                                                                             onClick={onPick(en)}
                                                                                             aria-label={`依作者篩選：${en}`}
-                                                                                            style={{
-                                                                                                color: "inherit",
-                                                                                                textDecoration: "none",
-                                                                                            }}
+                                                                                            style={{ color: "inherit", textDecoration: "none" }}
                                                                                         >
                                                                                             ({en})
                                                                                         </a>
@@ -428,10 +351,7 @@ const SpecJournalListContent = (props: {
                                                                                             href="#"
                                                                                             onClick={onPick(en)}
                                                                                             aria-label={`依作者篩選：${en}`}
-                                                                                            style={{
-                                                                                                color: "inherit",
-                                                                                                textDecoration: "none",
-                                                                                            }}
+                                                                                            style={{ color: "inherit", textDecoration: "none" }}
                                                                                         >
                                                                                             {en}
                                                                                         </a>
@@ -460,12 +380,9 @@ const SpecJournalListContent = (props: {
 };
 
 /** JournalCard：拆小塊，保持 function 不要太長 */
-const JournalCard = (props: {
-    item: SpecJournalSet;
-    lang: Lang;
-    onPickArticleLang: (langCode: string) => void;
-    onPickTypeTag: (tagId: string, tagName?: string) => void;
-}) =>
+const JournalCard = (
+    props: { item: SpecJournalSet; lang: Lang; onPickArticleLang: (langCode: string) => void; onPickTypeTag: (tagId: string, tagName?: string) => void; },
+) =>
 {
     // 宣告變數
     const langCode = props.item.SpecJournal?.ArticleLang ?? "";
@@ -499,10 +416,7 @@ const JournalCard = (props: {
                         const tagName = type.Tag?._TagDetail?.find((p) => p.Lang === props.lang)?.TagName;
 
                         return (
-                            <div
-                                key={`${props.item.SpecJournal?.JournalId}-type-${type.RowId ?? type.TagId ?? ""}`}
-                                className="card_cat_item"
-                            >
+                            <div key={`${props.item.SpecJournal?.JournalId}-type-${type.RowId ?? type.TagId ?? ""}`} className="card_cat_item">
                                 <div className="card_cat_TxT">
                                     <a
                                         href="#"
@@ -527,14 +441,10 @@ const JournalCard = (props: {
 
             <div className="card_titleDiv">
                 <div className="card_title">
-                    {props.item.SpecJournal?.ArticleLang === "zh-tw"
-                        ? props.item.SpecJournal?.Title
-                        : props.item.SpecJournal?.Title_en}
+                    {props.item.SpecJournal?.ArticleLang === "zh-tw" ? props.item.SpecJournal?.Title : props.item.SpecJournal?.Title_en}
                 </div>
                 <div className="card_title_en">
-                    {props.item.SpecJournal?.ArticleLang === "en"
-                        ? props.item.SpecJournal?.Title
-                        : props.item.SpecJournal?.Title_en}
+                    {props.item.SpecJournal?.ArticleLang === "en" ? props.item.SpecJournal?.Title : props.item.SpecJournal?.Title_en}
                 </div>
             </div>
 
@@ -543,15 +453,11 @@ const JournalCard = (props: {
     );
 };
 
-const IssueSummaryDownload = (
-    props: { fileId?: string; fileName?: string; downloadCount?: number; isPdf?: boolean; },
-) =>
+const IssueSummaryDownload = (props: { fileId?: string; fileName?: string; downloadCount?: number; isPdf?: boolean; }) =>
 {
     const fileId = (props.fileId ?? "").trim();
     const fileName = (props.fileName ?? "").trim();
-    const href = props.isPdf
-        ? FileManagementAPI.get_Public_Preview_Url(fileId, fileName)
-        : FileManagementAPI.get_Public_Download_Url(fileId, fileName);
+    const href = props.isPdf ? FileManagementAPI.get_Public_Preview_Url(fileId, fileName) : FileManagementAPI.get_Public_Download_Url(fileId, fileName);
     const canShow = !!fileId && !!fileName;
     if (!canShow) return null;
     return (
@@ -584,16 +490,10 @@ type Document = { key: string; fileId: string; fileName: string; };
 const buildDocuments = (data: SpecJournalSet): Document[] =>
 {
     const files: Document[] = [];
-    data?.SpecJournalDocument?.slice().sort((a, b) => (a.DocumentType ?? 0) - (b.DocumentType ?? 0)).forEach(
-        (item, idx) =>
-        {
-            files.push({
-                key: `document-${idx}`,
-                fileId: item.DocumentId ?? "",
-                fileName: item.DocumentName || item.DocumentId || "",
-            });
-        },
-    );
+    data?.SpecJournalDocument?.slice().sort((a, b) => (a.DocumentType ?? 0) - (b.DocumentType ?? 0)).forEach((item, idx) =>
+    {
+        files.push({ key: `document-${idx}`, fileId: item.DocumentId ?? "", fileName: item.DocumentName || item.DocumentId || "" });
+    });
     return files;
 };
 const DocumentList = (props: { data: SpecJournalSet; }) =>
@@ -625,19 +525,11 @@ const DocumentList = (props: { data: SpecJournalSet; }) =>
                                 >
                                     <span
                                         className="d-inline-flex align-items-center justify-content-center rounded flex-shrink-0 me-3"
-                                        style={{
-                                            width: "34px",
-                                            height: "34px",
-                                            backgroundColor: "#bca33a",
-                                            color: "#ffffff",
-                                        }}
+                                        style={{ width: "34px", height: "34px", backgroundColor: "#bca33a", color: "#ffffff" }}
                                     >
                                         <i className="far fa-file-alt" aria-hidden="true" />
                                     </span>
-                                    <span
-                                        className="text-dark fw-semibold text-break"
-                                        style={{ lineHeight: "1.35", wordBreak: "break-word" }}
-                                    >
+                                    <span className="text-dark fw-semibold text-break" style={{ lineHeight: "1.35", wordBreak: "break-word" }}>
                                         {file.fileName}
                                     </span>
                                 </a>
@@ -645,11 +537,7 @@ const DocumentList = (props: { data: SpecJournalSet; }) =>
                         );
                     })}
                 </ul>
-                {hasMoreFiles && (
-                    <div className="small text-muted mt-1" aria-label="更多說明檔案請進入詳細頁查看">
-                        ...
-                    </div>
-                )}
+                {hasMoreFiles && <div className="small text-muted mt-1" aria-label="更多說明檔案請進入詳細頁查看">...</div>}
             </div>
         </div>
     );

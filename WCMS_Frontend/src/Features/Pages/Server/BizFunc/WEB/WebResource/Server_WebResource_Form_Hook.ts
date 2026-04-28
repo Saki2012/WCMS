@@ -49,12 +49,7 @@ export const useWebResourceFormFetchData = (
         return { WebResource: WebResourceAdapter(), Category: CategoryAdapter(), Tag: TagAdapter() };
     }, []);
     const formData = useWebResourceFormDataByAdapter(adapter.WebResource, opt.internalId, opt.emptyData, onError);
-    const actions = useWebResourceFormActionsByAdapter(
-        adapter.WebResource,
-        opt.internalId,
-        formData.data,
-        opt.actionsOpt,
-    );
+    const actions = useWebResourceFormActionsByAdapter(adapter.WebResource, opt.internalId, formData.data, opt.actionsOpt);
     const category = adapter.Category.hooks.useMapByProgId({ progId: PGID.WebResource, lang: opt.lang });
     const tag = adapter.Tag.hooks.useMapByProgId({ progId: PGID.Announcement, lang: opt.lang });
     const statusOpts = useContentStatusOptions();
@@ -77,14 +72,7 @@ export const useWebResourceFormFetchData = (
     const errors = useMemo(() => errorList.filter((x): x is string => Boolean(x)), [errorList]);
     const rawData = useMemo<WebResourceFormRawData>(() =>
     {
-        return {
-            formData,
-            categoryMap: category.map ?? {},
-            tagMap: tag.map,
-            statusOpts: statusOpts.data,
-            windowsTarget: windowTarget.data,
-            actions,
-        };
+        return { formData, categoryMap: category.map ?? {}, tagMap: tag.map, statusOpts: statusOpts.data, windowsTarget: windowTarget.data, actions };
     }, [formData, actions, category.map, tag.map, statusOpts.data, windowTarget.data]);
     const refetchData = useCallback(async () =>
     {
@@ -183,11 +171,7 @@ const useWebResourceFormActionsByAdapter = (
     // 宣告變數
     const isNew = useMemo(() => !internalId, [internalId]);
     const actions = adapter.useServerActions({
-        onSuccessByMode: {
-            create: () => opt.onBackToList(),
-            update: () => opt.onBackToList(),
-            delete: () => opt.onBackToList(),
-        },
+        onSuccessByMode: { create: () => opt.onBackToList(), update: () => opt.onBackToList(), delete: () => opt.onBackToList() },
     });
 
     // return

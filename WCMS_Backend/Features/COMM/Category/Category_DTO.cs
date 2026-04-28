@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using WCMS.Features._Resx;
+using WCMS.Features.MAT.MatCategory;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library;
@@ -27,6 +28,9 @@ namespace WCMS.Features.COMM.Category
 
         #region 主子表關聯
         public List<CategoryDetail_DTO>? _CategoryDetail { get; set; }
+
+        //MAT
+        public List<MatCategoryInfoField_DTO>? _MatCategoryInfoField { get; set; }
         #endregion
     }
     public class CategoryDetail_DTO

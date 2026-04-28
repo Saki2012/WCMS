@@ -29,12 +29,7 @@ export const Server_PageManagement_Form_Comp = (prop: { theme: IBETheme; lang: L
     {
         return { onBackToList };
     }, [onBackToList]);
-    const getData = usePageManagementFormFetchData({
-        lang: prop.lang,
-        internalId: internalId ?? "",
-        emptyData,
-        actionsOpt,
-    });
+    const getData = usePageManagementFormFetchData({ lang: prop.lang, internalId: internalId ?? "", emptyData, actionsOpt });
     const catData = useMemo(() =>
     {
         return new Map<string, string>(Object.entries(getData.rawData.categoryMap ?? {}));
@@ -59,9 +54,7 @@ export const Server_PageManagement_Form_Comp = (prop: { theme: IBETheme; lang: L
         </FormComp>
     );
 };
-const HeaderComp = (
-    prop: { theme: IBETheme; formData: UseFetchFormDataResult<PageManagementSet>; catData: Map<string, string>; },
-) =>
+const HeaderComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<PageManagementSet>; catData: Map<string, string>; }) =>
 {
     const setField = useSetTableField<PageManagementSet>(prop.formData);
     const tabInfo: LibTabsProp = { Style: prop.theme.Tabs, item: { Basic: "基本", System: "系統資訊" } };
@@ -73,13 +66,7 @@ const HeaderComp = (
                 {...setField(PageManagementSetFields.PageManagement, PageManagementFields.CategoryId, "string")}
             />,
         ],
-        System: [
-            <SystemInfoTabComp
-                theme={prop.theme}
-                formData={prop.formData}
-                setKey={PageManagementSetFields.PageManagement}
-            />,
-        ],
+        System: [<SystemInfoTabComp theme={prop.theme} formData={prop.formData} setKey={PageManagementSetFields.PageManagement} />],
     };
     return <TabContentComp tabInfos={tabInfo} components={components}></TabContentComp>;
 };
@@ -97,38 +84,22 @@ const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Pa
             return tabItems;
         }, {}),
     };
-    const components: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>(
-        (compMap, info) =>
-        {
-            const langKey = LibMerge("_", true, info.PageId, info.RowId, info.Lang);
-            const rowKeys = {
-                [PageManagementDetailFields.PageId]: info.PageId,
-                [PageManagementDetailFields.RowId]: info.RowId,
-            };
-            compMap[langKey] = [
-                <LibTextBox
-                    Style={prop.theme.TextBox}
-                    DefaultInputDisplay="請輸入"
-                    {...setField(
-                        PageManagementSetFields.PageManagementDetail,
-                        PageManagementDetailFields.Title,
-                        "string",
-                        rowKeys,
-                    )}
-                />,
-                <LibTinyMCE
-                    Style={prop.theme.TinyMCE}
-                    {...setField(
-                        PageManagementSetFields.PageManagementDetail,
-                        PageManagementDetailFields.Content,
-                        "string",
-                        rowKeys,
-                    )}
-                />,
-            ];
-            return compMap;
-        },
-        {} as Record<string, React.ReactNode[]>,
-    );
+    const components: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>((compMap, info) =>
+    {
+        const langKey = LibMerge("_", true, info.PageId, info.RowId, info.Lang);
+        const rowKeys = { [PageManagementDetailFields.PageId]: info.PageId, [PageManagementDetailFields.RowId]: info.RowId };
+        compMap[langKey] = [
+            <LibTextBox
+                Style={prop.theme.TextBox}
+                DefaultInputDisplay="請輸入"
+                {...setField(PageManagementSetFields.PageManagementDetail, PageManagementDetailFields.Title, "string", rowKeys)}
+            />,
+            <LibTinyMCE
+                Style={prop.theme.TinyMCE}
+                {...setField(PageManagementSetFields.PageManagementDetail, PageManagementDetailFields.Content, "string", rowKeys)}
+            />,
+        ];
+        return compMap;
+    }, {} as Record<string, React.ReactNode[]>);
     return <TabContentComp tabInfos={tabInfo} components={components}></TabContentComp>;
 };

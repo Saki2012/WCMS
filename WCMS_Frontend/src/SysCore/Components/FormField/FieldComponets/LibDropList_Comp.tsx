@@ -54,11 +54,7 @@ const LibDropList = (prop: ILibDropListProp) =>
                 >
                     {(prop.ShowPlaceholder ?? true) && <option value="">{prop.PlaceholderLabel ?? "請選擇..."}</option>}
 
-                    {Array.from(prop.Options?.entries() ?? []).map(([key, label]) => (
-                        <option key={key} value={key}>
-                            {label}
-                        </option>
-                    ))}
+                    {Array.from(prop.Options?.entries() ?? []).map(([key, label]) => <option key={key} value={key}>{label}</option>)}
                 </select>
             </div>
         </>

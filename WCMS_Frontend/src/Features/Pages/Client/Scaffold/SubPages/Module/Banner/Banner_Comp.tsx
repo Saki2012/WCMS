@@ -16,15 +16,9 @@ type BannerDetail = components["schemas"]["BannerDetail_DTO"];
 type BannerDetailInfo = components["schemas"]["BannerDetailInfo_DTO"];
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type BootstrapCarouselInstance = {
-    cycle: () => void;
-    pause: () => void;
-    dispose?: () => void;
-};
+type BootstrapCarouselInstance = { cycle: () => void; pause: () => void; dispose?: () => void; };
 
-export const Banner_Comp = (
-    props: { lang: Lang; node: INormNode; initialBanner?: ApiLoaderData<QueryListParam, BannerSet[]> | null; },
-) =>
+export const Banner_Comp = (props: { lang: Lang; node: INormNode; initialBanner?: ApiLoaderData<QueryListParam, BannerSet[]> | null; }) =>
 {
     // 變數宣告
     const bannerId = props.node.bannerId ?? "";
@@ -40,15 +34,13 @@ export const Banner_Comp = (
         const now = Date.now();
         const list = banner?.BannerDetail ?? [];
 
-        return [...list]
-            .filter(d =>
-            {
-                const start = d.Validate_Start ? new Date(d.Validate_Start).getTime() : -Infinity;
-                const end = d.Validate_End ? new Date(d.Validate_End).getTime() : Infinity;
-                const info = pickBannerDetailInfo(d, props.lang);
-                return start <= now && now <= end && !!d.PicSrcId && !!getInfoTitle(info);
-            })
-            .sort((a, b) => (a.Sort ?? 0) - (b.Sort ?? 0));
+        return [...list].filter(d =>
+        {
+            const start = d.Validate_Start ? new Date(d.Validate_Start).getTime() : -Infinity;
+            const end = d.Validate_End ? new Date(d.Validate_End).getTime() : Infinity;
+            const info = pickBannerDetailInfo(d, props.lang);
+            return start <= now && now <= end && !!d.PicSrcId && !!getInfoTitle(info);
+        }).sort((a, b) => (a.Sort ?? 0) - (b.Sort ?? 0));
     }, [banner, props.lang]);
 
     // function：長寬比（依資料來源設定）
@@ -78,16 +70,9 @@ export const Banner_Comp = (
     const initCarousel = useCallback(async (el: HTMLElement, interval: number) =>
     {
         const mod = await import("bootstrap/js/dist/carousel");
-        const CarouselAny = mod.default as unknown as {
-            getOrCreateInstance: (el: HTMLElement, opt: unknown) => BootstrapCarouselInstance;
-        };
+        const CarouselAny = mod.default as unknown as { getOrCreateInstance: (el: HTMLElement, opt: unknown) => BootstrapCarouselInstance; };
 
-        return CarouselAny.getOrCreateInstance(el, {
-            interval,
-            ride: "carousel",
-            pause: false,
-            touch: true,
-        });
+        return CarouselAny.getOrCreateInstance(el, { interval, ride: "carousel", pause: false, touch: true });
     }, []);
 
     // effect：當資料 ready / interval 改變時啟動 carousel
@@ -132,13 +117,7 @@ export const Banner_Comp = (
                     <div className="VLine_wrapper">
                         {/* <div className="subpage_banner_wrapper w-100" style={ratioStyle}> */}
                         <div className="subpage_banner_wrapper w-100">
-                            <div
-                                className="carousel slide h-100"
-                                id={carouselId}
-                                ref={carouselRef}
-                                data-bs-ride="carousel"
-                                data-bs-interval={intervalMs}
-                            >
+                            <div className="carousel slide h-100" id={carouselId} ref={carouselRef} data-bs-ride="carousel" data-bs-interval={intervalMs}>
                                 <div className="carousel-inner h-100">
                                     {validDetails.map((d, i) =>
                                     {
@@ -148,10 +127,7 @@ export const Banner_Comp = (
                                         const openBlank = getInfoOpenBlank(info);
                                         const imgUrl = FileManagementAPI.get_Public_Preview_Url(d.PicSrcId);
                                         return (
-                                            <div
-                                                key={`${bannerId}_${d.RowId ?? i}_${i}`}
-                                                className={`carousel-item ${i === 0 ? "active" : ""} h-100`}
-                                            >
+                                            <div key={`${bannerId}_${d.RowId ?? i}_${i}`} className={`carousel-item ${i === 0 ? "active" : ""} h-100`}>
                                                 {url
                                                     ? (
                                                         <LangLink
@@ -165,12 +141,7 @@ export const Banner_Comp = (
                                                                 src={imgUrl}
                                                                 className="d-block w-100 h-100"
                                                                 alt={title}
-                                                                style={{
-                                                                    width: "100%",
-                                                                    height: "100%",
-                                                                    objectFit: "cover",
-                                                                    minHeight: "200px",
-                                                                }}
+                                                                style={{ width: "100%", height: "100%", objectFit: "cover", minHeight: "200px" }}
                                                             />
                                                         </LangLink>
                                                     )
@@ -179,12 +150,7 @@ export const Banner_Comp = (
                                                             src={imgUrl}
                                                             className="d-block w-100 h-100"
                                                             alt={title}
-                                                            style={{
-                                                                width: "100%",
-                                                                height: "100%",
-                                                                objectFit: "cover",
-                                                                minHeight: "200px",
-                                                            }}
+                                                            style={{ width: "100%", height: "100%", objectFit: "cover", minHeight: "200px" }}
                                                         />
                                                     )}
                                             </div>
@@ -194,10 +160,7 @@ export const Banner_Comp = (
                             </div>
 
                             {!!props.node.title && (
-                                <div
-                                    className="container-customize2"
-                                    style={{ position: "absolute", inset: 0, zIndex: 2, pointerEvents: "none" }}
-                                >
+                                <div className="container-customize2" style={{ position: "absolute", inset: 0, zIndex: 2, pointerEvents: "none" }}>
                                     <div className="banner-content">
                                         <div className="content-inner">
                                             <div className="titlebar">
@@ -263,11 +226,7 @@ const BannerFetch = (
     }, [initial?.args, bannerId]);
 
     // return：SSR 有 initial → hydration 不重抓；否則 CSR 依條件抓取
-    return adapter.hooks.useQueryList({
-        condition: queryCondition,
-        initial,
-        deps: [bannerId, lang],
-    });
+    return adapter.hooks.useQueryList({ condition: queryCondition, initial, deps: [bannerId, lang] });
 };
 
 const pickBannerDetailInfo = (detail: BannerDetail, lang: Lang): BannerDetailInfo | null =>

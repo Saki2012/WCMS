@@ -17,33 +17,15 @@ interface NewsSectionProps
     initialData: Pick<HomePageRawData, "newsTopList" | "newsList" | "newsMergedList">;
 }
 
-type InitialListCompat<TArgs, TItem> = {
-    args: TArgs;
-    apiRes: {
-        IsSuccess: true;
-        Data: TItem[];
-        SysMessage: never[];
-    };
-};
+type InitialListCompat<TArgs, TItem> = { args: TArgs; apiRes: { IsSuccess: true; Data: TItem[]; SysMessage: never[]; }; };
 
 const toListInitial = <TArgs, TItem>(args: TArgs, data: TItem[]): InitialListCompat<TArgs, TItem> =>
 {
     // return：提供 adapter hook 的 initial 結構
-    return {
-        args,
-        apiRes: {
-            IsSuccess: true,
-            Data: data,
-            SysMessage: [],
-        },
-    };
+    return { args, apiRes: { IsSuccess: true, Data: data, SysMessage: [] } };
 };
 
-const takeTopThenFill = (
-    top: AnnouncementSet[] | undefined,
-    rest: AnnouncementSet[] | undefined,
-    limit: number = 5,
-): AnnouncementSet[] =>
+const takeTopThenFill = (top: AnnouncementSet[] | undefined, rest: AnnouncementSet[] | undefined, limit: number = 5): AnnouncementSet[] =>
 {
     // 宣告變數
     const getKey = (x: AnnouncementSet) => x.Announcement?.InternalId ?? String(x.Announcement?.AnnouncementId ?? "");
@@ -76,11 +58,7 @@ const takeTopThenFill = (
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-const isWithinLastNDaysFromMD = (
-    month1to12?: number,
-    day1to31?: number,
-    n: number = 8,
-): boolean =>
+const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: number = 8): boolean =>
 {
     // 宣告變數
     if (!month1to12 || !day1to31) return false;
@@ -120,17 +98,9 @@ export const NewsSection = (props: NewsSectionProps) =>
         return toListInitial(props.listParam, props.initialData.newsList ?? []);
     }, [props.listParam, props.initialData.newsList]);
 
-    const useTopNews = adapter.hooks.useQueryList({
-        condition: props.topParam,
-        initial: topInitial,
-        deps: [props.topParam.Condition ?? ""],
-    });
+    const useTopNews = adapter.hooks.useQueryList({ condition: props.topParam, initial: topInitial, deps: [props.topParam.Condition ?? ""] });
 
-    const useNormalNews = adapter.hooks.useQueryList({
-        condition: props.listParam,
-        initial: listInitial,
-        deps: [props.listParam.Condition ?? ""],
-    });
+    const useNormalNews = adapter.hooks.useQueryList({ condition: props.listParam, initial: listInitial, deps: [props.listParam.Condition ?? ""] });
 
     const merged = useMemo(() =>
     {
@@ -153,22 +123,13 @@ export const NewsSection = (props: NewsSectionProps) =>
                                     <div className="col-12">
                                         <div className="headDiv mb-sm-5 mb-4">
                                             <span className="headDiv-subtxt">News</span>
-                                            <img
-                                                className="headDiv-title-line"
-                                                src={TitleLine}
-                                                alt="標題裝飾線條圖示"
-                                            />
+                                            <img className="headDiv-title-line" src={TitleLine} alt="標題裝飾線條圖示" />
                                             <span className="headDiv-txt">最新消息</span>
                                         </div>
                                     </div>
                                     <div id="Horizontal" className="H-nav-tabs-content-box">
                                         <div className="tab-content" id="H-nav-tabContent">
-                                            <div
-                                                id="H-navTabs-01"
-                                                className="tab-pane fade show active"
-                                                role="tabpanel"
-                                                aria-labelledby="V-Tabs__01"
-                                            >
+                                            <div id="H-navTabs-01" className="tab-pane fade show active" role="tabpanel" aria-labelledby="V-Tabs__01">
                                                 <div className="News_mainDIV">
                                                     <ul className="ListNews">
                                                         {merged.map((data) =>
@@ -177,30 +138,17 @@ export const NewsSection = (props: NewsSectionProps) =>
                                                             const startRaw = data.Announcement?.Validate_Start;
                                                             const startDt = startRaw ? new Date(startRaw) : null;
                                                             const year = startDt ? String(startDt.getFullYear()) : "";
-                                                            const month = startDt
-                                                                ? String(startDt.getMonth() + 1).padStart(2, "0")
-                                                                : "";
-                                                            const day = startDt
-                                                                ? String(startDt.getDate()).padStart(2, "0")
-                                                                : "";
-                                                            const detail = data.AnnouncementDetail?.find(p =>
-                                                                p.Lang === props.lang
-                                                            );
+                                                            const month = startDt ? String(startDt.getMonth() + 1).padStart(2, "0") : "";
+                                                            const day = startDt ? String(startDt.getDate()).padStart(2, "0") : "";
+                                                            const detail = data.AnnouncementDetail?.find(p => p.Lang === props.lang);
 
                                                             return (
                                                                 <li key={internalId} className="News_item">
-                                                                    <LangNavLink
-                                                                        to={`/news/${internalId}`}
-                                                                        className="item-inner"
-                                                                        target="_self"
-                                                                        tabIndex={0}
-                                                                    >
+                                                                    <LangNavLink to={`/news/${internalId}`} className="item-inner" target="_self" tabIndex={0}>
                                                                         <div className="leftBox">
                                                                             <div className="news-date-box">
                                                                                 <div className="year">{year}</div>
-                                                                                <div className="mm-dd">
-                                                                                    {`${month}.${day}`}
-                                                                                </div>
+                                                                                <div className="mm-dd">{`${month}.${day}`}</div>
                                                                             </div>
                                                                         </div>
 
@@ -209,69 +157,34 @@ export const NewsSection = (props: NewsSectionProps) =>
                                                                                 <div className="a-left">
                                                                                     <div className="card_cat">
                                                                                         <div className="card_cat_link">
-                                                                                            <i
-                                                                                                className="fas fa-tasks-alt me-2"
-                                                                                                aria-hidden="true"
-                                                                                            />
-                                                                                            <span className="cat_title">
-                                                                                                系所公告
-                                                                                            </span>
+                                                                                            <i className="fas fa-tasks-alt me-2" aria-hidden="true" />
+                                                                                            <span className="cat_title">系所公告</span>
                                                                                         </div>
                                                                                     </div>
                                                                                     <div className="CustomState">
-                                                                                        {isWithinLastNDaysFromMD(
-                                                                                            Number(month),
-                                                                                            Number(day),
-                                                                                        ) && (
-                                                                                            <div
-                                                                                                className="icon-small new-bg"
-                                                                                                role="status"
-                                                                                                aria-label="最新"
-                                                                                            >
+                                                                                        {isWithinLastNDaysFromMD(Number(month), Number(day)) && (
+                                                                                            <div className="icon-small new-bg" role="status" aria-label="最新">
                                                                                                 最新
                                                                                             </div>
                                                                                         )}
-                                                                                        {data.Announcement
-                                                                                                    ?.ContentStatus != 0
-                                                                                            && (
-                                                                                                <>
-                                                                                                    {Boolean(
-                                                                                                        (data
-                                                                                                            .Announcement
-                                                                                                            ?.ContentStatus
-                                                                                                            ?? 0) & 1,
-                                                                                                    ) && (
-                                                                                                        <div className="icon-small top-bg">
-                                                                                                            置頂
-                                                                                                        </div>
-                                                                                                    )}
-                                                                                                    {Boolean(
-                                                                                                        (data
-                                                                                                            .Announcement
-                                                                                                            ?.ContentStatus
-                                                                                                            ?? 0) & 2,
-                                                                                                    ) && (
-                                                                                                        <div className="icon-small hot-bg">
-                                                                                                            熱門
-                                                                                                        </div>
-                                                                                                    )}
-                                                                                                </>
-                                                                                            )}
+                                                                                        {data.Announcement?.ContentStatus != 0 && (
+                                                                                            <>
+                                                                                                {Boolean((data.Announcement?.ContentStatus ?? 0) & 1) && (
+                                                                                                    <div className="icon-small top-bg">置頂</div>
+                                                                                                )}
+                                                                                                {Boolean((data.Announcement?.ContentStatus ?? 0) & 2) && (
+                                                                                                    <div className="icon-small hot-bg">熱門</div>
+                                                                                                )}
+                                                                                            </>
+                                                                                        )}
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
                                                                             <div className="card_titleDiv">
-                                                                                <div className="card_title">
-                                                                                    {detail?.Title}
-                                                                                </div>
+                                                                                <div className="card_title">{detail?.Title}</div>
                                                                                 <span className="link-arrow">
-                                                                                    <i
-                                                                                        className="fas fa-long-arrow-alt-right"
-                                                                                        aria-hidden="true"
-                                                                                    />
-                                                                                    <span className="sr-only">
-                                                                                        前往
-                                                                                    </span>
+                                                                                    <i className="fas fa-long-arrow-alt-right" aria-hidden="true" />
+                                                                                    <span className="sr-only">前往</span>
                                                                                 </span>
                                                                             </div>
                                                                         </div>
@@ -286,13 +199,7 @@ export const NewsSection = (props: NewsSectionProps) =>
                                     </div>
                                     <div className="btn-w100-wrapper justify-content-center">
                                         <div className="customize_btn">
-                                            <LangNavLink
-                                                to={"/news"}
-                                                className="Btn_a"
-                                                role="button"
-                                                target="_self"
-                                                title="更多系所公告"
-                                            >
+                                            <LangNavLink to={"/news"} className="Btn_a" role="button" target="_self" title="更多系所公告">
                                                 <div className="BtnBox">
                                                     <span>VIEW MORE</span>
                                                     <span className="ml-2">

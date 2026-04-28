@@ -1,9 +1,4 @@
-import {
-    type ApiAdapterError,
-    ApiDataAdapter,
-    type ApiDataHookGroup,
-    type ApiDataLoaderGroup,
-} from "@/SysCore/Utils/API/APIAdapter";
+import { type ApiAdapterError, ApiDataAdapter, type ApiDataHookGroup, type ApiDataLoaderGroup } from "@/SysCore/Utils/API/APIAdapter";
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import { ApiDataService } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
@@ -15,11 +10,7 @@ type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
 type ORCIDData = components["schemas"]["ORCIDData"];
 
 /** 出刊 request；若之後 swagger 已補 PublishReq，可直接改回 components schema */
-export type PublishJournalReq = {
-    InternalId: string;
-    JournalIndexId?: string | null;
-    JournalIndexRowId?: number | null;
-};
+export type PublishJournalReq = { InternalId: string; JournalIndexId?: string | null; JournalIndexRowId?: number | null; };
 
 type ExtraLoaders = {};
 
@@ -31,63 +22,33 @@ type GetAuthorByOrcidHookResult = {
     rawData: ORCIDData[];
 };
 
-type PublishJournalHookResult = {
-    execute: (dto: PublishJournalReq) => Promise<ApiResponse<object>>;
-    isLoading: boolean;
-    apiRes: ApiResponse<object> | null;
-};
+type PublishJournalHookResult = { execute: (dto: PublishJournalReq) => Promise<ApiResponse<object>>; isLoading: boolean; apiRes: ApiResponse<object> | null; };
 
-type UnpublishJournalHookResult = {
-    execute: (internalId: string) => Promise<ApiResponse<object>>;
-    isLoading: boolean;
-    apiRes: ApiResponse<object> | null;
-};
+type UnpublishJournalHookResult = { execute: (internalId: string) => Promise<ApiResponse<object>>; isLoading: boolean; apiRes: ApiResponse<object> | null; };
 
 type ExtraHooks = {
     /** 依 ORCID iD 查作者公開資訊 */
-    useGetAuthorByOrcid: (opt?: {
-        apiInstance?: AxiosInstance;
-        onSuccess?: (data: ORCIDData | null) => void;
-        onError?: (err: ApiAdapterError) => void;
-    }) => GetAuthorByOrcidHookResult;
+    useGetAuthorByOrcid: (
+        opt?: { apiInstance?: AxiosInstance; onSuccess?: (data: ORCIDData | null) => void; onError?: (err: ApiAdapterError) => void; },
+    ) => GetAuthorByOrcidHookResult;
     /** 將預刊本轉為期刊本 */
-    usePublishJournal: (opt?: {
-        apiInstance?: AxiosInstance;
-        onSuccess?: () => void;
-        onError?: (err: ApiAdapterError) => void;
-    }) => PublishJournalHookResult;
+    usePublishJournal: (opt?: { apiInstance?: AxiosInstance; onSuccess?: () => void; onError?: (err: ApiAdapterError) => void; }) => PublishJournalHookResult;
     /** 將期刊本退回預刊本 */
-    useUnpublishJournal: (opt?: {
-        apiInstance?: AxiosInstance;
-        onSuccess?: () => void;
-        onError?: (err: ApiAdapterError) => void;
-    }) => UnpublishJournalHookResult;
+    useUnpublishJournal: (
+        opt?: { apiInstance?: AxiosInstance; onSuccess?: () => void; onError?: (err: ApiAdapterError) => void; },
+    ) => UnpublishJournalHookResult;
 };
-const toAdapterError = <T>(
-    apiRes: ApiResponse<T>,
-    fallback: string,
-    action: string,
-): ApiAdapterError =>
+const toAdapterError = <T>(apiRes: ApiResponse<T>, fallback: string, action: string): ApiAdapterError =>
 {
     // 宣告變數
     const sysMessages = apiRes?.SysMessage ?? [];
-    const messageText = sysMessages
-        .map((m) => `${m?.MessageCode ?? ""}:${m?.Message ?? ""}`.trim())
-        .filter((s) => s.length > 0)
-        .join("；");
+    const messageText = sysMessages.map((m) => `${m?.MessageCode ?? ""}:${m?.Message ?? ""}`.trim()).filter((s) => s.length > 0).join("；");
 
     // return
-    return {
-        messageText: messageText || fallback,
-        sysMessages,
-        httpStatus: undefined,
-        action,
-    };
+    return { messageText: messageText || fallback, sysMessages, httpStatus: undefined, action };
 };
 /** 取回第一筆 ORCID 作者資料 */
-const getFirstOrcidData = (
-    data: ORCIDData[] | null | undefined,
-): ORCIDData | null =>
+const getFirstOrcidData = (data: ORCIDData[] | null | undefined): ORCIDData | null =>
 {
     if (!Array.isArray(data) || data.length === 0) return null;
     return data[0] ?? null;
@@ -106,16 +67,12 @@ class SpecJournalService extends ApiDataService<SpecJournalSet>
     /** 呼叫後端依 ORCID 查作者資訊 */
     async getAuthorByOrcid(orcid: string): Promise<ApiResponse<ORCIDData[]>>
     {
-        return await this.CallApi<ORCIDData[]>(() =>
-            this.Api.get<ApiResponse<ORCIDData[]>>(`${this.Module}/GetAuthorByOrcid`, { params: { orcid } })
-        );
+        return await this.CallApi<ORCIDData[]>(() => this.Api.get<ApiResponse<ORCIDData[]>>(`${this.Module}/GetAuthorByOrcid`, { params: { orcid } }));
     }
     /** 呼叫後端出刊 API */
     async publishJournal(dto: PublishJournalReq): Promise<ApiResponse<object>>
     {
-        return await this.CallApi<object>(() =>
-            this.Api.put<ApiResponse<object>>(`${this.Module}/PublishJournal`, dto)
-        );
+        return await this.CallApi<object>(() => this.Api.put<ApiResponse<object>>(`${this.Module}/PublishJournal`, dto));
     }
     /** 呼叫後端退回預刊 API */
     async unpublishJournal(internalId: string): Promise<ApiResponse<object>>
@@ -137,18 +94,14 @@ class SpecJournalAdapterImpl extends ApiDataAdapter<SpecJournalSet, SpecJournalS
 
     // #region Protect Virtual Func
     /** 擴充 loader 入口，目前 SpecJournal 暫無額外 loader */
-    protected override buildExtendedLoader(
-        base: ApiDataLoaderGroup<SpecJournalSet>,
-    ): ApiDataLoaderGroup<SpecJournalSet> & ExtraLoaders
+    protected override buildExtendedLoader(base: ApiDataLoaderGroup<SpecJournalSet>): ApiDataLoaderGroup<SpecJournalSet> & ExtraLoaders
     {
         const merged: ApiDataLoaderGroup<SpecJournalSet> & ExtraLoaders = { ...base };
         return merged;
     }
 
     /** 擴充 hooks 入口，掛入 ORCID / 出刊 / 退回預刊 */
-    protected override buildExtendedHooks(
-        base: ApiDataHookGroup<SpecJournalSet>,
-    ): ApiDataHookGroup<SpecJournalSet> & ExtraHooks
+    protected override buildExtendedHooks(base: ApiDataHookGroup<SpecJournalSet>): ApiDataHookGroup<SpecJournalSet> & ExtraHooks
     {
         // 宣告變數
         const wrapUseGetAuthorByOrcid: ExtraHooks["useGetAuthorByOrcid"] = (opt) =>
@@ -197,13 +150,7 @@ class SpecJournalAdapterImpl extends ApiDataAdapter<SpecJournalSet, SpecJournalS
 
                 if (!res.IsSuccess)
                 {
-                    onError?.(
-                        toAdapterError(
-                            res,
-                            "查詢 ORCID 作者資訊失敗",
-                            "SpecJournal.GetAuthorByOrcid",
-                        ),
-                    );
+                    onError?.(toAdapterError(res, "查詢 ORCID 作者資訊失敗", "SpecJournal.GetAuthorByOrcid"));
                 } else
                 {
                     onSuccess?.(first);
@@ -227,13 +174,7 @@ class SpecJournalAdapterImpl extends ApiDataAdapter<SpecJournalSet, SpecJournalS
         }, [apiRes]);
 
         // return
-        return {
-            execute,
-            isLoading,
-            apiRes,
-            data,
-            rawData,
-        };
+        return { execute, isLoading, apiRes, data, rawData };
     };
 
     /** hook：將預刊本轉為期刊本 */
@@ -263,13 +204,7 @@ class SpecJournalAdapterImpl extends ApiDataAdapter<SpecJournalSet, SpecJournalS
 
                 if (!res.IsSuccess)
                 {
-                    onError?.(
-                        toAdapterError(
-                            res,
-                            "出刊失敗",
-                            "SpecJournal.PublishJournal",
-                        ),
-                    );
+                    onError?.(toAdapterError(res, "出刊失敗", "SpecJournal.PublishJournal"));
                 } else
                 {
                     onSuccess?.();
@@ -283,11 +218,7 @@ class SpecJournalAdapterImpl extends ApiDataAdapter<SpecJournalSet, SpecJournalS
         }, [svc, onSuccess, onError]);
 
         // return
-        return {
-            execute,
-            isLoading,
-            apiRes,
-        };
+        return { execute, isLoading, apiRes };
     };
 
     /** hook：將期刊本退回預刊本 */
@@ -317,13 +248,7 @@ class SpecJournalAdapterImpl extends ApiDataAdapter<SpecJournalSet, SpecJournalS
 
                 if (!res.IsSuccess)
                 {
-                    onError?.(
-                        toAdapterError(
-                            res,
-                            "退回預刊失敗",
-                            "SpecJournal.UnpublishJournal",
-                        ),
-                    );
+                    onError?.(toAdapterError(res, "退回預刊失敗", "SpecJournal.UnpublishJournal"));
                 } else
                 {
                     onSuccess?.();
@@ -337,11 +262,7 @@ class SpecJournalAdapterImpl extends ApiDataAdapter<SpecJournalSet, SpecJournalS
         }, [svc, onSuccess, onError]);
 
         // return
-        return {
-            execute,
-            isLoading,
-            apiRes,
-        };
+        return { execute, isLoading, apiRes };
     };
     // #endregion
 }

@@ -32,30 +32,17 @@ export const BasicSettingTab = (prop: BasicSettingTab_Props) =>
     const selectedMenuItem = useSelectedMenuItem(prop.formData.data, prop.selectedItemEdit);
     const curRowKeys = useMemo(() =>
     {
-        return {
-            [SiteMenu_ItemFields.SiteIndex]: selectedMenuItem?.SiteIndex,
-            [SiteMenu_ItemFields.RowId]: selectedMenuItem?.RowId,
-        };
+        return { [SiteMenu_ItemFields.SiteIndex]: selectedMenuItem?.SiteIndex, [SiteMenu_ItemFields.RowId]: selectedMenuItem?.RowId };
     }, [selectedMenuItem?.RowId, selectedMenuItem?.SiteIndex]);
 
-    const itemTypeBind = prop.setField(
-        SiteMenuSetFields.SiteMenu_Item,
-        SiteMenu_ItemFields.ItemType,
-        "number",
-        curRowKeys,
-    );
+    const itemTypeBind = prop.setField(SiteMenuSetFields.SiteMenu_Item, SiteMenu_ItemFields.ItemType, "number", curRowKeys);
 
     return (
         <>
             <LibTextBox
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入數字或英文，不可使用空白的"
-                {...prop.setField(
-                    SiteMenuSetFields.SiteMenu_Item,
-                    SiteMenu_ItemFields.ItemSiteUrl,
-                    "string",
-                    curRowKeys,
-                )}
+                {...prop.setField(SiteMenuSetFields.SiteMenu_Item, SiteMenu_ItemFields.ItemSiteUrl, "string", curRowKeys)}
             />
             <LibTextBox
                 disabled={true}
@@ -77,21 +64,14 @@ export const BasicSettingTab = (prop: BasicSettingTab_Props) =>
             <LibCheckBox
                 Style={prop.theme.RadioBox}
                 options={prop.windowTarget}
-                {...prop.setField(
-                    SiteMenuSetFields.SiteMenu_Item,
-                    SiteMenu_ItemFields.WindowTarget,
-                    "number",
-                    curRowKeys,
-                )}
+                {...prop.setField(SiteMenuSetFields.SiteMenu_Item, SiteMenu_ItemFields.WindowTarget, "number", curRowKeys)}
             />
             <MenuTitle_Comp {...prop} selectedMenuItem={selectedMenuItem} />
         </>
     );
 };
 
-type MenuTitleCompProps = BasicSettingTab_Props & {
-    selectedMenuItem?: SiteMenu_Item | null;
-};
+type MenuTitleCompProps = BasicSettingTab_Props & { selectedMenuItem?: SiteMenu_Item | null; };
 
 const MenuTitle_Comp = (prop: MenuTitleCompProps) =>
 {
@@ -145,23 +125,13 @@ const MenuTitle_Comp = (prop: MenuTitleCompProps) =>
                     key={`${langKey}_title`}
                     Style={prop.theme.TextBox}
                     DefaultInputDisplay="請輸入"
-                    {...prop.setField(
-                        SiteMenuSetFields.SiteMenu_Item_Title,
-                        SiteMenu_Item_TitleFields.Title,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...prop.setField(SiteMenuSetFields.SiteMenu_Item_Title, SiteMenu_Item_TitleFields.Title, "string", rowKeys)}
                 />,
                 <LibCheckBox
                     key={`${langKey}_show`}
                     Style={prop.theme.CheckBox}
                     options={{ [SiteMenu_Item_TitleFields.IsShowOnMenu]: "" }}
-                    {...prop.setField(
-                        SiteMenuSetFields.SiteMenu_Item_Title,
-                        SiteMenu_Item_TitleFields.IsShowOnMenu,
-                        "boolean",
-                        rowKeys,
-                    )}
+                    {...prop.setField(SiteMenuSetFields.SiteMenu_Item_Title, SiteMenu_Item_TitleFields.IsShowOnMenu, "boolean", rowKeys)}
                 />,
             ];
 

@@ -1,8 +1,5 @@
 import type { UseActionsResult } from "@/Features/Hooks/Common/useActions";
-import {
-    createGridCrudActions,
-    enhanceGridWithAdjustCell,
-} from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
+import { createGridCrudActions, enhanceGridWithAdjustCell } from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
 import { ListComp } from "@/Features/Pages/Server/Scaffold/Content/List_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
@@ -22,12 +19,7 @@ export const Server_ScheduleRule_List_Comp = (prop: { title: string; theme: IBET
 {
     // 宣告變數
     const [kw, setKw] = useState<string>("");
-    const searchCompProp: SearchBarProps = {
-        title: "規則搜尋",
-        subTitle: "搜尋學年度 ...",
-        onSubmit: setKw,
-        onReset: () => setKw(""),
-    };
+    const searchCompProp: SearchBarProps = { title: "規則搜尋", subTitle: "搜尋學年度 ...", onSubmit: setKw, onReset: () => setKw("") };
     const pathname = useLocation().pathname;
     const dirUrl = useMemo(() => pathname.replace(/\/List$/, `/Form`), [pathname]);
     const navigate = useNavigate();
@@ -85,13 +77,7 @@ const buildScheduleRuleGridProps = (opt: { raw: ScheduleRuleListRawData; crud: C
     const columns = buildColumns(visibleCols, opt.raw);
     const rows = buildScheduleRuleRows(opt.raw, columns);
 
-    const baseGrid: GridProps = {
-        columns,
-        rows,
-        CurrentPage: opt.raw.pageNumber ?? 1,
-        TotalPage: opt.raw.totalPages ?? 1,
-        onPageChange: opt.raw.onPageChange,
-    };
+    const baseGrid: GridProps = { columns, rows, CurrentPage: opt.raw.pageNumber ?? 1, TotalPage: opt.raw.totalPages ?? 1, onPageChange: opt.raw.onPageChange };
 
     // 執行 function：動作按鈕（Edit/Delete）
     const actions = createGridCrudActions<SpecOpenScheduleRuleSet>({

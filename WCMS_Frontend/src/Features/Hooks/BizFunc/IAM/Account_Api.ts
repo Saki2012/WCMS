@@ -1,9 +1,4 @@
-import {
-    ApiDataAdapter,
-    type ApiAdapterError,
-    type ApiDataHookGroup,
-    type ApiDataLoaderGroup,
-} from "@/SysCore/Utils/API/APIAdapter";
+import { type ApiAdapterError, ApiDataAdapter, type ApiDataHookGroup, type ApiDataLoaderGroup } from "@/SysCore/Utils/API/APIAdapter";
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import { ApiDataService } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
@@ -17,113 +12,75 @@ type ResetPassword = components["schemas"]["ResetPassword"];
 
 type ExtraLoaders = {};
 
-type ChangePasswordHookResult = {
-    execute: (dto: ChangePassword) => Promise<ApiResponse<object>>;
-    isLoading: boolean;
-    apiRes: ApiResponse<object> | null;
-};
+type ChangePasswordHookResult = { execute: (dto: ChangePassword) => Promise<ApiResponse<object>>; isLoading: boolean; apiRes: ApiResponse<object> | null; };
 
-type ResetPasswordHookResult = {
-    execute: (dto: ResetPassword) => Promise<ApiResponse<object>>;
-    isLoading: boolean;
-    apiRes: ApiResponse<object> | null;
-};
+type ResetPasswordHookResult = { execute: (dto: ResetPassword) => Promise<ApiResponse<object>>; isLoading: boolean; apiRes: ApiResponse<object> | null; };
 
 type ExtraHooks = {
     /** 修改密碼 hook */
-    useChangePassword: (opt?: {
-        apiInstance?: AxiosInstance;
-        onSuccess?: () => void;
-        onError?: (err: ApiAdapterError) => void;
-    }) => ChangePasswordHookResult;
+    useChangePassword: (opt?: { apiInstance?: AxiosInstance; onSuccess?: () => void; onError?: (err: ApiAdapterError) => void; }) => ChangePasswordHookResult;
 
     /** 重置密碼 hook */
-    useResetPassword: (opt?: {
-        apiInstance?: AxiosInstance;
-        onSuccess?: () => void;
-        onError?: (err: ApiAdapterError) => void;
-    }) => ResetPasswordHookResult;
+    useResetPassword: (opt?: { apiInstance?: AxiosInstance; onSuccess?: () => void; onError?: (err: ApiAdapterError) => void; }) => ResetPasswordHookResult;
 };
 
 /** 將 ApiResponse 轉成 adapter 錯誤格式 */
-const toAdapterError = (
-    apiRes: ApiResponse<object>,
-    fallback: string,
-    action: string,
-): ApiAdapterError =>
+const toAdapterError = (apiRes: ApiResponse<object>, fallback: string, action: string): ApiAdapterError =>
 {
     // 宣告變數
     const sysMessages = apiRes?.SysMessage ?? [];
-    const messageText = sysMessages
-        .map((m) => `${m?.MessageCode ?? ""}:${m?.Message ?? ""}`.trim())
-        .filter((s) => s.length > 0)
-        .join("；");
+    const messageText = sysMessages.map((m) => `${m?.MessageCode ?? ""}:${m?.Message ?? ""}`.trim()).filter((s) => s.length > 0).join("；");
 
     // return
-    return {
-        messageText: messageText || fallback,
-        sysMessages,
-        httpStatus: undefined,
-        action,
-    };
+    return { messageText: messageText || fallback, sysMessages, httpStatus: undefined, action };
 };
 
 export class AccountService extends ApiDataService<AccountSet>
 {
-    //#region Construct
+    // #region Construct
     constructor(apiInstance?: AxiosInstance)
     {
         super(PGID.Account, apiInstance);
     }
-    //#endregion
+    // #endregion
 
-    //#region API Func
+    // #region API Func
     /** 呼叫後端修改密碼 */
     async changePassword(param: ChangePassword): Promise<ApiResponse<object>>
     {
         // return
-        return await this.CallApi<object>(() =>
-            this.Api.put<ApiResponse<object>>(`${this.Module}/ChangePassword`, param)
-        );
+        return await this.CallApi<object>(() => this.Api.put<ApiResponse<object>>(`${this.Module}/ChangePassword`, param));
     }
 
     /** 呼叫後端重置密碼 */
     async resetPassword(param: ResetPassword): Promise<ApiResponse<object>>
     {
         // return
-        return await this.CallApi<object>(() =>
-            this.Api.put<ApiResponse<object>>(`${this.Module}/ResetPassword`, param)
-        );
+        return await this.CallApi<object>(() => this.Api.put<ApiResponse<object>>(`${this.Module}/ResetPassword`, param));
     }
-    //#endregion
+    // #endregion
 }
 
 export class AccountAdapterImpl extends ApiDataAdapter<AccountSet, AccountService>
 {
     // #region Property
-    public declare loader: ApiDataLoaderGroup<AccountSet> & ExtraLoaders;
-    public declare hooks: ApiDataHookGroup<AccountSet> & ExtraHooks;
+    declare public loader: ApiDataLoaderGroup<AccountSet> & ExtraLoaders;
+    declare public hooks: ApiDataHookGroup<AccountSet> & ExtraHooks;
     // #endregion
 
     // #region Protect Virtual Func
     /** 擴充 loader 入口，目前 Account 暫無額外 loader */
-    protected override buildExtendedLoader(
-        base: ApiDataLoaderGroup<AccountSet>,
-    ): ApiDataLoaderGroup<AccountSet> & ExtraLoaders
+    protected override buildExtendedLoader(base: ApiDataLoaderGroup<AccountSet>): ApiDataLoaderGroup<AccountSet> & ExtraLoaders
     {
         // 宣告變數
-        const merged: ApiDataLoaderGroup<AccountSet> & ExtraLoaders = {
-            ...base,
-        };
+        const merged: ApiDataLoaderGroup<AccountSet> & ExtraLoaders = { ...base };
 
         // return
         return merged;
     }
 
     /** 擴充 hooks 入口，掛入修改密碼與重置密碼 */
-    protected override buildExtendedHooks(
-        base: ApiDataHookGroup<AccountSet>,
-    ): ApiDataHookGroup<AccountSet> & ExtraHooks
+    protected override buildExtendedHooks(base: ApiDataHookGroup<AccountSet>): ApiDataHookGroup<AccountSet> & ExtraHooks
     {
         // 宣告變數
         const wrapUseChangePassword: ExtraHooks["useChangePassword"] = (opt) =>
@@ -134,11 +91,7 @@ export class AccountAdapterImpl extends ApiDataAdapter<AccountSet, AccountServic
         {
             return this.useResetPassword(opt);
         };
-        const merged: ApiDataHookGroup<AccountSet> & ExtraHooks = {
-            ...base,
-            useChangePassword: wrapUseChangePassword,
-            useResetPassword: wrapUseResetPassword,
-        };
+        const merged: ApiDataHookGroup<AccountSet> & ExtraHooks = { ...base, useChangePassword: wrapUseChangePassword, useResetPassword: wrapUseResetPassword };
 
         // return
         return merged;
@@ -174,26 +127,20 @@ export class AccountAdapterImpl extends ApiDataAdapter<AccountSet, AccountServic
                 if (!res.IsSuccess)
                 {
                     onError?.(toAdapterError(res, "修改密碼失敗", "Account.ChangePassword"));
-                }
-                else
+                } else
                 {
                     onSuccess?.();
                 }
 
                 return res;
-            }
-            finally
+            } finally
             {
                 setIsLoading(false);
             }
         }, [svc, onSuccess, onError]);
 
         // return
-        return {
-            execute,
-            isLoading,
-            apiRes,
-        };
+        return { execute, isLoading, apiRes };
     };
 
     /** 重置密碼 hook */
@@ -224,26 +171,20 @@ export class AccountAdapterImpl extends ApiDataAdapter<AccountSet, AccountServic
                 if (!res.IsSuccess)
                 {
                     onError?.(toAdapterError(res, "重置密碼失敗", "Account.ResetPassword"));
-                }
-                else
+                } else
                 {
                     onSuccess?.();
                 }
 
                 return res;
-            }
-            finally
+            } finally
             {
                 setIsLoading(false);
             }
         }, [svc, onSuccess, onError]);
 
         // return
-        return {
-            execute,
-            isLoading,
-            apiRes,
-        };
+        return { execute, isLoading, apiRes };
     };
     // #endregion
 }

@@ -30,12 +30,7 @@ export const Server_ResearchProjFormComp = (prop: { theme: IBETheme; lang: Lang;
     {
         return { onBackToList };
     }, [onBackToList]);
-    const getData = useSpecResearchFormFetchData({
-        lang: prop.lang,
-        internalId: internalId ?? "",
-        emptyData,
-        actionsOpt,
-    });
+    const getData = useSpecResearchFormFetchData({ lang: prop.lang, internalId: internalId ?? "", emptyData, actionsOpt });
     // 執行 function：確保語系明細存在（避免 Tab 缺資料）
     useEnsureLangDetails(getData.rawData.formData, {
         headerName: SpecResearchSetFields.SpecResearch,
@@ -79,10 +74,7 @@ export const Server_ResearchProjFormComp = (prop: { theme: IBETheme; lang: Lang;
 const HeaderComp = (
     prop: {
         theme: IBETheme;
-        formData: {
-            data?: SpecResearchSet;
-            setFormData: (updater: (prev: SpecResearchSet) => SpecResearchSet) => void;
-        };
+        formData: { data?: SpecResearchSet; setFormData: (updater: (prev: SpecResearchSet) => SpecResearchSet) => void; };
         cateOpts: Map<string, string>;
         statusOpts: Record<string, string>;
         tagOpts: Record<string, string>;
@@ -90,10 +82,7 @@ const HeaderComp = (
 ) =>
 {
     const setField = useSetTableField<SpecResearchSet>(prop.formData as any);
-    const LibTabsPropA: LibTabsProp = {
-        Style: prop.theme.Tabs,
-        item: { Basic: "基本", Status: "狀態", Tags: "標籤", System: "系統資訊" },
-    };
+    const LibTabsPropA: LibTabsProp = { Style: prop.theme.Tabs, item: { Basic: "基本", Status: "狀態", Tags: "標籤", System: "系統資訊" } };
     const componentsA: Record<string, React.ReactNode[]> = {
         Basic: [
             <LibDropList
@@ -106,35 +95,20 @@ const HeaderComp = (
             <LibCheckBox
                 Style={prop.theme.CheckBox}
                 options={prop.statusOpts}
-                {...setField(
-                    SpecResearchSetFields.SpecResearch,
-                    SpecResearchModelFields.ContentStatus,
-                    "number",
-                    undefined,
-                    { strategy: "sum", sumKeys: Object.keys(prop.statusOpts ?? {}).map(Number) },
-                )}
+                {...setField(SpecResearchSetFields.SpecResearch, SpecResearchModelFields.ContentStatus, "number", undefined, {
+                    strategy: "sum",
+                    sumKeys: Object.keys(prop.statusOpts ?? {}).map(Number),
+                })}
             />,
         ],
         Tags: [
             <LibCheckBox
                 Style={prop.theme.CheckBox}
                 options={prop.tagOpts}
-                {...setField(
-                    SpecResearchSetFields.SpecResearch,
-                    SpecResearchModelFields.Tags,
-                    "string",
-                    undefined,
-                    "csv",
-                )}
+                {...setField(SpecResearchSetFields.SpecResearch, SpecResearchModelFields.Tags, "string", undefined, "csv")}
             />,
         ],
-        System: [
-            <SystemInfoTabComp
-                theme={prop.theme}
-                formData={prop.formData}
-                setKey={SpecResearchSetFields.SpecResearch}
-            />,
-        ],
+        System: [<SystemInfoTabComp theme={prop.theme} formData={prop.formData} setKey={SpecResearchSetFields.SpecResearch} />],
     };
     return <TabContentComp tabInfos={LibTabsPropA} components={componentsA}></TabContentComp>;
 };
@@ -142,10 +116,7 @@ const HeaderComp = (
 const DetailComp = (
     prop: {
         theme: IBETheme;
-        formData: {
-            data?: SpecResearchSet;
-            setFormData: (updater: (prev: SpecResearchSet) => SpecResearchSet) => void;
-        };
+        formData: { data?: SpecResearchSet; setFormData: (updater: (prev: SpecResearchSet) => SpecResearchSet) => void; };
         visibleCols: Set<string>;
     },
 ) =>
@@ -204,12 +175,7 @@ const DetailComp = (
                     parentClass="col-md-6 col-12"
                     Style={t.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecResearchSetFields.SpecResearchDetail,
-                        SpecResearchDetailModelFields.Year,
-                        "number",
-                        rowKeys,
-                    )}
+                    {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Year, "number", rowKeys)}
                 />
             ),
             AcademicYear: (
@@ -217,12 +183,7 @@ const DetailComp = (
                     parentClass="col-md-6 col-12"
                     Style={t.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecResearchSetFields.SpecResearchDetail,
-                        SpecResearchDetailModelFields.AcademicYear,
-                        "number",
-                        rowKeys,
-                    )}
+                    {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.AcademicYear, "number", rowKeys)}
                 />
             ),
             Semester: (
@@ -230,12 +191,7 @@ const DetailComp = (
                     parentClass="col-md-6 col-12"
                     Style={t.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecResearchSetFields.SpecResearchDetail,
-                        SpecResearchDetailModelFields.Semester,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Semester, "string", rowKeys)}
                 />
             ),
             ClassTime: (
@@ -243,12 +199,7 @@ const DetailComp = (
                     parentClass="col-md-6 col-12"
                     Style={t.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecResearchSetFields.SpecResearchDetail,
-                        SpecResearchDetailModelFields.ClassTime,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.ClassTime, "string", rowKeys)}
                 />
             ),
             Courses: (
@@ -256,12 +207,7 @@ const DetailComp = (
                     parentClass="col-md-6 col-12"
                     Style={t.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecResearchSetFields.SpecResearchDetail,
-                        SpecResearchDetailModelFields.Courses,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Courses, "string", rowKeys)}
                 />
             ),
             TeachingStaffOfOurSchool: (
@@ -269,12 +215,7 @@ const DetailComp = (
                     parentClass="col-md-6 col-12"
                     Style={t.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecResearchSetFields.SpecResearchDetail,
-                        SpecResearchDetailModelFields.TeachingStaffOfOurSchool,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.TeachingStaffOfOurSchool, "string", rowKeys)}
                 />
             ),
             ProjectLeader: (
@@ -282,12 +223,7 @@ const DetailComp = (
                     parentClass="col-md-6 col-12"
                     Style={t.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecResearchSetFields.SpecResearchDetail,
-                        SpecResearchDetailModelFields.ProjectLeader,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.ProjectLeader, "string", rowKeys)}
                 />
             ),
             PlanAmount: (
@@ -295,12 +231,7 @@ const DetailComp = (
                     parentClass="col-md-6 col-12"
                     Style={t.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecResearchSetFields.SpecResearchDetail,
-                        SpecResearchDetailModelFields.PlanAmount,
-                        "number",
-                        rowKeys,
-                    )}
+                    {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.PlanAmount, "number", rowKeys)}
                 />
             ),
             ProjectName: (
@@ -308,24 +239,14 @@ const DetailComp = (
                     parentClass="col-md-6 col-12"
                     Style={t.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecResearchSetFields.SpecResearchDetail,
-                        SpecResearchDetailModelFields.ProjectName,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.ProjectName, "string", rowKeys)}
                 />
             ),
             PlanContent: (
                 <LibTextArea
                     Style={t.TextArea}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecResearchSetFields.SpecResearchDetail,
-                        SpecResearchDetailModelFields.PlanContent,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.PlanContent, "string", rowKeys)}
                 />
             ),
             Commissioned: (
@@ -333,12 +254,7 @@ const DetailComp = (
                     parentClass="col-md-6 col-12"
                     Style={t.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecResearchSetFields.SpecResearchDetail,
-                        SpecResearchDetailModelFields.Commissioned,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Commissioned, "string", rowKeys)}
                 />
             ),
             Cohost1: (
@@ -346,12 +262,7 @@ const DetailComp = (
                     parentClass="col-md-6 col-12"
                     Style={t.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecResearchSetFields.SpecResearchDetail,
-                        SpecResearchDetailModelFields.Cohost1,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Cohost1, "string", rowKeys)}
                 />
             ),
             Cohost2: (
@@ -359,12 +270,7 @@ const DetailComp = (
                     parentClass="col-md-6 col-12"
                     Style={t.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecResearchSetFields.SpecResearchDetail,
-                        SpecResearchDetailModelFields.Cohost2,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Cohost2, "string", rowKeys)}
                 />
             ),
             ApprovalNumber: (
@@ -372,12 +278,7 @@ const DetailComp = (
                     parentClass="col-md-6 col-12"
                     Style={t.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecResearchSetFields.SpecResearchDetail,
-                        SpecResearchDetailModelFields.ApprovalNumber,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.ApprovalNumber, "string", rowKeys)}
                 />
             ),
             ApprovedAmount: (
@@ -385,12 +286,7 @@ const DetailComp = (
                     parentClass="col-md-6 col-12"
                     Style={t.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecResearchSetFields.SpecResearchDetail,
-                        SpecResearchDetailModelFields.ApprovedAmount,
-                        "number",
-                        rowKeys,
-                    )}
+                    {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.ApprovedAmount, "number", rowKeys)}
                 />
             ),
             DuringExecution: (
@@ -398,12 +294,7 @@ const DetailComp = (
                     parentClass="col-md-6 col-12"
                     Style={t.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecResearchSetFields.SpecResearchDetail,
-                        SpecResearchDetailModelFields.DuringExecution,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.DuringExecution, "string", rowKeys)}
                 />
             ),
             ContractPeriod: (
@@ -411,12 +302,7 @@ const DetailComp = (
                     parentClass="col-md-6 col-12"
                     Style={t.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecResearchSetFields.SpecResearchDetail,
-                        SpecResearchDetailModelFields.ContractPeriod,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.ContractPeriod, "string", rowKeys)}
                 />
             ),
             College: (
@@ -424,12 +310,7 @@ const DetailComp = (
                     parentClass="col-md-6 col-12"
                     Style={t.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecResearchSetFields.SpecResearchDetail,
-                        SpecResearchDetailModelFields.College,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.College, "string", rowKeys)}
                 />
             ),
             Department: (
@@ -437,12 +318,7 @@ const DetailComp = (
                     parentClass="col-md-6 col-12"
                     Style={t.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecResearchSetFields.SpecResearchDetail,
-                        SpecResearchDetailModelFields.Department,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Department, "string", rowKeys)}
                 />
             ),
             Professor: (
@@ -450,12 +326,7 @@ const DetailComp = (
                     parentClass="col-md-6 col-12"
                     Style={t.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecResearchSetFields.SpecResearchDetail,
-                        SpecResearchDetailModelFields.Professor,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Professor, "string", rowKeys)}
                 />
             ),
             Name: (
@@ -463,12 +334,7 @@ const DetailComp = (
                     parentClass="col-md-6 col-12"
                     Style={t.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecResearchSetFields.SpecResearchDetail,
-                        SpecResearchDetailModelFields.Name,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Name, "string", rowKeys)}
                 />
             ),
             GraduationDegree: (
@@ -476,12 +342,7 @@ const DetailComp = (
                     parentClass="col-md-6 col-12"
                     Style={t.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecResearchSetFields.SpecResearchDetail,
-                        SpecResearchDetailModelFields.GraduationDegree,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.GraduationDegree, "string", rowKeys)}
                 />
             ),
             PaperTitle: (
@@ -489,12 +350,7 @@ const DetailComp = (
                     parentClass="col-md-6 col-12"
                     Style={t.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecResearchSetFields.SpecResearchDetail,
-                        SpecResearchDetailModelFields.PaperTitle,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.PaperTitle, "string", rowKeys)}
                 />
             ),
             CooperationProject: (
@@ -502,12 +358,7 @@ const DetailComp = (
                     parentClass="col-md-6 col-12"
                     Style={t.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecResearchSetFields.SpecResearchDetail,
-                        SpecResearchDetailModelFields.CooperationProject,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.CooperationProject, "string", rowKeys)}
                 />
             ),
             CooperatingUnits: (
@@ -515,43 +366,27 @@ const DetailComp = (
                     parentClass="col-md-6 col-12"
                     Style={t.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecResearchSetFields.SpecResearchDetail,
-                        SpecResearchDetailModelFields.CooperatingUnits,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.CooperatingUnits, "string", rowKeys)}
                 />
             ),
             Remark: (
                 <LibTextArea
                     Style={t.TextArea}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecResearchSetFields.SpecResearchDetail,
-                        SpecResearchDetailModelFields.Remark,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Remark, "string", rowKeys)}
                 />
             ),
         };
         return nodes;
     };
-    const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>(
-        (compMap, info) =>
-        {
-            const langKey = `${info.ResearchId ?? ""}_${info.RowId ?? ""}_${info.Lang ?? ""}`;
-            const rowKeys: RowKeys = {
-                [SpecResearchDetailModelFields.ResearchId]: info.ResearchId,
-                [SpecResearchDetailModelFields.RowId]: info.RowId,
-            };
-            const nodes = makeNodes(rowKeys);
-            const showAll = prop.visibleCols.size === 0;
-            compMap[langKey] = orderedKeys.filter((k) => showAll || prop.visibleCols.has(k)).map((k) => nodes[k]);
-            return compMap;
-        },
-        {},
-    );
+    const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>((compMap, info) =>
+    {
+        const langKey = `${info.ResearchId ?? ""}_${info.RowId ?? ""}_${info.Lang ?? ""}`;
+        const rowKeys: RowKeys = { [SpecResearchDetailModelFields.ResearchId]: info.ResearchId, [SpecResearchDetailModelFields.RowId]: info.RowId };
+        const nodes = makeNodes(rowKeys);
+        const showAll = prop.visibleCols.size === 0;
+        compMap[langKey] = orderedKeys.filter((k) => showAll || prop.visibleCols.has(k)).map((k) => nodes[k]);
+        return compMap;
+    }, {});
     return <TabContentComp tabInfos={tabInfo} components={tabContent} />;
 };

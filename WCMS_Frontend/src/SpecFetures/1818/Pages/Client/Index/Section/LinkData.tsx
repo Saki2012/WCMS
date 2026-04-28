@@ -17,18 +17,11 @@ export const LinkData = (props: { lang?: Lang; bannerParam: QueryListParam; init
     const listInitial = useMemo(() =>
     {
         if (!props.initialBanner) return null;
-        return {
-            args: props.bannerParam,
-            apiRes: { IsSuccess: true, Data: [props.initialBanner], SysMessage: [] },
-        };
+        return { args: props.bannerParam, apiRes: { IsSuccess: true, Data: [props.initialBanner], SysMessage: [] } };
     }, [props.bannerParam, props.initialBanner]);
 
     // 執行 function：CSR 用 adapter hook 接手（SSR 有 initial → 不重抓；CSR 無 initial → 會自動抓）
-    const useList = adapter.hooks.useQueryList({
-        condition: props.bannerParam,
-        initial: listInitial ?? undefined,
-        deps: [props.bannerParam.Condition ?? ""],
-    });
+    const useList = adapter.hooks.useQueryList({ condition: props.bannerParam, initial: listInitial ?? undefined, deps: [props.bannerParam.Condition ?? ""] });
 
     // 宣告變數：本頁只需要第一筆 BannerSet
     const bannerSet = useMemo(() => useList.data?.[0] ?? null, [useList.data]);
@@ -94,16 +87,11 @@ export const LinkData = (props: { lang?: Lang; bannerParam: QueryListParam; init
 
                             <div className="col-12">
                                 <div className="content-box px-0 mb-5">
-                                    <div
-                                        className="owl-carousel owl-theme"
-                                        id="Links_owl_carousel"
-                                        ref={carouselRef}
-                                    >
+                                    <div className="owl-carousel owl-theme" id="Links_owl_carousel" ref={carouselRef}>
                                         {sortedDetails.map((p, i) =>
                                         {
                                             const info = bannerSet?.BannerDetailInfo?.find(x =>
-                                                x.BannerId === p.BannerId && x.ParentRowId === p.RowId
-                                                && x.Lang === (props.lang ?? "zh-tw")
+                                                x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === (props.lang ?? "zh-tw")
                                             );
                                             const alt = info?.Title ?? "";
                                             const url = info?.URL ?? "";
@@ -128,14 +116,7 @@ export const LinkData = (props: { lang?: Lang; bannerParam: QueryListParam; init
 
                                                                 <div className="Img_Div w-100">
                                                                     <div className="Qlinkimg-outer">
-                                                                        <img
-                                                                            alt={alt}
-                                                                            src={FileManagementAPI
-                                                                                .get_Public_Preview_Url(
-                                                                                    p.PicSrcId,
-                                                                                    alt,
-                                                                                )}
-                                                                        />
+                                                                        <img alt={alt} src={FileManagementAPI.get_Public_Preview_Url(p.PicSrcId, alt)} />
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -271,14 +252,7 @@ const useLinksCarousel = (dep: number) =>
                 margin: 30,
                 autoplayTimeout: 5000,
                 autoplayHoverPause: true,
-                responsive: {
-                    0: { items: 1 },
-                    500: { items: 2 },
-                    575: { items: 2 },
-                    767: { items: 3 },
-                    991: { items: 3 },
-                    1199: { items: 4 },
-                },
+                responsive: { 0: { items: 1 }, 500: { items: 2 }, 575: { items: 2 }, 767: { items: 3 }, 991: { items: 3 }, 1199: { items: 4 } },
             };
 
             let isPlaying = false;
@@ -291,20 +265,12 @@ const useLinksCarousel = (dep: number) =>
             {
                 if (isPlaying)
                 {
-                    $start.attr("aria-pressed", "true").attr("aria-label", "圖片輪播播放中").find(".sr-only").text(
-                        "圖片輪播播放中",
-                    );
-                    $pause.attr("aria-pressed", "false").attr("aria-label", "暫停圖片輪播").find(".sr-only").text(
-                        "暫停圖片輪播",
-                    );
+                    $start.attr("aria-pressed", "true").attr("aria-label", "圖片輪播播放中").find(".sr-only").text("圖片輪播播放中");
+                    $pause.attr("aria-pressed", "false").attr("aria-label", "暫停圖片輪播").find(".sr-only").text("暫停圖片輪播");
                 } else
                 {
-                    $start.attr("aria-pressed", "false").attr("aria-label", "開始播放圖片輪播").find(".sr-only").text(
-                        "開始播放圖片輪播",
-                    );
-                    $pause.attr("aria-pressed", "true").attr("aria-label", "圖片輪播已暫停").find(".sr-only").text(
-                        "圖片輪播已暫停",
-                    );
+                    $start.attr("aria-pressed", "false").attr("aria-label", "開始播放圖片輪播").find(".sr-only").text("開始播放圖片輪播");
+                    $pause.attr("aria-pressed", "true").attr("aria-label", "圖片輪播已暫停").find(".sr-only").text("圖片輪播已暫停");
                 }
             };
 

@@ -1,7 +1,4 @@
-import {
-    type HomePageLoaderData,
-    useHomePageHydrationSource,
-} from "@/SpecFetures/1810/Pages/Client/Index/HomePage_Loader";
+import { type HomePageLoaderData, useHomePageHydrationSource } from "@/SpecFetures/1810/Pages/Client/Index/HomePage_Loader";
 import { BannerSlider } from "@/SpecFetures/1810/Pages/Client/Index/Section/BannerSlider";
 import { CategoryTabs } from "@/SpecFetures/1810/Pages/Client/Index/Section/CategoryTabs";
 import { EventSession } from "@/SpecFetures/1810/Pages/Client/Index/Section/EventSession";
@@ -17,47 +14,29 @@ const HomePage = (props: { lang: Lang; }) =>
     const loaderData = useLoaderData() as HomePageLoaderData | undefined;
 
     // 宣告變數：統一建立 Homepage hydration source
-    const homeSource = useHomePageHydrationSource({
-        lang: props.lang,
-        loaderData: loaderData ?? null,
-    });
+    const homeSource = useHomePageHydrationSource({ lang: props.lang, loaderData: loaderData ?? null });
 
     return (
         <main id="fullpage" className="fullpage-wrapper">
             <div className="bg_area">
                 <div className="mainArea" id="mainArea">
                     {/* // 輪播BANNER // */}
-                    <BannerSlider
-                        lang={props.lang}
-                        hydrationData={homeSource.bannerSlider}
-                    />
+                    <BannerSlider lang={props.lang} hydrationData={homeSource.bannerSlider} />
 
                     {/* IConCard 輪播 */}
                     <IconCardMenu />
 
                     {/* // 最新消息 // */}
-                    <CategoryTabs
-                        lang={props.lang}
-                        hydrationData={homeSource.categoryTabs}
-                    />
+                    <CategoryTabs lang={props.lang} hydrationData={homeSource.categoryTabs} />
 
                     {/* // 活動資訊 start // */}
-                    <EventSession
-                        lang={props.lang}
-                        hydrationData={homeSource.eventSession}
-                    />
+                    <EventSession lang={props.lang} hydrationData={homeSource.eventSession} />
 
                     {/* // 活動花絮 start // */}
-                    <GallerySession
-                        lang={props.lang}
-                        hydrationData={homeSource.gallerySession}
-                    />
+                    <GallerySession lang={props.lang} hydrationData={homeSource.gallerySession} />
 
                     {/* // 影音專區 start // */}
-                    <VideoSession
-                        lang={props.lang}
-                        hydrationData={homeSource.videoSession}
-                    />
+                    <VideoSession lang={props.lang} hydrationData={homeSource.videoSession} />
                 </div>
             </div>
         </main>

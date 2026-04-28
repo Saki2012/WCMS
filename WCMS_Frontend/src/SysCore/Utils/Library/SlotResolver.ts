@@ -15,13 +15,7 @@ export type SlotComponent<TProps = Record<string, never>> = ComponentType<TProps
 // Spec：Component 專用模組集合
 const specComponentModules = import.meta.glob("SpecFeature/**/*.tsx", { eager: true }) as Record<string, SlotModule>;
 // Spec：Func / Extension 專用模組集合
-const specFuncModules = import.meta.glob(
-    [
-        "SpecFeature/**/*.{ts,tsx}",
-        "!SpecFeature/**/Assets/**",
-    ],
-    { eager: true },
-) as Record<string, SlotModule>;
+const specFuncModules = import.meta.glob(["SpecFeature/**/*.{ts,tsx}", "!SpecFeature/**/Assets/**"], { eager: true }) as Record<string, SlotModule>;
 /** 正規化路徑，避免 slash 差異 */
 export const normalizeSlotPath = (value: string): string =>
 {
@@ -40,10 +34,7 @@ export const pickSlotExport = (mod: SlotModule, exportNames: string[] = []): unk
 };
 
 /** 依 suffix 尋找對應模組 */
-export const findSlotModuleBySuffix = (
-    modules: Record<string, SlotModule>,
-    relativePath: string,
-): SlotModule | undefined =>
+export const findSlotModuleBySuffix = (modules: Record<string, SlotModule>, relativePath: string): SlotModule | undefined =>
 {
     const rel = normalizeSlotPath(relativePath);
     const hitKey = Object.keys(modules).find(key => normalizeSlotPath(key).endsWith(rel));
@@ -74,32 +65,19 @@ export const resolveComponent = <TComponent>(
 };
 
 /** 共用 Func / Extension resolver */
-export const resolveFunc = <TFunc>(
-    relativePath: string,
-    core: TFunc,
-    exportNames: string[] = [],
-    modules: Record<string, SlotModule>,
-): TFunc =>
+export const resolveFunc = <TFunc>(relativePath: string, core: TFunc, exportNames: string[] = [], modules: Record<string, SlotModule>): TFunc =>
 {
     return resolveSlot<TFunc>({ relativePath, core, exportNames, modules });
 };
 
 /** Spec Component resolver：只從目前 SpecFeature 範圍取值 */
-export const resolveSpecComponent = <TComponent>(
-    relativePath: string,
-    core: TComponent,
-    exportNames: string[] = [],
-): TComponent =>
+export const resolveSpecComponent = <TComponent>(relativePath: string, core: TComponent, exportNames: string[] = []): TComponent =>
 {
     return resolveComponent(relativePath, core, exportNames, specComponentModules);
 };
 
 /** Spec Func resolver：只從目前 SpecFeature 範圍取值 */
-export const resolveSpecFunc = <TFunc>(
-    relativePath: string,
-    core: TFunc,
-    exportNames: string[] = [],
-): TFunc =>
+export const resolveSpecFunc = <TFunc>(relativePath: string, core: TFunc, exportNames: string[] = []): TFunc =>
 {
     return resolveFunc(relativePath, core, exportNames, specFuncModules);
 };
@@ -121,10 +99,7 @@ export type SlotModuleLoader = () => Promise<SlotModule>;
 // Spec：Asset loader 專用模組集合（lazy）
 const specAssetModules = import.meta.glob("SpecFeature/**/Assets/*.{ts,tsx}") as Record<string, SlotModuleLoader>;
 /** 依 suffix 尋找對應 asset loader */
-const findSlotLoaderBySuffix = (
-    modules: Record<string, SlotModuleLoader>,
-    relativePath: string,
-): SlotModuleLoader | undefined =>
+const findSlotLoaderBySuffix = (modules: Record<string, SlotModuleLoader>, relativePath: string): SlotModuleLoader | undefined =>
 {
     const rel = normalizeSlotPath(relativePath);
     const hitKey = Object.keys(modules).find(key => normalizeSlotPath(key).endsWith(rel));

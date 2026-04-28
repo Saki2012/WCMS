@@ -1,9 +1,5 @@
 import type { UseActionsResult } from "@/Features/Hooks/Common/useActions";
-import {
-    createGridCrudActions,
-    enhanceGridWithAdjustCell,
-    type GridConfirmFn,
-} from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
+import { createGridCrudActions, enhanceGridWithAdjustCell, type GridConfirmFn } from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
 import { ListComp } from "@/Features/Pages/Server/Scaffold/Content/List_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
@@ -25,12 +21,7 @@ export const Server_SpecUSR_List_Comp = (prop: { title: string; theme: IBETheme;
 {
     // 宣告變數
     const [kw, setKw] = useState<string>("");
-    const searchCompProp: SearchBarProps = {
-        title: "計畫成果搜尋",
-        subTitle: "搜尋計畫成果 ...",
-        onSubmit: setKw,
-        onReset: () => setKw(""),
-    };
+    const searchCompProp: SearchBarProps = { title: "計畫成果搜尋", subTitle: "搜尋計畫成果 ...", onSubmit: setKw, onReset: () => setKw("") };
     const pathname = useLocation().pathname;
     const dirUrl = useMemo(() => pathname.replace(/\/List$/, `/Form`), [pathname]);
     const navigate = useNavigate();
@@ -81,22 +72,19 @@ const useSpecUSRListToolbarActions = (dirUrl: string): UseActionsResult =>
         navigate(dirUrl.replace(/\/Form$/, "/List"));
     }, [navigate, dirUrl]);
     // return（維持 UseActionsResult 形狀；List toolbar 只會用到 onAddNew）
-    return useMemo(
-        () => ({
-            isExecuting: false,
-            onSave: async () => false,
-            onDelete: async () =>
-            {/* list toolbar 不用 */},
-            onInvalid: () =>
-            {/* list toolbar 不用 */},
-            onCancelBack,
-            onAddNew,
-            onEdit,
-            onPreview: () =>
-            {/* list toolbar 不用 */},
-        }),
-        [onCancelBack, onAddNew, onEdit],
-    );
+    return useMemo(() => ({
+        isExecuting: false,
+        onSave: async () => false,
+        onDelete: async () =>
+        {/* list toolbar 不用 */},
+        onInvalid: () =>
+        {/* list toolbar 不用 */},
+        onCancelBack,
+        onAddNew,
+        onEdit,
+        onPreview: () =>
+        {/* list toolbar 不用 */},
+    }), [onCancelBack, onAddNew, onEdit]);
 };
 // #endregion
 
@@ -109,14 +97,16 @@ type CrudDeps = {
 };
 
 /** ✅ SpecUSR 專用：rawData → GridProps（含 ActionCell / Delete confirm） */
-const buildSpecUSRGridProps = (opt: {
-    raw: SpecUSRListRawData;
-    lang: Lang;
-    crud: CrudDeps;
-    can?: (mask: number) => boolean;
-    notifyNoPermission?: (msg: string) => void;
-    confirm?: GridConfirmFn;
-}): GridProps =>
+const buildSpecUSRGridProps = (
+    opt: {
+        raw: SpecUSRListRawData;
+        lang: Lang;
+        crud: CrudDeps;
+        can?: (mask: number) => boolean;
+        notifyNoPermission?: (msg: string) => void;
+        confirm?: GridConfirmFn;
+    },
+): GridProps =>
 {
     // 宣告變數：顯示欄位順序（對標舊版 visibleKeys）
     const visibleCols = [
@@ -133,13 +123,7 @@ const buildSpecUSRGridProps = (opt: {
     // 執行 function：Grid 基礎資料
     const columns = buildColumns(visibleCols, opt.raw);
     const rows = buildSpecUSRRows(opt.raw, opt.lang, columns);
-    const baseGrid: GridProps = {
-        columns,
-        rows,
-        CurrentPage: opt.raw.pageNumber ?? 1,
-        TotalPage: opt.raw.totalPages ?? 1,
-        onPageChange: opt.raw.onPageChange,
-    };
+    const baseGrid: GridProps = { columns, rows, CurrentPage: opt.raw.pageNumber ?? 1, TotalPage: opt.raw.totalPages ?? 1, onPageChange: opt.raw.onPageChange };
     // 執行 function：動作按鈕（Edit/Delete）
     const actions = createGridCrudActions<SpecUSRSet>({
         onEdit: (internalId) => opt.crud.navigate(`${opt.crud.dirUrl}/${internalId}`),
@@ -208,13 +192,7 @@ const mapIdsToText = (ids: string | null | undefined, map: Record<string, string
     const names = parts.map((id) => map[id] ?? id);
 
     return (
-        <ul className="m-0 p-0" style={{ listStylePosition: "inside" }}>
-            {names.map((line, i) => (
-                <li key={`${line}-${i}`} className="m-0 p-0">
-                    {line}
-                </li>
-            ))}
-        </ul>
+        <ul className="m-0 p-0" style={{ listStylePosition: "inside" }}>{names.map((line, i) => <li key={`${line}-${i}`} className="m-0 p-0">{line}</li>)}</ul>
     );
 };
 // #endregion

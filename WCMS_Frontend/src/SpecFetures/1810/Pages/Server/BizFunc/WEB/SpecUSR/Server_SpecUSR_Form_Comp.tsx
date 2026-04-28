@@ -23,14 +23,7 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
-import {
-    SpecUSRDetailFields,
-    SpecUSRFileFields,
-    SpecUSRModelFields,
-    SpecUSRPhotoFields,
-    SpecUSRPhotoInfoFields,
-    SpecUSRSetFields,
-} from "@/types/SchemaFields";
+import { SpecUSRDetailFields, SpecUSRFileFields, SpecUSRModelFields, SpecUSRPhotoFields, SpecUSRPhotoInfoFields, SpecUSRSetFields } from "@/types/SchemaFields";
 import { useCallback, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 
@@ -43,14 +36,7 @@ type SpecUSRFile = components["schemas"]["SpecUSRFile_DTO"];
 type SpecUSRUrl = components["schemas"]["SpecUSRUrl_DTO"];
 
 // ✅ 補齊空資料結構（不影響 DOM，只避免 new 時缺欄位）
-const emptyData: SpecUSRSet = {
-    SpecUSR: {},
-    SpecUSRDetail: [],
-    SpecUSRFile: [],
-    SpecUSRUrl: [],
-    SpecUSRPhoto: [],
-    SpecUSRPhotoInfo: [],
-};
+const emptyData: SpecUSRSet = { SpecUSR: {}, SpecUSRDetail: [], SpecUSRFile: [], SpecUSRUrl: [], SpecUSRPhoto: [], SpecUSRPhotoInfo: [] };
 
 /** 網路資源表單
  * @returns
@@ -68,21 +54,13 @@ export const Server_USRProjFormComp = (prop: { theme: IBETheme; lang: Lang; }) =
     }, [navigate, pathname]);
 
     // ✅ provider → adapter：統一由 hook 提供 formData / refs / actions / loading / errors
-    const getData = useSpecUSRFormFetchData({
-        lang: prop.lang,
-        internalId: (internalId ?? ""),
-        emptyData,
-        actionsOpt: { onBackToList },
-    });
+    const getData = useSpecUSRFormFetchData({ lang: prop.lang, internalId: (internalId ?? ""), emptyData, actionsOpt: { onBackToList } });
 
     // ✅ 以下維持原本變數命名，避免影響後續 code（不動 DOM）
     const formData = getData.rawData.formData;
     const useCategory = useMemo(() =>
     {
-        return {
-            data: new Map<string, string>(Object.entries(getData.rawData.categoryMap ?? {})),
-            cols: getData.rawData.categoryCols,
-        };
+        return { data: new Map<string, string>(Object.entries(getData.rawData.categoryMap ?? {})), cols: getData.rawData.categoryCols };
     }, [getData.rawData.categoryMap, getData.rawData.categoryCols]);
     const useTag = useMemo(() => ({ data: getData.rawData.tagMap }), [getData.rawData.tagMap]);
     const status = getData.rawData.statusOpts;
@@ -108,22 +86,10 @@ export const Server_USRProjFormComp = (prop: { theme: IBETheme; lang: Lang; }) =
         return new Set(list);
     }, [selectedCateId, useCategory.cols]);
 
-    const formProp: FormCompProp = {
-        Title: "新增計畫成果版型",
-        Theme: prop.theme,
-        IsLoading: getData.isLoading,
-        ErrorList: getData.errors,
-        Actions: actions,
-    };
+    const formProp: FormCompProp = { Title: "新增計畫成果版型", Theme: prop.theme, IsLoading: getData.isLoading, ErrorList: getData.errors, Actions: actions };
     return (
         <FormComp prop={formProp}>
-            <HeaderComp
-                theme={prop.theme}
-                formData={formData}
-                cateOpts={useCategory.data}
-                statusOpts={status}
-                tagOpts={useTag.data}
-            />
+            <HeaderComp theme={prop.theme} formData={formData} cateOpts={useCategory.data} statusOpts={status} tagOpts={useTag.data} />
             <DetailComp theme={prop.theme} formData={formData} visibleCols={visibleCols} />
         </FormComp>
     );
@@ -181,21 +147,12 @@ const HeaderComp = (
                 InputValue={""}
                 accept="image/*"
                 parentClass="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12"
-                onChange={(files) =>
-                    useUploadPic.handleFileChange(files, (internalId) =>
-                    {
-                        prop.formData.setFormData((prev) => ({
-                            ...prev,
-                            SpecUSR: { ...prev?.SpecUSR, PictureId: internalId },
-                        }));
-                    })}
+                onChange={(files) => useUploadPic.handleFileChange(files, (internalId) =>
+                {
+                    prop.formData.setFormData((prev) => ({ ...prev, SpecUSR: { ...prev?.SpecUSR, PictureId: internalId } }));
+                })}
             >
-                <LibPicture
-                    key="preview"
-                    ColumnDisplayName={useUploadPic?.result.previewUrl ?? ""}
-                    PicSrc={previewSrc}
-                    PicDescription={`選中的圖片`}
-                />
+                <LibPicture key="preview" ColumnDisplayName={useUploadPic?.result.previewUrl ?? ""} PicSrc={previewSrc} PicDescription={`選中的圖片`} />
             </LibFile>,
             <LibTextBox
                 Style={prop.theme.TextBox}
@@ -203,18 +160,13 @@ const HeaderComp = (
                 {...setField(SpecUSRSetFields.SpecUSR, SpecUSRModelFields.PicDescription, "string")}
             />,
         ],
-        Photo: [
-            <UploadPicComp theme={prop.theme} formData={prop.formData} />,
-            <PhotoComp theme={prop.theme} formData={prop.formData} />,
-        ],
+        Photo: [<UploadPicComp theme={prop.theme} formData={prop.formData} />, <PhotoComp theme={prop.theme} formData={prop.formData} />],
         System: [<SystemInfoTabComp theme={prop.theme} formData={prop.formData} setKey={SpecUSRSetFields.SpecUSR} />],
     };
     return <TabContentComp tabInfos={LibTabsPropA} components={componentsA}></TabContentComp>;
 };
 
-const DetailComp = (
-    prop: { theme: IBETheme; formData: UseFetchFormDataResult<SpecUSRSet>; visibleCols: Set<string>; },
-) =>
+const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<SpecUSRSet>; visibleCols: Set<string>; }) =>
 {
     const setField = useSetTableField<SpecUSRSet>(prop.formData);
     const rawDetails = prop.formData.data?.SpecUSRDetail ?? [];
@@ -304,12 +256,7 @@ const DetailComp = (
                     parentClass="col-md-6 col-12"
                     Style={prop.theme.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecUSRSetFields.SpecUSRDetail,
-                        SpecUSRDetailFields.ExternalCooperationUnit,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ExternalCooperationUnit, "string", rowKeys)}
                 />
             ),
             ProjectItem: (
@@ -333,12 +280,7 @@ const DetailComp = (
                     parentClass="col-md-6 col-12"
                     Style={prop.theme.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecUSRSetFields.SpecUSRDetail,
-                        SpecUSRDetailFields.DuringExecution,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.DuringExecution, "string", rowKeys)}
                 />
             ),
             PlanAmount: (
@@ -353,24 +295,14 @@ const DetailComp = (
                 <LibTextArea
                     Style={prop.theme.TextArea}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecUSRSetFields.SpecUSRDetail,
-                        SpecUSRDetailFields.ExecutionStrategy,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ExecutionStrategy, "string", rowKeys)}
                 />
             ),
             ContentIntroduction: (
                 <LibTextArea
                     Style={prop.theme.TextArea}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecUSRSetFields.SpecUSRDetail,
-                        SpecUSRDetailFields.ContentIntroduction,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ContentIntroduction, "string", rowKeys)}
                 />
             ),
             ProjectConcept: (
@@ -384,12 +316,7 @@ const DetailComp = (
                 <LibTextArea
                     Style={prop.theme.TextArea}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecUSRSetFields.SpecUSRDetail,
-                        SpecUSRDetailFields.ProjectHighlights,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectHighlights, "string", rowKeys)}
                 />
             ),
             ProjectLeader: (
@@ -405,12 +332,7 @@ const DetailComp = (
                     parentClass="col-md-6 col-12"
                     Style={prop.theme.TextBox2}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecUSRSetFields.SpecUSRDetail,
-                        SpecUSRDetailFields.ProjectSubLeader,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectSubLeader, "string", rowKeys)}
                 />
             ),
             Cohost1: (
@@ -459,39 +381,26 @@ const DetailComp = (
     };
 
     // ★ 3) 按可視欄位集合篩選並產生 tabContent
-    const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>(
-        (compMap, info, idx) =>
-        {
-            const detailRowId = info.RowId ?? idx;
-            const langKey = LibMerge("_", true, info.USRId, info.RowId, info.Lang);
-            const rowKeys = { [SpecUSRDetailFields.USRId]: info.USRId, [SpecUSRDetailFields.RowId]: info.RowId };
-            const nodes = makeNodes(rowKeys);
-            const showAll = prop.visibleCols.size === 0;
-            const list = orderedKeys.filter(k => showAll || prop.visibleCols.has(k)).map(k => nodes[k]);
+    const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>((compMap, info, idx) =>
+    {
+        const detailRowId = info.RowId ?? idx;
+        const langKey = LibMerge("_", true, info.USRId, info.RowId, info.Lang);
+        const rowKeys = { [SpecUSRDetailFields.USRId]: info.USRId, [SpecUSRDetailFields.RowId]: info.RowId };
+        const nodes = makeNodes(rowKeys);
+        const showAll = prop.visibleCols.size === 0;
+        const list = orderedKeys.filter(k => showAll || prop.visibleCols.has(k)).map(k => nodes[k]);
 
-            const extras: React.ReactNode[] = [
-                <DividerComp key={`${langKey}-div-1`} />,
-                <SubFilesComp
-                    key={`${langKey}-files`}
-                    theme={prop.theme}
-                    formData={prop.formData}
-                    parentRowId={detailRowId}
-                />,
-                <DividerComp key={`${langKey}-div-2`} />,
-                <SubUrlComp
-                    key={`${langKey}-url`}
-                    theme={prop.theme}
-                    formData={prop.formData}
-                    parentRowId={detailRowId}
-                />,
-            ];
+        const extras: React.ReactNode[] = [
+            <DividerComp key={`${langKey}-div-1`} />,
+            <SubFilesComp key={`${langKey}-files`} theme={prop.theme} formData={prop.formData} parentRowId={detailRowId} />,
+            <DividerComp key={`${langKey}-div-2`} />,
+            <SubUrlComp key={`${langKey}-url`} theme={prop.theme} formData={prop.formData} parentRowId={detailRowId} />,
+        ];
 
-            compMap[langKey] = list;
-            compMap[langKey] = [...list, ...extras];
-            return compMap;
-        },
-        {},
-    );
+        compMap[langKey] = list;
+        compMap[langKey] = [...list, ...extras];
+        return compMap;
+    }, {});
 
     return <TabContentComp tabInfos={tabInfo} components={tabContent} />;
 };
@@ -500,21 +409,12 @@ const SubFilesComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
 {
     const setFileField = useSetTableFileField(prop.formData);
     const allFiles: SpecUSRFile[] = prop.formData.data?.SpecUSRFile ?? [];
-    const getFiles = (): SpecUSRFile[] =>
-        allFiles.filter(f => f.ParentRowId === prop.parentRowId).sort((a, b) => (a.RowId ?? 0) - (b.RowId ?? 0));
+    const getFiles = (): SpecUSRFile[] => allFiles.filter(f => f.ParentRowId === prop.parentRowId).sort((a, b) => (a.RowId ?? 0) - (b.RowId ?? 0));
     // 提交回整份表單（關鍵：真正更新 formData）
     const commitFiles = (nextFiles: SpecUSRFile[]) =>
     {
         prop.formData.setFormData(prev => ({
-            ...(prev
-                ?? {
-                    SpecUSR: {},
-                    SpecUSRDetail: [],
-                    SpecUSRFile: [],
-                    SpecUSRUrl: [],
-                    SpecUSRPhoto: [],
-                    SpecUSRPhotoInfo: [],
-                }),
+            ...(prev ?? { SpecUSR: {}, SpecUSRDetail: [], SpecUSRFile: [], SpecUSRUrl: [], SpecUSRPhoto: [], SpecUSRPhotoInfo: [] }),
             SpecUSRFile: nextFiles,
         }));
     };
@@ -541,24 +441,16 @@ const SubFilesComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
             <div role="group" className="mt-4">
                 {getFiles().map((f, i) =>
                 {
-                    const rowKeys = {
-                        [SpecUSRFileFields.USRId]: f.USRId,
-                        [SpecUSRFileFields.ParentRowId]: f.ParentRowId,
-                        [SpecUSRFileFields.RowId]: f.RowId,
-                    };
+                    const rowKeys = { [SpecUSRFileFields.USRId]: f.USRId, [SpecUSRFileFields.ParentRowId]: f.ParentRowId, [SpecUSRFileFields.RowId]: f.RowId };
                     return (
                         <div key={`${f.ParentRowId}-${f.RowId}`} className="flex items-center gap-2 mb-2">
                             <LibFileInput
                                 DefaultInputDisplay="請輸入附件說明"
                                 Accept="*/*"
                                 onDelete={() => removeFileAt(i)}
-                                {...setFileField(
-                                    SpecUSRSetFields.SpecUSRFile,
-                                    SpecUSRFileFields.FileSrcId,
-                                    SpecUSRFileFields.FileName,
-                                    rowKeys,
-                                    { fileName: f.FileSrc?.FileName ?? "" },
-                                )}
+                                {...setFileField(SpecUSRSetFields.SpecUSRFile, SpecUSRFileFields.FileSrcId, SpecUSRFileFields.FileName, rowKeys, {
+                                    fileName: f.FileSrc?.FileName ?? "",
+                                })}
                             />
                         </div>
                     );
@@ -592,15 +484,7 @@ const SubUrlComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Sp
     const handleChangeAll = (nextAll: SpecUSRUrl[]) =>
     {
         prop.formData.setFormData(prev => ({
-            ...(prev
-                ?? {
-                    SpecUSR: {},
-                    SpecUSRDetail: [],
-                    SpecUSRFile: [],
-                    SpecUSRUrl: [],
-                    SpecUSRPhoto: [],
-                    SpecUSRPhotoInfo: [],
-                }),
+            ...(prev ?? { SpecUSR: {}, SpecUSRDetail: [], SpecUSRFile: [], SpecUSRUrl: [], SpecUSRPhoto: [], SpecUSRPhotoInfo: [] }),
             SpecUSRUrl: nextAll,
         }));
     };
@@ -609,22 +493,10 @@ const SubUrlComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Sp
             items={allUrls}
             onChange={handleChangeAll}
             parentValue={prop.parentRowId}
-            fields={{
-                parentRowId: "ParentRowId",
-                rowId: "RowId",
-                title: "UrlDescription",
-                url: "Url",
-                target: "WindowTarget",
-            }}
+            fields={{ parentRowId: "ParentRowId", rowId: "RowId", title: "UrlDescription", url: "Url", target: "WindowTarget" }}
             label="外部連結"
             targets={{ 0: "本頁開啟", 1: "另開分頁" }}
-            getDefault={({ rowId, parentValue }) => ({
-                RowId: rowId,
-                ParentRowId: parentValue,
-                UrlDescription: "",
-                Url: "",
-                WindowTarget: 0,
-            })}
+            getDefault={({ rowId, parentValue }) => ({ RowId: rowId, ParentRowId: parentValue, UrlDescription: "", Url: "", WindowTarget: 0 })}
         />
     );
 };
@@ -707,10 +579,7 @@ const UploadPicComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult
             const usrId = header[SpecUSRModelFields.USRId] ?? "";
             const list = draft[SpecUSRSetFields.SpecUSRPhoto] ?? [];
             const base = (list as any[]).reduce(
-                (m, it) =>
-                    it?.[SpecUSRPhotoFields.USRId] === usrId
-                        ? Math.max(m, Number(it?.[SpecUSRPhotoFields.RowId] || 0))
-                        : m,
+                (m, it) => it?.[SpecUSRPhotoFields.USRId] === usrId ? Math.max(m, Number(it?.[SpecUSRPhotoFields.RowId] || 0)) : m,
                 0,
             );
             const newItems = picIds.map((pid, i) => ({
@@ -782,11 +651,7 @@ const UploadPicComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult
                                 return (
                                     <div key={index} className="col-12 border-bottom">
                                         <div className="d-flex align-items-center">
-                                            <LibPicturePreview
-                                                ColumnDisplayName={file.name}
-                                                PicSrc={url}
-                                                PicDescription={`選中的圖片 ${file.name}`}
-                                            />
+                                            <LibPicturePreview ColumnDisplayName={file.name} PicSrc={url} PicDescription={`選中的圖片 ${file.name}`} />
                                         </div>
                                     </div>
                                 );
@@ -810,12 +675,7 @@ const PhotoComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Spe
                 const rowKeys = { [SpecUSRPhotoFields.USRId]: item.USRId, [SpecUSRPhotoFields.RowId]: item.RowId };
                 const picSrcUrl = FileManagementAPI.get_Server_Preview_Url(item.PicSrcId);
                 return (
-                    <LibPicture
-                        parentClass="col-xl-3 col-md-4 col-12"
-                        ColumnDisplayName=""
-                        PicSrc={picSrcUrl}
-                        PicDescription="文字"
-                    >
+                    <LibPicture parentClass="col-xl-3 col-md-4 col-12" ColumnDisplayName="" PicSrc={picSrcUrl} PicDescription="文字">
                         <div className="row">
                             <div className="col-6 d-flex justify-content-end">
                                 <div className="all-btn">
@@ -870,15 +730,7 @@ const usePhotoRemove = (formData: UseFetchFormDataResult<SpecUSRSet>) =>
         formData.setFormData(prev =>
         {
             // 以完整結構為基礎，確保提交資料「真的」更新
-            const base: SpecUSRSet = prev
-                ?? {
-                    SpecUSR: {},
-                    SpecUSRDetail: [],
-                    SpecUSRFile: [],
-                    SpecUSRUrl: [],
-                    SpecUSRPhoto: [],
-                    SpecUSRPhotoInfo: [],
-                };
+            const base: SpecUSRSet = prev ?? { SpecUSR: {}, SpecUSRDetail: [], SpecUSRFile: [], SpecUSRUrl: [], SpecUSRPhoto: [], SpecUSRPhotoInfo: [] };
             const photos = base.SpecUSRPhoto ?? [];
             const details = base.SpecUSRPhotoInfo ?? [];
             const nextPhotos = photos.filter(p => !(p?.USRId === usrId && p?.RowId === rowId));
@@ -887,12 +739,7 @@ const usePhotoRemove = (formData: UseFetchFormDataResult<SpecUSRSet>) =>
             const header = base.SpecUSR ?? {};
             const nextHeader = { ...header };
             // 以「整份物件」方式提交，確保資料狀態一致（與 Announcement 附件刪除相同風格）
-            return {
-                ...base,
-                SpecUSR: nextHeader,
-                SpecUSRPhoto: nextPhotos,
-                SpecUSRPhotoInfo: nextDetails,
-            };
+            return { ...base, SpecUSR: nextHeader, SpecUSRPhoto: nextPhotos, SpecUSRPhotoInfo: nextDetails };
         });
     };
     return { remove };
@@ -910,25 +757,22 @@ const PhotoInfoComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult
             return tabItems;
         }, {}),
     };
-    const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>(
-        (compMap, info) =>
-        {
-            const langKey = LibMerge("_", true, info.USRId, info.ParentRowId, info.RowId, info.Lang);
-            const rowKeys = {
-                [SpecUSRPhotoInfoFields.USRId]: info.USRId,
-                [SpecUSRPhotoInfoFields.ParentRowId]: info.ParentRowId,
-                [SpecUSRPhotoInfoFields.RowId]: info.RowId,
-            };
-            compMap[langKey] = [
-                <LibTextBox
-                    Style={prop.theme.TextBox}
-                    DefaultInputDisplay="請輸入"
-                    {...setField(SpecUSRSetFields.SpecUSRPhotoInfo, SpecUSRPhotoInfoFields.Title, "string", rowKeys)}
-                />,
-            ];
-            return compMap;
-        },
-        {},
-    );
+    const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>((compMap, info) =>
+    {
+        const langKey = LibMerge("_", true, info.USRId, info.ParentRowId, info.RowId, info.Lang);
+        const rowKeys = {
+            [SpecUSRPhotoInfoFields.USRId]: info.USRId,
+            [SpecUSRPhotoInfoFields.ParentRowId]: info.ParentRowId,
+            [SpecUSRPhotoInfoFields.RowId]: info.RowId,
+        };
+        compMap[langKey] = [
+            <LibTextBox
+                Style={prop.theme.TextBox}
+                DefaultInputDisplay="請輸入"
+                {...setField(SpecUSRSetFields.SpecUSRPhotoInfo, SpecUSRPhotoInfoFields.Title, "string", rowKeys)}
+            />,
+        ];
+        return compMap;
+    }, {});
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };

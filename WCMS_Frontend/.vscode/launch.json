@@ -12,16 +12,4 @@
             "webRoot": "${workspaceFolder}"
         }
     ],
-    "editor.defaultFormatter": "dprint.dprint",
-    "editor.formatOnSave": true,
-    "[typescript]": { "editor.defaultFormatter": "dprint.dprint" },
-    "[typescriptreact]": { "editor.defaultFormatter": "dprint.dprint" },
-    "[javascript]": { "editor.defaultFormatter": "dprint.dprint" },
-    "[javascriptreact]": { "editor.defaultFormatter": "dprint.dprint" },
-    // 讓 Biome 負責匯入排序（非必需，想交給 dprint 也行）
-    "editor.codeActionsOnSave": {
-      "source.organizeImports.biome": "explicit"
-    },
-    // 若裝了 Prettier：關閉以免衝突
-    "prettier.enable": false
 }

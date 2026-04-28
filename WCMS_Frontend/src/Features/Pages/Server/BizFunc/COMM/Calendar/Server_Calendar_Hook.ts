@@ -22,15 +22,9 @@ export interface DialogAnchorRect
     viewportHeight: number;
 }
 
-export type CalendarPageAdapter = {
-    Calendar: ReturnType<typeof CalendarAdapter>;
-};
+export type CalendarPageAdapter = { Calendar: ReturnType<typeof CalendarAdapter>; };
 
-export type CalendarPageRawData = {
-    yearDetails: CalendarDetail[];
-    daysByDate: CalendarYearMap;
-    selectedDay: CalendarDetail | null;
-};
+export type CalendarPageRawData = { yearDetails: CalendarDetail[]; daysByDate: CalendarYearMap; selectedDay: CalendarDetail | null; };
 
 export type CalendarPageFetchDataResult = UseFetchDataResult<CalendarPageRawData, CalendarPageAdapter> & {
     isDaySaving: boolean;
@@ -80,11 +74,7 @@ export const normalizeDateKey = (dateStr?: string | null): string =>
 };
 
 /** year + month(0-based) + day -> YYYY-MM-DD */
-export const formatDateString = (
-    year: number,
-    monthZeroBased: number,
-    day: number,
-): string =>
+export const formatDateString = (year: number, monthZeroBased: number, day: number): string =>
 {
     // 宣告變數
     const mm = String(monthZeroBased + 1).padStart(2, "0");
@@ -95,9 +85,7 @@ export const formatDateString = (
 };
 
 /** 0~6 -> 日一二三四五六 */
-export const getWeekdayNameZh = (
-    weekDay: number | null | undefined,
-): string =>
+export const getWeekdayNameZh = (weekDay: number | null | undefined): string =>
 {
     // 宣告變數
     const w = Number(weekDay ?? 0);
@@ -108,9 +96,7 @@ export const getWeekdayNameZh = (
 };
 
 /** 24h "HH:mm" -> {hh, mm} */
-export const parseHHmm = (
-    v?: string | null,
-): { hh: number; mm: number; } | null =>
+export const parseHHmm = (v?: string | null): { hh: number; mm: number; } | null =>
 {
     // 宣告變數
     const raw = (v ?? "").trim();
@@ -131,9 +117,7 @@ export const parseHHmm = (
 };
 
 /** 24h -> 12h parts */
-export const to12hParts = (
-    hh24: number,
-): { meridiem: "AM" | "PM"; hh12: number; } =>
+export const to12hParts = (hh24: number): { meridiem: "AM" | "PM"; hh12: number; } =>
 {
     // 宣告變數
     const meridiem: "AM" | "PM" = hh24 >= 12 ? "PM" : "AM";
@@ -145,10 +129,7 @@ export const to12hParts = (
 };
 
 /** 12h parts -> 24h hour */
-export const to24hHour = (
-    meridiem: "AM" | "PM",
-    hh12: number,
-): number =>
+export const to24hHour = (meridiem: "AM" | "PM", hh12: number): number =>
 {
     // 宣告變數
     const h = Math.max(1, Math.min(12, hh12));
@@ -170,9 +151,7 @@ export const formatHHmm = (hh: number, mm: number): string =>
 };
 
 /** Calendar 專用：聚合年度資料查詢 + daysByDate mapping + UpdateDayInfo */
-export const useCalendarPageFetchData = (
-    opt: UseCalendarPageFetchDataOpt,
-): CalendarPageFetchDataResult =>
+export const useCalendarPageFetchData = (opt: UseCalendarPageFetchDataOpt): CalendarPageFetchDataResult =>
 {
     // 宣告變數
     const adapter = useMemo<CalendarPageAdapter>(() =>
@@ -182,11 +161,7 @@ export const useCalendarPageFetchData = (
 
     const onError = useCalendarQueryErrorHandler();
 
-    const yearDetailsRes = adapter.Calendar.hooks.useFetchCalendarDetailsByYear({
-        year: opt.year,
-        deps: [opt.year, opt.refreshKey ?? 0],
-        onError,
-    });
+    const yearDetailsRes = adapter.Calendar.hooks.useFetchCalendarDetailsByYear({ year: opt.year, deps: [opt.year, opt.refreshKey ?? 0], onError });
 
     const dayActions = adapter.Calendar.hooks.useUpdateDayInfo();
 
@@ -203,11 +178,7 @@ export const useCalendarPageFetchData = (
 
     const rawData = useMemo<CalendarPageRawData>(() =>
     {
-        return {
-            yearDetails: yearDetailsRes.data ?? [],
-            daysByDate,
-            selectedDay,
-        };
+        return { yearDetails: yearDetailsRes.data ?? [], daysByDate, selectedDay };
     }, [yearDetailsRes.data, daysByDate, selectedDay]);
 
     const errors = useMemo<(string | null)[]>(() =>
@@ -223,42 +194,24 @@ export const useCalendarPageFetchData = (
     const isLoading = Boolean(yearDetailsRes.isLoading || dayActions.isSaving);
 
     // return
-    return {
-        adapter,
-        rawData,
-        isLoading,
-        errors,
-        refetchData,
-        isDaySaving: dayActions.isSaving,
-        updateDayInfoAsync: dayActions.updateDayInfoAsync,
-    };
+    return { adapter, rawData, isLoading, errors, refetchData, isDaySaving: dayActions.isSaving, updateDayInfoAsync: dayActions.updateDayInfoAsync };
 };
 
 /** Calendar 專用：頁面狀態、月份切換、dialog、保存流程 */
-export const useCalendarPage = (
-    opt: UseCalendarPageOpt,
-): CalendarPageHookResult =>
+export const useCalendarPage = (opt: UseCalendarPageOpt): CalendarPageHookResult =>
 {
     // 宣告變數
     const today = useMemo(() => new Date(), []);
     const { publish } = useToast();
 
-    const [year, setYear] = useState<number>(
-        opt.defaultYear ?? today.getFullYear(),
-    );
+    const [year, setYear] = useState<number>(opt.defaultYear ?? today.getFullYear());
     const [month, setMonth] = useState<number>(today.getMonth());
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-    const [dialogAnchor, setDialogAnchor] = useState<DialogAnchorRect | null>(
-        null,
-    );
+    const [dialogAnchor, setDialogAnchor] = useState<DialogAnchorRect | null>(null);
     const [refreshKey, setRefreshKey] = useState<number>(0);
 
-    const fetchData = useCalendarPageFetchData({
-        year,
-        selectedDate,
-        refreshKey,
-    });
+    const fetchData = useCalendarPageFetchData({ year, selectedDate, refreshKey });
 
     const handlePrevMonth = useCallback(() =>
     {
@@ -299,10 +252,7 @@ export const useCalendarPage = (
         setSelectedDate(formatDateString(t.getFullYear(), t.getMonth(), t.getDate()));
     }, []);
 
-    const handleDayClick = useCallback((
-        dateStr: string,
-        anchor: DialogAnchorRect,
-    ) =>
+    const handleDayClick = useCallback((dateStr: string, anchor: DialogAnchorRect) =>
     {
         // 執行 function
         setSelectedDate(dateStr);
@@ -329,11 +279,7 @@ export const useCalendarPage = (
             {
                 (res.SysMessage ?? []).forEach((item) =>
                 {
-                    publish({
-                        level: item.Status,
-                        code: item.MessageCode,
-                        title: item.Message,
-                    });
+                    publish({ level: item.Status, code: item.MessageCode, title: item.Message });
                 });
 
                 setIsDialogOpen(false);
@@ -347,12 +293,7 @@ export const useCalendarPage = (
 
             (res.SysMessage ?? []).forEach((item) =>
             {
-                publish({
-                    level: item.Status,
-                    code: item.MessageCode,
-                    title: "保存失敗",
-                    text: item.Message,
-                });
+                publish({ level: item.Status, code: item.MessageCode, title: "保存失敗", text: item.Message });
             });
         } catch
         {
@@ -398,10 +339,7 @@ const useCalendarQueryErrorHandler = (): (e: ApiAdapterError) => void =>
 };
 
 /** 建立一筆單日預設值 */
-const createEmptyDayInfo = (
-    year: number,
-    dateStr: string,
-): CalendarDetail =>
+const createEmptyDayInfo = (year: number, dateStr: string): CalendarDetail =>
 {
     // 宣告變數
     const jsDate = new Date(dateStr);
@@ -421,10 +359,7 @@ const createEmptyDayInfo = (
 };
 
 /** 把後端 CalendarDetail[] 轉成年字典，並補齊該年每一天 */
-const buildYearMapFromList = (
-    year: number,
-    list: CalendarDetail[],
-): CalendarYearMap =>
+const buildYearMapFromList = (year: number, list: CalendarDetail[]): CalendarYearMap =>
 {
     // 宣告變數
     const map: CalendarYearMap = {};

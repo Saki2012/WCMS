@@ -8,25 +8,14 @@ import type { LoaderFunctionArgs } from "react-router-dom";
 
 type QueryListParam = components["schemas"]["QueryListParam"];
 export type EffectDeps = ReadonlyArray<string | number | boolean | object | null | undefined>;
-export type ServerFormActions = {
-    Save: () => Promise<void>;
-    Delete: () => Promise<void>;
-    Back: () => void;
-    Preview?: () => void;
-    IsSaving?: boolean;
-};
+export type ServerFormActions = { Save: () => Promise<void>; Delete: () => Promise<void>; Back: () => void; Preview?: () => void; IsSaving?: boolean; };
 export type ApiLoaderData<TArgs, TData> = { args: TArgs; apiRes: ApiResponse<TData>; };
 export type ApiGridLoaderData<TSet> = {
     model: ApiLoaderData<null, ModelDisplaySchema[]>;
     count: ApiLoaderData<QueryListParam, number>;
     list: ApiLoaderData<QueryListParam, TSet[]>;
 };
-export type ApiAdapterError = {
-    messageText: string;
-    sysMessages: SysMessageModel[];
-    httpStatus?: number;
-    action?: string;
-};
+export type ApiAdapterError = { messageText: string; sysMessages: SysMessageModel[]; httpStatus?: number; action?: string; };
 /** 後台標準動作：用來區分成功後是哪個 action */
 export type ServerActionMode = "create" | "update" | "delete" | "invalid";
 export type UseServerActionsResult<TSet> = {
@@ -63,12 +52,7 @@ const toMessageText = (sysMessages: SysMessageModel[], fallback: string): string
 const buildError = (apiRes: ApiResponse<unknown>, fallback: string, action?: string): ApiAdapterError =>
 {
     const sysMessages = apiRes?.SysMessage ?? [];
-    return {
-        messageText: toMessageText(sysMessages, fallback),
-        sysMessages,
-        httpStatus: parseHttpStatus(sysMessages),
-        action,
-    };
+    return { messageText: toMessageText(sysMessages, fallback), sysMessages, httpStatus: parseHttpStatus(sysMessages), action };
 };
 const isOk = <T>(apiRes: ApiResponse<T>): apiRes is ApiResponse<T> & { IsSuccess: true; Data: T; } =>
 {
@@ -107,12 +91,14 @@ export class ApiBaseAdapter<TService>
     }
 
     /** 一個 API 封裝成一個 loader（SSR 用） */
-    protected createApiLoader<TArgs, TData>(opt: {
-        action: string;
-        getArgs: (args: LoaderFunctionArgs) => TArgs;
-        call: (svc: TService, a: TArgs) => Promise<ApiResponse<TData>>;
-        getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined;
-    })
+    protected createApiLoader<TArgs, TData>(
+        opt: {
+            action: string;
+            getArgs: (args: LoaderFunctionArgs) => TArgs;
+            call: (svc: TService, a: TArgs) => Promise<ApiResponse<TData>>;
+            getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined;
+        },
+    )
     {
         return async (args: LoaderFunctionArgs): Promise<ApiLoaderData<TArgs, TData>> =>
         {
@@ -155,15 +141,12 @@ export class ApiBaseAdapter<TService>
         const [errorText, setErrorText] = useState<string | null>(() => initErrText);
         const svc = useMemo(() => this.getService(opt.apiInstance), [opt.apiInstance]);
         const lastInitialApiResRef = useRef<ApiResponse<TData> | null>(initApiRes);
-        const applyError = useCallback(
-            (e: ApiResponse<TData>, fallback: string) =>
-            {
-                const err = buildError(e, fallback, opt.action);
-                setErrorText(err.messageText);
-                opt.onError?.(err);
-            },
-            [opt.action, opt.onError],
-        );
+        const applyError = useCallback((e: ApiResponse<TData>, fallback: string) =>
+        {
+            const err = buildError(e, fallback, opt.action);
+            setErrorText(err.messageText);
+            opt.onError?.(err);
+        }, [opt.action, opt.onError]);
         const applyInitialIfChanged = useCallback((): boolean =>
         {
             const init = opt.initial;
@@ -225,30 +208,26 @@ export interface ApiDataService<TSet>
 
 export type ApiDataLoaderGroup<TSet> = {
     // #region Basic Loader Func
-    createModelDisplayNameLoader: (opt?: {
-        getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined;
-    }) => (args: LoaderFunctionArgs) => Promise<ApiLoaderData<null, ModelDisplaySchema[]>>;
+    createModelDisplayNameLoader: (
+        opt?: { getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; },
+    ) => (args: LoaderFunctionArgs) => Promise<ApiLoaderData<null, ModelDisplaySchema[]>>;
 
-    createQueryListLoader: (opt: {
-        getCondition: (args: LoaderFunctionArgs) => QueryListParam;
-        getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined;
-    }) => (args: LoaderFunctionArgs) => Promise<ApiLoaderData<QueryListParam, TSet[]>>;
+    createQueryListLoader: (
+        opt: { getCondition: (args: LoaderFunctionArgs) => QueryListParam; getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; },
+    ) => (args: LoaderFunctionArgs) => Promise<ApiLoaderData<QueryListParam, TSet[]>>;
 
-    createQueryCountLoader: (opt: {
-        getCondition: (args: LoaderFunctionArgs) => QueryListParam;
-        getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined;
-    }) => (args: LoaderFunctionArgs) => Promise<ApiLoaderData<QueryListParam, number>>;
+    createQueryCountLoader: (
+        opt: { getCondition: (args: LoaderFunctionArgs) => QueryListParam; getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; },
+    ) => (args: LoaderFunctionArgs) => Promise<ApiLoaderData<QueryListParam, number>>;
 
-    createQueryDataLoader: (opt: {
-        getInternalId: (args: LoaderFunctionArgs) => string;
-        getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined;
-    }) => (args: LoaderFunctionArgs) => Promise<ApiLoaderData<string, TSet>>;
+    createQueryDataLoader: (
+        opt: { getInternalId: (args: LoaderFunctionArgs) => string; getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; },
+    ) => (args: LoaderFunctionArgs) => Promise<ApiLoaderData<string, TSet>>;
     // #endregion
     // #region Advance Loader Func
-    createQueryGridDataLoader: (opt: {
-        getCondition: (args: LoaderFunctionArgs) => QueryListParam;
-        getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined;
-    }) => (args: LoaderFunctionArgs) => Promise<ApiGridLoaderData<TSet>>;
+    createQueryGridDataLoader: (
+        opt: { getCondition: (args: LoaderFunctionArgs) => QueryListParam; getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; },
+    ) => (args: LoaderFunctionArgs) => Promise<ApiGridLoaderData<TSet>>;
     // #endregion
 };
 export type ApiGridInitial<TSet> = {
@@ -257,20 +236,19 @@ export type ApiGridInitial<TSet> = {
     list?: ApiLoaderData<QueryListParam, TSet[]> | null;
 };
 
-export type ApiFormInitial<TSet> = {
-    model?: ApiLoaderData<null, ModelDisplaySchema[]> | null;
-    data?: ApiLoaderData<string, TSet> | null;
-};
+export type ApiFormInitial<TSet> = { model?: ApiLoaderData<null, ModelDisplaySchema[]> | null; data?: ApiLoaderData<string, TSet> | null; };
 
 export type ApiFormMode = "new" | "edit";
 export type ApiDataHookGroup<TSet> = {
     // #region Basic API Hooks
-    useModelDisplayName: (opt?: {
-        initial?: ApiLoaderData<null, ModelDisplaySchema[]> | null;
-        deps?: EffectDeps;
-        onError?: (err: ApiAdapterError) => void;
-        apiInstance?: AxiosInstance;
-    }) => {
+    useModelDisplayName: (
+        opt?: {
+            initial?: ApiLoaderData<null, ModelDisplaySchema[]> | null;
+            deps?: EffectDeps;
+            onError?: (err: ApiAdapterError) => void;
+            apiInstance?: AxiosInstance;
+        },
+    ) => {
         data: ModelDisplaySchema | null;
         apiRes: ApiResponse<ModelDisplaySchema[]> | null;
         isLoading: boolean;
@@ -278,42 +256,36 @@ export type ApiDataHookGroup<TSet> = {
         refetch: () => Promise<void>;
     };
 
-    useQueryList: (opt: {
-        condition: QueryListParam;
-        initial?: ApiLoaderData<QueryListParam, TSet[]> | null;
-        deps: EffectDeps;
-        onError?: (err: ApiAdapterError) => void;
-        apiInstance?: AxiosInstance;
-    }) => {
-        data: TSet[];
-        apiRes: ApiResponse<TSet[]> | null;
-        isLoading: boolean;
-        errorText: string | null;
-        refetch: () => Promise<void>;
-    };
+    useQueryList: (
+        opt: {
+            condition: QueryListParam;
+            initial?: ApiLoaderData<QueryListParam, TSet[]> | null;
+            deps: EffectDeps;
+            onError?: (err: ApiAdapterError) => void;
+            apiInstance?: AxiosInstance;
+        },
+    ) => { data: TSet[]; apiRes: ApiResponse<TSet[]> | null; isLoading: boolean; errorText: string | null; refetch: () => Promise<void>; };
 
-    useQueryCount: (opt: {
-        condition: QueryListParam;
-        initial?: ApiLoaderData<QueryListParam, number> | null;
-        deps: EffectDeps;
-        onError?: (err: ApiAdapterError) => void;
-        apiInstance?: AxiosInstance;
-    }) => {
-        data: number;
-        apiRes: ApiResponse<number> | null;
-        isLoading: boolean;
-        errorText: string | null;
-        refetch: () => Promise<void>;
-    };
+    useQueryCount: (
+        opt: {
+            condition: QueryListParam;
+            initial?: ApiLoaderData<QueryListParam, number> | null;
+            deps: EffectDeps;
+            onError?: (err: ApiAdapterError) => void;
+            apiInstance?: AxiosInstance;
+        },
+    ) => { data: number; apiRes: ApiResponse<number> | null; isLoading: boolean; errorText: string | null; refetch: () => Promise<void>; };
 
-    usePagedQueryList: (opt: {
-        baseParam: QueryListParam;
-        count: number;
-        initial?: ApiLoaderData<QueryListParam, TSet[]> | null;
-        deps: EffectDeps;
-        onError?: (err: ApiAdapterError) => void;
-        apiInstance?: AxiosInstance;
-    }) => {
+    usePagedQueryList: (
+        opt: {
+            baseParam: QueryListParam;
+            count: number;
+            initial?: ApiLoaderData<QueryListParam, TSet[]> | null;
+            deps: EffectDeps;
+            onError?: (err: ApiAdapterError) => void;
+            apiInstance?: AxiosInstance;
+        },
+    ) => {
         data: TSet[];
         apiRes: ApiResponse<TSet[]> | null;
         isLoading: boolean;
@@ -327,24 +299,19 @@ export type ApiDataHookGroup<TSet> = {
         param: QueryListParam;
     };
 
-    useQueryData: (opt: {
-        internalId: string;
-        initial?: ApiLoaderData<string, TSet> | null;
-        deps: EffectDeps;
-        onError?: (err: ApiAdapterError) => void;
-        apiInstance?: AxiosInstance;
-    }) => {
-        data: TSet | null;
-        apiRes: ApiResponse<TSet> | null;
-        isLoading: boolean;
-        errorText: string | null;
-        refetch: () => Promise<void>;
-    };
+    useQueryData: (
+        opt: {
+            internalId: string;
+            initial?: ApiLoaderData<string, TSet> | null;
+            deps: EffectDeps;
+            onError?: (err: ApiAdapterError) => void;
+            apiInstance?: AxiosInstance;
+        },
+    ) => { data: TSet | null; apiRes: ApiResponse<TSet> | null; isLoading: boolean; errorText: string | null; refetch: () => Promise<void>; };
 
-    useCudActions: (opt?: {
-        onError?: (err: ApiAdapterError) => void;
-        apiInstance?: AxiosInstance;
-    }) => {
+    useCudActions: (
+        opt?: { onError?: (err: ApiAdapterError) => void; apiInstance?: AxiosInstance; },
+    ) => {
         isSaving: boolean;
         createAsync: (data: TSet) => Promise<ApiResponse<TSet>>;
         updateAsync: (internalId: string, data: TSet) => Promise<ApiResponse<TSet>>;
@@ -435,12 +402,7 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
         {
             (env.SysMessage ?? []).forEach(m =>
             {
-                publish({
-                    level: m.Status ?? MessageStatus.Info,
-                    code: m.MessageCode,
-                    title: m.Message ?? "",
-                    text: m.Message,
-                });
+                publish({ level: m.Status ?? MessageStatus.Info, code: m.MessageCode, title: m.Message ?? "", text: m.Message });
             });
         };
         const runSuccess = async (mode: ServerActionMode) =>
@@ -536,14 +498,8 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
         const createQueryGridDataLoader: ApiDataLoaderGroup<TSet>["createQueryGridDataLoader"] = (opt) =>
         {
             const loadModel = createModelDisplayNameLoader({ getApiInstance: opt.getApiInstance });
-            const loadList = createQueryListLoader({
-                getCondition: opt.getCondition,
-                getApiInstance: opt.getApiInstance,
-            });
-            const loadCount = createQueryCountLoader({
-                getCondition: opt.getCondition,
-                getApiInstance: opt.getApiInstance,
-            });
+            const loadList = createQueryListLoader({ getCondition: opt.getCondition, getApiInstance: opt.getApiInstance });
+            const loadCount = createQueryCountLoader({ getCondition: opt.getCondition, getApiInstance: opt.getApiInstance });
             return async (args: LoaderFunctionArgs): Promise<ApiGridLoaderData<TSet>> =>
             {
                 const cdt = opt.getCondition(args);
@@ -628,18 +584,14 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
                 setPageNumber(opt.baseParam.PageNumber ?? 1);
             }, [opt.baseParam.PageNumber]);
 
-            const param = useMemo(
-                () => ({
-                    ...opt.baseParam,
-                    PageNumber: pageNumber,
-                }),
-                [opt.baseParam, pageNumber],
-            );
+            const param = useMemo(() => ({ ...opt.baseParam, PageNumber: pageNumber }), [opt.baseParam, pageNumber]);
 
-            const deps = useMemo<EffectDeps>(
-                () => [param.Condition, param.PageNumber, param.PageSize, ...opt.deps],
-                [param.Condition, param.PageNumber, param.PageSize, opt.deps],
-            );
+            const deps = useMemo<EffectDeps>(() => [param.Condition, param.PageNumber, param.PageSize, ...opt.deps], [
+                param.Condition,
+                param.PageNumber,
+                param.PageSize,
+                opt.deps,
+            ]);
 
             const currentParamKey = useMemo(() => JSON.stringify(param ?? null), [param]);
             const initialParamKey = useMemo(() => JSON.stringify(opt.initial?.args ?? null), [opt.initial]);
@@ -674,14 +626,7 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
                 return Math.max(1, Math.ceil(count / size));
             }, [opt.count, param.PageSize]);
 
-            return {
-                ...r,
-                data: r.data ?? [],
-                pageNumber,
-                totalPages,
-                onPageChange: (p: number) => setPageNumber(p),
-                param,
-            };
+            return { ...r, data: r.data ?? [], pageNumber, totalPages, onPageChange: (p: number) => setPageNumber(p), param };
         };
         const useQueryData: ApiDataHookGroup<TSet>["useQueryData"] = (opt) =>
         {
@@ -704,54 +649,39 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
         {
             const [isSaving, setIsSaving] = useState(false);
             const svc = useMemo(() => this.getService(opt?.apiInstance), [opt?.apiInstance]);
-            const exec = useCallback(
-                async <U>(fn: () => Promise<ApiResponse<U>>, fallback: string, action: string) =>
+            const exec = useCallback(async <U>(fn: () => Promise<ApiResponse<U>>, fallback: string, action: string) =>
+            {
+                setIsSaving(true);
+                try
                 {
-                    setIsSaving(true);
-                    try
-                    {
-                        const env = await fn();
-                        if (!env.IsSuccess) opt?.onError?.(buildError(env, fallback, action));
-                        return env;
-                    } finally
-                    {
-                        setIsSaving(false);
-                    }
-                },
-                [opt?.onError],
-            );
-            const createAsync = useCallback(
-                async (data: TSet) =>
+                    const env = await fn();
+                    if (!env.IsSuccess) opt?.onError?.(buildError(env, fallback, action));
+                    return env;
+                } finally
                 {
-                    if (!svc.create) throw new Error("[ApiDataAdapter] service.create not implemented");
-                    return await exec(() => svc.create!(data), "新增失敗", "CUD.Create");
-                },
-                [svc, exec],
-            );
-            const updateAsync = useCallback(
-                async (internalId: string, data: TSet) =>
-                {
-                    if (!svc.update) throw new Error("[ApiDataAdapter] service.update not implemented");
-                    return await exec(() => svc.update!(internalId, data), "更新失敗", "CUD.Update");
-                },
-                [svc, exec],
-            );
-            const deleteAsync = useCallback(
-                async (internalId: string) =>
-                {
-                    if (!svc.delete) throw new Error("[ApiDataAdapter] service.delete not implemented");
-                    return await exec(() => svc.delete!(internalId), "刪除失敗", "CUD.Delete");
-                },
-                [svc, exec],
-            );
-            const invalidAsync = useCallback(
-                async (internalId: string, isInvalid: boolean) =>
-                {
-                    if (!svc.invalid) throw new Error("[ApiDataAdapter] service.invalid not implemented");
-                    return await exec(() => svc.invalid!(internalId, isInvalid), "失效操作失敗", "CUD.Invalid");
-                },
-                [svc, exec],
-            );
+                    setIsSaving(false);
+                }
+            }, [opt?.onError]);
+            const createAsync = useCallback(async (data: TSet) =>
+            {
+                if (!svc.create) throw new Error("[ApiDataAdapter] service.create not implemented");
+                return await exec(() => svc.create!(data), "新增失敗", "CUD.Create");
+            }, [svc, exec]);
+            const updateAsync = useCallback(async (internalId: string, data: TSet) =>
+            {
+                if (!svc.update) throw new Error("[ApiDataAdapter] service.update not implemented");
+                return await exec(() => svc.update!(internalId, data), "更新失敗", "CUD.Update");
+            }, [svc, exec]);
+            const deleteAsync = useCallback(async (internalId: string) =>
+            {
+                if (!svc.delete) throw new Error("[ApiDataAdapter] service.delete not implemented");
+                return await exec(() => svc.delete!(internalId), "刪除失敗", "CUD.Delete");
+            }, [svc, exec]);
+            const invalidAsync = useCallback(async (internalId: string, isInvalid: boolean) =>
+            {
+                if (!svc.invalid) throw new Error("[ApiDataAdapter] service.invalid not implemented");
+                return await exec(() => svc.invalid!(internalId, isInvalid), "失效操作失敗", "CUD.Invalid");
+            }, [svc, exec]);
             return { isSaving, createAsync, updateAsync, deleteAsync, invalidAsync };
         };
         // #endregion
@@ -791,9 +721,7 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
             const finalCount = isNoPaging ? list.length : (count.data ?? 0);
             const errors = useMemo(() =>
             {
-                return [model.errorText, isNoPaging ? null : count.errorText, paged.errorText].filter((
-                    x,
-                ): x is string => Boolean(x));
+                return [model.errorText, isNoPaging ? null : count.errorText, paged.errorText].filter((x): x is string => Boolean(x));
             }, [model.errorText, count.errorText, paged.errorText, isNoPaging]);
             const errorText = useMemo(() =>
             {
@@ -841,13 +769,7 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
                 const apiRes: ApiResponse<TSet> = { IsSuccess: true, Data: opt.empty, SysMessage: [] };
                 return { args: internalKey, apiRes };
             }, [opt.initial?.data, opt.mode, opt.empty, internalKey]);
-            const data = useQueryData({
-                internalId: internalKey,
-                initial: initData,
-                deps: opt.deps,
-                onError: opt.onError,
-                apiInstance: opt.apiInstance,
-            });
+            const data = useQueryData({ internalId: internalKey, initial: initData, deps: opt.deps, onError: opt.onError, apiInstance: opt.apiInstance });
             const errors = useMemo(() =>
             {
                 return [model.errorText, data.errorText].filter((x): x is string => Boolean(x));
@@ -881,22 +803,12 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
 }
 
 /// 2026-04-15 要用來給api吃訊息專用的，暫時還沒繼續往下開發
-export const emitApiMessages = (
-    publish: ReturnType<typeof useToast>["publish"],
-    env: ApiResponse<unknown>,
-    fallbackSuccess: string,
-    fallbackError: string,
-) =>
+export const emitApiMessages = (publish: ReturnType<typeof useToast>["publish"], env: ApiResponse<unknown>, fallbackSuccess: string, fallbackError: string) =>
 {
     const messages = env.SysMessage ?? [];
     const title = env.IsSuccess ? fallbackSuccess : fallbackError;
     messages.forEach(m =>
     {
-        publish({
-            level: m.Status ?? (env.IsSuccess ? MessageStatus.Green : MessageStatus.Error),
-            code: m.MessageCode,
-            title,
-            text: m.Message,
-        });
+        publish({ level: m.Status ?? (env.IsSuccess ? MessageStatus.Green : MessageStatus.Error), code: m.MessageCode, title, text: m.Message });
     });
 };

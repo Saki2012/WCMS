@@ -26,44 +26,26 @@ export interface SpecMusicalFormLoaderData
 }
 
 /** ✅ SSR loader：預載 SpecMusicalForm 所需資料 */
-export const SpecMusicalForm_Loader =
-    () => async ({ request, params }: LoaderFunctionArgs): Promise<SpecMusicalFormLoaderData> =>
+export const SpecMusicalForm_Loader = () => async ({ request, params }: LoaderFunctionArgs): Promise<SpecMusicalFormLoaderData> =>
+{
+    // 宣告變數
+    const internalId = `${params?.internalId ?? ""}`.trim();
+    const ssrApi = getSsrApi(request);
+    const adapter = SpecMusicalAdapter(ssrApi);
+
+    // 無 internalId：回空資料避免爆炸
+    if (!internalId)
     {
-        // 宣告變數
-        const internalId = `${params?.internalId ?? ""}`.trim();
-        const ssrApi = getSsrApi(request);
-        const adapter = SpecMusicalAdapter(ssrApi);
+        return { args: { internalId }, res: { dataRes: null, displayNameRes: null } };
+    }
 
-        // 無 internalId：回空資料避免爆炸
-        if (!internalId)
-        {
-            return {
-                args: { internalId },
-                res: { dataRes: null, displayNameRes: null },
-            };
-        }
+    // 執行 function：QueryData / GetModelDisplayName
+    const dataLoader = adapter.loader.createQueryDataLoader({ getInternalId: () => internalId, getApiInstance: () => ssrApi });
 
-        // 執行 function：QueryData / GetModelDisplayName
-        const dataLoader = adapter.loader.createQueryDataLoader({
-            getInternalId: () => internalId,
-            getApiInstance: () => ssrApi,
-        });
+    const displayNameLoader = adapter.loader.createModelDisplayNameLoader({ getApiInstance: () => ssrApi });
 
-        const displayNameLoader = adapter.loader.createModelDisplayNameLoader({
-            getApiInstance: () => ssrApi,
-        });
+    const [dataLD, nameLD] = await Promise.all([dataLoader({ request, params } as LoaderFunctionArgs), displayNameLoader({ request } as LoaderFunctionArgs)]);
 
-        const [dataLD, nameLD] = await Promise.all([
-            dataLoader({ request, params } as LoaderFunctionArgs),
-            displayNameLoader({ request } as LoaderFunctionArgs),
-        ]);
-
-        // return
-        return {
-            args: { internalId },
-            res: {
-                dataRes: dataLD.apiRes.Data ?? null,
-                displayNameRes: nameLD.apiRes.Data ?? null,
-            },
-        };
-    };
+    // return
+    return { args: { internalId }, res: { dataRes: dataLD.apiRes.Data ?? null, displayNameRes: nameLD.apiRes.Data ?? null } };
+};

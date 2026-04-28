@@ -1,12 +1,14 @@
 // src/components/ActionOverlay_Comp.tsx
 import * as React from "react";
 
-export interface ActionOverlayProps {
+export interface ActionOverlayProps
+{
     show: boolean;
     label?: string;
 }
 
-export const ActionOverlay_Comp: React.FC<ActionOverlayProps> = ({ show, label }) => {
+export const ActionOverlay_Comp: React.FC<ActionOverlayProps> = ({ show, label }) =>
+{
     if (!show) return null;
     return (
         <div
@@ -22,7 +24,7 @@ export const ActionOverlay_Comp: React.FC<ActionOverlayProps> = ({ show, label }
                 alignItems: "center",
                 justifyContent: "center",
                 backdropFilter: "blur(1px)",
-                pointerEvents: "auto" // 擋住底層點擊
+                pointerEvents: "auto", // 擋住底層點擊
             }}
         >
             <div
@@ -36,7 +38,7 @@ export const ActionOverlay_Comp: React.FC<ActionOverlayProps> = ({ show, label }
                     boxShadow: "0 10px 30px rgba(0,0,0,0.25)",
                     display: "flex",
                     alignItems: "center",
-                    gap: 12
+                    gap: 12,
                 }}
             >
                 {/* 小 spinner */}
@@ -48,7 +50,7 @@ export const ActionOverlay_Comp: React.FC<ActionOverlayProps> = ({ show, label }
                         borderRadius: "50%",
                         border: "3px solid #d0d5dd",
                         borderTopColor: "#0d6efd",
-                        animation: "spin 1s linear infinite"
+                        animation: "spin 1s linear infinite",
                     }}
                 />
                 <div style={{ fontWeight: 600 }}>{label ?? "處理中…"}</div>

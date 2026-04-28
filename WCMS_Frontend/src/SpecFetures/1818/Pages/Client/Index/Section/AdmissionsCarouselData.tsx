@@ -26,11 +26,7 @@ export const AdmissionsCarouselData = (props: { lang: Lang; internalId: string; 
     }, [props.internalId, props.initialBanner]);
 
     // 執行 function：CSR hook 接手（SSR 有 initial → 不重抓）
-    const q = adapter.hooks.useQueryData({
-        internalId: props.internalId,
-        initial,
-        deps: [props.internalId],
-    });
+    const q = adapter.hooks.useQueryData({ internalId: props.internalId, initial, deps: [props.internalId] });
 
     // 宣告變數：排序 detail
     const sortedDetails = useMemo(() =>
@@ -53,9 +49,7 @@ export const AdmissionsCarouselData = (props: { lang: Lang; internalId: string; 
         owlCarousel: (opts: OwlOptions) => void;
     };
 
-    type JQueryLike = ((el: HTMLElement) => JQueryObj) & {
-        fn?: { owlCarousel?: (opts: OwlOptions) => void; };
-    };
+    type JQueryLike = ((el: HTMLElement) => JQueryObj) & { fn?: { owlCarousel?: (opts: OwlOptions) => void; }; };
 
     const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
@@ -133,14 +127,7 @@ export const AdmissionsCarouselData = (props: { lang: Lang; internalId: string; 
                 margin: 30,
                 autoplayTimeout: 5000,
                 autoplayHoverPause: true,
-                responsive: {
-                    0: { items: 1 },
-                    500: { items: 2 },
-                    575: { items: 2 },
-                    767: { items: 3 },
-                    991: { items: 3 },
-                    1199: { items: 3 },
-                },
+                responsive: { 0: { items: 1 }, 500: { items: 2 }, 575: { items: 2 }, 767: { items: 3 }, 991: { items: 3 }, 1199: { items: 3 } },
             };
 
             // 執行：初始化
@@ -172,9 +159,7 @@ export const AdmissionsCarouselData = (props: { lang: Lang; internalId: string; 
                 <div className="headDiv mb-lg-5 mb-4">
                     <span className="headDiv-txt-3 tw">{IndexLabel(props.lang).AdmissionsTitle}</span>
                 </div>
-                <p className="headDiv-subtxt">
-                    {IndexLabel(props.lang).AdmissionsContent}
-                </p>
+                <p className="headDiv-subtxt">{IndexLabel(props.lang).AdmissionsContent}</p>
             </div>
 
             <div className="col-xl-9 col-lg-9 col-md-12 col-sm-12 col-12">
@@ -185,54 +170,37 @@ export const AdmissionsCarouselData = (props: { lang: Lang; internalId: string; 
                                 <div className="row">
                                     <div className="col-12 px-0">
                                         <div className="content-box px-0 mb-5">
-                                            <div
-                                                className="owl-carousel owl-theme"
-                                                id="Admissions_owl_carousel"
-                                                ref={carouselRef}
-                                            >
+                                            <div className="owl-carousel owl-theme" id="Admissions_owl_carousel" ref={carouselRef}>
                                                 {sortedDetails.map((p, i) =>
                                                 {
-                                                    const info = q.data?.BannerDetailInfo?.find(
-                                                        x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId
-                                                            && x.Lang === props.lang,
+                                                    const info = q.data?.BannerDetailInfo?.find(x =>
+                                                        x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang
                                                     );
 
                                                     const alt = info?.Title ?? "";
                                                     const content = info?.Content ?? "";
                                                     const url = info?.URL ?? "";
                                                     const urlopen = info?.URL_Open === 1 ? "_blank" : "_self";
-                                                    const imgUrl = FileManagementAPI.get_Public_Preview_Url(
-                                                        p.PicSrcId,
-                                                        alt,
-                                                    );
+                                                    const imgUrl = FileManagementAPI.get_Public_Preview_Url(p.PicSrcId, alt);
                                                     return (
                                                         <div key={i} className={"item"}>
                                                             <a
                                                                 href={url}
                                                                 tabIndex={0}
                                                                 target={urlopen}
-                                                                rel={urlopen === "_blank"
-                                                                    ? "noopener noreferrer"
-                                                                    : undefined}
+                                                                rel={urlopen === "_blank" ? "noopener noreferrer" : undefined}
                                                                 title={alt}
                                                             >
                                                                 <div className="wrapper_box">
                                                                     <div className="Qlink-item">
                                                                         <div className="Content_Div">
                                                                             <div className="box_content">
-                                                                                <div className="tit-text mb-4">
-                                                                                    {alt}
-                                                                                </div>
-                                                                                <div className="subtit-text mb-4">
-                                                                                    {content}
-                                                                                </div>
+                                                                                <div className="tit-text mb-4">{alt}</div>
+                                                                                <div className="subtit-text mb-4">{content}</div>
                                                                                 <div className="customize_btn">
                                                                                     <div className="Btn_a">
                                                                                         <div className="BtnBox">
-                                                                                            <span>
-                                                                                                {IndexLabel(props.lang)
-                                                                                                    .MoreInfo}
-                                                                                            </span>
+                                                                                            <span>{IndexLabel(props.lang).MoreInfo}</span>
                                                                                         </div>
                                                                                     </div>
                                                                                 </div>

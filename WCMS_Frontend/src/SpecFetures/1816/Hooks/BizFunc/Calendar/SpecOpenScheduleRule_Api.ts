@@ -13,10 +13,9 @@ class SpecOpenScheduleRuleService extends ApiDataService<SpecOpenScheduleRuleSet
     }
 }
 
-
-class SpecOpenScheduleRuleAdapterImpl extends ApiDataAdapter<SpecOpenScheduleRuleSet, SpecOpenScheduleRuleService>{
-
+class SpecOpenScheduleRuleAdapterImpl extends ApiDataAdapter<SpecOpenScheduleRuleSet, SpecOpenScheduleRuleService>
+{
 }
 
-
-export const SpecOpenScheduleRuleAdapter = (apiInstance?: AxiosInstance) => new SpecOpenScheduleRuleAdapterImpl((api?: AxiosInstance) => new SpecOpenScheduleRuleService(api ?? apiInstance));
+export const SpecOpenScheduleRuleAdapter = (apiInstance?: AxiosInstance) =>
+    new SpecOpenScheduleRuleAdapterImpl((api?: AxiosInstance) => new SpecOpenScheduleRuleService(api ?? apiInstance));

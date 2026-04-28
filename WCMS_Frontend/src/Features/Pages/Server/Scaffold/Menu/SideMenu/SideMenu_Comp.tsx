@@ -1,8 +1,4 @@
-import {
-    type IActionMeta,
-    type IModuleMeta,
-    ServerModuleRoutes,
-} from "@/Features/Pages/Server/Scaffold/Routes/ServerModuleRoutesData";
+import { type IActionMeta, type IModuleMeta, ServerModuleRoutes } from "@/Features/Pages/Server/Scaffold/Routes/ServerModuleRoutesData";
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import { useEffect, useMemo, useRef } from "react";
 import { useLocation } from "react-router-dom";
@@ -71,9 +67,7 @@ const setSubmenuOpen = (li: HTMLLIElement, isOpen: boolean): void =>
     submenu.style.willChange = "max-height";
 
     // NOTE: 先移除舊的 transitionend，避免重複掛載
-    const oldHandler = (submenu as any).__wcmsTransitionEndHandler as
-        | ((ev: TransitionEvent) => void)
-        | undefined;
+    const oldHandler = (submenu as any).__wcmsTransitionEndHandler as ((ev: TransitionEvent) => void) | undefined;
 
     if (oldHandler)
     {
@@ -123,10 +117,7 @@ const closeSiblings = (all: HTMLLIElement[], current: HTMLLIElement): void =>
 
 const SidebarMenu = (prop: { moduleCode: IModuleMeta["ModuleCode"]; }) =>
 {
-    const module = useMemo(
-        () => ServerModuleRoutes.find((p) => p.ModuleCode === prop.moduleCode),
-        [prop.moduleCode],
-    );
+    const module = useMemo(() => ServerModuleRoutes.find((p) => p.ModuleCode === prop.moduleCode), [prop.moduleCode]);
 
     const navRef = useRef<HTMLElement | null>(null);
     const location = useLocation();
@@ -140,9 +131,7 @@ const SidebarMenu = (prop: { moduleCode: IModuleMeta["ModuleCode"]; }) =>
         const root = navRef.current;
         if (!root) return;
 
-        const hasMenus = Array.from(
-            root.querySelectorAll<HTMLLIElement>(".pc-item.pc-hasmenu"),
-        );
+        const hasMenus = Array.from(root.querySelectorAll<HTMLLIElement>(".pc-item.pc-hasmenu"));
 
         // NOTE: 初始化 submenu 都收起來（用 max-height）
         hasMenus.forEach((li) => setSubmenuOpen(li, false));
@@ -204,9 +193,7 @@ const SidebarMenu = (prop: { moduleCode: IModuleMeta["ModuleCode"]; }) =>
         currentLinks.forEach((el) => el.removeAttribute("aria-current"));
 
         // NOTE: 找到目前對應的 submenu link（真正導頁的是 LangNavLink 渲染出來的 <a>）
-        const submenuLinks = Array.from(
-            root.querySelectorAll<HTMLAnchorElement>(".pc-submenu .pc-link"),
-        );
+        const submenuLinks = Array.from(root.querySelectorAll<HTMLAnchorElement>(".pc-submenu .pc-link"));
 
         const hit = submenuLinks.find((a) =>
         {
@@ -234,9 +221,7 @@ const SidebarMenu = (prop: { moduleCode: IModuleMeta["ModuleCode"]; }) =>
         if (parentToggle) parentToggle.classList.add("active");
 
         // NOTE: 自動展開父層，並收合同層其他
-        const hasMenus = Array.from(
-            root.querySelectorAll<HTMLLIElement>(".pc-item.pc-hasmenu"),
-        );
+        const hasMenus = Array.from(root.querySelectorAll<HTMLLIElement>(".pc-item.pc-hasmenu"));
         closeSiblings(hasMenus, parentHasMenu);
         setSubmenuOpen(parentHasMenu, true);
     }, [location.pathname, module]);
@@ -279,12 +264,7 @@ const SidebarMenu = (prop: { moduleCode: IModuleMeta["ModuleCode"]; }) =>
                                 <ul className="pc-submenu">
                                     {prog.Actions.map((act) => (
                                         <li key={act.ActionCode} className="pc-item">
-                                            <LangNavLink
-                                                className="pc-link"
-                                                to={buildActionPath(prop.moduleCode, prog.ProgId, act)}
-                                            >
-                                                {act.Title}
-                                            </LangNavLink>
+                                            <LangNavLink className="pc-link" to={buildActionPath(prop.moduleCode, prog.ProgId, act)}>{act.Title}</LangNavLink>
                                         </li>
                                     ))}
                                 </ul>

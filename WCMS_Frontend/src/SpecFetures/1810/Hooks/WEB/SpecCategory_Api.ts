@@ -38,9 +38,7 @@ class SpecCategoryService extends ApiDataService<SpecCategorySet>
     /** 依 ProgId 取得顯示欄位原始資料 */
     async getShowColumnItems(progId: PGID): Promise<ApiResponse<ShowColumnRaw>>
     {
-        return await this.CallApi<ShowColumnRaw>(() =>
-            this.Api.get<ApiResponse<ShowColumnRaw>>(`${this.Module}/GetShowColumnItems`, { params: { progId } })
-        );
+        return await this.CallApi<ShowColumnRaw>(() => this.Api.get<ApiResponse<ShowColumnRaw>>(`${this.Module}/GetShowColumnItems`, { params: { progId } }));
     }
     // #endregion
 }
@@ -53,10 +51,7 @@ type SpecExtraLoaders = {
 
     /** 取得 Category map */
     getCateMapByProgIdLoader: (
-        opt: {
-            getArgs: (args: LoaderFunctionArgs) => CateMapArgs;
-            getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined;
-        },
+        opt: { getArgs: (args: LoaderFunctionArgs) => CateMapArgs; getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; },
     ) => (args: LoaderFunctionArgs) => Promise<ApiLoaderData<CateMapArgs, CateMapData>>;
 };
 
@@ -70,22 +65,11 @@ type SpecExtraHooks = {
             onError?: (err: ApiAdapterError) => void;
             apiInstance?: AxiosInstance;
         },
-    ) => {
-        data: ShowColumnMap;
-        apiRes: ApiResponse<ShowColumnMap> | null;
-        isLoading: boolean;
-        errorText: string | null;
-        refetch: () => Promise<void>;
-    };
+    ) => { data: ShowColumnMap; apiRes: ApiResponse<ShowColumnMap> | null; isLoading: boolean; errorText: string | null; refetch: () => Promise<void>; };
 
     /** 取得 Category map */
     useMapByProgId: (
-        opt: {
-            progId: PGID;
-            lang: Lang;
-            initial?: ApiLoaderData<CateMapArgs, CateMapData> | null;
-            apiInstance?: AxiosInstance;
-        },
+        opt: { progId: PGID; lang: Lang; initial?: ApiLoaderData<CateMapArgs, CateMapData> | null; apiInstance?: AxiosInstance; },
     ) => {
         map: Record<string, string>;
         data: SpecCategorySet[];
@@ -104,27 +88,20 @@ class SpecCategoryAdapterImpl extends ApiDataAdapter<SpecCategorySet, SpecCatego
     // #endregion
 
     // #region Protect Virtual Func
-    protected override buildExtendedLoader(
-        base: ApiDataLoaderGroup<SpecCategorySet>,
-    ): ApiDataLoaderGroup<SpecCategorySet> & SpecExtraLoaders
+    protected override buildExtendedLoader(base: ApiDataLoaderGroup<SpecCategorySet>): ApiDataLoaderGroup<SpecCategorySet> & SpecExtraLoaders
     {
         return {
             ...base,
-            getShowColItemsLoader: (opt: Parameters<SpecExtraLoaders["getShowColItemsLoader"]>[0]) =>
-                this.getShowColItemsLoader(opt),
-            getCateMapByProgIdLoader: (opt: Parameters<SpecExtraLoaders["getCateMapByProgIdLoader"]>[0]) =>
-                this.getCateMapByProgIdLoader(opt),
+            getShowColItemsLoader: (opt: Parameters<SpecExtraLoaders["getShowColItemsLoader"]>[0]) => this.getShowColItemsLoader(opt),
+            getCateMapByProgIdLoader: (opt: Parameters<SpecExtraLoaders["getCateMapByProgIdLoader"]>[0]) => this.getCateMapByProgIdLoader(opt),
         };
     }
 
-    protected override buildExtendedHooks(
-        base: ApiDataHookGroup<SpecCategorySet>,
-    ): ApiDataHookGroup<SpecCategorySet> & SpecExtraHooks
+    protected override buildExtendedHooks(base: ApiDataHookGroup<SpecCategorySet>): ApiDataHookGroup<SpecCategorySet> & SpecExtraHooks
     {
         return {
             ...base,
-            useGetShowColItems: (opt: Parameters<SpecExtraHooks["useGetShowColItems"]>[0]) =>
-                this.useGetShowColItems(opt),
+            useGetShowColItems: (opt: Parameters<SpecExtraHooks["useGetShowColItems"]>[0]) => this.useGetShowColItems(opt),
             useMapByProgId: (opt: Parameters<SpecExtraHooks["useMapByProgId"]>[0]) => this.useMapByProgId(opt),
         };
     }
@@ -218,13 +195,7 @@ class SpecCategoryAdapterImpl extends ApiDataAdapter<SpecCategorySet, SpecCatego
             `${SpecCategoryModelFields._SpecCategoryDetail}.${SpecCategoryDetailModelFields.Lang} = "${a.lang}"`,
         );
 
-        return {
-            Fields: fields,
-            Condition: condition,
-            OrderBy: [{ Col: SpecCategoryModelFields.ModifyTime, Desc: true }],
-            PageNumber: 0,
-            PageSize: 0,
-        };
+        return { Fields: fields, Condition: condition, OrderBy: [{ Col: SpecCategoryModelFields.ModifyTime, Desc: true }], PageNumber: 0, PageSize: 0 };
     }
 
     /** 把 Category list 轉成 map */

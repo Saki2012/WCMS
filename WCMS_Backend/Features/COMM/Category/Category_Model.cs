@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using WCMS.Features.MAT.MatCategory;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Model;
@@ -24,6 +25,9 @@ namespace WCMS.Features.COMM.Category
 
         #region 主子表關聯
         [InverseProperty(nameof(CategoryDetail._Category))] public List<CategoryDetail>? _CategoryDetail { get; set; }
+
+        //MAT
+        [InverseProperty(nameof(MatCategoryInfoField._Category))] public List<MatCategoryInfoField>? _MatCategoryInfoField { get; set; }
         #endregion
     }
     public class CategoryDetail : DetailRowModel

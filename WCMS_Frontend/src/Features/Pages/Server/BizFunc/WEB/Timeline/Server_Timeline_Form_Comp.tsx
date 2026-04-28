@@ -17,11 +17,7 @@ import { useTimelineFormFetchData } from "./Server_Timeline_Form_Hook";
 type TimelineSet = components["schemas"]["TimelineSet_DTO"];
 type TimelineItem = components["schemas"]["TimelineItem_DTO"];
 
-const emptyData: TimelineSet = {
-    Timeline: {},
-    TimelineItem: [{ RowId: 1, Date: null }],
-    TimelineLangDetail: [],
-};
+const emptyData: TimelineSet = { Timeline: {}, TimelineItem: [{ RowId: 1, Date: null }], TimelineLangDetail: [] };
 export const Server_Timeline_Form_Comp = (props: { theme: IBETheme; lang: Lang; }) =>
 {
     const { internalId } = useParams();
@@ -35,12 +31,7 @@ export const Server_Timeline_Form_Comp = (props: { theme: IBETheme; lang: Lang; 
     {
         return { onBackToList };
     }, [onBackToList]);
-    const getData = useTimelineFormFetchData({
-        lang: props.lang,
-        internalId: internalId ?? "",
-        emptyData,
-        actionsOpt,
-    });
+    const getData = useTimelineFormFetchData({ lang: props.lang, internalId: internalId ?? "", emptyData, actionsOpt });
     useEnsureLangDetails(getData.rawData.formData, {
         headerName: TimelineSetFields.TimelineItem,
         detailName: TimelineSetFields.TimelineLangDetail,
@@ -65,12 +56,7 @@ export const Server_Timeline_Form_Comp = (props: { theme: IBETheme; lang: Lang; 
                 statusOpts={getData.rawData.statusOpts}
                 tagOpts={getData.rawData.tagMap}
             />
-            <DetailComp
-                theme={props.theme}
-                lang={props.lang}
-                formData={getData.rawData.formData}
-                isCreateMode={!internalId}
-            />
+            <DetailComp theme={props.theme} lang={props.lang} formData={getData.rawData.formData} isCreateMode={!internalId} />
         </FormComp>
     );
 };
@@ -95,16 +81,12 @@ const HeaderComp = (
                 {...setField(TimelineSetFields.Timeline, TimelineFields.TimelineName, "string")}
             />,
         ],
-        System: [
-            <SystemInfoTabComp theme={prop.theme} formData={prop.formData} setKey={TimelineSetFields.Timeline} />,
-        ],
+        System: [<SystemInfoTabComp theme={prop.theme} formData={prop.formData} setKey={TimelineSetFields.Timeline} />],
     };
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
 
-const DetailComp = (
-    props: { theme: IBETheme; lang: Lang; formData: UseFetchFormDataResult<TimelineSet>; isCreateMode: boolean; },
-) =>
+const DetailComp = (props: { theme: IBETheme; lang: Lang; formData: UseFetchFormDataResult<TimelineSet>; isCreateMode: boolean; }) =>
 {
     // 宣告變數
     const setField = useSetTableField<TimelineSet>(props.formData);
@@ -123,36 +105,18 @@ const DetailComp = (
         }, 0);
 
         const newRowId = maxRowId + 1;
-        const newItem: TimelineItem = {
+        const newItem: TimelineItem = { TimelineId: cur.Timeline?.TimelineId, RowId: newRowId, Date: null };
+
+        const subNewItems = [{ TimelineId: cur.Timeline?.TimelineId, ParentRowId: newRowId, RowId: 1, Lang: "zh-tw" as Lang, Title: "", Content: "" }, {
             TimelineId: cur.Timeline?.TimelineId,
-            RowId: newRowId,
-            Date: null,
-        };
+            ParentRowId: newRowId,
+            RowId: 2,
+            Lang: "en" as Lang,
+            Title: "",
+            Content: "",
+        }];
 
-        const subNewItems = [
-            {
-                TimelineId: cur.Timeline?.TimelineId,
-                ParentRowId: newRowId,
-                RowId: 1,
-                Lang: "zh-tw" as Lang,
-                Title: "",
-                Content: "",
-            },
-            {
-                TimelineId: cur.Timeline?.TimelineId,
-                ParentRowId: newRowId,
-                RowId: 2,
-                Lang: "en" as Lang,
-                Title: "",
-                Content: "",
-            },
-        ];
-
-        const updated: TimelineSet = {
-            ...cur,
-            TimelineItem: [...allItems, newItem],
-            TimelineLangDetail: [...(cur.TimelineLangDetail ?? []), ...subNewItems],
-        };
+        const updated: TimelineSet = { ...cur, TimelineItem: [...allItems, newItem], TimelineLangDetail: [...(cur.TimelineLangDetail ?? []), ...subNewItems] };
 
         props.formData.setFormData(updated);
     };
@@ -178,11 +142,7 @@ const DetailComp = (
                 return !(info.TimelineId === target.TimelineId && info.ParentRowId === target.RowId);
             });
 
-            return {
-                ...prev,
-                TimelineItem: nextItems,
-                TimelineLangDetail: nextLangDetails,
-            };
+            return { ...prev, TimelineItem: nextItems, TimelineLangDetail: nextLangDetails };
         });
     };
 
@@ -198,36 +158,21 @@ const DetailComp = (
         onRemoveTab: key => removeOne(Number(key)),
     };
 
-    const tabContent: Record<string, React.ReactNode[]> = details.reduce<Record<string, React.ReactNode[]>>(
-        (acc, item, idx) =>
-        {
-            const detailRowId = item.RowId ?? idx;
-            const rowKeys = {
-                [TimelineItemFields.TimelineId]: item.TimelineId,
-                [TimelineItemFields.RowId]: item.RowId,
-            };
+    const tabContent: Record<string, React.ReactNode[]> = details.reduce<Record<string, React.ReactNode[]>>((acc, item, idx) =>
+    {
+        const detailRowId = item.RowId ?? idx;
+        const rowKeys = { [TimelineItemFields.TimelineId]: item.TimelineId, [TimelineItemFields.RowId]: item.RowId };
 
-            acc[String(detailRowId)] = [
-                <LibCalendar
-                    {...setField(
-                        TimelineSetFields.TimelineItem,
-                        TimelineItemFields.Date,
-                        "datetime",
-                        rowKeys,
-                    )}
-                />,
-                <SubDetailComp theme={props.theme} formData={props.formData} parentRowId={detailRowId} />,
-            ];
-            return acc;
-        },
-        {},
-    );
+        acc[String(detailRowId)] = [
+            <LibCalendar {...setField(TimelineSetFields.TimelineItem, TimelineItemFields.Date, "datetime", rowKeys)} />,
+            <SubDetailComp theme={props.theme} formData={props.formData} parentRowId={detailRowId} />,
+        ];
+        return acc;
+    }, {});
 
     return <TabContentComp tabInfos={tabInfo} components={tabContent} />;
 };
-const SubDetailComp = (
-    props: { theme: IBETheme; formData: UseFetchFormDataResult<TimelineSet>; parentRowId: number; },
-) =>
+const SubDetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<TimelineSet>; parentRowId: number; }) =>
 {
     const setField = useSetTableField<TimelineSet>(props.formData);
     const rawDetails = props.formData.data?.TimelineLangDetail?.filter(p => p.ParentRowId === props.parentRowId) ?? [];
@@ -240,41 +185,25 @@ const SubDetailComp = (
             return tabItems;
         }, {}),
     };
-    const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>(
-        (compMap, info) =>
-        {
-            const langKey = LibMerge("_", true, info.TimelineId, info.ParentRowId, info.RowId, info.Lang);
-            const rowKeys = {
-                [TimelineLangDetailFields.TimelineId]: info.TimelineId,
-                [TimelineLangDetailFields.ParentRowId]: info.ParentRowId,
-                [TimelineLangDetailFields.RowId]: info.RowId,
-            };
-            compMap[langKey] = [
-                <LibTextBox
-                    Style={props.theme.TextBox}
-                    DefaultInputDisplay="請輸入"
-                    {...setField(
-                        TimelineSetFields.TimelineLangDetail,
-                        TimelineLangDetailFields.Title,
-                        "string",
-                        rowKeys,
-                    )}
-                />,
-                <LibTinyMCE
-                    Style={props.theme.TinyMCE}
-                    {...setField(
-                        TimelineSetFields.TimelineLangDetail,
-                        TimelineLangDetailFields.Content,
-                        "string",
-                        rowKeys,
-                    )}
-                />,
-            ];
+    const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>((compMap, info) =>
+    {
+        const langKey = LibMerge("_", true, info.TimelineId, info.ParentRowId, info.RowId, info.Lang);
+        const rowKeys = {
+            [TimelineLangDetailFields.TimelineId]: info.TimelineId,
+            [TimelineLangDetailFields.ParentRowId]: info.ParentRowId,
+            [TimelineLangDetailFields.RowId]: info.RowId,
+        };
+        compMap[langKey] = [
+            <LibTextBox
+                Style={props.theme.TextBox}
+                DefaultInputDisplay="請輸入"
+                {...setField(TimelineSetFields.TimelineLangDetail, TimelineLangDetailFields.Title, "string", rowKeys)}
+            />,
+            <LibTinyMCE Style={props.theme.TinyMCE} {...setField(TimelineSetFields.TimelineLangDetail, TimelineLangDetailFields.Content, "string", rowKeys)} />,
+        ];
 
-            return compMap;
-        },
-        {},
-    );
+        return compMap;
+    }, {});
 
     return <TabContentComp tabInfos={tabInfo} components={tabContent} />;
 };

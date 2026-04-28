@@ -10,6 +10,8 @@ namespace WCMS.Features.MAT.MatCategory;
 
 public class MatCategoryDataSet_DTO : CategoryDataSet_DTO
 {
+    public new Category_DTO Category { get; set; } = new();
+    public new List<CategoryDetail_DTO> CategoryDetail { get; set; } = [];
     public List<MatCategoryInfoField_DTO> MatCategoryInfoField { get; set; } = [];
     public List<MatCategoryInfoFieldDisplay_DTO> MatCategoryInfoFieldDisplay { get; set; } = [];
 }
@@ -21,20 +23,17 @@ public class MatCategoryInfoField_DTO : DetailRowModel
     /// </summary>
     [Key, StringLength(SysLengthParam.ID)] public string? CategoryId { get; set; }
     /// <summary>
-    /// 父行主鍵 (_FileArchiveInfo)
-    /// </summary>
-    [LibDesc(ModelDisplayName.Common_ParentRowId)] public int? ParentRowId { get; set; }
-    /// <summary>
     /// 行主鍵
     /// </summary>
     [Key] public int? RowId { get; set; }
     /// <summary>
     /// 動態欄位Id
     /// </summary>
-    [StringLength(SysLengthParam.ID)] public string? Field { get; set; }
+    [LibDesc(ModelDisplayName.Common_Field),StringLength(SysLengthParam.ID)] public string? Field { get; set; }
 
     #region 主子表關聯
     [ForeignKey(nameof(CategoryId))] public Category_DTO? _Category { get; set; }
+    [InverseProperty(nameof(MatCategoryInfoFieldDisplay_DTO._MatCategoryInfoField))] public List<MatCategoryInfoFieldDisplay_DTO>? _MatCategoryInfoFieldDisplay { get; set; }
     #endregion
 }
 
@@ -59,7 +58,7 @@ public class MatCategoryInfoFieldDisplay_DTO : DetailRowModel
     /// <summary>
     /// 動態欄位顯示名稱
     /// </summary>
-    [StringLength(SysLengthParam.Title)] public string? FieldDisplayName { get; set; }
+    [LibDesc(ModelDisplayName.Common_FieldDisplayName), StringLength(SysLengthParam.Title)] public string? FieldDisplayName { get; set; }
 
     #region 主子表關聯
     [ForeignKey($@"{nameof(CategoryId)},{nameof(ParentRowId)}")] public MatCategoryInfoField_DTO? _MatCategoryInfoField { get; set; }

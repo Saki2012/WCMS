@@ -7,15 +7,7 @@ import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
-import {
-    AnnouncementDetailFields,
-    AnnouncementFields,
-    CategoryDetailFields,
-    CategoryFields,
-    PGID,
-    TagDataFields,
-    TagDetailFields,
-} from "@/types/SchemaFields";
+import { AnnouncementDetailFields, AnnouncementFields, CategoryDetailFields, CategoryFields, PGID, TagDataFields, TagDetailFields } from "@/types/SchemaFields";
 import type { LoaderFunctionArgs } from "react-router-dom";
 
 type QueryListParam = components["schemas"]["QueryListParam"];
@@ -25,9 +17,7 @@ type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 type TagSet = components["schemas"]["TagSet_DTO"];
 type CurrentOpenTime = components["schemas"]["SpecCurrentOpenTime_DTO"];
 
-type ApiLoaderDataCompat<TArgs, TData> =
-    | { args: TArgs; env: ApiResponse<TData>; }
-    | { args: TArgs; apiRes: ApiResponse<TData>; };
+type ApiLoaderDataCompat<TArgs, TData> = { args: TArgs; env: ApiResponse<TData>; } | { args: TArgs; apiRes: ApiResponse<TData>; };
 
 const getEnv = <TArgs, TData>(d: ApiLoaderDataCompat<TArgs, TData>): ApiResponse<TData> =>
 {
@@ -246,22 +236,10 @@ const buildDefaultArgs = (lang: Lang): HomePageLoaderArgs =>
 
     // 宣告變數：News（01~04）
     const newsTake = 5;
-    const newsListParam01 = buildAnnouncementHomeQuery({
-        condition: buildAnnouncementHomeCondition({ lang, nowIsoLocal, categoryId: "1" }),
-        take: newsTake,
-    });
-    const newsListParam02 = buildAnnouncementHomeQuery({
-        condition: buildAnnouncementHomeCondition({ lang, nowIsoLocal, categoryId: "2" }),
-        take: newsTake,
-    });
-    const newsListParam03 = buildAnnouncementHomeQuery({
-        condition: buildAnnouncementHomeCondition({ lang, nowIsoLocal, categoryId: "3" }),
-        take: newsTake,
-    });
-    const newsListParam04 = buildAnnouncementHomeQuery({
-        condition: buildAnnouncementHomeCondition({ lang, nowIsoLocal, categoryId: "4" }),
-        take: newsTake,
-    });
+    const newsListParam01 = buildAnnouncementHomeQuery({ condition: buildAnnouncementHomeCondition({ lang, nowIsoLocal, categoryId: "1" }), take: newsTake });
+    const newsListParam02 = buildAnnouncementHomeQuery({ condition: buildAnnouncementHomeCondition({ lang, nowIsoLocal, categoryId: "2" }), take: newsTake });
+    const newsListParam03 = buildAnnouncementHomeQuery({ condition: buildAnnouncementHomeCondition({ lang, nowIsoLocal, categoryId: "3" }), take: newsTake });
+    const newsListParam04 = buildAnnouncementHomeQuery({ condition: buildAnnouncementHomeCondition({ lang, nowIsoLocal, categoryId: "4" }), take: newsTake });
     const newsCateParam = buildCategoryQuery(PGID.Announcement);
     const newsTagParam = buildTagQuery(PGID.Announcement);
 
@@ -289,134 +267,87 @@ const buildDefaultArgs = (lang: Lang): HomePageLoaderArgs =>
  * - SSR：一次撈完首頁所有區塊需要的資料
  * - CSR：各 section 用 adapter.hooks 以 args/initial 接手（hydration 不重抓）
  */
-export const HomePageLoader =
-    (p: { lang: Lang; }) => async ({ request }: LoaderFunctionArgs): Promise<HomePageLoaderData> =>
-    {
-        // 宣告變數
-        const ssrApi = getSsrApi(request);
-        const args = buildDefaultArgs(p.lang);
+export const HomePageLoader = (p: { lang: Lang; }) => async ({ request }: LoaderFunctionArgs): Promise<HomePageLoaderData> =>
+{
+    // 宣告變數
+    const ssrApi = getSsrApi(request);
+    const args = buildDefaultArgs(p.lang);
 
-        // 0000370 : 暫時拿掉快取
-        // const cacheKey = getCacheKey(args.lang, args.nowIsoLocal);
-        // const cached = tryGetCache(cacheKey);
-        // if (cached) return cached;
+    // 0000370 : 暫時拿掉快取
+    // const cacheKey = getCacheKey(args.lang, args.nowIsoLocal);
+    // const cached = tryGetCache(cacheKey);
+    // if (cached) return cached;
 
-        const banner = BannerSliderAdapter(ssrApi);
-        const announce = AnnouncementAdapter(ssrApi);
-        const cate = CategoryAdapter(ssrApi);
-        const tag = TagAdapter(ssrApi);
+    const banner = BannerSliderAdapter(ssrApi);
+    const announce = AnnouncementAdapter(ssrApi);
+    const cate = CategoryAdapter(ssrApi);
+    const tag = TagAdapter(ssrApi);
 
-        // 執行：banner loaders
-        const linkIconsLoader = banner.loader.createQueryDataLoader({
-            getInternalId: () => args.linkIconsBannerInternalId,
-            getApiInstance: () => ssrApi,
-        });
-        const carouselLoader = banner.loader.createQueryDataLoader({
-            getInternalId: () => args.carouselBannerInternalId,
-            getApiInstance: () => ssrApi,
-        });
-        const collectionsLoader = banner.loader.createQueryDataLoader({
-            getInternalId: () => args.collectionsBannerInternalId,
-            getApiInstance: () => ssrApi,
-        });
-        const specialLinkLoader = banner.loader.createQueryDataLoader({
-            getInternalId: () => args.specialLinkBannerInternalId,
-            getApiInstance: () => ssrApi,
-        });
-        const quickLinksLoader = banner.loader.createQueryDataLoader({
-            getInternalId: () => args.quickLinksBannerInternalId,
-            getApiInstance: () => ssrApi,
-        });
+    // 執行：banner loaders
+    const linkIconsLoader = banner.loader.createQueryDataLoader({ getInternalId: () => args.linkIconsBannerInternalId, getApiInstance: () => ssrApi });
+    const carouselLoader = banner.loader.createQueryDataLoader({ getInternalId: () => args.carouselBannerInternalId, getApiInstance: () => ssrApi });
+    const collectionsLoader = banner.loader.createQueryDataLoader({ getInternalId: () => args.collectionsBannerInternalId, getApiInstance: () => ssrApi });
+    const specialLinkLoader = banner.loader.createQueryDataLoader({ getInternalId: () => args.specialLinkBannerInternalId, getApiInstance: () => ssrApi });
+    const quickLinksLoader = banner.loader.createQueryDataLoader({ getInternalId: () => args.quickLinksBannerInternalId, getApiInstance: () => ssrApi });
 
-        // 執行：news/category/tag loaders
-        const news01Loader = announce.loader.createQueryListLoader({
-            getCondition: () => args.newsListParam01,
-            getApiInstance: () => ssrApi,
-        });
-        const news02Loader = announce.loader.createQueryListLoader({
-            getCondition: () => args.newsListParam02,
-            getApiInstance: () => ssrApi,
-        });
-        const news03Loader = announce.loader.createQueryListLoader({
-            getCondition: () => args.newsListParam03,
-            getApiInstance: () => ssrApi,
-        });
-        const news04Loader = announce.loader.createQueryListLoader({
-            getCondition: () => args.newsListParam04,
-            getApiInstance: () => ssrApi,
-        });
-        const cateLoader = cate.loader.createQueryListLoader({
-            getCondition: () => args.newsCateParam,
-            getApiInstance: () => ssrApi,
-        });
-        const tagLoader = tag.loader.createQueryListLoader({
-            getCondition: () => args.newsTagParam,
-            getApiInstance: () => ssrApi,
-        });
+    // 執行：news/category/tag loaders
+    const news01Loader = announce.loader.createQueryListLoader({ getCondition: () => args.newsListParam01, getApiInstance: () => ssrApi });
+    const news02Loader = announce.loader.createQueryListLoader({ getCondition: () => args.newsListParam02, getApiInstance: () => ssrApi });
+    const news03Loader = announce.loader.createQueryListLoader({ getCondition: () => args.newsListParam03, getApiInstance: () => ssrApi });
+    const news04Loader = announce.loader.createQueryListLoader({ getCondition: () => args.newsListParam04, getApiInstance: () => ssrApi });
+    const cateLoader = cate.loader.createQueryListLoader({ getCondition: () => args.newsCateParam, getApiInstance: () => ssrApi });
+    const tagLoader = tag.loader.createQueryListLoader({ getCondition: () => args.newsTagParam, getApiInstance: () => ssrApi });
 
-        // 執行：一次撈完
-        const [
-            linkLD,
-            carouselLD,
-            collectionsLD,
-            specialLD,
-            quickLD,
-            news01LD,
-            news02LD,
-            news03LD,
-            news04LD,
-            cateLD,
-            tagLD,
-            openTime,
-        ] = await Promise.all([
-            linkIconsLoader({ request } as LoaderFunctionArgs),
-            carouselLoader({ request } as LoaderFunctionArgs),
-            collectionsLoader({ request } as LoaderFunctionArgs),
-            specialLinkLoader({ request } as LoaderFunctionArgs),
-            quickLinksLoader({ request } as LoaderFunctionArgs),
-            news01Loader({ request } as LoaderFunctionArgs),
-            news02Loader({ request } as LoaderFunctionArgs),
-            news03Loader({ request } as LoaderFunctionArgs),
-            news04Loader({ request } as LoaderFunctionArgs),
-            cateLoader({ request } as LoaderFunctionArgs),
-            tagLoader({ request } as LoaderFunctionArgs),
-            fetchCurrentOpenTime({ ssrApi }),
-        ]);
+    // 執行：一次撈完
+    const [linkLD, carouselLD, collectionsLD, specialLD, quickLD, news01LD, news02LD, news03LD, news04LD, cateLD, tagLD, openTime] = await Promise.all([
+        linkIconsLoader({ request } as LoaderFunctionArgs),
+        carouselLoader({ request } as LoaderFunctionArgs),
+        collectionsLoader({ request } as LoaderFunctionArgs),
+        specialLinkLoader({ request } as LoaderFunctionArgs),
+        quickLinksLoader({ request } as LoaderFunctionArgs),
+        news01Loader({ request } as LoaderFunctionArgs),
+        news02Loader({ request } as LoaderFunctionArgs),
+        news03Loader({ request } as LoaderFunctionArgs),
+        news04Loader({ request } as LoaderFunctionArgs),
+        cateLoader({ request } as LoaderFunctionArgs),
+        tagLoader({ request } as LoaderFunctionArgs),
+        fetchCurrentOpenTime({ ssrApi }),
+    ]);
 
-        // 宣告變數：整理資料（只保留 Data）
-        const linkIconsBanner = takeFirstOrNull<BannerSet>(getEnv(linkLD).Data);
-        const carouselBanner = takeFirstOrNull<BannerSet>(getEnv(carouselLD).Data);
-        const collectionsBanner = takeFirstOrNull<BannerSet>(getEnv(collectionsLD).Data);
-        const specialLinkBanner = takeFirstOrNull<BannerSet>(getEnv(specialLD).Data);
-        const quickLinksBanner = takeFirstOrNull<BannerSet>(getEnv(quickLD).Data);
+    // 宣告變數：整理資料（只保留 Data）
+    const linkIconsBanner = takeFirstOrNull<BannerSet>(getEnv(linkLD).Data);
+    const carouselBanner = takeFirstOrNull<BannerSet>(getEnv(carouselLD).Data);
+    const collectionsBanner = takeFirstOrNull<BannerSet>(getEnv(collectionsLD).Data);
+    const specialLinkBanner = takeFirstOrNull<BannerSet>(getEnv(specialLD).Data);
+    const quickLinksBanner = takeFirstOrNull<BannerSet>(getEnv(quickLD).Data);
 
-        const newsList01 = getEnv(news01LD).Data ?? [];
-        const newsList02 = getEnv(news02LD).Data ?? [];
-        const newsList03 = getEnv(news03LD).Data ?? [];
-        const newsList04 = getEnv(news04LD).Data ?? [];
+    const newsList01 = getEnv(news01LD).Data ?? [];
+    const newsList02 = getEnv(news02LD).Data ?? [];
+    const newsList03 = getEnv(news03LD).Data ?? [];
+    const newsList04 = getEnv(news04LD).Data ?? [];
 
-        const newsCategories = getEnv(cateLD).Data ?? [];
-        const newsTags = getEnv(tagLD).Data ?? [];
+    const newsCategories = getEnv(cateLD).Data ?? [];
+    const newsTags = getEnv(tagLD).Data ?? [];
 
-        const result: HomePageLoaderData = {
-            args,
-            res: {
-                rawData: {
-                    linkIconsBanner,
-                    carouselBanner,
-                    collectionsBanner,
-                    specialLinkBanner,
-                    quickLinksBanner,
-                    currentOpenTime: openTime,
-                    newsList01,
-                    newsList02,
-                    newsList03,
-                    newsList04,
-                    newsCategories,
-                    newsTags,
-                },
+    const result: HomePageLoaderData = {
+        args,
+        res: {
+            rawData: {
+                linkIconsBanner,
+                carouselBanner,
+                collectionsBanner,
+                specialLinkBanner,
+                quickLinksBanner,
+                currentOpenTime: openTime,
+                newsList01,
+                newsList02,
+                newsList03,
+                newsList04,
+                newsCategories,
+                newsTags,
             },
-        };
-        // setCache(cacheKey, result);
-        return result;
+        },
     };
+    // setCache(cacheKey, result);
+    return result;
+};

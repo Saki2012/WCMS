@@ -115,11 +115,7 @@ const tryBuildProdPaths = (root: string): ProdPaths | null =>
     if (!existsSync(serverEntryAbs)) return null;
 
     // return
-    return {
-        clientRoot,
-        indexPath,
-        serverEntry: pathToFileURL(serverEntryAbs).href,
-    };
+    return { clientRoot, indexPath, serverEntry: pathToFileURL(serverEntryAbs).href };
 };
 
 const getProdPaths = (): ProdPaths =>
@@ -456,16 +452,10 @@ const getProdCssHrefsFromManifest = (m: ViteManifest, spec: string, isServer: bo
     // 3) ✅ Spec Css：用「精準 key」避免把整個 spec 資產都掃進來
     if (isServer)
     {
-        addIfExists([
-            `src/SpecFetures/${spec}/Assets/LoadSpecCss_Server.ts`,
-            `src/SpecFeatures/${spec}/Assets/LoadSpecCss_Server.ts`,
-        ]);
+        addIfExists([`src/SpecFetures/${spec}/Assets/LoadSpecCss_Server.ts`, `src/SpecFeatures/${spec}/Assets/LoadSpecCss_Server.ts`]);
     } else
     {
-        addIfExists([
-            `src/SpecFetures/${spec}/Assets/LoadSpecCss.ts`,
-            `src/SpecFeatures/${spec}/Assets/LoadSpecCss.ts`,
-        ]);
+        addIfExists([`src/SpecFetures/${spec}/Assets/LoadSpecCss.ts`, `src/SpecFeatures/${spec}/Assets/LoadSpecCss.ts`]);
     }
 
     // 4) fallback：真的抓不到時才全掃（把 css-only chunk 也納入）
@@ -518,9 +508,7 @@ const injectInitialState = (html: string, initialState: unknown, nonce: string, 
 {
     // 宣告變數
     const stateScript = initialState
-        ? `<script nonce="${nonce}">window.__INITIAL_STATE__=${
-            JSON.stringify(initialState).replace(/</g, "\\u003c")
-        };</script>`
+        ? `<script nonce="${nonce}">window.__INITIAL_STATE__=${JSON.stringify(initialState).replace(/</g, "\\u003c")};</script>`
         : "";
 
     // 執行 function
@@ -566,12 +554,7 @@ const injectAppHtmlToRoot = (html: string, appHtml: string): string =>
 };
 
 // 組 SSR HTML（dev/prod 共用）
-const buildHtml = (
-    template: string,
-    payload: { appHtml: string; headTags?: string; initialState?: unknown; },
-    nonce: string,
-    isProd: boolean,
-): string =>
+const buildHtml = (template: string, payload: { appHtml: string; headTags?: string; initialState?: unknown; }, nonce: string, isProd: boolean): string =>
 {
     // 宣告變數
     let html = template;
@@ -593,17 +576,11 @@ const buildHtml = (
 };
 
 // SSR Render（dev/prod 共用呼叫 Entry-Server）
-const renderByEntry = async (
-    SSR_Render: (url: string, headers?: Record<string, string>) => Promise<any>,
-    req: Request,
-) =>
+const renderByEntry = async (SSR_Render: (url: string, headers?: Record<string, string>) => Promise<any>, req: Request) =>
 {
     // 宣告變數
     const url = req.originalUrl || req.url || "/";
-    const headers: Record<string, string> = {
-        "accept-language": String(req.headers["accept-language"] || ""),
-        cookie: String(req.headers.cookie || ""),
-    };
+    const headers: Record<string, string> = { "accept-language": String(req.headers["accept-language"] || ""), cookie: String(req.headers.cookie || "") };
 
     // 執行 function
     const result = await SSR_Render(url, headers);
@@ -616,22 +593,13 @@ const renderByEntry = async (
 const setupDevSSR = async (app: express.Express, cfg: SsrConfig) =>
 {
     // 宣告變數
-    const vite = await (await import("vite")).createServer({
-        server: { middlewareMode: true },
-        appType: "custom",
-    });
+    const vite = await (await import("vite")).createServer({ server: { middlewareMode: true }, appType: "custom" });
 
     // 執行 function
     app.use(vite.middlewares);
 
     // public 靜態（確保 tinymce 等不被 SSR 攔到）
-    app.use(
-        serveStatic(path.resolve(process.cwd(), "public"), {
-            index: false,
-            maxAge: 0,
-            fallthrough: true,
-        }),
-    );
+    app.use(serveStatic(path.resolve(process.cwd(), "public"), { index: false, maxAge: 0, fallthrough: true }));
 
     // SSR middleware
     app.use(async (req: Request, res: Response, next: NextFunction) =>
@@ -660,10 +628,7 @@ const setupDevSSR = async (app: express.Express, cfg: SsrConfig) =>
             {
                 // 後台：Features + Spec(Server)
                 const featuresCssTs = path.resolve(process.cwd(), "src/Features/Assets/LoadFeaturesCss.ts");
-                const specServerCssTs = path.resolve(
-                    process.cwd(),
-                    `src/SpecFetures/${spec}/Assets/LoadSpecCss_Server.ts`,
-                );
+                const specServerCssTs = path.resolve(process.cwd(), `src/SpecFetures/${spec}/Assets/LoadSpecCss_Server.ts`);
 
                 const fHrefs = await readCssImportHrefs(featuresCssTs, "/src/Features/Assets");
                 const sHrefs = await readCssImportHrefs(specServerCssTs, `/src/SpecFetures/${spec}/Assets`);
@@ -754,10 +719,7 @@ const setupProdSSR = async (app: express.Express, cfg: SsrConfig) =>
             }
             const html = buildHtml(template, payload, nonce, true);
             const csp = buildProdCsp(nonce);
-            res.status(200)
-                .set("Content-Type", "text/html")
-                .set("Content-Security-Policy", csp)
-                .end(html);
+            res.status(200).set("Content-Type", "text/html").set("Content-Security-Policy", csp).end(html);
         } catch (e)
         {
             next(e);

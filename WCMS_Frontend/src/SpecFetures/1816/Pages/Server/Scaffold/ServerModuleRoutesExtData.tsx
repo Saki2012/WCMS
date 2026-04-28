@@ -18,20 +18,17 @@ const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] =>
             Title: "開館時間規則設定",
             DefaultActionCode: "List",
             IconClassName: "fas fa-university",
-            Actions: [
-                {
-                    ActionCode: "List",
-                    Title: "列表",
-                    RoutePath: "List",
-                    elementFactory: (ctx) => <Server_ScheduleRule_List_Comp title="萬年曆" theme={ctx.theme} />,
-                },
-                {
-                    ActionCode: "Form",
-                    Title: "新增規則",
-                    RoutePath: "Form/:internalId?",
-                    elementFactory: (ctx) => <Server_ScheduleRule_Form_Comp theme={ctx.theme} lang={ctx.lang} />,
-                },
-            ],
+            Actions: [{
+                ActionCode: "List",
+                Title: "列表",
+                RoutePath: "List",
+                elementFactory: (ctx) => <Server_ScheduleRule_List_Comp title="萬年曆" theme={ctx.theme} />,
+            }, {
+                ActionCode: "Form",
+                Title: "新增規則",
+                RoutePath: "Form/:internalId?",
+                elementFactory: (ctx) => <Server_ScheduleRule_Form_Comp theme={ctx.theme} lang={ctx.lang} />,
+            }],
         };
 
     web.Progs.push(prog);

@@ -1,7 +1,5 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import ModuleContent, {
-    type ModuleViewCountConfig,
-} from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
+import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import { SpecMusicalAdapter } from "@/SpecFetures/1817/Hooks/BizFunc/WEB/SpecMusical_Api";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import { LangLink } from "@/SysCore/i18n/LangLink";
@@ -34,11 +32,7 @@ const SpecMusicalList = (props: { options?: ISpecMusicalOptions; site: INormSite
 
     const errorList = [useList.error];
 
-    const paginprops: PaginatorProps = {
-        currentPage: useList.pageNumber,
-        totalPages: useList.totalPages,
-        onPageChange: useList.onPageChange,
-    };
+    const paginprops: PaginatorProps = { currentPage: useList.pageNumber, totalPages: useList.totalPages, onPageChange: useList.onPageChange };
     const viewCountConfig: ModuleViewCountConfig = { mode: "list" };
     // return（DOM 不改）
     return (
@@ -83,13 +77,7 @@ const GridList_Comp = (props: { title: string; data: SpecMusicalSet[]; }) =>
                                     </div>
                                     <div className="card_StateDiv + justify-content-center">
                                         <div className="More customize_btn mb-3">
-                                            <LangLink
-                                                to={href}
-                                                className="Btn_s1"
-                                                type="button"
-                                                role="button"
-                                                title="觀看更多"
-                                            >
+                                            <LangLink to={href} className="Btn_s1" type="button" role="button" title="觀看更多">
                                                 VIEW ALL
                                                 <span className="ml-2">+</span>
                                             </LangLink>
@@ -117,30 +105,15 @@ const useSpecMusicalList = (
     {
         if (!loaderData?.args?.baseParam)
         {
-            return {
-                Fields: [],
-                Condition: "1=0",
-                PageNumber: 1,
-                PageSize: pageSize,
-            } as apiComponents["schemas"]["QueryListParam"];
+            return { Fields: [], Condition: "1=0", PageNumber: 1, PageSize: pageSize } as apiComponents["schemas"]["QueryListParam"];
         }
         if (loaderData.args.categoryIds !== categoryIds)
         {
-            return {
-                Fields: [],
-                Condition: "1=0",
-                PageNumber: 1,
-                PageSize: pageSize,
-            } as apiComponents["schemas"]["QueryListParam"];
+            return { Fields: [], Condition: "1=0", PageNumber: 1, PageSize: pageSize } as apiComponents["schemas"]["QueryListParam"];
         }
         if (loaderData.args.pageSize !== pageSize)
         {
-            return {
-                Fields: [],
-                Condition: "1=0",
-                PageNumber: 1,
-                PageSize: pageSize,
-            } as apiComponents["schemas"]["QueryListParam"];
+            return { Fields: [], Condition: "1=0", PageNumber: 1, PageSize: pageSize } as apiComponents["schemas"]["QueryListParam"];
         }
         return loaderData.args.baseParam;
     }, [loaderData, categoryIds, pageSize]);
@@ -151,40 +124,22 @@ const useSpecMusicalList = (
         if (loaderData.args.categoryIds !== categoryIds) return null;
         if (loaderData.args.pageSize !== pageSize) return null;
 
-        return {
-            args: loaderData.args.baseParam,
-            apiRes: { IsSuccess: true, Data: loaderData.res.countRes ?? 0, SysMessage: [] },
-        };
+        return { args: loaderData.args.baseParam, apiRes: { IsSuccess: true, Data: loaderData.res.countRes ?? 0, SysMessage: [] } };
     }, [loaderData, categoryIds, pageSize]);
 
-    const initialList = useMemo<ApiLoaderData<apiComponents["schemas"]["QueryListParam"], SpecMusicalSet[]> | null>(
-        () =>
-        {
-            if (!loaderData?.args?.baseParam) return null;
-            if (loaderData.args.categoryIds !== categoryIds) return null;
-            if (loaderData.args.pageSize !== pageSize) return null;
+    const initialList = useMemo<ApiLoaderData<apiComponents["schemas"]["QueryListParam"], SpecMusicalSet[]> | null>(() =>
+    {
+        if (!loaderData?.args?.baseParam) return null;
+        if (loaderData.args.categoryIds !== categoryIds) return null;
+        if (loaderData.args.pageSize !== pageSize) return null;
 
-            return {
-                args: loaderData.args.baseParam,
-                apiRes: { IsSuccess: true, Data: loaderData.res.listRes ?? [], SysMessage: [] },
-            };
-        },
-        [loaderData, categoryIds, pageSize],
-    );
+        return { args: loaderData.args.baseParam, apiRes: { IsSuccess: true, Data: loaderData.res.listRes ?? [], SysMessage: [] } };
+    }, [loaderData, categoryIds, pageSize]);
 
     // 執行 function：count/list（SSR initial → CSR 接手）
-    const useCount = adapter.hooks.useQueryCount({
-        condition: baseParam,
-        initial: initialCount,
-        deps: [categoryIds, pageSize],
-    });
+    const useCount = adapter.hooks.useQueryCount({ condition: baseParam, initial: initialCount, deps: [categoryIds, pageSize] });
 
-    const useList = adapter.hooks.usePagedQueryList({
-        baseParam,
-        count: useCount.data ?? 0,
-        initial: initialList,
-        deps: [categoryIds, pageSize],
-    });
+    const useList = adapter.hooks.usePagedQueryList({ baseParam, count: useCount.data ?? 0, initial: initialList, deps: [categoryIds, pageSize] });
 
     // return
     return {

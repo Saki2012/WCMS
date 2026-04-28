@@ -41,49 +41,29 @@ export type SpecResearchFormAdapter = {
 };
 
 /** ✅ 主入口：Server SpecResearch Form 的所有「讀取資料」都集中在這裡 */
-export const useSpecResearchFormFetchData = (opt: {
-    lang: Lang;
-    internalId: string;
-    emptyData: SpecResearchSet;
-    actionsOpt: SpecResearchFormActionsOpt;
-}): UseFetchDataResult<SpecResearchFormRawData, SpecResearchFormAdapter> =>
+export const useSpecResearchFormFetchData = (
+    opt: { lang: Lang; internalId: string; emptyData: SpecResearchSet; actionsOpt: SpecResearchFormActionsOpt; },
+): UseFetchDataResult<SpecResearchFormRawData, SpecResearchFormAdapter> =>
 {
     const { publish } = useToast();
 
     // 宣告變數：統一錯誤出口（toast）
-    const onError = useCallback(
-        (e: ApiAdapterError) =>
-        {
-            publish({ level: MessageStatus.Error, title: e.messageText });
-        },
-        [publish],
-    );
+    const onError = useCallback((e: ApiAdapterError) =>
+    {
+        publish({ level: MessageStatus.Error, title: e.messageText });
+    }, [publish]);
 
     // 宣告變數：Adapters（固定 reference）
     const adapter = useMemo<SpecResearchFormAdapter>(() =>
     {
-        return {
-            SpecResearch: SpecResearchAdapter(),
-            SpecCategory: SpecCategoryAdapter(),
-            Tag: TagAdapter(),
-        };
+        return { SpecResearch: SpecResearchAdapter(), SpecCategory: SpecCategoryAdapter(), Tag: TagAdapter() };
     }, []);
 
     // 執行 function：主資料（ModelDisplayName + QueryData + editable state）
-    const formData = useSpecResearchFormDataByAdapter(
-        adapter.SpecResearch,
-        opt.internalId,
-        opt.emptyData,
-        onError,
-    );
+    const formData = useSpecResearchFormDataByAdapter(adapter.SpecResearch, opt.internalId, opt.emptyData, onError);
 
     // 執行 function：Actions（create/update/delete/back）
-    const actions = useSpecResearchFormActionsByAdapter(
-        adapter.SpecResearch,
-        opt.internalId,
-        formData.data,
-        opt.actionsOpt,
-    );
+    const actions = useSpecResearchFormActionsByAdapter(adapter.SpecResearch, opt.internalId, formData.data, opt.actionsOpt);
 
     // 執行 function：關聯資料（Category / Tag / ContentStatus）
     const category = adapter.SpecCategory.hooks.useMapByProgId({ progId: PGID.SpecResearch, lang: opt.lang });
@@ -99,12 +79,7 @@ export const useSpecResearchFormFetchData = (opt: {
     // 宣告變數：Loading / Error（給 LoadingErrorHandler）
     const loadingList = useMemo<boolean[]>(() =>
     {
-        return [
-            Boolean(formData.isLoading),
-            Boolean(category.isLoading),
-            Boolean(tag.isLoading),
-            Boolean(statusOpts.isLoading),
-        ];
+        return [Boolean(formData.isLoading), Boolean(category.isLoading), Boolean(tag.isLoading), Boolean(statusOpts.isLoading)];
     }, [formData.isLoading, category.isLoading, tag.isLoading, statusOpts.isLoading]);
 
     const errorList = useMemo<(string | null | undefined)[]>(() =>
@@ -118,14 +93,7 @@ export const useSpecResearchFormFetchData = (opt: {
 
     const rawData = useMemo<SpecResearchFormRawData>(() =>
     {
-        return {
-            formData,
-            categoryMap: category.map ?? {},
-            categoryCols,
-            tagMap: tag.map ?? {},
-            statusOpts: statusOpts.data,
-            actions,
-        };
+        return { formData, categoryMap: category.map ?? {}, categoryCols, tagMap: tag.map ?? {}, statusOpts: statusOpts.data, actions };
     }, [formData, category.map, categoryCols, tag.map, statusOpts.data, actions]);
 
     const refetchData = useCallback(async () =>
@@ -144,11 +112,7 @@ export const useSpecResearchFormFetchData = (opt: {
 
 // #region Private
 /** ✅ ContentStatus enum options（去掉 key=0） */
-const useContentStatusOptions = (): {
-    data: Record<string, string>;
-    isLoading: boolean;
-    error: string | null;
-} =>
+const useContentStatusOptions = (): { data: Record<string, string>; isLoading: boolean; error: string | null; } =>
 {
     // 宣告變數
     const src = useFetchEnumOptions("ContentStatus");
@@ -158,11 +122,7 @@ const useContentStatusOptions = (): {
     {
         const raw = src.data ?? {};
         const { ["0"]: _drop, ...rest } = raw;
-        return {
-            data: rest as Record<string, string>,
-            isLoading: Boolean(src.isLoading),
-            error: src.error,
-        };
+        return { data: rest as Record<string, string>, isLoading: Boolean(src.isLoading), error: src.error };
     }, [src.data, src.isLoading, src.error]);
 };
 
@@ -183,23 +143,14 @@ const useSpecResearchFormDataByAdapter = (
         // 新建才提供 initial，避免 query "__new__"
         if (!isNew) return null;
 
-        const apiRes: ApiResponse<SpecResearchSet> = {
-            IsSuccess: true,
-            Data: empty,
-            SysMessage: [],
-        };
+        const apiRes: ApiResponse<SpecResearchSet> = { IsSuccess: true, Data: empty, SysMessage: [] };
 
         return { args: internalKey, apiRes };
     }, [isNew, empty, internalKey]);
 
     // 執行 function
     const model = adapter.hooks.useModelDisplayName({ deps: [], onError });
-    const query = adapter.hooks.useQueryData({
-        internalId: internalKey,
-        initial,
-        deps: [internalKey],
-        onError,
-    });
+    const query = adapter.hooks.useQueryData({ internalId: internalKey, initial, deps: [internalKey], onError });
 
     // 宣告變數：可編輯 state（避免直接改 query.data）
     const [data, setData] = useState<SpecResearchSet>(empty);
@@ -241,11 +192,7 @@ const useSpecResearchFormActionsByAdapter = (
     const isNew = useMemo(() => !internalId, [internalId]);
 
     const actions = adapter.useServerActions({
-        onSuccessByMode: {
-            create: () => opt.onBackToList(),
-            update: () => opt.onBackToList(),
-            delete: () => opt.onBackToList(),
-        },
+        onSuccessByMode: { create: () => opt.onBackToList(), update: () => opt.onBackToList(), delete: () => opt.onBackToList() },
     });
 
     // return
@@ -297,10 +244,7 @@ const parseShowColumnItems = (raw: string): string[] =>
         return arr ?? [];
     }
 
-    const parts = raw
-        .split(/[,;|]/g)
-        .map((x) => x.trim())
-        .filter(Boolean);
+    const parts = raw.split(/[,;|]/g).map((x) => x.trim()).filter(Boolean);
 
     // return
     return parts;

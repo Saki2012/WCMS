@@ -64,12 +64,7 @@ export const RenderLeftBox = (prop: RenderLeftBoxProp) =>
 
     const canSaveStructure = useMemo(() =>
     {
-        return Boolean(
-            originalSnapshot !== ""
-                && (currentSnapshot !== originalSnapshot || deletedRowIds.length > 0)
-                && !hasDraft
-                && !prop.action.isExecuting,
-        );
+        return Boolean(originalSnapshot !== "" && (currentSnapshot !== originalSnapshot || deletedRowIds.length > 0) && !hasDraft && !prop.action.isExecuting);
     }, [currentSnapshot, deletedRowIds.length, hasDraft, originalSnapshot, prop.action.isExecuting]);
 
     const handleSelectSiteInfo = useCallback(() =>
@@ -102,8 +97,7 @@ export const RenderLeftBox = (prop: RenderLeftBoxProp) =>
     {
         const nextRowId = createTempRowId();
         const nextTitleRowId = 1;
-        const sampleSiteIndex = prop.formData.data?.SiteMenu_Item?.[0]?.SiteIndex
-            ?? prop.formData.data?.SiteMenu_Index?.SiteIndex ?? "";
+        const sampleSiteIndex = prop.formData.data?.SiteMenu_Item?.[0]?.SiteIndex ?? prop.formData.data?.SiteMenu_Index?.SiteIndex ?? "";
         const level = parent ? Number(parent.menuItem?.Level ?? 1) + 1 : 1;
         const displayOrder = parent ? (parent.children?.length ?? 0) + 1 : items.length + 1;
 
@@ -123,10 +117,7 @@ export const RenderLeftBox = (prop: RenderLeftBoxProp) =>
         {
             const next = { ...(prev ?? {}) } as SiteMenuSet;
 
-            next.SiteMenu_Item = [
-                ...(next.SiteMenu_Item ?? []),
-                newMenuItem,
-            ];
+            next.SiteMenu_Item = [...(next.SiteMenu_Item ?? []), newMenuItem];
 
             next.SiteMenu_Item_Title = [
                 ...(next.SiteMenu_Item_Title ?? []),
@@ -143,12 +134,7 @@ export const RenderLeftBox = (prop: RenderLeftBoxProp) =>
             return next;
         });
 
-        const newNode: SiteMenuItem = {
-            id: nextRowId,
-            name: "",
-            menuItem: newMenuItem,
-            children: [],
-        };
+        const newNode: SiteMenuItem = { id: nextRowId, name: "", menuItem: newMenuItem, children: [] };
 
         setItems((prev) =>
         {
@@ -241,11 +227,7 @@ export const RenderLeftBox = (prop: RenderLeftBoxProp) =>
                 <div className="panel">
                     <div className="panel-body">
                         <div className="mb-2">
-                            <button
-                                type="button"
-                                onClick={() => setCollapseAll(!collapseAll)}
-                                className="btn btn-custom btn-rounded btn-sm mr-2 mb-2"
-                            >
+                            <button type="button" onClick={() => setCollapseAll(!collapseAll)} className="btn btn-custom btn-rounded btn-sm mr-2 mb-2">
                                 {collapseAll ? "展開" : "收合"}
                             </button>
                             <button
@@ -257,13 +239,7 @@ export const RenderLeftBox = (prop: RenderLeftBoxProp) =>
                             >
                                 儲存
                             </button>
-                            <button
-                                type="button"
-                                className="btn btn-custom btn-rounded btn-sm mr-2 mb-2"
-                                onClick={() => handleAddMenuItem(null)}
-                            >
-                                新增
-                            </button>
+                            <button type="button" className="btn btn-custom btn-rounded btn-sm mr-2 mb-2" onClick={() => handleAddMenuItem(null)}>新增</button>
                         </div>
 
                         <div className="cf nestable-lists">
@@ -273,25 +249,14 @@ export const RenderLeftBox = (prop: RenderLeftBoxProp) =>
                         </div>
 
                         <div className="cf nestable-lists">
-                            <Nestable
-                                items={items || []}
-                                renderItem={renderItem}
-                                onChange={handleChange}
-                                className="dd-list"
-                                collapsed={collapseAll}
-                            />
+                            <Nestable items={items || []} renderItem={renderItem} onChange={handleChange} className="dd-list" collapsed={collapseAll} />
                         </div>
                     </div>
                 </div>
             </div>
 
             {confirmOpen && candidate && (
-                <ComfirmDialog_Comp
-                    candidate={candidate}
-                    onDeleteAll={handleDeleteAll}
-                    onDeleteOne={handleDeleteOne}
-                    onCancel={handleCloseConfirm}
-                />
+                <ComfirmDialog_Comp candidate={candidate} onDeleteAll={handleDeleteAll} onDeleteOne={handleDeleteOne} onCancel={handleCloseConfirm} />
             )}
         </>
     );
@@ -318,12 +283,7 @@ const SiteInfoItem_Comp = (prop: { title: string; onSelect: () => void; }) =>
                     <ActionPlaceholder_Comp iconClass="far fa-plus" title="新增子層" />
                     <ActionPlaceholder_Comp iconClass="far fa-edit" title="編輯網站資訊" />
                     <div className="icon">
-                        <button
-                            type="button"
-                            title="編輯網站資訊"
-                            className="Ipencil btn btn-ctm btn-ctm-rounded"
-                            onClick={handleEditClick}
-                        >
+                        <button type="button" title="編輯網站資訊" className="Ipencil btn btn-ctm btn-ctm-rounded" onClick={handleEditClick}>
                             <i className="far fa-edit" />
                         </button>
                     </div>
@@ -344,14 +304,16 @@ const ActionPlaceholder_Comp = (prop: { iconClass: string; title: string; }) =>
     );
 };
 
-const Item_Comp = (prop: {
-    item: SiteMenuItem;
-    handler?: React.ReactNode;
-    collapseIcon?: React.ReactNode;
-    onSelect: (item: SiteMenuItem) => void;
-    onAddChild: (item: SiteMenuItem) => void;
-    onDelete: (item: SiteMenuItem) => void;
-}) =>
+const Item_Comp = (
+    prop: {
+        item: SiteMenuItem;
+        handler?: React.ReactNode;
+        collapseIcon?: React.ReactNode;
+        onSelect: (item: SiteMenuItem) => void;
+        onAddChild: (item: SiteMenuItem) => void;
+        onDelete: (item: SiteMenuItem) => void;
+    },
+) =>
 {
     const { item, handler, collapseIcon, onSelect, onAddChild, onDelete } = prop;
     const isDraft = item.id <= 0;
@@ -383,11 +345,7 @@ const Item_Comp = (prop: {
     return (
         <div className="dd-item dd3-item">
             <div className="dd-handle dd3-handle"></div>
-            <div
-                className="dd3-content content_bar"
-                onClick={handleRootClick}
-                style={{ cursor: "pointer", opacity: isDraft ? 0.45 : 1 }}
-            >
+            <div className="dd3-content content_bar" onClick={handleRootClick} style={{ cursor: "pointer", opacity: isDraft ? 0.45 : 1 }}>
                 {handler}
                 {collapseIcon}
                 <span style={{ flex: 1, padding: "0 10px 0 3px" }}>
@@ -398,32 +356,17 @@ const Item_Comp = (prop: {
                 <div className="all-btn Edit Icon">
                     <CheckFrontBtn fullPath={item.menuItem?.FullUrl ?? ""} disabled={isDraft} />
                     <div className="icon">
-                        <button
-                            type="button"
-                            title="新增子層"
-                            className="Icogs btn btn-ctm btn-ctm-rounded"
-                            onClick={handleAddChildClick}
-                        >
+                        <button type="button" title="新增子層" className="Icogs btn btn-ctm btn-ctm-rounded" onClick={handleAddChildClick}>
                             <i className="far fa-plus" />
                         </button>
                     </div>
                     <div className="icon">
-                        <button
-                            type="button"
-                            title="編輯"
-                            className="Ipencil btn btn-ctm btn-ctm-rounded"
-                            onClick={handleEditClick}
-                        >
+                        <button type="button" title="編輯" className="Ipencil btn btn-ctm btn-ctm-rounded" onClick={handleEditClick}>
                             <i className="far fa-edit" />
                         </button>
                     </div>
                     <div className="icon">
-                        <button
-                            type="button"
-                            title="刪除"
-                            className="Itrash btn btn-ctm btn-ctm-rounded"
-                            onClick={handleDeleteClick}
-                        >
+                        <button type="button" title="刪除" className="Itrash btn btn-ctm btn-ctm-rounded" onClick={handleDeleteClick}>
                             <i className="far fa-trash-alt" />
                         </button>
                     </div>
@@ -469,12 +412,7 @@ const CheckFrontBtn = (prop: { fullPath: string; disabled?: boolean; }) =>
     );
 };
 
-type ComfirmDialogProp = {
-    candidate: SiteMenuItem;
-    onDeleteAll: () => void;
-    onDeleteOne: () => void;
-    onCancel: () => void;
-};
+type ComfirmDialogProp = { candidate: SiteMenuItem; onDeleteAll: () => void; onDeleteOne: () => void; onCancel: () => void; };
 
 const ComfirmDialog_Comp = (prop: ComfirmDialogProp) =>
 {
@@ -518,14 +456,8 @@ const ComfirmDialog_Comp = (prop: ComfirmDialogProp) =>
                         </li>
                     </ul>
                     <div className="d-flex justify-content-end gap-2">
-                        <button type="button" className="btn btn-danger btn-sm" onClick={prop.onDeleteAll}>
-                            全部刪除
-                        </button>
-                        {hasChildren && (
-                            <button type="button" className="btn btn-warning btn-sm" onClick={prop.onDeleteOne}>
-                                保留明細
-                            </button>
-                        )}
+                        <button type="button" className="btn btn-danger btn-sm" onClick={prop.onDeleteAll}>全部刪除</button>
+                        {hasChildren && <button type="button" className="btn btn-warning btn-sm" onClick={prop.onDeleteOne}>保留明細</button>}
                         <button type="button" className="btn btn-light btn-sm" onClick={prop.onCancel}>取消</button>
                     </div>
                 </div>
@@ -543,9 +475,7 @@ const collectRowIds = (node: SiteMenuItem): number[] =>
 
 const removeNodeAndSubtree = (arr: SiteMenuItem[], id: number): SiteMenuItem[] =>
 {
-    return arr
-        .filter((n) => n.id !== id)
-        .map((n) => ({ ...n, children: n.children ? removeNodeAndSubtree(n.children, id) : undefined }));
+    return arr.filter((n) => n.id !== id).map((n) => ({ ...n, children: n.children ? removeNodeAndSubtree(n.children, id) : undefined }));
 };
 
 const promoteChildrenToParent = (arr: SiteMenuItem[], id: number): SiteMenuItem[] =>
@@ -609,18 +539,10 @@ const applyRemovalToForm = (formData: UseFetchFormDataResult<SiteMenuSet>, idsTo
 
         const next = { ...(prev ?? {}) } as SiteMenuSet;
 
-        next.SiteMenu_Item = (next.SiteMenu_Item ?? []).filter((x) =>
-            !idsToRemove.has(Number((x as SiteMenu_Item).RowId))
-        );
-        next.SiteMenu_Item_Title = (next.SiteMenu_Item_Title ?? []).filter((t) =>
-            !idsToRemove.has(Number((t as SiteMenu_Item_Title).ItemRowId))
-        );
-        next.SiteMenu_Item_Module = (next.SiteMenu_Item_Module ?? []).filter((m) =>
-            !idsToRemove.has(Number((m as SiteMenu_Item_Module).ItemRowId))
-        );
-        next.SiteMenu_Item_Url = (next.SiteMenu_Item_Url ?? []).filter((u) =>
-            !idsToRemove.has(Number((u as SiteMenu_Item_Url).ItemRowId))
-        );
+        next.SiteMenu_Item = (next.SiteMenu_Item ?? []).filter((x) => !idsToRemove.has(Number((x as SiteMenu_Item).RowId)));
+        next.SiteMenu_Item_Title = (next.SiteMenu_Item_Title ?? []).filter((t) => !idsToRemove.has(Number((t as SiteMenu_Item_Title).ItemRowId)));
+        next.SiteMenu_Item_Module = (next.SiteMenu_Item_Module ?? []).filter((m) => !idsToRemove.has(Number((m as SiteMenu_Item_Module).ItemRowId)));
+        next.SiteMenu_Item_Url = (next.SiteMenu_Item_Url ?? []).filter((u) => !idsToRemove.has(Number((u as SiteMenu_Item_Url).ItemRowId)));
 
         return next;
     });
@@ -637,11 +559,7 @@ const syncTreeToForm = (tree: SiteMenuItem[], formData: UseFetchFormDataResult<S
 
         nodes.forEach((n, idx) =>
         {
-            updates.set(Number(n.id), {
-                ParentRowId: parentId,
-                Level: level,
-                DisplayOrder: idx + 1,
-            });
+            updates.set(Number(n.id), { ParentRowId: parentId, Level: level, DisplayOrder: idx + 1 });
 
             if (n.children && n.children.length) walk(n.children, Number(n.id), level + 1);
         });

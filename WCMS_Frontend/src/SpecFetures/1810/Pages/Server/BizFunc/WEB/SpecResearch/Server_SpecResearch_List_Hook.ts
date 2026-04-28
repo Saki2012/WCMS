@@ -38,19 +38,14 @@ type SpecResearchListAdapter = {
 };
 
 /** ✅ 主入口：Server SpecResearch List 的所有 fetch 都集中在這裡 */
-export const useSpecResearchListFetchData = (
-    opt: { lang: Lang; kw: string; },
-): UseFetchDataResult<SpecResearchListRawData, SpecResearchListAdapter> =>
+export const useSpecResearchListFetchData = (opt: { lang: Lang; kw: string; }): UseFetchDataResult<SpecResearchListRawData, SpecResearchListAdapter> =>
 {
     const { publish } = useToast();
     // 宣告變數：統一錯誤出口（toast）
-    const onError = useCallback(
-        (e: ApiAdapterError) =>
-        {
-            publish({ level: MessageStatus.Error, title: e.messageText });
-        },
-        [publish],
-    );
+    const onError = useCallback((e: ApiAdapterError) =>
+    {
+        publish({ level: MessageStatus.Error, title: e.messageText });
+    }, [publish]);
 
     // 宣告變數：Adapters（固定 reference）
     const adapter = useMemo(() =>

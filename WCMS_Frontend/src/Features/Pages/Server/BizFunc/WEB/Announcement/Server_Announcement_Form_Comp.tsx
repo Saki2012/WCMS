@@ -15,22 +15,13 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
-import {
-    AnnouncementDetailFields,
-    AnnouncementDetailFileFields,
-    AnnouncementFields,
-    AnnouncementSetFields,
-} from "@/types/SchemaFields";
+import { AnnouncementDetailFields, AnnouncementDetailFileFields, AnnouncementFields, AnnouncementSetFields } from "@/types/SchemaFields";
 import { useCallback, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useAnnouncementFormFetchData } from "./Server_Announcement_Form_Hook";
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 type AnnouncementDetailFile = components["schemas"]["AnnouncementDetailFile_DTO"];
-type PreviewPayload = {
-    type: "wcms:preview";
-    module: "announcement";
-    payload: { kind: "dto"; dto: AnnouncementSet; };
-};
+type PreviewPayload = { type: "wcms:preview"; module: "announcement"; payload: { kind: "dto"; dto: AnnouncementSet; }; };
 const emptyData: AnnouncementSet = { Announcement: {}, AnnouncementDetail: [], AnnouncementDetailFile: [] };
 
 export const Server_Announcement_Form_Comp = (props: { theme: IBETheme; lang: Lang; }) =>
@@ -54,12 +45,7 @@ export const Server_Announcement_Form_Comp = (props: { theme: IBETheme; lang: La
     {
         return { onBackToList, onPreviewFromDto: handlePreviewFromDto };
     }, [onBackToList, handlePreviewFromDto]);
-    const getData = useAnnouncementFormFetchData({
-        lang: props.lang,
-        internalId: internalId ?? "",
-        emptyData,
-        actionsOpt,
-    });
+    const getData = useAnnouncementFormFetchData({ lang: props.lang, internalId: internalId ?? "", emptyData, actionsOpt });
 
     const propForm: FormCompProp = {
         Title: internalId ? "修改公告" : "新增公告",
@@ -99,41 +85,25 @@ const HeaderComp = (
     const initialPicId = prop.formData.data?.Announcement?.PictureId;
     const previewSrc = useUploadPic.result.previewUrl
         || (FileManagementAPI.get_Server_Preview_Url(initialPicId) ?? "https://dummyimage.com/1920x550/555/fff.png");
-    const tabInfo: LibTabsProp = {
-        Style: prop.theme.Tabs,
-        item: { Basic: "基本", Status: "狀態", Tags: "標籤", Pic: "圖片", System: "系統資訊" },
-    };
+    const tabInfo: LibTabsProp = { Style: prop.theme.Tabs, item: { Basic: "基本", Status: "狀態", Tags: "標籤", Pic: "圖片", System: "系統資訊" } };
     const tabContent: Record<string, React.ReactNode[]> = {
         Basic: [
             <LibCheckBox
                 Style={prop.theme.CheckBox}
                 options={prop.cateOpts}
-                {...setField(
-                    AnnouncementSetFields.Announcement,
-                    AnnouncementFields.Categories,
-                    "string",
-                    undefined,
-                    "csv",
-                )}
+                {...setField(AnnouncementSetFields.Announcement, AnnouncementFields.Categories, "string", undefined, "csv")}
             />,
-            <LibCalendar
-                {...setField(AnnouncementSetFields.Announcement, AnnouncementFields.Validate_Start, "datetime")}
-            />,
-            <LibCalendar
-                {...setField(AnnouncementSetFields.Announcement, AnnouncementFields.Validate_End, "datetime")}
-            />,
+            <LibCalendar {...setField(AnnouncementSetFields.Announcement, AnnouncementFields.Validate_Start, "datetime")} />,
+            <LibCalendar {...setField(AnnouncementSetFields.Announcement, AnnouncementFields.Validate_End, "datetime")} />,
         ],
         Status: [
             <LibCheckBox
                 Style={prop.theme.CheckBox}
                 options={prop.statusOpts}
-                {...setField(
-                    AnnouncementSetFields.Announcement,
-                    AnnouncementFields.ContentStatus,
-                    "number",
-                    undefined,
-                    { strategy: "sum", sumKeys: Object.keys(prop.statusOpts ?? {}).map(Number) },
-                )}
+                {...setField(AnnouncementSetFields.Announcement, AnnouncementFields.ContentStatus, "number", undefined, {
+                    strategy: "sum",
+                    sumKeys: Object.keys(prop.statusOpts ?? {}).map(Number),
+                })}
             />,
         ],
         Tags: [
@@ -154,18 +124,10 @@ const HeaderComp = (
                 onChange={(files) =>
                     useUploadPic.handleFileChange(files, (fileId) =>
                     {
-                        prop.formData.setFormData(prev => ({
-                            ...prev,
-                            Announcement: { ...prev.Announcement, PictureId: fileId },
-                        }));
+                        prop.formData.setFormData(prev => ({ ...prev, Announcement: { ...prev.Announcement, PictureId: fileId } }));
                     })}
             >
-                <LibPicture
-                    key="preview"
-                    ColumnDisplayName={useUploadPic?.result.previewUrl ?? ""}
-                    PicSrc={previewSrc}
-                    PicDescription="選中的圖片"
-                />
+                <LibPicture key="preview" ColumnDisplayName={useUploadPic?.result.previewUrl ?? ""} PicSrc={previewSrc} PicDescription="選中的圖片" />
             </LibFile>,
             <LibTextBox
                 Style={prop.theme.TextBox}
@@ -173,13 +135,7 @@ const HeaderComp = (
                 {...setField(AnnouncementSetFields.Announcement, AnnouncementFields.PicDescription, "string")}
             />,
         ],
-        System: [
-            <SystemInfoTabComp
-                theme={prop.theme}
-                formData={prop.formData}
-                setKey={AnnouncementSetFields.Announcement}
-            />,
-        ],
+        System: [<SystemInfoTabComp theme={prop.theme} formData={prop.formData} setKey={AnnouncementSetFields.Announcement} />],
     };
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
@@ -196,85 +152,50 @@ const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<An
             return tabItems;
         }, {}),
     };
-    const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>(
-        (compMap, info, idx) =>
-        {
-            const detailRowId = info.RowId ?? idx;
-            const langKey = LibMerge("_", true, info.AnnouncementId, info.RowId, info.Lang);
-            const rowKeys = {
-                [AnnouncementDetailFields.AnnouncementId]: info.AnnouncementId,
-                [AnnouncementDetailFields.RowId]: info.RowId,
-            };
-            compMap[langKey] = [
-                <LibTextBox
-                    Style={prop.theme.TextBox}
-                    DefaultInputDisplay="請輸入"
-                    {...setField(
-                        AnnouncementSetFields.AnnouncementDetail,
-                        AnnouncementDetailFields.Title,
-                        "string",
-                        rowKeys,
-                    )}
-                />,
-                <LibTextBox
-                    Style={prop.theme.TextBox}
-                    DefaultInputDisplay="請輸入"
-                    {...setField(
-                        AnnouncementSetFields.AnnouncementDetail,
-                        AnnouncementDetailFields.SubTitle,
-                        "string",
-                        rowKeys,
-                    )}
-                />,
-                <LibTinyMCE
-                    Style={prop.theme.TinyMCE}
-                    {...setField(
-                        AnnouncementSetFields.AnnouncementDetail,
-                        AnnouncementDetailFields.Content,
-                        "string",
-                        rowKeys,
-                    )}
-                />,
-                <LibTextBox
-                    Style={prop.theme.TextBox}
-                    DefaultInputDisplay="請輸入"
-                    {...setField(
-                        AnnouncementSetFields.AnnouncementDetail,
-                        AnnouncementDetailFields.Url,
-                        "string",
-                        rowKeys,
-                    )}
-                />,
-                <LibTextBox
-                    Style={prop.theme.TextBox}
-                    DefaultInputDisplay="請輸入"
-                    {...setField(
-                        AnnouncementSetFields.AnnouncementDetail,
-                        AnnouncementDetailFields.UrlDescription,
-                        "string",
-                        rowKeys,
-                    )}
-                />,
-                <SubDetailComp theme={prop.theme} formData={prop.formData} parentRowId={detailRowId} />,
-            ];
-            return compMap;
-        },
-        {},
-    );
+    const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>((compMap, info, idx) =>
+    {
+        const detailRowId = info.RowId ?? idx;
+        const langKey = LibMerge("_", true, info.AnnouncementId, info.RowId, info.Lang);
+        const rowKeys = { [AnnouncementDetailFields.AnnouncementId]: info.AnnouncementId, [AnnouncementDetailFields.RowId]: info.RowId };
+        compMap[langKey] = [
+            <LibTextBox
+                Style={prop.theme.TextBox}
+                DefaultInputDisplay="請輸入"
+                {...setField(AnnouncementSetFields.AnnouncementDetail, AnnouncementDetailFields.Title, "string", rowKeys)}
+            />,
+            <LibTextBox
+                Style={prop.theme.TextBox}
+                DefaultInputDisplay="請輸入"
+                {...setField(AnnouncementSetFields.AnnouncementDetail, AnnouncementDetailFields.SubTitle, "string", rowKeys)}
+            />,
+            <LibTinyMCE
+                Style={prop.theme.TinyMCE}
+                {...setField(AnnouncementSetFields.AnnouncementDetail, AnnouncementDetailFields.Content, "string", rowKeys)}
+            />,
+            <LibTextBox
+                Style={prop.theme.TextBox}
+                DefaultInputDisplay="請輸入"
+                {...setField(AnnouncementSetFields.AnnouncementDetail, AnnouncementDetailFields.Url, "string", rowKeys)}
+            />,
+            <LibTextBox
+                Style={prop.theme.TextBox}
+                DefaultInputDisplay="請輸入"
+                {...setField(AnnouncementSetFields.AnnouncementDetail, AnnouncementDetailFields.UrlDescription, "string", rowKeys)}
+            />,
+            <SubDetailComp theme={prop.theme} formData={prop.formData} parentRowId={detailRowId} />,
+        ];
+        return compMap;
+    }, {});
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
-const SubDetailComp = (
-    props: { theme: IBETheme; formData: UseFetchFormDataResult<AnnouncementSet>; parentRowId: number; },
-) =>
+const SubDetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<AnnouncementSet>; parentRowId: number; }) =>
 {
     // 宣告變數
     const setFileField = useSetTableFileField(props.formData);
     const allFiles: AnnouncementDetailFile[] = props.formData.data?.AnnouncementDetailFile ?? [];
     const getFiles = (): AnnouncementDetailFile[] =>
     {
-        return allFiles.filter(f => f.ParentRowId === props.parentRowId).sort((a, b) =>
-            (a.RowId ?? 0) - (b.RowId ?? 0)
-        );
+        return allFiles.filter(f => f.ParentRowId === props.parentRowId).sort((a, b) => (a.RowId ?? 0) - (b.RowId ?? 0));
     };
     const commitFiles = (nextFiles: AnnouncementDetailFile[]) =>
     {
@@ -284,12 +205,7 @@ const SubDetailComp = (
     {
         const list = getFiles();
         const nextRowId = (list.at(-1)?.RowId ?? 0) + 1;
-        const newItem: AnnouncementDetailFile = {
-            ParentRowId: props.parentRowId,
-            RowId: nextRowId,
-            FileId: "",
-            FileName: "",
-        };
+        const newItem: AnnouncementDetailFile = { ParentRowId: props.parentRowId, RowId: nextRowId, FileId: "", FileName: "" };
         commitFiles([...allFiles, newItem]);
     };
     const removeFileAt = (i: number) =>
@@ -302,9 +218,7 @@ const SubDetailComp = (
     };
     return (
         <div role="group" className="mt-4">
-            <button type="button" onClick={addFile} aria-label="新增附件" className="btn btn-outline-primary mb-2">
-                新增附件
-            </button>
+            <button type="button" onClick={addFile} aria-label="新增附件" className="btn btn-outline-primary mb-2">新增附件</button>
             {getFiles().map((f, i) =>
             {
                 const rowKeys = {

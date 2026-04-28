@@ -27,10 +27,7 @@ interface UseRolePermissionListFetchDataResult
     refetchData: () => Promise<void>;
 }
 /** RolePermission List：只負責純資料抓取 */
-export const useRolePermissionListFetchData = (opt: {
-    lang: Lang;
-    kw: string;
-}): UseRolePermissionListFetchDataResult =>
+export const useRolePermissionListFetchData = (opt: { lang: Lang; kw: string; }): UseRolePermissionListFetchDataResult =>
 {
     // 宣告變數
     const adapter = useMemo(() => RolePermissionAdapter(), []);
@@ -44,10 +41,7 @@ export const useRolePermissionListFetchData = (opt: {
 
     const condition = useRolePermissionCondition(opt.kw);
 
-    const model = adapter.hooks.useModelDisplayName({
-        deps: [opt.lang],
-        onError,
-    });
+    const model = adapter.hooks.useModelDisplayName({ deps: [opt.lang], onError });
 
     const baseParam = useMemo<QueryListParam>(() =>
     {
@@ -62,26 +56,15 @@ export const useRolePermissionListFetchData = (opt: {
                 RoleDataModelFields.ModifyTime,
             ],
             Condition: condition,
-            OrderBy: [
-                { Col: RoleDataModelFields.CreateTime, Desc: true },
-            ],
+            OrderBy: [{ Col: RoleDataModelFields.CreateTime, Desc: true }],
             PageNumber: 1,
             PageSize: 10,
         };
     }, [condition]);
 
-    const count = adapter.hooks.useQueryCount({
-        condition: baseParam,
-        deps: [baseParam.Condition ?? ""],
-        onError,
-    });
+    const count = adapter.hooks.useQueryCount({ condition: baseParam, deps: [baseParam.Condition ?? ""], onError });
 
-    const paged = adapter.hooks.usePagedQueryList({
-        baseParam,
-        count: count.data ?? 0,
-        deps: [baseParam.Condition ?? ""],
-        onError,
-    });
+    const paged = adapter.hooks.usePagedQueryList({ baseParam, count: count.data ?? 0, deps: [baseParam.Condition ?? ""], onError });
 
     const rawData = useMemo<RolePermissionListRawData>(() =>
     {
@@ -125,12 +108,7 @@ const useRolePermissionCondition = (query: string): string =>
         // 執行 function：有關鍵字才組查詢條件
         if (query)
         {
-            condition = LibMerge(
-                " And ",
-                false,
-                condition,
-                `${RoleDataModelFields.RoleName} Like ${query}`,
-            );
+            condition = LibMerge(" And ", false, condition, `${RoleDataModelFields.RoleName} Like ${query}`);
         }
 
         // return

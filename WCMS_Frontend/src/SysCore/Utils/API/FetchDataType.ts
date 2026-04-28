@@ -1,9 +1,9 @@
 // FetchDataTypes.ts
 
 /** Hook 統一出口：rawData 可自定義 key/value 結構 */
-export interface UseFetchDataResult<TRawData extends Record<string, unknown>,TAdapter extends Record<string, unknown>>
+export interface UseFetchDataResult<TRawData extends Record<string, unknown>, TAdapter extends Record<string, unknown>>
 {
-    adapter:TAdapter;
+    adapter: TAdapter;
     /** 主要資料與關聯資料（list/count/categoryMap... 皆可自定義） */
     rawData: TRawData;
     /** 內部所有 hooks 的 loading 聚合結果 */

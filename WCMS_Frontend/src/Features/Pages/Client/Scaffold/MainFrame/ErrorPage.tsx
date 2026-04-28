@@ -21,9 +21,7 @@ export const Error404Page: React.FC = () =>
     const isEn = String(code ?? "zh-tw").toLowerCase() === "en";
     const metaTitle = isEn ? "Page not found" : "找不到頁面";
     const title = isEn ? "PAGE NOT FOUND" : "找不到頁面";
-    const p1 = isEn
-        ? "Sorry, the page you’re looking for doesn’t exist."
-        : "抱歉，您要找的頁面不存在。";
+    const p1 = isEn ? "Sorry, the page you’re looking for doesn’t exist." : "抱歉，您要找的頁面不存在。";
     const goHomeTitle = isEn ? "Go back home" : "返回首頁";
     const goHomeText = isEn ? "GO BACK HOME" : "返回首頁";
     const fromLabel = isEn ? "Original URL:" : "原始網址：";
@@ -49,17 +47,12 @@ export const Error404Page: React.FC = () =>
                                             )
                                             : null}
 
-                                        <LangLink to="/" title={goHomeTitle} className="default-btn">
-                                            {goHomeText}
-                                        </LangLink>
+                                        <LangLink to="/" title={goHomeTitle} className="default-btn">{goHomeText}</LangLink>
                                     </div>
                                 </div>
 
                                 <div className="col-lg-7 col-md-6">
-                                    <div className="error-img">
-                                        errorSvgUrl
-                                        {/* <img src={errorSvgUrl} alt={imgAlt} /> */}
-                                    </div>
+                                    <div className="error-img">errorSvgUrl {/* <img src={errorSvgUrl} alt={imgAlt} /> */}</div>
                                 </div>
                             </div>
                         </div>

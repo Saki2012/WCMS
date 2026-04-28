@@ -19,11 +19,7 @@ import {
     SpecHomePage1820SetFields,
 } from "@/types/SchemaFields";
 import { type ReactNode, useMemo } from "react";
-import {
-    createEmptyHomePage1820Set,
-    useHomePage1820FormDataByAdapter,
-    useHomePage1820SummaryFetchData,
-} from "./Server_HomePageSetting_Form_Hook";
+import { createEmptyHomePage1820Set, useHomePage1820FormDataByAdapter, useHomePage1820SummaryFetchData } from "./Server_HomePageSetting_Form_Hook";
 
 type HomePageSet = components["schemas"]["SpecHomePage1820Set_DTO"];
 
@@ -87,13 +83,7 @@ const PreviewImageComp = (prop: { fileId?: string | null; alt: string; emptyText
 
     return (
         <div className="col-12 mb-3">
-            <img
-                src={src}
-                alt={prop.alt}
-                title={prop.alt}
-                className="img-fluid border rounded"
-                style={{ maxHeight: "260px", objectFit: "contain" }}
-            />
+            <img src={src} alt={prop.alt} title={prop.alt} className="img-fluid border rounded" style={{ maxHeight: "260px", objectFit: "contain" }} />
         </div>
     );
 };
@@ -103,12 +93,7 @@ export const Server_HomePage1820_Form_Comp = (prop: { theme: IBETheme; lang: Lan
     // 先用固定語系，之後再改成站台設定來源
     const summary = useHomePage1820SummaryFetchData({ supportLangs: SUPPORTED_LANGS });
 
-    const formProp: FormCompProp = {
-        Title: "1820首頁設定",
-        Theme: prop.theme,
-        IsLoading: summary.isLoading,
-        ErrorList: summary.errors,
-    };
+    const formProp: FormCompProp = { Title: "1820首頁設定", Theme: prop.theme, IsLoading: summary.isLoading, ErrorList: summary.errors };
 
     return (
         <FormComp prop={formProp}>
@@ -117,37 +102,26 @@ export const Server_HomePage1820_Form_Comp = (prop: { theme: IBETheme; lang: Lan
     );
 };
 
-const MainFormComp = (prop: {
-    theme: IBETheme;
-    supportLangs: Lang[];
-    summary: ReturnType<typeof useHomePage1820SummaryFetchData>;
-}) =>
+const MainFormComp = (prop: { theme: IBETheme; supportLangs: Lang[]; summary: ReturnType<typeof useHomePage1820SummaryFetchData>; }) =>
 {
     /** 外層語系頁籤 */
-    const langTabs: LibTabsProp = useMemo(() => ({
-        Style: prop.theme.Tabs,
-        item: Object.fromEntries(prop.supportLangs.map(lang => [lang, getLangDisplayName(lang)])),
-    }), [prop.theme.Tabs, prop.supportLangs]);
+    const langTabs: LibTabsProp = useMemo(
+        () => ({ Style: prop.theme.Tabs, item: Object.fromEntries(prop.supportLangs.map(lang => [lang, getLangDisplayName(lang)])) }),
+        [prop.theme.Tabs, prop.supportLangs],
+    );
 
     /** 外層語系頁籤內容 */
     const components = useMemo<Record<string, ReactNode[]>>(() =>
     {
         return Object.fromEntries(
-            prop.supportLangs.map(lang => [
-                lang,
-                [<LangFormTabComp key={lang} theme={prop.theme} lang={lang as Lang} summary={prop.summary} />],
-            ]),
+            prop.supportLangs.map(lang => [lang, [<LangFormTabComp key={lang} theme={prop.theme} lang={lang as Lang} summary={prop.summary} />]]),
         );
     }, [prop.summary, prop.supportLangs, prop.theme]);
 
     return <TabContentComp tabInfos={langTabs} components={components} />;
 };
 
-const LangFormTabComp = (prop: {
-    theme: IBETheme;
-    lang: Lang;
-    summary: ReturnType<typeof useHomePage1820SummaryFetchData>;
-}) =>
+const LangFormTabComp = (prop: { theme: IBETheme; lang: Lang; summary: ReturnType<typeof useHomePage1820SummaryFetchData>; }) =>
 {
     // 讀取當前語系表單資料
     const internalId = prop.summary.rawData.langInternalIdMap[prop.lang] ?? "";
@@ -172,14 +146,16 @@ const LangFormTabComp = (prop: {
     );
 };
 
-const LangSetTabComp = (prop: {
-    theme: IBETheme;
-    lang: string;
-    formData: UseFetchFormDataResult<HomePageSet>;
-    cateOpts: Record<string, string>;
-    isSaving: boolean;
-    onSave: () => Promise<void>;
-}) =>
+const LangSetTabComp = (
+    prop: {
+        theme: IBETheme;
+        lang: string;
+        formData: UseFetchFormDataResult<HomePageSet>;
+        cateOpts: Record<string, string>;
+        isSaving: boolean;
+        onSave: () => Promise<void>;
+    },
+) =>
 {
     // 建立區塊頁籤 key
     const buildSectionKey = (section: string) => `${prop.lang}_${section}`;
@@ -197,22 +173,12 @@ const LangSetTabComp = (prop: {
     };
 
     const sectionComponents: Record<string, ReactNode[]> = {
-        [buildSectionKey("Section1")]: [
-            <Section1Comp key="s1" theme={prop.theme} formData={prop.formData} lang={prop.lang} />,
-        ],
+        [buildSectionKey("Section1")]: [<Section1Comp key="s1" theme={prop.theme} formData={prop.formData} lang={prop.lang} />],
         [buildSectionKey("Section2")]: [<Section2Comp key="s2" theme={prop.theme} formData={prop.formData} />],
-        [buildSectionKey("Section3")]: [
-            <Section3Comp key="s3" theme={prop.theme} formData={prop.formData} cateOpts={prop.cateOpts} />,
-        ],
-        [buildSectionKey("Section4")]: [
-            <Section4Comp key="s4" theme={prop.theme} formData={prop.formData} lang={prop.lang} />,
-        ],
-        [buildSectionKey("Section5")]: [
-            <Section5Comp key="s5" theme={prop.theme} formData={prop.formData} lang={prop.lang} />,
-        ],
-        [buildSectionKey("Section6")]: [
-            <Section6Comp key="s6" theme={prop.theme} formData={prop.formData} lang={prop.lang} />,
-        ],
+        [buildSectionKey("Section3")]: [<Section3Comp key="s3" theme={prop.theme} formData={prop.formData} cateOpts={prop.cateOpts} />],
+        [buildSectionKey("Section4")]: [<Section4Comp key="s4" theme={prop.theme} formData={prop.formData} lang={prop.lang} />],
+        [buildSectionKey("Section5")]: [<Section5Comp key="s5" theme={prop.theme} formData={prop.formData} lang={prop.lang} />],
+        [buildSectionKey("Section6")]: [<Section6Comp key="s6" theme={prop.theme} formData={prop.formData} lang={prop.lang} />],
     };
 
     return (
@@ -246,29 +212,17 @@ const Section1Comp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
             <LibTextBox
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入"
-                {...setField(
-                    SpecHomePage1820SetFields.SpecHomePage1820,
-                    SpecHomePage1820ModelFields.Section1Title_L,
-                    "string",
-                )}
+                {...setField(SpecHomePage1820SetFields.SpecHomePage1820, SpecHomePage1820ModelFields.Section1Title_L, "string")}
             />
             <LibTextBox
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入"
-                {...setField(
-                    SpecHomePage1820SetFields.SpecHomePage1820,
-                    SpecHomePage1820ModelFields.Section1Title_M,
-                    "string",
-                )}
+                {...setField(SpecHomePage1820SetFields.SpecHomePage1820, SpecHomePage1820ModelFields.Section1Title_M, "string")}
             />
             <LibTextBox
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入"
-                {...setField(
-                    SpecHomePage1820SetFields.SpecHomePage1820,
-                    SpecHomePage1820ModelFields.Section1Title_R,
-                    "string",
-                )}
+                {...setField(SpecHomePage1820SetFields.SpecHomePage1820, SpecHomePage1820ModelFields.Section1Title_R, "string")}
             />
             <BannerMediaComp theme={prop.theme} formData={prop.formData} lang={prop.lang} />
         </>
@@ -284,15 +238,12 @@ const BannerMediaComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResu
         // 新增 Banner 明細
         prop.formData.setFormData(prev => ({
             ...(prev ?? createEmptyHomePage1820Set(prop.lang)),
-            SpecHomePage1820_BannerMedia: [
-                ...(prev?.SpecHomePage1820_BannerMedia ?? []),
-                {
-                    HomePageId: prev?.SpecHomePage1820?.HomePageId ?? "",
-                    RowId: getNextRowId(prev?.SpecHomePage1820_BannerMedia),
-                    BannerFileId: "",
-                    BannerFileDescription: "",
-                },
-            ],
+            SpecHomePage1820_BannerMedia: [...(prev?.SpecHomePage1820_BannerMedia ?? []), {
+                HomePageId: prev?.SpecHomePage1820?.HomePageId ?? "",
+                RowId: getNextRowId(prev?.SpecHomePage1820_BannerMedia),
+                BannerFileId: "",
+                BannerFileDescription: "",
+            }],
         }));
     };
 
@@ -301,9 +252,7 @@ const BannerMediaComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResu
         // 移除 Banner 明細
         prop.formData.setFormData(prev => ({
             ...(prev ?? createEmptyHomePage1820Set(prop.lang)),
-            SpecHomePage1820_BannerMedia: (prev?.SpecHomePage1820_BannerMedia ?? []).filter(a =>
-                Number(a.RowId) !== rowId
-            ),
+            SpecHomePage1820_BannerMedia: (prev?.SpecHomePage1820_BannerMedia ?? []).filter(a => Number(a.RowId) !== rowId),
         }));
     };
 
@@ -334,12 +283,7 @@ const BannerMediaComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResu
         const previewAlt = `${buildTabLabel("Banner", idx, row.BannerFileDescription)} 預覽圖片`;
 
         acc[key] = [
-            <PreviewImageComp
-                key={`banner-preview-${key}`}
-                fileId={row.BannerFileId}
-                alt={previewAlt}
-                emptyText="尚無 Banner 預覽圖片"
-            />,
+            <PreviewImageComp key={`banner-preview-${key}`} fileId={row.BannerFileId} alt={previewAlt} emptyText="尚無 Banner 預覽圖片" />,
             <LibFileInput
                 key={`banner-file-${key}`}
                 {...setFileField(
@@ -372,22 +316,11 @@ const Section2Comp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
 
     return (
         <>
-            <LibTinyMCE
-                Style={prop.theme.TinyMCE}
-                {...setField(
-                    SpecHomePage1820SetFields.SpecHomePage1820,
-                    SpecHomePage1820ModelFields.HeroText,
-                    "string",
-                )}
-            />
+            <LibTinyMCE Style={prop.theme.TinyMCE} {...setField(SpecHomePage1820SetFields.SpecHomePage1820, SpecHomePage1820ModelFields.HeroText, "string")} />
             <LibTextBox
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入連結"
-                {...setField(
-                    SpecHomePage1820SetFields.SpecHomePage1820,
-                    SpecHomePage1820ModelFields.HeroText_ViewMoreLink,
-                    "string",
-                )}
+                {...setField(SpecHomePage1820SetFields.SpecHomePage1820, SpecHomePage1820ModelFields.HeroText_ViewMoreLink, "string")}
             />
         </>
     );
@@ -395,11 +328,7 @@ const Section2Comp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
 // #endregion
 
 // #region Section3
-const Section3Comp = (prop: {
-    theme: IBETheme;
-    formData: UseFetchFormDataResult<HomePageSet>;
-    cateOpts: Record<string, string>;
-}) =>
+const Section3Comp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<HomePageSet>; cateOpts: Record<string, string>; }) =>
 {
     const setField = useSetTableField<HomePageSet>(prop.formData);
 
@@ -408,41 +337,23 @@ const Section3Comp = (prop: {
             <LibTextBox
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入"
-                {...setField(
-                    SpecHomePage1820SetFields.SpecHomePage1820,
-                    SpecHomePage1820ModelFields.AnnouncementTitle,
-                    "string",
-                )}
+                {...setField(SpecHomePage1820SetFields.SpecHomePage1820, SpecHomePage1820ModelFields.AnnouncementTitle, "string")}
             />
             <LibTextBox
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入"
-                {...setField(
-                    SpecHomePage1820SetFields.SpecHomePage1820,
-                    SpecHomePage1820ModelFields.AnnouncementSubTitle,
-                    "string",
-                )}
+                {...setField(SpecHomePage1820SetFields.SpecHomePage1820, SpecHomePage1820ModelFields.AnnouncementSubTitle, "string")}
             />
 
             <LibCheckBox
                 Style={prop.theme.CheckBox}
                 options={prop.cateOpts}
-                {...setField(
-                    SpecHomePage1820SetFields.SpecHomePage1820,
-                    SpecHomePage1820ModelFields.AnnouncementCategoryIds,
-                    "string",
-                    undefined,
-                    "csv",
-                )}
+                {...setField(SpecHomePage1820SetFields.SpecHomePage1820, SpecHomePage1820ModelFields.AnnouncementCategoryIds, "string", undefined, "csv")}
             />
             <LibTextBox
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入連結"
-                {...setField(
-                    SpecHomePage1820SetFields.SpecHomePage1820,
-                    SpecHomePage1820ModelFields.Announcement_ViewMoreLink,
-                    "string",
-                )}
+                {...setField(SpecHomePage1820SetFields.SpecHomePage1820, SpecHomePage1820ModelFields.Announcement_ViewMoreLink, "string")}
             />
         </>
     );
@@ -461,28 +372,25 @@ const Section4Comp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
         // 新增 Detail 明細
         prop.formData.setFormData(prev => ({
             ...(prev ?? createEmptyHomePage1820Set(prop.lang)),
-            SpecHomePage1820_Detail: [
-                ...(prev?.SpecHomePage1820_Detail ?? []),
-                {
-                    HomePageId: prev?.SpecHomePage1820?.HomePageId ?? "",
-                    RowId: getNextRowId(prev?.SpecHomePage1820_Detail),
-                    Title: "",
-                    SubTitle: "",
-                    MainPictureId: "",
-                    MainPictureDescription: "",
-                    SubPictureId: "",
-                    SubPictureDescription: "",
-                    Intro: "",
-                    MainLinkTitle: "",
-                    MainLink: "",
-                    SubLinkTitle1: "",
-                    SubLink1: "",
-                    SubLinkTitle2: "",
-                    SubLink2: "",
-                    SubLinkTitle3: "",
-                    SubLink3: "",
-                },
-            ],
+            SpecHomePage1820_Detail: [...(prev?.SpecHomePage1820_Detail ?? []), {
+                HomePageId: prev?.SpecHomePage1820?.HomePageId ?? "",
+                RowId: getNextRowId(prev?.SpecHomePage1820_Detail),
+                Title: "",
+                SubTitle: "",
+                MainPictureId: "",
+                MainPictureDescription: "",
+                SubPictureId: "",
+                SubPictureDescription: "",
+                Intro: "",
+                MainLinkTitle: "",
+                MainLink: "",
+                SubLinkTitle1: "",
+                SubLink1: "",
+                SubLinkTitle2: "",
+                SubLink2: "",
+                SubLinkTitle3: "",
+                SubLink3: "",
+            }],
         }));
     };
 
@@ -526,23 +434,13 @@ const Section4Comp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
                 key={`detail-title-${key}`}
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入"
-                {...setField(
-                    SpecHomePage1820SetFields.SpecHomePage1820_Detail,
-                    SpecHomePage1820_DetailFields.Title,
-                    "string",
-                    rowKeys,
-                )}
+                {...setField(SpecHomePage1820SetFields.SpecHomePage1820_Detail, SpecHomePage1820_DetailFields.Title, "string", rowKeys)}
             />,
             <LibTextBox
                 key={`detail-subtitle-${key}`}
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入"
-                {...setField(
-                    SpecHomePage1820SetFields.SpecHomePage1820_Detail,
-                    SpecHomePage1820_DetailFields.SubTitle,
-                    "string",
-                    rowKeys,
-                )}
+                {...setField(SpecHomePage1820SetFields.SpecHomePage1820_Detail, SpecHomePage1820_DetailFields.SubTitle, "string", rowKeys)}
             />,
             <PreviewImageComp
                 key={`detail-main-preview-${key}`}
@@ -560,12 +458,7 @@ const Section4Comp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
                 )}
                 Accept="image/*"
             />,
-            <PreviewImageComp
-                key={`detail-sub-preview-${key}`}
-                fileId={row.SubPictureId}
-                alt={`${tabLabel} 延伸圖片預覽`}
-                emptyText="尚無延伸圖片預覽"
-            />,
+            <PreviewImageComp key={`detail-sub-preview-${key}`} fileId={row.SubPictureId} alt={`${tabLabel} 延伸圖片預覽`} emptyText="尚無延伸圖片預覽" />,
             <LibFileInput
                 key={`detail-subpic-${key}`}
                 {...setFileField(
@@ -579,100 +472,55 @@ const Section4Comp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
             <LibTinyMCE
                 key={`detail-intro-${key}`}
                 Style={prop.theme.TinyMCE}
-                {...setField(
-                    SpecHomePage1820SetFields.SpecHomePage1820_Detail,
-                    SpecHomePage1820_DetailFields.Intro,
-                    "string",
-                    rowKeys,
-                )}
+                {...setField(SpecHomePage1820SetFields.SpecHomePage1820_Detail, SpecHomePage1820_DetailFields.Intro, "string", rowKeys)}
             />,
             <LibTextBox
                 key={`detail-mainlink-title-${key}`}
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入主連結標題"
-                {...setField(
-                    SpecHomePage1820SetFields.SpecHomePage1820_Detail,
-                    SpecHomePage1820_DetailFields.MainLinkTitle,
-                    "string",
-                    rowKeys,
-                )}
+                {...setField(SpecHomePage1820SetFields.SpecHomePage1820_Detail, SpecHomePage1820_DetailFields.MainLinkTitle, "string", rowKeys)}
             />,
             <LibTextBox
                 key={`detail-mainlink-${key}`}
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入主連結"
-                {...setField(
-                    SpecHomePage1820SetFields.SpecHomePage1820_Detail,
-                    SpecHomePage1820_DetailFields.MainLink,
-                    "string",
-                    rowKeys,
-                )}
+                {...setField(SpecHomePage1820SetFields.SpecHomePage1820_Detail, SpecHomePage1820_DetailFields.MainLink, "string", rowKeys)}
             />,
             <LibTextBox
                 key={`detail-sublink-title1-${key}`}
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入次連結標題1"
-                {...setField(
-                    SpecHomePage1820SetFields.SpecHomePage1820_Detail,
-                    SpecHomePage1820_DetailFields.SubLinkTitle1,
-                    "string",
-                    rowKeys,
-                )}
+                {...setField(SpecHomePage1820SetFields.SpecHomePage1820_Detail, SpecHomePage1820_DetailFields.SubLinkTitle1, "string", rowKeys)}
             />,
             <LibTextBox
                 key={`detail-sublink1-${key}`}
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入次連結1"
-                {...setField(
-                    SpecHomePage1820SetFields.SpecHomePage1820_Detail,
-                    SpecHomePage1820_DetailFields.SubLink1,
-                    "string",
-                    rowKeys,
-                )}
+                {...setField(SpecHomePage1820SetFields.SpecHomePage1820_Detail, SpecHomePage1820_DetailFields.SubLink1, "string", rowKeys)}
             />,
             <LibTextBox
                 key={`detail-sublink-title2-${key}`}
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入次連結標題2"
-                {...setField(
-                    SpecHomePage1820SetFields.SpecHomePage1820_Detail,
-                    SpecHomePage1820_DetailFields.SubLinkTitle2,
-                    "string",
-                    rowKeys,
-                )}
+                {...setField(SpecHomePage1820SetFields.SpecHomePage1820_Detail, SpecHomePage1820_DetailFields.SubLinkTitle2, "string", rowKeys)}
             />,
             <LibTextBox
                 key={`detail-sublink2-${key}`}
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入次連結2"
-                {...setField(
-                    SpecHomePage1820SetFields.SpecHomePage1820_Detail,
-                    SpecHomePage1820_DetailFields.SubLink2,
-                    "string",
-                    rowKeys,
-                )}
+                {...setField(SpecHomePage1820SetFields.SpecHomePage1820_Detail, SpecHomePage1820_DetailFields.SubLink2, "string", rowKeys)}
             />,
             <LibTextBox
                 key={`detail-sublink-title3-${key}`}
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入次連結標題3"
-                {...setField(
-                    SpecHomePage1820SetFields.SpecHomePage1820_Detail,
-                    SpecHomePage1820_DetailFields.SubLinkTitle3,
-                    "string",
-                    rowKeys,
-                )}
+                {...setField(SpecHomePage1820SetFields.SpecHomePage1820_Detail, SpecHomePage1820_DetailFields.SubLinkTitle3, "string", rowKeys)}
             />,
             <LibTextBox
                 key={`detail-sublink3-${key}`}
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入次連結3"
-                {...setField(
-                    SpecHomePage1820SetFields.SpecHomePage1820_Detail,
-                    SpecHomePage1820_DetailFields.SubLink3,
-                    "string",
-                    rowKeys,
-                )}
+                {...setField(SpecHomePage1820SetFields.SpecHomePage1820_Detail, SpecHomePage1820_DetailFields.SubLink3, "string", rowKeys)}
             />,
         ];
 
@@ -701,16 +549,13 @@ const Section5Comp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
         // 新增跑馬燈明細
         prop.formData.setFormData(prev => ({
             ...(prev ?? createEmptyHomePage1820Set(prop.lang)),
-            SpecHomePage1820_Marquee: [
-                ...(prev?.SpecHomePage1820_Marquee ?? []),
-                {
-                    HomePageId: prev?.SpecHomePage1820?.HomePageId ?? "",
-                    RowId: getNextRowId(prev?.SpecHomePage1820_Marquee),
-                    PictureId: "",
-                    PictureTitle: "",
-                    IsHide: false,
-                },
-            ],
+            SpecHomePage1820_Marquee: [...(prev?.SpecHomePage1820_Marquee ?? []), {
+                HomePageId: prev?.SpecHomePage1820?.HomePageId ?? "",
+                RowId: getNextRowId(prev?.SpecHomePage1820_Marquee),
+                PictureId: "",
+                PictureTitle: "",
+                IsHide: false,
+            }],
         }));
     };
 
@@ -750,12 +595,7 @@ const Section5Comp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
         const tabLabel = buildTabLabel("跑馬燈", idx, row.PictureTitle);
 
         acc[key] = [
-            <PreviewImageComp
-                key={`marquee-preview-${key}`}
-                fileId={row.PictureId}
-                alt={`${tabLabel} 預覽圖片`}
-                emptyText="尚無跑馬燈預覽圖片"
-            />,
+            <PreviewImageComp key={`marquee-preview-${key}`} fileId={row.PictureId} alt={`${tabLabel} 預覽圖片`} emptyText="尚無跑馬燈預覽圖片" />,
             <LibFileInput
                 key={`marquee-file-${key}`}
                 {...setFileField(
@@ -770,12 +610,7 @@ const Section5Comp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
                 key={`marquee-hide-${key}`}
                 Style={prop.theme.CheckBox}
                 options={{ IsHide: "隱藏" }}
-                {...setField(
-                    SpecHomePage1820SetFields.SpecHomePage1820_Marquee,
-                    SpecHomePage1820_MarqueeFields.IsHide,
-                    "boolean",
-                    rowKeys,
-                )}
+                {...setField(SpecHomePage1820SetFields.SpecHomePage1820_Marquee, SpecHomePage1820_MarqueeFields.IsHide, "boolean", rowKeys)}
             />,
         ];
 
@@ -802,20 +637,12 @@ const Section6Comp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
             <LibTextBox
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入"
-                {...setField(
-                    SpecHomePage1820SetFields.SpecHomePage1820,
-                    SpecHomePage1820ModelFields.Resource_Title,
-                    "string",
-                )}
+                {...setField(SpecHomePage1820SetFields.SpecHomePage1820, SpecHomePage1820ModelFields.Resource_Title, "string")}
             />
             <LibTextBox
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入"
-                {...setField(
-                    SpecHomePage1820SetFields.SpecHomePage1820,
-                    SpecHomePage1820ModelFields.Resource_SubTitle,
-                    "string",
-                )}
+                {...setField(SpecHomePage1820SetFields.SpecHomePage1820, SpecHomePage1820ModelFields.Resource_SubTitle, "string")}
             />
             <ResourceComp theme={prop.theme} formData={prop.formData} lang={prop.lang} />
         </>
@@ -833,17 +660,14 @@ const ResourceComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
         // 新增 Resource 明細
         prop.formData.setFormData(prev => ({
             ...(prev ?? createEmptyHomePage1820Set(prop.lang)),
-            SpecHomePage1820_Resource: [
-                ...(prev?.SpecHomePage1820_Resource ?? []),
-                {
-                    HomePageId: prev?.SpecHomePage1820?.HomePageId ?? "",
-                    RowId: getNextRowId(prev?.SpecHomePage1820_Resource),
-                    PicTitle: "",
-                    PicSubTitle: "",
-                    PicFileId: "",
-                    Link: "",
-                },
-            ],
+            SpecHomePage1820_Resource: [...(prev?.SpecHomePage1820_Resource ?? []), {
+                HomePageId: prev?.SpecHomePage1820?.HomePageId ?? "",
+                RowId: getNextRowId(prev?.SpecHomePage1820_Resource),
+                PicTitle: "",
+                PicSubTitle: "",
+                PicFileId: "",
+                Link: "",
+            }],
         }));
     };
 
@@ -883,33 +707,18 @@ const ResourceComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
         const tabLabel = buildTabLabel("卡片", idx, row.PicTitle);
 
         acc[key] = [
-            <PreviewImageComp
-                key={`resource-preview-${key}`}
-                fileId={row.PicFileId}
-                alt={`${tabLabel} 預覽圖片`}
-                emptyText="尚無資源卡片預覽圖片"
-            />,
+            <PreviewImageComp key={`resource-preview-${key}`} fileId={row.PicFileId} alt={`${tabLabel} 預覽圖片`} emptyText="尚無資源卡片預覽圖片" />,
             <LibTextBox
                 key={`resource-title-${key}`}
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入標題"
-                {...setField(
-                    SpecHomePage1820SetFields.SpecHomePage1820_Resource,
-                    SpecHomePage1820_ResourceFields.PicTitle,
-                    "string",
-                    rowKeys,
-                )}
+                {...setField(SpecHomePage1820SetFields.SpecHomePage1820_Resource, SpecHomePage1820_ResourceFields.PicTitle, "string", rowKeys)}
             />,
             <LibTextBox
                 key={`resource-subtitle-${key}`}
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入副標題"
-                {...setField(
-                    SpecHomePage1820SetFields.SpecHomePage1820_Resource,
-                    SpecHomePage1820_ResourceFields.PicSubTitle,
-                    "string",
-                    rowKeys,
-                )}
+                {...setField(SpecHomePage1820SetFields.SpecHomePage1820_Resource, SpecHomePage1820_ResourceFields.PicSubTitle, "string", rowKeys)}
             />,
             <LibFileInput
                 key={`resource-file-${key}`}
@@ -925,12 +734,7 @@ const ResourceComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
                 key={`resource-link-${key}`}
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入連結"
-                {...setField(
-                    SpecHomePage1820SetFields.SpecHomePage1820_Resource,
-                    SpecHomePage1820_ResourceFields.Link,
-                    "string",
-                    rowKeys,
-                )}
+                {...setField(SpecHomePage1820SetFields.SpecHomePage1820_Resource, SpecHomePage1820_ResourceFields.Link, "string", rowKeys)}
             />,
         ];
 

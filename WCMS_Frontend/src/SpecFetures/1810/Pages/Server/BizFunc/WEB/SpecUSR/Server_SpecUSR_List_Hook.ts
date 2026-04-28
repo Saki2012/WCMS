@@ -9,14 +9,7 @@ import type { UseFetchDataResult } from "@/SysCore/Utils/API/FetchDataType";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import {
-    AccountFields,
-    PGID,
-    SpecCategoryDetailModelFields,
-    SpecCategoryModelFields,
-    SpecUSRDetailFields,
-    SpecUSRModelFields,
-} from "@/types/SchemaFields";
+import { AccountFields, PGID, SpecCategoryDetailModelFields, SpecCategoryModelFields, SpecUSRDetailFields, SpecUSRModelFields } from "@/types/SchemaFields";
 import type { AxiosInstance } from "axios";
 import { useCallback, useMemo } from "react";
 
@@ -49,31 +42,21 @@ export type SpecUSRListAdapter = {
 
 // #region Public Hook
 /** ✅ 主入口：Server SpecUSR List 的所有 fetch 都集中在這裡（對標 AnnouncementListFetchData） */
-export const useSpecUSRListFetchData = (opt: {
-    lang: Lang;
-    kw: string;
-}): UseFetchDataResult<SpecUSRListRawData, SpecUSRListAdapter> =>
+export const useSpecUSRListFetchData = (opt: { lang: Lang; kw: string; }): UseFetchDataResult<SpecUSRListRawData, SpecUSRListAdapter> =>
 {
     // 宣告變數
     const { publish } = useToast();
 
-    const onError = useCallback(
-        (e: ApiAdapterError) =>
-        {
-            // 顯示錯誤 toast
-            publish({ level: MessageStatus.Error, title: e.messageText });
-        },
-        [publish],
-    );
+    const onError = useCallback((e: ApiAdapterError) =>
+    {
+        // 顯示錯誤 toast
+        publish({ level: MessageStatus.Error, title: e.messageText });
+    }, [publish]);
 
     const adapter = useMemo<SpecUSRListAdapter>(() =>
     {
         // 建立 adapter group
-        return {
-            SpecUSR: createSpecUSRAdapter(),
-            SpecCategory: createSpecCategoryAdapter(),
-            Tag: TagAdapter(),
-        };
+        return { SpecUSR: createSpecUSRAdapter(), SpecCategory: createSpecCategoryAdapter(), Tag: TagAdapter() };
     }, []);
 
     // 執行 function：Query param（穩定 reference，避免 deps 無限觸發）
@@ -88,15 +71,9 @@ export const useSpecUSRListFetchData = (opt: {
     });
 
     // 執行 function：關聯資料（Category / Tag）
-    const category = useSpecCategoryMapByProgId(adapter.SpecCategory, {
-        progId: PGID.SpecUSR,
-        lang: opt.lang,
-    });
+    const category = useSpecCategoryMapByProgId(adapter.SpecCategory, { progId: PGID.SpecUSR, lang: opt.lang });
 
-    const tag = adapter.Tag.hooks.useMapByProgId({
-        progId: PGID.SpecUSR,
-        lang: opt.lang,
-    });
+    const tag = adapter.Tag.hooks.useMapByProgId({ progId: PGID.SpecUSR, lang: opt.lang });
 
     // 宣告變數：loading / errors 統一出口
     const isLoading = Boolean(grid.isLoading || category.isLoading || tag.isLoading);
@@ -168,9 +145,7 @@ class SpecUSRService extends ApiDataService<SpecUSRSet>
 const createSpecUSRAdapter = (apiInstance?: AxiosInstance) =>
 {
     // 建立 adapter（不依賴外部 provider）
-    return new ApiDataAdapter<SpecUSRSet, SpecUSRService>(
-        (api?: AxiosInstance) => new SpecUSRService(api ?? apiInstance),
-    );
+    return new ApiDataAdapter<SpecUSRSet, SpecUSRService>((api?: AxiosInstance) => new SpecUSRService(api ?? apiInstance));
 };
 // #endregion
 
@@ -186,9 +161,7 @@ class SpecCategoryService extends ApiDataService<SpecCategorySet>
 const createSpecCategoryAdapter = (apiInstance?: AxiosInstance) =>
 {
     // 建立 adapter
-    return new ApiDataAdapter<SpecCategorySet, SpecCategoryService>(
-        (api?: AxiosInstance) => new SpecCategoryService(api ?? apiInstance),
-    );
+    return new ApiDataAdapter<SpecCategorySet, SpecCategoryService>((api?: AxiosInstance) => new SpecCategoryService(api ?? apiInstance));
 };
 
 const escapeQueryString = (value: string): string =>
@@ -197,10 +170,7 @@ const escapeQueryString = (value: string): string =>
     return value.replace(/"/g, `""`);
 };
 
-const buildSpecCategoryQueryByProgIdParam = (opt: {
-    progId: string;
-    lang: Lang;
-}): QueryListParam =>
+const buildSpecCategoryQueryByProgIdParam = (opt: { progId: string; lang: Lang; }): QueryListParam =>
 {
     // 宣告變數
     const progId = escapeQueryString(opt.progId);
@@ -224,13 +194,7 @@ const buildSpecCategoryQueryByProgIdParam = (opt: {
 const useSpecCategoryMapByProgId = (
     adapter: ReturnType<typeof createSpecCategoryAdapter>,
     opt: { progId: string; lang: Lang; },
-): {
-    isLoading: boolean;
-    errorText: string | null;
-    refetch: () => Promise<void>;
-    data: SpecCategorySet[] | null;
-    map: Record<string, string> | null;
-} =>
+): { isLoading: boolean; errorText: string | null; refetch: () => Promise<void>; data: SpecCategorySet[] | null; map: Record<string, string> | null; } =>
 {
     // 執行 function：抓 category list（同 progId + lang）
     const query = adapter.hooks.useQueryList({
@@ -259,13 +223,7 @@ const useSpecCategoryMapByProgId = (
     }, [query]);
 
     // return
-    return {
-        isLoading: Boolean(query.isLoading),
-        errorText: query.errorText ?? null,
-        refetch,
-        data: query.data ?? null,
-        map,
-    };
+    return { isLoading: Boolean(query.isLoading), errorText: query.errorText ?? null, refetch, data: query.data ?? null, map };
 };
 // #endregion
 
@@ -307,32 +265,12 @@ const useSpecUSRListQueryParam = (p: { lang: Lang; kw: string; }): QueryListPara
 
         if (/^\d+$/.test(q))
         {
-            queryCdt = LibMerge(
-                " Or ",
-                false,
-                queryCdt,
-                `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.Year} = ${q}`,
-            );
-            queryCdt = LibMerge(
-                " Or ",
-                false,
-                queryCdt,
-                `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.AcademicYear} = ${q}`,
-            );
+            queryCdt = LibMerge(" Or ", false, queryCdt, `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.Year} = ${q}`);
+            queryCdt = LibMerge(" Or ", false, queryCdt, `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.AcademicYear} = ${q}`);
         }
 
-        queryCdt = LibMerge(
-            " Or ",
-            false,
-            queryCdt,
-            `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectName} Like ${q}`,
-        );
-        queryCdt = LibMerge(
-            " Or ",
-            false,
-            queryCdt,
-            `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectConcept} Like ${q}`,
-        );
+        queryCdt = LibMerge(" Or ", false, queryCdt, `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectName} Like ${q}`);
+        queryCdt = LibMerge(" Or ", false, queryCdt, `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectConcept} Like ${q}`);
 
         return LibMerge(" And ", false, cdt, `(${queryCdt})`);
     }, [p.lang, p.kw]);

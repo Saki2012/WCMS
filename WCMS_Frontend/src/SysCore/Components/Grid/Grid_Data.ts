@@ -16,7 +16,7 @@ export interface RowCell
 
 export interface GridRow
 {
-    keyId:string;
+    keyId: string;
     cells: RowCell[];
 }
 

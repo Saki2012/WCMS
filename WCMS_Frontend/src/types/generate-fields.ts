@@ -75,10 +75,9 @@ const buildPgidRecordLines = (controllers: string[]): string =>
 const getSchemaOwnKeys = (schemaType: Type, apiFilePath: string): string[] =>
 {
     // 宣告變數
-    const keys = schemaType.getProperties()
-        .filter((p: Symbol) => p.getDeclarations().some((d) => d.getSourceFile().getFilePath() === apiFilePath))
-        .map((p: Symbol) => p.getName())
-        .filter((k: string) => !k.startsWith("__@")); // 避免 iterator 之類的怪鍵
+    const keys = schemaType.getProperties().filter((p: Symbol) => p.getDeclarations().some((d) => d.getSourceFile().getFilePath() === apiFilePath)).map((
+        p: Symbol,
+    ) => p.getName()).filter((k: string) => !k.startsWith("__@")); // 避免 iterator 之類的怪鍵
 
     // return xxx
     return Array.from(new Set(keys));

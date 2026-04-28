@@ -50,10 +50,7 @@ export class SiteMenuService extends ApiDataService<SiteMenuSet>
     async saveSiteInfo(data: SaveSiteInfoDTO): Promise<ApiResponse<SaveSiteInfoDTO>>
     {
         return await this.CallApi<SaveSiteInfoDTO>(() =>
-            this.Api.put<ApiResponse<SaveSiteInfoDTO>>(`${this.Module}/SaveSiteInfo`, {
-                InternalId: data.InternalId,
-                Data: data,
-            })
+            this.Api.put<ApiResponse<SaveSiteInfoDTO>>(`${this.Module}/SaveSiteInfo`, { InternalId: data.InternalId, Data: data })
         );
     }
 
@@ -61,10 +58,7 @@ export class SiteMenuService extends ApiDataService<SiteMenuSet>
     async saveMenuStructure(data: SaveMenuStructureDTO): Promise<ApiResponse<SaveMenuStructureDTO>>
     {
         return await this.CallApi<SaveMenuStructureDTO>(() =>
-            this.Api.put<ApiResponse<SaveMenuStructureDTO>>(`${this.Module}/SaveMenuStructure`, {
-                InternalId: data.InternalId,
-                Data: data,
-            })
+            this.Api.put<ApiResponse<SaveMenuStructureDTO>>(`${this.Module}/SaveMenuStructure`, { InternalId: data.InternalId, Data: data })
         );
     }
 
@@ -72,10 +66,7 @@ export class SiteMenuService extends ApiDataService<SiteMenuSet>
     async saveMenuItem(data: SaveMenuItemDTO): Promise<ApiResponse<SaveMenuItemResultDTO>>
     {
         return await this.CallApi<SaveMenuItemResultDTO>(() =>
-            this.Api.put<ApiResponse<SaveMenuItemResultDTO>>(`${this.Module}/SaveMenuItem`, {
-                InternalId: data.InternalId,
-                Data: data,
-            })
+            this.Api.put<ApiResponse<SaveMenuItemResultDTO>>(`${this.Module}/SaveMenuItem`, { InternalId: data.InternalId, Data: data })
         );
     }
     // #endregion
@@ -101,13 +92,7 @@ type ExtraHooks = {
             initial?: ApiLoaderData<QueryListParam, SiteMenuSet[]> | null;
             onError?: (err: ApiAdapterError) => void;
         },
-    ) => {
-        data: SiteMenuSet[];
-        apiRes: ApiResponse<SiteMenuSet[]> | null;
-        isLoading: boolean;
-        errorText: string | null;
-        refetch: () => Promise<void>;
-    };
+    ) => { data: SiteMenuSet[]; apiRes: ApiResponse<SiteMenuSet[]> | null; isLoading: boolean; errorText: string | null; refetch: () => Promise<void>; };
 
     /** 第一筆 InternalId（CSR 用，支援 initial） */
     useFirstSiteMenuInternalId: (
@@ -117,28 +102,16 @@ type ExtraHooks = {
             initial?: ApiLoaderData<null, string | null> | null;
             onError?: (err: ApiAdapterError) => void;
         },
-    ) => {
-        internalId: string | null;
-        apiRes: ApiResponse<string | null> | null;
-        isLoading: boolean;
-        errorText: string | null;
-        refetch: () => Promise<void>;
-    };
+    ) => { internalId: string | null; apiRes: ApiResponse<string | null> | null; isLoading: boolean; errorText: string | null; refetch: () => Promise<void>; };
 
     /** 保存網站基本資訊 */
-    useSaveSiteInfo: (
-        opt?: UseSaveActionOptions<SaveSiteInfoDTO>,
-    ) => UseSaveActionResult<SaveSiteInfoDTO, SaveSiteInfoDTO>;
+    useSaveSiteInfo: (opt?: UseSaveActionOptions<SaveSiteInfoDTO>) => UseSaveActionResult<SaveSiteInfoDTO, SaveSiteInfoDTO>;
 
     /** 保存網站選單結構 */
-    useSaveMenuStructure: (
-        opt?: UseSaveActionOptions<SaveMenuStructureDTO>,
-    ) => UseSaveActionResult<SaveMenuStructureDTO, SaveMenuStructureDTO>;
+    useSaveMenuStructure: (opt?: UseSaveActionOptions<SaveMenuStructureDTO>) => UseSaveActionResult<SaveMenuStructureDTO, SaveMenuStructureDTO>;
 
     /** 保存單筆網站選單項目 */
-    useSaveMenuItem: (
-        opt?: UseSaveActionOptions<SaveMenuItemResultDTO>,
-    ) => UseSaveActionResult<SaveMenuItemDTO, SaveMenuItemResultDTO>;
+    useSaveMenuItem: (opt?: UseSaveActionOptions<SaveMenuItemResultDTO>) => UseSaveActionResult<SaveMenuItemDTO, SaveMenuItemResultDTO>;
 };
 
 export class SiteMenuAdapterImpl extends ApiDataAdapter<SiteMenuSet, SiteMenuService>
@@ -159,11 +132,7 @@ export class SiteMenuAdapterImpl extends ApiDataAdapter<SiteMenuSet, SiteMenuSer
         {
             return this.getFirstSiteMenuInternalIdLoader(opt);
         };
-        return {
-            ...base,
-            getSiteMenuIndexListLoader: wrapGetSiteMenuIndexListLoader,
-            getFirstSiteMenuInternalIdLoader: wrapGetFirstSiteMenuInternalIdLoader,
-        };
+        return { ...base, getSiteMenuIndexListLoader: wrapGetSiteMenuIndexListLoader, getFirstSiteMenuInternalIdLoader: wrapGetFirstSiteMenuInternalIdLoader };
     }
 
     protected override buildExtendedHooks(base: ApiDataHookGroup<SiteMenuSet>)
@@ -201,9 +170,7 @@ export class SiteMenuAdapterImpl extends ApiDataAdapter<SiteMenuSet, SiteMenuSer
     // #endregion
 
     // #region Loader Func
-    private getSiteMenuIndexListLoader(
-        opt?: { getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; },
-    )
+    private getSiteMenuIndexListLoader(opt?: { getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; })
     {
         return this.createApiLoader<QueryListParam, SiteMenuSet[]>({
             action: "SiteMenu.Query.IndexList",
@@ -213,9 +180,7 @@ export class SiteMenuAdapterImpl extends ApiDataAdapter<SiteMenuSet, SiteMenuSer
         });
     }
 
-    private getFirstSiteMenuInternalIdLoader(
-        opt?: { getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; },
-    )
+    private getFirstSiteMenuInternalIdLoader(opt?: { getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; })
     {
         return this.createApiLoader<null, string | null>({
             action: "SiteMenu.Query.FirstInternalId",
@@ -333,15 +298,17 @@ export class SiteMenuAdapterImpl extends ApiDataAdapter<SiteMenuSet, SiteMenuSer
         return { IsSuccess: true, Data: first, SysMessage: env.SysMessage ?? [] };
     }
 
-    private useSaveAction<TReq, TRes>(opt: {
-        action: string;
-        fallbackSuccess: string;
-        fallbackError: string;
-        apiInstance?: AxiosInstance;
-        onError?: (err: ApiAdapterError) => void;
-        onSuccess?: (res: TRes | null, apiRes: ApiResponse<TRes>) => void | Promise<void>;
-        call: (svc: SiteMenuService, data: TReq) => Promise<ApiResponse<TRes>>;
-    }): UseSaveActionResult<TReq, TRes>
+    private useSaveAction<TReq, TRes>(
+        opt: {
+            action: string;
+            fallbackSuccess: string;
+            fallbackError: string;
+            apiInstance?: AxiosInstance;
+            onError?: (err: ApiAdapterError) => void;
+            onSuccess?: (res: TRes | null, apiRes: ApiResponse<TRes>) => void | Promise<void>;
+            call: (svc: SiteMenuService, data: TReq) => Promise<ApiResponse<TRes>>;
+        },
+    ): UseSaveActionResult<TReq, TRes>
     {
         const { publish } = useToast();
         const svc = useMemo(() => this.getService(opt.apiInstance), [opt.apiInstance]);
@@ -384,27 +351,18 @@ export class SiteMenuAdapterImpl extends ApiDataAdapter<SiteMenuSet, SiteMenuSer
     {
         messages.forEach(m =>
         {
-            publish({
-                level: m.Status ?? MessageStatus.Info,
-                code: m.MessageCode,
-                title: title ?? "",
-                text: m.Message,
-            });
+            publish({ level: m.Status ?? MessageStatus.Info, code: m.MessageCode, title: title ?? "", text: m.Message });
         });
     }
 
     private buildActionError<T>(apiRes: ApiResponse<T>, fallback: string, action: string): ApiAdapterError
     {
         const sysMessages = apiRes.SysMessage ?? [];
-        const messageText = sysMessages
-            .map(m => `${m?.MessageCode ?? ""}:${m?.Message ?? ""}`.trim())
-            .filter(x => x.length > 0)
-            .join("；") || fallback;
+        const messageText = sysMessages.map(m => `${m?.MessageCode ?? ""}:${m?.Message ?? ""}`.trim()).filter(x => x.length > 0).join("；") || fallback;
 
         return { messageText, sysMessages, action };
     }
     // #endregion
 }
 
-export const SiteMenuAdapter = (apiInstance?: AxiosInstance) =>
-    new SiteMenuAdapterImpl((api?: AxiosInstance) => new SiteMenuService(api ?? apiInstance));
+export const SiteMenuAdapter = (apiInstance?: AxiosInstance) => new SiteMenuAdapterImpl((api?: AxiosInstance) => new SiteMenuService(api ?? apiInstance));

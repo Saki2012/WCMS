@@ -1,8 +1,6 @@
 import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import ModuleContent, {
-    type ModuleViewCountConfig,
-} from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
+import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import { useBreadcrumb } from "@/Features/Pages/Client/Scaffold/SubPages/Module/BreadCrumb/BreadCrumb_Comp";
 import insightpointImg1 from "@/SpecFetures/1819/Assets/Client/images/links/150x32/InSight_Point_bt_150x32.svg";
 import insightpointImg2 from "@/SpecFetures/1819/Assets/Client/images/links/150x32/InSight_Point_bt_W_150x32.svg";
@@ -62,8 +60,7 @@ export const SpecJournalForm_Comp = (props: { site: INormSite; node: INormNode; 
     {
         const issueLabel = title;
         const issueTo = issueLabel && indexId && rowId ? joinPath(moduleBase, `List/${indexId}/${rowId}`) : undefined;
-        const articleLabel = data?.SpecJournal?.Title ?? data?.SpecJournal?.Title_en
-            ?? (props.lang === "zh-tw" ? "文章" : "Article");
+        const articleLabel = data?.SpecJournal?.Title ?? data?.SpecJournal?.Title_en ?? (props.lang === "zh-tw" ? "文章" : "Article");
         const next: Array<{ label: string; to?: string; }> = [];
 
         if (issueLabel) next.push({ label: issueLabel, to: issueTo });
@@ -72,16 +69,7 @@ export const SpecJournalForm_Comp = (props: { site: INormSite; node: INormNode; 
         setItems(next);
 
         return () => setItems([]);
-    }, [
-        title,
-        data?.SpecJournal?.Title,
-        data?.SpecJournal?.Title_en,
-        indexId,
-        rowId,
-        props.lang,
-        moduleBase,
-        setItems,
-    ]);
+    }, [title, data?.SpecJournal?.Title, data?.SpecJournal?.Title_en, indexId, rowId, props.lang, moduleBase, setItems]);
 
     const viewCountConfig = useMemo<ModuleViewCountConfig>(() =>
     {
@@ -91,26 +79,12 @@ export const SpecJournalForm_Comp = (props: { site: INormSite; node: INormNode; 
             InternalId: data?.SpecJournal?.InternalId ?? "",
         };
 
-        return {
-            mode: "form",
-            contentKey: data?.SpecJournal?.InternalId ?? "",
-            request,
-        };
+        return { mode: "form", contentKey: data?.SpecJournal?.InternalId ?? "", request };
     }, [props.site.siteIndex, data?.SpecJournal?.InternalId]);
 
     return (
-        <ModuleContent
-            nodeTitle={title}
-            title={title}
-            isLoading={useDetail.isLoading}
-            errorList={errors}
-            viewCountConfig={viewCountConfig}
-        >
-            <SpecJournalFormContent
-                data={data}
-                lang={props.lang}
-                pageViewCount={useDetail.pageViewCount}
-            />
+        <ModuleContent nodeTitle={title} title={title} isLoading={useDetail.isLoading} errorList={errors} viewCountConfig={viewCountConfig}>
+            <SpecJournalFormContent data={data} lang={props.lang} pageViewCount={useDetail.pageViewCount} />
         </ModuleContent>
     );
 };
@@ -219,9 +193,7 @@ const JournalTitle_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
 
                         <div className="card_titleDiv">
                             <div className="card_title">{props.data?.SpecJournal?.Title}</div>
-                            {!!props.data?.SpecJournal?.Title_en && (
-                                <div className="card_title_en">{props.data?.SpecJournal?.Title_en}</div>
-                            )}
+                            {!!props.data?.SpecJournal?.Title_en && <div className="card_title_en">{props.data?.SpecJournal?.Title_en}</div>}
                         </div>
                     </div>
                 </div>
@@ -276,10 +248,7 @@ const Authors_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
                             {props.data?.SpecJournalAuthor?.map((a, idx) =>
                             {
                                 return (
-                                    <li
-                                        key={`${a.ORCID ?? a.Email ?? "author"}-${idx}`}
-                                        className="AuthorCardGrid__item"
-                                    >
+                                    <li key={`${a.ORCID ?? a.Email ?? "author"}-${idx}`} className="AuthorCardGrid__item">
                                         <div className="AuthorCard">
                                             <div className="AuthorCard__title">
                                                 {(() =>
@@ -301,14 +270,9 @@ const Authors_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
                                                                             e.preventDefault();
                                                                             onPickAuthor(zh);
                                                                         }}
-                                                                        aria-label={`依作者篩選：${zh}${
-                                                                            en ? ` (${en})` : ""
-                                                                        }`}
+                                                                        aria-label={`依作者篩選：${zh}${en ? ` (${en})` : ""}`}
                                                                         title="依作者篩選"
-                                                                        style={{
-                                                                            color: "inherit",
-                                                                            textDecoration: "none",
-                                                                        }}
+                                                                        style={{ color: "inherit", textDecoration: "none" }}
                                                                     >
                                                                         {zh}
                                                                     </a>
@@ -326,10 +290,7 @@ const Authors_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
                                                                         }}
                                                                         aria-label={`依作者篩選：${en}`}
                                                                         title="依作者篩選"
-                                                                        style={{
-                                                                            color: "inherit",
-                                                                            textDecoration: "none",
-                                                                        }}
+                                                                        style={{ color: "inherit", textDecoration: "none" }}
                                                                     >
                                                                         {en}
                                                                     </a>
@@ -347,10 +308,7 @@ const Authors_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
                                                                         }}
                                                                         aria-label={`依作者篩選：${en}`}
                                                                         title="依作者篩選"
-                                                                        style={{
-                                                                            color: "inherit",
-                                                                            textDecoration: "none",
-                                                                        }}
+                                                                        style={{ color: "inherit", textDecoration: "none" }}
                                                                     >
                                                                         {en}
                                                                     </a>
@@ -367,9 +325,7 @@ const Authors_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
                                                         label: "ORCID :",
                                                         value: a.ORCID && (
                                                             <a
-                                                                href={`https://orcid.org/${
-                                                                    encodeURIComponent(a.ORCID)
-                                                                }`}
+                                                                href={`https://orcid.org/${encodeURIComponent(a.ORCID)}`}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
                                                                 title={`另開新視窗前往 ORCID：${a.ORCID}`}
@@ -382,17 +338,12 @@ const Authors_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
                                                     },
                                                     { label: "職稱 :", value: a.JobTitle },
                                                     {
-                                                        label:
-                                                        a.AuthorType === 0
-                                                            ? "電子郵件 :"
-                                                            : (
+                                                        label: a.AuthorType === 0 ? "電子郵件 :" : (
                                                             <>
                                                                 <i className="far fa-envelope me-1"></i> :
                                                             </>
-                                                            ),
-                                                        value: a.Email
-                                                            ? <a href={`mailto:${a.Email}`}>{a.Email}</a>
-                                                            : null,
+                                                        ),
+                                                        value: a.Email ? <a href={`mailto:${a.Email}`}>{a.Email}</a> : null,
                                                     },
                                                     { label: "地區 / 國家 :", value: a.Country },
                                                 ].filter((x) => x.value).map((row) => (
@@ -430,26 +381,12 @@ const DOI_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
                             <span>DOI編號:</span>
                         </div>
                         <div className="Div_All_Ttext">
-                            <a
-                                href={url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                aria-label={`DOI 連結，另開視窗：${url}`}
-                            >
-                                {url}
-                            </a>
+                            <a href={url} target="_blank" rel="noopener noreferrer" aria-label={`DOI 連結，另開視窗：${url}`}>{url}</a>
                         </div>
                     </div>
                     <div className="doiQr">
                         {props.data?.SpecJournal?.DOIUrl
-                            ? (
-                                <QrCodeWithLogo_Comp
-                                    value={props.data?.SpecJournal?.DOIUrl ?? ""}
-                                    logoSrc={QRCodeLogoImg}
-                                    size={200}
-                                    ariaLabel="DOI QR Code"
-                                />
-                            )
+                            ? <QrCodeWithLogo_Comp value={props.data?.SpecJournal?.DOIUrl ?? ""} logoSrc={QRCodeLogoImg} size={200} ariaLabel="DOI QR Code" />
                             : null}
                     </div>
                 </div>
@@ -492,11 +429,7 @@ const JournalInfo_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
                                         }期`}
                                     </span>
                                     <span className="G_Vline">│</span>
-                                    <span>
-                                        {`${props.data?.SpecJournal?.PageStart ?? ""}頁~${
-                                            props.data?.SpecJournal?.PageEnd ?? ""
-                                        }頁`}
-                                    </span>
+                                    <span>{`${props.data?.SpecJournal?.PageStart ?? ""}頁~${props.data?.SpecJournal?.PageEnd ?? ""}頁`}</span>
                                 </div>
                             </li>
 
@@ -639,9 +572,7 @@ const FileDownload_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
                                             <span className="Div_All_Ttext + views">
                                                 <i className="fas fa-download me-1" aria-hidden="true"></i>
                                                 <span className="font-SW-normal">下載次數 :</span>
-                                                <span className="font-SW-normal + ms-2">
-                                                    {insightPointDownloadCount}
-                                                </span>
+                                                <span className="font-SW-normal + ms-2">{insightPointDownloadCount}</span>
                                             </span>
                                         </div>
                                     </li>
@@ -841,9 +772,7 @@ const getBodyHeights = (el: HTMLDivElement) =>
 };
 
 /** 可預覽前 10 行的展開區塊 */
-const PreviewSectionCard_Comp = (
-    props: { item: PreviewSectionItem; isExpanded: boolean; onToggle: (id: string) => void; },
-) =>
+const PreviewSectionCard_Comp = (props: { item: PreviewSectionItem; isExpanded: boolean; onToggle: (id: string) => void; }) =>
 {
     const bodyRef = useRef<HTMLDivElement | null>(null);
     const [maxHeight, setMaxHeight] = useState<string>("none");
@@ -882,9 +811,7 @@ const PreviewSectionCard_Comp = (
                 <div className="card-header SpecJournalPreviewCard__header">
                     <a
                         type="button"
-                        className={clsx("SpecJournalPreviewCard__button", {
-                            "is-expanded": props.isExpanded,
-                        })}
+                        className={clsx("SpecJournalPreviewCard__button", { "is-expanded": props.isExpanded })}
                         onClick={onClickToggle}
                         aria-expanded={props.isExpanded}
                         aria-controls={bodyId}
@@ -901,18 +828,9 @@ const PreviewSectionCard_Comp = (
                 </div>
 
                 <div className="SpecJournalPreviewCard__contentWrap">
-                    <div
-                        id={bodyId}
-                        ref={bodyRef}
-                        className="card-body SpecJournalPreviewCard__body"
-                        style={{ maxHeight }}
-                    >
-                        {props.item.content}
-                    </div>
+                    <div id={bodyId} ref={bodyRef} className="card-body SpecJournalPreviewCard__body" style={{ maxHeight }}>{props.item.content}</div>
 
-                    {!props.isExpanded && canToggle && (
-                        <div className="SpecJournalPreviewCard__fade" aria-hidden="true"></div>
-                    )}
+                    {!props.isExpanded && canToggle && <div className="SpecJournalPreviewCard__fade" aria-hidden="true"></div>}
 
                     {canToggle && (
                         <div className="SpecJournalPreviewCard__footer">
@@ -923,15 +841,7 @@ const PreviewSectionCard_Comp = (
                                 aria-expanded={props.isExpanded}
                                 aria-controls={bodyId}
                             >
-                                <i
-                                    className={clsx(
-                                        "fas",
-                                        props.isExpanded ? "fa-chevron-up" : "fa-chevron-down",
-                                        "me-1",
-                                    )}
-                                    aria-hidden="true"
-                                >
-                                </i>
+                                <i className={clsx("fas", props.isExpanded ? "fa-chevron-up" : "fa-chevron-down", "me-1")} aria-hidden="true"></i>
                                 <span>{props.isExpanded ? "收回預覽" : "展開全文"}</span>
                             </button>
                         </div>
@@ -964,25 +874,12 @@ const Accordion_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
 
     if (memoContent || memoEnContent)
     {
-        sections.push({
-            id: "journal-abstract",
-            title: "摘要",
-            content: (
-                <>
-                    {memoContent}
-                    {memoEnContent}
-                </>
-            ),
-        });
+        sections.push({ id: "journal-abstract", title: "摘要", content: <>{memoContent} {memoEnContent}</> });
     }
 
     if (bibliographyContent)
     {
-        sections.push({
-            id: "journal-bibliography",
-            title: "參考文獻",
-            content: bibliographyContent,
-        });
+        sections.push({ id: "journal-bibliography", title: "參考文獻", content: bibliographyContent });
     }
 
     props.data?.SpecJournalRefFormat?.forEach((sec) =>
@@ -991,11 +888,7 @@ const Accordion_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
         const content = parsed.html ? parse(parsed.html) : null;
         if (!content) return;
 
-        sections.push({
-            id: `journal-ref-format-${sec.RowId}`,
-            title: sec.Title ?? "",
-            content,
-        });
+        sections.push({ id: `journal-ref-format-${sec.RowId}`, title: sec.Title ?? "", content });
     });
 
     if (sections.length === 0) return null;
@@ -1013,29 +906,27 @@ const Accordion_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
         <>
             <div id="accordion" className="Expand_Close_Bar">
                 <ul className="EC_info">
-                    {sections.map((item) => (
-                        <PreviewSectionCard_Comp
-                            key={item.id}
-                            item={item}
-                            isExpanded={expandedId === item.id}
-                            onToggle={onToggleSection}
-                        />
-                    ))}
+                    {sections.map((item) => <PreviewSectionCard_Comp
+                        key={item.id}
+                        item={item}
+                        isExpanded={expandedId === item.id}
+                        onToggle={onToggleSection}
+                    />)}
                 </ul>
             </div>
 
-            {/* <div className="col row-group">
+            {
+                /* <div className="col row-group">
                 <hr className="hr-my-4" />
-            </div> */}
+            </div> */
+            }
         </>
     );
 };
 /** 說明檔案區塊 */
 const Documents_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
 {
-    const documentGroups = useMemo(() => buildDocumentGroups(props.data?.SpecJournalDocument), [
-        props.data?.SpecJournalDocument,
-    ]);
+    const documentGroups = useMemo(() => buildDocumentGroups(props.data?.SpecJournalDocument), [props.data?.SpecJournalDocument]);
     if (documentGroups.length === 0) return null;
     return (
         <>
@@ -1055,9 +946,7 @@ const Documents_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
                     <div className="col-12">
                         {documentGroups.map((group) => (
                             <div key={group.typeKey} className="mb-4">
-                                <div className="fw-bold mb-2">
-                                    {group.title}
-                                </div>
+                                <div className="fw-bold mb-2">{group.title}</div>
 
                                 <ul className="filelist-group">
                                     {group.items.map((d, idx) =>
@@ -1083,18 +972,14 @@ const Documents_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
                                                             <span className="page_icon">
                                                                 <i className="far fa-file-alt" aria-hidden="true"></i>
                                                             </span>
-                                                            <span className="icontxt">
-                                                                {documentName}
-                                                            </span>
+                                                            <span className="icontxt">{documentName}</span>
                                                         </div>
                                                     </a>
                                                     <span className="G_Vline_Down">│</span>
                                                     <span className="Div_All_Ttext views">
                                                         <i className="fas fa-download me-1" aria-hidden="true"></i>
                                                         <span className="font-SW-normal">下載次數 :</span>
-                                                        <span className="font-SW-normal ms-2">
-                                                            {documentDownloadCount}
-                                                        </span>
+                                                        <span className="font-SW-normal ms-2">{documentDownloadCount}</span>
                                                     </span>
                                                 </div>
                                             </li>
@@ -1146,18 +1031,7 @@ const DOCUMENT_TYPE_TITLE_MAP: Record<string, string> = {
     "4": "倫理聲明",
 };
 
-const DOCUMENT_TYPE_ORDER = [
-    "Errata",
-    "Correction",
-    "Announcements",
-    "Ethics_Statement",
-    "Other",
-    "1",
-    "2",
-    "3",
-    "4",
-    "0",
-];
+const DOCUMENT_TYPE_ORDER = ["Errata", "Correction", "Announcements", "Ethics_Statement", "Other", "1", "2", "3", "4", "0"];
 /** 取得文件分類 key */
 const getDocumentTypeKey = (doc: SpecJournalDocumentItem): string =>
 {
@@ -1203,11 +1077,7 @@ const buildDocumentGroups = (documents?: SpecJournalDocumentItem[] | null): Docu
             existedGroup.items.push(doc);
             return;
         }
-        groupMap.set(typeKey, {
-            typeKey,
-            title: getDocumentTypeTitle(typeKey),
-            items: [doc],
-        });
+        groupMap.set(typeKey, { typeKey, title: getDocumentTypeTitle(typeKey), items: [doc] });
     });
 
     // return

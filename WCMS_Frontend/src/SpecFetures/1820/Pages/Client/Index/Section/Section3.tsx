@@ -120,12 +120,7 @@ const getNewsLink = (viewMoreLink?: string | null, item?: AnnouncementSet) =>
 };
 
 /** 最新消息輪播 */
-export const Section3 = (props: {
-    lang: Lang;
-    homePage: HomePageModel;
-    announcements: AnnouncementSet[];
-    announcementCategoryMap: Record<string, string>;
-}) =>
+export const Section3 = (props: { lang: Lang; homePage: HomePageModel; announcements: AnnouncementSet[]; announcementCategoryMap: Record<string, string>; }) =>
 {
     const outerRef = useRef<HTMLDivElement | null>(null);
     const annDetail = props.announcements ?? [];
@@ -138,10 +133,7 @@ export const Section3 = (props: {
     const itemsPerView = useMemo(() => getItemsPerView(viewportWidth), [viewportWidth]);
 
     /** 宣告變數：最大起始索引 */
-    const maxStartIndex = useMemo(
-        () => getMaxStartIndex(annDetail.length, itemsPerView),
-        [annDetail.length, itemsPerView],
-    );
+    const maxStartIndex = useMemo(() => getMaxStartIndex(annDetail.length, itemsPerView), [annDetail.length, itemsPerView]);
 
     /** 宣告變數：單張寬度 */
     const itemWidth = useMemo(() =>
@@ -269,11 +261,7 @@ export const Section3 = (props: {
                                                 onClick={handleToggleAutoplayClick}
                                                 onKeyDown={handleToggleAutoplayKeyDown}
                                             >
-                                                <div
-                                                    className={`control-toggle ${
-                                                        isPlaying ? "control-pause-icon" : "control-play-icon"
-                                                    }`}
-                                                >
+                                                <div className={`control-toggle ${isPlaying ? "control-pause-icon" : "control-play-icon"}`}>
                                                     <span className="sr-only">{getToggleLabel(isPlaying)}</span>
                                                 </div>
                                             </a>
@@ -292,23 +280,13 @@ export const Section3 = (props: {
                                             >
                                                 {annDetail.map((item, index) =>
                                                 {
-                                                    const detail = item.AnnouncementDetail?.find(p =>
-                                                        p.Lang === props.lang
-                                                    );
-                                                    const categoryText = formatCategoryNames(
-                                                        item.Announcement?.Categories,
-                                                        props.announcementCategoryMap,
-                                                    );
+                                                    const detail = item.AnnouncementDetail?.find(p => p.Lang === props.lang);
+                                                    const categoryText = formatCategoryNames(item.Announcement?.Categories, props.announcementCategoryMap);
                                                     const dateInfo = formatNewsDate(item.Announcement?.Validate_Start);
                                                     const imageUrl = getNewsImageUrl(item);
                                                     const imageAlt = getNewsImageAlt(item, detail?.Title ?? "");
-                                                    const linkUrl = getNewsLink(
-                                                        props.homePage.Announcement_ViewMoreLink,
-                                                        item,
-                                                    );
-                                                    const activeClass = isActiveItem(index, startIndex, itemsPerView)
-                                                        ? " active"
-                                                        : "";
+                                                    const linkUrl = getNewsLink(props.homePage.Announcement_ViewMoreLink, item);
+                                                    const activeClass = isActiveItem(index, startIndex, itemsPerView) ? " active" : "";
 
                                                     return (
                                                         <div
@@ -316,32 +294,20 @@ export const Section3 = (props: {
                                                             className={`owl-item${activeClass}`}
                                                             style={{
                                                                 width: `${itemWidth}px`,
-                                                                marginRight: index === annDetail.length - 1
-                                                                    ? "0px"
-                                                                    : `${NEWS_MARGIN}px`,
+                                                                marginRight: index === annDetail.length - 1 ? "0px" : `${NEWS_MARGIN}px`,
                                                             }}
                                                             aria-hidden={!isActiveItem(index, startIndex, itemsPerView)}
                                                         >
                                                             <div className="item">
-                                                                <LangNavLink
-                                                                    to={linkUrl}
-                                                                    target="_self"
-                                                                    title={detail?.Title ?? ""}
-                                                                >
+                                                                <LangNavLink to={linkUrl} target="_self" title={detail?.Title ?? ""}>
                                                                     <div className="news-item">
                                                                         <div className="row g-0">
                                                                             <div className="col-6 left_All">
                                                                                 <div className="card-cat">
                                                                                     <div className="card-cat-link">
                                                                                         <span className="cat-title font-wt-lg">
-                                                                                            <i
-                                                                                                className="fas fa-tasks-alt me-2"
-                                                                                                aria-hidden="true"
-                                                                                            >
-                                                                                            </i>
-                                                                                            <span className="sr-only">
-                                                                                                分類：
-                                                                                            </span>
+                                                                                            <i className="fas fa-tasks-alt me-2" aria-hidden="true"></i>
+                                                                                            <span className="sr-only">分類：</span>
                                                                                             {categoryText}
                                                                                         </span>
                                                                                     </div>
@@ -350,9 +316,7 @@ export const Section3 = (props: {
                                                                                 <div className="Date-year">
                                                                                     <div className="Date-year-txt">
                                                                                         <span className="news-year-tt font-wt-lg">
-                                                                                            <span className="sr-only">
-                                                                                                發布年份：
-                                                                                            </span>
+                                                                                            <span className="sr-only">發布年份：</span>
                                                                                             {dateInfo.year}
                                                                                         </span>
                                                                                     </div>
@@ -361,9 +325,7 @@ export const Section3 = (props: {
                                                                                 <div className="Date-day">
                                                                                     <div className="Date-day-txt">
                                                                                         <span className="news-date-tt font-wt-xxl">
-                                                                                            <span className="sr-only">
-                                                                                                日期：
-                                                                                            </span>
+                                                                                            <span className="sr-only">日期：</span>
                                                                                             {dateInfo.monthDay}
                                                                                         </span>
                                                                                     </div>
@@ -374,11 +336,7 @@ export const Section3 = (props: {
                                                                                 <figure className="figure_Box">
                                                                                     <div className="card_figure">
                                                                                         <div className="img-wrapper">
-                                                                                            <img
-                                                                                                className="card_image"
-                                                                                                src={imageUrl}
-                                                                                                alt={imageAlt}
-                                                                                            />
+                                                                                            <img className="card_image" src={imageUrl} alt={imageAlt} />
                                                                                         </div>
                                                                                     </div>
                                                                                 </figure>
@@ -386,9 +344,7 @@ export const Section3 = (props: {
                                                                         </div>
 
                                                                         <div className="card_titleDiv">
-                                                                            <div className="card_title font-wt-xl">
-                                                                                {detail?.Title}
-                                                                            </div>
+                                                                            <div className="card_title font-wt-xl">{detail?.Title}</div>
                                                                         </div>
                                                                     </div>
                                                                 </LangNavLink>

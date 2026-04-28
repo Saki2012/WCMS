@@ -1,11 +1,7 @@
 import { useEffect, useRef } from "react";
 
 /** 當搜尋條件有異動時，reset當前頁面回第一頁(或第n頁) */
-export const useResetPageWhenKeyChanged = (
-    conditionKey: string,
-    onPageChange: (page: number) => void,
-    resetPage?: number,
-) =>
+export const useResetPageWhenKeyChanged = (conditionKey: string, onPageChange: (page: number) => void, resetPage?: number) =>
 {
     // 宣告變數
     const prevKeyRef = useRef(conditionKey);

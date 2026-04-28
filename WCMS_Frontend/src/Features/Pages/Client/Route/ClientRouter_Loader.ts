@@ -85,19 +85,13 @@ const getFooterRuntimeCache = (): Record<string, SiteFooterRuntimeInfo> =>
 
 const mergeFooterRuntimeCache = (siteIndex: string, runtimeInfo: SiteFooterRuntimeInfo): SiteFooterRuntimeInfo =>
 {
-    const next = {
-        ...getFooterRuntimeCache(),
-        [siteIndex]: runtimeInfo,
-    };
+    const next = { ...getFooterRuntimeCache(), [siteIndex]: runtimeInfo };
 
     setFooterRuntimeCache(next);
     return runtimeInfo;
 };
 
-const getFooterRuntimeFromInitial = (opt?: {
-    initialState?: SiteRoutingInitialState;
-    siteIndex?: string;
-}): SiteFooterRuntimeInfo | null =>
+const getFooterRuntimeFromInitial = (opt?: { initialState?: SiteRoutingInitialState; siteIndex?: string; }): SiteFooterRuntimeInfo | null =>
 {
     const siteIndex = `${opt?.siteIndex ?? ""}`.trim();
     const fromOpt = opt?.initialState?.footerRuntimeBySiteIndex?.[siteIndex] ?? null;
@@ -109,28 +103,18 @@ const getFooterRuntimeFromInitial = (opt?: {
 
 const getIndexIdsFromRows = (rows: any[]): string[] =>
 {
-    const ids = rows
-        .map(x => x?.SiteMenu_Index?.InternalId ?? "")
-        .filter((x): x is string => Boolean(x));
+    const ids = rows.map(x => x?.SiteMenu_Index?.InternalId ?? "").filter((x): x is string => Boolean(x));
 
     return ids;
 };
 
-const fetchSitesByQuery = async (opt: {
-    api?: AxiosInstance;
-    args: LoaderFunctionArgs;
-}): Promise<INormSite[]> =>
+const fetchSitesByQuery = async (opt: { api?: AxiosInstance; args: LoaderFunctionArgs; }): Promise<INormSite[]> =>
 {
     const adapter = SiteMenuAdapter(opt.api);
 
     const listLoader = adapter.loader.createQueryListLoader({
         getApiInstance: () => opt.api,
-        getCondition: () => ({
-            Fields: [SiteMenu_IndexFields.InternalId],
-            Condition: "",
-            PageNumber: 0,
-            PageSize: 0,
-        }),
+        getCondition: () => ({ Fields: [SiteMenu_IndexFields.InternalId], Condition: "", PageNumber: 0, PageSize: 0 }),
     });
 
     const listRes = await listLoader(opt.args);
@@ -140,10 +124,7 @@ const fetchSitesByQuery = async (opt: {
 
     const tasks = ids.map(async (id) =>
     {
-        const dataLoader = adapter.loader.createQueryDataLoader({
-            getApiInstance: () => opt.api,
-            getInternalId: () => id,
-        });
+        const dataLoader = adapter.loader.createQueryDataLoader({ getApiInstance: () => opt.api, getInternalId: () => id });
 
         const dataRes = await dataLoader(opt.args);
         const dataApiRes = getApiRes(dataRes);
@@ -174,7 +155,7 @@ const buildFooterViewCountCondition = (siteIndex: string): string =>
 {
     // 宣告變數
     const siteKey = buildQuotedValue(siteIndex);
-    if (!siteKey) return "1=0";
+    if (!siteKey) return "1 = 0";
 
     // return
     return `${SiteViewCountHeaderModelFields.SiteIndex} = ${siteKey}`;
@@ -192,20 +173,13 @@ const buildFooterViewCountQuery = (siteIndex: string): QueryListParam =>
 };
 
 /** 這裡先統一保留 Footer runtime 抓取入口 */
-const fetchSiteFooterRuntime = async (opt: {
-    api?: AxiosInstance;
-    args: LoaderFunctionArgs;
-    siteIndex: string;
-}): Promise<SiteFooterRuntimeInfo> =>
+const fetchSiteFooterRuntime = async (opt: { api?: AxiosInstance; args: LoaderFunctionArgs; siteIndex: string; }): Promise<SiteFooterRuntimeInfo> =>
 {
     const siteIndex = `${opt.siteIndex ?? ""}`.trim();
 
     const siteView = SiteViewCountAdapter(opt.api);
 
-    const viewCountLoader = siteView.loader.createQueryListLoader({
-        getApiInstance: () => opt.api,
-        getCondition: () => buildFooterViewCountQuery(siteIndex),
-    });
+    const viewCountLoader = siteView.loader.createQueryListLoader({ getApiInstance: () => opt.api, getCondition: () => buildFooterViewCountQuery(siteIndex) });
     const viewCountLD = await viewCountLoader(opt.args);
     const viewCountApiRes = getApiRes(viewCountLD);
     const viewCountRows = unwrapArrayOrEmpty(viewCountApiRes);
@@ -213,43 +187,28 @@ const fetchSiteFooterRuntime = async (opt: {
     return { viewCount: viewCount, siteUpdatedAt: null, feVersion: null, beVersion: null };
 };
 
-export const loadSiteFooterRuntime = async (opt: {
-    request?: Request;
-    siteIndex: string;
-    initialState?: SiteRoutingInitialState;
-}): Promise<SiteFooterRuntimeInfo> =>
+export const loadSiteFooterRuntime = async (
+    opt: { request?: Request; siteIndex: string; initialState?: SiteRoutingInitialState; },
+): Promise<SiteFooterRuntimeInfo> =>
 {
     const siteIndex = `${opt.siteIndex ?? ""}`.trim();
-    const initial = getFooterRuntimeFromInitial({
-        initialState: opt.initialState,
-        siteIndex,
-    });
+    const initial = getFooterRuntimeFromInitial({ initialState: opt.initialState, siteIndex });
 
     if (initial) return initial;
 
     const api = opt?.request ? getSsrApi(opt.request) : undefined;
-    const args: LoaderFunctionArgs = {
-        request: opt?.request ?? new Request("http://localhost/"),
-    } as any;
+    const args: LoaderFunctionArgs = { request: opt?.request ?? new Request("http://localhost/") } as any;
 
     const runtimeInfo = await fetchSiteFooterRuntime({ api, args, siteIndex });
 
     return mergeFooterRuntimeCache(siteIndex, runtimeInfo);
 };
 
-const warmFooterRuntimeCache = async (opt: {
-    request?: Request;
-    initialState?: SiteRoutingInitialState;
-    sites: INormSite[];
-}): Promise<void> =>
+const warmFooterRuntimeCache = async (opt: { request?: Request; initialState?: SiteRoutingInitialState; sites: INormSite[]; }): Promise<void> =>
 {
     const tasks = opt.sites.map((site) =>
     {
-        return loadSiteFooterRuntime({
-            request: opt.request,
-            initialState: opt.initialState,
-            siteIndex: site.siteIndex,
-        });
+        return loadSiteFooterRuntime({ request: opt.request, initialState: opt.initialState, siteIndex: site.siteIndex });
     });
 
     await Promise.all(tasks);
@@ -259,9 +218,7 @@ const warmFooterRuntimeCache = async (opt: {
  * ✅ SSR/CSR 共用：取得 sites（只打一次）
  * 並順手預熱 footer runtime cache
  */
-export const loadSitesForRouting = async (
-    opt?: { request?: Request; initialState?: SiteRoutingInitialState; },
-): Promise<INormSite[]> =>
+export const loadSitesForRouting = async (opt?: { request?: Request; initialState?: SiteRoutingInitialState; }): Promise<INormSite[]> =>
 {
     const fromOpt = opt?.initialState?.sites ?? null;
     const fromWindow = readInitialStateFromWindow()?.sites ?? null;
@@ -270,48 +227,30 @@ export const loadSitesForRouting = async (
     if (fromOpt && fromOpt.length > 0)
     {
         setCache(fromOpt);
-        await warmFooterRuntimeCache({
-            request: opt?.request,
-            initialState: opt?.initialState,
-            sites: fromOpt,
-        });
+        await warmFooterRuntimeCache({ request: opt?.request, initialState: opt?.initialState, sites: fromOpt });
         return fromOpt;
     }
 
     if (fromWindow && fromWindow.length > 0)
     {
         setCache(fromWindow);
-        await warmFooterRuntimeCache({
-            request: opt?.request,
-            initialState: opt?.initialState,
-            sites: fromWindow,
-        });
+        await warmFooterRuntimeCache({ request: opt?.request, initialState: opt?.initialState, sites: fromWindow });
         return fromWindow;
     }
 
     if (fromCache && fromCache.length > 0)
     {
-        await warmFooterRuntimeCache({
-            request: opt?.request,
-            initialState: opt?.initialState,
-            sites: fromCache,
-        });
+        await warmFooterRuntimeCache({ request: opt?.request, initialState: opt?.initialState, sites: fromCache });
         return fromCache;
     }
 
     const api = opt?.request ? getSsrApi(opt.request) : undefined;
-    const args: LoaderFunctionArgs = {
-        request: opt?.request ?? new Request("http://localhost/"),
-    } as any;
+    const args: LoaderFunctionArgs = { request: opt?.request ?? new Request("http://localhost/") } as any;
 
     const sites = await fetchSitesByQuery({ api, args });
     setCache(sites);
 
-    await warmFooterRuntimeCache({
-        request: opt?.request,
-        initialState: opt?.initialState,
-        sites,
-    });
+    await warmFooterRuntimeCache({ request: opt?.request, initialState: opt?.initialState, sites });
 
     return sites;
 };
@@ -322,12 +261,7 @@ export const useSiteFooterRuntime = (siteIndex: string): UseSiteFooterRuntimeRes
 
     const [runtimeInfo, setRuntimeInfo] = useState<SiteFooterRuntimeInfo>(() =>
     {
-        return initial ?? {
-            viewCount: 0,
-            siteUpdatedAt: null,
-            feVersion: null,
-            beVersion: null,
-        };
+        return initial ?? { viewCount: 0, siteUpdatedAt: null, feVersion: null, beVersion: null };
     });
 
     const [isLoading, setIsLoading] = useState<boolean>(!initial);
@@ -365,12 +299,7 @@ export const useSiteFooterRuntime = (siteIndex: string): UseSiteFooterRuntimeRes
         void refresh();
     }, [siteIndex, refresh]);
 
-    return {
-        runtimeInfo,
-        isLoading,
-        errorText,
-        refresh,
-    };
+    return { runtimeInfo, isLoading, errorText, refresh };
 };
 
 export const buildSiteRoutingInitialState = (lang: string): SiteRoutingInitialState =>
@@ -378,9 +307,5 @@ export const buildSiteRoutingInitialState = (lang: string): SiteRoutingInitialSt
     const sites = getCache() ?? [];
     const footerRuntimeBySiteIndex = getFooterRuntimeCache();
 
-    return {
-        lang,
-        sites,
-        footerRuntimeBySiteIndex,
-    };
+    return { lang, sites, footerRuntimeBySiteIndex };
 };

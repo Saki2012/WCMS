@@ -17,11 +17,7 @@ export interface UseFetchFormDataResult<T>
  * @param internalId 資料的 key，若為 undefined/null 則為新增模式
  * @param emptyData 當 internalId 為 null 時回傳的預設資料
  */
-export const useFetchFormData = <T>(
-    provider: any,
-    internalId?: string | null,
-    emptyData?: T,
-): UseFetchFormDataResult<T> =>
+export const useFetchFormData = <T>(provider: any, internalId?: string | null, emptyData?: T): UseFetchFormDataResult<T> =>
 {
     const [data, setFormData] = useState<T>(null as T);
     const [displayName, setDisplayName] = useState<ModelDisplaySchema>(null as unknown as ModelDisplaySchema);

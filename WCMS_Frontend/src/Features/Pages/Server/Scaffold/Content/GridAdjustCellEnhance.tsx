@@ -1,8 +1,8 @@
 // src/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance.tsx
-import { useCallback, useMemo } from "react";
-import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
+import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import clsx from "clsx";
+import { useCallback, useMemo } from "react";
 
 /** 多語系文字型別（共用） */
 export type LangText = Partial<Record<Lang, string>>;
@@ -73,7 +73,7 @@ export type GridAdjustAction<TItem> = {
 };
 
 /** 只要求 IsSuccess：避免把 API 型別綁死在 Grid 元件內（ApiResponse 也可直接相容） */
-export type ApiResponseLike = { IsSuccess: boolean };
+export type ApiResponseLike = { IsSuccess: boolean; };
 
 /** CRUD actions 依賴（可以直接塞 adapter hooks 的 deleteAsync） */
 export type GridCrudDeps = {
@@ -112,7 +112,10 @@ export const createGridCrudActions = <TItem,>(deps: GridCrudDeps): GridAdjustAct
         label: i18n.edit,
         ariaLabel: i18n.gotoEdit,
         requiredMask: deps.editMask,
-        onClick: (ctx) => { deps.onEdit(ctx.internalId); },
+        onClick: (ctx) =>
+        {
+            deps.onEdit(ctx.internalId);
+        },
     };
 
     // 執行：Delete
@@ -210,14 +213,16 @@ const buildActionView = <TItem,>(lang: Lang, actions: readonly GridAdjustAction<
 };
 
 /** 建立 ActionCell context（把 can/notify/confirm 統一封裝） */
-const useGridAdjustActionCtx = <TItem,>(props: {
-    lang: Lang;
-    item: TItem;
-    internalId: string;
-    can?: (mask: number) => boolean;
-    notifyNoPermission?: (msg: string) => void;
-    confirm?: GridConfirmFn;
-}): GridAdjustActionCtx<TItem> =>
+const useGridAdjustActionCtx = <TItem,>(
+    props: {
+        lang: Lang;
+        item: TItem;
+        internalId: string;
+        can?: (mask: number) => boolean;
+        notifyNoPermission?: (msg: string) => void;
+        confirm?: GridConfirmFn;
+    },
+): GridAdjustActionCtx<TItem> =>
 {
     // 宣告變數
     const can = useCallback((mask: number) => props.can?.(mask) ?? true, [props.can]);
@@ -229,8 +234,14 @@ const useGridAdjustActionCtx = <TItem,>(props: {
     }, [props.confirm]);
 
     // return
-    return useMemo(() => ({ lang: props.lang, item: props.item, internalId: props.internalId, can, notify, confirm }),
-        [props.lang, props.item, props.internalId, can, notify, confirm]);
+    return useMemo(() => ({ lang: props.lang, item: props.item, internalId: props.internalId, can, notify, confirm }), [
+        props.lang,
+        props.item,
+        props.internalId,
+        can,
+        notify,
+        confirm,
+    ]);
 };
 
 /** 建立 ActionCell view（把 action → 按鈕顯示資料） */
@@ -239,15 +250,17 @@ const useGridAdjustActionView = <TItem,>(lang: Lang, actions: readonly GridAdjus
     return useMemo(() => buildActionView(lang, actions, ctx), [lang, actions, ctx]);
 };
 
-const ActionCell = <TItem,>(props: {
-    lang: Lang;
-    item: TItem;
-    internalId: string;
-    actions: readonly GridAdjustAction<TItem>[];
-    can?: (mask: number) => boolean;
-    notifyNoPermission?: (msg: string) => void;
-    confirm?: GridConfirmFn;
-}) =>
+const ActionCell = <TItem,>(
+    props: {
+        lang: Lang;
+        item: TItem;
+        internalId: string;
+        actions: readonly GridAdjustAction<TItem>[];
+        can?: (mask: number) => boolean;
+        notifyNoPermission?: (msg: string) => void;
+        confirm?: GridConfirmFn;
+    },
+) =>
 {
     // 宣告變數
     const ctx = useGridAdjustActionCtx({
@@ -262,7 +275,11 @@ const ActionCell = <TItem,>(props: {
 
     const onClickGuard = useCallback(async (item: ActionViewItem<TItem>) =>
     {
-        if (!item.isDisabled) { await item.a.onClick(ctx); return; }
+        if (!item.isDisabled)
+        {
+            await item.a.onClick(ctx);
+            return;
+        }
         if (item.reason) ctx.notify(item.reason);
     }, [ctx]);
 
@@ -277,7 +294,11 @@ const ActionCell = <TItem,>(props: {
                     href="#"
                     aria-disabled={item.isDisabled}
                     aria-label={item.ariaLabel}
-                    onClick={(e) => { e.preventDefault(); void onClickGuard(item); }}
+                    onClick={(e) =>
+                    {
+                        e.preventDefault();
+                        void onClickGuard(item);
+                    }}
                 >
                     <button
                         type="button"

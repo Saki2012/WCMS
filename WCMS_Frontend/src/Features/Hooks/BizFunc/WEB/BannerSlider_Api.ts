@@ -12,6 +12,4 @@ class BannerSliderService extends ApiDataService<BannerSliderSet>
     }
 }
 export const BannerSliderAdapter = (apiInstance?: AxiosInstance) =>
-    new ApiDataAdapter<BannerSliderSet, BannerSliderService>((api?: AxiosInstance) =>
-        new BannerSliderService(api ?? apiInstance)
-    );
+    new ApiDataAdapter<BannerSliderSet, BannerSliderService>((api?: AxiosInstance) => new BannerSliderService(api ?? apiInstance));

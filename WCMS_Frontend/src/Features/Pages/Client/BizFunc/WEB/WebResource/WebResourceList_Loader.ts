@@ -72,18 +72,8 @@ const buildCondition = (p: { lang: Lang; opts: IWebResourceListOptions; }) =>
     if (p.opts.Tag) condition = LibMerge(" And ", false, condition, `${WebResourceFields.Tags} HasAny [${p.opts.Tag}]`);
 
     condition = LibMerge(" And ", false, condition, `${WebResourceFields.ContentStatus} !& 4`);
-    condition = LibMerge(
-        " And ",
-        false,
-        condition,
-        `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Lang} = ${p.lang}`,
-    );
-    condition = LibMerge(
-        " And ",
-        false,
-        condition,
-        `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Title} != ''`,
-    );
+    condition = LibMerge(" And ", false, condition, `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Lang} = ${p.lang}`);
+    condition = LibMerge(" And ", false, condition, `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Title} != ''`);
 
     return condition;
 };
@@ -125,10 +115,7 @@ const buildLoaderInitial = <TArgs, TData>(args: TArgs, data: TData): ApiLoaderDa
 };
 
 /** 比對目前條件是否可沿用 SSR base initial */
-const canUseBaseInitial = (
-    loaderData: WebResourceListLoaderData | null,
-    p: { lang: Lang; categoryIds: string; tagIds: string; style: number; },
-) =>
+const canUseBaseInitial = (loaderData: WebResourceListLoaderData | null, p: { lang: Lang; categoryIds: string; tagIds: string; style: number; }) =>
 {
     if (!loaderData?.args?.baseParam) return false;
     if (loaderData.args.lang !== p.lang) return false;
@@ -148,11 +135,10 @@ const canUseCategoryInitial = (loaderData: WebResourceListLoaderData | null, lan
 /** 組 grid columns */
 const buildVisibleColumns = (): ColumnConfig[] =>
 {
-    return [
-        { key: WebResourceFields.Categories, title: "類別" },
-        { key: WebResourceInfoFields.Title, title: "標題" },
-        { key: WebResourceInfoFields.ResUrl, title: "連結" },
-    ];
+    return [{ key: WebResourceFields.Categories, title: "類別" }, { key: WebResourceInfoFields.Title, title: "標題" }, {
+        key: WebResourceInfoFields.ResUrl,
+        title: "連結",
+    }];
 };
 
 /** 組 grid cell 文字 */
@@ -172,37 +158,23 @@ const buildCellContent = (p: { item: WebResourceSet; colKey: string; lang: Lang;
 };
 
 /** 由 list 建立 gridProps */
-const buildGridProps = (p: {
-    lang: Lang;
-    listData: WebResourceSet[];
-    pageNumber: number;
-    totalPages: number;
-    onPageChange: (page: number) => void;
-}): GridProps =>
+const buildGridProps = (
+    p: { lang: Lang; listData: WebResourceSet[]; pageNumber: number; totalPages: number; onPageChange: (page: number) => void; },
+): GridProps =>
 {
     const columns = buildVisibleColumns();
     const rows: GridRow[] = p.listData.map(item =>
     {
-        const cells: RowCell[] = columns.map(col => ({
-            col,
-            content: buildCellContent({ item, colKey: col.key, lang: p.lang }),
-        }));
+        const cells: RowCell[] = columns.map(col => ({ col, content: buildCellContent({ item, colKey: col.key, lang: p.lang }) }));
         return { keyId: item.WebResource?.InternalId ?? "", cells };
     });
 
-    return {
-        columns,
-        rows,
-        CurrentPage: p.pageNumber,
-        TotalPage: p.totalPages,
-        onPageChange: p.onPageChange,
-    };
+    return { columns, rows, CurrentPage: p.pageNumber, TotalPage: p.totalPages, onPageChange: p.onPageChange };
 };
 
 /** WebResource SSR loader */
 export const WebResourceList_Loader =
-    (p: { lang: Lang; opts: IWebResourceListOptions; }) =>
-    async ({ request }: LoaderFunctionArgs): Promise<WebResourceListLoaderData> =>
+    (p: { lang: Lang; opts: IWebResourceListOptions; }) => async ({ request }: LoaderFunctionArgs): Promise<WebResourceListLoaderData> =>
     {
         const ssrApi = getSsrApi(request);
         const webRes = WebResourceAdapter(ssrApi);
@@ -210,23 +182,13 @@ export const WebResourceList_Loader =
         const baseParam = buildBaseParam(p);
 
         /** 主資料 count */
-        const countLoader = webRes.loader.createQueryCountLoader({
-            getCondition: () => baseParam,
-            getApiInstance: () => ssrApi,
-        });
+        const countLoader = webRes.loader.createQueryCountLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
 
         /** 主資料 list */
-        const listLoader = webRes.loader.createQueryListLoader({
-            getCondition: () => baseParam,
-            getApiInstance: () => ssrApi,
-        });
+        const listLoader = webRes.loader.createQueryListLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
 
         /** Category map */
-        const cateLoader = cate.loader.createMapByProgIdLoader({
-            progId: PGID.WebResource,
-            lang: p.lang,
-            getApiInstance: () => ssrApi,
-        });
+        const cateLoader = cate.loader.createMapByProgIdLoader({ progId: PGID.WebResource, lang: p.lang, getApiInstance: () => ssrApi });
 
         const [countLD, listLD, cateLD] = await Promise.all([
             countLoader({ request } as LoaderFunctionArgs),
@@ -235,25 +197,13 @@ export const WebResourceList_Loader =
         ]);
 
         return {
-            args: {
-                baseParam,
-                lang: p.lang,
-                categoryIds: p.opts.Category ?? "",
-                tagIds: p.opts.Tag ?? "",
-                style: p.opts.Style ?? 1,
-            },
-            res: {
-                countRes: countLD.apiRes.Data ?? 0,
-                listRes: listLD.apiRes.Data ?? [],
-                cateMapRes: cateLD.apiRes.Data ?? {},
-            },
+            args: { baseParam, lang: p.lang, categoryIds: p.opts.Category ?? "", tagIds: p.opts.Tag ?? "", style: p.opts.Style ?? 1 },
+            res: { countRes: countLD.apiRes.Data ?? 0, listRes: listLD.apiRes.Data ?? [], cateMapRes: cateLD.apiRes.Data ?? {} },
         };
     };
 
 /** 統一提供 WebResource list 所需資料 */
-export const useWebResourceListFetchData = (
-    p: { lang: Lang; options?: IWebResourceListOptions; },
-): UseWebResourceListFetchDataResult =>
+export const useWebResourceListFetchData = (p: { lang: Lang; options?: IWebResourceListOptions; }): UseWebResourceListFetchDataResult =>
 {
     const loaderData = useLoaderData() as WebResourceListLoaderData | null;
     const adapter = useMemo(() => ({ web: WebResourceAdapter(), cate: CategoryAdapter() }), []);
@@ -342,21 +292,7 @@ export const useWebResourceListFetchData = (
             baseParam,
             style,
         };
-    }, [
-        useCount.data,
-        useList.data,
-        useList.pageNumber,
-        useList.totalPages,
-        useList.onPageChange,
-        useCategory.map,
-        gridProps,
-        baseParam,
-        style,
-    ]);
+    }, [useCount.data, useList.data, useList.pageNumber, useList.totalPages, useList.onPageChange, useCategory.map, gridProps, baseParam, style]);
 
-    return {
-        rawData,
-        isLoading: Boolean(useCount.isLoading || useList.isLoading || useCategory.isLoading),
-        errorList,
-    };
+    return { rawData, isLoading: Boolean(useCount.isLoading || useList.isLoading || useCategory.isLoading), errorList };
 };

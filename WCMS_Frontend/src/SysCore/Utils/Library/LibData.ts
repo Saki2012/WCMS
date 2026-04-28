@@ -18,10 +18,7 @@ export function EnumMap<T extends Record<string, string | number>>(map: T)
     };
 }
 // getValue 的函式型別
-export type EnumGetValueFunc<T extends Record<string, string | number>> = (
-    key: string | number,
-    defaultValue?: T[keyof T],
-) => T[keyof T];
+export type EnumGetValueFunc<T extends Record<string, string | number>> = (key: string | number, defaultValue?: T[keyof T]) => T[keyof T];
 // getKey 的函式型別
 export type EnumGetKeyFunc<T extends Record<string, string | number>> = (val: string) => keyof T | null;
 
@@ -44,8 +41,7 @@ export const FormatDate = (value: string | null | undefined): string =>
  * @param allKeys - 所有可能的位元值清單（例如：[1, 2, 4, 8]）
  * @returns string[] - 適用於 checkbox 的選取值（如 ["1", "2", "4"]）
  */
-export const parseBitmaskToStringArray = (bitmask: number, allKeys: number[]) =>
-    allKeys.filter(k => (bitmask & k) === k).map(String);
+export const parseBitmaskToStringArray = (bitmask: number, allKeys: number[]) => allKeys.filter(k => (bitmask & k) === k).map(String);
 
 /**
  * 將 checkbox 傳回的 string 陣列轉換為加總後的 bitmask 整數

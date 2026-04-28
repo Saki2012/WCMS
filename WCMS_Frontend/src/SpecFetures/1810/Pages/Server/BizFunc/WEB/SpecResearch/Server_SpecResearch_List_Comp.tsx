@@ -1,8 +1,4 @@
-import {
-    createGridCrudActions,
-    enhanceGridWithAdjustCell,
-    type GridConfirmFn,
-} from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
+import { createGridCrudActions, enhanceGridWithAdjustCell, type GridConfirmFn } from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
 import { ListComp } from "@/Features/Pages/Server/Scaffold/Content/List_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
@@ -22,12 +18,7 @@ type SpecResearchSet = components["schemas"]["SpecResearchSet_DTO"];
 export const Server_ResearchProjListComp = (prop: { title: string; theme: IBETheme; lang: Lang; }) =>
 {
     const [kw, setKw] = useState<string>("");
-    const searchCompProp: SearchBarProps = {
-        title: "研究計畫搜尋",
-        subTitle: "搜尋研究計畫 ...",
-        onSubmit: setKw,
-        onReset: () => setKw(""),
-    };
+    const searchCompProp: SearchBarProps = { title: "研究計畫搜尋", subTitle: "搜尋研究計畫 ...", onSubmit: setKw, onReset: () => setKw("") };
     const pathname = useLocation().pathname;
     const dirUrl = useMemo(() => pathname.replace(/\/List$/, `/Form`), [pathname]);
     const navigate = useNavigate();
@@ -90,13 +81,7 @@ const buildSpecResearchGridProps = (
     ];
     const columns = buildColumns(visibleCols, opt.raw);
     const rows = buildSpecResearchRows(opt.raw, opt.lang, columns);
-    const baseGrid: GridProps = {
-        columns,
-        rows,
-        CurrentPage: opt.raw.pageNumber ?? 1,
-        TotalPage: opt.raw.totalPages ?? 1,
-        onPageChange: opt.raw.onPageChange,
-    };
+    const baseGrid: GridProps = { columns, rows, CurrentPage: opt.raw.pageNumber ?? 1, TotalPage: opt.raw.totalPages ?? 1, onPageChange: opt.raw.onPageChange };
     const actions = createGridCrudActions<SpecResearchSet>({
         onEdit: (internalId) => opt.crud.navigate(`${opt.crud.dirUrl}/${internalId}`),
         deleteAsync: opt.crud.deleteAsync,
@@ -169,13 +154,7 @@ const mapIdsToText = (ids: string | null | undefined, map: Record<string, string
     const parts = raw.split(",").map((x) => x.trim()).filter(Boolean);
     const names = parts.map((id) => map[id] ?? id);
     return (
-        <ul className="m-0 p-0" style={{ listStylePosition: "inside" }}>
-            {names.map((line, i) => (
-                <li key={`${line}-${i}`} className="m-0 p-0">
-                    {line}
-                </li>
-            ))}
-        </ul>
+        <ul className="m-0 p-0" style={{ listStylePosition: "inside" }}>{names.map((line, i) => <li key={`${line}-${i}`} className="m-0 p-0">{line}</li>)}</ul>
     );
 };
 // #endregion

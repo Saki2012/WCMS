@@ -118,8 +118,7 @@ const toCanonicalLangStrict = (seg?: string | null): Lang | null =>
 
 const readCookieLang = (request: Request): Lang | null =>
 {
-    const cookieStr = request.headers.get("cookie")
-        ?? (typeof document !== "undefined" ? document.cookie : "");
+    const cookieStr = request.headers.get("cookie") ?? (typeof document !== "undefined" ? document.cookie : "");
     const v = getCookieValue(cookieStr, LANG_COOKIE_KEY);
     return v ? toCanonicalLangStrict(v) : null;
 };
@@ -128,17 +127,12 @@ const readCookieLang = (request: Request): Lang | null =>
 const parseAcceptLanguage = (header: string): string[] =>
 {
     if (!header) return [];
-    return header
-        .split(",")
-        .map(p =>
-        {
-            const [tag, qpart] = p.trim().split(";");
-            const q = qpart?.toLowerCase().startsWith("q=") ? Number(qpart.slice(2)) : 1;
-            return { tag: tag.trim(), q: Number.isFinite(q) ? q : 1 };
-        })
-        .sort((a, b) => b.q - a.q)
-        .map(x => x.tag)
-        .filter(Boolean);
+    return header.split(",").map(p =>
+    {
+        const [tag, qpart] = p.trim().split(";");
+        const q = qpart?.toLowerCase().startsWith("q=") ? Number(qpart.slice(2)) : 1;
+        return { tag: tag.trim(), q: Number.isFinite(q) ? q : 1 };
+    }).sort((a, b) => b.q - a.q).map(x => x.tag).filter(Boolean);
 };
 
 const pickLangFromAcceptLanguage = (request: Request): Lang | null =>

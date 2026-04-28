@@ -24,10 +24,7 @@ export type PageManagementFormActionsOpt = {
     /** 儲存成功後要回到列表（或其他導頁） */
     onBackToList: () => void;
 };
-export type PageManagementFormAdapter = {
-    PageManagement: ReturnType<typeof PageManagementAdapter>;
-    Category: ReturnType<typeof CategoryAdapter>;
-};
+export type PageManagementFormAdapter = { PageManagement: ReturnType<typeof PageManagementAdapter>; Category: ReturnType<typeof CategoryAdapter>; };
 /** ✅ 主入口：Server PageManagement Form 的所有「讀取資料」都集中在這裡 */
 export const usePageManagementFormFetchData = (
     opt: { lang: Lang; internalId: string; emptyData: PageManagementSet; actionsOpt: PageManagementFormActionsOpt; },
@@ -43,12 +40,7 @@ export const usePageManagementFormFetchData = (
         return { PageManagement: PageManagementAdapter(), Category: CategoryAdapter(), Tag: TagAdapter() };
     }, []);
     const formData = usePageManagementFormDataByAdapter(adapter.PageManagement, opt.internalId, opt.emptyData, onError);
-    const actions = usePageManagementFormActionsByAdapter(
-        adapter.PageManagement,
-        opt.internalId,
-        formData.data,
-        opt.actionsOpt,
-    );
+    const actions = usePageManagementFormActionsByAdapter(adapter.PageManagement, opt.internalId, formData.data, opt.actionsOpt);
     const category = adapter.Category.hooks.useMapByProgId({ progId: PGID.PageManagement, lang: opt.lang });
     const loadingList = useMemo<boolean[]>(() =>
     {
@@ -133,11 +125,7 @@ const usePageManagementFormActionsByAdapter = (
     // 宣告變數
     const isNew = useMemo(() => !internalId, [internalId]);
     const actions = adapter.useServerActions({
-        onSuccessByMode: {
-            create: () => opt.onBackToList(),
-            update: () => opt.onBackToList(),
-            delete: () => opt.onBackToList(),
-        },
+        onSuccessByMode: { create: () => opt.onBackToList(), update: () => opt.onBackToList(), delete: () => opt.onBackToList() },
     });
 
     // return

@@ -4,11 +4,7 @@ import { useEffect } from "react";
 export type Lang = components["schemas"]["LangCode"]; // ← 以後端 Swagger 為準
 
 /**應該可以從後端提供顯示名稱，暫時寫死 */
-export const LangLabelMap: Record<Lang, string> = {
-    "zh-tw": "中文",
-    "zh-cn": "简体中文",
-    "en": "English",
-};
+export const LangLabelMap: Record<Lang, string> = { "zh-tw": "中文", "zh-cn": "简体中文", "en": "English" };
 export const getLangLabel = (code?: string) =>
 {
     const key = (code ?? "").trim() as Lang;
@@ -91,8 +87,10 @@ export interface EnsureLangSimpleOptions
  *     // deps: [currentParentRowId],
  *   });
  */
-export const useEnsureLangDetails = (formData: {data?: any; setFormData: (updater: (prev: any) => any) => void;},
-    opt: {headerName: string; detailName: string; parentKeys: string[]; langs?: Lang[]; preferFirstLang?: Lang;},) =>
+export const useEnsureLangDetails = (
+    formData: { data?: any; setFormData: (updater: (prev: any) => any) => void; },
+    opt: { headerName: string; detailName: string; parentKeys: string[]; langs?: Lang[]; preferFirstLang?: Lang; },
+) =>
 {
     const langs = (opt.langs && opt.langs.length > 0) ? opt.langs : (["zh-tw", "en"] as Lang[]);
 
@@ -104,7 +102,7 @@ export const useEnsureLangDetails = (formData: {data?: any; setFormData: (update
         const parents: any[] = Array.isArray(data[opt.headerName]) ? data[opt.headerName] : (data[opt.headerName] ? [data[opt.headerName]] : []);
         const details: any[] = Array.isArray(data[opt.detailName]) ? data[opt.detailName] : (data[opt.detailName] ? [data[opt.detailName]] : []);
         if (parents.length === 0) return;
-        const buildGroupKey = (item: any): string => 
+        const buildGroupKey = (item: any): string =>
         {
             return opt.parentKeys.map((k) => String(item?.[k] ?? "")).join("|");
         };
@@ -118,9 +116,7 @@ export const useEnsureLangDetails = (formData: {data?: any; setFormData: (update
         {
             return opt.parentKeys.reduce((acc, k) =>
             {
-                acc[k] = /(parentrowid|itemrowid)/i.test(String(k))
-                    ? (parent?.RowId ?? 0)
-                    : (parent?.[k] ?? null);
+                acc[k] = /(parentrowid|itemrowid)/i.test(String(k)) ? (parent?.RowId ?? 0) : (parent?.[k] ?? null);
                 return acc;
             }, {} as Record<string, any>);
         };
@@ -156,9 +152,7 @@ export const useEnsureLangDetails = (formData: {data?: any; setFormData: (update
             const fkObj = mapParentToDetailFK(p);
             const key = buildGroupKey(fkObj);
             const siblings = grouped.get(key) ?? [];
-            const existLang = new Set(
-                siblings.map((s) => String(s?.Lang ?? "").trim().toLowerCase()),
-            );
+            const existLang = new Set(siblings.map((s) => String(s?.Lang ?? "").trim().toLowerCase()));
             const missing = langs.filter((l) => !existLang.has(String(l).toLowerCase()));
             if (missing.length > 0)
             {
@@ -180,20 +174,20 @@ export const useEnsureLangDetails = (formData: {data?: any; setFormData: (update
                 if (!prevGrouped.has(key)) prevGrouped.set(key, []);
                 prevGrouped.get(key)!.push(d);
             }
-            const existingUnique = new Set<string>(prevDetails.map((d) => buildDetailUniqueKey(d)),);
+            const existingUnique = new Set<string>(prevDetails.map((d) => buildDetailUniqueKey(d)));
             const toAppend: any[] = [];
             for (const p of prevParents)
             {
                 const fkObj = mapParentToDetailFK(p);
                 const groupKey = buildGroupKey(fkObj);
                 const siblings = prevGrouped.get(groupKey) ?? [];
-                const existLang = new Set(siblings.map((s) => String(s?.Lang ?? "").trim().toLowerCase()),);
+                const existLang = new Set(siblings.map((s) => String(s?.Lang ?? "").trim().toLowerCase()));
                 const missing = langs.filter((l) => !existLang.has(String(l).toLowerCase()));
                 if (missing.length === 0) continue;
-                const baseRowId = siblings.reduce((m, s) => Math.max(m, Number(s?.RowId || 0)), 0,);
+                const baseRowId = siblings.reduce((m, s) => Math.max(m, Number(s?.RowId || 0)), 0);
                 missing.forEach((lang, idx) =>
                 {
-                    const newRow = {...fkObj, RowId: baseRowId + idx + 1, Lang: lang,};
+                    const newRow = { ...fkObj, RowId: baseRowId + idx + 1, Lang: lang };
                     const uniqueKey = buildDetailUniqueKey(newRow);
                     if (existingUnique.has(uniqueKey)) return;
                     existingUnique.add(uniqueKey);
@@ -241,5 +235,5 @@ export const useEnsureLangDetails = (formData: {data?: any; setFormData: (update
             draft[opt.detailName] = merged;
             return draft;
         });
-    }, [formData?.data, opt.headerName, opt.detailName, opt.parentKeys.join("|"), langs.join("|"), opt.preferFirstLang ?? "",]);
+    }, [formData?.data, opt.headerName, opt.detailName, opt.parentKeys.join("|"), langs.join("|"), opt.preferFirstLang ?? ""]);
 };

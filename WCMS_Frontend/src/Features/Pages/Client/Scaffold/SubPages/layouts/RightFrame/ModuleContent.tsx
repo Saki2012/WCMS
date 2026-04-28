@@ -50,13 +50,7 @@ const buildDetailViewCountOptions = (config: ModuleViewCountConfig) =>
     {
         return { enabled: false, contentKey: "", request: null, cooldownMs: undefined, apiInstance: undefined };
     }
-    return {
-        enabled: true,
-        contentKey: config.contentKey,
-        request: config.request,
-        cooldownMs: config.cooldownMs,
-        apiInstance: config.apiInstance,
-    };
+    return { enabled: true, contentKey: config.contentKey, request: config.request, cooldownMs: config.cooldownMs, apiInstance: config.apiInstance };
 };
 
 const ModuleContent = (props: ModuleContentProps) =>
@@ -89,18 +83,10 @@ const ModuleContent = (props: ModuleContentProps) =>
     // return
     return (
         <>
-            <HeaderMetaComp
-                htmlLang={lang}
-                title={fullTitle}
-                description={siteHeaderMeta.description}
-                canonicalUrl={canonicalUrl}
-                alternates={alternates}
-            />
+            <HeaderMetaComp htmlLang={lang} title={fullTitle} description={siteHeaderMeta.description} canonicalUrl={canonicalUrl} alternates={alternates} />
             <LoadingErrorHandler isLoading={props.isLoading} errorList={props.errorList}>
                 {props.title && <Title title={props.title} subTitle={props.subTitle} />}
-                <div className="ALL__Information__Display__Area">
-                    {props.children}
-                </div>
+                <div className="ALL__Information__Display__Area">{props.children}</div>
                 <hr className="hr-my-4" />
                 {props.paginatorProps && <NewPaginatorCanInputPage {...props.paginatorProps} lang={lang} />}
             </LoadingErrorHandler>

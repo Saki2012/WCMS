@@ -29,12 +29,7 @@ const TopFrame = (props: ITopFrameProps) =>
             <div className="container-content Layout_Padding_0_top Layout_Padding_4_bottom">
                 {/* BreadCrumb / Toolbar 區塊 */}
                 <div className="row">
-                    <BreadCrumb_Comp
-                        lang={props.lang}
-                        site={props.site}
-                        node={props.node}
-                        backHref={props.backHref}
-                    />
+                    <BreadCrumb_Comp lang={props.lang} site={props.site} node={props.node} backHref={props.backHref} />
                     {/* <Toolbar_Comp lang={props.lang} /> */}
                 </div>
             </div>

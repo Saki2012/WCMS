@@ -12,6 +12,4 @@ class PageManagementService extends ApiDataService<PageManagementSet>
     }
 }
 export const PageManagementAdapter = (apiInstance?: AxiosInstance) =>
-    new ApiDataAdapter<PageManagementSet, PageManagementService>(
-        (api?: AxiosInstance) => new PageManagementService(api ?? apiInstance),
-    );
+    new ApiDataAdapter<PageManagementSet, PageManagementService>((api?: AxiosInstance) => new PageManagementService(api ?? apiInstance));

@@ -22,14 +22,10 @@ export type ScheduleRuleListRawData = {
     param: QueryListParam;
 };
 
-export type ScheduleRuleListAdapter = {
-    ScheduleRule: ReturnType<typeof SpecOpenScheduleRuleAdapter>;
-};
+export type ScheduleRuleListAdapter = { ScheduleRule: ReturnType<typeof SpecOpenScheduleRuleAdapter>; };
 
 /** ✅ 主入口：Server ScheduleRule List 的所有 fetch 都集中在這裡 */
-export const useScheduleRuleListFetchData = (
-    opt: { kw: string; },
-): UseFetchDataResult<ScheduleRuleListRawData, ScheduleRuleListAdapter> =>
+export const useScheduleRuleListFetchData = (opt: { kw: string; }): UseFetchDataResult<ScheduleRuleListRawData, ScheduleRuleListAdapter> =>
 {
     // 宣告變數
     const { publish } = useToast();
@@ -44,11 +40,7 @@ export const useScheduleRuleListFetchData = (
     // 執行 function：Query param
     const baseParam = useScheduleRuleListQueryParam({ kw: opt.kw });
     // 執行 function：主資料（Grid）
-    const grid = adapter.ScheduleRule.hooks.useQueryGridData({
-        baseParam,
-        deps: [baseParam.Condition ?? "", baseParam.PageSize ?? 0],
-        onError,
-    });
+    const grid = adapter.ScheduleRule.hooks.useQueryGridData({ baseParam, deps: [baseParam.Condition ?? "", baseParam.PageSize ?? 0], onError });
 
     // 宣告變數：loading / errors 統一出口
     const isLoading = Boolean(grid.isLoading);
@@ -69,15 +61,7 @@ export const useScheduleRuleListFetchData = (
             onPageChange: grid.onPageChange,
             param: grid.param,
         };
-    }, [
-        grid.modelDisplayName,
-        grid.count,
-        grid.list,
-        grid.pageNumber,
-        grid.totalPages,
-        grid.onPageChange,
-        grid.param,
-    ]);
+    }, [grid.modelDisplayName, grid.count, grid.list, grid.pageNumber, grid.totalPages, grid.onPageChange, grid.param]);
 
     const refetchData = useCallback(async () =>
     {

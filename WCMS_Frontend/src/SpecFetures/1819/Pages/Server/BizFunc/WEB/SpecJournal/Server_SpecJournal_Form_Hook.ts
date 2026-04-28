@@ -11,13 +11,7 @@ import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import {
-    PGID,
-    SpecJournalIndexDetailFields,
-    SpecJournalIndexModelFields,
-    SpecJournalKeywordsFields,
-    SpecJournalModelFields,
-} from "@/types/SchemaFields";
+import { PGID, SpecJournalIndexDetailFields, SpecJournalIndexModelFields, SpecJournalKeywordsFields, SpecJournalModelFields } from "@/types/SchemaFields";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
@@ -46,12 +40,7 @@ export type SpecJournalFormAdapter = {
 
 /** ✅ 主入口：Server SpecJournal Form 的資料讀取都集中在這裡 */
 export const useSpecJournalFormFetchData = (
-    opt: {
-        lang: Lang;
-        internalId: string;
-        emptyData: SpecJournalSet;
-        actionsOpt: SpecJournalFormActionsOpt;
-    },
+    opt: { lang: Lang; internalId: string; emptyData: SpecJournalSet; actionsOpt: SpecJournalFormActionsOpt; },
 ): UseFetchDataResult<SpecJournalFormRawData, SpecJournalFormAdapter> =>
 {
     const { publish } = useToast();
@@ -64,20 +53,14 @@ export const useSpecJournalFormFetchData = (
         return { SpecJournal: SpecJournalAdapter(), SpecJournalIndex: SpecJournalIndexAdapter(), Tag: TagAdapter() };
     }, []);
     const formData = useSpecJournalFormDataByAdapter(adapter.SpecJournal, opt.internalId, opt.emptyData, onError);
-    const actions = useSpecJournalFormActionsByAdapter(
-        adapter.SpecJournal,
-        opt.internalId,
-        formData.data,
-        opt.actionsOpt,
-    );
+    const actions = useSpecJournalFormActionsByAdapter(adapter.SpecJournal, opt.internalId, formData.data, opt.actionsOpt);
     const tag = adapter.Tag.hooks.useMapByProgId({ progId: PGID.SpecJournal, lang: opt.lang });
     const indexList = useSpecJournalIndexListByAdapter(adapter.SpecJournalIndex);
     const keywords = useSpecJournalKeywordsByAdapter(adapter.SpecJournal);
     const specDocumentType = useFetchEnumOptions("SpecDocumentType");
     const isLoading = useMemo<boolean>(() =>
     {
-        return formData.isLoading || tag.isLoading || indexList.isLoading || keywords.isLoading
-            || specDocumentType.isLoading;
+        return formData.isLoading || tag.isLoading || indexList.isLoading || keywords.isLoading || specDocumentType.isLoading;
     }, [formData.isLoading, tag.isLoading, indexList.isLoading, keywords.isLoading, specDocumentType.isLoading]);
     const errorList = useMemo<(string | null | undefined)[]>(() =>
     {
@@ -125,27 +108,15 @@ const useSpecJournalFormDataByAdapter = (
         // 新建才提供 initial，避免 query "__new__"
         if (!isNew) return null;
 
-        const apiRes: ApiResponse<SpecJournalSet> = {
-            IsSuccess: true,
-            Data: empty,
-            SysMessage: [],
-        };
+        const apiRes: ApiResponse<SpecJournalSet> = { IsSuccess: true, Data: empty, SysMessage: [] };
 
         // return
         return { args: internalKey, apiRes };
     }, [isNew, empty, internalKey]);
 
-    const model = adapter.hooks.useModelDisplayName({
-        deps: [],
-        onError,
-    });
+    const model = adapter.hooks.useModelDisplayName({ deps: [], onError });
 
-    const query = adapter.hooks.useQueryData({
-        internalId: internalKey,
-        initial,
-        deps: [internalKey],
-        onError,
-    });
+    const query = adapter.hooks.useQueryData({ internalId: internalKey, initial, deps: [internalKey], onError });
 
     const [data, setData] = useState<SpecJournalSet>(empty);
 
@@ -172,11 +143,7 @@ const useSpecJournalFormDataByAdapter = (
         isLoading,
         error,
         refetch,
-        displayName: (model.data ?? {
-            ModelId: "",
-            ModelDisplayName: "",
-            Tables: [],
-        } as ModelDisplaySchema),
+        displayName: (model.data ?? { ModelId: "", ModelDisplayName: "", Tables: [] } as ModelDisplaySchema),
     };
 };
 
@@ -192,11 +159,7 @@ const useSpecJournalFormActionsByAdapter = (
     const isNew = useMemo(() => !internalId, [internalId]);
 
     const actions = adapter.useServerActions({
-        onSuccessByMode: {
-            create: () => opt.onBackToList(),
-            update: () => opt.onBackToList(),
-            delete: () => opt.onBackToList(),
-        },
+        onSuccessByMode: { create: () => opt.onBackToList(), update: () => opt.onBackToList(), delete: () => opt.onBackToList() },
     });
 
     // return
@@ -219,12 +182,7 @@ const useSpecJournalFormActionsByAdapter = (
 /** ✅ Index 下拉資料 */
 const useSpecJournalIndexListByAdapter = (
     adapter: ReturnType<typeof SpecJournalIndexAdapter>,
-): {
-    rawData: SpecJournalIndexSet[];
-    isLoading: boolean;
-    error: string | null;
-    refetch: () => Promise<void>;
-} =>
+): { rawData: SpecJournalIndexSet[]; isLoading: boolean; error: string | null; refetch: () => Promise<void>; } =>
 {
     // 宣告變數
     const q = adapter.hooks.useQueryList({
@@ -251,12 +209,7 @@ const useSpecJournalIndexListByAdapter = (
     }, [q]);
 
     // return
-    return {
-        rawData: q.data ?? [],
-        isLoading: q.isLoading,
-        error: q.errorText,
-        refetch,
-    };
+    return { rawData: q.data ?? [], isLoading: q.isLoading, error: q.errorText, refetch };
 };
 
 /** ✅ 關鍵字建議來源資料 */
@@ -285,11 +238,6 @@ const useSpecJournalKeywordsByAdapter = (
     }, [q]);
 
     // return
-    return {
-        rawData: q.data ?? [],
-        isLoading: q.isLoading,
-        error: q.errorText,
-        refetch,
-    };
+    return { rawData: q.data ?? [], isLoading: q.isLoading, error: q.errorText, refetch };
 };
 // #endregion

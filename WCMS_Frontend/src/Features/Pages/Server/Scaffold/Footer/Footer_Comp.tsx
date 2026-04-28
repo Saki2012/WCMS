@@ -1,6 +1,7 @@
-import { SysCurrentDate } from '../../../../../SysCore/Utils/SystemInfo/GetServerInfo'
+import { SysCurrentDate } from "../../../../../SysCore/Utils/SystemInfo/GetServerInfo";
 
-const FooterComp = () => {
+const FooterComp = () =>
+{
     const date = SysCurrentDate();
     return (
         <footer className="pc-footer">
@@ -11,13 +12,15 @@ const FooterComp = () => {
                     </div>
                     <div className="col-auto my-3">
                         <ul className="list-inline footer-link mb-0">
-                            <li className="list-inline-item"><a href="https://www.it-easygo.com/" target="_blank">Design by it-easygo.</a></li>
+                            <li className="list-inline-item">
+                                <a href="https://www.it-easygo.com/" target="_blank">Design by it-easygo.</a>
+                            </li>
                         </ul>
                     </div>
                 </div>
             </div>
         </footer>
     );
-}
+};
 
-export default FooterComp
+export default FooterComp;

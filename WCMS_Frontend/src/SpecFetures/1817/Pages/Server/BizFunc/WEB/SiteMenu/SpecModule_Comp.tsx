@@ -18,12 +18,7 @@ interface ModuleOptionsJson
     Style: number;
 }
 
-const moduleOptionsDefaults: ModuleOptionsJson = {
-    PageId: "",
-    Category: "",
-    Tag: "",
-    Style: 1,
-};
+const moduleOptionsDefaults: ModuleOptionsJson = { PageId: "", Category: "", Tag: "", Style: 1 };
 
 export const Module_SpecMusical_Comp = (
     prop: {

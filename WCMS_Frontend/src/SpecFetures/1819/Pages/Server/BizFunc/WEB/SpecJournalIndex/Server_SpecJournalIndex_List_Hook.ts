@@ -24,9 +24,7 @@ export type SpecJournalIndexListRawData = {
     param: QueryListParam;
 };
 
-export type SpecJournalIndexListAdapter = {
-    SpecJournalIndex: ReturnType<typeof SpecJournalIndexAdapter>;
-};
+export type SpecJournalIndexListAdapter = { SpecJournalIndex: ReturnType<typeof SpecJournalIndexAdapter>; };
 
 /** SpecJournalIndex List 的資料入口 */
 export const useSpecJournalIndexListFetchData = (
@@ -45,15 +43,10 @@ export const useSpecJournalIndexListFetchData = (
     const adapter = useMemo<SpecJournalIndexListAdapter>(() =>
     {
         // 建立 adapter group
-        return {
-            SpecJournalIndex: SpecJournalIndexAdapter(),
-        };
+        return { SpecJournalIndex: SpecJournalIndexAdapter() };
     }, []);
 
-    const baseParam = useSpecJournalIndexListQueryParam({
-        lang: opt.lang,
-        kw: opt.kw,
-    });
+    const baseParam = useSpecJournalIndexListQueryParam({ lang: opt.lang, kw: opt.kw });
 
     const grid = adapter.SpecJournalIndex.hooks.useQueryGridData({
         baseParam,
@@ -82,15 +75,7 @@ export const useSpecJournalIndexListFetchData = (
             onPageChange: grid.onPageChange,
             param: grid.param,
         };
-    }, [
-        grid.modelDisplayName,
-        grid.count,
-        grid.list,
-        grid.pageNumber,
-        grid.totalPages,
-        grid.onPageChange,
-        grid.param,
-    ]);
+    }, [grid.modelDisplayName, grid.count, grid.list, grid.pageNumber, grid.totalPages, grid.onPageChange, grid.param]);
 
     const refetchData = useCallback(async () =>
     {
@@ -104,21 +89,12 @@ export const useSpecJournalIndexListFetchData = (
     }, []);
 
     // return
-    return {
-        adapter,
-        rawData,
-        isLoading,
-        errors,
-        refetchData,
-        refetchRefData,
-    };
+    return { adapter, rawData, isLoading, errors, refetchData, refetchRefData };
 };
 // #endregion
 
 // #region Private
-const useSpecJournalIndexListQueryParam = (
-    p: { lang: Lang; kw: string; },
-): QueryListParam =>
+const useSpecJournalIndexListQueryParam = (p: { lang: Lang; kw: string; }): QueryListParam =>
 {
     const fields = useMemo<string[]>(() =>
     {
@@ -150,13 +126,7 @@ const useSpecJournalIndexListQueryParam = (
     return useMemo(() =>
     {
         // 回傳查詢參數
-        return {
-            Fields: fields,
-            Condition: condition,
-            OrderBy: [{ Col: SpecJournalIndexModelFields.CreateTime, Desc: true }],
-            PageNumber: 1,
-            PageSize: 10,
-        };
+        return { Fields: fields, Condition: condition, OrderBy: [{ Col: SpecJournalIndexModelFields.CreateTime, Desc: true }], PageNumber: 1, PageSize: 10 };
     }, [fields, condition]);
 };
 // #endregion

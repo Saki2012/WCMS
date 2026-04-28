@@ -60,11 +60,7 @@ const useAccountListData = (adapter: AccountAdapterType, query: string): UseAcco
         // return
         if (!hasQuery) return "";
 
-        return LibMerge(
-            " And ",
-            false,
-            `(${AccountFields.AccountName} Like ${query} Or ${AccountFields.AccountId} Like ${query})`,
-        );
+        return LibMerge(" And ", false, `(${AccountFields.AccountName} Like ${query} Or ${AccountFields.AccountId} Like ${query})`);
     }, [query]);
 
     const baseParam = useMemo<QueryListParam>(() =>
@@ -85,27 +81,14 @@ const useAccountListData = (adapter: AccountAdapterType, query: string): UseAcco
         };
     }, [condition]);
 
-    const count = adapter.hooks.useQueryCount({
-        condition: baseParam,
-        deps: [baseParam.Condition ?? ""],
-        onError,
-    });
+    const count = adapter.hooks.useQueryCount({ condition: baseParam, deps: [baseParam.Condition ?? ""], onError });
 
-    const paged = adapter.hooks.usePagedQueryList({
-        baseParam,
-        count: count.data ?? 0,
-        deps: [baseParam.Condition ?? ""],
-        onError,
-    });
+    const paged = adapter.hooks.usePagedQueryList({ baseParam, count: count.data ?? 0, deps: [baseParam.Condition ?? ""], onError });
 
     const gridProps = useMemo<AccountListGridProps>(() =>
     {
         // return
-        return {
-            CurrentPage: paged.pageNumber,
-            TotalPage: paged.totalPages,
-            onPageChange: (page: number) => paged.onPageChange(page),
-        };
+        return { CurrentPage: paged.pageNumber, TotalPage: paged.totalPages, onPageChange: (page: number) => paged.onPageChange(page) };
     }, [paged.pageNumber, paged.totalPages, paged.onPageChange]);
 
     const refetchCurrent = useCallback(async () =>
@@ -119,29 +102,17 @@ const useAccountListData = (adapter: AccountAdapterType, query: string): UseAcco
     const error = count.errorText ?? paged.errorText ?? null;
 
     // return
-    return {
-        rawData: paged.data ?? [],
-        gridProps,
-        isLoading,
-        error,
-        refetchCurrent,
-    };
+    return { rawData: paged.data ?? [], gridProps, isLoading, error, refetchCurrent };
 };
 
 /** 建立列表 actions */
-const useAccountListActions = (
-    dirUrl: string,
-    adapter: AccountAdapterType,
-    afterChanged: () => Promise<void>,
-): UseActionsResult =>
+const useAccountListActions = (dirUrl: string, adapter: AccountAdapterType, afterChanged: () => Promise<void>): UseActionsResult =>
 {
     // 宣告變數
     const navigate = useNavigate();
     const { publish } = useToast();
 
-    const cud = adapter.hooks.useCudActions({
-        onError: (e: ApiAdapterError) => publish({ level: MessageStatus.Error, title: e.messageText }),
-    });
+    const cud = adapter.hooks.useCudActions({ onError: (e: ApiAdapterError) => publish({ level: MessageStatus.Error, title: e.messageText }) });
 
     const onAddNew = useCallback(() =>
     {
@@ -203,24 +174,11 @@ export const useServerAccountList = (theme: IBETheme): UseServerAccountListResul
     const actions = useAccountListActions(dirUrl, adapter, dataList.refetchCurrent);
     const searchCompProp = useMemo<SearchBarProps>(() =>
     {
-        return {
-            title: "帳號搜尋",
-            subTitle: "搜尋帳號 ...",
-            settingTitle: "搜尋設定",
-            onSubmit: setKw,
-            onReset: () => setKw(""),
-        };
+        return { title: "帳號搜尋", subTitle: "搜尋帳號 ...", settingTitle: "搜尋設定", onSubmit: setKw, onReset: () => setKw("") };
     }, []);
     const prop = useMemo<FormCompProp>(() =>
     {
-        return {
-            Title: "會員管理",
-            Theme: theme,
-            IsLoading: dataList.isLoading,
-            ErrorList: [dataList.error],
-            Actions: actions,
-            SearchBar: searchCompProp,
-        };
+        return { Title: "會員管理", Theme: theme, IsLoading: dataList.isLoading, ErrorList: [dataList.error], Actions: actions, SearchBar: searchCompProp };
     }, [theme, dataList.isLoading, dataList.error, actions, searchCompProp]);
     return { prop, rawData: dataList.rawData, gridProps: dataList.gridProps, dirUrl };
 };

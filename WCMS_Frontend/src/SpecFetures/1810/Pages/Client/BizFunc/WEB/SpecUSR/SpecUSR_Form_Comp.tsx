@@ -1,7 +1,5 @@
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-import SpecUSR_Gallery_Comp, {
-    type ISpecUSRPhoto,
-} from "@/SpecFetures/1810/Pages/Client/BizFunc/WEB/SpecUSR/SpecUSR_Gallery_Comp";
+import SpecUSR_Gallery_Comp, { type ISpecUSRPhoto } from "@/SpecFetures/1810/Pages/Client/BizFunc/WEB/SpecUSR/SpecUSR_Gallery_Comp";
 import type { ColumnConfig } from "@/SysCore/Components/Grid/Grid_Data";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import type { Lang } from "@/SysCore/i18n/lang";
@@ -73,12 +71,7 @@ const shouldRenderField = (showColumns: string[], colId: string, value: FieldVal
 };
 
 const SpecUSRForm = (
-    { lang, rawData, showColumns, showColTitle }: {
-        lang: string | Lang;
-        rawData: SpecUSRSet;
-        showColumns: string[];
-        showColTitle: ColumnConfig[];
-    },
+    { lang, rawData, showColumns, showColTitle }: { lang: string | Lang; rawData: SpecUSRSet; showColumns: string[]; showColTitle: ColumnConfig[]; },
 ) =>
 {
     // 宣告變數
@@ -112,9 +105,7 @@ const SpecUSRForm = (
     const fileDetail = rawData.SpecUSRFile?.filter(p => p.USRId === detail?.USRId && p.ParentRowId === detail?.RowId);
     const [open, setOpen] = useState(false);
 
-    const images = header?.PictureId
-        ? [{ src: FileManagementAPI.get_Public_Preview_Url(header.PictureId), title: `${header.PicDescription ?? ""}` }]
-        : [];
+    const images = header?.PictureId ? [{ src: FileManagementAPI.get_Public_Preview_Url(header.PictureId), title: `${header.PicDescription ?? ""}` }] : [];
 
     const photos = useMemo<ISpecUSRPhoto[]>(() =>
     {
@@ -124,18 +115,14 @@ const SpecUSRForm = (
         const getSort = (item: SpecUSRPhoto) => Number(item?.Sort ?? 0);
 
         // return
-        return list
-            .slice()
-            .sort((a, b) => getSort(a) - getSort(b))
-            .map(item =>
-            {
-                const id = `${item?.PicSrcId ?? ""}`.trim();
-                if (!id) return null;
+        return list.slice().sort((a, b) => getSort(a) - getSort(b)).map(item =>
+        {
+            const id = `${item?.PicSrcId ?? ""}`.trim();
+            if (!id) return null;
 
-                const info = infos.find(p => p.USRId === item.USRId && p.ParentRowId === item.RowId && p.Lang === lang);
-                return { id, alt: info?.Title ?? "" } as ISpecUSRPhoto;
-            })
-            .filter((p): p is ISpecUSRPhoto => p !== null);
+            const info = infos.find(p => p.USRId === item.USRId && p.ParentRowId === item.RowId && p.Lang === lang);
+            return { id, alt: info?.Title ?? "" } as ISpecUSRPhoto;
+        }).filter((p): p is ISpecUSRPhoto => p !== null);
     }, [rawData.SpecUSRPhoto, rawData.SpecUSRPhotoInfo, lang]);
 
     // return
@@ -169,10 +156,7 @@ const SpecUSRForm = (
                             <div className="td__ col-sm-10 col-12 d-flex justify-content-start align-content-center p-0">
                                 <div className="ttBox_R">
                                     {images.map((img, idx) => (
-                                        <div
-                                            className="col-xs-12 col-sm-10 col-md-7 col-lg-6 photo_one_pic_standardbox mb-0"
-                                            key={idx}
-                                        >
+                                        <div className="col-xs-12 col-sm-10 col-md-7 col-lg-6 photo_one_pic_standardbox mb-0" key={idx}>
                                             <div className="lightbox">
                                                 <div
                                                     className="img-box"
@@ -219,17 +203,8 @@ const SpecUSRForm = (
                                             {
                                                 const target = item.WindowTarget === 0 ? "_self" : "_blank";
                                                 return (
-                                                    <li
-                                                        key={`${item.USRId ?? ""}-${item.ParentRowId ?? ""}-${
-                                                            item.RowId ?? ""
-                                                        }`}
-                                                    >
-                                                        <a
-                                                            href={item.Url ?? ""}
-                                                            target={target}
-                                                            rel="noopener noreferrer"
-                                                            className="btn btn-default"
-                                                        >
+                                                    <li key={`${item.USRId ?? ""}-${item.ParentRowId ?? ""}-${item.RowId ?? ""}`}>
+                                                        <a href={item.Url ?? ""} target={target} rel="noopener noreferrer" className="btn btn-default">
                                                             <i className="fa fa-link"></i> {item.UrlDescription}
                                                         </a>
                                                     </li>
@@ -251,16 +226,9 @@ const SpecUSRForm = (
                                         <ul className="list-group">
                                             {fileDetail.map(item =>
                                             {
-                                                const fileUrl = FileManagementAPI.get_Public_Download_Url(
-                                                    item.FileSrcId,
-                                                    item.FileName,
-                                                );
+                                                const fileUrl = FileManagementAPI.get_Public_Download_Url(item.FileSrcId, item.FileName);
                                                 return (
-                                                    <li
-                                                        key={`${item.USRId ?? ""}-${item.ParentRowId ?? ""}-${
-                                                            item.RowId ?? ""
-                                                        }`}
-                                                    >
+                                                    <li key={`${item.USRId ?? ""}-${item.ParentRowId ?? ""}-${item.RowId ?? ""}`}>
                                                         <a
                                                             href={fileUrl}
                                                             rel="noopener noreferrer"
@@ -295,14 +263,7 @@ interface GalleryOpenButtonProps
 const GalleryOpenButton = ({ count, onOpen }: GalleryOpenButtonProps) =>
 {
     // 宣告變數
-    const wrapStyle: CSSProperties = {
-        width: "100%",
-        flexBasis: "100%",
-        alignSelf: "stretch",
-        marginTop: 8,
-        marginRight: "auto",
-        textAlign: "left",
-    };
+    const wrapStyle: CSSProperties = { width: "100%", flexBasis: "100%", alignSelf: "stretch", marginTop: 8, marginRight: "auto", textAlign: "left" };
 
     // return
     return (

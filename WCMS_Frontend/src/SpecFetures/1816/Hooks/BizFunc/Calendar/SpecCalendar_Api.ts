@@ -1,11 +1,5 @@
 import { CalendarAdapterImpl, CalendarService } from "@/Features/Hooks/BizFunc/COMM/Calendar_Api";
-import type {
-    ApiAdapterError,
-    ApiDataHookGroup,
-    ApiDataLoaderGroup,
-    ApiLoaderData,
-    EffectDeps,
-} from "@/SysCore/Utils/API/APIAdapter";
+import type { ApiAdapterError, ApiDataHookGroup, ApiDataLoaderGroup, ApiLoaderData, EffectDeps } from "@/SysCore/Utils/API/APIAdapter";
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import type { components } from "@/types/api";
 import type { AxiosInstance } from "axios";
@@ -19,9 +13,7 @@ class SpecCalendarService extends CalendarService
     // #region API Func
     async fetchCurrentOpenTime(): Promise<ApiResponse<CurrentOpenTime[]>>
     {
-        return await this.CallApi<CurrentOpenTime[]>(() =>
-            this.Api.get<ApiResponse<CurrentOpenTime[]>>(`${this.Module}/Spec_GetCurrentOpenTime`)
-        );
+        return await this.CallApi<CurrentOpenTime[]>(() => this.Api.get<ApiResponse<CurrentOpenTime[]>>(`${this.Module}/Spec_GetCurrentOpenTime`));
     }
     // #endregion
 }
@@ -79,9 +71,7 @@ class SpecCalendarAdapterImpl extends CalendarAdapterImpl
     // #endregion
 
     // #region Loader Func
-    private getCurrentOpenTimeLoader(
-        opt?: { getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; },
-    )
+    private getCurrentOpenTimeLoader(opt?: { getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; })
     {
         return this.createApiLoader<null, CurrentOpenTime[]>({
             action: "Calendar.Query.CurrentOpenTime",

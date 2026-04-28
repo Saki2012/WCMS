@@ -1,19 +1,19 @@
-import { useId, useMemo, useRef, useState } from 'react';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import type { ILibCalendarProp } from './LibCalendar_Data';
-import { format, isSameDay, parse, isValid } from "date-fns";
+import { useId, useMemo, useRef, useState } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { format, isSameDay, isValid, parse } from "date-fns";
+import type { ILibCalendarProp } from "./LibCalendar_Data";
 
-
-
-
-const SUPPORTED_FORMATS = ["yyyy/MM/dd", "yyyy/M/d", "yyyy-MM-dd", "yyyy-M-d", "yyyy.MM.dd", "yyyy.M.d", "yyyyMMdd",] as const;
-const parseUserDate = (raw: string): Date | null => {
+const SUPPORTED_FORMATS = ["yyyy/MM/dd", "yyyy/M/d", "yyyy-MM-dd", "yyyy-M-d", "yyyy.MM.dd", "yyyy.M.d", "yyyyMMdd"] as const;
+const parseUserDate = (raw: string): Date | null =>
+{
     const v = (raw || "").trim();
     if (!v) return null;
-    for (const fmt of SUPPORTED_FORMATS) {
+    for (const fmt of SUPPORTED_FORMATS)
+    {
         const d = parse(v, fmt, new Date());
-        if (isValid(d)) {
+        if (isValid(d))
+        {
             // 安全帶：限制合理年份（可依需求調整）
             const y = d.getFullYear();
             if (y >= 1900 && y <= 2100) return d;
@@ -21,51 +21,57 @@ const parseUserDate = (raw: string): Date | null => {
     }
     return null;
 };
-const LibCalendar = (prop: ILibCalendarProp) => {
+const LibCalendar = (prop: ILibCalendarProp) =>
+{
     const inputId = useId();
-    const [text, setText] = useState<string>("");       // 使用者正在輸入的文字
+    const [text, setText] = useState<string>(""); // 使用者正在輸入的文字
     const [invalid, setInvalid] = useState<boolean>(false);
-    const lastCommittedRef = useRef<string>("");        // 上一次已提交的字串，避免反覆覆寫
-    const selectedDate = useMemo(() => {
+    const lastCommittedRef = useRef<string>(""); // 上一次已提交的字串，避免反覆覆寫
+    const selectedDate = useMemo(() =>
+    {
         if (!prop.InputValue) return null;
         const d = new Date(prop.InputValue);
         return isValid(d) ? d : null;
     }, [prop.InputValue]);
-    const handleChangeRaw = (e: React.SyntheticEvent<any>) => {
+    const handleChangeRaw = (e: React.SyntheticEvent<any>) =>
+    {
         const input = e.target as HTMLInputElement;
         setText(input.value ?? "");
         if (invalid) setInvalid(false);
     };
-    const handlePick = (date: Date | null) => {
+    const handlePick = (date: Date | null) =>
+    {
         const dateStr = date ? format(date, "yyyy-MM-dd") : "";
         lastCommittedRef.current = "";
         setText("");
         setInvalid(false);
         prop.onChange?.(dateStr);
     };
-    const commitTextIfPossible = () => {
+    const commitTextIfPossible = () =>
+    {
         const raw = (text || "").trim();
         // 空字串就什麼都不做（保留目前 selected 的值）
-        if (raw === "") {
+        if (raw === "")
+        {
             setInvalid(false);
             return;
         }
         if (raw === lastCommittedRef.current) return;
         const parsed = parseUserDate(raw);
-        if (parsed) {
+        if (parsed)
+        {
             lastCommittedRef.current = raw;
             setInvalid(false);
             prop.onChange?.(format(parsed, "yyyy-MM-dd"));
             setText(""); // 交回給 DatePicker 用 selected + dateFormat 顯示
-        } else {
+        } else
+        {
             setInvalid(true);
         }
     };
     return (
         <>
-            <label htmlFor={inputId} className="col-md-2 col-sm-12 float-md-left float-sm-none col-form-label">
-                {prop.ColumnDisplayName}
-            </label>
+            <label htmlFor={inputId} className="col-md-2 col-sm-12 float-md-left float-sm-none col-form-label">{prop.ColumnDisplayName}</label>
             <div className="col-md-10 col-sm-12 float-md-left float-sm-none">
                 <div className="Date input-group input-daterange">
                     <span className="input-group-text">
@@ -76,8 +82,10 @@ const LibCalendar = (prop: ILibCalendarProp) => {
                         selected={selectedDate}
                         onChange={handlePick}
                         onBlur={commitTextIfPossible}
-                        onKeyDown={(e) => {
-                            if (e.key === "Enter") {
+                        onKeyDown={(e) =>
+                        {
+                            if (e.key === "Enter")
+                            {
                                 e.preventDefault();
                                 commitTextIfPossible();
                             }
@@ -89,10 +97,11 @@ const LibCalendar = (prop: ILibCalendarProp) => {
                         autoComplete="off"
                         className="start-date form-control dateicon"
                         calendarClassName="wcms-datepicker"
-
-                        dayClassName={(date) => {
+                        dayClassName={(date) =>
+                        {
                             let className = "";
-                            if (isSameDay(date, new Date())) {
+                            if (isSameDay(date, new Date()))
+                            {
                                 className += " bg-blue-100 text-blue-800 rounded-full";
                             }
                             return className.trim();
@@ -100,10 +109,11 @@ const LibCalendar = (prop: ILibCalendarProp) => {
                         isClearable
                         popperClassName="wcms-datepicker-popper"
                     />
-                    {invalid && (<span id={`${inputId}-err`} className="invalid-feedback d-block"> 日期格式不正確。 </span>)}
+                    {invalid && <span id={`${inputId}-err`} className="invalid-feedback d-block">日期格式不正確。</span>}
                 </div>
             </div>
-            <style>{`
+            <style>
+                {`
   /* 讓浮層蓋過 TinyMCE */
   .react-datepicker-popper.wcms-datepicker-popper {
     z-index: 9999;
@@ -188,7 +198,8 @@ const LibCalendar = (prop: ILibCalendarProp) => {
     background-color: #0d6efd;
     color: #fff !important;
   }
-`}</style>
+`}
+            </style>
         </>
     );
 };

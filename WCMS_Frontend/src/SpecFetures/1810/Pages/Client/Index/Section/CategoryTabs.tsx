@@ -8,10 +8,7 @@ import type { components } from "@/types/api";
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 
-export const CategoryTabs = (props: {
-    lang: Lang;
-    hydrationData: HomePageCategoryTabsHookResult;
-}) =>
+export const CategoryTabs = (props: { lang: Lang; hydrationData: HomePageCategoryTabsHookResult; }) =>
 {
     // 宣告變數：統一吃 Homepage hydration source
     const source = props.hydrationData;
@@ -29,54 +26,12 @@ export const CategoryTabs = (props: {
     const tagDict = source.tagDict;
 
     // 執行 function：維持原本 tab 內容轉換規則
-    const allNews = getNewsDataProps(
-        allNewsRawData,
-        props.lang,
-        "/Allnews/All-announcement",
-        "",
-        categoryDict,
-        tagDict,
-    );
-    const project = getNewsDataProps(
-        projectRawData,
-        props.lang,
-        "/Allnews/All-announcement",
-        "",
-        categoryDict,
-        tagDict,
-    );
-    const legal = getNewsDataProps(
-        legalRawData,
-        props.lang,
-        "/Allnews/Regulatory-Announcements",
-        "6",
-        categoryDict,
-        tagDict,
-    );
-    const even = getNewsDataProps(
-        evenRawData,
-        props.lang,
-        "/Allnews/Intramural-activities/In-school-activities",
-        "",
-        categoryDict,
-        tagDict,
-    );
-    const award = getNewsDataProps(
-        awardRawData,
-        props.lang,
-        "/Allnews/Award-announcement",
-        "45",
-        categoryDict,
-        tagDict,
-    );
-    const media = getNewsDataProps(
-        mediaRawData,
-        props.lang,
-        "/Allnews/Special-Topics-and-Media-Coverage",
-        "46",
-        categoryDict,
-        tagDict,
-    );
+    const allNews = getNewsDataProps(allNewsRawData, props.lang, "/Allnews/All-announcement", "", categoryDict, tagDict);
+    const project = getNewsDataProps(projectRawData, props.lang, "/Allnews/All-announcement", "", categoryDict, tagDict);
+    const legal = getNewsDataProps(legalRawData, props.lang, "/Allnews/Regulatory-Announcements", "6", categoryDict, tagDict);
+    const even = getNewsDataProps(evenRawData, props.lang, "/Allnews/Intramural-activities/In-school-activities", "", categoryDict, tagDict);
+    const award = getNewsDataProps(awardRawData, props.lang, "/Allnews/Award-announcement", "45", categoryDict, tagDict);
+    const media = getNewsDataProps(mediaRawData, props.lang, "/Allnews/Special-Topics-and-Media-Coverage", "46", categoryDict, tagDict);
 
     return (
         // <LoadingErrorHandler loadingList={loadingList} errorList={errorList} >
@@ -85,10 +40,7 @@ export const CategoryTabs = (props: {
                 <div className="customizeBox">
                     <div className="container-customize1">
                         <div className="row">
-                            <div
-                                className="col-12 px-4 + animate__animated animate__slow wow bounceInUp"
-                                data-wow-delay="0.1s"
-                            >
+                            <div className="col-12 px-4 + animate__animated animate__slow wow bounceInUp" data-wow-delay="0.1s">
                                 {/* // 標題 start */}
                                 <div className="Standard-TitleDiv div-header">
                                     <div className="TextDIV">
@@ -109,84 +61,30 @@ export const CategoryTabs = (props: {
                         <div className="row">
                             <div className="col-xxl-2 col-xl-3 col-lg-3 col-md-12 col-sm-12 col-12 + px-4">
                                 <div className="tab_ulbox">
-                                    <ul
-                                        className="nav nav-tabs p-0 STYL0 + animate__animated animate__slow wow bounceInUp"
-                                        data-wow-delay="0.1s"
-                                    >
+                                    <ul className="nav nav-tabs p-0 STYL0 + animate__animated animate__slow wow bounceInUp" data-wow-delay="0.1s">
                                         <li className="nav-item">
-                                            <a
-                                                className="nav-link i1 active"
-                                                data-bs-toggle="tab"
-                                                href="#tab-1"
-                                                tabIndex={6}
-                                                title="最新公告"
-                                            >
-                                                最新公告
-                                            </a>
+                                            <a className="nav-link i1 active" data-bs-toggle="tab" href="#tab-1" tabIndex={6} title="最新公告">最新公告</a>
                                         </li>
                                         <li className="nav-item">
-                                            <a
-                                                className="nav-link i2"
-                                                data-bs-toggle="tab"
-                                                href="#tab-2"
-                                                tabIndex={6}
-                                                title="計畫徵求"
-                                            >
-                                                計畫徵求
-                                            </a>
+                                            <a className="nav-link i2" data-bs-toggle="tab" href="#tab-2" tabIndex={6} title="計畫徵求">計畫徵求</a>
                                         </li>
                                         <li className="nav-item">
-                                            <a
-                                                className="nav-link i3"
-                                                data-bs-toggle="tab"
-                                                href="#tab-3"
-                                                tabIndex={6}
-                                                title="法規公告"
-                                            >
-                                                法規公告
-                                            </a>
+                                            <a className="nav-link i3" data-bs-toggle="tab" href="#tab-3" tabIndex={6} title="法規公告">法規公告</a>
                                         </li>
                                         <li className="nav-item">
-                                            <a
-                                                className="nav-link i4"
-                                                data-bs-toggle="tab"
-                                                href="#tab-4"
-                                                tabIndex={6}
-                                                title="活動公告"
-                                            >
-                                                活動公告
-                                            </a>
+                                            <a className="nav-link i4" data-bs-toggle="tab" href="#tab-4" tabIndex={6} title="活動公告">活動公告</a>
                                         </li>
                                         <li className="nav-item">
-                                            <a
-                                                className="nav-link i5"
-                                                data-bs-toggle="tab"
-                                                href="#tab-5"
-                                                tabIndex={6}
-                                                title="獲獎公告"
-                                            >
-                                                獲獎公告
-                                            </a>
+                                            <a className="nav-link i5" data-bs-toggle="tab" href="#tab-5" tabIndex={6} title="獲獎公告">獲獎公告</a>
                                         </li>
                                         <li className="nav-item">
-                                            <a
-                                                className="nav-link i6"
-                                                data-bs-toggle="tab"
-                                                href="#tab-6"
-                                                tabIndex={6}
-                                                title="專題與媒體報導"
-                                            >
-                                                專題與媒體報導
-                                            </a>
+                                            <a className="nav-link i6" data-bs-toggle="tab" href="#tab-6" tabIndex={6} title="專題與媒體報導">專題與媒體報導</a>
                                         </li>
                                     </ul>
                                 </div>
                             </div>
                             <div className="col-xxl-10 col-xl-9 col-lg-9 col-md-12 col-sm-12 col-12 + px-4">
-                                <div
-                                    className="tab-content STYL0 + animate__animated animate__slow wow bounceInUp"
-                                    data-wow-delay="0.2s"
-                                >
+                                <div className="tab-content STYL0 + animate__animated animate__slow wow bounceInUp" data-wow-delay="0.2s">
                                     <div className="tab-pane fade show active" id="tab-1">
                                         <div className="News_mainDIV">
                                             <div className="list-div">
@@ -197,12 +95,7 @@ export const CategoryTabs = (props: {
                                         </div>
                                         <div className="btn_Div justify-content-end">
                                             <div className="customize_btn my-3">
-                                                <LangLink
-                                                    to="/Allnews/All-announcement"
-                                                    className="Btn_s1"
-                                                    tabIndex={7}
-                                                    title="更多最新公告"
-                                                >
+                                                <LangLink to="/Allnews/All-announcement" className="Btn_s1" tabIndex={7} title="更多最新公告">
                                                     VIEW ALL<span className="ml-2">+</span>
                                                 </LangLink>
                                             </div>
@@ -218,12 +111,7 @@ export const CategoryTabs = (props: {
                                         </div>
                                         <div className="btn_Div justify-content-end">
                                             <div className="customize_btn my-3">
-                                                <LangLink
-                                                    to="/Allnews/All-announcement"
-                                                    className="Btn_s1"
-                                                    tabIndex={8}
-                                                    title="更多計畫徵求"
-                                                >
+                                                <LangLink to="/Allnews/All-announcement" className="Btn_s1" tabIndex={8} title="更多計畫徵求">
                                                     VIEW ALL<span className="ml-2">+</span>
                                                 </LangLink>
                                             </div>
@@ -239,12 +127,7 @@ export const CategoryTabs = (props: {
                                         </div>
                                         <div className="btn_Div justify-content-end">
                                             <div className="customize_btn my-3">
-                                                <LangLink
-                                                    to="/Allnews/Regulatory-Announcements"
-                                                    className="Btn_s1"
-                                                    tabIndex={9}
-                                                    title="更多法規公告"
-                                                >
+                                                <LangLink to="/Allnews/Regulatory-Announcements" className="Btn_s1" tabIndex={9} title="更多法規公告">
                                                     VIEW ALL<span className="ml-2">+</span>
                                                 </LangLink>
                                             </div>
@@ -281,12 +164,7 @@ export const CategoryTabs = (props: {
                                         </div>
                                         <div className="btn_Div justify-content-end">
                                             <div className="customize_btn my-3">
-                                                <LangLink
-                                                    to="/Allnews/Award-announcement"
-                                                    className="Btn_s1"
-                                                    tabIndex={10}
-                                                    title="更多獲獎公告"
-                                                >
+                                                <LangLink to="/Allnews/Award-announcement" className="Btn_s1" tabIndex={10} title="更多獲獎公告">
                                                     VIEW ALL<span className="ml-2">+</span>
                                                 </LangLink>
                                             </div>
@@ -386,35 +264,24 @@ const formatDate = (dateStr: string) =>
     return { day, month };
 };
 
-const pickNewsByCategories = <
-    T extends { Announcement?: { Categories?: string | null | undefined; }; },
->(
+const pickNewsByCategories = <T extends { Announcement?: { Categories?: string | null | undefined; }; }>(
     newsData: T[] | undefined,
     categories: string | string[],
     take: number = 6,
     mode: "any" | "all" = "any",
 ): T[] =>
 {
-    const target = new Set(
-        (Array.isArray(categories) ? categories : String(categories).split(","))
-            .map(s => s.trim())
-            .filter(Boolean),
-    );
+    const target = new Set((Array.isArray(categories) ? categories : String(categories).split(",")).map(s => s.trim()).filter(Boolean));
 
     if (!newsData || target.size === 0) return (newsData ?? []).slice(0, take);
 
     const result = newsData.filter(item =>
     {
-        const tokens = (item.Announcement?.Categories ?? "")
-            .split(",")
-            .map(s => s.trim())
-            .filter(Boolean);
+        const tokens = (item.Announcement?.Categories ?? "").split(",").map(s => s.trim()).filter(Boolean);
 
         if (tokens.length === 0) return false;
 
-        return mode === "all"
-            ? [...target].every(t => tokens.includes(t))
-            : tokens.some(t => target.has(t));
+        return mode === "all" ? [...target].every(t => tokens.includes(t)) : tokens.some(t => target.has(t));
     });
 
     return result.slice(0, take);
@@ -428,12 +295,7 @@ const GetData = ({ prop }: { prop: getDataProp[]; }) =>
             {
                 return (
                     <li className="m-news_item" key={item.announceInternalId}>
-                        <LangLink
-                            className="m-news_link"
-                            to={`${item.redir}/${item.announceInternalId}`}
-                            tabIndex={7}
-                            title={item.title}
-                        >
+                        <LangLink className="m-news_link" to={`${item.redir}/${item.announceInternalId}`} tabIndex={7} title={item.title}>
                             <div className="m-news_date">
                                 <div className="d-big">{item.date}</div>
                                 <div className="d-small">{item.month}</div>
@@ -445,18 +307,12 @@ const GetData = ({ prop }: { prop: getDataProp[]; }) =>
                                 <div className="m-news_detail">
                                     <div className="customstyle-hotop">
                                         {isWithinLastNDaysFromMD(Number(item.monthNum), Number(item.date)) && (
-                                            <div className="icon-small new-bg" role="status" aria-label="最新">
-                                                最新
-                                            </div>
+                                            <div className="icon-small new-bg" role="status" aria-label="最新">最新</div>
                                         )}
                                         {item.contentStatus != 0 && (
                                             <>
-                                                {Boolean(item.contentStatus & 1) && (
-                                                    <div className="icon-small top-bg">置頂</div>
-                                                )}
-                                                {Boolean(item.contentStatus & 2) && (
-                                                    <div className="icon-small hot-bg">熱門</div>
-                                                )}
+                                                {Boolean(item.contentStatus & 1) && <div className="icon-small top-bg">置頂</div>}
+                                                {Boolean(item.contentStatus & 2) && <div className="icon-small hot-bg">熱門</div>}
                                             </>
                                         )}
                                     </div>
@@ -482,11 +338,7 @@ const GetData = ({ prop }: { prop: getDataProp[]; }) =>
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-const isWithinLastNDaysFromMD = (
-    month1to12?: number,
-    day1to31?: number,
-    n: number = 8,
-): boolean =>
+const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: number = 8): boolean =>
 {
     if (!month1to12 || !day1to31) return false;
 

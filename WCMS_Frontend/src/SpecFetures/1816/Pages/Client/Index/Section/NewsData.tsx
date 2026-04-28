@@ -40,97 +40,51 @@ const toListInitial = <TArgs, TItem>(args: TArgs, data: TItem[]) =>
     return { args, apiRes: { IsSuccess: true, Data: data, SysMessage: [] } };
 };
 
-const useAnnouncementLists = (p: {
-    listParam01: QueryListParam;
-    listParam02: QueryListParam;
-    listParam03: QueryListParam;
-    listParam04: QueryListParam;
-    initialList01: AnnouncementSet[];
-    initialList02: AnnouncementSet[];
-    initialList03: AnnouncementSet[];
-    initialList04: AnnouncementSet[];
-}) =>
+const useAnnouncementLists = (
+    p: {
+        listParam01: QueryListParam;
+        listParam02: QueryListParam;
+        listParam03: QueryListParam;
+        listParam04: QueryListParam;
+        initialList01: AnnouncementSet[];
+        initialList02: AnnouncementSet[];
+        initialList03: AnnouncementSet[];
+        initialList04: AnnouncementSet[];
+    },
+) =>
 {
     // 宣告變數
     const adapter = useMemo(() => AnnouncementAdapter(), []);
 
-    const initial01 = useMemo(() => toListInitial(p.listParam01, p.initialList01 ?? []), [
-        p.listParam01,
-        p.initialList01,
-    ]);
-    const initial02 = useMemo(() => toListInitial(p.listParam02, p.initialList02 ?? []), [
-        p.listParam02,
-        p.initialList02,
-    ]);
-    const initial03 = useMemo(() => toListInitial(p.listParam03, p.initialList03 ?? []), [
-        p.listParam03,
-        p.initialList03,
-    ]);
-    const initial04 = useMemo(() => toListInitial(p.listParam04, p.initialList04 ?? []), [
-        p.listParam04,
-        p.initialList04,
-    ]);
+    const initial01 = useMemo(() => toListInitial(p.listParam01, p.initialList01 ?? []), [p.listParam01, p.initialList01]);
+    const initial02 = useMemo(() => toListInitial(p.listParam02, p.initialList02 ?? []), [p.listParam02, p.initialList02]);
+    const initial03 = useMemo(() => toListInitial(p.listParam03, p.initialList03 ?? []), [p.listParam03, p.initialList03]);
+    const initial04 = useMemo(() => toListInitial(p.listParam04, p.initialList04 ?? []), [p.listParam04, p.initialList04]);
 
     // 執行 function：SSR 有 initial → hydration 不重抓
-    const q01 = adapter.hooks.useQueryList({
-        condition: p.listParam01,
-        initial: initial01,
-        deps: [p.listParam01.Condition ?? ""],
-    });
-    const q02 = adapter.hooks.useQueryList({
-        condition: p.listParam02,
-        initial: initial02,
-        deps: [p.listParam02.Condition ?? ""],
-    });
-    const q03 = adapter.hooks.useQueryList({
-        condition: p.listParam03,
-        initial: initial03,
-        deps: [p.listParam03.Condition ?? ""],
-    });
-    const q04 = adapter.hooks.useQueryList({
-        condition: p.listParam04,
-        initial: initial04,
-        deps: [p.listParam04.Condition ?? ""],
-    });
+    const q01 = adapter.hooks.useQueryList({ condition: p.listParam01, initial: initial01, deps: [p.listParam01.Condition ?? ""] });
+    const q02 = adapter.hooks.useQueryList({ condition: p.listParam02, initial: initial02, deps: [p.listParam02.Condition ?? ""] });
+    const q03 = adapter.hooks.useQueryList({ condition: p.listParam03, initial: initial03, deps: [p.listParam03.Condition ?? ""] });
+    const q04 = adapter.hooks.useQueryList({ condition: p.listParam04, initial: initial04, deps: [p.listParam04.Condition ?? ""] });
 
     // return
-    return {
-        list01: q01.data ?? [],
-        list02: q02.data ?? [],
-        list03: q03.data ?? [],
-        list04: q04.data ?? [],
-    };
+    return { list01: q01.data ?? [], list02: q02.data ?? [], list03: q03.data ?? [], list04: q04.data ?? [] };
 };
 
-const useCategoryTagDict = (p: {
-    lang: Lang;
-    cateParam: QueryListParam;
-    tagParam: QueryListParam;
-    initialCategories: CategoryDataSet[];
-    initialTags: TagSet[];
-}) =>
+const useCategoryTagDict = (
+    p: { lang: Lang; cateParam: QueryListParam; tagParam: QueryListParam; initialCategories: CategoryDataSet[]; initialTags: TagSet[]; },
+) =>
 {
     // 宣告變數
     const cateAdapter = useMemo(() => CategoryAdapter(), []);
     const tagAdapter = useMemo(() => TagAdapter(), []);
 
-    const cateInitial = useMemo(() => toListInitial(p.cateParam, p.initialCategories ?? []), [
-        p.cateParam,
-        p.initialCategories,
-    ]);
+    const cateInitial = useMemo(() => toListInitial(p.cateParam, p.initialCategories ?? []), [p.cateParam, p.initialCategories]);
     const tagInitial = useMemo(() => toListInitial(p.tagParam, p.initialTags ?? []), [p.tagParam, p.initialTags]);
 
     // 執行 function
-    const cateQ = cateAdapter.hooks.useQueryList({
-        condition: p.cateParam,
-        initial: cateInitial,
-        deps: [p.cateParam.Condition ?? ""],
-    });
-    const tagQ = tagAdapter.hooks.useQueryList({
-        condition: p.tagParam,
-        initial: tagInitial,
-        deps: [p.tagParam.Condition ?? ""],
-    });
+    const cateQ = cateAdapter.hooks.useQueryList({ condition: p.cateParam, initial: cateInitial, deps: [p.cateParam.Condition ?? ""] });
+    const tagQ = tagAdapter.hooks.useQueryList({ condition: p.tagParam, initial: tagInitial, deps: [p.tagParam.Condition ?? ""] });
 
     // 宣告變數：dict
     const categoryDict = useMemo(() => buildCategoryDict(cateQ.data ?? [], p.lang), [cateQ.data, p.lang]);
@@ -183,16 +137,13 @@ export const NewsData = (props: NewsDataProps) =>
         return getNewsDataProps(lists.list04, props.lang, "/News/News-04", "", dicts.categoryDict, dicts.tagDict);
     }, [lists.list04, props.lang, dicts.categoryDict, dicts.tagDict]);
 
-    const getMoreText = useCallback(
-        (catName: string) =>
-        {
-            // 宣告變數
-            const base = props.lang === "en" ? "More " : "更多";
-            // return
-            return `${base}${catName ?? ""}`;
-        },
-        [props.lang],
-    );
+    const getMoreText = useCallback((catName: string) =>
+    {
+        // 宣告變數
+        const base = props.lang === "en" ? "More " : "更多";
+        // return
+        return `${base}${catName ?? ""}`;
+    }, [props.lang]);
 
     const [activeTab, setActiveTab] = useState<"01" | "02" | "03" | "04">("01");
 
@@ -251,12 +202,7 @@ export const NewsData = (props: NewsDataProps) =>
                                             </a>
 
                                             <div className="tab-content" id="V-nav-tabContent">
-                                                <div
-                                                    aria-labelledby="V-Tabs__01"
-                                                    className={getPaneClass("01")}
-                                                    id="V-navTabs-01-content"
-                                                    role="tabpanel"
-                                                >
+                                                <div aria-labelledby="V-Tabs__01" className={getPaneClass("01")} id="V-navTabs-01-content" role="tabpanel">
                                                     <div className="News_mainDIV">
                                                         <ul className="ListNews">
                                                             <GetData lang={props.lang} prop={allNews1}></GetData>
@@ -277,9 +223,7 @@ export const NewsData = (props: NewsDataProps) =>
                                                                         <div className="me-2">
                                                                             <img alt="" src={more_d} />
                                                                         </div>
-                                                                        <span>
-                                                                            {getMoreText(dicts.categoryDict["1"] ?? "")}
-                                                                        </span>
+                                                                        <span>{getMoreText(dicts.categoryDict["1"] ?? "")}</span>
                                                                         <span className="ms-2">
                                                                             <span className="fas fa-angle-right"></span>
                                                                         </span>
@@ -309,12 +253,7 @@ export const NewsData = (props: NewsDataProps) =>
                                             </a>
 
                                             <div className="tab-content" id="V-nav-tabContent">
-                                                <div
-                                                    aria-labelledby="V-Tabs__02"
-                                                    className={getPaneClass("02")}
-                                                    id="V-navTabs-02-content"
-                                                    role="tabpanel"
-                                                >
+                                                <div aria-labelledby="V-Tabs__02" className={getPaneClass("02")} id="V-navTabs-02-content" role="tabpanel">
                                                     <div className="News_mainDIV">
                                                         <ul className="ListNews">
                                                             <GetData lang={props.lang} prop={allNews2}></GetData>
@@ -335,9 +274,7 @@ export const NewsData = (props: NewsDataProps) =>
                                                                         <div className="me-2">
                                                                             <img alt="" src={more_d} />
                                                                         </div>
-                                                                        <span>
-                                                                            {getMoreText(dicts.categoryDict["2"] ?? "")}
-                                                                        </span>
+                                                                        <span>{getMoreText(dicts.categoryDict["2"] ?? "")}</span>
                                                                         <span className="ms-2">
                                                                             <span className="fas fa-angle-right"></span>
                                                                         </span>
@@ -367,12 +304,7 @@ export const NewsData = (props: NewsDataProps) =>
                                             </a>
 
                                             <div className="tab-content" id="V-nav-tabContent">
-                                                <div
-                                                    aria-labelledby="V-Tabs__03"
-                                                    className={getPaneClass("03")}
-                                                    id="V-navTabs-03-content"
-                                                    role="tabpanel"
-                                                >
+                                                <div aria-labelledby="V-Tabs__03" className={getPaneClass("03")} id="V-navTabs-03-content" role="tabpanel">
                                                     <div className="News_mainDIV">
                                                         <ul className="ListNews">
                                                             <GetData lang={props.lang} prop={allNews3}></GetData>
@@ -393,9 +325,7 @@ export const NewsData = (props: NewsDataProps) =>
                                                                         <div className="me-2">
                                                                             <img alt="" src={more_d} />
                                                                         </div>
-                                                                        <span>
-                                                                            {getMoreText(dicts.categoryDict["3"] ?? "")}
-                                                                        </span>
+                                                                        <span>{getMoreText(dicts.categoryDict["3"] ?? "")}</span>
                                                                         <span className="ms-2">
                                                                             <span className="fas fa-angle-right"></span>
                                                                         </span>
@@ -425,12 +355,7 @@ export const NewsData = (props: NewsDataProps) =>
                                             </a>
 
                                             <div className="tab-content" id="V-nav-tabContent">
-                                                <div
-                                                    aria-labelledby="V-Tabs__04"
-                                                    className={getPaneClass("04")}
-                                                    id="V-navTabs-04-content"
-                                                    role="tabpanel"
-                                                >
+                                                <div aria-labelledby="V-Tabs__04" className={getPaneClass("04")} id="V-navTabs-04-content" role="tabpanel">
                                                     <div className="News_mainDIV">
                                                         <ul className="ListNews">
                                                             <GetData lang={props.lang} prop={allNews4}></GetData>
@@ -451,9 +376,7 @@ export const NewsData = (props: NewsDataProps) =>
                                                                         <div className="me-2">
                                                                             <img alt="" src={more_d} />
                                                                         </div>
-                                                                        <span>
-                                                                            {getMoreText(dicts.categoryDict["4"] ?? "")}
-                                                                        </span>
+                                                                        <span>{getMoreText(dicts.categoryDict["4"] ?? "")}</span>
                                                                         <span className="ms-2">
                                                                             <span className="fas fa-angle-right"></span>
                                                                         </span>
@@ -576,9 +499,7 @@ const pickNewsByCategories = <T extends { Announcement?: { Categories?: string |
     mode: "any" | "all" = "any",
 ): T[] =>
 {
-    const target = new Set(
-        (Array.isArray(categories) ? categories : String(categories).split(",")).map((s) => s.trim()).filter(Boolean),
-    );
+    const target = new Set((Array.isArray(categories) ? categories : String(categories).split(",")).map((s) => s.trim()).filter(Boolean));
     if (!newsData || target.size === 0) return (newsData ?? []).slice(0, take);
 
     const result = newsData.filter((item) =>
@@ -620,11 +541,7 @@ const GetData = (props: { lang: Lang; prop: GetDataProp[]; }) =>
                     ? { top: "置頂", new: "最新", hot: "熱門" }
                     : { top: "TOP", new: "NEW", hot: "HOT" };
 
-                const tagEnabled: Record<TagKey, boolean> = {
-                    top: isTop,
-                    new: isHot,
-                    hot: isNew,
-                };
+                const tagEnabled: Record<TagKey, boolean> = { top: isTop, new: isHot, hot: isNew };
 
                 const tagKeys = (["top", "new", "hot"] as const).filter((k) => tagEnabled[k]).slice(0, 2);
                 const href = `${p.redir}/${p.announceInternalId}`;
@@ -635,11 +552,7 @@ const GetData = (props: { lang: Lang; prop: GetDataProp[]; }) =>
                             <div className="rightBox">
                                 <div className="card_catDiv">
                                     <div className="a-left order-1">
-                                        <div className="card_time">
-                                            {`${p.year}-${String(p.month).padStart(2, "0")}-${
-                                                String(p.date).padStart(2, "0")
-                                            }`}
-                                        </div>
+                                        <div className="card_time">{`${p.year}-${String(p.month).padStart(2, "0")}-${String(p.date).padStart(2, "0")}`}</div>
                                     </div>
 
                                     <div className="card_titleDiv order-xl-2 order-3">
@@ -647,13 +560,7 @@ const GetData = (props: { lang: Lang; prop: GetDataProp[]; }) =>
                                     </div>
 
                                     <div className="a-right order-xl-3 order-2">
-                                        <div className="CustomState">
-                                            {tagKeys.map((k) => (
-                                                <div key={k} className="icon-small top-bg">
-                                                    {tagText[k]}
-                                                </div>
-                                            ))}
-                                        </div>
+                                        <div className="CustomState">{tagKeys.map((k) => <div key={k} className="icon-small top-bg">{tagText[k]}</div>)}</div>
                                     </div>
                                 </div>
                             </div>

@@ -13,6 +13,4 @@ export class SpecJournalIndexService extends ApiDataService<SpecJournalIndexSet>
     }
 }
 export const SpecJournalIndexAdapter = (apiInstance?: AxiosInstance) =>
-    new ApiDataAdapter<SpecJournalIndexSet, SpecJournalIndexService>(
-        (api?: AxiosInstance) => new SpecJournalIndexService(api ?? apiInstance),
-    );
+    new ApiDataAdapter<SpecJournalIndexSet, SpecJournalIndexService>((api?: AxiosInstance) => new SpecJournalIndexService(api ?? apiInstance));

@@ -49,20 +49,9 @@ export const Server_Account_Form_Comp = (props: { theme: IBETheme; }) =>
                 />,
             ],
             Person: [<Person_Comp key="Person" theme={props.theme} formData={vm.formData} />],
-            System: [
-                <SystemInfoTabComp theme={props.theme} formData={vm.formData} setKey={AccountSetFields.Account} />,
-            ],
+            System: [<SystemInfoTabComp theme={props.theme} formData={vm.formData} setKey={AccountSetFields.Account} />],
         };
-    }, [
-        props.theme,
-        vm.formData,
-        vm.accountStatus,
-        vm.isAddNew,
-        vm.confirmPwd,
-        vm.onConfirmPwdChange,
-        vm.personIds,
-        vm.roleIds,
-    ]);
+    }, [props.theme, vm.formData, vm.accountStatus, vm.isAddNew, vm.confirmPwd, vm.onConfirmPwdChange, vm.personIds, vm.roleIds]);
     const userPic = FileManagementAPI.get_Server_Preview_Url(vm.userPicId) ?? pic;
 
     return (
@@ -91,16 +80,18 @@ export const Server_Account_Form_Comp = (props: { theme: IBETheme; }) =>
     );
 };
 
-const Account_Comp = (props: {
-    theme: IBETheme;
-    formData: UseFetchFormDataResult<AccountSet>;
-    accountStatus: Record<string, string>;
-    personIds: Map<string, string>;
-    roleIds: Map<string, string>;
-    isAddNew: boolean;
-    confirmPwd: string;
-    onConfirmPwdChange: (v: string) => void;
-}) =>
+const Account_Comp = (
+    props: {
+        theme: IBETheme;
+        formData: UseFetchFormDataResult<AccountSet>;
+        accountStatus: Record<string, string>;
+        personIds: Map<string, string>;
+        roleIds: Map<string, string>;
+        isAddNew: boolean;
+        confirmPwd: string;
+        onConfirmPwdChange: (v: string) => void;
+    },
+) =>
 {
     const setField = useSetTableField<AccountSet>(props.formData);
     return (

@@ -49,23 +49,16 @@ export const useSpecUSRFormFetchData = (
 ): UseFetchDataResult<SpecUSRFormRawData, SpecUSRFormAdapter> =>
 {
     const { publish } = useToast();
-    const onError = useCallback(
-        (e: ApiAdapterError) =>
-        {
-            // 顯示錯誤 toast（對標 Announcement）
-            publish({ level: MessageStatus.Error, title: e.messageText });
-        },
-        [publish],
-    );
+    const onError = useCallback((e: ApiAdapterError) =>
+    {
+        // 顯示錯誤 toast（對標 Announcement）
+        publish({ level: MessageStatus.Error, title: e.messageText });
+    }, [publish]);
 
     const adapter = useMemo<SpecUSRFormAdapter>(() =>
     {
         // 建立 adapter group（對標 Announcement/SpecResearch）
-        return {
-            SpecUSR: createSpecUSRAdapter(),
-            SpecCategory: createSpecCategoryAdapter(),
-            Tag: TagAdapter(),
-        };
+        return { SpecUSR: createSpecUSRAdapter(), SpecCategory: createSpecCategoryAdapter(), Tag: TagAdapter() };
     }, []);
 
     // 執行 function：主資料（ModelDisplayName + QueryData + editable state）
@@ -80,12 +73,7 @@ export const useSpecUSRFormFetchData = (
     // 宣告變數：Loading / Error（給 LoadingErrorHandler）
     const loadingList = useMemo<boolean[]>(() =>
     {
-        return [
-            Boolean(formData.isLoading),
-            Boolean(category.isLoading),
-            Boolean(tag.isLoading),
-            Boolean(statusOpts.isLoading),
-        ];
+        return [Boolean(formData.isLoading), Boolean(category.isLoading), Boolean(tag.isLoading), Boolean(statusOpts.isLoading)];
     }, [formData.isLoading, category.isLoading, tag.isLoading, statusOpts.isLoading]);
 
     const errorList = useMemo<(string | null | undefined)[]>(() =>
@@ -99,14 +87,7 @@ export const useSpecUSRFormFetchData = (
 
     const rawData = useMemo<SpecUSRFormRawData>(() =>
     {
-        return {
-            formData,
-            categoryMap: category.map ?? {},
-            categoryCols: category.cols ?? {},
-            tagMap: tag.map ?? {},
-            statusOpts: statusOpts.data,
-            actions,
-        };
+        return { formData, categoryMap: category.map ?? {}, categoryCols: category.cols ?? {}, tagMap: tag.map ?? {}, statusOpts: statusOpts.data, actions };
     }, [formData, category.map, category.cols, tag.map, statusOpts.data, actions]);
 
     const refetchData = useCallback(async () =>
@@ -142,11 +123,7 @@ const useContentStatusOptions = (): { data: Record<string, string>; isLoading: b
     }, [src.data, src.isLoading, src.error]);
 };
 
-const emptyDisplaySchema: ModelDisplaySchema = {
-    ModelId: "",
-    ModelDisplayName: "",
-    Tables: [],
-};
+const emptyDisplaySchema: ModelDisplaySchema = { ModelId: "", ModelDisplayName: "", Tables: [] };
 // #endregion
 
 // #region Private - SpecUSR (FormData / Actions)
@@ -161,9 +138,7 @@ class SpecUSRService extends ApiDataService<SpecUSRSet>
 const createSpecUSRAdapter = (apiInstance?: AxiosInstance) =>
 {
     // 建立 adapter（與現有寫法一致，只是移到 hook 檔）
-    const adapter = new ApiDataAdapter<SpecUSRSet, SpecUSRService>((api?: AxiosInstance) =>
-        new SpecUSRService(api ?? apiInstance)
-    );
+    const adapter = new ApiDataAdapter<SpecUSRSet, SpecUSRService>((api?: AxiosInstance) => new SpecUSRService(api ?? apiInstance));
     return adapter;
 };
 
@@ -210,14 +185,7 @@ const useSpecUSRFormDataByAdapter = (
     const error = query.errorText ?? model.errorText ?? null;
 
     // return（displayName 不可為 null）
-    return {
-        data,
-        setFormData: setData,
-        isLoading,
-        error,
-        refetch,
-        displayName: model.data ?? emptyDisplaySchema,
-    };
+    return { data, setFormData: setData, isLoading, error, refetch, displayName: model.data ?? emptyDisplaySchema };
 };
 
 const useSpecUSRFormActionsByAdapter = (
@@ -231,11 +199,7 @@ const useSpecUSRFormActionsByAdapter = (
     const isNew = useMemo(() => !internalId, [internalId]);
 
     const actions = adapter.useServerActions({
-        onSuccessByMode: {
-            create: () => opt.onBackToList(),
-            update: () => opt.onBackToList(),
-            delete: () => opt.onBackToList(),
-        },
+        onSuccessByMode: { create: () => opt.onBackToList(), update: () => opt.onBackToList(), delete: () => opt.onBackToList() },
     });
 
     // return
@@ -268,9 +232,7 @@ class SpecCategoryService extends ApiDataService<SpecCategorySet>
 const createSpecCategoryAdapter = (apiInstance?: AxiosInstance) =>
 {
     // 建立 adapter
-    return new ApiDataAdapter<SpecCategorySet, SpecCategoryService>((api?: AxiosInstance) =>
-        new SpecCategoryService(api ?? apiInstance)
-    );
+    return new ApiDataAdapter<SpecCategorySet, SpecCategoryService>((api?: AxiosInstance) => new SpecCategoryService(api ?? apiInstance));
 };
 
 const escapeQueryString = (value: string): string =>
@@ -279,9 +241,7 @@ const escapeQueryString = (value: string): string =>
     return value.replace(/"/g, `""`);
 };
 
-const buildSpecCategoryQueryByProgIdParam = (
-    opt: { progId: string; lang?: Lang; pageSize?: number; },
-): QueryListParam =>
+const buildSpecCategoryQueryByProgIdParam = (opt: { progId: string; lang?: Lang; pageSize?: number; }): QueryListParam =>
 {
     // 宣告變數
     const progId = escapeQueryString(opt.progId);
@@ -294,9 +254,7 @@ const buildSpecCategoryQueryByProgIdParam = (
         `${SpecCategoryModelFields._SpecCategoryDetail}.${SpecCategoryDetailModelFields.CategoryName}`,
     ];
 
-    const condLang = lang
-        ? ` And ${SpecCategoryModelFields._SpecCategoryDetail}.${SpecCategoryDetailModelFields.Lang} = "${lang}"`
-        : "";
+    const condLang = lang ? ` And ${SpecCategoryModelFields._SpecCategoryDetail}.${SpecCategoryDetailModelFields.Lang} = "${lang}"` : "";
 
     // return
     return {
@@ -311,13 +269,7 @@ const buildSpecCategoryQueryByProgIdParam = (
 const useSpecCategoryMapAndCols = (
     adapter: ReturnType<typeof createSpecCategoryAdapter>,
     opt: { progId: string; lang: Lang; },
-): {
-    isLoading: boolean;
-    errorText: string | null;
-    refetch: () => Promise<void>;
-    map: Record<string, string>;
-    cols: Record<string, string[]>;
-} =>
+): { isLoading: boolean; errorText: string | null; refetch: () => Promise<void>; map: Record<string, string>; cols: Record<string, string[]>; } =>
 {
     // 執行 function
     const query = adapter.hooks.useQueryList({
@@ -364,13 +316,7 @@ const useSpecCategoryMapAndCols = (
     }, [query]);
 
     // return
-    return {
-        isLoading: Boolean(query.isLoading),
-        errorText: query.errorText ?? null,
-        refetch,
-        map,
-        cols,
-    };
+    return { isLoading: Boolean(query.isLoading), errorText: query.errorText ?? null, refetch, map, cols };
 };
 
 type JsonValue = string | number | boolean | null | JsonValue[] | { [k: string]: JsonValue; };
@@ -388,10 +334,7 @@ const parseShowColumnItems = (raw: string): string[] =>
     }
 
     // return
-    return raw
-        .split(/[,;|]/g)
-        .map((x) => x.trim())
-        .filter(Boolean);
+    return raw.split(/[,;|]/g).map((x) => x.trim()).filter(Boolean);
 };
 
 const safeParseJsonArray = (raw: string): string[] | null =>
@@ -401,10 +344,7 @@ const safeParseJsonArray = (raw: string): string[] | null =>
         const parsed = JSON.parse(raw) as JsonValue;
         if (!Array.isArray(parsed)) return null;
 
-        return parsed
-            .filter((x): x is string => typeof x === "string")
-            .map((x) => x.trim())
-            .filter(Boolean);
+        return parsed.filter((x): x is string => typeof x === "string").map((x) => x.trim()).filter(Boolean);
     } catch
     {
         return null;

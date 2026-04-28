@@ -85,12 +85,7 @@ const buildBaseCondition = (p: { lang: Lang; opts: IFileArchiveOptions; }): stri
     // 執行 function：固定篩選條件
     if (p.opts.Category)
     {
-        condition = LibMerge(
-            " And ",
-            false,
-            condition,
-            `${FileArchiveFields.CategoriesId} HasAny [${p.opts.Category}]`,
-        );
+        condition = LibMerge(" And ", false, condition, `${FileArchiveFields.CategoriesId} HasAny [${p.opts.Category}]`);
     }
     if (p.opts.Tag)
     {
@@ -110,12 +105,7 @@ const appendSearchCondition = (baseCondition: string, query: ISearchQuery): stri
     // 執行 function：使用者互動搜尋條件
     if (query.keyword)
     {
-        condition = LibMerge(
-            " And ",
-            false,
-            condition,
-            `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.Title} Like ${query.keyword}`,
-        );
+        condition = LibMerge(" And ", false, condition, `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.Title} Like ${query.keyword}`);
     }
     if (query.tag)
     {
@@ -168,14 +158,7 @@ const buildBaseParam = (p: { lang: Lang; opts: IFileArchiveOptions; query?: ISea
     // return：交給 spec 做最後修飾
     const extendBaseParam = getResolvedFileArchiveListBaseParam();
 
-    return extendBaseParam({
-        lang: p.lang,
-        opts: p.opts,
-        query,
-        baseCondition,
-        condition,
-        result,
-    });
+    return extendBaseParam({ lang: p.lang, opts: p.opts, query, baseCondition, condition, result });
 };
 
 /** 預設：不修改核心結果 */
@@ -214,10 +197,7 @@ const getResolvedFileArchiveListBaseParam = (): FileArchiveListBaseParamSlot =>
 export type FileArchiveListBaseParamSlot = (ctx: FileArchiveListBaseParamContext) => QueryListParam;
 
 /** 比對 SSR initial 與目前條件是否一致 */
-const isSameQueryListParam = (
-    left?: QueryListParam | null,
-    right?: QueryListParam | null,
-): boolean =>
+const isSameQueryListParam = (left?: QueryListParam | null, right?: QueryListParam | null): boolean =>
 {
     // return
     return JSON.stringify(left ?? null) === JSON.stringify(right ?? null);
@@ -226,65 +206,34 @@ const isSameQueryListParam = (
 /** 將 tag data 轉成 SearchBar 可直接使用的選單 */
 const buildTagOptions = (tagMap: Record<string, string>): FileArchiveTagOption[] =>
 {
-    return Object.entries(tagMap ?? {})
-        .map(([id, name]) => ({ id, name: name ?? "" }))
-        .filter(item => Boolean(item.id) && Boolean(item.name));
+    return Object.entries(tagMap ?? {}).map(([id, name]) => ({ id, name: name ?? "" })).filter(item => Boolean(item.id) && Boolean(item.name));
 };
 
 /** SSR loader：主清單走 createQueryGridDataLoader，分類/標籤走 map loader */
-export const FileArchiveList_Loader =
-    (p: { lang: Lang; opts: IFileArchiveOptions; }) =>
-    async (args: LoaderFunctionArgs): Promise<FileArchiveListLoaderData> =>
-    {
-        // 宣告變數
-        const ssrApi = getSsrApi(args.request);
-        const fileArchive = FileArchiveAdapter(ssrApi);
-        const category = CategoryAdapter(ssrApi);
-        const tag = TagAdapter(ssrApi);
-        const baseParam = buildBaseParam({ lang: p.lang, opts: p.opts });
+export const FileArchiveList_Loader = (p: { lang: Lang; opts: IFileArchiveOptions; }) => async (args: LoaderFunctionArgs): Promise<FileArchiveListLoaderData> =>
+{
+    // 宣告變數
+    const ssrApi = getSsrApi(args.request);
+    const fileArchive = FileArchiveAdapter(ssrApi);
+    const category = CategoryAdapter(ssrApi);
+    const tag = TagAdapter(ssrApi);
+    const baseParam = buildBaseParam({ lang: p.lang, opts: p.opts });
 
-        // 執行 function：SSR 首屏資料
-        const gridLoader = fileArchive.loader.createQueryGridDataLoader({
-            getCondition: () => baseParam,
-            getApiInstance: () => ssrApi,
-        });
-        const categoryLoader = category.loader.createMapByProgIdLoader({
-            progId: PGID.FileArchive,
-            lang: p.lang,
-            getApiInstance: () => ssrApi,
-        });
-        const tagLoader = tag.loader.createMapByProgIdLoader({
-            progId: PGID.FileArchive,
-            lang: p.lang,
-            getApiInstance: () => ssrApi,
-        });
+    // 執行 function：SSR 首屏資料
+    const gridLoader = fileArchive.loader.createQueryGridDataLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
+    const categoryLoader = category.loader.createMapByProgIdLoader({ progId: PGID.FileArchive, lang: p.lang, getApiInstance: () => ssrApi });
+    const tagLoader = tag.loader.createMapByProgIdLoader({ progId: PGID.FileArchive, lang: p.lang, getApiInstance: () => ssrApi });
 
-        const [grid, categoryData, tagData] = await Promise.all([
-            gridLoader(args),
-            categoryLoader(args),
-            tagLoader(args),
-        ]);
+    const [grid, categoryData, tagData] = await Promise.all([gridLoader(args), categoryLoader(args), tagLoader(args)]);
 
-        // return
-        return {
-            args: {
-                lang: p.lang,
-                baseParam,
-            },
-            initial: {
-                grid,
-                category: categoryData,
-                tag: tagData,
-            },
-        };
-    };
+    // return
+    return { args: { lang: p.lang, baseParam }, initial: { grid, category: categoryData, tag: tagData } };
+};
 
 /** 單一入口：FileArchiveList 所有 hooks data 都集中在這裡 */
-export const useFileArchiveListFetchData = (opt: {
-    lang: Lang;
-    opts: IFileArchiveOptions;
-    query: ISearchQuery;
-}): UseFetchDataResult<FileArchiveListRawData, FileArchiveListAdapter> =>
+export const useFileArchiveListFetchData = (
+    opt: { lang: Lang; opts: IFileArchiveOptions; query: ISearchQuery; },
+): UseFetchDataResult<FileArchiveListRawData, FileArchiveListAdapter> =>
 {
     // 宣告變數
     const loaderData = useLoaderData() as FileArchiveListLoaderData | null;
@@ -299,28 +248,14 @@ export const useFileArchiveListFetchData = (opt: {
     const adapter = useMemo(() =>
     {
         // return
-        return {
-            FileArchive: FileArchiveAdapter(),
-            Category: CategoryAdapter(),
-            Tag: TagAdapter(),
-        };
+        return { FileArchive: FileArchiveAdapter(), Category: CategoryAdapter(), Tag: TagAdapter() };
     }, []);
 
     const baseParam = useMemo(() =>
     {
         // return
-        return buildBaseParam({
-            lang: opt.lang,
-            opts: opt.opts,
-            query: opt.query,
-        });
-    }, [
-        opt.lang,
-        opt.opts.Category,
-        opt.opts.Tag,
-        opt.query.keyword,
-        opt.query.tag,
-    ]);
+        return buildBaseParam({ lang: opt.lang, opts: opt.opts, query: opt.query });
+    }, [opt.lang, opt.opts.Category, opt.opts.Tag, opt.query.keyword, opt.query.tag]);
 
     const gridInitial = useMemo<ApiGridInitial<FileArchiveSet> | null>(() =>
     {
@@ -358,30 +293,16 @@ export const useFileArchiveListFetchData = (opt: {
         onError,
     });
 
-    const category = adapter.Category.hooks.useMapByProgId({
-        progId: PGID.FileArchive,
-        lang: opt.lang,
-        deps: [opt.lang],
-        initial: categoryInitial,
-    });
+    const category = adapter.Category.hooks.useMapByProgId({ progId: PGID.FileArchive, lang: opt.lang, deps: [opt.lang], initial: categoryInitial });
 
-    const tag = adapter.Tag.hooks.useMapByProgId({
-        progId: PGID.FileArchive,
-        lang: opt.lang,
-        deps: [opt.lang],
-        initial: tagInitial,
-    });
+    const tag = adapter.Tag.hooks.useMapByProgId({ progId: PGID.FileArchive, lang: opt.lang, deps: [opt.lang], initial: tagInitial });
 
     const isLoading = Boolean(grid.isLoading || category.isLoading || tag.isLoading);
 
     const errors = useMemo(() =>
     {
         // return：統一錯誤出口
-        return [
-            ...(grid.errors ?? []),
-            category.errorText,
-            tag.errorText,
-        ].filter((item): item is string => Boolean(item));
+        return [...(grid.errors ?? []), category.errorText, tag.errorText].filter((item): item is string => Boolean(item));
     }, [grid.errors, category.errorText, tag.errorText]);
 
     const rawData = useMemo<FileArchiveListRawData>(() =>
@@ -398,17 +319,7 @@ export const useFileArchiveListFetchData = (opt: {
             tagMap: tag.map ?? {},
             tagOptions: buildTagOptions(tag.map ?? {}),
         };
-    }, [
-        grid.modelDisplayName,
-        grid.count,
-        grid.list,
-        grid.pageNumber,
-        grid.totalPages,
-        grid.onPageChange,
-        grid.param,
-        category.map,
-        tag.map,
-    ]);
+    }, [grid.modelDisplayName, grid.count, grid.list, grid.pageNumber, grid.totalPages, grid.onPageChange, grid.param, category.map, tag.map]);
 
     const refetchData = useCallback(async () =>
     {
@@ -423,12 +334,5 @@ export const useFileArchiveListFetchData = (opt: {
     }, [category, tag]);
 
     // return
-    return {
-        adapter,
-        rawData,
-        isLoading,
-        errors,
-        refetchData,
-        refetchRefData,
-    };
+    return { adapter, rawData, isLoading, errors, refetchData, refetchRefData };
 };

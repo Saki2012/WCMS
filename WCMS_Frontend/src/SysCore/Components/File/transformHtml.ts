@@ -20,11 +20,7 @@ export interface TransformOptions
     buildDownloadUrl?: (id: string, meta?: FileMeta) => string;
 }
 
-const replaceImg = (
-    html: string,
-    metaMap: Record<string, FileMeta>,
-    opt?: TransformOptions,
-): string =>
+const replaceImg = (html: string, metaMap: Record<string, FileMeta>, opt?: TransformOptions): string =>
 {
     // 同時吃 ' 與 "，避免某些編輯器輸出單引號
     const reImg = /<img\b([^>]*?)\bdata-internalid\s*=\s*["']([^"']+)["']([^>]*)>/gi;
@@ -34,10 +30,7 @@ const replaceImg = (
         const m = metaMap[id];
 
         // 先把舊的 src 與 data-internalid 拿掉，避免重複
-        const cleaned = (pre + post)
-            .replace(/\bsrc\s*=\s*["'][^"']*["']/gi, "")
-            .replace(/\bdata-internalid\s*=\s*["'][^"']*["']/gi, "")
-            .trim();
+        const cleaned = (pre + post).replace(/\bsrc\s*=\s*["'][^"']*["']/gi, "").replace(/\bdata-internalid\s*=\s*["'][^"']*["']/gi, "").trim();
 
         const hasAlt = /\balt\s*=/i.test(pre + post);
         const altAttr = hasAlt ? "" : ` alt="${m?.alt ?? ""}"`;
@@ -62,21 +55,11 @@ const defaultBuildDownloadUrl = (id: string, meta?: FileMeta) =>
     return FileManagementAPI.get_Public_Download_Url(id);
 };
 
-const replaceAnchorDownload = (
-    html: string,
-    metaMap: Record<string, FileMeta>,
-    opt?: TransformOptions,
-): string =>
+const replaceAnchorDownload = (html: string, metaMap: Record<string, FileMeta>, opt?: TransformOptions): string =>
 {
     const doc = parseDocument(html);
 
-    const anchors = DomUtils.findAll(
-        (el): el is Element =>
-            el.type === "tag"
-            && el.name === "a"
-            && !!el.attribs?.[INTERNAL_ATTR],
-        doc.children,
-    );
+    const anchors = DomUtils.findAll((el): el is Element => el.type === "tag" && el.name === "a" && !!el.attribs?.[INTERNAL_ATTR], doc.children);
 
     anchors.forEach((a) =>
     {
@@ -135,11 +118,7 @@ const ensureTitleForAA = (el: Element, meta?: FileMeta) =>
     }
 };
 
-const replaceIframe = (
-    html: string,
-    metaMap: Record<string, FileMeta>,
-    opt?: TransformOptions,
-): string =>
+const replaceIframe = (html: string, metaMap: Record<string, FileMeta>, opt?: TransformOptions): string =>
 {
     if (!html) return html;
 
@@ -176,11 +155,7 @@ const replaceIframe = (
     return render(doc, { decodeEntities: true });
 };
 
-export const transformHtmlWithMeta = (
-    html: string,
-    metaMap: Record<string, FileMeta>,
-    opt?: TransformOptions,
-): string =>
+export const transformHtmlWithMeta = (html: string, metaMap: Record<string, FileMeta>, opt?: TransformOptions): string =>
 {
     if (!html) return html;
     let out = html;

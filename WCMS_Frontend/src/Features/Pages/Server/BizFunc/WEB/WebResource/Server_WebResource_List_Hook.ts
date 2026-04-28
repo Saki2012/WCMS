@@ -27,13 +27,8 @@ export type WebResourceListRawData = {
     categoryData: CategorySet[];
     categoryMap: Record<string, string>;
 };
-export type WebResourceListAdapter = {
-    WebResource: ReturnType<typeof WebResourceAdapter>;
-    Category: ReturnType<typeof CategoryAdapter>;
-};
-export const useWebResourceListFetchData = (
-    opt: { lang: Lang; kw: string; },
-): UseFetchDataResult<WebResourceListRawData, WebResourceListAdapter> =>
+export type WebResourceListAdapter = { WebResource: ReturnType<typeof WebResourceAdapter>; Category: ReturnType<typeof CategoryAdapter>; };
+export const useWebResourceListFetchData = (opt: { lang: Lang; kw: string; }): UseFetchDataResult<WebResourceListRawData, WebResourceListAdapter> =>
 {
     const { publish } = useToast();
     const onError = useCallback((e: ApiAdapterError) =>
@@ -73,17 +68,7 @@ export const useWebResourceListFetchData = (
             categoryData: category.data ?? [],
             categoryMap: category.map ?? {},
         };
-    }, [
-        grid.modelDisplayName,
-        grid.count,
-        grid.list,
-        grid.pageNumber,
-        grid.totalPages,
-        grid.onPageChange,
-        grid.param,
-        category.data,
-        category.map,
-    ]);
+    }, [grid.modelDisplayName, grid.count, grid.list, grid.pageNumber, grid.totalPages, grid.onPageChange, grid.param, category.data, category.map]);
     const refetchData = useCallback(async () =>
     {
         await grid.refetchData();
@@ -119,24 +104,13 @@ const useWebResourceListQueryParam = (p: { lang: Lang; kw: string; }): QueryList
         let cdt = `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Lang} = ${p.lang}`;
         if (!!p.kw)
         {
-            cdt = LibMerge(
-                " And ",
-                false,
-                cdt,
-                `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Title} Like ${p.kw}`,
-            );
+            cdt = LibMerge(" And ", false, cdt, `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Title} Like ${p.kw}`);
         }
         return cdt;
     }, [p.lang, p.kw]);
     return useMemo(() =>
     {
-        return {
-            Fields: fields,
-            Condition: condition,
-            OrderBy: [{ Col: WebResourceFields.CreateTime, Desc: true }],
-            PageNumber: 1,
-            PageSize: 10,
-        };
+        return { Fields: fields, Condition: condition, OrderBy: [{ Col: WebResourceFields.CreateTime, Desc: true }], PageNumber: 1, PageSize: 10 };
     }, [fields, condition]);
 };
 // #endregion

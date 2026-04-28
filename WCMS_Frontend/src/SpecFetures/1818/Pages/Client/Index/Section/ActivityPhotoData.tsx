@@ -23,14 +23,12 @@ const toListInitial = <TArgs, TItem>(args: TArgs, data: TItem[]) =>
 const buildCategoryDict = (list: CategoryDataSet[], lang: Lang): Record<string, string> =>
 {
     // 宣告變數
-    const pairs = list
-        .map((cat) =>
-        {
-            const id = cat.Category?.CategoryId ?? "";
-            const name = cat.CategoryDetail?.find((p) => p.Lang === lang)?.CategoryName ?? "";
-            return [id, name] as const;
-        })
-        .filter(([id]) => Boolean(id));
+    const pairs = list.map((cat) =>
+    {
+        const id = cat.Category?.CategoryId ?? "";
+        const name = cat.CategoryDetail?.find((p) => p.Lang === lang)?.CategoryName ?? "";
+        return [id, name] as const;
+    }).filter(([id]) => Boolean(id));
 
     // return
     return Object.fromEntries(pairs);
@@ -39,32 +37,32 @@ const buildCategoryDict = (list: CategoryDataSet[], lang: Lang): Record<string, 
 const buildTagDict = (list: TagSet[], lang: Lang): Record<string, string> =>
 {
     // 宣告變數
-    const pairs = list
-        .map((t) =>
-        {
-            const id = t.TagData?.TagId ?? "";
-            const name = t.TagDetail?.find((p) => p.Lang === lang)?.TagName ?? "";
-            return [id, name] as const;
-        })
-        .filter(([id]) => Boolean(id));
+    const pairs = list.map((t) =>
+    {
+        const id = t.TagData?.TagId ?? "";
+        const name = t.TagDetail?.find((p) => p.Lang === lang)?.TagName ?? "";
+        return [id, name] as const;
+    }).filter(([id]) => Boolean(id));
 
     // return
     return Object.fromEntries(pairs);
 };
 
-export const ActivityPhotoData = (props: {
-    lang: Lang;
+export const ActivityPhotoData = (
+    props: {
+        lang: Lang;
 
-    galleryTopParam: QueryListParam;
-    galleryListParam: QueryListParam;
-    cateParam: QueryListParam;
-    tagParam: QueryListParam;
+        galleryTopParam: QueryListParam;
+        galleryListParam: QueryListParam;
+        cateParam: QueryListParam;
+        tagParam: QueryListParam;
 
-    initialTopList: GallerySet[];
-    initialList: GallerySet[];
-    initialCategories: CategoryDataSet[];
-    initialTags: TagSet[];
-}) =>
+        initialTopList: GallerySet[];
+        initialList: GallerySet[];
+        initialCategories: CategoryDataSet[];
+        initialTags: TagSet[];
+    },
+) =>
 {
     // 宣告變數：adapters
     const galleryAdapter = useMemo(() => GalleryAdapter(), []);
@@ -72,22 +70,10 @@ export const ActivityPhotoData = (props: {
     const tagAdapter = useMemo(() => TagAdapter(), []);
 
     // 宣告變數：initial（必須 memo）
-    const topInitial = useMemo(
-        () => toListInitial(props.galleryTopParam, props.initialTopList ?? []),
-        [props.galleryTopParam, props.initialTopList],
-    );
-    const listInitial = useMemo(
-        () => toListInitial(props.galleryListParam, props.initialList ?? []),
-        [props.galleryListParam, props.initialList],
-    );
-    const cateInitial = useMemo(
-        () => toListInitial(props.cateParam, props.initialCategories ?? []),
-        [props.cateParam, props.initialCategories],
-    );
-    const tagInitial = useMemo(
-        () => toListInitial(props.tagParam, props.initialTags ?? []),
-        [props.tagParam, props.initialTags],
-    );
+    const topInitial = useMemo(() => toListInitial(props.galleryTopParam, props.initialTopList ?? []), [props.galleryTopParam, props.initialTopList]);
+    const listInitial = useMemo(() => toListInitial(props.galleryListParam, props.initialList ?? []), [props.galleryListParam, props.initialList]);
+    const cateInitial = useMemo(() => toListInitial(props.cateParam, props.initialCategories ?? []), [props.cateParam, props.initialCategories]);
+    const tagInitial = useMemo(() => toListInitial(props.tagParam, props.initialTags ?? []), [props.tagParam, props.initialTags]);
 
     // 執行：CSR hooks 接手（SSR 有 initial → 不重抓）
     const useTopList = galleryAdapter.hooks.useQueryList({
@@ -100,16 +86,8 @@ export const ActivityPhotoData = (props: {
         initial: listInitial,
         deps: [props.galleryListParam.Condition ?? ""],
     });
-    const useCategoryData = cateAdapter.hooks.useQueryList({
-        condition: props.cateParam,
-        initial: cateInitial,
-        deps: [props.cateParam.Condition ?? ""],
-    });
-    const useTagData = tagAdapter.hooks.useQueryList({
-        condition: props.tagParam,
-        initial: tagInitial,
-        deps: [props.tagParam.Condition ?? ""],
-    });
+    const useCategoryData = cateAdapter.hooks.useQueryList({ condition: props.cateParam, initial: cateInitial, deps: [props.cateParam.Condition ?? ""] });
+    const useTagData = tagAdapter.hooks.useQueryList({ condition: props.tagParam, initial: tagInitial, deps: [props.tagParam.Condition ?? ""] });
 
     // 宣告：合併（置頂優先補滿 6）
     const allGalleryRawData1 = useMemo(() =>
@@ -131,14 +109,7 @@ export const ActivityPhotoData = (props: {
     // 宣告：轉成 UI props（沿用你原本函式）
     const allGallery1 = useMemo(() =>
     {
-        return getGalleryDataProps(
-            allGalleryRawData1,
-            props.lang,
-            "/announcement/announcement-activity",
-            "",
-            categoryDict,
-            tagDict,
-        );
+        return getGalleryDataProps(allGalleryRawData1, props.lang, "/announcement/announcement-activity", "", categoryDict, tagDict);
     }, [allGalleryRawData1, props.lang, categoryDict, tagDict]);
 
     // 宣告：owl dep key（避免每次 render 都 destroy/re-init）
@@ -161,9 +132,7 @@ export const ActivityPhotoData = (props: {
         text: (value: string) => JQueryObj;
     };
 
-    type JQueryLike = ((el: HTMLElement | string) => JQueryObj) & {
-        fn?: { owlCarousel?: (opts: OwlOptions) => void; };
-    };
+    type JQueryLike = ((el: HTMLElement | string) => JQueryObj) & { fn?: { owlCarousel?: (opts: OwlOptions) => void; }; };
 
     const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
@@ -204,20 +173,12 @@ export const ActivityPhotoData = (props: {
         // 執行：同步 aria 狀態（避免 AA 警告）
         if (p.isPlaying)
         {
-            p.$start.attr("aria-pressed", "true").attr("aria-label", "圖片輪播播放中").find(".sr-only").text(
-                "圖片輪播播放中",
-            );
-            p.$pause.attr("aria-pressed", "false").attr("aria-label", "暫停圖片輪播").find(".sr-only").text(
-                "暫停圖片輪播",
-            );
+            p.$start.attr("aria-pressed", "true").attr("aria-label", "圖片輪播播放中").find(".sr-only").text("圖片輪播播放中");
+            p.$pause.attr("aria-pressed", "false").attr("aria-label", "暫停圖片輪播").find(".sr-only").text("暫停圖片輪播");
             return;
         }
-        p.$start.attr("aria-pressed", "false").attr("aria-label", "開始播放圖片輪播").find(".sr-only").text(
-            "開始播放圖片輪播",
-        );
-        p.$pause.attr("aria-pressed", "true").attr("aria-label", "圖片輪播已暫停").find(".sr-only").text(
-            "圖片輪播已暫停",
-        );
+        p.$start.attr("aria-pressed", "false").attr("aria-label", "開始播放圖片輪播").find(".sr-only").text("開始播放圖片輪播");
+        p.$pause.attr("aria-pressed", "true").attr("aria-label", "圖片輪播已暫停").find(".sr-only").text("圖片輪播已暫停");
     };
 
     // --------------------
@@ -274,14 +235,7 @@ export const ActivityPhotoData = (props: {
                 margin: 30,
                 autoplayTimeout: 5000,
                 autoplayHoverPause: true,
-                responsive: {
-                    0: { items: 1 },
-                    500: { items: 2 },
-                    575: { items: 2 },
-                    767: { items: 2 },
-                    991: { items: 3 },
-                    1199: { items: 3 },
-                },
+                responsive: { 0: { items: 1 }, 500: { items: 2 }, 575: { items: 2 }, 767: { items: 2 }, 991: { items: 3 }, 1199: { items: 3 } },
             };
 
             try
@@ -460,9 +414,7 @@ const pickGallerysByCategories = <T extends { Gallery?: { Categories?: string | 
     mode: "any" | "all" = "any",
 ): T[] =>
 {
-    const target = new Set(
-        (Array.isArray(categories) ? categories : String(categories).split(",")).map(s => s.trim()).filter(Boolean),
-    );
+    const target = new Set((Array.isArray(categories) ? categories : String(categories).split(",")).map(s => s.trim()).filter(Boolean));
     if (!newsData || target.size === 0) return (newsData ?? []).slice(0, take);
     const result = newsData.filter(item =>
     {
@@ -491,12 +443,7 @@ const GetData = ({ prop }: { prop: getDataProp[]; }) =>
                 const imgUrl = FileManagementAPI.get_Public_Preview_Url(item.PicSrcId, item.title);
                 return (
                     <div className="item" key={item.galleryInternalId}>
-                        <LangLink
-                            to={`${item.redir}/${item.internalId}`}
-                            title={item.title}
-                            tabIndex={0}
-                            className="item-inner"
-                        >
+                        <LangLink to={`${item.redir}/${item.internalId}`} title={item.title} tabIndex={0} className="item-inner">
                             <div className="wrapper_box">
                                 <div className="Qlink-item">
                                     <div className="Img_Div w-100">
@@ -506,9 +453,7 @@ const GetData = ({ prop }: { prop: getDataProp[]; }) =>
                                     </div>
                                     <div className="Content_Div">
                                         <div className="box_content">
-                                            <div className="tit-text">
-                                                {item.title}
-                                            </div>
+                                            <div className="tit-text">{item.title}</div>
                                             <div className="date">{item.year}-{item.month}-{item.date}</div>
                                         </div>
                                     </div>
@@ -522,11 +467,7 @@ const GetData = ({ prop }: { prop: getDataProp[]; }) =>
     );
 };
 
-const takeTopThenFill = (
-    top: GallerySet[] | undefined,
-    rest: GallerySet[] | undefined,
-    limit: number = 3,
-): GallerySet[] =>
+const takeTopThenFill = (top: GallerySet[] | undefined, rest: GallerySet[] | undefined, limit: number = 3): GallerySet[] =>
 {
     const getKey = (x: GallerySet) => x.Gallery?.InternalId ?? String(x.Gallery?.GalleryId ?? "");
     const seen = new Set<string>();

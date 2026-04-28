@@ -25,15 +25,7 @@ export const Header = ({ lang, site, style }: { lang: Lang; site: INormSite; sty
             <noscript>
                 <div style={{ color: "red" }}>{"您的瀏覽器不支援 JavaScript，請開啟 Javascript 功能。"}</div>
             </noscript>
-            <a
-                href="#content"
-                id="gotocenter"
-                title="跳到頁面主要內容區"
-                tabIndex={1}
-                className="sr-only sr-only-focusable"
-            >
-                跳到頁面主要內容區
-            </a>
+            <a href="#content" id="gotocenter" title="跳到頁面主要內容區" tabIndex={1} className="sr-only sr-only-focusable">跳到頁面主要內容區</a>
             <div id="site-header" className="LL_Header_DivBar main-header">
                 <section className="header_section">
                     <header className="header_Box" ref={headerRef}>
@@ -109,9 +101,7 @@ const MainMenu = (prop: { lang: Lang; site: INormSite; style: IFETheme; }) =>
         {
             if (translateRef.current)
             {
-                new window.google.translate.TranslateElement({
-                    pageLanguage: prop.lang,
-                }, translateRef.current);
+                new window.google.translate.TranslateElement({ pageLanguage: prop.lang }, translateRef.current);
             }
         };
     }, [prop.lang]);
@@ -139,39 +129,17 @@ const MainMenu = (prop: { lang: Lang; site: INormSite; style: IFETheme; }) =>
                     <div className="navsBox" ref={navsRef}>
                         <ul className={clsx("nav", "Customize_Nav")}>
                             <li className={clsx("nav-item")}>
-                                <LangLink
-                                    className="nav-link"
-                                    to="/"
-                                    target="_self"
-                                    title="首頁"
-                                    onClick={() => closeMenu()}
-                                >
-                                    首頁
-                                </LangLink>
+                                <LangLink className="nav-link" to="/" target="_self" title="首頁" onClick={() => closeMenu()}>首頁</LangLink>
                             </li>
 
                             <li className={clsx("nav-item")}>
-                                <LangLink
-                                    className="nav-link"
-                                    to="https://www.ntua.edu.tw/"
-                                    target="_blank"
-                                    title="臺藝大校首頁"
-                                    onClick={() => closeMenu()}
-                                >
+                                <LangLink className="nav-link" to="https://www.ntua.edu.tw/" target="_blank" title="臺藝大校首頁" onClick={() => closeMenu()}>
                                     臺藝校首頁
                                 </LangLink>
                             </li>
 
                             <li className={clsx("nav-item")}>
-                                <LangLink
-                                    className="nav-link"
-                                    to="Sitemap"
-                                    target="_self"
-                                    title="網站導覽"
-                                    onClick={() => closeMenu()}
-                                >
-                                    網站導覽
-                                </LangLink>
+                                <LangLink className="nav-link" to="Sitemap" target="_self" title="網站導覽" onClick={() => closeMenu()}>網站導覽</LangLink>
                             </li>
 
                             <li className={clsx("nav-item")}>
@@ -399,11 +367,7 @@ const toggleHeaderMenu = (headerEl: HTMLElement) =>
     if (isActive) closeHeaderMenu(headerEl);
     else openHeaderMenu(headerEl);
 };
-function useHeaderBehaviorRef(
-    headerRef: React.RefObject<HTMLElement | null>,
-    pathname: string,
-    lang: Lang,
-)
+function useHeaderBehaviorRef(headerRef: React.RefObject<HTMLElement | null>, pathname: string, lang: Lang)
 {
     useEffect(() =>
     {
@@ -421,14 +385,14 @@ function useHeaderBehaviorRef(
         const handleScroll = () =>
         {
             const scroll = window.scrollY;
-            const logos = document.querySelectorAll('.logo');
-            const mains = document.querySelectorAll('.main');
-            const siteheader = document.querySelectorAll('#site-header');
+            const logos = document.querySelectorAll(".logo");
+            const mains = document.querySelectorAll(".main");
+            const siteheader = document.querySelectorAll("#site-header");
 
-            siteheader.forEach((el) => el.classList.toggle('fixed', scroll >= 100));
+            siteheader.forEach((el) => el.classList.toggle("fixed", scroll >= 100));
             // siteheader.forEach((el) => el.classList.toggle('w-100', scroll >= 100));
-            logos.forEach((el) => el.classList.toggle('hide', scroll >= 100));
-            mains.forEach((el) => el.classList.toggle('bg-custom-s5', scroll >= 100));
+            logos.forEach((el) => el.classList.toggle("hide", scroll >= 100));
+            mains.forEach((el) => el.classList.toggle("bg-custom-s5", scroll >= 100));
         };
 
         // 執行 function：重綁事件

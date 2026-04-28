@@ -1,38 +1,27 @@
-import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { useMemo, useState } from "react";
-import { useLocation, useNavigate, type NavigateFunction } from "react-router-dom";
+import { createGridCrudActions, enhanceGridWithAdjustCell, type GridConfirmFn } from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
 import { ListComp } from "@/Features/Pages/Server/Scaffold/Content/List_Comp";
-import type { Lang } from "@/SysCore/i18n/lang";
-import type { SearchBarProps } from "@/SysCore/Components/SearchBar/Searchbar_ForServer_Comp";
-import {
-    useSpecMusicalListFetchData,
-    type SpecMusicalListRawData,
-} from "./Server_SpecMusical_List_Hook";
+import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
-import {
-    createGridCrudActions,
-    enhanceGridWithAdjustCell,
-    type GridConfirmFn,
-} from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
-import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
-import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import type { SearchBarProps } from "@/SysCore/Components/SearchBar/Searchbar_ForServer_Comp";
+import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
+import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { SpecMusicalModelFields } from "@/types/SchemaFields";
+import { useMemo, useState } from "react";
+import { type NavigateFunction, useLocation, useNavigate } from "react-router-dom";
+import { type SpecMusicalListRawData, useSpecMusicalListFetchData } from "./Server_SpecMusical_List_Hook";
 
 type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"];
 
 /** SpecMusical 列表頁 */
-export const Server_SpecMusical_List_Comp = (prop: { title: string; theme: IBETheme; lang: Lang }) => {
+export const Server_SpecMusical_List_Comp = (prop: { title: string; theme: IBETheme; lang: Lang; }) =>
+{
     const [kw, setKw] = useState<string>("");
 
     /** 搜尋列設定 */
-    const searchCompProp: SearchBarProps = {
-        title: "搜尋",
-        subTitle: "搜尋 ...",
-        onSubmit: setKw,
-        onReset: () => setKw(""),
-    };
+    const searchCompProp: SearchBarProps = { title: "搜尋", subTitle: "搜尋 ...", onSubmit: setKw, onReset: () => setKw("") };
 
     /** 依目前路由推導 Form 路徑 */
     const pathname = useLocation().pathname;
@@ -44,16 +33,12 @@ export const Server_SpecMusical_List_Comp = (prop: { title: string; theme: IBETh
     const cudActions = getData.adapter.SpecMusical.hooks.useCudActions();
 
     /** 組出 GridData */
-    const gridData = useMemo(() => {
+    const gridData = useMemo(() =>
+    {
         return buildSpecMusicalGridProps({
             raw: getData.rawData,
             lang: prop.lang,
-            crud: {
-                navigate,
-                dirUrl,
-                deleteAsync: cudActions.deleteAsync,
-                afterDelete: getData.refetchData,
-            },
+            crud: { navigate, dirUrl, deleteAsync: cudActions.deleteAsync, afterDelete: getData.refetchData },
         });
     }, [getData.rawData, prop.lang, navigate, dirUrl, cudActions.deleteAsync, getData.refetchData]);
 
@@ -69,7 +54,7 @@ export const Server_SpecMusical_List_Comp = (prop: { title: string; theme: IBETh
     );
 };
 
-//#region GridProps
+// #region GridProps
 type CrudDeps = {
     navigate: NavigateFunction;
     dirUrl: string;
@@ -78,12 +63,8 @@ type CrudDeps = {
 };
 
 /** SpecMusical 專用 GridProps */
-const buildSpecMusicalGridProps = (opt: {
-    raw: SpecMusicalListRawData;
-    lang: Lang;
-    crud: CrudDeps;
-    confirm?: GridConfirmFn;
-}): GridProps => {
+const buildSpecMusicalGridProps = (opt: { raw: SpecMusicalListRawData; lang: Lang; crud: CrudDeps; confirm?: GridConfirmFn; }): GridProps =>
+{
     /** 定義列表欄位順序 */
     const visibleCols = [
         SpecMusicalModelFields.CoverPicId,
@@ -98,13 +79,7 @@ const buildSpecMusicalGridProps = (opt: {
     const rows = buildSpecMusicalRows(opt.raw, columns);
 
     /** 組基礎 Grid */
-    const baseGrid: GridProps = {
-        columns,
-        rows,
-        CurrentPage: opt.raw.pageNumber ?? 1,
-        TotalPage: opt.raw.totalPages ?? 1,
-        onPageChange: opt.raw.onPageChange,
-    };
+    const baseGrid: GridProps = { columns, rows, CurrentPage: opt.raw.pageNumber ?? 1, TotalPage: opt.raw.totalPages ?? 1, onPageChange: opt.raw.onPageChange };
 
     /** 建立 CRUD action */
     const actions = createGridCrudActions<SpecMusicalSet>({
@@ -124,27 +99,22 @@ const buildSpecMusicalGridProps = (opt: {
 };
 
 /** 依 ModelDisplaySchema 組欄位 */
-const buildColumns = (
-    visibleCols: string[],
-    raw: SpecMusicalListRawData,
-): ColumnConfig[] => {
-    return visibleCols.map((col) => {
+const buildColumns = (visibleCols: string[], raw: SpecMusicalListRawData): ColumnConfig[] =>
+{
+    return visibleCols.map((col) =>
+    {
         const tables = raw.modelDisplayName?.Tables ?? [];
         const hit = tables.flatMap((t) => t.Columns ?? []).find((c) => c.ColumnId === col);
 
-        return {
-            key: col,
-            title: hit?.ColumnDisplayName ?? `【${col}】`,
-        };
+        return { key: col, title: hit?.ColumnDisplayName ?? `【${col}】` };
     });
 };
 
 /** 組出每一列資料 */
-const buildSpecMusicalRows = (
-    raw: SpecMusicalListRawData,
-    columns: ColumnConfig[],
-): GridRow[] => {
-    return (raw.list ?? []).map((set) => {
+const buildSpecMusicalRows = (raw: SpecMusicalListRawData, columns: ColumnConfig[]): GridRow[] =>
+{
+    return (raw.list ?? []).map((set) =>
+    {
         const item = set.SpecMusical;
         const keyId = item?.InternalId ?? item?.MusicalId ?? "";
 
@@ -161,15 +131,10 @@ const buildSpecMusicalRows = (
 };
 
 /** 封面圖顯示內容 */
-const buildCoverContent = (fileId: string | null | undefined) => {
+const buildCoverContent = (fileId: string | null | undefined) =>
+{
     if (!fileId) return "";
 
-    return (
-        <img
-            src={FileManagementAPI.get_Server_Preview_Url(fileId)}
-            style={{ width: "80px", height: "80px", objectFit: "cover" }}
-            alt=""
-        />
-    );
+    return <img src={FileManagementAPI.get_Server_Preview_Url(fileId)} style={{ width: "80px", height: "80px", objectFit: "cover" }} alt="" />;
 };
-//#endregion
+// #endregion

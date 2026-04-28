@@ -43,10 +43,7 @@ const renderPhotoItem = (item: RenderMarquee) =>
 {
     return (
         <li key={item.KeyId} aria-hidden={item.IsClone}>
-            <img
-                src={FileManagementAPI.get_Public_Preview_Url(item.PictureId)}
-                alt={getPictureAlt(item)}
-            />
+            <img src={FileManagementAPI.get_Public_Preview_Url(item.PictureId)} alt={getPictureAlt(item)} />
         </li>
     );
 };
@@ -157,11 +154,7 @@ export const Section5 = (props: { data: Marquee[]; durationSec?: number; }) =>
                         onBlurCapture={handleFocusLeave}
                     >
                         <div className="institution-wrapper">
-                            <ul
-                                id="A1"
-                                className={`Photo-list${isPaused ? " is-paused" : ""}`}
-                                style={{ animationDuration: `${durationSec}s` }}
-                            >
+                            <ul id="A1" className={`Photo-list${isPaused ? " is-paused" : ""}`} style={{ animationDuration: `${durationSec}s` }}>
                                 {renderItems.map(renderPhotoItem)}
                             </ul>
                         </div>

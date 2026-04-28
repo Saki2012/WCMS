@@ -28,9 +28,7 @@ const getXsrf = (): string | null =>
 const postWithXsrf = async (url: string, data?: unknown) =>
 {
     const xsrf = getXsrf();
-    return api.post(url, data ?? null, {
-        headers: xsrf ? { "X-XSRF-Token": xsrf } : undefined,
-    });
+    return api.post(url, data ?? null, { headers: xsrf ? { "X-XSRF-Token": xsrf } : undefined });
 };
 
 // ✅ request：Cookie auth 預設不塞 Bearer，避免舊 token 造成快速掉登
@@ -59,50 +57,47 @@ const replay = (cfg: AnyConfig) =>
 };
 
 // --- 🚦 重點：401 自動 refresh + 重送 ---
-api.interceptors.response.use(
-    (res) => res,
-    async (err) =>
+api.interceptors.response.use((res) => res, async (err) =>
+{
+    const status = err?.response?.status;
+    const cfg: AnyConfig = err?.config ?? {};
+
+    // 不是 401 或者已重送過，就直接丟出去
+    if (status !== 401 || cfg._retry) throw err;
+
+    // 自己打 refresh / login / logout 失敗不重試，避免循環
+    const url = (cfg.url || "").toLowerCase();
+    if (url.endsWith("/refresh") || url.endsWith("/login") || url.endsWith("/logout"))
     {
-        const status = err?.response?.status;
-        const cfg: AnyConfig = err?.config ?? {};
+        throw err;
+    }
 
-        // 不是 401 或者已重送過，就直接丟出去
-        if (status !== 401 || cfg._retry) throw err;
-
-        // 自己打 refresh / login / logout 失敗不重試，避免循環
-        const url = (cfg.url || "").toLowerCase();
-        if (url.endsWith("/refresh") || url.endsWith("/login") || url.endsWith("/logout"))
+    // 並發控制：第一個觸發 refresh，其他排隊
+    if (!isRefreshing)
+    {
+        isRefreshing = true;
+        try
         {
-            throw err;
+            await postWithXsrf("/Auth/Refresh"); // ✅ 更新 access/rtid/XSRF Cookie
+            // 喚醒佇列
+            waitQueue.forEach(fn => fn());
+            waitQueue = [];
+            return replay(cfg); // 重送原請求
+        } finally
+        {
+            isRefreshing = false;
         }
+    }
 
-        // 並發控制：第一個觸發 refresh，其他排隊
-        if (!isRefreshing)
+    // 其他 401 先排隊，等 refresh 完成後重送
+    return new Promise((resolve, reject) =>
+    {
+        waitQueue.push(() =>
         {
-            isRefreshing = true;
-            try
-            {
-                await postWithXsrf("/Auth/Refresh"); // ✅ 更新 access/rtid/XSRF Cookie
-                // 喚醒佇列
-                waitQueue.forEach(fn => fn());
-                waitQueue = [];
-                return replay(cfg); // 重送原請求
-            } finally
-            {
-                isRefreshing = false;
-            }
-        }
-
-        // 其他 401 先排隊，等 refresh 完成後重送
-        return new Promise((resolve, reject) =>
-        {
-            waitQueue.push(() =>
-            {
-                replay(cfg).then(resolve).catch(reject);
-            });
+            replay(cfg).then(resolve).catch(reject);
         });
-    },
-);
+    });
+});
 
 export const AuthAPI = {
     me: () => api.get("/Auth/Me"),
@@ -213,6 +208,4 @@ export interface ICreateUserResult
     ok?: boolean; // 你若有回應格式可補強；先保留最小回傳
 }
 
-export const UserAPI = {
-    create: (dto: ICreateUserDto) => api.post<ICreateUserResult>("/User/Create", dto).then(r => r.data),
-} as const;
+export const UserAPI = { create: (dto: ICreateUserDto) => api.post<ICreateUserResult>("/User/Create", dto).then(r => r.data) } as const;

@@ -60,12 +60,7 @@ export const useGalleryFormFetchData = (
     // 宣告變數：Loading / Error（給 LoadingErrorHandler）
     const loadingList = useMemo<boolean[]>(() =>
     {
-        return [
-            Boolean(category.isLoading),
-            Boolean(tag.isLoading),
-            Boolean(formData.isLoading),
-            Boolean(statusOpts.isLoading),
-        ];
+        return [Boolean(category.isLoading), Boolean(tag.isLoading), Boolean(formData.isLoading), Boolean(statusOpts.isLoading)];
     }, [category.isLoading, tag.isLoading, formData.isLoading, statusOpts.isLoading]);
     const errorList = useMemo<(string | null | undefined)[]>(() =>
     {
@@ -76,13 +71,7 @@ export const useGalleryFormFetchData = (
     const errors = useMemo(() => errorList.filter((x): x is string => Boolean(x)), [errorList]);
     const rawData = useMemo<GalleryFormRawData>(() =>
     {
-        return {
-            formData,
-            categoryMap: category.map ?? {},
-            tagMap: tag.map ?? {},
-            statusOpts: statusOpts.data,
-            actions,
-        };
+        return { formData, categoryMap: category.map ?? {}, tagMap: tag.map ?? {}, statusOpts: statusOpts.data, actions };
     }, [formData, actions, category.map, tag.map, statusOpts.data]);
     const refetchData = useCallback(async () =>
     {
@@ -166,11 +155,7 @@ const useGalleryFormActionsByAdapter = (
     // 宣告變數
     const isNew = useMemo(() => !internalId, [internalId]);
     const actions = adapter.useServerActions({
-        onSuccessByMode: {
-            create: () => opt.onBackToList(),
-            update: () => opt.onBackToList(),
-            delete: () => opt.onBackToList(),
-        },
+        onSuccessByMode: { create: () => opt.onBackToList(), update: () => opt.onBackToList(), delete: () => opt.onBackToList() },
     });
 
     // return

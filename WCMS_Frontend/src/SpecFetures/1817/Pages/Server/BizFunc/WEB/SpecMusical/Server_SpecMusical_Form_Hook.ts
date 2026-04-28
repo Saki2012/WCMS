@@ -15,30 +15,18 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"];
 
 // #region Public
-export type SpecMusicalFormRawData = {
-    formData: UseFetchFormDataResult<SpecMusicalSet>;
-    categoryMap: Record<string, string>;
-    actions: ServerFormActions;
-};
+export type SpecMusicalFormRawData = { formData: UseFetchFormDataResult<SpecMusicalSet>; categoryMap: Record<string, string>; actions: ServerFormActions; };
 
 export type SpecMusicalFormActionsOpt = {
     /** 儲存成功後回列表 */
     onBackToList: () => void;
 };
 
-export type SpecMusicalFormAdapter = {
-    SpecMusical: ReturnType<typeof SpecMusicalAdapter>;
-    Category: ReturnType<typeof CategoryAdapter>;
-};
+export type SpecMusicalFormAdapter = { SpecMusical: ReturnType<typeof SpecMusicalAdapter>; Category: ReturnType<typeof CategoryAdapter>; };
 
 /** SpecMusical Form 的所有讀取資料集中在這裡 */
 export const useSpecMusicalFormFetchData = (
-    opt: {
-        lang: Lang;
-        internalId: string;
-        emptyData: SpecMusicalSet;
-        actionsOpt: SpecMusicalFormActionsOpt;
-    },
+    opt: { lang: Lang; internalId: string; emptyData: SpecMusicalSet; actionsOpt: SpecMusicalFormActionsOpt; },
 ): UseFetchDataResult<SpecMusicalFormRawData, SpecMusicalFormAdapter> =>
 {
     const { publish } = useToast();
@@ -52,33 +40,17 @@ export const useSpecMusicalFormFetchData = (
     /** 集中建立 adapter */
     const adapter = useMemo<SpecMusicalFormAdapter>(() =>
     {
-        return {
-            SpecMusical: SpecMusicalAdapter(),
-            Category: CategoryAdapter(),
-        };
+        return { SpecMusical: SpecMusicalAdapter(), Category: CategoryAdapter() };
     }, []);
 
     /** 主表單資料 */
-    const formData = useSpecMusicalFormDataByAdapter(
-        adapter.SpecMusical,
-        opt.internalId,
-        opt.emptyData,
-        onError,
-    );
+    const formData = useSpecMusicalFormDataByAdapter(adapter.SpecMusical, opt.internalId, opt.emptyData, onError);
 
     /** Form actions */
-    const actions = useSpecMusicalFormActionsByAdapter(
-        adapter.SpecMusical,
-        opt.internalId,
-        formData.data,
-        opt.actionsOpt,
-    );
+    const actions = useSpecMusicalFormActionsByAdapter(adapter.SpecMusical, opt.internalId, formData.data, opt.actionsOpt);
 
     /** 關聯資料：Category */
-    const category = adapter.Category.hooks.useMapByProgId({
-        progId: PGID.SpecMusical,
-        lang: opt.lang,
-    });
+    const category = adapter.Category.hooks.useMapByProgId({ progId: PGID.SpecMusical, lang: opt.lang });
 
     /** 統一 loading */
     const isLoading = useMemo(() =>
@@ -96,11 +68,7 @@ export const useSpecMusicalFormFetchData = (
     /** 統一 rawData 出口 */
     const rawData = useMemo<SpecMusicalFormRawData>(() =>
     {
-        return {
-            formData,
-            categoryMap: category.map ?? {},
-            actions,
-        };
+        return { formData, categoryMap: category.map ?? {}, actions };
     }, [formData, category.map, actions]);
 
     /** 重抓主資料 */
@@ -136,28 +104,16 @@ const useSpecMusicalFormDataByAdapter = (
     {
         if (!isNew) return null;
 
-        const apiRes: ApiResponse<SpecMusicalSet> = {
-            IsSuccess: true,
-            Data: empty,
-            SysMessage: [],
-        };
+        const apiRes: ApiResponse<SpecMusicalSet> = { IsSuccess: true, Data: empty, SysMessage: [] };
 
         return { args: internalKey, apiRes };
     }, [isNew, empty, internalKey]);
 
     /** 讀 model display name */
-    const model = adapter.hooks.useModelDisplayName({
-        deps: [],
-        onError,
-    });
+    const model = adapter.hooks.useModelDisplayName({ deps: [], onError });
 
     /** 讀 query data */
-    const query = adapter.hooks.useQueryData({
-        internalId: internalKey,
-        initial,
-        deps: [internalKey],
-        onError,
-    });
+    const query = adapter.hooks.useQueryData({ internalId: internalKey, initial, deps: [internalKey], onError });
 
     /** 可編輯 form state */
     const [data, setData] = useState<SpecMusicalSet>(empty);
@@ -194,13 +150,7 @@ const useSpecMusicalFormDataByAdapter = (
         isLoading,
         error,
         refetch,
-        displayName: (
-            model.data ?? {
-                ModelId: "",
-                ModelDisplayName: "",
-                Tables: [],
-            } as ModelDisplaySchema
-        ),
+        displayName: (model.data ?? { ModelId: "", ModelDisplayName: "", Tables: [] } as ModelDisplaySchema),
     };
 };
 
@@ -216,11 +166,7 @@ const useSpecMusicalFormActionsByAdapter = (
 
     /** 建立 server actions */
     const actions = adapter.useServerActions({
-        onSuccessByMode: {
-            create: () => opt.onBackToList(),
-            update: () => opt.onBackToList(),
-            delete: () => opt.onBackToList(),
-        },
+        onSuccessByMode: { create: () => opt.onBackToList(), update: () => opt.onBackToList(), delete: () => opt.onBackToList() },
     });
 
     return {

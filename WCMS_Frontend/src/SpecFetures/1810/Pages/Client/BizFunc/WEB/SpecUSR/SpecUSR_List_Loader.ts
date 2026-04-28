@@ -123,10 +123,10 @@ const buildBaseParam = (p: { categoryId: string; tagIds: string; }): QueryListPa
         ],
         Condition: buildCondition({ categoryId: p.categoryId, tagIds: p.tagIds }),
         RankGroups: [{ Condition: `${SpecUSRModelFields.ContentStatus} & 1` }],
-        OrderBy: [
-            { Col: `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.Year}`, Desc: true },
-            { Col: `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.AcademicYear}`, Desc: true },
-        ],
+        OrderBy: [{ Col: `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.Year}`, Desc: true }, {
+            Col: `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.AcademicYear}`,
+            Desc: true,
+        }],
         PageNumber: 0,
         PageSize: 0,
     };
@@ -155,11 +155,9 @@ const buildShowColumnItems = (raw?: string | null): string[] =>
 {
     const seen = new Set<string>();
 
-    return (raw ?? "")
-        .split(",")
-        .map(p => p.split(".").pop()?.trim() ?? "")
-        .filter(p => !!p && SUPPORTED_KEYS.includes(p) && !seen.has(p))
-        .map(p => (seen.add(p), p));
+    return (raw ?? "").split(",").map(p => p.split(".").pop()?.trim() ?? "").filter(p => !!p && SUPPORTED_KEYS.includes(p) && !seen.has(p)).map(
+        p => (seen.add(p), p)
+    );
 };
 
 /** 正規化後端顯示欄位 title map */
@@ -202,10 +200,7 @@ const canUseShowColMapInitial = (loaderData: SpecUSRListLoaderData | null) =>
 };
 
 /** 是否可沿用 SSR list initial */
-const canUseListInitial = (
-    loaderData: SpecUSRListLoaderData | null,
-    p: { lang: Lang | string; categoryId: string; tagIds: string; },
-) =>
+const canUseListInitial = (loaderData: SpecUSRListLoaderData | null, p: { lang: Lang | string; categoryId: string; tagIds: string; }) =>
 {
     if (!loaderData?.args?.baseParam) return false;
     if (loaderData.args.lang !== p.lang) return false;
@@ -215,73 +210,54 @@ const canUseListInitial = (
 };
 
 /** SpecUSR SSR loader */
-export const SpecUSRList_Loader =
-    (p: { lang: Lang; opts?: ISpecUSRListOptions; }) =>
-    async ({ request }: LoaderFunctionArgs): Promise<SpecUSRListLoaderData> =>
+export const SpecUSRList_Loader = (p: { lang: Lang; opts?: ISpecUSRListOptions; }) => async ({ request }: LoaderFunctionArgs): Promise<SpecUSRListLoaderData> =>
+{
+    const ssrApi = getSsrApi(request);
+    const category = SpecCategoryAdapter(ssrApi);
+    const usr = SpecUSRAdapter(ssrApi);
+    const categoryId = p.opts?.Category ?? "";
+    const tagIds = p.opts?.Tag ?? "";
+
+    const showColParam = buildShowColParam(categoryId);
+    const baseParam = buildBaseParam({ categoryId, tagIds });
+
+    let showColRowsRes: SpecCategorySet[] = [];
+    let showColumnItemsRes: string[] = [];
+    let showColumnMapRes: ShowColumnMap = {};
+
+    const showColMapLoader = category.loader.getShowColItemsLoader({ progId: PGID.SpecUSR, getApiInstance: () => ssrApi });
+    const showColMapLD = await showColMapLoader({ request } as LoaderFunctionArgs);
+    showColumnMapRes = normalizeShowColumnMap(showColMapLD.apiRes.Data ?? {});
+
+    if (showColParam)
     {
-        const ssrApi = getSsrApi(request);
-        const category = SpecCategoryAdapter(ssrApi);
-        const usr = SpecUSRAdapter(ssrApi);
-        const categoryId = p.opts?.Category ?? "";
-        const tagIds = p.opts?.Tag ?? "";
+        const showColLoader = category.loader.createQueryListLoader({ getCondition: () => showColParam, getApiInstance: () => ssrApi });
 
-        const showColParam = buildShowColParam(categoryId);
-        const baseParam = buildBaseParam({ categoryId, tagIds });
+        const showColLD = await showColLoader({ request } as LoaderFunctionArgs);
+        showColRowsRes = showColLD.apiRes.Data ?? [];
+        showColumnItemsRes = buildShowColumnItems(showColRowsRes[0]?.SpecCategory?.ShowColumnItems ?? "");
+    }
 
-        let showColRowsRes: SpecCategorySet[] = [];
-        let showColumnItemsRes: string[] = [];
-        let showColumnMapRes: ShowColumnMap = {};
-
-        const showColMapLoader = category.loader.getShowColItemsLoader({
-            progId: PGID.SpecUSR,
-            getApiInstance: () => ssrApi,
-        });
-        const showColMapLD = await showColMapLoader({ request } as LoaderFunctionArgs);
-        showColumnMapRes = normalizeShowColumnMap(showColMapLD.apiRes.Data ?? {});
-
-        if (showColParam)
-        {
-            const showColLoader = category.loader.createQueryListLoader({
-                getCondition: () => showColParam,
-                getApiInstance: () => ssrApi,
-            });
-
-            const showColLD = await showColLoader({ request } as LoaderFunctionArgs);
-            showColRowsRes = showColLD.apiRes.Data ?? [];
-            showColumnItemsRes = buildShowColumnItems(showColRowsRes[0]?.SpecCategory?.ShowColumnItems ?? "");
-        }
-
-        if (!baseParam)
-        {
-            return {
-                args: { lang: p.lang, categoryId, tagIds, showColProgId: PGID.SpecUSR, baseParam: null, showColParam },
-                res: { listRes: [], showColRowsRes, showColumnItemsRes, showColumnMapRes },
-            };
-        }
-
-        const listLoader = usr.loader.createQueryListLoader({
-            getCondition: () => baseParam,
-            getApiInstance: () => ssrApi,
-        });
-
-        const listLD = await listLoader({ request } as LoaderFunctionArgs);
-
+    if (!baseParam)
+    {
         return {
-            args: { lang: p.lang, categoryId, tagIds, showColProgId: PGID.SpecUSR, baseParam, showColParam },
-            res: {
-                listRes: listLD.apiRes.Data ?? [],
-                showColRowsRes,
-                showColumnItemsRes,
-                showColumnMapRes,
-            },
+            args: { lang: p.lang, categoryId, tagIds, showColProgId: PGID.SpecUSR, baseParam: null, showColParam },
+            res: { listRes: [], showColRowsRes, showColumnItemsRes, showColumnMapRes },
         };
+    }
+
+    const listLoader = usr.loader.createQueryListLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
+
+    const listLD = await listLoader({ request } as LoaderFunctionArgs);
+
+    return {
+        args: { lang: p.lang, categoryId, tagIds, showColProgId: PGID.SpecUSR, baseParam, showColParam },
+        res: { listRes: listLD.apiRes.Data ?? [], showColRowsRes, showColumnItemsRes, showColumnMapRes },
     };
+};
 
 /** 統一提供 SpecUSR list 所需資料 */
-export const useSpecUSRListFetchData = (p: {
-    lang: Lang | string;
-    options?: ISpecUSRListOptions;
-}): UseSpecUSRListFetchDataResult =>
+export const useSpecUSRListFetchData = (p: { lang: Lang | string; options?: ISpecUSRListOptions; }): UseSpecUSRListFetchDataResult =>
 {
     const loaderData = useLoaderData() as SpecUSRListLoaderData | null;
     const adapter = useMemo(() => ({ usr: SpecUSRAdapter(), category: SpecCategoryAdapter() }), []);
@@ -310,11 +286,7 @@ export const useSpecUSRListFetchData = (p: {
     }, [loaderData, p.lang, categoryId, tagIds]);
 
     /** 顯示欄位 title hook */
-    const useShowColMap = adapter.category.hooks.useGetShowColItems({
-        progId: PGID.SpecUSR,
-        initial: showColMapInitial,
-        deps: [PGID.SpecUSR],
-    });
+    const useShowColMap = adapter.category.hooks.useGetShowColItems({ progId: PGID.SpecUSR, initial: showColMapInitial, deps: [PGID.SpecUSR] });
 
     const showColumnMap = useMemo(() =>
     {
@@ -322,11 +294,7 @@ export const useSpecUSRListFetchData = (p: {
     }, [useShowColMap.data]);
 
     /** 顯示欄位 hook */
-    const useShowCols = adapter.category.hooks.useQueryList({
-        condition: showColParam,
-        initial: showColInitial,
-        deps: [categoryId],
-    });
+    const useShowCols = adapter.category.hooks.useQueryList({ condition: showColParam, initial: showColInitial, deps: [categoryId] });
 
     const showColumnItems = useMemo(() =>
     {
@@ -335,31 +303,17 @@ export const useSpecUSRListFetchData = (p: {
     }, [useShowCols.data]);
 
     /** 主資料 hook */
-    const useList = adapter.usr.hooks.useQueryList({
-        condition: baseParam,
-        initial: listInitial,
-        deps: [p.lang, categoryId, tagIds],
-    });
+    const useList = adapter.usr.hooks.useQueryList({ condition: baseParam, initial: listInitial, deps: [p.lang, categoryId, tagIds] });
 
     const rawData = useMemo<SpecUSRListRawData>(() =>
     {
-        return {
-            listData: useList.data ?? [],
-            showColumnItems,
-            showColTitle: buildShowColTitle(showColumnMap),
-        };
+        return { listData: useList.data ?? [], showColumnItems, showColTitle: buildShowColTitle(showColumnMap) };
     }, [useList.data, showColumnItems, showColumnMap]);
 
     const errorList = useMemo(() =>
     {
-        return [useShowColMap.errorText, useShowCols.errorText, useList.errorText].filter((x): x is string =>
-            Boolean(x)
-        );
+        return [useShowColMap.errorText, useShowCols.errorText, useList.errorText].filter((x): x is string => Boolean(x));
     }, [useShowColMap.errorText, useShowCols.errorText, useList.errorText]);
 
-    return {
-        rawData,
-        isLoading: Boolean(useShowColMap.isLoading || useShowCols.isLoading || useList.isLoading),
-        errorList,
-    };
+    return { rawData, isLoading: Boolean(useShowColMap.isLoading || useShowCols.isLoading || useList.isLoading), errorList };
 };

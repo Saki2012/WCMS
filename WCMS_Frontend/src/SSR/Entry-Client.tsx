@@ -69,11 +69,7 @@ log("entry start", { path: window.location.pathname, t: performance.now().toFixe
 const container = document.getElementById("root") as HTMLElement;
 const hasSSRMarkup = Boolean(container && container.hasChildNodes());
 
-log("root status", {
-    hasSSRMarkup,
-    childNodes: container?.childNodes?.length ?? 0,
-    firstChild: container?.firstChild?.nodeName ?? null,
-});
+log("root status", { hasSSRMarkup, childNodes: container?.childNodes?.length ?? 0, firstChild: container?.firstChild?.nodeName ?? null });
 
 const bootLang = (typeof window !== "undefined" && (window as any).__INITIAL_STATE__?.lang) || "zh-tw";
 
@@ -89,11 +85,7 @@ log("after createClientRouter", { t: performance.now().toFixed(1) });
 // ✅ 監看 router 狀態：確認切頁/loader 有沒有真的跑
 router.subscribe((state: any) =>
 {
-    log("router subscribe", {
-        location: state?.location?.pathname,
-        navigation: state?.navigation?.state,
-        revalidation: state?.revalidation,
-    });
+    log("router subscribe", { location: state?.location?.pathname, navigation: state?.navigation?.state, revalidation: state?.revalidation });
 });
 
 const rootNode = <ClientBootstrap router={router} />;

@@ -3,14 +3,7 @@ import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { useUploadPicture } from "@/SysCore/Components/FormField/FieldComponets/LibPicture_Comp";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-import {
-    LibCheckBox,
-    LibDropList,
-    LibFile,
-    LibPicture,
-    LibTextArea,
-    LibTextBox,
-} from "@/SysCore/Components/FormField/LibFormField";
+import { LibCheckBox, LibDropList, LibFile, LibPicture, LibTextArea, LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
 import { type Lang, LangLabelMap, useEnsureLangDetails } from "@/SysCore/i18n/lang";
@@ -39,12 +32,7 @@ export const WebResourceFormComp = (prop: { theme: IBETheme; lang: Lang; }) =>
     {
         return { onBackToList };
     }, [onBackToList]);
-    const getData = useWebResourceFormFetchData({
-        lang: prop.lang,
-        internalId: internalId ?? "",
-        emptyData,
-        actionsOpt,
-    });
+    const getData = useWebResourceFormFetchData({ lang: prop.lang, internalId: internalId ?? "", emptyData, actionsOpt });
     useEnsureLangDetails(getData.rawData.formData, {
         headerName: WebResourceSetFields.WebResource,
         detailName: WebResourceSetFields.WebResourceInfo,
@@ -71,11 +59,7 @@ export const WebResourceFormComp = (prop: { theme: IBETheme; lang: Lang; }) =>
                 statusOpts={getData.rawData.statusOpts}
                 tagOpts={getData.rawData.tagMap}
             />
-            <DetailComp
-                theme={prop.theme}
-                formData={getData.rawData.formData}
-                urlOpenOpt={windowsTarget}
-            />
+            <DetailComp theme={prop.theme} formData={getData.rawData.formData} urlOpenOpt={windowsTarget} />
         </FormComp>
     );
 };
@@ -95,22 +79,13 @@ const HeaderComp = (
     const initialPicId = prop.formData.data?.WebResource?.PicId;
     const previewSrc = useUploadPic.result.previewUrl
         || (FileManagementAPI.get_Server_Preview_Url(initialPicId) ?? "https://dummyimage.com/1920x550/555/fff.png");
-    const LibTabsPropA: LibTabsProp = {
-        Style: prop.theme.Tabs,
-        item: { Basic: "基本", Status: "狀態", Tags: "標籤", Img: "圖片", System: "系統資訊" },
-    };
+    const LibTabsPropA: LibTabsProp = { Style: prop.theme.Tabs, item: { Basic: "基本", Status: "狀態", Tags: "標籤", Img: "圖片", System: "系統資訊" } };
     const componentsA: Record<string, React.ReactNode[]> = {
         Basic: [
             <LibCheckBox
                 Style={prop.theme.CheckBox}
                 options={prop.cateOpts}
-                {...setField(
-                    WebResourceSetFields.WebResource,
-                    WebResourceFields.Categories,
-                    "string",
-                    undefined,
-                    "csv",
-                )}
+                {...setField(WebResourceSetFields.WebResource, WebResourceFields.Categories, "string", undefined, "csv")}
             />,
         ],
         Status: [
@@ -141,18 +116,10 @@ const HeaderComp = (
                 onChange={(files) =>
                     useUploadPic.handleFileChange(files, (internalId) =>
                     {
-                        prop.formData.setFormData((prev) => ({
-                            ...prev,
-                            WebResource: { ...prev?.WebResource, PicId: internalId },
-                        }));
+                        prop.formData.setFormData((prev) => ({ ...prev, WebResource: { ...prev?.WebResource, PicId: internalId } }));
                     })}
             >
-                <LibPicture
-                    key="preview"
-                    ColumnDisplayName={useUploadPic?.result.previewUrl ?? ""}
-                    PicSrc={previewSrc}
-                    PicDescription={`選中的圖片`}
-                />
+                <LibPicture key="preview" ColumnDisplayName={useUploadPic?.result.previewUrl ?? ""} PicSrc={previewSrc} PicDescription={`選中的圖片`} />
             </LibFile>,
             <LibTextBox
                 Style={prop.theme.TextBox}
@@ -160,15 +127,11 @@ const HeaderComp = (
                 {...setField(WebResourceSetFields.WebResource, WebResourceFields.PicDescription, "string")}
             />,
         ],
-        System: [
-            <SystemInfoTabComp theme={prop.theme} formData={prop.formData} setKey={WebResourceSetFields.WebResource} />,
-        ],
+        System: [<SystemInfoTabComp theme={prop.theme} formData={prop.formData} setKey={WebResourceSetFields.WebResource} />],
     };
     return <TabContentComp tabInfos={LibTabsPropA} components={componentsA}></TabContentComp>;
 };
-const DetailComp = (
-    prop: { theme: IBETheme; formData: UseFetchFormDataResult<WebResourceSet>; urlOpenOpt: Map<string, string>; },
-) =>
+const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<WebResourceSet>; urlOpenOpt: Map<string, string>; }) =>
 {
     const setField = useSetTableField<WebResourceSet>(prop.formData);
     const rawDetails = prop.formData.data?.WebResourceInfo ?? [];
@@ -181,50 +144,34 @@ const DetailComp = (
             return tabItems;
         }, {}),
     };
-    const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>(
-        (compMap, info) =>
-        {
-            const langKey = LibMerge("_", true, info.WebResourceId, info.RowId, info.Lang);
-            const rowKeys = {
-                [WebResourceInfoFields.WebResourceId]: info.WebResourceId,
-                [WebResourceInfoFields.RowId]: info.RowId,
-            };
-            compMap[langKey] = [
-                <LibTextBox
-                    Style={prop.theme.TextBox}
-                    DefaultInputDisplay="請輸入"
-                    {...setField(WebResourceSetFields.WebResourceInfo, WebResourceInfoFields.Title, "string", rowKeys)}
-                />,
-                <LibTextArea
-                    Style={prop.theme.TextArea}
-                    DefaultInputDisplay="請輸入"
-                    {...setField(
-                        WebResourceSetFields.WebResourceInfo,
-                        WebResourceInfoFields.Content,
-                        "string",
-                        rowKeys,
-                    )}
-                />,
-                <LibTextBox
-                    Style={prop.theme.TextBox}
-                    DefaultInputDisplay="請輸入"
-                    {...setField(WebResourceSetFields.WebResourceInfo, WebResourceInfoFields.ResUrl, "string", rowKeys)}
-                />,
-                <LibDropList
-                    Style={prop.theme.DropList}
-                    Options={prop.urlOpenOpt}
-                    {...setField(
-                        WebResourceSetFields.WebResourceInfo,
-                        WebResourceInfoFields.Url_OpenType,
-                        "number",
-                        rowKeys,
-                    )}
-                    ShowPlaceholder={false}
-                />,
-            ];
-            return compMap;
-        },
-        {},
-    );
+    const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>((compMap, info) =>
+    {
+        const langKey = LibMerge("_", true, info.WebResourceId, info.RowId, info.Lang);
+        const rowKeys = { [WebResourceInfoFields.WebResourceId]: info.WebResourceId, [WebResourceInfoFields.RowId]: info.RowId };
+        compMap[langKey] = [
+            <LibTextBox
+                Style={prop.theme.TextBox}
+                DefaultInputDisplay="請輸入"
+                {...setField(WebResourceSetFields.WebResourceInfo, WebResourceInfoFields.Title, "string", rowKeys)}
+            />,
+            <LibTextArea
+                Style={prop.theme.TextArea}
+                DefaultInputDisplay="請輸入"
+                {...setField(WebResourceSetFields.WebResourceInfo, WebResourceInfoFields.Content, "string", rowKeys)}
+            />,
+            <LibTextBox
+                Style={prop.theme.TextBox}
+                DefaultInputDisplay="請輸入"
+                {...setField(WebResourceSetFields.WebResourceInfo, WebResourceInfoFields.ResUrl, "string", rowKeys)}
+            />,
+            <LibDropList
+                Style={prop.theme.DropList}
+                Options={prop.urlOpenOpt}
+                {...setField(WebResourceSetFields.WebResourceInfo, WebResourceInfoFields.Url_OpenType, "number", rowKeys)}
+                ShowPlaceholder={false}
+            />,
+        ];
+        return compMap;
+    }, {});
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };

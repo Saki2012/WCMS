@@ -47,19 +47,21 @@ const buildTagDict = (list: TagSet[], lang: Lang): Record<string, string> =>
     return Object.fromEntries(pairs.filter(([id]) => Boolean(id)));
 };
 
-export const NewsData = (props: {
-    lang: Lang;
+export const NewsData = (
+    props: {
+        lang: Lang;
 
-    newsTopParam: QueryListParam;
-    newsListParam: QueryListParam;
-    cateParam: QueryListParam;
-    tagParam: QueryListParam;
+        newsTopParam: QueryListParam;
+        newsListParam: QueryListParam;
+        cateParam: QueryListParam;
+        tagParam: QueryListParam;
 
-    initialTopList: AnnouncementSet[];
-    initialList: AnnouncementSet[];
-    initialCategories: CategoryDataSet[];
-    initialTags: TagSet[];
-}) =>
+        initialTopList: AnnouncementSet[];
+        initialList: AnnouncementSet[];
+        initialCategories: CategoryDataSet[];
+        initialTags: TagSet[];
+    },
+) =>
 {
     // 宣告變數：adapters（CSR 用）
     const announceAdapter = useMemo(() => AnnouncementAdapter(), []);
@@ -67,47 +69,19 @@ export const NewsData = (props: {
     const tagAdapter = useMemo(() => TagAdapter(), []);
 
     // 宣告變數：initial（必須 memo，避免每次 render 產生新物件造成重置）
-    const topInitial = useMemo(
-        () => toListInitial(props.newsTopParam, props.initialTopList ?? []),
-        [props.newsTopParam, props.initialTopList],
-    );
-    const listInitial = useMemo(
-        () => toListInitial(props.newsListParam, props.initialList ?? []),
-        [props.newsListParam, props.initialList],
-    );
-    const cateInitial = useMemo(
-        () => toListInitial(props.cateParam, props.initialCategories ?? []),
-        [props.cateParam, props.initialCategories],
-    );
-    const tagInitial = useMemo(
-        () => toListInitial(props.tagParam, props.initialTags ?? []),
-        [props.tagParam, props.initialTags],
-    );
+    const topInitial = useMemo(() => toListInitial(props.newsTopParam, props.initialTopList ?? []), [props.newsTopParam, props.initialTopList]);
+    const listInitial = useMemo(() => toListInitial(props.newsListParam, props.initialList ?? []), [props.newsListParam, props.initialList]);
+    const cateInitial = useMemo(() => toListInitial(props.cateParam, props.initialCategories ?? []), [props.cateParam, props.initialCategories]);
+    const tagInitial = useMemo(() => toListInitial(props.tagParam, props.initialTags ?? []), [props.tagParam, props.initialTags]);
 
     // 執行 function：CSR hooks 接手（SSR 有 initial → 不會因 provider 爆）
-    const useTopList = announceAdapter.hooks.useQueryList({
-        condition: props.newsTopParam,
-        initial: topInitial,
-        deps: [props.newsTopParam.Condition ?? ""],
-    });
+    const useTopList = announceAdapter.hooks.useQueryList({ condition: props.newsTopParam, initial: topInitial, deps: [props.newsTopParam.Condition ?? ""] });
 
-    const useList = announceAdapter.hooks.useQueryList({
-        condition: props.newsListParam,
-        initial: listInitial,
-        deps: [props.newsListParam.Condition ?? ""],
-    });
+    const useList = announceAdapter.hooks.useQueryList({ condition: props.newsListParam, initial: listInitial, deps: [props.newsListParam.Condition ?? ""] });
 
-    const useCategoryData = cateAdapter.hooks.useQueryList({
-        condition: props.cateParam,
-        initial: cateInitial,
-        deps: [props.cateParam.Condition ?? ""],
-    });
+    const useCategoryData = cateAdapter.hooks.useQueryList({ condition: props.cateParam, initial: cateInitial, deps: [props.cateParam.Condition ?? ""] });
 
-    const useTagData = tagAdapter.hooks.useQueryList({
-        condition: props.tagParam,
-        initial: tagInitial,
-        deps: [props.tagParam.Condition ?? ""],
-    });
+    const useTagData = tagAdapter.hooks.useQueryList({ condition: props.tagParam, initial: tagInitial, deps: [props.tagParam.Condition ?? ""] });
 
     // 宣告變數：資料整理（置頂優先補滿）
     const allNewsRawData1 = useMemo(() =>
@@ -127,14 +101,7 @@ export const NewsData = (props: {
 
     const allNews1 = useMemo(() =>
     {
-        return getNewsDataProps(
-            allNewsRawData1,
-            props.lang,
-            "/announcement/announcement-news",
-            "",
-            categoryDict,
-            tagDict,
-        );
+        return getNewsDataProps(allNewsRawData1, props.lang, "/announcement/announcement-news", "", categoryDict, tagDict);
     }, [allNewsRawData1, props.lang, categoryDict, tagDict]);
 
     // return：DOM 結構維持原本
@@ -153,12 +120,7 @@ export const NewsData = (props: {
                             <div className="col-12">
                                 <div className="H-nav-tabs-content-box" id="Horizontal">
                                     <div className="tab-content" id="H-nav-tabContent">
-                                        <div
-                                            aria-labelledby="H-Tabs__01"
-                                            className="tab-pane fade show active"
-                                            id="H-navTabs-01"
-                                            role="tabpanel"
-                                        >
+                                        <div aria-labelledby="H-Tabs__01" className="tab-pane fade show active" id="H-navTabs-01" role="tabpanel">
                                             <div className="News_mainDIV">
                                                 <ul className="ListNews">
                                                     <GetData prop={allNews1}></GetData>
@@ -261,9 +223,7 @@ const pickNewsByCategories = <T extends { Announcement?: { Categories?: string |
     mode: "any" | "all" = "any",
 ): T[] =>
 {
-    const target = new Set(
-        (Array.isArray(categories) ? categories : String(categories).split(",")).map((s) => s.trim()).filter(Boolean),
-    );
+    const target = new Set((Array.isArray(categories) ? categories : String(categories).split(",")).map((s) => s.trim()).filter(Boolean));
     if (!newsData || target.size === 0) return (newsData ?? []).slice(0, take);
 
     const result = newsData.filter((item) =>
@@ -293,12 +253,7 @@ const GetData = ({ prop }: { prop: getDataProp[]; }) =>
             {
                 return (
                     <li className="News_item" key={item.announceInternalId}>
-                        <LangLink
-                            to={`${item.redir}/${item.internalId}`}
-                            title={item.title}
-                            tabIndex={0}
-                            className="item-inner"
-                        >
+                        <LangLink to={`${item.redir}/${item.internalId}`} title={item.title} tabIndex={0} className="item-inner">
                             <div className="rightBox">
                                 <div className="card_catDiv">
                                     <div className="a-left">
@@ -308,25 +263,17 @@ const GetData = ({ prop }: { prop: getDataProp[]; }) =>
                                             </div>
                                         </div>
                                         <div className="CustomState">
-                                            {isWithinLastNDaysFromMD(Number(item.monthNum), Number(item.date)) && (
-                                                <div className="icon-small new-bg">最新</div>
-                                            )}
+                                            {isWithinLastNDaysFromMD(Number(item.monthNum), Number(item.date)) && <div className="icon-small new-bg">最新</div>}
                                             {item.contentStatus != 0 && (
                                                 <>
-                                                    {Boolean(item.contentStatus & 1) && (
-                                                        <div className="icon-small top-bg">置頂</div>
-                                                    )}
-                                                    {Boolean(item.contentStatus & 2) && (
-                                                        <div className="icon-small hot-bg">熱門</div>
-                                                    )}
+                                                    {Boolean(item.contentStatus & 1) && <div className="icon-small top-bg">置頂</div>}
+                                                    {Boolean(item.contentStatus & 2) && <div className="icon-small hot-bg">熱門</div>}
                                                 </>
                                             )}
                                         </div>
                                     </div>
                                     <div className="a-right">
-                                        <div className="card_time">
-                                            {item.year}-{item.month}-{item.date}
-                                        </div>
+                                        <div className="card_time">{item.year}-{item.month}-{item.date}</div>
                                     </div>
                                 </div>
                                 <div className="card_titleDiv">
@@ -346,11 +293,7 @@ const GetData = ({ prop }: { prop: getDataProp[]; }) =>
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-const takeTopThenFill = (
-    top: AnnouncementSet[] | undefined,
-    rest: AnnouncementSet[] | undefined,
-    limit: number = 3,
-): AnnouncementSet[] =>
+const takeTopThenFill = (top: AnnouncementSet[] | undefined, rest: AnnouncementSet[] | undefined, limit: number = 3): AnnouncementSet[] =>
 {
     const getKey = (x: AnnouncementSet) => x.Announcement?.InternalId ?? String(x.Announcement?.AnnouncementId ?? "");
     const seen = new Set<string>();

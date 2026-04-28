@@ -46,19 +46,11 @@ export const useServerPersonForm = (theme: IBETheme): UseServerPersonFormResult 
             Actions: actions,
         };
     }, [theme, formData.isLoading, formData.error, useGender.isLoading, useGender.error, actions]);
-    return {
-        prop,
-        formData,
-        genderOpt: useGender.data ?? {},
-    };
+    return { prop, formData, genderOpt: useGender.data ?? {} };
 };
 
 /** 取得 Person FormData */
-const usePersonFormDataByAdapter = (
-    adapter: ReturnType<typeof PersonAdapter>,
-    internalId: string,
-    empty: PersonSet,
-): UseFetchFormDataResult<PersonSet> =>
+const usePersonFormDataByAdapter = (adapter: ReturnType<typeof PersonAdapter>, internalId: string, empty: PersonSet): UseFetchFormDataResult<PersonSet> =>
 {
     // 宣告變數
     const { publish } = useToast();
@@ -113,13 +105,7 @@ const usePersonFormActionsFromAdapter = (
     // 宣告變數
     const isNew = useMemo(() => !internalId, [internalId]);
 
-    const actions = adapter.useServerActions({
-        onSuccessByMode: {
-            create: () => onBackToList(),
-            update: () => onBackToList(),
-            delete: () => onBackToList(),
-        },
-    });
+    const actions = adapter.useServerActions({ onSuccessByMode: { create: () => onBackToList(), update: () => onBackToList(), delete: () => onBackToList() } });
 
     // return
     return {

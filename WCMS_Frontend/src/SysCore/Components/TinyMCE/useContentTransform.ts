@@ -1,6 +1,6 @@
+import { PGID } from "@/types/SchemaFields";
 import { useCallback } from "react";
 import { INTERNAL_ATTR } from "./TinyMCE_Hook";
-import { PGID } from "@/types/SchemaFields";
 
 export interface UseContentTransformOptions
 {
@@ -13,7 +13,7 @@ export interface UseContentTransformOptions
 /** 內容轉換：<img src="/Service/FileManagement/Preview/{id}"> ⇄ <img data-internalid="{id}"> */
 export const useContentTransform = (opts?: UseContentTransformOptions) =>
 {
-    const rawPrefix = opts?.previewPrefix ?? `/Service/${PGID.FileManagement}/Public_Preview`;//這邊暫時寫死，後續橋
+    const rawPrefix = opts?.previewPrefix ?? `/Service/${PGID.FileManagement}/Public_Preview`; // 這邊暫時寫死，後續橋
     const previewPrefix = rawPrefix.endsWith("/") ? rawPrefix : `${rawPrefix}/`;
     const attrName = opts?.attrName ?? INTERNAL_ATTR;
 
@@ -24,10 +24,7 @@ export const useContentTransform = (opts?: UseContentTransformOptions) =>
     const toDb = useCallback((html: string) =>
     {
         if (!html) return html;
-        const re = new RegExp(
-            String.raw`<img\b([^>]*?)\bsrc=(['"])${prefixRe}([^'"]+)\2([^>]*)>`,
-            "gi",
-        );
+        const re = new RegExp(String.raw`<img\b([^>]*?)\bsrc=(['"])${prefixRe}([^'"]+)\2([^>]*)>`, "gi");
         // 移除 src，補上 data-internalid
         const out = html.replace(re, (_m, before, _q, id, after) =>
         {
@@ -42,10 +39,7 @@ export const useContentTransform = (opts?: UseContentTransformOptions) =>
     const toEditor = useCallback((html: string) =>
     {
         if (!html) return html;
-        const re = new RegExp(
-            String.raw`<img\b([^>]*?)\b${attrName}\s*=\s*(['"])([^'"]+)\2([^>]*)>`,
-            "gi",
-        );
+        const re = new RegExp(String.raw`<img\b([^>]*?)\b${attrName}\s*=\s*(['"])([^'"]+)\2([^>]*)>`, "gi");
         const out = html.replace(re, (_m, before, _q, id, after) =>
         {
             // 若已有 src 先移除，避免重複

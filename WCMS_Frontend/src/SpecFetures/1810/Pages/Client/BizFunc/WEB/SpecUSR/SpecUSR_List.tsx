@@ -93,9 +93,7 @@ const getColumnTitle = (showColTitle: ColumnConfig[], key: ColKey) =>
     return showColTitle.find(p => p.key === key)?.title ?? "";
 };
 
-const SpecUSRList = (
-    p: { lang: string | Lang; rawData: SpecUSRSet[]; showColumnItems: string[]; showColTitle: ColumnConfig[]; },
-) =>
+const SpecUSRList = (p: { lang: string | Lang; rawData: SpecUSRSet[]; showColumnItems: string[]; showColTitle: ColumnConfig[]; }) =>
 {
     const dirUrl = useLocation().pathname.replace(/\/List$/, "");
 
@@ -120,11 +118,7 @@ const SpecUSRList = (
                                             <figure className="card_figure w-100 h-100">
                                                 <LangLink to={pageLink} className="card_image_link">
                                                     <picture className="w-100 h-100">
-                                                        <img
-                                                            className="card_image"
-                                                            src={picUrl}
-                                                            alt={item.SpecUSR?.PicDescription ?? ""}
-                                                        />
+                                                        <img className="card_image" src={picUrl} alt={item.SpecUSR?.PicDescription ?? ""} />
                                                     </picture>
                                                 </LangLink>
                                             </figure>
@@ -132,9 +126,7 @@ const SpecUSRList = (
 
                                         <div className="rightBox ml-xl-4 ml-lg-4 ml-0">
                                             <div className="card_titleDiv">
-                                                <LangLink to={pageLink} className="card_title">
-                                                    {detail?.ProjectName}
-                                                </LangLink>
+                                                <LangLink to={pageLink} className="card_title">{detail?.ProjectName}</LangLink>
                                             </div>
 
                                             <div className="card_catDiv">
@@ -144,17 +136,13 @@ const SpecUSRList = (
                                                         if (LEADER_GROUP.includes(col))
                                                         {
                                                             if (leaderRendered) return null;
-                                                            const enabledInGroup = LEADER_GROUP.filter(k =>
-                                                                p.showColumnItems.includes(k)
-                                                            );
+                                                            const enabledInGroup = LEADER_GROUP.filter(k => p.showColumnItems.includes(k));
                                                             if (enabledInGroup.length <= 0)
                                                             {
                                                                 leaderRendered = true;
                                                                 return null;
                                                             }
-                                                            const chosenKey = enabledInGroup.find(k =>
-                                                                isNonEmpty(getDetailValue(detail, k))
-                                                            );
+                                                            const chosenKey = enabledInGroup.find(k => isNonEmpty(getDetailValue(detail, k)));
                                                             if (!chosenKey)
                                                             {
                                                                 leaderRendered = true;
@@ -164,10 +152,7 @@ const SpecUSRList = (
                                                             const data = getDetailValue(detail, chosenKey);
                                                             leaderRendered = true;
                                                             return (
-                                                                <div
-                                                                    key={`leader-${chosenKey}`}
-                                                                    className="card_cat_link w-100"
-                                                                >
+                                                                <div key={`leader-${chosenKey}`} className="card_cat_link w-100">
                                                                     <span className="s-line">▍</span>
                                                                     <span className="s-tle">{title}：{data}</span>
                                                                 </div>

@@ -1,19 +1,20 @@
-import { ServerModuleRoutes } from '@/Features/Pages/Server/Scaffold/Routes/ServerModuleRoutesData'
-import { LangNavLink } from '@/SysCore/i18n/LangLink'
-import clsx from 'clsx'
-import logImg from '@/Features/Assets/Server/images/logo/logo_PC_210x63.svg'
-import { useEffect, useState } from 'react'
-import { AuthAPI } from '@/SysCore/Utils/API/AuthClient'
+import logImg from "@/Features/Assets/Server/images/logo/logo_PC_210x63.svg";
+import { ServerModuleRoutes } from "@/Features/Pages/Server/Scaffold/Routes/ServerModuleRoutesData";
+import { LangNavLink } from "@/SysCore/i18n/LangLink";
+import { AuthAPI } from "@/SysCore/Utils/API/AuthClient";
 import { useOptionalSpecAssetUrl } from "@/SysCore/Utils/UI_HookFunc/useOptionalSpecAssetUrl";
+import clsx from "clsx";
+import { useEffect, useState } from "react";
 
-
-
-const NavibarMenu = () => {
-    const operateFileUrl = useOptionalSpecAssetUrl({ relativePath: "Assets/Server/後台操作手冊.pdf", fallbackToDefault: true, }) ?? "";
+const NavibarMenu = () =>
+{
+    const operateFileUrl = useOptionalSpecAssetUrl({ relativePath: "Assets/Server/後台操作手冊.pdf", fallbackToDefault: true }) ?? "";
     const [userName, setUserName] = useState<string>("");
     const [userInternalId, setuserInternalId] = useState<string>("");
-    useEffect(() => {
-        const loadUserName = async () => {
+    useEffect(() =>
+    {
+        const loadUserName = async () =>
+        {
             const res = await AuthAPI.me();
             const name = (res?.data)?.Name ?? "";
             const internalId = (res?.data)?.InternalId ?? "";
@@ -28,15 +29,38 @@ const NavibarMenu = () => {
                 <div className="mobile-logo me-auto">
                     <ul className="list-unstyled">
                         <li className="pc-h-item pc-sidebar-collapse">
-                            <a href="#" onClick={(e) => { e.preventDefault(); }} className="pc-head-link ms-0" id="sidebar-hide">
+                            <a
+                                href="#"
+                                onClick={(e) =>
+                                {
+                                    e.preventDefault();
+                                }}
+                                className="pc-head-link ms-0"
+                                id="sidebar-hide"
+                            >
                                 <i className="fas fa-bars"></i>
                             </a>
                         </li>
                         <li className="pc-h-item pc-sidebar-popup">
-                            <a href="#" onClick={(e) => { e.preventDefault(); }} className="pc-head-link ms-0" id="mobile-collapse">
+                            <a
+                                href="#"
+                                onClick={(e) =>
+                                {
+                                    e.preventDefault();
+                                }}
+                                className="pc-head-link ms-0"
+                                id="mobile-collapse"
+                            >
                                 <i className="fas fa-bars"></i>
                             </a>
-                            <a className="mblogo" href="#" onClick={(e) => { e.preventDefault(); }}>
+                            <a
+                                className="mblogo"
+                                href="#"
+                                onClick={(e) =>
+                                {
+                                    e.preventDefault();
+                                }}
+                            >
                                 <img src={logImg} className="pcm-logo img-fluid logo-lg" alt="logo" />
                             </a>
                         </li>
@@ -45,7 +69,15 @@ const NavibarMenu = () => {
 
                 <div className="ml-auto">
                     <nav className="navbar navbar-expand-lg navbar-light">
-                        <a className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar_right" aria-controls="navbar_right" aria-expanded="false" aria-label="Toggle navigation">
+                        <a
+                            className="navbar-toggler"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#navbar_right"
+                            aria-controls="navbar_right"
+                            aria-expanded="false"
+                            aria-label="Toggle navigation"
+                        >
                             <i className="fas fa-grip-horizontal"></i>
                         </a>
                         <div className="Customize_collapse + collapse navbar-collapse" id="navbar_right">
@@ -54,10 +86,10 @@ const NavibarMenu = () => {
                                     <div className="nav-link">
                                         <h2>
                                             <i className="far fa-user-check" />
-                                            目前使用者 : <span className="ml-1">
-                                                <LangNavLink to={`/Server/AccountManage/Account/Form/${userInternalId}`}>
-                                                    {userName}
-                                                </LangNavLink> </span>
+                                            目前使用者 :{" "}
+                                            <span className="ml-1">
+                                                <LangNavLink to={`/Server/AccountManage/Account/Form/${userInternalId}`}>{userName}</LangNavLink>
+                                            </span>
                                         </h2>
                                     </div>
                                 </li>
@@ -71,7 +103,7 @@ const NavibarMenu = () => {
                                         </a>
                                     </li>
                                 )}
-                                {ServerModuleRoutes.map((item) =>
+                                {ServerModuleRoutes.map((item) => (
                                     <li className={clsx("nav-item")} key={item.ModuleCode}>
                                         <LangNavLink className="nav-link" to={item.DefaultPath}>
                                             <h2>
@@ -80,15 +112,14 @@ const NavibarMenu = () => {
                                             </h2>
                                         </LangNavLink>
                                     </li>
-                                )}
+                                ))}
                             </ul>
-
                         </div>
                     </nav>
                 </div>
             </div>
         </header>
-    )
-}
+    );
+};
 
-export default NavibarMenu
+export default NavibarMenu;

@@ -12,13 +12,7 @@ export const Section4 = (props: { data: HomePageIntro[]; }) =>
         <>
             {props.data.map((item, index) =>
             {
-                return (
-                    <HomeIntroSection_Comp
-                        key={`${index}-${item.RowId}`}
-                        item={item}
-                        index={index}
-                    />
-                );
+                return <HomeIntroSection_Comp key={`${index}-${item.RowId}`} item={item} index={index} />;
             })}
         </>
     );
@@ -47,10 +41,7 @@ const renderTextBlock = (item: HomePageIntro, isEvenRow: boolean) =>
         ? "col-lg-5 col-md-5 col-sm-12 col-12 order-xl-2 order-lg-2 order-md-2 order-sm-1 order-1"
         : "col-lg-5 col-md-5 col-sm-12 col-12";
 
-    const intro = useMemo(
-        () => (item.Intro ? parse(item.Intro) : null),
-        [item.Intro],
-    );
+    const intro = useMemo(() => (item.Intro ? parse(item.Intro) : null), [item.Intro]);
     return (
         <div className={textColClass}>
             <div className="bbox d-flex flex-column justify-content-between" style={{ height: "100%" }}>
@@ -59,9 +50,7 @@ const renderTextBlock = (item: HomePageIntro, isEvenRow: boolean) =>
                         <p className="font-wt-md">{intro}</p>
                     </div>
                     <div className="row w-100 mx-0 text-left">
-                        <div className="col-12 px-0">
-                            {renderLink(item.MainLink ?? "", item.MainLinkTitle ?? "", primaryLinkFontClass)}
-                        </div>
+                        <div className="col-12 px-0">{renderLink(item.MainLink ?? "", item.MainLinkTitle ?? "", primaryLinkFontClass)}</div>
                     </div>
                 </div>
                 <div className="sub-img-wrapper">
@@ -109,15 +98,9 @@ const renderImageBlock = (item: HomePageIntro, isEvenRow: boolean) =>
                     </div>
 
                     <div className="row bottom-nav-row text-center">
-                        <div className="col-4" key={item.SubLinkTitle1}>
-                            {renderLink(item.SubLink1 ?? "", item.SubLinkTitle1 ?? "")}
-                        </div>
-                        <div className="col-4" key={item.SubLinkTitle2}>
-                            {renderLink(item.SubLink2 ?? "", item.SubLinkTitle2 ?? "")}
-                        </div>
-                        <div className="col-4" key={item.SubLinkTitle3}>
-                            {renderLink(item.SubLink3 ?? "", item.SubLinkTitle3 ?? "")}
-                        </div>
+                        <div className="col-4" key={item.SubLinkTitle1}>{renderLink(item.SubLink1 ?? "", item.SubLinkTitle1 ?? "")}</div>
+                        <div className="col-4" key={item.SubLinkTitle2}>{renderLink(item.SubLink2 ?? "", item.SubLinkTitle2 ?? "")}</div>
+                        <div className="col-4" key={item.SubLinkTitle3}>{renderLink(item.SubLink3 ?? "", item.SubLinkTitle3 ?? "")}</div>
                     </div>
                 </div>
             </div>
@@ -139,9 +122,7 @@ const HomeIntroSection_Comp = (props: { item: HomePageIntro; index: number; }) =
         : "Common_content_section";
     const boxStyleClass = isEvenRow ? "DivBox_style S2" : "DivBox_style S1";
     return (
-        <section
-            className={`${sectionClassName} Layout_Padding_3_top Layout_Padding_3_bottom bg-custom overflow-hidden`}
-        >
+        <section className={`${sectionClassName} Layout_Padding_3_top Layout_Padding_3_bottom bg-custom overflow-hidden`}>
             <div className="Mask-DivBox">
                 <div className="customizeBox">
                     <div className="container-customize2">
@@ -149,21 +130,15 @@ const HomeIntroSection_Comp = (props: { item: HomePageIntro; index: number; }) =
                             <div className="col-12">
                                 <div className="Header_Div">
                                     <div className="title-accent font-wt-lg">{props.item.SubTitle}</div>
-                                    <div className="main-title display-5">
-                                        {props.item.Title}
-                                    </div>
+                                    <div className="main-title display-5">{props.item.Title}</div>
                                 </div>
                             </div>
 
                             <div className="col-12">
                                 <div className={boxStyleClass}>
                                     <div className="row">
-                                        {isEvenRow
-                                            ? renderImageBlock(props.item, isEvenRow)
-                                            : renderTextBlock(props.item, isEvenRow)}
-                                        {isEvenRow
-                                            ? renderTextBlock(props.item, isEvenRow)
-                                            : renderImageBlock(props.item, isEvenRow)}
+                                        {isEvenRow ? renderImageBlock(props.item, isEvenRow) : renderTextBlock(props.item, isEvenRow)}
+                                        {isEvenRow ? renderTextBlock(props.item, isEvenRow) : renderImageBlock(props.item, isEvenRow)}
                                     </div>
                                 </div>
                             </div>

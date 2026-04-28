@@ -52,16 +52,12 @@ export const Section6 = (props: { header: HomePageModel; data: Resources[]; }) =
                             <div className="col-12">
                                 <div className="Header_Div">
                                     <div className="title-accent font-wt-lg">{header.Resource_SubTitle}</div>
-                                    <div className="main-title display-5">
-                                        {header.Resource_Title}
-                                    </div>
+                                    <div className="main-title display-5">{header.Resource_Title}</div>
                                 </div>
                             </div>
                             <div className="col-12">
                                 <div className="DivBox_style">
-                                    <div className="Expand-wrapper">
-                                        {data.map(renderCard)}
-                                    </div>
+                                    <div className="Expand-wrapper">{data.map(renderCard)}</div>
                                 </div>
                             </div>
                         </div>

@@ -12,6 +12,4 @@ class GalleryService extends ApiDataService<GallerySet>
     }
 }
 export const GalleryAdapter = (apiInstance?: AxiosInstance) =>
-    new ApiDataAdapter<GallerySet, GalleryService>(
-        (api?: AxiosInstance) => new GalleryService(api ?? apiInstance),
-    );
+    new ApiDataAdapter<GallerySet, GalleryService>((api?: AxiosInstance) => new GalleryService(api ?? apiInstance));

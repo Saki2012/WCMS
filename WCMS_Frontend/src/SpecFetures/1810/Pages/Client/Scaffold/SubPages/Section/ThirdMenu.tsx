@@ -1,8 +1,8 @@
-import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data"
-import { LangLink } from "@/SysCore/i18n/LangLink"
+import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 
-
-export const ThirdMenuComp = (prop: { item: MenuItemData[] }) => {
+export const ThirdMenuComp = (prop: { item: MenuItemData[]; }) =>
+{
     return (
         <>
             {prop.item && (
@@ -11,15 +11,15 @@ export const ThirdMenuComp = (prop: { item: MenuItemData[] }) => {
                         <ul className="third-list-group">
                             {prop.item.map((i, idx) => (
                                 <>
-                                    <li key={idx}><LangLink className="list-group-item" to={i.Url} title={i.SrcData}>{i.SrcData}</LangLink></li>
+                                    <li key={idx}>
+                                        <LangLink className="list-group-item" to={i.Url} title={i.SrcData}>{i.SrcData}</LangLink>
+                                    </li>
                                 </>
                             ))}
                         </ul>
                     </div>
                 </div>
-
             )}
         </>
-    )
-
-}
+    );
+};

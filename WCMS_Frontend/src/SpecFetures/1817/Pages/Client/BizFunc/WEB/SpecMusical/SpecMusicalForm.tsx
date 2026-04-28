@@ -1,7 +1,5 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import ModuleContent, {
-    type ModuleViewCountConfig,
-} from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
+import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
@@ -43,68 +41,35 @@ const SpecMusicalForm = (props: ISpecMusicalFormProps) =>
         if (!loaderData?.args?.internalId) return null;
         if (loaderData.args.internalId !== safeInternalId) return null;
 
-        return {
-            args: safeInternalId,
-            apiRes: {
-                IsSuccess: true,
-                Data: loaderData.res.dataRes ?? ({} as SpecMusicalSet),
-                SysMessage: [],
-            },
-        };
+        return { args: safeInternalId, apiRes: { IsSuccess: true, Data: loaderData.res.dataRes ?? ({} as SpecMusicalSet), SysMessage: [] } };
     }, [loaderData, safeInternalId]);
 
     const initialDisplayName = useMemo<ApiLoaderData<null, ModelDisplaySchema[]> | null>(() =>
     {
         if (!loaderData?.res?.displayNameRes) return null;
-        return {
-            args: null,
-            apiRes: {
-                IsSuccess: true,
-                Data: loaderData.res.displayNameRes,
-                SysMessage: [],
-            },
-        };
+        return { args: null, apiRes: { IsSuccess: true, Data: loaderData.res.displayNameRes, SysMessage: [] } };
     }, [loaderData]);
 
     // 執行 function：QueryData / DisplayName（SSR initial → CSR 接手）
-    const useData = adapter.hooks.useQueryData({
-        internalId: safeInternalId,
-        initial: initialData,
-        deps: [safeInternalId],
-    });
+    const useData = adapter.hooks.useQueryData({ internalId: safeInternalId, initial: initialData, deps: [safeInternalId] });
 
-    const useDisplayName = adapter.hooks.useModelDisplayName({
-        initial: initialDisplayName,
-        deps: [],
-    });
+    const useDisplayName = adapter.hooks.useModelDisplayName({ initial: initialDisplayName, deps: [] });
 
     const errorList = [useData.errorText, useDisplayName.errorText];
 
     const title = useData.data?.SpecMusical?.MusicalName ?? "";
     const viewCountConfig = useMemo<ModuleViewCountConfig>(() =>
     {
-        const request: TryCountDetailViewRequest = {
-            SiteIndex: props.site.siteIndex,
-            ProgId: PGID.SpecMusical,
-            InternalId: safeInternalId,
-        };
+        const request: TryCountDetailViewRequest = { SiteIndex: props.site.siteIndex, ProgId: PGID.SpecMusical, InternalId: safeInternalId };
         return { mode: "form", contentKey: safeInternalId, request };
     }, [safeInternalId]);
     // return（DOM 不改）
     const displaySchema = useMemo<ModelDisplaySchema | null>(() =>
     {
-        return Array.isArray(useDisplayName.data)
-            ? (useDisplayName.data[0] ?? null)
-            : null;
+        return Array.isArray(useDisplayName.data) ? (useDisplayName.data[0] ?? null) : null;
     }, [useDisplayName.data]);
     return (
-        <ModuleContent
-            nodeTitle={props.node.title}
-            title={title}
-            isLoading={useData.isLoading}
-            errorList={errorList}
-            viewCountConfig={viewCountConfig}
-        >
+        <ModuleContent nodeTitle={props.node.title} title={title} isLoading={useData.isLoading} errorList={errorList} viewCountConfig={viewCountConfig}>
             <MainContent data={useData.data ?? undefined} displayName={displaySchema} />
         </ModuleContent>
     );
@@ -182,18 +147,10 @@ const PicturesComp = (props: { pics: SpecMusicalPictureList[]; }) =>
         };
 
         // 初始化主輪播
-        $main
-            .owlCarousel({
-                items: 1,
-                loop: false,
-                dots: false,
-                nav: false,
-                margin: 10,
-                autoplay: false,
-                autoplayHoverPause: true,
-                smartSpeed: 500,
-            })
-            .on("changed.owl.carousel", syncPosition);
+        $main.owlCarousel({ items: 1, loop: false, dots: false, nav: false, margin: 10, autoplay: false, autoplayHoverPause: true, smartSpeed: 500 }).on(
+            "changed.owl.carousel",
+            syncPosition,
+        );
 
         // 初始化縮圖輪播
         $thumb.owlCarousel({
@@ -203,13 +160,7 @@ const PicturesComp = (props: { pics: SpecMusicalPictureList[]; }) =>
             nav: true,
             smartSpeed: 300,
             responsiveRefreshRate: 100,
-            responsive: {
-                0: { items: 2 },
-                575: { items: 3 },
-                767: { items: 2 },
-                991: { items: 3 },
-                1199: { items: 3 },
-            },
+            responsive: { 0: { items: 2 }, 575: { items: 3 }, 767: { items: 2 }, 991: { items: 3 }, 1199: { items: 3 } },
         });
 
         $thumb.find(".item").each(function(this: HTMLElement, index: number)
@@ -236,13 +187,7 @@ const PicturesComp = (props: { pics: SpecMusicalPictureList[]; }) =>
         const venoFn = ($zoomBtn as any).venobox;
         if (typeof venoFn === "function")
         {
-            venoFn.call($zoomBtn, {
-                framewidth: "auto",
-                frameheight: "auto",
-                titleattr: "title",
-                numeratio: true,
-                infinigall: true,
-            });
+            venoFn.call($zoomBtn, { framewidth: "auto", frameheight: "auto", titleattr: "title", numeratio: true, infinigall: true });
         }
 
         // cleanup
@@ -265,15 +210,7 @@ const PicturesComp = (props: { pics: SpecMusicalPictureList[]; }) =>
                 <div className="commodity_wrapper">
                     <div className="commodity_big_image_box + owl-box">
                         <div className="ZoomIn commodity_ZoomIn_btn">
-                            <a
-                                ref={zoomBtnRef}
-                                href={srcId}
-                                className="Btn_zm1 venobox"
-                                data-gall="myGallery"
-                                type="button"
-                                role="button"
-                                title="放大圖片"
-                            >
+                            <a ref={zoomBtnRef} href={srcId} className="Btn_zm1 venobox" data-gall="myGallery" type="button" role="button" title="放大圖片">
                                 <i className="fas fa-expand-alt"></i>
                                 <span className="sr-only">放大圖片</span>
                             </a>
@@ -372,9 +309,7 @@ const InfoComp = (props: { info: SpecMusicalModel; displayName: ModelDisplaySche
                 <div className="Description_Text + mb-5">
                     <div className="open_wrapper">
                         <div className={`message_text${isOpen ? " open" : ""}`}>
-                            <span>
-                                {props.info.Info}
-                            </span>
+                            <span>{props.info.Info}</span>
                         </div>
                         <a
                             className={`label_btn${isOpen ? " active" : ""}`}
@@ -410,16 +345,11 @@ const SoundComp = (props: { sounds: SpecMusicalSoundList[]; }) =>
                     <div className="audioMP3_content">
                         <div className="row">
                             {props.sounds.map((audio, index) => (
-                                <div
-                                    className="col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12 + MP3-Item"
-                                    key={index}
-                                >
+                                <div className="col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12 + MP3-Item" key={index}>
                                     <div className="MP3player_AllBox">
                                         <div className="audio-heading">{audio.Info}</div>
                                         <div className="player_Area">
-                                            <AudioPlayer
-                                                src={FileManagementAPI.get_Public_Preview_Url(audio.SoundSrcId)}
-                                            />
+                                            <AudioPlayer src={FileManagementAPI.get_Public_Preview_Url(audio.SoundSrcId)} />
                                         </div>
                                     </div>
                                 </div>
@@ -454,10 +384,10 @@ const AudioPlayer = (props: { src: string; }) =>
         const volumeIcon = root.querySelector(".volume-icon") as HTMLButtonElement | null;
         const volumeLabel = root.querySelector(".volume-label") as HTMLElement | null;
 
-        if (
-            !audio || !playToggleBtn || !currentTimeEl || !durationEl || !progressBar
-            || !playedBar || !thumb || !volumeSlider || !volumeIcon || !volumeLabel
-        ) return;
+        if (!audio || !playToggleBtn || !currentTimeEl || !durationEl || !progressBar || !playedBar || !thumb || !volumeSlider || !volumeIcon || !volumeLabel)
+        {
+            return;
+        }
 
         let isDragging = false;
 
@@ -640,15 +570,7 @@ const AudioPlayer = (props: { src: string; }) =>
                 </div>
             </a>
             <div className="player-time" aria-live="polite">00:00</div>
-            <div
-                className="player-bar"
-                role="slider"
-                aria-label="播放進度"
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-valuenow={0}
-                tabIndex={0}
-            >
+            <div className="player-bar" role="slider" aria-label="播放進度" aria-valuemin={0} aria-valuemax={100} aria-valuenow={0} tabIndex={0}>
                 <div className="player-bar-loaded"></div>
                 <div className="player-bar-played"></div>
                 <div className="player-thumb"></div>
@@ -658,18 +580,8 @@ const AudioPlayer = (props: { src: string; }) =>
 
             <div className="volume-control">
                 <button className="volume-icon" data-volume="high" aria-label="靜音或取消靜音"></button>
-                <input
-                    type="range"
-                    min={0}
-                    max={100}
-                    defaultValue={100}
-                    step={1}
-                    className="volume-slider"
-                    aria-label="音量控制"
-                />
-                <span className="volume-label" aria-live="polite">
-                    100%
-                </span>
+                <input type="range" min={0} max={100} defaultValue={100} step={1} className="volume-slider" aria-label="音量控制" />
+                <span className="volume-label" aria-live="polite">100%</span>
             </div>
         </div>
     );

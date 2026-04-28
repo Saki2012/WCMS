@@ -213,16 +213,16 @@ namespace WCMS.SysCore
                 },
                 ct);
         }
-        public async Task<TSet> BizQuerySetAsync(string internalId)
+        public async Task<TSet> BizQuerySetAsync(string internalId, CancellationToken ct = default)
         {
             var data = await DoQuerySetAsync(internalId);
             return data;
         }
-        public async Task<IList<TSet>> BizQueryListAsync(QueryListParam param)
+        public async Task<IList<TSet>> BizQueryListAsync(QueryListParam param, CancellationToken ct = default)
         {
-            return await BizQueryListAsync(param.Fields,param.Condition, param.OrderBy, param.RankGroups, param.PageNumber, param.PageSize);
+            return await BizQueryListAsync(param.Fields,param.Condition, param.OrderBy, param.RankGroups, param.PageNumber, param.PageSize,ct);
         }
-        public async Task<IList<TSet>> BizQueryListAsync(string[] selectFields, string condition, IReadOnlyList<OrderBySpec> OrderBy=null,IReadOnlyList<RankGroupsSpec> rankGroups=null, int pageNumber=0, int pageSize = 0)
+        public async Task<IList<TSet>> BizQueryListAsync(string[] selectFields, string condition, IReadOnlyList<OrderBySpec> OrderBy=null,IReadOnlyList<RankGroupsSpec> rankGroups=null, int pageNumber=0, int pageSize = 0, CancellationToken ct = default)
         {
             // 宣告變數
             IList<TSet> result = [];
@@ -292,7 +292,7 @@ namespace WCMS.SysCore
 
             return result;
         }
-        public async Task<int> BizQueryTotalCounts(string condition)
+        public async Task<int> BizQueryTotalCounts(string condition, CancellationToken ct = default)
         {
             int totalCount = 0;
             foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TSet)))
@@ -388,6 +388,7 @@ namespace WCMS.SysCore
                     var detailProp = prop.PropertyType.GetGenericArguments().FirstOrDefault();
                     var oldValue = PropertyAccessorCache.Get(oldSet, prop.Name) as IList;
                     var newValue = PropertyAccessorCache.Get(newSet, prop.Name) as IList;
+                    EnsureNewDetailRowIds(oldValue, newValue);
                     var keyProps = PropertyAccessorCache.GetAttrProperties(detailProp, typeof(KeyAttribute));
                     var nonKeyProps = PropertyAccessorCache.GetProperties(detailProp).Where(p => !keyProps.Select(p => p.Name).ToHashSet().Contains(p.Name)).ToList();
                     var oldDict = oldValue.ToDynamicList().ToDictionary(item => string.Join("|", keyProps.Select(k => PropertyAccessorCache.Get(item, k.Name)?.ToString() ?? "null")));
@@ -2130,6 +2131,38 @@ namespace WCMS.SysCore
                 : $"{fieldExpr} == null || !@{paramIndex}.Contains({fieldExpr}.Value)";
         }
 
+        /// <summary>
+        /// 更新前先補齊新明細的 RowId，避免 newDict 建 key 時 RowId 仍為 null。
+        /// </summary>
+        private static void EnsureNewDetailRowIds(IList? oldValue, IList? newValue)
+        {
+            if (newValue == null) return;
+            var nextRowId = Math.Max(GetMaxRowId(oldValue), GetMaxRowId(newValue)) + 1;
+            foreach (var item in newValue)
+            {
+                if (item is not DetailRowModel) continue;
+                var rowId = TryGetRowId(item);
+                if (rowId.GetValueOrDefault() > 0) continue;
+                SetRowId(item, nextRowId++);
+            }
+        }
+        /// <summary>
+        /// 取得清單中的最大 RowId。
+        /// </summary>
+        private static int GetMaxRowId(IList? list)
+        {
+            if (list == null) return 0;
+            return list.Cast<object>().Select(p => TryGetRowId(p) ?? 0).DefaultIfEmpty(0).Max();
+        }
+        /// <summary>
+        /// 設定 RowId，支援 int / int?。
+        /// </summary>
+        private static void SetRowId(object obj, int rowId)
+        {
+            var prop = obj.GetType().GetProperty("RowId");
+            if (prop == null || !prop.CanWrite) return;
+            prop.SetValue(obj, rowId);
+        }
         #endregion
     }
 }

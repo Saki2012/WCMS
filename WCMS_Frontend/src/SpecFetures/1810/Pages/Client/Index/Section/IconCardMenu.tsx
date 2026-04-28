@@ -19,20 +19,9 @@ const createIconCardSwiper = (element: HTMLElement) =>
         observeParents: true,
         slidesPerView: 4,
         spaceBetween: 30,
-        breakpoints: {
-            1200: { slidesPerView: 4 },
-            992: { slidesPerView: 3 },
-            576: { slidesPerView: 2 },
-            0: { slidesPerView: 2 },
-        },
-        navigation: {
-            nextEl: ".swiper-next",
-            prevEl: ".swiper-prev",
-        },
-        pagination: {
-            el: ".swiper-pagination",
-            clickable: false,
-        },
+        breakpoints: { 1200: { slidesPerView: 4 }, 992: { slidesPerView: 3 }, 576: { slidesPerView: 2 }, 0: { slidesPerView: 2 } },
+        navigation: { nextEl: ".swiper-next", prevEl: ".swiper-prev" },
+        pagination: { el: ".swiper-pagination", clickable: false },
     });
 };
 
@@ -70,10 +59,7 @@ export const IconCardMenu = () =>
                             <div id="card" className="swiper px-2" ref={swiperRootRef}>
                                 <div className="swiper-wrapper">
                                     <div className="swiper-slide">
-                                        <div
-                                            className="item + animate__animated animate__slow wow bounceInUp"
-                                            data-wow-delay="0.1s"
-                                        >
+                                        <div className="item + animate__animated animate__slow wow bounceInUp" data-wow-delay="0.1s">
                                             <div className="wrapper_box">
                                                 <LangLink
                                                     to="/Allnews/Project-solicitation/National-Science-Accounting"
@@ -85,11 +71,7 @@ export const IconCardMenu = () =>
                                                         <div className="Icon-DIV">
                                                             <div className="IMG-Content">
                                                                 <div className="IMG-icon">
-                                                                    <img
-                                                                        src={img1}
-                                                                        className="d-block w-100"
-                                                                        alt="計畫徵件"
-                                                                    />
+                                                                    <img src={img1} className="d-block w-100" alt="計畫徵件" />
                                                                 </div>
                                                             </div>
                                                             <div className="Title-Content">
@@ -103,26 +85,14 @@ export const IconCardMenu = () =>
                                     </div>
 
                                     <div className="swiper-slide">
-                                        <div
-                                            className="item + animate__animated animate__slow wow bounceInUp"
-                                            data-wow-delay="0.1s"
-                                        >
+                                        <div className="item + animate__animated animate__slow wow bounceInUp" data-wow-delay="0.1s">
                                             <div className="wrapper_box">
-                                                <LangLink
-                                                    to="/RelevantRegulations/DownloadsAll1"
-                                                    tabIndex={1}
-                                                    title="相關法規"
-                                                    target="_self"
-                                                >
+                                                <LangLink to="/RelevantRegulations/DownloadsAll1" tabIndex={1} title="相關法規" target="_self">
                                                     <div className="media-item w-100">
                                                         <div className="Icon-DIV">
                                                             <div className="IMG-Content">
                                                                 <div className="IMG-icon">
-                                                                    <img
-                                                                        src={img2}
-                                                                        className="d-block w-100"
-                                                                        alt="相關法規"
-                                                                    />
+                                                                    <img src={img2} className="d-block w-100" alt="相關法規" />
                                                                 </div>
                                                             </div>
                                                             <div className="Title-Content">
@@ -136,26 +106,14 @@ export const IconCardMenu = () =>
                                     </div>
 
                                     <div className="swiper-slide">
-                                        <div
-                                            className="item + animate__animated animate__slow wow bounceInUp"
-                                            data-wow-delay="0.1s"
-                                        >
+                                        <div className="item + animate__animated animate__slow wow bounceInUp" data-wow-delay="0.1s">
                                             <div className="wrapper_box">
-                                                <LangLink
-                                                    to="/All-Downloads/DownloadsAllView"
-                                                    tabIndex={1}
-                                                    title="資料下載"
-                                                    target="_self"
-                                                >
+                                                <LangLink to="/All-Downloads/DownloadsAllView" tabIndex={1} title="資料下載" target="_self">
                                                     <div className="media-item w-100">
                                                         <div className="Icon-DIV">
                                                             <div className="IMG-Content">
                                                                 <div className="IMG-icon">
-                                                                    <img
-                                                                        src={img3}
-                                                                        className="d-block w-100"
-                                                                        alt="資料下載"
-                                                                    />
+                                                                    <img src={img3} className="d-block w-100" alt="資料下載" />
                                                                 </div>
                                                             </div>
                                                             <div className="Title-Content">
@@ -169,26 +127,14 @@ export const IconCardMenu = () =>
                                     </div>
 
                                     <div className="swiper-slide">
-                                        <div
-                                            className="item + animate__animated animate__slow wow bounceInUp"
-                                            data-wow-delay="0.1s"
-                                        >
+                                        <div className="item + animate__animated animate__slow wow bounceInUp" data-wow-delay="0.1s">
                                             <div className="wrapper_box">
-                                                <LangLink
-                                                    to="/research-highlights/rh4"
-                                                    tabIndex={1}
-                                                    title="研究亮點"
-                                                    target="_self"
-                                                >
+                                                <LangLink to="/research-highlights/rh4" tabIndex={1} title="研究亮點" target="_self">
                                                     <div className="media-item w-100">
                                                         <div className="Icon-DIV">
                                                             <div className="IMG-Content">
                                                                 <div className="IMG-icon">
-                                                                    <img
-                                                                        src={img4}
-                                                                        className="d-block w-100"
-                                                                        alt="研究亮點"
-                                                                    />
+                                                                    <img src={img4} className="d-block w-100" alt="研究亮點" />
                                                                 </div>
                                                             </div>
                                                             <div className="Title-Content">

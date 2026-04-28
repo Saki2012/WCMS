@@ -7,13 +7,7 @@ export const useModuleSettingTabSpecExtension = (): ModuleSettingTabExtension =>
     // 宣告變數
     const extension = useMemo<ModuleSettingTabExtension>(() =>
     {
-        return {
-            moduleOptions: {
-                SpecResearch: "研究成果",
-                SpecUSR: "USR",
-            },
-            moduleRenderers: {},
-        };
+        return { moduleOptions: { SpecResearch: "研究成果", SpecUSR: "USR" }, moduleRenderers: {} };
     }, []);
     // return
     return extension;

@@ -1,10 +1,6 @@
 // src/Features/Client/routing/site-routing.tsx
 import { Index } from "@/Features/Pages/Client/BizFunc/MainPage/Index";
-import {
-    SITEMAP_NODE_ID,
-    SITEMAP_SEGMENT,
-    SitemapNode,
-} from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap/Sitemap";
+import { SITEMAP_NODE_ID, SITEMAP_SEGMENT, SitemapNode } from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap/Sitemap";
 import { HomePage, HomePageLoader } from "@/Features/Pages/Client/Route/ClientComponentResolver";
 import TemplateHub from "@/Features/Pages/Server/Scaffold/PreviewFrame/TemplateHub.tsx";
 import { DefaultLang, isSupportedLang, type Lang } from "@/SysCore/i18n/lang";
@@ -66,11 +62,7 @@ export const normalizeSite = (siteMenu: SiteMenuSet): INormSite =>
     {
         const lang = (info.Lang ?? "").toLowerCase();
         if (!lang) continue;
-        indexInfoByLang[lang] = {
-            title: info.Title ?? "",
-            description: info.Description ?? "",
-            footerContent: info.SiteFooter ?? "",
-        };
+        indexInfoByLang[lang] = { title: info.Title ?? "", description: info.Description ?? "", footerContent: info.SiteFooter ?? "" };
     }
     if (Object.keys(indexInfoByLang).length === 0)
     {
@@ -109,10 +101,7 @@ export const normalizeSite = (siteMenu: SiteMenuSet): INormSite =>
     for (const [lang, items] of byLang)
     {
         // 排序（層級→顯示序→主鍵）
-        items.sort((a, b) =>
-            (a.Level ?? 0) - (b.Level ?? 0) || (a.DisplayOrder ?? 0) - (b.DisplayOrder ?? 0)
-            || (a.ItemRowId ?? 0) - (b.ItemRowId ?? 0)
-        );
+        items.sort((a, b) => (a.Level ?? 0) - (b.Level ?? 0) || (a.DisplayOrder ?? 0) - (b.DisplayOrder ?? 0) || (a.ItemRowId ?? 0) - (b.ItemRowId ?? 0));
         const nodeMap = new Map<number, INormNode>();
 
         for (const it of items)
@@ -178,13 +167,7 @@ export const normalizeSite = (siteMenu: SiteMenuSet): INormSite =>
             else nodeMap.get(parent)?.children.push(n);
         }
         ensureVirtualRoot(roots, lang);
-        const fillMeta = (
-            node: INormNode,
-            parent: INormNode | null,
-            rootId: number,
-            parentSegs: string[],
-            parentIds: number[],
-        ) =>
+        const fillMeta = (node: INormNode, parent: INormNode | null, rootId: number, parentSegs: string[], parentIds: number[]) =>
         {
             node.level = (parent?.level ?? -1) + 1;
             node.rootId = rootId;
@@ -230,17 +213,12 @@ const ensureVirtualRoot = (roots: INormNode[], lang: Lang): void =>
 
 export type ModuleFactory = (lang: Lang, site: INormSite, node: INormNode) => React.ReactElement;
 export type ModuleRoutesFactory = (opts: unknown, lang: Lang, site: INormSite, node: INormNode) => RouteObject[];
-export type ModuleEntry =
-    | { kind: "element"; render: ModuleFactory; }
-    | {
-        kind: "routes";
-        element: ModuleFactory;
-        children: ModuleRoutesFactory;
-        loader?: (
-            args: LoaderFunctionArgs,
-            ctx: { lang: Lang; site: INormSite; node: INormNode; },
-        ) => Promise<ISubPageLoaderData>;
-    };
+export type ModuleEntry = { kind: "element"; render: ModuleFactory; } | {
+    kind: "routes";
+    element: ModuleFactory;
+    children: ModuleRoutesFactory;
+    loader?: (args: LoaderFunctionArgs, ctx: { lang: Lang; site: INormSite; node: INormNode; }) => Promise<ISubPageLoaderData>;
+};
 export type ModuleRegistry = Record<string, ModuleEntry>;
 export const coreModuleRegistry: ModuleRegistry = {};
 type RegistryResolver = () => ModuleRegistry;
@@ -307,36 +285,20 @@ const ModuleElement: React.FC<{ site: INormSite; nodeId: number; skeletonNode: I
     const entry = getModuleRegistry()[node.module.progId];
     if (!entry) return <div>Unknown module: {node.module.progId}</div>;
     const scopeKey = buildModuleRenderScopeKey({ lang, site: props.site, node });
-    const child = entry.kind === "element"
-        ? entry.render(lang, props.site, node)
-        : entry.element(lang, props.site, node);
+    const child = entry.kind === "element" ? entry.render(lang, props.site, node) : entry.element(lang, props.site, node);
 
     // return：node/語系切換時重建整個 module，避免分頁等 local state 沿用上一個 module
-    return (
-        <React.Fragment key={scopeKey}>
-            {child}
-        </React.Fragment>
-    );
+    return <React.Fragment key={scopeKey}>{child}</React.Fragment>;
 };
 /** render 時用 LangContext 覆寫 route.element 裡的 lang / defaultLang（避免 route tree 只能用 DefaultLang 產生） */
-const WithCtxLang: React.FC<{ element: React.ReactElement; site?: INormSite; nodeId?: number; }> = (
-    { element, site, nodeId },
-) =>
+const WithCtxLang: React.FC<{ element: React.ReactElement; site?: INormSite; nodeId?: number; }> = ({ element, site, nodeId }) =>
 {
     const location = useLocation();
     const lang = resolveRouteLangFromPathname(location.pathname);
     const node = site && typeof nodeId === "number" ? (resolveNodeByLang(site, lang, nodeId) ?? undefined) : undefined;
     const scopeKey = buildModuleRenderScopeKey({ lang, site, node });
 
-    return React.cloneElement(
-        element,
-        {
-            key: scopeKey,
-            lang,
-            defaultLang: DefaultLang,
-            ...(node ? { node } : {}),
-        } as any,
-    );
+    return React.cloneElement(element, { key: scopeKey, lang, defaultLang: DefaultLang, ...(node ? { node } : {}) } as any);
 };
 const wrapRoutesWithCtxLang = (routes: RouteObject[], site?: INormSite, nodeId?: number): RouteObject[] =>
     routes.map((r) =>
@@ -478,10 +440,7 @@ export const resolveLangFromRequest = (request: Request): Lang =>
 
 export const createRoutesFromSite = (site: INormSite): RouteObject[] =>
 {
-    const defaultModuleSubPageLoader = async (
-        args: LoaderFunctionArgs,
-        ctx: { lang: Lang; site: INormSite; node: INormNode; },
-    ) =>
+    const defaultModuleSubPageLoader = async (args: LoaderFunctionArgs, ctx: { lang: Lang; site: INormSite; node: INormNode; }) =>
     {
         return SubPageLoader({ lang: ctx.lang, site: ctx.site, node: ctx.node })(args);
     };
@@ -489,11 +448,7 @@ export const createRoutesFromSite = (site: INormSite): RouteObject[] =>
     const toRoute = (n: INormNode): RouteObject =>
     {
         const menuChildren = n.children.map(toRoute);
-        const wrapGuard = (el: React.ReactElement) => (
-            <NodeRouteGuard site={site} nodeId={n.id}>
-                {el}
-            </NodeRouteGuard>
-        );
+        const wrapGuard = (el: React.ReactElement) => <NodeRouteGuard site={site} nodeId={n.id}>{el}</NodeRouteGuard>;
         // A) 站內 redirect：父層要當「殼」，redirect 放在 index，children 一定要掛回去
         if (n.type === "redirect-internal")
         {
@@ -503,20 +458,14 @@ export const createRoutesFromSite = (site: INormSite): RouteObject[] =>
                     ? {
                         path: n.path,
                         element: wrapGuard(<Outlet />),
-                        children: [
-                            { index: true, element: wrapGuard(<AutoRedirect to={n.redirectTo!} replace />) },
-                            ...menuChildren,
-                        ],
+                        children: [{ index: true, element: wrapGuard(<AutoRedirect to={n.redirectTo!} replace />) }, ...menuChildren],
                     }
                     : { path: n.path, element: wrapGuard(<AutoRedirect to={n.redirectTo!} replace />) };
             }
             // pathless redirect（少見）
             return {
                 element: wrapGuard(<Outlet />),
-                children: [
-                    { index: true, element: wrapGuard(<AutoRedirect to={n.redirectTo!} replace />) },
-                    ...menuChildren,
-                ],
+                children: [{ index: true, element: wrapGuard(<AutoRedirect to={n.redirectTo!} replace />) }, ...menuChildren],
             };
         }
         // B) 站外 redirect：同理（通常沒有子項；若有也要用殼 + index）
@@ -525,26 +474,15 @@ export const createRoutesFromSite = (site: INormSite): RouteObject[] =>
             const External: React.FC = () =>
             {
                 if (typeof window !== "undefined") window.location.assign(n.redirectTo!);
-                return (
-                    <a href={n.redirectTo!} rel="noopener noreferrer">
-                        {n.redirectTo}
-                    </a>
-                );
+                return <a href={n.redirectTo!} rel="noopener noreferrer">{n.redirectTo}</a>;
             };
             if (n.path)
             {
                 return menuChildren.length > 0
-                    ? {
-                        path: n.path,
-                        element: wrapGuard(<Outlet />),
-                        children: [{ index: true, element: wrapGuard(<External />) }, ...menuChildren],
-                    }
+                    ? { path: n.path, element: wrapGuard(<Outlet />), children: [{ index: true, element: wrapGuard(<External />) }, ...menuChildren] }
                     : { path: n.path, element: wrapGuard(<External />) };
             }
-            return {
-                element: wrapGuard(<Outlet />),
-                children: [{ index: true, element: wrapGuard(<External />) }, ...menuChildren],
-            };
+            return { element: wrapGuard(<Outlet />), children: [{ index: true, element: wrapGuard(<External />) }, ...menuChildren] };
         }
         // C) 模組節點：一律用 ModuleElement（它內部依 kind 呼叫 render/element；routes 型 element 內需含 <Outlet/>）
         if (!n.module) return { path: n.path, element: <div>Module not registered</div> };
@@ -559,9 +497,7 @@ export const createRoutesFromSite = (site: INormSite): RouteObject[] =>
             return entryLoader(args, { lang, site, node: resolvedNode });
         };
         // routes 型模組的自帶 children；element 型為空
-        const modChildrenRaw: RouteObject[] = entry.kind === "routes"
-            ? entry.children(n.module.options, DefaultLang, site, n)
-            : [];
+        const modChildrenRaw: RouteObject[] = entry.kind === "routes" ? entry.children(n.module.options, DefaultLang, site, n) : [];
         const modChildren = wrapRoutesWithCtxLang(modChildrenRaw, site, n.id);
         const children = [...modChildren, ...menuChildren];
         // pathless 模組：有 children → 當包裹；沒有 → 當 index
@@ -581,26 +517,20 @@ export const createRoutesFromSite = (site: INormSite): RouteObject[] =>
 
         return resolveLangFromRequest(args.request);
     };
-    return [
-        {
-            path: "/" + site.siteIndex,
-            element: <WithCtxLang element={<Index lang={DefaultLang} site={site} style={Classic_FETheme} />} />,
-            children: [
-                {
-                    index: true,
-                    element: <WithCtxLang element={<HomePage lang={DefaultLang} />} />,
-                    loader: async (args) => HomePageLoader({ lang: resolveLangFromArgs(args) })(args),
-                },
-                {
-                    path: "Template",
-                    element: (
-                        <React.Suspense fallback={<div role="status" aria-live="polite">載入預覽頁…</div>}>
-                            <WithCtxLang element={<TemplateHub site={site} defaultLang={DefaultLang} />} />
-                        </React.Suspense>
-                    ),
-                },
-                ...skeletonRoots.map(toRoute),
-            ],
-        },
-    ];
+    return [{
+        path: "/" + site.siteIndex,
+        element: <WithCtxLang element={<Index lang={DefaultLang} site={site} style={Classic_FETheme} />} />,
+        children: [{
+            index: true,
+            element: <WithCtxLang element={<HomePage lang={DefaultLang} />} />,
+            loader: async (args) => HomePageLoader({ lang: resolveLangFromArgs(args) })(args),
+        }, {
+            path: "Template",
+            element: (
+                <React.Suspense fallback={<div role="status" aria-live="polite">載入預覽頁…</div>}>
+                    <WithCtxLang element={<TemplateHub site={site} defaultLang={DefaultLang} />} />
+                </React.Suspense>
+            ),
+        }, ...skeletonRoots.map(toRoute)],
+    }];
 };

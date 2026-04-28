@@ -20,9 +20,7 @@ export const useFetchEnumOptions = (enumName: string) =>
         try
         {
             const result = await new SystemAPI().getEnumOptions(enumName);
-            const dict: Record<string, string> = Object.fromEntries(
-                (result.Data ?? []).map((o: EnumOption) => [String(o.Key), o.DisplayName]),
-            );
+            const dict: Record<string, string> = Object.fromEntries((result.Data ?? []).map((o: EnumOption) => [String(o.Key), o.DisplayName]));
             setData(dict);
         } catch (err: any)
         {
@@ -32,6 +30,9 @@ export const useFetchEnumOptions = (enumName: string) =>
             setIsLoading(false);
         }
     }, [enumName]);
-    useEffect(() =>{fetchData();}, [fetchData]);
+    useEffect(() =>
+    {
+        fetchData();
+    }, [fetchData]);
     return { data, isLoading, error };
 };

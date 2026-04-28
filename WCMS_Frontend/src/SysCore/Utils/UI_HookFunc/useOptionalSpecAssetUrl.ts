@@ -12,52 +12,57 @@ import { useMemo } from "react";
 
 /** 目前 Spec（vite.config.ts: alias SpecFeature -> /src/SpecFetures/{VITE_SPEC_CODE}） */
 const RawSpecAssetUrlMap = import.meta.glob(
-  "SpecFeature/Assets/**/**/*.{pdf,png,jpg,jpeg,gif,svg,webp,mp4,webm,mp3,wav,ogg,zip,rar,7z,txt,doc,docx,xls,xlsx,ppt,pptx}",
-  { eager: true, query: "?url", import: "default" },
+    "SpecFeature/Assets/**/**/*.{pdf,png,jpg,jpeg,gif,svg,webp,mp4,webm,mp3,wav,ogg,zip,rar,7z,txt,doc,docx,xls,xlsx,ppt,pptx}",
+    { eager: true, query: "?url", import: "default" },
 ) as Record<string, string>;
 
 /** _default（vite.config.ts: alias SpecDefault -> /src/SpecFetures/_default） */
 const RawDefaultAssetUrlMap = import.meta.glob(
-  "SpecDefault/Assets/**/**/*.{pdf,png,jpg,jpeg,gif,svg,webp,mp4,webm,mp3,wav,ogg,zip,rar,7z,txt,doc,docx,xls,xlsx,ppt,pptx}",
-  { eager: true, query: "?url", import: "default" },
+    "SpecDefault/Assets/**/**/*.{pdf,png,jpg,jpeg,gif,svg,webp,mp4,webm,mp3,wav,ogg,zip,rar,7z,txt,doc,docx,xls,xlsx,ppt,pptx}",
+    { eager: true, query: "?url", import: "default" },
 ) as Record<string, string>;
 
 // #endregion
 
-export interface UseOptionalSpecAssetUrlArgs {
-  /** ex: Assets/Server/後台操作手冊.pdf */
-  relativePath: string;
+export interface UseOptionalSpecAssetUrlArgs
+{
+    /** ex: Assets/Server/後台操作手冊.pdf */
+    relativePath: string;
 
-  /** 找不到時是否 fallback 到 _default，預設 true */
-  fallbackToDefault?: boolean;
+    /** 找不到時是否 fallback 到 _default，預設 true */
+    fallbackToDefault?: boolean;
 }
 
 /** 統一路徑格式，避免多個 / 造成 key 對不上 */
-const normalizeRelativePath = (relativePath: string): string => {
-  const s = (relativePath ?? "").trim();
-  return s.replace(/^\/+/, "");
+const normalizeRelativePath = (relativePath: string): string =>
+{
+    const s = (relativePath ?? "").trim();
+    return s.replace(/^\/+/, "");
 };
 
 /** 從 glob key 抽出我們想要的 key：一律使用 `Assets/...` */
-const tryGetAssetsRelativeKey = (globKey: string): string | null => {
-  const idx = globKey.indexOf("/Assets/");
-  if (idx < 0) return null;
+const tryGetAssetsRelativeKey = (globKey: string): string | null =>
+{
+    const idx = globKey.indexOf("/Assets/");
+    if (idx < 0) return null;
 
-  // idx+1：去掉前面的 '/'，讓 key 變成 `Assets/...`
-  return globKey.slice(idx + 1);
+    // idx+1：去掉前面的 '/'，讓 key 變成 `Assets/...`
+    return globKey.slice(idx + 1);
 };
 
 /** 將 glob map 轉為 `{ 'Assets/xxx': 'url' }` 的形式 */
-const toAssetsRelativeMap = (raw: Record<string, string>): Record<string, string> => {
-  const out: Record<string, string> = {};
+const toAssetsRelativeMap = (raw: Record<string, string>): Record<string, string> =>
+{
+    const out: Record<string, string> = {};
 
-  for (const [k, v] of Object.entries(raw)) {
-    const rel = tryGetAssetsRelativeKey(k);
-    if (!rel) continue;
-    out[rel] = v;
-  }
+    for (const [k, v] of Object.entries(raw))
+    {
+        const rel = tryGetAssetsRelativeKey(k);
+        if (!rel) continue;
+        out[rel] = v;
+    }
 
-  return out;
+    return out;
 };
 
 const SpecAssetUrlMap = toAssetsRelativeMap(RawSpecAssetUrlMap);
@@ -68,17 +73,19 @@ const DefaultAssetUrlMap = toAssetsRelativeMap(RawDefaultAssetUrlMap);
  * - 先找當前 Spec
  * - 找不到且 fallbackToDefault=true 時，再找 _default
  */
-export const useOptionalSpecAssetUrl = (args: UseOptionalSpecAssetUrlArgs): string | null => {
-  const relativePath = normalizeRelativePath(args.relativePath);
-  const fallbackToDefault = args.fallbackToDefault ?? true;
+export const useOptionalSpecAssetUrl = (args: UseOptionalSpecAssetUrlArgs): string | null =>
+{
+    const relativePath = normalizeRelativePath(args.relativePath);
+    const fallbackToDefault = args.fallbackToDefault ?? true;
 
-  const url = useMemo(() => {
-    const hit = SpecAssetUrlMap[relativePath];
-    if (hit) return hit;
+    const url = useMemo(() =>
+    {
+        const hit = SpecAssetUrlMap[relativePath];
+        if (hit) return hit;
 
-    if (!fallbackToDefault) return null;
-    return DefaultAssetUrlMap[relativePath] ?? null;
-  }, [relativePath, fallbackToDefault]);
+        if (!fallbackToDefault) return null;
+        return DefaultAssetUrlMap[relativePath] ?? null;
+    }, [relativePath, fallbackToDefault]);
 
-  return url;
+    return url;
 };

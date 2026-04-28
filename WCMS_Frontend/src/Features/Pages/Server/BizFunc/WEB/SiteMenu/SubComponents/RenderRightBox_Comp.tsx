@@ -19,7 +19,7 @@ type SiteMenu_Item_Module = components["schemas"]["SiteMenu_Item_Module_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 type TagSet = components["schemas"]["TagSet_DTO"];
 type MenuUrlType = components["schemas"]["MenuUrlType"];
-export type ModelKey = "" | PGID;
+export type ModelKey = string | PGID;
 
 type RenderRightBoxProp = {
     theme: IBETheme;
@@ -57,9 +57,7 @@ export const RenderRightBox = (prop: RenderRightBoxProp) =>
         if (!selectedMenuNode) return null;
         const rowId = Number(selectedMenuNode.id ?? selectedMenuNode.menuItem?.RowId ?? 0);
         if (!rowId) return selectedMenuNode.menuItem ?? null;
-        return (prop.formData.data?.SiteMenu_Item ?? []).find(x => Number(x.RowId) === rowId)
-            ?? selectedMenuNode.menuItem
-            ?? null;
+        return (prop.formData.data?.SiteMenu_Item ?? []).find(x => Number(x.RowId) === rowId) ?? selectedMenuNode.menuItem ?? null;
     }, [prop.formData.data?.SiteMenu_Item, selectedMenuNode]);
 
     const headerTitle = useMemo(() =>
@@ -135,10 +133,7 @@ export const RenderRightBox = (prop: RenderRightBoxProp) =>
                         <div className="card-header pt-1">
                             <h3>
                                 <i className="fas fa-align-left me-2"></i>
-                                <span className="fw-bold text-primary">
-                                    {headerTitle}
-                                </span>{"  "}
-                                - 編輯
+                                <span className="fw-bold text-primary">{headerTitle}</span>{"  "}- 編輯
                             </h3>
                         </div>
 
@@ -299,21 +294,13 @@ const MenuInfoComp = (prop: MenuInfoCompProps) =>
 };
 
 /** 依目前選取項目取得對應的 Url 設定列 */
-const findSelectedUrlRow = (
-    list: SiteMenu_Item_Url[],
-    siteIndex?: string | null,
-    itemRowId?: number | null,
-): SiteMenu_Item_Url | undefined =>
+const findSelectedUrlRow = (list: SiteMenu_Item_Url[], siteIndex?: string | null, itemRowId?: number | null): SiteMenu_Item_Url | undefined =>
 {
     return list.find((row) => row.SiteIndex === siteIndex && row.ItemRowId === itemRowId);
 };
 
 /** 依目前選取項目取得對應的 Module 設定列 */
-const findSelectedModuleRow = (
-    list: SiteMenu_Item_Module[],
-    siteIndex?: string | null,
-    itemRowId?: number | null,
-): SiteMenu_Item_Module | undefined =>
+const findSelectedModuleRow = (list: SiteMenu_Item_Module[], siteIndex?: string | null, itemRowId?: number | null): SiteMenu_Item_Module | undefined =>
 {
     return list.find((row) => row.SiteIndex === siteIndex && row.ItemRowId === itemRowId);
 };

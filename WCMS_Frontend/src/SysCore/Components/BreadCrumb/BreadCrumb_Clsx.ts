@@ -1,4 +1,5 @@
-export interface IBreadCrumbStyle {
+export interface IBreadCrumbStyle
+{
     ul: string;
-    li(isLast:boolean): string;
+    li(isLast: boolean): string;
 }

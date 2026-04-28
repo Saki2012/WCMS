@@ -86,10 +86,7 @@ const buildTimelineCondition = (p: { lang: Lang; timelineId: string; }): string 
 };
 
 /** 建 Timeline QueryListParam */
-const buildTimelineQuery = (p: {
-    condition: string;
-    isDesc: boolean;
-}): QueryListParam =>
+const buildTimelineQuery = (p: { condition: string; isDesc: boolean; }): QueryListParam =>
 {
     // return
     return {
@@ -107,25 +104,16 @@ const buildTimelineQuery = (p: {
             `${TimelineFields._TimelineItem}.${TimelineItemFields._TimelineLangDetail}.${TimelineLangDetailFields.Content}`,
         ],
         Condition: p.condition,
-        OrderBy: [
-            { Col: `${TimelineFields._TimelineItem}.${TimelineItemFields.Date}`, Desc: p.isDesc },
-        ],
+        OrderBy: [{ Col: `${TimelineFields._TimelineItem}.${TimelineItemFields.Date}`, Desc: p.isDesc }],
         PageNumber: 1,
         PageSize: 1,
     };
 };
 
 /** 組 loader / hook 共用參數 */
-const buildLoaderArgs = (p: {
-    lang: Lang;
-    opts?: ITimelineOptions;
-    overrides?: Partial<{
-        pageNumber: number;
-        pageSize: number;
-        timelineId: string;
-        isDesc: boolean;
-    }>;
-}): TimelineFormLoaderArgs =>
+const buildLoaderArgs = (
+    p: { lang: Lang; opts?: ITimelineOptions; overrides?: Partial<{ pageNumber: number; pageSize: number; timelineId: string; isDesc: boolean; }>; },
+): TimelineFormLoaderArgs =>
 {
     // 宣告變數
     const timelineId = `${p.overrides?.timelineId ?? p.opts?.TimelineId ?? ""}`.trim();
@@ -134,15 +122,7 @@ const buildLoaderArgs = (p: {
     const condition = buildTimelineCondition({ lang: p.lang, timelineId });
     const isDesc = Boolean(p.overrides?.isDesc ?? p.opts?.IsDesc ?? false);
     // return
-    return {
-        lang: p.lang,
-        timelineId,
-        pageSize,
-        pageNumber,
-        condition,
-        isDesc,
-        listParam: buildTimelineQuery({ condition, isDesc }),
-    };
+    return { lang: p.lang, timelineId, pageSize, pageNumber, condition, isDesc, listParam: buildTimelineQuery({ condition, isDesc }) };
 };
 
 const matchQueryInitial = <TData>(
@@ -159,65 +139,42 @@ const matchQueryInitial = <TData>(
 };
 
 /** 取重置 key */
-const buildResetKey = (
-    args: Pick<TimelineFormLoaderArgs, "lang" | "timelineId" | "pageSize" | "isDesc">,
-): string =>
+const buildResetKey = (args: Pick<TimelineFormLoaderArgs, "lang" | "timelineId" | "pageSize" | "isDesc">): string =>
 {
     // return
-    return JSON.stringify({
-        lang: args.lang,
-        timelineId: args.timelineId,
-        pageSize: args.pageSize,
-        isDesc: args.isDesc,
-    });
+    return JSON.stringify({ lang: args.lang, timelineId: args.timelineId, pageSize: args.pageSize, isDesc: args.isDesc });
 };
 
 /** SSR Loader：首屏撈 timeline grid */
-export const TimelineForm_Loader = (p: {
-    lang: Lang;
-    opts?: ITimelineOptions;
-    overrides?: Partial<{
-        pageNumber: number;
-        pageSize: number;
-        timelineId: string;
-    }>;
-}) =>
-async ({ request }: LoaderFunctionArgs): Promise<TimelineFormLoaderData> =>
-{
-    // 宣告變數
-    const ssrApi = getSsrApi(request);
-    const timeline = TimelineAdapter(ssrApi);
-    const url = new URL(request.url);
+export const TimelineForm_Loader =
+    (p: { lang: Lang; opts?: ITimelineOptions; overrides?: Partial<{ pageNumber: number; pageSize: number; timelineId: string; }>; }) =>
+    async ({ request }: LoaderFunctionArgs): Promise<TimelineFormLoaderData> =>
+    {
+        // 宣告變數
+        const ssrApi = getSsrApi(request);
+        const timeline = TimelineAdapter(ssrApi);
+        const url = new URL(request.url);
 
-    const baseArgs = buildLoaderArgs({
-        lang: p.lang,
-        opts: p.opts,
-        overrides: {
-            timelineId: p.overrides?.timelineId,
-            pageNumber: p.overrides?.pageNumber ?? toPositiveInt(url.searchParams.get("page"), 1),
-            pageSize: p.overrides?.pageSize,
-        },
-    });
+        const baseArgs = buildLoaderArgs({
+            lang: p.lang,
+            opts: p.opts,
+            overrides: {
+                timelineId: p.overrides?.timelineId,
+                pageNumber: p.overrides?.pageNumber ?? toPositiveInt(url.searchParams.get("page"), 1),
+                pageSize: p.overrides?.pageSize,
+            },
+        });
 
-    const gridLoader = timeline.loader.createQueryGridDataLoader({
-        getCondition: () => baseArgs.listParam,
-        getApiInstance: () => ssrApi,
-    });
+        const gridLoader = timeline.loader.createQueryGridDataLoader({ getCondition: () => baseArgs.listParam, getApiInstance: () => ssrApi });
 
-    const gridRes = await gridLoader({ request } as LoaderFunctionArgs);
+        const gridRes = await gridLoader({ request } as LoaderFunctionArgs);
 
-    // return
-    return {
-        args: baseArgs,
-        res: { gridRes },
+        // return
+        return { args: baseArgs, res: { gridRes } };
     };
-};
 
 /** CSR Hook：Component 一行拿 Timeline list + paginator */
-export const useTimelineFormFetchData = (p: {
-    lang: Lang;
-    opts?: ITimelineOptions;
-}): TimelineFormFetchDataResult =>
+export const useTimelineFormFetchData = (p: { lang: Lang; opts?: ITimelineOptions; }): TimelineFormFetchDataResult =>
 {
     // 宣告變數
     const initial = useLoaderData() as TimelineFormLoaderData;
@@ -225,10 +182,7 @@ export const useTimelineFormFetchData = (p: {
 
     const currentArgs = useMemo(() =>
     {
-        return buildLoaderArgs({
-            lang: p.lang,
-            opts: p.opts,
-        });
+        return buildLoaderArgs({ lang: p.lang, opts: p.opts });
     }, [p.lang, p.opts]);
 
     const gridInitial = useMemo<ApiGridInitial<TimelineSet>>(() =>

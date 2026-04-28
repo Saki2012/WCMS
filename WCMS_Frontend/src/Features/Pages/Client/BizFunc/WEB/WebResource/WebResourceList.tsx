@@ -1,9 +1,7 @@
 // WebResourceList.tsx
 /**公告清單 */
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import ModuleContent, {
-    type ModuleViewCountConfig,
-} from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
+import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { ColRender, RowRender, STORAGE_KEY } from "@/SysCore/Components/Grid/Grid_Comp";
 import type { ColumnConfig, GridProps, GridRow } from "@/SysCore/Components/Grid/Grid_Data";
@@ -51,12 +49,7 @@ const WebResourceListComp = (props: IWebResourceListProps) =>
             case 1:
             default:
             {
-                const adjustedGrid = SetAdjustFunction(
-                    props.lang,
-                    getData.rawData.gridProps,
-                    getData.rawData.listData,
-                    getData.rawData.categoryMap,
-                );
+                const adjustedGrid = SetAdjustFunction(props.lang, getData.rawData.gridProps, getData.rawData.listData, getData.rawData.categoryMap);
                 return <GridList_Comp key="grid" lang={props.lang} title={""} GridData={adjustedGrid} />;
             }
         }
@@ -66,12 +59,7 @@ const WebResourceListComp = (props: IWebResourceListProps) =>
 
     // return（DOM 不動）
     return (
-        <ModuleContent
-            nodeTitle={props.node.title}
-            isLoading={getData.isLoading}
-            errorList={getData.errorList}
-            viewCountConfig={viewCountConfig}
-        >
+        <ModuleContent nodeTitle={props.node.title} isLoading={getData.isLoading} errorList={getData.errorList} viewCountConfig={viewCountConfig}>
             {children}
         </ModuleContent>
     );
@@ -85,21 +73,10 @@ const formatCategoriesNameByMap = (content: string, categoryMap: Record<string, 
     const raw = (content?.toString?.() ?? "").trim();
     if (!raw) return "";
 
-    return raw
-        .split(",")
-        .map(s => s.trim())
-        .filter(Boolean)
-        .map(id => categoryMap[id] ?? "")
-        .filter(Boolean)
-        .join("、");
+    return raw.split(",").map(s => s.trim()).filter(Boolean).map(id => categoryMap[id] ?? "").filter(Boolean).join("、");
 };
 
-const SetAdjustFunction = (
-    lang: Lang,
-    gridProps: GridProps,
-    rawData: WebResourceSet[],
-    catMap: Record<string, string>,
-): GridProps =>
+const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: WebResourceSet[], catMap: Record<string, string>): GridProps =>
 {
     const newRows: GridRow[] = (gridProps.rows ?? []).map((row, index) =>
     {
@@ -128,9 +105,7 @@ const SetAdjustFunction = (
                     {nextContent}
                     {isTitle && (
                         <>
-                            {isWithinLastNDaysFromString(curRow?.WebResource?.CreateTime ?? "") && (
-                                <span className="label label-warning">最新</span>
-                            )}
+                            {isWithinLastNDaysFromString(curRow?.WebResource?.CreateTime ?? "") && <span className="label label-warning">最新</span>}
                             {Boolean(contentStatus & 1) && <span className="label label-success">置頂</span>}
                             {Boolean(contentStatus & 2) && <span className="label label-danger">熱門</span>}
                         </>
@@ -170,14 +145,7 @@ const GridList_Comp = (props: { lang: Lang; title: string; GridData: GridProps; 
 
         const widths = JSON.parse(saved);
         setColumns(prev =>
-            prev.map(col => ({
-                ...col,
-                width: typeof widths[col.key] === "number"
-                    ? widths[col.key]
-                    : typeof col.width === "number"
-                    ? col.width
-                    : undefined,
-            }))
+            prev.map(col => ({ ...col, width: typeof widths[col.key] === "number" ? widths[col.key] : typeof col.width === "number" ? col.width : undefined }))
         );
     }, []);
 
@@ -306,15 +274,10 @@ const PictureListContent = (prop: { lang: string; datas: WebResourceSet[]; }) =>
                                     </div>
                                 )}
 
-                                <div
-                                    className="card_titleDiv + mb-md-4 mb-sm-3 mb-2"
-                                    style={{ textAlign: (isYoutube || isVideo) ? undefined : "center" }}
-                                >
+                                <div className="card_titleDiv + mb-md-4 mb-sm-3 mb-2" style={{ textAlign: (isYoutube || isVideo) ? undefined : "center" }}>
                                     <a href={urlRaw} target={tar} className="card_title">🔗{title}</a>
                                     <div className="d-flex gap-1 flex-wrap">
-                                        {Boolean(contentStatus & 1) && (
-                                            <span className="label label-success">置頂</span>
-                                        )}
+                                        {Boolean(contentStatus & 1) && <span className="label label-success">置頂</span>}
                                         {Boolean(contentStatus & 2) && <span className="label label-danger">熱門</span>}
                                     </div>
                                 </div>
@@ -322,14 +285,7 @@ const PictureListContent = (prop: { lang: string; datas: WebResourceSet[]; }) =>
                                 {(isYoutube || isVideo) && (
                                     <div className="card_StateDiv">
                                         <div className="More customize_btn">
-                                            <a
-                                                href={urlRaw}
-                                                target={tar}
-                                                className="Btn_s1"
-                                                type="button"
-                                                role="button"
-                                                title="觀看更多"
-                                            >
+                                            <a href={urlRaw} target={tar} className="Btn_s1" type="button" role="button" title="觀看更多">
                                                 VIEW ALL<span className="ml-2">+</span>
                                             </a>
                                         </div>

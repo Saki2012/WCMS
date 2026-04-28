@@ -36,9 +36,7 @@ export type AnnouncementListAdapter = {
     Tag: ReturnType<typeof TagAdapter>;
 };
 /** ✅ 主入口：Server Announcement List 的所有 fetch 都集中在這裡 */
-export const useAnnouncementListFetchData = (
-    opt: { lang: Lang; kw: string; },
-): UseFetchDataResult<AnnouncementListRawData, AnnouncementListAdapter> =>
+export const useAnnouncementListFetchData = (opt: { lang: Lang; kw: string; }): UseFetchDataResult<AnnouncementListRawData, AnnouncementListAdapter> =>
 {
     const { publish } = useToast();
     const onError = useCallback((e: ApiAdapterError) =>
@@ -135,12 +133,7 @@ const useAnnouncementListQueryParam = (p: { lang: Lang; kw: string; }): QueryLis
         let cdt = `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang} = ${p.lang}`;
         if (p.kw)
         {
-            cdt = LibMerge(
-                " And ",
-                false,
-                cdt,
-                `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title} Like ${p.kw}`,
-            );
+            cdt = LibMerge(" And ", false, cdt, `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title} Like ${p.kw}`);
         }
         return cdt;
     }, [p.lang, p.kw]);

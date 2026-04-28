@@ -9,20 +9,14 @@ import { HomePageLoader as HomePageLoaderBase } from "@/Features/Pages/Client/In
 import { resolveSpecComponent, resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
 // ---------------- Feature 基準版元件 ----------------
 import AnnouncementFormCompBase from "@/Features/Pages/Client/BizFunc/WEB/Announcement/AnnouncementForm";
-import AnnouncementListBase, {
-    type IAnnouncementListOptions,
-} from "@/Features/Pages/Client/BizFunc/WEB/Announcement/AnnouncementList";
-import FileArchiveListBase, {
-    type IFileArchiveOptions,
-} from "@/Features/Pages/Client/BizFunc/WEB/FileArchive/FileArchiveList";
+import AnnouncementListBase, { type IAnnouncementListOptions } from "@/Features/Pages/Client/BizFunc/WEB/Announcement/AnnouncementList";
+import FileArchiveListBase, { type IFileArchiveOptions } from "@/Features/Pages/Client/BizFunc/WEB/FileArchive/FileArchiveList";
 import GalleryFormCompBase from "@/Features/Pages/Client/BizFunc/WEB/Gallery/GalleryForm_Comp";
 import GalleryListCompBase from "@/Features/Pages/Client/BizFunc/WEB/Gallery/GalleryList_Comp";
 import type { IGalleryListOptions } from "@/Features/Pages/Client/BizFunc/WEB/Gallery/GalleryList_Loader";
 import PageManagementFormCompBase from "@/Features/Pages/Client/BizFunc/WEB/PageManagement/PageManagementForm_Comp";
 import type { IPageManagementOptions } from "@/Features/Pages/Client/BizFunc/WEB/PageManagement/PageManagementForm_Loader";
-import WebResourceListCompBase, {
-    type IWebResourceListOptions,
-} from "@/Features/Pages/Client/BizFunc/WEB/WebResource/WebResourceList";
+import WebResourceListCompBase, { type IWebResourceListOptions } from "@/Features/Pages/Client/BizFunc/WEB/WebResource/WebResourceList";
 import SubPageBase from "@/Features/Pages/Client/Scaffold/SubPages/SubPage";
 
 // ====================================================
@@ -36,24 +30,15 @@ import SubPageBase from "@/Features/Pages/Client/Scaffold/SubPages/SubPage";
 // ====================================================
 
 // SubPage
-export const SubPage: typeof SubPageBase = resolveSpecComponent(
-    "Pages/Client/Scaffold/SubPages/SubPage.tsx",
-    SubPageBase,
-    ["SubPage", "default"],
-);
+export const SubPage: typeof SubPageBase = resolveSpecComponent("Pages/Client/Scaffold/SubPages/SubPage.tsx", SubPageBase, ["SubPage", "default"]);
 
 // HomePage
-export const HomePage: typeof DefaultHomePage = resolveSpecComponent(
-    "Pages/Client/Index/HomePage.tsx",
-    DefaultHomePage,
-    ["HomePage", "default"],
-);
+export const HomePage: typeof DefaultHomePage = resolveSpecComponent("Pages/Client/Index/HomePage.tsx", DefaultHomePage, ["HomePage", "default"]);
 
-export const HomePageLoader: typeof HomePageLoaderBase = resolveSpecFunc(
-    "Pages/Client/Index/HomePage_Loader.ts",
-    HomePageLoaderBase,
-    ["HomePageLoader", "default"],
-);
+export const HomePageLoader: typeof HomePageLoaderBase = resolveSpecFunc("Pages/Client/Index/HomePage_Loader.ts", HomePageLoaderBase, [
+    "HomePageLoader",
+    "default",
+]);
 // PageManagement Form
 export const PageManagementForm: typeof PageManagementFormCompBase = resolveSpecComponent(
     "Pages/Client/BizFunc/WEB/PageManagement/PageManagementForm.tsx",
@@ -62,11 +47,11 @@ export const PageManagementForm: typeof PageManagementFormCompBase = resolveSpec
 );
 
 // Announcement List
-export const AnnouncementList = resolveSpecComponent(
-    "Pages/Client/BizFunc/WEB/Announcement/AnnouncementList.tsx",
-    AnnouncementListBase,
-    ["AnnouncementList", "AnnouncementListComp", "default"],
-);
+export const AnnouncementList = resolveSpecComponent("Pages/Client/BizFunc/WEB/Announcement/AnnouncementList.tsx", AnnouncementListBase, [
+    "AnnouncementList",
+    "AnnouncementListComp",
+    "default",
+]);
 
 // Announcement Form
 export const AnnouncementForm: typeof AnnouncementFormCompBase = resolveSpecComponent(
@@ -76,38 +61,32 @@ export const AnnouncementForm: typeof AnnouncementFormCompBase = resolveSpecComp
 );
 
 // FileArchive List
-export const FileArchiveList = resolveSpecComponent(
-    "Pages/Client/BizFunc/WEB/FileArchive/FileArchiveList.tsx",
-    FileArchiveListBase,
-    ["FileArchiveList", "FileArchiveListComp", "default"],
-);
+export const FileArchiveList = resolveSpecComponent("Pages/Client/BizFunc/WEB/FileArchive/FileArchiveList.tsx", FileArchiveListBase, [
+    "FileArchiveList",
+    "FileArchiveListComp",
+    "default",
+]);
 
 // Gallery List
-export const GalleryListComp = resolveSpecComponent(
-    "Pages/Client/BizFunc/WEB/Gallery/GalleryList.tsx",
-    GalleryListCompBase,
-    ["GalleryListComp", "GalleryList", "default"],
-);
+export const GalleryListComp = resolveSpecComponent("Pages/Client/BizFunc/WEB/Gallery/GalleryList.tsx", GalleryListCompBase, [
+    "GalleryListComp",
+    "GalleryList",
+    "default",
+]);
 
 // Gallery Form
-export const GalleryForm = resolveSpecComponent(
-    "Pages/Client/BizFunc/WEB/Gallery/GalleryForm.tsx",
-    GalleryFormCompBase,
-    ["GalleryFormComp", "GalleryForm", "default"],
-);
+export const GalleryForm = resolveSpecComponent("Pages/Client/BizFunc/WEB/Gallery/GalleryForm.tsx", GalleryFormCompBase, [
+    "GalleryFormComp",
+    "GalleryForm",
+    "default",
+]);
 
 // WebResource List
-export const WebResourceListComp = resolveSpecComponent(
-    "Pages/Client/BizFunc/WEB/WebResource/WebResourceList.tsx",
-    WebResourceListCompBase,
-    ["WebResourceListComp", "WebResourceList", "default"],
-);
+export const WebResourceListComp = resolveSpecComponent("Pages/Client/BizFunc/WEB/WebResource/WebResourceList.tsx", WebResourceListCompBase, [
+    "WebResourceListComp",
+    "WebResourceList",
+    "default",
+]);
 
 // Options 型別一起 re-export，讓 ClientRouter 只依賴這支
-export type {
-    IAnnouncementListOptions,
-    IFileArchiveOptions,
-    IGalleryListOptions,
-    IPageManagementOptions,
-    IWebResourceListOptions,
-};
+export type { IAnnouncementListOptions, IFileArchiveOptions, IGalleryListOptions, IPageManagementOptions, IWebResourceListOptions };

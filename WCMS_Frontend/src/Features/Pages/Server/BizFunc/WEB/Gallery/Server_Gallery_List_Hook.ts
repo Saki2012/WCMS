@@ -35,9 +35,7 @@ export type GalleryListAdapter = {
     Category: ReturnType<typeof CategoryAdapter>;
     Tag: ReturnType<typeof TagAdapter>;
 };
-export const useGalleryListFetchData = (
-    opt: { lang: Lang; kw: string; },
-): UseFetchDataResult<GalleryListRawData, GalleryListAdapter> =>
+export const useGalleryListFetchData = (opt: { lang: Lang; kw: string; }): UseFetchDataResult<GalleryListRawData, GalleryListAdapter> =>
 {
     const { publish } = useToast();
     const onError = useCallback((e: ApiAdapterError) =>
@@ -132,12 +130,7 @@ const useGalleryListQueryParam = (p: { lang: Lang; kw: string; }): QueryListPara
         let cdt = `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Lang} = ${p.lang}`;
         if (!!p.kw)
         {
-            cdt = LibMerge(
-                " And ",
-                false,
-                cdt,
-                `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Title} Like ${p.kw}`,
-            );
+            cdt = LibMerge(" And ", false, cdt, `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Title} Like ${p.kw}`);
         }
         return cdt;
     }, [p.lang, p.kw]);

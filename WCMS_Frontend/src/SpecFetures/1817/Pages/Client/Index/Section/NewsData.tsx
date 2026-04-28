@@ -44,20 +44,10 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const toListInitial = <TArgs, TItem>(args: TArgs, data: TItem[]) =>
 {
     // return：符合 adapter hook 的 initial 結構
-    return {
-        args,
-        apiRes: {
-            IsSuccess: true,
-            Data: data,
-            SysMessage: [],
-        },
-    };
+    return { args, apiRes: { IsSuccess: true, Data: data, SysMessage: [] } };
 };
 
-const buildCategoryDict = (
-    rows: CategoryDataSet[],
-    lang: Lang,
-): Record<string, string> =>
+const buildCategoryDict = (rows: CategoryDataSet[], lang: Lang): Record<string, string> =>
 {
     // return：分類 id -> 名稱
     return rows.reduce<Record<string, string>>((acc, row) =>
@@ -65,8 +55,7 @@ const buildCategoryDict = (
         const id = row.Category?.CategoryId;
         if (!id) return acc;
 
-        const name = row.CategoryDetail?.find((item) => item.Lang === lang)?.CategoryName
-            ?? "";
+        const name = row.CategoryDetail?.find((item) => item.Lang === lang)?.CategoryName ?? "";
 
         acc[String(id)] = name;
         return acc;
@@ -94,32 +83,19 @@ const formatDate = (dateStr: string) =>
     const date = new Date(dateStr);
 
     // return：首頁列表顯示格式
-    return {
-        day: date.getDate().toString().padStart(2, "0"),
-        month: (date.getMonth() + 1).toString().padStart(2, "0"),
-        year: date.getFullYear().toString(),
-    };
+    return { day: date.getDate().toString().padStart(2, "0"), month: (date.getMonth() + 1).toString().padStart(2, "0"), year: date.getFullYear().toString() };
 };
 
 const splitCsvIds = (value: string | null | undefined): string[] =>
 {
     // return：把 csv id 字串拆成陣列
-    return (value ?? "")
-        .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean);
+    return (value ?? "").split(",").map((item) => item.trim()).filter(Boolean);
 };
 
-const joinDisplayNames = (
-    ids: string[],
-    dict: Record<string, string>,
-): string =>
+const joinDisplayNames = (ids: string[], dict: Record<string, string>): string =>
 {
     // return：依字典把 id 轉成顯示名稱
-    return ids
-        .map((id) => dict[id] ?? "")
-        .filter(Boolean)
-        .join(", ");
+    return ids.map((id) => dict[id] ?? "").filter(Boolean).join(", ");
 };
 
 const getNewsDataProps = (
@@ -158,21 +134,13 @@ const getNewsDataProps = (
     });
 };
 
-const isWithinLastNDaysFromMD = (
-    month1to12?: number,
-    day1to31?: number,
-    n: number = 8,
-): boolean =>
+const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: number = 8): boolean =>
 {
     // 宣告變數：缺值直接不是最新
     if (!month1to12 || !day1to31) return false;
 
     const now = new Date();
-    const nowUTC = Date.UTC(
-        now.getUTCFullYear(),
-        now.getUTCMonth(),
-        now.getUTCDate(),
-    );
+    const nowUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
 
     let year = now.getUTCFullYear();
     let candidateUTC = Date.UTC(year, month1to12 - 1, day1to31);
@@ -188,10 +156,7 @@ const isWithinLastNDaysFromMD = (
     return diffDays >= 0 && diffDays <= n;
 };
 
-const useNewsList = (props: {
-    listParam: QueryListParam;
-    initialList: AnnouncementSet[];
-}) =>
+const useNewsList = (props: { listParam: QueryListParam; initialList: AnnouncementSet[]; }) =>
 {
     // 宣告變數：adapter / initial
     const adapter = useMemo(() => AnnouncementAdapter(), []);
@@ -204,21 +169,13 @@ const useNewsList = (props: {
     return adapter.hooks.useQueryList({
         condition: props.listParam,
         initial,
-        deps: [
-            props.listParam.Condition ?? "",
-            props.listParam.PageNumber ?? 0,
-            props.listParam.PageSize ?? 0,
-        ],
+        deps: [props.listParam.Condition ?? "", props.listParam.PageNumber ?? 0, props.listParam.PageSize ?? 0],
     });
 };
 
-const useCategoryTagDict = (props: {
-    lang: Lang;
-    cateParam: QueryListParam;
-    tagParam: QueryListParam;
-    initialCategories: CategoryDataSet[];
-    initialTags: TagSet[];
-}) =>
+const useCategoryTagDict = (
+    props: { lang: Lang; cateParam: QueryListParam; tagParam: QueryListParam; initialCategories: CategoryDataSet[]; initialTags: TagSet[]; },
+) =>
 {
     // 宣告變數：adapter / initial
     const cateAdapter = useMemo(() => CategoryAdapter(), []);
@@ -235,17 +192,9 @@ const useCategoryTagDict = (props: {
     }, [props.tagParam, props.initialTags]);
 
     // 執行 function：分類 / 標籤 hydration query
-    const cateQuery = cateAdapter.hooks.useQueryList({
-        condition: props.cateParam,
-        initial: cateInitial,
-        deps: [props.cateParam.Condition ?? ""],
-    });
+    const cateQuery = cateAdapter.hooks.useQueryList({ condition: props.cateParam, initial: cateInitial, deps: [props.cateParam.Condition ?? ""] });
 
-    const tagQuery = tagAdapter.hooks.useQueryList({
-        condition: props.tagParam,
-        initial: tagInitial,
-        deps: [props.tagParam.Condition ?? ""],
-    });
+    const tagQuery = tagAdapter.hooks.useQueryList({ condition: props.tagParam, initial: tagInitial, deps: [props.tagParam.Condition ?? ""] });
 
     // 宣告變數：字典
     const categoryDict = useMemo(() =>
@@ -271,18 +220,11 @@ const GetData = (props: { data: NewsItemViewModel[]; lang: Lang; }) =>
             {
                 return (
                     <li className="News_item" key={item.announceInternalId}>
-                        <LangLink
-                            to={`${item.redir}/${item.internalId}`}
-                            title={item.title}
-                            tabIndex={0}
-                            className="item-inner"
-                        >
+                        <LangLink to={`${item.redir}/${item.internalId}`} title={item.title} tabIndex={0} className="item-inner">
                             <div className="leftBox">
                                 <div className="news-date-box">
                                     <div className="year">{item.year}</div>
-                                    <div className="mm-dd">
-                                        {item.month}.{item.date}
-                                    </div>
+                                    <div className="mm-dd">{item.month}.{item.date}</div>
                                 </div>
                             </div>
 
@@ -296,20 +238,13 @@ const GetData = (props: { data: NewsItemViewModel[]; lang: Lang; }) =>
                                         </div>
 
                                         <div className="CustomState">
-                                            {isWithinLastNDaysFromMD(
-                                                Number(item.monthNum),
-                                                Number(item.date),
-                                            ) && <div className="icon-small new-bg">最新</div>}
+                                            {isWithinLastNDaysFromMD(Number(item.monthNum), Number(item.date)) && <div className="icon-small new-bg">最新</div>}
 
                                             {item.contentStatus !== 0 && (
                                                 <>
-                                                    {Boolean(item.contentStatus & 1) && (
-                                                        <div className="icon-small top-bg">置頂</div>
-                                                    )}
+                                                    {Boolean(item.contentStatus & 1) && <div className="icon-small top-bg">置頂</div>}
 
-                                                    {Boolean(item.contentStatus & 2) && (
-                                                        <div className="icon-small hot-bg">熱門</div>
-                                                    )}
+                                                    {Boolean(item.contentStatus & 2) && <div className="icon-small hot-bg">熱門</div>}
                                                 </>
                                             )}
                                         </div>
@@ -317,11 +252,7 @@ const GetData = (props: { data: NewsItemViewModel[]; lang: Lang; }) =>
 
                                     <div className="a-right + d-none">
                                         <div className="card_time">
-                                            <i
-                                                aria-hidden="true"
-                                                className="fa fa-clock-o"
-                                                style={{ marginRight: "3px" }}
-                                            />
+                                            <i aria-hidden="true" className="fa fa-clock-o" style={{ marginRight: "3px" }} />
                                             2023-11-10
                                         </div>
                                     </div>
@@ -349,10 +280,7 @@ const GetData = (props: { data: NewsItemViewModel[]; lang: Lang; }) =>
 export const NewsData = (props: NewsDataProps) =>
 {
     // 宣告變數：公告列表 hydration
-    const newsQuery = useNewsList({
-        listParam: props.listParam,
-        initialList: props.initialList,
-    });
+    const newsQuery = useNewsList({ listParam: props.listParam, initialList: props.initialList });
 
     // 宣告變數：分類 / 標籤 hydration
     const dicts = useCategoryTagDict({
@@ -366,13 +294,7 @@ export const NewsData = (props: NewsDataProps) =>
     // 宣告變數：畫面資料
     const allNews = useMemo(() =>
     {
-        return getNewsDataProps(
-            newsQuery.data ?? [],
-            props.lang,
-            "/News/News-01",
-            dicts.categoryDict,
-            dicts.tagDict,
-        );
+        return getNewsDataProps(newsQuery.data ?? [], props.lang, "/News/News-01", dicts.categoryDict, dicts.tagDict);
     }, [newsQuery.data, props.lang, dicts.categoryDict, dicts.tagDict]);
 
     // return：維持 1817 首頁版型
@@ -386,23 +308,14 @@ export const NewsData = (props: NewsDataProps) =>
                                 <div className="col-12">
                                     <div className="headDiv mb-sm-5 mb-4">
                                         <span className="headDiv-subtxt">News</span>
-                                        <img
-                                            alt="標題裝飾線條圖示"
-                                            className="headDiv-title-line"
-                                            src={img}
-                                        />
+                                        <img alt="標題裝飾線條圖示" className="headDiv-title-line" src={img} />
                                         <span className="headDiv-txt">最新消息</span>
                                     </div>
                                 </div>
 
                                 <div className="H-nav-tabs-content-box" id="Horizontal">
                                     <div className="tab-content" id="H-nav-tabContent">
-                                        <div
-                                            aria-labelledby="V-Tabs__01"
-                                            className="tab-pane fade show active"
-                                            id="H-navTabs-01"
-                                            role="tabpanel"
-                                        >
+                                        <div aria-labelledby="V-Tabs__01" className="tab-pane fade show active" id="H-navTabs-01" role="tabpanel">
                                             <div className="News_mainDIV">
                                                 <ul className="ListNews">
                                                     <GetData data={allNews} lang={props.lang} />

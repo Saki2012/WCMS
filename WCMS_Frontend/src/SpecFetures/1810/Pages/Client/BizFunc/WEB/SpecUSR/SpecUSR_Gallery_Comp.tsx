@@ -70,11 +70,7 @@ const useRestoreFocus = (active: boolean, focusRef: React.RefObject<HTMLElement>
 };
 
 /** Header（關閉鈕可聚焦） */
-const Header: React.FC<{
-    title: string;
-    onClose: () => void;
-    closeRef: React.RefObject<HTMLButtonElement>;
-}> = ({ title, onClose, closeRef }) => (
+const Header: React.FC<{ title: string; onClose: () => void; closeRef: React.RefObject<HTMLButtonElement>; }> = ({ title, onClose, closeRef }) => (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
         <h2 id="specusr-gallery-title" style={{ fontSize: 18, margin: 0 }}>{title}</h2>
         <button
@@ -82,27 +78,14 @@ const Header: React.FC<{
             type="button"
             onClick={onClose}
             aria-label="關閉相簿"
-            style={{
-                fontSize: 20,
-                lineHeight: 1,
-                padding: "4px 8px",
-                background: "transparent",
-                border: "none",
-                cursor: "pointer",
-            }}
+            style={{ fontSize: 20, lineHeight: 1, padding: "4px 8px", background: "transparent", border: "none", cursor: "pointer" }}
         >
             ×
         </button>
     </div>
 );
 
-export const SpecUSR_Gallery_Comp: React.FC<ISpecUSR_Gallery_Props> = ({
-    open,
-    title = "相簿",
-    photos,
-    onClose,
-    onPick,
-}) =>
+export const SpecUSR_Gallery_Comp: React.FC<ISpecUSR_Gallery_Props> = ({ open, title = "相簿", photos, onClose, onPick }) =>
 {
     const dialogRef = useRef<HTMLDivElement>(null);
     const closeBtnRef = useRef<HTMLButtonElement>(null);
@@ -133,9 +116,7 @@ export const SpecUSR_Gallery_Comp: React.FC<ISpecUSR_Gallery_Props> = ({
             if (e.key !== "Tab") return;
             const dlg = dialogRef.current;
             if (!dlg) return;
-            const f = dlg.querySelectorAll<HTMLElement>(
-                "button,[href],input,select,textarea,[tabindex]:not([tabindex=\"-1\"])",
-            );
+            const f = dlg.querySelectorAll<HTMLElement>("button,[href],input,select,textarea,[tabindex]:not([tabindex=\"-1\"])");
             if (!f.length) return;
             const first = f[0], last = f[f.length - 1];
             if (e.shiftKey && document.activeElement === first)
@@ -152,18 +133,10 @@ export const SpecUSR_Gallery_Comp: React.FC<ISpecUSR_Gallery_Props> = ({
         return () => document.removeEventListener("keydown", h);
     }, [open, onClose, viewerOpen]);
 
-    const gridStyle = useMemo<React.CSSProperties>(() => ({
-        display: "grid",
-        gap: "12px",
-        gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
-    }), []);
+    const gridStyle = useMemo<React.CSSProperties>(() => ({ display: "grid", gap: "12px", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))" }), []);
 
     const slides = useMemo(
-        () =>
-            photos.map(p => ({
-                src: p.fullUrl ?? p.thumbUrl ?? `/Service/FileManagement/Public_Preview/${p.id}`,
-                description: p.alt ?? "",
-            })),
+        () => photos.map(p => ({ src: p.fullUrl ?? p.thumbUrl ?? `/Service/FileManagement/Public_Preview/${p.id}`, description: p.alt ?? "" })),
         [photos],
     );
 
@@ -254,9 +227,7 @@ export const SpecUSR_Gallery_Comp: React.FC<ISpecUSR_Gallery_Props> = ({
                         );
                     })}
 
-                    {photos.length === 0 && (
-                        <div style={{ gridColumn: "1/-1", color: "#6b7280" }}>目前沒有可顯示的相片。</div>
-                    )}
+                    {photos.length === 0 && <div style={{ gridColumn: "1/-1", color: "#6b7280" }}>目前沒有可顯示的相片。</div>}
                 </div>
             </div>
 

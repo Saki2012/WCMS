@@ -3,14 +3,7 @@ import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { useUploadPicture } from "@/SysCore/Components/FormField/FieldComponets/LibPicture_Comp";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-import {
-    LibCalendar,
-    LibDropList,
-    LibFile,
-    LibPicture,
-    LibTextArea,
-    LibTextBox,
-} from "@/SysCore/Components/FormField/LibFormField";
+import { LibCalendar, LibDropList, LibFile, LibPicture, LibTextArea, LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
 import { type Lang, LangLabelMap, useEnsureLangDetails } from "@/SysCore/i18n/lang";
@@ -40,12 +33,7 @@ export const BannerSliderFormComp = (prop: { theme: IBETheme; lang: Lang; }) =>
     {
         return { onBackToList };
     }, [onBackToList]);
-    const getData = useBannerSliderFormFetchData({
-        lang: prop.lang,
-        internalId: internalId ?? "",
-        emptyData,
-        actionsOpt,
-    });
+    const getData = useBannerSliderFormFetchData({ lang: prop.lang, internalId: internalId ?? "", emptyData, actionsOpt });
     // 執行 function：補齊多語系子明細
     useEnsureLangDetails(getData.rawData.formData, {
         headerName: SchemaFields.BannerSetFields.BannerDetail,
@@ -77,11 +65,7 @@ const HeaderComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<B
                     <LibTextBox
                         Style={props.theme.TextBox}
                         DefaultInputDisplay="請輸入"
-                        {...setField(
-                            SchemaFields.BannerSetFields.Banner,
-                            SchemaFields.BannerFields.BannerCategoryName,
-                            "string",
-                        )}
+                        {...setField(SchemaFields.BannerSetFields.Banner, SchemaFields.BannerFields.BannerCategoryName, "string")}
                     />
                 </div>
             </div>
@@ -137,35 +121,27 @@ const DetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<B
 
         const newRowId = maxRowId + 1;
 
-        const newItem: BannerDetail = {
-            BannerId: cur.Banner?.BannerId,
-            RowId: newRowId,
-            PicSrcId: "",
-            FontColor: "0",
-        };
+        const newItem: BannerDetail = { BannerId: cur.Banner?.BannerId, RowId: newRowId, PicSrcId: "", FontColor: "0" };
 
-        const subNewItem: BannerDetailInfo[] = [
-            {
-                BannerId: cur.Banner?.BannerId,
-                ParentRowId: newRowId,
-                RowId: 1,
-                Lang: "zh-tw",
-                Content: "",
-                SpecLatestShows: "",
-                SpecShowDate: "",
-                SpecShowLocation: "",
-            },
-            {
-                BannerId: cur.Banner?.BannerId,
-                ParentRowId: newRowId,
-                RowId: 2,
-                Lang: "en",
-                Content: "",
-                SpecLatestShows: "",
-                SpecShowDate: "",
-                SpecShowLocation: "",
-            },
-        ];
+        const subNewItem: BannerDetailInfo[] = [{
+            BannerId: cur.Banner?.BannerId,
+            ParentRowId: newRowId,
+            RowId: 1,
+            Lang: "zh-tw",
+            Content: "",
+            SpecLatestShows: "",
+            SpecShowDate: "",
+            SpecShowLocation: "",
+        }, {
+            BannerId: cur.Banner?.BannerId,
+            ParentRowId: newRowId,
+            RowId: 2,
+            Lang: "en",
+            Content: "",
+            SpecLatestShows: "",
+            SpecShowDate: "",
+            SpecShowLocation: "",
+        }];
 
         // 執行 function：更新 header + detail
         const updated: BannerSet = {
@@ -224,81 +200,48 @@ const DetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<B
         onRemoveTab: key => removeOne(Number(key)),
     };
 
-    const tabContent: Record<string, React.ReactNode[]> = details.reduce<Record<string, React.ReactNode[]>>(
-        (acc, d, idx) =>
-        {
-            const detailRowId = d.RowId ?? idx;
-            const picSrc = FileManagementAPI.get_Server_Preview_Url(d.PicSrcId)
-                ?? "https://dummyimage.com/1920x550/555/fff.png";
-            const rowKeys = {
-                [SchemaFields.BannerDetailFields.BannerId]: d.BannerId,
-                [SchemaFields.BannerDetailFields.RowId]: d.RowId,
-            };
+    const tabContent: Record<string, React.ReactNode[]> = details.reduce<Record<string, React.ReactNode[]>>((acc, d, idx) =>
+    {
+        const detailRowId = d.RowId ?? idx;
+        const picSrc = FileManagementAPI.get_Server_Preview_Url(d.PicSrcId) ?? "https://dummyimage.com/1920x550/555/fff.png";
+        const rowKeys = { [SchemaFields.BannerDetailFields.BannerId]: d.BannerId, [SchemaFields.BannerDetailFields.RowId]: d.RowId };
 
-            acc[String(detailRowId)] = [
-                <LibFile
-                    Style={props.theme.File}
-                    ColumnDisplayName="選擇圖片"
-                    Multiple={false}
-                    parentClass="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12"
-                    InputValue=""
-                    onChange={files =>
-                        useUploadPic.handleFileChange(files, internalId =>
-                        {
-                            props.formData.setFormData(prev => ({
-                                ...prev!,
-                                BannerDetail: (prev?.BannerDetail ?? []).map(
-                                    x => (x.RowId === detailRowId ? { ...x, PicSrcId: internalId } : x),
-                                ),
-                            }));
-                        })}
-                >
-                    <LibPicture PicSrc={picSrc} />
-                </LibFile>,
-                <LibCalendar
-                    {...setField(
-                        SchemaFields.BannerSetFields.BannerDetail,
-                        SchemaFields.BannerDetailFields.Validate_Start,
-                        "datetime",
-                        rowKeys,
-                    )}
-                />,
-                <LibCalendar
-                    {...setField(
-                        SchemaFields.BannerSetFields.BannerDetail,
-                        SchemaFields.BannerDetailFields.Validate_End,
-                        "datetime",
-                        rowKeys,
-                    )}
-                />,
-                <LibDropList
-                    Style={props.theme.DropList}
-                    Options={fontColorOptions}
-                    {...setField(
-                        SchemaFields.BannerSetFields.BannerDetail,
-                        SchemaFields.BannerDetailFields.FontColor,
-                        "string",
-                        rowKeys,
-                    )}
-                    ShowPlaceholder={false}
-                />,
-                <LibTextBox
-                    Style={props.theme.TextBox}
-                    DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SchemaFields.BannerSetFields.BannerDetail,
-                        SchemaFields.BannerDetailFields.Sort,
-                        "number",
-                        rowKeys,
-                    )}
-                />,
-                <SubDetailComp theme={props.theme} formData={props.formData} parentRowId={detailRowId} />,
-            ];
+        acc[String(detailRowId)] = [
+            <LibFile
+                Style={props.theme.File}
+                ColumnDisplayName="選擇圖片"
+                Multiple={false}
+                parentClass="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12"
+                InputValue=""
+                onChange={files =>
+                    useUploadPic.handleFileChange(files, internalId =>
+                    {
+                        props.formData.setFormData(prev => ({
+                            ...prev!,
+                            BannerDetail: (prev?.BannerDetail ?? []).map(x => (x.RowId === detailRowId ? { ...x, PicSrcId: internalId } : x)),
+                        }));
+                    })}
+            >
+                <LibPicture PicSrc={picSrc} />
+            </LibFile>,
+            <LibCalendar {...setField(SchemaFields.BannerSetFields.BannerDetail, SchemaFields.BannerDetailFields.Validate_Start, "datetime", rowKeys)} />,
+            <LibCalendar {...setField(SchemaFields.BannerSetFields.BannerDetail, SchemaFields.BannerDetailFields.Validate_End, "datetime", rowKeys)} />,
+            <LibDropList
+                Style={props.theme.DropList}
+                Options={fontColorOptions}
+                {...setField(SchemaFields.BannerSetFields.BannerDetail, SchemaFields.BannerDetailFields.FontColor, "string", rowKeys)}
+                ShowPlaceholder={false}
+            />,
+            <LibTextBox
+                Style={props.theme.TextBox}
+                DefaultInputDisplay="請輸入"
+                {...setField(SchemaFields.BannerSetFields.BannerDetail, SchemaFields.BannerDetailFields.Sort, "number", rowKeys)}
+            />,
+            <SubDetailComp theme={props.theme} formData={props.formData} parentRowId={detailRowId} />,
+        ];
 
-            return acc;
-        },
-        {},
-    );
+        return acc;
+    }, {});
 
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
@@ -322,105 +265,63 @@ const SubDetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResul
         }, {}),
     };
 
-    const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>(
-        (compMap, info) =>
-        {
-            const langKey = LibMerge("_", true, info.BannerId, info.ParentRowId, info.RowId, info.Lang);
-            const rowKeys = {
-                [SchemaFields.BannerDetailInfoFields.BannerId]: info.BannerId,
-                [SchemaFields.BannerDetailInfoFields.ParentRowId]: info.ParentRowId,
-                [SchemaFields.BannerDetailInfoFields.RowId]: info.RowId,
-            };
+    const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>((compMap, info) =>
+    {
+        const langKey = LibMerge("_", true, info.BannerId, info.ParentRowId, info.RowId, info.Lang);
+        const rowKeys = {
+            [SchemaFields.BannerDetailInfoFields.BannerId]: info.BannerId,
+            [SchemaFields.BannerDetailInfoFields.ParentRowId]: info.ParentRowId,
+            [SchemaFields.BannerDetailInfoFields.RowId]: info.RowId,
+        };
 
-            compMap[langKey] = [
-                <LibTextBox
-                    Style={props.theme.TextBox}
-                    DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SchemaFields.BannerSetFields.BannerDetailInfo,
-                        SchemaFields.BannerDetailInfoFields.Title,
-                        "string",
-                        rowKeys,
-                    )}
-                />,
-                <LibTextArea
-                    Style={props.theme.TextArea}
-                    DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SchemaFields.BannerSetFields.BannerDetailInfo,
-                        SchemaFields.BannerDetailInfoFields.Content,
-                        "string",
-                        rowKeys,
-                    )}
-                />,
-                <LibTextBox
-                    Style={props.theme.TextBox}
-                    DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SchemaFields.BannerSetFields.BannerDetailInfo,
-                        SchemaFields.BannerDetailInfoFields.URL,
-                        "string",
-                        rowKeys,
-                    )}
-                />,
-                <LibDropList
-                    Style={props.theme.DropList}
-                    Options={windowTargetOpts}
-                    {...setField(
-                        SchemaFields.BannerSetFields.BannerDetailInfo,
-                        SchemaFields.BannerDetailInfoFields.URL_Open,
-                        "number",
-                        rowKeys,
-                    )}
-                    ShowPlaceholder={false}
-                />,
-                ...(String(import.meta.env.VITE_SPEC_CODE ?? "") === "1817"
-                    ? [
-                        <LibTextBox
-                            Style={props.theme.TextBox}
-                            DefaultInputDisplay="請輸入"
-                            {...setField(
-                                SchemaFields.BannerSetFields.BannerDetailInfo,
-                                SchemaFields.BannerDetailInfoFields.SpecLatestShows,
-                                "string",
-                                rowKeys,
-                            )}
-                        />,
-                        <LibTextBox
-                            Style={props.theme.TextBox}
-                            DefaultInputDisplay="請輸入"
-                            {...setField(
-                                SchemaFields.BannerSetFields.BannerDetailInfo,
-                                SchemaFields.BannerDetailInfoFields.SpecShowLocation,
-                                "string",
-                                rowKeys,
-                            )}
-                        />,
-                        <LibTextBox
-                            Style={props.theme.TextBox}
-                            DefaultInputDisplay="請輸入"
-                            {...setField(
-                                SchemaFields.BannerSetFields.BannerDetailInfo,
-                                SchemaFields.BannerDetailInfoFields.SpecShowDate,
-                                "string",
-                                rowKeys,
-                            )}
-                        />,
-                    ]
-                    : []),
-            ];
+        compMap[langKey] = [
+            <LibTextBox
+                Style={props.theme.TextBox}
+                DefaultInputDisplay="請輸入"
+                {...setField(SchemaFields.BannerSetFields.BannerDetailInfo, SchemaFields.BannerDetailInfoFields.Title, "string", rowKeys)}
+            />,
+            <LibTextArea
+                Style={props.theme.TextArea}
+                DefaultInputDisplay="請輸入"
+                {...setField(SchemaFields.BannerSetFields.BannerDetailInfo, SchemaFields.BannerDetailInfoFields.Content, "string", rowKeys)}
+            />,
+            <LibTextBox
+                Style={props.theme.TextBox}
+                DefaultInputDisplay="請輸入"
+                {...setField(SchemaFields.BannerSetFields.BannerDetailInfo, SchemaFields.BannerDetailInfoFields.URL, "string", rowKeys)}
+            />,
+            <LibDropList
+                Style={props.theme.DropList}
+                Options={windowTargetOpts}
+                {...setField(SchemaFields.BannerSetFields.BannerDetailInfo, SchemaFields.BannerDetailInfoFields.URL_Open, "number", rowKeys)}
+                ShowPlaceholder={false}
+            />,
+            ...(String(import.meta.env.VITE_SPEC_CODE ?? "") === "1817"
+                ? [
+                    <LibTextBox
+                        Style={props.theme.TextBox}
+                        DefaultInputDisplay="請輸入"
+                        {...setField(SchemaFields.BannerSetFields.BannerDetailInfo, SchemaFields.BannerDetailInfoFields.SpecLatestShows, "string", rowKeys)}
+                    />,
+                    <LibTextBox
+                        Style={props.theme.TextBox}
+                        DefaultInputDisplay="請輸入"
+                        {...setField(SchemaFields.BannerSetFields.BannerDetailInfo, SchemaFields.BannerDetailInfoFields.SpecShowLocation, "string", rowKeys)}
+                    />,
+                    <LibTextBox
+                        Style={props.theme.TextBox}
+                        DefaultInputDisplay="請輸入"
+                        {...setField(SchemaFields.BannerSetFields.BannerDetailInfo, SchemaFields.BannerDetailInfoFields.SpecShowDate, "string", rowKeys)}
+                    />,
+                ]
+                : []),
+        ];
 
-            return compMap;
-        },
-        {},
-    );
+        return compMap;
+    }, {});
 
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
 
 /** 標題顏色，後續看是否可調成進階選取RGBA */
-const fontColorOptions = new Map<string, string>([
-    ["0", "系統預設"],
-    ["1", "白色"],
-    ["2", "綠色"],
-]);
+const fontColorOptions = new Map<string, string>([["0", "系統預設"], ["1", "白色"], ["2", "綠色"]]);

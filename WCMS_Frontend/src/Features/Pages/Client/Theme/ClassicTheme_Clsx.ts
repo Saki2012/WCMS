@@ -13,21 +13,11 @@ export const Classic_MainMenu: IMenu_Style = {
     li: (lv: number) => clsx(lv == 1 ? "m-number" : ""),
 };
 /** 前台SubPage SideMenu樣式 */
-export const Classic_SideMenu: IMenu_Style = {
-    isUl: true,
-    ul: (lv: number) => clsx(lv == 1 ? "Left-SecondMenu" : "collapse"),
-    li: () => clsx("m-link"),
-};
+export const Classic_SideMenu: IMenu_Style = { isUl: true, ul: (lv: number) => clsx(lv == 1 ? "Left-SecondMenu" : "collapse"), li: () => clsx("m-link") };
 /** 前台BreadCrumb樣式 */
-export const Classic_BreadCrumb: IBreadCrumbStyle = {
-    ul: clsx("breadcrumb"),
-    li: (isLast: boolean) => clsx("breadcrumb-item", { "active": isLast }),
-};
+export const Classic_BreadCrumb: IBreadCrumbStyle = { ul: clsx("breadcrumb"), li: (isLast: boolean) => clsx("breadcrumb-item", { "active": isLast }) };
 /** 導覽樣式 */
-export const Classic_NaviBarMenu: INaviBarStyle = {
-    ul: clsx("nav", "Customize_Nav"),
-    li: clsx("nav-item"),
-};
+export const Classic_NaviBarMenu: INaviBarStyle = { ul: clsx("nav", "Customize_Nav"), li: clsx("nav-item") };
 /** Grid表樣式 */
 export const Classic_GridView: IGridView_Style = {
     TableStyle: clsx("table", "table-striped", "table-bordered", "table-hover", "table-rwd"),

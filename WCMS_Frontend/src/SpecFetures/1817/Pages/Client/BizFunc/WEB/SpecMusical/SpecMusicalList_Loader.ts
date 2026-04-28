@@ -51,11 +51,7 @@ const buildBaseParam = (categoryIds: string, pageSize: number): QueryListParam =
 
     // return
     return {
-        Fields: [
-            SpecMusicalModelFields.MusicalName,
-            SpecMusicalModelFields.CoverPicId,
-            SpecMusicalModelFields.InternalId,
-        ],
+        Fields: [SpecMusicalModelFields.MusicalName, SpecMusicalModelFields.CoverPicId, SpecMusicalModelFields.InternalId],
         Condition: condition,
         OrderBy: [{ Col: SpecMusicalModelFields.CreateTime, Desc: true }],
         PageNumber: 1,
@@ -65,8 +61,7 @@ const buildBaseParam = (categoryIds: string, pageSize: number): QueryListParam =
 
 /** ✅ loader factory：SSR 先撈清單/筆數 */
 export const SpecMusicalList_Loader =
-    (p: { categoryIds: string; pageSize?: number; }) =>
-    async ({ request }: LoaderFunctionArgs): Promise<SpecMusicalListLoaderData> =>
+    (p: { categoryIds: string; pageSize?: number; }) => async ({ request }: LoaderFunctionArgs): Promise<SpecMusicalListLoaderData> =>
     {
         // 宣告變數
         const pageSize = p.pageSize ?? 9;
@@ -78,27 +73,12 @@ export const SpecMusicalList_Loader =
         const baseParam = buildBaseParam(categoryIds, pageSize);
 
         // 執行 function：count/list
-        const countLoader = adapter.loader.createQueryCountLoader({
-            getCondition: () => baseParam,
-            getApiInstance: () => ssrApi,
-        });
+        const countLoader = adapter.loader.createQueryCountLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
 
-        const listLoader = adapter.loader.createQueryListLoader({
-            getCondition: () => baseParam,
-            getApiInstance: () => ssrApi,
-        });
+        const listLoader = adapter.loader.createQueryListLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
 
-        const [countLD, listLD] = await Promise.all([
-            countLoader({ request } as LoaderFunctionArgs),
-            listLoader({ request } as LoaderFunctionArgs),
-        ]);
+        const [countLD, listLD] = await Promise.all([countLoader({ request } as LoaderFunctionArgs), listLoader({ request } as LoaderFunctionArgs)]);
 
         // return
-        return {
-            args: { baseParam, categoryIds, pageSize },
-            res: {
-                countRes: countLD.apiRes.Data ?? 0,
-                listRes: listLD.apiRes.Data ?? [],
-            },
-        };
+        return { args: { baseParam, categoryIds, pageSize }, res: { countRes: countLD.apiRes.Data ?? 0, listRes: listLD.apiRes.Data ?? [] } };
     };

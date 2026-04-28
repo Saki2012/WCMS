@@ -24,9 +24,7 @@ const loadScript = (src: string) =>
 /** 先載 Bootstrap / Swiper（不依賴 jQuery） */
 const loadBootstrapAndSwiper = async () =>
 {
-    await Promise.all([
-        loadScript(bootstrapUrl),
-    ]);
+    await Promise.all([loadScript(bootstrapUrl)]);
 };
 
 /** 再載 jQuery + 相關外掛（owl / ekko） */

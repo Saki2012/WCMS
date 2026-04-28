@@ -64,13 +64,7 @@ export const useServerAccountForm = (theme: IBETheme): UseServerAccountFormResul
     }, [isAddNew]);
     const personIds = useAvailablePersonDict(personQuery.rawData, accountPersonQuery.rawData, internalId ?? "");
     const roleIds = useRoleDict(roleQuery.rawData);
-    const actionsBase = useAccountActionsFromAdapter(
-        formUrl,
-        adapter,
-        formData.data,
-        internalId ?? "",
-        () => navigate(listUrl),
-    );
+    const actionsBase = useAccountActionsFromAdapter(formUrl, adapter, formData.data, internalId ?? "", () => navigate(listUrl));
     const handleSaveWithValidate = useAccountSaveValidator(isAddNew, formData.data, confirmPwd, actionsBase);
     const actions = useMemo<UseActionsResult>(() =>
     {
@@ -124,9 +118,7 @@ const useAccountFormProp = (
         return {
             Title: "管理者帳號資料修改",
             Theme: theme,
-            IsLoading: [formLoading, Boolean(enumLoading), personLoading, accountPersonLoading, roleLoading].some(
-                Boolean,
-            ),
+            IsLoading: [formLoading, Boolean(enumLoading), personLoading, accountPersonLoading, roleLoading].some(Boolean),
             ErrorList: [formError, enumError, personError, accountPersonError, roleError],
             Actions: actions,
         };
@@ -147,11 +139,7 @@ const useAccountFormProp = (
 };
 
 /** 建立表單資料 hook */
-const useAccountFormDataByAdapter = (
-    adapter: ReturnType<typeof AccountAdapter>,
-    internalId: string,
-    empty: AccountSet,
-): UseFetchFormDataResult<AccountSet> =>
+const useAccountFormDataByAdapter = (adapter: ReturnType<typeof AccountAdapter>, internalId: string, empty: AccountSet): UseFetchFormDataResult<AccountSet> =>
 {
     const { publish } = useToast();
     const internalKey = internalId || "__new__";
@@ -188,11 +176,7 @@ const useAccountFormDataByAdapter = (
         isLoading: Boolean(!isNew && query.isLoading) || Boolean(model.isLoading),
         error: query.errorText ?? model.errorText ?? null,
         refetch,
-        displayName: model.data ?? ({
-            ModelId: "",
-            ModelDisplayName: "",
-            Tables: [],
-        } as ModelDisplaySchema),
+        displayName: model.data ?? ({ ModelId: "", ModelDisplayName: "", Tables: [] } as ModelDisplaySchema),
     };
 };
 
@@ -206,13 +190,7 @@ const useAccountActionsFromAdapter = (
 ): UseActionsResult =>
 {
     const isAddNew = !internalId;
-    const server = adapter.useServerActions({
-        onSuccessByMode: {
-            create: () => onBack(),
-            update: () => onBack(),
-            delete: () => onBack(),
-        },
-    });
+    const server = adapter.useServerActions({ onSuccessByMode: { create: () => onBack(), update: () => onBack(), delete: () => onBack() } });
 
     const onSave = useCallback(async (): Promise<boolean> =>
     {
@@ -255,12 +233,7 @@ const useAccountActionsFromAdapter = (
 };
 
 /** 建立儲存前驗證 */
-const useAccountSaveValidator = (
-    isAddNew: boolean,
-    formData: AccountSet,
-    confirmPwd: string,
-    actionsBase: UseActionsResult,
-): () => Promise<boolean> =>
+const useAccountSaveValidator = (isAddNew: boolean, formData: AccountSet, confirmPwd: string, actionsBase: UseActionsResult): () => Promise<boolean> =>
 {
     const { publish } = useToast();
     const validateBeforeSave = useCallback((): boolean =>
@@ -308,11 +281,7 @@ const usePersonListByAdapter = (adapter: ReturnType<typeof PersonAdapter>) =>
         };
     }, []);
     const query = adapter.hooks.useQueryList({ condition, deps: [], onError });
-    return {
-        rawData: (query.data ?? []) as PersonSet[],
-        isLoading: Boolean(query.isLoading),
-        error: query.errorText ?? null,
-    };
+    return { rawData: (query.data ?? []) as PersonSet[], isLoading: Boolean(query.isLoading), error: query.errorText ?? null };
 };
 
 /** 建立 role 下拉資料 */
@@ -334,11 +303,7 @@ const useRoleListByAdapter = (adapter: ReturnType<typeof RolePermissionAdapter>)
         };
     }, []);
     const query = adapter.hooks.useQueryList({ condition, deps: [], onError });
-    return {
-        rawData: (query.data ?? []) as RoleSet[],
-        isLoading: Boolean(query.isLoading),
-        error: query.errorText ?? null,
-    };
+    return { rawData: (query.data ?? []) as RoleSet[], isLoading: Boolean(query.isLoading), error: query.errorText ?? null };
 };
 
 const useAccountPersonListByAdapter = (adapter: ReturnType<typeof AccountAdapter>) =>
@@ -355,30 +320,16 @@ const useAccountPersonListByAdapter = (adapter: ReturnType<typeof AccountAdapter
     // 宣告變數：只查過濾需要的欄位
     const condition = useMemo<QueryListParam>(() =>
     {
-        return {
-            Fields: [AccountFields.InternalId, AccountFields.PersonId],
-            Condition: "",
-            OrderBy: [],
-            PageNumber: 0,
-            PageSize: 0,
-        };
+        return { Fields: [AccountFields.InternalId, AccountFields.PersonId], Condition: "", OrderBy: [], PageNumber: 0, PageSize: 0 };
     }, []);
 
     // 執行：取得所有帳號目前綁定的人員代號
     const query = adapter.hooks.useQueryList({ condition, deps: [], onError });
 
-    return {
-        rawData: (query.data ?? []) as AccountSet[],
-        isLoading: Boolean(query.isLoading),
-        error: query.errorText ?? null,
-    };
+    return { rawData: (query.data ?? []) as AccountSet[], isLoading: Boolean(query.isLoading), error: query.errorText ?? null };
 };
 /** 建立可選人員下拉字典 */
-const useAvailablePersonDict = (
-    personRawData: PersonSet[],
-    accountRawData: AccountSet[],
-    currentAccountInternalId: string,
-): Record<string, string> =>
+const useAvailablePersonDict = (personRawData: PersonSet[], accountRawData: AccountSet[], currentAccountInternalId: string): Record<string, string> =>
 {
     return useMemo(() =>
     {

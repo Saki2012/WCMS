@@ -26,10 +26,7 @@ type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
 
-type ApiLoaderDataCompat<TArgs, TData> = { args: TArgs; env: ApiResponse<TData>; } | {
-    args: TArgs;
-    apiRes: ApiResponse<TData>;
-};
+type ApiLoaderDataCompat<TArgs, TData> = { args: TArgs; env: ApiResponse<TData>; } | { args: TArgs; apiRes: ApiResponse<TData>; };
 
 const getEnv = <TArgs, TData>(d: ApiLoaderDataCompat<TArgs, TData>): ApiResponse<TData> =>
 {
@@ -93,9 +90,7 @@ const formatLocalIsoByMinute = (d: Date): string =>
     const pad2 = (n: number) => (n < 10 ? `0${n}` : `${n}`);
 
     // return
-    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}T${pad2(d.getHours())}:${
-        pad2(d.getMinutes())
-    }:00.000`;
+    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}T${pad2(d.getHours())}:${pad2(d.getMinutes())}:00.000`;
 };
 
 const HOME_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
@@ -236,10 +231,7 @@ const buildSpecJournalIndexParam = (): QueryListParam =>
             `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.IsSpecial}`,
         ],
         Condition: condition,
-        OrderBy: [{
-            Col: `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.PublishDate}`,
-            Desc: true,
-        }],
+        OrderBy: [{ Col: `${SpecJournalIndexModelFields._SpecJournalIndexDetail}.${SpecJournalIndexDetailFields.PublishDate}`, Desc: true }],
         PageNumber: 1,
         PageSize: 5,
     };
@@ -294,12 +286,7 @@ const buildRelatedLinksParam = (opt: { categoryId: string; lang: Lang; }): Query
     // 宣告變數
     let condition = "";
     condition = LibMerge(" And ", false, condition, `${WebResourceFields.Categories} HasAll ${opt.categoryId}`);
-    condition = LibMerge(
-        " And ",
-        false,
-        condition,
-        `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Lang} = ${opt.lang}`,
-    );
+    condition = LibMerge(" And ", false, condition, `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Lang} = ${opt.lang}`);
 
     // return
     return {
@@ -335,14 +322,8 @@ const buildDefaultArgs = (lang: Lang): HomePageLoaderArgs =>
 
     const newsCategoryId = "Category20260113001";
     const newsTake = 5;
-    const newsTopParam = buildNewsParam({
-        condition: buildNewsCondition({ lang, nowIsoLocal, categoryId: newsCategoryId, isTop: true }),
-        take: newsTake,
-    });
-    const newsListParam = buildNewsParam({
-        condition: buildNewsCondition({ lang, nowIsoLocal, categoryId: newsCategoryId, isTop: false }),
-        take: newsTake,
-    });
+    const newsTopParam = buildNewsParam({ condition: buildNewsCondition({ lang, nowIsoLocal, categoryId: newsCategoryId, isTop: true }), take: newsTake });
+    const newsListParam = buildNewsParam({ condition: buildNewsCondition({ lang, nowIsoLocal, categoryId: newsCategoryId, isTop: false }), take: newsTake });
 
     const aboutPublicationBannerId = "Banner20260113004";
     const aboutPublicationParam = buildBannerByBannerIdParam({ bannerId: aboutPublicationBannerId, lang });
@@ -377,121 +358,105 @@ const buildDefaultArgs = (lang: Lang): HomePageLoaderArgs =>
  * - 先以目前 1819 Index 的 5 個 section 需求為主
  * - 後續各 section 改 hook 時，可直接吃 args + rawData
  */
-export const HomePageLoader =
-    (p: { lang: Lang; }) => async ({ request }: LoaderFunctionArgs): Promise<HomePageLoaderData> =>
-    {
-        // 宣告變數
-        const ssrApi = getSsrApi(request);
-        const args = buildDefaultArgs(p.lang);
+export const HomePageLoader = (p: { lang: Lang; }) => async ({ request }: LoaderFunctionArgs): Promise<HomePageLoaderData> =>
+{
+    // 宣告變數
+    const ssrApi = getSsrApi(request);
+    const args = buildDefaultArgs(p.lang);
 
-        const cacheKey = getCacheKey(args.lang, args.nowIsoLocal);
-        const cached = tryGetCache(cacheKey);
-        if (cached) return cached;
+    const cacheKey = getCacheKey(args.lang, args.nowIsoLocal);
+    const cached = tryGetCache(cacheKey);
+    if (cached) return cached;
 
-        const banner = BannerSliderAdapter(ssrApi);
-        const journalIndex = SpecJournalIndexAdapter(ssrApi);
-        const announcement = AnnouncementAdapter(ssrApi);
-        const webResource = WebResourceAdapter(ssrApi);
+    const banner = BannerSliderAdapter(ssrApi);
+    const journalIndex = SpecJournalIndexAdapter(ssrApi);
+    const announcement = AnnouncementAdapter(ssrApi);
+    const webResource = WebResourceAdapter(ssrApi);
 
-        // 執行 function：建立 loaders
-        const latestIssueBgLoader = banner.loader.createQueryListLoader({
-            getCondition: () => buildBannerByBannerIdParam({ bannerId: args.latestIssueBgBannerId }),
-            getApiInstance: () => ssrApi,
-        });
-        const latestIssueCoverLoader = banner.loader.createQueryListLoader({
-            getCondition: () => buildBannerByBannerIdParam({ bannerId: args.latestIssueCoverBannerId }),
-            getApiInstance: () => ssrApi,
-        });
-        const latestIssuePublishedLoader = journalIndex.loader.createQueryListLoader({
-            getCondition: () => args.latestIssuePublishedParam,
-            getApiInstance: () => ssrApi,
-        });
-        const latestIssueUnpublishedLoader = journalIndex.loader.createQueryListLoader({
-            getCondition: () => args.latestIssueUnpublishedParam,
-            getApiInstance: () => ssrApi,
-        });
-        const indexedLoader = banner.loader.createQueryListLoader({
-            getCondition: () => args.indexedBannerParam,
-            getApiInstance: () => ssrApi,
-        });
-        const newsTopLoader = announcement.loader.createQueryListLoader({
-            getCondition: () => args.newsTopParam,
-            getApiInstance: () => ssrApi,
-        });
-        const newsListLoader = announcement.loader.createQueryListLoader({
-            getCondition: () => args.newsListParam,
-            getApiInstance: () => ssrApi,
-        });
-        const aboutPublicationLoader = banner.loader.createQueryListLoader({
-            getCondition: () => args.aboutPublicationParam,
-            getApiInstance: () => ssrApi,
-        });
-        const relatedLinksLoader = webResource.loader.createQueryListLoader({
-            getCondition: () => args.relatedLinksParam,
-            getApiInstance: () => ssrApi,
-        });
+    // 執行 function：建立 loaders
+    const latestIssueBgLoader = banner.loader.createQueryListLoader({
+        getCondition: () => buildBannerByBannerIdParam({ bannerId: args.latestIssueBgBannerId }),
+        getApiInstance: () => ssrApi,
+    });
+    const latestIssueCoverLoader = banner.loader.createQueryListLoader({
+        getCondition: () => buildBannerByBannerIdParam({ bannerId: args.latestIssueCoverBannerId }),
+        getApiInstance: () => ssrApi,
+    });
+    const latestIssuePublishedLoader = journalIndex.loader.createQueryListLoader({
+        getCondition: () => args.latestIssuePublishedParam,
+        getApiInstance: () => ssrApi,
+    });
+    const latestIssueUnpublishedLoader = journalIndex.loader.createQueryListLoader({
+        getCondition: () => args.latestIssueUnpublishedParam,
+        getApiInstance: () => ssrApi,
+    });
+    const indexedLoader = banner.loader.createQueryListLoader({ getCondition: () => args.indexedBannerParam, getApiInstance: () => ssrApi });
+    const newsTopLoader = announcement.loader.createQueryListLoader({ getCondition: () => args.newsTopParam, getApiInstance: () => ssrApi });
+    const newsListLoader = announcement.loader.createQueryListLoader({ getCondition: () => args.newsListParam, getApiInstance: () => ssrApi });
+    const aboutPublicationLoader = banner.loader.createQueryListLoader({ getCondition: () => args.aboutPublicationParam, getApiInstance: () => ssrApi });
+    const relatedLinksLoader = webResource.loader.createQueryListLoader({ getCondition: () => args.relatedLinksParam, getApiInstance: () => ssrApi });
 
-        // 執行 function：一次撈完
-        const [
-            latestIssueBgLD,
-            latestIssueCoverLD,
-            latestIssuePublishedLD,
-            latestIssueUnpublishedLD,
-            indexedLD,
-            newsTopLD,
-            newsListLD,
-            aboutPublicationLD,
-            relatedLinksLD,
-        ] = await Promise.all([
-            latestIssueBgLoader({ request } as LoaderFunctionArgs),
-            latestIssueCoverLoader({ request } as LoaderFunctionArgs),
-            latestIssuePublishedLoader({ request } as LoaderFunctionArgs),
-            latestIssueUnpublishedLoader({ request } as LoaderFunctionArgs),
-            indexedLoader({ request } as LoaderFunctionArgs),
-            newsTopLoader({ request } as LoaderFunctionArgs),
-            newsListLoader({ request } as LoaderFunctionArgs),
-            aboutPublicationLoader({ request } as LoaderFunctionArgs),
-            relatedLinksLoader({ request } as LoaderFunctionArgs),
-        ]);
+    // 執行 function：一次撈完
+    const [
+        latestIssueBgLD,
+        latestIssueCoverLD,
+        latestIssuePublishedLD,
+        latestIssueUnpublishedLD,
+        indexedLD,
+        newsTopLD,
+        newsListLD,
+        aboutPublicationLD,
+        relatedLinksLD,
+    ] = await Promise.all([
+        latestIssueBgLoader({ request } as LoaderFunctionArgs),
+        latestIssueCoverLoader({ request } as LoaderFunctionArgs),
+        latestIssuePublishedLoader({ request } as LoaderFunctionArgs),
+        latestIssueUnpublishedLoader({ request } as LoaderFunctionArgs),
+        indexedLoader({ request } as LoaderFunctionArgs),
+        newsTopLoader({ request } as LoaderFunctionArgs),
+        newsListLoader({ request } as LoaderFunctionArgs),
+        aboutPublicationLoader({ request } as LoaderFunctionArgs),
+        relatedLinksLoader({ request } as LoaderFunctionArgs),
+    ]);
 
-        // 宣告變數：整理回傳資料
-        const latestIssueBgBanner = takeFirstOrNull<BannerSet>(getEnv(latestIssueBgLD).Data);
-        const latestIssueCoverBanner = takeFirstOrNull<BannerSet>(getEnv(latestIssueCoverLD).Data);
-        const latestIssuePublishedList = getEnv(latestIssuePublishedLD).Data ?? [];
-        const latestIssueUnpublishedList = getEnv(latestIssueUnpublishedLD).Data ?? [];
-        const indexedBanner = takeFirstOrNull<BannerSet>(getEnv(indexedLD).Data);
-        const newsTopList = getEnv(newsTopLD).Data ?? [];
-        const newsList = getEnv(newsListLD).Data ?? [];
-        const newsMergedList = takeTopThenFill(
-            newsTopList,
-            newsList,
-            args.newsTake,
-            (item) => item.Announcement?.InternalId ?? String(item.Announcement?.AnnouncementId ?? ""),
-        );
-        const aboutPublicationBanner = takeFirstOrNull<BannerSet>(getEnv(aboutPublicationLD).Data);
-        const relatedLinksList = getEnv(relatedLinksLD).Data ?? [];
+    // 宣告變數：整理回傳資料
+    const latestIssueBgBanner = takeFirstOrNull<BannerSet>(getEnv(latestIssueBgLD).Data);
+    const latestIssueCoverBanner = takeFirstOrNull<BannerSet>(getEnv(latestIssueCoverLD).Data);
+    const latestIssuePublishedList = getEnv(latestIssuePublishedLD).Data ?? [];
+    const latestIssueUnpublishedList = getEnv(latestIssueUnpublishedLD).Data ?? [];
+    const indexedBanner = takeFirstOrNull<BannerSet>(getEnv(indexedLD).Data);
+    const newsTopList = getEnv(newsTopLD).Data ?? [];
+    const newsList = getEnv(newsListLD).Data ?? [];
+    const newsMergedList = takeTopThenFill(
+        newsTopList,
+        newsList,
+        args.newsTake,
+        (item) => item.Announcement?.InternalId ?? String(item.Announcement?.AnnouncementId ?? ""),
+    );
+    const aboutPublicationBanner = takeFirstOrNull<BannerSet>(getEnv(aboutPublicationLD).Data);
+    const relatedLinksList = getEnv(relatedLinksLD).Data ?? [];
 
-        const result: HomePageLoaderData = {
-            args,
-            res: {
-                rawData: {
-                    latestIssueBgBanner,
-                    latestIssueCoverBanner,
-                    latestIssuePublishedList,
-                    latestIssueUnpublishedList,
-                    indexedBanner,
-                    newsTopList,
-                    newsList,
-                    newsMergedList,
-                    aboutPublicationBanner,
-                    relatedLinksList,
-                },
+    const result: HomePageLoaderData = {
+        args,
+        res: {
+            rawData: {
+                latestIssueBgBanner,
+                latestIssueCoverBanner,
+                latestIssuePublishedList,
+                latestIssueUnpublishedList,
+                indexedBanner,
+                newsTopList,
+                newsList,
+                newsMergedList,
+                aboutPublicationBanner,
+                relatedLinksList,
             },
-        };
-
-        // 執行 function
-        setCache(cacheKey, result);
-
-        // return
-        return result;
+        },
     };
+
+    // 執行 function
+    setCache(cacheKey, result);
+
+    // return
+    return result;
+};

@@ -20,7 +20,7 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
-import * as SchemaFields from "@/types/SchemaFields";
+import { GalleryFields, GalleryInfoFields, GalleryPhotosFields, GalleryPhotosInfoFields, GallerySetFields } from "@/types/SchemaFields";
 import { useCallback, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useGalleryFormFetchData } from "./Server_Gallery_Form_Hook";
@@ -43,16 +43,16 @@ export const Server_GalleryFormComp = (prop: { theme: IBETheme; lang: Lang; }) =
     const getData = useGalleryFormFetchData({ lang: prop.lang, internalId: internalId ?? "", emptyData, actionsOpt });
     // 多語系 detail 補齊：相簿 info
     useEnsureLangDetails(getData.rawData.formData, {
-        headerName: SchemaFields.GallerySetFields.Gallery,
-        detailName: SchemaFields.GallerySetFields.GalleryInfo,
-        parentKeys: [SchemaFields.GalleryInfoFields.GalleryId],
+        headerName: GallerySetFields.Gallery,
+        detailName: GallerySetFields.GalleryInfo,
+        parentKeys: [GalleryInfoFields.GalleryId],
         preferFirstLang: prop.lang,
     });
     // 多語系 detail 補齊：相片 info（依 parentRow）
     useEnsureLangDetails(getData.rawData.formData, {
-        headerName: SchemaFields.GallerySetFields.GalleryPhotos,
-        detailName: SchemaFields.GallerySetFields.GalleryPhotosInfo,
-        parentKeys: [SchemaFields.GalleryPhotosInfoFields.GalleryId, SchemaFields.GalleryPhotosInfoFields.ParentRowId],
+        headerName: GallerySetFields.GalleryPhotos,
+        detailName: GallerySetFields.GalleryPhotosInfo,
+        parentKeys: [GalleryPhotosInfoFields.GalleryId, GalleryPhotosInfoFields.ParentRowId],
         preferFirstLang: prop.lang,
     });
     const formProp: FormCompProp = {
@@ -75,93 +75,63 @@ export const Server_GalleryFormComp = (prop: { theme: IBETheme; lang: Lang; }) =
     );
 };
 
-const MainFormComp = (prop: {
-    theme: IBETheme;
-    formData: UseFetchFormDataResult<GallerySet>;
-    cateOpts: Record<string, string>;
-    statusOpts: Record<string, string>;
-    tagOpts: Record<string, string>;
-}) =>
+const MainFormComp = (
+    prop: {
+        theme: IBETheme;
+        formData: UseFetchFormDataResult<GallerySet>;
+        cateOpts: Record<string, string>;
+        statusOpts: Record<string, string>;
+        tagOpts: Record<string, string>;
+    },
+) =>
 {
     const tabInfo: LibTabsProp = { Style: prop.theme.Tabs, item: { "Album": "相簿", "Photo": "相片" } };
     const components: Record<string, React.ReactNode[]> = {
         Album: [
-            <AlbumComp
-                theme={prop.theme}
-                formData={prop.formData}
-                cateOpts={prop.cateOpts}
-                statusOpts={prop.statusOpts}
-                tagOpts={prop.tagOpts}
-            />,
+            <AlbumComp theme={prop.theme} formData={prop.formData} cateOpts={prop.cateOpts} statusOpts={prop.statusOpts} tagOpts={prop.tagOpts} />,
             <AlbumInfo theme={prop.theme} formData={prop.formData} />,
         ],
-        Photo: [
-            <UploadPicComp theme={prop.theme} formData={prop.formData} />,
-            <PhotoComp theme={prop.theme} formData={prop.formData} />,
-        ],
+        Photo: [<UploadPicComp theme={prop.theme} formData={prop.formData} />, <PhotoComp theme={prop.theme} formData={prop.formData} />],
     };
     return <TabContentComp tabInfos={tabInfo} components={components}></TabContentComp>;
 };
 
-const AlbumComp = (prop: {
-    theme: IBETheme;
-    formData: UseFetchFormDataResult<GallerySet>;
-    cateOpts: Record<string, string>;
-    statusOpts: Record<string, string>;
-    tagOpts: Record<string, string>;
-}) =>
+const AlbumComp = (
+    prop: {
+        theme: IBETheme;
+        formData: UseFetchFormDataResult<GallerySet>;
+        cateOpts: Record<string, string>;
+        statusOpts: Record<string, string>;
+        tagOpts: Record<string, string>;
+    },
+) =>
 {
     const setField = useSetTableField<GallerySet>(prop.formData);
-    const tabInfo: LibTabsProp = {
-        Style: prop.theme.Tabs,
-        item: { "Basic": "基本", "Status": "狀態", "Tags": "標籤" },
-    };
+    const tabInfo: LibTabsProp = { Style: prop.theme.Tabs, item: { "Basic": "基本", "Status": "狀態", "Tags": "標籤" } };
     const components: Record<string, React.ReactNode[]> = {
         Basic: [
             <LibCheckBox
                 Style={prop.theme.CheckBox}
                 options={prop.cateOpts}
-                {...setField(
-                    SchemaFields.GallerySetFields.Gallery,
-                    SchemaFields.GalleryFields.Categories,
-                    "string",
-                    undefined,
-                    "csv",
-                )}
+                {...setField(GallerySetFields.Gallery, GalleryFields.Categories, "string", undefined, "csv")}
             />,
-            <LibCalendar
-                {...setField(
-                    SchemaFields.GallerySetFields.Gallery,
-                    SchemaFields.GalleryFields.Validate_Start,
-                    "datetime",
-                )}
-            >
-            </LibCalendar>,
+            <LibCalendar {...setField(GallerySetFields.Gallery, GalleryFields.Validate_Start, "datetime")}></LibCalendar>,
         ],
         Status: [
             <LibCheckBox
                 Style={prop.theme.CheckBox}
                 options={prop.statusOpts}
-                {...setField(
-                    SchemaFields.GallerySetFields.Gallery,
-                    SchemaFields.GalleryFields.ContentStatus,
-                    "number",
-                    undefined,
-                    { strategy: "sum", sumKeys: Object.keys(prop.statusOpts ?? {}).map(Number) },
-                )}
+                {...setField(GallerySetFields.Gallery, GalleryFields.ContentStatus, "number", undefined, {
+                    strategy: "sum",
+                    sumKeys: Object.keys(prop.statusOpts ?? {}).map(Number),
+                })}
             />,
         ],
         Tags: [
             <LibCheckBox
                 Style={prop.theme.CheckBox}
                 options={prop.tagOpts}
-                {...setField(
-                    SchemaFields.GallerySetFields.Gallery,
-                    SchemaFields.GalleryFields.Tags,
-                    "string",
-                    undefined,
-                    "csv",
-                )}
+                {...setField(GallerySetFields.Gallery, GalleryFields.Tags, "string", undefined, "csv")}
             />,
         ],
     };
@@ -181,39 +151,20 @@ const AlbumInfo = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Gal
             return tabItems;
         }, {}),
     };
-    const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>(
-        (compMap, info) =>
-        {
-            const langKey = LibMerge("_", true, info.GalleryId, info.RowId, info.Lang);
-            const rowKeys = {
-                [SchemaFields.GalleryInfoFields.GalleryId]: info.GalleryId,
-                [SchemaFields.GalleryInfoFields.RowId]: info.RowId,
-            };
-            compMap[langKey] = [
-                <LibTextBox
-                    Style={prop.theme.TextBox}
-                    DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SchemaFields.GallerySetFields.GalleryInfo,
-                        SchemaFields.GalleryInfoFields.Title,
-                        "string",
-                        rowKeys,
-                    )}
-                />,
-                <LibTinyMCE
-                    Style={prop.theme.TinyMCE}
-                    {...setField(
-                        SchemaFields.GallerySetFields.GalleryInfo,
-                        SchemaFields.GalleryInfoFields.Content,
-                        "string",
-                        rowKeys,
-                    )}
-                />,
-            ];
-            return compMap;
-        },
-        {},
-    );
+    const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>((compMap, info) =>
+    {
+        const langKey = LibMerge("_", true, info.GalleryId, info.RowId, info.Lang);
+        const rowKeys = { [GalleryInfoFields.GalleryId]: info.GalleryId, [GalleryInfoFields.RowId]: info.RowId };
+        compMap[langKey] = [
+            <LibTextBox
+                Style={prop.theme.TextBox}
+                DefaultInputDisplay="請輸入"
+                {...setField(GallerySetFields.GalleryInfo, GalleryInfoFields.Title, "string", rowKeys)}
+            />,
+            <LibTinyMCE Style={prop.theme.TinyMCE} {...setField(GallerySetFields.GalleryInfo, GalleryInfoFields.Content, "string", rowKeys)} />,
+        ];
+        return compMap;
+    }, {});
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
 
@@ -236,12 +187,7 @@ const UploadPicComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult
         {
             const fd = new FormData();
             fd.append(fieldName, file, file.name);
-            const resp = await fetch(url, {
-                method: "POST",
-                body: fd,
-                credentials: "include",
-                mode: "cors",
-            });
+            const resp = await fetch(url, { method: "POST", body: fd, credentials: "include", mode: "cors" });
             if (!resp.ok)
             {
                 const text = await resp.text().catch(() => "");
@@ -291,36 +237,29 @@ const UploadPicComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult
         {
             const base: GallerySet = prev ?? { Gallery: {}, GalleryInfo: [], GalleryPhotos: [], GalleryPhotosInfo: [] };
 
-            const header = base[SchemaFields.GallerySetFields.Gallery] ?? {};
-            const galleryId = header[SchemaFields.GalleryFields.GalleryId] ?? "";
+            const header = base[GallerySetFields.Gallery] ?? {};
+            const galleryId = header[GalleryFields.GalleryId] ?? "";
 
-            const list = base[SchemaFields.GallerySetFields.GalleryPhotos] ?? [];
+            const list = base[GallerySetFields.GalleryPhotos] ?? [];
             const baseRow = (list ?? []).reduce(
-                (m, it) =>
-                    it?.[SchemaFields.GalleryPhotosFields.GalleryId] === galleryId
-                        ? Math.max(m, Number(it?.[SchemaFields.GalleryPhotosFields.RowId] || 0))
-                        : m,
+                (m, it) => it?.[GalleryPhotosFields.GalleryId] === galleryId ? Math.max(m, Number(it?.[GalleryPhotosFields.RowId] || 0)) : m,
                 0,
             );
 
             const newItems = picIds.map((pid, i) => ({
-                [SchemaFields.GalleryPhotosFields.GalleryId]: galleryId,
-                [SchemaFields.GalleryPhotosFields.RowId]: baseRow + i + 1,
-                [SchemaFields.GalleryPhotosFields.PicSrcId]: pid,
-                [SchemaFields.GalleryPhotosFields.Sort]: baseRow + i + 1,
+                [GalleryPhotosFields.GalleryId]: galleryId,
+                [GalleryPhotosFields.RowId]: baseRow + i + 1,
+                [GalleryPhotosFields.PicSrcId]: pid,
+                [GalleryPhotosFields.Sort]: baseRow + i + 1,
             }));
 
             const nextHeader = { ...header };
-            if (!nextHeader[SchemaFields.GalleryFields.CoverPicSrcId] && picIds[0])
+            if (!nextHeader[GalleryFields.CoverPicSrcId] && picIds[0])
             {
-                nextHeader[SchemaFields.GalleryFields.CoverPicSrcId] = picIds[0];
+                nextHeader[GalleryFields.CoverPicSrcId] = picIds[0];
             }
 
-            return {
-                ...base,
-                Gallery: nextHeader,
-                GalleryPhotos: [...list, ...newItems],
-            };
+            return { ...base, Gallery: nextHeader, GalleryPhotos: [...list, ...newItems] };
         });
     };
 
@@ -380,11 +319,7 @@ const UploadPicComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult
                                 return (
                                     <div key={index} className="col-12 border-bottom">
                                         <div className="d-flex align-items-center">
-                                            <LibPicturePreview
-                                                ColumnDisplayName={file.name}
-                                                PicSrc={url}
-                                                PicDescription={`選中的圖片 ${file.name}`}
-                                            />
+                                            <LibPicturePreview ColumnDisplayName={file.name} PicSrc={url} PicDescription={`選中的圖片 ${file.name}`} />
                                         </div>
                                     </div>
                                 );
@@ -399,19 +334,15 @@ const UploadPicComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult
 
 const useCoverPicSelector = (formData: UseFetchFormDataResult<GallerySet>) =>
 {
-    const selected = formData.data?.[SchemaFields.GallerySetFields.Gallery]?.[SchemaFields.GalleryFields.CoverPicSrcId]
-        ?? null;
+    const selected = formData.data?.[GallerySetFields.Gallery]?.[GalleryFields.CoverPicSrcId] ?? null;
 
     const select = (picId: string) =>
     {
         formData.setFormData(prev =>
         {
             const base: GallerySet = prev ?? { Gallery: {}, GalleryInfo: [], GalleryPhotos: [], GalleryPhotosInfo: [] };
-            const g = base[SchemaFields.GallerySetFields.Gallery] ?? {};
-            return {
-                ...base,
-                Gallery: { ...g, [SchemaFields.GalleryFields.CoverPicSrcId]: picId },
-            };
+            const g = base[GallerySetFields.Gallery] ?? {};
+            return { ...base, Gallery: { ...g, [GalleryFields.CoverPicSrcId]: picId } };
         });
     };
 
@@ -434,18 +365,12 @@ const usePhotoRemove = (formData: UseFetchFormDataResult<GallerySet>) =>
 
             const header = base.Gallery ?? {};
             const nextHeader = { ...header };
-            if (picSrcId && header[SchemaFields.GalleryFields.CoverPicSrcId] === picSrcId)
+            if (picSrcId && header[GalleryFields.CoverPicSrcId] === picSrcId)
             {
-                nextHeader[SchemaFields.GalleryFields.CoverPicSrcId] =
-                    nextPhotos[0]?.[SchemaFields.GalleryPhotosFields.PicSrcId] ?? null;
+                nextHeader[GalleryFields.CoverPicSrcId] = nextPhotos[0]?.[GalleryPhotosFields.PicSrcId] ?? null;
             }
 
-            return {
-                ...base,
-                Gallery: nextHeader,
-                GalleryPhotos: nextPhotos,
-                GalleryPhotosInfo: nextDetails,
-            };
+            return { ...base, Gallery: nextHeader, GalleryPhotos: nextPhotos, GalleryPhotosInfo: nextDetails };
         });
     };
     return { remove };
@@ -463,18 +388,10 @@ const PhotoComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Gal
             {photos.map((item) =>
             {
                 const picId = String(item.PicSrcId ?? "");
-                const rowKeys = {
-                    [SchemaFields.GalleryPhotosFields.GalleryId]: item.GalleryId,
-                    [SchemaFields.GalleryPhotosFields.RowId]: item.RowId,
-                };
+                const rowKeys = { [GalleryPhotosFields.GalleryId]: item.GalleryId, [GalleryPhotosFields.RowId]: item.RowId };
                 const picUrl = FileManagementAPI.get_Public_Preview_Url(item.PicSrcId);
                 return (
-                    <LibPicture
-                        parentClass="col-xl-3 col-md-4 col-12"
-                        ColumnDisplayName="測試"
-                        PicSrc={picUrl}
-                        PicDescription="文字"
-                    >
+                    <LibPicture parentClass="col-xl-3 col-md-4 col-12" ColumnDisplayName="測試" PicSrc={picUrl} PicDescription="文字">
                         <div className="row">
                             <div className="col-6">
                                 <LibCheckBoxSingle
@@ -504,11 +421,7 @@ const PhotoComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Gal
                                             {
                                                 return;
                                             }
-                                            remover.remove(
-                                                String(item.GalleryId ?? ""),
-                                                Number(item.RowId ?? 0),
-                                                picId,
-                                            );
+                                            remover.remove(String(item.GalleryId ?? ""), Number(item.RowId ?? 0), picId);
                                         }}
                                         title=""
                                         data-bs-toggle="modal"
@@ -531,12 +444,7 @@ const PhotoComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Gal
                         <LibTextBox
                             Style={prop.theme.TextBox2}
                             DefaultInputDisplay={"請輸入"}
-                            {...setField(
-                                SchemaFields.GallerySetFields.GalleryPhotos,
-                                SchemaFields.GalleryPhotosFields.Sort,
-                                "number",
-                                rowKeys,
-                            )}
+                            {...setField(GallerySetFields.GalleryPhotos, GalleryPhotosFields.Sort, "number", rowKeys)}
                         />
                         <PhotoInfoComp theme={prop.theme} formData={prop.formData} parentRowId={item.RowId ?? 0} />
                     </LibPicture>
@@ -560,30 +468,22 @@ const PhotoInfoComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult
             return tabItems;
         }, {}),
     };
-    const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>(
-        (compMap, info) =>
-        {
-            const langKey = LibMerge("_", true, info.GalleryId, info.ParentRowId, info.RowId, info.Lang);
-            const rowKeys = {
-                [SchemaFields.GalleryPhotosInfoFields.GalleryId]: info.GalleryId,
-                [SchemaFields.GalleryPhotosInfoFields.ParentRowId]: info.ParentRowId,
-                [SchemaFields.GalleryPhotosInfoFields.RowId]: info.RowId,
-            };
-            compMap[langKey] = [
-                <LibTextBox
-                    Style={prop.theme.TextBox}
-                    DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SchemaFields.GallerySetFields.GalleryPhotosInfo,
-                        SchemaFields.GalleryPhotosInfoFields.Title,
-                        "string",
-                        rowKeys,
-                    )}
-                />,
-            ];
-            return compMap;
-        },
-        {},
-    );
+    const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>((compMap, info) =>
+    {
+        const langKey = LibMerge("_", true, info.GalleryId, info.ParentRowId, info.RowId, info.Lang);
+        const rowKeys = {
+            [GalleryPhotosInfoFields.GalleryId]: info.GalleryId,
+            [GalleryPhotosInfoFields.ParentRowId]: info.ParentRowId,
+            [GalleryPhotosInfoFields.RowId]: info.RowId,
+        };
+        compMap[langKey] = [
+            <LibTextBox
+                Style={prop.theme.TextBox}
+                DefaultInputDisplay="請輸入"
+                {...setField(GallerySetFields.GalleryPhotosInfo, GalleryPhotosInfoFields.Title, "string", rowKeys)}
+            />,
+        ];
+        return compMap;
+    }, {});
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };

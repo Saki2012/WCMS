@@ -1,45 +1,37 @@
 import "./CalendarPageComp.css";
-import {
-    useEffect,
-    useId,
-    useMemo,
-    useRef,
-    useState,
-    type ChangeEvent,
-    type FormEvent,
-    type MouseEvent,
-} from "react";
 import type { components } from "@/types/api";
+import { type ChangeEvent, type FormEvent, type MouseEvent, useEffect, useId, useMemo, useRef, useState } from "react";
 import {
-    useCalendarPage,
     type CalendarYearMap,
     type DialogAnchorRect,
     formatDateString,
+    formatHHmm,
     getWeekdayNameZh,
     parseHHmm,
     to12hParts,
     to24hHour,
-    formatHHmm,
+    useCalendarPage,
 } from "./Server_Calendar_Hook";
 
 type CalendarDetail = components["schemas"]["CalendarDetail_DTO"];
 
-export interface CalendarPageCompProps {
+export interface CalendarPageCompProps
+{
     defaultYear?: number;
 }
 
-type YearSetterPage = {
-    setYear?: (year: number) => void;
-};
+type YearSetterPage = { setYear?: (year: number) => void; };
 
 /** 取得 hook 是否有暴露 setYear */
-const getYearSetter = (page: object): ((year: number) => void) | null => {
+const getYearSetter = (page: object): ((year: number) => void) | null =>
+{
     const typedPage = page as YearSetterPage;
     return typeof typedPage.setYear === "function" ? typedPage.setYear : null;
 };
 
 /** 將時間安全轉成 HH:mm */
-const toSafeHHmm = (value?: string | null): string => {
+const toSafeHHmm = (value?: string | null): string =>
+{
     const parsed = parseHHmm(value);
     if (!parsed) return "";
 
@@ -47,7 +39,8 @@ const toSafeHHmm = (value?: string | null): string => {
 };
 
 /** 組出開閉館顯示文字 */
-const renderOpenCloseText = (day?: CalendarDetail | null): string => {
+const renderOpenCloseText = (day?: CalendarDetail | null): string =>
+{
     if (!day) return "";
 
     const open = toSafeHHmm(day.Spec_OpenTime);
@@ -58,33 +51,23 @@ const renderOpenCloseText = (day?: CalendarDetail | null): string => {
 };
 
 /** 取得假日顯示文字 */
-const getHolidayText = (day?: CalendarDetail | null): string => {
+const getHolidayText = (day?: CalendarDetail | null): string =>
+{
     if (!day) return "";
     return (day.HolidayName ?? "").trim() || (day.IsHoliday ? "假日" : "");
 };
 
 /** 建立格子 className */
-const buildCellClassName = (
-    isWeekend: boolean,
-    isHoliday: boolean,
-    isToday: boolean,
-): string => {
-    const classNames = [
-        "calendar-cell",
-        isWeekend ? "is-weekend" : "",
-        isHoliday ? "is-holiday" : "",
-        isToday ? "is-today" : "",
-    ];
+const buildCellClassName = (isWeekend: boolean, isHoliday: boolean, isToday: boolean): string =>
+{
+    const classNames = ["calendar-cell", isWeekend ? "is-weekend" : "", isHoliday ? "is-holiday" : "", isToday ? "is-today" : ""];
 
     return classNames.filter(Boolean).join(" ");
 };
 
 /** 建立格子 aria-label */
-const buildCellAriaLabel = (
-    dateStr: string,
-    weekDay: number,
-    day?: CalendarDetail | null,
-): string => {
+const buildCellAriaLabel = (dateStr: string, weekDay: number, day?: CalendarDetail | null): string =>
+{
     const parts = [`編輯 ${dateStr}（星期${getWeekdayNameZh(weekDay)}）`];
     const holidayText = getHolidayText(day);
     const openCloseText = renderOpenCloseText(day);
@@ -96,10 +79,8 @@ const buildCellAriaLabel = (
 };
 
 /** 產生月曆 6x7 週資料 */
-const buildMonthWeeks = (
-    year: number,
-    month: number,
-): Array<Array<string | null>> => {
+const buildMonthWeeks = (year: number, month: number): Array<Array<string | null>> =>
+{
     const firstDay = new Date(year, month, 1);
     const firstWeekday = firstDay.getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -108,8 +89,10 @@ const buildMonthWeeks = (
     const cells: Array<string | null> = [];
     let currentDay = 1;
 
-    for (let i = 0; i < totalCells; i += 1) {
-        if (i < firstWeekday || currentDay > daysInMonth) {
+    for (let i = 0; i < totalCells; i += 1)
+    {
+        if (i < firstWeekday || currentDay > daysInMonth)
+        {
             cells.push(null);
             continue;
         }
@@ -118,21 +101,19 @@ const buildMonthWeeks = (
         currentDay += 1;
     }
 
-    return Array.from({ length: 6 }, (_, rowIndex) =>
-        cells.slice(rowIndex * 7, rowIndex * 7 + 7),
-    );
+    return Array.from({ length: 6 }, (_, rowIndex) => cells.slice(rowIndex * 7, rowIndex * 7 + 7));
 };
 
 /** Page 主元件：用現在 hook 的資料，但 DOM 改回舊版 */
-export const CalendarPageComp: React.FC<CalendarPageCompProps> = ({
-    defaultYear,
-}) => {
+export const CalendarPageComp: React.FC<CalendarPageCompProps> = ({ defaultYear }) =>
+{
     const page = useCalendarPage({ defaultYear });
     const yearSetter = getYearSetter(page);
     const canEditYear = yearSetter !== null;
 
     /** 年份輸入 */
-    const handleYearChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    const handleYearChange = (e: ChangeEvent<HTMLInputElement>): void =>
+    {
         const nextYear = Number(e.target.value);
         if (!Number.isFinite(nextYear)) return;
         if (!yearSetter) return;
@@ -144,12 +125,8 @@ export const CalendarPageComp: React.FC<CalendarPageCompProps> = ({
         <main className="wcms-calendar-page" aria-labelledby="calendar-page-title">
             <header className="wcms-calendar-header">
                 <div className="wcms-calendar-header-left">
-                    <h1 id="calendar-page-title" className="page-title">
-                        萬年曆管理
-                    </h1>
-                    <span aria-live="polite" className="wcms-calendar-year-label">
-                        {page.year} 年
-                    </span>
+                    <h1 id="calendar-page-title" className="page-title">萬年曆管理</h1>
+                    <span aria-live="polite" className="wcms-calendar-year-label">{page.year} 年</span>
                 </div>
 
                 <div className="wcms-calendar-header-right">
@@ -169,55 +146,20 @@ export const CalendarPageComp: React.FC<CalendarPageCompProps> = ({
 
             <section className="wcms-calendar-toolbar" aria-label="月份切換與工具列">
                 <div className="wcms-calendar-month-nav">
-                    <button
-                        type="button"
-                        className="btn btn-ghost"
-                        onClick={page.handlePrevMonth}
-                        aria-label="上一個月"
-                    >
-                        ◀
-                    </button>
+                    <button type="button" className="btn btn-ghost" onClick={page.handlePrevMonth} aria-label="上一個月">◀</button>
 
-                    <div
-                        className="wcms-calendar-month-label"
-                        aria-live="polite"
-                        aria-atomic="true"
-                    >
-                        {page.year} 年 {page.month + 1} 月
-                    </div>
+                    <div className="wcms-calendar-month-label" aria-live="polite" aria-atomic="true">{page.year} 年 {page.month + 1} 月</div>
 
-                    <button
-                        type="button"
-                        className="btn btn-ghost"
-                        onClick={page.handleNextMonth}
-                        aria-label="下一個月"
-                    >
-                        ▶
-                    </button>
+                    <button type="button" className="btn btn-ghost" onClick={page.handleNextMonth} aria-label="下一個月">▶</button>
 
-                    <button
-                        type="button"
-                        className="btn btn-outline"
-                        onClick={page.handleGoToday}
-                    >
-                        今天
-                    </button>
+                    <button type="button" className="btn btn-outline" onClick={page.handleGoToday}>今天</button>
                 </div>
             </section>
 
             <section className="wcms-calendar-month-grid-section" aria-label="月曆檢視">
-                {page.isLoading ? (
-                    <div className="wcms-calendar-loading" aria-live="polite">
-                        讀取中…
-                    </div>
-                ) : (
-                    <CalendarMonthGrid
-                        year={page.year}
-                        month={page.month}
-                        daysByDate={page.daysByDate}
-                        onDayClick={page.handleDayClick}
-                    />
-                )}
+                {page.isLoading
+                    ? <div className="wcms-calendar-loading" aria-live="polite">讀取中…</div>
+                    : <CalendarMonthGrid year={page.year} month={page.month} daysByDate={page.daysByDate} onDayClick={page.handleDayClick} />}
             </section>
 
             {page.isDialogOpen && page.selectedDay && page.dialogAnchor && (
@@ -233,7 +175,8 @@ export const CalendarPageComp: React.FC<CalendarPageCompProps> = ({
     );
 };
 
-interface CalendarMonthGridProps {
+interface CalendarMonthGridProps
+{
     year: number;
     month: number;
     daysByDate: CalendarYearMap;
@@ -241,33 +184,32 @@ interface CalendarMonthGridProps {
 }
 
 /** 月曆表格：舊版 table DOM */
-const CalendarMonthGrid: React.FC<CalendarMonthGridProps> = (props) => {
-    const todayKey = useMemo(() => {
+const CalendarMonthGrid: React.FC<CalendarMonthGridProps> = (props) =>
+{
+    const todayKey = useMemo(() =>
+    {
         const now = new Date();
         return formatDateString(now.getFullYear(), now.getMonth(), now.getDate());
     }, []);
 
-    const weeks = useMemo(() => {
+    const weeks = useMemo(() =>
+    {
         return buildMonthWeeks(props.year, props.month);
     }, [props.year, props.month]);
 
     const weekDayHeader = ["日", "一", "二", "三", "四", "五", "六"];
 
     /** 點擊單日 */
-    const handleCellClick = (
-        e: MouseEvent<HTMLButtonElement>,
-        dateStr: string,
-    ): void => {
+    const handleCellClick = (e: MouseEvent<HTMLButtonElement>, dateStr: string): void =>
+    {
         const rect = e.currentTarget.getBoundingClientRect();
         const anchor: DialogAnchorRect = {
             top: rect.top,
             left: rect.left,
             width: rect.width,
             height: rect.height,
-            viewportWidth:
-                typeof window !== "undefined" ? window.innerWidth : rect.right + 16,
-            viewportHeight:
-                typeof window !== "undefined" ? window.innerHeight : rect.bottom + 16,
+            viewportWidth: typeof window !== "undefined" ? window.innerWidth : rect.right + 16,
+            viewportHeight: typeof window !== "undefined" ? window.innerHeight : rect.bottom + 16,
         };
 
         props.onDayClick(dateStr, anchor);
@@ -276,20 +218,16 @@ const CalendarMonthGrid: React.FC<CalendarMonthGridProps> = (props) => {
     return (
         <table className="wcms-calendar-month-grid">
             <thead>
-                <tr>
-                    {weekDayHeader.map((label) => (
-                        <th key={label} scope="col">
-                            {label}
-                        </th>
-                    ))}
-                </tr>
+                <tr>{weekDayHeader.map((label) => <th key={label} scope="col">{label}</th>)}</tr>
             </thead>
 
             <tbody>
                 {weeks.map((row, rowIndex) => (
                     <tr key={`week-${rowIndex}`}>
-                        {row.map((dateStr, colIndex) => {
-                            if (!dateStr) {
+                        {row.map((dateStr, colIndex) =>
+                        {
+                            if (!dateStr)
+                            {
                                 return <td key={`empty-${rowIndex}-${colIndex}`} className="empty-cell" />;
                             }
 
@@ -302,11 +240,7 @@ const CalendarMonthGrid: React.FC<CalendarMonthGridProps> = (props) => {
                             const isHoliday = Boolean(day?.IsHoliday);
                             const isToday = dateStr === todayKey;
 
-                            const cellClassName = buildCellClassName(
-                                isWeekend,
-                                isHoliday,
-                                isToday,
-                            );
+                            const cellClassName = buildCellClassName(isWeekend, isHoliday, isToday);
 
                             const holidayText = getHolidayText(day);
                             const openCloseText = renderOpenCloseText(day);
@@ -320,15 +254,9 @@ const CalendarMonthGrid: React.FC<CalendarMonthGridProps> = (props) => {
                                         aria-label={ariaLabel}
                                         onClick={(e) => handleCellClick(e, dateStr)}
                                     >
-                                        <span className="calendar-day-number">
-                                            {dayNumber}
-                                        </span>
-                                        <span className="calendar-day-tag">
-                                            {holidayText}
-                                        </span>
-                                        <span className="calendar-day-tag">
-                                            {openCloseText}
-                                        </span>
+                                        <span className="calendar-day-number">{dayNumber}</span>
+                                        <span className="calendar-day-tag">{holidayText}</span>
+                                        <span className="calendar-day-tag">{openCloseText}</span>
                                     </button>
                                 </td>
                             );
@@ -340,7 +268,8 @@ const CalendarMonthGrid: React.FC<CalendarMonthGridProps> = (props) => {
     );
 };
 
-interface CalendarDayDialogProps {
+interface CalendarDayDialogProps
+{
     day: CalendarDetail;
     anchor: DialogAnchorRect;
     onCancel: () => void;
@@ -348,12 +277,8 @@ interface CalendarDayDialogProps {
 }
 
 /** 編輯 Dialog：保留現在資料結構 */
-const CalendarDayDialog: React.FC<CalendarDayDialogProps> = ({
-    day,
-    anchor,
-    onCancel,
-    onSave,
-}) => {
+const CalendarDayDialog: React.FC<CalendarDayDialogProps> = ({ day, anchor, onCancel, onSave }) =>
+{
     const [local, setLocal] = useState<CalendarDetail>(day);
 
     const isHolidayId = useId();
@@ -364,34 +289,33 @@ const CalendarDayDialog: React.FC<CalendarDayDialogProps> = ({
     const memoId = useId();
     const dialogTitleId = useId();
 
-    useEffect(() => {
+    useEffect(() =>
+    {
         setLocal(day);
     }, [day]);
 
     /** 更新欄位值 */
-    const setField = <K extends keyof CalendarDetail>(
-        key: K,
-        value: CalendarDetail[K],
-    ): void => {
-        setLocal((prev) => ({
-            ...prev,
-            [key]: value,
-        }));
+    const setField = <K extends keyof CalendarDetail>(key: K, value: CalendarDetail[K]): void =>
+    {
+        setLocal((prev) => ({ ...prev, [key]: value }));
     };
 
     /** 提交表單 */
-    const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
+    const handleSubmit = (e: FormEvent<HTMLFormElement>): void =>
+    {
         e.preventDefault();
         void onSave(local);
     };
 
     /** 點背景關閉 */
-    const handleBackdropClick = (): void => {
+    const handleBackdropClick = (): void =>
+    {
         onCancel();
     };
 
     /** 避免點 dialog 內部時冒泡 */
-    const handleDialogClick = (e: MouseEvent<HTMLDivElement>): void => {
+    const handleDialogClick = (e: MouseEvent<HTMLDivElement>): void =>
+    {
         e.stopPropagation();
     };
 
@@ -399,33 +323,12 @@ const CalendarDayDialog: React.FC<CalendarDayDialogProps> = ({
     void anchor;
 
     return (
-        <div
-            className="wcms-dialog-backdrop"
-            role="presentation"
-            onClick={handleBackdropClick}
-        >
-            <div
-                className="wcms-dialog"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby={dialogTitleId}
-                onClick={handleDialogClick}
-            >
+        <div className="wcms-dialog-backdrop" role="presentation" onClick={handleBackdropClick}>
+            <div className="wcms-dialog" role="dialog" aria-modal="true" aria-labelledby={dialogTitleId} onClick={handleDialogClick}>
                 <header className="wcms-dialog-header">
-                    <h2 id={dialogTitleId}>
-                        編輯 {local.Date ?? ""}（星期
-                        {getWeekdayNameZh(Number(local.DayOfWeek ?? 0))}
-                        ）
-                    </h2>
+                    <h2 id={dialogTitleId}>編輯 {local.Date ?? ""}（星期 {getWeekdayNameZh(Number(local.DayOfWeek ?? 0))}）</h2>
 
-                    <button
-                        type="button"
-                        className="btn-icon"
-                        onClick={onCancel}
-                        aria-label="關閉編輯視窗"
-                    >
-                        ✕
-                    </button>
+                    <button type="button" className="btn-icon" onClick={onCancel} aria-label="關閉編輯視窗">✕</button>
                 </header>
 
                 <form className="wcms-dialog-body" onSubmit={handleSubmit}>
@@ -438,9 +341,7 @@ const CalendarDayDialog: React.FC<CalendarDayDialogProps> = ({
                                 checked={Boolean(local.IsHoliday)}
                                 onChange={(e) => setField("IsHoliday", e.target.checked)}
                             />
-                            <label className="form-check-label" htmlFor={isHolidayId}>
-                                是否為假日
-                            </label>
+                            <label className="form-check-label" htmlFor={isHolidayId}>是否為假日</label>
                         </div>
                     </div>
 
@@ -496,16 +397,8 @@ const CalendarDayDialog: React.FC<CalendarDayDialogProps> = ({
                     </div>
 
                     <footer className="wcms-dialog-footer">
-                        <button
-                            type="button"
-                            className="btn btn-outline"
-                            onClick={onCancel}
-                        >
-                            取消
-                        </button>
-                        <button type="submit" className="btn btn-primary">
-                            保存
-                        </button>
+                        <button type="button" className="btn btn-outline" onClick={onCancel}>取消</button>
+                        <button type="submit" className="btn btn-primary">保存</button>
                     </footer>
                 </form>
             </div>
@@ -513,7 +406,8 @@ const CalendarDayDialog: React.FC<CalendarDayDialogProps> = ({
     );
 };
 
-interface TimePicker12hWithConfirmProps {
+interface TimePicker12hWithConfirmProps
+{
     inputId: string;
     label: string;
     value24: string | null;
@@ -521,7 +415,8 @@ interface TimePicker12hWithConfirmProps {
 }
 
 /** 24h 轉 12h 顯示文字 */
-const format12hDisplay = (value24?: string | null): string => {
+const format12hDisplay = (value24?: string | null): string =>
+{
     const parsed = parseHHmm(value24);
     if (!parsed) return "";
 
@@ -534,28 +429,26 @@ const format12hDisplay = (value24?: string | null): string => {
 };
 
 /** 12h 面板組回 24h */
-const build24HourValue = (
-    meridiem: "AM" | "PM",
-    hour12: number,
-    minute: number,
-): string => {
+const build24HourValue = (meridiem: "AM" | "PM", hour12: number, minute: number): string =>
+{
     const hour24 = to24hHour(meridiem, hour12);
     return formatHHmm(hour24, minute);
 };
 
 /** 12 小時制時間選擇器 */
-const TimePicker12hWithConfirm: React.FC<TimePicker12hWithConfirmProps> = (
-    props,
-) => {
+const TimePicker12hWithConfirm: React.FC<TimePicker12hWithConfirmProps> = (props) =>
+{
     const hostRef = useRef<HTMLDivElement | null>(null);
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [meridiem, setMeridiem] = useState<"AM" | "PM">("AM");
     const [hour12, setHour12] = useState<number>(9);
     const [minute, setMinute] = useState<number>(0);
 
-    useEffect(() => {
+    useEffect(() =>
+    {
         const parsed = parseHHmm(props.value24);
-        if (!parsed) {
+        if (!parsed)
+        {
             setMeridiem("AM");
             setHour12(9);
             setMinute(0);
@@ -569,10 +462,12 @@ const TimePicker12hWithConfirm: React.FC<TimePicker12hWithConfirmProps> = (
     }, [props.value24]);
 
     /** 點外面關閉 */
-    useEffect(() => {
+    useEffect(() =>
+    {
         if (!isOpen) return;
 
-        const handleDocumentClick = (e: globalThis.MouseEvent): void => {
+        const handleDocumentClick = (e: globalThis.MouseEvent): void =>
+        {
             const host = hostRef.current;
             if (!host) return;
             if (host.contains(e.target as Node)) return;
@@ -585,23 +480,27 @@ const TimePicker12hWithConfirm: React.FC<TimePicker12hWithConfirmProps> = (
     }, [isOpen]);
 
     /** 開啟 */
-    const handleOpen = (): void => {
+    const handleOpen = (): void =>
+    {
         setIsOpen(true);
     };
 
     /** 取消 */
-    const handleCancel = (): void => {
+    const handleCancel = (): void =>
+    {
         setIsOpen(false);
     };
 
     /** 清空 */
-    const handleClear = (): void => {
+    const handleClear = (): void =>
+    {
         props.onConfirm(null);
         setIsOpen(false);
     };
 
     /** 確認 */
-    const handleConfirm = (): void => {
+    const handleConfirm = (): void =>
+    {
         const value24 = build24HourValue(meridiem, hour12, minute);
         props.onConfirm(value24);
         setIsOpen(false);
@@ -658,9 +557,7 @@ const TimePicker12hWithConfirm: React.FC<TimePicker12hWithConfirmProps> = (
                             <select
                                 className="form-control"
                                 value={meridiem}
-                                onChange={(e) =>
-                                    setMeridiem((e.target.value as "AM" | "PM") ?? "AM")
-                                }
+                                onChange={(e) => setMeridiem((e.target.value as "AM" | "PM") ?? "AM")}
                                 aria-label="上午下午"
                             >
                                 <option value="AM">上午</option>
@@ -670,57 +567,27 @@ const TimePicker12hWithConfirm: React.FC<TimePicker12hWithConfirmProps> = (
 
                         <div style={{ flex: 1 }}>
                             <label className="sr-only">小時</label>
-                            <select
-                                className="form-control"
-                                value={hour12}
-                                onChange={(e) => setHour12(Number(e.target.value) || 1)}
-                                aria-label="小時"
-                            >
-                                {Array.from({ length: 12 }, (_, index) => {
+                            <select className="form-control" value={hour12} onChange={(e) => setHour12(Number(e.target.value) || 1)} aria-label="小時">
+                                {Array.from({ length: 12 }, (_, index) =>
+                                {
                                     const value = index + 1;
-                                    return (
-                                        <option key={value} value={value}>
-                                            {String(value).padStart(2, "0")}
-                                        </option>
-                                    );
+                                    return <option key={value} value={value}>{String(value).padStart(2, "0")}</option>;
                                 })}
                             </select>
                         </div>
 
                         <div style={{ flex: 1 }}>
                             <label className="sr-only">分鐘</label>
-                            <select
-                                className="form-control"
-                                value={minute}
-                                onChange={(e) => setMinute(Number(e.target.value) || 0)}
-                                aria-label="分鐘"
-                            >
-                                {Array.from({ length: 60 }, (_, index) => (
-                                    <option key={index} value={index}>
-                                        {String(index).padStart(2, "0")}
-                                    </option>
-                                ))}
+                            <select className="form-control" value={minute} onChange={(e) => setMinute(Number(e.target.value) || 0)} aria-label="分鐘">
+                                {Array.from({ length: 60 }, (_, index) => <option key={index} value={index}>{String(index).padStart(2, "0")}</option>)}
                             </select>
                         </div>
                     </div>
 
-                    <div
-                        style={{
-                            display: "flex",
-                            gap: 8,
-                            justifyContent: "flex-end",
-                            marginTop: 10,
-                        }}
-                    >
-                        <button type="button" className="btn btn-outline" onClick={handleClear}>
-                            清空
-                        </button>
-                        <button type="button" className="btn btn-outline" onClick={handleCancel}>
-                            取消
-                        </button>
-                        <button type="button" className="btn btn-primary" onClick={handleConfirm}>
-                            確認
-                        </button>
+                    <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 10 }}>
+                        <button type="button" className="btn btn-outline" onClick={handleClear}>清空</button>
+                        <button type="button" className="btn btn-outline" onClick={handleCancel}>取消</button>
+                        <button type="button" className="btn btn-primary" onClick={handleConfirm}>確認</button>
                     </div>
                 </div>
             )}

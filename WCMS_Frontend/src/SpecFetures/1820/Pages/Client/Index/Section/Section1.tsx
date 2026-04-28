@@ -38,20 +38,18 @@ const getBannerDelay = (kind: BannerKind) =>
 /** 整理 banner 顯示資料 */
 const buildBannerItems = (banners: BannerModel[]): BannerItem[] =>
 {
-    return [...banners]
-        .filter((item) => !!item.BannerFileId)
-        .map((item) =>
-        {
-            const kind = getBannerKind(item);
-            return {
-                keyId: `${item.HomePageId}_${item.RowId}`,
-                rowId: item.RowId ?? 0,
-                src: FileManagementAPI.get_Public_Preview_Url(item.BannerFileId),
-                alt: item.BannerFileDescription || `banner-${item.RowId}`,
-                kind,
-                delayMs: getBannerDelay(kind),
-            };
-        });
+    return [...banners].filter((item) => !!item.BannerFileId).map((item) =>
+    {
+        const kind = getBannerKind(item);
+        return {
+            keyId: `${item.HomePageId}_${item.RowId}`,
+            rowId: item.RowId ?? 0,
+            src: FileManagementAPI.get_Public_Preview_Url(item.BannerFileId),
+            alt: item.BannerFileDescription || `banner-${item.RowId}`,
+            kind,
+            delayMs: getBannerDelay(kind),
+        };
+    });
 };
 
 /** 取得下一張索引 */
@@ -122,11 +120,7 @@ const applySectionVars = (section: HTMLElement | null, progress: number, prefers
 };
 
 /** Section1 */
-export const Section1 = (props: {
-    homePage: HomePageModel;
-    banners: BannerModel[];
-    weather: SpecHomePageWeather | null;
-}) =>
+export const Section1 = (props: { homePage: HomePageModel; banners: BannerModel[]; weather: SpecHomePageWeather | null; }) =>
 {
     const sectionRef = useRef<HTMLElement | null>(null);
     const videoRefs = useRef<Record<number, HTMLVideoElement | null>>({});
@@ -297,11 +291,7 @@ export const Section1 = (props: {
                         title={isVideoPaused ? "播放影片" : "暫停影片"}
                         onClick={handleToggleVideo}
                     >
-                        <i
-                            className={`fas ${isVideoPaused ? "fa-play" : "fa-pause"}`}
-                            id="videoTopIcon"
-                            aria-hidden="true"
-                        />
+                        <i className={`fas ${isVideoPaused ? "fa-play" : "fa-pause"}`} id="videoTopIcon" aria-hidden="true" />
                     </button>
 
                     <div id="mainCarousel" className="carousel slide" data-bs-ride="carousel">
@@ -347,11 +337,7 @@ export const Section1 = (props: {
                                 title={isCarouselPaused ? "播放輪播" : "暫停輪播"}
                                 onClick={handleToggleCarousel}
                             >
-                                <i
-                                    className={`fas ${isCarouselPaused ? "fa-play" : "fa-pause"}`}
-                                    id="carouselIcon"
-                                    aria-hidden="true"
-                                />
+                                <i className={`fas ${isCarouselPaused ? "fa-play" : "fa-pause"}`} id="carouselIcon" aria-hidden="true" />
                             </button>
 
                             <button

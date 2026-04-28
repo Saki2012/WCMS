@@ -7,15 +7,7 @@ import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
-import {
-    AnnouncementDetailFields,
-    AnnouncementFields,
-    CategoryDetailFields,
-    CategoryFields,
-    PGID,
-    TagDataFields,
-    TagDetailFields,
-} from "@/types/SchemaFields";
+import { AnnouncementDetailFields, AnnouncementFields, CategoryDetailFields, CategoryFields, PGID, TagDataFields, TagDetailFields } from "@/types/SchemaFields";
 import type { LoaderFunctionArgs } from "react-router-dom";
 
 type QueryListParam = components["schemas"]["QueryListParam"];
@@ -24,13 +16,9 @@ type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 type TagSet = components["schemas"]["TagSet_DTO"];
 
-type ApiLoaderDataCompat<TArgs, TData> =
-    | { args: TArgs; env: ApiResponse<TData>; }
-    | { args: TArgs; apiRes: ApiResponse<TData>; };
+type ApiLoaderDataCompat<TArgs, TData> = { args: TArgs; env: ApiResponse<TData>; } | { args: TArgs; apiRes: ApiResponse<TData>; };
 
-const getEnv = <TArgs, TData>(
-    data: ApiLoaderDataCompat<TArgs, TData>,
-): ApiResponse<TData> =>
+const getEnv = <TArgs, TData>(data: ApiLoaderDataCompat<TArgs, TData>): ApiResponse<TData> =>
 {
     // return：兼容舊版 env / 新版 apiRes
     return "env" in data ? data.env : data.apiRes;
@@ -52,9 +40,7 @@ const formatLocalIsoByMinute = (date: Date): string =>
     };
 
     // return：固定到分鐘精度，避免秒數造成 loader args 每次不同
-    return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}T${pad2(date.getHours())}:${
-        pad2(date.getMinutes())
-    }:00.000`;
+    return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}T${pad2(date.getHours())}:${pad2(date.getMinutes())}:00.000`;
 };
 
 const buildCategoryQuery = (progId: string): QueryListParam =>
@@ -93,11 +79,7 @@ const buildTagQuery = (progId: string): QueryListParam =>
     };
 };
 
-const buildAnnouncementCondition = (props: {
-    lang: Lang;
-    nowIsoLocal: string;
-    categoryIds: string;
-}): string =>
+const buildAnnouncementCondition = (props: { lang: Lang; nowIsoLocal: string; categoryIds: string; }): string =>
 {
     // return：1817 首頁公告條件
     return LibMerge(
@@ -108,25 +90,14 @@ const buildAnnouncementCondition = (props: {
         `(${AnnouncementFields.Validate_End} >= ${props.nowIsoLocal} Or ${AnnouncementFields.Validate_End} is null)`,
         `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang} = ${props.lang}`,
         `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title} != ''`,
-        props.categoryIds
-            ? `${AnnouncementFields.Categories} HasAny [${props.categoryIds}]`
-            : "",
+        props.categoryIds ? `${AnnouncementFields.Categories} HasAny [${props.categoryIds}]` : "",
     );
 };
 
-const buildAnnouncementQuery = (props: {
-    lang: Lang;
-    nowIsoLocal: string;
-    categoryIds: string;
-    take: number;
-}): QueryListParam =>
+const buildAnnouncementQuery = (props: { lang: Lang; nowIsoLocal: string; categoryIds: string; take: number; }): QueryListParam =>
 {
     // 宣告變數：條件
-    const condition = buildAnnouncementCondition({
-        lang: props.lang,
-        nowIsoLocal: props.nowIsoLocal,
-        categoryIds: props.categoryIds,
-    });
+    const condition = buildAnnouncementCondition({ lang: props.lang, nowIsoLocal: props.nowIsoLocal, categoryIds: props.categoryIds });
 
     // return：單一 query，置頂優先，再依日期排序
     return {
@@ -206,110 +177,61 @@ const buildDefaultArgs = (lang: Lang): HomePageLoaderArgs =>
         nowIsoLocal,
         carouselBannerInternalId,
         specialLinkBannerInternalId,
-        newsListParam: buildAnnouncementQuery({
-            lang,
-            nowIsoLocal,
-            categoryIds: newsCategoryIds,
-            take,
-        }),
-        exhibitionListParam: buildAnnouncementQuery({
-            lang,
-            nowIsoLocal,
-            categoryIds: exhibitionCategoryIds,
-            take,
-        }),
+        newsListParam: buildAnnouncementQuery({ lang, nowIsoLocal, categoryIds: newsCategoryIds, take }),
+        exhibitionListParam: buildAnnouncementQuery({ lang, nowIsoLocal, categoryIds: exhibitionCategoryIds, take }),
         categoryParam: buildCategoryQuery(PGID.Announcement),
         tagParam: buildTagQuery(PGID.Announcement),
     };
 };
 
-export const HomePageLoader =
-    (props: { lang: Lang; }) => async ({ request }: LoaderFunctionArgs): Promise<HomePageLoaderData> =>
-    {
-        // 宣告變數：SSR api / args / adapter
-        const ssrApi = getSsrApi(request);
-        const args = buildDefaultArgs(props.lang);
+export const HomePageLoader = (props: { lang: Lang; }) => async ({ request }: LoaderFunctionArgs): Promise<HomePageLoaderData> =>
+{
+    // 宣告變數：SSR api / args / adapter
+    const ssrApi = getSsrApi(request);
+    const args = buildDefaultArgs(props.lang);
 
-        const bannerAdapter = BannerSliderAdapter(ssrApi);
-        const announcementAdapter = AnnouncementAdapter(ssrApi);
-        const categoryAdapter = CategoryAdapter(ssrApi);
-        const tagAdapter = TagAdapter(ssrApi);
+    const bannerAdapter = BannerSliderAdapter(ssrApi);
+    const announcementAdapter = AnnouncementAdapter(ssrApi);
+    const categoryAdapter = CategoryAdapter(ssrApi);
+    const tagAdapter = TagAdapter(ssrApi);
 
-        // 宣告變數：banner loaders
-        const carouselLoader = bannerAdapter.loader.createQueryDataLoader({
-            getInternalId: () => args.carouselBannerInternalId,
-            getApiInstance: () => ssrApi,
-        });
+    // 宣告變數：banner loaders
+    const carouselLoader = bannerAdapter.loader.createQueryDataLoader({ getInternalId: () => args.carouselBannerInternalId, getApiInstance: () => ssrApi });
 
-        const specialLinkLoader = bannerAdapter.loader.createQueryDataLoader({
-            getInternalId: () => args.specialLinkBannerInternalId,
-            getApiInstance: () => ssrApi,
-        });
+    const specialLinkLoader = bannerAdapter.loader.createQueryDataLoader({
+        getInternalId: () => args.specialLinkBannerInternalId,
+        getApiInstance: () => ssrApi,
+    });
 
-        // 宣告變數：announcement/category/tag loaders
-        const newsLoader = announcementAdapter.loader.createQueryListLoader({
-            getCondition: () => args.newsListParam,
-            getApiInstance: () => ssrApi,
-        });
+    // 宣告變數：announcement/category/tag loaders
+    const newsLoader = announcementAdapter.loader.createQueryListLoader({ getCondition: () => args.newsListParam, getApiInstance: () => ssrApi });
 
-        const exhibitionLoader = announcementAdapter.loader.createQueryListLoader({
-            getCondition: () => args.exhibitionListParam,
-            getApiInstance: () => ssrApi,
-        });
+    const exhibitionLoader = announcementAdapter.loader.createQueryListLoader({ getCondition: () => args.exhibitionListParam, getApiInstance: () => ssrApi });
 
-        const categoryLoader = categoryAdapter.loader.createQueryListLoader({
-            getCondition: () => args.categoryParam,
-            getApiInstance: () => ssrApi,
-        });
+    const categoryLoader = categoryAdapter.loader.createQueryListLoader({ getCondition: () => args.categoryParam, getApiInstance: () => ssrApi });
 
-        const tagLoader = tagAdapter.loader.createQueryListLoader({
-            getCondition: () => args.tagParam,
-            getApiInstance: () => ssrApi,
-        });
+    const tagLoader = tagAdapter.loader.createQueryListLoader({ getCondition: () => args.tagParam, getApiInstance: () => ssrApi });
 
-        // 執行 function：首頁所需資料一次抓完
-        const [
-            carouselLoaderData,
-            specialLinkLoaderData,
-            newsLoaderData,
-            exhibitionLoaderData,
-            categoryLoaderData,
-            tagLoaderData,
-        ] = await Promise.all([
-            carouselLoader({ request } as LoaderFunctionArgs),
-            specialLinkLoader({ request } as LoaderFunctionArgs),
-            newsLoader({ request } as LoaderFunctionArgs),
-            exhibitionLoader({ request } as LoaderFunctionArgs),
-            categoryLoader({ request } as LoaderFunctionArgs),
-            tagLoader({ request } as LoaderFunctionArgs),
-        ]);
+    // 執行 function：首頁所需資料一次抓完
+    const [carouselLoaderData, specialLinkLoaderData, newsLoaderData, exhibitionLoaderData, categoryLoaderData, tagLoaderData] = await Promise.all([
+        carouselLoader({ request } as LoaderFunctionArgs),
+        specialLinkLoader({ request } as LoaderFunctionArgs),
+        newsLoader({ request } as LoaderFunctionArgs),
+        exhibitionLoader({ request } as LoaderFunctionArgs),
+        categoryLoader({ request } as LoaderFunctionArgs),
+        tagLoader({ request } as LoaderFunctionArgs),
+    ]);
 
-        // 宣告變數：整理 data
-        const carouselBanner = takeFirstOrNull<BannerSet>(
-            getEnv(carouselLoaderData).Data,
-        );
+    // 宣告變數：整理 data
+    const carouselBanner = takeFirstOrNull<BannerSet>(getEnv(carouselLoaderData).Data);
 
-        const specialLinkBanner = takeFirstOrNull<BannerSet>(
-            getEnv(specialLinkLoaderData).Data,
-        );
+    const specialLinkBanner = takeFirstOrNull<BannerSet>(getEnv(specialLinkLoaderData).Data);
 
-        const newsList = getEnv(newsLoaderData).Data ?? [];
-        const exhibitionList = getEnv(exhibitionLoaderData).Data ?? [];
-        const announcementCategories = getEnv(categoryLoaderData).Data ?? [];
-        const announcementTags = getEnv(tagLoaderData).Data ?? [];
+    const newsList = getEnv(newsLoaderData).Data ?? [];
+    const exhibitionList = getEnv(exhibitionLoaderData).Data ?? [];
+    const announcementCategories = getEnv(categoryLoaderData).Data ?? [];
+    const announcementTags = getEnv(tagLoaderData).Data ?? [];
 
-        // return：給首頁與 section hooks hydration 使用
-        return {
-            args,
-            res: {
-                rawData: {
-                    carouselBanner,
-                    specialLinkBanner,
-                    newsList,
-                    exhibitionList,
-                    announcementCategories,
-                    announcementTags,
-                },
-            },
-        };
-    };
+    // return：給首頁與 section hooks hydration 使用
+    return { args, res: { rawData: { carouselBanner, specialLinkBanner, newsList, exhibitionList, announcementCategories, announcementTags } } };
+};

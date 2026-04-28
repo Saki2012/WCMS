@@ -24,14 +24,10 @@ export type SpecMusicalListRawData = {
     param: QueryListParam;
 };
 
-export type SpecMusicalListAdapter = {
-    SpecMusical: ReturnType<typeof SpecMusicalAdapter>;
-};
+export type SpecMusicalListAdapter = { SpecMusical: ReturnType<typeof SpecMusicalAdapter>; };
 
 /** SpecMusical List 的所有 fetch 集中在這裡 */
-export const useSpecMusicalListFetchData = (
-    opt: { lang: Lang; kw: string; },
-): UseFetchDataResult<SpecMusicalListRawData, SpecMusicalListAdapter> =>
+export const useSpecMusicalListFetchData = (opt: { lang: Lang; kw: string; }): UseFetchDataResult<SpecMusicalListRawData, SpecMusicalListAdapter> =>
 {
     const { publish } = useToast();
 
@@ -44,9 +40,7 @@ export const useSpecMusicalListFetchData = (
     /** 集中建立 Adapter，避免重複 new */
     const adapter = useMemo(() =>
     {
-        return {
-            SpecMusical: SpecMusicalAdapter(),
-        };
+        return { SpecMusical: SpecMusicalAdapter() };
     }, []);
 
     /** 組 Query 參數 */
@@ -82,15 +76,7 @@ export const useSpecMusicalListFetchData = (
             onPageChange: grid.onPageChange,
             param: grid.param,
         };
-    }, [
-        grid.modelDisplayName,
-        grid.count,
-        grid.list,
-        grid.pageNumber,
-        grid.totalPages,
-        grid.onPageChange,
-        grid.param,
-    ]);
+    }, [grid.modelDisplayName, grid.count, grid.list, grid.pageNumber, grid.totalPages, grid.onPageChange, grid.param]);
 
     /** 重新抓主資料 */
     const refetchData = useCallback(async () =>
@@ -110,9 +96,7 @@ export const useSpecMusicalListFetchData = (
 
 // #region Private
 /** 組出 SpecMusical List 的查詢參數 */
-const useSpecMusicalListQueryParam = (
-    p: { kw: string; },
-): QueryListParam =>
+const useSpecMusicalListQueryParam = (p: { kw: string; }): QueryListParam =>
 {
     /** 固定欄位清單 */
     const fields = useMemo<string[]>(() =>
@@ -137,12 +121,7 @@ const useSpecMusicalListQueryParam = (
 
         if (p.kw)
         {
-            cdt = LibMerge(
-                " And ",
-                false,
-                cdt,
-                `${SpecMusicalModelFields.MusicalName} Like ${p.kw}`,
-            );
+            cdt = LibMerge(" And ", false, cdt, `${SpecMusicalModelFields.MusicalName} Like ${p.kw}`);
         }
 
         return cdt;
@@ -151,13 +130,7 @@ const useSpecMusicalListQueryParam = (
     /** 回傳最終 QueryListParam */
     return useMemo(() =>
     {
-        return {
-            Fields: fields,
-            Condition: condition,
-            OrderBy: [{ Col: SpecMusicalModelFields.CreateTime, Desc: true }],
-            PageNumber: 1,
-            PageSize: 10,
-        };
+        return { Fields: fields, Condition: condition, OrderBy: [{ Col: SpecMusicalModelFields.CreateTime, Desc: true }], PageNumber: 1, PageSize: 10 };
     }, [fields, condition]);
 };
 // #endregion

@@ -1,8 +1,6 @@
 /**公告清單 */
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import ModuleContent, {
-    type ModuleViewCountConfig,
-} from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
+import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { ColRender, RowRender, STORAGE_KEY } from "@/SysCore/Components/Grid/Grid_Comp";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
@@ -14,12 +12,7 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import {
-    FileArchiveDetailFields,
-    FileArchiveFields,
-    FileArchiveInfoFields,
-    FileArchiveSetFields,
-} from "@/types/SchemaFields";
+import { FileArchiveDetailFields, FileArchiveFields, FileArchiveInfoFields, FileArchiveSetFields } from "@/types/SchemaFields";
 import { useEffect, useMemo, useState } from "react";
 import { useFileArchiveListFetchData } from "./FileArchiveList_Loader";
 
@@ -81,18 +74,9 @@ const FileArchiveList = (props: FileArchiveProps) =>
     ]);
     const adjustedGrid = useMemo(() =>
     {
-        return SetAdjustFunction(
-            props.lang,
-            baseGrid,
-            useFileArchiveList.rawData.list,
-            useFileArchiveList.rawData.tagMap,
-        );
+        return SetAdjustFunction(props.lang, baseGrid, useFileArchiveList.rawData.list, useFileArchiveList.rawData.tagMap);
     }, [props.lang, baseGrid, useFileArchiveList.rawData.list, useFileArchiveList.rawData.tagMap]);
-    const paginprops: PaginatorProps = {
-        currentPage: adjustedGrid.CurrentPage,
-        totalPages: adjustedGrid.TotalPage,
-        onPageChange: adjustedGrid.onPageChange,
-    };
+    const paginprops: PaginatorProps = { currentPage: adjustedGrid.CurrentPage, totalPages: adjustedGrid.TotalPage, onPageChange: adjustedGrid.onPageChange };
     const viewCountConfig: ModuleViewCountConfig = { mode: "list" };
     return (
         <ModuleContent
@@ -123,11 +107,7 @@ const GridList_Comp = (props: { lang: Lang; title: string; gridData: GridProps; 
             setColumns((prev) =>
                 prev.map((col) => ({
                     ...col,
-                    width: typeof widths[col.key] === "number"
-                        ? widths[col.key]
-                        : typeof col.width === "number"
-                        ? col.width
-                        : undefined,
+                    width: typeof widths[col.key] === "number" ? widths[col.key] : typeof col.width === "number" ? col.width : undefined,
                 }))
             );
         }
@@ -170,9 +150,7 @@ const buildGridProps = (
 ): GridProps =>
 {
     // 宣告變數（保持原本欄位行為：visibleKeys 只顯示 Title）
-    const columns: ColumnConfig[] = [
-        { key: FileArchiveInfoFields.Title, title: "標題" },
-    ];
+    const columns: ColumnConfig[] = [{ key: FileArchiveInfoFields.Title, title: "標題" }];
 
     const rows: GridRow[] = datas.map(item =>
     {
@@ -193,20 +171,11 @@ const buildGridProps = (
             return { col, content };
         });
 
-        return {
-            keyId: item.FileArchive?.InternalId ?? "",
-            cells,
-        };
+        return { keyId: item.FileArchive?.InternalId ?? "", cells };
     });
 
     // return
-    return {
-        columns,
-        rows,
-        CurrentPage: pageNumber,
-        TotalPage: totalPage,
-        onPageChange,
-    } as GridProps;
+    return { columns, rows, CurrentPage: pageNumber, TotalPage: totalPage, onPageChange } as GridProps;
 };
 
 export interface FileArchiveListGridAdjustContext
@@ -232,12 +201,7 @@ const resolvedFileArchiveListGridAdjust = resolveSpecFunc<FileArchiveListGridAdj
     ["extendFileArchiveListGridAdjust"],
 );
 
-const SetAdjustFunction = (
-    lang: Lang,
-    gridProps: GridProps,
-    rawData: FileArchiveSet[],
-    tagMap: Record<string, string>,
-): GridProps =>
+const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: FileArchiveSet[], tagMap: Record<string, string>): GridProps =>
 {
     const downloadColName = "__Download__";
     const publicDownloadCountColName = "__PublicDownloadCount__";
@@ -265,21 +229,13 @@ const SetAdjustFunction = (
         fileRows.forEach(item =>
         {
             downloadFileContent = (
-                <>
-                    {downloadFileContent}
-                    {SetDownloadIcon(item.FileSrcId ?? "", item.FileSrc?.FileExtension ?? "docx", item.FileName ?? "")}
-                </>
+                <>{downloadFileContent} {SetDownloadIcon(item.FileSrcId ?? "", item.FileSrc?.FileExtension ?? "docx", item.FileName ?? "")}</>
             );
         });
 
         urlRows.forEach(item =>
         {
-            downloadFileContent = (
-                <>
-                    {downloadFileContent}
-                    {SetUrlIcon(item.Url ?? "", item.UrlDescription ?? "", item.WindowTarget ?? 0)}
-                </>
-            );
+            downloadFileContent = <>{downloadFileContent} {SetUrlIcon(item.Url ?? "", item.UrlDescription ?? "", item.WindowTarget ?? 0)}</>;
         });
 
         const cells = row.cells.map(cell =>
@@ -311,10 +267,7 @@ const SetAdjustFunction = (
             return cell;
         });
 
-        const downloadCell: RowCell = {
-            col: downloadCol,
-            content: <div className="Standard_btnDiv">{downloadFileContent}</div>,
-        };
+        const downloadCell: RowCell = { col: downloadCol, content: <div className="Standard_btnDiv">{downloadFileContent}</div> };
         const publicDownloadCountCell: RowCell = { col: publicDownloadCountCol, content: String(publicDownloadCount) };
 
         return { ...row, cells: [...cells, downloadCell, publicDownloadCountCell] };
@@ -322,13 +275,7 @@ const SetAdjustFunction = (
 
     const result: GridProps = { ...gridProps, columns: newColumns, rows: newRows };
 
-    return resolvedFileArchiveListGridAdjust({
-        lang,
-        gridProps,
-        rawData,
-        tagMap,
-        result,
-    });
+    return resolvedFileArchiveListGridAdjust({ lang, gridProps, rawData, tagMap, result });
 };
 const getCurrentLangFileRows = (lang: Lang, data: FileArchiveSet): FileArchiveDetail[] =>
 {
@@ -384,15 +331,7 @@ const SetUrlIcon = (url: string, descript: string, target: WindowTarget) =>
     const alt = `${descript}${target === 0 ? "" : " [ 另開新視窗 ]"}`;
 
     return (
-        <a
-            href={url}
-            className="btn btn-default + bg_link"
-            role="button"
-            aria-label="分享"
-            target={tar}
-            title={alt}
-            rel="noopener noreferrer"
-        >
+        <a href={url} className="btn btn-default + bg_link" role="button" aria-label="分享" target={tar} title={alt} rel="noopener noreferrer">
             <span className="link">link</span>
         </a>
     );

@@ -1,9 +1,10 @@
-import React from "react";
-import { Link, NavLink, type LinkProps, type NavLinkProps, type To } from "react-router-dom";
-import { DefaultLang, SUPPORTED_LANGS, type Lang } from "@/SysCore/i18n/lang";
+import { DefaultLang, type Lang, SUPPORTED_LANGS } from "@/SysCore/i18n/lang";
 import { useLang } from "@/SysCore/i18n/LangContext";
+import React from "react";
+import { Link, type LinkProps, NavLink, type NavLinkProps, type To } from "react-router-dom";
 
-interface LangLinkProps extends Omit<LinkProps, "to"> {
+interface LangLinkProps extends Omit<LinkProps, "to">
+{
     to: To;
     /** 強制指定語系（不給就用 LangContext 的 code） */
     lang?: Lang;
@@ -11,7 +12,8 @@ interface LangLinkProps extends Omit<LinkProps, "to"> {
     noLangPrefix?: boolean;
 }
 
-interface LangNavLinkProps extends Omit<NavLinkProps, "to"> {
+interface LangNavLinkProps extends Omit<NavLinkProps, "to">
+{
     to: To;
     /** 強制指定語系（不給就用 LangContext 的 code） */
     lang?: Lang;
@@ -20,7 +22,8 @@ interface LangNavLinkProps extends Omit<NavLinkProps, "to"> {
 }
 
 /** 判斷 pathname 是否已經包含支援語系前綴（例如 /en/...） */
-const getLeadingLangPrefix = (pathname: string): Lang | null => {
+const getLeadingLangPrefix = (pathname: string): Lang | null =>
+{
     if (!pathname.startsWith("/")) return null;
     const seg1 = pathname.split("/").filter(Boolean)[0];
     if (!seg1) return null;
@@ -28,13 +31,15 @@ const getLeadingLangPrefix = (pathname: string): Lang | null => {
     return (SUPPORTED_LANGS as readonly string[]).includes(s) ? (s as Lang) : null;
 };
 
-const removeLeadingSegment = (pathname: string): string => {
+const removeLeadingSegment = (pathname: string): string =>
+{
     const rest = pathname.replace(/^\/[^/]+/, "");
     return rest === "" ? "/" : rest;
 };
 
 /** 將 pathname 依語系規則加上/移除 prefix（嚴格模式） */
-export const buildLangPathname = (pathname: string, lang: Lang): string => {
+export const buildLangPathname = (pathname: string, lang: Lang): string =>
+{
     // 只處理「絕對路徑」，相對路徑一律原樣（避免破壞 react-router relative link）
     if (!pathname.startsWith("/")) return pathname;
     // 防呆：不要影響後台/服務路徑（通常前台不會用 Link 導到這些）
@@ -46,7 +51,8 @@ export const buildLangPathname = (pathname: string, lang: Lang): string => {
     if (isServerRoute || isServiceRoute) return pathname;
     const leading = getLeadingLangPrefix(pathname);
     // 如果已經明確帶了語系前綴：
-    if (leading) {
+    if (leading)
+    {
         // 預設語系不應出現在網址：/zh-tw/xxx -> /xxx
         if (leading === DefaultLang) return removeLeadingSegment(pathname);
         // 非 default：保持原樣（代表呼叫端刻意指定語系 URL）
@@ -59,26 +65,29 @@ export const buildLangPathname = (pathname: string, lang: Lang): string => {
     return `/${lang}${pathname}`;
 };
 
-const withLangTo = (to: To, lang: Lang): To => {
+const withLangTo = (to: To, lang: Lang): To =>
+{
     if (typeof to === "string") return buildLangPathname(to, lang);
     // To 也可能是 { pathname, search, hash, state }
     const pathname = to.pathname ?? "";
     if (!pathname) return to;
-    return { ...to, pathname: buildLangPathname(pathname, lang), };
+    return { ...to, pathname: buildLangPathname(pathname, lang) };
 };
 
-export const LangLink: React.FC<LangLinkProps> = (props) => {
+export const LangLink: React.FC<LangLinkProps> = (props) =>
+{
     const { to, lang, noLangPrefix, ...rest } = props;
     const ctx = useLang();
     const activeLang = (lang ?? ctx.code ?? DefaultLang) as Lang;
-    const finalTo = React.useMemo(() => (noLangPrefix ? to : withLangTo(to, activeLang)), [to, activeLang, noLangPrefix],);
+    const finalTo = React.useMemo(() => (noLangPrefix ? to : withLangTo(to, activeLang)), [to, activeLang, noLangPrefix]);
     return <Link to={finalTo} {...rest} />;
 };
 
-export const LangNavLink: React.FC<LangNavLinkProps> = (props) => {
+export const LangNavLink: React.FC<LangNavLinkProps> = (props) =>
+{
     const { to, lang, noLangPrefix, ...rest } = props;
     const ctx = useLang();
     const activeLang = (lang ?? ctx.code ?? DefaultLang) as Lang;
-    const finalTo = React.useMemo(() => (noLangPrefix ? to : withLangTo(to, activeLang)), [to, activeLang, noLangPrefix],);
+    const finalTo = React.useMemo(() => (noLangPrefix ? to : withLangTo(to, activeLang)), [to, activeLang, noLangPrefix]);
     return <NavLink to={finalTo} {...rest} />;
 };

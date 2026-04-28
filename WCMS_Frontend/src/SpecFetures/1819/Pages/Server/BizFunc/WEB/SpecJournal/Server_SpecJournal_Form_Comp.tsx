@@ -23,11 +23,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Server_SpecJournal_Dialog_Comp, type SpecJournalDialogActionType } from "./Server_SpecJournal_Dialog_Comp";
-import {
-    type SpecJournalFormActionsOpt,
-    type SpecJournalMode,
-    useSpecJournalFormFetchData,
-} from "./Server_SpecJournal_Form_Hook";
+import { type SpecJournalFormActionsOpt, type SpecJournalMode, useSpecJournalFormFetchData } from "./Server_SpecJournal_Form_Hook";
 
 type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
 type SpecJournalDocuments = components["schemas"]["SpecJournalDocument_DTO"];
@@ -64,12 +60,7 @@ export const Server_SpecJournal_Form_Comp = (prop: { theme: IBETheme; lang: Lang
     {
         return { onBackToList };
     }, [onBackToList]);
-    const getData = useSpecJournalFormFetchData({
-        lang: prop.lang,
-        internalId: internalId ?? "",
-        emptyData,
-        actionsOpt,
-    });
+    const getData = useSpecJournalFormFetchData({ lang: prop.lang, internalId: internalId ?? "", emptyData, actionsOpt });
     const formTitle = useMemo(() =>
     {
         const displayName = prop.mode === "preprint" ? "預刊本" : "期刊";
@@ -149,24 +140,8 @@ const MainFormComp = (
                 tagOptionsRaw={props.tagOptionsRaw}
             />,
         ],
-        Author: [
-            <AuthorComp
-                key="author"
-                theme={props.theme}
-                adapter={props.adapter}
-                formData={props.formData}
-                authorType={0}
-            />,
-        ],
-        CommunicateAuthor: [
-            <AuthorComp
-                key="communicateAuthor"
-                theme={props.theme}
-                adapter={props.adapter}
-                formData={props.formData}
-                authorType={1}
-            />,
-        ],
+        Author: [<AuthorComp key="author" theme={props.theme} adapter={props.adapter} formData={props.formData} authorType={0} />],
+        CommunicateAuthor: [<AuthorComp key="communicateAuthor" theme={props.theme} adapter={props.adapter} formData={props.formData} authorType={1} />],
         Bibliography: [
             <LibTinyMCE
                 key="bibliography"
@@ -177,25 +152,11 @@ const MainFormComp = (
         ],
         RefFormat: [<RefFormatComp key="refFormat" theme={props.theme} formData={props.formData} />],
         Files: [<FilesComp key="files" theme={props.theme} formData={props.formData} />],
-        Keyword: [
-            <KeywordComp key="keyword" theme={props.theme} formData={props.formData} keywords={props.keywords} />,
-        ],
+        Keyword: [<KeywordComp key="keyword" theme={props.theme} formData={props.formData} keywords={props.keywords} />],
         Documents: [
-            <DocumentsComp
-                key="documents"
-                theme={props.theme}
-                formData={props.formData}
-                specDocumentTypeOptionsRaw={props.specDocumentTypeOptionsRaw}
-            />,
+            <DocumentsComp key="documents" theme={props.theme} formData={props.formData} specDocumentTypeOptionsRaw={props.specDocumentTypeOptionsRaw} />,
         ],
-        System: [
-            <SystemInfoTabComp
-                key="system"
-                theme={props.theme}
-                formData={props.formData}
-                setKey={SpecJournalSetFields.SpecJournal}
-            />,
-        ],
+        System: [<SystemInfoTabComp key="system" theme={props.theme} formData={props.formData} setKey={SpecJournalSetFields.SpecJournal} />],
     };
     return <TabContentComp tabInfos={tabInfo} components={components}></TabContentComp>;
 };
@@ -244,15 +205,8 @@ const BasicComp = (
         props.formData.setFormData(prev =>
         {
             if (!prev) return prev;
-            const nextSpecJournal = {
-                ...(prev.SpecJournal ?? {}),
-                [fileIdField]: null,
-                [fileNameField]: "",
-            };
-            return {
-                ...prev,
-                SpecJournal: nextSpecJournal,
-            };
+            const nextSpecJournal = { ...(prev.SpecJournal ?? {}), [fileIdField]: null, [fileNameField]: "" };
+            return { ...prev, SpecJournal: nextSpecJournal };
         });
     }, [props.formData]);
 
@@ -301,12 +255,7 @@ const BasicComp = (
             };
             return { ...prev, SpecJournal: nextJournal };
         });
-    }, [
-        props.mode,
-        props.formData,
-        props.formData.data?.SpecJournal?.JournalIndexId,
-        props.formData.data?.SpecJournal?.JournalIndexRowId,
-    ]);
+    }, [props.mode, props.formData, props.formData.data?.SpecJournal?.JournalIndexId, props.formData.data?.SpecJournal?.JournalIndexRowId]);
 
     useEffect(() =>
     {
@@ -344,11 +293,7 @@ const BasicComp = (
             next.SpecJournal = nextJournal;
             return next;
         });
-    }, [
-        props.mode,
-        props.formData,
-        props.formData.data?.SpecJournal?.JournalIndexId,
-    ]);
+    }, [props.mode, props.formData, props.formData.data?.SpecJournal?.JournalIndexId]);
 
     useEffect(() =>
     {
@@ -382,11 +327,7 @@ const BasicComp = (
                         Style={props.theme.DropList2}
                         Options={indexRowOptions}
                         AutoDefaultFirst={false}
-                        {...setField(
-                            SpecJournalSetFields.SpecJournal,
-                            SpecJournalModelFields.JournalIndexRowId,
-                            "string",
-                        )}
+                        {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.JournalIndexRowId, "string")}
                     />
                 </div>
             )}
@@ -433,21 +374,12 @@ const BasicComp = (
                         <LibFileInput
                             LabelColClassName="col-sm-4"
                             InputColClassName="col-sm-8"
-                            {...setFileField(
-                                SpecJournalSetFields.SpecJournal,
-                                SpecJournalModelFields.JournalFileId,
-                                SpecJournalModelFields.JournalFileName,
-                                {
-                                    defaultNameFromOriginal: "basename",
-                                    fileName: props.formData.data.SpecJournal?.JournalFile?.FileName ?? "",
-                                },
-                            )}
+                            {...setFileField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.JournalFileId, SpecJournalModelFields.JournalFileName, {
+                                defaultNameFromOriginal: "basename",
+                                fileName: props.formData.data.SpecJournal?.JournalFile?.FileName ?? "",
+                            })}
                             Accept="application/pdf"
-                            onDelete={() =>
-                                clearMainFileField(
-                                    SpecJournalModelFields.JournalFileId,
-                                    SpecJournalModelFields.JournalFileName,
-                                )}
+                            onDelete={() => clearMainFileField(SpecJournalModelFields.JournalFileId, SpecJournalModelFields.JournalFileName)}
                         />
                     </div>
                     <div className="col-12 col-lg-6">
@@ -458,17 +390,10 @@ const BasicComp = (
                                 SpecJournalSetFields.SpecJournal,
                                 SpecJournalModelFields.InsightPointFileId,
                                 SpecJournalModelFields.InsightPointFileName,
-                                {
-                                    defaultNameFromOriginal: "basename",
-                                    fileName: props.formData.data.SpecJournal?.InsightPointFile?.FileName ?? "",
-                                },
+                                { defaultNameFromOriginal: "basename", fileName: props.formData.data.SpecJournal?.InsightPointFile?.FileName ?? "" },
                             )}
                             Accept="application/pdf"
-                            onDelete={() =>
-                                clearMainFileField(
-                                    SpecJournalModelFields.InsightPointFileId,
-                                    SpecJournalModelFields.InsightPointFileName,
-                                )}
+                            onDelete={() => clearMainFileField(SpecJournalModelFields.InsightPointFileId, SpecJournalModelFields.InsightPointFileName)}
                         />
                     </div>
                 </div>
@@ -494,39 +419,24 @@ const BasicComp = (
                                 checked={isTypeChecked(opt.tagId)}
                                 onChange={(e) => toggleType(opt.tagId, e.target.checked)}
                             />
-                            <label className="form-check-label" htmlFor={`journal-type-${opt.tagId}`}>
-                                {opt.label}
-                            </label>
+                            <label className="form-check-label" htmlFor={`journal-type-${opt.tagId}`}>{opt.label}</label>
                         </div>
                     ))}
                 </div>
             </div>
 
             <div className="col-12 form-group">
-                <LibTinyMCE
-                    Style={props.theme.TinyMCE}
-                    {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.Memo, "string")}
-                />
+                <LibTinyMCE Style={props.theme.TinyMCE} {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.Memo, "string")} />
             </div>
 
             <div className="col-12 form-group">
-                <LibTinyMCE
-                    Style={props.theme.TinyMCE}
-                    {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.Memo_en, "string")}
-                />
+                <LibTinyMCE Style={props.theme.TinyMCE} {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.Memo_en, "string")} />
             </div>
         </>
     );
 };
 
-const AuthorComp = (
-    props: {
-        theme: IBETheme;
-        adapter: SpecJournalAdapterType;
-        formData: UseFetchFormDataResult<SpecJournalSet>;
-        authorType: AuthorType;
-    },
-) =>
+const AuthorComp = (props: { theme: IBETheme; adapter: SpecJournalAdapterType; formData: UseFetchFormDataResult<SpecJournalSet>; authorType: AuthorType; }) =>
 {
     const { publish } = useToast();
     const orcidAction = props.adapter.hooks.useGetAuthorByOrcid();
@@ -551,9 +461,7 @@ const AuthorComp = (
         const handleClick = (e: MouseEvent) =>
         {
             const el = e.target as HTMLElement | null;
-            const btn = el?.closest?.("button[data-bs-toggle=\"tab\"][data-bs-target^=\"#Tab_TWEN_\"]") as
-                | HTMLButtonElement
-                | null;
+            const btn = el?.closest?.("button[data-bs-toggle=\"tab\"][data-bs-target^=\"#Tab_TWEN_\"]") as HTMLButtonElement | null;
             if (!btn) return;
             const target = btn.getAttribute("data-bs-target") ?? "";
             const m = target.match(/^#Tab_TWEN_(.+)$/);
@@ -610,9 +518,7 @@ const AuthorComp = (
 
     const activateTabByKey = (key: string): void =>
     {
-        const btn = document.querySelector<HTMLButtonElement>(
-            `button[data-bs-toggle="tab"][data-bs-target="#Tab_TWEN_${key}"]`,
-        );
+        const btn = document.querySelector<HTMLButtonElement>(`button[data-bs-toggle="tab"][data-bs-target="#Tab_TWEN_${key}"]`);
         btn?.click();
     };
 
@@ -631,19 +537,12 @@ const AuthorComp = (
 
         const nextRowId = getNextRowId();
         const parentJournalId = props.formData.data.SpecJournal?.JournalId ?? allAuthors[0]?.JournalId;
-        const newItem: any = {
-            JournalId: parentJournalId,
-            RowId: nextRowId,
-            AuthorType: props.authorType,
-        };
+        const newItem: any = { JournalId: parentJournalId, RowId: nextRowId, AuthorType: props.authorType };
 
         pendingActiveTabKeyRef.current = String(nextRowId);
         activeTabKeyRef.current = String(nextRowId);
 
-        props.formData.setFormData({
-            ...props.formData.data,
-            SpecJournalAuthor: [...allAuthors, newItem],
-        });
+        props.formData.setFormData({ ...props.formData.data, SpecJournalAuthor: [...allAuthors, newItem] });
     };
 
     const removeOne = (rowKey: number | string): void =>
@@ -656,10 +555,7 @@ const AuthorComp = (
             if (!prev) return prev;
 
             const list = prev.SpecJournalAuthor ?? [];
-            const hitIdx = list.findIndex((a: any, i: number) =>
-                String(a?.RowId ?? i) === keyStr
-                && Number(a?.AuthorType ?? 0) === props.authorType
-            );
+            const hitIdx = list.findIndex((a: any, i: number) => String(a?.RowId ?? i) === keyStr && Number(a?.AuthorType ?? 0) === props.authorType);
             if (hitIdx < 0) return prev;
 
             const target = list[hitIdx];
@@ -675,10 +571,7 @@ const AuthorComp = (
         });
     };
     /** 回寫目前作者的 ORCID 欄位 */
-    const setAuthorOrcid = useCallback((
-        rowKeys: Record<string, string | number | null | undefined>,
-        orcid: string,
-    ): void =>
+    const setAuthorOrcid = useCallback((rowKeys: Record<string, string | number | null | undefined>, orcid: string): void =>
     {
         props.formData.setFormData(prev =>
         {
@@ -686,10 +579,8 @@ const AuthorComp = (
 
             const list = prev.SpecJournalAuthor ?? [];
             const hitIdx = list.findIndex(a =>
-                String(a?.[SpecJournalAuthorFields.JournalId] ?? "")
-                    === String(rowKeys?.[SpecJournalAuthorFields.JournalId] ?? "")
-                && String(a?.[SpecJournalAuthorFields.RowId] ?? "")
-                    === String(rowKeys?.[SpecJournalAuthorFields.RowId] ?? "")
+                String(a?.[SpecJournalAuthorFields.JournalId] ?? "") === String(rowKeys?.[SpecJournalAuthorFields.JournalId] ?? "")
+                && String(a?.[SpecJournalAuthorFields.RowId] ?? "") === String(rowKeys?.[SpecJournalAuthorFields.RowId] ?? "")
             );
             if (hitIdx < 0) return prev;
 
@@ -706,21 +597,14 @@ const AuthorComp = (
         const text = String(v ?? "").trim();
         if (!text) return "";
 
-        return text
-            .replace(/^https?:\/\/orcid\.org\//i, "")
-            .replace(/\/+$/g, "")
-            .replace(/\s+/g, "")
-            .replace(/[^0-9X-]/gi, "");
+        return text.replace(/^https?:\/\/orcid\.org\//i, "").replace(/\/+$/g, "").replace(/\s+/g, "").replace(/[^0-9X-]/gi, "");
     };
     const isLikelyOrcid = (v: string): boolean =>
     {
         return /^\d{4}-\d{4}-\d{4}-\d{3}[\dX]$/i.test(v);
     };
     // ✅ 只覆寫空欄位（避免蓋掉使用者已輸入的內容）
-    const applyAuthorFromOrcid = useCallback((
-        rowKeys: Record<string, string | number | null | undefined>,
-        dto: ORCIDData,
-    ): void =>
+    const applyAuthorFromOrcid = useCallback((rowKeys: Record<string, string | number | null | undefined>, dto: ORCIDData): void =>
     {
         props.formData.setFormData(prev =>
         {
@@ -728,18 +612,13 @@ const AuthorComp = (
 
             const list = prev.SpecJournalAuthor ?? [];
             const hitIdx = list.findIndex(a =>
-                String(a?.[SpecJournalAuthorFields.JournalId] ?? "")
-                    === String(rowKeys?.[SpecJournalAuthorFields.JournalId] ?? "")
-                && String(a?.[SpecJournalAuthorFields.RowId] ?? "")
-                    === String(rowKeys?.[SpecJournalAuthorFields.RowId] ?? "")
+                String(a?.[SpecJournalAuthorFields.JournalId] ?? "") === String(rowKeys?.[SpecJournalAuthorFields.JournalId] ?? "")
+                && String(a?.[SpecJournalAuthorFields.RowId] ?? "") === String(rowKeys?.[SpecJournalAuthorFields.RowId] ?? "")
             );
             if (hitIdx < 0) return prev;
 
             const cur: SpecJournalAuthor = { ...(list[hitIdx] ?? {}) };
-            const fillIfEmpty = (
-                oldValue: string | null | undefined,
-                newValue: string | null | undefined,
-            ): string | null | undefined =>
+            const fillIfEmpty = (oldValue: string | null | undefined, newValue: string | null | undefined): string | null | undefined =>
             {
                 const oldText = String(oldValue ?? "").trim();
                 const newText = String(newValue ?? "").trim();
@@ -762,10 +641,7 @@ const AuthorComp = (
     }, [props.formData]);
 
     /** onBlur：先正規化 ORCID，再打 API */
-    const handleOrcidBlur = useCallback(async (
-        rowKeys: Record<string, string | number | null | undefined>,
-        raw: string,
-    ): Promise<void> =>
+    const handleOrcidBlur = useCallback(async (rowKeys: Record<string, string | number | null | undefined>, raw: string): Promise<void> =>
     {
         const orcid = normalizeOrcid(raw);
         // 先把畫面值改成純 ORCID
@@ -804,22 +680,14 @@ const AuthorComp = (
     const tabContent = authors.reduce<Record<string, React.ReactNode[]>>((acc, a: any, idx: number) =>
     {
         const tabKey = String(a?.RowId ?? idx);
-        const rowKeys: any = {
-            [SpecJournalAuthorFields.JournalId]: a?.JournalId,
-            [SpecJournalAuthorFields.RowId]: a?.RowId,
-        };
+        const rowKeys: any = { [SpecJournalAuthorFields.JournalId]: a?.JournalId, [SpecJournalAuthorFields.RowId]: a?.RowId };
 
         acc[tabKey] = [
             <div className="col-12 form-group">
                 <LibTextBox
                     Style={props.theme.TextBox}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecJournalSetFields.SpecJournalAuthor,
-                        SpecJournalAuthorFields.ORCID,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecJournalSetFields.SpecJournalAuthor, SpecJournalAuthorFields.ORCID, "string", rowKeys)}
                     onBlur={(v) => void handleOrcidBlur(rowKeys, v)}
                 />
             </div>,
@@ -827,78 +695,43 @@ const AuthorComp = (
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecJournalSetFields.SpecJournalAuthor,
-                        SpecJournalAuthorFields.AuthorName,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecJournalSetFields.SpecJournalAuthor, SpecJournalAuthorFields.AuthorName, "string", rowKeys)}
                 />
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecJournalSetFields.SpecJournalAuthor,
-                        SpecJournalAuthorFields.AuthorName_en,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecJournalSetFields.SpecJournalAuthor, SpecJournalAuthorFields.AuthorName_en, "string", rowKeys)}
                 />
             </div>,
             <div className="col-12 form-group">
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecJournalSetFields.SpecJournalAuthor,
-                        SpecJournalAuthorFields.JobTitle,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecJournalSetFields.SpecJournalAuthor, SpecJournalAuthorFields.JobTitle, "string", rowKeys)}
                 />
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecJournalSetFields.SpecJournalAuthor,
-                        SpecJournalAuthorFields.Country,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecJournalSetFields.SpecJournalAuthor, SpecJournalAuthorFields.Country, "string", rowKeys)}
                 />
             </div>,
             <div className="col-12 form-group">
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecJournalSetFields.SpecJournalAuthor,
-                        SpecJournalAuthorFields.Unit,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecJournalSetFields.SpecJournalAuthor, SpecJournalAuthorFields.Unit, "string", rowKeys)}
                 />
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecJournalSetFields.SpecJournalAuthor,
-                        SpecJournalAuthorFields.Unit_en,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecJournalSetFields.SpecJournalAuthor, SpecJournalAuthorFields.Unit_en, "string", rowKeys)}
                 />
             </div>,
             <div className="col-12 form-group">
                 <LibTextBox
                     Style={props.theme.TextBox}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecJournalSetFields.SpecJournalAuthor,
-                        SpecJournalAuthorFields.Email,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecJournalSetFields.SpecJournalAuthor, SpecJournalAuthorFields.Email, "string", rowKeys)}
                 />
             </div>,
         ];
@@ -930,9 +763,7 @@ const RefFormatComp = (props: { theme: IBETheme; formData: UseFetchFormDataResul
         const handleClick = (e: MouseEvent) =>
         {
             const el = e.target as HTMLElement | null;
-            const btn = el?.closest?.(`button[data-bs-toggle="tab"][data-bs-target^="#Tab_TWEN_${TAB_PREFIX}"]`) as
-                | HTMLButtonElement
-                | null;
+            const btn = el?.closest?.(`button[data-bs-toggle="tab"][data-bs-target^="#Tab_TWEN_${TAB_PREFIX}"]`) as HTMLButtonElement | null;
             if (!btn) return;
             const target = btn.getAttribute("data-bs-target") ?? "";
             const m = target.match(new RegExp(`^#Tab_TWEN_${TAB_PREFIX}(.+)$`));
@@ -951,15 +782,9 @@ const RefFormatComp = (props: { theme: IBETheme; formData: UseFetchFormDataResul
         const current = props.formData.data.SpecJournalRefFormat ?? [];
         if (current.length > 0) return;
 
-        const firstItem: any = {
-            JournalId: props.formData.data.SpecJournal?.JournalId,
-            RowId: 1,
-        };
+        const firstItem: any = { JournalId: props.formData.data.SpecJournal?.JournalId, RowId: 1 };
 
-        props.formData.setFormData({
-            ...props.formData.data,
-            SpecJournalRefFormat: [firstItem],
-        });
+        props.formData.setFormData({ ...props.formData.data, SpecJournalRefFormat: [firstItem] });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.formData.data]);
 
@@ -1012,9 +837,7 @@ const RefFormatComp = (props: { theme: IBETheme; formData: UseFetchFormDataResul
     const activateTabByKey = (key: string): void =>
     {
         // 觸發 click 讓 bootstrap 切換 tab
-        const btn = document.querySelector<HTMLButtonElement>(
-            `button[data-bs-toggle="tab"][data-bs-target="#Tab_TWEN_${TAB_PREFIX}${key}"]`,
-        );
+        const btn = document.querySelector<HTMLButtonElement>(`button[data-bs-toggle="tab"][data-bs-target="#Tab_TWEN_${TAB_PREFIX}${key}"]`);
         btn?.click();
     };
 
@@ -1036,18 +859,12 @@ const RefFormatComp = (props: { theme: IBETheme; formData: UseFetchFormDataResul
         const nextRowId = getNextRowId();
         const parentJournalId = props.formData.data.SpecJournal?.JournalId ?? formats[0]?.JournalId;
 
-        const newItem: any = {
-            JournalId: parentJournalId,
-            RowId: nextRowId,
-        };
+        const newItem: any = { JournalId: parentJournalId, RowId: nextRowId };
 
         pendingActiveTabKeyRef.current = String(nextRowId);
         activeTabKeyRef.current = String(nextRowId);
 
-        props.formData.setFormData({
-            ...props.formData.data,
-            SpecJournalRefFormat: [...(props.formData.data.SpecJournalRefFormat ?? []), newItem],
-        });
+        props.formData.setFormData({ ...props.formData.data, SpecJournalRefFormat: [...(props.formData.data.SpecJournalRefFormat ?? []), newItem] });
     };
 
     const removeOne = (rowKey: number | string): void =>
@@ -1107,31 +924,18 @@ const RefFormatComp = (props: { theme: IBETheme; formData: UseFetchFormDataResul
     {
         const rawKey = String(f?.RowId ?? idx);
         const tabKey = `${TAB_PREFIX}${rawKey}`;
-        const rowKeys: any = {
-            [SpecJournalRefFormatFields.JournalId]: f?.JournalId,
-            [SpecJournalRefFormatFields.RowId]: f?.RowId,
-        };
+        const rowKeys: any = { [SpecJournalRefFormatFields.JournalId]: f?.JournalId, [SpecJournalRefFormatFields.RowId]: f?.RowId };
 
         acc[tabKey] = [
             <div className="col-12 form-group">
                 <LibTextBox
                     Style={props.theme.TextBox}
                     DefaultInputDisplay="請輸入"
-                    {...setField(
-                        SpecJournalSetFields.SpecJournalRefFormat,
-                        SpecJournalRefFormatFields.Title,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecJournalSetFields.SpecJournalRefFormat, SpecJournalRefFormatFields.Title, "string", rowKeys)}
                 />
                 <LibTinyMCE
                     Style={props.theme.TinyMCE}
-                    {...setField(
-                        SpecJournalSetFields.SpecJournalRefFormat,
-                        SpecJournalRefFormatFields.Content,
-                        "string",
-                        rowKeys,
-                    )}
+                    {...setField(SpecJournalSetFields.SpecJournalRefFormat, SpecJournalRefFormatFields.Content, "string", rowKeys)}
                 />
             </div>,
         ];
@@ -1172,15 +976,16 @@ const OpenPointComp = (props: { theme: IBETheme; formData: UseFetchFormDataResul
     const commitFiles = (nextFiles: SpecJournalOpenPointFiles[]) =>
     {
         props.formData.setFormData(prev => ({
-            ...(prev ?? {
-                SpecJournal: {},
-                SpecJournalAuthor: [],
-                SpecJournalRefFiles: [],
-                SpecJournalRefFormat: [],
-                SpecJournalOpenPointFiles: [],
-                SpecJournalTags: [],
-                SpecJournalTypes: [],
-            }),
+            ...(prev
+                ?? {
+                    SpecJournal: {},
+                    SpecJournalAuthor: [],
+                    SpecJournalRefFiles: [],
+                    SpecJournalRefFormat: [],
+                    SpecJournalOpenPointFiles: [],
+                    SpecJournalTags: [],
+                    SpecJournalTypes: [],
+                }),
             SpecJournalOpenPointFiles: nextFiles,
         }));
     };
@@ -1190,11 +995,7 @@ const OpenPointComp = (props: { theme: IBETheme; formData: UseFetchFormDataResul
     {
         const list = allFiles;
         const nextRowId = (list.at(-1)?.RowId ?? 0) + 1;
-        const newItem: SpecJournalOpenPointFiles = {
-            RowId: nextRowId,
-            OpenPointFileId: null,
-            OpenPointFileName: "",
-        };
+        const newItem: SpecJournalOpenPointFiles = { RowId: nextRowId, OpenPointFileId: null, OpenPointFileName: "" };
         commitFiles([...allFiles, newItem]);
     };
 
@@ -1211,15 +1012,10 @@ const OpenPointComp = (props: { theme: IBETheme; formData: UseFetchFormDataResul
     return (
         <>
             <div role="group" className="mt-4">
-                <button type="button" onClick={addFile} aria-label="新增附件" className="btn btn-outline-primary mb-2">
-                    新增附件
-                </button>
+                <button type="button" onClick={addFile} aria-label="新增附件" className="btn btn-outline-primary mb-2">新增附件</button>
                 {allFiles.map((f, i) =>
                 {
-                    const rowKeys = {
-                        [SpecJournalOpenPointFilesFields.JournalId]: f.JournalId,
-                        [SpecJournalOpenPointFilesFields.RowId]: f.RowId,
-                    };
+                    const rowKeys = { [SpecJournalOpenPointFilesFields.JournalId]: f.JournalId, [SpecJournalOpenPointFilesFields.RowId]: f.RowId };
 
                     return (
                         <div key={`${f.RowId}`} className="flex items-center gap-2 mb-2">
@@ -1251,15 +1047,16 @@ const RefFilesComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult
     const commitFiles = (nextFiles: SpecJournalRefFiles[]) =>
     {
         props.formData.setFormData(prev => ({
-            ...(prev ?? {
-                SpecJournal: {},
-                SpecJournalAuthor: [],
-                SpecJournalRefFiles: [],
-                SpecJournalRefFormat: [],
-                SpecJournalOpenPointFiles: [],
-                SpecJournalTags: [],
-                SpecJournalTypes: [],
-            }),
+            ...(prev
+                ?? {
+                    SpecJournal: {},
+                    SpecJournalAuthor: [],
+                    SpecJournalRefFiles: [],
+                    SpecJournalRefFormat: [],
+                    SpecJournalOpenPointFiles: [],
+                    SpecJournalTags: [],
+                    SpecJournalTypes: [],
+                }),
             SpecJournalRefFiles: nextFiles,
         }));
     };
@@ -1269,11 +1066,7 @@ const RefFilesComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult
     {
         const list = allFiles;
         const nextRowId = (list.at(-1)?.RowId ?? 0) + 1;
-        const newItem: SpecJournalRefFiles = {
-            RowId: nextRowId,
-            RefFileId: null,
-            RefFileName: "",
-        };
+        const newItem: SpecJournalRefFiles = { RowId: nextRowId, RefFileId: null, RefFileName: "" };
         commitFiles([...allFiles, newItem]);
     };
 
@@ -1290,15 +1083,10 @@ const RefFilesComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult
     return (
         <>
             <div role="group" className="mt-4">
-                <button type="button" onClick={addFile} aria-label="新增附件" className="btn btn-outline-primary mb-2">
-                    新增附件
-                </button>
+                <button type="button" onClick={addFile} aria-label="新增附件" className="btn btn-outline-primary mb-2">新增附件</button>
                 {allFiles.map((f, i) =>
                 {
-                    const rowKeys = {
-                        [SpecJournalRefFilesFields.JournalId]: f.JournalId,
-                        [SpecJournalRefFilesFields.RowId]: f.RowId,
-                    };
+                    const rowKeys = { [SpecJournalRefFilesFields.JournalId]: f.JournalId, [SpecJournalRefFilesFields.RowId]: f.RowId };
 
                     return (
                         <div key={`${f.RowId}`} className="flex items-center gap-2 mb-2">
@@ -1321,11 +1109,7 @@ const RefFilesComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult
     );
 };
 
-const KeywordComp = (props: {
-    theme: IBETheme;
-    formData: UseFetchFormDataResult<SpecJournalSet>;
-    keywords: SpecJournalSet[];
-}) =>
+const KeywordComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<SpecJournalSet>; keywords: SpecJournalSet[]; }) =>
 {
     const data = props.formData.data ?? {};
     const tags = data.SpecJournalKeywords ?? [];
@@ -1354,10 +1138,7 @@ const KeywordComp = (props: {
             });
         });
 
-        return {
-            zh: Array.from(zh),
-            en: Array.from(en),
-        };
+        return { zh: Array.from(zh), en: Array.from(en) };
     }, [props.keywords]);
 
     useEffect(() =>
@@ -1368,10 +1149,7 @@ const KeywordComp = (props: {
             setZhSuggestions([]);
             return;
         }
-        const hit = keywordPool.zh
-            .filter(x => x.toLowerCase().includes(q.toLowerCase()))
-            .slice(0, 20)
-            .map((x, i) => ({ TagId: `${i}`, TagName: x }));
+        const hit = keywordPool.zh.filter(x => x.toLowerCase().includes(q.toLowerCase())).slice(0, 20).map((x, i) => ({ TagId: `${i}`, TagName: x }));
         setZhSuggestions(hit);
     }, [zhDebounced, keywordPool.zh]);
 
@@ -1383,10 +1161,7 @@ const KeywordComp = (props: {
             setEnSuggestions([]);
             return;
         }
-        const hit = keywordPool.en
-            .filter(x => x.toLowerCase().includes(q.toLowerCase()))
-            .slice(0, 20)
-            .map((x, i) => ({ TagId: `${i}`, TagName: x }));
+        const hit = keywordPool.en.filter(x => x.toLowerCase().includes(q.toLowerCase())).slice(0, 20).map((x, i) => ({ TagId: `${i}`, TagName: x }));
         setEnSuggestions(hit);
     }, [enDebounced, keywordPool.en]);
 
@@ -1399,10 +1174,7 @@ const KeywordComp = (props: {
         {
             const p = prev ?? {};
             const cur = (p as any).SpecJournalKeywords ?? [];
-            const exists = cur.some((x: any) =>
-                String(x?.LangCode ?? "") === lang
-                && String(x?.Keyword ?? "").trim().toLowerCase() === value.toLowerCase()
-            );
+            const exists = cur.some((x: any) => String(x?.LangCode ?? "") === lang && String(x?.Keyword ?? "").trim().toLowerCase() === value.toLowerCase());
             if (exists) return p;
 
             const nextRowId = getNextRowId(cur);
@@ -1429,15 +1201,9 @@ const KeywordComp = (props: {
     {
         const list = (tags as any[]).filter(x => String(x?.LangCode ?? "") === lang);
         return (
-            <div
-                className="d-flex flex-wrap gap-2 mt-2"
-                aria-label={lang === "zh-tw" ? "中文標籤清單" : "英文標籤清單"}
-            >
+            <div className="d-flex flex-wrap gap-2 mt-2" aria-label={lang === "zh-tw" ? "中文標籤清單" : "英文標籤清單"}>
                 {list.map((x: any) => (
-                    <span
-                        key={`${lang}-${x.RowId}`}
-                        className="badge bg-secondary d-inline-flex align-items-center gap-2"
-                    >
+                    <span key={`${lang}-${x.RowId}`} className="badge bg-secondary d-inline-flex align-items-center gap-2">
                         <span>{String(x?.Keyword ?? "")}</span>
                         <button
                             type="button"
@@ -1494,14 +1260,7 @@ const KeywordComp = (props: {
                         placeholder="輸入後停止 1 秒會自動搜尋，Enter 可直接加入"
                         aria-label="輸入中文關鍵字"
                     />
-                    <button
-                        type="button"
-                        className="btn btn-primary"
-                        onClick={() => addKeyword("zh-tw", zhInput)}
-                        aria-label="加入中文關鍵字"
-                    >
-                        Add
-                    </button>
+                    <button type="button" className="btn btn-primary" onClick={() => addKeyword("zh-tw", zhInput)} aria-label="加入中文關鍵字">Add</button>
                 </div>
                 {renderSuggestList(zhSuggestions, (name) => addKeyword("zh-tw", name))}
                 {renderKeywordChips("zh-tw")}
@@ -1526,14 +1285,7 @@ const KeywordComp = (props: {
                         placeholder="Stop typing for 1s to search, press Enter to add"
                         aria-label="Input English keyword"
                     />
-                    <button
-                        type="button"
-                        className="btn btn-primary"
-                        onClick={() => addKeyword("en", enInput)}
-                        aria-label="Add English keyword"
-                    >
-                        Add
-                    </button>
+                    <button type="button" className="btn btn-primary" onClick={() => addKeyword("en", enInput)} aria-label="Add English keyword">Add</button>
                 </div>
                 {renderSuggestList(enSuggestions, (name) => addKeyword("en", name))}
                 {renderKeywordChips("en")}
@@ -1542,13 +1294,7 @@ const KeywordComp = (props: {
     );
 };
 
-const DocumentsComp = (
-    props: {
-        theme: IBETheme;
-        formData: UseFetchFormDataResult<SpecJournalSet>;
-        specDocumentTypeOptionsRaw: Map<string, string>;
-    },
-) =>
+const DocumentsComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<SpecJournalSet>; specDocumentTypeOptionsRaw: Map<string, string>; }) =>
 {
     const setField = useSetTableField(props.formData);
     const setFileField = useSetTableFileField(props.formData);
@@ -1557,16 +1303,17 @@ const DocumentsComp = (
     const commitFiles = (nextFiles: SpecJournalDocuments[]) =>
     {
         props.formData.setFormData(prev => ({
-            ...(prev ?? {
-                SpecJournal: {},
-                SpecJournalAuthor: [],
-                SpecJournalRefFiles: [],
-                SpecJournalRefFormat: [],
-                SpecJournalDocument: [],
-                SpecJournalOpenPointFiles: [],
-                SpecJournalTags: [],
-                SpecJournalTypes: [],
-            }),
+            ...(prev
+                ?? {
+                    SpecJournal: {},
+                    SpecJournalAuthor: [],
+                    SpecJournalRefFiles: [],
+                    SpecJournalRefFormat: [],
+                    SpecJournalDocument: [],
+                    SpecJournalOpenPointFiles: [],
+                    SpecJournalTags: [],
+                    SpecJournalTypes: [],
+                }),
             SpecJournalDocument: nextFiles,
         }));
     };
@@ -1575,11 +1322,7 @@ const DocumentsComp = (
     {
         const list = allFiles;
         const nextRowId = (list.at(-1)?.RowId ?? 0) + 1;
-        const newItem: SpecJournalDocuments = {
-            RowId: nextRowId,
-            DocumentId: null,
-            DocumentName: "",
-        };
+        const newItem: SpecJournalDocuments = { RowId: nextRowId, DocumentId: null, DocumentName: "" };
         commitFiles([...allFiles, newItem]);
     };
     // 刪除第 i 筆附件列
@@ -1595,27 +1338,17 @@ const DocumentsComp = (
     return (
         <>
             <div role="group" className="mt-4">
-                <button type="button" onClick={addFile} aria-label="新增附件" className="btn btn-outline-primary mb-2">
-                    新增附件
-                </button>
+                <button type="button" onClick={addFile} aria-label="新增附件" className="btn btn-outline-primary mb-2">新增附件</button>
                 {allFiles.map((f, i) =>
                 {
-                    const rowKeys = {
-                        [SpecJournalDocumentFields.JournalId]: f.JournalId,
-                        [SpecJournalDocumentFields.RowId]: f.RowId,
-                    };
+                    const rowKeys = { [SpecJournalDocumentFields.JournalId]: f.JournalId, [SpecJournalDocumentFields.RowId]: f.RowId };
                     return (
                         <div key={`${f.RowId}`} className="flex items-center gap-2 mb-2">
                             <LibDropList
                                 Style={props.theme.DropList2}
                                 Options={props.specDocumentTypeOptionsRaw}
                                 AutoDefaultFirst={false}
-                                {...setField(
-                                    SpecJournalSetFields.SpecJournalDocument,
-                                    SpecJournalDocumentFields.DocumentType,
-                                    "number",
-                                    rowKeys,
-                                )}
+                                {...setField(SpecJournalSetFields.SpecJournalDocument, SpecJournalDocumentFields.DocumentType, "number", rowKeys)}
                             />
                             <LibFileInput
                                 {...setFileField(
@@ -1671,27 +1404,23 @@ const buildIndexHeaderOptions = (rawData: SpecJournalIndexSet[] = []): Map<strin
 };
 
 /** ✅ Detail 下拉：IndexId -> (RowId -> "X卷Y期") */
-const buildIndexDetailOptionsByIndexId = (
-    rawData: SpecJournalIndexSet[] = [],
-): Record<string, Map<string, string>> =>
+const buildIndexDetailOptionsByIndexId = (rawData: SpecJournalIndexSet[] = []): Record<string, Map<string, string>> =>
 {
     return rawData.reduce<Record<string, Map<string, string>>>((acc, x) =>
     {
         const indexId = String(x?.SpecJournalIndex?.IndexId ?? "");
         if (!indexId) return acc;
 
-        const details = ((x?.SpecJournalIndexDetail ?? []) as SpecJournalIndexDetailSet[])
-            .slice()
-            .sort((a, b) =>
-            {
-                const volumeA = Number(a?.Volume ?? 0);
-                const volumeB = Number(b?.Volume ?? 0);
-                const issueA = Number(a?.Issue ?? 0);
-                const issueB = Number(b?.Issue ?? 0);
+        const details = ((x?.SpecJournalIndexDetail ?? []) as SpecJournalIndexDetailSet[]).slice().sort((a, b) =>
+        {
+            const volumeA = Number(a?.Volume ?? 0);
+            const volumeB = Number(b?.Volume ?? 0);
+            const issueA = Number(a?.Issue ?? 0);
+            const issueB = Number(b?.Issue ?? 0);
 
-                if (volumeA !== volumeB) return volumeA - volumeB;
-                return issueA - issueB;
-            });
+            if (volumeA !== volumeB) return volumeA - volumeB;
+            return issueA - issueB;
+        });
 
         const dict = details.reduce<Map<string, string>>((dAcc, d) =>
         {
@@ -1794,26 +1523,11 @@ const ModeActionBarComp = (
             <div className="col-12 mb-3">
                 <div className="d-flex flex-wrap gap-2 justify-content-end">
                     {props.mode === "preprint" && (
-                        <button
-                            type="button"
-                            className="btn btn-success"
-                            onClick={handleOpenPublish}
-                            aria-label={title}
-                        >
-                            {title}
-                        </button>
+                        <button type="button" className="btn btn-success" onClick={handleOpenPublish} aria-label={title}>{title}</button>
                     )}
 
-                    {props.mode === "journal" && (
-                        <button
-                            type="button"
-                            className="btn btn-danger"
-                            onClick={handleOpenRevert}
-                            aria-label={title}
-                        >
-                            {title}
-                        </button>
-                    )}
+                    {props.mode === "journal" && <button type="button" className="btn btn-danger" onClick={handleOpenRevert} aria-label={title}>{title}
+                    </button>}
                 </div>
             </div>
 

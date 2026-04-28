@@ -4,19 +4,10 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import type { ModelDisplaySchema } from "../../../types/IApiSchema";
 import type { UseFetchFormDataResult } from "../../Utils/API/FetchFormData";
 
-export type FormDataLike<T> = {
-    data: T;
-    setFormData: React.Dispatch<React.SetStateAction<T>>;
-    displayName?: ModelDisplaySchema | null;
-};
+export type FormDataLike<T> = { data: T; setFormData: React.Dispatch<React.SetStateAction<T>>; displayName?: ModelDisplaySchema | null; };
 type CoerceMode = "string" | "number" | "boolean" | "datetime" | ((v: unknown) => any);
 
-const upsertRow = (
-    currentTable: any,
-    rowKeys: Record<string, any> | undefined,
-    field: string | number | symbol,
-    value: any,
-) =>
+const upsertRow = (currentTable: any, rowKeys: Record<string, any> | undefined, field: string | number | symbol, value: any) =>
 {
     // 如果沒有 rowKeys，就照原本的邏輯處理（非明細）
     if (!rowKeys)
@@ -30,9 +21,7 @@ const upsertRow = (
     }
 
     // 有 rowKeys：一定當「明細陣列」處理
-    const rows: RowLike[] = Array.isArray(currentTable)
-        ? (currentTable as RowLike[])
-        : currentTable
+    const rows: RowLike[] = Array.isArray(currentTable) ? (currentTable as RowLike[]) : currentTable
         ? [currentTable as RowLike] // 若之前誤塞成物件，就把它包成一列
         : [];
 
@@ -120,10 +109,7 @@ const coerce = (mode: CoerceMode, val: unknown) =>
 type DefaultWhen = "never" | "nullish" | "empty" | "falsy";
 const getColumnDisplayName = (schema: ModelDisplaySchema | null, tableName: string, columnId: string): string =>
 {
-    return (
-        schema?.Tables?.find(t => t.TableId === tableName)?.Columns?.find((c: any) => c.ColumnId === columnId)
-            ?.ColumnDisplayName ?? ""
-    );
+    return (schema?.Tables?.find(t => t.TableId === tableName)?.Columns?.find((c: any) => c.ColumnId === columnId)?.ColumnDisplayName ?? "");
 };
 type RowLike = Record<string, any>;
 type TableType<T, K extends keyof T> = NonNullable<T[K]>;
@@ -150,14 +136,7 @@ const computeAutoDefault = (mode: CoerceMode, strategy: SetStrategy) =>
 };
 const ensureDefaultOnce = (
     ref: React.MutableRefObject<Set<string>>,
-    args: {
-        key: string;
-        current: unknown;
-        mode: CoerceMode;
-        strategy: SetStrategy;
-        setType?: SetOptions;
-        writeBack: (v: unknown) => void;
-    },
+    args: { key: string; current: unknown; mode: CoerceMode; strategy: SetStrategy; setType?: SetOptions; writeBack: (v: unknown) => void; },
 ) =>
 {
     const { key, current, mode, strategy, setType, writeBack } = args;
@@ -177,13 +156,7 @@ const ensureDefaultOnce = (
     const isNullish = current === null || current === undefined;
     const isFalsy = !current;
 
-    const needDefault = when === "never"
-        ? false
-        : when === "nullish"
-        ? isNullish
-        : when === "empty"
-        ? (isNullish || isEmptyString)
-        : isFalsy; // "falsy"
+    const needDefault = when === "never" ? false : when === "nullish" ? isNullish : when === "empty" ? (isNullish || isEmptyString) : isFalsy; // "falsy"
 
     if (!needDefault)
     {
@@ -192,9 +165,7 @@ const ensureDefaultOnce = (
     }
 
     // 1) 呼叫端覆寫 > 2) 自動推導 > 3) 放棄
-    let dv = typeof cfg.defaultValue === "function"
-        ? (cfg.defaultValue as any)({ current, table: "", field: "", rowKeys: undefined })
-        : cfg.defaultValue;
+    let dv = typeof cfg.defaultValue === "function" ? (cfg.defaultValue as any)({ current, table: "", field: "", rowKeys: undefined }) : cfg.defaultValue;
 
     if (dv === undefined) dv = computeAutoDefault(mode, strategy);
     if (dv === undefined)
@@ -207,10 +178,7 @@ const ensureDefaultOnce = (
     ref.current.add(key);
 };
 /** 比對是否符合複合主鍵（全部 key 都相等才算符合） */
-const matchRowKeys = (
-    row: RowLike,
-    rowKeys?: Record<string, string | number | boolean | null | undefined>,
-): boolean =>
+const matchRowKeys = (row: RowLike, rowKeys?: Record<string, string | number | boolean | null | undefined>): boolean =>
 {
     if (!rowKeys) return false;
     const entries = Object.entries(rowKeys);
@@ -218,25 +186,19 @@ const matchRowKeys = (
     return entries.every(([k, v]) => String(row?.[k]) === String(v));
 };
 type SetStrategy = "default" | "sum" | "csv";
-type SetOptions =
-    | SetStrategy
-    | {
-        strategy?: SetStrategy;
-        /** sum 模式用到的位元鍵集合（例：useContentStatus.data?.map(d => d.Key)） */
-        sumKeys?: Array<number>;
-        /** csv 模式的分隔字元（預設 ","） */
-        csvDelimiter?: string;
-        // 預設值設定（可不帶，則走自動規則）
-        defaultValue?:
-            | unknown
-            | ((
-                ctx: { table: string; field: string; rowKeys?: Record<string, unknown>; current: unknown; },
-            ) => unknown);
-        // 何時套用預設值；預設 nullish（null/undefined）
-        defaultWhen?: DefaultWhen;
-        // 是否啟用自動預設（預設 true）
-        autoDefault?: boolean;
-    };
+type SetOptions = SetStrategy | {
+    strategy?: SetStrategy;
+    /** sum 模式用到的位元鍵集合（例：useContentStatus.data?.map(d => d.Key)） */
+    sumKeys?: Array<number>;
+    /** csv 模式的分隔字元（預設 ","） */
+    csvDelimiter?: string;
+    // 預設值設定（可不帶，則走自動規則）
+    defaultValue?: unknown | ((ctx: { table: string; field: string; rowKeys?: Record<string, unknown>; current: unknown; }) => unknown);
+    // 何時套用預設值；預設 nullish（null/undefined）
+    defaultWhen?: DefaultWhen;
+    // 是否啟用自動預設（預設 true）
+    autoDefault?: boolean;
+};
 export const useSetTableField = <T>(form: FormDataLike<T>) =>
 {
     const appliedDefaultsRef = useRef<Set<string>>(new Set());
@@ -248,105 +210,87 @@ export const useSetTableField = <T>(form: FormDataLike<T>) =>
         for (const job of jobs) job();
     });
 
-    return useCallback(
-        <
-            TableName extends keyof NonNullable<T>,
-            FieldName extends keyof RowType<TableType<NonNullable<T>, TableName>>,
-        >(
-            table: TableName,
-            field: FieldName,
-            mode: CoerceMode = "string", // ✅ 只用這個來決定輸入值轉型
-            /** 複合主鍵（若表是陣列，需提供；若是單物件可省略） */
-            rowKeys?: Record<string, string | number | boolean | any>,
-            setType?: SetOptions,
-        ) =>
+    return useCallback(<TableName extends keyof NonNullable<T>, FieldName extends keyof RowType<TableType<NonNullable<T>, TableName>>>(
+        table: TableName,
+        field: FieldName,
+        mode: CoerceMode = "string", // ✅ 只用這個來決定輸入值轉型
+        /** 複合主鍵（若表是陣列，需提供；若是單物件可省略） */
+        rowKeys?: Record<string, string | number | boolean | any>,
+        setType?: SetOptions,
+    ) =>
+    {
+        const dataAny = form.data as any;
+        const tableVal = dataAny?.[table];
+
+        // 取目前值：若有 rowId 則從陣列那筆取；否則從物件取
+        let raw: any;
+        if (rowKeys !== undefined && Array.isArray(tableVal))
         {
-            const dataAny = form.data as any;
-            const tableVal = dataAny?.[table];
+            const row = (tableVal as RowLike[]).find(r => matchRowKeys(r, rowKeys));
+            raw = row?.[field as any];
+        } else
+        {
+            raw = tableVal?.[field as any];
+        }
 
-            // 取目前值：若有 rowId 則從陣列那筆取；否則從物件取
-            let raw: any;
-            if (rowKeys !== undefined && Array.isArray(tableVal))
-            {
-                const row = (tableVal as RowLike[]).find(r => matchRowKeys(r, rowKeys));
-                raw = row?.[field as any];
-            } else
-            {
-                raw = tableVal?.[field as any];
-            }
+        const label = getColumnDisplayName(form.displayName ?? null, String(table), String(field)) || `【${String(field)}】`;
 
-            const label = getColumnDisplayName(form.displayName ?? null, String(table), String(field))
-                || `【${String(field)}】`;
+        // 解析 setType
+        const strategy: SetStrategy = typeof setType === "string" ? setType : (setType?.strategy ?? "default");
 
-            // 解析 setType
-            const strategy: SetStrategy = typeof setType === "string" ? setType : (setType?.strategy ?? "default");
+        const sumKeys = typeof setType === "object" ? setType.sumKeys : undefined;
 
-            const sumKeys = typeof setType === "object" ? setType.sumKeys : undefined;
+        const csvDelimiter = typeof setType === "object" && setType.csvDelimiter ? setType.csvDelimiter : ",";
 
-            const csvDelimiter = typeof setType === "object" && setType.csvDelimiter ? setType.csvDelimiter : ",";
-
-            // InputValue 視策略決定
-            const inputValue = strategy === "sum"
-                ? parseBitmaskToStringArray(Number(raw ?? 0), sumKeys ?? [])
-                : strategy === "csv"
-                ? String(raw ?? "")
-                    .split(csvDelimiter)
-                    .map(s => s.trim())
-                    .filter(s => s.length > 0)
-                : raw ?? (mode === "number" ? 0 : mode === "boolean" ? false : "");
-            ensureDefaultOnce(appliedDefaultsRef, {
-                key: `${String(table)}|${String(field)}|${JSON.stringify(rowKeys ?? {})}`,
-                current: raw,
-                mode,
-                strategy,
-                setType,
-                writeBack: (dv) =>
-                {
-                    form.setFormData((prev: any) =>
-                    {
-                        if (!prev) return prev;
-                        const currentTable = prev[table];
-                        const nextCellValue = strategy === "sum"
-                            ? (dv as any)
-                            : strategy === "csv"
-                            ? String(dv ?? "")
-                            : coerce(mode, dv);
-                        const nextTable = upsertRow(currentTable, rowKeys, field as any, nextCellValue);
-                        return { ...prev, [table]: nextTable };
-                    });
-                },
-            });
-            const onChange = (v: unknown) =>
+        // InputValue 視策略決定
+        const inputValue = strategy === "sum"
+            ? parseBitmaskToStringArray(Number(raw ?? 0), sumKeys ?? [])
+            : strategy === "csv"
+            ? String(raw ?? "").split(csvDelimiter).map(s => s.trim()).filter(s => s.length > 0)
+            : raw ?? (mode === "number" ? 0 : mode === "boolean" ? false : "");
+        ensureDefaultOnce(appliedDefaultsRef, {
+            key: `${String(table)}|${String(field)}|${JSON.stringify(rowKeys ?? {})}`,
+            current: raw,
+            mode,
+            strategy,
+            setType,
+            writeBack: (dv) =>
             {
                 form.setFormData((prev: any) =>
                 {
-                    // 尚未有資料時，直接回傳原值
                     if (!prev) return prev;
-
                     const currentTable = prev[table];
-
-                    // 根據策略先把要寫入的值算出來
-                    const nextCellValue = strategy === "sum"
-                        ? (sumStringArrayToBitmask(v as string[]) as any)
-                        : strategy === "csv"
-                        ? (Array.isArray(v) ? (v as string[]).join(csvDelimiter) : String(v ?? ""))
-                        : coerce(mode, v);
-
+                    const nextCellValue = strategy === "sum" ? (dv as any) : strategy === "csv" ? String(dv ?? "") : coerce(mode, dv);
                     const nextTable = upsertRow(currentTable, rowKeys, field as any, nextCellValue);
                     return { ...prev, [table]: nextTable };
                 });
-            };
-            const bind = {
-                ColumnDisplayName: label,
-                InputValue: inputValue,
-                OnChange: onChange,
-            } as const;
+            },
+        });
+        const onChange = (v: unknown) =>
+        {
+            form.setFormData((prev: any) =>
+            {
+                // 尚未有資料時，直接回傳原值
+                if (!prev) return prev;
 
-            // 常用別名：維持你原本的呼叫習慣
-            return { ...bind, Input: bind.InputValue, onChange: bind.OnChange };
-        },
-        [form.data, form.displayName, form.setFormData],
-    );
+                const currentTable = prev[table];
+
+                // 根據策略先把要寫入的值算出來
+                const nextCellValue = strategy === "sum"
+                    ? (sumStringArrayToBitmask(v as string[]) as any)
+                    : strategy === "csv"
+                    ? (Array.isArray(v) ? (v as string[]).join(csvDelimiter) : String(v ?? ""))
+                    : coerce(mode, v);
+
+                const nextTable = upsertRow(currentTable, rowKeys, field as any, nextCellValue);
+                return { ...prev, [table]: nextTable };
+            });
+        };
+        const bind = { ColumnDisplayName: label, InputValue: inputValue, OnChange: onChange } as const;
+
+        // 常用別名：維持你原本的呼叫習慣
+        return { ...bind, Input: bind.InputValue, onChange: bind.OnChange };
+    }, [form.data, form.displayName, form.setFormData]);
 };
 
 interface UseSetTableFileFieldOptions
@@ -358,18 +302,10 @@ interface UseSetTableFileFieldOptions
     // 底層預設值（新增明細時就可先帶）
     defaultWhen?: DefaultWhen; // 預設 "nullish"
     defaultId?: string; // 預設 FileId（通常空字串即可）
-    defaultName?:
-        | string
-        | ((ctx: {
-            table: string;
-            rowKeys?: Record<string, unknown>;
-        }) => string);
+    defaultName?: string | ((ctx: { table: string; rowKeys?: Record<string, unknown>; }) => string);
     fileName?: string;
 }
-const deriveName = (
-    originalName: string | undefined,
-    mode: UseSetTableFileFieldOptions["defaultNameFromOriginal"] = "basename",
-): string =>
+const deriveName = (originalName: string | undefined, mode: UseSetTableFileFieldOptions["defaultNameFromOriginal"] = "basename"): string =>
 {
     if (!originalName) return "";
     if (mode === "none") return "";
@@ -543,8 +479,7 @@ export const useSetTableFileField = <TSet>(formData: FormDataLike<TSet>) =>
                 if (!fileNameField) return; // 未提供檔名欄位就無動作
                 updateRow((row) => ({ ...row, [fileNameField]: name }));
             };
-            const label = getColumnDisplayName(formData.displayName ?? null, String(tableName), String(fileIdField))
-                || `[${String(fileIdField)}]`;
+            const label = getColumnDisplayName(formData.displayName ?? null, String(tableName), String(fileIdField)) || `[${String(fileIdField)}]`;
 
             return {
                 ColumnDisplayName: label,
@@ -572,10 +507,7 @@ export interface JsonFieldBinder<TJson extends object>
      * - number: 轉成 number 後存
      * - csv: 以陣列<string> 映射 UI，入庫時存 "a,b,c" 這種字串
      */
-    bind: <K extends keyof TJson>(
-        key: K,
-        mode?: "string" | "number" | "csv" | "boolean",
-    ) => {
+    bind: <K extends keyof TJson>(key: K, mode?: "string" | "number" | "csv" | "boolean") => {
         value: any; // 給 UI 用的值（csv 會是 string[]）
         onChange: (v: any) => void; // 給 UI 用的改變事件
     };
@@ -608,10 +540,7 @@ export const useSetJsonField = <TSet, TJson extends Record<string, any>>(
 {
     const setField = useSetTableField<TSet>(formData);
 
-    const base = useMemo(
-        () => setField(tableName as any, fieldName as any, "string", rowKeys),
-        [setField, tableName, fieldName, rowKeys],
-    );
+    const base = useMemo(() => setField(tableName as any, fieldName as any, "string", rowKeys), [setField, tableName, fieldName, rowKeys]);
 
     const get = () => safeParse<TJson>(base.InputValue as any, defaults); // 🟢 2) 用 InputValue
     const set = (next: TJson) => base.onChange?.(JSON.stringify(next)); // 🟢 2) 用 onChange

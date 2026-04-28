@@ -27,13 +27,8 @@ export type PageManagementListRawData = {
     categoryData: CategorySet[];
     categoryMap: Record<string, string>;
 };
-export type PageManagementListAdapter = {
-    PageManagement: ReturnType<typeof PageManagementAdapter>;
-    Category: ReturnType<typeof CategoryAdapter>;
-};
-export const usePageManagementListFetchData = (
-    opt: { lang: Lang; kw: string; },
-): UseFetchDataResult<PageManagementListRawData, PageManagementListAdapter> =>
+export type PageManagementListAdapter = { PageManagement: ReturnType<typeof PageManagementAdapter>; Category: ReturnType<typeof CategoryAdapter>; };
+export const usePageManagementListFetchData = (opt: { lang: Lang; kw: string; }): UseFetchDataResult<PageManagementListRawData, PageManagementListAdapter> =>
 {
     const { publish } = useToast();
     const onError = useCallback((e: ApiAdapterError) =>
@@ -73,17 +68,7 @@ export const usePageManagementListFetchData = (
             categoryData: category.data ?? [],
             categoryMap: category.map ?? {},
         };
-    }, [
-        grid.modelDisplayName,
-        grid.count,
-        grid.list,
-        grid.pageNumber,
-        grid.totalPages,
-        grid.onPageChange,
-        grid.param,
-        category.data,
-        category.map,
-    ]);
+    }, [grid.modelDisplayName, grid.count, grid.list, grid.pageNumber, grid.totalPages, grid.onPageChange, grid.param, category.data, category.map]);
     const refetchData = useCallback(async () =>
     {
         await grid.refetchData();
@@ -117,24 +102,13 @@ const usePageManagementListQueryParam = (p: { lang: Lang; kw: string; }): QueryL
         let cdt = `${PageManagementFields._PageManagementDetail}.${PageManagementDetailFields.Lang} = ${p.lang}`;
         if (!!p.kw)
         {
-            cdt = LibMerge(
-                " And ",
-                false,
-                cdt,
-                `${PageManagementFields._PageManagementDetail}.${PageManagementDetailFields.Title} Like ${p.kw}`,
-            );
+            cdt = LibMerge(" And ", false, cdt, `${PageManagementFields._PageManagementDetail}.${PageManagementDetailFields.Title} Like ${p.kw}`);
         }
         return cdt;
     }, [p.lang, p.kw]);
     return useMemo(() =>
     {
-        return {
-            Fields: fields,
-            Condition: condition,
-            OrderBy: [{ Col: PageManagementFields.CreateTime, Desc: true }],
-            PageNumber: 1,
-            PageSize: 10,
-        };
+        return { Fields: fields, Condition: condition, OrderBy: [{ Col: PageManagementFields.CreateTime, Desc: true }], PageNumber: 1, PageSize: 10 };
     }, [fields, condition]);
 };
 // #endregion

@@ -106,10 +106,7 @@ export const useServerResetPassword = (theme: IBETheme): UseServerResetPasswordR
         // 執行 function：驗證後送出 API
         if (!ok) return false;
 
-        const payload: ResetPassword = {
-            UserInternalId: userInternalId,
-            NewPassword: newPwd,
-        };
+        const payload: ResetPassword = { UserInternalId: userInternalId, NewPassword: newPwd };
 
         const res = await resetPwd.execute(payload);
 
@@ -189,11 +186,7 @@ const useAccountListDataByAdapter = (adapter: ReturnType<typeof AccountAdapter>)
     {
         // return：撈下拉選單最小欄位
         return {
-            Fields: [
-                AccountFields.InternalId,
-                AccountFields.AccountId,
-                AccountFields.AccountName,
-            ],
+            Fields: [AccountFields.InternalId, AccountFields.AccountId, AccountFields.AccountName],
             Condition: "",
             OrderBy: [{ Col: AccountFields.AccountId, Desc: false }],
             PageNumber: 0,
@@ -201,16 +194,8 @@ const useAccountListDataByAdapter = (adapter: ReturnType<typeof AccountAdapter>)
         };
     }, []);
 
-    const query = adapter.hooks.useQueryList({
-        condition,
-        deps: [],
-        onError,
-    });
+    const query = adapter.hooks.useQueryList({ condition, deps: [], onError });
 
     // return
-    return {
-        rawData: (query.data ?? []) as AccountSet[],
-        isLoading: Boolean(query.isLoading),
-        error: query.errorText ?? null,
-    };
+    return { rawData: (query.data ?? []) as AccountSet[], isLoading: Boolean(query.isLoading), error: query.errorText ?? null };
 };

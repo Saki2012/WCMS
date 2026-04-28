@@ -39,9 +39,7 @@ const getCategoryText = (p: { categoryIds?: string | null; categoryMap: Record<s
 {
     const raw = `${p.categoryIds ?? ""}`.trim();
     if (!raw) return "";
-    return raw.split(",").map((item) => item.trim()).filter(Boolean).map((id) => p.categoryMap[id] ?? "").filter(
-        Boolean,
-    ).join("、");
+    return raw.split(",").map((item) => item.trim()).filter(Boolean).map((id) => p.categoryMap[id] ?? "").filter(Boolean).join("、");
 };
 
 /** 整理相簿照片顯示資料 */
@@ -49,12 +47,9 @@ const getPhotoInfoProps = (p: { data: GallerySet; lang: Lang; }): PhotoInfos[] =
 {
     return (p.data.GalleryPhotos ?? []).map((item) =>
     {
-        const info = (p.data.GalleryPhotosInfo ?? []).find((row) =>
-            row.ParentRowId === item.RowId && row.Lang?.toLowerCase() === p.lang.toLowerCase()
-        );
+        const info = (p.data.GalleryPhotosInfo ?? []).find((row) => row.ParentRowId === item.RowId && row.Lang?.toLowerCase() === p.lang.toLowerCase());
         return { pictureInternalId: item.PicSrcId ?? "", pictureDescription: info?.Title ?? "" };
-    })
-        .filter((item) => item.pictureInternalId);
+    }).filter((item) => item.pictureInternalId);
 };
 
 const GalleryForm = (prop: { theme: IFETheme; lang: Lang; }) =>
@@ -64,45 +59,26 @@ const GalleryForm = (prop: { theme: IFETheme; lang: Lang; }) =>
     // 讀取 feature 收斂後的原始資料
     const formData = useGalleryFormFetchData({ lang: prop.lang });
     // 取得目前語系內容
-    const galleryInfo = useMemo(() => getGalleryInfoByLang({ data: formData.data, lang: prop.lang }), [
-        formData.data,
-        prop.lang,
-    ]);
+    const galleryInfo = useMemo(() => getGalleryInfoByLang({ data: formData.data, lang: prop.lang }), [formData.data, prop.lang]);
 
     // 解析內容中的 internal file ids
-    const resolved = useResolveInternalIds(
-        galleryInfo?.Content ?? "",
-        { locale: prop.lang },
-    );
+    const resolved = useResolveInternalIds(galleryInfo?.Content ?? "", { locale: prop.lang });
     // 轉成 1810 畫面要的內容
-    const content = useMemo(
-        () => (resolved.html ? parse(resolved.html) : null),
-        [resolved.html],
-    );
+    const content = useMemo(() => (resolved.html ? parse(resolved.html) : null), [resolved.html]);
     // 轉成 1810 畫面要的分類字串
-    const categoryText = useMemo(
-        () =>
-            getCategoryText({
-                categoryIds: formData.data.Gallery?.Categories,
-                categoryMap: formData.categoryMap,
-            }),
-        [formData.data.Gallery?.Categories, formData.categoryMap],
-    );
+    const categoryText = useMemo(() => getCategoryText({ categoryIds: formData.data.Gallery?.Categories, categoryMap: formData.categoryMap }), [
+        formData.data.Gallery?.Categories,
+        formData.categoryMap,
+    ]);
 
     // 轉成 1810 Lightbox 要的照片資料
-    const photoInfoProps = useMemo(
-        () => getPhotoInfoProps({ data: formData.data, lang: prop.lang }),
-        [formData.data, prop.lang],
-    );
+    const photoInfoProps = useMemo(() => getPhotoInfoProps({ data: formData.data, lang: prop.lang }), [formData.data, prop.lang]);
 
     // 整理 Lightbox 圖片資料
     const images = useMemo(
         () =>
             photoInfoProps.map((item) => ({
-                src: FileManagementAPI.get_Public_Download_Url(
-                    item.pictureInternalId,
-                    item.pictureDescription,
-                ),
+                src: FileManagementAPI.get_Public_Download_Url(item.pictureInternalId, item.pictureDescription),
                 description: item.pictureDescription,
             })),
         [photoInfoProps],
@@ -150,9 +126,7 @@ const GalleryForm = (prop: { theme: IFETheme; lang: Lang; }) =>
 
 export default GalleryForm;
 
-const TitleContentBar = (
-    { title, categoryName, content }: { title: string; categoryName: string; content: ReactNode; },
-) => (
+const TitleContentBar = ({ title, categoryName, content }: { title: string; categoryName: string; content: ReactNode; }) => (
     <>
         <div className="row">
             <div className="page-header">
