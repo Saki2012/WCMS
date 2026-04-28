@@ -7,7 +7,20 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import { PGID } from "@/types/SchemaFields";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+
+import "yet-another-react-lightbox/styles.css";
+import "yet-another-react-lightbox/plugins/captions.css";
+import "yet-another-react-lightbox/plugins/counter.css";
+import "yet-another-react-lightbox/plugins/thumbnails.css";
+import Lightbox from "yet-another-react-lightbox";
+import Captions from "yet-another-react-lightbox/plugins/captions";
+import Counter from "yet-another-react-lightbox/plugins/counter";
+import Download from "yet-another-react-lightbox/plugins/download";
+import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
+import Share from "yet-another-react-lightbox/plugins/share";
+import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
+import Zoom from "yet-another-react-lightbox/plugins/zoom";
 
 type GallerySet = components["schemas"]["GallerySet_DTO"];
 
@@ -31,7 +44,7 @@ const GalleryForm = (props: { site: INormSite; node: INormNode; theme: IFETheme;
             errorList={formData.errorList}
             viewCountConfig={viewCountConfig}
         >
-            <GalleryFormList lang={props.lang} data={formData.data} />
+            <NewGalleryFormList lang={props.lang} data={formData.data} />
         </ModuleContent>
     );
 };
@@ -122,6 +135,113 @@ const GalleryFormList = (props: { lang: Lang; data: GallerySet; }) =>
                     );
                 })}
             </div>
+        </>
+    );
+};
+
+const NewGalleryFormList = (props: { lang: Lang; data: GallerySet }) =>
+{
+    const [open, setOpen] = useState(false);
+    const [index, setIndex] = useState(0);
+
+    const slides =
+        props.data?.GalleryPhotos?.map((item) =>
+        {
+            const infoDt = props.data.GalleryPhotosInfo?.find(
+                (p) => p.ParentRowId === item.RowId && p.Lang === props.lang,
+            );
+
+            const title = infoDt?.Title ?? "";
+            const url = FileManagementAPI.get_Public_Preview_Url(item.PicSrcId);
+
+            return {
+                src: url,
+                title,
+                description: title,
+                download: url,
+            };
+        }) ?? [];
+
+    return (
+        <>
+            <div id="Row_Colitem" className="SubPage_Standard_itemBoxs">
+                {slides.map((slide, idx) => (
+                    <div
+                        key={idx}
+                        className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 Standard_ItemDiv"
+                    >
+                        <article className="cardbox">
+                            <div className="card_content">
+                                <figure className="figure_Box">
+                                    <button
+                                        type="button"
+                                        className="card_image_link border-0 bg-transparent p-0 w-100"
+                                        onClick={() =>
+                                        {
+                                            setIndex(idx);
+                                            setOpen(true);
+                                        }}
+                                        title={slide.title}
+                                    >
+                                        <div className="card_figure">
+                                            <div className="img-wrapper">
+                                                <img
+                                                    className="card_image"
+                                                    src={slide.src}
+                                                    alt={slide.title}
+                                                />
+                                            </div>
+                                        </div>
+                                    </button>
+                                </figure>
+
+                                <div className="card_titleDiv mb-md-2 mb-sm-1 mb-0">
+                                    <div className="card_subtitle">
+                                        {slide.title}
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                ))}
+            </div>
+
+            <Lightbox
+                open={open}
+                close={() => setOpen(false)}
+                index={index}
+                slides={slides}
+                plugins={[
+                    Captions,
+                    Counter,
+                    Download,
+                    Fullscreen,
+                    Share,
+                    Thumbnails,
+                    Zoom,
+                ]}
+                captions={{
+                    descriptionTextAlign: "center",
+                }}
+                counter={{
+                    container: {
+                        style: {
+                            top: "unset",
+                            bottom: 0,
+                        },
+                    },
+                }}
+                zoom={{
+                    maxZoomPixelRatio: 3,
+                    zoomInMultiplier: 2,
+                }}
+                thumbnails={{
+                    position: "bottom",
+                    width: 100,
+                    height: 70,
+                    gap: 8,
+                }}
+            />
         </>
     );
 };
