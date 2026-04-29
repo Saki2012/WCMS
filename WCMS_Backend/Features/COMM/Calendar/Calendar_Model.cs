@@ -1,9 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.Features.IAM.Account;
-using WCMS.SpecFeatures.Spec1810.WEB.SpecCategory;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;

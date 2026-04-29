@@ -14,6 +14,7 @@ using System.Runtime.Intrinsics.Arm;
 using System.Security.AccessControl;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;
+using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 
 namespace WCMS.SysCore
@@ -55,12 +56,13 @@ namespace WCMS.SysCore
         #endregion
         #region Private
         /// <summary>
-        /// 模型與Database綁定設置
+        /// 模型與Database綁定設置。
         /// </summary>
-        /// <param name="builder"></param>
         private void ModelDbSetting(ModelBuilder builder)
         {
-            Type[] modelTypes = [.. Assembly.GetExecutingAssembly().GetTypes().Where(p => p.BaseType == typeof(DetailRowModel) || p.BaseType == typeof(MasterDataModel) || p.BaseType == typeof(BillDataModel))];
+            Type[] modelTypes = [.. Assembly.GetExecutingAssembly().GetTypes()
+                .Where(p => p.BaseType == typeof(DetailRowModel) || p.BaseType == typeof(MasterDataModel) || p.BaseType == typeof(BillDataModel))
+                .Where(IsAllowedDbModelType)];
             foreach (Type type in modelTypes)
             {
                 string tableName = type.Name;
@@ -69,6 +71,15 @@ namespace WCMS.SysCore
                 if (keyPropName.Length != 0) builder.Entity(type).ToTable(tableName).HasKey(keyPropName);
                 else builder.Entity(type).ToTable(tableName);
             }
+        }
+        /// <summary>
+        /// 判斷目前 Model 是否允許納入 EF Model。
+        /// </summary>
+        private static bool IsAllowedDbModelType(Type type)
+        {
+            var ns = type.Namespace ?? string.Empty;
+            if (!SpecSettings.IsSpecFeaturesNamespace(ns)) return true;
+            return SpecSettings.IsCurrentSpecNamespace(ns);
         }
         /// <summary>
         /// 排除DTO型別不納入EF追蹤

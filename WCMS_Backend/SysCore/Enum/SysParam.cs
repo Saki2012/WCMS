@@ -1,4 +1,5 @@
 ﻿using WCMS.Features.IAM.Auth;
+using WCMS.SysCore.Library;
 
 namespace WCMS.SysCore.Enum
 {
@@ -51,18 +52,18 @@ namespace WCMS.SysCore.Enum
         /// 搜尋清單快取 
         /// (Program設定時長)
         /// </summary>
-        public const string ListCache = "ListCache";
+        public const string ListCache = nameof(ListCache);
         /// <summary>
         /// 搜尋明細快取 
         /// (Program設定時長)
         /// </summary>
-        public const string DetailCache = "DetailCache";
+        public const string DetailCache = nameof(DetailCache);
         /// <summary>
         /// 永久快取 
         /// </summary>
-        public const string PermanentCache = "PermanentCache";
+        public const string PermanentCache = nameof(PermanentCache);
 
-
+        public const string WCMSFeaturesNameSpace = $"{nameof(WCMS)}.${nameof(Features)}.";
         /// <summary>
         /// Cookie 名稱常數
         /// </summary>

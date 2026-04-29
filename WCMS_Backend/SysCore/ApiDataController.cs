@@ -17,9 +17,6 @@ using WCMS.Features.WEB.Gallery;
 using WCMS.Features.WEB.PageManagement;
 using WCMS.Features.WEB.SiteMenuSetting;
 using WCMS.Features.WEB.WebResource;
-using WCMS.SpecFeatures.Spec1810.WEB.SpecCategory;
-using WCMS.SpecFeatures.Spec1810.WEB.SpecResearch;
-using WCMS.SpecFeatures.Spec1810.WEB.SpecUSR;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Interface;
@@ -440,15 +437,6 @@ namespace WCMS.SysCore
 
             SiteMenuBiz siteMenuBiz = HttpContext.RequestServices.GetRequiredService<IBizService<SiteMenuSet>>() as SiteMenuBiz;
             await siteMenuBiz.Migrate(pageManagement);
-
-            SpecCategoryBiz specCategoryBiz = HttpContext.RequestServices.GetRequiredService<IBizService<SpecCategorySet>>() as SpecCategoryBiz;
-            await specCategoryBiz.Migrate();
-
-            SpecResearchBiz specResearchBiz = HttpContext.RequestServices.GetRequiredService<IBizService<SpecResearchSet>>() as SpecResearchBiz;
-            await specResearchBiz.Migrate();
-
-            SpecUSRBiz specUSRBiz = HttpContext.RequestServices.GetRequiredService<IBizService<SpecUSRSet>>() as SpecUSRBiz;
-            await specUSRBiz.Migrate(labelTag, srcFiles);
 
             //foreach (var fileSet in srcFiles)
             //{

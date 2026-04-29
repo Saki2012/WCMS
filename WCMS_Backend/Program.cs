@@ -27,17 +27,18 @@ using System.Text;
 using System.Text.Json.Serialization.Metadata;
 using System.Text.RegularExpressions;
 using System.Threading.RateLimiting;
+using WCMS.Features._Resx;
 using WCMS.Features.COMM.Calendar;
 using WCMS.Features.COMM.Person;
 using WCMS.Features.IAM.Account;
 using WCMS.Features.IAM.Auth;
 using WCMS.Features.IAM.RolePermission;
-using WCMS.Features._Resx;
 using WCMS.Features.SystemSetting.Calendar;
 using WCMS.Features.WEB.SiteMenuSetting;
 using WCMS.SysCore;
 using WCMS.SysCore.AppSettingsOptions;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.Filter;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
@@ -232,7 +233,10 @@ namespace WCMS
             /// </summary>
             public static void AddCoreServices(IServiceCollection services, IConfiguration cfg)
             {
-                services.AddControllers().AddJsonOptions(opt =>
+                services.AddControllers(options =>
+                {
+                    options.Filters.Add<SpecApiAccessFilter>();
+                }).AddJsonOptions(opt =>
                 {
                     opt.JsonSerializerOptions.PropertyNamingPolicy = null;
                     opt.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
@@ -399,30 +403,30 @@ namespace WCMS
                 });
             }
             /// <summary>
-            /// 反射註冊 BizService
+            /// 反射註冊 BizService。
             /// </summary>
             private static void RegisterBizServices(IServiceCollection services)
             {
                 var asm = typeof(Program).Assembly;
                 var biz = typeof(BizService<>);
                 var ibiz = typeof(IBizService<>);
+
                 var pairs = asm.GetTypes().Where(t => !t.IsAbstract && !t.IsInterface && t != biz)
-                               .SelectMany(t => t.GetInterfaces()
-                                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == ibiz)
-                                    .Select(i => new
-                                    {
-                                        Service = i,
-                                        Impl = t,
-                                        Ns = t.Namespace ?? string.Empty
-                                    }
-                                    )).ToList();
-                // 1) 先註冊 Feature 底下的 Biz（基礎版）
-                foreach (var p in pairs.Where(p => p.Ns.StartsWith("WCMS.Features.", StringComparison.Ordinal))) services.AddScoped(p.Service, p.Impl);
-                // 2) （可選）其餘非 Feature/Spec 的也先註冊
-                foreach (var p in pairs.Where(p => !p.Ns.StartsWith("WCMS.Features.", StringComparison.Ordinal) && !p.Ns.StartsWith("WCMS.SpecFeatures.", StringComparison.Ordinal))) services.AddScoped(p.Service, p.Impl);
-                // 3) 最後註冊 SpecFeature 的 Biz（覆蓋同服務型別 → 解析時拿最後一筆）
-                foreach (var p in pairs.Where(p => p.Ns.StartsWith("WCMS.SpecFeatures.", StringComparison.Ordinal))) services.AddScoped(p.Service, p.Impl);
-                //添加登入服務
+                    .SelectMany(t => t.GetInterfaces()
+                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == ibiz)
+                    .Select(i => new
+                    {
+                        Service = i,
+                        Impl = t,
+                        Ns = t.Namespace ?? string.Empty
+                    })).ToList();
+
+                foreach (var p in pairs.Where(p => p.Ns.StartsWith(SysParam.WCMSFeaturesNameSpace, StringComparison.Ordinal))) services.AddScoped(p.Service, p.Impl);
+
+                foreach (var p in pairs.Where(p => !p.Ns.StartsWith(SysParam.WCMSFeaturesNameSpace, StringComparison.Ordinal) && !SpecSettings.IsSpecFeaturesNamespace(p.Ns))) services.AddScoped(p.Service, p.Impl);
+
+                foreach (var p in pairs.Where(p => SpecSettings.IsCurrentSpecNamespace(p.Ns))) services.AddScoped(p.Service, p.Impl);
+
                 services.AddScoped<IAuthService, AuthBiz>();
             }
             /// <summary>
