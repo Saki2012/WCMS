@@ -3,7 +3,8 @@ param(
     [string]$BaselineName = "Baseline",
     [string]$TempSnapName = "TempSnap_1_1",
     [string]$UpgradeName = "Upgrade_1_1_to_Latest",
-    [switch]$GenerateSqlOnly
+    [switch]$GenerateSqlOnly,
+    [switch]$SkipDbSpecCodeCheck
 )
 
 $ErrorActionPreference = "Stop"
@@ -275,6 +276,76 @@ $targetBody
     Write-Host "ApplicationDbContextModelSnapshot.cs created from designer: $SnapshotPath"
 }
 
+function Format-SpecCode {
+    param([string]$SpecCode)
+
+    if ([string]::IsNullOrWhiteSpace($SpecCode)) {
+        return "(empty)"
+    }
+
+    return $SpecCode
+}
+
+function Invoke-SqlScalar {
+    param(
+        [string]$ConnectionString,
+        [string]$Sql
+    )
+
+    $connObj = New-Object System.Data.SqlClient.SqlConnection $ConnectionString
+    $cmd = $connObj.CreateCommand()
+    $cmd.CommandText = $Sql
+    $cmd.CommandTimeout = 30
+
+    try {
+        $connObj.Open()
+        return $cmd.ExecuteScalar()
+    }
+    finally {
+        $connObj.Dispose()
+    }
+}
+
+function Assert-DbSpecCode {
+    param(
+        [string]$ConnectionString,
+        [string]$ExpectedSpecCode
+    )
+
+    $tableSql = @"
+SELECT COUNT(1)
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_SCHEMA = 'dbo'
+  AND TABLE_NAME = 'SysDbProfile';
+"@
+
+    $tableCount = Invoke-SqlScalar -ConnectionString $ConnectionString -Sql $tableSql
+    if ([int]$tableCount -le 0) {
+        throw "SysDbProfile table not found. Run initial migration first or use -SkipDbSpecCodeCheck only for the first migration that creates SysDbProfile."
+    }
+
+    $profileSql = @"
+SELECT TOP 1 [ProfileValue]
+FROM [dbo].[SysDbProfile]
+WHERE [ProfileKey] = N'SpecCode';
+"@
+
+    $dbSpecCode = Invoke-SqlScalar -ConnectionString $ConnectionString -Sql $profileSql
+    if ($null -eq $dbSpecCode) {
+        throw "SysDbProfile.SpecCode not found. Start the system once to initialize it, insert it manually, or use -SkipDbSpecCodeCheck only for the first migration."
+    }
+
+    $expectedText = $ExpectedSpecCode.Trim()
+    $dbSpecCodeText = $dbSpecCode.ToString().Trim()
+
+    Write-Host "Config SpecCode: $(Format-SpecCode $expectedText)"
+    Write-Host "DB SpecCode: $(Format-SpecCode $dbSpecCodeText)"
+
+    if ($dbSpecCodeText -ne $expectedText) {
+        throw "SpecCode mismatch. Config SpecCode is '$(Format-SpecCode $expectedText)', but DB SpecCode is '$(Format-SpecCode $dbSpecCodeText)'. Migration stopped."
+    }
+}
+
 # Resolve paths
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $projectRoot = (Resolve-Path (Join-Path $scriptDir "..")).Path
@@ -298,22 +369,35 @@ if (!(Test-Path $settingsPath)) {
 $settings = Get-Content $settingsPath -Raw -Encoding UTF8 | ConvertFrom-Json
 $conn = $settings.ConnectionStrings.SqlConnection
 
+$hasSpecCodeProperty = $settings.PSObject.Properties.Name -contains "SpecCode"
+if (!$hasSpecCodeProperty) {
+    throw "Missing SpecCode property in appsettings.Development.json. Use empty string for pure Feature version."
+}
+
 $specCode = ""
 if ($null -ne $settings.SpecCode) {
     $specCode = $settings.SpecCode.ToString().Trim()
-}
-
-if ([string]::IsNullOrWhiteSpace($specCode)) {
-    throw "Missing SpecCode in appsettings.Development.json."
 }
 
 if ([string]::IsNullOrWhiteSpace($conn)) {
     throw "Missing ConnectionStrings.SqlConnection in appsettings.Development.json."
 }
 
-Write-Host "SpecCode: $specCode"
+Write-Host "SpecCode: $(Format-SpecCode $specCode)"
 Write-Host "Configuration: $Configuration"
 Write-Host "Project: $projectPath"
+
+# Validate DB SpecCode before any destructive file operation or DB update
+if ($SkipDbSpecCodeCheck) {
+    Write-Host ""
+    Write-Host "== Skip target database SpecCode validation =="
+    Write-Host "Warning: this should only be used for the first migration that creates SysDbProfile."
+}
+else {
+    Write-Host ""
+    Write-Host "== Validate target database SpecCode =="
+    Assert-DbSpecCode -ConnectionString $conn -ExpectedSpecCode $specCode
+}
 
 # Always clear Migrations before generating new migration files
 Write-Host ""
@@ -322,7 +406,7 @@ Backup-And-ClearMigrations -MigrationsDir $migrationsDir -ProjectRoot $projectRo
 
 # Build before EF commands
 Invoke-DotnetStep -Title "Build project with SpecCode" -Command {
-    dotnet build $projectPath -c $Configuration /p:SpecCode=$specCode
+    dotnet build $projectPath -c $Configuration /p:SpecCode=$specCode /p:UseSpecCodeCompile=true
 }
 
 # Add Baseline migration
@@ -377,7 +461,7 @@ else {
 
 # Build again after Baseline file is generated and cleared
 Invoke-DotnetStep -Title "Build after clearing baseline" -Command {
-    dotnet build $projectPath -c $Configuration /p:SpecCode=$specCode
+    dotnet build $projectPath -c $Configuration /p:SpecCode=$specCode /p:UseSpecCodeCompile=true
 }
 
 # Update database to Baseline
@@ -407,7 +491,7 @@ Invoke-DotnetStep -Title "Scaffold current database" -Command {
 
 # Build after scaffold, so TempBaselineDbContext is included
 Invoke-DotnetStep -Title "Build after scaffold" -Command {
-    dotnet build $projectPath -c $Configuration /p:SpecCode=$specCode
+    dotnet build $projectPath -c $Configuration /p:SpecCode=$specCode /p:UseSpecCodeCompile=true
 }
 
 # Add TempSnap migration
@@ -466,7 +550,7 @@ Write-Host "Transplanted snapshot exported: $transplantedSnapshotPath"
 
 # Build again after snapshot replacement
 Invoke-DotnetStep -Title "Build after snapshot replacement" -Command {
-    dotnet build $projectPath -c $Configuration /p:SpecCode=$specCode
+    dotnet build $projectPath -c $Configuration /p:SpecCode=$specCode /p:UseSpecCodeCompile=true
 }
 
 # Add Upgrade migration
@@ -481,7 +565,7 @@ Invoke-DotnetStep -Title "Add upgrade migration" -Command {
 
 # Build again after Upgrade migration is generated
 Invoke-DotnetStep -Title "Build after upgrade migration" -Command {
-    dotnet build $projectPath -c $Configuration /p:SpecCode=$specCode
+    dotnet build $projectPath -c $Configuration /p:SpecCode=$specCode /p:UseSpecCodeCompile=true
 }
 
 if ($GenerateSqlOnly) {

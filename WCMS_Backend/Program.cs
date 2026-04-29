@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
-using StackExchange.Redis;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
@@ -45,6 +44,7 @@ using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Library.Security;
 using WCMS.SysCore.Middleware;
+using WCMS.SysCore.Model;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS
@@ -714,22 +714,62 @@ namespace WCMS
 
             #region Initial Data
             /// <summary>
-            /// 啟動時初始化系統所需設定
-            /// 如UDF、SysOperator系統用戶註冊等
+            /// 啟動時初始化系統所需設定。
             /// </summary>
-            /// <param name="cfg"></param>
             public static async Task InitDbSettingsAsync(IServiceProvider services, IConfiguration cfg, IWebHostEnvironment env)
             {
-                // 有需要可讀開關：DbInit:Enabled（預設 true）
-                var enabled = cfg.GetValue("DbInit:Enabled", true);
-                if (!enabled) return;
+                // 宣告變數：建立初始化用 Scope 與 DbContext
                 using var scope = services.CreateScope();
                 var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                // 執行檢查：確保 DB SpecCode 與目前系統 SpecCode 一致
+                await EnsureDbSpecCodeAsync(db);
+                // 宣告變數：判斷是否執行其他初始化資料
+                var enabled = cfg.GetValue("DbInit:Enabled", true);
+                if (!enabled) return;
+                // 執行初始化：註冊 UDF 與必要系統資料
                 await RegistUDFAsync(cfg, env, db);
-                await RegistSysAccountAsync(cfg, db);
                 await RegistSysAccountAsync(cfg, db);
                 await RegistSiteIndex(cfg, db);
                 await RegistCalendar(services);
+            }
+            /// <summary>
+            /// 確保 DB SpecCode 與目前系統 SpecCode 一致。
+            /// </summary>
+            private static async Task EnsureDbSpecCodeAsync(ApplicationDbContext db)
+            {
+                // 宣告變數：設定鍵與目前系統 SpecCode，空字串代表純 Feature 版本
+                const string specCodeKey = "SpecCode";
+                var appSpecCode = SpecSettings.SpecCode?.Trim() ?? string.Empty;
+                // 執行查詢：取得 DB 目前記錄的 SpecCode
+                var profile = await db.SysDbProfile.FirstOrDefaultAsync(p => p.ProfileKey == specCodeKey);
+                // 執行新增：第一次啟動 DB 時寫入 SpecCode，允許空字串代表純 Feature 版本
+                if (profile == null)
+                {
+                    db.SysDbProfile.Add(new SysDbProfile
+                    {
+                        ProfileKey = specCodeKey,
+                        ProfileValue = appSpecCode,
+                        CreateTime = DateTime.Now,
+                        ModifyTime = null,
+                    });
+
+                    await db.SaveChangesAsync();
+                    return;
+                }
+                // 宣告變數：DB 內記錄的 SpecCode，null 視為空字串
+                var dbSpecCode = profile.ProfileValue?.Trim() ?? string.Empty;
+                // 執行檢查：如果 DB SpecCode 與系統 SpecCode 不一致，直接中止啟動
+                if (!string.Equals(dbSpecCode, appSpecCode, StringComparison.Ordinal))
+                {
+                    throw new InvalidOperationException($"DB SpecCode mismatch. App SpecCode is '{FormatSpecCode(appSpecCode)}', but DB SpecCode is '{FormatSpecCode(dbSpecCode)}'.");
+                }
+            }
+            /// <summary>
+            /// 格式化 SpecCode 訊息，避免空字串不容易辨識。
+            /// </summary>
+            private static string FormatSpecCode(string specCode)
+            {
+                return string.IsNullOrWhiteSpace(specCode) ? "(empty)" : specCode;
             }
             /// <summary>
             /// 註冊UDF

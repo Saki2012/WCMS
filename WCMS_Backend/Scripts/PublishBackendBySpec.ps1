@@ -48,6 +48,7 @@ dotnet publish $projectPath `
     -c $Configuration `
     /p:PublishProfile=$PublishProfile `
     /p:SpecCode=$specCode `
+    /p:UseSpecCodeCompile=true `
     /p:PublishDir="$publishDir\"
 
 if ($LASTEXITCODE -ne 0) {

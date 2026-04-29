@@ -110,11 +110,11 @@ namespace WCMS.Features.WEB.Announcement
         /// <summary>
         /// 父行代碼
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_ParentRowId)] public int ParentRowId { get; set; }
+        [LibDesc(ModelDisplayName.Common_ParentRowId)] public int? ParentRowId { get; set; }
         /// <summary>
         /// 行代碼
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_RowId)] public int RowId { get; set; }
+        [LibDesc(ModelDisplayName.Common_RowId)] public int? RowId { get; set; }
         /// <summary>
         /// 檔案來源
         /// </summary>

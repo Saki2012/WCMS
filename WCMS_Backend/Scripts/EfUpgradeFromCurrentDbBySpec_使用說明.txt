@@ -1,0 +1,214 @@
+﻿EfUpgradeFromCurrentDbBySpec.ps1 使用說明
+
+用途：
+自動處理 WCMS 後端 EF Migration 升級流程，包含：
+1. 讀取 appsettings.Development.json 的 SpecCode 與 SqlConnection
+2. 依 SpecCode 進行條件編譯
+3. 備份並清空 Migrations 資料夾
+4. 產生 Baseline migration
+5. 自動清空 Baseline 的 Up / Down
+6. Scaffold 目前舊 DB
+7. 產生 TempSnap_1_1
+8. 將 TempSnap 的 BuildTargetModel 植入 ApplicationDbContextModelSnapshot
+9. 產生 Upgrade migration
+10. 更新 DB 或產生 SQL script
+
+============================================================
+參數列表
+============================================================
+
+1. -Configuration
+
+範例：
+-Configuration "Debug"
+
+用途：
+指定 dotnet build / dotnet ef 使用的組態。
+
+預設值：
+Debug
+
+範例：
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\Scripts\EfUpgradeFromCurrentDbBySpec.ps1" -Configuration "Release"
+
+------------------------------------------------------------
+
+2. -BaselineName
+
+範例：
+-BaselineName "Baseline"
+
+用途：
+指定 Baseline migration 的名稱。
+
+預設值：
+Baseline
+
+產生檔案類似：
+Migrations/yyyyMMddHHmmss_Baseline.cs
+Migrations/yyyyMMddHHmmss_Baseline.Designer.cs
+
+一般不需要改。
+
+------------------------------------------------------------
+
+3. -TempSnapName
+
+範例：
+-TempSnapName "TempSnap_1_1"
+
+用途：
+指定暫存 Scaffold DbContext 的 snapshot migration 名稱。
+
+預設值：
+TempSnap_1_1
+
+產生位置：
+Migrations/_BaselineScaffold/__TempMigrations
+
+一般不需要改。
+
+------------------------------------------------------------
+
+4. -UpgradeName
+
+範例：
+-UpgradeName "Upgrade_1_1_to_Latest"
+
+用途：
+指定真正差異升級 migration 的名稱。
+
+預設值：
+Upgrade_1_1_to_Latest
+
+產生檔案類似：
+Migrations/yyyyMMddHHmmss_Upgrade_1_1_to_Latest.cs
+Migrations/yyyyMMddHHmmss_Upgrade_1_1_to_Latest.Designer.cs
+
+如果不同版本升級，可以改名稱，例如：
+-UpgradeName "Upgrade_1_2_to_Latest"
+
+------------------------------------------------------------
+
+5. -GenerateSqlOnly
+
+範例：
+-GenerateSqlOnly
+
+用途：
+只產生 SQL script，不直接更新 DB。
+
+不加這個參數時：
+會執行 dotnet ef database update，直接更新目標 DB。
+
+加上這個參數時：
+會執行 dotnet ef migrations script，只產生 SQL 檔，不直接更新 DB。
+
+產生位置：
+Migrations/Sql/{UpgradeName}.sql
+
+範例：
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\Scripts\EfUpgradeFromCurrentDbBySpec.ps1" -GenerateSqlOnly
+
+------------------------------------------------------------
+
+6. -SkipDbSpecCodeCheck
+
+範例：
+-SkipDbSpecCodeCheck
+
+用途：
+跳過 DB 內 SysDbProfile.SpecCode 與 appsettings.Development.json 的 SpecCode 比對。
+
+使用時機：
+只有第一次升級舊 DB，而且該 DB 還沒有 SysDbProfile 表，或還沒有 ProfileKey = SpecCode 資料時才使用。
+
+範例：
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\Scripts\EfUpgradeFromCurrentDbBySpec.ps1" -SkipDbSpecCodeCheck
+
+只產 SQL 且第一次升級舊 DB：
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\Scripts\EfUpgradeFromCurrentDbBySpec.ps1" -SkipDbSpecCodeCheck -GenerateSqlOnly
+
+注意：
+第一次升級完成後，請啟動系統一次，讓系統自動寫入：
+ProfileKey = SpecCode
+ProfileValue = appsettings.Development.json 的 SpecCode
+
+之後再跑本 script 時，不要再加 -SkipDbSpecCodeCheck。
+讓 script 正常檢查 DB SpecCode，避免更新錯 DB。
+
+============================================================
+常用執行方式
+============================================================
+
+1. 一般更新 DB
+
+cd C:\Users\IT-013\Desktop\Project\WCMS\WCMS_Backend
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\Scripts\EfUpgradeFromCurrentDbBySpec.ps1"
+
+------------------------------------------------------------
+
+2. 第一次升級舊 DB，尚未有 SysDbProfile / SpecCode
+
+cd C:\Users\IT-013\Desktop\Project\WCMS\WCMS_Backend
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\Scripts\EfUpgradeFromCurrentDbBySpec.ps1" -SkipDbSpecCodeCheck
+
+------------------------------------------------------------
+
+3. 只產 SQL，不直接更新 DB
+
+cd C:\Users\IT-013\Desktop\Project\WCMS\WCMS_Backend
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\Scripts\EfUpgradeFromCurrentDbBySpec.ps1" -GenerateSqlOnly
+
+------------------------------------------------------------
+
+4. 第一次升級舊 DB，只產 SQL
+
+cd C:\Users\IT-013\Desktop\Project\WCMS\WCMS_Backend
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\Scripts\EfUpgradeFromCurrentDbBySpec.ps1" -SkipDbSpecCodeCheck -GenerateSqlOnly
+
+============================================================
+注意事項
+============================================================
+
+1. 本 script 讀取 appsettings.Development.json。
+   請先確認：
+   - SpecCode 正確
+   - ConnectionStrings.SqlConnection 指向正確 DB
+
+2. SpecCode 允許空字串。
+   SpecCode = "" 代表純 Feature 版本，不啟用任何 SpecFeatures。
+
+3. script 會備份並清空 Migrations 資料夾。
+   備份位置：
+   obj/MigrationBackups/Migrations_yyyyMMddHHmmss
+
+4. script 會使用：
+   /p:SpecCode={appsettings.Development.json 的 SpecCode}
+   /p:UseSpecCodeCompile=true
+
+5. 如果 DB 已經有 SysDbProfile.SpecCode，
+   appsettings.Development.json 的 SpecCode 必須與 DB 內一致。
+   不一致時會中止，避免更新錯 DB。
+
+6. -SkipDbSpecCodeCheck 只建議在第一次升級舊 DB 時使用。
+   後續正常升級不要使用。
+
+7. 第一次升級舊 DB 的建議流程：
+   A. 設定 appsettings.Development.json 的 SpecCode 與 SqlConnection。
+   B. 執行 EfUpgradeFromCurrentDbBySpec.ps1 -SkipDbSpecCodeCheck。
+   C. 啟動系統一次，讓系統自動寫入 SysDbProfile 的 SpecCode。
+   D. 後續再跑 EfUpgradeFromCurrentDbBySpec.ps1 時，不要加 -SkipDbSpecCodeCheck。
+
+8. 如果只想產 SQL 給 DBA 或正式環境手動套用，請加 -GenerateSqlOnly。
+
+============================================================
+版本備註
+============================================================
+
+目前設計方向：
+- EF / Migration 使用 appsettings.Development.json。
+- Publish / 正式打包使用 appsettings.production.json。
+- DB schema 升版與系統啟動檢查分開處理。
+- 建表 / 改欄位交給 EF migration script。
+- 系統啟動只負責補寫或比對 SysDbProfile.SpecCode。

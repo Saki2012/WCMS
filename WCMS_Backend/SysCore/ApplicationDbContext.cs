@@ -1,17 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Microsoft.Extensions.Options;
-using SharpCompress.Compressors.RLE90;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq.Dynamic.Core;
 using System.Linq.Dynamic.Core.CustomTypeProviders;
 using System.Reflection;
-using System.Reflection.Emit;
-using System.Runtime.Intrinsics.Arm;
-using System.Security.AccessControl;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library;
@@ -25,7 +19,7 @@ namespace WCMS.SysCore
     public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
     {
         #region Property
-
+        public DbSet<SysDbProfile> SysDbProfile => Set<SysDbProfile>();
         #region DB UDF用
         /// <summary>
         /// 把 CSV 字串切成 IQueryable<string>，給 EF 轉 SQL 用（不會在 .NET 端執行）
@@ -42,14 +36,15 @@ namespace WCMS.SysCore
         {
             base.OnModelCreating(builder);
             ModelDbSetting(builder);
+            BindSysDbProfile(builder);
             ApplyEnumStringConversions(builder);
             IgnoreDtoTypes(builder);
             AutoBindRelationships(builder);
             ApplyCascadeDeleteRules(builder);
             builder.Entity<OperateLogModel>().ToTable("OperateLog");
             //builder.BuildIndexesFromAnnotations();//設置Index套件
-            BindInverseNavigations(builder);         
-            ApplyGlobalDeleteBehavior(builder);      
+            BindInverseNavigations(builder);
+            ApplyGlobalDeleteBehavior(builder);
             SetDateTimeDBType(builder);
             RegistUDF(builder);
         }
@@ -399,6 +394,21 @@ namespace WCMS.SysCore
             var converter = new ValueConverter<TEnum, string>(v => toProvider(v),v => fromProvider(v));
             var nullableConverter = new ValueConverter<TEnum?, string?>(v => v.HasValue ? toProvider(v.Value) : null,v => string.IsNullOrWhiteSpace(v) ? null : fromProvider(v!));
             return new EnumStringConversionSpec(EnumType: typeof(TEnum),Converter: converter,NullableConverter: nullableConverter,MaxLength: maxLength);
+        }
+        /// <summary>
+        /// 綁定 DB 環境識別資料表。
+        /// </summary>
+        private static void BindSysDbProfile(ModelBuilder builder)
+        {
+            builder.Entity<SysDbProfile>(entity =>
+            {
+                entity.ToTable(nameof(SysDbProfile));
+                entity.HasKey(p => p.ProfileKey);
+                entity.Property(p => p.ProfileKey).HasMaxLength(100).IsRequired();
+                entity.Property(p => p.ProfileValue).HasMaxLength(200).IsRequired();
+                entity.Property(p => p.CreateTime).IsRequired();
+                entity.Property(p => p.ModifyTime);
+            });
         }
         #endregion
     }

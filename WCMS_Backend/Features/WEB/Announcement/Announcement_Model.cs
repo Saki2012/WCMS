@@ -111,7 +111,7 @@ namespace WCMS.Features.WEB.Announcement
         /// 檔案來源
         /// </summary>
         [ForeignKey(nameof(FileId))] public FileManageModel? File { get; set; }
-        [StringLength(SysLengthParam.InternalId)] public string FileId { get; set; }
+        [StringLength(SysLengthParam.InternalId)] public string? FileId { get; set; }
         /// <summary>
         /// 檔案名稱
         /// </summary>
