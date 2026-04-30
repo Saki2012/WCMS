@@ -1,6 +1,5 @@
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
-import { Link } from "react-router-dom";
 
 export const AboutPage = (props: { lang: Lang; }) =>
 {
@@ -128,6 +127,7 @@ export const AboutPage = (props: { lang: Lang; }) =>
                                                             <div className="card_youtube_figure">
                                                                 <div className="img-wrapper">
                                                                     <iframe
+                                                                        title="SoundCloud 音樂播放器：TNUA傳音系 特色精彩課程介紹"
                                                                         allow="autoplay"
                                                                         frameBorder="no"
                                                                         width="100%"
@@ -148,6 +148,7 @@ export const AboutPage = (props: { lang: Lang; }) =>
                                                             <div className="card_youtube_figure">
                                                                 <div className="img-wrapper">
                                                                     <iframe
+                                                                        title="SoundCloud 音樂播放器：TNUA傳音系招生考試方式介紹"
                                                                         allow="autoplay"
                                                                         frameBorder="no"
                                                                         height="165"

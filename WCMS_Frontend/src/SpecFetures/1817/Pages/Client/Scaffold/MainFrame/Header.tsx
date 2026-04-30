@@ -203,10 +203,28 @@ const NavBar = (props: { lang: Lang; }) =>
                     <LangLink className="nav-link" to="/" tabIndex={0} title={title.Home}>{title.Home}</LangLink>
                 </li>
                 <li className="nav-item">
-                    <a className="nav-link" href="https://w3.tnua.edu.tw/" tabIndex={0} target="_blank" title={title.TNUA}>{title.TNUA}</a>
+                    <a
+                        className="nav-link"
+                        href="https://w3.tnua.edu.tw/"
+                        tabIndex={0}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={withNewWindowSuffix(getHeaderA11y(props.lang), title.TNUA, "_blank")}
+                    >
+                        {title.TNUA}
+                    </a>
                 </li>
                 <li className="nav-item">
-                    <a className="nav-link" href="https://www.facebook.com/TaiwanTraditionalMusic/" tabIndex={0} target="_blank" title={title.FB}>{title.FB}</a>
+                    <a
+                        className="nav-link"
+                        href="https://www.facebook.com/TaiwanTraditionalMusic/"
+                        tabIndex={0}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={withNewWindowSuffix(getHeaderA11y(props.lang), title.FB, "_blank")}
+                    >
+                        {title.FB}
+                    </a>
                 </li>
                 <li className="nav-item">
                     <LangLink className="nav-link" to={`/${SITEMAP_SEGMENT}`} tabIndex={0} target="_self" title={title.SiteMap}>{title.SiteMap}</LangLink>
@@ -619,8 +637,18 @@ const MobileBtn = (props: { lang: Lang; }) =>
                             <span className="sr-only">{a11y.search}</span>
                         </a>
                         <div className="searchdropdown dropdown-menu search-input-dropdown" aria-labelledby="mobile-sss">
-                            <input type="search" id="mobile-search-box" placeholder="search here..." tabIndex={0} />
-                            <button className="far fa-search" type="button" tabIndex={0}></button>
+                            <label className="sr-only" htmlFor="mobile-search-box">{a11y.search}</label>
+                            <input
+                                type="search"
+                                id="mobile-search-box"
+                                placeholder="search here..."
+                                title={a11y.search}
+                                aria-label={a11y.search}
+                                tabIndex={0}
+                            />
+                            <button className="far fa-search" type="button" title={a11y.search} aria-label={a11y.search} tabIndex={0}>
+                                <span className="sr-only">{a11y.search}</span>
+                            </button>
                         </div>
                     </div>
                 </div>
