@@ -12,11 +12,16 @@ namespace WCMS.SysCore.Library
         /// </summary>
         public static string SpecCode { get; private set; } = string.Empty;
         /// <summary>
+        /// 是否啟用 AA 資料檢查
+        /// </summary>
+        public static bool AACheck { get; private set; } = false;
+        /// <summary>
         /// 初始化 Spec 設定。
         /// </summary>
         public static void Init(IConfiguration configuration)
         {
-            SpecCode = configuration["SpecCode"]?.Trim() ?? string.Empty;
+            SpecCode = configuration[nameof(SpecCode)]?.Trim() ?? string.Empty;
+            AACheck = configuration.GetValue<bool>(nameof(AACheck));
         }
         /// <summary>
         /// 取得指定 SpecCode 對應的 SpecFeatures namespace。
@@ -52,7 +57,6 @@ namespace WCMS.SysCore.Library
             ns = ns?.Trim() ?? string.Empty;
             if (string.IsNullOrWhiteSpace(ns)) return false;
             if (string.IsNullOrWhiteSpace(SpecFeaturesNamespace)) return false;
-
             return ns == SpecFeaturesNamespace || ns.StartsWith($"{SpecFeaturesNamespace}.", StringComparison.Ordinal);
         }
     }

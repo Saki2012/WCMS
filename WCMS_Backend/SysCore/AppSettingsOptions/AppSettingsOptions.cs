@@ -20,4 +20,5 @@
         public string Permanent { get; set; }
         public string Import { get; set; }
     }
+
 }

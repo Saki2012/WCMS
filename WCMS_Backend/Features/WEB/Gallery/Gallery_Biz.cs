@@ -165,7 +165,6 @@ public class GalleryBiz(BizDeps bizDeps) : BizService<GallerySet>(bizDeps), IBiz
         CheckIsEmpty(set);
         AACheck(set);
     }
-
     private void SetData(GallerySet set)
     {
         DoRemergeData(set.Gallery);
@@ -174,14 +173,9 @@ public class GalleryBiz(BizDeps bizDeps) : BizService<GallerySet>(bizDeps), IBiz
     private void CheckIsEmpty(GallerySet set)
     {
         if (set.Gallery.Validate_Start == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Gallery_DTO>(x => x.Validate_Start));
-        if (set.GalleryInfo.FirstOrDefault(p => p.Lang==SiteDefaultLang) == null || set.GalleryInfo.FirstOrDefault(p => p.Lang==SiteDefaultLang).Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00019, SiteDefaultLang.ToLabel(), I18nCache.GetLabel<GalleryInfo_DTO>(x => x.Title));
+        
     }
-    private void AACheck(GallerySet set)
-    {
-        return;//有強制要求AA時才檢測該段資料，後續做開關控管
-        foreach(GalleryPhotosInfo photos in set.GalleryPhotosInfo)
-        if (photos.Lang==SiteDefaultLang && photos.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00020, SiteDefaultLang.ToLabel(), I18nCache.GetLabel<GalleryPhotosInfo_DTO>(x => x.Title));
-    }
+    
     /// <summary>
     /// 重新組合多筆資料(類別、狀態、標籤)
     /// </summary>
@@ -197,6 +191,35 @@ public class GalleryBiz(BizDeps bizDeps) : BizService<GallerySet>(bizDeps), IBiz
         List<GalleryPhotos> sorted = [.. dt.OrderBy(p => p.Sort).ThenByDescending(p => p.RowId)];
         for (int i = 0; i < sorted.Count; i++) sorted[i].Sort = (ushort)(i + 1);
     }
+    /// <summary>
+    /// AA檢查
+    /// </summary>
+    /// <param name="set"></param>
+    private void AACheck(GallerySet set)
+    {
+        if (!SpecSettings.AACheck) return;
+        AA_CheckAlbumTitle(set.GalleryInfo);
+        AA_CheckPhotoTitle(set.GalleryPhotosInfo);
+    }
+    /// <summary>
+    /// AA檢查-相本有無輸入標題
+    /// </summary>
+    /// <param name="galleryInfo"></param>
+    private void AA_CheckAlbumTitle(List<GalleryInfo> galleryInfo)
+    {
+        galleryInfo.ForEach(info => { 
+            if (info.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.AACode00001, info.Lang.ToLabel(), I18nCache.GetLabel<GalleryInfo_DTO>(x => x.Title)); 
+        });
+    }
+    /// <summary>
+    /// AA檢查-相片有無輸入標題
+    /// </summary>
+    /// <param name="photoInfo"></param>
+    private void AA_CheckPhotoTitle(List<GalleryPhotosInfo> photoInfo)
+    {
+        photoInfo.ForEach(info => {
+            if(info.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.AACode00002, info.Lang.ToLabel(), I18nCache.GetLabel<GalleryPhotosInfo_DTO>(x => x.Title));
+        });
+    }
     #endregion
-
 }

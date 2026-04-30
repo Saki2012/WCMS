@@ -175,10 +175,10 @@
     <value>標籤[{0}]已被使用，無法刪除。</value>
   </data>
   <data name="BECode00019" xml:space="preserve">
-    <value>請輸入相簿中[{0}]語系的[{1}]。</value>
+    <value />
   </data>
   <data name="BECode00020" xml:space="preserve">
-    <value>請輸入相片中[{0}]語系的[{1}]。</value>
+    <value />
   </data>
   <data name="BECode00021" xml:space="preserve">
     <value>檔案已存在至系統，略過重複上傳。</value>
@@ -227,5 +227,11 @@
   </data>
   <data name="BECode00036" xml:space="preserve">
     <value>人員編號【{0}】已被其他帳號使用，請選擇其他人員。</value>
+  </data>
+  <data name="AACode00001" xml:space="preserve">
+    <value>請輸入相簿中[{0}]語系的[{1}]。 (AA)</value>
+  </data>
+  <data name="AACode00002" xml:space="preserve">
+    <value>請輸入相片中[{0}]語系的[{1}]。 (AA)</value>
   </data>
 </root>

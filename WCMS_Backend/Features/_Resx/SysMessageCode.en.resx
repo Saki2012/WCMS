@@ -175,10 +175,10 @@
     <value>Tag [{0}] is in use and cannot be deleted.</value>
   </data>
   <data name="BECode00019" xml:space="preserve">
-    <value>Please enter [{1}] for language [{0}] in the album.</value>
+    <value />
   </data>
   <data name="BECode00020" xml:space="preserve">
-    <value>Please enter [{1}] for language [{0}] in the photo.</value>
+    <value />
   </data>
   <data name="BECode00021" xml:space="preserve">
     <value>The file already exists in the system; duplicate upload was skipped.</value>
@@ -227,5 +227,11 @@
   </data>
   <data name="BECode00036" xml:space="preserve">
     <value>人員編號【{0}】已被其他帳號使用，請選擇其他人員。</value>
+  </data>
+  <data name="AACode00001" xml:space="preserve">
+    <value>Please enter [{1}] for language [{0}] in the album. (AA)</value>
+  </data>
+  <data name="AACode00002" xml:space="preserve">
+    <value>Please enter [{1}] for language [{0}] in the photo. (AA)</value>
   </data>
 </root>

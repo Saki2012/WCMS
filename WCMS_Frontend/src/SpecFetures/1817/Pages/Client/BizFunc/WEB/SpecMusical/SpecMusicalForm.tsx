@@ -103,7 +103,7 @@ const PicturesComp = (props: { pics: SpecMusicalPictureList[]; }) =>
     const mainRef = useRef<HTMLDivElement | null>(null);
     const thumbRef = useRef<HTMLDivElement | null>(null);
     const zoomBtnRef = useRef<HTMLAnchorElement | null>(null);
-    const srcId = FileManagementAPI.get_Public_Preview_Url(props.pics?.[0].PicSrcId);
+    const zoomPreviewUrlRef = useRef<string>("");
     const sortPics = useMemo(() =>
     {
         return [...props.pics].sort((a, b) => (a.Sort ?? 0) - (b.Sort ?? 0));
@@ -143,7 +143,12 @@ const PicturesComp = (props: { pics: SpecMusicalPictureList[]; }) =>
             $thumb.trigger("to.owl.carousel", [start, 300, true]);
 
             const currentImgSrc = $main.find(".item").eq(index).find("img").attr("src");
-            if (currentImgSrc) $zoomBtn.attr("href", currentImgSrc);
+            if (currentImgSrc)
+            {
+                zoomPreviewUrlRef.current = currentImgSrc;
+                $zoomBtn.attr("data-preview-url", currentImgSrc);
+                $zoomBtn.attr("href", "#");
+            }
         };
 
         // 初始化主輪播
@@ -181,8 +186,42 @@ const PicturesComp = (props: { pics: SpecMusicalPictureList[]; }) =>
         $thumb.find(".item").eq(0).addClass("active");
 
         const firstImgSrc = $main.find(".item").eq(0).find("img").attr("src");
-        if (firstImgSrc) $zoomBtn.attr("href", firstImgSrc);
+        if (firstImgSrc)
+        {
+            zoomPreviewUrlRef.current = firstImgSrc;
+            $zoomBtn.attr("data-preview-url", firstImgSrc);
+            $zoomBtn.attr("href", "#");
+        }
+        const zoomEl = zoomBtnRef.current;
 
+        const handleZoomClick = (e: MouseEvent) =>
+        {
+            const url = zoomPreviewUrlRef.current;
+            if (!url)
+            {
+                e.preventDefault();
+                return;
+            }
+
+            zoomEl?.setAttribute("href", url);
+
+            window.setTimeout(() =>
+            {
+                if (zoomEl?.getAttribute("href") === url) zoomEl.setAttribute("href", "#");
+            }, 500);
+        };
+
+        const handleZoomKeyDown = (e: KeyboardEvent) =>
+        {
+            if (e.key === " ")
+            {
+                e.preventDefault();
+                zoomEl?.click();
+            }
+        };
+
+        zoomEl?.addEventListener("click", handleZoomClick, true);
+        zoomEl?.addEventListener("keydown", handleZoomKeyDown);
         // 初始化 Venobox（如果有載入）
         const venoFn = ($zoomBtn as any).venobox;
         if (typeof venoFn === "function")
@@ -197,6 +236,9 @@ const PicturesComp = (props: { pics: SpecMusicalPictureList[]; }) =>
             {
                 $main.trigger("destroy.owl.carousel").off("changed.owl.carousel", syncPosition);
                 $thumb.off("click", ".item", handleThumbClick).trigger("destroy.owl.carousel");
+                zoomEl?.removeEventListener("click", handleZoomClick, true);
+                zoomEl?.removeEventListener("keydown", handleZoomKeyDown);
+                zoomEl?.setAttribute("href", "#");
             } catch
             {
                 // ignore
@@ -210,7 +252,16 @@ const PicturesComp = (props: { pics: SpecMusicalPictureList[]; }) =>
                 <div className="commodity_wrapper">
                     <div className="commodity_big_image_box + owl-box">
                         <div className="ZoomIn commodity_ZoomIn_btn">
-                            <a ref={zoomBtnRef} href={srcId} className="Btn_zm1 venobox" data-gall="myGallery" type="button" role="button" title="放大圖片">
+                            <a
+                                ref={zoomBtnRef}
+                                href="#"
+                                className="Btn_zm1 venobox"
+                                data-gall="myGallery"
+                                type="button"
+                                role="button"
+                                aria-label="放大圖片"
+                                title="放大圖片"
+                            >
                                 <i className="fas fa-expand-alt"></i>
                                 <span className="sr-only">放大圖片</span>
                             </a>
