@@ -45,9 +45,15 @@ const getCategoryText = (p: { categoryIds?: string | null; categoryMap: Record<s
 /** 整理相簿照片顯示資料 */
 const getPhotoInfoProps = (p: { data: GallerySet; lang: Lang; }): PhotoInfos[] =>
 {
-    return (p.data.GalleryPhotos ?? []).map((item) =>
+    const lang = p.lang.toLowerCase();
+    const photos = [...(p.data.GalleryPhotos ?? [])].sort((a, b) =>
     {
-        const info = (p.data.GalleryPhotosInfo ?? []).find((row) => row.ParentRowId === item.RowId && row.Lang?.toLowerCase() === p.lang.toLowerCase());
+        const sortCompare = (a.Sort ?? 0) - (b.Sort ?? 0);
+        return sortCompare !== 0 ? sortCompare : (a.RowId ?? 0) - (b.RowId ?? 0);
+    });
+    return photos.map((item) =>
+    {
+        const info = (p.data.GalleryPhotosInfo ?? []).find((row) => row.ParentRowId === item.RowId && row.Lang?.toLowerCase() === lang);
         return { pictureInternalId: item.PicSrcId ?? "", pictureDescription: info?.Title ?? "" };
     }).filter((item) => item.pictureInternalId);
 };
