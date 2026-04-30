@@ -12,6 +12,7 @@ import https from "node:https";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import serveStatic from "serve-static";
+import { buildProdCsp } from "./CSPSetting";
 
 type SsrConfig = Readonly<{
     port: number;
@@ -660,27 +661,6 @@ const setupDevSSR = async (app: express.Express, cfg: SsrConfig) =>
             next(e);
         }
     });
-};
-
-const buildProdCsp = (nonce: string): string =>
-{
-    const csp = [
-        "default-src 'self'",
-        `script-src 'self' 'nonce-${nonce}' 'unsafe-inline' https://translate.google.com https://translate.googleapis.com https://translate-pa.googleapis.com https://calendar.google.com https://maps.googleapis.com`,
-        `script-src-elem 'self' 'nonce-${nonce}' 'unsafe-inline' https://translate.google.com https://translate.googleapis.com https://translate-pa.googleapis.com https://calendar.google.com https://maps.googleapis.com`,
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.gstatic.com https://calendar.google.com https://maps.gstatic.com",
-        "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.gstatic.com https://calendar.google.com https://maps.gstatic.com",
-        "img-src 'self' data: blob: https: https://www.gstatic.com https://www.google.com https://i.ytimg.com https://img.youtube.com https://calendar.google.com https://maps.googleapis.com https://mapsresources-pa.googleapis.com https://maps.gstatic.com",
-        "font-src 'self' data: https://fonts.gstatic.com https://calendar.google.com",
-        "connect-src 'self' https://translate.google.com https://translate.googleapis.com https://translate-pa.googleapis.com https://calendar.google.com https://maps.googleapis.com https://mapsresources-pa.googleapis.com",
-        "frame-ancestors 'self'",
-        "frame-src 'self' https://translate.google.com https://www.youtube.com https://www.youtube-nocookie.com https://w.soundcloud.com https://calendar.google.com https://www.google.com https://maps.google.com https://lookerstudio.google.com https://datastudio.google.com",
-        "object-src 'none'",
-        "base-uri 'self'",
-        "form-action 'self'",
-    ].join("; ");
-
-    return csp;
 };
 // Prod SSR：dist/client 靜態 + dist/server/entry-server.js
 const setupProdSSR = async (app: express.Express, cfg: SsrConfig) =>

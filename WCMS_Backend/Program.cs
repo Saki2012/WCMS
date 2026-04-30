@@ -761,7 +761,9 @@ namespace WCMS
                 // 執行檢查：如果 DB SpecCode 與系統 SpecCode 不一致，直接中止啟動
                 if (!string.Equals(dbSpecCode, appSpecCode, StringComparison.Ordinal))
                 {
-                    throw new InvalidOperationException($"DB SpecCode mismatch. App SpecCode is '{FormatSpecCode(appSpecCode)}', but DB SpecCode is '{FormatSpecCode(dbSpecCode)}'.");
+                    throw new InvalidOperationException($@"
+DB SpecCode 檢查未通過。App SpecCode = '{FormatSpecCode(appSpecCode)}'，DB SpecCode = '{FormatSpecCode(dbSpecCode)}'。
+目前程式與資料庫不屬於同一個 Spec，請確認升級目標 DB、連線字串、SpecCode 設定是否正確。");
                 }
             }
             /// <summary>

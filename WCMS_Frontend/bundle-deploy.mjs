@@ -108,7 +108,7 @@ const copyWinSwExeToDist = async (root, distDir) =>
 
 const buildSsrServerEsm = (root, distDir) =>
 {
-  // 編譯 SSR-Server.ts 成 dist/SSR-Server.mjs
+  // 編譯 SSR-Server.ts，並把本地 SSR 設定檔一起包進 SSR-Server.mjs
   const esbuildJs = path.resolve(root, "node_modules", "esbuild", "bin", "esbuild");
   const entryFile = path.resolve(root, "src/SSR/SSR-Server.ts");
   const outFile = path.resolve(distDir, "SSR-Server.mjs");
@@ -118,9 +118,11 @@ const buildSsrServerEsm = (root, distDir) =>
     [
       esbuildJs,
       entryFile,
+      "--bundle",
       "--platform=node",
       "--target=node20",
       "--format=esm",
+      "--packages=external",
       `--outfile=${outFile}`,
       "--legal-comments=none",
     ],
