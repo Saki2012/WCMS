@@ -1,19 +1,16 @@
+import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
+import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
+import ModuleContent, { type ModuleViewCountConfig, type SubTitleProps } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
+import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
+import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
+import type { Lang } from "@/SysCore/i18n/lang";
+import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import { FormatDate } from "@/SysCore/Utils/Library/LibData";
+import type { components } from "@/types/api";
+import { PGID } from "@/types/SchemaFields";
 import parse from "html-react-parser";
 import { useMemo } from "react";
 import { useParams } from "react-router";
-
-import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
-import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-import type { Lang } from "@/SysCore/i18n/lang";
-import type { components } from "@/types/api";
-
-import ModuleContent, { type ModuleViewCountConfig, type SubTitleProps } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
-import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
-import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import { FormatDate } from "@/SysCore/Utils/Library/LibData";
-import { PGID } from "@/types/SchemaFields";
-
 import { useAnnouncementFormFetchData } from "./AnnouncementForm_Loader";
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];

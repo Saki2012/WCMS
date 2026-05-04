@@ -1,17 +1,16 @@
-import { type KeyboardEvent, type MouseEvent, useEffect, useMemo, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
-
+import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
+import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
-
-import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
 import { PGID } from "@/types/SchemaFields";
+import parse from "html-react-parser";
+import { type KeyboardEvent, type MouseEvent, useEffect, useMemo, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
 import { useMaterialFormFetchData } from "./Client_Material_Form_Loader";
-
 type MaterialSet = components["schemas"]["MaterialSet_DTO"];
 type MaterialFormRawData = ReturnType<typeof useMaterialFormFetchData>["rawData"];
 type MaterialInfoJson = Record<string, string | number | boolean | null | undefined>;
@@ -368,20 +367,19 @@ const MaterialInfoContent_Comp = (props: { rawData: MaterialFormRawData; lang: L
     const langInfo = getLangInfo(props.rawData.formData, props.lang);
     const json = parseMaterialInfoJson(langInfo?.MaterialInfoJson);
     const content = getFirstText(json.InfoContent, langInfo?.Memo);
-
+    const parseContent = useResolveInternalIds(content ?? "", { locale: props.lang });
+    const contents = parseContent.html ? parse(parseContent.html) : null;
     return (
         <>
             <div className="page-header">
                 <div className="Div_H3_Title">資訊說明：</div>
             </div>
-
             <hr className="hr-my-4" />
-
             <div className="SubInfoDivBox_Style + Layout_Padding_4_bottom">
                 <div className="row w-100">
                     <div className="col-12">
                         <div className="content">
-                            <div className="Editor_All_Content" dangerouslySetInnerHTML={{ __html: content }} />
+                            <div className="Editor_All_Content">{contents}</div>
                         </div>
                     </div>
                 </div>
