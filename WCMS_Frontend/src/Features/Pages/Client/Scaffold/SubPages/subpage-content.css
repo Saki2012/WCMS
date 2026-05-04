@@ -5,6 +5,7 @@
 
 /* ======================= */
 /* -------------------------
+**  滾動條樣式
 **	內頁  標準  內容區 H3 標題  ///// .page-header H3
 **	內頁  分頁按鍵  /////  ( pagination )
 **	內頁  按鍵  /////  ( 編輯資料 + 返回上一頁 )
@@ -26,8 +27,28 @@
 
 -------------------------- */
 /* ======================= */
+/* 滾動條樣式 */
 
+/* 設置滾動條的樣式 */
+::-webkit-scrollbar {
+    width: 5px;
+}
 
+/* 滾動槽 */
+::-webkit-scrollbar-track {
+    border-radius: 10px;
+}
+
+/* 滾動條滑塊 */
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: var(--Customize_color) !important;
+    -webkit-box-shadow: var(--Customize_color) !important;
+}
+
+::-webkit-scrollbar-thumb:window-inactive {
+    background: rgba(175, 190, 255, 0.4);
+}
 
 /* ======================================================================================================================= */
 /* 所有 內頁 CSS 設定 ( 以下 )  OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO */
@@ -1047,11 +1068,13 @@
     margin-top: 8px;
 
     text-align: left;
+		min-height: 111px;
 }
 
 .SubPage_Standard_itemBoxs .card_content .card_title {
     color: var(--blackcolor);
-    font-weight: 500;
+    font-weight: 700;
+		font-size: 105%;
     display: -webkit-box;
 	/* 第一步：設定 display 為 -webkit-box 元素。 */
 	-webkit-box-orient: vertical;
@@ -1060,21 +1083,21 @@
 	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
 	overflow: hidden;
 	/* 第四步：設定超過上述指定之行數時隱藏。 */
-	max-height: 45px;
+	max-height: 50px;
   	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
     
-	height: 45px;
+	height: 50px;
     transition-duration: .3s;
     transition-property: color;
     transition-timing-function: cubic-bezier(.19, 1, .22, 1)
 }
 @media screen and (min-width: 320px) and (max-width: 575px) {
 	.SubPage_Standard_itemBoxs .card_content .card_title {
-		max-height: 42px;
+		max-height: 45px;
 		/* 第五步：其它瀏覽器降級方式：給定最大高度 */
-
-		height: 42px;
-		margin-bottom: 1rem
+		font-size: 100%;
+		height: 45px;
+		margin-bottom: 1rem;
 	}
 }
 .SubPage_Standard_itemBoxs .card_content .card_title:hover,
@@ -1095,10 +1118,10 @@
 	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
 	overflow: hidden;
 	/* 第四步：設定超過上述指定之行數時隱藏。 */
-	max-height: 45px;
+	max-height: 49px;
   	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
     
-	height: 45px;
+	height: 49px;
     transition-duration: .3s;
     transition-property: color;
     transition-timing-function: cubic-bezier(.19, 1, .22, 1);
@@ -1108,10 +1131,10 @@
 @media screen and (min-width: 320px) and (max-width: 575px) {
 	.SubPage_Standard_itemBoxs .card_content .card_subtitle {
 		font-size: 87.5%;
-		max-height: 42px;
+		max-height: 44px;
 		/* 第五步：其它瀏覽器降級方式：給定最大高度 */
 
-		height: 42px;
+		height: 44px;
 		margin-bottom: 1rem;
 		margin-top: 8px;
 	}

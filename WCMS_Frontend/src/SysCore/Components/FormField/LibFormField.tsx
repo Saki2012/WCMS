@@ -14,6 +14,8 @@ export type { ILibModalStyle, LibModalProp } from "./FieldComponets/LibModal_Dat
 export { default as LibPicture } from "./FieldComponets/LibPicture_Comp";
 export type { ILibPictureProp, ILibPictureStyle } from "./FieldComponets/LibPicture_Data";
 export { default as LibPicturePreview } from "./FieldComponets/LibPicturePreview_Comp";
+export { default as LibLightBox } from "./FieldComponets/LibLightBox_Comp";
+export type { LibLightBoxProps, LibLightBoxSlide } from "./FieldComponets/LibLightBox_Data";
 export type { ILibPicturePreviewProp, ILibPicturePreviewStyle } from "./FieldComponets/LibPicturePreview_Data";
 export { default as LibSelectCard } from "./FieldComponets/LibSelectCard_Comp";
 export { default as LibSwitch } from "./FieldComponets/LibSwitch_Comp";
