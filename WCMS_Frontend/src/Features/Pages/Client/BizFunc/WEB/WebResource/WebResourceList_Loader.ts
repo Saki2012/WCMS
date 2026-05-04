@@ -103,7 +103,7 @@ const buildBaseParam = (p: { lang: Lang; opts: IWebResourceListOptions; }): Quer
         RankGroups: [{ Condition: `${WebResourceFields.ContentStatus} & 1` }],
         OrderBy: [{ Col: WebResourceFields.CreateTime, Desc: true }],
         PageNumber: 1,
-        PageSize: 10,
+        PageSize: 9,
     };
 };
 

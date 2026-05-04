@@ -56,10 +56,18 @@ const WebResourceListComp = (props: IWebResourceListProps) =>
     }, [style, props.lang, getData.rawData.gridProps, getData.rawData.listData, getData.rawData.categoryMap]);
 
     const viewCountConfig: ModuleViewCountConfig = { mode: "list" };
-
+    const paginprops = props.options?.Style === 8
+        ? undefined
+        : { currentPage: getData.rawData.pageNumber, totalPages: getData.rawData.totalPages, onPageChange: getData.rawData.onPageChange };
     // return（DOM 不動）
     return (
-        <ModuleContent nodeTitle={props.node.title} isLoading={getData.isLoading} errorList={getData.errorList} viewCountConfig={viewCountConfig}>
+        <ModuleContent
+            nodeTitle={props.node.title}
+            isLoading={getData.isLoading}
+            errorList={getData.errorList}
+            paginatorProps={paginprops}
+            viewCountConfig={viewCountConfig}
+        >
             {children}
         </ModuleContent>
     );
