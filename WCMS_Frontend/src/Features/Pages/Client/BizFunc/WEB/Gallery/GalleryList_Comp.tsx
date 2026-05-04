@@ -63,15 +63,10 @@ const Gallery = (props: { lang: Lang; data: GallerySet[]; categoryMap: Record<st
                     const catId = item.Gallery?.Categories;
                     const title = item.GalleryInfo?.find((p) => p.Lang === props.lang)?.Title ?? "";
                     const coverPicDesc = item.GalleryPhotos?.find((p) => p.PicSrcId)?.GalleryPhotosInfo?.find((p) => p.Lang === props.lang)?.Title ?? title;
-
                     const coverPicUrl = FileManagementAPI.get_Public_Preview_Url(item.Gallery?.CoverPicSrcId, coverPicDesc);
-
                     const linkUrl = `${dirUrl}/${item.Gallery?.InternalId}`;
-
                     const categoryIds = (catId ?? "").split(",").map((s) => s.trim()).filter(Boolean);
-
                     const categories = categoryIds.map((id) => props.categoryMap[id] ?? "").filter((x): x is string => Boolean(x)).join("、");
-
                     const validateStart = FormatDate(item.Gallery?.Validate_Start);
                     const content = item.GalleryInfo?.find((p) => p.Lang === props.lang)?.Title ?? "";
                     const contentStatus = item.Gallery?.ContentStatus ?? 0;
