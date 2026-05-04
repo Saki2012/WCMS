@@ -54,16 +54,17 @@ public class SiteViewCountController : ApiBaseController<SiteViewCountSet, SiteV
         return await ExecuteDetailViewAsync(request, ViewCountActionType.LinkClick, ct);
     }
     /// <summary>
-    /// 查詢最近N分鐘內站台瀏覽數 (即同時在線人數)
+    /// 查詢最近 10 分鐘內站台瀏覽人數
     /// </summary>
-    /// <param name="request"></param>
-    /// <param name="ct"></param>
-    /// <returns></returns>
-    //public async Task<IActionResult> GetRecentlySiteViewCount([FromQuery] GetCurrentSiteOnlineCountRequest_DTO request, CancellationToken ct)
-    //{
-    //    TryCountResult_DTO result = await ((SiteViewCountFunc_Biz)Service).BizGetRecentlySiteViewCount(request?.SiteIndex ?? string.Empty,request.Minutes??0,ct);
-    //    return BuildApiResponse(result);
-    //}
+    [HttpPost(nameof(GetRecentlySiteViewCount)), AllowAnonymous, IgnoreAntiforgeryToken]
+    [ProducesResponseType(typeof(ApiResponse<GetCurrentSiteOnlineCountResult_DTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<GetCurrentSiteOnlineCountResult_DTO>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetRecentlySiteViewCount([FromQuery] GetCurrentSiteOnlineCountRequest_DTO request, CancellationToken ct)
+    {
+        GetCurrentSiteOnlineCountResult_DTO result = await ((SiteViewCountFunc_Biz)Service).BizGetRecentlySiteViewCount(request?.SiteIndex ?? string.Empty, ct);
+        ApiResponse<GetCurrentSiteOnlineCountResult_DTO> response = new() { Data = [result], SysMessage = Message.Messages, };
+        return Message.HasError ? BadRequest(response) : Ok(response);
+    }
 
     /// <summary>
     /// 取得 SiteViewCountSet DTO 結構
@@ -92,7 +93,8 @@ public class SiteViewCountController : ApiBaseController<SiteViewCountSet, SiteV
         string visitorKey = GetVisitorKey();
         string refererUrl = GetRefererUrl();
         TryCountResult_DTO result = await ((SiteViewCountFunc_Biz)Service).BizUpdateSiteViewCount(request?.SiteIndex ?? string.Empty, visitorKey, refererUrl, ct);
-        return BuildApiResponse(result);
+        ApiResponse<TryCountResult_DTO> response = new() { Data = [result], SysMessage = Message.Messages, };
+        return Message.HasError ? BadRequest(response) : Ok(response);
     }
     /// <summary>
     /// 執行功能/頁面個別計次
@@ -102,16 +104,10 @@ public class SiteViewCountController : ApiBaseController<SiteViewCountSet, SiteV
         string visitorKey = GetVisitorKey();
         string refererUrl = GetRefererUrl();
         TryCountResult_DTO result = await ((SiteViewCountFunc_Biz)Service).BizUpdatePageViewCount(request?.SiteIndex ?? string.Empty, request?.ProgId ?? string.Empty, request?.InternalId ?? string.Empty, actionType, visitorKey, refererUrl, ct);
-        return BuildApiResponse(result);
-    }
-    /// <summary>
-    /// 組合統一 API Response
-    /// </summary>
-    private IActionResult BuildApiResponse(TryCountResult_DTO result)
-    {
-        ApiResponse<TryCountResult_DTO> response = new() { Data = [result], SysMessage = Message.Messages,};
+        ApiResponse<TryCountResult_DTO> response = new() { Data = [result], SysMessage = Message.Messages, };
         return Message.HasError ? BadRequest(response) : Ok(response);
     }
+
     /// <summary>
     /// 取得匿名訪客識別碼，若不存在則建立 Cookie
     /// </summary>

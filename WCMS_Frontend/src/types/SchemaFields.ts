@@ -524,6 +524,23 @@ export const GalleryFields = {
 
 export type GalleryFieldKey = keyof typeof GalleryFields;
 
+export const GetCurrentSiteOnlineCountResultFields = {
+  SiteIndex: 'SiteIndex',
+  Minutes: 'Minutes',
+  CurrentOnlineCount: 'CurrentOnlineCount',
+  QueryTime: 'QueryTime',
+} as const;
+
+export type GetCurrentSiteOnlineCountResultFieldKey = keyof typeof GetCurrentSiteOnlineCountResultFields;
+
+export const GetCurrentSiteOnlineCountResult_DTOApiResponseFields = {
+  IsSuccess: 'IsSuccess',
+  SysMessage: 'SysMessage',
+  Data: 'Data',
+} as const;
+
+export type GetCurrentSiteOnlineCountResult_DTOApiResponseFieldKey = keyof typeof GetCurrentSiteOnlineCountResult_DTOApiResponseFields;
+
 export const LoginDtoFields = {
   Account: 'Account',
   Password: 'Password',

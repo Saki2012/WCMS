@@ -13,7 +13,9 @@ import { normalizeSite } from "./Site-Routing";
 type QueryListParam = components["schemas"]["QueryListParam"];
 export interface SiteFooterRuntimeInfo
 {
-    /** 網站瀏覽人數 */
+    /** 最近 10 分鐘內瀏覽人數 */
+    recentlyViewCount: number | null;
+    /** 網站總瀏覽人數 */
     viewCount: number | null;
     /** 網站更新日期 */
     siteUpdatedAt?: string | null;
@@ -143,21 +145,9 @@ const escapeQueryValue = (value: string): string =>
     return value.replace(/"/g, `""`);
 };
 
-const buildQuotedValue = (value: string): string =>
-{
-    // 宣告變數
-    const text = `${value ?? ""}`.trim();
-
-    // return
-    return text ? `"${escapeQueryValue(text)}"` : "";
-};
 const buildFooterViewCountCondition = (siteIndex: string): string =>
 {
-    // 宣告變數
-    const siteKey = buildQuotedValue(siteIndex);
-    if (!siteKey) return "1 = 0";
-
-    // return
+    const siteKey = `"${escapeQueryValue(siteIndex ?? "")}"`;
     return `${SiteViewCountHeaderModelFields.SiteIndex} = ${siteKey}`;
 };
 
@@ -176,15 +166,17 @@ const buildFooterViewCountQuery = (siteIndex: string): QueryListParam =>
 const fetchSiteFooterRuntime = async (opt: { api?: AxiosInstance; args: LoaderFunctionArgs; siteIndex: string; }): Promise<SiteFooterRuntimeInfo> =>
 {
     const siteIndex = `${opt.siteIndex ?? ""}`.trim();
-
     const siteView = SiteViewCountAdapter(opt.api);
-
     const viewCountLoader = siteView.loader.createQueryListLoader({ getApiInstance: () => opt.api, getCondition: () => buildFooterViewCountQuery(siteIndex) });
-    const viewCountLD = await viewCountLoader(opt.args);
+    const recentlyViewCountLoader = siteView.loader.createRecentlySiteViewCountLoader({ getApiInstance: () => opt.api, getArgs: () => ({ siteIndex }) });
+    const [viewCountLD, recentlyViewCountLD] = await Promise.all([viewCountLoader(opt.args), recentlyViewCountLoader(opt.args)]);
+    const recentlyViewCountApiRes = getApiRes(recentlyViewCountLD);
+    const recentlyViewCountRows = unwrapArrayOrEmpty(recentlyViewCountApiRes);
+    const recentlyViewCount = recentlyViewCountRows?.[0]?.CurrentOnlineCount ?? 0;
     const viewCountApiRes = getApiRes(viewCountLD);
     const viewCountRows = unwrapArrayOrEmpty(viewCountApiRes);
     const viewCount = viewCountRows?.[0]?.SiteViewCountHeader?.PublicViewCount ?? 0;
-    return { viewCount: viewCount, siteUpdatedAt: null, feVersion: null, beVersion: null };
+    return { recentlyViewCount, viewCount, siteUpdatedAt: null, feVersion: null, beVersion: null };
 };
 
 export const loadSiteFooterRuntime = async (
@@ -261,7 +253,7 @@ export const useSiteFooterRuntime = (siteIndex: string): UseSiteFooterRuntimeRes
 
     const [runtimeInfo, setRuntimeInfo] = useState<SiteFooterRuntimeInfo>(() =>
     {
-        return initial ?? { viewCount: 0, siteUpdatedAt: null, feVersion: null, beVersion: null };
+        return initial ?? { recentlyViewCount: 0, viewCount: 0, siteUpdatedAt: null, feVersion: null, beVersion: null };
     });
 
     const [isLoading, setIsLoading] = useState<boolean>(!initial);

@@ -9,7 +9,9 @@ import "./Footer.css";
 
 export interface FooterRuntimeInfo
 {
-    /** 網站瀏覽人數 */
+    /** 最近 10 分鐘內瀏覽人數 */
+    recentlyViewCount: number | null;
+    /** 網站總瀏覽人數 */
     viewCount: number | null;
     /** 網站更新日期 */
     siteUpdatedAt?: string | null;
@@ -18,7 +20,6 @@ export interface FooterRuntimeInfo
     /** 後端版本 */
     beVersion?: string | null;
 }
-
 export interface FooterProps
 {
     lang: Lang;
@@ -119,7 +120,7 @@ const getFooterContentHtml = (lang: Lang, value?: string | null) =>
 const buildStatusLine = (text: FooterText, runtimeInfo: FooterRuntimeInfo | undefined): string =>
 {
     // 宣告變數
-    const currentViewCount = formatViewCount(runtimeInfo?.viewCount);
+    const currentViewCount = formatViewCount(runtimeInfo?.recentlyViewCount);
     const viewCount = formatViewCount(runtimeInfo?.viewCount);
     const updateDate = formatUpdateDate(runtimeInfo?.siteUpdatedAt);
     const feVersion = getFeVersion(runtimeInfo?.feVersion);

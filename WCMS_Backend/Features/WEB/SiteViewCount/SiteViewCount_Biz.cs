@@ -1,4 +1,5 @@
-﻿using WCMS.Features._Resx;
+﻿using System.Linq.Expressions;
+using WCMS.Features._Resx;
 using WCMS.SysCore;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
@@ -23,6 +24,10 @@ namespace WCMS.Features.WEB.SiteViewCount
             public const string Header = "Header";
             public const string Detail = "Detail";
         }
+        /// <summary>
+        /// 同時在線人數統計的時間窗(分鐘)
+        /// </summary>
+        private const int RecentlySiteViewMinutes = 10;
         #endregion
 
         #region Public
@@ -41,19 +46,14 @@ namespace WCMS.Features.WEB.SiteViewCount
             return await TryCountDetailViewAsync(siteIndex?.Trim() ?? string.Empty, progId?.Trim() ?? string.Empty, internalId?.Trim() ?? string.Empty, actionType, visitorKey?.Trim() ?? string.Empty, refererUrl?.Trim() ?? string.Empty, ct);
         }
         /// <summary>
-        /// 
+        /// 查詢最近 10 分鐘內站台瀏覽人數
         /// </summary>
-        /// <param name="siteIndex"></param>
-        /// <param name="ct"></param>
-        /// <returns></returns>
-        public async Task<TryCountResult_DTO> BizGetRecentlySiteViewCount(string siteIndex,int minutes, CancellationToken ct = default)
+        public async Task<GetCurrentSiteOnlineCountResult_DTO> BizGetRecentlySiteViewCount(string siteIndex, CancellationToken ct = default)
         {
-            int currentCount = await GetSiteViewCountAsync(siteIndex?.Trim() ?? string.Empty, ct);
-            return new TryCountResult_DTO
-            {
-                CurrentCount = currentCount,
-                IsCounted = false,
-            };
+            string currentSiteIndex = siteIndex?.Trim() ?? string.Empty;
+            DateTime queryTime = DateTime.Now;
+            int currentCount = await GetRecentlySiteViewCountAsync(currentSiteIndex, queryTime, ct);
+            return new GetCurrentSiteOnlineCountResult_DTO { SiteIndex = currentSiteIndex, Minutes = RecentlySiteViewMinutes, CurrentOnlineCount = currentCount, QueryTime = queryTime, };
         }
         #endregion
 
@@ -352,28 +352,23 @@ namespace WCMS.Features.WEB.SiteViewCount
                 _ => 0,
             };
         }
-
-
-        private async Task<int> GetRecentlySiteViewCountAsync(string siteIndex,string minutes, CancellationToken ct = default)
+        /// <summary>
+        /// 取得最近 10 分鐘內主站 Header PageView 的人數
+        /// </summary>
+        private async Task<int> GetRecentlySiteViewCountAsync(string siteIndex, DateTime queryTime, CancellationToken ct = default)
         {
-            dynamic headerRepo = RepoMapProvider.EnsureRepo<SiteViewCountSet>(typeof(SiteViewCountHeaderModel));
+            dynamic recentRepo = RepoMapProvider.EnsureRepo<SiteViewCountSet>(typeof(SiteViewCountRecentlyModel));
+            DateTime thresholdTime = queryTime.AddMinutes(-RecentlySiteViewMinutes);
+            Expression<Func<SiteViewCountRecentlyModel, bool>> whereExpr = p =>
+                p.SiteIndex == siteIndex &&
+                p.ProgId == string.Empty &&
+                p.TargetInternalId == string.Empty &&
+                p.TargetType == CountTargetType.Header &&
+                p.ActionType == ViewCountActionType.PageView &&
+                p.LastViewTime >= thresholdTime;
+
             ct.ThrowIfCancellationRequested();
-            SiteViewCountHeaderModel? data = await headerRepo.QueryDataAsync(siteIndex);
-            return data?.PublicViewCount ?? 0;
-        }
-
-        private QueryListParam GetRecentlySiteViewCountParam(string siteIndex, int minutes)
-        {
-            DateTime recentThreshold = DateTime.Now.AddMinutes(-minutes);
-            return new QueryListParam
-            {
-                Fields = [],
-                Condition = LibData.Merge(" And ", false, $@"{nameof(SiteViewCountRecentlyModel.SiteIndex)} = {siteIndex}",
-                $@"{nameof(SiteViewCountRecentlyModel.TargetType)} = {CountTargetType.Header}",
-                $@"{nameof(SiteViewCountRecentlyModel.LastViewTime)} >= {recentThreshold}"
-                )
-                
-            };
+            return await recentRepo.QueryListCountAsync(whereExpr);
         }
         #endregion
     }

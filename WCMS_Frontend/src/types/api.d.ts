@@ -7406,6 +7406,60 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/SiteViewCount/GetRecentlySiteViewCount": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    SiteIndex?: string;
+                    Minutes?: number;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["GetCurrentSiteOnlineCountResult_DTOApiResponse"];
+                        "application/json": components["schemas"]["GetCurrentSiteOnlineCountResult_DTOApiResponse"];
+                        "text/json": components["schemas"]["GetCurrentSiteOnlineCountResult_DTOApiResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["GetCurrentSiteOnlineCountResult_DTOApiResponse"];
+                        "application/json": components["schemas"]["GetCurrentSiteOnlineCountResult_DTOApiResponse"];
+                        "text/json": components["schemas"]["GetCurrentSiteOnlineCountResult_DTOApiResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/SiteViewCount/GetSiteViewCountSetSchema": {
         parameters: {
             query?: never;
@@ -10312,6 +10366,20 @@ export interface components {
          * @enum {integer}
          */
         Gender: 0 | 1 | 2;
+        GetCurrentSiteOnlineCountResult_DTO: {
+            SiteIndex?: string | null;
+            /** Format: int32 */
+            Minutes?: number;
+            /** Format: int32 */
+            CurrentOnlineCount?: number;
+            /** Format: date-time */
+            QueryTime?: string;
+        };
+        GetCurrentSiteOnlineCountResult_DTOApiResponse: {
+            readonly IsSuccess?: boolean;
+            SysMessage?: components["schemas"]["SysMessageModel"][] | null;
+            Data?: components["schemas"]["GetCurrentSiteOnlineCountResult_DTO"][] | null;
+        };
         /** @enum {string} */
         LangCode: "zh-tw" | "zh-cn" | "en";
         /** @example {
