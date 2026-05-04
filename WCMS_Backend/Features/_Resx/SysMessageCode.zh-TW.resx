@@ -229,9 +229,17 @@
     <value>人員編號【{0}】已被其他帳號使用，請選擇其他人員。</value>
   </data>
   <data name="AACode00001" xml:space="preserve">
-    <value>請輸入相簿中[{0}]語系的[{1}]。 (AA)</value>
+    <value>請輸入相簿中[{0}]語系的[{1}]。</value>
   </data>
   <data name="AACode00002" xml:space="preserve">
-    <value>請輸入相片中[{0}]語系的[{1}]。 (AA)</value>
+    <value>請輸入相片中[{0}]語系的[{1}]。</value>
+  </data>
+  <data name="AACode00000" xml:space="preserve">
+    <value>內文AA檢測失敗【AA碼{0}】。
+原因：{1}
+所在節點：{2}</value>
+  </data>
+  <data name="AACode00003" xml:space="preserve">
+    <value>請輸入[{0}]語系的[{1}]。</value>
   </data>
 </root>

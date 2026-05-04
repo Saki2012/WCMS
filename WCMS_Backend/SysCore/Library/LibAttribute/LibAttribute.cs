@@ -28,7 +28,7 @@ namespace WCMS.SysCore.Library.LibAttribute
                 if (string.IsNullOrWhiteSpace(_resourceKey)) return string.Empty;
                 // 2) 組 baseName（Spec 可空）
                 var coreBaseName = typeof(ModelDisplayName).FullName!;
-                var specBaseName = string.IsNullOrWhiteSpace(CurrentSpecCode) ? null : $"WCMS.SpecFeatures.{CurrentSpecCode}._Resx.SpecModelDisplayName";
+                var specBaseName = string.IsNullOrWhiteSpace(CurrentSpecCode) ? null : $"{nameof(WCMS)}.{nameof(SpecFeatures)}.{CurrentSpecCode}._Resx.SpecModelDisplayName";
                 // 3) 共用 reader：Spec -> Core
                 var asm = typeof(ModelDisplayName).Assembly;
                 var value = LibResxReader.TryGetSpecOrCore(coreBaseName, specBaseName, asm, _resourceKey, CultureInfo.CurrentUICulture);

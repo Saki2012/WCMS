@@ -1,11 +1,15 @@
-﻿using System.Data;
+﻿using MimeDetective.Storage.Xml.v2;
+using System.Data;
 using WCMS.Features._Resx;
+using WCMS.Features.WEB.Gallery;
 using WCMS.SysCore;
+using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.SystemFunc.FileManagement;
+using static WCMS.SysCore.Enum.SysEnum;
 using static WCMS.SysCore.Library.LibData;
 
 namespace WCMS.Features.WEB.PageManagement;
@@ -63,6 +67,43 @@ public class PageManagementBiz(BizDeps bizDeps) : BizService<PageManagementSet>(
             set.FileManage.ProgId = ProgId;
         }
         return [.. result];
+    }
+    #endregion
+
+    #region Protected Virtual
+    protected override Task BeforeUpdate(PageManagementSet set, FuncAction act, CancellationToken ct = default)
+    {
+        var @base = base.BeforeUpdate(set, act, ct);
+
+        switch (act)
+        {
+            case FuncAction.Create:
+            case FuncAction.Update:
+                CheckData(set);
+                break;
+        }
+        return @base;
+    }
+    #endregion
+    #region Protected
+    protected void CheckData(PageManagementSet set)
+    {
+        AACheck(set);
+    }
+    #endregion
+
+    #region Private
+    /// <summary>
+    /// 檢查AAContent，將舊資料的AAContent轉成新的格式
+    /// </summary>
+    /// <param name="langDt"></param>
+    private void AACheck(PageManagementSet set)
+    {
+        if (!SpecSettings.AACheck) return;
+        set.PageManagementDetail.ForEach(dt => {
+            if (dt.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.AACode00003, dt.Lang.ToLabel(), I18nCache.GetLabel<PageManagementDetail_DTO>(x => x.Title));
+            if (LibAAData.CheckAAContent(dt.Content,Message,out string newContent)) dt.Content= newContent; 
+        });
     }
     #endregion
 }

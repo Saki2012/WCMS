@@ -1055,4 +1055,31 @@ public static class ModelDisplayName
     #endregion
 
     #endregion
+
+    #region AACheckCode
+    /// <summary>
+    /// AA：圖片缺少 alt 屬性
+    /// </summary>
+    public const string AACheck_ImgAlt = nameof(AACheck_ImgAlt);
+    /// <summary>
+    /// AA：alt 空白圖片不應保留 title
+    /// </summary>
+    public const string AACheck_ImgEmptyAltTitle = nameof(AACheck_ImgEmptyAltTitle);
+    /// <summary>
+    /// AA：連結缺少可辨識名稱
+    /// </summary>
+    public const string AACheck_AnchorName = nameof(AACheck_AnchorName);
+    /// <summary>
+    /// AA：連結與內層圖片替代文字重複或衝突
+    /// </summary>
+    public const string AACheck_AnchorImgConflict = nameof(AACheck_AnchorImgConflict);
+    /// <summary>
+    /// AA：iframe 缺少 title 屬性
+    /// </summary>
+    public const string AACheck_IframeTitle = nameof(AACheck_IframeTitle);
+    /// <summary>
+    /// AA：CSS font-size 使用 px 固定單位
+    /// </summary>
+    public const string AACheck_FontSizePx = nameof(AACheck_FontSizePx);
+    #endregion
 }

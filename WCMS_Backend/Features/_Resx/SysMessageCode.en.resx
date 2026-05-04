@@ -229,9 +229,17 @@
     <value>人員編號【{0}】已被其他帳號使用，請選擇其他人員。</value>
   </data>
   <data name="AACode00001" xml:space="preserve">
-    <value>Please enter [{1}] for language [{0}] in the album. (AA)</value>
+    <value>Please enter [{1}] for language [{0}] in the album.</value>
   </data>
   <data name="AACode00002" xml:space="preserve">
-    <value>Please enter [{1}] for language [{0}] in the photo. (AA)</value>
+    <value>Please enter [{1}] for language [{0}] in the photo.</value>
+  </data>
+  <data name="AACode00000" xml:space="preserve">
+    <value>Content AA check failed [AA Code {0}].
+Reason: {1}
+Target node: {2}</value>
+  </data>
+  <data name="AACode00003" xml:space="preserve">
+    <value />
   </data>
 </root>

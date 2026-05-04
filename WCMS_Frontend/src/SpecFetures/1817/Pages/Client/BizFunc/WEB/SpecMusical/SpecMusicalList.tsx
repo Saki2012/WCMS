@@ -51,15 +51,20 @@ export default SpecMusicalList;
 
 const GridList_Comp = (props: { title: string; data: SpecMusicalSet[]; }) =>
 {
+    // 宣告變數：取得目前目錄網址
     const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
+
+    // return：列表 DOM
     return (
         <div id="Row_Colitem" className="SubPage_Musical_Instrument_itemBoxs">
             {props.data.map((item) =>
             {
-                const internalId = item.SpecMusical?.InternalId;
+                // 宣告變數：組合連結與顯示資料
+                const internalId = item.SpecMusical?.InternalId ?? "";
                 const picSrc = FileManagementAPI.get_Public_Preview_Url(item.SpecMusical?.CoverPicId);
-                const title = item.SpecMusical?.MusicalName ?? "";
+                const title = item.SpecMusical?.MusicalName ?? "觀看詳細內容";
                 const href = `${dirUrl}/${internalId}`;
+                // return：單筆卡片
                 return (
                     <div key={internalId} className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-6 + Standard_ItemDiv">
                         <article className="cardbox">
@@ -68,19 +73,21 @@ const GridList_Comp = (props: { title: string; data: SpecMusicalSet[]; }) =>
                                     <figure className="figure_Box">
                                         <div className="card_figure">
                                             <div className="img-wrapper">
-                                                <img className="card_image" src={picSrc} alt={title} />
+                                                <img className="card_image" src={picSrc} alt="" />
                                             </div>
                                         </div>
                                     </figure>
+
                                     <div className="card_titleDiv + my-4">
                                         <span className="card_title">{title}</span>
                                     </div>
+
                                     <div className="card_StateDiv + justify-content-center">
                                         <div className="More customize_btn mb-3">
-                                            <LangLink to={href} className="Btn_s1" type="button" role="button" title="觀看更多">
+                                            <span className="Btn_s1" aria-hidden="true">
                                                 VIEW ALL
                                                 <span className="ml-2">+</span>
-                                            </LangLink>
+                                            </span>
                                         </div>
                                     </div>
                                 </LangLink>
