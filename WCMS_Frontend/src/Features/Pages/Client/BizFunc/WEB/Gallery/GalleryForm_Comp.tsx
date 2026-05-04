@@ -3,28 +3,80 @@ import { useGalleryFormFetchData } from "@/Features/Pages/Client/BizFunc/WEB/Gal
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-import type { Lang } from "@/SysCore/i18n/lang";
+import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import { PGID } from "@/types/SchemaFields";
-import { useEffect, useMemo, useState } from "react";
-
-import "yet-another-react-lightbox/styles.css";
-import "yet-another-react-lightbox/plugins/captions.css";
-import "yet-another-react-lightbox/plugins/counter.css";
-import "yet-another-react-lightbox/plugins/thumbnails.css";
-import Lightbox from "yet-another-react-lightbox";
-import Captions from "yet-another-react-lightbox/plugins/captions";
-import Counter from "yet-another-react-lightbox/plugins/counter";
-import Download from "yet-another-react-lightbox/plugins/download";
-import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
-import Share from "yet-another-react-lightbox/plugins/share";
-import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
-import Zoom from "yet-another-react-lightbox/plugins/zoom";
+import { useCallback, useMemo, useState } from "react";
+import { LibLightBox, type LibLightBoxSlide } from "@/SysCore/Components/FormField/LibFormField";
 
 type GallerySet = components["schemas"]["GallerySet_DTO"];
+type GalleryPhoto = NonNullable<GallerySet["GalleryPhotos"]>[number];
 
-const GalleryForm = (props: { site: INormSite; node: INormNode; theme: IFETheme; lang: Lang; }) =>
+interface GalleryFormProps { site: INormSite; node: INormNode; theme: IFETheme; lang: Lang; }
+interface GalleryFormListProps { lang: Lang; data: GallerySet; }
+
+/** 相簿圖片 a11y 文案結構 */
+type GalleryImageA11yText = {
+    openPreview: string;
+    openImage: (title: string) => string;
+};
+
+/** 相簿圖片 a11y 文案表（用 xxx[lang] 讀；不足語系會 fallback） */
+const GALLERY_IMAGE_A11Y_MAP: Partial<Record<Lang, GalleryImageA11yText>> = {
+    "zh-tw": {
+        openPreview: "開啟圖片預覽",
+        openImage: (title) => `開啟圖片：${title}`,
+    },
+    "zh-cn": {
+        openPreview: "开启图片预览",
+        openImage: (title) => `开启图片：${title}`,
+    },
+    en: {
+        openPreview: "Open image preview",
+        openImage: (title) => `Open image: ${title}`,
+    },
+};
+
+/** 取得相簿圖片 a11y 文案（語系不在表內時，回退到 DefaultLang） */
+const getGalleryImageA11y = (lang?: Lang): GalleryImageA11yText =>
+{
+    // 宣告：fallback key
+    const key = (lang ?? DefaultLang) as Lang;
+
+    // 執行：依語系取值，取不到就回 default
+    const byLang = GALLERY_IMAGE_A11Y_MAP[key];
+    const byDefault = GALLERY_IMAGE_A11Y_MAP[DefaultLang];
+
+    // return：保證回傳一份可用文案
+    return byLang ?? byDefault ?? {
+        openPreview: "開啟圖片預覽",
+        openImage: (title) => `開啟圖片：${title}`,
+    };
+};
+
+/** 取得圖片開啟按鈕 aria-label 文案 */
+const getOpenImageText = (a11y: GalleryImageA11yText, title?: string): string =>
+{
+    // 宣告：去除前後空白後的標題
+    const safeTitle = title?.trim() ?? "";
+
+    // return：有標題時帶入標題，沒有標題時使用預覽文案
+    return safeTitle ? a11y.openImage(safeTitle) : a11y.openPreview;
+};
+
+/** 取得圖片按鈕 title 文案 */
+const getImageButtonTitle = (title?: string): string | undefined =>
+{
+    // 宣告：去除前後空白後的標題
+    const safeTitle = title?.trim() ?? "";
+
+    // return：title 只顯示圖片標題，沒有標題時不輸出 title
+    return safeTitle || undefined;
+};
+
+/** 相簿表單頁面 */
+const GalleryForm = (props: GalleryFormProps) =>
 {
     // 讀取 feature 收斂後的單一資料入口
     const formData = useGalleryFormFetchData({ lang: props.lang });
@@ -51,156 +103,96 @@ const GalleryForm = (props: { site: INormSite; node: INormNode; theme: IFETheme;
 
 export default GalleryForm;
 
-const GalleryFormList = (props: { lang: Lang; data: GallerySet; }) =>
+/** 建立單張相簿圖片的 Lightbox 資料 */
+const buildGallerySlide = (data: GallerySet, item: GalleryPhoto, lang: Lang): LibLightBoxSlide =>
 {
-    useEffect(() =>
+    // 依語系取得圖片標題
+    const infoDt = data.GalleryPhotosInfo?.find((p) => p.ParentRowId === item.RowId && p.Lang === lang);
+    const title = infoDt?.Title ?? "";
+    const url = FileManagementAPI.get_Public_Preview_Url(item.PicSrcId);
+
+    // 宣告：圖片描述，後續可改接後端欄位
+    const description = "description";
+
+    // return：回傳 Lightbox slide
+    return { src: url, title, description, download: url };
+};
+
+/** 建立相簿 Lightbox slides */
+const buildGallerySlides = (data: GallerySet, lang: Lang): LibLightBoxSlide[] =>
+{
+    // 將後端圖片資料轉成共用 Lightbox 可吃的格式
+    return data?.GalleryPhotos?.map((item) => buildGallerySlide(data, item, lang)) ?? [];
+};
+
+/** 相簿圖片列表 */
+const NewGalleryFormList = (props: GalleryFormListProps) =>
+{
+    const [open, setOpen] = useState(false);
+    const [index, setIndex] = useState(0);
+
+    // 依語系取得 a11y 文案
+    const a11y = useMemo(() => getGalleryImageA11y(props.lang), [props.lang]);
+
+    // 依資料與語系產生 Lightbox 圖片清單
+    const slides = useMemo(() => buildGallerySlides(props.data, props.lang), [props.data, props.lang]);
+
+    // 開啟指定索引的 Lightbox
+    const openGallery = useCallback((idx: number) =>
     {
-        if (typeof window === "undefined") return;
+        setIndex(idx);
+        setOpen(true);
+    }, []);
 
-        const w = window as any;
-        const $ = w.$ || w.jQuery;
-
-        // 先嘗試 jQuery 版 plugin 初始化
-        if ($ && $.fn && typeof $.fn.venobox === "function")
-        {
-            $(".venobox").venobox();
-        }
-
-        // 如果有新版 class 版 VenoBox，也一起初始化
-        if (typeof w.VenoBox === "function")
-        {
-            if (w.__vbInstance && typeof w.__vbInstance.destroy === "function")
-            {
-                w.__vbInstance.destroy();
-            }
-
-            w.__vbInstance = new w.VenoBox({
-                selector: ".venobox",
-                autoplay: false,
-                maxWidth: "1200px",
-                border: "0px",
-                titleattr: "title",
-                titlePosition: "top",
-                numeration: true,
-                infinigall: true,
-                share: true,
-                spinner: "rotating-bounce",
-            });
-        }
-
-        if ((!$ || !$.fn?.venobox) && typeof w.VenoBox !== "function")
-        {
-            console.warn("VenoBox / $.fn.venobox not found, please check LoadFeaturesJs.ts and script paths.");
-        }
-    }, [props.data, props.lang]);
+    // 關閉 Lightbox
+    const closeGallery = useCallback(() => setOpen(false), []);
 
     return (
         <>
             <div id="Row_Colitem" className="SubPage_Standard_itemBoxs">
-                {props.data?.GalleryPhotos?.map((item, idx) =>
+                {slides.map((slide, idx) =>
                 {
-                    const infoDt = props.data.GalleryPhotosInfo?.find((p) => p.ParentRowId === item.RowId && p.Lang === props.lang);
-                    const photoTitle = infoDt?.Title ?? "";
-                    const photoUrl = FileManagementAPI.get_Public_Preview_Url(item.PicSrcId);
+                    const buttonTitle = getImageButtonTitle(slide.title);
+                    const openImageText = getOpenImageText(a11y, slide.title);
 
                     return (
-                        <div key={idx} className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 + Standard_ItemDiv">
+                        <div key={`${slide.src}_${idx}`} className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 Standard_ItemDiv">
                             <article className="cardbox">
                                 <div className="card_content">
                                     <figure className="figure_Box">
-                                        <a href={photoUrl} className="card_image_link venobox" data-gall="myGallery" title={photoTitle}>
+                                        <button
+                                            type="button"
+                                            className="card_image_link border-0 bg-transparent p-0 w-100"
+                                            onClick={() => openGallery(idx)}
+                                            title={buttonTitle}
+                                            aria-label={openImageText}
+                                        >
                                             <div className="card_figure">
                                                 <div className="img-wrapper">
-                                                    <img className="card_image" src={photoUrl} alt="" />
+                                                    <img className="card_image" src={slide.src} alt={slide.title ?? ""} />
                                                 </div>
                                             </div>
-                                        </a>
-                                        {/* 會重複圖片，先暫時取消 */}
-                                        {
-                                            /* <div className="customize_picture_ZoomIn_btn">
-                                            <a href={photoUrl} className="QuickView + p_Btn_zm1 venobox" data-gall="myGallery" type="button" role="button" title="放大圖片">
-                                                <i className="fas fa-expand-alt"></i>
-                                                <span className="sr-only">放大圖片</span>
-                                            </a>
-                                        </div> */
-                                        }
+                                            <div className="card_titleDiv mb-md-2 mb-sm-1 mb-0 mt-4">
+                                                <div className="card_title">{slide.title}</div>
+                                                {slide.description && (
+                                                    <div className="card_subtitle">{slide.description}</div>
+                                                )}
+                                            </div>
+                                        </button>
                                     </figure>
-
-                                    <div className="card_titleDiv + mb-md-2 mb-sm-1 mb-0">
-                                        <div className="card_subtitle">{photoTitle}</div>
-                                    </div>
                                 </div>
                             </article>
                         </div>
                     );
                 })}
             </div>
-        </>
-    );
-};
 
-const NewGalleryFormList = (props: { lang: Lang; data: GallerySet; }) =>
-{
-    const [open, setOpen] = useState(false);
-    const [index, setIndex] = useState(0);
-
-    const slides = [...(props.data?.GalleryPhotos ?? [])].sort((a, b) =>
-    {
-        const sortCompare = (a.Sort ?? 0) - (b.Sort ?? 0);
-        return sortCompare !== 0 ? sortCompare : (a.RowId ?? 0) - (b.RowId ?? 0);
-    }).map((item) =>
-    {
-        const infoDt = props.data?.GalleryPhotosInfo?.find((p) => p.ParentRowId === item.RowId && p.Lang?.toLowerCase() === props.lang.toLowerCase());
-        const title = infoDt?.Title ?? "";
-        const url = FileManagementAPI.get_Public_Preview_Url(item.PicSrcId);
-        return { src: url, title, description: title, download: url };
-    });
-
-    return (
-        <>
-            <div id="Row_Colitem" className="SubPage_Standard_itemBoxs">
-                {slides.map((slide, idx) => (
-                    <div key={idx} className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 Standard_ItemDiv">
-                        <article className="cardbox">
-                            <div className="card_content">
-                                <figure className="figure_Box">
-                                    <button
-                                        type="button"
-                                        className="card_image_link border-0 bg-transparent p-0 w-100"
-                                        onClick={() =>
-                                        {
-                                            setIndex(idx);
-                                            setOpen(true);
-                                        }}
-                                        title={slide.title}
-                                    >
-                                        <div className="card_figure">
-                                            <div className="img-wrapper">
-                                                <img className="card_image" src={slide.src} alt={slide.title} />
-                                            </div>
-                                        </div>
-                                    </button>
-                                </figure>
-
-                                <div className="card_titleDiv mb-md-2 mb-sm-1 mb-0">
-                                    <div className="card_subtitle">{slide.title}</div>
-                                </div>
-                            </div>
-                        </article>
-                    </div>
-                ))}
-            </div>
-
-            <Lightbox
+            <LibLightBox
                 open={open}
-                close={() => setOpen(false)}
                 index={index}
                 slides={slides}
-                plugins={[Captions, Counter, Download, Fullscreen, Share, Thumbnails, Zoom]}
-                captions={{ descriptionTextAlign: "center" }}
-                counter={{ container: { style: { top: "unset", bottom: 0 } } }}
-                zoom={{ maxZoomPixelRatio: 3, zoomInMultiplier: 2 }}
-                thumbnails={{ position: "bottom", width: 100, height: 70, gap: 8 }}
+                lang={props.lang}
+                onClose={closeGallery}
             />
         </>
     );
