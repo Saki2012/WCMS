@@ -45,7 +45,7 @@ const WebResourceListComp = (props: IWebResourceListProps) =>
         {
             case 7:
             case 2:
-                return <PictureListContent key="pic" lang={props.lang} datas={getData.rawData.listData} />;
+                return <PictureListContent key="pic" lang={props.lang} datas={getData.rawData.listData} cateMap={getData.rawData.categoryMap} />;
             case 1:
             default:
             {
@@ -177,7 +177,7 @@ const GridList_Comp = (props: { lang: Lang; title: string; GridData: GridProps; 
 };
 
 /** YT要做自動解析 */
-const PictureListContent = (prop: { lang: string; datas: WebResourceSet[]; }) =>
+const PictureListContent = (prop: { lang: Lang; datas: WebResourceSet[]; cateMap: Record<string, string>; }) =>
 {
     return (
         <div id="Row_Colitem" className="SubPage_Standard_itemBoxs">
@@ -192,6 +192,7 @@ const PictureListContent = (prop: { lang: string; datas: WebResourceSet[]; }) =>
                 const { isYoutube, url } = resolveYoutubeEmbedUrl(urlRaw);
                 const isVideo = false;
                 const contentStatus = item.WebResource?.ContentStatus ?? 0;
+                const catName = formatCategoriesNameByMap(item.WebResource?.Categories ?? "", prop.cateMap);
 
                 return (
                     <div className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 + Standard_ItemDiv">
@@ -263,7 +264,7 @@ const PictureListContent = (prop: { lang: string; datas: WebResourceSet[]; }) =>
                                         <div className="card_cat">
                                             <div className="card_cat_link">
                                                 <span className="s-line">▍</span>
-                                                <span className="s-tle">{""}</span>
+                                                <span className="s-tle">{catName}</span>
                                             </div>
                                         </div>
                                         <div className="card_time">
