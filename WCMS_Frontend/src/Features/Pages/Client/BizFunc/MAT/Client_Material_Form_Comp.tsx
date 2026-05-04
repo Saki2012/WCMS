@@ -254,16 +254,16 @@ const MaterialImageGallery_Comp = (props: { title: string; pictures: Array<{ url
                             <button
                                 type="button"
                                 role="presentation"
-                                className={`owl-prev ${activeIndex <= 0 ? "disabled" : ""}`}
-                                onClick={() => setActiveIndex(Math.max(activeIndex - 1, 0))}
+                                className={`owl-prev ${safePictures.length <= 1 ? "disabled" : ""}`}
+                                onClick={() => setActiveIndex(p => getLoopPictureIndex(p - 1, safePictures.length))}
                             >
                                 <span aria-label="Previous">‹</span>
                             </button>
                             <button
                                 type="button"
                                 role="presentation"
-                                className={`owl-next ${activeIndex >= safePictures.length - 1 ? "disabled" : ""}`}
-                                onClick={() => setActiveIndex(Math.min(activeIndex + 1, safePictures.length - 1))}
+                                className={`owl-next ${safePictures.length <= 1 ? "disabled" : ""}`}
+                                onClick={() => setActiveIndex(p => getLoopPictureIndex(p + 1, safePictures.length))}
                             >
                                 <span aria-label="Next">›</span>
                             </button>
@@ -302,7 +302,12 @@ const openMaterialLightbox = (e: MouseEvent<HTMLAnchorElement>, index: number, r
     e.preventDefault();
     refs[index]?.click();
 };
-
+/** 取得循環圖片索引 */
+const getLoopPictureIndex = (index: number, total: number): number =>
+{
+    if (total <= 0) return 0;
+    return ((index % total) + total) % total;
+};
 /** 處理縮圖鍵盤切換 */
 const handleThumbKeyDown = (e: KeyboardEvent<HTMLDivElement>, index: number, setActiveIndex: (index: number) => void): void =>
 {
