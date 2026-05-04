@@ -127,6 +127,10 @@ namespace WCMS.Features.WEB.Gallery
         /// 標題
         /// </summary>
         [StringLength(SysLengthParam.Memo)] public string Title { get; set; }
+        /// <summary>
+        /// 描述
+        /// </summary>
+        [StringLength(SysLengthParam.Memo)] public string Description { get; set; }
 
         #region 主子表關聯
         [ForeignKey($@"{nameof(GalleryId)},{nameof(ParentRowId)}")] public GalleryPhotos _GalleryPhotos { get; set; }

@@ -3,10 +3,14 @@
  * Do not make direct changes to the file.
  */
 
-export interface paths
-{
+export interface paths {
     "/Service/Account/QueryList": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -28,7 +32,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -38,7 +47,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Account/ChangePassword": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put: {
             parameters: {
@@ -59,7 +73,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         post?: never;
@@ -70,7 +89,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Account/ResetPassword": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put: {
             parameters: {
@@ -91,7 +115,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         post?: never;
@@ -102,7 +131,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Account/Create": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -124,7 +158,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -134,7 +173,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Account/InitialCreateData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -156,7 +200,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -166,7 +215,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Account/Update": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put: {
             parameters: {
@@ -187,7 +241,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         post?: never;
@@ -198,7 +257,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Account/Invalid/{pk}": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -207,24 +271,39 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { internalId?: string; isInvalid?: boolean; };
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
                 };
-                path: { pk: string; };
+                path: {
+                    pk: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/Account/BatchInvalid": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -233,7 +312,9 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { isInvalid?: boolean; };
+                query?: {
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -241,22 +322,40 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/Account/Delete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
         delete: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -267,7 +366,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -276,7 +380,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Account/BatchDelete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -290,10 +399,21 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -302,10 +422,17 @@ export interface paths
         trace?: never;
     };
     "/Service/Account/QueryData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -316,7 +443,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -328,7 +460,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Account/GetTotalCounts": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -350,7 +487,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -360,7 +502,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Account/GetModelDisplayName": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
                 query?: never;
@@ -374,7 +521,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -386,7 +538,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Announcement/QueryByValidate": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -408,7 +565,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -418,7 +580,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Announcement/Create": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -440,7 +607,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -450,7 +622,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Announcement/InitialCreateData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -472,7 +649,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -482,7 +664,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Announcement/Update": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put: {
             parameters: {
@@ -503,7 +690,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         post?: never;
@@ -514,7 +706,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Announcement/Invalid/{pk}": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -523,24 +720,39 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { internalId?: string; isInvalid?: boolean; };
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
                 };
-                path: { pk: string; };
+                path: {
+                    pk: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/Announcement/BatchInvalid": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -549,7 +761,9 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { isInvalid?: boolean; };
+                query?: {
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -557,22 +771,40 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/Announcement/Delete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
         delete: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -583,7 +815,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -592,7 +829,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Announcement/BatchDelete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -606,10 +848,21 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -618,10 +871,17 @@ export interface paths
         trace?: never;
     };
     "/Service/Announcement/QueryData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -632,7 +892,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -644,7 +909,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Announcement/QueryList": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -666,7 +936,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -676,7 +951,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Announcement/GetTotalCounts": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -698,7 +978,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -708,7 +993,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Announcement/GetModelDisplayName": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
                 query?: never;
@@ -722,7 +1012,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -734,7 +1029,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Auth/Login": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -756,7 +1056,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -766,7 +1071,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Auth/Refresh": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -783,7 +1093,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -793,7 +1108,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Auth/Logout": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -809,7 +1129,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -819,7 +1144,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Auth/Me": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
                 query?: never;
@@ -833,7 +1163,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -845,7 +1180,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Banner/Create": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -867,7 +1207,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -877,7 +1222,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Banner/InitialCreateData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -899,7 +1249,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -909,7 +1264,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Banner/Update": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put: {
             parameters: {
@@ -930,7 +1290,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         post?: never;
@@ -941,7 +1306,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Banner/Invalid/{pk}": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -950,24 +1320,39 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { internalId?: string; isInvalid?: boolean; };
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
                 };
-                path: { pk: string; };
+                path: {
+                    pk: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/Banner/BatchInvalid": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -976,7 +1361,9 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { isInvalid?: boolean; };
+                query?: {
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -984,22 +1371,40 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/Banner/Delete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
         delete: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -1010,7 +1415,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -1019,7 +1429,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Banner/BatchDelete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -1033,10 +1448,21 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -1045,10 +1471,17 @@ export interface paths
         trace?: never;
     };
     "/Service/Banner/QueryData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -1059,7 +1492,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -1071,7 +1509,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Banner/QueryList": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -1093,7 +1536,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -1103,7 +1551,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Banner/GetTotalCounts": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -1125,7 +1578,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -1135,7 +1593,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Banner/GetModelDisplayName": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
                 query?: never;
@@ -1149,7 +1612,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -1161,12 +1629,19 @@ export interface paths
         trace?: never;
     };
     "/Service/Calendar/SyncFromNtpc": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
             parameters: {
-                query?: { year?: number; };
+                query?: {
+                    year?: number;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -1177,7 +1652,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -1187,7 +1667,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Calendar/UpdateDayInfo": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put: {
             parameters: {
@@ -1208,42 +1693,14 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/Calendar/Spec_GetCurrentOpenTime": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
                 200: {
-                    headers: { [name: string]: unknown; };
-                    content: {
-                        "text/plain": components["schemas"]["SpecCurrentOpenTime_DTOApiResponse"];
-                        "application/json": components["schemas"]["SpecCurrentOpenTime_DTOApiResponse"];
-                        "text/json": components["schemas"]["SpecCurrentOpenTime_DTOApiResponse"];
+                    headers: {
+                        [name: string]: unknown;
                     };
+                    content?: never;
                 };
             };
         };
-        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -1252,7 +1709,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Calendar/Create": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -1274,7 +1736,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -1284,7 +1751,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Calendar/InitialCreateData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -1306,7 +1778,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -1316,7 +1793,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Calendar/Update": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put: {
             parameters: {
@@ -1337,7 +1819,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         post?: never;
@@ -1348,7 +1835,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Calendar/Invalid/{pk}": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -1357,24 +1849,39 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { internalId?: string; isInvalid?: boolean; };
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
                 };
-                path: { pk: string; };
+                path: {
+                    pk: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/Calendar/BatchInvalid": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -1383,7 +1890,9 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { isInvalid?: boolean; };
+                query?: {
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -1391,22 +1900,40 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/Calendar/Delete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
         delete: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -1417,7 +1944,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -1426,7 +1958,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Calendar/BatchDelete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -1440,10 +1977,21 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -1452,10 +2000,17 @@ export interface paths
         trace?: never;
     };
     "/Service/Calendar/QueryData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -1466,7 +2021,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -1478,7 +2038,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Calendar/QueryList": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -1500,7 +2065,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -1510,7 +2080,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Calendar/GetTotalCounts": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -1532,7 +2107,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -1542,7 +2122,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Calendar/GetModelDisplayName": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
                 query?: never;
@@ -1556,7 +2141,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -1568,7 +2158,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Category/Create": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -1590,7 +2185,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -1600,7 +2200,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Category/InitialCreateData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -1622,7 +2227,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -1632,7 +2242,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Category/Update": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put: {
             parameters: {
@@ -1653,7 +2268,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         post?: never;
@@ -1664,7 +2284,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Category/Invalid/{pk}": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -1673,24 +2298,39 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { internalId?: string; isInvalid?: boolean; };
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
                 };
-                path: { pk: string; };
+                path: {
+                    pk: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/Category/BatchInvalid": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -1699,7 +2339,9 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { isInvalid?: boolean; };
+                query?: {
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -1707,22 +2349,40 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/Category/Delete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
         delete: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -1733,7 +2393,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -1742,7 +2407,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Category/BatchDelete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -1756,10 +2426,21 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -1768,10 +2449,17 @@ export interface paths
         trace?: never;
     };
     "/Service/Category/QueryData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -1782,7 +2470,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -1794,7 +2487,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Category/QueryList": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -1816,7 +2514,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -1826,7 +2529,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Category/GetTotalCounts": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -1848,7 +2556,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -1858,7 +2571,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Category/GetModelDisplayName": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
                 query?: never;
@@ -1872,7 +2590,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -1884,7 +2607,12 @@ export interface paths
         trace?: never;
     };
     "/Service/FileArchive/Create": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -1906,7 +2634,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -1916,7 +2649,12 @@ export interface paths
         trace?: never;
     };
     "/Service/FileArchive/InitialCreateData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -1938,7 +2676,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -1948,7 +2691,12 @@ export interface paths
         trace?: never;
     };
     "/Service/FileArchive/Update": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put: {
             parameters: {
@@ -1969,7 +2717,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         post?: never;
@@ -1980,7 +2733,12 @@ export interface paths
         trace?: never;
     };
     "/Service/FileArchive/Invalid/{pk}": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -1989,24 +2747,39 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { internalId?: string; isInvalid?: boolean; };
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
                 };
-                path: { pk: string; };
+                path: {
+                    pk: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/FileArchive/BatchInvalid": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -2015,7 +2788,9 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { isInvalid?: boolean; };
+                query?: {
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -2023,22 +2798,40 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/FileArchive/Delete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
         delete: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -2049,7 +2842,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -2058,7 +2856,12 @@ export interface paths
         trace?: never;
     };
     "/Service/FileArchive/BatchDelete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -2072,10 +2875,21 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -2084,10 +2898,17 @@ export interface paths
         trace?: never;
     };
     "/Service/FileArchive/QueryData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -2098,7 +2919,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -2110,7 +2936,12 @@ export interface paths
         trace?: never;
     };
     "/Service/FileArchive/QueryList": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -2132,7 +2963,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -2142,7 +2978,12 @@ export interface paths
         trace?: never;
     };
     "/Service/FileArchive/GetTotalCounts": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -2164,7 +3005,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -2174,7 +3020,12 @@ export interface paths
         trace?: never;
     };
     "/Service/FileArchive/GetModelDisplayName": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
                 query?: never;
@@ -2188,7 +3039,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -2200,21 +3056,35 @@ export interface paths
         trace?: never;
     };
     "/Service/FileManagement/Public_Download/{internalId}": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
-                query?: { fileName?: string; };
+                query?: {
+                    fileName?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
                 };
-                path: { internalId: string; };
+                path: {
+                    internalId: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -2226,21 +3096,35 @@ export interface paths
         trace?: never;
     };
     "/Service/FileManagement/Public_Preview/{internalId}": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
-                query?: { fileName?: string; };
+                query?: {
+                    fileName?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
                 };
-                path: { internalId: string; };
+                path: {
+                    internalId: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -2252,21 +3136,35 @@ export interface paths
         trace?: never;
     };
     "/Service/FileManagement/Server_Preview/{internalId}": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
-                query?: { fileName?: string; };
+                query?: {
+                    fileName?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
                 };
-                path: { internalId: string; };
+                path: {
+                    internalId: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -2278,21 +3176,35 @@ export interface paths
         trace?: never;
     };
     "/Service/FileManagement/Server_Download/{internalId}": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
-                query?: { fileName?: string; };
+                query?: {
+                    fileName?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
                 };
-                path: { internalId: string; };
+                path: {
+                    internalId: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -2304,7 +3216,12 @@ export interface paths
         trace?: never;
     };
     "/Service/FileManagement/Server_UploadTemp": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -2327,7 +3244,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -2337,7 +3259,12 @@ export interface paths
         trace?: never;
     };
     "/Service/FileManagement/Server_MoveToPermanent": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -2350,10 +3277,21 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -2363,7 +3301,12 @@ export interface paths
         trace?: never;
     };
     "/Service/FileManagement/Server_CancelUploadFiles": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -2376,10 +3319,21 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -2389,12 +3343,19 @@ export interface paths
         trace?: never;
     };
     "/Service/FileManagement/ImportInitialFiles": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
             parameters: {
-                query?: { label?: string; };
+                query?: {
+                    label?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -2405,7 +3366,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -2415,7 +3381,12 @@ export interface paths
         trace?: never;
     };
     "/Service/FileManagement/Create": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -2437,7 +3408,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -2447,7 +3423,12 @@ export interface paths
         trace?: never;
     };
     "/Service/FileManagement/InitialCreateData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -2469,7 +3450,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -2479,7 +3465,12 @@ export interface paths
         trace?: never;
     };
     "/Service/FileManagement/Update": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put: {
             parameters: {
@@ -2500,7 +3491,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         post?: never;
@@ -2511,7 +3507,12 @@ export interface paths
         trace?: never;
     };
     "/Service/FileManagement/Invalid/{pk}": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -2520,24 +3521,39 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { internalId?: string; isInvalid?: boolean; };
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
                 };
-                path: { pk: string; };
+                path: {
+                    pk: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/FileManagement/BatchInvalid": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -2546,7 +3562,9 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { isInvalid?: boolean; };
+                query?: {
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -2554,22 +3572,40 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/FileManagement/Delete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
         delete: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -2580,7 +3616,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -2589,7 +3630,12 @@ export interface paths
         trace?: never;
     };
     "/Service/FileManagement/BatchDelete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -2603,10 +3649,21 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -2615,10 +3672,17 @@ export interface paths
         trace?: never;
     };
     "/Service/FileManagement/QueryData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -2629,7 +3693,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -2641,7 +3710,12 @@ export interface paths
         trace?: never;
     };
     "/Service/FileManagement/QueryList": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -2663,7 +3737,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -2673,7 +3752,12 @@ export interface paths
         trace?: never;
     };
     "/Service/FileManagement/GetTotalCounts": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -2695,7 +3779,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -2705,7 +3794,12 @@ export interface paths
         trace?: never;
     };
     "/Service/FileManagement/GetModelDisplayName": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
                 query?: never;
@@ -2719,7 +3813,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -2731,7 +3830,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Gallery/Create": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -2753,7 +3857,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -2763,7 +3872,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Gallery/InitialCreateData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -2785,7 +3899,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -2795,7 +3914,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Gallery/Update": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put: {
             parameters: {
@@ -2816,7 +3940,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         post?: never;
@@ -2827,7 +3956,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Gallery/Invalid/{pk}": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -2836,24 +3970,39 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { internalId?: string; isInvalid?: boolean; };
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
                 };
-                path: { pk: string; };
+                path: {
+                    pk: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/Gallery/BatchInvalid": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -2862,7 +4011,9 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { isInvalid?: boolean; };
+                query?: {
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -2870,22 +4021,40 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/Gallery/Delete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
         delete: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -2896,7 +4065,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -2905,7 +4079,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Gallery/BatchDelete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -2919,10 +4098,21 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -2931,10 +4121,17 @@ export interface paths
         trace?: never;
     };
     "/Service/Gallery/QueryData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -2945,7 +4142,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -2957,7 +4159,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Gallery/QueryList": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -2979,7 +4186,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -2989,7 +4201,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Gallery/GetTotalCounts": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -3011,7 +4228,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -3021,7 +4243,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Gallery/GetModelDisplayName": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
                 query?: never;
@@ -3035,7 +4262,51 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/MatCategory/GetMatCateInfoFields": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    catId?: string;
+                    lang?: string;
+                };
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -3047,7 +4318,12 @@ export interface paths
         trace?: never;
     };
     "/Service/MatCategory/Create": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -3069,7 +4345,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -3079,7 +4360,12 @@ export interface paths
         trace?: never;
     };
     "/Service/MatCategory/InitialCreateData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -3101,7 +4387,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -3111,7 +4402,12 @@ export interface paths
         trace?: never;
     };
     "/Service/MatCategory/Update": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put: {
             parameters: {
@@ -3132,7 +4428,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         post?: never;
@@ -3143,7 +4444,12 @@ export interface paths
         trace?: never;
     };
     "/Service/MatCategory/Invalid/{pk}": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -3152,24 +4458,39 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { internalId?: string; isInvalid?: boolean; };
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
                 };
-                path: { pk: string; };
+                path: {
+                    pk: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/MatCategory/BatchInvalid": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -3178,7 +4499,9 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { isInvalid?: boolean; };
+                query?: {
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -3186,22 +4509,40 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/MatCategory/Delete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
         delete: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -3212,7 +4553,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -3221,7 +4567,12 @@ export interface paths
         trace?: never;
     };
     "/Service/MatCategory/BatchDelete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -3235,10 +4586,21 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -3247,10 +4609,17 @@ export interface paths
         trace?: never;
     };
     "/Service/MatCategory/QueryData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -3261,7 +4630,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -3273,7 +4647,12 @@ export interface paths
         trace?: never;
     };
     "/Service/MatCategory/QueryList": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -3295,7 +4674,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -3305,7 +4689,12 @@ export interface paths
         trace?: never;
     };
     "/Service/MatCategory/GetTotalCounts": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -3327,7 +4716,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -3337,7 +4731,12 @@ export interface paths
         trace?: never;
     };
     "/Service/MatCategory/GetModelDisplayName": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
                 query?: never;
@@ -3351,7 +4750,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -3363,7 +4767,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Material/Create": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -3385,7 +4794,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -3395,7 +4809,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Material/InitialCreateData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -3417,7 +4836,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -3427,7 +4851,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Material/Update": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put: {
             parameters: {
@@ -3448,7 +4877,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         post?: never;
@@ -3459,7 +4893,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Material/Invalid/{pk}": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -3468,24 +4907,39 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { internalId?: string; isInvalid?: boolean; };
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
                 };
-                path: { pk: string; };
+                path: {
+                    pk: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/Material/BatchInvalid": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -3494,7 +4948,9 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { isInvalid?: boolean; };
+                query?: {
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -3502,22 +4958,40 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/Material/Delete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
         delete: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -3528,7 +5002,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -3537,7 +5016,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Material/BatchDelete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -3551,10 +5035,21 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -3563,10 +5058,17 @@ export interface paths
         trace?: never;
     };
     "/Service/Material/QueryData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -3577,7 +5079,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -3589,7 +5096,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Material/QueryList": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -3611,7 +5123,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -3621,7 +5138,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Material/GetTotalCounts": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -3643,7 +5165,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -3653,7 +5180,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Material/GetModelDisplayName": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
                 query?: never;
@@ -3667,7 +5199,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -3679,7 +5216,12 @@ export interface paths
         trace?: never;
     };
     "/Service/PageManagement/Create": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -3701,7 +5243,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -3711,7 +5258,12 @@ export interface paths
         trace?: never;
     };
     "/Service/PageManagement/InitialCreateData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -3733,7 +5285,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -3743,7 +5300,12 @@ export interface paths
         trace?: never;
     };
     "/Service/PageManagement/Update": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put: {
             parameters: {
@@ -3764,7 +5326,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         post?: never;
@@ -3775,7 +5342,12 @@ export interface paths
         trace?: never;
     };
     "/Service/PageManagement/Invalid/{pk}": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -3784,24 +5356,39 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { internalId?: string; isInvalid?: boolean; };
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
                 };
-                path: { pk: string; };
+                path: {
+                    pk: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/PageManagement/BatchInvalid": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -3810,7 +5397,9 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { isInvalid?: boolean; };
+                query?: {
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -3818,22 +5407,40 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/PageManagement/Delete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
         delete: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -3844,7 +5451,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -3853,7 +5465,12 @@ export interface paths
         trace?: never;
     };
     "/Service/PageManagement/BatchDelete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -3867,10 +5484,21 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -3879,10 +5507,17 @@ export interface paths
         trace?: never;
     };
     "/Service/PageManagement/QueryData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -3893,7 +5528,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -3905,7 +5545,12 @@ export interface paths
         trace?: never;
     };
     "/Service/PageManagement/QueryList": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -3927,7 +5572,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -3937,7 +5587,12 @@ export interface paths
         trace?: never;
     };
     "/Service/PageManagement/GetTotalCounts": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -3959,7 +5614,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -3969,7 +5629,12 @@ export interface paths
         trace?: never;
     };
     "/Service/PageManagement/GetModelDisplayName": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
                 query?: never;
@@ -3983,7 +5648,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -3995,7 +5665,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Person/QueryList": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -4017,7 +5692,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -4027,7 +5707,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Person/Create": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -4049,7 +5734,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -4059,7 +5749,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Person/InitialCreateData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -4081,7 +5776,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -4091,7 +5791,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Person/Update": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put: {
             parameters: {
@@ -4112,7 +5817,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         post?: never;
@@ -4123,7 +5833,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Person/Invalid/{pk}": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -4132,24 +5847,39 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { internalId?: string; isInvalid?: boolean; };
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
                 };
-                path: { pk: string; };
+                path: {
+                    pk: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/Person/BatchInvalid": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -4158,7 +5888,9 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { isInvalid?: boolean; };
+                query?: {
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -4166,22 +5898,40 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/Person/Delete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
         delete: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -4192,7 +5942,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -4201,7 +5956,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Person/BatchDelete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -4215,10 +5975,21 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -4227,10 +5998,17 @@ export interface paths
         trace?: never;
     };
     "/Service/Person/QueryData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -4241,7 +6019,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -4253,7 +6036,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Person/GetTotalCounts": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -4275,7 +6063,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -4285,65 +6078,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Person/GetModelDisplayName": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/RolePermission/QueryList": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["QueryListParam"];
-                    "text/json": components["schemas"]["QueryListParam"];
-                    "application/*+json": components["schemas"]["QueryListParam"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/RolePermission/GetPermissionCatalog": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
         get: {
             parameters: {
                 query?: never;
@@ -4358,7 +6098,87 @@ export interface paths
             responses: {
                 /** @description OK */
                 200: {
-                    headers: { [name: string]: unknown; };
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/RolePermission/QueryList": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/RolePermission/GetPermissionCatalog": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
                     content: {
                         "text/plain": components["schemas"]["PermissionCatalogModuleDTOApiResponse"];
                         "application/json": components["schemas"]["PermissionCatalogModuleDTOApiResponse"];
@@ -4376,7 +6196,12 @@ export interface paths
         trace?: never;
     };
     "/Service/RolePermission/Create": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -4398,7 +6223,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -4408,7 +6238,12 @@ export interface paths
         trace?: never;
     };
     "/Service/RolePermission/InitialCreateData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -4430,7 +6265,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -4440,7 +6280,12 @@ export interface paths
         trace?: never;
     };
     "/Service/RolePermission/Update": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put: {
             parameters: {
@@ -4461,7 +6306,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         post?: never;
@@ -4472,7 +6322,12 @@ export interface paths
         trace?: never;
     };
     "/Service/RolePermission/Invalid/{pk}": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -4481,24 +6336,39 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { internalId?: string; isInvalid?: boolean; };
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
                 };
-                path: { pk: string; };
+                path: {
+                    pk: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/RolePermission/BatchInvalid": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -4507,7 +6377,9 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { isInvalid?: boolean; };
+                query?: {
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -4515,22 +6387,40 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/RolePermission/Delete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
         delete: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -4541,7 +6431,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -4550,7 +6445,12 @@ export interface paths
         trace?: never;
     };
     "/Service/RolePermission/BatchDelete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -4564,10 +6464,21 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -4576,10 +6487,17 @@ export interface paths
         trace?: never;
     };
     "/Service/RolePermission/QueryData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -4590,7 +6508,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -4602,7 +6525,12 @@ export interface paths
         trace?: never;
     };
     "/Service/RolePermission/GetTotalCounts": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -4624,7 +6552,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -4634,7 +6567,12 @@ export interface paths
         trace?: never;
     };
     "/Service/RolePermission/GetModelDisplayName": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
                 query?: never;
@@ -4648,7 +6586,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -4660,7 +6603,12 @@ export interface paths
         trace?: never;
     };
     "/Service/SiteMenu/SaveMenuStructure": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put: {
             parameters: {
@@ -4681,7 +6629,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         post?: never;
@@ -4692,7 +6645,12 @@ export interface paths
         trace?: never;
     };
     "/Service/SiteMenu/SaveMenuItem": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put: {
             parameters: {
@@ -4714,7 +6672,9 @@ export interface paths
             responses: {
                 /** @description OK */
                 200: {
-                    headers: { [name: string]: unknown; };
+                    headers: {
+                        [name: string]: unknown;
+                    };
                     content: {
                         "text/plain": components["schemas"]["SaveMenuItemResult_DTOApiResponse"];
                         "application/json": components["schemas"]["SaveMenuItemResult_DTOApiResponse"];
@@ -4731,7 +6691,12 @@ export interface paths
         trace?: never;
     };
     "/Service/SiteMenu/SaveSiteInfo": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put: {
             parameters: {
@@ -4752,7 +6717,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         post?: never;
@@ -4763,7 +6733,12 @@ export interface paths
         trace?: never;
     };
     "/Service/SiteMenu/Create": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -4785,7 +6760,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -4795,7 +6775,12 @@ export interface paths
         trace?: never;
     };
     "/Service/SiteMenu/InitialCreateData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -4817,7 +6802,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -4827,7 +6817,12 @@ export interface paths
         trace?: never;
     };
     "/Service/SiteMenu/Update": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put: {
             parameters: {
@@ -4848,7 +6843,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         post?: never;
@@ -4859,7 +6859,12 @@ export interface paths
         trace?: never;
     };
     "/Service/SiteMenu/Invalid/{pk}": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -4868,24 +6873,39 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { internalId?: string; isInvalid?: boolean; };
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
                 };
-                path: { pk: string; };
+                path: {
+                    pk: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/SiteMenu/BatchInvalid": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -4894,7 +6914,9 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { isInvalid?: boolean; };
+                query?: {
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -4902,22 +6924,40 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/SiteMenu/Delete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
         delete: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -4928,7 +6968,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -4937,7 +6982,12 @@ export interface paths
         trace?: never;
     };
     "/Service/SiteMenu/BatchDelete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -4951,10 +7001,21 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -4963,10 +7024,17 @@ export interface paths
         trace?: never;
     };
     "/Service/SiteMenu/QueryData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -4977,7 +7045,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -4989,7 +7062,12 @@ export interface paths
         trace?: never;
     };
     "/Service/SiteMenu/QueryList": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -5011,7 +7089,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -5021,7 +7104,12 @@ export interface paths
         trace?: never;
     };
     "/Service/SiteMenu/GetTotalCounts": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -5043,7 +7131,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -5053,7 +7146,12 @@ export interface paths
         trace?: never;
     };
     "/Service/SiteMenu/GetModelDisplayName": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
                 query?: never;
@@ -5067,7 +7165,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -5079,7 +7182,12 @@ export interface paths
         trace?: never;
     };
     "/Service/SiteViewCount/TryCountSiteView": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -5102,7 +7210,9 @@ export interface paths
             responses: {
                 /** @description OK */
                 200: {
-                    headers: { [name: string]: unknown; };
+                    headers: {
+                        [name: string]: unknown;
+                    };
                     content: {
                         "text/plain": components["schemas"]["TryCountResult_DTOApiResponse"];
                         "application/json": components["schemas"]["TryCountResult_DTOApiResponse"];
@@ -5111,7 +7221,9 @@ export interface paths
                 };
                 /** @description Bad Request */
                 400: {
-                    headers: { [name: string]: unknown; };
+                    headers: {
+                        [name: string]: unknown;
+                    };
                     content: {
                         "text/plain": components["schemas"]["TryCountResult_DTOApiResponse"];
                         "application/json": components["schemas"]["TryCountResult_DTOApiResponse"];
@@ -5127,7 +7239,12 @@ export interface paths
         trace?: never;
     };
     "/Service/SiteViewCount/TryCountPageView": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -5149,7 +7266,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -5159,7 +7281,12 @@ export interface paths
         trace?: never;
     };
     "/Service/SiteViewCount/TryCountFilePreview": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -5181,7 +7308,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -5191,7 +7323,12 @@ export interface paths
         trace?: never;
     };
     "/Service/SiteViewCount/TryCountFileDownload": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -5213,7 +7350,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -5223,7 +7365,12 @@ export interface paths
         trace?: never;
     };
     "/Service/SiteViewCount/TryCountLinkClick": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -5245,7 +7392,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -5255,7 +7407,12 @@ export interface paths
         trace?: never;
     };
     "/Service/SiteViewCount/GetSiteViewCountSetSchema": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
                 query?: never;
@@ -5270,7 +7427,9 @@ export interface paths
             responses: {
                 /** @description OK */
                 200: {
-                    headers: { [name: string]: unknown; };
+                    headers: {
+                        [name: string]: unknown;
+                    };
                     content: {
                         "text/plain": components["schemas"]["SiteViewCountSet_DTOApiResponse"];
                         "application/json": components["schemas"]["SiteViewCountSet_DTOApiResponse"];
@@ -5288,7 +7447,12 @@ export interface paths
         trace?: never;
     };
     "/Service/SiteViewCount/QueryList": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -5310,7 +7474,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -5320,7 +7489,12 @@ export interface paths
         trace?: never;
     };
     "/Service/SiteViewCount/GetTotalCounts": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -5342,7 +7516,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -5352,375 +7531,12 @@ export interface paths
         trace?: never;
     };
     "/Service/SiteViewCount/GetModelDisplayName": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecCategory/GetShowColumnItems": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get: {
-            parameters: {
-                query?: { progId?: string; };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecCategory/Create": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SpecCategorySet_DTO"];
-                    "text/json": components["schemas"]["SpecCategorySet_DTO"];
-                    "application/*+json": components["schemas"]["SpecCategorySet_DTO"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecCategory/InitialCreateData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SpecCategorySet_DTO"][];
-                    "text/json": components["schemas"]["SpecCategorySet_DTO"][];
-                    "application/*+json": components["schemas"]["SpecCategorySet_DTO"][];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecCategory/Update": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SpecCategorySet_DTOApiRequest"];
-                    "text/json": components["schemas"]["SpecCategorySet_DTOApiRequest"];
-                    "application/*+json": components["schemas"]["SpecCategorySet_DTOApiRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecCategory/Invalid/{pk}": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: {
-            parameters: {
-                query?: { internalId?: string; isInvalid?: boolean; };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path: { pk: string; };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        trace?: never;
-    };
-    "/Service/SpecCategory/BatchInvalid": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: {
-            parameters: {
-                query?: { isInvalid?: boolean; };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        trace?: never;
-    };
-    "/Service/SpecCategory/Delete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: {
-            parameters: {
-                query?: { internalId?: string; };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecCategory/BatchDelete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecCategory/QueryData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get: {
-            parameters: {
-                query?: { internalId?: string; };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecCategory/QueryList": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["QueryListParam"];
-                    "text/json": components["schemas"]["QueryListParam"];
-                    "application/*+json": components["schemas"]["QueryListParam"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecCategory/GetTotalCounts": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["QueryListParam"];
-                    "text/json": components["schemas"]["QueryListParam"];
-                    "application/*+json": components["schemas"]["QueryListParam"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecCategory/GetModelDisplayName": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecHomePageApi/GetWeatherData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
         get: {
             parameters: {
                 query?: never;
@@ -5735,7 +7551,45 @@ export interface paths
             responses: {
                 /** @description OK */
                 200: {
-                    headers: { [name: string]: unknown; };
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecHomePageApi/GetWeatherData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
                     content: {
                         "text/plain": components["schemas"]["SpecHomePageWeather_DTOApiResponse"];
                         "application/json": components["schemas"]["SpecHomePageWeather_DTOApiResponse"];
@@ -5753,7 +7607,12 @@ export interface paths
         trace?: never;
     };
     "/Service/SpecHomePageApi/Create": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -5775,7 +7634,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -5785,7 +7649,12 @@ export interface paths
         trace?: never;
     };
     "/Service/SpecHomePageApi/InitialCreateData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -5807,7 +7676,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -5817,7 +7691,12 @@ export interface paths
         trace?: never;
     };
     "/Service/SpecHomePageApi/Update": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put: {
             parameters: {
@@ -5838,7 +7717,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         post?: never;
@@ -5849,7 +7733,12 @@ export interface paths
         trace?: never;
     };
     "/Service/SpecHomePageApi/Invalid/{pk}": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -5858,24 +7747,39 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { internalId?: string; isInvalid?: boolean; };
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
                 };
-                path: { pk: string; };
+                path: {
+                    pk: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/SpecHomePageApi/BatchInvalid": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -5884,7 +7788,9 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { isInvalid?: boolean; };
+                query?: {
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -5892,187 +7798,40 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/SpecHomePageApi/Delete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
         delete: {
             parameters: {
-                query?: { internalId?: string; };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
+                query?: {
+                    internalId?: string;
                 };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecHomePageApi/BatchDelete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecHomePageApi/QueryData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get: {
-            parameters: {
-                query?: { internalId?: string; };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecHomePageApi/QueryList": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["QueryListParam"];
-                    "text/json": components["schemas"]["QueryListParam"];
-                    "application/*+json": components["schemas"]["QueryListParam"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecHomePageApi/GetTotalCounts": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["QueryListParam"];
-                    "text/json": components["schemas"]["QueryListParam"];
-                    "application/*+json": components["schemas"]["QueryListParam"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecHomePageApi/GetModelDisplayName": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecJournal/GetAuthorByOrcid": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get: {
-            parameters: {
-                query?: { orcid?: string; };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -6084,248 +7843,11 @@ export interface paths
             responses: {
                 /** @description OK */
                 200: {
-                    headers: { [name: string]: unknown; };
-                    content: {
-                        "text/plain": components["schemas"]["ORCIDDataApiResponse"];
-                        "application/json": components["schemas"]["ORCIDDataApiResponse"];
-                        "text/json": components["schemas"]["ORCIDDataApiResponse"];
+                    headers: {
+                        [name: string]: unknown;
                     };
+                    content?: never;
                 };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecJournal/PublishJournal": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["PublishReq"];
-                    "text/json": components["schemas"]["PublishReq"];
-                    "application/*+json": components["schemas"]["PublishReq"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecJournal/UnpublishJournal": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: { content: { "application/json": string; "text/json": string; "application/*+json": string; }; };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecJournal/Create": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SpecJournalSet_DTO"];
-                    "text/json": components["schemas"]["SpecJournalSet_DTO"];
-                    "application/*+json": components["schemas"]["SpecJournalSet_DTO"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecJournal/InitialCreateData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SpecJournalSet_DTO"][];
-                    "text/json": components["schemas"]["SpecJournalSet_DTO"][];
-                    "application/*+json": components["schemas"]["SpecJournalSet_DTO"][];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecJournal/Update": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SpecJournalSet_DTOApiRequest"];
-                    "text/json": components["schemas"]["SpecJournalSet_DTOApiRequest"];
-                    "application/*+json": components["schemas"]["SpecJournalSet_DTOApiRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecJournal/Invalid/{pk}": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: {
-            parameters: {
-                query?: { internalId?: string; isInvalid?: boolean; };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path: { pk: string; };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        trace?: never;
-    };
-    "/Service/SpecJournal/BatchInvalid": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: {
-            parameters: {
-                query?: { isInvalid?: boolean; };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        trace?: never;
-    };
-    "/Service/SpecJournal/Delete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: {
-            parameters: {
-                query?: { internalId?: string; };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
             };
         };
         options?: never;
@@ -6333,8 +7855,13 @@ export interface paths
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecJournal/BatchDelete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+    "/Service/SpecHomePageApi/BatchDelete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -6348,10 +7875,21 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -6359,11 +7897,18 @@ export interface paths
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecJournal/QueryData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+    "/Service/SpecHomePageApi/QueryData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -6374,7 +7919,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -6385,8 +7935,13 @@ export interface paths
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecJournal/QueryList": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+    "/Service/SpecHomePageApi/QueryList": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -6408,7 +7963,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -6417,8 +7977,13 @@ export interface paths
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecJournal/GetTotalCounts": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+    "/Service/SpecHomePageApi/GetTotalCounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -6440,7 +8005,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -6449,8 +8019,13 @@ export interface paths
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecJournal/GetModelDisplayName": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+    "/Service/SpecHomePageApi/GetModelDisplayName": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
                 query?: never;
@@ -6464,1587 +8039,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecJournalIndex/Create": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
                 };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SpecJournalIndexSet_DTO"];
-                    "text/json": components["schemas"]["SpecJournalIndexSet_DTO"];
-                    "application/*+json": components["schemas"]["SpecJournalIndexSet_DTO"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecJournalIndex/InitialCreateData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SpecJournalIndexSet_DTO"][];
-                    "text/json": components["schemas"]["SpecJournalIndexSet_DTO"][];
-                    "application/*+json": components["schemas"]["SpecJournalIndexSet_DTO"][];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecJournalIndex/Update": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SpecJournalIndexSet_DTOApiRequest"];
-                    "text/json": components["schemas"]["SpecJournalIndexSet_DTOApiRequest"];
-                    "application/*+json": components["schemas"]["SpecJournalIndexSet_DTOApiRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecJournalIndex/Invalid/{pk}": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: {
-            parameters: {
-                query?: { internalId?: string; isInvalid?: boolean; };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path: { pk: string; };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        trace?: never;
-    };
-    "/Service/SpecJournalIndex/BatchInvalid": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: {
-            parameters: {
-                query?: { isInvalid?: boolean; };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        trace?: never;
-    };
-    "/Service/SpecJournalIndex/Delete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: {
-            parameters: {
-                query?: { internalId?: string; };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecJournalIndex/BatchDelete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecJournalIndex/QueryData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get: {
-            parameters: {
-                query?: { internalId?: string; };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecJournalIndex/QueryList": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["QueryListParam"];
-                    "text/json": components["schemas"]["QueryListParam"];
-                    "application/*+json": components["schemas"]["QueryListParam"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecJournalIndex/GetTotalCounts": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["QueryListParam"];
-                    "text/json": components["schemas"]["QueryListParam"];
-                    "application/*+json": components["schemas"]["QueryListParam"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecJournalIndex/GetModelDisplayName": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecMusical/Create": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SpecMusicalSet_DTO"];
-                    "text/json": components["schemas"]["SpecMusicalSet_DTO"];
-                    "application/*+json": components["schemas"]["SpecMusicalSet_DTO"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecMusical/InitialCreateData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SpecMusicalSet_DTO"][];
-                    "text/json": components["schemas"]["SpecMusicalSet_DTO"][];
-                    "application/*+json": components["schemas"]["SpecMusicalSet_DTO"][];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecMusical/Update": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SpecMusicalSet_DTOApiRequest"];
-                    "text/json": components["schemas"]["SpecMusicalSet_DTOApiRequest"];
-                    "application/*+json": components["schemas"]["SpecMusicalSet_DTOApiRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecMusical/Invalid/{pk}": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: {
-            parameters: {
-                query?: { internalId?: string; isInvalid?: boolean; };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path: { pk: string; };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        trace?: never;
-    };
-    "/Service/SpecMusical/BatchInvalid": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: {
-            parameters: {
-                query?: { isInvalid?: boolean; };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        trace?: never;
-    };
-    "/Service/SpecMusical/Delete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: {
-            parameters: {
-                query?: { internalId?: string; };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecMusical/BatchDelete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecMusical/QueryData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get: {
-            parameters: {
-                query?: { internalId?: string; };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecMusical/QueryList": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["QueryListParam"];
-                    "text/json": components["schemas"]["QueryListParam"];
-                    "application/*+json": components["schemas"]["QueryListParam"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecMusical/GetTotalCounts": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["QueryListParam"];
-                    "text/json": components["schemas"]["QueryListParam"];
-                    "application/*+json": components["schemas"]["QueryListParam"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecMusical/GetModelDisplayName": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecOpenScheduleRule/Create": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SpecOpenScheduleRuleSet_DTO"];
-                    "text/json": components["schemas"]["SpecOpenScheduleRuleSet_DTO"];
-                    "application/*+json": components["schemas"]["SpecOpenScheduleRuleSet_DTO"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecOpenScheduleRule/InitialCreateData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SpecOpenScheduleRuleSet_DTO"][];
-                    "text/json": components["schemas"]["SpecOpenScheduleRuleSet_DTO"][];
-                    "application/*+json": components["schemas"]["SpecOpenScheduleRuleSet_DTO"][];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecOpenScheduleRule/Update": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SpecOpenScheduleRuleSet_DTOApiRequest"];
-                    "text/json": components["schemas"]["SpecOpenScheduleRuleSet_DTOApiRequest"];
-                    "application/*+json": components["schemas"]["SpecOpenScheduleRuleSet_DTOApiRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecOpenScheduleRule/Invalid/{pk}": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: {
-            parameters: {
-                query?: { internalId?: string; isInvalid?: boolean; };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path: { pk: string; };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        trace?: never;
-    };
-    "/Service/SpecOpenScheduleRule/BatchInvalid": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: {
-            parameters: {
-                query?: { isInvalid?: boolean; };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        trace?: never;
-    };
-    "/Service/SpecOpenScheduleRule/Delete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: {
-            parameters: {
-                query?: { internalId?: string; };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecOpenScheduleRule/BatchDelete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecOpenScheduleRule/QueryData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get: {
-            parameters: {
-                query?: { internalId?: string; };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecOpenScheduleRule/QueryList": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["QueryListParam"];
-                    "text/json": components["schemas"]["QueryListParam"];
-                    "application/*+json": components["schemas"]["QueryListParam"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecOpenScheduleRule/GetTotalCounts": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["QueryListParam"];
-                    "text/json": components["schemas"]["QueryListParam"];
-                    "application/*+json": components["schemas"]["QueryListParam"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecOpenScheduleRule/GetModelDisplayName": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecResearch/Create": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SpecResearchSet_DTO"];
-                    "text/json": components["schemas"]["SpecResearchSet_DTO"];
-                    "application/*+json": components["schemas"]["SpecResearchSet_DTO"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecResearch/InitialCreateData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SpecResearchSet_DTO"][];
-                    "text/json": components["schemas"]["SpecResearchSet_DTO"][];
-                    "application/*+json": components["schemas"]["SpecResearchSet_DTO"][];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecResearch/Update": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SpecResearchSet_DTOApiRequest"];
-                    "text/json": components["schemas"]["SpecResearchSet_DTOApiRequest"];
-                    "application/*+json": components["schemas"]["SpecResearchSet_DTOApiRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecResearch/Invalid/{pk}": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: {
-            parameters: {
-                query?: { internalId?: string; isInvalid?: boolean; };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path: { pk: string; };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        trace?: never;
-    };
-    "/Service/SpecResearch/BatchInvalid": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: {
-            parameters: {
-                query?: { isInvalid?: boolean; };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        trace?: never;
-    };
-    "/Service/SpecResearch/Delete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: {
-            parameters: {
-                query?: { internalId?: string; };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecResearch/BatchDelete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecResearch/QueryData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get: {
-            parameters: {
-                query?: { internalId?: string; };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecResearch/QueryList": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["QueryListParam"];
-                    "text/json": components["schemas"]["QueryListParam"];
-                    "application/*+json": components["schemas"]["QueryListParam"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecResearch/GetTotalCounts": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["QueryListParam"];
-                    "text/json": components["schemas"]["QueryListParam"];
-                    "application/*+json": components["schemas"]["QueryListParam"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecResearch/GetModelDisplayName": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecUSR/Create": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SpecUSRSet_DTO"];
-                    "text/json": components["schemas"]["SpecUSRSet_DTO"];
-                    "application/*+json": components["schemas"]["SpecUSRSet_DTO"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecUSR/InitialCreateData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SpecUSRSet_DTO"][];
-                    "text/json": components["schemas"]["SpecUSRSet_DTO"][];
-                    "application/*+json": components["schemas"]["SpecUSRSet_DTO"][];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecUSR/Update": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["SpecUSRSet_DTOApiRequest"];
-                    "text/json": components["schemas"]["SpecUSRSet_DTOApiRequest"];
-                    "application/*+json": components["schemas"]["SpecUSRSet_DTOApiRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecUSR/Invalid/{pk}": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: {
-            parameters: {
-                query?: { internalId?: string; isInvalid?: boolean; };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path: { pk: string; };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        trace?: never;
-    };
-    "/Service/SpecUSR/BatchInvalid": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: {
-            parameters: {
-                query?: { isInvalid?: boolean; };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        trace?: never;
-    };
-    "/Service/SpecUSR/Delete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: {
-            parameters: {
-                query?: { internalId?: string; };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecUSR/BatchDelete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecUSR/QueryData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get: {
-            parameters: {
-                query?: { internalId?: string; };
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecUSR/QueryList": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["QueryListParam"];
-                    "text/json": components["schemas"]["QueryListParam"];
-                    "application/*+json": components["schemas"]["QueryListParam"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecUSR/GetTotalCounts": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["QueryListParam"];
-                    "text/json": components["schemas"]["QueryListParam"];
-                    "application/*+json": components["schemas"]["QueryListParam"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/Service/SpecUSR/GetModelDisplayName": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
-        get: {
-            parameters: {
-                query?: never;
-                header?: {
-                    /** @description i18n language (e.g. zh-TW / en) */
-                    "Accept-Language"?: string;
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
             };
         };
         put?: never;
@@ -8056,7 +8056,12 @@ export interface paths
         trace?: never;
     };
     "/Service/SystemAPI/GetXsrfToken": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
                 query?: never;
@@ -8070,7 +8075,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -8082,10 +8092,17 @@ export interface paths
         trace?: never;
     };
     "/Service/SystemAPI/GetEnumOptions": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
-                query: { enumName: string; };
+                query: {
+                    enumName: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -8096,7 +8113,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -8108,12 +8130,19 @@ export interface paths
         trace?: never;
     };
     "/Service/SystemAPI/Migration": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
             parameters: {
-                query?: { labelTag?: string; };
+                query?: {
+                    labelTag?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -8124,7 +8153,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -8134,7 +8168,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Tag/Create": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -8156,7 +8195,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -8166,7 +8210,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Tag/InitialCreateData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -8188,7 +8237,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -8198,7 +8252,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Tag/Update": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put: {
             parameters: {
@@ -8219,7 +8278,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         post?: never;
@@ -8230,7 +8294,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Tag/Invalid/{pk}": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -8239,24 +8308,39 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { internalId?: string; isInvalid?: boolean; };
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
                 };
-                path: { pk: string; };
+                path: {
+                    pk: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/Tag/BatchInvalid": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -8265,7 +8349,9 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { isInvalid?: boolean; };
+                query?: {
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -8273,22 +8359,40 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/Tag/Delete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
         delete: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -8299,7 +8403,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -8308,7 +8417,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Tag/BatchDelete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -8322,10 +8436,21 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -8334,10 +8459,17 @@ export interface paths
         trace?: never;
     };
     "/Service/Tag/QueryData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -8348,7 +8480,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -8360,7 +8497,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Tag/QueryList": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -8382,7 +8524,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -8392,7 +8539,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Tag/GetTotalCounts": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -8414,7 +8566,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -8424,7 +8581,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Tag/GetModelDisplayName": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
                 query?: never;
@@ -8438,7 +8600,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -8450,7 +8617,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Timeline/Create": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -8472,7 +8644,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -8482,7 +8659,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Timeline/InitialCreateData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -8504,7 +8686,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -8514,7 +8701,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Timeline/Update": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put: {
             parameters: {
@@ -8535,7 +8727,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         post?: never;
@@ -8546,7 +8743,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Timeline/Invalid/{pk}": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -8555,24 +8757,39 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { internalId?: string; isInvalid?: boolean; };
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
                 };
-                path: { pk: string; };
+                path: {
+                    pk: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/Timeline/BatchInvalid": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -8581,7 +8798,9 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { isInvalid?: boolean; };
+                query?: {
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -8589,22 +8808,40 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/Timeline/Delete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
         delete: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -8615,7 +8852,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -8624,7 +8866,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Timeline/BatchDelete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -8638,10 +8885,21 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -8650,10 +8908,17 @@ export interface paths
         trace?: never;
     };
     "/Service/Timeline/QueryData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -8664,7 +8929,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -8676,7 +8946,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Timeline/QueryList": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -8698,7 +8973,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -8708,7 +8988,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Timeline/GetTotalCounts": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -8730,7 +9015,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -8740,7 +9030,12 @@ export interface paths
         trace?: never;
     };
     "/Service/Timeline/GetModelDisplayName": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
                 query?: never;
@@ -8754,7 +9049,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -8766,7 +9066,12 @@ export interface paths
         trace?: never;
     };
     "/Service/WebResource/Create": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -8788,7 +9093,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -8798,7 +9108,12 @@ export interface paths
         trace?: never;
     };
     "/Service/WebResource/InitialCreateData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -8820,7 +9135,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -8830,7 +9150,12 @@ export interface paths
         trace?: never;
     };
     "/Service/WebResource/Update": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put: {
             parameters: {
@@ -8851,7 +9176,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         post?: never;
@@ -8862,7 +9192,12 @@ export interface paths
         trace?: never;
     };
     "/Service/WebResource/Invalid/{pk}": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -8871,24 +9206,39 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { internalId?: string; isInvalid?: boolean; };
+                query?: {
+                    internalId?: string;
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
                 };
-                path: { pk: string; };
+                path: {
+                    pk: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/WebResource/BatchInvalid": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -8897,7 +9247,9 @@ export interface paths
         head?: never;
         patch: {
             parameters: {
-                query?: { isInvalid?: boolean; };
+                query?: {
+                    isInvalid?: boolean;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -8905,22 +9257,40 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
     };
     "/Service/WebResource/Delete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
         delete: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -8931,7 +9301,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -8940,7 +9315,12 @@ export interface paths
         trace?: never;
     };
     "/Service/WebResource/BatchDelete": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post?: never;
@@ -8954,10 +9334,21 @@ export interface paths
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: { content: { "application/json": string[]; "text/json": string[]; "application/*+json": string[]; }; };
+            requestBody?: {
+                content: {
+                    "application/json": string[];
+                    "text/json": string[];
+                    "application/*+json": string[];
+                };
+            };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
@@ -8966,10 +9357,17 @@ export interface paths
         trace?: never;
     };
     "/Service/WebResource/QueryData": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
-                query?: { internalId?: string; };
+                query?: {
+                    internalId?: string;
+                };
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -8980,7 +9378,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -8992,7 +9395,12 @@ export interface paths
         trace?: never;
     };
     "/Service/WebResource/QueryList": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -9014,7 +9422,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -9024,7 +9437,12 @@ export interface paths
         trace?: never;
     };
     "/Service/WebResource/GetTotalCounts": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         post: {
@@ -9046,7 +9464,12 @@ export interface paths
             };
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -9056,7 +9479,12 @@ export interface paths
         trace?: never;
     };
     "/Service/WebResource/GetModelDisplayName": {
-        parameters: { query?: never; header?: never; path?: never; cookie?: never; };
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get: {
             parameters: {
                 query?: never;
@@ -9070,7 +9498,12 @@ export interface paths
             requestBody?: never;
             responses: {
                 /** @description OK */
-                200: { headers: { [name: string]: unknown; }; content?: never; };
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -9083,8 +9516,7 @@ export interface paths
     };
 }
 export type webhooks = Record<string, never>;
-export interface components
-{
+export interface components {
     schemas: {
         AccountModel: {
             /** Format: date-time */
@@ -9124,8 +9556,13 @@ export interface components
             /** Format: date */
             PasswordChangeDate?: string;
         };
-        AccountSet_DTO: { Account?: components["schemas"]["Account_DTO"]; };
-        AccountSet_DTOApiRequest: { InternalId?: string | null; Data?: components["schemas"]["AccountSet_DTO"]; };
+        AccountSet_DTO: {
+            Account?: components["schemas"]["Account_DTO"];
+        };
+        AccountSet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["AccountSet_DTO"];
+        };
         /**
          * Format: int32
          * @enum {integer}
@@ -9182,12 +9619,12 @@ export interface components
              * Format: int32
              * @description 父行代碼
              */
-            ParentRowId?: number;
+            ParentRowId?: number | null;
             /**
              * Format: int32
              * @description 行代碼
              */
-            RowId?: number;
+            RowId?: number | null;
             File?: components["schemas"]["FileManageModel_DTO"];
             /** @description 附件 */
             FileId?: string | null;
@@ -9219,7 +9656,10 @@ export interface components
             AnnouncementDetail?: components["schemas"]["AnnouncementDetail_DTO"][] | null;
             AnnouncementDetailFile?: components["schemas"]["AnnouncementDetailFile_DTO"][] | null;
         };
-        AnnouncementSet_DTOApiRequest: { InternalId?: string | null; Data?: components["schemas"]["AnnouncementSet_DTO"]; };
+        AnnouncementSet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["AnnouncementSet_DTO"];
+        };
         Announcement_DTO: {
             /**
              * Format: date-time
@@ -9290,12 +9730,6 @@ export interface components
             URL?: string | null;
             URL_Open?: components["schemas"]["WindowTarget"];
             _BannerDetail?: components["schemas"]["BannerDetail_DTO"];
-            /** @description [Spec_LatestShows] */
-            SpecLatestShows?: string | null;
-            /** @description [Spec_ShowLocation] */
-            SpecShowLocation?: string | null;
-            /** @description [Spec_ShowDate] */
-            SpecShowDate?: string | null;
         };
         BannerDetail_DTO: {
             /** @description 橫幅廣告 */
@@ -9332,7 +9766,10 @@ export interface components
             BannerDetail?: components["schemas"]["BannerDetail_DTO"][] | null;
             BannerDetailInfo?: components["schemas"]["BannerDetailInfo_DTO"][] | null;
         };
-        BannerSet_DTOApiRequest: { InternalId?: string | null; Data?: components["schemas"]["BannerSet_DTO"]; };
+        BannerSet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["BannerSet_DTO"];
+        };
         Banner_DTO: {
             /**
              * Format: date-time
@@ -9399,23 +9836,15 @@ export interface components
             ModifyUser?: components["schemas"]["AccountModel"];
             ModifyUserId?: string | null;
             _Calendar?: components["schemas"]["Calendar_DTO"];
-            Spec_AcademicYear?: components["schemas"]["SpecOpenScheduleRuleModel"];
-            Spec_AcademicYearId?: string | null;
-            /**
-             * Format: time
-             * @description [Spec_OpenTime]
-             */
-            Spec_OpenTime?: string | null;
-            /**
-             * Format: time
-             * @description [Spec_CloseTime]
-             */
-            Spec_CloseTime?: string | null;
-            /** @description 摘要 */
-            Spec_ModifyMemo?: string | null;
         };
-        CalendarSet_DTO: { Calendar?: components["schemas"]["Calendar_DTO"]; CalendarDetail?: components["schemas"]["CalendarDetail_DTO"][] | null; };
-        CalendarSet_DTOApiRequest: { InternalId?: string | null; Data?: components["schemas"]["CalendarSet_DTO"]; };
+        CalendarSet_DTO: {
+            Calendar?: components["schemas"]["Calendar_DTO"];
+            CalendarDetail?: components["schemas"]["CalendarDetail_DTO"][] | null;
+        };
+        CalendarSet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["CalendarSet_DTO"];
+        };
         Calendar_DTO: {
             /**
              * Format: date-time
@@ -9448,8 +9877,14 @@ export interface components
             LastImportTime?: string | null;
             _CalendarDetail?: components["schemas"]["CalendarDetail_DTO"][] | null;
         };
-        CategoryDataSet_DTO: { Category?: components["schemas"]["Category_DTO"]; CategoryDetail?: components["schemas"]["CategoryDetail_DTO"][] | null; };
-        CategoryDataSet_DTOApiRequest: { InternalId?: string | null; Data?: components["schemas"]["CategoryDataSet_DTO"]; };
+        CategoryDataSet_DTO: {
+            Category?: components["schemas"]["Category_DTO"];
+            CategoryDetail?: components["schemas"]["CategoryDetail_DTO"][] | null;
+        };
+        CategoryDataSet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["CategoryDataSet_DTO"];
+        };
         CategoryDetail_DTO: {
             /** @description 類別 */
             CategoryId?: string | null;
@@ -9494,7 +9929,10 @@ export interface components
             _CategoryDetail?: components["schemas"]["CategoryDetail_DTO"][] | null;
             _MatCategoryInfoField?: components["schemas"]["MatCategoryInfoField_DTO"][] | null;
         };
-        ChangePassword: { OldPassword?: string | null; NewPassword?: string | null; };
+        ChangePassword: {
+            OldPassword?: string | null;
+            NewPassword?: string | null;
+        };
         /**
          * Format: int32
          * @enum {integer}
@@ -9549,7 +9987,10 @@ export interface components
             FileArchiveDetail?: components["schemas"]["FileArchiveDetail_DTO"][] | null;
             FileArchiveUrlDetail?: components["schemas"]["FileArchiveUrlDetail_DTO"][] | null;
         };
-        FileArchiveSet_DTOApiRequest: { InternalId?: string | null; Data?: components["schemas"]["FileArchiveSet_DTO"]; };
+        FileArchiveSet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["FileArchiveSet_DTO"];
+        };
         FileArchiveUrlDetail_DTO: {
             /** @description 檔案室代碼 */
             FileArchiveId?: string | null;
@@ -9689,7 +10130,10 @@ export interface components
             FileManage_DownloadRecent?: components["schemas"]["FileManage_DownloadRecentModel_DTO"][] | null;
             FileManage_SyncInfo?: components["schemas"]["FileManage_SyncInfoModel_DTO"][] | null;
         };
-        FileManageSet_DTOApiRequest: { InternalId?: string | null; Data?: components["schemas"]["FileManageSet_DTO"]; };
+        FileManageSet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["FileManageSet_DTO"];
+        };
         FileManage_DownloadRecentModel: {
             RowState?: components["schemas"]["RowState"];
             InternalId?: string | null;
@@ -9791,6 +10235,8 @@ export interface components
             Lang?: components["schemas"]["LangCode"];
             /** @description 標題 */
             Title?: string | null;
+            /** @description 標題 */
+            Description?: string | null;
         };
         GalleryPhotos_DTO: {
             /** @description 相簿 */
@@ -9815,7 +10261,10 @@ export interface components
             GalleryPhotos?: components["schemas"]["GalleryPhotos_DTO"][] | null;
             GalleryPhotosInfo?: components["schemas"]["GalleryPhotosInfo_DTO"][] | null;
         };
-        GallerySet_DTOApiRequest: { InternalId?: string | null; Data?: components["schemas"]["GallerySet_DTO"]; };
+        GallerySet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["GallerySet_DTO"];
+        };
         Gallery_DTO: {
             /**
              * Format: date-time
@@ -9869,14 +10318,20 @@ export interface components
          *       "Account": "Admin",
          *       "Password": "Z7](oRuh98Z3x1$"
          *     } */
-        LoginDto: { Account: string; Password: string; };
+        LoginDto: {
+            Account: string;
+            Password: string;
+        };
         MatCategoryDataSet_DTO: {
             Category?: components["schemas"]["Category_DTO"];
             CategoryDetail?: components["schemas"]["CategoryDetail_DTO"][] | null;
             MatCategoryInfoField?: components["schemas"]["MatCategoryInfoField_DTO"][] | null;
             MatCategoryInfoFieldDisplay?: components["schemas"]["MatCategoryInfoFieldDisplay_DTO"][] | null;
         };
-        MatCategoryDataSet_DTOApiRequest: { InternalId?: string | null; Data?: components["schemas"]["MatCategoryDataSet_DTO"]; };
+        MatCategoryDataSet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["MatCategoryDataSet_DTO"];
+        };
         MatCategoryInfoFieldDisplay_DTO: {
             RowState?: components["schemas"]["RowState"];
             CategoryId?: string | null;
@@ -9940,7 +10395,10 @@ export interface components
             MaterialPicture?: components["schemas"]["MaterialPicture_DTO"][] | null;
             MaterialTags?: components["schemas"]["MaterialTags_DTO"][] | null;
         };
-        MaterialSet_DTOApiRequest: { InternalId?: string | null; Data?: components["schemas"]["MaterialSet_DTO"]; };
+        MaterialSet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["MaterialSet_DTO"];
+        };
         MaterialTags_DTO: {
             /** @description 物件代號 */
             MaterialId?: string | null;
@@ -10008,22 +10466,10 @@ export interface components
          * @enum {integer}
          */
         ModulePageType: 0 | 1;
-        ORCIDData: {
-            ORCID?: string | null;
-            AuthorName?: string | null;
-            AuthorName_en?: string | null;
-            JobTitle?: string | null;
-            Unit?: string | null;
-            Unit_en?: string | null;
-            Email?: string | null;
-            Country?: string | null;
+        OrderBySpec: {
+            Col?: string | null;
+            Desc?: boolean;
         };
-        ORCIDDataApiResponse: {
-            readonly IsSuccess?: boolean;
-            SysMessage?: components["schemas"]["SysMessageModel"][] | null;
-            Data?: components["schemas"]["ORCIDData"][] | null;
-        };
-        OrderBySpec: { Col?: string | null; Desc?: boolean; };
         PageManagementDetail_DTO: {
             /** @description 頁面 */
             PageId?: string | null;
@@ -10042,7 +10488,10 @@ export interface components
             PageManagement?: components["schemas"]["PageManagement_DTO"];
             PageManagementDetail?: components["schemas"]["PageManagementDetail_DTO"][] | null;
         };
-        PageManagementSet_DTOApiRequest: { InternalId?: string | null; Data?: components["schemas"]["PageManagementSet_DTO"]; };
+        PageManagementSet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["PageManagementSet_DTO"];
+        };
         PageManagement_DTO: {
             /**
              * Format: date-time
@@ -10084,7 +10533,11 @@ export interface components
             SysMessage?: components["schemas"]["SysMessageModel"][] | null;
             Data?: components["schemas"]["PermissionCatalogModuleDTO"][] | null;
         };
-        PermissionCatalogProgDTO: { ProgId?: string | null; ProgTitle?: string | null; SupportMask?: components["schemas"]["FuncAction"]; };
+        PermissionCatalogProgDTO: {
+            ProgId?: string | null;
+            ProgTitle?: string | null;
+            SupportMask?: components["schemas"]["FuncAction"];
+        };
         PersonModel: {
             /** Format: date-time */
             CreateTime?: string | null;
@@ -10156,18 +10609,12 @@ export interface components
             /** @description 聯絡電話 */
             HomePhone?: string | null;
         };
-        PersonSet_DTO: { Person?: components["schemas"]["PersonModel_DTO"]; };
-        PersonSet_DTOApiRequest: { InternalId?: string | null; Data?: components["schemas"]["PersonSet_DTO"]; };
-        PublishReq: {
-            /** @description 內部唯一標示號 */
+        PersonSet_DTO: {
+            Person?: components["schemas"]["PersonModel_DTO"];
+        };
+        PersonSet_DTOApiRequest: {
             InternalId?: string | null;
-            /** @description [Spec_JournalIndexId] */
-            JournalIndexId?: string | null;
-            /**
-             * Format: int32
-             * @description [Spec_JournalIndexRowId]
-             */
-            JournalIndexRowId?: number | null;
+            Data?: components["schemas"]["PersonSet_DTO"];
         };
         QueryListParam: {
             Fields?: string[] | null;
@@ -10179,8 +10626,14 @@ export interface components
             /** Format: int32 */
             PageSize?: number;
         };
-        RankGroupsSpec: { Condition?: string | null; OrderBy?: components["schemas"]["OrderBySpec"][] | null; };
-        ResetPassword: { UserInternalId?: string | null; NewPassword?: string | null; };
+        RankGroupsSpec: {
+            Condition?: string | null;
+            OrderBy?: components["schemas"]["OrderBySpec"][] | null;
+        };
+        ResetPassword: {
+            UserInternalId?: string | null;
+            NewPassword?: string | null;
+        };
         RoleDataModel: {
             /** Format: date-time */
             CreateTime?: string | null;
@@ -10267,7 +10720,10 @@ export interface components
             RoleData?: components["schemas"]["RoleDataModel_DTO"];
             RolePermission?: components["schemas"]["RolePermissionModel_DTO"][] | null;
         };
-        RolePermissionSet_DTOApiRequest: { InternalId?: string | null; Data?: components["schemas"]["RolePermissionSet_DTO"]; };
+        RolePermissionSet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["RolePermissionSet_DTO"];
+        };
         /**
          * Format: int32
          * @enum {integer}
@@ -10297,7 +10753,10 @@ export interface components
             Title?: string | null;
             IsShowOnMenu?: boolean;
         };
-        SaveMenuItemUrl_DTO: { RedirectType?: components["schemas"]["MenuUrlType"]; RedirectUrl?: string | null; };
+        SaveMenuItemUrl_DTO: {
+            RedirectType?: components["schemas"]["MenuUrlType"];
+            RedirectUrl?: string | null;
+        };
         SaveMenuItem_DTO: {
             InternalId?: string | null;
             /** Format: int32 */
@@ -10313,7 +10772,10 @@ export interface components
             Url?: components["schemas"]["SaveMenuItemUrl_DTO"];
             Module?: components["schemas"]["SaveMenuItemModule_DTO"];
         };
-        SaveMenuItem_DTOApiRequest: { InternalId?: string | null; Data?: components["schemas"]["SaveMenuItem_DTO"]; };
+        SaveMenuItem_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["SaveMenuItem_DTO"];
+        };
         SaveMenuStructureItem_DTO: {
             /** Format: int32 */
             RowId?: number;
@@ -10327,13 +10789,19 @@ export interface components
             Items?: components["schemas"]["SaveMenuStructureItem_DTO"][] | null;
             DeletedRowIds?: number[] | null;
         };
-        SaveMenuStructure_DTOApiRequest: { InternalId?: string | null; Data?: components["schemas"]["SaveMenuStructure_DTO"]; };
+        SaveMenuStructure_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["SaveMenuStructure_DTO"];
+        };
         SaveSiteInfo_DTO: {
             InternalId?: string | null;
             SiteMenu_Index?: components["schemas"]["SiteMenu_Index_DTO"];
             SiteMenu_IndexInfo?: components["schemas"]["SiteMenu_IndexInfo_DTO"][] | null;
         };
-        SaveSiteInfo_DTOApiRequest: { InternalId?: string | null; Data?: components["schemas"]["SaveSiteInfo_DTO"]; };
+        SaveSiteInfo_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["SaveSiteInfo_DTO"];
+        };
         SiteMenuSet_DTO: {
             SiteMenu_Index?: components["schemas"]["SiteMenu_Index_DTO"];
             SiteMenu_IndexInfo?: components["schemas"]["SiteMenu_IndexInfo_DTO"][] | null;
@@ -10342,7 +10810,10 @@ export interface components
             SiteMenu_Item_Url?: components["schemas"]["SiteMenu_Item_Url_DTO"][] | null;
             SiteMenu_Item_Module?: components["schemas"]["SiteMenu_Item_Module_DTO"][] | null;
         };
-        SiteMenuSet_DTOApiRequest: { InternalId?: string | null; Data?: components["schemas"]["SiteMenuSet_DTO"]; };
+        SiteMenuSet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["SiteMenuSet_DTO"];
+        };
         SiteMenu_IndexInfo_DTO: {
             /** @description 首頁代碼 */
             SiteIndex?: string | null;
@@ -10554,81 +11025,6 @@ export interface components
             SysMessage?: components["schemas"]["SysMessageModel"][] | null;
             Data?: components["schemas"]["SiteViewCountSet_DTO"][] | null;
         };
-        /**
-         * Format: int32
-         * @enum {integer}
-         */
-        SpecAuthorType: 0 | 1;
-        SpecCategoryDetailModel_DTO: {
-            /** @description [SpecCategoryId] */
-            CategoryId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number;
-            Lang?: components["schemas"]["LangCode"];
-            /** @description [SpecCategory_Name] */
-            CategoryName?: string | null;
-        };
-        SpecCategoryModel_DTO: {
-            /**
-             * Format: date-time
-             * @description 創建時間
-             */
-            CreateTime?: string | null;
-            /** @description 創建人 */
-            CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["Account_DTO"];
-            /**
-             * Format: date-time
-             * @description 修改時間
-             */
-            ModifyTime?: string | null;
-            /** @description 修改人 */
-            ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["Account_DTO"];
-            FormStatus?: components["schemas"]["FormStatus"];
-            DataStatus?: components["schemas"]["DataStatus"];
-            /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUserId?: string | null;
-            /** @description 內部唯一標示號 */
-            InternalId?: string | null;
-            OrgLvId?: string | null;
-            /** @description [SpecCategoryId] */
-            CategoryId?: string | null;
-            /** @description 功能模塊代碼 */
-            ProgId?: string | null;
-            /** @description [SpecCategory_ShowColumn] */
-            ShowColumnItems?: string | null;
-            _SpecCategoryDetail?: components["schemas"]["SpecCategoryDetailModel_DTO"][] | null;
-        };
-        SpecCategorySet_DTO: {
-            SpecCategory?: components["schemas"]["SpecCategoryModel_DTO"];
-            SpecCategoryDetail?: components["schemas"]["SpecCategoryDetailModel_DTO"][] | null;
-        };
-        SpecCategorySet_DTOApiRequest: { InternalId?: string | null; Data?: components["schemas"]["SpecCategorySet_DTO"]; };
-        SpecCurrentOpenTime_DTO: {
-            /** Format: date */
-            Date?: string;
-            DayOfWeek?: components["schemas"]["DayOfWeek"];
-            HolidayName?: string | null;
-            /** Format: time */
-            Spec_OpenTime?: string | null;
-            /** Format: time */
-            Spec_CloseTime?: string | null;
-        };
-        SpecCurrentOpenTime_DTOApiResponse: {
-            readonly IsSuccess?: boolean;
-            SysMessage?: components["schemas"]["SysMessageModel"][] | null;
-            Data?: components["schemas"]["SpecCurrentOpenTime_DTO"][] | null;
-        };
-        /**
-         * Format: int32
-         * @enum {integer}
-         */
-        SpecDocumentType: 0 | 1 | 2 | 3 | 4;
         SpecHomePage1820Model_DTO: {
             /**
              * Format: date-time
@@ -10696,7 +11092,10 @@ export interface components
             /** @description 1820首頁資源連結子表 */
             SpecHomePage1820_Resource?: components["schemas"]["SpecHomePage1820_Resource_DTO"][] | null;
         };
-        SpecHomePage1820Set_DTOApiRequest: { InternalId?: string | null; Data?: components["schemas"]["SpecHomePage1820Set_DTO"]; };
+        SpecHomePage1820Set_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["SpecHomePage1820Set_DTO"];
+        };
         SpecHomePage1820_BannerMedia_DTO: {
             RowState?: components["schemas"]["RowState"];
             /** @description 首頁設定表ID */
@@ -10816,991 +11215,11 @@ export interface components
             SysMessage?: components["schemas"]["SysMessageModel"][] | null;
             Data?: components["schemas"]["SpecHomePageWeather_DTO"][] | null;
         };
-        SpecJournalAuthor_DTO: {
-            RowState?: components["schemas"]["RowState"];
-            /** @description [Spec_JournalId] */
-            JournalId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
-            AuthorType?: components["schemas"]["SpecAuthorType"];
-            /** @description [Spec_ORCID] */
-            ORCID?: string | null;
-            /** @description [Spec_AuthorName] */
-            AuthorName?: string | null;
-            /** @description [Spec_AuthorName_en] */
-            AuthorName_en?: string | null;
-            /** @description [Spec_JobTitle] */
-            JobTitle?: string | null;
-            /** @description [Spec_Unit] */
-            Unit?: string | null;
-            /** @description [Spec_Unit_en] */
-            Unit_en?: string | null;
-            /** @description 常用Email */
-            Email?: string | null;
-            /** @description 地區/國家 */
-            Country?: string | null;
-            _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
+        SysMessageModel: {
+            Status?: components["schemas"]["MessageStatus"];
+            MessageCode?: string | null;
+            Message?: string | null;
         };
-        SpecJournalDocument_DTO: {
-            RowState?: components["schemas"]["RowState"];
-            /** @description [Spec_JournalId] */
-            JournalId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
-            DocumentType?: components["schemas"]["SpecDocumentType"];
-            /** @description [Spec_DocumentName] */
-            DocumentName?: string | null;
-            Document?: components["schemas"]["FileManageModel_DTO"];
-            /** @description [Spec_DocumentId] */
-            DocumentId?: string | null;
-            _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
-        };
-        SpecJournalIndexDetail_DTO: {
-            RowState?: components["schemas"]["RowState"];
-            /** @description [Spec_JournalIndexId] */
-            IndexId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
-            /**
-             * Format: int32
-             * @description [Spec_Volume]
-             */
-            Volume?: number | null;
-            /** @description [Spec_Issue] */
-            Issue?: string | null;
-            /** @description [Spec_IsSpecial] */
-            IsSpecial?: boolean | null;
-            /**
-             * Format: date
-             * @description [Spec_PublishDate]
-             */
-            PublishDate?: string | null;
-            /** @description [Spec_SeasonNo] */
-            SeasonNo?: string | null;
-            SummaryFile?: components["schemas"]["FileManageModel_DTO"];
-            /** @description [Spec_SummaryFileId] */
-            SummaryFileId?: string | null;
-            /** @description [Spec_SummaryFileName] */
-            SummaryFileName?: string | null;
-            _SpecJournalIndex?: components["schemas"]["SpecJournalIndexModel_DTO"];
-        };
-        SpecJournalIndexModel_DTO: {
-            /**
-             * Format: date-time
-             * @description 創建時間
-             */
-            CreateTime?: string | null;
-            /** @description 創建人 */
-            CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["Account_DTO"];
-            /**
-             * Format: date-time
-             * @description 修改時間
-             */
-            ModifyTime?: string | null;
-            /** @description 修改人 */
-            ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["Account_DTO"];
-            FormStatus?: components["schemas"]["FormStatus"];
-            DataStatus?: components["schemas"]["DataStatus"];
-            /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUserId?: string | null;
-            /** @description 內部唯一標示號 */
-            InternalId?: string | null;
-            OrgLvId?: string | null;
-            /** @description [Spec_JournalIndexId] */
-            IndexId?: string | null;
-            /** @description [Spec_JournalIndexName] */
-            IndexName?: string | null;
-            _SpecJournalIndexDetail?: components["schemas"]["SpecJournalIndexDetail_DTO"][] | null;
-        };
-        SpecJournalIndexSet_DTO: {
-            SpecJournalIndex?: components["schemas"]["SpecJournalIndexModel_DTO"];
-            /** @description [SpecJournalIndexDetail] */
-            SpecJournalIndexDetail?: components["schemas"]["SpecJournalIndexDetail_DTO"][] | null;
-        };
-        SpecJournalIndexSet_DTOApiRequest: { InternalId?: string | null; Data?: components["schemas"]["SpecJournalIndexSet_DTO"]; };
-        SpecJournalKeywords_DTO: {
-            RowState?: components["schemas"]["RowState"];
-            /** @description [Spec_JournalId] */
-            JournalId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
-            LangCode?: components["schemas"]["LangCode"];
-            /** @description [Spec_Keyword] */
-            Keyword?: string | null;
-            _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
-        };
-        SpecJournalModel_DTO: {
-            /**
-             * Format: date-time
-             * @description 創建時間
-             */
-            CreateTime?: string | null;
-            /** @description 創建人 */
-            CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["Account_DTO"];
-            /**
-             * Format: date-time
-             * @description 修改時間
-             */
-            ModifyTime?: string | null;
-            /** @description 修改人 */
-            ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["Account_DTO"];
-            FormStatus?: components["schemas"]["FormStatus"];
-            DataStatus?: components["schemas"]["DataStatus"];
-            /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUserId?: string | null;
-            /** @description 內部唯一標示號 */
-            InternalId?: string | null;
-            OrgLvId?: string | null;
-            /** @description [Spec_JournalId] */
-            JournalId?: string | null;
-            _JournalIndex?: components["schemas"]["SpecJournalIndexModel_DTO"];
-            /** @description [Spec_JournalIndexId] */
-            JournalIndexId?: string | null;
-            _JournalIndexDetail?: components["schemas"]["SpecJournalIndexDetail_DTO"];
-            /**
-             * Format: int32
-             * @description [Spec_JournalIndexRowId]
-             */
-            JournalIndexRowId?: number | null;
-            /** @description 標題 */
-            Title?: string | null;
-            /** @description [Spec_Title_en] */
-            Title_en?: string | null;
-            /**
-             * Format: int32
-             * @description [Spec_PageStart]
-             */
-            PageStart?: number | null;
-            /**
-             * Format: int32
-             * @description [Spec_PageEnd]
-             */
-            PageEnd?: number | null;
-            /** @description [Spec_DOI] */
-            DOIUrl?: string | null;
-            JournalFile?: components["schemas"]["FileManageModel_DTO"];
-            /** @description [Spec_JournalFieldId] */
-            JournalFileId?: string | null;
-            /** @description [Spec_JournalFileName] */
-            JournalFileName?: string | null;
-            InsightPointFile?: components["schemas"]["FileManageModel_DTO"];
-            /** @description [Spec_InsightPointFileId] */
-            InsightPointFileId?: string | null;
-            /** @description [Spec_InsightPointFileName] */
-            InsightPointFileName?: string | null;
-            ArticleLang?: components["schemas"]["LangCode"];
-            /** @description 摘要 */
-            Memo?: string | null;
-            /** @description [Spec_Memo_en] */
-            Memo_en?: string | null;
-            /** @description [SpecBibliography] */
-            Bibliography?: string | null;
-            _SpecJournalAuthor?: components["schemas"]["SpecJournalAuthor_DTO"][] | null;
-            _SpecJournalRefFormat?: components["schemas"]["SpecJournalRefFormat_DTO"][] | null;
-            _SpecJournalOpenPointFiles?: components["schemas"]["SpecJournalOpenPointFiles_DTO"][] | null;
-            _SpecJournalRefFiles?: components["schemas"]["SpecJournalRefFiles_DTO"][] | null;
-            _SpecJournalDocument?: components["schemas"]["SpecJournalDocument_DTO"][] | null;
-            _SpecJournalTypes?: components["schemas"]["SpecJournalTypes_DTO"][] | null;
-            _SpecJournalKeywords?: components["schemas"]["SpecJournalKeywords_DTO"][] | null;
-        };
-        SpecJournalOpenPointFiles_DTO: {
-            RowState?: components["schemas"]["RowState"];
-            /** @description [Spec_JournalId] */
-            JournalId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
-            /** @description [Spec_OpenPointFileName] */
-            OpenPointFileName?: string | null;
-            OpenPointFile?: components["schemas"]["FileManageModel_DTO"];
-            /** @description [Spec_OpenPointFileId] */
-            OpenPointFileId?: string | null;
-            _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
-        };
-        SpecJournalRefFiles_DTO: {
-            RowState?: components["schemas"]["RowState"];
-            /** @description [Spec_JournalId] */
-            JournalId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
-            /** @description [Spec_RefFileName] */
-            RefFileName?: string | null;
-            RefFile?: components["schemas"]["FileManageModel_DTO"];
-            /** @description [Spec_RefFileId] */
-            RefFileId?: string | null;
-            _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
-        };
-        SpecJournalRefFormat_DTO: {
-            RowState?: components["schemas"]["RowState"];
-            /** @description [Spec_JournalId] */
-            JournalId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
-            /** @description [Spec_RefFormatTitle] */
-            Title?: string | null;
-            /** @description [Spec_RefFormatContent] */
-            Content?: string | null;
-            _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
-        };
-        SpecJournalSet_DTO: {
-            SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
-            /** @description [SpecJournalAuthor] */
-            SpecJournalAuthor?: components["schemas"]["SpecJournalAuthor_DTO"][] | null;
-            /** @description [SpecJournalRefFormat] */
-            SpecJournalRefFormat?: components["schemas"]["SpecJournalRefFormat_DTO"][] | null;
-            /** @description [SpecJournalOpenPointFiles] */
-            SpecJournalOpenPointFiles?: components["schemas"]["SpecJournalOpenPointFiles_DTO"][] | null;
-            /** @description [SpecJournalRefFiles] */
-            SpecJournalRefFiles?: components["schemas"]["SpecJournalRefFiles_DTO"][] | null;
-            /** @description [SpecJournalDocument] */
-            SpecJournalDocument?: components["schemas"]["SpecJournalDocument_DTO"][] | null;
-            /** @description [SpecJournalTypes] */
-            SpecJournalTypes?: components["schemas"]["SpecJournalTypes_DTO"][] | null;
-            /** @description [SpecJournalKeywords] */
-            SpecJournalKeywords?: components["schemas"]["SpecJournalKeywords_DTO"][] | null;
-        };
-        SpecJournalSet_DTOApiRequest: { InternalId?: string | null; Data?: components["schemas"]["SpecJournalSet_DTO"]; };
-        SpecJournalTypes_DTO: {
-            RowState?: components["schemas"]["RowState"];
-            /** @description [Spec_JournalId] */
-            JournalId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
-            Tag?: components["schemas"]["TagData_DTO"];
-            /** @description [Spec_TagId] */
-            TagId?: string | null;
-            _SpecJournal?: components["schemas"]["SpecJournalModel_DTO"];
-        };
-        SpecMusicalModel_DTO: {
-            /**
-             * Format: date-time
-             * @description 創建時間
-             */
-            CreateTime?: string | null;
-            /** @description 創建人 */
-            CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["Account_DTO"];
-            /**
-             * Format: date-time
-             * @description 修改時間
-             */
-            ModifyTime?: string | null;
-            /** @description 修改人 */
-            ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["Account_DTO"];
-            FormStatus?: components["schemas"]["FormStatus"];
-            DataStatus?: components["schemas"]["DataStatus"];
-            /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUserId?: string | null;
-            /** @description 內部唯一標示號 */
-            InternalId?: string | null;
-            OrgLvId?: string | null;
-            /** @description [Spec_MusicalId] */
-            MusicalId?: string | null;
-            /** @description [Spec_MusicalName] */
-            MusicalName?: string | null;
-            Category?: components["schemas"]["Category_DTO"];
-            /** @description 類別 */
-            CategoryId?: string | null;
-            /** @description 封面圖片 */
-            CoverPicId?: string | null;
-            /** @description [Spec_Specification] */
-            Specification?: string | null;
-            /** @description [Spec_Headstock] */
-            Headstock?: string | null;
-            /** @description [Spec_Backboard] */
-            Backboard?: string | null;
-            /** @description [Spec_ScaleLength] */
-            ScaleLength?: string | null;
-            /** @description [Spec_Bridge] */
-            Bridge?: string | null;
-            /** @description [Spec_BodyForm] */
-            BodyForm?: string | null;
-            /** @description [Spec_Material] */
-            Material?: string | null;
-            /** @description [Spec_MusicalInfo] */
-            Info?: string | null;
-            _SpecMusicalSoundList?: components["schemas"]["SpecMusicalSoundList_DTO"][] | null;
-            _SpecMusicalPictureList?: components["schemas"]["SpecMusicalPictureList_DTO"][] | null;
-        };
-        SpecMusicalPictureList_DTO: {
-            RowState?: components["schemas"]["RowState"];
-            /** @description [Spec_MusicalId] */
-            MusicalId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
-            /** @description 相片來源 */
-            PicSrcId?: string | null;
-            /**
-             * Format: int32
-             * @description 排序編號
-             */
-            Sort?: number | null;
-            /** @description 相片說明 */
-            Info?: string | null;
-            _SpecMusical?: components["schemas"]["SpecMusicalModel_DTO"];
-        };
-        SpecMusicalSet_DTO: {
-            SpecMusical?: components["schemas"]["SpecMusicalModel_DTO"];
-            SpecMusicalSoundList?: components["schemas"]["SpecMusicalSoundList_DTO"][] | null;
-            SpecMusicalPictureList?: components["schemas"]["SpecMusicalPictureList_DTO"][] | null;
-        };
-        SpecMusicalSet_DTOApiRequest: { InternalId?: string | null; Data?: components["schemas"]["SpecMusicalSet_DTO"]; };
-        SpecMusicalSoundList_DTO: {
-            RowState?: components["schemas"]["RowState"];
-            /** @description [Spec_MusicalId] */
-            MusicalId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
-            SoundSrc?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 音源 */
-            SoundSrcId?: string | null;
-            /** @description [Spec_SoundSrcInfo] */
-            Info?: string | null;
-            _SpecMusical?: components["schemas"]["SpecMusicalModel_DTO"];
-        };
-        SpecOpenScheduleRuleModel: {
-            /** Format: date-time */
-            CreateTime?: string | null;
-            CreateUser?: components["schemas"]["AccountModel"];
-            CreateUserId?: string | null;
-            /** Format: date-time */
-            ModifyTime?: string | null;
-            ModifyUser?: components["schemas"]["AccountModel"];
-            ModifyUserId?: string | null;
-            FormStatus?: components["schemas"]["FormStatus"];
-            DataStatus?: components["schemas"]["DataStatus"];
-            /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUser?: components["schemas"]["AccountModel"];
-            InvalidUserId?: string | null;
-            InternalId?: string | null;
-            OrgLvId?: string | null;
-            IsIniData?: boolean;
-            /** Format: date-time */
-            Validate_Start?: string | null;
-            /** Format: date-time */
-            Validate_End?: string | null;
-            /** @description [SpecAcademicYearId] */
-            AcademicYearId?: string | null;
-            /**
-             * Format: date
-             * @description [SpecAcademicStart]
-             */
-            AcademicStart?: string;
-            /**
-             * Format: date
-             * @description [SpecAcademicEnd]
-             */
-            AcademicEnd?: string;
-            /**
-             * Format: time
-             * @description [SpecWeekday_OpenTime]
-             */
-            Weekday_OpenTime?: string | null;
-            /**
-             * Format: time
-             * @description [SpecWeekday_CloseTime]
-             */
-            Weekday_CloseTime?: string | null;
-            /**
-             * Format: time
-             * @description [SpecSat_OpenTime]
-             */
-            Sat_OpenTime?: string | null;
-            /**
-             * Format: time
-             * @description [SpecSat_CloseTime]
-             */
-            Sat_CloseTime?: string | null;
-            /**
-             * Format: time
-             * @description [SpecSun_OpenTime]
-             */
-            Sun_OpenTime?: string | null;
-            /**
-             * Format: time
-             * @description [SpecSun_CloseTime]
-             */
-            Sun_CloseTime?: string | null;
-            /**
-             * Format: date
-             * @description [SpecWinterStart]
-             */
-            WinterStart?: string;
-            /**
-             * Format: date
-             * @description [SpecWinterEnd]
-             */
-            WinterEnd?: string;
-            /**
-             * Format: time
-             * @description [SpecWinter_Weekday_OpenTime]
-             */
-            Winter_Weekday_OpenTime?: string | null;
-            /**
-             * Format: time
-             * @description [SpecWinter_Weekday_CloseTime]
-             */
-            Winter_Weekday_CloseTime?: string | null;
-            /**
-             * Format: time
-             * @description [SpecWinter_Sat_OpenTime]
-             */
-            Winter_Sat_OpenTime?: string | null;
-            /**
-             * Format: time
-             * @description [SpecWinter_Sat_CloseTime]
-             */
-            Winter_Sat_CloseTime?: string | null;
-            /**
-             * Format: time
-             * @description [SpecWinter_Sun_OpenTime]
-             */
-            Winter_Sun_OpenTime?: string | null;
-            /**
-             * Format: time
-             * @description [SpecWinter_Sun_CloseTime]
-             */
-            Winter_Sun_CloseTime?: string | null;
-            /**
-             * Format: date
-             * @description [SpecSummerStart]
-             */
-            SummerStart?: string;
-            /**
-             * Format: date
-             * @description [SpecSummerEnd]
-             */
-            SummerEnd?: string;
-            /**
-             * Format: time
-             * @description [SpecSummer_Weekday_OpenTime]
-             */
-            Summer_Weekday_OpenTime?: string | null;
-            /**
-             * Format: time
-             * @description [SpecSummer_Weekday_CloseTime]
-             */
-            Summer_Weekday_CloseTime?: string | null;
-            /**
-             * Format: time
-             * @description [SpecSummer_Sat_OpenTime]
-             */
-            Summer_Sat_OpenTime?: string | null;
-            /**
-             * Format: time
-             * @description [SpecSummer_Sat_CloseTime]
-             */
-            Summer_Sat_CloseTime?: string | null;
-            /**
-             * Format: time
-             * @description [SpecSummer_Sun_OpenTime]
-             */
-            Summer_Sun_OpenTime?: string | null;
-            /**
-             * Format: time
-             * @description [SpecSummer_Sun_CloseTime]
-             */
-            Summer_Sun_CloseTime?: string | null;
-            /** @description 摘要 */
-            ModifyMemo?: string | null;
-        };
-        SpecOpenScheduleRuleModel_DTO: {
-            /**
-             * Format: date-time
-             * @description 創建時間
-             */
-            CreateTime?: string | null;
-            /** @description 創建人 */
-            CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["Account_DTO"];
-            /**
-             * Format: date-time
-             * @description 修改時間
-             */
-            ModifyTime?: string | null;
-            /** @description 修改人 */
-            ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["Account_DTO"];
-            FormStatus?: components["schemas"]["FormStatus"];
-            DataStatus?: components["schemas"]["DataStatus"];
-            /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUserId?: string | null;
-            /** @description 內部唯一標示號 */
-            InternalId?: string | null;
-            OrgLvId?: string | null;
-            /** @description [SpecAcademicYearId] */
-            AcademicYearId?: string | null;
-            /**
-             * Format: date
-             * @description [SpecAcademicStart]
-             */
-            AcademicStart?: string | null;
-            /**
-             * Format: date
-             * @description [SpecAcademicEnd]
-             */
-            AcademicEnd?: string | null;
-            /**
-             * Format: time
-             * @description [SpecWeekday_OpenTime]
-             */
-            Weekday_OpenTime?: string | null;
-            /**
-             * Format: time
-             * @description [SpecWeekday_CloseTime]
-             */
-            Weekday_CloseTime?: string | null;
-            /**
-             * Format: time
-             * @description [SpecSat_OpenTime]
-             */
-            Sat_OpenTime?: string | null;
-            /**
-             * Format: time
-             * @description [SpecSat_CloseTime]
-             */
-            Sat_CloseTime?: string | null;
-            /**
-             * Format: time
-             * @description [SpecSun_OpenTime]
-             */
-            Sun_OpenTime?: string | null;
-            /**
-             * Format: time
-             * @description [SpecSun_CloseTime]
-             */
-            Sun_CloseTime?: string | null;
-            /**
-             * Format: date
-             * @description [SpecWinterStart]
-             */
-            WinterStart?: string | null;
-            /**
-             * Format: date
-             * @description [SpecWinterEnd]
-             */
-            WinterEnd?: string | null;
-            /**
-             * Format: time
-             * @description [SpecWinter_Weekday_OpenTime]
-             */
-            Winter_Weekday_OpenTime?: string | null;
-            /**
-             * Format: time
-             * @description [SpecWinter_Weekday_CloseTime]
-             */
-            Winter_Weekday_CloseTime?: string | null;
-            /**
-             * Format: time
-             * @description [SpecWinter_Sat_OpenTime]
-             */
-            Winter_Sat_OpenTime?: string | null;
-            /**
-             * Format: time
-             * @description [SpecWinter_Sat_CloseTime]
-             */
-            Winter_Sat_CloseTime?: string | null;
-            /**
-             * Format: time
-             * @description [SpecWinter_Sun_OpenTime]
-             */
-            Winter_Sun_OpenTime?: string | null;
-            /**
-             * Format: time
-             * @description [SpecWinter_Sun_CloseTime]
-             */
-            Winter_Sun_CloseTime?: string | null;
-            /**
-             * Format: date
-             * @description [SpecSummerStart]
-             */
-            SummerStart?: string | null;
-            /**
-             * Format: date
-             * @description [SpecSummerEnd]
-             */
-            SummerEnd?: string | null;
-            /**
-             * Format: time
-             * @description [SpecSummer_Weekday_OpenTime]
-             */
-            Summer_Weekday_OpenTime?: string | null;
-            /**
-             * Format: time
-             * @description [SpecSummer_Weekday_CloseTime]
-             */
-            Summer_Weekday_CloseTime?: string | null;
-            /**
-             * Format: time
-             * @description [SpecSummer_Sat_OpenTime]
-             */
-            Summer_Sat_OpenTime?: string | null;
-            /**
-             * Format: time
-             * @description [SpecSummer_Sat_CloseTime]
-             */
-            Summer_Sat_CloseTime?: string | null;
-            /**
-             * Format: time
-             * @description [SpecSummer_Sun_OpenTime]
-             */
-            Summer_Sun_OpenTime?: string | null;
-            /**
-             * Format: time
-             * @description [SpecSummer_Sun_CloseTime]
-             */
-            Summer_Sun_CloseTime?: string | null;
-            /** @description 摘要 */
-            ModifyMemo?: string | null;
-        };
-        SpecOpenScheduleRuleSet_DTO: { SpecOpenScheduleRule?: components["schemas"]["SpecOpenScheduleRuleModel_DTO"]; };
-        SpecOpenScheduleRuleSet_DTOApiRequest: { InternalId?: string | null; Data?: components["schemas"]["SpecOpenScheduleRuleSet_DTO"]; };
-        SpecResearchDetailModel_DTO: {
-            /** @description [SpecResearchId] */
-            ResearchId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number;
-            Lang?: components["schemas"]["LangCode"];
-            /**
-             * Format: int32
-             * @description [SpecResearch_Year]
-             */
-            Year?: number | null;
-            /**
-             * Format: int32
-             * @description [SpecResearch_AcademicYear]
-             */
-            AcademicYear?: number | null;
-            /** @description [SpecResearch_Semester] */
-            Semester?: string | null;
-            /** @description [SpecResearch_DuringExecution] */
-            DuringExecution?: string | null;
-            /** @description [SpecResearch_ContractPeriod] */
-            ContractPeriod?: string | null;
-            /** @description [SpecResearch_ClassTime] */
-            ClassTime?: string | null;
-            /** @description [SpecResearch_ProjectLeader] */
-            ProjectLeader?: string | null;
-            /** @description [SpecResearch_Name] */
-            Name?: string | null;
-            /** @description [SpecResearch_TeachingStaffOfOurSchool] */
-            TeachingStaffOfOurSchool?: string | null;
-            /** @description [SpecResearch_ApprovalNumber] */
-            ApprovalNumber?: string | null;
-            /**
-             * Format: double
-             * @description [SpecResearch_ApprovedAmount]
-             */
-            ApprovedAmount?: number | null;
-            /** @description [SpecResearch_College] */
-            College?: string | null;
-            /** @description [SpecResearch_Department] */
-            Department?: string | null;
-            /** @description [SpecResearch_Degree] */
-            GraduationDegree?: string | null;
-            /** @description [SpecResearch_CoUnits] */
-            CooperatingUnits?: string | null;
-            /** @description [SpecResearch_CoProject] */
-            CooperationProject?: string | null;
-            /** @description [SpecResearch_Courses] */
-            Courses?: string | null;
-            /** @description [SpecResearch_ProjectName] */
-            ProjectName?: string | null;
-            /** @description [SpecResearch_PaperTitle] */
-            PaperTitle?: string | null;
-            /** @description [SpecResearch_Remark] */
-            Remark?: string | null;
-            /** @description [SpecResearch_Cohost1] */
-            Cohost1?: string | null;
-            /** @description [SpecResearch_Cohost2] */
-            Cohost2?: string | null;
-            /** @description [SpecResearch_Commissioned] */
-            Commissioned?: string | null;
-            /**
-             * Format: double
-             * @description [SpecResearch_PlanAmount]
-             */
-            PlanAmount?: number | null;
-            /** @description [SpecResearch_PlanContent] */
-            PlanContent?: string | null;
-            /** @description [SpecResearch_Professor] */
-            Professor?: string | null;
-        };
-        SpecResearchModel_DTO: {
-            /**
-             * Format: date-time
-             * @description 創建時間
-             */
-            CreateTime?: string | null;
-            /** @description 創建人 */
-            CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["Account_DTO"];
-            /**
-             * Format: date-time
-             * @description 修改時間
-             */
-            ModifyTime?: string | null;
-            /** @description 修改人 */
-            ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["Account_DTO"];
-            FormStatus?: components["schemas"]["FormStatus"];
-            DataStatus?: components["schemas"]["DataStatus"];
-            /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUserId?: string | null;
-            /** @description 內部唯一標示號 */
-            InternalId?: string | null;
-            OrgLvId?: string | null;
-            /** @description [SpecResearchId] */
-            ResearchId?: string | null;
-            /** @description [SpecResearch_Categories] */
-            CategoryId?: string | null;
-            ContentStatus?: components["schemas"]["ContentStatus"];
-            /** @description [SpecResearch_Tags] */
-            Tags?: string | null;
-            _SpecResearchDetail?: components["schemas"]["SpecResearchDetailModel_DTO"][] | null;
-        };
-        SpecResearchSet_DTO: {
-            SpecResearch?: components["schemas"]["SpecResearchModel_DTO"];
-            SpecResearchDetail?: components["schemas"]["SpecResearchDetailModel_DTO"][] | null;
-        };
-        SpecResearchSet_DTOApiRequest: { InternalId?: string | null; Data?: components["schemas"]["SpecResearchSet_DTO"]; };
-        SpecUSRDetail_DTO: {
-            /** @description [SpecUSRId] */
-            USRId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number;
-            Lang: components["schemas"]["LangCode"];
-            /** @description [SpecUSR_Year] */
-            Year?: string | null;
-            /**
-             * Format: int32
-             * @description [SpecUSR_AcademicYear]
-             */
-            AcademicYear?: number | null;
-            /** @description [SpecUSR_Courses] */
-            Courses?: string | null;
-            /** @description [SpecUSR_PracticeField] */
-            PracticeField?: string | null;
-            /** @description [SpecUSR_ProjectName] */
-            ProjectName?: string | null;
-            /** @description [SpecUSR_ExternalCoUnits] */
-            ExternalCooperationUnit?: string | null;
-            /** @description [SpecUSR_Department] */
-            Department?: string | null;
-            /** @description [SpecUSR_DuringExecution] */
-            DuringExecution?: string | null;
-            /**
-             * Format: double
-             * @description [SpecUSR_PlanAmount]
-             */
-            PlanAmount?: number | null;
-            /** @description [SpecUSR_ExecutionStrategy] */
-            ExecutionStrategy?: string | null;
-            /** @description [SpecUSR_ContentIntro] */
-            ContentIntroduction?: string | null;
-            /** @description [SpecUSR_ProjectConcept] */
-            ProjectConcept?: string | null;
-            /** @description [SpecUSR_KeyHighlights] */
-            ProjectHighlights?: string | null;
-            /** @description [SpecUSR_ProjectLeader] */
-            ProjectLeader?: string | null;
-            /** @description [SpecUSR_ProjectSubLeader] */
-            ProjectSubLeader?: string | null;
-            /** @description [SpecUSR_AttendTeam] */
-            AttendTeam?: string | null;
-            /** @description [SpecUSR_Cohost1] */
-            Cohost1?: string | null;
-            /** @description [SpecUSR_Cohost2] */
-            Cohost2?: string | null;
-            /** @description [SpecUSR_Commissioned] */
-            Commissioned?: string | null;
-            /** @description [SpecUSR_Remark] */
-            Remark?: string | null;
-            /** @description [SpecUSR_ProjectItem] */
-            ProjectItem?: string | null;
-            /**
-             * @deprecated
-             * @description [SpecUSR_Url]
-             */
-            Url?: string | null;
-            /**
-             * @deprecated
-             * @description [SpecUSR_UrlDescription]
-             */
-            UrlDescription?: string | null;
-        };
-        SpecUSRFile_DTO: {
-            /** @description [SpecUSRId] */
-            USRId?: string | null;
-            /**
-             * Format: int32
-             * @description 父行代碼
-             */
-            ParentRowId?: number | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
-            FileSrc?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 檔案來源 */
-            FileSrcId?: string | null;
-            /** @description 檔案名稱 */
-            FileName?: string | null;
-            _SpecUSRDetail?: components["schemas"]["SpecUSRDetail_DTO"];
-        };
-        SpecUSRModel_DTO: {
-            /**
-             * Format: date-time
-             * @description 創建時間
-             */
-            CreateTime?: string | null;
-            /** @description 創建人 */
-            CreateUserId?: string | null;
-            CreateUser?: components["schemas"]["Account_DTO"];
-            /**
-             * Format: date-time
-             * @description 修改時間
-             */
-            ModifyTime?: string | null;
-            /** @description 修改人 */
-            ModifyUserId?: string | null;
-            ModifyUser?: components["schemas"]["Account_DTO"];
-            FormStatus?: components["schemas"]["FormStatus"];
-            DataStatus?: components["schemas"]["DataStatus"];
-            /** Format: date-time */
-            InvalidTime?: string | null;
-            InvalidUserId?: string | null;
-            /** @description 內部唯一標示號 */
-            InternalId?: string | null;
-            OrgLvId?: string | null;
-            /** @description [SpecUSRId] */
-            USRId?: string | null;
-            /** @description [SpecResearch_Categories] */
-            CategoryId?: string | null;
-            ContentStatus?: components["schemas"]["ContentStatus"];
-            /** @description [SpecResearch_Tags] */
-            Tags?: string | null;
-            Picture?: components["schemas"]["FileManageModel_DTO"];
-            /** @description [SpecUSR_PictureId] */
-            PictureId?: string | null;
-            /** @description [SpecUSR_PicDescription] */
-            PicDescription?: string | null;
-            _SpecUSRDetail?: components["schemas"]["SpecUSRDetail_DTO"][] | null;
-            _SpecUSRPhoto?: components["schemas"]["SpecUSRPhoto_DTO"][] | null;
-        };
-        SpecUSRPhotoInfo_DTO: {
-            /** @description [SpecUSRId] */
-            USRId?: string | null;
-            /**
-             * Format: int32
-             * @description 父行代碼
-             */
-            ParentRowId?: number | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
-            Lang?: components["schemas"]["LangCode"];
-            /** @description 標題 */
-            Title?: string | null;
-            _SpecUSRPhoto?: components["schemas"]["SpecUSRPhoto_DTO"];
-        };
-        SpecUSRPhoto_DTO: {
-            /** @description [SpecUSRId] */
-            USRId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number;
-            PicSrc?: components["schemas"]["FileManageModel_DTO"];
-            PicSrcId?: string | null;
-            /**
-             * Format: int32
-             * @description 排序編號
-             */
-            Sort?: number;
-            _SpecUSR?: components["schemas"]["SpecUSRModel_DTO"];
-            _SpecUSRPhotoInfo?: components["schemas"]["SpecUSRPhotoInfo_DTO"][] | null;
-        };
-        SpecUSRSet_DTO: {
-            SpecUSR?: components["schemas"]["SpecUSRModel_DTO"];
-            SpecUSRDetail?: components["schemas"]["SpecUSRDetail_DTO"][] | null;
-            SpecUSRPhoto?: components["schemas"]["SpecUSRPhoto_DTO"][] | null;
-            SpecUSRPhotoInfo?: components["schemas"]["SpecUSRPhotoInfo_DTO"][] | null;
-            SpecUSRFile?: components["schemas"]["SpecUSRFile_DTO"][] | null;
-            SpecUSRUrl?: components["schemas"]["SpecUSRUrl_DTO"][] | null;
-        };
-        SpecUSRSet_DTOApiRequest: { InternalId?: string | null; Data?: components["schemas"]["SpecUSRSet_DTO"]; };
-        SpecUSRUrl_DTO: {
-            /** @description [SpecUSRId] */
-            USRId?: string | null;
-            /**
-             * Format: int32
-             * @description 父行代碼
-             */
-            ParentRowId?: number | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
-            /** @description 網址 */
-            Url?: string | null;
-            /** @description 網址描述 */
-            UrlDescription?: string | null;
-            WindowTarget?: components["schemas"]["WindowTarget"];
-            _SpecUSRDetail?: components["schemas"]["SpecUSRDetail_DTO"];
-        };
-        SysMessageModel: { Status?: components["schemas"]["MessageStatus"]; MessageCode?: string | null; Message?: string | null; };
         TagData_DTO: {
             /**
              * Format: date-time
@@ -11844,8 +11263,14 @@ export interface components
             /** @description 標籤名稱 */
             TagName?: string | null;
         };
-        TagSet_DTO: { TagData?: components["schemas"]["TagData_DTO"]; TagDetail?: components["schemas"]["TagDetail_DTO"][] | null; };
-        TagSet_DTOApiRequest: { InternalId?: string | null; Data?: components["schemas"]["TagSet_DTO"]; };
+        TagSet_DTO: {
+            TagData?: components["schemas"]["TagData_DTO"];
+            TagDetail?: components["schemas"]["TagDetail_DTO"][] | null;
+        };
+        TagSet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["TagSet_DTO"];
+        };
         TimelineItem_DTO: {
             /** @description 紀事表ID */
             TimelineId?: string | null;
@@ -11887,7 +11312,10 @@ export interface components
             TimelineItem?: components["schemas"]["TimelineItem_DTO"][] | null;
             TimelineLangDetail?: components["schemas"]["TimelineLangDetail_DTO"][] | null;
         };
-        TimelineSet_DTOApiRequest: { InternalId?: string | null; Data?: components["schemas"]["TimelineSet_DTO"]; };
+        TimelineSet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["TimelineSet_DTO"];
+        };
         Timeline_DTO: {
             /**
              * Format: date-time
@@ -11919,7 +11347,11 @@ export interface components
             TimelineName?: string | null;
             _TimelineItem?: components["schemas"]["TimelineItem_DTO"][] | null;
         };
-        TryCountDetailViewRequest_DTO: { SiteIndex?: string | null; ProgId?: string | null; InternalId?: string | null; };
+        TryCountDetailViewRequest_DTO: {
+            SiteIndex?: string | null;
+            ProgId?: string | null;
+            InternalId?: string | null;
+        };
         TryCountResult_DTO: {
             IsCounted?: boolean;
             /** Format: int32 */
@@ -11930,7 +11362,9 @@ export interface components
             SysMessage?: components["schemas"]["SysMessageModel"][] | null;
             Data?: components["schemas"]["TryCountResult_DTO"][] | null;
         };
-        TryCountSiteViewRequest_DTO: { SiteIndex?: string | null; };
+        TryCountSiteViewRequest_DTO: {
+            SiteIndex?: string | null;
+        };
         /**
          * Format: int32
          * @enum {integer}
@@ -11957,7 +11391,10 @@ export interface components
             WebResource?: components["schemas"]["WebResource_DTO"];
             WebResourceInfo?: components["schemas"]["WebResourceInfo_DTO"][] | null;
         };
-        WebResourceSet_DTOApiRequest: { InternalId?: string | null; Data?: components["schemas"]["WebResourceSet_DTO"]; };
+        WebResourceSet_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["WebResourceSet_DTO"];
+        };
         WebResource_DTO: {
             /**
              * Format: date-time

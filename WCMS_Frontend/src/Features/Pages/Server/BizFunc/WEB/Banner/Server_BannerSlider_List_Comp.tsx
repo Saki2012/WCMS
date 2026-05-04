@@ -62,7 +62,7 @@ const buildBannerSliderGridProps = (
     },
 ): GridProps =>
 {
-    const visibleCols = [BannerDetailFields.PicSrcId, BannerFields.BannerCategoryName, BannerFields.ModifyTime, BannerFields.ModifyUserId];
+    const visibleCols = [BannerDetailFields.PicSrcId, BannerFields.BannerCategoryName, BannerFields.ModifyUserId, BannerFields.ModifyTime];
     // 執行 function：Grid 基礎資料
     const columns = buildColumns(visibleCols, opt.raw);
     const rows = buildBannerSliderRows(opt.raw, columns);

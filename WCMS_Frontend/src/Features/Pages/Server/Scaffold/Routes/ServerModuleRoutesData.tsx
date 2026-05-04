@@ -434,23 +434,48 @@ export interface IServerMenuExtModule
     extendServerModuleRoutes?: (modules: IModuleMeta[]) => IModuleMeta[];
     default?: (modules: IModuleMeta[]) => IModuleMeta[];
 }
-const SPEC_CODE = import.meta.env.VITE_SPEC_CODE as string | undefined;
-const extModules = import.meta.glob("/src/SpecFetures/*/Pages/Server/Scaffold/ServerModuleRoutesExtData.tsx", { eager: true }) as Record<string, any>;
-const resolveServerMenuExt = (): unknown =>
+// #region ExternalData (For Spec)
+export interface IServerMenuExtModule
 {
-    const EXT_PATH = "Pages/Server/Scaffold/ServerModuleRoutesExtData.tsx";
-    const key = SPEC_CODE ? `/src/SpecFetures/${SPEC_CODE}/${EXT_PATH}` : "";
-    return ((key && extModules[key]) || extModules[`/src/SpecFetures/_default/${EXT_PATH}`] || {});
+    extendServerModuleRoutes?: (modules: IModuleMeta[]) => IModuleMeta[];
+    default?: (modules: IModuleMeta[]) => IModuleMeta[];
+}
+
+/** 只載入目前 SpecCode 的後台擴充路由，避免其他 Spec 被編譯 */
+const activeExtModules = import.meta.glob("SpecFeature/Pages/Server/Scaffold/ServerModuleRoutesExtData.tsx", { eager: true }) as Record<
+    string,
+    IServerMenuExtModule
+>;
+
+/** 載入預設 Spec 擴充路由，作為 fallback */
+const defaultExtModules = import.meta.glob("SpecDefault/Pages/Server/Scaffold/ServerModuleRoutesExtData.tsx", { eager: true }) as Record<
+    string,
+    IServerMenuExtModule
+>;
+
+/** 取得 glob 載入的第一個模組 */
+const getFirstExtModule = (modules: Record<string, IServerMenuExtModule>): IServerMenuExtModule =>
+{
+    const first = Object.values(modules)[0];
+    return first ?? {};
+};
+/** 解析目前 Spec 可用的後台擴充路由 */
+const resolveServerMenuExt = (): IServerMenuExtModule =>
+{
+    const active = getFirstExtModule(activeExtModules);
+    if (active.extendServerModuleRoutes || active.default) return active;
+
+    return getFirstExtModule(defaultExtModules);
 };
 const getServerModuleRoutes = (): IModuleMeta[] =>
 {
     const base = ServerModuleRoutesData;
-    const mod = resolveServerMenuExt() as IServerMenuExtModule;
+    const mod = resolveServerMenuExt();
     const extend = mod.extendServerModuleRoutes ?? mod.default;
     if (typeof extend !== "function") return base;
+
     const next = extend(base);
     return Array.isArray(next) ? next : base;
 };
 // #endregion
-
 export const ServerModuleRoutes: IModuleMeta[] = getServerModuleRoutes();

@@ -3,39 +3,37 @@ import { useGalleryFormFetchData } from "@/Features/Pages/Client/BizFunc/WEB/Gal
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
+import { LibLightBox, type LibLightBoxSlide } from "@/SysCore/Components/FormField/LibFormField";
 import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import { PGID } from "@/types/SchemaFields";
 import { useCallback, useMemo, useState } from "react";
-import { LibLightBox, type LibLightBoxSlide } from "@/SysCore/Components/FormField/LibFormField";
 
 type GallerySet = components["schemas"]["GallerySet_DTO"];
 type GalleryPhoto = NonNullable<GallerySet["GalleryPhotos"]>[number];
 
-interface GalleryFormProps { site: INormSite; node: INormNode; theme: IFETheme; lang: Lang; }
-interface GalleryFormListProps { lang: Lang; data: GallerySet; }
+interface GalleryFormProps
+{
+    site: INormSite;
+    node: INormNode;
+    theme: IFETheme;
+    lang: Lang;
+}
+interface GalleryFormListProps
+{
+    lang: Lang;
+    data: GallerySet;
+}
 
 /** 相簿圖片 a11y 文案結構 */
-type GalleryImageA11yText = {
-    openPreview: string;
-    openImage: (title: string) => string;
-};
+type GalleryImageA11yText = { openPreview: string; openImage: (title: string) => string; };
 
 /** 相簿圖片 a11y 文案表（用 xxx[lang] 讀；不足語系會 fallback） */
 const GALLERY_IMAGE_A11Y_MAP: Partial<Record<Lang, GalleryImageA11yText>> = {
-    "zh-tw": {
-        openPreview: "開啟圖片預覽",
-        openImage: (title) => `開啟圖片：${title}`,
-    },
-    "zh-cn": {
-        openPreview: "开启图片预览",
-        openImage: (title) => `开启图片：${title}`,
-    },
-    en: {
-        openPreview: "Open image preview",
-        openImage: (title) => `Open image: ${title}`,
-    },
+    "zh-tw": { openPreview: "開啟圖片預覽", openImage: (title) => `開啟圖片：${title}` },
+    "zh-cn": { openPreview: "开启图片预览", openImage: (title) => `开启图片：${title}` },
+    en: { openPreview: "Open image preview", openImage: (title) => `Open image: ${title}` },
 };
 
 /** 取得相簿圖片 a11y 文案（語系不在表內時，回退到 DefaultLang） */
@@ -49,10 +47,7 @@ const getGalleryImageA11y = (lang?: Lang): GalleryImageA11yText =>
     const byDefault = GALLERY_IMAGE_A11Y_MAP[DefaultLang];
 
     // return：保證回傳一份可用文案
-    return byLang ?? byDefault ?? {
-        openPreview: "開啟圖片預覽",
-        openImage: (title) => `開啟圖片：${title}`,
-    };
+    return byLang ?? byDefault ?? { openPreview: "開啟圖片預覽", openImage: (title) => `開啟圖片：${title}` };
 };
 
 /** 取得圖片開啟按鈕 aria-label 文案 */
@@ -110,19 +105,31 @@ const buildGallerySlide = (data: GallerySet, item: GalleryPhoto, lang: Lang): Li
     const infoDt = data.GalleryPhotosInfo?.find((p) => p.ParentRowId === item.RowId && p.Lang === lang);
     const title = infoDt?.Title ?? "";
     const url = FileManagementAPI.get_Public_Preview_Url(item.PicSrcId);
-
     // 宣告：圖片描述，後續可改接後端欄位
-    const description = "description";
-
+    const description = infoDt?.Description ?? "";
     // return：回傳 Lightbox slide
     return { src: url, title, description, download: url };
 };
 
-/** 建立相簿 Lightbox slides */
+/** 取得相簿圖片排序值，沒有 Sort 時放到最後 */
+const getGalleryPhotoSort = (item: GalleryPhoto): number =>
+{
+    return item.Sort ?? Number.MAX_SAFE_INTEGER;
+};
+/** 依相簿圖片 Sort 排序，Sort 相同時用 RowId 穩定排序 */
+const sortGalleryPhotos = (list: GalleryPhoto[] | null | undefined): GalleryPhoto[] =>
+{
+    return [...(list ?? [])].sort((a, b) =>
+    {
+        const sortCompare = getGalleryPhotoSort(a) - getGalleryPhotoSort(b);
+        return sortCompare !== 0 ? sortCompare : (a.RowId ?? 0) - (b.RowId ?? 0);
+    });
+};
+/** 將相簿圖片資料轉成共用 Lightbox 可吃的格式 */
 const buildGallerySlides = (data: GallerySet, lang: Lang): LibLightBoxSlide[] =>
 {
-    // 將後端圖片資料轉成共用 Lightbox 可吃的格式
-    return data?.GalleryPhotos?.map((item) => buildGallerySlide(data, item, lang)) ?? [];
+    const photos = sortGalleryPhotos(data?.GalleryPhotos);
+    return photos.map((item) => buildGallerySlide(data, item, lang));
 };
 
 /** 相簿圖片列表 */
@@ -174,9 +181,7 @@ const NewGalleryFormList = (props: GalleryFormListProps) =>
                                             </div>
                                             <div className="card_titleDiv mb-md-2 mb-sm-1 mb-0 mt-4">
                                                 <div className="card_title">{slide.title}</div>
-                                                {slide.description && (
-                                                    <div className="card_subtitle">{slide.description}</div>
-                                                )}
+                                                {slide.description && <div className="card_subtitle">{slide.description}</div>}
                                             </div>
                                         </button>
                                     </figure>
@@ -187,13 +192,7 @@ const NewGalleryFormList = (props: GalleryFormListProps) =>
                 })}
             </div>
 
-            <LibLightBox
-                open={open}
-                index={index}
-                slides={slides}
-                lang={props.lang}
-                onClose={closeGallery}
-            />
+            <LibLightBox open={open} index={index} slides={slides} lang={props.lang} onClose={closeGallery} />
         </>
     );
 };

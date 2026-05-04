@@ -22,10 +22,18 @@
 		<!-- 若不需多文化比較可啟用以減少體積 -->
 		<DebugType>portable</DebugType>
 		<!-- 讓 ZAP/弱掃友善：不產出開發偵錯資訊到輸出 -->
-		<!-- 由 build / publish / EF script 傳入；空字串代表純 Feature 版本 -->
-		<SpecCode Condition="'$(SpecCode)' == ''"/>
-		<!-- 是否啟用 SpecFeatures 條件編譯，預設不啟用，避免 VS 直接開發時誤切 -->
-		<UseSpecCodeCompile Condition="'$(UseSpecCodeCompile)' == ''">false</UseSpecCodeCompile>
+		<!-- 一律啟用 SpecFeatures 條件編譯，避免不同 Spec 的 partial 互相污染 -->
+		<UseSpecCodeCompile Condition="'$(UseSpecCodeCompile)' == ''">true</UseSpecCodeCompile>
+		<!-- Debug 預設讀 appsettings.Development.json -->
+		<SpecSettingsFile Condition="'$(SpecSettingsFile)' == '' and '$(Configuration)' == 'Debug'">appsettings.Development.json</SpecSettingsFile>
+		<!-- Release 預設讀 appsettings.production.json，依你目前專案檔名是小寫 production -->
+		<SpecSettingsFile Condition="'$(SpecSettingsFile)' == '' and '$(Configuration)' == 'Release'">appsettings.production.json</SpecSettingsFile>
+		<!-- 其他情境 fallback 到 appsettings.json -->
+		<SpecSettingsFile Condition="'$(SpecSettingsFile)' == ''">appsettings.json</SpecSettingsFile>
+		<!-- 從 appsettings.*.json 讀取 SpecCode，作為編譯期 SpecCode 來源 -->
+		<SpecCodeFromSettings Condition="Exists('$(MSBuildProjectDirectory)\$(SpecSettingsFile)')">$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(MSBuildProjectDirectory)\$(SpecSettingsFile)')), '&quot;SpecCode&quot;\s*:\s*&quot;([^&quot;]+)&quot;').Groups[1].Value)</SpecCodeFromSettings>
+		<!-- 若外部沒有傳入 SpecCode，則使用 appsettings 內的 SpecCode -->
+		<SpecCode Condition="'$(SpecCode)' == ''">$(SpecCodeFromSettings)</SpecCode>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Remove="SysCore\AccountLogin.cs"/>
@@ -146,4 +154,11 @@
 			<SubType>Designer</SubType>
 		</EmbeddedResource>
 	</ItemGroup>
+	<Target Name="ValidateSpecCodeCompile" BeforeTargets="CoreCompile">
+		<Message Importance="High" Text="Spec compile enabled. SettingsFile=$(SpecSettingsFile), SpecCode=$(SpecCode)" Condition="'$(UseSpecCodeCompile)' == 'true'"/>
+		<Error Condition="'$(UseSpecCodeCompile)' == 'true' and !Exists('$(MSBuildProjectDirectory)\$(SpecSettingsFile)')" Text="找不到 Spec 設定檔：$(SpecSettingsFile)。請確認 appsettings 檔案存在。"/>
+		<Error Condition="'$(UseSpecCodeCompile)' == 'true' and '$(SpecCodeFromSettings)' == ''" Text="$(SpecSettingsFile) 未設定 SpecCode，無法進行 SpecFeatures 條件編譯。"/>
+		<Error Condition="'$(UseSpecCodeCompile)' == 'true' and '$(SpecCode)' != '' and '$(SpecCodeFromSettings)' != '' and '$(SpecCode)' != '$(SpecCodeFromSettings)'" Text="MSBuild SpecCode=$(SpecCode) 與 $(SpecSettingsFile) 的 SpecCode=$(SpecCodeFromSettings) 不一致，請修正後再編譯。"/>
+		<Error Condition="'$(UseSpecCodeCompile)' == 'true' and '$(SpecCode)' != '' and !Exists('$(MSBuildProjectDirectory)\SpecFeatures\$(SpecCode)')" Text="找不到 SpecFeatures\$(SpecCode) 資料夾，請確認 SpecCode 是否正確。"/>
+	</Target>
 </Project>

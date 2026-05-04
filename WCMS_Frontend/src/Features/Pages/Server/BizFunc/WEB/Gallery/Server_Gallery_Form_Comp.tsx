@@ -10,6 +10,7 @@ import {
     LibModal,
     LibPicture,
     LibPicturePreview,
+    LibTextArea,
     LibTextBox,
     LibTinyMCE,
 } from "@/SysCore/Components/FormField/LibFormField";
@@ -481,6 +482,11 @@ const PhotoInfoComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入"
                 {...setField(GallerySetFields.GalleryPhotosInfo, GalleryPhotosInfoFields.Title, "string", rowKeys)}
+            />,
+            <LibTextArea
+                Style={prop.theme.TextArea}
+                DefaultInputDisplay="請輸入"
+                {...setField(GallerySetFields.GalleryPhotosInfo, GalleryPhotosInfoFields.Description, "string", rowKeys)}
             />,
         ];
         return compMap;

@@ -777,4 +777,7 @@
   <data name="MatCategory" xml:space="preserve">
     <value>物件類別</value>
   </data>
+  <data name="Common_Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
 </root>

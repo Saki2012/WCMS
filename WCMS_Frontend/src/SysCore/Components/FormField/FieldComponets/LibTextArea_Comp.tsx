@@ -1,6 +1,6 @@
 import { useId } from "react";
 import type { ILibTextAreaProp } from "./LibTextArea_Data";
-
+/** 富文本 */
 const LibTextArea = (prop: ILibTextAreaProp) =>
 {
     const inputId = useId();

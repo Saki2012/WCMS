@@ -44,6 +44,11 @@ public static class ModelDisplayName
     /// </summary>
     public const string Common_SubTitle = nameof(Common_SubTitle);
     /// <summary>
+    /// 中：描述
+    /// 英：Description
+    /// </summary>
+    public const string Common_Description = nameof(Common_Description);
+    /// <summary>
     /// 中：創建時間
     /// 英：Created Time
     /// </summary>
