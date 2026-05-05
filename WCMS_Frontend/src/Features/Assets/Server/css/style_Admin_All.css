@@ -968,86 +968,23 @@ a:hover .btn.Itrash {
 
 /* =============================================================== */
 /* ===== [ Main Pagination 分頁 ] ================================= */
+
 .Form-Main-Content .pagination {
-    display: flex;
-    padding-left: 0;
-    list-style: none;
+	display: -ms-flexbox;
+	display: flex;
+	padding-left: 0;
+	list-style: none;
+	border-radius: .25rem;
+	margin-top: 2rem;
+	margin-bottom: 2rem;
 }
 
-.Form-Main-Content .pagination .page-item:first-child .page-link {
-    border-top-left-radius: .25rem;
-    border-bottom-left-radius: .25rem;
+.Form-Main-Content .pagination > li {
+	display: inline
 }
 
-.Form-Main-Content .pagination .page-link {
-    position: relative;
-    
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    flex-direction: row;
-    -ms-flex-wrap: wrap;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    
-    color: inherit;
-    text-decoration: none;
-    background-color: var(--FFFcolor);
-    border: 1px solid #dee2e6;
-    transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
-}
-.Form-Main-Content .pagination .page-link {
-	font-size: 112.5%;
-    height: 100%;
-    padding: .375rem .75rem;
-    cursor: pointer; /*cara20251030*/
-}
-
-.Form-Main-Content .pagination .page-link.active,
-.Form-Main-Content .pagination .page-link:hover,
-.Form-Main-Content .pagination .page-link:focus {
-    z-index: 2;
-    color: var(--FFFcolor);
-    background-color: var(--Customize_HRcolor);
-    border-color: var(--Customize_HRcolor);
-}
-.Form-Main-Content .pagination .page-link.disabled {
-    color: inherit;
-    background-color: #cfcfcf;
-    border: 1px solid #dee2e6;
-	opacity: .75;
-	cursor: not-allowed; /*禁止符號*/
-}
-.Form-Main-Content .pagination .page-link:focus {
-    outline: 0;
-    /*box-shadow: 0 0 0 .25rem rgba(13,110,253,.25);*/
-    box-shadow: none;
-}
-
-.Form-Main-Content .pagination .page-link span {
-    position: relative;
-    top: -2px;
-    
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    flex-direction: row;
-    -ms-flex-wrap: wrap;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-}
-.Form-Main-Content .pagination .page-link span {
-    font-size: 112.5%;
-	color: var(--G555color);
-}
-.Form-Main-Content .pagination .page-link span i {
-    font-size: 93.75%;
-	width: 9.5px;
-	height: 24.5px;
-}
-.Form-Main-Content .pagination .page-link span i::before {
+.Form-Main-Content .pagination > li > a,
+.Form-Main-Content .pagination > li > span {
 	display: -webkit-box;
 	display: -ms-flexbox;
 	display: flex;
@@ -1058,15 +995,156 @@ a:hover .btn.Itrash {
 	align-items: center;
 	
 	position: relative;
-	top: 2.5px;
-	width: 9.5px;
-	height: 24.5px;
+	float: left;
+	padding: 6px 12px;
+	margin-left: -1px;
+	
+	font-size: 93.75%;
+    font-weight: bold;
+	line-height: 1.42857143;
+	color: var(--blackcolor);
+	text-decoration: none;
+	background-color: #fff;
+	border: 1px solid #ddd;
+	height: 36.8px;
 }
-.Form-Main-Content .pagination .page-link.active span i::before,
-.Form-Main-Content .pagination .page-link:hover span i::before,
-.Form-Main-Content .pagination .page-link:focus span i::before {
-    color: var(--FFFcolor);
+@media (max-width: 991px) {
+	.Form-Main-Content .pagination > li > a,
+	.Form-Main-Content .pagination > li > span {
+		padding: 6px 10px !important;
+	}
 }
+@media (max-width: 424px) {
+	.Form-Main-Content .pagination > li > a,
+	.Form-Main-Content .pagination > li > span{
+		font-size: 81.25%;
+		padding: 6px 9px !important;
+	}
+}
+
+.Form-Main-Content .pagination > li:first-child > a,
+.Form-Main-Content .pagination > li:first-child > span {
+	margin-left: 0;
+	border-top-left-radius: 4px;
+	border-bottom-left-radius: 4px;
+}
+
+.Form-Main-Content .pagination > li:last-child > a,
+.Form-Main-Content .pagination > li:last-child > span {
+	border-top-right-radius: 4px;
+	border-bottom-right-radius: 4px;
+}
+
+.Form-Main-Content .pagination > li > a:focus,
+.Form-Main-Content .pagination > li > a:hover,
+.Form-Main-Content .pagination > li > span:focus,
+.Form-Main-Content .pagination > li > span:hover{
+	z-index: 2;
+	color: var(--FFFcolor);
+	background-color: var(--Customize_color);
+	border-color: var(--Customize_color);
+}
+
+.Form-Main-Content .pagination > .active > a,
+.Form-Main-Content .pagination > .active > a:focus,
+.Form-Main-Content .pagination > .active > a:hover,
+.Form-Main-Content .pagination > .active > span,
+.Form-Main-Content .pagination > .active > span:focus,
+.Form-Main-Content .pagination > .active > span:hover {
+	z-index: 3;
+	color: var(--FFFcolor);
+	cursor: default;
+	background-color: var(--Customize_color);
+	border-color: var(--Customize_color);
+}
+
+.Form-Main-Content .pagination > .disabled > a,
+.Form-Main-Content .pagination > .disabled > a:focus,
+.Form-Main-Content .pagination > .disabled > a:hover,
+.Form-Main-Content .pagination > .disabled > span,
+.Form-Main-Content .pagination > .disabled > span:focus,
+.Form-Main-Content .pagination > .disabled > span:hover {
+	color: var(--blackcolor);
+	cursor: not-allowed;
+	background-color: var(--FFFcolor);
+	border-color: #dddddd;
+}
+
+.Form-Main-Content .pagination-lg > li > a,
+.Form-Main-Content .pagination-lg > li > span {
+	padding: 10px 16px;
+	font-size: 112.5%; /*1.125em*/ /*18*/
+	line-height: 1.3333333;
+}
+
+.Form-Main-Content .pagination-lg > li:first-child > a,
+.Form-Main-Content .pagination-lg > li:first-child > span {
+	border-top-left-radius: 6px;
+	border-bottom-left-radius: 6px;
+}
+
+.Form-Main-Content .pagination-lg > li:last-child > a,
+.Form-Main-Content .pagination-lg > li:last-child > span {
+	border-top-right-radius: 6px;
+	border-bottom-right-radius: 6px;
+}
+
+
+.Form-Main-Content .pagination-sm > li > a,
+.Form-Main-Content .pagination-sm > li > span{
+	padding: 5px 10px;
+	font-size: 75%; /*0.75rem*/ /*12*/
+	line-height: 1.5;
+}
+
+.Form-Main-Content .pagination-sm > li:first-child > a,
+.Form-Main-Content .pagination-sm > li:first-child > span {
+	border-top-left-radius: 3px;
+	border-bottom-left-radius: 3px;
+}
+
+.Form-Main-Content .pagination-sm > li:last-child > a,
+.Form-Main-Content .pagination-sm > li:last-child > span {
+	border-top-right-radius: 3px;
+	border-bottom-right-radius: 3px;
+}  
+
+.Form-Main-Content .pagination .page-link{
+	color: var(--blackcolor);
+	font-size: 93.75%;
+	height: 36.8px;
+	border-left: 0px;
+	padding-top: 4px;
+	padding-bottom: 6px;
+cursor: pointer;
+}
+.Form-Main-Content .pagination .page-link.go{
+	padding-bottom: 4px;
+}
+.Form-Main-Content .pagination .page-link:hover,
+.Form-Main-Content .pagination .page-link:focus{
+	color: var(--FFFcolor);
+	background-color: var(--Customize_color);
+	border-color: var(--Customize_color);
+}
+.Form-Main-Content .pagination .page-input-box{
+	border: 1px solid #dddddd;
+	height: 36.8px !important;
+}
+.Form-Main-Content .pagination .page-input{
+	border: 0;
+	border-radius: 0;
+	width: 55px;
+	font-size:87.5%;
+	height: 34.8px !important;
+}
+@media (max-width:991px){
+	.Form-Main-Content .pagination .page-link,
+	.Form-Main-Content .pagination .page-input{
+		font-size: 81.25%;
+	}
+}
+
 /* ===== [ Main Pagination 分頁 ] ================================= */
 /* =============================================================== */
 
