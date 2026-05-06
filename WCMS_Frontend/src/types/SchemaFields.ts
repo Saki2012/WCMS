@@ -1269,6 +1269,87 @@ export const SpecHomePageWeather_DTOApiResponseFields = {
 
 export type SpecHomePageWeather_DTOApiResponseFieldKey = keyof typeof SpecHomePageWeather_DTOApiResponseFields;
 
+export const StringApiResponseFields = {
+  IsSuccess: 'IsSuccess',
+  SysMessage: 'SysMessage',
+  Data: 'Data',
+} as const;
+
+export type StringApiResponseFieldKey = keyof typeof StringApiResponseFields;
+
+export const SurveyItemLangFields = {
+  SurveyId: 'SurveyId',
+  ParentRowId: 'ParentRowId',
+  RowId: 'RowId',
+  Lang: 'Lang',
+  FieldName: 'FieldName',
+  _SurveyItem: '_SurveyItem',
+} as const;
+
+export type SurveyItemLangFieldKey = keyof typeof SurveyItemLangFields;
+
+export const SurveyItemFields = {
+  SurveyId: 'SurveyId',
+  RowId: 'RowId',
+  FieldId: 'FieldId',
+  IsRequired: 'IsRequired',
+  InputType: 'InputType',
+  OptionJson: 'OptionJson',
+  _Survey: '_Survey',
+  _SurveyItemLang: '_SurveyItemLang',
+} as const;
+
+export type SurveyItemFieldKey = keyof typeof SurveyItemFields;
+
+export const SurveySetFields = {
+  Survey: 'Survey',
+  SurveyItem: 'SurveyItem',
+  SurveyItemLang: 'SurveyItemLang',
+} as const;
+
+export type SurveySetFieldKey = keyof typeof SurveySetFields;
+
+export const SurveySet_DTOApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type SurveySet_DTOApiRequestFieldKey = keyof typeof SurveySet_DTOApiRequestFields;
+
+export const SurveySubmissionSubmitFields = {
+  SurveyId: 'SurveyId',
+  Lang: 'Lang',
+  UserName: 'UserName',
+  ContactPhone: 'ContactPhone',
+  Email: 'Email',
+  FormDataJson: 'FormDataJson',
+  TimeZone: 'TimeZone',
+} as const;
+
+export type SurveySubmissionSubmitFieldKey = keyof typeof SurveySubmissionSubmitFields;
+
+export const SurveyFields = {
+  CreateTime: 'CreateTime',
+  CreateUserId: 'CreateUserId',
+  CreateUser: 'CreateUser',
+  ModifyTime: 'ModifyTime',
+  ModifyUserId: 'ModifyUserId',
+  ModifyUser: 'ModifyUser',
+  FormStatus: 'FormStatus',
+  DataStatus: 'DataStatus',
+  InvalidTime: 'InvalidTime',
+  InvalidUserId: 'InvalidUserId',
+  InternalId: 'InternalId',
+  OrgLvId: 'OrgLvId',
+  SurveyId: 'SurveyId',
+  SurveyName: 'SurveyName',
+  SurveyDescription: 'SurveyDescription',
+  SurveySuccessContent: 'SurveySuccessContent',
+  _SurveyItem: '_SurveyItem',
+} as const;
+
+export type SurveyFieldKey = keyof typeof SurveyFields;
+
 export const SysMessageModelFields = {
   Status: 'Status',
   MessageCode: 'MessageCode',
@@ -1485,6 +1566,7 @@ export const PGID = {
     SiteMenu: "SiteMenu",
     SiteViewCount: "SiteViewCount",
     SpecHomePageApi: "SpecHomePageApi",
+    Survey: "Survey",
     SystemAPI: "SystemAPI",
     Tag: "Tag",
     Timeline: "Timeline",

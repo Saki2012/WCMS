@@ -3,6 +3,7 @@ import { TagAdapter } from "@/Features/Hooks/BizFunc/COMM/Tag_Api";
 import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WEB/BannerSlider_Api";
 import { PageManagementAdapter } from "@/Features/Hooks/BizFunc/WEB/PageManagement_Api";
 import { SiteMenuAdapter } from "@/Features/Hooks/BizFunc/WEB/SiteMenu_Api";
+import { SurveyAdapter } from "@/Features/Hooks/BizFunc/WEB/Survey_Api";
 import { TimelineAdapter } from "@/Features/Hooks/BizFunc/WEB/Timeline_Api";
 import type { UseActionsResult } from "@/Features/Hooks/Common/useActions";
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
@@ -23,6 +24,7 @@ import {
     SiteMenu_IndexInfoFields,
     SiteMenu_Item_TitleFields,
     SiteMenuSetFields,
+    SurveyFields,
     TagDataFields,
     TagDetailFields,
     TimelineFields,
@@ -39,6 +41,7 @@ type TagSet = components["schemas"]["TagSet_DTO"];
 type PageSet = components["schemas"]["PageManagementSet_DTO"];
 type BannerSet = components["schemas"]["BannerSet_DTO"];
 type TimelineSet = components["schemas"]["TimelineSet_DTO"];
+type SurveySet = components["schemas"]["SurveySet_DTO"];
 
 const emptyData: SiteMenuSet = {};
 
@@ -73,6 +76,7 @@ export type SiteMenuFetchRawData = {
     tagSets: TagSet[];
     pageMap: Record<string, string>;
     timelineMap: Map<string, string>;
+    surveyMap: Map<string, string>;
 };
 
 export type SiteMenuFetchAdapter = {
@@ -82,6 +86,7 @@ export type SiteMenuFetchAdapter = {
     Page: ReturnType<typeof PageManagementAdapter>;
     Banner: ReturnType<typeof BannerSliderAdapter>;
     Timeline: ReturnType<typeof TimelineAdapter>;
+    Survey: ReturnType<typeof SurveyAdapter>;
 };
 // #endregion
 
@@ -105,6 +110,7 @@ export const useSiteMenuFetchData = (opt: { lang: Lang; }): UseFetchDataResult<S
             Page: PageManagementAdapter(),
             Banner: BannerSliderAdapter(),
             Timeline: TimelineAdapter(),
+            Survey: SurveyAdapter(),
         };
     }, []);
 
@@ -156,6 +162,7 @@ export const useSiteMenuFetchData = (opt: { lang: Lang; }): UseFetchDataResult<S
             tagSets: ref.tagSets,
             pageMap: ref.pageMap,
             timelineMap: ref.timelineMap,
+            surveyMap: ref.surveyMap,
             siteMenuItems,
         };
     }, [actions, main.formData, main.internalId, ref, siteMenuItems]);
@@ -465,6 +472,7 @@ type SiteMenuRefDataResult = {
     tagSets: TagSet[];
     pageMap: Record<string, string>;
     timelineMap: Map<string, string>;
+    surveyMap: Map<string, string>;
     isLoading: boolean;
     errors: Array<string | null | undefined>;
     refetch: () => Promise<void>;
@@ -548,7 +556,13 @@ const useSiteMenuRefDataByAdapter = (adapter: SiteMenuFetchAdapter, lang: Lang, 
     }, [page.data, lang]);
 
     const timeline = adapter.Timeline.hooks.useQueryList({
-        condition: { Fields: [TimelineFields.TimelineId, TimelineFields.TimelineName, TimelineFields.InternalId], PageNumber: 0, PageSize: 5000 },
+        condition: { Fields: [TimelineFields.TimelineId, TimelineFields.TimelineName, TimelineFields.InternalId] },
+        deps: [lang],
+        onError,
+    });
+
+    const survey = adapter.Survey.hooks.useQueryList({
+        condition: { Fields: [SurveyFields.InternalId, SurveyFields.SurveyId, SurveyFields.SurveyName] },
         deps: [lang],
         onError,
     });
@@ -565,11 +579,23 @@ const useSiteMenuRefDataByAdapter = (adapter: SiteMenuFetchAdapter, lang: Lang, 
         }, new Map<string, string>());
     }, [timeline.data, lang]);
 
+    const surveyMap = useMemo<Map<string, string>>(() =>
+    {
+        const src = survey.data ?? [];
+        return src.reduce<Map<string, string>>((acc, item: SurveySet) =>
+        {
+            const key = item.Survey?.InternalId?.toString?.();
+            if (!key) return acc;
+            acc.set(key, item.Survey?.SurveyName ?? "");
+            return acc;
+        }, new Map<string, string>());
+    }, [survey.data, lang]);
+
     const isLoading = useMemo(() =>
     {
         return Boolean(
             windowTarget.isLoading || menuUrlType.isLoading || modulePageType.isLoading || moduleDisplayStyle.isLoading
-                || category.isLoading || tag.isLoading || page.isLoading || banner.isLoading || timeline.isLoading,
+                || category.isLoading || tag.isLoading || page.isLoading || banner.isLoading || timeline.isLoading || survey.isLoading,
         );
     }, [
         banner.isLoading,
@@ -581,6 +607,7 @@ const useSiteMenuRefDataByAdapter = (adapter: SiteMenuFetchAdapter, lang: Lang, 
         tag.isLoading,
         windowTarget.isLoading,
         timeline.isLoading,
+        survey.isLoading,
     ]);
 
     const errors = useMemo(() =>
@@ -595,6 +622,7 @@ const useSiteMenuRefDataByAdapter = (adapter: SiteMenuFetchAdapter, lang: Lang, 
             page.errorText,
             banner.errorText,
             timeline.errorText,
+            survey.errorText,
         ];
     }, [
         banner.errorText,
@@ -606,6 +634,7 @@ const useSiteMenuRefDataByAdapter = (adapter: SiteMenuFetchAdapter, lang: Lang, 
         tag.errorText,
         windowTarget.error,
         timeline.errorText,
+        survey.errorText,
     ]);
 
     const refetch = useCallback(async () =>
@@ -629,6 +658,7 @@ const useSiteMenuRefDataByAdapter = (adapter: SiteMenuFetchAdapter, lang: Lang, 
         tagSets: tag.data,
         pageMap,
         timelineMap,
+        surveyMap,
         isLoading,
         errors,
         refetch,

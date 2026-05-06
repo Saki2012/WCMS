@@ -1,4 +1,6 @@
-﻿namespace WCMS.Features._Resx;
+﻿using WCMS.Features.WEB.Survey;
+
+namespace WCMS.Features._Resx;
 
 public static class ModelDisplayName
 {
@@ -159,6 +161,17 @@ public static class ModelDisplayName
     /// </summary>
     public const string Common_IsHide = nameof(Common_IsHide);
     /// <summary>
+    /// 中：選項資料 (json格式)
+    /// 英：Option Data (in JSON format)
+    /// </summary>
+    public const string Common_OptionJson = nameof(Common_OptionJson);
+    /// <summary>
+    /// 中：是否必填
+    /// 英：Is Required
+    /// </summary>
+    public const string Common_IsRequired = nameof(Common_IsRequired);
+
+    /// <summary>
     /// 中：日期
     /// 英：Date
     /// </summary>
@@ -183,6 +196,11 @@ public static class ModelDisplayName
     /// 英：Field DisplayName
     /// </summary>
     public const string Common_FieldDisplayName = nameof(Common_FieldDisplayName);
+    /// <summary>
+    /// 中：姓名
+    /// 英：Name
+    /// </summary>
+    public const string Common_Name = nameof(Common_Name);
     #endregion
 
     #region Enums
@@ -426,6 +444,61 @@ public static class ModelDisplayName
     /// 英：點擊連結
     /// </summary>
     public const string Enum_ViewCountActionType_LinkClick = nameof(Enum_ViewCountActionType_LinkClick);
+
+    #region LibInputType
+    /// <summary>
+    /// 中：輸入欄位類型
+    /// 英：輸入欄位類型
+    /// </summary>
+    public const string Enum_LibInputType = nameof(Enum_LibInputType);
+    /// <summary>
+    /// 中：單行文字
+    /// 英：Text
+    /// </summary>
+    public const string Enum_LibInputType_Text = nameof(Enum_LibInputType_Text);
+    /// <summary>
+    /// 中：多行文字
+    /// 英：Text Area
+    /// </summary>
+    public const string Enum_LibInputType_TextArea = nameof(Enum_LibInputType_TextArea);
+    /// <summary>
+    /// 中：Email
+    /// 英：Email
+    /// </summary>
+    public const string Enum_LibInputType_Email = nameof(Enum_LibInputType_Email);
+    /// <summary>
+    /// 中：聯絡電話
+    /// 英：Phone
+    /// </summary>
+    public const string Enum_LibInputType_Phone = nameof(Enum_LibInputType_Phone);
+    /// <summary>
+    /// 中：數值
+    /// 英：Number
+    /// </summary>
+    public const string Enum_LibInputType_Number = nameof(Enum_LibInputType_Number);
+    /// <summary>
+    /// 中：日期
+    /// 英：Date
+    /// </summary>
+    public const string Enum_LibInputType_Date = nameof(Enum_LibInputType_Date);
+    /// <summary>
+    /// 中：單選
+    /// 英：Radio box
+    /// </summary>
+    public const string Enum_LibInputType_Radio = nameof(Enum_LibInputType_Radio);
+    /// <summary>
+    /// 中：下拉單選
+    /// 英：Select
+    /// </summary>
+    public const string Enum_LibInputType_Select = nameof(Enum_LibInputType_Select);
+    /// <summary>
+    /// 中：多選
+    /// 英：Check box
+    /// </summary>
+    public const string Enum_LibInputType_Checkbox = nameof(Enum_LibInputType_Checkbox);
+    #endregion
+
+
     #endregion
 
     #region 網站結構設定
@@ -531,7 +604,7 @@ public static class ModelDisplayName
     public const string SiteMenu_ModuleOptions = nameof(SiteMenu_ModuleOptions);
     #endregion
 
-    #region 網站管理功能
+    #region WEB
     #region 公告
     /// <summary>
     /// 中：公告代碼
@@ -917,6 +990,34 @@ public static class ModelDisplayName
     /// 英：Timeline Content
     /// </summary>
     public const string Timeline_Content= nameof(Timeline_Content);
+    #endregion
+    #region 問卷設計
+    /// <summary>
+    /// 中：問卷代號
+    /// 英：Survey ID
+    /// </summary>
+    public const string SurveyId = nameof(SurveyId);
+    /// <summary>
+    /// 中：問卷名稱
+    /// 英：Survey Name
+    /// </summary>
+    public const string SurveyName = nameof(SurveyName);
+    /// <summary>
+    /// 中：問卷描述
+    /// 英：Survey Description
+    /// </summary>
+    public const string SurveyDescription = nameof(SurveyDescription);
+    /// <summary>
+    /// 中：問卷提交成功後的顯示內容
+    /// 英：Survey Description
+    /// </summary>
+    public const string SurveySuccessContent = nameof(SurveySuccessContent);
+    /// <summary>
+    /// 中：問卷回覆 ID
+    /// 英：Survey Submission ID
+    /// </summary>
+    public const string SurveySubmissionId = nameof(SurveySubmissionId);
+
     #endregion
     #endregion
 

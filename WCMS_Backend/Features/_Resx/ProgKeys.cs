@@ -164,6 +164,10 @@ public static partial class ProgKeys
         /// 紀事表
         /// </summary>
         public const  string Timeline = nameof(Timeline);
+        /// <summary>
+        /// 問卷設計
+        /// </summary>
+        public const string Survey = nameof(Survey);
     }
     /// <summary>
     /// 客製功能模塊

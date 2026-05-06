@@ -31,60 +31,60 @@
 		<!-- 其他情境 fallback 到 appsettings.json -->
 		<SpecSettingsFile Condition="'$(SpecSettingsFile)' == ''">appsettings.json</SpecSettingsFile>
 		<!-- 從 appsettings.*.json 讀取 SpecCode，作為編譯期 SpecCode 來源 -->
-		<SpecCodeFromSettings Condition="Exists('$(MSBuildProjectDirectory)\$(SpecSettingsFile)')">$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(MSBuildProjectDirectory)\$(SpecSettingsFile)')), '&quot;SpecCode&quot;\s*:\s*&quot;([^&quot;]+)&quot;').Groups[1].Value)</SpecCodeFromSettings>
+		<SpecCodeFromSettings Condition="Exists('$(MSBuildProjectDirectory)\$(SpecSettingsFile)')">$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(MSBuildProjectDirectory)\$(SpecSettingsFile)')), '"SpecCode"\s*:\s*"([^"]+)"').Groups[1].Value)</SpecCodeFromSettings>
 		<!-- 若外部沒有傳入 SpecCode，則使用 appsettings 內的 SpecCode -->
 		<SpecCode Condition="'$(SpecCode)' == ''">$(SpecCodeFromSettings)</SpecCode>
 	</PropertyGroup>
 	<ItemGroup>
-		<Compile Remove="SysCore\AccountLogin.cs"/>
-		<Compile Remove="SysCore\Library\RecComparison.cs"/>
+		<Compile Remove="SysCore\AccountLogin.cs" />
+		<Compile Remove="SysCore\Library\RecComparison.cs" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(UseSpecCodeCompile)' == 'true'">
 		<!-- 啟用條件編譯時，先移除全部 SpecFeatures 的 C# 與 Resx -->
-		<Compile Remove="SpecFeatures\**\*.cs"/>
-		<EmbeddedResource Remove="SpecFeatures\**\*.resx"/>
+		<Compile Remove="SpecFeatures\**\*.cs" />
+		<EmbeddedResource Remove="SpecFeatures\**\*.resx" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(UseSpecCodeCompile)' == 'true' and '$(SpecCode)' != ''">
 		<!-- SpecCode 有值時，只加回目前 SpecCode 對應的 C# 與 Resx -->
-		<Compile Include="SpecFeatures\$(SpecCode)\**\*.cs"/>
-		<EmbeddedResource Include="SpecFeatures\$(SpecCode)\**\*.resx"/>
+		<Compile Include="SpecFeatures\$(SpecCode)\**\*.cs" />
+		<EmbeddedResource Include="SpecFeatures\$(SpecCode)\**\*.resx" />
 	</ItemGroup>
 	<ItemGroup>
-		<None Remove="C:\Users\it-016\.nuget\packages\nlog.config\4.7.15\contentFiles\any\any\NLog.config"/>
+		<None Remove="C:\Users\it-016\.nuget\packages\nlog.config\4.7.15\contentFiles\any\any\NLog.config" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="EFCore.BulkExtensions" Version="9.0.1"/>
-		<PackageReference Include="EFCore.BulkExtensions.MySql" Version="8.1.3"/>
-		<PackageReference Include="GraphQL" Version="8.5.0"/>
-		<PackageReference Include="HtmlAgilityPack" Version="1.12.2"/>
-		<PackageReference Include="JWT" Version="11.0.0"/>
-		<PackageReference Include="MessagePack" Version="3.1.4"/>
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.19"/>
-		<PackageReference Include="Microsoft.AspNetCore.OutputCaching.StackExchangeRedis" Version="8.0.19"/>
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.8"/>
+		<PackageReference Include="EFCore.BulkExtensions" Version="9.0.1" />
+		<PackageReference Include="EFCore.BulkExtensions.MySql" Version="8.1.3" />
+		<PackageReference Include="GraphQL" Version="8.5.0" />
+		<PackageReference Include="HtmlAgilityPack" Version="1.12.2" />
+		<PackageReference Include="JWT" Version="11.0.0" />
+		<PackageReference Include="MessagePack" Version="3.1.4" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.19" />
+		<PackageReference Include="Microsoft.AspNetCore.OutputCaching.StackExchangeRedis" Version="8.0.19" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.8" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.8">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.8"/>
-		<PackageReference Include="Microsoft.Playwright" Version="1.57.0"/>
-		<PackageReference Include="Mime-Detective" Version="25.8.1"/>
-		<PackageReference Include="Mime-Detective.Definitions.Condensed" Version="25.8.1"/>
-		<PackageReference Include="Mime-Detective.Definitions.Exhaustive" Version="25.8.1"/>
-		<PackageReference Include="NLog" Version="6.0.3"/>
-		<PackageReference Include="NLog.Schema" Version="6.0.3"/>
-		<PackageReference Include="PDFsharp" Version="6.2.4"/>
-		<PackageReference Include="SharpCompress" Version="0.40.0"/>
-		<PackageReference Include="StackExchange.Redis" Version="2.8.58"/>
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.3"/>
-		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.6.7"/>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.8" />
+		<PackageReference Include="Microsoft.Playwright" Version="1.57.0" />
+		<PackageReference Include="Mime-Detective" Version="25.8.1" />
+		<PackageReference Include="Mime-Detective.Definitions.Condensed" Version="25.8.1" />
+		<PackageReference Include="Mime-Detective.Definitions.Exhaustive" Version="25.8.1" />
+		<PackageReference Include="NLog" Version="6.0.3" />
+		<PackageReference Include="NLog.Schema" Version="6.0.3" />
+		<PackageReference Include="PDFsharp" Version="6.2.4" />
+		<PackageReference Include="SharpCompress" Version="0.40.0" />
+		<PackageReference Include="StackExchange.Redis" Version="2.8.58" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.3" />
+		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.6.7" />
 	</ItemGroup>
 	<ItemGroup>
-		<Folder Include="Features\MAT\"/>
-		<Folder Include="Features\SYS\"/>
-		<Folder Include="SysCore\NLogger\DataChange\"/>
-		<Folder Include="SysCore\NLogger\Operate\"/>
-		<Folder Include="SysCore\NLogger\Sys\"/>
+		<Folder Include="Features\MAT\" />
+		<Folder Include="Features\SYS\" />
+		<Folder Include="SysCore\NLogger\DataChange\" />
+		<Folder Include="SysCore\NLogger\Operate\" />
+		<Folder Include="SysCore\NLogger\Sys\" />
 	</ItemGroup>
 	<ItemGroup>
 		<Content Update="NLog.config">
@@ -128,17 +128,17 @@
 		</Content>
 	</ItemGroup>
 	<ItemGroup>
-		<Compile Remove="Publish\**"/>
-		<Compile Remove="SysCore\SystemFunc\UserRolePermission\**"/>
-		<Content Remove="Publish\**"/>
-		<Content Remove="SysCore\SystemFunc\UserRolePermission\**"/>
-		<EmbeddedResource Remove="Publish\**"/>
-		<EmbeddedResource Remove="SysCore\SystemFunc\UserRolePermission\**"/>
-		<None Remove="Publish\**"/>
-		<None Remove="SysCore\SystemFunc\UserRolePermission\**"/>
+		<Compile Remove="Publish\**" />
+		<Compile Remove="SysCore\SystemFunc\UserRolePermission\**" />
+		<Content Remove="Publish\**" />
+		<Content Remove="SysCore\SystemFunc\UserRolePermission\**" />
+		<EmbeddedResource Remove="Publish\**" />
+		<EmbeddedResource Remove="SysCore\SystemFunc\UserRolePermission\**" />
+		<None Remove="Publish\**" />
+		<None Remove="SysCore\SystemFunc\UserRolePermission\**" />
 	</ItemGroup>
 	<ItemGroup>
-		<Content Include="Scripts\Zip-PublishedBackend.ps1"/>
+		<Content Include="Scripts\Zip-PublishedBackend.ps1" />
 	</ItemGroup>
 	<ItemGroup>
 		<EmbeddedResource Update="SpecFeatures\Spec1816\_Resx\SpecMessageCode.zh-TW.resx">
@@ -155,10 +155,10 @@
 		</EmbeddedResource>
 	</ItemGroup>
 	<Target Name="ValidateSpecCodeCompile" BeforeTargets="CoreCompile">
-		<Message Importance="High" Text="Spec compile enabled. SettingsFile=$(SpecSettingsFile), SpecCode=$(SpecCode)" Condition="'$(UseSpecCodeCompile)' == 'true'"/>
-		<Error Condition="'$(UseSpecCodeCompile)' == 'true' and !Exists('$(MSBuildProjectDirectory)\$(SpecSettingsFile)')" Text="找不到 Spec 設定檔：$(SpecSettingsFile)。請確認 appsettings 檔案存在。"/>
-		<Error Condition="'$(UseSpecCodeCompile)' == 'true' and '$(SpecCodeFromSettings)' == ''" Text="$(SpecSettingsFile) 未設定 SpecCode，無法進行 SpecFeatures 條件編譯。"/>
-		<Error Condition="'$(UseSpecCodeCompile)' == 'true' and '$(SpecCode)' != '' and '$(SpecCodeFromSettings)' != '' and '$(SpecCode)' != '$(SpecCodeFromSettings)'" Text="MSBuild SpecCode=$(SpecCode) 與 $(SpecSettingsFile) 的 SpecCode=$(SpecCodeFromSettings) 不一致，請修正後再編譯。"/>
-		<Error Condition="'$(UseSpecCodeCompile)' == 'true' and '$(SpecCode)' != '' and !Exists('$(MSBuildProjectDirectory)\SpecFeatures\$(SpecCode)')" Text="找不到 SpecFeatures\$(SpecCode) 資料夾，請確認 SpecCode 是否正確。"/>
+		<Message Importance="High" Text="Spec compile enabled. SettingsFile=$(SpecSettingsFile), SpecCode=$(SpecCode)" Condition="'$(UseSpecCodeCompile)' == 'true'" />
+		<Error Condition="'$(UseSpecCodeCompile)' == 'true' and !Exists('$(MSBuildProjectDirectory)\$(SpecSettingsFile)')" Text="找不到 Spec 設定檔：$(SpecSettingsFile)。請確認 appsettings 檔案存在。" />
+		<Error Condition="'$(UseSpecCodeCompile)' == 'true' and '$(SpecCodeFromSettings)' == ''" Text="$(SpecSettingsFile) 未設定 SpecCode，無法進行 SpecFeatures 條件編譯。" />
+		<Error Condition="'$(UseSpecCodeCompile)' == 'true' and '$(SpecCode)' != '' and '$(SpecCodeFromSettings)' != '' and '$(SpecCode)' != '$(SpecCodeFromSettings)'" Text="MSBuild SpecCode=$(SpecCode) 與 $(SpecSettingsFile) 的 SpecCode=$(SpecCodeFromSettings) 不一致，請修正後再編譯。" />
+		<Error Condition="'$(UseSpecCodeCompile)' == 'true' and '$(SpecCode)' != '' and !Exists('$(MSBuildProjectDirectory)\SpecFeatures\$(SpecCode)')" Text="找不到 SpecFeatures\$(SpecCode) 資料夾，請確認 SpecCode 是否正確。" />
 	</Target>
 </Project>

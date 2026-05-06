@@ -41,6 +41,7 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang; }) =>
                     moduleDisplayStyle={getData.rawData.moduleDisplayStyle}
                     categorySets={getData.rawData.categorySets}
                     timelineMap={getData.rawData.timelineMap}
+                    surveyMap={getData.rawData.surveyMap}
                     tagSets={getData.rawData.tagSets}
                     pageMap={getData.rawData.pageMap}
                     action={getData.rawData.actions}

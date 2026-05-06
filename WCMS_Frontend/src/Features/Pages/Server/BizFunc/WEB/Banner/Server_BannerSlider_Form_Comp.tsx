@@ -254,7 +254,6 @@ const SubDetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResul
         return new Map<string, string>(Object.entries(windowTarget.data ?? {}));
     }, [windowTarget.data]);
     const rawDetails = props.formData.data?.BannerDetailInfo?.filter(p => p.ParentRowId === props.parentRowId) ?? [];
-
     const tabInfo: LibTabsProp = {
         Style: props.theme.Tabs,
         item: rawDetails.reduce<Record<string, string>>((tabItems, info) =>
@@ -264,7 +263,6 @@ const SubDetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResul
             return tabItems;
         }, {}),
     };
-
     const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>((compMap, info) =>
     {
         const langKey = LibMerge("_", true, info.BannerId, info.ParentRowId, info.RowId, info.Lang);
@@ -319,7 +317,6 @@ const SubDetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResul
 
         return compMap;
     }, {});
-
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
 

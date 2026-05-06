@@ -32,6 +32,8 @@ import { FileArchiveList_Loader } from "../BizFunc/WEB/FileArchive/FileArchiveLi
 import { GalleryForm_Loader } from "../BizFunc/WEB/Gallery/GalleryForm_Loader";
 import { GalleryList_Loader } from "../BizFunc/WEB/Gallery/GalleryList_Loader";
 import { PageManagementForm_Loader } from "../BizFunc/WEB/PageManagement/PageManagementForm_Loader";
+import { Client_Survey_Form_Comp } from "../BizFunc/WEB/Survey/Client_Survey_Form_Comp";
+import { Client_Survey_Form_Loader, type ISurveyOptions } from "../BizFunc/WEB/Survey/Client_Survey_Form_Loader";
 import TimelineForm from "../BizFunc/WEB/Timeline/Client_Timeline_Form_Comp";
 import { type ITimelineOptions, TimelineForm_Loader } from "../BizFunc/WEB/Timeline/Client_Timeline_Form_Loader";
 import { WebResourceList_Loader } from "../BizFunc/WEB/WebResource/WebResourceList_Loader";
@@ -125,7 +127,6 @@ const clientEntries: Record<string, ModuleEntry> = {
             ),
         }],
     },
-
     [PGID.Timeline]: {
         kind: "routes",
         element: (lang: Lang, site: INormSite, node: INormNode) => <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />,
@@ -133,6 +134,15 @@ const clientEntries: Record<string, ModuleEntry> = {
             index: true,
             loader: withRequestLang((lang) => TimelineForm_Loader({ lang: lang, opts: opts as ITimelineOptions })),
             element: <TimelineForm lang={lang} options={opts as ITimelineOptions} site={site} node={node} />,
+        }],
+    },
+    [PGID.Survey]: {
+        kind: "routes",
+        element: (lang: Lang, site: INormSite, node: INormNode) => <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />,
+        children: (opts, lang, site, node) => [{
+            index: true,
+            loader: withRequestLang((lang) => Client_Survey_Form_Loader({ lang: lang, opts: opts as ISurveyOptions })),
+            element: <Client_Survey_Form_Comp lang={lang} options={opts as ISurveyOptions} site={site} node={node} />,
         }],
     },
     // #endregion

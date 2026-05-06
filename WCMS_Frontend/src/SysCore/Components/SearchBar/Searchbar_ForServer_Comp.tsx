@@ -8,7 +8,6 @@ export interface SearchBarProps
     subTitle: string;
     /** 額外搜尋欄位 */
     extraFields?: ReactNode;
-
     /** 受控/非受控 */
     keyword?: string;
     defaultKeyword?: string;

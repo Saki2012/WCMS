@@ -30,6 +30,8 @@ import { Server_MatCategory_Form_Comp } from "../../BizFunc/MAT/MatCategory/Serv
 import { Server_MatCategory_List_Comp } from "../../BizFunc/MAT/MatCategory/Server_MatCategory_List_Comp";
 import { Server_Material_Form_Comp } from "../../BizFunc/MAT/Material/Server_Material_Form_Comp";
 import { Server_Material_List_Comp } from "../../BizFunc/MAT/Material/Server_Material_List_Comp";
+import { Server_Survey_Form_Comp } from "../../BizFunc/WEB/Survey/Server_Survey_Form_Comp";
+import { Server_Survey_List_Comp } from "../../BizFunc/WEB/Survey/Server_Survey_List_Comp";
 import { Server_Timeline_Form_Comp } from "../../BizFunc/WEB/Timeline/Server_Timeline_Form_Comp";
 import { Server_Timeline_List_Comp } from "../../BizFunc/WEB/Timeline/Server_Timeline_List_Comp";
 
@@ -119,7 +121,7 @@ const ServerModuleRoutesData: IModuleMeta[] = [
     },
     // #endregion
 
-    // #region 網站功能管理模組
+    // #region 網站功能管理模組 (WEB)
     {
         ModuleCode: "WebManagement",
         Title: "網站功能管理",
@@ -300,11 +302,29 @@ const ServerModuleRoutesData: IModuleMeta[] = [
                     elementFactory: (ctx) => <Server_Timeline_Form_Comp theme={ctx.theme} lang={ctx.lang} />,
                 }],
             },
+            // 問卷設計
+            {
+                ProgId: PGID.Survey,
+                Title: "問卷設計",
+                DefaultActionCode: "List",
+                IconClassName: "fas fa-clipboard-list",
+                Actions: [{
+                    ActionCode: "List",
+                    Title: "問卷設計列表",
+                    RoutePath: "List",
+                    elementFactory: (ctx) => <Server_Survey_List_Comp title="問卷設計列表" theme={ctx.theme} lang={ctx.lang} />,
+                }, {
+                    ActionCode: "Form",
+                    Title: "問卷設計維護",
+                    RoutePath: "Form/:internalId?",
+                    elementFactory: (ctx) => <Server_Survey_Form_Comp theme={ctx.theme} lang={ctx.lang} />,
+                }],
+            },
         ],
     },
     // #endregion
 
-    // #region 物件資料管理模組
+    // #region 物件資料管理模組 (MAT)
     {
         ModuleCode: "MAT",
         Title: "物件資料管理",
@@ -349,7 +369,7 @@ const ServerModuleRoutesData: IModuleMeta[] = [
     },
     // #endregion
 
-    // #region 帳號管理模組
+    // #region 帳號管理模組 (IAM)
     {
         ModuleCode: "AccountManage",
         Title: "帳號管理",

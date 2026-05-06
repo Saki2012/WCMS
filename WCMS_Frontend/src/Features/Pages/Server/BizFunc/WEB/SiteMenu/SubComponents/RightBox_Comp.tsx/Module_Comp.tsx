@@ -1,4 +1,5 @@
 // #region 模型配置
+import type { ISurveyOptions } from "@/Features/Pages/Client/BizFunc/WEB/Survey/Client_Survey_Form_Loader";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { LibCheckBox, LibDropList, LibSelectCard } from "@/SysCore/Components/FormField/LibFormField";
 import { useSetJsonField, useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
@@ -24,6 +25,7 @@ const BaseModuleOpts: Record<string, string> = {
     PageManagement: "頁面",
     WebResource: "網路資源",
     Timeline: "紀事表",
+    Survey: "問卷調查",
     Material: "產品物件",
 };
 
@@ -56,6 +58,7 @@ interface ModuleSettingTabExtensionContext
     tagSets: TagSet[];
     pageMap: Record<string, string>;
     timelineMap: Map<string, string>;
+    surveyMap: Map<string, string>;
 }
 export interface ModuleSettingTabExtension
 {
@@ -93,6 +96,7 @@ interface ModuleSettingTabProps
     tagSets: TagSet[];
     pageMap: Record<string, string>;
     timelineMap: Map<string, string>;
+    surveyMap: Map<string, string>;
 }
 
 export const ModuleSettingTab = (prop: ModuleSettingTabProps) =>
@@ -151,6 +155,7 @@ export const ModuleSettingTab = (prop: ModuleSettingTabProps) =>
             tagSets: prop.tagSets,
             pageMap: prop.pageMap,
             timelineMap: prop.timelineMap,
+            surveyMap: prop.surveyMap,
         };
     }, [
         prop.theme,
@@ -232,6 +237,7 @@ export const ModuleSettingTab = (prop: ModuleSettingTabProps) =>
                     lang={DefaultLang}
                 />
             ),
+            Survey: (ctx) => <Module_Survey_Comp theme={ctx.theme} formData={ctx.formData} selectedItemEdit={ctx.selectedItemEdit} surveyMap={ctx.surveyMap} />,
             // #endregion
             // #region MAT
             Material: (ctx) => (
@@ -586,6 +592,30 @@ const Module_Timeline_Comp = (
                 }}
             />
         </>
+    );
+};
+const Module_Survey_Comp = (
+    prop: { theme: IBETheme; formData: UseFetchFormDataResult<SiteMenuSet>; selectedItemEdit: SiteMenuItem | null; surveyMap: Map<string, string>; },
+): React.ReactNode =>
+{
+    const curRowKeys = getModuleRowKeys(prop.selectedItemEdit);
+    const binder = useSetJsonField<SiteMenuSet, ISurveyOptions>(
+        prop.formData,
+        SiteMenuSetFields.SiteMenu_Item_Module,
+        SiteMenu_Item_ModuleFields.ModuleOptions,
+        curRowKeys,
+        { SurveyId: "" },
+    );
+    const pageBind = binder.bind("SurveyId", "string");
+    return (
+        <LibDropList
+            Style={prop.theme.DropList}
+            ColumnDisplayName="選擇問卷"
+            Options={prop.surveyMap}
+            AutoDefaultFirst={false}
+            InputValue={pageBind.value}
+            onChange={pageBind.onChange}
+        />
     );
 };
 

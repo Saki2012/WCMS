@@ -780,4 +780,58 @@
   <data name="Common_Description" xml:space="preserve">
     <value>Description</value>
   </data>
+  <data name="SurveyId" xml:space="preserve">
+    <value>Survey ID</value>
+  </data>
+  <data name="SurveyName" xml:space="preserve">
+    <value>Survey Name</value>
+  </data>
+  <data name="SurveyDescription" xml:space="preserve">
+    <value>Survey Description</value>
+  </data>
+  <data name="Common_IsRequired" xml:space="preserve">
+    <value>Is Required</value>
+  </data>
+  <data name="Enum_LibInputType" xml:space="preserve">
+    <value>輸入欄位類型</value>
+  </data>
+  <data name="Common_OptionJson" xml:space="preserve">
+    <value>Option Data (in JSON format)</value>
+  </data>
+  <data name="Common_Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="SurveySubmissionId" xml:space="preserve">
+    <value>Survey Submission ID</value>
+  </data>
+  <data name="Enum_LibInputType_Text" xml:space="preserve">
+    <value>Text</value>
+  </data>
+  <data name="Enum_LibInputType_TextArea" xml:space="preserve">
+    <value>Text Area</value>
+  </data>
+  <data name="Enum_LibInputType_Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Enum_LibInputType_Phone" xml:space="preserve">
+    <value>Phone</value>
+  </data>
+  <data name="Enum_LibInputType_Number" xml:space="preserve">
+    <value>Number</value>
+  </data>
+  <data name="Enum_LibInputType_Date" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="Enum_LibInputType_Radio" xml:space="preserve">
+    <value>Radio box</value>
+  </data>
+  <data name="Enum_LibInputType_Select" xml:space="preserve">
+    <value>Select</value>
+  </data>
+  <data name="Enum_LibInputType_Checkbox" xml:space="preserve">
+    <value>Check box</value>
+  </data>
+  <data name="SurveySuccessContent" xml:space="preserve">
+    <value>Survey Success Content</value>
+  </data>
 </root>

@@ -35,6 +35,7 @@ type RenderRightBoxProp = {
     tagSets: TagSet[];
     pageMap: Record<string, string>;
     timelineMap: Map<string, string>;
+    surveyMap: Map<string, string>;
     action: SiteMenuActions;
 };
 
@@ -155,6 +156,7 @@ export const RenderRightBox = (prop: RenderRightBoxProp) =>
                                         tagSets={prop.tagSets}
                                         pageMap={prop.pageMap}
                                         timelineMap={prop.timelineMap}
+                                        surveyMap={prop.surveyMap}
                                         tabResetSeed={tabResetSeed}
                                         linkType={linkType}
                                         modelKey={modelKey}
@@ -207,6 +209,7 @@ type MenuInfoCompProps = {
     tagSets: TagSet[];
     pageMap: Record<string, string>;
     timelineMap: Map<string, string>;
+    surveyMap: Map<string, string>;
     tabResetSeed: number;
     linkType: MenuUrlType;
     modelKey: ModelKey;
@@ -265,6 +268,7 @@ const MenuInfoComp = (prop: MenuInfoCompProps) =>
                     tagSets={prop.tagSets}
                     pageMap={prop.pageMap}
                     timelineMap={prop.timelineMap}
+                    surveyMap={prop.surveyMap}
                 />,
             ];
         }
