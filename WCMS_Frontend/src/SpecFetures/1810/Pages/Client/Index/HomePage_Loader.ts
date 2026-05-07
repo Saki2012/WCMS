@@ -421,6 +421,7 @@ const buildVideoListParam = (): QueryListParam => ({
     Fields: VIDEO_FIELDS,
     Condition: `${WebResourceFields.Categories} HasAny [29,30,31,32]`,
     OrderBy: [{ Col: WebResourceFields.CreateTime, Desc: true }],
+    RankGroups: [{ Condition: `${WebResourceFields.ContentStatus} & 1` }],
     PageNumber: 1,
     PageSize: 10,
 });
