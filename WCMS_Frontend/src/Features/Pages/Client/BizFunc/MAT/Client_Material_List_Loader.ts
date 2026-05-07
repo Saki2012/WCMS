@@ -8,7 +8,7 @@ import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { useResetListPageOnKeyChange } from "@/SysCore/Utils/UI_HookFunc/useResetListPageOnKeyChange";
 import type { components } from "@/types/api";
-import { MaterialFields, MaterialLangInfoFields, MaterialPictureFields, PGID } from "@/types/SchemaFields";
+import { MaterialFields, MaterialLangInfoFields, MaterialPictureFields, MaterialTagsFields, PGID } from "@/types/SchemaFields";
 import { useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router-dom";
 import { useLoaderData } from "react-router-dom";
@@ -168,11 +168,11 @@ const buildMaterialQuery = (lang: Lang, pageNumber: number, pageSize: number, ca
     }
     if (catIds)
     {
-        condition = LibMerge(" And ", false, condition, `${MaterialFields.CategoryId} In [${catIds}]`);
+        condition = LibMerge(" And ", false, condition, `${MaterialFields.CategoryId} In ${catIds}`);
     }
     if (tagIds)
     {
-        condition = LibMerge(" And ", false, condition, `${MaterialFields._MaterialTags} In [${tagIds}]`);
+        condition = LibMerge(" And ", false, condition, `${MaterialFields._MaterialTags}.${MaterialTagsFields.TagId} In ${tagIds}`);
     }
     return {
         Fields: [

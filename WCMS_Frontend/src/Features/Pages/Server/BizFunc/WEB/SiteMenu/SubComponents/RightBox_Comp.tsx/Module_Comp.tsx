@@ -1,4 +1,5 @@
 // #region 模型配置
+import type { IMaterialListOptions } from "@/Features/Pages/Client/BizFunc/MAT/Client_Material_List_Loader";
 import type { ISurveyOptions } from "@/Features/Pages/Client/BizFunc/WEB/Survey/Client_Survey_Form_Loader";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { LibCheckBox, LibDropList, LibSelectCard } from "@/SysCore/Components/FormField/LibFormField";
@@ -677,15 +678,15 @@ const Module_Material_Comp = (
 ) =>
 {
     const curRowKeys = getModuleRowKeys(prop.selectedItemEdit);
-    const binder = useSetJsonField<SiteMenuSet, ModuleOptionsJson>(
+    const binder = useSetJsonField<SiteMenuSet, IMaterialListOptions>(
         prop.formData,
         SiteMenuSetFields.SiteMenu_Item_Module,
         SiteMenu_Item_ModuleFields.ModuleOptions,
         curRowKeys,
-        moduleOptionsDefaults,
+        { CategoryId: "", TagIds: "" },
     );
-    const catBind = binder.bind("Category", "csv");
-    const tagBind = binder.bind("Tag", "csv");
+    const catBind = binder.bind("CategoryId", "csv");
+    const tagBind = binder.bind("TagIds", "csv");
     const { cateDic, tagDic } = useGetCategoryTagDict(PGID.Material, prop.lang, prop.categorySets, prop.tagSets);
     return (
         <>

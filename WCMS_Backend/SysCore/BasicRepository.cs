@@ -189,12 +189,7 @@ namespace WCMS.SysCore
         /// <summary>
         /// 查看表單清單(非同步)
         /// </summary>
-        public async Task<IList<TModel>> QueryListAsync(
-            LambdaExpression? selectExpr,
-            LambdaExpression? whereExpr,
-            IReadOnlyList<OrderBySpec>? orderBy = null,
-            int pageCt = 0,
-            int takeCt = 0,
+        public async Task<IList<TModel>> QueryListAsync(LambdaExpression? selectExpr, LambdaExpression? whereExpr, IReadOnlyList<OrderBySpec>? orderBy = null, int pageCt = 0, int takeCt = 0, 
             int skipCt = 0,                 // ✅ 新增：支援 skip/take
             bool asNoTracking = true)
         {
@@ -220,18 +215,9 @@ namespace WCMS.SysCore
             // ✅ 分頁：優先使用 pageCt；否則使用 skipCt（給 RankGroups 精準切段用）
             if (takeCt > 0)
             {
-                if (pageCt > 0)
-                {
-                    query = query.Skip((pageCt - 1) * takeCt).Take(takeCt);
-                }
-                else if (skipCt > 0)
-                {
-                    query = query.Skip(skipCt).Take(takeCt);
-                }
-                else if (skipCt == 0)
-                {
-                    query = query.Take(takeCt);
-                }
+                if (pageCt > 0) query = query.Skip((pageCt - 1) * takeCt).Take(takeCt);
+                else if (skipCt > 0) query = query.Skip(skipCt).Take(takeCt);
+                else if (skipCt == 0) query = query.Take(takeCt);
             }
 
             // ✅ Select
