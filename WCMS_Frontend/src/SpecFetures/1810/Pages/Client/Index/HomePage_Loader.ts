@@ -404,7 +404,7 @@ const buildEventListParam = (nowIsoLocal: string): QueryListParam => ({
 
 const buildGalleryListParam = (): QueryListParam => ({
     Fields: GALLERY_FIELDS,
-    Condition: `${GalleryFields.Categories} In [25,26,27,28]`,
+    // Condition: `${GalleryFields.Categories} In [25,26,27,28]`,
     OrderBy: [{ Col: GalleryFields.Validate_Start, Desc: true }],
     PageNumber: 1,
     PageSize: 10,
