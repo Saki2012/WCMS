@@ -64,6 +64,8 @@ export interface ModuleSettingTabExtension
 {
     moduleOptions?: Partial<Record<ModelKey, string>>;
     moduleRenderers?: Partial<Record<ModelKey, ModuleRenderFactory>>;
+    /**功能白名單 */
+    moduleAllowKeys?: readonly string[];
 }
 type ModuleRenderFactory = (ctx: ModuleSettingTabExtensionContext) => ReactNode;
 type UseModuleSettingTabExtensionSlot = () => ModuleSettingTabExtension;
@@ -80,6 +82,54 @@ const useResolvedModuleSettingTabExtension = resolveSpecFunc<UseModuleSettingTab
     useModuleSettingTabExtensionBase,
     ["useModuleSettingTabSpecExtension"],
 );
+/** 合併 Feature 與 Spec 模型功能選項 */
+const mergeModuleOptions = (baseOptions: Record<string, string>, specOptions?: Partial<Record<ModelKey, string>>): Record<string, string> =>
+{
+    // 宣告變數
+    const merged: Record<string, string> = { ...baseOptions };
+
+    // 執行function
+    Object.entries(specOptions ?? {}).forEach(([key, value]) =>
+    {
+        if (!value) return;
+        merged[key] = value;
+    });
+
+    // return
+    return merged;
+};
+
+/** 依 Spec 白名單過濾模型功能 */
+const filterModuleOptions = (options: Record<string, string>, allowKeys?: readonly string[]): Record<string, string> =>
+{
+    // 宣告變數
+    if (!allowKeys?.length) return options;
+    const allowSet = new Set<string>(allowKeys);
+
+    // return
+    return Object.entries(options).reduce<Record<string, string>>((acc, [key, value]) =>
+    {
+        if (!allowSet.has(key)) return acc;
+        acc[key] = value;
+        return acc;
+    }, {});
+};
+
+/** 依 Spec 白名單過濾模型功能渲染器 */
+const filterModuleRenderers = (renderers: Record<string, ModuleRenderFactory>, allowKeys?: readonly string[]): Record<string, ModuleRenderFactory> =>
+{
+    // 宣告變數
+    if (!allowKeys?.length) return renderers;
+    const allowSet = new Set<string>(allowKeys);
+
+    // return
+    return Object.entries(renderers).reduce<Record<string, ModuleRenderFactory>>((acc, [key, value]) =>
+    {
+        if (!allowSet.has(key)) return acc;
+        acc[key] = value;
+        return acc;
+    }, {});
+};
 interface ModuleSettingTabProps
 {
     theme: IBETheme;
@@ -132,14 +182,10 @@ export const ModuleSettingTab = (prop: ModuleSettingTabProps) =>
 
     const moduleOpts = useMemo(() =>
     {
-        const merged: Record<string, string> = { ...BaseModuleOpts };
-        Object.entries(specExtension.moduleOptions ?? {}).forEach(([key, value]) =>
-        {
-            if (!value) return;
-            merged[key] = value;
-        });
-        return new Map<string, string>(Object.entries(merged));
-    }, [specExtension.moduleOptions]);
+        const merged = mergeModuleOptions(BaseModuleOpts, specExtension.moduleOptions);
+        const filtered = filterModuleOptions(merged, specExtension.moduleAllowKeys);
+        return new Map<string, string>(Object.entries(filtered));
+    }, [specExtension.moduleOptions, specExtension.moduleAllowKeys]);
 
     const extensionContext = useMemo<ModuleSettingTabExtensionContext>(() =>
     {
@@ -262,8 +308,8 @@ export const ModuleSettingTab = (prop: ModuleSettingTabProps) =>
             if (!value) return;
             merged[key] = value;
         });
-        return merged;
-    }, [baseRendererMap, specExtension.moduleRenderers]);
+        return filterModuleRenderers(merged, specExtension.moduleAllowKeys);
+    }, [baseRendererMap, specExtension.moduleRenderers, specExtension.moduleAllowKeys]);
 
     const activeModelKey = useMemo<ModelKey>(() =>
     {
