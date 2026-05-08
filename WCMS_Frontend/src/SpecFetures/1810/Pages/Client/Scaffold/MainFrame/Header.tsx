@@ -1,7 +1,6 @@
 /*Header模塊*/
 import { buildMenuItems } from "@/Features/Hooks/Common/BuildMenuItems";
 import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import { GoTopButton } from "@/Features/Pages/Client/Scaffold/MainFrame/GoTopButton";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import logImg from "@/SpecFetures/1810/Assets/Client/images/logo/logo_450x80.svg";
 import subLogImg from "@/SpecFetures/1810/Assets/Client/images/logo/logo_M320_191x60.svg";

@@ -284,7 +284,8 @@ const PictureListContent = (prop: { lang: Lang; datas: WebResourceSet[]; cateMap
                                 )}
 
                                 <div className="card_titleDiv + mb-md-4 mb-sm-3 mb-2" style={{ textAlign: (isYoutube || isVideo) ? undefined : "center" }}>
-                                    <a href={urlRaw} target={tar} className="card_title">🔗{title}</a>
+                                    <a href={urlRaw} target={tar} className="card_title">
+                                        <i className="fad fa-link me-2"></i>{title}</a>
                                     <div className="d-flex gap-1 flex-wrap">
                                         {Boolean(contentStatus & 1) && <span className="label label-success">置頂</span>}
                                         {Boolean(contentStatus & 2) && <span className="label label-danger">熱門</span>}

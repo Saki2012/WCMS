@@ -1714,12 +1714,12 @@
 	top: -10px;
 	right: -5px;
 	/*content: "◥";*/
-	content: url("../../../../Assets/Client/svg_icon/fileMask_B_8x8.svg")
+	content: url("../../../../Assets/Client/images/svg_icon/fileMask_B_8x8.svg");
 }
 .All_Standard_Content_CSS a:hover.btn.btn_NEWS::before,
 #ContentPlaceContent_ContentConentA a:hover.btn.btn_NEWS::before {
 	color: var(--FFFcolor);
-	content: url("../../../../Assets/Client/svg_icon/fileMask_W_8x8.svg")
+	content: url("../../../../Assets/Client/images/svg_icon/fileMask_W_8x8.svg");
 }
 /* ==================================================== */
 /* 標準預設 / URL-Link 設定 */
@@ -3508,12 +3508,12 @@
 }*/
 /*..............................................................................*/
 .History_Div.owl-box .owl-carousel .owl-nav button.owl-prev span {
-	content: url("../../../../Assets/Client/owl-carousel/prev_long_arrow_B.svg");
+	content: url("../../../../Assets/Client/images/owl-carousel/prev_long_arrow_B.svg");
 	width: var(--Customize_size_32);
 	height: var(--Customize_size_32);
 }
 .History_Div.owl-box .owl-carousel .owl-nav button.owl-next span {
-	content: url("../../../../Assets/Client/owl-carousel/next_long_arrow_B.svg");
+	content: url("../../../../Assets/Client/images/owl-carousel/next_long_arrow_B.svg");
 	width: var(--Customize_size_32);
 	height: var(--Customize_size_32);
 }
@@ -3529,12 +3529,12 @@
 }
 /*..............................................................................*/
 .History_Div.owl-box .owl-carousel .owl-nav button.owl-prev:hover span {
-	content: url("../../../../Assets/Client/owl-carousel/prev_long_arrow_W.svg");
+	content: url("../../../../Assets/Client/images/owl-carousel/prev_long_arrow_W.svg");
 	border: none !important;
 	background-color: none !important;
 }
 .History_Div.owl-box .owl-carousel .owl-nav button.owl-next:hover span {
-	content: url("../../../../Assets/Client/owl-carousel/next_long_arrow_W.svg");
+	content: url("../../../../Assets/Client/images/owl-carousel/next_long_arrow_W.svg");
 	border: none !important;
 	background-color: none !important;
 } 
@@ -3653,23 +3653,23 @@
 }
 /*..............................................................................*/
 .History_Div .control-singlebox a > .control-pause-icon {
-    content: url("../../../../Assets/Client/owl-carousel/control-pause-B-icon.svg");
+    content: url("../../../../Assets/Client/images/owl-carousel/control-pause-B-icon.svg");
 	background-image: none;
 }
 
 .History_Div .control-singlebox a > .control-play-icon {
-    content: url("../../../../Assets/Client/owl-carousel/control-start-B-icon.svg");
+    content: url("../../../../Assets/Client/images/owl-carousel/control-start-B-icon.svg");
 	background-image: none;
 }
 
 .History_Div .control-singlebox a:hover > .control-pause-icon,
 .History_Div .control-singlebox a:focus > .control-pause-icon {
-    content: url("../../../../Assets/Client/owl-carousel/control-pause-W-icon.svg");
+    content: url("../../../../Assets/Client/images/owl-carousel/control-pause-W-icon.svg");
 }
 
 .History_Div .control-singlebox a:hover > .control-play-icon,
 .History_Div .control-singlebox a:focus > .control-play-icon {
-    content: url("../../../../Assets/Client/owl-carousel/control-start-W-icon.svg");
+    content: url("../../../../Assets/Client/images/owl-carousel/control-start-W-icon.svg");
 }
 /*=============================================*/
 /* ==   單一顆 暫停 / 撥放 [ 輪播 ] END   ========*/
@@ -3830,23 +3830,23 @@
 }
 /*..............................................................................*/
 .History_Div .control-start-icon {
-    background-image: url("../../../../Assets/Client/owl-carousel/control-start-B-icon.svg");
+    background-image: url("../../../../Assets/Client/images/owl-carousel/control-start-B-icon.svg");
     opacity: .85;
 }
 /*..............................................................................*/
 .History_Div .control-pause-icon {
-    background-image: url("../../../../Assets/Client/owl-carousel/control-pause-B-icon.svg");
+    background-image: url("../../../../Assets/Client/images/owl-carousel/control-pause-B-icon.svg");
     opacity: .85;
 }
 /*..............................................................................*/
 .History_Div a:hover .control-start-icon,
 .History_Div a:focus .control-start-icon {
-    background-image: url("../../../../Assets/Client/owl-carousel/control-start-W-icon.svg");
+    background-image: url("../../../../Assets/Client/images/owl-carousel/control-start-W-icon.svg");
     opacity: .85;
 }
 .History_Div a:hover .control-pause-icon,
 .History_Div a:focus .control-pause-icon {
-    background-image: url("../../../../Assets/Client/owl-carousel/control-pause-W-icon.svg");
+    background-image: url("../../../../Assets/Client/images/owl-carousel/control-pause-W-icon.svg");
     opacity: .85;
 }
 /*..............................................................................*/
@@ -4105,7 +4105,7 @@
 	height: 40px;
 	border-radius: 50%;
 	background-color: #FFFFFF;
-	background-image: url("../../../../Assets/Client/audio_mp3/paly_40x40.png");
+	background-image: url("../../../../Assets/Client/images/audio_mp3/paly_40x40.png");
 	background-repeat: no-repeat;
 	background-position: center;
 	background-size: 50%;
@@ -4113,7 +4113,7 @@
 	cursor: pointer;
 }
 .audio-player.player-playing .play-pause-icon {
-	background-image: url("../../../../Assets/Client/audio_mp3/pause_40x40.png");
+	background-image: url("../../../../Assets/Client/images/audio_mp3/pause_40x40.png");
 }
 /* ------------------------------------------------------------*/
 .audio-player .player-time, .player-time-duration {
@@ -4538,12 +4538,12 @@
 }*/
 /*..............................................................................*/
 .commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-prev span {
-	content: url("../../../../Assets/Client/owl-carousel/prev_long_arrow_B.svg");
+	content: url("../../../../Assets/Client/images/owl-carousel/prev_long_arrow_B.svg");
 	width: var(--Customize_size_20);
 	height: var(--Customize_size_20);
 }
 .commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-next span {
-	content: url("../../../../Assets/Client/owl-carousel/next_long_arrow_B.svg");
+	content: url("../../../../Assets/Client/images/owl-carousel/next_long_arrow_B.svg");
 	width: var(--Customize_size_20);
 	height: var(--Customize_size_20);
 }
@@ -4559,12 +4559,12 @@
 }
 /*..............................................................................*/
 .commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-prev:hover span {
-	content: url("../../../../Assets/Client/owl-carousel/prev_long_arrow_W.svg");
+	content: url("../../../../Assets/Client/images/owl-carousel/prev_long_arrow_W.svg");
 	border: none !important;
 	background-color: none !important;
 }
 .commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-next:hover span {
-	content: url("../../../../Assets/Client/owl-carousel/next_long_arrow_W.svg");
+	content: url("../../../../Assets/Client/images/owl-carousel/next_long_arrow_W.svg");
 	border: none !important;
 	background-color: none !important;
 } 

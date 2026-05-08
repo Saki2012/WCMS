@@ -1,4 +1,4 @@
-import GlobalPic from "@/Features/Assets/Client/icon-custom-global-W.svg";
+import GlobalPic from "@/Features/Assets/Client/images/svg_icon/icon-custom-global-W.svg";
 import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import { DefaultLang, isSupportedLang, type Lang, LangLabelMap } from "@/SysCore/i18n/lang";
 import { useLang } from "@/SysCore/i18n/LangContext";

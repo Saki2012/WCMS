@@ -743,3 +743,92 @@ a:focus:not(:focus-visible):not(:active) {
 /* ====================================================== */
 /* =====  內頁 - 多層 左邊選單 ( 以上 )  =================== */
 /* ====================================================== */
+
+/* 補上修改的CSS 20260507 cara */
+.header_section .navbar-brand img, .menu_section .navbar-brand img {
+    max-width: 330px;
+    max-width: max(20.5vw, 190px);
+    height: auto;
+}
+
+.subpage_banner_wrapper .Big-title{
+  text-shadow: rgba(255, 255, 255, 0.35) 2px 3px;;
+}
+
+
+/* ============================================= */
+/* ------  新增左右邊 顏色條 區 ------------------- */
+.LR_VLine_Div {
+	position: relative;
+	/*height: calc(100vh - 145.8px);*/
+	height: auto;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+	padding: 0 2rem 0 2rem;
+	background: #fff178;
+}
+@media screen and (max-width: 1023px) {
+	.LR_VLine_Div {
+        /*height: calc(100vh - 125.117px);*/
+		height: auto;
+    }
+}
+@media screen and (max-width: 767px) {
+    .LR_VLine_Div {
+        padding: 0 1.5rem 0 1.5rem;
+		height: 100%;
+    }
+}
+/* ---------------------------------------------------- */
+.LR_VLine_Div:after {
+    position: absolute;
+    display: block;
+    content: '';
+    bottom: 0;
+    right: 0;
+    left: 0;
+    width: 100%;
+    height: 25%;
+    background: #c0bca8;
+}
+@media screen and (max-width: 1023px) {
+	.LR_VLine_Div:after {
+        height: 25%;
+    }
+}
+
+
+.VLine_inner {
+    position: relative;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+	
+    height: 100%;    
+	background: var(--FFFcolor);
+	z-index: 1;
+}
+@media screen and (max-width: 1023px) {
+	.VLine_inner {
+        display: block;
+        height: 100%;
+    }
+}
+
+.VLine_wrapper {
+    width: 100%;
+	height: 100%;
+    padding: 0;
+    margin-right: auto;
+    margin-left: auto;
+}
+/*@media screen and (min-width: 1200px) {
+	.VLine_wrapper {
+		max-width: calc(100% - (66px * 2));
+	}
+}*/
+/* ------  新增左右邊 顏色條 區 ------------------- */
+/* ============================================= */

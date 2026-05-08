@@ -444,7 +444,7 @@
 	height: 630px;
 	z-index: 0;
 	/* background-color: transparent; */
-	background-image: url(../../../images/bg/map-bg-gray.png);
+	background-image: url("../../../images/bg/map-bg-gray.png");
 	background-size: contain;
 	background-repeat: no-repeat;
 	background-position: center top;
@@ -902,7 +902,7 @@
 }
 .Carousel_slide_section .carousel_btn-icon-prev a div.carousel-control-prev .carousel-control-prev-icon {
 	content: url("../../../images/banner/prev-W.svg");
-	/*background-image: url(../../../images/banner/prev_long_arrow_C.svg);*/
+	/*background-image: url(../../../images/banner/prev_long_arrow_C.svg");*/
 	background-image: none;
 }
 .Carousel_slide_section .carousel_btn-icon-next a div.carousel-control-next .carousel-control-next-icon {
@@ -1093,27 +1093,27 @@
 	background-clip: border-box;
 }
 .Carousel_slide_section .control-start-icon {
-    background-image: url(../../../images/banner/control-start-W-icon.svg);
+    background-image: url("../../../images/banner/control-start-W-icon.svg");
 }
 .Carousel_slide_section .control-pause-icon {
-    background-image: url(../../../images/banner/control-pause-W-icon.svg);
+    background-image: url("../../../images/banner/control-pause-W-icon.svg");
 }
 
 /* ------ ICON 符號 HOVER --------- */
 .Carousel_slide_section .control-start a:hover .control-start-icon {
-    background-image: url(../../../images/banner/control-start-W-icon.svg);
+    background-image: url("../../../images/banner/control-start-W-icon.svg");
 }
 .Carousel_slide_section .control-pause a:hover .control-pause-icon {
-    background-image: url(../../../images/banner/control-pause-W-icon.svg);
+    background-image: url("../../../images/banner/control-pause-W-icon.svg");
 }
 /* ------ ICON 符號 HOVER --------- */
 
 /* ------ ICON 符號 FOCUS --------- */
 .Carousel_slide_section .control-start a:focus .control-start-icon {
-    background-image: url(../../../images/banner/control-start-W-icon.svg);
+    background-image: url("../../../images/banner/control-start-W-icon.svg");
 }
 .Carousel_slide_section .control-pause a:focus .control-pause-icon{
-    background-image: url(../../../images/banner/control-pause-W-icon.svg);
+    background-image: url("../../../images/banner/control-pause-W-icon.svg");
 }
 /* ------ ICON 符號 FOCUS --------- */
 
@@ -1278,27 +1278,27 @@
 	background-clip: border-box;
 }
 .Carousel_slide_section .control-icon.play {
-    background-image: url(../../../images/banner/control-start-B-icon.svg);
+    background-image: url("../../../images/banner/control-start-B-icon.svg");
 }
 .Carousel_slide_section .control-icon.pause {
-    background-image: url(../../../images/banner/control-pause-B-icon.svg);
+    background-image: url("../../../images/banner/control-pause-B-icon.svg");
 }
 
 /* ------ ICON 符號 HOVER --------- */
 .Carousel_slide_section .control-toggle a:hover .control-icon.play {
-    background-image: url(../../../images/banner/control-start-W-icon.svg);
+    background-image: url("../../../images/banner/control-start-W-icon.svg");
 }
 .Carousel_slide_section .control-toggle a:hover .control-icon.pause {
-    background-image: url(../../../images/banner/control-pause-W-icon.svg);
+    background-image: url("../../../images/banner/control-pause-W-icon.svg");
 }
 /* ------ ICON 符號 HOVER --------- */
 
 /* ------ ICON 符號 FOCUS --------- */
 .Carousel_slide_section .control-toggle a:focus .control-icon.play {
-    background-image: url(../../../images/banner/control-start-W-icon.svg);
+    background-image: url("../../../images/banner/control-start-W-icon.svg");
 }
 .Carousel_slide_section .control-toggle a:focus .control-icon.pause {
-    background-image: url(../../../images/banner/control-pause-W-icon.svg);
+    background-image: url("../../../images/banner/control-pause-W-icon.svg");
 }
 /* ------ ICON 符號 FOCUS --------- */
 
@@ -1515,13 +1515,13 @@
     top: 50%;
 		width: 100px;
 		height: 20px;
-    background: url(../../../images/banner/arrow-down.svg);
+    background: url("../../../images/banner/arrow-down.svg);
 		background-repeat: no-repeat;
 		background-size: contain;
     transform: rotate(90deg) translateY(-50%);
 } */
 .Carousel_slide_section .scroll_Down .eng_font::before {
-	content: url(../../../images/banner/arrow-down.svg);
+	content: url("../../../images/banner/arrow-down.svg");
 	position: absolute;
 	transform: rotate(90deg) translateX(-172%) translateY(-100%);
 	width: 24px;
@@ -1570,7 +1570,7 @@
     position: relative;
 	display: block;
 	background-color: transparent;
-	/*background-image: url(images/bg/.....);*/
+	/*background-image: url("images/bg/.....);*/
 	background-size: cover;
 	background-repeat: no-repeat;
 	background-position: center top;
@@ -2018,23 +2018,23 @@
 }
 /*..............................................................................*/
 .Links_section .control-start-icon {
-    background-image: url(../../../images/owl-carousel/control-start-W-icon.svg);
+    background-image: url("../../../images/owl-carousel/control-start-W-icon.svg");
     opacity: .85;
 }
 /*..............................................................................*/
 .Links_section .control-pause-icon {
-    background-image: url(../../../images/owl-carousel/control-pause-W-icon.svg);
+    background-image: url("../../../images/owl-carousel/control-pause-W-icon.svg");
     opacity: .85;
 }
 /*..............................................................................*/
 .Links_section .control-start-icon:hover,
 .Links_section .control-start-icon:focus {
-    background-image: url(../../../images/owl-carousel/control-start-W-icon.svg);
+    background-image: url("../../../images/owl-carousel/control-start-W-icon.svg");
     opacity: .85;
 }
 .Links_section .control-pause-icon:hover,
 .Links_section .control-pause-icon:focus {
-    background-image: url(../../../images/owl-carousel/control-pause-W-icon.svg);
+    background-image: url("../../../images/owl-carousel/control-pause-W-icon.svg");
     opacity: .85;
 }
 /*..............................................................................*/
@@ -2184,23 +2184,23 @@
 }
 
 .Links_section .control-singlebox a .control-pause-icon {
-    content: url(../../../images/owl-carousel/control-pause-B-icon.svg);
+    content: url("../../../images/owl-carousel/control-pause-B-icon.svg");
 	background-image: none;
 }
 
 .Links_section .control-singlebox a .control-play-icon {
-    content: url(../../../images/owl-carousel/control-start-B-icon.svg);
+    content: url("../../../images/owl-carousel/control-start-B-icon.svg");
 	background-image: none;
 }
 
 .Links_section .control-singlebox a:hover .control-pause-icon,
 .Links_section .control-singlebox a:focus .control-pause-icon {
-    content: url(../../../images/owl-carousel/control-pause-W-icon.svg);
+    content: url("../../../images/owl-carousel/control-pause-W-icon.svg");
 }
 
 .Links_section .control-singlebox a:hover .control-play-icon,
 .Links_section .control-singlebox a:focus .control-play-icon {
-    content: url(../../../images/owl-carousel/control-start-W-icon.svg);
+    content: url("../../../images/owl-carousel/control-start-W-icon.svg");
 }
 
 .Links_section .control-toggle:focus {
@@ -2247,7 +2247,6 @@
 	}
 }
 .About_section .about-txt{
-	line-height: 1.9rem;
 	word-break: break-word;
 	display: -webkit-box;
 	-webkit-box-orient: vertical;
@@ -2260,7 +2259,7 @@
 @media (max-width:1199px) {
 	.About_section .about-txt{
 		-webkit-line-clamp: 9;
-		max-height: 270px;
+		max-height: 275px;
 	}
 }
 @media (max-width:575px) {
@@ -2270,6 +2269,15 @@
 		max-height: 362px;
 	}
 }
+.About_section .about-txt p{
+	line-height: 1.72rem;
+}
+@media (max-width:575px) {
+	.About_section .about-txt p{
+		line-height: 1.35rem;
+	}
+}
+
 /* ====================================================== */
 /* ===================  About_section =================== */
 /* ====================================================== */
@@ -2756,23 +2764,23 @@
 }
 /*..............................................................................*/
 .Admissions_section .control-start-icon {
-    background-image: url(../../../images/owl-carousel/control-start-W-icon.svg);
+    background-image: url("../../../images/owl-carousel/control-start-W-icon.svg");
     opacity: .85;
 }
 /*..............................................................................*/
 .Admissions_section .control-pause-icon {
-    background-image: url(../../../images/owl-carousel/control-pause-W-icon.svg);
+    background-image: url("../../../images/owl-carousel/control-pause-W-icon.svg");
     opacity: .85;
 }
 /*..............................................................................*/
 .Admissions_section .control-start-icon:hover,
 .Admissions_section .control-start-icon:focus {
-    background-image: url(../../../images/owl-carousel/control-start-W-icon.svg);
+    background-image: url("../../../images/owl-carousel/control-start-W-icon.svg");
     opacity: .85;
 }
 .Admissions_section .control-pause-icon:hover,
 .Admissions_section .control-pause-icon:focus {
-    background-image: url(../../../images/owl-carousel/control-pause-W-icon.svg);
+    background-image: url("../../../images/owl-carousel/control-pause-W-icon.svg");
     opacity: .85;
 }
 /*..............................................................................*/
@@ -2922,23 +2930,23 @@
 }
 
 .Admissions_section .control-singlebox a .control-pause-icon {
-    content: url(../../../images/owl-carousel/control-pause-B-icon.svg);
+    content: url("../../../images/owl-carousel/control-pause-B-icon.svg");
 	background-image: none;
 }
 
 .Admissions_section .control-singlebox a .control-play-icon {
-    content: url(../../../images/owl-carousel/control-start-B-icon.svg);
+    content: url("../../../images/owl-carousel/control-start-B-icon.svg");
 	background-image: none;
 }
 
 .Admissions_section .control-singlebox a:hover .control-pause-icon,
 .Admissions_section .control-singlebox a:focus .control-pause-icon {
-    content: url(../../../images/owl-carousel/control-pause-W-icon.svg);
+    content: url("../../../images/owl-carousel/control-pause-W-icon.svg");
 }
 
 .Admissions_section .control-singlebox a:hover .control-play-icon,
 .Admissions_section .control-singlebox a:focus .control-play-icon {
-    content: url(../../../images/owl-carousel/control-start-W-icon.svg);
+    content: url("../../../images/owl-carousel/control-start-W-icon.svg");
 }
 
 .Admissions_section .control-toggle:focus {
@@ -4160,23 +4168,23 @@
 }
 /*..............................................................................*/
 .Gallery_section .control-start-icon {
-    background-image: url(../../../images/owl-carousel/control-start-W-icon.svg);
+    background-image: url("../../../images/owl-carousel/control-start-W-icon.svg");
     opacity: .85;
 }
 /*..............................................................................*/
 .Gallery_section .control-pause-icon {
-    background-image: url(../../../images/owl-carousel/control-pause-W-icon.svg);
+    background-image: url("../../../images/owl-carousel/control-pause-W-icon.svg");
     opacity: .85;
 }
 /*..............................................................................*/
 .Gallery_section .control-start-icon:hover,
 .Gallery_section .control-start-icon:focus {
-    background-image: url(../../../images/owl-carousel/control-start-W-icon.svg);
+    background-image: url("../../../images/owl-carousel/control-start-W-icon.svg");
     opacity: .85;
 }
 .Gallery_section .control-pause-icon:hover,
 .Gallery_section .control-pause-icon:focus {
-    background-image: url(../../../images/owl-carousel/control-pause-W-icon.svg);
+    background-image: url("../../../images/owl-carousel/control-pause-W-icon.svg");
     opacity: .85;
 }
 /*..............................................................................*/
@@ -4326,23 +4334,23 @@
 }
 
 .Gallery_section .control-singlebox a .control-pause-icon {
-    content: url(../../../images/owl-carousel/control-pause-B-icon.svg);
+    content: url("../../../images/owl-carousel/control-pause-B-icon.svg");
 	background-image: none;
 }
 
 .Gallery_section .control-singlebox a .control-play-icon {
-    content: url(../../../images/owl-carousel/control-start-B-icon.svg);
+    content: url("../../../images/owl-carousel/control-start-B-icon.svg");
 	background-image: none;
 }
 
 .Gallery_section .control-singlebox a:hover .control-pause-icon,
 .Gallery_section .control-singlebox a:focus .control-pause-icon {
-    content: url(../../../images/owl-carousel/control-pause-W-icon.svg);
+    content: url("../../../images/owl-carousel/control-pause-W-icon.svg");
 }
 
 .Gallery_section .control-singlebox a:hover .control-play-icon,
 .Gallery_section .control-singlebox a:focus .control-play-icon {
-    content: url(../../../images/owl-carousel/control-start-W-icon.svg);
+    content: url("../../../images/owl-carousel/control-start-W-icon.svg");
 }
 
 .Gallery_section .control-toggle:focus {

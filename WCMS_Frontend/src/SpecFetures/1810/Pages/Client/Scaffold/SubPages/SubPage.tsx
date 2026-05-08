@@ -1,7 +1,6 @@
 import { buildMenuItems, getAncestorAtLevel, GetMenuData } from "@/Features/Hooks/Common/BuildMenuItems";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
-import { GoTopButton } from "@/Features/Pages/Client/Scaffold/MainFrame/GoTopButton";
 import type { ISubPageLoaderData } from "@/Features/Pages/Client/Scaffold/SubPages/SubPage_Loader";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import SubBannerComp from "@/SpecFetures/1810/Pages/Client/Scaffold/SubPages/Section/SubBanner_Comp";
@@ -516,8 +515,6 @@ const SubPageBase = (props: ISubPagesProps & { renderMain: () => ReactNode; }) =
                     </div>
                 </section>
             </div>
-
-            <GoTopButton />
         </>
     );
 };

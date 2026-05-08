@@ -456,7 +456,9 @@ const getProdCssHrefsFromManifest = (m: ViteManifest, spec: string, isServer: bo
         addIfExists([`src/SpecFetures/${spec}/Assets/LoadSpecCss_Server.ts`, `src/SpecFeatures/${spec}/Assets/LoadSpecCss_Server.ts`]);
     } else
     {
-        addIfExists([`src/SpecFetures/${spec}/Assets/LoadSpecCss.ts`, `src/SpecFeatures/${spec}/Assets/LoadSpecCss.ts`]);
+        // addIfExists([`src/SpecFetures/${spec}/Assets/LoadSpecCss.ts`, `src/SpecFeatures/${spec}/Assets/LoadSpecCss.ts`]);
+        addIfExists([`src/Features/Assets/LoadFeaturesCss_Client.ts`,`src/SpecFetures/${spec}/Assets/LoadSpecCss.ts`, `src/SpecFeatures/${spec}/Assets/LoadSpecCss.ts`]);
+        // cara
     }
 
     // 4) fallback：真的抓不到時才全掃（把 css-only chunk 也納入）
@@ -638,10 +640,12 @@ const setupDevSSR = async (app: express.Express, cfg: SsrConfig) =>
             } else
             {
                 // 前台：Spec(Client)
+                const featuresClientCssTs = path.resolve(process.cwd(), "src/Features/Assets/LoadFeaturesCss_Client.ts");
                 const specCssTs = path.resolve(process.cwd(), `src/SpecFetures/${spec}/Assets/LoadSpecCss.ts`);
-                const hrefs = await readCssImportHrefs(specCssTs, `/src/SpecFetures/${spec}/Assets`);
+                const Fhrefs = await readCssImportHrefs(featuresClientCssTs, "/src/Features/Assets");
+                const Shrefs = await readCssImportHrefs(specCssTs, `/src/SpecFetures/${spec}/Assets`);
 
-                template = injectCssLinksToHead(template, hrefs);
+                template = injectCssLinksToHead(template, [...Fhrefs, ...Shrefs]);
             }
 
             const mod = await vite.ssrLoadModule("/src/SSR/Entry-Server.tsx");

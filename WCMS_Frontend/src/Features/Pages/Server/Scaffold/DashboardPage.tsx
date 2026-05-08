@@ -6,7 +6,7 @@ import { type RouteHandleMeta } from "@/Features/Pages/Server/Scaffold/Routes/Se
 import { ToastViewport_Comp } from "@/Features/Pages/Server/Scaffold/Toast/ToastViewport_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { Outlet, useMatches } from "react-router-dom";
-import { GoTopButton } from "../../Client/Scaffold/MainFrame/GoTopButton";
+import { GoTop } from "@/Features/Pages/Client/Scaffold/MainFrame/GoTop/GoTop";
 
 export const DashboardPage = ({ theme }: { theme: IBETheme; }) =>
 {
@@ -40,7 +40,7 @@ export const DashboardPage = ({ theme }: { theme: IBETheme; }) =>
                 </div>
                 <FooterComp />
                 <ToastViewport_Comp />
-                <GoTopButton threshold={1} />
+                <GoTop />
             </div>
         </>
     );
