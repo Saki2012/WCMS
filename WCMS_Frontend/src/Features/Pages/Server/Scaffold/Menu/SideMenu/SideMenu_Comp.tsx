@@ -2,7 +2,9 @@ import { type IActionMeta, type IModuleMeta, ServerModuleRoutes } from "@/Featur
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import { useEffect, useMemo, useRef } from "react";
 import { useLocation } from "react-router-dom";
-import logImg from "SpecFeature/Assets/Server/menu_logo_PC.svg";
+import { resolveSpecAsset } from "@/SysCore/Utils/Library/SlotResolver";
+import defaultLogoImg from "SpecDefault/Assets/Server/menu_logo_PC.svg";
+const logoImg = resolveSpecAsset("Assets/Server/menu_logo_PC", defaultLogoImg);
 
 /** 移除路由參數，讓選單可導到乾淨路徑 */
 const trimRouteParamPath = (path: string): string =>
@@ -234,7 +236,7 @@ const SidebarMenu = (prop: { moduleCode: IModuleMeta["ModuleCode"]; }) =>
                 <div className="m-header">
                     <h1>
                         <a href={"/"} title="首頁" target="_blank" className="b-brand">
-                            <img src={logImg} className="img-fluid logo-lg" alt="logo" />
+                            <img src={logoImg} className="img-fluid logo-lg" alt="logo" />
                         </a>
                     </h1>
                 </div>
