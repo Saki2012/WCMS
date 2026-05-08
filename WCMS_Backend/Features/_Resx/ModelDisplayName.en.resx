@@ -795,8 +795,8 @@
   <data name="Enum_LibInputType" xml:space="preserve">
     <value>輸入欄位類型</value>
   </data>
-  <data name="Common_OptionJson" xml:space="preserve">
-    <value>Option Data (in JSON format)</value>
+  <data name="Common_Options" xml:space="preserve">
+    <value>Option Data</value>
   </data>
   <data name="Common_Name" xml:space="preserve">
     <value>Name</value>
@@ -833,5 +833,47 @@
   </data>
   <data name="SurveySuccessContent" xml:space="preserve">
     <value>Survey Success Content</value>
+  </data>
+  <data name="Survey_SubmitFormData" xml:space="preserve">
+    <value>動態欄位資料</value>
+  </data>
+  <data name="Survey_FieldSnapshot" xml:space="preserve">
+    <value>動態欄位快照</value>
+  </data>
+  <data name="Survey_SubmitTime_UTC" xml:space="preserve">
+    <value>送出時間 (UTC)</value>
+  </data>
+  <data name="Survey_ReplyStatus" xml:space="preserve">
+    <value>回覆狀態</value>
+  </data>
+  <data name="WebClient_UserAgent" xml:space="preserve">
+    <value>瀏覽器 UserAgent</value>
+  </data>
+  <data name="WebClient_AcceptLanguage" xml:space="preserve">
+    <value>瀏覽器偏好語系</value>
+  </data>
+  <data name="WebClient_ClientIpMasked" xml:space="preserve">
+    <value>遮罩後用戶 IP</value>
+  </data>
+  <data name="WebClient_ClientIpHash" xml:space="preserve">
+    <value>用戶 IP 雜湊值</value>
+  </data>
+  <data name="WebClient_BrowserName" xml:space="preserve">
+    <value>瀏覽器名稱</value>
+  </data>
+  <data name="WebClient_BrowserVersion" xml:space="preserve">
+    <value>瀏覽器版本</value>
+  </data>
+  <data name="WebClient_OsName" xml:space="preserve">
+    <value>作業系統名稱</value>
+  </data>
+  <data name="WebClient_OsVersion" xml:space="preserve">
+    <value>作業系統版本</value>
+  </data>
+  <data name="WebClient_DeviceType" xml:space="preserve">
+    <value>裝置類型</value>
+  </data>
+  <data name="WebClient_TimeZone" xml:space="preserve">
+    <value>使用者時區</value>
   </data>
 </root>

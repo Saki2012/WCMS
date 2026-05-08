@@ -161,10 +161,10 @@ public static class ModelDisplayName
     /// </summary>
     public const string Common_IsHide = nameof(Common_IsHide);
     /// <summary>
-    /// 中：選項資料 (json格式)
-    /// 英：Option Data (in JSON format)
+    /// 中：選項資料
+    /// 英：Option Data
     /// </summary>
-    public const string Common_OptionJson = nameof(Common_OptionJson);
+    public const string Common_Options = nameof(Common_Options);
     /// <summary>
     /// 中：是否必填
     /// 英：Is Required
@@ -201,6 +201,59 @@ public static class ModelDisplayName
     /// 英：Name
     /// </summary>
     public const string Common_Name = nameof(Common_Name);
+    #endregion
+
+    #region WebClient
+    /// <summary>
+    /// 中：瀏覽器 UserAgent
+    /// 英：
+    /// </summary>
+    public const string WebClient_UserAgent = nameof(WebClient_UserAgent);
+    /// <summary>
+    /// 中：瀏覽器偏好語系
+    /// 英：
+    /// </summary>
+    public const string WebClient_AcceptLanguage = nameof(WebClient_AcceptLanguage);
+    /// <summary>
+    /// 中：遮罩後用戶 IP
+    /// 英：
+    /// </summary>
+    public const string WebClient_ClientIpMasked = nameof(WebClient_ClientIpMasked);
+    /// <summary>
+    /// 中：用戶 IP 雜湊值
+    /// 英：
+    /// </summary>
+    public const string WebClient_ClientIpHash = nameof(WebClient_ClientIpHash);
+    /// <summary>
+    /// 中：瀏覽器名稱
+    /// 英：
+    /// </summary>
+    public const string WebClient_BrowserName = nameof(WebClient_BrowserName);
+    /// <summary>
+    /// 中：瀏覽器版本
+    /// 英：
+    /// </summary>
+    public const string WebClient_BrowserVersion = nameof(WebClient_BrowserVersion);
+    /// <summary>
+    /// 中：作業系統名稱
+    /// 英：
+    /// </summary>
+    public const string WebClient_OsName = nameof(WebClient_OsName);
+    /// <summary>
+    /// 中：作業系統版本
+    /// 英：
+    /// </summary>
+    public const string WebClient_OsVersion = nameof(WebClient_OsVersion);
+    /// <summary>
+    /// 中：裝置類型
+    /// 英：
+    /// </summary>
+    public const string WebClient_DeviceType = nameof(WebClient_DeviceType);
+    /// <summary>
+    /// 中：使用者時區
+    /// 英：
+    /// </summary>
+    public const string WebClient_TimeZone = nameof(WebClient_TimeZone);
     #endregion
 
     #region Enums
@@ -1017,7 +1070,22 @@ public static class ModelDisplayName
     /// 英：Survey Submission ID
     /// </summary>
     public const string SurveySubmissionId = nameof(SurveySubmissionId);
-
+    /// <summary>
+    /// 動態欄位資料
+    /// </summary>
+    public const string Survey_SubmitFormData = nameof(Survey_SubmitFormData);
+    /// <summary>
+    /// 動態欄位快照
+    /// </summary>
+    public const string Survey_FieldSnapshot = nameof(Survey_FieldSnapshot);
+    /// <summary>
+    /// 送出時間 (UTC)
+    /// </summary>
+    public const string Survey_SubmitTime_UTC = nameof(Survey_SubmitTime_UTC);
+    /// <summary>
+    /// 回覆狀態
+    /// </summary>
+    public const string Survey_ReplyStatus = nameof(Survey_ReplyStatus);
     #endregion
     #endregion
 

@@ -150,6 +150,7 @@ public class SpecUSRBiz(BizDeps bizDeps) : BizService<SpecUSRSet>(bizDeps), IBiz
     private void SetData(SpecUSRSet set)
     {
         DoRemergeData(set.SpecUSR);
+        SetFileEmptyToNull(set.SpecUSR);
     }
     private void CheckIsEmpty(SpecUSRSet set)
     {
@@ -162,6 +163,14 @@ public class SpecUSRBiz(BizDeps bizDeps) : BizService<SpecUSRSet>(bizDeps), IBiz
     private static void DoRemergeData(SpecUSRModel header)
     {
         header.Tags = header.Tags.Remerge(",");
+    }
+    /// <summary>
+    /// 將空白的圖片(無檔案)設置為null，避免報錯
+    /// </summary>
+    /// <param name="header"></param>
+    private static void SetFileEmptyToNull(SpecUSRModel header) 
+    {
+        if (header.PictureId.IsNullOrEmpty()) header.PictureId = null;
     }
     #endregion
 }

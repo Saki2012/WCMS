@@ -15,8 +15,9 @@ import Client_Survey_Input_Comp, {
     type SurveyInputValueMap,
 } from "./Client_Survey_Input_Comp";
 import "./Client_Survey_Form.css";
-import type { SurveySubmissionSubmitDto } from "@/Features/Hooks/BizFunc/WEB/Survey_Api";
+import type { components } from "@/types/api";
 import { type ISurveyOptions, type SurveySubmitActions, useSurveyFormFetchData } from "./Client_Survey_Form_Loader";
+type SurveySubmissionRequest = components["schemas"]["SurveySubmissionRequest_DTO"];
 
 interface ISurveyProps
 {
@@ -50,7 +51,7 @@ interface SurveySubmitResult
     text: string;
 }
 
-type SurveySubmissionDraft = SurveySubmissionSubmitDto & {
+type SurveySubmissionDraft = SurveySubmissionRequest & {
     SurveyId: string;
     Lang: Lang;
     UserName: string;
@@ -597,7 +598,7 @@ const SURVEY_SUBMIT_TEXT_FALLBACK: SurveySubmitText = {
     phoneError: "請輸入正確的電話格式",
     numberError: "請輸入正確的數值格式",
     dateError: "請輸入正確的日期格式",
-    submitOk: "表單資料已通過前端驗證，下一步可串接送出 API。",
+    submitOk: "問卷已成功送出。",
     submitFail: "請確認表單欄位是否填寫正確。",
 };
 
@@ -621,7 +622,7 @@ const SURVEY_SUBMIT_TEXT_MAP: Partial<Record<Lang, SurveySubmitText>> = {
         phoneError: "Please enter a valid phone number.",
         numberError: "Please enter a valid number.",
         dateError: "Please enter a valid date.",
-        submitOk: "The form data passed frontend validation. The submit API can be connected next.",
+        submitOk: "The survey has been submitted successfully.",
         submitFail: "Please check the form fields.",
     },
 };

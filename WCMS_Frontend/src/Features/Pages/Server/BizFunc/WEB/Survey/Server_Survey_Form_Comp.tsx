@@ -142,7 +142,7 @@ const DetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<S
     {
         const detailRowId = d.RowId ?? idx;
         const rowKeys = { [SurveyItemFields.SurveyId]: d.SurveyId, [SurveyItemFields.RowId]: d.RowId };
-        const showOptionJson = shouldShowOptionJson({ inputType: d.InputType, inputOpts: props.inputOpts });
+        const showOptions = shouldShowOptions({ inputType: d.InputType, inputOpts: props.inputOpts });
         acc[String(detailRowId)] = [
             <LibTextBox
                 Style={props.theme.TextBox}
@@ -160,12 +160,12 @@ const DetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<S
                 options={props.inputOpts}
                 {...setField(SurveySetFields.SurveyItem, SurveyItemFields.InputType, "number", rowKeys)}
             />,
-            ...(showOptionJson
+            ...(showOptions
                 ? [
                     <LibTextArea
                         Style={props.theme.TextBox}
                         DefaultInputDisplay="請輸入"
-                        {...setField(SurveySetFields.SurveyItem, SurveyItemFields.OptionJson, "string", rowKeys)}
+                        {...setField(SurveySetFields.SurveyItem, SurveyItemFields.Options, "string", rowKeys)}
                     />,
                 ]
                 : []),
@@ -209,7 +209,7 @@ const DetailLangComp = (props: { theme: IBETheme; parentRowId: number; formData:
 // #endregion
 
 // #region Private Func
-/** 需要顯示 OptionJson 的輸入型別 */
+/** 需要顯示 Options 的輸入型別 */
 const OPTION_JSON_INPUT_TYPE_NAMES = new Set(["10", "11", "20"]);
 /** 轉成穩定比對用文字 */
 const normalizeInputTypeText = (value: string): string =>
@@ -218,7 +218,7 @@ const normalizeInputTypeText = (value: string): string =>
     return value.trim().toLowerCase();
 };
 /** 判斷目前輸入型別是否需要選項設定 */
-const shouldShowOptionJson = (p: { inputType?: string | number | null; inputOpts: Record<string, string>; }): boolean =>
+const shouldShowOptions = (p: { inputType?: string | number | null; inputOpts: Record<string, string>; }): boolean =>
 {
     const key = String(p.inputType ?? "");
     if (!key) return false;

@@ -260,9 +260,8 @@ const SidebarMenu = (prop: { moduleCode: IModuleMeta["ModuleCode"]; }) =>
                                         <i className="fas fa-chevron-right" />
                                     </span>
                                 </a>
-
                                 <ul className="pc-submenu">
-                                    {prog.Actions.map((act) => (
+                                    {prog.Actions.filter(p => p.ShowInMenu !== false).map((act) => (
                                         <li key={act.ActionCode} className="pc-item">
                                             <LangNavLink className="pc-link" to={buildActionPath(prop.moduleCode, prog.ProgId, act)}>{act.Title}</LangNavLink>
                                         </li>

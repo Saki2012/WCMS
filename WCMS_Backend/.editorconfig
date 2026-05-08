@@ -47,3 +47,6 @@ dotnet_diagnostic.CA1822.severity = silent
 
 # SYSLIB1045: 轉換為 'GeneratedRegexAttribute'。
 dotnet_diagnostic.SYSLIB1045.severity = none
+
+# CS8765: 參數類型是否可為 NULL 的情況，與覆寫的成員不相符 (可能的原因是屬性可為 NULL )。
+dotnet_diagnostic.CS8765.severity = silent

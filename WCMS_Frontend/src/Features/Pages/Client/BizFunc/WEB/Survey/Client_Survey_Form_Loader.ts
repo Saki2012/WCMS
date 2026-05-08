@@ -1,15 +1,15 @@
-import { SurveyAdapter, type SurveySubmissionSubmitDto } from "@/Features/Hooks/BizFunc/WEB/Survey_Api";
+import { SurveyAdapter } from "@/Features/Hooks/BizFunc/WEB/Survey_Api";
+import { SurveySubmissionAdapter } from "@/Features/Hooks/BizFunc/WEB/SurveySubmission_Api";
 import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
-import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
-import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
+import { type ApiResponse, getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import type { components } from "@/types/api";
 import { useMemo } from "react";
 import { type LoaderFunctionArgs, useLoaderData } from "react-router-dom";
 
 type SurveySet = components["schemas"]["SurveySet_DTO"];
-
+type SurveySubmissionRequest = components["schemas"]["SurveySubmissionRequest_DTO"];
 export interface ISurveyOptions
 {
     SurveyId?: string;
@@ -34,7 +34,7 @@ export interface SurveyFormLoaderData
 export interface SurveySubmitActions
 {
     isSubmitting: boolean;
-    publicSubmitAsync: (request: SurveySubmissionSubmitDto) => Promise<ApiResponse<string | null>>;
+    publicSubmitAsync: (request: SurveySubmissionRequest) => Promise<ApiResponse<string | null>>;
 }
 
 export interface SurveyFormFetchDataResult
@@ -48,18 +48,7 @@ export interface SurveyFormFetchDataResult
     submitActions: SurveySubmitActions;
 }
 
-/** 預設空資料，避免 component 端一直判空 */
-const emptyData: SurveySet = { Survey: {}, SurveyItem: [], SurveyItemLang: [] };
-
-/** 建立 SSR initial，讓 hydration 不重抓第一筆資料 */
-const buildInitialData = (
-    p: { loaderData: SurveyFormLoaderData | null; SurveyId: string; fallbackData: SurveySet; },
-): ApiLoaderData<string, SurveySet> | null =>
-{
-    if (!p.loaderData?.args?.SurveyId) return null;
-    if (p.loaderData.args.SurveyId !== p.SurveyId) return null;
-    return { args: p.SurveyId, apiRes: { IsSuccess: true, Data: p.loaderData.res.dataRes ?? p.fallbackData, SysMessage: [] } };
-};
+// #region Public
 
 /** SSR loader：預載指定 SurveyId 的單筆資料 */
 export const Client_Survey_Form_Loader = (p: { lang: Lang; opts: ISurveyOptions; }) => async ({ request }: LoaderFunctionArgs): Promise<SurveyFormLoaderData> =>
@@ -80,13 +69,14 @@ export const Client_Survey_Form_Loader = (p: { lang: Lang; opts: ISurveyOptions;
 export const useSurveyFormFetchData = (p: { lang: Lang; surveyId: string; emptyData?: SurveySet; }): SurveyFormFetchDataResult =>
 {
     const loaderData = useLoaderData() as SurveyFormLoaderData | null;
-    const adapter = useMemo(() => SurveyAdapter(), []);
+    const surveyAdapter = useMemo(() => SurveyAdapter(), []);
+    const submissionAdapter = useMemo(() => SurveySubmissionAdapter(), []);
 
     const fallbackData = p.emptyData ?? emptyData;
     const initialData = useMemo(() => buildInitialData({ loaderData, SurveyId: p.surveyId, fallbackData }), [loaderData, p.surveyId, fallbackData]);
 
-    const SurveyData = adapter.hooks.useQueryData({ internalId: p.surveyId, initial: initialData, deps: [p.surveyId, p.lang] });
-    const submitActions = adapter.hooks.useSubmitActions();
+    const SurveyData = surveyAdapter.hooks.useQueryData({ internalId: p.surveyId, initial: initialData, deps: [p.surveyId, p.lang] });
+    const submitActions = submissionAdapter.hooks.useSubmitActions();
 
     const data = useMemo(() => SurveyData.data ?? fallbackData, [SurveyData.data, fallbackData]);
     const parsed = useResolveInternalIds(data.Survey?.SurveyDescription ?? "", { locale: p.lang });
@@ -103,3 +93,22 @@ export const useSurveyFormFetchData = (p: { lang: Lang; surveyId: string; emptyD
         submitActions,
     };
 };
+
+// #endregion
+
+// #region Protected
+
+/** 預設空資料，避免 component 端一直判空 */
+const emptyData: SurveySet = { Survey: {}, SurveyItem: [], SurveyItemLang: [] };
+
+/** 建立 SSR initial，讓 hydration 不重抓第一筆資料 */
+const buildInitialData = (
+    p: { loaderData: SurveyFormLoaderData | null; SurveyId: string; fallbackData: SurveySet; },
+): ApiLoaderData<string, SurveySet> | null =>
+{
+    if (!p.loaderData?.args?.SurveyId) return null;
+    if (p.loaderData.args.SurveyId !== p.SurveyId) return null;
+    return { args: p.SurveyId, apiRes: { IsSuccess: true, Data: p.loaderData.res.dataRes ?? p.fallbackData, SysMessage: [] } };
+};
+
+// #endregion

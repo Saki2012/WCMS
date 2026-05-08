@@ -168,6 +168,10 @@ public static partial class ProgKeys
         /// 問卷設計
         /// </summary>
         public const string Survey = nameof(Survey);
+        /// <summary>
+        /// 問卷回覆
+        /// </summary>
+        public const string SurveySubmission = nameof(SurveySubmission);
     }
     /// <summary>
     /// 客製功能模塊

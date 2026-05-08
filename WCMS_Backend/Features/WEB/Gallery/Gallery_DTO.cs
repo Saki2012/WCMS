@@ -126,10 +126,9 @@ namespace WCMS.Features.WEB.Gallery
         /// 標題
         /// </summary>
         [LibDesc(ModelDisplayName.Common_Title)] public string? Title { get; set; }
-
         /// <summary>
-        /// 標題
+        /// 描述
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_Title)] public string? Description { get; set; }
+        [LibDesc(ModelDisplayName.Common_Description)] public string? Description { get; set; }
     }
 }

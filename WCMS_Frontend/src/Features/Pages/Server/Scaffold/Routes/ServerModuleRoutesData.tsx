@@ -32,6 +32,8 @@ import { Server_Material_Form_Comp } from "../../BizFunc/MAT/Material/Server_Mat
 import { Server_Material_List_Comp } from "../../BizFunc/MAT/Material/Server_Material_List_Comp";
 import { Server_Survey_Form_Comp } from "../../BizFunc/WEB/Survey/Server_Survey_Form_Comp";
 import { Server_Survey_List_Comp } from "../../BizFunc/WEB/Survey/Server_Survey_List_Comp";
+import { Server_SurveySubmission_Form_Comp } from "../../BizFunc/WEB/SurveySubmission/Server_SurveySubmission_Form_Comp";
+import { Server_SurveySubmission_List_Comp } from "../../BizFunc/WEB/SurveySubmission/Server_SurveySubmission_List_Comp";
 import { Server_Timeline_Form_Comp } from "../../BizFunc/WEB/Timeline/Server_Timeline_Form_Comp";
 import { Server_Timeline_List_Comp } from "../../BizFunc/WEB/Timeline/Server_Timeline_List_Comp";
 
@@ -60,6 +62,7 @@ export interface IActionMeta
     ActionCode: string;
     Title: string;
     RoutePath: string; // 例: "Form/:internalId?"、"Category/:internalId?"
+    ShowInMenu?: boolean;
     /** ✅ 給 Router 用：由 data 決定要 render 什麼 element */
     elementFactory?: ServerElementFactory;
 }
@@ -318,6 +321,17 @@ const ServerModuleRoutesData: IModuleMeta[] = [
                     Title: "問卷設計維護",
                     RoutePath: "Form/:internalId?",
                     elementFactory: (ctx) => <Server_Survey_Form_Comp theme={ctx.theme} lang={ctx.lang} />,
+                }, {
+                    ActionCode: "SubmitList",
+                    Title: "問卷回覆列表",
+                    RoutePath: "SubmitList",
+                    elementFactory: (ctx) => <Server_SurveySubmission_List_Comp title="問卷回覆列表" theme={ctx.theme} lang={ctx.lang} />,
+                }, {
+                    ActionCode: "SubmitForm",
+                    Title: "問卷回覆表單",
+                    RoutePath: "SubmitForm/:internalId",
+                    ShowInMenu: false,
+                    elementFactory: (ctx) => <Server_SurveySubmission_Form_Comp theme={ctx.theme} lang={ctx.lang} />,
                 }],
             },
         ],

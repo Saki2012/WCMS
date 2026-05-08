@@ -16,6 +16,7 @@ using WCMS.Features.WEB.FileArchive;
 using WCMS.Features.WEB.Gallery;
 using WCMS.Features.WEB.PageManagement;
 using WCMS.Features.WEB.SiteMenuSetting;
+using WCMS.Features.WEB.SurveySubmission;
 using WCMS.Features.WEB.WebResource;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;
@@ -66,9 +67,15 @@ namespace WCMS.SysCore
         {
             if (!DTOHelper.CheckQueryParam<TSet_DTO>(queryCondition)) return BadRequest("查詢參數錯誤");
             AddListTags();
-            var queryResult = await Service.BizQueryListAsync(queryCondition.Fields, queryCondition.Condition, queryCondition.OrderBy, queryCondition.RankGroups, queryCondition.PageNumber, queryCondition.PageSize);
+            SpecSetQueryParam(queryCondition,null);
+            var queryResult = await Service.BizQueryListAsync(queryCondition.Fields, queryCondition.Condition, queryCondition.OrderBy, queryCondition.RankGroups, queryCondition.PageNumber, queryCondition.PageSize, ct);
             List<TSet_DTO> result = [];
-            foreach (var item in queryResult) result.Add(DTOHelper.MapToDTO<TSet, TSet_DTO>(item));
+            foreach (var item in queryResult)
+            {
+                TSet_DTO DTOitem = DTOHelper.MapToDTO<TSet, TSet_DTO>(item);
+                SpecDoMapToDTO(item, DTOitem);
+                result.Add(DTOitem);
+            }
             var response = new ApiResponse<TSet_DTO>() { Data = result, SysMessage = Message.Messages };
             return Ok(response);
         }
@@ -82,6 +89,7 @@ namespace WCMS.SysCore
         {
             if (!DTOHelper.CheckQueryParam<TSet_DTO>(queryCondition)) return BadRequest("查詢參數錯誤");
             AddListTags();
+            SpecSetQueryParam(queryCondition, null);
             var result = await Service.BizQueryTotalCounts(queryCondition.Condition);
             var response = new ApiResponse<int>() { Data = [result], SysMessage = Message.Messages };
             return Ok(response);
@@ -96,6 +104,39 @@ namespace WCMS.SysCore
             var result = await Task.Run(() => ModelDescription);
             var response = new ApiResponse<ModelDisplay<TSet_DTO>.ModelMetadata>() { Data = [result], SysMessage = Message.Messages };
             return Ok(response);
+        }
+        #endregion
+
+        #region Protected
+        /// <summary>
+        /// 轉換查詢條件欄位名稱。
+        /// 用途：DTO 欄位名稱與 Model 欄位名稱不一致時，將前端傳入的 DTO 欄位轉成實際查詢欄位。
+        /// </summary>
+        protected virtual void SpecSetQueryParam(QueryListParam queryCondition, Dictionary<string, string>? newFieldNameDic)
+        {
+            if (newFieldNameDic == null || newFieldNameDic.Count == 0) return;
+            queryCondition.Fields = [.. queryCondition.Fields.Select(p => ReplaceQueryFieldName(p, newFieldNameDic))];
+            queryCondition.Condition = ReplaceQueryFieldName(queryCondition.Condition, newFieldNameDic);
+            queryCondition.OrderBy = queryCondition.OrderBy?.Select(p => p with { Col = ReplaceQueryFieldName(p.Col, newFieldNameDic) }).ToArray();
+            queryCondition.RankGroups = queryCondition.RankGroups?.Select(p => p with
+            {
+                Condition = ReplaceQueryFieldName(p.Condition, newFieldNameDic),
+                OrderBy = p.OrderBy?.Select(o => o with { Col = ReplaceQueryFieldName(o.Col, newFieldNameDic) }).ToArray()
+            }).ToArray();
+        }
+        protected virtual void SpecDoMapToSet(TSet set, TSet_DTO dto) { }
+        protected virtual void SpecDoMapToDTO(TSet set, TSet_DTO dto) { }
+        #endregion
+
+        #region Private
+        /// <summary>
+        /// 將查詢欄位名稱替換成實際 Model 欄位名稱。
+        /// </summary>
+        private static string ReplaceQueryFieldName(string value, IReadOnlyDictionary<string, string> fieldNameMap)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return value;
+            foreach (var item in fieldNameMap) value = value.Replace(item.Key, item.Value, StringComparison.Ordinal);
+            return value;
         }
         #endregion
 
@@ -190,7 +231,6 @@ namespace WCMS.SysCore
                 ?? cad.ControllerTypeInfo.GetCustomAttributes(typeof(LibApiControllerAttribute), true).OfType<LibApiControllerAttribute>().FirstOrDefault();
         }
         #endregion
-       
     }
     /// <summary>
     /// 表單API入口
@@ -335,10 +375,7 @@ namespace WCMS.SysCore
         }
         #endregion
 
-        #region Protected
-        protected virtual void SpecDoMapToSet(TSet set,TSet_DTO dto){}
-        protected virtual void SpecDoMapToDTO(TSet set, TSet_DTO dto) { }
-        #endregion
+
 
         #region Private
 

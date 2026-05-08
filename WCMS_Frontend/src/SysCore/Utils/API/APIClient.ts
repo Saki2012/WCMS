@@ -82,6 +82,7 @@ export class ApiDataService<T> extends ApiBaseService
     {
         return await this.CallApi<T>(() => this.Api.delete<ApiResponse<T>>(`${this.Module}/Invalid`, { data: { internalId, isInvalid } }));
     }
+
     async queryData(internalId: string): Promise<ApiResponse<T>>
     {
         const query = await this.CallApi<T>(() => this.Api.get<ApiResponse<T>>(`${this.Module}/QueryData`, { params: { internalId } }));

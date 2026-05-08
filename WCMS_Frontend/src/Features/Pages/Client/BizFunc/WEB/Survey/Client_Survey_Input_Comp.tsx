@@ -12,7 +12,7 @@ export interface SurveyInputItem
     FieldId?: string | null;
     IsRequired?: boolean | null;
     InputType?: number | string | null;
-    OptionJson?: string | null;
+    Options?: string | null;
 }
 
 export interface SurveyInputLangItem
@@ -114,7 +114,7 @@ const SurveyField_Comp = (props: SurveyFieldProps) =>
     const inputType = normalizeInputType(props.item.InputType);
     const isRequired = props.item.IsRequired === true;
     const label = useMemo(() => getFieldLabel({ item: props.item, itemLangs: props.itemLangs, lang: props.lang }), [props.item, props.itemLangs, props.lang]);
-    const options = useMemo(() => buildOptions(props.item.OptionJson), [props.item.OptionJson]);
+    const options = useMemo(() => buildOptions(props.item.Options), [props.item.Options]);
     const value = props.values[fieldId] ?? "";
     const errorText = props.errorMap[fieldId] ?? "";
     const isInvalid = Boolean(errorText);
@@ -462,19 +462,39 @@ const buildDescribedBy = (ids: Array<string | undefined>): string | undefined =>
 };
 
 /** 建立選項 */
-const buildOptions = (optionJson: string | null | undefined): SurveyInputOption[] =>
+const buildOptions = (optionText: string | null | undefined): SurveyInputOption[] =>
 {
-    const text = toSafeText(optionJson);
+    const text = toSafeText(optionText);
     if (!text) return [];
 
+    if (isJsonOptionText(text)) return normalizeOptions(tryBuildOptionsByJson(text));
+    return normalizeOptions(buildOptionsByLineText(text));
+};
+
+/** 判斷是否可能為 JSON 選項 */
+const isJsonOptionText = (text: string): boolean =>
+{
+    const firstChar = text.trim().slice(0, 1);
+    return firstChar === "[" || firstChar === "{";
+};
+
+/** 嘗試用 JSON 建立選項 */
+const tryBuildOptionsByJson = (text: string): SurveyInputOption[] =>
+{
     try
     {
         const json = JSON.parse(text) as JsonValue;
-        return normalizeOptions(buildOptionsByJson(json));
+        return buildOptionsByJson(json);
     } catch
     {
-        return [];
+        return buildOptionsByLineText(text);
     }
+};
+
+/** 依換行文字建立選項 */
+const buildOptionsByLineText = (optionText: string): SurveyInputOption[] =>
+{
+    return optionText.replaceAll("\t", " ").split(/\r\n|\n|\r/g).map((value) => ({ value, label: value }));
 };
 
 /** 依 JSON 型別建立選項 */
@@ -517,12 +537,26 @@ const toOption = (value: JsonValue, index: number): SurveyInputOption | null =>
 const normalizeOptions = (options: SurveyInputOption[]): SurveyInputOption[] =>
 {
     const used = new Set<string>();
-    return options.filter((option) =>
+
+    return options.reduce<SurveyInputOption[]>((list, option) =>
     {
-        if (!option.value || used.has(option.value)) return false;
-        used.add(option.value);
-        return true;
-    });
+        const value = normalizeOptionValue(option.value);
+        const label = normalizeOptionValue(option.label) || value;
+        const key = value.toLowerCase();
+
+        if (!value || used.has(key)) return list;
+
+        used.add(key);
+        list.push({ value, label });
+
+        return list;
+    }, []);
+};
+
+/** 整理選項文字 */
+const normalizeOptionValue = (value: string): string =>
+{
+    return value.replaceAll("\t", " ").trim();
 };
 
 /** 取得 JSON 文字 */

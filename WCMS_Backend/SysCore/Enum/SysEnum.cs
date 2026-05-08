@@ -47,6 +47,7 @@ namespace WCMS.SysCore.Enum
         [LibDesc, Flags]
         public enum FuncAction : int
         {
+            #region Basic Actions
             [LibDesc(ModelDisplayName.Enum_FuncAction_None)] None = 0,
             /// <summary>
             /// 使用
@@ -76,7 +77,9 @@ namespace WCMS.SysCore.Enum
             /// 作廢
             /// </summary>
             [LibDesc(ModelDisplayName.Enum_FuncAction_Invalid)] Invalid = 64,
-            /////////////////////////////////////////////////////////////////
+            #endregion
+
+            #region Composite Actions
             /// <summary>
             /// 基礎資料權限
             /// </summary>
@@ -88,11 +91,16 @@ namespace WCMS.SysCore.Enum
             /// <summary>
             /// 報表權限
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_FuncAction_Report)] Report = Use|Query|View,
+            [LibDesc(ModelDisplayName.Enum_FuncAction_Report)] Report = Use | Query | View,
+            /// <summary>
+            /// 功能權限
+            /// </summary>
+            [LibDesc(ModelDisplayName.Enum_FuncAction_Report)] Function = Use | Query | View,
             /// <summary>
             /// 全部權限
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_FuncAction_All)] All = Use|Query|View|Create|Update|Delete|Invalid,
+            [LibDesc(ModelDisplayName.Enum_FuncAction_All)] All = Use | Query | View | Create | Update | Delete | Invalid,
+            #endregion
         }
         /// <summary>
         /// 單據狀態
