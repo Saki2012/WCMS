@@ -20,6 +20,10 @@ Alt + Z：下方連結區(Z)
 
 --------------------------------------------------------*/
 /* ----- ****** 以下文字 需放在-- 網站導覽 裡 ****** ----- */
+:root {
+  --for-accesskey-height: 100px;
+}
+
 .accesskey_section{
 	position: relative;
 	width: 15px;
@@ -50,6 +54,7 @@ Alt + Z：下方連結區(Z)
 	width: 15px;
 	height: 18px;
 	padding-bottom: 2.5px;
+	scroll-margin-top: calc(var(--for-accesskey-height, 0px) + 20px);
 }
 
 .accesskey_header:focus,
