@@ -5,7 +5,7 @@ import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/Sy
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { SpecJournalAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/WEB/SpecJournal_Api";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-import { LibDropList, LibFileInput, LibTextBox, LibTinyMCE } from "@/SysCore/Components/FormField/LibFormField";
+import { LibCheckBox, LibDropList, LibFileInput, LibTextBox, LibTinyMCE } from "@/SysCore/Components/FormField/LibFormField";
 import { useSetTableField, useSetTableFileField } from "@/SysCore/Components/FormField/useSetTableField";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
 import { DefaultLang, type Lang, LangLabelMap, SUPPORTED_LANGS } from "@/SysCore/i18n/lang";
@@ -469,7 +469,10 @@ const AuthorComp = (
     const pendingGoFirstRef = useRef<boolean>(false);
     const activeTabKeyRef = useRef<string | null>(null);
     const tabInfoRef = useRef<Record<string, string>>({});
-
+    const specAuthorTypeOptions = useMemo<Record<string, string>>(() =>
+    {
+        return Object.fromEntries(props.specAuthorTypeOptionsRaw.entries());
+    }, [props.specAuthorTypeOptionsRaw]);
     useEffect(() =>
     {
         const handleClick = (e: MouseEvent) =>
@@ -686,11 +689,9 @@ const AuthorComp = (
 
         acc[tabKey] = [
             <div className="col-12 form-group" key="authorType">
-                <LibDropList
-                    Style={props.theme.DropList2}
-                    Options={props.specAuthorTypeOptionsRaw}
-                    ShowPlaceholder={false}
-                    AutoDefaultFirst={true}
+                <LibCheckBox
+                    Style={props.theme.RadioBox}
+                    options={specAuthorTypeOptions}
                     {...setField(SpecJournalSetFields.SpecJournalAuthor, SpecJournalAuthorFields.AuthorType, "number", rowKeys, {
                         defaultValue: defaultAuthorType,
                         defaultWhen: "nullish",
