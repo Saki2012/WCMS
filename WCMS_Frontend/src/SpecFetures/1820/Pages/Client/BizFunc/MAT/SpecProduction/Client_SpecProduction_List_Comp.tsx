@@ -1,6 +1,7 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import type { Module_SpecProduction_OptionsJson } from "@/SpecFetures/1820/Pages/Server/BizFunc/WEB/SiteMenu/SpecModule_Comp";
+import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
@@ -48,7 +49,6 @@ const SpecProductionContent = (props: { lang: Lang; intro?: string; catName?: st
 {
     const [activeTabId, setActiveTabId] = useState<string>("");
     const [isTabVisible, setIsTabVisible] = useState(true);
-
     /// <summary>
     /// 切換 Tab 時先淡出，再更新目前分類。
     /// </summary>
@@ -63,9 +63,7 @@ const SpecProductionContent = (props: { lang: Lang; intro?: string; catName?: st
             window.requestAnimationFrame(() => setIsTabVisible(true));
         }, 160);
     };
-
     const tagList = useMemo<MaterialTag[]>(() => Array.from(props.matDataList.keys()).filter((tag) => Boolean(tag.TagId)), [props.matDataList]);
-
     useEffect(() =>
     {
         setActiveTabId(tagList[0]?.TagId ?? "");
@@ -73,16 +71,14 @@ const SpecProductionContent = (props: { lang: Lang; intro?: string; catName?: st
     }, [tagList]);
 
     const activeTab = useMemo(() => tagList.find((p) => p.TagId === activeTabId), [tagList, activeTabId]);
-
     const activeItems = useMemo<MaterialSet[]>(() =>
     {
         if (!activeTab) return [];
         return props.matDataList.get(activeTab) ?? [];
     }, [props.matDataList, activeTab]);
-
-    const pageContent = useMemo(() => (props.intro ? parse(props.intro) : null), [props.intro]);
+    const parsed = useResolveInternalIds(props.intro ?? "", { locale: props.lang });
+    const pageContent = useMemo(() => (parsed.html ? parse(parsed.html) : null), [props.intro, props.lang]);
     const titleText = `查看${props.catName ?? ""}類型`;
-
     return (
         <>
             <div className="SubDivBox_style + Sub + Layout_Padding_4">{pageContent}</div>
