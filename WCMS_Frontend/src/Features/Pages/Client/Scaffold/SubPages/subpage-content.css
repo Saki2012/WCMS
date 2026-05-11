@@ -299,16 +299,18 @@
 .All_Standard_Content_CSS .pagination .page-link{
 	color: var(--blackcolor);
 	font-size: 93.75%;
-	height: 36.8px;
+	height: 34.8px;
 	border-left: 0px;
 	padding-top: 4px;
 	padding-bottom: 6px;
+	background-color: var(--FFFcolor);
 }
 .All_Standard_Content_CSS .pagination .page-link.go{
 	padding-bottom: 4px;
+	height: 36.8px;
 }
-.All_Standard_Content_CSS .pagination .page-link:hover,
-.All_Standard_Content_CSS .pagination .page-link:focus{
+.All_Standard_Content_CSS .pagination .page-link.go:hover,
+.All_Standard_Content_CSS .pagination .page-link.go:focus{
 	color: var(--FFFcolor);
 	background-color: var(--Customize_color);
 	border-color: var(--Customize_color);
