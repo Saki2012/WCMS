@@ -3,6 +3,7 @@ import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WEB/BannerSlider_A
 import { WebResourceAdapter } from "@/Features/Hooks/BizFunc/WEB/WebResource_Api";
 import { SpecJournalIndexAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/WEB/SpecJournalIndex_Api";
 import type { Lang } from "@/SysCore/i18n/lang";
+import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
@@ -18,6 +19,7 @@ import {
     WebResourceFields,
     WebResourceInfoFields,
 } from "@/types/SchemaFields";
+import { useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router-dom";
 
 type QueryListParam = components["schemas"]["QueryListParam"];
@@ -132,18 +134,14 @@ const setCache = (key: string, data: HomePageLoaderData): void =>
 
 const takeFirstOrNull = <T>(d: T | T[] | null | undefined): T | null =>
 {
-    // return：兼容 queryData / queryList 兩種資料型態
     if (!d) return null;
     return Array.isArray(d) ? d[0] ?? null : d;
 };
 
 const takeTopThenFill = <T>(top: T[], rest: T[], limit: number, getKey: (item: T) => string): T[] =>
 {
-    // 宣告變數
     const seen = new Set<string>();
     const out: T[] = [];
-
-    // 執行 function
     for (const item of top)
     {
         const key = getKey(item);
@@ -153,7 +151,6 @@ const takeTopThenFill = <T>(top: T[], rest: T[], limit: number, getKey: (item: T
             out.push(item);
         }
     }
-
     for (const item of rest)
     {
         if (out.length >= limit) break;
@@ -164,14 +161,10 @@ const takeTopThenFill = <T>(top: T[], rest: T[], limit: number, getKey: (item: T
             out.push(item);
         }
     }
-
-    // return
     return out;
 };
-
 const buildBannerByBannerIdParam = (opt: { bannerId: string; lang?: Lang; }): QueryListParam =>
 {
-    // 宣告變數
     let condition = "";
     condition = LibMerge(" And ", false, condition, `${BannerFields.BannerId} = ${opt.bannerId}`);
 
@@ -185,7 +178,6 @@ const buildBannerByBannerIdParam = (opt: { bannerId: string; lang?: Lang; }): Qu
         );
     }
 
-    // return
     return {
         Fields: [
             BannerFields.InternalId,
@@ -307,9 +299,8 @@ const buildRelatedLinksParam = (opt: { categoryId: string; lang: Lang; }): Query
     };
 };
 
-const buildDefaultArgs = (lang: Lang): HomePageLoaderArgs =>
+const buildHomePageArgs = (lang: Lang): HomePageLoaderArgs =>
 {
-    // 宣告變數
     const nowIsoLocal = formatLocalIsoByMinute(new Date());
 
     const latestIssueBgBannerId = "Banner20260113002";
@@ -331,7 +322,6 @@ const buildDefaultArgs = (lang: Lang): HomePageLoaderArgs =>
     const relatedLinksCategoryId = "Category20260112001";
     const relatedLinksParam = buildRelatedLinksParam({ categoryId: relatedLinksCategoryId, lang });
 
-    // return
     return {
         lang,
         nowIsoLocal,
@@ -351,7 +341,6 @@ const buildDefaultArgs = (lang: Lang): HomePageLoaderArgs =>
         relatedLinksParam,
     };
 };
-
 /**
  * ✅ 1819 首頁 loader
  * - 對標 1816：SSR 一次撈首頁首屏資料
@@ -362,7 +351,7 @@ export const HomePageLoader = (p: { lang: Lang; }) => async ({ request }: Loader
 {
     // 宣告變數
     const ssrApi = getSsrApi(request);
-    const args = buildDefaultArgs(p.lang);
+    const args = buildHomePageArgs(p.lang);
 
     const cacheKey = getCacheKey(args.lang, args.nowIsoLocal);
     const cached = tryGetCache(cacheKey);
@@ -459,4 +448,276 @@ export const HomePageLoader = (p: { lang: Lang; }) => async ({ request }: Loader
 
     // return
     return result;
+};
+
+// 以下Hooks
+
+interface UseHomePageDataProps
+{
+    lang: Lang;
+    loaderData?: HomePageLoaderData | null;
+}
+
+interface UseHomePageDataResult
+{
+    args: HomePageLoaderArgs;
+    rawData: HomePageRawData | null;
+    isLoading: boolean;
+    errorText: string | null;
+}
+
+/** 建立 hook initial 成功回應 */
+const toOkEnv = <T>(data: T): ApiResponse<T> =>
+{
+    return { IsSuccess: true, Data: data, SysMessage: [] };
+};
+
+/** 建立 QueryList initial */
+const toListInitial = <T>(args: QueryListParam, data: T[]): ApiLoaderData<QueryListParam, T[]> =>
+{
+    return { args, apiRes: toOkEnv(data) };
+};
+
+/** 只有 loader 真有回資料時才給 initial，避免空陣列阻止 CSR 補資料 */
+const toInitialByLoader = <T>(hasLoaderRaw: boolean, args: QueryListParam, data: T[]): ApiLoaderData<QueryListParam, T[]> | null =>
+{
+    if (!hasLoaderRaw) return null;
+    return toListInitial(args, data);
+};
+
+/** 單筆 banner 轉 QueryList initial */
+const toBannerList = (data?: BannerSet | null): BannerSet[] =>
+{
+    return data ? [data] : [];
+};
+
+/** 合併錯誤訊息 */
+const joinErrorText = (errors: Array<string | null>): string | null =>
+{
+    const list = errors.filter((x): x is string => Boolean(x));
+    return list.length > 0 ? list.join("；") : null;
+};
+
+/** 1819 首頁 CSR/SSR 共用資料 hook */
+export const useHomePageData = (props: UseHomePageDataProps): UseHomePageDataResult =>
+{
+    const hasLoaderRaw = Boolean(props.loaderData?.res?.rawData);
+    const rawInitial = props.loaderData?.res?.rawData ?? null;
+
+    const args = useMemo(() =>
+    {
+        return props.loaderData?.args ?? buildHomePageArgs(props.lang);
+    }, [props.loaderData?.args, props.lang]);
+
+    const bannerAdapter = useMemo(() => BannerSliderAdapter(), []);
+    const journalIndexAdapter = useMemo(() => SpecJournalIndexAdapter(), []);
+    const announcementAdapter = useMemo(() => AnnouncementAdapter(), []);
+    const webResourceAdapter = useMemo(() => WebResourceAdapter(), []);
+
+    const latestIssueBgParam = useMemo(() =>
+    {
+        return buildBannerByBannerIdParam({ bannerId: args.latestIssueBgBannerId });
+    }, [args.latestIssueBgBannerId]);
+
+    const latestIssueCoverParam = useMemo(() =>
+    {
+        return buildBannerByBannerIdParam({ bannerId: args.latestIssueCoverBannerId });
+    }, [args.latestIssueCoverBannerId]);
+
+    const latestIssueBgInitial = useMemo(() =>
+    {
+        return toInitialByLoader(hasLoaderRaw, latestIssueBgParam, toBannerList(rawInitial?.latestIssueBgBanner));
+    }, [hasLoaderRaw, latestIssueBgParam, rawInitial?.latestIssueBgBanner]);
+
+    const latestIssueCoverInitial = useMemo(() =>
+    {
+        return toInitialByLoader(hasLoaderRaw, latestIssueCoverParam, toBannerList(rawInitial?.latestIssueCoverBanner));
+    }, [hasLoaderRaw, latestIssueCoverParam, rawInitial?.latestIssueCoverBanner]);
+
+    const latestIssuePublishedInitial = useMemo(() =>
+    {
+        return toInitialByLoader(hasLoaderRaw, args.latestIssuePublishedParam, rawInitial?.latestIssuePublishedList ?? []);
+    }, [hasLoaderRaw, args.latestIssuePublishedParam, rawInitial?.latestIssuePublishedList]);
+
+    const latestIssueUnpublishedInitial = useMemo(() =>
+    {
+        return toInitialByLoader(hasLoaderRaw, args.latestIssueUnpublishedParam, rawInitial?.latestIssueUnpublishedList ?? []);
+    }, [hasLoaderRaw, args.latestIssueUnpublishedParam, rawInitial?.latestIssueUnpublishedList]);
+
+    const indexedInitial = useMemo(() =>
+    {
+        return toInitialByLoader(hasLoaderRaw, args.indexedBannerParam, toBannerList(rawInitial?.indexedBanner));
+    }, [hasLoaderRaw, args.indexedBannerParam, rawInitial?.indexedBanner]);
+
+    const newsTopInitial = useMemo(() =>
+    {
+        return toInitialByLoader(hasLoaderRaw, args.newsTopParam, rawInitial?.newsTopList ?? []);
+    }, [hasLoaderRaw, args.newsTopParam, rawInitial?.newsTopList]);
+
+    const newsListInitial = useMemo(() =>
+    {
+        return toInitialByLoader(hasLoaderRaw, args.newsListParam, rawInitial?.newsList ?? []);
+    }, [hasLoaderRaw, args.newsListParam, rawInitial?.newsList]);
+
+    const aboutPublicationInitial = useMemo(() =>
+    {
+        return toInitialByLoader(hasLoaderRaw, args.aboutPublicationParam, toBannerList(rawInitial?.aboutPublicationBanner));
+    }, [hasLoaderRaw, args.aboutPublicationParam, rawInitial?.aboutPublicationBanner]);
+
+    const relatedLinksInitial = useMemo(() =>
+    {
+        return toInitialByLoader(hasLoaderRaw, args.relatedLinksParam, rawInitial?.relatedLinksList ?? []);
+    }, [hasLoaderRaw, args.relatedLinksParam, rawInitial?.relatedLinksList]);
+
+    const latestIssueBgQuery = bannerAdapter.hooks.useQueryList({
+        condition: latestIssueBgParam,
+        initial: latestIssueBgInitial,
+        deps: [latestIssueBgParam.Condition ?? ""],
+    });
+
+    const latestIssueCoverQuery = bannerAdapter.hooks.useQueryList({
+        condition: latestIssueCoverParam,
+        initial: latestIssueCoverInitial,
+        deps: [latestIssueCoverParam.Condition ?? ""],
+    });
+
+    const latestIssuePublishedQuery = journalIndexAdapter.hooks.useQueryList({
+        condition: args.latestIssuePublishedParam,
+        initial: latestIssuePublishedInitial,
+        deps: [args.latestIssuePublishedParam.Condition ?? ""],
+    });
+
+    const latestIssueUnpublishedQuery = journalIndexAdapter.hooks.useQueryList({
+        condition: args.latestIssueUnpublishedParam,
+        initial: latestIssueUnpublishedInitial,
+        deps: [args.latestIssueUnpublishedParam.Condition ?? ""],
+    });
+
+    const indexedQuery = bannerAdapter.hooks.useQueryList({
+        condition: args.indexedBannerParam,
+        initial: indexedInitial,
+        deps: [args.indexedBannerParam.Condition ?? "", props.lang],
+    });
+
+    const newsTopQuery = announcementAdapter.hooks.useQueryList({
+        condition: args.newsTopParam,
+        initial: newsTopInitial,
+        deps: [args.newsTopParam.Condition ?? "", props.lang],
+    });
+
+    const newsListQuery = announcementAdapter.hooks.useQueryList({
+        condition: args.newsListParam,
+        initial: newsListInitial,
+        deps: [args.newsListParam.Condition ?? "", props.lang],
+    });
+
+    const aboutPublicationQuery = bannerAdapter.hooks.useQueryList({
+        condition: args.aboutPublicationParam,
+        initial: aboutPublicationInitial,
+        deps: [args.aboutPublicationParam.Condition ?? "", props.lang],
+    });
+
+    const relatedLinksQuery = webResourceAdapter.hooks.useQueryList({
+        condition: args.relatedLinksParam,
+        initial: relatedLinksInitial,
+        deps: [args.relatedLinksParam.Condition ?? "", props.lang],
+    });
+
+    const hasAnyResponse = useMemo(() =>
+    {
+        return hasLoaderRaw
+            || Boolean(latestIssueBgQuery.apiRes)
+            || Boolean(latestIssueCoverQuery.apiRes)
+            || Boolean(latestIssuePublishedQuery.apiRes)
+            || Boolean(latestIssueUnpublishedQuery.apiRes)
+            || Boolean(indexedQuery.apiRes)
+            || Boolean(newsTopQuery.apiRes)
+            || Boolean(newsListQuery.apiRes)
+            || Boolean(aboutPublicationQuery.apiRes)
+            || Boolean(relatedLinksQuery.apiRes);
+    }, [
+        hasLoaderRaw,
+        latestIssueBgQuery.apiRes,
+        latestIssueCoverQuery.apiRes,
+        latestIssuePublishedQuery.apiRes,
+        latestIssueUnpublishedQuery.apiRes,
+        indexedQuery.apiRes,
+        newsTopQuery.apiRes,
+        newsListQuery.apiRes,
+        aboutPublicationQuery.apiRes,
+        relatedLinksQuery.apiRes,
+    ]);
+
+    const rawData = useMemo<HomePageRawData | null>(() =>
+    {
+        if (!hasAnyResponse) return null;
+
+        const newsTopList = newsTopQuery.data ?? [];
+        const newsList = newsListQuery.data ?? [];
+
+        return {
+            latestIssueBgBanner: takeFirstOrNull<BannerSet>(latestIssueBgQuery.data),
+            latestIssueCoverBanner: takeFirstOrNull<BannerSet>(latestIssueCoverQuery.data),
+            latestIssuePublishedList: latestIssuePublishedQuery.data ?? [],
+            latestIssueUnpublishedList: latestIssueUnpublishedQuery.data ?? [],
+            indexedBanner: takeFirstOrNull<BannerSet>(indexedQuery.data),
+            newsTopList,
+            newsList,
+            newsMergedList: takeTopThenFill(newsTopList, newsList, args.newsTake, item =>
+            {
+                return item.Announcement?.InternalId ?? String(item.Announcement?.AnnouncementId ?? "");
+            }),
+            aboutPublicationBanner: takeFirstOrNull<BannerSet>(aboutPublicationQuery.data),
+            relatedLinksList: relatedLinksQuery.data ?? [],
+        };
+    }, [
+        hasAnyResponse,
+        latestIssueBgQuery.data,
+        latestIssueCoverQuery.data,
+        latestIssuePublishedQuery.data,
+        latestIssueUnpublishedQuery.data,
+        indexedQuery.data,
+        newsTopQuery.data,
+        newsListQuery.data,
+        aboutPublicationQuery.data,
+        relatedLinksQuery.data,
+        args.newsTake,
+    ]);
+
+    const isLoading = latestIssueBgQuery.isLoading
+        || latestIssueCoverQuery.isLoading
+        || latestIssuePublishedQuery.isLoading
+        || latestIssueUnpublishedQuery.isLoading
+        || indexedQuery.isLoading
+        || newsTopQuery.isLoading
+        || newsListQuery.isLoading
+        || aboutPublicationQuery.isLoading
+        || relatedLinksQuery.isLoading;
+
+    const errorText = useMemo(() =>
+    {
+        return joinErrorText([
+            latestIssueBgQuery.errorText,
+            latestIssueCoverQuery.errorText,
+            latestIssuePublishedQuery.errorText,
+            latestIssueUnpublishedQuery.errorText,
+            indexedQuery.errorText,
+            newsTopQuery.errorText,
+            newsListQuery.errorText,
+            aboutPublicationQuery.errorText,
+            relatedLinksQuery.errorText,
+        ]);
+    }, [
+        latestIssueBgQuery.errorText,
+        latestIssueCoverQuery.errorText,
+        latestIssuePublishedQuery.errorText,
+        latestIssueUnpublishedQuery.errorText,
+        indexedQuery.errorText,
+        newsTopQuery.errorText,
+        newsListQuery.errorText,
+        aboutPublicationQuery.errorText,
+        relatedLinksQuery.errorText,
+    ]);
+
+    return { args, rawData, isLoading, errorText };
 };
