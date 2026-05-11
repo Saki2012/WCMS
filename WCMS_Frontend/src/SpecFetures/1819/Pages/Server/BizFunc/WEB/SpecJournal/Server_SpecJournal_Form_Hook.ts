@@ -23,6 +23,7 @@ export type SpecJournalFormRawData = {
     indexRawData: SpecJournalIndexSet[];
     tagOptionsRaw: Record<string, string>;
     specDocumentTypeOptionsRaw: Map<string, string>;
+    specAuthorTypeOptionsRaw: Map<string, string>;
     keywords: SpecJournalSet[];
     actions: ServerFormActions;
 };
@@ -58,14 +59,15 @@ export const useSpecJournalFormFetchData = (
     const indexList = useSpecJournalIndexListByAdapter(adapter.SpecJournalIndex);
     const keywords = useSpecJournalKeywordsByAdapter(adapter.SpecJournal);
     const specDocumentType = useFetchEnumOptions("SpecDocumentType");
+    const specAuthorType = useFetchEnumOptions("SpecAuthorType");
     const isLoading = useMemo<boolean>(() =>
     {
-        return formData.isLoading || tag.isLoading || indexList.isLoading || keywords.isLoading || specDocumentType.isLoading;
-    }, [formData.isLoading, tag.isLoading, indexList.isLoading, keywords.isLoading, specDocumentType.isLoading]);
+        return formData.isLoading || tag.isLoading || indexList.isLoading || keywords.isLoading || specDocumentType.isLoading || specAuthorType.isLoading;
+    }, [formData.isLoading, tag.isLoading, indexList.isLoading, keywords.isLoading, specDocumentType.isLoading, specAuthorType.isLoading]);
     const errorList = useMemo<(string | null | undefined)[]>(() =>
     {
-        return [formData.error, tag.errorText, indexList.error, keywords.error, specDocumentType.error];
-    }, [formData.error, tag.errorText, indexList.error, keywords.error, specDocumentType.error]);
+        return [formData.error, tag.errorText, indexList.error, keywords.error, specDocumentType.error, specAuthorType.error];
+    }, [formData.error, tag.errorText, indexList.error, keywords.error, specDocumentType.error, specAuthorType.error]);
     const errors = useMemo(() => errorList.filter((x): x is string => Boolean(x)), [errorList]);
     const rawData = useMemo<SpecJournalFormRawData>(() =>
     {
@@ -74,10 +76,11 @@ export const useSpecJournalFormFetchData = (
             indexRawData: indexList.rawData ?? [],
             tagOptionsRaw: tag.map ?? {},
             specDocumentTypeOptionsRaw: new Map<string, string>(Object.entries(specDocumentType.data ?? {})),
+            specAuthorTypeOptionsRaw: new Map<string, string>(Object.entries(specAuthorType.data ?? {})),
             keywords: keywords.rawData ?? [],
             actions,
         };
-    }, [formData, indexList.rawData, tag.map, keywords.rawData, actions]);
+    }, [formData, indexList.rawData, tag.map, specDocumentType.data, specAuthorType.data, keywords.rawData, actions]);
     const refetchData = useCallback(async () =>
     {
         await Promise.resolve(formData.refetch());

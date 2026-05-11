@@ -282,4 +282,10 @@
   <data name="Spec_AuthorType" xml:space="preserve">
     <value>作者類型</value>
   </data>
+  <data name="Spec_CommunicateAuthor" xml:space="preserve">
+    <value>通訊作者</value>
+  </data>
+  <data name="Spec_JournalAuthor" xml:space="preserve">
+    <value>期刊作者</value>
+  </data>
 </root>
