@@ -124,23 +124,15 @@ export const Banner_Comp = (props: { lang: Lang; node: INormNode; initialBanner?
                                         const info = pickBannerDetailInfo(d, props.lang);
                                         const title = getInfoTitle(info);
                                         const url = getInfoUrl(info);
-                                        const openBlank = getInfoOpenBlank(info);
                                         const imgUrl = FileManagementAPI.get_Public_Preview_Url(d.PicSrcId);
                                         return (
                                             <div key={`${bannerId}_${d.RowId ?? i}_${i}`} className={`carousel-item ${i === 0 ? "active" : ""} h-100`}>
                                                 {url
                                                     ? (
-                                                        <LangLink
-                                                            to={url}
-                                                            target={openBlank ? "_blank" : undefined}
-                                                            rel={openBlank ? "noopener noreferrer" : undefined}
-                                                            aria-label={title ? `Banner 連結：${title}` : "Banner 連結"}
-                                                            title={title}
-                                                        >
+                                                        <LangLink to={url} title={title}>
                                                             <img
                                                                 src={imgUrl}
                                                                 className="d-block w-100 h-100"
-                                                                alt={title}
                                                                 style={{ width: "100%", height: "100%", objectFit: "cover", minHeight: "200px" }}
                                                             />
                                                         </LangLink>

@@ -146,6 +146,9 @@ export const BannerDetailInfoFields = {
   URL: 'URL',
   URL_Open: 'URL_Open',
   _BannerDetail: '_BannerDetail',
+  SpecLatestShows: 'SpecLatestShows',
+  SpecShowLocation: 'SpecShowLocation',
+  SpecShowDate: 'SpecShowDate',
 } as const;
 
 export type BannerDetailInfoFieldKey = keyof typeof BannerDetailInfoFields;
@@ -215,6 +218,11 @@ export const CalendarDetailFields = {
   ModifyUser: 'ModifyUser',
   ModifyUserId: 'ModifyUserId',
   _Calendar: '_Calendar',
+  Spec_AcademicYear: 'Spec_AcademicYear',
+  Spec_AcademicYearId: 'Spec_AcademicYearId',
+  Spec_OpenTime: 'Spec_OpenTime',
+  Spec_CloseTime: 'Spec_CloseTime',
+  Spec_ModifyMemo: 'Spec_ModifyMemo',
 } as const;
 
 export type CalendarDetailFieldKey = keyof typeof CalendarDetailFields;
@@ -660,6 +668,27 @@ export const MaterialFields = {
 
 export type MaterialFieldKey = keyof typeof MaterialFields;
 
+export const ORCIDDataFields = {
+  ORCID: 'ORCID',
+  AuthorName: 'AuthorName',
+  AuthorName_en: 'AuthorName_en',
+  JobTitle: 'JobTitle',
+  Unit: 'Unit',
+  Unit_en: 'Unit_en',
+  Email: 'Email',
+  Country: 'Country',
+} as const;
+
+export type ORCIDDataFieldKey = keyof typeof ORCIDDataFields;
+
+export const ORCIDDataApiResponseFields = {
+  IsSuccess: 'IsSuccess',
+  SysMessage: 'SysMessage',
+  Data: 'Data',
+} as const;
+
+export type ORCIDDataApiResponseFieldKey = keyof typeof ORCIDDataApiResponseFields;
+
 export const OrderBySpecFields = {
   Col: 'Col',
   Desc: 'Desc',
@@ -776,6 +805,14 @@ export const PersonSet_DTOApiRequestFields = {
 } as const;
 
 export type PersonSet_DTOApiRequestFieldKey = keyof typeof PersonSet_DTOApiRequestFields;
+
+export const PublishReqFields = {
+  InternalId: 'InternalId',
+  JournalIndexId: 'JournalIndexId',
+  JournalIndexRowId: 'JournalIndexRowId',
+} as const;
+
+export type PublishReqFieldKey = keyof typeof PublishReqFields;
 
 export const QueryListParamFields = {
   Fields: 'Fields',
@@ -1129,6 +1166,68 @@ export const SiteViewCountSet_DTOApiResponseFields = {
 
 export type SiteViewCountSet_DTOApiResponseFieldKey = keyof typeof SiteViewCountSet_DTOApiResponseFields;
 
+export const SpecCategoryDetailModelFields = {
+  CategoryId: 'CategoryId',
+  RowId: 'RowId',
+  Lang: 'Lang',
+  CategoryName: 'CategoryName',
+} as const;
+
+export type SpecCategoryDetailModelFieldKey = keyof typeof SpecCategoryDetailModelFields;
+
+export const SpecCategoryModelFields = {
+  CreateTime: 'CreateTime',
+  CreateUserId: 'CreateUserId',
+  CreateUser: 'CreateUser',
+  ModifyTime: 'ModifyTime',
+  ModifyUserId: 'ModifyUserId',
+  ModifyUser: 'ModifyUser',
+  FormStatus: 'FormStatus',
+  DataStatus: 'DataStatus',
+  InvalidTime: 'InvalidTime',
+  InvalidUserId: 'InvalidUserId',
+  InternalId: 'InternalId',
+  OrgLvId: 'OrgLvId',
+  CategoryId: 'CategoryId',
+  ProgId: 'ProgId',
+  ShowColumnItems: 'ShowColumnItems',
+  _SpecCategoryDetail: '_SpecCategoryDetail',
+} as const;
+
+export type SpecCategoryModelFieldKey = keyof typeof SpecCategoryModelFields;
+
+export const SpecCategorySetFields = {
+  SpecCategory: 'SpecCategory',
+  SpecCategoryDetail: 'SpecCategoryDetail',
+} as const;
+
+export type SpecCategorySetFieldKey = keyof typeof SpecCategorySetFields;
+
+export const SpecCategorySet_DTOApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type SpecCategorySet_DTOApiRequestFieldKey = keyof typeof SpecCategorySet_DTOApiRequestFields;
+
+export const SpecCurrentOpenTimeFields = {
+  Date: 'Date',
+  DayOfWeek: 'DayOfWeek',
+  HolidayName: 'HolidayName',
+  Spec_OpenTime: 'Spec_OpenTime',
+  Spec_CloseTime: 'Spec_CloseTime',
+} as const;
+
+export type SpecCurrentOpenTimeFieldKey = keyof typeof SpecCurrentOpenTimeFields;
+
+export const SpecCurrentOpenTime_DTOApiResponseFields = {
+  IsSuccess: 'IsSuccess',
+  SysMessage: 'SysMessage',
+  Data: 'Data',
+} as const;
+
+export type SpecCurrentOpenTime_DTOApiResponseFieldKey = keyof typeof SpecCurrentOpenTime_DTOApiResponseFields;
+
 export const SpecHomePage1820ModelFields = {
   CreateTime: 'CreateTime',
   CreateUserId: 'CreateUserId',
@@ -1268,6 +1367,532 @@ export const SpecHomePageWeather_DTOApiResponseFields = {
 } as const;
 
 export type SpecHomePageWeather_DTOApiResponseFieldKey = keyof typeof SpecHomePageWeather_DTOApiResponseFields;
+
+export const SpecJournalAuthorFields = {
+  RowState: 'RowState',
+  JournalId: 'JournalId',
+  RowId: 'RowId',
+  AuthorType: 'AuthorType',
+  ORCID: 'ORCID',
+  AuthorName: 'AuthorName',
+  AuthorName_en: 'AuthorName_en',
+  JobTitle: 'JobTitle',
+  Unit: 'Unit',
+  Unit_en: 'Unit_en',
+  Email: 'Email',
+  Country: 'Country',
+  _SpecJournal: '_SpecJournal',
+} as const;
+
+export type SpecJournalAuthorFieldKey = keyof typeof SpecJournalAuthorFields;
+
+export const SpecJournalDocumentFields = {
+  RowState: 'RowState',
+  JournalId: 'JournalId',
+  RowId: 'RowId',
+  DocumentType: 'DocumentType',
+  DocumentName: 'DocumentName',
+  Document: 'Document',
+  DocumentId: 'DocumentId',
+  _SpecJournal: '_SpecJournal',
+} as const;
+
+export type SpecJournalDocumentFieldKey = keyof typeof SpecJournalDocumentFields;
+
+export const SpecJournalIndexDetailFields = {
+  RowState: 'RowState',
+  IndexId: 'IndexId',
+  RowId: 'RowId',
+  Volume: 'Volume',
+  Issue: 'Issue',
+  IsSpecial: 'IsSpecial',
+  PublishDate: 'PublishDate',
+  SeasonNo: 'SeasonNo',
+  SummaryFile: 'SummaryFile',
+  SummaryFileId: 'SummaryFileId',
+  SummaryFileName: 'SummaryFileName',
+  _SpecJournalIndex: '_SpecJournalIndex',
+} as const;
+
+export type SpecJournalIndexDetailFieldKey = keyof typeof SpecJournalIndexDetailFields;
+
+export const SpecJournalIndexModelFields = {
+  CreateTime: 'CreateTime',
+  CreateUserId: 'CreateUserId',
+  CreateUser: 'CreateUser',
+  ModifyTime: 'ModifyTime',
+  ModifyUserId: 'ModifyUserId',
+  ModifyUser: 'ModifyUser',
+  FormStatus: 'FormStatus',
+  DataStatus: 'DataStatus',
+  InvalidTime: 'InvalidTime',
+  InvalidUserId: 'InvalidUserId',
+  InternalId: 'InternalId',
+  OrgLvId: 'OrgLvId',
+  IndexId: 'IndexId',
+  IndexName: 'IndexName',
+  _SpecJournalIndexDetail: '_SpecJournalIndexDetail',
+} as const;
+
+export type SpecJournalIndexModelFieldKey = keyof typeof SpecJournalIndexModelFields;
+
+export const SpecJournalIndexSetFields = {
+  SpecJournalIndex: 'SpecJournalIndex',
+  SpecJournalIndexDetail: 'SpecJournalIndexDetail',
+} as const;
+
+export type SpecJournalIndexSetFieldKey = keyof typeof SpecJournalIndexSetFields;
+
+export const SpecJournalIndexSet_DTOApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type SpecJournalIndexSet_DTOApiRequestFieldKey = keyof typeof SpecJournalIndexSet_DTOApiRequestFields;
+
+export const SpecJournalKeywordsFields = {
+  RowState: 'RowState',
+  JournalId: 'JournalId',
+  RowId: 'RowId',
+  LangCode: 'LangCode',
+  Keyword: 'Keyword',
+  _SpecJournal: '_SpecJournal',
+} as const;
+
+export type SpecJournalKeywordsFieldKey = keyof typeof SpecJournalKeywordsFields;
+
+export const SpecJournalModelFields = {
+  CreateTime: 'CreateTime',
+  CreateUserId: 'CreateUserId',
+  CreateUser: 'CreateUser',
+  ModifyTime: 'ModifyTime',
+  ModifyUserId: 'ModifyUserId',
+  ModifyUser: 'ModifyUser',
+  FormStatus: 'FormStatus',
+  DataStatus: 'DataStatus',
+  InvalidTime: 'InvalidTime',
+  InvalidUserId: 'InvalidUserId',
+  InternalId: 'InternalId',
+  OrgLvId: 'OrgLvId',
+  JournalId: 'JournalId',
+  _JournalIndex: '_JournalIndex',
+  JournalIndexId: 'JournalIndexId',
+  _JournalIndexDetail: '_JournalIndexDetail',
+  JournalIndexRowId: 'JournalIndexRowId',
+  Title: 'Title',
+  Title_en: 'Title_en',
+  PageStart: 'PageStart',
+  PageEnd: 'PageEnd',
+  DOIUrl: 'DOIUrl',
+  JournalFile: 'JournalFile',
+  JournalFileId: 'JournalFileId',
+  JournalFileName: 'JournalFileName',
+  InsightPointFile: 'InsightPointFile',
+  InsightPointFileId: 'InsightPointFileId',
+  InsightPointFileName: 'InsightPointFileName',
+  ArticleLang: 'ArticleLang',
+  Memo: 'Memo',
+  Memo_en: 'Memo_en',
+  Bibliography: 'Bibliography',
+  _SpecJournalAuthor: '_SpecJournalAuthor',
+  _SpecJournalRefFormat: '_SpecJournalRefFormat',
+  _SpecJournalOpenPointFiles: '_SpecJournalOpenPointFiles',
+  _SpecJournalRefFiles: '_SpecJournalRefFiles',
+  _SpecJournalDocument: '_SpecJournalDocument',
+  _SpecJournalTypes: '_SpecJournalTypes',
+  _SpecJournalKeywords: '_SpecJournalKeywords',
+} as const;
+
+export type SpecJournalModelFieldKey = keyof typeof SpecJournalModelFields;
+
+export const SpecJournalOpenPointFilesFields = {
+  RowState: 'RowState',
+  JournalId: 'JournalId',
+  RowId: 'RowId',
+  OpenPointFileName: 'OpenPointFileName',
+  OpenPointFile: 'OpenPointFile',
+  OpenPointFileId: 'OpenPointFileId',
+  _SpecJournal: '_SpecJournal',
+} as const;
+
+export type SpecJournalOpenPointFilesFieldKey = keyof typeof SpecJournalOpenPointFilesFields;
+
+export const SpecJournalRefFilesFields = {
+  RowState: 'RowState',
+  JournalId: 'JournalId',
+  RowId: 'RowId',
+  RefFileName: 'RefFileName',
+  RefFile: 'RefFile',
+  RefFileId: 'RefFileId',
+  _SpecJournal: '_SpecJournal',
+} as const;
+
+export type SpecJournalRefFilesFieldKey = keyof typeof SpecJournalRefFilesFields;
+
+export const SpecJournalRefFormatFields = {
+  RowState: 'RowState',
+  JournalId: 'JournalId',
+  RowId: 'RowId',
+  Title: 'Title',
+  Content: 'Content',
+  _SpecJournal: '_SpecJournal',
+} as const;
+
+export type SpecJournalRefFormatFieldKey = keyof typeof SpecJournalRefFormatFields;
+
+export const SpecJournalSetFields = {
+  SpecJournal: 'SpecJournal',
+  SpecJournalAuthor: 'SpecJournalAuthor',
+  SpecJournalRefFormat: 'SpecJournalRefFormat',
+  SpecJournalOpenPointFiles: 'SpecJournalOpenPointFiles',
+  SpecJournalRefFiles: 'SpecJournalRefFiles',
+  SpecJournalDocument: 'SpecJournalDocument',
+  SpecJournalTypes: 'SpecJournalTypes',
+  SpecJournalKeywords: 'SpecJournalKeywords',
+} as const;
+
+export type SpecJournalSetFieldKey = keyof typeof SpecJournalSetFields;
+
+export const SpecJournalSet_DTOApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type SpecJournalSet_DTOApiRequestFieldKey = keyof typeof SpecJournalSet_DTOApiRequestFields;
+
+export const SpecJournalTypesFields = {
+  RowState: 'RowState',
+  JournalId: 'JournalId',
+  RowId: 'RowId',
+  Tag: 'Tag',
+  TagId: 'TagId',
+  _SpecJournal: '_SpecJournal',
+} as const;
+
+export type SpecJournalTypesFieldKey = keyof typeof SpecJournalTypesFields;
+
+export const SpecMusicalModelFields = {
+  CreateTime: 'CreateTime',
+  CreateUserId: 'CreateUserId',
+  CreateUser: 'CreateUser',
+  ModifyTime: 'ModifyTime',
+  ModifyUserId: 'ModifyUserId',
+  ModifyUser: 'ModifyUser',
+  FormStatus: 'FormStatus',
+  DataStatus: 'DataStatus',
+  InvalidTime: 'InvalidTime',
+  InvalidUserId: 'InvalidUserId',
+  InternalId: 'InternalId',
+  OrgLvId: 'OrgLvId',
+  MusicalId: 'MusicalId',
+  MusicalName: 'MusicalName',
+  Category: 'Category',
+  CategoryId: 'CategoryId',
+  CoverPicId: 'CoverPicId',
+  Specification: 'Specification',
+  Headstock: 'Headstock',
+  Backboard: 'Backboard',
+  ScaleLength: 'ScaleLength',
+  Bridge: 'Bridge',
+  BodyForm: 'BodyForm',
+  Material: 'Material',
+  Info: 'Info',
+  _SpecMusicalSoundList: '_SpecMusicalSoundList',
+  _SpecMusicalPictureList: '_SpecMusicalPictureList',
+} as const;
+
+export type SpecMusicalModelFieldKey = keyof typeof SpecMusicalModelFields;
+
+export const SpecMusicalPictureListFields = {
+  RowState: 'RowState',
+  MusicalId: 'MusicalId',
+  RowId: 'RowId',
+  PicSrcId: 'PicSrcId',
+  Sort: 'Sort',
+  Info: 'Info',
+  _SpecMusical: '_SpecMusical',
+} as const;
+
+export type SpecMusicalPictureListFieldKey = keyof typeof SpecMusicalPictureListFields;
+
+export const SpecMusicalSetFields = {
+  SpecMusical: 'SpecMusical',
+  SpecMusicalSoundList: 'SpecMusicalSoundList',
+  SpecMusicalPictureList: 'SpecMusicalPictureList',
+} as const;
+
+export type SpecMusicalSetFieldKey = keyof typeof SpecMusicalSetFields;
+
+export const SpecMusicalSet_DTOApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type SpecMusicalSet_DTOApiRequestFieldKey = keyof typeof SpecMusicalSet_DTOApiRequestFields;
+
+export const SpecMusicalSoundListFields = {
+  RowState: 'RowState',
+  MusicalId: 'MusicalId',
+  RowId: 'RowId',
+  SoundSrc: 'SoundSrc',
+  SoundSrcId: 'SoundSrcId',
+  Info: 'Info',
+  _SpecMusical: '_SpecMusical',
+} as const;
+
+export type SpecMusicalSoundListFieldKey = keyof typeof SpecMusicalSoundListFields;
+
+export const SpecOpenScheduleRuleModelFields = {
+  CreateTime: 'CreateTime',
+  CreateUser: 'CreateUser',
+  CreateUserId: 'CreateUserId',
+  ModifyTime: 'ModifyTime',
+  ModifyUser: 'ModifyUser',
+  ModifyUserId: 'ModifyUserId',
+  FormStatus: 'FormStatus',
+  DataStatus: 'DataStatus',
+  InvalidTime: 'InvalidTime',
+  InvalidUser: 'InvalidUser',
+  InvalidUserId: 'InvalidUserId',
+  InternalId: 'InternalId',
+  OrgLvId: 'OrgLvId',
+  IsIniData: 'IsIniData',
+  Validate_Start: 'Validate_Start',
+  Validate_End: 'Validate_End',
+  AcademicYearId: 'AcademicYearId',
+  AcademicStart: 'AcademicStart',
+  AcademicEnd: 'AcademicEnd',
+  Weekday_OpenTime: 'Weekday_OpenTime',
+  Weekday_CloseTime: 'Weekday_CloseTime',
+  Sat_OpenTime: 'Sat_OpenTime',
+  Sat_CloseTime: 'Sat_CloseTime',
+  Sun_OpenTime: 'Sun_OpenTime',
+  Sun_CloseTime: 'Sun_CloseTime',
+  WinterStart: 'WinterStart',
+  WinterEnd: 'WinterEnd',
+  Winter_Weekday_OpenTime: 'Winter_Weekday_OpenTime',
+  Winter_Weekday_CloseTime: 'Winter_Weekday_CloseTime',
+  Winter_Sat_OpenTime: 'Winter_Sat_OpenTime',
+  Winter_Sat_CloseTime: 'Winter_Sat_CloseTime',
+  Winter_Sun_OpenTime: 'Winter_Sun_OpenTime',
+  Winter_Sun_CloseTime: 'Winter_Sun_CloseTime',
+  SummerStart: 'SummerStart',
+  SummerEnd: 'SummerEnd',
+  Summer_Weekday_OpenTime: 'Summer_Weekday_OpenTime',
+  Summer_Weekday_CloseTime: 'Summer_Weekday_CloseTime',
+  Summer_Sat_OpenTime: 'Summer_Sat_OpenTime',
+  Summer_Sat_CloseTime: 'Summer_Sat_CloseTime',
+  Summer_Sun_OpenTime: 'Summer_Sun_OpenTime',
+  Summer_Sun_CloseTime: 'Summer_Sun_CloseTime',
+  ModifyMemo: 'ModifyMemo',
+} as const;
+
+export type SpecOpenScheduleRuleModelFieldKey = keyof typeof SpecOpenScheduleRuleModelFields;
+
+export const SpecOpenScheduleRuleSetFields = {
+  SpecOpenScheduleRule: 'SpecOpenScheduleRule',
+} as const;
+
+export type SpecOpenScheduleRuleSetFieldKey = keyof typeof SpecOpenScheduleRuleSetFields;
+
+export const SpecOpenScheduleRuleSet_DTOApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type SpecOpenScheduleRuleSet_DTOApiRequestFieldKey = keyof typeof SpecOpenScheduleRuleSet_DTOApiRequestFields;
+
+export const SpecResearchDetailModelFields = {
+  ResearchId: 'ResearchId',
+  RowId: 'RowId',
+  Lang: 'Lang',
+  Year: 'Year',
+  AcademicYear: 'AcademicYear',
+  Semester: 'Semester',
+  DuringExecution: 'DuringExecution',
+  ContractPeriod: 'ContractPeriod',
+  ClassTime: 'ClassTime',
+  ProjectLeader: 'ProjectLeader',
+  Name: 'Name',
+  TeachingStaffOfOurSchool: 'TeachingStaffOfOurSchool',
+  ApprovalNumber: 'ApprovalNumber',
+  ApprovedAmount: 'ApprovedAmount',
+  College: 'College',
+  Department: 'Department',
+  GraduationDegree: 'GraduationDegree',
+  CooperatingUnits: 'CooperatingUnits',
+  CooperationProject: 'CooperationProject',
+  Courses: 'Courses',
+  ProjectName: 'ProjectName',
+  PaperTitle: 'PaperTitle',
+  Remark: 'Remark',
+  Cohost1: 'Cohost1',
+  Cohost2: 'Cohost2',
+  Commissioned: 'Commissioned',
+  PlanAmount: 'PlanAmount',
+  PlanContent: 'PlanContent',
+  Professor: 'Professor',
+} as const;
+
+export type SpecResearchDetailModelFieldKey = keyof typeof SpecResearchDetailModelFields;
+
+export const SpecResearchModelFields = {
+  CreateTime: 'CreateTime',
+  CreateUserId: 'CreateUserId',
+  CreateUser: 'CreateUser',
+  ModifyTime: 'ModifyTime',
+  ModifyUserId: 'ModifyUserId',
+  ModifyUser: 'ModifyUser',
+  FormStatus: 'FormStatus',
+  DataStatus: 'DataStatus',
+  InvalidTime: 'InvalidTime',
+  InvalidUserId: 'InvalidUserId',
+  InternalId: 'InternalId',
+  OrgLvId: 'OrgLvId',
+  ResearchId: 'ResearchId',
+  CategoryId: 'CategoryId',
+  ContentStatus: 'ContentStatus',
+  Tags: 'Tags',
+  _SpecResearchDetail: '_SpecResearchDetail',
+} as const;
+
+export type SpecResearchModelFieldKey = keyof typeof SpecResearchModelFields;
+
+export const SpecResearchSetFields = {
+  SpecResearch: 'SpecResearch',
+  SpecResearchDetail: 'SpecResearchDetail',
+} as const;
+
+export type SpecResearchSetFieldKey = keyof typeof SpecResearchSetFields;
+
+export const SpecResearchSet_DTOApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type SpecResearchSet_DTOApiRequestFieldKey = keyof typeof SpecResearchSet_DTOApiRequestFields;
+
+export const SpecUSRDetailFields = {
+  USRId: 'USRId',
+  RowId: 'RowId',
+  Lang: 'Lang',
+  Year: 'Year',
+  AcademicYear: 'AcademicYear',
+  Courses: 'Courses',
+  PracticeField: 'PracticeField',
+  ProjectName: 'ProjectName',
+  ExternalCooperationUnit: 'ExternalCooperationUnit',
+  Department: 'Department',
+  DuringExecution: 'DuringExecution',
+  PlanAmount: 'PlanAmount',
+  ExecutionStrategy: 'ExecutionStrategy',
+  ContentIntroduction: 'ContentIntroduction',
+  ProjectConcept: 'ProjectConcept',
+  ProjectHighlights: 'ProjectHighlights',
+  ProjectLeader: 'ProjectLeader',
+  ProjectSubLeader: 'ProjectSubLeader',
+  AttendTeam: 'AttendTeam',
+  Cohost1: 'Cohost1',
+  Cohost2: 'Cohost2',
+  Commissioned: 'Commissioned',
+  Remark: 'Remark',
+  ProjectItem: 'ProjectItem',
+  Url: 'Url',
+  UrlDescription: 'UrlDescription',
+} as const;
+
+export type SpecUSRDetailFieldKey = keyof typeof SpecUSRDetailFields;
+
+export const SpecUSRFileFields = {
+  USRId: 'USRId',
+  ParentRowId: 'ParentRowId',
+  RowId: 'RowId',
+  FileSrc: 'FileSrc',
+  FileSrcId: 'FileSrcId',
+  FileName: 'FileName',
+  _SpecUSRDetail: '_SpecUSRDetail',
+} as const;
+
+export type SpecUSRFileFieldKey = keyof typeof SpecUSRFileFields;
+
+export const SpecUSRModelFields = {
+  CreateTime: 'CreateTime',
+  CreateUserId: 'CreateUserId',
+  CreateUser: 'CreateUser',
+  ModifyTime: 'ModifyTime',
+  ModifyUserId: 'ModifyUserId',
+  ModifyUser: 'ModifyUser',
+  FormStatus: 'FormStatus',
+  DataStatus: 'DataStatus',
+  InvalidTime: 'InvalidTime',
+  InvalidUserId: 'InvalidUserId',
+  InternalId: 'InternalId',
+  OrgLvId: 'OrgLvId',
+  USRId: 'USRId',
+  CategoryId: 'CategoryId',
+  ContentStatus: 'ContentStatus',
+  Tags: 'Tags',
+  Picture: 'Picture',
+  PictureId: 'PictureId',
+  PicDescription: 'PicDescription',
+  _SpecUSRDetail: '_SpecUSRDetail',
+  _SpecUSRPhoto: '_SpecUSRPhoto',
+} as const;
+
+export type SpecUSRModelFieldKey = keyof typeof SpecUSRModelFields;
+
+export const SpecUSRPhotoInfoFields = {
+  USRId: 'USRId',
+  ParentRowId: 'ParentRowId',
+  RowId: 'RowId',
+  Lang: 'Lang',
+  Title: 'Title',
+  _SpecUSRPhoto: '_SpecUSRPhoto',
+} as const;
+
+export type SpecUSRPhotoInfoFieldKey = keyof typeof SpecUSRPhotoInfoFields;
+
+export const SpecUSRPhotoFields = {
+  USRId: 'USRId',
+  RowId: 'RowId',
+  PicSrc: 'PicSrc',
+  PicSrcId: 'PicSrcId',
+  Sort: 'Sort',
+  _SpecUSR: '_SpecUSR',
+  _SpecUSRPhotoInfo: '_SpecUSRPhotoInfo',
+} as const;
+
+export type SpecUSRPhotoFieldKey = keyof typeof SpecUSRPhotoFields;
+
+export const SpecUSRSetFields = {
+  SpecUSR: 'SpecUSR',
+  SpecUSRDetail: 'SpecUSRDetail',
+  SpecUSRPhoto: 'SpecUSRPhoto',
+  SpecUSRPhotoInfo: 'SpecUSRPhotoInfo',
+  SpecUSRFile: 'SpecUSRFile',
+  SpecUSRUrl: 'SpecUSRUrl',
+} as const;
+
+export type SpecUSRSetFieldKey = keyof typeof SpecUSRSetFields;
+
+export const SpecUSRSet_DTOApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type SpecUSRSet_DTOApiRequestFieldKey = keyof typeof SpecUSRSet_DTOApiRequestFields;
+
+export const SpecUSRUrlFields = {
+  USRId: 'USRId',
+  ParentRowId: 'ParentRowId',
+  RowId: 'RowId',
+  Url: 'Url',
+  UrlDescription: 'UrlDescription',
+  WindowTarget: 'WindowTarget',
+  _SpecUSRDetail: '_SpecUSRDetail',
+} as const;
+
+export type SpecUSRUrlFieldKey = keyof typeof SpecUSRUrlFields;
 
 export const StringApiResponseFields = {
   IsSuccess: 'IsSuccess',
@@ -1605,7 +2230,14 @@ export const PGID = {
     RolePermission: "RolePermission",
     SiteMenu: "SiteMenu",
     SiteViewCount: "SiteViewCount",
+    SpecCategory: "SpecCategory",
     SpecHomePageApi: "SpecHomePageApi",
+    SpecJournal: "SpecJournal",
+    SpecJournalIndex: "SpecJournalIndex",
+    SpecMusical: "SpecMusical",
+    SpecOpenScheduleRule: "SpecOpenScheduleRule",
+    SpecResearch: "SpecResearch",
+    SpecUSR: "SpecUSR",
     Survey: "Survey",
     SurveySubmission: "SurveySubmission",
     SystemAPI: "SystemAPI",

@@ -381,18 +381,6 @@ export const QuickLinksData = (props: QuickLinksDataProps) =>
                                             </div>
                                         </div>
                                     </div>
-                                    {/* 單一顆按鈕 END */}
-
-                                    {
-                                        /* <div className="customize_btn mr-4 d-none" style={{ bottom: "-40px", position: "absolute", right: "0" }}>
-										<a className="Btn_a" role="button" tabIndex={0} target="_self" title="更多連結" type="button">
-											<div className="BtnBox">
-												<span>更多連結</span>
-												<span className="ml-2">+</span>
-											</div>
-										</a>
-									</div> */
-                                    }
                                 </div>
                             </div>
                         </div>

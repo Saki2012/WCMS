@@ -3,7 +3,7 @@ import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Ro
 import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
 import { isSupportedLang, type Lang } from "@/SysCore/i18n/lang";
-import { LangNavLink } from "@/SysCore/i18n/LangLink";
+import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import clsx from "clsx";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
@@ -337,33 +337,19 @@ const CollapseSubMenu_Comp: React.FC<{ expanded: boolean; children: React.ReactN
 /** 共用：leaf（內/外連結） */
 const renderLeafItem = (item: MenuItemData, active: boolean): React.ReactNode =>
 {
-    const target = item.URL_Open;
     const icon = renderLinkIcon(item.Url);
-
     if (!item.Url)
     {
         return <span className={clsx("list-group-item", active && "active")}>{icon} {item.SrcData}</span>;
     }
-
     if (isExternalUrl(item.Url))
     {
-        return (
-            <a
-                href={item.Url}
-                target={target}
-                rel={target === "_blank" ? "noopener noreferrer" : undefined}
-                className={clsx("list-group-item", active && "active")}
-            >
-                {icon}
-                {item.SrcData}
-            </a>
-        );
+        return <LangLink to={item.Url} className={clsx("list-group-item", active && "active")} title={item.SrcData}>{icon} {item.SrcData}</LangLink>;
     }
-
     return (
         <LangNavLink
             to={item.Url}
-            target={target}
+            title={item.SrcData}
             className={({ isActive }) => clsx("list-group-item", (isActive || active) && "active")}
             aria-current={active ? "page" : undefined}
         >

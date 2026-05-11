@@ -54,7 +54,7 @@ const buildIssueTo = (data?: SpecJournalIndexSet | null): string =>
 /** Summary 檔案下載連結 */
 const buildSummaryDownloadHref = (data?: SpecJournalIndexSet | null): string =>
 {
-    return FileManagementAPI.get_Public_Download_Url(data?.SpecJournalIndexDetail?.[0]?.SummaryFileId, data?.SpecJournalIndexDetail?.[0]?.SummaryFileName);
+    return FileManagementAPI.get_Public_Preview_Url(data?.SpecJournalIndexDetail?.[0]?.SummaryFileId, data?.SpecJournalIndexDetail?.[0]?.SummaryFileName);
 };
 
 /** 只取 yyyy/MM */

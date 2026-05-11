@@ -533,7 +533,7 @@ const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementS
 
                                 return (
                                     <div className="item" key={item.Announcement?.InternalId}>
-                                        <LangLink to={linkUrl} title={title} tabIndex={0}>
+                                        <LangLink to={linkUrl} title={title}>
                                             <article className="cardbox">
                                                 <div className="card_content">
                                                     <figure className="figure_Box">
