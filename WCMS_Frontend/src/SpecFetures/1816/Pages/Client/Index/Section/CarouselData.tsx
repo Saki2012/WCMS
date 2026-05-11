@@ -14,7 +14,7 @@ type BannerDetail = NonNullable<BannerSet["BannerDetail"]>[number];
 type BannerDetailInfo = NonNullable<BannerSet["BannerDetailInfo"]>[number];
 type SlideDirection = "next" | "prev";
 
-interface CarouselDataProps
+export interface CarouselDataProps
 {
     lang: Lang;
     internalId: string;
@@ -28,6 +28,33 @@ interface SlideState
     direction: SlideDirection;
     phase: "prepare" | "animate";
 }
+
+interface CarouselA11yText
+{
+    play: string;
+    pause: string;
+    prev: string;
+    next: string;
+    fallbackLink: string;
+    indicator: (index: number) => string;
+}
+
+const getCarouselA11yText = (lang: Lang): CarouselA11yText =>
+{
+    if (lang === "en")
+    {
+        return {
+            play: "Play carousel",
+            pause: "Pause carousel",
+            prev: "Previous slide",
+            next: "Next slide",
+            fallbackLink: "Carousel link",
+            indicator: (index) => `Go to slide ${index + 1}`,
+        };
+    }
+
+    return { play: "播放輪播", pause: "暫停輪播", prev: "上一張", next: "下一張", fallbackLink: "輪播連結", indicator: (index) => `切換到第 ${index + 1} 張` };
+};
 
 const toOkEnv = <T,>(data: T): ApiResponse<T> =>
 {
@@ -185,6 +212,8 @@ export const CarouselData = (props: CarouselDataProps) =>
     {
         return Math.min(3, sortedDetails.length);
     }, [sortedDetails.length]);
+
+    const a11yText = useMemo(() => getCarouselA11yText(props.lang), [props.lang]);
 
     // 宣告變數：當前索引 / 暫停狀態 / 動畫狀態
     const [activeIndex, setActiveIndex] = useState<number>(0);
@@ -365,6 +394,102 @@ export const CarouselData = (props: CarouselDataProps) =>
                             id="B5_default_carousel"
                             style={{ ["--bs-carousel-transition-duration" as never]: `${bannerSetting.speed}ms` }}
                         >
+                            <div className="control-singlebox">
+                                <div className="control-toggle">
+                                    <a
+                                        aria-label={isPaused ? a11yText.play : a11yText.pause}
+                                        aria-pressed={isPaused ? "true" : "false"}
+                                        className="carousel-toggle-btn"
+                                        id="toggleCarousel"
+                                        role="button"
+                                        tabIndex={0}
+                                        title={isPaused ? a11yText.play : a11yText.pause}
+                                        type="button"
+                                        onClick={(event) =>
+                                        {
+                                            preventDefaultClick(event, handleToggle);
+                                        }}
+                                        onKeyDown={(event) =>
+                                        {
+                                            handleActionKeyDown(event, handleToggle);
+                                        }}
+                                    >
+                                        <span className={clsx("control-icon", isPaused ? "play" : "pause")} />
+                                        <span className="sr-only">{isPaused ? a11yText.play : a11yText.pause}</span>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div className="carousel_btn-icon-prev">
+                                <a
+                                    aria-label={a11yText.prev}
+                                    role="button"
+                                    tabIndex={0}
+                                    title={a11yText.prev}
+                                    type="button"
+                                    onClick={(event) =>
+                                    {
+                                        preventDefaultClick(event, handlePrev);
+                                    }}
+                                    onKeyDown={(event) =>
+                                    {
+                                        handleActionKeyDown(event, handlePrev);
+                                    }}
+                                >
+                                    <div className="carousel-control-prev">
+                                        <span aria-hidden="true" className="carousel-control-prev-icon" />
+                                        <span className="sr-only">{a11yText.prev}</span>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div className="carousel_btn-icon-next">
+                                <a
+                                    aria-label={a11yText.next}
+                                    role="button"
+                                    tabIndex={0}
+                                    title={a11yText.next}
+                                    type="button"
+                                    onClick={(event) =>
+                                    {
+                                        preventDefaultClick(event, handleNext);
+                                    }}
+                                    onKeyDown={(event) =>
+                                    {
+                                        handleActionKeyDown(event, handleNext);
+                                    }}
+                                >
+                                    <div className="carousel-control-next">
+                                        <span aria-hidden="true" className="carousel-control-next-icon" />
+                                        <span className="sr-only">{a11yText.next}</span>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div className="carousel-indicators">
+                                {Array.from({ length: indicatorCount }).map((_, i) =>
+                                {
+                                    const isCurrent = i === activeIndicatorIndex;
+                                    return (
+                                        <button
+                                            key={i}
+                                            aria-current={isCurrent ? "true" : undefined}
+                                            aria-label={a11yText.indicator(i)}
+                                            className={clsx(isCurrent ? "active" : "")}
+                                            title={a11yText.indicator(i)}
+                                            type="button"
+                                            onClick={(event) =>
+                                            {
+                                                preventDefaultClick(event, () =>
+                                                {
+                                                    handleIndicator(i);
+                                                });
+                                            }}
+                                        />
+                                    );
+                                })}
+                            </div>
+
                             <div className="carousel-inner">
                                 {sortedDetails.map((p, i) =>
                                 {
@@ -387,7 +512,7 @@ export const CarouselData = (props: CarouselDataProps) =>
                                                         to={url}
                                                         target={tar}
                                                         rel={tar === "_blank" ? "noopener noreferrer" : undefined}
-                                                        aria-label={alt || "banner link"}
+                                                        aria-label={alt || a11yText.fallbackLink}
                                                         tabIndex={isActive ? 0 : -1}
                                                     >
                                                         <img src={imgUrl} className="d-block w-100" alt={alt} />
@@ -397,111 +522,6 @@ export const CarouselData = (props: CarouselDataProps) =>
                                         </div>
                                     );
                                 })}
-                            </div>
-
-                            <div className="control-singlebox">
-                                <div className="control-toggle">
-                                    <a
-                                        aria-label={isPaused ? "播放" : "暫停"}
-                                        aria-pressed={isPaused ? "true" : "false"}
-                                        className="carousel-toggle-btn"
-                                        id="toggleCarousel"
-                                        role="button"
-                                        tabIndex={0}
-                                        title={isPaused ? "播放" : "暫停"}
-                                        type="button"
-                                        onClick={(event) =>
-                                        {
-                                            preventDefaultClick(event, handleToggle);
-                                        }}
-                                        onKeyDown={(event) =>
-                                        {
-                                            handleActionKeyDown(event, handleToggle);
-                                        }}
-                                    >
-                                        <span className={clsx("control-icon", isPaused ? "play" : "pause")} />
-                                        <span className="sr-only">{isPaused ? "播放" : "暫停"}</span>
-                                    </a>
-                                </div>
-                            </div>
-
-                            <div className="carousel-indicators">
-                                {Array.from({ length: indicatorCount }).map((_, i) =>
-                                {
-                                    const isCurrent = i === activeIndicatorIndex;
-                                    return (
-                                        <a
-                                            key={i}
-                                            tabIndex={0}
-                                            title="上一張"
-                                            onClick={(event) =>
-                                            {
-                                                preventDefaultClick(event, () =>
-                                                {
-                                                    handleIndicator(i);
-                                                });
-                                            }}
-                                            onKeyDown={(event) =>
-                                            {
-                                                handleActionKeyDown(event, () =>
-                                                {
-                                                    handleIndicator(i);
-                                                });
-                                            }}
-                                        >
-                                            <button
-                                                aria-current={isCurrent ? "true" : undefined}
-                                                aria-label={`Slide ${i + 1}`}
-                                                className={clsx(isCurrent ? "active" : "")}
-                                                type="button"
-                                            />
-                                        </a>
-                                    );
-                                })}
-                            </div>
-
-                            <div className="carousel_btn-icon-prev">
-                                <a
-                                    role="button"
-                                    tabIndex={0}
-                                    title="上一張"
-                                    type="button"
-                                    onClick={(event) =>
-                                    {
-                                        preventDefaultClick(event, handlePrev);
-                                    }}
-                                    onKeyDown={(event) =>
-                                    {
-                                        handleActionKeyDown(event, handlePrev);
-                                    }}
-                                >
-                                    <div className="carousel-control-prev">
-                                        <span aria-hidden="true" className="carousel-control-prev-icon" />
-                                        <span className="sr-only">Previous</span>
-                                    </div>
-                                </a>
-                            </div>
-
-                            <div className="carousel_btn-icon-next">
-                                <a
-                                    role="button"
-                                    tabIndex={0}
-                                    title="下一張"
-                                    type="button"
-                                    onClick={(event) =>
-                                    {
-                                        preventDefaultClick(event, handleNext);
-                                    }}
-                                    onKeyDown={(event) =>
-                                    {
-                                        handleActionKeyDown(event, handleNext);
-                                    }}
-                                >
-                                    <div className="carousel-control-next">
-                                        <span aria-hidden="true" className="carousel-control-next-icon" />
-                                        <span className="sr-only">Next</span>
-                                    </div>
-                                </a>
                             </div>
                         </div>
                     </div>

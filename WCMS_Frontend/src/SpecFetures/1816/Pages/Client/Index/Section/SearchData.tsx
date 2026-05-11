@@ -1,5 +1,6 @@
 import searchBg from "@/SpecFetures/1816/Assets/Client/images/bg/search_bg.jpg";
 import type { Lang } from "@/SysCore/i18n/lang";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 import type React from "react";
 import { useCallback, useId, useMemo, useRef } from "react";
 
@@ -23,7 +24,7 @@ export const SearchData = (props: { lang: Lang; }) =>
                 btn1: "Integrated Search",
                 btn2: "Database List",
                 btn3: "E-Journal List",
-                btn1Title: "Integrated Library Search",
+                btn1Title: "Integrated Library Search (opens in new window)",
                 btn2Title: "Database List",
                 btn3Title: "E-Journal List",
                 databaseLink: "https://sites.google.com/view/tnualib-en/e-resources/database-list",
@@ -37,7 +38,7 @@ export const SearchData = (props: { lang: Lang; }) =>
             btn1: "館藏整合搜尋",
             btn2: "資料庫列表",
             btn3: "電子期刊列表",
-            btn1Title: "館藏整合搜尋",
+            btn1Title: "館藏整合搜尋 (另開視窗)",
             btn2Title: "資料庫列表",
             btn3Title: "電子期刊列表",
             databaseLink: "https://sites.google.com/view/tnualib/%E9%9B%BB%E5%AD%90%E8%B3%87%E6%BA%90/%E8%B3%87%E6%96%99%E5%BA%AB%E5%88%97%E8%A1%A8",
@@ -59,9 +60,8 @@ export const SearchData = (props: { lang: Lang; }) =>
         // ✅ 若未來要加 facet，可在這裡組
         const facets = "";
         const url = urlBase.replace("#T#", encodeURIComponent(query)).replace("#F#", facets);
-
-        // ✅ 固定新開視窗
-        window.open(url, "_blank");
+        const openedWindow = window.open(url, "_blank", "noopener,noreferrer");
+        openedWindow?.focus();
     }, []);
 
     return (
@@ -91,48 +91,30 @@ export const SearchData = (props: { lang: Lang; }) =>
                                                     />
                                                 </div>
 
-                                                <a
-                                                    className="Search_btn btn s-c"
-                                                    href="#"
-                                                    onClick={handleSearch}
-                                                    tabIndex={0}
-                                                    title={uiText.btn1Title}
-                                                    type="button"
-                                                >
+                                                <LangLink className="Search_btn btn s-c" to="#" onClick={handleSearch} title={uiText.btn1Title} type="button">
                                                     {uiText.btn1}
                                                     <span className="fas fa-search ms-2" />
-                                                </a>
+                                                </LangLink>
                                             </div>
                                         </div>
 
                                         <div className="col-lg-auto mt-xl-0 mt-lg-0 mt-md-2 mt-sm-2 mt-2">
-                                            <a
-                                                className="Search_btn btn"
-                                                href={uiText.databaseLink}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                tabIndex={0}
-                                                title={uiText.btn2Title}
-                                                type="button"
-                                            >
+                                            <LangLink className="Search_btn btn" to={uiText.databaseLink} title={uiText.btn2Title} type="button">
                                                 {uiText.btn2}
                                                 <span className="fas fa-search ms-2" />
-                                            </a>
+                                            </LangLink>
                                         </div>
 
                                         <div className="col-lg-auto mt-xl-0 mt-lg-0 mt-md-2 mt-sm-2 mt-2">
-                                            <a
+                                            <LangLink
                                                 className="Search_btn btn"
-                                                href="https://tnua.on.worldcat.org/atoztitles/browse/journals"
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                tabIndex={0}
+                                                to="https://tnua.on.worldcat.org/atoztitles/browse/journals"
                                                 title={uiText.btn3Title}
                                                 type="button"
                                             >
                                                 {uiText.btn3}
                                                 <span className="fas fa-search ms-2" />
-                                            </a>
+                                            </LangLink>
                                         </div>
                                     </div>
                                 </div>

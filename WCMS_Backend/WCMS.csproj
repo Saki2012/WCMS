@@ -40,11 +40,6 @@
 		<!-- 不要自動產生 / 轉換 web.config，避免發布時又長出一份預設檔 -->
 		<IsTransformWebConfigDisabled>true</IsTransformWebConfigDisabled>
 	</PropertyGroup>
-	<ItemGroup Condition="'$(UseSpecCodeCompile)' == 'true' and '$(SpecCode)' != '' and '$(HasCurrentSpecFeatureDir)' == 'true'">
-		<!-- 只有目前 SpecFeature 資料夾存在時，才加回該 Spec 的 C# 與 Resx -->
-		<Compile Include="SpecFeatures\$(SpecCode)\**\*.cs" />
-		<EmbeddedResource Include="SpecFeatures\$(SpecCode)\**\*.resx" />
-	</ItemGroup>
 	<ItemGroup>
 		<Compile Remove="SysCore\AccountLogin.cs" />
 		<Compile Remove="SysCore\Library\RecComparison.cs" />

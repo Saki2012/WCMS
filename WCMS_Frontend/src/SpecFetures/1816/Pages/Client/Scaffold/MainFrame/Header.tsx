@@ -11,10 +11,16 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import clsx from "clsx";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { SearchData } from "../../Index/Section/SearchData";
 
 const MOBILE_BREAKPOINT = 991.98;
 const SHADOW_SCROLL_TOP = 180;
+
+const isKeyboardActivateKey = (event: React.KeyboardEvent): boolean =>
+{
+    return event.key === "Enter" || event.key === " " || event.key === "Spacebar" || event.code === "Space";
+};
 
 const Header = (props: HeaderProps) =>
 {
@@ -22,6 +28,7 @@ const Header = (props: HeaderProps) =>
     const headerRef = useRef<HTMLDivElement | null>(null);
     const [isMobileView, setIsMobileView] = useState<boolean>(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
+    const location = useLocation();
 
     const closeMobileMenu = useCallback((): void =>
     {
@@ -40,6 +47,8 @@ const Header = (props: HeaderProps) =>
     useBodyScrollLock(isMobileMenuOpen);
     useCloseOnOutside(headerRef, isMobileMenuOpen, closeMobileMenu);
     useCloseOnEscape(isMobileMenuOpen, closeMobileMenu);
+    useCloseOnRouteChange(location.pathname, location.search, location.hash, closeMobileMenu);
+    useCloseOnFocusLeave(headerRef, isMobileMenuOpen, closeMobileMenu);
 
     return (
         <>
@@ -163,24 +172,60 @@ const useCloseOnOutside = (headerRef: React.RefObject<HTMLDivElement | null>, is
     }, [closeMobileMenu, headerRef, isMobileMenuOpen]);
 };
 
-const useCloseOnEscape = (isMobileMenuOpen: boolean, closeMobileMenu: () => void) =>
+const useCloseOnEscape = (isEnabled: boolean, close: () => void) =>
 {
     useEffect(() =>
     {
-        // 執行 function：按 Esc 時關閉手機 menu
+        // 執行 function：按 Esc 時關閉目前展開的選單
         if (typeof document === "undefined") return;
-        if (!isMobileMenuOpen) return;
+        if (!isEnabled) return;
 
         const onKeyDown = (event: KeyboardEvent) =>
         {
             if (event.key !== "Escape") return;
-            closeMobileMenu();
+            close();
         };
 
-        document.addEventListener("keydown", onKeyDown);
+        document.addEventListener("keydown", onKeyDown, true);
 
-        return () => document.removeEventListener("keydown", onKeyDown);
-    }, [closeMobileMenu, isMobileMenuOpen]);
+        return () => document.removeEventListener("keydown", onKeyDown, true);
+    }, [close, isEnabled]);
+};
+
+const useCloseOnRouteChange = (pathname: string, search: string, hash: string, close: () => void) =>
+{
+    useEffect(() =>
+    {
+        // 執行 function：SPA 路由變更後收合選單，避免 Hydration 後狀態殘留
+        close();
+    }, [close, pathname, search, hash]);
+};
+
+const useCloseOnFocusLeave = <T extends HTMLElement>(rootRef: React.RefObject<T | null>, isEnabled: boolean, close: () => void) =>
+{
+    useEffect(() =>
+    {
+        // 執行 function：鍵盤焦點離開指定區塊後收合選單
+        if (typeof document === "undefined" || typeof window === "undefined") return;
+        if (!isEnabled) return;
+
+        const root = rootRef.current;
+        if (!root) return;
+
+        const onFocusOut = () =>
+        {
+            window.setTimeout(() =>
+            {
+                const active = document.activeElement;
+                if (!active || root.contains(active)) return;
+                close();
+            }, 0);
+        };
+
+        root.addEventListener("focusout", onFocusOut);
+
+        return () => root.removeEventListener("focusout", onFocusOut);
+    }, [close, isEnabled, rootRef]);
 };
 
 /* =========================
@@ -209,7 +254,7 @@ const MobileToggler = (props: { isMobileMenuOpen: boolean; toggleMobileMenu: () 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) =>
     {
         // 執行 function：支援 Enter / Space 切換手機版主選單
-        if (event.key !== "Enter" && event.key !== " ") return;
+        if (!isKeyboardActivateKey(event)) return;
         event.preventDefault();
         props.toggleMobileMenu();
     };
@@ -339,17 +384,20 @@ const SiteMapLink = (props: { lang: Lang; }) =>
 
 const SizeChange = () =>
 {
-    // 宣告變數：group ref（只管 active 狀態）
-    const sizeGroupRef = useRef<HTMLUListElement | null>(null);
+    // 宣告變數：目前字級狀態
+    const [activePercent, setActivePercent] = useState<number>(100);
 
     const doZoom = useCallback((percent: number) =>
     {
         // 執行 function：切換字級並保存
+        if (typeof document === "undefined") return;
+
         const custom = document.getElementById("Customsize");
 
         if (custom) custom.style.fontSize = `${percent}%`;
         else document.documentElement.style.fontSize = `${percent}%`;
 
+        setActivePercent(percent);
         localStorage.setItem("font-zoom", String(percent));
 
         const menuSection = document.querySelector<HTMLElement>(".menu_section");
@@ -365,39 +413,41 @@ const SizeChange = () =>
         doZoom(percent);
     }, [doZoom]);
 
-    useEffect(() =>
+    const handleZoomKeyDown = useCallback((event: React.KeyboardEvent<HTMLAnchorElement>, percent: number) =>
     {
-        // 執行 function：初始化讀取字級
-        const saved = Number(localStorage.getItem("font-zoom") ?? "");
-        if (!Number.isNaN(saved) && saved > 0) doZoom(saved);
+        // 執行 function：支援 Enter / Space 切換字級
+        if (!isKeyboardActivateKey(event)) return;
+        event.preventDefault();
+        doZoom(percent);
     }, [doZoom]);
 
     useEffect(() =>
     {
-        // 執行 function：控制字級按鈕 active 樣式
-        const root = sizeGroupRef.current;
-        if (!root) return;
+        // 執行 function：初始化讀取字級
+        if (typeof window === "undefined") return;
 
-        const onClick = (ev: MouseEvent) =>
-        {
-            const target = (ev.target as Element).closest(".A-LMS") as HTMLElement | null;
-            if (!target || !root.contains(target)) return;
-
-            root.querySelectorAll<HTMLElement>(".A-LMS").forEach((btn) => btn.classList.remove("active"));
-            target.classList.add("active");
-        };
-
-        root.addEventListener("click", onClick);
-        return () => root.removeEventListener("click", onClick);
-    }, []);
+        const saved = Number(localStorage.getItem("font-zoom") ?? "");
+        if (!Number.isNaN(saved) && saved > 0) doZoom(saved);
+    }, [doZoom]);
 
     return (
         <li>
-            <ul className="nav custom_nav py-0 justify-content-center align-items-center" ref={sizeGroupRef}>
+            <ul className="nav custom_nav py-0 justify-content-center align-items-center">
                 <li>
                     <div className="icons">
                         <div className="All_icon_box mx-1">
-                            <a className="A-LMS" href="#" onClick={(event) => handleZoomClick(event, 112.5)} role="button" title="字型-大" data-size="112.5%">
+                            <a
+                                className={clsx("A-LMS", activePercent === 112.5 && "active")}
+                                href="#"
+                                onClick={(event) => handleZoomClick(event, 112.5)}
+                                onKeyDown={(event) => handleZoomKeyDown(event, 112.5)}
+                                role="button"
+                                title="字型-大"
+                                aria-label="字型-大"
+                                aria-pressed={activePercent === 112.5}
+                                aria-selected={activePercent === 112.5}
+                                data-size="112.5%"
+                            >
                                 <div className="LMS-text" style={{ fontSize: "medium" }}>A+</div>
                             </a>
                         </div>
@@ -408,11 +458,15 @@ const SizeChange = () =>
                     <div className="icons">
                         <div className="All_icon_box mx-1">
                             <a
-                                className="A-LMS active"
+                                className={clsx("A-LMS", activePercent === 100 && "active")}
                                 href="#"
                                 onClick={(event) => handleZoomClick(event, 100)}
+                                onKeyDown={(event) => handleZoomKeyDown(event, 100)}
                                 role="button"
                                 title="字型-中"
+                                aria-label="字型-中"
+                                aria-pressed={activePercent === 100}
+                                aria-selected={activePercent === 100}
                                 data-size="100%"
                             >
                                 <div className="LMS-text" style={{ fontSize: "medium" }}>A</div>
@@ -424,7 +478,18 @@ const SizeChange = () =>
                 <li>
                     <div className="icons">
                         <div className="All_icon_box mx-1">
-                            <a className="A-LMS" href="#" onClick={(event) => handleZoomClick(event, 87.5)} role="button" title="字型-小" data-size="87.5%">
+                            <a
+                                className={clsx("A-LMS", activePercent === 87.5 && "active")}
+                                href="#"
+                                onClick={(event) => handleZoomClick(event, 87.5)}
+                                onKeyDown={(event) => handleZoomKeyDown(event, 87.5)}
+                                role="button"
+                                title="字型-小"
+                                aria-label="字型-小"
+                                aria-pressed={activePercent === 87.5}
+                                aria-selected={activePercent === 87.5}
+                                data-size="87.5%"
+                            >
                                 <div className="LMS-text" style={{ fontSize: "medium" }}>A-</div>
                             </a>
                         </div>
@@ -454,6 +519,13 @@ const MainMenu = (
     // 宣告變數
     const [openId, setOpenId] = useState<string | null>(null);
     const menuItems = useMemo(() => GetMenuData(props.lang, props.site), [props.lang, props.site]);
+    const location = useLocation();
+
+    const closeMegaMenu = useCallback((): void =>
+    {
+        // 執行 function：關閉桌機版 mega menu
+        setOpenId(null);
+    }, []);
 
     const toggleOpen = useCallback((id: string) =>
     {
@@ -464,10 +536,10 @@ const MainMenu = (
     const handleLeafClick = useCallback(() =>
     {
         // 執行 function：點擊葉節點後收合全部
-        setOpenId(null);
+        closeMegaMenu();
         if (!props.isMobileView) return;
         props.closeMobileMenu();
-    }, [props.closeMobileMenu, props.isMobileView]);
+    }, [closeMegaMenu, props.closeMobileMenu, props.isMobileView]);
 
     useEffect(() =>
     {
@@ -483,6 +555,10 @@ const MainMenu = (
         setOpenId(null);
     }, [props.isMobileView]);
 
+    useCloseOnRouteChange(location.pathname, location.search, location.hash, closeMegaMenu);
+    useCloseOnFocusLeave(props.menuRootRef, openId !== null, closeMegaMenu);
+    useCloseOnEscape(openId !== null, closeMegaMenu);
+
     useEffect(() =>
     {
         // 執行 function：點 menu 外部時收合第一層選單
@@ -497,13 +573,13 @@ const MainMenu = (
             const target = event.target as Node | null;
             if (!target) return;
             if (root.contains(target)) return;
-            setOpenId(null);
+            closeMegaMenu();
         };
 
         document.addEventListener("pointerdown", onPointerDown, true);
 
         return () => document.removeEventListener("pointerdown", onPointerDown, true);
-    }, [openId, props.menuRootRef]);
+    }, [closeMegaMenu, openId, props.menuRootRef]);
 
     return (
         <>
@@ -532,16 +608,22 @@ const MainMenu = (
 
 const SingleMenuItem = (props: { menuItem: MenuItemData; onLeafClick: () => void; }) =>
 {
+    const handleLeafKeyDown = (event: React.KeyboardEvent<HTMLAnchorElement>) =>
+    {
+        if (!isKeyboardActivateKey(event)) return;
+
+        event.preventDefault();
+        event.currentTarget.click();
+    };
     return (
         <li className="nav-item">
             <LangNavLink
                 className="nav-link"
-                aria-current="page"
                 to={props.menuItem.Url || "#"}
-                role="button"
                 title={props.menuItem.SrcData}
                 aria-label={props.menuItem.SrcData}
                 onClick={props.onLeafClick}
+                onKeyDown={handleLeafKeyDown}
             >
                 {/^https?:\/\//i.test(props.menuItem.Url || "") && <i className="fad fa-link me-2"></i>}
                 {props.menuItem.SrcData}
@@ -574,9 +656,17 @@ const MegaMenuItem = (props: IMegaMenuItemProps) =>
     const handleToggleKeyDown = (event: React.KeyboardEvent<HTMLAnchorElement>) =>
     {
         // 執行 function：支援 Enter / Space 切換 mega menu
-        if (event.key !== "Enter" && event.key !== " ") return;
+        if (!isKeyboardActivateKey(event)) return;
         event.preventDefault();
         props.onToggle(id);
+    };
+
+    const handleLeafKeyDown = (event: React.KeyboardEvent<HTMLAnchorElement>) =>
+    {
+        // 執行 function：支援 Header 選單連結以 Space 進入頁面
+        if (!isKeyboardActivateKey(event)) return;
+        event.preventDefault();
+        event.currentTarget.click();
     };
 
     return (
@@ -587,6 +677,8 @@ const MegaMenuItem = (props: IMegaMenuItemProps) =>
                 role="button"
                 aria-expanded={props.isOpen}
                 aria-controls={`menu-${id}`}
+                title={props.menuItem.SrcData}
+                aria-label={props.menuItem.SrcData}
                 onClick={handleToggleClick}
                 onKeyDown={handleToggleKeyDown}
             >
@@ -613,6 +705,7 @@ const MegaMenuItem = (props: IMegaMenuItemProps) =>
                                                     to={link.Url || "#"}
                                                     target={link.URL_Open}
                                                     onClick={props.onLeafClick}
+                                                    onKeyDown={handleLeafKeyDown}
                                                     end
                                                 >
                                                     {isExternal && <i className="fad fa-link me-2"></i>}
