@@ -613,7 +613,7 @@ export const NewPaginatorCanInputPage = (props: PaginatorProps) =>
                                 </div>
                                 <div>
                                     {/* 總頁數 */}
-                                    <span className="page-link border-0 bg-transparent text-dark ps-0 d-flex align-items-center">
+                                    <span className="page-link border-0 text-dark ps-0 d-flex align-items-center">
                                         {a11y.total(props.totalPages)}
                                     </span>
                                 </div>

@@ -1112,17 +1112,19 @@ a:hover .btn.Itrash {
 .Form-Main-Content .pagination .page-link{
 	color: var(--blackcolor);
 	font-size: 93.75%;
-	height: 36.8px;
+	height: 34.8px;
 	border-left: 0px;
 	padding-top: 4px;
 	padding-bottom: 6px;
-cursor: pointer;
+    cursor: pointer;
+    background-color: var(--FFFcolor);
 }
 .Form-Main-Content .pagination .page-link.go{
 	padding-bottom: 4px;
+    height: 36.8px;
 }
-.Form-Main-Content .pagination .page-link:hover,
-.Form-Main-Content .pagination .page-link:focus{
+.Form-Main-Content .pagination .page-link.go:hover,
+.Form-Main-Content .pagination .page-link.go:focus{
 	color: var(--FFFcolor);
 	background-color: var(--Customize_color);
 	border-color: var(--Customize_color);
