@@ -301,8 +301,8 @@ const ensureSwiper = (() =>
             promise = (async () =>
             {
                 const [{ default: jsUrl }, { default: cssUrl }] = await Promise.all([
-                    import("@/SpecFetures/1816/Assets/Client/Content/css_import/assets/swiper-11.1.14/swiper-bundle.min.js?url"),
-                    import("@/SpecFetures/1816/Assets/Client/Content/css_import/assets/swiper-11.1.14/swiper-bundle.min.css?url"),
+                    import("@/Features/Assets/Client/Content/css_import/assets/swiper-11.1.14/swiper-bundle.min.js?url"),
+                    import("@/Features/Assets/Client/Content/css_import/assets/swiper-11.1.14/swiper-bundle.min.css?url"),
                 ]);
 
                 // 插入 CSS

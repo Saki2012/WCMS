@@ -1124,23 +1124,23 @@ body::-webkit-scrollbar-thumb {
 }
 /* ---------------------------------------------------- */
 .Link-icons-pos .control-start-icon {
-    background-image: url(../../../images/swiper/control-start-G-icon.svg);
+    background-image: url("../../../images/swiper/control-start-G-icon.svg");
     opacity: .85;
 }
 /* ---------------------------------------------------- */
 .Link-icons-pos .control-pause-icon {
-    background-image: url(../../../images/swiper/control-pause-G-icon.svg);
+    background-image: url("../../../images/swiper/control-pause-G-icon.svg");
     opacity: .85;
 }
 /* ---------------------------------------------------- */
 .Link-icons-pos .control-start-icon:hover,
 .Link-icons-pos .control-start-icon:focus {
-    background-image: url(../../../images/swiper/control-start-G-icon.svg);
+    background-image: url("../../../images/swiper/control-start-G-icon.svg");
     opacity: .85;
 }
 .Link-icons-pos .control-pause-icon:hover,
 .Link-icons-pos .control-pause-icon:focus {
-    background-image: url(../../../images/swiper/control-pause-icon.svg);
+    background-image: url("../../../images/swiper/control-pause-icon.svg");
     opacity: .85;
 }
 /* ---------------------------------------------------- */
@@ -1193,7 +1193,7 @@ body::-webkit-scrollbar-thumb {
 	position: relative;
 	display: block;
 	background-color: transparent;
-	/*background-image: url(images/bg/.....);*/
+	/*background-image: url("images/bg/.....);*/
 	background-size: cover;
 	background-repeat: no-repeat;
 	background-position: center top;
@@ -1496,27 +1496,27 @@ body::-webkit-scrollbar-thumb {
 	background-clip: border-box;
 }
 .Carousel_slide_section .control-start-icon {
-    background-image: url(../../../images/banner/control-start-B-icon.svg);
+    background-image: url("../../../images/banner/control-start-B-icon.svg");
 }
 .Carousel_slide_section .control-pause-icon {
-    background-image: url(../../../images/banner/control-pause-B-icon.svg);
+    background-image: url("../../../images/banner/control-pause-B-icon.svg");
 }
 
 /* ------ ICON 符號 HOVER --------- */
 .Carousel_slide_section .control-start a:hover .control-start-icon {
-    background-image: url(../../../images/banner/control-start-W-icon.svg);
+    background-image: url("../../../images/banner/control-start-W-icon.svg");
 }
 .Carousel_slide_section .control-pause a:hover .control-pause-icon {
-    background-image: url(../../../images/banner/control-pause-W-icon.svg);
+    background-image: url("../../../images/banner/control-pause-W-icon.svg");
 }
 /* ------ ICON 符號 HOVER --------- */
 
 /* ------ ICON 符號 FOCUS --------- */
 .Carousel_slide_section .control-start a:focus .control-start-icon {
-    background-image: url(../../../images/banner/control-start-W-icon.svg);
+    background-image: url("../../../images/banner/control-start-W-icon.svg");
 }
 .Carousel_slide_section .control-pause a:focus .control-pause-icon{
-    background-image: url(../../../images/banner/control-pause-W-icon.svg);
+    background-image: url("../../../images/banner/control-pause-W-icon.svg");
 }
 /* ------ ICON 符號 FOCUS --------- */
 
@@ -1667,27 +1667,27 @@ body::-webkit-scrollbar-thumb {
 	background-clip: border-box;
 }
 .Carousel_slide_section .control-icon.play {
-    background-image: url(../../../images/banner/control-start-OR-icon.svg);
+    background-image: url("../../../images/banner/control-start-OR-icon.svg");
 }
 .Carousel_slide_section .control-icon.pause {
-    background-image: url(../../../images/banner/control-pause-OR-icon.svg);
+    background-image: url("../../../images/banner/control-pause-OR-icon.svg");
 }
 
 /* ------ ICON 符號 HOVER --------- */
 .Carousel_slide_section .control-toggle a:hover .control-icon.play {
-    background-image: url(../../../images/banner/control-start-DARK-OR-icon.svg);
+    background-image: url("../../../images/banner/control-start-DARK-OR-icon.svg");
 }
 .Carousel_slide_section .control-toggle a:hover .control-icon.pause {
-    background-image: url(../../../images/banner/control-pause-DARK-OR-icon.svg);
+    background-image: url("../../../images/banner/control-pause-DARK-OR-icon.svg");
 }
 /* ------ ICON 符號 HOVER --------- */
 
 /* ------ ICON 符號 FOCUS --------- */
 .Carousel_slide_section .control-toggle a:focus .control-icon.play {
-    background-image: url(../../../images/banner/control-start-DARK-OR-icon.svg);
+    background-image: url("../../../images/banner/control-start-DARK-OR-icon.svg");
 }
 .Carousel_slide_section .control-toggle a:focus .control-icon.pause {
-    background-image: url(../../../images/banner/control-pause-DARK-OR-icon.svg);
+    background-image: url("../../../images/banner/control-pause-DARK-OR-icon.svg");
 }
 /* ------ ICON 符號 FOCUS --------- */
 
@@ -3207,7 +3207,7 @@ a:hover.caption-customize-btn .button-icon {
 }
 
 .Opening_hours_DIV .Open_btn .icon-custom-school-B{
-	background-image: url(../../../images/svg_icon/icon-custom-school-B.svg);
+	background-image: url("../../../images/svg_icon/icon-custom-school-B.svg");
 	display: inline-block;
 	width: 16px;
 	height: 18px;
@@ -3223,7 +3223,7 @@ a:hover.caption-customize-btn .button-icon {
 	color: var(--Customize_TXTcolor);
 }
 .Opening_hours_DIV .Open_btn:hover .icon-custom-school-B {
-	background-image: url(../../../images/svg_icon/icon-custom-school-DARK-OR.svg);
+	background-image: url("../../../images/svg_icon/icon-custom-school-DARK-OR.svg");
 }
 
 .Opening_hours_DIV .Open_btn:focus {
@@ -3798,23 +3798,23 @@ a:hover.caption-customize-btn .button-icon {
 }
 /*..............................................................................*/
 .Collections_section .control-start-icon {
-    background-image: url(../../../images/owl-carousel/control-start-B-icon.svg);
+    background-image: url("../../../images/owl-carousel/control-start-B-icon.svg");
     opacity: .85;
 }
 /*..............................................................................*/
 .Collections_section .control-pause-icon {
-    background-image: url(../../../images/owl-carousel/control-pause-B-icon.svg);
+    background-image: url("../../../images/owl-carousel/control-pause-B-icon.svg");
     opacity: .85;
 }
 /*..............................................................................*/
 .Collections_section .control-start-icon:hover,
 .Collections_section .control-start-icon:focus {
-    background-image: url(../../../images/owl-carousel/control-start-W-icon.svg);
+    background-image: url("../../../images/owl-carousel/control-start-W-icon.svg");
     opacity: .85;
 }
 .Collections_section .control-pause-icon:hover,
 .Collections_section .control-pause-icon:focus {
-    background-image: url(../../../images/owl-carousel/control-pause-W-icon.svg);
+    background-image: url("../../../images/owl-carousel/control-pause-W-icon.svg");
     opacity: .85;
 }
 /*..............................................................................*/
@@ -3934,23 +3934,23 @@ a:hover.caption-customize-btn .button-icon {
 }
 
 .Collections_section .control-singlebox a .control-pause-icon {
-    content: url(../../../images/owl-carousel/control-pause-OR-icon.svg);
+    content: url("../../../images/owl-carousel/control-pause-OR-icon.svg");
 	background-image: none;
 }
 
 .Collections_section .control-singlebox a .control-play-icon {
-    content: url(../../../images/owl-carousel/control-start-OR-icon.svg);
+    content: url("../../../images/owl-carousel/control-start-OR-icon.svg");
 	background-image: none;
 }
 
 .Collections_section .control-singlebox a:hover .control-pause-icon,
 .Collections_section .control-singlebox a:focus .control-pause-icon {
-    content: url(../../../images/owl-carousel/control-pause-DARK-OR-icon.svg);
+    content: url("../../../images/owl-carousel/control-pause-DARK-OR-icon.svg");
 }
 
 .Collections_section .control-singlebox a:hover .control-play-icon,
 .Collections_section .control-singlebox a:focus .control-play-icon {
-    content: url(../../../images/owl-carousel/control-start-DARK-OR-icon.svg);
+    content: url("../../../images/owl-carousel/control-start-DARK-OR-icon.svg");
 }
 
 .Collections_section .control-toggle:focus {
@@ -3973,7 +3973,7 @@ a:hover.caption-customize-btn .button-icon {
     position: relative;
 	display: block;
 	background-color: transparent;
-	/*background-image: url(images/bg/.....);*/
+	/*background-image: url("images/bg/.....);*/
 	background-size: cover;
 	background-repeat: no-repeat;
 	background-position: center top;
@@ -4629,23 +4629,23 @@ a:hover.caption-customize-btn .button-icon {
 }
 /*..............................................................................*/
 .Event_section .control-start-icon {
-    background-image: url(../../../images/owl-carousel/control-start-B-icon.svg);
+    background-image: url("../../../images/owl-carousel/control-start-B-icon.svg");
     opacity: .85;
 }
 /*..............................................................................*/
 .Event_section .control-pause-icon {
-    background-image: url(../../../images/owl-carousel/control-pause-B-icon.svg);
+    background-image: url("../../../images/owl-carousel/control-pause-B-icon.svg");
     opacity: .85;
 }
 /*..............................................................................*/
 .Event_section .control-start-icon:hover,
 .Event_section .control-start-icon:focus {
-    background-image: url(../../../images/owl-carousel/control-start-W-icon.svg);
+    background-image: url("../../../images/owl-carousel/control-start-W-icon.svg");
     opacity: .85;
 }
 .Event_section .control-pause-icon:hover,
 .Event_section .control-pause-icon:focus {
-    background-image: url(../../../images/owl-carousel/control-pause-W-icon.svg);
+    background-image: url("../../../images/owl-carousel/control-pause-W-icon.svg");
     opacity: .85;
 }
 /*..............................................................................*/
@@ -4765,23 +4765,23 @@ a:hover.caption-customize-btn .button-icon {
 }
 
 .Event_section .control-singlebox a .control-pause-icon {
-    content: url(../../../images/owl-carousel/control-pause-OR-icon.svg);
+    content: url("../../../images/owl-carousel/control-pause-OR-icon.svg");
 	background-image: none;
 }
 
 .Event_section .control-singlebox a .control-play-icon {
-    content: url(../../../images/owl-carousel/control-start-OR-icon.svg);
+    content: url("../../../images/owl-carousel/control-start-OR-icon.svg");
 	background-image: none;
 }
 
 .Event_section .control-singlebox a:hover .control-pause-icon,
 .Event_section .control-singlebox a:focus .control-pause-icon {
-    content: url(../../../images/owl-carousel/control-pause-DARK-OR-icon.svg);
+    content: url("../../../images/owl-carousel/control-pause-DARK-OR-icon.svg");
 }
 
 .Event_section .control-singlebox a:hover .control-play-icon,
 .Event_section .control-singlebox a:focus .control-play-icon {
-    content: url(../../../images/owl-carousel/control-start-DARK-OR-icon.svg);
+    content: url("../../../images/owl-carousel/control-start-DARK-OR-icon.svg");
 }
 
 .Event_section .control-toggle:focus {
@@ -4804,7 +4804,7 @@ a:hover.caption-customize-btn .button-icon {
     position: relative;
 	display: block;
 	background-color: transparent;
-	/*background-image: url(images/bg/.....);*/
+	/*background-image: url("images/bg/.....);*/
 	background-size: cover;
 	background-repeat: no-repeat;
 	background-position: center top;
@@ -5445,23 +5445,23 @@ a:hover.caption-customize-btn .button-icon {
 }
 /*..............................................................................*/
 .Links_section .control-start-icon {
-    background-image: url(../../../images/owl-carousel/control-start-B-icon.svg);
+    background-image: url("../../../images/owl-carousel/control-start-B-icon.svg");
     opacity: .85;
 }
 /*..............................................................................*/
 .Links_section .control-pause-icon {
-    background-image: url(../../../images/owl-carousel/control-pause-B-icon.svg);
+    background-image: url("../../../images/owl-carousel/control-pause-B-icon.svg");
     opacity: .85;
 }
 /*..............................................................................*/
 .Links_section .control-start-icon:hover,
 .Links_section .control-start-icon:focus {
-    background-image: url(../../../images/owl-carousel/control-start-W-icon.svg);
+    background-image: url("../../../images/owl-carousel/control-start-W-icon.svg");
     opacity: .85;
 }
 .Links_section .control-pause-icon:hover,
 .Links_section .control-pause-icon:focus {
-    background-image: url(../../../images/owl-carousel/control-pause-W-icon.svg);
+    background-image: url("../../../images/owl-carousel/control-pause-W-icon.svg");
     opacity: .85;
 }
 /*..............................................................................*/
@@ -5581,23 +5581,23 @@ a:hover.caption-customize-btn .button-icon {
 }
 
 .Links_section .control-singlebox a .control-pause-icon {
-    content: url(../../../images/owl-carousel/control-pause-OR-icon.svg);
+    content: url("../../../images/owl-carousel/control-pause-OR-icon.svg");
 	background-image: none;
 }
 
 .Links_section .control-singlebox a .control-play-icon {
-    content: url(../../../images/owl-carousel/control-start-OR-icon.svg);
+    content: url("../../../images/owl-carousel/control-start-OR-icon.svg");
 	background-image: none;
 }
 
 .Links_section .control-singlebox a:hover .control-pause-icon,
 .Links_section .control-singlebox a:focus .control-pause-icon {
-    content: url(../../../images/owl-carousel/control-pause-DARK-OR-icon.svg);
+    content: url("../../../images/owl-carousel/control-pause-DARK-OR-icon.svg");
 }
 
 .Links_section .control-singlebox a:hover .control-play-icon,
 .Links_section .control-singlebox a:focus .control-play-icon {
-    content: url(../../../images/owl-carousel/control-start-DARK-OR-icon.svg);
+    content: url("../../../images/owl-carousel/control-start-DARK-OR-icon.svg");
 }
 
 .Links_section .control-toggle:focus {
@@ -6150,7 +6150,7 @@ a:hover.caption-customize-btn .button-icon {
 }
 @media screen and (max-width: 991px) {
 	#navbar-content.navbar-collapse {
-		max-height: calc(100vh - 40vh);
+		max-height: calc(100vh - 40vh + 60px);
 	}
 	#navbar-content .nav-link {
 		margin: 0 0 !important;

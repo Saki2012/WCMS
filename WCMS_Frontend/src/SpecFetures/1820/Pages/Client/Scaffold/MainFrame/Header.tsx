@@ -49,6 +49,7 @@ const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
         const el = headerRef.current;
         if (!el) return;
 
+        /** 同步 Header 下滑後的陰影與濾鏡狀態 */
         const syncHeaderStyle = () =>
         {
             const isScrolled = window.scrollY >= 180;
@@ -57,21 +58,14 @@ const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
             el.classList.toggle("filter-custom", isScrolled);
         };
 
-        if (isHome)
-        {
-            syncHeaderStyle();
-            window.addEventListener("scroll", syncHeaderStyle, { passive: true });
-        } else
-        {
-            el.classList.remove("shadow");
-            el.classList.remove("filter-custom");
-        }
+        syncHeaderStyle();
+        window.addEventListener("scroll", syncHeaderStyle, { passive: true });
 
         return () =>
         {
             window.removeEventListener("scroll", syncHeaderStyle);
         };
-    }, [isHome]);
+    }, [location.pathname]);
 
     return (
         <>
