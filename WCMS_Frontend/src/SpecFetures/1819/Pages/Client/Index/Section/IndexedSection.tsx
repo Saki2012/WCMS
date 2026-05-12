@@ -1,6 +1,7 @@
 import BgTransparentImg from "@/SpecFetures/1819/Assets/Client/images/bg/background-transparent-image_1920x600.png";
 import IndexPic from "@/SpecFetures/1819/Assets/Client/images/Indexed_150x150.svg";
 import type { Lang } from "@/SysCore/i18n/lang";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 import { isInValidTimeRange } from "@/SysCore/Utils/Library/DateRangeHelper";
 import type { components } from "@/types/api";
 import { useMemo } from "react";
@@ -83,12 +84,12 @@ export const IndexedSection = (props: IndexedSectionProps) =>
                                         // return
                                         return (
                                             <li key={`${dt.BannerId}-${dt.RowId}-${idx}`}>
-                                                <a href={url} target={tar} rel={info?.URL_Open === 0 ? undefined : "noreferrer"}>
+                                                <LangLink to={url} target={tar} title={title}>
                                                     <div className="Item_TextBox">{title}</div>
                                                     <div className="card_arrow">
                                                         <i className="far fa-chevron-double-right" aria-hidden="true" />
                                                     </div>
-                                                </a>
+                                                </LangLink>
                                             </li>
                                         );
                                     })}

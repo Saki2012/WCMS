@@ -1,12 +1,12 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import ModuleContent from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
+import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useOptionalSpecAssetUrl } from "@/SysCore/Utils/UI_HookFunc/useOptionalSpecAssetUrl";
 import type { components } from "@/types/api";
-import parse from "html-react-parser";
 import { useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { type IMaterialListOptions, useMaterialListData } from "./Client_Material_List_Loader";
@@ -43,7 +43,10 @@ export const Client_Material_List_Comp = (props: IMaterialListProps) =>
     const viewState = useMemo(() => ({ pageNumber: 1, pageSize: 12, keyword: undefined }), []);
     const vm = useMaterialListData({ lang: props.lang, opts: props.options, viewState });
     const rawData = vm.rawData;
-    const content = useMemo(() => (rawData.pageContentHtml ? parse(rawData.pageContentHtml) : null), [rawData.pageContentHtml]);
+    const content = useMemo(() => rawData.pageData.PageManagementDetail?.find(p => p.Lang === props.lang)?.Content ?? "", [
+        rawData.pageData.PageManagementDetail,
+        props.lang,
+    ]);
     const paginprops = { currentPage: rawData.pageNumber, totalPages: rawData.totalPages, onPageChange: vm.onPageChange };
 
     return (
@@ -54,7 +57,7 @@ export const Client_Material_List_Comp = (props: IMaterialListProps) =>
             paginatorProps={paginprops}
             viewCountConfig={{ mode: "list" }}
         >
-            {content}
+            <CmsHtml_Comp html={content} lang={props.lang} />
             {content && <hr className="hr-my-4" />}
             <MaterialCardList_Comp dirUrl={dirUrl} lang={props.lang} listData={rawData.listData} categoryMap={rawData.categoryMap} />
         </ModuleContent>

@@ -3,9 +3,9 @@ import type { Lang } from "@/SysCore/i18n/lang";
 // import { GoTopButton } from "@/Features/Pages/Client/Scaffold/MainFrame/GoTopButton"
 import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 import { GoTop } from "@/Features/Pages/Client/Scaffold/MainFrame/GoTop/GoTop";
-import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
-import parse from "html-react-parser";
+import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import "./Footer.css";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 
 export interface FooterRuntimeInfo
 {
@@ -110,13 +110,6 @@ const getBeVersion = (value?: string | null): string =>
     return version && version.length > 0 ? version : "-";
 };
 
-const getFooterContentHtml = (lang: Lang, value?: string | null) =>
-{
-    const parseContent = useResolveInternalIds(value ?? "", { locale: lang });
-    const content = parseContent.html ? parse(parseContent.html) : null;
-    return content;
-};
-
 const buildStatusLine = (text: FooterText, runtimeInfo: FooterRuntimeInfo | undefined): string =>
 {
     // 宣告變數
@@ -141,7 +134,6 @@ const Footer = (props: FooterProps) =>
     const text = getFooterText(props.lang);
     const siteTitle = getSiteTitle(props.site, props.lang);
     const statusLine = buildStatusLine(text, props.runtimeInfo); /**可能在執行到footer在撈就好? 畢竟表也不是來源於SiteMenu的，另外撈就行 */
-    const footerContentHtml = getFooterContentHtml(props.lang, props.site.indexInfoByLang[props.lang].footerContent);
     const currentYear = new Date().getFullYear();
     const copyrightPrefix = buildCopyrightPrefix(currentYear, siteTitle);
     // return
@@ -149,9 +141,8 @@ const Footer = (props: FooterProps) =>
         <footer className="Footer_section">
             <section className="tinyMCE_section">
                 <div className="container-tinyMCEfooter">
-                    {/* <a accessKey="B" href="#B" className="accesskey_footer B" title="下方內容區(B)(B)" >:::</a> */}
                     <Accesskey type="Z" lang={props.lang} />
-                    {footerContentHtml}
+                    <CmsHtml_Comp html={props.site.indexInfoByLang[props.lang].footerContent} lang={props.lang} />
                 </div>
             </section>
             <section className="copyright_section">
@@ -163,22 +154,12 @@ const Footer = (props: FooterProps) =>
                             </div>
                             <div className="info_box_2">
                                 <span className="content">{copyrightPrefix}</span>
-                                <a
-                                    className="design_by"
-                                    href="http://www.it-easygo.com/Main.aspx"
-                                    title={text.designByTitle}
-                                    target="_blank"
-                                    tabIndex={0}
-                                    rel="noreferrer"
-                                >
-                                    {text.designBy}
-                                </a>
+                                <LangLink className="design_by" to="http://www.it-easygo.com/Main.aspx" title={text.designByTitle}>{text.designBy}</LangLink>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
-            {/* <GoTopButton /> */}
             <GoTop lang={props.lang} />
         </footer>
     );

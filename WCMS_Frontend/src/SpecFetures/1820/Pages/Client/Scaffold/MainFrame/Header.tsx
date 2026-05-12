@@ -117,9 +117,7 @@ const NavBar = (props: { lang: Lang; }) =>
                     <LangLink className="nav-link" to="/" target="_self" title={title.Home}>{title.Home}</LangLink>
                 </li>
                 <li className="nav-item">
-                    <a className="nav-link" href="https://www.nchu.edu.tw/index1.php" target="_blank" rel="noopener noreferrer" title={title.NCHU}>
-                        {title.NCHU}
-                    </a>
+                    <LangLink className="nav-link" to="https://www.nchu.edu.tw/index1.php" title={title.NCHU}>{title.NCHU}</LangLink>
                 </li>
                 <li className="nav-item">
                     <LangNavLink to={`/${SITEMAP_SEGMENT}`} className="nav-link" target="_self" title={title.SiteMap}>{title.SiteMap}</LangNavLink>
@@ -171,18 +169,7 @@ const MobileBtn = () =>
         <>
             <div className="mobile-box ml-auto me-2">
                 <div className="icons">
-                    <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-1 mx-0 d-inline-block d-sm-none">
-                        {
-                            /* <a href="javascript:void(0);" className="search-button" type="button" role="button" title="搜尋" id="mobile-sss" data-bs-toggle="dropdown" aria-expanded="false" >
-                        <i className="far fa-search" aria-hidden="true"></i>
-                        <span className="sr-only">搜尋</span>
-                    </a>
-                    <div className="searchdropdown dropdown-menu search-input-dropdown" aria-labelledby="mobile-sss">
-                        <input type="search" id="mobile-search-box" placeholder="search here..."  />
-                        <button className="far fa-search" type="button" ></button>
-                    </div> */
-                        }
-                    </div>
+                    <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-1 mx-0 d-inline-block d-sm-none"></div>
                 </div>
             </div>
 
@@ -229,18 +216,7 @@ const PCBtn = () =>
     return (
         <div className="pc-box">
             <div className="icons">
-                <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1 d-inline-block">
-                    {
-                        /* <a href="javascript:void(0);" className="search-button" type="button" role="button" title="搜尋" id="pc-sss" data-bs-toggle="dropdown" aria-expanded="false" >
-                        <i className="far fa-search" aria-hidden="true"></i>
-                        <span className="sr-only">搜尋</span>
-                    </a>
-                    <div className="searchdropdown dropdown-menu search-input-dropdown" aria-labelledby="pc-sss">
-                        <input type="search" id="pc-search-box" placeholder="search here..."  />
-                        <button className="far fa-search" type="button" ></button>
-                    </div> */
-                    }
-                </div>
+                <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1 d-inline-block"></div>
             </div>
         </div>
     );

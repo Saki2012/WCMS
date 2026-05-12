@@ -1,11 +1,11 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import type { Module_SpecProduction_OptionsJson } from "@/SpecFetures/1820/Pages/Server/BizFunc/WEB/SiteMenu/SpecModule_Comp";
-import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
+import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
-import parse from "html-react-parser";
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router";
 import { useClientSpecProductionListFetchData } from "./Client_SpecProduction_List_Loader";
@@ -76,12 +76,12 @@ const SpecProductionContent = (props: { lang: Lang; intro?: string; catName?: st
         if (!activeTab) return [];
         return props.matDataList.get(activeTab) ?? [];
     }, [props.matDataList, activeTab]);
-    const parsed = useResolveInternalIds(props.intro ?? "", { locale: props.lang });
-    const pageContent = useMemo(() => (parsed.html ? parse(parsed.html) : null), [props.intro, props.lang]);
     const titleText = `查看${props.catName ?? ""}類型`;
     return (
         <>
-            <div className="SubDivBox_style + Sub + Layout_Padding_4">{pageContent}</div>
+            <div className="SubDivBox_style + Sub + Layout_Padding_4">
+                <CmsHtml_Comp html={props.intro ?? ""} lang={props.lang} />
+            </div>
 
             <div className="page-header mb-3">
                 <div className="Div_H3_Title">{titleText}</div>
@@ -397,16 +397,14 @@ const ProductionCard = (props: { lang: Lang; item: MaterialSet; viewMoreText: st
                         {props.item && (
                             <div className="d-flex justify-content-start align-items-center">
                                 <div className="more-link-box">
-                                    <a
-                                        href={`${dirUrl}/${props.item.Material?.InternalId}`}
+                                    <LangLink
+                                        to={`${dirUrl}/${props.item.Material?.InternalId}`}
                                         className="more-link font-wt-lg"
-                                        aria-label={`查看更多：${matName}`}
                                         title={`查看更多：${matName}`}
-                                        tabIndex={0}
                                     >
                                         <span className="vm">{props.viewMoreText}</span>
                                         <span className="ms-1">〉</span>
-                                    </a>
+                                    </LangLink>
                                 </div>
                             </div>
                         )}

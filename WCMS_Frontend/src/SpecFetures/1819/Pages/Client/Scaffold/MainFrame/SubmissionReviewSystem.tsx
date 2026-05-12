@@ -1,4 +1,5 @@
 import ScholarOneLogo from "@/SpecFetures/1819/Assets/Client/images/logo/Scholar-One_184x20.svg";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 const STORAGE_KEY = "wcms.srs.dismissed";
@@ -138,7 +139,7 @@ const FloatingWidget = (props: { href: string; label: string; onClose: () => voi
             </a>
 
             <div className="Circle_Outer">
-                <a href={props.href} className="Circle_Inner_side" title={props.label} target="_blank" rel="noreferrer">
+                <LangLink to={props.href} className="Circle_Inner_side" title={props.label}>
                     <div className="Inner_box">
                         <div className="Circle_Icon">
                             <i className="fas fa-file-alt" aria-hidden="true" />
@@ -151,7 +152,7 @@ const FloatingWidget = (props: { href: string; label: string; onClose: () => voi
                             <i className="far fa-chevron-right" aria-hidden="true" />
                         </div>
                     </div>
-                </a>
+                </LangLink>
             </div>
         </div>
     );
@@ -170,18 +171,10 @@ const MenuEntry = (props: { href: string; label: string; onRestore: () => void; 
 
     return (
         <li className="nav-item SubmissionReviewSystem_MenuItem">
-            <a
-                className="nav-link SubmissionReviewSystem_MenuLink"
-                href={props.href}
-                target="_blank"
-                rel="noopener"
-                title={props.label}
-                aria-label={props.label}
-                onClick={onClick}
-            >
+            <LangLink className="nav-link SubmissionReviewSystem_MenuLink" to={props.href} title={props.label} aria-label={props.label} onClick={onClick}>
                 <i className="fas fa-file-alt" aria-hidden="true" />
                 <span>{props.label}</span>
-            </a>
+            </LangLink>
         </li>
     );
 };

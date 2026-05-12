@@ -1,16 +1,12 @@
+import { PageManagementAdapter } from "@/Features/Hooks/BizFunc/WEB/PageManagement_Api";
+import HomepageVideo from "@/SpecFetures/1818/Assets/Client/Spec/HomepageVideo.mp4";
 import { IndexLabel } from "@/SpecFetures/1818/Pages/Client//Index/Section/IndexLabelText";
 import { AdmissionsCarouselData } from "@/SpecFetures/1818/Pages/Client/Index/Section/AdmissionsCarouselData";
-import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
+import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import type { components } from "@/types/api";
-import parse from "html-react-parser";
 import { useMemo } from "react";
-
-import { PageManagementAdapter } from "@/Features/Hooks/BizFunc/WEB/PageManagement_Api";
-import { WebResourceAdapter } from "@/Features/Hooks/BizFunc/WEB/WebResource_Api";
-
-import HomepageVideo from "@/SpecFetures/1818/Assets/Client/Spec/HomepageVideo.mp4";
 
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
 type PageManagementSet = components["schemas"]["PageManagementSet_DTO"];
@@ -37,35 +33,17 @@ export const AboutPage = (
 ) =>
 {
     // 宣告變數：adapters
-    const webAdapter = useMemo(() => WebResourceAdapter(), []);
     const pageAdapter = useMemo(() => PageManagementAdapter(), []);
-
-    // 宣告變數：initial（必須 memo，避免每次 render 都產生新物件）
-    const webInitial = useMemo(() =>
-    {
-        if (!props.initialWebResource) return undefined;
-        return toInitial(props.webInternalId, props.initialWebResource);
-    }, [props.webInternalId, props.initialWebResource]);
-
     const pageInitial = useMemo(() =>
     {
         if (!props.initialPage) return undefined;
         return toInitial(props.pageInternalId, props.initialPage);
     }, [props.pageInternalId, props.initialPage]);
-
     // 執行 function：CSR hooks 接手（SSR 有 initial → 不重抓；CSR 無 initial → 會自動抓）
-    const webQ = webAdapter.hooks.useQueryData({ internalId: props.webInternalId, initial: webInitial, deps: [props.webInternalId] });
-
     const pageQ = pageAdapter.hooks.useQueryData({ internalId: props.pageInternalId, initial: pageInitial, deps: [props.pageInternalId] });
-
     // 宣告變數：依語系取對應 detail
-    const webSrcDt = webQ.data?.WebResourceInfo?.find(p => p.Lang === props.lang);
     const pageDt = pageQ.data?.PageManagementDetail?.find(p => p.Lang === props.lang);
-
     // 執行 function：解析內容（含 internal file ids 轉預覽 url）
-    const parseContent = useResolveInternalIds(pageDt?.Content ?? "", { locale: props.lang });
-    const content = parseContent.html ? parse(parseContent.html) : null;
-
     return (
         <section className="About_section">
             <div className="Mask-DivBox">
@@ -92,7 +70,9 @@ export const AboutPage = (
                                 </div>
 
                                 <div className="about-left">
-                                    <div className="about-txt">{content}</div>
+                                    <div className="about-txt">
+                                        <CmsHtml_Comp html={pageDt?.Content ?? ""} lang={props.lang} />
+                                    </div>
 
                                     <div className="btn-w100-wrapper justify-content-start mt-sm-5 mt-4">
                                         <div className="customize_btn">

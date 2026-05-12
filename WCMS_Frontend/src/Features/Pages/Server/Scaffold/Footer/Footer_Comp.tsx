@@ -1,3 +1,4 @@
+import { LangLink } from "@/SysCore/i18n/LangLink";
 import { SysCurrentDate } from "../../../../../SysCore/Utils/SystemInfo/GetServerInfo";
 
 const FooterComp = () =>
@@ -13,7 +14,7 @@ const FooterComp = () =>
                     <div className="col-auto my-3">
                         <ul className="list-inline footer-link mb-0">
                             <li className="list-inline-item">
-                                <a href="https://www.it-easygo.com/" target="_blank">Design by it-easygo.</a>
+                                <LangLink to="https://www.it-easygo.com/">Design by it-easygo.</LangLink>
                             </li>
                         </ul>
                     </div>

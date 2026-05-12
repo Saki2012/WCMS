@@ -1,6 +1,5 @@
 import { SurveyAdapter } from "@/Features/Hooks/BizFunc/WEB/Survey_Api";
 import { SurveySubmissionAdapter } from "@/Features/Hooks/BizFunc/WEB/SurveySubmission_Api";
-import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { type ApiResponse, getSsrApi } from "@/SysCore/Utils/API/APIBase";
@@ -79,14 +78,14 @@ export const useSurveyFormFetchData = (p: { lang: Lang; surveyId: string; emptyD
     const submitActions = submissionAdapter.hooks.useSubmitActions();
 
     const data = useMemo(() => SurveyData.data ?? fallbackData, [SurveyData.data, fallbackData]);
-    const parsed = useResolveInternalIds(data.Survey?.SurveyDescription ?? "", { locale: p.lang });
-    const successParsed = useResolveInternalIds(data.Survey?.SurveySuccessContent ?? "", { locale: p.lang });
+    const contentHtml = data.Survey?.SurveyDescription ?? "";
+    const successContentHtml = data.Survey?.SurveySuccessContent ?? "";
     const errorList = useMemo(() => [SurveyData.errorText], [SurveyData.errorText]);
 
     return {
         data,
-        contentHtml: parsed.html ?? "",
-        successContentHtml: successParsed.html ?? "",
+        contentHtml,
+        successContentHtml,
         isLoading: Boolean(SurveyData.isLoading),
         errorText: SurveyData.errorText ?? null,
         errorList,

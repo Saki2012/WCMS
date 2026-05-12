@@ -15,6 +15,7 @@ export const buildProdCsp = (nonce: string, options: BuildProdCspOptions = {}): 
     const nonceSource = cleanNonce ? `'nonce-${cleanNonce}'` : "";
 
     const scriptSrc = joinSources(["'self'", nonceSource, "'strict-dynamic'"]);
+
     const styleSrc = joinSources([
         "'self'",
         "'unsafe-inline'",
@@ -25,6 +26,61 @@ export const buildProdCsp = (nonce: string, options: BuildProdCspOptions = {}): 
         "https://maps.gstatic.com",
     ]);
 
+    const imgSrc = joinSources([
+        "'self'",
+        "data:",
+        "blob:",
+        "https://www.gstatic.com",
+        "https://www.google.com",
+        "https://i.ytimg.com",
+        "https://img.youtube.com",
+        "https://calendar.google.com",
+        "https://accounts.google.com",
+        "https://maps.googleapis.com",
+        "https://mapsresources-pa.googleapis.com",
+        "https://maps.gstatic.com",
+        "https://www.googletagmanager.com",
+        "https://www.google-analytics.com",
+    ]);
+
+    const fontSrc = joinSources(["'self'", "data:", "https://fonts.gstatic.com", "https://calendar.google.com"]);
+
+    const connectSrc = joinSources([
+        "'self'",
+        "https://translate.google.com",
+        "https://translate.googleapis.com",
+        "https://translate-pa.googleapis.com",
+        "https://calendar.google.com",
+        "https://accounts.google.com",
+        "https://apis.google.com",
+        "https://www.google.com",
+        "https://maps.googleapis.com",
+        "https://mapsresources-pa.googleapis.com",
+        "https://maps.gstatic.com",
+        "https://www.googletagmanager.com",
+        "https://www.google-analytics.com",
+        "https://region1.google-analytics.com",
+    ]);
+
+    const frameSrc = joinSources([
+        "'self'",
+        "https://translate.google.com",
+        "https://www.youtube.com",
+        "https://www.youtube-nocookie.com",
+        "https://w.soundcloud.com",
+        "https://calendar.google.com",
+        "https://accounts.google.com",
+        "https://www.google.com",
+        "https://maps.google.com",
+        "https://docs.google.com",
+        "https://drive.google.com",
+        "https://lookerstudio.google.com",
+        "https://datastudio.google.com",
+        "https://www.googletagmanager.com",
+        "https://720yun.com",
+        "https://www.720yun.com",
+    ]);
+
     const csp = [
         "default-src 'self'",
         `script-src ${scriptSrc}`,
@@ -32,11 +88,11 @@ export const buildProdCsp = (nonce: string, options: BuildProdCspOptions = {}): 
         "script-src-attr 'none'",
         `style-src ${styleSrc}`,
         `style-src-elem ${styleSrc}`,
-        "img-src 'self' data: blob: https://www.gstatic.com https://www.google.com https://i.ytimg.com https://img.youtube.com https://calendar.google.com https://accounts.google.com https://maps.googleapis.com https://mapsresources-pa.googleapis.com https://maps.gstatic.com https://www.googletagmanager.com https://www.google-analytics.com",
-        "font-src 'self' data: https://fonts.gstatic.com https://calendar.google.com",
-        "connect-src 'self' https://translate.google.com https://translate.googleapis.com https://translate-pa.googleapis.com https://calendar.google.com https://accounts.google.com https://apis.google.com https://www.google.com https://maps.googleapis.com https://mapsresources-pa.googleapis.com https://maps.gstatic.com https://www.googletagmanager.com https://www.google-analytics.com https://region1.google-analytics.com",
+        `img-src ${imgSrc}`,
+        `font-src ${fontSrc}`,
+        `connect-src ${connectSrc}`,
         "frame-ancestors 'self'",
-        "frame-src 'self' https://translate.google.com https://www.youtube.com https://www.youtube-nocookie.com https://w.soundcloud.com https://calendar.google.com https://accounts.google.com https://www.google.com https://maps.google.com https://docs.google.com https://drive.google.com https://lookerstudio.google.com https://datastudio.google.com https://www.googletagmanager.com",
+        `frame-src ${frameSrc}`,
         "media-src 'self' data: blob: https:",
         "worker-src 'self' blob:",
         "manifest-src 'self'",

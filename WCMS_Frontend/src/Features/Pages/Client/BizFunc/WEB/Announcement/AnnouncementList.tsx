@@ -4,7 +4,7 @@ import { useAnnouncementListData } from "@/Features/Pages/Client/BizFunc/WEB/Ann
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import ModuleContent from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
+import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import { ColRender, RowRender, STORAGE_KEY } from "@/SysCore/Components/Grid/Grid_Comp";
 import type { ColumnConfig, GridProps, GridRow } from "@/SysCore/Components/Grid/Grid_Data";
 import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
@@ -15,7 +15,6 @@ import { FormatDate } from "@/SysCore/Utils/Library/LibData";
 import { useOptionalSpecAssetUrl } from "@/SysCore/Utils/UI_HookFunc/useOptionalSpecAssetUrl";
 import type { components } from "@/types/api";
 import { AnnouncementDetailFields, AnnouncementFields } from "@/types/SchemaFields";
-import parse from "html-react-parser";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { isWithinLastNDaysFromString } from "../WebResource/WebResourceList";
@@ -358,8 +357,6 @@ const QAItem_Comp = (
     const key = rawKey.replace(/[^A-Za-z0-9_-]/g, "_");
     const collapseId = `collapse_${key}`;
     const isOpen = props.openKey === key;
-    const contentNode = useFaqContentNode(detail?.Content ?? "", props.lang);
-
     // return
     return (
         <li key={`faq_${key}`}>
@@ -395,23 +392,13 @@ const QAItem_Comp = (
                         props.onSetRef(key, el);
                     }}
                 >
-                    <div className="card-body">{contentNode}</div>
+                    <div className="card-body">
+                        <CmsHtml_Comp html={detail?.Content ?? ""} lang={props.lang} />
+                    </div>
                 </div>
             </div>
         </li>
     );
-};
-
-const useFaqContentNode = (html: string, lang: Lang) =>
-{
-    // 宣告變數
-    const resolved = useResolveInternalIds(html, { locale: lang });
-
-    // return
-    return useMemo(() =>
-    {
-        return resolved.html ? parse(resolved.html) : null;
-    }, [resolved.html]);
 };
 
 const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementSet[]; }) =>

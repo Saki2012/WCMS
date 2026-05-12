@@ -8,11 +8,11 @@ import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuid
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import { type ISearchQuery, SearchBarComp } from "@/SysCore/Components/SearchBar/SearchBar_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
 import type { components } from "@/types/api";
-import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { FileArchiveDetailFields, FileArchiveFields, FileArchiveInfoFields, FileArchiveSetFields } from "@/types/SchemaFields";
+import { FileArchiveFields, FileArchiveInfoFields } from "@/types/SchemaFields";
 import { useEffect, useMemo, useState } from "react";
 import { useFileArchiveListFetchData } from "./FileArchiveList_Loader";
 
@@ -59,7 +59,6 @@ const FileArchiveList = (props: FileArchiveProps) =>
     {
         return buildGridProps(
             props.lang,
-            useFileArchiveList.rawData.modelDisplayName,
             useFileArchiveList.rawData.list,
             useFileArchiveList.rawData.pageNumber,
             useFileArchiveList.rawData.totalPages,
@@ -140,14 +139,7 @@ const GridList_Comp = (props: { lang: Lang; title: string; gridData: GridProps; 
     );
 };
 
-const buildGridProps = (
-    lang: Lang,
-    modelDisplayName: ModelDisplaySchema | null,
-    datas: FileArchiveSet[],
-    pageNumber: number,
-    totalPage: number,
-    onPageChange: (page: number) => void,
-): GridProps =>
+const buildGridProps = (lang: Lang, datas: FileArchiveSet[], pageNumber: number, totalPage: number, onPageChange: (page: number) => void): GridProps =>
 {
     // 宣告變數（保持原本欄位行為：visibleKeys 只顯示 Title）
     const columns: ColumnConfig[] = [{ key: FileArchiveInfoFields.Title, title: "標題" }];
@@ -312,27 +304,18 @@ const SetDownloadIcon = (fileInternalId: string, fileExtName: string, fileTitle:
         : FileManagementAPI.get_Public_Download_Url(fileInternalId, fileTitle);
 
     return (
-        <a
-            href={fileUrl}
-            className={`btn btn-default + bg_${fileExtName}`}
-            target="_blank"
-            role="button"
-            rel="noopener noreferrer"
-            title={`${fileTitle} [ 另開新視窗 ]`}
-        >
+        <LangLink to={fileUrl} className={`btn btn-default + bg_${fileExtName}`} target="_blank" role="button" title={fileTitle}>
             <span className={fileExtName}>{fileExtName}</span>
-        </a>
+        </LangLink>
     );
 };
 
 const SetUrlIcon = (url: string, descript: string, target: WindowTarget) =>
 {
     const tar = target === 0 ? "_self" : "_blank";
-    const alt = `${descript}${target === 0 ? "" : " [ 另開新視窗 ]"}`;
-
     return (
-        <a href={url} className="btn btn-default + bg_link" role="button" aria-label="分享" target={tar} title={alt} rel="noopener noreferrer">
+        <LangLink to={url} className="btn btn-default + bg_link" role="button" aria-label="分享" target={tar} title={descript}>
             <span className="link">link</span>
-        </a>
+        </LangLink>
     );
 };

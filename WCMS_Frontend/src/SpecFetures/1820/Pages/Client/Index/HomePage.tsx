@@ -40,7 +40,7 @@ const HomePage = (props: { lang: Lang; }) =>
                         announcements={rawData.announcements}
                         announcementCategoryMap={rawData.announcementCategoryMap}
                     />
-                    <Section4 data={rawData.details} />
+                    <Section4 data={rawData.details} lang={props.lang} />
                     <Section5 data={rawData.marquees} />
                     <Section6 header={homePage} data={rawData.resources} />
                 </div>

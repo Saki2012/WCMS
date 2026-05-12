@@ -1,5 +1,5 @@
 import type { Lang } from "@/SysCore/i18n/lang";
-import { LangNavLink } from "@/SysCore/i18n/LangLink";
+import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import { useMemo } from "react";
@@ -105,16 +105,14 @@ const LastIssueComp = (props: { data: SpecJournalIndexSet | null; }) =>
                 {!!downloadHref && (
                     <div className="EN-file + my-1" style={{ display: "flex", alignItems: "center", gap: 8 }}>
                         <i className="fas fa-file-pdf + me-2" aria-hidden="true" />
-                        <a
-                            href={downloadHref}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                        <LangLink
+                            to={downloadHref}
                             title={fileName || "下載檔案"}
                             aria-label={`下載檔案：${fileName || "PDF"}`}
                             style={{ color: "inherit", textDecoration: "none", display: "inline" }}
                         >
                             <span>{fileName || "Download"}</span>
-                        </a>
+                        </LangLink>
                     </div>
                 )}
             </div>

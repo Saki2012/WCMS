@@ -1,10 +1,9 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import ModuleContent from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
+import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
-import parse from "html-react-parser";
 import { useMemo } from "react";
 import { type ITimelineOptions, useTimelineFormFetchData } from "./Client_Timeline_Form_Loader";
 type TimelineSet = components["schemas"]["TimelineSet_DTO"];
@@ -197,28 +196,15 @@ const TimelineBlocks_Comp = (props: { lang: Lang; blocks: ITimelineYearBlockVm[]
 
 const TimelineRow_Comp = (props: { lang: Lang; row: ITimelineEntryVm; }) =>
 {
-    const contentNode = useTimelineContentNode(props.row.content, props.lang);
     const hasTitle = props.row.title.length > 0;
     const hasContent = props.row.content.length > 0;
-
     return (
         <li className="li_row">
             <div className="col-12">
                 {hasTitle && <div className="mb-2 fw-bold">{props.row.title}</div>}
-                {hasContent && contentNode}
+                {hasContent && <CmsHtml_Comp html={props.row.content} lang={props.lang} />}
                 {!hasTitle && !hasContent && null}
             </div>
         </li>
     );
-};
-
-/** 解析 Timeline 內容 HTML */
-const useTimelineContentNode = (html: string, lang: Lang) =>
-{
-    const resolved = useResolveInternalIds(html, { locale: lang });
-
-    return useMemo(() =>
-    {
-        return resolved.html ? parse(resolved.html) : null;
-    }, [resolved.html]);
 };

@@ -3,22 +3,6 @@ import { LangLink } from "@/SysCore/i18n/LangLink";
 
 export const AboutPage = (props: { lang: Lang; }) =>
 {
-    // 	const usebannerList = useBannerListData(`${SchemaFields.BannerFields.BannerId} = Banner20251106004`)
-    // 	const bannerInternal = usebannerList.rawData?.[0]?.Banner?.InternalId ?? ""
-    // 	const useBanner = useFetchFormData<BannerSet>(BannerSliderProvider(), bannerInternal, emptyData)
-    // 	const loadingList = [useBanner.isLoading, usebannerList.isLoading]
-    // 	const errorList = [useBanner.error, usebannerList.error]
-    // 	const sortedDetails = useMemo(() => {
-    // 		const list = useBanner.data?.BannerDetail ?? [];
-    // 		// 依 Detail.Sort 由小到大
-    // 		return [...list].sort((a, b) => {
-    // 			const as = Number.isFinite(a?.Sort) ? Number(a.Sort) : Number.MAX_SAFE_INTEGER;
-    // 			const bs = Number.isFinite(b?.Sort) ? Number(b.Sort) : Number.MAX_SAFE_INTEGER;
-    // 			// 次排序：RowId，確保順序穩定
-    // 			return as - bs || (a.RowId ?? 0) - (b.RowId ?? 0);
-    // 		});
-    // 	}, [useBanner.data?.BannerDetail]);
-
     return (
         <section className="About_section + Layout_Padding_1 + bg-custom-Video_color">
             <div className="Mask-DivBox" style={{ backgroundImage: "url(/images/bg/underline_03_Beige_1920x292.svg)" }}>
@@ -48,21 +32,19 @@ export const AboutPage = (props: { lang: Lang; }) =>
                                         </figure>
                                         <div className="Text_Block_Area">
                                             <div className="card_titleDiv">
-                                                <a href="https://www.youtube.com/@taiwantradmus8182?sub_confirmation=1" tabIndex={0} target="_blank" title="">
+                                                <LangLink to="https://www.youtube.com/@taiwantradmus8182?sub_confirmation=1">
                                                     <div className="card_title">【2025大學OPEN DAY系列影音】｜國立臺北藝術大學傳統音樂學系」</div>
-                                                </a>
+                                                </LangLink>
                                             </div>
                                         </div>
                                     </div>
                                 </article>
                                 <div className="col-12 + btn-w100-wrapper justify-content-center mt-3 mb-5">
                                     <div className="customize_btn">
-                                        <a
+                                        <LangLink
                                             className="Btn_a"
-                                            href="https://www.youtube.com/@taiwantradmus8182?sub_confirmation=1"
+                                            to="https://www.youtube.com/@taiwantradmus8182?sub_confirmation=1"
                                             role="button"
-                                            tabIndex={0}
-                                            target="_blank"
                                             title="更多傳音系影音"
                                             type="button"
                                         >
@@ -70,7 +52,7 @@ export const AboutPage = (props: { lang: Lang; }) =>
                                                 <span>More View</span>
                                                 <span className="ml-2">+</span>
                                             </div>
-                                        </a>
+                                        </LangLink>
                                     </div>
                                 </div>
                             </div>
@@ -87,16 +69,6 @@ export const AboutPage = (props: { lang: Lang; }) =>
                                                     以保存、傳承、研究並發展傳統音樂為宗旨，結合傳統藝術傳承理念與經驗和高等教育體系，兼融傳統與現代精神，發展精緻傳統音樂，並隨著臺灣移民社會及國際視野之需，延伸至亞洲許多地區傳統音樂的涉獵與實作。在強調傳承與發展在地傳統的同時，也積極開發傳統音樂於當代社會的各種可能的發展和應用，並且透過跨文化音樂技藝的養成，以培養具本國音樂專業技藝、國際文化視野與時代感的新世代音樂人才。
                                                 </span>
                                             </div>
-                                            {
-                                                /* <a
-												aria-label="[全文展開]"
-												className="About_label_btn"
-												href="javascript:void(0);"
-												role="button"
-												tabIndex={0}
-												title="[ 全文展開 ]"
-												type="button"></a> */
-                                            }
                                         </div>
                                         <p />
                                     </div>

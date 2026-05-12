@@ -464,14 +464,14 @@ const IssueSummaryDownload = (props: { fileId?: string; fileName?: string; downl
         <>
             <div className="JJ_main_contentDIV">
                 <div className="DownItem_Box">
-                    <a className="page-item" href={href} title={fileName} target="_blank" rel="noopener noreferrer">
+                    <LangLink className="page-item" to={href} title={fileName}>
                         <div className="icontxtbox">
                             <span className="page_icon">
                                 <i className="far fa-file-alt" aria-hidden="true"></i>
                             </span>
                             <span className="icontxt">{fileName}</span>
                         </div>
-                    </a>
+                    </LangLink>
                     <span className="G_Vline_Down">│</span>
                     <span className="Div_All_Ttext + views">
                         <i className="fas fa-download me-1" aria-hidden="true"></i>
@@ -516,12 +516,10 @@ const DocumentList = (props: { data: SpecJournalSet; }) =>
                         const fileUrl = FileManagementAPI.get_Public_Download_Url(file.fileId, fileName);
                         return (
                             <li key={file.key} className="col-12 col-sm-6 col-lg-3 d-flex">
-                                <a
+                                <LangLink
                                     className="w-100 border rounded bg-white text-decoration-none d-flex align-items-center px-2 py-2"
-                                    href={fileUrl}
+                                    to={fileUrl}
                                     title={fileName}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
                                 >
                                     <span
                                         className="d-inline-flex align-items-center justify-content-center rounded flex-shrink-0 me-3"
@@ -532,7 +530,7 @@ const DocumentList = (props: { data: SpecJournalSet; }) =>
                                     <span className="text-dark fw-semibold text-break" style={{ lineHeight: "1.35", wordBreak: "break-word" }}>
                                         {file.fileName}
                                     </span>
-                                </a>
+                                </LangLink>
                             </li>
                         );
                     })}
