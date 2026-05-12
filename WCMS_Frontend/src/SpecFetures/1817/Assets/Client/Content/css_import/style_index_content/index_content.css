@@ -1098,27 +1098,27 @@ a:hover .toplink-arrow.fb i {
 	background-clip: border-box;
 }
 .Carousel_slide_section .control-start-icon {
-    background-image: url(../../../images/banner/control-start-B-icon.svg);
+    background-image: url("../../../images/banner/control-start-B-icon.svg");
 }
 .Carousel_slide_section .control-pause-icon {
-    background-image: url(../../../images/banner/control-pause-B-icon.svg);
+    background-image: url("../../../images/banner/control-pause-B-icon.svg");
 }
 
 /* ------ ICON 符號 HOVER --------- */
 .Carousel_slide_section .control-start a:hover .control-start-icon {
-    background-image: url(../../../images/banner/control-start-W-icon.svg);
+    background-image: url("../../../images/banner/control-start-W-icon.svg");
 }
 .Carousel_slide_section .control-pause a:hover .control-pause-icon {
-    background-image: url(../../../images/banner/control-pause-W-icon.svg);
+    background-image: url("../../../images/banner/control-pause-W-icon.svg");
 }
 /* ------ ICON 符號 HOVER --------- */
 
 /* ------ ICON 符號 FOCUS --------- */
 .Carousel_slide_section .control-start a:focus .control-start-icon {
-    background-image: url(../../../images/banner/control-start-W-icon.svg);
+    background-image: url("../../../images/banner/control-start-W-icon.svg");
 }
 .Carousel_slide_section .control-pause a:focus .control-pause-icon{
-    background-image: url(../../../images/banner/control-pause-W-icon.svg);
+    background-image: url("../../../images/banner/control-pause-W-icon.svg");
 }
 /* ------ ICON 符號 FOCUS --------- */
 
@@ -1274,27 +1274,27 @@ a:hover .toplink-arrow.fb i {
 	background-clip: border-box;
 }
 .Carousel_slide_section .control-icon.play {
-    background-image: url(../../../images/banner/control-start-W-icon.svg);
+    background-image: url("../../../images/banner/control-start-W-icon.svg");
 }
 .Carousel_slide_section .control-icon.pause {
-    background-image: url(../../../images/banner/control-pause-W-icon.svg);
+    background-image: url("../../../images/banner/control-pause-W-icon.svg");
 }
 
 /* ------ ICON 符號 HOVER --------- */
 .Carousel_slide_section .control-toggle a:hover .control-icon.play {
-    background-image: url(../../../images/banner/control-start-W-icon.svg);
+    background-image: url("../../../images/banner/control-start-W-icon.svg");
 }
 .Carousel_slide_section .control-toggle a:hover .control-icon.pause {
-    background-image: url(../../../images/banner/control-pause-W-icon.svg);
+    background-image: url("../../../images/banner/control-pause-W-icon.svg");
 }
 /* ------ ICON 符號 HOVER --------- */
 
 /* ------ ICON 符號 FOCUS --------- */
 .Carousel_slide_section .control-toggle a:focus .control-icon.play {
-    background-image: url(../../../images/banner/control-start-W-icon.svg);
+    background-image: url("../../../images/banner/control-start-W-icon.svg");
 }
 .Carousel_slide_section .control-toggle a:focus .control-icon.pause {
-    background-image: url(../../../images/banner/control-pause-W-icon.svg);
+    background-image: url("../../../images/banner/control-pause-W-icon.svg");
 }
 /* ------ ICON 符號 FOCUS --------- */
 
@@ -3713,23 +3713,23 @@ a:hover .Arrow_RD_area .icon_ii i {
 }
 /*..............................................................................*/
 .Exhibition_section .control-singlebox a > .control-pause-icon {
-    content: url(../../../images/owl-carousel/control-pause-B-icon.svg);
+    content: url("../../../images/owl-carousel/control-pause-B-icon.svg");
 	background-image: none;
 }
 
 .Exhibition_section .control-singlebox a > .control-play-icon {
-    content: url(../../../images/owl-carousel/control-start-B-icon.svg);
+    content: url("../../../images/owl-carousel/control-start-B-icon.svg");
 	background-image: none;
 }
 
 .Exhibition_section .control-singlebox a:hover > .control-pause-icon,
 .Exhibition_section .control-singlebox a:focus > .control-pause-icon {
-    content: url(../../../images/owl-carousel/control-pause-W-icon.svg);
+    content: url("../../../images/owl-carousel/control-pause-W-icon.svg");
 }
 
 .Exhibition_section .control-singlebox a:hover > .control-play-icon,
 .Exhibition_section .control-singlebox a:focus > .control-play-icon {
-    content: url(../../../images/owl-carousel/control-start-W-icon.svg);
+    content: url("../../../images/owl-carousel/control-start-W-icon.svg");
 }
 /*=============================================*/
 /* ==   單一顆 暫停 / 撥放 [ 輪播 ] END   ========*/
@@ -3890,23 +3890,23 @@ a:hover .Arrow_RD_area .icon_ii i {
 }
 /*..............................................................................*/
 .Exhibition_section .control-start-icon {
-    background-image: url(../../../images/owl-carousel/control-start-B-icon.svg);
+    background-image: url("../../../images/owl-carousel/control-start-B-icon.svg");
     opacity: .85;
 }
 /*..............................................................................*/
 .Exhibition_section .control-pause-icon {
-    background-image: url(../../../images/owl-carousel/control-pause-B-icon.svg);
+    background-image: url("../../../images/owl-carousel/control-pause-B-icon.svg");
     opacity: .85;
 }
 /*..............................................................................*/
 .Exhibition_section a:hover .control-start-icon,
 .Exhibition_section a:focus .control-start-icon {
-    background-image: url(../../../images/owl-carousel/control-start-W-icon.svg);
+    background-image: url("../../../images/owl-carousel/control-start-W-icon.svg");
     opacity: .85;
 }
 .Exhibition_section a:hover .control-pause-icon,
 .Exhibition_section a:focus .control-pause-icon {
-    background-image: url(../../../images/owl-carousel/control-pause-W-icon.svg);
+    background-image: url("../../../images/owl-carousel/control-pause-W-icon.svg");
     opacity: .85;
 }
 /*..............................................................................*/
@@ -5091,23 +5091,23 @@ a:hover .Arrow_RD_area .icon_ii i {
 }
 /*..............................................................................*/
 .Zone_section .control-singlebox a > .control-pause-icon {
-    content: url(../../../images/owl-carousel/control-pause-B-icon.svg);
+    content: url("../../../images/owl-carousel/control-pause-B-icon.svg");
 	background-image: none;
 }
 
 .Zone_section .control-singlebox a > .control-play-icon {
-    content: url(../../../images/owl-carousel/control-start-B-icon.svg);
+    content: url("../../../images/owl-carousel/control-start-B-icon.svg");
 	background-image: none;
 }
 
 .Zone_section .control-singlebox a:hover > .control-pause-icon,
 .Zone_section .control-singlebox a:focus > .control-pause-icon {
-    content: url(../../../images/owl-carousel/control-pause-W-icon.svg);
+    content: url("../../../images/owl-carousel/control-pause-W-icon.svg");
 }
 
 .Zone_section .control-singlebox a:hover > .control-play-icon,
 .Zone_section .control-singlebox a:focus > .control-play-icon {
-    content: url(../../../images/owl-carousel/control-start-W-icon.svg);
+    content: url("../../../images/owl-carousel/control-start-W-icon.svg");
 }
 /*=============================================*/
 /* ==   單一顆 暫停 / 撥放 [ 輪播 ] END   ========*/
@@ -5268,23 +5268,23 @@ a:hover .Arrow_RD_area .icon_ii i {
 }
 /*..............................................................................*/
 .Zone_section .control-start-icon {
-    background-image: url(../../../images/owl-carousel/control-start-B-icon.svg);
+    background-image: url("../../../images/owl-carousel/control-start-B-icon.svg");
     opacity: .85;
 }
 /*..............................................................................*/
 .Zone_section .control-pause-icon {
-    background-image: url(../../../images/owl-carousel/control-pause-B-icon.svg);
+    background-image: url("../../../images/owl-carousel/control-pause-B-icon.svg");
     opacity: .85;
 }
 /*..............................................................................*/
 .Zone_section a:hover .control-start-icon,
 .Zone_section a:focus .control-start-icon {
-    background-image: url(../../../images/owl-carousel/control-start-W-icon.svg);
+    background-image: url("../../../images/owl-carousel/control-start-W-icon.svg");
     opacity: .85;
 }
 .Zone_section a:hover .control-pause-icon,
 .Zone_section a:focus .control-pause-icon {
-    background-image: url(../../../images/owl-carousel/control-pause-W-icon.svg);
+    background-image: url("../../../images/owl-carousel/control-pause-W-icon.svg");
     opacity: .85;
 }
 /*..............................................................................*/
