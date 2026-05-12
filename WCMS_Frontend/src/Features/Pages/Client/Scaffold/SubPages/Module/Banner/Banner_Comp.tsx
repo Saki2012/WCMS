@@ -52,14 +52,23 @@ export const Banner_Comp = (props: { lang: Lang; node: INormNode; initialBanner?
         return { aspectRatio: `${w} / ${h}` } as React.CSSProperties;
     }, [banner?.Banner?.Width, banner?.Banner?.Height]);
 
-    // function：輪播間隔（來源資料決定）
+    // function：輪播間隔（後台欄位為秒，Bootstrap 需要毫秒）
     const intervalMs = useMemo(() =>
     {
-        const raw = banner?.Banner?.Interval ?? 5000;
-        const n = Number(raw);
-        if (!Number.isFinite(n) || n <= 0) return 5000;
-        return n;
+        return toCarouselIntervalMs(banner?.Banner?.Interval);
     }, [banner?.Banner?.Interval]);
+
+    // function：輪播轉場速度（後台欄位為毫秒）
+    const speedMs = useMemo(() =>
+    {
+        return toCarouselSpeedMs(banner?.Banner?.Speed);
+    }, [banner?.Banner?.Speed]);
+
+    // function：套用 Bootstrap carousel 轉場速度
+    const carouselStyle = useMemo(() =>
+    {
+        return { "--bs-carousel-transition-duration": `${speedMs}ms` } as React.CSSProperties;
+    }, [speedMs]);
 
     // Carousel instance（client-only）
     const carouselRef = useRef<HTMLDivElement | null>(null);
@@ -117,7 +126,7 @@ export const Banner_Comp = (props: { lang: Lang; node: INormNode; initialBanner?
                     <div className="VLine_wrapper">
                         {/* <div className="subpage_banner_wrapper w-100" style={ratioStyle}> */}
                         <div className="subpage_banner_wrapper w-100">
-                            <div className="carousel slide h-100" id={carouselId} ref={carouselRef} data-bs-ride="carousel" data-bs-interval={intervalMs}>
+                            <div className="carousel slide h-100" id={carouselId} ref={carouselRef} data-bs-interval={intervalMs} style={carouselStyle}>
                                 <div className="carousel-inner h-100">
                                     {validDetails.map((d, i) =>
                                     {
@@ -126,13 +135,19 @@ export const Banner_Comp = (props: { lang: Lang; node: INormNode; initialBanner?
                                         const url = getInfoUrl(info);
                                         const imgUrl = FileManagementAPI.get_Public_Preview_Url(d.PicSrcId);
                                         return (
-                                            <div key={`${bannerId}_${d.RowId ?? i}_${i}`} className={`carousel-item ${i === 0 ? "active" : ""} h-100`}>
+                                            <div
+                                                key={`${bannerId}_${d.RowId ?? i}_${i}`}
+                                                className={`carousel-item ${i === 0 ? "active" : ""} h-100`}
+                                                style={{ transitionDuration: `${speedMs}ms` }}
+                                            >
                                                 {url
                                                     ? (
                                                         <LangLink to={url} title={title}>
                                                             <img
                                                                 src={imgUrl}
                                                                 className="d-block w-100 h-100"
+                                                                alt=""
+                                                                aria-hidden="true"
                                                                 style={{ width: "100%", height: "100%", objectFit: "cover", minHeight: "200px" }}
                                                             />
                                                         </LangLink>
@@ -181,9 +196,6 @@ const BannerFetch = (
     initial: ApiLoaderData<QueryListParam, BannerSet[]> | null,
 ) =>
 {
-    // 變數宣告
-    const enabled = !!bannerId;
-
     // function：優先使用 loader 提供的 condition（initial.args）
     const queryCondition = useMemo<QueryListParam>(() =>
     {
@@ -221,6 +233,23 @@ const BannerFetch = (
     return adapter.hooks.useQueryList({ condition: queryCondition, initial, deps: [bannerId, lang] });
 };
 
+const toCarouselIntervalMs = (value: unknown): number =>
+{
+    const n = Number(value ?? 0);
+    if (!Number.isFinite(n) || n <= 0) return 5000;
+
+    // 舊資料可能已是毫秒，新欄位標示為秒；小於 100 視為秒，避免 8 被當成 8ms。
+    return n < 100 ? n * 1000 : n;
+};
+
+const toCarouselSpeedMs = (value: unknown): number =>
+{
+    const n = Number(value ?? 0);
+    if (!Number.isFinite(n) || n <= 0) return 600;
+
+    return n;
+};
+
 const pickBannerDetailInfo = (detail: BannerDetail, lang: Lang): BannerDetailInfo | null =>
 {
     // 宣告變數
@@ -244,10 +273,4 @@ const getInfoUrl = (info: BannerDetailInfo | null): string =>
 {
     // return
     return (info?.URL ?? "").toString();
-};
-
-const getInfoOpenBlank = (info: BannerDetailInfo | null): boolean =>
-{
-    // return
-    return Boolean(info?.URL_Open);
 };

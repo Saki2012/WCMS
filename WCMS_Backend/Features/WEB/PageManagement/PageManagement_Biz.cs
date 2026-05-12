@@ -120,7 +120,7 @@ public class PageManagementBiz(BizDeps bizDeps) : BizService<PageManagementSet>(
 
     protected void CheckInUsed(PageManagementSet set)
     {
-
+        CheckIsUsedBySiteMenu();
     }
     #endregion
 
@@ -152,7 +152,7 @@ public class PageManagementBiz(BizDeps bizDeps) : BizService<PageManagementSet>(
     /// </summary>
     private void CheckIsUsedBySiteMenu()
     {
-
+        /* 需要先整理一下前端對於這些Json的格式後在來處理，否則會東一塊西一塊的名稱 */
     }
     #endregion
 }
