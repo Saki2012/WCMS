@@ -13,7 +13,6 @@ import { AccountFields, PageManagementDetailFields, PageManagementFields, PGID }
 import { useCallback, useMemo } from "react";
 type QueryListParam = components["schemas"]["QueryListParam"];
 type PageManagementSet = components["schemas"]["PageManagementSet_DTO"];
-type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 
 // #region Public
 export type PageManagementListRawData = {
@@ -24,8 +23,8 @@ export type PageManagementListRawData = {
     totalPages: number;
     onPageChange: (page: number) => void;
     param: QueryListParam;
-    categoryData: CategorySet[];
     categoryMap: Record<string, string>;
+    usedProgMap: Map<string, string>;
 };
 export type PageManagementListAdapter = { PageManagement: ReturnType<typeof PageManagementAdapter>; Category: ReturnType<typeof CategoryAdapter>; };
 export const usePageManagementListFetchData = (opt: { lang: Lang; kw: string; }): UseFetchDataResult<PageManagementListRawData, PageManagementListAdapter> =>
@@ -47,13 +46,14 @@ export const usePageManagementListFetchData = (opt: { lang: Lang; kw: string; })
         onError,
     });
     const category = adapter.Category.hooks.useMapByProgId({ progId: PGID.PageManagement, lang: opt.lang });
+    const usedProg = adapter.PageManagement.hooks.useUsedProgList({ deps: [], onError });
     // 宣告變數：loading / errors 統一出口
-    const isLoading = Boolean(grid.isLoading || category.isLoading);
+    const isLoading = Boolean(grid.isLoading || category.isLoading || usedProg.isLoading);
     const errors = useMemo(() =>
     {
-        const list = [...(grid.errors ?? []), category.errorText];
+        const list = [...(grid.errors ?? []), category.errorText, usedProg.errorText];
         return list.filter((x): x is string => Boolean(x));
-    }, [grid.errors, category.errorText]);
+    }, [grid.errors, category.errorText, usedProg.errorText]);
     // 宣告變數：rawData（你要的自定義出口）
     const rawData = useMemo<PageManagementListRawData>(() =>
     {
@@ -65,18 +65,29 @@ export const usePageManagementListFetchData = (opt: { lang: Lang; kw: string; })
             totalPages: grid.totalPages ?? 1,
             onPageChange: grid.onPageChange,
             param: grid.param,
-            categoryData: category.data ?? [],
             categoryMap: category.map ?? {},
+            usedProgMap: usedProg.data,
         };
-    }, [grid.modelDisplayName, grid.count, grid.list, grid.pageNumber, grid.totalPages, grid.onPageChange, grid.param, category.data, category.map]);
+    }, [
+        grid.modelDisplayName,
+        grid.count,
+        grid.list,
+        grid.pageNumber,
+        grid.totalPages,
+        grid.onPageChange,
+        grid.param,
+        category.data,
+        category.map,
+        usedProg.data,
+    ]);
     const refetchData = useCallback(async () =>
     {
         await grid.refetchData();
     }, [grid]);
     const refetchRefData = useCallback(async () =>
     {
-        await Promise.all([category.refetch()]);
-    }, [category]);
+        await Promise.all([category.refetch(), usedProg.refetch()]);
+    }, [category, usedProg]);
     return { adapter, rawData, isLoading, errors, refetchData, refetchRefData };
 };
 // #endregion

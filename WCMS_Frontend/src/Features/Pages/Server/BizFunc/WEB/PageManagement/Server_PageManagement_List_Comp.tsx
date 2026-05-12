@@ -18,7 +18,7 @@ type PageManagementSet = components["schemas"]["PageManagementSet_DTO"];
 export const PageListComp = (prop: { title: string; theme: IBETheme; lang: Lang; }) =>
 {
     const [kw, setKw] = useState<string>("");
-    const searchCompProp: SearchBarProps = { title: "頁面搜尋", subTitle: "搜尋頁面 ...", settingTitle: "搜尋設定", onSubmit: setKw, onReset: () => setKw("") };
+    const searchCompProp: SearchBarProps = { title: "頁面搜尋", subTitle: "搜尋頁面 ...", onSubmit: setKw, onReset: () => setKw("") };
     const pathname = useLocation().pathname;
     const dirUrl = useMemo(() => pathname.replace(/\/List$/, `/Form`), [pathname]);
     const navigate = useNavigate();

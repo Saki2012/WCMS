@@ -20,6 +20,14 @@ namespace WCMS.SysCore.I18n
             var attr = prop.GetCustomAttribute<LibDescAttribute>();
             return DoGetLocalizedDescription(prop.Name, attr);
         }
+        /// <summary>
+        /// 取得欄位的多語系描述
+        /// </summary>
+        public static string GetLocalizedDescription(FieldInfo field)
+        {
+            var attr = field.GetCustomAttribute<LibDescAttribute>();
+            return DoGetLocalizedDescription(field.Name, attr);
+        }
 
         private static string DoGetLocalizedDescription(string name,LibDescAttribute attr)
         {
@@ -36,6 +44,7 @@ namespace WCMS.SysCore.I18n
         private static string CultureKey => CultureInfo.CurrentUICulture.Name;
         private static string TypeKey(Type type) => $"{CultureKey}|T:{type.FullName}";
         private static string PropKey(PropertyInfo prop) => $"{CultureKey}|P:{prop.DeclaringType?.FullName}.{prop.Name}";
+        private static string FieldKey(FieldInfo field) => $"{CultureKey}|F:{field.DeclaringType?.FullName}.{field.Name}";
         public static string GetLabel<T>() => GetLabel(typeof(T));
         public static string GetLabel<T>(Expression<Func<T, object>> selector)
         {
@@ -46,5 +55,14 @@ namespace WCMS.SysCore.I18n
         }
         public static string GetLabel(Type type) => _cache.GetOrAdd(TypeKey(type), _ => I18nModelHelper.GetLocalizedDescription(type));
         public static string GetLabel(PropertyInfo prop) => _cache.GetOrAdd(PropKey(prop), _ => I18nModelHelper.GetLocalizedDescription(prop));
+        /// <summary>
+        /// 依常數欄位名稱取得多語系標籤
+        /// </summary>
+        public static string GetFieldLabel(Type type, string fieldName)
+        {
+            var field = type.GetField(fieldName, BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
+            if (field == null) return $"[{fieldName}]";
+            return _cache.GetOrAdd(FieldKey(field), _ => I18nModelHelper.GetLocalizedDescription(field));
+        }
     }
 }

@@ -19,6 +19,8 @@ type SiteMenu_Item_Module = components["schemas"]["SiteMenu_Item_Module_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 type TagSet = components["schemas"]["TagSet_DTO"];
 type MenuUrlType = components["schemas"]["MenuUrlType"];
+type PageSet = components["schemas"]["PageManagementSet_DTO"];
+
 export type ModelKey = string | PGID;
 
 type RenderRightBoxProp = {
@@ -33,7 +35,7 @@ type RenderRightBoxProp = {
     moduleDisplayStyle: Record<string, string>;
     categorySets: CategorySet[];
     tagSets: TagSet[];
-    pageMap: Record<string, string>;
+    pageSets: PageSet[];
     timelineMap: Map<string, string>;
     surveyMap: Map<string, string>;
     action: SiteMenuActions;
@@ -154,7 +156,7 @@ export const RenderRightBox = (prop: RenderRightBoxProp) =>
                                         moduleDisplayStyle={prop.moduleDisplayStyle}
                                         categorySets={prop.categorySets}
                                         tagSets={prop.tagSets}
-                                        pageMap={prop.pageMap}
+                                        pageSets={prop.pageSets}
                                         timelineMap={prop.timelineMap}
                                         surveyMap={prop.surveyMap}
                                         tabResetSeed={tabResetSeed}
@@ -207,7 +209,7 @@ type MenuInfoCompProps = {
     moduleDisplayStyle: Record<string, string>;
     categorySets: CategorySet[];
     tagSets: TagSet[];
-    pageMap: Record<string, string>;
+    pageSets: PageSet[];
     timelineMap: Map<string, string>;
     surveyMap: Map<string, string>;
     tabResetSeed: number;
@@ -266,7 +268,7 @@ const MenuInfoComp = (prop: MenuInfoCompProps) =>
                     moduleDisplayStyle={prop.moduleDisplayStyle}
                     categorySets={prop.categorySets}
                     tagSets={prop.tagSets}
-                    pageMap={prop.pageMap}
+                    pageSets={prop.pageSets}
                     timelineMap={prop.timelineMap}
                     surveyMap={prop.surveyMap}
                 />,

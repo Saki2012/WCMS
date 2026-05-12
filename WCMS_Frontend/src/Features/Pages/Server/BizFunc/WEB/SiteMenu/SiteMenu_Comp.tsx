@@ -43,7 +43,7 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang; }) =>
                     timelineMap={getData.rawData.timelineMap}
                     surveyMap={getData.rawData.surveyMap}
                     tagSets={getData.rawData.tagSets}
-                    pageMap={getData.rawData.pageMap}
+                    pageSets={getData.rawData.pageSets}
                     action={getData.rawData.actions}
                 />
             </div>

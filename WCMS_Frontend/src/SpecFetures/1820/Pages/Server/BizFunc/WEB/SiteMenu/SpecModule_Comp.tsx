@@ -11,6 +11,7 @@ import { useMemo } from "react";
 type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 type TagSet = components["schemas"]["TagSet_DTO"];
+type PageSet = components["schemas"]["PageManagementSet_DTO"];
 
 export interface Module_SpecProduction_OptionsJson
 {
@@ -29,7 +30,7 @@ export const Module_SpecProduction_Comp = (
         lang: Lang;
         categorySets: CategorySet[];
         tagSets: TagSet[];
-        pageMap: Record<string, string>;
+        pageSets: PageSet[];
     },
 ): React.ReactNode =>
 {
@@ -51,10 +52,7 @@ export const Module_SpecProduction_Comp = (
     const pageBind = binder.bind("PageId", "string");
     const categoryOptions = useGetCategoryDict(PGID.Material, prop.lang, prop.categorySets);
     const tagOptions = useGetTagDict(PGID.Material, prop.lang, prop.tagSets);
-    const pageOptions = useMemo(() =>
-    {
-        return new Map<string, string>(Object.entries(prop.pageMap ?? {}));
-    }, [prop.pageMap]);
+    const pageOpts = useMemo(() => buildPageMapByProgId(prop.pageSets, PGID.Material, prop.lang), [prop.pageSets, prop.lang]);
     return (
         <>
             <LibDropList
@@ -71,7 +69,7 @@ export const Module_SpecProduction_Comp = (
             <LibDropList
                 Style={prop.theme.DropList}
                 ColumnDisplayName="介紹頁面"
-                Options={pageOptions}
+                Options={pageOpts}
                 InputValue={pageBind.value}
                 onChange={pageBind.onChange}
                 AutoDefaultFirst={false}
@@ -117,4 +115,18 @@ const useGetTagDict = (progId: PGID, lang: Lang, tagSets: TagSet[]) =>
     }, [progId, lang, tagSets]);
 
     return tagDic;
+};
+
+const buildPageMapByProgId = (pageSets: PageSet[], progId: PGID, lang: Lang): Map<string, string> =>
+{
+    const targetProgId = String(progId ?? "");
+    return pageSets.reduce<Map<string, string>>((acc, item) =>
+    {
+        const page = item.PageManagement;
+        if (!page?.InternalId) return acc;
+        if (String(page.ProgId ?? "") !== targetProgId) return acc;
+        const title = item.PageManagementDetail?.find(p => p.Lang === lang)?.Title ?? "";
+        acc.set(String(page.InternalId), title);
+        return acc;
+    }, new Map<string, string>());
 };

@@ -6,9 +6,11 @@ import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useOptionalSpecAssetUrl } from "@/SysCore/Utils/UI_HookFunc/useOptionalSpecAssetUrl";
 import type { components } from "@/types/api";
+import parse from "html-react-parser";
 import { useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { type IMaterialListOptions, useMaterialListData } from "./Client_Material_List_Loader";
+
 type MaterialSet = components["schemas"]["MaterialSet_DTO"];
 
 // #region Property
@@ -34,14 +36,16 @@ interface MaterialCardView
 // #endregion
 
 // #region Public Component
-/** 物件清單：依照 Prototype 商品卡片結構顯示 Material 資料 */
+/** 物件清單：先顯示 PageManagement 內容，再依照 Prototype 商品卡片結構顯示 Material 資料 */
 export const Client_Material_List_Comp = (props: IMaterialListProps) =>
 {
     const dirUrl = useLocation().pathname.replace(/\/List$/, "");
     const viewState = useMemo(() => ({ pageNumber: 1, pageSize: 12, keyword: undefined }), []);
     const vm = useMaterialListData({ lang: props.lang, opts: props.options, viewState });
     const rawData = vm.rawData;
+    const content = useMemo(() => (rawData.pageContentHtml ? parse(rawData.pageContentHtml) : null), [rawData.pageContentHtml]);
     const paginprops = { currentPage: rawData.pageNumber, totalPages: rawData.totalPages, onPageChange: vm.onPageChange };
+
     return (
         <ModuleContent
             nodeTitle={props.node.title}
@@ -50,6 +54,8 @@ export const Client_Material_List_Comp = (props: IMaterialListProps) =>
             paginatorProps={paginprops}
             viewCountConfig={{ mode: "list" }}
         >
+            {content}
+            {content && <hr className="hr-my-4" />}
             <MaterialCardList_Comp dirUrl={dirUrl} lang={props.lang} listData={rawData.listData} categoryMap={rawData.categoryMap} />
         </ModuleContent>
     );
@@ -57,24 +63,26 @@ export const Client_Material_List_Comp = (props: IMaterialListProps) =>
 // #endregion
 
 // #region Private Components
-/** */
+/** Material 卡片列表 */
 const MaterialCardList_Comp = (props: { dirUrl: string; lang: Lang; listData: MaterialSet[]; categoryMap: Record<string, string>; }) =>
 {
     const defaultPic = useOptionalSpecAssetUrl({ relativePath: "Assets/Custom/DefaultMaterialPic.jpg", fallbackToDefault: true }) ?? "";
-    const cards = useMemo(() => props.listData.map(item => buildMaterialCardView(item, props.lang, props.dirUrl, props.categoryMap)), [
+    const cards = useMemo(() => props.listData.map(item => buildMaterialCardView(item, props.lang, props.dirUrl, props.categoryMap, defaultPic)), [
         props.listData,
         props.lang,
         props.dirUrl,
         props.categoryMap,
         defaultPic,
     ]);
+
     return (
         <div className="SubInfoDivBox_Style Layout_Padding_4_bottom">
             <div id="Row_Colitem" className="SubPage_Standard_itemBoxs">{cards.map(item => <MaterialCardItem_Comp key={item.key} item={item} />)}</div>
         </div>
     );
 };
-/** */
+
+/** Material 卡片項目 */
 const MaterialCardItem_Comp = (props: { item: MaterialCardView; }) =>
 {
     return (
@@ -147,7 +155,7 @@ const MaterialCardItem_Comp = (props: { item: MaterialCardView; }) =>
 
 // #region Private Func
 /** 組成卡片顯示資料 */
-const buildMaterialCardView = (item: MaterialSet, lang: Lang, dirUrl: string, categoryMap: Record<string, string>): MaterialCardView =>
+const buildMaterialCardView = (item: MaterialSet, lang: Lang, dirUrl: string, categoryMap: Record<string, string>, defaultPic: string): MaterialCardView =>
 {
     const main = item.Material;
     const langInfo = item.MaterialLangInfo?.find(p => p.Lang === lang) ?? item.MaterialLangInfo?.[0];
@@ -157,9 +165,10 @@ const buildMaterialCardView = (item: MaterialSet, lang: Lang, dirUrl: string, ca
     const categoryName = getMapText(categoryMap, main?.CategoryId);
     const picData = item.MaterialPicture?.[0];
     const picAlt = picData?.PictureName ?? title;
-    const picUrl = FileManagementAPI.get_Public_Preview_Url(picData?.PictureId, picAlt);
+    const picUrl = picData?.PictureId ? FileManagementAPI.get_Public_Preview_Url(picData.PictureId, picAlt) : defaultPic;
     return { key: internalId, linkUrl: `${dirUrl}/${internalId}`, title, price, categoryName, picUrl, picAlt };
 };
+
 /** 從 map 取得顯示名稱 */
 const getMapText = (map: Record<string, string>, key?: string | null): string =>
 {

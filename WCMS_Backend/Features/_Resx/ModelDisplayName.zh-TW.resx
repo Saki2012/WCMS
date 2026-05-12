@@ -876,4 +876,82 @@
   <data name="WebClient_TimeZone" xml:space="preserve">
     <value>使用者時區</value>
   </data>
+  <data name="Module" xml:space="preserve">
+    <value>模塊</value>
+  </data>
+  <data name="Module_COMM" xml:space="preserve">
+    <value>共通模塊</value>
+  </data>
+  <data name="Module_IAM" xml:space="preserve">
+    <value>帳號管理模塊</value>
+  </data>
+  <data name="Module_MAT" xml:space="preserve">
+    <value>商品物品管理模塊</value>
+  </data>
+  <data name="Module_SYS" xml:space="preserve">
+    <value>系統管理模塊</value>
+  </data>
+  <data name="Module_WEB" xml:space="preserve">
+    <value>前台網站管理模塊</value>
+  </data>
+  <data name="Module_SPEC" xml:space="preserve">
+    <value>特殊模塊</value>
+  </data>
+  <data name="Prog" xml:space="preserve">
+    <value>功能</value>
+  </data>
+  <data name="Prog_Account" xml:space="preserve">
+    <value>帳號管理</value>
+  </data>
+  <data name="Prog_Auth" xml:space="preserve">
+    <value>登入授權</value>
+  </data>
+  <data name="Prog_RolePermission" xml:space="preserve">
+    <value>角色權限</value>
+  </data>
+  <data name="Prog_Material" xml:space="preserve">
+    <value>物件管理</value>
+  </data>
+  <data name="Prog_MatCategory" xml:space="preserve">
+    <value>物件類別</value>
+  </data>
+  <data name="Prog_Dashboard" xml:space="preserve">
+    <value>儀表板</value>
+  </data>
+  <data name="Prog_HomePageSetting" xml:space="preserve">
+    <value>首頁設定</value>
+  </data>
+  <data name="Prog_Announcement" xml:space="preserve">
+    <value>公告管理</value>
+  </data>
+  <data name="Prog_Banner" xml:space="preserve">
+    <value>橫幅管理</value>
+  </data>
+  <data name="Prog_FileArchive" xml:space="preserve">
+    <value>檔案室</value>
+  </data>
+  <data name="Prog_Gallery" xml:space="preserve">
+    <value>相簿管理</value>
+  </data>
+  <data name="Prog_PageManagement" xml:space="preserve">
+    <value>頁面管理</value>
+  </data>
+  <data name="Prog_SiteMenu" xml:space="preserve">
+    <value>網站選單設定</value>
+  </data>
+  <data name="Prog_SiteViewCount" xml:space="preserve">
+    <value>網站瀏覽統計</value>
+  </data>
+  <data name="Prog_WebResource" xml:space="preserve">
+    <value>網路資源管理</value>
+  </data>
+  <data name="Prog_Timeline" xml:space="preserve">
+    <value>紀事表</value>
+  </data>
+  <data name="Prog_Survey" xml:space="preserve">
+    <value>問卷設計</value>
+  </data>
+  <data name="Prog_SurveySubmission" xml:space="preserve">
+    <value>問卷回覆</value>
+  </data>
 </root>

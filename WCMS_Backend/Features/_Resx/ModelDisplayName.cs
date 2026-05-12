@@ -203,6 +203,163 @@ public static class ModelDisplayName
     public const string Common_Name = nameof(Common_Name);
     #endregion
 
+
+    #region Module
+    /// <summary>
+    /// 中：模塊
+    /// 英：Module
+    /// </summary>
+    public const string Module = nameof(Module);
+    /// <summary>
+    /// 中：共通模塊
+    /// 英：Common Module
+    /// </summary>
+    public const string Module_COMM = nameof(Module_COMM);
+    /// <summary>
+    /// 中：帳號管理模塊
+    /// 英：Account Management Module
+    /// </summary>
+    public const string Module_IAM = nameof(Module_IAM);
+    /// <summary>
+    /// 中：商品物品管理模塊
+    /// 英：Material Management Module
+    /// </summary>
+    public const string Module_MAT = nameof(Module_MAT);
+    /// <summary>
+    /// 中：系統管理模塊
+    /// 英：Common Module
+    /// </summary>
+    public const string Module_SYS = nameof(Module_SYS);
+    /// <summary>
+    /// 中：前台網站管理模塊
+    /// 英：Website Management Module
+    /// </summary>
+    public const string Module_WEB = nameof(Module_WEB);
+    /// <summary>
+    /// 中：特殊模塊
+    /// 英：Special Module
+    /// </summary>
+    public const string Module_SPEC = nameof(Module_SPEC);
+    #endregion
+
+    #region Prog
+    /// <summary>
+    /// 中：功能
+    /// 英：Program
+    /// </summary>
+    public const string Prog = nameof(Prog);
+    /// <summary>
+    /// 中：帳號管理
+    /// 英：Account Management
+    /// </summary>
+    public const string Prog_Account = nameof(Prog_Account);
+    /// <summary>
+    /// 中：登入授權
+    /// 英：Authentication & Authorization
+    /// </summary>
+    public const string Prog_Auth = nameof(Prog_Auth);
+    /// <summary>
+    /// 中：角色權限
+    /// 英：Role Permission
+    /// </summary>
+    public const string Prog_RolePermission = nameof(Prog_RolePermission);
+    /// <summary>
+    /// 中：物件管理
+    /// 英：Material Management
+    /// </summary>
+    public const string Prog_Material = nameof(Prog_Material);
+    /// <summary>
+    /// 中：物件類別
+    /// 英：Material Category
+    /// </summary>
+    public const string Prog_MatCategory = nameof(Prog_MatCategory);
+    /// <summary>
+    /// 中：儀表板
+    /// 英：Dashboard
+    /// </summary>
+    public const string Prog_Dashboard = nameof(Prog_Dashboard);
+    /// <summary>
+    /// 中：首頁設定
+    /// 英：Home Page Setting
+    /// </summary>
+    public const string Prog_HomePageSetting = nameof(Prog_HomePageSetting);
+    /// <summary>
+    /// 中：公告管理
+    /// 英：Announcement Management
+    /// </summary>
+    public const string Prog_Announcement = nameof(Prog_Announcement);
+    /// <summary>
+    /// 中：橫幅管理
+    /// 英：Banner Management
+    /// </summary>
+    public const string Prog_Banner = nameof(Prog_Banner);
+    /// <summary>
+    /// 中：檔案室
+    /// 英：File Archive
+    /// </summary>
+    public const string Prog_FileArchive = nameof(Prog_FileArchive);
+    /// <summary>
+    /// 中：相簿管理
+    /// 英：Gallery Management
+    /// </summary>
+    public const string Prog_Gallery = nameof(Prog_Gallery);
+    /// <summary>
+    /// 中：頁面管理
+    /// 英：Page Management
+    /// </summary>
+    public const string Prog_PageManagement = nameof(Prog_PageManagement);
+    /// <summary>
+    /// 中：網站選單設定
+    /// 英：Site Menu Setting
+    /// </summary>
+    public const string Prog_SiteMenu = nameof(Prog_SiteMenu);
+    /// <summary>
+    /// 中：網站瀏覽統計
+    /// 英：Site View Count
+    /// </summary>
+    public const string Prog_SiteViewCount = nameof(Prog_SiteViewCount);
+    /// <summary>
+    /// 中：網路資源管理
+    /// 英：Web Resource Management
+    /// </summary>
+    public const string Prog_WebResource = nameof(Prog_WebResource);
+    /// <summary>
+    /// 中：紀事表
+    /// 英：Timeline
+    /// </summary>
+    public const string Prog_Timeline = nameof(Prog_Timeline);
+    /// <summary>
+    /// 中：問卷設計
+    /// 英：Survey
+    /// </summary>
+    public const string Prog_Survey = nameof(Prog_Survey);
+    /// <summary>
+    /// 中：問卷回覆
+    /// 英：Survey Submission
+    /// </summary>
+    public const string Prog_SurveySubmission = nameof(Prog_SurveySubmission);
+    /// <summary>
+    /// 中：行事曆
+    /// 英：Calendar
+    /// </summary>
+    public const string Prog_Calendar = nameof(Prog_Calendar);
+    /// <summary>
+    /// 中：類別
+    /// 英：Category
+    /// </summary>
+    public const string Prog_Category = nameof(Prog_Category);
+    /// <summary>
+    /// 中：基礎人員資料
+    /// 英：Person Basic Data
+    /// </summary>
+    public const string Prog_Person = nameof(Prog_Person);
+    /// <summary>
+    /// 中：標籤
+    /// 英：Tag
+    /// </summary>
+    public const string Prog_Tag = nameof(Prog_Tag);
+    #endregion
+
     #region WebClient
     /// <summary>
     /// 中：瀏覽器 UserAgent
@@ -932,6 +1089,13 @@ public static class ModelDisplayName
     /// 英：Page
     /// </summary>
     public const string PageId = nameof(PageId);
+
+    /// <summary>
+    /// 中：所屬模塊
+    /// 英：Page Prog
+    /// </summary>
+    public const string Page_Prog = nameof(Page_Prog);
+
     /// <summary>
     /// 中：類別
     /// 英：Categories

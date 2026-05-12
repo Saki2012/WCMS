@@ -1,9 +1,6 @@
-﻿using MimeDetective.Storage.Xml.v2;
-using System.Data;
+﻿using System.Data;
 using WCMS.Features._Resx;
-using WCMS.Features.WEB.Gallery;
 using WCMS.SysCore;
-using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
@@ -70,25 +67,60 @@ public class PageManagementBiz(BizDeps bizDeps) : BizService<PageManagementSet>(
     }
     #endregion
 
+    #region Public
+    /// <summary>
+    /// 獲取可被SiteMenu設定的功能模塊列表
+    /// </summary>
+    /// <returns></returns>
+    public Dictionary<string, string> GetSiteMenuUsedProgList()
+    {
+        Dictionary<string, string> dict = new()
+        {
+            { ProgKeys.WEB.PageManagement, I18nCache.GetFieldLabel(typeof(ProgKeys.WEB), nameof(ProgKeys.WEB.PageManagement))},
+            { ProgKeys.WEB.Announcement, I18nCache.GetFieldLabel(typeof(ProgKeys.WEB), nameof(ProgKeys.WEB.Announcement))},
+            { ProgKeys.WEB.FileArchive, I18nCache.GetFieldLabel(typeof(ProgKeys.WEB), nameof(ProgKeys.WEB.FileArchive))},
+            { ProgKeys.WEB.WebResource, I18nCache.GetFieldLabel(typeof(ProgKeys.WEB), nameof(ProgKeys.WEB.WebResource))},
+            { ProgKeys.WEB.Gallery, I18nCache.GetFieldLabel(typeof(ProgKeys.WEB), nameof(ProgKeys.WEB.Gallery))},
+            { ProgKeys.MAT.Material, I18nCache.GetFieldLabel(typeof(ProgKeys.MAT), nameof(ProgKeys.MAT.Material))},
+        };
+        SpecGetSiteMenuUsedProgList(dict);
+        return dict;
+    }
+    #endregion
+
     #region Protected Virtual
     protected override Task BeforeUpdate(PageManagementSet set, FuncAction act, CancellationToken ct = default)
     {
         var @base = base.BeforeUpdate(set, act, ct);
-
         switch (act)
         {
             case FuncAction.Create:
             case FuncAction.Update:
                 CheckData(set);
                 break;
+            case FuncAction.Delete:
+
+                break;
         }
         return @base;
     }
+    /// <summary>
+    /// 給Spec功能要追加的功能模塊
+    /// </summary>
+    /// <param name="dict"></param>
+    protected virtual void SpecGetSiteMenuUsedProgList(Dictionary<string,string> dict){}
     #endregion
+
     #region Protected
     protected void CheckData(PageManagementSet set)
     {
         AACheck(set);
+        CheckProgId(set.PageManagement);
+    }
+
+    protected void CheckInUsed(PageManagementSet set)
+    {
+
     }
     #endregion
 
@@ -100,10 +132,27 @@ public class PageManagementBiz(BizDeps bizDeps) : BizService<PageManagementSet>(
     private void AACheck(PageManagementSet set)
     {
         if (!SpecSettings.AACheck) return;
-        set.PageManagementDetail.ForEach(dt => {
+        set.PageManagementDetail.ForEach(dt => 
+        {
             if (dt.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.AACode00003, dt.Lang.ToLabel(), I18nCache.GetLabel<PageManagementDetail_DTO>(x => x.Title));
-            if (LibAAData.CheckAAContent(dt.Content,Message,out string newContent)) dt.Content= newContent; 
+            if (LibAAData.CheckAAContent(dt.Content,Message,out string newContent)) dt.Content = newContent; 
         });
+    }
+    /// <summary>
+    /// 如果【所屬功能模塊】欄位不在GetSiteMenuUsedProgList之中，就自動帶入PageManagement，避免使用者輸入錯誤的ProgId導致SiteMenu無法設定
+    /// </summary>
+    /// <param name="header"></param>
+    private void CheckProgId(PageManagement header)
+    {
+        List<string> progIds = [.. GetSiteMenuUsedProgList().Keys];
+        if (!progIds.Contains(header.ProgId)) header.ProgId=ProgKeys.WEB.PageManagement;
+    }
+    /// <summary>
+    /// 檢查資料是否被網站導覽給使用
+    /// </summary>
+    private void CheckIsUsedBySiteMenu()
+    {
+
     }
     #endregion
 }

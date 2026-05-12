@@ -9,7 +9,8 @@ import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import { resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
 import type { components } from "@/types/api";
 import { PGID, SiteMenu_Item_ModuleFields, SiteMenuSetFields, TimelineFields } from "@/types/SchemaFields";
-import { type ReactNode, useEffect, useMemo } from "react";
+import type { Dispatch, ReactNode, SetStateAction } from "react";
+import { useEffect, useMemo } from "react";
 import type { SiteMenuItem } from "../../SiteMenu_Hook";
 import type { ModelKey } from "../RenderRightBox_Comp";
 
@@ -18,6 +19,7 @@ type SiteMenu_Item = components["schemas"]["SiteMenu_Item_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 type TagSet = components["schemas"]["TagSet_DTO"];
 type SiteMenu_Item_Module = components["schemas"]["SiteMenu_Item_Module_DTO"];
+type PageSet = components["schemas"]["PageManagementSet_DTO"];
 
 const BaseModuleOpts: Record<string, string> = {
     Announcement: "公告",
@@ -53,11 +55,11 @@ interface ModuleSettingTabExtensionContext
     selectedItemEdit: SiteMenuItem | null;
     setField: ReturnType<typeof useSetTableField<SiteMenuSet>>;
     modelKey: ModelKey;
-    setModelKey: React.Dispatch<React.SetStateAction<ModelKey>>;
+    setModelKey: Dispatch<SetStateAction<ModelKey>>;
     moduleDisplayStyle: Record<string, string>;
     categorySets: CategorySet[];
     tagSets: TagSet[];
-    pageMap: Record<string, string>;
+    pageSets: PageSet[];
     timelineMap: Map<string, string>;
     surveyMap: Map<string, string>;
 }
@@ -65,7 +67,7 @@ export interface ModuleSettingTabExtension
 {
     moduleOptions?: Partial<Record<ModelKey, string>>;
     moduleRenderers?: Partial<Record<ModelKey, ModuleRenderFactory>>;
-    /**功能白名單 */
+    /** 功能白名單 */
     moduleAllowKeys?: readonly string[];
 }
 type ModuleRenderFactory = (ctx: ModuleSettingTabExtensionContext) => ReactNode;
@@ -73,7 +75,6 @@ type UseModuleSettingTabExtensionSlot = () => ModuleSettingTabExtension;
 /** 預設擴充：沒有 Spec 時不做任何額外 Module 擴充 */
 const useModuleSettingTabExtensionBase: UseModuleSettingTabExtensionSlot = () =>
 {
-    // return
     return {};
 };
 
@@ -86,28 +87,23 @@ const useResolvedModuleSettingTabExtension = resolveSpecFunc<UseModuleSettingTab
 /** 合併 Feature 與 Spec 模型功能選項 */
 const mergeModuleOptions = (baseOptions: Record<string, string>, specOptions?: Partial<Record<ModelKey, string>>): Record<string, string> =>
 {
-    // 宣告變數
     const merged: Record<string, string> = { ...baseOptions };
 
-    // 執行function
     Object.entries(specOptions ?? {}).forEach(([key, value]) =>
     {
         if (!value) return;
         merged[key] = value;
     });
 
-    // return
     return merged;
 };
 
 /** 依 Spec 白名單過濾模型功能 */
 const filterModuleOptions = (options: Record<string, string>, allowKeys?: readonly string[]): Record<string, string> =>
 {
-    // 宣告變數
     if (!allowKeys?.length) return options;
     const allowSet = new Set<string>(allowKeys);
 
-    // return
     return Object.entries(options).reduce<Record<string, string>>((acc, [key, value]) =>
     {
         if (!allowSet.has(key)) return acc;
@@ -119,11 +115,9 @@ const filterModuleOptions = (options: Record<string, string>, allowKeys?: readon
 /** 依 Spec 白名單過濾模型功能渲染器 */
 const filterModuleRenderers = (renderers: Record<string, ModuleRenderFactory>, allowKeys?: readonly string[]): Record<string, ModuleRenderFactory> =>
 {
-    // 宣告變數
     if (!allowKeys?.length) return renderers;
     const allowSet = new Set<string>(allowKeys);
 
-    // return
     return Object.entries(renderers).reduce<Record<string, ModuleRenderFactory>>((acc, [key, value]) =>
     {
         if (!allowSet.has(key)) return acc;
@@ -138,14 +132,14 @@ interface ModuleSettingTabProps
     modelKey: ModelKey;
     formData: UseFetchFormDataResult<SiteMenuSet>;
     setField: ReturnType<typeof useSetTableField<SiteMenuSet>>;
-    setModelKey: React.Dispatch<React.SetStateAction<ModelKey>>;
+    setModelKey: Dispatch<SetStateAction<ModelKey>>;
     modulePageType: Record<string, string>;
     windowTarget: Record<string, string>;
     bannerDict: Record<string, string>;
     moduleDisplayStyle: Record<string, string>;
     categorySets: CategorySet[];
     tagSets: TagSet[];
-    pageMap: Record<string, string>;
+    pageSets: PageSet[];
     timelineMap: Map<string, string>;
     surveyMap: Map<string, string>;
 }
@@ -188,6 +182,12 @@ export const ModuleSettingTab = (prop: ModuleSettingTabProps) =>
         return new Map<string, string>(Object.entries(filtered));
     }, [specExtension.moduleOptions, specExtension.moduleAllowKeys]);
 
+    const activeModelKey = useMemo<ModelKey>(() =>
+    {
+        const bindValue = String(moduleKeyBind.InputValue ?? "") as ModelKey;
+        return bindValue || prop.modelKey;
+    }, [moduleKeyBind.InputValue, prop.modelKey]);
+
     const extensionContext = useMemo<ModuleSettingTabExtensionContext>(() =>
     {
         return {
@@ -195,12 +195,12 @@ export const ModuleSettingTab = (prop: ModuleSettingTabProps) =>
             formData: prop.formData,
             selectedItemEdit: selectedNode,
             setField: prop.setField,
-            modelKey: prop.modelKey,
+            modelKey: activeModelKey,
             setModelKey: prop.setModelKey,
             moduleDisplayStyle: prop.moduleDisplayStyle,
             categorySets: prop.categorySets,
             tagSets: prop.tagSets,
-            pageMap: prop.pageMap,
+            pageSets: prop.pageSets,
             timelineMap: prop.timelineMap,
             surveyMap: prop.surveyMap,
         };
@@ -209,13 +209,14 @@ export const ModuleSettingTab = (prop: ModuleSettingTabProps) =>
         prop.formData,
         selectedNode,
         prop.setField,
-        prop.modelKey,
+        activeModelKey,
         prop.setModelKey,
         prop.moduleDisplayStyle,
         prop.categorySets,
         prop.tagSets,
-        prop.pageMap,
+        prop.pageSets,
         prop.timelineMap,
+        prop.surveyMap,
     ]);
 
     const baseRendererMap = useMemo<Record<string, ModuleRenderFactory>>(() =>
@@ -238,7 +239,7 @@ export const ModuleSettingTab = (prop: ModuleSettingTabProps) =>
                     theme={ctx.theme}
                     formData={ctx.formData}
                     selectedItemEdit={ctx.selectedItemEdit}
-                    pageMap={ctx.pageMap}
+                    pageSets={ctx.pageSets}
                     lang={DefaultLang}
                 />
             ),
@@ -292,6 +293,7 @@ export const ModuleSettingTab = (prop: ModuleSettingTabProps) =>
                     theme={ctx.theme}
                     formData={ctx.formData}
                     selectedItemEdit={ctx.selectedItemEdit}
+                    pageSets={ctx.pageSets}
                     categorySets={ctx.categorySets}
                     tagSets={ctx.tagSets}
                     lang={DefaultLang}
@@ -311,12 +313,6 @@ export const ModuleSettingTab = (prop: ModuleSettingTabProps) =>
         });
         return filterModuleRenderers(merged, specExtension.moduleAllowKeys);
     }, [baseRendererMap, specExtension.moduleRenderers, specExtension.moduleAllowKeys]);
-
-    const activeModelKey = useMemo<ModelKey>(() =>
-    {
-        const bindValue = String(moduleKeyBind.InputValue ?? "") as ModelKey;
-        return bindValue || prop.modelKey;
-    }, [moduleKeyBind.InputValue, prop.modelKey]);
 
     const activeModuleNode = useMemo(() =>
     {
@@ -356,7 +352,7 @@ export const ModuleSettingTab = (prop: ModuleSettingTabProps) =>
 
 const Module_Banner_Comp = (
     prop: { theme: IBETheme; formData: UseFetchFormDataResult<SiteMenuSet>; selectedItemEdit: SiteMenuItem | null; bannerDict: Record<string, string>; },
-): React.ReactNode[] =>
+): ReactNode[] =>
 {
     const curRowKeys = getModuleRowKeys(prop.selectedItemEdit);
     const setField = useSetTableField<SiteMenuSet>(prop.formData);
@@ -420,14 +416,8 @@ const Module_Announcement_Comp = (
 };
 
 const Module_Pagemanagement_Comp = (
-    prop: {
-        theme: IBETheme;
-        formData: UseFetchFormDataResult<SiteMenuSet>;
-        selectedItemEdit: SiteMenuItem | null;
-        pageMap: Record<string, string>;
-        lang: Lang;
-    },
-): React.ReactNode =>
+    prop: { theme: IBETheme; formData: UseFetchFormDataResult<SiteMenuSet>; selectedItemEdit: SiteMenuItem | null; pageSets: PageSet[]; lang: Lang; },
+): ReactNode =>
 {
     const curRowKeys = getModuleRowKeys(prop.selectedItemEdit);
     const binder = useSetJsonField<SiteMenuSet, ModuleOptionsJson>(
@@ -438,10 +428,7 @@ const Module_Pagemanagement_Comp = (
         moduleOptionsDefaults,
     );
     const pageBind = binder.bind("PageId", "string");
-    const pageOpts = useMemo(() =>
-    {
-        return new Map<string, string>(Object.entries(prop.pageMap ?? {}));
-    }, [prop.pageMap]);
+    const pageOpts = useMemo(() => buildPageMapByProgId(prop.pageSets, PGID.PageManagement, prop.lang), [prop.pageSets, prop.lang]);
     return (
         <LibDropList
             Style={prop.theme.DropList}
@@ -464,7 +451,7 @@ const Module_Gallery_Comp = (
         categorySets: CategorySet[];
         tagSets: TagSet[];
     },
-): React.ReactNode =>
+): ReactNode =>
 {
     const curRowKeys = getModuleRowKeys(prop.selectedItemEdit);
     const binder = useSetJsonField<SiteMenuSet, ModuleOptionsJson>(
@@ -508,7 +495,7 @@ const Module_FileArchive_Comp = (
         categorySets: CategorySet[];
         tagSets: TagSet[];
     },
-): React.ReactNode =>
+): ReactNode =>
 {
     const curRowKeys = getModuleRowKeys(prop.selectedItemEdit);
     const binder = useSetJsonField<SiteMenuSet, ModuleOptionsJson>(
@@ -552,7 +539,7 @@ const Module_WebResource_Comp = (
         categorySets: CategorySet[];
         tagSets: TagSet[];
     },
-): React.ReactNode =>
+): ReactNode =>
 {
     const curRowKeys = getModuleRowKeys(prop.selectedItemEdit);
     const binder = useSetJsonField<SiteMenuSet, ModuleOptionsJson>(
@@ -593,7 +580,7 @@ const Module_Timeline_Comp = (
         timelineMap: Map<string, string>;
         lang: Lang;
     },
-): React.ReactNode =>
+): ReactNode =>
 {
     const curRowKeys = getModuleRowKeys(prop.selectedItemEdit);
     const binder = useSetJsonField<SiteMenuSet, ModuleTimelineOptionsJson>(
@@ -643,7 +630,7 @@ const Module_Timeline_Comp = (
 };
 const Module_Survey_Comp = (
     prop: { theme: IBETheme; formData: UseFetchFormDataResult<SiteMenuSet>; selectedItemEdit: SiteMenuItem | null; surveyMap: Map<string, string>; },
-): React.ReactNode =>
+): ReactNode =>
 {
     const curRowKeys = getModuleRowKeys(prop.selectedItemEdit);
     const binder = useSetJsonField<SiteMenuSet, ISurveyOptions>(
@@ -671,6 +658,7 @@ const Module_Material_Comp = (
         theme: IBETheme;
         formData: UseFetchFormDataResult<SiteMenuSet>;
         selectedItemEdit: SiteMenuItem | null;
+        pageSets: PageSet[];
         lang: Lang;
         categorySets: CategorySet[];
         tagSets: TagSet[];
@@ -683,13 +671,23 @@ const Module_Material_Comp = (
         SiteMenuSetFields.SiteMenu_Item_Module,
         SiteMenu_Item_ModuleFields.ModuleOptions,
         curRowKeys,
-        { CategoryId: "", TagIds: "" },
+        { PageId: "", CategoryId: "", TagIds: "" },
     );
+    const pageOpts = useMemo(() => buildPageMapByProgId(prop.pageSets, PGID.Material, prop.lang), [prop.pageSets, prop.lang]);
+    const pageBind = binder.bind("PageId", "string");
     const catBind = binder.bind("CategoryId", "csv");
     const tagBind = binder.bind("TagIds", "csv");
     const { cateDic, tagDic } = useGetCategoryTagDict(PGID.Material, prop.lang, prop.categorySets, prop.tagSets);
     return (
         <>
+            <LibDropList
+                Style={prop.theme.DropList}
+                ColumnDisplayName="選擇頁面"
+                Options={pageOpts}
+                AutoDefaultFirst={false}
+                InputValue={pageBind.value}
+                onChange={pageBind.onChange}
+            />
             <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="類別" options={cateDic} InputValue={catBind.value} onChange={catBind.onChange} />
             <LibCheckBox Style={prop.theme.CheckBox} ColumnDisplayName="標籤" options={tagDic} InputValue={tagBind.value} onChange={tagBind.onChange} />
         </>
@@ -738,6 +736,21 @@ const getModuleRowKeys = (selectedItemEdit: SiteMenuItem | null) =>
         [SiteMenu_Item_ModuleFields.SiteIndex]: selectedItemEdit?.menuItem.SiteIndex,
         [SiteMenu_Item_ModuleFields.ItemRowId]: selectedItemEdit?.menuItem.RowId,
     };
+};
+
+/** 依指定 ProgId 過濾 PageManagement 頁面並轉成下拉 Map */
+const buildPageMapByProgId = (pageSets: PageSet[], progId: PGID, lang: Lang): Map<string, string> =>
+{
+    const targetProgId = String(progId ?? "");
+    return pageSets.reduce<Map<string, string>>((acc, item) =>
+    {
+        const page = item.PageManagement;
+        if (!page?.InternalId) return acc;
+        if (String(page.ProgId ?? "") !== targetProgId) return acc;
+        const title = item.PageManagementDetail?.find(p => p.Lang === lang)?.Title ?? "";
+        acc.set(String(page.InternalId), title);
+        return acc;
+    }, new Map<string, string>());
 };
 
 const useGetCategoryTagDict = (progId: PGID, lang: Lang, categorySets: CategorySet[], tagSets: TagSet[]) =>

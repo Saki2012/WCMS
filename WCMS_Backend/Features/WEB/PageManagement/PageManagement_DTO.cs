@@ -1,4 +1,6 @@
-﻿using WCMS.Features._Resx;
+﻿using System.ComponentModel.DataAnnotations;
+using WCMS.Features._Resx;
+using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
@@ -16,6 +18,10 @@ namespace WCMS.Features.WEB.PageManagement
         /// 靜態客製頁面ID
         /// </summary>
         [LibDesc(ModelDisplayName.PageId)] public string? PageId { get; set; }
+        /// <summary>
+        /// 所屬功能模塊
+        /// </summary>
+        [LibDesc(ModelDisplayName.Common_ProgId), StringLength(SysLengthParam.ProgId)] public string? ProgId { get; set; } = ProgKeys.WEB.PageManagement;
         /// <summary>
         /// 類別ID
         /// </summary>

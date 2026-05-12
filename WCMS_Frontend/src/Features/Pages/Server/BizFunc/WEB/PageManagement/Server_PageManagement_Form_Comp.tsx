@@ -49,12 +49,14 @@ export const Server_PageManagement_Form_Comp = (prop: { theme: IBETheme; lang: L
     };
     return (
         <FormComp prop={formProp}>
-            <HeaderComp theme={prop.theme} formData={getData.rawData.formData} catData={catData} />
+            <HeaderComp theme={prop.theme} formData={getData.rawData.formData} catData={catData} usedProgMap={getData.rawData.usedProgMap} />
             <DetailComp theme={prop.theme} formData={getData.rawData.formData} lang={prop.lang} />
         </FormComp>
     );
 };
-const HeaderComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<PageManagementSet>; catData: Map<string, string>; }) =>
+const HeaderComp = (
+    prop: { theme: IBETheme; formData: UseFetchFormDataResult<PageManagementSet>; catData: Map<string, string>; usedProgMap: Map<string, string>; },
+) =>
 {
     const setField = useSetTableField<PageManagementSet>(prop.formData);
     const tabInfo: LibTabsProp = { Style: prop.theme.Tabs, item: { Basic: "基本", System: "系統資訊" } };
@@ -64,6 +66,12 @@ const HeaderComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Pa
                 Style={prop.theme.DropList}
                 Options={prop.catData}
                 {...setField(PageManagementSetFields.PageManagement, PageManagementFields.CategoryId, "string")}
+            />,
+            <LibDropList
+                Style={prop.theme.DropList}
+                Options={prop.usedProgMap}
+                ShowPlaceholder={false}
+                {...setField(PageManagementSetFields.PageManagement, PageManagementFields.ProgId, "string")}
             />,
         ],
         System: [<SystemInfoTabComp theme={prop.theme} formData={prop.formData} setKey={PageManagementSetFields.PageManagement} />],

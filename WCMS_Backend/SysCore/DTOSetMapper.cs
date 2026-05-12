@@ -1,5 +1,4 @@
-﻿using SharpCompress.Readers.Arc;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;

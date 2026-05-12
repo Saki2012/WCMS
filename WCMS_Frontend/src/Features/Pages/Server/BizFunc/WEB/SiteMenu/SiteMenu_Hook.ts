@@ -74,7 +74,7 @@ export type SiteMenuFetchRawData = {
     bannerDict: Record<string, string>;
     categorySets: CategorySet[];
     tagSets: TagSet[];
-    pageMap: Record<string, string>;
+    pageSets: PageSet[];
     timelineMap: Map<string, string>;
     surveyMap: Map<string, string>;
 };
@@ -160,7 +160,7 @@ export const useSiteMenuFetchData = (opt: { lang: Lang; }): UseFetchDataResult<S
             bannerDict: ref.bannerDict,
             categorySets: ref.categorySets,
             tagSets: ref.tagSets,
-            pageMap: ref.pageMap,
+            pageSets: ref.pageSets,
             timelineMap: ref.timelineMap,
             surveyMap: ref.surveyMap,
             siteMenuItems,
@@ -470,7 +470,7 @@ type SiteMenuRefDataResult = {
     bannerDict: Record<string, string>;
     categorySets: CategorySet[];
     tagSets: TagSet[];
-    pageMap: Record<string, string>;
+    pageSets: PageSet[];
     timelineMap: Map<string, string>;
     surveyMap: Map<string, string>;
     isLoading: boolean;
@@ -519,6 +519,7 @@ const useSiteMenuRefDataByAdapter = (adapter: SiteMenuFetchAdapter, lang: Lang, 
         condition: {
             Fields: [
                 PageManagementFields.InternalId,
+                PageManagementFields.ProgId,
                 `${PageManagementFields._PageManagementDetail}.${PageManagementDetailFields.Lang}`,
                 `${PageManagementFields._PageManagementDetail}.${PageManagementDetailFields.Title}`,
             ],
@@ -542,19 +543,6 @@ const useSiteMenuRefDataByAdapter = (adapter: SiteMenuFetchAdapter, lang: Lang, 
             return acc;
         }, {});
     }, [banner.data]);
-
-    const pageMap = useMemo<Record<string, string>>(() =>
-    {
-        const src = page.data ?? [];
-        return src.reduce<Record<string, string>>((acc, item: PageSet) =>
-        {
-            const key = item.PageManagement?.InternalId?.toString?.();
-            if (!key) return acc;
-            acc[key] = item.PageManagementDetail?.find(p => p.Lang === lang)?.Title ?? "";
-            return acc;
-        }, {});
-    }, [page.data, lang]);
-
     const timeline = adapter.Timeline.hooks.useQueryList({
         condition: { Fields: [TimelineFields.TimelineId, TimelineFields.TimelineName, TimelineFields.InternalId] },
         deps: [lang],
@@ -656,7 +644,7 @@ const useSiteMenuRefDataByAdapter = (adapter: SiteMenuFetchAdapter, lang: Lang, 
         bannerDict,
         categorySets: category.data,
         tagSets: tag.data,
-        pageMap,
+        pageSets: page.data ?? [],
         timelineMap,
         surveyMap,
         isLoading,

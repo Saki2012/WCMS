@@ -18,6 +18,7 @@ type PageManagementSet = components["schemas"]["PageManagementSet_DTO"];
 export type PageManagementFormRawData = {
     formData: UseFetchFormDataResult<PageManagementSet>;
     categoryMap: Record<string, string>;
+    usedProgMap: Map<string, string>;
     actions: ServerFormActions;
 };
 export type PageManagementFormActionsOpt = {
@@ -42,28 +43,31 @@ export const usePageManagementFormFetchData = (
     const formData = usePageManagementFormDataByAdapter(adapter.PageManagement, opt.internalId, opt.emptyData, onError);
     const actions = usePageManagementFormActionsByAdapter(adapter.PageManagement, opt.internalId, formData.data, opt.actionsOpt);
     const category = adapter.Category.hooks.useMapByProgId({ progId: PGID.PageManagement, lang: opt.lang });
-    const loadingList = useMemo<boolean[]>(() =>
-    {
-        return [Boolean(category.isLoading), Boolean(formData.isLoading)];
-    }, [category.isLoading, formData.isLoading]);
+    const usedProg = adapter.PageManagement.hooks.useUsedProgList({ deps: [], onError });
     const errorList = useMemo<(string | null | undefined)[]>(() =>
     {
-        return [category.errorText, formData.error];
-    }, [category.errorText, formData.error]);
-    const isLoading = useMemo(() => loadingList.some(Boolean), [loadingList]);
+        return [category.errorText, formData.error, usedProg.errorText];
+    }, [category.errorText, formData.error, usedProg.errorText]);
+
+    const isLoading = useMemo(() => Boolean(formData.isLoading || category.isLoading || usedProg.isLoading), [
+        formData.isLoading,
+        category.isLoading,
+        usedProg.isLoading,
+    ]);
+
     const errors = useMemo(() => errorList.filter((x): x is string => Boolean(x)), [errorList]);
     const rawData = useMemo<PageManagementFormRawData>(() =>
     {
-        return { formData, categoryMap: category.map ?? {}, actions };
-    }, [formData, actions, category.map]);
+        return { formData, categoryMap: category.map ?? {}, usedProgMap: usedProg.data, actions };
+    }, [formData, actions, category.map, usedProg.data]);
     const refetchData = useCallback(async () =>
     {
         await Promise.resolve(formData.refetch());
     }, [formData]);
     const refetchRefData = useCallback(async () =>
     {
-        await Promise.all([category.refetch()]);
-    }, [category]);
+        await Promise.all([category.refetch(), usedProg.refetch()]);
+    }, [category, usedProg]);
     return { adapter, rawData, isLoading, errors, refetchData, refetchRefData };
 };
 // #endregion

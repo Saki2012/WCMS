@@ -15,7 +15,7 @@ export const useModuleSettingTabSpecExtension = (): ModuleSettingTabExtension =>
                     lang={DefaultLang}
                     categorySets={ctx.categorySets}
                     tagSets={ctx.tagSets}
-                    pageMap={ctx.pageMap}
+                    pageSets={ctx.pageSets}
                 />
             ),
         },

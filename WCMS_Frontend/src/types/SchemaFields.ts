@@ -734,6 +734,7 @@ export const PageManagementFields = {
   InternalId: 'InternalId',
   OrgLvId: 'OrgLvId',
   PageId: 'PageId',
+  ProgId: 'ProgId',
   CategoryId: 'CategoryId',
   _PageManagementDetail: '_PageManagementDetail',
 } as const;

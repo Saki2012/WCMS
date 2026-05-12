@@ -876,4 +876,82 @@
   <data name="WebClient_TimeZone" xml:space="preserve">
     <value>使用者時區</value>
   </data>
+  <data name="Module" xml:space="preserve">
+    <value>Module</value>
+  </data>
+  <data name="Module_COMM" xml:space="preserve">
+    <value>Common Module</value>
+  </data>
+  <data name="Module_IAM" xml:space="preserve">
+    <value>Account Management Module</value>
+  </data>
+  <data name="Module_MAT" xml:space="preserve">
+    <value>Material Management Module</value>
+  </data>
+  <data name="Module_SYS" xml:space="preserve">
+    <value>System Management Module</value>
+  </data>
+  <data name="Module_WEB" xml:space="preserve">
+    <value>Website Management Module</value>
+  </data>
+  <data name="Module_SPEC" xml:space="preserve">
+    <value>Special Module</value>
+  </data>
+  <data name="Prog" xml:space="preserve">
+    <value>Program</value>
+  </data>
+  <data name="Prog_Account" xml:space="preserve">
+    <value>Account Management</value>
+  </data>
+  <data name="Prog_Auth" xml:space="preserve">
+    <value>Authentication &amp; Authorization</value>
+  </data>
+  <data name="Prog_RolePermission" xml:space="preserve">
+    <value>Role Permission</value>
+  </data>
+  <data name="Prog_Material" xml:space="preserve">
+    <value>Material Management</value>
+  </data>
+  <data name="Prog_MatCategory" xml:space="preserve">
+    <value>Material Category</value>
+  </data>
+  <data name="Prog_Dashboard" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="Prog_HomePageSetting" xml:space="preserve">
+    <value>Home Page Setting</value>
+  </data>
+  <data name="Prog_Announcement" xml:space="preserve">
+    <value>Announcement Management</value>
+  </data>
+  <data name="Prog_Banner" xml:space="preserve">
+    <value>Banner Management</value>
+  </data>
+  <data name="Prog_FileArchive" xml:space="preserve">
+    <value>File Archive</value>
+  </data>
+  <data name="Prog_Gallery" xml:space="preserve">
+    <value>Gallery Management</value>
+  </data>
+  <data name="Prog_PageManagement" xml:space="preserve">
+    <value>Page Management</value>
+  </data>
+  <data name="Prog_SiteMenu" xml:space="preserve">
+    <value>Site Menu Setting</value>
+  </data>
+  <data name="Prog_SiteViewCount" xml:space="preserve">
+    <value>Site View Count</value>
+  </data>
+  <data name="Prog_WebResource" xml:space="preserve">
+    <value>Web Resource Management</value>
+  </data>
+  <data name="Prog_Timeline" xml:space="preserve">
+    <value>Timeline</value>
+  </data>
+  <data name="Prog_Survey" xml:space="preserve">
+    <value>Survey</value>
+  </data>
+  <data name="Prog_SurveySubmission" xml:space="preserve">
+    <value>Survey Submission</value>
+  </data>
 </root>

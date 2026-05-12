@@ -1,31 +1,34 @@
-﻿namespace WCMS.Features._Resx;
+﻿using WCMS.SysCore.Library.LibAttribute;
 
+namespace WCMS.Features._Resx;
+
+[LibDesc(ModelDisplayName.Module)]
 public enum ModuleCodeEnum
 {
     /// <summary>
     /// 共用基礎資料模塊
     /// </summary>
-    COMM,
+    [LibDesc(ModelDisplayName.Module_COMM)] COMM,
     /// <summary>
     /// 帳號管理模塊
     /// </summary>
-    IAM,
+    [LibDesc(ModelDisplayName.Module_IAM)] IAM,
     /// <summary>
     /// 商品物品管理模塊
     /// </summary>
-    MAT,
+    [LibDesc(ModelDisplayName.Module_MAT)] MAT,
     /// <summary>
     /// 系統管理模塊
     /// </summary>
-    SYS,
+    [LibDesc(ModelDisplayName.Module_SYS)] SYS,
     /// <summary>
     /// 前台網站管理模塊
     /// </summary>
-    WEB,
+    [LibDesc(ModelDisplayName.Module_WEB)] WEB,
     /// <summary>
     /// 客製模塊
     /// </summary>
-    Spec
+    [LibDesc(ModelDisplayName.Module_SPEC)] SPEC
 }
 
 /// <summary>
@@ -43,21 +46,25 @@ public static partial class ProgKeys
         /// </summary>
         public const ModuleCodeEnum Code = ModuleCodeEnum.COMM;
         /// <summary>
-        /// 共用行事曆
+        /// 行事曆
         /// </summary>
-        public const  string Calendar = nameof(Calendar);
+        [LibDesc(ModelDisplayName.Prog_Calendar)]
+        public const string Calendar = nameof(Calendar);
         /// <summary>
-        /// 共用類別
+        /// 類別
         /// </summary>
-        public const  string Category = nameof(Category);
+        [LibDesc(ModelDisplayName.Prog_Category)]
+        public const string Category = nameof(Category);
         /// <summary>
-        /// 人物主檔
+        /// 人員基礎資料
         /// </summary>
-        public const  string Person = nameof(Person);
+        [LibDesc(ModelDisplayName.Prog_Person)]
+        public const string Person = nameof(Person);
         /// <summary>
-        /// 共用標籤
+        /// 標籤
         /// </summary>
-        public const  string Tag = nameof(Tag);
+        [LibDesc(ModelDisplayName.Prog_Tag)]
+        public const string Tag = nameof(Tag);
     }
 
     /// <summary>
@@ -72,15 +79,18 @@ public static partial class ProgKeys
         /// <summary>
         /// 帳號管理
         /// </summary>
-        public const  string Account = nameof(Account);
+        [LibDesc(ModelDisplayName.Prog_Account)]
+        public const string Account = nameof(Account);
         /// <summary>
         /// 登入授權
         /// </summary>
-        public const  string Auth = nameof(Auth);
+        [LibDesc(ModelDisplayName.Prog_Auth)]
+        public const string Auth = nameof(Auth);
         /// <summary>
         /// 角色權限
         /// </summary>
-        public const  string RolePermission = nameof(RolePermission);
+        [LibDesc(ModelDisplayName.Prog_RolePermission)]
+        public const string RolePermission = nameof(RolePermission);
     }
 
     /// <summary>
@@ -95,11 +105,11 @@ public static partial class ProgKeys
         /// <summary>
         /// 物件管理
         /// </summary>
-        public const  string Material = nameof(Material);
+        [LibDesc(ModelDisplayName.Prog_Material)] public const string Material = nameof(Material);
         /// <summary>
         /// 物件類別
         /// </summary>
-        public const string MatCategory = nameof(MatCategory);
+        [LibDesc(ModelDisplayName.Prog_MatCategory)] public const string MatCategory = nameof(MatCategory);
     }
     /// <summary>
     /// 系統管理模塊
@@ -111,9 +121,10 @@ public static partial class ProgKeys
         /// </summary>
         public const ModuleCodeEnum Code = ModuleCodeEnum.SYS;
         /// <summary>
-        /// 系統首頁
+        /// 儀表版
         /// </summary>
-        public const  string Dashboard = nameof(Dashboard);
+        [LibDesc(ModelDisplayName.Prog_Dashboard)]
+        public const string Dashboard = nameof(Dashboard);
     }
     /// <summary>
     /// 前台網站管理模塊
@@ -127,50 +138,62 @@ public static partial class ProgKeys
         /// <summary>
         /// 首頁設定
         /// </summary>
+        [LibDesc(ModelDisplayName.Prog_HomePageSetting)]
         public const string HomePageSetting = nameof(HomePageSetting);
         /// <summary>
         /// 公告管理
         /// </summary>
-        public const  string Announcement = nameof(Announcement);
+        [LibDesc(ModelDisplayName.Prog_Announcement)]
+        public const string Announcement = nameof(Announcement);
         /// <summary>
         /// 橫幅管理
         /// </summary>
-        public const  string Banner = nameof(Banner);
+        [LibDesc(ModelDisplayName.Prog_Banner)]
+        public const string Banner = nameof(Banner);
         /// <summary>
         /// 檔案典藏
         /// </summary>
-        public const  string FileArchive = nameof(FileArchive);
+        [LibDesc(ModelDisplayName.Prog_FileArchive)]
+        public const string FileArchive = nameof(FileArchive);
         /// <summary>
         /// 相簿管理
         /// </summary>
-        public const  string Gallery = nameof(Gallery);
+        [LibDesc(ModelDisplayName.Prog_Gallery)]
+        public const string Gallery = nameof(Gallery);
         /// <summary>
         /// 頁面管理
         /// </summary>
-        public const  string PageManagement = nameof(PageManagement);
+        [LibDesc(ModelDisplayName.Prog_PageManagement)]
+        public const string PageManagement = nameof(PageManagement);
         /// <summary>
         /// 網站選單設定
         /// </summary>
-        public const  string SiteMenu = nameof(SiteMenu);
+        [LibDesc(ModelDisplayName.Prog_SiteMenu)]
+        public const string SiteMenu = nameof(SiteMenu);
         /// <summary>
         /// 網站瀏覽統計
         /// </summary>
-        public const  string SiteViewCount = nameof(SiteViewCount);
+        [LibDesc(ModelDisplayName.Prog_SiteViewCount)]
+        public const string SiteViewCount = nameof(SiteViewCount);
         /// <summary>
         /// 網站資源管理
         /// </summary>
-        public const  string WebResource = nameof(WebResource);
+        [LibDesc(ModelDisplayName.Prog_WebResource)]
+        public const string WebResource = nameof(WebResource);
         /// <summary>
         /// 紀事表
         /// </summary>
-        public const  string Timeline = nameof(Timeline);
+        [LibDesc(ModelDisplayName.Prog_Timeline)]
+        public const string Timeline = nameof(Timeline);
         /// <summary>
         /// 問卷設計
         /// </summary>
+        [LibDesc(ModelDisplayName.Prog_Survey)]
         public const string Survey = nameof(Survey);
         /// <summary>
         /// 問卷回覆
         /// </summary>
+        [LibDesc(ModelDisplayName.Prog_SurveySubmission)]
         public const string SurveySubmission = nameof(SurveySubmission);
     }
     /// <summary>
@@ -181,6 +204,6 @@ public static partial class ProgKeys
         /// <summary>
         /// 模塊代碼
         /// </summary>
-        public const ModuleCodeEnum Code = ModuleCodeEnum.Spec;
+        public const ModuleCodeEnum Code = ModuleCodeEnum.SPEC;
     }
 }
