@@ -219,7 +219,7 @@ namespace WCMS
                 services.AddSingleton<EfSqlConsoleInterceptor>();
 #endif
 
-                services.AddDbContextPool<ApplicationDbContext>((sp,opt) =>
+                services.AddDbContextPool<ApplicationDbContext>((sp, opt) =>
                 {
                     opt.UseSqlServer(cs);
 #if DEBUG
@@ -332,7 +332,7 @@ namespace WCMS
                 {
                     o.Preload = false;
                     o.IncludeSubDomains = false;
-                    o.MaxAge = TimeSpan.FromDays(30); // 先短期，避免鎖死
+                    o.MaxAge = TimeSpan.FromDays(365);
                 });
             }
             /// <summary>
@@ -556,83 +556,135 @@ namespace WCMS
 
             #region App
             /// <summary>
-            /// 安全標頭（弱掃友好）– 若有 CSP 衝突，再放寬
+            /// 套用後端 API 安全標頭與弱掃用快取策略。
             /// </summary>
             public static void UseSecurityHeaders(WebApplication app, IConfiguration cfg)
             {
-
                 var beHosts = (cfg.GetSection("Whitelist:Backend").Get<string[]>() ?? []).Select(HostOnly).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
                 app.Use(async (ctx, next) =>
                 {
-                    ctx.Response.Headers.XContentTypeOptions = "nosniff";
-                    ctx.Response.Headers.XFrameOptions = "SAMEORIGIN";
-                    ctx.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
-                    ctx.Response.Headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=(), fullscreen=(self)";
-                    ctx.Response.Headers.StrictTransportSecurity = "max-age=31536000";
-                    if (ctx.Request.Path.StartsWithSegments("/Service"))
+                    PrepareSecurityHeaders(app, ctx);
+
+                    if (IsBlockedProductionHost(app, ctx, beHosts))
                     {
-                        // API：超嚴 CSP（不影響 JSON/檔案傳輸）
-                        ctx.Response.Headers.ContentSecurityPolicy =
-                        "default-src 'none'; script-src 'none'; connect-src 'self'; img-src 'none'; " +
-                        "style-src 'none'; font-src 'none'; object-src 'none'; base-uri 'none'; " +
-                        "frame-ancestors 'self'; form-action 'self'; require-trusted-types-for 'script'";
-                    }
-                    else
-                    {
-                        // 非 API（有 HTML/前台頁面）
-                        // NOTE: 用 nonce 放行「你自己寫的 inline script」，避免 script-src 使用 unsafe-inline
-                        var nonceBytes = System.Security.Cryptography.RandomNumberGenerator.GetBytes(16);
-                        var nonce = Convert.ToBase64String(nonceBytes);
-
-                        // NOTE: 讓後續輸出 HTML 的地方可以取到 nonce（例如把它塞到 <script nonce="...">）
-                        ctx.Items["csp-nonce"] = nonce;
-
-                        // NOTE: Google Translate 會用到 translate-pa 子網域
-                        const string googleTranslateScripts =
-                            "https://translate.google.com https://translate.googleapis.com https://translate-pa.googleapis.com";
-
-                        const string googleTranslateConnect =
-                            "https://translate.google.com https://translate.googleapis.com https://translate-pa.googleapis.com";
-
-                        ctx.Response.Headers.ContentSecurityPolicy =
-                            "default-src 'self'; " +
-                            // script：僅允許 self + nonce + Google translate 相關來源
-                            $"script-src 'self' 'nonce-{nonce}' {googleTranslateScripts}; " +
-                            $"script-src-elem 'self' 'nonce-{nonce}' {googleTranslateScripts}; " +
-
-                            // style：先保留 unsafe-inline，避免第三方 widget 插入 inline style 造成爆炸
-                            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.gstatic.com; " +
-                            "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.gstatic.com; " +
-
-                            // img：保留你原本放行的來源（含 data/blob/https）
-                            "img-src 'self' data: blob: https: https://www.gstatic.com https://www.google.com https://i.ytimg.com https://img.youtube.com; " +
-
-                            // font：字型
-                            "font-src 'self' data: https://fonts.gstatic.com; " +
-
-                            // connect：XHR/fetch 需要放行（translate-pa 有機會走這裡）
-                            $"connect-src 'self' {googleTranslateConnect}; " +
-
-                            "frame-ancestors 'self'; " +
-                            "frame-src 'self' https://translate.google.com https://www.youtube.com https://www.youtube-nocookie.com https://w.soundcloud.com; " +
-                            "object-src 'none'; base-uri 'self'; form-action 'self';";
+                        ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
+                        return;
                     }
 
-                    if (app.Environment.IsProduction() && beHosts.Count > 0)
-                    {
-                        // ⬇️ 新增：本機請求直接放行（避免 403）
-                        var effectiveHost = EffectiveHost(ctx); // 支援代理的 X-Forwarded-Host
-                        var isLoopback = ctx.Connection.RemoteIpAddress is IPAddress ip && IPAddress.IsLoopback(ip);
-                        if (!isLoopback && !beHosts.Contains(effectiveHost))
-                        {
-                            ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
-                            return;
-                        }
-                    }
                     await next();
                 });
             }
+
+            /// <summary>
+            /// 設定共用安全標頭，並在送出前移除容易被弱掃列出的伺服器資訊。
+            /// </summary>
+            private static void PrepareSecurityHeaders(WebApplication app, HttpContext ctx)
+            {
+                SetCommonSecurityHeaders(ctx.Response);
+                SetPathSecurityHeaders(app, ctx);
+
+                ctx.Response.OnStarting(() =>
+                {
+                    RemoveLeakyHeaders(ctx.Response);
+                    return Task.CompletedTask;
+                });
+            }
+
+            /// <summary>
+            /// 設定所有後端回應都應具備的基本安全標頭。
+            /// </summary>
+            private static void SetCommonSecurityHeaders(HttpResponse response)
+            {
+                response.Headers["X-Content-Type-Options"] = "nosniff";
+                response.Headers["X-Frame-Options"] = "SAMEORIGIN";
+                response.Headers["Referrer-Policy"] = "no-referrer";
+                response.Headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=(), fullscreen=(self)";
+                response.Headers["Strict-Transport-Security"] = "max-age=31536000";
+                response.Headers["X-Permitted-Cross-Domain-Policies"] = "none";
+            }
+
+            /// <summary>
+            /// 依路徑設定 API 或後端錯誤頁的 CSP 與快取策略。
+            /// </summary>
+            private static void SetPathSecurityHeaders(WebApplication app, HttpContext ctx)
+            {
+                if (ctx.Request.Path.StartsWithSegments("/swagger", StringComparison.OrdinalIgnoreCase)) return;
+
+                if (ctx.Request.Path.StartsWithSegments("/Service", StringComparison.OrdinalIgnoreCase))
+                {
+                    SetApiSecurityHeaders(ctx.Response);
+                    if (app.Environment.IsProduction()) SetNoStoreHeaders(ctx.Response);
+                    return;
+                }
+
+                SetBackendPageSecurityHeaders(ctx.Response);
+                if (app.Environment.IsProduction()) SetNoStoreHeaders(ctx.Response);
+            }
+
+            /// <summary>
+            /// 設定 API 回應的嚴格 CSP，避免 JSON / 檔案回應被當成可執行內容。
+            /// </summary>
+            private static void SetApiSecurityHeaders(HttpResponse response)
+            {
+                response.Headers["Content-Security-Policy"] =
+                    "default-src 'none'; " +
+                    "object-src 'none'; " +
+                    "base-uri 'none'; " +
+                    "frame-ancestors 'self'; " +
+                    "form-action 'self'";
+            }
+
+            /// <summary>
+            /// 設定後端非 API 頁面的保守 CSP，主要涵蓋 404 / 403 / 錯誤頁。
+            /// </summary>
+            private static void SetBackendPageSecurityHeaders(HttpResponse response)
+            {
+                response.Headers["Content-Security-Policy"] =
+                    "default-src 'self'; " +
+                    "script-src 'self'; " +
+                    "style-src 'self' 'unsafe-inline'; " +
+                    "img-src 'self' data:; " +
+                    "object-src 'none'; " +
+                    "base-uri 'self'; " +
+                    "frame-ancestors 'self'; " +
+                    "form-action 'self'";
+            }
+
+            /// <summary>
+            /// 設定 HTTPS 頁面與 API 不被瀏覽器或 Proxy 快取。
+            /// </summary>
+            private static void SetNoStoreHeaders(HttpResponse response)
+            {
+                response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate, proxy-revalidate";
+                response.Headers["Pragma"] = "no-cache";
+                response.Headers["Expires"] = "0";
+            }
+
+            /// <summary>
+            /// 移除可能暴露伺服器實作細節的回應標頭。
+            /// </summary>
+            private static void RemoveLeakyHeaders(HttpResponse response)
+            {
+                response.Headers.Remove("Server");
+                response.Headers.Remove("X-Powered-By");
+                response.Headers.Remove("X-AspNet-Version");
+                response.Headers.Remove("X-AspNetMvc-Version");
+            }
+
+            /// <summary>
+            /// 檢查正式環境的 Host 是否在後端白名單內。
+            /// </summary>
+            private static bool IsBlockedProductionHost(WebApplication app, HttpContext ctx, HashSet<string> beHosts)
+            {
+                if (!app.Environment.IsProduction() || beHosts.Count == 0) return false;
+
+                var effectiveHost = EffectiveHost(ctx);
+                var isLoopback = ctx.Connection.RemoteIpAddress is IPAddress ip && IPAddress.IsLoopback(ip);
+
+                return !isLoopback && !beHosts.Contains(effectiveHost);
+            }
+
             /// <summary>
             /// 
             /// </summary>
@@ -1081,7 +1133,7 @@ DB SpecCode 檢查未通過。App SpecCode = '{FormatSpecCode(appSpecCode)}'，D
         {
             // 宣告變數
             var prop = FindModelProperty(context, key);
-            var displayName = prop == null ? GetFieldName(key) : $"{I18nCache.GetLabel(prop)}【{key}】" ;
+            var displayName = prop == null ? GetFieldName(key) : $"{I18nCache.GetLabel(prop)}【{key}】";
             var errorText = context.ModelState[key]?.Errors.FirstOrDefault()?.ErrorMessage ?? string.Empty;
             var maxLength = GetMaxLength(prop);
             // 執行 function
