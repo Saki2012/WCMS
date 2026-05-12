@@ -29,7 +29,7 @@ interface ISubPageProps
 const SubPage = (props: ISubPageProps) =>
 {
     // 讀取 SSR loader 初始資料
-    const data = useLoaderData() as ISubPageLoaderData;
+    const data = useLoaderData() as ISubPageLoaderData | undefined;
 
     // 給 BreadCrumb 與子頁共用的動態 breadcrumb 狀態
     const [items, setItems] = useState<BreadcrumbItem[]>([]);
@@ -48,7 +48,7 @@ const SubPage = (props: ISubPageProps) =>
                     site={props.site}
                     node={props.node}
                     backHref={props.backHref}
-                    bannerInitial={data.bannerInitial}
+                    bannerInitial={data?.bannerInitial ?? null}
                 />
             </BreadcrumbContext.Provider>
         </>

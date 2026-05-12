@@ -5,7 +5,7 @@ import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/Sy
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { SpecJournalAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/WEB/SpecJournal_Api";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-import { LibDropList, LibFileInput, LibTextBox, LibTinyMCE } from "@/SysCore/Components/FormField/LibFormField";
+import { LibCheckBox, LibDropList, LibFileInput, LibTextBox, LibTinyMCE } from "@/SysCore/Components/FormField/LibFormField";
 import { useSetTableField, useSetTableFileField } from "@/SysCore/Components/FormField/useSetTableField";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
 import { DefaultLang, type Lang, LangLabelMap, SUPPORTED_LANGS } from "@/SysCore/i18n/lang";
@@ -96,6 +96,7 @@ export const Server_SpecJournal_Form_Comp = (prop: { theme: IBETheme; lang: Lang
                 tagOptionsRaw={getData.rawData.tagOptionsRaw}
                 keywords={getData.rawData.keywords}
                 specDocumentTypeOptionsRaw={getData.rawData.specDocumentTypeOptionsRaw}
+                specAuthorTypeOptionsRaw={getData.rawData.specAuthorTypeOptionsRaw}
             />
         </FormComp>
     );
@@ -110,6 +111,7 @@ const MainFormComp = (
         indexRawData: SpecJournalIndexSet[];
         tagOptionsRaw: Record<string, string>;
         specDocumentTypeOptionsRaw: Map<string, string>;
+        specAuthorTypeOptionsRaw: Map<string, string>;
         keywords: SpecJournalSet[];
     },
 ) =>
@@ -119,8 +121,7 @@ const MainFormComp = (
         Style: props.theme.Tabs,
         item: {
             Basic: "基本資料",
-            Author: "期刊作者",
-            CommunicateAuthor: "通訊作者",
+            Author: "作者資料",
             Bibliography: "參考文獻",
             RefFormat: "引文格式",
             Files: "檔案上傳",
@@ -140,8 +141,15 @@ const MainFormComp = (
                 tagOptionsRaw={props.tagOptionsRaw}
             />,
         ],
-        Author: [<AuthorComp key="author" theme={props.theme} adapter={props.adapter} formData={props.formData} authorType={0} />],
-        CommunicateAuthor: [<AuthorComp key="communicateAuthor" theme={props.theme} adapter={props.adapter} formData={props.formData} authorType={1} />],
+        Author: [
+            <AuthorComp
+                key="author"
+                theme={props.theme}
+                adapter={props.adapter}
+                formData={props.formData}
+                specAuthorTypeOptionsRaw={props.specAuthorTypeOptionsRaw}
+            />,
+        ],
         Bibliography: [
             <LibTinyMCE
                 key="bibliography"
@@ -436,26 +444,35 @@ const BasicComp = (
     );
 };
 
-const AuthorComp = (props: { theme: IBETheme; adapter: SpecJournalAdapterType; formData: UseFetchFormDataResult<SpecJournalSet>; authorType: AuthorType; }) =>
+const AuthorComp = (
+    props: {
+        theme: IBETheme;
+        adapter: SpecJournalAdapterType;
+        formData: UseFetchFormDataResult<SpecJournalSet>;
+        specAuthorTypeOptionsRaw: Map<string, string>;
+    },
+) =>
 {
     const { publish } = useToast();
     const orcidAction = props.adapter.hooks.useGetAuthorByOrcid();
 
     const setField = useSetTableField<SpecJournalSet>(props.formData);
     const allAuthors = props.formData.data?.SpecJournalAuthor ?? [];
-    /** 依 authorType 過濾目前頁籤要顯示的作者 */
-    const authors = useMemo(() =>
+    const authors = useMemo(() => allAuthors, [allAuthors]);
+    const defaultAuthorType = useMemo(() =>
     {
-        return allAuthors.filter(x => Number(x?.AuthorType ?? 0) === props.authorType);
-    }, [allAuthors, props.authorType]);
-    // ✅ UIUX：新增後要跳到新增的 tab
+        const firstKey = Array.from(props.specAuthorTypeOptionsRaw.keys()).at(0);
+        return Number(firstKey ?? 0) as AuthorType;
+    }, [props.specAuthorTypeOptionsRaw]);
+
     const pendingActiveTabKeyRef = useRef<string | null>(null);
-    // ✅ UIUX：若刪到當前 tab，要回到第一筆
     const pendingGoFirstRef = useRef<boolean>(false);
-    // ✅ 追蹤目前 active tab key
     const activeTabKeyRef = useRef<string | null>(null);
-    // ✅ 暫存 tab key/label mapping，供「回第一筆」使用
     const tabInfoRef = useRef<Record<string, string>>({});
+    const specAuthorTypeOptions = useMemo<Record<string, string>>(() =>
+    {
+        return Object.fromEntries(props.specAuthorTypeOptionsRaw.entries());
+    }, [props.specAuthorTypeOptionsRaw]);
     useEffect(() =>
     {
         const handleClick = (e: MouseEvent) =>
@@ -474,7 +491,6 @@ const AuthorComp = (props: { theme: IBETheme; adapter: SpecJournalAdapterType; f
 
     useEffect(() =>
     {
-        // ✅ 新增後：跳到新增的 tab
         const pendingKey = pendingActiveTabKeyRef.current;
         if (pendingKey)
         {
@@ -486,7 +502,6 @@ const AuthorComp = (props: { theme: IBETheme; adapter: SpecJournalAdapterType; f
             return;
         }
 
-        // ✅ 刪除當前 tab：回第一筆
         if (pendingGoFirstRef.current)
         {
             requestAnimationFrame(() =>
@@ -509,9 +524,9 @@ const AuthorComp = (props: { theme: IBETheme; adapter: SpecJournalAdapterType; f
 
     const buildTabLabel = (a: any, idx: number): string =>
     {
-        const name = (a?.AuthorName ?? "").trim();
+        const name = String(a?.AuthorName ?? "").trim();
         if (name) return name;
-        const nameEn = (a?.AuthorName_en ?? "").trim();
+        const nameEn = String(a?.AuthorName_en ?? "").trim();
         if (nameEn) return nameEn;
         return `未命名${authors.length > 1 ? `(${idx + 1})` : ""}`;
     };
@@ -532,12 +547,11 @@ const AuthorComp = (props: { theme: IBETheme; adapter: SpecJournalAdapterType; f
 
     const handleAdd = (): void =>
     {
-        // 新增目前頁籤對應的作者類型
         if (!props.formData.data) return;
 
         const nextRowId = getNextRowId();
         const parentJournalId = props.formData.data.SpecJournal?.JournalId ?? allAuthors[0]?.JournalId;
-        const newItem: any = { JournalId: parentJournalId, RowId: nextRowId, AuthorType: props.authorType };
+        const newItem: SpecJournalAuthor = { JournalId: parentJournalId, RowId: nextRowId, AuthorType: defaultAuthorType };
 
         pendingActiveTabKeyRef.current = String(nextRowId);
         activeTabKeyRef.current = String(nextRowId);
@@ -555,21 +569,20 @@ const AuthorComp = (props: { theme: IBETheme; adapter: SpecJournalAdapterType; f
             if (!prev) return prev;
 
             const list = prev.SpecJournalAuthor ?? [];
-            const hitIdx = list.findIndex((a: any, i: number) => String(a?.RowId ?? i) === keyStr && Number(a?.AuthorType ?? 0) === props.authorType);
-            if (hitIdx < 0) return prev;
+            const target = list.find((a: any, i: number) => String(a?.RowId ?? i) === keyStr);
+            if (!target) return prev;
 
-            const target = list[hitIdx];
             const nextList = list.filter((a: any) =>
             {
-                const sameJournalId = a?.JournalId === target?.JournalId;
-                const sameRowId = a?.RowId === target?.RowId;
-                const sameType = Number(a?.AuthorType ?? 0) === Number(target?.AuthorType ?? 0);
-                return !(sameJournalId && sameRowId && sameType);
+                const sameJournalId = String(a?.JournalId ?? "") === String(target?.JournalId ?? "");
+                const sameRowId = String(a?.RowId ?? "") === String(target?.RowId ?? "");
+                return !(sameJournalId && sameRowId);
             });
 
             return { ...prev, SpecJournalAuthor: nextList };
         });
     };
+
     /** 回寫目前作者的 ORCID 欄位 */
     const setAuthorOrcid = useCallback((rowKeys: Record<string, string | number | null | undefined>, orcid: string): void =>
     {
@@ -592,18 +605,17 @@ const AuthorComp = (props: { theme: IBETheme; adapter: SpecJournalAdapterType; f
             return { ...prev, SpecJournalAuthor: nextList };
         });
     }, [props.formData]);
+
     const normalizeOrcid = (v: string): string =>
     {
         const text = String(v ?? "").trim();
         if (!text) return "";
-
         return text.replace(/^https?:\/\/orcid\.org\//i, "").replace(/\/+$/g, "").replace(/\s+/g, "").replace(/[^0-9X-]/gi, "");
     };
-    const isLikelyOrcid = (v: string): boolean =>
-    {
-        return /^\d{4}-\d{4}-\d{4}-\d{3}[\dX]$/i.test(v);
-    };
-    // ✅ 只覆寫空欄位（避免蓋掉使用者已輸入的內容）
+
+    const isLikelyOrcid = (v: string): boolean => /^\d{4}-\d{4}-\d{4}-\d{3}[\dX]$/i.test(v);
+
+    /** 只覆寫空欄位，避免蓋掉使用者已輸入的內容 */
     const applyAuthorFromOrcid = useCallback((rowKeys: Record<string, string | number | null | undefined>, dto: ORCIDData): void =>
     {
         props.formData.setFormData(prev =>
@@ -644,21 +656,22 @@ const AuthorComp = (props: { theme: IBETheme; adapter: SpecJournalAdapterType; f
     const handleOrcidBlur = useCallback(async (rowKeys: Record<string, string | number | null | undefined>, raw: string): Promise<void> =>
     {
         const orcid = normalizeOrcid(raw);
-        // 先把畫面值改成純 ORCID
         setAuthorOrcid(rowKeys, orcid);
         if (!orcid) return;
         if (!isLikelyOrcid(orcid)) return;
+
         const res = await orcidAction.execute(orcid);
         (res.SysMessage ?? []).forEach(item =>
         {
             publish({ level: item.Status, code: item.MessageCode, title: item.Message });
         });
         if (!res.IsSuccess) return;
+
         const dto = Array.isArray(res.Data) ? (res.Data[0] ?? null) : null;
         if (!dto) return;
         applyAuthorFromOrcid(rowKeys, { ...dto, ORCID: orcid });
     }, [orcidAction, publish, applyAuthorFromOrcid, setAuthorOrcid]);
-    // tab key/label mapping（同步到 ref）
+
     const tabItemMap = authors.reduce<Record<string, string>>((acc, a: any, idx: number) =>
     {
         const key = String(a?.RowId ?? idx);
@@ -667,15 +680,7 @@ const AuthorComp = (props: { theme: IBETheme; adapter: SpecJournalAdapterType; f
     }, {});
     tabInfoRef.current = tabItemMap;
 
-    const tabInfo: LibTabsProp = {
-        Style: props.theme.Tabs,
-        item: tabItemMap,
-        onAddTab: () =>
-        {
-            handleAdd();
-        },
-        onRemoveTab: (key) => removeOne(key),
-    };
+    const tabInfo: LibTabsProp = { Style: props.theme.Tabs, item: tabItemMap, onAddTab: () => handleAdd(), onRemoveTab: (key) => removeOne(key) };
 
     const tabContent = authors.reduce<Record<string, React.ReactNode[]>>((acc, a: any, idx: number) =>
     {
@@ -683,7 +688,17 @@ const AuthorComp = (props: { theme: IBETheme; adapter: SpecJournalAdapterType; f
         const rowKeys: any = { [SpecJournalAuthorFields.JournalId]: a?.JournalId, [SpecJournalAuthorFields.RowId]: a?.RowId };
 
         acc[tabKey] = [
-            <div className="col-12 form-group">
+            <div className="col-12 form-group" key="authorType">
+                <LibCheckBox
+                    Style={props.theme.RadioBox}
+                    options={specAuthorTypeOptions}
+                    {...setField(SpecJournalSetFields.SpecJournalAuthor, SpecJournalAuthorFields.AuthorType, "number", rowKeys, {
+                        defaultValue: defaultAuthorType,
+                        defaultWhen: "nullish",
+                    })}
+                />
+            </div>,
+            <div className="col-12 form-group" key="orcid">
                 <LibTextBox
                     Style={props.theme.TextBox}
                     DefaultInputDisplay="請輸入"
@@ -691,7 +706,7 @@ const AuthorComp = (props: { theme: IBETheme; adapter: SpecJournalAdapterType; f
                     onBlur={(v) => void handleOrcidBlur(rowKeys, v)}
                 />
             </div>,
-            <div className="col-12 form-group">
+            <div className="col-12 form-group" key="name">
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
@@ -703,7 +718,7 @@ const AuthorComp = (props: { theme: IBETheme; adapter: SpecJournalAdapterType; f
                     {...setField(SpecJournalSetFields.SpecJournalAuthor, SpecJournalAuthorFields.AuthorName_en, "string", rowKeys)}
                 />
             </div>,
-            <div className="col-12 form-group">
+            <div className="col-12 form-group" key="jobCountry">
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
@@ -715,7 +730,7 @@ const AuthorComp = (props: { theme: IBETheme; adapter: SpecJournalAdapterType; f
                     {...setField(SpecJournalSetFields.SpecJournalAuthor, SpecJournalAuthorFields.Country, "string", rowKeys)}
                 />
             </div>,
-            <div className="col-12 form-group">
+            <div className="col-12 form-group" key="unit">
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
@@ -727,7 +742,7 @@ const AuthorComp = (props: { theme: IBETheme; adapter: SpecJournalAdapterType; f
                     {...setField(SpecJournalSetFields.SpecJournalAuthor, SpecJournalAuthorFields.Unit_en, "string", rowKeys)}
                 />
             </div>,
-            <div className="col-12 form-group">
+            <div className="col-12 form-group" key="email">
                 <LibTextBox
                     Style={props.theme.TextBox}
                     DefaultInputDisplay="請輸入"

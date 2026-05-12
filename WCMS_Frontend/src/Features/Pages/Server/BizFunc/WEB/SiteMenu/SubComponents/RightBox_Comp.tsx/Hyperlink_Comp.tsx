@@ -26,60 +26,46 @@ interface HyperlinkSettingTabProps
     setNavType: Dispatch<SetStateAction<MenuUrlType>>;
 }
 
+const URL_REDIRECT_TYPE: MenuUrlType = 1;
+const MODULE_REDIRECT_TYPE: MenuUrlType = 2;
+
 /** 超連結設定頁籤：外部連結 / 內部連結切換與綁定 */
 export const HyperlinkSettingTab = (prop: HyperlinkSettingTabProps) =>
 {
     const selectedMenuItem = useSelectedMenuItem(prop.formData.data, prop.selectedItemEdit);
     const siteIndex = selectedMenuItem?.SiteIndex;
     const rowId = selectedMenuItem?.RowId;
-
-    const curRowKeys = useMemo(() =>
+    const curRowKeys = useMemo<Record<string, string | number> | null>(() =>
     {
-        return { [SiteMenu_Item_UrlFields.SiteIndex]: siteIndex, [SiteMenu_Item_UrlFields.ItemRowId]: rowId };
+        if (siteIndex == null || rowId == null) return null;
+        return { [SiteMenu_Item_UrlFields.SiteIndex]: siteIndex, [SiteMenu_Item_UrlFields.ItemRowId]: Number(rowId) };
     }, [siteIndex, rowId]);
 
     const internalUrlOptions = useMemo(() =>
     {
         return buildInternalUrlOptions(prop.siteMenuItems, Number(rowId ?? 0));
     }, [prop.siteMenuItems, rowId]);
-
-    /** 確保目前選取項目一定有對應的 Url 設定列 */
+    /** 確保目前選取項目一定有 Url 設定列，並修正 RedirectType = 0 */
     useEffect(() =>
     {
-        if (siteIndex == null || rowId == null) return;
-        const exists = (prop.formData.data.SiteMenu_Item_Url ?? []).some((item) => item.SiteIndex === siteIndex && Number(item.ItemRowId) === Number(rowId));
-        if (!exists)
-        {
-            prop.formData.setFormData((prev) =>
-            {
-                const data = (prev ?? {}) as SiteMenuSet;
-                const list = [...(data.SiteMenu_Item_Url ?? [])];
-                return {
-                    ...data,
-                    SiteMenu_Item_Url: [...list, { SiteIndex: siteIndex, ItemRowId: Number(rowId), RedirectType: 1, RedirectUrl: "" } as SiteMenu_Item_Url],
-                };
-            });
-        }
-        prop.setNavType(1 as MenuUrlType);
-    }, [siteIndex, rowId]);
+        ensureSelectedUrlRow(prop.formData, siteIndex, rowId);
+    }, [prop.formData, siteIndex, rowId]);
+    /** 同步目前選取項目的 RedirectType 到右側 UI 狀態 */
     useEffect(() =>
     {
-        if (siteIndex == null || rowId == null) return;
-        const row = (prop.formData.data.SiteMenu_Item_Url ?? []).find(x =>
-        {
-            return x.SiteIndex === siteIndex && Number(x.ItemRowId) === Number(rowId);
-        });
-        prop.setNavType(Number(row?.RedirectType ?? 1) as MenuUrlType);
-    }, [siteIndex, rowId, prop.formData.data.SiteMenu_Item_Url, prop.setNavType]);
-    const redirectTypeBind = prop.setField(SiteMenuSetFields.SiteMenu_Item_Url, SiteMenu_Item_UrlFields.RedirectType, "number", curRowKeys);
+        syncSelectedNavType(prop.formData.data, siteIndex, rowId, prop.setNavType);
+    }, [prop.formData.data, siteIndex, rowId, prop.setNavType]);
+    if (!curRowKeys) return null;
+    const redirectTypeBind = prop.setField(SiteMenuSetFields.SiteMenu_Item_Url, SiteMenu_Item_UrlFields.RedirectType, "number", curRowKeys, {
+        defaultValue: URL_REDIRECT_TYPE,
+        defaultWhen: "falsy",
+    });
     const effectiveNavType = useMemo(() =>
     {
-        const raw = redirectTypeBind.InputValue;
-        const value = Number(raw === "" || raw == null ? prop.navType ?? 1 : raw);
-        return (Number.isFinite(value) && value > 0 ? value : 1).toString();
+        return normalizeRedirectType(redirectTypeBind.InputValue ?? prop.navType).toString();
     }, [redirectTypeBind.InputValue, prop.navType]);
-    const redirectUrlBind = prop.setField(SiteMenuSetFields.SiteMenu_Item_Url, SiteMenu_Item_UrlFields.RedirectUrl, "string", curRowKeys);
 
+    const redirectUrlBind = prop.setField(SiteMenuSetFields.SiteMenu_Item_Url, SiteMenu_Item_UrlFields.RedirectUrl, "string", curRowKeys);
     return (
         <>
             <LibCheckBox
@@ -89,11 +75,12 @@ export const HyperlinkSettingTab = (prop: HyperlinkSettingTabProps) =>
                 InputValue={effectiveNavType}
                 onChange={(v) =>
                 {
-                    redirectTypeBind.onChange?.(v);
-                    prop.setNavType(Number(v) as MenuUrlType);
+                    const type = normalizeRedirectType(v);
+                    redirectTypeBind.onChange?.(type);
+                    prop.setNavType(type);
                 }}
             />
-            {effectiveNavType === "1"
+            {effectiveNavType === URL_REDIRECT_TYPE.toString()
                 ? <LibTextBox Style={prop.theme.TextBox} DefaultInputDisplay="請輸入數字或英文，不可使用空白的" {...redirectUrlBind} />
                 : <LibDropList Style={prop.theme.DropList} Options={internalUrlOptions} AutoDefaultFirst={false} {...redirectUrlBind} />}
         </>
@@ -107,10 +94,69 @@ const useSelectedMenuItem = (data: SiteMenuSet, selected?: SiteMenuItem | null):
     {
         const selectedRowId = Number(selected?.id ?? selected?.menuItem?.RowId ?? 0);
         if (!selectedRowId) return null;
-
         const current = (data.SiteMenu_Item ?? []).find(x => Number(x.RowId) === selectedRowId);
         return current ?? selected?.menuItem ?? null;
     }, [data.SiteMenu_Item, selected]);
+};
+
+/** 確保目前選取項目有 Url row，並把不合法 RedirectType 修回預設值 */
+const ensureSelectedUrlRow = (formData: UseFetchFormDataResult<SiteMenuSet>, siteIndex?: string | null, rowId?: number | null): void =>
+{
+    if (siteIndex == null || rowId == null) return;
+    formData.setFormData((prev) =>
+    {
+        const data = (prev ?? {}) as SiteMenuSet;
+        const list = [...(data.SiteMenu_Item_Url ?? [])];
+        const index = findUrlRowIndex(list, siteIndex, Number(rowId));
+        if (index < 0)
+        {
+            return { ...data, SiteMenu_Item_Url: [...list, createDefaultUrlRow(siteIndex, Number(rowId))] };
+        }
+        const row = list[index];
+        const fixedType = normalizeRedirectType(row.RedirectType);
+        if (row.RedirectType === fixedType) return data;
+        list[index] = { ...row, RedirectType: fixedType };
+        return { ...data, SiteMenu_Item_Url: list };
+    });
+};
+
+/** 同步目前選取項目的 RedirectType */
+const syncSelectedNavType = (
+    data: SiteMenuSet,
+    siteIndex: string | null | undefined,
+    rowId: number | null | undefined,
+    setNavType: Dispatch<SetStateAction<MenuUrlType>>,
+): void =>
+{
+    if (siteIndex == null || rowId == null) return;
+    const row = (data.SiteMenu_Item_Url ?? []).find(x =>
+    {
+        return x.SiteIndex === siteIndex && Number(x.ItemRowId) === Number(rowId);
+    });
+    setNavType(normalizeRedirectType(row?.RedirectType));
+};
+
+/** 建立預設超連結設定列 */
+const createDefaultUrlRow = (siteIndex: string, rowId: number): SiteMenu_Item_Url =>
+{
+    return { SiteIndex: siteIndex, ItemRowId: rowId, RedirectType: URL_REDIRECT_TYPE, RedirectUrl: "" } as SiteMenu_Item_Url;
+};
+
+/** 取得指定 Url row index */
+const findUrlRowIndex = (list: SiteMenu_Item_Url[], siteIndex: string, rowId: number): number =>
+{
+    return list.findIndex((item) =>
+    {
+        return item.SiteIndex === siteIndex && Number(item.ItemRowId) === Number(rowId);
+    });
+};
+
+/** RedirectType 只有 1 / 2 合法，0 視為未初始化 */
+const normalizeRedirectType = (value?: unknown): MenuUrlType =>
+{
+    const type = Number(value);
+    if (type === MODULE_REDIRECT_TYPE) return MODULE_REDIRECT_TYPE;
+    return URL_REDIRECT_TYPE;
 };
 
 /** 建立內部連結下拉選單 */
@@ -119,28 +165,32 @@ const buildInternalUrlOptions = (items: SiteMenuItem[], currentRowId: number | n
     const options = new Map<string, string>();
     const thinSpace = "\u2009";
 
-    const walk = (nodes: SiteMenuItem[] | undefined, depth: number) =>
+    const walk = (nodes: SiteMenuItem[] | undefined, depth: number): void =>
     {
         if (!nodes?.length) return;
 
         for (const node of nodes)
         {
-            const fullUrl = String(node.menuItem?.FullUrl ?? "").trim();
-            const redirectType = Number(node.menuItem?._SiteMenu_Item_Url?.RedirectType ?? 0);
-            const isExternal = redirectType === 1;
-            const isCurrentItem = Number(node.menuItem?.RowId ?? 0) === Number(currentRowId ?? 0);
-            const isDraft = Number(node.menuItem?.RowId ?? node.id) <= 0;
-
-            if (fullUrl && !isExternal && !isCurrentItem && !isDraft)
-            {
-                const indent = depth > 0 ? thinSpace.repeat(depth * 2) : "";
-                options.set(fullUrl, `${indent}${node.name}`);
-            }
-
+            appendInternalUrlOption(options, node, depth, thinSpace, currentRowId);
             walk(node.children, depth + 1);
         }
     };
 
     walk(items, 0);
     return options;
+};
+
+/** 加入可被內部連結選取的選單項目 */
+const appendInternalUrlOption = (options: Map<string, string>, node: SiteMenuItem, depth: number, thinSpace: string, currentRowId: number | null): void =>
+{
+    const fullUrl = String(node.menuItem?.FullUrl ?? "").trim();
+    const redirectType = normalizeRedirectType(node.menuItem?._SiteMenu_Item_Url?.RedirectType);
+    const isExternal = redirectType === URL_REDIRECT_TYPE;
+    const isCurrentItem = Number(node.menuItem?.RowId ?? 0) === Number(currentRowId ?? 0);
+    const isDraft = Number(node.menuItem?.RowId ?? node.id) <= 0;
+
+    if (!fullUrl || isExternal || isCurrentItem || isDraft) return;
+
+    const indent = depth > 0 ? thinSpace.repeat(depth * 2) : "";
+    options.set(fullUrl, `${indent}${node.name}`);
 };

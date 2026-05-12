@@ -36,9 +36,9 @@ public enum SpecAuthorType : byte
     /// <summary>
     /// 期刊作者
     /// </summary>
-    JournalAuthor=0,
+    [LibDesc(SpecModelDisplayName.Spec_JournalAuthor)] JournalAuthor = 0,
     /// <summary>
     /// 通訊作者
     /// </summary>
-    CommunicateAuthor=1,
+    [LibDesc(SpecModelDisplayName.Spec_CommunicateAuthor)]CommunicateAuthor=1,
 }

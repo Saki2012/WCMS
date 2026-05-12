@@ -250,5 +250,13 @@ public static class SpecModelDisplayName
     /// 倫理聲明
     /// </summary>
     public const string Spec_Ethics_Statement = "Spec_Ethics_Statement";
+    /// <summary>
+    /// 期刊作者
+    /// </summary>
+    public const string Spec_JournalAuthor = nameof(Spec_JournalAuthor);
+    /// <summary>
+    /// 通訊作者
+    /// </summary>
+    public const string Spec_CommunicateAuthor = nameof(Spec_CommunicateAuthor);
     #endregion
 }

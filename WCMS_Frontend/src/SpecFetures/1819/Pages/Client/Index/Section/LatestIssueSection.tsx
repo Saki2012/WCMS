@@ -8,6 +8,7 @@ import { SpecJournalKeywordSearch_Comp } from "../../BizFunc/WEB/SpecJournal/Spe
 import type { HomePageRawData } from "../HomePage_Loader";
 
 type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
+type SpecJournalIndexDetail = components["schemas"]["SpecJournalIndexDetail_DTO"];
 type BannerSet = components["schemas"]["BannerSet_DTO"];
 
 interface LatestIssueSectionProps
@@ -29,10 +30,9 @@ const getFirstIssue = (list: SpecJournalIndexSet[] | undefined): SpecJournalInde
 };
 
 /** 組卷期顯示字串 */
-const buildIssueTitle = (data?: SpecJournalIndexSet | null): string =>
+const buildIssueTitle = (detail?: SpecJournalIndexDetail): string =>
 {
-    if (!data) return "";
-    const detail = data.SpecJournalIndexDetail?.[0];
+    if (!detail) return "";
     const vol = detail?.Volume ?? "";
     const iss = detail?.Issue ?? "";
     const dateText = detail?.PublishDate ? formatYyyyMm(detail.PublishDate) : "預刊本";
@@ -41,20 +41,19 @@ const buildIssueTitle = (data?: SpecJournalIndexSet | null): string =>
 };
 
 /** 站內卷期連結 */
-const buildIssueTo = (data?: SpecJournalIndexSet | null): string =>
+const buildIssueTo = (detail?: SpecJournalIndexDetail): string =>
 {
     // 宣告變數
-    const index = data?.SpecJournalIndexDetail?.[0]?.IndexId ?? "";
-    const rowId = data?.SpecJournalIndexDetail?.[0]?.RowId ?? "";
-
+    const index = detail?.IndexId ?? "";
+    const rowId = detail?.RowId ?? "";
     // return
     return `/Issues/List/${index}/${rowId}`;
 };
 
 /** Summary 檔案下載連結 */
-const buildSummaryDownloadHref = (data?: SpecJournalIndexSet | null): string =>
+const buildSummaryDownloadHref = (detail?: SpecJournalIndexDetail): string =>
 {
-    return FileManagementAPI.get_Public_Preview_Url(data?.SpecJournalIndexDetail?.[0]?.SummaryFileId, data?.SpecJournalIndexDetail?.[0]?.SummaryFileName);
+    return FileManagementAPI.get_Public_Preview_Url(detail?.SummaryFileId, detail?.SummaryFileName);
 };
 
 /** 只取 yyyy/MM */
@@ -77,11 +76,16 @@ const formatYyyyMm = (publishDate: unknown): string =>
 const LastIssueComp = (props: { data: SpecJournalIndexSet | null; }) =>
 {
     // 宣告變數
-    const data = props.data;
-    const title = buildIssueTitle(data);
-    const issueTo = buildIssueTo(data);
-    const downloadHref = buildSummaryDownloadHref(data);
-    const fileName = data?.SpecJournalIndexDetail?.[0]?.SummaryFileName ?? "";
+    const getPublishDateTime = (publishDate?: string | null): number =>
+    {
+        return publishDate ? new Date(publishDate).getTime() : 0;
+    };
+    const detailData = [...(props.data?.SpecJournalIndexDetail ?? [])].sort((a, b) => getPublishDateTime(b.PublishDate) - getPublishDateTime(a.PublishDate))[0]
+        ?? null;
+    const title = buildIssueTitle(detailData);
+    const issueTo = buildIssueTo(detailData);
+    const downloadHref = buildSummaryDownloadHref(detailData);
+    const fileName = detailData?.SummaryFileName ?? "";
     return (
         <>
             <div className="TOP_TXT">
