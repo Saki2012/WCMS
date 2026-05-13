@@ -1,13 +1,12 @@
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import type { Lang } from "@/SysCore/i18n/lang";
-import parse from "html-react-parser";
 import { type ReactNode, useMemo, useState } from "react";
 import "yet-another-react-lightbox/plugins/captions.css";
 import "yet-another-react-lightbox/plugins/counter.css";
 import "yet-another-react-lightbox/styles.css";
 import "yet-another-react-lightbox/plugins/thumbnails.css";
 import { useGalleryFormFetchData } from "@/Features/Pages/Client/BizFunc/WEB/Gallery/GalleryForm_Loader";
-import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
+import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
@@ -67,10 +66,8 @@ const GalleryForm = (prop: { theme: IFETheme; lang: Lang; }) =>
     // 取得目前語系內容
     const galleryInfo = useMemo(() => getGalleryInfoByLang({ data: formData.data, lang: prop.lang }), [formData.data, prop.lang]);
 
-    // 解析內容中的 internal file ids
-    const resolved = useResolveInternalIds(galleryInfo?.Content ?? "", { locale: prop.lang });
     // 轉成 1810 畫面要的內容
-    const content = useMemo(() => (resolved.html ? parse(resolved.html) : null), [resolved.html]);
+    const content = <CmsHtml_Comp html={galleryInfo?.Content ?? ""} lang={prop.lang} />;
     // 轉成 1810 畫面要的分類字串
     const categoryText = useMemo(() => getCategoryText({ categoryIds: formData.data.Gallery?.Categories, categoryMap: formData.categoryMap }), [
         formData.data.Gallery?.Categories,

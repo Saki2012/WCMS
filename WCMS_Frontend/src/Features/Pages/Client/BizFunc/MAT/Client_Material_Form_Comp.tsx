@@ -2,12 +2,11 @@ import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/WEB/Sit
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
+import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import { PGID } from "@/types/SchemaFields";
-import parse from "html-react-parser";
 import { type KeyboardEvent, type MouseEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useMaterialFormFetchData } from "./Client_Material_Form_Loader";
@@ -367,8 +366,7 @@ const MaterialInfoContent_Comp = (props: { rawData: MaterialFormRawData; lang: L
     const langInfo = getLangInfo(props.rawData.formData, props.lang);
     const json = parseMaterialInfoJson(langInfo?.MaterialInfoJson);
     const content = getFirstText(json.InfoContent, langInfo?.Memo);
-    const parseContent = useResolveInternalIds(content ?? "", { locale: props.lang });
-    const contents = parseContent.html ? parse(parseContent.html) : null;
+
     return (
         <>
             <div className="page-header">
@@ -379,7 +377,9 @@ const MaterialInfoContent_Comp = (props: { rawData: MaterialFormRawData; lang: L
                 <div className="row w-100">
                     <div className="col-12">
                         <div className="content">
-                            <div className="Editor_All_Content">{contents}</div>
+                            <div className="Editor_All_Content">
+                                <CmsHtml_Comp html={content ?? ""} lang={props.lang} />
+                            </div>
                         </div>
                     </div>
                 </div>

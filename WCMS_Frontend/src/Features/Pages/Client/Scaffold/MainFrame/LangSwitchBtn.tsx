@@ -2,6 +2,7 @@ import GlobalPic from "@/Features/Assets/Client/images/svg_icon/icon-custom-glob
 import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import { DefaultLang, isSupportedLang, type Lang, LangLabelMap } from "@/SysCore/i18n/lang";
 import { useLang } from "@/SysCore/i18n/LangContext";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 import { LANG_COOKIE_KEY } from "@/SysCore/Utils/Library/SysParam";
 import React, { useCallback, useMemo, useRef } from "react";
 import { useFetcher, useLocation, useNavigate } from "react-router-dom";
@@ -100,12 +101,11 @@ export const LangSwitchBtn: React.FC<{ site: INormSite; }> = ({ site }) =>
             <li>
                 <div className="icons">
                     <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1">
-                        <a
-                            href={switchUrl}
+                        <LangLink
+                            to={switchUrl}
                             type="button"
                             role="button"
                             title={LangLabelMap?.[other] ?? other}
-                            tabIndex={0}
                             {...intentHandlers}
                             onClick={(e) => onLinkClick(e, other)}
                         >
@@ -117,7 +117,7 @@ export const LangSwitchBtn: React.FC<{ site: INormSite; }> = ({ site }) =>
                                     </div>
                                 )
                                 : <div className="link-text">{LangLabelMap?.[other] ?? other}</div>}
-                        </a>
+                        </LangLink>
                     </div>
                 </div>
             </li>
@@ -135,7 +135,6 @@ export const LangSwitchBtn: React.FC<{ site: INormSite; }> = ({ site }) =>
                         aria-expanded="false"
                         role="button"
                         title="Language"
-                        tabIndex={0}
                         onClick={(e) => e.preventDefault()}
                     >
                         <div className="link-text">{LangLabelMap?.[activeLang] ?? activeLang}</div>

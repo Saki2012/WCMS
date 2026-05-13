@@ -1,5 +1,6 @@
 import type { Lang } from "@/SysCore/i18n/lang";
 import "./Toolbar.css";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 
 export const Toolbar_Comp = (props: { lang: Lang; }) =>
 {
@@ -13,18 +14,18 @@ export const Toolbar_Comp = (props: { lang: Lang; }) =>
                         <div className="Print-box">
                             <ul className="nav custom_nav py-0 justify-content-center my-2">
                                 <li className="nav-item">
-                                    <a className="nav-link" href="/" role="button" aria-label={shareTitle} title={shareTitle} tabIndex={0}>
+                                    <LangLink className="nav-link" to="/" role="button" title={shareTitle}>
                                         <i className="fas fa-share-alt mx-2"></i>
                                         <span className="sr-only">{shareTitle}</span>
                                         {shareTitle}
-                                    </a>
+                                    </LangLink>
                                 </li>
                                 <li className="nav-item">
-                                    <a className="nav-link" href="/" role="button" aria-label={printTitle} title={printTitle} tabIndex={0}>
+                                    <LangLink className="nav-link" to="/" role="button" title={printTitle}>
                                         <i className="fas fa-print mx-2"></i>
                                         <span className="sr-only">{printTitle}</span>
                                         {printTitle}
-                                    </a>
+                                    </LangLink>
                                 </li>
                             </ul>
                         </div>

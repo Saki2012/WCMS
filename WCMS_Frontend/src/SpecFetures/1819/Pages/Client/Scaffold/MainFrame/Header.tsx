@@ -292,13 +292,13 @@ const NavBar = (props: { lang: Lang; }) =>
                     <Accesskey type="U" lang={props.lang} />
                 </li>
                 <li className="nav-item no-divider-line">
-                    <LangLink className="nav-link" to="/" tabIndex={0} target="_self" title={title.Home}>{title.Home}</LangLink>
+                    <LangLink className="nav-link" to="/" target="_self" title={title.Home}>{title.Home}</LangLink>
                 </li>
                 <li className="nav-item">
-                    <a className="nav-link" href="https://www.tku.edu.tw/" tabIndex={0} target="_self" title={title.TKU}>{title.TKU}</a>
+                    <LangLink className="nav-link" to="https://www.tku.edu.tw/" target="_self" title={title.TKU}>{title.TKU}</LangLink>
                 </li>
                 <li className="nav-item">
-                    <LangNavLink to={`/${SITEMAP_SEGMENT}`} className="nav-link" tabIndex={0} target="_self" title={title.SiteMap}>{title.SiteMap}</LangNavLink>
+                    <LangNavLink to={`/${SITEMAP_SEGMENT}`} className="nav-link" target="_self" title={title.SiteMap}>{title.SiteMap}</LangNavLink>
                 </li>
             </ul>
         </li>

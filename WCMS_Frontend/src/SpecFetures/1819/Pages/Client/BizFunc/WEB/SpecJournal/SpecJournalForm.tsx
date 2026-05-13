@@ -7,14 +7,14 @@ import insightpointImg2 from "@/SpecFetures/1819/Assets/Client/images/links/150x
 import openPointImg from "@/SpecFetures/1819/Assets/Client/images/links/150x32/Open_Point_bt_190x40.svg";
 import QRCodeLogoImg from "@/SpecFetures/1819/Assets/Client/SpecImg/QRCodeLogo.png";
 import { SpecJournalKeywordSearch_Comp } from "@/SpecFetures/1819/Pages/Client/BizFunc/WEB/SpecJournal/SpecJournalKeywordSearchComp";
-import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
+import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import { QrCodeWithLogo_Comp } from "@/SysCore/Components/LibQRCode/LibQRCode_Comp";
 import { getLangLabel, type Lang, SUPPORTED_LANGS } from "@/SysCore/i18n/lang";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import { PGID } from "@/types/SchemaFields";
 import clsx from "clsx";
-import parse from "html-react-parser";
 import React, { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useParams } from "react-router";
 import { useSpecJournalFormData } from "./SpecJournalForm_Loader";
@@ -322,32 +322,33 @@ const Authors_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
                                             <div className="AuthorCard__rows">
                                                 {[
                                                     {
+                                                        key: "orcid",
                                                         label: "ORCID :",
-                                                        value: a.ORCID && (
-                                                            <a
-                                                                href={`https://orcid.org/${encodeURIComponent(a.ORCID)}`}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                title={`另開新視窗前往 ORCID：${a.ORCID}`}
-                                                                aria-label={`另開新視窗前往 ORCID：${a.ORCID}`}
-                                                            >
-                                                                {a.ORCID}
-                                                                <span className="visually-hidden">（另開新視窗）</span>
-                                                            </a>
-                                                        ),
+                                                        value: a.ORCID
+                                                            ? (
+                                                                <LangLink
+                                                                    to={`https://orcid.org/${encodeURIComponent(a.ORCID)}`}
+                                                                    title={`前往 ORCID：${a.ORCID}`}
+                                                                >
+                                                                    {a.ORCID}
+                                                                    <span className="visually-hidden">（另開新視窗）</span>
+                                                                </LangLink>
+                                                            )
+                                                            : null,
                                                     },
-                                                    { label: "職稱 :", value: a.JobTitle },
+                                                    { key: "jobTitle", label: "職稱 :", value: a.JobTitle },
                                                     {
+                                                        key: "email",
                                                         label: a.AuthorType === 0 ? "電子郵件 :" : (
                                                             <>
-                                                                <i className="far fa-envelope me-1"></i> :
+                                                                <i className="far fa-envelope me-1" aria-hidden="true"></i> :
                                                             </>
                                                         ),
                                                         value: a.Email ? <a href={`mailto:${a.Email}`}>{a.Email}</a> : null,
                                                     },
-                                                    { label: "地區 / 國家 :", value: a.Country },
+                                                    { key: "country", label: "地區 / 國家 :", value: a.Country },
                                                 ].filter((x) => x.value).map((row) => (
-                                                    <div key={row.label} className="Div_All_Ttext mb-1">
+                                                    <div key={row.key} className="Div_All_Ttext mb-1">
                                                         <span className="AuthorCard__label">{row.label}</span>
                                                         <span className="ms-2 AuthorCard__value">{row.value}</span>
                                                     </div>
@@ -381,7 +382,7 @@ const DOI_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
                             <span>DOI編號:</span>
                         </div>
                         <div className="Div_All_Ttext">
-                            <a href={url} target="_blank" rel="noopener noreferrer" aria-label={`DOI 連結，另開視窗：${url}`}>{url}</a>
+                            <LangLink to={url} title={`DOI 連結：${url}`}>{url}</LangLink>
                         </div>
                     </div>
                     <div className="doiQr">
@@ -521,21 +522,14 @@ const FileDownload_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
                                 ? (
                                     <li>
                                         <div className="DownItem_Box">
-                                            <a
-                                                className="page-item"
-                                                href={journalFileUrl}
-                                                title={journalFileName}
-                                                onClick={preventHashOrVoidNav}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                            >
+                                            <LangLink className="page-item" to={journalFileUrl} title={journalFileName} onClick={preventHashOrVoidNav}>
                                                 <div className="icontxtbox">
                                                     <span className="page_icon">
                                                         <i className="far fa-file-alt" aria-hidden="true"></i>
                                                     </span>
                                                     <span className="icontxt">{journalFileName}</span>
                                                 </div>
-                                            </a>
+                                            </LangLink>
                                             <span className="G_Vline_Down">│</span>
                                             <span className="Div_All_Ttext views d-inline-flex flex-column align-items-start">
                                                 {/* 第 1 行：標題 */}
@@ -555,19 +549,17 @@ const FileDownload_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
                                 ? (
                                     <li>
                                         <div className="DownItem_Box">
-                                            <a
+                                            <LangLink
                                                 className="page-item"
-                                                href={insightPointFileUrl}
+                                                to={insightPointFileUrl}
                                                 title={insightPointFileName}
                                                 onClick={preventHashOrVoidNav}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
                                             >
                                                 <div className="icontxtbox">
                                                     <img className="ii_image" src={insightpointImg1} alt="" />
                                                     <img className="ii_image_hover" src={insightpointImg2} alt="" />
                                                 </div>
-                                            </a>
+                                            </LangLink>
                                             <span className="G_Vline_Down">│</span>
                                             <span className="Div_All_Ttext + views">
                                                 <i className="fas fa-download me-1" aria-hidden="true"></i>
@@ -623,21 +615,14 @@ const OpenPoint_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
                                 return (
                                     <li key={idx}>
                                         <div className="DownItem_Box + my-2">
-                                            <a
-                                                className="page-item"
-                                                href={openPointFileUrl}
-                                                title={openPointFileName}
-                                                onClick={preventHashOrVoidNav}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                            >
+                                            <LangLink className="page-item" to={openPointFileUrl} title={openPointFileName} onClick={preventHashOrVoidNav}>
                                                 <div className="icontxtbox">
                                                     <span className="page_icon">
                                                         <i className="far fa-file-alt" aria-hidden="true"></i>
                                                     </span>
                                                     <span className="icontxt">{openPointFileName}</span>
                                                 </div>
-                                            </a>
+                                            </LangLink>
                                             <span className="G_Vline_Down">│</span>
                                             <span className="Div_All_Ttext + views">
                                                 <i className="fas fa-download me-1" aria-hidden="true"></i>
@@ -690,21 +675,14 @@ const RefFile_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
                                 return (
                                     <li key={idx}>
                                         <div className="DownItem_Box + my-2">
-                                            <a
-                                                className="page-item"
-                                                href={refFileUrl}
-                                                title={refFileName}
-                                                onClick={preventHashOrVoidNav}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                            >
+                                            <LangLink className="page-item" to={refFileUrl} title={refFileName} onClick={preventHashOrVoidNav}>
                                                 <div className="icontxtbox">
                                                     <span className="page_icon">
                                                         <i className="far fa-file-alt" aria-hidden="true"></i>
                                                     </span>
                                                     <span className="icontxt">{refFileName}</span>
                                                 </div>
-                                            </a>
+                                            </LangLink>
                                             <span className="G_Vline_Down">│</span>
                                             <span className="Div_All_Ttext + views">
                                                 <i className="fas fa-download me-1" aria-hidden="true"></i>
@@ -861,14 +839,12 @@ const Accordion_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
 {
     const [expandedId, setExpandedId] = useState<string | null>(null);
 
-    let parseContent = useResolveInternalIds(props.data?.SpecJournal?.Memo ?? "", { locale: props.lang });
-    const memoContent = parseContent.html ? parse(parseContent.html) : null;
-
-    parseContent = useResolveInternalIds(props.data?.SpecJournal?.Memo_en ?? "", { locale: props.lang });
-    const memoEnContent = parseContent.html ? parse(parseContent.html) : null;
-
-    parseContent = useResolveInternalIds(props.data?.SpecJournal?.Bibliography ?? "", { locale: props.lang });
-    const bibliographyContent = parseContent.html ? parse(parseContent.html) : null;
+    const memoHtml = props.data?.SpecJournal?.Memo ?? "";
+    const memoEnHtml = props.data?.SpecJournal?.Memo_en ?? "";
+    const bibliographyHtml = props.data?.SpecJournal?.Bibliography ?? "";
+    const memoContent = memoHtml ? <CmsHtml_Comp html={memoHtml} lang={props.lang} /> : null;
+    const memoEnContent = memoEnHtml ? <CmsHtml_Comp html={memoEnHtml} lang={props.lang} /> : null;
+    const bibliographyContent = bibliographyHtml ? <CmsHtml_Comp html={bibliographyHtml} lang={props.lang} /> : null;
 
     const sections: PreviewSectionItem[] = [];
 
@@ -884,11 +860,10 @@ const Accordion_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
 
     props.data?.SpecJournalRefFormat?.forEach((sec) =>
     {
-        const parsed = useResolveInternalIds(sec?.Content ?? "", { locale: props.lang });
-        const content = parsed.html ? parse(parsed.html) : null;
-        if (!content) return;
+        const html = sec?.Content ?? "";
+        if (!html.trim()) return;
 
-        sections.push({ id: `journal-ref-format-${sec.RowId}`, title: sec.Title ?? "", content });
+        sections.push({ id: `journal-ref-format-${sec.RowId}`, title: sec.Title ?? "", content: <CmsHtml_Comp html={html} lang={props.lang} /> });
     });
 
     if (sections.length === 0) return null;
@@ -960,21 +935,14 @@ const Documents_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
                                         return (
                                             <li key={d.DocumentId ?? `${group.typeKey}-${idx}`}>
                                                 <div className="DownItem_Box my-2">
-                                                    <a
-                                                        className="page-item"
-                                                        href={documentUrl}
-                                                        title={documentName}
-                                                        onClick={preventHashOrVoidNav}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                    >
+                                                    <LangLink className="page-item" to={documentUrl} title={documentName} onClick={preventHashOrVoidNav}>
                                                         <div className="icontxtbox">
                                                             <span className="page_icon">
                                                                 <i className="far fa-file-alt" aria-hidden="true"></i>
                                                             </span>
                                                             <span className="icontxt">{documentName}</span>
                                                         </div>
-                                                    </a>
+                                                    </LangLink>
                                                     <span className="G_Vline_Down">│</span>
                                                     <span className="Div_All_Ttext views">
                                                         <i className="fas fa-download me-1" aria-hidden="true"></i>

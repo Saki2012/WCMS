@@ -23,6 +23,83 @@ type SsrConfig = Readonly<{
 type ProdPaths = Readonly<{ clientRoot: string; serverEntry: string; indexPath: string; }>;
 type HeaderValue = string | number | readonly string[];
 type HeadersMap = Record<string, HeaderValue>;
+type ProxyHeaderMap = Record<string, string | string[] | undefined>;
+type ProxyResponseLike = { headers: ProxyHeaderMap; };
+
+const noStoreHeaderValue = "no-store, no-cache, must-revalidate, proxy-revalidate";
+
+/** 設定 HTML/API 不落地快取，避免 SSL 頁面被弱掃判定可快取。 */
+const setNoStoreHeaders = (res: Response): void =>
+{
+    res.setHeader("Cache-Control", noStoreHeaderValue);
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
+};
+
+/** 移除由 Node/Proxy 可控制的技術洩漏標頭。 */
+const stripDisclosureHeaders = (res: Response): void =>
+{
+    res.removeHeader("X-Powered-By");
+    res.removeHeader("Server");
+};
+
+/** 取得同一個 response 生命週期共用的 CSP nonce。 */
+const getResponseNonce = (res: Response): string =>
+{
+    const current = res.locals.cspNonce;
+    if (typeof current === "string" && current.trim()) return current;
+
+    const nonce = crypto.randomUUID();
+    res.locals.cspNonce = nonce;
+    return nonce;
+};
+
+/** 設定 SSR 與靜態資源共用的安全標頭。 */
+const setCommonSecurityHeaders = (res: Response, cfg: SsrConfig, nonce: string): void =>
+{
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("X-Frame-Options", "SAMEORIGIN");
+    res.setHeader("Referrer-Policy", "no-referrer");
+    res.setHeader("Permissions-Policy", "geolocation=(), microphone=(), camera=(), fullscreen=(self)");
+    res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+
+    if (cfg.isProd)
+    {
+        const enforceTrustedTypes = String(process.env.SSR_ENFORCE_TRUSTED_TYPES || "").toLowerCase() === "true";
+        res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+        res.setHeader("Content-Security-Policy", buildProdCsp(nonce, { enforceTrustedTypes }));
+    }
+
+    stripDisclosureHeaders(res);
+};
+
+/** 讓所有 SSR/靜態/API proxy 回應先帶基礎安全標頭。 */
+const setupSecurityHeaders = (app: express.Express, cfg: SsrConfig): void =>
+{
+    app.disable("x-powered-by");
+    app.set("trust proxy", true);
+
+    app.use((_req: Request, res: Response, next: NextFunction) =>
+    {
+        const nonce = getResponseNonce(res);
+        setCommonSecurityHeaders(res, cfg, nonce);
+        next();
+    });
+};
+
+/** 清掉後端 Proxy 轉回來的技術洩漏標頭，並讓 API 不快取。 */
+const setProxySecurityHeaders = (proxyRes: ProxyResponseLike): void =>
+{
+    delete proxyRes.headers["x-powered-by"];
+    delete proxyRes.headers["X-Powered-By"];
+    delete proxyRes.headers["server"];
+    delete proxyRes.headers["Server"];
+
+    proxyRes.headers["cache-control"] = noStoreHeaderValue;
+    proxyRes.headers["pragma"] = "no-cache";
+    proxyRes.headers["expires"] = "0";
+    proxyRes.headers["content-security-policy"] = "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'";
+};
 
 const isRecord = (v: unknown): v is Record<string, unknown> =>
 {
@@ -81,6 +158,7 @@ const trySendResponseResult = (res: Response, result: unknown): boolean =>
 
     // 執行 function
     for (const [k, v] of Object.entries(headers)) res.setHeader(k, v);
+    stripDisclosureHeaders(res);
     res.status(status).end();
 
     // return
@@ -457,7 +535,11 @@ const getProdCssHrefsFromManifest = (m: ViteManifest, spec: string, isServer: bo
     } else
     {
         // addIfExists([`src/SpecFetures/${spec}/Assets/LoadSpecCss.ts`, `src/SpecFeatures/${spec}/Assets/LoadSpecCss.ts`]);
-        addIfExists([`src/Features/Assets/LoadFeaturesCss_Client.ts`,`src/SpecFetures/${spec}/Assets/LoadSpecCss.ts`, `src/SpecFeatures/${spec}/Assets/LoadSpecCss.ts`]);
+        addIfExists([
+            `src/Features/Assets/LoadFeaturesCss_Client.ts`,
+            `src/SpecFetures/${spec}/Assets/LoadSpecCss.ts`,
+            `src/SpecFeatures/${spec}/Assets/LoadSpecCss.ts`,
+        ]);
         // cara
     }
 
@@ -556,6 +638,14 @@ const injectAppHtmlToRoot = (html: string, appHtml: string): string =>
     return html;
 };
 
+/** 提供 Vite runtime 動態載入資源時可讀取的 CSP nonce。 */
+const injectCspNonceMeta = (html: string, nonce: string): string =>
+{
+    const meta = `<meta property="csp-nonce" nonce="${nonce}">`;
+    if (/<meta\b[^>]*property=["']csp-nonce["'][^>]*>/i.test(html)) return html.replace(/<meta\b[^>]*property=["']csp-nonce["'][^>]*>/i, meta);
+    return html.replace(/<\/head>/i, `${meta}</head>`);
+};
+
 // 組 SSR HTML（dev/prod 共用）
 const buildHtml = (template: string, payload: { appHtml: string; headTags?: string; initialState?: unknown; }, nonce: string, isProd: boolean): string =>
 {
@@ -571,6 +661,7 @@ const buildHtml = (template: string, payload: { appHtml: string; headTags?: stri
     // prod 才需要 nonce + CSP（dev 先不要擋 vite scripts）
     if (isProd)
     {
+        html = injectCspNonceMeta(html, nonce);
         html = addNonceToAllScripts(html, nonce);
     }
 
@@ -674,7 +765,7 @@ const setupProdSSR = async (app: express.Express, cfg: SsrConfig) =>
     app.use(serveStatic(clientRoot, { index: false, maxAge: "1y", immutable: true, fallthrough: true }));
     app.use(async (req: Request, res: Response, next: NextFunction) =>
     {
-        const nonce = crypto.randomUUID();
+        const nonce = getResponseNonce(res);
         if (!shouldSSR(req)) return next();
         try
         {
@@ -702,8 +793,9 @@ const setupProdSSR = async (app: express.Express, cfg: SsrConfig) =>
                 console.warn("[SSR][prod] manifest.json not found. (vite build 需要開 manifest:true)");
             }
             const html = buildHtml(template, payload, nonce, true);
-            const csp = buildProdCsp(nonce);
-            res.status(200).set("Content-Type", "text/html").set("Content-Security-Policy", csp).end(html);
+            setNoStoreHeaders(res);
+            setCommonSecurityHeaders(res, cfg, nonce);
+            res.status(200).set("Content-Type", "text/html").end(html);
         } catch (e)
         {
             next(e);
@@ -739,6 +831,11 @@ const setupApiProxy = (app: express.Express, cfg: SsrConfig) =>
             // 簡短 log：確認實際送出去的 path（方便你驗證）
             console.log(`[SSR][proxy-hit] ${req.method} ${req.originalUrl} -> ${cfg.apiTarget}`);
         },
+
+        onProxyRes: (proxyRes: ProxyResponseLike) =>
+        {
+            setProxySecurityHeaders(proxyRes);
+        },
     } as const;
 
     // 執行 function
@@ -753,6 +850,7 @@ const start = async () =>
     const app = express();
 
     // 執行 function
+    setupSecurityHeaders(app, cfg);
     app.use(compression());
     setupApiProxy(app, cfg);
 

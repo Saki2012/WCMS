@@ -7,6 +7,7 @@ import { ColRender, RowRender, STORAGE_KEY } from "@/SysCore/Components/Grid/Gri
 import type { ColumnConfig, GridProps, GridRow } from "@/SysCore/Components/Grid/Grid_Data";
 import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { FormatDate } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
@@ -133,12 +134,10 @@ const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: WebResourc
 const SetUrlIcon = (url: string, descript: string, target: WindowTarget) =>
 {
     const tar = target === 0 ? "_self" : "_blank";
-    const alt = `${descript}${target === 0 ? "" : "｜[另開視窗]"}`;
-
     return (
-        <a href={url} target={tar} rel="noopener noreferrer" className="btn btn-default bg_link" title={alt}>
+        <LangLink to={url} target={tar} className="btn btn-default bg_link" title={descript}>
             <span className="link">Link</span>
-        </a>
+        </LangLink>
     );
 };
 
@@ -226,8 +225,8 @@ const PictureListContent = (prop: { lang: Lang; datas: WebResourceSet[]; cateMap
                                         )
                                         : isVideo
                                         ? (
-                                            <a
-                                                href={urlRaw}
+                                            <LangLink
+                                                to={urlRaw}
                                                 target={tar}
                                                 className="card_image_link venobox"
                                                 data-autoplay="true"
@@ -247,11 +246,11 @@ const PictureListContent = (prop: { lang: Lang; datas: WebResourceSet[]; cateMap
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </a>
+                                            </LangLink>
                                         )
                                         : (
-                                            <a
-                                                href={urlRaw}
+                                            <LangLink
+                                                to={urlRaw}
                                                 target={tar}
                                                 className="card_image_link venobox"
                                                 data-autoplay="true"
@@ -263,7 +262,7 @@ const PictureListContent = (prop: { lang: Lang; datas: WebResourceSet[]; cateMap
                                                 <div className="img-wrapper">
                                                     <img className="card_image" src={picUrl} alt="" />
                                                 </div>
-                                            </a>
+                                            </LangLink>
                                         )}
                                 </figure>
 
@@ -284,8 +283,10 @@ const PictureListContent = (prop: { lang: Lang; datas: WebResourceSet[]; cateMap
                                 )}
 
                                 <div className="card_titleDiv + mb-md-4 mb-sm-3 mb-2" style={{ textAlign: (isYoutube || isVideo) ? undefined : "center" }}>
-                                    <a href={urlRaw} target={tar} className="card_title">
-                                        <i className="fad fa-link me-2"></i>{title}</a>
+                                    <LangLink to={urlRaw} target={tar} className="card_title">
+                                        <i className="fad fa-link me-2"></i>
+                                        {title}
+                                    </LangLink>
                                     <div className="d-flex gap-1 flex-wrap">
                                         {Boolean(contentStatus & 1) && <span className="label label-success">置頂</span>}
                                         {Boolean(contentStatus & 2) && <span className="label label-danger">熱門</span>}
@@ -295,14 +296,14 @@ const PictureListContent = (prop: { lang: Lang; datas: WebResourceSet[]; cateMap
                                 {(isYoutube || isVideo) && (
                                     <div className="card_StateDiv">
                                         <div className="More customize_btn">
-                                            <a href={urlRaw} target={tar} className="Btn_s1" type="button" role="button" title="觀看更多">
+                                            <LangLink to={urlRaw} target={tar} className="Btn_s1" type="button" role="button" title="觀看更多">
                                                 VIEW ALL<span className="ml-2">+</span>
-                                            </a>
+                                            </LangLink>
                                         </div>
 
                                         <div className="ZoomIn customize_ZoomIn_btn">
-                                            <a
-                                                href={urlRaw}
+                                            <LangLink
+                                                to={urlRaw}
                                                 target={tar}
                                                 className="Btn_zm1 venobox"
                                                 data-autoplay="true"
@@ -314,7 +315,7 @@ const PictureListContent = (prop: { lang: Lang; datas: WebResourceSet[]; cateMap
                                             >
                                                 <i className="fas fa-expand-alt"></i>
                                                 <span className="sr-only">放大圖片</span>
-                                            </a>
+                                            </LangLink>
                                         </div>
                                     </div>
                                 )}

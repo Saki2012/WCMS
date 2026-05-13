@@ -4,6 +4,7 @@ import { SITEMAP_NODE_ID, SITEMAP_SEGMENT, SitemapNode } from "@/Features/Pages/
 import { HomePage, HomePageLoader } from "@/Features/Pages/Client/Route/ClientComponentResolver";
 import TemplateHub from "@/Features/Pages/Server/Scaffold/PreviewFrame/TemplateHub.tsx";
 import { DefaultLang, isSupportedLang, type Lang } from "@/SysCore/i18n/lang";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 import { AutoRedirect } from "@/SysCore/Utils/Route/AutoRedirect";
 import type { components } from "@/types/api";
 import * as React from "react";
@@ -474,7 +475,7 @@ export const createRoutesFromSite = (site: INormSite): RouteObject[] =>
             const External: React.FC = () =>
             {
                 if (typeof window !== "undefined") window.location.assign(n.redirectTo!);
-                return <a href={n.redirectTo!} rel="noopener noreferrer">{n.redirectTo}</a>;
+                return <LangLink to={n.redirectTo!}>{n.redirectTo}</LangLink>;
             };
             if (n.path)
             {

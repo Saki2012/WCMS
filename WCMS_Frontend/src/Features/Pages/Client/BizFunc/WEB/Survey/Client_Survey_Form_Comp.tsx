@@ -4,7 +4,6 @@ import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Clie
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import { PGID } from "@/types/SchemaFields";
-import parse from "html-react-parser";
 import type { FormEvent } from "react";
 import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import Client_Survey_Input_Comp, {
@@ -15,6 +14,7 @@ import Client_Survey_Input_Comp, {
     type SurveyInputValueMap,
 } from "./Client_Survey_Input_Comp";
 import "./Client_Survey_Form.css";
+import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import type { components } from "@/types/api";
 import { type ISurveyOptions, type SurveySubmitActions, useSurveyFormFetchData } from "./Client_Survey_Form_Loader";
 type SurveySubmissionRequest = components["schemas"]["SurveySubmissionRequest_DTO"];
@@ -108,11 +108,8 @@ export const Client_Survey_Form_Comp = (props: ISurveyProps) =>
     // 建立瀏覽次數設定
     const viewCountConfig = useViewCountConfig({ siteIndex: props.site.siteIndex, surveyId: surveyInternalId });
 
-    // 轉成 ReactNode 顯示 SurveyDescription
-    const content = useMemo(() => (data.contentHtml ? parse(data.contentHtml) : null), [data.contentHtml]);
-
-    // 轉成 ReactNode 顯示 SurveySuccessContent
-    const successContent = useMemo(() => (data.successContentHtml ? parse(data.successContentHtml) : null), [data.successContentHtml]);
+    const content = <CmsHtml_Comp html={data.contentHtml} lang={props.lang} />;
+    const successContent = <CmsHtml_Comp html={data.successContentHtml} lang={props.lang} />;
 
     // 整理 SurveyItem 結構，交給動態欄位元件
     const surveyItems = useMemo(() => (data.data.SurveyItem ?? []) as SurveyInputItem[], [data.data.SurveyItem]);

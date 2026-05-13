@@ -4,13 +4,13 @@ import type { IAnnouncementFormProps } from "@/Features/Pages/Client/BizFunc/WEB
 import { useAnnouncementFormFetchData } from "@/Features/Pages/Client/BizFunc/WEB/Announcement/AnnouncementForm_Loader";
 import type { ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
+import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
+import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { FormatDate } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { PGID } from "@/types/SchemaFields";
-import parse from "html-react-parser";
 import { useCallback, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
@@ -51,7 +51,7 @@ const AnnouncementForm = (props: IAnnouncementFormProps) =>
 
 export default AnnouncementForm;
 
-const Content = (prop: { lang: string; theme: IFETheme; data: AnnouncementSet; categoryNameText: string; tagNameText: string; }) =>
+const Content = (prop: { lang: Lang; theme: IFETheme; data: AnnouncementSet; categoryNameText: string; tagNameText: string; }) =>
 {
     // 宣告變數
     const langData = prop.data?.AnnouncementDetail?.find(p => (p.Lang ?? "").toLowerCase() === prop.lang);
@@ -63,8 +63,7 @@ const Content = (prop: { lang: string; theme: IFETheme; data: AnnouncementSet; c
     const href = langData?.Url ?? "";
     const hrefName = langData?.UrlDescription ?? "";
     const rawContent = langData?.Content ?? "";
-    const parseContent = useResolveInternalIds(rawContent, { locale: prop.lang });
-    const content = parseContent.html ? parse(parseContent.html) : null;
+    const content = <CmsHtml_Comp html={rawContent} lang={prop.lang} />;
 
     const cats = `${prop.categoryNameText ?? ""}`.trim();
     const tags = `${prop.tagNameText ?? ""}`.trim();

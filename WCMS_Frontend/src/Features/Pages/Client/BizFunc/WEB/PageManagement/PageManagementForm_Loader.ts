@@ -1,5 +1,4 @@
 import { PageManagementAdapter } from "@/Features/Hooks/BizFunc/WEB/PageManagement_Api";
-import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
@@ -99,7 +98,7 @@ export const usePageManagementFormFetchData = (p: { lang: Lang; pageId: string; 
 
     const detail = useMemo(() => findLangDetail({ data, lang: p.lang }), [data, p.lang]);
 
-    const parsed = useResolveInternalIds(detail?.Content ?? "", { locale: p.lang });
+    const contentHtml = detail?.Content ?? "";
 
     const errorList = useMemo(() => [pageData.errorText], [pageData.errorText]);
 
@@ -107,7 +106,7 @@ export const usePageManagementFormFetchData = (p: { lang: Lang; pageId: string; 
         data,
         detail,
         title: detail?.Title ?? "",
-        contentHtml: parsed.html ?? "",
+        contentHtml,
         isLoading: Boolean(pageData.isLoading),
         errorText: pageData.errorText ?? null,
         errorList,

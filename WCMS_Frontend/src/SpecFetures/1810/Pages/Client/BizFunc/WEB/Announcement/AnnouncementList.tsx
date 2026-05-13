@@ -1,6 +1,6 @@
 /**公告清單 */
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
+import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
 import type { GridProps } from "@/SysCore/Components/Grid/Grid_Data";
 import type { GridRow } from "@/SysCore/Components/Grid/Grid_Data";
@@ -12,7 +12,6 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { FormatDate } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { AnnouncementDetailFields, AnnouncementFields } from "@/types/SchemaFields";
-import parse from "html-react-parser";
 import { useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 
@@ -273,10 +272,7 @@ const GridList_Comp = (prop: { lang: Lang; Theme: IFETheme; GridData: GridProps;
 
 const QAItem_Comp = (prop: { idx: number; row: AnnouncementSet; lang: Lang; }) =>
 {
-    // 宣告變數
-    const parseContent = useResolveInternalIds(prop.row.AnnouncementDetail?.find(p => p.Lang === prop.lang)?.Content ?? "", { locale: prop.lang });
-
-    const content = parseContent.html ? parse(parseContent.html) : null;
+    const content = <CmsHtml_Comp html={prop.row.AnnouncementDetail?.find(p => p.Lang === prop.lang)?.Content ?? ""} lang={prop.lang} />;
 
     // return
     return (

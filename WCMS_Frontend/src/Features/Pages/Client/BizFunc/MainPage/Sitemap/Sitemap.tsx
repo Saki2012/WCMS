@@ -1,6 +1,6 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { Lang } from "@/SysCore/i18n/lang";
-import { LangNavLink } from "@/SysCore/i18n/LangLink";
+import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import React, { useMemo } from "react";
 import "./Sitemap.css";
 
@@ -41,16 +41,15 @@ const renderNodeLink = (siteIndex: string, node: INormNode): React.ReactNode =>
     // 依 node 型別輸出 Link（外連用 <a>，內連用 LangNavLink）
     const text = node.title ?? "";
     const target = node.windowTarget === 1 ? "_blank" : "_self";
-    const rel = node.windowTarget === 1 ? "noopener noreferrer" : undefined;
 
     const href = getExternalHref(node);
     if (href)
     {
-        return <a href={href} target={target} rel={rel} title={text} style={{ color: "inherit" }}>{text}</a>;
+        return <LangLink to={href} target={target} title={text} style={{ color: "inherit" }}>{text}</LangLink>;
     }
 
     const to = getInternalTo(siteIndex, node.absSegments);
-    return <LangNavLink to={to} target={target} rel={rel} title={text} style={{ color: "inherit" }}>{text}</LangNavLink>;
+    return <LangNavLink to={to} target={target} title={text} style={{ color: "inherit" }}>{text}</LangNavLink>;
 };
 
 const collectLeafNodes = (nodes: INormNode[]): INormNode[] =>

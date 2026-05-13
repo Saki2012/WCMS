@@ -1,18 +1,18 @@
+import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
+import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
-import parse from "html-react-parser";
-import { useMemo } from "react";
 type HomePageIntro = components["schemas"]["SpecHomePage1820_Detail_DTO"];
 
 /** 首頁介紹區塊列表 */
-export const Section4 = (props: { data: HomePageIntro[]; }) =>
+export const Section4 = (props: { data: HomePageIntro[]; lang: Lang; }) =>
 {
     return (
         <>
             {props.data.map((item, index) =>
             {
-                return <HomeIntroSection_Comp key={`${index}-${item.RowId}`} item={item} index={index} />;
+                return <HomeIntroSection_Comp key={`${index}-${item.RowId}`} item={item} index={index} lang={props.lang} />;
             })}
         </>
     );
@@ -32,7 +32,7 @@ const renderLink = (link: string, title: string, fontClass = "font-wt-lg") =>
 };
 
 /** 渲染文字區 */
-const renderTextBlock = (item: HomePageIntro, isEvenRow: boolean) =>
+const renderTextBlock = (item: HomePageIntro, isEvenRow: boolean, lang: Lang) =>
 {
     const subImageBleedClass = isEvenRow ? "bleed-right" : "bleed-left";
     const subFigureClass = isEvenRow ? "right_figure" : "left_figure";
@@ -40,14 +40,14 @@ const renderTextBlock = (item: HomePageIntro, isEvenRow: boolean) =>
     const textColClass = isEvenRow
         ? "col-lg-5 col-md-5 col-sm-12 col-12 order-xl-2 order-lg-2 order-md-2 order-sm-1 order-1"
         : "col-lg-5 col-md-5 col-sm-12 col-12";
-
-    const intro = useMemo(() => (item.Intro ? parse(item.Intro) : null), [item.Intro]);
     return (
         <div className={textColClass}>
             <div className="bbox d-flex flex-column justify-content-between" style={{ height: "100%" }}>
                 <div className="Text_Area">
                     <div className="Text_P">
-                        <p className="font-wt-md">{intro}</p>
+                        <p className="font-wt-md">
+                            <CmsHtml_Comp html={item.Intro ?? ""} lang={lang} />
+                        </p>
                     </div>
                     <div className="row w-100 mx-0 text-left">
                         <div className="col-12 px-0">{renderLink(item.MainLink ?? "", item.MainLinkTitle ?? "", primaryLinkFontClass)}</div>
@@ -109,7 +109,7 @@ const renderImageBlock = (item: HomePageIntro, isEvenRow: boolean) =>
 };
 
 /** 首頁介紹單一區塊 */
-const HomeIntroSection_Comp = (props: { item: HomePageIntro; index: number; }) =>
+const HomeIntroSection_Comp = (props: { item: HomePageIntro; index: number; lang: Lang; }) =>
 {
     const isEvenRow = (props.index + 1) % 2 === 0;
 
@@ -137,8 +137,8 @@ const HomeIntroSection_Comp = (props: { item: HomePageIntro; index: number; }) =
                             <div className="col-12">
                                 <div className={boxStyleClass}>
                                     <div className="row">
-                                        {isEvenRow ? renderImageBlock(props.item, isEvenRow) : renderTextBlock(props.item, isEvenRow)}
-                                        {isEvenRow ? renderTextBlock(props.item, isEvenRow) : renderImageBlock(props.item, isEvenRow)}
+                                        {isEvenRow ? renderImageBlock(props.item, isEvenRow) : renderTextBlock(props.item, isEvenRow, props.lang)}
+                                        {isEvenRow ? renderTextBlock(props.item, isEvenRow, props.lang) : renderImageBlock(props.item, isEvenRow)}
                                     </div>
                                 </div>
                             </div>

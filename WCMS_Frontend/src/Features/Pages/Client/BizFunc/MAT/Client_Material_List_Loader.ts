@@ -2,7 +2,6 @@ import { CategoryAdapter, type CategoryMapLoaderData } from "@/Features/Hooks/Bi
 import { TagAdapter, type TagMapLoaderData } from "@/Features/Hooks/BizFunc/COMM/Tag_Api";
 import { MaterialAdapter } from "@/Features/Hooks/BizFunc/MAT/Material_Api";
 import { PageManagementAdapter } from "@/Features/Hooks/BizFunc/WEB/PageManagement_Api";
-import { useResolveInternalIds } from "@/SysCore/Components/File/useResolveInternalIds";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { IListViewState } from "@/SysCore/Interface/IListViewState";
 import type { ApiGridInitial, ApiGridLoaderData, ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
@@ -63,7 +62,6 @@ interface RawData
     pageData: PageManagementSet;
     pageDetail: PageManagementDetail | null;
     pageTitle: string;
-    pageContentHtml: string;
 }
 interface UseMaterialListDataResult
 {
@@ -138,7 +136,6 @@ export const useMaterialListData = (props: QueryParam): UseMaterialListDataResul
 
     const pageSet = useMemo(() => pageData.data ?? emptyPageData, [pageData.data]);
     const pageDetail = useMemo(() => findPageDetail(pageSet, props.lang), [pageSet, props.lang]);
-    const parsedPage = useResolveInternalIds(pageDetail?.Content ?? "", { locale: props.lang });
 
     const resetKey = useMemo(() => buildResetKey(props), [
         props.lang,
@@ -177,7 +174,6 @@ export const useMaterialListData = (props: QueryParam): UseMaterialListDataResul
             pageData: pageSet,
             pageDetail,
             pageTitle: pageDetail?.Title ?? "",
-            pageContentHtml: parsedPage.html ?? "",
         },
         isLoading,
         errorList,

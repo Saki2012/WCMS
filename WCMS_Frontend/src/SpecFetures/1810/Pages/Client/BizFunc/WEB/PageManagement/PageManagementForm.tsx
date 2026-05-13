@@ -1,9 +1,10 @@
 import { type IPageManagementOptions, usePageManagementFormFetchData } from "@/Features/Pages/Client/BizFunc/WEB/PageManagement/PageManagementForm_Loader";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
+import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import type { Lang } from "@/SysCore/i18n/lang";
-import parse from "html-react-parser";
-import { type ReactNode, useMemo } from "react";
+import { LangLink } from "@/SysCore/i18n/LangLink";
+import type { ReactNode } from "react";
 
 export interface IPageManagementProps
 {
@@ -15,10 +16,8 @@ export interface IPageManagementProps
 const PageManagementFormComp = (props: IPageManagementProps) =>
 {
     const pageId = `${props.options?.PageId ?? ""}`.trim();
-    // 讀取 feature 收斂後的單一資料入口
     const formData = usePageManagementFormFetchData({ lang: props.lang, pageId });
-    // 將 html 轉成 ReactNode 顯示
-    const content = useMemo(() => (formData.contentHtml ? parse(formData.contentHtml) : null), [formData.contentHtml]);
+    const content = <CmsHtml_Comp html={formData.contentHtml} lang={props.lang} />;
 
     return <ContentComp Theme={props.theme} isLoading={formData.isLoading} ErrorList={formData.errorList} Title={formData.title} Content={content} />;
 };
@@ -89,9 +88,9 @@ const Content = (prop: ContentCompProp) =>
                 <ul className="list-group">
                     {prop.Href && prop.Href.length > 0 && (
                         <li>
-                            <a href={prop.Href} target="_blank" rel="noopener noreferrer" className="btn btn-default">
-                                <i className="fa fa-link"></i> {prop.Href}
-                            </a>
+                            <LangLink to={prop.Href} title={prop.Href} target="_blank" className="btn btn-default">
+                                <i className="fa fa-link" aria-hidden="true"></i> {prop.Href}
+                            </LangLink>
                         </li>
                     )}
                     {prop.Files && prop.Files.length > 0 && (
@@ -106,7 +105,7 @@ const Content = (prop: ContentCompProp) =>
                                         tabIndex={1}
                                         title={`${file.name ?? ""}(另開新視窗)`}
                                     >
-                                        <i className="fa fa-paperclip"></i> {file.name}
+                                        <i className="fa fa-paperclip" aria-hidden="true"></i> {file.name}
                                     </a>
                                 </li>
                             ))}
