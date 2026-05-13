@@ -18,6 +18,7 @@ type SiteMenu_Item_Title = components["schemas"]["SiteMenu_Item_Title_DTO"];
 type SiteMenu_Item_Module = components["schemas"]["SiteMenu_Item_Module_DTO"];
 type SiteMenu_Item_Url = components["schemas"]["SiteMenu_Item_Url_DTO"];
 type WindowTarget = components["schemas"]["WindowTarget"];
+type ModulePageType = components["schemas"]["ModulePageType"];
 
 // import { PageManagementComp } from "@/Features/Client/BizFunc/PageManagement/PageManagementComp"; // 第2步再接
 
@@ -32,6 +33,7 @@ export interface INormNode
     redirectTo?: string; // redirect-* 用
     module?: { progId: string; options?: unknown; }; // module 用
     bannerId?: string;
+    pageType?: ModulePageType;
     children: INormNode[];
     windowTarget: WindowTarget;
     isShowOnMenu: boolean;
@@ -151,11 +153,11 @@ export const normalizeSite = (siteMenu: SiteMenuSet): INormSite =>
                     }
                     node.module = { progId: mm.ModuleProgId, options: opts };
                     node.bannerId = mm.BannerId ?? "";
+                    node.pageType = mm.PageType ?? 0;
                 }
             }
             nodeMap.set(id, node);
         }
-
         // 串父子
         const roots: INormNode[] = [];
         for (const it of items)
@@ -239,13 +241,12 @@ interface IModuleRenderScopeKeyArgs
 /** 產生前台 module 渲染 scope，node/語系切換時用來重建內容元件 */
 const buildModuleRenderScopeKey = (args: IModuleRenderScopeKeyArgs): string =>
 {
-    // 宣告變數
     const siteIndex = args.site?.siteIndex ?? "";
     const nodeId = args.node?.id ?? 0;
     const progId = args.node?.module?.progId ?? "";
+    const pageType = args.node?.pageType ?? 0;
 
-    // return
-    return `${siteIndex}|${args.lang}|${nodeId}|${progId}`;
+    return `${siteIndex}|${args.lang}|${nodeId}|${progId}|${pageType}`;
 };
 const normalizeLangKey = (raw?: string | null): Lang =>
 {

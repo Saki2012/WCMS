@@ -20,12 +20,9 @@ interface IRightFrameProps
 const RightFrame = (props: IRightFrameProps) =>
 {
     // 判斷是否需要預留左側選單寬度
-    const hasSubMenu = (props.node.level ?? 0) > 0 || (props.node.children?.length ?? 0) > 0;
-
+    const hasSubMenu = props.node.pageType === 0 && ((props.node.level ?? 0) > 0 || (props.node.children?.length ?? 0) > 0);
     // 右側內容區欄寬
     const contentCss = clsx("col-md-12", "col-sm-12", "col-12", hasSubMenu ? "col-xl-10" : "col-xl-12", hasSubMenu ? "col-lg-9" : "col-lg-12");
-
-    // return
     return (
         <div className={contentCss}>
             <ThirdMenu_Comp lang={props.lang} site={props.site} node={props.node} />

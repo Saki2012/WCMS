@@ -71,7 +71,7 @@ const ContentContainer = (props: IContentContainerProps) =>
                 <TopFrame lang={props.lang} site={props.site} node={props.node} backHref={props.backHref} initialBanner={props.bannerInitial} />
                 <div className="container-content + Layout_Padding_0_top Layout_Padding_5_bottom">
                     <div className="row">
-                        <LeftFrame lang={props.lang} site={props.site} node={props.node} />
+                        {props.node.pageType === 0 && <LeftFrame lang={props.lang} site={props.site} node={props.node} />}
                         <RightFrame lang={props.lang} site={props.site} node={props.node} />
                     </div>
                 </div>
