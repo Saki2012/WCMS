@@ -954,4 +954,7 @@
   <data name="Prog_SurveySubmission" xml:space="preserve">
     <value>Survey Submission</value>
   </data>
+  <data name="Product_Price" xml:space="preserve">
+    <value>Price</value>
+  </data>
 </root>

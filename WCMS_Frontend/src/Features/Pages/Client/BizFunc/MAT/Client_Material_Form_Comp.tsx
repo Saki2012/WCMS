@@ -323,7 +323,7 @@ const MaterialRightContent_Comp = (props: { title: string; price: string; descri
                 <div className="tit">{props.title}</div>
             </div>
 
-            {props.price && (
+            {props.price && props.price !== "0" && (
                 <div className="Pricing_Meta">
                     <ul>
                         <li>

@@ -1386,7 +1386,7 @@ public static class ModelDisplayName
     /// </summary>
     public const string Material_Memo = nameof(Material_Memo);
     /// <summary>
-    /// 中：商品價格
+    /// 中：價格
     /// 英：Price
     /// </summary>
     public const string Product_Price = nameof(Product_Price);
