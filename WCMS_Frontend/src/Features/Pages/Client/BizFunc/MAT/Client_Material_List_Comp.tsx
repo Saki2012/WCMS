@@ -7,7 +7,7 @@ import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useOptionalSpecAssetUrl } from "@/SysCore/Utils/UI_HookFunc/useOptionalSpecAssetUrl";
 import type { components } from "@/types/api";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { type IMaterialListOptions, useMaterialListData } from "./Client_Material_List_Loader";
 
@@ -33,6 +33,12 @@ interface MaterialCardView
     picUrl: string;
     picAlt: string;
 }
+
+interface MaterialTabView
+{
+    id: string;
+    name: string;
+}
 // #endregion
 
 // #region Public Component
@@ -40,13 +46,43 @@ interface MaterialCardView
 export const Client_Material_List_Comp = (props: IMaterialListProps) =>
 {
     const dirUrl = useLocation().pathname.replace(/\/List$/, "");
+    const [activeTabId, setActiveTabId] = useState<string>(() => getFirstCsvValue(props.options.TagIds));
+
     const viewState = useMemo(() => ({ pageNumber: 1, pageSize: 12, keyword: undefined }), []);
-    const vm = useMaterialListData({ lang: props.lang, opts: props.options, viewState });
+
+    const listOptions = useMemo<IMaterialListOptions>(() => ({
+        PageId: props.options.PageId,
+        CategoryId: props.options.CategoryId,
+        TagIds: activeTabId || props.options.TagIds,
+    }), [
+        props.options.PageId,
+        props.options.CategoryId,
+        props.options.TagIds,
+        activeTabId,
+    ]);
+
+    const vm = useMaterialListData({ lang: props.lang, opts: listOptions, viewState });
     const rawData = vm.rawData;
+
     const content = useMemo(() => rawData.pageData.PageManagementDetail?.find(p => p.Lang === props.lang)?.Content ?? "", [
         rawData.pageData.PageManagementDetail,
         props.lang,
     ]);
+
+    const tagList = useMemo(() => buildMaterialTabList(rawData.tagMap, props.options.TagIds), [
+        rawData.tagMap,
+        props.options.TagIds,
+    ]);
+
+    /** 當後台設定的 Tag 條件改變時，自動切到第一個可用 Tab */
+    useEffect(() =>
+    {
+        if (tagList.length <= 0) return;
+        if (tagList.some(p => p.id === activeTabId)) return;
+
+        setActiveTabId(tagList[0].id);
+    }, [tagList, activeTabId]);
+
     const paginprops = { currentPage: rawData.pageNumber, totalPages: rawData.totalPages, onPageChange: vm.onPageChange };
 
     return (
@@ -59,7 +95,16 @@ export const Client_Material_List_Comp = (props: IMaterialListProps) =>
         >
             <CmsHtml_Comp html={content} lang={props.lang} />
             {content && <hr className="hr-my-4" />}
-            <MaterialCardList_Comp dirUrl={dirUrl} lang={props.lang} listData={rawData.listData} categoryMap={rawData.categoryMap} />
+
+            <MaterialCardList_Comp
+                dirUrl={dirUrl}
+                lang={props.lang}
+                listData={rawData.listData}
+                categoryMap={rawData.categoryMap}
+                tagList={tagList}
+                activeTabId={activeTabId}
+                onTabChange={setActiveTabId}
+            />
         </ModuleContent>
     );
 };
@@ -67,9 +112,21 @@ export const Client_Material_List_Comp = (props: IMaterialListProps) =>
 
 // #region Private Components
 /** Material 卡片列表 */
-const MaterialCardList_Comp = (props: { dirUrl: string; lang: Lang; listData: MaterialSet[]; categoryMap: Record<string, string>; }) =>
+const MaterialCardList_Comp = (
+    props: {
+        dirUrl: string;
+        lang: Lang;
+        listData: MaterialSet[];
+        categoryMap: Record<string, string>;
+        tagList: MaterialTabView[];
+        activeTabId: string;
+        onTabChange: (id: string) => void;
+    },
+) =>
 {
     const defaultPic = useOptionalSpecAssetUrl({ relativePath: "Assets/Custom/DefaultMaterialPic.jpg", fallbackToDefault: true }) ?? "";
+    const tabPanelId = props.activeTabId ? `H-navTabs-${props.activeTabId}` : "H-navTabs-MaterialList";
+
     const cards = useMemo(() => props.listData.map(item => buildMaterialCardView(item, props.lang, props.dirUrl, props.categoryMap, defaultPic)), [
         props.listData,
         props.lang,
@@ -79,8 +136,58 @@ const MaterialCardList_Comp = (props: { dirUrl: string; lang: Lang; listData: Ma
     ]);
 
     return (
-        <div className="SubInfoDivBox_Style Layout_Padding_4_bottom">
-            <div id="Row_Colitem" className="SubPage_Standard_itemBoxs">{cards.map(item => <MaterialCardItem_Comp key={item.key} item={item} />)}</div>
+        <div className="SubInfoDivBox_Style Layout_Padding_4_bottom flex-column">
+            {props.tagList.length > 0 && (
+                <div id="Horizontal" className="H-nav-tabs-content-box mb-3">
+                    <ProductionTabs
+                        tagList={props.tagList}
+                        activeTabId={props.activeTabId}
+                        tabPanelId={tabPanelId}
+                        onChange={props.onTabChange}
+                    />
+                </div>
+            )}
+
+            <div
+                id={tabPanelId}
+                className="SubPage_Standard_itemBoxs"
+                role={props.tagList.length > 0 ? "tabpanel" : undefined}
+                aria-labelledby={props.activeTabId ? `H-Tabs__${props.activeTabId}` : undefined}
+            >
+                {cards.map(item => <MaterialCardItem_Comp key={item.key} item={item} />)}
+            </div>
+        </div>
+    );
+};
+
+/** 渲染物件類別 Tab */
+const ProductionTabs = (
+    props: { tagList: MaterialTabView[]; activeTabId: string; tabPanelId: string; onChange: (id: string) => void; },
+) =>
+{
+    return (
+        <div className="Horizontal nav-tabs-list mb-3">
+            <ul className="nav nav-tabs" role="tablist">
+                {props.tagList.map((tag) =>
+                {
+                    return (
+                        <li key={tag.id} className="nav-item + me-3" role="presentation">
+                            <a
+                                type="button"
+                                className={`more-link font-wt-lg ${tag.id === props.activeTabId ? "active" : ""}`}
+                                role="tab"
+                                aria-selected={tag.id === props.activeTabId}
+                                aria-controls={props.tabPanelId}
+                                id={`H-Tabs__${tag.id}`}
+                                onClick={() => props.onChange(tag.id)}
+                            >
+                                <span className="vm">{tag.name}</span>
+                                <span className="ms-1">〉</span>
+                            </a>
+                        </li>
+                    );
+                })}
+            </ul>
         </div>
     );
 };
@@ -126,10 +233,6 @@ const MaterialCardItem_Comp = (props: { item: MaterialCardView; }) =>
                         )}
                     </div>
 
-                    <div className="card_titleDiv my-0">
-                        <div className="card_subtitle">{}</div>
-                    </div>
-
                     <div className="d-flex justify-content-between align-items-center mb-md-3 mb-sm-2 mb-2">
                         <span className="Discount-text">{}</span>
                     </div>
@@ -169,7 +272,35 @@ const buildMaterialCardView = (item: MaterialSet, lang: Lang, dirUrl: string, ca
     const picData = item.MaterialPicture?.[0];
     const picAlt = picData?.PictureName ?? title;
     const picUrl = picData?.PictureId ? FileManagementAPI.get_Public_Preview_Url(picData.PictureId, picAlt) : defaultPic;
+
     return { key: internalId, linkUrl: `${dirUrl}/${internalId}`, title, price, categoryName, picUrl, picAlt };
+};
+
+/** 依後台設定的 TagIds 組成前台 Tab */
+const buildMaterialTabList = (tagMap: Record<string, string>, tagIds?: string | null): MaterialTabView[] =>
+{
+    return getCsvValues(tagIds ?? "")
+        .map(id => ({ id, name: tagMap[id] ?? "" }))
+        .filter(p => p.id && p.name);
+};
+
+/** 取得 CSV 第一個值 */
+const getFirstCsvValue = (value?: string | null): string =>
+{
+    return getCsvValues(value ?? "")[0] ?? "";
+};
+
+/** 將 CSV 字串轉成乾淨 id 清單 */
+const getCsvValues = (value: string): string[] =>
+{
+    const list = value.split(",").map(cleanCsvValue).filter(Boolean);
+    return Array.from(new Set(list));
+};
+
+/** 清理 CSV 內可能殘留的括號或引號 */
+const cleanCsvValue = (value: string): string =>
+{
+    return value.trim().replace(/^[("'\\s]+|[)"'\\s]+$/g, "");
 };
 
 /** 從 map 取得顯示名稱 */

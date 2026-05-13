@@ -114,6 +114,7 @@
 	transition: 0.3s;
 	background-color: transparent;
 }
+
 @media screen and (max-width: 575px) {
 	.more-link {
 		font-size: 93.75%;
@@ -173,6 +174,14 @@
 /* ---------------------------------------------------- */
 .More-link span {
 	margin-left: 8px;
+}
+.more-link.active{
+	color: var(--Customize_HRcolor);
+}
+.more-link.active::after {
+	-webkit-transform: scaleX(1);
+	transform: scaleX(1);
+	border-bottom: 1px solid var(--Customize_moreHRcolor);
 }
 /* ====================================================== */
 /* =====  首頁 共用 MORE FOR 新化林場  ===================== */

@@ -152,7 +152,7 @@ const TimelineBlocks_Comp = (props: { lang: Lang; blocks: ITimelineYearBlockVm[]
             {props.blocks.map((block) =>
             {
                 return (
-                    <div key={block.key} className="SubInfoDivBox_Style + Layout_Padding_4">
+                    <div key={block.key} className="SubInfoDivBox_Style first_Padding_4_top Layout_Padding_4_bottom">
                         <div className="row w-100">
                             <div className="col-xl-2 col-lg-2 col-md-12 col-sm-12 col-12">
                                 <div className="heading">
