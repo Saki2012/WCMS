@@ -100,7 +100,7 @@ const LastIssueComp = (props: { data: SpecJournalIndexSet | null; }) =>
                 <div className="HD-txt">最新卷期</div>
                 <div className="TW-file + my-1" style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <i className="fas fa-link" aria-hidden="true" />
-                    <LangNavLink to={issueTo} style={{ color: "inherit", textDecoration: "none" }}>{title}</LangNavLink>
+                    <LangNavLink to={issueTo} title={title} style={{ color: "inherit", textDecoration: "none" }}>{title}</LangNavLink>
                 </div>
                 {!!downloadHref && (
                     <div className="EN-file + my-1" style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -129,7 +129,7 @@ const PreprintComp = () =>
             <div className="HD-txt">先知先覺</div>
             <div className="TW-file + my-1" style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <i className="fas fa-link" aria-hidden="true" />
-                <LangNavLink to={issueTo} style={{ color: "inherit", textDecoration: "none" }}>預刊本</LangNavLink>
+                <LangNavLink to={issueTo} style={{ color: "inherit", textDecoration: "none" }} title={"預刊本"}>預刊本</LangNavLink>
             </div>
         </div>
     );

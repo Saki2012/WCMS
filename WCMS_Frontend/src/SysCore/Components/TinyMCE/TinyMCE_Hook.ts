@@ -126,7 +126,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                     width="${ed.dom.encode(width)}"
                     height="${ed.dom.encode(height)}"
                     loading="lazy"
-                    referrerpolicy="no-referrer-when-downgrade"  
+                    referrerpolicy="strict-origin-when-cross-origin"  
                     allowfullscreen
                     style="max-width:100%;border:0;"></iframe>`;
                 ed.insertContent(html);
@@ -444,7 +444,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                                     + ` width="100%"`
                                     + ` height="1000"`
                                     + ` loading="lazy"`
-                                    + ` referrerpolicy="no-referrer-when-downgrade"`
+                                    + ` referrerpolicy="strict-origin-when-cross-origin"`
                                     + ` frameborder="0"`
                                     + ` allowfullscreen`
                                     // + ` sandbox="allow-same-origin"`
@@ -850,7 +850,7 @@ export const useTinyMceInternalImage = (opts: UseTinyMceInternalImageOptions): U
                         // 與你現成的函式一致
                         node.attr("sandbox", null);
                         node.attr("loading", "lazy");
-                        node.attr("referrerpolicy", "no-referrer-when-downgrade");
+                        node.attr("referrerpolicy", "strict-origin-when-cross-origin");
                         node.attr("allowfullscreen", "");
 
                         // 一起把 wrapper 的快取欄位補齊，避免被蓋回空值
@@ -859,7 +859,7 @@ export const useTinyMceInternalImage = (opts: UseTinyMceInternalImageOptions): U
                         {
                             wrap.attr("data-mce-p-sandbox", null);
                             wrap.attr("data-mce-p-loading", "lazy");
-                            wrap.attr("data-mce-p-referrerpolicy", "no-referrer-when-downgrade");
+                            wrap.attr("data-mce-p-referrerpolicy", "strict-origin-when-cross-origin");
                             wrap.attr("data-mce-p-allowfullscreen", "");
                         }
                     });
@@ -955,7 +955,7 @@ export const useTinyMceIframeEdit = (): TinySetup =>
                     dom.setAttrib(ifr, "height", nh);
                     // dom.setAttrib(ifr, "sandbox", sandbox || null);
                     dom.setAttrib(ifr, "loading", "lazy");
-                    dom.setAttrib(ifr, "referrerpolicy", "no-referrer-when-downgrade");
+                    dom.setAttrib(ifr, "referrerpolicy", "strict-origin-when-cross-origin");
                     dom.setAttrib(ifr, "allowfullscreen", "");
 
                     // 3) 補保險：清狀況外的 "width/height='null'" 殘留
@@ -992,7 +992,7 @@ export const useTinyMceIframeEdit = (): TinySetup =>
                             "data-mce-p-height": (typeof nh === "string" ? nh : String(nh)) || null,
                             // "data-mce-p-sandbox": sandbox || null,
                             "data-mce-p-loading": "lazy",
-                            "data-mce-p-referrerpolicy": "no-referrer-when-downgrade",
+                            "data-mce-p-referrerpolicy": "strict-origin-when-cross-origin",
                             "data-mce-p-allowfullscreen": "", // boolean attr
                         };
                         Object.entries(cacheAttrs).forEach(([k, val]) => setWrap(k, val));

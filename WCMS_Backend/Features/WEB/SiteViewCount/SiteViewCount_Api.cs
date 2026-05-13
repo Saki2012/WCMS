@@ -59,7 +59,7 @@ public class SiteViewCountController : ApiBaseController<SiteViewCountSet, SiteV
     [HttpPost(nameof(GetRecentlySiteViewCount)), AllowAnonymous, IgnoreAntiforgeryToken]
     [ProducesResponseType(typeof(ApiResponse<GetCurrentSiteOnlineCountResult_DTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<GetCurrentSiteOnlineCountResult_DTO>), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetRecentlySiteViewCount([FromQuery] GetCurrentSiteOnlineCountRequest_DTO request, CancellationToken ct)
+    public async Task<IActionResult> GetRecentlySiteViewCount([FromBody] GetCurrentSiteOnlineCountRequest_DTO request, CancellationToken ct)
     {
         GetCurrentSiteOnlineCountResult_DTO result = await ((SiteViewCountFunc_Biz)Service).BizGetRecentlySiteViewCount(request?.SiteIndex ?? string.Empty, ct);
         ApiResponse<GetCurrentSiteOnlineCountResult_DTO> response = new() { Data = [result], SysMessage = Message.Messages, };

@@ -314,7 +314,7 @@ const SetUrlIcon = (url: string, descript: string, target: WindowTarget) =>
 {
     const tar = target === 0 ? "_self" : "_blank";
     return (
-        <LangLink to={url} className="btn btn-default + bg_link" role="button" aria-label="分享" target={tar} title={descript}>
+        <LangLink to={url} className="btn btn-default + bg_link" role="button" target={tar} title={descript}>
             <span className="link">link</span>
         </LangLink>
     );

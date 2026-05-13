@@ -1,30 +1,56 @@
-export type BuildProdCspOptions = Readonly<{ enforceTrustedTypes?: boolean; }>;
+export type CspStyleMode = "balanced" | "legacy" | "strict";
+
+export type BuildProdCspOptions = Readonly<{ enforceTrustedTypes?: boolean; allowScriptSelfFallback?: boolean; styleMode?: CspStyleMode; }>;
+
+const uniqueSources = (sources: readonly string[]): string[] =>
+{
+    return [...new Set(sources.map(s => String(s || "").trim()).filter(Boolean))];
+};
 
 const joinSources = (sources: readonly string[]): string =>
 {
-    return sources.filter(Boolean).join(" ");
+    return uniqueSources(sources).join(" ");
 };
 
-/**
- * 建立正式環境 CSP。
- * script 使用 nonce + strict-dynamic，避免 hydration 需要的 inline state 被 CSP 擋住，也移除 unsafe-inline 造成的弱掃問題。
- */
-export const buildProdCsp = (nonce: string, options: BuildProdCspOptions = {}): string =>
+const buildScriptSources = (nonceSource: string, allowSelfFallback: boolean): string[] =>
 {
-    const cleanNonce = String(nonce || "").trim();
-    const nonceSource = cleanNonce ? `'nonce-${cleanNonce}'` : "";
+    if (!nonceSource) return ["'self'"];
+    return allowSelfFallback ? [nonceSource, "'strict-dynamic'", "'self'"] : [nonceSource, "'strict-dynamic'"];
+};
 
-    const scriptSrc = joinSources(["'self'", nonceSource, "'strict-dynamic'"]);
-
-    const styleSrc = joinSources([
+const buildStyleSources = (styleMode: CspStyleMode): string[] =>
+{
+    const sources = [
         "'self'",
-        "'unsafe-inline'",
         "https://fonts.googleapis.com",
         "https://www.gstatic.com",
         "https://calendar.google.com",
         "https://accounts.google.com",
         "https://maps.gstatic.com",
-    ]);
+    ];
+
+    return styleMode === "legacy" ? [...sources, "'unsafe-inline'"] : sources;
+};
+
+const buildStyleAttrSources = (styleMode: CspStyleMode): string[] =>
+{
+    if (styleMode === "strict") return ["'none'"];
+    return ["'unsafe-inline'"];
+};
+
+/**
+ * 建立正式環境 CSP。
+ * 預設採 nonce + strict-dynamic，並將 CSP 僅用於 HTML response，降低靜態資源被弱掃重複列點的機率。
+ */
+export const buildProdCsp = (nonce: string, options: BuildProdCspOptions = {}): string =>
+{
+    const cleanNonce = String(nonce || "").trim();
+    const nonceSource = cleanNonce ? `'nonce-${cleanNonce}'` : "";
+    const styleMode = options.styleMode ?? "balanced";
+
+    const scriptSrc = joinSources(buildScriptSources(nonceSource, options.allowScriptSelfFallback === true));
+    const styleSrc = joinSources(buildStyleSources(styleMode));
+    const styleAttrSrc = joinSources(buildStyleAttrSources(styleMode));
 
     const imgSrc = joinSources([
         "'self'",
@@ -82,12 +108,13 @@ export const buildProdCsp = (nonce: string, options: BuildProdCspOptions = {}): 
     ]);
 
     const csp = [
-        "default-src 'self'",
+        "default-src 'none'",
         `script-src ${scriptSrc}`,
         `script-src-elem ${scriptSrc}`,
         "script-src-attr 'none'",
         `style-src ${styleSrc}`,
         `style-src-elem ${styleSrc}`,
+        `style-src-attr ${styleAttrSrc}`,
         `img-src ${imgSrc}`,
         `font-src ${fontSrc}`,
         `connect-src ${connectSrc}`,

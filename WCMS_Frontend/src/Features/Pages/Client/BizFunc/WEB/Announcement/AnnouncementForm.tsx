@@ -33,16 +33,13 @@ const AnnouncementForm = (props: IAnnouncementFormProps) =>
 
     // 執行 function：統一由 loader.ts 提供 form 需要的資料
     const getData = useAnnouncementFormFetchData({ lang: props.lang, internalId: safeInternalId, emptyData });
-
     const formData = getData.rawData.formData;
     const categoryNameText = getData.rawData.categoryNameText;
     const tagNameText = getData.rawData.tagNameText;
-
-    const detail = useMemo(() =>
-    {
-        return formData.AnnouncementDetail?.find(p => (p.Lang ?? "").toLowerCase() === props.lang);
-    }, [formData.AnnouncementDetail, props.lang]);
-
+    const detail = useMemo(() => formData.AnnouncementDetail?.find(p => (p.Lang ?? "").toLowerCase() === props.lang), [
+        formData.AnnouncementDetail,
+        props.lang,
+    ]);
     const startDate = useMemo(() =>
     {
         return FormatDate(formData.Announcement?.Validate_Start);
@@ -55,10 +52,7 @@ const AnnouncementForm = (props: IAnnouncementFormProps) =>
 
     const viewCountConfig = useMemo<ModuleViewCountConfig>(() =>
     {
-        // 宣告變數
         const request: TryCountDetailViewRequest = { SiteIndex: props.site.siteIndex, ProgId: PGID.Announcement, InternalId: safeInternalId };
-
-        // return
         return { mode: "form", contentKey: safeInternalId, request };
     }, [props.site.siteIndex, safeInternalId]);
 
@@ -95,7 +89,7 @@ const Content = (props: { lang: Lang; data: AnnouncementSet; }) =>
                     <div className="row">
                         <div className="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12">
                             <div className="Standard_btnDiv">
-                                <LangLink to={url} className="btn btn_NEWS bg_urllink_NEWS" role="button" title={detail.Title ?? ""}>
+                                <LangLink to={url} className="btn btn_NEWS bg_urllink_NEWS" role="button" title={detail?.UrlDescription ?? ""}>
                                     <span>
                                         <i className="fas fa-link + link + ml-0 mr-2"></i>
                                         <span className="sr-only">{detail?.UrlDescription ?? ""}</span>
