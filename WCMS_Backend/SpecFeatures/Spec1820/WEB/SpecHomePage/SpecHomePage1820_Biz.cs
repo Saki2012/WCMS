@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using Microsoft.Extensions.Caching.Memory;
+using System.Text.Json;
 using WCMS.Features._Resx;
 using WCMS.SysCore;
 using WCMS.SysCore.Interface;
@@ -7,33 +8,49 @@ using WCMS.SysCore.Library.LibAttribute;
 namespace WCMS.SpecFeatures.Spec1820.WEB.SpecHomePage;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.HomePageSetting)]
-public class SpecHomePage1820_Biz(BizDeps bizDeps, IHttpClientFactory httpClientFactory) : BizService<SpecHomePage1820Set>(bizDeps), IBizService<SpecHomePage1820Set>
+public class SpecHomePage1820_Biz(BizDeps bizDeps, IHttpClientFactory httpClientFactory, IMemoryCache memoryCache) : BizService<SpecHomePage1820Set>(bizDeps), IBizService<SpecHomePage1820Set>
 {
     #region Property
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
-
+    private readonly IMemoryCache _memoryCache = memoryCache;
     private const string _CwaApiKey = "CWA-C6803308-F451-4A6F-A4D5-5DF89E6B4E58";
     private const string _CityCode = "F-D0047-077";
     private const string _LocationName = "新化區";
 
-
+    private static readonly SemaphoreSlim WeatherCacheLock = new(1, 1);
+    private static readonly TimeSpan WeatherCacheTtl = TimeSpan.FromHours(3);
+    private static readonly TimeSpan WeatherStaleCacheTtl = TimeSpan.FromHours(12);
+    private const string WeatherCacheKey = "Spec1820:HomePage:Weather:F-D0047-077:新化區";
+    private const string WeatherStaleCacheKey = WeatherCacheKey + ":Stale";
     #endregion
 
     #region Public
     /// <summary>
-    /// 取得中央氣象署天氣資訊
+    /// 取得中央氣象署天氣資訊，使用三小時快取避免弱掃或高流量打爆外部 API
     /// </summary>
-    /// <param name="req">查詢條件</param>
     /// <param name="ct">取消權杖</param>
     /// <returns></returns>
     public async Task<SpecHomePageWeather_DTO> GetWeatherDataAsync(CancellationToken ct = default)
     {
-        using var http = _httpClientFactory.CreateClient();
-        using var res = await http.GetAsync(CwaUrl, ct);
-        res.EnsureSuccessStatusCode();
-        await using var stream = await res.Content.ReadAsStreamAsync(ct);
-        using JsonDocument doc = await JsonDocument.ParseAsync(stream, cancellationToken: ct);
-        return ParseWeather(doc.RootElement);
+        if (TryGetWeatherCache(WeatherCacheKey, out SpecHomePageWeather_DTO cached)) return cached;
+        await WeatherCacheLock.WaitAsync(ct);
+
+        try
+        {
+            if (TryGetWeatherCache(WeatherCacheKey, out cached)) return cached;
+            SpecHomePageWeather_DTO result = await FetchWeatherDataAsync(ct);
+            SetWeatherCache(result);
+            return result;
+        }
+        catch (Exception) when (!ct.IsCancellationRequested)
+        {
+            if (TryGetWeatherCache(WeatherStaleCacheKey, out SpecHomePageWeather_DTO stale)) return stale;
+            throw;
+        }
+        finally
+        {
+            WeatherCacheLock.Release();
+        }
     }
     #endregion
 
@@ -212,9 +229,53 @@ public class SpecHomePage1820_Biz(BizDeps bizDeps, IHttpClientFactory httpClient
         }
         return null;
     }
+
+    /// <summary>
+    /// 實際呼叫中央氣象署 API
+    /// </summary>
+    /// <param name="ct">取消權杖</param>
+    /// <returns></returns>
+    private async Task<SpecHomePageWeather_DTO> FetchWeatherDataAsync(CancellationToken ct)
+    {
+        using var http = _httpClientFactory.CreateClient();
+        http.Timeout = TimeSpan.FromSeconds(5);
+
+        using var res = await http.GetAsync(CwaUrl, ct);
+        res.EnsureSuccessStatusCode();
+
+        await using var stream = await res.Content.ReadAsStreamAsync(ct);
+        using JsonDocument doc = await JsonDocument.ParseAsync(stream, cancellationToken: ct);
+
+        return ParseWeather(doc.RootElement);
+    }
+
+    /// <summary>
+    /// 嘗試取得天氣快取資料
+    /// </summary>
+    /// <param name="key">快取 Key</param>
+    /// <param name="data">天氣資料</param>
+    /// <returns></returns>
+    private bool TryGetWeatherCache(string key, out SpecHomePageWeather_DTO data)
+    {
+        if (_memoryCache.TryGetValue(key, out SpecHomePageWeather_DTO? cached) && cached != null)
+        {
+            data = cached;
+            return true;
+        }
+        data = new();
+        return false;
+    }
+    /// <summary>
+    /// 寫入三小時主要快取與十二小時備援快取
+    /// </summary>
+    /// <param name="data">天氣資料</param>
+    private void SetWeatherCache(SpecHomePageWeather_DTO data)
+    {
+        _memoryCache.Set(WeatherCacheKey, data, new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = WeatherCacheTtl });
+        _memoryCache.Set(WeatherStaleCacheKey, data, new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = WeatherStaleCacheTtl });
+    }
     #endregion
 }
-
 /// <summary>
 /// 天氣 API 相關常數
 /// </summary>

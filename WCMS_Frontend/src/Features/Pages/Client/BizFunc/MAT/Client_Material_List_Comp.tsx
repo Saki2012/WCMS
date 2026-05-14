@@ -9,7 +9,7 @@ import { useOptionalSpecAssetUrl } from "@/SysCore/Utils/UI_HookFunc/useOptional
 import type { components } from "@/types/api";
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { type IMaterialListOptions, useMaterialListData } from "./Client_Material_List_Loader";
+import { getCsvValues, getInitialMaterialTagId, type IMaterialListOptions, useMaterialListData } from "./Client_Material_List_Loader";
 
 type MaterialSet = components["schemas"]["MaterialSet_DTO"];
 
@@ -46,34 +46,16 @@ interface MaterialTabView
 export const Client_Material_List_Comp = (props: IMaterialListProps) =>
 {
     const dirUrl = useLocation().pathname.replace(/\/List$/, "");
-    const [activeTabId, setActiveTabId] = useState<string>(() => getFirstCsvValue(props.options.TagIds));
-
+    const [activeTabId, setActiveTabId] = useState<string>(() => getInitialMaterialTagId(props.options.TagIds));
     const viewState = useMemo(() => ({ pageNumber: 1, pageSize: 12, keyword: undefined }), []);
-
-    const listOptions = useMemo<IMaterialListOptions>(() => ({
-        PageId: props.options.PageId,
-        CategoryId: props.options.CategoryId,
-        TagIds: activeTabId || props.options.TagIds,
-    }), [
-        props.options.PageId,
-        props.options.CategoryId,
-        props.options.TagIds,
-        activeTabId,
-    ]);
-
+    const listOptions = useMemo<IMaterialListOptions>(
+        () => ({ PageId: props.options.PageId, CategoryId: props.options.CategoryId, TagIds: activeTabId || props.options.TagIds }),
+        [props.options.PageId, props.options.CategoryId, props.options.TagIds, activeTabId],
+    );
     const vm = useMaterialListData({ lang: props.lang, opts: listOptions, viewState });
     const rawData = vm.rawData;
-
-    const content = useMemo(() => rawData.pageData.PageManagementDetail?.find(p => p.Lang === props.lang)?.Content ?? "", [
-        rawData.pageData.PageManagementDetail,
-        props.lang,
-    ]);
-
-    const tagList = useMemo(() => buildMaterialTabList(rawData.tagMap, props.options.TagIds), [
-        rawData.tagMap,
-        props.options.TagIds,
-    ]);
-
+    const content = rawData.pageDetail?.Content ?? "";
+    const tagList = useMemo(() => buildMaterialTabList(rawData.tagMap, props.options.TagIds), [rawData.tagMap, props.options.TagIds]);
     /** 當後台設定的 Tag 條件改變時，自動切到第一個可用 Tab */
     useEffect(() =>
     {
@@ -139,12 +121,7 @@ const MaterialCardList_Comp = (
         <div className="SubInfoDivBox_Style Layout_Padding_4_bottom flex-column">
             {props.tagList.length > 0 && (
                 <div id="Horizontal" className="H-nav-tabs-content-box mb-3">
-                    <ProductionTabs
-                        tagList={props.tagList}
-                        activeTabId={props.activeTabId}
-                        tabPanelId={tabPanelId}
-                        onChange={props.onTabChange}
-                    />
+                    <ProductionTabs tagList={props.tagList} activeTabId={props.activeTabId} tabPanelId={tabPanelId} onChange={props.onTabChange} />
                 </div>
             )}
 
@@ -161,9 +138,7 @@ const MaterialCardList_Comp = (
 };
 
 /** 渲染物件類別 Tab */
-const ProductionTabs = (
-    props: { tagList: MaterialTabView[]; activeTabId: string; tabPanelId: string; onChange: (id: string) => void; },
-) =>
+const ProductionTabs = (props: { tagList: MaterialTabView[]; activeTabId: string; tabPanelId: string; onChange: (id: string) => void; }) =>
 {
     return (
         <div className="Horizontal nav-tabs-list mb-3">
@@ -173,6 +148,7 @@ const ProductionTabs = (
                     return (
                         <li key={tag.id} className="nav-item + me-3" role="presentation">
                             <a
+                                href="#"
                                 type="button"
                                 className={`more-link font-wt-lg ${tag.id === props.activeTabId ? "active" : ""}`}
                                 role="tab"
@@ -279,30 +255,8 @@ const buildMaterialCardView = (item: MaterialSet, lang: Lang, dirUrl: string, ca
 /** 依後台設定的 TagIds 組成前台 Tab */
 const buildMaterialTabList = (tagMap: Record<string, string>, tagIds?: string | null): MaterialTabView[] =>
 {
-    return getCsvValues(tagIds ?? "")
-        .map(id => ({ id, name: tagMap[id] ?? "" }))
-        .filter(p => p.id && p.name);
+    return getCsvValues(tagIds ?? "").map(id => ({ id, name: tagMap[id] ?? "" })).filter(p => p.id && p.name);
 };
-
-/** 取得 CSV 第一個值 */
-const getFirstCsvValue = (value?: string | null): string =>
-{
-    return getCsvValues(value ?? "")[0] ?? "";
-};
-
-/** 將 CSV 字串轉成乾淨 id 清單 */
-const getCsvValues = (value: string): string[] =>
-{
-    const list = value.split(",").map(cleanCsvValue).filter(Boolean);
-    return Array.from(new Set(list));
-};
-
-/** 清理 CSV 內可能殘留的括號或引號 */
-const cleanCsvValue = (value: string): string =>
-{
-    return value.trim().replace(/^[("'\\s]+|[)"'\\s]+$/g, "");
-};
-
 /** 從 map 取得顯示名稱 */
 const getMapText = (map: Record<string, string>, key?: string | null): string =>
 {
