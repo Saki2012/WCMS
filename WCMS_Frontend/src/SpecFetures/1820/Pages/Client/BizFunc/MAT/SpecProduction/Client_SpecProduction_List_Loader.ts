@@ -185,15 +185,11 @@ export const Client_SpecProduction_List_Loader =
         {
             return { args: { lang: p.lang, opt: p.opts, baseParam: null, pageParam }, res: buildEmptyRawData() };
         }
-
         const materialLoader = adapter.Material.loader.createQueryListLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
         const pageLoader = adapter.Page.loader.createQueryListLoader({ getCondition: () => pageParam, getApiInstance: () => ssrApi });
-
         const [materialLD, pageLD] = await Promise.all([materialLoader({ request } as LoaderFunctionArgs), pageLoader({ request } as LoaderFunctionArgs)]);
-
         const materialList = materialLD.apiRes.Data ?? [];
         const pageList = pageLD.apiRes.Data ?? [];
-
         return { args: { lang: p.lang, opt: p.opts, baseParam, pageParam }, res: buildRawData({ materialList, pageList, lang: p.lang }) };
     };
 

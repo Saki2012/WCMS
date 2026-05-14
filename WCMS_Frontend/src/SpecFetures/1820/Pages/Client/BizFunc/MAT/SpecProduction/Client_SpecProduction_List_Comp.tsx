@@ -47,14 +47,18 @@ export const Client_SpecProduction_List_Comp = (props: ClientSpecProductionListP
 /// </summary>
 const SpecProductionContent = (props: { lang: Lang; intro?: string; catName?: string; matDataList: Map<MaterialTag, MaterialSet[]>; viewMoreText: string; }) =>
 {
-    const [activeTabId, setActiveTabId] = useState<string>("");
+    const tagList = useMemo<MaterialTag[]>(() => Array.from(props.matDataList.keys()).filter((tag) => Boolean(tag.TagId)), [props.matDataList]);
+    const defaultActiveTabId = tagList[0]?.TagId ?? "";
+    const [activeTabId, setActiveTabId] = useState<string>(defaultActiveTabId);
     const [isTabVisible, setIsTabVisible] = useState(true);
+    const currentActiveTabId = activeTabId || defaultActiveTabId;
+
     /// <summary>
     /// 切換 Tab 時先淡出，再更新目前分類。
     /// </summary>
     const changeTab = (id: string) =>
     {
-        if (!id || id === activeTabId) return;
+        if (!id || id === currentActiveTabId) return;
 
         setIsTabVisible(false);
         window.setTimeout(() =>
@@ -63,20 +67,33 @@ const SpecProductionContent = (props: { lang: Lang; intro?: string; catName?: st
             window.requestAnimationFrame(() => setIsTabVisible(true));
         }, 160);
     };
-    const tagList = useMemo<MaterialTag[]>(() => Array.from(props.matDataList.keys()).filter((tag) => Boolean(tag.TagId)), [props.matDataList]);
+
+    /// <summary>
+    /// 資料更新時，確保目前選取的 Tab 仍存在。
+    /// </summary>
     useEffect(() =>
     {
-        setActiveTabId(tagList[0]?.TagId ?? "");
-        setIsTabVisible(true);
-    }, [tagList]);
+        if (!defaultActiveTabId)
+        {
+            setActiveTabId("");
+            setIsTabVisible(true);
+            return;
+        }
 
-    const activeTab = useMemo(() => tagList.find((p) => p.TagId === activeTabId), [tagList, activeTabId]);
+        setActiveTabId((current) => tagList.some((tag) => tag.TagId === current) ? current : defaultActiveTabId);
+        setIsTabVisible(true);
+    }, [tagList, defaultActiveTabId]);
+
+    const activeTab = useMemo(() => tagList.find((p) => p.TagId === currentActiveTabId), [tagList, currentActiveTabId]);
+
     const activeItems = useMemo<MaterialSet[]>(() =>
     {
         if (!activeTab) return [];
         return props.matDataList.get(activeTab) ?? [];
     }, [props.matDataList, activeTab]);
+
     const titleText = `查看${props.catName ?? ""}類型`;
+
     return (
         <>
             <div className="SubDivBox_style + Sub + Layout_Padding_4">
@@ -93,7 +110,7 @@ const SpecProductionContent = (props: { lang: Lang; intro?: string; catName?: st
                 <div id="Horizontal" className="H-nav-tabs-content-box">
                     {props.matDataList.size > 0 && (
                         <>
-                            <ProductionTabs lang={props.lang} tagList={tagList} activeTabId={activeTab?.TagId ?? ""} onChange={changeTab} />
+                            <ProductionTabs lang={props.lang} tagList={tagList} activeTabId={currentActiveTabId} onChange={changeTab} />
                             <div style={{ opacity: isTabVisible ? 1 : 0, transition: "opacity 220ms ease" }}>
                                 {activeTab && (
                                     <ProductionTabPanel lang={props.lang} activeTab={activeTab} items={activeItems} viewMoreText={props.viewMoreText} />

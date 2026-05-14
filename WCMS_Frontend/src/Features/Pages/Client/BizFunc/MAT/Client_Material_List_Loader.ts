@@ -234,7 +234,8 @@ const buildLoaderArgs = (props: QueryParam): MaterialListLoaderArgs =>
     const pageNumber = props.viewState?.pageNumber ?? 1;
     const pageSize = props.viewState?.pageSize ?? 12;
     const pageId = `${props.opts.PageId ?? ""}`.trim();
-    return { pageId, matParam: buildMaterialQuery(props.lang, pageNumber, pageSize, props.opts.CategoryId, props.opts.TagIds, keyword) };
+    const tagIds = getInitialMaterialTagId(props.opts.TagIds) || props.opts.TagIds;
+    return { pageId, matParam: buildMaterialQuery(props.lang, pageNumber, pageSize, props.opts.CategoryId, tagIds, keyword) };
 };
 
 /** 建立空的 PageManagement loader data，避免未設定 PageId 時仍打 API */
@@ -278,5 +279,24 @@ const buildResetKey = (p: { lang: Lang; opts: IMaterialListOptions; viewState?: 
         pageSize: p.viewState?.pageSize,
         keyword: p.viewState?.keyword ?? "",
     });
+};
+
+/** 取得 Material List 初始查詢用 TagId */
+export const getInitialMaterialTagId = (tagIds?: string | null): string =>
+{
+    return getCsvValues(tagIds ?? "")[0] ?? "";
+};
+
+/** 將 CSV 字串轉成乾淨 id 清單 */
+export const getCsvValues = (value: string): string[] =>
+{
+    const list = value.split(",").map(cleanCsvValue).filter(Boolean);
+    return Array.from(new Set(list));
+};
+
+/** 清理 CSV 內可能殘留的括號或引號 */
+const cleanCsvValue = (value: string): string =>
+{
+    return value.trim().replace(/^[("'\\s]+|[)"'\\s]+$/g, "");
 };
 // #endregion
