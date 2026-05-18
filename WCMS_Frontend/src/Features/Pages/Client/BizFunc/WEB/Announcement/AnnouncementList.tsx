@@ -154,9 +154,9 @@ const PictureList_Row_Comp = (props: { dirUrl: string; lang: Lang; gridData: Ann
             {props.gridData && props.gridData.map((item) =>
             {
                 const linkUrl = `${props.dirUrl}/${item.Announcement?.InternalId}`;
-                const title = item.AnnouncementDetail?.find(p => p.Lang === props.lang)?.Title ?? "";
+                const title = item.AnnouncementDetail?.find(p => p.Lang === props.lang)?.Title?.trim() ?? "";
                 const picUrl = FileManagementAPI.get_Public_Preview_Url(item.Announcement?.PictureId, item.Announcement?.PicDescription) ?? defaultAnnouncePic;
-                const picDesc = item.Announcement?.PicDescription ?? title;
+                const picDesc = item.Announcement?.PicDescription?.trim() || title;
                 const validate = FormatDate(item.Announcement?.Validate_Start);
                 const catName = formatCategoriesName(item.Announcement?.Categories ?? "", props.categoryData, props.lang);
 
@@ -190,15 +190,14 @@ const PictureList_Row_Comp = (props: { dirUrl: string; lang: Lang; gridData: Ann
                                     <div className="card_titleDiv + mb-md-4 mb-sm-3 mb-2">
                                         <span className="card_title">{title}</span>
                                     </div>
-
-                                    <div className="card_StateDiv">
-                                        <div className="More customize_btn">
-                                            <LangNavLink className="Btn_s1" type="button" role="button" title="觀看更多" to={linkUrl}>
-                                                VIEW ALL<span className="ml-2">+</span>
-                                            </LangNavLink>
-                                        </div>
-                                    </div>
                                 </LangNavLink>
+                                <div className="card_StateDiv">
+                                    <div className="More customize_btn">
+                                        <LangNavLink className="Btn_s1" title={`觀看更多：${title}`} aria-label={`觀看更多：${title}`} to={linkUrl}>
+                                            VIEW ALL<span className="ml-2">+</span>
+                                        </LangNavLink>
+                                    </div>
+                                </div>
                             </div>
                         </article>
                     </div>

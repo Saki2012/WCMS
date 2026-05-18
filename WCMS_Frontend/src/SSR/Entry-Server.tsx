@@ -25,7 +25,7 @@ export const SSR_Render = async (url: string, headers: Record<string, string> = 
         await importSpecAssets("Assets/LoadSpecCss_Server.ts");
     } else
     {
-        await import("@/Features/Assets/LoadFeaturesCss_Client.ts"); //cara
+        await import("@/Features/Assets/LoadFeaturesCss_Client.ts"); // cara
         await importSpecAssets("Assets/LoadSpecCss.ts");
     }
 
@@ -52,7 +52,7 @@ export const SSR_Render = async (url: string, headers: Record<string, string> = 
         <MessageProvider>
             <HelmetProvider context={helmetContext}>
                 <HeaderMetaComp {...siteHeaderMeta} />
-                <StaticRouterProvider router={router} context={context} />
+                <StaticRouterProvider router={router} context={context} hydrate={false} />
             </HelmetProvider>
         </MessageProvider>,
     );

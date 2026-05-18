@@ -111,12 +111,15 @@ const getResponseNonce = (res: Response): string =>
 };
 
 /** 建立正式環境 HTML CSP 的調整參數。 */
-const getHtmlCspOptions = () =>
+const getHtmlCspOptions = (req: Request) =>
 {
+    const pathname = String(req.path || "");
+    const isServerPage = /^\/server(?:\/|$)/i.test(pathname);
+
     return {
-        enforceTrustedTypes: readBoolEnv("SSR_ENFORCE_TRUSTED_TYPES", false),
+        enforceTrustedTypes: isServerPage ? false : readBoolEnv("SSR_ENFORCE_TRUSTED_TYPES", false),
         allowScriptSelfFallback: readBoolEnv("SSR_CSP_ALLOW_SCRIPT_SELF_FALLBACK", false),
-        styleMode: readStyleModeEnv(),
+        styleMode: isServerPage ? "legacy" as CspStyleMode : readStyleModeEnv(),
     };
 };
 
@@ -136,12 +139,12 @@ const setBaseSecurityHeaders = (res: Response, cfg: SsrConfig): void =>
 };
 
 /** 設定 SSR HTML 專用安全標頭；CSP 只放在 HTML response。 */
-const setHtmlSecurityHeaders = (res: Response, cfg: SsrConfig, nonce: string): void =>
+const setHtmlSecurityHeaders = (req: Request, res: Response, cfg: SsrConfig, nonce: string): void =>
 {
     setBaseSecurityHeaders(res, cfg);
     if (!cfg.isProd) return;
 
-    res.setHeader("Content-Security-Policy", buildProdCsp(nonce, getHtmlCspOptions()));
+    res.setHeader("Content-Security-Policy", buildProdCsp(nonce, getHtmlCspOptions(req)));
 };
 
 /** 讓 HTML/靜態資源先帶基礎安全標頭；API proxy 由 onProxyRes 統一重寫。 */
@@ -850,7 +853,7 @@ const setupProdSSR = async (app: express.Express, cfg: SsrConfig) =>
             }
             const html = buildHtml(template, payload, nonce, true);
             setNoStoreHeaders(res);
-            setHtmlSecurityHeaders(res, cfg, nonce);
+            setHtmlSecurityHeaders(req, res, cfg, nonce);
             res.status(200).set("Content-Type", "text/html").end(html);
         } catch (e)
         {

@@ -280,8 +280,8 @@ export const RegisterPage: React.FC = () =>
                     <div className="content-wrap">
                         <div className="col-12 d-flex justify-content-sm-center justify-content-start px-3 my-2">
                             <ul className="nav">
-                                <li className="nav-item mr-3">聯絡電話：02-2222-8888</li>
-                                <li className="nav-item">信箱：abc@gmail.com</li>
+                                <li className="nav-item mr-3">聯絡電話：</li>
+                                <li className="nav-item">信箱：</li>
                             </ul>
                         </div>
                         <div className="col-12 d-flex justify-content-sm-center justify-content-start px-3">

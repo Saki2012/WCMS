@@ -1,0 +1,70 @@
+img.rwd-img {
+    max-width: 100%;
+    height: auto;
+}
+
+iframe {
+    pointer-events: none;
+    display: block;
+    max-width: 100%;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td,
+th {
+    border: 1px solid #C9CDD4;
+    padding: 6px;
+    vertical-align: top;
+}
+
+thead th {
+    background: #f6f7f9;
+}
+
+hr {
+    border: 0;
+    border-top: 1px solid #C9CDD4;
+    margin: 1rem 0;
+}
+
+body.wcms-show-p p {
+    outline: 1px dashed rgba(60, 120, 255, .55);
+    position: relative;
+}
+
+body.wcms-show-p p::before {
+    content: "p";
+    position: absolute;
+    top: -9px;
+    left: 0;
+    font-size: 11px;
+    line-height: 1;
+    background: rgba(17, 24, 39, .9);
+    color: #fff;
+    padding: 0 3px;
+    border-radius: 2px;
+    pointer-events: none;
+}
+
+body.wcms-show-div div {
+    outline: 1px dashed rgba(16, 185, 129, .55);
+    position: relative;
+}
+
+body.wcms-show-div div::before {
+    content: "div";
+    position: absolute;
+    top: -9px;
+    left: 0;
+    font-size: 11px;
+    line-height: 1;
+    background: rgba(17, 24, 39, .9);
+    color: #fff;
+    padding: 0 3px;
+    border-radius: 2px;
+    pointer-events: none;
+}

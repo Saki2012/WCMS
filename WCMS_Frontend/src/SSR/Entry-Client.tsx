@@ -1,5 +1,6 @@
 import { AppRouteModule, getSiteHeaderMeta } from "@/Features/Pages/AppRoute";
 import { HeaderMetaComp } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp.tsx";
+import { ensureWcmsDefaultTrustedTypesPolicy } from "@/SysCore/Utils/Security/TrustedTypesPolicy";
 import { MessageProvider } from "@/SysCore/Components/Message/Dialog/Dialog_Comp.tsx";
 import { SUPPORTED_LANGS } from "@/SysCore/i18n/lang.ts";
 import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter.ts";
@@ -12,6 +13,8 @@ import { RouterProvider } from "react-router-dom";
 
 if (typeof window !== "undefined")
 {
+    ensureWcmsDefaultTrustedTypesPolicy();
+
     // CSR：初始化一次 XSRF
     (api as BrowserApiWithInit).__initXsrfOnce?.();
 

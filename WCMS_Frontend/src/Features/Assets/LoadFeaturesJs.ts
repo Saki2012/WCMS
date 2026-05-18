@@ -1,5 +1,6 @@
 // LoadFeaturesJs.ts
 
+import { setTrustedScriptElementSrc } from "@/SysCore/Utils/Security/TrustedTypesPolicy";
 import loginAnimateUrl from "./Server/ContentBack/bg_dynamic/login-particles.js?url";
 import bootstrapUrl from "./Server/ContentBack/bootstrap-5.1.1/js/bootstrap.bundle.min.js?url";
 import jqueryUrl from "./Server/ContentBack/jquery-3.7.1/jquery-3.7.1.min.js?url";
@@ -25,7 +26,7 @@ const loadScriptOnce = (src: string, id: string) =>
 
         const s = document.createElement("script");
         s.id = id;
-        s.src = src;
+        setTrustedScriptElementSrc(s, src);
         s.async = false; // 保持原本同步順序
         s.onload = () => resolve();
         s.onerror = () => reject(new Error(`load script failed: ${src}`));

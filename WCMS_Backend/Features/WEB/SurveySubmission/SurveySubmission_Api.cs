@@ -3,17 +3,17 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.Json;
 using WCMS.Features._Resx;
-using WCMS.Features.WEB.Survey;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library.LibAttribute;
+using WCMS.SysCore.Model;
+using WCMS.SysCore.SystemFunc.Captcha;
 
 namespace WCMS.Features.WEB.SurveySubmission;
 
 [LibApiController(ProgKeys.WEB.Code, ProgKeys.WEB.SurveySubmission, SysEnum.FuncAction.Function)]
-public class SurveySubmissionController : ApiBaseController<SurveySubmissionsSet, SurveySubmissionsSet_DTO>
+public class SurveySubmissionController(ICaptchaBiz CaptchaBiz) : ApiBaseController<SurveySubmissionsSet, SurveySubmissionsSet_DTO>
 {
 
     #region Public
@@ -25,6 +25,9 @@ public class SurveySubmissionController : ApiBaseController<SurveySubmissionsSet
     [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Public_Submit([FromBody] SurveySubmissionRequest_DTO data, CancellationToken ct)
     {
+        CaptchaVerifyResult_DTO captchaResult = await VerifyCaptchaAsync(data.CaptchaToken, ct);
+        if (!captchaResult.IsSuccess) return BuildCaptchaErrorResponse(captchaResult);
+
         SurveySubmissions submit = BuildPublicSubmitData(data);
         await ((SurveySubmissionBiz)Service).SubmitSurvey(submit, data.FormDataJson, ct);
         return BuildSubmitResponse(submit);
@@ -173,6 +176,36 @@ public class SurveySubmissionController : ApiBaseController<SurveySubmissionsSet
     private string FirstText(params string?[] values)
     {
         return values.FirstOrDefault(p => !string.IsNullOrWhiteSpace(p))?.Trim() ?? string.Empty;
+    }
+
+    /// <summary>
+    /// 驗證匿名提交的驗證碼
+    /// </summary>
+    private async Task<CaptchaVerifyResult_DTO> VerifyCaptchaAsync(string? token, CancellationToken ct)
+    {
+        CaptchaVerifyRequest_DTO request = new() { ResponseToken = token, RemoteIp = GetClientIp() };
+        return await CaptchaBiz.VerifyAsync(request, ct);
+    }
+
+    /// <summary>
+    /// 建立驗證碼錯誤回應
+    /// </summary>
+    private IActionResult BuildCaptchaErrorResponse(CaptchaVerifyResult_DTO result)
+    {
+        ApiResponse<string> response = new()
+        {
+            Data = [],
+            SysMessage =
+            [
+                new SysMessageModel
+            {
+                Status = SysEnum.MessageStatus.Error,
+                MessageCode = "CaptchaVerifyFailed",
+                Message = result.Message
+            }
+            ]
+        };
+        return BadRequest(response);
     }
     #endregion
 }

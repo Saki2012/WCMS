@@ -262,6 +262,22 @@ export const CalendarFields = {
 
 export type CalendarFieldKey = keyof typeof CalendarFields;
 
+export const CaptchaPublicConfigFields = {
+  Enabled: 'Enabled',
+  Provider: 'Provider',
+  SiteKey: 'SiteKey',
+} as const;
+
+export type CaptchaPublicConfigFieldKey = keyof typeof CaptchaPublicConfigFields;
+
+export const CaptchaPublicConfig_DTOApiResponseFields = {
+  IsSuccess: 'IsSuccess',
+  SysMessage: 'SysMessage',
+  Data: 'Data',
+} as const;
+
+export type CaptchaPublicConfig_DTOApiResponseFieldKey = keyof typeof CaptchaPublicConfig_DTOApiResponseFields;
+
 export const CategoryDataSetFields = {
   Category: 'Category',
   CategoryDetail: 'CategoryDetail',
@@ -531,6 +547,13 @@ export const GalleryFields = {
 } as const;
 
 export type GalleryFieldKey = keyof typeof GalleryFields;
+
+export const GetCurrentSiteOnlineCountRequestFields = {
+  SiteIndex: 'SiteIndex',
+  Minutes: 'Minutes',
+} as const;
+
+export type GetCurrentSiteOnlineCountRequestFieldKey = keyof typeof GetCurrentSiteOnlineCountRequestFields;
 
 export const GetCurrentSiteOnlineCountResultFields = {
   SiteIndex: 'SiteIndex',
@@ -1950,6 +1973,7 @@ export const SurveySubmissionRequestFields = {
   Email: 'Email',
   FormDataJson: 'FormDataJson',
   TimeZone: 'TimeZone',
+  CaptchaToken: 'CaptchaToken',
 } as const;
 
 export type SurveySubmissionRequestFieldKey = keyof typeof SurveySubmissionRequestFields;
@@ -2220,6 +2244,7 @@ export const PGID = {
     Auth: "Auth",
     Banner: "Banner",
     Calendar: "Calendar",
+    Captcha: "Captcha",
     Category: "Category",
     FileArchive: "FileArchive",
     FileManagement: "FileManagement",

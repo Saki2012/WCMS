@@ -1,4 +1,5 @@
 // 先把檔案路徑轉成 URL（讓 Vite 在 build 時幫你處理 hash）
+import { setTrustedScriptElementSrc } from "@/SysCore/Utils/Security/TrustedTypesPolicy";
 import bootstrapUrl from "./Client/Content/bootstrap-5.3.3/js/bootstrap.bundle.min.js?url";
 import ekkoUrl from "./Client/Content/css_import/assets/ekko-lightbox/ekko-lightbox.js?url";
 import owlUrl from "./Client/Content/css_import/assets/owlcarousel_2/owl.carousel_v2.3.4.js?url";
@@ -14,7 +15,7 @@ const loadScript = (src: string) =>
     return new Promise<void>((resolve, reject) =>
     {
         const s = document.createElement("script");
-        s.src = src;
+        setTrustedScriptElementSrc(s, src);
         s.async = false;
         s.onload = () => resolve();
         s.onerror = () => reject(new Error(`Failed to load script: ${src}`));

@@ -45,6 +45,7 @@ using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Library.Security;
 using WCMS.SysCore.Middleware;
 using WCMS.SysCore.Model;
+using WCMS.SysCore.SystemFunc.Captcha;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS
@@ -258,6 +259,7 @@ namespace WCMS
                 services.AddScoped<ICurrentUserAccessor, HttpContextCurrentUserAccessor>();
                 services.AddScoped<ILibPermissionChecker, LibPermissionChecker>();
                 services.AddHttpClient();
+                services.AddScoped<ICaptchaBiz, Captcha_BIZ>();
                 RegisterBizServices(services);
 
                 // 暫時先不用Redis，等開始能架Docker包Linux後再來
@@ -399,6 +401,7 @@ namespace WCMS
             {
                 services.Configure<FilePathOptions>(cfg.GetSection("FilePaths"));
                 services.Configure<WhitelistOptions>(cfg.GetSection("Whitelist"));
+                services.Configure<CaptchaOptions>(cfg.GetSection("Captcha"));
             }
             #endregion
 

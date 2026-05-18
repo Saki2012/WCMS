@@ -1,4 +1,5 @@
 // import "./Client/Content/bootstrap-5.3.3/js/bootstrap.bundle.min.js";
+import { setTrustedScriptElementSrc } from "@/SysCore/Utils/Security/TrustedTypesPolicy";
 // import "./Client/Content/owlcarousel_2/owl.carousel_v2.3.4.js";
 
 import bootstrapUrl from "./Client/Content/bootstrap-5.3.3/js/bootstrap.bundle.min.js?url";
@@ -14,7 +15,7 @@ const loadScript = (src: string) =>
     return new Promise<void>((resolve, reject) =>
     {
         const s = document.createElement("script");
-        s.src = src;
+        setTrustedScriptElementSrc(s, src);
         s.async = false;
         s.onload = () => resolve();
         s.onerror = () => reject(new Error(`Failed to load script: ${src}`));

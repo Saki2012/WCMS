@@ -2197,6 +2197,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/Captcha/Public_GetConfig": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["CaptchaPublicConfig_DTOApiResponse"];
+                        "application/json": components["schemas"]["CaptchaPublicConfig_DTOApiResponse"];
+                        "text/json": components["schemas"]["CaptchaPublicConfig_DTOApiResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/Category/Create": {
         parameters: {
             query?: never;
@@ -7493,10 +7533,7 @@ export interface paths {
         put?: never;
         post: {
             parameters: {
-                query?: {
-                    SiteIndex?: string;
-                    Minutes?: number;
-                };
+                query?: never;
                 header?: {
                     /** @description i18n language (e.g. zh-TW / en) */
                     "Accept-Language"?: string;
@@ -7504,7 +7541,13 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["GetCurrentSiteOnlineCountRequest_DTO"];
+                    "text/json": components["schemas"]["GetCurrentSiteOnlineCountRequest_DTO"];
+                    "application/*+json": components["schemas"]["GetCurrentSiteOnlineCountRequest_DTO"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -13964,6 +14007,16 @@ export interface components {
             LastImportTime?: string | null;
             _CalendarDetail?: components["schemas"]["CalendarDetail_DTO"][] | null;
         };
+        CaptchaPublicConfig_DTO: {
+            Enabled?: boolean;
+            Provider?: string | null;
+            SiteKey?: string | null;
+        };
+        CaptchaPublicConfig_DTOApiResponse: {
+            readonly IsSuccess?: boolean;
+            SysMessage?: components["schemas"]["SysMessageModel"][] | null;
+            Data?: components["schemas"]["CaptchaPublicConfig_DTO"][] | null;
+        };
         CategoryDataSet_DTO: {
             Category?: components["schemas"]["Category_DTO"];
             CategoryDetail?: components["schemas"]["CategoryDetail_DTO"][] | null;
@@ -14399,6 +14452,11 @@ export interface components {
          * @enum {integer}
          */
         Gender: 0 | 1 | 2;
+        GetCurrentSiteOnlineCountRequest_DTO: {
+            SiteIndex?: string | null;
+            /** Format: int32 */
+            Minutes?: number | null;
+        };
         GetCurrentSiteOnlineCountResult_DTO: {
             SiteIndex?: string | null;
             /** Format: int32 */
@@ -14550,7 +14608,7 @@ export interface components {
             CategoryId?: string | null;
             /**
              * Format: double
-             * @description [Product_Price]
+             * @description 價格
              */
             Price?: number | null;
             _MaterialLangInfo?: components["schemas"]["MaterialLangInfo_DTO"][] | null;
@@ -16492,6 +16550,7 @@ export interface components {
             Email?: string | null;
             FormDataJson?: string | null;
             TimeZone?: string | null;
+            CaptchaToken?: string | null;
         };
         SurveySubmissionsSet_DTO: {
             SurveySubmissions?: components["schemas"]["SurveySubmissions_DTO"];

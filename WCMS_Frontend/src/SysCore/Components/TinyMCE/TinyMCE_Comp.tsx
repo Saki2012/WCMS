@@ -2,7 +2,7 @@
 import { DefaultLang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { Editor } from "@tinymce/tinymce-react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTinyMCE, useTinyMceIframeEdit, useTinyMceInternalImage } from "./TinyMCE_Hook";
 
 type Props = {
@@ -22,8 +22,93 @@ type Props = {
     };
 };
 
+type TinyMceScriptState = "loading" | "ready" | "error";
+type TinyMceWindow = Window & { tinymce?: object; };
+
+/** 取得 SSR Server 寫入的 CSP nonce，讓後台自架 TinyMCE script 不需要放寬 script-src。 */
+const getCspNonce = (): string =>
+{
+    const script = document.querySelector("script[nonce]") as HTMLScriptElement | null;
+    const scriptNonce = script?.nonce?.trim() ?? "";
+    if (scriptNonce) return scriptNonce;
+
+    const meta = document.querySelector('meta[property="csp-nonce"]') as HTMLElement | null;
+    return meta?.nonce?.trim() ?? "";
+};
+
+/** 檢查 TinyMCE 是否已由同站 script 載入完成。 */
+const hasTinyMceGlobal = (): boolean =>
+{
+    const win = window as TinyMceWindow;
+    return Boolean(win.tinymce);
+};
+
+/** 尋找頁面上已存在的 TinyMCE script，避免重複插入。 */
+const findTinyMceScript = (src: string): HTMLScriptElement | null =>
+{
+    const sourcePath = new URL(src, window.location.origin).pathname;
+    const scripts = Array.from(document.scripts);
+    return scripts.find(script => new URL(script.src, window.location.origin).pathname === sourcePath) ?? null;
+};
+
+/** 使用 nonce 載入 public 內的 TinyMCE，維持 script-src nonce + strict-dynamic。 */
+const loadTinyMceScript = (src: string): Promise<void> =>
+{
+    return new Promise((resolve, reject) =>
+    {
+        if (hasTinyMceGlobal())
+        {
+            resolve();
+            return;
+        }
+
+        const existing = findTinyMceScript(src);
+        if (existing)
+        {
+            existing.addEventListener("load", () => resolve(), { once: true });
+            existing.addEventListener("error", () => reject(new Error("TinyMCE script load failed")), { once: true });
+            return;
+        }
+
+        const script = document.createElement("script");
+        const nonce = getCspNonce();
+        script.src = src;
+        script.async = true;
+        script.referrerPolicy = "strict-origin-when-cross-origin";
+        if (nonce) script.nonce = nonce;
+
+        script.addEventListener("load", () => resolve(), { once: true });
+        script.addEventListener("error", () => reject(new Error("TinyMCE script load failed")), { once: true });
+        document.head.appendChild(script);
+    });
+};
+
+/** 後台編輯器使用明確的 nonce script loader，避免 @tinymce/react 自行插入未標記 script。 */
+const useTinyMceScript = (src: string): TinyMceScriptState =>
+{
+    const [state, setState] = useState<TinyMceScriptState>(() => typeof window === "undefined" ? "loading" : hasTinyMceGlobal() ? "ready" : "loading");
+
+    useEffect(() =>
+    {
+        let disposed = false;
+        setState(hasTinyMceGlobal() ? "ready" : "loading");
+
+        loadTinyMceScript(src)
+            .then(() => { if (!disposed) setState("ready"); })
+            .catch(() => { if (!disposed) setState("error"); });
+
+        return () => { disposed = true; };
+    }, [src]);
+
+    return state;
+};
+
 const TinyMCE_Comp = ({ args }: Props) =>
 {
+    const baseUrl = args.baseUrl ?? "/tinymce";
+    const tinymceScriptSrc = `${baseUrl}/tinymce.min.js`;
+    const scriptState = useTinyMceScript(tinymceScriptSrc);
+
     const tiny = useTinyMCE({
         id: args.id,
         value: args.value,
@@ -33,7 +118,7 @@ const TinyMCE_Comp = ({ args }: Props) =>
             ?? ((id, meta) => meta.kind === "image" ? FileManagementAPI.get_Public_Preview_Url(id) : FileManagementAPI.get_Public_Download_Url(id)),
         languageUrl: args.languageUrl ?? "/tinymce-i18n/langs5/zh_TW.js",
         language: args.language ?? DefaultLang,
-        baseUrl: args.baseUrl ?? "/tinymce",
+        baseUrl,
     });
 
     // const { toEditor, toDb } = useContentTransform({ previewPrefix: `${FileManagementAPI.PREVIEW_URL}`, attrName: INTERNAL_ATTR, });
@@ -117,9 +202,19 @@ const TinyMCE_Comp = ({ args }: Props) =>
         } as const;
     }, [tiny.init, image, iframe]);
 
+    if (scriptState === "error")
+    {
+        return <div role="alert" className="text-danger">內容編輯器載入失敗，請重新整理頁面後再試。</div>;
+    }
+
+    if (scriptState !== "ready")
+    {
+        return <div role="status" aria-live="polite">內容編輯器載入中...</div>;
+    }
+
     return (
         <>
-            <Editor id={args.id} tinymceScriptSrc="/tinymce/tinymce.min.js" value={tiny.value} onEditorChange={tiny.onChange} init={init as any} />
+            <Editor id={args.id} tinymceScriptSrc={tinymceScriptSrc} value={tiny.value} onEditorChange={tiny.onChange} init={init as any} />
             <p style={{ color: "rgba(0,0,0,.3)", textAlign: "right", marginTop: 8, pointerEvents: "none", userSelect: "none", fontSize: 12 }}>
                 本網站內容編輯器採用 TinyMCE 開源版 (MIT)
             </p>

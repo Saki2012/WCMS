@@ -16,7 +16,7 @@ export const AutoRedirect: React.FC<{ to: string; replace?: boolean; text?: stri
 
     if (typeof window === "undefined")
     {
-        return <LangLink to={to} noLangPrefix={noLangPrefix}>{text ?? "前往頁面"}</LangLink>;
+        return <LangLink to={to} noLangPrefix={noLangPrefix} title={text ?? "前往頁面"}>{text ?? "前往頁面"}</LangLink>;
     }
 
     return <Navigate to={finalTo} replace={replace} />;

@@ -164,8 +164,6 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                 "table",
                 "help",
                 "wordcount",
-                "hr",
-                "paste",
             ],
             toolbar: [
                 "undo redo | blocks fontfamily fontsize |",
@@ -174,7 +172,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                 "bullist numlist outdent indent |",
                 "link unlink | image filepicker |",
                 "table |",
-                "copyformat applyformat removeformat | insertiframe insertpdfiframe | hr |",
+                "copyformat applyformat removeformat | insertiframe insertpdfiframe | wcmsHr |",
                 "togglePBlocks toggleDivBlocks |",
                 "fullscreen code",
             ].join(" "),
@@ -195,44 +193,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
         新細明體=新細明體,PMingLiU,serif;
         標楷體=標楷體,DFKai-SB,serif;`,
 
-            // AA：讓圖片/iframe RWD；允許 td/th 設定背景色
-            content_style: `
-        img.rwd-img{max-width:100%;height:auto;}
-        iframe{max-width:100%;}
-        table{border-collapse:collapse;width:100%;}
-        td,th{border:1px solid #C9CDD4;padding:6px;vertical-align:top;}
-        thead th{background:#f6f7f9;}
-        hr{border:0;border-top:1px solid #C9CDD4;margin:1rem 0;}
-
-        /* ===== WCMS: Block helpers (per element toggle) ===== */
-      body.wcms-show-p p{
-        outline: 1px dashed rgba(60, 120, 255, .55);
-        position: relative;
-      }
-      body.wcms-show-p p::before{
-        content: "p";
-        position: absolute;
-        top: -9px; left: 0;
-        font-size: 11px; line-height: 1;
-        background: rgba(17, 24, 39, .9);
-        color: #fff; padding: 0 3px; border-radius: 2px;
-        pointer-events: none;
-      }
-      body.wcms-show-div div{
-        outline: 1px dashed rgba(16, 185, 129, .55);
-        position: relative;
-      }
-      body.wcms-show-div div::before{
-        content: "div";
-        position: absolute;
-        top: -9px; left: 0;
-        font-size: 11px; line-height: 1;
-        background: rgba(17, 24, 39, .9);
-        color: #fff; padding: 0 3px; border-radius: 2px;
-        pointer-events: none;
-      }
-      /* ===== /WCMS ===== */
-      `,
+            // AA：編輯器內容樣式改由 public/tinymce/wcms-content.css 載入，避免正式 CSP 擋 inline style。
             valid_styles: {
                 td: "background-color",
                 th: "background-color",
@@ -243,10 +204,9 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
             table_cell_advtab: true,
             table_toolbar: "tableprops tabledelete | tableinsertrowbefore tableinsertrowafter tabledeleterow | "
                 + "tableinsertcolbefore tableinsertcolafter tabledeletecol | mergecells",
-            table_responsive_width: true,
             // i18n / skin
             skin_url: `${baseUrl}/skins/ui/oxide`,
-            content_css: `${baseUrl}/skins/content/default/content.css`,
+            content_css: [`${baseUrl}/skins/content/default/content.css`, `${baseUrl}/wcms-content.css`],
             icons_url: `${baseUrl}/icons/default/icons.js`,
             language: p.language ?? "zh_TW",
             language_url: p.languageUrl ?? "/tinymce-i18n/langs5/zh_TW.js",
@@ -463,6 +423,12 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                     },
                 });
 
+                editor.ui.registry.addButton("wcmsHr", {
+                    text: "HR",
+                    tooltip: "插入水平線",
+                    onAction: () => editor.insertContent("<hr />"),
+                });
+
                 // format-painter
                 // ✅ 複製格式：從目前選取最接近的 inline 元素取樣
                 editor.ui.registry.addButton("copyformat", {
@@ -669,12 +635,8 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                 editorRef.current = ed;
             },
             paste_data_images: false,
-            paste_retain_style_properties: "all",
             paste_merge_formats: true,
-            paste_word_valid_elements:
-                "b,strong,i,em,u,strike,sub,sup,p,h1,h2,h3,h4,h5,h6,table,tr,td,th,thead,tbody,tfoot,colgroup,col,span,div,ol,ul,li,img,a,br,hr",
             paste_webkit_styles: "color font-size font-family background-color text-decoration font-style font-weight line-height",
-            paste_filter_drop: false,
             valid_elements: "*[*]",
             extended_valid_elements: undefined,
             invalid_elements: "script",

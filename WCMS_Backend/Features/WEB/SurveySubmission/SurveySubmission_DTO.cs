@@ -148,4 +148,8 @@ public class SurveySubmissionRequest_DTO
     /// 使用者時區
     /// </summary>
     [LibDesc, StringLength(SysLengthParam.Info)] public string? TimeZone { get; set; } = string.Empty;
+    /// <summary>
+    /// 驗證碼 Token
+    /// </summary>
+    [LibDesc, StringLength(2048)] public string? CaptchaToken { get; set; } = string.Empty;
 }
