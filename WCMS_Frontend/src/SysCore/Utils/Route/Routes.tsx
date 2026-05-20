@@ -7,6 +7,16 @@ import { LangGuard } from "@/SysCore/Utils/Route/LangGuardRoute";
 import { createBrowserRouter, type RouteObject } from "react-router-dom";
 import { createStaticHandler, createStaticRouter, type StaticHandlerContext } from "react-router-dom/server";
 
+
+type BrowserRouterOptions = NonNullable<Parameters<typeof createBrowserRouter>[1]>;
+type WcmsInitialState = Readonly<{ hydrationData?: BrowserRouterOptions["hydrationData"]; }>;
+
+const getWindowInitialState = (): WcmsInitialState | undefined =>
+{
+    const win = window as Window & { __INITIAL_STATE__?: WcmsInitialState; };
+    return win.__INITIAL_STATE__;
+};
+
 // 把模組的絕對子路徑轉相對；"/" 改成 index:true
 const normalizeChildren = (routes: RouteObject[]): RouteObject[] =>
     routes.map((r) =>
@@ -95,7 +105,7 @@ export const createClientRouter = async (boot: Boot) =>
     const routes = await buildRoutes(boot);
     assertNoIndexWithChildren(routes);
 
-    const hydrationData = typeof window !== "undefined" ? (window as any).__INITIAL_STATE__?.hydrationData : undefined;
+    const hydrationData = typeof window !== "undefined" ? getWindowInitialState()?.hydrationData : undefined;
 
     return hydrationData ? createBrowserRouter(routes, { hydrationData }) : createBrowserRouter(routes);
 };

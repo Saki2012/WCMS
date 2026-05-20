@@ -25,7 +25,7 @@ type Props = {
 type TinyMceScriptState = "loading" | "ready" | "error";
 type TinyMceWindow = Window & { tinymce?: object; };
 
-/** 取得 SSR Server 寫入的 CSP nonce，讓後台自架 TinyMCE script 不需要放寬 script-src。 */
+/** 取得頁面既有 nonce；正式 CSP 改以同站外部 script 為主，保留相容舊設定。 */
 const getCspNonce = (): string =>
 {
     const script = document.querySelector("script[nonce]") as HTMLScriptElement | null;
@@ -51,7 +51,7 @@ const findTinyMceScript = (src: string): HTMLScriptElement | null =>
     return scripts.find(script => new URL(script.src, window.location.origin).pathname === sourcePath) ?? null;
 };
 
-/** 使用 nonce 載入 public 內的 TinyMCE，維持 script-src nonce + strict-dynamic。 */
+/** 載入 public 內的 TinyMCE；正式 CSP 僅允許同站外部 script。 */
 const loadTinyMceScript = (src: string): Promise<void> =>
 {
     return new Promise((resolve, reject) =>
@@ -83,7 +83,7 @@ const loadTinyMceScript = (src: string): Promise<void> =>
     });
 };
 
-/** 後台編輯器使用明確的 nonce script loader，避免 @tinymce/react 自行插入未標記 script。 */
+/** 後台編輯器先載入自架 TinyMCE，避免初始化時重複插入 script。 */
 const useTinyMceScript = (src: string): TinyMceScriptState =>
 {
     const [state, setState] = useState<TinyMceScriptState>(() => typeof window === "undefined" ? "loading" : hasTinyMceGlobal() ? "ready" : "loading");

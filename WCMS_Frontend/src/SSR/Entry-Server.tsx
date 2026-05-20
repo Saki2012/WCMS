@@ -1,4 +1,6 @@
 import { AppRouteModule, getSiteHeaderMeta } from "@/Features/Pages/AppRoute";
+import { buildSiteRoutingInitialState } from "@/Features/Pages/Client/Route/ClientRouter_Loader";
+import { resolveRouteLangFromRequest } from "@/Features/Pages/Client/Route/Site-Routing";
 import { HeaderMetaComp } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";
 import { MessageProvider } from "@/SysCore/Components/Message/Dialog/Dialog_Comp";
 import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter";
@@ -43,8 +45,12 @@ export const SSR_Render = async (url: string, headers: Record<string, string> = 
 
     const helmetContext: any = {};
 
+    const resolvedLang = resolveRouteLangFromRequest(request);
+    const siteRoutingState = buildSiteRoutingInitialState(resolvedLang);
+
     const initialState = {
-        lang: (headers["accept-language"] ?? "zh-tw"),
+        ...siteRoutingState,
+        lang: resolvedLang,
         hydrationData: { loaderData: context.loaderData, actionData: context.actionData, errors: context.errors },
     };
 

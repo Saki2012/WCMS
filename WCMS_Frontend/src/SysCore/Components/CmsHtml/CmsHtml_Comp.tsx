@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
-import { useCmsHtmlContent } from "./useCmsHtmlContent";
 import type { CmsHtmlContentOptions } from "./CmsHtml_Types";
+import { useCmsHtmlContent } from "./useCmsHtmlContent";
 
 export interface ICmsHtmlCompProps extends CmsHtmlContentOptions
 {

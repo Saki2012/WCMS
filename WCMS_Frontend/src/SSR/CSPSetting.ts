@@ -1,6 +1,6 @@
 export type CspStyleMode = "balanced" | "legacy" | "strict";
 
-export type BuildProdCspOptions = Readonly<{ enforceTrustedTypes?: boolean; allowScriptSelfFallback?: boolean; styleMode?: CspStyleMode; }>;
+export type BuildProdCspOptions = Readonly<{ enforceTrustedTypes?: boolean; styleMode?: CspStyleMode; scriptBaseOrigin?: string; }>;
 
 const uniqueSources = (sources: readonly string[]): string[] =>
 {
@@ -12,10 +12,22 @@ const joinSources = (sources: readonly string[]): string =>
     return uniqueSources(sources).join(" ");
 };
 
-const buildScriptSources = (nonceSource: string, allowSelfFallback: boolean): string[] =>
+const trimEndSlash = (value: string): string =>
 {
-    if (!nonceSource) return ["'self'"];
-    return allowSelfFallback ? [nonceSource, "'strict-dynamic'", "'self'"] : [nonceSource, "'strict-dynamic'"];
+    return String(value || "").trim().replace(/\/+$/, "");
+};
+
+/** 建立 script 可載入來源；只允許正式靜態 bundle 與自架 TinyMCE 路徑。 */
+const buildScriptSources = (scriptBaseOrigin?: string): string[] =>
+{
+    const origin = trimEndSlash(scriptBaseOrigin ?? "");
+    if (!origin) return ["'self'"];
+
+    return [
+        `${origin}/assets/`,
+        `${origin}/tinymce/`,
+        `${origin}/tinymce-i18n/`,
+    ];
 };
 
 const buildStyleSources = (styleMode: CspStyleMode): string[] =>
@@ -40,15 +52,13 @@ const buildStyleAttrSources = (styleMode: CspStyleMode): string[] =>
 
 /**
  * 建立正式環境 CSP。
- * 預設採 nonce + strict-dynamic，並將 CSP 僅用於 HTML response，降低靜態資源被弱掃重複列點的機率。
+ * script 不使用 nonce / strict-dynamic / unsafe-inline / self，改用同網域路徑級白名單，避免 /Service 或其他動態端點被納入可執行 script 來源。
  */
-export const buildProdCsp = (nonce: string, options: BuildProdCspOptions = {}): string =>
+export const buildProdCsp = (_nonce: string, options: BuildProdCspOptions = {}): string =>
 {
-    const cleanNonce = String(nonce || "").trim();
-    const nonceSource = cleanNonce ? `'nonce-${cleanNonce}'` : "";
     const styleMode = options.styleMode ?? "balanced";
 
-    const scriptSrc = joinSources(buildScriptSources(nonceSource, options.allowScriptSelfFallback === true));
+    const scriptSrc = joinSources(buildScriptSources(options.scriptBaseOrigin));
     const styleSrc = joinSources(buildStyleSources(styleMode));
     const styleAttrSrc = joinSources(buildStyleAttrSources(styleMode));
 

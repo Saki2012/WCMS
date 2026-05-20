@@ -110,6 +110,36 @@ const getResponseNonce = (res: Response): string =>
     return nonce;
 };
 
+const readHeaderFirstValue = (value: string | string[] | undefined): string =>
+{
+    const raw = Array.isArray(value) ? value[0] : value;
+    return String(raw || "").split(",")[0].trim();
+};
+
+const sanitizeRequestProto = (value: string): string =>
+{
+    const proto = String(value || "").toLowerCase();
+    return proto === "http" || proto === "https" ? proto : "https";
+};
+
+const sanitizeRequestHost = (value: string): string =>
+{
+    const host = String(value || "").trim();
+    return /^[a-z0-9.-]+(?::\d+)?$/i.test(host) ? host : "";
+};
+
+/** 取得目前對外 Origin，讓 CSP script 可以收斂到同網域指定路徑。 */
+const getRequestPublicOrigin = (req: Request): string =>
+{
+    const envOrigin = String(process.env.SSR_PUBLIC_ORIGIN || "").trim().replace(/\/+$/, "");
+    if (envOrigin) return envOrigin;
+
+    const proto = sanitizeRequestProto(readHeaderFirstValue(req.headers["x-forwarded-proto"] as string | string[] | undefined) || req.protocol);
+    const host = sanitizeRequestHost(readHeaderFirstValue(req.headers["x-forwarded-host"] as string | string[] | undefined) || String(req.headers.host || ""));
+
+    return host ? `${proto}://${host}` : "";
+};
+
 /** 建立正式環境 HTML CSP 的調整參數。 */
 const getHtmlCspOptions = (req: Request) =>
 {
@@ -118,8 +148,8 @@ const getHtmlCspOptions = (req: Request) =>
 
     return {
         enforceTrustedTypes: isServerPage ? false : readBoolEnv("SSR_ENFORCE_TRUSTED_TYPES", false),
-        allowScriptSelfFallback: readBoolEnv("SSR_CSP_ALLOW_SCRIPT_SELF_FALLBACK", false),
         styleMode: isServerPage ? "legacy" as CspStyleMode : readStyleModeEnv(),
+        scriptBaseOrigin: getRequestPublicOrigin(req),
     };
 };
 
@@ -634,47 +664,37 @@ const toPayload = (result: any) =>
     return { appHtml: result.appHtml ?? "", headTags: result.headTags ?? "", initialState: result.initialState };
 };
 
-const extractStaticRouterHydrationScripts = (appHtml: string): { cleanHtml: string; scriptsHtml: string; } =>
+const removeStaticRouterHydrationScripts = (appHtml: string): string =>
 {
-    // 宣告變數
     const re = /<script\b[^>]*>[\s\S]*?__staticRouterHydrationData[\s\S]*?<\/script>/gi;
-    const scripts = (appHtml.match(re) ?? []).join("");
-
-    // 執行 function
-    const clean = appHtml.replace(re, "");
-
-    // return
-    return { cleanHtml: clean, scriptsHtml: scripts };
+    return appHtml.replace(re, "");
 };
 
-// 把 initial state 注入到模板
-const injectInitialState = (html: string, initialState: unknown, nonce: string, extraScriptsHtml: string): string =>
+const escapeJsonForTemplate = (value: unknown): string =>
 {
-    // 宣告變數
-    const stateScript = initialState
-        ? `<script nonce="${nonce}">window.__INITIAL_STATE__=${JSON.stringify(initialState).replace(/</g, "\\u003c")};</script>`
-        : "";
-
-    // 執行 function
-    const out = html.replace("<!--initial-state-->", `${stateScript}${extraScriptsHtml}`);
-
-    // return
-    return out;
+    return JSON.stringify(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
 };
 
-// Prod：把模板裡所有 <script ...> 都補上 nonce（避免 CSP 擋住）
-const addNonceToAllScripts = (html: string, nonce: string): string =>
+const INITIAL_STATE_MARKER = "<!--initial-state-->";
+const INITIAL_STATE_TEMPLATE_RE = /<template\b[^>]*\bid=["']wcms-initial-state["'][^>]*>[\s\S]*?<\/template>/i;
+
+/** 把 SSR 初始資料放進 template，避免正式 CSP 需要 inline script。 */
+const injectInitialState = (html: string, initialState: unknown): string =>
 {
-    // 宣告變數
-    const re = /<script\b(?![^>]*\bnonce=)([^>]*)>/gi;
+    const stateTemplate = initialState ? `<template id="wcms-initial-state">${escapeJsonForTemplate(initialState)}</template>` : "";
 
-    // 執行 function
-    const out = html.replace(re, `<script nonce="${nonce}"$1>`);
+    if (INITIAL_STATE_TEMPLATE_RE.test(html))
+    {
+        return html.replace(INITIAL_STATE_TEMPLATE_RE, stateTemplate);
+    }
 
-    // return
-    return out;
+    if (html.includes(INITIAL_STATE_MARKER))
+    {
+        return html.replace(INITIAL_STATE_MARKER, stateTemplate);
+    }
+
+    return html.replace(/<\/body>/i, `${stateTemplate}</body>`);
 };
-
 // 優先用 <!--app-html-->，沒有就塞進 <div id="root"></div>
 const injectAppHtmlToRoot = (html: string, appHtml: string): string =>
 {
@@ -697,34 +717,16 @@ const injectAppHtmlToRoot = (html: string, appHtml: string): string =>
     return html;
 };
 
-/** 提供 Vite runtime 動態載入資源時可讀取的 CSP nonce。 */
-const injectCspNonceMeta = (html: string, nonce: string): string =>
-{
-    const meta = `<meta property="csp-nonce" nonce="${nonce}">`;
-    if (/<meta\b[^>]*property=["']csp-nonce["'][^>]*>/i.test(html)) return html.replace(/<meta\b[^>]*property=["']csp-nonce["'][^>]*>/i, meta);
-    return html.replace(/<\/head>/i, `${meta}</head>`);
-};
-
 // 組 SSR HTML（dev/prod 共用）
-const buildHtml = (template: string, payload: { appHtml: string; headTags?: string; initialState?: unknown; }, nonce: string, isProd: boolean): string =>
+const buildHtml = (template: string, payload: { appHtml: string; headTags?: string; initialState?: unknown; }, _nonce: string, _isProd: boolean): string =>
 {
-    // 宣告變數
     let html = template;
+    const cleanHtml = removeStaticRouterHydrationScripts(payload.appHtml ?? "");
 
-    // 執行 function
-    const { cleanHtml, scriptsHtml } = extractStaticRouterHydrationScripts(payload.appHtml ?? "");
     html = html.replace("<!--app-head-->", payload.headTags ?? "");
     html = injectAppHtmlToRoot(html, cleanHtml);
-    html = injectInitialState(html, payload.initialState, nonce, scriptsHtml);
+    html = injectInitialState(html, payload.initialState);
 
-    // prod 才需要 nonce + CSP（dev 先不要擋 vite scripts）
-    if (isProd)
-    {
-        html = injectCspNonceMeta(html, nonce);
-        html = addNonceToAllScripts(html, nonce);
-    }
-
-    // return
     return html;
 };
 
