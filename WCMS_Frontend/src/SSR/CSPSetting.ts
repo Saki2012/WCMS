@@ -17,17 +17,16 @@ const trimEndSlash = (value: string): string =>
     return String(value || "").trim().replace(/\/+$/, "");
 };
 
-/** 建立 script 可載入來源；只允許正式靜態 bundle 與自架 TinyMCE 路徑。 */
+/** Cloudflare Turnstile 前台驗證碼來源；需允許 script 與 iframe 載入。 */
+const turnstileSource = "https://challenges.cloudflare.com";
+
+/** 建立 script 可載入來源；只允許正式靜態 bundle、自架 TinyMCE 與 Turnstile 驗證碼來源。 */
 const buildScriptSources = (scriptBaseOrigin?: string): string[] =>
 {
     const origin = trimEndSlash(scriptBaseOrigin ?? "");
-    if (!origin) return ["'self'"];
+    if (!origin) return ["'self'", turnstileSource];
 
-    return [
-        `${origin}/assets/`,
-        `${origin}/tinymce/`,
-        `${origin}/tinymce-i18n/`,
-    ];
+    return [`${origin}/assets/`, `${origin}/tinymce/`, `${origin}/tinymce-i18n/`, turnstileSource];
 };
 
 const buildStyleSources = (styleMode: CspStyleMode): string[] =>
@@ -115,6 +114,7 @@ export const buildProdCsp = (_nonce: string, options: BuildProdCspOptions = {}):
         "https://www.googletagmanager.com",
         "https://720yun.com",
         "https://www.720yun.com",
+        turnstileSource,
     ]);
 
     const csp = [

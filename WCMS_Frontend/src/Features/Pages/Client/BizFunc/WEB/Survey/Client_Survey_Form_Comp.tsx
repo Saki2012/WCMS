@@ -17,6 +17,8 @@ import "./Client_Survey_Form.css";
 import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import type { components } from "@/types/api";
 import { type ISurveyOptions, type SurveySubmitActions, useSurveyFormFetchData } from "./Client_Survey_Form_Loader";
+import { Captcha_Comp } from "@/Features/Hooks/BizFunc/SYS/Captcha/Captcha_Comp";
+import { useCaptchaController } from "@/Features/Hooks/BizFunc/SYS/Captcha/Captcha_Hook";
 type SurveySubmissionRequest = components["schemas"]["SurveySubmissionRequest_DTO"];
 
 interface ISurveyProps
@@ -43,6 +45,13 @@ interface SurveySubmitText
     submitting: string;
     submitOk: string;
     submitFail: string;
+    captchaTitle: string;
+    captchaHint: string;
+    captchaRequired: string;
+    captchaRequiredError: string;
+    captchaExpiredError: string;
+    captchaError: string;
+    captchaConfigInvalidError: string;
 }
 
 interface SurveySubmitResult
@@ -59,6 +68,7 @@ type SurveySubmissionDraft = SurveySubmissionRequest & {
     ContactPhone: string;
     FormDataJson: string;
     TimeZone?: string;
+    CaptchaToken?: string | null;
 };
 
 type SurveyBaseFieldKey = "UserName" | "Email" | "ContactPhone";
@@ -180,6 +190,14 @@ const SurveyInputForm_Comp = (
     const [values, setValues] = useState<SurveyInputValueMap>({});
     const [errorMap, setErrorMap] = useState<Record<string, string>>({});
     const [submitResult, setSubmitResult] = useState<SurveySubmitResult | null>(null);
+    const captchaMessages = useMemo(() => ({
+        requiredText: text.captchaRequiredError,
+        expiredText: text.captchaExpiredError,
+        errorText: text.captchaError,
+        configInvalidText: text.captchaConfigInvalidError,
+    }), [text]);
+    const captcha = useCaptchaController({ deps: [props.surveyId, props.lang], messages: captchaMessages });
+    const { captchaToken, isLoading: isCaptchaLoading, resetCaptcha, validateCaptcha } = captcha;
 
     const handleBaseChange = useCallback((key: SurveyBaseFieldKey, value: string) =>
     {
@@ -231,7 +249,10 @@ const SurveyInputForm_Comp = (
 
         // 清空送出狀態
         setSubmitResult(null);
-    }, []);
+
+        // 重置驗證碼
+        resetCaptcha();
+    }, [resetCaptcha]);
 
     const handleSubmit = useCallback(async (e: FormEvent<HTMLFormElement>) =>
     {
@@ -252,14 +273,21 @@ const SurveyInputForm_Comp = (
             return;
         }
 
+        if (!validateCaptcha())
+        {
+            setSubmitResult({ type: "danger", text: text.submitFail });
+            return;
+        }
+
         // 建立送出資料
-        const draft = buildSurveySubmissionDraft({ surveyId: props.surveyId, lang: props.lang, items: props.items, baseValues, values });
+        const draft = buildSurveySubmissionDraft({ surveyId: props.surveyId, lang: props.lang, items: props.items, baseValues, values, captchaToken });
 
         // 呼叫前台匿名提交 API
         const apiRes = await props.submitActions.publicSubmitAsync(draft);
 
         if (!apiRes.IsSuccess)
         {
+            resetCaptcha();
             setSubmitResult({ type: "danger", text: text.submitFail });
             return;
         }
@@ -269,9 +297,10 @@ const SurveyInputForm_Comp = (
         setValues({});
         setBaseErrorMap({});
         setErrorMap({});
+        resetCaptcha();
         setSubmitResult({ type: "success", text: text.submitOk });
         props.onSubmitted?.();
-    }, [baseFields, baseValues, props.items, props.surveyId, props.lang, props.submitActions, props.onSubmitted, values, text]);
+    }, [baseFields, baseValues, captchaToken, props.items, props.surveyId, props.lang, props.submitActions, props.onSubmitted, resetCaptcha, validateCaptcha, values, text]);
 
     return (
         <form className="survey-form" aria-label={text.formTitle} noValidate onSubmit={handleSubmit}>
@@ -304,11 +333,20 @@ const SurveyInputForm_Comp = (
                 </section>
             )}
 
+            <Captcha_Comp
+                captcha={captcha}
+                className="survey-form-section mt-3"
+                titleText={text.captchaTitle}
+                hintText={text.captchaHint}
+                requiredText={text.captchaRequired}
+                turnstile={{ action: "survey_submit", cData: props.surveyId || undefined, language: toTurnstileLanguage(props.lang) }}
+            />
+
             <div className="Standard_btnDiv mt-4">
-                <button type="submit" className="btn btn_NEWS bg_urllink_NEWS" disabled={props.disabled || props.submitActions.isSubmitting}>
+                <button type="submit" className="btn btn_NEWS bg_urllink_NEWS" disabled={props.disabled || props.submitActions.isSubmitting || isCaptchaLoading}>
                     {props.submitActions.isSubmitting ? text.submitting : text.submit}
                 </button>
-                <button type="button" className="btn btn-secondary ms-2" disabled={props.disabled} onClick={handleReset}>{text.reset}</button>
+                <button type="button" className="btn btn-secondary ms-2" disabled={props.disabled || props.submitActions.isSubmitting} onClick={handleReset}>{text.reset}</button>
             </div>
 
             {submitResult && <div className={`alert alert-${submitResult.type} mt-3`} role="status" aria-live="polite">{submitResult.text}</div>}
@@ -485,7 +523,7 @@ const validateFormat = (p: { inputType: number; value: SurveyInputValue; text: S
 
 /** 建立送出草稿，送給 Public_Submit API */
 const buildSurveySubmissionDraft = (
-    p: { surveyId: string; lang: Lang; items: SurveyInputItem[]; baseValues: SurveyBaseValues; values: SurveyInputValueMap; },
+    p: { surveyId: string; lang: Lang; items: SurveyInputItem[]; baseValues: SurveyBaseValues; values: SurveyInputValueMap; captchaToken: string | null; },
 ): SurveySubmissionDraft =>
 {
     const formData = p.items.reduce<Record<string, SurveyInputValue>>((map, item) =>
@@ -503,6 +541,7 @@ const buildSurveySubmissionDraft = (
         ContactPhone: p.baseValues.ContactPhone.trim(),
         FormDataJson: JSON.stringify(formData),
         TimeZone: getClientTimeZone(),
+        CaptchaToken: p.captchaToken,
     };
 };
 
@@ -511,6 +550,16 @@ const getClientTimeZone = (): string =>
 {
     return Intl.DateTimeFormat().resolvedOptions().timeZone ?? "";
 };
+
+/** 轉換 Turnstile 語系代碼 */
+const toTurnstileLanguage = (lang: Lang): string =>
+{
+    const value = `${lang}`.toLowerCase();
+    if (value === "zh-tw" || value === "zh-cn") return value;
+    if (value.startsWith("en")) return "en";
+    return "auto";
+};
+
 /** 取得欄位 key，需與 Client_Survey_Input_Comp.tsx 規則一致 */
 const getSurveyFieldKey = (item: SurveyInputItem): string =>
 {
@@ -597,6 +646,13 @@ const SURVEY_SUBMIT_TEXT_FALLBACK: SurveySubmitText = {
     dateError: "請輸入正確的日期格式",
     submitOk: "問卷已成功送出。",
     submitFail: "請確認表單欄位是否填寫正確。",
+    captchaTitle: "我不是機器人",
+    captchaHint: "請完成驗證後再送出問卷。",
+    captchaRequired: "必填",
+    captchaRequiredError: "請先勾選我不是機器人。",
+    captchaExpiredError: "驗證碼已逾時，請重新驗證。",
+    captchaError: "驗證碼載入或驗證發生錯誤，請重新驗證。",
+    captchaConfigInvalidError: "驗證碼設定異常，暫時無法送出。",
 };
 
 /** 取得送出文案 */
@@ -621,5 +677,12 @@ const SURVEY_SUBMIT_TEXT_MAP: Partial<Record<Lang, SurveySubmitText>> = {
         dateError: "Please enter a valid date.",
         submitOk: "The survey has been submitted successfully.",
         submitFail: "Please check the form fields.",
+        captchaTitle: "I'm not a robot",
+        captchaHint: "Please complete the verification before submitting the survey.",
+        captchaRequired: "Required",
+        captchaRequiredError: "Please complete the verification first.",
+        captchaExpiredError: "The verification has expired. Please verify again.",
+        captchaError: "The verification failed to load or verify. Please try again.",
+        captchaConfigInvalidError: "The verification service is not configured correctly.",
     },
 };
