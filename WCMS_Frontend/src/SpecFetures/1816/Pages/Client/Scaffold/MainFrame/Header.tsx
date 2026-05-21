@@ -16,6 +16,7 @@ import { SearchData } from "../../Index/Section/SearchData";
 
 const MOBILE_BREAKPOINT = 991.98;
 const SHADOW_SCROLL_TOP = 180;
+const MEGA_MENU_ANIMATION_MS = 220;
 
 const isKeyboardActivateKey = (event: React.KeyboardEvent): boolean =>
 {
@@ -196,7 +197,7 @@ const useCloseOnRouteChange = (pathname: string, search: string, hash: string, c
 {
     useEffect(() =>
     {
-        // 執行 function：SPA 路由變更後收合選單，避免 Hydration 後狀態殘留
+        // 執行 function：SPA 路由變更後收合選單，避免狀態殘留
         close();
     }, [close, pathname, search, hash]);
 };
@@ -518,46 +519,157 @@ const MainMenu = (
 {
     // 宣告變數
     const [openId, setOpenId] = useState<string | null>(null);
+    const [closingId, setClosingId] = useState<string | null>(null);
+    const [hoverSuppressedId, setHoverSuppressedId] = useState<string | null>(null);
+    const openIdRef = useRef<string | null>(null);
+    const closeTimerRef = useRef<number | null>(null);
     const menuItems = useMemo(() => GetMenuData(props.lang, props.site), [props.lang, props.site]);
     const location = useLocation();
 
-    const closeMegaMenu = useCallback((): void =>
+    useEffect(() =>
     {
-        // 執行 function：關閉桌機版 mega menu
+        // 執行 function：同步目前開啟的 menu id，讓關閉流程可取得最新狀態
+        openIdRef.current = openId;
+    }, [openId]);
+
+    const clearCloseTimer = useCallback((): void =>
+    {
+        // 執行 function：清除尚未完成的關閉動畫 timer
+        if (closeTimerRef.current === null) return;
+
+        window.clearTimeout(closeTimerRef.current);
+        closeTimerRef.current = null;
+    }, []);
+
+    const closeMegaMenuImmediately = useCallback((): void =>
+    {
+        // 執行 function：立即關閉 menu，通常用於手機/桌機模式切換
+        clearCloseTimer();
         setOpenId(null);
+        setClosingId(null);
+    }, [clearCloseTimer]);
+
+    const closeMegaMenuWithAnimation = useCallback((shouldSuppressHover: boolean, fallbackId?: string): void =>
+    {
+        // 執行 function：保留收合動畫並關閉 menu
+        const currentOpenId = openIdRef.current ?? fallbackId;
+        if (!currentOpenId) return;
+
+        clearCloseTimer();
+
+        if (shouldSuppressHover)
+        {
+            setHoverSuppressedId(currentOpenId);
+        }
+
+        setClosingId(currentOpenId);
+        setOpenId(null);
+
+        closeTimerRef.current = window.setTimeout(() =>
+        {
+            setClosingId((prev) => prev === currentOpenId ? null : prev);
+            closeTimerRef.current = null;
+        }, MEGA_MENU_ANIMATION_MS);
+    }, [clearCloseTimer]);
+
+    const closeMegaMenuWithHoverSuppress = useCallback((): void =>
+    {
+        // 執行 function：鍵盤焦點離開或 Esc 時，關閉 menu 並抑制 hover 重新展開
+        closeMegaMenuWithAnimation(true);
+    }, [closeMegaMenuWithAnimation]);
+
+    const closeMegaMenuForRouteChange = useCallback((): void =>
+    {
+        // 執行 function：切頁時收合 menu，避免 hover 殘留重新展開
+        closeMegaMenuWithAnimation(true);
+    }, [closeMegaMenuWithAnimation]);
+
+    const releaseHoverSuppress = useCallback((): void =>
+    {
+        // 執行 function：滑鼠離開 menu 後恢復 hover 行為
+        setHoverSuppressedId(null);
     }, []);
 
     const toggleOpen = useCallback((id: string) =>
     {
-        // 執行 function：切換第一層 mega menu
-        setOpenId((prev) => (prev === id ? null : id));
-    }, []);
+        // 執行 function：切換第一層 mega menu，重複點擊同一項時走收合動畫
+        setHoverSuppressedId(null);
 
-    const handleLeafClick = useCallback(() =>
+        if (openIdRef.current === id)
+        {
+            closeMegaMenuWithAnimation(false, id);
+            return;
+        }
+
+        clearCloseTimer();
+        setClosingId(null);
+        setOpenId(id);
+    }, [clearCloseTimer, closeMegaMenuWithAnimation]);
+
+    const openMegaMenuByHover = useCallback((id: string): void =>
     {
-        // 執行 function：點擊葉節點後收合全部
-        closeMegaMenu();
+        // 執行 function：桌機版滑鼠移入第一層 menu 時自動展開
+        if (props.isMobileView) return;
+        if (hoverSuppressedId === id) return;
+
+        clearCloseTimer();
+        setHoverSuppressedId(null);
+        setClosingId(null);
+        setOpenId(id);
+    }, [clearCloseTimer, hoverSuppressedId, props.isMobileView]);
+
+    const closeMegaMenuByHoverLeave = useCallback((id: string): void =>
+    {
+        // 執行 function：桌機版滑鼠離開整個 menu item 後播放收合動畫
+        if (props.isMobileView) return;
+
+        if (hoverSuppressedId === id)
+        {
+            setHoverSuppressedId(null);
+            return;
+        }
+
+        if (openIdRef.current !== id) return;
+
+        closeMegaMenuWithAnimation(false, id);
+    }, [closeMegaMenuWithAnimation, hoverSuppressedId, props.isMobileView]);
+
+    const handleLeafClick = useCallback((menuId?: string) =>
+    {
+        // 執行 function：滑鼠點擊或鍵盤進入子項目後，收合 mega menu
+        closeMegaMenuWithAnimation(true, menuId);
+
         if (!props.isMobileView) return;
         props.closeMobileMenu();
-    }, [closeMegaMenu, props.closeMobileMenu, props.isMobileView]);
+    }, [closeMegaMenuWithAnimation, props.closeMobileMenu, props.isMobileView]);
+
+    useEffect(() =>
+    {
+        // 執行 function：元件卸載時清除動畫 timer
+        return () =>
+        {
+            if (closeTimerRef.current === null) return;
+            window.clearTimeout(closeTimerRef.current);
+        };
+    }, []);
 
     useEffect(() =>
     {
         // 執行 function：主 menu 收合時同步清掉子 menu 狀態
         if (props.isMobileMenuOpen) return;
-        setOpenId(null);
-    }, [props.isMobileMenuOpen]);
+        closeMegaMenuImmediately();
+    }, [closeMegaMenuImmediately, props.isMobileMenuOpen]);
 
     useEffect(() =>
     {
         // 執行 function：切換回桌機時清掉手機展開狀態
         if (props.isMobileView) return;
-        setOpenId(null);
-    }, [props.isMobileView]);
+        closeMegaMenuImmediately();
+    }, [closeMegaMenuImmediately, props.isMobileView]);
 
-    useCloseOnRouteChange(location.pathname, location.search, location.hash, closeMegaMenu);
-    useCloseOnFocusLeave(props.menuRootRef, openId !== null, closeMegaMenu);
-    useCloseOnEscape(openId !== null, closeMegaMenu);
+    useCloseOnRouteChange(location.pathname, location.search, location.hash, closeMegaMenuForRouteChange);
+    useCloseOnFocusLeave(props.menuRootRef, openId !== null, closeMegaMenuWithHoverSuppress);
+    useCloseOnEscape(openId !== null, closeMegaMenuWithHoverSuppress);
 
     useEffect(() =>
     {
@@ -573,18 +685,20 @@ const MainMenu = (
             const target = event.target as Node | null;
             if (!target) return;
             if (root.contains(target)) return;
-            closeMegaMenu();
+
+            closeMegaMenuWithAnimation(true);
         };
 
         document.addEventListener("pointerdown", onPointerDown, true);
 
         return () => document.removeEventListener("pointerdown", onPointerDown, true);
-    }, [closeMegaMenu, openId, props.menuRootRef]);
+    }, [closeMegaMenuWithAnimation, openId, props.menuRootRef]);
 
     return (
         <>
             {menuItems.map((item) =>
             {
+                const id = String(item.Id);
                 const hasChildren = (item.SubItem ?? []).length > 0;
 
                 if (!hasChildren)
@@ -596,9 +710,14 @@ const MainMenu = (
                     <MegaMenuItem
                         key={String(item.Id ?? item.SrcData)}
                         menuItem={item}
-                        isOpen={openId === String(item.Id)}
+                        isOpen={openId === id}
+                        isClosing={closingId === id}
+                        isHoverSuppressed={hoverSuppressedId === id && openId === null}
                         onToggle={toggleOpen}
                         onLeafClick={handleLeafClick}
+                        onHoverOpen={openMegaMenuByHover}
+                        onHoverClose={closeMegaMenuByHoverLeave}
+                        onHoverRelease={releaseHoverSuppress}
                     />
                 );
             })}
@@ -606,15 +725,23 @@ const MainMenu = (
     );
 };
 
-const SingleMenuItem = (props: { menuItem: MenuItemData; onLeafClick: () => void; }) =>
+const SingleMenuItem = (props: { menuItem: MenuItemData; onLeafClick: (menuId?: string) => void; }) =>
 {
+    const handleLeafClick = () =>
+    {
+        // 執行 function：點擊單層選單後收合手機 menu
+        props.onLeafClick();
+    };
+
     const handleLeafKeyDown = (event: React.KeyboardEvent<HTMLAnchorElement>) =>
     {
+        // 執行 function：支援 Header 單層選單連結以 Space 進入頁面
         if (!isKeyboardActivateKey(event)) return;
 
         event.preventDefault();
         event.currentTarget.click();
     };
+
     return (
         <li className="nav-item">
             <LangNavLink
@@ -622,7 +749,7 @@ const SingleMenuItem = (props: { menuItem: MenuItemData; onLeafClick: () => void
                 to={props.menuItem.Url || "#"}
                 title={props.menuItem.SrcData}
                 aria-label={props.menuItem.SrcData}
-                onClick={props.onLeafClick}
+                onClick={handleLeafClick}
                 onKeyDown={handleLeafKeyDown}
             >
                 {/^https?:\/\//i.test(props.menuItem.Url || "") && <i className="fad fa-link me-2"></i>}
@@ -636,15 +763,26 @@ interface IMegaMenuItemProps
 {
     menuItem: MenuItemData;
     isOpen: boolean;
+    isClosing: boolean;
+    isHoverSuppressed: boolean;
     onToggle: (id: string) => void;
-    onLeafClick: () => void;
+    onLeafClick: (menuId?: string) => void;
+    onHoverOpen: (id: string) => void;
+    onHoverClose: (id: string) => void;
+    onHoverRelease: () => void;
 }
 
 const MegaMenuItem = (props: IMegaMenuItemProps) =>
 {
+    // 宣告變數
     const id = String(props.menuItem.Id);
-    const liClass = props.isOpen ? "nav-item dropdown dropdown-mega position-static show" : "nav-item dropdown dropdown-mega position-static";
-    const menuClass = props.isOpen ? "dropdown-menu show" : "dropdown-menu";
+    const liClass = clsx(
+        "nav-item dropdown dropdown-mega position-static",
+        props.isOpen && "show",
+        props.isClosing && "is-closing",
+        props.isHoverSuppressed && "is-hover-suppressed",
+    );
+    const menuClass = clsx("dropdown-menu", (props.isOpen || props.isClosing) && "show", props.isClosing && "is-closing");
 
     const handleToggleClick = (event: React.MouseEvent<HTMLAnchorElement>) =>
     {
@@ -657,20 +795,46 @@ const MegaMenuItem = (props: IMegaMenuItemProps) =>
     {
         // 執行 function：支援 Enter / Space 切換 mega menu
         if (!isKeyboardActivateKey(event)) return;
+
         event.preventDefault();
         props.onToggle(id);
+    };
+
+    const handleLeafClick = () =>
+    {
+        // 執行 function：點擊子項目後收合目前所屬 mega menu
+        props.onLeafClick(id);
     };
 
     const handleLeafKeyDown = (event: React.KeyboardEvent<HTMLAnchorElement>) =>
     {
         // 執行 function：支援 Header 選單連結以 Space 進入頁面
         if (!isKeyboardActivateKey(event)) return;
+
         event.preventDefault();
         event.currentTarget.click();
     };
 
+    const handlePointerEnter = () =>
+    {
+        // 執行 function：滑鼠移入第一層 menu 時自動展開
+        props.onHoverOpen(id);
+    };
+
+    const handlePointerLeave = () =>
+    {
+        // 執行 function：滑鼠離開整個 menu item 後收合，若為鎖定狀態則解除鎖定
+        if (props.isHoverSuppressed)
+        {
+            props.onHoverRelease();
+            return;
+        }
+
+        props.onHoverClose(id);
+    };
+
     return (
-        <li className={liClass} data-menu-id={id}>
+        <li className={liClass} data-menu-id={id} onPointerEnter={handlePointerEnter} onPointerLeave={handlePointerLeave}>
             <a
                 className="nav-link dropdown-toggle"
                 href="#"
@@ -704,7 +868,7 @@ const MegaMenuItem = (props: IMegaMenuItemProps) =>
                                                     className="list-group-item"
                                                     to={link.Url || "#"}
                                                     target={link.URL_Open}
-                                                    onClick={props.onLeafClick}
+                                                    onClick={handleLeafClick}
                                                     onKeyDown={handleLeafKeyDown}
                                                     end
                                                 >
@@ -713,21 +877,6 @@ const MegaMenuItem = (props: IMegaMenuItemProps) =>
                                                 </LangNavLink>
                                             );
                                         })}
-                                        {
-                                            /* {(col.SubItem ?? []).map((link, linkIndex) => (
-											<LangNavLink
-												key={`${id}-${colIndex}-${linkIndex}`}
-												className="list-group-item"
-												to={link.Url || "#"}
-												target={link.URL_Open}
-												onClick={props.onLeafClick}
-												end
-											>
-												<i className="fad fa-link"></i>
-												{link.SrcData}
-											</LangNavLink>
-										))} */
-                                        }
                                     </div>
                                 </div>
                             ))}

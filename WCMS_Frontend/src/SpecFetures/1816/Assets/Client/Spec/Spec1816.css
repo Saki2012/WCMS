@@ -1329,3 +1329,57 @@ a.btn:focus-visible{
 		height: auto;
 	}
 }
+/* ====================================================== */
+/* ===== AA：Header Mega Menu 鍵盤/滑鼠關閉與動畫修正 ===== */
+/* ====================================================== */
+
+@media (min-width: 992px) {
+	#Site-Header .dropdown-mega > .dropdown-menu {
+		display: block;
+		opacity: 0;
+		visibility: hidden;
+		transform: translateY(8px);
+		pointer-events: none;
+		transition:
+			opacity 0.22s ease,
+			transform 0.22s ease,
+			visibility 0s linear 0.22s;
+	}
+
+	#Site-Header .dropdown-mega.show > .dropdown-menu,
+	#Site-Header .dropdown-mega > .dropdown-menu.show {
+		opacity: 1;
+		visibility: visible;
+		transform: translateY(0);
+		pointer-events: auto;
+		transition:
+			opacity 0.22s ease,
+			transform 0.22s ease,
+			visibility 0s linear 0s;
+	}
+
+	#Site-Header .dropdown-mega.is-closing > .dropdown-menu,
+	#Site-Header .dropdown-mega > .dropdown-menu.is-closing {
+		opacity: 0;
+		visibility: visible;
+		transform: translateY(8px);
+		pointer-events: none;
+		transition:
+			opacity 0.22s ease,
+			transform 0.22s ease,
+			visibility 0s linear 0.22s;
+	}
+
+	#Site-Header .dropdown-mega.is-hover-suppressed:hover > .dropdown-menu {
+		opacity: 0 !important;
+		visibility: hidden !important;
+		transform: translateY(8px) !important;
+		pointer-events: none !important;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	#Site-Header .dropdown-mega > .dropdown-menu {
+		transition: none !important;
+	}
+}

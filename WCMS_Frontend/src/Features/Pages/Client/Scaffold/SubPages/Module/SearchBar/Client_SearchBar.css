@@ -1,0 +1,97 @@
+.client-searchbar {
+  margin-bottom: 24px;
+}
+
+.client-searchbar__form {
+  padding: 20px;
+  border: 1px solid #d8d8d8;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.client-searchbar__header {
+  margin-bottom: 16px;
+}
+
+.client-searchbar__title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.client-searchbar__body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.client-searchbar__row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.client-searchbar__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.client-searchbar__label {
+  font-weight: 600;
+}
+
+.client-searchbar__input,
+.client-searchbar__select {
+  min-height: 42px;
+  padding: 8px 12px;
+  border: 1px solid #b8b8b8;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.client-searchbar__input:focus,
+.client-searchbar__select:focus {
+  outline: 3px solid #ffbf47;
+  outline-offset: 2px;
+}
+
+.client-searchbar__actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.client-searchbar__actions--left {
+  justify-content: flex-start;
+}
+
+.client-searchbar__actions--right {
+  justify-content: flex-end;
+}
+
+.client-searchbar__button {
+  min-width: 88px;
+  min-height: 42px;
+  padding: 8px 16px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.client-searchbar__button:focus {
+  outline: 3px solid #ffbf47;
+  outline-offset: 2px;
+}
+
+@media (max-width: 768px) {
+  .client-searchbar__row {
+    grid-template-columns: 1fr;
+  }
+
+  .client-searchbar__actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}
