@@ -1,69 +1,152 @@
-import { CategoryAdapter } from "@/Features/Hooks/BizFunc/COMM/Category_Api";
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
+import { createGridCrudActions, enhanceGridWithAdjustCell, type GridConfirmFn } from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
+import type {
+    ServerListGridDataSourceContext,
+    ServerListGridDataSourceResult,
+    ServerListGridTemplate,
+} from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Hook";
 import { SpecJournalAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/WEB/SpecJournal_Api";
+import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
+import type { SearchFieldConfig, SearchValue, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
-import type { UseFetchDataResult } from "@/SysCore/Utils/API/FetchDataType";
+import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { AccountFields, PGID, SpecJournalAuthorFields, SpecJournalIndexDetailFields, SpecJournalModelFields } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
+import { type NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 import type { SpecJournalMode } from "./Server_SpecJournal_Form_Hook";
 
 type QueryListParam = components["schemas"]["QueryListParam"];
-type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
+export type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
+type SpecJournalApiAdapter = ReturnType<typeof SpecJournalAdapter>;
+type SpecJournalCudActions = ReturnType<SpecJournalApiAdapter["hooks"]["useCudActions"]>;
 
-// #region Public
-export type SpecJournalListRawData = {
+export interface SpecJournalListRenderers
+{
+    /** 渲染期刊標題欄位內容，JSX 請留在 Comp 實作 */
+    renderTitleContent: (set: SpecJournalSet) => RowCell["content"];
+
+    /** 渲染期刊作者欄位內容，JSX 請留在 Comp 實作 */
+    renderAuthorContent: (set: SpecJournalSet) => RowCell["content"];
+}
+
+export const SPEC_JOURNAL_TITLE_SEARCH_KEY = "title";
+export const SPEC_JOURNAL_VOLUME_SEARCH_KEY = "volume";
+export const SPEC_JOURNAL_AUTHOR_SEARCH_KEY = "author";
+
+export interface SpecJournalSearchParams
+{
+    /** 目前列表語系 */
+    lang: Lang;
+
+    /** 期刊列表模式，分為預刊與正式期刊 */
+    mode: SpecJournalMode;
+
+    /** 標題搜尋關鍵字 */
+    title?: string;
+
+    /** 卷數搜尋條件，僅正式期刊使用 */
+    volume?: string;
+
+    /** 作者搜尋關鍵字 */
+    author?: string;
+}
+
+export interface SpecJournalListRawData
+{
+    /** 後端 ModelDisplayName 欄位顯示設定 */
     modelDisplayName: ModelDisplaySchema | null;
+
+    /** 總筆數 */
     count: number;
+
+    /** 期刊列表資料 */
     list: SpecJournalSet[];
+
+    /** 目前頁碼 */
     pageNumber: number;
+
+    /** 總頁數 */
     totalPages: number;
+
+    /** 換頁事件 */
     onPageChange: (page: number) => void;
+
+    /** 實際送出的 QueryListParam */
     param: QueryListParam;
-    categoryData: Record<string, string>;
-    categoryMap: Record<string, string>;
+}
+
+export interface SpecJournalListAdapter
+{
+    /** 期刊 API adapter */
+    SpecJournal: SpecJournalApiAdapter;
+
+    /** 期刊新增、修改、刪除操作 */
+    cudActions: SpecJournalCudActions;
+
+    /** React Router 導頁方法 */
+    navigate: NavigateFunction;
+
+    /** 目前 List 對應的 Form 路徑 */
+    dirUrl: string;
+}
+
+export type SpecJournalListGridTemplate = ServerListGridTemplate<SpecJournalSearchParams, SpecJournalListRawData, SpecJournalListAdapter, QueryListParam>;
+
+/** 建立期刊後台純 Spec ListGridTemplate 設定 */
+export const useSpecJournalListGridTemplate = (opt: { lang: Lang; mode: SpecJournalMode; renderers: SpecJournalListRenderers; }): SpecJournalListGridTemplate =>
+{
+    return useMemo<SpecJournalListGridTemplate>(() =>
+    {
+        return {
+            featureKey: PGID.SpecJournal,
+            spec: {
+                buildSearchFields: ({ rawData }) => buildSpecJournalSearchFields(rawData, opt.mode),
+                toSearchParams: (values) => toSpecJournalSearchParams(values, opt.lang, opt.mode),
+                buildSearchConditions: buildSpecJournalSearchConditions,
+                buildQueryParam: buildSpecJournalQueryParam,
+                useDataSource: useSpecJournalListGridDataSource,
+                buildGridProps: (ctx) =>
+                    buildSpecJournalGridProps({
+                        raw: ctx.rawData,
+                        lang: ctx.searchParams.lang,
+                        mode: ctx.searchParams.mode,
+                        adapter: ctx.adapter,
+                        refetchData: ctx.refetchData,
+                        renderers: opt.renderers,
+                    }),
+            },
+        };
+    }, [opt.lang, opt.mode, opt.renderers]);
 };
 
-export type SpecJournalListAdapter = { SpecJournal: ReturnType<typeof SpecJournalAdapter>; Category: ReturnType<typeof CategoryAdapter>; };
-
-/** ✅ 主入口：Server SpecJournal List 的 fetch 都集中在這裡 */
-export const useSpecJournalListFetchData = (
-    opt: { lang: Lang; kw: string; volume: string; author: string; mode: SpecJournalMode; },
-): UseFetchDataResult<SpecJournalListRawData, SpecJournalListAdapter> =>
+/** 執行期刊列表資料來源 Hook */
+const useSpecJournalListGridDataSource = (
+    ctx: ServerListGridDataSourceContext<SpecJournalSearchParams, QueryListParam>,
+): ServerListGridDataSourceResult<SpecJournalListRawData, SpecJournalListAdapter> =>
 {
     const { publish } = useToast();
-    const onError = useCallback((e: ApiAdapterError) =>
+    const navigate = useNavigate();
+    const pathname = useLocation().pathname;
+    const dirUrl = useMemo(() => pathname.replace(/\/List$/, "/Form"), [pathname]);
+
+    const onError = useCallback((e: ApiAdapterError): void =>
     {
         publish({ level: MessageStatus.Error, title: e.messageText });
     }, [publish]);
-    const adapter = useMemo<SpecJournalListAdapter>(() =>
-    {
-        return { SpecJournal: SpecJournalAdapter(), Category: CategoryAdapter() };
-    }, []);
-    const baseParam = useSpecJournalListQueryParam({ kw: opt.kw, volume: opt.volume, author: opt.author, mode: opt.mode });
+
+    const adapter = useMemo(() => ({ SpecJournal: SpecJournalAdapter() }), []);
+    const cudActions = adapter.SpecJournal.hooks.useCudActions({ onError });
     const grid = adapter.SpecJournal.hooks.useQueryGridData({
-        baseParam,
-        deps: [baseParam.Condition ?? "", baseParam.PageSize ?? 0],
-        modelDeps: [opt.lang],
+        baseParam: ctx.queryParam,
+        deps: [ctx.queryParam.Condition ?? "", ctx.queryParam.PageSize ?? 0],
+        modelDeps: [ctx.searchParams.lang],
         onError,
     });
-    /**
-     * 先沿用舊版 comp 的行為：
-     * - 雖然目前 List 沒直接用到 categoryMap
-     * - 但先保留 loading / error 聚合，避免業務邏輯一起變動
-     */
-    const category = adapter.Category.hooks.useMapByProgId({ progId: PGID.SpecMusical, lang: opt.lang });
-    const isLoading = Boolean(grid.isLoading || category.isLoading);
-
-    const errors = useMemo(() =>
-    {
-        const list = [...(grid.errors ?? []), category.errorText];
-        return list.filter((x): x is string => Boolean(x));
-    }, [grid.errors, category.errorText]);
 
     const rawData = useMemo<SpecJournalListRawData>(() =>
     {
@@ -75,88 +158,294 @@ export const useSpecJournalListFetchData = (
             totalPages: grid.totalPages ?? 1,
             onPageChange: grid.onPageChange,
             param: grid.param,
-            categoryData: category.data ?? [],
-            categoryMap: category.map ?? {},
         };
-    }, [grid.modelDisplayName, grid.count, grid.list, grid.pageNumber, grid.totalPages, grid.onPageChange, grid.param, category.data, category.map]);
+    }, [grid.modelDisplayName, grid.count, grid.list, grid.pageNumber, grid.totalPages, grid.onPageChange, grid.param]);
 
-    const refetchData = useCallback(async () =>
+    const refetchData = useCallback(async (): Promise<void> =>
     {
         await grid.refetchData();
     }, [grid]);
-    const refetchRefData = useCallback(async () =>
-    {
-        await category.refetch();
-    }, [category]);
-    return { adapter, rawData, isLoading, errors, refetchData, refetchRefData };
-};
-// #endregion
 
-// #region Private
-/** List QueryListParam */
-const useSpecJournalListQueryParam = (p: { kw: string; volume: string; author: string; mode: SpecJournalMode; }): QueryListParam =>
+    return { adapter: { ...adapter, cudActions, navigate, dirUrl }, rawData, isLoading: grid.isLoading, errors: grid.errors ?? [], refetchData };
+};
+
+/** 建立期刊搜尋欄位設定 */
+const buildSpecJournalSearchFields = (rawData: SpecJournalListRawData, mode: SpecJournalMode): SearchFieldConfig[] =>
 {
-    const fields = useMemo<string[]>(() =>
-    {
-        return [
-            SpecJournalModelFields.JournalId,
-            SpecJournalModelFields.Title,
-            SpecJournalModelFields.Title_en,
-            SpecJournalModelFields.ModifyUserId,
-            `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`,
-            `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,
-            `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName}`,
-            `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName_en}`,
-            `${SpecJournalModelFields.ModifyUser}.${AccountFields.AccountName}`,
-            SpecJournalModelFields.CreateTime,
-            SpecJournalModelFields.ModifyTime,
-            SpecJournalModelFields.InternalId,
-        ];
-    }, []);
-
-    const condition = useMemo(() =>
-    {
-        let cdt = ``;
-        const isPreCdt = p.mode === "preprint" ? "Is Null" : "Is Not Null";
-        cdt = LibMerge(" And ", false, cdt, `${SpecJournalModelFields.JournalIndexId} ${isPreCdt}`, `${SpecJournalModelFields.JournalIndexRowId} ${isPreCdt}`);
-
-        if (!!p.kw)
-        {
-            const orCdt = LibMerge(" Or ", false, `${SpecJournalModelFields.Title} Like '${p.kw}'`, `${SpecJournalModelFields.Title_en} Like '${p.kw}'`);
-            cdt = LibMerge(" And ", false, cdt, `(${orCdt})`);
-        }
-        if (p.mode === "journal" && !!p.volume)
-        {
-            cdt = LibMerge(" And ", false, cdt, `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Volume} = ${p.volume}`);
-        }
-        if (!!p.author)
-        {
-            const orCdt = LibMerge(
-                " Or ",
-                false,
-                `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName} Like '${p.author}'`,
-                `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName_en} Like '${p.author}'`,
-            );
-            cdt = LibMerge(" And ", false, cdt, `(${orCdt})`);
-        }
-        return cdt;
-    }, [p]);
-
-    const orderBy = useMemo(() =>
-    {
-        if (p.mode === "preprint")
-        {
-            return [{ Col: SpecJournalModelFields.ModifyTime, Desc: true }];
-        }
-
-        return [{ Col: `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`, Desc: true }, {
-            Col: `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,
-            Desc: true,
-        }];
-    }, [p.mode]);
-    return useMemo(() =>
-    {
-        return { Fields: fields, Condition: condition, OrderBy: orderBy, PageNumber: 1, PageSize: 10 };
-    }, [fields, condition, orderBy]);
+    const fields: SearchFieldConfig[] = [{
+        key: SPEC_JOURNAL_TITLE_SEARCH_KEY,
+        title: getColumnTitle(rawData.modelDisplayName, SpecJournalModelFields.Title, "標題"),
+        type: "text",
+        placeholder: "請輸入標題",
+    }];
+    fields.push(buildSpecJournalAuthorSearchField(rawData));
+    if (mode === "journal") fields.push(buildSpecJournalVolumeSearchField(rawData));
+    return fields;
 };
-// #endregion
+
+/** 建立期刊卷數搜尋欄位 */
+const buildSpecJournalVolumeSearchField = (rawData: SpecJournalListRawData): SearchFieldConfig =>
+{
+    const title = getColumnTitle(rawData.modelDisplayName, SpecJournalIndexDetailFields.Volume, "卷數");
+    return { key: SPEC_JOURNAL_VOLUME_SEARCH_KEY, title, type: "text", placeholder: `請輸入${title}`, helpText: "僅接受數字，送出搜尋時會自動移除非數字字元" };
+};
+
+/** 建立期刊作者搜尋欄位 */
+const buildSpecJournalAuthorSearchField = (rawData: SpecJournalListRawData): SearchFieldConfig =>
+{
+    const title = getColumnTitle(rawData.modelDisplayName, SpecJournalAuthorFields.AuthorName, "作者");
+    return { key: SPEC_JOURNAL_AUTHOR_SEARCH_KEY, title, type: "text", placeholder: `請輸入${title}` };
+};
+
+/** 將 SearchValues 轉為期刊列表查詢參數 */
+const toSpecJournalSearchParams = (values: SearchValues, lang: Lang, mode: SpecJournalMode): SpecJournalSearchParams =>
+{
+    return {
+        lang,
+        mode,
+        title: getSearchStringValue(values[SPEC_JOURNAL_TITLE_SEARCH_KEY]),
+        volume: getNumericSearchStringValue(values[SPEC_JOURNAL_VOLUME_SEARCH_KEY]),
+        author: getSearchStringValue(values[SPEC_JOURNAL_AUTHOR_SEARCH_KEY]),
+    };
+};
+
+/** 建立期刊搜尋條件 */
+const buildSpecJournalSearchConditions = (ctx: { searchParams: SpecJournalSearchParams; }): string[] =>
+{
+    const conditions = buildSpecJournalModeConditions(ctx.searchParams.mode);
+
+    if (ctx.searchParams.title) conditions.push(buildSpecJournalTitleCondition(ctx.searchParams.title));
+    if (ctx.searchParams.mode === "journal" && ctx.searchParams.volume) conditions.push(buildSpecJournalVolumeCondition(ctx.searchParams.volume));
+    if (ctx.searchParams.author) conditions.push(buildSpecJournalAuthorCondition(ctx.searchParams.author));
+
+    return conditions;
+};
+
+/** 建立預刊 / 期刊模式基礎條件 */
+const buildSpecJournalModeConditions = (mode: SpecJournalMode): string[] =>
+{
+    const indexCondition = mode === "preprint" ? "Is Null" : "Is Not Null";
+    return [`${SpecJournalModelFields.JournalIndexId} ${indexCondition}`, `${SpecJournalModelFields.JournalIndexRowId} ${indexCondition}`];
+};
+
+/** 建立中英文標題搜尋條件 */
+const buildSpecJournalTitleCondition = (title: string): string =>
+{
+    const orCondition = LibMerge(" Or ", false, `${SpecJournalModelFields.Title} Like ${title}`, `${SpecJournalModelFields.Title_en} Like ${title}`);
+    return `(${orCondition})`;
+};
+
+/** 建立期刊卷數搜尋條件 */
+const buildSpecJournalVolumeCondition = (volume: string): string =>
+{
+    return `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Volume} = ${volume}`;
+};
+
+/** 建立中英文作者搜尋條件 */
+const buildSpecJournalAuthorCondition = (author: string): string =>
+{
+    const orCondition = LibMerge(
+        " Or ",
+        false,
+        `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName} Like ${author}`,
+        `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName_en} Like ${author}`,
+    );
+    return `(${orCondition})`;
+};
+
+/** 建立期刊列表完整 QueryParam */
+const buildSpecJournalQueryParam = (ctx: { searchParams: SpecJournalSearchParams; searchCondition: string; }): QueryListParam =>
+{
+    return {
+        Fields: buildSpecJournalQueryFields(),
+        Condition: LibMerge(" And ", false, ctx.searchCondition),
+        OrderBy: buildSpecJournalOrderBy(ctx.searchParams.mode),
+        PageNumber: 1,
+        PageSize: 10,
+    };
+};
+
+/** 建立期刊列表查詢欄位 */
+const buildSpecJournalQueryFields = (): string[] =>
+{
+    return [
+        SpecJournalModelFields.JournalId,
+        SpecJournalModelFields.Title,
+        SpecJournalModelFields.Title_en,
+        SpecJournalModelFields.ModifyUserId,
+        `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`,
+        `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,
+        `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName}`,
+        `${SpecJournalModelFields._SpecJournalAuthor}.${SpecJournalAuthorFields.AuthorName_en}`,
+        `${SpecJournalModelFields.ModifyUser}.${AccountFields.AccountName}`,
+        SpecJournalModelFields.CreateTime,
+        SpecJournalModelFields.ModifyTime,
+        SpecJournalModelFields.InternalId,
+    ];
+};
+
+/** 建立期刊排序條件 */
+const buildSpecJournalOrderBy = (mode: SpecJournalMode): QueryListParam["OrderBy"] =>
+{
+    if (mode === "preprint") return [{ Col: SpecJournalModelFields.ModifyTime, Desc: true }];
+
+    return [{ Col: `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Volume}`, Desc: true }, {
+        Col: `${SpecJournalModelFields._JournalIndexDetail}.${SpecJournalIndexDetailFields.Issue}`,
+        Desc: true,
+    }];
+};
+
+type CrudDeps = {
+    /** React Router 導頁方法 */
+    navigate: NavigateFunction;
+
+    /** 目前 List 對應的 Form 路徑 */
+    dirUrl: string;
+
+    /** 刪除資料方法 */
+    deleteAsync: SpecJournalCudActions["deleteAsync"];
+
+    /** 刪除後重新查詢 */
+    afterDelete: () => Promise<void>;
+};
+
+/** 將期刊資料轉為 GridProps */
+const buildSpecJournalGridProps = (
+    opt: {
+        raw: SpecJournalListRawData;
+        lang: Lang;
+        mode: SpecJournalMode;
+        adapter?: SpecJournalListAdapter;
+        refetchData: () => Promise<void>;
+        can?: (mask: number) => boolean;
+        notifyNoPermission?: (msg: string) => void;
+        confirm?: GridConfirmFn;
+        renderers: SpecJournalListRenderers;
+    },
+): GridProps =>
+{
+    const columns = buildColumns(opt.raw, opt.mode);
+    const rows = buildSpecJournalRows(opt.raw, columns, opt.mode, opt.renderers);
+    const baseGrid: GridProps = { columns, rows, CurrentPage: opt.raw.pageNumber ?? 1, TotalPage: opt.raw.totalPages ?? 1, onPageChange: opt.raw.onPageChange };
+
+    if (!opt.adapter) return baseGrid;
+
+    return enhanceSpecJournalGrid({
+        baseGrid,
+        raw: opt.raw,
+        lang: opt.lang,
+        crud: { navigate: opt.adapter.navigate, dirUrl: opt.adapter.dirUrl, deleteAsync: opt.adapter.cudActions.deleteAsync, afterDelete: opt.refetchData },
+        can: opt.can,
+        notifyNoPermission: opt.notifyNoPermission,
+        confirm: opt.confirm,
+    });
+};
+
+/** 注入期刊 Grid 編輯與刪除動作 */
+const enhanceSpecJournalGrid = (
+    opt: {
+        baseGrid: GridProps;
+        raw: SpecJournalListRawData;
+        lang: Lang;
+        crud: CrudDeps;
+        can?: (mask: number) => boolean;
+        notifyNoPermission?: (msg: string) => void;
+        confirm?: GridConfirmFn;
+    },
+): GridProps =>
+{
+    const actions = createGridCrudActions<SpecJournalSet>({
+        onEdit: (internalId) => opt.crud.navigate(`${opt.crud.dirUrl}/${internalId}`),
+        deleteAsync: opt.crud.deleteAsync,
+        afterDelete: opt.crud.afterDelete,
+    });
+
+    return enhanceGridWithAdjustCell(opt.baseGrid, {
+        lang: opt.lang,
+        rawList: opt.raw.list ?? [],
+        actions,
+        can: opt.can,
+        notifyNoPermission: opt.notifyNoPermission,
+        confirm: opt.confirm,
+        getInternalId: (set) => set.SpecJournal?.InternalId ?? "",
+    });
+};
+
+/** 建立欄位清單 */
+const buildColumns = (raw: SpecJournalListRawData, mode: SpecJournalMode): ColumnConfig[] =>
+{
+    const base: ColumnConfig[] = [
+        buildSchemaColumn(SpecJournalModelFields.Title, raw),
+        buildSchemaColumn(SpecJournalAuthorFields.AuthorName, raw),
+        buildSchemaColumn(SpecJournalModelFields.CreateTime, raw),
+        buildSchemaColumn(SpecJournalModelFields.ModifyUserId, raw),
+        buildSchemaColumn(SpecJournalModelFields.ModifyTime, raw),
+    ];
+
+    if (mode === "preprint") return base;
+    return [{ key: "__volIssue__", title: "卷期" }, ...base];
+};
+
+/** 依 schema 找對應欄位標題 */
+const buildSchemaColumn = (colId: string, raw: SpecJournalListRawData): ColumnConfig =>
+{
+    return { key: colId, title: getColumnTitle(raw.modelDisplayName, colId, `【${colId}】`) };
+};
+
+/** 建立 Grid rows */
+const buildSpecJournalRows = (raw: SpecJournalListRawData, columns: ColumnConfig[], mode: SpecJournalMode, renderers: SpecJournalListRenderers): GridRow[] =>
+{
+    return (raw.list ?? []).map((set) => buildSpecJournalRow(set, columns, mode, renderers));
+};
+
+/** 建立單筆期刊 Grid row */
+const buildSpecJournalRow = (set: SpecJournalSet, columns: ColumnConfig[], mode: SpecJournalMode, renderers: SpecJournalListRenderers): GridRow =>
+{
+    const keyId = LibMerge("|", false, set.SpecJournal?.JournalId, set.SpecJournal?.InternalId);
+    const cells: RowCell[] = [];
+    let colIdx = 0;
+
+    if (mode === "journal") cells.push({ col: columns[colIdx++], content: renderVolIssue(set) });
+
+    cells.push({ col: columns[colIdx++], content: renderers.renderTitleContent(set) });
+    cells.push({ col: columns[colIdx++], content: renderers.renderAuthorContent(set) });
+    cells.push({ col: columns[colIdx++], content: FormatDateTime(set.SpecJournal?.CreateTime) });
+    cells.push({ col: columns[colIdx++], content: set.SpecJournal?.ModifyUser?.AccountName ?? "" });
+    cells.push({ col: columns[colIdx++], content: FormatDateTime(set.SpecJournal?.ModifyTime) });
+
+    return { keyId, cells };
+};
+
+/** 顯示卷期文字 */
+const renderVolIssue = (set: SpecJournalSet): string =>
+{
+    const detail = set.SpecJournal?._JournalIndexDetail;
+    const volume = detail?.Volume ?? "";
+    const issue = detail?.Issue ?? "";
+    const hasValue = Boolean(volume) || Boolean(issue);
+    return hasValue ? `${volume}卷${issue}期` : "";
+};
+
+/** 取得搜尋文字值 */
+const getSearchStringValue = (value: SearchValue): string | undefined =>
+{
+    if (typeof value !== "string") return undefined;
+    const trimValue = value.trim();
+    return trimValue.length > 0 ? trimValue : undefined;
+};
+
+/** 取得數字搜尋文字值 */
+const getNumericSearchStringValue = (value: SearchValue): string | undefined =>
+{
+    const textValue = getSearchStringValue(value);
+    const numericValue = textValue?.replace(/\D/g, "") ?? "";
+    return numericValue.length > 0 ? numericValue : undefined;
+};
+
+/** 從 ModelDisplayName 取得欄位顯示名稱 */
+const getColumnTitle = (schema: ModelDisplaySchema | null, columnId: string, fallback: string): string =>
+{
+    const tables = schema?.Tables ?? [];
+    const column = tables.flatMap(table => table.Columns ?? []).find(item => item.ColumnId === columnId);
+    return column?.ColumnDisplayName ?? fallback;
+};

@@ -20,6 +20,9 @@ export interface ServerSearchBarCompProps
 
     /** 搜尋區塊 aria-label */
     ariaLabel?: string;
+
+    /** 搜尋區塊標題 */
+    title?: string;
 }
 
 interface SearchFieldRendererProps
@@ -80,25 +83,29 @@ export const Server_SearchBar_Comp = (props: ServerSearchBarCompProps) =>
                 submitSearch();
             }}
         >
-            <div className="row g-3">
-                {props.fields.map(field => (
-                    <div key={field.key} className="col-12 col-md-6 col-xl-4">
-                        <SearchFieldRenderer
-                            field={field}
-                            value={draftValues[field.key]}
-                            customSlots={props.customSlots}
-                            onChange={(value) => setFieldValue(field.key, value)}
-                        />
-                    </div>
-                ))}
-            </div>
+            <fieldset className="border rounded-3 px-3 pb-3 pt-4 position-relative">
+                <legend className="float-none w-auto px-2 mb-0 fs-5 fw-bold">{props.title ?? "搜尋條件"}</legend>
 
-            <div className="row mt-3">
-                <div className="col-12 d-flex justify-content-start gap-2">
-                    <button type="button" className="btn btn-outline-secondary" onClick={resetSearch}>重置</button>
-                    <button type="submit" className="btn btn-primary">搜尋</button>
+                <div className="row g-3">
+                    {props.fields.map(field => (
+                        <div key={field.key} className="col-12 col-md-6 col-xl-4">
+                            <SearchFieldRenderer
+                                field={field}
+                                value={draftValues[field.key]}
+                                customSlots={props.customSlots}
+                                onChange={(value) => setFieldValue(field.key, value)}
+                            />
+                        </div>
+                    ))}
                 </div>
-            </div>
+
+                <div className="row mt-3">
+                    <div className="col-12 d-flex justify-content-start gap-2">
+                        <button type="button" className="btn btn-outline-secondary" onClick={resetSearch}>重置</button>
+                        <button type="submit" className="btn btn-primary">搜尋</button>
+                    </div>
+                </div>
+            </fieldset>
         </form>
     );
 };
