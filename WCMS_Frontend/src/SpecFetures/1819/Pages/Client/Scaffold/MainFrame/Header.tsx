@@ -265,7 +265,6 @@ const Header_Section = (props: { lang: Lang; site: INormSite; }) =>
                             <li>
                                 <ul className="nav custom_nav py-0 justify-content-center my-1" ref={sizeGroupRef}>
                                     <LangSwitchBtn site={props.site} />
-                                    {/* <SearchBar /> */}
                                 </ul>
                             </li>
                             <SubmissionReviewSystem />

@@ -1,208 +1,359 @@
 import { PersonAdapter } from "@/Features/Hooks/BizFunc/COMM/Person_Api";
-import type { UseActionsResult } from "@/Features/Hooks/Common/useActions";
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
-import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
-import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import type { SearchBarProps } from "@/SysCore/Components/SearchBar/Searchbar_ForServer_Comp";
+import { createGridCrudActions, enhanceGridWithAdjustCell, type GridConfirmFn } from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
+import type {
+    ServerListGridDataSourceContext,
+    ServerListGridDataSourceResult,
+    ServerListGridTemplate,
+} from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Hook";
+import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
+import type { SearchFieldConfig, SearchValue, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
+import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
+import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
+import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
-import { AccountModelFields, PersonModelFields } from "@/types/SchemaFields";
-import { useCallback, useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import type { ModelDisplaySchema } from "@/types/IApiSchema";
+import { PersonModelFields, PGID } from "@/types/SchemaFields";
+import { createElement, useCallback, useMemo } from "react";
+import { type NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 
-type PersonSet = components["schemas"]["PersonSet_DTO"];
 type QueryListParam = components["schemas"]["QueryListParam"];
+type PersonSet = components["schemas"]["PersonSet_DTO"];
+type PersonApiAdapter = ReturnType<typeof PersonAdapter>;
+type PersonCudActions = ReturnType<PersonApiAdapter["hooks"]["useCudActions"]>;
 
-interface PersonListGridProps
+export const PERSON_NAME_SEARCH_KEY = "personName";
+export const PERSON_EMAIL_SEARCH_KEY = "email";
+
+export interface PersonSearchParams
 {
-    CurrentPage: number;
-    TotalPage: number;
+    /** 目前列表語系 */
+    lang: Lang;
+
+    /** 姓名搜尋關鍵字 */
+    personName?: string;
+
+    /** Email 搜尋關鍵字 */
+    email?: string;
+}
+
+export interface PersonListRawData
+{
+    /** 後端 ModelDisplayName 欄位顯示設定 */
+    modelDisplayName: ModelDisplaySchema | null;
+
+    /** 總筆數 */
+    count: number;
+
+    /** 人員列表資料 */
+    list: PersonSet[];
+
+    /** 目前頁碼 */
+    pageNumber: number;
+
+    /** 總頁數 */
+    totalPages: number;
+
+    /** 換頁事件 */
     onPageChange: (page: number) => void;
+
+    /** 實際送出的 QueryListParam */
+    param: QueryListParam;
 }
 
-interface UsePersonListDataResult
+export interface PersonListAdapter
 {
-    rawData: PersonSet[];
-    gridProps: PersonListGridProps;
-    isLoading: boolean;
-    error: string | null;
-    refetchCurrent: () => Promise<void>;
-}
+    /** 人員 API adapter */
+    Person: PersonApiAdapter;
 
-interface UseServerPersonListResult
-{
-    prop: FormCompProp;
-    rawData: PersonSet[];
-    gridProps: PersonListGridProps;
+    /** 人員 CUD 操作 */
+    cudActions: PersonCudActions;
+
+    /** React Router 導頁方法 */
+    navigate: NavigateFunction;
+
+    /** 目前 List 對應的 Form 路徑 */
     dirUrl: string;
 }
 
-/** 人員列表頁主 hook */
-export const useServerPersonList = (theme: IBETheme): UseServerPersonListResult =>
+export type PersonListGridTemplate = ServerListGridTemplate<PersonSearchParams, PersonListRawData, PersonListAdapter, QueryListParam>;
+
+/** 建立人員後台 ListGridTemplate 設定 */
+export const usePersonListGridTemplate = (opt: { lang: Lang; }): PersonListGridTemplate =>
 {
-    // 宣告變數
-    const [kw, setKw] = useState<string>("");
-    const dirUrl = useLocation().pathname.replace(/\/List$/, "/Form");
-    const adapter = useMemo(() => PersonAdapter(), []);
-
-    const dataList = usePersonListByAdapter(adapter, kw);
-    const actions = usePersonActionsFromAdapter(dirUrl, adapter, dataList.refetchCurrent);
-
-    const searchCompProp = useMemo<SearchBarProps>(() =>
+    return useMemo<PersonListGridTemplate>(() =>
     {
-        // return
-        return { title: "人員搜尋", subTitle: "搜尋人員 ...", settingTitle: "搜尋設定", onSubmit: setKw, onReset: () => setKw("") };
-    }, []);
-
-    const prop = useMemo<FormCompProp>(() =>
-    {
-        // return
-        return { Title: "會員管理", Theme: theme, IsLoading: dataList.isLoading, ErrorList: [dataList.error], Actions: actions, SearchBar: searchCompProp };
-    }, [theme, dataList.isLoading, dataList.error, actions, searchCompProp]);
-
-    // return
-    return { prop, rawData: dataList.rawData, gridProps: dataList.gridProps, dirUrl };
+        return {
+            featureKey: PGID.Person,
+            feature: {
+                buildSearchFields: ({ rawData }) => buildPersonSearchFields(rawData),
+                toSearchParams: (values) => toPersonSearchParams(values, opt.lang),
+                buildSearchConditions: buildPersonSearchConditions,
+                buildQueryParam: buildPersonQueryParam,
+                useDataSource: usePersonListGridDataSource,
+                buildGridProps: (ctx) => buildPersonGridProps({ raw: ctx.rawData, lang: ctx.searchParams.lang, adapter: ctx.adapter, refetchData: ctx.refetchData }),
+            },
+        };
+    }, [opt.lang]);
 };
 
-/** 用 Adapter 取得人員列表（含 Count + 分頁） */
-const usePersonListByAdapter = (adapter: ReturnType<typeof PersonAdapter>, query: string): UsePersonListDataResult =>
+/** 執行人員列表資料來源 Hook */
+const usePersonListGridDataSource = (
+    ctx: ServerListGridDataSourceContext<PersonSearchParams, QueryListParam>,
+): ServerListGridDataSourceResult<PersonListRawData, PersonListAdapter> =>
 {
-    // 宣告變數
     const { publish } = useToast();
+    const navigate = useNavigate();
+    const pathname = useLocation().pathname;
+    const dirUrl = useMemo(() => pathname.replace(/\/List$/, "/Form"), [pathname]);
 
-    const onError = useCallback((e: ApiAdapterError) =>
+    const onError = useCallback((e: ApiAdapterError): void =>
     {
-        // 執行 function：顯示錯誤
         publish({ level: MessageStatus.Error, title: e.messageText });
     }, [publish]);
 
-    const condition = usePersonCondition(query);
+    const apiAdapter = useMemo(() => ({ Person: PersonAdapter() }), []);
+    const cudActions = apiAdapter.Person.hooks.useCudActions({ onError });
+    const grid = apiAdapter.Person.hooks.useQueryGridData({
+        baseParam: ctx.queryParam,
+        deps: [ctx.queryParam.Condition ?? "", ctx.queryParam.PageSize ?? 0],
+        modelDeps: [ctx.searchParams.lang],
+        onError,
+    });
 
-    const baseParam = useMemo<QueryListParam>(() =>
+    const rawData = useMemo<PersonListRawData>(() =>
     {
-        // return
         return {
-            Fields: [
-                PersonModelFields.InternalId,
-                PersonModelFields.PersonId,
-                PersonModelFields.PersonName,
-                PersonModelFields.PersonImgId,
-                PersonModelFields.CreateTime,
-                PersonModelFields.ModifyTime,
-                PersonModelFields.ModifyUserId,
-                `${PersonModelFields.ModifyUser}.${AccountModelFields.AccountName}`,
-            ],
-            Condition: condition,
-            OrderBy: [{ Col: PersonModelFields.CreateTime, Desc: true }],
-            PageNumber: 1,
-            PageSize: 12,
+            modelDisplayName: grid.modelDisplayName,
+            count: grid.count ?? 0,
+            list: grid.list ?? [],
+            pageNumber: grid.pageNumber ?? 1,
+            totalPages: grid.totalPages ?? 1,
+            onPageChange: grid.onPageChange,
+            param: grid.param,
         };
-    }, [condition]);
+    }, [grid.modelDisplayName, grid.count, grid.list, grid.pageNumber, grid.totalPages, grid.onPageChange, grid.param]);
 
-    const count = adapter.hooks.useQueryCount({ condition: baseParam, deps: [baseParam.Condition ?? ""], onError });
-
-    const paged = adapter.hooks.usePagedQueryList({ baseParam, count: count.data ?? 0, deps: [baseParam.Condition ?? ""], onError });
-
-    const gridProps = useMemo<PersonListGridProps>(() =>
+    const refetchData = useCallback(async (): Promise<void> =>
     {
-        // return
-        return { CurrentPage: paged.pageNumber, TotalPage: paged.totalPages, onPageChange: (page: number) => paged.onPageChange(page) };
-    }, [paged.pageNumber, paged.totalPages, paged.onPageChange]);
+        await grid.refetchData();
+    }, [grid]);
 
-    const refetchCurrent = useCallback(async () =>
-    {
-        // 執行 function：刪除/新增後同步刷新 count 與 list
-        await count.refetch();
-        await paged.refetch();
-    }, [count, paged]);
-
-    const isLoading = Boolean(count.isLoading || paged.isLoading);
-    const error = count.errorText ?? paged.errorText ?? null;
-
-    // return
-    return { rawData: paged.data ?? [], gridProps, isLoading, error, refetchCurrent };
+    return { adapter: { ...apiAdapter, cudActions, navigate, dirUrl }, rawData, isLoading: grid.isLoading, errors: grid.errors ?? [], refetchData };
 };
 
-/** 組搜尋條件字串 */
-const usePersonCondition = (query: string): string =>
+/** 建立人員搜尋欄位設定 */
+const buildPersonSearchFields = (rawData: PersonListRawData): SearchFieldConfig[] =>
 {
-    // return
-    return useMemo(() =>
-    {
-        // 宣告變數
-        let condition = "";
+    const nameTitle = getColumnTitle(rawData.modelDisplayName, PersonModelFields.PersonName, "姓名");
+    const emailTitle = getColumnTitle(rawData.modelDisplayName, PersonModelFields.Email, "Email");
 
-        // 執行 function：有關鍵字時組查詢條件
-        if (query)
-        {
-            condition = LibMerge(" And ", false, condition, `(${PersonModelFields.PersonName} Like ${query} Or ${PersonModelFields.PersonId} Like ${query})`);
-        }
-
-        // return
-        return condition;
-    }, [query]);
+    return [
+        { key: PERSON_NAME_SEARCH_KEY, title: nameTitle, type: "text", placeholder: `請輸入${nameTitle}` },
+        { key: PERSON_EMAIL_SEARCH_KEY, title: emailTitle, type: "text", placeholder: `請輸入${emailTitle}` },
+    ];
 };
 
-/** 後台 actions */
-const usePersonActionsFromAdapter = (dirUrl: string, adapter: ReturnType<typeof PersonAdapter>, afterChanged: () => Promise<void>): UseActionsResult =>
+/** 將 SearchValues 轉為人員列表查詢參數 */
+const toPersonSearchParams = (values: SearchValues, lang: Lang): PersonSearchParams =>
 {
-    // 宣告變數
-    const navigate = useNavigate();
-    const { publish } = useToast();
+    return {
+        lang,
+        personName: getSearchStringValue(values[PERSON_NAME_SEARCH_KEY]),
+        email: getSearchStringValue(values[PERSON_EMAIL_SEARCH_KEY]),
+    };
+};
 
-    const cud = adapter.hooks.useCudActions({ onError: (e: ApiAdapterError) => publish({ level: MessageStatus.Error, title: e.messageText }) });
+/** 建立人員搜尋條件 */
+const buildPersonSearchConditions = (ctx: { searchParams: PersonSearchParams; }): string[] =>
+{
+    const conditions: string[] = [];
 
-    const onAddNew = useCallback(() =>
+    if (ctx.searchParams.personName)
     {
-        // 執行 function：前往新增
-        navigate(dirUrl);
-    }, [navigate, dirUrl]);
+        conditions.push(`${PersonModelFields.PersonName} Like ${ctx.searchParams.personName}`);
+    }
 
-    const onEdit = useCallback((internalId: string) =>
+    if (ctx.searchParams.email)
     {
-        // 執行 function：前往編輯
-        navigate(`${dirUrl}/${internalId}`);
-    }, [navigate, dirUrl]);
+        conditions.push(`${PersonModelFields.Email} Like ${ctx.searchParams.email}`);
+    }
 
-    const onCancelBack = useCallback(() =>
-    {
-        // 執行 function：回清單
-        navigate(dirUrl.replace(/\/Form$/, "/List"));
-    }, [navigate, dirUrl]);
+    return conditions;
+};
 
-    const onDelete = useCallback(async (internalId: string) =>
-    {
-        // 宣告變數
-        const ok = window.confirm("確定要刪除嗎？");
+/** 建立人員列表完整 QueryParam */
+const buildPersonQueryParam = (ctx: { searchParams: PersonSearchParams; searchCondition: string; }): QueryListParam =>
+{
+    const fields = buildPersonQueryFields();
+    const condition = LibMerge(" And ", false, ctx.searchCondition);
 
-        // 執行 function
-        if (!ok) return;
+    return { Fields: fields, Condition: condition, OrderBy: [{ Col: PersonModelFields.CreateTime, Desc: true }], PageNumber: 1, PageSize: 10 };
+};
 
-        const res = await cud.deleteAsync(internalId);
-        (res.SysMessage ?? []).forEach((m) =>
-        {
-            publish({ level: m.Status, code: m.MessageCode, title: m.Message });
-        });
+/** 建立人員列表查詢欄位 */
+const buildPersonQueryFields = (): string[] =>
+{
+    return [
+        PersonModelFields.InternalId,
+        PersonModelFields.PersonId,
+        PersonModelFields.PersonName,
+        PersonModelFields.PersonImgId,
+        PersonModelFields.Email,
+        PersonModelFields.MobilePhone,
+        PersonModelFields.ModifyTime,
+        PersonModelFields.CreateTime,
+    ];
+};
 
-        if (res.IsSuccess)
-        {
-            await afterChanged();
-        }
-    }, [cud, publish, afterChanged]);
+type CrudDeps = {
+    /** React Router 導頁方法 */
+    navigate: NavigateFunction;
 
-    // return
-    return useMemo(() => ({
-        isExecuting: cud.isSaving,
-        onSave: async () => false,
-        onDelete,
-        onInvalid: () =>
-        {/* List 不做 */},
-        onCancelBack,
-        onAddNew,
-        onEdit,
-        onPreview: () =>
-        {/* List 不用 */},
-    }), [cud.isSaving, onDelete, onCancelBack, onAddNew, onEdit]);
+    /** 目前 List 對應的 Form 路徑 */
+    dirUrl: string;
+
+    /** 刪除資料方法 */
+    deleteAsync: PersonCudActions["deleteAsync"];
+
+    /** 刪除後重新查詢 */
+    afterDelete: () => Promise<void>;
+};
+
+/** 將人員資料轉為 GridProps */
+const buildPersonGridProps = (
+    opt: {
+        raw: PersonListRawData;
+        lang: Lang;
+        adapter?: PersonListAdapter;
+        refetchData: () => Promise<void>;
+        can?: (mask: number) => boolean;
+        notifyNoPermission?: (msg: string) => void;
+        confirm?: GridConfirmFn;
+    },
+): GridProps =>
+{
+    const visibleCols = [PersonModelFields.PersonImgId, PersonModelFields.PersonId, PersonModelFields.PersonName, PersonModelFields.Email, PersonModelFields.MobilePhone, PersonModelFields.ModifyTime];
+    const columns = buildColumns(visibleCols, opt.raw);
+    const rows = buildPersonRows(opt.raw, columns);
+    const baseGrid: GridProps = { columns, rows, CurrentPage: opt.raw.pageNumber ?? 1, TotalPage: opt.raw.totalPages ?? 1, onPageChange: opt.raw.onPageChange };
+
+    if (!opt.adapter) return baseGrid;
+
+    return enhancePersonGrid({
+        baseGrid,
+        raw: opt.raw,
+        lang: opt.lang,
+        crud: { navigate: opt.adapter.navigate, dirUrl: opt.adapter.dirUrl, deleteAsync: opt.adapter.cudActions.deleteAsync, afterDelete: opt.refetchData },
+        can: opt.can,
+        notifyNoPermission: opt.notifyNoPermission,
+        confirm: opt.confirm,
+    });
+};
+
+/** 注入人員 Grid 編輯與刪除動作 */
+const enhancePersonGrid = (
+    opt: {
+        baseGrid: GridProps;
+        raw: PersonListRawData;
+        lang: Lang;
+        crud: CrudDeps;
+        can?: (mask: number) => boolean;
+        notifyNoPermission?: (msg: string) => void;
+        confirm?: GridConfirmFn;
+    },
+): GridProps =>
+{
+    const actions = createGridCrudActions<PersonSet>({
+        onEdit: (internalId) => opt.crud.navigate(`${opt.crud.dirUrl}/${internalId}`),
+        deleteAsync: opt.crud.deleteAsync,
+        afterDelete: opt.crud.afterDelete,
+    });
+
+    return enhanceGridWithAdjustCell(opt.baseGrid, {
+        lang: opt.lang,
+        rawList: opt.raw.list ?? [],
+        actions,
+        can: opt.can,
+        notifyNoPermission: opt.notifyNoPermission,
+        confirm: opt.confirm,
+        getInternalId: (set) => set.Person?.InternalId ?? "",
+    });
+};
+
+/** 建立人員列表欄位定義 */
+const buildColumns = (visibleCols: string[], raw: PersonListRawData): ColumnConfig[] =>
+{
+    return visibleCols.map((col) => ({ key: col, title: getColumnTitle(raw.modelDisplayName, col, getPersonColumnFallback(col)) }));
+};
+
+/** 建立人員列表列資料 */
+const buildPersonRows = (raw: PersonListRawData, columns: ColumnConfig[]): GridRow[] =>
+{
+    return (raw.list ?? []).map((set) => buildPersonRow(set, columns));
+};
+
+/** 建立人員列表單列資料 */
+const buildPersonRow = (set: PersonSet, columns: ColumnConfig[]): GridRow =>
+{
+    const person = set.Person;
+    const keyId = person?.InternalId ?? LibMerge("|", false, person?.PersonId, person?.Email);
+    const cells: RowCell[] = [
+        { col: columns[0], content: buildPersonImage(set) },
+        { col: columns[1], content: person?.PersonId ?? "" },
+        { col: columns[2], content: person?.PersonName ?? "" },
+        { col: columns[3], content: person?.Email ?? "" },
+        { col: columns[4], content: person?.MobilePhone ?? "" },
+        { col: columns[5], content: FormatDateTime(person?.ModifyTime) },
+    ];
+
+    return { keyId, cells };
+};
+
+/** 建立人員圖片預覽 */
+const buildPersonImage = (set: PersonSet): RowCell["content"] =>
+{
+    const personImgId = set.Person?.PersonImgId;
+    if (!personImgId) return null;
+
+    return createElement("img", {
+        src: FileManagementAPI.get_Server_Preview_Url(personImgId),
+        alt: "人員圖片預覽",
+        style: { width: "72px", height: "72px", objectFit: "cover", borderRadius: "50%" },
+    });
+};
+
+/** 依欄位代碼取得 ModelDisplayName 顯示文字 */
+const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, columnId: string, fallback: string): string =>
+{
+    const tables = modelDisplayName?.Tables ?? [];
+    const hit = tables.flatMap((t) => t.Columns ?? []).find((c) => c.ColumnId === columnId);
+    return hit?.ColumnDisplayName ?? fallback;
+};
+
+/** 取得人員列表欄位預設顯示文字 */
+const getPersonColumnFallback = (columnId: string): string =>
+{
+    const map: Record<string, string> = {
+        [PersonModelFields.PersonImgId]: "圖片",
+        [PersonModelFields.PersonId]: "人員代號",
+        [PersonModelFields.PersonName]: "姓名",
+        [PersonModelFields.Email]: "Email",
+        [PersonModelFields.MobilePhone]: "手機",
+        [PersonModelFields.ModifyTime]: "修改時間",
+    };
+
+    return map[columnId] ?? `【${columnId}】`;
+};
+
+/** 取得 SearchValue 的文字值 */
+const getSearchStringValue = (value: SearchValue): string | undefined =>
+{
+    if (typeof value !== "string") return undefined;
+
+    const text = value.trim();
+    return text.length > 0 ? text : undefined;
 };

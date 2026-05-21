@@ -1,41 +1,32 @@
-import { ImgListComp } from "@/Features/Pages/Server/Scaffold/Content/ImgList_Comp";
+import {
+    Server_ListGridTemplate_Comp,
+    type ServerListGridSearchRenderProps,
+} from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Comp";
+import { Server_SearchBar_Comp } from "@/Features/Pages/Server/Scaffold/SearchBar/Server_SearchBar_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { LibUserCard } from "@/SysCore/Components/FormField/LibFormField";
-import { NewPaginatorCanInputPage } from "@/SysCore/Components/Paginator/Paginator_Comp";
-import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import { useServerPersonList } from "./Server_Person_List_Hook";
+import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
+import type { ReactNode } from "react";
+import { usePersonListGridTemplate } from "./Server_Person_List_Hook";
 
-export const Server_Person_List_Comp = (props: { theme: IBETheme; }) =>
+/** 人員列表 */
+export const Server_Person_List_Comp = (prop: { title?: string; theme: IBETheme; lang?: Lang; }) =>
 {
-    const vm = useServerPersonList(props.theme);
+    const lang = prop.lang ?? DefaultLang;
+    const template = usePersonListGridTemplate({ lang });
+
+    return <Server_ListGridTemplate_Comp Title={prop.title ?? "人員列表"} Theme={prop.theme} template={template} renderSearchBar={renderPersonSearchBar} />;
+};
+
+/** 渲染人員列表搜尋列 */
+const renderPersonSearchBar = (props: ServerListGridSearchRenderProps): ReactNode =>
+{
     return (
-        <ImgListComp prop={vm.prop}>
-            <div className="row">
-                {vm.rawData.map((item) =>
-                {
-                    const dir = `${vm.dirUrl}/${item.Person?.InternalId}`;
-                    const picSrc = FileManagementAPI.get_Server_Preview_Url(item.Person?.PersonImgId);
-                    const key = item.Person?.InternalId ?? item.Person?.PersonId ?? "";
-                    return (
-                        <div className="col-xl-3 col-lg-4 col-md-4 col-sm-4 col-12" key={key}>
-                            <LibUserCard
-                                DisplayNameEN={item.Person?.PersonId ?? ""}
-                                Style={props.theme.UserEditCard}
-                                DisplayNameTW={item.Person?.PersonName ?? ""}
-                                DisplayRole={""}
-                                PicSrc={picSrc}
-                                dirUrl={dir}
-                            />
-                        </div>
-                    );
-                })}
-            </div>
-            <NewPaginatorCanInputPage
-                currentPage={vm.gridProps.CurrentPage}
-                totalPages={vm.gridProps.TotalPage}
-                onPageChange={vm.gridProps.onPageChange}
-                style={props.theme.Paginator}
-            />
-        </ImgListComp>
+        <Server_SearchBar_Comp
+            fields={props.fields}
+            submittedValues={props.submittedValues}
+            onSubmit={props.onSubmit}
+            onReset={props.onReset}
+            ariaLabel="人員列表搜尋"
+        />
     );
 };

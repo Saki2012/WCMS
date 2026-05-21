@@ -1,56 +1,132 @@
 import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WEB/BannerSlider_Api";
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
+import { createGridCrudActions, enhanceGridWithAdjustCell, type GridConfirmFn } from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
+import type {
+    ServerListGridDataSourceContext,
+    ServerListGridDataSourceResult,
+    ServerListGridTemplate,
+} from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Hook";
+import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
+import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
+import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
-import type { UseFetchDataResult } from "@/SysCore/Utils/API/FetchDataType";
+import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { AccountFields, BannerDetailFields, BannerFields } from "@/types/SchemaFields";
-import { useCallback, useMemo } from "react";
+import { AccountFields, BannerDetailFields, BannerDetailInfoFields, BannerFields, PGID } from "@/types/SchemaFields";
+import { createElement, useCallback, useMemo } from "react";
+import { type NavigateFunction, useLocation, useNavigate } from "react-router-dom";
+
 type QueryListParam = components["schemas"]["QueryListParam"];
 type BannerSet = components["schemas"]["BannerSet_DTO"];
+type BannerSliderApiAdapter = ReturnType<typeof BannerSliderAdapter>;
+type BannerSliderCudActions = ReturnType<BannerSliderApiAdapter["hooks"]["useCudActions"]>;
 
-// #region Public
-export type BannerSliderListRawData = {
+export const BANNER_SLIDER_TITLE_SEARCH_KEY = "title";
+
+export interface BannerSliderSearchParams
+{
+    /** 目前列表語系 */
+    lang: Lang;
+
+    /** 廣告輪播標題搜尋關鍵字 */
+    title?: string;
+}
+
+export interface BannerSliderListRawData
+{
+    /** 後端 ModelDisplayName 欄位顯示設定 */
     modelDisplayName: ModelDisplaySchema | null;
+
+    /** 總筆數 */
     count: number;
+
+    /** 廣告輪播列表資料 */
     list: BannerSet[];
+
+    /** 目前頁碼 */
     pageNumber: number;
+
+    /** 總頁數 */
     totalPages: number;
+
+    /** 換頁事件 */
     onPageChange: (page: number) => void;
+
+    /** 實際送出的 QueryListParam */
     param: QueryListParam;
+}
+
+export interface BannerSliderListAdapter
+{
+    /** 廣告輪播 API adapter */
+    BannerSlider: BannerSliderApiAdapter;
+
+    /** 廣告輪播 CUD 操作 */
+    cudActions: BannerSliderCudActions;
+
+    /** React Router 導頁方法 */
+    navigate: NavigateFunction;
+
+    /** 目前 List 對應的 Form 路徑 */
+    dirUrl: string;
+}
+
+export type BannerSliderListGridTemplate = ServerListGridTemplate<BannerSliderSearchParams, BannerSliderListRawData, BannerSliderListAdapter, QueryListParam>;
+
+/** 建立廣告輪播後台 ListGridTemplate 設定 */
+export const useBannerSliderListGridTemplate = (opt: { lang: Lang; }): BannerSliderListGridTemplate =>
+{
+    return useMemo<BannerSliderListGridTemplate>(() =>
+    {
+        return {
+            featureKey: PGID.Banner,
+            feature: {
+                buildSearchFields: ({ rawData }) => buildBannerSliderSearchFields(rawData),
+                toSearchParams: (values) => toBannerSliderSearchParams(values, opt.lang),
+                buildSearchConditions: buildBannerSliderSearchConditions,
+                buildQueryParam: buildBannerSliderQueryParam,
+                useDataSource: useBannerSliderListGridDataSource,
+                buildGridProps: (ctx) =>
+                    buildBannerSliderGridProps({ raw: ctx.rawData, lang: ctx.searchParams.lang, adapter: ctx.adapter, refetchData: ctx.refetchData }),
+            },
+        };
+    }, [opt.lang]);
 };
-export type BannerSliderListAdapter = { BannerSlider: ReturnType<typeof BannerSliderAdapter>; };
-export const useBannerSliderListFetchData = (opt: { lang: Lang; kw: string; }): UseFetchDataResult<BannerSliderListRawData, BannerSliderListAdapter> =>
+
+/** 執行廣告輪播列表資料來源 Hook */
+const useBannerSliderListGridDataSource = (
+    ctx: ServerListGridDataSourceContext<BannerSliderSearchParams, QueryListParam>,
+): ServerListGridDataSourceResult<BannerSliderListRawData, BannerSliderListAdapter> =>
 {
     const { publish } = useToast();
-    const onError = useCallback((e: ApiAdapterError) =>
+    const navigate = useNavigate();
+    const pathname = useLocation().pathname;
+    const dirUrl = useMemo(() => pathname.replace(/\/List$/, "/Form"), [pathname]);
+
+    const onError = useCallback((e: ApiAdapterError): void =>
     {
         publish({ level: MessageStatus.Error, title: e.messageText });
     }, [publish]);
-    const adapter = useMemo(() =>
+
+    const apiAdapter = useMemo(() =>
     {
         return { BannerSlider: BannerSliderAdapter() };
     }, []);
-    // 執行 function：Query param（穩定 reference，避免 deps 無限觸發）
-    const baseParam = useBannerSliderListQueryParam({ kw: opt.kw });
-    // 執行 function：主資料（公告 Grid）
-    const grid = adapter.BannerSlider.hooks.useQueryGridData({
-        baseParam,
-        deps: [baseParam.Condition ?? "", baseParam.PageSize ?? 0],
-        modelDeps: [opt.lang],
+
+    const cudActions = apiAdapter.BannerSlider.hooks.useCudActions({ onError });
+    const grid = apiAdapter.BannerSlider.hooks.useQueryGridData({
+        baseParam: ctx.queryParam,
+        deps: [ctx.queryParam.Condition ?? "", ctx.queryParam.PageSize ?? 0],
+        modelDeps: [ctx.searchParams.lang],
         onError,
     });
-    // 宣告變數：loading / errors 統一出口
+
     const isLoading = Boolean(grid.isLoading);
-    const errors = useMemo(() =>
-    {
-        const list = [...(grid.errors ?? [])];
-        return list.filter((x): x is string => Boolean(x));
-    }, [grid.errors]);
-    // 宣告變數：rawData（你要的自定義出口）
+    const errors = useMemo(() => (grid.errors ?? []).filter((x): x is string => Boolean(x)), [grid.errors]);
     const rawData = useMemo<BannerSliderListRawData>(() =>
     {
         return {
@@ -63,38 +139,184 @@ export const useBannerSliderListFetchData = (opt: { lang: Lang; kw: string; }): 
             param: grid.param,
         };
     }, [grid.modelDisplayName, grid.count, grid.list, grid.pageNumber, grid.totalPages, grid.onPageChange, grid.param]);
-    const refetchData = useCallback(async () =>
+
+    const refetchData = useCallback(async (): Promise<void> =>
     {
         await grid.refetchData();
     }, [grid]);
-    return { adapter, rawData, isLoading, errors, refetchData };
-};
-// #endregion
 
-// #region Private
-const useBannerSliderListQueryParam = (p: { kw: string; }): QueryListParam =>
-{
-    const fields = useMemo<string[]>(() =>
-    {
-        return [
-            BannerFields.InternalId,
-            BannerFields.BannerId,
-            BannerFields.BannerCategoryName,
-            BannerFields.ModifyUserId,
-            BannerFields.ModifyTime,
-            `${BannerFields.ModifyUser}.${AccountFields.AccountName}`,
-            `${BannerFields._BannerDetail}.${BannerDetailFields.PicSrcId}`,
-        ];
-    }, []);
-    const condition = useMemo(() =>
-    {
-        let cdt = ``;
-        if (!!p.kw) cdt = LibMerge(" And ", false, cdt, `${BannerFields.BannerCategoryName} Like ${p.kw}`);
-        return cdt;
-    }, [p.kw]);
-    return useMemo(() =>
-    {
-        return { Fields: fields, Condition: condition, OrderBy: [{ Col: BannerFields.CreateTime, Desc: true }], PageNumber: 1, PageSize: 10 };
-    }, [fields, condition]);
+    return { adapter: { ...apiAdapter, cudActions, navigate, dirUrl }, rawData, isLoading, errors, refetchData };
 };
-// #endregion
+
+/** 建立廣告輪播搜尋欄位設定 */
+const buildBannerSliderSearchFields = (rawData: BannerSliderListRawData): SearchFieldConfig[] =>
+{
+    const title = getColumnTitle(rawData.modelDisplayName, BannerDetailInfoFields.Title, "標題");
+
+    return [{ key: BANNER_SLIDER_TITLE_SEARCH_KEY, title, type: "text", placeholder: `請輸入${title}` }];
+};
+
+/** 將 SearchValues 轉為廣告輪播列表查詢參數 */
+const toBannerSliderSearchParams = (values: SearchValues, lang: Lang): BannerSliderSearchParams =>
+{
+    return { lang, title: getSearchStringValue(values[BANNER_SLIDER_TITLE_SEARCH_KEY]) };
+};
+
+/** 建立廣告輪播搜尋條件 */
+const buildBannerSliderSearchConditions = (ctx: { searchParams: BannerSliderSearchParams; }): string[] =>
+{
+    if (!ctx.searchParams.title) return [];
+
+    return [`${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.Title} Like ${ctx.searchParams.title}`];
+};
+
+/** 建立廣告輪播列表完整 QueryParam */
+const buildBannerSliderQueryParam = (ctx: { searchParams: BannerSliderSearchParams; searchCondition: string; }): QueryListParam =>
+{
+    const fields = buildBannerSliderQueryFields();
+    const langCondition = `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.Lang} = ${ctx.searchParams.lang}`;
+    const condition = LibMerge(" And ", false, langCondition, ctx.searchCondition);
+
+    return { Fields: fields, Condition: condition, OrderBy: [{ Col: BannerFields.CreateTime, Desc: true }], PageNumber: 1, PageSize: 10 };
+};
+
+/** 建立廣告輪播列表查詢欄位 */
+const buildBannerSliderQueryFields = (): string[] =>
+{
+    return [
+        BannerFields.InternalId,
+        BannerFields.BannerId,
+        BannerFields.BannerCategoryName,
+        BannerFields.ModifyUserId,
+        BannerFields.ModifyTime,
+        BannerFields.CreateTime,
+        `${BannerFields.ModifyUser}.${AccountFields.AccountName}`,
+        `${BannerFields._BannerDetail}.${BannerDetailFields.PicSrcId}`,
+        `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.Lang}`,
+        `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.Title}`,
+    ];
+};
+
+type CrudDeps = {
+    /** React Router 導頁方法 */
+    navigate: NavigateFunction;
+
+    /** 目前 List 對應的 Form 路徑 */
+    dirUrl: string;
+
+    /** 刪除資料方法 */
+    deleteAsync: BannerSliderCudActions["deleteAsync"];
+
+    /** 刪除後重新查詢 */
+    afterDelete: () => Promise<void>;
+};
+
+/** 將廣告輪播資料轉為 GridProps */
+const buildBannerSliderGridProps = (
+    opt: {
+        raw: BannerSliderListRawData;
+        lang: Lang;
+        adapter?: BannerSliderListAdapter;
+        refetchData: () => Promise<void>;
+        can?: (mask: number) => boolean;
+        notifyNoPermission?: (msg: string) => void;
+        confirm?: GridConfirmFn;
+    },
+): GridProps =>
+{
+    const visibleCols = [BannerDetailFields.PicSrcId, BannerFields.BannerCategoryName, BannerFields.ModifyUserId, BannerFields.ModifyTime];
+    const columns = buildColumns(visibleCols, opt.raw);
+    const rows = buildBannerSliderRows(opt.raw, columns);
+    const baseGrid: GridProps = { columns, rows, CurrentPage: opt.raw.pageNumber ?? 1, TotalPage: opt.raw.totalPages ?? 1, onPageChange: opt.raw.onPageChange };
+
+    if (!opt.adapter) return baseGrid;
+
+    return enhanceBannerSliderGrid({
+        baseGrid,
+        raw: opt.raw,
+        lang: opt.lang,
+        crud: { navigate: opt.adapter.navigate, dirUrl: opt.adapter.dirUrl, deleteAsync: opt.adapter.cudActions.deleteAsync, afterDelete: opt.refetchData },
+        can: opt.can,
+        notifyNoPermission: opt.notifyNoPermission,
+        confirm: opt.confirm,
+    });
+};
+
+/** 注入廣告輪播 Grid 編輯與刪除動作 */
+const enhanceBannerSliderGrid = (
+    opt: {
+        baseGrid: GridProps;
+        raw: BannerSliderListRawData;
+        lang: Lang;
+        crud: CrudDeps;
+        can?: (mask: number) => boolean;
+        notifyNoPermission?: (msg: string) => void;
+        confirm?: GridConfirmFn;
+    },
+): GridProps =>
+{
+    const actions = createGridCrudActions<BannerSet>({
+        onEdit: (internalId) => opt.crud.navigate(`${opt.crud.dirUrl}/${internalId}`),
+        deleteAsync: opt.crud.deleteAsync,
+        afterDelete: opt.crud.afterDelete,
+    });
+
+    return enhanceGridWithAdjustCell(opt.baseGrid, {
+        lang: opt.lang,
+        rawList: opt.raw.list ?? [],
+        actions,
+        can: opt.can,
+        notifyNoPermission: opt.notifyNoPermission,
+        confirm: opt.confirm,
+        getInternalId: (set) => set.Banner?.InternalId ?? "",
+    });
+};
+
+/** 建立廣告輪播列表欄位定義 */
+const buildColumns = (visibleCols: string[], raw: BannerSliderListRawData): ColumnConfig[] =>
+{
+    return visibleCols.map((col) => ({ key: col, title: getColumnTitle(raw.modelDisplayName, col, `【${col}】`) }));
+};
+
+/** 建立廣告輪播列表列資料 */
+const buildBannerSliderRows = (raw: BannerSliderListRawData, columns: ColumnConfig[]): GridRow[] =>
+{
+    return (raw.list ?? []).map((set) =>
+    {
+        const keyId = LibMerge("|", false, set.Banner?.BannerId);
+        const cells: RowCell[] = [
+            { col: columns[0], content: buildBannerSliderImage(set) },
+            { col: columns[1], content: set.Banner?.BannerCategoryName ?? "" },
+            { col: columns[2], content: set.Banner?.ModifyUser?.AccountName ?? "" },
+            { col: columns[3], content: FormatDateTime(set.Banner?.ModifyTime) },
+        ];
+
+        return { keyId, cells };
+    });
+};
+
+/** 建立廣告輪播圖片預覽 */
+const buildBannerSliderImage = (set: BannerSet): RowCell["content"] =>
+{
+    const picSrcId = set.BannerDetail?.[0]?.PicSrcId;
+    if (!picSrcId) return null;
+
+    return createElement("img", { src: FileManagementAPI.get_Server_Preview_Url(picSrcId), alt: "廣告輪播圖片預覽", style: { width: "145px", height: "80px", objectFit: "fill" } });
+};
+
+/** 依欄位代碼取得 ModelDisplayName 顯示文字 */
+const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, columnId: string, fallback: string): string =>
+{
+    const tables = modelDisplayName?.Tables ?? [];
+    const hit = tables.flatMap((t) => t.Columns ?? []).find((c) => c.ColumnId === columnId);
+    return hit?.ColumnDisplayName ?? fallback;
+};
+
+/** 取得 SearchValue 的文字值 */
+const getSearchStringValue = (value: unknown): string | undefined =>
+{
+    if (typeof value !== "string") return undefined;
+
+    const text = value.trim();
+    return text.length > 0 ? text : undefined;
+};
