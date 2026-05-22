@@ -1,5 +1,5 @@
-import Client_Material_Form_Comp from "@/Features/Pages/Client/BizFunc/MAT/Client_Material_Form_Comp";
-import { Client_Material_Form_Loader } from "@/Features/Pages/Client/BizFunc/MAT/Client_Material_Form_Loader";
+import Client_Material_Form_Comp from "@/Features/Pages/Client/BizFunc/MAT/Material/Client_Material_Form_Comp";
+import { Client_Material_Form_Loader } from "@/Features/Pages/Client/BizFunc/MAT/Material/Client_Material_Form_Loader";
 import { withRequestLang } from "@/Features/Pages/Client/Route/ClientRouter";
 import { type INormNode, type INormSite, type ModuleEntry } from "@/Features/Pages/Client/Route/Site-Routing";
 import SubPage from "@/Features/Pages/Client/Scaffold/SubPages/SubPage";

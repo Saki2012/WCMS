@@ -1,5 +1,5 @@
 // #region 模型配置
-import type { IMaterialListOptions } from "@/Features/Pages/Client/BizFunc/MAT/Client_Material_List_Loader";
+import type { IMaterialListOptions } from "@/Features/Pages/Client/BizFunc/MAT/Material/Client_Material_List_Loader";
 import type { ISurveyOptions } from "@/Features/Pages/Client/BizFunc/WEB/Survey/Client_Survey_Form_Loader";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { LibCheckBox, LibDropList, LibSelectCard } from "@/SysCore/Components/FormField/LibFormField";
