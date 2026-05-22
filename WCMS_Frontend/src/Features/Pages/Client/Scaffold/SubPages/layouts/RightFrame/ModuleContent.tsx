@@ -5,6 +5,8 @@
 import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
 import { useFormDetailViewCount } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Hooks";
 import { getSiteHeaderMeta } from "@/Features/Pages/AppRoute";
+import { Client_SearchBar_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/SearchBar/Client_SearchBar_Comp";
+import type { ClientDataQuerySearchBarModel } from "@/Features/Pages/Client/Scaffold/DataQueryTemplate/Client_DataQueryTemplate_Hook";
 import { HeaderMetaComp } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import { NewPaginatorCanInputPage } from "@/SysCore/Components/Paginator/Paginator_Comp";
@@ -36,7 +38,8 @@ export interface ModuleContentProps
     nodeTitle: string;
     title?: string;
     subTitle?: SubTitleProps;
-    paginatorProps?: PaginatorProps;
+    paginatorProps?: PaginatorProps | null;
+    searchBar?: ClientDataQuerySearchBarModel | null;
     isLoading: boolean;
     errorList: (string | null | undefined)[];
     viewCountConfig: ModuleViewCountConfig;
@@ -86,6 +89,7 @@ const ModuleContent = (props: ModuleContentProps) =>
             <HeaderMetaComp htmlLang={lang} title={fullTitle} description={siteHeaderMeta.description} canonicalUrl={canonicalUrl} alternates={alternates} />
             <LoadingErrorHandler isLoading={props.isLoading} errorList={props.errorList}>
                 {props.title && <Title title={props.title} subTitle={props.subTitle} />}
+                {props.searchBar && <Client_SearchBar_Comp {...props.searchBar} />}
                 <div className="ALL__Information__Display__Area">{props.children}</div>
                 <hr className="hr-my-4" />
                 {props.paginatorProps && <NewPaginatorCanInputPage {...props.paginatorProps} lang={lang} />}

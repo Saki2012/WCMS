@@ -43,20 +43,12 @@ const AnnouncementList = (props: IAnnouncementListProps) =>
 {
     // 宣告變數
     const dirUrl = useLocation().pathname.replace(/\/List$/, "");
-    const [keyword] = useState<string | undefined>(undefined);
-
-    // 執行 function：先開 kw 入口，但目前只給 CSR hooks 使用
-    const vm = useAnnouncementListData({ lang: props.lang, opts: props.options, kw: keyword });
+    const vm = useAnnouncementListData({ lang: props.lang, opts: props.options });
 
     const adjustedGrid = useMemo(() =>
     {
         return SetAdjustFunction(props.lang, dirUrl, vm.gridPropsFromList, vm.listData, vm.categoryData, vm.tagData);
     }, [props.lang, dirUrl, vm.gridPropsFromList, vm.listData, vm.categoryData, vm.tagData]);
-
-    // TODO(AnnouncementList kw):
-    // 之後 feature 若要補搜尋框，只要把輸入值 set 到 keyword 即可。
-    // SSR route 目前不提供 kw，維持首屏固定條件。
-    // 1810 之後可直接共用同一個 kw 傳法，只保留自己的 DOM。
 
     const children = useMemo(() =>
     {
@@ -75,15 +67,14 @@ const AnnouncementList = (props: IAnnouncementListProps) =>
         }
     }, [props.options?.Style, dirUrl, props.lang, props.node.title, vm.listData, vm.pageNumber, vm.pageSize, vm.categoryData, adjustedGrid]);
 
-    const paginprops = props.options?.Style === 8 ? undefined : { currentPage: vm.pageNumber, totalPages: vm.totalPages, onPageChange: vm.onPageChange };
-
     // return
     return (
         <ModuleContent
             nodeTitle={props.node.title}
             isLoading={vm.isLoading}
             errorList={vm.errorList}
-            paginatorProps={paginprops}
+            paginatorProps={vm.paginatorProps}
+            searchBar={vm.searchBar}
             viewCountConfig={{ mode: "list" }}
         >
             {children}

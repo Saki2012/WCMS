@@ -1,51 +1,44 @@
-import { type ClientSearchActionAlign, type ClientSearchField, type ClientSearchValues, useClientSearchBar } from "./Client_SearchBar_Hook";
-import "./Client_SearchBar.css";
-
-interface ClientSearchBarCompProps
-{
-    title?: string;
-    fields: ClientSearchField[];
-    defaultValues?: ClientSearchValues;
-    actionAlign?: ClientSearchActionAlign;
-    searchButtonText?: string;
-    resetButtonText?: string;
-    resetPageKey?: string;
-    onSearch?: (values: ClientSearchValues) => void;
-    onReset?: () => void;
-}
+import type { ClientDataQuerySearchBarModel } from "@/Features/Pages/Client/Scaffold/DataQueryTemplate/Client_DataQueryTemplate_Hook";
+import { type CSSProperties, useMemo } from "react";
+import { type ClientSearchFieldViewModel, useClientSearchBar } from "./Client_SearchBar_Hook";
 
 /** 前台共用搜尋列 */
 export const Client_SearchBar_Comp = (
-    {
-        title = "搜尋條件",
-        fields,
-        defaultValues,
-        actionAlign = "right",
-        searchButtonText = "搜尋",
-        resetButtonText = "重置",
-        resetPageKey = "page",
-        onSearch,
-        onReset,
-    }: ClientSearchBarCompProps,
+    { title = "搜尋條件", fields, values, actionAlign = "left", searchButtonText = "搜尋", resetButtonText = "重置", columnCount = 3, onSearch, onReset }:
+        ClientDataQuerySearchBarModel,
 ) =>
 {
-    const { values, fieldRows, getFieldId, handleFieldChange, handleSearch, handleReset } = useClientSearchBar({
+    const { values: draftValues, fieldRows, getFieldId, handleFieldChange, handleSearch, handleReset } = useClientSearchBar({
         fields,
-        defaultValues,
-        resetPageKey,
+        values,
+        columnCount,
         onSearch,
         onReset,
     });
 
+    const formStyle = useMemo(() =>
+    {
+        return { "--client-searchbar-column-count": columnCount } as CSSProperties;
+    }, [columnCount]);
+
+    /** 取得目前草稿值 */
+    const getDraftValue = (fieldKey: string): string =>
+    {
+        const source = draftValues as Record<string, unknown>;
+        const value = source[fieldKey];
+
+        return value == null ? "" : `${value}`;
+    };
+
     /** 渲染文字類型欄位 */
-    const renderInputField = (field: ClientSearchField) =>
+    const renderInputField = (field: ClientSearchFieldViewModel) =>
     {
         return (
             <input
                 id={getFieldId(field.key)}
                 name={field.key}
-                type={field.type}
-                value={values[field.key] ?? ""}
+                type={field.type === "select" ? "text" : field.type}
+                value={getDraftValue(field.key)}
                 placeholder={field.placeholder}
                 disabled={field.disabled}
                 maxLength={field.maxLength}
@@ -57,13 +50,13 @@ export const Client_SearchBar_Comp = (
     };
 
     /** 渲染下拉選單欄位 */
-    const renderSelectField = (field: ClientSearchField) =>
+    const renderSelectField = (field: ClientSearchFieldViewModel) =>
     {
         return (
             <select
                 id={getFieldId(field.key)}
                 name={field.key}
-                value={values[field.key] ?? ""}
+                value={getDraftValue(field.key)}
                 disabled={field.disabled}
                 className="client-searchbar__select"
                 onChange={(event) => handleFieldChange(field.key, event)}
@@ -78,18 +71,14 @@ export const Client_SearchBar_Comp = (
     };
 
     /** 依照欄位類型渲染控制項 */
-    const renderControl = (field: ClientSearchField) =>
+    const renderControl = (field: ClientSearchFieldViewModel) =>
     {
-        if (field.type === "select")
-        {
-            return renderSelectField(field);
-        }
-
+        if (field.type === "select") return renderSelectField(field);
         return renderInputField(field);
     };
 
     /** 渲染單一搜尋欄位 */
-    const renderField = (field: ClientSearchField) =>
+    const renderField = (field: ClientSearchFieldViewModel) =>
     {
         return (
             <div key={field.key} className="client-searchbar__field">
@@ -100,15 +89,15 @@ export const Client_SearchBar_Comp = (
         );
     };
 
-    /** 渲染一列搜尋欄位，固定最多兩欄 */
-    const renderRow = (row: ClientSearchField[], rowIndex: number) =>
+    /** 渲染一列搜尋欄位 */
+    const renderRow = (row: ClientSearchFieldViewModel[], rowIndex: number) =>
     {
         return <div key={`client-search-row-${rowIndex}`} className="client-searchbar__row">{row.map(renderField)}</div>;
     };
 
     return (
         <section className="client-searchbar" aria-labelledby="client-searchbar-title">
-            <form className="client-searchbar__form" role="search" onSubmit={handleSearch}>
+            <form className="client-searchbar__form" role="search" style={formStyle} onSubmit={handleSearch}>
                 <div className="client-searchbar__header">
                     <h2 id="client-searchbar-title" className="client-searchbar__title">{title}</h2>
                 </div>

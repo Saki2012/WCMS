@@ -1,65 +1,73 @@
 .client-searchbar {
-  margin-bottom: 24px;
+  margin-bottom: 18px;
 }
 
 .client-searchbar__form {
-  padding: 20px;
-  border: 1px solid #d8d8d8;
-  border-radius: 8px;
-  background: #fff;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
 }
 
 .client-searchbar__header {
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .client-searchbar__title {
   margin: 0;
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   font-weight: 700;
+  line-height: 1.4;
 }
 
 .client-searchbar__body {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
 }
 
 .client-searchbar__row {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(var(--client-searchbar-column-count, 3), minmax(0, 1fr));
+  gap: 10px 14px;
 }
 
 .client-searchbar__field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .client-searchbar__label {
+  font-size: 0.95rem;
   font-weight: 600;
+  line-height: 1.4;
 }
 
 .client-searchbar__input,
 .client-searchbar__select {
-  min-height: 42px;
-  padding: 8px 12px;
+  width: 100%;
+  max-width: 260px;
+  min-height: 34px;
+  padding: 5px 10px;
   border: 1px solid #b8b8b8;
   border-radius: 4px;
-  font-size: 1rem;
+  background: #fff;
+  font-size: 0.95rem;
+  line-height: 1.4;
 }
 
 .client-searchbar__input:focus,
 .client-searchbar__select:focus {
   outline: 3px solid #ffbf47;
   outline-offset: 2px;
+  border-color: #111;
 }
 
 .client-searchbar__actions {
   display: flex;
-  gap: 12px;
-  margin-top: 20px;
+  gap: 8px;
+  margin-top: 10px;
 }
 
 .client-searchbar__actions--left {
@@ -71,18 +79,43 @@
 }
 
 .client-searchbar__button {
-  min-width: 88px;
-  min-height: 42px;
-  padding: 8px 16px;
-  border: 1px solid #555;
+  min-width: 64px;
+  min-height: 34px;
+  padding: 5px 14px;
+  border: 1px solid #8a8a8a;
   border-radius: 4px;
+  background: #f7f7f7;
+  color: #111;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.client-searchbar__button:hover {
+  background: #ececec;
+  border-color: #555;
 }
 
 .client-searchbar__button:focus {
   outline: 3px solid #ffbf47;
   outline-offset: 2px;
+}
+
+.client-searchbar__button--search {
+  background: #86512f;
+  border-color: #86512f;
+  color: #fff;
+}
+
+.client-searchbar__button--search:hover {
+  background: #6f4024;
+  border-color: #6f4024;
+}
+
+@media (max-width: 992px) {
+  .client-searchbar__row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 768px) {
@@ -93,5 +126,10 @@
   .client-searchbar__actions {
     justify-content: flex-start;
     flex-wrap: wrap;
+  }
+
+  .client-searchbar__input,
+  .client-searchbar__select {
+    max-width: 100%;
   }
 }

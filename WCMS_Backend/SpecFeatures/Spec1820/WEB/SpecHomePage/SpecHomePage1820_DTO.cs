@@ -96,7 +96,7 @@ public class SpecHomePage1820_Detail_DTO : DetailRowModel
     [LibDesc(SpecModelDisplayName.MainLinkTitle), StringLength(SysLengthParam.Info)] public string? MainLinkTitle { get; set; }
     [LibDesc(SpecModelDisplayName.MainLinkUrl), StringLength(SysLengthParam.Url)] public string? MainLink { get; set; }
     [LibDesc(SpecModelDisplayName.SubLinkTitle1), StringLength(SysLengthParam.Info)] public string? SubLinkTitle1 { get; set; }
-    [LibDesc(SpecModelDisplayName.SubLinkUrl2), StringLength(SysLengthParam.Url)] public string? SubLink1 { get; set; }
+    [LibDesc(SpecModelDisplayName.SubLinkUrl1), StringLength(SysLengthParam.Url)] public string? SubLink1 { get; set; }
     [LibDesc(SpecModelDisplayName.SubLinkTitle2), StringLength(SysLengthParam.Info)] public string? SubLinkTitle2 { get; set; }
     [LibDesc(SpecModelDisplayName.SubLinkUrl2), StringLength(SysLengthParam.Url)] public string? SubLink2 { get; set; }
     [LibDesc(SpecModelDisplayName.SubLinkTitle3), StringLength(SysLengthParam.Info)] public string? SubLinkTitle3 { get; set; }

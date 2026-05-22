@@ -2,7 +2,18 @@ import { CategoryAdapter } from "@/Features/Hooks/BizFunc/COMM/Category_Api";
 import { TagAdapter } from "@/Features/Hooks/BizFunc/COMM/Tag_Api";
 import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WEB/Announcement_Api";
 import { SiteViewCountAdapter } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
+import {
+    buildClientDataQueryState,
+    useClientDataQueryTemplate,
+    type ClientDataQueryDataSourceResult,
+    type ClientDataQueryPaginatorModel,
+    type ClientDataQuerySearchBarModel,
+    type ClientDataQueryTemplate,
+} from "@/Features/Pages/Client/Scaffold/DataQueryTemplate/Client_DataQueryTemplate_Hook";
+import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
+import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
+import type { IListViewState } from "@/SysCore/Interface/IListViewState";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiGridInitial, ApiGridLoaderData, ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
@@ -80,6 +91,8 @@ export interface UseAnnouncementListDataResult
     tagData: TagSet[];
     viewCountMap: Record<string, number>;
     gridPropsFromList: GridProps;
+    paginatorProps: PaginatorProps | null;
+    searchBar: ClientDataQuerySearchBarModel | null;
     isLoading: boolean;
     errorList: string[];
     onPageChange: (page: number) => void;
@@ -286,6 +299,156 @@ const buildViewCountQuery = (internalIds: string[]): QueryListParam =>
     };
 };
 
+
+const SEARCH_KEYWORD_KEY = "keyword";
+
+/** 建立 Announcement 前台搜尋欄位 */
+const buildAnnouncementSearchFields = (): SearchFieldConfig[] =>
+{
+    // return
+    return [
+        {
+            key: SEARCH_KEYWORD_KEY,
+            title: "關鍵字",
+            label: "關鍵字",
+            type: "text",
+            placeholder: "請輸入公告標題",
+            maxLength: 100,
+        },
+    ] as unknown as SearchFieldConfig[];
+};
+
+type AnnouncementSearchParams = {
+    lang: Lang;
+    dayStart: number;
+    dayEnd: number;
+    pageSize: number;
+    pageNumber: number;
+    keyword?: string;
+    categoryIds: string;
+    tagIds: string;
+};
+
+type AnnouncementQueryParam = Omit<AnnouncementListLoaderArgs, "viewCountParam">;
+type AnnouncementListViewModel = Omit<UseAnnouncementListDataResult, "isLoading" | "errorList" | "searchBar">;
+type AnnouncementDataQueryTemplate = ClientDataQueryTemplate<AnnouncementSearchParams, AnnouncementListViewModel, AnnouncementListViewModel, unknown, AnnouncementQueryParam, AnnouncementListLoaderData>;
+
+/** 建立 Announcement 搜尋初始值 */
+const buildAnnouncementSearchValues = (keyword?: string): SearchValues =>
+{
+    // return
+    return { [SEARCH_KEYWORD_KEY]: normalizeKeyword(keyword) ?? "" } as SearchValues;
+};
+
+/** 讀取 SearchValues 的字串值 */
+const getSearchStringValue = (values: SearchValues, key: string): string | undefined =>
+{
+    // 宣告變數
+    const value = (values as Record<string, unknown>)[key];
+
+    // return
+    return typeof value === "string" ? value : value == null ? undefined : `${value}`;
+};
+
+/** 建立 Announcement 初始 ViewState */
+const buildAnnouncementInitialViewState = (
+    p: { opts?: IAnnouncementListOptions; overrides?: Partial<{ pageNumber: number; pageSize: number; }>; },
+): IListViewState =>
+{
+    // 宣告變數
+    const pageNumber = p.overrides?.pageNumber ?? 1;
+    const pageSize = p.overrides?.pageSize ?? calcPageSize(p.opts?.Style);
+
+    // return
+    return { pageNumber, pageSize } as IListViewState;
+};
+
+/** 建立 Announcement 查詢參數 */
+const buildAnnouncementSearchParams = (
+    p: {
+        lang: Lang;
+        opts?: IAnnouncementListOptions;
+        dayStart: number;
+        dayEnd: number;
+        overrides?: Partial<{ keyword: string; categoryIds: string; tagIds: string; }>;
+        values: SearchValues;
+        viewState: IListViewState;
+    },
+): AnnouncementSearchParams =>
+{
+    // 宣告變數
+    const keyword = normalizeKeyword(getSearchStringValue(p.values, SEARCH_KEYWORD_KEY) ?? p.overrides?.keyword);
+    const categoryIds = p.overrides?.categoryIds ?? (p.opts?.Category ?? "");
+    const tagIds = p.overrides?.tagIds ?? (p.opts?.Tag ?? "");
+
+    // return
+    return {
+        lang: p.lang,
+        dayStart: p.dayStart,
+        dayEnd: p.dayEnd,
+        pageNumber: p.viewState.pageNumber,
+        pageSize: p.viewState.pageSize,
+        keyword,
+        categoryIds,
+        tagIds,
+    };
+};
+
+/** 建立 Announcement QueryParam，Loader / Hook 都統一走這裡 */
+const buildAnnouncementQueryArgs = (p: AnnouncementSearchParams & { condition: string; }): AnnouncementQueryParam =>
+{
+    // return
+    return {
+        lang: p.lang,
+        dayStart: p.dayStart,
+        dayEnd: p.dayEnd,
+        pageSize: p.pageSize,
+        pageNumber: p.pageNumber,
+        keyword: p.keyword,
+        categoryIds: p.categoryIds,
+        tagIds: p.tagIds,
+        condition: p.condition,
+        listParam: buildAnnouncementQuery({ condition: p.condition, pageNumber: p.pageNumber, pageSize: p.pageSize }),
+        cateParam: buildCategoryQuery(PGID.Announcement),
+        tagParam: buildTagQuery(PGID.Announcement),
+    };
+};
+
+/** 建立 Announcement DataQueryTemplate */
+const createAnnouncementDataQueryTemplate = (
+    p: {
+        lang: Lang;
+        opts?: IAnnouncementListOptions;
+        dayStart: number;
+        dayEnd: number;
+        overrides?: Partial<{ pageNumber: number; pageSize: number; keyword: string; categoryIds: string; tagIds: string; }>;
+    },
+): AnnouncementDataQueryTemplate =>
+{
+    // 宣告變數
+    const initialViewState = buildAnnouncementInitialViewState({ opts: p.opts, overrides: p.overrides });
+    const initialSearchValues = buildAnnouncementSearchValues(p.overrides?.keyword);
+    const pagination = p.opts?.Style === 8 ? null : { defaultPageNumber: initialViewState.pageNumber, defaultPageSize: initialViewState.pageSize, resetPageOnSearch: true };
+
+    // return
+    return {
+        featureKey: "AnnouncementList",
+        dataMode: "multiple",
+        initialSearchValues,
+        initialViewState,
+        pagination,
+        searchBar: { title: "搜尋條件", actionAlign: "left", columnCount: 3 },
+        feature: {
+            searchFields: buildAnnouncementSearchFields(),
+            toSearchParams: (values, viewState) => buildAnnouncementSearchParams({ ...p, values, viewState }),
+            buildSearchConditions: (ctx) => [buildAnnouncementCondition(ctx.searchParams)],
+            buildQueryParam: (ctx) => buildAnnouncementQueryArgs({ ...ctx.searchParams, condition: ctx.searchCondition }),
+            useDataSource: (ctx) => useAnnouncementDataSource({ queryParam: ctx.queryParam, loaderData: ctx.loaderData }),
+            buildViewModel: (ctx) => ctx.rawData,
+        },
+    };
+};
+
 /** 組 loader / hook 共用參數 */
 const buildLoaderArgs = (
     p: {
@@ -295,30 +458,15 @@ const buildLoaderArgs = (
         dayEnd: number;
         overrides?: Partial<{ pageNumber: number; pageSize: number; keyword: string; categoryIds: string; tagIds: string; }>;
     },
-): Omit<AnnouncementListLoaderArgs, "viewCountParam"> =>
+): AnnouncementQueryParam =>
 {
-    const pageNumber = p.overrides?.pageNumber ?? 1;
-    const pageSize = p.overrides?.pageSize ?? calcPageSize(p.opts?.Style);
-    const categoryIds = p.overrides?.categoryIds ?? (p.opts?.Category ?? "");
-    const tagIds = p.overrides?.tagIds ?? (p.opts?.Tag ?? "");
-    const keyword = normalizeKeyword(p.overrides?.keyword);
+    // 宣告變數
+    const template = createAnnouncementDataQueryTemplate(p);
+    const viewState = buildAnnouncementInitialViewState({ opts: p.opts, overrides: p.overrides });
+    const searchValues = buildAnnouncementSearchValues(p.overrides?.keyword);
 
-    const condition = buildAnnouncementCondition({ lang: p.lang, dayStart: p.dayStart, dayEnd: p.dayEnd, categoryIds, tagIds, keyword });
-
-    return {
-        lang: p.lang,
-        dayStart: p.dayStart,
-        dayEnd: p.dayEnd,
-        pageSize,
-        pageNumber,
-        keyword,
-        categoryIds,
-        tagIds,
-        condition,
-        listParam: buildAnnouncementQuery({ condition, pageNumber, pageSize }),
-        cateParam: buildCategoryQuery(PGID.Announcement),
-        tagParam: buildTagQuery(PGID.Announcement),
-    };
+    // return
+    return buildClientDataQueryState(template, searchValues, viewState).queryParam;
 };
 
 const matchQueryInitial = <TData>(
@@ -442,6 +590,7 @@ const buildResetKey = (args: Pick<AnnouncementListLoaderArgs, "lang" | "dayStart
     });
 };
 
+
 /** SSR Loader：首屏撈 announcement + category + tag + siteviewcount */
 export const AnnouncementListLoader =
     (
@@ -476,9 +625,7 @@ export const AnnouncementListLoader =
         });
 
         const gridLoader = announcement.loader.createQueryGridDataLoader({ getCondition: () => baseArgs.listParam, getApiInstance: () => ssrApi });
-
         const cateLoader = category.loader.createQueryListLoader({ getCondition: () => baseArgs.cateParam, getApiInstance: () => ssrApi });
-
         const tagLoader = tag.loader.createQueryListLoader({ getCondition: () => baseArgs.tagParam, getApiInstance: () => ssrApi });
 
         const [gridRes, categoryLD, tagLD] = await Promise.all([
@@ -489,9 +636,7 @@ export const AnnouncementListLoader =
 
         const listRes = gridRes.list.apiRes.Data ?? [];
         const viewCountParam = buildViewCountQuery(getAnnouncementInternalIds(listRes));
-
         const viewCountLoader = siteView.loader.createQueryListLoader({ getCondition: () => viewCountParam, getApiInstance: () => ssrApi });
-
         const viewCountLD = await viewCountLoader({ request } as LoaderFunctionArgs);
 
         return {
@@ -499,18 +644,17 @@ export const AnnouncementListLoader =
             res: { gridRes, categoryRes: categoryLD.apiRes.Data ?? [], tagRes: tagLD.apiRes.Data ?? [], viewCountRes: viewCountLD.apiRes.Data ?? [] },
         };
     };
-/** CSR Hook：Component 一行拿資料，切頁/條件變動時自動重撈 list + siteviewcount */
-export const useAnnouncementListData = (p: { lang: Lang; opts?: IAnnouncementListOptions; kw?: string; }): UseAnnouncementListDataResult =>
+
+/** Announcement DataSource：統一處理 CSR 查詢與 SSR initial 沿用 */
+const useAnnouncementDataSource = (
+    p: { queryParam: AnnouncementQueryParam; loaderData: AnnouncementListLoaderData | null; },
+): ClientDataQueryDataSourceResult<AnnouncementListViewModel> =>
 {
     // 宣告變數
-    const initial = useLoaderData() as AnnouncementListLoaderData;
+    const initial = p.loaderData as AnnouncementListLoaderData;
+    const currentArgs = p.queryParam;
     const announcement = useMemo(() => AnnouncementAdapter(), []);
     const siteView = useMemo(() => SiteViewCountAdapter(), []);
-
-    const currentArgs = useMemo(() =>
-    {
-        return buildLoaderArgs({ lang: p.lang, opts: p.opts, dayStart: initial.args.dayStart, dayEnd: initial.args.dayEnd, overrides: { keyword: p.kw } });
-    }, [p.lang, p.opts, p.kw, initial.args.dayStart, initial.args.dayEnd]);
 
     const gridInitial = useMemo<ApiGridInitial<AnnouncementSet>>(() =>
     {
@@ -576,37 +720,99 @@ export const useAnnouncementListData = (p: { lang: Lang; opts?: IAnnouncementLis
     const gridPropsFromList = useMemo(() =>
     {
         return buildGridPropsFromList({
-            lang: p.lang,
+            lang: currentArgs.lang,
             listData: grid.list ?? [],
             viewCountMap,
             pageNumber: grid.pageNumber,
             totalPages: grid.totalPages,
             onPageChange: grid.onPageChange,
         });
-    }, [p.lang, grid.list, grid.pageNumber, grid.totalPages, grid.onPageChange, viewCountMap]);
+    }, [currentArgs.lang, grid.list, grid.pageNumber, grid.totalPages, grid.onPageChange, viewCountMap]);
 
-    const errorList = useMemo(() =>
+    const paginatorProps = useMemo<PaginatorProps | null>(() =>
     {
-        return [grid.errorText, useViewCount.errorText].filter((x): x is string => Boolean(x));
+        if (currentArgs.pageSize === 0) return null;
+        return { currentPage: grid.pageNumber, totalPages: grid.totalPages, onPageChange: grid.onPageChange };
+    }, [currentArgs.pageSize, grid.pageNumber, grid.totalPages, grid.onPageChange]);
+
+    const paginator = useMemo<ClientDataQueryPaginatorModel | null>(() =>
+    {
+        if (!paginatorProps) return null;
+        return {
+            currentPage: paginatorProps.currentPage,
+            pageSize: currentArgs.pageSize,
+            totalPages: paginatorProps.totalPages,
+            totalCount: grid.count,
+            onPageChange: paginatorProps.onPageChange,
+        };
+    }, [paginatorProps, currentArgs.pageSize, grid.count]);
+
+    const rawData = useMemo<AnnouncementListViewModel>(() =>
+    {
+        return {
+            pageSize: currentArgs.pageSize,
+            pageNumber: grid.pageNumber,
+            totalPages: grid.totalPages,
+            totalCount: grid.count,
+            listData: grid.list ?? [],
+            categoryData,
+            tagData,
+            viewCountMap,
+            gridPropsFromList,
+            paginatorProps,
+            onPageChange: grid.onPageChange,
+        };
+    }, [currentArgs.pageSize, grid.pageNumber, grid.totalPages, grid.count, grid.list, categoryData, tagData, viewCountMap, gridPropsFromList, paginatorProps, grid.onPageChange]);
+
+    const errors = useMemo(() =>
+    {
+        return [grid.errorText, useViewCount.errorText];
     }, [grid.errorText, useViewCount.errorText]);
 
-    const isLoading = Boolean(grid.isLoading || useViewCount.isLoading);
-
+    // return
     return {
-        pageSize: currentArgs.pageSize,
-        pageNumber: grid.pageNumber,
-        totalPages: grid.totalPages,
-        totalCount: grid.count,
-        listData: grid.list ?? [],
-        categoryData,
-        tagData,
-        viewCountMap,
-        gridPropsFromList,
-        isLoading,
-        errorList,
-        onPageChange: grid.onPageChange,
+        rawData,
+        isLoading: Boolean(grid.isLoading || useViewCount.isLoading),
+        errors,
+        paginator,
     };
 };
+
+/** CSR Hook：Component 只拿 VM，資料查詢流程交給 Client_DataQueryTemplate */
+export const useAnnouncementListData = (p: { lang: Lang; opts?: IAnnouncementListOptions; kw?: string; }): UseAnnouncementListDataResult =>
+{
+    // 宣告變數
+    const initial = useLoaderData() as AnnouncementListLoaderData;
+
+    const template = useMemo(() =>
+    {
+        return createAnnouncementDataQueryTemplate({
+            lang: p.lang,
+            opts: p.opts,
+            dayStart: initial.args.dayStart,
+            dayEnd: initial.args.dayEnd,
+            overrides: {
+                pageNumber: initial.args.pageNumber,
+                pageSize: initial.args.pageSize,
+                keyword: p.kw,
+                categoryIds: initial.args.categoryIds,
+                tagIds: initial.args.tagIds,
+            },
+        });
+    }, [p.lang, p.opts, p.kw, initial.args.dayStart, initial.args.dayEnd, initial.args.pageNumber, initial.args.pageSize, initial.args.categoryIds, initial.args.tagIds]);
+
+    const templateVm = useClientDataQueryTemplate(template);
+
+    // return
+    return {
+        ...templateVm.viewModel,
+        paginatorProps: templateVm.paginatorProps,
+        searchBar: templateVm.searchBar,
+        isLoading: templateVm.isLoading,
+        errorList: templateVm.errorList,
+    };
+};
+
 const buildQueryInitial = <TData>(args: QueryListParam, data: TData): ApiLoaderData<QueryListParam, TData> =>
 {
     return { args, apiRes: { IsSuccess: true, Data: data, SysMessage: [] } };
