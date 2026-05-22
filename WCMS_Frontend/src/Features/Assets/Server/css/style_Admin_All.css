@@ -827,20 +827,20 @@ a[type="button"],a[role="button"] {
 
 /* =============================================================== */
 /* ===== [ 自訂 小 ICON Button ] ================================== */
-.Form-Main-Content .all-btn a.icon {
+.Form-Main-Content .all-btn .icon {
     position: relative;
     display: inline-block;
     margin: 2.5px 5px 2.5px 0px;
 }
-.Form-Main-Content .all-btn a.icon:first-child {
+.Form-Main-Content .all-btn .icon:first-child {
     margin-left: 0;
 }
-.Form-Main-Content .all-btn a.icon:last-child {
+.Form-Main-Content .all-btn .icon:last-child {
     margin-right: 0;
 }
 
 /* =============================================================== */
-.Form-Main-Content .all-btn a.icon > .btn.btn-txt {
+.Form-Main-Content .all-btn .icon > .btn.btn-txt {
 	/*font-size: 87.5%;*/
     height: 36px;
     width: auto;
@@ -857,7 +857,7 @@ a:hover .btn.btn-txt {
 	border-color: var(--Customize_Btn_HRcolor) !important;
 }
 /* =============================================================== */
-.Form-Main-Content .all-btn a.icon > .btn.btn-ctm {
+.Form-Main-Content .all-btn .icon > .btn.btn-ctm {
 	/*font-size: 87.5%;*/
 	color: var(--G777color);
     height: 36px;
@@ -867,7 +867,7 @@ a:hover .btn.btn-txt {
     border: 1px solid var(--GCCCcolor);    
 }
 @media (max-width: 1024px) {
-    .Form-Main-Content .all-btn a.icon > .btn.btn-ctm  {
+    .Form-Main-Content .all-btn .icon > .btn.btn-ctm  {
         height: 30px;
         width: 30px;
     }
@@ -909,6 +909,7 @@ a:hover .btn.btn-txt {
 .btn.Ieye {
     color: #8373f0 !important;
 }
+.icon:hover .btn.Ieye,
 a:hover .btn.Ieye {
 	color: var(--FFFcolor) !important;
     background-color: #8373f0 !important;
@@ -918,6 +919,7 @@ a:hover .btn.Ieye {
 .btn.Icogs {
     color: #f77f37 !important;
 }
+.icon:hover .btn.Icogs,
 a:hover .btn.Icogs {
 	color: var(--FFFcolor) !important;
     background-color: #f77f37 !important;
@@ -927,6 +929,7 @@ a:hover .btn.Icogs {
 .btn.Ilink {
 	color: #39bf67 !important;
 }
+.icon:hover .btn.Ilink,
 a:hover .btn.Ilink {
 	color: var(--FFFcolor) !important;
     background-color: #39bf67 !important;
@@ -936,6 +939,7 @@ a:hover .btn.Ilink {
 .btn.Ipencil {
 	color: #4689f2 !important;
 }
+.icon:hover .btn.Ipencil,
 a:hover .btn.Ipencil {
 	color: var(--FFFcolor) !important;
 	background-color: #4689f2 !important;
@@ -945,6 +949,7 @@ a:hover .btn.Ipencil {
 .btn.Iwindow {
 	color: #059cb5 !important;
 }
+.icon:hover .btn.Iwindow,
 a:hover .btn.Iwindow {
 	color: var(--FFFcolor) !important;
 	background-color: #059cb5 !important;
@@ -954,10 +959,21 @@ a:hover .btn.Iwindow {
 .btn.Itrash {
 	color: #d9534f !important;
 }
+.icon:hover .btn.Itrash,
 a:hover .btn.Itrash {
 	color: var(--FFFcolor) !important;
     background-color: #d9534f !important;
 	border-color: #d9534f !important;
+}
+
+.btn.Igrab {
+	color: #777777 !important;
+}
+.icon:hover .btn.Igrab,
+a:hover .btn.Igrab {
+	color: var(--FFFcolor) !important;
+    background-color: #777777 !important;
+	border-color: #777777 !important;
 }
 /* ===== [  自訂 小 ICON Button HOVER 顏色 ] ======================= */
 /* =============================================================== */
