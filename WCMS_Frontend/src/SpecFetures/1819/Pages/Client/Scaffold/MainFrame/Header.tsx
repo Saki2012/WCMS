@@ -279,9 +279,9 @@ const Header_Section = (props: { lang: Lang; site: INormSite; }) =>
 const NavBar = (props: { lang: Lang; }) =>
 {
     const title = props.lang === "zh-tw"
-        ? { Home: "首頁", TKU: "淡江大學", SiteMap: "網站導覽" }
+        ? { Home: "首頁", TKU: "淡江大學", TKUDILS: "淡江資訊與圖書館學系",SiteMap: "網站導覽" }
         : props.lang === "en"
-        ? { Home: "Home", TKU: "NCHU", SiteMap: "SiteMap" }
+        ? { Home: "Home", TKU: "TKU", TKUDILS: "TKU DILS", SiteMap: "SiteMap" }
         : {};
 
     return (
@@ -295,6 +295,9 @@ const NavBar = (props: { lang: Lang; }) =>
                 </li>
                 <li className="nav-item">
                     <LangLink className="nav-link" to="https://www.tku.edu.tw/" target="_self" title={title.TKU}>{title.TKU}</LangLink>
+                </li>
+                <li className="nav-item">
+                    <LangLink className="nav-link" to="https://www.dils.tku.edu.tw/" target="_self" title={title.TKUDILS}>{title.TKUDILS}</LangLink>
                 </li>
                 <li className="nav-item">
                     <LangNavLink to={`/${SITEMAP_SEGMENT}`} className="nav-link" target="_self" title={title.SiteMap}>{title.SiteMap}</LangNavLink>
