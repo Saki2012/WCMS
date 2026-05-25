@@ -5,6 +5,12 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { PGID } from "@/types/SchemaFields";
 import { useMemo, useRef } from "react";
 import type { Editor as TinyMCEEditor } from "tinymce";
+import {
+    getIframeReferrerPolicy,
+    normalizeIframeHeight,
+    normalizeIframeWidth,
+    validateIframeSrc,
+} from "./tinyMceIframeUtils";
 import { normalizeListHtmlBeforeSave } from "./tinyMceListNormalize";
 import { useContentTransform } from "./useContentTransform";
 
@@ -28,22 +34,13 @@ export interface TinyMceHookOptions
 
 const normalizeWidth = (raw?: string) =>
 {
-    const x = (raw ?? "").trim();
-    if (!x) return "100%";
-    if (/^\d+%$/i.test(x)) return x;
-    if (/^\d+(px)?$/i.test(x)) return x.replace(/px$/i, "") + "px";
-    return "100%";
+    return normalizeIframeWidth(raw);
 };
 
 /* 🟢 新增：height 空白→"360"；禁止百分比；接受數字或 123px（轉為 "123"） */
 const normalizeHeight = (raw?: string) =>
 {
-    const x = (raw ?? "").trim();
-    if (!x) return "360";
-    if (/^\d+%$/i.test(x)) return "360";
-    if (/^\d+$/i.test(x)) return x;
-    if (/^\d+px$/i.test(x)) return x.replace(/px$/i, "");
-    return "360";
+    return normalizeIframeHeight(raw);
 };
 export const useTinyMCE = (p: TinyMceHookOptions) =>
 {
@@ -115,19 +112,25 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                 const width = normalizeWidth(data.width);
                 const height = normalizeHeight(data.height);
                 const title = (data.title || "").trim();
-                const url = (data.url || "").trim();
+                const { url, warning } = validateIframeSrc(data.url);
                 if (!url)
                 {
                     ed.windowManager.alert("請輸入 URL");
                     return;
                 }
+                if (warning)
+                {
+                    ed.windowManager.alert(warning);
+                    return;
+                }
+                const referrerPolicy = getIframeReferrerPolicy(url);
 
                 const html = `<iframe src="${ed.dom.encode(url)}"
                     title="${ed.dom.encode(title)}"
                     width="${ed.dom.encode(width)}"
                     height="${ed.dom.encode(height)}"
                     loading="lazy"
-                    referrerpolicy="strict-origin-when-cross-origin"  
+                    referrerpolicy="${ed.dom.encode(referrerPolicy)}"  
                     allowfullscreen
                     style="max-width:100%;border:0;"></iframe>`;
                 ed.insertContent(html);
@@ -811,10 +814,11 @@ export const useTinyMceInternalImage = (opts: UseTinyMceInternalImageOptions): U
                 {
                     nodes.forEach((node: any) =>
                     {
+                        const referrerPolicy = getIframeReferrerPolicy(node.attr("src") || "");
                         // 與你現成的函式一致
                         node.attr("sandbox", null);
                         node.attr("loading", "lazy");
-                        node.attr("referrerpolicy", "strict-origin-when-cross-origin");
+                        node.attr("referrerpolicy", referrerPolicy);
                         node.attr("allowfullscreen", "");
 
                         // 一起把 wrapper 的快取欄位補齊，避免被蓋回空值
@@ -823,7 +827,7 @@ export const useTinyMceInternalImage = (opts: UseTinyMceInternalImageOptions): U
                         {
                             wrap.attr("data-mce-p-sandbox", null);
                             wrap.attr("data-mce-p-loading", "lazy");
-                            wrap.attr("data-mce-p-referrerpolicy", "strict-origin-when-cross-origin");
+                            wrap.attr("data-mce-p-referrerpolicy", referrerPolicy);
                             wrap.attr("data-mce-p-allowfullscreen", "");
                         }
                     });
@@ -905,21 +909,29 @@ export const useTinyMceIframeEdit = (): TinySetup =>
                 // 依 URL 決定 sandbox（沿用你原本的判斷）
                 // const sandbox = pickSandboxForUrl(v.src);
 
+                const { url, warning } = validateIframeSrc(v.src);
+                if (warning)
+                {
+                    editor.windowManager.alert(warning);
+                    return;
+                }
+
                 const nw = normalizeWidth(v.width);
                 const nh = normalizeHeight(v.height);
+                const referrerPolicy = getIframeReferrerPolicy(url);
 
                 editor.undoManager.transact(() =>
                 {
                     const dom = editor.dom;
 
                     // 1) 直接在同一顆 <iframe> 上改屬性（null 代表移除）
-                    dom.setAttrib(ifr, "src", v.src || null);
+                    dom.setAttrib(ifr, "src", url || null);
                     dom.setAttrib(ifr, "title", v.title || null);
                     dom.setAttrib(ifr, "width", nw);
                     dom.setAttrib(ifr, "height", nh);
                     // dom.setAttrib(ifr, "sandbox", sandbox || null);
                     dom.setAttrib(ifr, "loading", "lazy");
-                    dom.setAttrib(ifr, "referrerpolicy", "strict-origin-when-cross-origin");
+                    dom.setAttrib(ifr, "referrerpolicy", referrerPolicy);
                     dom.setAttrib(ifr, "allowfullscreen", "");
 
                     // 3) 補保險：清狀況外的 "width/height='null'" 殘留
@@ -945,9 +957,9 @@ export const useTinyMceIframeEdit = (): TinySetup =>
                         // 這幾個欄位視 TinyMCE/插件版本而定，能找到就一起同步
                         const setWrap = (k: string, val: string | null) => dom.setAttrib(wrapper, k, val);
                         // 主要：保證 data-mce-p-src 與各類 URL 欄位是新值
-                        setWrap("data-mce-p-src", v.src || null);
-                        setWrap("data-mce-url", v.src || null);
-                        setWrap("data-ephox-embed-iri", v.src || null);
+                        setWrap("data-mce-p-src", url || null);
+                        setWrap("data-mce-url", url || null);
+                        setWrap("data-ephox-embed-iri", url || null);
 
                         // 如需更完整，其他屬性也能補上 data-mce-p-*
                         const cacheAttrs: Record<string, string | null> = {
@@ -956,7 +968,7 @@ export const useTinyMceIframeEdit = (): TinySetup =>
                             "data-mce-p-height": (typeof nh === "string" ? nh : String(nh)) || null,
                             // "data-mce-p-sandbox": sandbox || null,
                             "data-mce-p-loading": "lazy",
-                            "data-mce-p-referrerpolicy": "strict-origin-when-cross-origin",
+                            "data-mce-p-referrerpolicy": referrerPolicy,
                             "data-mce-p-allowfullscreen": "", // boolean attr
                         };
                         Object.entries(cacheAttrs).forEach(([k, val]) => setWrap(k, val));
