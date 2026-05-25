@@ -12,6 +12,11 @@ import {
     validateIframeSrc,
 } from "./tinyMceIframeUtils";
 import { normalizeListHtmlBeforeSave } from "./tinyMceListNormalize";
+import {
+    normalizePastedTableElement,
+    normalizeTableHtmlBeforeSave,
+    normalizeTableHtmlForEditor,
+} from "./tinyMceTableUtils";
 import { useContentTransform } from "./useContentTransform";
 
 export interface TinyMceHookOptions
@@ -363,12 +368,15 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                 // DB → 編輯器：BeforeSetContent 時把 data-internalid 改回 src
                 editor.on("BeforeSetContent", (e: any) =>
                 {
-                    if (typeof e.content === "string") e.content = toEditor(e.content);
+                    if (typeof e.content === "string") e.content = normalizeTableHtmlForEditor(toEditor(e.content));
                 });
                 // 編輯器 → DB：GetContent 時把 src 改回 data-internalid（僅程式取用）
                 editor.on("GetContent", (e: any) =>
                 {
-                    if (typeof e.content === "string") e.content = toDb(normalizeListHtmlBeforeSave(e.content));
+                    if (typeof e.content === "string")
+                    {
+                        e.content = toDb(normalizeListHtmlBeforeSave(normalizeTableHtmlBeforeSave(e.content)));
+                    }
                 });
 
                 // insertiframe 按鈕
@@ -649,16 +657,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
             paste_postprocess: (_plugin: any, args: any) =>
             {
                 const root = args.node as HTMLElement;
-                root.querySelectorAll("table").forEach(t =>
-                {
-                    t.removeAttribute("width");
-                    (t as HTMLElement).style.width = "100%";
-                    t.querySelectorAll("colgroup,col,td,th").forEach(el =>
-                    {
-                        el.removeAttribute("width");
-                        (el as HTMLElement).style.width = "";
-                    });
-                });
+                normalizePastedTableElement(root);
             },
             ...(p.initExtras ?? {}),
         } as const;
