@@ -1142,10 +1142,10 @@
 @media screen and (min-width: 320px) and (max-width: 575px) {
 	.SubPage_Standard_itemBoxs .card_content .card_subtitle {
 		font-size: 87.5%;
-		max-height: 44px;
+		max-height: 42.5px;
 		/* 第五步：其它瀏覽器降級方式：給定最大高度 */
 
-		height: 44px;
+		height: 42.5px;
 		margin-bottom: 1rem;
 		margin-top: 8px;
 	}

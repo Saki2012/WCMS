@@ -373,6 +373,7 @@
     height: calc(100vh - 74px);
     padding: 10px 0;
     padding-bottom: 50px;
+    overflow-y: scroll;
 }
 
 .pc-sidebar .card {
