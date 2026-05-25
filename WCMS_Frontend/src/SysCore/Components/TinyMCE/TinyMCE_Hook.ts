@@ -5,6 +5,7 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { PGID } from "@/types/SchemaFields";
 import { useMemo, useRef } from "react";
 import type { Editor as TinyMCEEditor } from "tinymce";
+import { normalizeListHtmlBeforeSave } from "./tinyMceListNormalize";
 import { useContentTransform } from "./useContentTransform";
 
 export interface TinyMceHookOptions
@@ -198,7 +199,8 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                 td: "background-color",
                 th: "background-color",
                 "*": "color,font-size,font-family,background-color,text-decoration,font-style,font-weight,line-height,vertical-align,"
-                    + "border,border-top,border-right,border-bottom,border-left,text-align,width,height",
+                    + "border,border-top,border-right,border-bottom,border-left,text-align,width,height,"
+                    + "min-width,max-width,min-height,max-height,margin-left,padding-left,list-style-type,list-style-position",
             },
             table_advtab: true,
             table_cell_advtab: true,
@@ -363,7 +365,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                 // 編輯器 → DB：GetContent 時把 src 改回 data-internalid（僅程式取用）
                 editor.on("GetContent", (e: any) =>
                 {
-                    if (typeof e.content === "string") e.content = toDb(e.content);
+                    if (typeof e.content === "string") e.content = toDb(normalizeListHtmlBeforeSave(e.content));
                 });
 
                 // insertiframe 按鈕
