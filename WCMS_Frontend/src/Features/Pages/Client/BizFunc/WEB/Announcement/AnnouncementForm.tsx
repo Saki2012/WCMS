@@ -11,11 +11,11 @@ import type { components } from "@/types/api";
 import { PGID } from "@/types/SchemaFields";
 import { useMemo } from "react";
 import { useParams } from "react-router";
-import { useAnnouncementFormFetchData } from "./AnnouncementForm_Loader";
+import { useAnnouncementFormData } from "./AnnouncementForm_Loader";
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 
-const emptyData: AnnouncementSet = { Announcement: {}, AnnouncementDetail: [] };
+const emptyData: AnnouncementSet = { Announcement: {}, AnnouncementDetail: [], AnnouncementDetailFile: [] };
 
 export interface IAnnouncementFormProps
 {
@@ -31,11 +31,11 @@ const AnnouncementForm = (props: IAnnouncementFormProps) =>
     const { internalId } = useParams();
     const safeInternalId = `${internalId ?? ""}`.trim();
 
-    // 執行 function：統一由 loader.ts 提供 form 需要的資料
-    const getData = useAnnouncementFormFetchData({ lang: props.lang, internalId: safeInternalId, emptyData });
-    const formData = getData.rawData.formData;
-    const categoryNameText = getData.rawData.categoryNameText;
-    const tagNameText = getData.rawData.tagNameText;
+    // 執行 function：Form 不顯示 SearchBar / Paginator，但資料流程統一走 Client_DataQueryTemplate
+    const vm = useAnnouncementFormData({ lang: props.lang, internalId: safeInternalId, emptyData });
+    const formData = vm.formData;
+    const categoryNameText = vm.categoryNameText;
+    const tagNameText = vm.tagNameText;
     const detail = useMemo(() => formData.AnnouncementDetail?.find(p => (p.Lang ?? "").toLowerCase() === props.lang), [
         formData.AnnouncementDetail,
         props.lang,
@@ -62,8 +62,8 @@ const AnnouncementForm = (props: IAnnouncementFormProps) =>
             nodeTitle={props.node.title}
             title={detail?.Title ?? ""}
             subTitle={subTitle}
-            isLoading={getData.isLoading}
-            errorList={getData.errors}
+            isLoading={vm.isLoading}
+            errorList={vm.errorList}
             viewCountConfig={viewCountConfig}
         >
             <Content lang={props.lang} data={formData} />

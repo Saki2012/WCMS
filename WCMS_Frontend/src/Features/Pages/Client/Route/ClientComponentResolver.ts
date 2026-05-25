@@ -6,6 +6,7 @@
 // 4. 不再讓 _default 介入 component resolver，避免空殼覆蓋 Feature
 import { HomePage as DefaultHomePage } from "@/Features/Pages/Client/Index/HomePage";
 import { HomePageLoader as HomePageLoaderBase } from "@/Features/Pages/Client/Index/HomePage_Loader";
+import { getClientSlotPath } from "@/Features/Pages/Client/Scaffold/Slot/Client_SlotPath";
 import { resolveSpecComponent, resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
 // ---------------- Feature 基準版元件 ----------------
 import AnnouncementFormCompBase from "@/Features/Pages/Client/BizFunc/WEB/Announcement/AnnouncementForm";
@@ -30,24 +31,24 @@ import SubPageBase from "@/Features/Pages/Client/Scaffold/SubPages/SubPage";
 // ====================================================
 
 // SubPage
-export const SubPage: typeof SubPageBase = resolveSpecComponent("Pages/Client/Scaffold/SubPages/SubPage.tsx", SubPageBase, ["SubPage", "default"]);
+export const SubPage: typeof SubPageBase = resolveSpecComponent(getClientSlotPath("SubPage"), SubPageBase, ["SubPage", "default"]);
 
 // HomePage
-export const HomePage: typeof DefaultHomePage = resolveSpecComponent("Pages/Client/Index/HomePage.tsx", DefaultHomePage, ["HomePage", "default"]);
+export const HomePage: typeof DefaultHomePage = resolveSpecComponent(getClientSlotPath("HomePage"), DefaultHomePage, ["HomePage", "default"]);
 
-export const HomePageLoader: typeof HomePageLoaderBase = resolveSpecFunc("Pages/Client/Index/HomePage_Loader.ts", HomePageLoaderBase, [
+export const HomePageLoader: typeof HomePageLoaderBase = resolveSpecFunc(getClientSlotPath("HomePageLoader"), HomePageLoaderBase, [
     "HomePageLoader",
     "default",
 ]);
 // PageManagement Form
 export const PageManagementForm: typeof PageManagementFormCompBase = resolveSpecComponent(
-    "Pages/Client/BizFunc/WEB/PageManagement/PageManagementForm.tsx",
+    getClientSlotPath("PageManagementForm"),
     PageManagementFormCompBase,
     ["PageManagementFormComp", "PageManagementForm", "default"],
 );
 
 // Announcement List
-export const AnnouncementList = resolveSpecComponent("Pages/Client/BizFunc/WEB/Announcement/AnnouncementList.tsx", AnnouncementListBase, [
+export const AnnouncementList = resolveSpecComponent(getClientSlotPath("AnnouncementList"), AnnouncementListBase, [
     "AnnouncementList",
     "AnnouncementListComp",
     "default",
@@ -55,34 +56,34 @@ export const AnnouncementList = resolveSpecComponent("Pages/Client/BizFunc/WEB/A
 
 // Announcement Form
 export const AnnouncementForm: typeof AnnouncementFormCompBase = resolveSpecComponent(
-    "Pages/Client/BizFunc/WEB/Announcement/AnnouncementForm.tsx",
+    getClientSlotPath("AnnouncementForm"),
     AnnouncementFormCompBase,
     ["AnnouncementFormComp", "AnnouncementForm", "default"],
 );
 
 // FileArchive List
-export const FileArchiveList = resolveSpecComponent("Pages/Client/BizFunc/WEB/FileArchive/FileArchiveList.tsx", FileArchiveListBase, [
+export const FileArchiveList = resolveSpecComponent(getClientSlotPath("FileArchiveList"), FileArchiveListBase, [
     "FileArchiveList",
     "FileArchiveListComp",
     "default",
 ]);
 
 // Gallery List
-export const GalleryListComp = resolveSpecComponent("Pages/Client/BizFunc/WEB/Gallery/GalleryList.tsx", GalleryListCompBase, [
+export const GalleryListComp = resolveSpecComponent(getClientSlotPath("GalleryList"), GalleryListCompBase, [
     "GalleryListComp",
     "GalleryList",
     "default",
 ]);
 
 // Gallery Form
-export const GalleryForm = resolveSpecComponent("Pages/Client/BizFunc/WEB/Gallery/GalleryForm.tsx", GalleryFormCompBase, [
+export const GalleryForm = resolveSpecComponent(getClientSlotPath("GalleryForm"), GalleryFormCompBase, [
     "GalleryFormComp",
     "GalleryForm",
     "default",
 ]);
 
 // WebResource List
-export const WebResourceListComp = resolveSpecComponent("Pages/Client/BizFunc/WEB/WebResource/WebResourceList.tsx", WebResourceListCompBase, [
+export const WebResourceListComp = resolveSpecComponent(getClientSlotPath("WebResourceList"), WebResourceListCompBase, [
     "WebResourceListComp",
     "WebResourceList",
     "default",

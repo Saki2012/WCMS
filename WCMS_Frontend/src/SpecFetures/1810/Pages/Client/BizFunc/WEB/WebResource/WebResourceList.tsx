@@ -1,11 +1,12 @@
 /**公告清單 */
 import { type IWebResourceListProps, resolveYoutubeEmbedUrl } from "@/Features/Pages/Client/BizFunc/WEB/WebResource/WebResourceList";
-import { useWebResourceListFetchData } from "@/Features/Pages/Client/BizFunc/WEB/WebResource/WebResourceList_Loader";
+import { useWebResourceListData } from "@/Features/Pages/Client/BizFunc/WEB/WebResource/WebResourceList_Loader";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import DefaultImg from "@/SpecFetures/1810/Assets/Custom/WebResource_Default.png";
 import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
 import type { GridProps, GridRow } from "@/SysCore/Components/Grid/Grid_Data";
 import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
+import { Client_SearchBar_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/SearchBar/Client_SearchBar_Comp";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
@@ -39,7 +40,7 @@ const formatCategoriesNameByMap = (content: string, categoryMap: CategoryMap) =>
 const WebResourceListComp = (props: IWebResourceListProps) =>
 {
     // 宣告變數：直接吃 feature data
-    const getData = useWebResourceListFetchData({ lang: props.lang, options: props.options });
+    const getData = useWebResourceListData({ lang: props.lang, opts: props.options });
     const style = props.options?.Style ?? 1;
 
     const content = useMemo(() =>
@@ -47,19 +48,19 @@ const WebResourceListComp = (props: IWebResourceListProps) =>
         switch (style)
         {
             case 7:
-                return <YoutubeContent key="yt" lang={props.lang} datas={getData.rawData.listData ?? []} />;
+                return <YoutubeContent key="yt" lang={props.lang} datas={getData.listData ?? []} />;
 
             case 2:
-                return <PictureListContent key="pic" lang={props.lang} datas={getData.rawData.listData ?? []} />;
+                return <PictureListContent key="pic" lang={props.lang} datas={getData.listData ?? []} />;
 
             case 1:
             default:
             {
-                const adjustedGrid = SetAdjustFunction(props.lang, getData.rawData.gridProps, getData.rawData.listData, getData.rawData.categoryMap);
+                const adjustedGrid = SetAdjustFunction(props.lang, getData.gridProps, getData.listData, getData.categoryMap);
                 return <GridList_Comp key="grid" lang={props.lang} GridData={adjustedGrid} Theme={props.theme} />;
             }
         }
-    }, [style, props.lang, props.theme, getData.rawData.gridProps, getData.rawData.listData, getData.rawData.categoryMap]);
+    }, [style, props.lang, props.theme, getData.gridProps, getData.listData, getData.categoryMap]);
 
     // return
     return (
@@ -70,6 +71,7 @@ const WebResourceListComp = (props: IWebResourceListProps) =>
                 </div>
             </div>
             <hr className="hr-Css" />
+            {getData.searchBar && <Client_SearchBar_Comp {...getData.searchBar} />}
             {content}
         </LoadingErrorHandler>
     );

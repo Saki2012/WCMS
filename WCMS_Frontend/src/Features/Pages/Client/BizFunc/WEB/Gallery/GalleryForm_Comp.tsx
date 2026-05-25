@@ -1,5 +1,4 @@
 import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
-import { useGalleryFormFetchData } from "@/Features/Pages/Client/BizFunc/WEB/Gallery/GalleryForm_Loader";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
@@ -9,6 +8,8 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import { PGID } from "@/types/SchemaFields";
 import { useCallback, useMemo, useState } from "react";
+import { useParams } from "react-router";
+import { useGalleryFormData } from "./GalleryForm_Loader";
 
 type GallerySet = components["schemas"]["GallerySet_DTO"];
 type GalleryPhoto = NonNullable<GallerySet["GalleryPhotos"]>[number];
@@ -26,6 +27,8 @@ interface GalleryFormListProps
     data: GallerySet;
 }
 
+const emptyData: GallerySet = { Gallery: {}, GalleryInfo: [], GalleryPhotos: [], GalleryPhotosInfo: [] };
+
 /** 相簿圖片 a11y 文案結構 */
 type GalleryImageA11yText = { openPreview: string; openImage: (title: string) => string; };
 
@@ -39,59 +42,61 @@ const GALLERY_IMAGE_A11Y_MAP: Partial<Record<Lang, GalleryImageA11yText>> = {
 /** 取得相簿圖片 a11y 文案（語系不在表內時，回退到 DefaultLang） */
 const getGalleryImageA11y = (lang?: Lang): GalleryImageA11yText =>
 {
-    // 宣告：fallback key
+    // 宣告變數
     const key = (lang ?? DefaultLang) as Lang;
-
-    // 執行：依語系取值，取不到就回 default
     const byLang = GALLERY_IMAGE_A11Y_MAP[key];
     const byDefault = GALLERY_IMAGE_A11Y_MAP[DefaultLang];
 
-    // return：保證回傳一份可用文案
+    // return
     return byLang ?? byDefault ?? { openPreview: "開啟圖片預覽", openImage: (title) => `開啟圖片：${title}` };
 };
 
 /** 取得圖片開啟按鈕 aria-label 文案 */
 const getOpenImageText = (a11y: GalleryImageA11yText, title?: string): string =>
 {
-    // 宣告：去除前後空白後的標題
+    // 宣告變數
     const safeTitle = title?.trim() ?? "";
 
-    // return：有標題時帶入標題，沒有標題時使用預覽文案
+    // return
     return safeTitle ? a11y.openImage(safeTitle) : a11y.openPreview;
 };
 
 /** 取得圖片按鈕 title 文案 */
 const getImageButtonTitle = (title?: string): string | undefined =>
 {
-    // 宣告：去除前後空白後的標題
+    // 宣告變數
     const safeTitle = title?.trim() ?? "";
 
-    // return：title 只顯示圖片標題，沒有標題時不輸出 title
+    // return
     return safeTitle || undefined;
 };
 
 /** 相簿表單頁面 */
 const GalleryForm = (props: GalleryFormProps) =>
 {
-    // 讀取 feature 收斂後的單一資料入口
-    const formData = useGalleryFormFetchData({ lang: props.lang });
+    // 宣告變數
+    const { internalId } = useParams();
+    const safeInternalId = `${internalId ?? ""}`.trim();
 
-    // 建立瀏覽次數設定
+    // 執行 function：Form 不顯示 SearchBar / Paginator，但資料流程統一走 Client_DataQueryTemplate
+    const vm = useGalleryFormData({ lang: props.lang, internalId: safeInternalId, emptyData });
+
     const viewCountConfig = useMemo<ModuleViewCountConfig>(() =>
     {
-        const request: TryCountDetailViewRequest = { SiteIndex: props.site.siteIndex, ProgId: PGID.Gallery, InternalId: formData.internalId };
-        return { mode: "form", contentKey: formData.internalId, request };
-    }, [props.site.siteIndex, formData.internalId]);
+        const request: TryCountDetailViewRequest = { SiteIndex: props.site.siteIndex, ProgId: PGID.Gallery, InternalId: safeInternalId };
+        return { mode: "form", contentKey: safeInternalId, request };
+    }, [props.site.siteIndex, safeInternalId]);
 
+    // return
     return (
         <ModuleContent
             nodeTitle={props.node.title}
-            title={formData.title}
-            isLoading={formData.isLoading}
-            errorList={formData.errorList}
+            title={vm.title}
+            isLoading={vm.isLoading}
+            errorList={vm.errorList}
             viewCountConfig={viewCountConfig}
         >
-            <NewGalleryFormList lang={props.lang} data={formData.data} />
+            <NewGalleryFormList lang={props.lang} data={vm.data} />
         </ModuleContent>
     );
 };
@@ -101,59 +106,63 @@ export default GalleryForm;
 /** 建立單張相簿圖片的 Lightbox 資料 */
 const buildGallerySlide = (data: GallerySet, item: GalleryPhoto, lang: Lang): LibLightBoxSlide =>
 {
-    // 依語系取得圖片標題
+    // 宣告變數
     const infoDt = data.GalleryPhotosInfo?.find((p) => p.ParentRowId === item.RowId && p.Lang === lang);
     const title = infoDt?.Title ?? "";
     const url = FileManagementAPI.get_Public_Preview_Url(item.PicSrcId);
-    // 宣告：圖片描述，後續可改接後端欄位
     const description = infoDt?.Description ?? "";
-    // return：回傳 Lightbox slide
+
+    // return
     return { src: url, title, description, download: url };
 };
 
 /** 取得相簿圖片排序值，沒有 Sort 時放到最後 */
 const getGalleryPhotoSort = (item: GalleryPhoto): number =>
 {
+    // return
     return item.Sort ?? Number.MAX_SAFE_INTEGER;
 };
+
 /** 依相簿圖片 Sort 排序，Sort 相同時用 RowId 穩定排序 */
 const sortGalleryPhotos = (list: GalleryPhoto[] | null | undefined): GalleryPhoto[] =>
 {
+    // return
     return [...(list ?? [])].sort((a, b) =>
     {
         const sortCompare = getGalleryPhotoSort(a) - getGalleryPhotoSort(b);
         return sortCompare !== 0 ? sortCompare : (a.RowId ?? 0) - (b.RowId ?? 0);
     });
 };
+
 /** 將相簿圖片資料轉成共用 Lightbox 可吃的格式 */
 const buildGallerySlides = (data: GallerySet, lang: Lang): LibLightBoxSlide[] =>
 {
+    // 宣告變數
     const photos = sortGalleryPhotos(data?.GalleryPhotos);
+
+    // return
     return photos.map((item) => buildGallerySlide(data, item, lang));
 };
 
 /** 相簿圖片列表 */
 const NewGalleryFormList = (props: GalleryFormListProps) =>
 {
+    // 宣告變數
     const [open, setOpen] = useState(false);
     const [index, setIndex] = useState(0);
-
-    // 依語系取得 a11y 文案
     const a11y = useMemo(() => getGalleryImageA11y(props.lang), [props.lang]);
-
-    // 依資料與語系產生 Lightbox 圖片清單
     const slides = useMemo(() => buildGallerySlides(props.data, props.lang), [props.data, props.lang]);
 
-    // 開啟指定索引的 Lightbox
+    // 執行 function
     const openGallery = useCallback((idx: number) =>
     {
         setIndex(idx);
         setOpen(true);
     }, []);
 
-    // 關閉 Lightbox
     const closeGallery = useCallback(() => setOpen(false), []);
 
+    // return
     return (
         <>
             <div id="Row_Colitem" className="SubPage_Standard_itemBoxs">

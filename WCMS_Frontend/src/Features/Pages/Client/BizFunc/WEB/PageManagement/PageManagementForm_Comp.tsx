@@ -6,7 +6,7 @@ import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { PGID } from "@/types/SchemaFields";
 import { useMemo } from "react";
-import { type IPageManagementOptions, usePageManagementFormFetchData } from "./PageManagementForm_Loader";
+import { type IPageManagementOptions, usePageManagementFormData } from "./PageManagementForm_Loader";
 
 interface IPageManagementProps
 {
@@ -17,9 +17,17 @@ interface IPageManagementProps
     options?: IPageManagementOptions;
 }
 
+/** 取得 SiteMenu 設定的 PageId；目前實際值為 PageManagement.InternalId */
+const getSafePageId = (value?: string): string =>
+{
+    // return
+    return `${value ?? ""}`.trim();
+};
+
 /** 建立瀏覽次數設定 */
 const useViewCountConfig = (p: { siteIndex: string; pageId: string; }): ModuleViewCountConfig =>
 {
+    // return
     return useMemo<ModuleViewCountConfig>(() =>
     {
         const request: TryCountDetailViewRequest = { SiteIndex: p.siteIndex, ProgId: PGID.PageManagement, InternalId: p.pageId };
@@ -27,14 +35,18 @@ const useViewCountConfig = (p: { siteIndex: string; pageId: string; }): ModuleVi
     }, [p.siteIndex, p.pageId]);
 };
 
+/** 單頁內容前台 Form，資料流程統一走 Client_DataQueryTemplate */
 const PageManagementForm = (props: IPageManagementProps) =>
 {
-    const pageId = `${props.options?.PageId ?? ""}`.trim();
-    const data = usePageManagementFormFetchData({ lang: props.lang, pageId });
+    // 宣告變數
+    const pageId = getSafePageId(props.options?.PageId);
+    const vm = usePageManagementFormData({ lang: props.lang, pageId });
     const viewCountConfig = useViewCountConfig({ siteIndex: props.site.siteIndex, pageId });
+
+    // return
     return (
-        <ModuleContent nodeTitle={""} title={data.title} isLoading={data.isLoading} errorList={data.errorList} viewCountConfig={viewCountConfig}>
-            <CmsHtml_Comp html={data.contentHtml} lang={props.lang} />
+        <ModuleContent nodeTitle={""} title={vm.title} isLoading={vm.isLoading} errorList={vm.errorList} viewCountConfig={viewCountConfig}>
+            <CmsHtml_Comp html={vm.contentHtml} lang={props.lang} />
         </ModuleContent>
     );
 };

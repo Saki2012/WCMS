@@ -7,7 +7,7 @@ import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useOptionalSpecAssetUrl } from "@/SysCore/Utils/UI_HookFunc/useOptionalSpecAssetUrl";
 import type { components } from "@/types/api";
-import { useEffect, useMemo, useState } from "react";
+import { type MouseEvent, useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { getCsvValues, getInitialMaterialTagId, type IMaterialListOptions, useMaterialListData } from "./Client_Material_List_Loader";
 
@@ -47,12 +47,11 @@ export const Client_Material_List_Comp = (props: IMaterialListProps) =>
 {
     const dirUrl = useLocation().pathname.replace(/\/List$/, "");
     const [activeTabId, setActiveTabId] = useState<string>(() => getInitialMaterialTagId(props.options.TagIds));
-    const viewState = useMemo(() => ({ pageNumber: 1, pageSize: 12, keyword: undefined }), []);
     const listOptions = useMemo<IMaterialListOptions>(
         () => ({ PageId: props.options.PageId, CategoryId: props.options.CategoryId, TagIds: activeTabId || props.options.TagIds }),
         [props.options.PageId, props.options.CategoryId, props.options.TagIds, activeTabId],
     );
-    const vm = useMaterialListData({ lang: props.lang, opts: listOptions, viewState });
+    const vm = useMaterialListData({ lang: props.lang, opts: listOptions });
     const rawData = vm.rawData;
     const content = rawData.pageDetail?.Content ?? "";
     const tagList = useMemo(() => buildMaterialTabList(rawData.tagMap, props.options.TagIds), [rawData.tagMap, props.options.TagIds]);
@@ -65,14 +64,12 @@ export const Client_Material_List_Comp = (props: IMaterialListProps) =>
         setActiveTabId(tagList[0].id);
     }, [tagList, activeTabId]);
 
-    const paginprops = { currentPage: rawData.pageNumber, totalPages: rawData.totalPages, onPageChange: vm.onPageChange };
-
     return (
         <ModuleContent
             nodeTitle={props.node.title}
             isLoading={vm.isLoading}
             errorList={vm.errorList}
-            paginatorProps={paginprops}
+            paginatorProps={vm.paginatorProps}
             viewCountConfig={{ mode: "list" }}
         >
             <CmsHtml_Comp html={content} lang={props.lang} />
@@ -155,7 +152,7 @@ const ProductionTabs = (props: { tagList: MaterialTabView[]; activeTabId: string
                                 aria-selected={tag.id === props.activeTabId}
                                 aria-controls={props.tabPanelId}
                                 id={`H-Tabs__${tag.id}`}
-                                onClick={() => props.onChange(tag.id)}
+                                onClick={(event) => handleMaterialTabClick(event, tag.id, props.onChange)}
                             >
                                 <span className="vm">{tag.name}</span>
                                 <span className="ms-1">〉</span>
@@ -166,6 +163,13 @@ const ProductionTabs = (props: { tagList: MaterialTabView[]; activeTabId: string
             </ul>
         </div>
     );
+};
+
+/** 處理 Material Tab 點擊，避免 href 預設跳動 */
+const handleMaterialTabClick = (event: MouseEvent<HTMLAnchorElement>, id: string, onChange: (id: string) => void): void =>
+{
+    event.preventDefault();
+    onChange(id);
 };
 
 /** Material 卡片項目 */

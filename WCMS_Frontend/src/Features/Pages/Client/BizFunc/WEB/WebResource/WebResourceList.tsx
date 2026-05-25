@@ -13,7 +13,7 @@ import { FormatDate } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { WebResourceFields, WebResourceInfoFields } from "@/types/SchemaFields";
 import { useEffect, useMemo, useState } from "react";
-import { useWebResourceListFetchData } from "./WebResourceList_Loader";
+import { useWebResourceListData } from "./WebResourceList_Loader";
 
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
 type WindowTarget = components["schemas"]["WindowTarget"];
@@ -36,37 +36,41 @@ export interface IWebResourceListProps
 
 const WebResourceListComp = (props: IWebResourceListProps) =>
 {
-    // 宣告變數：資料統一由 loader/hook 提供
-    const getData = useWebResourceListFetchData({ lang: props.lang, options: props.options });
+    // 宣告變數：資料統一由 Client_DataQueryTemplate 提供
+    const vm = useWebResourceListData({ lang: props.lang, opts: props.options });
     const style = props.options?.Style ?? 1;
 
     const children = useMemo(() =>
     {
+        // 執行 function：依照原樣式切換清單 DOM
         switch (style)
         {
             case 7:
             case 2:
-                return <PictureListContent key="pic" lang={props.lang} datas={getData.rawData.listData} cateMap={getData.rawData.categoryMap} />;
+                return <PictureListContent key="pic" lang={props.lang} datas={vm.listData} cateMap={vm.categoryMap} />;
             case 1:
             default:
             {
-                const adjustedGrid = SetAdjustFunction(props.lang, getData.rawData.gridProps, getData.rawData.listData, getData.rawData.categoryMap);
+                const adjustedGrid = SetAdjustFunction(props.lang, vm.gridProps, vm.listData, vm.categoryMap);
                 return <GridList_Comp key="grid" lang={props.lang} title={""} GridData={adjustedGrid} />;
             }
         }
-    }, [style, props.lang, getData.rawData.gridProps, getData.rawData.listData, getData.rawData.categoryMap]);
+    }, [style, props.lang, vm.gridProps, vm.listData, vm.categoryMap]);
 
-    const viewCountConfig: ModuleViewCountConfig = { mode: "list" };
-    const paginprops = props.options?.Style === 8
-        ? undefined
-        : { currentPage: getData.rawData.pageNumber, totalPages: getData.rawData.totalPages, onPageChange: getData.rawData.onPageChange };
-    // return（DOM 不動）
+    const viewCountConfig = useMemo<ModuleViewCountConfig>(() =>
+    {
+        // return
+        return { mode: "list" };
+    }, []);
+
+    // return（DOM 不動，只改資料來源與共用 model）
     return (
         <ModuleContent
             nodeTitle={props.node.title}
-            isLoading={getData.isLoading}
-            errorList={getData.errorList}
-            paginatorProps={paginprops}
+            isLoading={vm.isLoading}
+            errorList={vm.errorList}
+            searchBar={vm.searchBar}
+            paginatorProps={vm.paginatorProps}
             viewCountConfig={viewCountConfig}
         >
             {children}
@@ -260,7 +264,7 @@ const PictureListContent = (prop: { lang: Lang; datas: WebResourceSet[]; cateMap
                                                 title={title}
                                             >
                                                 <div className="img-wrapper">
-                                                    <img className="card_image" src={picUrl} alt="" />
+                                                    <img className="card_image" src={picUrl} alt={title} />
                                                 </div>
                                             </LangLink>
                                         )}

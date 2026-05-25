@@ -1,17 +1,17 @@
 /**公告清單 */
 import type { FileArchiveProps } from "@/Features/Pages/Client/BizFunc/WEB/FileArchive/FileArchiveList";
-import { useFileArchiveListFetchData } from "@/Features/Pages/Client/BizFunc/WEB/FileArchive/FileArchiveList_Loader";
+import { useFileArchiveListData } from "@/Features/Pages/Client/BizFunc/WEB/FileArchive/FileArchiveList_Loader";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
 import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
+import { Client_SearchBar_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/SearchBar/Client_SearchBar_Comp";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
-import { type ISearchQuery, SearchBarComp } from "@/SysCore/Components/SearchBar/SearchBar_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import { FileArchiveFields, FileArchiveInfoFields } from "@/types/SchemaFields";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];
 type FileArchiveDetail = components["schemas"]["FileArchiveDetail_DTO"];
@@ -21,49 +21,31 @@ type WindowTarget = components["schemas"]["WindowTarget"];
 const FileArchiveList = (props: FileArchiveProps) =>
 {
     // 宣告變數
-    const [queryDraft, setQueryDraft] = useState<ISearchQuery>({});
-    const [query, setQuery] = useState<ISearchQuery>({});
-
-    // 執行 function：統一由 feature loader 提供主資料 / tag / category
-    const useFileArchiveList = useFileArchiveListFetchData({ lang: props.lang, opts: props.options, query });
-
-    const searchSlot = (
-        <SearchBarComp
-            value={queryDraft}
-            tags={useFileArchiveList.rawData.tagOptions}
-            onChange={(k, v) => setQueryDraft(prev => ({ ...prev, [k]: v }))}
-            onSubmit={() => setQuery(queryDraft)}
-            onReset={() =>
-            {
-                setQueryDraft({});
-                setQuery({});
-            }}
-        />
-    );
+    const useFileArchiveList = useFileArchiveListData({ lang: props.lang, opts: props.options });
 
     const baseGrid = useMemo(() =>
     {
         // 執行 function：維持 1810 原本基礎欄位結構
         return buildGridProps(
             props.lang,
-            useFileArchiveList.rawData.list,
-            useFileArchiveList.rawData.pageNumber,
-            useFileArchiveList.rawData.totalPages,
-            useFileArchiveList.rawData.onPageChange,
+            useFileArchiveList.list,
+            useFileArchiveList.pageNumber,
+            useFileArchiveList.totalPages,
+            useFileArchiveList.onPageChange,
         );
     }, [
         props.lang,
-        useFileArchiveList.rawData.list,
-        useFileArchiveList.rawData.pageNumber,
-        useFileArchiveList.rawData.totalPages,
-        useFileArchiveList.rawData.onPageChange,
+        useFileArchiveList.list,
+        useFileArchiveList.pageNumber,
+        useFileArchiveList.totalPages,
+        useFileArchiveList.onPageChange,
     ]);
 
     const adjustedGrid = useMemo(() =>
     {
         // 執行 function：補下載 / 下載次數欄位與 tag 名稱
-        return SetAdjustFunction(props.lang, baseGrid, useFileArchiveList.rawData.list, useFileArchiveList.rawData.tagMap);
-    }, [props.lang, baseGrid, useFileArchiveList.rawData.list, useFileArchiveList.rawData.tagMap]);
+        return SetAdjustFunction(props.lang, baseGrid, useFileArchiveList.list, useFileArchiveList.tagMap);
+    }, [props.lang, baseGrid, useFileArchiveList.list, useFileArchiveList.tagMap]);
 
     const content = useMemo(() =>
     {
@@ -73,8 +55,8 @@ const FileArchiveList = (props: FileArchiveProps) =>
 
     return (
         <>
-            {searchSlot}
-            <LoadingErrorHandler isLoading={useFileArchiveList.isLoading} errorList={useFileArchiveList.errors}>{content}</LoadingErrorHandler>
+            {useFileArchiveList.searchBar && <Client_SearchBar_Comp {...useFileArchiveList.searchBar} />}
+            <LoadingErrorHandler isLoading={useFileArchiveList.isLoading} errorList={useFileArchiveList.errorList}>{content}</LoadingErrorHandler>
         </>
     );
 };

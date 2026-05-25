@@ -279,7 +279,7 @@ const Header_Section = (props: { lang: Lang; site: INormSite; }) =>
 const NavBar = (props: { lang: Lang; }) =>
 {
     const title = props.lang === "zh-tw"
-        ? { Home: "首頁", TKU: "淡江大學", TKUDILS: "淡江資訊與圖書館學系",SiteMap: "網站導覽" }
+        ? { Home: "首頁", TKU: "淡江大學", TKUDILS: "淡江資訊與圖書館學系", SiteMap: "網站導覽" }
         : props.lang === "en"
         ? { Home: "Home", TKU: "TKU", TKUDILS: "TKU DILS", SiteMap: "SiteMap" }
         : {};
@@ -291,16 +291,16 @@ const NavBar = (props: { lang: Lang; }) =>
                     <Accesskey type="U" lang={props.lang} />
                 </li>
                 <li className="nav-item no-divider-line">
-                    <LangLink className="nav-link" to="/" target="_self" title={title.Home}>{title.Home}</LangLink>
+                    <LangLink className="nav-link" to="/" title={title.Home}>{title.Home}</LangLink>
                 </li>
                 <li className="nav-item">
-                    <LangLink className="nav-link" to="https://www.tku.edu.tw/" target="_self" title={title.TKU}>{title.TKU}</LangLink>
+                    <LangLink className="nav-link" to="https://www.tku.edu.tw/" title={title.TKU}>{title.TKU}</LangLink>
                 </li>
                 <li className="nav-item">
-                    <LangLink className="nav-link" to="https://www.dils.tku.edu.tw/" target="_self" title={title.TKUDILS}>{title.TKUDILS}</LangLink>
+                    <LangLink className="nav-link" to="https://www.dils.tku.edu.tw/" title={title.TKUDILS}>{title.TKUDILS}</LangLink>
                 </li>
                 <li className="nav-item">
-                    <LangNavLink to={`/${SITEMAP_SEGMENT}`} className="nav-link" target="_self" title={title.SiteMap}>{title.SiteMap}</LangNavLink>
+                    <LangNavLink to={`/${SITEMAP_SEGMENT}`} className="nav-link" title={title.SiteMap}>{title.SiteMap}</LangNavLink>
                 </li>
             </ul>
         </li>

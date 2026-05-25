@@ -1,12 +1,23 @@
 import { CategoryAdapter, type CategoryMapLoaderData } from "@/Features/Hooks/BizFunc/COMM/Category_Api";
 import { TagAdapter, type TagMapLoaderData } from "@/Features/Hooks/BizFunc/COMM/Tag_Api";
 import { FileArchiveAdapter } from "@/Features/Hooks/BizFunc/WEB/FileArchive_Api";
+import { getClientSlotPath } from "@/Features/Pages/Client/Scaffold/Slot/Client_SlotPath";
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
-import type { ISearchQuery } from "@/SysCore/Components/SearchBar/SearchBar_Comp";
+import {
+    buildClientDataQueryState,
+    isSameClientDataQueryParam,
+    useClientDataQueryTemplate,
+    type ClientDataQueryDataSourceResult,
+    type ClientDataQueryPaginatorModel,
+    type ClientDataQuerySearchBarModel,
+    type ClientDataQueryTemplate,
+} from "@/Features/Pages/Client/Scaffold/DataQueryTemplate/Client_DataQueryTemplate_Hook";
+import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
+import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
+import type { IListViewState } from "@/SysCore/Interface/IListViewState";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { type ApiAdapterError, type ApiGridInitial, type ApiGridLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { getSsrApi, MessageStatus } from "@/SysCore/Utils/API/APIBase";
-import type { UseFetchDataResult } from "@/SysCore/Utils/API/FetchDataType";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
 import type { components } from "@/types/api";
@@ -19,12 +30,15 @@ import {
     FileManageModelFields,
     PGID,
 } from "@/types/SchemaFields";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { type LoaderFunctionArgs, useLoaderData } from "react-router-dom";
 import type { IFileArchiveOptions } from "./FileArchiveList";
 
 type QueryListParam = components["schemas"]["QueryListParam"];
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];
+
+const SEARCH_TITLE_KEY = "title";
+const SEARCH_TAG_KEY = "tag";
 
 export interface FileArchiveTagOption
 {
@@ -35,7 +49,13 @@ export interface FileArchiveTagOption
 export interface FileArchiveListLoaderArgs
 {
     lang: Lang;
-    baseParam: QueryListParam;
+    pageSize: number;
+    pageNumber: number;
+    title?: string;
+    categoryIds: string;
+    tagIds: string;
+    condition: string;
+    listParam: QueryListParam;
 }
 
 export interface FileArchiveListLoaderInitial
@@ -70,8 +90,95 @@ export type FileArchiveListAdapter = {
     Tag: ReturnType<typeof TagAdapter>;
 };
 
-/** SSR / CSR 共用：組固定條件 */
-const buildBaseCondition = (p: { lang: Lang; opts: IFileArchiveOptions; }): string =>
+export interface UseFileArchiveListDataResult extends FileArchiveListRawData
+{
+    paginatorProps: PaginatorProps | null;
+    searchBar: ClientDataQuerySearchBarModel | null;
+    isLoading: boolean;
+    errorList: string[];
+    refetchData: () => Promise<void>;
+}
+
+type FileArchiveSearchParams = {
+    lang: Lang;
+    opts: IFileArchiveOptions;
+    pageSize: number;
+    pageNumber: number;
+    title?: string;
+    categoryIds: string;
+    tagIds: string;
+};
+
+type FileArchiveQueryParam = FileArchiveListLoaderArgs;
+export type FileArchiveDataQueryTemplate = ClientDataQueryTemplate<FileArchiveSearchParams, FileArchiveListRawData, FileArchiveListRawData, FileArchiveListAdapter, FileArchiveQueryParam, FileArchiveListLoaderData>;
+export type FileArchiveListDataQuerySpecSlot = NonNullable<FileArchiveDataQueryTemplate["spec"]>;
+
+/** 正規化 SearchBar 文字條件 */
+const normalizeSearchText = (value?: string): string | undefined =>
+{
+    // 宣告變數
+    const text = `${value ?? ""}`.trim();
+
+    // return
+    return text ? text : undefined;
+};
+
+/** 讀取 SearchValues 的字串值 */
+const getSearchStringValue = (values: SearchValues, key: string): string | undefined =>
+{
+    // 宣告變數
+    const value = (values as Record<string, unknown>)[key];
+
+    // return
+    return typeof value === "string" ? value : value == null ? undefined : `${value}`;
+};
+
+/** 建立 FileArchive 前台搜尋欄位，標籤選單由 tag map 動態提供 */
+const buildFileArchiveSearchFields = (tagOptions: FileArchiveTagOption[] = []): SearchFieldConfig[] =>
+{
+    // 宣告變數
+    const options = tagOptions.map(item => ({ value: item.id, title: item.name }));
+
+    // return
+    return [
+        {
+            key: SEARCH_TITLE_KEY,
+            title: "標題",
+            label: "標題",
+            type: "text",
+            placeholder: "請輸入標題",
+            maxLength: 100,
+        },
+        {
+            key: SEARCH_TAG_KEY,
+            title: "標籤",
+            label: "標籤",
+            type: "select",
+            options: [{ value: "", title: "請選擇" }, ...options],
+        },
+    ] as unknown as SearchFieldConfig[];
+};
+
+/** 建立 FileArchive 搜尋初始值 */
+const buildFileArchiveSearchValues = (p?: { title?: string; tagIds?: string; }): SearchValues =>
+{
+    // return
+    return { [SEARCH_TITLE_KEY]: normalizeSearchText(p?.title) ?? "", [SEARCH_TAG_KEY]: normalizeSearchText(p?.tagIds) ?? "" } as SearchValues;
+};
+
+/** 建立 FileArchive 初始 ViewState */
+const buildFileArchiveInitialViewState = (overrides?: Partial<{ pageNumber: number; pageSize: number; }>): IListViewState =>
+{
+    // 宣告變數
+    const pageNumber = overrides?.pageNumber ?? 1;
+    const pageSize = overrides?.pageSize ?? 10;
+
+    // return
+    return { pageNumber, pageSize } as IListViewState;
+};
+
+/** 建立固定條件，包含語系、狀態、分類與標籤 */
+const buildFileArchiveBaseCondition = (p: { lang: Lang; categoryIds: string; tagIds: string; }): string =>
 {
     // 宣告變數
     let condition = LibMerge(
@@ -82,49 +189,35 @@ const buildBaseCondition = (p: { lang: Lang; opts: IFileArchiveOptions; }): stri
         `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.Title} != ''`,
     );
 
-    // 執行 function：固定篩選條件
-    if (p.opts.Category)
+    // 執行 function：套用節點固定篩選條件
+    if (p.categoryIds) condition = LibMerge(" And ", false, condition, `${FileArchiveFields.CategoriesId} HasAny [${p.categoryIds}]`);
+    if (p.tagIds) condition = LibMerge(" And ", false, condition, `${FileArchiveFields.TagsId} HasAny [${p.tagIds}]`);
+
+    // return
+    return condition;
+};
+
+/** 建立完整搜尋條件，Title 是唯一 SearchBar 條件 */
+const buildFileArchiveCondition = (p: FileArchiveSearchParams): string =>
+{
+    // 宣告變數
+    let condition = buildFileArchiveBaseCondition({ lang: p.lang, categoryIds: p.categoryIds, tagIds: p.tagIds });
+
+    // 執行 function：使用者搜尋條件只查標題
+    if (p.title)
     {
-        condition = LibMerge(" And ", false, condition, `${FileArchiveFields.CategoriesId} HasAny [${p.opts.Category}]`);
-    }
-    if (p.opts.Tag)
-    {
-        condition = LibMerge(" And ", false, condition, `${FileArchiveFields.TagsId} HasAny [${p.opts.Tag}]`);
+        condition = LibMerge(" And ", false, condition, `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.Title} Like ${p.title}`);
     }
 
     // return
     return condition;
 };
 
-/** CSR 搜尋：把 keyword / tag 併進固定條件 */
-const appendSearchCondition = (baseCondition: string, query: ISearchQuery): string =>
+/** 建立 FileArchive QueryListParam */
+const buildFileArchiveQuery = (p: { condition: string; pageNumber: number; pageSize: number; }): QueryListParam =>
 {
-    // 宣告變數
-    let condition = baseCondition ?? "";
-
-    // 執行 function：使用者互動搜尋條件
-    if (query.keyword)
-    {
-        condition = LibMerge(" And ", false, condition, `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.Title} Like ${query.keyword}`);
-    }
-    if (query.tag)
-    {
-        condition = LibMerge(" And ", false, condition, `${FileArchiveFields.TagsId} HasAny [${query.tag}]`);
-    }
-
     // return
-    return condition;
-};
-
-/** SSR / CSR 共用：主清單 Query 參數 */
-const buildBaseParam = (p: { lang: Lang; opts: IFileArchiveOptions; query?: ISearchQuery; }): QueryListParam =>
-{
-    // 宣告變數
-    const query = p.query ?? {};
-    const baseCondition = buildBaseCondition({ lang: p.lang, opts: p.opts });
-    const condition = appendSearchCondition(baseCondition, query);
-
-    const result: QueryListParam = {
+    return {
         Fields: [
             FileArchiveFields.InternalId,
             FileArchiveFields.FileArchiveId,
@@ -148,68 +241,126 @@ const buildBaseParam = (p: { lang: Lang; opts: IFileArchiveOptions; query?: ISea
             `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveUrlDetail}.${FileArchiveUrlDetailFields.UrlDescription}`,
             `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveUrlDetail}.${FileArchiveUrlDetailFields.WindowTarget}`,
         ],
-        Condition: condition,
+        Condition: p.condition,
         RankGroups: [{ Condition: `${FileArchiveFields.ContentStatus} & 1` }],
         OrderBy: [{ Col: FileArchiveFields.CreateTime, Desc: true }],
-        PageNumber: 1,
-        PageSize: 10,
+        PageNumber: p.pageNumber,
+        PageSize: p.pageSize,
     };
-
-    // return：交給 spec 做最後修飾
-    const extendBaseParam = getResolvedFileArchiveListBaseParam();
-
-    return extendBaseParam({ lang: p.lang, opts: p.opts, query, baseCondition, condition, result });
 };
 
-/** 預設：不修改核心結果 */
-export const extendFileArchiveListBaseParam: FileArchiveListBaseParamSlot = (ctx) =>
+/** 建立 FileArchive 查詢參數 */
+const buildFileArchiveSearchParams = (
+    p: {
+        lang: Lang;
+        opts: IFileArchiveOptions;
+        overrides?: Partial<{ title: string; categoryIds: string; tagIds: string; }>;
+        values: SearchValues;
+        viewState: IListViewState;
+    },
+): FileArchiveSearchParams =>
 {
-    return ctx.result;
-};
-export interface FileArchiveListBaseParamContext
-{
-    lang: Lang;
-    opts: IFileArchiveOptions;
-    query: ISearchQuery;
-    baseCondition: string;
-    condition: string;
-    result: QueryListParam;
-}
-let _resolvedFileArchiveListBaseParam: FileArchiveListBaseParamSlot | null = null;
+    // 宣告變數
+    const title = normalizeSearchText(getSearchStringValue(p.values, SEARCH_TITLE_KEY) ?? p.overrides?.title);
+    const categoryIds = p.overrides?.categoryIds ?? (p.opts.Category ?? "");
+    const searchTagIds = normalizeSearchText(getSearchStringValue(p.values, SEARCH_TAG_KEY));
+    const tagIds = searchTagIds ?? p.overrides?.tagIds ?? (p.opts.Tag ?? "");
 
-/** 延後解析 spec slot，避免 SSR import 期循環引用 */
-const getResolvedFileArchiveListBaseParam = (): FileArchiveListBaseParamSlot =>
+    // return
+    return { lang: p.lang, opts: p.opts, pageNumber: p.viewState.pageNumber, pageSize: p.viewState.pageSize, title, categoryIds, tagIds };
+};
+
+/** 建立 FileArchive QueryParam，Loader / Hook 都統一走這裡 */
+const buildFileArchiveQueryArgs = (p: FileArchiveSearchParams & { condition: string; }): FileArchiveQueryParam =>
+{
+    // 宣告變數
+    const listParam = buildFileArchiveQuery({ condition: p.condition, pageNumber: p.pageNumber, pageSize: p.pageSize });
+
+    // return
+    return { lang: p.lang, pageSize: p.pageSize, pageNumber: p.pageNumber, title: p.title, categoryIds: p.categoryIds, tagIds: p.tagIds, condition: p.condition, listParam };
+};
+
+/** 預設：Feature 不追加 Spec 查詢流程 */
+export const extendFileArchiveListDataQuerySpec: FileArchiveListDataQuerySpecSlot = {};
+
+let _resolvedFileArchiveListDataQuerySpec: FileArchiveListDataQuerySpecSlot | null = null;
+
+/** 延後解析 spec data query slot，避免 SSR import 期循環引用 */
+const getResolvedFileArchiveListDataQuerySpec = (): FileArchiveListDataQuerySpecSlot =>
 {
     // return：已解析過就直接重用
-    if (_resolvedFileArchiveListBaseParam) return _resolvedFileArchiveListBaseParam;
+    if (_resolvedFileArchiveListDataQuerySpec) return _resolvedFileArchiveListDataQuerySpec;
 
     // 執行 function：第一次真的用到時才去 resolve
-    _resolvedFileArchiveListBaseParam = resolveSpecFunc<FileArchiveListBaseParamSlot>(
-        "Pages/Client/BizFunc/WebManagement/FileArchive/FileArchiveList_Loader.ts",
-        extendFileArchiveListBaseParam,
-        ["extendFileArchiveListBaseParam"],
+    _resolvedFileArchiveListDataQuerySpec = resolveSpecFunc<FileArchiveListDataQuerySpecSlot>(
+        getClientSlotPath("FileArchiveListLoader"),
+        extendFileArchiveListDataQuerySpec,
+        ["extendFileArchiveListDataQuerySpec"],
     );
 
     // return
-    return _resolvedFileArchiveListBaseParam;
+    return _resolvedFileArchiveListDataQuerySpec;
 };
 
-export type FileArchiveListBaseParamSlot = (ctx: FileArchiveListBaseParamContext) => QueryListParam;
-
-/** 比對 SSR initial 與目前條件是否一致 */
-const isSameQueryListParam = (left?: QueryListParam | null, right?: QueryListParam | null): boolean =>
+/** 建立 FileArchive DataQueryTemplate */
+const createFileArchiveDataQueryTemplate = (
+    p: {
+        lang: Lang;
+        opts: IFileArchiveOptions;
+        overrides?: Partial<{ pageNumber: number; pageSize: number; title: string; categoryIds: string; tagIds: string; }>;
+    },
+): FileArchiveDataQueryTemplate =>
 {
+    // 宣告變數
+    const initialViewState = buildFileArchiveInitialViewState(p.overrides);
+    const initialSearchValues = buildFileArchiveSearchValues({ title: p.overrides?.title, tagIds: p.overrides?.tagIds });
+
     // return
-    return JSON.stringify(left ?? null) === JSON.stringify(right ?? null);
+    return {
+        featureKey: "FileArchiveList",
+        dataMode: "multiple",
+        initialSearchValues,
+        initialViewState,
+        pagination: { defaultPageNumber: initialViewState.pageNumber, defaultPageSize: initialViewState.pageSize, resetPageOnSearch: true },
+        searchBar: { title: "搜尋條件", actionAlign: "left", columnCount: 3 },
+        spec: getResolvedFileArchiveListDataQuerySpec(),
+        feature: {
+            buildSearchFields: (ctx) => buildFileArchiveSearchFields(ctx.rawData.tagOptions),
+            toSearchParams: (values, viewState) => buildFileArchiveSearchParams({ ...p, values, viewState }),
+            buildSearchConditions: (ctx) => [buildFileArchiveCondition(ctx.searchParams)],
+            buildQueryParam: (ctx) => buildFileArchiveQueryArgs({ ...ctx.searchParams, condition: ctx.searchCondition }),
+            useDataSource: (ctx) => useFileArchiveDataSource({ queryParam: ctx.queryParam, loaderData: ctx.loaderData }),
+            buildViewModel: (ctx) => ctx.rawData,
+        },
+    };
 };
 
-/** 將 tag data 轉成 SearchBar 可直接使用的選單 */
+/** 組 loader / hook 共用參數 */
+const buildLoaderArgs = (
+    p: {
+        lang: Lang;
+        opts: IFileArchiveOptions;
+        overrides?: Partial<{ pageNumber: number; pageSize: number; title: string; categoryIds: string; tagIds: string; }>;
+    },
+): FileArchiveQueryParam =>
+{
+    // 宣告變數
+    const template = createFileArchiveDataQueryTemplate(p);
+    const viewState = buildFileArchiveInitialViewState(p.overrides);
+    const searchValues = buildFileArchiveSearchValues({ title: p.overrides?.title, tagIds: p.overrides?.tagIds });
+
+    // return
+    return buildClientDataQueryState(template, searchValues, viewState).queryParam;
+};
+
+/** 將 tag data 轉成舊版 SearchBar 可直接使用的選單 */
 const buildTagOptions = (tagMap: Record<string, string>): FileArchiveTagOption[] =>
 {
+    // return
     return Object.entries(tagMap ?? {}).map(([id, name]) => ({ id, name: name ?? "" })).filter(item => Boolean(item.id) && Boolean(item.name));
 };
 
-/** SSR loader：主清單走 createQueryGridDataLoader，分類/標籤走 map loader */
+/** SSR loader：主清單走 QueryList，分類/標籤保留 map loader 供顯示與 Spec 擴充使用 */
 export const FileArchiveList_Loader = (p: { lang: Lang; opts: IFileArchiveOptions; }) => async (args: LoaderFunctionArgs): Promise<FileArchiveListLoaderData> =>
 {
     // 宣告變數
@@ -217,27 +368,47 @@ export const FileArchiveList_Loader = (p: { lang: Lang; opts: IFileArchiveOption
     const fileArchive = FileArchiveAdapter(ssrApi);
     const category = CategoryAdapter(ssrApi);
     const tag = TagAdapter(ssrApi);
-    const baseParam = buildBaseParam({ lang: p.lang, opts: p.opts });
+    const queryParam = buildLoaderArgs({ lang: p.lang, opts: p.opts });
 
     // 執行 function：SSR 首屏資料
-    const gridLoader = fileArchive.loader.createQueryGridDataLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
+    const gridLoader = fileArchive.loader.createQueryGridDataLoader({ getCondition: () => queryParam.listParam, getApiInstance: () => ssrApi });
     const categoryLoader = category.loader.createMapByProgIdLoader({ progId: PGID.FileArchive, lang: p.lang, getApiInstance: () => ssrApi });
     const tagLoader = tag.loader.createMapByProgIdLoader({ progId: PGID.FileArchive, lang: p.lang, getApiInstance: () => ssrApi });
-
     const [grid, categoryData, tagData] = await Promise.all([gridLoader(args), categoryLoader(args), tagLoader(args)]);
 
     // return
-    return { args: { lang: p.lang, baseParam }, initial: { grid, category: categoryData, tag: tagData } };
+    return { args: queryParam, initial: { grid, category: categoryData, tag: tagData } };
 };
 
-/** 單一入口：FileArchiveList 所有 hooks data 都集中在這裡 */
-export const useFileArchiveListFetchData = (
-    opt: { lang: Lang; opts: IFileArchiveOptions; query: ISearchQuery; },
-): UseFetchDataResult<FileArchiveListRawData, FileArchiveListAdapter> =>
+/** 取得 SSR initial grid，條件一致才沿用 count/list */
+const buildGridInitial = (p: { queryParam: FileArchiveQueryParam; loaderData: FileArchiveListLoaderData | null; }): ApiGridInitial<FileArchiveSet> | undefined =>
 {
     // 宣告變數
-    const loaderData = useLoaderData() as FileArchiveListLoaderData | null;
+    const initial = p.loaderData?.initial?.grid;
+    const matched = isSameClientDataQueryParam(p.loaderData?.args?.listParam, p.queryParam.listParam);
+    if (!initial) return undefined;
+
+    // return
+    return { model: initial.model ?? null, count: matched ? (initial.count ?? null) : null, list: matched ? (initial.list ?? null) : null };
+};
+
+/** 建立資料重置 key，搜尋條件或每頁筆數改變時回到第一頁 */
+const buildResetKey = (args: Pick<FileArchiveQueryParam, "lang" | "pageSize" | "title" | "categoryIds" | "tagIds">): string =>
+{
+    // return
+    return JSON.stringify({ lang: args.lang, pageSize: args.pageSize, title: args.title ?? "", categoryIds: args.categoryIds, tagIds: args.tagIds });
+};
+
+/** FileArchive DataSource：統一處理 CSR 查詢與 SSR initial 沿用 */
+const useFileArchiveDataSource = (
+    p: { queryParam: FileArchiveQueryParam; loaderData: FileArchiveListLoaderData | null; },
+): ClientDataQueryDataSourceResult<FileArchiveListRawData, FileArchiveListAdapter> =>
+{
+    // 宣告變數
     const { publish } = useToast();
+    const adapter = useMemo(() => ({ FileArchive: FileArchiveAdapter(), Category: CategoryAdapter(), Tag: TagAdapter() }), []);
+    const currentArgs = p.queryParam;
+    const gridInitial = useMemo(() => buildGridInitial(p), [p]);
 
     const onError = useCallback((e: ApiAdapterError) =>
     {
@@ -245,68 +416,50 @@ export const useFileArchiveListFetchData = (
         publish({ level: MessageStatus.Error, title: e.messageText });
     }, [publish]);
 
-    const adapter = useMemo(() =>
-    {
-        // return
-        return { FileArchive: FileArchiveAdapter(), Category: CategoryAdapter(), Tag: TagAdapter() };
-    }, []);
-
-    const baseParam = useMemo(() =>
-    {
-        // return
-        return buildBaseParam({ lang: opt.lang, opts: opt.opts, query: opt.query });
-    }, [opt.lang, opt.opts.Category, opt.opts.Tag, opt.query.keyword, opt.query.tag]);
-
-    const gridInitial = useMemo<ApiGridInitial<FileArchiveSet> | null>(() =>
-    {
-        // 宣告變數
-        const matched = isSameQueryListParam(loaderData?.args?.baseParam, baseParam);
-        if (!loaderData?.initial?.grid) return null;
-
-        // return：model 可沿用；count/list 只在條件一致時沿用 SSR initial
-        return {
-            model: loaderData.initial.grid.model ?? null,
-            count: matched ? (loaderData.initial.grid.count ?? null) : null,
-            list: matched ? (loaderData.initial.grid.list ?? null) : null,
-        };
-    }, [loaderData, baseParam]);
+    const grid = adapter.FileArchive.hooks.useQueryGridData({
+        baseParam: currentArgs.listParam,
+        deps: [currentArgs.condition, currentArgs.pageSize],
+        modelDeps: [currentArgs.lang],
+        initial: gridInitial,
+        onError,
+    });
 
     const categoryInitial = useMemo(() =>
     {
         // return：語系一致才沿用 SSR initial
-        if (loaderData?.args?.lang !== opt.lang) return null;
-        return loaderData?.initial?.category ?? null;
-    }, [loaderData, opt.lang]);
+        if (p.loaderData?.args?.lang !== currentArgs.lang) return null;
+        return p.loaderData?.initial?.category ?? null;
+    }, [p.loaderData, currentArgs.lang]);
 
     const tagInitial = useMemo(() =>
     {
         // return：語系一致才沿用 SSR initial
-        if (loaderData?.args?.lang !== opt.lang) return null;
-        return loaderData?.initial?.tag ?? null;
-    }, [loaderData, opt.lang]);
+        if (p.loaderData?.args?.lang !== currentArgs.lang) return null;
+        return p.loaderData?.initial?.tag ?? null;
+    }, [p.loaderData, currentArgs.lang]);
 
-    const grid = adapter.FileArchive.hooks.useQueryGridData({
-        baseParam,
-        deps: [baseParam.Condition ?? "", baseParam.PageSize ?? 0],
-        modelDeps: [opt.lang],
-        initial: gridInitial ?? undefined,
-        onError,
-    });
+    const category = adapter.Category.hooks.useMapByProgId({ progId: PGID.FileArchive, lang: currentArgs.lang, deps: [currentArgs.lang], initial: categoryInitial });
+    const tag = adapter.Tag.hooks.useMapByProgId({ progId: PGID.FileArchive, lang: currentArgs.lang, deps: [currentArgs.lang], initial: tagInitial });
+    const resetKey = useMemo(() => buildResetKey(currentArgs), [currentArgs]);
+    const prevResetKeyRef = useRef<string>(resetKey);
 
-    const category = adapter.Category.hooks.useMapByProgId({ progId: PGID.FileArchive, lang: opt.lang, deps: [opt.lang], initial: categoryInitial });
-
-    const tag = adapter.Tag.hooks.useMapByProgId({ progId: PGID.FileArchive, lang: opt.lang, deps: [opt.lang], initial: tagInitial });
-
-    const isLoading = Boolean(grid.isLoading || category.isLoading || tag.isLoading);
-
-    const errors = useMemo(() =>
+    useEffect(() =>
     {
-        // return：統一錯誤出口
-        return [...(grid.errors ?? []), category.errorText, tag.errorText].filter((item): item is string => Boolean(item));
-    }, [grid.errors, category.errorText, tag.errorText]);
+        // 執行 function：搜尋條件變更後清單回第一頁
+        if (prevResetKeyRef.current === resetKey) return;
+        prevResetKeyRef.current = resetKey;
+        grid.onPageChange(1);
+    }, [resetKey, grid.onPageChange]);
+
+    const paginator = useMemo<ClientDataQueryPaginatorModel>(() =>
+    {
+        // return
+        return { currentPage: grid.pageNumber ?? 1, pageSize: currentArgs.pageSize, totalPages: grid.totalPages ?? 1, totalCount: grid.count ?? 0, onPageChange: grid.onPageChange };
+    }, [grid.pageNumber, grid.totalPages, grid.count, grid.onPageChange, currentArgs.pageSize]);
 
     const rawData = useMemo<FileArchiveListRawData>(() =>
     {
+        // return
         return {
             modelDisplayName: grid.modelDisplayName,
             count: grid.count ?? 0,
@@ -314,12 +467,18 @@ export const useFileArchiveListFetchData = (
             pageNumber: grid.pageNumber ?? 1,
             totalPages: grid.totalPages ?? 1,
             onPageChange: grid.onPageChange,
-            param: grid.param,
+            param: grid.param ?? currentArgs.listParam,
             categoryMap: category.map ?? {},
             tagMap: tag.map ?? {},
             tagOptions: buildTagOptions(tag.map ?? {}),
         };
-    }, [grid.modelDisplayName, grid.count, grid.list, grid.pageNumber, grid.totalPages, grid.onPageChange, grid.param, category.map, tag.map]);
+    }, [grid.modelDisplayName, grid.count, grid.list, grid.pageNumber, grid.totalPages, grid.onPageChange, grid.param, currentArgs.listParam, category.map, tag.map]);
+
+    const errors = useMemo(() =>
+    {
+        // return
+        return [...(grid.errors ?? []), category.errorText, tag.errorText].filter((item): item is string => Boolean(item));
+    }, [grid.errors, category.errorText, tag.errorText]);
 
     const refetchData = useCallback(async () =>
     {
@@ -334,5 +493,33 @@ export const useFileArchiveListFetchData = (
     }, [category, tag]);
 
     // return
-    return { adapter, rawData, isLoading, errors, refetchData, refetchRefData };
+    return { adapter, rawData, isLoading: Boolean(grid.isLoading || category.isLoading || tag.isLoading), errors, paginator, refetchData, refetchRefData };
+};
+
+/** CSR Hook：Feature 版 FileArchiveList 走 Client_DataQueryTemplate */
+export const useFileArchiveListData = (p: { lang: Lang; opts: IFileArchiveOptions; title?: string; }): UseFileArchiveListDataResult =>
+{
+    // 宣告變數
+    const initial = useLoaderData() as FileArchiveListLoaderData;
+
+    const template = useMemo(() =>
+    {
+        // return
+        return createFileArchiveDataQueryTemplate({
+            lang: p.lang,
+            opts: p.opts,
+            overrides: {
+                pageNumber: initial.args.pageNumber,
+                pageSize: initial.args.pageSize,
+                title: p.title,
+                categoryIds: initial.args.categoryIds,
+                tagIds: initial.args.tagIds,
+            },
+        });
+    }, [p.lang, p.opts, p.title, initial.args.pageNumber, initial.args.pageSize, initial.args.categoryIds, initial.args.tagIds]);
+
+    const templateVm = useClientDataQueryTemplate(template);
+
+    // return
+    return { ...templateVm.viewModel, paginatorProps: templateVm.paginatorProps, searchBar: templateVm.searchBar, isLoading: templateVm.isLoading, errorList: templateVm.errorList, refetchData: templateVm.refetchData };
 };

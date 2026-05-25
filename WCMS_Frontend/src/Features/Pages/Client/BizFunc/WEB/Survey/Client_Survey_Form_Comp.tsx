@@ -16,7 +16,7 @@ import Client_Survey_Input_Comp, {
 import "./Client_Survey_Form.css";
 import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import type { components } from "@/types/api";
-import { type ISurveyOptions, type SurveySubmitActions, useSurveyFormFetchData } from "./Client_Survey_Form_Loader";
+import { type ISurveyOptions, type SurveySubmitActions, useSurveyFormData } from "./Client_Survey_Form_Loader";
 import { Captcha_Comp } from "@/Features/Hooks/BizFunc/SYS/Captcha/Captcha_Comp";
 import { useCaptchaController } from "@/Features/Hooks/BizFunc/SYS/Captcha/Captcha_Hook";
 type SurveySubmissionRequest = components["schemas"]["SurveySubmissionRequest_DTO"];
@@ -109,11 +109,10 @@ const useViewCountConfig = (p: { siteIndex: string; surveyId: string; }): Module
 /** Survey 表單頁 */
 export const Client_Survey_Form_Comp = (props: ISurveyProps) =>
 {
-    /** 之後要調整一下邏輯，傳都還是傳internalId，但是query改用useQueryList去跑，而非useQueryData(這個打算後台才可使用) */
     const surveyInternalId = `${props.options?.SurveyId ?? ""}`.trim();
 
     // 讀取 feature loader/hooks 整理後的資料
-    const data = useSurveyFormFetchData({ lang: props.lang, surveyId: surveyInternalId });
+    const data = useSurveyFormData({ lang: props.lang, surveyId: surveyInternalId });
 
     // 建立瀏覽次數設定
     const viewCountConfig = useViewCountConfig({ siteIndex: props.site.siteIndex, surveyId: surveyInternalId });

@@ -2,15 +2,25 @@ import { CategoryAdapter, type CategoryMapLoaderData } from "@/Features/Hooks/Bi
 import { TagAdapter, type TagMapLoaderData } from "@/Features/Hooks/BizFunc/COMM/Tag_Api";
 import { MaterialAdapter } from "@/Features/Hooks/BizFunc/MAT/Material_Api";
 import { PageManagementAdapter } from "@/Features/Hooks/BizFunc/WEB/PageManagement_Api";
-import type { Lang } from "@/SysCore/i18n/lang";
+import {
+    buildClientDataQueryState,
+    isSameClientDataQueryParam,
+    useClientDataQueryTemplate,
+    type ClientDataQueryDataSourceResult,
+    type ClientDataQueryPaginatorModel,
+    type ClientDataQueryTemplate,
+} from "@/Features/Pages/Client/Scaffold/DataQueryTemplate/Client_DataQueryTemplate_Hook";
+import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
+import type { SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { IListViewState } from "@/SysCore/Interface/IListViewState";
+import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiGridInitial, ApiGridLoaderData, ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import { useResetListPageOnKeyChange } from "@/SysCore/Utils/UI_HookFunc/useResetListPageOnKeyChange";
 import type { components } from "@/types/api";
 import { MaterialFields, MaterialLangInfoFields, MaterialPictureFields, MaterialTagsFields, PGID } from "@/types/SchemaFields";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router-dom";
 import { useLoaderData } from "react-router-dom";
 
@@ -27,30 +37,39 @@ export interface IMaterialListOptions
 }
 
 // #region Property
-interface MaterialListLoaderArgs
+export interface MaterialListLoaderArgs
 {
-    matParam: QueryListParam;
+    lang: Lang;
     pageId: string;
+    categoryId: string;
+    tagIds: string;
+    pageNumber: number;
+    pageSize: number;
+    condition: string;
+    matParam: QueryListParam;
 }
-interface MaterialListLoaderRes
+
+export interface MaterialListLoaderRes
 {
     gridRes: ApiGridLoaderData<MaterialSet>;
     categoryRes: CategoryMapLoaderData;
     tagRes: TagMapLoaderData;
     pageRes: ApiLoaderData<string, PageManagementSet>;
 }
-interface MaterialListLoaderData
+
+export interface MaterialListLoaderData
 {
     args: MaterialListLoaderArgs;
     res: MaterialListLoaderRes;
 }
+
 interface QueryParam
 {
     lang: Lang;
     opts: IMaterialListOptions;
-    viewState?: IListViewState;
 }
-interface RawData
+
+export type MaterialListRawData =
 {
     pageSize: number;
     pageNumber: number;
@@ -62,152 +81,82 @@ interface RawData
     pageData: PageManagementSet;
     pageDetail: PageManagementDetail | null;
     pageTitle: string;
-}
-interface UseMaterialListDataResult
+};
+
+export interface UseMaterialListDataResult
 {
-    rawData: RawData;
+    rawData: MaterialListRawData;
+    paginatorProps: PaginatorProps | null;
     isLoading: boolean;
     errorList: string[];
     onPageChange: (page: number) => void;
+    refetchData: () => Promise<void>;
 }
-// #endregion
 
-// #region Public
-/** SSR Loader：首屏撈 material + category + tag + page content */
-export const Client_Material_List_Loader = (props: QueryParam) => async ({ request }: LoaderFunctionArgs): Promise<MaterialListLoaderData> =>
-{
-    const ssrApi = getSsrApi(request);
-    const material = MaterialAdapter(ssrApi);
-    const category = CategoryAdapter(ssrApi);
-    const tag = TagAdapter(ssrApi);
-    const page = PageManagementAdapter(ssrApi);
-    const args = buildLoaderArgs(props);
-
-    const gridLoader = material.loader.createQueryGridDataLoader({ getCondition: () => args.matParam, getApiInstance: () => ssrApi });
-    const cateLoader = category.loader.createMapByProgIdLoader({ progId: PGID.Material, lang: props.lang, getApiInstance: () => ssrApi });
-    const tagLoader = tag.loader.createMapByProgIdLoader({ progId: PGID.Material, lang: props.lang, getApiInstance: () => ssrApi });
-    const pageLoader = page.loader.createQueryDataLoader({ getInternalId: () => args.pageId, getApiInstance: () => ssrApi });
-
-    const [gridRes, categoryRes, tagRes, pageRes] = await Promise.all([
-        gridLoader({ request } as LoaderFunctionArgs),
-        cateLoader({ request } as LoaderFunctionArgs),
-        tagLoader({ request } as LoaderFunctionArgs),
-        args.pageId ? pageLoader({ request } as LoaderFunctionArgs) : Promise.resolve(buildEmptyPageLoaderData(args.pageId)),
-    ]);
-
-    const res: MaterialListLoaderRes = { gridRes, categoryRes, tagRes, pageRes };
-    return { args, res };
+type MaterialListAdapter = {
+    Material: ReturnType<typeof MaterialAdapter>;
+    Category: ReturnType<typeof CategoryAdapter>;
+    Tag: ReturnType<typeof TagAdapter>;
+    PageManagement: ReturnType<typeof PageManagementAdapter>;
 };
 
-/** CSR Hook：Component 一行拿資料，切頁/條件變動時自動重撈 */
-export const useMaterialListData = (props: QueryParam): UseMaterialListDataResult =>
-{
-    const initial = useLoaderData() as MaterialListLoaderData;
-
-    const material = useMemo(() => MaterialAdapter(), []);
-    const category = useMemo(() => CategoryAdapter(), []);
-    const tag = useMemo(() => TagAdapter(), []);
-    const page = useMemo(() => PageManagementAdapter(), []);
-
-    const currentArgs = useMemo(() => buildLoaderArgs(props), [
-        props.lang,
-        props.opts.PageId,
-        props.opts.CategoryId,
-        props.opts.TagIds,
-        props.viewState?.pageNumber,
-        props.viewState?.pageSize,
-        props.viewState?.keyword,
-    ]);
-
-    const gridInitial = useMemo<ApiGridInitial<MaterialSet>>(() =>
-    {
-        return {
-            model: initial.res.gridRes.model,
-            count: matchQueryInitial(currentArgs.matParam, initial.res.gridRes.count),
-            list: matchQueryInitial(currentArgs.matParam, initial.res.gridRes.list),
-        };
-    }, [currentArgs.matParam, initial.res.gridRes]);
-
-    const pageInitial = useMemo(() => matchDataInitial(currentArgs.pageId, initial.res.pageRes), [currentArgs.pageId, initial.res.pageRes]);
-    const grid = material.hooks.useQueryGridData({ baseParam: currentArgs.matParam, deps: [currentArgs.matParam], initial: gridInitial });
-    const pageData = page.hooks.useQueryData({ internalId: currentArgs.pageId, initial: pageInitial, deps: [currentArgs.pageId, props.lang] });
-    const categoryMap = category.hooks.useMapByProgId({ progId: PGID.Material, lang: props.lang, initial: initial.res.categoryRes, deps: [props.lang] });
-    const tagMap = tag.hooks.useMapByProgId({ progId: PGID.Material, lang: props.lang, initial: initial.res.tagRes, deps: [props.lang] });
-
-    const pageSet = useMemo(() => pageData.data ?? emptyPageData, [pageData.data]);
-    const pageDetail = useMemo(() => findPageDetail(pageSet, props.lang), [pageSet, props.lang]);
-
-    const resetKey = useMemo(() => buildResetKey(props), [
-        props.lang,
-        props.opts.PageId,
-        props.opts.CategoryId,
-        props.opts.TagIds,
-        props.viewState?.pageSize,
-        props.viewState?.keyword,
-    ]);
-
-    useResetListPageOnKeyChange(resetKey, grid.onPageChange);
-
-    const isLoading = useMemo(() => Boolean(grid.isLoading || categoryMap.isLoading || tagMap.isLoading || pageData.isLoading), [
-        grid.isLoading,
-        categoryMap.isLoading,
-        tagMap.isLoading,
-        pageData.isLoading,
-    ]);
-
-    const errorList = useMemo(() => [grid.errorText, categoryMap.errorText, tagMap.errorText, pageData.errorText].filter((x): x is string => Boolean(x)), [
-        grid.errorText,
-        categoryMap.errorText,
-        tagMap.errorText,
-        pageData.errorText,
-    ]);
-
-    return {
-        rawData: {
-            pageSize: currentArgs.matParam.PageSize ?? 12,
-            pageNumber: grid.pageNumber,
-            totalPages: grid.totalPages,
-            totalCount: grid.count,
-            listData: grid.list ?? [],
-            categoryMap: categoryMap.data ?? initial.res.categoryRes,
-            tagMap: tagMap.data ?? initial.res.tagRes,
-            pageData: pageSet,
-            pageDetail,
-            pageTitle: pageDetail?.Title ?? "",
-        },
-        isLoading,
-        errorList,
-        onPageChange: grid.onPageChange,
-    };
+type MaterialListSearchParams = {
+    lang: Lang;
+    pageId: string;
+    categoryId: string;
+    tagIds: string;
+    pageNumber: number;
+    pageSize: number;
 };
+
+type MaterialListDataQueryTemplate = ClientDataQueryTemplate<
+    MaterialListSearchParams,
+    MaterialListRawData,
+    MaterialListRawData,
+    MaterialListAdapter,
+    MaterialListLoaderArgs,
+    MaterialListLoaderData
+>;
 // #endregion
 
-// #region Private
+const DEFAULT_PAGE_SIZE = 12;
 const emptyPageData: PageManagementSet = { PageManagement: {}, PageManagementDetail: [] };
 
-/** 建物件 QueryListParam */
-const buildMaterialQuery = (lang: Lang, pageNumber: number, pageSize: number, catIds: string, tagIds: string, kw?: string): QueryListParam =>
+// #region Shared Builder
+/** 建立 Material List 初始 ViewState */
+const buildMaterialListInitialViewState = (overrides?: Partial<{ pageNumber: number; pageSize: number; }>): IListViewState =>
 {
+    // 宣告變數
+    const pageNumber = overrides?.pageNumber ?? 1;
+    const pageSize = overrides?.pageSize ?? DEFAULT_PAGE_SIZE;
+
+    // return
+    return { pageNumber, pageSize } as IListViewState;
+};
+
+/** 建立 Material 固定條件，包含語系、類別與目前 Tab 標籤 */
+const buildMaterialCondition = (p: MaterialListSearchParams): string =>
+{
+    // 宣告變數
     let condition = LibMerge(
         " And ",
         false,
-        `${MaterialFields._MaterialLangInfo}.${MaterialLangInfoFields.Lang} = ${lang}`,
+        `${MaterialFields._MaterialLangInfo}.${MaterialLangInfoFields.Lang} = ${p.lang}`,
         `${MaterialFields._MaterialLangInfo}.${MaterialLangInfoFields.MaterialName} != ''`,
     );
 
-    if (kw)
-    {
-        condition = LibMerge(" And ", false, condition, `${MaterialFields._MaterialLangInfo}.${MaterialLangInfoFields.MaterialName} Like ${kw}`);
-    }
-    if (catIds)
-    {
-        condition = LibMerge(" And ", false, condition, `${MaterialFields.CategoryId} In ${catIds}`);
-    }
-    if (tagIds)
-    {
-        condition = LibMerge(" And ", false, condition, `${MaterialFields._MaterialTags}.${MaterialTagsFields.TagId} In ${tagIds}`);
-    }
+    // 執行 function：套用節點固定條件與目前 Tab 條件
+    if (p.categoryId) condition = LibMerge(" And ", false, condition, `${MaterialFields.CategoryId} In ${p.categoryId}`);
+    if (p.tagIds) condition = LibMerge(" And ", false, condition, `${MaterialFields._MaterialTags}.${MaterialTagsFields.TagId} In ${p.tagIds}`);
 
+    // return
+    return condition;
+};
+
+/** 建立 Material QueryListParam */
+const buildMaterialQuery = (p: { condition: string; pageNumber: number; pageSize: number; }): QueryListParam =>
+{
+    // return
     return {
         Fields: [
             MaterialFields.MaterialId,
@@ -220,83 +169,258 @@ const buildMaterialQuery = (lang: Lang, pageNumber: number, pageSize: number, ca
             `${MaterialFields._MaterialPicture}.${MaterialPictureFields.PictureId}`,
             `${MaterialFields._MaterialPicture}.${MaterialPictureFields.PictureName}`,
         ],
-        Condition: condition,
+        Condition: p.condition,
         OrderBy: [{ Col: MaterialFields.CreateTime, Desc: true }],
-        PageNumber: pageNumber,
-        PageSize: pageSize,
+        PageNumber: p.pageNumber,
+        PageSize: p.pageSize,
+    };
+};
+
+/** 建立 Material Template 查詢參數 */
+const buildMaterialListSearchParams = (p: { lang: Lang; opts: IMaterialListOptions; viewState: IListViewState; }): MaterialListSearchParams =>
+{
+    // 宣告變數
+    const pageId = `${p.opts.PageId ?? ""}`.trim();
+    const categoryId = `${p.opts.CategoryId ?? ""}`.trim();
+    const tagIds = getInitialMaterialTagId(p.opts.TagIds) || `${p.opts.TagIds ?? ""}`.trim();
+
+    // return
+    return { lang: p.lang, pageId, categoryId, tagIds, pageNumber: p.viewState.pageNumber, pageSize: p.viewState.pageSize };
+};
+
+/** 建立 Material Loader / Hook 共用 QueryParam */
+const buildMaterialListQueryArgs = (p: MaterialListSearchParams & { condition: string; }): MaterialListLoaderArgs =>
+{
+    // 宣告變數
+    const matParam = buildMaterialQuery({ condition: p.condition, pageNumber: p.pageNumber, pageSize: p.pageSize });
+
+    // return
+    return { lang: p.lang, pageId: p.pageId, categoryId: p.categoryId, tagIds: p.tagIds, pageNumber: p.pageNumber, pageSize: p.pageSize, condition: p.condition, matParam };
+};
+
+/** 建立 Material List DataQueryTemplate；清單保留分頁，但不顯示搜尋列 */
+const createMaterialListDataQueryTemplate = (p: { lang: Lang; opts: IMaterialListOptions; overrides?: Partial<{ pageNumber: number; pageSize: number; }>; }): MaterialListDataQueryTemplate =>
+{
+    // 宣告變數
+    const initialViewState = buildMaterialListInitialViewState(p.overrides);
+
+    // return
+    return {
+        featureKey: "MaterialList",
+        dataMode: "multiple",
+        initialSearchValues: {},
+        initialViewState,
+        pagination: { defaultPageNumber: initialViewState.pageNumber, defaultPageSize: initialViewState.pageSize, resetPageOnSearch: true },
+        searchBar: null,
+        feature: {
+            toSearchParams: (_values, viewState) => buildMaterialListSearchParams({ lang: p.lang, opts: p.opts, viewState }),
+            buildSearchConditions: (ctx) => [buildMaterialCondition(ctx.searchParams)],
+            buildQueryParam: (ctx) => buildMaterialListQueryArgs({ ...ctx.searchParams, condition: ctx.searchCondition }),
+            useDataSource: (ctx) => useMaterialListDataSource({ queryParam: ctx.queryParam, loaderData: ctx.loaderData }),
+            buildViewModel: (ctx) => ctx.rawData,
+        },
     };
 };
 
 /** 組 loader / hook 共用參數 */
-const buildLoaderArgs = (props: QueryParam): MaterialListLoaderArgs =>
+const buildLoaderArgs = (props: { lang: Lang; opts: IMaterialListOptions; overrides?: Partial<{ pageNumber: number; pageSize: number; }>; }): MaterialListLoaderArgs =>
 {
-    const keyword = props.viewState?.keyword?.trim();
-    const pageNumber = props.viewState?.pageNumber ?? 1;
-    const pageSize = props.viewState?.pageSize ?? 12;
-    const pageId = `${props.opts.PageId ?? ""}`.trim();
-    const tagIds = getInitialMaterialTagId(props.opts.TagIds) || props.opts.TagIds;
-    return { pageId, matParam: buildMaterialQuery(props.lang, pageNumber, pageSize, props.opts.CategoryId, tagIds, keyword) };
+    // 宣告變數
+    const template = createMaterialListDataQueryTemplate(props);
+    const viewState = buildMaterialListInitialViewState(props.overrides);
+
+    // return
+    return buildClientDataQueryState(template, {} as SearchValues, viewState).queryParam;
 };
 
 /** 建立空的 PageManagement loader data，避免未設定 PageId 時仍打 API */
 const buildEmptyPageLoaderData = (pageId: string): ApiLoaderData<string, PageManagementSet> =>
 {
+    // return
     return { args: pageId, apiRes: { IsSuccess: true, Data: emptyPageData, SysMessage: [] } };
 };
+// #endregion
 
-/** 依語系取得頁面內容明細 */
-const findPageDetail = (data: PageManagementSet, lang: Lang): PageManagementDetail | null =>
+// #region SSR Loader
+/** SSR Loader：首屏撈 Material + Category + Tag + PageContent */
+export const Client_Material_List_Loader = (props: QueryParam) => async (args: LoaderFunctionArgs): Promise<MaterialListLoaderData> =>
 {
-    const detail = data.PageManagementDetail?.find(p => (p.Lang ?? "").toLowerCase() === lang.toLowerCase());
-    return detail ?? data.PageManagementDetail?.[0] ?? null;
+    // 宣告變數
+    const ssrApi = getSsrApi(args.request);
+    const material = MaterialAdapter(ssrApi);
+    const category = CategoryAdapter(ssrApi);
+    const tag = TagAdapter(ssrApi);
+    const page = PageManagementAdapter(ssrApi);
+    const queryParam = buildLoaderArgs(props);
+
+    // 執行 function：SSR 首屏資料
+    const gridLoader = material.loader.createQueryGridDataLoader({ getCondition: () => queryParam.matParam, getApiInstance: () => ssrApi });
+    const cateLoader = category.loader.createMapByProgIdLoader({ progId: PGID.Material, lang: props.lang, getApiInstance: () => ssrApi });
+    const tagLoader = tag.loader.createMapByProgIdLoader({ progId: PGID.Material, lang: props.lang, getApiInstance: () => ssrApi });
+    const pageLoader = page.loader.createQueryDataLoader({ getInternalId: () => queryParam.pageId, getApiInstance: () => ssrApi });
+
+    const [gridRes, categoryRes, tagRes, pageRes] = await Promise.all([
+        gridLoader(args),
+        cateLoader(args),
+        tagLoader(args),
+        queryParam.pageId ? pageLoader(args) : Promise.resolve(buildEmptyPageLoaderData(queryParam.pageId)),
+    ]);
+
+    // return
+    return { args: queryParam, res: { gridRes, categoryRes, tagRes, pageRes } };
 };
+// #endregion
 
-/** 比對 SSR initial 是否可沿用 */
-const matchQueryInitial = <TData>(
-    currentParam: QueryListParam,
-    initial: ApiLoaderData<QueryListParam, TData> | null | undefined,
-): ApiLoaderData<QueryListParam, TData> | null =>
+// #region CSR DataSource
+/** 取得 SSR initial grid，條件一致才沿用 count/list */
+const buildGridInitial = (p: { queryParam: MaterialListLoaderArgs; loaderData: MaterialListLoaderData | null; }): ApiGridInitial<MaterialSet> | undefined =>
 {
-    const currentKey = JSON.stringify(currentParam ?? null);
-    const initialKey = JSON.stringify(initial?.args ?? null);
-    return currentKey === initialKey ? (initial ?? null) : null;
+    // 宣告變數
+    const initial = p.loaderData?.res?.gridRes;
+    const matched = isSameClientDataQueryParam(p.loaderData?.args?.matParam, p.queryParam.matParam);
+    if (!initial) return undefined;
+
+    // return
+    return { model: initial.model ?? null, count: matched ? (initial.count ?? null) : null, list: matched ? (initial.list ?? null) : null };
 };
 
 /** 比對單筆資料 SSR initial 是否可沿用 */
 const matchDataInitial = <TData>(currentArg: string, initial: ApiLoaderData<string, TData> | null | undefined): ApiLoaderData<string, TData> | null =>
 {
+    // return
     return currentArg === (initial?.args ?? "") ? (initial ?? null) : null;
 };
 
-/** 組合重置Key */
-const buildResetKey = (p: { lang: Lang; opts: IMaterialListOptions; viewState?: Omit<IListViewState, "pageNumber" | "sortField" | "sortDesc">; }): string =>
+/** 依語系取得頁面內容明細 */
+const findPageDetail = (data: PageManagementSet, lang: Lang): PageManagementDetail | null =>
 {
-    return JSON.stringify({
-        lang: p.lang,
-        pageId: p.opts.PageId ?? "",
-        categoryId: p.opts.CategoryId ?? "",
-        tagIds: p.opts.TagIds ?? "",
-        pageSize: p.viewState?.pageSize,
-        keyword: p.viewState?.keyword ?? "",
-    });
+    // 宣告變數
+    const detail = data.PageManagementDetail?.find(p => (p.Lang ?? "").toLowerCase() === lang.toLowerCase());
+
+    // return
+    return detail ?? data.PageManagementDetail?.[0] ?? null;
 };
 
+/** 組合重置 Key，Tab 或節點固定條件改變時回到第一頁 */
+const buildResetKey = (args: Pick<MaterialListLoaderArgs, "lang" | "pageId" | "categoryId" | "tagIds" | "pageSize">): string =>
+{
+    // return
+    return JSON.stringify({ lang: args.lang, pageId: args.pageId, categoryId: args.categoryId, tagIds: args.tagIds, pageSize: args.pageSize });
+};
+
+/** Material DataSource：統一處理 CSR 查詢與 SSR initial 沿用 */
+const useMaterialListDataSource = (
+    p: { queryParam: MaterialListLoaderArgs; loaderData: MaterialListLoaderData | null; },
+): ClientDataQueryDataSourceResult<MaterialListRawData, MaterialListAdapter> =>
+{
+    // 宣告變數
+    const adapter = useMemo(() => ({ Material: MaterialAdapter(), Category: CategoryAdapter(), Tag: TagAdapter(), PageManagement: PageManagementAdapter() }), []);
+    const currentArgs = p.queryParam;
+    const gridInitial = useMemo(() => buildGridInitial(p), [p]);
+    const pageInitial = useMemo(() => currentArgs.pageId ? matchDataInitial(currentArgs.pageId, p.loaderData?.res.pageRes) : buildEmptyPageLoaderData(currentArgs.pageId), [currentArgs.pageId, p.loaderData]);
+
+    // 執行 function：主清單與參考資料
+    const grid = adapter.Material.hooks.useQueryGridData({ baseParam: currentArgs.matParam, deps: [currentArgs.condition, currentArgs.pageSize], modelDeps: [currentArgs.lang], initial: gridInitial });
+    const pageData = adapter.PageManagement.hooks.useQueryData({ internalId: currentArgs.pageId, initial: pageInitial, deps: [currentArgs.pageId, currentArgs.lang] });
+    const category = adapter.Category.hooks.useMapByProgId({ progId: PGID.Material, lang: currentArgs.lang, initial: p.loaderData?.res.categoryRes ?? null, deps: [currentArgs.lang] });
+    const tag = adapter.Tag.hooks.useMapByProgId({ progId: PGID.Material, lang: currentArgs.lang, initial: p.loaderData?.res.tagRes ?? null, deps: [currentArgs.lang] });
+    const resetKey = useMemo(() => buildResetKey(currentArgs), [currentArgs]);
+    useResetListPageOnKeyChange(resetKey, grid.onPageChange);
+
+    const pageSet = useMemo(() => pageData.data ?? emptyPageData, [pageData.data]);
+    const pageDetail = useMemo(() => findPageDetail(pageSet, currentArgs.lang), [pageSet, currentArgs.lang]);
+
+    const paginator = useMemo<ClientDataQueryPaginatorModel>(() =>
+    {
+        // return
+        return { currentPage: grid.pageNumber ?? 1, pageSize: currentArgs.pageSize, totalPages: grid.totalPages ?? 1, totalCount: grid.count ?? 0, onPageChange: grid.onPageChange };
+    }, [grid.pageNumber, grid.totalPages, grid.count, grid.onPageChange, currentArgs.pageSize]);
+
+    const rawData = useMemo<MaterialListRawData>(() =>
+    {
+        // return
+        return {
+            pageSize: currentArgs.pageSize,
+            pageNumber: grid.pageNumber ?? 1,
+            totalPages: grid.totalPages ?? 1,
+            totalCount: grid.count ?? 0,
+            listData: grid.list ?? [],
+            categoryMap: category.map ?? {},
+            tagMap: tag.map ?? {},
+            pageData: pageSet,
+            pageDetail,
+            pageTitle: pageDetail?.Title ?? "",
+        };
+    }, [currentArgs.pageSize, grid.pageNumber, grid.totalPages, grid.count, grid.list, category.map, tag.map, pageSet, pageDetail]);
+
+    const errors = useMemo(() =>
+    {
+        // return
+        return [...(grid.errors ?? []), category.errorText, tag.errorText, pageData.errorText].filter((item): item is string => Boolean(item));
+    }, [grid.errors, category.errorText, tag.errorText, pageData.errorText]);
+
+    const refetchData = useCallback(async () =>
+    {
+        // 執行 function：重抓主清單資料
+        await grid.refetchData();
+    }, [grid]);
+
+    const refetchRefData = useCallback(async () =>
+    {
+        // 執行 function：重抓參考資料
+        await Promise.all([category.refetch(), tag.refetch(), pageData.refetch()]);
+    }, [category, tag, pageData]);
+
+    // return
+    return { adapter, rawData, isLoading: Boolean(grid.isLoading || category.isLoading || tag.isLoading || pageData.isLoading), errors, paginator, refetchData, refetchRefData };
+};
+// #endregion
+
+// #region Public Hook
+/** CSR Hook：Feature 版 MaterialList 走 Client_DataQueryTemplate，不顯示 SearchBar */
+export const useMaterialListData = (props: QueryParam): UseMaterialListDataResult =>
+{
+    // 宣告變數
+    const initial = useLoaderData() as MaterialListLoaderData | null;
+    const fallbackArgs = useMemo(() => buildLoaderArgs(props), [props.lang, props.opts.PageId, props.opts.CategoryId, props.opts.TagIds]);
+    const initialArgs = initial?.args ?? fallbackArgs;
+
+    const template = useMemo(() =>
+    {
+        // return
+        return createMaterialListDataQueryTemplate({ lang: props.lang, opts: props.opts, overrides: { pageNumber: initialArgs.pageNumber, pageSize: initialArgs.pageSize } });
+    }, [props.lang, props.opts, initialArgs.pageNumber, initialArgs.pageSize]);
+
+    const templateVm = useClientDataQueryTemplate(template);
+    const rawData = templateVm.viewModel;
+
+    // return
+    return { rawData, paginatorProps: templateVm.paginatorProps, isLoading: templateVm.isLoading, errorList: templateVm.errorList, onPageChange: rawData.pageNumber ? templateVm.paginator?.onPageChange ?? (() => undefined) : (() => undefined), refetchData: templateVm.refetchData };
+};
+// #endregion
+
+// #region Public Helper
 /** 取得 Material List 初始查詢用 TagId */
 export const getInitialMaterialTagId = (tagIds?: string | null): string =>
 {
+    // return
     return getCsvValues(tagIds ?? "")[0] ?? "";
 };
 
 /** 將 CSV 字串轉成乾淨 id 清單 */
 export const getCsvValues = (value: string): string[] =>
 {
+    // 宣告變數
     const list = value.split(",").map(cleanCsvValue).filter(Boolean);
+
+    // return
     return Array.from(new Set(list));
 };
 
 /** 清理 CSV 內可能殘留的括號或引號 */
 const cleanCsvValue = (value: string): string =>
 {
-    return value.trim().replace(/^[("'\\s]+|[)"'\\s]+$/g, "");
+    // return
+    return value.trim().replace(/^[("'\s]+|[)"'\s]+$/g, "");
 };
 // #endregion

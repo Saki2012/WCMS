@@ -1,7 +1,6 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
@@ -9,7 +8,8 @@ import { FormatDate } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { useMemo } from "react";
 import { useLocation } from "react-router";
-import { type IGalleryListOptions, useGalleryListFetchData } from "./GalleryList_Loader";
+import { type IGalleryListOptions, useGalleryListData } from "./GalleryList_Loader";
+
 type GallerySet = components["schemas"]["GallerySet_DTO"];
 
 export interface IGalleryListProps
@@ -24,28 +24,27 @@ export interface IGalleryListProps
 
 const GalleryList = (props: IGalleryListProps) =>
 {
-    const galleryData = useGalleryListFetchData({ lang: props.lang, opts: props.options });
-
-    const paginatorProps = useMemo<PaginatorProps>(() =>
-    {
-        return { currentPage: galleryData.pageNumber, totalPages: galleryData.totalPages, onPageChange: galleryData.onPageChange };
-    }, [galleryData.pageNumber, galleryData.totalPages, galleryData.onPageChange]);
+    // 宣告變數
+    const vm = useGalleryListData({ lang: props.lang, opts: props.options });
 
     const viewCountConfig = useMemo<ModuleViewCountConfig>(() =>
     {
+        // return
         return { mode: "list" };
     }, []);
 
+    // return
     return (
         <ModuleContent
             nodeTitle={props.node.title}
             title={""}
-            isLoading={galleryData.isLoading}
-            errorList={galleryData.errors}
-            paginatorProps={paginatorProps}
+            isLoading={vm.isLoading}
+            errorList={vm.errorList}
+            searchBar={vm.searchBar}
+            paginatorProps={vm.paginatorProps}
             viewCountConfig={viewCountConfig}
         >
-            <Gallery lang={props.lang} data={galleryData.list} categoryMap={galleryData.categoryMap} />
+            <Gallery lang={props.lang} data={vm.list} categoryMap={vm.categoryMap} />
         </ModuleContent>
     );
 };
@@ -54,87 +53,125 @@ export default GalleryList;
 
 const Gallery = (props: { lang: Lang; data: GallerySet[]; categoryMap: Record<string, string>; }) =>
 {
+    // 宣告變數
     const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
+
+    // return
     return (
         <>
             <div id="Row_Colitem" className="SubPage_Standard_itemBoxs">
-                {props.data.map((item, idx) =>
-                {
-                    const catId = item.Gallery?.Categories;
-                    const title = item.GalleryInfo?.find((p) => p.Lang === props.lang)?.Title ?? "";
-                    const coverPicDesc = item.GalleryPhotos?.find((p) => p.PicSrcId)?.GalleryPhotosInfo?.find((p) => p.Lang === props.lang)?.Title ?? title;
-                    const coverPicUrl = FileManagementAPI.get_Public_Preview_Url(item.Gallery?.CoverPicSrcId, coverPicDesc);
-                    const linkUrl = `${dirUrl}/${item.Gallery?.InternalId}`;
-                    const categoryIds = (catId ?? "").split(",").map((s) => s.trim()).filter(Boolean);
-                    const categories = categoryIds.map((id) => props.categoryMap[id] ?? "").filter((x): x is string => Boolean(x)).join("、");
-                    const validateStart = FormatDate(item.Gallery?.Validate_Start);
-                    const content = item.GalleryInfo?.find((p) => p.Lang === props.lang)?.Title ?? "";
-                    const contentStatus = item.Gallery?.ContentStatus ?? 0;
-
-                    return (
-                        <div key={idx} className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 + Standard_ItemDiv">
-                            <article className="cardbox">
-                                <div className="card_content">
-                                    <figure className="figure_Box">
-                                        <LangLink to={linkUrl} className="card_image_link venobox" data-gall="myGallery" title={title}>
-                                            <div className="card_figure">
-                                                <div className="img-wrapper">
-                                                    <img className="card_image" src={coverPicUrl} alt={coverPicDesc} />
-                                                </div>
-                                            </div>
-                                        </LangLink>
-                                    </figure>
-
-                                    <div className="card_catDiv">
-                                        <div className="card_cat">
-                                            <div className="card_cat_link">
-                                                <span className="s-line">▍</span>
-                                                <span className="s-tle">{categories}</span>
-                                            </div>
-                                        </div>
-                                        <div className="card_time">
-                                            <i className="far fa-clock mr-2"></i>
-                                            <span className="sr-only">日期</span>
-                                            {validateStart}
-                                        </div>
-                                    </div>
-
-                                    <div className="card_titleDiv + mb-md-4 mb-sm-3 mb-2">
-                                        <LangLink to={linkUrl} className="card_title">{content}</LangLink>
-                                        <div className="d-flex gap-1 flex-wrap">
-                                            {Boolean(contentStatus & 1) && <span className="label label-success">置頂</span>}
-                                            {Boolean(contentStatus & 2) && <span className="label label-danger">熱門</span>}
-                                        </div>
-                                    </div>
-
-                                    <div className="card_StateDiv">
-                                        <div className="More customize_btn">
-                                            <LangLink to={linkUrl} className="Btn_s1" type="button" role="button" title="觀看更多">
-                                                VIEW ALL<span className="ml-2">+</span>
-                                            </LangLink>
-                                        </div>
-
-                                        <div className="ZoomIn customize_ZoomIn_btn">
-                                            <LangLink
-                                                to={linkUrl}
-                                                className="Btn_zm1 venobox"
-                                                data-gall="myGallery"
-                                                type="button"
-                                                role="button"
-                                                title="放大圖片"
-                                            >
-                                                <i className="fas fa-expand-alt"></i>
-                                                <span className="sr-only">放大圖片</span>
-                                            </LangLink>
-                                        </div>
-                                    </div>
-                                </div>
-                            </article>
-                        </div>
-                    );
-                })}
+                {props.data.map((item, idx) => <GalleryCard key={item.Gallery?.InternalId ?? idx} lang={props.lang} item={item} categoryMap={props.categoryMap} dirUrl={dirUrl} />)}
             </div>
             <hr className="hr-my-4" />
         </>
     );
+};
+
+const GalleryCard = (props: { lang: Lang; item: GallerySet; categoryMap: Record<string, string>; dirUrl: string; }) =>
+{
+    // 宣告變數
+    const itemVm = buildGalleryCardViewModel(props);
+
+    // return
+    return (
+        <div className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 + Standard_ItemDiv">
+            <article className="cardbox">
+                <div className="card_content">
+                    <figure className="figure_Box">
+                        <LangLink to={itemVm.linkUrl} className="card_image_link venobox" data-gall="myGallery" title={itemVm.title}>
+                            <div className="card_figure">
+                                <div className="img-wrapper">
+                                    <img className="card_image" src={itemVm.coverPicUrl} alt={itemVm.coverPicDesc} />
+                                </div>
+                            </div>
+                        </LangLink>
+                    </figure>
+
+                    <div className="card_catDiv">
+                        <div className="card_cat">
+                            <div className="card_cat_link">
+                                <span className="s-line">▍</span>
+                                <span className="s-tle">{itemVm.categories}</span>
+                            </div>
+                        </div>
+                        <div className="card_time">
+                            <i className="far fa-clock mr-2"></i>
+                            <span className="sr-only">日期</span>
+                            {itemVm.validateStart}
+                        </div>
+                    </div>
+
+                    <div className="card_titleDiv + mb-md-4 mb-sm-3 mb-2">
+                        <LangLink to={itemVm.linkUrl} className="card_title">{itemVm.content}</LangLink>
+                        <GalleryStatusLabels contentStatus={itemVm.contentStatus} />
+                    </div>
+
+                    <div className="card_StateDiv">
+                        <div className="More customize_btn">
+                            <LangLink to={itemVm.linkUrl} className="Btn_s1" type="button" role="button" title="觀看更多">
+                                VIEW ALL<span className="ml-2">+</span>
+                            </LangLink>
+                        </div>
+
+                        <div className="ZoomIn customize_ZoomIn_btn">
+                            <LangLink to={itemVm.linkUrl} className="Btn_zm1 venobox" data-gall="myGallery" type="button" role="button" title="放大圖片">
+                                <i className="fas fa-expand-alt"></i>
+                                <span className="sr-only">放大圖片</span>
+                            </LangLink>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </div>
+    );
+};
+
+const GalleryStatusLabels = (props: { contentStatus: number; }) =>
+{
+    // return
+    return (
+        <div className="d-flex gap-1 flex-wrap">
+            {Boolean(props.contentStatus & 1) && <span className="label label-success">置頂</span>}
+            {Boolean(props.contentStatus & 2) && <span className="label label-danger">熱門</span>}
+        </div>
+    );
+};
+
+interface GalleryCardViewModel
+{
+    title: string;
+    content: string;
+    coverPicDesc: string;
+    coverPicUrl: string;
+    linkUrl: string;
+    categories: string;
+    validateStart: string;
+    contentStatus: number;
+}
+
+/** 建立 Gallery 卡片畫面資料 */
+const buildGalleryCardViewModel = (p: { lang: Lang; item: GallerySet; categoryMap: Record<string, string>; dirUrl: string; }): GalleryCardViewModel =>
+{
+    // 宣告變數
+    const title = p.item.GalleryInfo?.find(item => item.Lang === p.lang)?.Title ?? "";
+    const coverPicDesc = p.item.GalleryPhotos?.find(item => item.PicSrcId)?.GalleryPhotosInfo?.find(item => item.Lang === p.lang)?.Title ?? title;
+    const coverPicUrl = FileManagementAPI.get_Public_Preview_Url(p.item.Gallery?.CoverPicSrcId, coverPicDesc);
+    const linkUrl = `${p.dirUrl}/${p.item.Gallery?.InternalId}`;
+    const categories = buildGalleryCategoryText(p.item.Gallery?.Categories, p.categoryMap);
+    const validateStart = FormatDate(p.item.Gallery?.Validate_Start);
+    const contentStatus = p.item.Gallery?.ContentStatus ?? 0;
+
+    // return
+    return { title, content: title, coverPicDesc, coverPicUrl, linkUrl, categories, validateStart, contentStatus };
+};
+
+/** 建立分類顯示文字 */
+const buildGalleryCategoryText = (categoryValue: string | null | undefined, categoryMap: Record<string, string>): string =>
+{
+    // 宣告變數
+    const categoryIds = (categoryValue ?? "").split(",").map(item => item.trim()).filter(Boolean);
+    const categories = categoryIds.map(id => categoryMap[id] ?? "").filter((item): item is string => Boolean(item));
+
+    // return
+    return categories.join("、");
 };

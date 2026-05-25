@@ -1,4 +1,4 @@
-import type { FileArchiveListGridAdjustSlot } from "@/Features/Pages/Client/BizFunc/WebManagement/FileArchive/FileArchiveList";
+import type { FileArchiveListGridAdjustSlot } from "@/Features/Pages/Client/BizFunc/WEB/FileArchive/FileArchiveList";
 import type { ColumnConfig, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
 import { FormatDate } from "@/SysCore/Utils/Library/LibData";
 

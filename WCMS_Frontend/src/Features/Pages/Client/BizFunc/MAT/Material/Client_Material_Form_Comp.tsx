@@ -9,9 +9,9 @@ import type { components } from "@/types/api";
 import { PGID } from "@/types/SchemaFields";
 import { type KeyboardEvent, type MouseEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useMaterialFormFetchData } from "./Client_Material_Form_Loader";
+import { useMaterialFormData } from "./Client_Material_Form_Loader";
 type MaterialSet = components["schemas"]["MaterialSet_DTO"];
-type MaterialFormRawData = ReturnType<typeof useMaterialFormFetchData>["rawData"];
+type MaterialFormRawData = ReturnType<typeof useMaterialFormData>["rawData"];
 type MaterialInfoJson = Record<string, string | number | boolean | null | undefined>;
 
 interface VenoBoxOption
@@ -60,8 +60,8 @@ const Client_Material_Form_Comp = (props: IMaterialFormProps) =>
 {
     const params = useParams();
     const internalId = `${params.internalId ?? ""}`;
-    const emptyData = useMemo(() => ({} as MaterialSet), []);
-    const vm = useMaterialFormFetchData({ lang: props.lang, internalId, emptyData });
+    const emptyData = useMemo<MaterialSet>(() => ({ Material: {}, MaterialLangInfo: [], MaterialPicture: [], MaterialTags: [] }), []);
+    const vm = useMaterialFormData({ lang: props.lang, internalId, emptyData });
     const viewCountConfig = useMemo<ModuleViewCountConfig>(() =>
     {
         const request: TryCountDetailViewRequest = { SiteIndex: props.site.siteIndex, ProgId: PGID.Material, InternalId: internalId };
@@ -69,7 +69,7 @@ const Client_Material_Form_Comp = (props: IMaterialFormProps) =>
     }, [props.site.siteIndex, internalId]);
 
     return (
-        <ModuleContent nodeTitle={props.node.title} isLoading={vm.isLoading} errorList={vm.errors} viewCountConfig={viewCountConfig}>
+        <ModuleContent nodeTitle={props.node.title} isLoading={vm.isLoading} errorList={vm.errorList} viewCountConfig={viewCountConfig}>
             <MaterialDetailContent_Comp rawData={vm.rawData} lang={props.lang} />
             <MaterialInfoContent_Comp rawData={vm.rawData} lang={props.lang} />
         </ModuleContent>

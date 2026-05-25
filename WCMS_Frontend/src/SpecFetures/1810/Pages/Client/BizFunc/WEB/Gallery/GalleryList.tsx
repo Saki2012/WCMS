@@ -1,6 +1,7 @@
 import type { IGalleryListProps } from "@/Features/Pages/Client/BizFunc/WEB/Gallery/GalleryList_Comp";
-import { useGalleryListFetchData } from "@/Features/Pages/Client/BizFunc/WEB/Gallery/GalleryList_Loader";
+import { useGalleryListData } from "@/Features/Pages/Client/BizFunc/WEB/Gallery/GalleryList_Loader";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
+import { Client_SearchBar_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/SearchBar/Client_SearchBar_Comp";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import { NewPaginatorCanInputPage } from "@/SysCore/Components/Paginator/Paginator_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
@@ -71,7 +72,7 @@ const useGalleryPageProps = (p: { currentPage: number; totalPages: number; onPag
 const GalleryListComp = (props: IGalleryListProps) =>
 {
     // 讀取 feature 收斂後的資料入口
-    const galleryData = useGalleryListFetchData({ lang: props.lang, opts: props.options });
+    const galleryData = useGalleryListData({ lang: props.lang, opts: props.options });
 
     // 整理成 1810 畫面需要的資料
     const compProps = useMemo(() =>
@@ -83,13 +84,14 @@ const GalleryListComp = (props: IGalleryListProps) =>
     const gridProps = useGalleryPageProps({ currentPage: galleryData.pageNumber, totalPages: galleryData.totalPages, onPageChange: galleryData.onPageChange });
 
     return (
-        <LoadingErrorHandler isLoading={galleryData.isLoading} errorList={galleryData.errors}>
+        <LoadingErrorHandler isLoading={galleryData.isLoading} errorList={galleryData.errorList}>
             <div className="row">
                 <div className="page-header">
                     <h3>{props.title}</h3>
                 </div>
             </div>
             <hr className="hr-Css" />
+            {galleryData.searchBar && <Client_SearchBar_Comp {...galleryData.searchBar} />}
             <MainContent props={compProps} gridProps={gridProps} theme={props.theme} />
         </LoadingErrorHandler>
     );
