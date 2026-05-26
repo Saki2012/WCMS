@@ -62,17 +62,17 @@ namespace WCMS.SysCore.Library
             [LibDesc(ModelDisplayName.AACheck_IframeTitle)]
             public const string IframeTitle = "HM1410201C";
             /// <summary>
-            /// CSS font-size使用px固定單位的AA檢測碼。
-            /// 可自動修正情境：inline style或style區塊中的font-size:px轉為rem。
-            /// 檢查訊息原則：AutoFormat後不提示，除非仍有無法轉換的px font-size。
+            /// CSS font-size使用px/pt固定單位的AA檢測碼。
+            /// 可自動修正情境：inline style或style區塊中的font-size:px/pt轉為rem。
+            /// 檢查訊息原則：AutoFormat後不提示，除非仍有無法轉換的px/pt font-size。
             /// </summary>
             [LibDesc(ModelDisplayName.AACheck_FontSizePx)]
             public const string FontSizePx = "CS2140401C";
         }
         /// <summary>
-        /// 尋找CSS font-size使用px單位的正規表示式
+        /// 尋找CSS font-size使用px/pt固定單位的正規表示式
         /// </summary>
-        private static readonly Regex FontSizePxRegex = new(@"font-size\s*:\s*(?<value>\d+(?:\.\d+)?)px\b", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex FontSizeFixedUnitRegex = new(@"font-size\s*:\s*(?<value>\d+(?:\.\d+)?)(?<unit>px|pt)\b", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         /// <summary>
         /// 將連續空白正規化為單一空白的正規表示式
         /// </summary>
@@ -107,7 +107,7 @@ namespace WCMS.SysCore.Library
         internal static string DoAutoFormatAAContent(string content)
         {
             var document = BuildHtmlDocument(content);
-            FixFontSizePxToRem(document);
+            FixFontSizeFixedUnitToRem(document);
             FixAnchorInvalidAltAttribute(document);
             FixNestedImageAltInAnchor(document);
             FixEmptyAltImageTitle(document);
@@ -193,17 +193,17 @@ namespace WCMS.SysCore.Library
             return isValid;
         }
         /// <summary>
-        /// 檢查font-size是否仍使用px
+        /// 檢查font-size是否仍使用px/pt固定單位
         /// </summary>
         private static bool CheckFontSizeUnit(HtmlDocument document, IErrorHelper Message)
         {
             var isValid = true;
-            foreach (var node in GetNodes(GetRootNode(document), ".//*[@style]").Where(p => HasPxFontSize(GetAttr(p, "style"))))
+            foreach (var node in GetNodes(GetRootNode(document), ".//*[@style]").Where(p => HasFixedUnitFontSize(GetAttr(p, "style"))))
             {
                 AddAAError(Message, AACode.FontSizePx, node);
                 isValid = false;
             }
-            foreach (var node in GetNodes(GetRootNode(document), ".//style").Where(p => HasPxFontSize(p.InnerHtml)))
+            foreach (var node in GetNodes(GetRootNode(document), ".//style").Where(p => HasFixedUnitFontSize(p.InnerHtml)))
             {
                 AddAAError(Message, AACode.FontSizePx, node);
                 isValid = false;
@@ -214,9 +214,9 @@ namespace WCMS.SysCore.Library
 
         #region Private Format
         /// <summary>
-        /// 將font-size:px轉成rem
+        /// 將font-size:px/pt轉成rem
         /// </summary>
-        private static void FixFontSizePxToRem(HtmlDocument document)
+        private static void FixFontSizeFixedUnitToRem(HtmlDocument document)
         {
             foreach (var node in GetNodes(GetRootNode(document), ".//*[@style]"))
                 node.SetAttributeValue("style", FixFontSizeText(GetAttr(node, "style")));
@@ -469,7 +469,7 @@ namespace WCMS.SysCore.Library
         /// </summary>
         private static bool HasImageSource(HtmlNode img)
         {
-            return HasAttrText(img, "src") || HasAttrText(img, "data-src") || HasAttrText(img, "data-original")|| HasAttrText(img, "data-internalid");
+            return HasAttrText(img, "src") || HasAttrText(img, "data-src") || HasAttrText(img, "data-original") || HasAttrText(img, "data-internalid");
         }
         /// <summary>
         /// 判斷文字是否與圖片檔名相同
@@ -496,27 +496,36 @@ namespace WCMS.SysCore.Library
 
         #region Private Css / Iframe
         /// <summary>
-        /// 判斷是否有font-size:px
+        /// 判斷是否有font-size:px/pt固定單位
         /// </summary>
-        private static bool HasPxFontSize(string cssText)
+        private static bool HasFixedUnitFontSize(string cssText)
         {
-            return !string.IsNullOrWhiteSpace(cssText) && FontSizePxRegex.IsMatch(cssText);
+            return !string.IsNullOrWhiteSpace(cssText) && FontSizeFixedUnitRegex.IsMatch(cssText);
         }
         /// <summary>
-        /// 將CSS文字中的font-size:px轉為rem
+        /// 將CSS文字中的font-size:px/pt轉為rem
         /// </summary>
         private static string FixFontSizeText(string cssText)
         {
-            return string.IsNullOrWhiteSpace(cssText) ? cssText : FontSizePxRegex.Replace(cssText, ConvertFontSizeMatchToRem);
+            return string.IsNullOrWhiteSpace(cssText) ? cssText : FontSizeFixedUnitRegex.Replace(cssText, ConvertFontSizeMatchToRem);
         }
         /// <summary>
-        /// 將font-size的px數值換算成rem
+        /// 將font-size的px/pt數值換算成rem
         /// </summary>
         private static string ConvertFontSizeMatchToRem(Match match)
         {
-            var px = decimal.Parse(match.Groups["value"].Value, CultureInfo.InvariantCulture);
-            var rem = Math.Round(px / 16m, 4);
-            return $"font-size:{rem.ToString("0.####", CultureInfo.InvariantCulture)}rem";
+            var value = decimal.Parse(match.Groups["value"].Value, CultureInfo.InvariantCulture);
+            var unit = match.Groups["unit"].Value.ToLowerInvariant();
+            var rem = unit == "pt" ? value / 12m : value / 16m;
+            return $"font-size:{FormatRemValue(rem)}rem";
+        }
+        /// <summary>
+        /// 格式化rem數值，避免輸出多餘小數
+        /// </summary>
+        private static string FormatRemValue(decimal rem)
+        {
+            var value = Math.Round(rem, 4);
+            return value.ToString("0.####", CultureInfo.InvariantCulture);
         }
         /// <summary>
         /// 依iframe src給預設title

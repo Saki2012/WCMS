@@ -54,6 +54,66 @@ const withNewWindowSuffix = (a11y: HeaderA11yText, text: string, target?: string
 
 const getRelByTarget = (target?: string) => (isBlankTarget(target) ? "noopener noreferrer" : undefined);
 
+const HEADER_MENU_STYLE_ID = "wcms-1817-header-menu-behavior-style";
+
+const isKeyboardActivateKey = (event: KeyboardEvent): boolean =>
+{
+    return event.key === "Enter" || event.key === " " || event.key === "Spacebar" || event.code === "Space";
+};
+
+const ensureHeaderMenuBehaviorStyle = (): void =>
+{
+    if (typeof document === "undefined") return;
+    if (document.getElementById(HEADER_MENU_STYLE_ID)) return;
+
+    const style = document.createElement("style");
+    style.id = HEADER_MENU_STYLE_ID;
+    style.textContent = `
+@media screen and (min-width: 992px) {
+    #Site-Header .dropdown.is-hover-suppressed:hover > .dropdown-menu,
+    #Site-Header .dropend.is-hover-suppressed:hover > .dropdown-menu {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+
+    #Site-Header #navbar-content .navbar-nav > .nav-item.dropdown.is-hover-suppressed:hover > .nav-link {
+        color: var(--blackcolor) !important;
+    }
+
+    #Site-Header #navbar-content .navbar-nav > .nav-item.dropdown.is-hover-suppressed:hover > .nav-link::before {
+        -webkit-transform: scale(0, 0) translate(-100%, 0) !important;
+        transform: scale(0, 0) translate(-100%, 0) !important;
+    }
+
+    #Site-Header #navbar-content ul .dropdown.is-hover-suppressed > .dropdown-toggle:hover::after,
+    #Site-Header #navbar-content ul .dropend.is-hover-suppressed > .dropdown-toggle:hover::after {
+        color: var(--G999color) !important;
+    }
+
+    #Site-Header #navbar-content .navbar-nav .dropend.is-hover-suppressed:hover > .dropdown-toggle {
+        color: var(--blackcolor) !important;
+        background-color: transparent !important;
+    }
+}
+
+#Site-Header #navbar-content a.nav-link:focus-visible,
+#Site-Header #navbar-content a.dropdown-item:focus-visible,
+#Site-Header #navbar-content .dropdown-toggle:focus-visible {
+    outline: 2px solid var(--a_focusbordercolor) !important;
+    outline-offset: -2px !important;
+    box-shadow: none !important;
+}
+
+#Site-Header #navbar-content a.dropdown-item:focus-visible {
+    color: var(--blackcolor) !important;
+    background-color: var(--a_focuscolor) !important;
+}
+`;
+    document.head.appendChild(style);
+};
+
 const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
 {
     const headerRef = useRef<HTMLDivElement | null>(null);
@@ -246,6 +306,9 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme; }) 
         const root = menuRef.current;
         if (!root) return;
 
+        // 執行 function：補上桌機關閉後抑制 hover 重新展開的樣式。
+        ensureHeaderMenuBehaviorStyle();
+
         const isMobileWidth = (): boolean => window.matchMedia?.("(max-width: 991.98px)")?.matches ?? (window.innerWidth < 992);
 
         // ---------- 1) submenu 超出右緣 → 切換 show-left ----------
@@ -283,22 +346,13 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme; }) 
         // ---------- 2) Enter 可切換（桌機） ----------
         const toggleKeyHandler = (e: KeyboardEvent) =>
         {
-            if (e.key !== "Enter") return;
+            if (!isKeyboardActivateKey(e)) return;
             e.preventDefault();
 
-            // 手機板 Enter 也走「手動 toggle」
-            const mobile = isMobileWidth();
-            if (mobile)
-            {
-                const toggle = e.currentTarget as HTMLElement;
-                const host = (toggle.closest("li.dropend.submenu") as HTMLElement | null) || (toggle.closest("li.nav-item.dropdown") as HTMLElement | null);
-                if (host) toggleHostManual(host);
-                return;
-            }
-
-            // 桌機：維持 bootstrap 行為
-            const bs = (window as any).bootstrap;
-            if (bs?.Dropdown) new bs.Dropdown(e.currentTarget).toggle();
+            // 執行 function：Enter / Space 統一走手動 toggle，避免 Bootstrap 與 CSS hover 狀態錯位。
+            const toggle = e.currentTarget as HTMLElement;
+            const host = (toggle.closest("li.dropend.submenu") as HTMLElement | null) || (toggle.closest("li.nav-item.dropdown") as HTMLElement | null);
+            if (host) toggleHostManual(host, !isMobileWidth());
         };
 
         const toggleEls = Array.from(root.querySelectorAll<HTMLElement>(".dropdown-toggle"));
@@ -347,8 +401,57 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme; }) 
         navbarToggler?.addEventListener("click", onBurgerClick);
 
         // ---------- 4) 關閉/開啟工具 ----------
-        const closeAllDropdownStates = () =>
+        const getMenuHostsBySource = (source?: Element | null): HTMLElement[] =>
         {
+            // 宣告變數
+            const hosts: HTMLElement[] = [];
+            let current = source instanceof HTMLElement ? source : null;
+
+            // 執行 function：從事件來源往上收集所有 menu host，讓 hover 狀態可一起被抑制。
+            while (current && root.contains(current))
+            {
+                if (current.matches("li.nav-item.dropdown, li.dropend.submenu")) hosts.push(current);
+                current = current.parentElement;
+            }
+
+            // return
+            return Array.from(new Set(hosts));
+        };
+
+        const applyHoverSuppress = (source?: Element | null) =>
+        {
+            // 宣告變數
+            const hosts = getMenuHostsBySource(source);
+            if (hosts.length === 0)
+            {
+                root.querySelectorAll<HTMLElement>("li.nav-item.dropdown.show, li.dropend.submenu.show").forEach(host => hosts.push(host));
+            }
+
+            // 執行 function：只有滑鼠實際停留在 host 上時才抑制，避免純鍵盤操作後殘留 hover lock。
+            hosts.forEach(host =>
+            {
+                if (!host.matches(":hover")) return;
+                host.classList.add("is-hover-suppressed");
+            });
+        };
+
+        const releaseHoverSuppress = (host?: HTMLElement | null) =>
+        {
+            // 執行 function：滑鼠離開後恢復 hover 展開能力。
+            if (host)
+            {
+                host.classList.remove("is-hover-suppressed");
+                return;
+            }
+
+            root.querySelectorAll<HTMLElement>(".is-hover-suppressed").forEach(el => el.classList.remove("is-hover-suppressed"));
+        };
+
+        const closeAllDropdownStates = (options?: { suppressHover?: boolean; source?: Element | null; }) =>
+        {
+            // 執行 function：必要時先抑制 hover，避免關閉後立即被 :hover 打開。
+            if (options?.suppressHover) applyHoverSuppress(options.source);
+
             // 關閉所有 show（包含 submenu）
             root.querySelectorAll<HTMLElement>(".dropdown-menu.show").forEach(m => m.classList.remove("show"));
             root.querySelectorAll<HTMLElement>("li.show").forEach(li => li.classList.remove("show"));
@@ -376,7 +479,7 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme; }) 
             });
         };
 
-        const toggleHostManual = (host: HTMLElement) =>
+        const toggleHostManual = (host: HTMLElement, suppressHoverOnClose = false) =>
         {
             // 宣告變數
             const directMenu = host.querySelector<HTMLElement>(":scope > .dropdown-menu");
@@ -385,10 +488,14 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme; }) 
             const isOpen = host.classList.contains("show") || !!directMenu?.classList.contains("show");
             if (isOpen)
             {
-                // 執行 function：點同一個可以收回
+                // 執行 function：點同一個可以收回，桌機鍵盤關閉時避免 hover 立即重開。
+                if (suppressHoverOnClose) applyHoverSuppress(host);
                 closeSubtree(host);
                 return;
             }
+
+            // 執行 function：準備手動展開前，解除舊的 hover 抑制狀態。
+            releaseHoverSuppress();
 
             // 執行 function：互斥（同層）
             if (host.matches("li.nav-item.dropdown"))
@@ -490,6 +597,7 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme; }) 
                 const isLeafToggle = !!el.closest("a.dropdown-item.dropdown-toggle");
                 if (leaf && !isLeafToggle)
                 {
+                    closeAllDropdownStates({ suppressHover: true, source: leaf });
                     closeMobileWholeMenu();
                     return;
                 }
@@ -499,6 +607,7 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme; }) 
                 const isTopToggle = !!el.closest("a.nav-link.dropdown-toggle");
                 if (topNav && !isTopToggle)
                 {
+                    closeAllDropdownStates({ suppressHover: true, source: topNav });
                     closeMobileWholeMenu();
                     return;
                 }
@@ -524,8 +633,35 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme; }) 
             // 桌機：點 dropdown-menu 裡的葉子連結 → 收合全部
             const insideMenu = el.closest(".dropdown-menu") as HTMLElement | null;
             const isToggle = !!el.closest(".dropdown-toggle");
-            const isAnchor = !!el.closest("a");
-            if (insideMenu && isAnchor && !isToggle) closeAllDropdownStates();
+            const anchor = el.closest("a") as HTMLElement | null;
+            if (insideMenu && anchor && !isToggle) closeAllDropdownStates({ suppressHover: true, source: anchor });
+        };
+
+        const onRootKeyDown = (e: KeyboardEvent) =>
+        {
+            if (!isKeyboardActivateKey(e)) return;
+
+            // 宣告變數
+            const el = e.target as Element | null;
+            const anchor = el?.closest("a") as HTMLAnchorElement | null;
+            if (!anchor || !root.contains(anchor)) return;
+            if (anchor.classList.contains("dropdown-toggle")) return;
+
+            // 執行 function：Enter 保留瀏覽器原生點擊；Space 才補上連結點擊。
+            closeAllDropdownStates({ suppressHover: true, source: anchor });
+            if (isMobileWidth()) closeMobileWholeMenu();
+
+            if (e.key !== "Enter")
+            {
+                e.preventDefault();
+                anchor.click();
+            }
+        };
+
+        const onHostPointerLeave = (e: Event) =>
+        {
+            // 執行 function：滑鼠真正離開該 menu host 後，才解除 hover 抑制。
+            releaseHoverSuppress(e.currentTarget as HTMLElement);
         };
 
         const onDocPointerDown = (e: Event) =>
@@ -536,7 +672,10 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme; }) 
 
         const onDocKeyDown = (e: KeyboardEvent) =>
         {
-            if (e.key === "Escape") closeAllDropdownStates();
+            if (e.key !== "Escape") return;
+
+            // 執行 function：Esc 關閉時也抑制 hover，避免滑鼠停留造成 menu 又打開。
+            closeAllDropdownStates({ suppressHover: true, source: document.activeElement });
         };
 
         const onResize = () =>
@@ -545,9 +684,13 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme; }) 
             closeAllDropdownStates();
         };
 
+        const menuHostEls = Array.from(root.querySelectorAll<HTMLElement>("li.nav-item.dropdown, li.dropend.submenu"));
+        menuHostEls.forEach(el => el.addEventListener("pointerleave", onHostPointerLeave));
+
         root.addEventListener("pointerover", onPointerOver);
         root.addEventListener("focusin", onFocusIn);
         root.addEventListener("click", onRootClick);
+        root.addEventListener("keydown", onRootKeyDown);
         document.addEventListener("pointerdown", onDocPointerDown);
         document.addEventListener("keydown", onDocKeyDown);
         window.addEventListener("resize", onResize);
@@ -563,9 +706,12 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme; }) 
             toggleEls.forEach(el => el.removeEventListener("keydown", toggleKeyHandler));
             navbarToggler?.removeEventListener("click", onBurgerClick);
 
+            menuHostEls.forEach(el => el.removeEventListener("pointerleave", onHostPointerLeave));
+
             root.removeEventListener("pointerover", onPointerOver);
             root.removeEventListener("focusin", onFocusIn);
             root.removeEventListener("click", onRootClick);
+            root.removeEventListener("keydown", onRootKeyDown);
 
             document.removeEventListener("pointerdown", onDocPointerDown);
             document.removeEventListener("keydown", onDocKeyDown);

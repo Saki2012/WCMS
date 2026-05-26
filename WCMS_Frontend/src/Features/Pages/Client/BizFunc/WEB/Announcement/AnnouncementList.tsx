@@ -391,6 +391,16 @@ const QAItem_Comp = (
     );
 };
 
+const getTimelineImageAlt = (picDescription: string | null | undefined, title: string): string =>
+{
+    // 宣告變數
+    const descText = picDescription?.trim() ?? "";
+    const titleText = title.trim();
+
+    // return
+    return descText || titleText || "大事記圖片";
+};
+
 const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementSet[]; }) =>
 {
     useEffect(() =>
@@ -503,9 +513,10 @@ const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementS
                             {
                                 const detail = item.AnnouncementDetail?.find(p => p.Lang === props.lang);
                                 const linkUrl = `${props.dirUrl}/${item.Announcement?.InternalId}`;
-                                const title = detail?.Title ?? "";
+                                const title = detail?.Title?.trim() ?? "";
                                 const subTitle = detail?.SubTitle ?? "";
                                 const picUrl = FileManagementAPI.get_Public_Preview_Url(item.Announcement?.PictureId, item.Announcement?.PicDescription);
+                                const picAlt = getTimelineImageAlt(item.Announcement?.PicDescription, title);
                                 const date = FormatDate(item.Announcement?.Validate_Start);
 
                                 return (
@@ -516,7 +527,7 @@ const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementS
                                                     <figure className="figure_Box">
                                                         <div className="card_figure">
                                                             <div className="img-wrapper">
-                                                                <img className="card_image" src={picUrl} alt={item.Announcement?.PicDescription ?? ""} />
+                                                                <img className="card_image" src={picUrl} alt={picAlt} />
                                                             </div>
                                                         </div>
                                                     </figure>
