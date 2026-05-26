@@ -20,6 +20,12 @@ WCMS_Frontend/dist-csr/
 *.7z
 *.html
 
+# Local test artifacts
+/.tmp/
+/test-results/
+/playwright-report/
+WCMS_Backend/.tmp-backend-*.log
+
 Installed/dotnet-hosting-8.0.22-win.exe
 Installed/requestRouter_amd64.msi
 Installed/rewrite_amd64_zh-TW.msi
