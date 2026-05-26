@@ -9,7 +9,10 @@ import {
     getIframeReferrerPolicy,
     normalizeIframeHeight,
     normalizeIframeWidth,
+    toIframeCssDimension,
+    toIframeDimensionAttribute,
     validateIframeSrc,
+    WCMS_TINYMCE_IFRAME_SANDBOX_EXCLUSIONS,
 } from "./tinyMceIframeUtils";
 import { normalizeListHtmlBeforeSave } from "./tinyMceListNormalize";
 import {
@@ -129,15 +132,24 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                     return;
                 }
                 const referrerPolicy = getIframeReferrerPolicy(url);
+                const widthAttr = toIframeDimensionAttribute(width);
+                const heightAttr = toIframeDimensionAttribute(height);
+                const style = [
+                    "display:block",
+                    `width:${toIframeCssDimension(width)}`,
+                    `height:${toIframeCssDimension(height)}`,
+                    "max-width:100%",
+                    "border:0",
+                ].join(";");
 
                 const html = `<iframe src="${ed.dom.encode(url)}"
                     title="${ed.dom.encode(title)}"
-                    width="${ed.dom.encode(width)}"
-                    height="${ed.dom.encode(height)}"
+                    ${widthAttr ? `width="${ed.dom.encode(widthAttr)}"` : ""}
+                    ${heightAttr ? `height="${ed.dom.encode(heightAttr)}"` : ""}
                     loading="lazy"
                     referrerpolicy="${ed.dom.encode(referrerPolicy)}"  
                     allowfullscreen
-                    style="max-width:100%;border:0;"></iframe>`;
+                    style="${ed.dom.encode(style)}"></iframe>`;
                 ed.insertContent(html);
                 api.close();
             },
@@ -174,6 +186,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                 "help",
                 "wordcount",
             ],
+            sandbox_iframes_exclusions: [...WCMS_TINYMCE_IFRAME_SANDBOX_EXCLUSIONS],
             toolbar: [
                 "undo redo | blocks fontfamily fontsize |",
                 "bold italic underline strikethrough forecolor backcolor superscript subscript|",
@@ -204,10 +217,11 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
 
             // AA：編輯器內容樣式改由 public/tinymce/wcms-content.css 載入，避免正式 CSP 擋 inline style。
             valid_styles: {
-                td: "background-color",
-                th: "background-color",
+                table: "border-color,border-top-color,border-right-color,border-bottom-color,border-left-color",
+                td: "background-color,border-color,border-top-color,border-right-color,border-bottom-color,border-left-color",
+                th: "background-color,border-color,border-top-color,border-right-color,border-bottom-color,border-left-color",
                 "*": "color,font-size,font-family,background-color,text-decoration,font-style,font-weight,line-height,vertical-align,"
-                    + "border,border-top,border-right,border-bottom,border-left,text-align,width,height,"
+                    + "border,border-top,border-right,border-bottom,border-left,border-color,border-top-color,border-right-color,border-bottom-color,border-left-color,text-align,width,height,"
                     + "min-width,max-width,min-height,max-height,margin-left,padding-left,list-style-type,list-style-position",
             },
             table_advtab: true,
@@ -380,6 +394,13 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                 });
 
                 // insertiframe 按鈕
+                const syncEditorTables = () =>
+                {
+                    const body = editor.getBody();
+                    if (body instanceof HTMLElement) normalizePastedTableElement(body);
+                };
+                // Avoid rewriting live table layout while the user is typing.
+                editor.on("init SetContent", syncEditorTables);
                 editor.ui.registry.addButton("insertiframe", {
                     icon: "embed",
                     tooltip: "插入 IFrame（YouTube / Google Map）",
@@ -918,6 +939,10 @@ export const useTinyMceIframeEdit = (): TinySetup =>
                 const nw = normalizeWidth(v.width);
                 const nh = normalizeHeight(v.height);
                 const referrerPolicy = getIframeReferrerPolicy(url);
+                const widthAttr = toIframeDimensionAttribute(nw);
+                const heightAttr = toIframeDimensionAttribute(nh);
+                const cssWidth = toIframeCssDimension(nw);
+                const cssHeight = toIframeCssDimension(nh);
 
                 editor.undoManager.transact(() =>
                 {
@@ -926,18 +951,19 @@ export const useTinyMceIframeEdit = (): TinySetup =>
                     // 1) 直接在同一顆 <iframe> 上改屬性（null 代表移除）
                     dom.setAttrib(ifr, "src", url || null);
                     dom.setAttrib(ifr, "title", v.title || null);
-                    dom.setAttrib(ifr, "width", nw);
-                    dom.setAttrib(ifr, "height", nh);
+                    dom.setAttrib(ifr, "width", widthAttr);
+                    dom.setAttrib(ifr, "height", heightAttr);
                     // dom.setAttrib(ifr, "sandbox", sandbox || null);
                     dom.setAttrib(ifr, "loading", "lazy");
                     dom.setAttrib(ifr, "referrerpolicy", referrerPolicy);
                     dom.setAttrib(ifr, "allowfullscreen", "");
 
                     // 3) 補保險：清狀況外的 "width/height='null'" 殘留
-                    if (ifr.getAttribute("width") === "null") dom.setAttrib(ifr, "width", null);
-                    if (ifr.getAttribute("height") === "null") dom.setAttrib(ifr, "height", null);
 
                     // 4) 你原本就有的
+                    dom.setStyle(ifr, "display", "block");
+                    dom.setStyle(ifr, "width", cssWidth);
+                    dom.setStyle(ifr, "height", cssHeight);
                     dom.setStyle(ifr, "max-width", "100%");
                     dom.setStyle(ifr, "border", "0");
 
@@ -959,12 +985,17 @@ export const useTinyMceIframeEdit = (): TinySetup =>
                         setWrap("data-mce-p-src", url || null);
                         setWrap("data-mce-url", url || null);
                         setWrap("data-ephox-embed-iri", url || null);
+                        dom.setStyle(wrapper, "display", "block");
+                        dom.setStyle(wrapper, "width", cssWidth);
+                        dom.setStyle(wrapper, "height", cssHeight);
+                        dom.setStyle(wrapper, "max-width", "100%");
+                        dom.setStyle(wrapper, "border", "0");
 
                         // 如需更完整，其他屬性也能補上 data-mce-p-*
                         const cacheAttrs: Record<string, string | null> = {
                             "data-mce-p-title": v.title || null,
-                            "data-mce-p-width": (typeof nw === "string" ? nw : String(nw)) || null,
-                            "data-mce-p-height": (typeof nh === "string" ? nh : String(nh)) || null,
+                            "data-mce-p-width": widthAttr,
+                            "data-mce-p-height": heightAttr,
                             // "data-mce-p-sandbox": sandbox || null,
                             "data-mce-p-loading": "lazy",
                             "data-mce-p-referrerpolicy": referrerPolicy,

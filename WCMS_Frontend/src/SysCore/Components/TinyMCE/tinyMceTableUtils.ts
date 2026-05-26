@@ -53,13 +53,6 @@ const normalizeTableDimensions = (root: ParentNode): boolean =>
     {
         changed = applyAttributeDimensionToStyle(element, "width") || changed;
         changed = applyAttributeDimensionToStyle(element, "height") || changed;
-
-        if (element.tagName !== "TABLE") return;
-        if (hasExplicitDimension(element, "width")) return;
-        if (element.style.width === "100%") return;
-
-        element.style.width = "100%";
-        changed = true;
     });
 
     return changed;
