@@ -14,12 +14,18 @@ import {
     validateIframeSrc,
     WCMS_TINYMCE_IFRAME_SANDBOX_EXCLUSIONS,
 } from "./tinyMceIframeUtils";
+import {
+    normalizeImageHtmlBeforeSave,
+    normalizeImageHtmlForEditor,
+    syncResponsiveImageElement,
+} from "./tinyMceImageUtils";
 import { normalizeListHtmlBeforeSave } from "./tinyMceListNormalize";
 import {
     normalizePastedTableElement,
     normalizeTableHtmlBeforeSave,
     normalizeTableHtmlForEditor,
 } from "./tinyMceTableUtils";
+import { formatHtmlSource } from "./htmlSourceFormatter";
 import { useContentTransform } from "./useContentTransform";
 
 export interface TinyMceHookOptions
@@ -49,6 +55,55 @@ const normalizeWidth = (raw?: string) =>
 const normalizeHeight = (raw?: string) =>
 {
     return normalizeIframeHeight(raw);
+};
+
+const setSourceEditorContent = (editor: TinyMCEEditor, html: string) =>
+{
+    editor.focus();
+    editor.undoManager.transact(() =>
+    {
+        editor.setContent(html);
+    });
+    editor.selection.setCursorLocation();
+    editor.nodeChanged();
+};
+
+const openFormattedSourceCodeDialog = (editor: TinyMCEEditor) =>
+{
+    const originalContent = editor.getContent({ source_view: true });
+    let formattedContent = originalContent;
+
+    try
+    {
+        const nextFormatted = formatHtmlSource(originalContent);
+        if (nextFormatted.trim().length > 0) formattedContent = nextFormatted;
+    } catch
+    {
+        formattedContent = originalContent;
+    }
+
+    editor.windowManager.open({
+        title: "Source Code",
+        size: "large",
+        body: {
+            type: "panel",
+            items: [{ type: "textarea", name: "code" }],
+        },
+        buttons: [
+            { type: "cancel", name: "cancel", text: "Cancel" },
+            { type: "submit", name: "save", text: "Save", primary: true },
+        ],
+        initialData: {
+            code: formattedContent,
+        },
+        onSubmit: (api) =>
+        {
+            const editedContent = api.getData().code;
+            const contentToSave = editedContent === formattedContent ? originalContent : editedContent;
+            setSourceEditorContent(editor, contentToSave);
+            api.close();
+        },
+    });
 };
 export const useTinyMCE = (p: TinyMceHookOptions) =>
 {
@@ -379,6 +434,11 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                     p.initExtras.setup(editor);
                 }
 
+                editor.addCommand("mceCodeEditor", () =>
+                {
+                    openFormattedSourceCodeDialog(editor);
+                });
+
                 // DB → 編輯器：BeforeSetContent 時把 data-internalid 改回 src
                 editor.on("BeforeSetContent", (e: any) =>
                 {
@@ -578,8 +638,10 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                 editor.on("ObjectSelected", (e) =>
                 {
                     const elm = e.target as HTMLElement;
-                    if (elm?.tagName?.toLowerCase() === "img")
+                    if (elm instanceof HTMLImageElement)
                     {
+                        syncResponsiveImageElement(elm, INTERNAL_ATTR);
+                        /*
                         // 保持 data-internal
                         const internal = elm.getAttribute(INTERNAL_ATTR);
                         if (internal && !elm.classList.contains("rwd-img"))
@@ -593,6 +655,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                                 elm.style.height = "";
                             }
                         }
+                        */
                     }
                 });
                 editor.ui.registry.addButton("smarttableprops", {
@@ -627,6 +690,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                         const internalId = img.getAttribute(INTERNAL_ATTR)!;
                         const expect = toUrl(internalId, "image");
                         if (img.getAttribute("src") !== expect) editor.dom.setAttrib(img, "src", expect);
+                        syncResponsiveImageElement(img as HTMLImageElement, INTERNAL_ATTR);
                     });
                 });
                 // ★01 檔案連結插入按鈕（除了工具列外也提供）
@@ -766,7 +830,7 @@ const doTransformForEditor = (html: string, makeSrc: (id: string) => string) =>
         const want = makeSrc(id);
         if (img.getAttribute("src") !== want) img.setAttribute("src", want);
     });
-    return doc.body.innerHTML;
+    return normalizeImageHtmlForEditor(doc.body.innerHTML, INTERNAL_ATTR);
 };
 
 const doTransformForDb = (html: string, enforceAlt: boolean) =>
@@ -781,7 +845,7 @@ const doTransformForDb = (html: string, enforceAlt: boolean) =>
         }
         if (enforceAlt && !img.hasAttribute("alt")) img.setAttribute("alt", "");
     });
-    return doc.body.innerHTML;
+    return normalizeImageHtmlBeforeSave(doc.body.innerHTML, INTERNAL_ATTR);
 };
 
 export const useTinyMceInternalImage = (opts: UseTinyMceInternalImageOptions): UseTinyMceInternalImageResult =>
