@@ -11,6 +11,10 @@ const ACTION_COLUMN_KEY = "__editGridAction";
 const ROW_NO_COLUMN_KEY = "__editGridRowNo";
 const ACTION_COLUMN_DEFAULT_WIDTH = 148;
 const ROW_NO_COLUMN_DEFAULT_WIDTH = 80;
+const DEFAULT_MAX_VISIBLE_ROWS = 5;
+const DEFAULT_ROW_ESTIMATED_HEIGHT_PX = 64;
+const DEFAULT_HEADER_ESTIMATED_HEIGHT_PX = 46;
+const SCROLL_BOX_HEIGHT_RESERVED_PX = 4;
 
 const EmptyGridData: GridProps = { columns: [], rows: [], CurrentPage: 1, TotalPage: 1, onPageChange: () => undefined };
 type EditGridDragPlacement = "before" | "after";
@@ -59,7 +63,7 @@ export const EditGrid = (props: EditGridProps) =>
     const canEdit = props.canEdit === true && !disabled;
     const canDelete = props.canDelete === true && !disabled;
     const canDrag = props.canDrag === true && !disabled && rows.length > 1;
-    const hasActionCell = canEdit || canDelete || canDrag;
+    const hasActionCell = props.canEdit === true || props.canDelete === true || props.canDrag === true;
 
     const visibleColumns = useMemo(() => (Array.isArray(columns) ? columns : []).filter(col => col.visible !== false), [columns]);
     const bodyColSpan = visibleColumns.length + (hasActionCell ? 1 : 0) + (props.showRowNo === true ? 1 : 0);
@@ -68,11 +72,16 @@ export const EditGrid = (props: EditGridProps) =>
     const systemColumnWidth = (hasActionCell ? actionColumnWidth : 0) + (props.showRowNo === true ? rowNoColumnWidth : 0);
     const tableMinWidth = useMemo(() => getTableMinWidth(visibleColumns, props.minTableWidth, systemColumnWidth), [visibleColumns, props.minTableWidth, systemColumnWidth]);
     const shouldScroll = useShouldUseXScroll(props.scrollBreakpoint ?? tableMinWidth);
+    const maxVisibleRows = normalizeMaxVisibleRows(props.maxVisibleRows);
+    const estimatedRowHeightPx = normalizePositivePixel(props.estimatedRowHeightPx, DEFAULT_ROW_ESTIMATED_HEIGHT_PX);
+    const estimatedHeaderHeightPx = normalizePositivePixel(props.estimatedHeaderHeightPx, DEFAULT_HEADER_ESTIMATED_HEIGHT_PX);
+    const shouldUseYScroll = shouldUseVerticalScroll(rows.length, maxVisibleRows);
     const errors = useMemo(() => buildErrorMap(rows, visibleColumns), [rows, visibleColumns]);
 
     useEffect(() => setGridData(normalizeGridData(sourceGridData)), [sourceGridData]);
     useEffect(() => setSystemWidths(readSavedWidths(storageKey)), [storageKey]);
     useEffect(() => scrollPendingAddedRowIntoView(scrollBoxRef, pendingAddedRowIndexRef), [rows.length]);
+    useEffect(() => props.onEditingStateChange?.({ editingKeys: Array.from(editingKeys), hasEditingRow }), [editingKeys, hasEditingRow, props.onEditingStateChange]);
 
     const resizeAnyColumn = (key: string, width: number, persist: boolean = true) =>
     {
@@ -113,7 +122,7 @@ export const EditGrid = (props: EditGridProps) =>
                 <div
                     ref={scrollBoxRef}
                     className="edit-grid-scroll-box"
-                    style={getScrollBoxStyle(shouldScroll, grabScroll.isDragging)}
+                    style={getScrollBoxStyle(shouldScroll, grabScroll.isDragging, shouldUseYScroll, maxVisibleRows, estimatedRowHeightPx, estimatedHeaderHeightPx)}
                     tabIndex={0}
                     role="region"
                     aria-label="可水平拖曳捲動的表格區塊"
@@ -131,6 +140,7 @@ export const EditGrid = (props: EditGridProps) =>
                             {rows.map((row, rowIndex) => {
                                 const rowKey = getRowKey(row, rowIndex);
                                 const isEditing = editingKeys.has(rowKey);
+                                const isSubDetailExpanded = props.expandedRowKey !== null && props.expandedRowKey !== undefined && String(props.expandedRowKey) === rowKey;
                                 const canEditThisRow = canEdit && (!hasEditingRow || isEditing);
                                 const showPlaceholderBefore = shouldRenderDropPlaceholder(rowIndex, dragIndex, dragOverIndex, dragPlacement, "before");
                                 const showPlaceholderAfter = shouldRenderDropPlaceholder(rowIndex, dragIndex, dragOverIndex, dragPlacement, "after");
@@ -153,6 +163,13 @@ export const EditGrid = (props: EditGridProps) =>
                                                 </td>
                                             ))}
                                         </tr>
+                                        {isSubDetailExpanded && props.subDetailRender && (
+                                            <tr className={props.subDetailRowClassName ?? "edit-grid-sub-detail-row"}>
+                                                <td colSpan={bodyColSpan} style={getEditGridCellStyle()}>
+                                                    {props.subDetailRender({ row, rowIndex, rowKey, disabled })}
+                                                </td>
+                                            </tr>
+                                        )}
                                         {showPlaceholderAfter && <EditGridDropPlaceholder colSpan={bodyColSpan} />}
                                     </Fragment>
                                 );
@@ -208,20 +225,20 @@ const EditGridHeader = (props: { columns: ColumnConfig[]; hasActionCell: boolean
             {/* [Fix] 移除殘留 className="111" */}
             <tr style={{ background: "rgba(0, 0, 0, .075)" }}>
                 {props.hasActionCell && (
-                    <th scope="col" className={props.style?.ColumnStyle} style={{ position: "relative", width: toCssWidth(props.actionWidth), minWidth: toCssWidth(120) }}>
+                    <th scope="col" className={props.style?.ColumnStyle} style={getEditGridHeaderCellStyle({ width: toCssWidth(props.actionWidth), minWidth: toCssWidth(120) })}>
                         {props.actionTitle ?? "動作"}
                         <ColumnResizeHandle columnKey={ACTION_COLUMN_KEY} onResize={props.onResize} onResizeGuide={props.onResizeGuide} />
                     </th>
                 )}
                 {props.showRowNo && (
-                    <th scope="col" className={props.style?.ColumnStyle} style={{ position: "relative", width: toCssWidth(props.rowNoWidth), minWidth: toCssWidth(64) }}>
+                    <th scope="col" className={props.style?.ColumnStyle} style={getEditGridHeaderCellStyle({ width: toCssWidth(props.rowNoWidth), minWidth: toCssWidth(64) })}>
                         序號
                         <ColumnResizeHandle columnKey={ROW_NO_COLUMN_KEY} onResize={props.onResize} onResizeGuide={props.onResizeGuide} />
                     </th>
                 )}
                 {props.columns.map((col) => (
                     // [Fix] 所有欄位（含最後一欄）都加上 ColumnResizeHandle，讓使用者可調整任意欄寬
-                    <th key={col.key} id={col.key} scope="col" className={props.style?.ColumnStyle} style={{ position: "relative", width: toCssWidth(col.width), minWidth: toCssWidth(col.minWidth) }}>
+                    <th key={col.key} id={col.key} scope="col" className={props.style?.ColumnStyle} style={getEditGridHeaderCellStyle({ width: toCssWidth(col.width), minWidth: toCssWidth(col.minWidth) })}>
                         {col.title}
                         <ColumnResizeHandle columnKey={col.key} onResize={props.onResize} onResizeGuide={props.onResizeGuide} />
                     </th>
@@ -1689,6 +1706,9 @@ const EditGridOverflowStyle = () =>
                 max-inline-size: 1px;
                 max-block-size: 1px;
             }
+            .edit-grid-root thead th {
+                box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .08);
+            }
             .edit-grid-root .edit-grid-scroll-box:focus-visible,
             .edit-grid-root button:focus-visible,
             .edit-grid-root input:focus-visible,
@@ -1746,6 +1766,16 @@ const EditGridOverflowStyle = () =>
         `}</style>
     );
 };
+
+/** 取得 EditGrid 表頭樣式，垂直捲動時固定欄位標題避免使用者失去欄位對應。 */
+const getEditGridHeaderCellStyle = (style: CSSProperties = {}): CSSProperties =>
+({
+    position: "sticky",
+    top: 0,
+    zIndex: 5,
+    background: "rgba(0, 0, 0, .075)",
+    ...style,
+});
 
 /** 取得 EditGrid td 樣式。
  *  [Fix] 原版 maxWidth: 0 會把 td 壓成零寬度，導致所有 cell 內容消失。
@@ -1816,12 +1846,45 @@ const getEditGridTableWrapStyle = (): CSSProperties =>
     contain: "layout paint inline-size",
 });
 
+/** 正規化最多顯示列數，預設 5 列；傳入 0/null 時不限制高度。 */
+const normalizeMaxVisibleRows = (value?: number | null) =>
+{
+    if (value === null || value === 0) return null;
+    if (value === undefined) return DEFAULT_MAX_VISIBLE_ROWS;
+    if (!Number.isFinite(value)) return DEFAULT_MAX_VISIBLE_ROWS;
+
+    const rows = Math.floor(value);
+    return rows > 0 ? rows : null;
+};
+
+/** 正規化像素數值，避免傳入異常值造成表格高度錯誤。 */
+const normalizePositivePixel = (value: number | undefined, fallback: number) =>
+{
+    if (typeof value !== "number" || !Number.isFinite(value)) return fallback;
+    return value > 0 ? value : fallback;
+};
+
+/** 判斷是否需要啟用垂直捲軸。 */
+const shouldUseVerticalScroll = (rowCount: number, maxVisibleRows: number | null) =>
+{
+    if (maxVisibleRows === null) return false;
+    return rowCount > maxVisibleRows;
+};
+
+/** 依表頭與列高估算 EditGrid 垂直可視高度。 */
+const getScrollBoxMaxHeight = (maxVisibleRows: number | null, rowHeightPx: number, headerHeightPx: number): string | undefined =>
+{
+    if (maxVisibleRows === null) return undefined;
+    return `${headerHeightPx + rowHeightPx * maxVisibleRows + SCROLL_BOX_HEIGHT_RESERVED_PX}px`;
+};
+
 /** 取得外層捲動樣式，固定寬度避免 Bootstrap row/flex item 被表格內容撐開而讓整頁出現水平拖拉 bar。 */
-const getScrollBoxStyle = (_shouldScroll: boolean, isDragging: boolean): CSSProperties =>
+const getScrollBoxStyle = (_shouldScroll: boolean, isDragging: boolean, shouldUseYScroll: boolean, maxVisibleRows: number | null, rowHeightPx: number, headerHeightPx: number): CSSProperties =>
 ({
     display: "block",
     overflowX: "auto",
-    overflowY: "hidden",
+    overflowY: shouldUseYScroll ? "auto" : "hidden",
+    maxHeight: shouldUseYScroll ? getScrollBoxMaxHeight(maxVisibleRows, rowHeightPx, headerHeightPx) : undefined,
     width: "100%",
     maxWidth: "100%",
     minWidth: 0,
