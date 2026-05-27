@@ -112,7 +112,7 @@ const HeaderComp = (
         || (FileManagementAPI.get_Server_Preview_Url(initialPicId) ?? "https://dummyimage.com/1920x550/555/fff.png");
     const LibTabsPropA: LibTabsProp = {
         Style: prop.theme.Tabs,
-        item: { Basic: "基本", Status: "狀態", Tags: "標籤", Img: "封面圖片", Photo: "相片", System: "系統資訊" },
+        item: { Basic: "基本", Status: "狀態", Tags: "標籤", Img: "成果照片", Photo: "相片", System: "系統資訊" },
     };
     const componentsA: Record<string, React.ReactNode[]> = {
         Basic: [
