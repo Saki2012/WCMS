@@ -1,7 +1,7 @@
 .client-searchbar {
   margin-bottom: 18px;
-  background: rgba(247, 247, 247, 0.5);
-  padding: 20px 17px;
+  background: rgba(0, 0, 0, 0.015);
+  padding: 18px 15px;
   border: 1px solid #dddddd;
   border-radius: 5px;
 }
@@ -64,7 +64,6 @@
   border-radius: 0.25rem;
   border: 1px solid #dddddd;
   background-color: var(--FFFcolor);
-  background-color: transparent;
 }
 
 .client-searchbar__input:focus,
@@ -119,19 +118,9 @@
   color: #fff;
 }
 
-@media (max-width: 992px) {
-  .client-searchbar__row {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
 @media (max-width: 768px) {
-  .client-searchbar__row {
-    grid-template-columns: 1fr;
-  }
 
   .client-searchbar__actions {
-    justify-content: flex-start;
     flex-wrap: wrap;
   }
 
