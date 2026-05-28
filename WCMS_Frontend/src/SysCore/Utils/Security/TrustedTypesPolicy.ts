@@ -23,6 +23,18 @@ interface WcmsTrustedTypesWindow extends Window
 
 const allowedSameOriginScriptPrefixes = ["/assets/", "/tinymce/", "/tinymce-i18n/"] as const;
 
+const devAllowedSameOriginScriptPrefixes = [
+    "/src/features/assets/",
+] as const;
+
+/** 取得允許的同源 script 路徑，DEV 額外允許 Vite /src 資源。 */
+const getAllowedSameOriginScriptPrefixes = (): readonly string[] =>
+{
+    if (import.meta.env.DEV) return [...allowedSameOriginScriptPrefixes, ...devAllowedSameOriginScriptPrefixes];
+
+    return allowedSameOriginScriptPrefixes;
+};
+
 const allowedExternalScriptUrls = [
     "https://translate.google.com/translate_a/element.js",
 ] as const;
@@ -31,7 +43,11 @@ const allowedExternalScriptUrls = [
 const isAllowedScriptUrl = (value: string): boolean =>
 {
     const url = new URL(value, window.location.origin);
-    if (url.origin === window.location.origin) return allowedSameOriginScriptPrefixes.some(prefix => url.pathname.startsWith(prefix));
+    if (url.origin === window.location.origin)
+{
+    const pathname = url.pathname.toLowerCase();
+    return getAllowedSameOriginScriptPrefixes().some(prefix => pathname.startsWith(prefix.toLowerCase()));
+}
 
     return allowedExternalScriptUrls.some(allowed => url.href.startsWith(allowed));
 };
