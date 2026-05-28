@@ -867,7 +867,7 @@
 .Carousel_slide_section .carousel_btn-icon-next a:focus div.carousel-control-next {
 	text-decoration: none;    
 	/*outline: thin dotted;*/
-    outline: 1px solid var(--a_focusbordercolor);
+    outline: 1px dashed var(--a_focusbordercolor);
 	/*outline-offset: -2px;*/
     
     color: var(--blackcolor) !important;
@@ -1065,7 +1065,7 @@
 .Carousel_slide_section .control-pause a:focus {
     text-decoration: none;    
 	/*outline: thin dotted;*/
-    outline: 1px solid var(--a_focusbordercolor);
+    outline: 1px dashed var(--a_focusbordercolor);
 	/*outline-offset: -2px;*/
     
     color: var(--blackcolor) !important;
@@ -1224,7 +1224,7 @@
 .Carousel_slide_section .control-toggle a:focus {
   text-decoration: none;    
 	/*outline: thin dotted;*/
-  outline: 1px solid var(--a_focusbordercolor);
+  outline: 1px dashed var(--a_focusbordercolor);
 	/*outline-offset: -2px;*/
   color: var(--blackcolor) !important;
 	background-color: #ffa700;
@@ -1619,7 +1619,7 @@
 }
 .Links_section .item a:focus {
     text-decoration: none;
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed #43B5FC;
 	/* outline-offset: -2px; */
 }
 /* ---------------------------------------------------- */
@@ -1891,7 +1891,7 @@
 	width: var(--Customize_size_40);
 	height: var(--Customize_size_40);
 	border-radius: 5px; /*100%*/
-	outline: 1px solid #43B5FC !important;
+	outline: 1px dashed #43B5FC !important;
     outline-offset: 0px;
     background-color: #ffa700 !important;        /*★★★ 重要 焦點變色 ★★★*/
 		border: 1px solid var(--FFFcolor);
@@ -2042,7 +2042,7 @@
 .Links_section .control-start:focus, 
 .Links_section .control-pause:focus {
     text-decoration: none;
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed #43B5FC;
 	outline-offset: -2px;
 	background-color: var(--Customize_HRcolor);        /*★★★ 重要 焦點變色 ★★★*/
 }
@@ -2204,7 +2204,7 @@
 }
 
 .Links_section .control-toggle:focus {
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed #43B5FC;
     outline-offset: -2px;
 }
 /*=============================================*/
@@ -2339,7 +2339,7 @@
 }
 .Admissions_section .item a:focus {
     text-decoration: none;
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed #43B5FC;
 	/* outline-offset: -2px; */
 }
 /* ---------------------------------------------------- */
@@ -2632,7 +2632,7 @@
 	width: var(--Customize_size_40);
 	height: var(--Customize_size_40);
 	border-radius: 5px; /*100%*/
-	outline: 1px solid #43B5FC !important;
+	outline: 1px dashed #43B5FC !important;
     outline-offset: 0px;
     background-color: #ffa700 !important;        /*★★★ 重要 焦點變色 ★★★*/
 		border: 1px solid var(--FFFcolor);
@@ -2788,7 +2788,7 @@
 .Admissions_section .control-start:focus, 
 .Admissions_section .control-pause:focus {
     text-decoration: none;
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed #43B5FC;
 	outline-offset: -2px;
 	background-color: var(--Customize_HRcolor);        /*★★★ 重要 焦點變色 ★★★*/
 }
@@ -2950,7 +2950,7 @@
 }
 
 .Admissions_section .control-toggle:focus {
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed #43B5FC;
     outline-offset: -2px;
 }
 /*=============================================*/
@@ -3749,7 +3749,7 @@
 }
 .Gallery_section .item a:focus {
     text-decoration: none;
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed #43B5FC;
 	/* outline-offset: -2px; */
 }
 /* ---------------------------------------------------- */
@@ -4042,7 +4042,7 @@
 	width: var(--Customize_size_40);
 	height: var(--Customize_size_40);
 	border-radius: 5px; /*100%*/
-	outline: 1px solid #43B5FC !important;
+	outline: 1px dashed #43B5FC !important;
     outline-offset: 0px;
     background-color: #ffa700 !important;        /*★★★ 重要 焦點變色 ★★★*/
 		border: 1px solid var(--FFFcolor);
@@ -4192,7 +4192,7 @@
 .Gallery_section .control-start:focus, 
 .Gallery_section .control-pause:focus {
     text-decoration: none;
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed #43B5FC;
 	outline-offset: -2px;
 	background-color: var(--Customize_HRcolor);        /*★★★ 重要 焦點變色 ★★★*/
 }
@@ -4354,7 +4354,7 @@
 }
 
 .Gallery_section .control-toggle:focus {
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed #43B5FC;
     outline-offset: -2px;
 }
 /*=============================================*/
@@ -4891,7 +4891,7 @@
 #gotop_btn.show:focus {
 	background-color: #ffbf00;
 	text-decoration: none;
-	outline: 2px solid #43B5FC;
+	outline: 2px dashed #43B5FC;
 }
 /* ====================================================== */
 /* =====  頁尾 GO-TO-TOP  ================================ */

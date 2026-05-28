@@ -87,7 +87,7 @@
     border-color: var(--Customize_color) !important;
 }
 .SubPage-RightMenu ul.Rightlist-group li a:focus.list-group-item {
-    outline: 4px solid var(--a_focusbordercolor) !important;
+    outline: 2px dashed var(--a_focusbordercolor) !important;
 	outline-offset: 0px !important;   
 }
 

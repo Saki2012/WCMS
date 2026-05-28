@@ -177,18 +177,17 @@ a { color: var(--a_linkcolor); }
 
 a, a:hover { text-decoration: none; }
 a:focus {
-    text-decoration: none;    
-	outline: thin dotted;
-    outline: 2px solid var(--a_focusbordercolor);
+	text-decoration: none;    
+	outline: 2px solid var(--a_focusbordercolor);
 	outline-offset: 0px;    
-    color: var(--blackcolor) !important;
+  color: var(--blackcolor) !important;
 	background-color: var(--a_focuscolor) !important;
     
 }
 [tabindex="-1"]:focus:not(:focus-visible) {
 	text-decoration: none;
 	outline: thin dotted !important;
-    outline: 1px solid var(--a_focusbordercolor);
+  outline: 2px solid var(--a_focusbordercolor);
 	outline-offset: 0px;
 }
 

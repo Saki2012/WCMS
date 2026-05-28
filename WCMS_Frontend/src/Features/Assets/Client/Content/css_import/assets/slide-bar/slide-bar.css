@@ -38,7 +38,7 @@
 }
 .slideBar .btn:focus {
     text-decoration: none;
-    outline: 2px solid #43B5FC !important;
+    outline: 2px dashed #43B5FC !important;
 	outline: thin dotted;
 	outline-offset: -2px !important;
 	box-shadow: none;
@@ -103,7 +103,7 @@
 .slideBar .listBox .ul_List li a:focus {
 	color: var(--color_007069);
 	text-decoration: none;
-    outline: 2px solid #43B5FC !important;
+    outline: 2px dashed #43B5FC !important;
 	outline-offset: -2px !important;
 }
 /* --------------------------------------- */

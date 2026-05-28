@@ -81,7 +81,7 @@ Alt + Z：下方連結區(Z)
 	width: 15px;
 	height: 18px;
 	padding-bottom: 2.5px;
-	outline: 2px solid var(--a_focusbordercolor);
+	outline: 2px dashed var(--a_focusbordercolor);
 	outline-offset: -2px;
 	background-color: var(--a_focuscolor);
 	color: var(--blackcolor) !important;

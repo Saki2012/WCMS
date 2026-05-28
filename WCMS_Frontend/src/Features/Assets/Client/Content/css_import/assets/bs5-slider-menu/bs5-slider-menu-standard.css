@@ -93,7 +93,7 @@
 	}
 }
 .slider_navsBox .nav-link:focus-visible {
-	outline: 1px solid var(--a_focusbordercolor);
+	outline: 1px dashed var(--a_focusbordercolor);
 	box-shadow: none;
 }
 /*.header_Box .nav-item+.nav-item a.nav-link {	
@@ -323,7 +323,7 @@
 .SB_DivBox .SR-box .search-input-dropdown button:focus {
 	text-decoration: none;
 	outline: thin dotted;
-	outline: 1px solid var(--a_focusbordercolor);
+	outline: 1px dashed var(--a_focusbordercolor);
 	outline-offset: -2px !important;
 	color: var(--blackcolor) !important;
 	background-color: var(--a_focuscolor) !important;
@@ -673,7 +673,7 @@
 	border-color: var(--Customize_color);
 }
 .slider_nav .list-group-item:focus {
-	outline: 4px solid var(--a_focusbordercolor) !important;
+	outline: 2px dashed var(--a_focusbordercolor) !important;
 	outline-offset: 0px !important;
 }
 

@@ -230,6 +230,12 @@
   min-width: 0;
 }
 
+.Spec1819-JournalSearch__field .btn-CCsearch:focus{
+  outline: 2px dashed var(--a_focusbordercolor) !important;
+  outline-offset: 0px;
+  box-shadow: none;
+}
+
 /* ✅ 你原本的 searchDIV 在不同頁吃到不同樣式
    這裡直接把它「收斂成一致」 */
 .Spec1819-JournalSearch .searchDIV {
@@ -254,7 +260,9 @@
   justify-content: center;
 
   /* 讓按鈕看起來像 input-group 的右端 */
-  border: 1px solid #ced4da;
+  border-top: 1px solid #AEAEAE;
+  border-right: 1px solid #AEAEAE;
+  border-top: 1px solid #AEAEAE;
   border-left: 0;
   background: #fff;
 }
@@ -267,6 +275,8 @@
 .Spec1819-JournalSearch .searchDIV button {
   border-top-right-radius: 0.375rem;
   border-bottom-right-radius: 0.375rem;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 /* 第二列 checkbox：左邊縮排到「跟輸入框起點一致」 */
@@ -345,8 +355,8 @@ a:focus {
 }
 
 a:focus-visible {
-  outline: 2px solid var(--a_focusbordercolor);
-  outline-offset: 2px;
+  outline: 2px dashed var(--a_focusbordercolor);
+  /* outline-offset: 2px; */
   background-color: var(--a_focuscolor);
   color: var(--blackcolor) !important;
 }
@@ -432,7 +442,7 @@ a:focus:not(:focus-visible):not(:active) {
 }
 
 .SpecJournalPreviewCard__button:focus-visible {
-  outline: 2px solid var(--a_focusbordercolor, #caa300);
+  outline: 2px dashed var(--a_focusbordercolor, #caa300);
   outline-offset: 3px;
   border-radius: 6px;
   background-color: var(--a_focuscolor, #fff8d9);
@@ -494,7 +504,7 @@ a:focus:not(:focus-visible):not(:active) {
 }
 
 .SpecJournalPreviewCard__toggle:focus-visible {
-  outline: 2px solid var(--a_focusbordercolor, #caa300);
+  outline: 2px dashed var(--a_focusbordercolor, #caa300);
   outline-offset: 3px;
   border-radius: 4px;
   background-color: var(--a_focuscolor, #fff8d9);
@@ -679,10 +689,6 @@ a:focus:not(:focus-visible):not(:active) {
 	color: var(--FFFcolor) !important;
 	background-color: var(--Customize_color) !important;
 	border-color: var(--Customize_color);
-}
-.sidebar .list-group-item:focus {
-	outline: 3px solid var(--a_focusbordercolor) !important;
-	outline-offset: -3px !important;
 }
 
 /* 只有有子選單的 a 才加箭頭 */

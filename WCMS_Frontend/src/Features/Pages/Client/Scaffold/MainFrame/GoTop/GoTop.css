@@ -70,7 +70,6 @@ SVG progress circle
 
 	z-index: 2;
 	pointer-events: none;
-
 	transition: all 200ms linear;
 }
 
@@ -91,5 +90,6 @@ optional theme (yellow stroke)
 .progress-wrap:focus {
   background-color: var(--a_focuscolor, #FFBD40);
   text-decoration: none;
-  outline: 2px solid var(--a_focusbordercolor, #43B5FC) !important;
+  outline: 2px dashed var(--a_focusbordercolor, #43B5FC) !important;
+	outline-offset: 0px;
 }

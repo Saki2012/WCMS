@@ -142,7 +142,7 @@
 }
 
 .sidebar .list-group-item:focus {
-	outline: 2px solid var(--a_focusbordercolor) !important;
+	outline: 2px dashed var(--a_focusbordercolor) !important;
 	outline-offset: -2px !important;
 }
 

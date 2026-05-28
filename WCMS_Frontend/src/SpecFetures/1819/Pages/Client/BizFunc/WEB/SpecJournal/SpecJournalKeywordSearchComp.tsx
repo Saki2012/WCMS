@@ -152,7 +152,7 @@ export const SpecJournalKeywordSearch_Comp: React.FC<Props> = (props) =>
                                 placeholder={props.placeholder ?? DEFAULT_PLACEHOLDER}
                                 onChange={(e) => setKeyword(e.target.value)}
                             />
-                            <button type="submit" title="搜尋" aria-label="搜尋">
+                            <button className="btn-CCsearch" type="submit" title="搜尋" aria-label="搜尋">
                                 <i className="far fa-search" aria-hidden="true"></i>
                                 <span className="d-none">搜尋</span>
                             </button>

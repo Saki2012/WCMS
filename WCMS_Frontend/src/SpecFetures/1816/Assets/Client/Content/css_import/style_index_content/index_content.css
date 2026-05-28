@@ -742,7 +742,7 @@ body::-webkit-scrollbar-thumb {
 .Form_Search_DIV .Search_btn:focus {
     text-decoration: none;    
 	/*outline: thin dotted !important;*/
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed #43B5FC;
 	/*outline-offset: -2px;*/
     /*background-color: transparent !important;   */ 
 }
@@ -824,7 +824,7 @@ body::-webkit-scrollbar-thumb {
 }
 .Link-icons-pos a:focus {
 	text-decoration: none;
-	outline: 2px solid #43B5FC;
+	outline: 2px dashed #43B5FC;
 	outline-offset: -2px;
 }
 
@@ -1148,7 +1148,7 @@ body::-webkit-scrollbar-thumb {
 .Link-icons-pos .control-start:focus, 
 .Link-icons-pos .control-pause:focus {
     text-decoration: none;
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed #43B5FC;
 	outline-offset: -2px;
 	background-color: var(--Customize_HRcolor);        /*★★★ 重要 焦點變色 ★★★*/
 }
@@ -1285,7 +1285,7 @@ body::-webkit-scrollbar-thumb {
 /* .Carousel_slide_section .carousel_btn-icon-prev a:focus div.carousel-control-prev,
 .Carousel_slide_section .carousel_btn-icon-next a:focus div.carousel-control-next {
 	text-decoration: none;    
-  outline: 1px solid var(--a_focusbordercolor);
+  outline: 1px dashed var(--a_focusbordercolor);
   color: var(--blackcolor) !important;
 	background-color: transparent;
 } */
@@ -1468,7 +1468,7 @@ body::-webkit-scrollbar-thumb {
 .Carousel_slide_section .control-pause a:focus {
     text-decoration: none;    
 	/*outline: thin dotted;*/
-    outline: 1px solid var(--a_focusbordercolor);
+    outline: 1px dashed var(--a_focusbordercolor);
 	/*outline-offset: -2px;*/
     
     color: var(--blackcolor) !important;
@@ -1613,7 +1613,7 @@ body::-webkit-scrollbar-thumb {
 }*/
 /* .Carousel_slide_section .control-toggle a:focus {
     text-decoration: none;    
-    outline: 1px solid var(--a_focusbordercolor);
+    outline: 1px dashed var(--a_focusbordercolor);
     
     color: var(--blackcolor) !important;
 	background-color: transparent;
@@ -3235,7 +3235,7 @@ a:hover.caption-customize-btn .button-icon {
 .Opening_hours_DIV .Open_btn:focus {
     text-decoration: none;    
 	/*outline: thin dotted !important;*/
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed #43B5FC;
 	/*outline-offset: -2px;*/
     /*background-color: transparent !important;*/ 
 }
@@ -3311,7 +3311,7 @@ a:hover.caption-customize-btn .button-icon {
 }
 /* .Collections_section .item a:focus {
     text-decoration: none;
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed #43B5FC;
 	outline-offset: -2px;
 	z-index: 3;
 } */
@@ -3822,7 +3822,7 @@ a:hover.caption-customize-btn .button-icon {
 .Collections_section .control-start:focus, 
 .Collections_section .control-pause:focus {
     text-decoration: none;
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed #43B5FC;
 	outline-offset: -2px;
 	background-color: var(--Customize_HRcolor);        /*★★★ 重要 焦點變色 ★★★*/
 }
@@ -3954,7 +3954,7 @@ a:hover.caption-customize-btn .button-icon {
 }
 
 .Collections_section .control-toggle:focus {
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed #43B5FC;
     outline-offset: -2px;
 }
 /*=============================================*/
@@ -4030,7 +4030,7 @@ a:hover.caption-customize-btn .button-icon {
 }
 /* .Event_section .item a:focus {
     text-decoration: none;
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed #43B5FC;
 	outline-offset: -2px;
 }
 .Event_section a:focus .wrapper_box::after {
@@ -4653,7 +4653,7 @@ a:hover.caption-customize-btn .button-icon {
 .Event_section .control-start:focus, 
 .Event_section .control-pause:focus {
     text-decoration: none;
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed #43B5FC;
 	outline-offset: -2px;
 	background-color: var(--Customize_HRcolor);        /*★★★ 重要 焦點變色 ★★★*/
 }
@@ -4785,7 +4785,7 @@ a:hover.caption-customize-btn .button-icon {
 }
 
 .Event_section .control-toggle:focus {
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed #43B5FC;
     outline-offset: -2px;
 }
 /*=============================================*/
@@ -4846,7 +4846,7 @@ a:hover.caption-customize-btn .button-icon {
 }
 /* .Links_section .item a:focus {
     text-decoration: none;
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed #43B5FC;
 	outline-offset: -2px;
 }
 .Links_section a:focus .wrapper_box::after {
@@ -5469,7 +5469,7 @@ a:hover.caption-customize-btn .button-icon {
 .Links_section .control-start:focus, 
 .Links_section .control-pause:focus {
     text-decoration: none;
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed #43B5FC;
 	outline-offset: -2px;
 	background-color: var(--Customize_HRcolor);        /*★★★ 重要 焦點變色 ★★★*/
 }
@@ -5601,7 +5601,7 @@ a:hover.caption-customize-btn .button-icon {
 }
 
 .Links_section .control-toggle:focus {
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed #43B5FC;
     outline-offset: -2px;
 }
 /*=============================================*/
@@ -6127,7 +6127,7 @@ a:hover.caption-customize-btn .button-icon {
 #gotop_btn.show:focus {
 	background-color: #ffbf00;
 	text-decoration: none;
-	outline: 2px solid #43B5FC;
+	outline: 2px dashed #43B5FC;
 }
 /* ====================================================== */
 /* =====  頁尾 GO-TO-TOP  ================================ */

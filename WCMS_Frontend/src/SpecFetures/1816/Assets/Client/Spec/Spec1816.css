@@ -1,3 +1,21 @@
+a:focus,
+a:focus-visible {
+    text-decoration: none;    
+	outline: thin dotted;
+	outline: 2px dashed var(--a_focusbordercolor2) !important;
+	outline-offset: 0px;    
+    color: var(--blackcolor) !important;
+	/* background-color: var(--a_focuscolor2) !important; */
+	background-color: var(--a_focuscolor) !important;
+    
+}
+[tabindex="-1"]:focus:not(:focus-visible) {
+	text-decoration: none;
+	outline: thin dotted !important;
+	outline: 2px dashed var(--a_focusbordercolor2) !important;
+	outline-offset: 0px;
+}
+
 /* =========================================================
    Spec1816.css (SSR/CSR Patch)
    目的：
@@ -188,7 +206,7 @@
 
 .Link-icons-pos a:focus-visible {
   text-decoration: none;
-  outline: 2px solid #43B5FC;
+  outline: 2px dashed #43B5FC;
   outline-offset: -2px;
 }
 
@@ -270,7 +288,7 @@
 
 /* A11y：有需要可以用 focus-visible 做外框（不改 DOM） */
 /* .Links_section a:focus-visible {
-  outline: 2px solid #43B5FC;
+  outline: 2px dashed #43B5FC;
   outline-offset: 2px;
 } */
 
@@ -1099,7 +1117,7 @@ a.btn:focus-visible{
 .breadcrumb__wrapper a:focus .return-box {
 	text-decoration: none;
 	outline: thin dotted;
-	outline: 2px solid transparent;
+	outline: 2px dashed transparent;
 	outline-offset: 0px;
 	color: var(--blackcolor) !important;
 	background-color: var(--a_focuscolor) !important;

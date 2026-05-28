@@ -163,7 +163,7 @@
 .customize_btn a:focus.Btn_a {
 	text-decoration: none;
 	outline: thin dotted;
-	outline: 2px solid var(--a_focusbordercolor);
+	outline: 2px dashed var(--a_focusbordercolor);
 	outline-offset: 0px;
 	color: var(--blackcolor) !important;
 	background-color: var(--a_focuscolor) !important;
@@ -401,7 +401,7 @@
 .Carousel_slide_section .carousel_btn-icon-next a:focus div.carousel-control-next {
 	text-decoration: none;    
 	/*outline: thin dotted;*/
-    outline: 1px solid var(--a_focusbordercolor);
+    outline: 1px dashed var(--a_focusbordercolor);
 	/*outline-offset: -2px;*/
     
     color: var(--blackcolor) !important;
@@ -585,7 +585,7 @@
 .Carousel_slide_section .control-pause a:focus {
     text-decoration: none;    
 	/*outline: thin dotted;*/
-    outline: 1px solid var(--a_focusbordercolor);
+    outline: 1px dashed var(--a_focusbordercolor);
 	/*outline-offset: -2px;*/
     
     color: var(--blackcolor) !important;
@@ -762,7 +762,7 @@
 .Carousel_slide_section .control-toggle a:focus {
     text-decoration: none;    
 	/*outline: thin dotted;*/
-    outline: 1px solid var(--a_focusbordercolor);
+    outline: 1px dashed var(--a_focusbordercolor);
 	/*outline-offset: -2px;*/
     
     color: var(--blackcolor) !important;
@@ -1758,14 +1758,17 @@ a:hover.caption-customize-btn .button-icon {
 	color: #1e2d40;
 	background-color: var(--FFFcolor);
 	background-clip: padding-box;
-	border: 1px solid #AEAEAE;
+	border-top: 1px solid #AEAEAE;
+	border-left: 1px solid #AEAEAE;
+	border-bottom: 1px solid #AEAEAE;
+	border-right: 1px solid transparent;
 	border-radius: .25rem;
 	transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
 }
 .FV_Box input.form-control:focus {
 	text-decoration: none;
 	outline: thin dotted;
-	outline: 2px solid var(--a_focusbordercolor);
+	outline: 2px dashed var(--a_focusbordercolor);
 	outline-offset: 0px;
 	border-color: none;
 	box-shadow: none;
@@ -1823,7 +1826,7 @@ a:hover.caption-customize-btn .button-icon {
 .FV_Box button:focus.btn-CCsearch {
 	text-decoration: none;
 	outline: thin dotted;
-	outline: 2px solid var(--a_focusbordercolor);
+	outline: 2px dashed var(--a_focusbordercolor);
 	outline-offset: 0px;
 	border-color: none;
 	box-shadow: none;
@@ -1884,8 +1887,9 @@ a:hover.caption-customize-btn .button-icon {
 
 .FV_Box .form-check .form-check-input:focus {
 	border-color: none;
-	outline: 0;
+	outline: 2px dashed var(--a_focusbordercolor);
 	box-shadow: none;
+	outline-offset: 0px;
 }
 /* ---------------------------------------------------- */
 .FV_Box .form-check label {
@@ -2858,7 +2862,7 @@ a:hover.caption-customize-btn .button-icon {
 .News_mainDIV a:focus.item-inner {
 	text-decoration: none;
 	outline: thin dotted;
-	outline: 2px solid var(--a_focusbordercolor);
+	outline: 2px dashed var(--a_focusbordercolor);
 	outline-offset: 0px;
 	color: var(--blackcolor) !important;
 	background-color: transparent !important;
@@ -3579,7 +3583,7 @@ a:hover.caption-customize-btn .button-icon {
 	display: inline-block;
 }
 .RelatedLinks_section a:focus {
-	outline: 4px solid var(--a_focusbordercolor) !important;
+	outline: 2px dashed	 var(--a_focusbordercolor) !important;
 	outline-offset: 0px !important;
 	background-color: var(--FFFcolor) !important;
 }
@@ -4197,7 +4201,7 @@ a:hover.caption-customize-btn .button-icon {
 #gotop_btn.show:focus {
 	background-color: #ffbf00;
 	text-decoration: none;
-	outline: 2px solid #43B5FC;
+	outline: 2px dashed #43B5FC;
 }
 /* ====================================================== */
 /* =====  頁尾 GO-TO-TOP  ================================ */

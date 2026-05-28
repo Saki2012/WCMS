@@ -101,7 +101,7 @@ const ensureHeaderMenuBehaviorStyle = (): void =>
 #Site-Header #navbar-content a.nav-link:focus-visible,
 #Site-Header #navbar-content a.dropdown-item:focus-visible,
 #Site-Header #navbar-content .dropdown-toggle:focus-visible {
-    outline: 2px solid var(--a_focusbordercolor) !important;
+    outline: 2px dashed var(--a_focusbordercolor) !important;
     outline-offset: -2px !important;
     box-shadow: none !important;
 }
