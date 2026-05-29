@@ -11,7 +11,8 @@ iframe {
 
 table {
     border-collapse: collapse;
-    width: 100%;
+    table-layout: fixed;
+    max-width: 100%;
 }
 
 td,
@@ -19,10 +20,6 @@ th {
     border: 1px solid #C9CDD4;
     padding: 6px;
     vertical-align: top;
-}
-
-thead th {
-    background: #f6f7f9;
 }
 
 hr {
