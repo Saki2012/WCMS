@@ -50,6 +50,16 @@ export const FileField = (props: { field: AAInputField; context: FieldRenderCont
         applyFileResult(readSafeFiles(event.dataTransfer.files, props.field), inputRef.current);
     };
 
+    /** 清除目前檔案欄位與預覽資料，讓外層 binding 可真正寫回空值。 */
+    const handleClearClick = () =>
+    {
+        clearNativeFileInput(inputRef.current);
+        revokePreviewUrls(localPreviewList);
+        setLocalErrorText("");
+        setLocalPreviewList([]);
+        props.context.onChange(props.field.key, []);
+    };
+
     /** 套用檔案驗證結果並通知外層表單，不合法檔案只顯示錯誤，不觸發原生 validity 捲動。 */
     const applyFileResult = (result: FileReadResult, input: HTMLInputElement | null) =>
     {
@@ -90,7 +100,7 @@ export const FileField = (props: { field: AAInputField; context: FieldRenderCont
                     onFocus={applyFileAAFocusStyle} 
                     onBlur={clearFileAAFocusStyle}
                 />
-                {displayFileList.length === 0 ? renderEmptyFileDropContent(props.field, handleBrowseClick) : renderFilePreviewList(displayFileList, handleBrowseClick, props.field.disabled)}
+                {displayFileList.length === 0 ? renderEmptyFileDropContent(props.field, handleBrowseClick) : renderFilePreviewList(displayFileList, handleBrowseClick, handleClearClick, props.field.disabled)}
             </div>
             <div className="form-text mt-2">允許格式為{props.field.accept ?? defaultAccept}</div>
             {localErrorText && <div id={errorId} className="invalid-feedback d-block" role="alert" aria-live="polite">{localErrorText}</div>}
@@ -179,14 +189,17 @@ const renderEmptyFileDropContent = (field: AAInputField, onBrowseClick: () => vo
 };
 
 /** 渲染已選擇/已上傳檔案的預覽內容。 */
-const renderFilePreviewList = (fileList: FilePreviewItem[], onBrowseClick: () => void, disabled?: boolean) =>
+const renderFilePreviewList = (fileList: FilePreviewItem[], onBrowseClick: () => void, onClearClick: () => void, disabled?: boolean) =>
 {
     return (
         <div className="d-flex flex-column align-items-center justify-content-center gap-2 py-3 text-center">
             <ul className="list-unstyled mb-0 w-100" aria-label="已上傳檔案">
                 {fileList.map((file) => <li key={file.key} className="mb-2">{renderFilePreviewItem(file)}</li>)}
             </ul>
-            <button type="button" className="btn btn-outline-primary btn-sm" disabled={disabled} onFocus={applyAAFocusStyle} onBlur={clearAAFocusStyle} onClick={onBrowseClick}>重新選擇檔案</button>
+            <div className="d-flex flex-wrap justify-content-center gap-2">
+                <button type="button" className="btn btn-outline-primary btn-sm" disabled={disabled} onFocus={applyAAFocusStyle} onBlur={clearAAFocusStyle} onClick={onBrowseClick}>重新選擇檔案</button>
+                <button type="button" className="btn btn-outline-danger btn-sm" disabled={disabled} onFocus={applyAAFocusStyle} onBlur={clearAAFocusStyle} onClick={onClearClick}>清除檔案</button>
+            </div>
         </div>
     );
 };
@@ -243,5 +256,14 @@ const isAcceptedFile = (file: File, accept: string) =>
     const fileName = file.name.toLowerCase();
     const fileType = file.type.toLowerCase();
     if (tokenList.length === 0) return true;
-    return tokenList.some((token) => token.startsWith(".") ? fileName.endsWith(token) : token.endsWith("/*") ? fileType.startsWith(token.replace("/*", "/")) : fileType === token);
+    return tokenList.some((token) => isAcceptedFileToken(token, fileName, fileType));
+};
+
+/** 判斷單一 accept token 是否允許目前檔案。 */
+const isAcceptedFileToken = (token: string, fileName: string, fileType: string) =>
+{
+    if (token === "*" || token === "*/*") return true;
+    if (token.startsWith(".")) return fileName.endsWith(token);
+    if (token.endsWith("/*")) return fileType.startsWith(token.replace("/*", "/"));
+    return fileType === token;
 };

@@ -15,11 +15,35 @@ export interface EditGridFileValue
     file?: File;
     fileName: string;
     url?: string;
+    downloadUrl?: string;
     mimeType?: string;
     size?: number;
 }
 
 export type EditGridCellValue = EditGridPrimitiveValue | EditGridOptionValue[] | EditGridFileValue;
+
+export interface EditGridCellValueChangeArgs
+{
+    row: GridRow;
+    rowIndex: number;
+    cell: RowCell;
+    column: ColumnConfig;
+    value: EditGridCellValue;
+    nextValue: EditGridCellValue;
+    rawValue: unknown;
+}
+
+export interface EditGridCellValueChangeResult
+{
+    /** 本次欄位要回寫的值 */
+    value: EditGridCellValue;
+
+    /** 同列其他欄位要一併回寫的值，例如上傳檔案後同步帶入檔名。 */
+    rowValues?: Record<string, EditGridCellValue>;
+}
+
+export type EditGridCellValueChangeReturn = EditGridCellValue | EditGridCellValueChangeResult;
+export type EditGridCellValueChangeHandler = (args: EditGridCellValueChangeArgs) => EditGridCellValueChangeReturn | Promise<EditGridCellValueChangeReturn>;
 
 export interface EditGridSelectOption { label: string; value: EditGridOptionValue; disabled?: boolean; }
 
@@ -52,6 +76,7 @@ export interface ColumnConfig
     maxSearchLength?: number;
     render?: (args: EditGridCellRenderArgs) => ReactNode;
     editRender?: (args: EditGridCellRenderArgs) => ReactNode;
+    onValueChange?: EditGridCellValueChangeHandler;
     validate?: (value: EditGridCellValue, row: GridRow, rowIndex: number) => string | undefined;
 }
 
@@ -82,6 +107,7 @@ export interface RowCell
     maxSearchLength?: number;
     render?: (args: EditGridCellRenderArgs) => ReactNode;
     editRender?: (args: EditGridCellRenderArgs) => ReactNode;
+    onValueChange?: EditGridCellValueChangeHandler;
     validate?: (value: EditGridCellValue, row: GridRow, rowIndex: number) => string | undefined;
 }
 
@@ -116,6 +142,9 @@ export interface EditGridCellRenderArgs
     value: EditGridCellValue;
     disabled: boolean;
     updateValue: (value: EditGridCellValue) => void;
+
+    /** 一次更新同列多個欄位，給檔案上傳後同步填入附件名稱等情境使用。 */
+    updateValues: (values: Record<string, EditGridCellValue>) => void;
 }
 
 

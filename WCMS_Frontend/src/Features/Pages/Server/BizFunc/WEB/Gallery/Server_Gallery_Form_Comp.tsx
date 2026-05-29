@@ -1,495 +1,493 @@
-import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
-import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
+import { Server_FormTemplate_Comp } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Comp";
+import type { ServerFormBinding } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
+import { EditGrid } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid";
+import type { EditGridCellRenderArgs, EditGridCellValue, EditGridEditingStateArgs, GridRow, IEditGridView_Style } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Data";
+import { getEditGridRowId, useEditGridSubDetailState } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-import {
-    LibCalendar,
-    LibCheckBox,
-    LibCheckBoxSingle,
-    LibFile,
-    LibModal,
-    LibPicture,
-    LibPicturePreview,
-    LibTextArea,
-    LibTextBox,
-    LibTinyMCE,
-} from "@/SysCore/Components/FormField/LibFormField";
+import { LibCalendar, LibCheckBox, LibFile, LibModal, LibPicturePreview, LibTextBox, LibTinyMCE } from "@/SysCore/Components/FormField/LibFormField";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
-import { type Lang, LangLabelMap, useEnsureLangDetails } from "@/SysCore/i18n/lang";
-import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import type { Lang } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
-import { GalleryFields, GalleryInfoFields, GalleryPhotosFields, GalleryPhotosInfoFields, GallerySetFields } from "@/types/SchemaFields";
-import { useCallback, useMemo, useState } from "react";
+import { GalleryFields, GalleryInfoFields, GallerySetFields } from "@/types/SchemaFields";
+import type { ReactNode } from "react";
+import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useGalleryFormFetchData } from "./Server_Gallery_Form_Hook";
-type GallerySet = components["schemas"]["GallerySet_DTO"];
-const emptyData: GallerySet = { Gallery: {}, GalleryInfo: [], GalleryPhotos: [], GalleryPhotosInfo: [] };
+import {
+    galleryEmptyData,
+    getGalleryPhotoPreviewUrl,
+    toGalleryPhotoCellValue,
+    useGalleryBatchPhotoUpload,
+    useGalleryCoverSelector,
+    useGalleryFormTemplate,
+    useGalleryInfoTabs,
+    useGalleryPhotoEditGrid,
+    useGalleryPhotoInfoEditGrid,
+    type GalleryFormRefs,
+} from "./Server_Gallery_Form_Hook";
 
-export const Server_GalleryFormComp = (prop: { theme: IBETheme; lang: Lang; }) =>
+// #region Property
+type GallerySet = components["schemas"]["GallerySet_DTO"];
+
+interface GalleryFormCompProps
+{
+    /** 後台主題設定 */
+    theme: IBETheme;
+
+    /** 目前語系 */
+    lang: Lang;
+}
+
+interface GalleryContentProps
+{
+    /** 後台主題設定 */
+    theme: IBETheme;
+
+    /** 目前語系 */
+    lang: Lang;
+
+    /** Form Template 提供的主資料 binding */
+    binding: ServerFormBinding<GallerySet>;
+
+    /** Gallery Hook 整理後的參照資料 */
+    refs: GalleryFormRefs;
+}
+
+interface GalleryHeaderProps
+{
+    /** 後台主題設定 */
+    theme: IBETheme;
+
+    /** Form Template 提供的主資料 binding */
+    binding: ServerFormBinding<GallerySet>;
+
+    /** Gallery Hook 整理後的參照資料 */
+    refs: GalleryFormRefs;
+}
+
+interface GalleryInfoProps
+{
+    /** 後台主題設定 */
+    theme: IBETheme;
+
+    /** 目前語系 */
+    lang: Lang;
+
+    /** Form Template 提供的主資料 binding */
+    binding: ServerFormBinding<GallerySet>;
+}
+
+interface PhotoGridProps
+{
+    /** 後台主題設定 */
+    theme: IBETheme;
+
+    /** 目前語系 */
+    lang: Lang;
+
+    /** Form Template 提供的主資料 binding */
+    binding: ServerFormBinding<GallerySet>;
+}
+
+interface PhotoInfoSubDetailProps extends PhotoGridProps
+{
+    /** 目前相片 RowId */
+    parentRowId: number;
+
+    /** 子明細編輯狀態變化 */
+    onEditingStateChange: (args: EditGridEditingStateArgs) => void;
+}
+
+interface GalleryHeaderTabContentOptions extends GalleryHeaderProps
+{
+    /** 欄位 binding helper */
+    setField: ReturnType<typeof useSetTableField<GallerySet>>;
+}
+
+const editGridStyle: IEditGridView_Style = {
+    TableStyle: "table table-striped table-bordered table-hover",
+    ToolbarStyle: "d-flex align-items-center justify-content-between mb-2",
+    ButtonStyle: "btn btn-custom btn-rounded btn-sm",
+    DangerButtonStyle: "btn btn-danger btn-rounded btn-sm",
+    ErrorStyle: "text-danger small mt-1",
+};
+// #endregion
+
+// #region Public
+/** 後台相簿 Form，透過新版 Form Template 統一外框與資料流程。 */
+export const Server_GalleryFormComp = (props: GalleryFormCompProps) =>
 {
     const { internalId } = useParams();
     const navigate = useNavigate();
     const pathname = useLocation().pathname;
+
     const onBackToList = useCallback(() =>
     {
-        navigate(pathname.replace(/\/Form(\/[^\/]*)?$/, "/List"));
+        navigate(buildBackToListPath(pathname));
     }, [navigate, pathname]);
+
     const actionsOpt = useMemo(() =>
     {
         return { onBackToList };
     }, [onBackToList]);
-    const getData = useGalleryFormFetchData({ lang: prop.lang, internalId: internalId ?? "", emptyData, actionsOpt });
-    // 多語系 detail 補齊：相簿 info
-    useEnsureLangDetails(getData.rawData.formData, {
-        headerName: GallerySetFields.Gallery,
-        detailName: GallerySetFields.GalleryInfo,
-        parentKeys: [GalleryInfoFields.GalleryId],
-        preferFirstLang: prop.lang,
+
+    const template = useGalleryFormTemplate({
+        lang: props.lang,
+        theme: props.theme,
+        internalId: internalId ?? "",
+        emptyData: galleryEmptyData,
+        actionsOpt,
     });
-    // 多語系 detail 補齊：相片 info（依 parentRow）
-    useEnsureLangDetails(getData.rawData.formData, {
-        headerName: GallerySetFields.GalleryPhotos,
-        detailName: GallerySetFields.GalleryPhotosInfo,
-        parentKeys: [GalleryPhotosInfoFields.GalleryId, GalleryPhotosInfoFields.ParentRowId],
-        preferFirstLang: prop.lang,
-    });
-    const formProp: FormCompProp = {
-        Title: internalId ? "修改相簿" : "新增相簿",
-        Theme: prop.theme,
-        IsLoading: getData.isLoading,
-        ErrorList: getData.errors,
-        Actions: getData.rawData.actions,
-    };
+
     return (
-        <FormComp prop={formProp}>
-            <MainFormComp
-                theme={prop.theme}
-                formData={getData.rawData.formData}
-                cateOpts={getData.rawData.categoryMap}
-                tagOpts={getData.rawData.tagMap}
-                statusOpts={getData.rawData.statusOpts}
-            />
-        </FormComp>
+        <Server_FormTemplate_Comp
+            template={template}
+            renderContent={({ vm }) => (
+                <GalleryContentComp
+                    theme={props.theme}
+                    lang={props.lang}
+                    binding={vm.binding}
+                    refs={vm.refs}
+                />
+            )}
+        />
+    );
+};
+// #endregion
+
+// #region Section
+/** 相簿主要內容，維持相簿 / 相片兩個主要分頁。 */
+const GalleryContentComp = (props: GalleryContentProps) =>
+{
+    const tabInfo: LibTabsProp = { Style: props.theme.Tabs, item: { Album: "相簿", Photo: "相片" } };
+    const components = buildGalleryMainTabContent(props);
+
+    return (
+        <TabContentComp
+            tabInfos={tabInfo}
+            components={components}
+        ></TabContentComp>
     );
 };
 
-const MainFormComp = (
-    prop: {
-        theme: IBETheme;
-        formData: UseFetchFormDataResult<GallerySet>;
-        cateOpts: Record<string, string>;
-        statusOpts: Record<string, string>;
-        tagOpts: Record<string, string>;
-    },
-) =>
+/** 相簿 Header 區塊，維持舊版 Header input。 */
+const GalleryHeaderComp = (props: GalleryHeaderProps) =>
 {
-    const tabInfo: LibTabsProp = { Style: prop.theme.Tabs, item: { "Album": "相簿", "Photo": "相片" } };
-    const components: Record<string, React.ReactNode[]> = {
-        Album: [
-            <AlbumComp theme={prop.theme} formData={prop.formData} cateOpts={prop.cateOpts} statusOpts={prop.statusOpts} tagOpts={prop.tagOpts} />,
-            <AlbumInfo theme={prop.theme} formData={prop.formData} />,
-        ],
-        Photo: [<UploadPicComp theme={prop.theme} formData={prop.formData} />, <PhotoComp theme={prop.theme} formData={prop.formData} />],
-    };
-    return <TabContentComp tabInfos={tabInfo} components={components}></TabContentComp>;
+    const setField = useSetTableField<GallerySet>(props.binding);
+    const tabInfo: LibTabsProp = { Style: props.theme.Tabs, item: { Basic: "基本", Status: "狀態", Tags: "標籤" } };
+    const components = buildGalleryHeaderTabContent({ ...props, setField });
+
+    return (
+        <TabContentComp
+            tabInfos={tabInfo}
+            components={components}
+        ></TabContentComp>
+    );
 };
 
-const AlbumComp = (
-    prop: {
-        theme: IBETheme;
-        formData: UseFetchFormDataResult<GallerySet>;
-        cateOpts: Record<string, string>;
-        statusOpts: Record<string, string>;
-        tagOpts: Record<string, string>;
-    },
-) =>
+/** 相簿語系 Detail 區塊，語系資料由 Hook 統一整理。 */
+const GalleryInfoComp = (props: GalleryInfoProps) =>
 {
-    const setField = useSetTableField<GallerySet>(prop.formData);
-    const tabInfo: LibTabsProp = { Style: prop.theme.Tabs, item: { "Basic": "基本", "Status": "狀態", "Tags": "標籤" } };
-    const components: Record<string, React.ReactNode[]> = {
-        Basic: [
-            <LibCheckBox
-                Style={prop.theme.CheckBox}
-                options={prop.cateOpts}
-                {...setField(GallerySetFields.Gallery, GalleryFields.Categories, "string", undefined, "csv")}
-            />,
-            <LibCalendar {...setField(GallerySetFields.Gallery, GalleryFields.Validate_Start, "datetime")}></LibCalendar>,
-        ],
-        Status: [
-            <LibCheckBox
-                Style={prop.theme.CheckBox}
-                options={prop.statusOpts}
-                {...setField(GallerySetFields.Gallery, GalleryFields.ContentStatus, "number", undefined, {
-                    strategy: "sum",
-                    sumKeys: Object.keys(prop.statusOpts ?? {}).map(Number),
-                })}
-            />,
-        ],
-        Tags: [
-            <LibCheckBox
-                Style={prop.theme.CheckBox}
-                options={prop.tagOpts}
-                {...setField(GallerySetFields.Gallery, GalleryFields.Tags, "string", undefined, "csv")}
-            />,
-        ],
-    };
-    return <TabContentComp tabInfos={tabInfo} components={components}></TabContentComp>;
-};
-
-const AlbumInfo = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<GallerySet>; }) =>
-{
-    const setField = useSetTableField<GallerySet>(prop.formData);
-    const rawDetails = prop.formData.data?.GalleryInfo ?? [];
-    const tabInfo: LibTabsProp = {
-        Style: prop.theme.Tabs,
-        item: rawDetails.reduce<Record<string, string>>((tabItems, info) =>
-        {
-            const langKey = LibMerge("_", true, info.GalleryId, info.RowId, info.Lang);
-            tabItems[langKey] = LangLabelMap[info.Lang as Lang] ?? info.Lang ?? "Unknown";
-            return tabItems;
-        }, {}),
-    };
-    const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>((compMap, info) =>
+    const setField = useSetTableField<GallerySet>(props.binding);
+    const detailTabs = useGalleryInfoTabs({ binding: props.binding, lang: props.lang });
+    const tabInfo: LibTabsProp = { Style: props.theme.Tabs, item: detailTabs.tabItems };
+    const components = detailTabs.items.reduce<Record<string, ReactNode[]>>((compMap, item) =>
     {
-        const langKey = LibMerge("_", true, info.GalleryId, info.RowId, info.Lang);
-        const rowKeys = { [GalleryInfoFields.GalleryId]: info.GalleryId, [GalleryInfoFields.RowId]: info.RowId };
-        compMap[langKey] = [
-            <LibTextBox
-                Style={prop.theme.TextBox}
-                DefaultInputDisplay="請輸入"
-                {...setField(GallerySetFields.GalleryInfo, GalleryInfoFields.Title, "string", rowKeys)}
-            />,
-            <LibTinyMCE Style={prop.theme.TinyMCE} {...setField(GallerySetFields.GalleryInfo, GalleryInfoFields.Content, "string", rowKeys)} />,
-        ];
+        compMap[item.key] = buildGalleryInfoFields(props.theme, setField, item.rowKeys);
         return compMap;
     }, {});
-    return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
-};
 
-type UploadError = Error & { status?: number; };
-type UploadJson = { Data?: string[]; };
-
-const UploadPicComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<GallerySet>; }) =>
-{
-    const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-    const [isUploading, setIsUploading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
-    // 逐張打 UploadTemp，回傳 InternalId 陣列
-    const uploadAll = async (): Promise<string[]> =>
-    {
-        const results: string[] = [];
-        const url = FileManagementAPI.Server_UploadTemp;
-        // 小工具：實際送出
-        const doUpload = async (file: File, fieldName: "file" | "files") =>
-        {
-            const fd = new FormData();
-            fd.append(fieldName, file, file.name);
-            const resp = await fetch(url, { method: "POST", body: fd, credentials: "include", mode: "cors" });
-            if (!resp.ok)
-            {
-                const text = await resp.text().catch(() => "");
-                const err: UploadError = new Error(`Upload ${file.name} failed: ${resp.status} ${text}`);
-                err.status = resp.status;
-                throw err;
-            }
-            return (await resp.json().catch(() => ({}))) as UploadJson;
-        };
-
-        // 逐檔上傳；先用 "file"，失敗 (400) 再試 "files"
-        for (const file of selectedFiles)
-        {
-            try
-            {
-                let json: UploadJson;
-                try
-                {
-                    json = await doUpload(file, "file");
-                } catch (e)
-                {
-                    const err = e as UploadError;
-                    if ((err?.status ?? 0) === 400) json = await doUpload(file, "files");
-                    else throw err;
-                }
-
-                const id = json.Data?.[0];
-                if (!id)
-                {
-                    console.error("Upload ok but cannot find InternalId in response:", json);
-                    throw new Error(`Upload ${file.name}: missing InternalId`);
-                }
-                results.push(String(id));
-            } catch (err)
-            {
-                console.error("upload failed:", err);
-                throw err;
-            }
-        }
-        return results;
-    };
-
-    // 寫入到 formData：新增 GalleryPhotos，RowId 依「同一個 GalleryId」自增
-    const appendPhotosToForm = (picIds: string[]) =>
-    {
-        prop.formData.setFormData(prev =>
-        {
-            const base: GallerySet = prev ?? { Gallery: {}, GalleryInfo: [], GalleryPhotos: [], GalleryPhotosInfo: [] };
-
-            const header = base[GallerySetFields.Gallery] ?? {};
-            const galleryId = header[GalleryFields.GalleryId] ?? "";
-
-            const list = base[GallerySetFields.GalleryPhotos] ?? [];
-            const baseRow = (list ?? []).reduce(
-                (m, it) => it?.[GalleryPhotosFields.GalleryId] === galleryId ? Math.max(m, Number(it?.[GalleryPhotosFields.RowId] || 0)) : m,
-                0,
-            );
-
-            const newItems = picIds.map((pid, i) => ({
-                [GalleryPhotosFields.GalleryId]: galleryId,
-                [GalleryPhotosFields.RowId]: baseRow + i + 1,
-                [GalleryPhotosFields.PicSrcId]: pid,
-                [GalleryPhotosFields.Sort]: baseRow + i + 1,
-            }));
-
-            const nextHeader = { ...header };
-            if (!nextHeader[GalleryFields.CoverPicSrcId] && picIds[0])
-            {
-                nextHeader[GalleryFields.CoverPicSrcId] = picIds[0];
-            }
-
-            return { ...base, Gallery: nextHeader, GalleryPhotos: [...list, ...newItems] };
-        });
-    };
-
-    const handleUpload = async () =>
-    {
-        if (selectedFiles.length === 0 || isUploading) return;
-        try
-        {
-            setError(null);
-            setIsUploading(true);
-            const internalIds = await uploadAll();
-            appendPhotosToForm(internalIds);
-            setSelectedFiles([]);
-        } catch (e)
-        {
-            const err = e as Error;
-            setError(err?.message ?? String(err));
-            throw err;
-        } finally
-        {
-            setIsUploading(false);
-        }
-    };
-
-    // return（⚠️ 不改 div/DOM 結構）
     return (
-        <LibModal
-            ModalName="上傳圖片"
-            BtnName1="關閉"
-            BtnName2="儲存並上傳"
-            onConfirm={handleUpload}
-            confirmDisabled={isUploading || selectedFiles.length === 0}
-            confirmBusy={isUploading}
-        >
-            <div className="row mx-0">
-                {/* 選擇欲上傳的圖片(多選) */}
-                <div className="col-12">
-                    <div className="row">
-                        <LibFile
-                            Style={prop.theme.File}
-                            ColumnDisplayName="選擇圖片(多選)"
-                            Multiple={true}
-                            onChange={(files) => setSelectedFiles(files)}
-                            InputValue={""}
-                        />
-                    </div>
-                    {error && <div className="col-12 alert alert-danger mt-2">{error}</div>}
-                </div>
-                {/* 預覽 */}
-                {selectedFiles.length > 0 && (
-                    <div className="col-12">
-                        <div className="row mt-3 mx-0">
-                            <div className="col-12 col-form-label bg-secondary mb-1">預覽圖片</div>
-                            {selectedFiles.map((file, index) =>
-                            {
-                                const url = URL.createObjectURL(file);
-                                return (
-                                    <div key={index} className="col-12 border-bottom">
-                                        <div className="d-flex align-items-center">
-                                            <LibPicturePreview ColumnDisplayName={file.name} PicSrc={url} PicDescription={`選中的圖片 ${file.name}`} />
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
-                )}
-            </div>
-        </LibModal>
+        <TabContentComp
+            tabInfos={tabInfo}
+            components={components}
+        ></TabContentComp>
     );
 };
 
-const useCoverPicSelector = (formData: UseFetchFormDataResult<GallerySet>) =>
+/** 相片區塊，批次上傳按鈕與 EditGrid 單筆新增按鈕分離。 */
+const PhotoGridComp = (props: PhotoGridProps) =>
 {
-    const selected = formData.data?.[GallerySetFields.Gallery]?.[GalleryFields.CoverPicSrcId] ?? null;
+    const cover = useGalleryCoverSelector(props.binding);
+    const subDetailState = useEditGridSubDetailState();
+    const renderPicturePreview = useCallback((args: EditGridCellRenderArgs) => <GalleryPicturePreview value={args.value} />, []);
+    const renderCoverSelector = useCallback((args: EditGridCellRenderArgs) => (
+        <GalleryCoverSelector
+            value={args.value}
+            selected={cover.selected}
+            onSelect={cover.select}
+        />
+    ), [cover.select, cover.selected]);
+    const renderSubDetailToggle = useCallback((args: EditGridCellRenderArgs) => (
+        <GallerySubDetailToggleButton
+            row={args.row}
+            expandedRowKey={subDetailState.expandedRowKey}
+            isSubDetailEditing={subDetailState.isSubDetailEditing}
+            onToggle={subDetailState.toggleSubDetail}
+        />
+    ), [subDetailState.expandedRowKey, subDetailState.isSubDetailEditing, subDetailState.toggleSubDetail]);
+    const renderSubDetail = useCallback((args: { row: GridRow; rowIndex: number; }) => (
+        <PhotoInfoSubDetailGridComp
+            theme={props.theme}
+            lang={props.lang}
+            binding={props.binding}
+            parentRowId={getEditGridRowId(args.row, args.rowIndex)}
+            onEditingStateChange={subDetailState.onSubDetailEditingStateChange}
+        />
+    ), [props.binding, props.lang, props.theme, subDetailState.onSubDetailEditingStateChange]);
 
-    const select = (picId: string) =>
-    {
-        formData.setFormData(prev =>
-        {
-            const base: GallerySet = prev ?? { Gallery: {}, GalleryInfo: [], GalleryPhotos: [], GalleryPhotosInfo: [] };
-            const g = base[GallerySetFields.Gallery] ?? {};
-            return { ...base, Gallery: { ...g, [GalleryFields.CoverPicSrcId]: picId } };
-        });
-    };
+    const photoGrid = useGalleryPhotoEditGrid({
+        binding: props.binding,
+        style: editGridStyle,
+        renderPicturePreview,
+        renderCoverSelector,
+        renderSubDetailToggle,
+        renderSubDetail,
+        expandedRowKey: subDetailState.expandedRowKey,
+        isSubDetailEditing: subDetailState.isSubDetailEditing,
+    });
 
-    return { selected, select };
+    return (
+        <div className="form-group">
+            <GalleryBatchUploadComp
+                theme={props.theme}
+                binding={props.binding}
+            />
+            <EditGrid {...photoGrid.editGridProps} />
+        </div>
+    );
 };
 
-const usePhotoRemove = (formData: UseFetchFormDataResult<GallerySet>) =>
+/** 相片語系 SubDetail Grid，固定由系統語系產生，不開放新增或刪除。 */
+const PhotoInfoSubDetailGridComp = (props: PhotoInfoSubDetailProps) =>
 {
-    const remove = (galleryId?: string, rowId?: number, picSrcId?: string) =>
-    {
-        if (!galleryId || rowId == null) return;
-        formData.setFormData(prev =>
-        {
-            const base: GallerySet = prev ?? { Gallery: {}, GalleryInfo: [], GalleryPhotos: [], GalleryPhotosInfo: [] };
-            const photos = base.GalleryPhotos ?? [];
-            const details = base.GalleryPhotosInfo ?? [];
+    const infoGrid = useGalleryPhotoInfoEditGrid({ binding: props.binding, parentRowId: props.parentRowId, lang: props.lang, style: editGridStyle });
 
-            const nextPhotos = photos.filter(p => !(p?.GalleryId === galleryId && p?.RowId === rowId));
-            const nextDetails = details.filter(d => !(d?.GalleryId === galleryId && d?.ParentRowId === rowId));
+    return (
+        <div className="p-3" style={{ backgroundColor: "#fafafa", border: "1px solid #dee2e6" }}>
+            <div className="mb-2 font-weight-bold">語系明細</div>
+            <EditGrid
+                {...infoGrid.editGridProps}
+                onEditingStateChange={props.onEditingStateChange}
+            />
+        </div>
+    );
+};
+// #endregion
 
-            const header = base.Gallery ?? {};
-            const nextHeader = { ...header };
-            if (picSrcId && header[GalleryFields.CoverPicSrcId] === picSrcId)
-            {
-                nextHeader[GalleryFields.CoverPicSrcId] = nextPhotos[0]?.[GalleryPhotosFields.PicSrcId] ?? null;
-            }
-
-            return { ...base, Gallery: nextHeader, GalleryPhotos: nextPhotos, GalleryPhotosInfo: nextDetails };
-        });
+// #region EntityComp
+/** 建立相簿主分頁內容。 */
+const buildGalleryMainTabContent = (props: GalleryContentProps): Record<string, ReactNode[]> =>
+{
+    return {
+        Album: [
+            <GalleryHeaderComp
+                theme={props.theme}
+                binding={props.binding}
+                refs={props.refs}
+            />,
+            <GalleryInfoComp
+                theme={props.theme}
+                lang={props.lang}
+                binding={props.binding}
+            />,
+        ],
+        Photo: [
+            <PhotoGridComp
+                theme={props.theme}
+                lang={props.lang}
+                binding={props.binding}
+            />,
+        ],
     };
-    return { remove };
 };
 
-const PhotoComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<GallerySet>; }) =>
+/** 建立相簿 Header 的各分頁欄位。 */
+const buildGalleryHeaderTabContent = (opt: GalleryHeaderTabContentOptions): Record<string, ReactNode[]> =>
 {
-    const setField = useSetTableField<GallerySet>(prop.formData);
-    const cover = useCoverPicSelector(prop.formData);
-    const photos = prop.formData?.data?.GalleryPhotos ?? [];
-    const remover = usePhotoRemove(prop.formData);
+    return {
+        Basic: buildGalleryBasicFields(opt),
+        Status: buildGalleryStatusFields(opt),
+        Tags: buildGalleryTagFields(opt),
+    };
+};
 
-    const dom = (
-        <>
-            {photos.map((item) =>
-            {
-                const picId = String(item.PicSrcId ?? "");
-                const rowKeys = { [GalleryPhotosFields.GalleryId]: item.GalleryId, [GalleryPhotosFields.RowId]: item.RowId };
-                const picUrl = FileManagementAPI.get_Public_Preview_Url(item.PicSrcId);
-                return (
-                    <LibPicture parentClass="col-xl-3 col-md-4 col-12" ColumnDisplayName="測試" PicSrc={picUrl} PicDescription="文字">
+/** 建立相簿基本資料欄位。 */
+const buildGalleryBasicFields = (opt: GalleryHeaderTabContentOptions): ReactNode[] =>
+{
+    return [
+        <LibCheckBox
+            Style={opt.theme.CheckBox}
+            options={opt.refs.categoryMap}
+            {...opt.setField(GallerySetFields.Gallery, GalleryFields.Categories, "string", undefined, "csv")}
+        />,
+        <LibCalendar {...opt.setField(GallerySetFields.Gallery, GalleryFields.Validate_Start, "datetime")}></LibCalendar>,
+    ];
+};
+
+/** 建立相簿狀態欄位。 */
+const buildGalleryStatusFields = (opt: GalleryHeaderTabContentOptions): ReactNode[] =>
+{
+    return [
+        <LibCheckBox
+            Style={opt.theme.CheckBox}
+            options={opt.refs.statusOpts}
+            {...opt.setField(GallerySetFields.Gallery, GalleryFields.ContentStatus, "number", undefined, {
+                strategy: "sum",
+                sumKeys: Object.keys(opt.refs.statusOpts ?? {}).map(Number),
+            })}
+        />,
+    ];
+};
+
+/** 建立相簿標籤欄位。 */
+const buildGalleryTagFields = (opt: GalleryHeaderTabContentOptions): ReactNode[] =>
+{
+    return [
+        <LibCheckBox
+            Style={opt.theme.CheckBox}
+            options={opt.refs.tagMap}
+            {...opt.setField(GallerySetFields.Gallery, GalleryFields.Tags, "string", undefined, "csv")}
+        />,
+    ];
+};
+
+/** 建立相簿語系欄位。 */
+const buildGalleryInfoFields = (
+    theme: IBETheme,
+    setField: ReturnType<typeof useSetTableField<GallerySet>>,
+    rowKeys: Record<string, string | number | undefined>,
+): ReactNode[] =>
+{
+    return [
+        <LibTextBox
+            Style={theme.TextBox}
+            DefaultInputDisplay="請輸入標題 ..."
+            {...setField(GallerySetFields.GalleryInfo, GalleryInfoFields.Title, "string", rowKeys)}
+        />,
+        <LibTinyMCE
+            Style={theme.TinyMCE}
+            {...setField(GallerySetFields.GalleryInfo, GalleryInfoFields.Content, "string", rowKeys)}
+        />,
+    ];
+};
+
+/** 批次上傳圖片，和 EditGrid 內建新增單筆按鈕分離。 */
+const GalleryBatchUploadComp = (props: { theme: IBETheme; binding: ServerFormBinding<GallerySet>; }) =>
+{
+    const batch = useGalleryBatchPhotoUpload({ binding: props.binding });
+
+    return (
+        <div className="mb-3">
+            <LibModal
+                ModalName="批次上傳圖片"
+                BtnName1="關閉"
+                BtnName2="儲存並上傳"
+                onConfirm={batch.uploadSelectedFiles}
+                confirmDisabled={batch.isUploading || batch.selectedFiles.length === 0}
+                confirmBusy={batch.isUploading}
+            >
+                <div className="row mx-0">
+                    <div className="col-12">
                         <div className="row">
-                            <div className="col-6">
-                                <LibCheckBoxSingle
-                                    name="coverPic"
-                                    checkboxStyle="radio"
-                                    options={[{ itemId: picId, itemDisplayName: "選擇封面" }]}
-                                    value={cover.selected ? [String(cover.selected)] : []}
-                                    onChange={(ids) =>
-                                    {
-                                        const id = ids?.[0];
-                                        if (id)
-                                        {
-                                            cover.select(id);
-                                        }
-                                    }}
+                            <LibFile
+                                Style={props.theme.File}
+                                ColumnDisplayName="選擇圖片(多選)"
+                                Multiple={true}
+                                onChange={batch.setSelectedFiles}
+                                InputValue=""
+                            />
+                        </div>
+                        {batch.error && <div className="col-12 alert alert-danger mt-2">{batch.error}</div>}
+                    </div>
+                    <GalleryBatchPreview files={batch.selectedFiles} />
+                </div>
+            </LibModal>
+        </div>
+    );
+};
+
+/** 批次上傳前預覽圖片。 */
+const GalleryBatchPreview = (props: { files: File[]; }) =>
+{
+    if (props.files.length === 0) return null;
+
+    return (
+        <div className="col-12">
+            <div className="row mt-3 mx-0">
+                <div className="col-12 col-form-label bg-secondary mb-1">預覽圖片</div>
+                {props.files.map((file, index) =>
+                {
+                    const url = URL.createObjectURL(file);
+                    return (
+                        <div key={`${file.name}-${index}`} className="col-12 border-bottom">
+                            <div className="d-flex align-items-center">
+                                <LibPicturePreview
+                                    ColumnDisplayName={file.name}
+                                    PicSrc={url}
+                                    PicDescription={`選中的圖片 ${file.name}`}
                                 />
                             </div>
-                            <div className="col-6 d-flex justify-content-end">
-                                <div className="all-btn">
-                                    <a
-                                        id="trash"
-                                        className="icon"
-                                        href="#"
-                                        onClick={() =>
-                                        {
-                                            if (!window.confirm("確定要刪除這張相片嗎？"))
-                                            {
-                                                return;
-                                            }
-                                            remover.remove(String(item.GalleryId ?? ""), Number(item.RowId ?? 0), picId);
-                                        }}
-                                        title=""
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#All_Delete"
-                                    >
-                                        <button
-                                            type="button"
-                                            className="Itrash btn btn-ctm btn-ctm-rounded"
-                                            title=""
-                                            data-bs-toggle="tooltip"
-                                            data-bs-placement="top"
-                                            data-bs-original-title="刪除輪播"
-                                        >
-                                            <i className="far fa-trash-alt"></i>
-                                        </button>
-                                    </a>
-                                </div>
-                            </div>
                         </div>
-                        <LibTextBox
-                            Style={prop.theme.TextBox2}
-                            DefaultInputDisplay={"請輸入"}
-                            {...setField(GallerySetFields.GalleryPhotos, GalleryPhotosFields.Sort, "number", rowKeys)}
-                        />
-                        <PhotoInfoComp theme={prop.theme} formData={prop.formData} parentRowId={item.RowId ?? 0} />
-                    </LibPicture>
-                );
-            })}
-        </>
+                    );
+                })}
+            </div>
+        </div>
     );
-    return dom;
 };
 
-const PhotoInfoComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<GallerySet>; parentRowId: number; }) =>
+/** 相片預覽元件，沒有圖片時以文字提示避免破圖。 */
+const GalleryPicturePreview = (props: { value: EditGridCellValue; }) =>
 {
-    const setField = useSetTableField<GallerySet>(prop.formData);
-    const rawDetails = prop.formData.data?.GalleryPhotosInfo?.filter(p => p.ParentRowId === prop.parentRowId) ?? [];
-    const tabInfo: LibTabsProp = {
-        Style: prop.theme.Tabs,
-        item: rawDetails.reduce<Record<string, string>>((tabItems, info) =>
-        {
-            const langKey = LibMerge("_", true, info.GalleryId, info.ParentRowId, info.RowId, info.Lang);
-            tabItems[langKey] = LangLabelMap[info.Lang as Lang] ?? info.Lang ?? "Unknown";
-            return tabItems;
-        }, {}),
-    };
-    const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>((compMap, info) =>
-    {
-        const langKey = LibMerge("_", true, info.GalleryId, info.ParentRowId, info.RowId, info.Lang);
-        const rowKeys = {
-            [GalleryPhotosInfoFields.GalleryId]: info.GalleryId,
-            [GalleryPhotosInfoFields.ParentRowId]: info.ParentRowId,
-            [GalleryPhotosInfoFields.RowId]: info.RowId,
-        };
-        compMap[langKey] = [
-            <LibTextBox
-                Style={prop.theme.TextBox}
-                DefaultInputDisplay="請輸入"
-                {...setField(GallerySetFields.GalleryPhotosInfo, GalleryPhotosInfoFields.Title, "string", rowKeys)}
-            />,
-            <LibTextArea
-                Style={prop.theme.TextArea}
-                DefaultInputDisplay="請輸入"
-                {...setField(GallerySetFields.GalleryPhotosInfo, GalleryPhotosInfoFields.Description, "string", rowKeys)}
-            />,
-        ];
-        return compMap;
-    }, {});
-    return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
+    const photo = toGalleryPhotoCellValue(props.value);
+    const previewUrl = photo.url ?? getGalleryPhotoPreviewUrl(photo.internalId);
+    const alt = photo.originalFileName || photo.fileName || "相片預覽";
+
+    if (!previewUrl) return <span className="small">尚未選擇圖片</span>;
+    return <img src={previewUrl} alt={alt} style={{ maxWidth: "160px", maxHeight: "120px", objectFit: "contain" }} />;
 };
+
+/** 封面選擇按鈕，實際資料寫回 Header 的 CoverPicSrcId。 */
+const GalleryCoverSelector = (props: { value: EditGridCellValue; selected: string | null; onSelect: (picId: string) => void; }) =>
+{
+    const photo = toGalleryPhotoCellValue(props.value);
+    const picId = String(photo.internalId ?? "").trim();
+    const isSelected = Boolean(picId && props.selected === picId);
+
+    return (
+        <button
+            type="button"
+            className={isSelected ? "btn btn-primary btn-sm" : "btn btn-outline-primary btn-sm"}
+            disabled={!picId}
+            aria-pressed={isSelected}
+            onClick={() => props.onSelect(picId)}
+        >
+            {isSelected ? "目前封面" : "設為封面"}
+        </button>
+    );
+};
+
+/** 語系明細展開按鈕，避免把子 Grid 直接塞在同一欄位。 */
+const GallerySubDetailToggleButton = (props: { row: GridRow; expandedRowKey: string | null; isSubDetailEditing: boolean; onToggle: (row: GridRow) => void; }) =>
+{
+    const rowKey = String(props.row.keyId || props.row.RowId || props.row.rowId || "");
+    const isExpanded = props.expandedRowKey === rowKey;
+    const title = isExpanded ? "收合語系明細" : "展開語系明細";
+
+    return (
+        <button type="button" className="btn btn-outline-primary btn-sm" title={title} disabled={props.isSubDetailEditing} onClick={() => props.onToggle(props.row)}>
+            <i className={isExpanded ? "fa fa-eye-slash" : "fa fa-eye"} aria-hidden="true" />
+            <span className="ml-1">{isExpanded ? "收合" : "查看"}</span>
+        </button>
+    );
+};
+// #endregion
+
+// #region Private
+/** 建立回列表路徑，避免 Back 行為散在 JSX 中。 */
+const buildBackToListPath = (pathname: string): string =>
+{
+    return pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
+};
+// #endregion

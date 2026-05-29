@@ -1,63 +1,150 @@
-import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
-import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
+import { Server_FormTemplate_Comp } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Comp";
+import type { ServerFormBinding } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
+import { EditGrid } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid";
+import type { EditGridCellRenderArgs, EditGridCellValue, EditGridEditingStateArgs, GridRow, IEditGridView_Style } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Data";
+import { getEditGridRowId, useEditGridSubDetailState } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { useUploadPicture } from "@/SysCore/Components/FormField/FieldComponets/LibPicture_Comp";
-import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-import { LibCalendar, LibDropList, LibFile, LibPicture, LibTextArea, LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
+import { LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
-import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
-import { type Lang, LangLabelMap, useEnsureLangDetails } from "@/SysCore/i18n/lang";
-import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
-import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import type { Lang } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
-import * as SchemaFields from "@/types/SchemaFields";
-import React, { useCallback, useMemo } from "react";
+import { BannerFields, BannerSetFields } from "@/types/SchemaFields";
+import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useBannerSliderFormFetchData } from "./Server_BannerSlider_Form_Hook";
+import {
+    bannerSliderEmptyData,
+    toBannerPictureCellValue,
+    useBannerDetailEditGrid,
+    useBannerDetailInfoEditGrid,
+    useBannerSliderFormTemplate,
+    type BannerSliderFormRefs,
+} from "./Server_BannerSlider_Form_Hook";
+
+// #region Property
 type BannerSet = components["schemas"]["BannerSet_DTO"];
-type BannerDetail = components["schemas"]["BannerDetail_DTO"];
-type BannerDetailInfo = components["schemas"]["BannerDetailInfo_DTO"];
-const emptyData: BannerSet = { Banner: {}, BannerDetail: [{ RowId: 1 }], BannerDetailInfo: [] };
-export const BannerSliderFormComp = (prop: { theme: IBETheme; lang: Lang; }) =>
+
+interface BannerSliderFormCompProps
+{
+    /** 後台主題設定 */
+    theme: IBETheme;
+
+    /** 目前語系 */
+    lang: Lang;
+}
+
+interface BannerContentProps
+{
+    /** 後台主題設定 */
+    theme: IBETheme;
+
+    /** 目前語系 */
+    lang: Lang;
+
+    /** Form Template 提供的主資料 binding */
+    binding: ServerFormBinding<BannerSet>;
+
+    /** Banner Hook 整理後的參照資料 */
+    refs: BannerSliderFormRefs;
+}
+
+interface HeaderSectionProps
+{
+    /** 後台主題設定 */
+    theme: IBETheme;
+
+    /** Form Template 提供的主資料 binding */
+    binding: ServerFormBinding<BannerSet>;
+}
+
+interface DetailSectionProps extends BannerContentProps
+{
+}
+
+interface DetailInfoSubDetailProps extends BannerContentProps
+{
+    /** 目前圖片 RowId */
+    parentRowId: number;
+
+    /** 子明細編輯狀態變化 */
+    onEditingStateChange: (args: EditGridEditingStateArgs) => void;
+}
+
+const editGridStyle: IEditGridView_Style = {
+    TableStyle: "table table-striped table-bordered table-hover",
+    ToolbarStyle: "d-flex align-items-center justify-content-between mb-2",
+    ButtonStyle: "btn btn-custom btn-rounded btn-sm",
+    DangerButtonStyle: "btn btn-danger btn-rounded btn-sm",
+    ErrorStyle: "text-danger small mt-1",
+};
+// #endregion
+
+// #region Public
+/** Banner 輪播表單，透過新版 Form Template 統一外框與資料流程。 */
+export const BannerSliderFormComp = (props: BannerSliderFormCompProps) =>
 {
     const { internalId } = useParams();
     const navigate = useNavigate();
     const pathname = useLocation().pathname;
+
     const onBackToList = useCallback(() =>
     {
-        navigate(pathname.replace(/\/Form(\/[^\/]*)?$/, "/List"));
+        navigate(buildBackToListPath(pathname));
     }, [navigate, pathname]);
+
     const actionsOpt = useMemo(() =>
     {
         return { onBackToList };
     }, [onBackToList]);
-    const getData = useBannerSliderFormFetchData({ lang: prop.lang, internalId: internalId ?? "", emptyData, actionsOpt });
-    // 執行 function：補齊多語系子明細
-    useEnsureLangDetails(getData.rawData.formData, {
-        headerName: SchemaFields.BannerSetFields.BannerDetail,
-        detailName: SchemaFields.BannerSetFields.BannerDetailInfo,
-        parentKeys: [SchemaFields.BannerDetailInfoFields.BannerId, SchemaFields.BannerDetailInfoFields.ParentRowId],
-        preferFirstLang: prop.lang,
+
+    const template = useBannerSliderFormTemplate({
+        lang: props.lang,
+        theme: props.theme,
+        internalId: internalId ?? "",
+        emptyData: bannerSliderEmptyData,
+        actionsOpt,
     });
-    const formProp: FormCompProp = {
-        Title: "設定輪播",
-        Theme: prop.theme,
-        IsLoading: getData.isLoading,
-        ErrorList: getData.errors,
-        Actions: getData.rawData.actions,
-    };
+
     return (
-        <FormComp prop={formProp}>
-            <HeaderComp theme={prop.theme} formData={getData.rawData.formData} />
-            <DetailComp theme={prop.theme} formData={getData.rawData.formData} />
-        </FormComp>
+        <Server_FormTemplate_Comp
+            template={template}
+            renderContent={({ vm }) => (
+                <BannerContentComp
+                    theme={props.theme}
+                    lang={props.lang}
+                    binding={vm.binding}
+                    refs={vm.refs}
+                />
+            )}
+        />
     );
 };
-const HeaderComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<BannerSet>; }) =>
+// #endregion
+
+// #region Section
+/** Banner 主要內容，Header 維持舊 input，圖片明細改由 Hook 提供 EditGrid。 */
+const BannerContentComp = (props: BannerContentProps) =>
 {
-    const setField = useSetTableField<BannerSet>(props.formData);
+    return (
+        <>
+            <HeaderSectionComp
+                theme={props.theme}
+                binding={props.binding}
+            />
+            <DetailSectionComp
+                theme={props.theme}
+                lang={props.lang}
+                binding={props.binding}
+                refs={props.refs}
+            />
+        </>
+    );
+};
+
+/** 表頭設定區塊，維持既有 Header input 綁定方式。 */
+const HeaderSectionComp = (props: HeaderSectionProps) =>
+{
+    const setField = useSetTableField<BannerSet>(props.binding);
+
     return (
         <>
             <div className="form-group">
@@ -65,7 +152,7 @@ const HeaderComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<B
                     <LibTextBox
                         Style={props.theme.TextBox}
                         DefaultInputDisplay="請輸入"
-                        {...setField(SchemaFields.BannerSetFields.Banner, SchemaFields.BannerFields.BannerCategoryName, "string")}
+                        {...setField(BannerSetFields.Banner, BannerFields.BannerCategoryName, "string")}
                     />
                 </div>
             </div>
@@ -74,12 +161,12 @@ const HeaderComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<B
                     <LibTextBox
                         Style={props.theme.TextBox3}
                         DefaultInputDisplay="請輸入"
-                        {...setField(SchemaFields.BannerSetFields.Banner, SchemaFields.BannerFields.Width, "number")}
+                        {...setField(BannerSetFields.Banner, BannerFields.Width, "number")}
                     />
                     <LibTextBox
                         Style={props.theme.TextBox3}
                         DefaultInputDisplay="請輸入"
-                        {...setField(SchemaFields.BannerSetFields.Banner, SchemaFields.BannerFields.Height, "number")}
+                        {...setField(BannerSetFields.Banner, BannerFields.Height, "number")}
                     />
                 </div>
             </div>
@@ -88,237 +175,122 @@ const HeaderComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<B
                     <LibTextBox
                         Style={props.theme.TextBox3}
                         DefaultInputDisplay="請輸入"
-                        {...setField(SchemaFields.BannerSetFields.Banner, SchemaFields.BannerFields.Speed, "number")}
+                        {...setField(BannerSetFields.Banner, BannerFields.Speed, "number")}
                     />
                     <LibTextBox
                         Style={props.theme.TextBox3}
                         DefaultInputDisplay="請輸入"
-                        {...setField(SchemaFields.BannerSetFields.Banner, SchemaFields.BannerFields.Interval, "number")}
+                        {...setField(BannerSetFields.Banner, BannerFields.Interval, "number")}
                     />
                 </div>
             </div>
         </>
     );
 };
-const DetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<BannerSet>; }) =>
+
+/** 圖片明細 Grid，透過眼睛按鈕展開該列的語系子明細。 */
+const DetailSectionComp = (props: DetailSectionProps) =>
 {
-    const setField = useSetTableField<BannerSet>(props.formData);
-    const useUploadPic = useUploadPicture();
-    const details = props.formData.data?.BannerDetail ?? [];
+    const subDetailState = useEditGridSubDetailState();
+    const renderPicturePreview = useCallback((args: EditGridCellRenderArgs) => <BannerPicturePreview value={args.value} />, []);
+    const renderSubDetailToggle = useCallback((args: EditGridCellRenderArgs) => (
+        <SubDetailToggleButton
+            row={args.row}
+            expandedRowKey={subDetailState.expandedRowKey}
+            isSubDetailEditing={subDetailState.isSubDetailEditing}
+            onToggle={subDetailState.toggleSubDetail}
+        />
+    ), [subDetailState.expandedRowKey, subDetailState.isSubDetailEditing, subDetailState.toggleSubDetail]);
+    const renderSubDetail = useCallback((args: { row: GridRow; rowIndex: number; }) => (
+        <DetailInfoSubDetailGridComp
+            theme={props.theme}
+            lang={props.lang}
+            binding={props.binding}
+            refs={props.refs}
+            parentRowId={getEditGridRowId(args.row, args.rowIndex)}
+            onEditingStateChange={subDetailState.onSubDetailEditingStateChange}
+        />
+    ), [props.binding, props.lang, props.refs, props.theme, subDetailState.onSubDetailEditingStateChange]);
 
-    // 添加頁籤（維持原邏輯）
-    const handleAdd = () =>
-    {
-        // 宣告變數
-        const cur = props.formData.data;
-        if (!cur) return;
+    const detailGrid = useBannerDetailEditGrid({
+        binding: props.binding,
+        style: editGridStyle,
+        renderPicturePreview,
+        renderSubDetailToggle,
+        renderSubDetail,
+        expandedRowKey: subDetailState.expandedRowKey,
+        isSubDetailEditing: subDetailState.isSubDetailEditing,
+    });
 
-        const maxRowId = details.reduce<number>((max, d) =>
-        {
-            const id = d.RowId ?? 0;
-            return id > max ? id : max;
-        }, 0);
-
-        const newRowId = maxRowId + 1;
-
-        const newItem: BannerDetail = { BannerId: cur.Banner?.BannerId, RowId: newRowId, PicSrcId: "", FontColor: "0" };
-
-        const subNewItem: BannerDetailInfo[] = [{
-            BannerId: cur.Banner?.BannerId,
-            ParentRowId: newRowId,
-            RowId: 1,
-            Lang: "zh-tw",
-            Content: "",
-            SpecLatestShows: "",
-            SpecShowDate: "",
-            SpecShowLocation: "",
-        }, {
-            BannerId: cur.Banner?.BannerId,
-            ParentRowId: newRowId,
-            RowId: 2,
-            Lang: "en",
-            Content: "",
-            SpecLatestShows: "",
-            SpecShowDate: "",
-            SpecShowLocation: "",
-        }];
-
-        // 執行 function：更新 header + detail
-        const updated: BannerSet = {
-            ...cur,
-            BannerDetail: [...(cur.BannerDetail ?? []), newItem],
-            BannerDetailInfo: [...(cur.BannerDetailInfo ?? []), ...subNewItem],
-        };
-
-        props.formData.setFormData(updated);
-    };
-
-    const removeOne = (rowKey: number | string): void =>
-    {
-        const keyStr = String(rowKey);
-        props.formData.setFormData(prev =>
-        {
-            if (!prev) return prev;
-
-            const allDetails = prev.BannerDetail ?? [];
-            const target = allDetails.find((d, i) => String(d.RowId ?? i) === keyStr);
-            if (!target) return prev;
-
-            // 有正式 RowId：用複合鍵過濾；沒有：用索引當後備
-            let nextDetails: typeof allDetails;
-            if (target.RowId != null)
-            {
-                nextDetails = allDetails.filter(d => !(d.BannerId === target.BannerId && d.RowId === target.RowId));
-            } else
-            {
-                const hitIdx = allDetails.findIndex((d, i) => String(d.RowId ?? i) === keyStr);
-                nextDetails = allDetails.filter((_, i) => i !== hitIdx);
-            }
-
-            // 子明細一併清掉
-            const allInfos = prev.BannerDetailInfo ?? [];
-            const nextInfos = target.RowId != null
-                ? allInfos.filter(info => !(info.BannerId === target.BannerId && info.ParentRowId === target.RowId))
-                : allInfos;
-
-            return { ...prev, BannerDetail: nextDetails, BannerDetailInfo: nextInfos };
-        });
-    };
-
-    const tabInfo: LibTabsProp = {
-        Style: props.theme.Tabs,
-        item: details.reduce<Record<string, string>>((acc, d, idx) =>
-        {
-            const key = String(d.RowId ?? idx);
-            acc[key] = `圖片${idx + 1}`;
-            return acc;
-        }, {}),
-        onAddTab: () =>
-        {
-            handleAdd();
-        },
-        onRemoveTab: key => removeOne(Number(key)),
-    };
-
-    const tabContent: Record<string, React.ReactNode[]> = details.reduce<Record<string, React.ReactNode[]>>((acc, d, idx) =>
-    {
-        const detailRowId = d.RowId ?? idx;
-        const picSrc = FileManagementAPI.get_Server_Preview_Url(d.PicSrcId) ?? "https://dummyimage.com/1920x550/555/fff.png";
-        const rowKeys = { [SchemaFields.BannerDetailFields.BannerId]: d.BannerId, [SchemaFields.BannerDetailFields.RowId]: d.RowId };
-
-        acc[String(detailRowId)] = [
-            <LibFile
-                Style={props.theme.File}
-                ColumnDisplayName="選擇圖片"
-                Multiple={false}
-                parentClass="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12"
-                InputValue=""
-                onChange={files =>
-                    useUploadPic.handleFileChange(files, internalId =>
-                    {
-                        props.formData.setFormData(prev => ({
-                            ...prev!,
-                            BannerDetail: (prev?.BannerDetail ?? []).map(x => (x.RowId === detailRowId ? { ...x, PicSrcId: internalId } : x)),
-                        }));
-                    })}
-            >
-                <LibPicture PicSrc={picSrc} />
-            </LibFile>,
-            <LibCalendar {...setField(SchemaFields.BannerSetFields.BannerDetail, SchemaFields.BannerDetailFields.Validate_Start, "datetime", rowKeys)} />,
-            <LibCalendar {...setField(SchemaFields.BannerSetFields.BannerDetail, SchemaFields.BannerDetailFields.Validate_End, "datetime", rowKeys)} />,
-            <LibDropList
-                Style={props.theme.DropList}
-                Options={fontColorOptions}
-                {...setField(SchemaFields.BannerSetFields.BannerDetail, SchemaFields.BannerDetailFields.FontColor, "string", rowKeys)}
-                ShowPlaceholder={false}
-            />,
-            <LibTextBox
-                Style={props.theme.TextBox}
-                DefaultInputDisplay="請輸入"
-                {...setField(SchemaFields.BannerSetFields.BannerDetail, SchemaFields.BannerDetailFields.Sort, "number", rowKeys)}
-            />,
-            <SubDetailComp theme={props.theme} formData={props.formData} parentRowId={detailRowId} />,
-        ];
-
-        return acc;
-    }, {});
-
-    return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
-};
-const SubDetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<BannerSet>; parentRowId: number; }) =>
-{
-    const setField = useSetTableField<BannerSet>(props.formData);
-    const windowTarget = useFetchEnumOptions("WindowTarget");
-    const windowTargetOpts = useMemo(() =>
-    {
-        return new Map<string, string>(Object.entries(windowTarget.data ?? {}));
-    }, [windowTarget.data]);
-    const rawDetails = props.formData.data?.BannerDetailInfo?.filter(p => p.ParentRowId === props.parentRowId) ?? [];
-    const tabInfo: LibTabsProp = {
-        Style: props.theme.Tabs,
-        item: rawDetails.reduce<Record<string, string>>((tabItems, info) =>
-        {
-            const langKey = LibMerge("_", true, info.BannerId, info.ParentRowId, info.RowId, info.Lang);
-            tabItems[langKey] = LangLabelMap[info.Lang as Lang] ?? info.Lang ?? "Unknown";
-            return tabItems;
-        }, {}),
-    };
-    const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>((compMap, info) =>
-    {
-        const langKey = LibMerge("_", true, info.BannerId, info.ParentRowId, info.RowId, info.Lang);
-        const rowKeys = {
-            [SchemaFields.BannerDetailInfoFields.BannerId]: info.BannerId,
-            [SchemaFields.BannerDetailInfoFields.ParentRowId]: info.ParentRowId,
-            [SchemaFields.BannerDetailInfoFields.RowId]: info.RowId,
-        };
-
-        compMap[langKey] = [
-            <LibTextBox
-                Style={props.theme.TextBox}
-                DefaultInputDisplay="請輸入"
-                {...setField(SchemaFields.BannerSetFields.BannerDetailInfo, SchemaFields.BannerDetailInfoFields.Title, "string", rowKeys)}
-            />,
-            <LibTextArea
-                Style={props.theme.TextArea}
-                DefaultInputDisplay="請輸入"
-                {...setField(SchemaFields.BannerSetFields.BannerDetailInfo, SchemaFields.BannerDetailInfoFields.Content, "string", rowKeys)}
-            />,
-            <LibTextBox
-                Style={props.theme.TextBox}
-                DefaultInputDisplay="請輸入"
-                {...setField(SchemaFields.BannerSetFields.BannerDetailInfo, SchemaFields.BannerDetailInfoFields.URL, "string", rowKeys)}
-            />,
-            <LibDropList
-                Style={props.theme.DropList}
-                Options={windowTargetOpts}
-                {...setField(SchemaFields.BannerSetFields.BannerDetailInfo, SchemaFields.BannerDetailInfoFields.URL_Open, "number", rowKeys)}
-                ShowPlaceholder={false}
-            />,
-            ...(String(import.meta.env.VITE_SPEC_CODE ?? "") === "1817"
-                ? [
-                    <LibTextBox
-                        Style={props.theme.TextBox}
-                        DefaultInputDisplay="請輸入"
-                        {...setField(SchemaFields.BannerSetFields.BannerDetailInfo, SchemaFields.BannerDetailInfoFields.SpecLatestShows, "string", rowKeys)}
-                    />,
-                    <LibTextBox
-                        Style={props.theme.TextBox}
-                        DefaultInputDisplay="請輸入"
-                        {...setField(SchemaFields.BannerSetFields.BannerDetailInfo, SchemaFields.BannerDetailInfoFields.SpecShowLocation, "string", rowKeys)}
-                    />,
-                    <LibTextBox
-                        Style={props.theme.TextBox}
-                        DefaultInputDisplay="請輸入"
-                        {...setField(SchemaFields.BannerSetFields.BannerDetailInfo, SchemaFields.BannerDetailInfoFields.SpecShowDate, "string", rowKeys)}
-                    />,
-                ]
-                : []),
-        ];
-
-        return compMap;
-    }, {});
-    return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
+    return (
+        <div className="form-group">
+            <EditGrid {...detailGrid.editGridProps} />
+        </div>
+    );
 };
 
-/** 標題顏色，後續看是否可調成進階選取RGBA */
-const fontColorOptions = new Map<string, string>([["0", "系統預設"], ["1", "白色"], ["2", "綠色"]]);
+/** 語系子明細 Grid：固定由系統語系產生，不開放新增或刪除。 */
+const DetailInfoSubDetailGridComp = (props: DetailInfoSubDetailProps) =>
+{
+    const infoGrid = useBannerDetailInfoEditGrid({
+        binding: props.binding,
+        parentRowId: props.parentRowId,
+        lang: props.lang,
+        windowTargetOpts: props.refs.windowTargetOpts,
+        style: editGridStyle,
+    });
+
+    return (
+        <div className="p-3" style={{ backgroundColor: "#fafafa", border: "1px solid #dee2e6" }}>
+            <div className="mb-2 font-weight-bold">語系明細</div>
+            <EditGrid
+                {...infoGrid.editGridProps}
+                onEditingStateChange={props.onEditingStateChange}
+            />
+        </div>
+    );
+};
+// #endregion
+
+// #region EntityComp
+/** 圖片預覽元件，沒有圖片時以文字提示避免破圖。 */
+const BannerPicturePreview = (props: { value: EditGridCellValue; }) =>
+{
+    const picture = toBannerPictureCellValue(props.value);
+    const previewUrl = picture.url ?? "";
+    const altText = picture.originalFileName || picture.fileName || "輪播圖片預覽";
+
+    if (!previewUrl) return <span className="small">尚未選擇圖片</span>;
+
+    return <img src={previewUrl} alt={altText} style={{ display: "block", maxWidth: "12rem", maxHeight: "6rem", objectFit: "contain" }} />;
+};
+
+/** 語系明細展開按鈕，避免把子 Grid 直接塞在同一欄位。 */
+const SubDetailToggleButton = (props: { row: GridRow; expandedRowKey: string | null; isSubDetailEditing: boolean; onToggle: (row: GridRow) => void; }) =>
+{
+    const rowKey = getBannerGridRowKey(props.row);
+    const isExpanded = props.expandedRowKey === rowKey;
+    const title = isExpanded ? "收合語系明細" : "展開語系明細";
+
+    return (
+        <button type="button" className="btn btn-outline-primary btn-sm" title={title} disabled={props.isSubDetailEditing} onClick={() => props.onToggle(props.row)}>
+            <i className={isExpanded ? "fa fa-eye-slash" : "fa fa-eye"} aria-hidden="true" />
+            <span className="ml-1">{isExpanded ? "收合" : "查看"}</span>
+        </button>
+    );
+};
+// #endregion
+
+// #region Private
+/** 建立返回列表路徑，維持舊 Form 的 /Form -> /List 規則。 */
+const buildBackToListPath = (pathname: string): string =>
+{
+    return pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
+};
+
+/** 取得 Grid Row key，讓主 Grid 與子明細展開狀態一致。 */
+const getBannerGridRowKey = (row: GridRow): string =>
+{
+    return String(row.keyId || row.RowId || row.rowId || row.rowid || "");
+};
+// #endregion

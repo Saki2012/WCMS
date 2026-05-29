@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
 import { AAInputFieldItem } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/AAInputField__Atoms";
 import type { AAInputField, AAInputOption, AAInputType, AAInputValue } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/AAInputField__Atoms";
-import type { ColumnConfig, EditGridCellRenderArgs, EditGridCellValue, EditGridFileValue, EditGridInputType, EditGridOptionValue, EditGridProps, EditGridRowState, EditGridSelectOption, GridProps, GridRow, IEditGridView_Style, RowCell } from "./EditGrid_Data";
+import type { ColumnConfig, EditGridCellRenderArgs, EditGridCellValue, EditGridCellValueChangeResult, EditGridCellValueChangeReturn, EditGridFileValue, EditGridInputType, EditGridOptionValue, EditGridProps, EditGridRowState, EditGridSelectOption, GridProps, GridRow, IEditGridView_Style, RowCell } from "./EditGrid_Data";
 
 // #region Private Const
 
@@ -107,6 +107,7 @@ export const EditGrid = (props: EditGridProps) =>
     const deleteRow = (rowIndex: number) => handleDeleteRow(canDelete, props, rows, rowIndex, commitRows);
     const moveRow = (rowIndex: number, offset: number) => { if (canDrag) commitRows(moveItem(rows, rowIndex, rowIndex + offset)); };
     const updateCell = (rowIndex: number, columnKey: string, value: EditGridCellValue) => commitRows(updateRowCellValue(rows, rowIndex, columnKey, value));
+    const updateCells = (rowIndex: number, values: Record<string, EditGridCellValue>) => commitRows(updateRowCellValues(rows, rowIndex, values));
     const startRowDrag = (event: ReactPointerEvent<HTMLElement>, rowIndex: number) => startPointerRowDrag(event, rowIndex, setDragIndex, setDragOverIndex, setDragPlacement, setDragPointer);
     const moveRowDrag = (event: ReactPointerEvent<HTMLElement>) => movePointerRowDrag(event, dragIndex, setDragOverIndex, setDragPlacement, setDragPointer);
     const endRowDrag = (event: ReactPointerEvent<HTMLElement>) => endPointerRowDrag(event, rows, canDrag, dragIndex, dragOverIndex, dragPlacement, commitRows, setDragIndex, setDragOverIndex, setDragPlacement, setDragPointer);
@@ -158,7 +159,7 @@ export const EditGrid = (props: EditGridProps) =>
                                             {visibleColumns.map(column => (
                                                 <td key={column.key} headers={column.key} className={`table_td_vertical_align ${props.style?.CellStyle ?? ""}`.trim()} data-th={column.title} style={getEditGridCellStyle()}>
                                                     <div className="edit-grid-cell-content" style={getEditGridCellContentStyle()}>
-                                                        <EditGridCell row={row} rowIndex={rowIndex} column={column} error={errors[getErrorKey(rowIndex, column.key)]} disabled={!canEdit || !isEditing} errorClassName={props.style?.ErrorStyle} onUpdate={updateCell} />
+                                                        <EditGridCell row={row} rowIndex={rowIndex} column={column} error={errors[getErrorKey(rowIndex, column.key)]} disabled={!canEdit || !isEditing} errorClassName={props.style?.ErrorStyle} onUpdate={updateCell} onUpdateValues={updateCells} />
                                                     </div>
                                                 </td>
                                             ))}
@@ -347,12 +348,13 @@ const EditGridActionCell = (props: { row: GridRow; rowIndex: number; isEditing: 
 };
 
 /** 依欄位設定輸出唯讀內容、自訂編輯器或預設輸入元件。 */
-const EditGridCell = (props: { row: GridRow; rowIndex: number; column: ColumnConfig; error?: string; disabled: boolean; errorClassName?: string; onUpdate: (rowIndex: number, columnKey: string, value: EditGridCellValue) => void; }) =>
+const EditGridCell = (props: { row: GridRow; rowIndex: number; column: ColumnConfig; error?: string; disabled: boolean; errorClassName?: string; onUpdate: (rowIndex: number, columnKey: string, value: EditGridCellValue) => void; onUpdateValues: (rowIndex: number, values: Record<string, EditGridCellValue>) => void; }) =>
 {
     const cell = getCellByColumn(props.row, props.column.key, props.column);
     const value = getCellValue(cell);
     const updateValue = (nextValue: EditGridCellValue) => props.onUpdate(props.rowIndex, props.column.key, nextValue);
-    const args: EditGridCellRenderArgs = { row: props.row, rowIndex: props.rowIndex, cell, column: props.column, value, disabled: props.disabled, updateValue };
+    const updateValues = (nextValues: Record<string, EditGridCellValue>) => props.onUpdateValues(props.rowIndex, nextValues);
+    const args: EditGridCellRenderArgs = { row: props.row, rowIndex: props.rowIndex, cell, column: props.column, value, disabled: props.disabled, updateValue, updateValues };
     const canEdit = getCellEditable(cell, props.column) && getCellInputType(cell, props.column) !== "readonly" && !props.disabled;
     const content = canEdit ? renderEditContent(args, props.error) : renderReadonlyContent(args);
 
@@ -439,15 +441,68 @@ const renderReadonlyContent = (args: EditGridCellRenderArgs) =>
 const renderEditGridAAInputCell = (args: EditGridCellRenderArgs, aaType: AAInputType, error?: string) =>
 {
     const field = buildEditGridAAInputField(args, aaType, error);
+    const handleChange = (_fieldKey: string, value: AAInputValue) => handleEditGridAAInputChange(args, aaType, value);
 
     return (
         <AAInputFieldItem
             baseId={`edit-grid-${getRowKey(args.row, args.rowIndex)}-${args.column.key}`}
             variant="gridCell"
             field={field}
-            onChange={(_, value) => args.updateValue(toEditGridCellValue(value, args, aaType))}
+            onChange={handleChange}
         />
     );
+};
+
+/** 將 AAInputField 的變更回寫到 EditGrid，必要時交給欄位自訂轉換。 */
+const handleEditGridAAInputChange = (args: EditGridCellRenderArgs, aaType: AAInputType, rawValue: AAInputValue): void =>
+{
+    const nextValue = toEditGridCellValue(rawValue, args, aaType);
+    const handler = args.cell.onValueChange ?? args.column.onValueChange;
+
+    if (!handler)
+    {
+        args.updateValue(nextValue);
+        return;
+    }
+
+    const handledValue = handler({ ...args, nextValue, rawValue });
+    resolveEditGridCellValue(handledValue, args);
+};
+
+/** 支援同步或非同步的欄位值轉換結果。 */
+const resolveEditGridCellValue = (value: EditGridCellValueChangeReturn | Promise<EditGridCellValueChangeReturn>, args: EditGridCellRenderArgs): void =>
+{
+    if (isEditGridValuePromise(value))
+    {
+        void value.then(result => applyEditGridCellValueChangeResult(result, args));
+        return;
+    }
+
+    applyEditGridCellValueChangeResult(value, args);
+};
+
+/** 套用欄位值轉換結果，支援同步更新同列多欄位。 */
+const applyEditGridCellValueChangeResult = (result: EditGridCellValueChangeReturn, args: EditGridCellRenderArgs): void =>
+{
+    if (!isEditGridCellValueChangeResult(result))
+    {
+        args.updateValue(result);
+        return;
+    }
+
+    args.updateValues({ ...(result.rowValues ?? {}), [args.column.key]: result.value });
+};
+
+/** 判斷是否為欄位值轉換結果物件。 */
+const isEditGridCellValueChangeResult = (value: EditGridCellValueChangeReturn): value is EditGridCellValueChangeResult =>
+{
+    return typeof value === "object" && value !== null && "value" in value;
+};
+
+/** 判斷欄位值轉換是否為 Promise。 */
+const isEditGridValuePromise = (value: EditGridCellValueChangeReturn | Promise<EditGridCellValueChangeReturn>): value is Promise<EditGridCellValueChangeReturn> =>
+{
+    return typeof (value as Promise<EditGridCellValueChangeReturn>)?.then === "function";
 };
 
 /** 將 EditGrid 欄位轉成 AAInputField。 */
@@ -703,9 +758,20 @@ const FilePreview = (props: { value: EditGridCellValue; }) =>
         <div className="edit-grid-file-preview mt-1">
             {fileType === "image" && file.url && <img src={file.url} alt={fileName} style={{ display: "block", maxWidth: "8rem", maxHeight: "6rem", objectFit: "contain" }} />}
             {fileType === "video" && file.url && <video src={file.url} controls preload="metadata" style={{ display: "block", maxWidth: "10rem", maxHeight: "7rem" }} />}
-            <div className="small text-break">{fileName}</div>
+            {buildFilePreviewName(file, fileName)}
         </div>
     );
+};
+
+/** 建立檔案名稱顯示；有 downloadUrl 時直接提供可開啟連結。 */
+const buildFilePreviewName = (file: EditGridFileValue, fileName: string) =>
+{
+    if (file.downloadUrl)
+    {
+        return <a className="small text-break" href={file.downloadUrl} target="_blank" rel="noopener noreferrer">{fileName}</a>;
+    }
+
+    return <div className="small text-break">{fileName}</div>;
 };
 
 // #endregion
@@ -1052,12 +1118,15 @@ const normalizeGridData = (gridData?: GridProps): GridProps =>
 const rebuildRowNo = (rows: GridRow[]): GridRow[] => rows.map((row, index): GridRow => ({ ...row, rowNo: index + 1, RowNo: index + 1, rowno: index + 1 }));
 
 /** 更新單一欄位值。 */
-const updateRowCellValue = (rows: GridRow[], rowIndex: number, columnKey: string, value: EditGridCellValue): GridRow[] => rows.map((row, index): GridRow => index === rowIndex ? updateRowValue(row, columnKey, value) : row);
+const updateRowCellValue = (rows: GridRow[], rowIndex: number, columnKey: string, value: EditGridCellValue): GridRow[] => rows.map((row, index): GridRow => index === rowIndex ? updateRowValues(row, { [columnKey]: value }) : row);
+
+/** 更新同列多個欄位值。 */
+const updateRowCellValues = (rows: GridRow[], rowIndex: number, values: Record<string, EditGridCellValue>): GridRow[] => rows.map((row, index): GridRow => index === rowIndex ? updateRowValues(row, values) : row);
 
 /** 更新資料列內對應 cell 的 value 與 content。 */
-const updateRowValue = (row: GridRow, columnKey: string, value: EditGridCellValue): GridRow =>
+const updateRowValues = (row: GridRow, values: Record<string, EditGridCellValue>): GridRow =>
 {
-    const cells = row.cells.map(cell => cell.col.key === columnKey ? { ...cell, value, content: valueToReadonlyContent(value, cell) } : cell);
+    const cells = row.cells.map(cell => Object.prototype.hasOwnProperty.call(values, cell.col.key) ? { ...cell, value: values[cell.col.key], content: valueToReadonlyContent(values[cell.col.key], cell) } : cell);
     const rowState: EditGridRowState = row.rowState === "insert" ? "insert" : "update";
     return { ...row, rowState, cells };
 };

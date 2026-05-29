@@ -1,5 +1,7 @@
-import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
-import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
+import { Server_FormTemplate_Comp } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Comp";
+import type { ServerFormBinding } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
+import { EditGrid } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid";
+import type { IEditGridView_Style } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Data";
 import { PreviewFrame } from "@/Features/Pages/Server/Scaffold/PreviewFrame/PreviewFrame";
 import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
@@ -7,241 +9,499 @@ import LibCalendar from "@/SysCore/Components/FormField/FieldComponets/LibCalend
 import LibCheckBox from "@/SysCore/Components/FormField/FieldComponets/LibCheckBox_Comp";
 import { useUploadPicture } from "@/SysCore/Components/FormField/FieldComponets/LibPicture_Comp";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-import { LibFile, LibFileInput, LibPicture, LibTextBox, LibTinyMCE } from "@/SysCore/Components/FormField/LibFormField";
-import { useSetTableField, useSetTableFileField } from "@/SysCore/Components/FormField/useSetTableField";
+import {
+    LibFile,
+    LibPicture,
+    LibTextBox,
+    LibTinyMCE,
+} from "@/SysCore/Components/FormField/LibFormField";
+import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
-import { type Lang, LangLabelMap } from "@/SysCore/i18n/lang";
+import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
-import { AnnouncementDetailFields, AnnouncementDetailFileFields, AnnouncementFields, AnnouncementSetFields } from "@/types/SchemaFields";
+import {
+    AnnouncementDetailFields,
+    AnnouncementFields,
+    AnnouncementSetFields,
+} from "@/types/SchemaFields";
+import type { ReactNode } from "react";
 import { useCallback, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useAnnouncementFormFetchData } from "./Server_Announcement_Form_Hook";
-type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
-type AnnouncementDetailFile = components["schemas"]["AnnouncementDetailFile_DTO"];
-type PreviewPayload = { type: "wcms:preview"; module: "announcement"; payload: { kind: "dto"; dto: AnnouncementSet; }; };
-const emptyData: AnnouncementSet = { Announcement: {}, AnnouncementDetail: [], AnnouncementDetailFile: [] };
+import {
+    announcementEmptyData,
+    type AnnouncementDetailTabItem,
+    type AnnouncementFormRefs,
+    useAnnouncementDetailTabs,
+    useAnnouncementFileEditGrid,
+    useAnnouncementFormTemplate,
+} from "./Server_Announcement_Form_Hook";
 
-export const Server_Announcement_Form_Comp = (props: { theme: IBETheme; lang: Lang; }) =>
-{
+// #region Property
+type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
+type PreviewPayload = {
+    type: "wcms:preview";
+    module: "announcement";
+    payload: { kind: "dto"; dto: AnnouncementSet };
+};
+
+interface AnnouncementFormCompProps {
+    /** 後台主題設定 */
+    theme: IBETheme;
+
+    /** 目前語系 */
+    lang: Lang;
+}
+
+interface HeaderSectionProps {
+    /** 後台主題設定 */
+    theme: IBETheme;
+
+    /** Form Template 提供的主資料 binding */
+    binding: ServerFormBinding<AnnouncementSet>;
+
+    /** Announcement Hook 整理後的參照資料 */
+    refs: AnnouncementFormRefs;
+}
+
+interface DetailSectionProps {
+    /** 後台主題設定 */
+    theme: IBETheme;
+
+    /** 目前語系 */
+    lang: Lang;
+
+    /** Form Template 提供的主資料 binding */
+    binding: ServerFormBinding<AnnouncementSet>;
+}
+
+interface SubDetailSectionProps {
+    /** Form Template 提供的主資料 binding */
+    binding: ServerFormBinding<AnnouncementSet>;
+
+    /** 目前 Detail RowId，給附件 Grid 綁 ParentRowId */
+    parentRowId: number;
+}
+
+interface HeaderTabContentOptions extends HeaderSectionProps {
+    /** 欄位 binding helper */
+    setField: ReturnType<typeof useSetTableField<AnnouncementSet>>;
+
+    /** 圖片上傳 hook */
+    uploadPic: ReturnType<typeof useUploadPicture>;
+
+    /** 圖片預覽來源 */
+    previewSrc: string;
+}
+
+interface DetailTabContentOptions {
+    /** 後台主題設定 */
+    theme: IBETheme;
+
+    /** Form Template 提供的主資料 binding */
+    binding: ServerFormBinding<AnnouncementSet>;
+
+    /** Hook 整理後的 Detail tabs */
+    tabItems: AnnouncementDetailTabItem[];
+
+    /** 欄位 binding helper */
+    setField: ReturnType<typeof useSetTableField<AnnouncementSet>>;
+}
+
+interface DetailFieldsOptions {
+    /** 後台主題設定 */
+    theme: IBETheme;
+
+    /** Form Template 提供的主資料 binding */
+    binding: ServerFormBinding<AnnouncementSet>;
+
+    /** 欄位 binding helper */
+    setField: ReturnType<typeof useSetTableField<AnnouncementSet>>;
+
+    /** Detail row keys，給 useSetTableField 綁定欄位 */
+    rowKeys: Record<string, string | number | undefined>;
+
+    /** Detail RowId，給附件 SubDetail 綁 ParentRowId */
+    detailRowId: number;
+}
+
+const editGridStyle: IEditGridView_Style = {
+    TableStyle: "table table-striped table-bordered table-hover",
+    ToolbarStyle: "d-flex align-items-center justify-content-between mb-2",
+    ButtonStyle: "btn btn-custom btn-rounded btn-sm",
+    DangerButtonStyle: "btn btn-danger btn-rounded btn-sm",
+    ErrorStyle: "text-danger small mt-1",
+};
+// #endregion
+
+// #region Public
+/** 後台公告 Form，透過新版 Form Template 統一外框與資料流程。 */
+export const Server_Announcement_Form_Comp = (
+    props: AnnouncementFormCompProps,
+) => {
     const { internalId } = useParams();
     const navigate = useNavigate();
     const pathname = useLocation().pathname;
-    const onBackToList = useCallback(() =>
-    {
-        navigate(pathname.replace(/\/Form(\/[^\/]*)?$/, "/List"));
-    }, [navigate, pathname]);
-    // Preview
     const [open, setOpen] = useState(false);
-    const [payload, setPayload] = useState<PreviewPayload | undefined>(undefined);
-    const handlePreviewFromDto = useCallback((dto: AnnouncementSet) =>
-    {
-        setPayload({ type: "wcms:preview", module: "announcement", payload: { kind: "dto", dto } });
+    const [payload, setPayload] = useState<PreviewPayload | undefined>(
+        undefined,
+    );
+
+    const onBackToList = useCallback(() => {
+        navigate(buildBackToListPath(pathname));
+    }, [navigate, pathname]);
+
+    const handlePreviewFromDto = useCallback((dto: AnnouncementSet) => {
+        setPayload(buildPreviewPayload(dto));
         setOpen(true);
     }, []);
-    const actionsOpt = useMemo(() =>
-    {
-        return { onBackToList, onPreviewFromDto: handlePreviewFromDto };
-    }, [onBackToList, handlePreviewFromDto]);
-    const getData = useAnnouncementFormFetchData({ lang: props.lang, internalId: internalId ?? "", emptyData, actionsOpt });
 
-    const propForm: FormCompProp = {
-        Title: internalId ? "修改公告" : "新增公告",
-        Theme: props.theme,
-        IsLoading: getData.isLoading,
-        ErrorList: getData.errors,
-        Actions: getData.rawData.actions,
-    };
-    // return（不動 div/DOM 結構）
+    const actionsOpt = useMemo(() => {
+        return { onBackToList, onPreviewFromDto: handlePreviewFromDto };
+    }, [handlePreviewFromDto, onBackToList]);
+
+    const template = useAnnouncementFormTemplate({
+        lang: props.lang,
+        theme: props.theme,
+        internalId: internalId ?? "",
+        emptyData: announcementEmptyData,
+        actionsOpt,
+    });
+
     return (
-        <FormComp prop={propForm}>
-            <HeaderComp
-                theme={props.theme}
-                formData={getData.rawData.formData}
-                cateOpts={getData.rawData.categoryMap}
-                statusOpts={getData.rawData.statusOpts}
-                tagOpts={getData.rawData.tagMap}
-            />
-            <DetailComp theme={props.theme} formData={getData.rawData.formData} />
-            <PreviewFrame open={open} siteIndex={""} onClose={() => setOpen(false)} payload={payload} title="預覽" />
-        </FormComp>
+        <Server_FormTemplate_Comp
+            template={template}
+            renderContent={({ vm }) => (
+                <>
+                    <HeaderComp
+                        theme={props.theme}
+                        binding={vm.binding}
+                        refs={vm.refs}
+                    />
+                    <DetailComp
+                        theme={props.theme}
+                        lang={props.lang}
+                        binding={vm.binding}
+                    />
+                    <PreviewFrame
+                        open={open}
+                        siteIndex={""}
+                        onClose={() => setOpen(false)}
+                        payload={payload}
+                        title="預覽"
+                    />
+                </>
+            )}
+        />
     );
 };
-const HeaderComp = (
-    prop: {
-        theme: IBETheme;
-        formData: UseFetchFormDataResult<AnnouncementSet>;
-        cateOpts: Record<string, string>;
-        statusOpts: Record<string, string>;
-        tagOpts: Record<string, string>;
-    },
-) =>
-{
-    // 宣告變數
-    const setField = useSetTableField<AnnouncementSet>(prop.formData);
-    const useUploadPic = useUploadPicture();
-    const initialPicId = prop.formData.data?.Announcement?.PictureId;
-    const previewSrc = useUploadPic.result.previewUrl
-        || (FileManagementAPI.get_Server_Preview_Url(initialPicId) ?? "https://dummyimage.com/1920x550/555/fff.png");
-    const tabInfo: LibTabsProp = { Style: prop.theme.Tabs, item: { Basic: "基本", Status: "狀態", Tags: "標籤", Pic: "圖片", System: "系統資訊" } };
-    const tabContent: Record<string, React.ReactNode[]> = {
-        Basic: [
-            <LibCheckBox
-                Style={prop.theme.CheckBox}
-                options={prop.cateOpts}
-                {...setField(AnnouncementSetFields.Announcement, AnnouncementFields.Categories, "string", undefined, "csv")}
-            />,
-            <LibCalendar {...setField(AnnouncementSetFields.Announcement, AnnouncementFields.Validate_Start, "datetime")} />,
-            <LibCalendar {...setField(AnnouncementSetFields.Announcement, AnnouncementFields.Validate_End, "datetime")} />,
-        ],
-        Status: [
-            <LibCheckBox
-                Style={prop.theme.CheckBox}
-                options={prop.statusOpts}
-                {...setField(AnnouncementSetFields.Announcement, AnnouncementFields.ContentStatus, "number", undefined, {
-                    strategy: "sum",
-                    sumKeys: Object.keys(prop.statusOpts ?? {}).map(Number),
-                })}
-            />,
-        ],
-        Tags: [
-            <LibCheckBox
-                Style={prop.theme.CheckBox}
-                options={prop.tagOpts}
-                {...setField(AnnouncementSetFields.Announcement, AnnouncementFields.Tags, "string", undefined, "csv")}
-            />,
-        ],
-        Pic: [
-            <LibFile
-                Style={prop.theme.File}
-                ColumnDisplayName="選擇圖片"
-                Multiple={false}
-                InputValue=""
-                accept="image/*"
-                parentClass="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12"
-                onChange={(files) =>
-                    useUploadPic.handleFileChange(files, (fileId) =>
-                    {
-                        prop.formData.setFormData(prev => ({ ...prev, Announcement: { ...prev.Announcement, PictureId: fileId } }));
-                    })}
-            >
-                <LibPicture key="preview" ColumnDisplayName={useUploadPic?.result.previewUrl ?? ""} PicSrc={previewSrc} PicDescription="選中的圖片" />
-            </LibFile>,
-            <LibTextBox
-                Style={prop.theme.TextBox}
-                DefaultInputDisplay="請輸入"
-                {...setField(AnnouncementSetFields.Announcement, AnnouncementFields.PicDescription, "string")}
-            />,
-        ],
-        System: [<SystemInfoTabComp theme={prop.theme} formData={prop.formData} setKey={AnnouncementSetFields.Announcement} />],
-    };
-    return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
-};
-const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<AnnouncementSet>; }) =>
-{
-    const setField = useSetTableField<AnnouncementSet>(prop.formData);
-    const rawDetails = prop.formData.data?.AnnouncementDetail ?? [];
+// #endregion
+
+// #region Section
+/** 公告 Header 區塊，直接使用新版 Template Binding 與 Refs。 */
+const HeaderComp = (props: HeaderSectionProps) => {
+    const setField = useSetTableField<AnnouncementSet>(props.binding);
+    const uploadPic = useUploadPicture();
+    const previewSrc = buildPicturePreviewSrc(props.binding, uploadPic);
     const tabInfo: LibTabsProp = {
-        Style: prop.theme.Tabs,
-        item: rawDetails.reduce<Record<string, string>>((tabItems, info) =>
-        {
-            const langKey = LibMerge("_", true, info.AnnouncementId, info.RowId, info.Lang);
-            tabItems[langKey] = LangLabelMap[info.Lang as Lang] ?? info.Lang ?? "Unknown";
-            return tabItems;
-        }, {}),
+        Style: props.theme.Tabs,
+        item: {
+            Basic: "基本",
+            Status: "狀態",
+            Tags: "標籤",
+            Pic: "圖片",
+            System: "系統資訊",
+        },
     };
-    const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>((compMap, info, idx) =>
-    {
-        const detailRowId = info.RowId ?? idx;
-        const langKey = LibMerge("_", true, info.AnnouncementId, info.RowId, info.Lang);
-        const rowKeys = { [AnnouncementDetailFields.AnnouncementId]: info.AnnouncementId, [AnnouncementDetailFields.RowId]: info.RowId };
-        compMap[langKey] = [
-            <LibTextBox
-                Style={prop.theme.TextBox}
-                DefaultInputDisplay="請輸入"
-                {...setField(AnnouncementSetFields.AnnouncementDetail, AnnouncementDetailFields.Title, "string", rowKeys)}
-            />,
-            <LibTextBox
-                Style={prop.theme.TextBox}
-                DefaultInputDisplay="請輸入"
-                {...setField(AnnouncementSetFields.AnnouncementDetail, AnnouncementDetailFields.SubTitle, "string", rowKeys)}
-            />,
-            <LibTinyMCE
-                Style={prop.theme.TinyMCE}
-                {...setField(AnnouncementSetFields.AnnouncementDetail, AnnouncementDetailFields.Content, "string", rowKeys)}
-            />,
-            <LibTextBox
-                Style={prop.theme.TextBox}
-                DefaultInputDisplay="請輸入"
-                {...setField(AnnouncementSetFields.AnnouncementDetail, AnnouncementDetailFields.Url, "string", rowKeys)}
-            />,
-            <LibTextBox
-                Style={prop.theme.TextBox}
-                DefaultInputDisplay="請輸入"
-                {...setField(AnnouncementSetFields.AnnouncementDetail, AnnouncementDetailFields.UrlDescription, "string", rowKeys)}
-            />,
-            <SubDetailComp theme={prop.theme} formData={prop.formData} parentRowId={detailRowId} />,
-        ];
-        return compMap;
-    }, {});
-    return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
-};
-const SubDetailComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<AnnouncementSet>; parentRowId: number; }) =>
-{
-    // 宣告變數
-    const setFileField = useSetTableFileField(props.formData);
-    const allFiles: AnnouncementDetailFile[] = props.formData.data?.AnnouncementDetailFile ?? [];
-    const getFiles = (): AnnouncementDetailFile[] =>
-    {
-        return allFiles.filter(f => f.ParentRowId === props.parentRowId).sort((a, b) => (a.RowId ?? 0) - (b.RowId ?? 0));
-    };
-    const commitFiles = (nextFiles: AnnouncementDetailFile[]) =>
-    {
-        props.formData.setFormData(prev => ({ ...(prev ?? emptyData), AnnouncementDetailFile: nextFiles }));
-    };
-    const addFile = () =>
-    {
-        const list = getFiles();
-        const nextRowId = (list.at(-1)?.RowId ?? 0) + 1;
-        const newItem: AnnouncementDetailFile = { ParentRowId: props.parentRowId, RowId: nextRowId, FileId: "", FileName: "" };
-        commitFiles([...allFiles, newItem]);
-    };
-    const removeFileAt = (i: number) =>
-    {
-        const filtered = getFiles();
-        const target = filtered[i];
-        if (!target) return;
-        const nextAll = allFiles.filter(f => !(f.ParentRowId === target.ParentRowId && f.RowId === target.RowId));
-        commitFiles(nextAll);
-    };
+    const tabContent = buildHeaderTabContent({
+        ...props,
+        setField,
+        uploadPic,
+        previewSrc,
+    });
+
     return (
-        <div role="group" className="mt-4">
-            <button type="button" onClick={addFile} aria-label="新增附件" className="btn btn-outline-primary mb-2">新增附件</button>
-            {getFiles().map((f, i) =>
-            {
-                const rowKeys = {
-                    [AnnouncementDetailFileFields.AnnouncementId]: f.AnnouncementId,
-                    [AnnouncementDetailFileFields.ParentRowId]: f.ParentRowId,
-                    [AnnouncementDetailFileFields.RowId]: f.RowId,
-                };
-                return (
-                    <div key={`${f.ParentRowId}-${f.RowId}`} className="flex items-center gap-2 mb-2">
-                        <LibFileInput
-                            {...setFileField(
-                                AnnouncementSetFields.AnnouncementDetailFile,
-                                AnnouncementDetailFileFields.FileId,
-                                AnnouncementDetailFileFields.FileName,
-                                rowKeys,
-                                { defaultNameFromOriginal: "basename", fileName: f.File?.FileName ?? "" },
-                            )}
-                            Accept="*/*"
-                            onDelete={() => removeFileAt(i)}
-                        />
-                    </div>
-                );
-            })}
+        <TabContentComp
+            tabInfos={tabInfo}
+            components={tabContent}
+        ></TabContentComp>
+    );
+};
+
+/** 公告多語 Detail 區塊，語系資料由 Announcement Hook 統一整理。 */
+const DetailComp = (props: DetailSectionProps) => {
+    const setField = useSetTableField<AnnouncementSet>(props.binding);
+    const detailTabs = useAnnouncementDetailTabs({
+        binding: props.binding,
+        lang: props.lang,
+    });
+    const tabInfo: LibTabsProp = {
+        Style: props.theme.Tabs,
+        item: detailTabs.tabItems,
+    };
+    const tabContent = buildDetailTabContent({
+        ...props,
+        tabItems: detailTabs.items,
+        setField,
+    });
+
+    return (
+        <TabContentComp
+            tabInfos={tabInfo}
+            components={tabContent}
+        ></TabContentComp>
+    );
+};
+
+/** 公告附件 SubDetail 區塊，直接掛載 Announcement Hook 產生的 EditGrid props。 */
+const SubDetailComp = (props: SubDetailSectionProps) => {
+    const fileGrid = useAnnouncementFileEditGrid({
+        binding: props.binding,
+        parentRowId: props.parentRowId,
+        style: editGridStyle,
+    });
+
+    return (
+        <div className="mt-4">
+            <EditGrid {...fileGrid.editGridProps} />
         </div>
     );
 };
+// #endregion
+
+// #region EntityComp
+/** 建立公告 Header 的各分頁欄位。 */
+const buildHeaderTabContent = (
+    opt: HeaderTabContentOptions,
+): Record<string, ReactNode[]> => {
+    return {
+        Basic: buildBasicFields(opt),
+        Status: buildStatusFields(opt),
+        Tags: buildTagFields(opt),
+        Pic: buildPictureFields(opt),
+        System: [
+            <SystemInfoTabComp
+                theme={opt.theme}
+                formData={opt.binding}
+                setKey={AnnouncementSetFields.Announcement}
+            />,
+        ],
+    };
+};
+
+/** 建立基本資料欄位。 */
+const buildBasicFields = (opt: HeaderTabContentOptions): ReactNode[] => {
+    return [
+        <LibCheckBox
+            Style={opt.theme.CheckBox}
+            options={opt.refs.categoryMap}
+            {...opt.setField(
+                AnnouncementSetFields.Announcement,
+                AnnouncementFields.Categories,
+                "string",
+                undefined,
+                "csv",
+            )}
+        />,
+        <LibCalendar
+            {...opt.setField(
+                AnnouncementSetFields.Announcement,
+                AnnouncementFields.Validate_Start,
+                "datetime",
+            )}
+        />,
+        <LibCalendar
+            {...opt.setField(
+                AnnouncementSetFields.Announcement,
+                AnnouncementFields.Validate_End,
+                "datetime",
+            )}
+        />,
+    ];
+};
+
+/** 建立狀態欄位。 */
+const buildStatusFields = (opt: HeaderTabContentOptions): ReactNode[] => {
+    return [
+        <LibCheckBox
+            Style={opt.theme.CheckBox}
+            options={opt.refs.statusOpts}
+            {...opt.setField(
+                AnnouncementSetFields.Announcement,
+                AnnouncementFields.ContentStatus,
+                "number",
+                undefined,
+                {
+                    strategy: "sum",
+                    sumKeys: Object.keys(opt.refs.statusOpts ?? {}).map(Number),
+                },
+            )}
+        />,
+    ];
+};
+
+/** 建立標籤欄位。 */
+const buildTagFields = (opt: HeaderTabContentOptions): ReactNode[] => {
+    return [
+        <LibCheckBox
+            Style={opt.theme.CheckBox}
+            options={opt.refs.tagMap}
+            {...opt.setField(
+                AnnouncementSetFields.Announcement,
+                AnnouncementFields.Tags,
+                "string",
+                undefined,
+                "csv",
+            )}
+        />,
+    ];
+};
+
+/** 建立圖片欄位。 */
+const buildPictureFields = (opt: HeaderTabContentOptions): ReactNode[] => {
+    return [
+        <LibFile
+            Style={opt.theme.File}
+            ColumnDisplayName="選擇圖片"
+            Multiple={false}
+            InputValue=""
+            accept="image/*"
+            parentClass="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12"
+            onChange={(files) =>
+                opt.uploadPic.handleFileChange(files, (fileId) =>
+                    updateAnnouncementPictureId(opt.binding, fileId),
+                )
+            }
+        >
+            <LibPicture
+                key="preview"
+                ColumnDisplayName={opt.uploadPic.result.previewUrl ?? ""}
+                PicSrc={opt.previewSrc}
+                PicDescription="選中的圖片"
+            />
+        </LibFile>,
+        <LibTextBox
+            Style={opt.theme.TextBox}
+            DefaultInputDisplay="請輸入"
+            {...opt.setField(
+                AnnouncementSetFields.Announcement,
+                AnnouncementFields.PicDescription,
+                "string",
+            )}
+        />,
+    ];
+};
+
+/** 建立 Detail 語系分頁內容，畫面只依 Hook 整理後的 Tab 項目渲染。 */
+const buildDetailTabContent = (
+    opt: DetailTabContentOptions,
+): Record<string, ReactNode[]> => {
+    return opt.tabItems.reduce<Record<string, ReactNode[]>>(
+        (compMap, tabItem) => {
+            compMap[tabItem.key] = buildDetailFields({
+                ...opt,
+                rowKeys: tabItem.rowKeys,
+                detailRowId: tabItem.detailRowId,
+            });
+            return compMap;
+        },
+        {},
+    );
+};
+
+/** 建立單一語系 Detail 欄位。 */
+const buildDetailFields = (opt: DetailFieldsOptions): ReactNode[] => {
+    return [
+        <LibTextBox
+            Style={opt.theme.TextBox}
+            DefaultInputDisplay="請輸入"
+            {...opt.setField(
+                AnnouncementSetFields.AnnouncementDetail,
+                AnnouncementDetailFields.Title,
+                "string",
+                opt.rowKeys,
+            )}
+        />,
+        <LibTextBox
+            Style={opt.theme.TextBox}
+            DefaultInputDisplay="請輸入"
+            {...opt.setField(
+                AnnouncementSetFields.AnnouncementDetail,
+                AnnouncementDetailFields.SubTitle,
+                "string",
+                opt.rowKeys,
+            )}
+        />,
+        <LibTinyMCE
+            Style={opt.theme.TinyMCE}
+            {...opt.setField(
+                AnnouncementSetFields.AnnouncementDetail,
+                AnnouncementDetailFields.Content,
+                "string",
+                opt.rowKeys,
+            )}
+        />,
+        <LibTextBox
+            Style={opt.theme.TextBox}
+            DefaultInputDisplay="請輸入"
+            {...opt.setField(
+                AnnouncementSetFields.AnnouncementDetail,
+                AnnouncementDetailFields.Url,
+                "string",
+                opt.rowKeys,
+            )}
+        />,
+        <LibTextBox
+            Style={opt.theme.TextBox}
+            DefaultInputDisplay="請輸入"
+            {...opt.setField(
+                AnnouncementSetFields.AnnouncementDetail,
+                AnnouncementDetailFields.UrlDescription,
+                "string",
+                opt.rowKeys,
+            )}
+        />,
+        <SubDetailComp binding={opt.binding} parentRowId={opt.detailRowId} />,
+    ];
+};
+// #endregion
+
+// #region Private
+/** 建立回列表路徑，避免 Back 行為散在 JSX 中。 */
+const buildBackToListPath = (pathname: string): string => {
+    return pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
+};
+
+/** 建立公告預覽 payload，讓 PreviewFrame 只接固定資料格式。 */
+const buildPreviewPayload = (dto: AnnouncementSet): PreviewPayload => {
+    return {
+        type: "wcms:preview",
+        module: "announcement",
+        payload: { kind: "dto", dto },
+    };
+};
+
+/** 建立圖片預覽來源，沒有圖片時回傳預設圖。 */
+const buildPicturePreviewSrc = (
+    binding: ServerFormBinding<AnnouncementSet>,
+    uploadPic: ReturnType<typeof useUploadPicture>,
+): string => {
+    const initialPicId = binding.data?.Announcement?.PictureId;
+    return (
+        uploadPic.result.previewUrl ||
+        (FileManagementAPI.get_Server_Preview_Url(initialPicId) ??
+            "https://dummyimage.com/1920x550/555/fff.png")
+    );
+};
+
+/** 回寫公告主圖 InternalId，避免圖片欄位直接處理 DTO 細節。 */
+const updateAnnouncementPictureId = (
+    binding: ServerFormBinding<AnnouncementSet>,
+    fileId: string,
+): void => {
+    binding.setFormData((prev) => ({
+        ...prev,
+        Announcement: { ...prev.Announcement, PictureId: fileId },
+    }));
+};
+// #endregion

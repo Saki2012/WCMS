@@ -117,70 +117,34 @@ export interface ServerListGridSpecTiming<TSearchParams, TRawData, TAdapter = un
     /** 依資料來源動態建立 Spec SearchBar 欄位 */
     buildSearchFields?: (ctx: ServerListGridSearchFieldContext<TRawData, TAdapter>) => SearchFieldConfig[];
 
-    /** 在 Feature 查詢參數基礎上追加或覆寫 Spec 查詢參數 */
-    toSearchParams?: (values: SearchValues, featureParams: TSearchParams) => TSearchParams;
+    /** 在目前查詢參數基礎上追加或覆寫 Spec 查詢參數 */
+    toSearchParams?: (values: SearchValues, currentParams: TSearchParams) => TSearchParams;
 
     /** 建立 Spec 追加的搜尋條件 */
     buildSearchConditions?: (ctx: ServerListGridConditionContext<TSearchParams>) => ServerListCondition[];
 
-    /** 在 Feature QueryParam 基礎上追加或覆寫完整 QueryParam */
-    buildQueryParam?: (ctx: ServerListGridQueryContext<TSearchParams>, featureQueryParam: TQueryParam) => TQueryParam;
+    /** 建立或覆寫完整 QueryParam，Feature 存在時可包裝 Feature 結果 */
+    buildQueryParam?: (ctx: ServerListGridQueryContext<TSearchParams>, featureQueryParam?: TQueryParam) => TQueryParam;
 
-    /** 在 Feature GridProps 基礎上追加或覆寫 GridProps */
-    buildGridProps?: (ctx: ServerListGridBuildGridContext<TSearchParams, TRawData, TAdapter, TQueryParam>, featureGridProps: GridProps) => GridProps;
+    /** Spec Only 時執行資料來源 Hook；Feature 存在時預設仍走 Feature useDataSource */
+    useDataSource?: (ctx: ServerListGridDataSourceContext<TSearchParams, TQueryParam>) => ServerListGridDataSourceResult<TRawData, TAdapter>;
+
+    /** 建立或覆寫 GridProps，Feature 存在時可包裝 Feature 結果 */
+    buildGridProps?: (ctx: ServerListGridBuildGridContext<TSearchParams, TRawData, TAdapter, TQueryParam>, featureGridProps?: GridProps) => GridProps;
 }
 
-export interface ServerListGridSpecOnlyTiming<TSearchParams, TRawData, TAdapter = unknown, TQueryParam = QueryListParam>
-{
-    /** Spec 純客製 SearchBar 欄位設定 */
-    searchFields?: SearchFieldConfig[];
-
-    /** 依資料來源動態建立 Spec 純客製 SearchBar 欄位 */
-    buildSearchFields?: (ctx: ServerListGridSearchFieldContext<TRawData, TAdapter>) => SearchFieldConfig[];
-
-    /** 將 SearchValues 轉換為 Spec 純客製查詢參數 */
-    toSearchParams?: (values: SearchValues) => TSearchParams;
-
-    /** 建立 Spec 純客製搜尋條件 */
-    buildSearchConditions?: (ctx: ServerListGridConditionContext<TSearchParams>) => ServerListCondition[];
-
-    /** 建立完整 QueryParam，包含欄位、條件、排序與分頁等設定 */
-    buildQueryParam: (ctx: ServerListGridQueryContext<TSearchParams>) => TQueryParam;
-
-    /** 執行資料來源 Hook，通常用來呼叫 adapter.hooks.useQueryGridData */
-    useDataSource: (ctx: ServerListGridDataSourceContext<TSearchParams, TQueryParam>) => ServerListGridDataSourceResult<TRawData, TAdapter>;
-
-    /** 將資料來源結果轉換為 GridProps */
-    buildGridProps: (ctx: ServerListGridBuildGridContext<TSearchParams, TRawData, TAdapter, TQueryParam>) => GridProps;
-}
-
-export interface ServerListGridFeatureTemplate<TSearchParams, TRawData, TAdapter = unknown, TQueryParam = QueryListParam>
+/** 後台 ListGrid Template，feature / spec 皆為可選入口，但至少需提供其中一個 */
+export interface ServerListGridTemplate<TSearchParams, TRawData, TAdapter = unknown, TQueryParam = QueryListParam>
 {
     /** 功能識別碼，通常對應 Feature 或 SpecFeature 名稱 */
     featureKey: string;
 
-    /** Feature 基礎 ListGrid 流程設定 */
-    feature: ServerListGridFeatureTiming<TSearchParams, TRawData, TAdapter, TQueryParam>;
+    /** Feature 基礎 ListGrid 流程，可選 */
+    feature?: ServerListGridFeatureTiming<TSearchParams, TRawData, TAdapter, TQueryParam>;
 
-    /** Spec 客製 ListGrid 流程設定 */
+    /** Spec 客製 ListGrid 流程，可選 */
     spec?: ServerListGridSpecTiming<TSearchParams, TRawData, TAdapter, TQueryParam>;
 }
-
-export interface ServerListGridSpecOnlyTemplate<TSearchParams, TRawData, TAdapter = unknown, TQueryParam = QueryListParam>
-{
-    /** 功能識別碼，通常對應 SpecFeature 名稱 */
-    featureKey: string;
-
-    /** 純 Spec 客製時不提供 Feature 流程 */
-    feature?: undefined;
-
-    /** Spec 純客製 ListGrid 流程設定 */
-    spec: ServerListGridSpecOnlyTiming<TSearchParams, TRawData, TAdapter, TQueryParam>;
-}
-
-export type ServerListGridTemplate<TSearchParams, TRawData, TAdapter = unknown, TQueryParam = QueryListParam> =
-    | ServerListGridFeatureTemplate<TSearchParams, TRawData, TAdapter, TQueryParam>
-    | ServerListGridSpecOnlyTemplate<TSearchParams, TRawData, TAdapter, TQueryParam>;
 
 export interface ServerListGridTemplateViewModel<TSearchParams, TRawData, TAdapter = unknown, TQueryParam = QueryListParam>
 {
@@ -233,27 +197,41 @@ export interface ServerListGridTemplateViewModel<TSearchParams, TRawData, TAdapt
     refetchRefData: () => Promise<void>;
 }
 
-/** 判斷目前是否為 Feature 套裝流程 */
+/** 判斷目前是否有 Feature timing */
 const hasFeatureTiming = <TSearchParams, TRawData, TAdapter, TQueryParam>(
     template: ServerListGridTemplate<TSearchParams, TRawData, TAdapter, TQueryParam>,
-): template is ServerListGridFeatureTemplate<TSearchParams, TRawData, TAdapter, TQueryParam> =>
+): boolean =>
 {
     return template.feature !== undefined;
 };
 
-/** 建立 Feature 或純 Spec 對應的 SearchParams */
+/** 判斷目前是否有 Spec timing */
+const hasSpecTiming = <TSearchParams, TRawData, TAdapter, TQueryParam>(
+    template: ServerListGridTemplate<TSearchParams, TRawData, TAdapter, TQueryParam>,
+): boolean =>
+{
+    return template.spec !== undefined;
+};
+
+/** 檢查 Template 至少要提供 Feature 或 Spec 其中一個 timing */
+const ensureTemplateTiming = <TSearchParams, TRawData, TAdapter, TQueryParam>(
+    template: ServerListGridTemplate<TSearchParams, TRawData, TAdapter, TQueryParam>,
+): void =>
+{
+    if (hasFeatureTiming(template) || hasSpecTiming(template)) return;
+    throw new Error(`[ServerListGridTemplate] ${template.featureKey} must provide feature or spec timing.`);
+};
+
+/** 建立 Feature / Spec 對應的 SearchParams，執行順序固定為 Feature 先、Spec 後 */
 const buildTemplateSearchParams = <TSearchParams, TRawData, TAdapter, TQueryParam>(
     template: ServerListGridTemplate<TSearchParams, TRawData, TAdapter, TQueryParam>,
     submittedValues: SearchValues,
 ): TSearchParams =>
 {
-    if (hasFeatureTiming(template))
-    {
-        const featureParams = template.feature.toSearchParams?.(submittedValues) ?? ({} as TSearchParams);
-        return template.spec?.toSearchParams?.(submittedValues, featureParams) ?? featureParams;
-    }
+    ensureTemplateTiming(template);
 
-    return template.spec.toSearchParams?.(submittedValues) ?? ({} as TSearchParams);
+    const featureParams = template.feature?.toSearchParams?.(submittedValues) ?? ({} as TSearchParams);
+    return template.spec?.toSearchParams?.(submittedValues, featureParams) ?? featureParams;
 };
 
 /** 建立 Feature 與 Spec 的搜尋條件，執行順序固定為 Feature 先、Spec 後 */
@@ -262,26 +240,25 @@ const buildTemplateSearchConditions = <TSearchParams, TRawData, TAdapter, TQuery
     ctx: ServerListGridConditionContext<TSearchParams>,
 ): string[] =>
 {
-    const list = hasFeatureTiming(template)
-        ? [...(template.feature.buildSearchConditions?.(ctx) ?? []), ...(template.spec?.buildSearchConditions?.(ctx) ?? [])]
-        : [...(template.spec.buildSearchConditions?.(ctx) ?? [])];
+    const list = [
+        ...(template.feature?.buildSearchConditions?.(ctx) ?? []),
+        ...(template.spec?.buildSearchConditions?.(ctx) ?? []),
+    ];
 
     return list.filter((item): item is string => typeof item === "string" && item.trim().length > 0);
 };
 
-/** 建立完整 QueryParam，Feature + Spec 時由 Spec 包裝 Feature 結果；純 Spec 時由 Spec 直接回傳完整 QueryParam */
+/** 建立完整 QueryParam，Feature 存在時由 Spec 包裝 Feature 結果 */
 const buildTemplateQueryParam = <TSearchParams, TRawData, TAdapter, TQueryParam>(
     template: ServerListGridTemplate<TSearchParams, TRawData, TAdapter, TQueryParam>,
     ctx: ServerListGridQueryContext<TSearchParams>,
 ): TQueryParam =>
 {
-    if (hasFeatureTiming(template))
-    {
-        const featureQueryParam = template.feature.buildQueryParam(ctx);
-        return template.spec?.buildQueryParam?.(ctx, featureQueryParam) ?? featureQueryParam;
-    }
+    const featureQueryParam = template.feature?.buildQueryParam(ctx);
+    if (featureQueryParam !== undefined) return template.spec?.buildQueryParam?.(ctx, featureQueryParam) ?? featureQueryParam;
+    if (template.spec?.buildQueryParam) return template.spec.buildQueryParam(ctx);
 
-    return template.spec.buildQueryParam(ctx);
+    throw new Error(`[ServerListGridTemplate] ${template.featureKey} spec.buildQueryParam is required when feature is not provided.`);
 };
 
 /** 建立 SearchBar 欄位，Feature 欄位先放，Spec 欄位後追加 */
@@ -290,30 +267,35 @@ const buildTemplateSearchFields = <TSearchParams, TRawData, TAdapter, TQueryPara
     ctx: ServerListGridSearchFieldContext<TRawData, TAdapter>,
 ): SearchFieldConfig[] =>
 {
-    if (hasFeatureTiming(template))
-    {
-        const featureFields = template.feature.buildSearchFields?.(ctx) ?? template.feature.searchFields ?? [];
-        const specFields = template.spec?.buildSearchFields?.(ctx) ?? template.spec?.searchFields ?? [];
+    const featureFields = template.feature?.buildSearchFields?.(ctx) ?? template.feature?.searchFields ?? [];
+    const specFields = template.spec?.buildSearchFields?.(ctx) ?? template.spec?.searchFields ?? [];
 
-        return [...featureFields, ...specFields];
-    }
-
-    return template.spec.buildSearchFields?.(ctx) ?? template.spec.searchFields ?? [];
+    return [...featureFields, ...specFields];
 };
 
-/** 建立 GridProps，Feature + Spec 時由 Spec 包裝 Feature 結果；純 Spec 時由 Spec 直接建立 GridProps */
+/** 建立 GridProps，Feature 存在時由 Spec 包裝 Feature 結果 */
 const buildTemplateGridProps = <TSearchParams, TRawData, TAdapter, TQueryParam>(
     template: ServerListGridTemplate<TSearchParams, TRawData, TAdapter, TQueryParam>,
     ctx: ServerListGridBuildGridContext<TSearchParams, TRawData, TAdapter, TQueryParam>,
 ): GridProps =>
 {
-    if (hasFeatureTiming(template))
-    {
-        const featureGridProps = template.feature.buildGridProps(ctx);
-        return template.spec?.buildGridProps?.(ctx, featureGridProps) ?? featureGridProps;
-    }
+    const featureGridProps = template.feature?.buildGridProps(ctx);
+    if (featureGridProps !== undefined) return template.spec?.buildGridProps?.(ctx, featureGridProps) ?? featureGridProps;
+    if (template.spec?.buildGridProps) return template.spec.buildGridProps(ctx);
 
-    return template.spec.buildGridProps(ctx);
+    throw new Error(`[ServerListGridTemplate] ${template.featureKey} spec.buildGridProps is required when feature is not provided.`);
+};
+
+/** 執行資料來源 Hook，Feature 存在時以 Feature 為主，Spec Only 時走 Spec */
+const useTemplateDataSource = <TSearchParams, TRawData, TAdapter, TQueryParam>(
+    template: ServerListGridTemplate<TSearchParams, TRawData, TAdapter, TQueryParam>,
+    ctx: ServerListGridDataSourceContext<TSearchParams, TQueryParam>,
+): ServerListGridDataSourceResult<TRawData, TAdapter> =>
+{
+    if (template.feature) return template.feature.useDataSource(ctx);
+    if (template.spec?.useDataSource) return template.spec.useDataSource(ctx);
+
+    throw new Error(`[ServerListGridTemplate] ${template.featureKey} spec.useDataSource is required when feature is not provided.`);
 };
 
 /** 後台 ListGrid 共用流程：支援 Feature Only、Feature + Spec、Spec Only 三種情境 */
@@ -351,9 +333,7 @@ export const useServerListGridTemplate = <TSearchParams, TRawData, TAdapter = un
         searchCondition,
         queryParam,
     };
-    const dataSource = hasFeatureTiming(template)
-        ? template.feature.useDataSource(dataSourceContext)
-        : template.spec.useDataSource(dataSourceContext);
+    const dataSource = useTemplateDataSource(template, dataSourceContext);
 
     const refetchData = useCallback(async (): Promise<void> =>
     {
