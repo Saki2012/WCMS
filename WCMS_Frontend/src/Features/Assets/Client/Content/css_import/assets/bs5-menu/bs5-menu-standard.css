@@ -162,7 +162,7 @@
 	/*margin: 0.5rem 0;*/
 }
 #navbar-content .nav-link:focus-visible {
-	outline: 1px solid var(--a_focusbordercolor);
+	outline: 1px dashed var(--a_focusbordercolor);
 	box-shadow: none;
 }
 

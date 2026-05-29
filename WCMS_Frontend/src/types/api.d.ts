@@ -15413,7 +15413,7 @@ export interface components {
             MainLink?: string | null;
             /** @description 子連結標題(1) */
             SubLinkTitle1?: string | null;
-            /** @description 子連結URL(2) */
+            /** @description 子連結URL(1) */
             SubLink1?: string | null;
             /** @description 子連結標題(2) */
             SubLinkTitle2?: string | null;

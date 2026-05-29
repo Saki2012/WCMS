@@ -157,10 +157,6 @@
 	background-color: var(--Customize_color) !important;
 	border-color: var(--Customize_color);
 }
-.sidebar .list-group-item:focus {
-	outline: 3px solid var(--a_focusbordercolor) !important;
-	outline-offset: -3px !important;
-}
 
 /* 只有有子選單的 a 才加箭頭 */
 .sidebar .has-submenu > .list-group-item::after {

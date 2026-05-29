@@ -84,6 +84,11 @@
   font-size: 0.75rem;   /* 原本是 0.875rem，可再依需要改 0.75rem */
 }
 
+.wcms-help-trigger:focus{
+  outline: 2px dashed var(--a_focusbordercolor) !important;
+  outline-offset: 0px;
+}
+
 .wcms-help-label {
   font-size: 0.75rem;   /* 讓文字跟按鈕保持一致 */
 }

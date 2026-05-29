@@ -147,21 +147,23 @@ body {
 a { color: var(--a_linkcolor); }
 
 a, a:hover { text-decoration: none; }
-a:focus {
+a:focus,
+a:focus-visible {
     text-decoration: none;    
 	outline: thin dotted;
     /*outline: 2px solid var(--a_focusbordercolor);*/
-	outline: 2px dashed var(--a_focusbordercolor2) !important;
+	outline: 2px dashed var(--a_focusbordercolor) !important;
 	outline-offset: 0px;    
     color: var(--blackcolor) !important;
-	background-color: var(--a_focuscolor2) !important;
+	/* background-color: var(--a_focuscolor2) !important; */
+	background-color: var(--a_focuscolor) !important;
     
 }
 [tabindex="-1"]:focus:not(:focus-visible) {
 	text-decoration: none;
 	outline: thin dotted !important;
-    /*outline: 1px solid var(--a_focusbordercolor);*/
-	outline: 2px dashed var(--a_focusbordercolor2) !important;
+  /*outline: 1px solid var(--a_focusbordercolor);*/
+	outline: 2px dashed var(--a_focusbordercolor) !important;
 	outline-offset: 0px;
 }
 
@@ -181,6 +183,13 @@ img {
 
 .list-group {
     list-style: none;
+}
+
+.form-control:focus,
+.page-link:focus{
+	outline: 2px dashed var(--a_focusbordercolor) !important;
+	outline-offset: 0px;
+	box-shadow: none;
 }
 /* ============================================= */
 

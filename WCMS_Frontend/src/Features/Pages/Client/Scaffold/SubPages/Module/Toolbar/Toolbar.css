@@ -66,7 +66,7 @@
 	}
 }
 .PrintingSite__wrapper .Print-box .nav-link:focus-visible {
-	outline: 1px solid var(--a_focusbordercolor);
+	outline: 1px dashed var(--a_focusbordercolor);
 	box-shadow: none;
 }
 /*.header_Box .nav-item+.nav-item a.nav-link {	

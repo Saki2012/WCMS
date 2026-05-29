@@ -153,7 +153,7 @@
 .customize_btn a:focus.Btn_a {
 	text-decoration: none;
 	outline: thin dotted;
-	outline: 2px solid var(--a_focusbordercolor);
+	outline: 2px dashed var(--a_focusbordercolor);
 	outline-offset: 0px;
 	color: var(--blackcolor) !important;
 	background-color: var(--a_focuscolor) !important;
@@ -886,7 +886,7 @@ a:hover .toplink-arrow.fb i {
 .Carousel_slide_section .carousel_btn-icon-next a:focus div.carousel-control-next {
 	text-decoration: none;    
 	/*outline: thin dotted;*/
-    outline: 1px solid var(--a_focusbordercolor);
+    outline: 1px dashed var(--a_focusbordercolor);
 	/*outline-offset: -2px;*/
     
     color: var(--blackcolor) !important;
@@ -1070,7 +1070,7 @@ a:hover .toplink-arrow.fb i {
 .Carousel_slide_section .control-pause a:focus {
     text-decoration: none;    
 	/*outline: thin dotted;*/
-    outline: 1px solid var(--a_focusbordercolor);
+    outline: 1px dashed var(--a_focusbordercolor);
 	/*outline-offset: -2px;*/
     
     color: var(--blackcolor) !important;
@@ -1247,7 +1247,7 @@ a:hover .toplink-arrow.fb i {
 .Carousel_slide_section .control-toggle a:focus {
     text-decoration: none;    
 	/*outline: thin dotted;*/
-    outline: 1px solid var(--a_focusbordercolor);
+    outline: 1px dashed var(--a_focusbordercolor);
 	/*outline-offset: -2px;*/
     
     color: var(--blackcolor) !important;
@@ -2967,7 +2967,7 @@ a:hover.caption-customize-btn .button-icon {
 }
 .Exhibition_section .item a:focus {
     text-decoration: none;
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed var(--a_focusbordercolor);	
 	outline-offset: -2px;
 }
 /*=============================================*/
@@ -2997,8 +2997,8 @@ a:hover.caption-customize-btn .button-icon {
 	display: inline-block;
 }
 .Exhibition_section a:focus {
-	outline: 4px solid var(--a_focusbordercolor) !important;
-	outline-offset: 0px !important;
+	outline: 2px dashed var(--a_focusbordercolor) !important;	
+	outline-offset: -2px !important;
 }
 
 .Exhibition_section a .card_figure,
@@ -3541,7 +3541,7 @@ a:hover .Arrow_RD_area .icon_ii i {
 .Exhibition_section.owl-box .owl-carousel .owl-nav button.owl-prev:focus,
 .Exhibition_section.owl-box .owl-carousel .owl-nav button.owl-next:focus {
 	display: block;
-	outline: 2px solid #43B5FC !important;
+	outline: 2px dashed var(--a_focusbordercolor) !important;
     outline-offset: -2px;
     background-color: #ffa700 !important;        /*★★★ 重要 焦點變色 ★★★*/
 }
@@ -3688,7 +3688,7 @@ a:hover .Arrow_RD_area .icon_ii i {
 /* FOCUS */
 .Exhibition_section .control-singlebox a:focus {
 	display: block;
-	outline: 2px solid #43B5FC !important;
+	outline: 2px dashed var(--a_focusbordercolor) !important;
     outline-offset: -2px;
     background-color: #ffa700 !important;        /*★★★ 重要 焦點變色 ★★★*/
 }
@@ -3834,7 +3834,7 @@ a:hover .Arrow_RD_area .icon_ii i {
 .Exhibition_section a:focus.stop {
 	text-decoration: none;
 	outline: thin dotted;
-	outline: 2px solid var(--a_focusbordercolor);
+	outline: 2px dashed var(--a_focusbordercolor);
 	outline-offset: 0px;
 	color: var(--blackcolor) !important;
 	background-color: var(--a_focuscolor) !important;
@@ -3914,7 +3914,7 @@ a:hover .Arrow_RD_area .icon_ii i {
 .Exhibition_section .control-start:focus, 
 .Exhibition_section .control-pause:focus {
     text-decoration: none;
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed var(--a_focusbordercolor);
 	outline-offset: -2px;
 	background-color: var(--Customize_HRcolor);        /*★★★ 重要 焦點變色 ★★★*/
 	border-radius: 2rem;
@@ -3972,7 +3972,7 @@ a:hover .Arrow_RD_area .icon_ii i {
 }
 .About_section .item a:focus {
     text-decoration: none;
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed var(--a_focusbordercolor);
 	outline-offset: -2px;
 }
 /*=============================================*/
@@ -4002,7 +4002,7 @@ a:hover .Arrow_RD_area .icon_ii i {
 	display: inline-block;
 }
 .About_section a:focus {
-	outline: 4px solid var(--a_focusbordercolor) !important;
+	outline: 2px dashed var(--a_focusbordercolor) !important;
 	outline-offset: 0px !important;
 }
 
@@ -4353,7 +4353,7 @@ a:hover .Arrow_RD_area .icon_ii i {
 }
 .Zone_section .item a:focus {
     text-decoration: none;
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed var(--a_focusbordercolor);
 	outline-offset: -2px;
 }
 /*=============================================*/
@@ -4383,7 +4383,7 @@ a:hover .Arrow_RD_area .icon_ii i {
 	display: inline-block;
 }
 .Zone_section a:focus {
-	outline: 4px solid var(--a_focusbordercolor) !important;
+	outline: 2px dashed var(--a_focusbordercolor) !important;
 	outline-offset: 0px !important;
 }
 
@@ -4919,7 +4919,7 @@ a:hover .Arrow_RD_area .icon_ii i {
 .Zone_section.owl-box .owl-carousel .owl-nav button.owl-prev:focus,
 .Zone_section.owl-box .owl-carousel .owl-nav button.owl-next:focus {
 	display: block;
-	outline: 2px solid #43B5FC !important;
+	outline: 2px dashed var(--a_focusbordercolor) !important;
     outline-offset: -2px;
     background-color: #ffa700 !important;        /*★★★ 重要 焦點變色 ★★★*/
 }
@@ -5066,7 +5066,7 @@ a:hover .Arrow_RD_area .icon_ii i {
 /* FOCUS */
 .Zone_section .control-singlebox a:focus {
 	display: block;
-	outline: 2px solid #43B5FC !important;
+	outline: 2px dashed var(--a_focusbordercolor) !important;
     outline-offset: -2px;
     background-color: #ffa700 !important;        /*★★★ 重要 焦點變色 ★★★*/
 }
@@ -5212,7 +5212,7 @@ a:hover .Arrow_RD_area .icon_ii i {
 .Zone_section a:focus.stop {
 	text-decoration: none;
 	outline: thin dotted;
-	outline: 2px solid var(--a_focusbordercolor);
+	outline: 2px dashed var(--a_focusbordercolor);
 	outline-offset: 0px;
 	color: var(--blackcolor) !important;
 	background-color: var(--a_focuscolor) !important;
@@ -5292,7 +5292,7 @@ a:hover .Arrow_RD_area .icon_ii i {
 .Zone_section .control-start:focus, 
 .Zone_section .control-pause:focus {
     text-decoration: none;
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed var(--a_focusbordercolor);
 	outline-offset: -2px;
 	background-color: var(--Customize_HRcolor);        /*★★★ 重要 焦點變色 ★★★*/
 	border-radius: 2rem;
@@ -5863,7 +5863,7 @@ a:hover .Arrow_RD_area .icon_ii i {
 #gotop_btn.show:focus {
 	background-color: #ffbf00;
 	text-decoration: none;
-	outline: 2px solid #43B5FC;
+	outline: 2px dashed var(--a_focusbordercolor);
 }
 /* ====================================================== */
 /* =====  頁尾 GO-TO-TOP  ================================ */

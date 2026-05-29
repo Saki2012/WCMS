@@ -857,6 +857,10 @@
 .yarl__portal{
 	z-index: 99999 !important;
 }
+.yarl__portal button:focus{
+	outline: 2px dashed var(--a_focusbordercolor) !important;
+  outline-offset: -2px !important;
+}
 /* ( Row 排 )_列表 ================= */
 .SubPage_Standard_itemBoxs {
     display: -webkit-box;
@@ -907,7 +911,7 @@
 	display: inline-block;
 }
 .SubPage_Standard_itemBoxs a:focus {
-	outline: 4px solid var(--a_focusbordercolor) !important;
+	outline: 2px dashed var(--a_focusbordercolor) !important;
 	outline-offset: 0px !important;
 }
 
@@ -1428,7 +1432,7 @@
 	display: inline-block;
 }
 .SubPage_Standard_itemBoxs .card_content_Column a:focus {
-	outline: 4px solid var(--a_focusbordercolor) !important;
+	outline: 2px dashed var(--a_focusbordercolor) !important;
 	outline-offset: 0px !important;
 }
 /* ------------------------------------------------------------*/
@@ -1643,6 +1647,11 @@
 		margin-top: 8px;
 	}
 }
+.SubPage_Standard_itemBoxs button:focus{
+	outline: 2px dashed var(--a_focusbordercolor) !important;
+  outline-offset: 0px !important;
+}
+
 /* ( Column 列 )_列表 ================= */
 /* =============================================================== */
 
@@ -1866,7 +1875,7 @@
 	overflow: hidden;
 }
 .All_Standard_Content_CSS .T-left-inner a:focus {
-	outline: 4px solid var(--a_focusbordercolor) !important;
+	outline: 2px dashed var(--a_focusbordercolor) !important;
 	outline-offset: 0px !important;
 }
 
@@ -1890,7 +1899,7 @@
 	display: inline-block;
 }
 .All_Standard_Content_CSS .T-left-inner a:focus {
-	outline: 4px solid var(--a_focusbordercolor) !important;
+	outline: 2px dashed var(--a_focusbordercolor) !important;
 	outline-offset: 0px !important;
 }
 /* ------------------------------------------------------------*/
@@ -2930,7 +2939,7 @@
 }
 .History_Div .item a:focus {
     text-decoration: none;
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed #43B5FC;
 	outline-offset: -2px;
 }
 
@@ -2939,7 +2948,7 @@
 	display: inline-block;
 }
 .History_Div a:focus {
-	outline: 4px solid var(--a_focusbordercolor) !important;
+	outline: 2px dashed var(--a_focusbordercolor) !important;
 	outline-offset: 0px !important;
 }
 /*=============================================*/
@@ -3491,7 +3500,7 @@
 .History_Div.owl-box .owl-carousel .owl-nav button.owl-prev:focus,
 .History_Div.owl-box .owl-carousel .owl-nav button.owl-next:focus {
 	display: block;
-	outline: 2px solid #43B5FC !important;
+	outline: 2px dashed #43B5FC !important;
     outline-offset: -2px;
     background-color: #ffa700 !important;        /*★★★ 重要 焦點變色 ★★★*/
 }
@@ -3639,7 +3648,7 @@
 /* FOCUS */
 .History_Div .control-singlebox a:focus {
 	display: block;
-	outline: 2px solid #43B5FC !important;
+	outline: 2px dashed #43B5FC !important;
     outline-offset: -2px;
     background-color: #ffa700 !important;        /*★★★ 重要 焦點變色 ★★★*/
 }
@@ -3785,7 +3794,7 @@
 .History_Div a:focus.stop {
 	text-decoration: none;
 	outline: thin dotted;
-	outline: 2px solid var(--a_focusbordercolor);
+	outline: 2px dashed var(--a_focusbordercolor);
 	outline-offset: 0px;
 	color: var(--blackcolor) !important;
 	background-color: var(--a_focuscolor) !important;
@@ -3865,7 +3874,7 @@
 .History_Div .control-start:focus, 
 .History_Div .control-pause:focus {
     text-decoration: none;
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed #43B5FC;
 	outline-offset: -2px;
 	background-color: var(--Customize_HRcolor);        /*★★★ 重要 焦點變色 ★★★*/
 	border-radius: 2rem;
@@ -3933,7 +3942,7 @@
 	display: inline-block;
 }
 .SubPage_Musical_Instrument_itemBoxs a:focus {
-	outline: 4px solid var(--a_focusbordercolor) !important;
+	outline: 2px dashed var(--a_focusbordercolor) !important;
 	outline-offset: 0px !important;
 	background-color: var(--FFFcolor) !important;
 }
@@ -4261,7 +4270,7 @@
 	display: block;
 }
 .commodity_wrapper a:focus {
-	outline: 4px solid var(--a_focusbordercolor) !important;
+	outline: 2px dashed var(--a_focusbordercolor) !important;
 	outline-offset: -2px !important;
 	background-color: var(--FFFcolor) !important;
 	padding: 2px;
@@ -4521,7 +4530,7 @@
 .commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-prev:focus,
 .commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-next:focus {
 	display: block;
-	outline: 2px solid #43B5FC !important;
+	outline: 2px dashed #43B5FC !important;
     outline-offset: -2px;
     background-color: #ffa700 !important;        /*★★★ 重要 焦點變色 ★★★*/
 }
@@ -5600,7 +5609,7 @@
     border-color: #b7a24d !important;
 }
 .JournalBar .card-body ul.Journallist-group li a:focus.list-group-item {
-    outline: 4px solid var(--a_focusbordercolor) !important;
+    outline: 2px dashed var(--a_focusbordercolor) !important;
 	outline-offset: 0px !important;   
 }
 
@@ -5794,7 +5803,7 @@
 .JJ_main_contentDIV a:focus.Jitem-inner {
 	text-decoration: none;
 	outline: thin dotted;
-	outline: 2px solid var(--a_focusbordercolor);
+	outline: 2px dashed var(--a_focusbordercolor);
 	outline-offset: 0px;
 	color: var(--blackcolor) !important;
 	background-color: transparent !important;
@@ -6251,7 +6260,7 @@
     border-color: #b7a24d !important;
 }
 .JJ_main_contentDIV a:focus.page-item {
-    outline: 4px solid var(--a_focusbordercolor) !important;
+    outline: 2px dashed var(--a_focusbordercolor) !important;
 	outline-offset: 0px !important;   
 }
 
@@ -7463,7 +7472,7 @@
 	display: inline-block;
 }
 .SubPage_food_itemBoxs a:focus {
-	outline: 4px solid var(--a_focusbordercolor) !important;
+	outline: 2px dashed var(--a_focusbordercolor) !important;
 	outline-offset: 0px !important;
 	background-color: var(--FFFcolor) !important;
 }

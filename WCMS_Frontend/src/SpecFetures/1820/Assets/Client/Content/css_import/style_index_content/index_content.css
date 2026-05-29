@@ -322,7 +322,7 @@
 .customize_btn a:focus.Btn_a {
 	text-decoration: none;
 	outline: thin dotted;
-	outline: 2px solid var(--a_focusbordercolor);
+	outline: 2px dashed var(--a_focusbordercolor);
 	outline-offset: 0px;
 	color: var(--blackcolor) !important;
 	background-color: var(--a_focuscolor) !important;
@@ -560,7 +560,7 @@
 .Carousel_slide_section .carousel_btn-icon-next a:focus div.carousel-control-next {
 	text-decoration: none;    
 	/*outline: thin dotted;*/
-    outline: 1px solid var(--a_focusbordercolor);
+    outline: 1px dashed var(--a_focusbordercolor);
 	/*outline-offset: -2px;*/
     
     color: var(--blackcolor) !important;
@@ -744,7 +744,7 @@
 .Carousel_slide_section .control-pause a:focus {
     text-decoration: none;    
 	/*outline: thin dotted;*/
-    outline: 1px solid var(--a_focusbordercolor);
+    outline: 1px dashed var(--a_focusbordercolor);
 	/*outline-offset: -2px;*/
     
     color: var(--blackcolor) !important;
@@ -921,7 +921,7 @@
 .Carousel_slide_section .control-toggle a:focus {
     text-decoration: none;    
 	/*outline: thin dotted;*/
-    outline: 1px solid var(--a_focusbordercolor);
+    outline: 1px dashed var(--a_focusbordercolor);
 	/*outline-offset: -2px;*/
     
     color: var(--blackcolor) !important;
@@ -2079,8 +2079,8 @@ a:hover.caption-customize-btn .button-icon {
 /* 加入明顯的 Focus 樣式 */
 .hero-media .btn-custom:focus-visible, 
 .hero-media .video-top-control:focus-visible {
-    outline: 3px solid var(--a_focusbordercolor);
-    outline-offset: 2px;
+    outline: 2px dashed var(--a_focusbordercolor);
+    outline-offset: 1cap;
 }
 /* 輪播-底部控制鍵 */
 /*======================================================*/
@@ -2758,7 +2758,7 @@ a:hover.caption-customize-btn .button-icon {
 }
 .LatestNews_section .item a:focus {
     text-decoration: none;
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed #43B5FC;
 	outline-offset: -2px;
 }
 
@@ -3284,10 +3284,10 @@ a:hover.caption-customize-btn .button-icon {
 .LatestNews_section.owl-box .owl-carousel .owl-nav button.owl-next:focus {
 	display: block;
 	width: var(--Customize_size_40);
-	height: var(--Customize_size_40);
+	height: var(--Customize_size_40);	
 	border-radius: 50%; /*100%*/
-	outline: 2px solid #43B5FC !important;
-    outline-offset: -2px;
+	outline: 2px dashed #43B5FC !important;
+    outline-offset: 0px;
     background-color: #ffa700 !important;        /*★★★ 重要 焦點變色 ★★★*/
 }
 @media screen and (max-width: 768px) {
@@ -3425,7 +3425,7 @@ a:hover.caption-customize-btn .button-icon {
 .LatestNews_section .control-start:focus, 
 .LatestNews_section .control-pause:focus {
     text-decoration: none;
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed #43B5FC;
 	outline-offset: -2px;
 	background-color: var(--Customize_HRcolor);        /*★★★ 重要 焦點變色 ★★★*/
 }
@@ -3593,7 +3593,7 @@ a:hover.caption-customize-btn .button-icon {
 }
 
 .LatestNews_section .control-toggle:focus {
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed #43B5FC;
     outline-offset: -2px;
 }
 /*=============================================*/
@@ -4277,7 +4277,7 @@ a:hover.caption-customize-btn .button-icon {
 }
 
 .Scrolling_section .MControl-toggle:focus {
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed #43B5FC;
     outline-offset: -2px;
 }
 /* 控制按鈕樣式 */
@@ -5345,7 +5345,7 @@ a:hover.caption-customize-btn .button-icon {
 #gotop_btn.show:focus {
 	background-color: #ffbf00;
 	text-decoration: none;
-	outline: 2px solid #43B5FC;
+	outline: 2px dashed #43B5FC;
 }
 /* ====================================================== */
 /* =====  頁尾 GO-TO-TOP  ================================ */

@@ -286,7 +286,7 @@ body {
 	display: block;
 }
 .commodity_wrapper a:focus {
-	outline: 4px solid var(--a_focusbordercolor) !important;
+	outline: 2px dashed var(--a_focusbordercolor) !important;
 	outline-offset: -2px !important;
 	background-color: var(--FFFcolor) !important;
 	padding: 2px;
@@ -552,7 +552,7 @@ body {
 .commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-prev:focus,
 .commodity_slider_box.owl-box .owl-carousel .owl-nav button.owl-next:focus {
 	display: block;
-	outline: 2px solid #43B5FC !important;
+	outline: 2px dashed #43B5FC !important;
     outline-offset: -2px;
     background-color: #ffa700 !important;        /*★★★ 重要 焦點變色 ★★★*/
 }
@@ -675,7 +675,7 @@ body {
 }
 .SharedCarouselDivBox .item a:focus {
     text-decoration: none;
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed #43B5FC;
 	outline-offset: -2px;
 }
 /*=============================================*/
@@ -903,7 +903,7 @@ body {
 .SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-prev:focus,
 .SharedCarouselDivBox.owl-box .owl-carousel .owl-nav button.owl-next:focus {
 	display: block;
-	outline: 2px solid #43B5FC !important;
+	outline: 2px dashed #43B5FC !important;
     outline-offset: -2px;
     background-color: #ffa700 !important;        /*★★★ 重要 焦點變色 ★★★*/
 }
@@ -1048,7 +1048,7 @@ body {
 /* FOCUS */
 .SharedCarouselDivBox .control-singlebox a:focus {
 	display: block;
-	outline: 2px solid #43B5FC !important;
+	outline: 2px dashed #43B5FC !important;
     outline-offset: -2px;
     background-color: #ffa700 !important;        /*★★★ 重要 焦點變色 ★★★*/
 }
@@ -1193,7 +1193,7 @@ body {
 .SharedCarouselDivBox a:focus.stop {
 	text-decoration: none;
 	outline: thin dotted;
-	outline: 2px solid var(--a_focusbordercolor);
+	outline: 2px dashed var(--a_focusbordercolor);
 	outline-offset: 0px;
 	color: var(--blackcolor) !important;
 	background-color: var(--a_focuscolor) !important;
@@ -1273,7 +1273,7 @@ body {
 .SharedCarouselDivBox .control-start:focus, 
 .SharedCarouselDivBox .control-pause:focus {
     text-decoration: none;
-    outline: 2px solid #43B5FC;
+    outline: 2px dashed #43B5FC;
 	outline-offset: -2px;
 	background-color: var(--Customize_HRcolor);        /*★★★ 重要 焦點變色 ★★★*/
 	border-radius: 2rem;

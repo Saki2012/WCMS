@@ -128,17 +128,17 @@ const MainMenu = (prop: { lang: Lang; site: INormSite; style: IFETheme; }) =>
                     <div className="navsBox" ref={navsRef}>
                         <ul className={clsx("nav", "Customize_Nav")}>
                             <li className={clsx("nav-item")}>
-                                <LangLink className="nav-link" to="/" target="_self" title="首頁" onClick={() => closeMenu()}>首頁</LangLink>
+                                <LangLink className="nav-link" to="/" title="首頁" onClick={() => closeMenu()}>首頁</LangLink>
                             </li>
 
                             <li className={clsx("nav-item")}>
-                                <LangLink className="nav-link" to="https://www.ntua.edu.tw/" target="_blank" title="臺藝大校首頁" onClick={() => closeMenu()}>
-                                    臺藝校首頁
+                                <LangLink className="nav-link" to="https://www.ntua.edu.tw/" title="臺藝大校首頁" onClick={() => closeMenu()}>
+                                    臺藝大校首頁
                                 </LangLink>
                             </li>
 
                             <li className={clsx("nav-item")}>
-                                <LangLink className="nav-link" to="Sitemap" target="_self" title="網站導覽" onClick={() => closeMenu()}>網站導覽</LangLink>
+                                <LangLink className="nav-link" to="Sitemap" title="網站導覽" onClick={() => closeMenu()}>網站導覽</LangLink>
                             </li>
 
                             <li className={clsx("nav-item")}>

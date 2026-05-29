@@ -6,7 +6,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router";
 import { useClientSpecProductionListFetchData } from "./Client_SpecProduction_List_Loader";
 
@@ -197,51 +197,131 @@ const ProductionTabPanel = ({ lang, activeTab, items, viewMoreText }: { lang: La
 /// </summary>
 const ProductionCarousel = (props: { lang: Lang; items: MaterialSet[]; viewMoreText: string; }) =>
 {
-    const [index, setIndex] = useState(0);
+    const [trackIndex, setTrackIndex] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
+    const [isTransitionEnabled, setIsTransitionEnabled] = useState(true);
+    const animationLockRef = useRef(false);
+    const resetTimerRef = useRef<number | null>(null);
 
     const hasMany = props.items.length > 1;
-    const isFirst = index <= 0;
-    const isLast = index >= props.items.length - 1;
     const toggleLabel = isPlaying ? "圖片輪播播放中，點擊暫停" : "圖片輪播已暫停，點擊播放";
     const toggleIconClass = isPlaying ? "control-pause-icon" : "control-play-icon";
+
+    const carouselItems = useMemo<MaterialSet[]>(() =>
+    {
+        if (!hasMany) return props.items;
+
+        const firstItem = props.items[0];
+        const lastItem = props.items[props.items.length - 1];
+        if (!firstItem || !lastItem) return props.items;
+
+        return [lastItem, ...props.items, firstItem];
+    }, [hasMany, props.items]);
+
+    /// <summary>
+    /// 清除延遲恢復動畫的計時器，避免快速切換時殘留狀態。
+    /// </summary>
+    const clearResetTimer = () =>
+    {
+        if (resetTimerRef.current === null) return;
+        window.clearTimeout(resetTimerRef.current);
+        resetTimerRef.current = null;
+    };
+
+    /// <summary>
+    /// 瞬間跳到指定位置，讓複製項目銜接回真實項目時不產生倒退動畫。
+    /// </summary>
+    const jumpWithoutAnimation = (nextTrackIndex: number) =>
+    {
+        clearResetTimer();
+        setIsTransitionEnabled(false);
+        setTrackIndex(nextTrackIndex);
+
+        resetTimerRef.current = window.setTimeout(() =>
+        {
+            setIsTransitionEnabled(true);
+            animationLockRef.current = false;
+            resetTimerRef.current = null;
+        }, 30);
+    };
+
+    /// <summary>
+    /// 執行輪播位移，動畫期間鎖定避免連點造成索引錯亂。
+    /// </summary>
+    const moveSlide = (step: number) =>
+    {
+        if (!hasMany || animationLockRef.current) return;
+
+        animationLockRef.current = true;
+        setIsTransitionEnabled(true);
+        setTrackIndex((current) => current + step);
+    };
 
     /// <summary>
     /// 切換分類或資料時回到第一筆並暫停。
     /// </summary>
     useEffect(() =>
     {
-        setIndex(0);
+        clearResetTimer();
+        animationLockRef.current = false;
+        setTrackIndex(props.items.length > 1 ? 1 : 0);
         setIsPlaying(false);
+        setIsTransitionEnabled(false);
+
+        resetTimerRef.current = window.setTimeout(() =>
+        {
+            setIsTransitionEnabled(true);
+            resetTimerRef.current = null;
+        }, 30);
     }, [props.items]);
 
     /// <summary>
-    /// 播放狀態下每五秒往下一筆滑動，最後一筆後回到第一筆。
+    /// 元件卸載時清除計時器。
+    /// </summary>
+    useEffect(() => () => clearResetTimer(), []);
+
+    /// <summary>
+    /// 播放狀態下每五秒往下一筆滑動，最後一筆後繼續往右銜接第一筆。
     /// </summary>
     useEffect(() =>
     {
         if (!isPlaying || !hasMany) return;
-        const timer = window.setInterval(() => setIndex((p) => p >= props.items.length - 1 ? 0 : p + 1), 5000);
+
+        const timer = window.setInterval(() => moveSlide(1), 5000);
         return () => window.clearInterval(timer);
-    }, [isPlaying, hasMany, props.items.length]);
+    }, [isPlaying, hasMany]);
 
     /// <summary>
-    /// 切到上一筆資料。
+    /// 動畫完成後，若目前停在複製項目，立即切回對應真實項目。
     /// </summary>
-    const goPrev = () =>
+    const handleTransitionEnd = (event: React.TransitionEvent<HTMLDivElement>) =>
     {
-        if (isFirst) return;
-        setIndex((p) => p - 1);
+        if (event.target !== event.currentTarget) return;
+
+        if (trackIndex <= 0)
+        {
+            jumpWithoutAnimation(props.items.length);
+            return;
+        }
+
+        if (trackIndex >= props.items.length + 1)
+        {
+            jumpWithoutAnimation(1);
+            return;
+        }
+
+        animationLockRef.current = false;
     };
 
     /// <summary>
-    /// 切到下一筆資料。
+    /// 切到上一筆資料，第一筆再往前會循環到最後一筆。
     /// </summary>
-    const goNext = () =>
-    {
-        if (isLast) return;
-        setIndex((p) => p + 1);
-    };
+    const goPrev = () => moveSlide(-1);
+
+    /// <summary>
+    /// 切到下一筆資料，最後一筆再往後會持續向右銜接第一筆。
+    /// </summary>
+    const goNext = () => moveSlide(1);
 
     /// <summary>
     /// 切換播放與暫停狀態。
@@ -279,12 +359,18 @@ const ProductionCarousel = (props: { lang: Lang; items: MaterialSet[]; viewMoreT
                 <div className="owl-stage-outer">
                     <div
                         className="owl-stage"
-                        style={{ display: "flex", width: "100%", transform: `translate3d(-${index * 100}%, 0, 0)`, transition: "transform 450ms ease" }}
+                        style={{
+                            display: "flex",
+                            width: "100%",
+                            transform: `translate3d(-${trackIndex * 100}%, 0, 0)`,
+                            transition: isTransitionEnabled ? "transform 450ms ease" : "none",
+                        }}
+                        onTransitionEnd={handleTransitionEnd}
                     >
-                        {props.items.map((item, idx) => (
+                        {carouselItems.map((item, idx) => (
                             <div
                                 key={`${item.Material?.InternalId ?? "mat"}_${idx}`}
-                                className={`owl-item ${idx === index ? "active" : ""}`}
+                                className={`owl-item ${idx === trackIndex ? "active" : ""}`}
                                 style={{ flex: "0 0 100%", width: "100%" }}
                             >
                                 <div className="item">
@@ -297,26 +383,12 @@ const ProductionCarousel = (props: { lang: Lang; items: MaterialSet[]; viewMoreT
 
                 {hasMany && (
                     <div className="owl-nav" aria-label="圖片輪播控制">
-                        <button
-                            type="button"
-                            role="presentation"
-                            tabIndex={0}
-                            className={`owl-prev ${isFirst ? "disabled" : ""}`}
-                            onClick={goPrev}
-                            disabled={isFirst}
-                        >
+                        <button type="button" role="presentation" tabIndex={0} className="owl-prev" onClick={goPrev}>
                             <span aria-label="Previous" title="上一張">
                                 <span className="d-none">上一張</span>
                             </span>
                         </button>
-                        <button
-                            type="button"
-                            role="presentation"
-                            tabIndex={0}
-                            className={`owl-next ${isLast ? "disabled" : ""}`}
-                            onClick={goNext}
-                            disabled={isLast}
-                        >
+                        <button type="button" role="presentation" tabIndex={0} className="owl-next" onClick={goNext}>
                             <span aria-label="Next" title="下一張">
                                 <span className="d-none">下一張</span>
                             </span>

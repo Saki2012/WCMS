@@ -83,7 +83,7 @@
 .carousel_slide_section .carousel_btn-icon-next a:focus div.carousel-control-next {
 	text-decoration: none;    
 	/*outline: thin dotted;*/
-    outline: 1px solid var(--a_focusbordercolor);
+    outline: 1px dashed var(--a_focusbordercolor);
 	/*outline-offset: -2px;*/
     
     color: var(--blackcolor) !important;
@@ -251,7 +251,7 @@
 .carousel_slide_section .control-pause a:focus {
     text-decoration: none;    
 	/*outline: thin dotted;*/
-    outline: 1px solid var(--a_focusbordercolor);
+    outline: 1px dashed var(--a_focusbordercolor);
 	/*outline-offset: -2px;*/
     
     color: var(--blackcolor) !important;
@@ -410,7 +410,7 @@
 .carousel_slide_section .control-toggle a:focus {
     text-decoration: none;    
 	/*outline: thin dotted;*/
-    outline: 1px solid var(--a_focusbordercolor);
+    outline: 1px dashed var(--a_focusbordercolor);
 	/*outline-offset: -2px;*/
     
     color: var(--blackcolor) !important;

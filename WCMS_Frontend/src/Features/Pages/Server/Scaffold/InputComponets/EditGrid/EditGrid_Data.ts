@@ -118,6 +118,21 @@ export interface EditGridCellRenderArgs
     updateValue: (value: EditGridCellValue) => void;
 }
 
+
+export interface EditGridSubDetailRenderArgs
+{
+    row: GridRow;
+    rowIndex: number;
+    rowKey: string;
+    disabled: boolean;
+}
+
+export interface EditGridEditingStateArgs
+{
+    editingKeys: string[];
+    hasEditingRow: boolean;
+}
+
 export interface IEditGridView_Style
 {
     TableStyle?: string;
@@ -143,6 +158,12 @@ export interface EditGridProps
     storageKey?: string;
     minTableWidth?: number;
     scrollBreakpoint?: number;
+    /** 最多顯示幾筆資料列，超過後改由表格內垂直捲軸瀏覽；傳入 null 或 0 表示不限制。 */
+    maxVisibleRows?: number | null;
+    /** 估算單筆資料列高度，用於計算 maxVisibleRows 的表格高度。 */
+    estimatedRowHeightPx?: number;
+    /** 估算表頭高度，用於計算 maxVisibleRows 的表格高度。 */
+    estimatedHeaderHeightPx?: number;
     disabled?: boolean;
     canAdd?: boolean;
     canEdit?: boolean;
@@ -163,6 +184,10 @@ export interface EditGridProps
     onGridDataChange?: (gridData: GridProps) => void;
     onRowsChange?: (rows: GridRow[]) => void;
     onDeleteRow?: (row: GridRow) => void;
+    expandedRowKey?: string | null;
+    subDetailRowClassName?: string;
+    subDetailRender?: (args: EditGridSubDetailRenderArgs) => ReactNode;
+    onEditingStateChange?: (args: EditGridEditingStateArgs) => void;
 }
 
 // #endregion
