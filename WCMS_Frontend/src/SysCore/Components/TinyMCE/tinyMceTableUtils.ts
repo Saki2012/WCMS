@@ -29,12 +29,6 @@ const applyAttributeDimensionToStyle = (element: Element, property: "width" | "h
     return true;
 };
 
-const hasExplicitDimension = (element: Element, property: "width" | "height"): boolean =>
-{
-    if (element instanceof HTMLElement && hasStyleDimension(element, property)) return true;
-    return normalizeDimensionAttribute(element.getAttribute(property)) !== null;
-};
-
 const getDimensionTargets = (root: ParentNode): HTMLElement[] =>
 {
     const elements = Array.from(root.querySelectorAll<HTMLElement>(TABLE_DIMENSION_SELECTOR));

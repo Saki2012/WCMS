@@ -313,7 +313,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                                 // targetBlank: true, // 若你想讓下載另開視窗可打開這行
                             });
                             // 直接把當前選取轉成 <a>
-                            const anchor = ed.dom.select("a[href=\"" + href + "\"]").pop();
+                            const anchor = ed.dom.select(`a[href="${href}"]`).pop();
                             if (anchor) ed.dom.setAttrib(anchor, "download", "");
                         } else if (meta.filetype === "image")
                         {
@@ -392,7 +392,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
 
                     FORMAT_WHITELIST.forEach((key) =>
                     {
-                        const kebab = (key as string).replace(/[A-Z]/g, m => "-" + m.toLowerCase());
+                        const kebab = (key as string).replace(/[A-Z]/g, m => `-${m.toLowerCase()}`);
                         const inlineVal = inlineMap.get(kebab);
                         const val = inlineVal ?? (cs as any)[key];
                         if (isMeaningful(key, val)) result[key] = val!;
@@ -427,7 +427,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                 };
                 // ✅ 轉成 style 屬性字串
                 const toStyleAttr = (styles: Partial<Record<keyof CSSStyleDeclaration, string>>) =>
-                    Object.entries(styles).filter(([, v]) => !!v).map(([k, v]) => `${k.replace(/[A-Z]/g, m => "-" + m.toLowerCase())}:${v}`).join(";");
+                    Object.entries(styles).filter(([, v]) => !!v).map(([k, v]) => `${k.replace(/[A-Z]/g, m => `-${m.toLowerCase()}`)}:${v}`).join(";");
 
                 if (p.initExtras && typeof p.initExtras.setup === "function")
                 {
