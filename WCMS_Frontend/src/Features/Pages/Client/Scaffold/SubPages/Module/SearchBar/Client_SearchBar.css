@@ -1,109 +1,151 @@
+/* =========================
+   SearchBar 外框
+========================= */
 .client-searchbar {
-  margin-bottom: 18px;
-  background: rgba(0, 0, 0, 0.015);
-  padding: 18px 15px;
-  border: 1px solid #dddddd;
-  border-radius: 5px;
+  margin-bottom: 1.5rem;
+  background: rgb(255 255 255 / 80%);;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.02);
 }
 
+/* form reset */
 .client-searchbar__form {
   padding: 0;
   border: 0;
-  border-radius: 0;
   background: transparent;
 }
 
+/* =========================
+   Header
+========================= */
 .client-searchbar__header {
-  margin-bottom: 8px;
+  margin-bottom: 1rem;
 }
 
+/* 標題（跟 Survey 一致） */
 .client-searchbar__title {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 700;
-  line-height: 1.4;
-  border-left: 5px solid var(--Customize_color);
-  padding: 8px 15px;
+  line-height: 1.5;
+  color: var(--blackcolor);
+  display: flex;
+  align-items: center;
+}
+.client-searchbar__title::before {
+  content: " ";
+  width: 7px;
+  height: 31.5px;
+  display: inline-block;
+  background-color: var(--Customize_color);
+  vertical-align: text-top;
+  margin-right: 7px;
   border-radius: 5px;
 }
-
+/* =========================
+   Body
+========================= */
 .client-searchbar__body {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0.75rem;
 }
 
+/* 每一列 */
 .client-searchbar__row {
   display: grid;
-  /* grid-template-columns: repeat(var(--client-searchbar-column-count, 3), minmax(0, 1fr)); */
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 10px 14px;
-  margin-bottom: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px 16px;
 }
 
+/* =========================
+   Field
+========================= */
 .client-searchbar__field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  margin-top: 10px;
+  gap: 6px;
 }
 
+/* label（統一 Survey） */
 .client-searchbar__label {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 600;
-  line-height: 1.4;
-  margin-bottom: 5px;
+  color: #444;
+  letter-spacing: 0.02em;
 }
 
+/* =========================
+   Input / Select（統一 Survey）
+========================= */
 .client-searchbar__input,
 .client-searchbar__select {
-  font-size: 0.95rem;
   width: 100%;
-  padding: 0.5rem 3.75rem 0.5rem 1rem;
-  border: none;
-  border-radius: 0.25rem;
-  border: 1px solid #dddddd;
-  background-color: var(--FFFcolor);
+  min-height: 2.5rem;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.95rem;
+
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background-color: #fff;
+
+  transition: border 0.2s, box-shadow 0.2s;
 }
 
+/* ⚠️ focus 完全保留你原本 */
 .client-searchbar__input:focus,
 .client-searchbar__select:focus {
   outline: 2px dashed var(--a_focusbordercolor) !important;
   outline-offset: -1px;
-  /* background-color: var(--a_focuscolor) !important; */
 }
 
+/* =========================
+   Actions
+========================= */
 .client-searchbar__actions {
   display: flex;
-  gap: 8px;
-  margin-top: 10px;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
 }
 
+/* 對齊 */
 .client-searchbar__actions--left {
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 
 .client-searchbar__actions--right {
   justify-content: flex-end;
 }
 
+/* =========================
+   Button（統一 Survey）
+========================= */
 .client-searchbar__button {
   min-width: 64px;
-  min-height: 34px;
-  padding: 5px 14px;
-  border: 1px solid #8a8a8a;
-  border-radius: 4px;
-  background: #f7f7f7;
+  min-height: 36px;
+  padding: 6px 16px;
+
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #f3f3f3;
   color: #111;
+
   cursor: pointer;
   font-size: 0.95rem;
-  line-height: 1.4;
+  transition: all 0.2s ease;
 }
 
+/* hover 微動效 */
 .client-searchbar__button:hover {
-  filter: brightness(0.95);
+  transform: translateY(-1px);
+  filter: brightness(0.97);
 }
 
+/* focus（保留） */
 .client-searchbar__button:focus {
   outline: 2px dashed var(--a_focusbordercolor) !important;
   outline-offset: 0px;
@@ -111,21 +153,32 @@
   color: var(--blackcolor);
 }
 
+/* 搜尋按鈕 */
 .client-searchbar__button--search {
   background: var(--Customize_color);
   border-color: var(--Customize_color);
-  transition: 0.3s;
   color: #fff;
 }
 
+/* =========================
+   RWD
+========================= */
 @media (max-width: 768px) {
 
-  .client-searchbar__actions {
-    flex-wrap: wrap;
+  .client-searchbar {
+    padding: 1rem;
+    border-radius: 8px;
   }
 
-  .client-searchbar__input,
-  .client-searchbar__select {
-    max-width: 100%;
+  .client-searchbar__row {
+    grid-template-columns: 1fr;
+  }
+
+  .client-searchbar__actions {
+    flex-direction: column;
+  }
+
+  .client-searchbar__button {
+    width: 100%;
   }
 }
