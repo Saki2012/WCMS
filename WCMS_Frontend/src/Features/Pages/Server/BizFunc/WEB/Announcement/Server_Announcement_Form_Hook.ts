@@ -43,7 +43,7 @@ type AnnouncementDetailFile = components["schemas"]["AnnouncementDetailFile_DTO"
 export type AnnouncementFileCellValue = EditGridFileValue & { internalId?: string; originalFileName?: string; };
 export type AnnouncementFileGridRow = GridRow & { AnnouncementId?: string | null; ParentRowId?: number | null; FileRowId?: number | null; };
 type UploadFileHandler = ReturnType<typeof useUploadFile>["handleFileChange"];
-
+export type AnnouncementDetailRowKeys = Record<string, string | number | boolean | null | undefined>;
 export interface UseAnnouncementFileEditGridOptions
 {
     /** 新版 Form Template 提供的資料 binding */
@@ -77,7 +77,7 @@ export interface AnnouncementDetailTabItem
     detail: AnnouncementDetail;
 
     /** Detail row keys，給 useSetTableField 綁定欄位 */
-    rowKeys: Record<string, string | number | undefined>;
+    rowKeys: AnnouncementDetailRowKeys;
 
     /** Detail RowId，給附件 SubDetail 綁 ParentRowId */
     detailRowId: number;
@@ -340,11 +340,16 @@ const buildAnnouncementDetailTabItem = (detail: AnnouncementDetail | undefined, 
 };
 
 /** 建立 Detail RowKeys，統一將 null 轉成 undefined。 */
-const buildAnnouncementDetailRowKeys = (detail: AnnouncementDetail): Record<string, string | number | undefined> =>
+const buildAnnouncementDetailRowKeys = (detail: AnnouncementDetail): AnnouncementDetailRowKeys =>
 {
+    // 宣告變數
+    const lang = normalizeSupportedLang(detail.Lang);
+
+    // return
     return {
         [AnnouncementDetailFields.AnnouncementId]: toBindingRowKey(detail.AnnouncementId),
         [AnnouncementDetailFields.RowId]: toBindingRowKey(detail.RowId),
+        [AnnouncementDetailFields.Lang]: lang,
     };
 };
 
@@ -359,9 +364,10 @@ const buildAnnouncementDetailTabItems = (items: AnnouncementDetailTabItem[]): Re
 };
 
 /** 將 DTO 的 null key 轉成 binding 可接受的 undefined。 */
-const toBindingRowKey = (value: string | number | null | undefined): string | number | undefined =>
+const toBindingRowKey = (value: string | number | null | undefined): string | number | null | undefined =>
 {
-    return value ?? undefined;
+    // return
+    return value;
 };
 
 /** 建立附件 parent 綁定，讓共用 Hook 自動過濾同語系附件。 */
@@ -502,28 +508,19 @@ const buildNewAnnouncementFileItem = (data: AnnouncementSet, parentRowId: number
 /** 將附件 Grid Row 轉回 DTO，RowId 依目前排序重新編號。 */
 const toAnnouncementFileDto = (source: AnnouncementSet, parentRowId: number, row: GridRow, index: number): AnnouncementDetailFile =>
 {
+    // 宣告變數
     const fileValue = toAnnouncementFileCellValue(getEditGridCellValue(row, AnnouncementDetailFileFields.FileId));
     const fileName = getEditGridStringCellValue(row, AnnouncementDetailFileFields.FileName).trim();
+    const fileId = String(fileValue.internalId ?? "").trim();
 
+    // return
     return {
         AnnouncementId: source.Announcement?.AnnouncementId ?? (row as AnnouncementFileGridRow).AnnouncementId,
         ParentRowId: parentRowId,
         RowId: index + 1,
-        File: buildAnnouncementFileManageDto(fileValue),
-        FileId: fileValue.internalId ?? "",
+        FileId: fileId,
         FileName: fileName,
     };
-};
-
-/** 建立前端顯示用 FileManagement DTO，避免 Grid commit 後遺失原始檔名。 */
-const buildAnnouncementFileManageDto = (file: AnnouncementFileCellValue): components["schemas"]["FileManageModel_DTO"] | undefined =>
-{
-    const internalId = String(file.internalId ?? "").trim();
-    const originalName = String(file.originalFileName ?? "").trim();
-
-    if (!internalId && !originalName) return undefined;
-
-    return { InternalId: internalId || null, FileName: originalName || null, MimeType: file.mimeType || null, FileSize: file.size ?? null };
 };
 
 /** 使用 EditGrid 內建 file 欄位選檔後，上傳並轉回 Announcement 附件值。 */

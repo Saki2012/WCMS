@@ -17,6 +17,7 @@ import { useMemo } from "react";
 // #region Property
 type PageManagementSet = components["schemas"]["PageManagementSet_DTO"];
 type PageManagementDetail = NonNullable<PageManagementSet["PageManagementDetail"]>[number];
+export type PageManagementDetailRowKeys = Record<string, string | number | boolean | null | undefined>;
 
 export interface UsePageManagementFormTemplateOptions
 {
@@ -57,7 +58,7 @@ export interface PageManagementDetailTabItem
     detail: PageManagementDetail;
 
     /** Detail row keys，給 useSetTableField 綁定欄位 */
-    rowKeys: Record<string, string | number | undefined>;
+    rowKeys: PageManagementDetailRowKeys;
 }
 
 export interface PageManagementDetailTabsResult
@@ -84,10 +85,7 @@ export type PageManagementFormActionsOpt = {
     onBackToList: () => void;
 };
 
-export type PageManagementFormAdapter = {
-    PageManagement: ReturnType<typeof PageManagementAdapter>;
-    Category: ReturnType<typeof CategoryAdapter>;
-};
+export type PageManagementFormAdapter = { PageManagement: ReturnType<typeof PageManagementAdapter>; Category: ReturnType<typeof CategoryAdapter>; };
 
 const emptyUsedProgMap = new Map<string, string>();
 // #endregion
@@ -184,16 +182,7 @@ const usePageManagementReferenceData = (
                 await Promise.all([category.refetch(), usedProg.refetch()]);
             },
         };
-    }, [
-        category.errorText,
-        category.isLoading,
-        category.map,
-        category.refetch,
-        usedProg.data,
-        usedProg.errorText,
-        usedProg.isLoading,
-        usedProg.refetch,
-    ]);
+    }, [category.errorText, category.isLoading, category.map, category.refetch, usedProg.data, usedProg.errorText, usedProg.isLoading, usedProg.refetch]);
 };
 // #endregion
 
@@ -219,7 +208,9 @@ const filterSupportedDetailRows = (details: PageManagementDetail[], preferLang: 
     const detailMap = buildSupportedDetailMap(details);
     const langs = buildSupportedLangOrder(preferLang);
 
-    return langs.map(lang => buildPageManagementDetailTabItem(detailMap.get(lang.toLowerCase()))).filter((item): item is PageManagementDetailTabItem => Boolean(item));
+    return langs.map(lang => buildPageManagementDetailTabItem(detailMap.get(lang.toLowerCase()))).filter((item): item is PageManagementDetailTabItem =>
+        Boolean(item)
+    );
 };
 
 /** 將有效語系 Detail 建成 Map，同語系只保留第一筆。 */
@@ -264,12 +255,17 @@ const buildPageManagementDetailTabItem = (detail: PageManagementDetail | undefin
     return { key, label, detail, rowKeys };
 };
 
-/** 建立 Detail RowKeys，統一將 null 轉成 undefined。 */
-const buildPageManagementDetailRowKeys = (detail: PageManagementDetail): Record<string, string | number | undefined> =>
+/** 建立 Detail RowKeys，保留 null 主鍵並加入 Lang，避免 Template 寫入時新建無語系列。 */
+const buildPageManagementDetailRowKeys = (detail: PageManagementDetail): PageManagementDetailRowKeys =>
 {
+    // 宣告變數
+    const lang = normalizeSupportedLang(detail.Lang);
+
+    // return
     return {
         [PageManagementDetailFields.PageId]: toBindingRowKey(detail.PageId),
         [PageManagementDetailFields.RowId]: toBindingRowKey(detail.RowId),
+        [PageManagementDetailFields.Lang]: lang,
     };
 };
 
@@ -283,9 +279,10 @@ const buildPageManagementDetailTabItems = (items: PageManagementDetailTabItem[])
     }, {});
 };
 
-/** 將 DTO 的 null key 轉成 binding 可接受的 undefined。 */
-const toBindingRowKey = (value: string | number | null | undefined): string | number | undefined =>
+/** 保留 DTO 原始 key 值，避免 null 被轉成 undefined 後比對不到原列。 */
+const toBindingRowKey = (value: string | number | null | undefined): string | number | null | undefined =>
 {
-    return value ?? undefined;
+    // return
+    return value;
 };
 // #endregion

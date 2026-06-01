@@ -45,7 +45,7 @@ type GalleryInfo = NonNullable<GallerySet["GalleryInfo"]>[number];
 type GalleryPhoto = components["schemas"]["GalleryPhotos_DTO"];
 type GalleryPhotoInfo = components["schemas"]["GalleryPhotosInfo_DTO"];
 type UploadFileHandler = ReturnType<typeof useUploadFile>["handleFileChange"];
-
+export type GalleryInfoRowKeys = Record<string, string | number | boolean | null | undefined>;
 export type GalleryPhotoCellValue = EditGridFileValue & { internalId?: string; originalFileName?: string; };
 export type GalleryPhotoGridRow = GridRow & { GalleryId?: string | null; PhotoRowId?: number | null; };
 export type GalleryPhotoInfoGridRow = GridRow & { GalleryId?: string | null; ParentRowId?: number | null; InfoRowId?: number | null; };
@@ -102,7 +102,6 @@ export interface UseGalleryPhotoEditGridOptions
 
     /** 子明細編輯中時鎖住父層 */
     isSubDetailEditing: boolean;
-
 }
 
 export interface UseGalleryPhotoInfoEditGridOptions
@@ -138,7 +137,7 @@ export interface GalleryInfoTabItem
     detail: GalleryInfo;
 
     /** Detail row keys，給 useSetTableField 綁定欄位 */
-    rowKeys: Record<string, string | number | undefined>;
+    rowKeys: GalleryInfoRowKeys;
 }
 
 export interface GalleryInfoTabsResult
@@ -253,10 +252,9 @@ export const useGalleryPhotoEditGrid = (opt: UseGalleryPhotoEditGridOptions) =>
     const uploadFile = useUploadFile({ enablePreview: false });
     const displayName = opt.binding.displayName;
     const columns = useMemo(() => buildGalleryPhotoColumns(displayName), [displayName]);
-    const handlePictureValueChange = useCallback(
-        (args: EditGridCellValueChangeArgs) => uploadGalleryPhotoValue(args, uploadFile.handleFileChange),
-        [uploadFile.handleFileChange],
-    );
+    const handlePictureValueChange = useCallback((args: EditGridCellValueChangeArgs) => uploadGalleryPhotoValue(args, uploadFile.handleFileChange), [
+        uploadFile.handleFileChange,
+    ]);
 
     return useEditGridBinding<GallerySet, GalleryPhoto, GalleryPhotoGridRow>({
         binding: opt.binding,
@@ -315,7 +313,14 @@ export const useGalleryBatchPhotoUpload = (opt: UseGalleryBatchPhotoUploadOption
     const clearSelectedFiles = useCallback(() => setSelectedFiles([]), []);
     const uploadSelectedFiles = useCallback(async () =>
     {
-        await uploadGalleryBatchFiles({ binding: opt.binding, files: selectedFiles, uploadFile: uploadFile.handleFileChange, setError, setIsUploading, clearSelectedFiles });
+        await uploadGalleryBatchFiles({
+            binding: opt.binding,
+            files: selectedFiles,
+            uploadFile: uploadFile.handleFileChange,
+            setError,
+            setIsUploading,
+            clearSelectedFiles,
+        });
     }, [clearSelectedFiles, opt.binding, selectedFiles, uploadFile.handleFileChange]);
 
     return { selectedFiles, isUploading, error, setSelectedFiles, clearSelectedFiles, uploadSelectedFiles };
@@ -365,7 +370,19 @@ const useGalleryReferenceData = (
                 await Promise.all([category.refetch(), tag.refetch()]);
             },
         };
-    }, [category.errorText, category.isLoading, category.map, category.refetch, statusOpts.data, statusOpts.error, statusOpts.isLoading, tag.errorText, tag.isLoading, tag.map, tag.refetch]);
+    }, [
+        category.errorText,
+        category.isLoading,
+        category.map,
+        category.refetch,
+        statusOpts.data,
+        statusOpts.error,
+        statusOpts.isLoading,
+        tag.errorText,
+        tag.isLoading,
+        tag.map,
+        tag.refetch,
+    ]);
 };
 // #endregion
 
@@ -424,7 +441,9 @@ const filterSupportedGalleryInfoRows = (details: GalleryInfo[], preferLang: Lang
     const detailMap = buildSupportedGalleryInfoMap(details);
     const langs = buildSupportedLangOrder(preferLang);
 
-    return langs.map((lang, index) => buildGalleryInfoTabItem(detailMap.get(lang.toLowerCase()), index)).filter((item): item is GalleryInfoTabItem => Boolean(item));
+    return langs.map((lang, index) => buildGalleryInfoTabItem(detailMap.get(lang.toLowerCase()), index)).filter((item): item is GalleryInfoTabItem =>
+        Boolean(item)
+    );
 };
 
 /** 將有效語系 Detail 建成 Map，同語系只保留第一筆。 */
@@ -469,12 +488,17 @@ const buildGalleryInfoTabItem = (detail: GalleryInfo | undefined, index: number)
     return { key, label, detail, rowKeys };
 };
 
-/** 建立相簿語系 RowKeys，統一將 null 轉成 undefined。 */
-const buildGalleryInfoRowKeys = (detail: GalleryInfo, index: number): Record<string, string | number | undefined> =>
+/** 建立相簿語系 RowKeys，保留 null 主鍵並加入 Lang，避免 Template 寫入時新建無語系列。 */
+const buildGalleryInfoRowKeys = (detail: GalleryInfo, index: number): GalleryInfoRowKeys =>
 {
+    // 宣告變數
+    const lang = normalizeSupportedLang(detail.Lang);
+
+    // return
     return {
         [GalleryInfoFields.GalleryId]: toBindingRowKey(detail.GalleryId),
         [GalleryInfoFields.RowId]: toBindingRowKey(detail.RowId ?? index + 1),
+        [GalleryInfoFields.Lang]: lang,
     };
 };
 
@@ -488,10 +512,11 @@ const buildGalleryInfoTabItems = (items: GalleryInfoTabItem[]): Record<string, s
     }, {});
 };
 
-/** 將 DTO 的 null key 轉成 binding 可接受的 undefined。 */
-const toBindingRowKey = (value: string | number | null | undefined): string | number | undefined =>
+/** 保留 DTO 原始 key 值，避免 null 被轉成 undefined 後比對不到原列。 */
+const toBindingRowKey = (value: string | number | null | undefined): string | number | null | undefined =>
 {
-    return value ?? undefined;
+    // return
+    return value;
 };
 
 /** 建立相片 EditGrid 固定設定，Grid 標題優先讀 ModelDisplayName。 */
@@ -564,7 +589,17 @@ const buildGalleryPhotoColumns = (displayName: ModelDisplaySchema): ColumnConfig
     const sortTitle = getGalleryColumnTitle(displayName, GallerySetFields.GalleryPhotos, GalleryPhotosFields.Sort, "排序編號");
 
     return [
-        { key: GalleryPhotosFields.PicSrcId, title: picTitle, width: 360, inputType: "file", editable: true, accept: "image/*", multiple: false, maxFileCount: 1, maxFileSizeMB: 10 },
+        {
+            key: GalleryPhotosFields.PicSrcId,
+            title: picTitle,
+            width: 360,
+            inputType: "file",
+            editable: true,
+            accept: "image/*",
+            multiple: false,
+            maxFileCount: 1,
+            maxFileSizeMB: 10,
+        },
         { key: GalleryPhotoCoverColumnKey, title: "封面", width: 120, inputType: "readonly", editable: false },
         { key: GalleryPhotosFields.Sort, title: sortTitle, width: 120, inputType: "number", editable: true, min: 0 },
         { key: GalleryPhotoSubDetailColumnKey, title: "語系明細", width: 130, inputType: "readonly", editable: false },
@@ -578,11 +613,14 @@ const buildGalleryPhotoInfoColumns = (displayName: ModelDisplaySchema): ColumnCo
     const titleTitle = getGalleryColumnTitle(displayName, GallerySetFields.GalleryPhotosInfo, GalleryPhotosInfoFields.Title, "標題");
     const descTitle = getGalleryColumnTitle(displayName, GallerySetFields.GalleryPhotosInfo, GalleryPhotosInfoFields.Description, "描述");
 
-    return [
-        { key: GalleryPhotosInfoFields.Lang, title: langTitle, width: 110, inputType: "readonly", editable: false },
-        { key: GalleryPhotosInfoFields.Title, title: titleTitle, width: 240, inputType: "text", editable: true, maxLength: 200 },
-        { key: GalleryPhotosInfoFields.Description, title: descTitle, width: 360, inputType: "textarea", editable: true, rows: 3, maxLength: 500 },
-    ];
+    return [{ key: GalleryPhotosInfoFields.Lang, title: langTitle, width: 110, inputType: "readonly", editable: false }, {
+        key: GalleryPhotosInfoFields.Title,
+        title: titleTitle,
+        width: 240,
+        inputType: "text",
+        editable: true,
+        maxLength: 200,
+    }, { key: GalleryPhotosInfoFields.Description, title: descTitle, width: 360, inputType: "textarea", editable: true, rows: 3, maxLength: 500 }];
 };
 
 /** 將相片 DTO 轉成 EditGrid Row。 */
@@ -647,7 +685,11 @@ const buildGalleryPhotoCells = (
             render: opt.renderPicturePreview,
             onValueChange: onPictureValueChange,
         }),
-        buildEditGridCell(GalleryPhotoCoverColumnKey, "封面", photo.PicSrcId ?? "", { inputType: "readonly", editable: false, render: opt.renderCoverSelector }),
+        buildEditGridCell(GalleryPhotoCoverColumnKey, "封面", photo.PicSrcId ?? "", {
+            inputType: "readonly",
+            editable: false,
+            render: opt.renderCoverSelector,
+        }),
         buildEditGridCell(GalleryPhotosFields.Sort, sortTitle, photo.Sort ?? rowId, { inputType: "number", editable: true, min: 0 }),
         buildEditGridCell(GalleryPhotoSubDetailColumnKey, "語系明細", "", { inputType: "readonly", editable: false, render: opt.renderSubDetailToggle }),
     ];
@@ -661,9 +703,18 @@ const buildGalleryPhotoInfoCells = (info: GalleryPhotoInfo, displayName: ModelDi
     const descTitle = getGalleryColumnTitle(displayName, GallerySetFields.GalleryPhotosInfo, GalleryPhotosInfoFields.Description, "描述");
 
     return [
-        buildEditGridCell(GalleryPhotosInfoFields.Lang, langTitle, info.Lang ?? "zh-tw", { inputType: "readonly", editable: false, render: args => getGalleryLangText(args.value) }),
+        buildEditGridCell(GalleryPhotosInfoFields.Lang, langTitle, info.Lang ?? "zh-tw", {
+            inputType: "readonly",
+            editable: false,
+            render: args => getGalleryLangText(args.value),
+        }),
         buildEditGridCell(GalleryPhotosInfoFields.Title, titleTitle, info.Title ?? "", { inputType: "text", editable: true, maxLength: 200 }),
-        buildEditGridCell(GalleryPhotosInfoFields.Description, descTitle, info.Description ?? "", { inputType: "textarea", editable: true, rows: 3, maxLength: 500 }),
+        buildEditGridCell(GalleryPhotosInfoFields.Description, descTitle, info.Description ?? "", {
+            inputType: "textarea",
+            editable: true,
+            rows: 3,
+            maxLength: 500,
+        }),
     ];
 };
 
@@ -823,10 +874,7 @@ const getFirstOtherPhotoId = (photos: GalleryPhoto[], removedRowId: number): str
 };
 
 /** 使用 EditGrid 內建 file 欄位選圖後，上傳並同步所有語系標題。 */
-const uploadGalleryPhotoValue = async (
-    args: EditGridCellValueChangeArgs,
-    handleFileChange: UploadFileHandler,
-): Promise<EditGridCellValueChangeResult> =>
+const uploadGalleryPhotoValue = async (args: EditGridCellValueChangeArgs, handleFileChange: UploadFileHandler): Promise<EditGridCellValueChangeResult> =>
 {
     const current = toGalleryPhotoCellValue(args.value);
     const selectedFile = getSelectedEditGridFile(args.nextValue);
@@ -845,14 +893,16 @@ const uploadGalleryPhotoValue = async (
 };
 
 /** 批次上傳所有選取檔案，成功後一次寫入 Form data。 */
-const uploadGalleryBatchFiles = async (opt: {
-    binding: ServerFormBinding<GallerySet>;
-    files: File[];
-    uploadFile: UploadFileHandler;
-    setError: (error: string | null) => void;
-    setIsUploading: (isUploading: boolean) => void;
-    clearSelectedFiles: () => void;
-}): Promise<void> =>
+const uploadGalleryBatchFiles = async (
+    opt: {
+        binding: ServerFormBinding<GallerySet>;
+        files: File[];
+        uploadFile: UploadFileHandler;
+        setError: (error: string | null) => void;
+        setIsUploading: (isUploading: boolean) => void;
+        clearSelectedFiles: () => void;
+    },
+): Promise<void> =>
 {
     if (opt.files.length === 0) return;
 
@@ -917,7 +967,12 @@ const appendGalleryUploadedPhotosToData = (data: GallerySet, uploaded: GalleryUp
     const newInfos = uploaded.flatMap((item, index) => buildGalleryPhotoInfosForTitle(galleryId, startRowId + index, item.title));
     const header = buildGalleryHeaderWithCover(data.Gallery ?? {}, uploaded[0]?.internalId ?? "");
 
-    return { ...data, Gallery: header, GalleryPhotos: [...data.GalleryPhotos ?? [], ...newPhotos], GalleryPhotosInfo: [...data.GalleryPhotosInfo ?? [], ...newInfos] };
+    return {
+        ...data,
+        Gallery: header,
+        GalleryPhotos: [...data.GalleryPhotos ?? [], ...newPhotos],
+        GalleryPhotosInfo: [...data.GalleryPhotosInfo ?? [], ...newInfos],
+    };
 };
 
 /** 建立批次上傳後的相片 DTO。 */
@@ -946,7 +1001,14 @@ const setGalleryCoverPic = (binding: ServerFormBinding<GallerySet>, picId: strin
 /** 建立所有支援語系的相片標題資料。 */
 const buildGalleryPhotoInfosForTitle = (galleryId: string | null | undefined, parentRowId: number, title: string): GalleryPhotoInfo[] =>
 {
-    return SUPPORTED_LANGS.map((lang, index) => ({ GalleryId: galleryId, ParentRowId: parentRowId, RowId: index + 1, Lang: lang, Title: title, Description: "" }));
+    return SUPPORTED_LANGS.map((lang, index) => ({
+        GalleryId: galleryId,
+        ParentRowId: parentRowId,
+        RowId: index + 1,
+        Lang: lang,
+        Title: title,
+        Description: "",
+    }));
 };
 
 /** 更新或補齊某張相片所有語系標題。 */
@@ -1019,12 +1081,7 @@ export const buildGalleryPhotoCellValue = (photo: GalleryPhoto): GalleryPhotoCel
 {
     const internalId = photo.PicSrcId ?? "";
 
-    return {
-        internalId,
-        fileName: internalId,
-        originalFileName: "",
-        url: getGalleryPhotoPreviewUrl(internalId),
-    };
+    return { internalId, fileName: internalId, originalFileName: "", url: getGalleryPhotoPreviewUrl(internalId) };
 };
 
 /** 上傳後建立新的相片 CellValue，欄位顯示原始檔名與 internalId。 */

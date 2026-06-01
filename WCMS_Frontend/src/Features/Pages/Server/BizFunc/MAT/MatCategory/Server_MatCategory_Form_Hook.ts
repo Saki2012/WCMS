@@ -8,7 +8,6 @@ import type {
     ColumnConfig,
     EditGridCellRenderArgs,
     EditGridCellValue,
-    EditGridEditingStateArgs,
     GridRow,
     IEditGridView_Style,
     RowCell,
@@ -148,7 +147,13 @@ const MatCategoryInfoFieldSubDetailColumnKey = "__MatCategoryInfoFieldDisplay";
 /** 建立 MatCategory Form Template，統一交給 Server_FormTemplate 處理資料流程。 */
 export const useMatCategoryFormTemplate = (
     opt: UseMatCategoryFormTemplateOptions,
-): ServerFormTemplate<MatCategorySet, MatCategoryFormAdapter, MatCategoryFormRefs, ServerFormDefaultRawData<MatCategorySet, MatCategoryFormRefs>, MatCategoryFormActionsOpt> =>
+): ServerFormTemplate<
+    MatCategorySet,
+    MatCategoryFormAdapter,
+    MatCategoryFormRefs,
+    ServerFormDefaultRawData<MatCategorySet, MatCategoryFormRefs>,
+    MatCategoryFormActionsOpt
+> =>
 {
     return useMemo(() =>
     {
@@ -236,21 +241,14 @@ const buildMatCategoryFormAdapter = (): MatCategoryFormAdapter =>
 };
 
 /** 取得 Header / Detail 需要的參照資料與語系補齊。 */
-const useMatCategoryReferenceData = (
-    ctx: { binding: ServerFormBinding<MatCategorySet>; lang: Lang; },
-) =>
+const useMatCategoryReferenceData = (ctx: { binding: ServerFormBinding<MatCategorySet>; lang: Lang; }) =>
 {
     useEnsureMatCategoryDetails(ctx.binding, ctx.lang);
     useEnsureMatCategoryInfoFieldDisplays(ctx.binding, ctx.lang);
 
     return useMemo(() =>
     {
-        return {
-            refs: {},
-            isLoading: false,
-            errors: [],
-            refetchRefData: async () => Promise.resolve(),
-        };
+        return { refs: {}, isLoading: false, errors: [], refetchRefData: async () => Promise.resolve() };
     }, []);
 };
 // #endregion
@@ -364,19 +362,38 @@ const buildMatCategoryInfoFieldColumns = (displayName: ModelDisplaySchema): Colu
 {
     const fieldTitle = getMatCategoryColumnTitle(displayName, MatCategoryDataSetFields.MatCategoryInfoField, MatCategoryInfoFieldFields.Field, "欄位代碼");
 
-    return [
-        { key: MatCategoryInfoFieldFields.Field, title: fieldTitle, width: 260, inputType: "text", editable: true, required: true, maxLength: 100 },
-        { key: MatCategoryInfoFieldSubDetailColumnKey, title: "語系明細", width: 130, inputType: "readonly", editable: false },
-    ];
+    return [{ key: MatCategoryInfoFieldFields.Field, title: fieldTitle, width: 260, inputType: "text", editable: true, required: true, maxLength: 100 }, {
+        key: MatCategoryInfoFieldSubDetailColumnKey,
+        title: "語系明細",
+        width: 130,
+        inputType: "readonly",
+        editable: false,
+    }];
 };
 
 /** 建立物件欄位顯示名稱欄位定義。 */
 const buildMatCategoryInfoFieldDisplayColumns = (displayName: ModelDisplaySchema): ColumnConfig[] =>
 {
-    return [
-        { key: MatCategoryInfoFieldDisplayFields.Lang, title: getMatCategoryColumnTitle(displayName, MatCategoryDataSetFields.MatCategoryInfoFieldDisplay, MatCategoryInfoFieldDisplayFields.Lang, "語系"), width: 120, inputType: "readonly", editable: false },
-        { key: MatCategoryInfoFieldDisplayFields.FieldDisplayName, title: getMatCategoryColumnTitle(displayName, MatCategoryDataSetFields.MatCategoryInfoFieldDisplay, MatCategoryInfoFieldDisplayFields.FieldDisplayName, "欄位顯示名稱"), width: 320, inputType: "text", editable: true, required: true, maxLength: 200 },
-    ];
+    return [{
+        key: MatCategoryInfoFieldDisplayFields.Lang,
+        title: getMatCategoryColumnTitle(displayName, MatCategoryDataSetFields.MatCategoryInfoFieldDisplay, MatCategoryInfoFieldDisplayFields.Lang, "語系"),
+        width: 120,
+        inputType: "readonly",
+        editable: false,
+    }, {
+        key: MatCategoryInfoFieldDisplayFields.FieldDisplayName,
+        title: getMatCategoryColumnTitle(
+            displayName,
+            MatCategoryDataSetFields.MatCategoryInfoFieldDisplay,
+            MatCategoryInfoFieldDisplayFields.FieldDisplayName,
+            "欄位顯示名稱",
+        ),
+        width: 320,
+        inputType: "text",
+        editable: true,
+        required: true,
+        maxLength: 200,
+    }];
 };
 
 /** 將物件欄位設定 DTO 轉成 EditGrid Row。 */
@@ -422,17 +439,22 @@ const buildMatCategoryInfoFieldDisplayGridRow = (
 };
 
 /** 建立物件欄位設定 Row cells。 */
-const buildMatCategoryInfoFieldCells = (
-    field: MatCategoryInfoField,
-    opt: UseMatCategoryInfoFieldEditGridOptions,
-    displayName: ModelDisplaySchema,
-): RowCell[] =>
+const buildMatCategoryInfoFieldCells = (field: MatCategoryInfoField, opt: UseMatCategoryInfoFieldEditGridOptions, displayName: ModelDisplaySchema): RowCell[] =>
 {
     const fieldTitle = getMatCategoryColumnTitle(displayName, MatCategoryDataSetFields.MatCategoryInfoField, MatCategoryInfoFieldFields.Field, "欄位代碼");
 
     return [
-        buildEditGridCell(MatCategoryInfoFieldFields.Field, fieldTitle, field.Field ?? "", { inputType: "text", editable: true, required: true, maxLength: 100 }),
-        buildEditGridCell(MatCategoryInfoFieldSubDetailColumnKey, "語系明細", "", { inputType: "readonly", editable: false, render: opt.renderSubDetailToggle }),
+        buildEditGridCell(MatCategoryInfoFieldFields.Field, fieldTitle, field.Field ?? "", {
+            inputType: "text",
+            editable: true,
+            required: true,
+            maxLength: 100,
+        }),
+        buildEditGridCell(MatCategoryInfoFieldSubDetailColumnKey, "語系明細", "", {
+            inputType: "readonly",
+            editable: false,
+            render: opt.renderSubDetailToggle,
+        }),
     ];
 };
 
@@ -440,8 +462,27 @@ const buildMatCategoryInfoFieldCells = (
 const buildMatCategoryInfoFieldDisplayCells = (display: MatCategoryInfoFieldDisplay, displayName: ModelDisplaySchema): RowCell[] =>
 {
     return [
-        buildEditGridCell(MatCategoryInfoFieldDisplayFields.Lang, getMatCategoryColumnTitle(displayName, MatCategoryDataSetFields.MatCategoryInfoFieldDisplay, MatCategoryInfoFieldDisplayFields.Lang, "語系"), display.Lang ?? "zh-tw", { inputType: "readonly", editable: false, render: args => getMatCategoryLangText(args.value) }),
-        buildEditGridCell(MatCategoryInfoFieldDisplayFields.FieldDisplayName, getMatCategoryColumnTitle(displayName, MatCategoryDataSetFields.MatCategoryInfoFieldDisplay, MatCategoryInfoFieldDisplayFields.FieldDisplayName, "欄位顯示名稱"), display.FieldDisplayName ?? "", { inputType: "text", editable: true, required: true, maxLength: 200 }),
+        buildEditGridCell(
+            MatCategoryInfoFieldDisplayFields.Lang,
+            getMatCategoryColumnTitle(displayName, MatCategoryDataSetFields.MatCategoryInfoFieldDisplay, MatCategoryInfoFieldDisplayFields.Lang, "語系"),
+            display.Lang ?? "zh-tw",
+            {
+                inputType: "readonly",
+                editable: false,
+                render: args => getMatCategoryLangText(args.value),
+            },
+        ),
+        buildEditGridCell(
+            MatCategoryInfoFieldDisplayFields.FieldDisplayName,
+            getMatCategoryColumnTitle(
+                displayName,
+                MatCategoryDataSetFields.MatCategoryInfoFieldDisplay,
+                MatCategoryInfoFieldDisplayFields.FieldDisplayName,
+                "欄位顯示名稱",
+            ),
+            display.FieldDisplayName ?? "",
+            { inputType: "text", editable: true, required: true, maxLength: 200 },
+        ),
     ];
 };
 

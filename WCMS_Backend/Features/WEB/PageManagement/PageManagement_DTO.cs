@@ -7,7 +7,7 @@ using WCMS.SysCore.Model;
 
 namespace WCMS.Features.WEB.PageManagement
 {
-    public class PageManagementSet_DTO : ITSet_DTO
+    [LibDesc(ModelDisplayName.PageManagementSet)]public class PageManagementSet_DTO : ITSet_DTO
     {
         public PageManagement_DTO PageManagement { get; set; } = new();
         public List<PageManagementDetail_DTO> PageManagementDetail { get; set; } = [];

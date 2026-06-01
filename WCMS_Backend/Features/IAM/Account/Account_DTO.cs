@@ -4,14 +4,13 @@ using WCMS.Features._Resx;
 using WCMS.Features.COMM.Person;
 using WCMS.Features.IAM.RolePermission;
 using WCMS.SysCore.Enum;
-using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.IAM.Account
 {
-    public class AccountSet_DTO : ITSet_DTO
+    [LibDesc(ModelDisplayName.AccountSet)]public class AccountSet_DTO : ITSet_DTO
     {
         public Account_DTO Account { get; set; } = new();
     }

@@ -8,7 +8,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.Features.WEB.Gallery
 {
 
-    public class GallerySet_DTO : ITSet_DTO
+    [LibDesc(ModelDisplayName.GallerySet)]public class GallerySet_DTO : ITSet_DTO
     {
         public Gallery_DTO Gallery { get; set; } = new();
         public List<GalleryInfo_DTO> GalleryInfo { get; set; } = [];

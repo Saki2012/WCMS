@@ -10,7 +10,7 @@ import { useSetJsonField, useSetTableField } from "@/SysCore/Components/FormFiel
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
-import { MaterialFields, MaterialLangInfoFields, MaterialPictureFields, MaterialSetFields } from "@/types/SchemaFields";
+import { MaterialFields, MaterialLangInfoFields, MaterialSetFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -18,14 +18,15 @@ import {
     buildMaterialInfoJsonDefaults,
     getMaterialPicturePreviewUrl,
     materialEmptyData,
+    type MaterialFormRefs,
+    type MaterialInfoFieldItem,
+    type MaterialRowKeys,
     toMaterialPictureCellValue,
     useMaterialBatchPictureUpload,
     useMaterialFormTemplate,
     useMaterialLangTabs,
     useMaterialPictureEditGrid,
     useMaterialTagSelection,
-    type MaterialFormRefs,
-    type MaterialInfoFieldItem,
 } from "./Server_Material_Form_Hook";
 
 // #region Property
@@ -59,7 +60,8 @@ interface MaterialContentProps
     refs: MaterialFormRefs;
 }
 
-interface MaterialBasicProps extends MaterialContentProps { }
+interface MaterialBasicProps extends MaterialContentProps
+{}
 
 interface MaterialLangProps
 {
@@ -85,7 +87,7 @@ interface MaterialLangItemProps
     binding: ServerFormBinding<MaterialSet>;
 
     /** Detail row keys，給 useSetTableField 綁定欄位 */
-    rowKeys: Record<string, string | number | undefined>;
+    rowKeys: MaterialRowKeys;
 
     /** 動態欄位顯示設定 */
     infoItems: MaterialInfoFieldItem[];
@@ -103,7 +105,7 @@ interface MaterialInfoJsonEditorProps
     binding: ServerFormBinding<MaterialSet>;
 
     /** Detail row keys，給 useSetJsonField 綁定欄位 */
-    rowKeys: Record<string, string | number | undefined>;
+    rowKeys: MaterialRowKeys;
 
     /** 動態欄位顯示設定 */
     infoItems: MaterialInfoFieldItem[];
@@ -121,7 +123,8 @@ interface MaterialPictureProps
     binding: ServerFormBinding<MaterialSet>;
 }
 
-interface MaterialBatchUploadProps extends MaterialPictureProps { }
+interface MaterialBatchUploadProps extends MaterialPictureProps
+{}
 
 interface MaterialBasicRenderOptions extends MaterialBasicProps
 {
@@ -156,25 +159,12 @@ export const Server_Material_Form_Comp = (props: MaterialFormCompProps) =>
         return { onBackToList };
     }, [onBackToList]);
 
-    const template = useMaterialFormTemplate({
-        lang: props.lang,
-        theme: props.theme,
-        internalId: internalId ?? "",
-        emptyData: materialEmptyData,
-        actionsOpt,
-    });
+    const template = useMaterialFormTemplate({ lang: props.lang, theme: props.theme, internalId: internalId ?? "", emptyData: materialEmptyData, actionsOpt });
 
     return (
         <Server_FormTemplate_Comp
             template={template}
-            renderContent={({ vm }) => (
-                <MaterialContentComp
-                    theme={props.theme}
-                    lang={props.lang}
-                    binding={vm.binding}
-                    refs={vm.refs}
-                />
-            )}
+            renderContent={({ vm }) => <MaterialContentComp theme={props.theme} lang={props.lang} binding={vm.binding} refs={vm.refs} />}
         />
     );
 };
@@ -187,12 +177,7 @@ const MaterialContentComp = (props: MaterialContentProps) =>
     const tabInfo: LibTabsProp = { Style: props.theme.Tabs, item: { Basic: "基本資料", Picture: "物件照片", System: "系統資訊" } };
     const components = buildMaterialMainTabContent(props);
 
-    return (
-        <TabContentComp
-            tabInfos={tabInfo}
-            components={components}
-        ></TabContentComp>
-    );
+    return <TabContentComp tabInfos={tabInfo} components={components}></TabContentComp>;
 };
 
 /** 物件基本資料區塊，類別、標籤、語系內容維持同一頁顯示。 */
@@ -206,12 +191,7 @@ const MaterialBasicComp = (props: MaterialBasicProps) =>
             {buildMaterialBasicFields(renderOpt)}
             {buildMaterialTagFields(renderOpt)}
             <div className="col-12">
-                <MaterialLangComp
-                    theme={props.theme}
-                    lang={props.lang}
-                    binding={props.binding}
-                    refs={props.refs}
-                />
+                <MaterialLangComp theme={props.theme} lang={props.lang} binding={props.binding} refs={props.refs} />
             </div>
         </div>
     );
@@ -220,7 +200,12 @@ const MaterialBasicComp = (props: MaterialBasicProps) =>
 /** 物件語系 Detail 區塊，語系資料由 Hook 統一整理。 */
 const MaterialLangComp = (props: MaterialLangProps) =>
 {
-    const detailTabs = useMaterialLangTabs({ binding: props.binding, lang: props.lang, infoFields: props.refs.infoFields, infoFieldDisplays: props.refs.infoFieldDisplays });
+    const detailTabs = useMaterialLangTabs({
+        binding: props.binding,
+        lang: props.lang,
+        infoFields: props.refs.infoFields,
+        infoFieldDisplays: props.refs.infoFieldDisplays,
+    });
     const infoDefaults = useMemo(() => buildMaterialInfoJsonDefaults(props.refs.infoFields), [props.refs.infoFields]);
     const tabInfo: LibTabsProp = { Style: props.theme.Tabs, item: detailTabs.tabItems };
     const components = detailTabs.items.reduce<Record<string, ReactNode[]>>((compMap, item) =>
@@ -238,12 +223,7 @@ const MaterialLangComp = (props: MaterialLangProps) =>
         return compMap;
     }, {});
 
-    return (
-        <TabContentComp
-            tabInfos={tabInfo}
-            components={components}
-        ></TabContentComp>
-    );
+    return <TabContentComp tabInfos={tabInfo} components={components}></TabContentComp>;
 };
 
 /** 物件相片區塊，批次上傳按鈕與 EditGrid 單筆新增按鈕分離。 */
@@ -254,10 +234,7 @@ const MaterialPictureGridComp = (props: MaterialPictureProps) =>
 
     return (
         <div className="form-group">
-            <MaterialBatchUploadComp
-                theme={props.theme}
-                binding={props.binding}
-            />
+            <MaterialBatchUploadComp theme={props.theme} binding={props.binding} />
             <EditGrid {...pictureGrid.editGridProps} />
         </div>
     );
@@ -269,22 +246,8 @@ const MaterialPictureGridComp = (props: MaterialPictureProps) =>
 const buildMaterialMainTabContent = (props: MaterialContentProps): Record<string, ReactNode[]> =>
 {
     return {
-        Basic: [
-            <MaterialBasicComp
-                key="Basic"
-                theme={props.theme}
-                lang={props.lang}
-                binding={props.binding}
-                refs={props.refs}
-            />,
-        ],
-        Picture: [
-            <MaterialPictureGridComp
-                key="Picture"
-                theme={props.theme}
-                binding={props.binding}
-            />,
-        ],
+        Basic: [<MaterialBasicComp key="Basic" theme={props.theme} lang={props.lang} binding={props.binding} refs={props.refs} />],
+        Picture: [<MaterialPictureGridComp key="Picture" theme={props.theme} binding={props.binding} />],
         System: [<SystemInfoTabComp key="System" theme={props.theme} formData={props.binding} setKey={MaterialSetFields.Material} />],
     };
 };
@@ -308,14 +271,7 @@ const buildMaterialBasicFields = (opt: MaterialBasicRenderOptions): ReactNode[] 
 /** 建立物件標籤欄位。 */
 const buildMaterialTagFields = (opt: MaterialBasicRenderOptions): ReactNode[] =>
 {
-    return [
-        <MaterialTagEditorComp
-            key="Tags"
-            theme={opt.theme}
-            binding={opt.binding}
-            tagMap={opt.refs.tagMap}
-        />,
-    ];
+    return [<MaterialTagEditorComp key="Tags" theme={opt.theme} binding={opt.binding} tagMap={opt.refs.tagMap} />];
 };
 
 /** 標籤編輯區，DTO 異動交給 Hook 處理。 */
@@ -346,11 +302,7 @@ const MaterialLangItemComp = (props: MaterialLangItemProps) =>
                 DefaultInputDisplay="請輸入"
                 {...setField(MaterialSetFields.MaterialLangInfo, MaterialLangInfoFields.MaterialName, "string", props.rowKeys)}
             />
-            <LibTextBox
-                Style={props.theme.TextBox3}
-                DefaultInputDisplay="請輸入"
-                {...setField(MaterialSetFields.Material, MaterialFields.Price, "number")}
-            />
+            <LibTextBox Style={props.theme.TextBox3} DefaultInputDisplay="請輸入" {...setField(MaterialSetFields.Material, MaterialFields.Price, "number")} />
             <MaterialInfoJsonEditorComp
                 theme={props.theme}
                 binding={props.binding}
@@ -358,10 +310,7 @@ const MaterialLangItemComp = (props: MaterialLangItemProps) =>
                 infoItems={props.infoItems}
                 infoDefaults={props.infoDefaults}
             />
-            <LibTinyMCE
-                Style={props.theme.TinyMCE}
-                {...setField(MaterialSetFields.MaterialLangInfo, MaterialLangInfoFields.Memo, "string", props.rowKeys)}
-            />
+            <LibTinyMCE Style={props.theme.TinyMCE} {...setField(MaterialSetFields.MaterialLangInfo, MaterialLangInfoFields.Memo, "string", props.rowKeys)} />
         </div>
     );
 };
@@ -382,11 +331,7 @@ const MaterialInfoJsonEditorComp = (props: MaterialInfoJsonEditorProps) =>
         return <div className="text-muted">請先選擇類別，系統會自動帶入可設定欄位。</div>;
     }
 
-    return (
-        <div className="row g-3">
-            {props.infoItems.map(item => buildMaterialInfoField(props.theme, binder, item))}
-        </div>
-    );
+    return <div className="row g-3">{props.infoItems.map(item => buildMaterialInfoField(props.theme, binder, item))}</div>;
 };
 
 /** 批次上傳物件相片，與 EditGrid 單筆新增分離。 */
@@ -457,13 +402,7 @@ const MaterialPicturePreview = (props: { value: unknown; }) =>
 
     if (!picSrc) return <span className="text-muted">尚未選擇圖片</span>;
 
-    return (
-        <LibPicturePreview
-            ColumnDisplayName={label}
-            PicSrc={picSrc}
-            PicDescription={label}
-        />
-    );
+    return <LibPicturePreview ColumnDisplayName={label} PicSrc={picSrc} PicDescription={label} />;
 };
 // #endregion
 

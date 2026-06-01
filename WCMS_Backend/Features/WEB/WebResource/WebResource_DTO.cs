@@ -5,7 +5,7 @@ using WCMS.SysCore.Model;
 using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.Features.WEB.WebResource;
 
-public class WebResourceSet_DTO : ITSet_DTO
+[LibDesc(ModelDisplayName.WebResourceSet)]public class WebResourceSet_DTO : ITSet_DTO
 {
     public WebResource_DTO WebResource { get; set; } = new();
     public List<WebResourceInfo_DTO> WebResourceInfo { get; set; } = [];

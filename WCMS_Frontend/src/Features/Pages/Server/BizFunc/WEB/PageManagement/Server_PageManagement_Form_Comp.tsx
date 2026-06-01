@@ -13,8 +13,9 @@ import type { ReactNode } from "react";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
-    pageManagementEmptyData,
+    type PageManagementDetailRowKeys,
     type PageManagementDetailTabItem,
+    pageManagementEmptyData,
     type PageManagementFormRefs,
     usePageManagementDetailTabs,
     usePageManagementFormTemplate,
@@ -86,15 +87,13 @@ interface DetailFieldsOptions
     setField: ReturnType<typeof useSetTableField<PageManagementSet>>;
 
     /** Detail row keys，給 useSetTableField 綁定欄位 */
-    rowKeys: Record<string, string | number | undefined>;
+    rowKeys: PageManagementDetailRowKeys;
 }
 // #endregion
 
 // #region Public
 /** 後台頁面管理 Form，透過新版 Form Template 統一外框與資料流程。 */
-export const Server_PageManagement_Form_Comp = (
-    props: PageManagementFormCompProps,
-) =>
+export const Server_PageManagement_Form_Comp = (props: PageManagementFormCompProps) =>
 {
     const { internalId } = useParams();
     const navigate = useNavigate();
@@ -123,16 +122,8 @@ export const Server_PageManagement_Form_Comp = (
             template={template}
             renderContent={({ vm }) => (
                 <>
-                    <HeaderComp
-                        theme={props.theme}
-                        binding={vm.binding}
-                        refs={vm.refs}
-                    />
-                    <DetailComp
-                        theme={props.theme}
-                        lang={props.lang}
-                        binding={vm.binding}
-                    />
+                    <HeaderComp theme={props.theme} binding={vm.binding} refs={vm.refs} />
+                    <DetailComp theme={props.theme} lang={props.lang} binding={vm.binding} />
                 </>
             )}
         />
@@ -149,12 +140,7 @@ const HeaderComp = (props: HeaderSectionProps) =>
     const tabInfo: LibTabsProp = { Style: props.theme.Tabs, item: { Basic: "基本", System: "系統資訊" } };
     const tabContent = buildHeaderTabContent({ ...props, setField, categoryOptions });
 
-    return (
-        <TabContentComp
-            tabInfos={tabInfo}
-            components={tabContent}
-        ></TabContentComp>
-    );
+    return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
 
 /** 頁面管理多語 Detail 區塊，語系資料由 Hook 統一整理。 */
@@ -165,12 +151,7 @@ const DetailComp = (props: DetailSectionProps) =>
     const tabInfo: LibTabsProp = { Style: props.theme.Tabs, item: detailTabs.tabItems };
     const tabContent = buildDetailTabContent({ theme: props.theme, tabItems: detailTabs.items, setField });
 
-    return (
-        <TabContentComp
-            tabInfos={tabInfo}
-            components={tabContent}
-        ></TabContentComp>
-    );
+    return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
 // #endregion
 
@@ -180,13 +161,7 @@ const buildHeaderTabContent = (opt: HeaderTabContentOptions): Record<string, Rea
 {
     return {
         Basic: buildBasicFields(opt),
-        System: [
-            <SystemInfoTabComp
-                theme={opt.theme}
-                formData={opt.binding}
-                setKey={PageManagementSetFields.PageManagement}
-            />,
-        ],
+        System: [<SystemInfoTabComp theme={opt.theme} formData={opt.binding} setKey={PageManagementSetFields.PageManagement} />],
     };
 };
 

@@ -22,7 +22,6 @@ import type {
 import {
     buildEditGridCell,
     getEditGridCellValue,
-    getEditGridRowId,
     getEditGridStringCellValue,
     useEditGridBinding,
 } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
@@ -38,11 +37,9 @@ import {
     CategoryFields,
     MatCategoryInfoFieldDisplayFields,
     MatCategoryInfoFieldFields,
-    MaterialFields,
     MaterialLangInfoFields,
     MaterialPictureFields,
     MaterialSetFields,
-    MaterialTagsFields,
     PGID,
 } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
@@ -60,7 +57,8 @@ type InfoFieldDisplay = components["schemas"]["MatCategoryInfoFieldDisplay_DTO"]
 type FileManage = components["schemas"]["FileManageModel_DTO"];
 type UploadFileHandler = ReturnType<typeof useUploadFile>["handleFileChange"];
 type MaterialInfoJson = Record<string, string>;
-
+export type MaterialRowKeyValue = string | number | null | undefined;
+export type MaterialRowKeys = Record<string, MaterialRowKeyValue>;
 interface InfoFieldKeySource extends InfoField
 {
     Field?: string | null;
@@ -149,7 +147,7 @@ export interface MaterialLangTabItem
     detail: MaterialLangInfo;
 
     /** Detail row keys，給 useSetTableField 綁定欄位 */
-    rowKeys: Record<string, string | number | undefined>;
+    rowKeys: MaterialRowKeys;
 
     /** 動態欄位顯示設定 */
     infoItems: MaterialInfoFieldItem[];
@@ -305,10 +303,9 @@ export const useMaterialPictureEditGrid = (opt: UseMaterialPictureEditGridOption
     const uploadFile = useUploadFile({ enablePreview: false });
     const displayName = opt.binding.displayName;
     const columns = useMemo(() => buildMaterialPictureColumns(displayName), [displayName]);
-    const handlePictureValueChange = useCallback(
-        (args: EditGridCellValueChangeArgs) => uploadMaterialPictureValue(args, uploadFile.handleFileChange),
-        [uploadFile.handleFileChange],
-    );
+    const handlePictureValueChange = useCallback((args: EditGridCellValueChangeArgs) => uploadMaterialPictureValue(args, uploadFile.handleFileChange), [
+        uploadFile.handleFileChange,
+    ]);
 
     return useEditGridBinding<MaterialSet, MaterialPicture, MaterialPictureGridRow>({
         binding: opt.binding,
@@ -335,7 +332,14 @@ export const useMaterialBatchPictureUpload = (opt: UseMaterialBatchPictureUpload
     const clearSelectedFiles = useCallback(() => setSelectedFiles([]), []);
     const uploadSelectedFiles = useCallback(async () =>
     {
-        await uploadMaterialBatchFiles({ binding: opt.binding, files: selectedFiles, uploadFile: uploadFile.handleFileChange, setError, setIsUploading, clearSelectedFiles });
+        await uploadMaterialBatchFiles({
+            binding: opt.binding,
+            files: selectedFiles,
+            uploadFile: uploadFile.handleFileChange,
+            setError,
+            setIsUploading,
+            clearSelectedFiles,
+        });
     }, [clearSelectedFiles, opt.binding, selectedFiles, uploadFile.handleFileChange]);
 
     return { selectedFiles, isUploading, error, setSelectedFiles, clearSelectedFiles, uploadSelectedFiles };
@@ -373,7 +377,10 @@ export const getMaterialPicturePreviewUrl = (picId?: string | null): string | un
 export const toMaterialPictureCellValue = (value: EditGridCellValue): MaterialPictureCellValue =>
 {
     if (isMaterialPictureCellValue(value)) return value;
-    if (typeof value === "string") return { internalId: value, fileName: buildMaterialPictureFieldDisplayName("", value), url: getMaterialPicturePreviewUrl(value) };
+    if (typeof value === "string")
+    {
+        return { internalId: value, fileName: buildMaterialPictureFieldDisplayName("", value), url: getMaterialPicturePreviewUrl(value) };
+    }
     return { fileName: "", internalId: "" };
 };
 // #endregion
@@ -400,9 +407,7 @@ const buildMaterialFormAdapter = (): MaterialFormAdapter =>
 };
 
 /** 取得 Header / Detail 需要的參照資料、語系明細與動態欄位。 */
-const useMaterialReferenceData = (
-    ctx: { adapter: MaterialFormAdapter; binding: ServerFormBinding<MaterialSet>; lang: Lang; },
-) =>
+const useMaterialReferenceData = (ctx: { adapter: MaterialFormAdapter; binding: ServerFormBinding<MaterialSet>; lang: Lang; }) =>
 {
     useEnsureMaterialLangDetails(ctx.binding, ctx.lang);
 
@@ -431,7 +436,21 @@ const useMaterialReferenceData = (
                 await Promise.all([category.refetch(), tag.refetch(), infoGrid.refetchData()]);
             },
         };
-    }, [category.errorText, category.isLoading, category.map, category.refetch, infoFieldDisplays, infoFields, infoGrid.errors, infoGrid.isLoading, infoGrid.refetchData, tag.errorText, tag.isLoading, tag.map, tag.refetch]);
+    }, [
+        category.errorText,
+        category.isLoading,
+        category.map,
+        category.refetch,
+        infoFieldDisplays,
+        infoFields,
+        infoGrid.errors,
+        infoGrid.isLoading,
+        infoGrid.refetchData,
+        tag.errorText,
+        tag.isLoading,
+        tag.map,
+        tag.refetch,
+    ]);
 };
 // #endregion
 
@@ -534,7 +553,9 @@ const filterSupportedMaterialLangRows = (
     const detailMap = buildSupportedMaterialLangMap(details);
     const langs = buildSupportedLangOrder(preferLang);
 
-    return langs.map((lang, index) => buildMaterialLangTabItem(detailMap.get(lang.toLowerCase()), index, lang, infoFields, infoFieldDisplays)).filter((item): item is MaterialLangTabItem => Boolean(item));
+    return langs.map((lang, index) => buildMaterialLangTabItem(detailMap.get(lang.toLowerCase()), index, lang, infoFields, infoFieldDisplays)).filter((
+        item,
+    ): item is MaterialLangTabItem => Boolean(item));
 };
 
 /** 將有效語系 Detail 建成 Map，同語系只保留第一筆。 */
@@ -585,9 +606,8 @@ const buildMaterialLangTabItem = (
 
     return { key, label, detail, rowKeys, infoItems };
 };
-
-/** 建立物件語系 RowKeys，統一將 null 轉成 undefined。 */
-const buildMaterialLangRowKeys = (detail: MaterialLangInfo, index: number): Record<string, string | number | undefined> =>
+/** 建立物件語系 RowKeys，保留 null / undefined 差異避免新增模式比對錯位。 */
+const buildMaterialLangRowKeys = (detail: MaterialLangInfo, index: number): MaterialRowKeys =>
 {
     return {
         [MaterialLangInfoFields.MaterialId]: toBindingRowKey(detail.MaterialId),
@@ -642,9 +662,9 @@ const getInfoFieldDisplayRows = (field: InfoField, displays: InfoFieldDisplay[],
 };
 
 /** 將 DTO 的 null key 轉成 binding 可接受的 undefined。 */
-const toBindingRowKey = (value: string | number | null | undefined): string | number | undefined =>
+const toBindingRowKey = (value: string | number | null | undefined): MaterialRowKeyValue =>
 {
-    return value ?? undefined;
+    return value;
 };
 
 /** 建立物件相片 EditGrid 固定設定，Grid 標題優先讀 ModelDisplayName。 */
@@ -683,10 +703,17 @@ const buildMaterialPictureColumns = (displayName: ModelDisplaySchema): ColumnCon
     const picTitle = getMaterialColumnTitle(displayName, MaterialSetFields.MaterialPicture, MaterialPictureFields.PictureId, "圖片");
     const nameTitle = getMaterialColumnTitle(displayName, MaterialSetFields.MaterialPicture, MaterialPictureFields.PictureName, "圖片名稱");
 
-    return [
-        { key: MaterialPictureFields.PictureId, title: picTitle, width: 360, inputType: "file", editable: true, accept: "image/*", multiple: false, maxFileCount: 1, maxFileSizeMB: 10 },
-        { key: MaterialPictureFields.PictureName, title: nameTitle, width: 300, inputType: "text", editable: true, maxLength: 200 },
-    ];
+    return [{
+        key: MaterialPictureFields.PictureId,
+        title: picTitle,
+        width: 360,
+        inputType: "file",
+        editable: true,
+        accept: "image/*",
+        multiple: false,
+        maxFileCount: 1,
+        maxFileSizeMB: 10,
+    }, { key: MaterialPictureFields.PictureName, title: nameTitle, width: 300, inputType: "text", editable: true, maxLength: 200 }];
 };
 
 /** 將物件相片 DTO 轉成 EditGrid Row。 */
@@ -777,10 +804,7 @@ const toMaterialPictureDto = (source: MaterialSet, row: GridRow, index: number):
 };
 
 /** 使用 EditGrid 內建 file 欄位選圖後，上傳並同步圖片名稱。 */
-const uploadMaterialPictureValue = async (
-    args: EditGridCellValueChangeArgs,
-    handleFileChange: UploadFileHandler,
-): Promise<EditGridCellValueChangeResult> =>
+const uploadMaterialPictureValue = async (args: EditGridCellValueChangeArgs, handleFileChange: UploadFileHandler): Promise<EditGridCellValueChangeResult> =>
 {
     const current = toMaterialPictureCellValue(args.value);
     const selectedFile = getSelectedEditGridFile(args.nextValue);
@@ -799,14 +823,16 @@ const uploadMaterialPictureValue = async (
 };
 
 /** 批次上傳所有選取檔案，成功後一次寫入 Form data。 */
-const uploadMaterialBatchFiles = async (opt: {
-    binding: ServerFormBinding<MaterialSet>;
-    files: File[];
-    uploadFile: UploadFileHandler;
-    setError: (error: string | null) => void;
-    setIsUploading: (isUploading: boolean) => void;
-    clearSelectedFiles: () => void;
-}): Promise<void> =>
+const uploadMaterialBatchFiles = async (
+    opt: {
+        binding: ServerFormBinding<MaterialSet>;
+        files: File[];
+        uploadFile: UploadFileHandler;
+        setError: (error: string | null) => void;
+        setIsUploading: (isUploading: boolean) => void;
+        clearSelectedFiles: () => void;
+    },
+): Promise<void> =>
 {
     if (opt.files.length === 0) return;
 

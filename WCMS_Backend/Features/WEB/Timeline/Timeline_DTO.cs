@@ -11,11 +11,11 @@ namespace WCMS.Features.WEB.Timeline;
 /// <summary>
 /// 紀事表單
 /// </summary>
-[LibDesc] public class TimelineSet_DTO : ITSet_DTO
+[LibDesc(ModelDisplayName.TimelineSet)] public class TimelineSet_DTO : ITSet_DTO
 {
     [LibDesc] public Timeline_DTO Timeline { get; set; } = new();
     [LibDesc] public List<TimelineItem_DTO> TimelineItem { get; set; } = [];
-    [LibDesc] public List<TimelineLangDetail_DTO> TimelineLangDetail { get; set; } = [];
+    [LibDesc(ModelDisplayName.TimelineLangDetail)] public List<TimelineLangDetail_DTO> TimelineLangDetail { get; set; } = [];
 }
 /// <summary>
 /// 紀事表

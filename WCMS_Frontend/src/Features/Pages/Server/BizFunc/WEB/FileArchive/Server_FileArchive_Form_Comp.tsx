@@ -16,9 +16,10 @@ import type { ReactNode } from "react";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
-    fileArchiveEmptyData,
     type FileArchiveDetailTabItem,
+    fileArchiveEmptyData,
     type FileArchiveFormRefs,
+    type FileArchiveInfoRowKeys,
     useFileArchiveDetailTabs,
     useFileArchiveFileEditGrid,
     useFileArchiveFormTemplate,
@@ -115,7 +116,7 @@ interface DetailFieldsOptions
     setField: ReturnType<typeof useSetTableField<FileArchiveSet>>;
 
     /** Detail row keys，給 useSetTableField 綁定欄位 */
-    rowKeys: Record<string, string | number | undefined>;
+    rowKeys: FileArchiveInfoRowKeys;
 
     /** Detail RowId，給 SubDetail 綁 ParentRowId */
     detailRowId: number;
@@ -135,9 +136,7 @@ const editGridStyle: IEditGridView_Style = {
 
 // #region Public
 /** 後台檔案室 Form，透過新版 Form Template 統一外框與資料流程。 */
-export const Server_FileArchive_Form_Comp = (
-    props: FileArchiveFormCompProps,
-) =>
+export const Server_FileArchive_Form_Comp = (props: FileArchiveFormCompProps) =>
 {
     const { internalId } = useParams();
     const navigate = useNavigate();
@@ -166,17 +165,8 @@ export const Server_FileArchive_Form_Comp = (
             template={template}
             renderContent={({ vm }) => (
                 <>
-                    <HeaderComp
-                        theme={props.theme}
-                        binding={vm.binding}
-                        refs={vm.refs}
-                    />
-                    <DetailComp
-                        theme={props.theme}
-                        lang={props.lang}
-                        binding={vm.binding}
-                        refs={vm.refs}
-                    />
+                    <HeaderComp theme={props.theme} binding={vm.binding} refs={vm.refs} />
+                    <DetailComp theme={props.theme} lang={props.lang} binding={vm.binding} refs={vm.refs} />
                 </>
             )}
         />
@@ -192,12 +182,7 @@ const HeaderComp = (props: HeaderSectionProps) =>
     const tabInfo: LibTabsProp = { Style: props.theme.Tabs, item: { Basic: "基本", Status: "狀態", Tags: "標籤", System: "系統資訊" } };
     const tabContent = buildHeaderTabContent({ ...props, setField });
 
-    return (
-        <TabContentComp
-            tabInfos={tabInfo}
-            components={tabContent}
-        ></TabContentComp>
-    );
+    return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
 
 /** 檔案室多語 Detail 區塊，語系資料由 Hook 統一整理。 */
@@ -208,22 +193,13 @@ const DetailComp = (props: DetailSectionProps) =>
     const tabInfo: LibTabsProp = { Style: props.theme.Tabs, item: detailTabs.tabItems };
     const tabContent = buildDetailTabContent({ ...props, tabItems: detailTabs.items, setField });
 
-    return (
-        <TabContentComp
-            tabInfos={tabInfo}
-            components={tabContent}
-        ></TabContentComp>
-    );
+    return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
 
 /** 檔案室檔案 SubDetail 區塊，直接掛載 Hook 產生的 EditGrid props。 */
 const FileSubDetailComp = (props: SubDetailSectionProps) =>
 {
-    const fileGrid = useFileArchiveFileEditGrid({
-        binding: props.binding,
-        parentRowId: props.parentRowId,
-        style: editGridStyle,
-    });
+    const fileGrid = useFileArchiveFileEditGrid({ binding: props.binding, parentRowId: props.parentRowId, style: editGridStyle });
 
     return (
         <div className="mt-4">
@@ -258,13 +234,7 @@ const buildHeaderTabContent = (opt: HeaderTabContentOptions): Record<string, Rea
         Basic: buildBasicFields(opt),
         Status: buildStatusFields(opt),
         Tags: buildTagFields(opt),
-        System: [
-            <SystemInfoTabComp
-                theme={opt.theme}
-                formData={opt.binding}
-                setKey={FileArchiveSetFields.FileArchive}
-            />,
-        ],
+        System: [<SystemInfoTabComp theme={opt.theme} formData={opt.binding} setKey={FileArchiveSetFields.FileArchive} />],
     };
 };
 
@@ -334,16 +304,9 @@ const buildDetailFields = (opt: DetailFieldsOptions): ReactNode[] =>
             {...opt.setField(FileArchiveSetFields.FileArchiveInfo, FileArchiveInfoFields.Title, "string", opt.rowKeys)}
         />,
         <DividerComp />,
-        <FileSubDetailComp
-            binding={opt.binding}
-            parentRowId={opt.detailRowId}
-        />,
+        <FileSubDetailComp binding={opt.binding} parentRowId={opt.detailRowId} />,
         <DividerComp />,
-        <UrlSubDetailComp
-            binding={opt.binding}
-            parentRowId={opt.detailRowId}
-            windowTargetOpts={opt.windowTargetOpts}
-        />,
+        <UrlSubDetailComp binding={opt.binding} parentRowId={opt.detailRowId} windowTargetOpts={opt.windowTargetOpts} />,
     ];
 };
 // #endregion

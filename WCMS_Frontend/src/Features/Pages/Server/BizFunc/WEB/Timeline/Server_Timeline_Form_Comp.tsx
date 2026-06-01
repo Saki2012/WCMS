@@ -1,7 +1,13 @@
 import { Server_FormTemplate_Comp } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Comp";
 import type { ServerFormBinding } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
 import { EditGrid } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid";
-import type { EditGridCellRenderArgs, EditGridEditingStateArgs, EditGridSubDetailRenderArgs, GridRow, IEditGridView_Style } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Data";
+import type {
+    EditGridCellRenderArgs,
+    EditGridEditingStateArgs,
+    EditGridSubDetailRenderArgs,
+    GridRow,
+    IEditGridView_Style,
+} from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Data";
 import { getEditGridRowId, useEditGridSubDetailState } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
 import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
@@ -86,17 +92,12 @@ const editGridStyle: IEditGridView_Style = {
     ErrorStyle: "text-danger small mt-1",
 };
 
-const fullWidthTinyMceStyle: ILibTinyMCEStyle = {
-    Labelstyle: "sr-only visually-hidden",
-    SelectStyle: "col-12 p-0 mb-1",
-};
+const fullWidthTinyMceStyle: ILibTinyMCEStyle = { Labelstyle: "sr-only visually-hidden", SelectStyle: "col-12 p-0 mb-1" };
 // #endregion
 
 // #region Public
 /** 後台紀事表 Form，透過新版 Form Template 統一外框與資料流程。 */
-export const Server_Timeline_Form_Comp = (
-    props: TimelineFormCompProps,
-) =>
+export const Server_Timeline_Form_Comp = (props: TimelineFormCompProps) =>
 {
     const { internalId } = useParams();
     const navigate = useNavigate();
@@ -112,24 +113,12 @@ export const Server_Timeline_Form_Comp = (
         return { onBackToList };
     }, [onBackToList]);
 
-    const template = useTimelineFormTemplate({
-        lang: props.lang,
-        theme: props.theme,
-        internalId: internalId ?? "",
-        emptyData: timelineEmptyData,
-        actionsOpt,
-    });
+    const template = useTimelineFormTemplate({ lang: props.lang, theme: props.theme, internalId: internalId ?? "", emptyData: timelineEmptyData, actionsOpt });
 
     return (
         <Server_FormTemplate_Comp
             template={template}
-            renderContent={({ vm }) => (
-                <TimelineContentComp
-                    theme={props.theme}
-                    lang={props.lang}
-                    binding={vm.binding}
-                />
-            )}
+            renderContent={({ vm }) => <TimelineContentComp theme={props.theme} lang={props.lang} binding={vm.binding} />}
         />
     );
 };
@@ -141,15 +130,8 @@ const TimelineContentComp = (props: DetailSectionProps) =>
 {
     return (
         <>
-            <HeaderComp
-                theme={props.theme}
-                binding={props.binding}
-            />
-            <TimelineItemGridComp
-                theme={props.theme}
-                lang={props.lang}
-                binding={props.binding}
-            />
+            <HeaderComp theme={props.theme} binding={props.binding} />
+            <TimelineItemGridComp theme={props.theme} lang={props.lang} binding={props.binding} />
         </>
     );
 };
@@ -161,36 +143,37 @@ const HeaderComp = (props: HeaderSectionProps) =>
     const tabInfo: LibTabsProp = { Style: props.theme.Tabs, item: { Basic: "基本", System: "系統資訊" } };
     const tabContent = buildHeaderTabContent({ ...props, setField });
 
-    return (
-        <TabContentComp
-            tabInfos={tabInfo}
-            components={tabContent}
-        ></TabContentComp>
-    );
+    return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
 
 /** 紀事項目父層 Grid，透過查看按鈕展開語系明細。 */
 const TimelineItemGridComp = (props: DetailSectionProps) =>
 {
     const subDetailState = useEditGridSubDetailState();
-    const renderSubDetailToggle = useCallback((args: EditGridCellRenderArgs) => (
-        <TimelineSubDetailToggleButton
-            row={args.row}
-            expandedRowKey={subDetailState.expandedRowKey}
-            isSubDetailEditing={subDetailState.isSubDetailEditing}
-            onToggle={subDetailState.toggleSubDetail}
-        />
-    ), [subDetailState.expandedRowKey, subDetailState.isSubDetailEditing, subDetailState.toggleSubDetail]);
+    const renderSubDetailToggle = useCallback(
+        (args: EditGridCellRenderArgs) => (
+            <TimelineSubDetailToggleButton
+                row={args.row}
+                expandedRowKey={subDetailState.expandedRowKey}
+                isSubDetailEditing={subDetailState.isSubDetailEditing}
+                onToggle={subDetailState.toggleSubDetail}
+            />
+        ),
+        [subDetailState.expandedRowKey, subDetailState.isSubDetailEditing, subDetailState.toggleSubDetail],
+    );
 
-    const renderSubDetail = useCallback((args: EditGridSubDetailRenderArgs) => (
-        <TimelineLangDetailGridComp
-            theme={props.theme}
-            lang={props.lang}
-            binding={props.binding}
-            parentRowId={getEditGridRowId(args.row, args.rowIndex)}
-            onEditingStateChange={subDetailState.onSubDetailEditingStateChange}
-        />
-    ), [props.binding, props.lang, props.theme, subDetailState.onSubDetailEditingStateChange]);
+    const renderSubDetail = useCallback(
+        (args: EditGridSubDetailRenderArgs) => (
+            <TimelineLangDetailGridComp
+                theme={props.theme}
+                lang={props.lang}
+                binding={props.binding}
+                parentRowId={getEditGridRowId(args.row, args.rowIndex)}
+                onEditingStateChange={subDetailState.onSubDetailEditingStateChange}
+            />
+        ),
+        [props.binding, props.lang, props.theme, subDetailState.onSubDetailEditingStateChange],
+    );
 
     const itemGrid = useTimelineItemEditGrid({
         binding: props.binding,
@@ -213,13 +196,12 @@ const TimelineLangDetailGridComp = (props: LangDetailGridProps) =>
 {
     const contentState = useEditGridSubDetailState();
 
-    const renderContentToggle = useCallback((args: EditGridCellRenderArgs) => (
-        <TimelineContentToggleButton
-            row={args.row}
-            expandedRowKey={contentState.expandedRowKey}
-            onToggle={contentState.toggleSubDetail}
-        />
-    ), [contentState.expandedRowKey, contentState.toggleSubDetail]);
+    const renderContentToggle = useCallback(
+        (args: EditGridCellRenderArgs) => (
+            <TimelineContentToggleButton row={args.row} expandedRowKey={contentState.expandedRowKey} onToggle={contentState.toggleSubDetail} />
+        ),
+        [contentState.expandedRowKey, contentState.toggleSubDetail],
+    );
 
     const langGrid = useTimelineLangDetailEditGrid({
         binding: props.binding,
@@ -237,17 +219,8 @@ const TimelineLangDetailGridComp = (props: LangDetailGridProps) =>
     return (
         <div className="p-3" style={{ backgroundColor: "#fafafa", border: "1px solid #dee2e6" }}>
             <div className="mb-2 font-weight-bold">語系明細</div>
-            <EditGrid
-                {...langGrid.editGridProps}
-                onEditingStateChange={props.onEditingStateChange}
-            />
-            {contentRow && (
-                <TimelineContentEditorComp
-                    theme={props.theme}
-                    binding={props.binding}
-                    row={contentRow}
-                />
-            )}
+            <EditGrid {...langGrid.editGridProps} onEditingStateChange={props.onEditingStateChange} />
+            {contentRow && <TimelineContentEditorComp theme={props.theme} binding={props.binding} row={contentRow} />}
         </div>
     );
 };
@@ -257,16 +230,7 @@ const TimelineLangDetailGridComp = (props: LangDetailGridProps) =>
 /** 建立紀事表 Header 的各分頁欄位。 */
 const buildHeaderTabContent = (opt: HeaderTabContentOptions): Record<string, ReactNode[]> =>
 {
-    return {
-        Basic: buildBasicFields(opt),
-        System: [
-            <SystemInfoTabComp
-                theme={opt.theme}
-                formData={opt.binding}
-                setKey={TimelineSetFields.Timeline}
-            />,
-        ],
-    };
+    return { Basic: buildBasicFields(opt), System: [<SystemInfoTabComp theme={opt.theme} formData={opt.binding} setKey={TimelineSetFields.Timeline} />] };
 };
 
 /** 建立基本資料欄位。 */
@@ -282,14 +246,22 @@ const buildBasicFields = (opt: HeaderTabContentOptions): ReactNode[] =>
 };
 
 /** 紀事項目語系明細展開按鈕。 */
-const TimelineSubDetailToggleButton = (props: { row: GridRow; expandedRowKey: string | null; isSubDetailEditing: boolean; onToggle: (row: GridRow) => void; }) =>
+const TimelineSubDetailToggleButton = (
+    props: { row: GridRow; expandedRowKey: string | null; isSubDetailEditing: boolean; onToggle: (row: GridRow) => void; },
+) =>
 {
     const rowKey = getTimelineGridRowKey(props.row);
     const isExpanded = props.expandedRowKey === rowKey;
     const title = isExpanded ? "收合語系明細" : "查看語系明細";
 
     return (
-        <button type="button" className="btn btn-outline-primary btn-sm" title={title} disabled={props.isSubDetailEditing} onClick={() => props.onToggle(props.row)}>
+        <button
+            type="button"
+            className="btn btn-outline-primary btn-sm"
+            title={title}
+            disabled={props.isSubDetailEditing}
+            onClick={() => props.onToggle(props.row)}
+        >
             <i className={isExpanded ? "fa fa-eye-slash" : "fa fa-eye"} aria-hidden="true" />
             <span className="ml-1">{isExpanded ? "收合" : "查看"}</span>
         </button>
@@ -320,10 +292,7 @@ const TimelineContentEditorComp = (props: ContentEditorProps) =>
 
     return (
         <div className="p-3 w-100" style={{ backgroundColor: "#fff", border: "1px solid #e9ecef" }}>
-            <LibTinyMCE
-                {...contentField}
-                Style={fullWidthTinyMceStyle}
-            />
+            <LibTinyMCE {...contentField} Style={fullWidthTinyMceStyle} />
         </div>
     );
 };

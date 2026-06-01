@@ -24,7 +24,7 @@ import { type Lang, LangLabelMap, SUPPORTED_LANGS, useEnsureLangDetails } from "
 import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { TimelineFields, TimelineItemFields, TimelineLangDetailFields, TimelineSetFields } from "@/types/SchemaFields";
+import { TimelineItemFields, TimelineLangDetailFields, TimelineSetFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
 import { useMemo } from "react";
 
@@ -34,7 +34,12 @@ type TimelineItem = NonNullable<TimelineSet["TimelineItem"]>[number];
 type TimelineLangDetail = NonNullable<TimelineSet["TimelineLangDetail"]>[number];
 
 export type TimelineItemGridRow = GridRow & { TimelineId?: string | null; DetailRowId?: number | null; };
-export type TimelineLangDetailGridRow = GridRow & { TimelineId?: string | null; ParentRowId?: number | null; DetailRowId?: number | null; Lang?: string | null; };
+export type TimelineLangDetailGridRow = GridRow & {
+    TimelineId?: string | null;
+    ParentRowId?: number | null;
+    DetailRowId?: number | null;
+    Lang?: string | null;
+};
 
 export interface UseTimelineFormTemplateOptions
 {
@@ -91,7 +96,6 @@ export interface UseTimelineLangDetailEditGridOptions
 
     /** TinyMCE 展開按鈕渲染，畫面職責留在 Comp */
     renderContentToggle: (args: EditGridCellRenderArgs) => ReactNode;
-
 }
 
 export const timelineEmptyData: TimelineSet = { Timeline: {}, TimelineItem: [{ RowId: 1, Date: null }], TimelineLangDetail: [] };
@@ -202,9 +206,7 @@ const buildTimelineFormAdapter = (): TimelineFormAdapter =>
 };
 
 /** 補齊 TimelineItem 底下的語系明細，參照資料目前不需額外查詢。 */
-const useTimelineReferenceData = (
-    ctx: { binding: ServerFormBinding<TimelineSet>; lang: Lang; },
-) =>
+const useTimelineReferenceData = (ctx: { binding: ServerFormBinding<TimelineSet>; lang: Lang; }) =>
 {
     useEnsureLangDetails(ctx.binding, {
         headerName: TimelineSetFields.TimelineItem,
@@ -231,24 +233,52 @@ const getTimelineModelTitle = (displayName: ModelDisplaySchema, fallback: string
 /** 建立父層 TimelineItem Grid 欄位。 */
 const buildTimelineItemColumns = (displayName: ModelDisplaySchema): ColumnConfig[] =>
 {
-    return [
-        { key: TimelineItemFields.Date, title: getTimelineColumnTitle(displayName, TimelineSetFields.TimelineItem, TimelineItemFields.Date, "日期"), inputType: "date", editable: true, width: 180 },
-        { key: TimelineLangDetailColumnKey, title: getTimelineTableTitle(displayName, TimelineSetFields.TimelineLangDetail, "語系明細"), inputType: "readonly", editable: false, width: 140 },
-    ];
+    return [{
+        key: TimelineItemFields.Date,
+        title: getTimelineColumnTitle(displayName, TimelineSetFields.TimelineItem, TimelineItemFields.Date, "日期"),
+        inputType: "date",
+        editable: true,
+        width: 180,
+    }, {
+        key: TimelineLangDetailColumnKey,
+        title: getTimelineTableTitle(displayName, TimelineSetFields.TimelineLangDetail, "語系明細"),
+        inputType: "readonly",
+        editable: false,
+        width: 140,
+    }];
 };
 
 /** 建立子層語系明細 Grid 欄位。 */
 const buildTimelineLangDetailColumns = (displayName: ModelDisplaySchema): ColumnConfig[] =>
 {
-    return [
-        { key: TimelineLangDetailFields.Lang, title: getTimelineColumnTitle(displayName, TimelineSetFields.TimelineLangDetail, TimelineLangDetailFields.Lang, "語系"), inputType: "readonly", editable: false, width: 120 },
-        { key: TimelineLangDetailFields.Title, title: getTimelineColumnTitle(displayName, TimelineSetFields.TimelineLangDetail, TimelineLangDetailFields.Title, "事件標題"), inputType: "text", editable: true, maxLength: 200 },
-        { key: TimelineContentColumnKey, title: getTimelineColumnTitle(displayName, TimelineSetFields.TimelineLangDetail, TimelineLangDetailFields.Content, "事件內容"), inputType: "readonly", editable: false, width: 140 },
-    ];
+    return [{
+        key: TimelineLangDetailFields.Lang,
+        title: getTimelineColumnTitle(displayName, TimelineSetFields.TimelineLangDetail, TimelineLangDetailFields.Lang, "語系"),
+        inputType: "readonly",
+        editable: false,
+        width: 120,
+    }, {
+        key: TimelineLangDetailFields.Title,
+        title: getTimelineColumnTitle(displayName, TimelineSetFields.TimelineLangDetail, TimelineLangDetailFields.Title, "事件標題"),
+        inputType: "text",
+        editable: true,
+        maxLength: 200,
+    }, {
+        key: TimelineContentColumnKey,
+        title: getTimelineColumnTitle(displayName, TimelineSetFields.TimelineLangDetail, TimelineLangDetailFields.Content, "事件內容"),
+        inputType: "readonly",
+        editable: false,
+        width: 140,
+    }];
 };
 
 /** 建立父層 TimelineItem Row。 */
-const buildTimelineItemGridRow = (item: TimelineItem, index: number, opt: UseTimelineItemEditGridOptions, displayName: ModelDisplaySchema): TimelineItemGridRow =>
+const buildTimelineItemGridRow = (
+    item: TimelineItem,
+    index: number,
+    opt: UseTimelineItemEditGridOptions,
+    displayName: ModelDisplaySchema,
+): TimelineItemGridRow =>
 {
     const rowId = Number(item.RowId ?? index + 1);
     return {
@@ -266,13 +296,27 @@ const buildTimelineItemGridRow = (item: TimelineItem, index: number, opt: UseTim
 const buildTimelineItemCells = (item: TimelineItem, rowId: number, opt: UseTimelineItemEditGridOptions, displayName: ModelDisplaySchema): RowCell[] =>
 {
     return [
-        buildEditGridCell(TimelineItemFields.Date, getTimelineColumnTitle(displayName, TimelineSetFields.TimelineItem, TimelineItemFields.Date, "日期"), item.Date ?? "", { inputType: "date", editable: true }),
-        buildEditGridCell(TimelineLangDetailColumnKey, getTimelineTableTitle(displayName, TimelineSetFields.TimelineLangDetail, "語系明細"), rowId, { inputType: "readonly", editable: false, render: opt.renderSubDetailToggle }),
+        buildEditGridCell(
+            TimelineItemFields.Date,
+            getTimelineColumnTitle(displayName, TimelineSetFields.TimelineItem, TimelineItemFields.Date, "日期"),
+            item.Date ?? "",
+            { inputType: "date", editable: true },
+        ),
+        buildEditGridCell(TimelineLangDetailColumnKey, getTimelineTableTitle(displayName, TimelineSetFields.TimelineLangDetail, "語系明細"), rowId, {
+            inputType: "readonly",
+            editable: false,
+            render: opt.renderSubDetailToggle,
+        }),
     ];
 };
 
 /** 建立子層 TimelineLangDetail Row。 */
-const buildTimelineLangDetailGridRow = (detail: TimelineLangDetail, index: number, opt: UseTimelineLangDetailEditGridOptions, displayName: ModelDisplaySchema): TimelineLangDetailGridRow =>
+const buildTimelineLangDetailGridRow = (
+    detail: TimelineLangDetail,
+    index: number,
+    opt: UseTimelineLangDetailEditGridOptions,
+    displayName: ModelDisplaySchema,
+): TimelineLangDetailGridRow =>
 {
     const rowId = Number(detail.RowId ?? index + 1);
     const lang = String(detail.Lang ?? "");
@@ -293,9 +337,24 @@ const buildTimelineLangDetailGridRow = (detail: TimelineLangDetail, index: numbe
 const buildTimelineLangDetailCells = (detail: TimelineLangDetail, opt: UseTimelineLangDetailEditGridOptions, displayName: ModelDisplaySchema): RowCell[] =>
 {
     return [
-        buildEditGridCell(TimelineLangDetailFields.Lang, getTimelineColumnTitle(displayName, TimelineSetFields.TimelineLangDetail, TimelineLangDetailFields.Lang, "語系"), detail.Lang ?? "", { inputType: "readonly", editable: false, render: args => getTimelineLangText(args.value) }),
-        buildEditGridCell(TimelineLangDetailFields.Title, getTimelineColumnTitle(displayName, TimelineSetFields.TimelineLangDetail, TimelineLangDetailFields.Title, "事件標題"), detail.Title ?? "", { inputType: "text", editable: true, maxLength: 200 }),
-        buildEditGridCell(TimelineContentColumnKey, getTimelineColumnTitle(displayName, TimelineSetFields.TimelineLangDetail, TimelineLangDetailFields.Content, "事件內容"), detail.Content ?? "", { inputType: "readonly", editable: false, render: opt.renderContentToggle }),
+        buildEditGridCell(
+            TimelineLangDetailFields.Lang,
+            getTimelineColumnTitle(displayName, TimelineSetFields.TimelineLangDetail, TimelineLangDetailFields.Lang, "語系"),
+            detail.Lang ?? "",
+            { inputType: "readonly", editable: false, render: args => getTimelineLangText(args.value) },
+        ),
+        buildEditGridCell(
+            TimelineLangDetailFields.Title,
+            getTimelineColumnTitle(displayName, TimelineSetFields.TimelineLangDetail, TimelineLangDetailFields.Title, "事件標題"),
+            detail.Title ?? "",
+            { inputType: "text", editable: true, maxLength: 200 },
+        ),
+        buildEditGridCell(
+            TimelineContentColumnKey,
+            getTimelineColumnTitle(displayName, TimelineSetFields.TimelineLangDetail, TimelineLangDetailFields.Content, "事件內容"),
+            detail.Content ?? "",
+            { inputType: "readonly", editable: false, render: opt.renderContentToggle },
+        ),
     ];
 };
 
@@ -308,7 +367,7 @@ const buildTimelineItemGridProps = (style: IEditGridView_Style, displayName: Mod
         canAdd: true,
         canEdit: true,
         canDelete: true,
-        canDrag: true,
+        canDrag: false,
         showRowNo: true,
         maxVisibleRows: 5,
         addButtonText: "新增紀事項目",
@@ -381,11 +440,7 @@ const buildNewTimelineLangDetailItem = (data: TimelineSet, parentRowId: number, 
 /** 父層 Grid 寫回時，同步保留有效語系明細並補齊缺少語系。 */
 const syncTimelineItemCollection = (data: TimelineSet, items: TimelineItem[]): TimelineSet =>
 {
-    return {
-        ...data,
-        TimelineItem: items,
-        TimelineLangDetail: syncTimelineLangDetailParents(data.TimelineLangDetail ?? [], items, data.Timeline?.TimelineId),
-    };
+    return { ...data, TimelineItem: items, TimelineLangDetail: syncTimelineLangDetailParents(data.TimelineLangDetail ?? [], items, data.Timeline?.TimelineId) };
 };
 
 /** 清理孤兒語系明細，並替每個 TimelineItem 補齊支援語系。 */
@@ -472,7 +527,7 @@ const findTimelineLangDetail = (source: TimelineSet, parentRowId: number, row: G
     return (source.TimelineLangDetail ?? []).find(detail =>
         Number(detail.ParentRowId ?? 0) === Number(parentRowId)
         && Number(detail.RowId ?? 0) === Number(rowId)
-        && String(detail.Lang ?? "").toLowerCase() === String(lang).toLowerCase(),
+        && String(detail.Lang ?? "").toLowerCase() === String(lang).toLowerCase()
     );
 };
 
