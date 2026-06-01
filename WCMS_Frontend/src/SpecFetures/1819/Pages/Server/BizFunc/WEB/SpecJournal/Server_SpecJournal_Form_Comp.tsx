@@ -1,40 +1,43 @@
-import { useToast } from "@/Features/Hooks/Common/useToastCenter";
-import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
-import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
+import { Server_FormTemplate_Comp } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Comp";
+import { EditGrid } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid";
+import type { IEditGridView_Style } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Data";
+import type { ServerFormBinding } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
 import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { SpecJournalAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/WEB/SpecJournal_Api";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import { LibCheckBox, LibDropList, LibFileInput, LibTextBox, LibTinyMCE } from "@/SysCore/Components/FormField/LibFormField";
 import { useSetTableField, useSetTableFileField } from "@/SysCore/Components/FormField/useSetTableField";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
 import { DefaultLang, type Lang, LangLabelMap, SUPPORTED_LANGS } from "@/SysCore/i18n/lang";
-import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import type { components } from "@/types/api";
 import {
     SpecJournalAuthorFields,
-    SpecJournalDocumentFields,
     SpecJournalModelFields,
-    SpecJournalOpenPointFilesFields,
-    SpecJournalRefFilesFields,
     SpecJournalRefFormatFields,
     SpecJournalSetFields,
 } from "@/types/SchemaFields";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Server_SpecJournal_Dialog_Comp, type SpecJournalDialogActionType } from "./Server_SpecJournal_Dialog_Comp";
-import { type SpecJournalFormActionsOpt, type SpecJournalMode, useSpecJournalFormFetchData } from "./Server_SpecJournal_Form_Hook";
+import {
+    type SpecJournalAuthorRowKeys,
+    type SpecJournalFormActionsOpt,
+    type SpecJournalFormAdapter,
+    type SpecJournalMode,
+    useSpecJournalAuthorOrcid,
+    useSpecJournalDocumentEditGrid,
+    useSpecJournalFormTemplate,
+    useSpecJournalOpenPointFileEditGrid,
+    useSpecJournalRefFileEditGrid,
+} from "./Server_SpecJournal_Form_Hook";
 
+// #region Property
 type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
-type SpecJournalDocuments = components["schemas"]["SpecJournalDocument_DTO"];
-type SpecJournalOpenPointFiles = components["schemas"]["SpecJournalOpenPointFiles_DTO"];
-type SpecJournalRefFiles = components["schemas"]["SpecJournalRefFiles_DTO"];
 type SpecJournalAuthor = components["schemas"]["SpecJournalAuthor_DTO"];
-type ORCIDData = components["schemas"]["ORCIDData"];
 type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
 type SpecJournalIndexDetailSet = components["schemas"]["SpecJournalIndexDetail_DTO"];
 type AuthorType = 0 | 1;
-type SpecJournalAdapterType = ReturnType<typeof SpecJournalAdapter>;
+type SpecJournalAdapterType = SpecJournalFormAdapter["SpecJournal"];
 
 const emptyData: SpecJournalSet = {
     SpecJournal: {},
@@ -47,6 +50,17 @@ const emptyData: SpecJournalSet = {
     SpecJournalTypes: [],
 };
 
+const editGridStyle: IEditGridView_Style = {
+    TableStyle: "table table-striped table-bordered table-hover",
+    ToolbarStyle: "d-flex align-items-center justify-content-between mb-2",
+    ButtonStyle: "btn btn-custom btn-rounded btn-sm",
+    DangerButtonStyle: "btn btn-danger btn-rounded btn-sm",
+    ErrorStyle: "text-danger small mt-1",
+};
+// #endregion
+
+// #region Public
+/** 1819 期刊 Form，透過 Server_FormTemplate 統一外框與資料流程。 */
 export const Server_SpecJournal_Form_Comp = (prop: { theme: IBETheme; lang: Lang; mode: SpecJournalMode; }) =>
 {
     const { internalId } = useParams();
@@ -58,56 +72,53 @@ export const Server_SpecJournal_Form_Comp = (prop: { theme: IBETheme; lang: Lang
     }, [navigate, pathname]);
     const actionsOpt = useMemo<SpecJournalFormActionsOpt>(() =>
     {
-        return { onBackToList };
-    }, [onBackToList]);
-    const getData = useSpecJournalFormFetchData({ lang: prop.lang, internalId: internalId ?? "", emptyData, actionsOpt });
-    const formTitle = useMemo(() =>
-    {
-        const displayName = prop.mode === "preprint" ? "預刊本" : "期刊";
-        return internalId ? `修改${displayName}` : `新增${displayName}`;
-    }, [internalId, prop.mode]);
+        return { onBackToList, journalMode: prop.mode };
+    }, [onBackToList, prop.mode]);
 
-    const formProp: FormCompProp = {
-        Title: formTitle,
-        Theme: prop.theme,
-        IsLoading: getData.isLoading,
-        ErrorList: getData.errors,
-        Actions: getData.rawData.actions,
-    };
+    const template = useSpecJournalFormTemplate({ lang: prop.lang, theme: prop.theme, internalId: internalId ?? "", emptyData, actionsOpt });
 
     return (
-        <FormComp prop={formProp}>
-            <ModeActionBarComp
-                theme={prop.theme}
-                mode={prop.mode}
-                isEdit={Boolean(internalId)}
-                internalId={internalId ?? ""}
-                adapter={getData.adapter.SpecJournal}
-                indexRawData={getData.rawData.indexRawData}
-                formData={getData.rawData.formData}
-                onBackToList={onBackToList}
-            />
-            <MainFormComp
-                theme={prop.theme}
-                mode={prop.mode}
-                adapter={getData.adapter.SpecJournal}
-                formData={getData.rawData.formData}
-                indexRawData={getData.rawData.indexRawData}
-                tagOptionsRaw={getData.rawData.tagOptionsRaw}
-                keywords={getData.rawData.keywords}
-                specDocumentTypeOptionsRaw={getData.rawData.specDocumentTypeOptionsRaw}
-                specAuthorTypeOptionsRaw={getData.rawData.specAuthorTypeOptionsRaw}
-            />
-        </FormComp>
+        <Server_FormTemplate_Comp
+            template={template}
+            renderContent={({ vm }) => (
+                <>
+                    <ModeActionBarComp
+                        theme={prop.theme}
+                        mode={prop.mode}
+                        isEdit={Boolean(internalId)}
+                        internalId={internalId ?? ""}
+                        adapter={vm.adapter.SpecJournal}
+                        indexRawData={vm.refs.indexRawData}
+                        formData={vm.binding}
+                        onBackToList={onBackToList}
+                    />
+                    <MainFormComp
+                        theme={prop.theme}
+                        mode={prop.mode}
+                        adapter={vm.adapter.SpecJournal}
+                        formData={vm.binding}
+                        indexRawData={vm.refs.indexRawData}
+                        tagOptionsRaw={vm.refs.tagOptionsRaw}
+                        keywords={vm.refs.keywords}
+                        specDocumentTypeOptionsRaw={vm.refs.specDocumentTypeOptionsRaw}
+                        specAuthorTypeOptionsRaw={vm.refs.specAuthorTypeOptionsRaw}
+                    />
+                </>
+            )}
+        />
     );
 };
 
+// #endregion
+
+// #region Section
+/** 期刊主要頁籤區塊，負責組合各資料區段。 */
 const MainFormComp = (
     props: {
         theme: IBETheme;
         mode: SpecJournalMode;
         adapter: SpecJournalAdapterType;
-        formData: UseFetchFormDataResult<SpecJournalSet>;
+        formData: ServerFormBinding<SpecJournalSet>;
         indexRawData: SpecJournalIndexSet[];
         tagOptionsRaw: Record<string, string>;
         specDocumentTypeOptionsRaw: Map<string, string>;
@@ -173,7 +184,7 @@ const BasicComp = (
     props: {
         theme: IBETheme;
         mode: SpecJournalMode;
-        formData: UseFetchFormDataResult<SpecJournalSet>;
+        formData: ServerFormBinding<SpecJournalSet>;
         indexRawData: SpecJournalIndexSet[];
         tagOptionsRaw: Record<string, string>;
     },
@@ -448,14 +459,12 @@ const AuthorComp = (
     props: {
         theme: IBETheme;
         adapter: SpecJournalAdapterType;
-        formData: UseFetchFormDataResult<SpecJournalSet>;
+        formData: ServerFormBinding<SpecJournalSet>;
         specAuthorTypeOptionsRaw: Map<string, string>;
     },
 ) =>
 {
-    const { publish } = useToast();
-    const orcidAction = props.adapter.hooks.useGetAuthorByOrcid();
-
+    const { handleOrcidBlur } = useSpecJournalAuthorOrcid({ adapter: props.adapter, binding: props.formData });
     const setField = useSetTableField<SpecJournalSet>(props.formData);
     const allAuthors = props.formData.data?.SpecJournalAuthor ?? [];
     const authors = useMemo(() => allAuthors, [allAuthors]);
@@ -583,95 +592,6 @@ const AuthorComp = (
         });
     };
 
-    /** 回寫目前作者的 ORCID 欄位 */
-    const setAuthorOrcid = useCallback((rowKeys: Record<string, string | number | null | undefined>, orcid: string): void =>
-    {
-        props.formData.setFormData(prev =>
-        {
-            if (!prev) return prev;
-
-            const list = prev.SpecJournalAuthor ?? [];
-            const hitIdx = list.findIndex(a =>
-                String(a?.[SpecJournalAuthorFields.JournalId] ?? "") === String(rowKeys?.[SpecJournalAuthorFields.JournalId] ?? "")
-                && String(a?.[SpecJournalAuthorFields.RowId] ?? "") === String(rowKeys?.[SpecJournalAuthorFields.RowId] ?? "")
-            );
-            if (hitIdx < 0) return prev;
-
-            const cur: SpecJournalAuthor = { ...(list[hitIdx] ?? {}) };
-            cur.ORCID = orcid;
-
-            const nextList = [...list];
-            nextList[hitIdx] = cur;
-            return { ...prev, SpecJournalAuthor: nextList };
-        });
-    }, [props.formData]);
-
-    const normalizeOrcid = (v: string): string =>
-    {
-        const text = String(v ?? "").trim();
-        if (!text) return "";
-        return text.replace(/^https?:\/\/orcid\.org\//i, "").replace(/\/+$/g, "").replace(/\s+/g, "").replace(/[^0-9X-]/gi, "");
-    };
-
-    const isLikelyOrcid = (v: string): boolean => /^\d{4}-\d{4}-\d{4}-\d{3}[\dX]$/i.test(v);
-
-    /** 只覆寫空欄位，避免蓋掉使用者已輸入的內容 */
-    const applyAuthorFromOrcid = useCallback((rowKeys: Record<string, string | number | null | undefined>, dto: ORCIDData): void =>
-    {
-        props.formData.setFormData(prev =>
-        {
-            if (!prev) return prev;
-
-            const list = prev.SpecJournalAuthor ?? [];
-            const hitIdx = list.findIndex(a =>
-                String(a?.[SpecJournalAuthorFields.JournalId] ?? "") === String(rowKeys?.[SpecJournalAuthorFields.JournalId] ?? "")
-                && String(a?.[SpecJournalAuthorFields.RowId] ?? "") === String(rowKeys?.[SpecJournalAuthorFields.RowId] ?? "")
-            );
-            if (hitIdx < 0) return prev;
-
-            const cur: SpecJournalAuthor = { ...(list[hitIdx] ?? {}) };
-            const fillIfEmpty = (oldValue: string | null | undefined, newValue: string | null | undefined): string | null | undefined =>
-            {
-                const oldText = String(oldValue ?? "").trim();
-                const newText = String(newValue ?? "").trim();
-                if (!oldText && newText) return newText;
-                return oldValue;
-            };
-            cur.ORCID = fillIfEmpty(cur.ORCID, dto?.ORCID);
-            cur.AuthorName = fillIfEmpty(cur.AuthorName, dto?.AuthorName);
-            cur.AuthorName_en = fillIfEmpty(cur.AuthorName_en, dto?.AuthorName_en);
-            cur.JobTitle = fillIfEmpty(cur.JobTitle, dto?.JobTitle);
-            cur.Unit = fillIfEmpty(cur.Unit, dto?.Unit);
-            cur.Unit_en = fillIfEmpty(cur.Unit_en, dto?.Unit_en);
-            cur.Email = fillIfEmpty(cur.Email, dto?.Email);
-            cur.Country = fillIfEmpty(cur.Country, dto?.Country);
-
-            const nextList = [...list];
-            nextList[hitIdx] = cur;
-            return { ...prev, SpecJournalAuthor: nextList };
-        });
-    }, [props.formData]);
-
-    /** onBlur：先正規化 ORCID，再打 API */
-    const handleOrcidBlur = useCallback(async (rowKeys: Record<string, string | number | null | undefined>, raw: string): Promise<void> =>
-    {
-        const orcid = normalizeOrcid(raw);
-        setAuthorOrcid(rowKeys, orcid);
-        if (!orcid) return;
-        if (!isLikelyOrcid(orcid)) return;
-
-        const res = await orcidAction.execute(orcid);
-        (res.SysMessage ?? []).forEach(item =>
-        {
-            publish({ level: item.Status, code: item.MessageCode, title: item.Message });
-        });
-        if (!res.IsSuccess) return;
-
-        const dto = Array.isArray(res.Data) ? (res.Data[0] ?? null) : null;
-        if (!dto) return;
-        applyAuthorFromOrcid(rowKeys, { ...dto, ORCID: orcid });
-    }, [orcidAction, publish, applyAuthorFromOrcid, setAuthorOrcid]);
-
     const tabItemMap = authors.reduce<Record<string, string>>((acc, a: any, idx: number) =>
     {
         const key = String(a?.RowId ?? idx);
@@ -685,7 +605,7 @@ const AuthorComp = (
     const tabContent = authors.reduce<Record<string, React.ReactNode[]>>((acc, a: any, idx: number) =>
     {
         const tabKey = String(a?.RowId ?? idx);
-        const rowKeys: any = { [SpecJournalAuthorFields.JournalId]: a?.JournalId, [SpecJournalAuthorFields.RowId]: a?.RowId };
+        const rowKeys: SpecJournalAuthorRowKeys = { [SpecJournalAuthorFields.JournalId]: a?.JournalId, [SpecJournalAuthorFields.RowId]: a?.RowId };
 
         acc[tabKey] = [
             <div className="col-12 form-group" key="authorType">
@@ -759,7 +679,7 @@ const AuthorComp = (
 
 const TAB_PREFIX = "REF_";
 
-const RefFormatComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<SpecJournalSet>; }) =>
+const RefFormatComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalSet>; }) =>
 {
     const setField = useSetTableField<SpecJournalSet>(props.formData);
     const formats = props.formData.data?.SpecJournalRefFormat ?? [];
@@ -961,7 +881,7 @@ const RefFormatComp = (props: { theme: IBETheme; formData: UseFetchFormDataResul
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
 
-const FilesComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<SpecJournalSet>; }) =>
+const FilesComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalSet>; }) =>
 {
     return (
         <>
@@ -982,149 +902,21 @@ const FilesComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<Sp
     );
 };
 
-const OpenPointComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<SpecJournalSet>; }) =>
+const OpenPointComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalSet>; }) =>
 {
-    const setFileField = useSetTableFileField(props.formData);
-    const allFiles: SpecJournalOpenPointFiles[] = props.formData.data?.SpecJournalOpenPointFiles ?? [];
+    const openPointGrid = useSpecJournalOpenPointFileEditGrid({ binding: props.formData, style: editGridStyle });
 
-    // 提交回整份表單（關鍵：真正更新 formData）
-    const commitFiles = (nextFiles: SpecJournalOpenPointFiles[]) =>
-    {
-        props.formData.setFormData(prev => ({
-            ...(prev
-                ?? {
-                    SpecJournal: {},
-                    SpecJournalAuthor: [],
-                    SpecJournalRefFiles: [],
-                    SpecJournalRefFormat: [],
-                    SpecJournalOpenPointFiles: [],
-                    SpecJournalTags: [],
-                    SpecJournalTypes: [],
-                }),
-            SpecJournalOpenPointFiles: nextFiles,
-        }));
-    };
-
-    // 新增一筆附件列
-    const addFile = () =>
-    {
-        const list = allFiles;
-        const nextRowId = (list.at(-1)?.RowId ?? 0) + 1;
-        const newItem: SpecJournalOpenPointFiles = { RowId: nextRowId, OpenPointFileId: null, OpenPointFileName: "" };
-        commitFiles([...allFiles, newItem]);
-    };
-
-    // 刪除第 i 筆附件列
-    const removeFileAt = (i: number) =>
-    {
-        const filtered = allFiles;
-        const target = filtered[i];
-        if (!target) return;
-        const nextAll = allFiles.filter(f => !(f.RowId === target.RowId));
-        commitFiles(nextAll);
-    };
-
-    return (
-        <>
-            <div role="group" className="mt-4">
-                <button type="button" onClick={addFile} aria-label="新增附件" className="btn btn-outline-primary mb-2">新增附件</button>
-                {allFiles.map((f, i) =>
-                {
-                    const rowKeys = { [SpecJournalOpenPointFilesFields.JournalId]: f.JournalId, [SpecJournalOpenPointFilesFields.RowId]: f.RowId };
-
-                    return (
-                        <div key={`${f.RowId}`} className="flex items-center gap-2 mb-2">
-                            <LibFileInput
-                                {...setFileField(
-                                    SpecJournalSetFields.SpecJournalOpenPointFiles,
-                                    SpecJournalOpenPointFilesFields.OpenPointFileId,
-                                    SpecJournalOpenPointFilesFields.OpenPointFileName,
-                                    rowKeys,
-                                    { defaultNameFromOriginal: "basename", fileName: f.OpenPointFile?.FileName ?? "" },
-                                )}
-                                Accept="application/pdf"
-                                onDelete={() => removeFileAt(i)}
-                            />
-                        </div>
-                    );
-                })}
-            </div>
-        </>
-    );
+    return <EditGrid {...openPointGrid.editGridProps} />;
 };
 
-const RefFilesComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<SpecJournalSet>; }) =>
+const RefFilesComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalSet>; }) =>
 {
-    const setFileField = useSetTableFileField(props.formData);
-    const allFiles: SpecJournalRefFiles[] = props.formData.data?.SpecJournalRefFiles ?? [];
+    const refFileGrid = useSpecJournalRefFileEditGrid({ binding: props.formData, style: editGridStyle });
 
-    // 提交回整份表單（關鍵：真正更新 formData）
-    const commitFiles = (nextFiles: SpecJournalRefFiles[]) =>
-    {
-        props.formData.setFormData(prev => ({
-            ...(prev
-                ?? {
-                    SpecJournal: {},
-                    SpecJournalAuthor: [],
-                    SpecJournalRefFiles: [],
-                    SpecJournalRefFormat: [],
-                    SpecJournalOpenPointFiles: [],
-                    SpecJournalTags: [],
-                    SpecJournalTypes: [],
-                }),
-            SpecJournalRefFiles: nextFiles,
-        }));
-    };
-
-    // 新增一筆附件列
-    const addFile = () =>
-    {
-        const list = allFiles;
-        const nextRowId = (list.at(-1)?.RowId ?? 0) + 1;
-        const newItem: SpecJournalRefFiles = { RowId: nextRowId, RefFileId: null, RefFileName: "" };
-        commitFiles([...allFiles, newItem]);
-    };
-
-    // 刪除第 i 筆附件列
-    const removeFileAt = (i: number) =>
-    {
-        const filtered = allFiles;
-        const target = filtered[i];
-        if (!target) return;
-        const nextAll = allFiles.filter(f => !(f.RowId === target.RowId));
-        commitFiles(nextAll);
-    };
-
-    return (
-        <>
-            <div role="group" className="mt-4">
-                <button type="button" onClick={addFile} aria-label="新增附件" className="btn btn-outline-primary mb-2">新增附件</button>
-                {allFiles.map((f, i) =>
-                {
-                    const rowKeys = { [SpecJournalRefFilesFields.JournalId]: f.JournalId, [SpecJournalRefFilesFields.RowId]: f.RowId };
-
-                    return (
-                        <div key={`${f.RowId}`} className="flex items-center gap-2 mb-2">
-                            <LibFileInput
-                                {...setFileField(
-                                    SpecJournalSetFields.SpecJournalRefFiles,
-                                    SpecJournalRefFilesFields.RefFileId,
-                                    SpecJournalRefFilesFields.RefFileName,
-                                    rowKeys,
-                                    { defaultNameFromOriginal: "basename", fileName: f.RefFile?.FileName ?? "" },
-                                )}
-                                Accept="application/pdf"
-                                onDelete={() => removeFileAt(i)}
-                            />
-                        </div>
-                    );
-                })}
-            </div>
-        </>
-    );
+    return <EditGrid {...refFileGrid.editGridProps} />;
 };
 
-const KeywordComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<SpecJournalSet>; keywords: SpecJournalSet[]; }) =>
+const KeywordComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalSet>; keywords: SpecJournalSet[]; }) =>
 {
     const data = props.formData.data ?? {};
     const tags = data.SpecJournalKeywords ?? [];
@@ -1309,81 +1101,22 @@ const KeywordComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<
     );
 };
 
-const DocumentsComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<SpecJournalSet>; specDocumentTypeOptionsRaw: Map<string, string>; }) =>
+const DocumentsComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalSet>; specDocumentTypeOptionsRaw: Map<string, string>; }) =>
 {
-    const setField = useSetTableField(props.formData);
-    const setFileField = useSetTableFileField(props.formData);
-    const allFiles: SpecJournalDocuments[] = props.formData.data?.SpecJournalDocument ?? [];
-    // 提交回整份表單（關鍵：真正更新 formData）
-    const commitFiles = (nextFiles: SpecJournalDocuments[]) =>
-    {
-        props.formData.setFormData(prev => ({
-            ...(prev
-                ?? {
-                    SpecJournal: {},
-                    SpecJournalAuthor: [],
-                    SpecJournalRefFiles: [],
-                    SpecJournalRefFormat: [],
-                    SpecJournalDocument: [],
-                    SpecJournalOpenPointFiles: [],
-                    SpecJournalTags: [],
-                    SpecJournalTypes: [],
-                }),
-            SpecJournalDocument: nextFiles,
-        }));
-    };
-    // 新增一筆附件列
-    const addFile = () =>
-    {
-        const list = allFiles;
-        const nextRowId = (list.at(-1)?.RowId ?? 0) + 1;
-        const newItem: SpecJournalDocuments = { RowId: nextRowId, DocumentId: null, DocumentName: "" };
-        commitFiles([...allFiles, newItem]);
-    };
-    // 刪除第 i 筆附件列
-    const removeFileAt = (i: number) =>
-    {
-        const filtered = allFiles;
-        const target = filtered[i];
-        if (!target) return;
-        const nextAll = allFiles.filter(f => !(f.RowId === target.RowId));
-        commitFiles(nextAll);
-    };
+    const documentGrid = useSpecJournalDocumentEditGrid({
+        binding: props.formData,
+        style: editGridStyle,
+        documentTypeOptions: props.specDocumentTypeOptionsRaw,
+    });
 
-    return (
-        <>
-            <div role="group" className="mt-4">
-                <button type="button" onClick={addFile} aria-label="新增附件" className="btn btn-outline-primary mb-2">新增附件</button>
-                {allFiles.map((f, i) =>
-                {
-                    const rowKeys = { [SpecJournalDocumentFields.JournalId]: f.JournalId, [SpecJournalDocumentFields.RowId]: f.RowId };
-                    return (
-                        <div key={`${f.RowId}`} className="flex items-center gap-2 mb-2">
-                            <LibDropList
-                                Style={props.theme.DropList2}
-                                Options={props.specDocumentTypeOptionsRaw}
-                                AutoDefaultFirst={false}
-                                {...setField(SpecJournalSetFields.SpecJournalDocument, SpecJournalDocumentFields.DocumentType, "number", rowKeys)}
-                            />
-                            <LibFileInput
-                                {...setFileField(
-                                    SpecJournalSetFields.SpecJournalDocument,
-                                    SpecJournalDocumentFields.DocumentId,
-                                    SpecJournalDocumentFields.DocumentName,
-                                    rowKeys,
-                                    { defaultNameFromOriginal: "basename", fileName: f.Document?.FileName ?? "" },
-                                )}
-                                onDelete={() => removeFileAt(i)}
-                            />
-                        </div>
-                    );
-                })}
-            </div>
-        </>
-    );
+    return <EditGrid {...documentGrid.editGridProps} />;
 };
 
 /** ✅ 共用：取下一個 RowId（明細用） */
+// #endregion
+
+// #region Private
+/** 取得明細下一個 RowId。 */
 const getNextRowId = (rows: Array<{ RowId?: number; }> = []): number =>
 {
     // 取最大 RowId + 1
@@ -1465,6 +1198,9 @@ const buildArticleLangOptions = (): Map<string, string> =>
     }, new Map<string, string>());
 };
 
+// #endregion
+
+// #region EntityComp
 /** 發佈期刊 / 退回預刊功能 Bar（內含 Dialog 狀態） */
 const ModeActionBarComp = (
     props: {
@@ -1474,7 +1210,7 @@ const ModeActionBarComp = (
         internalId: string;
         adapter: SpecJournalAdapterType;
         indexRawData: SpecJournalIndexSet[];
-        formData: UseFetchFormDataResult<SpecJournalSet>;
+        formData: ServerFormBinding<SpecJournalSet>;
         onBackToList: () => void;
     },
 ) =>
@@ -1562,3 +1298,4 @@ const ModeActionBarComp = (
         </>
     );
 };
+// #endregion
