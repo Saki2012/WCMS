@@ -2,7 +2,7 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { render } from "dom-serializer";
 import type { Element } from "domhandler";
 import { DomUtils, parseDocument } from "htmlparser2";
-import { INTERNAL_ATTR } from "../TinyMCE/TinyMCE_Hook";
+import { INTERNAL_ATTR } from "../TinyMCE/Core/tinyMceConstants";
 import type { CmsHtmlFileMeta, CmsHtmlTransformOptions } from "./CmsHtml_Types";
 
 const UNSAFE_ELEMENT_NAMES = new Set(["script", "object", "embed", "base"]);

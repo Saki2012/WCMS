@@ -4,29 +4,27 @@ import { MessageStatus, type SysMessageModel } from "@/SysCore/Utils/API/APIBase
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { PGID } from "@/types/SchemaFields";
 import { useMemo, useRef } from "react";
-import type { Editor as TinyMCEEditor } from "tinymce";
-import {
-    getIframeReferrerPolicy,
-    normalizeIframeHeight,
-    normalizeIframeWidth,
-    toIframeCssDimension,
-    toIframeDimensionAttribute,
-    validateIframeSrc,
-    WCMS_TINYMCE_IFRAME_SANDBOX_EXCLUSIONS,
-} from "./tinyMceIframeUtils";
-import {
-    normalizeImageHtmlBeforeSave,
-    normalizeImageHtmlForEditor,
-    syncResponsiveImageElement,
-} from "./tinyMceImageUtils";
-import { normalizeListHtmlBeforeSave } from "./tinyMceListNormalize";
-import {
-    normalizePastedTableElement,
-    normalizeTableHtmlBeforeSave,
-    normalizeTableHtmlForEditor,
-} from "./tinyMceTableUtils";
-import { formatHtmlSource } from "./htmlSourceFormatter";
-import { useContentTransform } from "./useContentTransform";
+import { INTERNAL_ATTR } from "./Core/tinyMceConstants";
+import type { TinyMCEEditor } from "./Core/tinyMceTypes";
+import { useContentTransform } from "./Core/useContentTransform";
+import { applyFileLinkToSelection, pickLocalFile } from "./File/tinyMceFileFeature";
+import { registerTinyMceFormatControls } from "./Format/tinyMceFormatFeature";
+import { openInsertIframeDialog } from "./Iframe/tinyMceIframeFeature";
+import { WCMS_TINYMCE_IFRAME_SANDBOX_EXCLUSIONS } from "./Iframe/tinyMceIframeUtils";
+import { registerInternalImageSync } from "./Image/tinyMceImageFeature";
+import { normalizeListHtmlBeforeSave } from "./List/tinyMceListNormalize";
+import { openFormattedSourceCodeDialog } from "./Source/tinyMceSourceFeature";
+import { registerTinyMceTableFeature } from "./Table/tinyMceTableFeature";
+import { normalizePastedTableElement, normalizeTableHtmlBeforeSave, normalizeTableHtmlForEditor } from "./Table/tinyMceTableUtils";
+
+export { INTERNAL_ATTR } from "./Core/tinyMceConstants";
+export { useTinyMceIframeEdit } from "./Iframe/tinyMceIframeFeature";
+export { useTinyMceInternalImage } from "./Image/tinyMceImageFeature";
+
+type TinyMceInitExtras = Record<string, unknown> & { setup?: (editor: TinyMCEEditor) => void; };
+type TinyMceFilePickerCallback = (url: string, meta?: Record<string, unknown>) => void;
+type TinyMceFilePickerMeta = { filetype?: "file" | "image" | string; };
+type TinyMceContentEvent = { content: string; };
 
 export interface TinyMceHookOptions
 {
@@ -43,68 +41,9 @@ export interface TinyMceHookOptions
     languageUrl?: string; // 例如 "/tinymce-i18n/langs5/zh_TW.js"
     language?: string; // "zh_TW"
     baseUrl?: string; // "/tinymce"
-    initExtras?: Record<string, any>;
+    initExtras?: TinyMceInitExtras;
 }
 
-const normalizeWidth = (raw?: string) =>
-{
-    return normalizeIframeWidth(raw);
-};
-
-/* 🟢 新增：height 空白→"360"；禁止百分比；接受數字或 123px（轉為 "123"） */
-const normalizeHeight = (raw?: string) =>
-{
-    return normalizeIframeHeight(raw);
-};
-
-const setSourceEditorContent = (editor: TinyMCEEditor, html: string) =>
-{
-    editor.focus();
-    editor.undoManager.transact(() =>
-    {
-        editor.setContent(html);
-    });
-    editor.selection.setCursorLocation();
-    editor.nodeChanged();
-};
-
-const openFormattedSourceCodeDialog = (editor: TinyMCEEditor) =>
-{
-    const originalContent = editor.getContent({ source_view: true });
-    let formattedContent = originalContent;
-
-    try
-    {
-        const nextFormatted = formatHtmlSource(originalContent);
-        if (nextFormatted.trim().length > 0) formattedContent = nextFormatted;
-    } catch
-    {
-        formattedContent = originalContent;
-    }
-
-    editor.windowManager.open({
-        title: "Source Code",
-        size: "large",
-        body: {
-            type: "panel",
-            items: [{ type: "textarea", name: "code" }],
-        },
-        buttons: [
-            { type: "cancel", name: "cancel", text: "Cancel" },
-            { type: "submit", name: "save", text: "Save", primary: true },
-        ],
-        initialData: {
-            code: formattedContent,
-        },
-        onSubmit: (api) =>
-        {
-            const editedContent = api.getData().code;
-            const contentToSave = editedContent === formattedContent ? originalContent : editedContent;
-            setSourceEditorContent(editor, contentToSave);
-            api.close();
-        },
-    });
-};
 export const useTinyMCE = (p: TinyMceHookOptions) =>
 {
     const editorRef = useRef<TinyMCEEditor | null>(null);
@@ -138,78 +77,6 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
     };
 
     const toUrl = (id: string, kind: "file" | "image") => (p.makeFileUrl?.(id, { kind })) ?? FileManagementAPI.get_Public_Preview_Url(id);
-
-    const pickLocalFile = (cb: (file: File) => void, opt?: { accept?: string; }) =>
-    {
-        const input = document.createElement("input");
-        input.type = "file";
-
-        // 若有指定檔案類型，設定到 input.accept
-        if (opt?.accept) input.accept = opt.accept; // 例如 ".pdf,application/pdf"
-
-        input.onchange = () =>
-        {
-            const f = input.files?.[0];
-            if (f) cb(f);
-        };
-        input.click();
-    };
-
-    const insertIframeDialog = (ed: TinyMCEEditor) =>
-    {
-        ed.windowManager.open({
-            title: "插入 IFrame（YouTube / Google Map）",
-            body: {
-                type: "panel",
-                items: [
-                    { type: "input", name: "url", label: "完整 URL", placeholder: "https://www.youtube.com/embed/..." },
-                    { type: "input", name: "title", label: "標題（無障礙）" },
-                    { type: "input", name: "width", label: "寬度(px 或 %，空白=100%)" },
-                    { type: "input", name: "height", label: "高度(px，建議 315/360/480...)" },
-                ],
-            },
-            buttons: [{ type: "cancel", text: "取消" }, { type: "submit", text: "插入", primary: true }],
-            onSubmit(api)
-            {
-                const data: any = api.getData();
-                const width = normalizeWidth(data.width);
-                const height = normalizeHeight(data.height);
-                const title = (data.title || "").trim();
-                const { url, warning } = validateIframeSrc(data.url);
-                if (!url)
-                {
-                    ed.windowManager.alert("請輸入 URL");
-                    return;
-                }
-                if (warning)
-                {
-                    ed.windowManager.alert(warning);
-                    return;
-                }
-                const referrerPolicy = getIframeReferrerPolicy(url);
-                const widthAttr = toIframeDimensionAttribute(width);
-                const heightAttr = toIframeDimensionAttribute(height);
-                const style = [
-                    "display:block",
-                    `width:${toIframeCssDimension(width)}`,
-                    `height:${toIframeCssDimension(height)}`,
-                    "max-width:100%",
-                    "border:0",
-                ].join(";");
-
-                const html = `<iframe src="${ed.dom.encode(url)}"
-                    title="${ed.dom.encode(title)}"
-                    ${widthAttr ? `width="${ed.dom.encode(widthAttr)}"` : ""}
-                    ${heightAttr ? `height="${ed.dom.encode(heightAttr)}"` : ""}
-                    loading="lazy"
-                    referrerpolicy="${ed.dom.encode(referrerPolicy)}"  
-                    allowfullscreen
-                    style="${ed.dom.encode(style)}"></iframe>`;
-                ed.insertContent(html);
-                api.close();
-            },
-        });
-    };
 
     const editorInit = useMemo(() =>
     {
@@ -292,7 +159,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
 
             // ★01/02 本機檔案與圖片上傳（插入 data-internal）
             file_picker_types: "image",
-            file_picker_callback: (callback: any, _value: any, meta: any) =>
+            file_picker_callback: (callback: TinyMceFilePickerCallback, _value: string, meta: TinyMceFilePickerMeta) =>
             {
                 pickLocalFile(async (file) =>
                 {
@@ -304,7 +171,8 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                         {
                             const href = toUrl(internalId, "file");
                             // 插入可下載連結 + data-internal
-                            const ed = editorRef.current!;
+                            const ed = editorRef.current;
+                            if (!ed) return;
                             applyFileLinkToSelection(ed, {
                                 href,
                                 title: name ?? file.name,
@@ -333,102 +201,6 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
             {
                 editorRef.current = editor;
 
-                const hasCellSelection = (): boolean =>
-                {
-                    const doc = editor.getDoc();
-                    if (!doc) return false;
-
-                    // 多格框選時，TinyMCE 會替被選到的 cell 加上 mce-selected
-                    const selected = editor.dom.select("td.mce-selected,th.mce-selected", doc);
-                    if (selected.length > 0) return true;
-
-                    // 游標在 cell 內也算
-                    const start = editor.selection.getStart(true);
-                    return !!(editor.dom.is(start, "td,th") || editor.dom.getParent(start, "td,th"));
-                };
-
-                const FORMAT_WHITELIST: Array<keyof CSSStyleDeclaration> = [
-                    "color",
-                    "backgroundColor",
-                    "fontFamily",
-                    "fontSize",
-                    "textDecoration",
-                    "fontStyle",
-                    "fontWeight",
-                    "lineHeight",
-                    "verticalAlign",
-                ];
-                let copiedStyles: Partial<Record<keyof CSSStyleDeclaration, string>> = {};
-                let copiedSupSub: "sup" | "sub" | null = null; // ✅ 新增旗標
-                const getCS = (el?: Element | null) =>
-                {
-                    if (!el) return null;
-                    const view = el.ownerDocument?.defaultView || (editor as any).getWin?.() || window;
-                    return view.getComputedStyle(el);
-                };
-
-                const isMeaningful = (key: keyof CSSStyleDeclaration, val?: string) =>
-                {
-                    if (!val) return false;
-                    const v = String(val).trim().toLowerCase();
-                    if (v === "initial" || v === "normal" || v === "none") return false;
-                    if (key === "backgroundColor" && (v === "transparent" || v === "rgba(0, 0, 0, 0)")) return false;
-                    return true;
-                };
-                const pickStyles = (el: Element | null) =>
-                {
-                    const result: Partial<Record<keyof CSSStyleDeclaration, string>> = {};
-                    if (!el) return result;
-                    copiedSupSub = el.tagName === "SUP" ? "sup" : el.tagName === "SUB" ? "sub" : null;
-                    // 解析 inline style
-                    const inlineMap = new Map<string, string>();
-                    (el.getAttribute("style") ?? "").split(";").forEach(s =>
-                    {
-                        const [k, v] = s.split(":").map(x => x?.trim());
-                        if (k && v) inlineMap.set(k.toLowerCase(), v);
-                    });
-
-                    const cs = getCS(el);
-
-                    FORMAT_WHITELIST.forEach((key) =>
-                    {
-                        const kebab = (key as string).replace(/[A-Z]/g, m => `-${m.toLowerCase()}`);
-                        const inlineVal = inlineMap.get(kebab);
-                        const val = inlineVal ?? (cs as any)[key];
-                        if (isMeaningful(key, val)) result[key] = val!;
-                    });
-
-                    return result;
-                };
-                const findStyleSource = (start: Element | null): Element | null =>
-                {
-                    let cur: Element | null = start;
-                    const stop = editor.getBody();
-                    while (cur && cur !== stop)
-                    {
-                        const styles = pickStyles(cur);
-                        if (Object.keys(styles).length > 0) return cur;
-                        cur = cur.parentElement;
-                    }
-                    return null;
-                };
-                const probeCurrentPosition = (): Element | null =>
-                {
-                    const doc = editor.getDoc();
-                    const probe = doc.createElement("span");
-                    probe.setAttribute("data-fp-probe", "1");
-                    probe.appendChild(doc.createTextNode("\u200B")); // zero-width space
-                    editor.selection.getRng()?.insertNode(probe);
-                    const src = probe.parentElement;
-                    // 清掉探針
-                    const p = probe.parentNode;
-                    if (p) p.removeChild(probe);
-                    return src;
-                };
-                // ✅ 轉成 style 屬性字串
-                const toStyleAttr = (styles: Partial<Record<keyof CSSStyleDeclaration, string>>) =>
-                    Object.entries(styles).filter(([, v]) => !!v).map(([k, v]) => `${k.replace(/[A-Z]/g, m => `-${m.toLowerCase()}`)}:${v}`).join(";");
-
                 if (p.initExtras && typeof p.initExtras.setup === "function")
                 {
                     p.initExtras.setup(editor);
@@ -440,12 +212,12 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                 });
 
                 // DB → 編輯器：BeforeSetContent 時把 data-internalid 改回 src
-                editor.on("BeforeSetContent", (e: any) =>
+                editor.on("BeforeSetContent", (e: TinyMceContentEvent) =>
                 {
                     if (typeof e.content === "string") e.content = normalizeTableHtmlForEditor(toEditor(e.content));
                 });
                 // 編輯器 → DB：GetContent 時把 src 改回 data-internalid（僅程式取用）
-                editor.on("GetContent", (e: any) =>
+                editor.on("GetContent", (e: TinyMceContentEvent) =>
                 {
                     if (typeof e.content === "string")
                     {
@@ -453,18 +225,15 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                     }
                 });
 
+                registerTinyMceTableFeature(editor);
+                registerTinyMceFormatControls(editor);
+                registerInternalImageSync(editor, (internalId) => toUrl(internalId, "image"));
+
                 // insertiframe 按鈕
-                const syncEditorTables = () =>
-                {
-                    const body = editor.getBody();
-                    if (body instanceof HTMLElement) normalizePastedTableElement(body);
-                };
-                // Avoid rewriting live table layout while the user is typing.
-                editor.on("init SetContent", syncEditorTables);
                 editor.ui.registry.addButton("insertiframe", {
                     icon: "embed",
                     tooltip: "插入 IFrame（YouTube / Google Map）",
-                    onAction: () => insertIframeDialog(editor),
+                    onAction: () => openInsertIframeDialog(editor),
                 });
                 // 🆕 上傳 PDF 並插入 iframe
                 editor.ui.registry.addButton("insertpdfiframe", {
@@ -517,182 +286,8 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                     },
                 });
 
-                editor.ui.registry.addButton("wcmsHr", {
-                    text: "HR",
-                    tooltip: "插入水平線",
-                    onAction: () => editor.insertContent("<hr />"),
-                });
+                editor.ui.registry.addButton("wcmsHr", { text: "HR", tooltip: "插入水平線", onAction: () => editor.insertContent("<hr />") });
 
-                // format-painter
-                // ✅ 複製格式：從目前選取最接近的 inline 元素取樣
-                editor.ui.registry.addButton("copyformat", {
-                    tooltip: "複製格式",
-                    icon: "format-painter",
-                    onAction: () =>
-                    {
-                        // 先取選取起點（TinyMCE 會回傳最貼近的 inline 元素）
-                        let startEl = editor.selection.getStart(true) as Element | null;
-                        // 找到第一個有意義樣式的祖先
-                        let src = findStyleSource(startEl);
-                        // 找不到就用探針取樣
-                        if (!src) src = probeCurrentPosition();
-
-                        copiedStyles = pickStyles(src);
-                        editor.notificationManager.open({
-                            text: Object.keys(copiedStyles).length > 0 ? "已複製格式" : "找不到可複製的格式",
-                            type: Object.keys(copiedStyles).length > 0 ? "info" : "warning",
-                            timeout: 1200,
-                        });
-                    },
-                });
-                // ✅ 共用：讀取/切換 body 上的 class
-                const toggleBodyClass = (cls: string) =>
-                {
-                    const body = editor.getBody?.();
-                    if (!body) return;
-                    editor.dom.toggleClass(body, cls);
-                };
-                const hasBodyClass = (cls: string) =>
-                {
-                    const body = editor.getBody?.();
-                    return !!body && editor.dom.hasClass(body, cls);
-                };
-                // ✅ 顯示/隱藏 P 區塊框線
-                editor.ui.registry.addToggleButton("togglePBlocks", {
-                    tooltip: "顯示/隱藏 P 區塊框線",
-                    text: "P", // 也可換成 icon: 'paragraph'
-                    onAction: (api) =>
-                    {
-                        toggleBodyClass("wcms-show-p");
-                        api.setActive(hasBodyClass("wcms-show-p"));
-                    },
-                    onSetup: (api) =>
-                    {
-                        const refresh = () => api.setActive(hasBodyClass("wcms-show-p"));
-                        editor.on("init NodeChange", refresh);
-                        return () => editor.off("init NodeChange", refresh);
-                    },
-                });
-                // ✅ 顯示/隱藏 DIV 區塊框線
-                editor.ui.registry.addToggleButton("toggleDivBlocks", {
-                    tooltip: "顯示/隱藏 DIV 區塊框線",
-                    text: "DIV", // 也可換成 icon: 'blockquote' 或自定義
-                    onAction: (api) =>
-                    {
-                        toggleBodyClass("wcms-show-div");
-                        api.setActive(hasBodyClass("wcms-show-div"));
-                    },
-                    onSetup: (api) =>
-                    {
-                        const refresh = () => api.setActive(hasBodyClass("wcms-show-div"));
-                        editor.on("init NodeChange", refresh);
-                        return () => editor.off("init NodeChange", refresh);
-                    },
-                });
-                // ✅ 套用格式：用 <span style="..."> 包住選取內容（最穩定）
-                editor.ui.registry.addButton("applyformat", {
-                    tooltip: "套用格式",
-                    icon: "paste",
-                    onAction: () =>
-                    {
-                        if (!copiedStyles || Object.keys(copiedStyles).length === 0)
-                        {
-                            editor.notificationManager.open({ text: "尚未複製任何格式", type: "warning", timeout: 1500 });
-                            return;
-                        }
-                        const styleAttr = toStyleAttr(copiedStyles);
-                        if (!styleAttr) return;
-                        if (styleAttr)
-                        {
-                            editor.formatter.register("__wcms_format_painter__", { inline: "span", attributes: { style: styleAttr } });
-                            editor.formatter.apply("__wcms_format_painter__");
-                        }
-
-                        editor.undoManager.transact(() =>
-                        {
-                            // ✅ 先處理語意化上/下標
-                            if (copiedSupSub === "sup") editor.execCommand("superscript"); // 或 editor.formatter.apply('superscript')
-                            else if (copiedSupSub === "sub") editor.execCommand("subscript");
-                            editor.formatter.register("__wcms_format_painter__", {
-                                inline: "span",
-                                attributes: { style: styleAttr }, // ✅ 一律輸出成 inline style，最穩
-                            });
-                            editor.formatter.apply("__wcms_format_painter__");
-                        });
-                    },
-                });
-                editor.addShortcut("alt+shift+c", "複製格式", () => editor.execCommand("mceToggleFormat")); // 只為了提示，實際上用上面的按鈕
-                editor.addShortcut("alt+shift+v", "套用格式", () =>
-                {/* 上面按鈕處理 */});
-
-                // ★11 移除連結快捷鍵
-                editor.addShortcut("alt+shift+u", "移除連結", () => editor.execCommand("unlink"));
-
-                // ★10 自訂移除樣式快捷鍵（原本有 removeformat 按鈕）
-                editor.addShortcut("alt+shift+r", "移除格式", () => editor.execCommand("RemoveFormat"));
-                editor.addShortcut("alt+shift+b", "切換顯示區塊框線", () =>
-                {
-                    editor.execCommand("mceVisualBlocks");
-                });
-                // ★02 調整圖片寬高（若空白或100% → RWD）
-                editor.on("ObjectSelected", (e) =>
-                {
-                    const elm = e.target as HTMLElement;
-                    if (elm instanceof HTMLImageElement)
-                    {
-                        syncResponsiveImageElement(elm, INTERNAL_ATTR);
-                        /*
-                        // 保持 data-internal
-                        const internal = elm.getAttribute(INTERNAL_ATTR);
-                        if (internal && !elm.classList.contains("rwd-img"))
-                        {
-                            // 若寬度是空白或 100%，就 RWD
-                            const w = elm.getAttribute("width") || elm.style.width || "";
-                            if (!w || w === "100%" || w === "100")
-                            {
-                                elm.classList.add("rwd-img");
-                                elm.removeAttribute("height");
-                                elm.style.height = "";
-                            }
-                        }
-                        */
-                    }
-                });
-                editor.ui.registry.addButton("smarttableprops", {
-                    tooltip: "表格/儲存格屬性",
-                    icon: "table", // 使用現成圖示
-                    onAction: () =>
-                    {
-                        if (hasCellSelection())
-                        {
-                            // 👉 直接開「儲存格屬性」：背景色只會套到所選儲存格
-                            editor.execCommand("mceTableCellProps");
-                        } else
-                        {
-                            // 👉 沒選到儲存格才開「表格屬性」
-                            editor.execCommand("mceTableProps");
-                        }
-                    },
-                });
-                editor.ui.registry.addMenuItem?.("cellbg", {
-                    text: "設定儲存格背景色…",
-                    onAction: () => editor.execCommand("mceTableCellProps"),
-                    context: "table",
-                });
-                // 保障：將使用者手動輸入的 <img> 也轉為 data-internal（若可解析 internal）
-                editor.on("NodeChange", (_evt) =>
-                {
-                    const imgs = editor.dom.select("img");
-                    imgs.forEach((img) =>
-                    {
-                        if (!img.getAttribute(INTERNAL_ATTR)) return;
-                        // 確保 src 與 internal 對應（避免被 TinyMCE 改寫）
-                        const internalId = img.getAttribute(INTERNAL_ATTR)!;
-                        const expect = toUrl(internalId, "image");
-                        if (img.getAttribute("src") !== expect) editor.dom.setAttrib(img, "src", expect);
-                        syncResponsiveImageElement(img as HTMLImageElement, INTERNAL_ATTR);
-                    });
-                });
                 // ★01 檔案連結插入按鈕（除了工具列外也提供）
                 editor.ui.registry.addButton("filepicker", {
                     icon: "new-document",
@@ -739,10 +334,9 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
             extended_valid_elements: undefined,
             invalid_elements: "script",
             // ← 這裡是處理從 Word/Excel 貼上時移除固定 px 寬度
-            paste_postprocess: (_plugin: any, args: any) =>
+            paste_postprocess: (_plugin: unknown, args: { node: HTMLElement; }) =>
             {
-                const root = args.node as HTMLElement;
-                normalizePastedTableElement(root);
+                normalizePastedTableElement(args.node);
             },
             ...(p.initExtras ?? {}),
         } as const;
@@ -750,386 +344,4 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
     }, [p.id, p.language, p.languageUrl, p.baseUrl, p.uploadFileApi, p.makeFileUrl, p.initExtras, toDb, toEditor]);
 
     return { editorRef, init: editorInit, value: p.value, onChange: p.onChange, uploadAndReturn, toUrl };
-};
-
-export interface UseTinyMceInternalImageOptions
-{
-    // 把 internalId 轉成可預覽的 API URL（例如 /Service/File/Image/:id）
-    resolvePreviewUrl: (internalId: string) => string;
-    // AA：存檔時若沒有 alt，就補 alt=""（預設 true）
-    enforceAlt?: boolean;
-}
-
-export interface UseTinyMceInternalImageResult
-{
-    // 提供給外部把事件掛到 editor（由外層 comp 整合）
-    setup: (editor: any) => void;
-    // 額外提供純函式，若你在外部流程要單獨呼叫也行（可不使用）
-    transformForEditor: (html: string) => string;
-    transformForDb: (html: string) => string;
-}
-
-export const INTERNAL_ATTR = "data-internalid";
-
-const applyFileLinkToSelection = (ed: TinyMCEEditor, opts: { href: string; title?: string; internalId?: string; download?: boolean; targetBlank?: boolean; }) =>
-{
-    const { href, title, internalId, download, targetBlank } = opts;
-    const sel = ed.selection;
-    if (!sel) return;
-
-    const setAttrs = (a: HTMLElement) =>
-    {
-        // TinyMCE 的 setAttribs 不吃運算子鍵名，因此用逐一設定避免型別衝突
-        ed.dom.setAttrib(a, "href", href);
-        ed.dom.setAttrib(a, "title", title ?? "");
-        if (internalId) ed.dom.setAttrib(a, INTERNAL_ATTR, internalId);
-        if (download) ed.dom.setAttrib(a, "download", "");
-        if (targetBlank)
-        {
-            ed.dom.setAttrib(a, "target", "_blank");
-            // AA & 安全性
-            ed.dom.setAttrib(a, "rel", "noopener");
-        }
-    };
-
-    // 未選取 → 直接插入一個連結（用 title 或檔名當文字）
-    if (sel.isCollapsed())
-    {
-        const linkText = title || href.split("/").pop() || "download";
-        const a = ed.dom.create("a", {}) as HTMLElement;
-        a.textContent = linkText;
-        setAttrs(a);
-        ed.insertContent((a as any).outerHTML);
-        ed.nodeChanged();
-        return;
-    }
-
-    // 有選取 → 優先修改既有 <a>；若沒有 <a>，用 mceInsertLink 包起來
-    const start = sel.getStart();
-    const existing = ed.dom.getParent(start, "a");
-    if (existing)
-    {
-        setAttrs(existing as HTMLElement);
-        ed.nodeChanged();
-        return;
-    }
-
-    // 包成連結（不會改文字內容）
-    ed.execCommand("mceInsertLink", false, { href, title: title ?? "" });
-    const wrapped = ed.dom.getParent(ed.selection.getStart(), "a");
-    if (wrapped) setAttrs(wrapped as HTMLElement);
-    ed.nodeChanged();
-};
-const doTransformForEditor = (html: string, makeSrc: (id: string) => string) =>
-{
-    const doc = new DOMParser().parseFromString(html, "text/html");
-    doc.querySelectorAll<HTMLImageElement>("img").forEach(img =>
-    {
-        const id = img.getAttribute(INTERNAL_ATTR) || "";
-        if (!id) return;
-        const want = makeSrc(id);
-        if (img.getAttribute("src") !== want) img.setAttribute("src", want);
-    });
-    return normalizeImageHtmlForEditor(doc.body.innerHTML, INTERNAL_ATTR);
-};
-
-const doTransformForDb = (html: string, enforceAlt: boolean) =>
-{
-    const doc = new DOMParser().parseFromString(html, "text/html");
-    doc.querySelectorAll<HTMLImageElement>("img").forEach(img =>
-    {
-        if (img.hasAttribute(INTERNAL_ATTR))
-        {
-            // 存 DB 前：只留 internalId，移除 src
-            img.removeAttribute("src");
-        }
-        if (enforceAlt && !img.hasAttribute("alt")) img.setAttribute("alt", "");
-    });
-    return normalizeImageHtmlBeforeSave(doc.body.innerHTML, INTERNAL_ATTR);
-};
-
-export const useTinyMceInternalImage = (opts: UseTinyMceInternalImageOptions): UseTinyMceInternalImageResult =>
-{
-    const { resolvePreviewUrl, enforceAlt = true } = opts;
-
-    const transformForEditor = (html: string) => doTransformForEditor(html, resolvePreviewUrl);
-
-    const transformForDb = (html: string) => doTransformForDb(html, enforceAlt);
-
-    const setup = (editor: any) =>
-    {
-        editor.on("BeforeSetContent", (e: any) =>
-        {
-            if (typeof e.content === "string" && e.content.includes("<img"))
-            {
-                e.content = transformForEditor(e.content);
-            }
-        });
-        editor.on("GetContent", (e: any) =>
-        {
-            if (!e.format || e.format === "html")
-            {
-                e.content = transformForDb(e.content);
-            }
-        });
-        editor.on("DblClick", (e: any) =>
-        {
-            const el = e?.target as HTMLElement | null;
-            const img = el?.closest?.("img");
-            if (img)
-            {
-                editor.selection.select(img); // 🟢 先選到該 <img>，對話框才能帶入現值
-                editor.execCommand("mceImage"); // 🟢 呼叫內建圖片編輯對話框
-            }
-            const a = el?.closest?.("a[href]");
-            if (a)
-            {
-                editor.selection.select(a);
-                editor.execCommand("mceLink", false, { dialog: true });
-                return;
-            }
-        });
-        editor.on("PreInit", () =>
-        {
-            const ser = (editor as any).serializer;
-            if (ser?.addNodeFilter)
-            {
-                ser.addNodeFilter("iframe", (nodes: any[]) =>
-                {
-                    nodes.forEach((node: any) =>
-                    {
-                        const referrerPolicy = getIframeReferrerPolicy(node.attr("src") || "");
-                        // 與你現成的函式一致
-                        node.attr("sandbox", null);
-                        node.attr("loading", "lazy");
-                        node.attr("referrerpolicy", referrerPolicy);
-                        node.attr("allowfullscreen", "");
-
-                        // 一起把 wrapper 的快取欄位補齊，避免被蓋回空值
-                        const wrap = node.parent;
-                        if (wrap)
-                        {
-                            wrap.attr("data-mce-p-sandbox", null);
-                            wrap.attr("data-mce-p-loading", "lazy");
-                            wrap.attr("data-mce-p-referrerpolicy", referrerPolicy);
-                            wrap.attr("data-mce-p-allowfullscreen", "");
-                        }
-                    });
-                });
-            }
-        });
-    };
-
-    return { setup, transformForEditor, transformForDb } as const;
-};
-
-export type TinySetup = { setup: (editor: any) => void; };
-export const useTinyMceIframeEdit = (): TinySetup =>
-{
-    const resolveIframeElm = (editor: any, node: Node | null): HTMLIFrameElement | null =>
-    {
-        if (!node) return null;
-        // a) 自己就是 <iframe>
-        if ((node as HTMLElement).nodeName === "IFRAME") return node as HTMLIFrameElement;
-        const el = node as HTMLElement;
-        // b) 往下找：常見結構 figure/div.mce-object-iframe > iframe
-        const down1 = el.querySelector?.("iframe");
-        if (down1) return down1 as HTMLIFrameElement;
-        // c) 往上找祖先：有時選到的是內層的裝飾元素
-        const up = editor.dom.getParent(el, "iframe");
-        if (up) return up as HTMLIFrameElement;
-        // d) 再保險：如果選到 wrapper（figure/div.mce-object-iframe），從 wrapper 內找
-        if (el.matches?.("figure.mce-object-iframe, div.mce-object-iframe, figure, div"))
-        {
-            const inner = el.querySelector?.("iframe");
-            if (inner) return inner as HTMLIFrameElement;
-        }
-        return null;
-    };
-    const openDialog = (editor: any, node: HTMLIFrameElement) =>
-    {
-        const ifr = resolveIframeElm(editor, node);
-        const dom = editor.dom;
-        const wrapper = ifr
-            ? dom.getParent(
-                ifr,
-                (n: any) =>
-                    dom.hasClass(n, "mce-preview-object") || dom.hasClass(n, "mce-object") || dom.hasClass(n, "mce-object-iframe") || n.nodeName === "FIGURE",
-            )
-            : null;
-
-        const data = {
-            src: node.getAttribute("src") || "",
-            "data-mce-src": node.getAttribute("src") || "",
-            title: (ifr?.getAttribute("title") || "") || (wrapper ? dom.getAttrib(wrapper, "data-mce-p-title") : "") || (ifr?.getAttribute("aria-label") || ""),
-            width: node.getAttribute("width") || dom.getStyle(node, "width") || "", // 可能是屬性或 style
-            height: node.getAttribute("height") || dom.getStyle(node, "height") || "",
-        };
-
-        editor.windowManager.open({
-            title: "編輯 iFrame",
-            size: "normal",
-            body: {
-                type: "panel",
-                items: [{ type: "input", name: "src", label: "來源網址 (src)" }, { type: "input", name: "title", label: "替代文字 / 描述 (AA)" }, {
-                    type: "input",
-                    name: "width",
-                    label: "寬度 (留空=100%, 例: 640, 640px, 80%)",
-                }, { type: "input", name: "height", label: "高度 (例: 360, 360px)" }],
-            },
-            initialData: data,
-            buttons: [{ type: "cancel", text: "取消" }, { type: "submit", text: "套用", primary: true }],
-
-            onSubmit: (api: any) =>
-            {
-                const v = api.getData() as typeof data;
-                const ifr = resolveIframeElm(editor, node);
-                if (!ifr)
-                {
-                    api.close();
-                    return;
-                } // 找不到就先跳出，避免誤改 wrapper
-
-                // 依 URL 決定 sandbox（沿用你原本的判斷）
-                // const sandbox = pickSandboxForUrl(v.src);
-
-                const { url, warning } = validateIframeSrc(v.src);
-                if (warning)
-                {
-                    editor.windowManager.alert(warning);
-                    return;
-                }
-
-                const nw = normalizeWidth(v.width);
-                const nh = normalizeHeight(v.height);
-                const referrerPolicy = getIframeReferrerPolicy(url);
-                const widthAttr = toIframeDimensionAttribute(nw);
-                const heightAttr = toIframeDimensionAttribute(nh);
-                const cssWidth = toIframeCssDimension(nw);
-                const cssHeight = toIframeCssDimension(nh);
-
-                editor.undoManager.transact(() =>
-                {
-                    const dom = editor.dom;
-
-                    // 1) 直接在同一顆 <iframe> 上改屬性（null 代表移除）
-                    dom.setAttrib(ifr, "src", url || null);
-                    dom.setAttrib(ifr, "title", v.title || null);
-                    dom.setAttrib(ifr, "width", widthAttr);
-                    dom.setAttrib(ifr, "height", heightAttr);
-                    // dom.setAttrib(ifr, "sandbox", sandbox || null);
-                    dom.setAttrib(ifr, "loading", "lazy");
-                    dom.setAttrib(ifr, "referrerpolicy", referrerPolicy);
-                    dom.setAttrib(ifr, "allowfullscreen", "");
-
-                    // 3) 補保險：清狀況外的 "width/height='null'" 殘留
-
-                    // 4) 你原本就有的
-                    dom.setStyle(ifr, "display", "block");
-                    dom.setStyle(ifr, "width", cssWidth);
-                    dom.setStyle(ifr, "height", cssHeight);
-                    dom.setStyle(ifr, "max-width", "100%");
-                    dom.setStyle(ifr, "border", "0");
-
-                    // 2) 找到 wrapper，更新「序列化會參考的快取屬性」
-                    const wrapper = dom.getParent(
-                        ifr,
-                        (n: any) =>
-                            dom.hasClass(n, "mce-preview-object")
-                            || dom.hasClass(n, "mce-object")
-                            || dom.hasClass(n, "mce-object-iframe")
-                            || n.nodeName === "FIGURE",
-                    );
-
-                    if (wrapper)
-                    {
-                        // 這幾個欄位視 TinyMCE/插件版本而定，能找到就一起同步
-                        const setWrap = (k: string, val: string | null) => dom.setAttrib(wrapper, k, val);
-                        // 主要：保證 data-mce-p-src 與各類 URL 欄位是新值
-                        setWrap("data-mce-p-src", url || null);
-                        setWrap("data-mce-url", url || null);
-                        setWrap("data-ephox-embed-iri", url || null);
-                        dom.setStyle(wrapper, "display", "block");
-                        dom.setStyle(wrapper, "width", cssWidth);
-                        dom.setStyle(wrapper, "height", cssHeight);
-                        dom.setStyle(wrapper, "max-width", "100%");
-                        dom.setStyle(wrapper, "border", "0");
-
-                        // 如需更完整，其他屬性也能補上 data-mce-p-*
-                        const cacheAttrs: Record<string, string | null> = {
-                            "data-mce-p-title": v.title || null,
-                            "data-mce-p-width": widthAttr,
-                            "data-mce-p-height": heightAttr,
-                            // "data-mce-p-sandbox": sandbox || null,
-                            "data-mce-p-loading": "lazy",
-                            "data-mce-p-referrerpolicy": referrerPolicy,
-                            "data-mce-p-allowfullscreen": "", // boolean attr
-                        };
-                        Object.entries(cacheAttrs).forEach(([k, val]) => setWrap(k, val));
-                    }
-
-                    editor.nodeChanged();
-                });
-                // 4) 通知變更（確保 getContent / 外層 onChange 都拿到新字串）
-                editor.setDirty(true);
-                editor.fire("input");
-                editor.fire("change");
-                editor.fire("wcms-iframe-updated");
-                api.close();
-            },
-        });
-    };
-
-    const setup = (editor: any) =>
-    {
-        // 🟢 1) 追蹤滑鼠位置（相對於視窗座標）
-        let lastPos = { x: 0, y: 0 };
-        editor.on("MouseMove", (e: any) =>
-        {
-            // TinyMCE 事件有 clientX/clientY
-            if (typeof e?.clientX === "number" && typeof e?.clientY === "number")
-            {
-                lastPos = { x: e.clientX, y: e.clientY };
-            }
-        });
-
-        // 🟢 2) 透過座標找目前滑鼠下的 iframe
-        const getIframeAtPoint = (): HTMLIFrameElement | null =>
-        {
-            const iframes = editor.dom.select("iframe") as HTMLIFrameElement[];
-            if (!iframes?.length) return null;
-            for (const node of iframes)
-            {
-                const r = node.getBoundingClientRect?.();
-                if (!r) continue;
-                if (lastPos.x >= r.left && lastPos.x <= r.right && lastPos.y >= r.top && lastPos.y <= r.bottom)
-                {
-                    return node;
-                }
-            }
-            return null;
-        };
-
-        // 🟢 3) 自訂右鍵選單項目
-        editor.ui.registry.addMenuItem("iframeedit", {
-            text: "編輯 iFrame",
-            onAction: () =>
-            {
-                const node = getIframeAtPoint();
-                if (node) openDialog(editor, node);
-            },
-        });
-
-        // 🟢 4) 只有在滑鼠正壓在 iframe 上時才顯示選單
-        editor.ui.registry.addContextMenu("wcms-iframe-menu", { update: () => (getIframeAtPoint() ? ["iframeedit"] : []) });
-
-        // 🟢 5) 雙擊也能開（同樣用座標判斷）
-        editor.on("DblClick", () =>
-        {
-            const node = getIframeAtPoint();
-            if (node) openDialog(editor, node);
-        });
-    };
-
-    return { setup };
 };

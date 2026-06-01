@@ -1,9 +1,12 @@
 // src/components/TinyMCE_Comp.tsx
 import { DefaultLang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import { Editor } from "@tinymce/tinymce-react";
+import { Editor, type IAllProps } from "@tinymce/tinymce-react";
 import { useEffect, useMemo, useState } from "react";
-import { useTinyMCE, useTinyMceIframeEdit, useTinyMceInternalImage } from "./TinyMCE_Hook";
+import type { TinyMCEEditor } from "./Core/tinyMceTypes";
+import { useTinyMceIframeEdit } from "./Iframe/tinyMceIframeFeature";
+import { useTinyMceInternalImage } from "./Image/tinyMceImageFeature";
+import { useTinyMCE } from "./TinyMCE_Hook";
 
 type Props = {
     args: {
@@ -24,6 +27,14 @@ type Props = {
 
 type TinyMceScriptState = "loading" | "ready" | "error";
 type TinyMceWindow = Window & { tinymce?: object; };
+type TinyMceReactInit = NonNullable<IAllProps["init"]>;
+type WcmsTinyMceInit = TinyMceReactInit & {
+    content_style?: string;
+    contextmenu?: string;
+    extended_valid_elements?: string;
+    setup?: (editor: TinyMCEEditor) => void;
+};
+type WcmsTinyMceEditor = TinyMCEEditor & { _wcmsComposing?: boolean; };
 
 /** 取得頁面既有 nonce；正式 CSP 改以同站外部 script 為主，保留相容舊設定。 */
 const getCspNonce = (): string =>
@@ -32,7 +43,7 @@ const getCspNonce = (): string =>
     const scriptNonce = script?.nonce?.trim() ?? "";
     if (scriptNonce) return scriptNonce;
 
-    const meta = document.querySelector('meta[property="csp-nonce"]') as HTMLElement | null;
+    const meta = document.querySelector("meta[property=\"csp-nonce\"]") as HTMLElement | null;
     return meta?.nonce?.trim() ?? "";
 };
 
@@ -93,11 +104,18 @@ const useTinyMceScript = (src: string): TinyMceScriptState =>
         let disposed = false;
         setState(hasTinyMceGlobal() ? "ready" : "loading");
 
-        loadTinyMceScript(src)
-            .then(() => { if (!disposed) setState("ready"); })
-            .catch(() => { if (!disposed) setState("error"); });
+        loadTinyMceScript(src).then(() =>
+        {
+            if (!disposed) setState("ready");
+        }).catch(() =>
+        {
+            if (!disposed) setState("error");
+        });
 
-        return () => { disposed = true; };
+        return () =>
+        {
+            disposed = true;
+        };
     }, [src]);
 
     return state;
@@ -137,9 +155,9 @@ const TinyMCE_Comp = ({ args }: Props) =>
     // ✅ 不覆蓋、不修改你原本 init：只是在外層包一個 setup，串上 image.setup
     const init = useMemo(() =>
     {
-        const existingInit = tiny.init as any;
-        const originalSetup: ((editor: any) => void) | undefined = existingInit?.setup;
-        const mergedContentStyle = (existingInit?.content_style ? existingInit.content_style + "\n" : "") + `
+        const existingInit = tiny.init as WcmsTinyMceInit;
+        const originalSetup = existingInit?.setup;
+        const mergedContentStyle = `${existingInit?.content_style ? `${existingInit.content_style}\n` : ""}
    /* 讓 iFrame 在編輯器內可被右鍵/雙擊（事件回到 TinyMCE） */
    iframe {
      pointer-events: none;     /* 右鍵/點擊不進入內嵌頁面 */
@@ -147,7 +165,7 @@ const TinyMCE_Comp = ({ args }: Props) =>
      max-width: 100%;
    }
    `;
-        const mergedContextMenu = (existingInit?.contextmenu ? existingInit.contextmenu + " " : "") + "wcms-iframe-menu";
+        const mergedContextMenu = `${existingInit?.contextmenu ? `${existingInit.contextmenu} ` : ""}wcms-iframe-menu`;
         return {
             ...existingInit,
             content_style: mergedContentStyle,
@@ -157,7 +175,7 @@ const TinyMCE_Comp = ({ args }: Props) =>
                 "iframe[src|title|width|height|style|allow|loading|referrerpolicy|frameborder|allowfullscreen]",
             ].filter(Boolean).join(","),
             contextmenu: mergedContextMenu,
-            setup: (editor: any) =>
+            setup: (editor: TinyMCEEditor) =>
             {
                 if (typeof originalSetup === "function") originalSetup(editor);
                 image.setup(editor);
@@ -167,7 +185,7 @@ const TinyMCE_Comp = ({ args }: Props) =>
                 const setComposing = (v: boolean) =>
                 {
                     composing = v;
-                    (editor as any)._wcmsComposing = v;
+                    (editor as WcmsTinyMceEditor)._wcmsComposing = v;
                 };
                 const pushUpstreamNow = () =>
                 {
@@ -214,7 +232,7 @@ const TinyMCE_Comp = ({ args }: Props) =>
 
     return (
         <>
-            <Editor id={args.id} tinymceScriptSrc={tinymceScriptSrc} value={tiny.value} onEditorChange={tiny.onChange} init={init as any} />
+            <Editor id={args.id} tinymceScriptSrc={tinymceScriptSrc} value={tiny.value} onEditorChange={tiny.onChange} init={init} />
             <p style={{ color: "rgba(0,0,0,.3)", textAlign: "right", marginTop: 8, pointerEvents: "none", userSelect: "none", fontSize: 12 }}>
                 本網站內容編輯器採用 TinyMCE 開源版 (MIT)
             </p>

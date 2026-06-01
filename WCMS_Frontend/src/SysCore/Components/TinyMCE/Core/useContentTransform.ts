@@ -1,6 +1,6 @@
 import { PGID } from "@/types/SchemaFields";
 import { useCallback } from "react";
-import { INTERNAL_ATTR } from "./TinyMCE_Hook";
+import { INTERNAL_ATTR } from "./tinyMceConstants";
 
 export interface UseContentTransformOptions
 {
