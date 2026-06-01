@@ -957,4 +957,61 @@
   <data name="Product_Price" xml:space="preserve">
     <value>Price</value>
   </data>
+  <data name="AnnouncementSet" xml:space="preserve">
+    <value>Announcement</value>
+  </data>
+  <data name="AnnouncementDetailFile" xml:space="preserve">
+    <value>Announcement Files</value>
+  </data>
+  <data name="PageManagementSet" xml:space="preserve">
+    <value>Page Content</value>
+  </data>
+  <data name="GallerySet" xml:space="preserve">
+    <value>Gallery</value>
+  </data>
+  <data name="FileArchiveSet" xml:space="preserve">
+    <value>File Archive</value>
+  </data>
+  <data name="FileArchiveDetail" xml:space="preserve">
+    <value>檔案明細</value>
+  </data>
+  <data name="FileArchiveUrlDetail" xml:space="preserve">
+    <value>超連結明細</value>
+  </data>
+  <data name="WebResourceSet" xml:space="preserve">
+    <value>網路資源表單</value>
+  </data>
+  <data name="TimelineLangDetail" xml:space="preserve">
+    <value>語系資料</value>
+  </data>
+  <data name="TimelineSet" xml:space="preserve">
+    <value>紀事表單</value>
+  </data>
+  <data name="SurveySet" xml:space="preserve">
+    <value>問卷設計表單</value>
+  </data>
+  <data name="Common_LangInfo" xml:space="preserve">
+    <value>語系資料</value>
+  </data>
+  <data name="MaterialSet" xml:space="preserve">
+    <value>物件表單</value>
+  </data>
+  <data name="MaterialPicture" xml:space="preserve">
+    <value>物件照片</value>
+  </data>
+  <data name="MatCategoryDataSet" xml:space="preserve">
+    <value>物件類別表單</value>
+  </data>
+  <data name="MatCategoryInfoField" xml:space="preserve">
+    <value>物件類別欄位明細</value>
+  </data>
+  <data name="AccountSet" xml:space="preserve">
+    <value>帳號表單</value>
+  </data>
+  <data name="RolePermissionSet" xml:space="preserve">
+    <value>角色權限表單</value>
+  </data>
+  <data name="BannerSet" xml:space="preserve">
+    <value>橫幅表單</value>
+  </data>
 </root>

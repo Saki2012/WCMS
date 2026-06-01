@@ -1,4 +1,9 @@
-﻿using WCMS.Features.WEB.Survey;
+﻿using System.Text;
+using WCMS.Features.IAM.RolePermission;
+using WCMS.Features.MAT.MatCategory;
+using WCMS.Features.MAT.Material;
+using WCMS.Features.WEB.Survey;
+using WCMS.Features.WEB.Timeline;
 
 namespace WCMS.Features._Resx;
 
@@ -35,6 +40,10 @@ public static class ModelDisplayName
     /// 英：Language
     /// </summary>
     public const string Common_Lang = nameof(Common_Lang);
+    /// <summary>
+    /// 語系資料
+    /// </summary>
+    public const string Common_LangInfo = nameof(Common_LangInfo);
     /// <summary>
     /// 中：標題
     /// 英：Title
@@ -817,6 +826,21 @@ public static class ModelDisplayName
     #region WEB
     #region 公告
     /// <summary>
+    /// 中：公告
+    /// 英：Announcement
+    /// </summary>
+    public const string AnnouncementSet = nameof(AnnouncementSet);
+
+    /// <summary>
+    /// 中：公告附件明細
+    /// 英：Announcement Files
+    /// </summary>
+    public const string AnnouncementDetailFile = nameof(AnnouncementDetailFile);
+
+    
+
+
+    /// <summary>
     /// 中：公告代碼
     /// 英：Announcement ID
     /// </summary>
@@ -864,6 +888,11 @@ public static class ModelDisplayName
 
     #endregion 
     #region 廣告輪播
+    /// <summary>
+    /// 橫幅表單
+    /// </summary>
+    public const string BannerSet = nameof(BannerSet);
+
     /// <summary>
     /// 中：橫幅廣告
     /// 英：Banner Ad
@@ -965,6 +994,21 @@ public static class ModelDisplayName
 
     #endregion
     #region 檔案室
+
+    /// <summary>
+    /// 檔案室
+    /// </summary>
+    public const string FileArchiveSet = nameof(FileArchiveSet);
+    /// <summary>
+    /// 檔案明細
+    /// </summary>
+    public const string FileArchiveDetail = nameof(FileArchiveDetail);
+    /// <summary>
+    /// 超連結明細
+    /// </summary>
+    public const string FileArchiveUrlDetail = nameof(FileArchiveUrlDetail);
+    
+
     /// <summary>
     /// 中：檔案室代碼
     /// 英：File Archive Code
@@ -1028,6 +1072,11 @@ public static class ModelDisplayName
     #endregion
     #region 相簿
     /// <summary>
+    /// 相簿
+    /// </summary>
+    public const string GallerySet = nameof(GallerySet);
+
+    /// <summary>
     /// 中：相簿
     /// 英：Gallery
     /// </summary>
@@ -1084,6 +1133,13 @@ public static class ModelDisplayName
     public const string Gallery_PicSrcId = nameof(Gallery_PicSrcId);
     #endregion
     #region 頁面
+
+    /// <summary>
+    /// 頁面內容
+    /// Page Content
+    /// </summary>
+    public const string PageManagementSet = nameof(PageManagementSet);
+
     /// <summary>
     /// 中：頁面
     /// 英：Page
@@ -1145,6 +1201,12 @@ public static class ModelDisplayName
     public const string Tag_CustomMade = nameof(Tag_CustomMade);
     #endregion
     #region 網路資源
+
+    /// <summary>
+    /// 網路資源
+    /// </summary>
+    public const string WebResourceSet = nameof(WebResourceSet);
+
     /// <summary>
     /// 中：網路資源
     /// 英：Web Resource
@@ -1187,6 +1249,17 @@ public static class ModelDisplayName
     public const string WebResource_Content = nameof(WebResource_Content);
     #endregion
     #region 紀事表
+
+
+    /// <summary>
+    /// 紀事表單
+    /// </summary>
+    public const string TimelineSet = nameof(TimelineSet);
+    /// <summary>
+    /// 語系資料
+    /// </summary>
+    public const string TimelineLangDetail = nameof(TimelineLangDetail);
+
     /// <summary>
     /// 中：紀事表Id
     /// 英：Timeline ID
@@ -1209,6 +1282,11 @@ public static class ModelDisplayName
     public const string Timeline_Content= nameof(Timeline_Content);
     #endregion
     #region 問卷設計
+    /// <summary>
+    /// 問卷設計表單
+    /// </summary>
+    public const string SurveySet = nameof(SurveySet);
+
     /// <summary>
     /// 中：問卷代號
     /// 英：Survey ID
@@ -1257,6 +1335,11 @@ public static class ModelDisplayName
 
     #region 帳號
     /// <summary>
+    /// 帳號表單
+    /// </summary>
+    public const string AccountSet = nameof(AccountSet);
+
+    /// <summary>
     /// 中：帳號
     /// 英：Account
     /// </summary>
@@ -1302,6 +1385,11 @@ public static class ModelDisplayName
     #endregion
 
     #region 角色權限
+    /// <summary>
+    /// 角色權限表單
+    /// </summary>
+    public const string RolePermissionSet = nameof(RolePermissionSet);
+
     /// <summary>
     /// 中：角色權限
     /// 英：角色權限
@@ -1365,6 +1453,24 @@ public static class ModelDisplayName
     #region MAT
 
     #region 物件模組 (Material)
+    /// <summary>
+    /// 物件類別表單
+    /// </summary>
+    public const string MatCategoryDataSet = nameof(MatCategoryDataSet);
+    /// <summary>
+    /// 物件類別欄位明細
+    /// </summary>
+    public const string MatCategoryInfoField = nameof(MatCategoryInfoField);
+    
+    /// <summary>
+    /// 物件表單
+    /// </summary>
+    public const string MaterialSet = nameof(MaterialSet);
+    /// <summary>
+    /// 物件照片
+    /// </summary>
+    public const string MaterialPicture = nameof(MaterialPicture);
+
     /// <summary>
     /// 中：物件代號
     /// 英：Material ID

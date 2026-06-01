@@ -11,11 +11,11 @@ namespace WCMS.Features.WEB.Survey;
 /// <summary>
 /// 問卷單
 /// </summary>
-[LibDesc] public class SurveySet_DTO : ITSet_DTO
+[LibDesc(ModelDisplayName.SurveySet)] public class SurveySet_DTO : ITSet_DTO
 {
     [LibDesc] public Survey_DTO? Survey { get; set; } = new();
     [LibDesc] public List<SurveyItem_DTO>? SurveyItem { get; set; } = [];
-    [LibDesc] public List<SurveyItemLang_DTO>? SurveyItemLang { get; set; } = [];
+    [LibDesc(ModelDisplayName.Common_LangInfo)] public List<SurveyItemLang_DTO>? SurveyItemLang { get; set; } = [];
 }
 /// <summary>
 /// 問卷

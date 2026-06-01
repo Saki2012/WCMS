@@ -13,6 +13,10 @@ public static class SpecModelDisplayName
     /// </summary>
     public const string SpecJournalIndexDetail = "SpecJournalIndexDetail";
 
+    /// <summary>
+    /// 期刊目次表單
+    /// </summary>
+    public const string SpecJournalIndexSet = nameof(SpecJournalIndexSet);
 
     /// <summary>
     /// 期刊目次代號

@@ -1,33 +1,31 @@
+//#region Property
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import { useBreadcrumb } from "@/Features/Pages/Client/Scaffold/SubPages/Module/BreadCrumb/BreadCrumb_Comp";
-import { SpecJournalAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/WEB/SpecJournal_Api";
-import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import { getLangLabel, type Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
-import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useParams } from "react-router";
 import { useLoaderData } from "react-router-dom";
 import { SpecJournalKeywordSearch_Comp } from "./SpecJournalKeywordSearchComp";
-import { type SpecJournalListLoaderData } from "./SpecJournalList_Loader";
+import { type SpecJournalListLoaderData, useSpecJournalListData } from "./SpecJournalList_Loader";
 import { useSpecJournalSearchNav } from "./SpecJournalSearchUtils";
 
 type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
-type QueryListParam = components["schemas"]["QueryListParam"];
-
 type SpecJournalFilters = { q: string; articleLang: string; tagId: string; tagName: string; author: string; keyword: string; includeRef: string; };
 
 /** SpecJournal：用 ModuleContent 包住 Journal_List_content */
+//#endregion
+
+//#region Public
 export const SpecJournalList = (props: { site: INormSite; node: INormNode; lang: Lang; }) =>
 {
     // 宣告變數
     const params = useParams();
     const { setItems } = useBreadcrumb();
     const loaderData = useLoaderData() as SpecJournalListLoaderData | null;
-    const adapter = useMemo(() => SpecJournalAdapter(), []);
     const pageSize = 10;
 
     const routeIndexId = (loaderData?.args?.indexId ?? params.indexId ?? "").trim();
@@ -37,7 +35,7 @@ export const SpecJournalList = (props: { site: INormSite; node: INormNode; lang:
     const filters: SpecJournalFilters = loaderData?.args?.filters
         ?? { q: "", articleLang: "", tagId: "", tagName: "", author: "", keyword: "", includeRef: "" };
 
-    const useVolume = useSpecJournalVolume(adapter, pageSize, loaderData);
+    const useVolume = useSpecJournalListData({ pageSize });
 
     const isSearchMode = useMemo(() =>
     {
@@ -89,10 +87,9 @@ export const SpecJournalList = (props: { site: INormSite; node: INormNode; lang:
     }, [isSearchMode, routeIndexId, routeRowId, issueLabel, pageTitle, setItems]);
 
     const loadingList = useVolume.isLoading;
-    const errorList = [useVolume.error];
+    const errorList = useVolume.errorList;
     const moduleTitle = isSearchMode ? "搜尋結果" : (issueLabel || pageTitle);
 
-    const paginprops: PaginatorProps = { currentPage: useVolume.pageNumber, totalPages: useVolume.totalPages, onPageChange: useVolume.onPageChange };
     const viewCountConfig: ModuleViewCountConfig = { mode: "list" };
     return (
         <ModuleContent
@@ -100,7 +97,7 @@ export const SpecJournalList = (props: { site: INormSite; node: INormNode; lang:
             title={moduleTitle}
             isLoading={loadingList}
             errorList={errorList}
-            paginatorProps={paginprops}
+            paginatorProps={useVolume.paginatorProps}
             viewCountConfig={viewCountConfig}
         >
             <SpecJournalListContent
@@ -114,100 +111,10 @@ export const SpecJournalList = (props: { site: INormSite; node: INormNode; lang:
     );
 };
 
-/** hooks：SSR loaderData initial → CSR 分頁接手 */
-const useSpecJournalVolume = (adapter: ReturnType<typeof SpecJournalAdapter>, pageSize: number, loaderData: SpecJournalListLoaderData | null) =>
-{
-    // 宣告變數
-    const baseParam = useMemo<QueryListParam>(() =>
-    {
-        if (!loaderData?.args?.baseParam) return { Fields: [], Condition: "1=0", PageNumber: 1, PageSize: pageSize };
-        if (loaderData.args.pageSize !== pageSize)
-        {
-            return { Fields: [], Condition: "1=0", PageNumber: 1, PageSize: pageSize };
-        }
-        return loaderData.args.baseParam;
-    }, [loaderData, pageSize]);
-
-    const initialCount = useMemo<ApiLoaderData<QueryListParam, number> | null>(() =>
-    {
-        if (!loaderData?.args?.baseParam) return null;
-        if (loaderData.args.pageSize !== pageSize) return null;
-
-        return { args: loaderData.args.baseParam, apiRes: { IsSuccess: true, Data: loaderData.res.countRes ?? 0, SysMessage: [] } };
-    }, [loaderData, pageSize]);
-
-    const initialList = useMemo<ApiLoaderData<QueryListParam, SpecJournalSet[]> | null>(() =>
-    {
-        if (!loaderData?.args?.baseParam) return null;
-        if (loaderData.args.pageSize !== pageSize) return null;
-
-        return { args: loaderData.args.baseParam, apiRes: { IsSuccess: true, Data: loaderData.res.listRes ?? [], SysMessage: [] } };
-    }, [loaderData, pageSize]);
-
-    const queryKey = useMemo(() =>
-    {
-        return JSON.stringify({
-            indexId: loaderData?.args?.indexId ?? "",
-            rowId: loaderData?.args?.rowId ?? "",
-            q: loaderData?.args?.filters?.q ?? "",
-            articleLang: loaderData?.args?.filters?.articleLang ?? "",
-            tagId: loaderData?.args?.filters?.tagId ?? "",
-            author: loaderData?.args?.filters?.author ?? "",
-            keyword: loaderData?.args?.filters?.keyword ?? "",
-            includeRef: loaderData?.args?.filters?.includeRef ?? "",
-            condition: baseParam.Condition ?? "",
-            pageSize,
-        });
-    }, [
-        loaderData?.args?.indexId,
-        loaderData?.args?.rowId,
-        loaderData?.args?.filters?.q,
-        loaderData?.args?.filters?.articleLang,
-        loaderData?.args?.filters?.tagId,
-        loaderData?.args?.filters?.author,
-        loaderData?.args?.filters?.keyword,
-        loaderData?.args?.filters?.includeRef,
-        baseParam.Condition,
-        pageSize,
-    ]);
-
-    const [hasPaged, setHasPaged] = useState<boolean>(false);
-
-    useEffect(() =>
-    {
-        setHasPaged(false);
-    }, [queryKey]);
-
-    // 執行 function：count
-    const useCount = adapter.hooks.useQueryCount({ condition: baseParam, initial: initialCount, deps: [queryKey, baseParam.Condition, baseParam.PageSize] });
-
-    // 執行 function：list
-    const useList = adapter.hooks.usePagedQueryList({
-        baseParam,
-        count: useCount.data ?? 0,
-        initial: hasPaged ? null : initialList,
-        deps: [queryKey, baseParam.Condition, baseParam.PageSize],
-    });
-
-    const handlePageChange = (page: number): void =>
-    {
-        setHasPaged(true);
-        useList.onPageChange(page);
-    };
-
-    // return
-    return {
-        rawData: useList.data ?? [],
-        totalCount: useCount.data ?? 0,
-        isLoading: useCount.isLoading || useList.isLoading,
-        error: useCount.errorText ?? useList.errorText ?? null,
-        pageNumber: useList.pageNumber,
-        totalPages: useList.totalPages,
-        onPageChange: handlePageChange,
-    };
-};
-
 /** SpecJournalListContent：對齊 prototype 的 Journal_List_content DOM 結構 */
+//#endregion
+
+//#region Section
 const SpecJournalListContent = (
     props: {
         lang: Lang;
@@ -380,6 +287,9 @@ const SpecJournalListContent = (
 };
 
 /** JournalCard：拆小塊，保持 function 不要太長 */
+//#endregion
+
+//#region EntityComp
 const JournalCard = (
     props: { item: SpecJournalSet; lang: Lang; onPickArticleLang: (langCode: string) => void; onPickTypeTag: (tagId: string, tagName?: string) => void; },
 ) =>
@@ -485,6 +395,9 @@ const IssueSummaryDownload = (props: { fileId?: string; fileName?: string; downl
     );
 };
 
+//#endregion
+
+//#region Private - File Helpers
 type Document = { key: string; fileId: string; fileName: string; };
 
 const buildDocuments = (data: SpecJournalSet): Document[] =>
@@ -496,6 +409,9 @@ const buildDocuments = (data: SpecJournalSet): Document[] =>
     });
     return files;
 };
+//#endregion
+
+//#region EntityComp
 const DocumentList = (props: { data: SpecJournalSet; }) =>
 {
     // 宣告變數
@@ -540,3 +456,4 @@ const DocumentList = (props: { data: SpecJournalSet; }) =>
         </div>
     );
 };
+//#endregion

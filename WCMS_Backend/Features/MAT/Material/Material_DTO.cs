@@ -8,18 +8,17 @@ using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.SystemFunc.FileManagement;
-using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.MAT.Material;
 
 /// <summary>
 /// 公告功能
 /// </summary>
-[LibDesc] public class MaterialSet_DTO : ITSet_DTO
+[LibDesc(ModelDisplayName.MaterialSet)] public class MaterialSet_DTO : ITSet_DTO
 {
     public Material_DTO Material { get; set; } = new();
     public List<MaterialLangInfo_DTO> MaterialLangInfo { get; set; } = [];
-    public List<MaterialPicture_DTO> MaterialPicture { get; set; } = [];
+    [LibDesc(ModelDisplayName.MaterialPicture)]public List<MaterialPicture_DTO> MaterialPicture { get; set; } = [];
     public List<MaterialTags_DTO> MaterialTags { get; set; } = [];
 }
 

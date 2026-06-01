@@ -11,12 +11,12 @@ using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.WEB.FileArchive
 {
-    public class FileArchiveSet_DTO : ITSet_DTO
+    [LibDesc(ModelDisplayName.FileArchiveSet)] public class FileArchiveSet_DTO : ITSet_DTO
     {
         public FileArchive_DTO FileArchive { get; set; } = new();
         public List<FileArchiveInfo_DTO> FileArchiveInfo { get; set; } = [];
-        public List<FileArchiveDetail_DTO> FileArchiveDetail { get; set; } = [];
-        public List<FileArchiveUrlDetail_DTO> FileArchiveUrlDetail { get; set; } = [];
+        [LibDesc(ModelDisplayName.FileArchiveDetail)] public List<FileArchiveDetail_DTO> FileArchiveDetail { get; set; } = [];
+        [LibDesc(ModelDisplayName.FileArchiveUrlDetail)] public List<FileArchiveUrlDetail_DTO> FileArchiveUrlDetail { get; set; } = [];
     }
     public class FileArchive_DTO : DTOBasicDataModel
     {
@@ -65,7 +65,7 @@ namespace WCMS.Features.WEB.FileArchive
         public List<FileArchiveUrlDetail_DTO> _FileArchiveUrlDetail { get; set; } = [];
         #endregion
     }
-    public class FileArchiveDetail_DTO
+    [LibDesc(ModelDisplayName.FileArchiveDetail)] public class FileArchiveDetail_DTO
     {
         /// <summary>
         /// 靜態客製頁面ID
@@ -89,7 +89,7 @@ namespace WCMS.Features.WEB.FileArchive
         /// </summary>
         [LibDesc(ModelDisplayName.FileArchive_FileName)] public string? FileName { get; set; }
     }
-    public class FileArchiveUrlDetail_DTO
+    [LibDesc(ModelDisplayName.FileArchiveUrlDetail)] public class FileArchiveUrlDetail_DTO
     {
         /// <summary>
         /// 靜態客製頁面ID

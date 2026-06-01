@@ -1,3 +1,5 @@
+//#region Property
+import { useClientDataQueryTemplate, type ClientDataQueryDataSourceResult, type ClientDataQueryTemplate } from "@/Features/Pages/Client/Scaffold/DataQueryTemplate/Client_DataQueryTemplate_Hook";
 import { CategoryAdapter } from "@/Features/Hooks/BizFunc/COMM/Category_Api";
 import { TagAdapter } from "@/Features/Hooks/BizFunc/COMM/Tag_Api";
 import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WEB/Announcement_Api";
@@ -8,6 +10,7 @@ import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
 import { AnnouncementDetailFields, AnnouncementFields, CategoryDetailFields, CategoryFields, PGID, TagDataFields, TagDetailFields } from "@/types/SchemaFields";
+import { useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router-dom";
 
 type QueryListParam = components["schemas"]["QueryListParam"];
@@ -18,6 +21,9 @@ type TagSet = components["schemas"]["TagSet_DTO"];
 
 type ApiLoaderDataCompat<TArgs, TData> = { args: TArgs; env: ApiResponse<TData>; } | { args: TArgs; apiRes: ApiResponse<TData>; };
 
+//#endregion
+
+//#region Private - Loader Helpers
 const getEnv = <TArgs, TData>(data: ApiLoaderDataCompat<TArgs, TData>): ApiResponse<TData> =>
 {
     // return：兼容舊版 env / 新版 apiRes
@@ -184,6 +190,9 @@ const buildDefaultArgs = (lang: Lang): HomePageLoaderArgs =>
     };
 };
 
+//#endregion
+
+//#region Public - SSR Loader
 export const HomePageLoader = (props: { lang: Lang; }) => async ({ request }: LoaderFunctionArgs): Promise<HomePageLoaderData> =>
 {
     // 宣告變數：SSR api / args / adapter
@@ -235,3 +244,60 @@ export const HomePageLoader = (props: { lang: Lang; }) => async ({ request }: Lo
     // return：給首頁與 section hooks hydration 使用
     return { args, res: { rawData: { carouselBanner, specialLinkBanner, newsList, exhibitionList, announcementCategories, announcementTags } } };
 };
+
+
+// #region Client DataQuery Template
+//#endregion
+
+//#region Template - Client DataQuery
+interface HomePageTemplateQueryParam
+{
+    lang: Lang;
+}
+
+type HomePageTemplate = ClientDataQueryTemplate<HomePageTemplateQueryParam, HomePageRawData | null, HomePageLoaderData | null, unknown, HomePageTemplateQueryParam, HomePageLoaderData>;
+
+/** 建立首頁 DataQuery Template，讓首頁資料流程也進入前台 Template 管線 */
+const createHomePageTemplate = (lang: Lang): HomePageTemplate =>
+{
+    // return
+    return {
+        featureKey: "Spec1817.HomePage",
+        dataMode: "single",
+        initialViewState: { pageNumber: 1, pageSize: 1 },
+        pagination: null,
+        searchBar: null,
+        spec: {
+            toSearchParams: () => ({ lang }),
+            buildQueryParam: ({ searchParams }) => searchParams,
+            useDataSource: (ctx) => useHomePageTemplateDataSource(ctx),
+            buildViewModel: ({ loaderData }) => loaderData ?? null,
+        },
+    };
+};
+
+/** DataSource：首頁目前以 SSR loaderData 為主，先統一掛入 Template 流程 */
+const useHomePageTemplateDataSource = (ctx: { loaderData: HomePageLoaderData | null; }): ClientDataQueryDataSourceResult<HomePageRawData | null> =>
+{
+    // 宣告變數
+    const rawData = ctx.loaderData?.res?.rawData ?? null;
+
+    // return
+    return { rawData, isLoading: false, errors: [], paginator: null };
+};
+
+/** CSR Hook：首頁統一透過 Client_DataQueryTemplate 取資料 */
+//#endregion
+
+//#region Public - CSR Hook
+export const useHomePageTemplateData = (lang: Lang) =>
+{
+    // 宣告變數
+    const template = useMemo(() => createHomePageTemplate(lang), [lang]);
+    const templateVm = useClientDataQueryTemplate(template);
+
+    // return
+    return { loaderData: templateVm.viewModel, rawData: templateVm.rawData, isLoading: templateVm.isLoading, errorList: templateVm.errorList };
+};
+// #endregion
+//#endregion

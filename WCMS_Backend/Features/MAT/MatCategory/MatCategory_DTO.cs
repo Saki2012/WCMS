@@ -8,11 +8,11 @@ using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
 namespace WCMS.Features.MAT.MatCategory;
 
-public class MatCategoryDataSet_DTO : CategoryDataSet_DTO
+[LibDesc(ModelDisplayName.MatCategoryDataSet)]public class MatCategoryDataSet_DTO : CategoryDataSet_DTO
 {
     public new Category_DTO Category { get; set; } = new();
     public new List<CategoryDetail_DTO> CategoryDetail { get; set; } = [];
-    public List<MatCategoryInfoField_DTO> MatCategoryInfoField { get; set; } = [];
+    [LibDesc(ModelDisplayName.MatCategoryInfoField)]public List<MatCategoryInfoField_DTO> MatCategoryInfoField { get; set; } = [];
     public List<MatCategoryInfoFieldDisplay_DTO> MatCategoryInfoFieldDisplay { get; set; } = [];
 }
 
@@ -54,7 +54,7 @@ public class MatCategoryInfoFieldDisplay_DTO : DetailRowModel
     /// <summary>
     /// 語系 SysEnum.Lang
     /// </summary>
-    public LangCode? Lang { get; set; }
+    [LibDesc(ModelDisplayName.Common_Lang)] public LangCode? Lang { get; set; }
     /// <summary>
     /// 動態欄位顯示名稱
     /// </summary>

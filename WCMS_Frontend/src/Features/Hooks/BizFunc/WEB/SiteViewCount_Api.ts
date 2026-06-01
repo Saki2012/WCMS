@@ -123,7 +123,7 @@ export class SiteViewCountService extends ApiDataService<SiteViewCountSet>
     async getRecentlySiteViewCount(request: GetRecentlySiteViewCountRequest): Promise<ApiResponse<GetCurrentSiteOnlineCountResult[]>>
     {
         return await this.CallApi<GetCurrentSiteOnlineCountResult[]>(() =>
-            this.Api.post<ApiResponse<GetCurrentSiteOnlineCountResult[]>>(`${this.Module}/GetRecentlySiteViewCount`, { params: request })
+            this.Api.post<ApiResponse<GetCurrentSiteOnlineCountResult[]>>(`${this.Module}/GetRecentlySiteViewCount`, request)
         );
     }
     // #endregion

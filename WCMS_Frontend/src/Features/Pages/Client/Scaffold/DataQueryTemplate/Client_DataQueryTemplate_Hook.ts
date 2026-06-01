@@ -218,7 +218,7 @@ interface ClientDataQueryFeatureTiming<TSearchParams, TRawData, TViewModel, TAda
     buildViewModel: (ctx: ClientDataQueryViewModelContext<TSearchParams, TRawData, TAdapter, TQueryParam, TLoaderData>) => TViewModel;
 }
 
-/** Spec 擴充資料查詢流程設定 */
+/** Spec 客製資料查詢流程設定，可單獨使用，也可接在 Feature 後方 */
 interface ClientDataQuerySpecTiming<TSearchParams, TRawData, TViewModel, TAdapter = unknown, TQueryParam = QueryListParam, TLoaderData = unknown>
 {
     /** Spec 追加的 SearchBar 欄位設定 */
@@ -227,73 +227,35 @@ interface ClientDataQuerySpecTiming<TSearchParams, TRawData, TViewModel, TAdapte
     /** 依資料來源動態建立 Spec SearchBar 欄位 */
     buildSearchFields?: (ctx: ClientDataQuerySearchFieldContext<TRawData, TAdapter>) => SearchFieldConfig[];
 
-    /** 在 Feature 查詢參數基礎上追加或覆寫 Spec 查詢參數 */
-    toSearchParams?: (values: SearchValues, featureParams: TSearchParams, viewState: IListViewState) => TSearchParams;
+    /** 在目前查詢參數基礎上追加或覆寫 Spec 查詢參數 */
+    toSearchParams?: (values: SearchValues, currentParams: TSearchParams, viewState: IListViewState) => TSearchParams;
 
     /** 建立 Spec 追加的搜尋條件 */
     buildSearchConditions?: (ctx: ClientDataQueryConditionContext<TSearchParams>) => ClientDataQueryCondition[];
 
-    /** 在 Feature QueryParam 基礎上追加或覆寫完整 QueryParam */
-    buildQueryParam?: (ctx: ClientDataQueryParamContext<TSearchParams>, featureQueryParam: TQueryParam) => TQueryParam;
+    /** 建立或覆寫完整 QueryParam，Feature 存在時可包裝 Feature 結果 */
+    buildQueryParam?: (ctx: ClientDataQueryParamContext<TSearchParams>, featureQueryParam?: TQueryParam) => TQueryParam;
 
-    /** 在 Feature ViewModel 基礎上追加或覆寫畫面資料 */
+    /** Spec Only 時執行資料來源 Hook；Feature 存在時預設仍走 Feature useDataSource */
+    useDataSource?: (ctx: ClientDataQueryDataSourceContext<TSearchParams, TQueryParam, TLoaderData>) => ClientDataQueryDataSourceResult<TRawData, TAdapter>;
+
+    /** 建立或覆寫畫面資料，Feature 存在時可包裝 Feature ViewModel */
     buildViewModel?: (
         ctx: ClientDataQueryViewModelContext<TSearchParams, TRawData, TAdapter, TQueryParam, TLoaderData>,
-        featureViewModel: TViewModel,
+        featureViewModel?: TViewModel,
     ) => TViewModel;
 }
 
-/** 純 Spec 資料查詢流程設定 */
-interface ClientDataQuerySpecOnlyTiming<TSearchParams, TRawData, TViewModel, TAdapter = unknown, TQueryParam = QueryListParam, TLoaderData = unknown>
-{
-    /** Spec 純客製 SearchBar 欄位設定 */
-    searchFields?: SearchFieldConfig[];
-
-    /** 依資料來源動態建立 Spec 純客製 SearchBar 欄位 */
-    buildSearchFields?: (ctx: ClientDataQuerySearchFieldContext<TRawData, TAdapter>) => SearchFieldConfig[];
-
-    /** 將 SearchValues 轉換為 Spec 純客製查詢參數 */
-    toSearchParams?: (values: SearchValues, viewState: IListViewState) => TSearchParams;
-
-    /** 建立 Spec 純客製搜尋條件 */
-    buildSearchConditions?: (ctx: ClientDataQueryConditionContext<TSearchParams>) => ClientDataQueryCondition[];
-
-    /** 建立完整 QueryParam，包含欄位、條件、排序與分頁等設定 */
-    buildQueryParam: (ctx: ClientDataQueryParamContext<TSearchParams>) => TQueryParam;
-
-    /** 執行資料來源 Hook，通常用來呼叫 adapter.hooks.useQueryGridData / useQueryList */
-    useDataSource: (ctx: ClientDataQueryDataSourceContext<TSearchParams, TQueryParam, TLoaderData>) => ClientDataQueryDataSourceResult<TRawData, TAdapter>;
-
-    /** 將 rawData 轉換為前台畫面需要的 ViewModel */
-    buildViewModel: (ctx: ClientDataQueryViewModelContext<TSearchParams, TRawData, TAdapter, TQueryParam, TLoaderData>) => TViewModel;
-}
-
-/** Feature + Spec 或 Feature Only Template */
-interface ClientDataQueryFeatureTemplate<TSearchParams, TRawData, TViewModel, TAdapter = unknown, TQueryParam = QueryListParam, TLoaderData = unknown>
+/** 前台資料查詢 Template，feature / spec 皆為可選入口，但至少需提供其中一個 */
+export interface ClientDataQueryTemplate<TSearchParams, TRawData, TViewModel, TAdapter = unknown, TQueryParam = QueryListParam, TLoaderData = unknown>
     extends ClientDataQueryTemplateBase
 {
-    /** Feature 基礎資料查詢流程 */
-    feature: ClientDataQueryFeatureTiming<TSearchParams, TRawData, TViewModel, TAdapter, TQueryParam, TLoaderData>;
+    /** Feature 基礎資料查詢流程，可選 */
+    feature?: ClientDataQueryFeatureTiming<TSearchParams, TRawData, TViewModel, TAdapter, TQueryParam, TLoaderData>;
 
-    /** Spec 客製資料查詢流程 */
+    /** Spec 客製資料查詢流程，可選 */
     spec?: ClientDataQuerySpecTiming<TSearchParams, TRawData, TViewModel, TAdapter, TQueryParam, TLoaderData>;
 }
-
-/** Spec Only Template */
-interface ClientDataQuerySpecOnlyTemplate<TSearchParams, TRawData, TViewModel, TAdapter = unknown, TQueryParam = QueryListParam, TLoaderData = unknown>
-    extends ClientDataQueryTemplateBase
-{
-    /** 純 Spec 客製時不提供 Feature 流程 */
-    feature?: undefined;
-
-    /** Spec 純客製資料查詢流程 */
-    spec: ClientDataQuerySpecOnlyTiming<TSearchParams, TRawData, TViewModel, TAdapter, TQueryParam, TLoaderData>;
-}
-
-/** 前台資料查詢 Template */
-export type ClientDataQueryTemplate<TSearchParams, TRawData, TViewModel, TAdapter = unknown, TQueryParam = QueryListParam, TLoaderData = unknown> =
-    | ClientDataQueryFeatureTemplate<TSearchParams, TRawData, TViewModel, TAdapter, TQueryParam, TLoaderData>
-    | ClientDataQuerySpecOnlyTemplate<TSearchParams, TRawData, TViewModel, TAdapter, TQueryParam, TLoaderData>;
 
 /** QueryParam 建立結果，Loader 與 Hook 都應使用這個結果 */
 export interface ClientDataQueryBuiltState<TSearchParams, TQueryParam>
@@ -382,12 +344,29 @@ export interface ClientDataQueryTemplateResult<TSearchParams, TRawData, TViewMod
     refetchRefData: () => Promise<void>;
 }
 
-/** 判斷目前是否為 Feature 套裝流程 */
+/** 判斷目前是否有 Feature timing */
 const hasFeatureTiming = <TSearchParams, TRawData, TViewModel, TAdapter, TQueryParam, TLoaderData>(
     template: ClientDataQueryTemplate<TSearchParams, TRawData, TViewModel, TAdapter, TQueryParam, TLoaderData>,
-): template is ClientDataQueryFeatureTemplate<TSearchParams, TRawData, TViewModel, TAdapter, TQueryParam, TLoaderData> =>
+): boolean =>
 {
     return template.feature !== undefined;
+};
+
+/** 判斷目前是否有 Spec timing */
+const hasSpecTiming = <TSearchParams, TRawData, TViewModel, TAdapter, TQueryParam, TLoaderData>(
+    template: ClientDataQueryTemplate<TSearchParams, TRawData, TViewModel, TAdapter, TQueryParam, TLoaderData>,
+): boolean =>
+{
+    return template.spec !== undefined;
+};
+
+/** 檢查 Template 至少要提供 Feature 或 Spec 其中一個 timing */
+const ensureTemplateTiming = <TSearchParams, TRawData, TViewModel, TAdapter, TQueryParam, TLoaderData>(
+    template: ClientDataQueryTemplate<TSearchParams, TRawData, TViewModel, TAdapter, TQueryParam, TLoaderData>,
+): void =>
+{
+    if (hasFeatureTiming(template) || hasSpecTiming(template)) return;
+    throw new Error(`[ClientDataQueryTemplate] ${template.featureKey} must provide feature or spec timing.`);
 };
 
 /** 建立預設 viewState */
@@ -406,20 +385,17 @@ const buildInitialViewState = (template: ClientDataQueryTemplateBase): IListView
     };
 };
 
-/** 建立 Feature 或純 Spec 對應的 SearchParams */
+/** 建立 Feature / Spec 對應的 SearchParams，執行順序固定為 Feature 先、Spec 後 */
 const buildTemplateSearchParams = <TSearchParams, TRawData, TViewModel, TAdapter, TQueryParam, TLoaderData>(
     template: ClientDataQueryTemplate<TSearchParams, TRawData, TViewModel, TAdapter, TQueryParam, TLoaderData>,
     submittedValues: SearchValues,
     viewState: IListViewState,
 ): TSearchParams =>
 {
-    if (hasFeatureTiming(template))
-    {
-        const featureParams = template.feature.toSearchParams?.(submittedValues, viewState) ?? ({} as TSearchParams);
-        return template.spec?.toSearchParams?.(submittedValues, featureParams, viewState) ?? featureParams;
-    }
+    ensureTemplateTiming(template);
 
-    return template.spec.toSearchParams?.(submittedValues, viewState) ?? ({} as TSearchParams);
+    const featureParams = template.feature?.toSearchParams?.(submittedValues, viewState) ?? ({} as TSearchParams);
+    return template.spec?.toSearchParams?.(submittedValues, featureParams, viewState) ?? featureParams;
 };
 
 /** 建立 Feature 與 Spec 的搜尋條件，執行順序固定為 Feature 先、Spec 後 */
@@ -428,26 +404,25 @@ const buildTemplateSearchConditions = <TSearchParams, TRawData, TViewModel, TAda
     ctx: ClientDataQueryConditionContext<TSearchParams>,
 ): string[] =>
 {
-    const list = hasFeatureTiming(template)
-        ? [...(template.feature.buildSearchConditions?.(ctx) ?? []), ...(template.spec?.buildSearchConditions?.(ctx) ?? [])]
-        : [...(template.spec.buildSearchConditions?.(ctx) ?? [])];
+    const list = [
+        ...(template.feature?.buildSearchConditions?.(ctx) ?? []),
+        ...(template.spec?.buildSearchConditions?.(ctx) ?? []),
+    ];
 
     return list.filter((item): item is string => typeof item === "string" && item.trim().length > 0);
 };
 
-/** 建立完整 QueryParam，Feature + Spec 時由 Spec 包裝 Feature 結果 */
+/** 建立完整 QueryParam，Feature 存在時由 Spec 包裝 Feature 結果 */
 const buildTemplateQueryParam = <TSearchParams, TRawData, TViewModel, TAdapter, TQueryParam, TLoaderData>(
     template: ClientDataQueryTemplate<TSearchParams, TRawData, TViewModel, TAdapter, TQueryParam, TLoaderData>,
     ctx: ClientDataQueryParamContext<TSearchParams>,
 ): TQueryParam =>
 {
-    if (hasFeatureTiming(template))
-    {
-        const featureQueryParam = template.feature.buildQueryParam(ctx);
-        return template.spec?.buildQueryParam?.(ctx, featureQueryParam) ?? featureQueryParam;
-    }
+    const featureQueryParam = template.feature?.buildQueryParam(ctx);
+    if (featureQueryParam !== undefined) return template.spec?.buildQueryParam?.(ctx, featureQueryParam) ?? featureQueryParam;
+    if (template.spec?.buildQueryParam) return template.spec.buildQueryParam(ctx);
 
-    return template.spec.buildQueryParam(ctx);
+    throw new Error(`[ClientDataQueryTemplate] ${template.featureKey} spec.buildQueryParam is required when feature is not provided.`);
 };
 
 /** 建立 SearchBar 欄位，Feature 欄位先放，Spec 欄位後追加 */
@@ -456,29 +431,35 @@ const buildTemplateSearchFields = <TSearchParams, TRawData, TViewModel, TAdapter
     ctx: ClientDataQuerySearchFieldContext<TRawData, TAdapter>,
 ): SearchFieldConfig[] =>
 {
-    if (hasFeatureTiming(template))
-    {
-        const featureFields = template.feature.buildSearchFields?.(ctx) ?? template.feature.searchFields ?? [];
-        const specFields = template.spec?.buildSearchFields?.(ctx) ?? template.spec?.searchFields ?? [];
-        return [...featureFields, ...specFields];
-    }
+    const featureFields = template.feature?.buildSearchFields?.(ctx) ?? template.feature?.searchFields ?? [];
+    const specFields = template.spec?.buildSearchFields?.(ctx) ?? template.spec?.searchFields ?? [];
 
-    return template.spec.buildSearchFields?.(ctx) ?? template.spec.searchFields ?? [];
+    return [...featureFields, ...specFields];
 };
 
-/** 建立 ViewModel，Feature + Spec 時由 Spec 包裝 Feature 結果 */
+/** 建立 ViewModel，Feature 存在時由 Spec 包裝 Feature 結果 */
 const buildTemplateViewModel = <TSearchParams, TRawData, TViewModel, TAdapter, TQueryParam, TLoaderData>(
     template: ClientDataQueryTemplate<TSearchParams, TRawData, TViewModel, TAdapter, TQueryParam, TLoaderData>,
     ctx: ClientDataQueryViewModelContext<TSearchParams, TRawData, TAdapter, TQueryParam, TLoaderData>,
 ): TViewModel =>
 {
-    if (hasFeatureTiming(template))
-    {
-        const featureViewModel = template.feature.buildViewModel(ctx);
-        return template.spec?.buildViewModel?.(ctx, featureViewModel) ?? featureViewModel;
-    }
+    const featureViewModel = template.feature?.buildViewModel(ctx);
+    if (featureViewModel !== undefined) return template.spec?.buildViewModel?.(ctx, featureViewModel) ?? featureViewModel;
+    if (template.spec?.buildViewModel) return template.spec.buildViewModel(ctx);
 
-    return template.spec.buildViewModel(ctx);
+    throw new Error(`[ClientDataQueryTemplate] ${template.featureKey} spec.buildViewModel is required when feature is not provided.`);
+};
+
+/** 執行資料來源 Hook，Feature 存在時以 Feature 為主，Spec Only 時走 Spec */
+const useTemplateDataSource = <TSearchParams, TRawData, TViewModel, TAdapter, TQueryParam, TLoaderData>(
+    template: ClientDataQueryTemplate<TSearchParams, TRawData, TViewModel, TAdapter, TQueryParam, TLoaderData>,
+    ctx: ClientDataQueryDataSourceContext<TSearchParams, TQueryParam, TLoaderData>,
+): ClientDataQueryDataSourceResult<TRawData, TAdapter> =>
+{
+    if (template.feature) return template.feature.useDataSource(ctx);
+    if (template.spec?.useDataSource) return template.spec.useDataSource(ctx);
+
+    throw new Error(`[ClientDataQueryTemplate] ${template.featureKey} spec.useDataSource is required when feature is not provided.`);
 };
 
 /** 判斷搜尋後是否需要回第一頁 */
@@ -583,7 +564,7 @@ export const useClientDataQueryTemplate = <TSearchParams, TRawData, TViewModel, 
         loaderData: routeLoaderData,
     };
 
-    const dataSource = hasFeatureTiming(template) ? template.feature.useDataSource(dataSourceContext) : template.spec.useDataSource(dataSourceContext);
+    const dataSource = useTemplateDataSource(template, dataSourceContext);
 
     const updateViewState = useCallback((nextState: Partial<IListViewState> | ((prev: IListViewState) => Partial<IListViewState>)): void =>
     {

@@ -72,6 +72,71 @@ const normalizeOneData = <T>(apiRes: ApiResponse<T>): ApiResponse<T> =>
     return { ...apiRes, Data: (raw as ReadonlyArray<T>)[0] ?? null };
 };
 
+/** 將 API 初始資料轉成穩定快照，避免每次 render 產生新物件時重複 setState。 */
+const toStableSnapshotText = (value: unknown): string =>
+{
+    const seen = new WeakSet<object>();
+
+    /** 遞迴整理快照資料，物件 key 排序後再 stringify。 */
+    const normalize = (input: unknown): unknown =>
+    {
+        if (input === null || input === undefined) return input;
+        if (typeof input !== "object") return input;
+        if (input instanceof Date) return input.toISOString();
+        if (isBrowserFile(input)) return buildBrowserFileSnapshot(input);
+        if (seen.has(input)) return "[Circular]";
+
+        seen.add(input);
+
+        if (Array.isArray(input)) return input.map(normalize);
+
+        return Object.keys(input as Record<string, unknown>).sort().reduce<Record<string, unknown>>((snapshot, key) =>
+        {
+            const item = (input as Record<string, unknown>)[key];
+            if (typeof item === "function") return snapshot;
+
+            snapshot[key] = normalize(item);
+            return snapshot;
+        }, {});
+    };
+
+    try
+    {
+        return JSON.stringify(normalize(value));
+    } catch
+    {
+        return String(value);
+    }
+};
+
+/** 判斷是否為瀏覽器 File，SSR 環境不直接取用 File 避免錯誤。 */
+const isBrowserFile = (value: unknown): value is File =>
+{
+    return typeof File !== "undefined" && value instanceof File;
+};
+
+/** 建立 File 快照，避免把整個 File 物件放進 JSON.stringify。 */
+const buildBrowserFileSnapshot = (file: File): Record<string, string | number> =>
+{
+    return { name: file.name, size: file.size, type: file.type, lastModified: file.lastModified };
+};
+
+/** 建立 ApiResponse 快照，供 setState 前判斷資料是否真的變更。 */
+const buildApiResponseSnapshotText = <T>(apiRes: ApiResponse<T> | null | undefined): string =>
+{
+    if (!apiRes) return "";
+
+    return toStableSnapshotText({ IsSuccess: apiRes.IsSuccess, Data: apiRes.Data, SysMessage: apiRes.SysMessage });
+};
+
+/** 建立 Loader initial 快照，避免 initial object 每次重建造成 useEffect 循環。 */
+const buildApiLoaderDataSnapshotText = <TArgs, TData>(initial: ApiLoaderData<TArgs, TData> | null | undefined): string =>
+{
+    if (!initial) return "";
+
+    return toStableSnapshotText({ args: initial.args, apiRes: initial.apiRes });
+};
+
 // ============================================================================
 // 1) ApiBaseAdapter（只有共用底，不綁定「資料型共用 API」）
 // ============================================================================
@@ -126,44 +191,53 @@ export class ApiBaseAdapter<TService>
     )
     {
         // 宣告變數：SSR 必須在 render 當下就把 initial 套進 state（不能靠 useEffect）
-        const initApiRes = opt.initial?.apiRes ?? null;
+        const initial = opt.initial ?? null;
+        const initApiRes = initial?.apiRes ?? null;
         const initOk = initApiRes ? isOk(initApiRes) : false;
+        const initialSnapshotText = useMemo(() => buildApiLoaderDataSnapshotText(initial), [initial]);
         const initErrText = useMemo(() =>
         {
             if (!initApiRes) return null;
             if (initOk) return null;
             return buildError(initApiRes, opt.fallbackError, opt.action).messageText;
-        }, [initApiRes, initOk, opt.fallbackError, opt.action]);
+        }, [initialSnapshotText, initApiRes, initOk, opt.fallbackError, opt.action]);
 
         const [data, setData] = useState<TData | null>(() => (initOk ? (initApiRes!.Data ?? null) : null));
         const [apiRes, setApiRes] = useState<ApiResponse<TData> | null>(() => initApiRes);
         const [isLoading, setIsLoading] = useState(false);
         const [errorText, setErrorText] = useState<string | null>(() => initErrText);
         const svc = useMemo(() => this.getService(opt.apiInstance), [opt.apiInstance]);
-        const lastInitialApiResRef = useRef<ApiResponse<TData> | null>(initApiRes);
+        const lastInitialSnapshotRef = useRef<string>(initialSnapshotText);
         const applyError = useCallback((e: ApiResponse<TData>, fallback: string) =>
         {
             const err = buildError(e, fallback, opt.action);
-            setErrorText(err.messageText);
+            setErrorText(prev => prev === err.messageText ? prev : err.messageText);
             opt.onError?.(err);
         }, [opt.action, opt.onError]);
-        const applyInitialIfChanged = useCallback((): boolean =>
+
+        /** 套用 SSR / 新增模式 initial；內容相同時不 setState，避免 Maximum update depth。 */
+        const applyInitialIfChanged = (): boolean =>
         {
-            const init = opt.initial;
+            const init = opt.initial ?? null;
+            const nextInitialSnapshotText = buildApiLoaderDataSnapshotText(init);
+
             if (!init) return false;
-            if (lastInitialApiResRef.current === init.apiRes && apiRes === init.apiRes) return false;
-            lastInitialApiResRef.current = init.apiRes;
-            setApiRes(init.apiRes);
+            if (lastInitialSnapshotRef.current === nextInitialSnapshotText) return false;
+
+            lastInitialSnapshotRef.current = nextInitialSnapshotText;
+            setApiRes(prev => buildApiResponseSnapshotText(prev) === buildApiResponseSnapshotText(init.apiRes) ? prev : init.apiRes);
+
             if (isOk(init.apiRes))
             {
-                setData(init.apiRes.Data);
-                setErrorText(null);
-            } else
-            {
-                applyError(init.apiRes, opt.fallbackError);
+                setData(prev => toStableSnapshotText(prev) === toStableSnapshotText(init.apiRes.Data) ? prev : init.apiRes.Data);
+                setErrorText(prev => prev === null ? prev : null);
+                return true;
             }
+
+            applyError(init.apiRes, opt.fallbackError);
             return true;
-        }, [opt.initial, opt.fallbackError, applyError, apiRes]);
+        };
+
         const fetchAsync = useCallback(async () =>
         {
             setIsLoading(true);
@@ -171,8 +245,8 @@ export class ApiBaseAdapter<TService>
             try
             {
                 const e = await opt.call(svc, opt.args);
-                setApiRes(e);
-                if (isOk(e)) setData(e.Data);
+                setApiRes(prev => buildApiResponseSnapshotText(prev) === buildApiResponseSnapshotText(e) ? prev : e);
+                if (isOk(e)) setData(prev => toStableSnapshotText(prev) === toStableSnapshotText(e.Data) ? prev : e.Data);
                 else applyError(e, opt.fallbackError);
             } finally
             {
@@ -181,10 +255,10 @@ export class ApiBaseAdapter<TService>
         }, [svc, opt.args, opt.call, applyError, opt.fallbackError]);
         useEffect(() =>
         {
-            // 執行 function：CSR mount 時若已有 initial 就不再 fetch
+            // 執行 function：CSR mount 時若已有 initial 就不再 fetch；initial 只看內容快照，不看物件 reference。
             const applied = applyInitialIfChanged();
             if (!applied && !initApiRes) void fetchAsync();
-        }, [...opt.deps, opt.initial]);
+        }, [...opt.deps, initialSnapshotText]);
         return { data, apiRes: apiRes, isLoading, errorText, refetch: fetchAsync };
     }
 }

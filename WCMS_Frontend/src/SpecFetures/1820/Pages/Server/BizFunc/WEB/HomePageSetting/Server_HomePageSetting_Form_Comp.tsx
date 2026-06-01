@@ -1,107 +1,64 @@
-import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
-import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
+import { Server_FormTemplate_Comp } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Comp";
+import type { ServerFormBinding } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
+import { EditGrid } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid";
+import type { EditGridCellRenderArgs, EditGridCellValue, IEditGridView_Style } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Data";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import LibCheckBox from "@/SysCore/Components/FormField/FieldComponets/LibCheckBox_Comp";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-import { LibFileInput, LibTextBox, LibTinyMCE } from "@/SysCore/Components/FormField/LibFormField";
-import { useSetTableField, useSetTableFileField } from "@/SysCore/Components/FormField/useSetTableField";
+import { LibTextBox, LibTinyMCE } from "@/SysCore/Components/FormField/LibFormField";
+import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
+import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import { type Lang, LangLabelMap, SUPPORTED_LANGS } from "@/SysCore/i18n/lang";
-import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import type { components } from "@/types/api";
 import {
-    SpecHomePage1820_BannerMediaFields,
-    SpecHomePage1820_DetailFields,
-    SpecHomePage1820_MarqueeFields,
-    SpecHomePage1820_ResourceFields,
     SpecHomePage1820ModelFields,
     SpecHomePage1820SetFields,
 } from "@/types/SchemaFields";
-import { type ReactNode, useMemo } from "react";
-import { createEmptyHomePage1820Set, useHomePage1820FormDataByAdapter, useHomePage1820SummaryFetchData } from "./Server_HomePageSetting_Form_Hook";
+import { type ReactNode, useCallback, useMemo } from "react";
+import {
+    getHomePageFilePreviewUrl,
+    toHomePageFileCellValue,
+    useHomePage1820BannerMediaEditGrid,
+    useHomePage1820DetailEditGrid,
+    useHomePage1820LangFormTemplate,
+    useHomePage1820MarqueeEditGrid,
+    useHomePage1820ResourceEditGrid,
+    useHomePage1820SummaryFetchData,
+} from "./Server_HomePageSetting_Form_Hook";
 
+// #region Property
 type HomePageSet = components["schemas"]["SpecHomePage1820Set_DTO"];
 
-const getLangDisplayName = (lang?: string) =>
-{
-    // 取得語系顯示名稱
-    const key = String(lang ?? "").trim().toLowerCase() as Lang;
-    return LangLabelMap[key] ?? lang ?? "";
+const editGridStyle: IEditGridView_Style = {
+    TableStyle: "table table-striped table-bordered table-hover",
+    ToolbarStyle: "d-flex align-items-center justify-content-between mb-2",
+    ButtonStyle: "btn btn-custom btn-rounded btn-sm",
+    DangerButtonStyle: "btn btn-danger btn-rounded btn-sm",
+    ErrorStyle: "text-danger small mt-1",
 };
 
-const getNextRowId = (rows?: Array<{ RowId?: number | null; }> | null) =>
-{
-    // 取得下一筆 RowId
-    return (rows ?? []).reduce((max, row) => Math.max(max, Number(row?.RowId ?? 0)), 0) + 1;
+const tinyMceGridStyle = {
+    Labelstyle: "sr-only visually-hidden",
+    SelectStyle: "col-12 p-0",
 };
+// #endregion
 
-const buildRowKeys = (row: { HomePageId?: string | null; RowId?: number | null; }) =>
-{
-    // 建立子表複合鍵
-    return { HomePageId: row.HomePageId ?? "", RowId: row.RowId ?? 0 };
-};
-
-const buildTabLabel = (prefix: string, index: number, value?: string | null) =>
-{
-    // 建立頁籤標題
-    const text = String(value ?? "").trim();
-    return text.length > 0 ? text : `${prefix}${index + 1}`;
-};
-
-const getPreviewUrl = (fileId?: string | null) =>
-{
-    // 取得預覽圖片網址
-    const internalId = String(fileId ?? "").trim();
-    if (internalId.length === 0) return "";
-    return FileManagementAPI.get_Server_Preview_Url(internalId) ?? "";
-};
-const buildChildTabKey = (lang: string, section: string, rowId?: number | null, index?: number) =>
-{
-    // 建立子頁籤唯一 key，避免多組 Tab 衝突
-    return `${lang}_${section}_${rowId ?? index ?? 0}`;
-};
-
-const parseChildTabRowId = (tabKey: string) =>
-{
-    // 從 tab key 解析 RowId
-    return Number(String(tabKey).split("_").pop() ?? 0);
-};
-
-const PreviewImageComp = (prop: { fileId?: string | null; alt: string; emptyText?: string; }) =>
-{
-    // 顯示圖片預覽
-    const src = getPreviewUrl(prop.fileId);
-    if (src.length === 0)
-    {
-        return (
-            <div className="col-12 mb-3">
-                <div className="border rounded p-3 text-muted">{prop.emptyText ?? "尚無預覽圖片"}</div>
-            </div>
-        );
-    }
-
-    return (
-        <div className="col-12 mb-3">
-            <img src={src} alt={prop.alt} title={prop.alt} className="img-fluid border rounded" style={{ maxHeight: "260px", objectFit: "contain" }} />
-        </div>
-    );
-};
-
+// #region Public
 export const Server_HomePage1820_Form_Comp = (prop: { theme: IBETheme; lang: Lang; }) =>
 {
-    // 先用固定語系，之後再改成站台設定來源
+    // 外層只查語系摘要，實際表單資料、儲存與 toast 交給各語系 Server_FormTemplate。
     const summary = useHomePage1820SummaryFetchData({ supportLangs: SUPPORTED_LANGS });
 
-    const formProp: FormCompProp = { Title: "1820首頁設定", Theme: prop.theme, IsLoading: summary.isLoading, ErrorList: summary.errors };
-
     return (
-        <FormComp prop={formProp}>
+        <LoadingErrorHandler isLoading={summary.isLoading} errorList={summary.errors}>
             <MainFormComp theme={prop.theme} supportLangs={summary.rawData.supportLangs} summary={summary} />
-        </FormComp>
+        </LoadingErrorHandler>
     );
 };
+// #endregion
 
+// #region Section
 const MainFormComp = (prop: { theme: IBETheme; supportLangs: Lang[]; summary: ReturnType<typeof useHomePage1820SummaryFetchData>; }) =>
 {
     /** 外層語系頁籤 */
@@ -123,25 +80,21 @@ const MainFormComp = (prop: { theme: IBETheme; supportLangs: Lang[]; summary: Re
 
 const LangFormTabComp = (prop: { theme: IBETheme; lang: Lang; summary: ReturnType<typeof useHomePage1820SummaryFetchData>; }) =>
 {
-    // 讀取當前語系表單資料
+    // 每個語系都建立獨立的 Spec Form Template，讓儲存、toast、loading 與 toolbar 集中處理。
     const internalId = prop.summary.rawData.langInternalIdMap[prop.lang] ?? "";
-    const getData = useHomePage1820FormDataByAdapter(prop.summary.adapter.HomePage, prop.lang, internalId);
-    const isSaving = Boolean(prop.summary.rawData.savingMap[prop.lang]);
-
-    const handleSave = async () =>
-    {
-        // 儲存當前語系資料
-        await prop.summary.rawData.saveLang(prop.lang, getData.rawData.formData.data);
-    };
+    const template = useHomePage1820LangFormTemplate({
+        theme: prop.theme,
+        adapter: prop.summary.adapter.HomePage,
+        lang: prop.lang,
+        internalId,
+        onAfterSave: prop.summary.refetchData,
+    });
 
     return (
-        <LangSetTabComp
-            theme={prop.theme}
-            lang={prop.lang}
-            formData={getData.rawData.formData}
-            cateOpts={getData.rawData.categoryMap}
-            isSaving={isSaving}
-            onSave={handleSave}
+        <Server_FormTemplate_Comp
+            key={`${prop.lang}_${internalId || "new"}`}
+            template={template}
+            renderContent={({ vm }) => <LangSetTabComp theme={prop.theme} lang={prop.lang} binding={vm.binding} cateOpts={vm.refs.categoryMap} />}
         />
     );
 };
@@ -150,10 +103,8 @@ const LangSetTabComp = (
     prop: {
         theme: IBETheme;
         lang: string;
-        formData: UseFetchFormDataResult<HomePageSet>;
+        binding: ServerFormBinding<HomePageSet>;
         cateOpts: Record<string, string>;
-        isSaving: boolean;
-        onSave: () => Promise<void>;
     },
 ) =>
 {
@@ -173,37 +124,22 @@ const LangSetTabComp = (
     };
 
     const sectionComponents: Record<string, ReactNode[]> = {
-        [buildSectionKey("Section1")]: [<Section1Comp key="s1" theme={prop.theme} formData={prop.formData} lang={prop.lang} />],
-        [buildSectionKey("Section2")]: [<Section2Comp key="s2" theme={prop.theme} formData={prop.formData} />],
-        [buildSectionKey("Section3")]: [<Section3Comp key="s3" theme={prop.theme} formData={prop.formData} cateOpts={prop.cateOpts} />],
-        [buildSectionKey("Section4")]: [<Section4Comp key="s4" theme={prop.theme} formData={prop.formData} lang={prop.lang} />],
-        [buildSectionKey("Section5")]: [<Section5Comp key="s5" theme={prop.theme} formData={prop.formData} lang={prop.lang} />],
-        [buildSectionKey("Section6")]: [<Section6Comp key="s6" theme={prop.theme} formData={prop.formData} lang={prop.lang} />],
+        [buildSectionKey("Section1")]: [<Section1Comp key="s1" theme={prop.theme} formData={prop.binding} lang={prop.lang} />],
+        [buildSectionKey("Section2")]: [<Section2Comp key="s2" theme={prop.theme} formData={prop.binding} />],
+        [buildSectionKey("Section3")]: [<Section3Comp key="s3" theme={prop.theme} formData={prop.binding} cateOpts={prop.cateOpts} />],
+        [buildSectionKey("Section4")]: [<Section4Comp key="s4" theme={prop.theme} formData={prop.binding} lang={prop.lang} />],
+        [buildSectionKey("Section5")]: [<Section5Comp key="s5" theme={prop.theme} formData={prop.binding} lang={prop.lang} />],
+        [buildSectionKey("Section6")]: [<Section6Comp key="s6" theme={prop.theme} formData={prop.binding} lang={prop.lang} />],
     };
 
     return (
-        <>
-            <div className="col-12">
-                <TabContentComp tabInfos={sectionTabs} components={sectionComponents} />
-            </div>
-
-            <div className="col-12 mt-3">
-                <button
-                    type="button"
-                    className="btn btn-custom btn-rounded btn-sm"
-                    title="儲存當前語系設定"
-                    onClick={() => void prop.onSave()}
-                    disabled={prop.isSaving || prop.formData.isLoading}
-                >
-                    {prop.isSaving ? "儲存中..." : "儲存當前語系設定"}
-                </button>
-            </div>
-        </>
+        <div className="col-12">
+            <TabContentComp tabInfos={sectionTabs} components={sectionComponents} />
+        </div>
     );
 };
 
-// #region Section1 BannerMedia
-const Section1Comp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<HomePageSet>; lang: string; }) =>
+const Section1Comp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; lang: string; }) =>
 {
     const setField = useSetTableField<HomePageSet>(prop.formData);
 
@@ -228,89 +164,21 @@ const Section1Comp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
         </>
     );
 };
-const BannerMediaComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<HomePageSet>; lang: string; }) =>
+
+const BannerMediaComp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; lang: string; }) =>
 {
-    const setFileField = useSetTableFileField(prop.formData);
-    const rows = prop.formData.data?.SpecHomePage1820_BannerMedia ?? [];
-
-    const addRow = () =>
-    {
-        // 新增 Banner 明細
-        prop.formData.setFormData(prev => ({
-            ...(prev ?? createEmptyHomePage1820Set(prop.lang)),
-            SpecHomePage1820_BannerMedia: [...(prev?.SpecHomePage1820_BannerMedia ?? []), {
-                HomePageId: prev?.SpecHomePage1820?.HomePageId ?? "",
-                RowId: getNextRowId(prev?.SpecHomePage1820_BannerMedia),
-                BannerFileId: "",
-                BannerFileDescription: "",
-            }],
-        }));
-    };
-
-    const removeRow = (rowId: number) =>
-    {
-        // 移除 Banner 明細
-        prop.formData.setFormData(prev => ({
-            ...(prev ?? createEmptyHomePage1820Set(prop.lang)),
-            SpecHomePage1820_BannerMedia: (prev?.SpecHomePage1820_BannerMedia ?? []).filter(a => Number(a.RowId) !== rowId),
-        }));
-    };
-
-    const getTabKey = (row: { RowId?: number | null; }, idx: number) =>
-    {
-        // 取得 Banner tab key
-        return buildChildTabKey(prop.lang, "Section1", row.RowId, idx + 1);
-    };
-
-    const tabInfos: LibTabsProp = {
-        Style: prop.theme.Tabs,
-        item: rows.reduce<Record<string, string>>((acc, row, idx) =>
-        {
-            acc[getTabKey(row, idx)] = buildTabLabel("Banner", idx, row.BannerFileDescription);
-            return acc;
-        }, {}),
-        onAddTab: () =>
-        {
-            addRow();
-        },
-        onRemoveTab: key => removeRow(parseChildTabRowId(key)),
-    };
-
-    const components: Record<string, ReactNode[]> = rows.reduce<Record<string, ReactNode[]>>((acc, row, idx) =>
-    {
-        const rowKeys = buildRowKeys(row);
-        const key = getTabKey(row, idx);
-        const previewAlt = `${buildTabLabel("Banner", idx, row.BannerFileDescription)} 預覽圖片`;
-
-        acc[key] = [
-            <PreviewImageComp key={`banner-preview-${key}`} fileId={row.BannerFileId} alt={previewAlt} emptyText="尚無 Banner 預覽圖片" />,
-            <LibFileInput
-                key={`banner-file-${key}`}
-                {...setFileField(
-                    SpecHomePage1820SetFields.SpecHomePage1820_BannerMedia,
-                    SpecHomePage1820_BannerMediaFields.BannerFileId,
-                    SpecHomePage1820_BannerMediaFields.BannerFileDescription,
-                    rowKeys,
-                )}
-                Accept="image/*"
-            />,
-        ];
-
-        return acc;
-    }, {});
-
-    const renderKey = rows.map((row, idx) => getTabKey(row, idx)).join("|");
+    // Banner 明細改由 EditGrid 統一新增、編輯、刪除與拖曳排序
+    const { renderPicturePreview } = useHomePageEditGridRenderers(prop.theme);
+    const bannerGrid = useHomePage1820BannerMediaEditGrid({ binding: prop.formData, lang: prop.lang, style: editGridStyle, renderPicturePreview });
 
     return (
-        <div className="col-12">
-            <TabContentComp key={`banner-tabs-${renderKey}`} tabInfos={tabInfos} components={components} />
+        <div className="col-12 mt-3">
+            <EditGrid {...bannerGrid.editGridProps} />
         </div>
     );
 };
-// #endregion
 
-// #region Section2
-const Section2Comp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<HomePageSet>; }) =>
+const Section2Comp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; }) =>
 {
     const setField = useSetTableField<HomePageSet>(prop.formData);
 
@@ -325,10 +193,8 @@ const Section2Comp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
         </>
     );
 };
-// #endregion
 
-// #region Section3
-const Section3Comp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<HomePageSet>; cateOpts: Record<string, string>; }) =>
+const Section3Comp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; cateOpts: Record<string, string>; }) =>
 {
     const setField = useSetTableField<HomePageSet>(prop.formData);
 
@@ -358,277 +224,41 @@ const Section3Comp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
         </>
     );
 };
-// #endregion
 
-// #region Section4 Detail
-const Section4Comp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<HomePageSet>; lang: string; }) =>
+const Section4Comp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; lang: string; }) =>
 {
-    const setField = useSetTableField<HomePageSet>(prop.formData);
-    const setFileField = useSetTableFileField(prop.formData);
-    const rows = prop.formData.data?.SpecHomePage1820_Detail ?? [];
-
-    const addRow = () =>
-    {
-        // 新增 Detail 明細
-        prop.formData.setFormData(prev => ({
-            ...(prev ?? createEmptyHomePage1820Set(prop.lang)),
-            SpecHomePage1820_Detail: [...(prev?.SpecHomePage1820_Detail ?? []), {
-                HomePageId: prev?.SpecHomePage1820?.HomePageId ?? "",
-                RowId: getNextRowId(prev?.SpecHomePage1820_Detail),
-                Title: "",
-                SubTitle: "",
-                MainPictureId: "",
-                MainPictureDescription: "",
-                SubPictureId: "",
-                SubPictureDescription: "",
-                Intro: "",
-                MainLinkTitle: "",
-                MainLink: "",
-                SubLinkTitle1: "",
-                SubLink1: "",
-                SubLinkTitle2: "",
-                SubLink2: "",
-                SubLinkTitle3: "",
-                SubLink3: "",
-            }],
-        }));
-    };
-
-    const removeRow = (rowId: number) =>
-    {
-        // 移除 Detail 明細
-        prop.formData.setFormData(prev => ({
-            ...(prev ?? createEmptyHomePage1820Set(prop.lang)),
-            SpecHomePage1820_Detail: (prev?.SpecHomePage1820_Detail ?? []).filter(a => Number(a.RowId) !== rowId),
-        }));
-    };
-
-    const getTabKey = (row: { RowId?: number | null; }, idx: number) =>
-    {
-        // 取得 Detail tab key
-        return buildChildTabKey(prop.lang, "Section4", row.RowId, idx + 1);
-    };
-
-    const tabInfos: LibTabsProp = {
-        Style: prop.theme.Tabs,
-        item: rows.reduce<Record<string, string>>((acc, row, idx) =>
-        {
-            acc[getTabKey(row, idx)] = buildTabLabel("內容", idx, row.Title);
-            return acc;
-        }, {}),
-        onAddTab: () =>
-        {
-            addRow();
-        },
-        onRemoveTab: key => removeRow(parseChildTabRowId(key)),
-    };
-
-    const components: Record<string, ReactNode[]> = rows.reduce<Record<string, ReactNode[]>>((acc, row, idx) =>
-    {
-        const rowKeys = buildRowKeys(row);
-        const key = getTabKey(row, idx);
-        const tabLabel = buildTabLabel("內容", idx, row.Title);
-
-        acc[key] = [
-            <LibTextBox
-                key={`detail-title-${key}`}
-                Style={prop.theme.TextBox}
-                DefaultInputDisplay="請輸入"
-                {...setField(SpecHomePage1820SetFields.SpecHomePage1820_Detail, SpecHomePage1820_DetailFields.Title, "string", rowKeys)}
-            />,
-            <LibTextBox
-                key={`detail-subtitle-${key}`}
-                Style={prop.theme.TextBox}
-                DefaultInputDisplay="請輸入"
-                {...setField(SpecHomePage1820SetFields.SpecHomePage1820_Detail, SpecHomePage1820_DetailFields.SubTitle, "string", rowKeys)}
-            />,
-            <PreviewImageComp
-                key={`detail-main-preview-${key}`}
-                fileId={row.MainPictureId}
-                alt={`${tabLabel} 主視覺預覽圖片`}
-                emptyText="尚無主視覺預覽圖片"
-            />,
-            <LibFileInput
-                key={`detail-mainpic-${key}`}
-                {...setFileField(
-                    SpecHomePage1820SetFields.SpecHomePage1820_Detail,
-                    SpecHomePage1820_DetailFields.MainPictureId,
-                    SpecHomePage1820_DetailFields.MainPictureDescription,
-                    rowKeys,
-                )}
-                Accept="image/*"
-            />,
-            <PreviewImageComp key={`detail-sub-preview-${key}`} fileId={row.SubPictureId} alt={`${tabLabel} 延伸圖片預覽`} emptyText="尚無延伸圖片預覽" />,
-            <LibFileInput
-                key={`detail-subpic-${key}`}
-                {...setFileField(
-                    SpecHomePage1820SetFields.SpecHomePage1820_Detail,
-                    SpecHomePage1820_DetailFields.SubPictureId,
-                    SpecHomePage1820_DetailFields.SubPictureDescription,
-                    rowKeys,
-                )}
-                Accept="image/*"
-            />,
-            <LibTinyMCE
-                key={`detail-intro-${key}`}
-                Style={prop.theme.TinyMCE}
-                {...setField(SpecHomePage1820SetFields.SpecHomePage1820_Detail, SpecHomePage1820_DetailFields.Intro, "string", rowKeys)}
-            />,
-            <LibTextBox
-                key={`detail-mainlink-title-${key}`}
-                Style={prop.theme.TextBox}
-                DefaultInputDisplay="請輸入主連結標題"
-                {...setField(SpecHomePage1820SetFields.SpecHomePage1820_Detail, SpecHomePage1820_DetailFields.MainLinkTitle, "string", rowKeys)}
-            />,
-            <LibTextBox
-                key={`detail-mainlink-${key}`}
-                Style={prop.theme.TextBox}
-                DefaultInputDisplay="請輸入主連結"
-                {...setField(SpecHomePage1820SetFields.SpecHomePage1820_Detail, SpecHomePage1820_DetailFields.MainLink, "string", rowKeys)}
-            />,
-            <LibTextBox
-                key={`detail-sublink-title1-${key}`}
-                Style={prop.theme.TextBox}
-                DefaultInputDisplay="請輸入次連結標題1"
-                {...setField(SpecHomePage1820SetFields.SpecHomePage1820_Detail, SpecHomePage1820_DetailFields.SubLinkTitle1, "string", rowKeys)}
-            />,
-            <LibTextBox
-                key={`detail-sublink1-${key}`}
-                Style={prop.theme.TextBox}
-                DefaultInputDisplay="請輸入次連結1"
-                {...setField(SpecHomePage1820SetFields.SpecHomePage1820_Detail, SpecHomePage1820_DetailFields.SubLink1, "string", rowKeys)}
-            />,
-            <LibTextBox
-                key={`detail-sublink-title2-${key}`}
-                Style={prop.theme.TextBox}
-                DefaultInputDisplay="請輸入次連結標題2"
-                {...setField(SpecHomePage1820SetFields.SpecHomePage1820_Detail, SpecHomePage1820_DetailFields.SubLinkTitle2, "string", rowKeys)}
-            />,
-            <LibTextBox
-                key={`detail-sublink2-${key}`}
-                Style={prop.theme.TextBox}
-                DefaultInputDisplay="請輸入次連結2"
-                {...setField(SpecHomePage1820SetFields.SpecHomePage1820_Detail, SpecHomePage1820_DetailFields.SubLink2, "string", rowKeys)}
-            />,
-            <LibTextBox
-                key={`detail-sublink-title3-${key}`}
-                Style={prop.theme.TextBox}
-                DefaultInputDisplay="請輸入次連結標題3"
-                {...setField(SpecHomePage1820SetFields.SpecHomePage1820_Detail, SpecHomePage1820_DetailFields.SubLinkTitle3, "string", rowKeys)}
-            />,
-            <LibTextBox
-                key={`detail-sublink3-${key}`}
-                Style={prop.theme.TextBox}
-                DefaultInputDisplay="請輸入次連結3"
-                {...setField(SpecHomePage1820SetFields.SpecHomePage1820_Detail, SpecHomePage1820_DetailFields.SubLink3, "string", rowKeys)}
-            />,
-        ];
-
-        return acc;
-    }, {});
-
-    const renderKey = rows.map((row, idx) => getTabKey(row, idx)).join("|");
+    // Section4 明細改由 EditGrid 統一新增、編輯、刪除、拖曳排序與 TinyMCE 內文編輯
+    const { renderPicturePreview, renderIntroPreview, renderIntroEditor } = useHomePageEditGridRenderers(prop.theme);
+    const detailGrid = useHomePage1820DetailEditGrid({
+        binding: prop.formData,
+        lang: prop.lang,
+        style: editGridStyle,
+        renderPicturePreview,
+        renderIntroPreview,
+        renderIntroEditor,
+    });
 
     return (
         <div className="col-12">
-            <TabContentComp key={`detail-tabs-${renderKey}`} tabInfos={tabInfos} components={components} />
+            <EditGrid {...detailGrid.editGridProps} />
         </div>
     );
 };
-// #endregion
 
-// #region Section5 Marquee
-const Section5Comp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<HomePageSet>; lang: string; }) =>
+const Section5Comp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; lang: string; }) =>
 {
-    const setField = useSetTableField<HomePageSet>(prop.formData);
-    const setFileField = useSetTableFileField(prop.formData);
-    const rows = prop.formData.data?.SpecHomePage1820_Marquee ?? [];
-
-    const addRow = () =>
-    {
-        // 新增跑馬燈明細
-        prop.formData.setFormData(prev => ({
-            ...(prev ?? createEmptyHomePage1820Set(prop.lang)),
-            SpecHomePage1820_Marquee: [...(prev?.SpecHomePage1820_Marquee ?? []), {
-                HomePageId: prev?.SpecHomePage1820?.HomePageId ?? "",
-                RowId: getNextRowId(prev?.SpecHomePage1820_Marquee),
-                PictureId: "",
-                PictureTitle: "",
-                IsHide: false,
-            }],
-        }));
-    };
-
-    const removeRow = (rowId: number) =>
-    {
-        // 移除跑馬燈明細
-        prop.formData.setFormData(prev => ({
-            ...(prev ?? createEmptyHomePage1820Set(prop.lang)),
-            SpecHomePage1820_Marquee: (prev?.SpecHomePage1820_Marquee ?? []).filter(a => Number(a.RowId) !== rowId),
-        }));
-    };
-
-    const getTabKey = (row: { RowId?: number | null; }, idx: number) =>
-    {
-        // 取得跑馬燈 tab key
-        return buildChildTabKey(prop.lang, "Section5", row.RowId, idx + 1);
-    };
-
-    const tabInfos: LibTabsProp = {
-        Style: prop.theme.Tabs,
-        item: rows.reduce<Record<string, string>>((acc, row, idx) =>
-        {
-            acc[getTabKey(row, idx)] = buildTabLabel("跑馬燈", idx, row.PictureTitle);
-            return acc;
-        }, {}),
-        onAddTab: () =>
-        {
-            addRow();
-        },
-        onRemoveTab: key => removeRow(parseChildTabRowId(key)),
-    };
-
-    const components: Record<string, ReactNode[]> = rows.reduce<Record<string, ReactNode[]>>((acc, row, idx) =>
-    {
-        const rowKeys = buildRowKeys(row);
-        const key = getTabKey(row, idx);
-        const tabLabel = buildTabLabel("跑馬燈", idx, row.PictureTitle);
-
-        acc[key] = [
-            <PreviewImageComp key={`marquee-preview-${key}`} fileId={row.PictureId} alt={`${tabLabel} 預覽圖片`} emptyText="尚無跑馬燈預覽圖片" />,
-            <LibFileInput
-                key={`marquee-file-${key}`}
-                {...setFileField(
-                    SpecHomePage1820SetFields.SpecHomePage1820_Marquee,
-                    SpecHomePage1820_MarqueeFields.PictureId,
-                    SpecHomePage1820_MarqueeFields.PictureTitle,
-                    rowKeys,
-                )}
-                Accept="image/*"
-            />,
-            <LibCheckBox
-                key={`marquee-hide-${key}`}
-                Style={prop.theme.CheckBox}
-                options={{ IsHide: "隱藏" }}
-                {...setField(SpecHomePage1820SetFields.SpecHomePage1820_Marquee, SpecHomePage1820_MarqueeFields.IsHide, "boolean", rowKeys)}
-            />,
-        ];
-
-        return acc;
-    }, {});
-
-    const renderKey = rows.map((row, idx) => getTabKey(row, idx)).join("|");
+    // Section5 跑馬燈改由 EditGrid 統一新增、編輯、刪除與拖曳排序
+    const { renderPicturePreview } = useHomePageEditGridRenderers(prop.theme);
+    const marqueeGrid = useHomePage1820MarqueeEditGrid({ binding: prop.formData, lang: prop.lang, style: editGridStyle, renderPicturePreview });
 
     return (
         <div className="col-12">
-            <TabContentComp key={`marquee-tabs-${renderKey}`} tabInfos={tabInfos} components={components} />
+            <EditGrid {...marqueeGrid.editGridProps} />
         </div>
     );
 };
-// #endregion
 
-// #region Section6 Resource
-const Section6Comp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<HomePageSet>; lang: string; }) =>
+const Section6Comp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; lang: string; }) =>
 {
     const setField = useSetTableField<HomePageSet>(prop.formData);
 
@@ -649,104 +279,81 @@ const Section6Comp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
     );
 };
 
-const ResourceComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<HomePageSet>; lang: string; }) =>
+const ResourceComp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; lang: string; }) =>
 {
-    const setField = useSetTableField<HomePageSet>(prop.formData);
-    const setFileField = useSetTableFileField(prop.formData);
-    const rows = prop.formData.data?.SpecHomePage1820_Resource ?? [];
-
-    const addRow = () =>
-    {
-        // 新增 Resource 明細
-        prop.formData.setFormData(prev => ({
-            ...(prev ?? createEmptyHomePage1820Set(prop.lang)),
-            SpecHomePage1820_Resource: [...(prev?.SpecHomePage1820_Resource ?? []), {
-                HomePageId: prev?.SpecHomePage1820?.HomePageId ?? "",
-                RowId: getNextRowId(prev?.SpecHomePage1820_Resource),
-                PicTitle: "",
-                PicSubTitle: "",
-                PicFileId: "",
-                Link: "",
-            }],
-        }));
-    };
-
-    const removeRow = (rowId: number) =>
-    {
-        // 移除 Resource 明細
-        prop.formData.setFormData(prev => ({
-            ...(prev ?? createEmptyHomePage1820Set(prop.lang)),
-            SpecHomePage1820_Resource: (prev?.SpecHomePage1820_Resource ?? []).filter(a => Number(a.RowId) !== rowId),
-        }));
-    };
-
-    const getTabKey = (row: { RowId?: number | null; }, idx: number) =>
-    {
-        // 取得 Resource tab key
-        return buildChildTabKey(prop.lang, "Section6", row.RowId, idx + 1);
-    };
-
-    const tabInfos: LibTabsProp = {
-        Style: prop.theme.Tabs,
-        item: rows.reduce<Record<string, string>>((acc, row, idx) =>
-        {
-            acc[getTabKey(row, idx)] = buildTabLabel("卡片", idx, row.PicTitle);
-            return acc;
-        }, {}),
-        onAddTab: () =>
-        {
-            addRow();
-        },
-        onRemoveTab: key => removeRow(parseChildTabRowId(key)),
-    };
-
-    const components: Record<string, ReactNode[]> = rows.reduce<Record<string, ReactNode[]>>((acc, row, idx) =>
-    {
-        const rowKeys = buildRowKeys(row);
-        const key = getTabKey(row, idx);
-        const tabLabel = buildTabLabel("卡片", idx, row.PicTitle);
-
-        acc[key] = [
-            <PreviewImageComp key={`resource-preview-${key}`} fileId={row.PicFileId} alt={`${tabLabel} 預覽圖片`} emptyText="尚無資源卡片預覽圖片" />,
-            <LibTextBox
-                key={`resource-title-${key}`}
-                Style={prop.theme.TextBox}
-                DefaultInputDisplay="請輸入標題"
-                {...setField(SpecHomePage1820SetFields.SpecHomePage1820_Resource, SpecHomePage1820_ResourceFields.PicTitle, "string", rowKeys)}
-            />,
-            <LibTextBox
-                key={`resource-subtitle-${key}`}
-                Style={prop.theme.TextBox}
-                DefaultInputDisplay="請輸入副標題"
-                {...setField(SpecHomePage1820SetFields.SpecHomePage1820_Resource, SpecHomePage1820_ResourceFields.PicSubTitle, "string", rowKeys)}
-            />,
-            <LibFileInput
-                key={`resource-file-${key}`}
-                {...setFileField(
-                    SpecHomePage1820SetFields.SpecHomePage1820_Resource,
-                    SpecHomePage1820_ResourceFields.PicFileId,
-                    SpecHomePage1820_ResourceFields.PicFileDescription,
-                    rowKeys,
-                )}
-                Accept="image/*"
-            />,
-            <LibTextBox
-                key={`resource-link-${key}`}
-                Style={prop.theme.TextBox}
-                DefaultInputDisplay="請輸入連結"
-                {...setField(SpecHomePage1820SetFields.SpecHomePage1820_Resource, SpecHomePage1820_ResourceFields.Link, "string", rowKeys)}
-            />,
-        ];
-
-        return acc;
-    }, {});
-
-    const renderKey = rows.map((row, idx) => getTabKey(row, idx)).join("|");
+    // Section6 資源連結改由 EditGrid 統一新增、編輯、刪除與拖曳排序
+    const { renderPicturePreview } = useHomePageEditGridRenderers(prop.theme);
+    const resourceGrid = useHomePage1820ResourceEditGrid({ binding: prop.formData, lang: prop.lang, style: editGridStyle, renderPicturePreview });
 
     return (
-        <div className="col-12">
-            <TabContentComp key={`resource-tabs-${renderKey}`} tabInfos={tabInfos} components={components} />
+        <div className="col-12 mt-3">
+            <EditGrid {...resourceGrid.editGridProps} />
         </div>
     );
+};
+// #endregion
+
+// #region EntityComp
+const HomePageImagePreview = (props: { value: EditGridCellValue; }) =>
+{
+    // 顯示首頁圖片欄位的預覽圖，沒有圖片時避免破圖。
+    const file = toHomePageFileCellValue(props.value);
+    const previewUrl = file.url ?? getHomePageFilePreviewUrl(file.internalId);
+    const alt = file.originalFileName || file.fileName || "首頁圖片預覽";
+
+    if (!previewUrl) return <span className="small">尚未選擇圖片</span>;
+    return <img src={previewUrl} alt={alt} style={{ maxWidth: "160px", maxHeight: "120px", objectFit: "contain" }} />;
+};
+
+const HomePageIntroPreview = (props: { value: EditGridCellValue; }) =>
+{
+    // 唯讀狀態顯示 TinyMCE 內文摘要，避免表格直接露出 HTML tag。
+    const text = getPlainTextFromHtml(props.value);
+    if (!text) return <span className="small">尚未輸入內文</span>;
+    return <span>{text}</span>;
+};
+
+const HomePageTinyMceEditor = (props: { theme: IBETheme; args: EditGridCellRenderArgs; }) =>
+{
+    // EditGrid 編輯狀態改用 TinyMCE 回寫 Intro 欄位。
+    const value = typeof props.args.value === "string" ? props.args.value : String(props.args.value ?? "");
+    const handleChange = (nextValue: string) => props.args.updateValue(nextValue);
+
+    return (
+        <div style={{ minWidth: "520px" }}>
+            <LibTinyMCE
+                Style={{ ...props.theme.TinyMCE, ...tinyMceGridStyle }}
+                ColumnDisplayName={props.args.column.title}
+                InputValue={value}
+                OnChange={handleChange}
+            />
+        </div>
+    );
+};
+// #endregion
+
+// #region Private
+const getLangDisplayName = (lang?: string) =>
+{
+    // 取得語系顯示名稱
+    const key = String(lang ?? "").trim().toLowerCase() as Lang;
+    return LangLabelMap[key] ?? lang ?? "";
+};
+
+const useHomePageEditGridRenderers = (theme: IBETheme) =>
+{
+    // 建立首頁 EditGrid 共用 render，避免各區塊重複定義圖片與 TinyMCE 欄位。
+    const renderPicturePreview = useCallback((args: EditGridCellRenderArgs) => <HomePageImagePreview value={args.value} />, []);
+    const renderIntroPreview = useCallback((args: EditGridCellRenderArgs) => <HomePageIntroPreview value={args.value} />, []);
+    const renderIntroEditor = useCallback((args: EditGridCellRenderArgs) => <HomePageTinyMceEditor theme={theme} args={args} />, [theme]);
+
+    return { renderPicturePreview, renderIntroPreview, renderIntroEditor };
+};
+
+const getPlainTextFromHtml = (value: EditGridCellValue): string =>
+{
+    // 將 TinyMCE HTML 轉成表格摘要文字。
+    const html = typeof value === "string" ? value : String(value ?? "");
+    return html.replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
 };
 // #endregion
