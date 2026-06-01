@@ -85,8 +85,13 @@ export const EditGrid = (props: EditGridProps) =>
     const [systemWidths, setSystemWidths] = useState<Record<string, number>>(() => readSavedWidths(storageKey));
     const sourceColumns = Array.isArray(gridData.columns) ? gridData.columns : [];
     const sourceRows = Array.isArray(gridData.rows) ? gridData.rows : [];
-    // [Fix] 用 useMemo 穩定 sourceColumns 參考，避免 useEditGridColumns 內 useEffect 每次 re-render 都重跑
-    const stableSourceColumns = useMemo(() => sourceColumns, [JSON.stringify(sourceColumns.map(c => c.key))]);
+    const sourceGridDataRef = useRef(sourceGridData);
+    sourceGridDataRef.current = sourceGridData;
+
+    /** 外部 GridData 只用內容簽章當依賴，避免父層每 render 產生新物件造成同步循環。 */
+    const sourceGridDataSignature = buildGridDataSnapshotText(sourceGridData);
+    const sourceColumnSignature = buildColumnListSignature(sourceColumns);
+    const stableSourceColumns = useMemo(() => sourceColumns, [sourceColumnSignature]);
     const { columns, resizeColumn } = useEditGridColumns(stableSourceColumns, storageKey);
     const rows = sourceRows;
 
@@ -118,9 +123,9 @@ export const EditGrid = (props: EditGridProps) =>
     /** 外部 GridData 內容真的變更時才同步，避免父層每次 render 給新物件造成循環。 */
     useEffect(() =>
     {
-        const normalized = normalizeGridData(sourceGridData);
+        const normalized = normalizeGridData(sourceGridDataRef.current);
         setGridData(prev => isSameGridDataSnapshot(prev, normalized) ? prev : normalized);
-    }, [sourceGridData]);
+    }, [sourceGridDataSignature]);
 
     useEffect(() => setSystemWidths(readSavedWidths(storageKey)), [storageKey]);
     useEffect(() => scrollPendingAddedRowIntoView(scrollBoxRef, pendingAddedRowIndexRef), [rows.length]);
@@ -1028,9 +1033,25 @@ const useEditGridColumns = (sourceColumns: ColumnConfig[], storageKey: string) =
     const safeSourceColumns = Array.isArray(sourceColumns) ? sourceColumns : [];
     const [columns, setColumns] = useState<ColumnConfig[]>(safeSourceColumns);
 
-    // [Fix] sourceColumns 參考已由外部 useMemo 穩定，此處直接依賴即可，不再有無限重跑問題
-    useEffect(() => setColumns(prev => mergeColumns(prev, safeSourceColumns)), [safeSourceColumns]);
-    useEffect(() => setColumns(prev => applySavedWidths(prev, storageKey)), [storageKey]);
+    /** 同步外部欄位設定；內容相同時回傳 prev，避免 effect setState 循環。 */
+    useEffect(() =>
+    {
+        setColumns(prev =>
+        {
+            const next = mergeColumns(prev, safeSourceColumns);
+            return isSameColumnListSnapshot(prev, next) ? prev : next;
+        });
+    }, [safeSourceColumns]);
+
+    /** 套用 localStorage 欄寬；內容相同時回傳 prev，避免重複 render。 */
+    useEffect(() =>
+    {
+        setColumns(prev =>
+        {
+            const next = applySavedWidths(prev, storageKey);
+            return isSameColumnListSnapshot(prev, next) ? prev : next;
+        });
+    }, [storageKey]);
 
     const resizeColumn = (key: string, width: number, persist: boolean = true) =>
     {
@@ -1038,7 +1059,7 @@ const useEditGridColumns = (sourceColumns: ColumnConfig[], storageKey: string) =
         {
             const updated = prev.map(col => col.key === key ? { ...col, width } : col);
             if (persist) saveColumnWidths(updated, storageKey);
-            return updated;
+            return isSameColumnListSnapshot(prev, updated) ? prev : updated;
         });
     };
 
@@ -1398,6 +1419,16 @@ const normalizeGridData = (gridData?: GridProps): GridProps =>
     };
 };
 
+/** 建立 GridData 內容簽章，避免外層只有物件 reference 改變就觸發 effect。 */
+const buildGridDataSnapshotText = (gridData?: GridProps): string =>
+{
+    const normalized = normalizeGridData(gridData);
+    const columnText = buildColumnListSignature(normalized.columns);
+    const rowText = buildRowListSignature(normalized.rows);
+
+    return [normalized.CurrentPage, normalized.TotalPage, columnText, rowText].join("¶");
+};
+
 /** 判斷 GridData 內容是否相同，避免 props reference 改變就觸發 setState。 */
 const isSameGridDataSnapshot = (current: GridProps, next: GridProps): boolean =>
 {
@@ -1407,6 +1438,18 @@ const isSameGridDataSnapshot = (current: GridProps, next: GridProps): boolean =>
     if (!isSameRowListSnapshot(current.rows, next.rows)) return false;
 
     return true;
+};
+
+/** 建立欄位清單簽章。 */
+const buildColumnListSignature = (columns: ColumnConfig[]): string =>
+{
+    return (Array.isArray(columns) ? columns : []).map(getColumnSnapshotText).join("§");
+};
+
+/** 建立資料列清單簽章。 */
+const buildRowListSignature = (rows: GridRow[]): string =>
+{
+    return (Array.isArray(rows) ? rows : []).map((row, index) => getRowSnapshotText(row, index)).join("§");
 };
 
 /** 判斷欄位清單快照是否相同。 */

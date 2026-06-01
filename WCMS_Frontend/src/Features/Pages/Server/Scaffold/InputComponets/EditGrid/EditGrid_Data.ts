@@ -1,12 +1,32 @@
-import type { ReactNode } from "react";
 import type { Lang } from "@/SysCore/i18n/lang";
+import type { ReactNode } from "react";
 
 // #region Public Types
 
 export type EditGridPrimitiveValue = string | number | boolean | null | undefined;
 export type EditGridOptionValue = string | number | boolean;
 export type EditGridSelectionMode = "single" | "multiple";
-export type EditGridInputType = "text" | "email" | "tel" | "password" | "number" | "date" | "date-time" | "textarea" | "select" | "selectSingle" | "selectMultiple" | "file" | "radio" | "checkbox" | "checkboxSingle" | "checkboxGroup" | "checkboxMultiple" | "dateRange" | "dateTimeRange" | "readonly";
+export type EditGridInputType =
+    | "text"
+    | "email"
+    | "tel"
+    | "password"
+    | "number"
+    | "date"
+    | "date-time"
+    | "textarea"
+    | "select"
+    | "selectSingle"
+    | "selectMultiple"
+    | "file"
+    | "radio"
+    | "checkbox"
+    | "checkboxSingle"
+    | "checkboxGroup"
+    | "checkboxMultiple"
+    | "dateRange"
+    | "dateTimeRange"
+    | "readonly";
 export type EditGridRowState = "none" | "insert" | "update" | "delete";
 export type EditGridLang = Lang;
 
@@ -45,7 +65,12 @@ export interface EditGridCellValueChangeResult
 export type EditGridCellValueChangeReturn = EditGridCellValue | EditGridCellValueChangeResult;
 export type EditGridCellValueChangeHandler = (args: EditGridCellValueChangeArgs) => EditGridCellValueChangeReturn | Promise<EditGridCellValueChangeReturn>;
 
-export interface EditGridSelectOption { label: string; value: EditGridOptionValue; disabled?: boolean; }
+export interface EditGridSelectOption
+{
+    label: string;
+    value: EditGridOptionValue;
+    disabled?: boolean;
+}
 
 export interface ColumnConfig
 {
@@ -146,7 +171,6 @@ export interface EditGridCellRenderArgs
     /** 一次更新同列多個欄位，給檔案上傳後同步填入附件名稱等情境使用。 */
     updateValues: (values: Record<string, EditGridCellValue>) => void;
 }
-
 
 export interface EditGridSubDetailRenderArgs
 {

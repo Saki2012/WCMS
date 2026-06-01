@@ -1,9 +1,10 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import type {
     ColumnConfig,
     EditGridCellValue,
     EditGridEditingStateArgs,
+    EditGridFileValue,
     EditGridOptionValue,
     EditGridProps,
     EditGridSelectOption,
@@ -199,17 +200,43 @@ export const useEditGridBinding = <TData, TItem, TRow extends GridRow = GridRow>
     opt: UseEditGridBindingOptions<TData, TItem, TRow>,
 ): UseEditGridBindingResult<TItem> =>
 {
+    const optRef = useLatestRef(opt);
     const data = opt.binding.data ?? opt.emptyData;
-    const sourceItems = useMemo(() => readCollectionItems(data, opt), [data, opt]);
-    const items = useMemo(() => buildVisibleItems(sourceItems, opt), [sourceItems, opt]);
-    const columns = useMemo(() => resolveEditGridColumns(opt.columns), [opt.columns]);
-    const ctx = useMemo(() => buildBindingContext(data, sourceItems, items, opt), [data, sourceItems, items, opt]);
-    const rows = useMemo(() => items.map((item, index) => opt.toRow(item, index, ctx)), [items, opt, ctx]);
+    const dataRef = useLatestRef(data);
+    const collectionName = opt.collectionName;
+    const parentSignature = buildParentBindingSignature(opt.parent);
+    const dataSignature = buildStableSnapshot(data);
+    const rawSourceItems = useMemo(() => readCollectionItems(dataRef.current, optRef.current), [collectionName, dataSignature]);
+    const sourceItemsSignature = buildStableSnapshot(rawSourceItems);
+    const sourceItems = useMemo(() => rawSourceItems, [sourceItemsSignature]);
+    const sourceItemsRef = useLatestRef(sourceItems);
+    const rawItems = useMemo(() => buildVisibleItems(sourceItems, optRef.current), [parentSignature, sourceItems]);
+    const itemsSignature = buildStableSnapshot(rawItems);
+    const items = useMemo(() => rawItems, [itemsSignature]);
+    const itemsRef = useLatestRef(items);
+    const rawColumns = resolveEditGridColumns(opt.columns);
+    const columnsSignature = buildColumnListSignature(rawColumns);
+    const columns = useMemo(() => rawColumns, [columnsSignature]);
+    const ctx = useMemo(() => buildBindingContext(dataRef.current, sourceItems, items, optRef.current), [dataSignature, items, sourceItems]);
+    const ctxRef = useLatestRef(ctx);
+    const rawRows = useMemo(() => items.map((item, index) => optRef.current.toRow(item, index, ctxRef.current)), [ctx, items]);
+    const rowsSignature = buildRowListSignature(rawRows);
+    const rows = useMemo(() => rawRows, [rowsSignature]);
     const gridData = useMemo(() => buildEditGridData(columns, rows), [columns, rows]);
-    const createRow = useCallback((nextRowNo: number) => buildCreateRow(nextRowNo, opt, data, sourceItems, items), [opt, data, sourceItems, items]);
-    const onRowsChange = useCallback((rows: GridRow[]) => commitRowsToBinding(rows, opt), [opt]);
-    const onDeleteRow = useCallback((row: GridRow) => handleBindingDeleteRow(row, opt), [opt]);
-    const editGridProps = useMemo(() => buildEditGridProps(opt, gridData, createRow, onRowsChange, onDeleteRow), [opt, gridData, createRow, onRowsChange, onDeleteRow]);
+    const createRow = useCallback(
+        (nextRowNo: number) => buildCreateRow(nextRowNo, optRef.current, dataRef.current, sourceItemsRef.current, itemsRef.current),
+        [],
+    );
+    const onRowsChange = useCallback((rows: GridRow[]) => commitRowsToBinding(rows, optRef.current), []);
+    const onDeleteRow = useCallback((row: GridRow) => handleBindingDeleteRow(row, optRef.current), []);
+    const editGridPropsSignature = buildEditGridPropsSignature(opt.editGridProps);
+    const editGridProps = useMemo(() => buildEditGridProps(optRef.current, gridData, createRow, onRowsChange, onDeleteRow), [
+        createRow,
+        editGridPropsSignature,
+        gridData,
+        onDeleteRow,
+        onRowsChange,
+    ]);
 
     return { items, gridData, editGridProps, createRow, onRowsChange, onDeleteRow };
 };
@@ -219,15 +246,21 @@ export const useEditGridSubDetailState = (opt?: UseEditGridSubDetailStateOptions
 {
     const [expandedRowKey, setExpandedRowKey] = useState<string | null>(null);
     const [isSubDetailEditing, setIsSubDetailEditing] = useState(false);
+    const getRowKeyRef = useLatestRef(opt?.getRowKey);
+    const preventToggleWhenEditing = opt?.preventToggleWhenEditing !== false;
 
+    /** 切換子明細展開列，編輯中預設不允許切換避免資料錯位。 */
     const toggleSubDetail = useCallback((row: GridRow) =>
     {
-        if (opt?.preventToggleWhenEditing !== false && isSubDetailEditing) return;
-        const rowKey = opt?.getRowKey?.(row) ?? getEditGridRowKey(row);
+        if (preventToggleWhenEditing && isSubDetailEditing) return;
+        const rowKey = getRowKeyRef.current?.(row) ?? getEditGridRowKey(row);
         setExpandedRowKey(prev => (prev === rowKey ? null : rowKey));
-    }, [isSubDetailEditing, opt]);
+    }, [getRowKeyRef, isSubDetailEditing, preventToggleWhenEditing]);
 
+    /** 關閉所有子明細。 */
     const closeSubDetail = useCallback(() => setExpandedRowKey(null), []);
+
+    /** 更新子明細編輯狀態，讓父層可以鎖定展開列。 */
     const onSubDetailEditingStateChange = useCallback((args: EditGridEditingStateArgs) => setIsSubDetailEditing(args.hasEditingRow), []);
 
     return { expandedRowKey, isSubDetailEditing, setExpandedRowKey, toggleSubDetail, closeSubDetail, onSubDetailEditingStateChange };
@@ -420,6 +453,121 @@ const buildEditGridProps = <TData, TItem, TRow extends GridRow>(
 ): EditGridProps =>
 {
     return { ...opt.editGridProps, GridData: gridData, createRow, onRowsChange, onDeleteRow };
+};
+
+// #endregion
+
+// #region Private Stable Snapshot Helpers
+
+/** 保存最新值，但不把整包物件放入 dependency，避免 inline option 造成循環。 */
+const useLatestRef = <TValue>(value: TValue) =>
+{
+    const ref = useRef(value);
+    ref.current = value;
+    return ref;
+};
+
+/** 建立 parent 設定簽章，避免 parent 每次 inline new object 造成重算。 */
+const buildParentBindingSignature = <TItem>(parent?: EditGridParentBinding<TItem>): string =>
+{
+    if (!parent) return "";
+    return [String(parent.field), normalizeCompareValue(parent.value), Boolean(parent.compare)].join("|");
+};
+
+/** 建立 EditGrid 額外 props 簽章，避免 inline props 物件造成每次重建。 */
+const buildEditGridPropsSignature = (props?: UseEditGridBindingOptions<unknown, unknown>["editGridProps"]): string =>
+{
+    return buildStableSnapshot(props ?? {});
+};
+
+/** 建立欄位清單簽章，忽略 render callback reference。 */
+const buildColumnListSignature = (columns: ColumnConfig[]): string =>
+{
+    return (Array.isArray(columns) ? columns : []).map(buildColumnSignature).join("§");
+};
+
+/** 建立單一欄位簽章，避免 function reference 影響穩定性。 */
+const buildColumnSignature = (column: ColumnConfig): string =>
+{
+    return [
+        column.key,
+        column.title,
+        column.visible,
+        column.width,
+        column.minWidth,
+        column.inputType,
+        column.editable,
+        column.required,
+        column.placeholder,
+        column.selectionMode,
+        column.searchPlaceholder,
+        column.accept,
+        column.multiple,
+        column.maxFileCount,
+        column.maxFileSizeMB,
+        column.aaLabel,
+        column.helpText,
+        column.maxLength,
+        column.min,
+        column.max,
+        column.step,
+        column.rows,
+        column.searchable,
+        column.maxSearchLength,
+        buildStableSnapshot(column.options ?? []),
+    ].join("|");
+};
+
+/** 建立資料列清單簽章，讓 GridData 在內容沒變時維持穩定。 */
+const buildRowListSignature = (rows: GridRow[]): string =>
+{
+    return (Array.isArray(rows) ? rows : []).map(buildRowSignature).join("§");
+};
+
+/** 建立單一資料列簽章，避免 ReactNode / callback reference 影響比對。 */
+const buildRowSignature = (row: GridRow): string =>
+{
+    const cells = row.cells.map(cell => [cell.col.key, buildStableSnapshot(cell.value)].join(":")).join("|");
+    return [row.keyId, row.RowId, row.rowId, row.rowid, row.RowNo, row.rowNo, row.rowno, row.rowState, cells].join("|");
+};
+
+/** 建立穩定快照文字，遇到 function / ReactNode / File 只保留可比對資訊。 */
+const buildStableSnapshot = (value: unknown): string =>
+{
+    try
+    {
+        return JSON.stringify(value, stableSnapshotReplacer) ?? "";
+    } catch
+    {
+        return String(value ?? "");
+    }
+};
+
+/** JSON snapshot replacer，避免不可序列化物件造成比對失敗。 */
+const stableSnapshotReplacer = (_key: string, value: unknown): unknown =>
+{
+    if (typeof value === "function") return "__function__";
+    if (isFileValue(value)) return buildFileValueSnapshot(value);
+    if (isReactElementLike(value)) return "__react_node__";
+    return value;
+};
+
+/** 判斷是否為瀏覽器 File 物件。 */
+const isFileValue = (value: unknown): value is File =>
+{
+    return typeof File !== "undefined" && value instanceof File;
+};
+
+/** 建立 File 快照內容，避免整個 File 物件進入 dependency。 */
+const buildFileValueSnapshot = (file: File): EditGridFileValue =>
+{
+    return { fileName: file.name, size: file.size, mimeType: file.type };
+};
+
+/** 判斷是否像 React Element，避免 snapshot 讀入整包 React internals。 */
+const isReactElementLike = (value: unknown): boolean =>
+{
+    return typeof value === "object" && value !== null && "$$typeof" in value;
 };
 
 // #endregion

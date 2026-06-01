@@ -1,17 +1,22 @@
+//#region Property
 import { AboutPage } from "@/SpecFetures/1817/Pages/Client/Index/Section/AboutPage";
 import { CarouselData } from "@/SpecFetures/1817/Pages/Client/Index/Section/CarouselData";
 import { ExhibitionNewsData } from "@/SpecFetures/1817/Pages/Client/Index/Section/ExhibitionNewsData";
 import { NewsData } from "@/SpecFetures/1817/Pages/Client/Index/Section/NewsData";
 import { SpecialLinkData } from "@/SpecFetures/1817/Pages/Client/Index/Section/SpecialLinkData";
 import type { Lang } from "@/SysCore/i18n/lang";
-import { Navigate, useLoaderData } from "react-router";
-import type { HomePageLoaderData } from "./HomePage_Loader";
+import { Navigate } from "react-router";
+import { useHomePageTemplateData } from "./HomePage_Loader";
 
+//#endregion
+
+//#region Public
 const HomePage = (props: { lang: Lang; }) =>
 {
     // 宣告變數：SSR loader 資料
-    const loaderData = useLoaderData() as HomePageLoaderData;
-    const rawData = loaderData?.res?.rawData;
+    const homePage = useHomePageTemplateData(props.lang);
+    const loaderData = homePage.loaderData;
+    const rawData = homePage.rawData;
 
     // 執行 function：保留原本英文首頁導頁邏輯
     if (props.lang === "en")
@@ -20,7 +25,7 @@ const HomePage = (props: { lang: Lang; }) =>
     }
 
     // return：loader 尚未取到資料時先不渲染
-    if (!rawData)
+    if (!loaderData || !rawData)
     {
         return null;
     }
@@ -67,3 +72,4 @@ const HomePage = (props: { lang: Lang; }) =>
 };
 
 export default HomePage;
+//#endregion

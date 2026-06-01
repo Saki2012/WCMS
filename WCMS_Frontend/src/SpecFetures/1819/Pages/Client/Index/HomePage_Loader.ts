@@ -1,3 +1,5 @@
+//#region Property
+import { useClientDataQueryTemplate, type ClientDataQueryDataSourceResult, type ClientDataQueryTemplate } from "@/Features/Pages/Client/Scaffold/DataQueryTemplate/Client_DataQueryTemplate_Hook";
 import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WEB/Announcement_Api";
 import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WEB/BannerSlider_Api";
 import { WebResourceAdapter } from "@/Features/Hooks/BizFunc/WEB/WebResource_Api";
@@ -86,6 +88,9 @@ export interface HomePageLoaderData
     res: HomePageLoaderRes;
 }
 
+//#endregion
+
+//#region Private - Loader Helpers
 const formatLocalIsoByMinute = (d: Date): string =>
 {
     // 宣告變數
@@ -347,6 +352,9 @@ const buildHomePageArgs = (lang: Lang): HomePageLoaderArgs =>
  * - 先以目前 1819 Index 的 5 個 section 需求為主
  * - 後續各 section 改 hook 時，可直接吃 args + rawData
  */
+//#endregion
+
+//#region Public - SSR Loader
 export const HomePageLoader = (p: { lang: Lang; }) => async ({ request }: LoaderFunctionArgs): Promise<HomePageLoaderData> =>
 {
     // 宣告變數
@@ -452,6 +460,9 @@ export const HomePageLoader = (p: { lang: Lang; }) => async ({ request }: Loader
 
 // 以下Hooks
 
+//#endregion
+
+//#region Private - Legacy Data Mapping
 interface UseHomePageDataProps
 {
     lang: Lang;
@@ -499,7 +510,7 @@ const joinErrorText = (errors: Array<string | null>): string | null =>
 };
 
 /** 1819 首頁 CSR/SSR 共用資料 hook */
-export const useHomePageData = (props: UseHomePageDataProps): UseHomePageDataResult =>
+const useHomePageDataLegacy = (props: UseHomePageDataProps): UseHomePageDataResult =>
 {
     const hasLoaderRaw = Boolean(props.loaderData?.res?.rawData);
     const rawInitial = props.loaderData?.res?.rawData ?? null;
@@ -721,3 +732,53 @@ export const useHomePageData = (props: UseHomePageDataProps): UseHomePageDataRes
 
     return { args, rawData, isLoading, errorText };
 };
+
+
+//#endregion
+
+//#region Template - Client DataQuery
+type HomePageTemplate = ClientDataQueryTemplate<UseHomePageDataProps, UseHomePageDataResult, UseHomePageDataResult, unknown, UseHomePageDataProps, HomePageLoaderData>;
+
+/** 建立 1819 首頁 DataQuery Template，保留既有 CSR/SSR 資料收斂並掛入 Template 流程 */
+const createHomePageTemplate = (props: UseHomePageDataProps): HomePageTemplate =>
+{
+    // return
+    return {
+        featureKey: "Spec1819.HomePage",
+        dataMode: "single",
+        initialViewState: { pageNumber: 1, pageSize: 1 },
+        pagination: null,
+        searchBar: null,
+        spec: {
+            toSearchParams: () => props,
+            buildQueryParam: ({ searchParams }) => searchParams,
+            useDataSource: () => useHomePageTemplateDataSource(props),
+            buildViewModel: ({ rawData }) => rawData,
+        },
+    };
+};
+
+/** DataSource：沿用 1819 首頁既有 CSR/SSR hook，但由 Client_DataQueryTemplate 統一包裝 */
+const useHomePageTemplateDataSource = (props: UseHomePageDataProps): ClientDataQueryDataSourceResult<UseHomePageDataResult> =>
+{
+    // 宣告變數
+    const rawData = useHomePageDataLegacy(props);
+
+    // return
+    return { rawData, isLoading: rawData.isLoading, errors: rawData.errorText ? [rawData.errorText] : [], paginator: null };
+};
+
+/** 1819 首頁 CSR/SSR 共用資料 hook：Template 入口 */
+//#endregion
+
+//#region Public - CSR Hook
+export const useHomePageData = (props: UseHomePageDataProps): UseHomePageDataResult =>
+{
+    // 宣告變數
+    const template = useMemo(() => createHomePageTemplate(props), [props]);
+    const templateVm = useClientDataQueryTemplate(template);
+
+    // return
+    return { ...templateVm.viewModel, isLoading: templateVm.isLoading, errorText: templateVm.errorList[0] ?? null };
+};
+//#endregion

@@ -1,3 +1,4 @@
+//#region Property
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
@@ -7,12 +8,8 @@ import { PGID, SpecMusicalModelFields, SpecMusicalSetFields } from "@/types/Sche
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router";
 
-// ✅ 新架構：Adapter + LoaderData initial
 import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
-import { SpecMusicalAdapter } from "@/SpecFetures/1817/Hooks/BizFunc/WEB/SpecMusical_Api";
-import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
-import { useLoaderData } from "react-router-dom";
-import type { SpecMusicalFormLoaderData } from "./SpecMusicalForm_Loader";
+import { useSpecMusicalFormData } from "./SpecMusicalForm_Loader";
 
 type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"];
 type SpecMusicalModel = components["schemas"]["SpecMusicalModel_DTO"];
@@ -27,55 +24,38 @@ interface ISpecMusicalFormProps
     node: INormNode;
 }
 
+//#endregion
+
+//#region Public
 const SpecMusicalForm = (props: ISpecMusicalFormProps) =>
 {
     // 宣告變數
     const { internalId } = useParams();
-    const loaderData = useLoaderData() as SpecMusicalFormLoaderData | null;
-
-    const adapter = useMemo(() => SpecMusicalAdapter(), []);
     const safeInternalId = `${internalId ?? ""}`.trim();
 
-    const initialData = useMemo<ApiLoaderData<string, SpecMusicalSet> | null>(() =>
-    {
-        if (!loaderData?.args?.internalId) return null;
-        if (loaderData.args.internalId !== safeInternalId) return null;
+    // 執行 function：QueryData / DisplayName 交給 Client_DataQueryTemplate
+    const useData = useSpecMusicalFormData({ internalId: safeInternalId });
 
-        return { args: safeInternalId, apiRes: { IsSuccess: true, Data: loaderData.res.dataRes ?? ({} as SpecMusicalSet), SysMessage: [] } };
-    }, [loaderData, safeInternalId]);
+    const errorList = useData.errorList;
 
-    const initialDisplayName = useMemo<ApiLoaderData<null, ModelDisplaySchema[]> | null>(() =>
-    {
-        if (!loaderData?.res?.displayNameRes) return null;
-        return { args: null, apiRes: { IsSuccess: true, Data: loaderData.res.displayNameRes, SysMessage: [] } };
-    }, [loaderData]);
-
-    // 執行 function：QueryData / DisplayName（SSR initial → CSR 接手）
-    const useData = adapter.hooks.useQueryData({ internalId: safeInternalId, initial: initialData, deps: [safeInternalId] });
-
-    const useDisplayName = adapter.hooks.useModelDisplayName({ initial: initialDisplayName, deps: [] });
-
-    const errorList = [useData.errorText, useDisplayName.errorText];
-
-    const title = useData.data?.SpecMusical?.MusicalName ?? "";
+    const title = useData.title;
     const viewCountConfig = useMemo<ModuleViewCountConfig>(() =>
     {
         const request: TryCountDetailViewRequest = { SiteIndex: props.site.siteIndex, ProgId: PGID.SpecMusical, InternalId: safeInternalId };
         return { mode: "form", contentKey: safeInternalId, request };
     }, [safeInternalId]);
     // return（DOM 不改）
-    const displaySchema = useMemo<ModelDisplaySchema | null>(() =>
-    {
-        return Array.isArray(useDisplayName.data) ? (useDisplayName.data[0] ?? null) : null;
-    }, [useDisplayName.data]);
     return (
         <ModuleContent nodeTitle={props.node.title} title={title} isLoading={useData.isLoading} errorList={errorList} viewCountConfig={viewCountConfig}>
-            <MainContent data={useData.data ?? undefined} displayName={displaySchema} />
+            <MainContent data={useData.data ?? undefined} displayName={useData.displaySchema} />
         </ModuleContent>
     );
 };
 
 export default SpecMusicalForm;
+//#endregion
+
+//#region Section / EntityComp
 
 const MainContent = (props: { data?: SpecMusicalSet; displayName: ModelDisplaySchema | null; }) =>
 {
@@ -637,3 +617,4 @@ const AudioPlayer = (props: { src: string; }) =>
         </div>
     );
 };
+//#endregion
