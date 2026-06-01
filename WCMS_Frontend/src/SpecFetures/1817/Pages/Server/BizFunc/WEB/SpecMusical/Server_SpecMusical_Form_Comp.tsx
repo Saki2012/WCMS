@@ -1,568 +1,360 @@
-import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
-import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
+import { Server_FormTemplate_Comp } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Comp";
+import type { ServerFormBinding } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
+import { EditGrid } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid";
+import type { EditGridCellRenderArgs, EditGridCellValue, IEditGridView_Style } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Data";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-import {
-    LibCheckBoxSingle,
-    LibDropList,
-    LibFile,
-    LibFileInput,
-    LibModal,
-    LibPicture,
-    LibPicturePreview,
-    LibTextArea,
-    LibTextBox,
-} from "@/SysCore/Components/FormField/LibFormField";
-import { useSetTableField, useSetTableFileField } from "@/SysCore/Components/FormField/useSetTableField";
+import { LibDropList, LibFile, LibModal, LibPicturePreview, LibTextArea, LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
+import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
-import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import type { components } from "@/types/api";
-import { SpecMusicalModelFields, SpecMusicalPictureListFields, SpecMusicalSetFields, SpecMusicalSoundListFields } from "@/types/SchemaFields";
-import { type ReactNode, useCallback, useMemo, useState } from "react";
+import { SpecMusicalModelFields, SpecMusicalSetFields } from "@/types/SchemaFields";
+import type { ReactNode } from "react";
+import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useSpecMusicalFormFetchData } from "./Server_SpecMusical_Form_Hook";
+import {
+    getSpecMusicalPicturePreviewUrl,
+    getSpecMusicalSoundPreviewUrl,
+    specMusicalEmptyData,
+    type SpecMusicalFormRefs,
+    toSpecMusicalPictureCellValue,
+    toSpecMusicalSoundCellValue,
+    useSpecMusicalBatchPhotoUpload,
+    useSpecMusicalCoverSelector,
+    useSpecMusicalFormTemplate,
+    useSpecMusicalPhotoEditGrid,
+    useSpecMusicalSoundEditGrid,
+} from "./Server_SpecMusical_Form_Hook";
 
+// #region Property
 type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"];
-type SpecMusicalSoundList = components["schemas"]["SpecMusicalSoundList_DTO"];
-type SpecMusicalPictureList = components["schemas"]["SpecMusicalPictureList_DTO"];
 
-const emptyData: SpecMusicalSet = { SpecMusical: {}, SpecMusicalPictureList: [], SpecMusicalSoundList: [] };
+interface SpecMusicalFormCompProps
+{
+    /** 後台主題設定 */
+    theme: IBETheme;
 
-export const Server_SpecMusical_Form_Comp = (prop: { theme: IBETheme; lang: Lang; }) =>
+    /** 目前語系 */
+    lang: Lang;
+}
+
+interface SpecMusicalContentProps
+{
+    /** 後台主題設定 */
+    theme: IBETheme;
+
+    /** Form Template 提供的主資料 binding */
+    binding: ServerFormBinding<SpecMusicalSet>;
+
+    /** SpecMusical Hook 整理後的參照資料 */
+    refs: SpecMusicalFormRefs;
+}
+
+interface SpecMusicalBasicProps extends SpecMusicalContentProps
+{
+    /** 類別下拉選項 */
+    cateOpts: Map<string, string>;
+}
+
+interface SpecMusicalGridProps
+{
+    /** 後台主題設定 */
+    theme: IBETheme;
+
+    /** Form Template 提供的主資料 binding */
+    binding: ServerFormBinding<SpecMusicalSet>;
+}
+
+const editGridStyle: IEditGridView_Style = {
+    TableStyle: "table table-striped table-bordered table-hover",
+    ToolbarStyle: "d-flex align-items-center justify-content-between mb-2",
+    ButtonStyle: "btn btn-custom btn-rounded btn-sm",
+    DangerButtonStyle: "btn btn-danger btn-rounded btn-sm",
+    ErrorStyle: "text-danger small mt-1",
+};
+// #endregion
+
+// #region Public
+/** 後台琵琶介紹 Form，透過新版 Form Template 統一外框與資料流程。 */
+export const Server_SpecMusical_Form_Comp = (props: SpecMusicalFormCompProps) =>
 {
     const { internalId } = useParams();
     const navigate = useNavigate();
     const pathname = useLocation().pathname;
 
-    /** 回列表 */
     const onBackToList = useCallback(() =>
     {
-        navigate(pathname.replace(/\/Form(\/[^\/]*)?$/, "/List"));
+        navigate(buildBackToListPath(pathname));
     }, [navigate, pathname]);
 
-    /** 提供 Hook 用的 actions option */
     const actionsOpt = useMemo(() =>
     {
         return { onBackToList };
     }, [onBackToList]);
 
-    /** 所有資料從 Hook 取出 */
-    const getData = useSpecMusicalFormFetchData({ lang: prop.lang, internalId: internalId ?? "", emptyData, actionsOpt });
-    const cateOpts = useMemo(() =>
-    {
-        return new Map<string, string>(Object.entries(getData.rawData.categoryMap ?? {}));
-    }, [getData.rawData.categoryMap]);
-    /** Form 外框 props */
-    const formProp: FormCompProp = {
-        Title: internalId ? "修改琵琶介紹" : "新增琵琶介紹",
-        Theme: prop.theme,
-        IsLoading: getData.isLoading,
-        ErrorList: getData.errors,
-        Actions: getData.rawData.actions,
-    };
+    const template = useSpecMusicalFormTemplate({ lang: props.lang, theme: props.theme, internalId: internalId ?? "", emptyData: specMusicalEmptyData, actionsOpt });
 
     return (
-        <FormComp prop={formProp}>
-            <MainFormComp theme={prop.theme} formData={getData.rawData.formData} cateOpts={cateOpts} />
-        </FormComp>
+        <Server_FormTemplate_Comp
+            template={template}
+            renderContent={({ vm }) => <SpecMusicalContentComp theme={props.theme} binding={vm.binding} refs={vm.refs} />}
+        />
     );
 };
+// #endregion
 
-const MainFormComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<SpecMusicalSet>; cateOpts: Map<string, string>; }) =>
+// #region Section
+/** 琵琶介紹主要內容，基本資料 / 相片 / 音檔統一由 Template binding 驅動。 */
+const SpecMusicalContentComp = (props: SpecMusicalContentProps) =>
 {
-    /** 頁籤資訊 */
-    const tabInfo: LibTabsProp = { Style: prop.theme.Tabs, item: { Basic: "基本資料", Photo: "相片", Sound: "音檔" } };
-
-    /** 頁籤內容 */
-    const components: Record<string, ReactNode[]> = {
-        Basic: [<AlbumComp key="basic" theme={prop.theme} formData={prop.formData} cateOpts={prop.cateOpts} />],
-        Photo: [
-            <UploadPicComp key="upload-pic" theme={prop.theme} formData={prop.formData} />,
-            <PhotoComp key="photo-list" theme={prop.theme} formData={prop.formData} />,
-        ],
-        Sound: [<SoundFileComp key="sound-file" theme={prop.theme} formData={prop.formData} />],
-    };
+    const cateOpts = useMemo(() => new Map<string, string>(Object.entries(props.refs.categoryMap ?? {})), [props.refs.categoryMap]);
+    const tabInfo: LibTabsProp = { Style: props.theme.Tabs, item: { Basic: "基本資料", Photo: "相片", Sound: "音檔" } };
+    const components = buildSpecMusicalTabContent({ ...props, cateOpts });
 
     return <TabContentComp tabInfos={tabInfo} components={components} />;
 };
 
-const AlbumComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<SpecMusicalSet>; cateOpts: Map<string, string>; }) =>
+/** 基本資料欄位，維持舊版欄位排列。 */
+const SpecMusicalBasicComp = (props: SpecMusicalBasicProps) =>
 {
-    /** 表單欄位綁定 */
-    const setField = useSetTableField<SpecMusicalSet>(props.formData);
+    const setField = useSetTableField<SpecMusicalSet>(props.binding);
+
+    return <>{buildSpecMusicalBasicFields(props.theme, setField, props.cateOpts)}</>;
+};
+
+/** 相片區塊，改由 EditGrid 處理單筆新增、上傳、封面、排序與刪除。 */
+const SpecMusicalPhotoGridComp = (props: SpecMusicalGridProps) =>
+{
+    const cover = useSpecMusicalCoverSelector(props.binding);
+    const renderPicturePreview = useCallback((args: EditGridCellRenderArgs) => <SpecMusicalPicturePreview value={args.value} />, []);
+    const renderCoverSelector = useCallback(
+        (args: EditGridCellRenderArgs) => <SpecMusicalCoverSelector value={args.value} selected={cover.selected} onSelect={cover.select} />,
+        [cover.select, cover.selected],
+    );
+    const photoGrid = useSpecMusicalPhotoEditGrid({ binding: props.binding, style: editGridStyle, renderPicturePreview, renderCoverSelector });
 
     return (
-        <>
-            <div className="col-12 form-group">
-                <LibDropList
-                    Style={props.theme.DropList}
-                    Options={props.cateOpts}
-                    {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.CategoryId, "string")}
-                />
-            </div>
-
-            <div className="col-12 form-group">
-                <LibTextBox
-                    Style={props.theme.TextBox}
-                    DefaultInputDisplay="請輸入"
-                    {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.MusicalName, "string")}
-                />
-            </div>
-
-            <div className="col-12 form-group">
-                <LibTextBox
-                    Style={props.theme.TextBox3}
-                    DefaultInputDisplay="請輸入"
-                    {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.Specification, "string")}
-                />
-                <LibTextBox
-                    Style={props.theme.TextBox3}
-                    DefaultInputDisplay="請輸入"
-                    {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.Headstock, "string")}
-                />
-            </div>
-
-            <div className="col-12 form-group">
-                <LibTextBox
-                    Style={props.theme.TextBox3}
-                    DefaultInputDisplay="請輸入"
-                    {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.Backboard, "string")}
-                />
-                <LibTextBox
-                    Style={props.theme.TextBox3}
-                    DefaultInputDisplay="請輸入"
-                    {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.ScaleLength, "string")}
-                />
-            </div>
-
-            <div className="col-12 form-group">
-                <LibTextBox
-                    Style={props.theme.TextBox3}
-                    DefaultInputDisplay="請輸入"
-                    {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.Bridge, "string")}
-                />
-                <LibTextBox
-                    Style={props.theme.TextBox3}
-                    DefaultInputDisplay="請輸入"
-                    {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.BodyForm, "string")}
-                />
-            </div>
-
-            <div className="col-12 form-group">
-                <LibTextBox
-                    Style={props.theme.TextBox3}
-                    DefaultInputDisplay="請輸入"
-                    {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.Material, "string")}
-                />
-            </div>
-
-            <div className="col-12 form-group">
-                <LibTextArea
-                    Style={props.theme.TextArea}
-                    DefaultInputDisplay="請輸入"
-                    {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.Info, "string")}
-                />
-            </div>
-        </>
+        <div className="form-group">
+            <SpecMusicalPhotoBatchUploadComp theme={props.theme} binding={props.binding} />
+            <EditGrid {...photoGrid.editGridProps} />
+        </div>
     );
 };
 
-const UploadPicComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<SpecMusicalSet>; }) =>
+/** 音檔區塊，改由 EditGrid 處理單筆新增、上傳、名稱與刪除。 */
+const SpecMusicalSoundGridComp = (props: SpecMusicalGridProps) =>
 {
-    const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-    const [isUploading, setIsUploading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
-    /** 讀取錯誤狀態碼 */
-    const getErrorStatus = (error: unknown): number | null =>
-    {
-        if (!error || typeof error !== "object") return null;
-        if (!("status" in error)) return null;
-        return typeof error.status === "number" ? error.status : null;
-    };
-
-    /** 單檔上傳 */
-    const doUpload = async (file: File, fieldName: "file" | "files") =>
-    {
-        const fd = new FormData();
-        fd.append(fieldName, file, file.name);
-
-        const resp = await fetch(FileManagementAPI.Server_UploadTemp, { method: "POST", body: fd, credentials: "include", mode: "cors" });
-
-        if (!resp.ok)
-        {
-            const text = await resp.text().catch(() => "");
-            const err = new Error(`Upload ${file.name} failed: ${resp.status} ${text}`) as Error & { status?: number; };
-            err.status = resp.status;
-            throw err;
-        }
-
-        const json = await resp.json().catch(() => ({ Data: [] as string[] }));
-        return json as { Data?: string[]; };
-    };
-
-    /** 逐檔上傳 */
-    const uploadAll = async (): Promise<string[]> =>
-    {
-        const results: string[] = [];
-
-        for (const file of selectedFiles)
-        {
-            let json: { Data?: string[]; };
-
-            try
-            {
-                json = await doUpload(file, "file");
-            } catch (error)
-            {
-                const status = getErrorStatus(error);
-
-                if (status !== 400)
-                {
-                    throw error;
-                }
-
-                json = await doUpload(file, "files");
-            }
-
-            const id = json.Data?.[0] ?? "";
-
-            if (!id)
-            {
-                throw new Error(`Upload ${file.name}: missing InternalId`);
-            }
-
-            results.push(id);
-        }
-
-        return results;
-    };
-
-    /** 把上傳結果寫回 formData */
-    const appendPhotosToForm = (picIds: string[]) =>
-    {
-        prop.formData.setFormData(prev =>
-        {
-            const base = prev ?? emptyData;
-            const header = base.SpecMusical ?? {};
-            const musicalId = header.MusicalId ?? "";
-            const list = base.SpecMusicalPictureList ?? [];
-
-            const maxRowId = list.reduce((max, item) =>
-            {
-                if (item?.MusicalId !== musicalId) return max;
-                return Math.max(max, Number(item?.RowId ?? 0));
-            }, 0);
-
-            const newItems: SpecMusicalPictureList[] = picIds.map((picId, idx) =>
-            {
-                const nextRowId = maxRowId + idx + 1;
-
-                return { MusicalId: musicalId, RowId: nextRowId, PicSrcId: picId, Sort: nextRowId };
-            });
-
-            const nextCoverPicId = header.CoverPicId ?? picIds[0] ?? null;
-
-            return {
-                ...base,
-                SpecMusical: { ...header, CoverPicId: nextCoverPicId },
-                SpecMusicalPictureList: [...list, ...newItems],
-                SpecMusicalSoundList: base.SpecMusicalSoundList ?? [],
-            };
-        });
-    };
-
-    /** 觸發上傳 */
-    const handleUpload = async () =>
-    {
-        if (selectedFiles.length === 0 || isUploading) return;
-
-        try
-        {
-            setError(null);
-            setIsUploading(true);
-
-            const internalIds = await uploadAll();
-            appendPhotosToForm(internalIds);
-            setSelectedFiles([]);
-        } catch (error)
-        {
-            setError(error instanceof Error ? error.message : "上傳失敗");
-            throw error;
-        } finally
-        {
-            setIsUploading(false);
-        }
-    };
+    const renderSoundPreview = useCallback((args: EditGridCellRenderArgs) => <SpecMusicalSoundPreview value={args.value} />, []);
+    const soundGrid = useSpecMusicalSoundEditGrid({ binding: props.binding, style: editGridStyle, renderSoundPreview });
 
     return (
-        <LibModal
-            ModalName="上傳圖片"
-            BtnName1="關閉"
-            BtnName2="儲存並上傳"
-            onConfirm={handleUpload}
-            confirmDisabled={isUploading || selectedFiles.length === 0}
-            confirmBusy={isUploading}
-        >
-            <div className="row mx-0">
-                <div className="col-12">
-                    <div className="row">
-                        <LibFile
-                            Style={prop.theme.File}
-                            ColumnDisplayName="選擇圖片(多選)"
-                            Multiple={true}
-                            onChange={(files) => setSelectedFiles(files)}
-                            InputValue=""
-                        />
-                    </div>
+        <div className="form-group">
+            <EditGrid {...soundGrid.editGridProps} />
+        </div>
+    );
+};
+// #endregion
 
-                    {error && <div className="col-12 alert alert-danger mt-2">{error}</div>}
-                </div>
+// #region EntityComp
+/** 建立主分頁內容。 */
+const buildSpecMusicalTabContent = (props: SpecMusicalBasicProps): Record<string, ReactNode[]> =>
+{
+    return {
+        Basic: [<SpecMusicalBasicComp key="basic" theme={props.theme} binding={props.binding} refs={props.refs} cateOpts={props.cateOpts} />],
+        Photo: [<SpecMusicalPhotoGridComp key="photo-grid" theme={props.theme} binding={props.binding} />],
+        Sound: [<SpecMusicalSoundGridComp key="sound-grid" theme={props.theme} binding={props.binding} />],
+    };
+};
 
-                {selectedFiles.length > 0 && (
+/** 建立基本資料欄位。 */
+const buildSpecMusicalBasicFields = (
+    theme: IBETheme,
+    setField: ReturnType<typeof useSetTableField<SpecMusicalSet>>,
+    cateOpts: Map<string, string>,
+): ReactNode[] =>
+{
+    return [
+        <div key="category" className="col-12 form-group">
+            <LibDropList
+                Style={theme.DropList}
+                Options={cateOpts}
+                {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.CategoryId, "string")}
+            />
+        </div>,
+        <div key="name" className="col-12 form-group">
+            <LibTextBox
+                Style={theme.TextBox}
+                DefaultInputDisplay="請輸入"
+                {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.MusicalName, "string")}
+            />
+        </div>,
+        <div key="spec-row-1" className="col-12 form-group">
+            <LibTextBox
+                Style={theme.TextBox3}
+                DefaultInputDisplay="請輸入"
+                {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.Specification, "string")}
+            />
+            <LibTextBox
+                Style={theme.TextBox3}
+                DefaultInputDisplay="請輸入"
+                {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.Headstock, "string")}
+            />
+        </div>,
+        <div key="spec-row-2" className="col-12 form-group">
+            <LibTextBox
+                Style={theme.TextBox3}
+                DefaultInputDisplay="請輸入"
+                {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.Backboard, "string")}
+            />
+            <LibTextBox
+                Style={theme.TextBox3}
+                DefaultInputDisplay="請輸入"
+                {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.ScaleLength, "string")}
+            />
+        </div>,
+        <div key="spec-row-3" className="col-12 form-group">
+            <LibTextBox
+                Style={theme.TextBox3}
+                DefaultInputDisplay="請輸入"
+                {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.Bridge, "string")}
+            />
+            <LibTextBox
+                Style={theme.TextBox3}
+                DefaultInputDisplay="請輸入"
+                {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.BodyForm, "string")}
+            />
+        </div>,
+        <div key="material" className="col-12 form-group">
+            <LibTextBox
+                Style={theme.TextBox3}
+                DefaultInputDisplay="請輸入"
+                {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.Material, "string")}
+            />
+        </div>,
+        <div key="info" className="col-12 form-group">
+            <LibTextArea
+                Style={theme.TextArea}
+                DefaultInputDisplay="請輸入"
+                {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.Info, "string")}
+            />
+        </div>,
+    ];
+};
+
+/** 批次上傳圖片，和 EditGrid 內建新增單筆按鈕分離。 */
+const SpecMusicalPhotoBatchUploadComp = (props: { theme: IBETheme; binding: ServerFormBinding<SpecMusicalSet>; }) =>
+{
+    const batch = useSpecMusicalBatchPhotoUpload({ binding: props.binding });
+
+    return (
+        <div className="mb-3">
+            <LibModal
+                ModalName="批次上傳圖片"
+                BtnName1="關閉"
+                BtnName2="儲存並上傳"
+                onConfirm={batch.uploadSelectedFiles}
+                confirmDisabled={batch.isUploading || batch.selectedFiles.length === 0}
+                confirmBusy={batch.isUploading}
+            >
+                <div className="row mx-0">
                     <div className="col-12">
-                        <div className="row mt-3 mx-0">
-                            <div className="col-12 col-form-label bg-secondary mb-1">預覽圖片</div>
-
-                            {selectedFiles.map((file, index) =>
-                            {
-                                const url = URL.createObjectURL(file);
-
-                                return (
-                                    <div key={index} className="col-12 border-bottom">
-                                        <div className="d-flex align-items-center">
-                                            <LibPicturePreview ColumnDisplayName={file.name} PicSrc={url} PicDescription={`選中的圖片 ${file.name}`} />
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
-                )}
-            </div>
-        </LibModal>
-    );
-};
-
-const useCoverPicSelector = (formData: UseFetchFormDataResult<SpecMusicalSet>) =>
-{
-    /** 目前封面 */
-    const selected = formData.data?.SpecMusical?.CoverPicId ?? null;
-
-    /** 設定封面 */
-    const select = (picId: string) =>
-    {
-        formData.setFormData(prev =>
-        {
-            const base = prev ?? emptyData;
-            const header = base.SpecMusical ?? {};
-
-            return { ...base, SpecMusical: { ...header, CoverPicId: picId } };
-        });
-    };
-
-    return { selected, select };
-};
-
-const usePhotoRemove = (formData: UseFetchFormDataResult<SpecMusicalSet>) =>
-{
-    /** 刪除相片 */
-    const remove = (musicalId?: string, rowId?: number, picSrcId?: string) =>
-    {
-        if (!musicalId || rowId == null) return;
-
-        formData.setFormData(prev =>
-        {
-            const base = prev ?? emptyData;
-            const photos = base.SpecMusicalPictureList ?? [];
-            const nextPhotos = photos.filter(item =>
-            {
-                return !(item?.MusicalId === musicalId && item?.RowId === rowId);
-            });
-
-            const header = base.SpecMusical ?? {};
-            const nextHeader = { ...header };
-
-            if (picSrcId && header.CoverPicId === picSrcId)
-            {
-                nextHeader.CoverPicId = nextPhotos[0]?.PicSrcId ?? null;
-            }
-
-            return { ...base, SpecMusical: nextHeader, SpecMusicalPictureList: nextPhotos };
-        });
-    };
-
-    return { remove };
-};
-
-const PhotoComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<SpecMusicalSet>; }) =>
-{
-    /** 欄位綁定 */
-    const setField = useSetTableField<SpecMusicalSet>(prop.formData);
-    const cover = useCoverPicSelector(prop.formData);
-    const photos = prop.formData.data?.SpecMusicalPictureList ?? [];
-    const remover = usePhotoRemove(prop.formData);
-
-    return (
-        <>
-            {photos.map((item) =>
-            {
-                const picId = String(item.PicSrcId ?? "");
-                const picUrl = FileManagementAPI.get_Server_Preview_Url(item.PicSrcId);
-                const rowKeys = { [SpecMusicalPictureListFields.MusicalId]: item.MusicalId, [SpecMusicalPictureListFields.RowId]: item.RowId };
-
-                return (
-                    <LibPicture
-                        key={`${item.MusicalId}-${item.RowId}`}
-                        parentClass="col-xl-3 col-md-4 col-12"
-                        ColumnDisplayName="測試"
-                        PicSrc={picUrl}
-                        PicDescription="文字"
-                    >
                         <div className="row">
-                            <div className="col-6">
-                                <LibCheckBoxSingle
-                                    name="coverPic"
-                                    checkboxStyle="radio"
-                                    options={[{ itemId: picId, itemDisplayName: "選擇封面" }]}
-                                    value={cover.selected ? [String(cover.selected)] : []}
-                                    onChange={(ids) =>
-                                    {
-                                        const id = ids?.[0];
-                                        if (id)
-                                        {
-                                            cover.select(id);
-                                        }
-                                    }}
-                                />
-                            </div>
-
-                            <div className="col-6 d-flex justify-content-end">
-                                <div className="all-btn">
-                                    <a
-                                        id="trash"
-                                        className="icon"
-                                        href="#"
-                                        onClick={(e) =>
-                                        {
-                                            e.preventDefault();
-
-                                            if (!window.confirm("確定要刪除這張相片嗎？"))
-                                            {
-                                                return;
-                                            }
-
-                                            remover.remove(String(item.MusicalId ?? ""), Number(item.RowId ?? 0), picId);
-                                        }}
-                                        title=""
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#All_Delete"
-                                    >
-                                        <button
-                                            type="button"
-                                            className="Itrash btn btn-ctm btn-ctm-rounded"
-                                            title=""
-                                            data-bs-toggle="tooltip"
-                                            data-bs-placement="top"
-                                            data-bs-original-title="刪除輪播"
-                                        >
-                                            <i className="far fa-trash-alt"></i>
-                                        </button>
-                                    </a>
-                                </div>
-                            </div>
+                            <LibFile
+                                Style={props.theme.File}
+                                ColumnDisplayName="選擇圖片(多選)"
+                                Multiple={true}
+                                onChange={batch.setSelectedFiles}
+                                InputValue=""
+                            />
                         </div>
-
-                        <LibTextBox
-                            Style={prop.theme.TextBox2}
-                            DefaultInputDisplay="請輸入"
-                            {...setField(SpecMusicalSetFields.SpecMusicalPictureList, SpecMusicalPictureListFields.Sort, "number", rowKeys)}
-                        />
-
-                        <LibTextBox
-                            Style={prop.theme.TextBox2}
-                            DefaultInputDisplay="請輸入"
-                            {...setField(SpecMusicalSetFields.SpecMusicalPictureList, SpecMusicalPictureListFields.Info, "string", rowKeys)}
-                        />
-                    </LibPicture>
-                );
-            })}
-        </>
+                        {batch.error && <div className="col-12 alert alert-danger mt-2">{batch.error}</div>}
+                    </div>
+                    <SpecMusicalPhotoBatchPreview files={batch.selectedFiles} />
+                </div>
+            </LibModal>
+        </div>
     );
 };
 
-const SoundFileComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<SpecMusicalSet>; }) =>
+/** 批次上傳前預覽圖片。 */
+const SpecMusicalPhotoBatchPreview = (props: { files: File[]; }) =>
 {
-    /** 檔案欄位綁定 */
-    const setFileField = useSetTableFileField(props.formData);
-    const allFiles: SpecMusicalSoundList[] = props.formData.data?.SpecMusicalSoundList ?? [];
-
-    /** 取得排序後附件 */
-    const getFiles = (): SpecMusicalSoundList[] =>
-    {
-        return [...allFiles].sort((a, b) => (a.RowId ?? 0) - (b.RowId ?? 0));
-    };
-
-    /** 回寫附件清單 */
-    const commitFiles = (nextFiles: SpecMusicalSoundList[]) =>
-    {
-        props.formData.setFormData(prev =>
-        {
-            const base = prev ?? emptyData;
-
-            return { ...base, SpecMusicalSoundList: nextFiles };
-        });
-    };
-
-    /** 新增附件 */
-    const addFile = () =>
-    {
-        const list = getFiles();
-        const nextRowId = (list.at(-1)?.RowId ?? 0) + 1;
-
-        const newItem: SpecMusicalSoundList = { RowId: nextRowId, SoundSrcId: "", Info: "" };
-
-        commitFiles([...allFiles, newItem]);
-    };
-
-    /** 刪除附件 */
-    const removeFileAt = (index: number) =>
-    {
-        const target = getFiles()[index];
-        if (!target) return;
-
-        const nextAll = allFiles.filter(file => file.RowId !== target.RowId);
-        commitFiles(nextAll);
-    };
+    if (props.files.length === 0) return null;
 
     return (
-        <>
-            <div role="group" className="mt-4">
-                <button type="button" onClick={addFile} aria-label="新增附件" className="btn btn-outline-primary mb-2">新增附件</button>
-
-                {getFiles().map((file, index) =>
+        <div className="col-12">
+            <div className="row mt-3 mx-0">
+                <div className="col-12 col-form-label bg-secondary mb-1">預覽圖片</div>
+                {props.files.map((file, index) =>
                 {
-                    const rowKeys = { [SpecMusicalSoundListFields.MusicalId]: file.MusicalId, [SpecMusicalSoundListFields.RowId]: file.RowId };
-
+                    const url = URL.createObjectURL(file);
                     return (
-                        <div key={`${file.RowId}`} className="flex items-center gap-2 mb-2">
-                            <LibFileInput
-                                {...setFileField(
-                                    SpecMusicalSetFields.SpecMusicalSoundList,
-                                    SpecMusicalSoundListFields.SoundSrcId,
-                                    SpecMusicalSoundListFields.Info,
-                                    rowKeys,
-                                    { defaultNameFromOriginal: "basename", fileName: file.SoundSrc?.FileName ?? "" },
-                                )}
-                                Accept="audio/*,.mp3,.wav,.flac,.m4a,.aac,.ogg"
-                                onDelete={() => removeFileAt(index)}
-                            />
+                        <div key={`${file.name}-${index}`} className="col-12 border-bottom">
+                            <div className="d-flex align-items-center">
+                                <LibPicturePreview ColumnDisplayName={file.name} PicSrc={url} PicDescription={`選中的圖片 ${file.name}`} />
+                            </div>
                         </div>
                     );
                 })}
             </div>
-        </>
+        </div>
     );
 };
+
+/** 相片預覽元件，沒有圖片時以文字提示避免破圖。 */
+const SpecMusicalPicturePreview = (props: { value: EditGridCellValue; }) =>
+{
+    const picture = toSpecMusicalPictureCellValue(props.value);
+    const previewUrl = picture.url ?? getSpecMusicalPicturePreviewUrl(picture.internalId);
+    const alt = picture.originalFileName || picture.fileName || "相片預覽";
+
+    if (!previewUrl) return <span className="small">尚未選擇圖片</span>;
+    return <img src={previewUrl} alt={alt} style={{ maxWidth: "160px", maxHeight: "120px", objectFit: "contain" }} />;
+};
+
+/** 封面選擇按鈕，實際資料寫回 Header 的 CoverPicId。 */
+const SpecMusicalCoverSelector = (props: { value: EditGridCellValue; selected: string | null; onSelect: (picId: string) => void; }) =>
+{
+    const picture = toSpecMusicalPictureCellValue(props.value);
+    const picId = String(picture.internalId ?? "").trim();
+    const isSelected = Boolean(picId && props.selected === picId);
+
+    return (
+        <button
+            type="button"
+            className={isSelected ? "btn btn-primary btn-sm" : "btn btn-outline-primary btn-sm"}
+            disabled={!picId}
+            aria-pressed={isSelected}
+            onClick={() => props.onSelect(picId)}
+        >
+            {isSelected ? "目前封面" : "設為封面"}
+        </button>
+    );
+};
+
+/** 音檔預覽元件，支援瀏覽器可播放格式與下載連結。 */
+const SpecMusicalSoundPreview = (props: { value: EditGridCellValue; }) =>
+{
+    const sound = toSpecMusicalSoundCellValue(props.value);
+    const previewUrl = sound.url ?? getSpecMusicalSoundPreviewUrl(sound.internalId);
+    const displayName = sound.originalFileName || sound.fileName || "音檔";
+
+    if (!sound.internalId && !previewUrl) return <span className="small">尚未選擇音檔</span>;
+
+    return (
+        <div className="d-flex flex-column gap-1">
+            {previewUrl && <audio src={previewUrl} controls preload="metadata" style={{ maxWidth: "260px" }} aria-label={displayName} />}
+            {sound.downloadUrl ? <a className="small text-break" href={sound.downloadUrl} target="_blank" rel="noopener noreferrer">{displayName}</a> : <span className="small text-break">{displayName}</span>}
+        </div>
+    );
+};
+// #endregion
+
+// #region Private
+/** 建立返回 List 的路徑。 */
+const buildBackToListPath = (pathname: string): string =>
+{
+    return pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
+};
+// #endregion
