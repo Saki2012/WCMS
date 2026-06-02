@@ -125,7 +125,7 @@ const SurveyField_Comp = (props: SurveyFieldProps) =>
     const describedBy = buildDescribedBy([requiredId, errorId]);
 
     return (
-        <div className="mb-3 survey-input-field">
+        <div className="survey-input-field">
             {renderSurveyInput({
                 baseId,
                 fieldId,

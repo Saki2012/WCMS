@@ -333,7 +333,7 @@ const createWebResourceDataQueryTemplate = (
         initialSearchValues,
         initialViewState,
         pagination: { defaultPageNumber: initialViewState.pageNumber, defaultPageSize: initialViewState.pageSize, resetPageOnSearch: true },
-        searchBar: { title: "搜尋條件", actionAlign: "left", columnCount: 3 },
+        searchBar: { title: "搜尋條件", actionAlign: "right", columnCount: 3 },
         feature: {
             searchFields: buildWebResourceSearchFields(),
             toSearchParams: (values, viewState) => buildWebResourceSearchParams({ ...p, values, viewState }),

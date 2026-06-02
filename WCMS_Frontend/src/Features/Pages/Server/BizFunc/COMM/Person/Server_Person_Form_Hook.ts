@@ -1,131 +1,118 @@
 import { PersonAdapter } from "@/Features/Hooks/BizFunc/COMM/Person_Api";
-import { useToast } from "@/Features/Hooks/Common/useToastCenter";
-import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
+import type {
+    ServerFormDefaultRawData,
+    ServerFormTemplate,
+} from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import type { ApiAdapterError, ApiLoaderData, ServerFormActions } from "@/SysCore/Utils/API/APIAdapter";
-import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
-import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
-import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
+import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import type { components } from "@/types/api";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import type { ModelDisplaySchema } from "@/types/IApiSchema";
+import { useMemo } from "react";
+
+// #region Property
 type PersonSet = components["schemas"]["PersonSet_DTO"];
-const personEmptyData: PersonSet = {};
-interface UseServerPersonFormResult
+
+export interface UsePersonFormTemplateOptions
 {
-    prop: FormCompProp;
-    formData: UseFetchFormDataResult<PersonSet>;
+    /** 後台主題設定 */
+    theme: IBETheme;
+
+    /** 資料 internalId，空值代表新增 */
+    internalId: string;
+
+    /** 新增模式預設資料 */
+    emptyData: PersonSet;
+
+    /** Form Template 標準動作設定 */
+    actionsOpt: PersonFormActionsOpt;
+}
+
+export interface PersonFormRefs
+{
+    /** 性別 enum 選項 */
     genderOpt: Record<string, string>;
 }
-/** Person Form 主 Hook */
-export const useServerPersonForm = (theme: IBETheme): UseServerPersonFormResult =>
+
+export type PersonFormActionsOpt = {
+    /** 儲存成功後返回人員列表 */
+    onBackToList: () => void;
+};
+
+export type PersonFormAdapter = ReturnType<typeof PersonAdapter>;
+
+export type PersonFormRawData = ServerFormDefaultRawData<PersonSet, PersonFormRefs>;
+
+export const personEmptyData: PersonSet = { Person: {} };
+// #endregion
+
+// #region Public
+/** 建立 Person Form Template，統一交給 Server_FormTemplate 處理資料查詢、CUD 與 toast。 */
+export const usePersonFormTemplate = (
+    opt: UsePersonFormTemplateOptions,
+): ServerFormTemplate<PersonSet, PersonFormAdapter, PersonFormRefs, PersonFormRawData, PersonFormActionsOpt> =>
 {
-    const { internalId } = useParams();
-    const navigate = useNavigate();
-    const location = useLocation();
-    const adapter = useMemo(() => PersonAdapter(), []);
-    const id = internalId ?? "";
-    const formData = usePersonFormDataByAdapter(adapter, id, personEmptyData);
-    const useGender = useFetchEnumOptions("Gender");
-    const onBackToList = useCallback(() =>
-    {
-        const to = location.pathname.replace(/\/Form(\/?[^\/]*)?$/, "/List");
-        navigate(to, { replace: true });
-    }, [location.pathname, navigate]);
-    const onPreview = useCallback(() =>
-    {}, []);
-    const actions = usePersonFormActionsFromAdapter(adapter, id, formData.data, onBackToList, onPreview);
-    const prop = useMemo<FormCompProp>(() =>
+    return useMemo(() =>
     {
         return {
-            Title: "管理者帳號資料修改",
-            Theme: theme,
-            IsLoading: [formData.isLoading, useGender.isLoading].some(Boolean),
-            ErrorList: [formData.error, useGender.error],
-            Actions: actions,
+            featureKey: "Person",
+            theme: opt.theme,
+            internalId: opt.internalId,
+            emptyData: opt.emptyData,
+            actionsOpt: opt.actionsOpt,
+            feature: {
+                buildAdapter: buildPersonFormAdapter,
+                buildTitle: buildPersonFormTitle,
+                buildInitialData: buildPersonInitialData,
+                useReferenceData: usePersonReferenceData,
+            },
         };
-    }, [theme, formData.isLoading, formData.error, useGender.isLoading, useGender.error, actions]);
-    return { prop, formData, genderOpt: useGender.data ?? {} };
+    }, [opt.actionsOpt, opt.emptyData, opt.internalId, opt.theme]);
 };
+// #endregion
 
-/** 取得 Person FormData */
-const usePersonFormDataByAdapter = (adapter: ReturnType<typeof PersonAdapter>, internalId: string, empty: PersonSet): UseFetchFormDataResult<PersonSet> =>
+// #region Timing
+/** 建立 Person Form 標題，功能名稱優先讀 ModelDisplayName。 */
+const buildPersonFormTitle = (ctx: { mode: "new" | "edit"; displayName: ModelDisplaySchema; }): string =>
 {
-    // 宣告變數
-    const { publish } = useToast();
-    const internalKey = internalId || "__new__";
-    const isNew = useMemo(() => !internalId, [internalId]);
-    const initial = useMemo<ApiLoaderData<string, PersonSet> | null>(() =>
-    {
-        if (!isNew) return null;
-        const ok: ApiResponse<PersonSet> = { IsSuccess: true, Data: empty, SysMessage: [] };
-        return { args: internalKey, apiRes: ok };
-    }, [isNew, empty, internalKey]);
-    const onError = useCallback((e: ApiAdapterError) =>
-    {
-        publish({ level: MessageStatus.Error, title: e.messageText });
-    }, [publish]);
-    const model = adapter.hooks.useModelDisplayName({ deps: [], onError });
-    const query = adapter.hooks.useQueryData({ internalId: internalKey, initial, deps: [internalKey], onError });
-    const [data, setData] = useState<PersonSet>(empty);
-
-    useEffect(() =>
-    {
-        if (query.data)
-        {
-            setData(query.data);
-            return;
-        }
-        if (isNew) setData(empty);
-    }, [query.data, isNew, empty]);
-    const refetch = useCallback(() =>
-    {
-        void query.refetch();
-    }, [query]);
-    return {
-        data,
-        setFormData: setData,
-        isLoading: Boolean(!isNew && query.isLoading) || Boolean(model.isLoading),
-        error: query.errorText ?? model.errorText ?? null,
-        refetch,
-        displayName: model.data ?? { ModelId: "", ModelDisplayName: "", Tables: [] },
-    };
+    const modelTitle = getPersonModelTitle(ctx.displayName, "人員資料");
+    return `${ctx.mode === "edit" ? "修改" : "新增"}${modelTitle}`;
 };
 
-/** 建立 Person Form actions */
-const usePersonFormActionsFromAdapter = (
-    adapter: ReturnType<typeof PersonAdapter>,
-    internalId: string,
-    formData: PersonSet,
-    onBackToList: () => void,
-    onPreview: () => void,
-): ServerFormActions =>
+/** 建立新增模式 initial data，避免保留舊 top-level initial 入口。 */
+const buildPersonInitialData = (ctx: { mode: "new" | "edit"; emptyData: PersonSet; }): ApiFormInitial<PersonSet> | undefined =>
 {
-    // 宣告變數
-    const isNew = useMemo(() => !internalId, [internalId]);
-
-    const actions = adapter.useServerActions({ onSuccessByMode: { create: () => onBackToList(), update: () => onBackToList(), delete: () => onBackToList() } });
-
-    // return
-    return {
-        Save: async () =>
-        {
-            if (isNew)
-            {
-                await actions.createAsync(formData);
-                return;
-            }
-
-            await actions.updateAsync(internalId, formData);
-        },
-        Delete: async () =>
-        {
-            if (!internalId) return;
-            await actions.deleteAsync(internalId);
-        },
-        Back: onBackToList,
-        Preview: onPreview,
-        IsSaving: actions.isSaving,
-    };
+    if (ctx.mode !== "new") return undefined;
+    return { data: { args: "__new__", apiRes: { IsSuccess: true, Data: ctx.emptyData, SysMessage: [] } } };
 };
+
+/** 建立 Person Form 主資料 Adapter。 */
+const buildPersonFormAdapter = (): PersonFormAdapter =>
+{
+    return PersonAdapter();
+};
+
+/** 取得 Person Header 需要的 enum 資料。 */
+const usePersonReferenceData = () =>
+{
+    const gender = useFetchEnumOptions("Gender");
+
+    return useMemo(() =>
+    {
+        return {
+            refs: { genderOpt: gender.data ?? {} },
+            isLoading: Boolean(gender.isLoading),
+            errors: [gender.error],
+            refetchRefData: async () => await gender.refetch(),
+        };
+    }, [gender.data, gender.error, gender.isLoading, gender.refetch]);
+};
+// #endregion
+
+// #region Private
+/** 取得 Person Model 顯示名稱，避免標題寫死。 */
+const getPersonModelTitle = (displayName: ModelDisplaySchema, fallback: string): string =>
+{
+    return displayName.ModelDisplayName || fallback;
+};
+// #endregion

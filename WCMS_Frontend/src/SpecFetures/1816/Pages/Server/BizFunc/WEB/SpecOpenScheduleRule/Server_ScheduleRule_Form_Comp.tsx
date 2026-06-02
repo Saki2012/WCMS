@@ -1,18 +1,18 @@
-import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
-import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
+import { Server_FormTemplate_Comp } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Comp";
+import type { ServerFormBinding } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { DividerComp } from "@/SysCore/Components/Divider/Divider_Comp";
 import LibDatetimeRange from "@/SysCore/Components/FormField/FieldComponets/LibDatetimeRange_Comp";
 import { LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
 import { useSetDateRangeField, useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
 import type { Lang } from "@/SysCore/i18n/lang";
-import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import type { components } from "@/types/api";
 import { SpecOpenScheduleRuleModelFields, SpecOpenScheduleRuleSetFields } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useScheduleRuleFormFetchData } from "./Server_ScheduleRule_Form_Hook";
+import { useScheduleRuleFormTemplate } from "./Server_ScheduleRule_Form_Hook";
 
+// #region Property
 type SpecOpenScheduleRuleSet = components["schemas"]["SpecOpenScheduleRuleSet_DTO"];
 
 const emptySet: SpecOpenScheduleRuleSet = {
@@ -44,14 +44,16 @@ const emptySet: SpecOpenScheduleRuleSet = {
         Summer_Sun_CloseTime: null,
     },
 };
+// #endregion
 
+// #region Public
+/** 開館時間設定 Form，外框與資料流程交由 Server_FormTemplate 控制 */
 export const Server_ScheduleRule_Form_Comp = (prop: { theme: IBETheme; lang: Lang; }) =>
 {
     // 宣告變數
     const { internalId } = useParams();
     const navigate = useNavigate();
     const pathname = useLocation().pathname;
-    const isAddNew = !internalId;
 
     // 執行 function：回列表（對標 Announcement Form）
     const onBackToList = useCallback(() =>
@@ -59,23 +61,28 @@ export const Server_ScheduleRule_Form_Comp = (prop: { theme: IBETheme; lang: Lan
         navigate(pathname.replace(/\/Form(\/[^\/]*)?$/, "/List"));
     }, [navigate, pathname]);
 
-    // 執行 function：集中取資料（Adapter）
-    const getData = useScheduleRuleFormFetchData({ internalId: internalId ?? "", emptyData: emptySet, onBackToList });
-
-    const formProp: FormCompProp = useMemo(() =>
+    // 宣告變數：提供 Template 使用的動作設定
+    const actionsOpt = useMemo(() =>
     {
-        return { Title: "開館時間設定", Theme: prop.theme, IsLoading: getData.isLoading, ErrorList: getData.errors, Actions: getData.rawData.actions };
-    }, [prop.theme, getData.isLoading, getData.errors, getData.rawData.actions]);
+        return { onBackToList };
+    }, [onBackToList]);
 
-    // return（DOM 結構不變）
+    // 執行 function：以 Spec timing 建立 Form Template
+    const template = useScheduleRuleFormTemplate({ theme: prop.theme, internalId: internalId ?? "", emptyData: emptySet, actionsOpt });
+
+    // return：Form 外框改交由 Server_FormTemplate_Comp
     return (
-        <FormComp prop={formProp}>
-            <HeaderComp theme={prop.theme} formData={getData.rawData.formData} isAddNew={isAddNew} />
-        </FormComp>
+        <Server_FormTemplate_Comp
+            template={template}
+            renderContent={({ vm }) => <HeaderComp theme={prop.theme} formData={vm.binding} isAddNew={vm.mode === "new"} />}
+        />
     );
 };
+// #endregion
 
-const HeaderComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<SpecOpenScheduleRuleSet>; isAddNew: boolean; }) =>
+// #region Section
+/** 基本資料與開館時間欄位區塊 */
+const HeaderComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecOpenScheduleRuleSet>; isAddNew: boolean; }) =>
 {
     const setField = useSetTableField<SpecOpenScheduleRuleSet>(props.formData);
     const setDateRangeField = useSetDateRangeField<SpecOpenScheduleRuleSet>(props.formData);
@@ -248,3 +255,4 @@ const HeaderComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<S
         </>
     );
 };
+// #endregion

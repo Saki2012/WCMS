@@ -1,9 +1,39 @@
-import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties, type Dispatch, type KeyboardEvent as ReactKeyboardEvent, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent, type ReactNode, type RefObject, type SetStateAction } from "react";
-import { createPortal } from "react-dom";
-import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
 import { AAInputFieldItem } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/AAInputField__Atoms";
 import type { AAInputField, AAInputOption, AAInputType, AAInputValue } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/AAInputField__Atoms";
-import type { ColumnConfig, EditGridCellRenderArgs, EditGridCellValue, EditGridFileValue, EditGridInputType, EditGridOptionValue, EditGridProps, EditGridRowState, EditGridSelectOption, GridProps, GridRow, IEditGridView_Style, RowCell } from "./EditGrid_Data";
+import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
+import {
+    type CSSProperties,
+    type Dispatch,
+    Fragment,
+    type KeyboardEvent as ReactKeyboardEvent,
+    type MouseEvent as ReactMouseEvent,
+    type PointerEvent as ReactPointerEvent,
+    type ReactNode,
+    type RefObject,
+    type SetStateAction,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
+import { createPortal } from "react-dom";
+import type {
+    ColumnConfig,
+    EditGridCellRenderArgs,
+    EditGridCellValue,
+    EditGridCellValueChangeResult,
+    EditGridCellValueChangeReturn,
+    EditGridFileValue,
+    EditGridInputType,
+    EditGridOptionValue,
+    EditGridProps,
+    EditGridRowState,
+    EditGridSelectOption,
+    GridProps,
+    GridRow,
+    IEditGridView_Style,
+    RowCell,
+} from "./EditGrid_Data";
 
 // #region Private Const
 
@@ -18,7 +48,11 @@ const SCROLL_BOX_HEIGHT_RESERVED_PX = 4;
 
 const EmptyGridData: GridProps = { columns: [], rows: [], CurrentPage: 1, TotalPage: 1, onPageChange: () => undefined };
 type EditGridDragPlacement = "before" | "after";
-interface EditGridDragPointer { x: number; y: number; }
+interface EditGridDragPointer
+{
+    x: number;
+    y: number;
+}
 
 // [Fix] 全域自增 ID，避免新增/刪除後 new-${rowIndex} key 碰撞
 let _newRowIdCounter = 0;
@@ -47,13 +81,17 @@ export const EditGrid = (props: EditGridProps) =>
     useEditGridDragAutoScroll(scrollBoxRef, dragIndex);
     useEditGridDragWheelScroll(scrollBoxRef, dragIndex);
 
-
     const storageKey = props.storageKey ?? "edit-grid-col-widths";
     const [systemWidths, setSystemWidths] = useState<Record<string, number>>(() => readSavedWidths(storageKey));
     const sourceColumns = Array.isArray(gridData.columns) ? gridData.columns : [];
     const sourceRows = Array.isArray(gridData.rows) ? gridData.rows : [];
-    // [Fix] 用 useMemo 穩定 sourceColumns 參考，避免 useEditGridColumns 內 useEffect 每次 re-render 都重跑
-    const stableSourceColumns = useMemo(() => sourceColumns, [JSON.stringify(sourceColumns.map(c => c.key))]);
+    const sourceGridDataRef = useRef(sourceGridData);
+    sourceGridDataRef.current = sourceGridData;
+
+    /** 外部 GridData 只用內容簽章當依賴，避免父層每 render 產生新物件造成同步循環。 */
+    const sourceGridDataSignature = buildGridDataSnapshotText(sourceGridData);
+    const sourceColumnSignature = buildColumnListSignature(sourceColumns);
+    const stableSourceColumns = useMemo(() => sourceColumns, [sourceColumnSignature]);
     const { columns, resizeColumn } = useEditGridColumns(stableSourceColumns, storageKey);
     const rows = sourceRows;
 
@@ -70,7 +108,11 @@ export const EditGrid = (props: EditGridProps) =>
     const actionColumnWidth = systemWidths[ACTION_COLUMN_KEY] ?? ACTION_COLUMN_DEFAULT_WIDTH;
     const rowNoColumnWidth = systemWidths[ROW_NO_COLUMN_KEY] ?? ROW_NO_COLUMN_DEFAULT_WIDTH;
     const systemColumnWidth = (hasActionCell ? actionColumnWidth : 0) + (props.showRowNo === true ? rowNoColumnWidth : 0);
-    const tableMinWidth = useMemo(() => getTableMinWidth(visibleColumns, props.minTableWidth, systemColumnWidth), [visibleColumns, props.minTableWidth, systemColumnWidth]);
+    const tableMinWidth = useMemo(() => getTableMinWidth(visibleColumns, props.minTableWidth, systemColumnWidth), [
+        visibleColumns,
+        props.minTableWidth,
+        systemColumnWidth,
+    ]);
     const shouldScroll = useShouldUseXScroll(props.scrollBreakpoint ?? tableMinWidth);
     const maxVisibleRows = normalizeMaxVisibleRows(props.maxVisibleRows);
     const estimatedRowHeightPx = normalizePositivePixel(props.estimatedRowHeightPx, DEFAULT_ROW_ESTIMATED_HEIGHT_PX);
@@ -78,14 +120,44 @@ export const EditGrid = (props: EditGridProps) =>
     const shouldUseYScroll = shouldUseVerticalScroll(rows.length, maxVisibleRows);
     const errors = useMemo(() => buildErrorMap(rows, visibleColumns), [rows, visibleColumns]);
 
-    useEffect(() => setGridData(normalizeGridData(sourceGridData)), [sourceGridData]);
+    /** 外部 GridData 內容真的變更時才同步，避免父層每次 render 給新物件造成循環。 */
+    useEffect(() =>
+    {
+        const normalized = normalizeGridData(sourceGridDataRef.current);
+        setGridData(prev => isSameGridDataSnapshot(prev, normalized) ? prev : normalized);
+    }, [sourceGridDataSignature]);
+
     useEffect(() => setSystemWidths(readSavedWidths(storageKey)), [storageKey]);
     useEffect(() => scrollPendingAddedRowIntoView(scrollBoxRef, pendingAddedRowIndexRef), [rows.length]);
-    useEffect(() => props.onEditingStateChange?.({ editingKeys: Array.from(editingKeys), hasEditingRow }), [editingKeys, hasEditingRow, props.onEditingStateChange]);
+
+    const onEditingStateChangeRef = useRef(props.onEditingStateChange);
+    const editingStateSignatureRef = useRef("");
+
+    /** 保存最新的編輯狀態 callback，避免 callback reference 造成循環觸發。 */
+    useEffect(() =>
+    {
+        onEditingStateChangeRef.current = props.onEditingStateChange;
+    }, [props.onEditingStateChange]);
+
+    /** 編輯狀態真的變更時才通知外層，避免外層 setState 後重複回呼。 */
+    useEffect(() =>
+    {
+        const nextEditingKeys = Array.from(editingKeys);
+        const nextSignature = `${hasEditingRow}|${nextEditingKeys.join(",")}`;
+
+        if (editingStateSignatureRef.current === nextSignature) return;
+
+        editingStateSignatureRef.current = nextSignature;
+        onEditingStateChangeRef.current?.({ editingKeys: nextEditingKeys, hasEditingRow });
+    }, [editingKeys, hasEditingRow]);
 
     const resizeAnyColumn = (key: string, width: number, persist: boolean = true) =>
     {
-        if (key !== ACTION_COLUMN_KEY && key !== ROW_NO_COLUMN_KEY) { resizeColumn(key, width, persist); return; }
+        if (key !== ACTION_COLUMN_KEY && key !== ROW_NO_COLUMN_KEY)
+        {
+            resizeColumn(key, width, persist);
+            return;
+        }
         const nextWidths = { ...systemWidths, [key]: width };
         setSystemWidths(nextWidths);
         if (persist) saveColumnWidthsRecord({ ...readSavedWidths(storageKey), [key]: width }, storageKey);
@@ -105,11 +177,29 @@ export const EditGrid = (props: EditGridProps) =>
     const saveRow = (rowIndex: number) => handleSaveRow(rows, rowIndex, visibleColumns, setEditingKeys, setBackupMap, commitRows);
     const cancelRow = (rowIndex: number) => handleCancelRow(rows, rowIndex, backupMap, setEditingKeys, setBackupMap, commitRows);
     const deleteRow = (rowIndex: number) => handleDeleteRow(canDelete, props, rows, rowIndex, commitRows);
-    const moveRow = (rowIndex: number, offset: number) => { if (canDrag) commitRows(moveItem(rows, rowIndex, rowIndex + offset)); };
+    const moveRow = (rowIndex: number, offset: number) =>
+    {
+        if (canDrag) commitRows(moveItem(rows, rowIndex, rowIndex + offset));
+    };
     const updateCell = (rowIndex: number, columnKey: string, value: EditGridCellValue) => commitRows(updateRowCellValue(rows, rowIndex, columnKey, value));
-    const startRowDrag = (event: ReactPointerEvent<HTMLElement>, rowIndex: number) => startPointerRowDrag(event, rowIndex, setDragIndex, setDragOverIndex, setDragPlacement, setDragPointer);
+    const updateCells = (rowIndex: number, values: Record<string, EditGridCellValue>) => commitRows(updateRowCellValues(rows, rowIndex, values));
+    const startRowDrag = (event: ReactPointerEvent<HTMLElement>, rowIndex: number) =>
+        startPointerRowDrag(event, rowIndex, setDragIndex, setDragOverIndex, setDragPlacement, setDragPointer);
     const moveRowDrag = (event: ReactPointerEvent<HTMLElement>) => movePointerRowDrag(event, dragIndex, setDragOverIndex, setDragPlacement, setDragPointer);
-    const endRowDrag = (event: ReactPointerEvent<HTMLElement>) => endPointerRowDrag(event, rows, canDrag, dragIndex, dragOverIndex, dragPlacement, commitRows, setDragIndex, setDragOverIndex, setDragPlacement, setDragPointer);
+    const endRowDrag = (event: ReactPointerEvent<HTMLElement>) =>
+        endPointerRowDrag(
+            event,
+            rows,
+            canDrag,
+            dragIndex,
+            dragOverIndex,
+            dragPlacement,
+            commitRows,
+            setDragIndex,
+            setDragOverIndex,
+            setDragPlacement,
+            setDragPointer,
+        );
     const dragPreviewRow = dragIndex === null ? undefined : rows[dragIndex];
     const dragPreviewTargetRowNo = getDragPreviewTargetRowNo(rows, dragIndex, dragOverIndex, dragPlacement);
     const dragPreviewText = dragIndex === null || !dragPreviewRow ? "" : getDragPreviewText(getRowNo(dragPreviewRow, dragIndex), dragPreviewTargetRowNo);
@@ -122,7 +212,14 @@ export const EditGrid = (props: EditGridProps) =>
                 <div
                     ref={scrollBoxRef}
                     className="edit-grid-scroll-box"
-                    style={getScrollBoxStyle(shouldScroll, grabScroll.isDragging, shouldUseYScroll, maxVisibleRows, estimatedRowHeightPx, estimatedHeaderHeightPx)}
+                    style={getScrollBoxStyle(
+                        shouldScroll,
+                        grabScroll.isDragging,
+                        shouldUseYScroll,
+                        maxVisibleRows,
+                        estimatedRowHeightPx,
+                        estimatedHeaderHeightPx,
+                    )}
                     tabIndex={0}
                     role="region"
                     aria-label="可水平拖曳捲動的表格區塊"
@@ -132,15 +229,37 @@ export const EditGrid = (props: EditGridProps) =>
                     onPointerCancel={grabScroll.onPointerUp}
                     onKeyDown={grabScroll.onKeyDown}
                 >
-                    <table className={props.style?.TableStyle ?? "table table-striped table-bordered table-hover"} style={getTableStyle(shouldScroll, tableMinWidth)} aria-label={props.ariaLabel ?? props.title ?? "可編輯資料表格"}>
-                        <EditGridColGroup columns={visibleColumns} hasActionCell={hasActionCell} showRowNo={props.showRowNo === true} actionWidth={actionColumnWidth} rowNoWidth={rowNoColumnWidth} />
-                        <EditGridHeader columns={visibleColumns} hasActionCell={hasActionCell} showRowNo={props.showRowNo === true} actionWidth={actionColumnWidth} rowNoWidth={rowNoColumnWidth} style={props.style} actionTitle={props.actionColumnTitle} onResize={resizeAnyColumn} onResizeGuide={setResizeGuideX} />
+                    <table
+                        className={props.style?.TableStyle ?? "table table-striped table-bordered table-hover"}
+                        style={getTableStyle(shouldScroll, tableMinWidth)}
+                        aria-label={props.ariaLabel ?? props.title ?? "可編輯資料表格"}
+                    >
+                        <EditGridColGroup
+                            columns={visibleColumns}
+                            hasActionCell={hasActionCell}
+                            showRowNo={props.showRowNo === true}
+                            actionWidth={actionColumnWidth}
+                            rowNoWidth={rowNoColumnWidth}
+                        />
+                        <EditGridHeader
+                            columns={visibleColumns}
+                            hasActionCell={hasActionCell}
+                            showRowNo={props.showRowNo === true}
+                            actionWidth={actionColumnWidth}
+                            rowNoWidth={rowNoColumnWidth}
+                            style={props.style}
+                            actionTitle={props.actionColumnTitle}
+                            onResize={resizeAnyColumn}
+                            onResizeGuide={setResizeGuideX}
+                        />
                         <tbody>
                             {rows.length === 0 && <EditGridEmptyRow colSpan={bodyColSpan} emptyText={props.emptyText} />}
-                            {rows.map((row, rowIndex) => {
+                            {rows.map((row, rowIndex) =>
+                            {
                                 const rowKey = getRowKey(row, rowIndex);
                                 const isEditing = editingKeys.has(rowKey);
-                                const isSubDetailExpanded = props.expandedRowKey !== null && props.expandedRowKey !== undefined && String(props.expandedRowKey) === rowKey;
+                                const isSubDetailExpanded = props.expandedRowKey !== null && props.expandedRowKey !== undefined
+                                    && String(props.expandedRowKey) === rowKey;
                                 const canEditThisRow = canEdit && (!hasEditingRow || isEditing);
                                 const showPlaceholderBefore = shouldRenderDropPlaceholder(rowIndex, dragIndex, dragOverIndex, dragPlacement, "before");
                                 const showPlaceholderAfter = shouldRenderDropPlaceholder(rowIndex, dragIndex, dragOverIndex, dragPlacement, "after");
@@ -149,16 +268,55 @@ export const EditGrid = (props: EditGridProps) =>
                                     <Fragment key={rowKey}>
                                         {showPlaceholderBefore && <EditGridDropPlaceholder colSpan={bodyColSpan} />}
                                         <tr data-edit-grid-row-index={rowIndex} className={getRowClassName(rowIndex, props.style, dragIndex)}>
-                                            {hasActionCell && <EditGridActionCell row={row} rowIndex={rowIndex} isEditing={isEditing} canEdit={canEditThisRow} canDrag={canDrag && !isEditing} canDelete={canDelete} style={props.style} deleteText={props.deleteButtonText} editText={props.editButtonText} saveText={props.saveButtonText} cancelText={props.cancelButtonText} onEdit={editRow} onSave={saveRow} onCancel={cancelRow} onMove={moveRow} onDelete={deleteRow} onDragStart={(event) => startRowDrag(event, rowIndex)} onDragMove={moveRowDrag} onDragEnd={endRowDrag} />}
+                                            {hasActionCell && (
+                                                <EditGridActionCell
+                                                    row={row}
+                                                    rowIndex={rowIndex}
+                                                    isEditing={isEditing}
+                                                    canEdit={canEditThisRow}
+                                                    canDrag={canDrag && !isEditing}
+                                                    canDelete={canDelete}
+                                                    style={props.style}
+                                                    deleteText={props.deleteButtonText}
+                                                    editText={props.editButtonText}
+                                                    saveText={props.saveButtonText}
+                                                    cancelText={props.cancelButtonText}
+                                                    onEdit={editRow}
+                                                    onSave={saveRow}
+                                                    onCancel={cancelRow}
+                                                    onMove={moveRow}
+                                                    onDelete={deleteRow}
+                                                    onDragStart={(event) => startRowDrag(event, rowIndex)}
+                                                    onDragMove={moveRowDrag}
+                                                    onDragEnd={endRowDrag}
+                                                />
+                                            )}
                                             {props.showRowNo === true && (
                                                 <td className="table_td_vertical_align" data-th="序號" style={getEditGridCellStyle()}>
-                                                    <div className="edit-grid-cell-content" style={getEditGridCellContentStyle()}>{getRowNo(row, rowIndex)}</div>
+                                                    <div className="edit-grid-cell-content" style={getEditGridCellContentStyle()}>
+                                                        {getRowNo(row, rowIndex)}
+                                                    </div>
                                                 </td>
                                             )}
                                             {visibleColumns.map(column => (
-                                                <td key={column.key} headers={column.key} className={`table_td_vertical_align ${props.style?.CellStyle ?? ""}`.trim()} data-th={column.title} style={getEditGridCellStyle()}>
+                                                <td
+                                                    key={column.key}
+                                                    headers={column.key}
+                                                    className={`table_td_vertical_align ${props.style?.CellStyle ?? ""}`.trim()}
+                                                    data-th={column.title}
+                                                    style={getEditGridCellStyle()}
+                                                >
                                                     <div className="edit-grid-cell-content" style={getEditGridCellContentStyle()}>
-                                                        <EditGridCell row={row} rowIndex={rowIndex} column={column} error={errors[getErrorKey(rowIndex, column.key)]} disabled={!canEdit || !isEditing} errorClassName={props.style?.ErrorStyle} onUpdate={updateCell} />
+                                                        <EditGridCell
+                                                            row={row}
+                                                            rowIndex={rowIndex}
+                                                            column={column}
+                                                            error={errors[getErrorKey(rowIndex, column.key)]}
+                                                            disabled={!canEdit || !isEditing}
+                                                            errorClassName={props.style?.ErrorStyle}
+                                                            onUpdate={updateCell}
+                                                            onUpdateValues={updateCells}
+                                                        />
                                                     </div>
                                                 </td>
                                             ))}
@@ -200,7 +358,11 @@ const EditGridToolbar = (args: { props: EditGridProps; canAdd: boolean; onAdd: (
     return (
         <div className={props.style?.ToolbarStyle ?? "d-flex align-items-center justify-content-between mb-2"}>
             <div>{showGuide && <OperationGuideHelp_Comp lang={props.lang} />}</div>
-            {canAdd && <button type="button" className={props.style?.ButtonStyle ?? "btn btn-custom btn-rounded btn-sm "} onClick={onAdd}>{props.addButtonText ?? "新增"}</button>}
+            {canAdd && (
+                <button type="button" className={props.style?.ButtonStyle ?? "btn btn-custom btn-rounded btn-sm "} onClick={onAdd}>
+                    {props.addButtonText ?? "新增"}
+                </button>
+            )}
         </div>
     );
 };
@@ -218,27 +380,53 @@ const EditGridColGroup = (props: { columns: ColumnConfig[]; hasActionCell: boole
 };
 
 /** 表格標題列，支援拖曳欄位分隔線調整欄寬。 */
-const EditGridHeader = (props: { columns: ColumnConfig[]; hasActionCell: boolean; showRowNo: boolean; actionWidth: number; rowNoWidth: number; style?: IEditGridView_Style; actionTitle?: string; onResize: (key: string, width: number, persist?: boolean) => void; onResizeGuide: (x: number | null) => void; }) =>
+const EditGridHeader = (
+    props: {
+        columns: ColumnConfig[];
+        hasActionCell: boolean;
+        showRowNo: boolean;
+        actionWidth: number;
+        rowNoWidth: number;
+        style?: IEditGridView_Style;
+        actionTitle?: string;
+        onResize: (key: string, width: number, persist?: boolean) => void;
+        onResizeGuide: (x: number | null) => void;
+    },
+) =>
 {
     return (
         <thead>
             {/* [Fix] 移除殘留 className="111" */}
             <tr style={{ background: "rgba(0, 0, 0, .075)" }}>
                 {props.hasActionCell && (
-                    <th scope="col" className={props.style?.ColumnStyle} style={getEditGridHeaderCellStyle({ width: toCssWidth(props.actionWidth), minWidth: toCssWidth(120) })}>
+                    <th
+                        scope="col"
+                        className={props.style?.ColumnStyle}
+                        style={getEditGridHeaderCellStyle({ width: toCssWidth(props.actionWidth), minWidth: toCssWidth(120) })}
+                    >
                         {props.actionTitle ?? "動作"}
                         <ColumnResizeHandle columnKey={ACTION_COLUMN_KEY} onResize={props.onResize} onResizeGuide={props.onResizeGuide} />
                     </th>
                 )}
                 {props.showRowNo && (
-                    <th scope="col" className={props.style?.ColumnStyle} style={getEditGridHeaderCellStyle({ width: toCssWidth(props.rowNoWidth), minWidth: toCssWidth(64) })}>
+                    <th
+                        scope="col"
+                        className={props.style?.ColumnStyle}
+                        style={getEditGridHeaderCellStyle({ width: toCssWidth(props.rowNoWidth), minWidth: toCssWidth(64) })}
+                    >
                         序號
                         <ColumnResizeHandle columnKey={ROW_NO_COLUMN_KEY} onResize={props.onResize} onResizeGuide={props.onResizeGuide} />
                     </th>
                 )}
                 {props.columns.map((col) => (
                     // [Fix] 所有欄位（含最後一欄）都加上 ColumnResizeHandle，讓使用者可調整任意欄寬
-                    <th key={col.key} id={col.key} scope="col" className={props.style?.ColumnStyle} style={getEditGridHeaderCellStyle({ width: toCssWidth(col.width), minWidth: toCssWidth(col.minWidth) })}>
+                    <th
+                        key={col.key}
+                        id={col.key}
+                        scope="col"
+                        className={props.style?.ColumnStyle}
+                        style={getEditGridHeaderCellStyle({ width: toCssWidth(col.width), minWidth: toCssWidth(col.minWidth) })}
+                    >
                         {col.title}
                         <ColumnResizeHandle columnKey={col.key} onResize={props.onResize} onResizeGuide={props.onResizeGuide} />
                     </th>
@@ -249,7 +437,9 @@ const EditGridHeader = (props: { columns: ColumnConfig[]; hasActionCell: boolean
 };
 
 /** 欄位拖曳控制點，保存使用者調整後的欄寬。 */
-const ColumnResizeHandle = (props: { columnKey: string; onResize: (key: string, width: number, persist?: boolean) => void; onResizeGuide: (x: number | null) => void; }) =>
+const ColumnResizeHandle = (
+    props: { columnKey: string; onResize: (key: string, width: number, persist?: boolean) => void; onResizeGuide: (x: number | null) => void; },
+) =>
 {
     const handleMouseDown = (event: ReactMouseEvent<HTMLDivElement>) =>
     {
@@ -286,11 +476,40 @@ const ColumnResizeHandle = (props: { columnKey: string; onResize: (key: string, 
         document.addEventListener("mouseup", onMouseUp);
     };
 
-    return <div className="edit-grid-resize-handle" aria-hidden="true" onMouseDown={handleMouseDown} style={{ position: "absolute", right: "-3px", top: 0, bottom: 0, width: "8px", cursor: "col-resize", userSelect: "none", zIndex: 2 }} />;
+    return (
+        <div
+            className="edit-grid-resize-handle"
+            aria-hidden="true"
+            onMouseDown={handleMouseDown}
+            style={{ position: "absolute", right: "-3px", top: 0, bottom: 0, width: "8px", cursor: "col-resize", userSelect: "none", zIndex: 2 }}
+        />
+    );
 };
 
 /** 每列操作欄，包含拖曳提示、修改、確認、取消與刪除。 */
-const EditGridActionCell = (props: { row: GridRow; rowIndex: number; isEditing: boolean; canEdit: boolean; canDrag: boolean; canDelete: boolean; style?: IEditGridView_Style; deleteText?: string; editText?: string; saveText?: string; cancelText?: string; onEdit: (rowIndex: number) => void; onSave: (rowIndex: number) => void; onCancel: (rowIndex: number) => void; onMove: (rowIndex: number, offset: number) => void; onDelete: (rowIndex: number) => void; onDragStart: (event: ReactPointerEvent<HTMLElement>) => void; onDragMove: (event: ReactPointerEvent<HTMLElement>) => void; onDragEnd: (event: ReactPointerEvent<HTMLElement>) => void; }) =>
+const EditGridActionCell = (
+    props: {
+        row: GridRow;
+        rowIndex: number;
+        isEditing: boolean;
+        canEdit: boolean;
+        canDrag: boolean;
+        canDelete: boolean;
+        style?: IEditGridView_Style;
+        deleteText?: string;
+        editText?: string;
+        saveText?: string;
+        cancelText?: string;
+        onEdit: (rowIndex: number) => void;
+        onSave: (rowIndex: number) => void;
+        onCancel: (rowIndex: number) => void;
+        onMove: (rowIndex: number, offset: number) => void;
+        onDelete: (rowIndex: number) => void;
+        onDragStart: (event: ReactPointerEvent<HTMLElement>) => void;
+        onDragMove: (event: ReactPointerEvent<HTMLElement>) => void;
+        onDragEnd: (event: ReactPointerEvent<HTMLElement>) => void;
+    },
+) =>
 {
     const rowNo = getRowNo(props.row, props.rowIndex);
 
@@ -299,44 +518,72 @@ const EditGridActionCell = (props: { row: GridRow; rowIndex: number; isEditing: 
             <div className="all-btn Edit Icon" style={getEditGridActionContentStyle()}>
                 {props.canDrag && (
                     <div className="icon">
-                    <span
-                        className="edit-grid-row-drag-handle Igrab btn btn-ctm btn-ctm-rounded"
-                        title={`拖曳序號 ${rowNo}`}
-                        aria-hidden="true"
-                        style={{ cursor: "grab", userSelect: "none", touchAction: "none" }}
-                        onPointerDown={props.onDragStart}
-                        onPointerMove={props.onDragMove}
-                        onPointerUp={props.onDragEnd}
-                        onPointerCancel={props.onDragEnd}
-                    >
-                        ☰
-                    </span>
+                        <span
+                            className="edit-grid-row-drag-handle Igrab btn btn-ctm btn-ctm-rounded"
+                            title={`拖曳序號 ${rowNo}`}
+                            aria-hidden="true"
+                            style={{ cursor: "grab", userSelect: "none", touchAction: "none" }}
+                            onPointerDown={props.onDragStart}
+                            onPointerMove={props.onDragMove}
+                            onPointerUp={props.onDragEnd}
+                            onPointerCancel={props.onDragEnd}
+                        >
+                            ☰
+                        </span>
                     </div>
                 )}
                 {props.canEdit && !props.isEditing && (
                     <div className="icon">
-                        <button type="button" className="Ipencil btn btn-ctm btn-ctm-rounded" data-bs-toggle="tooltip" title={props.editText ?? "修改"} aria-label={`第 ${rowNo} 列${props.editText ?? "修改"}`} onClick={() => props.onEdit(props.rowIndex)}>
+                        <button
+                            type="button"
+                            className="Ipencil btn btn-ctm btn-ctm-rounded"
+                            data-bs-toggle="tooltip"
+                            title={props.editText ?? "修改"}
+                            aria-label={`第 ${rowNo} 列${props.editText ?? "修改"}`}
+                            onClick={() => props.onEdit(props.rowIndex)}
+                        >
                             <i className="far fa-edit" aria-hidden="true"></i>
                         </button>
                     </div>
                 )}
                 {props.canEdit && props.isEditing && (
                     <div className="icon">
-                        <button type="button" className="Ipencil btn btn-ctm btn-ctm-rounded" data-bs-toggle="tooltip" title={props.saveText ?? "確認"} aria-label={`第 ${rowNo} 列${props.saveText ?? "確認"}`} onClick={() => props.onSave(props.rowIndex)}>
+                        <button
+                            type="button"
+                            className="Ipencil btn btn-ctm btn-ctm-rounded"
+                            data-bs-toggle="tooltip"
+                            title={props.saveText ?? "確認"}
+                            aria-label={`第 ${rowNo} 列${props.saveText ?? "確認"}`}
+                            onClick={() => props.onSave(props.rowIndex)}
+                        >
                             <i className="far fa-check-circle" aria-hidden="true"></i>
                         </button>
                     </div>
                 )}
                 {props.canEdit && props.isEditing && (
                     <div className="icon">
-                        <button type="button" className="Itrash btn btn-ctm btn-ctm-rounded" data-bs-toggle="tooltip" title={props.cancelText ?? "取消"} aria-label={`第 ${rowNo} 列${props.cancelText ?? "取消"}`} onClick={() => props.onCancel(props.rowIndex)}>
+                        <button
+                            type="button"
+                            className="Itrash btn btn-ctm btn-ctm-rounded"
+                            data-bs-toggle="tooltip"
+                            title={props.cancelText ?? "取消"}
+                            aria-label={`第 ${rowNo} 列${props.cancelText ?? "取消"}`}
+                            onClick={() => props.onCancel(props.rowIndex)}
+                        >
                             <i className="far fa-times-circle" aria-hidden="true"></i>
                         </button>
                     </div>
                 )}
                 {props.canDelete && !props.isEditing && (
                     <div className="icon">
-                        <button type="button" className="Itrash btn btn-ctm btn-ctm-rounded" data-bs-toggle="tooltip" title={props.deleteText ?? "刪除"} aria-label={`第 ${rowNo} 列${props.deleteText ?? "刪除"}`} onClick={() => props.onDelete(props.rowIndex)}>
+                        <button
+                            type="button"
+                            className="Itrash btn btn-ctm btn-ctm-rounded"
+                            data-bs-toggle="tooltip"
+                            title={props.deleteText ?? "刪除"}
+                            aria-label={`第 ${rowNo} 列${props.deleteText ?? "刪除"}`}
+                            onClick={() => props.onDelete(props.rowIndex)}
+                        >
                             <i className="far fa-trash-alt" aria-hidden="true"></i>
                         </button>
                     </div>
@@ -347,23 +594,39 @@ const EditGridActionCell = (props: { row: GridRow; rowIndex: number; isEditing: 
 };
 
 /** 依欄位設定輸出唯讀內容、自訂編輯器或預設輸入元件。 */
-const EditGridCell = (props: { row: GridRow; rowIndex: number; column: ColumnConfig; error?: string; disabled: boolean; errorClassName?: string; onUpdate: (rowIndex: number, columnKey: string, value: EditGridCellValue) => void; }) =>
+const EditGridCell = (
+    props: {
+        row: GridRow;
+        rowIndex: number;
+        column: ColumnConfig;
+        error?: string;
+        disabled: boolean;
+        errorClassName?: string;
+        onUpdate: (rowIndex: number, columnKey: string, value: EditGridCellValue) => void;
+        onUpdateValues: (rowIndex: number, values: Record<string, EditGridCellValue>) => void;
+    },
+) =>
 {
     const cell = getCellByColumn(props.row, props.column.key, props.column);
     const value = getCellValue(cell);
     const updateValue = (nextValue: EditGridCellValue) => props.onUpdate(props.rowIndex, props.column.key, nextValue);
-    const args: EditGridCellRenderArgs = { row: props.row, rowIndex: props.rowIndex, cell, column: props.column, value, disabled: props.disabled, updateValue };
+    const updateValues = (nextValues: Record<string, EditGridCellValue>) => props.onUpdateValues(props.rowIndex, nextValues);
+    const args: EditGridCellRenderArgs = {
+        row: props.row,
+        rowIndex: props.rowIndex,
+        cell,
+        column: props.column,
+        value,
+        disabled: props.disabled,
+        updateValue,
+        updateValues,
+    };
     const canEdit = getCellEditable(cell, props.column) && getCellInputType(cell, props.column) !== "readonly" && !props.disabled;
     const content = canEdit ? renderEditContent(args, props.error) : renderReadonlyContent(args);
 
     const shouldRenderExternalError = Boolean(props.error) && !canEdit;
 
-    return (
-        <>
-            {content}
-            {shouldRenderExternalError && <div className={props.errorClassName ?? "text-danger small mt-1"}>{props.error}</div>}
-        </>
-    );
+    return <>{content} {shouldRenderExternalError && <div className={props.errorClassName ?? "text-danger small mt-1"}>{props.error}</div>}</>;
 };
 
 /** 沒有資料時輸出單列表格提示，避免空 tbody 造成閱讀器資訊不足。 */
@@ -434,20 +697,74 @@ const renderReadonlyContent = (args: EditGridCellRenderArgs) =>
     return args.value ?? args.cell.content ?? "";
 };
 
-
 /** EditGrid cell 使用 AAInputFieldItem 的共用轉接層。 */
 const renderEditGridAAInputCell = (args: EditGridCellRenderArgs, aaType: AAInputType, error?: string) =>
 {
     const field = buildEditGridAAInputField(args, aaType, error);
+    const handleChange = (_fieldKey: string, value: AAInputValue) => handleEditGridAAInputChange(args, aaType, value);
 
     return (
         <AAInputFieldItem
             baseId={`edit-grid-${getRowKey(args.row, args.rowIndex)}-${args.column.key}`}
             variant="gridCell"
             field={field}
-            onChange={(_, value) => args.updateValue(toEditGridCellValue(value, args, aaType))}
+            onChange={handleChange}
         />
     );
+};
+
+/** 將 AAInputField 的變更回寫到 EditGrid，必要時交給欄位自訂轉換。 */
+const handleEditGridAAInputChange = (args: EditGridCellRenderArgs, aaType: AAInputType, rawValue: AAInputValue): void =>
+{
+    const nextValue = toEditGridCellValue(rawValue, args, aaType);
+    const handler = args.cell.onValueChange ?? args.column.onValueChange;
+
+    if (!handler)
+    {
+        args.updateValue(nextValue);
+        return;
+    }
+
+    const handledValue = handler({ ...args, nextValue, rawValue });
+    resolveEditGridCellValue(handledValue, args);
+};
+
+/** 支援同步或非同步的欄位值轉換結果。 */
+const resolveEditGridCellValue = (value: EditGridCellValueChangeReturn | Promise<EditGridCellValueChangeReturn>, args: EditGridCellRenderArgs): void =>
+{
+    if (isEditGridValuePromise(value))
+    {
+        void value.then(result => applyEditGridCellValueChangeResult(result, args));
+        return;
+    }
+
+    applyEditGridCellValueChangeResult(value, args);
+};
+
+/** 套用欄位值轉換結果，支援同步更新同列多欄位。 */
+const applyEditGridCellValueChangeResult = (result: EditGridCellValueChangeReturn, args: EditGridCellRenderArgs): void =>
+{
+    if (!isEditGridCellValueChangeResult(result))
+    {
+        args.updateValue(result);
+        return;
+    }
+
+    args.updateValues({ ...(result.rowValues ?? {}), [args.column.key]: result.value });
+};
+
+/** 判斷是否為欄位值轉換結果物件。 */
+const isEditGridCellValueChangeResult = (value: EditGridCellValueChangeReturn): value is EditGridCellValueChangeResult =>
+{
+    return typeof value === "object" && value !== null && "value" in value;
+};
+
+/** 判斷欄位值轉換是否為 Promise。 */
+const isEditGridValuePromise = (
+    value: EditGridCellValueChangeReturn | Promise<EditGridCellValueChangeReturn>,
+): value is Promise<EditGridCellValueChangeReturn> =>
+{
+    return typeof (value as Promise<EditGridCellValueChangeReturn>)?.then === "function";
 };
 
 /** 將 EditGrid 欄位轉成 AAInputField。 */
@@ -557,11 +874,7 @@ const toEditGridCellValue = (value: AAInputValue, args: EditGridCellRenderArgs, 
 /** 將 EditGrid options 轉成 AAInputOption。 */
 const toAAInputOptions = (options: EditGridSelectOption[]): AAInputOption[] =>
 {
-    return options.map((option) => ({
-        value: toSelectValue(option.value),
-        label: option.label,
-        disabled: option.disabled,
-    }));
+    return options.map((option) => ({ value: toSelectValue(option.value), label: option.label, disabled: option.disabled }));
 };
 
 /** 將 AA 多選字串值轉回 EditGrid 原始 option value。 */
@@ -577,13 +890,7 @@ const toAAFileValueList = (value: EditGridCellValue): AAInputValue =>
     const file = toFileValue(value);
     if (!file || !file.fileName) return [];
 
-    return [{
-        file: file.file,
-        name: file.fileName,
-        size: file.size ?? 0,
-        type: file.mimeType ?? "",
-        url: file.url,
-    }] as AAInputValue;
+    return [{ file: file.file, name: file.fileName, size: file.size ?? 0, type: file.mimeType ?? "", url: file.url }] as AAInputValue;
 };
 
 /** 將 AAInputField FileField 回傳值轉回 EditGrid 檔案值。 */
@@ -592,13 +899,7 @@ const toEditGridFileValue = (value: AAInputValue): EditGridCellValue =>
     const file = getFirstAAFileValue(value);
     if (!file) return null;
 
-    return {
-        file: file.file,
-        fileName: file.name,
-        url: getEditGridFilePreviewUrl(file),
-        mimeType: file.type,
-        size: file.size,
-    };
+    return { file: file.file, fileName: file.name, url: getEditGridFilePreviewUrl(file), mimeType: file.type, size: file.size };
 };
 
 /** 取得檔案預覽網址，讓圖片與影片在儲存後仍可顯示預覽。
@@ -689,7 +990,6 @@ interface EditGridAAFileValue
     url?: string;
 }
 
-
 /** 檔案預覽：未選擇檔案時不顯示；有檔名才顯示圖片、影片或檔名。 */
 const FilePreview = (props: { value: EditGridCellValue; }) =>
 {
@@ -701,11 +1001,26 @@ const FilePreview = (props: { value: EditGridCellValue; }) =>
 
     return (
         <div className="edit-grid-file-preview mt-1">
-            {fileType === "image" && file.url && <img src={file.url} alt={fileName} style={{ display: "block", maxWidth: "8rem", maxHeight: "6rem", objectFit: "contain" }} />}
-            {fileType === "video" && file.url && <video src={file.url} controls preload="metadata" style={{ display: "block", maxWidth: "10rem", maxHeight: "7rem" }} />}
-            <div className="small text-break">{fileName}</div>
+            {fileType === "image" && file.url && (
+                <img src={file.url} alt={fileName} style={{ display: "block", maxWidth: "8rem", maxHeight: "6rem", objectFit: "contain" }} />
+            )}
+            {fileType === "video" && file.url && (
+                <video src={file.url} controls preload="metadata" style={{ display: "block", maxWidth: "10rem", maxHeight: "7rem" }} />
+            )}
+            {buildFilePreviewName(file, fileName)}
         </div>
     );
+};
+
+/** 建立檔案名稱顯示；有 downloadUrl 時直接提供可開啟連結。 */
+const buildFilePreviewName = (file: EditGridFileValue, fileName: string) =>
+{
+    if (file.downloadUrl)
+    {
+        return <a className="small text-break" href={file.downloadUrl} target="_blank" rel="noopener noreferrer">{fileName}</a>;
+    }
+
+    return <div className="small text-break">{fileName}</div>;
 };
 
 // #endregion
@@ -718,16 +1033,33 @@ const useEditGridColumns = (sourceColumns: ColumnConfig[], storageKey: string) =
     const safeSourceColumns = Array.isArray(sourceColumns) ? sourceColumns : [];
     const [columns, setColumns] = useState<ColumnConfig[]>(safeSourceColumns);
 
-    // [Fix] sourceColumns 參考已由外部 useMemo 穩定，此處直接依賴即可，不再有無限重跑問題
-    useEffect(() => setColumns(prev => mergeColumns(prev, safeSourceColumns)), [safeSourceColumns]);
-    useEffect(() => setColumns(prev => applySavedWidths(prev, storageKey)), [storageKey]);
+    /** 同步外部欄位設定；內容相同時回傳 prev，避免 effect setState 循環。 */
+    useEffect(() =>
+    {
+        setColumns(prev =>
+        {
+            const next = mergeColumns(prev, safeSourceColumns);
+            return isSameColumnListSnapshot(prev, next) ? prev : next;
+        });
+    }, [safeSourceColumns]);
+
+    /** 套用 localStorage 欄寬；內容相同時回傳 prev，避免重複 render。 */
+    useEffect(() =>
+    {
+        setColumns(prev =>
+        {
+            const next = applySavedWidths(prev, storageKey);
+            return isSameColumnListSnapshot(prev, next) ? prev : next;
+        });
+    }, [storageKey]);
 
     const resizeColumn = (key: string, width: number, persist: boolean = true) =>
     {
-        setColumns(prev => {
+        setColumns(prev =>
+        {
             const updated = prev.map(col => col.key === key ? { ...col, width } : col);
             if (persist) saveColumnWidths(updated, storageKey);
-            return updated;
+            return isSameColumnListSnapshot(prev, updated) ? prev : updated;
         });
     };
 
@@ -854,7 +1186,12 @@ const getGrabScrollKeyboardOffset = (key: string, clientWidth: number) =>
     return 0;
 };
 
-interface EditGridGrabScrollState { pointerId: number; startX: number; startScrollLeft: number; }
+interface EditGridGrabScrollState
+{
+    pointerId: number;
+    startX: number;
+    startScrollLeft: number;
+}
 
 /** 拖曳排序期間依游標靠近上下邊界自動捲動，補足瀏覽器原生 drag 常不派發 wheel 的限制。
  *  [Fix] hook 不再回傳 onDragOver（原先回傳但從未被綁定到任何元素），
@@ -939,7 +1276,11 @@ const scrollEditGridRowIntoViewWithRetry = (scrollBoxRef: RefObject<HTMLDivEleme
     window.requestAnimationFrame(() =>
     {
         const rowElement = getEditGridRowElement(scrollBoxRef.current, rowIndex);
-        if (rowElement) { scrollEditGridRowElementIntoView(rowElement); return; }
+        if (rowElement)
+        {
+            scrollEditGridRowElementIntoView(rowElement);
+            return;
+        }
         if (retryCount < 5) scrollEditGridRowIntoViewWithRetry(scrollBoxRef, rowIndex, retryCount + 1);
     });
 };
@@ -962,7 +1303,15 @@ const scrollEditGridRowElementIntoView = (rowElement: HTMLElement) =>
 
 /** 新增資料列並直接進入編輯模式；已有列在編輯時不可新增，新增後會移到新增列位置。
  *  [Fix] 若未設定 createRow，加上 console.warn 提示開發者，避免靜默 return 難以排查。 */
-const handleAddRow = (canAdd: boolean, props: EditGridProps, rows: GridRow[], editingKeys: Set<string>, pendingAddedRowIndexRef: { current: number | null; }, commitRows: (rows: GridRow[]) => void, setEditingKeys: Dispatch<SetStateAction<Set<string>>>) =>
+const handleAddRow = (
+    canAdd: boolean,
+    props: EditGridProps,
+    rows: GridRow[],
+    editingKeys: Set<string>,
+    pendingAddedRowIndexRef: { current: number | null; },
+    commitRows: (rows: GridRow[]) => void,
+    setEditingKeys: Dispatch<SetStateAction<Set<string>>>,
+) =>
 {
     if (!canAdd || editingKeys.size > 0) return;
 
@@ -983,7 +1332,13 @@ const handleAddRow = (canAdd: boolean, props: EditGridProps, rows: GridRow[], ed
 };
 
 /** 進入列編輯模式並建立備份；同一時間只允許一列編輯。 */
-const handleEditRow = (rows: GridRow[], rowIndex: number, editingKeys: Set<string>, setEditingKeys: Dispatch<SetStateAction<Set<string>>>, setBackupMap: Dispatch<SetStateAction<Record<string, GridRow>>>) =>
+const handleEditRow = (
+    rows: GridRow[],
+    rowIndex: number,
+    editingKeys: Set<string>,
+    setEditingKeys: Dispatch<SetStateAction<Set<string>>>,
+    setBackupMap: Dispatch<SetStateAction<Record<string, GridRow>>>,
+) =>
 {
     const row = rows[rowIndex];
     if (!row) return;
@@ -997,7 +1352,14 @@ const handleEditRow = (rows: GridRow[], rowIndex: number, editingKeys: Set<strin
 };
 
 /** 確認列編輯內容；若該列仍有驗證錯誤，保留編輯模式。 */
-const handleSaveRow = (rows: GridRow[], rowIndex: number, columns: ColumnConfig[], setEditingKeys: Dispatch<SetStateAction<Set<string>>>, setBackupMap: Dispatch<SetStateAction<Record<string, GridRow>>>, commitRows: (rows: GridRow[]) => void) =>
+const handleSaveRow = (
+    rows: GridRow[],
+    rowIndex: number,
+    columns: ColumnConfig[],
+    setEditingKeys: Dispatch<SetStateAction<Set<string>>>,
+    setBackupMap: Dispatch<SetStateAction<Record<string, GridRow>>>,
+    commitRows: (rows: GridRow[]) => void,
+) =>
 {
     const row = rows[rowIndex];
     if (!row || hasRowError(row, rowIndex, columns)) return;
@@ -1011,13 +1373,22 @@ const handleSaveRow = (rows: GridRow[], rowIndex: number, columns: ColumnConfig[
 };
 
 /** 取消列編輯內容。 */
-const handleCancelRow = (rows: GridRow[], rowIndex: number, backupMap: Record<string, GridRow>, setEditingKeys: Dispatch<SetStateAction<Set<string>>>, setBackupMap: Dispatch<SetStateAction<Record<string, GridRow>>>, commitRows: (rows: GridRow[]) => void) =>
+const handleCancelRow = (
+    rows: GridRow[],
+    rowIndex: number,
+    backupMap: Record<string, GridRow>,
+    setEditingKeys: Dispatch<SetStateAction<Set<string>>>,
+    setBackupMap: Dispatch<SetStateAction<Record<string, GridRow>>>,
+    commitRows: (rows: GridRow[]) => void,
+) =>
 {
     const row = rows[rowIndex];
     if (!row) return;
     const rowKey = getRowKey(row, rowIndex);
     const backup = backupMap[rowKey];
-    const nextRows = row.rowState === "insert" && !backup ? rows.filter((_, index) => index !== rowIndex) : rows.map((item, index): GridRow => index === rowIndex ? backup ?? item : item);
+    const nextRows = row.rowState === "insert" && !backup
+        ? rows.filter((_, index) => index !== rowIndex)
+        : rows.map((item, index): GridRow => index === rowIndex ? backup ?? item : item);
     setEditingKeys(prev => removeSetValue(prev, rowKey));
     setBackupMap(prev => removeRecordKey(prev, rowKey));
     commitRows(nextRows);
@@ -1048,16 +1419,118 @@ const normalizeGridData = (gridData?: GridProps): GridProps =>
     };
 };
 
+/** 建立 GridData 內容簽章，避免外層只有物件 reference 改變就觸發 effect。 */
+const buildGridDataSnapshotText = (gridData?: GridProps): string =>
+{
+    const normalized = normalizeGridData(gridData);
+    const columnText = buildColumnListSignature(normalized.columns);
+    const rowText = buildRowListSignature(normalized.rows);
+
+    return [normalized.CurrentPage, normalized.TotalPage, columnText, rowText].join("¶");
+};
+
+/** 判斷 GridData 內容是否相同，避免 props reference 改變就觸發 setState。 */
+const isSameGridDataSnapshot = (current: GridProps, next: GridProps): boolean =>
+{
+    if (current.CurrentPage !== next.CurrentPage) return false;
+    if (current.TotalPage !== next.TotalPage) return false;
+    if (!isSameColumnListSnapshot(current.columns, next.columns)) return false;
+    if (!isSameRowListSnapshot(current.rows, next.rows)) return false;
+
+    return true;
+};
+
+/** 建立欄位清單簽章。 */
+const buildColumnListSignature = (columns: ColumnConfig[]): string =>
+{
+    return (Array.isArray(columns) ? columns : []).map(getColumnSnapshotText).join("§");
+};
+
+/** 建立資料列清單簽章。 */
+const buildRowListSignature = (rows: GridRow[]): string =>
+{
+    return (Array.isArray(rows) ? rows : []).map((row, index) => getRowSnapshotText(row, index)).join("§");
+};
+
+/** 判斷欄位清單快照是否相同。 */
+const isSameColumnListSnapshot = (current: ColumnConfig[], next: ColumnConfig[]): boolean =>
+{
+    if (current.length !== next.length) return false;
+
+    return current.every((column, index) => getColumnSnapshotText(column) === getColumnSnapshotText(next[index]));
+};
+
+/** 判斷資料列清單快照是否相同。 */
+const isSameRowListSnapshot = (current: GridRow[], next: GridRow[]): boolean =>
+{
+    if (current.length !== next.length) return false;
+
+    return current.every((row, index) => getRowSnapshotText(row, index) === getRowSnapshotText(next[index], index));
+};
+
+/** 建立欄位比對文字，忽略 render function 這類每次 render 都可能不同的參考。 */
+const getColumnSnapshotText = (column: ColumnConfig): string =>
+{
+    return [
+        column.key,
+        column.title,
+        column.visible,
+        column.width,
+        column.minWidth,
+        column.inputType,
+        column.editable,
+        column.required,
+        column.maxLength,
+        column.min,
+        column.max,
+        column.step,
+        column.rows,
+    ].join("|");
+};
+
+/** 建立資料列比對文字。 */
+const getRowSnapshotText = (row: GridRow, rowIndex: number): string =>
+{
+    const cellText = row.cells.map(cell => `${cell.col.key}:${toSnapshotValue(getCellValue(cell))}`).join("|");
+
+    return [getRowKey(row, rowIndex), getRowNo(row, rowIndex), row.rowState, cellText].join("|");
+};
+
+/** 將 cell value 轉成穩定比對文字。 */
+const toSnapshotValue = (value: EditGridCellValue): string =>
+{
+    if (value === null || value === undefined) return "";
+    if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") return String(value);
+    if (Array.isArray(value)) return value.map(item => String(item)).join(",");
+
+    try
+    {
+        return JSON.stringify(value);
+    } catch
+    {
+        return "";
+    }
+};
+
 /** 重新整理排序欄位，拖曳、新增、刪除後都會保持 RowNo 連續。 */
 const rebuildRowNo = (rows: GridRow[]): GridRow[] => rows.map((row, index): GridRow => ({ ...row, rowNo: index + 1, RowNo: index + 1, rowno: index + 1 }));
 
 /** 更新單一欄位值。 */
-const updateRowCellValue = (rows: GridRow[], rowIndex: number, columnKey: string, value: EditGridCellValue): GridRow[] => rows.map((row, index): GridRow => index === rowIndex ? updateRowValue(row, columnKey, value) : row);
+const updateRowCellValue = (rows: GridRow[], rowIndex: number, columnKey: string, value: EditGridCellValue): GridRow[] =>
+    rows.map((row, index): GridRow => index === rowIndex ? updateRowValues(row, { [columnKey]: value }) : row);
+
+/** 更新同列多個欄位值。 */
+const updateRowCellValues = (rows: GridRow[], rowIndex: number, values: Record<string, EditGridCellValue>): GridRow[] =>
+    rows.map((row, index): GridRow => index === rowIndex ? updateRowValues(row, values) : row);
 
 /** 更新資料列內對應 cell 的 value 與 content。 */
-const updateRowValue = (row: GridRow, columnKey: string, value: EditGridCellValue): GridRow =>
+const updateRowValues = (row: GridRow, values: Record<string, EditGridCellValue>): GridRow =>
 {
-    const cells = row.cells.map(cell => cell.col.key === columnKey ? { ...cell, value, content: valueToReadonlyContent(value, cell) } : cell);
+    const cells = row.cells.map(cell =>
+        Object.prototype.hasOwnProperty.call(values, cell.col.key)
+            ? { ...cell, value: values[cell.col.key], content: valueToReadonlyContent(values[cell.col.key], cell) }
+            : cell
+    );
     const rowState: EditGridRowState = row.rowState === "insert" ? "insert" : "update";
     return { ...row, rowState, cells };
 };
@@ -1094,12 +1567,7 @@ const getDragPreviewText = (sourceRowNo: number, targetRowNo?: number) =>
 };
 
 /** 取得拖曳提示的目標列號。 */
-const getDragPreviewTargetRowNo = (
-    rows: GridRow[],
-    dragIndex: number | null,
-    dragOverIndex: number | null,
-    dragPlacement: EditGridDragPlacement,
-) =>
+const getDragPreviewTargetRowNo = (rows: GridRow[], dragIndex: number | null, dragOverIndex: number | null, dragPlacement: EditGridDragPlacement) =>
 {
     if (dragIndex === null || dragOverIndex === null) return undefined;
     if (dragIndex === dragOverIndex) return undefined;
@@ -1138,10 +1606,12 @@ const getRowKey = (row: GridRow, rowIndex: number) =>
 const getRowNo = (row: GridRow, rowIndex: number) => row.RowNo ?? row.rowNo ?? row.rowno ?? rowIndex + 1;
 
 /** 取得欄位對應 cell，找不到時建立唯讀空 cell。 */
-const getCellByColumn = (row: GridRow, columnKey: string, column: ColumnConfig): RowCell => row.cells.find(cell => cell.col.key === columnKey) ?? { col: column, content: "", value: undefined };
+const getCellByColumn = (row: GridRow, columnKey: string, column: ColumnConfig): RowCell =>
+    row.cells.find(cell => cell.col.key === columnKey) ?? { col: column, content: "", value: undefined };
 
 /** 取得 cell value。 */
-const getCellValue = (cell: RowCell): EditGridCellValue => cell.value ?? (typeof cell.content === "string" || typeof cell.content === "number" || typeof cell.content === "boolean" ? cell.content : undefined);
+const getCellValue = (cell: RowCell): EditGridCellValue =>
+    cell.value ?? (typeof cell.content === "string" || typeof cell.content === "number" || typeof cell.content === "boolean" ? cell.content : undefined);
 
 /** 建立欄位驗證訊息 Map。 */
 const buildErrorMap = (rows: GridRow[], columns: ColumnConfig[]) =>
@@ -1202,10 +1672,7 @@ const normalizeSavedRow = (row: GridRow): GridRow =>
 /** 清除資料列中的 password 欄位值，password 僅作為寫入欄位，不在前端保存。 */
 const clearPasswordCellValues = (row: GridRow): GridRow =>
 {
-    return {
-        ...row,
-        cells: row.cells.map((cell) => isPasswordCell(cell, cell.col) ? { ...cell, value: "", content: getPasswordMaskedText() } : cell),
-    };
+    return { ...row, cells: row.cells.map((cell) => isPasswordCell(cell, cell.col) ? { ...cell, value: "", content: getPasswordMaskedText() } : cell) };
 };
 
 /** 判斷欄位是否為 password。 */
@@ -1218,7 +1685,10 @@ const isPasswordCell = (cell: RowCell, column: ColumnConfig) =>
 const getPasswordMaskedText = () => "●●●●●●";
 
 /** 複製資料列，用於取消編輯還原。 */
-const cloneGridRow = (row: GridRow): GridRow => ({ ...row, cells: row.cells.map(cell => ({ ...cell, col: { ...cell.col }, options: cell.options ? [...cell.options] : undefined })) });
+const cloneGridRow = (row: GridRow): GridRow => ({
+    ...row,
+    cells: row.cells.map(cell => ({ ...cell, col: { ...cell.col }, options: cell.options ? [...cell.options] : undefined })),
+});
 
 // #endregion
 
@@ -1267,10 +1737,12 @@ const valueToReadonlyContent = (value: EditGridCellValue, cell: RowCell): ReactN
 // #region Private Column Helpers
 
 /** 合併外部欄位設定，同時保留目前已調整的欄寬。 */
-const mergeColumns = (current: ColumnConfig[], source: ColumnConfig[]) => source.map(sourceCol => {
-    const currentCol = current.find(col => col.key === sourceCol.key);
-    return currentCol?.width !== undefined ? { ...sourceCol, width: currentCol.width } : sourceCol;
-});
+const mergeColumns = (current: ColumnConfig[], source: ColumnConfig[]) =>
+    source.map(sourceCol =>
+    {
+        const currentCol = current.find(col => col.key === sourceCol.key);
+        return currentCol?.width !== undefined ? { ...sourceCol, width: currentCol.width } : sourceCol;
+    });
 
 /** 套用 localStorage 內保存的欄寬。 */
 const applySavedWidths = (columns: ColumnConfig[], storageKey: string) =>
@@ -1285,15 +1757,23 @@ const readSavedWidths = (storageKey: string) =>
     if (typeof window === "undefined") return {} as Record<string, number>;
     const saved = window.localStorage.getItem(storageKey);
     if (!saved) return {} as Record<string, number>;
-    try { return JSON.parse(saved) as Record<string, number>; }
-    catch { return {} as Record<string, number>; }
+    try
+    {
+        return JSON.parse(saved) as Record<string, number>;
+    } catch
+    {
+        return {} as Record<string, number>;
+    }
 };
 
 /** 保存欄寬設定。 */
 const saveColumnWidths = (columns: ColumnConfig[], storageKey: string) =>
 {
     const widths = { ...readSavedWidths(storageKey) };
-    columns.forEach(col => { if (typeof col.width === "number") widths[col.key] = col.width; });
+    columns.forEach(col =>
+    {
+        if (typeof col.width === "number") widths[col.key] = col.width;
+    });
     saveColumnWidthsRecord(widths, storageKey);
 };
 
@@ -1359,7 +1839,11 @@ const movePointerRowDrag = (
     scrollWindowByPointerPosition(event.clientY);
 
     const target = findPointerRowTarget(event.clientX, event.clientY);
-    if (!target || target.rowIndex === dragIndex) { setDragOverIndex(null); return; }
+    if (!target || target.rowIndex === dragIndex)
+    {
+        setDragOverIndex(null);
+        return;
+    }
 
     setDragOverIndex(target.rowIndex);
     setDragPlacement(target.placement);
@@ -1497,7 +1981,9 @@ const formatEditGridDateTimeRangeValue = (value: EditGridCellValue) =>
     const endParts = parseEditGridDateTimeParts(range[1]);
 
     if (!startParts || !endParts) return undefined;
-    return `${formatEditGridDateWithWeekday(startParts)} ${formatEditGridTime(startParts)} ~ ${formatEditGridDateWithWeekday(endParts)} ${formatEditGridTime(endParts)}`;
+    return `${formatEditGridDateWithWeekday(startParts)} ${formatEditGridTime(startParts)} ~ ${formatEditGridDateWithWeekday(endParts)} ${
+        formatEditGridTime(endParts)
+    }`;
 };
 
 /** 將 range value 轉成開始與結束字串。 */
@@ -1525,13 +2011,7 @@ const normalizeEditGridDateTimeParts = (match: RegExpMatchArray): EditGridDateTi
     const rawHour = match[5] === undefined ? undefined : Number(match[5]);
     const hour = rawHour === undefined ? undefined : normalizeEditGridHour(rawHour, period);
 
-    return {
-        year: Number(match[1]),
-        month: Number(match[2]),
-        day: Number(match[3]),
-        hour,
-        minute: match[6] === undefined ? undefined : Number(match[6]),
-    };
+    return { year: Number(match[1]), month: Number(match[2]), day: Number(match[3]), hour, minute: match[6] === undefined ? undefined : Number(match[6]) };
 };
 
 /** 依上午下午轉換 24 小時制。 */
@@ -1598,7 +2078,8 @@ const toInputValue = (value: EditGridCellValue) => value === null || value === u
 const toSelectValue = (value: EditGridCellValue | EditGridOptionValue) => value === null || value === undefined ? "" : String(value);
 
 /** 從下拉選項取回原始 value。 */
-const getSelectValue = (options: EditGridSelectOption[], value: string): EditGridOptionValue | null => options.find(option => toSelectValue(option.value) === value)?.value ?? null;
+const getSelectValue = (options: EditGridSelectOption[], value: string): EditGridOptionValue | null =>
+    options.find(option => toSelectValue(option.value) === value)?.value ?? null;
 
 /** 判斷是否為合法選項值。 */
 const isOptionValue = (value: EditGridOptionValue | null): value is EditGridOptionValue => value !== null;
@@ -1611,7 +2092,8 @@ const renderOptionLabel = (value: EditGridCellValue, options: EditGridSelectOpti
 };
 
 /** 將選項值陣列顯示成 label。 */
-const renderOptionLabels = (values: EditGridOptionValue[], options: EditGridSelectOption[]) => values.map(value => renderOptionLabel(value, options)).join("、");
+const renderOptionLabels = (values: EditGridOptionValue[], options: EditGridSelectOption[]) =>
+    values.map(value => renderOptionLabel(value, options)).join("、");
 
 /** 判斷必填欄位是否空白。 */
 const isEmptyValue = (value: EditGridCellValue) => value === null || value === undefined || value === "" || (Array.isArray(value) && value.length === 0);
@@ -1682,7 +2164,8 @@ const getRowClassName = (rowIndex: number, style?: IEditGridView_Style, dragInde
 const EditGridOverflowStyle = () =>
 {
     return (
-        <style>{`
+        <style>
+            {`
             .edit-grid-root, .edit-grid-root * { box-sizing: border-box; }
             .edit-grid-root .edit-grid-cell-content,
             .edit-grid-root .aa-input-field-cell,
@@ -1763,13 +2246,13 @@ const EditGridOverflowStyle = () =>
                 line-height: 1.2;
                 white-space: nowrap;
             }
-        `}</style>
+        `}
+        </style>
     );
 };
 
 /** 取得 EditGrid 表頭樣式，垂直捲動時固定欄位標題避免使用者失去欄位對應。 */
-const getEditGridHeaderCellStyle = (style: CSSProperties = {}): CSSProperties =>
-({
+const getEditGridHeaderCellStyle = (style: CSSProperties = {}): CSSProperties => ({
     position: "sticky",
     top: 0,
     zIndex: 5,
@@ -1780,16 +2263,10 @@ const getEditGridHeaderCellStyle = (style: CSSProperties = {}): CSSProperties =>
 /** 取得 EditGrid td 樣式。
  *  [Fix] 原版 maxWidth: 0 會把 td 壓成零寬度，導致所有 cell 內容消失。
  *        改為不設定 maxWidth，讓 colgroup 的 width 正常控制欄寬。 */
-const getEditGridCellStyle = (): CSSProperties =>
-({
-    overflow: "hidden",
-    minWidth: 0,
-    boxSizing: "border-box",
-});
+const getEditGridCellStyle = (): CSSProperties => ({ overflow: "hidden", minWidth: 0, boxSizing: "border-box" });
 
 /** 取得 EditGrid cell 內容樣式，讓所有 input/select/file 區塊寬度收斂在 td 內。 */
-const getEditGridCellContentStyle = (): CSSProperties =>
-({
+const getEditGridCellContentStyle = (): CSSProperties => ({
     width: "100%",
     maxWidth: "100%",
     minWidth: 0,
@@ -1800,20 +2277,13 @@ const getEditGridCellContentStyle = (): CSSProperties =>
 });
 
 /** 取得操作欄內容樣式。 */
-const getEditGridActionContentStyle = (): CSSProperties =>
-({
-    maxWidth: "100%",
-    minWidth: 0,
-    overflowX: "hidden",
-    boxSizing: "border-box",
-});
+const getEditGridActionContentStyle = (): CSSProperties => ({ maxWidth: "100%", minWidth: 0, overflowX: "hidden", boxSizing: "border-box" });
 
 /** 確認目前可使用 document，避免 SSR render 階段碰到 browser API。 */
 const isBrowserDocumentReady = () => typeof document !== "undefined" && typeof window !== "undefined";
 
 /** 取得拖曳浮動提示樣式。 */
-const getEditGridDragPreviewStyle = (pointer: EditGridDragPointer): CSSProperties =>
-({
+const getEditGridDragPreviewStyle = (pointer: EditGridDragPointer): CSSProperties => ({
     position: "fixed",
     left: `${pointer.x + 8}px`,
     top: `${pointer.y}px`,
@@ -1823,8 +2293,7 @@ const getEditGridDragPreviewStyle = (pointer: EditGridDragPointer): CSSPropertie
 });
 
 /** 取得 EditGrid 根節點樣式，避免寬表格把整頁撐出水平捲軸。 */
-const getEditGridRootStyle = (): CSSProperties =>
-({
+const getEditGridRootStyle = (): CSSProperties => ({
     display: "flow-root",
     position: "relative",
     width: "100%",
@@ -1835,8 +2304,7 @@ const getEditGridRootStyle = (): CSSProperties =>
 });
 
 /** 取得表格包覆層樣式，取代 Bootstrap row，避免 row/flex 負責排版時被 table min-width 撐開。 */
-const getEditGridTableWrapStyle = (): CSSProperties =>
-({
+const getEditGridTableWrapStyle = (): CSSProperties => ({
     display: "block",
     width: "100%",
     maxWidth: "100%",
@@ -1879,8 +2347,14 @@ const getScrollBoxMaxHeight = (maxVisibleRows: number | null, rowHeightPx: numbe
 };
 
 /** 取得外層捲動樣式，固定寬度避免 Bootstrap row/flex item 被表格內容撐開而讓整頁出現水平拖拉 bar。 */
-const getScrollBoxStyle = (_shouldScroll: boolean, isDragging: boolean, shouldUseYScroll: boolean, maxVisibleRows: number | null, rowHeightPx: number, headerHeightPx: number): CSSProperties =>
-({
+const getScrollBoxStyle = (
+    _shouldScroll: boolean,
+    isDragging: boolean,
+    shouldUseYScroll: boolean,
+    maxVisibleRows: number | null,
+    rowHeightPx: number,
+    headerHeightPx: number,
+): CSSProperties => ({
     display: "block",
     overflowX: "auto",
     overflowY: shouldUseYScroll ? "auto" : "hidden",
@@ -1896,7 +2370,12 @@ const getScrollBoxStyle = (_shouldScroll: boolean, isDragging: boolean, shouldUs
 });
 
 /** 取得表格樣式，固定 table layout 可避免拖曳欄寬時 td 內容反向重排造成游標與欄線偏移。 */
-const getTableStyle = (_shouldScroll: boolean, minWidth: number): CSSProperties => ({ width: `${minWidth}px`, minWidth: "100%", maxWidth: "none", tableLayout: "fixed" });
+const getTableStyle = (_shouldScroll: boolean, minWidth: number): CSSProperties => ({
+    width: `${minWidth}px`,
+    minWidth: "100%",
+    maxWidth: "none",
+    tableLayout: "fixed",
+});
 
 /** 將寬度轉成 CSS 可接受的值。 */
 const toCssWidth = (width?: string | number): string | number | undefined => width === undefined ? undefined : typeof width === "number" ? `${width}px` : width;

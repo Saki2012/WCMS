@@ -11,11 +11,11 @@ namespace WCMS.Features.WEB.Announcement
     /// <summary>
     /// 公告功能
     /// </summary>
-    [LibDesc] public class AnnouncementSet_DTO : ITSet_DTO
+    [LibDesc(ModelDisplayName.AnnouncementSet)] public class AnnouncementSet_DTO : ITSet_DTO
     {
         [LibDesc] public Announcement_DTO Announcement { get; set; } = new();
         [LibDesc] public List<AnnouncementDetail_DTO> AnnouncementDetail { get; set; } = [];
-        [LibDesc] public List<AnnouncementDetailFile_DTO> AnnouncementDetailFile { get; set; } = [];
+        [LibDesc(ModelDisplayName.AnnouncementDetailFile)] public List<AnnouncementDetailFile_DTO> AnnouncementDetailFile { get; set; } = [];
     }
     /// <summary>
     /// 公告主表
@@ -100,7 +100,7 @@ namespace WCMS.Features.WEB.Announcement
     /// <summary>
     /// 明細檔案關聯
     /// </summary>
-    [LibDesc]
+    [LibDesc(ModelDisplayName.AnnouncementDetailFile)]
     public class AnnouncementDetailFile_DTO
     {
         /// <summary>

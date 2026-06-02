@@ -288,4 +288,7 @@
   <data name="Spec_JournalAuthor" xml:space="preserve">
     <value>期刊作者</value>
   </data>
+  <data name="SpecJournalIndexSet" xml:space="preserve">
+    <value>期刊目次表單</value>
+  </data>
 </root>

@@ -1,24 +1,22 @@
+//#region Property
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import { SpecJournalKeywordSearch_Comp } from "@/SpecFetures/1819/Pages/Client/BizFunc/WEB/SpecJournal/SpecJournalKeywordSearchComp";
-import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import type { components } from "@/types/api";
 import clsx from "clsx";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-// ✅ 新架構：LoaderData initial + adapter hooks
-import { SpecJournalIndexAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/WEB/SpecJournalIndex_Api";
-import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
-import { useLoaderData } from "react-router-dom";
-import type { SpecJournalIndexLoaderData } from "./SpecJournalIndex_Loader";
+import { useSpecJournalIndexData } from "./SpecJournalIndex_Loader";
 
 type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
-type QueryListParam = components["schemas"]["QueryListParam"];
-
 /** ===== Helpers (放 component 外面，方便 code review 後續整理) ===== */
 
+
+//#endregion
+
+//#region Private - Accordion Helpers
 const buildCollapseIds = (year: string) =>
 {
     // 宣告變數
@@ -28,15 +26,16 @@ const buildCollapseIds = (year: string) =>
     return { collapseId, headerId };
 };
 
+
+//#endregion
+
+//#region Public
 export const SpecJournalIndex = (props: { site: INormSite; node: INormNode; lang: Lang; }) =>
 {
     const pageSize = 10;
-    const loaderData = useLoaderData() as SpecJournalIndexLoaderData | null;
-    const adapter = useMemo(() => SpecJournalIndexAdapter(), []);
-    const useIndex = useSpecJournalIndex(adapter, pageSize, loaderData);
+    const useIndex = useSpecJournalIndexData({ pageSize });
     const loadingList = useIndex.isLoading;
-    const errorList = [useIndex.error];
-    const paginprops: PaginatorProps = { currentPage: useIndex.pageNumber, totalPages: useIndex.totalPages, onPageChange: useIndex.onPageChange };
+    const errorList = useIndex.errorList;
     const viewCountConfig: ModuleViewCountConfig = { mode: "list" };
     return (
         <ModuleContent
@@ -44,7 +43,7 @@ export const SpecJournalIndex = (props: { site: INormSite; node: INormNode; lang
             title={props.node.title}
             isLoading={loadingList}
             errorList={errorList}
-            paginatorProps={paginprops}
+            paginatorProps={useIndex.paginatorProps}
             viewCountConfig={viewCountConfig}
         >
             <SpecJournalIndexContent title={props.node.title} data={useIndex.rawData} lang={props.lang} />
@@ -52,6 +51,10 @@ export const SpecJournalIndex = (props: { site: INormSite; node: INormNode; lang
     );
 };
 
+
+//#endregion
+
+//#region Private - Accordion Helpers
 const handleAccordionKeyDown = (e: React.KeyboardEvent<HTMLAnchorElement>, onToggle: () => void): void =>
 {
     if (e.key !== "Enter" && e.key !== " " && e.key !== "Spacebar") return;
@@ -156,79 +159,10 @@ const animateAccordionPanel = (el: HTMLDivElement, isOpen: boolean): void =>
     el.dataset.timerId = String(timerId);
 };
 
-const useSpecJournalIndex = (adapter: ReturnType<typeof SpecJournalIndexAdapter>, pageSize: number, loaderData: SpecJournalIndexLoaderData | null) =>
-{
-    // 宣告變數
-    const baseParam = useMemo<QueryListParam>(() =>
-    {
-        if (!loaderData?.args?.baseParam)
-        {
-            return { Fields: [], Condition: "1=0", PageNumber: 1, PageSize: pageSize };
-        }
 
-        if (loaderData.args.pageSize !== pageSize)
-        {
-            return { Fields: [], Condition: "1=0", PageNumber: 1, PageSize: pageSize };
-        }
+//#endregion
 
-        return loaderData.args.baseParam;
-    }, [loaderData, pageSize]);
-
-    const initialCount = useMemo<ApiLoaderData<QueryListParam, number> | null>(() =>
-    {
-        if (!loaderData?.args?.baseParam) return null;
-        if (loaderData.args.pageSize !== pageSize) return null;
-
-        return { args: loaderData.args.baseParam, apiRes: { IsSuccess: true, Data: loaderData.res.countRes ?? 0, SysMessage: [] } };
-    }, [loaderData, pageSize]);
-
-    const initialList = useMemo<ApiLoaderData<QueryListParam, SpecJournalIndexSet[]> | null>(() =>
-    {
-        if (!loaderData?.args?.baseParam) return null;
-        if (loaderData.args.pageSize !== pageSize) return null;
-
-        return { args: loaderData.args.baseParam, apiRes: { IsSuccess: true, Data: loaderData.res.listRes ?? [], SysMessage: [] } };
-    }, [loaderData, pageSize]);
-
-    const queryKey = useMemo(() =>
-    {
-        return JSON.stringify({ condition: baseParam.Condition ?? "", pageSize });
-    }, [baseParam.Condition, pageSize]);
-
-    const [hasPaged, setHasPaged] = useState<boolean>(false);
-
-    useEffect(() =>
-    {
-        setHasPaged(false);
-    }, [queryKey]);
-
-    // 執行 function：count
-    const useCount = adapter.hooks.useQueryCount({ condition: baseParam, initial: initialCount, deps: [queryKey, baseParam.Condition, baseParam.PageSize] });
-
-    // 執行 function：list
-    const useList = adapter.hooks.usePagedQueryList({
-        baseParam,
-        count: useCount.data ?? 0,
-        initial: hasPaged ? null : initialList,
-        deps: [queryKey, baseParam.Condition, baseParam.PageSize],
-    });
-
-    const handlePageChange = (page: number): void =>
-    {
-        setHasPaged(true);
-        useList.onPageChange(page);
-    };
-
-    // return
-    return {
-        rawData: useList.data ?? [],
-        isLoading: useCount.isLoading || useList.isLoading,
-        error: useCount.errorText ?? useList.errorText ?? null,
-        pageNumber: useList.pageNumber,
-        totalPages: useList.totalPages,
-        onPageChange: handlePageChange,
-    };
-};
+//#region Section
 const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalIndexSet[]; lang: Lang; }) =>
 {
     // 宣告變數：目前開啟中的 IndexId
@@ -438,3 +372,4 @@ const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalInde
         </div>
     );
 };
+//#endregion

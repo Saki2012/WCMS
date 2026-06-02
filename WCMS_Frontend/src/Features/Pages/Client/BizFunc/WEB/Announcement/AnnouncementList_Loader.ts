@@ -437,7 +437,7 @@ const createAnnouncementDataQueryTemplate = (
         initialSearchValues,
         initialViewState,
         pagination,
-        searchBar: { title: "搜尋條件", actionAlign: "left", columnCount: 3 },
+        searchBar: { title: "搜尋條件", actionAlign: "right", columnCount: 3 },
         feature: {
             searchFields: buildAnnouncementSearchFields(),
             toSearchParams: (values, viewState) => buildAnnouncementSearchParams({ ...p, values, viewState }),

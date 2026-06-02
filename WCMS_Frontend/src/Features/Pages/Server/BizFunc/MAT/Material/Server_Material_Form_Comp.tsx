@@ -1,686 +1,436 @@
-import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
-import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
+import { Server_FormTemplate_Comp } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Comp";
+import type { ServerFormBinding } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
+import { EditGrid } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid";
+import type { EditGridCellRenderArgs, IEditGridView_Style } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Data";
 import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-import {
-    LibCheckBox,
-    LibDropList,
-    LibFile,
-    LibModal,
-    LibPicture,
-    LibPicturePreview,
-    LibTextBox,
-    LibTinyMCE,
-} from "@/SysCore/Components/FormField/LibFormField";
+import { LibCheckBox, LibDropList, LibFile, LibModal, LibPicturePreview, LibTextBox, LibTinyMCE } from "@/SysCore/Components/FormField/LibFormField";
 import { useSetJsonField, useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
 import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
-import { type Lang, LangLabelMap, useEnsureLangDetails } from "@/SysCore/i18n/lang";
-import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import type { Lang } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
-import { MaterialFields, MaterialLangInfoFields, MaterialPictureFields, MaterialSetFields } from "@/types/SchemaFields";
-import { type ReactNode, useCallback, useMemo, useState } from "react";
+import { MaterialFields, MaterialLangInfoFields, MaterialSetFields } from "@/types/SchemaFields";
+import type { ReactNode } from "react";
+import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useMaterialFormFetchData } from "./Server_Material_Form_Hook";
+import {
+    buildMaterialInfoJsonDefaults,
+    getMaterialPicturePreviewUrl,
+    materialEmptyData,
+    type MaterialFormRefs,
+    type MaterialInfoFieldItem,
+    type MaterialRowKeys,
+    toMaterialPictureCellValue,
+    useMaterialBatchPictureUpload,
+    useMaterialFormTemplate,
+    useMaterialLangTabs,
+    useMaterialPictureEditGrid,
+    useMaterialTagSelection,
+} from "./Server_Material_Form_Hook";
 
+// #region Property
 type MaterialSet = components["schemas"]["MaterialSet_DTO"];
-type MaterialPicture = components["schemas"]["MaterialPicture_DTO"];
-type MaterialTags = components["schemas"]["MaterialTags_DTO"];
-type InfoField = components["schemas"]["MatCategoryInfoField_DTO"];
-type InfoFieldDisplay = components["schemas"]["MatCategoryInfoFieldDisplay_DTO"];
 type MaterialInfoJson = Record<string, string>;
 
-interface InfoFieldKeySource extends InfoField
+interface MaterialFormCompProps
 {
-    Field?: string | null;
-    FieldKey?: string | null;
-    FieldName?: string | null;
+    /** 舊 Route 仍會傳入 title，目前 Form 標題改由 ModelDisplayName 建立。 */
+    title?: string;
+
+    /** 後台主題設定 */
+    theme: IBETheme;
+
+    /** 目前語系 */
+    lang: Lang;
 }
 
-interface MaterialInfoFieldItem
+interface MaterialContentProps
 {
-    Field: string;
-    Title: string;
+    /** 後台主題設定 */
+    theme: IBETheme;
+
+    /** 目前語系 */
+    lang: Lang;
+
+    /** Form Template 提供的主資料 binding */
+    binding: ServerFormBinding<MaterialSet>;
+
+    /** Material Hook 整理後的參照資料 */
+    refs: MaterialFormRefs;
 }
-type MaterialUploadError = Error & { status?: number; };
-type MaterialUploadJson = { Data?: string[]; };
 
-/** 建立空白資料 */
-const buildEmptyData = (): MaterialSet =>
+interface MaterialBasicProps extends MaterialContentProps
+{}
+
+interface MaterialLangProps
 {
-    return { Material: {}, MaterialLangInfo: [], MaterialPicture: [], MaterialTags: [] };
-};
+    /** 後台主題設定 */
+    theme: IBETheme;
 
-/** 建立語系 tab key */
-const buildLangTabKey = (lang: Lang | string): string =>
+    /** 目前語系 */
+    lang: Lang;
+
+    /** Form Template 提供的主資料 binding */
+    binding: ServerFormBinding<MaterialSet>;
+
+    /** Material Hook 整理後的參照資料 */
+    refs: MaterialFormRefs;
+}
+
+interface MaterialLangItemProps
 {
-    return LibMerge("_", false, "Lang", lang);
-};
+    /** 後台主題設定 */
+    theme: IBETheme;
 
-/** 取得下一個 RowId */
-const getNextRowId = <T extends { RowId?: number | null; }>(rows: T[]): number =>
+    /** Form Template 提供的主資料 binding */
+    binding: ServerFormBinding<MaterialSet>;
+
+    /** Detail row keys，給 useSetTableField 綁定欄位 */
+    rowKeys: MaterialRowKeys;
+
+    /** 動態欄位顯示設定 */
+    infoItems: MaterialInfoFieldItem[];
+
+    /** 動態欄位預設欄位 */
+    infoDefaults: MaterialInfoJson;
+}
+
+interface MaterialInfoJsonEditorProps
 {
-    return rows.reduce((m, item) => Math.max(m, item.RowId ?? 0), 0) + 1;
-};
+    /** 後台主題設定 */
+    theme: IBETheme;
 
-/** 取得物件資訊 JSON 欄位 key */
-const getInfoFieldKey = (field: InfoField): string =>
+    /** Form Template 提供的主資料 binding */
+    binding: ServerFormBinding<MaterialSet>;
+
+    /** Detail row keys，給 useSetJsonField 綁定欄位 */
+    rowKeys: MaterialRowKeys;
+
+    /** 動態欄位顯示設定 */
+    infoItems: MaterialInfoFieldItem[];
+
+    /** 動態欄位預設欄位 */
+    infoDefaults: MaterialInfoJson;
+}
+
+interface MaterialPictureProps
 {
-    const data = field as InfoFieldKeySource;
-    return String(data.Field ?? data.FieldKey ?? data.FieldName ?? field.RowId ?? "");
-};
+    /** 後台主題設定 */
+    theme: IBETheme;
 
-/** 取得目前已選標籤 Id */
-const getSelectedTagIds = (formData: UseFetchFormDataResult<MaterialSet>): string[] =>
+    /** Form Template 提供的主資料 binding */
+    binding: ServerFormBinding<MaterialSet>;
+}
+
+interface MaterialBatchUploadProps extends MaterialPictureProps
+{}
+
+interface MaterialBasicRenderOptions extends MaterialBasicProps
 {
-    return (formData.data?.MaterialTags ?? []).map(x => String(x.TagId ?? "").trim()).filter(Boolean);
+    /** 欄位 binding helper */
+    setField: ReturnType<typeof useSetTableField<MaterialSet>>;
+}
+
+const editGridStyle: IEditGridView_Style = {
+    TableStyle: "table table-striped table-bordered table-hover",
+    ToolbarStyle: "d-flex align-items-center justify-content-between mb-2",
+    ButtonStyle: "btn btn-custom btn-rounded btn-sm",
+    DangerButtonStyle: "btn btn-danger btn-rounded btn-sm",
+    ErrorStyle: "text-danger small mt-1",
 };
+// #endregion
 
-/** 加入一筆標籤 detail */
-const addTagDetail = (formData: UseFetchFormDataResult<MaterialSet>, tagId: string): void =>
-{
-    const nextTagId = String(tagId ?? "").trim();
-    if (!nextTagId) return;
-
-    formData.setFormData(prev =>
-    {
-        const base = prev ?? buildEmptyData();
-        const rows = base.MaterialTags ?? [];
-        const exists = rows.some(x => String(x.TagId ?? "").trim() === nextTagId);
-        if (exists) return base;
-
-        const row: MaterialTags = { MaterialId: base.Material?.MaterialId ?? "", RowId: getNextRowId(rows), TagId: nextTagId };
-
-        return { ...base, MaterialTags: [...rows, row] };
-    });
-};
-/** 移除指定 TagId 的 detail */
-const removeTagDetailByTagId = (formData: UseFetchFormDataResult<MaterialSet>, tagId: string): void =>
-{
-    const nextTagId = String(tagId ?? "").trim();
-    if (!nextTagId) return;
-
-    formData.setFormData(prev =>
-    {
-        const base = prev ?? buildEmptyData();
-        return { ...base, MaterialTags: (base.MaterialTags ?? []).filter(x => String(x.TagId ?? "").trim() !== nextTagId) };
-    });
-};
-
-/** 切換標籤勾選 */
-const toggleTagDetail = (formData: UseFetchFormDataResult<MaterialSet>, tagId: string, checked: boolean): void =>
-{
-    if (checked)
-    {
-        addTagDetail(formData, tagId);
-        return;
-    }
-
-    removeTagDetailByTagId(formData, tagId);
-};
-
-/** 取得欄位顯示名稱：目前語系 -> 系統語系 -> 【Field】 */
-const getInfoFieldTitle = (field: InfoField, lang: Lang, systemLang: Lang): string =>
-{
-    const rowId = String(field.RowId ?? "");
-    const fieldKey = getInfoFieldKey(field);
-    const sameField = field._MatCategoryInfoFieldDisplay?.filter(x => String(x.ParentRowId) === rowId) ?? [];
-
-    const current = sameField.find(x => String(x.Lang) === String(lang))?.FieldDisplayName;
-    if (current) return current;
-
-    const fallback = sameField.find(x => String(x.Lang) === String(systemLang))?.FieldDisplayName;
-    if (fallback) return fallback;
-
-    return `【${fieldKey}】`;
-};
-
-/** 建立 MaterialInfoJson 預設物件 */
-const buildMaterialInfoDefaults = (fields: InfoField[]): MaterialInfoJson =>
-{
-    return (fields ?? []).reduce<MaterialInfoJson>((map, field) =>
-    {
-        const key = getInfoFieldKey(field);
-        if (!key) return map;
-        map[key] = "";
-        return map;
-    }, {});
-};
-
-/** 刪除圖片列 */
-const removePictureRow = (formData: UseFetchFormDataResult<MaterialSet>, rowId?: number | null): void =>
-{
-    if (rowId == null) return;
-
-    formData.setFormData(prev =>
-    {
-        const base = prev ?? buildEmptyData();
-        return { ...base, MaterialPicture: (base.MaterialPicture ?? []).filter(x => x.RowId !== rowId) };
-    });
-};
-
-export const Server_Material_Form_Comp = (prop: { title: string; theme: IBETheme; lang: Lang; }) =>
+// #region Public
+/** 後台物件 Form，透過新版 Form Template 統一外框與資料流程。 */
+export const Server_Material_Form_Comp = (props: MaterialFormCompProps) =>
 {
     const { internalId } = useParams();
     const navigate = useNavigate();
     const pathname = useLocation().pathname;
-    const emptyData = useMemo(() => buildEmptyData(), []);
 
-    /** 返回列表 */
     const onBackToList = useCallback(() =>
     {
-        navigate(pathname.replace(/\/Form(\/[^\/]*)?$/, "/List"));
+        navigate(buildBackToListPath(pathname));
     }, [navigate, pathname]);
 
-    const getData = useMaterialFormFetchData({ lang: prop.lang, internalId: internalId ?? "", emptyData, actionsOpt: { onBackToList } });
+    const actionsOpt = useMemo(() =>
+    {
+        return { onBackToList };
+    }, [onBackToList]);
 
-    /** 自動補語系明細 */
-    useEnsureLangDetails(getData.rawData.formData, {
-        headerName: MaterialSetFields.Material,
-        detailName: MaterialSetFields.MaterialLangInfo,
-        parentKeys: [MaterialFields.MaterialId],
-        preferFirstLang: prop.lang,
+    const template = useMaterialFormTemplate({ lang: props.lang, theme: props.theme, internalId: internalId ?? "", emptyData: materialEmptyData, actionsOpt });
+
+    return (
+        <Server_FormTemplate_Comp
+            template={template}
+            renderContent={({ vm }) => <MaterialContentComp theme={props.theme} lang={props.lang} binding={vm.binding} refs={vm.refs} />}
+        />
+    );
+};
+// #endregion
+
+// #region Section
+/** 物件主要內容，維持基本資料 / 物件照片 / 系統資訊三個主要分頁。 */
+const MaterialContentComp = (props: MaterialContentProps) =>
+{
+    const tabInfo: LibTabsProp = { Style: props.theme.Tabs, item: { Basic: "基本資料", Picture: "物件照片", System: "系統資訊" } };
+    const components = buildMaterialMainTabContent(props);
+
+    return <TabContentComp tabInfos={tabInfo} components={components}></TabContentComp>;
+};
+
+/** 物件基本資料區塊，類別、標籤、語系內容維持同一頁顯示。 */
+const MaterialBasicComp = (props: MaterialBasicProps) =>
+{
+    const setField = useSetTableField<MaterialSet>(props.binding);
+    const renderOpt = useMemo(() => ({ ...props, setField }), [props, setField]);
+
+    return (
+        <div className="row g-3">
+            {buildMaterialBasicFields(renderOpt)}
+            {buildMaterialTagFields(renderOpt)}
+            <div className="col-12">
+                <MaterialLangComp theme={props.theme} lang={props.lang} binding={props.binding} refs={props.refs} />
+            </div>
+        </div>
+    );
+};
+
+/** 物件語系 Detail 區塊，語系資料由 Hook 統一整理。 */
+const MaterialLangComp = (props: MaterialLangProps) =>
+{
+    const detailTabs = useMaterialLangTabs({
+        binding: props.binding,
+        lang: props.lang,
+        infoFields: props.refs.infoFields,
+        infoFieldDisplays: props.refs.infoFieldDisplays,
     });
-
-    const propForm: FormCompProp = {
-        Title: internalId ? `修改${prop.title}` : `新增${prop.title}`,
-        Theme: prop.theme,
-        IsLoading: getData.isLoading,
-        ErrorList: getData.errors,
-        Actions: getData.rawData.actions,
-    };
-
-    return (
-        <FormComp prop={propForm}>
-            <MaterialBodyComp
-                theme={prop.theme}
-                formData={getData.rawData.formData}
-                lang={prop.lang}
-                categoryMap={getData.rawData.categoryMap}
-                tagMap={getData.rawData.tagMap}
-                infoFields={getData.rawData.infoFields}
-                infoFieldDisplays={getData.rawData.infoFieldDisplays}
-                systemLang={prop.lang}
-            />
-        </FormComp>
-    );
-};
-
-/** 主體 tab 區塊 */
-const MaterialBodyComp = (
-    prop: {
-        theme: IBETheme;
-        formData: UseFetchFormDataResult<MaterialSet>;
-        lang: Lang;
-        categoryMap: Record<string, string>;
-        tagMap: Record<string, string>;
-        infoFields: InfoField[];
-        infoFieldDisplays: InfoFieldDisplay[];
-        systemLang: Lang;
-    },
-) =>
-{
-    const tabInfo: LibTabsProp = { Style: prop.theme.Tabs, item: { Basic: "基本資料", Picture: "物件照片", System: "系統資訊" } };
-
-    const tabContent: Record<string, ReactNode[]> = {
-        Basic: [
-            <MaterialBasicEditorComp
-                key="Basic"
-                theme={prop.theme}
-                formData={prop.formData}
-                categoryMap={prop.categoryMap}
-                tagMap={prop.tagMap}
-                infoFields={prop.infoFields}
-                infoFieldDisplays={prop.infoFieldDisplays}
-                systemLang={prop.systemLang}
-            />,
-        ],
-        Picture: [<MaterialPictureEditorComp key="Picture" theme={prop.theme} formData={prop.formData} />],
-
-        System: [<SystemInfoTabComp key="System" theme={prop.theme} formData={prop.formData} setKey={MaterialSetFields.Material} />],
-    };
-
-    return <TabContentComp tabInfos={tabInfo} components={tabContent} />;
-};
-
-/** 基本資料編輯區 */
-const MaterialBasicEditorComp = (
-    prop: {
-        theme: IBETheme;
-        formData: UseFetchFormDataResult<MaterialSet>;
-        categoryMap: Record<string, string>;
-        tagMap: Record<string, string>;
-        infoFields: InfoField[];
-        infoFieldDisplays: InfoFieldDisplay[];
-        systemLang: Lang;
-    },
-) =>
-{
-    const setField = useSetTableField<MaterialSet>(prop.formData);
-
-    /** 類別下拉選項 */
-    const categoryOpts = useMemo(() =>
+    const infoDefaults = useMemo(() => buildMaterialInfoJsonDefaults(props.refs.infoFields), [props.refs.infoFields]);
+    const tabInfo: LibTabsProp = { Style: props.theme.Tabs, item: detailTabs.tabItems };
+    const components = detailTabs.items.reduce<Record<string, ReactNode[]>>((compMap, item) =>
     {
-        return new Map<string, string>(Object.entries(prop.categoryMap ?? {}));
-    }, [prop.categoryMap]);
-
-    return (
-        <>
-            <LibDropList
-                Style={prop.theme.DropList}
-                Options={categoryOpts}
-                AutoDefaultFirst={false}
-                {...setField(MaterialSetFields.Material, MaterialFields.CategoryId, "string")}
-            />
-
-            <MaterialTagEditorComp key="Tag" theme={prop.theme} formData={prop.formData} tagMap={prop.tagMap} />
-
-            <MaterialLangEditorComp
-                key="Lang"
-                theme={prop.theme}
-                formData={prop.formData}
-                infoFields={prop.infoFields}
-                infoFieldDisplays={prop.infoFieldDisplays}
-                systemLang={prop.systemLang}
-            />
-        </>
-    );
-};
-
-/** 語系 tab 區塊 */
-const MaterialLangEditorComp = (
-    prop: { theme: IBETheme; formData: UseFetchFormDataResult<MaterialSet>; infoFields: InfoField[]; infoFieldDisplays: InfoFieldDisplay[]; systemLang: Lang; },
-) =>
-{
-    const rows = prop.formData.data?.MaterialLangInfo ?? [];
-
-    const tabInfo: LibTabsProp = {
-        Style: prop.theme.Tabs,
-        item: rows.reduce<Record<string, string>>((map, item) =>
-        {
-            const key = buildLangTabKey(item.Lang as Lang);
-            map[key] = LangLabelMap[item.Lang as Lang] ?? String(item.Lang ?? "Unknown");
-            return map;
-        }, {}),
-    };
-
-    const tabContent = rows.reduce<Record<string, ReactNode[]>>((map, item) =>
-    {
-        const key = buildLangTabKey(item.Lang as Lang);
-        map[key] = [
+        compMap[item.key] = [
             <MaterialLangItemComp
-                key={key}
-                theme={prop.theme}
-                formData={prop.formData}
-                rowId={item.RowId}
-                lang={item.Lang as Lang}
-                systemLang={prop.systemLang}
-                infoFields={prop.infoFields}
-                infoFieldDisplays={prop.infoFieldDisplays}
+                key={item.key}
+                theme={props.theme}
+                binding={props.binding}
+                rowKeys={item.rowKeys}
+                infoItems={item.infoItems}
+                infoDefaults={infoDefaults}
             />,
         ];
-        return map;
+        return compMap;
     }, {});
 
-    return <TabContentComp tabInfos={tabInfo} components={tabContent} />;
+    return <TabContentComp tabInfos={tabInfo} components={components}></TabContentComp>;
 };
 
-/** 單一語系內容區 */
-const MaterialLangItemComp = (
-    prop: {
-        theme: IBETheme;
-        formData: UseFetchFormDataResult<MaterialSet>;
-        rowId?: number | null;
-        lang: Lang;
-        systemLang: Lang;
-        infoFields: InfoField[];
-        infoFieldDisplays: InfoFieldDisplay[];
-    },
-) =>
+/** 物件相片區塊，批次上傳按鈕與 EditGrid 單筆新增按鈕分離。 */
+const MaterialPictureGridComp = (props: MaterialPictureProps) =>
 {
-    const setField = useSetTableField<MaterialSet>(prop.formData);
-    const rowKeys = useMemo(() => ({ [MaterialLangInfoFields.RowId]: prop.rowId }), [prop.rowId]);
+    const renderPicturePreview = useCallback((args: EditGridCellRenderArgs) => <MaterialPicturePreview value={args.value} />, []);
+    const pictureGrid = useMaterialPictureEditGrid({ binding: props.binding, style: editGridStyle, renderPicturePreview });
+
+    return (
+        <div className="form-group">
+            <MaterialBatchUploadComp theme={props.theme} binding={props.binding} />
+            <EditGrid {...pictureGrid.editGridProps} />
+        </div>
+    );
+};
+// #endregion
+
+// #region EntityComp
+/** 建立物件主分頁內容。 */
+const buildMaterialMainTabContent = (props: MaterialContentProps): Record<string, ReactNode[]> =>
+{
+    return {
+        Basic: [<MaterialBasicComp key="Basic" theme={props.theme} lang={props.lang} binding={props.binding} refs={props.refs} />],
+        Picture: [<MaterialPictureGridComp key="Picture" theme={props.theme} binding={props.binding} />],
+        System: [<SystemInfoTabComp key="System" theme={props.theme} formData={props.binding} setKey={MaterialSetFields.Material} />],
+    };
+};
+
+/** 建立物件基本資料欄位。 */
+const buildMaterialBasicFields = (opt: MaterialBasicRenderOptions): ReactNode[] =>
+{
+    const categoryOpts = new Map<string, string>(Object.entries(opt.refs.categoryMap ?? {}));
+
+    return [
+        <LibDropList
+            key="CategoryId"
+            Style={opt.theme.DropList}
+            Options={categoryOpts}
+            AutoDefaultFirst={false}
+            {...opt.setField(MaterialSetFields.Material, MaterialFields.CategoryId, "string")}
+        />,
+    ];
+};
+
+/** 建立物件標籤欄位。 */
+const buildMaterialTagFields = (opt: MaterialBasicRenderOptions): ReactNode[] =>
+{
+    return [<MaterialTagEditorComp key="Tags" theme={opt.theme} binding={opt.binding} tagMap={opt.refs.tagMap} />];
+};
+
+/** 標籤編輯區，DTO 異動交給 Hook 處理。 */
+const MaterialTagEditorComp = (props: { theme: IBETheme; binding: ServerFormBinding<MaterialSet>; tagMap: Record<string, string>; }) =>
+{
+    const tagSelection = useMaterialTagSelection({ binding: props.binding });
+
+    return (
+        <LibCheckBox
+            Style={props.theme.CheckBox}
+            ColumnDisplayName="標籤"
+            options={props.tagMap}
+            InputValue={tagSelection.selectedTagIds}
+            onChange={tagSelection.onChange}
+        />
+    );
+};
+
+/** 單一語系內容區。 */
+const MaterialLangItemComp = (props: MaterialLangItemProps) =>
+{
+    const setField = useSetTableField<MaterialSet>(props.binding);
 
     return (
         <div className="row g-3">
             <LibTextBox
-                Style={prop.theme.TextBox3}
+                Style={props.theme.TextBox3}
                 DefaultInputDisplay="請輸入"
-                {...setField(MaterialSetFields.MaterialLangInfo, MaterialLangInfoFields.MaterialName, "string", rowKeys)}
+                {...setField(MaterialSetFields.MaterialLangInfo, MaterialLangInfoFields.MaterialName, "string", props.rowKeys)}
             />
-            {/* 價格之後要搬到"商品"模塊，暫時先放在這 */}
-            <LibTextBox Style={prop.theme.TextBox3} DefaultInputDisplay="請輸入" {...setField(MaterialSetFields.Material, MaterialFields.Price, "number")} />
-
+            <LibTextBox Style={props.theme.TextBox3} DefaultInputDisplay="請輸入" {...setField(MaterialSetFields.Material, MaterialFields.Price, "number")} />
             <MaterialInfoJsonEditorComp
-                theme={prop.theme}
-                formData={prop.formData}
-                rowId={prop.rowId}
-                lang={prop.lang}
-                systemLang={prop.systemLang}
-                infoFields={prop.infoFields}
-                infoFieldDisplays={prop.infoFieldDisplays}
+                theme={props.theme}
+                binding={props.binding}
+                rowKeys={props.rowKeys}
+                infoItems={props.infoItems}
+                infoDefaults={props.infoDefaults}
             />
-
-            <LibTinyMCE Style={prop.theme.TinyMCE} {...setField(MaterialSetFields.MaterialLangInfo, MaterialLangInfoFields.Memo, "string", rowKeys)} />
+            <LibTinyMCE Style={props.theme.TinyMCE} {...setField(MaterialSetFields.MaterialLangInfo, MaterialLangInfoFields.Memo, "string", props.rowKeys)} />
         </div>
     );
 };
 
-/** 動態物件資訊 JSON 編輯器 */
-const MaterialInfoJsonEditorComp = (
-    prop: {
-        theme: IBETheme;
-        formData: UseFetchFormDataResult<MaterialSet>;
-        rowId?: number | null;
-        lang: Lang;
-        systemLang: Lang;
-        infoFields: InfoField[];
-        infoFieldDisplays: InfoFieldDisplay[];
-    },
-) =>
+/** 動態物件資訊 JSON 編輯器。 */
+const MaterialInfoJsonEditorComp = (props: MaterialInfoJsonEditorProps) =>
 {
-    const rowKeys = useMemo(() => ({ [MaterialLangInfoFields.RowId]: prop.rowId }), [prop.rowId]);
-
-    /** 建立 JSON 預設值 */
-    const defaults = useMemo(() =>
-    {
-        return buildMaterialInfoDefaults(prop.infoFields);
-    }, [prop.infoFields]);
-
     const binder = useSetJsonField<MaterialSet, MaterialInfoJson>(
-        prop.formData,
+        props.binding,
         MaterialSetFields.MaterialLangInfo,
         MaterialLangInfoFields.MaterialInfoJson,
-        rowKeys,
-        defaults,
+        props.rowKeys,
+        props.infoDefaults,
     );
 
-    /** 建立動態欄位列表 */
-    const items = useMemo<MaterialInfoFieldItem[]>(() =>
-    {
-        return (prop.infoFields ?? []).map(field =>
-        {
-            const key = getInfoFieldKey(field);
-            return { Field: key, Title: getInfoFieldTitle(field, prop.lang, prop.systemLang) };
-        });
-    }, [prop.infoFields, prop.infoFieldDisplays, prop.lang, prop.systemLang]);
-
-    if (items.length === 0)
+    if (props.infoItems.length === 0)
     {
         return <div className="text-muted">請先選擇類別，系統會自動帶入可設定欄位。</div>;
     }
 
-    return (
-        <div className="row g-3">
-            {items.map(item =>
-            {
-                const bind = binder.bind(item.Field as keyof MaterialInfoJson, "string");
-
-                return (
-                    <LibTextBox
-                        key={`MaterialInfo_${prop.rowId}_${item.Field}`}
-                        Style={prop.theme.TextBox3}
-                        ColumnDisplayName={item.Title}
-                        DefaultInputDisplay={`請輸入${item.Title}`}
-                        InputValue={String(bind.value ?? "")}
-                        OnChange={bind.onChange}
-                    />
-                );
-            })}
-        </div>
-    );
+    return <div className="row g-3">{props.infoItems.map(item => buildMaterialInfoField(props.theme, binder, item))}</div>;
 };
-/** 將上傳完成的圖片寫入 MaterialPicture */
-const appendMaterialPicturesToForm = (formData: UseFetchFormDataResult<MaterialSet>, picIds: string[], fileNames: string[]): void =>
+
+/** 批次上傳物件相片，與 EditGrid 單筆新增分離。 */
+const MaterialBatchUploadComp = (props: MaterialBatchUploadProps) =>
 {
-    formData.setFormData(prev =>
-    {
-        const base = prev ?? buildEmptyData();
-        const materialId = base.Material?.MaterialId ?? "";
-        const rows = base.MaterialPicture ?? [];
-        const baseRowId = getNextRowId(rows) - 1;
-
-        const newRows: MaterialPicture[] = picIds.map((picId, index) => ({
-            MaterialId: materialId,
-            RowId: baseRowId + index + 1,
-            PictureId: picId,
-            PictureName: fileNames[index] ?? "",
-        }));
-
-        return { ...base, MaterialPicture: [...rows, ...newRows] };
-    });
-};
-/** 物件照片上傳視窗 */
-const UploadMaterialPictureComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<MaterialSet>; }) =>
-{
-    const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-    const [isUploading, setIsUploading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
-    /** 單檔上傳 */
-    const uploadOne = useCallback(async (file: File, fieldName: "file" | "files"): Promise<MaterialUploadJson> =>
-    {
-        const fd = new FormData();
-        fd.append(fieldName, file, file.name);
-
-        const resp = await fetch(FileManagementAPI.Server_UploadTemp, { method: "POST", body: fd, credentials: "include", mode: "cors" });
-
-        if (!resp.ok)
-        {
-            const text = await resp.text().catch(() => "");
-            const err: MaterialUploadError = new Error(`Upload ${file.name} failed: ${resp.status} ${text}`);
-            err.status = resp.status;
-            throw err;
-        }
-
-        return (await resp.json().catch(() => ({}))) as MaterialUploadJson;
-    }, []);
-
-    /** 批次上傳 */
-    const uploadAll = useCallback(async (): Promise<string[]> =>
-    {
-        const results: string[] = [];
-
-        for (const file of selectedFiles)
-        {
-            let json: MaterialUploadJson;
-
-            try
-            {
-                json = await uploadOne(file, "file");
-            } catch (e)
-            {
-                const err = e as MaterialUploadError;
-                if ((err?.status ?? 0) !== 400) throw err;
-                json = await uploadOne(file, "files");
-            }
-
-            const id = json.Data?.[0];
-            if (!id) throw new Error(`Upload ${file.name}: missing InternalId`);
-            results.push(String(id));
-        }
-
-        return results;
-    }, [selectedFiles, uploadOne]);
-
-    /** 確認上傳 */
-    const handleUpload = useCallback(async () =>
-    {
-        if (selectedFiles.length === 0 || isUploading) return;
-
-        try
-        {
-            setError(null);
-            setIsUploading(true);
-
-            const picIds = await uploadAll();
-            appendMaterialPicturesToForm(prop.formData, picIds, selectedFiles.map(p => p.name));
-
-            setSelectedFiles([]);
-        } catch (e)
-        {
-            const err = e as Error;
-            setError(err?.message ?? String(err));
-            throw err;
-        } finally
-        {
-            setIsUploading(false);
-        }
-    }, [isUploading, prop.formData, selectedFiles, uploadAll]);
+    const batchUpload = useMaterialBatchPictureUpload({ binding: props.binding });
 
     return (
         <LibModal
-            ModalName="上傳物件照片"
+            ModalName="批次上傳物件照片"
             BtnName1="關閉"
             BtnName2="儲存並上傳"
-            onConfirm={handleUpload}
-            confirmDisabled={isUploading || selectedFiles.length === 0}
-            confirmBusy={isUploading}
+            onConfirm={batchUpload.uploadSelectedFiles}
+            confirmDisabled={batchUpload.isUploading || batchUpload.selectedFiles.length === 0}
+            confirmBusy={batchUpload.isUploading}
         >
             <div className="row mx-0">
                 <div className="col-12">
                     <div className="row">
                         <LibFile
-                            Style={prop.theme.File}
+                            Style={props.theme.File}
                             ColumnDisplayName="選擇圖片(多選)"
                             Multiple={true}
-                            onChange={(files) => setSelectedFiles(files)}
+                            onChange={(files) => batchUpload.setSelectedFiles(files)}
                             InputValue=""
                         />
                     </div>
-
-                    {error && <div className="col-12 alert alert-danger mt-2">{error}</div>}
+                    {batchUpload.error && <div className="col-12 alert alert-danger mt-2">{batchUpload.error}</div>}
                 </div>
-
-                {selectedFiles.length > 0 && (
-                    <div className="col-12">
-                        <div className="row mt-3 mx-0">
-                            <div className="col-12 col-form-label bg-secondary mb-1">預覽圖片</div>
-
-                            {selectedFiles.map((file, index) =>
-                            {
-                                const url = URL.createObjectURL(file);
-
-                                return (
-                                    <div key={index} className="col-12 border-bottom">
-                                        <div className="d-flex align-items-center">
-                                            <LibPicturePreview ColumnDisplayName={file.name} PicSrc={url} PicDescription={`選中的圖片 ${file.name}`} />
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
-                )}
+                <MaterialBatchPreviewComp files={batchUpload.selectedFiles} />
             </div>
         </LibModal>
     );
 };
-/** 物件照片編輯區 */
-const MaterialPictureEditorComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<MaterialSet>; }) =>
+
+/** 批次上傳前的圖片預覽清單。 */
+const MaterialBatchPreviewComp = (props: { files: File[]; }) =>
 {
-    const rows = prop.formData.data?.MaterialPicture ?? [];
-    const setField = useSetTableField<MaterialSet>(prop.formData);
+    if (props.files.length === 0) return null;
 
     return (
-        <>
-            <UploadMaterialPictureComp theme={prop.theme} formData={prop.formData} />
-
-            <div className="row g-3">
-                {rows.map(item =>
+        <div className="col-12">
+            <div className="row mt-3 mx-0">
+                <div className="col-12 col-form-label bg-secondary mb-1">預覽圖片</div>
+                {props.files.map((file, index) =>
                 {
-                    const picId = String(item.PictureId ?? "");
-                    const picUrl = picId ? FileManagementAPI.get_Public_Preview_Url(picId) : "";
-                    const rowKeys = { [MaterialPictureFields.RowId]: item.RowId };
+                    const url = URL.createObjectURL(file);
 
                     return (
-                        <LibPicture
-                            key={`Picture_${item.RowId}`}
-                            parentClass="col-xl-3 col-md-4 col-12"
-                            ColumnDisplayName={item.PictureName || `照片 ${item.RowId ?? ""}`}
-                            PicSrc={picUrl}
-                            PicDescription={item.PictureName || `物件照片 ${item.RowId ?? ""}`}
-                        >
-                            <div className="row">
-                                <div className="col-12 d-flex justify-content-end">
-                                    <div className="all-btn">
-                                        <a
-                                            id={`trash_${item.RowId}`}
-                                            className="icon"
-                                            href="#"
-                                            onClick={(e) =>
-                                            {
-                                                e.preventDefault();
-                                                if (!window.confirm("確定要刪除這張照片嗎？"))
-                                                {
-                                                    return;
-                                                }
-                                                removePictureRow(prop.formData, item.RowId);
-                                            }}
-                                            title=""
-                                        >
-                                            <button type="button" className="Itrash btn btn-ctm btn-ctm-rounded" title="刪除照片">
-                                                <i className="far fa-trash-alt"></i>
-                                            </button>
-                                        </a>
-                                    </div>
-                                </div>
+                        <div key={`${file.name}_${index}`} className="col-12 border-bottom">
+                            <div className="d-flex align-items-center">
+                                <LibPicturePreview ColumnDisplayName={file.name} PicSrc={url} PicDescription={`選中的圖片 ${file.name}`} />
                             </div>
-
-                            <LibTextBox
-                                Style={prop.theme.TextBox2}
-                                DefaultInputDisplay="請輸入照片名稱"
-                                {...setField(MaterialSetFields.MaterialPicture, MaterialPictureFields.PictureName, "string", rowKeys)}
-                            />
-
-                            <LibTextBox
-                                Style={prop.theme.TextBox2}
-                                DefaultInputDisplay="請輸入圖片 InternalId"
-                                {...setField(MaterialSetFields.MaterialPicture, MaterialPictureFields.PictureId, "string", rowKeys)}
-                            />
-                        </LibPicture>
+                        </div>
                     );
                 })}
             </div>
-        </>
+        </div>
     );
 };
-/** 標籤編輯區 */
-const MaterialTagEditorComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<MaterialSet>; tagMap: Record<string, string>; }) =>
+
+/** EditGrid 圖片預覽欄位。 */
+const MaterialPicturePreview = (props: { value: unknown; }) =>
 {
-    const selectedTagIds = useMemo(() =>
-    {
-        return getSelectedTagIds(prop.formData);
-    }, [prop.formData.data?.MaterialTags]);
+    const picValue = toMaterialPictureCellValue(props.value as never);
+    const picSrc = picValue.url || getMaterialPicturePreviewUrl(picValue.internalId);
+    const label = picValue.originalFileName || picValue.fileName || picValue.internalId || "物件照片";
+
+    if (!picSrc) return <span className="text-muted">尚未選擇圖片</span>;
+
+    return <LibPicturePreview ColumnDisplayName={label} PicSrc={picSrc} PicDescription={label} />;
+};
+// #endregion
+
+// #region Private
+/** 建立動態資訊欄位。 */
+const buildMaterialInfoField = (
+    theme: IBETheme,
+    binder: ReturnType<typeof useSetJsonField<MaterialSet, MaterialInfoJson>>,
+    item: MaterialInfoFieldItem,
+): ReactNode =>
+{
+    const bind = binder.bind(item.field as keyof MaterialInfoJson, "string");
 
     return (
-        <LibCheckBox
-            Style={prop.theme.CheckBox}
-            ColumnDisplayName="標籤"
-            options={prop.tagMap}
-            InputValue={selectedTagIds}
-            onChange={(v) =>
-            {
-                const nextIds = Array.isArray(v)
-                    ? v.map(x => String(x ?? "").trim()).filter(Boolean)
-                    : [];
-
-                const prevIds = getSelectedTagIds(prop.formData);
-                const prevSet = new Set(prevIds);
-                const nextSet = new Set(nextIds);
-
-                prevIds.filter(id => !nextSet.has(id)).forEach(id =>
-                {
-                    toggleTagDetail(prop.formData, id, false);
-                });
-
-                nextIds.filter(id => !prevSet.has(id)).forEach(id =>
-                {
-                    toggleTagDetail(prop.formData, id, true);
-                });
-            }}
+        <LibTextBox
+            key={`MaterialInfo_${item.field}`}
+            Style={theme.TextBox3}
+            ColumnDisplayName={item.title}
+            DefaultInputDisplay={`請輸入${item.title}`}
+            InputValue={String(bind.value ?? "")}
+            OnChange={bind.onChange}
         />
     );
 };
+
+/** 建立返回列表路徑。 */
+const buildBackToListPath = (pathname: string): string =>
+{
+    return pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
+};
+// #endregion

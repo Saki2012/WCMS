@@ -7,42 +7,43 @@ import type { UseFetchFormDataResult } from "../../Utils/API/FetchFormData";
 export type FormDataLike<T> = { data: T; setFormData: React.Dispatch<React.SetStateAction<T>>; displayName?: ModelDisplaySchema | null; };
 type CoerceMode = "string" | "number" | "boolean" | "datetime" | ((v: unknown) => any);
 
+/** 更新表格欄位，內容相同時回傳原 reference，避免不必要 re-render。 */
 const upsertRow = (currentTable: any, rowKeys: Record<string, any> | undefined, field: string | number | symbol, value: any) =>
 {
-    // 如果沒有 rowKeys，就照原本的邏輯處理（非明細）
+    const fieldKey = String(field);
+
     if (!rowKeys)
     {
-        if (Array.isArray(currentTable))
-        {
-            // 沒 rowKeys 時不建議亂改全部列，所以直接回傳原本陣列
-            return currentTable;
-        }
-        return { ...(currentTable ?? {}), [field]: value };
+        if (Array.isArray(currentTable)) return currentTable;
+
+        const currentObj = currentTable ?? {};
+        if (currentTable && Object.is(currentObj[fieldKey], value)) return currentTable;
+
+        return { ...currentObj, [fieldKey]: value };
     }
 
-    // 有 rowKeys：一定當「明細陣列」處理
-    const rows: RowLike[] = Array.isArray(currentTable) ? (currentTable as RowLike[]) : currentTable
-        ? [currentTable as RowLike] // 若之前誤塞成物件，就把它包成一列
-        : [];
+    const rows: RowLike[] = Array.isArray(currentTable) ? (currentTable as RowLike[]) : currentTable ? [currentTable as RowLike] : [];
 
     let found = false;
+    let changed = false;
     const nextRows = rows.map(r =>
     {
-        if (matchRowKeys(r, rowKeys))
-        {
-            found = true;
-            return { ...r, [field]: value };
-        }
-        return r;
+        if (!matchRowKeys(r, rowKeys)) return r;
+
+        found = true;
+        if (Object.is(r[fieldKey], value)) return r;
+
+        changed = true;
+        return { ...r, [fieldKey]: value };
     });
 
-    // 若沒找到那一筆，代表是第一次寫入，幫他 push 一筆新的
     if (!found)
     {
-        nextRows.push({ ...rowKeys, [field]: value });
+        changed = true;
+        nextRows.push({ ...rowKeys, [fieldKey]: value });
     }
 
-    return nextRows;
+    return changed ? nextRows : currentTable;
 };
 const coerce = (mode: CoerceMode, val: unknown) =>
 {
@@ -256,13 +257,18 @@ export const useSetTableField = <T>(form: FormDataLike<T>) =>
             setType,
             writeBack: (dv) =>
             {
-                form.setFormData((prev: any) =>
+                pendingWritesRef.current.push(() =>
                 {
-                    if (!prev) return prev;
-                    const currentTable = prev[table];
-                    const nextCellValue = strategy === "sum" ? (dv as any) : strategy === "csv" ? String(dv ?? "") : coerce(mode, dv);
-                    const nextTable = upsertRow(currentTable, rowKeys, field as any, nextCellValue);
-                    return { ...prev, [table]: nextTable };
+                    form.setFormData((prev: any) =>
+                    {
+                        if (!prev) return prev;
+
+                        const currentTable = prev[table];
+                        const nextCellValue = strategy === "sum" ? (dv as any) : strategy === "csv" ? String(dv ?? "") : coerce(mode, dv);
+                        const nextTable = upsertRow(currentTable, rowKeys, field as any, nextCellValue);
+
+                        return nextTable === currentTable ? prev : { ...prev, [table]: nextTable };
+                    });
                 });
             },
         });
@@ -283,7 +289,8 @@ export const useSetTableField = <T>(form: FormDataLike<T>) =>
                     : coerce(mode, v);
 
                 const nextTable = upsertRow(currentTable, rowKeys, field as any, nextCellValue);
-                return { ...prev, [table]: nextTable };
+
+                return nextTable === currentTable ? prev : { ...prev, [table]: nextTable };
             });
         };
         const bind = { ColumnDisplayName: label, InputValue: inputValue, OnChange: onChange } as const;
@@ -326,12 +333,14 @@ export interface FileFieldBindProps
 
 export const useSetTableFileField = <TSet>(formData: FormDataLike<TSet>) =>
 {
-    // 🟢 新增：檔案欄位的寫回佇列
     const fileWritesRef = useRef<Array<() => void>>([]);
-    // 🟢 新增：commit 後一次 flush
+    const fileDefaultKeysRef = useRef<Set<string>>(new Set());
+
+    /** commit 後才寫入檔案預設值，避免 render 中 setFormData。 */
     useEffect(() =>
     {
         if (fileWritesRef.current.length === 0) return;
+
         const jobs = fileWritesRef.current.splice(0);
         for (const job of jobs) job();
     });
@@ -380,52 +389,73 @@ export const useSetTableFileField = <TSet>(formData: FormDataLike<TSet>) =>
                 }
             };
 
-            if (shouldDefault(currentId) || shouldDefault(currentName))
+            const fileDefaultKey = `${tableName}|${fileIdField}|${fileNameField ?? ""}|${JSON.stringify(rowKeys ?? {})}`;
+            const needFileDefault = shouldDefault(currentId) || shouldDefault(currentName);
+
+            if (needFileDefault && !fileDefaultKeysRef.current.has(fileDefaultKey))
             {
-                formData.setFormData((prevAny: any) =>
+                fileDefaultKeysRef.current.add(fileDefaultKey);
+                fileWritesRef.current.push(() =>
                 {
-                    const prev = prevAny ?? {};
-                    const t = prev?.[tableName];
+                    formData.setFormData((prevAny: any) =>
+                    {
+                        const prev = prevAny ?? {};
+                        const t = prev?.[tableName];
 
-                    const computeName = () =>
-                    {
-                        if (typeof opts?.defaultName === "function")
+                        const computeName = () =>
                         {
-                            return (opts!.defaultName as any)({ table: tableName, rowKeys });
-                        }
-                        if (typeof opts?.defaultName === "string")
-                        {
-                            return opts!.defaultName;
-                        }
-                        return ""; // 預設空字串
-                    };
+                            if (typeof opts?.defaultName === "function") return (opts!.defaultName as any)({ table: tableName, rowKeys });
+                            if (typeof opts?.defaultName === "string") return opts!.defaultName;
 
-                    const apply = (row: any) =>
-                    {
-                        const next = { ...(row ?? {}) };
-                        // 只有該欄位需要且為空才寫入
-                        if (fileNameField && shouldDefault(next[fileNameField]))
-                        {
-                            next[fileNameField] = computeName();
-                        }
-                        if (fileIdField && shouldDefault(next[fileIdField]))
-                        {
-                            next[fileIdField] = opts?.defaultId ?? "";
-                        }
-                        return next;
-                    };
+                            return "";
+                        };
 
-                    if (Array.isArray(t))
-                    {
-                        const nextList = (t ?? []).map((r: any) => (matchRowKeys(r, rowKeys) ? apply(r) : r));
-                        return { ...prev, [tableName]: nextList };
-                    } else if (t && typeof t === "object")
-                    {
-                        return { ...prev, [tableName]: apply(t) };
-                    } else
-                    {
-                        return { ...prev, [tableName]: apply({}) };
-                    }
+                        const apply = (row: any) =>
+                        {
+                            const next = { ...(row ?? {}) };
+                            let changed = false;
+
+                            if (fileNameField && shouldDefault(next[fileNameField]))
+                            {
+                                const nextName = computeName();
+                                changed = !Object.is(next[fileNameField], nextName) || changed;
+                                next[fileNameField] = nextName;
+                            }
+
+                            if (fileIdField && shouldDefault(next[fileIdField]))
+                            {
+                                const nextId = opts?.defaultId ?? "";
+                                changed = !Object.is(next[fileIdField], nextId) || changed;
+                                next[fileIdField] = nextId;
+                            }
+
+                            return changed ? next : row;
+                        };
+
+                        if (Array.isArray(t))
+                        {
+                            let changed = false;
+                            const nextList = t.map((r: any) =>
+                            {
+                                if (!matchRowKeys(r, rowKeys)) return r;
+
+                                const nextRow = apply(r);
+                                changed = nextRow !== r || changed;
+                                return nextRow;
+                            });
+
+                            return changed ? { ...prev, [tableName]: nextList } : prev;
+                        }
+
+                        if (t && typeof t === "object")
+                        {
+                            const nextObj = apply(t);
+                            return nextObj === t ? prev : { ...prev, [tableName]: nextObj };
+                        }
+
+                        const nextObj = apply({});
+                        return { ...prev, [tableName]: nextObj };
+                    });
                 });
             }
 

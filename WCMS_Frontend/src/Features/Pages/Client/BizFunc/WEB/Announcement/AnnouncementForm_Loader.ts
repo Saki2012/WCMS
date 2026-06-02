@@ -1,5 +1,4 @@
 import { useCallback, useMemo } from "react";
-import { useLoaderData } from "react-router-dom";
 import type { LoaderFunctionArgs } from "react-router-dom";
 
 import { CategoryAdapter, type CategoryMapLoaderData } from "@/Features/Hooks/BizFunc/COMM/Category_Api";
@@ -8,14 +7,14 @@ import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WEB/Announcement_A
 import {
     buildClientDataQueryKey,
     buildClientDataQueryState,
-    isSameClientDataQueryParam,
-    useClientDataQueryTemplate,
     type ClientDataQueryDataSourceResult,
     type ClientDataQueryTemplate,
+    isSameClientDataQueryParam,
+    useClientDataQueryTemplate,
 } from "@/Features/Pages/Client/Scaffold/DataQueryTemplate/Client_DataQueryTemplate_Hook";
 import type { SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
-import type { IListViewState } from "@/SysCore/Interface/IListViewState";
 import type { Lang } from "@/SysCore/i18n/lang";
+import type { IListViewState } from "@/SysCore/Interface/IListViewState";
 import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { type ApiResponse, getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import type { UseFetchDataResult } from "@/SysCore/Utils/API/FetchDataType";
@@ -73,11 +72,7 @@ export interface UseAnnouncementFormDataResult extends AnnouncementFormRawData
 }
 // #endregion
 
-type AnnouncementFormSearchParams = {
-    internalId: string;
-    progId: PGID;
-    lang: Lang;
-};
+type AnnouncementFormSearchParams = { internalId: string; progId: PGID; lang: Lang; };
 
 type AnnouncementFormDataQueryTemplate = ClientDataQueryTemplate<
     AnnouncementFormSearchParams,
@@ -267,7 +262,14 @@ const createAnnouncementFormDataQueryTemplate = (p: { lang: Lang; internalId: st
             toSearchParams: () => buildAnnouncementFormSearchParams({ lang: p.lang, internalId: p.internalId }),
             buildSearchConditions: (ctx) => [buildAnnouncementFormCondition(ctx.searchParams.internalId)],
             buildQueryParam: (ctx) => buildAnnouncementFormQueryParam({ internalId: ctx.searchParams.internalId }),
-            useDataSource: (ctx) => useAnnouncementFormDataSource({ queryParam: ctx.queryParam, loaderData: ctx.loaderData, lang: p.lang, internalId: ctx.searchParams.internalId, emptyData: p.emptyData }),
+            useDataSource: (ctx) =>
+                useAnnouncementFormDataSource({
+                    queryParam: ctx.queryParam,
+                    loaderData: ctx.loaderData,
+                    lang: p.lang,
+                    internalId: ctx.searchParams.internalId,
+                    emptyData: p.emptyData,
+                }),
             buildViewModel: (ctx) => ctx.rawData,
         },
     };
@@ -408,7 +410,15 @@ const useAnnouncementFormDataSource = (
     }, [useCategory, useTag]);
 
     // return
-    return { adapter, rawData, isLoading: Boolean(useData.isLoading || useCategory.isLoading || useTag.isLoading), errors, paginator: null, refetchData, refetchRefData };
+    return {
+        adapter,
+        rawData,
+        isLoading: Boolean(useData.isLoading || useCategory.isLoading || useTag.isLoading),
+        errors,
+        paginator: null,
+        refetchData,
+        refetchRefData,
+    };
 };
 
 /** 內部共用：建立 Announcement Form Template VM */

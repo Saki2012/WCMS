@@ -1,145 +1,71 @@
-import { useToast } from "@/Features/Hooks/Common/useToastCenter";
+import type {
+    ServerFormDefaultRawData,
+    ServerFormTemplate,
+} from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
+import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { SpecOpenScheduleRuleAdapter } from "@/SpecFetures/1816/Hooks/BizFunc/Calendar/SpecOpenScheduleRule_Api";
-import type { ApiAdapterError, ApiLoaderData, ServerFormActions } from "@/SysCore/Utils/API/APIAdapter";
-import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
-import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
-import type { UseFetchDataResult } from "@/SysCore/Utils/API/FetchDataType";
-import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
+import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 
+// #region Property
 type SpecOpenScheduleRuleSet = components["schemas"]["SpecOpenScheduleRuleSet_DTO"];
 
-// #region Public
-export type ScheduleRuleFormRawData = { formData: UseFetchFormDataResult<SpecOpenScheduleRuleSet>; actions: ServerFormActions; };
-
+export type ScheduleRuleFormRefs = Record<string, never>;
+export type ScheduleRuleFormRawData = ServerFormDefaultRawData<SpecOpenScheduleRuleSet, ScheduleRuleFormRefs>;
 export type ScheduleRuleFormAdapter = { ScheduleRule: ReturnType<typeof SpecOpenScheduleRuleAdapter>; };
-
-/** ✅ 主入口：Server ScheduleRule Form 的所有「讀取資料 / actions」集中出口 */
-export const useScheduleRuleFormFetchData = (
-    opt: { internalId: string; emptyData: SpecOpenScheduleRuleSet; onBackToList: () => void; },
-): UseFetchDataResult<ScheduleRuleFormRawData, ScheduleRuleFormAdapter> =>
-{
-    // 宣告變數
-    const { publish } = useToast();
-    const onError = useCallback((e: ApiAdapterError) =>
-    {
-        publish({ level: MessageStatus.Error, title: e.messageText });
-    }, [publish]);
-
-    const adapter = useMemo<ScheduleRuleFormAdapter>(() =>
-    {
-        return { ScheduleRule: SpecOpenScheduleRuleAdapter() };
-    }, []);
-
-    // 執行 function：主資料（ModelDisplayName + QueryData + 可編輯 state）
-    const formData = useScheduleRuleFormDataByAdapter(adapter.ScheduleRule, opt.internalId, opt.emptyData, onError);
-
-    // 執行 function：表單 Actions（Save / Back）
-    const actions = useScheduleRuleFormActionsByAdapter(adapter.ScheduleRule, opt.internalId, formData.data, opt.onBackToList);
-
-    // 宣告變數：Loading / Error 統一出口
-    const isLoading = Boolean(formData.isLoading);
-    const errors = useMemo<(string | null)[]>(() => [formData.error], [formData.error]);
-
-    const rawData = useMemo<ScheduleRuleFormRawData>(() =>
-    {
-        return { formData, actions };
-    }, [formData, actions]);
-
-    const refetchData = useCallback(async () =>
-    {
-        formData.refetch();
-    }, [formData]);
-
-    // return
-    return { adapter, rawData, isLoading, errors, refetchData };
+export type ScheduleRuleFormActionsOpt = {
+    /** 儲存成功後回列表 */
+    onBackToList: () => void;
 };
 // #endregion
 
-// #region Private
-/** ✅ FormData：QueryData + ModelDisplayName（含 editable state） */
-const useScheduleRuleFormDataByAdapter = (
-    adapter: ReturnType<typeof SpecOpenScheduleRuleAdapter>,
-    internalId: string,
-    empty: SpecOpenScheduleRuleSet,
-    onError: (e: ApiAdapterError) => void,
-): UseFetchFormDataResult<SpecOpenScheduleRuleSet> =>
+// #region Public - Template Entry
+/** 建立 ScheduleRule Spec Form Template，統一交給 Server_FormTemplate 處理資料流程 */
+export const useScheduleRuleFormTemplate = (
+    opt: { theme: IBETheme; internalId: string; emptyData: SpecOpenScheduleRuleSet; actionsOpt: ScheduleRuleFormActionsOpt; },
+): ServerFormTemplate<SpecOpenScheduleRuleSet, ScheduleRuleFormAdapter, ScheduleRuleFormRefs, ScheduleRuleFormRawData, ScheduleRuleFormActionsOpt> =>
 {
-    // 宣告變數
-    const internalKey = internalId || "__new__";
-    const isNew = useMemo(() => !internalId, [internalId]);
-
-    const initial = useMemo<ApiLoaderData<string, SpecOpenScheduleRuleSet> | null>(() =>
+    return useMemo(() =>
     {
-        // 新建才提供 initial，避免 query "__new__"
-        if (!isNew) return null;
+        return {
+            featureKey: "SpecOpenScheduleRule",
+            theme: opt.theme,
+            internalId: opt.internalId,
+            emptyData: opt.emptyData,
+            actionsOpt: opt.actionsOpt,
+            spec: {
+                buildAdapter: buildScheduleRuleFormAdapter,
+                selectDataAdapter: adapter => adapter.ScheduleRule,
+                buildTitle: buildScheduleRuleFormTitle,
+                buildInitialData: buildScheduleRuleInitialData,
+            },
+        };
+    }, [opt.actionsOpt, opt.emptyData, opt.internalId, opt.theme]);
+};
+// #endregion
 
-        const apiRes: ApiResponse<SpecOpenScheduleRuleSet> = { IsSuccess: true, Data: empty, SysMessage: [] };
-
-        return { args: internalKey, apiRes };
-    }, [isNew, empty, internalKey]);
-
-    const model = adapter.hooks.useModelDisplayName({ deps: [], onError });
-    const query = adapter.hooks.useQueryData({ internalId: internalKey, initial, deps: [internalKey], onError });
-
-    const [data, setData] = useState<SpecOpenScheduleRuleSet>(empty);
-
-    useEffect(() =>
-    {
-        // 執行 function：QueryData 回來後同步到可編輯 state
-        if (query.data) setData(query.data);
-        else if (isNew) setData(empty);
-    }, [query.data, isNew, empty]);
-
-    const refetch = useCallback(() =>
-    {
-        void query.refetch();
-    }, [query]);
-
-    const isLoading = Boolean((!isNew && query.isLoading) || model.isLoading);
-    const error = query.errorText ?? model.errorText ?? null;
-
-    // return（displayName 不可為 null）
-    return {
-        data,
-        setFormData: setData,
-        isLoading,
-        error,
-        refetch,
-        displayName: (model.data ?? ({ ModelId: "", ModelDisplayName: "", Tables: [] } as ModelDisplaySchema)),
-    };
+// #region Timing
+/** 建立 ScheduleRule 使用的 Spec Adapter */
+const buildScheduleRuleFormAdapter = (): ScheduleRuleFormAdapter =>
+{
+    return { ScheduleRule: SpecOpenScheduleRuleAdapter() };
 };
 
-const useScheduleRuleFormActionsByAdapter = (
-    adapter: ReturnType<typeof SpecOpenScheduleRuleAdapter>,
-    internalId: string,
-    formData: SpecOpenScheduleRuleSet,
-    onBackToList: () => void,
-): ServerFormActions =>
+/** 建立 ScheduleRule Form 標題，ModelDisplayName 無資料時使用固定名稱 */
+const buildScheduleRuleFormTitle = (ctx: { mode: "new" | "edit"; displayName: ModelDisplaySchema; }): string =>
 {
-    // 宣告變數
-    const isNew = useMemo(() => !internalId, [internalId]);
+    const title = ctx.displayName.ModelDisplayName || "開館時間設定";
+    return ctx.mode === "edit" ? `修改${title}` : title;
+};
 
-    const actions = adapter.useServerActions({ onSuccessByMode: { create: () => onBackToList(), update: () => onBackToList(), delete: () => onBackToList() } });
-
-    // return
-    return {
-        Save: async () =>
-        {
-            if (isNew) await actions.createAsync(formData);
-            else await actions.updateAsync(internalId, formData);
-        },
-        Delete: async () =>
-        {
-            if (!internalId) return;
-            await actions.deleteAsync(internalId);
-        },
-        Back: onBackToList,
-        Preview: () =>
-        {/* ScheduleRule 無預覽 */},
-        IsSaving: actions.isSaving,
-    };
+/** 建立新增模式的 initial data，避免新增時查詢 __new__ */
+const buildScheduleRuleInitialData = (
+    ctx: { mode: "new" | "edit"; emptyData: SpecOpenScheduleRuleSet; },
+): ApiFormInitial<SpecOpenScheduleRuleSet> | undefined =>
+{
+    if (ctx.mode !== "new") return undefined;
+    return { data: { args: "__new__", apiRes: { IsSuccess: true, Data: ctx.emptyData, SysMessage: [] } } };
 };
 // #endregion

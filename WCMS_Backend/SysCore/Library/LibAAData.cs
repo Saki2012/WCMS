@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using WCMS.Features._Resx;
 using WCMS.SysCore.Library.LibAttribute;
-using WCMS.SysCore.Model;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.Library
@@ -21,6 +20,10 @@ namespace WCMS.SysCore.Library
         /// AA錯誤提示中節點片段的最大長度
         /// </summary>
         private const int MaxNodeSnippetLength = 300;
+        /// <summary>
+        /// 圖片alt允許的最大英文折算長度，75個中文約等於150個英文字元
+        /// </summary>
+        private const int MaxImageAltWeightedLength = 150;
         /// <summary>
         /// AA檢測碼
         /// </summary>
@@ -85,18 +88,25 @@ namespace WCMS.SysCore.Library
         /// AA檢測碼多語系說明快取，Key包含目前UI語系
         /// </summary>
         private static readonly ConcurrentDictionary<string, string> AACodeDescTextCache = new();
+        /// <summary>
+        /// 過度籠統的圖片替代文字，不足以說明資訊型圖片內容
+        /// </summary>
+        private static readonly HashSet<string> GenericImageAltTexts = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "圖片", "照片", "相片", "圖示", "示意圖", "插圖", "image", "photo", "picture", "pic", "banner"
+        };
         #endregion
 
         #region Public
         /// <summary>
         /// 執行AA自動修正與檢測，主要給TinyMCE自定義內容使用
         /// </summary>
-        public static bool CheckAAContent(string content, IErrorHelper Message, out string result)
+        public static bool CheckAAContent(string content, IErrorHelper Message, out string result, string? contentTitle = null)
         {
             result = content ?? string.Empty;
             if (!SpecSettings.AACheck) return true;
             result = DoAutoFormatAAContent(result);
-            return DoCheckAAContent(result, Message);
+            return DoCheckAAContent(result, Message, contentTitle);
         }
         #endregion
 
@@ -117,11 +127,11 @@ namespace WCMS.SysCore.Library
         /// <summary>
         /// 檢查HTML Content是否仍有無法自動修正的AA問題
         /// </summary>
-        internal static bool DoCheckAAContent(string content, IErrorHelper Message)
+        internal static bool DoCheckAAContent(string content, IErrorHelper Message, string? contentTitle = null)
         {
             var document = BuildHtmlDocument(content);
             var isValid = true;
-            isValid &= CheckImageAlt(document, Message);
+            isValid &= CheckImageAlt(document, Message, contentTitle);
             isValid &= CheckAnchorAccessibleName(document, Message);
             isValid &= CheckAnchorNestedImageConflict(document, Message);
             isValid &= CheckIframeTitle(document, Message);
@@ -134,15 +144,19 @@ namespace WCMS.SysCore.Library
         /// <summary>
         /// 檢查img是否仍有需要人工處理的alt問題
         /// </summary>
-        private static bool CheckImageAlt(HtmlDocument document, IErrorHelper Message)
+        private static bool CheckImageAlt(HtmlDocument document, IErrorHelper Message, string? contentTitle = null)
         {
             var isValid = true;
             foreach (var img in GetNodes(GetRootNode(document), ".//img"))
             {
+                var alt = GetAttr(img, "alt");
                 if (!HasAttr(img, "alt")) { AddAAError(Message, AACode.ImgAlt, img); isValid = false; continue; }
                 if (!HasImageSource(img)) { AddAAError(Message, AACode.ImgAlt, img); isValid = false; }
-                if (IsSameAsFileName(GetAttr(img, "alt"), GetAttr(img, "src"))) { AddAAError(Message, AACode.ImgAlt, img); isValid = false; }
-                if (string.IsNullOrWhiteSpace(GetAttr(img, "alt")) && HasAttrText(img, "title")) { AddAAError(Message, AACode.ImgEmptyAltTitle, img); isValid = false; }
+                if (string.IsNullOrWhiteSpace(alt) && !CanImageUseEmptyAlt(img)) { AddAAError(Message, AACode.ImgAlt, img, BuildEmptyImageAltReason()); isValid = false; }
+                if (IsSameAsFileName(alt, GetAttr(img, "src"))) { AddAAError(Message, AACode.ImgAlt, img); isValid = false; }
+                if (IsImageAltTooLong(alt)) { AddAAError(Message, AACode.ImgAlt, img, BuildImageAltTooLongReason(alt)); isValid = false; }
+                if (IsWeakInformativeImageAlt(img, contentTitle)) { AddAAError(Message, AACode.ImgAlt, img, BuildWeakImageAltReason()); isValid = false; }
+                if (string.IsNullOrWhiteSpace(alt) && HasAttrText(img, "title")) { AddAAError(Message, AACode.ImgEmptyAltTitle, img); isValid = false; }
             }
             return isValid;
         }
@@ -327,9 +341,9 @@ namespace WCMS.SysCore.Library
         /// <summary>
         /// 新增AA錯誤訊息，僅用於AutoFormat後仍需人工處理的問題
         /// </summary>
-        private static void AddAAError(IErrorHelper Message, string aaCode, HtmlNode? node = null)
+        private static void AddAAError(IErrorHelper Message, string aaCode, HtmlNode? node = null, string? customReason = null)
         {
-            var reason = GetAACodeDescription(aaCode);
+            var reason = string.IsNullOrWhiteSpace(customReason) ? GetAACodeDescription(aaCode) : customReason;
             var nodeHint = BuildNodeHint(node);
             Message.AddMessage(MessageStatus.Error, SysMessageCode.AACode00000, aaCode, reason, nodeHint);
         }
@@ -491,6 +505,184 @@ namespace WCMS.SysCore.Library
                 item.Remove();
             }
             return NormalizeText(HtmlEntity.DeEntitize(clone.InnerText));
+        }
+        /// <summary>
+        /// 判斷圖片alt是否超過AA建議長度
+        /// </summary>
+        private static bool IsImageAltTooLong(string alt)
+        {
+            return GetImageAltLengthInfo(alt).WeightedLength > MaxImageAltWeightedLength;
+        }
+        /// <summary>
+        /// 判斷資訊型圖片是否只使用籠統或標題式alt
+        /// </summary>
+        private static bool IsWeakInformativeImageAlt(HtmlNode img, string? contentTitle)
+        {
+            var alt = NormalizeText(GetAttr(img, "alt"));
+            if (string.IsNullOrWhiteSpace(alt)) return false;
+            if (GenericImageAltTexts.Contains(alt)) return true;
+            if (IsSameAsContentTitle(alt, contentTitle) && !HasImageDetailSupport(img)) return true;
+            return false;
+        }
+        /// <summary>
+        /// 判斷alt是否與頁面或資料標題相同
+        /// </summary>
+        private static bool IsSameAsContentTitle(string alt, string? contentTitle)
+        {
+            var title = NormalizeText(contentTitle ?? string.Empty);
+            return !string.IsNullOrWhiteSpace(title) && string.Equals(alt, title, StringComparison.OrdinalIgnoreCase);
+        }
+        /// <summary>
+        /// 判斷圖片是否有完整說明支援機制
+        /// </summary>
+        private static bool HasImageDetailSupport(HtmlNode img)
+        {
+            var hasCaption = HasNearbyImageCaption(img);
+            var hasDescribedBy = HasAriaDescribedByDetail(img);
+            var hasDetailLink = HasLongDescriptionLink(img);
+            return hasCaption || hasDescribedBy || hasDetailLink;
+        }
+        /// <summary>
+        /// 判斷圖片是否允許使用空alt
+        /// </summary>
+        private static bool CanImageUseEmptyAlt(HtmlNode img)
+        {
+            var isPresentation = IsPresentationImage(img);
+            var isHidden = IsHiddenFromAssistiveTech(img);
+            var hasAnchorName = HasParentAnchorOwnAccessibleName(img);
+            var hasDetailSupport = HasImageDetailSupport(img);
+            return isPresentation || isHidden || hasAnchorName || hasDetailSupport;
+        }
+        /// <summary>
+        /// 判斷圖片是否標示為裝飾性圖片
+        /// </summary>
+        private static bool IsPresentationImage(HtmlNode img)
+        {
+            var role = GetAttr(img, "role");
+            return string.Equals(role, "presentation", StringComparison.OrdinalIgnoreCase) || string.Equals(role, "none", StringComparison.OrdinalIgnoreCase);
+        }
+        /// <summary>
+        /// 判斷圖片是否已對輔助科技隱藏
+        /// </summary>
+        private static bool IsHiddenFromAssistiveTech(HtmlNode img)
+        {
+            var ariaHidden = GetAttr(img, "aria-hidden");
+            return string.Equals(ariaHidden, "true", StringComparison.OrdinalIgnoreCase) || HasAttr(img, "hidden");
+        }
+        /// <summary>
+        /// 判斷父層連結本身是否已有可辨識名稱
+        /// </summary>
+        private static bool HasParentAnchorOwnAccessibleName(HtmlNode img)
+        {
+            var anchor = img.SelectSingleNode("ancestor::a[@href][1]");
+            if (anchor == null) return false;
+            return !string.IsNullOrWhiteSpace(GetAnchorOwnAccessibleName(anchor));
+        }
+        /// <summary>
+        /// 判斷圖片附近是否有語意化圖說
+        /// </summary>
+        private static bool HasNearbyImageCaption(HtmlNode img)
+        {
+            var parent = img.ParentNode ?? img;
+            return GetNodes(parent, ".//figcaption|.//caption").Any(p => !string.IsNullOrWhiteSpace(GetTextWithoutMedia(p)));
+        }
+        /// <summary>
+        /// 判斷圖片是否透過aria-describedby連到完整說明
+        /// </summary>
+        private static bool HasAriaDescribedByDetail(HtmlNode img)
+        {
+            var ids = GetAttr(img, "aria-describedby").Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            var root = img.OwnerDocument?.DocumentNode;
+            if (ids.Length == 0 || root == null) return false;
+            return ids.Any(p => HasReferencedDescription(root, p));
+        }
+        /// <summary>
+        /// 判斷指定id是否對應到有效說明節點
+        /// </summary>
+        private static bool HasReferencedDescription(HtmlNode root, string id)
+        {
+            var node = root.SelectSingleNode($".//*[@id={BuildXPathLiteral(id)}]");
+            if (node == null) return false;
+            if (!string.IsNullOrWhiteSpace(GetTextWithoutMedia(node))) return true;
+            return HasAttrText(node, "aria-label") || HasAttrText(node, "title");
+        }
+        /// <summary>
+        /// 判斷圖片附近是否有完整說明頁連結
+        /// </summary>
+        private static bool HasLongDescriptionLink(HtmlNode img)
+        {
+            var parent = img.ParentNode ?? img;
+            return GetNodes(parent, ".//a[@href]").Any(IsImageDetailLink);
+        }
+        /// <summary>
+        /// 判斷連結文字是否指向圖片完整說明
+        /// </summary>
+        private static bool IsImageDetailLink(HtmlNode anchor)
+        {
+            var linkText = NormalizeText($"{GetTextWithoutMedia(anchor)} {GetAttr(anchor, "title")} {GetAttr(anchor, "aria-label")}");
+            if (string.IsNullOrWhiteSpace(linkText)) return false;
+            return linkText.Contains("完整說明") || linkText.Contains("詳細說明") || linkText.Contains("full description", StringComparison.OrdinalIgnoreCase);
+        }
+        /// <summary>
+        /// 建立XPath文字常值，避免id內含引號時XPath失效
+        /// </summary>
+        private static string BuildXPathLiteral(string value)
+        {
+            if (!value.Contains('\'')) return $"'{value}'";
+            if (!value.Contains('"')) return $"\"{value}\"";
+
+            var parts = value.Split('\'').Select(p => $"'{p}'");
+            return $"concat({string.Join(", \"'\", ", parts)})";
+        }
+        /// <summary>
+        /// 建立圖片alt過長的錯誤原因
+        /// </summary>
+        private static string BuildImageAltTooLongReason(string alt)
+        {
+            var info = GetImageAltLengthInfo(alt);
+            return $"圖片alt文字過長，目前中文/全形約{info.CjkLength}字、英數半形約{info.OtherLength}字，折算{info.WeightedLength}/{MaxImageAltWeightedLength}。請將alt控制在75個中文字或150個英文字元內，完整說明請放在圖片下方或完整說明頁。";
+        }
+        /// <summary>
+        /// 建立資訊型圖片alt不足的錯誤原因
+        /// </summary>
+        private static string BuildWeakImageAltReason()
+        {
+            return "資訊型圖片不可只用圖片標題、圖片、照片等籠統文字作為alt。請以短句描述圖片重點，若內容較多，請在圖片下方補完整說明或提供完整說明頁連結。";
+        }
+        /// <summary>
+        /// 建立空alt未提供替代說明的錯誤原因
+        /// </summary>
+        private static string BuildEmptyImageAltReason()
+        {
+            return """資訊型圖片不可使用空alt。若圖片只是裝飾，請加上role="presentation"、role="none"或aria-hidden="true"；若圖片在連結內，請確認連結本身已有文字、title或aria-label；若圖片含重要資訊，請提供短alt並於圖片下方補完整說明。""";
+        }
+        /// <summary>
+        /// 取得圖片alt長度資訊，中文與全形字折算2，其他字元折算1
+        /// </summary>
+        private static (int CjkLength, int OtherLength, int WeightedLength) GetImageAltLengthInfo(string alt)
+        {
+            var cjkLength = 0;
+            var otherLength = 0;
+            foreach (var item in NormalizeText(alt))
+            {
+                if (IsCjkOrFullWidthChar(item)) cjkLength++;
+                else otherLength++;
+            }
+            return (cjkLength, otherLength, cjkLength * 2 + otherLength);
+        }
+        /// <summary>
+        /// 判斷字元是否屬於中文、日韓文字或全形符號
+        /// </summary>
+        private static bool IsCjkOrFullWidthChar(char value)
+        {
+            if (value >= '\u3400' && value <= '\u4DBF') return true;
+            if (value >= '\u4E00' && value <= '\u9FFF') return true;
+            if (value >= '\uF900' && value <= '\uFAFF') return true;
+            if (value >= '\u3000' && value <= '\u303F') return true;
+            if (value >= '\u3040' && value <= '\u30FF') return true;
+            if (value >= '\uAC00' && value <= '\uD7AF') return true;
+            if (value >= '\uFF00' && value <= '\uFFEF') return true;
+            return false;
         }
         #endregion
 

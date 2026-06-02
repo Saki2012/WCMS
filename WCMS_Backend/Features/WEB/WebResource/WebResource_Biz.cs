@@ -111,7 +111,7 @@ public class WebResourceBiz(BizDeps bizDeps) : BizService<WebResourceSet>(bizDep
     }
     #endregion
 
-    #region Protected
+    #region Protected Virtual
     protected override async Task BeforeUpdate(WebResourceSet set, FuncAction act, CancellationToken ct = default)
     {
         await base.BeforeUpdate(set, act, ct);
@@ -126,16 +126,20 @@ public class WebResourceBiz(BizDeps bizDeps) : BizService<WebResourceSet>(bizDep
     }
     #endregion
 
-    #region Private
-    private void CheckData(WebResourceSet set)
+    #region Protected
+    protected void CheckData(WebResourceSet set)
     {
         CheckIsEmpty(set);
     }
-    private void CheckIsEmpty(WebResourceSet set)
+    protected void CheckIsEmpty(WebResourceSet set)
     {
-        if (set.WebResourceInfo.FirstOrDefault(p => p.Lang==SiteDefaultLang) == null || set.WebResourceInfo.FirstOrDefault(p => p.Lang== SiteDefaultLang).Title.IsNullOrEmpty())
+        if (set.WebResourceInfo.FirstOrDefault(p => p.Lang == SiteDefaultLang) == null || set.WebResourceInfo.FirstOrDefault(p => p.Lang == SiteDefaultLang).Title.IsNullOrEmpty())
             Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, SiteDefaultLang.ToLabel(), I18nCache.GetLabel<WebResourceInfo_DTO>(x => x.Title));
     }
+    #endregion  
+
+    #region Private
+
     /// <summary>
     /// 重新組合多筆資料(類別、狀態、標籤)
     /// </summary>

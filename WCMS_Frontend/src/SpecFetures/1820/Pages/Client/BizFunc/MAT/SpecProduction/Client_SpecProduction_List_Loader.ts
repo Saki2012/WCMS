@@ -1,8 +1,17 @@
+//#region Property
 import { MaterialAdapter } from "@/Features/Hooks/BizFunc/MAT/Material_Api";
+import {
+    buildClientDataQueryKey,
+    buildClientDataQueryState,
+    useClientDataQueryTemplate,
+    type ClientDataQueryDataSourceResult,
+    type ClientDataQueryTemplate,
+} from "@/Features/Pages/Client/Scaffold/DataQueryTemplate/Client_DataQueryTemplate_Hook";
 import { PageManagementAdapter } from "@/Features/Hooks/BizFunc/WEB/PageManagement_Api";
 import type { Module_SpecProduction_OptionsJson } from "@/SpecFetures/1820/Pages/Server/BizFunc/WEB/SiteMenu/SpecModule_Comp";
+import type { SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
+import type { IListViewState } from "@/SysCore/Interface/IListViewState";
 import type { Lang } from "@/SysCore/i18n/lang";
-import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
@@ -58,7 +67,33 @@ interface UseSpecProductionListFetchDataResult
     errorList: string[];
 }
 
+interface SpecProductionListQueryParam
+{
+    materialParam: QueryListParam;
+    pageParam: QueryListParam;
+}
+
+interface SpecProductionListSearchParams
+{
+    lang: Lang;
+    opt?: Module_SpecProduction_OptionsJson;
+}
+
+type SpecProductionListAdapter = { Page: ReturnType<typeof PageManagementAdapter>; Material: ReturnType<typeof MaterialAdapter>; };
+type SpecProductionListTemplate = ClientDataQueryTemplate<
+    SpecProductionListSearchParams,
+    SpecProductionListRawData,
+    SpecProductionListRawData,
+    SpecProductionListAdapter,
+    SpecProductionListQueryParam,
+    SpecProductionListLoaderData
+>;
+type SpecProductionListDataSourceContext = Parameters<NonNullable<NonNullable<SpecProductionListTemplate["spec"]>["useDataSource"]>>[0];
+
 /** 建立空 rawData */
+//#endregion
+
+//#region Private - Query Helpers
 const buildEmptyRawData = (): SpecProductionListRawData =>
 {
     return { pageContent: "", catName: "", prodData: new Map<MaterialTag, MaterialSet[]>() };
@@ -173,14 +208,91 @@ const buildRawData = (p: { materialList: MaterialSet[]; pageList: PageManagement
     return { pageContent: getPageContent(p.pageList, p.lang), catName: getCategoryName(p.materialList, p.lang), prodData: groupMaterialByTag(p.materialList) };
 };
 
+
+/** 建立 loader / hook 共用查詢狀態 */
+const buildSpecProductionListQueryState = (p: SpecProductionListSearchParams) =>
+{
+    // 宣告變數
+    const template = createSpecProductionListDataQueryTemplate(p);
+    const searchValues: SearchValues = {};
+    const viewState: IListViewState = { pageNumber: 1, pageSize: 0 };
+
+    // return
+    return buildClientDataQueryState(template, searchValues, viewState);
+};
+
+/** 建立 SpecProduction List DataQuery Template */
+//#endregion
+
+//#region Template - Client DataQuery
+const createSpecProductionListDataQueryTemplate = (p: SpecProductionListSearchParams): SpecProductionListTemplate =>
+{
+    // return
+    return {
+        featureKey: "Spec1820.SpecProduction.List",
+        dataMode: "multiple",
+        initialViewState: { pageNumber: 1, pageSize: 0 },
+        pagination: null,
+        searchBar: null,
+        spec: {
+            toSearchParams: () => ({ lang: p.lang, opt: p.opt }),
+            buildQueryParam: ({ searchParams }) => ({
+                materialParam: buildMaterialParam({ categoryId: searchParams.opt?.CategoryId, tagIds: searchParams.opt?.TagIds }) ?? EMPTY_QUERY,
+                pageParam: buildPageParam({ pageInternalId: searchParams.opt?.PageId ?? "" }),
+            }),
+            useDataSource: (ctx) => useSpecProductionListDataSource(ctx),
+            buildViewModel: ({ rawData }) => rawData,
+        },
+    };
+};
+
+/** DataSource：用 Template 統一接頁面內容與物件清單 */
+const useSpecProductionListDataSource = (
+    ctx: SpecProductionListDataSourceContext,
+): ClientDataQueryDataSourceResult<SpecProductionListRawData, SpecProductionListAdapter> =>
+{
+    // 宣告變數
+    const loaderData = ctx.loaderData ?? null;
+    const adapter = useMemo<SpecProductionListAdapter>(() => ({ Page: PageManagementAdapter(), Material: MaterialAdapter() }), []);
+    const materialKey = useMemo(() => buildClientDataQueryKey(ctx.queryParam.materialParam), [ctx.queryParam.materialParam]);
+    const pageKey = useMemo(() => buildClientDataQueryKey(ctx.queryParam.pageParam), [ctx.queryParam.pageParam]);
+
+    // 執行 function
+    const usePage = adapter.Page.hooks.useQueryList({ condition: ctx.queryParam.pageParam, initial: null, deps: [pageKey] });
+    const useList = adapter.Material.hooks.useQueryList({ condition: ctx.queryParam.materialParam, initial: null, deps: [materialKey] });
+
+    const rawData = useMemo<SpecProductionListRawData>(() =>
+    {
+        if (useList.data || usePage.data)
+        {
+            return buildRawData({ materialList: useList.data ?? [], pageList: usePage.data ?? [], lang: ctx.searchParams.lang });
+        }
+
+        return loaderData?.res ?? buildEmptyRawData();
+    }, [loaderData, ctx.searchParams.lang, usePage.data, useList.data]);
+
+    // return
+    return {
+        adapter,
+        rawData,
+        isLoading: Boolean(usePage.isLoading || useList.isLoading),
+        errors: [usePage.errorText, useList.errorText],
+        paginator: null,
+    };
+};
+
 /** 前台物件列表 SSR Loader */
+//#endregion
+
+//#region Public - SSR Loader / CSR Hook
 export const Client_SpecProduction_List_Loader =
     (p: { lang: Lang; opts?: Module_SpecProduction_OptionsJson; }) => async ({ request }: LoaderFunctionArgs): Promise<SpecProductionListLoaderData> =>
     {
         const ssrApi = getSsrApi(request);
         const adapter = { Page: PageManagementAdapter(ssrApi), Material: MaterialAdapter(ssrApi) };
-        const baseParam = buildMaterialParam({ categoryId: p.opts?.CategoryId, tagIds: p.opts?.TagIds });
-        const pageParam = buildPageParam({ pageInternalId: p.opts?.PageId ?? "" });
+        const queryState = buildSpecProductionListQueryState({ lang: p.lang, opt: p.opts });
+        const baseParam = queryState.queryParam.materialParam === EMPTY_QUERY ? null : queryState.queryParam.materialParam;
+        const pageParam = queryState.queryParam.pageParam;
         if (!baseParam)
         {
             return { args: { lang: p.lang, opt: p.opts, baseParam: null, pageParam }, res: buildEmptyRawData() };
@@ -198,37 +310,15 @@ export const useClientSpecProductionListFetchData = (
     props: { lang: Lang; options?: Module_SpecProduction_OptionsJson; },
 ): UseSpecProductionListFetchDataResult =>
 {
-    const loaderData = useLoaderData() as SpecProductionListLoaderData | null;
-    const adapter = useMemo(() => ({ Page: PageManagementAdapter(), Material: MaterialAdapter() }), []);
-
-    const baseParam = useMemo(() => buildMaterialParam({ categoryId: props.options?.CategoryId, tagIds: props.options?.TagIds }) ?? EMPTY_QUERY, [
-        props.options?.CategoryId,
-        props.options?.TagIds,
-    ]);
-
-    const basePageParam = useMemo(() => buildPageParam({ pageInternalId: props.options?.PageId ?? "" }), [props.options?.PageId]);
-
-    const listInitial: ApiLoaderData<QueryListParam, MaterialSet[]> | null = null;
-    const pageInitial: ApiLoaderData<QueryListParam, PageManagementSet[]> | null = null;
-
-    const usePage = adapter.Page.hooks.useQueryList({ condition: basePageParam, initial: pageInitial, deps: [basePageParam] });
-
-    const useList = adapter.Material.hooks.useQueryList({ condition: baseParam, initial: listInitial, deps: [baseParam] });
-
-    const rawData = useMemo<SpecProductionListRawData>(() =>
+    // 宣告變數
+    const template = useMemo(() =>
     {
-        if (useList.data || usePage.data)
-        {
-            return buildRawData({ materialList: useList.data ?? [], pageList: usePage.data ?? [], lang: props.lang });
-        }
+        return createSpecProductionListDataQueryTemplate({ lang: props.lang, opt: props.options });
+    }, [props.lang, props.options]);
 
-        return loaderData?.res ?? buildEmptyRawData();
-    }, [loaderData, props.lang, usePage.data, useList.data]);
+    const templateVm = useClientDataQueryTemplate(template);
 
-    const errorList = useMemo(() =>
-    {
-        return [usePage.errorText, useList.errorText].filter((x): x is string => Boolean(x));
-    }, [usePage.errorText, useList.errorText]);
-
-    return { rawData, isLoading: Boolean(usePage.isLoading || useList.isLoading), errorList };
+    // return
+    return { rawData: templateVm.viewModel, isLoading: templateVm.isLoading, errorList: templateVm.errorList };
 };
+//#endregion

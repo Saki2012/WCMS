@@ -1,3 +1,4 @@
+//#region Property
 import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 import { AboutPage } from "@/SpecFetures/1818/Pages/Client/Index/Section/AboutPage";
 import { ActivityPhotoData } from "@/SpecFetures/1818/Pages/Client/Index/Section/ActivityPhotoData";
@@ -5,13 +6,17 @@ import { CarouselData } from "@/SpecFetures/1818/Pages/Client/Index/Section/Caro
 import { LinkData } from "@/SpecFetures/1818/Pages/Client/Index/Section/LinkData";
 import { NewsData } from "@/SpecFetures/1818/Pages/Client/Index/Section/NewsData";
 import { type Lang } from "@/SysCore/i18n/lang";
-import { useLoaderData } from "react-router";
-import type { HomePageLoaderData } from "./HomePage_Loader";
+import { useHomePageTemplateData } from "./HomePage_Loader";
 
+//#endregion
+
+//#region Public
 const HomePage = (props: { lang: Lang; }) =>
 {
-    const loaderData = useLoaderData() as HomePageLoaderData;
-    const rawData = loaderData.res.rawData;
+    const homePage = useHomePageTemplateData(props.lang);
+    const loaderData = homePage.loaderData;
+    const rawData = homePage.rawData;
+    if (!loaderData || !rawData) return null;
     return (
         <main id="Site-Main" className="ALL_Main_DivBar main-fullpage-wraper">
             <div className="background_area">
@@ -63,3 +68,4 @@ const HomePage = (props: { lang: Lang; }) =>
 };
 
 export default HomePage;
+//#endregion

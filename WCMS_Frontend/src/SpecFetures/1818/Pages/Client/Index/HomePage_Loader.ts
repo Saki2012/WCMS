@@ -1,3 +1,5 @@
+//#region Property
+import { useClientDataQueryTemplate, type ClientDataQueryDataSourceResult, type ClientDataQueryTemplate } from "@/Features/Pages/Client/Scaffold/DataQueryTemplate/Client_DataQueryTemplate_Hook";
 import { CategoryAdapter } from "@/Features/Hooks/BizFunc/COMM/Category_Api";
 import { TagAdapter } from "@/Features/Hooks/BizFunc/COMM/Tag_Api";
 import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WEB/Announcement_Api";
@@ -23,6 +25,7 @@ import {
     TagDataFields,
     TagDetailFields,
 } from "@/types/SchemaFields";
+import { useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router-dom";
 
 type QueryListParam = components["schemas"]["QueryListParam"];
@@ -92,6 +95,9 @@ export interface HomePageLoaderData
     args: HomePageLoaderArgs;
     res: HomePageLoaderRes;
 }
+//#endregion
+
+//#region Private - Loader Helpers
 const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`);
 const formatLocalIso = (d: Date): string =>
 {
@@ -279,6 +285,9 @@ const buildGalleryHomeQuery = (p: { condition: string; take: number; }): QueryLi
  * - 回傳 res.rawData：一次包含首頁所有 section 需要的資料
  * - args 也保留：後續 hydration hook 要做「同條件 refetch」可直接用
  */
+//#endregion
+
+//#region Public - SSR Loader
 export const HomePageLoader = (p: { lang: Lang; }) => async ({ request }: LoaderFunctionArgs): Promise<HomePageLoaderData> =>
 {
     const ssrApi = getSsrApi(request);
@@ -428,3 +437,60 @@ export const HomePageLoader = (p: { lang: Lang; }) => async ({ request }: Loader
         },
     };
 };
+
+
+// #region Client DataQuery Template
+//#endregion
+
+//#region Template - Client DataQuery
+interface HomePageTemplateQueryParam
+{
+    lang: Lang;
+}
+
+type HomePageTemplate = ClientDataQueryTemplate<HomePageTemplateQueryParam, HomePageRawData | null, HomePageLoaderData | null, unknown, HomePageTemplateQueryParam, HomePageLoaderData>;
+
+/** 建立首頁 DataQuery Template，讓首頁資料流程也進入前台 Template 管線 */
+const createHomePageTemplate = (lang: Lang): HomePageTemplate =>
+{
+    // return
+    return {
+        featureKey: "Spec1818.HomePage",
+        dataMode: "single",
+        initialViewState: { pageNumber: 1, pageSize: 1 },
+        pagination: null,
+        searchBar: null,
+        spec: {
+            toSearchParams: () => ({ lang }),
+            buildQueryParam: ({ searchParams }) => searchParams,
+            useDataSource: (ctx) => useHomePageTemplateDataSource(ctx),
+            buildViewModel: ({ loaderData }) => loaderData ?? null,
+        },
+    };
+};
+
+/** DataSource：首頁目前以 SSR loaderData 為主，先統一掛入 Template 流程 */
+const useHomePageTemplateDataSource = (ctx: { loaderData: HomePageLoaderData | null; }): ClientDataQueryDataSourceResult<HomePageRawData | null> =>
+{
+    // 宣告變數
+    const rawData = ctx.loaderData?.res?.rawData ?? null;
+
+    // return
+    return { rawData, isLoading: false, errors: [], paginator: null };
+};
+
+/** CSR Hook：首頁統一透過 Client_DataQueryTemplate 取資料 */
+//#endregion
+
+//#region Public - CSR Hook
+export const useHomePageTemplateData = (lang: Lang) =>
+{
+    // 宣告變數
+    const template = useMemo(() => createHomePageTemplate(lang), [lang]);
+    const templateVm = useClientDataQueryTemplate(template);
+
+    // return
+    return { loaderData: templateVm.viewModel, rawData: templateVm.rawData, isLoading: templateVm.isLoading, errorList: templateVm.errorList };
+};
+// #endregion
+//#endregion

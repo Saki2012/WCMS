@@ -342,10 +342,10 @@ const SurveyInputForm_Comp = (
             />
 
             <div className="Standard_btnDiv mt-4">
-                <button type="submit" className="btn btn_NEWS bg_urllink_NEWS" disabled={props.disabled || props.submitActions.isSubmitting || isCaptchaLoading}>
+                <button type="button" className="client-survey__button client-survey__button--reset" disabled={props.disabled || props.submitActions.isSubmitting} onClick={handleReset}>{text.reset}</button>
+                <button type="submit" className="client-survey__button client-survey__button--submit" disabled={props.disabled || props.submitActions.isSubmitting || isCaptchaLoading}>
                     {props.submitActions.isSubmitting ? text.submitting : text.submit}
                 </button>
-                <button type="button" className="btn btn-secondary ms-2" disabled={props.disabled || props.submitActions.isSubmitting} onClick={handleReset}>{text.reset}</button>
             </div>
 
             {submitResult && <div className={`alert alert-${submitResult.type} mt-3`} role="status" aria-live="polite">{submitResult.text}</div>}
@@ -375,7 +375,7 @@ const SurveyBaseFields_Comp = (
                 const errorId = errorText ? `${inputId}_error` : undefined;
 
                 return (
-                    <div key={field.key} className="mb-3 survey-input-field">
+                    <div key={field.key} className="survey-input-field">
                         <label className="form-label" htmlFor={inputId}>
                             {field.label}
                             <RequiredMark isRequired={field.isRequired} />

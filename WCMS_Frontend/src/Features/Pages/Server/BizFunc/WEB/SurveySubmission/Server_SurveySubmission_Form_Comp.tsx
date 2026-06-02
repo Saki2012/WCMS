@@ -1,5 +1,4 @@
-import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
-import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
+import { Server_FormTemplate_Comp } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import { LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
@@ -8,100 +7,205 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { SurveyFields, SurveySubmissionsFields } from "@/types/SchemaFields";
-import { useMemo } from "react";
-import { useParams } from "react-router-dom";
-import { type SurveySubmissionFormRawData, useSurveySubmissionFormFetchData } from "./Server_SurveySubmission_Form_Hook";
+import type { ReactNode } from "react";
+import { useCallback, useMemo } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import {
+    type SurveySubmissionFormRawData,
+    useSurveySubmissionFormTemplate,
+} from "./Server_SurveySubmission_Form_Hook";
 
+// #region Property
 type SurveySubmissionSet = components["schemas"]["SurveySubmissionsSet_DTO"];
 type SurveySubmissionAnswerValue = string | number | boolean | null | (string | number | boolean | null)[];
 
+interface SurveySubmissionFormCompProps
+{
+    /** 後台主題設定 */
+    theme: IBETheme;
+
+    /** 目前語系 */
+    lang: Lang;
+}
+
+interface SurveySubmissionReadonlyContentProps
+{
+    /** 後台主題設定 */
+    theme: IBETheme;
+
+    /** 目前語系 */
+    lang: Lang;
+
+    /** Form Template 整理後的只讀資料 */
+    rawData: SurveySubmissionFormRawData;
+}
+
 interface SurveySubmissionFieldLang
 {
+    /** 欄位語系 */
     Lang?: string | null;
+
+    /** 該語系欄位名稱 */
     FieldName?: string | null;
 }
 
 interface SurveySubmissionFieldSnapshot
 {
+    /** 欄位代碼 */
     FieldId?: string | null;
+
+    /** 欄位預設名稱 */
     FieldName?: string | null;
+
+    /** 輸入型別 */
     InputType?: string | null;
+
+    /** 是否必填 */
     IsRequired?: boolean | null;
+
+    /** 選項 JSON */
     Options?: string | null;
+
+    /** 欄位語系名稱快照 */
     Langs?: SurveySubmissionFieldLang[] | null;
 }
 
 interface ReadonlyFieldItem
 {
+    /** 欄位 key */
     key: string;
+
+    /** 顯示名稱 */
     label: string;
+
+    /** 顯示值 */
     value: string;
+
+    /** 欄位外層 class */
     parentClass?: string;
 }
 
 interface AnswerDisplayItem
 {
+    /** 欄位 key */
     key: string;
+
+    /** 回覆欄位名稱 */
     label: string;
+
+    /** 回覆內容 */
     value: string;
 }
-
-// #region Public
-
-/** 問卷回應查看表單 */
-export const Server_SurveySubmission_Form_Comp = (props: { theme: IBETheme; lang: Lang; }) =>
-{
-    const { internalId } = useParams();
-    const getData = useSurveySubmissionFormFetchData({ lang: props.lang, surveySubmissionId: internalId ?? "" });
-
-    const formTitle = useMemo(() =>
-    {
-        const surveyName = getData.rawData.data?.SurveySubmissions?.Survey?.SurveyName;
-        return surveyName ? `查看問卷回應：${surveyName}` : "查看問卷回應";
-    }, [getData.rawData.data]);
-
-    const propForm: FormCompProp = { Title: formTitle, Theme: props.theme, IsLoading: getData.isLoading, ErrorList: getData.errors };
-
-    return (
-        <FormComp prop={propForm}>
-            {getData.rawData.data
-                ? <SurveySubmissionReadonlyContent theme={props.theme} lang={props.lang} raw={getData.rawData} />
-                : <div className="alert alert-warning mb-0">查無問卷回應資料</div>}
-        </FormComp>
-    );
-};
-
 // #endregion
 
-// #region Protected
+// #region Public
+/** 問卷回應查看表單，只讀模式不提供 Save / Delete。 */
+export const Server_SurveySubmission_Form_Comp = (
+    props: SurveySubmissionFormCompProps,
+) =>
+{
+    const { internalId } = useParams();
+    const navigate = useNavigate();
+    const pathname = useLocation().pathname;
 
-/** 問卷回應只讀內容 */
-const SurveySubmissionReadonlyContent = (props: { theme: IBETheme; lang: Lang; raw: SurveySubmissionFormRawData; }) =>
+    const onBackToList = useCallback(() =>
+    {
+        navigate(buildBackToListPath(pathname));
+    }, [navigate, pathname]);
+
+    const actionsOpt = useMemo(() =>
+    {
+        return { onBackToList };
+    }, [onBackToList]);
+
+    const template = useSurveySubmissionFormTemplate({
+        lang: props.lang,
+        theme: props.theme,
+        surveySubmissionId: internalId ?? "",
+        actionsOpt,
+    });
+
+    return (
+        <Server_FormTemplate_Comp
+            template={template}
+            renderContent={({ vm }) => (
+                vm.rawData.data
+                    ? <SurveySubmissionReadonlyContent theme={props.theme} lang={props.lang} rawData={vm.rawData} />
+                    : <div className="alert alert-warning mb-0">查無問卷回應資料</div>
+            )}
+        />
+    );
+};
+// #endregion
+
+// #region Section
+/** 問卷回應只讀內容，依照基本資料、回覆內容、系統資訊分頁呈現。 */
+const SurveySubmissionReadonlyContent = (props: SurveySubmissionReadonlyContentProps) =>
 {
     const tabInfo = useMemo<LibTabsProp>(() =>
     {
         return { Style: props.theme.Tabs, item: { Basic: "基本資料", Answers: "回覆內容", System: "系統資訊" } };
     }, [props.theme.Tabs]);
 
-    const basicItems = useMemo(() => buildBasicItems(props.raw, props.lang), [props.raw, props.lang]);
-    const answerItems = useMemo(() => buildAnswerItems(props.raw.data, props.lang), [props.raw.data, props.lang]);
-    const systemItems = useMemo(() => buildSystemItems(props.raw), [props.raw]);
-
-    const tabContent = useMemo<Record<string, React.ReactNode[]>>(() =>
+    const basicItems = useMemo(() => buildBasicItems(props.rawData, props.lang), [props.rawData, props.lang]);
+    const answerItems = useMemo(() => buildAnswerItems(props.rawData.data, props.lang), [props.rawData.data, props.lang]);
+    const systemItems = useMemo(() => buildSystemItems(props.rawData), [props.rawData]);
+    const tabContent = useMemo<Record<string, ReactNode[]>>(() =>
     {
         return {
             Basic: renderReadonlyFields({ theme: props.theme, items: basicItems }),
-            Answers: answerItems.length > 0
-                ? renderAnswerFields({ theme: props.theme, items: answerItems })
-                : [<div className="alert alert-secondary mb-0">沒有可顯示的回覆內容</div>],
+            Answers: renderAnswerSection({ theme: props.theme, items: answerItems }),
             System: renderReadonlyFields({ theme: props.theme, items: systemItems }),
         };
     }, [props.theme, basicItems, answerItems, systemItems]);
 
     return <TabContentComp tabInfos={tabInfo} components={tabContent} />;
 };
+// #endregion
 
-/** 建立基本資料欄位 */
+// #region EntityComp
+/** 渲染只讀欄位，維持舊版 Header input 外觀但全部 disabled。 */
+const renderReadonlyFields = (p: { theme: IBETheme; items: ReadonlyFieldItem[]; }): ReactNode[] =>
+{
+    return p.items.map((item) => (
+        <LibTextBox
+            key={item.key}
+            Style={p.theme.TextBox}
+            ColumnDisplayName={item.label}
+            DefaultInputDisplay=""
+            InputValue={item.value}
+            disabled={true}
+            parentClass={item.parentClass ?? "col-xxl-6 col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12"}
+        />
+    ));
+};
+
+/** 渲染回覆內容區塊，沒有快照時顯示提示。 */
+const renderAnswerSection = (p: { theme: IBETheme; items: AnswerDisplayItem[]; }): ReactNode[] =>
+{
+    if (p.items.length <= 0) return [<div key="empty-answer" className="alert alert-secondary mb-0">沒有可顯示的回覆內容</div>];
+    return renderAnswerFields(p);
+};
+
+/** 渲染問卷動態欄位回覆內容，全部以只讀文字呈現。 */
+const renderAnswerFields = (p: { theme: IBETheme; items: AnswerDisplayItem[]; }): ReactNode[] =>
+{
+    return p.items.map((item) => (
+        <LibTextBox
+            key={item.key}
+            Style={p.theme.TextBox}
+            ColumnDisplayName={item.label}
+            DefaultInputDisplay=""
+            InputValue={item.value}
+            disabled={true}
+            parentClass="col-12"
+        />
+    ));
+};
+// #endregion
+
+// #region Private
+/** 建立基本資料欄位。 */
 const buildBasicItems = (raw: SurveySubmissionFormRawData, lang: Lang): ReadonlyFieldItem[] =>
 {
     const item = raw.data?.SurveySubmissions;
@@ -140,24 +244,30 @@ const buildBasicItems = (raw: SurveySubmissionFormRawData, lang: Lang): Readonly
     ];
 };
 
-/** 建立動態回覆欄位 */
+/** 建立動態回覆欄位。 */
 const buildAnswerItems = (data: SurveySubmissionSet | null, lang: Lang): AnswerDisplayItem[] =>
 {
     const item = data?.SurveySubmissions;
     const answerMap = parseAnswerMap(item?.FormDataJson);
     const snapshots = parseFieldSnapshots(item?.FieldSnapshotJson);
 
-    return snapshots.map((field) =>
-    {
-        const fieldId = `${field.FieldId ?? ""}`.trim();
-        const label = getSnapshotFieldName(field, lang);
-        const value = formatAnswerValue(answerMap[fieldId]);
-
-        return { key: fieldId, label, value };
-    }).filter(p => Boolean(p.key));
+    return snapshots.map((field) => buildAnswerItem(field, answerMap, lang)).filter((item): item is AnswerDisplayItem => Boolean(item?.key));
 };
 
-/** 建立系統資訊欄位 */
+/** 建立單一動態回覆欄位。 */
+const buildAnswerItem = (
+    field: SurveySubmissionFieldSnapshot,
+    answerMap: Record<string, SurveySubmissionAnswerValue>,
+    lang: Lang,
+): AnswerDisplayItem | null =>
+{
+    const fieldId = `${field.FieldId ?? ""}`.trim();
+    if (!fieldId) return null;
+
+    return { key: fieldId, label: getSnapshotFieldName(field, lang), value: formatAnswerValue(answerMap[fieldId]) };
+};
+
+/** 建立系統資訊欄位。 */
 const buildSystemItems = (raw: SurveySubmissionFormRawData): ReadonlyFieldItem[] =>
 {
     const item = raw.data?.SurveySubmissions;
@@ -198,43 +308,7 @@ const buildSystemItems = (raw: SurveySubmissionFormRawData): ReadonlyFieldItem[]
     ];
 };
 
-// #endregion
-
-// #region Private
-
-/** 渲染只讀欄位 */
-const renderReadonlyFields = (p: { theme: IBETheme; items: ReadonlyFieldItem[]; }): React.ReactNode[] =>
-{
-    return p.items.map((item) => (
-        <LibTextBox
-            key={item.key}
-            Style={p.theme.TextBox}
-            ColumnDisplayName={item.label}
-            DefaultInputDisplay=""
-            InputValue={item.value}
-            disabled={true}
-            parentClass={item.parentClass ?? "col-xxl-6 col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12"}
-        />
-    ));
-};
-
-/** 渲染回覆欄位 */
-const renderAnswerFields = (p: { theme: IBETheme; items: AnswerDisplayItem[]; }): React.ReactNode[] =>
-{
-    return p.items.map((item) => (
-        <LibTextBox
-            key={item.key}
-            Style={p.theme.TextBox}
-            ColumnDisplayName={item.label}
-            DefaultInputDisplay=""
-            InputValue={item.value}
-            disabled={true}
-            parentClass="col-12"
-        />
-    ));
-};
-
-/** 解析問卷回覆 JSON */
+/** 解析問卷回覆 JSON。 */
 const parseAnswerMap = (json?: string | null): Record<string, SurveySubmissionAnswerValue> =>
 {
     if (!json) return {};
@@ -248,7 +322,7 @@ const parseAnswerMap = (json?: string | null): Record<string, SurveySubmissionAn
     }
 };
 
-/** 解析問卷欄位快照 JSON */
+/** 解析問卷欄位快照 JSON。 */
 const parseFieldSnapshots = (json?: string | null): SurveySubmissionFieldSnapshot[] =>
 {
     if (!json) return [];
@@ -263,14 +337,14 @@ const parseFieldSnapshots = (json?: string | null): SurveySubmissionFieldSnapsho
     }
 };
 
-/** 取得欄位快照顯示名稱 */
+/** 取得欄位快照顯示名稱。 */
 const getSnapshotFieldName = (field: SurveySubmissionFieldSnapshot, lang: Lang): string =>
 {
     const langName = field.Langs?.find(p => normalizeLang(p.Lang) === normalizeLang(lang))?.FieldName;
     return langName || field.FieldName || field.FieldId || "";
 };
 
-/** 格式化回覆值 */
+/** 格式化回覆值。 */
 const formatAnswerValue = (value: SurveySubmissionAnswerValue | undefined): string =>
 {
     if (Array.isArray(value)) return value.map(p => `${p ?? ""}`.trim()).filter(Boolean).join("、");
@@ -279,7 +353,7 @@ const formatAnswerValue = (value: SurveySubmissionAnswerValue | undefined): stri
     return `${value}`;
 };
 
-/** 取得欄位顯示名稱 */
+/** 取得欄位顯示名稱。 */
 const getColumnTitle = (raw: SurveySubmissionFormRawData, col: string, fallback: string): string =>
 {
     const tables = raw.modelDisplayName?.Tables ?? [];
@@ -287,13 +361,19 @@ const getColumnTitle = (raw: SurveySubmissionFormRawData, col: string, fallback:
     return hit?.ColumnDisplayName ?? fallback;
 };
 
-/** 取得回覆狀態文字 */
+/** 取得回覆狀態文字。 */
 const getReplyStatusText = (value: boolean | null | undefined, lang: Lang): string =>
 {
     if (lang === "en") return value ? "Replied" : "Not replied";
     return value ? "已回覆" : "未回覆";
 };
 
+/** 正規化語系字串，讓 zh-TW / zh_tw 可以正確比對。 */
 const normalizeLang = (value?: string | null): string => `${value ?? ""}`.replaceAll("-", "").replaceAll("_", "").toLowerCase();
 
+/** 建立返回列表頁路徑。 */
+const buildBackToListPath = (pathname: string): string =>
+{
+    return pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
+};
 // #endregion

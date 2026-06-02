@@ -121,11 +121,30 @@ const useTinyMceScript = (src: string): TinyMceScriptState =>
     return state;
 };
 
+/** 將 WCMS 語系代碼轉成 TinyMCE 使用的語系代碼。 */
+const normalizeTinyMceLangCode = (lang?: string): string =>
+{
+    const code = (lang ?? DefaultLang).trim().toLowerCase();
+
+    if (code === "zh-tw" || code === "zh_tw") return "zh_TW";
+    if (code === "zh-cn" || code === "zh_cn") return "zh_CN";
+    if (code === "en-us" || code === "en_us") return "en";
+
+    return code.replace(/-([a-z]{2})$/, (_, region: string) => `_${region.toUpperCase()}`);
+};
+
+/** 建立 TinyMCE 語系檔路徑，讓 language 與 language_url 保持一致。 */
+const buildTinyMceLanguageUrl = (langCode: string): string =>
+{
+    return `/tinymce-i18n/langs5/${langCode}.js`;
+};
+
 const TinyMCE_Comp = ({ args }: Props) =>
 {
     const baseUrl = args.baseUrl ?? "/tinymce";
     const tinymceScriptSrc = `${baseUrl}/tinymce.min.js`;
     const scriptState = useTinyMceScript(tinymceScriptSrc);
+    const tinyMceLang = normalizeTinyMceLangCode(args.language ?? DefaultLang);
 
     const tiny = useTinyMCE({
         id: args.id,
@@ -134,8 +153,8 @@ const TinyMCE_Comp = ({ args }: Props) =>
         uploadFileApi: args.uploadFileApi ?? FileManagementAPI.Server_UploadTemp,
         makeFileUrl: args.makeFileUrl
             ?? ((id, meta) => meta.kind === "image" ? FileManagementAPI.get_Public_Preview_Url(id) : FileManagementAPI.get_Public_Download_Url(id)),
-        languageUrl: args.languageUrl ?? "/tinymce-i18n/langs5/zh_TW.js",
-        language: args.language ?? DefaultLang,
+        languageUrl: args.languageUrl ?? buildTinyMceLanguageUrl(tinyMceLang),
+        language: tinyMceLang,
         baseUrl,
     });
 

@@ -4,7 +4,7 @@ import { type ClientSearchFieldViewModel, useClientSearchBar } from "./Client_Se
 
 /** 前台共用搜尋列 */
 export const Client_SearchBar_Comp = (
-    { title = "搜尋條件", fields, values, actionAlign = "left", searchButtonText = "搜尋", resetButtonText = "重置", columnCount = 3, onSearch, onReset }:
+    { title = "搜尋條件", fields, values, actionAlign = "right", searchButtonText = "搜尋", resetButtonText = "重置", columnCount = 3, onSearch, onReset }:
         ClientDataQuerySearchBarModel,
 ) =>
 {
@@ -94,6 +94,8 @@ export const Client_SearchBar_Comp = (
     {
         return <div key={`client-search-row-${rowIndex}`} className="client-searchbar__row">{row.map(renderField)}</div>;
     };
+
+    console.log("props:", { title, fields, values, actionAlign });
 
     return (
         <section className="client-searchbar" aria-labelledby="client-searchbar-title">

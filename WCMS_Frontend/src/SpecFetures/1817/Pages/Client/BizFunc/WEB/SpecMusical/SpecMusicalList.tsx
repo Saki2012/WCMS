@@ -1,16 +1,11 @@
+//#region Property
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
-import { SpecMusicalAdapter } from "@/SpecFetures/1817/Hooks/BizFunc/WEB/SpecMusical_Api";
-import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import { LangLink } from "@/SysCore/i18n/LangLink";
-import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
-import type { components as apiComponents } from "@/types/api";
-import { useMemo } from "react";
 import { useLocation } from "react-router-dom";
-import { useLoaderData } from "react-router-dom";
-import type { SpecMusicalListLoaderData } from "./SpecMusicalList_Loader";
+import { useSpecMusicalListData } from "./SpecMusicalList_Loader";
 
 type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"];
 
@@ -19,20 +14,18 @@ export interface ISpecMusicalOptions
     Category?: string;
 }
 
+//#endregion
+
+//#region Public
 const SpecMusicalList = (props: { options?: ISpecMusicalOptions; site: INormSite; node: INormNode; }) =>
 {
     // 宣告變數
-    const loaderData = useLoaderData() as SpecMusicalListLoaderData | null;
     const pageSize = 9;
 
-    const adapter = useMemo(() => SpecMusicalAdapter(), []);
+    // 執行 function：list/count 交給 Client_DataQueryTemplate
+    const useList = useSpecMusicalListData({ categoryIds: props.options?.Category ?? "", pageSize });
 
-    // 執行 function：list/count（SSR initial → CSR 接手）
-    const useList = useSpecMusicalList(adapter, props.options?.Category ?? "", pageSize, loaderData);
-
-    const errorList = [useList.error];
-
-    const paginprops: PaginatorProps = { currentPage: useList.pageNumber, totalPages: useList.totalPages, onPageChange: useList.onPageChange };
+    const errorList = useList.errorList;
     const viewCountConfig: ModuleViewCountConfig = { mode: "list" };
     // return（DOM 不改）
     return (
@@ -40,7 +33,7 @@ const SpecMusicalList = (props: { options?: ISpecMusicalOptions; site: INormSite
             nodeTitle={props.node.title}
             isLoading={useList.isLoading}
             errorList={errorList}
-            paginatorProps={paginprops}
+            paginatorProps={useList.paginatorProps}
             viewCountConfig={viewCountConfig}
         >
             <GridList_Comp title={""} data={useList.rawData} />
@@ -48,6 +41,9 @@ const SpecMusicalList = (props: { options?: ISpecMusicalOptions; site: INormSite
     );
 };
 export default SpecMusicalList;
+//#endregion
+
+//#region Section
 
 const GridList_Comp = (props: { title: string; data: SpecMusicalSet[]; }) =>
 {
@@ -99,62 +95,4 @@ const GridList_Comp = (props: { title: string; data: SpecMusicalSet[]; }) =>
         </div>
     );
 };
-
-const useSpecMusicalList = (
-    adapter: ReturnType<typeof SpecMusicalAdapter>,
-    categoryIds: string,
-    pageSize: number,
-    loaderData: SpecMusicalListLoaderData | null,
-) =>
-{
-    // 宣告變數：baseParam 以 loader 為主，確保 SSR/CSR 一致
-    const baseParam = useMemo(() =>
-    {
-        if (!loaderData?.args?.baseParam)
-        {
-            return { Fields: [], Condition: "1=0", PageNumber: 1, PageSize: pageSize } as apiComponents["schemas"]["QueryListParam"];
-        }
-        if (loaderData.args.categoryIds !== categoryIds)
-        {
-            return { Fields: [], Condition: "1=0", PageNumber: 1, PageSize: pageSize } as apiComponents["schemas"]["QueryListParam"];
-        }
-        if (loaderData.args.pageSize !== pageSize)
-        {
-            return { Fields: [], Condition: "1=0", PageNumber: 1, PageSize: pageSize } as apiComponents["schemas"]["QueryListParam"];
-        }
-        return loaderData.args.baseParam;
-    }, [loaderData, categoryIds, pageSize]);
-
-    const initialCount = useMemo<ApiLoaderData<apiComponents["schemas"]["QueryListParam"], number> | null>(() =>
-    {
-        if (!loaderData?.args?.baseParam) return null;
-        if (loaderData.args.categoryIds !== categoryIds) return null;
-        if (loaderData.args.pageSize !== pageSize) return null;
-
-        return { args: loaderData.args.baseParam, apiRes: { IsSuccess: true, Data: loaderData.res.countRes ?? 0, SysMessage: [] } };
-    }, [loaderData, categoryIds, pageSize]);
-
-    const initialList = useMemo<ApiLoaderData<apiComponents["schemas"]["QueryListParam"], SpecMusicalSet[]> | null>(() =>
-    {
-        if (!loaderData?.args?.baseParam) return null;
-        if (loaderData.args.categoryIds !== categoryIds) return null;
-        if (loaderData.args.pageSize !== pageSize) return null;
-
-        return { args: loaderData.args.baseParam, apiRes: { IsSuccess: true, Data: loaderData.res.listRes ?? [], SysMessage: [] } };
-    }, [loaderData, categoryIds, pageSize]);
-
-    // 執行 function：count/list（SSR initial → CSR 接手）
-    const useCount = adapter.hooks.useQueryCount({ condition: baseParam, initial: initialCount, deps: [categoryIds, pageSize] });
-
-    const useList = adapter.hooks.usePagedQueryList({ baseParam, count: useCount.data ?? 0, initial: initialList, deps: [categoryIds, pageSize] });
-
-    // return
-    return {
-        rawData: useList.data ?? [],
-        isLoading: useCount.isLoading || useList.isLoading,
-        error: useCount.errorText ?? useList.errorText ?? null,
-        pageNumber: useList.pageNumber,
-        totalPages: useList.totalPages,
-        onPageChange: useList.onPageChange,
-    };
-};
+//#endregion

@@ -10,7 +10,7 @@ namespace WCMS.SpecFeatures.Spec1819.WEB.SpecJournalIndex;
 /// <summary>
 /// 期刊目次表單
 /// </summary>
-public class SpecJournalIndexSet_DTO : ITSet_DTO
+[LibDesc(SpecModelDisplayName.SpecJournalIndexSet)]public class SpecJournalIndexSet_DTO : ITSet_DTO
 {
     [LibDesc(SpecModelDisplayName.SpecJournalIndex)] public SpecJournalIndexModel_DTO SpecJournalIndex { get; set; }
     [LibDesc(SpecModelDisplayName.SpecJournalIndexDetail)] public List<SpecJournalIndexDetail_DTO>? SpecJournalIndexDetail { get; set; }
