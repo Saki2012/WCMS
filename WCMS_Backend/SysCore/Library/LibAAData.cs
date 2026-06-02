@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using WCMS.Features._Resx;
 using WCMS.SysCore.Library.LibAttribute;
-using WCMS.SysCore.Model;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.Library
@@ -153,6 +152,7 @@ namespace WCMS.SysCore.Library
                 var alt = GetAttr(img, "alt");
                 if (!HasAttr(img, "alt")) { AddAAError(Message, AACode.ImgAlt, img); isValid = false; continue; }
                 if (!HasImageSource(img)) { AddAAError(Message, AACode.ImgAlt, img); isValid = false; }
+                if (string.IsNullOrWhiteSpace(alt) && !CanImageUseEmptyAlt(img)) { AddAAError(Message, AACode.ImgAlt, img, BuildEmptyImageAltReason()); isValid = false; }
                 if (IsSameAsFileName(alt, GetAttr(img, "src"))) { AddAAError(Message, AACode.ImgAlt, img); isValid = false; }
                 if (IsImageAltTooLong(alt)) { AddAAError(Message, AACode.ImgAlt, img, BuildImageAltTooLongReason(alt)); isValid = false; }
                 if (IsWeakInformativeImageAlt(img, contentTitle)) { AddAAError(Message, AACode.ImgAlt, img, BuildWeakImageAltReason()); isValid = false; }
@@ -543,6 +543,42 @@ namespace WCMS.SysCore.Library
             return hasCaption || hasDescribedBy || hasDetailLink;
         }
         /// <summary>
+        /// 判斷圖片是否允許使用空alt
+        /// </summary>
+        private static bool CanImageUseEmptyAlt(HtmlNode img)
+        {
+            var isPresentation = IsPresentationImage(img);
+            var isHidden = IsHiddenFromAssistiveTech(img);
+            var hasAnchorName = HasParentAnchorOwnAccessibleName(img);
+            var hasDetailSupport = HasImageDetailSupport(img);
+            return isPresentation || isHidden || hasAnchorName || hasDetailSupport;
+        }
+        /// <summary>
+        /// 判斷圖片是否標示為裝飾性圖片
+        /// </summary>
+        private static bool IsPresentationImage(HtmlNode img)
+        {
+            var role = GetAttr(img, "role");
+            return string.Equals(role, "presentation", StringComparison.OrdinalIgnoreCase) || string.Equals(role, "none", StringComparison.OrdinalIgnoreCase);
+        }
+        /// <summary>
+        /// 判斷圖片是否已對輔助科技隱藏
+        /// </summary>
+        private static bool IsHiddenFromAssistiveTech(HtmlNode img)
+        {
+            var ariaHidden = GetAttr(img, "aria-hidden");
+            return string.Equals(ariaHidden, "true", StringComparison.OrdinalIgnoreCase) || HasAttr(img, "hidden");
+        }
+        /// <summary>
+        /// 判斷父層連結本身是否已有可辨識名稱
+        /// </summary>
+        private static bool HasParentAnchorOwnAccessibleName(HtmlNode img)
+        {
+            var anchor = img.SelectSingleNode("ancestor::a[@href][1]");
+            if (anchor == null) return false;
+            return !string.IsNullOrWhiteSpace(GetAnchorOwnAccessibleName(anchor));
+        }
+        /// <summary>
         /// 判斷圖片附近是否有語意化圖說
         /// </summary>
         private static bool HasNearbyImageCaption(HtmlNode img)
@@ -612,6 +648,13 @@ namespace WCMS.SysCore.Library
         private static string BuildWeakImageAltReason()
         {
             return "資訊型圖片不可只用圖片標題、圖片、照片等籠統文字作為alt。請以短句描述圖片重點，若內容較多，請在圖片下方補完整說明或提供完整說明頁連結。";
+        }
+        /// <summary>
+        /// 建立空alt未提供替代說明的錯誤原因
+        /// </summary>
+        private static string BuildEmptyImageAltReason()
+        {
+            return """資訊型圖片不可使用空alt。若圖片只是裝飾，請加上role="presentation"、role="none"或aria-hidden="true"；若圖片在連結內，請確認連結本身已有文字、title或aria-label；若圖片含重要資訊，請提供短alt並於圖片下方補完整說明。""";
         }
         /// <summary>
         /// 取得圖片alt長度資訊，中文與全形字折算2，其他字元折算1
