@@ -146,7 +146,8 @@ const TinyMCE_Comp = ({ args }: Props) =>
 
     if (scriptState !== "ready")
     {
-        return <output aria-live="polite">內容編輯器載入中...</output>;
+        // biome-ignore lint/a11y/useSemanticElements: This is a loading live region, not a computed form output.
+        return <div role="status" aria-live="polite">內容編輯器載入中...</div>;
     }
 
     return (

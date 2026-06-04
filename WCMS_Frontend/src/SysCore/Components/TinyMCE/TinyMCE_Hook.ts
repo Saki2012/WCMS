@@ -365,6 +365,7 @@ const resolveTinyMceFileUrl = (
     makeFileUrl?: TinyMceHookOptions["makeFileUrl"],
 ): string =>
 {
-    return makeFileUrl?.(id, { kind }) ?? FileManagementAPI.get_Public_Preview_Url(id);
+    return makeFileUrl?.(id, { kind })
+        ?? (kind === "image" ? FileManagementAPI.get_Public_Preview_Url(id) : FileManagementAPI.get_Public_Download_Url(id));
 };
 // #endregion
