@@ -8,18 +8,12 @@ import {
     validateIframeSrc,
 } from "./tinyMceIframeUtils";
 
+// #region Property
 type InsertIframeDialogData = { url?: string; title?: string; width?: string; height?: string; };
 type EditIframeDialogData = { src: string; "data-mce-src": string; title: string; width: string; height: string; };
+// #endregion
 
-const isIframeObjectWrapper = (editor: TinyMCEEditor, node: Node) =>
-{
-    const el = node as HTMLElement;
-    return editor.dom.hasClass(el, "mce-preview-object")
-        || editor.dom.hasClass(el, "mce-object")
-        || editor.dom.hasClass(el, "mce-object-iframe")
-        || node.nodeName === "FIGURE";
-};
-
+// #region Public
 export const openInsertIframeDialog = (ed: TinyMCEEditor) =>
 {
     ed.windowManager.open({
@@ -183,7 +177,10 @@ export const useTinyMceIframeEdit = (): TinySetup =>
                             "data-mce-p-referrerpolicy": referrerPolicy,
                             "data-mce-p-allowfullscreen": "",
                         };
-                        Object.entries(cacheAttrs).forEach(([k, val]) => setWrap(k, val));
+                        Object.entries(cacheAttrs).forEach(([k, val]) =>
+                        {
+                            setWrap(k, val);
+                        });
                     }
 
                     editor.nodeChanged();
@@ -244,3 +241,15 @@ export const useTinyMceIframeEdit = (): TinySetup =>
 
     return { setup };
 };
+// #endregion
+
+// #region Private
+const isIframeObjectWrapper = (editor: TinyMCEEditor, node: Node) =>
+{
+    const el = node as HTMLElement;
+    return editor.dom.hasClass(el, "mce-preview-object")
+        || editor.dom.hasClass(el, "mce-object")
+        || editor.dom.hasClass(el, "mce-object-iframe")
+        || node.nodeName === "FIGURE";
+};
+// #endregion

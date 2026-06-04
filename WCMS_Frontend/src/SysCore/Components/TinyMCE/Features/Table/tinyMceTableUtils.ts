@@ -1,8 +1,28 @@
+// #region Property
 const TABLE_DIMENSION_SELECTOR = "table,colgroup,col,td,th";
 const TABLE_MARKUP_PATTERN = /<(table|colgroup|col|td|th)\b/i;
 const CSS_DIMENSION_RE = /^\d+(?:\.\d+)?(?:px|%|vh|vw|rem|em)?$/i;
 const NUMERIC_DIMENSION_RE = /^\d+(?:\.\d+)?$/;
+// #endregion
 
+// #region Public
+export const normalizeTableHtmlForEditor = (html: string): string =>
+{
+    return normalizeTableHtml(html);
+};
+
+export const normalizeTableHtmlBeforeSave = (html: string): string =>
+{
+    return normalizeTableHtml(html);
+};
+
+export const normalizePastedTableElement = (root: HTMLElement): void =>
+{
+    normalizeTableDimensions(root);
+};
+// #endregion
+
+// #region Private
 const normalizeDimensionAttribute = (raw: string | null): string | null =>
 {
     const value = `${raw ?? ""}`.trim();
@@ -60,18 +80,4 @@ const normalizeTableHtml = (html: string): string =>
     const changed = normalizeTableDimensions(doc.body);
     return changed ? doc.body.innerHTML : html;
 };
-
-export const normalizeTableHtmlForEditor = (html: string): string =>
-{
-    return normalizeTableHtml(html);
-};
-
-export const normalizeTableHtmlBeforeSave = (html: string): string =>
-{
-    return normalizeTableHtml(html);
-};
-
-export const normalizePastedTableElement = (root: HTMLElement): void =>
-{
-    normalizeTableDimensions(root);
-};
+// #endregion

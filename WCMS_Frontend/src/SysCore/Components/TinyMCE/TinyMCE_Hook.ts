@@ -3,7 +3,7 @@ import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import { MessageStatus, type SysMessageModel } from "@/SysCore/Utils/API/APIBase";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { PGID } from "@/types/SchemaFields";
-import { useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { INTERNAL_ATTR } from "./Core/tinyMceConstants";
 import type { TinyMCEEditor } from "./Core/tinyMceTypes";
 import { useContentTransform } from "./Core/useContentTransform";
@@ -17,14 +17,13 @@ import { openFormattedSourceCodeDialog } from "./Features/Source/tinyMceSourceFe
 import { registerTinyMceTableFeature } from "./Features/Table/tinyMceTableFeature";
 import { normalizePastedTableElement, normalizeTableHtmlBeforeSave, normalizeTableHtmlForEditor } from "./Features/Table/tinyMceTableUtils";
 
-export { INTERNAL_ATTR } from "./Core/tinyMceConstants";
-export { useTinyMceIframeEdit } from "./Features/Iframe/tinyMceIframeFeature";
-export { useTinyMceInternalImage } from "./Features/Image/tinyMceImageFeature";
-
+// #region Property
 type TinyMceInitExtras = Record<string, unknown> & { setup?: (editor: TinyMCEEditor) => void; };
 type TinyMceFilePickerCallback = (url: string, meta?: Record<string, unknown>) => void;
 type TinyMceFilePickerMeta = { filetype?: "file" | "image" | string; };
 type TinyMceContentEvent = { content: string; };
+type TinyMceUploadResult = { isSuccess: boolean; internalId: string; name: string; };
+type TinyMceToastPublish = ReturnType<typeof useToast>["publish"];
 
 export interface TinyMceHookOptions
 {
@@ -43,6 +42,12 @@ export interface TinyMceHookOptions
     baseUrl?: string; // "/tinymce"
     initExtras?: TinyMceInitExtras;
 }
+// #endregion
+
+// #region Public
+export { INTERNAL_ATTR } from "./Core/tinyMceConstants";
+export { useTinyMceIframeEdit } from "./Features/Iframe/tinyMceIframeFeature";
+export { useTinyMceInternalImage } from "./Features/Image/tinyMceImageFeature";
 
 export const useTinyMCE = (p: TinyMceHookOptions) =>
 {
@@ -54,29 +59,15 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
         attrName: INTERNAL_ATTR,
     });
 
-    const uploadAndReturn = async (file: File) =>
+    const uploadAndReturn = useCallback((file: File) =>
     {
-        const api = p.uploadFileApi ?? `${FileManagementAPI.Server_UploadTemp}`;
-        const fd = new FormData();
-        fd.append("file", file);
-        const res = await fetch(api, { method: "POST", body: fd });
-        if (!res.ok) throw new Error("Upload failed");
-        // 後端請回傳 { internalId: "xxx", name: "filename.ext" }
-        const json = await res.json();
-        if (!json.IsSuccess)
-        {
-            (json.SysMessage as SysMessageModel[]).forEach((msg) =>
-            {
-                if (msg.Status === 3)
-                {
-                    publish({ level: MessageStatus.Error, title: msg.MessageCode, text: msg.Message });
-                }
-            });
-        }
-        return { isSuccess: json.IsSuccess, internalId: json.Data[0], name: file.name };
-    };
+        return uploadTinyMceFile(file, p.uploadFileApi ?? `${FileManagementAPI.Server_UploadTemp}`, publish);
+    }, [p.uploadFileApi, publish]);
 
-    const toUrl = (id: string, kind: "file" | "image") => (p.makeFileUrl?.(id, { kind })) ?? FileManagementAPI.get_Public_Preview_Url(id);
+    const toUrl = useCallback((id: string, kind: "file" | "image") =>
+    {
+        return resolveTinyMceFileUrl(id, kind, p.makeFileUrl);
+    }, [p.makeFileUrl]);
 
     const editorInit = useMemo(() =>
     {
@@ -340,8 +331,40 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
             },
             ...(p.initExtras ?? {}),
         } as const;
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [p.id, p.language, p.languageUrl, p.baseUrl, p.uploadFileApi, p.makeFileUrl, p.initExtras, toDb, toEditor]);
+    }, [p.language, p.languageUrl, p.baseUrl, p.initExtras, uploadAndReturn, toDb, toEditor, toUrl]);
 
     return { editorRef, init: editorInit, value: p.value, onChange: p.onChange, uploadAndReturn, toUrl };
 };
+// #endregion
+
+// #region Private
+const uploadTinyMceFile = async (file: File, api: string, publish: TinyMceToastPublish): Promise<TinyMceUploadResult> =>
+{
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch(api, { method: "POST", body: fd });
+    if (!res.ok) throw new Error("Upload failed");
+    // 後端請回傳 { internalId: "xxx", name: "filename.ext" }
+    const json = await res.json();
+    if (!json.IsSuccess)
+    {
+        (json.SysMessage as SysMessageModel[]).forEach((msg) =>
+        {
+            if (msg.Status === 3)
+            {
+                publish({ level: MessageStatus.Error, title: msg.MessageCode, text: msg.Message });
+            }
+        });
+    }
+    return { isSuccess: json.IsSuccess, internalId: json.Data[0], name: file.name };
+};
+
+const resolveTinyMceFileUrl = (
+    id: string,
+    kind: "file" | "image",
+    makeFileUrl?: TinyMceHookOptions["makeFileUrl"],
+): string =>
+{
+    return makeFileUrl?.(id, { kind }) ?? FileManagementAPI.get_Public_Preview_Url(id);
+};
+// #endregion

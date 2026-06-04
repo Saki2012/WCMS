@@ -1,8 +1,11 @@
+// #region Property
 const IFRAME_DIMENSION_RE = /^\d+(?:\.\d+)?(?:px|%|vh|vw|rem|em)?$/i;
 const GOOGLE_MAPS_HOST_PATTERN = /(^|\.)google\.[^/]+$/i;
 const NUMERIC_IFRAME_DIMENSION_RE = /^\d+(?:\.\d+)?$/;
 const PX_IFRAME_DIMENSION_RE = /^\d+(?:\.\d+)?px$/i;
+// #endregion
 
+// #region Public
 // TinyMCE 7 defaults to sandboxing all iframe previews in-editor.
 // Keep that protection, but let Google Maps embeds render normally in the editor preview.
 export const WCMS_TINYMCE_IFRAME_SANDBOX_EXCLUSIONS = [
@@ -19,25 +22,6 @@ export const WCMS_TINYMCE_IFRAME_SANDBOX_EXCLUSIONS = [
     "google.com",
     "maps.google.com",
 ] as const;
-
-const normalizeIframeDimension = (raw: string | undefined, fallback: string): string =>
-{
-    const value = `${raw ?? ""}`.trim();
-    if (!value) return fallback;
-    if (!IFRAME_DIMENSION_RE.test(value)) return fallback;
-    return value.toLowerCase();
-};
-
-const tryParseUrl = (value: string): URL | null =>
-{
-    try
-    {
-        return new URL(value);
-    } catch
-    {
-        return null;
-    }
-};
 
 export const normalizeIframeWidth = (raw?: string): string => normalizeIframeDimension(raw, "100%");
 
@@ -91,3 +75,25 @@ export const getIframeReferrerPolicy = (value: string): string =>
 {
     return isGoogleMapsEmbedUrl(value) ? "no-referrer-when-downgrade" : "strict-origin-when-cross-origin";
 };
+// #endregion
+
+// #region Private
+const normalizeIframeDimension = (raw: string | undefined, fallback: string): string =>
+{
+    const value = `${raw ?? ""}`.trim();
+    if (!value) return fallback;
+    if (!IFRAME_DIMENSION_RE.test(value)) return fallback;
+    return value.toLowerCase();
+};
+
+const tryParseUrl = (value: string): URL | null =>
+{
+    try
+    {
+        return new URL(value);
+    } catch
+    {
+        return null;
+    }
+};
+// #endregion

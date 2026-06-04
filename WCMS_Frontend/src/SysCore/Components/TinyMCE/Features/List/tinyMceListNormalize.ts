@@ -1,5 +1,29 @@
+// #region Property
 const LIST_SELECTOR = "ul,ol";
+// #endregion
 
+// #region Public
+export const normalizeListHtmlBeforeSave = (html: string): string =>
+{
+    if (!html || (!html.includes("<ul") && !html.includes("<ol"))) return html;
+
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    let changed = false;
+    let keepNormalizing = true;
+
+    while (keepNormalizing)
+    {
+        const movedSiblingLists = moveOrphanSiblingListsIntoPreviousItem(doc.body);
+        const collapsedWrappers = collapseEmptyWrapperItems(doc.body);
+        keepNormalizing = movedSiblingLists || collapsedWrappers;
+        changed = changed || keepNormalizing;
+    }
+
+    return changed ? doc.body.innerHTML : html;
+};
+// #endregion
+
+// #region Private
 const isListElement = (node: Element | null): node is HTMLOListElement | HTMLUListElement =>
 {
     return !!node && node.matches(LIST_SELECTOR);
@@ -61,22 +85,4 @@ const collapseEmptyWrapperItems = (root: ParentNode): boolean =>
 
     return changed;
 };
-
-export const normalizeListHtmlBeforeSave = (html: string): string =>
-{
-    if (!html || (!html.includes("<ul") && !html.includes("<ol"))) return html;
-
-    const doc = new DOMParser().parseFromString(html, "text/html");
-    let changed = false;
-    let keepNormalizing = true;
-
-    while (keepNormalizing)
-    {
-        const movedSiblingLists = moveOrphanSiblingListsIntoPreviousItem(doc.body);
-        const collapsedWrappers = collapseEmptyWrapperItems(doc.body);
-        keepNormalizing = movedSiblingLists || collapsedWrappers;
-        changed = changed || keepNormalizing;
-    }
-
-    return changed ? doc.body.innerHTML : html;
-};
+// #endregion

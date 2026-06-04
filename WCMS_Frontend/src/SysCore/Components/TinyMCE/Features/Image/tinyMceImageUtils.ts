@@ -1,13 +1,8 @@
+// #region Property
 const IMAGE_MARKUP_PATTERN = /<img\b/i;
+// #endregion
 
-const hasExplicitDimension = (img: HTMLImageElement, property: "width" | "height"): boolean =>
-{
-    const attributeValue = `${img.getAttribute(property) ?? ""}`.trim();
-    if (attributeValue) return true;
-
-    return img.style.getPropertyValue(property).trim().length > 0;
-};
-
+// #region Public
 export const syncResponsiveImageElement = (img: HTMLImageElement, internalAttr: string): boolean =>
 {
     const hasExplicitSizing = hasExplicitDimension(img, "width") || hasExplicitDimension(img, "height");
@@ -39,15 +34,6 @@ export const syncResponsiveImageClasses = (root: ParentNode, internalAttr: strin
     return changed;
 };
 
-const normalizeImageHtml = (html: string, internalAttr: string): string =>
-{
-    if (!html || !IMAGE_MARKUP_PATTERN.test(html)) return html;
-
-    const doc = new DOMParser().parseFromString(html, "text/html");
-    const changed = syncResponsiveImageClasses(doc.body, internalAttr);
-    return changed ? doc.body.innerHTML : html;
-};
-
 export const normalizeImageHtmlForEditor = (html: string, internalAttr: string): string =>
 {
     return normalizeImageHtml(html, internalAttr);
@@ -57,3 +43,23 @@ export const normalizeImageHtmlBeforeSave = (html: string, internalAttr: string)
 {
     return normalizeImageHtml(html, internalAttr);
 };
+// #endregion
+
+// #region Private
+const hasExplicitDimension = (img: HTMLImageElement, property: "width" | "height"): boolean =>
+{
+    const attributeValue = `${img.getAttribute(property) ?? ""}`.trim();
+    if (attributeValue) return true;
+
+    return img.style.getPropertyValue(property).trim().length > 0;
+};
+
+const normalizeImageHtml = (html: string, internalAttr: string): string =>
+{
+    if (!html || !IMAGE_MARKUP_PATTERN.test(html)) return html;
+
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const changed = syncResponsiveImageClasses(doc.body, internalAttr);
+    return changed ? doc.body.innerHTML : html;
+};
+// #endregion

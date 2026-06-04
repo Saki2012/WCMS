@@ -3,6 +3,7 @@ import type { TinyMCEEditor } from "../../Core/tinyMceTypes";
 import { getIframeReferrerPolicy } from "../Iframe/tinyMceIframeUtils";
 import { normalizeImageHtmlBeforeSave, normalizeImageHtmlForEditor, syncResponsiveImageElement } from "./tinyMceImageUtils";
 
+// #region Property
 export interface UseTinyMceInternalImageOptions
 {
     resolvePreviewUrl: (internalId: string) => string;
@@ -21,34 +22,9 @@ type TinyMceDomEvent = { target?: EventTarget | null; };
 type TinyMceSerializerNode = { attr: (name: string, value?: string | null) => string; parent?: TinyMceSerializerNode; };
 type TinyMceSerializer = { addNodeFilter?: (name: string, callback: (nodes: TinyMceSerializerNode[]) => void) => void; };
 type TinyMceEditorWithSerializer = TinyMCEEditor & { serializer?: TinyMceSerializer; };
+// #endregion
 
-const doTransformForEditor = (html: string, makeSrc: (id: string) => string) =>
-{
-    const doc = new DOMParser().parseFromString(html, "text/html");
-    doc.querySelectorAll<HTMLImageElement>("img").forEach(img =>
-    {
-        const id = img.getAttribute(INTERNAL_ATTR) || "";
-        if (!id) return;
-        const want = makeSrc(id);
-        if (img.getAttribute("src") !== want) img.setAttribute("src", want);
-    });
-    return normalizeImageHtmlForEditor(doc.body.innerHTML, INTERNAL_ATTR);
-};
-
-const doTransformForDb = (html: string, enforceAlt: boolean) =>
-{
-    const doc = new DOMParser().parseFromString(html, "text/html");
-    doc.querySelectorAll<HTMLImageElement>("img").forEach(img =>
-    {
-        if (img.hasAttribute(INTERNAL_ATTR))
-        {
-            img.removeAttribute("src");
-        }
-        if (enforceAlt && !img.hasAttribute("alt")) img.setAttribute("alt", "");
-    });
-    return normalizeImageHtmlBeforeSave(doc.body.innerHTML, INTERNAL_ATTR);
-};
-
+// #region Public
 export const registerInternalImageSync = (editor: TinyMCEEditor, resolvePreviewUrl: (internalId: string) => string, internalAttr = INTERNAL_ATTR) =>
 {
     editor.on("ObjectSelected", (e) =>
@@ -146,3 +122,33 @@ export const useTinyMceInternalImage = (opts: UseTinyMceInternalImageOptions): U
 
     return { setup, transformForEditor, transformForDb } as const;
 };
+// #endregion
+
+// #region Private
+const doTransformForEditor = (html: string, makeSrc: (id: string) => string) =>
+{
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    doc.querySelectorAll<HTMLImageElement>("img").forEach(img =>
+    {
+        const id = img.getAttribute(INTERNAL_ATTR) || "";
+        if (!id) return;
+        const want = makeSrc(id);
+        if (img.getAttribute("src") !== want) img.setAttribute("src", want);
+    });
+    return normalizeImageHtmlForEditor(doc.body.innerHTML, INTERNAL_ATTR);
+};
+
+const doTransformForDb = (html: string, enforceAlt: boolean) =>
+{
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    doc.querySelectorAll<HTMLImageElement>("img").forEach(img =>
+    {
+        if (img.hasAttribute(INTERNAL_ATTR))
+        {
+            img.removeAttribute("src");
+        }
+        if (enforceAlt && !img.hasAttribute("alt")) img.setAttribute("alt", "");
+    });
+    return normalizeImageHtmlBeforeSave(doc.body.innerHTML, INTERNAL_ATTR);
+};
+// #endregion

@@ -1,18 +1,7 @@
 import type { TinyMCEEditor } from "../../Core/tinyMceTypes";
 import { normalizePastedTableElement } from "./tinyMceTableUtils";
 
-const hasCellSelection = (editor: TinyMCEEditor): boolean =>
-{
-    const doc = editor.getDoc();
-    if (!doc) return false;
-
-    const selected = editor.dom.select("td.mce-selected,th.mce-selected", doc);
-    if (selected.length > 0) return true;
-
-    const start = editor.selection.getStart(true);
-    return !!(editor.dom.is(start, "td,th") || editor.dom.getParent(start, "td,th"));
-};
-
+// #region Public
 export const syncEditorTables = (editor: TinyMCEEditor) =>
 {
     const body = editor.getBody();
@@ -40,3 +29,18 @@ export const registerTinyMceTableFeature = (editor: TinyMCEEditor) =>
 
     editor.ui.registry.addMenuItem?.("cellbg", { text: "設定儲存格背景色…", onAction: () => editor.execCommand("mceTableCellProps"), context: "table" });
 };
+// #endregion
+
+// #region Private
+const hasCellSelection = (editor: TinyMCEEditor): boolean =>
+{
+    const doc = editor.getDoc();
+    if (!doc) return false;
+
+    const selected = editor.dom.select("td.mce-selected,th.mce-selected", doc);
+    if (selected.length > 0) return true;
+
+    const start = editor.selection.getStart(true);
+    return !!(editor.dom.is(start, "td,th") || editor.dom.getParent(start, "td,th"));
+};
+// #endregion
