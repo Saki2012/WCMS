@@ -1,4 +1,4 @@
-# AAInputField / EditGrid 使用說明
+# AAInputField for EditGrid 使用說明
 
 這組檔案是 WCMS 後台用的 AA 輸入欄位元件與 EditGrid 表格編輯整合版本。
 

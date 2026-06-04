@@ -631,7 +631,7 @@ h6, .h6, h5, .h5, h4, .h4, h3, .h3, h2, .h2, h1, .h1 {
     border-radius: 0.25rem;
     box-shadow: 0 1px 20px 0 rgba(69,90,100,.08);
     transition: box-shadow 0.2s ease-in-out;
-    margin-bottom: 24px;
+    margin-bottom: 0px;
 }
 /* =============================================================== */
 /* =============================================================== */
@@ -3764,3 +3764,155 @@ span.check-txt span.Iicon.on {
     overflow-y: scroll;
     overflow-x: hidden;
 }
+
+/* EditGrid表 - 運用之CSS 頭 */
+/* EditGrid 專用樣式
+ * 從 EditGrid.tsx 的 EditGridOverflowStyle 完整抽出。
+ * 動態高度、拖曳狀態與欄寬仍由 TSX 的 CSSProperties 計算。
+ */
+
+.edit-grid-root, .edit-grid-root * { box-sizing: border-box; }
+.edit-grid-root .edit-grid-cell-content,
+.edit-grid-root .aa-input-field-cell,
+.edit-grid-root .form-group,
+.edit-grid-root .form-control,
+.edit-grid-root .form-select,
+.edit-grid-root textarea {
+    max-width: 100%;
+    min-width: 0;
+}
+.edit-grid-root .form-text,
+.edit-grid-root .text-danger,
+.edit-grid-root .invalid-feedback,
+.edit-grid-root .edit-grid-cell-content {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+.edit-grid-root input[type="file"].visually-hidden {
+    inline-size: 1px;
+    block-size: 1px;
+    max-inline-size: 1px;
+    max-block-size: 1px;
+}
+.edit-grid-root .edit-grid-scroll-box {
+    position: relative;
+    cursor: grab;
+}
+.edit-grid-root .edit-grid-scroll-box:active {
+    cursor: grabbing;
+}
+.edit-grid-root .edit-grid-table-wrap::before {
+    content: "";
+    border: 2px solid rgb(13 110 253 / 50%);
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease-in-out;
+}
+.edit-grid-root .edit-grid-table-wrap.table-scrolling-red::before {
+    opacity: 1;
+}
+.edit-grid-root .edit-grid-sticky-header-backdrop {
+    inline-size: 100%;
+    box-sizing: border-box;
+}
+.edit-grid-root .edit-grid-scroll-box > table {
+    cursor: grab;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+}
+.edit-grid-root .edit-grid-scroll-box > table > :not(caption) > * > * {
+    border-color: #dee2e6 !important;
+    border-style: solid !important;
+    border-width: 0 !important;
+}
+.edit-grid-root .edit-grid-scroll-box > table > thead,
+.edit-grid-root .edit-grid-scroll-box > table > thead > tr,
+.edit-grid-root .edit-grid-scroll-box > table > thead > tr > th {
+    background-color: #ececec !important;
+}
+.edit-grid-root .edit-grid-scroll-box > table > thead > tr > th,
+.edit-grid-root .edit-grid-scroll-box > table > tbody > tr > td {
+    background-clip: border-box;
+}
+.edit-grid-root .edit-grid-scroll-box > table > thead > tr > th:not(:last-child),
+.edit-grid-root .edit-grid-scroll-box > table > tbody > tr > td:not(:last-child) {
+    border-right-width: 1px !important;
+}
+.edit-grid-root .edit-grid-scroll-box > table > thead > tr > th {
+    border-bottom-width: 1px !important;
+    box-shadow: none !important;
+}
+.edit-grid-root .edit-grid-scroll-box > table > thead > tr > th.sroll-border-top::before{
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: #dee2e6;
+}
+.edit-grid-root .edit-grid-scroll-box > table > tbody > tr:not(:last-child) > td {
+    border-bottom-width: 1px !important;
+}
+.edit-grid-root .edit-grid-scroll-box:focus-visible,
+.edit-grid-root button:focus-visible,
+.edit-grid-root input:focus-visible,
+.edit-grid-root select:focus-visible,
+.edit-grid-root textarea:focus-visible,
+.edit-grid-root [tabindex]:focus-visible,
+.edit-grid-root [role='button']:focus-visible,
+.edit-grid-root [role='combobox']:focus-visible {
+    outline: 3px solid #0d6efd;
+    outline-offset: -2px;
+    box-shadow: 0 0 0 .15rem rgba(13, 110, 253, .25);
+}
+.edit-grid-root .edit-grid-scroll-box:focus-visible {
+    outline-offset: 2px;
+}
+.edit-grid-root .edit-grid-row-drag-handle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2rem;
+}
+.edit-grid-root .edit-grid-row-dragging > td {
+    opacity: .45;
+    background: #f8f9fa;
+}
+.edit-grid-root .edit-grid-row-drop-placeholder > td {
+    padding: 0;
+    background: transparent;
+}
+.edit-grid-root .edit-grid-row-drop-placeholder-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3rem;
+    border: 2px dashed #0d6efd;
+    border-radius: 0;
+    color: #0d6efd;
+    background: rgba(13, 110, 253, .06);
+    font-size: .875rem;
+}
+.edit-grid-drag-floating {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .35rem .55rem;
+    border: 1px solid rgba(13, 110, 253, .35);
+    border-radius: .5rem;
+    color: #0d6efd;
+    background: #fff;
+    box-shadow: 0 .35rem 1rem rgba(0, 0, 0, .16);
+    font-size: .875rem;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+/* EditGrid表 - 運用之CSS 尾 */

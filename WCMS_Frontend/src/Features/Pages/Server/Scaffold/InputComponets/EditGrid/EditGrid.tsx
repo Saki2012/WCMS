@@ -11,12 +11,14 @@ import {
     type ReactNode,
     type RefObject,
     type SetStateAction,
+    type WheelEvent as ReactWheelEvent,
     useEffect,
     useMemo,
     useRef,
     useState,
 } from "react";
 import { createPortal } from "react-dom";
+// import "./EditGrid.css";
 import type {
     ColumnConfig,
     EditGridCellRenderArgs,
@@ -42,9 +44,10 @@ const ROW_NO_COLUMN_KEY = "__editGridRowNo";
 const ACTION_COLUMN_DEFAULT_WIDTH = 148;
 const ROW_NO_COLUMN_DEFAULT_WIDTH = 80;
 const DEFAULT_MAX_VISIBLE_ROWS = 5;
-const DEFAULT_ROW_ESTIMATED_HEIGHT_PX = 64;
+const DEFAULT_SCROLL_BOX_FIXED_HEIGHT_PX = 450;
 const DEFAULT_HEADER_ESTIMATED_HEIGHT_PX = 46;
-const SCROLL_BOX_HEIGHT_RESERVED_PX = 4;
+const DEFAULT_ROW_ESTIMATED_HEIGHT_PX = 68;
+const EDIT_GRID_DESKTOP_BREAKPOINT_PX = 1024;
 
 const EmptyGridData: GridProps = { columns: [], rows: [], CurrentPage: 1, TotalPage: 1, onPageChange: () => undefined };
 type EditGridDragPlacement = "before" | "after";
@@ -52,6 +55,20 @@ interface EditGridDragPointer
 {
     x: number;
     y: number;
+}
+
+interface EditGridDragTarget
+{
+    rowIndex: number;
+    placement: EditGridDragPlacement;
+}
+
+interface EditGridPointerRowRect
+{
+    rowIndex: number;
+    top: number;
+    bottom: number;
+    height: number;
 }
 
 // [Fix] 全域自增 ID，避免新增/刪除後 new-${rowIndex} key 碰撞
@@ -76,10 +93,12 @@ export const EditGrid = (props: EditGridProps) =>
     const [backupMap, setBackupMap] = useState<Record<string, GridRow>>({});
     const pendingAddedRowIndexRef = useRef<number | null>(null);
     const scrollBoxRef = useRef<HTMLDivElement>(null);
+    const isDesktopViewport = useEditGridDesktopViewport(EDIT_GRID_DESKTOP_BREAKPOINT_PX);
+    const tableScroll = useEditGridTableScrollClass(isDesktopViewport);
     const grabScroll = useEditGridGrabScroll(scrollBoxRef);
     // [Fix] dragAutoScroll 回傳的 onDragOver 先前未使用，現改由 moveRowDrag 呼叫自動捲動，hook 僅需觸發 cleanup
     useEditGridDragAutoScroll(scrollBoxRef, dragIndex);
-    useEditGridDragWheelScroll(scrollBoxRef, dragIndex);
+    useEditGridDragWheelScroll(scrollBoxRef, dragIndex, setDragOverIndex, setDragPlacement, setDragPointer);
 
     const storageKey = props.storageKey ?? "edit-grid-col-widths";
     const [systemWidths, setSystemWidths] = useState<Record<string, number>>(() => readSavedWidths(storageKey));
@@ -115,9 +134,11 @@ export const EditGrid = (props: EditGridProps) =>
     ]);
     const shouldScroll = useShouldUseXScroll(props.scrollBreakpoint ?? tableMinWidth);
     const maxVisibleRows = normalizeMaxVisibleRows(props.maxVisibleRows);
-    const estimatedRowHeightPx = normalizePositivePixel(props.estimatedRowHeightPx, DEFAULT_ROW_ESTIMATED_HEIGHT_PX);
     const estimatedHeaderHeightPx = normalizePositivePixel(props.estimatedHeaderHeightPx, DEFAULT_HEADER_ESTIMATED_HEIGHT_PX);
-    const shouldUseYScroll = shouldUseVerticalScroll(rows.length, maxVisibleRows);
+    const estimatedRowHeightPx = normalizePositivePixel(props.estimatedRowHeightPx, DEFAULT_ROW_ESTIMATED_HEIGHT_PX);
+    const shouldUseYScroll = shouldUseVerticalScroll(isDesktopViewport, rows.length, maxVisibleRows);
+    const measuredHeaderHeightPx = useEditGridMeasuredHeaderHeight(scrollBoxRef, rows, shouldUseYScroll, estimatedHeaderHeightPx);
+    const isHeaderScrolled = useEditGridHeaderScrolled(scrollBoxRef, shouldUseYScroll);
     const errors = useMemo(() => buildErrorMap(rows, visibleColumns), [rows, visibleColumns]);
 
     /** 外部 GridData 內容真的變更時才同步，避免父層每次 render 給新物件造成循環。 */
@@ -204,11 +225,40 @@ export const EditGrid = (props: EditGridProps) =>
     const dragPreviewTargetRowNo = getDragPreviewTargetRowNo(rows, dragIndex, dragOverIndex, dragPlacement);
     const dragPreviewText = dragIndex === null || !dragPreviewRow ? "" : getDragPreviewText(getRowNo(dragPreviewRow, dragIndex), dragPreviewTargetRowNo);
 
+    /** 保留原本水平拖曳捲動行為。 */
+    const handleScrollBoxPointerDown = (event: ReactPointerEvent<HTMLDivElement>) =>
+    {
+        grabScroll.onPointerDown(event);
+    };
+
+    /** 拖曳表格捲動時同步原本水平捲動位置。 */
+    const handleScrollBoxPointerMove = (event: ReactPointerEvent<HTMLDivElement>) =>
+    {
+        grabScroll.onPointerMove(event);
+    };
+
+    /** 結束指標操作。 */
+    const handleScrollBoxPointerUp = (event: ReactPointerEvent<HTMLDivElement>) =>
+    {
+        grabScroll.onPointerUp(event);
+    };
+
+    /** 鍵盤移動捲動區時保留原本水平捲動行為。 */
+    const handleScrollBoxKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) =>
+    {
+        grabScroll.onKeyDown(event);
+    };
+
+    /** 表格內滾輪只捲動 EditGrid，避免連動整頁滾動。 */
+    const handleScrollBoxWheel = (event: ReactWheelEvent<HTMLDivElement>) =>
+    {
+        preventPageWheelWhenTableScrolling(scrollBoxRef.current, event);
+    };
+
     return (
         <div className="edit-grid-root" style={getEditGridRootStyle()}>
-            <EditGridOverflowStyle />
             <EditGridToolbar props={props} canAdd={canAdd} onAdd={addRow} />
-            <div className="edit-grid-table-wrap" style={getEditGridTableWrapStyle()}>
+            <div className={getEditGridTableWrapClassName(tableScroll.isActive)} style={getEditGridTableWrapStyle()}>
                 <div
                     ref={scrollBoxRef}
                     className="edit-grid-scroll-box"
@@ -216,21 +266,22 @@ export const EditGrid = (props: EditGridProps) =>
                         shouldScroll,
                         grabScroll.isDragging,
                         shouldUseYScroll,
-                        maxVisibleRows,
-                        estimatedRowHeightPx,
-                        estimatedHeaderHeightPx,
                     )}
                     tabIndex={0}
                     role="region"
                     aria-label="可水平拖曳捲動的表格區塊"
-                    onPointerDown={grabScroll.onPointerDown}
-                    onPointerMove={grabScroll.onPointerMove}
-                    onPointerUp={grabScroll.onPointerUp}
-                    onPointerCancel={grabScroll.onPointerUp}
-                    onKeyDown={grabScroll.onKeyDown}
+                    onMouseEnter={tableScroll.markMouseInside}
+                    onMouseLeave={tableScroll.markMouseOutside}
+                    onWheel={handleScrollBoxWheel}
+                    onPointerDown={handleScrollBoxPointerDown}
+                    onPointerMove={handleScrollBoxPointerMove}
+                    onPointerUp={handleScrollBoxPointerUp}
+                    onPointerCancel={handleScrollBoxPointerUp}
+                    onKeyDown={handleScrollBoxKeyDown}
                 >
+                    <EditGridStickyHeaderBackdrop enabled={shouldUseYScroll} heightPx={measuredHeaderHeightPx} />
                     <table
-                        className={props.style?.TableStyle ?? "table table-striped table-bordered table-hover"}
+                        className={props.style?.TableStyle ?? "table table-striped table-bordered table-hover mb-1"}
                         style={getTableStyle(shouldScroll, tableMinWidth)}
                         aria-label={props.ariaLabel ?? props.title ?? "可編輯資料表格"}
                     >
@@ -247,6 +298,7 @@ export const EditGrid = (props: EditGridProps) =>
                             showRowNo={props.showRowNo === true}
                             actionWidth={actionColumnWidth}
                             rowNoWidth={rowNoColumnWidth}
+                            isHeaderScrolled={isHeaderScrolled}
                             style={props.style}
                             actionTitle={props.actionColumnTitle}
                             onResize={resizeAnyColumn}
@@ -387,6 +439,7 @@ const EditGridHeader = (
         showRowNo: boolean;
         actionWidth: number;
         rowNoWidth: number;
+        isHeaderScrolled: boolean;
         style?: IEditGridView_Style;
         actionTitle?: string;
         onResize: (key: string, width: number, persist?: boolean) => void;
@@ -394,6 +447,8 @@ const EditGridHeader = (
     },
 ) =>
 {
+    const headerClassName = getEditGridHeaderClassName(props.style?.ColumnStyle, props.isHeaderScrolled);
+
     return (
         <thead>
             {/* [Fix] 移除殘留 className="111" */}
@@ -401,7 +456,7 @@ const EditGridHeader = (
                 {props.hasActionCell && (
                     <th
                         scope="col"
-                        className={props.style?.ColumnStyle}
+                        className={headerClassName}
                         style={getEditGridHeaderCellStyle({ width: toCssWidth(props.actionWidth), minWidth: toCssWidth(120) })}
                     >
                         {props.actionTitle ?? "動作"}
@@ -411,7 +466,7 @@ const EditGridHeader = (
                 {props.showRowNo && (
                     <th
                         scope="col"
-                        className={props.style?.ColumnStyle}
+                        className={headerClassName}
                         style={getEditGridHeaderCellStyle({ width: toCssWidth(props.rowNoWidth), minWidth: toCssWidth(64) })}
                     >
                         序號
@@ -424,7 +479,7 @@ const EditGridHeader = (
                         key={col.key}
                         id={col.key}
                         scope="col"
-                        className={props.style?.ColumnStyle}
+                        className={headerClassName}
                         style={getEditGridHeaderCellStyle({ width: toCssWidth(col.width), minWidth: toCssWidth(col.minWidth) })}
                     >
                         {col.title}
@@ -434,6 +489,22 @@ const EditGridHeader = (
             </tr>
         </thead>
     );
+};
+
+/** 組合表頭欄位 class，下滑後才補上 sroll-border-top 頂線 class。 */
+const getEditGridHeaderClassName = (sourceClassName: string | undefined, isHeaderScrolled: boolean) =>
+{
+    const classNames = [sourceClassName, isHeaderScrolled ? "sroll-border-top" : ""].filter(Boolean);
+
+    return classNames.join(" ");
+};
+
+/** 建立 sticky 表頭背板，遮住 th 縫隙並提供不會被 tbody 捲走的單一底線。 */
+const EditGridStickyHeaderBackdrop = (props: { enabled: boolean; heightPx: number; }) =>
+{
+    if (!props.enabled) return null;
+
+    return <div className="edit-grid-sticky-header-backdrop" aria-hidden="true" style={getStickyHeaderBackdropStyle(props.heightPx)} />;
 };
 
 /** 欄位拖曳控制點，保存使用者調整後的欄寬。 */
@@ -1084,6 +1155,119 @@ const useShouldUseXScroll = (breakpoint: number) =>
     return shouldScroll;
 };
 
+/** 判斷目前是否為電腦版寬度，避免手機版被固定 5 列高度。 */
+const useEditGridDesktopViewport = (breakpoint: number) =>
+{
+    const [isDesktop, setIsDesktop] = useState(false);
+
+    useEffect(() =>
+    {
+        const update = () => setIsDesktop(typeof window !== "undefined" && window.innerWidth >= breakpoint);
+        update();
+        window.addEventListener("resize", update);
+        return () => window.removeEventListener("resize", update);
+    }, [breakpoint]);
+
+    return isDesktop;
+};
+
+/** 管理表格外框狀態：1024px 以上滑鼠在表格內才顯示紅框 class。 */
+const useEditGridTableScrollClass = (isDesktop: boolean) =>
+{
+    const [isMouseInside, setIsMouseInside] = useState(false);
+
+    /** 滑鼠進入表格區時，桌機版才補上外框 class。 */
+    const markMouseInside = () =>
+    {
+        if (!isDesktop) return;
+        setIsMouseInside(true);
+    };
+
+    /** 滑鼠離開表格區時移除外框 class。 */
+    const markMouseOutside = () => setIsMouseInside(false);
+
+    /** 視窗切到非桌機版時，主動清除外框狀態。 */
+    useEffect(() =>
+    {
+        if (!isDesktop) setIsMouseInside(false);
+    }, [isDesktop]);
+
+    return { isActive: isDesktop && isMouseInside, markMouseInside, markMouseOutside };
+};
+
+/** 實測 sticky 表頭高度，讓背板可完整遮住表頭下方縫隙。 */
+/** 偵測表格是否已向下捲動，控制 sticky thead 是否補上頂線 class。 */
+const useEditGridHeaderScrolled = (scrollBoxRef: RefObject<HTMLDivElement>, shouldUseYScroll: boolean) =>
+{
+    const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
+
+    useEffect(() =>
+    {
+        const scrollBox = scrollBoxRef.current;
+        if (!scrollBox || !shouldUseYScroll)
+        {
+            setIsHeaderScrolled(false);
+            return;
+        }
+
+        const syncHeaderScrolled = () => setIsHeaderScrolled(scrollBox.scrollTop > 0);
+
+        syncHeaderScrolled();
+        scrollBox.addEventListener("scroll", syncHeaderScrolled, { passive: true });
+
+        return () => scrollBox.removeEventListener("scroll", syncHeaderScrolled);
+    }, [scrollBoxRef, shouldUseYScroll]);
+
+    return isHeaderScrolled;
+};
+
+const useEditGridMeasuredHeaderHeight = (
+    scrollBoxRef: RefObject<HTMLDivElement>,
+    rows: GridRow[],
+    shouldUseYScroll: boolean,
+    fallbackHeightPx: number,
+) =>
+{
+    const [headerHeightPx, setHeaderHeightPx] = useState(fallbackHeightPx);
+
+    useEffect(() =>
+    {
+        if (!shouldUseYScroll || typeof window === "undefined")
+        {
+            setHeaderHeightPx(fallbackHeightPx);
+            return;
+        }
+
+        const scrollBox = scrollBoxRef.current;
+        if (!scrollBox) return;
+
+        const syncHeight = () => setHeaderHeightPx(getMeasuredHeaderHeight(scrollBox, fallbackHeightPx));
+        const frameId = window.requestAnimationFrame(syncHeight);
+        const observer = createEditGridResizeObserver(scrollBox, syncHeight);
+        window.addEventListener("resize", syncHeight);
+
+        return () =>
+        {
+            window.cancelAnimationFrame(frameId);
+            observer?.disconnect();
+            window.removeEventListener("resize", syncHeight);
+        };
+    }, [fallbackHeightPx, rows, scrollBoxRef, shouldUseYScroll]);
+
+    return headerHeightPx;
+};
+
+/** 建立 ResizeObserver，瀏覽器不支援時回傳 null，避免 SSR/舊瀏覽器錯誤。 */
+const createEditGridResizeObserver = (target: HTMLElement, onResize: () => void): ResizeObserver | null =>
+{
+    if (typeof ResizeObserver === "undefined") return null;
+
+    const observer = new ResizeObserver(() => onResize());
+    observer.observe(target);
+
+    return observer;
+};
+
 /** 讓 EditGrid 可用滑鼠拖曳方式水平捲動，不必精準拉底部 scrollbar。 */
 const useEditGridGrabScroll = (scrollBoxRef: RefObject<HTMLDivElement>) =>
 {
@@ -1193,6 +1377,57 @@ interface EditGridGrabScrollState
     startScrollLeft: number;
 }
 
+/** 表格有可捲動內容時攔截滾輪，避免捲到頂或底後連動整頁。 */
+const preventPageWheelWhenTableScrolling = (scrollBox: HTMLDivElement | null, event: ReactWheelEvent<HTMLDivElement>): void =>
+{
+    if (!scrollBox || shouldIgnoreTableWheel(event.target)) return;
+    if (!shouldHandleTableWheel(scrollBox, event)) return;
+
+    scrollEditGridByReactWheel(scrollBox, event);
+    event.preventDefault();
+    event.stopPropagation();
+};
+
+/** 避免在可自行處理滾輪的內部元件中攔截，例如 textarea 或下拉清單。 */
+const shouldIgnoreTableWheel = (target: EventTarget | null): boolean =>
+{
+    if (!(target instanceof HTMLElement)) return true;
+    return Boolean(target.closest(getTableWheelIgnoreSelector()));
+};
+
+/** 取得表格滾輪攔截忽略清單。 */
+const getTableWheelIgnoreSelector = (): string =>
+{
+    return [
+        "textarea",
+        "select",
+        "[role='listbox']",
+        "[data-edit-grid-allow-page-wheel='true']",
+    ].join(", ");
+};
+
+/** 判斷此次滾輪是否應由 EditGrid 承接。 */
+const shouldHandleTableWheel = (scrollBox: HTMLElement, event: ReactWheelEvent<HTMLDivElement>): boolean =>
+{
+    if (shouldWheelScrollHorizontally(event.nativeEvent)) return canScrollHorizontally(scrollBox);
+    return canScrollVertically(scrollBox);
+};
+
+/** 依 React 滾輪事件捲動 EditGrid 容器。 */
+const scrollEditGridByReactWheel = (scrollBox: HTMLElement, event: ReactWheelEvent<HTMLDivElement>): void =>
+{
+    if (shouldWheelScrollHorizontally(event.nativeEvent))
+    {
+        scrollBox.scrollLeft += event.shiftKey ? event.deltaY : event.deltaX;
+        return;
+    }
+
+    scrollBox.scrollTop += event.deltaY;
+};
+
+/** 判斷指定容器是否可水平捲動。 */
+const canScrollHorizontally = (element: HTMLElement): boolean => element.scrollWidth > element.clientWidth;
+
 /** 拖曳排序期間依游標靠近上下邊界自動捲動，補足瀏覽器原生 drag 常不派發 wheel 的限制。
  *  [Fix] hook 不再回傳 onDragOver（原先回傳但從未被綁定到任何元素），
  *        自動捲動改由 movePointerRowDrag 內的 scrollWindowByPointerPosition 統一處理。 */
@@ -1210,8 +1445,14 @@ const useEditGridDragAutoScroll = (_scrollBoxRef: RefObject<HTMLDivElement>, dra
     }, [dragIndex]);
 };
 
-/** 拖拉排序期間允許使用滑鼠滾輪移動畫面，避免長表格排序時需要先放開拖曳。 */
-const useEditGridDragWheelScroll = (scrollBoxRef: RefObject<HTMLDivElement>, dragIndex: number | null) =>
+/** 拖拉排序期間允許使用滑鼠滾輪移動畫面，並在滾動後同步更新放置位置。 */
+const useEditGridDragWheelScroll = (
+    scrollBoxRef: RefObject<HTMLDivElement>,
+    dragIndex: number | null,
+    setDragOverIndex: (rowIndex: number | null) => void,
+    setDragPlacement: (placement: EditGridDragPlacement) => void,
+    setDragPointer: (pointer: EditGridDragPointer | null) => void,
+) =>
 {
     useEffect(() =>
     {
@@ -1222,20 +1463,75 @@ const useEditGridDragWheelScroll = (scrollBoxRef: RefObject<HTMLDivElement>, dra
             const scrollBox = scrollBoxRef.current;
             if (!scrollBox) return;
 
-            if (shouldWheelScrollHorizontally(event))
-            {
-                scrollBox.scrollLeft += event.shiftKey ? event.deltaY : event.deltaX;
-                event.preventDefault();
-                return;
-            }
-
-            window.scrollBy({ top: event.deltaY, left: 0, behavior: "auto" });
+            setDragPointer({ x: event.clientX, y: event.clientY });
+            handleDragWheelScroll(scrollBox, event);
+            updateDragTargetAfterWheel(scrollBox, event.clientY, dragIndex, setDragOverIndex, setDragPlacement);
             event.preventDefault();
         };
 
         window.addEventListener("wheel", handleWheel, { passive: false, capture: true });
         return () => window.removeEventListener("wheel", handleWheel, { capture: true });
-    }, [dragIndex, scrollBoxRef]);
+    }, [dragIndex, scrollBoxRef, setDragOverIndex, setDragPlacement, setDragPointer]);
+};
+
+/** 依滾輪方向處理拖曳中的水平或垂直捲動。 */
+const handleDragWheelScroll = (scrollBox: HTMLElement, event: WheelEvent) =>
+{
+    if (shouldWheelScrollHorizontally(event))
+    {
+        scrollBox.scrollLeft += event.shiftKey ? event.deltaY : event.deltaX;
+        return;
+    }
+
+    scrollEditGridByWheel(scrollBox, event.deltaY);
+};
+
+/** 拖曳中優先捲動 EditGrid 容器；容器到頂/到底後才捲動頁面。 */
+const scrollEditGridByWheel = (scrollBox: HTMLElement, deltaY: number) =>
+{
+    if (canScrollElementByDelta(scrollBox, deltaY))
+    {
+        scrollBox.scrollTop += deltaY;
+        return;
+    }
+
+    window.scrollBy({ top: deltaY, left: 0, behavior: "auto" });
+};
+
+/** 滾輪捲動後等畫面位置更新，再重新計算目前應放置的資料列。 */
+const updateDragTargetAfterWheel = (
+    scrollBox: HTMLElement,
+    clientY: number,
+    dragIndex: number,
+    setDragOverIndex: (rowIndex: number | null) => void,
+    setDragPlacement: (placement: EditGridDragPlacement) => void,
+) =>
+{
+    window.requestAnimationFrame(() => syncDragTargetByPointer(scrollBox, clientY, dragIndex, setDragOverIndex, setDragPlacement));
+};
+
+/** 依目前游標位置同步拖曳放置目標。 */
+const syncDragTargetByPointer = (
+    sourceElement: HTMLElement,
+    clientY: number,
+    dragIndex: number,
+    setDragOverIndex: (rowIndex: number | null) => void,
+    setDragPlacement: (placement: EditGridDragPlacement) => void,
+) =>
+{
+    const target = findPointerRowTarget(sourceElement, clientY);
+    if (!target || target.rowIndex === dragIndex) { setDragOverIndex(null); return; }
+
+    setDragOverIndex(target.rowIndex);
+    setDragPlacement(target.placement);
+};
+
+/** 判斷指定容器是否可依滾輪方向繼續垂直捲動。 */
+const canScrollElementByDelta = (element: HTMLElement, deltaY: number) =>
+{
+    if (!canScrollVertically(element) || deltaY === 0) return false;
+    if (deltaY < 0) return element.scrollTop > 0;
+    return Math.ceil(element.scrollTop + element.clientHeight) < element.scrollHeight;
 };
 
 /** 依拖曳游標位置取得垂直自動捲動速度。 */
@@ -1836,9 +2132,9 @@ const movePointerRowDrag = (
 
     event.preventDefault();
     setDragPointer({ x: event.clientX, y: event.clientY });
-    scrollWindowByPointerPosition(event.clientY);
+    scrollDragContainerByPointerPosition(event.currentTarget, event.clientY);
 
-    const target = findPointerRowTarget(event.clientX, event.clientY);
+    const target = findPointerRowTarget(event.currentTarget, event.clientY);
     if (!target || target.rowIndex === dragIndex)
     {
         setDragOverIndex(null);
@@ -1875,27 +2171,120 @@ const endPointerRowDrag = (
     clearDragState(setDragIndex, setDragOverIndex, setDragPlacement, setDragPointer);
 };
 
-/** 找出目前游標所在資料列與上/下半部。 */
-const findPointerRowTarget = (clientX: number, clientY: number) =>
+/** 找出目前游標最接近的資料列邊界，避免游標落在 placeholder 時失去目標。 */
+const findPointerRowTarget = (sourceElement: HTMLElement, clientY: number): EditGridDragTarget | null =>
 {
-    if (typeof document === "undefined") return null;
+    const table = getDragSourceTable(sourceElement);
+    const rowRects = getPointerRowRects(table);
 
-    const element = document.elementFromPoint(clientX, clientY);
-    const row = element?.closest("tr[data-edit-grid-row-index]") as HTMLTableRowElement | null;
-    if (!row) return null;
+    if (rowRects.length === 0) return null;
+
+    return resolvePointerRowTarget(rowRects, clientY);
+};
+
+/** 從拖曳把手或捲動容器取得目前 EditGrid 的 table。 */
+const getDragSourceTable = (sourceElement: HTMLElement): HTMLTableElement | null =>
+{
+    const closestTable = sourceElement.closest("table") as HTMLTableElement | null;
+    if (closestTable) return closestTable;
+
+    return sourceElement.querySelector("table") as HTMLTableElement | null;
+};
+
+/** 取得目前表格內可排序列的位置資訊。 */
+const getPointerRowRects = (table: HTMLTableElement | null): EditGridPointerRowRect[] =>
+{
+    const bodyRows = Array.from(table?.tBodies.item(0)?.rows ?? []);
+    return bodyRows.map(getPointerRowRect).filter(isPointerRowRect);
+};
+
+/** 取得單一資料列的位置資訊。 */
+const getPointerRowRect = (row: HTMLTableRowElement): EditGridPointerRowRect | null =>
+{
+    if (!row.hasAttribute("data-edit-grid-row-index")) return null;
 
     const rowIndex = Number(row.dataset.editGridRowIndex);
     if (!Number.isFinite(rowIndex)) return null;
 
     const rect = row.getBoundingClientRect();
-    const placement: EditGridDragPlacement = clientY <= rect.top + rect.height / 2 ? "before" : "after";
-
-    return { rowIndex, placement };
+    return rect.height <= 0 ? null : { rowIndex, top: rect.top, bottom: rect.bottom, height: rect.height };
 };
+
+/** 過濾不可用的資料列位置資訊。 */
+const isPointerRowRect = (rowRect: EditGridPointerRowRect | null): rowRect is EditGridPointerRowRect => rowRect !== null;
+
+/** 依游標 Y 座標解析最精準的放置目標。 */
+const resolvePointerRowTarget = (rowRects: EditGridPointerRowRect[], clientY: number): EditGridDragTarget =>
+{
+    const firstRow = rowRects[0];
+    const lastRow = rowRects[rowRects.length - 1];
+    const hitRow = rowRects.find(rowRect => clientY >= rowRect.top && clientY <= rowRect.bottom);
+
+    if (clientY <= firstRow.top) return { rowIndex: firstRow.rowIndex, placement: "before" };
+    if (clientY >= lastRow.bottom) return { rowIndex: lastRow.rowIndex, placement: "after" };
+    if (hitRow) return getPointerRowHalfTarget(hitRow, clientY);
+
+    return getNearestPointerRowBoundaryTarget(rowRects, clientY);
+};
+
+/** 依資料列上下半部決定放在該列之前或之後。 */
+const getPointerRowHalfTarget = (rowRect: EditGridPointerRowRect, clientY: number): EditGridDragTarget =>
+{
+    const middleY = rowRect.top + rowRect.height / 2;
+    return { rowIndex: rowRect.rowIndex, placement: clientY <= middleY ? "before" : "after" };
+};
+
+/** 游標落在列與列之間時，改抓最近的資料列邊界。 */
+const getNearestPointerRowBoundaryTarget = (rowRects: EditGridPointerRowRect[], clientY: number): EditGridDragTarget =>
+{
+    const nearest = rowRects.reduce(getNearestPointerBoundaryReducer(clientY), getDefaultPointerBoundary(rowRects[0], clientY));
+    return { rowIndex: nearest.rowIndex, placement: nearest.placement };
+};
+
+/** 建立最近邊界比對的初始值。 */
+const getDefaultPointerBoundary = (rowRect: EditGridPointerRowRect, clientY: number) =>
+{
+    return { rowIndex: rowRect.rowIndex, placement: "before" as EditGridDragPlacement, distance: Math.abs(clientY - rowRect.top) };
+};
+
+/** 建立最近邊界比對器。 */
+const getNearestPointerBoundaryReducer = (clientY: number) =>
+{
+    return (nearest: ReturnType<typeof getDefaultPointerBoundary>, rowRect: EditGridPointerRowRect) =>
+    {
+        const before = getPointerBoundaryDistance(rowRect, clientY, "before");
+        const after = getPointerBoundaryDistance(rowRect, clientY, "after");
+        const current = before.distance <= after.distance ? before : after;
+        return current.distance < nearest.distance ? current : nearest;
+    };
+};
+
+/** 計算游標與資料列指定邊界的距離。 */
+const getPointerBoundaryDistance = (rowRect: EditGridPointerRowRect, clientY: number, placement: EditGridDragPlacement) =>
+{
+    const boundaryY = placement === "before" ? rowRect.top : rowRect.bottom;
+    return { rowIndex: rowRect.rowIndex, placement, distance: Math.abs(clientY - boundaryY) };
+};
+
+/** 游標靠近 Grid 或視窗上下邊界時自動垂直捲動。 */
+const scrollDragContainerByPointerPosition = (sourceElement: HTMLElement, clientY: number) =>
+{
+    const scrollBox = sourceElement.closest(".edit-grid-scroll-box") as HTMLElement | null;
+    if (!scrollBox || !canScrollVertically(scrollBox)) { scrollWindowByPointerPosition(clientY); return; }
+
+    const rect = scrollBox.getBoundingClientRect();
+    const offset = getDragAutoScrollOffset(clientY - rect.top, rect.height);
+    if (offset !== 0) scrollBox.scrollTop += offset;
+};
+
+/** 判斷指定容器是否可垂直捲動。 */
+const canScrollVertically = (element: HTMLElement) => element.scrollHeight > element.clientHeight;
 
 /** 游標靠近視窗上下邊界時自動垂直捲動。 */
 const scrollWindowByPointerPosition = (clientY: number) =>
 {
+    if (typeof window === "undefined") return;
+
     const offset = getDragAutoScrollOffset(clientY, window.innerHeight);
     if (offset !== 0) window.scrollBy({ top: offset, left: 0, behavior: "auto" });
 };
@@ -2151,6 +2540,14 @@ const getFileKind = (file: EditGridFileValue): "image" | "video" | "file" =>
 
 // #region Private Style Helpers
 
+/** 取得表格外框 className，捲動中會補上紅框狀態 class。 */
+const getEditGridTableWrapClassName = (isScrolling: boolean) =>
+{
+    const classList = ["edit-grid-table-wrap", isScrolling ? "table-scrolling-red" : ""];
+
+    return classList.filter(Boolean).join(" ");
+};
+
 /** 取得資料列 className。 */
 const getRowClassName = (rowIndex: number, style?: IEditGridView_Style, dragIndex?: number | null) =>
 {
@@ -2160,103 +2557,29 @@ const getRowClassName = (rowIndex: number, style?: IEditGridView_Style, dragInde
     return classList.join(" ").trim();
 };
 
-/** EditGrid 局部 overflow 樣式，避免編輯模式下 AAInputField 內容撐出 body 水平捲軸。 */
-const EditGridOverflowStyle = () =>
-{
-    return (
-        <style>
-            {`
-            .edit-grid-root, .edit-grid-root * { box-sizing: border-box; }
-            .edit-grid-root .edit-grid-cell-content,
-            .edit-grid-root .aa-input-field-cell,
-            .edit-grid-root .form-group,
-            .edit-grid-root .form-control,
-            .edit-grid-root .form-select,
-            .edit-grid-root textarea {
-                max-width: 100%;
-                min-width: 0;
-            }
-            .edit-grid-root .form-text,
-            .edit-grid-root .text-danger,
-            .edit-grid-root .invalid-feedback,
-            .edit-grid-root .edit-grid-cell-content {
-                overflow-wrap: anywhere;
-                word-break: break-word;
-            }
-            .edit-grid-root input[type="file"].visually-hidden {
-                inline-size: 1px;
-                block-size: 1px;
-                max-inline-size: 1px;
-                max-block-size: 1px;
-            }
-            .edit-grid-root thead th {
-                box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .08);
-            }
-            .edit-grid-root .edit-grid-scroll-box:focus-visible,
-            .edit-grid-root button:focus-visible,
-            .edit-grid-root input:focus-visible,
-            .edit-grid-root select:focus-visible,
-            .edit-grid-root textarea:focus-visible,
-            .edit-grid-root [tabindex]:focus-visible,
-            .edit-grid-root [role='button']:focus-visible,
-            .edit-grid-root [role='combobox']:focus-visible {
-                outline: 3px solid #0d6efd;
-                outline-offset: -2px;
-                box-shadow: 0 0 0 .15rem rgba(13, 110, 253, .25);
-            }
-            .edit-grid-root .edit-grid-scroll-box:focus-visible {
-                outline-offset: 2px;
-            }
-            .edit-grid-root .edit-grid-row-drag-handle {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                min-width: 2rem;
-            }
-            .edit-grid-root .edit-grid-row-dragging > td {
-                opacity: .45;
-                background: #f8f9fa;
-            }
-            .edit-grid-root .edit-grid-row-drop-placeholder > td {
-                padding: 0;
-                background: transparent;
-            }
-            .edit-grid-root .edit-grid-row-drop-placeholder-box {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                min-height: 3rem;
-                border: 2px dashed #0d6efd;
-                border-radius: 0;
-                color: #0d6efd;
-                background: rgba(13, 110, 253, .06);
-                font-size: .875rem;
-            }
-            .edit-grid-drag-floating {
-                display: inline-flex;
-                align-items: center;
-                gap: .35rem;
-                padding: .35rem .55rem;
-                border: 1px solid rgba(13, 110, 253, .35);
-                border-radius: .5rem;
-                color: #0d6efd;
-                background: #fff;
-                box-shadow: 0 .35rem 1rem rgba(0, 0, 0, .16);
-                font-size: .875rem;
-                line-height: 1.2;
-                white-space: nowrap;
-            }
-        `}
-        </style>
-    );
-};
+/** EditGrid 局部 overflow 樣式，避免編輯模式下 A */
+
+const getStickyHeaderBackdropStyle = (heightPx: number): CSSProperties =>
+({
+    position: "sticky",
+    top: 0,
+    zIndex: 4,
+    height: `${heightPx}px`,
+    marginBottom: `-${heightPx}px`,
+    pointerEvents: "none",
+});
 
 /** 取得 EditGrid 表頭樣式，垂直捲動時固定欄位標題避免使用者失去欄位對應。 */
 const getEditGridHeaderCellStyle = (style: CSSProperties = {}): CSSProperties => ({
     position: "sticky",
     top: 0,
-    zIndex: 5,
-    background: "rgba(0, 0, 0, .075)",
+    zIndex: 6,
+    background: "#ececec",
+    backgroundClip: "border-box",
+    borderColor: "#dee2e6",
+    borderStyle: "solid",
+    borderWidth: 0,
+    boxShadow: "none",
     ...style,
 });
 
@@ -2311,7 +2634,9 @@ const getEditGridTableWrapStyle = (): CSSProperties => ({
     minWidth: 0,
     overflowX: "clip",
     boxSizing: "border-box",
+    position: "relative",
     contain: "layout paint inline-size",
+    overscrollBehavior: "contain",
 });
 
 /** 正規化最多顯示列數，預設 5 列；傳入 0/null 時不限制高度。 */
@@ -2332,18 +2657,19 @@ const normalizePositivePixel = (value: number | undefined, fallback: number) =>
     return value > 0 ? value : fallback;
 };
 
-/** 判斷是否需要啟用垂直捲軸。 */
-const shouldUseVerticalScroll = (rowCount: number, maxVisibleRows: number | null) =>
+/** 判斷是否需要啟用垂直捲軸；1024px 以上且超過限制列數時才固定表格高度。 */
+const shouldUseVerticalScroll = (isDesktop: boolean, rowCount: number, maxVisibleRows: number | null) =>
 {
-    if (maxVisibleRows === null) return false;
+    if (!isDesktop || maxVisibleRows === null) return false;
     return rowCount > maxVisibleRows;
 };
 
-/** 依表頭與列高估算 EditGrid 垂直可視高度。 */
-const getScrollBoxMaxHeight = (maxVisibleRows: number | null, rowHeightPx: number, headerHeightPx: number): string | undefined =>
+/** 取得表頭背板高度，量不到時使用呼叫端傳入的預設高度。 */
+const getMeasuredHeaderHeight = (scrollBox: HTMLElement, fallbackHeightPx: number) =>
 {
-    if (maxVisibleRows === null) return undefined;
-    return `${headerHeightPx + rowHeightPx * maxVisibleRows + SCROLL_BOX_HEIGHT_RESERVED_PX}px`;
+    const thead = scrollBox.querySelector<HTMLElement>("thead");
+    const height = thead?.getBoundingClientRect().height ?? 0;
+    return height > 0 ? Math.ceil(height) : fallbackHeightPx;
 };
 
 /** 取得外層捲動樣式，固定寬度避免 Bootstrap row/flex item 被表格內容撐開而讓整頁出現水平拖拉 bar。 */
@@ -2351,23 +2677,29 @@ const getScrollBoxStyle = (
     _shouldScroll: boolean,
     isDragging: boolean,
     shouldUseYScroll: boolean,
-    maxVisibleRows: number | null,
-    rowHeightPx: number,
-    headerHeightPx: number,
 ): CSSProperties => ({
     display: "block",
     overflowX: "auto",
-    overflowY: shouldUseYScroll ? "auto" : "hidden",
-    maxHeight: shouldUseYScroll ? getScrollBoxMaxHeight(maxVisibleRows, rowHeightPx, headerHeightPx) : undefined,
+    overflowY: shouldUseYScroll ? "scroll" : "hidden",
+    height: toScrollBoxHeightCss(shouldUseYScroll),
     width: "100%",
     maxWidth: "100%",
     minWidth: 0,
     boxSizing: "border-box",
     contain: "layout paint inline-size",
+    overscrollBehavior: "contain",
     cursor: isDragging ? "grabbing" : "grab",
     userSelect: isDragging ? "none" : undefined,
     WebkitOverflowScrolling: "touch",
 });
+
+/** 計算垂直捲動區高度；1024px 以上且超過限制列數時才套用固定高度。 */
+const toScrollBoxHeightCss = (shouldUseYScroll: boolean) =>
+{
+    if (!shouldUseYScroll) return undefined;
+
+    return `${DEFAULT_SCROLL_BOX_FIXED_HEIGHT_PX}px`;
+};
 
 /** 取得表格樣式，固定 table layout 可避免拖曳欄寬時 td 內容反向重排造成游標與欄線偏移。 */
 const getTableStyle = (_shouldScroll: boolean, minWidth: number): CSSProperties => ({
