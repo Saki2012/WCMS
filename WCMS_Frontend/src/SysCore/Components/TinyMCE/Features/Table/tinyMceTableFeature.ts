@@ -1,4 +1,4 @@
-import type { TinyMCEEditor } from "../Core/tinyMceTypes";
+import type { TinyMCEEditor } from "../../Core/tinyMceTypes";
 import { normalizePastedTableElement } from "./tinyMceTableUtils";
 
 const hasCellSelection = (editor: TinyMCEEditor): boolean =>

@@ -1,5 +1,5 @@
-import { INTERNAL_ATTR } from "../Core/tinyMceConstants";
-import type { TinyMCEEditor } from "../Core/tinyMceTypes";
+import { INTERNAL_ATTR } from "../../Core/tinyMceConstants";
+import type { TinyMCEEditor } from "../../Core/tinyMceTypes";
 
 export type PickLocalFileOptions = { accept?: string; };
 

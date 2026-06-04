@@ -1,4 +1,4 @@
-import type { TinyMCEEditor, TinySetup } from "../Core/tinyMceTypes";
+import type { TinyMCEEditor, TinySetup } from "../../Core/tinyMceTypes";
 import {
     getIframeReferrerPolicy,
     normalizeIframeHeight,

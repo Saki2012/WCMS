@@ -4,8 +4,8 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { Editor, type IAllProps } from "@tinymce/tinymce-react";
 import { useEffect, useMemo, useState } from "react";
 import type { TinyMCEEditor } from "./Core/tinyMceTypes";
-import { useTinyMceIframeEdit } from "./Iframe/tinyMceIframeFeature";
-import { useTinyMceInternalImage } from "./Image/tinyMceImageFeature";
+import { useTinyMceIframeEdit } from "./Features/Iframe/tinyMceIframeFeature";
+import { useTinyMceInternalImage } from "./Features/Image/tinyMceImageFeature";
 import { useTinyMCE } from "./TinyMCE_Hook";
 
 type Props = {

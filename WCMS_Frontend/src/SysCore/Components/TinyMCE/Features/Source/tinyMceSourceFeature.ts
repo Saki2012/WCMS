@@ -1,4 +1,4 @@
-import type { TinyMCEEditor } from "../Core/tinyMceTypes";
+import type { TinyMCEEditor } from "../../Core/tinyMceTypes";
 import { formatHtmlSource } from "./htmlSourceFormatter";
 
 const setSourceEditorContent = (editor: TinyMCEEditor, html: string) =>
