@@ -5,14 +5,11 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import { useEffect, useMemo, useRef } from "react";
 
+// #region Property
 type BannerSet = components["schemas"]["BannerSet_DTO"];
+// #endregion
 
-const toInitial = <TArgs, TData>(args: TArgs, data: TData) =>
-{
-    // return：符合 adapter hook initial
-    return { args, apiRes: { IsSuccess: true, Data: data, SysMessage: [] } };
-};
-
+// #region Public
 export const AdmissionsCarouselData = (props: { lang: Lang; internalId: string; initialBanner: BannerSet | null; }) =>
 {
     // 宣告變數：adapter
@@ -229,3 +226,12 @@ export const AdmissionsCarouselData = (props: { lang: Lang; internalId: string; 
         </div>
     );
 };
+// #endregion
+
+// #region Private
+const toInitial = <TArgs, TData>(args: TArgs, data: TData) =>
+{
+    // return：符合 adapter hook initial
+    return { args, apiRes: { IsSuccess: true, Data: data, SysMessage: [] } };
+};
+// #endregion

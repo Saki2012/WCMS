@@ -18,7 +18,9 @@ import { useSpecJournalIndexDetailEditGrid, useSpecJournalIndexFormTemplate } fr
 
 // #region Property
 type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
+
 const emptyData: SpecJournalIndexSet = {};
+
 
 const editGridStyle: IEditGridView_Style = {
     TableStyle: "table table-striped table-bordered table-hover",
@@ -71,6 +73,7 @@ const MainFormComp = (prop: { theme: IBETheme; formData: ServerFormBinding<SpecJ
     return <TabContentComp tabInfos={tabInfo} components={components}></TabContentComp>;
 };
 
+
 const BasicComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalIndexSet>; }) =>
 {
     const setField = useSetTableField<SpecJournalIndexSet>(props.formData);
@@ -89,6 +92,7 @@ const BasicComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJou
     );
 };
 
+
 const DetailComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalIndexSet>; }) =>
 {
     const detailGrid = useSpecJournalIndexDetailEditGrid({ binding: props.formData, style: editGridStyle });
@@ -99,5 +103,4 @@ const DetailComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJo
         </div>
     );
 };
-
 // #endregion

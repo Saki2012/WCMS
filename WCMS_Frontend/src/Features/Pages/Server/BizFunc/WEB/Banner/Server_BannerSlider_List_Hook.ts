@@ -12,7 +12,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
-import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
+import { formatDateTime } from "@/SysCore/Utils/Library/LibData";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
@@ -20,12 +20,15 @@ import { AccountFields, BannerDetailFields, BannerDetailInfoFields, BannerFields
 import { createElement, useCallback, useMemo } from "react";
 import { type NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 type BannerSet = components["schemas"]["BannerSet_DTO"];
+
 type BannerSliderApiAdapter = ReturnType<typeof BannerSliderAdapter>;
+
 type BannerSliderCudActions = ReturnType<BannerSliderApiAdapter["hooks"]["useCudActions"]>;
 
-export const BANNER_SLIDER_TITLE_SEARCH_KEY = "title";
 
 export interface BannerSliderSearchParams
 {
@@ -35,6 +38,7 @@ export interface BannerSliderSearchParams
     /** 廣告輪播標題搜尋關鍵字 */
     title?: string;
 }
+
 
 export interface BannerSliderListRawData
 {
@@ -60,6 +64,7 @@ export interface BannerSliderListRawData
     param: QueryListParam;
 }
 
+
 export interface BannerSliderListAdapter
 {
     /** 廣告輪播 API adapter */
@@ -75,7 +80,28 @@ export interface BannerSliderListAdapter
     dirUrl: string;
 }
 
+
 export type BannerSliderListGridTemplate = ServerListGridTemplate<BannerSliderSearchParams, BannerSliderListRawData, BannerSliderListAdapter, QueryListParam>;
+
+
+type CrudDeps = {
+    /** React Router 導頁方法 */
+    navigate: NavigateFunction;
+
+    /** 目前 List 對應的 Form 路徑 */
+    dirUrl: string;
+
+    /** 刪除資料方法 */
+    deleteAsync: BannerSliderCudActions["deleteAsync"];
+
+    /** 刪除後重新查詢 */
+    afterDelete: () => Promise<void>;
+};
+// #endregion
+
+// #region Public
+export const BANNER_SLIDER_TITLE_SEARCH_KEY = "title";
+
 
 /** 建立廣告輪播後台 ListGridTemplate 設定 */
 export const useBannerSliderListGridTemplate = (opt: { lang: Lang; }): BannerSliderListGridTemplate =>
@@ -96,7 +122,9 @@ export const useBannerSliderListGridTemplate = (opt: { lang: Lang; }): BannerSli
         };
     }, [opt.lang]);
 };
+// #endregion
 
+// #region Private
 /** 執行廣告輪播列表資料來源 Hook */
 const useBannerSliderListGridDataSource = (
     ctx: ServerListGridDataSourceContext<BannerSliderSearchParams, QueryListParam>,
@@ -148,6 +176,7 @@ const useBannerSliderListGridDataSource = (
     return { adapter: { ...apiAdapter, cudActions, navigate, dirUrl }, rawData, isLoading, errors, refetchData };
 };
 
+
 /** 建立廣告輪播搜尋欄位設定 */
 const buildBannerSliderSearchFields = (rawData: BannerSliderListRawData): SearchFieldConfig[] =>
 {
@@ -156,11 +185,13 @@ const buildBannerSliderSearchFields = (rawData: BannerSliderListRawData): Search
     return [{ key: BANNER_SLIDER_TITLE_SEARCH_KEY, title, type: "text", placeholder: `請輸入${title}` }];
 };
 
+
 /** 將 SearchValues 轉為廣告輪播列表查詢參數 */
 const toBannerSliderSearchParams = (values: SearchValues, lang: Lang): BannerSliderSearchParams =>
 {
     return { lang, title: getSearchStringValue(values[BANNER_SLIDER_TITLE_SEARCH_KEY]) };
 };
+
 
 /** 建立廣告輪播搜尋條件 */
 const buildBannerSliderSearchConditions = (ctx: { searchParams: BannerSliderSearchParams; }): string[] =>
@@ -169,6 +200,7 @@ const buildBannerSliderSearchConditions = (ctx: { searchParams: BannerSliderSear
 
     return [`${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.Title} Like ${ctx.searchParams.title}`];
 };
+
 
 /** 建立廣告輪播列表完整 QueryParam */
 const buildBannerSliderQueryParam = (ctx: { searchParams: BannerSliderSearchParams; searchCondition: string; }): QueryListParam =>
@@ -179,6 +211,7 @@ const buildBannerSliderQueryParam = (ctx: { searchParams: BannerSliderSearchPara
 
     return { Fields: fields, Condition: condition, OrderBy: [{ Col: BannerFields.CreateTime, Desc: true }], PageNumber: 1, PageSize: 10 };
 };
+
 
 /** 建立廣告輪播列表查詢欄位 */
 const buildBannerSliderQueryFields = (): string[] =>
@@ -197,19 +230,6 @@ const buildBannerSliderQueryFields = (): string[] =>
     ];
 };
 
-type CrudDeps = {
-    /** React Router 導頁方法 */
-    navigate: NavigateFunction;
-
-    /** 目前 List 對應的 Form 路徑 */
-    dirUrl: string;
-
-    /** 刪除資料方法 */
-    deleteAsync: BannerSliderCudActions["deleteAsync"];
-
-    /** 刪除後重新查詢 */
-    afterDelete: () => Promise<void>;
-};
 
 /** 將廣告輪播資料轉為 GridProps */
 const buildBannerSliderGridProps = (
@@ -242,6 +262,7 @@ const buildBannerSliderGridProps = (
     });
 };
 
+
 /** 注入廣告輪播 Grid 編輯與刪除動作 */
 const enhanceBannerSliderGrid = (
     opt: {
@@ -272,11 +293,13 @@ const enhanceBannerSliderGrid = (
     });
 };
 
+
 /** 建立廣告輪播列表欄位定義 */
 const buildColumns = (visibleCols: string[], raw: BannerSliderListRawData): ColumnConfig[] =>
 {
     return visibleCols.map((col) => ({ key: col, title: getColumnTitle(raw.modelDisplayName, col, `【${col}】`) }));
 };
+
 
 /** 建立廣告輪播列表列資料 */
 const buildBannerSliderRows = (raw: BannerSliderListRawData, columns: ColumnConfig[]): GridRow[] =>
@@ -288,12 +311,13 @@ const buildBannerSliderRows = (raw: BannerSliderListRawData, columns: ColumnConf
             { col: columns[0], content: buildBannerSliderImage(set) },
             { col: columns[1], content: set.Banner?.BannerCategoryName ?? "" },
             { col: columns[2], content: set.Banner?.ModifyUser?.AccountName ?? "" },
-            { col: columns[3], content: FormatDateTime(set.Banner?.ModifyTime) },
+            { col: columns[3], content: formatDateTime(set.Banner?.ModifyTime) },
         ];
 
         return { keyId, cells };
     });
 };
+
 
 /** 建立廣告輪播圖片預覽 */
 const buildBannerSliderImage = (set: BannerSet): RowCell["content"] =>
@@ -304,6 +328,7 @@ const buildBannerSliderImage = (set: BannerSet): RowCell["content"] =>
     return createElement("img", { src: FileManagementAPI.get_Server_Preview_Url(picSrcId), alt: "廣告輪播圖片預覽", style: { width: "145px", height: "80px", objectFit: "fill" } });
 };
 
+
 /** 依欄位代碼取得 ModelDisplayName 顯示文字 */
 const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, columnId: string, fallback: string): string =>
 {
@@ -311,6 +336,7 @@ const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, columnId: s
     const hit = tables.flatMap((t) => t.Columns ?? []).find((c) => c.ColumnId === columnId);
     return hit?.ColumnDisplayName ?? fallback;
 };
+
 
 /** 取得 SearchValue 的文字值 */
 const getSearchStringValue = (value: unknown): string | undefined =>
@@ -320,3 +346,4 @@ const getSearchStringValue = (value: unknown): string | undefined =>
     const text = value.trim();
     return text.length > 0 ? text : undefined;
 };
+// #endregion

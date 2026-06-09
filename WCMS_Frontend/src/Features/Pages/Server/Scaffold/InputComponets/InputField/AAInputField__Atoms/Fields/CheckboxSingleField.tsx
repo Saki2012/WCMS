@@ -4,6 +4,7 @@ import { FieldControlShell } from "../AAInputField_Shell";
 import { applyAAFocusStyle, clearAAFocusStyle } from "../AAInputField_Focus";
 import { buildCheckClass, getAriaInvalid, getAriaRequired, getNativeRequired } from "../AAInputField_Utils";
 
+// #region Public
 /**
  * 使用範例：
  * <AAInputFieldList fields={[{ key: "checkboxSingle", type: "checkboxSingle", label: "啟用", aaLabel: "請勾選項目", value: state.checkboxSingle }]} onChange={handleChange} />
@@ -18,7 +19,9 @@ export const CheckboxSingleField = (props: { field: AAInputField; context: Field
         </FieldControlShell>
     );
 };
+// #endregion
 
+// #region Private
 /** checkbox 補上 Enter 切換，保留原生 Space 行為。 */
 const handleCheckboxEnterKeyDown = (event: KeyboardEvent<HTMLInputElement>, toggleCheckbox: () => void) =>
 {
@@ -26,3 +29,4 @@ const handleCheckboxEnterKeyDown = (event: KeyboardEvent<HTMLInputElement>, togg
     event.preventDefault();
     toggleCheckbox();
 };
+// #endregion

@@ -14,33 +14,7 @@ import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { useCallback, useEffect, useRef } from "react";
 import React from "react";
 
-const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
-{
-    const headerRef = useRef<HTMLDivElement | null>(null);
-    useMobileMenuCollapse({
-        headerRef,
-        collapseSelector: "#navbar-content",
-        togglerSelector: ".navbar-toggler",
-        overlaySelector: ".overlayer",
-        hamburgerSelector: ".hamburger",
-        headerActiveClass: "active",
-        lockBodyScroll: true,
-        disableBootstrapAutoToggle: true,
-    });
-
-    return (
-        <>
-            <A11yContent />
-            <div id="Site-Header" className="ALL_Header_DivBar main-header" ref={headerRef}>
-                <Header_Section lang={props.lang} site={props.site} />
-                <Menu_Section {...props} />
-                <div className="overlayer" aria-hidden="true" />
-            </div>
-        </>
-    );
-};
-export default Header;
-
+// #region Section
 const Header_Section = (props: { lang: Lang; site: INormSite; }) =>
 {
     const sizeGroupRef = useRef<HTMLUListElement | null>(null);
@@ -86,62 +60,7 @@ const Header_Section = (props: { lang: Lang; site: INormSite; }) =>
         </section>
     );
 };
-const NavBar = (props: { lang: Lang; }) =>
-{
-    const title = props.lang === "zh-tw"
-        ? { Home: "回首頁", NCHU: "中興大學", SiteMap: "網站導覽" }
-        : props.lang === "en"
-        ? { Home: "Home", NCHU: "NCHU", SiteMap: "SiteMap" }
-        : {};
 
-    return (
-        <li>
-            <ul className="nav custom_nav py-0 justify-content-center my-1">
-                <li className="nav-item">
-                    <Accesskey type="U" lang={props.lang} />
-                </li>
-                <li className="nav-item">
-                    <LangLink className="nav-link" to="/" tabIndex={0} target="_self" title={title.Home}>{title.Home}</LangLink>
-                </li>
-                <li className="nav-item">
-                    <a className="nav-link" href="https://www.nchu.edu.tw/index1.php" tabIndex={0} target="_blank" rel="noopener noreferrer" title={title.NCHU}>
-                        {title.NCHU}
-                    </a>
-                </li>
-                <li className="nav-item">
-                    <LangNavLink to={`/${SITEMAP_SEGMENT}`} className="nav-link" tabIndex={0} target="_self" title={title.SiteMap}>{title.SiteMap}</LangNavLink>
-                </li>
-            </ul>
-        </li>
-    );
-};
-const SearchBar = () =>
-{
-    const doZoom = useCallback((px: number) =>
-    {
-        document.documentElement.style.fontSize = `${px}px`;
-        localStorage.setItem("font-zoom", String(px));
-    }, []);
-    useEffect(() =>
-    {
-        const saved = +localStorage.getItem("font-zoom")!;
-        if (saved) doZoom(saved);
-    }, [doZoom]);
-    return (
-        <li>
-            <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1 d-sm-inline-block d-none">
-                <a className="search-button" id="top-sss" data-bs-toggle="dropdown">
-                    <i className="far fa-search"></i>
-                    <span className="sr-only">Search</span>
-                </a>
-            </div>
-            <div className="searchdropdown dropdown-menu search-input-dropdown" aria-labelledby="top-sss">
-                <input type="search" id="search-box" placeholder="Search..." />
-                <button className="far fa-search" type="button"></button>
-            </div>
-        </li>
-    );
-};
 const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
 {
     const menuRef = useRef<HTMLDivElement | null>(null);
@@ -326,6 +245,7 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme; }) 
         </section>
     );
 };
+
 const LogoComp = () =>
 {
     return (
@@ -336,175 +256,9 @@ const LogoComp = () =>
         </h1>
     );
 };
-const MobileBtn = () =>
-{
-    return (
-        <>
-            <div className="mobile-box ml-auto me-2">
-                <div className="icons">
-                    <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-1 mx-0 d-inline-block d-sm-none">
-                        {
-                            /* <a href="javascript:void(0);" className="search-button" type="button" role="button" title="搜尋" id="mobile-sss" data-bs-toggle="dropdown" aria-expanded="false" tabIndex={0}>
-                        <i className="far fa-search" aria-hidden="true"></i>
-                        <span className="sr-only">搜尋</span>
-                    </a>
-                    <div className="searchdropdown dropdown-menu search-input-dropdown" aria-labelledby="mobile-sss">
-                        <input type="search" id="mobile-search-box" placeholder="search here..." tabIndex={0} />
-                        <button className="far fa-search" type="button" tabIndex={0}></button>
-                    </div> */
-                        }
-                    </div>
-                </div>
-            </div>
+// #endregion
 
-            <a
-                className="navbar-toggler collapsed"
-                type="button"
-                role="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbar-content"
-                tabIndex={0}
-                aria-expanded="false"
-            >
-                <div className="hamburger-toggle">
-                    <div className="hamburger">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </div>
-                </div>
-            </a>
-        </>
-    );
-};
-const MainMenu = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
-{
-    const menuItems = GetMenuData(props.lang, props.site);
-
-    return (
-        <div id="navbar-content" className="collapse navbar-collapse overflow-scroll-Y mt-xl-5 mt-0">
-            <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
-                {menuItems.map((item, idx) =>
-                {
-                    return (
-                        <React.Fragment key={idx}>
-                            {item.SubItem?.length === 0 ? <SingleMenuItem menuItem={item} /> : <DropdownMenuItem menuItem={item} />}
-                            {/* <MegaMenuItem menuItem={item} /> */}
-                        </React.Fragment>
-                    );
-                })}
-            </ul>
-        </div>
-    );
-};
-const PCBtn = () =>
-{
-    return (
-        <div className="pc-box">
-            <div className="icons">
-                <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1 d-inline-block">
-                    {
-                        /* <a href="javascript:void(0);" className="search-button" type="button" role="button" title="搜尋" id="pc-sss" data-bs-toggle="dropdown" aria-expanded="false" tabIndex={0}>
-                        <i className="far fa-search" aria-hidden="true"></i>
-                        <span className="sr-only">搜尋</span>
-                    </a>
-                    <div className="searchdropdown dropdown-menu search-input-dropdown" aria-labelledby="pc-sss">
-                        <input type="search" id="pc-search-box" placeholder="search here..." tabIndex={0} />
-                        <button className="far fa-search" type="button" tabIndex={0}></button>
-                    </div> */
-                    }
-                </div>
-            </div>
-        </div>
-    );
-};
-
-/** 1. 一般單選 */
-const SingleMenuItem = (props: { menuItem: MenuItemData; }) =>
-{
-    return (
-        <li className="nav-item">
-            <LangNavLink
-                className="nav-link"
-                aria-current="page"
-                to={props.menuItem.Url}
-                role="button"
-                tabIndex={0}
-                title={props.menuItem.SrcData}
-                aria-label={props.menuItem.SrcData}
-            >
-                {/^https?:\/\//i.test(props.menuItem.Url || "") && <i className="fad fa-link me-2"></i>}
-                {props.menuItem.SrcData}
-            </LangNavLink>
-        </li>
-    );
-};
-
-/** 2. 多層下拉 */
-const DropdownMenuItem = (props: { menuItem: MenuItemData; }) =>
-{
-    return (
-        <li className="nav-item dropdown">
-            <LangNavLink
-                className="nav-link dropdown-toggle"
-                to={props.menuItem.Url}
-                role="button"
-                tabIndex={0}
-                data-bs-toggle="dropdown"
-                data-bs-auto-close="outside"
-                target={props.menuItem.URL_Open}
-            >
-                {props.menuItem.SrcData}
-            </LangNavLink>
-            {/* 第二層（原本的 <ul className="dropdown-menu">） */}
-            <ul className="dropdown-menu">{renderDropdownItems(props.menuItem.SubItem, 0)}</ul>
-        </li>
-    );
-};
-
-/** 3. Mega 選項：明細動態渲染 */
-const MegaMenuItem = (props: { menuItem: MenuItemData; }) =>
-{
-    return (
-        <li className="nav-item dropdown dropdown-mega position-static">
-            <LangNavLink className="nav-link dropdown-toggle" to={props.menuItem.Url} tabIndex={0} data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                {props.menuItem.SrcData}
-            </LangNavLink>
-
-            <div className="dropdown-menu">
-                <div className="mega-content">
-                    <div className="container-customize4">
-                        <div className="row">
-                            {props.menuItem.SubItem.map((col, colIndex) => (
-                                <div key={colIndex} className="col-12 col-sm-4 col-md-3">
-                                    {/* 每一欄的標題 */}
-                                    <div className="mega-item-tilte">{col.SrcData}</div>
-
-                                    {/* 每一欄底下的連結列表 */}
-                                    <div className="list-group">
-                                        {(col.SubItem ?? []).map((link, linkIndex) => (
-                                            <LangNavLink key={linkIndex} className="list-group-item" to={link.Url || "#"} tabIndex={0}>
-                                                {link.SrcData}
-                                            </LangNavLink>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </li>
-    );
-};
-
-const GetMenuData = (lang: Lang, site: INormSite): MenuItemData[] =>
-{
-    const roots = site.treeByLang?.[lang] ?? [];
-    if (!roots) return [];
-    return buildMenuItems(roots, 0);
-};
-
+// #region EntityComp
 /**
  * 遞迴渲染多層選單
  * parentDepth = 0 代表「第二層」，對應原本的 className 設計：
@@ -552,3 +306,267 @@ const renderDropdownItems = (items: MenuItemData[], parentDepth: number): JSX.El
         );
     });
 };
+// #endregion
+
+// #region Private
+const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
+{
+    const headerRef = useRef<HTMLDivElement | null>(null);
+    useMobileMenuCollapse({
+        headerRef,
+        collapseSelector: "#navbar-content",
+        togglerSelector: ".navbar-toggler",
+        overlaySelector: ".overlayer",
+        hamburgerSelector: ".hamburger",
+        headerActiveClass: "active",
+        lockBodyScroll: true,
+        disableBootstrapAutoToggle: true,
+    });
+
+    return (
+        <>
+            <A11yContent />
+            <div id="Site-Header" className="ALL_Header_DivBar main-header" ref={headerRef}>
+                <Header_Section lang={props.lang} site={props.site} />
+                <Menu_Section {...props} />
+                <div className="overlayer" aria-hidden="true" />
+            </div>
+        </>
+    );
+};
+
+export default Header;
+
+const NavBar = (props: { lang: Lang; }) =>
+{
+    const title = props.lang === "zh-tw"
+        ? { Home: "回首頁", NCHU: "中興大學", SiteMap: "網站導覽" }
+        : props.lang === "en"
+        ? { Home: "Home", NCHU: "NCHU", SiteMap: "SiteMap" }
+        : {};
+
+    return (
+        <li>
+            <ul className="nav custom_nav py-0 justify-content-center my-1">
+                <li className="nav-item">
+                    <Accesskey type="U" lang={props.lang} />
+                </li>
+                <li className="nav-item">
+                    <LangLink className="nav-link" to="/" tabIndex={0} target="_self" title={title.Home}>{title.Home}</LangLink>
+                </li>
+                <li className="nav-item">
+                    <a className="nav-link" href="https://www.nchu.edu.tw/index1.php" tabIndex={0} target="_blank" rel="noopener noreferrer" title={title.NCHU}>
+                        {title.NCHU}
+                    </a>
+                </li>
+                <li className="nav-item">
+                    <LangNavLink to={`/${SITEMAP_SEGMENT}`} className="nav-link" tabIndex={0} target="_self" title={title.SiteMap}>{title.SiteMap}</LangNavLink>
+                </li>
+            </ul>
+        </li>
+    );
+};
+
+const SearchBar = () =>
+{
+    const doZoom = useCallback((px: number) =>
+    {
+        document.documentElement.style.fontSize = `${px}px`;
+        localStorage.setItem("font-zoom", String(px));
+    }, []);
+    useEffect(() =>
+    {
+        const saved = +localStorage.getItem("font-zoom")!;
+        if (saved) doZoom(saved);
+    }, [doZoom]);
+    return (
+        <li>
+            <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1 d-sm-inline-block d-none">
+                <a className="search-button" id="top-sss" data-bs-toggle="dropdown">
+                    <i className="far fa-search"></i>
+                    <span className="sr-only">Search</span>
+                </a>
+            </div>
+            <div className="searchdropdown dropdown-menu search-input-dropdown" aria-labelledby="top-sss">
+                <input type="search" id="search-box" placeholder="Search..." />
+                <button className="far fa-search" type="button"></button>
+            </div>
+        </li>
+    );
+};
+
+const MobileBtn = () =>
+{
+    return (
+        <>
+            <div className="mobile-box ml-auto me-2">
+                <div className="icons">
+                    <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-1 mx-0 d-inline-block d-sm-none">
+                        {
+                            /* <a href="javascript:void(0);" className="search-button" type="button" role="button" title="搜尋" id="mobile-sss" data-bs-toggle="dropdown" aria-expanded="false" tabIndex={0}>
+                        <i className="far fa-search" aria-hidden="true"></i>
+                        <span className="sr-only">搜尋</span>
+                    </a>
+                    <div className="searchdropdown dropdown-menu search-input-dropdown" aria-labelledby="mobile-sss">
+                        <input type="search" id="mobile-search-box" placeholder="search here..." tabIndex={0} />
+                        <button className="far fa-search" type="button" tabIndex={0}></button>
+                    </div> */
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <a
+                className="navbar-toggler collapsed"
+                type="button"
+                role="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbar-content"
+                tabIndex={0}
+                aria-expanded="false"
+            >
+                <div className="hamburger-toggle">
+                    <div className="hamburger">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </a>
+        </>
+    );
+};
+
+const MainMenu = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
+{
+    const menuItems = GetMenuData(props.lang, props.site);
+
+    return (
+        <div id="navbar-content" className="collapse navbar-collapse overflow-scroll-Y mt-xl-5 mt-0">
+            <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
+                {menuItems.map((item, idx) =>
+                {
+                    return (
+                        <React.Fragment key={idx}>
+                            {item.SubItem?.length === 0 ? <SingleMenuItem menuItem={item} /> : <DropdownMenuItem menuItem={item} />}
+                            {/* <MegaMenuItem menuItem={item} /> */}
+                        </React.Fragment>
+                    );
+                })}
+            </ul>
+        </div>
+    );
+};
+
+const PCBtn = () =>
+{
+    return (
+        <div className="pc-box">
+            <div className="icons">
+                <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1 d-inline-block">
+                    {
+                        /* <a href="javascript:void(0);" className="search-button" type="button" role="button" title="搜尋" id="pc-sss" data-bs-toggle="dropdown" aria-expanded="false" tabIndex={0}>
+                        <i className="far fa-search" aria-hidden="true"></i>
+                        <span className="sr-only">搜尋</span>
+                    </a>
+                    <div className="searchdropdown dropdown-menu search-input-dropdown" aria-labelledby="pc-sss">
+                        <input type="search" id="pc-search-box" placeholder="search here..." tabIndex={0} />
+                        <button className="far fa-search" type="button" tabIndex={0}></button>
+                    </div> */
+                    }
+                </div>
+            </div>
+        </div>
+    );
+};
+
+
+/** 1. 一般單選 */
+const SingleMenuItem = (props: { menuItem: MenuItemData; }) =>
+{
+    return (
+        <li className="nav-item">
+            <LangNavLink
+                className="nav-link"
+                aria-current="page"
+                to={props.menuItem.Url}
+                role="button"
+                tabIndex={0}
+                title={props.menuItem.SrcData}
+                aria-label={props.menuItem.SrcData}
+            >
+                {/^https?:\/\//i.test(props.menuItem.Url || "") && <i className="fad fa-link me-2"></i>}
+                {props.menuItem.SrcData}
+            </LangNavLink>
+        </li>
+    );
+};
+
+
+/** 2. 多層下拉 */
+const DropdownMenuItem = (props: { menuItem: MenuItemData; }) =>
+{
+    return (
+        <li className="nav-item dropdown">
+            <LangNavLink
+                className="nav-link dropdown-toggle"
+                to={props.menuItem.Url}
+                role="button"
+                tabIndex={0}
+                data-bs-toggle="dropdown"
+                data-bs-auto-close="outside"
+                target={props.menuItem.URL_Open}
+            >
+                {props.menuItem.SrcData}
+            </LangNavLink>
+            {/* 第二層（原本的 <ul className="dropdown-menu">） */}
+            <ul className="dropdown-menu">{renderDropdownItems(props.menuItem.SubItem, 0)}</ul>
+        </li>
+    );
+};
+
+
+/** 3. Mega 選項：明細動態渲染 */
+const MegaMenuItem = (props: { menuItem: MenuItemData; }) =>
+{
+    return (
+        <li className="nav-item dropdown dropdown-mega position-static">
+            <LangNavLink className="nav-link dropdown-toggle" to={props.menuItem.Url} tabIndex={0} data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                {props.menuItem.SrcData}
+            </LangNavLink>
+
+            <div className="dropdown-menu">
+                <div className="mega-content">
+                    <div className="container-customize4">
+                        <div className="row">
+                            {props.menuItem.SubItem.map((col, colIndex) => (
+                                <div key={colIndex} className="col-12 col-sm-4 col-md-3">
+                                    {/* 每一欄的標題 */}
+                                    <div className="mega-item-tilte">{col.SrcData}</div>
+
+                                    {/* 每一欄底下的連結列表 */}
+                                    <div className="list-group">
+                                        {(col.SubItem ?? []).map((link, linkIndex) => (
+                                            <LangNavLink key={linkIndex} className="list-group-item" to={link.Url || "#"} tabIndex={0}>
+                                                {link.SrcData}
+                                            </LangNavLink>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </li>
+    );
+};
+
+
+const GetMenuData = (lang: Lang, site: INormSite): MenuItemData[] =>
+{
+    const roots = site.treeByLang?.[lang] ?? [];
+    if (!roots) return [];
+    return buildMenuItems(roots, 0);
+};
+// #endregion

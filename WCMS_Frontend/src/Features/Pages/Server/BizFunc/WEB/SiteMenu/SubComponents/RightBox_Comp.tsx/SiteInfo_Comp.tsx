@@ -11,8 +11,11 @@ import type { components } from "@/types/api";
 import { SiteMenu_IndexFields, SiteMenu_IndexInfoFields, SiteMenuSetFields } from "@/types/SchemaFields";
 import { useMemo } from "react";
 
+// #region Property
 type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"];
+
 type SiteMenu_IndexInfo = components["schemas"]["SiteMenu_IndexInfo_DTO"];
+
 
 interface SiteInfoCompProps
 {
@@ -21,9 +24,12 @@ interface SiteInfoCompProps
     setField: ReturnType<typeof useSetTableField<SiteMenuSet>>;
 }
 
+
 interface BasicSettingTabProps extends SiteInfoCompProps
 {}
+// #endregion
 
+// #region Public
 export const SiteInfo_Comp = (prop: SiteInfoCompProps) =>
 {
     const tabInfos: LibTabsProp = { Style: prop.theme.Tabs, item: { basic: "基本資訊", SEO: "SEO設定", system: "系統資訊" } };
@@ -37,22 +43,9 @@ export const SiteInfo_Comp = (prop: SiteInfoCompProps) =>
     }, [prop.formData, prop.setField, prop.theme]);
     return <TabContentComp key="site-info-tabs" tabInfos={tabInfos} components={components} />;
 };
+// #endregion
 
-const BasicSettingTab = (prop: BasicSettingTabProps) =>
-{
-    return (
-        <>
-            {
-                /* <LibTextBox Style={prop.theme.TextBox} DefaultInputDisplay="" disabled={true} {...prop.setField(SiteMenuSetFields.SiteMenu_Index, SiteMenu_IndexFields.SiteIndex, "string")}/>
-      <LibCheckBox Style={prop.theme.CheckBox} options={{ [SiteMenu_IndexFields.Enable]: "" }} {...prop.setField(SiteMenuSetFields.SiteMenu_Index, SiteMenu_IndexFields.Enable, "boolean")}      />
-      <LibCheckBox Style={prop.theme.CheckBox} options={{}} {...prop.setField(SiteMenuSetFields.SiteMenu_Index, SiteMenu_IndexFields.SupportLangs, "string", undefined,"csv")}/>
-      <LibTextBox Style={prop.theme.TextBox} {...prop.setField(SiteMenuSetFields.SiteMenu_Index, SiteMenu_IndexFields.DefaultLang, "boolean")}/> */
-            }
-            <SiteTitle_Comp theme={prop.theme} formData={prop.formData} setField={prop.setField} />
-        </>
-    );
-};
-
+// #region Section
 const SiteTitle_Comp = (prop: BasicSettingTabProps) =>
 {
     const siteIndex = prop.formData.data?.SiteMenu_Index?.SiteIndex ?? "";
@@ -110,6 +103,7 @@ const SiteTitle_Comp = (prop: BasicSettingTabProps) =>
     return <TabContentComp tabInfos={tabInfo} components={tabContent} />;
 };
 
+
 const SEO_Comp = (prop: BasicSettingTabProps) =>
 {
     return (
@@ -123,3 +117,21 @@ const SEO_Comp = (prop: BasicSettingTabProps) =>
         </>
     );
 };
+// #endregion
+
+// #region Private
+const BasicSettingTab = (prop: BasicSettingTabProps) =>
+{
+    return (
+        <>
+            {
+                /* <LibTextBox Style={prop.theme.TextBox} DefaultInputDisplay="" disabled={true} {...prop.setField(SiteMenuSetFields.SiteMenu_Index, SiteMenu_IndexFields.SiteIndex, "string")}/>
+      <LibCheckBox Style={prop.theme.CheckBox} options={{ [SiteMenu_IndexFields.Enable]: "" }} {...prop.setField(SiteMenuSetFields.SiteMenu_Index, SiteMenu_IndexFields.Enable, "boolean")}      />
+      <LibCheckBox Style={prop.theme.CheckBox} options={{}} {...prop.setField(SiteMenuSetFields.SiteMenu_Index, SiteMenu_IndexFields.SupportLangs, "string", undefined,"csv")}/>
+      <LibTextBox Style={prop.theme.TextBox} {...prop.setField(SiteMenuSetFields.SiteMenu_Index, SiteMenu_IndexFields.DefaultLang, "boolean")}/> */
+            }
+            <SiteTitle_Comp theme={prop.theme} formData={prop.formData} setField={prop.setField} />
+        </>
+    );
+};
+// #endregion

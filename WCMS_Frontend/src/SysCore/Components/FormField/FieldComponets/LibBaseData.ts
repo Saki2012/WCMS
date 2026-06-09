@@ -1,3 +1,4 @@
+// #region Property
 export interface ILibBaseComponentsProp
 {
     Style: any;
@@ -5,3 +6,4 @@ export interface ILibBaseComponentsProp
     InputValue: any;
     onChange?: any;
 }
+// #endregion

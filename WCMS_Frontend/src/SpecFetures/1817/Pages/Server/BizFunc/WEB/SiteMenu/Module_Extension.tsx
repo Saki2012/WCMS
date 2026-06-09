@@ -2,6 +2,7 @@ import type { ModuleSettingTabExtension } from "@/Features/Pages/Server/BizFunc/
 import { DefaultLang } from "@/SysCore/i18n/lang";
 import { Module_SpecMusical_Comp } from "./SpecModule_Comp";
 
+// #region Public
 export const useModuleSettingTabSpecExtension = (): ModuleSettingTabExtension =>
 {
     // 宣告變數
@@ -23,3 +24,4 @@ export const useModuleSettingTabSpecExtension = (): ModuleSettingTabExtension =>
         },
     };
 };
+// #endregion

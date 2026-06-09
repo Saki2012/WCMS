@@ -7,10 +7,17 @@ import { LangLink } from "@/SysCore/i18n/LangLink";
 import type { components } from "@/types/api";
 import { useMemo } from "react";
 
+import { findTextByKey } from "@/SysCore/Utils/Library/LibData";
+
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
+
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"];
+
 type TagSet = components["schemas"]["TagSet_DTO"];
+
 
 interface NewsDataProps
 {
@@ -22,6 +29,7 @@ interface NewsDataProps
     initialCategories: CategoryDataSet[];
     initialTags: TagSet[];
 }
+
 
 interface NewsItemViewModel
 {
@@ -39,244 +47,11 @@ interface NewsItemViewModel
     internalId: string;
 }
 
+
 const DAY_MS = 24 * 60 * 60 * 1000;
+// #endregion
 
-const toListInitial = <TArgs, TItem>(args: TArgs, data: TItem[]) =>
-{
-    // return：符合 adapter hook 的 initial 結構
-    return { args, apiRes: { IsSuccess: true, Data: data, SysMessage: [] } };
-};
-
-const buildCategoryDict = (rows: CategoryDataSet[], lang: Lang): Record<string, string> =>
-{
-    // return：分類 id -> 名稱
-    return rows.reduce<Record<string, string>>((acc, row) =>
-    {
-        const id = row.Category?.CategoryId;
-        if (!id) return acc;
-
-        const name = row.CategoryDetail?.find((item) => item.Lang === lang)?.CategoryName ?? "";
-
-        acc[String(id)] = name;
-        return acc;
-    }, {});
-};
-
-const buildTagDict = (rows: TagSet[], lang: Lang): Record<string, string> =>
-{
-    // return：標籤 id -> 名稱
-    return rows.reduce<Record<string, string>>((acc, row) =>
-    {
-        const id = row.TagData?.TagId;
-        if (!id) return acc;
-
-        const name = row.TagDetail?.find((item) => item.Lang === lang)?.TagName ?? "";
-
-        acc[String(id)] = name;
-        return acc;
-    }, {});
-};
-
-const formatDate = (dateStr: string) =>
-{
-    // 宣告變數：日期
-    const date = new Date(dateStr);
-
-    // return：首頁列表顯示格式
-    return { day: date.getDate().toString().padStart(2, "0"), month: (date.getMonth() + 1).toString().padStart(2, "0"), year: date.getFullYear().toString() };
-};
-
-const splitCsvIds = (value: string | null | undefined): string[] =>
-{
-    // return：把 csv id 字串拆成陣列
-    return (value ?? "").split(",").map((item) => item.trim()).filter(Boolean);
-};
-
-const joinDisplayNames = (ids: string[], dict: Record<string, string>): string =>
-{
-    // return：依字典把 id 轉成顯示名稱
-    return ids.map((id) => dict[id] ?? "").filter(Boolean).join(", ");
-};
-
-const getNewsDataProps = (
-    newsData: AnnouncementSet[],
-    lang: Lang,
-    redir: string,
-    categoryDict: Record<string, string>,
-    tagDict: Record<string, string>,
-): NewsItemViewModel[] =>
-{
-    // return：公告資料轉成畫面 props
-    return newsData.slice(0, 6).map((item) =>
-    {
-        const categoryIds = splitCsvIds(item.Announcement?.Categories);
-        const tagIds = splitCsvIds(item.Announcement?.Tags);
-        const contentStatus = item.Announcement?.ContentStatus ?? 0;
-        const validateStart = item.Announcement?.Validate_Start ?? "";
-        const date = formatDate(validateStart);
-        const monthNum = new Date(validateStart).getUTCMonth() + 1;
-        const internalId = item.Announcement?.InternalId ?? "";
-
-        return {
-            redir,
-            announceInternalId: internalId,
-            title: item.AnnouncementDetail?.find((p) => p.Lang === lang)?.Title ?? "",
-            subTitle: item.AnnouncementDetail?.find((p) => p.Lang === lang)?.SubTitle ?? "",
-            date: date.day,
-            month: date.month,
-            year: date.year,
-            monthNum,
-            tagName: joinDisplayNames(tagIds, tagDict),
-            categoryName: joinDisplayNames(categoryIds, categoryDict),
-            contentStatus,
-            internalId,
-        };
-    });
-};
-
-const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: number = 8): boolean =>
-{
-    // 宣告變數：缺值直接不是最新
-    if (!month1to12 || !day1to31) return false;
-
-    const now = new Date();
-    const nowUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
-
-    let year = now.getUTCFullYear();
-    let candidateUTC = Date.UTC(year, month1to12 - 1, day1to31);
-
-    if (candidateUTC > nowUTC)
-    {
-        year -= 1;
-        candidateUTC = Date.UTC(year, month1to12 - 1, day1to31);
-    }
-
-    const diffDays = Math.floor((nowUTC - candidateUTC) / DAY_MS);
-
-    return diffDays >= 0 && diffDays <= n;
-};
-
-const useNewsList = (props: { listParam: QueryListParam; initialList: AnnouncementSet[]; }) =>
-{
-    // 宣告變數：adapter / initial
-    const adapter = useMemo(() => AnnouncementAdapter(), []);
-    const initial = useMemo(() =>
-    {
-        return toListInitial(props.listParam, props.initialList ?? []);
-    }, [props.listParam, props.initialList]);
-
-    // return：首頁公告列表
-    return adapter.hooks.useQueryList({
-        condition: props.listParam,
-        initial,
-        deps: [props.listParam.Condition ?? "", props.listParam.PageNumber ?? 0, props.listParam.PageSize ?? 0],
-    });
-};
-
-const useCategoryTagDict = (
-    props: { lang: Lang; cateParam: QueryListParam; tagParam: QueryListParam; initialCategories: CategoryDataSet[]; initialTags: TagSet[]; },
-) =>
-{
-    // 宣告變數：adapter / initial
-    const cateAdapter = useMemo(() => CategoryAdapter(), []);
-    const tagAdapter = useMemo(() => TagAdapter(), []);
-
-    const cateInitial = useMemo(() =>
-    {
-        return toListInitial(props.cateParam, props.initialCategories ?? []);
-    }, [props.cateParam, props.initialCategories]);
-
-    const tagInitial = useMemo(() =>
-    {
-        return toListInitial(props.tagParam, props.initialTags ?? []);
-    }, [props.tagParam, props.initialTags]);
-
-    // 執行 function：分類 / 標籤 hydration query
-    const cateQuery = cateAdapter.hooks.useQueryList({ condition: props.cateParam, initial: cateInitial, deps: [props.cateParam.Condition ?? ""] });
-
-    const tagQuery = tagAdapter.hooks.useQueryList({ condition: props.tagParam, initial: tagInitial, deps: [props.tagParam.Condition ?? ""] });
-
-    // 宣告變數：字典
-    const categoryDict = useMemo(() =>
-    {
-        return buildCategoryDict(cateQuery.data ?? [], props.lang);
-    }, [cateQuery.data, props.lang]);
-
-    const tagDict = useMemo(() =>
-    {
-        return buildTagDict(tagQuery.data ?? [], props.lang);
-    }, [tagQuery.data, props.lang]);
-
-    // return：畫面對照字典
-    return { categoryDict, tagDict };
-};
-
-const GetData = (props: { data: NewsItemViewModel[]; lang: Lang; }) =>
-{
-    // return：公告列表 DOM
-    return (
-        <>
-            {props.data.map((item) =>
-            {
-                return (
-                    <li className="News_item" key={item.announceInternalId}>
-                        <LangLink to={`${item.redir}/${item.internalId}`} title={item.title} tabIndex={0} className="item-inner">
-                            <div className="leftBox">
-                                <div className="news-date-box">
-                                    <div className="year">{item.year}</div>
-                                    <div className="mm-dd">{item.month}.{item.date}</div>
-                                </div>
-                            </div>
-
-                            <div className="rightBox">
-                                <div className="card_catDiv">
-                                    <div className="a-left">
-                                        <div className="card_cat">
-                                            <div className="card_cat_link">
-                                                <span className="cat_title">{item.categoryName}</span>
-                                            </div>
-                                        </div>
-
-                                        <div className="CustomState">
-                                            {isWithinLastNDaysFromMD(Number(item.monthNum), Number(item.date)) && <div className="icon-small new-bg">最新</div>}
-
-                                            {item.contentStatus !== 0 && (
-                                                <>
-                                                    {Boolean(item.contentStatus & 1) && <div className="icon-small top-bg">置頂</div>}
-
-                                                    {Boolean(item.contentStatus & 2) && <div className="icon-small hot-bg">熱門</div>}
-                                                </>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    <div className="a-right + d-none">
-                                        <div className="card_time">
-                                            <i aria-hidden="true" className="fa fa-clock-o" style={{ marginRight: "3px" }} />
-                                            2023-11-10
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="card_titleDiv">
-                                    <div className="card_title">{item.title}</div>
-
-                                    <div className="card_introduction">{item.subTitle}</div>
-
-                                    <span className="link-arrow">
-                                        <i className="fas fa-long-arrow-alt-right" />
-                                        <span className="sr-only">前往</span>
-                                    </span>
-                                </div>
-                            </div>
-                        </LangLink>
-                    </li>
-                );
-            })}
-        </>
-    );
-};
-
+// #region Public
 export const NewsData = (props: NewsDataProps) =>
 {
     // 宣告變數：公告列表 hydration
@@ -351,3 +126,253 @@ export const NewsData = (props: NewsDataProps) =>
         </section>
     );
 };
+// #endregion
+
+// #region EntityComp
+const buildCategoryDict = (rows: CategoryDataSet[], lang: Lang): Record<string, string> =>
+{
+    // return：分類 id -> 名稱
+    return rows.reduce<Record<string, string>>((acc, row) =>
+    {
+        const id = row.Category?.CategoryId;
+        if (!id) return acc;
+
+        const name = findTextByKey(row.CategoryDetail, (item) => item?.Lang, lang, (item) => item?.CategoryName);
+
+        acc[String(id)] = name;
+        return acc;
+    }, {});
+};
+
+
+const buildTagDict = (rows: TagSet[], lang: Lang): Record<string, string> =>
+{
+    // return：標籤 id -> 名稱
+    return rows.reduce<Record<string, string>>((acc, row) =>
+    {
+        const id = row.TagData?.TagId;
+        if (!id) return acc;
+
+        const name = findTextByKey(row.TagDetail, (item) => item?.Lang, lang, (item) => item?.TagName);
+
+        acc[String(id)] = name;
+        return acc;
+    }, {});
+};
+// #endregion
+
+// #region Private
+const toListInitial = <TArgs, TItem>(args: TArgs, data: TItem[]) =>
+{
+    // return：符合 adapter hook 的 initial 結構
+    return { args, apiRes: { IsSuccess: true, Data: data, SysMessage: [] } };
+};
+
+
+const formatDate = (dateStr: string) =>
+{
+    // 宣告變數：日期
+    const date = new Date(dateStr);
+
+    // return：首頁列表顯示格式
+    return { day: date.getDate().toString().padStart(2, "0"), month: (date.getMonth() + 1).toString().padStart(2, "0"), year: date.getFullYear().toString() };
+};
+
+
+const splitCsvIds = (value: string | null | undefined): string[] =>
+{
+    // return：把 csv id 字串拆成陣列
+    return (value ?? "").split(",").map((item) => item.trim()).filter(Boolean);
+};
+
+
+const joinDisplayNames = (ids: string[], dict: Record<string, string>): string =>
+{
+    // return：依字典把 id 轉成顯示名稱
+    return ids.map((id) => dict[id] ?? "").filter(Boolean).join(", ");
+};
+
+
+const getNewsDataProps = (
+    newsData: AnnouncementSet[],
+    lang: Lang,
+    redir: string,
+    categoryDict: Record<string, string>,
+    tagDict: Record<string, string>,
+): NewsItemViewModel[] =>
+{
+    // return：公告資料轉成畫面 props
+    return newsData.slice(0, 6).map((item) =>
+    {
+        const categoryIds = splitCsvIds(item.Announcement?.Categories);
+        const tagIds = splitCsvIds(item.Announcement?.Tags);
+        const contentStatus = item.Announcement?.ContentStatus ?? 0;
+        const validateStart = item.Announcement?.Validate_Start ?? "";
+        const date = formatDate(validateStart);
+        const monthNum = new Date(validateStart).getUTCMonth() + 1;
+        const internalId = item.Announcement?.InternalId ?? "";
+
+        return {
+            redir,
+            announceInternalId: internalId,
+            title: findTextByKey(item.AnnouncementDetail, (p) => p?.Lang, lang, (p) => p?.Title),
+            subTitle: findTextByKey(item.AnnouncementDetail, (p) => p?.Lang, lang, (p) => p?.SubTitle),
+            date: date.day,
+            month: date.month,
+            year: date.year,
+            monthNum,
+            tagName: joinDisplayNames(tagIds, tagDict),
+            categoryName: joinDisplayNames(categoryIds, categoryDict),
+            contentStatus,
+            internalId,
+        };
+    });
+};
+
+
+const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: number = 8): boolean =>
+{
+    // 宣告變數：缺值直接不是最新
+    if (!month1to12 || !day1to31) return false;
+
+    const now = new Date();
+    const nowUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+
+    let year = now.getUTCFullYear();
+    let candidateUTC = Date.UTC(year, month1to12 - 1, day1to31);
+
+    if (candidateUTC > nowUTC)
+    {
+        year -= 1;
+        candidateUTC = Date.UTC(year, month1to12 - 1, day1to31);
+    }
+
+    const diffDays = Math.floor((nowUTC - candidateUTC) / DAY_MS);
+
+    return diffDays >= 0 && diffDays <= n;
+};
+
+
+const useNewsList = (props: { listParam: QueryListParam; initialList: AnnouncementSet[]; }) =>
+{
+    // 宣告變數：adapter / initial
+    const adapter = useMemo(() => AnnouncementAdapter(), []);
+    const initial = useMemo(() =>
+    {
+        return toListInitial(props.listParam, props.initialList ?? []);
+    }, [props.listParam, props.initialList]);
+
+    // return：首頁公告列表
+    return adapter.hooks.useQueryList({
+        condition: props.listParam,
+        initial,
+        deps: [props.listParam.Condition ?? "", props.listParam.PageNumber ?? 0, props.listParam.PageSize ?? 0],
+    });
+};
+
+
+const useCategoryTagDict = (
+    props: { lang: Lang; cateParam: QueryListParam; tagParam: QueryListParam; initialCategories: CategoryDataSet[]; initialTags: TagSet[]; },
+) =>
+{
+    // 宣告變數：adapter / initial
+    const cateAdapter = useMemo(() => CategoryAdapter(), []);
+    const tagAdapter = useMemo(() => TagAdapter(), []);
+
+    const cateInitial = useMemo(() =>
+    {
+        return toListInitial(props.cateParam, props.initialCategories ?? []);
+    }, [props.cateParam, props.initialCategories]);
+
+    const tagInitial = useMemo(() =>
+    {
+        return toListInitial(props.tagParam, props.initialTags ?? []);
+    }, [props.tagParam, props.initialTags]);
+
+    // 執行 function：分類 / 標籤 hydration query
+    const cateQuery = cateAdapter.hooks.useQueryList({ condition: props.cateParam, initial: cateInitial, deps: [props.cateParam.Condition ?? ""] });
+
+    const tagQuery = tagAdapter.hooks.useQueryList({ condition: props.tagParam, initial: tagInitial, deps: [props.tagParam.Condition ?? ""] });
+
+    // 宣告變數：字典
+    const categoryDict = useMemo(() =>
+    {
+        return buildCategoryDict(cateQuery.data ?? [], props.lang);
+    }, [cateQuery.data, props.lang]);
+
+    const tagDict = useMemo(() =>
+    {
+        return buildTagDict(tagQuery.data ?? [], props.lang);
+    }, [tagQuery.data, props.lang]);
+
+    // return：畫面對照字典
+    return { categoryDict, tagDict };
+};
+
+
+const GetData = (props: { data: NewsItemViewModel[]; lang: Lang; }) =>
+{
+    // return：公告列表 DOM
+    return (
+        <>
+            {props.data.map((item) =>
+            {
+                return (
+                    <li className="News_item" key={item.announceInternalId}>
+                        <LangLink to={`${item.redir}/${item.internalId}`} title={item.title} tabIndex={0} className="item-inner">
+                            <div className="leftBox">
+                                <div className="news-date-box">
+                                    <div className="year">{item.year}</div>
+                                    <div className="mm-dd">{item.month}.{item.date}</div>
+                                </div>
+                            </div>
+
+                            <div className="rightBox">
+                                <div className="card_catDiv">
+                                    <div className="a-left">
+                                        <div className="card_cat">
+                                            <div className="card_cat_link">
+                                                <span className="cat_title">{item.categoryName}</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="CustomState">
+                                            {isWithinLastNDaysFromMD(Number(item.monthNum), Number(item.date)) && <div className="icon-small new-bg">最新</div>}
+
+                                            {item.contentStatus !== 0 && (
+                                                <>
+                                                    {Boolean(item.contentStatus & 1) && <div className="icon-small top-bg">置頂</div>}
+
+                                                    {Boolean(item.contentStatus & 2) && <div className="icon-small hot-bg">熱門</div>}
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="a-right + d-none">
+                                        <div className="card_time">
+                                            <i aria-hidden="true" className="fa fa-clock-o" style={{ marginRight: "3px" }} />
+                                            2023-11-10
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="card_titleDiv">
+                                    <div className="card_title">{item.title}</div>
+
+                                    <div className="card_introduction">{item.subTitle}</div>
+
+                                    <span className="link-arrow">
+                                        <i className="fas fa-long-arrow-alt-right" />
+                                        <span className="sr-only">前往</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </LangLink>
+                    </li>
+                );
+            })}
+        </>
+    );
+};
+// #endregion

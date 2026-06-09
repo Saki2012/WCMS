@@ -8,6 +8,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import type { ReactNode } from "react";
 import { useMaterialListGridTemplate } from "./Server_Material_List_Hook";
 
+// #region Public
 /** 物件列表 */
 export const Server_Material_List_Comp = (prop: { title: string; theme: IBETheme; lang: Lang; }) =>
 {
@@ -15,7 +16,9 @@ export const Server_Material_List_Comp = (prop: { title: string; theme: IBETheme
 
     return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} renderSearchBar={renderMaterialSearchBar} />;
 };
+// #endregion
 
+// #region EntityComp
 /** 渲染物件列表搜尋列 */
 const renderMaterialSearchBar = (props: ServerListGridSearchRenderProps): ReactNode =>
 {
@@ -29,3 +32,4 @@ const renderMaterialSearchBar = (props: ServerListGridSearchRenderProps): ReactN
         />
     );
 };
+// #endregion

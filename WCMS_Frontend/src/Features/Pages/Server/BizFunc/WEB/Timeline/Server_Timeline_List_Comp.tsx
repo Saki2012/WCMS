@@ -8,6 +8,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import type { ReactNode } from "react";
 import { useTimelineListGridTemplate } from "./Server_Timeline_List_Hook";
 
+// #region Public
 /** 紀事表列表 */
 export const Server_Timeline_List_Comp = (prop: { title: string; theme: IBETheme; lang: Lang; }) =>
 {
@@ -15,7 +16,9 @@ export const Server_Timeline_List_Comp = (prop: { title: string; theme: IBETheme
 
     return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} renderSearchBar={renderTimelineSearchBar} />;
 };
+// #endregion
 
+// #region EntityComp
 /** 渲染紀事表列表搜尋列 */
 const renderTimelineSearchBar = (props: ServerListGridSearchRenderProps): ReactNode =>
 {
@@ -29,3 +32,4 @@ const renderTimelineSearchBar = (props: ServerListGridSearchRenderProps): ReactN
         />
     );
 };
+// #endregion

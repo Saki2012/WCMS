@@ -1,8 +1,10 @@
+// #region Property
 export interface ILibUserCardStyle
 {
     Bgstyle: string;
     LinkType: "Edit" | "ImageUpload" | "None";
 }
+
 
 export interface ILibUserCardProp
 {
@@ -14,3 +16,4 @@ export interface ILibUserCardProp
     dirUrl?: string;
     onUploadedTempId?: (internalId: string) => void;
 }
+// #endregion

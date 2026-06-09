@@ -1,11 +1,13 @@
 import type { ReactNode } from "react";
 
+// #region Property
 export interface ILibPictureStyle
 {
     Labelstyle: string;
     SelectStyle: string;
     InputStyle: string;
 }
+
 
 export interface ILibPictureProp
 {
@@ -15,3 +17,4 @@ export interface ILibPictureProp
     PicDescription?: string;
     children?: ReactNode;
 }
+// #endregion

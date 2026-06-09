@@ -10,8 +10,11 @@ import type { components } from "@/types/api";
 import { CategoryDataSetFields, CategoryDetailFields } from "@/types/SchemaFields";
 import { type ReactNode, useMemo } from "react";
 
+// #region Property
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
+// #endregion
 
+// #region Public
 /** 共用 Category 基本編輯區 */
 export const CategorySharedEditorComp = <TSet extends CategorySet>(prop: { theme: IBETheme; formData: UseFetchFormDataResult<TSet>; }) =>
 {
@@ -49,3 +52,4 @@ export const CategorySharedEditorComp = <TSet extends CategorySet>(prop: { theme
         </div>
     );
 };
+// #endregion

@@ -1,3 +1,4 @@
+// #region Section
 const SubBannerComp = ({ title, srcImg }: { title: string; srcImg: string; }) =>
 {
     return (
@@ -18,4 +19,8 @@ const SubBannerComp = ({ title, srcImg }: { title: string; srcImg: string; }) =>
         </div>
     );
 };
+// #endregion
+
+// #region Private
 export default SubBannerComp;
+// #endregion

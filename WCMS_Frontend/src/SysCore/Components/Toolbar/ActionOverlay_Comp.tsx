@@ -1,12 +1,15 @@
 // src/components/ActionOverlay_Comp.tsx
 import * as React from "react";
 
+// #region Property
 export interface ActionOverlayProps
 {
     show: boolean;
     label?: string;
 }
+// #endregion
 
+// #region Public
 export const ActionOverlay_Comp: React.FC<ActionOverlayProps> = ({ show, label }) =>
 {
     if (!show) return null;
@@ -61,3 +64,4 @@ export const ActionOverlay_Comp: React.FC<ActionOverlayProps> = ({ show, label }
         </div>
     );
 };
+// #endregion

@@ -24,11 +24,13 @@ import {
 // #region Property
 type AccountSet = components["schemas"]["AccountSet_DTO"];
 
+
 interface AccountFormCompProps
 {
     /** 後台主題設定 */
     theme: IBETheme;
 }
+
 
 interface AccountContentProps
 {
@@ -45,6 +47,7 @@ interface AccountContentProps
     rawData: AccountFormRawData;
 }
 
+
 interface AccountSectionProps extends AccountContentProps
 {
     /** 欄位 binding helper */
@@ -59,6 +62,7 @@ interface AccountSectionProps extends AccountContentProps
     /** Role 選項 */
     roleOptions: Map<string, string>;
 }
+
 
 interface UserCardSectionProps
 {
@@ -134,6 +138,7 @@ const AccountContentComp = (props: AccountContentProps) =>
     );
 };
 
+
 /** 帳號資料右側 Panel 區塊。 */
 const AccountPanelComp = (props: AccountContentProps) =>
 {
@@ -162,9 +167,8 @@ const AccountPanelComp = (props: AccountContentProps) =>
         </div>
     );
 };
-// #endregion
 
-// #region EntityComp
+
 /** 左側使用者卡片，圖片來源與顯示名稱由 Account binding 統一提供。 */
 const UserCardComp = (props: UserCardSectionProps) =>
 {
@@ -181,6 +185,35 @@ const UserCardComp = (props: UserCardSectionProps) =>
     );
 };
 
+
+/** 帳戶資訊欄位。 */
+const AccountFieldsComp = (props: AccountSectionProps) =>
+{
+    return (
+        <>
+            {buildAccountIdFields(props)}
+            {buildAccountRefFields(props)}
+            {props.rawData.isAddNew ? buildAccountPasswordFields(props) : null}
+            {buildAccountStatusFields(props)}
+        </>
+    );
+};
+
+
+/** 人員資料區，目前維持舊版空白區塊，避免擴大調整範圍。 */
+const PersonFieldsComp = () =>
+{
+    return (
+        <div className="row mx-0">
+            <div className="col form-group">
+                <div className="row mx-0"></div>
+            </div>
+        </div>
+    );
+};
+// #endregion
+
+// #region EntityComp
 /** 建立帳號 Form 各分頁內容。 */
 const buildAccountTabContent = (props: AccountSectionProps): Record<string, ReactNode[]> =>
 {
@@ -198,38 +231,13 @@ const buildAccountTabContent = (props: AccountSectionProps): Record<string, Reac
     };
 };
 
-/** 帳戶資訊欄位。 */
-const AccountFieldsComp = (props: AccountSectionProps) =>
-{
-    return (
-        <>
-            {buildAccountIdFields(props)}
-            {buildAccountRefFields(props)}
-            {props.rawData.isAddNew ? buildAccountPasswordFields(props) : null}
-            {buildAccountStatusFields(props)}
-        </>
-    );
-};
 
-/** 人員資料區，目前維持舊版空白區塊，避免擴大調整範圍。 */
-const PersonFieldsComp = () =>
-{
-    return (
-        <div className="row mx-0">
-            <div className="col form-group">
-                <div className="row mx-0"></div>
-            </div>
-        </div>
-    );
-};
-// #endregion
-
-// #region Private
 /** 建立返回帳號列表路徑。 */
 const buildBackToListPath = (pathname: string): string =>
 {
     return pathname.replace(/\/Form(?:\/[^/]+)?$/, "/List");
 };
+
 
 /** 建立 Tab 設定。 */
 const buildAccountTabInfo = (theme: IBETheme): LibTabsProp =>
@@ -237,11 +245,13 @@ const buildAccountTabInfo = (theme: IBETheme): LibTabsProp =>
     return { Style: theme.Tabs, item: { Account: "帳戶資訊", Person: "人員資料", System: "系統資料" } };
 };
 
+
 /** 將 Record 選項轉成舊版 LibDropList 使用的 Map。 */
 const buildOptionsMap = (data: Record<string, string>): Map<string, string> =>
 {
     return new Map<string, string>(Object.entries(data ?? {}));
 };
+
 
 /** 建立帳號與名稱欄位。 */
 const buildAccountIdFields = (props: AccountSectionProps): ReactNode =>
@@ -267,6 +277,7 @@ const buildAccountIdFields = (props: AccountSectionProps): ReactNode =>
     );
 };
 
+
 /** 建立人員與角色下拉欄位。 */
 const buildAccountRefFields = (props: AccountSectionProps): ReactNode =>
 {
@@ -291,6 +302,7 @@ const buildAccountRefFields = (props: AccountSectionProps): ReactNode =>
         </div>
     );
 };
+
 
 /** 建立新增帳號使用的密碼欄位。 */
 const buildAccountPasswordFields = (props: AccountSectionProps): ReactNode =>
@@ -318,6 +330,7 @@ const buildAccountPasswordFields = (props: AccountSectionProps): ReactNode =>
     );
 };
 
+
 /** 建立本地檢核訊息。 */
 const buildValidationMessages = (errors: string[]): ReactNode =>
 {
@@ -331,6 +344,7 @@ const buildValidationMessages = (errors: string[]): ReactNode =>
         </div>
     );
 };
+
 
 /** 建立帳號狀態欄位。 */
 const buildAccountStatusFields = (props: AccountSectionProps): ReactNode =>

@@ -1,3 +1,4 @@
+// #region Property
 /** 頁面清單狀態 */
 export interface IListViewState
 {
@@ -16,3 +17,4 @@ export interface IListViewState
     /** 是否倒序 */
     sortDesc?: boolean;
 }
+// #endregion

@@ -8,9 +8,13 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import { useEffect, useMemo, useRef } from "react";
 
+// #region Property
 type BannerSet = components["schemas"]["BannerSet_DTO"];
+
 type BannerDetail = NonNullable<BannerSet["BannerDetail"]>[number];
+
 type BannerDetailInfo = NonNullable<BannerSet["BannerDetailInfo"]>[number];
+
 
 interface SpecialLinkDataProps
 {
@@ -19,7 +23,9 @@ interface SpecialLinkDataProps
     initialBanner: BannerSet | null;
 }
 
+
 type OwlResponsiveOption = { items: number; };
+
 
 type OwlCarouselOptions = {
     items: number;
@@ -33,190 +39,14 @@ type OwlCarouselOptions = {
     responsive: Record<number, OwlResponsiveOption>;
 };
 
+
 type OwlJQueryElement = JQuery<HTMLElement> & { owlCarousel: (options: OwlCarouselOptions) => OwlJQueryElement; };
 
+
 type JQueryGlobal = Window & typeof globalThis & { $?: JQueryStatic; jQuery?: JQueryStatic; };
+// #endregion
 
-const buildQueryDataInitial = (internalId: string, banner: BannerSet | null): ApiLoaderData<string, BannerSet> | null =>
-{
-    // 宣告變數：沒有 SSR 初始資料時直接回 null
-    if (!banner) return null;
-
-    const apiRes: ApiResponse<BannerSet> = { IsSuccess: true, Data: banner, SysMessage: [] };
-
-    // return：Hydration 初始資料
-    return { args: internalId, apiRes };
-};
-
-const getJQuery = (): JQueryStatic | null =>
-{
-    // return：取得全域 jQuery
-    if (typeof window === "undefined") return null;
-
-    const jqWindow = window as JQueryGlobal;
-    return jqWindow.jQuery ?? jqWindow.$ ?? null;
-};
-
-const sortBannerDetails = (banner: BannerSet | null): BannerDetail[] =>
-{
-    // 宣告變數：原始明細
-    const list = banner?.BannerDetail ?? [];
-
-    // return：依 Sort 與 RowId 穩定排序
-    return [...list].sort((a, b) =>
-    {
-        const aSort = Number.isFinite(a?.Sort) ? Number(a.Sort) : Number.MAX_SAFE_INTEGER;
-        const bSort = Number.isFinite(b?.Sort) ? Number(b.Sort) : Number.MAX_SAFE_INTEGER;
-
-        return aSort - bSort || (a.RowId ?? 0) - (b.RowId ?? 0);
-    });
-};
-
-const buildOwlKey = (lang: Lang, banner: BannerSet | null): string =>
-{
-    // 宣告變數：排序後資料
-    const details = sortBannerDetails(banner);
-
-    // return：資料變更時用來強制重建 owl
-    return `${lang}|${details.map((item) => `${item.RowId ?? ""}_${item.PicSrcId ?? ""}_${item.Sort ?? ""}`).join("|")}`;
-};
-
-const initOwlCarousel = ($owl: OwlJQueryElement): void =>
-{
-    // 執行 function：初始化 owl
-    $owl.owlCarousel({
-        items: 5,
-        loop: false,
-        dots: false,
-        nav: true,
-        margin: 30,
-        autoplay: false,
-        autoplayTimeout: 5000,
-        autoplayHoverPause: true,
-        responsive: { 0: { items: 2 }, 575: { items: 2 }, 767: { items: 3 }, 991: { items: 4 }, 1199: { items: 5 } },
-    });
-};
-
-const destroyOwlSafe = ($owl: JQuery<HTMLElement>): void =>
-{
-    // 執行 function：安全摧毀 owl
-    try
-    {
-        $owl.trigger("destroy.owl.carousel");
-    } catch
-    {
-        //
-    }
-};
-
-const updateToggleButton = (toggleEl: HTMLAnchorElement, isPlaying: boolean): void =>
-{
-    // 宣告變數：按鈕內 icon / sr-only
-    const iconBox = toggleEl.querySelector(".control-toggle");
-    const srText = toggleEl.querySelector(".sr-only");
-
-    // 執行 function：清空舊狀態
-    iconBox?.classList.remove("control-play-icon", "control-pause-icon");
-
-    if (isPlaying)
-    {
-        toggleEl.setAttribute("aria-pressed", "true");
-        toggleEl.setAttribute("title", "暫停");
-        toggleEl.setAttribute("aria-label", "圖片輪播播放中，點擊暫停");
-
-        iconBox?.classList.add("control-pause-icon");
-
-        if (srText)
-        {
-            srText.textContent = "圖片輪播播放中，點擊暫停";
-        }
-        return;
-    }
-
-    toggleEl.setAttribute("aria-pressed", "false");
-    toggleEl.setAttribute("title", "播放");
-    toggleEl.setAttribute("aria-label", "圖片輪播已暫停，點擊播放");
-
-    iconBox?.classList.add("control-play-icon");
-
-    if (srText)
-    {
-        srText.textContent = "圖片輪播已暫停，點擊播放";
-    }
-};
-
-const findBannerInfo = (
-    banner: BannerSet | null,
-    bannerId: string | null | undefined,
-    rowId: number | null | undefined,
-    lang: Lang,
-): BannerDetailInfo | undefined =>
-{
-    // return：依語系找對應資訊
-    return banner?.BannerDetailInfo?.find((item) =>
-    {
-        return (item.BannerId === bannerId && item.ParentRowId === rowId && item.Lang === lang);
-    });
-};
-
-const renderLinkCard = (props: { item: BannerDetail; info: BannerDetailInfo | undefined; index: number; }) =>
-{
-    // 宣告變數：畫面資料
-    const alt = props.info?.Title ?? "";
-    const url = props.info?.URL ?? "";
-    const target = props.info?.URL_Open === 0 ? "_self" : "_blank";
-    const imgUrl = FileManagementAPI.get_Public_Preview_Url(props.item.PicSrcId, alt);
-
-    const cardBody = (
-        <article className="cardbox">
-            <div className="card_content">
-                <figure className="figure_Box">
-                    <div className="card_figure">
-                        <div className="img-wrapper">
-                            <img className="card_image" alt={alt} src={imgUrl} />
-                        </div>
-                    </div>
-
-                    <div className="Arrow_ZZ_area">
-                        <span className="Zonelink-arrow">
-                            <i className="fas fa-long-arrow-alt-right" />
-                            <span className="sr-only">前往</span>
-                        </span>
-                    </div>
-                </figure>
-
-                <div className="Text_Block_Area">
-                    <div className="card_titleDiv">
-                        <div className="card_title">{alt}</div>
-                    </div>
-                </div>
-            </div>
-        </article>
-    );
-
-    // return：有連結就渲染 LangLink，否則維持卡片
-    if (!url)
-    {
-        return <div className="item" key={props.item.RowId ?? props.index}>{cardBody}</div>;
-    }
-
-    return (
-        <div className="item" key={props.item.RowId ?? props.index}>
-            <LangLink
-                aria-label={alt}
-                to={url}
-                role="button"
-                tabIndex={0}
-                target={target}
-                title={alt}
-                rel={target === "_blank" ? "noopener noreferrer" : undefined}
-            >
-                {cardBody}
-            </LangLink>
-        </div>
-    );
-};
-
+// #region Public
 export const SpecialLinkData = (props: SpecialLinkDataProps) =>
 {
     // 宣告變數：adapter
@@ -375,3 +205,195 @@ export const SpecialLinkData = (props: SpecialLinkDataProps) =>
         </section>
     );
 };
+// #endregion
+
+// #region EntityComp
+const buildQueryDataInitial = (internalId: string, banner: BannerSet | null): ApiLoaderData<string, BannerSet> | null =>
+{
+    // 宣告變數：沒有 SSR 初始資料時直接回 null
+    if (!banner) return null;
+
+    const apiRes: ApiResponse<BannerSet> = { IsSuccess: true, Data: banner, SysMessage: [] };
+
+    // return：Hydration 初始資料
+    return { args: internalId, apiRes };
+};
+
+
+const buildOwlKey = (lang: Lang, banner: BannerSet | null): string =>
+{
+    // 宣告變數：排序後資料
+    const details = sortBannerDetails(banner);
+
+    // return：資料變更時用來強制重建 owl
+    return `${lang}|${details.map((item) => `${item.RowId ?? ""}_${item.PicSrcId ?? ""}_${item.Sort ?? ""}`).join("|")}`;
+};
+
+
+const renderLinkCard = (props: { item: BannerDetail; info: BannerDetailInfo | undefined; index: number; }) =>
+{
+    // 宣告變數：畫面資料
+    const alt = props.info?.Title ?? "";
+    const url = props.info?.URL ?? "";
+    const target = props.info?.URL_Open === 0 ? "_self" : "_blank";
+    const imgUrl = FileManagementAPI.get_Public_Preview_Url(props.item.PicSrcId, alt);
+
+    const cardBody = (
+        <article className="cardbox">
+            <div className="card_content">
+                <figure className="figure_Box">
+                    <div className="card_figure">
+                        <div className="img-wrapper">
+                            <img className="card_image" alt={alt} src={imgUrl} />
+                        </div>
+                    </div>
+
+                    <div className="Arrow_ZZ_area">
+                        <span className="Zonelink-arrow">
+                            <i className="fas fa-long-arrow-alt-right" />
+                            <span className="sr-only">前往</span>
+                        </span>
+                    </div>
+                </figure>
+
+                <div className="Text_Block_Area">
+                    <div className="card_titleDiv">
+                        <div className="card_title">{alt}</div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    );
+
+    // return：有連結就渲染 LangLink，否則維持卡片
+    if (!url)
+    {
+        return <div className="item" key={props.item.RowId ?? props.index}>{cardBody}</div>;
+    }
+
+    return (
+        <div className="item" key={props.item.RowId ?? props.index}>
+            <LangLink
+                aria-label={alt}
+                to={url}
+                role="button"
+                tabIndex={0}
+                target={target}
+                title={alt}
+                rel={target === "_blank" ? "noopener noreferrer" : undefined}
+            >
+                {cardBody}
+            </LangLink>
+        </div>
+    );
+};
+// #endregion
+
+// #region Private
+const getJQuery = (): JQueryStatic | null =>
+{
+    // return：取得全域 jQuery
+    if (typeof window === "undefined") return null;
+
+    const jqWindow = window as JQueryGlobal;
+    return jqWindow.jQuery ?? jqWindow.$ ?? null;
+};
+
+
+const sortBannerDetails = (banner: BannerSet | null): BannerDetail[] =>
+{
+    // 宣告變數：原始明細
+    const list = banner?.BannerDetail ?? [];
+
+    // return：依 Sort 與 RowId 穩定排序
+    return [...list].sort((a, b) =>
+    {
+        const aSort = Number.isFinite(a?.Sort) ? Number(a.Sort) : Number.MAX_SAFE_INTEGER;
+        const bSort = Number.isFinite(b?.Sort) ? Number(b.Sort) : Number.MAX_SAFE_INTEGER;
+
+        return aSort - bSort || (a.RowId ?? 0) - (b.RowId ?? 0);
+    });
+};
+
+
+const initOwlCarousel = ($owl: OwlJQueryElement): void =>
+{
+    // 執行 function：初始化 owl
+    $owl.owlCarousel({
+        items: 5,
+        loop: false,
+        dots: false,
+        nav: true,
+        margin: 30,
+        autoplay: false,
+        autoplayTimeout: 5000,
+        autoplayHoverPause: true,
+        responsive: { 0: { items: 2 }, 575: { items: 2 }, 767: { items: 3 }, 991: { items: 4 }, 1199: { items: 5 } },
+    });
+};
+
+
+const destroyOwlSafe = ($owl: JQuery<HTMLElement>): void =>
+{
+    // 執行 function：安全摧毀 owl
+    try
+    {
+        $owl.trigger("destroy.owl.carousel");
+    } catch
+    {
+        //
+    }
+};
+
+
+const updateToggleButton = (toggleEl: HTMLAnchorElement, isPlaying: boolean): void =>
+{
+    // 宣告變數：按鈕內 icon / sr-only
+    const iconBox = toggleEl.querySelector(".control-toggle");
+    const srText = toggleEl.querySelector(".sr-only");
+
+    // 執行 function：清空舊狀態
+    iconBox?.classList.remove("control-play-icon", "control-pause-icon");
+
+    if (isPlaying)
+    {
+        toggleEl.setAttribute("aria-pressed", "true");
+        toggleEl.setAttribute("title", "暫停");
+        toggleEl.setAttribute("aria-label", "圖片輪播播放中，點擊暫停");
+
+        iconBox?.classList.add("control-pause-icon");
+
+        if (srText)
+        {
+            srText.textContent = "圖片輪播播放中，點擊暫停";
+        }
+        return;
+    }
+
+    toggleEl.setAttribute("aria-pressed", "false");
+    toggleEl.setAttribute("title", "播放");
+    toggleEl.setAttribute("aria-label", "圖片輪播已暫停，點擊播放");
+
+    iconBox?.classList.add("control-play-icon");
+
+    if (srText)
+    {
+        srText.textContent = "圖片輪播已暫停，點擊播放";
+    }
+};
+
+
+const findBannerInfo = (
+    banner: BannerSet | null,
+    bannerId: string | null | undefined,
+    rowId: number | null | undefined,
+    lang: Lang,
+): BannerDetailInfo | undefined =>
+{
+    // return：依語系找對應資訊
+    return banner?.BannerDetailInfo?.find((item) =>
+    {
+        return (item.BannerId === bannerId && item.ParentRowId === rowId && item.Lang === lang);
+    });
+};
+// #endregion

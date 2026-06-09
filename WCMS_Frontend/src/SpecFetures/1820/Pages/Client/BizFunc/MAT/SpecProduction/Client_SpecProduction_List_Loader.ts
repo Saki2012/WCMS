@@ -1,4 +1,3 @@
-//#region Property
 import { MaterialAdapter } from "@/Features/Hooks/BizFunc/MAT/Material_Api";
 import {
     buildClientDataQueryKey,
@@ -32,12 +31,20 @@ import {
 import { useMemo } from "react";
 import { type LoaderFunctionArgs, useLoaderData } from "react-router-dom";
 
+import { findTextByKey } from "@/SysCore/Utils/Library/LibData";
+
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 type MaterialSet = components["schemas"]["MaterialSet_DTO"];
+
 type MaterialTag = components["schemas"]["MaterialTags_DTO"];
+
 type PageManagementSet = components["schemas"]["PageManagementSet_DTO"];
 
+
 const EMPTY_QUERY: QueryListParam = { Fields: [], Condition: "1 = 0", PageNumber: 1, PageSize: 1 };
+
 
 interface SpecProductionListLoaderArgs
 {
@@ -47,6 +54,7 @@ interface SpecProductionListLoaderArgs
     pageParam: QueryListParam;
 }
 
+
 interface SpecProductionListRawData
 {
     pageContent: string;
@@ -54,11 +62,13 @@ interface SpecProductionListRawData
     prodData: Map<MaterialTag, MaterialSet[]>;
 }
 
+
 interface SpecProductionListLoaderData
 {
     args: SpecProductionListLoaderArgs;
     res: SpecProductionListRawData;
 }
+
 
 interface UseSpecProductionListFetchDataResult
 {
@@ -67,11 +77,13 @@ interface UseSpecProductionListFetchDataResult
     errorList: string[];
 }
 
+
 interface SpecProductionListQueryParam
 {
     materialParam: QueryListParam;
     pageParam: QueryListParam;
 }
+
 
 interface SpecProductionListSearchParams
 {
@@ -79,7 +91,9 @@ interface SpecProductionListSearchParams
     opt?: Module_SpecProduction_OptionsJson;
 }
 
+
 type SpecProductionListAdapter = { Page: ReturnType<typeof PageManagementAdapter>; Material: ReturnType<typeof MaterialAdapter>; };
+
 type SpecProductionListTemplate = ClientDataQueryTemplate<
     SpecProductionListSearchParams,
     SpecProductionListRawData,
@@ -88,16 +102,60 @@ type SpecProductionListTemplate = ClientDataQueryTemplate<
     SpecProductionListQueryParam,
     SpecProductionListLoaderData
 >;
+
 type SpecProductionListDataSourceContext = Parameters<NonNullable<NonNullable<SpecProductionListTemplate["spec"]>["useDataSource"]>>[0];
+// #endregion
 
+// #region Public
+/** 前台物件列表 SSR Loader */
+
+export const Client_SpecProduction_List_Loader =
+    (p: { lang: Lang; opts?: Module_SpecProduction_OptionsJson; }) => async ({ request }: LoaderFunctionArgs): Promise<SpecProductionListLoaderData> =>
+    {
+        const ssrApi = getSsrApi(request);
+        const adapter = { Page: PageManagementAdapter(ssrApi), Material: MaterialAdapter(ssrApi) };
+        const queryState = buildSpecProductionListQueryState({ lang: p.lang, opt: p.opts });
+        const baseParam = queryState.queryParam.materialParam === EMPTY_QUERY ? null : queryState.queryParam.materialParam;
+        const pageParam = queryState.queryParam.pageParam;
+        if (!baseParam)
+        {
+            return { args: { lang: p.lang, opt: p.opts, baseParam: null, pageParam }, res: buildEmptyRawData() };
+        }
+        const materialLoader = adapter.Material.loader.createQueryListLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
+        const pageLoader = adapter.Page.loader.createQueryListLoader({ getCondition: () => pageParam, getApiInstance: () => ssrApi });
+        const [materialLD, pageLD] = await Promise.all([materialLoader({ request } as LoaderFunctionArgs), pageLoader({ request } as LoaderFunctionArgs)]);
+        const materialList = materialLD.apiRes.Data ?? [];
+        const pageList = pageLD.apiRes.Data ?? [];
+        return { args: { lang: p.lang, opt: p.opts, baseParam, pageParam }, res: buildRawData({ materialList, pageList, lang: p.lang }) };
+    };
+
+
+/** 前台物件列表 Hook，提供 Comp 直接吃的 props */
+export const useClientSpecProductionListFetchData = (
+    props: { lang: Lang; options?: Module_SpecProduction_OptionsJson; },
+): UseSpecProductionListFetchDataResult =>
+{
+    // 宣告變數
+    const template = useMemo(() =>
+    {
+        return createSpecProductionListDataQueryTemplate({ lang: props.lang, opt: props.options });
+    }, [props.lang, props.options]);
+
+    const templateVm = useClientDataQueryTemplate(template);
+
+    // return
+    return { rawData: templateVm.viewModel, isLoading: templateVm.isLoading, errorList: templateVm.errorList };
+};
+// #endregion
+
+// #region Private
 /** 建立空 rawData */
-//#endregion
 
-//#region Private - Query Helpers
 const buildEmptyRawData = (): SpecProductionListRawData =>
 {
     return { pageContent: "", catName: "", prodData: new Map<MaterialTag, MaterialSet[]>() };
 };
+
 
 /** 建立 Material 查詢參數 */
 const buildMaterialParam = (p: { categoryId?: string; tagIds?: string; }): QueryListParam | null =>
@@ -142,6 +200,7 @@ const buildMaterialParam = (p: { categoryId?: string; tagIds?: string; }): Query
     };
 };
 
+
 /** 建立 Page 查詢參數 */
 const buildPageParam = (p: { pageInternalId?: string; }): QueryListParam =>
 {
@@ -157,12 +216,8 @@ const buildPageParam = (p: { pageInternalId?: string; }): QueryListParam =>
     };
 };
 
-/** 取得物件唯一鍵，避免同一物件重複塞入同一個 Tag 群組 */
-const getMaterialKey = (item: MaterialSet): string =>
-{
-    return item.Material?.InternalId ?? item.Material?.MaterialId ?? "";
-};
 
+/** 取得物件唯一鍵，避免同一物件重複塞入同一個 Tag 群組 */
 /** 依 TagId 分組 MaterialSet，Map key 使用第一個遇到的 MaterialTag 物件 */
 const groupMaterialByTag = (list: MaterialSet[]): Map<MaterialTag, MaterialSet[]> =>
 {
@@ -174,7 +229,7 @@ const groupMaterialByTag = (list: MaterialSet[]): Map<MaterialTag, MaterialSet[]
         {
             if (!tag.TagId) return;
 
-            const materialKey = getMaterialKey(item);
+            const materialKey = item.Material?.InternalId ?? item.Material?.MaterialId ?? "";
             const group = tagMap.get(tag.TagId) ?? { tag, list: [], keys: new Set<string>() };
 
             if (materialKey.length <= 0 || !group.keys.has(materialKey))
@@ -190,23 +245,27 @@ const groupMaterialByTag = (list: MaterialSet[]): Map<MaterialTag, MaterialSet[]
     return new Map(Array.from(tagMap.values()).map((x) => [x.tag, x.list]));
 };
 
+
 /** 取得頁面內容 */
 const getPageContent = (list: PageManagementSet[], lang: Lang): string =>
 {
-    return list[0]?.PageManagementDetail?.find((p) => p.Lang === lang)?.Content ?? "";
+    return findTextByKey(list[0]?.PageManagementDetail, (p) => p?.Lang, lang, (p) => p?.Content);
 };
+
 
 /** 取得類別名稱 */
 const getCategoryName = (list: MaterialSet[], lang: Lang): string =>
 {
-    return list[0]?.Material?.Category?._CategoryDetail?.find((p) => p.Lang === lang)?.CategoryName ?? "";
+    return findTextByKey(list[0]?.Material?.Category?._CategoryDetail, (p) => p?.Lang, lang, (p) => p?.CategoryName);
 };
+
 
 /** 建立前台物件列表 rawData */
 const buildRawData = (p: { materialList: MaterialSet[]; pageList: PageManagementSet[]; lang: Lang; }): SpecProductionListRawData =>
 {
     return { pageContent: getPageContent(p.pageList, p.lang), catName: getCategoryName(p.materialList, p.lang), prodData: groupMaterialByTag(p.materialList) };
 };
+
 
 
 /** 建立 loader / hook 共用查詢狀態 */
@@ -221,10 +280,9 @@ const buildSpecProductionListQueryState = (p: SpecProductionListSearchParams) =>
     return buildClientDataQueryState(template, searchValues, viewState);
 };
 
-/** 建立 SpecProduction List DataQuery Template */
-//#endregion
 
-//#region Template - Client DataQuery
+/** 建立 SpecProduction List DataQuery Template */
+
 const createSpecProductionListDataQueryTemplate = (p: SpecProductionListSearchParams): SpecProductionListTemplate =>
 {
     // return
@@ -245,6 +303,7 @@ const createSpecProductionListDataQueryTemplate = (p: SpecProductionListSearchPa
         },
     };
 };
+
 
 /** DataSource：用 Template 統一接頁面內容與物件清單 */
 const useSpecProductionListDataSource = (
@@ -280,45 +339,4 @@ const useSpecProductionListDataSource = (
         paginator: null,
     };
 };
-
-/** 前台物件列表 SSR Loader */
-//#endregion
-
-//#region Public - SSR Loader / CSR Hook
-export const Client_SpecProduction_List_Loader =
-    (p: { lang: Lang; opts?: Module_SpecProduction_OptionsJson; }) => async ({ request }: LoaderFunctionArgs): Promise<SpecProductionListLoaderData> =>
-    {
-        const ssrApi = getSsrApi(request);
-        const adapter = { Page: PageManagementAdapter(ssrApi), Material: MaterialAdapter(ssrApi) };
-        const queryState = buildSpecProductionListQueryState({ lang: p.lang, opt: p.opts });
-        const baseParam = queryState.queryParam.materialParam === EMPTY_QUERY ? null : queryState.queryParam.materialParam;
-        const pageParam = queryState.queryParam.pageParam;
-        if (!baseParam)
-        {
-            return { args: { lang: p.lang, opt: p.opts, baseParam: null, pageParam }, res: buildEmptyRawData() };
-        }
-        const materialLoader = adapter.Material.loader.createQueryListLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
-        const pageLoader = adapter.Page.loader.createQueryListLoader({ getCondition: () => pageParam, getApiInstance: () => ssrApi });
-        const [materialLD, pageLD] = await Promise.all([materialLoader({ request } as LoaderFunctionArgs), pageLoader({ request } as LoaderFunctionArgs)]);
-        const materialList = materialLD.apiRes.Data ?? [];
-        const pageList = pageLD.apiRes.Data ?? [];
-        return { args: { lang: p.lang, opt: p.opts, baseParam, pageParam }, res: buildRawData({ materialList, pageList, lang: p.lang }) };
-    };
-
-/** 前台物件列表 Hook，提供 Comp 直接吃的 props */
-export const useClientSpecProductionListFetchData = (
-    props: { lang: Lang; options?: Module_SpecProduction_OptionsJson; },
-): UseSpecProductionListFetchDataResult =>
-{
-    // 宣告變數
-    const template = useMemo(() =>
-    {
-        return createSpecProductionListDataQueryTemplate({ lang: props.lang, opt: props.options });
-    }, [props.lang, props.options]);
-
-    const templateVm = useClientDataQueryTemplate(template);
-
-    // return
-    return { rawData: templateVm.viewModel, isLoading: templateVm.isLoading, errorList: templateVm.errorList };
-};
-//#endregion
+// #endregion

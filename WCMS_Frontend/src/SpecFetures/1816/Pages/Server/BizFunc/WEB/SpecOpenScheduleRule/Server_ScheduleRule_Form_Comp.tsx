@@ -15,6 +15,7 @@ import { useScheduleRuleFormTemplate } from "./Server_ScheduleRule_Form_Hook";
 // #region Property
 type SpecOpenScheduleRuleSet = components["schemas"]["SpecOpenScheduleRuleSet_DTO"];
 
+
 const emptySet: SpecOpenScheduleRuleSet = {
     SpecOpenScheduleRule: {
         AcademicYearId: "",

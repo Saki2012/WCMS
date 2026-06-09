@@ -1,11 +1,14 @@
 import type { FC } from "react";
 
+// #region Property
 interface DeleteButtonProps
 {
     id: string | number; // 主鍵值
     onDelete: (id: string | number) => Promise<void>; // 傳入的刪除邏輯
 }
+// #endregion
 
+// #region Private
 const DeleteButton: FC<DeleteButtonProps> = ({ id, onDelete }) =>
 {
     const handleDelete = async () =>
@@ -30,4 +33,6 @@ const DeleteButton: FC<DeleteButtonProps> = ({ id, onDelete }) =>
     );
 };
 
+
 export default DeleteButton;
+// #endregion

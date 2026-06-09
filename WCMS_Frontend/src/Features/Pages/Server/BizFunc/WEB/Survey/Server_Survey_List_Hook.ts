@@ -11,19 +11,22 @@ import type { SearchFieldConfig, SearchValue, SearchValues } from "@/SysCore/Com
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
-import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
+import { formatDateTime } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { AccountFields, PGID, SurveyFields } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
 import { type NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 type SurveySet = components["schemas"]["SurveySet_DTO"];
+
 type SurveyApiAdapter = ReturnType<typeof SurveyAdapter>;
+
 type SurveyCudActions = ReturnType<SurveyApiAdapter["hooks"]["useCudActions"]>;
 
-export const SURVEY_NAME_SEARCH_KEY = "title";
 
 export interface SurveySearchParams
 {
@@ -33,6 +36,7 @@ export interface SurveySearchParams
     /** 問卷名稱搜尋關鍵字 */
     title?: string;
 }
+
 
 export interface SurveyListRawData
 {
@@ -58,6 +62,7 @@ export interface SurveyListRawData
     param: QueryListParam;
 }
 
+
 export interface SurveyListAdapter
 {
     /** 問卷 API adapter */
@@ -73,7 +78,28 @@ export interface SurveyListAdapter
     dirUrl: string;
 }
 
+
 export type SurveyListGridTemplate = ServerListGridTemplate<SurveySearchParams, SurveyListRawData, SurveyListAdapter, QueryListParam>;
+
+
+type CrudDeps = {
+    /** React Router 導頁方法 */
+    navigate: NavigateFunction;
+
+    /** 目前 List 對應的 Form 路徑 */
+    dirUrl: string;
+
+    /** 刪除資料方法 */
+    deleteAsync: SurveyCudActions["deleteAsync"];
+
+    /** 刪除後重新查詢 */
+    afterDelete: () => Promise<void>;
+};
+// #endregion
+
+// #region Public
+export const SURVEY_NAME_SEARCH_KEY = "title";
+
 
 /** 建立問卷後台 ListGridTemplate 設定 */
 export const useSurveyListGridTemplate = (opt: { lang: Lang; }): SurveyListGridTemplate =>
@@ -93,7 +119,9 @@ export const useSurveyListGridTemplate = (opt: { lang: Lang; }): SurveyListGridT
         };
     }, [opt.lang]);
 };
+// #endregion
 
+// #region Private
 /** 執行問卷列表資料來源 Hook */
 const useSurveyListGridDataSource = (
     ctx: ServerListGridDataSourceContext<SurveySearchParams, QueryListParam>,
@@ -145,6 +173,7 @@ const useSurveyListGridDataSource = (
     return { adapter: { ...apiAdapter, cudActions, navigate, dirUrl }, rawData, isLoading, errors, refetchData };
 };
 
+
 /** 建立問卷搜尋欄位設定 */
 const buildSurveySearchFields = (rawData: SurveyListRawData): SearchFieldConfig[] =>
 {
@@ -153,11 +182,13 @@ const buildSurveySearchFields = (rawData: SurveyListRawData): SearchFieldConfig[
     return [{ key: SURVEY_NAME_SEARCH_KEY, title, type: "text", placeholder: `請輸入${title}` }];
 };
 
+
 /** 將 SearchValues 轉為問卷列表查詢參數 */
 const toSurveySearchParams = (values: SearchValues, lang: Lang): SurveySearchParams =>
 {
     return { lang, title: getSearchStringValue(values[SURVEY_NAME_SEARCH_KEY]) };
 };
+
 
 /** 建立問卷搜尋條件 */
 const buildSurveySearchConditions = (ctx: { searchParams: SurveySearchParams; }): string[] =>
@@ -167,11 +198,13 @@ const buildSurveySearchConditions = (ctx: { searchParams: SurveySearchParams; })
     return [`${SurveyFields.SurveyName} Like ${ctx.searchParams.title}`];
 };
 
+
 /** 建立問卷列表完整 QueryParam */
 const buildSurveyQueryParam = (ctx: { searchCondition: string; }): QueryListParam =>
 {
     return { Fields: buildSurveyQueryFields(), Condition: ctx.searchCondition, OrderBy: [{ Col: SurveyFields.CreateTime, Desc: true }], PageNumber: 1, PageSize: 10 };
 };
+
 
 /** 建立問卷列表查詢欄位 */
 const buildSurveyQueryFields = (): string[] =>
@@ -187,19 +220,6 @@ const buildSurveyQueryFields = (): string[] =>
     ];
 };
 
-type CrudDeps = {
-    /** React Router 導頁方法 */
-    navigate: NavigateFunction;
-
-    /** 目前 List 對應的 Form 路徑 */
-    dirUrl: string;
-
-    /** 刪除資料方法 */
-    deleteAsync: SurveyCudActions["deleteAsync"];
-
-    /** 刪除後重新查詢 */
-    afterDelete: () => Promise<void>;
-};
 
 /** 將問卷資料轉為 GridProps */
 const buildSurveyGridProps = (
@@ -232,6 +252,7 @@ const buildSurveyGridProps = (
     });
 };
 
+
 /** 注入問卷 Grid 編輯與刪除動作 */
 const enhanceSurveyGrid = (
     opt: {
@@ -262,11 +283,13 @@ const enhanceSurveyGrid = (
     });
 };
 
+
 /** 建立問卷列表欄位定義 */
 const buildColumns = (visibleCols: string[], raw: SurveyListRawData): ColumnConfig[] =>
 {
     return visibleCols.map((col) => ({ key: col, title: getColumnTitle(raw.modelDisplayName, col, `【${col}】`) }));
 };
+
 
 /** 建立問卷列表列資料 */
 const buildSurveyRows = (raw: SurveyListRawData, columns: ColumnConfig[]): GridRow[] =>
@@ -277,12 +300,13 @@ const buildSurveyRows = (raw: SurveyListRawData, columns: ColumnConfig[]): GridR
         const cells: RowCell[] = [
             { col: columns[0], content: set.Survey?.SurveyName ?? "" },
             { col: columns[1], content: set.Survey?.ModifyUser?.AccountName ?? "" },
-            { col: columns[2], content: FormatDateTime(set.Survey?.ModifyTime) },
+            { col: columns[2], content: formatDateTime(set.Survey?.ModifyTime) },
         ];
 
         return { keyId, cells };
     });
 };
+
 
 /** 依欄位代碼取得 ModelDisplayName 顯示文字 */
 const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, columnId: string, fallback: string): string =>
@@ -292,6 +316,7 @@ const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, columnId: s
     return hit?.ColumnDisplayName ?? fallback;
 };
 
+
 /** 取得 SearchValue 的文字值 */
 const getSearchStringValue = (value: SearchValue): string | undefined =>
 {
@@ -300,3 +325,4 @@ const getSearchStringValue = (value: SearchValue): string | undefined =>
     const text = value.trim();
     return text.length > 0 ? text : undefined;
 };
+// #endregion

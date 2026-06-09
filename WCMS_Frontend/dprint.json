@@ -1,6 +1,6 @@
 {
     "$schema": "https://dprint.dev/schemas/v0.json",
-    "lineWidth": 160,
+    "lineWidth": 260,
     "useTabs": false,
     "indentWidth": 4,
     "typescript": {
@@ -8,7 +8,7 @@
         "semiColons": "always",
         "bracePosition": "nextLine",
         "preferHanging": false,
-        "preferSingleLine": true
+        "preferSingleLine": false
     },
     "plugins": [
         "https://plugins.dprint.dev/typescript-0.95.11.wasm"

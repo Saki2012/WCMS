@@ -1,22 +1,39 @@
 import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
 import { useFormDetailViewCount } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Hooks";
-import type { IAnnouncementFormProps } from "@/Features/Pages/Client/BizFunc/WEB/Announcement/AnnouncementForm";
-import { useAnnouncementFormFetchData } from "@/Features/Pages/Client/BizFunc/WEB/Announcement/AnnouncementForm_Loader";
+import type { IAnnouncementFormProps } from "@/Features/Pages/Client/BizFunc/WEB/Announcement/Client_Announcement_Form_Comp";
+import { useAnnouncementFormFetchData } from "@/Features/Pages/Client/BizFunc/WEB/Announcement/Client_Announcement_Form_Loader";
 import type { ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import { FormatDate } from "@/SysCore/Utils/Library/LibData";
+import { formatDate } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { PGID } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
-type AnnouncementDetailFile = components["schemas"]["AnnouncementDetailFile_DTO"];
-const emptyData: AnnouncementSet = { Announcement: {}, AnnouncementDetail: [] };
 
+// #region Property
+type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
+
+type AnnouncementDetailFile = components["schemas"]["AnnouncementDetailFile_DTO"];
+
+const emptyData: AnnouncementSet = { Announcement: {}, AnnouncementDetail: [] };
+// #endregion
+
+// #region EntityComp
+const buildDetailViewCountOptions = (config: ModuleViewCountConfig) =>
+{
+    if (config.mode === "list")
+    {
+        return { enabled: false, contentKey: "", request: null, cooldownMs: undefined, apiInstance: undefined };
+    }
+    return { enabled: true, contentKey: config.contentKey, request: config.request, cooldownMs: config.cooldownMs, apiInstance: config.apiInstance };
+};
+// #endregion
+
+// #region Private
 const AnnouncementForm = (props: IAnnouncementFormProps) =>
 {
     // 宣告變數
@@ -59,7 +76,7 @@ const Content = (prop: { lang: Lang; theme: IFETheme; data: AnnouncementSet; cat
     const files = prop.data?.AnnouncementDetailFile?.filter(p => p.AnnouncementId === langData?.AnnouncementId && p.ParentRowId === langData?.RowId) ?? [];
 
     const title = langData?.Title;
-    const startDate = FormatDate(prop.data?.Announcement?.Validate_Start);
+    const startDate = formatDate(prop.data?.Announcement?.Validate_Start);
     const href = langData?.Url ?? "";
     const hrefName = langData?.UrlDescription ?? "";
     const rawContent = langData?.Content ?? "";
@@ -160,12 +177,4 @@ const GoBackRow: React.FC = () =>
         </div>
     );
 };
-
-const buildDetailViewCountOptions = (config: ModuleViewCountConfig) =>
-{
-    if (config.mode === "list")
-    {
-        return { enabled: false, contentKey: "", request: null, cooldownMs: undefined, apiInstance: undefined };
-    }
-    return { enabled: true, contentKey: config.contentKey, request: config.request, cooldownMs: config.cooldownMs, apiInstance: config.apiInstance };
-};
+// #endregion

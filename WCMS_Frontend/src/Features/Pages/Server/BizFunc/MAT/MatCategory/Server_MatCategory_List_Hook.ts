@@ -11,7 +11,7 @@ import type { SearchFieldConfig, SearchValue, SearchValues } from "@/SysCore/Com
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
-import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
+import { findTextByKey, formatDateTime } from "@/SysCore/Utils/Library/LibData";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
@@ -26,18 +26,22 @@ import {
 import { useCallback, useMemo } from "react";
 import { type NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 export type MatCategorySet = components["schemas"]["MatCategoryDataSet_DTO"];
+
 type MatCategoryApiAdapter = ReturnType<typeof MatCategoryAdapter>;
+
 type MatCategoryCudActions = ReturnType<MatCategoryApiAdapter["hooks"]["useCudActions"]>;
 
-export const MAT_CATEGORY_NAME_SEARCH_KEY = "categoryName";
 
 export interface MatCategoryListRenderers
 {
     /** 渲染自定義欄位資訊，JSX 請留在 Comp 實作 */
     renderInfoFieldContent: (set: MatCategorySet, lang: Lang) => RowCell["content"];
 }
+
 
 export interface MatCategorySearchParams
 {
@@ -47,6 +51,7 @@ export interface MatCategorySearchParams
     /** 物件類別名稱搜尋關鍵字 */
     categoryName?: string;
 }
+
 
 export interface MatCategoryListRawData
 {
@@ -72,6 +77,7 @@ export interface MatCategoryListRawData
     param: QueryListParam;
 }
 
+
 export interface MatCategoryListAdapter
 {
     /** 物件類別 API adapter */
@@ -87,7 +93,28 @@ export interface MatCategoryListAdapter
     dirUrl: string;
 }
 
+
 export type MatCategoryListGridTemplate = ServerListGridTemplate<MatCategorySearchParams, MatCategoryListRawData, MatCategoryListAdapter, QueryListParam>;
+
+
+type CrudDeps = {
+    /** React Router 導頁方法 */
+    navigate: NavigateFunction;
+
+    /** 目前 List 對應的 Form 路徑 */
+    dirUrl: string;
+
+    /** 刪除資料方法 */
+    deleteAsync: MatCategoryCudActions["deleteAsync"];
+
+    /** 刪除後重新查詢 */
+    afterDelete: () => Promise<void>;
+};
+// #endregion
+
+// #region Public
+export const MAT_CATEGORY_NAME_SEARCH_KEY = "categoryName";
+
 
 /** 建立物件類別後台 Feature ListGridTemplate 設定 */
 export const useMatCategoryListGridTemplate = (opt: { lang: Lang; renderers: MatCategoryListRenderers; }): MatCategoryListGridTemplate =>
@@ -113,7 +140,9 @@ export const useMatCategoryListGridTemplate = (opt: { lang: Lang; renderers: Mat
         };
     }, [opt.lang, opt.renderers]);
 };
+// #endregion
 
+// #region Private
 /** 執行物件類別列表資料來源 Hook */
 const useMatCategoryListGridDataSource = (
     ctx: ServerListGridDataSourceContext<MatCategorySearchParams, QueryListParam>,
@@ -159,6 +188,7 @@ const useMatCategoryListGridDataSource = (
     return { adapter: { ...apiAdapter, cudActions, navigate, dirUrl }, rawData, isLoading: grid.isLoading, errors: grid.errors ?? [], refetchData };
 };
 
+
 /** 建立物件類別搜尋欄位設定 */
 const buildMatCategorySearchFields = (rawData: MatCategoryListRawData): SearchFieldConfig[] =>
 {
@@ -166,6 +196,7 @@ const buildMatCategorySearchFields = (rawData: MatCategoryListRawData): SearchFi
 
     return [{ key: MAT_CATEGORY_NAME_SEARCH_KEY, title: categoryNameTitle, type: "text", placeholder: `請輸入${categoryNameTitle}` }];
 };
+
 
 /** 將 SearchValues 轉為物件類別列表查詢參數 */
 const toMatCategorySearchParams = (values: SearchValues, lang: Lang): MatCategorySearchParams =>
@@ -175,6 +206,7 @@ const toMatCategorySearchParams = (values: SearchValues, lang: Lang): MatCategor
         categoryName: getSearchStringValue(values[MAT_CATEGORY_NAME_SEARCH_KEY]),
     };
 };
+
 
 /** 建立物件類別搜尋條件 */
 const buildMatCategorySearchConditions = (ctx: { searchParams: MatCategorySearchParams; }): string[] =>
@@ -188,6 +220,7 @@ const buildMatCategorySearchConditions = (ctx: { searchParams: MatCategorySearch
 
     return conditions;
 };
+
 
 /** 建立物件類別列表完整 QueryParam */
 const buildMatCategoryQueryParam = (ctx: { searchParams: MatCategorySearchParams; searchCondition: string; }): QueryListParam =>
@@ -205,6 +238,7 @@ const buildMatCategoryQueryParam = (ctx: { searchParams: MatCategorySearchParams
     };
 };
 
+
 /** 建立物件類別列表查詢欄位 */
 const buildMatCategoryQueryFields = (): string[] =>
 {
@@ -221,19 +255,6 @@ const buildMatCategoryQueryFields = (): string[] =>
     ];
 };
 
-type CrudDeps = {
-    /** React Router 導頁方法 */
-    navigate: NavigateFunction;
-
-    /** 目前 List 對應的 Form 路徑 */
-    dirUrl: string;
-
-    /** 刪除資料方法 */
-    deleteAsync: MatCategoryCudActions["deleteAsync"];
-
-    /** 刪除後重新查詢 */
-    afterDelete: () => Promise<void>;
-};
 
 /** 將物件類別資料轉為 GridProps */
 const buildMatCategoryGridProps = (
@@ -267,6 +288,7 @@ const buildMatCategoryGridProps = (
     });
 };
 
+
 /** 注入物件類別 Grid 編輯與刪除動作 */
 const enhanceMatCategoryGrid = (
     opt: {
@@ -297,17 +319,20 @@ const enhanceMatCategoryGrid = (
     });
 };
 
+
 /** 建立物件類別列表欄位定義 */
 const buildColumns = (visibleCols: string[], raw: MatCategoryListRawData): ColumnConfig[] =>
 {
     return visibleCols.map((col) => ({ key: col, title: getColumnTitle(raw.modelDisplayName, col, col) }));
 };
 
+
 /** 建立物件類別列表列資料 */
 const buildMatCategoryRows = (raw: MatCategoryListRawData, lang: Lang, columns: ColumnConfig[], renderers: MatCategoryListRenderers): GridRow[] =>
 {
     return (raw.list ?? []).map((set) => buildMatCategoryRow(set, lang, columns, renderers));
 };
+
 
 /** 建立物件類別列表單列資料 */
 const buildMatCategoryRow = (set: MatCategorySet, lang: Lang, columns: ColumnConfig[], renderers: MatCategoryListRenderers): GridRow =>
@@ -318,17 +343,19 @@ const buildMatCategoryRow = (set: MatCategorySet, lang: Lang, columns: ColumnCon
         { col: columns[0], content: getCategoryName(set, lang) },
         { col: columns[1], content: renderers.renderInfoFieldContent(set, lang) },
         { col: columns[2], content: category?.ModifyUser?.AccountName ?? "" },
-        { col: columns[3], content: FormatDateTime(category?.ModifyTime) },
+        { col: columns[3], content: formatDateTime(category?.ModifyTime) },
     ];
 
     return { keyId, cells };
 };
 
+
 /** 取得指定語系的物件類別名稱 */
 const getCategoryName = (set: MatCategorySet, lang: Lang): string =>
 {
-    return (set.CategoryDetail ?? []).find((detail) => detail?.Lang === lang)?.CategoryName ?? "";
+    return findTextByKey(set.CategoryDetail, (detail) => detail?.Lang, lang, (detail) => detail?.CategoryName);
 };
+
 
 /** 依欄位代碼取得 ModelDisplayName 顯示文字 */
 const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, columnId: string, fallback: string): string =>
@@ -338,6 +365,7 @@ const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, columnId: s
     return hit?.ColumnDisplayName ?? fallback;
 };
 
+
 /** 取得 SearchValue 的文字值 */
 const getSearchStringValue = (value: SearchValue): string | undefined =>
 {
@@ -346,3 +374,4 @@ const getSearchStringValue = (value: SearchValue): string | undefined =>
     const text = value.trim();
     return text.length > 0 ? text : undefined;
 };
+// #endregion

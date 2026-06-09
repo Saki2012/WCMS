@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 
+// #region Public
 /** 當搜尋條件有異動時，reset當前頁面回第一頁(或第n頁) */
 export const useResetPageWhenKeyChanged = (conditionKey: string, onPageChange: (page: number) => void, resetPage?: number) =>
 {
@@ -13,3 +14,4 @@ export const useResetPageWhenKeyChanged = (conditionKey: string, onPageChange: (
         onPageChange(_resetPage);
     }, [conditionKey, onPageChange, _resetPage]);
 };
+// #endregion

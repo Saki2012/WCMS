@@ -26,10 +26,10 @@ import {
     useEditGridBinding,
 } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { type Lang, LangLabelMap, SUPPORTED_LANGS, useEnsureLangDetails } from "@/SysCore/i18n/lang";
+import { buildSupportedLangOrder, type Lang, LangLabelMap, normalizeSupportedLang, SUPPORTED_LANGS, useEnsureLangDetails } from "@/SysCore/i18n/lang";
 import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { LibText } from "@/SysCore/Utils/Library/LibData";
 import { useUploadFile } from "@/SysCore/Utils/UI_HookFunc/useUploadFile";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
@@ -47,18 +47,31 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 type MaterialSet = components["schemas"]["MaterialSet_DTO"];
+
 type MaterialLangInfo = components["schemas"]["MaterialLangInfo_DTO"];
+
 type MaterialPicture = components["schemas"]["MaterialPicture_DTO"];
+
 type MaterialTags = components["schemas"]["MaterialTags_DTO"];
+
 type MatCategorySet = components["schemas"]["MatCategoryDataSet_DTO"];
+
 type InfoField = components["schemas"]["MatCategoryInfoField_DTO"];
+
 type InfoFieldDisplay = components["schemas"]["MatCategoryInfoFieldDisplay_DTO"];
+
 type FileManage = components["schemas"]["FileManageModel_DTO"];
+
 type UploadFileHandler = ReturnType<typeof useUploadFile>["handleFileChange"];
+
 type MaterialInfoJson = Record<string, string>;
+
 export type MaterialRowKeyValue = string | number | null | undefined;
+
 export type MaterialRowKeys = Record<string, MaterialRowKeyValue>;
+
 interface InfoFieldKeySource extends InfoField
 {
     Field?: string | null;
@@ -231,8 +244,6 @@ export interface MaterialTagSelectionResult
     onChange: (value: unknown) => void;
 }
 
-export const materialEmptyData: MaterialSet = { Material: {}, MaterialLangInfo: [], MaterialPicture: [], MaterialTags: [] };
-
 export type MaterialFormRefs = {
     /** 物件類別選項 */
     categoryMap: Record<string, string>;
@@ -261,6 +272,8 @@ export type MaterialFormAdapter = {
 // #endregion
 
 // #region Public
+export const materialEmptyData: MaterialSet = { Material: {}, MaterialLangInfo: [], MaterialPicture: [], MaterialTags: [] };
+
 /** 建立 Material Form Template，統一交給 Server_FormTemplate 處理資料流程。 */
 export const useMaterialFormTemplate = (
     opt: UseMaterialFormTemplateOptions,
@@ -385,7 +398,7 @@ export const toMaterialPictureCellValue = (value: EditGridCellValue): MaterialPi
 };
 // #endregion
 
-// #region Timing
+// #region Private
 /** 建立 Material Form 標題，功能名稱優先讀 ModelDisplayName。 */
 const buildMaterialFormTitle = (ctx: { mode: "new" | "edit"; displayName: ModelDisplaySchema; }): string =>
 {
@@ -452,9 +465,7 @@ const useMaterialReferenceData = (ctx: { adapter: MaterialFormAdapter; binding: 
         tag.refetch,
     ]);
 };
-// #endregion
 
-// #region Private
 /** 取得 Material Model 顯示名稱，避免 Form 標題寫死功能名稱。 */
 const getMaterialModelTitle = (displayName: ModelDisplaySchema, fallback: string): string =>
 {
@@ -570,21 +581,6 @@ const buildSupportedMaterialLangMap = (details: MaterialLangInfo[]): Map<string,
     }, new Map<string, MaterialLangInfo>());
 };
 
-/** 建立目前 Case 支援語系順序，當前語系優先。 */
-const buildSupportedLangOrder = (preferLang: Lang): Lang[] =>
-{
-    const langs = [preferLang, ...SUPPORTED_LANGS];
-    return langs.filter((lang, index) => langs.indexOf(lang) === index && Boolean(normalizeSupportedLang(lang)));
-};
-
-/** 正規化並檢查語系是否屬於目前 Case 支援語系。 */
-const normalizeSupportedLang = (lang?: Lang | string | null): string | null =>
-{
-    const value = String(lang ?? "").trim().toLowerCase();
-    const isSupport = SUPPORTED_LANGS.some(item => item.toLowerCase() === value);
-    return isSupport ? value : null;
-};
-
 /** 建立單一物件語系 Tab 項目。 */
 const buildMaterialLangTabItem = (
     detail: MaterialLangInfo | undefined,
@@ -595,17 +591,15 @@ const buildMaterialLangTabItem = (
 ): MaterialLangTabItem | null =>
 {
     if (!detail) return null;
-
     const normalizedLang = normalizeSupportedLang(detail.Lang);
     if (!normalizedLang) return null;
-
-    const key = LibMerge("_", true, detail.MaterialId, detail.RowId, normalizedLang);
+    const key = LibText.Merge("_", true, detail.MaterialId, detail.RowId, normalizedLang);
     const label = LangLabelMap[normalizedLang as Lang] ?? normalizedLang;
     const rowKeys = buildMaterialLangRowKeys(detail, index);
     const infoItems = buildMaterialInfoItems(infoFields, infoFieldDisplays, lang);
-
     return { key, label, detail, rowKeys, infoItems };
 };
+
 /** 建立物件語系 RowKeys，保留 null / undefined 差異避免新增模式比對錯位。 */
 const buildMaterialLangRowKeys = (detail: MaterialLangInfo, index: number): MaterialRowKeys =>
 {

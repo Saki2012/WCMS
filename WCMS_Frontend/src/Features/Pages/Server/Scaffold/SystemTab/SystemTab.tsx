@@ -1,9 +1,10 @@
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
-import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
+import { formatDateTime } from "@/SysCore/Utils/Library/LibData";
 import { useMemo } from "react";
 
+// #region Property
 // DTOBasicDataModelFields.ts
 const DTOBasicDataModelFields = {
     CreateTime: "CreateTime",
@@ -14,35 +15,14 @@ const DTOBasicDataModelFields = {
     ModifyUser: "ModifyUser",
 } as const;
 
+
 type AnyObj = Record<string, any>;
 
+
 type Props = { theme: IBETheme; formData: any; setKey: string; };
+// #endregion
 
-const pickUserId = (u: AnyObj | null | undefined): string =>
-{
-    const id = u?.AccountId;
-    return String(id ?? "");
-};
-
-const pickUserName = (u: AnyObj | null | undefined): string =>
-{
-    const name = u?.AccountName;
-    return String(name ?? "");
-};
-
-const formatUserDisplay = (u: AnyObj | null | undefined): string =>
-{
-    // NOTE: 顯示成 "id, name"
-    const id = pickUserId(u);
-    const name = pickUserName(u);
-
-    if (!id && !name) return "";
-    if (id && !name) return id;
-    if (!id && name) return name;
-
-    return `${id}, ${name}`;
-};
-
+// #region Public
 /** ✅ 後台共用：系統資訊頁籤（新增/修改人員與時間） */
 export const SystemInfoTabComp = <TSet extends AnyObj>(props: Props) =>
 {
@@ -90,16 +70,46 @@ export const SystemInfoTabComp = <TSet extends AnyObj>(props: Props) =>
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     {...setField(props.setKey, DTOBasicDataModelFields.CreateTime, "datetime")}
-                    InputValue={FormatDateTime(mainRow?.[DTOBasicDataModelFields.CreateTime])}
+                    InputValue={formatDateTime(mainRow?.[DTOBasicDataModelFields.CreateTime])}
                     disabled={true}
                 />
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     {...setField(props.setKey, DTOBasicDataModelFields.ModifyTime, "datetime")}
-                    InputValue={FormatDateTime(mainRow?.[DTOBasicDataModelFields.ModifyTime])}
+                    InputValue={formatDateTime(mainRow?.[DTOBasicDataModelFields.ModifyTime])}
                     disabled={true}
                 />
             </div>
         </>
     );
 };
+// #endregion
+
+// #region Private
+const pickUserId = (u: AnyObj | null | undefined): string =>
+{
+    const id = u?.AccountId;
+    return String(id ?? "");
+};
+
+
+const pickUserName = (u: AnyObj | null | undefined): string =>
+{
+    const name = u?.AccountName;
+    return String(name ?? "");
+};
+
+
+const formatUserDisplay = (u: AnyObj | null | undefined): string =>
+{
+    // NOTE: 顯示成 "id, name"
+    const id = pickUserId(u);
+    const name = pickUserName(u);
+
+    if (!id && !name) return "";
+    if (id && !name) return id;
+    if (!id && name) return name;
+
+    return `${id}, ${name}`;
+};
+// #endregion

@@ -10,6 +10,7 @@ import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter";
 import { type RouteObject } from "react-router-dom";
 import { buildServerChildrenFromData } from "./ServerMenuIndex";
 
+// #region Property
 export interface RouteHandleMeta
 {
     moduleCode?: IModuleMeta["ModuleCode"];
@@ -17,9 +18,12 @@ export interface RouteHandleMeta
     actionCode?: IActionMeta["ActionCode"];
     title?: string;
 }
+// #endregion
 
+// #region Public
 export class BackendRouteModule implements IRouteModule
 {
+    // #region Public
     getRoutes(): RouteObject[]
     {
         const routes: RouteObject[] = [{ path: "/Server/Login", element: <LoginPage /> }, { path: "/Server/Logout", element: <LogoutPage /> }, {
@@ -37,4 +41,6 @@ export class BackendRouteModule implements IRouteModule
         }];
         return routes;
     }
+    // #endregion
 }
+// #endregion

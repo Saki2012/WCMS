@@ -29,6 +29,7 @@ import {
 // #region Property
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];
 
+
 interface FileArchiveFormCompProps
 {
     /** 後台主題設定 */
@@ -37,6 +38,7 @@ interface FileArchiveFormCompProps
     /** 目前語系 */
     lang: Lang;
 }
+
 
 interface HeaderSectionProps
 {
@@ -49,6 +51,7 @@ interface HeaderSectionProps
     /** FileArchive Hook 整理後的參照資料 */
     refs: FileArchiveFormRefs;
 }
+
 
 interface DetailSectionProps
 {
@@ -65,6 +68,7 @@ interface DetailSectionProps
     refs: FileArchiveFormRefs;
 }
 
+
 interface SubDetailSectionProps
 {
     /** Form Template 提供的主資料 binding */
@@ -74,17 +78,20 @@ interface SubDetailSectionProps
     parentRowId: number;
 }
 
+
 interface UrlSubDetailSectionProps extends SubDetailSectionProps
 {
     /** WindowTarget 下拉選項 */
     windowTargetOpts: Record<string, string>;
 }
 
+
 interface HeaderTabContentOptions extends HeaderSectionProps
 {
     /** 欄位 binding helper */
     setField: ReturnType<typeof useSetTableField<FileArchiveSet>>;
 }
+
 
 interface DetailTabContentOptions
 {
@@ -103,6 +110,7 @@ interface DetailTabContentOptions
     /** FileArchive Hook 整理後的參照資料 */
     refs: FileArchiveFormRefs;
 }
+
 
 interface DetailFieldsOptions
 {
@@ -124,6 +132,7 @@ interface DetailFieldsOptions
     /** WindowTarget 下拉選項 */
     windowTargetOpts: Record<string, string>;
 }
+
 
 const editGridStyle: IEditGridView_Style = {
     TableStyle: "table table-striped table-bordered table-hover",
@@ -185,6 +194,7 @@ const HeaderComp = (props: HeaderSectionProps) =>
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
 
+
 /** 檔案室多語 Detail 區塊，語系資料由 Hook 統一整理。 */
 const DetailComp = (props: DetailSectionProps) =>
 {
@@ -195,6 +205,7 @@ const DetailComp = (props: DetailSectionProps) =>
 
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
+
 
 /** 檔案室檔案 SubDetail 區塊，直接掛載 Hook 產生的 EditGrid props。 */
 const FileSubDetailComp = (props: SubDetailSectionProps) =>
@@ -207,6 +218,7 @@ const FileSubDetailComp = (props: SubDetailSectionProps) =>
         </div>
     );
 };
+
 
 /** 檔案室外部連結 SubDetail 區塊，直接掛載 Hook 產生的 EditGrid props。 */
 const UrlSubDetailComp = (props: UrlSubDetailSectionProps) =>
@@ -238,6 +250,7 @@ const buildHeaderTabContent = (opt: HeaderTabContentOptions): Record<string, Rea
     };
 };
 
+
 /** 建立基本資料欄位。 */
 const buildBasicFields = (opt: HeaderTabContentOptions): ReactNode[] =>
 {
@@ -249,6 +262,7 @@ const buildBasicFields = (opt: HeaderTabContentOptions): ReactNode[] =>
         />,
     ];
 };
+
 
 /** 建立狀態欄位。 */
 const buildStatusFields = (opt: HeaderTabContentOptions): ReactNode[] =>
@@ -265,6 +279,7 @@ const buildStatusFields = (opt: HeaderTabContentOptions): ReactNode[] =>
     ];
 };
 
+
 /** 建立標籤欄位。 */
 const buildTagFields = (opt: HeaderTabContentOptions): ReactNode[] =>
 {
@@ -276,6 +291,7 @@ const buildTagFields = (opt: HeaderTabContentOptions): ReactNode[] =>
         />,
     ];
 };
+
 
 /** 建立 Detail 語系分頁內容，畫面只依 Hook 整理後的 Tab 項目渲染。 */
 const buildDetailTabContent = (opt: DetailTabContentOptions): Record<string, ReactNode[]> =>
@@ -294,6 +310,7 @@ const buildDetailTabContent = (opt: DetailTabContentOptions): Record<string, Rea
     }, {});
 };
 
+
 /** 建立單一語系 Detail 欄位與 SubDetail Grid。 */
 const buildDetailFields = (opt: DetailFieldsOptions): ReactNode[] =>
 {
@@ -309,9 +326,8 @@ const buildDetailFields = (opt: DetailFieldsOptions): ReactNode[] =>
         <UrlSubDetailComp binding={opt.binding} parentRowId={opt.detailRowId} windowTargetOpts={opt.windowTargetOpts} />,
     ];
 };
-// #endregion
 
-// #region Private
+
 /** 建立回列表路徑，避免 Back 行為散在 JSX 中。 */
 const buildBackToListPath = (pathname: string): string =>
 {

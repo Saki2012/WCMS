@@ -7,6 +7,7 @@ import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import "./Footer.css";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 
+// #region Property
 export interface FooterRuntimeInfo
 {
     /** 最近 10 分鐘內瀏覽人數 */
@@ -20,6 +21,7 @@ export interface FooterRuntimeInfo
     /** 後端版本 */
     beVersion?: string | null;
 }
+
 export interface FooterProps
 {
     lang: Lang;
@@ -30,6 +32,7 @@ export interface FooterProps
     runtimeInfo?: FooterRuntimeInfo;
 }
 
+
 interface FooterText
 {
     currentViewCountTitle: string;
@@ -39,7 +42,30 @@ interface FooterText
     designByTitle: string;
     designBy: string;
 }
+// #endregion
 
+// #region EntityComp
+const buildStatusLine = (text: FooterText, runtimeInfo: FooterRuntimeInfo | undefined): string =>
+{
+    // 宣告變數
+    const currentViewCount = formatViewCount(runtimeInfo?.recentlyViewCount);
+    const viewCount = formatViewCount(runtimeInfo?.viewCount);
+    const updateDate = formatUpdateDate(runtimeInfo?.siteUpdatedAt);
+    const feVersion = getFeVersion(runtimeInfo?.feVersion);
+    const beVersion = getBeVersion(runtimeInfo?.beVersion);
+    // return
+    return `${text.currentViewCountTitle}:${currentViewCount} | ${text.totalViewCountTitle}:${viewCount} | ${text.updateDateTitle}:${updateDate} | ${text.systemVersionTitle}:FE-${feVersion} / BE-${beVersion}`;
+};
+
+
+const buildCopyrightPrefix = (currentYear: number, siteTitle: string): string =>
+{
+    const safeSiteTitle = siteTitle || "-";
+    return `Copyright © ${currentYear}. ${safeSiteTitle} All rights reserved.｜`;
+};
+// #endregion
+
+// #region Private
 const getFooterText = (lang: Lang): FooterText =>
 {
     // 宣告變數
@@ -64,6 +90,7 @@ const getFooterText = (lang: Lang): FooterText =>
         };
 };
 
+
 const getSiteTitle = (site: INormSite, lang: Lang): string =>
 {
     // 宣告變數
@@ -76,6 +103,7 @@ const getSiteTitle = (site: INormSite, lang: Lang): string =>
     return title;
 };
 
+
 const formatViewCount = (value?: number | null): string =>
 {
     // 宣告變數
@@ -85,6 +113,7 @@ const formatViewCount = (value?: number | null): string =>
     return String(count).padStart(10, "0");
 };
 
+
 const formatUpdateDate = (value?: string | null): string =>
 {
     // 宣告變數
@@ -92,6 +121,7 @@ const formatUpdateDate = (value?: string | null): string =>
     // return
     return dateText && dateText.length > 0 ? dateText : "-";
 };
+
 
 const getFeVersion = (value?: string | null): string =>
 {
@@ -102,6 +132,7 @@ const getFeVersion = (value?: string | null): string =>
     return version;
 };
 
+
 const getBeVersion = (value?: string | null): string =>
 {
     // 宣告變數
@@ -110,23 +141,6 @@ const getBeVersion = (value?: string | null): string =>
     return version && version.length > 0 ? version : "-";
 };
 
-const buildStatusLine = (text: FooterText, runtimeInfo: FooterRuntimeInfo | undefined): string =>
-{
-    // 宣告變數
-    const currentViewCount = formatViewCount(runtimeInfo?.recentlyViewCount);
-    const viewCount = formatViewCount(runtimeInfo?.viewCount);
-    const updateDate = formatUpdateDate(runtimeInfo?.siteUpdatedAt);
-    const feVersion = getFeVersion(runtimeInfo?.feVersion);
-    const beVersion = getBeVersion(runtimeInfo?.beVersion);
-    // return
-    return `${text.currentViewCountTitle}:${currentViewCount} | ${text.totalViewCountTitle}:${viewCount} | ${text.updateDateTitle}:${updateDate} | ${text.systemVersionTitle}:FE-${feVersion} / BE-${beVersion}`;
-};
-
-const buildCopyrightPrefix = (currentYear: number, siteTitle: string): string =>
-{
-    const safeSiteTitle = siteTitle || "-";
-    return `Copyright © ${currentYear}. ${safeSiteTitle} All rights reserved.｜`;
-};
 
 const Footer = (props: FooterProps) =>
 {
@@ -165,4 +179,6 @@ const Footer = (props: FooterProps) =>
     );
 };
 
+
 export default Footer;
+// #endregion

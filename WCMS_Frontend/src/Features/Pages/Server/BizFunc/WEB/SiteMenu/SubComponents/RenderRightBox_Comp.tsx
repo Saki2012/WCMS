@@ -13,15 +13,24 @@ import { BasicSettingTab } from "./RightBox_Comp.tsx/MenuInfo_Comp";
 import { ModuleSettingTab } from "./RightBox_Comp.tsx/Module_Comp";
 import { SiteInfo_Comp } from "./RightBox_Comp.tsx/SiteInfo_Comp";
 
+// #region Property
 type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"];
+
 type SiteMenu_Item_Url = components["schemas"]["SiteMenu_Item_Url_DTO"];
+
 type SiteMenu_Item_Module = components["schemas"]["SiteMenu_Item_Module_DTO"];
+
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
+
 type TagSet = components["schemas"]["TagSet_DTO"];
+
 type MenuUrlType = components["schemas"]["MenuUrlType"];
+
 type PageSet = components["schemas"]["PageManagementSet_DTO"];
 
+
 export type ModelKey = string | PGID;
+
 
 type RenderRightBoxProp = {
     theme: IBETheme;
@@ -41,6 +50,34 @@ type RenderRightBoxProp = {
     action: SiteMenuActions;
 };
 
+
+type MenuInfoCompProps = {
+    theme: IBETheme;
+    selectedItemEdit: SiteMenuItem;
+    formData: UseFetchFormDataResult<SiteMenuSet>;
+    setField: ReturnType<typeof useSetTableField<SiteMenuSet>>;
+    siteMenuItems: SiteMenuItem[];
+    menuUrlType: Record<string, string>;
+    windowTarget: Record<string, string>;
+    modulePageType: Record<string, string>;
+    bannerDict: Record<string, string>;
+    moduleDisplayStyle: Record<string, string>;
+    categorySets: CategorySet[];
+    tagSets: TagSet[];
+    pageSets: PageSet[];
+    timelineMap: Map<string, string>;
+    surveyMap: Map<string, string>;
+    tabResetSeed: number;
+    linkType: MenuUrlType;
+    modelKey: ModelKey;
+    navType: MenuUrlType;
+    setLinkType: React.Dispatch<React.SetStateAction<MenuUrlType>>;
+    setModelKey: React.Dispatch<React.SetStateAction<ModelKey>>;
+    setNavType: React.Dispatch<React.SetStateAction<MenuUrlType>>;
+};
+// #endregion
+
+// #region Public
 /** 右側編輯區：依目前選取項目切換對應設定頁籤 */
 export const RenderRightBox = (prop: RenderRightBoxProp) =>
 {
@@ -195,32 +232,9 @@ export const RenderRightBox = (prop: RenderRightBoxProp) =>
         </div>
     );
 };
+// #endregion
 
-type MenuInfoCompProps = {
-    theme: IBETheme;
-    selectedItemEdit: SiteMenuItem;
-    formData: UseFetchFormDataResult<SiteMenuSet>;
-    setField: ReturnType<typeof useSetTableField<SiteMenuSet>>;
-    siteMenuItems: SiteMenuItem[];
-    menuUrlType: Record<string, string>;
-    windowTarget: Record<string, string>;
-    modulePageType: Record<string, string>;
-    bannerDict: Record<string, string>;
-    moduleDisplayStyle: Record<string, string>;
-    categorySets: CategorySet[];
-    tagSets: TagSet[];
-    pageSets: PageSet[];
-    timelineMap: Map<string, string>;
-    surveyMap: Map<string, string>;
-    tabResetSeed: number;
-    linkType: MenuUrlType;
-    modelKey: ModelKey;
-    navType: MenuUrlType;
-    setLinkType: React.Dispatch<React.SetStateAction<MenuUrlType>>;
-    setModelKey: React.Dispatch<React.SetStateAction<ModelKey>>;
-    setNavType: React.Dispatch<React.SetStateAction<MenuUrlType>>;
-};
-
+// #region Section
 /** 一般選單的右側內容：基本 / 模型 / 超連結 tabs */
 const MenuInfoComp = (prop: MenuInfoCompProps) =>
 {
@@ -298,15 +312,19 @@ const MenuInfoComp = (prop: MenuInfoCompProps) =>
 
     return <TabContentComp key={`tabs-${prop.tabResetSeed}`} tabInfos={tabInfos} components={components} />;
 };
+// #endregion
 
+// #region Private
 /** 依目前選取項目取得對應的 Url 設定列 */
 const findSelectedUrlRow = (list: SiteMenu_Item_Url[], siteIndex?: string | null, itemRowId?: number | null): SiteMenu_Item_Url | undefined =>
 {
     return list.find((row) => row.SiteIndex === siteIndex && row.ItemRowId === itemRowId);
 };
 
+
 /** 依目前選取項目取得對應的 Module 設定列 */
 const findSelectedModuleRow = (list: SiteMenu_Item_Module[], siteIndex?: string | null, itemRowId?: number | null): SiteMenu_Item_Module | undefined =>
 {
     return list.find((row) => row.SiteIndex === siteIndex && row.ItemRowId === itemRowId);
 };
+// #endregion

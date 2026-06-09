@@ -30,13 +30,23 @@ import type { AxiosInstance } from "axios";
 import { useMemo } from "react";
 import { type LoaderFunctionArgs, redirect } from "react-router-dom";
 
+import { findTextByKey, formatLocalIso } from "@/SysCore/Utils/Library/LibData";
+
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 type BannerSet = components["schemas"]["BannerSet_DTO"];
+
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
+
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"];
+
 type GallerySet = components["schemas"]["GallerySet_DTO"];
+
 type TagSet = components["schemas"]["TagSet_DTO"];
+
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
+
 
 const BANNER_SLIDER_FIELDS: string[] = [
     BannerFields.InternalId,
@@ -59,6 +69,7 @@ const BANNER_SLIDER_FIELDS: string[] = [
     `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.URL_Open}`,
 ];
 
+
 const CATEGORY_TABS_NEWS_FIELDS: string[] = [
     AnnouncementFields.AnnouncementId,
     AnnouncementFields.InternalId,
@@ -69,6 +80,7 @@ const CATEGORY_TABS_NEWS_FIELDS: string[] = [
     `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang}`,
     `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title}`,
 ];
+
 
 const EVENT_FIELDS: string[] = [
     AnnouncementFields.AnnouncementId,
@@ -82,17 +94,20 @@ const EVENT_FIELDS: string[] = [
     `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title}`,
 ];
 
+
 const CATEGORY_FIELDS: string[] = [
     CategoryFields.CategoryId,
     `${CategoryFields._CategoryDetail}.${CategoryDetailFields.Lang}`,
     `${CategoryFields._CategoryDetail}.${CategoryDetailFields.CategoryName}`,
 ];
 
+
 const TAG_FIELDS: string[] = [
     TagDataFields.TagId,
     `${TagDataFields._TagDetail}.${TagDetailFields.Lang}`,
     `${TagDataFields._TagDetail}.${TagDetailFields.TagName}`,
 ];
+
 
 const GALLERY_FIELDS: string[] = [
     GalleryFields.GalleryId,
@@ -105,6 +120,7 @@ const GALLERY_FIELDS: string[] = [
     `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Title}`,
 ];
 
+
 const VIDEO_FIELDS: string[] = [
     WebResourceFields.InternalId,
     WebResourceFields.WebResourceId,
@@ -115,17 +131,6 @@ const VIDEO_FIELDS: string[] = [
     `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Url_OpenType}`,
 ];
 
-const shouldRedirectEnHome = (request: Request, lang: Lang): boolean =>
-{
-    // 宣告變數
-    const pathname = new URL(request.url).pathname.replace(/\/+$/, "") || "/";
-
-    // 執行 function
-    if (lang !== "en") return false;
-
-    // return
-    return pathname === "/en";
-};
 export interface HomePageRawData
 {
     bannerSliderBanner: BannerSet | null;
@@ -155,6 +160,7 @@ export interface HomePageRawData
 
     videoList: WebResourceSet[];
 }
+
 
 export interface HomePageLoaderArgs
 {
@@ -189,16 +195,19 @@ export interface HomePageLoaderArgs
     videoListParam: QueryListParam;
 }
 
+
 export interface HomePageLoaderRes
 {
     rawData: HomePageRawData;
 }
+
 
 export interface HomePageLoaderData
 {
     args: HomePageLoaderArgs;
     res: HomePageLoaderRes;
 }
+
 
 export interface HomePageCategoryTabsHookResult
 {
@@ -231,6 +240,7 @@ export interface HomePageCategoryTabsHookResult
     errorList: Array<string | null>;
 }
 
+
 export interface HomePageEventHookResult
 {
     announcementData: AnnouncementSet[];
@@ -239,6 +249,7 @@ export interface HomePageEventHookResult
     loadingList: boolean[];
     errorList: Array<string | null>;
 }
+
 
 export interface HomePageGalleryHookResult
 {
@@ -249,212 +260,16 @@ export interface HomePageGalleryHookResult
     errorList: Array<string | null>;
 }
 
+
 export interface HomePageVideoHookResult
 {
     webResourceData: WebResourceSet[];
     loadingList: boolean[];
     errorList: Array<string | null>;
 }
+// #endregion
 
-const pad = (n: number): string => (n < 10 ? `0${n}` : `${n}`);
-
-const formatLocalIso = (date: Date): string =>
-{
-    const y = date.getFullYear();
-    const m = pad(date.getMonth() + 1);
-    const d = pad(date.getDate());
-    const h = pad(date.getHours());
-    const mm = pad(date.getMinutes());
-    const s = pad(date.getSeconds());
-    const ms = `${date.getMilliseconds()}`.padStart(3, "0");
-
-    return `${y}-${m}-${d}T${h}:${mm}:${s}.${ms}`;
-};
-
-const toOkEnv = <T>(data: T): ApiResponse<T> => ({ IsSuccess: true, Data: data, SysMessage: [] });
-
-const toListInitial = <TItem>(args: QueryListParam, data: TItem[]): ApiLoaderData<QueryListParam, TItem[]> => ({ args, apiRes: toOkEnv(data) });
-
-const takeFirstOrNull = <T>(data: T[] | T | null | undefined): T | null =>
-{
-    if (!data) return null;
-
-    return Array.isArray(data) ? data[0] ?? null : data;
-};
-
-const takeTopThenFill = <T>(top: T[] | undefined, rest: T[] | undefined, limit: number, getKey: (item: T) => string): T[] =>
-{
-    const seen = new Set<string>();
-    const result: T[] = [];
-
-    for (const item of top ?? [])
-    {
-        const key = getKey(item);
-        if (!seen.has(key) && result.length < limit)
-        {
-            seen.add(key);
-            result.push(item);
-        }
-    }
-
-    for (const item of rest ?? [])
-    {
-        const key = getKey(item);
-        if (seen.has(key) || result.length >= limit) continue;
-        seen.add(key);
-        result.push(item);
-    }
-
-    return result;
-};
-
-const buildCategoryDict = (list: CategoryDataSet[], lang: Lang): Record<string, string> =>
-{
-    const pairs = list.map((item) =>
-    {
-        const id = item.Category?.CategoryId ?? "";
-        const name = item.CategoryDetail?.find((p) => p.Lang === lang)?.CategoryName ?? "";
-
-        return [id, name] as const;
-    }).filter(([id]) => Boolean(id));
-
-    return Object.fromEntries(pairs);
-};
-
-const buildTagDict = (list: TagSet[], lang: Lang): Record<string, string> =>
-{
-    const pairs = list.map((item) =>
-    {
-        const id = item.TagData?.TagId ?? "";
-        const name = item.TagDetail?.find((p) => p.Lang === lang)?.TagName ?? "";
-
-        return [id, name] as const;
-    }).filter(([id]) => Boolean(id));
-
-    return Object.fromEntries(pairs);
-};
-
-const buildBannerSliderParam = (): QueryListParam => ({
-    Fields: BANNER_SLIDER_FIELDS,
-    Condition: `${BannerFields.BannerId} = 1`,
-    OrderBy: [{ Col: `${BannerFields._BannerDetail}.${BannerDetailFields.Sort}`, Desc: false }],
-    PageNumber: 1,
-    PageSize: 1,
-});
-
-const buildCategoryTabsTopCondition = (nowIsoLocal: string, categories?: string): string =>
-{
-    let condition = `${AnnouncementFields.ContentStatus} & 1`;
-    condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Validate_Start} <= ${nowIsoLocal}`);
-    condition = LibMerge(" And ", false, condition, categories ? `${AnnouncementFields.Categories} HasAny [${categories}]` : "");
-
-    return condition;
-};
-
-const buildCategoryTabsListCondition = (nowIsoLocal: string, categories?: string): string =>
-{
-    let condition = `${AnnouncementFields.ContentStatus} !& 4 And ${AnnouncementFields.ContentStatus} !& 1`;
-    condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Validate_Start} <= ${nowIsoLocal}`);
-    condition = LibMerge(" And ", false, condition, categories ? `${AnnouncementFields.Categories} HasAny [${categories}]` : "");
-
-    return condition;
-};
-
-const buildCategoryTabsNewsParam = (condition: string): QueryListParam => ({
-    Fields: CATEGORY_TABS_NEWS_FIELDS,
-    Condition: condition,
-    OrderBy: [{ Col: AnnouncementFields.Validate_Start, Desc: true }],
-    PageNumber: 1,
-    PageSize: 6,
-});
-
-const buildCategoryTabsCategoryParam = (): QueryListParam => ({
-    Fields: CATEGORY_FIELDS,
-    Condition: `${CategoryFields.ProgId} = Announcement`,
-    PageNumber: 0,
-    PageSize: 0,
-});
-
-const buildAnnouncementTagParam = (): QueryListParam => ({
-    Fields: TAG_FIELDS,
-    Condition: `${TagDataFields.ProgId} = ${PGID.Announcement}`,
-    PageNumber: 0,
-    PageSize: 0,
-});
-
-const buildEventListCondition = (nowIsoLocal: string): string =>
-{
-    let condition = "";
-    condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Validate_Start} <= ${nowIsoLocal}`);
-    condition = LibMerge(" And ", false, condition, `(${AnnouncementFields.Validate_End} >= ${nowIsoLocal} Or ${AnnouncementFields.Validate_End} is null)`);
-    condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Categories} HasAny [8]`);
-    condition = LibMerge(" And ", false, condition, `${AnnouncementFields.ContentStatus} !&4`);
-
-    return condition;
-};
-
-const buildEventListParam = (nowIsoLocal: string): QueryListParam => ({
-    Fields: EVENT_FIELDS,
-    Condition: buildEventListCondition(nowIsoLocal),
-    RankGroups: [{ Condition: `${AnnouncementFields.ContentStatus} & 1` }],
-    OrderBy: [{ Col: AnnouncementFields.Validate_Start, Desc: true }],
-    PageNumber: 1,
-    PageSize: 6,
-});
-
-const buildGalleryListParam = (): QueryListParam => ({
-    Fields: GALLERY_FIELDS,
-    // Condition: `${GalleryFields.Categories} In [25,26,27,28]`,
-    OrderBy: [{ Col: GalleryFields.Validate_Start, Desc: true }],
-    PageNumber: 1,
-    PageSize: 10,
-});
-
-const buildGalleryCategoryParam = (): QueryListParam => ({
-    Fields: CATEGORY_FIELDS,
-    Condition: `${CategoryFields.ProgId} = Gallery`,
-    PageNumber: 0,
-    PageSize: 0,
-});
-
-const buildVideoListParam = (): QueryListParam => ({
-    Fields: VIDEO_FIELDS,
-    Condition: `${WebResourceFields.Categories} HasAny [29,30,31,32]`,
-    OrderBy: [{ Col: WebResourceFields.CreateTime, Desc: true }],
-    RankGroups: [{ Condition: `${WebResourceFields.ContentStatus} & 1` }],
-    PageNumber: 1,
-    PageSize: 10,
-});
-
-const createEmptyRawData = (): HomePageRawData => ({
-    bannerSliderBanner: null,
-
-    categoryTabsTopAllNews: [],
-    categoryTabsTopProjectNews: [],
-    categoryTabsTopLegalNews: [],
-    categoryTabsTopEventNews: [],
-    categoryTabsTopAwardNews: [],
-    categoryTabsTopMediaNews: [],
-
-    categoryTabsAllNews: [],
-    categoryTabsProjectNews: [],
-    categoryTabsLegalNews: [],
-    categoryTabsEventNews: [],
-    categoryTabsAwardNews: [],
-    categoryTabsMediaNews: [],
-
-    categoryTabsCategories: [],
-    categoryTabsTags: [],
-
-    eventAnnouncements: [],
-    eventTags: [],
-
-    galleryList: [],
-    galleryCategories: [],
-
-    videoList: [],
-});
-
+// #region Public
 export const buildHomePageLoaderArgs = (lang: Lang, nowIsoLocal: string = formatLocalIso(new Date())): HomePageLoaderArgs => ({
     lang,
     nowIsoLocal,
@@ -486,6 +301,7 @@ export const buildHomePageLoaderArgs = (lang: Lang, nowIsoLocal: string = format
 
     videoListParam: buildVideoListParam(),
 });
+
 
 export const HomePageLoader = (props: { lang: Lang; }) => async ({ request }: LoaderFunctionArgs): Promise<HomePageLoaderData> =>
 {
@@ -649,6 +465,7 @@ export const HomePageLoader = (props: { lang: Lang; }) => async ({ request }: Lo
     };
 };
 
+
 export const useBannerSliderHydrationData = (opt: { bannerParam: QueryListParam; initialBanner: BannerSet | null; apiInstance?: AxiosInstance; }) =>
 {
     const adapter = useMemo(() => BannerSliderAdapter(opt.apiInstance), [opt.apiInstance]);
@@ -666,6 +483,7 @@ export const useBannerSliderHydrationData = (opt: { bannerParam: QueryListParam;
 
     return { ...query, banner };
 };
+
 
 export const useCategoryTabsHydrationData = (
     opt: { lang: Lang; args: HomePageLoaderArgs; initialData: HomePageRawData; apiInstance?: AxiosInstance; },
@@ -927,6 +745,7 @@ export const useCategoryTabsHydrationData = (
     };
 };
 
+
 export const useEventHydrationData = (
     opt: { lang: Lang; args: HomePageLoaderArgs; initialData: HomePageRawData; apiInstance?: AxiosInstance; },
 ): HomePageEventHookResult =>
@@ -965,6 +784,7 @@ export const useEventHydrationData = (
         errorList: [useEventData.errorText, useTagData.errorText],
     };
 };
+
 
 export const useGalleryHydrationData = (
     opt: { lang: Lang; args: HomePageLoaderArgs; initialData: HomePageRawData; apiInstance?: AxiosInstance; },
@@ -1008,6 +828,7 @@ export const useGalleryHydrationData = (
     };
 };
 
+
 export const useVideoHydrationData = (opt: { args: HomePageLoaderArgs; initialData: HomePageRawData; apiInstance?: AxiosInstance; }): HomePageVideoHookResult =>
 {
     const webResourceAdapter = useMemo(() => WebResourceAdapter(opt.apiInstance), [opt.apiInstance]);
@@ -1023,6 +844,7 @@ export const useVideoHydrationData = (opt: { args: HomePageLoaderArgs; initialDa
 
     return { webResourceData: useVideoData.data ?? [], loadingList: [useVideoData.isLoading], errorList: [useVideoData.errorText] };
 };
+
 
 export const useHomePageHydrationSource = (opt: { lang: Lang; loaderData?: HomePageLoaderData | null; apiInstance?: AxiosInstance; }) =>
 {
@@ -1045,3 +867,220 @@ export const useHomePageHydrationSource = (opt: { lang: Lang; loaderData?: HomeP
 
     return { args, initialData, bannerSlider, categoryTabs, eventSession, gallerySession, videoSession };
 };
+// #endregion
+
+// #region Private
+const shouldRedirectEnHome = (request: Request, lang: Lang): boolean =>
+{
+    // 宣告變數
+    const pathname = new URL(request.url).pathname.replace(/\/+$/, "") || "/";
+
+    // 執行 function
+    if (lang !== "en") return false;
+
+    // return
+    return pathname === "/en";
+};
+
+
+const toOkEnv = <T>(data: T): ApiResponse<T> => ({ IsSuccess: true, Data: data, SysMessage: [] });
+
+
+const toListInitial = <TItem>(args: QueryListParam, data: TItem[]): ApiLoaderData<QueryListParam, TItem[]> => ({ args, apiRes: toOkEnv(data) });
+
+
+const takeFirstOrNull = <T>(data: T[] | T | null | undefined): T | null =>
+{
+    if (!data) return null;
+
+    return Array.isArray(data) ? data[0] ?? null : data;
+};
+
+
+const takeTopThenFill = <T>(top: T[] | undefined, rest: T[] | undefined, limit: number, getKey: (item: T) => string): T[] =>
+{
+    const seen = new Set<string>();
+    const result: T[] = [];
+
+    for (const item of top ?? [])
+    {
+        const key = getKey(item);
+        if (!seen.has(key) && result.length < limit)
+        {
+            seen.add(key);
+            result.push(item);
+        }
+    }
+
+    for (const item of rest ?? [])
+    {
+        const key = getKey(item);
+        if (seen.has(key) || result.length >= limit) continue;
+        seen.add(key);
+        result.push(item);
+    }
+
+    return result;
+};
+
+
+const buildCategoryDict = (list: CategoryDataSet[], lang: Lang): Record<string, string> =>
+{
+    const pairs = list.map((item) =>
+    {
+        const id = item.Category?.CategoryId ?? "";
+        const name = findTextByKey(item.CategoryDetail, (p) => p?.Lang, lang, (p) => p?.CategoryName);
+
+        return [id, name] as const;
+    }).filter(([id]) => Boolean(id));
+
+    return Object.fromEntries(pairs);
+};
+
+
+const buildTagDict = (list: TagSet[], lang: Lang): Record<string, string> =>
+{
+    const pairs = list.map((item) =>
+    {
+        const id = item.TagData?.TagId ?? "";
+        const name = findTextByKey(item.TagDetail, (p) => p?.Lang, lang, (p) => p?.TagName);
+
+        return [id, name] as const;
+    }).filter(([id]) => Boolean(id));
+
+    return Object.fromEntries(pairs);
+};
+
+
+const buildBannerSliderParam = (): QueryListParam => ({
+    Fields: BANNER_SLIDER_FIELDS,
+    Condition: `${BannerFields.BannerId} = 1`,
+    OrderBy: [{ Col: `${BannerFields._BannerDetail}.${BannerDetailFields.Sort}`, Desc: false }],
+    PageNumber: 1,
+    PageSize: 1,
+});
+
+
+const buildCategoryTabsTopCondition = (nowIsoLocal: string, categories?: string): string =>
+{
+    let condition = `${AnnouncementFields.ContentStatus} & 1`;
+    condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Validate_Start} <= ${nowIsoLocal}`);
+    condition = LibMerge(" And ", false, condition, categories ? `${AnnouncementFields.Categories} HasAny [${categories}]` : "");
+
+    return condition;
+};
+
+
+const buildCategoryTabsListCondition = (nowIsoLocal: string, categories?: string): string =>
+{
+    let condition = `${AnnouncementFields.ContentStatus} !& 4 And ${AnnouncementFields.ContentStatus} !& 1`;
+    condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Validate_Start} <= ${nowIsoLocal}`);
+    condition = LibMerge(" And ", false, condition, categories ? `${AnnouncementFields.Categories} HasAny [${categories}]` : "");
+
+    return condition;
+};
+
+
+const buildCategoryTabsNewsParam = (condition: string): QueryListParam => ({
+    Fields: CATEGORY_TABS_NEWS_FIELDS,
+    Condition: condition,
+    OrderBy: [{ Col: AnnouncementFields.Validate_Start, Desc: true }],
+    PageNumber: 1,
+    PageSize: 6,
+});
+
+
+const buildCategoryTabsCategoryParam = (): QueryListParam => ({
+    Fields: CATEGORY_FIELDS,
+    Condition: `${CategoryFields.ProgId} = Announcement`,
+    PageNumber: 0,
+    PageSize: 0,
+});
+
+
+const buildAnnouncementTagParam = (): QueryListParam => ({
+    Fields: TAG_FIELDS,
+    Condition: `${TagDataFields.ProgId} = ${PGID.Announcement}`,
+    PageNumber: 0,
+    PageSize: 0,
+});
+
+
+const buildEventListCondition = (nowIsoLocal: string): string =>
+{
+    let condition = "";
+    condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Validate_Start} <= ${nowIsoLocal}`);
+    condition = LibMerge(" And ", false, condition, `(${AnnouncementFields.Validate_End} >= ${nowIsoLocal} Or ${AnnouncementFields.Validate_End} is null)`);
+    condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Categories} HasAny [8]`);
+    condition = LibMerge(" And ", false, condition, `${AnnouncementFields.ContentStatus} !&4`);
+
+    return condition;
+};
+
+
+const buildEventListParam = (nowIsoLocal: string): QueryListParam => ({
+    Fields: EVENT_FIELDS,
+    Condition: buildEventListCondition(nowIsoLocal),
+    RankGroups: [{ Condition: `${AnnouncementFields.ContentStatus} & 1` }],
+    OrderBy: [{ Col: AnnouncementFields.Validate_Start, Desc: true }],
+    PageNumber: 1,
+    PageSize: 6,
+});
+
+
+const buildGalleryListParam = (): QueryListParam => ({
+    Fields: GALLERY_FIELDS,
+    // Condition: `${GalleryFields.Categories} In [25,26,27,28]`,
+    OrderBy: [{ Col: GalleryFields.Validate_Start, Desc: true }],
+    PageNumber: 1,
+    PageSize: 10,
+});
+
+
+const buildGalleryCategoryParam = (): QueryListParam => ({
+    Fields: CATEGORY_FIELDS,
+    Condition: `${CategoryFields.ProgId} = Gallery`,
+    PageNumber: 0,
+    PageSize: 0,
+});
+
+
+const buildVideoListParam = (): QueryListParam => ({
+    Fields: VIDEO_FIELDS,
+    Condition: `${WebResourceFields.Categories} HasAny [29,30,31,32]`,
+    OrderBy: [{ Col: WebResourceFields.CreateTime, Desc: true }],
+    RankGroups: [{ Condition: `${WebResourceFields.ContentStatus} & 1` }],
+    PageNumber: 1,
+    PageSize: 10,
+});
+
+
+const createEmptyRawData = (): HomePageRawData => ({
+    bannerSliderBanner: null,
+
+    categoryTabsTopAllNews: [],
+    categoryTabsTopProjectNews: [],
+    categoryTabsTopLegalNews: [],
+    categoryTabsTopEventNews: [],
+    categoryTabsTopAwardNews: [],
+    categoryTabsTopMediaNews: [],
+
+    categoryTabsAllNews: [],
+    categoryTabsProjectNews: [],
+    categoryTabsLegalNews: [],
+    categoryTabsEventNews: [],
+    categoryTabsAwardNews: [],
+    categoryTabsMediaNews: [],
+
+    categoryTabsCategories: [],
+    categoryTabsTags: [],
+
+    eventAnnouncements: [],
+    eventTags: [],
+
+    galleryList: [],
+    galleryCategories: [],
+
+    videoList: [],
+});
+// #endregion

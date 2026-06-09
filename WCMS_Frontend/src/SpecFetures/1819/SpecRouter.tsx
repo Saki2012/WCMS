@@ -11,6 +11,7 @@ import type { IHeaderMetaProps } from "@/SysCore/Components/HeaderMeta/HeaderMet
 import type { Lang } from "@/SysCore/i18n/lang";
 import { AutoRedirect } from "@/SysCore/Utils/Route/AutoRedirect";
 
+// #region Public
 export const specClientEntries: Record<string, ModuleEntry> = {
     SpecJournal: {
         kind: "routes",
@@ -51,5 +52,7 @@ export const specClientEntries: Record<string, ModuleEntry> = {
     },
 };
 
+
 // 暫時先這樣做，之後將會把這些資訊改從後端設定回傳回來處理
 export const siteHeaderMeta: IHeaderMetaProps = { title: "淡江大學教育資料與圖書館學", description: "淡江大學教育資料與圖書館學" };
+// #endregion

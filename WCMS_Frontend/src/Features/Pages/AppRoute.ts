@@ -5,8 +5,15 @@ import type { IHeaderMetaProps } from "@/SysCore/Components/HeaderMeta/HeaderMet
 import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter";
 import { resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
 import type { RouteObject } from "react-router-dom";
+
+// #region Property
+const defaultSiteHeaderMeta: IHeaderMetaProps = { title: "網站標題", description: "網站標題描述" };
+// #endregion
+
+// #region Public
 export class AppRouteModule implements IRouteModule
 {
+    // #region Public
     async getRoutes(): Promise<RouteObject[]>
     {
         const frontendRoutes = await loadClientChildren();
@@ -14,13 +21,14 @@ export class AppRouteModule implements IRouteModule
         const customRoutes = await getCustomRoutes();
         return [...frontendRoutes, ...backendRoutes, ...customRoutes];
     }
+    // #endregion
 }
-const emptyClientEntries = (): Record<string, ModuleEntry> => ({});
-const emptyCustomRoutes = async (): Promise<RouteObject[]> => [];
+
 export const getSpecClientEntries = (): Record<string, ModuleEntry> =>
 {
     return resolveSpecFunc<Record<string, ModuleEntry>>("SpecRouter.tsx", emptyClientEntries(), ["specClientEntries", "default"]);
 };
+
 export const getCustomRoutes = async (): Promise<RouteObject[]> =>
 {
     const resolver = resolveSpecFunc<() => Promise<RouteObject[]>>("Pages/Route/CustomRoutes.ts", emptyCustomRoutes, ["getCustomRoutes", "default"]);
@@ -28,8 +36,14 @@ export const getCustomRoutes = async (): Promise<RouteObject[]> =>
     return await resolver();
 };
 
-const defaultSiteHeaderMeta: IHeaderMetaProps = { title: "網站標題", description: "網站標題描述" };
 export const getSiteHeaderMeta = (): IHeaderMetaProps =>
 {
     return resolveSpecFunc<IHeaderMetaProps>("SpecRouter.tsx", defaultSiteHeaderMeta, ["siteHeaderMeta", "default"]);
 };
+// #endregion
+
+// #region Private
+const emptyClientEntries = (): Record<string, ModuleEntry> => ({});
+
+const emptyCustomRoutes = async (): Promise<RouteObject[]> => [];
+// #endregion

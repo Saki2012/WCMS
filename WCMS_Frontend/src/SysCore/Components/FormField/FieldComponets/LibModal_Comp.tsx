@@ -2,6 +2,7 @@ import { clsx } from "clsx";
 import { useId, useRef, useState } from "react";
 import type { LibModalProp } from "./LibModal_Data";
 
+// #region Property
 type Extended = LibModalProp & {
     onConfirm?: () => void | Promise<void>;
     onCancel?: () => void;
@@ -10,7 +11,9 @@ type Extended = LibModalProp & {
     confirmAutoClose?: boolean; // 預設 true；onConfirm 成功後自動關閉
     openButtonClassName?: string;
 };
+// #endregion
 
+// #region Private
 const LibModal = ({ children, ...prop }: Extended) =>
 {
     const uid = useId();
@@ -130,4 +133,6 @@ const LibModal = ({ children, ...prop }: Extended) =>
     );
 };
 
+
 export default LibModal;
+// #endregion

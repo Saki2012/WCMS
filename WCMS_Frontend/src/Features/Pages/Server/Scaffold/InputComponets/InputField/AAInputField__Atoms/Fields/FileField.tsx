@@ -4,6 +4,7 @@ import { FieldError } from "../AAInputField_Shell";
 import { applyAAFocusStyle, clearAAFocusStyle, applyFileAAFocusStyle, clearFileAAFocusStyle } from "../AAInputField_Focus";
 import { defaultAccept, getAriaInvalid, getAriaRequired, getNativeRequired, sanitizeFileName, toFileArray } from "../AAInputField_Utils";
 
+// #region Public
 /**
  * 使用範例：
  * <AAInputFieldList fields={[{ key: "file", type: "file", label: "檔案", aaLabel: "請上傳檔案", accept: defaultAccept, maxFileCount: 1, maxFileSizeMB: 10, value: state.file }]} onChange={handleChange} />
@@ -108,72 +109,9 @@ export const FileField = (props: { field: AAInputField; context: FieldRenderCont
         </div>
     );
 };
+// #endregion
 
-/** 讀取 FileList 的安全中繼資料。 */
-const readSafeFiles = (files: FileList | null, field: AAInputField): FileReadResult =>
-{
-    const sourceFileList = Array.from(files ?? []);
-    const maxCount = field.maxFileCount ?? 1;
-    const maxSize = (field.maxFileSizeMB ?? 10) * 1024 * 1024;
-    const errorList: string[] = [];
-
-    if (sourceFileList.length > maxCount) errorList.push(`最多只能選擇 ${maxCount} 個檔案。`);
-    const fileList = sourceFileList.slice(0, maxCount).filter((file) => validateFile(file, field, maxSize, errorList));
-    const value = fileList.map(toSafeFileValue);
-    return { value, fileList, errorText: errorList.join(" ") };
-};
-
-/** 驗證單一檔案的副檔名與大小。 */
-const validateFile = (file: File, field: AAInputField, maxSize: number, errorList: string[]) =>
-{
-    const accepted = isAcceptedFile(file, field.accept ?? defaultAccept);
-    const validSize = file.size <= maxSize;
-    if (!accepted) errorList.push(`${sanitizeFileName(file.name)} 的檔案類型不允許。`);
-    if (!validSize) errorList.push(`${sanitizeFileName(file.name)} 超過 ${field.maxFileSizeMB ?? 10}MB。`);
-    return accepted && validSize;
-};
-
-/** 只保存安全顯示用的檔案資訊。 */
-const toSafeFileValue = (file: File): AAFileValue =>
-{
-    const name = sanitizeFileName(file.name);
-    return { file, name, size: file.size, type: file.type, url: URL.createObjectURL(file) };
-};
-
-/** 建立本機檔案預覽資料。 */
-const toLocalPreviewItem = (file: File): FilePreviewItem =>
-{
-    const name = sanitizeFileName(file.name);
-    const type = file.type;
-    const previewUrl = URL.createObjectURL(file);
-    return { key: `${name}-${file.size}-${file.lastModified}`, name, size: file.size, type, previewUrl, isImage: isPreviewImageFile(name, type), isVideo: isPreviewVideoFile(name, type) };
-};
-
-/** 建立既有已上傳檔案預覽資料。 */
-const toExistingPreviewItem = (file: AAFileValue): FilePreviewItem =>
-{
-    const name = sanitizeFileName(file.name);
-    const previewUrl = sanitizePreviewUrl(file.url ?? "");
-    return { key: `${name}-${file.size}-${previewUrl}`, name, size: file.size, type: file.type, previewUrl, isImage: Boolean(previewUrl) && isPreviewImageFile(name, file.type), isVideo: Boolean(previewUrl) && isPreviewVideoFile(name, file.type) };
-};
-
-/** 釋放本機預覽網址，避免長時間停留後記憶體累積。 */
-const revokePreviewUrls = (previewList: FilePreviewItem[]) => previewList.forEach((item) => { if (item.previewUrl.startsWith("blob:")) URL.revokeObjectURL(item.previewUrl); });
-
-/** 設定 input file 原生驗證狀態；不呼叫 reportValidity，避免隱藏 input 觸發瀏覽器自動水平捲動。 */
-const setInputCustomValidity = (input: HTMLInputElement | null, _errorText: string) =>
-{
-    if (!input) return;
-    input.setCustomValidity("");
-};
-
-/** 清空原生 file input，讓同一個不合法檔案可以再次選取並保留目前表格位置。 */
-const clearNativeFileInput = (input: HTMLInputElement | null) =>
-{
-    if (!input) return;
-    input.value = "";
-};
-
+// #region EntityComp
 /** 渲染未上傳時的虛框內容。 */
 const renderEmptyFileDropContent = (field: AAInputField, onBrowseClick: () => void) =>
 {
@@ -187,6 +125,7 @@ const renderEmptyFileDropContent = (field: AAInputField, onBrowseClick: () => vo
         </div>
     );
 };
+
 
 /** 渲染已選擇/已上傳檔案的預覽內容。 */
 const renderFilePreviewList = (fileList: FilePreviewItem[], onBrowseClick: () => void, onClearClick: () => void, disabled?: boolean) =>
@@ -204,6 +143,7 @@ const renderFilePreviewList = (fileList: FilePreviewItem[], onBrowseClick: () =>
     );
 };
 
+
 /** 渲染單一檔案預覽，圖片/影片會顯示媒體，其餘只顯示檔名。 */
 const renderFilePreviewItem = (file: FilePreviewItem) =>
 {
@@ -216,6 +156,7 @@ const renderFilePreviewItem = (file: FilePreviewItem) =>
     );
 };
 
+
 /** 組合拖曳虛框樣式。 */
 const buildFileDropZoneClass = (field: AAInputField, isDragging: boolean, errorText: string) =>
 {
@@ -225,9 +166,85 @@ const buildFileDropZoneClass = (field: AAInputField, isDragging: boolean, errorT
     if (field.errorText || errorText) classList.push("border-danger");
     return classList.join(" ");
 };
+// #endregion
+
+// #region Private
+/** 讀取 FileList 的安全中繼資料。 */
+const readSafeFiles = (files: FileList | null, field: AAInputField): FileReadResult =>
+{
+    const sourceFileList = Array.from(files ?? []);
+    const maxCount = field.maxFileCount ?? 1;
+    const maxSize = (field.maxFileSizeMB ?? 10) * 1024 * 1024;
+    const errorList: string[] = [];
+
+    if (sourceFileList.length > maxCount) errorList.push(`最多只能選擇 ${maxCount} 個檔案。`);
+    const fileList = sourceFileList.slice(0, maxCount).filter((file) => validateFile(file, field, maxSize, errorList));
+    const value = fileList.map(toSafeFileValue);
+    return { value, fileList, errorText: errorList.join(" ") };
+};
+
+
+/** 驗證單一檔案的副檔名與大小。 */
+const validateFile = (file: File, field: AAInputField, maxSize: number, errorList: string[]) =>
+{
+    const accepted = isAcceptedFile(file, field.accept ?? defaultAccept);
+    const validSize = file.size <= maxSize;
+    if (!accepted) errorList.push(`${sanitizeFileName(file.name)} 的檔案類型不允許。`);
+    if (!validSize) errorList.push(`${sanitizeFileName(file.name)} 超過 ${field.maxFileSizeMB ?? 10}MB。`);
+    return accepted && validSize;
+};
+
+
+/** 只保存安全顯示用的檔案資訊。 */
+const toSafeFileValue = (file: File): AAFileValue =>
+{
+    const name = sanitizeFileName(file.name);
+    return { file, name, size: file.size, type: file.type, url: URL.createObjectURL(file) };
+};
+
+
+/** 建立本機檔案預覽資料。 */
+const toLocalPreviewItem = (file: File): FilePreviewItem =>
+{
+    const name = sanitizeFileName(file.name);
+    const type = file.type;
+    const previewUrl = URL.createObjectURL(file);
+    return { key: `${name}-${file.size}-${file.lastModified}`, name, size: file.size, type, previewUrl, isImage: isPreviewImageFile(name, type), isVideo: isPreviewVideoFile(name, type) };
+};
+
+
+/** 建立既有已上傳檔案預覽資料。 */
+const toExistingPreviewItem = (file: AAFileValue): FilePreviewItem =>
+{
+    const name = sanitizeFileName(file.name);
+    const previewUrl = sanitizePreviewUrl(file.url ?? "");
+    return { key: `${name}-${file.size}-${previewUrl}`, name, size: file.size, type: file.type, previewUrl, isImage: Boolean(previewUrl) && isPreviewImageFile(name, file.type), isVideo: Boolean(previewUrl) && isPreviewVideoFile(name, file.type) };
+};
+
+
+/** 釋放本機預覽網址，避免長時間停留後記憶體累積。 */
+const revokePreviewUrls = (previewList: FilePreviewItem[]) => previewList.forEach((item) => { if (item.previewUrl.startsWith("blob:")) URL.revokeObjectURL(item.previewUrl); });
+
+
+/** 設定 input file 原生驗證狀態；不呼叫 reportValidity，避免隱藏 input 觸發瀏覽器自動水平捲動。 */
+const setInputCustomValidity = (input: HTMLInputElement | null, _errorText: string) =>
+{
+    if (!input) return;
+    input.setCustomValidity("");
+};
+
+
+/** 清空原生 file input，讓同一個不合法檔案可以再次選取並保留目前表格位置。 */
+const clearNativeFileInput = (input: HTMLInputElement | null) =>
+{
+    if (!input) return;
+    input.value = "";
+};
+
 
 /** 取得檔案上傳限制文字。 */
 const getFileLimitText = (field: AAInputField) => `選擇或拖曳檔案至虛框內，僅限上傳${field.maxFileCount ?? 1}個${field.maxFileSizeMB ?? 10}MB以內檔案。${field.required ? "(必填)" : ""}`;
+
 
 /** 判斷是否可用圖片方式預覽，SVG 為安全考量只顯示檔名。 */
 const isPreviewImageFile = (name: string, type: string) =>
@@ -237,8 +254,10 @@ const isPreviewImageFile = (name: string, type: string) =>
     return type.startsWith("image/") || [".jpg", ".jpeg", ".png", ".gif", ".webp"].some((ext) => lowerName.endsWith(ext));
 };
 
+
 /** 判斷是否可用影片方式預覽。 */
 const isPreviewVideoFile = (name: string, type: string) => type.startsWith("video/") || name.toLowerCase().endsWith(".mp4");
+
 
 /** 避免預覽網址使用 javascript 等不安全協定。 */
 const sanitizePreviewUrl = (value: string) =>
@@ -248,6 +267,7 @@ const sanitizePreviewUrl = (value: string) =>
     if (url.startsWith("/") || url.startsWith("blob:") || url.startsWith("https://") || url.startsWith("http://")) return url;
     return "";
 };
+
 
 /** 判斷檔案是否符合 accept 白名單。 */
 const isAcceptedFile = (file: File, accept: string) =>
@@ -259,6 +279,7 @@ const isAcceptedFile = (file: File, accept: string) =>
     return tokenList.some((token) => isAcceptedFileToken(token, fileName, fileType));
 };
 
+
 /** 判斷單一 accept token 是否允許目前檔案。 */
 const isAcceptedFileToken = (token: string, fileName: string, fileType: string) =>
 {
@@ -267,3 +288,4 @@ const isAcceptedFileToken = (token: string, fileName: string, fileType: string) 
     if (token.endsWith("/*")) return fileType.startsWith(token.replace("/*", "/"));
     return fileType === token;
 };
+// #endregion

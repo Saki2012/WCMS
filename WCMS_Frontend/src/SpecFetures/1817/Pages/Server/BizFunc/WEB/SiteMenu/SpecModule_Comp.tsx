@@ -7,8 +7,12 @@ import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import type { components } from "@/types/api";
 import { PGID, SiteMenu_Item_ModuleFields, SiteMenuSetFields } from "@/types/SchemaFields";
 import { useMemo } from "react";
+
+// #region Property
 type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"];
+
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
+
 
 interface ModuleOptionsJson
 {
@@ -18,8 +22,11 @@ interface ModuleOptionsJson
     Style: number;
 }
 
-const moduleOptionsDefaults: ModuleOptionsJson = { PageId: "", Category: "", Tag: "", Style: 1 };
 
+const moduleOptionsDefaults: ModuleOptionsJson = { PageId: "", Category: "", Tag: "", Style: 1 };
+// #endregion
+
+// #region Public
 export const Module_SpecMusical_Comp = (
     prop: {
         theme: IBETheme;
@@ -55,7 +62,9 @@ export const Module_SpecMusical_Comp = (
         />
     );
 };
+// #endregion
 
+// #region Private
 const useGetCategoryDict = (progId: PGID, lang: Lang, categorySets: CategorySet[]) =>
 {
     const cateDic = useMemo<Map<string, string>>(() =>
@@ -71,3 +80,4 @@ const useGetCategoryDict = (progId: PGID, lang: Lang, categorySets: CategorySet[
     }, [progId, lang, categorySets]);
     return cateDic;
 };
+// #endregion

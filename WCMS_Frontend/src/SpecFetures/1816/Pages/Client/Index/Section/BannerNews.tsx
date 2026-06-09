@@ -2,8 +2,11 @@ import { type Lang } from "@/SysCore/i18n/lang";
 import { CarouselData, type CarouselDataProps } from "./CarouselData";
 import { NewsData, type NewsDataProps } from "./NewsData";
 
+// #region Property
 export type BannerNewsProps = CarouselDataProps & NewsDataProps & { lang: Lang; };
+// #endregion
 
+// #region Public
 export const BannerNews = (props: BannerNewsProps) =>
 {
     return (
@@ -29,3 +32,4 @@ export const BannerNews = (props: BannerNewsProps) =>
         </section>
     );
 };
+// #endregion

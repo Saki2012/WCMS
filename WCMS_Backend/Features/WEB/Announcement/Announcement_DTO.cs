@@ -96,6 +96,11 @@ namespace WCMS.Features.WEB.Announcement
         /// 網址描述
         /// </summary>
         [LibDesc(ModelDisplayName.Common_UrlDescription)] public string? UrlDescription { get; set; }
+
+        #region 主子表關聯
+        public Announcement_DTO _Announcement { get; set; } = null!;
+        public List<AnnouncementDetailFile_DTO> _AnnouncementDetailFile { get; set; }
+        #endregion
     }
     /// <summary>
     /// 明細檔案關聯

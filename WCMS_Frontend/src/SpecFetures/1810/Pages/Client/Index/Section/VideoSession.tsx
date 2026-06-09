@@ -1,12 +1,13 @@
 import "swiper/swiper-bundle.css";
-import { resolveYoutubeEmbedUrl } from "@/Features/Pages/Client/BizFunc/WEB/WebResource/WebResourceList";
 import bgImg from "@/SpecFetures/1810/Assets/Client/images/bg/background-image_video_2000x1500.jpg";
 import type { HomePageVideoHookResult } from "@/SpecFetures/1810/Pages/Client/Index/HomePage_Loader";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
+import { LibMedia } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { useEffect, useMemo, useRef } from "react";
 
+// #region Property
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
 
 interface DataProp
@@ -48,21 +49,9 @@ interface BootstrapWindow extends Window
 {
     VenoBox?: VenoBoxConstructor;
 }
+// #endregion
 
-const getDataProps = (lang: string, rawData: WebResourceSet[]): DataProp[] =>
-{
-    const result: DataProp[] = [];
-
-    rawData.forEach((item) =>
-    {
-        const detail = item.WebResourceInfo?.find((p) => p.Lang === lang);
-
-        result.push({ internalId: item.WebResource?.InternalId ?? "", title: detail?.Title ?? "", ResUrl: detail?.ResUrl ?? "" });
-    });
-
-    return result;
-};
-
+// #region Public
 export const VideoSession = (props: { lang: Lang; hydrationData: HomePageVideoHookResult; }) =>
 {
     // 宣告變數：統一吃 Homepage hydration source
@@ -206,7 +195,7 @@ export const VideoSession = (props: { lang: Lang; hydrationData: HomePageVideoHo
                                         {result.map((item) =>
                                         {
                                             const urlRaw = item?.ResUrl ?? "";
-                                            const { url } = resolveYoutubeEmbedUrl(urlRaw);
+                                            const { url } = LibMedia.resolveYoutubeEmbedUrl(urlRaw);
                                             if (!url) return null;
 
                                             const thumbUrl = getYoutubeThumbnailFromShort(urlRaw);
@@ -326,6 +315,22 @@ export const VideoSession = (props: { lang: Lang; hydrationData: HomePageVideoHo
         // </LoadingErrorHandler >
     );
 };
+// #endregion
+
+// #region Private
+const getDataProps = (lang: string, rawData: WebResourceSet[]): DataProp[] =>
+{
+    const result: DataProp[] = [];
+
+    rawData.forEach((item) =>
+    {
+        const detail = item.WebResourceInfo?.find((p) => p.Lang === lang);
+
+        result.push({ internalId: item.WebResource?.InternalId ?? "", title: detail?.Title ?? "", ResUrl: detail?.ResUrl ?? "" });
+    });
+
+    return result;
+};
 
 const getYoutubeThumbnailFromShort = (shortUrl?: string | null): string | null =>
 {
@@ -338,3 +343,4 @@ const getYoutubeThumbnailFromShort = (shortUrl?: string | null): string | null =
     const videoId = match[1];
     return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
 };
+// #endregion

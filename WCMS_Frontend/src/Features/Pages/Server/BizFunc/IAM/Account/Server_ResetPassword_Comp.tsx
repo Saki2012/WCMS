@@ -5,6 +5,7 @@ import { LibDropList } from "@/SysCore/Components/FormField/LibFormField";
 import { useMemo } from "react";
 import { useServerResetPassword } from "./Server_ResetPassword_Hook";
 
+// #region Public
 export const Server_ResetPassword_Comp = (props: { theme: IBETheme; }) =>
 {
     // 宣告變數
@@ -71,3 +72,4 @@ export const Server_ResetPassword_Comp = (props: { theme: IBETheme; }) =>
         </FormComp>
     );
 };
+// #endregion

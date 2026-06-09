@@ -91,6 +91,8 @@ export const AnnouncementDetailFields = {
   Content: 'Content',
   Url: 'Url',
   UrlDescription: 'UrlDescription',
+  _Announcement: '_Announcement',
+  _AnnouncementDetailFile: '_AnnouncementDetailFile',
 } as const;
 
 export type AnnouncementDetailFieldKey = keyof typeof AnnouncementDetailFields;

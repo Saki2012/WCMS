@@ -31,13 +31,19 @@ import { useLocation, useNavigate, useParams } from "react-router";
 import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
 import { useSpecUSRFormFetchData } from "./Server_SpecUSR_Form_Hook";
 
+// #region Property
 type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"];
+
 type SpecUSRFile = components["schemas"]["SpecUSRFile_DTO"];
+
 type SpecUSRUrl = components["schemas"]["SpecUSRUrl_DTO"];
+
 
 // ✅ 補齊空資料結構（不影響 DOM，只避免 new 時缺欄位）
 const emptyData: SpecUSRSet = { SpecUSR: {}, SpecUSRDetail: [], SpecUSRFile: [], SpecUSRUrl: [], SpecUSRPhoto: [], SpecUSRPhotoInfo: [] };
+// #endregion
 
+// #region Public
 /** 網路資源表單
  * @returns
  */
@@ -94,7 +100,9 @@ export const Server_USRProjFormComp = (prop: { theme: IBETheme; lang: Lang; }) =
         </FormComp>
     );
 };
+// #endregion
 
+// #region Section
 const HeaderComp = (
     prop: {
         theme: IBETheme;
@@ -165,6 +173,7 @@ const HeaderComp = (
     };
     return <TabContentComp tabInfos={LibTabsPropA} components={componentsA}></TabContentComp>;
 };
+
 
 const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<SpecUSRSet>; visibleCols: Set<string>; }) =>
 {
@@ -405,6 +414,7 @@ const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Sp
     return <TabContentComp tabInfos={tabInfo} components={tabContent} />;
 };
 
+
 const SubFilesComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<SpecUSRSet>; parentRowId: number; }) =>
 {
     const setFileField = useSetTableFileField(prop.formData);
@@ -478,6 +488,7 @@ const SubFilesComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
     );
 };
 
+
 const SubUrlComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<SpecUSRSet>; parentRowId: number; }) =>
 {
     const allUrls: SpecUSRUrl[] = prop.formData.data?.SpecUSRUrl ?? [];
@@ -500,6 +511,7 @@ const SubUrlComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Sp
         />
     );
 };
+
 
 const UploadPicComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<SpecUSRSet>; }) =>
 {
@@ -663,6 +675,7 @@ const UploadPicComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult
         </LibModal>
     );
 };
+
 const PhotoComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<SpecUSRSet>; }) =>
 {
     const setField = useSetTableField<SpecUSRSet>(prop.formData);
@@ -722,28 +735,7 @@ const PhotoComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Spe
     );
     return dom;
 };
-const usePhotoRemove = (formData: UseFetchFormDataResult<SpecUSRSet>) =>
-{
-    const remove = (usrId?: string, rowId?: number) =>
-    {
-        if (!usrId || rowId == null) return;
-        formData.setFormData(prev =>
-        {
-            // 以完整結構為基礎，確保提交資料「真的」更新
-            const base: SpecUSRSet = prev ?? { SpecUSR: {}, SpecUSRDetail: [], SpecUSRFile: [], SpecUSRUrl: [], SpecUSRPhoto: [], SpecUSRPhotoInfo: [] };
-            const photos = base.SpecUSRPhoto ?? [];
-            const details = base.SpecUSRPhotoInfo ?? [];
-            const nextPhotos = photos.filter(p => !(p?.USRId === usrId && p?.RowId === rowId));
-            const nextDetails = details.filter(d => !(d?.USRId === usrId && d?.ParentRowId === rowId));
-            // 如果刪到目前封面，換成剩下第一張；沒有就清空
-            const header = base.SpecUSR ?? {};
-            const nextHeader = { ...header };
-            // 以「整份物件」方式提交，確保資料狀態一致（與 Announcement 附件刪除相同風格）
-            return { ...base, SpecUSR: nextHeader, SpecUSRPhoto: nextPhotos, SpecUSRPhotoInfo: nextDetails };
-        });
-    };
-    return { remove };
-};
+
 const PhotoInfoComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<SpecUSRSet>; parentRowId: number; }) =>
 {
     const setField = useSetTableField<SpecUSRSet>(prop.formData);
@@ -776,3 +768,29 @@ const PhotoInfoComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult
     }, {});
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
+// #endregion
+
+// #region Private
+const usePhotoRemove = (formData: UseFetchFormDataResult<SpecUSRSet>) =>
+{
+    const remove = (usrId?: string, rowId?: number) =>
+    {
+        if (!usrId || rowId == null) return;
+        formData.setFormData(prev =>
+        {
+            // 以完整結構為基礎，確保提交資料「真的」更新
+            const base: SpecUSRSet = prev ?? { SpecUSR: {}, SpecUSRDetail: [], SpecUSRFile: [], SpecUSRUrl: [], SpecUSRPhoto: [], SpecUSRPhotoInfo: [] };
+            const photos = base.SpecUSRPhoto ?? [];
+            const details = base.SpecUSRPhotoInfo ?? [];
+            const nextPhotos = photos.filter(p => !(p?.USRId === usrId && p?.RowId === rowId));
+            const nextDetails = details.filter(d => !(d?.USRId === usrId && d?.ParentRowId === rowId));
+            // 如果刪到目前封面，換成剩下第一張；沒有就清空
+            const header = base.SpecUSR ?? {};
+            const nextHeader = { ...header };
+            // 以「整份物件」方式提交，確保資料狀態一致（與 Announcement 附件刪除相同風格）
+            return { ...base, SpecUSR: nextHeader, SpecUSRPhoto: nextPhotos, SpecUSRPhotoInfo: nextDetails };
+        });
+    };
+    return { remove };
+};
+// #endregion

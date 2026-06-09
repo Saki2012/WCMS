@@ -1,6 +1,7 @@
 import React from "react";
 import { Helmet } from "react-helmet-async";
 
+// #region Property
 export interface IHeaderMetaProps
 {
     /** 當前頁面語系（用來寫 <html lang="...">），例如 zh-tw / en */
@@ -17,13 +18,9 @@ export interface IHeaderMetaProps
     siteName?: string; // og:site_name（站名）
     ogImage?: string; // 分享縮圖
 }
+// #endregion
 
-const toHtmlLang = (x?: string) =>
-{
-    const v = (x ?? "").toLowerCase();
-    return v === "zh-tw" ? "zh-TW" : v === "zh-cn" ? "zh-CN" : v === "en" ? "en" : v || "zh-TW";
-};
-
+// #region Public
 export const HeaderMetaComp: React.FC<IHeaderMetaProps> = (props) =>
 {
     const htmlLang = toHtmlLang(props.htmlLang);
@@ -54,3 +51,12 @@ export const HeaderMetaComp: React.FC<IHeaderMetaProps> = (props) =>
         </Helmet>
     );
 };
+// #endregion
+
+// #region Private
+const toHtmlLang = (x?: string) =>
+{
+    const v = (x ?? "").toLowerCase();
+    return v === "zh-tw" ? "zh-TW" : v === "zh-cn" ? "zh-CN" : v === "en" ? "en" : v || "zh-TW";
+};
+// #endregion

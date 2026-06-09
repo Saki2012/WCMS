@@ -1,6 +1,7 @@
 import { useUploadFile } from "@/SysCore/Utils/UI_HookFunc/useUploadFile";
 import { useId, useRef, useState } from "react";
 
+// #region Property
 interface LibFileInputProps
 {
     ColumnDisplayName?: string;
@@ -25,7 +26,9 @@ interface LibFileInputProps
     InputColClassName?: string;
     RowClassName?: string;
 }
+// #endregion
 
+// #region Private
 const LibFileInput = (props: LibFileInputProps) =>
 {
     // NOTE: AA - 唯一 id，讓 label 可以對應到檔名輸入框
@@ -256,4 +259,6 @@ const LibFileInput = (props: LibFileInputProps) =>
     );
 };
 
+
 export default LibFileInput;
+// #endregion

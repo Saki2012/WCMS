@@ -5,120 +5,20 @@ import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+// #region Property
 type HomePageModel = components["schemas"]["SpecHomePage1820Model_DTO"];
+
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
+
 type NewsDateParts = { year: string; monthDay: string; fullDate: string; };
 
+
 const NEWS_MARGIN = 30;
+
 const AUTOPLAY_MS = 5000;
+// #endregion
 
-/** 取得切換按鈕描述 */
-const getToggleLabel = (isPlaying: boolean) =>
-{
-    return isPlaying ? "圖片輪播播放中，點擊暫停" : "圖片輪播已暫停，點擊播放";
-};
-
-/** 取得切換按鈕 title */
-const getToggleTitle = (isPlaying: boolean) =>
-{
-    return isPlaying ? "暫停" : "播放";
-};
-
-/** 取得目前視窗寬度 */
-const getViewportWidth = () =>
-{
-    if (typeof window === "undefined") return 1280;
-    return window.innerWidth;
-};
-
-/** 依 prototype 斷點取得顯示張數 */
-const getItemsPerView = (viewportWidth: number) =>
-{
-    if (viewportWidth >= 991) return 3;
-    if (viewportWidth >= 767) return 2;
-    return 1;
-};
-
-/** 取得初始外框寬度 */
-const getInitialOuterWidth = () =>
-{
-    const viewportWidth = getViewportWidth();
-    if (viewportWidth >= 1400) return 1320;
-    if (viewportWidth >= 1200) return 1140;
-    if (viewportWidth >= 992) return 960;
-    if (viewportWidth >= 768) return 720;
-    return Math.max(viewportWidth - 32, 320);
-};
-
-/** 限制索引範圍 */
-const clampIndex = (value: number, maxValue: number) =>
-{
-    if (value < 0) return 0;
-    if (value > maxValue) return maxValue;
-    return value;
-};
-
-/** 取得最大起始索引 */
-const getMaxStartIndex = (count: number, itemsPerView: number) =>
-{
-    return Math.max(0, count - itemsPerView);
-};
-
-/** 判斷是否在目前可見範圍 */
-const isActiveItem = (index: number, startIndex: number, itemsPerView: number) =>
-{
-    return index >= startIndex && index < startIndex + itemsPerView;
-};
-
-/** 取得下一個索引 */
-const getNextIndex = (currentIndex: number, maxIndex: number, loop: boolean) =>
-{
-    if (currentIndex >= maxIndex) return loop ? 0 : maxIndex;
-    return currentIndex + 1;
-};
-
-/** 整理分類名稱 */
-const formatCategoryNames = (value?: string | null, categoryMap?: Record<string, string>) =>
-{
-    const ids = `${value ?? ""}`.split(",").map(s => s.trim()).filter(Boolean);
-    const names = ids.map(id => categoryMap?.[id]).filter((s): s is string => Boolean(s));
-    return names.join("、");
-};
-
-/** 格式化日期字串 */
-const formatNewsDate = (value?: string | null): NewsDateParts =>
-{
-    const raw = `${value ?? ""}`.trim();
-    if (!raw) return { year: "--", monthDay: "--.--", fullDate: "" };
-
-    const datePart = raw.split("T")[0] ?? "";
-    const seg = datePart.split("-");
-    if (seg.length < 3) return { year: raw, monthDay: "--.--", fullDate: raw };
-
-    const year = seg[0] || "--";
-    const month = (seg[1] || "--").padStart(2, "0");
-    const day = (seg[2] || "--").padStart(2, "0");
-    return { year, monthDay: `${month}.${day}`, fullDate: `${year}-${month}-${day}` };
-};
-
-/** 取得圖片預覽網址 */
-const getNewsImageUrl = (item: AnnouncementSet) =>
-{
-    return FileManagementAPI.get_Public_Preview_Url(item.Announcement?.PictureId);
-};
-
-/** 取得圖片替代文字 */
-const getNewsImageAlt = (item: AnnouncementSet, title?: string) =>
-{
-    return item.Announcement?.PicDescription ?? title ?? "";
-};
-
-/** 取得卡片連結 */
-const getNewsLink = (viewMoreLink?: string | null, item?: AnnouncementSet) =>
-{
-    return LibMerge("/", false, viewMoreLink, item?.Announcement?.InternalId);
-};
-
+// #region Public
 /** 最新消息輪播 */
 export const Section3 = (props: { lang: Lang; homePage: HomePageModel; announcements: AnnouncementSet[]; announcementCategoryMap: Record<string, string>; }) =>
 {
@@ -284,7 +184,7 @@ export const Section3 = (props: { lang: Lang; homePage: HomePageModel; announcem
                                                     const categoryText = formatCategoryNames(item.Announcement?.Categories, props.announcementCategoryMap);
                                                     const dateInfo = formatNewsDate(item.Announcement?.Validate_Start);
                                                     const imageUrl = getNewsImageUrl(item);
-                                                    const imageAlt = getNewsImageAlt(item, detail?.Title ?? "");
+                                                    const imageAlt = item.Announcement?.PicDescription ?? detail?.Title ?? "";
                                                     const linkUrl = getNewsLink(props.homePage.Announcement_ViewMoreLink, item);
                                                     const activeClass = isActiveItem(index, startIndex, itemsPerView) ? " active" : "";
 
@@ -406,3 +306,120 @@ export const Section3 = (props: { lang: Lang; homePage: HomePageModel; announcem
         </section>
     );
 };
+// #endregion
+
+// #region Private
+/** 取得切換按鈕描述 */
+const getToggleLabel = (isPlaying: boolean) =>
+{
+    return isPlaying ? "圖片輪播播放中，點擊暫停" : "圖片輪播已暫停，點擊播放";
+};
+
+
+/** 取得切換按鈕 title */
+const getToggleTitle = (isPlaying: boolean) =>
+{
+    return isPlaying ? "暫停" : "播放";
+};
+
+
+/** 取得目前視窗寬度 */
+const getViewportWidth = () =>
+{
+    if (typeof window === "undefined") return 1280;
+    return window.innerWidth;
+};
+
+
+/** 依 prototype 斷點取得顯示張數 */
+const getItemsPerView = (viewportWidth: number) =>
+{
+    if (viewportWidth >= 991) return 3;
+    if (viewportWidth >= 767) return 2;
+    return 1;
+};
+
+
+/** 取得初始外框寬度 */
+const getInitialOuterWidth = () =>
+{
+    const viewportWidth = getViewportWidth();
+    if (viewportWidth >= 1400) return 1320;
+    if (viewportWidth >= 1200) return 1140;
+    if (viewportWidth >= 992) return 960;
+    if (viewportWidth >= 768) return 720;
+    return Math.max(viewportWidth - 32, 320);
+};
+
+
+/** 限制索引範圍 */
+const clampIndex = (value: number, maxValue: number) =>
+{
+    if (value < 0) return 0;
+    if (value > maxValue) return maxValue;
+    return value;
+};
+
+
+/** 取得最大起始索引 */
+const getMaxStartIndex = (count: number, itemsPerView: number) =>
+{
+    return Math.max(0, count - itemsPerView);
+};
+
+
+/** 判斷是否在目前可見範圍 */
+const isActiveItem = (index: number, startIndex: number, itemsPerView: number) =>
+{
+    return index >= startIndex && index < startIndex + itemsPerView;
+};
+
+
+/** 取得下一個索引 */
+const getNextIndex = (currentIndex: number, maxIndex: number, loop: boolean) =>
+{
+    if (currentIndex >= maxIndex) return loop ? 0 : maxIndex;
+    return currentIndex + 1;
+};
+
+
+/** 整理分類名稱 */
+const formatCategoryNames = (value?: string | null, categoryMap?: Record<string, string>) =>
+{
+    const ids = `${value ?? ""}`.split(",").map(s => s.trim()).filter(Boolean);
+    const names = ids.map(id => categoryMap?.[id]).filter((s): s is string => Boolean(s));
+    return names.join("、");
+};
+
+
+/** 格式化日期字串 */
+const formatNewsDate = (value?: string | null): NewsDateParts =>
+{
+    const raw = `${value ?? ""}`.trim();
+    if (!raw) return { year: "--", monthDay: "--.--", fullDate: "" };
+
+    const datePart = raw.split("T")[0] ?? "";
+    const seg = datePart.split("-");
+    if (seg.length < 3) return { year: raw, monthDay: "--.--", fullDate: raw };
+
+    const year = seg[0] || "--";
+    const month = (seg[1] || "--").padStart(2, "0");
+    const day = (seg[2] || "--").padStart(2, "0");
+    return { year, monthDay: `${month}.${day}`, fullDate: `${year}-${month}-${day}` };
+};
+
+
+/** 取得圖片預覽網址 */
+const getNewsImageUrl = (item: AnnouncementSet) =>
+{
+    return FileManagementAPI.get_Public_Preview_Url(item.Announcement?.PictureId);
+};
+
+
+/** 取得圖片替代文字 */
+/** 取得卡片連結 */
+const getNewsLink = (viewMoreLink?: string | null, item?: AnnouncementSet) =>
+{
+    return LibMerge("/", false, viewMoreLink, item?.Announcement?.InternalId);
+};
+// #endregion

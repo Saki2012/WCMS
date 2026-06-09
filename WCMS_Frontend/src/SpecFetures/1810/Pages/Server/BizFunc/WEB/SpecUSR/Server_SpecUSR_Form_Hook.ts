@@ -15,12 +15,16 @@ import { PGID, SpecCategoryDetailModelFields, SpecCategoryModelFields } from "@/
 import type { AxiosInstance } from "axios";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+// #region Property
 type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"];
+
 type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"];
+
 type SpecCategoryDetail = components["schemas"]["SpecCategoryDetailModel_DTO"];
+
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-// #region Public Types
+
 export type SpecUSRFormRawData = {
     formData: UseFetchFormDataResult<SpecUSRSet>;
     categoryMap: Record<string, string>;
@@ -30,19 +34,27 @@ export type SpecUSRFormRawData = {
     actions: ServerFormActions;
 };
 
+
 export type SpecUSRFormActionsOpt = {
     /** 儲存成功後要回到列表（或其他導頁） */
     onBackToList: () => void;
 };
+
 
 export type SpecUSRFormAdapter = {
     SpecUSR: ReturnType<typeof createSpecUSRAdapter>;
     SpecCategory: ReturnType<typeof createSpecCategoryAdapter>;
     Tag: ReturnType<typeof TagAdapter>;
 };
+
+
+const emptyDisplaySchema: ModelDisplaySchema = { ModelId: "", ModelDisplayName: "", Tables: [] };
+
+
+type JsonValue = string | number | boolean | null | JsonValue[] | { [k: string]: JsonValue; };
 // #endregion
 
-// #region Public Hook
+// #region Public
 /** ✅ 主入口：Server SpecUSR Form 的所有「讀取資料」集中在這裡（對標 AnnouncementFormFetchData） */
 export const useSpecUSRFormFetchData = (
     opt: { lang: Lang; internalId: string; emptyData: SpecUSRSet; actionsOpt: SpecUSRFormActionsOpt; },
@@ -105,9 +117,31 @@ export const useSpecUSRFormFetchData = (
     // return
     return { adapter, rawData, isLoading, errors, refetchData, refetchRefData };
 };
+
+
+class SpecUSRService extends ApiDataService<SpecUSRSet>
+{
+    // #region Public
+    constructor(apiInstance?: AxiosInstance)
+    {
+        super(PGID.SpecUSR, apiInstance);
+    }
+    // #endregion
+}
+
+
+class SpecCategoryService extends ApiDataService<SpecCategorySet>
+{
+    // #region Public
+    constructor(apiInstance?: AxiosInstance)
+    {
+        super(PGID.SpecCategory, apiInstance);
+    }
+    // #endregion
+}
 // #endregion
 
-// #region Private - Common
+// #region Private
 /** ✅ ContentStatus enum options（去掉 key=0） */
 const useContentStatusOptions = (): { data: Record<string, string>; isLoading: boolean; error: string | null; } =>
 {
@@ -123,17 +157,6 @@ const useContentStatusOptions = (): { data: Record<string, string>; isLoading: b
     }, [src.data, src.isLoading, src.error]);
 };
 
-const emptyDisplaySchema: ModelDisplaySchema = { ModelId: "", ModelDisplayName: "", Tables: [] };
-// #endregion
-
-// #region Private - SpecUSR (FormData / Actions)
-class SpecUSRService extends ApiDataService<SpecUSRSet>
-{
-    constructor(apiInstance?: AxiosInstance)
-    {
-        super(PGID.SpecUSR, apiInstance);
-    }
-}
 
 const createSpecUSRAdapter = (apiInstance?: AxiosInstance) =>
 {
@@ -141,6 +164,7 @@ const createSpecUSRAdapter = (apiInstance?: AxiosInstance) =>
     const adapter = new ApiDataAdapter<SpecUSRSet, SpecUSRService>((api?: AxiosInstance) => new SpecUSRService(api ?? apiInstance));
     return adapter;
 };
+
 
 /** ✅ FormData：QueryData + ModelDisplayName（含 editable state） */
 const useSpecUSRFormDataByAdapter = (
@@ -188,6 +212,7 @@ const useSpecUSRFormDataByAdapter = (
     return { data, setFormData: setData, isLoading, error, refetch, displayName: model.data ?? emptyDisplaySchema };
 };
 
+
 const useSpecUSRFormActionsByAdapter = (
     adapter: ReturnType<typeof createSpecUSRAdapter>,
     internalId: string,
@@ -218,16 +243,7 @@ const useSpecUSRFormActionsByAdapter = (
         IsSaving: actions.isSaving,
     };
 };
-// #endregion
 
-// #region Private - SpecCategory (Map + Visible Cols)
-class SpecCategoryService extends ApiDataService<SpecCategorySet>
-{
-    constructor(apiInstance?: AxiosInstance)
-    {
-        super(PGID.SpecCategory, apiInstance);
-    }
-}
 
 const createSpecCategoryAdapter = (apiInstance?: AxiosInstance) =>
 {
@@ -235,11 +251,13 @@ const createSpecCategoryAdapter = (apiInstance?: AxiosInstance) =>
     return new ApiDataAdapter<SpecCategorySet, SpecCategoryService>((api?: AxiosInstance) => new SpecCategoryService(api ?? apiInstance));
 };
 
+
 const escapeQueryString = (value: string): string =>
 {
     // 避免 Condition 字串被破壞
     return value.replace(/"/g, `""`);
 };
+
 
 const buildSpecCategoryQueryByProgIdParam = (opt: { progId: string; lang?: Lang; pageSize?: number; }): QueryListParam =>
 {
@@ -265,6 +283,7 @@ const buildSpecCategoryQueryByProgIdParam = (opt: { progId: string; lang?: Lang;
         PageSize: opt.pageSize ?? 0,
     };
 };
+
 
 const useSpecCategoryMapAndCols = (
     adapter: ReturnType<typeof createSpecCategoryAdapter>,
@@ -319,7 +338,6 @@ const useSpecCategoryMapAndCols = (
     return { isLoading: Boolean(query.isLoading), errorText: query.errorText ?? null, refetch, map, cols };
 };
 
-type JsonValue = string | number | boolean | null | JsonValue[] | { [k: string]: JsonValue; };
 
 const parseShowColumnItems = (raw: string): string[] =>
 {
@@ -336,6 +354,7 @@ const parseShowColumnItems = (raw: string): string[] =>
     // return
     return raw.split(/[,;|]/g).map((x) => x.trim()).filter(Boolean);
 };
+
 
 const safeParseJsonArray = (raw: string): string[] | null =>
 {

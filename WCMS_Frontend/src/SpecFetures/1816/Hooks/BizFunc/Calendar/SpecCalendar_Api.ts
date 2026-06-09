@@ -5,24 +5,19 @@ import type { components } from "@/types/api";
 import type { AxiosInstance } from "axios";
 import { useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router";
+
+// #region Property
 type CalendarSet = components["schemas"]["CalendarSet_DTO"];
+
 type CurrentOpenTime = components["schemas"]["SpecCurrentOpenTime_DTO"];
 
-class SpecCalendarService extends CalendarService
-{
-    // #region API Func
-    async fetchCurrentOpenTime(): Promise<ApiResponse<CurrentOpenTime[]>>
-    {
-        return await this.CallApi<CurrentOpenTime[]>(() => this.Api.get<ApiResponse<CurrentOpenTime[]>>(`${this.Module}/Spec_GetCurrentOpenTime`));
-    }
-    // #endregion
-}
 
 type SpecExtraLoaders = {
     getCurrentOpenTimeLoader: (
         opt?: { getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; },
     ) => (args: LoaderFunctionArgs) => Promise<ApiLoaderData<null, CurrentOpenTime[]>>;
 };
+
 
 type SpecExtraHooks = {
     useFetchCurrentOpenTime: (
@@ -40,15 +35,29 @@ type SpecExtraHooks = {
         refetch: () => Promise<void>;
     };
 };
+// #endregion
+
+// #region Public
+class SpecCalendarService extends CalendarService
+{
+    // #region Public
+    async fetchCurrentOpenTime(): Promise<ApiResponse<CurrentOpenTime[]>>
+    {
+        return await this.CallApi<CurrentOpenTime[]>(() => this.Api.get<ApiResponse<CurrentOpenTime[]>>(`${this.Module}/Spec_GetCurrentOpenTime`));
+    }
+    // #endregion
+}
+
 
 class SpecCalendarAdapterImpl extends CalendarAdapterImpl
 {
     // #region Property
     declare public loader: CalendarAdapterImpl["loader"] & SpecExtraLoaders;
+
     declare public hooks: CalendarAdapterImpl["hooks"] & SpecExtraHooks;
     // #endregion
 
-    // #region Protect Virtual Func
+    // #region Public
     protected override buildExtendedLoader(base: ApiDataLoaderGroup<CalendarSet>)
     {
         const merged = super.buildExtendedLoader(base);
@@ -58,6 +67,7 @@ class SpecCalendarAdapterImpl extends CalendarAdapterImpl
         };
         return { ...merged, getCurrentOpenTimeLoader: wrapGetCurrentOpenTimeLoader };
     }
+
     protected override buildExtendedHooks(base: ApiDataHookGroup<CalendarSet>)
     {
         const merged = super.buildExtendedHooks(base);
@@ -67,10 +77,9 @@ class SpecCalendarAdapterImpl extends CalendarAdapterImpl
         };
         return { ...merged, useFetchCurrentOpenTime: wrapUseFetchCurrentOpenTime };
     }
-
     // #endregion
 
-    // #region Loader Func
+    // #region Private
     private getCurrentOpenTimeLoader(opt?: { getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; })
     {
         return this.createApiLoader<null, CurrentOpenTime[]>({
@@ -80,9 +89,8 @@ class SpecCalendarAdapterImpl extends CalendarAdapterImpl
             getApiInstance: opt?.getApiInstance,
         });
     }
-    // #endregion
 
-    // #region Hook Func
+
     private useFetchCurrentOpenTime(
         opt?: {
             initial?: ApiLoaderData<null, CurrentOpenTime[]> | null;
@@ -110,5 +118,7 @@ class SpecCalendarAdapterImpl extends CalendarAdapterImpl
     // #endregion
 }
 
+
 export const SpecCalendarAdapter = (apiInstance?: AxiosInstance) =>
     new SpecCalendarAdapterImpl((api?: AxiosInstance) => new SpecCalendarService(api ?? apiInstance));
+// #endregion

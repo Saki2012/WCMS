@@ -6,8 +6,11 @@ import type { components } from "@/types/api";
 import { useMemo } from "react";
 import type { HomePageRawData } from "../HomePage_Loader";
 
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
+
 
 interface NewsSectionProps
 {
@@ -17,71 +20,14 @@ interface NewsSectionProps
     initialData: Pick<HomePageRawData, "newsTopList" | "newsList" | "newsMergedList">;
 }
 
+
 type InitialListCompat<TArgs, TItem> = { args: TArgs; apiRes: { IsSuccess: true; Data: TItem[]; SysMessage: never[]; }; };
 
-const toListInitial = <TArgs, TItem>(args: TArgs, data: TItem[]): InitialListCompat<TArgs, TItem> =>
-{
-    // return：提供 adapter hook 的 initial 結構
-    return { args, apiRes: { IsSuccess: true, Data: data, SysMessage: [] } };
-};
-
-const takeTopThenFill = (top: AnnouncementSet[] | undefined, rest: AnnouncementSet[] | undefined, limit: number = 5): AnnouncementSet[] =>
-{
-    // 宣告變數
-    const getKey = (x: AnnouncementSet) => x.Announcement?.InternalId ?? String(x.Announcement?.AnnouncementId ?? "");
-    const seen = new Set<string>();
-    const out: AnnouncementSet[] = [];
-
-    // 執行 function：先放置頂
-    for (const it of top ?? [])
-    {
-        const key = getKey(it);
-        if (seen.has(key) || out.length >= limit) continue;
-
-        seen.add(key);
-        out.push(it);
-    }
-
-    // 執行 function：再用一般資料補滿
-    for (const it of rest ?? [])
-    {
-        const key = getKey(it);
-        if (seen.has(key) || out.length >= limit) continue;
-
-        seen.add(key);
-        out.push(it);
-    }
-
-    // return
-    return out;
-};
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+// #endregion
 
-const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: number = 8): boolean =>
-{
-    // 宣告變數
-    if (!month1to12 || !day1to31) return false;
-
-    const now = new Date();
-    const nowUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
-
-    let year = now.getUTCFullYear();
-    let candidateUTC = Date.UTC(year, month1to12 - 1, day1to31);
-
-    // 執行 function：若候選日在未來，代表跨年 → 改去年
-    if (candidateUTC > nowUTC)
-    {
-        year -= 1;
-        candidateUTC = Date.UTC(year, month1to12 - 1, day1to31);
-    }
-
-    const diffDays = Math.floor((nowUTC - candidateUTC) / DAY_MS);
-
-    // return
-    return diffDays >= 0 && diffDays <= n;
-};
-
+// #region Public
 /** 最新消息（Prototype: .Newsii_section） */
 export const NewsSection = (props: NewsSectionProps) =>
 {
@@ -218,5 +164,72 @@ export const NewsSection = (props: NewsSectionProps) =>
         </>
     );
 };
+// #endregion
+
+// #region Private
+const toListInitial = <TArgs, TItem>(args: TArgs, data: TItem[]): InitialListCompat<TArgs, TItem> =>
+{
+    // return：提供 adapter hook 的 initial 結構
+    return { args, apiRes: { IsSuccess: true, Data: data, SysMessage: [] } };
+};
+
+
+const takeTopThenFill = (top: AnnouncementSet[] | undefined, rest: AnnouncementSet[] | undefined, limit: number = 5): AnnouncementSet[] =>
+{
+    // 宣告變數
+    const getKey = (x: AnnouncementSet) => x.Announcement?.InternalId ?? String(x.Announcement?.AnnouncementId ?? "");
+    const seen = new Set<string>();
+    const out: AnnouncementSet[] = [];
+
+    // 執行 function：先放置頂
+    for (const it of top ?? [])
+    {
+        const key = getKey(it);
+        if (seen.has(key) || out.length >= limit) continue;
+
+        seen.add(key);
+        out.push(it);
+    }
+
+    // 執行 function：再用一般資料補滿
+    for (const it of rest ?? [])
+    {
+        const key = getKey(it);
+        if (seen.has(key) || out.length >= limit) continue;
+
+        seen.add(key);
+        out.push(it);
+    }
+
+    // return
+    return out;
+};
+
+
+const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: number = 8): boolean =>
+{
+    // 宣告變數
+    if (!month1to12 || !day1to31) return false;
+
+    const now = new Date();
+    const nowUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+
+    let year = now.getUTCFullYear();
+    let candidateUTC = Date.UTC(year, month1to12 - 1, day1to31);
+
+    // 執行 function：若候選日在未來，代表跨年 → 改去年
+    if (candidateUTC > nowUTC)
+    {
+        year -= 1;
+        candidateUTC = Date.UTC(year, month1to12 - 1, day1to31);
+    }
+
+    const diffDays = Math.floor((nowUTC - candidateUTC) / DAY_MS);
+
+    // return
+    return diffDays >= 0 && diffDays <= n;
+};
+
 
 export default NewsSection;
+// #endregion

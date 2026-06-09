@@ -10,8 +10,11 @@ import { SpecUSRDetailFields } from "@/types/SchemaFields";
 import { useLocation } from "react-router-dom";
 import { type ISpecUSRListOptions, useSpecUSRListFetchData } from "./SpecUSR_List_Loader";
 
+// #region Property
 type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"];
+
 type SpecUSRDetail = components["schemas"]["SpecUSRDetail_DTO"];
+
 type ColKey =
     | typeof SpecUSRDetailFields.Year
     | typeof SpecUSRDetailFields.ProjectLeader
@@ -25,12 +28,14 @@ type ColKey =
     | typeof SpecUSRDetailFields.Cohost2
     | typeof SpecUSRDetailFields.Commissioned;
 
+
 interface ISpecUSRListProps
 {
     Theme: IFETheme;
     Lang: string | Lang;
     Options?: ISpecUSRListOptions;
 }
+
 
 const COLS: ColKey[] = [
     SpecUSRDetailFields.Year,
@@ -46,13 +51,16 @@ const COLS: ColKey[] = [
     SpecUSRDetailFields.Commissioned,
 ];
 
+
 const LEADER_GROUP: ColKey[] = [
     SpecUSRDetailFields.ProjectLeader,
     SpecUSRDetailFields.ProjectSubLeader,
     SpecUSRDetailFields.Cohost1,
     SpecUSRDetailFields.Cohost2,
 ];
+// #endregion
 
+// #region Public
 /** SpecUSR 清單元件 */
 export const SpecUSRListComp = (props: ISpecUSRListProps) =>
 {
@@ -71,8 +79,11 @@ export const SpecUSRListComp = (props: ISpecUSRListProps) =>
         </LoadingErrorHandler>
     );
 };
+// #endregion
 
+// #region Private
 export default SpecUSRListComp;
+
 
 /** 取得 detail 指定欄位值 */
 const getDetailValue = (detail: SpecUSRDetail | undefined, key: ColKey): string =>
@@ -81,17 +92,13 @@ const getDetailValue = (detail: SpecUSRDetail | undefined, key: ColKey): string 
     return raw == null ? "" : String(raw);
 };
 
+
 /** 判斷值是否可顯示 */
 const isNonEmpty = (v: string) =>
 {
     return v.trim().length > 0;
 };
 
-/** 取得欄位標題 */
-const getColumnTitle = (showColTitle: ColumnConfig[], key: ColKey) =>
-{
-    return showColTitle.find(p => p.key === key)?.title ?? "";
-};
 
 const SpecUSRList = (p: { lang: string | Lang; rawData: SpecUSRSet[]; showColumnItems: string[]; showColTitle: ColumnConfig[]; }) =>
 {
@@ -148,7 +155,7 @@ const SpecUSRList = (p: { lang: string | Lang; rawData: SpecUSRSet[]; showColumn
                                                                 leaderRendered = true;
                                                                 return null;
                                                             }
-                                                            const title = getColumnTitle(p.showColTitle, chosenKey);
+                                                            const title = p.showColTitle.find((item) => item.key === chosenKey)?.title ?? "";
                                                             const data = getDetailValue(detail, chosenKey);
                                                             leaderRendered = true;
                                                             return (
@@ -159,7 +166,7 @@ const SpecUSRList = (p: { lang: string | Lang; rawData: SpecUSRSet[]; showColumn
                                                             );
                                                         }
                                                         if (!p.showColumnItems.includes(col)) return null;
-                                                        const title = getColumnTitle(p.showColTitle, col);
+                                                        const title = p.showColTitle.find((item) => item.key === col)?.title ?? "";
                                                         const data = getDetailValue(detail, col);
                                                         if (!isNonEmpty(data)) return null;
                                                         return (
@@ -187,3 +194,4 @@ const SpecUSRList = (p: { lang: string | Lang; rawData: SpecUSRSet[]; showColumn
         </>
     );
 };
+// #endregion

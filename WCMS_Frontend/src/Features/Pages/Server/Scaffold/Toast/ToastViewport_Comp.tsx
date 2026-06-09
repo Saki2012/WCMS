@@ -3,9 +3,13 @@ import { useToast, useToastState } from "@/Features/Hooks/Common/useToastCenter"
 import { MessageStatus, type MessageStatusCode } from "@/SysCore/Utils/API/APIBase";
 import * as React from "react";
 
+// #region Property
 const DEFAULT_AUTO_CLOSE_MS = Number(import.meta.env.VITE_TOAST_AUTO_CLOSE_MS ?? 5000);
+
 const EXIT_ANIM_MS = 300;
+
 const ENTER_ANIM_MS = 250;
+
 
 const iconMap: Record<MessageStatusCode, string> = {
     [MessageStatus.Error]: "✖",
@@ -14,12 +18,14 @@ const iconMap: Record<MessageStatusCode, string> = {
     [MessageStatus.Green]: "✔",
 };
 
+
 const levelStyle: Record<MessageStatusCode, React.CSSProperties> = {
     [MessageStatus.Error]: { borderLeft: "4px solid #d32f2f", background: "#fdecea" },
     [MessageStatus.Warning]: { borderLeft: "4px solid #ed6c02", background: "#fff4e5" },
     [MessageStatus.Info]: { borderLeft: "4px solid #0288d1", background: "#e8f4fd" },
     [MessageStatus.Green]: { borderLeft: "4px solid #2e7d32", background: "#edf7ed" },
 };
+
 
 // 進度條顏色（可視需要微調深淺）
 const progressColor: Record<MessageStatusCode, string> = {
@@ -29,13 +35,16 @@ const progressColor: Record<MessageStatusCode, string> = {
     [MessageStatus.Green]: "#2e7d32",
 };
 
+
 type TimerState = {
     timeoutId: number | null;
     remaining: number; // 剩餘毫秒（暫停時不變）
     startAt: number; // 最近一次開始時間
     total: number; // 總毫秒，供進度條計算
 };
+// #endregion
 
+// #region Public
 export const ToastViewport_Comp: React.FC = () =>
 {
     const toasts = useToastState();
@@ -376,3 +385,4 @@ export const ToastViewport_Comp: React.FC = () =>
         </div>
     );
 };
+// #endregion

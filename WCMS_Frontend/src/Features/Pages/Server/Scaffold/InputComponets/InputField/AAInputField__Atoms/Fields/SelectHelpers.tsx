@@ -1,6 +1,7 @@
 import type { MouseEvent as ReactMouseEvent, RefObject } from "react";
 import type { AAInputField, AAInputOption, AAInputValue } from "../AAInputField_Types";
 
+// #region Public
 /** 搜尋可用選項，僅做純文字比對避免 HTML 注入風險。 */
 export const filterSelectOptions = (optionList: AAInputOption[], searchText: string) =>
 {
@@ -9,6 +10,7 @@ export const filterSelectOptions = (optionList: AAInputOption[], searchText: str
     return optionList.filter((item) => item.label.toLowerCase().includes(keyword) || item.value.toLowerCase().includes(keyword));
 };
 
+
 /** 搜尋尚未選取的多選項目。 */
 export const filterUnselectedSelectOptions = (optionList: AAInputOption[], selectedValues: string[], searchText: string) =>
 {
@@ -16,11 +18,14 @@ export const filterUnselectedSelectOptions = (optionList: AAInputOption[], selec
     return filterSelectOptions(optionList, searchText).filter((item) => !selectedSet.has(item.value));
 };
 
+
 /** 限制搜尋字串長度並移除控制字元。 */
 export const normalizeSearchText = (value: string, maxLength: number) => value.replace(/[\u0000-\u001F\u007F]/g, "").slice(0, maxLength);
 
+
 /** 取得第一個可選項目。 */
 export const getFirstEnabledIndex = (optionList: AAInputOption[]) => optionList.findIndex((item) => !item.disabled);
+
 
 /** 取得下一個可用項目的 index。 */
 export const getNextEnabledIndex = (optionList: AAInputOption[], activeIndex: number, step: number) =>
@@ -34,8 +39,10 @@ export const getNextEnabledIndex = (optionList: AAInputOption[], activeIndex: nu
     return -1;
 };
 
+
 /** 建立搜尋選項 id。 */
 export const getSearchOptionId = (fieldId: string, value: string) => `${fieldId}-option-${value.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
+
 
 /** 讓鍵盤 active option 維持在可視範圍內。 */
 export const scrollActiveSelectOption = (activeOptionId?: string) =>
@@ -44,8 +51,10 @@ export const scrollActiveSelectOption = (activeOptionId?: string) =>
     document.getElementById(activeOptionId)?.scrollIntoView({ block: "nearest" });
 };
 
+
 /** 取得目前選取項目的顯示文字。 */
 export const getSelectedOptionLabel = (optionList: AAInputOption[], selectedValue: string, placeholder?: string) => optionList.find((item) => item.value === selectedValue)?.label ?? placeholder ?? "請選擇...";
+
 
 /** 建立可搜尋 select 選項樣式。 */
 export const buildSearchOptionClass = (isSelected: boolean, isActive: boolean, disabled?: boolean) =>
@@ -55,6 +64,7 @@ export const buildSearchOptionClass = (isSelected: boolean, isActive: boolean, d
     if (disabled) classList.push("disabled", "opacity-75");
     return classList.join(" ");
 };
+
 
 /** 綁定外部點擊關閉選單，僅在 CSR effect 中執行避免 SSR 差異。 */
 export const bindOutsideClick = (isOpen: boolean, wrapperRef: RefObject<HTMLDivElement>, closeSelect: () => void) =>
@@ -67,6 +77,7 @@ export const bindOutsideClick = (isOpen: boolean, wrapperRef: RefObject<HTMLDivE
     document.addEventListener("mousedown", handleMouseDown);
     return () => document.removeEventListener("mousedown", handleMouseDown);
 };
+
 
 /** 渲染查詢輸入框的清除按鈕。 */
 export const renderSearchClearButton = (ariaLabel: string, onClear: () => void) =>
@@ -85,6 +96,7 @@ export const renderSearchClearButton = (ariaLabel: string, onClear: () => void) 
     );
 };
 
+
 /** 套用可搜尋選單的選取值。 */
 export const commitSearchableSelectOption = (field: AAInputField, item: AAInputOption, onChange: (fieldKey: string, value: AAInputValue) => void, closeSelect: () => void) =>
 {
@@ -92,3 +104,4 @@ export const commitSearchableSelectOption = (field: AAInputField, item: AAInputO
     onChange(field.key, item.value);
     closeSelect();
 };
+// #endregion

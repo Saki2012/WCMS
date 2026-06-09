@@ -4,31 +4,39 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import clsx from "clsx";
 import { useEffect, useMemo } from "react";
 
+// #region Property
 type BannerSliderHydrationData = ReturnType<typeof useBannerSliderHydrationData>;
+
 type BannerSet = NonNullable<BannerSliderHydrationData["banner"]>;
+
 
 interface BannerSliderProps
 {
     lang: Lang;
     hydrationData: BannerSliderHydrationData;
 }
+
 interface CarouselInstance
 {
     cycle: () => void;
     pause: () => void;
     dispose?: () => void;
 }
+
 interface CarouselStatic
 {
     getOrCreateInstance: (element: Element, options?: { interval?: number; }) => CarouselInstance;
     getInstance?: (element: Element) => CarouselInstance | null;
 }
+
 interface BootstrapWindow extends Window
 {
     bootstrap?: { Carousel?: CarouselStatic; };
 }
 
+
 const SLIDE_INTERVAL = 5000;
+
 
 const emptyData: BannerSet = {
     Banner: {},
@@ -43,13 +51,54 @@ const emptyData: BannerSet = {
         URL_Open: 1,
     }],
 };
+// #endregion
 
+// #region Public
+export const BannerSlider = (props: BannerSliderProps) =>
+{
+    // 宣告變數：改由 loader / hydration 提供 banner 資料
+    const bannerData = props.hydrationData.banner ?? emptyData;
+
+    // 宣告變數：維持舊版 detail 排序規則
+    const sortedDetails = useMemo(() => getSortedDetails(bannerData), [bannerData]);
+
+    useEffect(() =>
+    {
+        if (!sortedDetails.length) return;
+
+        initCarousel("carousel-Controls");
+        initCarousel("carousel-Controls_MB");
+
+        return () =>
+        {
+            disposeCarousel("carousel-Controls");
+            disposeCarousel("carousel-Controls_MB");
+        };
+    }, [sortedDetails]);
+
+    return (
+        <section className="carousel_slide_section">
+            <div className="sidebar-index">
+                <div className="scroll_Down">
+                    <a href="#content" className="eng_font">SCROLL</a>
+                </div>
+            </div>
+
+            <PCBanner bannerData={bannerData} lang={props.lang} sortedDetails={sortedDetails} />
+            <MobileBanner bannerData={bannerData} lang={props.lang} sortedDetails={sortedDetails} />
+        </section>
+    );
+};
+// #endregion
+
+// #region Private
 /// 取得 bootstrap carousel 類別
 const getBootstrapCarousel = (): CarouselStatic | null =>
 {
     if (typeof window === "undefined") return null;
     return (window as BootstrapWindow).bootstrap?.Carousel ?? null;
 };
+
 
 /// 清除舊 carousel instance
 const disposeCarousel = (id: string) =>
@@ -62,6 +111,7 @@ const disposeCarousel = (id: string) =>
 
     Carousel.getInstance(root)?.dispose?.();
 };
+
 
 /// 初始化 carousel
 const initCarousel = (id: string) =>
@@ -77,6 +127,7 @@ const initCarousel = (id: string) =>
     const instance = Carousel.getOrCreateInstance(root, { interval: SLIDE_INTERVAL });
     instance.cycle();
 };
+
 
 /// 控制 carousel 播放與暫停
 const handleCarouselControl = (id: string, action: "play" | "pause") =>
@@ -96,6 +147,7 @@ const handleCarouselControl = (id: string, action: "play" | "pause") =>
     instance.pause();
 };
 
+
 /// 依排序欄位整理 banner 明細
 const getSortedDetails = (bannerData: BannerSet) =>
 {
@@ -113,11 +165,13 @@ const getSortedDetails = (bannerData: BannerSet) =>
     });
 };
 
+
 /// 依語系取得 banner 文字資料
 const getBannerInfo = (bannerData: BannerSet, rowId?: number | null, bannerId?: string | null, lang?: Lang) =>
 {
     return bannerData?.BannerDetailInfo?.find((item) => item.BannerId === bannerId && item.ParentRowId === rowId && item.Lang === lang) ?? null;
 };
+
 
 /// 組出圖片預覽網址
 const getPreviewUrl = (picSrcId?: string | null) =>
@@ -126,6 +180,7 @@ const getPreviewUrl = (picSrcId?: string | null) =>
     if (!id) return "";
     return FileManagementAPI.get_Public_Preview_Url(id);
 };
+
 
 const PCBanner = (props: { bannerData: BannerSet; lang: Lang; sortedDetails: BannerSet["BannerDetail"]; }) =>
 {
@@ -225,6 +280,7 @@ const PCBanner = (props: { bannerData: BannerSet; lang: Lang; sortedDetails: Ban
     );
 };
 
+
 const MobileBanner = (props: { bannerData: BannerSet; lang: Lang; sortedDetails: BannerSet["BannerDetail"]; }) =>
 {
     return (
@@ -310,39 +366,4 @@ const MobileBanner = (props: { bannerData: BannerSet; lang: Lang; sortedDetails:
         </div>
     );
 };
-
-export const BannerSlider = (props: BannerSliderProps) =>
-{
-    // 宣告變數：改由 loader / hydration 提供 banner 資料
-    const bannerData = props.hydrationData.banner ?? emptyData;
-
-    // 宣告變數：維持舊版 detail 排序規則
-    const sortedDetails = useMemo(() => getSortedDetails(bannerData), [bannerData]);
-
-    useEffect(() =>
-    {
-        if (!sortedDetails.length) return;
-
-        initCarousel("carousel-Controls");
-        initCarousel("carousel-Controls_MB");
-
-        return () =>
-        {
-            disposeCarousel("carousel-Controls");
-            disposeCarousel("carousel-Controls_MB");
-        };
-    }, [sortedDetails]);
-
-    return (
-        <section className="carousel_slide_section">
-            <div className="sidebar-index">
-                <div className="scroll_Down">
-                    <a href="#content" className="eng_font">SCROLL</a>
-                </div>
-            </div>
-
-            <PCBanner bannerData={bannerData} lang={props.lang} sortedDetails={sortedDetails} />
-            <MobileBanner bannerData={bannerData} lang={props.lang} sortedDetails={sortedDetails} />
-        </section>
-    );
-};
+// #endregion

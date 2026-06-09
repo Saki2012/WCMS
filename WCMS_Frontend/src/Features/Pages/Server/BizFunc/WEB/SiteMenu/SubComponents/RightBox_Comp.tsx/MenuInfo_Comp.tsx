@@ -11,10 +11,15 @@ import { SiteMenu_Item_TitleFields, SiteMenu_ItemFields, SiteMenuSetFields } fro
 import { useMemo } from "react";
 import type { SiteMenuItem } from "../../SiteMenu_Hook";
 
+// #region Property
 type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"];
+
 type SiteMenu_Item = components["schemas"]["SiteMenu_Item_DTO"];
+
 type SiteMenu_Item_Title = components["schemas"]["SiteMenu_Item_Title_DTO"];
+
 type MenuUrlType = components["schemas"]["MenuUrlType"];
+
 
 interface BasicSettingTab_Props
 {
@@ -27,6 +32,11 @@ interface BasicSettingTab_Props
     setLinkType: React.Dispatch<React.SetStateAction<MenuUrlType>>;
 }
 
+
+type MenuTitleCompProps = BasicSettingTab_Props & { selectedMenuItem?: SiteMenu_Item | null; };
+// #endregion
+
+// #region Public
 export const BasicSettingTab = (prop: BasicSettingTab_Props) =>
 {
     const selectedMenuItem = useSelectedMenuItem(prop.formData.data, prop.selectedItemEdit);
@@ -70,9 +80,9 @@ export const BasicSettingTab = (prop: BasicSettingTab_Props) =>
         </>
     );
 };
+// #endregion
 
-type MenuTitleCompProps = BasicSettingTab_Props & { selectedMenuItem?: SiteMenu_Item | null; };
-
+// #region Section
 const MenuTitle_Comp = (prop: MenuTitleCompProps) =>
 {
     const rawDetails = useMemo(() =>
@@ -141,7 +151,17 @@ const MenuTitle_Comp = (prop: MenuTitleCompProps) =>
 
     return <TabContentComp tabInfos={tabInfo} components={tabContent} />;
 };
+// #endregion
 
+// #region EntityComp
+/** 建立多語頁籤 key */
+const buildTitleTabKey = (info: SiteMenu_Item_Title): string =>
+{
+    return LibMerge("_", true, info.SiteIndex, info.ItemRowId, info.RowId, info.Lang);
+};
+// #endregion
+
+// #region Private
 /** 取得目前選取的最新 SiteMenu_Item */
 const useSelectedMenuItem = (data: SiteMenuSet, selected?: SiteMenuItem | null): SiteMenu_Item | null =>
 {
@@ -155,6 +175,7 @@ const useSelectedMenuItem = (data: SiteMenuSet, selected?: SiteMenuItem | null):
     }, [data.SiteMenu_Item, selected]);
 };
 
+
 /** 取得目前選取 item 的多語標題列 */
 const getSelectedTitleRows = (data: SiteMenuSet, selected?: SiteMenu_Item | null): SiteMenu_Item_Title[] =>
 {
@@ -167,9 +188,4 @@ const getSelectedTitleRows = (data: SiteMenuSet, selected?: SiteMenu_Item | null
         return p.SiteIndex === siteIndex && Number(p.ItemRowId) === itemRowId;
     });
 };
-
-/** 建立多語頁籤 key */
-const buildTitleTabKey = (info: SiteMenu_Item_Title): string =>
-{
-    return LibMerge("_", true, info.SiteIndex, info.ItemRowId, info.RowId, info.Lang);
-};
+// #endregion

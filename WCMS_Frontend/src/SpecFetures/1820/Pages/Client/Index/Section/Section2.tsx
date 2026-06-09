@@ -3,7 +3,12 @@ import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import type { components } from "@/types/api";
+
+// #region Property
 type HomePageModel = components["schemas"]["SpecHomePage1820Model_DTO"];
+// #endregion
+
+// #region Public
 export const Section2 = (props: { lang: Lang; homePage: HomePageModel; }) =>
 {
     const data = props.homePage;
@@ -45,3 +50,4 @@ export const Section2 = (props: { lang: Lang; homePage: HomePageModel; }) =>
         </section>
     );
 };
+// #endregion

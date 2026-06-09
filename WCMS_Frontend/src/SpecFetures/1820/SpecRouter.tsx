@@ -10,6 +10,7 @@ import { Client_SpecProduction_List_Comp } from "./Pages/Client/BizFunc/MAT/Spec
 import { Client_SpecProduction_List_Loader } from "./Pages/Client/BizFunc/MAT/SpecProduction/Client_SpecProduction_List_Loader";
 import type { Module_SpecProduction_OptionsJson } from "./Pages/Server/BizFunc/WEB/SiteMenu/SpecModule_Comp";
 
+// #region Public
 export const specClientEntries: Record<string, ModuleEntry> = {
     "SpecProductionList": {
         kind: "routes",
@@ -30,4 +31,6 @@ export const specClientEntries: Record<string, ModuleEntry> = {
     },
 };
 
+
 export const siteHeaderMeta: IHeaderMetaProps = { title: "新化林場", description: "新化林場" };
+// #endregion

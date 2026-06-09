@@ -1,19 +1,21 @@
 import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
+import { ModuleContent, type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import { getFirstNonEmptyText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { PGID } from "@/types/SchemaFields";
 import { type KeyboardEvent, type MouseEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useMaterialFormData } from "./Client_Material_Form_Loader";
+
+// #region Property
 type MaterialSet = components["schemas"]["MaterialSet_DTO"];
 type MaterialFormRawData = ReturnType<typeof useMaterialFormData>["rawData"];
 type MaterialInfoJson = Record<string, string | number | boolean | null | undefined>;
-
 interface VenoBoxOption
 {
     selector?: string;
@@ -27,17 +29,14 @@ interface VenoBoxOption
     share?: boolean;
     spinner?: string;
 }
-
 interface VenoBoxInstance
 {
     destroy?: () => void;
 }
-
 interface VenoBoxConstructor
 {
     new(option: VenoBoxOption): VenoBoxInstance;
 }
-
 declare global
 {
     interface Window
@@ -46,17 +45,17 @@ declare global
         __materialVenoBox?: VenoBoxInstance;
     }
 }
-
-export interface IMaterialFormProps
+interface IMaterialFormProps
 {
     theme: IFETheme;
     lang: Lang;
     site: INormSite;
     node: INormNode;
 }
+// #endregion
 
-/** 前台物件詳細頁 */
-const Client_Material_Form_Comp = (props: IMaterialFormProps) =>
+// #region Public
+export const Client_Material_Form_Comp = (props: IMaterialFormProps) =>
 {
     const params = useParams();
     const internalId = `${params.internalId ?? ""}`;
@@ -75,9 +74,9 @@ const Client_Material_Form_Comp = (props: IMaterialFormProps) =>
         </ModuleContent>
     );
 };
+// #endregion
 
-export default Client_Material_Form_Comp;
-
+// #region Section
 /** 物件主要內容區 */
 const MaterialDetailContent_Comp = (props: { rawData: MaterialFormRawData; lang: Lang; }) =>
 {
@@ -85,11 +84,10 @@ const MaterialDetailContent_Comp = (props: { rawData: MaterialFormRawData; lang:
     const langInfo = getLangInfo(formData, props.lang);
     const json = parseMaterialInfoJson(langInfo?.MaterialInfoJson);
     const title = langInfo?.MaterialName ?? "";
-    const price = getFirstText(formData.Material?.Price, json.Price);
-    const description = getFirstText(json.Description);
+    const price = getFirstNonEmptyText(formData.Material?.Price, json.Price);
+    const description = getFirstNonEmptyText(json.Description);
     const pictures = buildPictures(formData, title);
     const specRows = buildSpecRows(props.rawData, json);
-
     return (
         <>
             <div className="page-header">
@@ -101,7 +99,6 @@ const MaterialDetailContent_Comp = (props: { rawData: MaterialFormRawData; lang:
                     <div className="col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12">
                         <MaterialImageGallery_Comp title={title} pictures={pictures} />
                     </div>
-
                     <div className="col-xxl-5 col-xl-5 col-lg-5 col-md-5 col-sm-12 col-12 + offset-xxl-1 offset-xl-1 offset-lg-1">
                         <MaterialRightContent_Comp title={title} price={price} description={description} specRows={specRows} />
                     </div>
@@ -110,7 +107,6 @@ const MaterialDetailContent_Comp = (props: { rawData: MaterialFormRawData; lang:
         </>
     );
 };
-
 /** 左側圖片區 */
 const MaterialImageGallery_Comp = (props: { title: string; pictures: Array<{ url: string; alt: string; title: string; }>; }) =>
 {
@@ -120,7 +116,6 @@ const MaterialImageGallery_Comp = (props: { title: string; pictures: Array<{ url
     const [activeIndex, setActiveIndex] = useState(0);
     const [mainWidth, setMainWidth] = useState(0);
     const [thumbOuterWidth, setThumbOuterWidth] = useState(0);
-
     const safePictures = props.pictures;
     const count = Math.max(safePictures.length, 1);
     const activePic = safePictures[activeIndex] ?? safePictures[0];
@@ -191,7 +186,6 @@ const MaterialImageGallery_Comp = (props: { title: string; pictures: Array<{ url
                             ))}
                         </div>
                     </div>
-
                     <div className="owl-carousel + main-carousel owl-loaded owl-drag">
                         <div ref={mainOuterRef} className="owl-stage-outer">
                             <div className="owl-stage" style={{ width: `${mainWidth * count}px`, transform: mainTransform, transition: "all 0.5s ease 0s" }}>
@@ -223,7 +217,6 @@ const MaterialImageGallery_Comp = (props: { title: string; pictures: Array<{ url
                         <div className="owl-dots disabled"></div>
                     </div>
                 </div>
-
                 <div className="commodity_slider_box + owl-box">
                     <div className="owl-carousel + thumb-carousel owl-loaded owl-drag">
                         <div ref={thumbOuterRef} className="owl-stage-outer">
@@ -273,47 +266,6 @@ const MaterialImageGallery_Comp = (props: { title: string; pictures: Array<{ url
         </div>
     );
 };
-
-/** 初始化 Material 圖片燈箱 */
-const initMaterialVenoBox = (): void =>
-{
-    if (typeof window === "undefined" || !window.VenoBox) return;
-
-    window.__materialVenoBox?.destroy?.();
-    window.__materialVenoBox = new window.VenoBox({
-        selector: ".material-venobox",
-        autoplay: false,
-        maxWidth: "1200px",
-        border: "0px",
-        titleattr: "title",
-        titlePosition: "top",
-        numeration: true,
-        infinigall: true,
-        share: true,
-        spinner: "rotating-bounce",
-    });
-};
-
-/** 開啟指定圖片燈箱 */
-const openMaterialLightbox = (e: MouseEvent<HTMLAnchorElement>, index: number, refs: Array<HTMLAnchorElement | null>): void =>
-{
-    e.preventDefault();
-    refs[index]?.click();
-};
-/** 取得循環圖片索引 */
-const getLoopPictureIndex = (index: number, total: number): number =>
-{
-    if (total <= 0) return 0;
-    return ((index % total) + total) % total;
-};
-/** 處理縮圖鍵盤切換 */
-const handleThumbKeyDown = (e: KeyboardEvent<HTMLDivElement>, index: number, setActiveIndex: (index: number) => void): void =>
-{
-    if (e.key !== "Enter" && e.key !== " ") return;
-    e.preventDefault();
-    setActiveIndex(index);
-};
-
 /** 右側價格與規格區 */
 const MaterialRightContent_Comp = (props: { title: string; price: string; description: string; specRows: Array<{ label: string; value: string; }>; }) =>
 {
@@ -359,13 +311,12 @@ const MaterialRightContent_Comp = (props: { title: string; price: string; descri
         </div>
     );
 };
-
 /** 下方資訊說明 */
 const MaterialInfoContent_Comp = (props: { rawData: MaterialFormRawData; lang: Lang; }) =>
 {
     const langInfo = getLangInfo(props.rawData.formData, props.lang);
     const json = parseMaterialInfoJson(langInfo?.MaterialInfoJson);
-    const content = getFirstText(json.InfoContent, langInfo?.Memo);
+    const content = getFirstNonEmptyText(json.InfoContent, langInfo?.Memo);
 
     return (
         <>
@@ -387,14 +338,9 @@ const MaterialInfoContent_Comp = (props: { rawData: MaterialFormRawData; lang: L
         </>
     );
 };
+// #endregion
 
-/** 取得目前語系資料 */
-const getLangInfo = (data: MaterialSet, lang: Lang) =>
-{
-    const list = data.MaterialLangInfo ?? [];
-    return list.find(p => p.Lang === lang) ?? list[0];
-};
-
+// #region EntityComp
 /** 建立圖片清單 */
 const buildPictures = (data: MaterialSet, title: string): Array<{ url: string; alt: string; title: string; }> =>
 {
@@ -404,17 +350,13 @@ const buildPictures = (data: MaterialSet, title: string): Array<{ url: string; a
         const url = FileManagementAPI.get_Public_Preview_Url(pic.PictureId, alt) ?? "";
         return url ? { url, alt, title: pic.PictureName ?? title } : null;
     }).filter((p): p is { url: string; alt: string; title: string; } => Boolean(p));
-
     return list;
 };
-
 /** 建立規格列 */
 const buildSpecRows = (rawData: MaterialFormRawData, json: MaterialInfoJson): Array<{ label: string; value: string; }> =>
 {
     const baseRows = [{ label: "分類", value: rawData.categoryNameText }, { label: "標籤", value: rawData.tagNameText }];
-
     const dynamicRows = buildDynamicSpecRows(rawData.matCateInfoFieldsMap, json);
-
     return [...baseRows, ...dynamicRows].filter(p => p.value);
 };
 
@@ -430,7 +372,52 @@ const buildDynamicSpecRows = (
         return { label, value };
     });
 };
+// #endregion
 
+// #region Private
+/** 初始化 Material 圖片燈箱 */
+const initMaterialVenoBox = (): void =>
+{
+    if (typeof window === "undefined" || !window.VenoBox) return;
+    window.__materialVenoBox?.destroy?.();
+    window.__materialVenoBox = new window.VenoBox({
+        selector: ".material-venobox",
+        autoplay: false,
+        maxWidth: "1200px",
+        border: "0px",
+        titleattr: "title",
+        titlePosition: "top",
+        numeration: true,
+        infinigall: true,
+        share: true,
+        spinner: "rotating-bounce",
+    });
+};
+/** 開啟指定圖片燈箱 */
+const openMaterialLightbox = (e: MouseEvent<HTMLAnchorElement>, index: number, refs: Array<HTMLAnchorElement | null>): void =>
+{
+    e.preventDefault();
+    refs[index]?.click();
+};
+/** 取得循環圖片索引 */
+const getLoopPictureIndex = (index: number, total: number): number =>
+{
+    if (total <= 0) return 0;
+    return ((index % total) + total) % total;
+};
+/** 處理縮圖鍵盤切換 */
+const handleThumbKeyDown = (e: KeyboardEvent<HTMLDivElement>, index: number, setActiveIndex: (index: number) => void): void =>
+{
+    if (e.key !== "Enter" && e.key !== " ") return;
+    e.preventDefault();
+    setActiveIndex(index);
+};
+/** 取得目前語系資料 */
+const getLangInfo = (data: MaterialSet, lang: Lang) =>
+{
+    const list = data.MaterialLangInfo ?? [];
+    return list.find(p => p.Lang === lang) ?? list[0];
+};
 /** 取得動態欄位項目 */
 const getFieldEntries = (fieldMap: Map<string, string> | Record<string, string> | Array<[string, string]> | null | undefined): Array<[string, string]> =>
 {
@@ -439,17 +426,13 @@ const getFieldEntries = (fieldMap: Map<string, string> | Record<string, string> 
     if (Array.isArray(fieldMap)) return fieldMap;
     return Object.entries(fieldMap);
 };
-
 /** 取得規格欄位顯示值 */
 const getSpecFieldValue = (fieldId: string, value: string | number | boolean | null | undefined): string =>
 {
     const safeFieldId = fieldId.toLowerCase();
-
     if (safeFieldId.includes("price")) return formatPrice(value);
-
-    return getFirstText(value);
+    return getFirstNonEmptyText(value);
 };
-
 /** 解析 MaterialInfoJson */
 const parseMaterialInfoJson = (jsonText?: string | null): MaterialInfoJson =>
 {
@@ -461,16 +444,10 @@ const parseMaterialInfoJson = (jsonText?: string | null): MaterialInfoJson =>
         return {};
     }
 };
-
 /** 價格格式 */
 const formatPrice = (value?: string | number | boolean | null): string =>
 {
-    const text = getFirstText(value);
+    const text = getFirstNonEmptyText(value);
     return text ? `NT$ ${text} 元` : "";
 };
-
-/** 取得第一個有效文字 */
-const getFirstText = (...values: Array<string | number | boolean | null | undefined>): string =>
-{
-    return values.map(p => p == null ? "" : String(p).trim()).find(Boolean) ?? "";
-};
+// #endregion

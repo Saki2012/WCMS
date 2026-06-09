@@ -6,18 +6,23 @@ import type { INaviBarStyle } from "../../../../SysCore/Components/NaviBar/NaviB
 import type { IPaginator_Style } from "../../../../SysCore/Components/Paginator/Paginator_Clsx";
 import type { IFETheme } from "./ITheme";
 
+// #region Public
 /** 前台SubPage SideMenu樣式 */
 export const Classic_MainMenu: IMenu_Style = {
     isUl: true,
     ul: (lv: number) => clsx(lv == 1 ? "menu" : "collapse"),
     li: (lv: number) => clsx(lv == 1 ? "m-number" : ""),
 };
+
 /** 前台SubPage SideMenu樣式 */
 export const Classic_SideMenu: IMenu_Style = { isUl: true, ul: (lv: number) => clsx(lv == 1 ? "Left-SecondMenu" : "collapse"), li: () => clsx("m-link") };
+
 /** 前台BreadCrumb樣式 */
 export const Classic_BreadCrumb: IBreadCrumbStyle = { ul: clsx("breadcrumb"), li: (isLast: boolean) => clsx("breadcrumb-item", { "active": isLast }) };
+
 /** 導覽樣式 */
 export const Classic_NaviBarMenu: INaviBarStyle = { ul: clsx("nav", "Customize_Nav"), li: clsx("nav-item") };
+
 /** Grid表樣式 */
 export const Classic_GridView: IGridView_Style = {
     TableStyle: clsx("table", "table-striped", "table-bordered", "table-hover", "table-rwd"),
@@ -27,6 +32,7 @@ export const Classic_GridView: IGridView_Style = {
     Even: clsx(""),
     CellStyle: clsx("table_td_vertical_align"),
 };
+
 /** 分頁樣式 */
 export const Classic_Paginator: IPaginator_Style = {
     ul: clsx("pagination"),
@@ -38,15 +44,14 @@ export const Classic_Paginator: IPaginator_Style = {
     LastPage: clsx("fa", "icon_stop-angle-right"),
 };
 
+
 /** 經典主題 */
 export const Classic_FETheme: IFETheme = {
-    // #region Componets
     MainMenu: Classic_MainMenu,
     SideMenu: Classic_SideMenu,
     BreadCrumb: Classic_BreadCrumb,
     NaviBarMenu: Classic_NaviBarMenu,
 
-    // #region Fields
     GridView: Classic_GridView,
     Paginator: Classic_Paginator,
     // DropList:Classic_LibDropList,
@@ -54,3 +59,4 @@ export const Classic_FETheme: IFETheme = {
     // TextBox:Classic_LibTextBox,
     // TinyMCE:Classic_LibTinyMCE,
 };
+// #endregion

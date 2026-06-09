@@ -4,6 +4,7 @@ import { PGID } from "@/types/SchemaFields";
 import { Server_SpecMusical_Form_Comp } from "../BizFunc/WEB/SpecMusical/Server_SpecMusical_Form_Comp";
 import { Server_SpecMusical_List_Comp } from "../BizFunc/WEB/SpecMusical/Server_SpecMusical_List_Comp";
 
+// #region Private
 const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] =>
 {
     const web = modules.find((m) => m.ModuleCode === "WebManagement");
@@ -36,4 +37,6 @@ const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] =>
     return modules;
 };
 
+
 export default extendServerModuleRoutes;
+// #endregion

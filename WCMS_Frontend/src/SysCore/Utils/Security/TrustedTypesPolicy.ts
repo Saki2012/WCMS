@@ -1,18 +1,22 @@
 import DOMPurify from "dompurify";
 
+// #region Property
 type TrustedTypesRuleSet = {
     createHTML?: (value: string) => string;
     createScriptURL?: (value: string) => string;
 };
+
 
 type TrustedTypesPolicyLike = {
     createHTML?: (value: string) => unknown;
     createScriptURL?: (value: string) => unknown;
 };
 
+
 type TrustedTypesFactoryLike = {
     createPolicy: (name: string, rules: TrustedTypesRuleSet) => TrustedTypesPolicyLike;
 };
+
 
 interface WcmsTrustedTypesWindow extends Window
 {
@@ -21,49 +25,21 @@ interface WcmsTrustedTypesWindow extends Window
     __wcmsDefaultTrustedTypesPolicy?: TrustedTypesPolicyLike;
 }
 
+
 const allowedSameOriginScriptPrefixes = ["/assets/", "/tinymce/", "/tinymce-i18n/"] as const;
+
 
 const devAllowedSameOriginScriptPrefixes = [
     "/src/features/assets/",
 ] as const;
 
-/** 取得允許的同源 script 路徑，DEV 額外允許 Vite /src 資源。 */
-const getAllowedSameOriginScriptPrefixes = (): readonly string[] =>
-{
-    if (import.meta.env.DEV) return [...allowedSameOriginScriptPrefixes, ...devAllowedSameOriginScriptPrefixes];
-
-    return allowedSameOriginScriptPrefixes;
-};
 
 const allowedExternalScriptUrls = [
     "https://translate.google.com/translate_a/element.js",
 ] as const;
+// #endregion
 
-/** 檢查動態 script URL 是否屬於 WCMS 允許載入的來源。 */
-const isAllowedScriptUrl = (value: string): boolean =>
-{
-    const url = new URL(value, window.location.origin);
-    if (url.origin === window.location.origin)
-{
-    const pathname = url.pathname.toLowerCase();
-    return getAllowedSameOriginScriptPrefixes().some(prefix => pathname.startsWith(prefix.toLowerCase()));
-}
-
-    return allowedExternalScriptUrls.some(allowed => url.href.startsWith(allowed));
-};
-
-/** 清理需要寫入 innerHTML 的內容，避免 Trusted Types 強制模式擋住 TinyMCE。 */
-const sanitizeHtml = (value: string): string =>
-{
-    return DOMPurify.sanitize(value, {
-        RETURN_TRUSTED_TYPE: false,
-        ALLOW_DATA_ATTR: true,
-        ADD_TAGS: ["iframe"],
-        ADD_ATTR: ["target", "download", "allow", "allowfullscreen", "loading", "referrerpolicy", "frameborder", "data-internalid"],
-        FORBID_TAGS: ["script"],
-    }) as string;
-};
-
+// #region Public
 /** 建立全站 default policy，供第三方套件在 Trusted Types 下正常運作。 */
 export const ensureWcmsDefaultTrustedTypesPolicy = (): void =>
 {
@@ -96,6 +72,7 @@ export const ensureWcmsDefaultTrustedTypesPolicy = (): void =>
     win.__wcmsTrustedTypesReady = true;
 };
 
+
 /** 產生可安全指定給 HTMLScriptElement.src 的 URL。 */
 export const createTrustedScriptUrl = (value: string): unknown =>
 {
@@ -105,10 +82,50 @@ export const createTrustedScriptUrl = (value: string): unknown =>
     return win.__wcmsDefaultTrustedTypesPolicy?.createScriptURL?.(value) ?? value;
 };
 
+
 /** 指定 script src，避免 require-trusted-types-for 'script' 擋住動態載入。 */
 export const setTrustedScriptElementSrc = (script: HTMLScriptElement, src: string): void =>
 {
     script.src = createTrustedScriptUrl(src) as string;
 };
+// #endregion
+
+// #region Private
+/** 取得允許的同源 script 路徑，DEV 額外允許 Vite /src 資源。 */
+const getAllowedSameOriginScriptPrefixes = (): readonly string[] =>
+{
+    if (import.meta.env.DEV) return [...allowedSameOriginScriptPrefixes, ...devAllowedSameOriginScriptPrefixes];
+
+    return allowedSameOriginScriptPrefixes;
+};
+
+
+/** 檢查動態 script URL 是否屬於 WCMS 允許載入的來源。 */
+const isAllowedScriptUrl = (value: string): boolean =>
+{
+    const url = new URL(value, window.location.origin);
+    if (url.origin === window.location.origin)
+{
+    const pathname = url.pathname.toLowerCase();
+    return getAllowedSameOriginScriptPrefixes().some(prefix => pathname.startsWith(prefix.toLowerCase()));
+}
+
+    return allowedExternalScriptUrls.some(allowed => url.href.startsWith(allowed));
+};
+
+
+/** 清理需要寫入 innerHTML 的內容，避免 Trusted Types 強制模式擋住 TinyMCE。 */
+const sanitizeHtml = (value: string): string =>
+{
+    return DOMPurify.sanitize(value, {
+        RETURN_TRUSTED_TYPE: false,
+        ALLOW_DATA_ATTR: true,
+        ADD_TAGS: ["iframe"],
+        ADD_ATTR: ["target", "download", "allow", "allowfullscreen", "loading", "referrerpolicy", "frameborder", "data-internalid"],
+        FORBID_TAGS: ["script"],
+    }) as string;
+};
+
 
 ensureWcmsDefaultTrustedTypesPolicy();
+// #endregion

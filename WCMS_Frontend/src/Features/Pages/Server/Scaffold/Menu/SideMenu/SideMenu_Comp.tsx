@@ -4,8 +4,24 @@ import { useEffect, useMemo, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { resolveSpecAsset } from "@/SysCore/Utils/Library/SlotResolver";
 import defaultLogoImg from "SpecDefault/Assets/Server/menu_logo_PC.svg";
-const logoImg = resolveSpecAsset("Assets/Server/menu_logo_PC", defaultLogoImg);
 
+// #region Property
+const logoImg = resolveSpecAsset("Assets/Server/menu_logo_PC", defaultLogoImg);
+// #endregion
+
+// #region EntityComp
+/** 建立後台 action 連結 */
+const buildActionPath = (moduleCode: string, progId: string, act: IActionMeta): string =>
+{
+    // 宣告變數：取得 action 路徑
+    const actionPath = getActionMenuPath(act);
+
+    // return
+    return `/Server/${moduleCode}/${progId}/${actionPath}`;
+};
+// #endregion
+
+// #region Private
 /** 移除路由參數，讓選單可導到乾淨路徑 */
 const trimRouteParamPath = (path: string): string =>
 {
@@ -15,6 +31,7 @@ const trimRouteParamPath = (path: string): string =>
     // return：移除多餘斜線
     return cleanPath.replace(/\/+$/, "");
 };
+
 
 /** 取得選單使用的 action path */
 const getActionMenuPath = (act: IActionMeta): string =>
@@ -26,15 +43,6 @@ const getActionMenuPath = (act: IActionMeta): string =>
     return trimRouteParamPath(path);
 };
 
-/** 建立後台 action 連結 */
-const buildActionPath = (moduleCode: string, progId: string, act: IActionMeta): string =>
-{
-    // 宣告變數：取得 action 路徑
-    const actionPath = getActionMenuPath(act);
-
-    // return
-    return `/Server/${moduleCode}/${progId}/${actionPath}`;
-};
 /** 讓 path 比較更穩：去掉尾端 / */
 const normalizePath = (path: string): string =>
 {
@@ -42,6 +50,7 @@ const normalizePath = (path: string): string =>
     if (!path) return "";
     return path.length > 1 ? path.replace(/\/+$/, "") : path;
 };
+
 
 /** 對 submenu 做「可動畫」的展開/收合（不用額外 CSS 檔） */
 const setSubmenuOpen = (li: HTMLLIElement, isOpen: boolean): void =>
@@ -106,6 +115,7 @@ const setSubmenuOpen = (li: HTMLLIElement, isOpen: boolean): void =>
     (submenu as any).__wcmsTransitionEndHandler = onEnd;
 };
 
+
 /** 關閉同層其他 menu（prototype 常見：同層只開一個） */
 const closeSiblings = (all: HTMLLIElement[], current: HTMLLIElement): void =>
 {
@@ -116,6 +126,7 @@ const closeSiblings = (all: HTMLLIElement[], current: HTMLLIElement): void =>
         setSubmenuOpen(li, false);
     });
 };
+
 
 const SidebarMenu = (prop: { moduleCode: IModuleMeta["ModuleCode"]; }) =>
 {
@@ -278,4 +289,6 @@ const SidebarMenu = (prop: { moduleCode: IModuleMeta["ModuleCode"]; }) =>
     );
 };
 
+
 export default SidebarMenu;
+// #endregion

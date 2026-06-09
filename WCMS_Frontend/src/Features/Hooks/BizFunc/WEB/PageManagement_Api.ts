@@ -6,6 +6,7 @@ import { PGID } from "@/types/SchemaFields";
 import type { AxiosInstance } from "axios";
 import { useMemo } from "react";
 
+// #region Property
 type PageManagementSet = components["schemas"]["PageManagementSet_DTO"];
 interface PageManagementUsedProgRaw
 {
@@ -17,7 +18,6 @@ interface IUseUsedProgList
     deps?: EffectDeps;
     onError?: (err: ApiAdapterError) => void;
 }
-
 interface UsedProgListHookResult
 {
     data: Map<string, string>;
@@ -26,19 +26,17 @@ interface UsedProgListHookResult
     errorText: string | null;
     refetch: () => Promise<void>;
 }
-
 type ExtraHooks = { useUsedProgList: (opt?: IUseUsedProgList) => UsedProgListHookResult; };
+// #endregion
 
+// #region Public
 export class PageManagementService extends ApiDataService<PageManagementSet>
 {
-    // #region Construct
+    // #region Public
     constructor(apiInstance?: AxiosInstance)
     {
         super(PGID.PageManagement, apiInstance);
     }
-    // #endregion
-
-    // #region Public Api
     /** 取得可被 SiteMenu 設定的功能模塊列表 */
     public async getUsedProgListAsync(): Promise<ApiResponse<PageManagementUsedProgRaw>>
     {
@@ -46,23 +44,22 @@ export class PageManagementService extends ApiDataService<PageManagementSet>
     }
     // #endregion
 }
-
 export class PageManagementAdapterImpl extends ApiDataAdapter<PageManagementSet, PageManagementService>
 {
-    // #region Public
+    // #region Property
     declare public hooks: ApiDataHookGroup<PageManagementSet> & ExtraHooks;
     // #endregion
 
-    // #region Protected
+    // #region Protected Virtual
     protected override buildExtendedHooks(base: ApiDataHookGroup<PageManagementSet>): ApiDataHookGroup<PageManagementSet> & ExtraHooks
     {
         return { ...base, useUsedProgList: (opt) => this.useUsedProgList(opt) };
     }
     // #endregion
 
-    // #region Private
+    // #region Protected
     /** hook：取得可被 SiteMenu 設定的功能模塊列表 */
-    private useUsedProgList: ExtraHooks["useUsedProgList"] = (opt) =>
+    protected useUsedProgList: ExtraHooks["useUsedProgList"] = (opt) =>
     {
         const query = this.useApiQuery<null, PageManagementUsedProgRaw>({
             action: "PageManagement.GetUsedProgList",
@@ -78,8 +75,6 @@ export class PageManagementAdapterImpl extends ApiDataAdapter<PageManagementSet,
     };
     // #endregion
 }
-
 export const PageManagementAdapter = (apiInstance?: AxiosInstance) =>
-{
-    return new PageManagementAdapterImpl((api?: AxiosInstance) => new PageManagementService(api ?? apiInstance));
-};
+    new PageManagementAdapterImpl((api?: AxiosInstance) => new PageManagementService(api ?? apiInstance));
+// #endregion

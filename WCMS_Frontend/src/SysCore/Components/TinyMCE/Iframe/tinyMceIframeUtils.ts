@@ -1,8 +1,14 @@
+// #region Property
 const IFRAME_DIMENSION_RE = /^\d+(?:\.\d+)?(?:px|%|vh|vw|rem|em)?$/i;
-const GOOGLE_MAPS_HOST_PATTERN = /(^|\.)google\.[^/]+$/i;
-const NUMERIC_IFRAME_DIMENSION_RE = /^\d+(?:\.\d+)?$/;
-const PX_IFRAME_DIMENSION_RE = /^\d+(?:\.\d+)?px$/i;
 
+const GOOGLE_MAPS_HOST_PATTERN = /(^|\.)google\.[^/]+$/i;
+
+const NUMERIC_IFRAME_DIMENSION_RE = /^\d+(?:\.\d+)?$/;
+
+const PX_IFRAME_DIMENSION_RE = /^\d+(?:\.\d+)?px$/i;
+// #endregion
+
+// #region Public
 // TinyMCE 7 defaults to sandboxing all iframe previews in-editor.
 // Keep that protection, but let Google Maps embeds render normally in the editor preview.
 export const WCMS_TINYMCE_IFRAME_SANDBOX_EXCLUSIONS = [
@@ -20,33 +26,18 @@ export const WCMS_TINYMCE_IFRAME_SANDBOX_EXCLUSIONS = [
     "maps.google.com",
 ] as const;
 
-const normalizeIframeDimension = (raw: string | undefined, fallback: string): string =>
-{
-    const value = `${raw ?? ""}`.trim();
-    if (!value) return fallback;
-    if (!IFRAME_DIMENSION_RE.test(value)) return fallback;
-    return value.toLowerCase();
-};
-
-const tryParseUrl = (value: string): URL | null =>
-{
-    try
-    {
-        return new URL(value);
-    } catch
-    {
-        return null;
-    }
-};
 
 export const normalizeIframeWidth = (raw?: string): string => normalizeIframeDimension(raw, "100%");
 
+
 export const normalizeIframeHeight = (raw?: string): string => normalizeIframeDimension(raw, "360");
+
 
 export const toIframeCssDimension = (value: string): string =>
 {
     return NUMERIC_IFRAME_DIMENSION_RE.test(value) ? `${value}px` : value;
 };
+
 
 export const toIframeDimensionAttribute = (value: string): string | null =>
 {
@@ -56,6 +47,7 @@ export const toIframeDimensionAttribute = (value: string): string | null =>
     return null;
 };
 
+
 export const isGoogleMapsUrl = (value: string): boolean =>
 {
     const url = tryParseUrl(value);
@@ -64,6 +56,7 @@ export const isGoogleMapsUrl = (value: string): boolean =>
 
     return url.hostname.startsWith("maps.") || url.pathname.startsWith("/maps");
 };
+
 
 export const isGoogleMapsEmbedUrl = (value: string): boolean =>
 {
@@ -76,6 +69,7 @@ export const isGoogleMapsEmbedUrl = (value: string): boolean =>
         || (url.pathname.startsWith("/maps") && url.searchParams.get("output") === "embed");
 };
 
+
 export const validateIframeSrc = (raw?: string): { url: string; warning?: string; } =>
 {
     const url = `${raw ?? ""}`.trim();
@@ -87,7 +81,31 @@ export const validateIframeSrc = (raw?: string): { url: string; warning?: string
     return { url };
 };
 
+
 export const getIframeReferrerPolicy = (value: string): string =>
 {
     return isGoogleMapsEmbedUrl(value) ? "no-referrer-when-downgrade" : "strict-origin-when-cross-origin";
 };
+// #endregion
+
+// #region Private
+const normalizeIframeDimension = (raw: string | undefined, fallback: string): string =>
+{
+    const value = `${raw ?? ""}`.trim();
+    if (!value) return fallback;
+    if (!IFRAME_DIMENSION_RE.test(value)) return fallback;
+    return value.toLowerCase();
+};
+
+
+const tryParseUrl = (value: string): URL | null =>
+{
+    try
+    {
+        return new URL(value);
+    } catch
+    {
+        return null;
+    }
+};
+// #endregion

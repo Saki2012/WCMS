@@ -1,9 +1,11 @@
+// #region Property
 export interface ILibPicturePreviewStyle
 {
     Labelstyle: string;
     SelectStyle: string;
     InputStyle: string;
 }
+
 
 export interface ILibPicturePreviewProp
 {
@@ -12,3 +14,4 @@ export interface ILibPicturePreviewProp
     PicSrc: string;
     PicDescription: string;
 }
+// #endregion

@@ -1,4 +1,3 @@
-//#region Property
 import {
     buildClientDataQueryState,
     buildClientDataQueryKey,
@@ -19,9 +18,13 @@ import { SpecMusicalModelFields } from "@/types/SchemaFields";
 import { useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router-dom";
 
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"];
+
 type SpecMusicalListAdapter = ReturnType<typeof SpecMusicalAdapter>;
+
 
 export interface SpecMusicalListLoaderArgs
 {
@@ -30,11 +33,13 @@ export interface SpecMusicalListLoaderArgs
     pageSize: number;
 }
 
+
 export interface SpecMusicalListLoaderRes
 {
     countRes: number;
     listRes: SpecMusicalSet[];
 }
+
 
 export interface SpecMusicalListLoaderData
 {
@@ -42,10 +47,12 @@ export interface SpecMusicalListLoaderData
     res: SpecMusicalListLoaderRes;
 }
 
+
 export interface SpecMusicalListSearchParams
 {
     categoryIds: string;
 }
+
 
 export interface UseSpecMusicalListDataResult
 {
@@ -57,6 +64,7 @@ export interface UseSpecMusicalListDataResult
     paginatorProps: PaginatorProps | null;
 }
 
+
 type SpecMusicalListTemplate = ClientDataQueryTemplate<
     SpecMusicalListSearchParams,
     SpecMusicalSet[],
@@ -65,12 +73,61 @@ type SpecMusicalListTemplate = ClientDataQueryTemplate<
     QueryListParam,
     SpecMusicalListLoaderData
 >;
+
 type SpecMusicalListDataSourceContext = Parameters<NonNullable<NonNullable<SpecMusicalListTemplate["spec"]>["useDataSource"]>>[0];
+// #endregion
 
+// #region Public
+/** loader factory：SSR 先撈清單/筆數 */
+
+export const SpecMusicalList_Loader =
+    (p: { categoryIds: string; pageSize?: number; }) => async ({ request }: LoaderFunctionArgs): Promise<SpecMusicalListLoaderData> =>
+    {
+        // 宣告變數
+        const pageSize = p.pageSize ?? 9;
+        const categoryIds = `${p.categoryIds ?? ""}`.trim();
+        const ssrApi = getSsrApi(request);
+        const adapter = SpecMusicalAdapter(ssrApi);
+        const queryState = buildSpecMusicalListQueryState({ categoryIds, pageSize });
+        const baseParam = queryState.queryParam;
+
+        // 執行 function：count/list
+        const countLoader = adapter.loader.createQueryCountLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
+        const listLoader = adapter.loader.createQueryListLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
+        const [countLD, listLD] = await Promise.all([countLoader({ request } as LoaderFunctionArgs), listLoader({ request } as LoaderFunctionArgs)]);
+
+        // return
+        return { args: { baseParam, categoryIds, pageSize }, res: { countRes: countLD.apiRes.Data ?? 0, listRes: listLD.apiRes.Data ?? [] } };
+    };
+
+
+/** CSR Hook：前台樂器清單走 Client_DataQueryTemplate */
+export const useSpecMusicalListData = (p: { categoryIds: string; pageSize?: number; }): UseSpecMusicalListDataResult =>
+{
+    // 宣告變數
+    const pageSize = p.pageSize ?? 9;
+    const template = useMemo(() =>
+    {
+        return createSpecMusicalListDataQueryTemplate({ categoryIds: `${p.categoryIds ?? ""}`.trim(), pageSize });
+    }, [p.categoryIds, pageSize]);
+
+    const templateVm = useClientDataQueryTemplate(template);
+
+    // return
+    return {
+        rawData: templateVm.viewModel,
+        isLoading: templateVm.isLoading,
+        errorList: templateVm.errorList,
+        pageNumber: templateVm.paginator?.currentPage ?? 1,
+        totalPages: templateVm.paginator?.totalPages ?? 1,
+        paginatorProps: templateVm.paginatorProps,
+    };
+};
+// #endregion
+
+// #region Private
 /** 建立分類查詢條件 */
-//#endregion
 
-//#region Private - Query Helpers
 const buildCondition = (categoryIds: string): string =>
 {
     // 宣告變數
@@ -85,6 +142,7 @@ const buildCondition = (categoryIds: string): string =>
     // return
     return condition;
 };
+
 
 /** 建立樂器清單查詢參數 */
 const buildBaseParam = (categoryIds: string, pageSize: number, pageNumber = 1): QueryListParam =>
@@ -102,6 +160,7 @@ const buildBaseParam = (categoryIds: string, pageSize: number, pageNumber = 1): 
     };
 };
 
+
 /** 建立 loader / hook 共用查詢狀態 */
 const buildSpecMusicalListQueryState = (p: { categoryIds: string; pageSize: number; pageNumber?: number; }) =>
 {
@@ -114,6 +173,7 @@ const buildSpecMusicalListQueryState = (p: { categoryIds: string; pageSize: numb
     return buildClientDataQueryState(template, searchValues, viewState);
 };
 
+
 /** 建立 SSR initial */
 const buildInitial = <TData>(p: { loaderData: SpecMusicalListLoaderData | null; queryParam: QueryListParam; data: TData; }): ApiLoaderData<QueryListParam, TData> | null =>
 {
@@ -125,10 +185,9 @@ const buildInitial = <TData>(p: { loaderData: SpecMusicalListLoaderData | null; 
     return { args: p.loaderData.args.baseParam, apiRes: { IsSuccess: true, Data: p.data, SysMessage: [] } };
 };
 
-/** 建立 SpecMusical List DataQuery Template */
-//#endregion
 
-//#region Template - Client DataQuery
+/** 建立 SpecMusical List DataQuery Template */
+
 const createSpecMusicalListDataQueryTemplate = (p: { categoryIds: string; pageSize: number; pageNumber?: number; }): SpecMusicalListTemplate =>
 {
     // return
@@ -147,6 +206,7 @@ const createSpecMusicalListDataQueryTemplate = (p: { categoryIds: string; pageSi
         },
     };
 };
+
 
 /** DataSource：用 Template 統一接 SSR initial、count、list 與 paginator */
 const useSpecMusicalListDataSource = (
@@ -186,51 +246,4 @@ const useSpecMusicalListDataSource = (
         paginator,
     };
 };
-
-/** loader factory：SSR 先撈清單/筆數 */
-//#endregion
-
-//#region Public - SSR Loader / CSR Hook
-export const SpecMusicalList_Loader =
-    (p: { categoryIds: string; pageSize?: number; }) => async ({ request }: LoaderFunctionArgs): Promise<SpecMusicalListLoaderData> =>
-    {
-        // 宣告變數
-        const pageSize = p.pageSize ?? 9;
-        const categoryIds = `${p.categoryIds ?? ""}`.trim();
-        const ssrApi = getSsrApi(request);
-        const adapter = SpecMusicalAdapter(ssrApi);
-        const queryState = buildSpecMusicalListQueryState({ categoryIds, pageSize });
-        const baseParam = queryState.queryParam;
-
-        // 執行 function：count/list
-        const countLoader = adapter.loader.createQueryCountLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
-        const listLoader = adapter.loader.createQueryListLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
-        const [countLD, listLD] = await Promise.all([countLoader({ request } as LoaderFunctionArgs), listLoader({ request } as LoaderFunctionArgs)]);
-
-        // return
-        return { args: { baseParam, categoryIds, pageSize }, res: { countRes: countLD.apiRes.Data ?? 0, listRes: listLD.apiRes.Data ?? [] } };
-    };
-
-/** CSR Hook：前台樂器清單走 Client_DataQueryTemplate */
-export const useSpecMusicalListData = (p: { categoryIds: string; pageSize?: number; }): UseSpecMusicalListDataResult =>
-{
-    // 宣告變數
-    const pageSize = p.pageSize ?? 9;
-    const template = useMemo(() =>
-    {
-        return createSpecMusicalListDataQueryTemplate({ categoryIds: `${p.categoryIds ?? ""}`.trim(), pageSize });
-    }, [p.categoryIds, pageSize]);
-
-    const templateVm = useClientDataQueryTemplate(template);
-
-    // return
-    return {
-        rawData: templateVm.viewModel,
-        isLoading: templateVm.isLoading,
-        errorList: templateVm.errorList,
-        pageNumber: templateVm.paginator?.currentPage ?? 1,
-        totalPages: templateVm.paginator?.totalPages ?? 1,
-        paginatorProps: templateVm.paginatorProps,
-    };
-};
-//#endregion
+// #endregion

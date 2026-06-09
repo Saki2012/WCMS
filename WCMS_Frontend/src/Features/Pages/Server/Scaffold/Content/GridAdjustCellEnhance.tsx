@@ -4,14 +4,10 @@ import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import clsx from "clsx";
 import { useCallback, useMemo } from "react";
 
+// #region Property
 /** 多語系文字型別（共用） */
 export type LangText = Partial<Record<Lang, string>>;
 
-/** 取得多語系文字（找不到就 fallback DefaultLang，再不行回 fallbackText） */
-export const getLangText = (lang: Lang, map: LangText, fallbackText: string): string =>
-{
-    return map[lang] ?? map[DefaultLang] ?? fallbackText;
-};
 
 /** i18n：ActionCell 共用字串 */
 const GRID_ACTIONCELL_I18N = {
@@ -19,13 +15,6 @@ const GRID_ACTIONCELL_I18N = {
     noPermission: { "zh-tw": "無此權限", en: "No permission" } as LangText,
 } as const;
 
-/** i18n：CRUD 共用字串（後台所有 Grid 共用） */
-export const GRID_CRUD_I18N = {
-    edit: { "zh-tw": "修改", en: "Edit" } as LangText,
-    delete: { "zh-tw": "刪除", en: "Delete" } as LangText,
-    gotoEdit: { "zh-tw": "前往修改", en: "Go to edit" } as LangText,
-    confirmDelete: { "zh-tw": "確定要刪除嗎？", en: "Are you sure you want to delete?" } as LangText,
-} as const;
 
 export type GridConfirmOptions = {
     /** 顯示文字（目前原生 confirm 只用得到 message） */
@@ -34,17 +23,9 @@ export type GridConfirmOptions = {
     title?: string;
 };
 
+
 export type GridConfirmFn = (opt: GridConfirmOptions) => boolean | Promise<boolean>;
 
-/**
- * 預設確認 UI：原生 window.confirm
- * - 未來要改成客製 Dialog：改這支或用 enhance 的 opt.confirm 注入
- */
-export const defaultGridConfirm: GridConfirmFn = (opt) =>
-{
-    if (typeof window === "undefined") return true;
-    return window.confirm(opt.message);
-};
 
 export type GridAdjustActionCtx<TItem> = {
     lang: Lang;
@@ -55,6 +36,7 @@ export type GridAdjustActionCtx<TItem> = {
     /** 互動確認（目前預設用 window.confirm；未來可替換成客製 Modal） */
     confirm: (opt: GridConfirmOptions) => Promise<boolean>;
 };
+
 
 export type GridAdjustAction<TItem> = {
     id: string;
@@ -72,8 +54,10 @@ export type GridAdjustAction<TItem> = {
     onClick: (ctx: GridAdjustActionCtx<TItem>) => void | Promise<void>;
 };
 
+
 /** 只要求 IsSuccess：避免把 API 型別綁死在 Grid 元件內（ApiResponse 也可直接相容） */
 export type ApiResponseLike = { IsSuccess: boolean; };
+
 
 /** CRUD actions 依賴（可以直接塞 adapter hooks 的 deleteAsync） */
 export type GridCrudDeps = {
@@ -90,12 +74,73 @@ export type GridCrudDeps = {
     i18n?: Partial<typeof GRID_CRUD_I18N>;
 };
 
+
+export type EnhanceAdjustOptions<TItem> = {
+    lang: Lang;
+    rawList: readonly TItem[];
+    actions: readonly GridAdjustAction<TItem>[];
+    /** 從 item 取得 internalId */
+    getInternalId: (item: TItem) => string;
+    /** 權限判斷入口（未提供就預設全允許） */
+    can?: (mask: number) => boolean;
+    /** 沒權限/disabled 時的提示（未提供就不提示） */
+    notifyNoPermission?: (msg: string) => void;
+    /** 點擊前確認（可替換成客製 UI） */
+    confirm?: GridConfirmFn;
+    /** 欄位設定 */
+    colKey?: string;
+    colTitle?: LangText;
+    /** row → item 對應（預設用 rowIndex 對 rawList[index]） */
+    getRowItem?: (rowIndex: number, row: GridRow, rawList: readonly TItem[]) => TItem | null;
+};
+
+
+type ActionViewItem<TItem> = {
+    a: GridAdjustAction<TItem>;
+    icon: string;
+    buttonName: string;
+    label: string;
+    ariaLabel: string;
+    isDisabled: boolean;
+    reason: string;
+};
+// #endregion
+
+// #region Public
+/** 取得多語系文字（找不到就 fallback DefaultLang，再不行回 fallbackText） */
+export const getLangText = (lang: Lang, map: LangText, fallbackText: string): string =>
+{
+    return map[lang] ?? map[DefaultLang] ?? fallbackText;
+};
+
+
+/** i18n：CRUD 共用字串（後台所有 Grid 共用） */
+export const GRID_CRUD_I18N = {
+    edit: { "zh-tw": "修改", en: "Edit" } as LangText,
+    delete: { "zh-tw": "刪除", en: "Delete" } as LangText,
+    gotoEdit: { "zh-tw": "前往修改", en: "Go to edit" } as LangText,
+    confirmDelete: { "zh-tw": "確定要刪除嗎？", en: "Are you sure you want to delete?" } as LangText,
+} as const;
+
+
+/**
+ * 預設確認 UI：原生 window.confirm
+ * - 未來要改成客製 Dialog：改這支或用 enhance 的 opt.confirm 注入
+ */
+export const defaultGridConfirm: GridConfirmFn = (opt) =>
+{
+    if (typeof window === "undefined") return true;
+    return window.confirm(opt.message);
+};
+
+
 /** 產生刪除確認文字（先不帶 title；未來擴充再加參數） */
 export const buildDeleteConfirmMessage = (lang: Lang, i18n?: Partial<typeof GRID_CRUD_I18N>): string =>
 {
     const map = i18n?.confirmDelete ?? GRID_CRUD_I18N.confirmDelete;
     return getLangText(lang, map, "確定要刪除嗎？");
 };
+
 
 /**
  * 建立 Grid 的共用 CRUD actions（Edit/Delete）
@@ -141,59 +186,51 @@ export const createGridCrudActions = <TItem,>(deps: GridCrudDeps): GridAdjustAct
     return [editAction, deleteAction];
 };
 
-export type EnhanceAdjustOptions<TItem> = {
-    lang: Lang;
-    rawList: readonly TItem[];
-    actions: readonly GridAdjustAction<TItem>[];
-    /** 從 item 取得 internalId */
-    getInternalId: (item: TItem) => string;
-    /** 權限判斷入口（未提供就預設全允許） */
-    can?: (mask: number) => boolean;
-    /** 沒權限/disabled 時的提示（未提供就不提示） */
-    notifyNoPermission?: (msg: string) => void;
-    /** 點擊前確認（可替換成客製 UI） */
-    confirm?: GridConfirmFn;
-    /** 欄位設定 */
-    colKey?: string;
-    colTitle?: LangText;
-    /** row → item 對應（預設用 rowIndex 對 rawList[index]） */
-    getRowItem?: (rowIndex: number, row: GridRow, rawList: readonly TItem[]) => TItem | null;
-};
 
-type ActionViewItem<TItem> = {
-    a: GridAdjustAction<TItem>;
-    icon: string;
-    buttonName: string;
-    label: string;
-    ariaLabel: string;
-    isDisabled: boolean;
-    reason: string;
-};
-
-/** 依 action id 推導 icon class */
-const resolveIconName = (id: string): string =>
+/** Enhance：附加 __adjust__ 欄位（只做注入，不做資料加工） */
+export const enhanceGridWithAdjustCell = <TItem,>(gridProps: GridProps, opt: EnhanceAdjustOptions<TItem>): GridProps =>
 {
-    if (id === "edit") return "fa-edit";
-    if (id === "delete") return "fa-trash-alt";
-    return "fa-cog";
-};
+    // 宣告變數
+    const colKey = opt.colKey ?? "__adjust__";
+    const title = getLangText(opt.lang, opt.colTitle ?? GRID_ACTIONCELL_I18N.title, "動作");
+    const hasAdjust = gridProps.columns.some(c => c.key === colKey);
 
-/** 依 action id 推導 button class */
-const resolveButtonName = (id: string): string =>
-{
-    if (id === "edit") return "Ipencil";
-    if (id === "delete") return "Itrash";
-    return "";
-};
+    // 執行 function：已存在 / 無 rows 就不處理
+    if (hasAdjust) return gridProps;
+    if (gridProps.rows.length === 0) return gridProps;
 
-/** 解析 disabled 原因（權限/自訂 reason） */
-const resolveDisabledReason = <TItem,>(lang: Lang, a: GridAdjustAction<TItem>, ctx: GridAdjustActionCtx<TItem>): string | null =>
-{
-    const byPerm = a.requiredMask ? ctx.can(a.requiredMask) : true;
-    if (!byPerm) return getLangText(lang, GRID_ACTIONCELL_I18N.noPermission, "無此權限");
-    return a.getDisabledReason ? a.getDisabledReason(ctx) : null;
-};
+    const adjustCol: ColumnConfig = { key: colKey, title };
+    const newColumns: ColumnConfig[] = [...gridProps.columns, adjustCol];
+    const getRowItem = opt.getRowItem ?? ((idx) => opt.rawList[idx] ?? null);
 
+    const newRows: GridRow[] = gridProps.rows.map((row, idx) =>
+    {
+        const item = getRowItem(idx, row, opt.rawList);
+        const cell: RowCell = {
+            col: adjustCol,
+            content: item
+                ? (
+                    <ActionCell
+                        lang={opt.lang}
+                        item={item}
+                        internalId={opt.getInternalId(item)}
+                        actions={opt.actions}
+                        can={opt.can}
+                        notifyNoPermission={opt.notifyNoPermission}
+                        confirm={opt.confirm}
+                    />
+                )
+                : null,
+        };
+        return { ...row, cells: [...row.cells, cell] };
+    });
+
+    // return
+    return { ...gridProps, columns: newColumns, rows: newRows };
+};
+// #endregion
+
+// #region EntityComp
 /** 產生 ActionCell 的 view model */
 const buildActionView = <TItem,>(lang: Lang, actions: readonly GridAdjustAction<TItem>[], ctx: GridAdjustActionCtx<TItem>): ActionViewItem<TItem>[] =>
 {
@@ -211,6 +248,35 @@ const buildActionView = <TItem,>(lang: Lang, actions: readonly GridAdjustAction<
         return { a, icon, buttonName, label, ariaLabel, isDisabled, reason: reason ?? "" };
     });
 };
+// #endregion
+
+// #region Private
+/** 依 action id 推導 icon class */
+const resolveIconName = (id: string): string =>
+{
+    if (id === "edit") return "fa-edit";
+    if (id === "delete") return "fa-trash-alt";
+    return "fa-cog";
+};
+
+
+/** 依 action id 推導 button class */
+const resolveButtonName = (id: string): string =>
+{
+    if (id === "edit") return "Ipencil";
+    if (id === "delete") return "Itrash";
+    return "";
+};
+
+
+/** 解析 disabled 原因（權限/自訂 reason） */
+const resolveDisabledReason = <TItem,>(lang: Lang, a: GridAdjustAction<TItem>, ctx: GridAdjustActionCtx<TItem>): string | null =>
+{
+    const byPerm = a.requiredMask ? ctx.can(a.requiredMask) : true;
+    if (!byPerm) return getLangText(lang, GRID_ACTIONCELL_I18N.noPermission, "無此權限");
+    return a.getDisabledReason ? a.getDisabledReason(ctx) : null;
+};
+
 
 /** 建立 ActionCell context（把 can/notify/confirm 統一封裝） */
 const useGridAdjustActionCtx = <TItem,>(
@@ -244,11 +310,13 @@ const useGridAdjustActionCtx = <TItem,>(
     ]);
 };
 
+
 /** 建立 ActionCell view（把 action → 按鈕顯示資料） */
 const useGridAdjustActionView = <TItem,>(lang: Lang, actions: readonly GridAdjustAction<TItem>[], ctx: GridAdjustActionCtx<TItem>): ActionViewItem<TItem>[] =>
 {
     return useMemo(() => buildActionView(lang, actions, ctx), [lang, actions, ctx]);
 };
+
 
 const ActionCell = <TItem,>(
     props: {
@@ -313,45 +381,4 @@ const ActionCell = <TItem,>(
         </div>
     );
 };
-
-/** Enhance：附加 __adjust__ 欄位（只做注入，不做資料加工） */
-export const enhanceGridWithAdjustCell = <TItem,>(gridProps: GridProps, opt: EnhanceAdjustOptions<TItem>): GridProps =>
-{
-    // 宣告變數
-    const colKey = opt.colKey ?? "__adjust__";
-    const title = getLangText(opt.lang, opt.colTitle ?? GRID_ACTIONCELL_I18N.title, "動作");
-    const hasAdjust = gridProps.columns.some(c => c.key === colKey);
-
-    // 執行 function：已存在 / 無 rows 就不處理
-    if (hasAdjust) return gridProps;
-    if (gridProps.rows.length === 0) return gridProps;
-
-    const adjustCol: ColumnConfig = { key: colKey, title };
-    const newColumns: ColumnConfig[] = [...gridProps.columns, adjustCol];
-    const getRowItem = opt.getRowItem ?? ((idx) => opt.rawList[idx] ?? null);
-
-    const newRows: GridRow[] = gridProps.rows.map((row, idx) =>
-    {
-        const item = getRowItem(idx, row, opt.rawList);
-        const cell: RowCell = {
-            col: adjustCol,
-            content: item
-                ? (
-                    <ActionCell
-                        lang={opt.lang}
-                        item={item}
-                        internalId={opt.getInternalId(item)}
-                        actions={opt.actions}
-                        can={opt.can}
-                        notifyNoPermission={opt.notifyNoPermission}
-                        confirm={opt.confirm}
-                    />
-                )
-                : null,
-        };
-        return { ...row, cells: [...row.cells, cell] };
-    });
-
-    // return
-    return { ...gridProps, columns: newColumns, rows: newRows };
-};
+// #endregion

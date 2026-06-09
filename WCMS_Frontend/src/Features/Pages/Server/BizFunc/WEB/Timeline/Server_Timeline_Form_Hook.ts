@@ -20,7 +20,7 @@ import {
     useEditGridBinding,
 } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { type Lang, LangLabelMap, SUPPORTED_LANGS, useEnsureLangDetails } from "@/SysCore/i18n/lang";
+import { buildSupportedLangOrder, type Lang, LangLabelMap, SUPPORTED_LANGS, useEnsureLangDetails } from "@/SysCore/i18n/lang";
 import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
@@ -30,10 +30,13 @@ import { useMemo } from "react";
 
 // #region Property
 type TimelineSet = components["schemas"]["TimelineSet_DTO"];
+
 type TimelineItem = NonNullable<TimelineSet["TimelineItem"]>[number];
+
 type TimelineLangDetail = NonNullable<TimelineSet["TimelineLangDetail"]>[number];
 
 export type TimelineItemGridRow = GridRow & { TimelineId?: string | null; DetailRowId?: number | null; };
+
 export type TimelineLangDetailGridRow = GridRow & {
     TimelineId?: string | null;
     ParentRowId?: number | null;
@@ -98,10 +101,6 @@ export interface UseTimelineLangDetailEditGridOptions
     renderContentToggle: (args: EditGridCellRenderArgs) => ReactNode;
 }
 
-export const timelineEmptyData: TimelineSet = { Timeline: {}, TimelineItem: [{ RowId: 1, Date: null }], TimelineLangDetail: [] };
-export const TimelineLangDetailColumnKey = "__TimelineLangDetail";
-export const TimelineContentColumnKey = "__TimelineContent";
-
 export type TimelineFormRefs = Record<string, never>;
 
 export type TimelineFormActionsOpt = {
@@ -116,6 +115,12 @@ export type TimelineFormAdapter = {
 // #endregion
 
 // #region Public
+export const timelineEmptyData: TimelineSet = { Timeline: {}, TimelineItem: [{ RowId: 1, Date: null }], TimelineLangDetail: [] };
+
+export const TimelineLangDetailColumnKey = "__TimelineLangDetail";
+
+export const TimelineContentColumnKey = "__TimelineContent";
+
 /** 建立 Timeline Form Template，統一交給 Server_FormTemplate 處理資料流程。 */
 export const useTimelineFormTemplate = (
     opt: UseTimelineFormTemplateOptions,
@@ -184,7 +189,7 @@ export const useTimelineLangDetailEditGrid = (opt: UseTimelineLangDetailEditGrid
 };
 // #endregion
 
-// #region Timing
+// #region Private
 /** 建立 Timeline Form 標題，功能名稱優先讀 ModelDisplayName。 */
 const buildTimelineFormTitle = (ctx: { mode: "new" | "edit"; displayName: ModelDisplaySchema; }): string =>
 {
@@ -221,9 +226,7 @@ const useTimelineReferenceData = (ctx: { binding: ServerFormBinding<TimelineSet>
         return { refs: {}, isLoading: false, errors: [], refetchRefData: undefined };
     }, []);
 };
-// #endregion
 
-// #region Private
 /** 取得 Timeline Model 顯示名稱，避免 Form 標題寫死功能名稱。 */
 const getTimelineModelTitle = (displayName: ModelDisplaySchema, fallback: string): string =>
 {
@@ -491,13 +494,6 @@ const sortTimelineLangDetails = (details: TimelineLangDetail[], preferLang: Lang
 {
     const order = buildSupportedLangOrder(preferLang);
     return [...details].sort((a, b) => getTimelineLangOrder(a.Lang, order) - getTimelineLangOrder(b.Lang, order));
-};
-
-/** 建立目前支援語系順序，當前語系優先。 */
-const buildSupportedLangOrder = (preferLang: Lang): string[] =>
-{
-    const langs = [preferLang, ...SUPPORTED_LANGS];
-    return langs.map(lang => String(lang).toLowerCase()).filter((lang, index, list) => list.indexOf(lang) === index);
 };
 
 /** 取得語系排序權重。 */

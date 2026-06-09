@@ -9,45 +9,39 @@ import { CategoryAdapter } from "@/Features/Hooks/BizFunc/COMM/Category_Api";
 import { TagAdapter } from "@/Features/Hooks/BizFunc/COMM/Tag_Api";
 import { GalleryAdapter } from "@/Features/Hooks/BizFunc/WEB/Gallery_Api";
 
+import { findTextByKey } from "@/SysCore/Utils/Library/LibData";
+
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 type GallerySet = components["schemas"]["GallerySet_DTO"];
+
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"];
+
 type TagSet = components["schemas"]["TagSet_DTO"];
 
-const toListInitial = <TArgs, TItem>(args: TArgs, data: TItem[]) =>
+
+// ----- 以下保留你原本的 helper（沿用） -----
+
+interface getDataProp
 {
-    // return：符合 adapter hook 的 initial 型別
-    return { args, apiRes: { IsSuccess: true, Data: data, SysMessage: [] } };
-};
+    redir: string;
+    galleryInternalId: string;
+    title: string;
+    content: string;
+    date: string;
+    month: string;
+    year: string;
+    monthNum: number;
+    tagName: string;
+    categoryName: string;
+    contentStatus: number;
+    internalId: string;
+    PicSrcId: string;
+}
+// #endregion
 
-const buildCategoryDict = (list: CategoryDataSet[], lang: Lang): Record<string, string> =>
-{
-    // 宣告變數
-    const pairs = list.map((cat) =>
-    {
-        const id = cat.Category?.CategoryId ?? "";
-        const name = cat.CategoryDetail?.find((p) => p.Lang === lang)?.CategoryName ?? "";
-        return [id, name] as const;
-    }).filter(([id]) => Boolean(id));
-
-    // return
-    return Object.fromEntries(pairs);
-};
-
-const buildTagDict = (list: TagSet[], lang: Lang): Record<string, string> =>
-{
-    // 宣告變數
-    const pairs = list.map((t) =>
-    {
-        const id = t.TagData?.TagId ?? "";
-        const name = t.TagDetail?.find((p) => p.Lang === lang)?.TagName ?? "";
-        return [id, name] as const;
-    }).filter(([id]) => Boolean(id));
-
-    // return
-    return Object.fromEntries(pairs);
-};
-
+// #region Public
 export const ActivityPhotoData = (
     props: {
         lang: Lang;
@@ -346,25 +340,46 @@ export const ActivityPhotoData = (
         </section>
     );
 };
+// #endregion
 
-// ----- 以下保留你原本的 helper（沿用） -----
-
-interface getDataProp
+// #region EntityComp
+const buildCategoryDict = (list: CategoryDataSet[], lang: Lang): Record<string, string> =>
 {
-    redir: string;
-    galleryInternalId: string;
-    title: string;
-    content: string;
-    date: string;
-    month: string;
-    year: string;
-    monthNum: number;
-    tagName: string;
-    categoryName: string;
-    contentStatus: number;
-    internalId: string;
-    PicSrcId: string;
-}
+    // 宣告變數
+    const pairs = list.map((cat) =>
+    {
+        const id = cat.Category?.CategoryId ?? "";
+        const name = findTextByKey(cat.CategoryDetail, (p) => p?.Lang, lang, (p) => p?.CategoryName);
+        return [id, name] as const;
+    }).filter(([id]) => Boolean(id));
+
+    // return
+    return Object.fromEntries(pairs);
+};
+
+
+const buildTagDict = (list: TagSet[], lang: Lang): Record<string, string> =>
+{
+    // 宣告變數
+    const pairs = list.map((t) =>
+    {
+        const id = t.TagData?.TagId ?? "";
+        const name = findTextByKey(t.TagDetail, (p) => p?.Lang, lang, (p) => p?.TagName);
+        return [id, name] as const;
+    }).filter(([id]) => Boolean(id));
+
+    // return
+    return Object.fromEntries(pairs);
+};
+// #endregion
+
+// #region Private
+const toListInitial = <TArgs, TItem>(args: TArgs, data: TItem[]) =>
+{
+    // return：符合 adapter hook 的 initial 型別
+    return { args, apiRes: { IsSuccess: true, Data: data, SysMessage: [] } };
+};
+
 
 const getGalleryDataProps = (
     GalleryData: GallerySet[],
@@ -407,6 +422,7 @@ const getGalleryDataProps = (
     return resultProps;
 };
 
+
 const pickGallerysByCategories = <T extends { Gallery?: { Categories?: string | null | undefined; }; }>(
     newsData: T[] | undefined,
     categories: string | string[],
@@ -425,6 +441,7 @@ const pickGallerysByCategories = <T extends { Gallery?: { Categories?: string | 
     return result.slice(0, take);
 };
 
+
 const formatDate = (dateStr: string) =>
 {
     const date = new Date(dateStr);
@@ -433,6 +450,7 @@ const formatDate = (dateStr: string) =>
     const year = date.getFullYear().toString();
     return { day, month, year };
 };
+
 
 const GetData = ({ prop }: { prop: getDataProp[]; }) =>
 {
@@ -467,6 +485,7 @@ const GetData = ({ prop }: { prop: getDataProp[]; }) =>
     );
 };
 
+
 const takeTopThenFill = (top: GallerySet[] | undefined, rest: GallerySet[] | undefined, limit: number = 3): GallerySet[] =>
 {
     const getKey = (x: GallerySet) => x.Gallery?.InternalId ?? String(x.Gallery?.GalleryId ?? "");
@@ -493,3 +512,4 @@ const takeTopThenFill = (top: GallerySet[] | undefined, rest: GallerySet[] | und
     }
     return out;
 };
+// #endregion

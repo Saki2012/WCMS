@@ -1,11 +1,13 @@
 import { useEffect, useId } from "react";
 
+// #region Property
 export interface ILibDropListStyle
 {
     Labelstyle: string;
     SelectStyle: string;
     OptionsStyle: string;
 }
+
 
 interface ILibDropListProp
 {
@@ -21,7 +23,9 @@ interface ILibDropListProp
     /** 是否顯示空選項（預設 true） */
     ShowPlaceholder?: boolean;
 }
+// #endregion
 
+// #region Private
 const LibDropList = (prop: ILibDropListProp) =>
 {
     // 宣告變數
@@ -61,4 +65,6 @@ const LibDropList = (prop: ILibDropListProp) =>
     );
 };
 
+
 export default LibDropList;
+// #endregion

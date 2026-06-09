@@ -12,9 +12,13 @@ import { useCallback, useMemo, useState } from "react";
 import { useMatches } from "react-router";
 import { useLocation, useNavigate } from "react-router-dom";
 
+// #region Property
 type AccountSet = components["schemas"]["AccountSet_DTO"];
+
 type ResetPassword = components["schemas"]["ResetPassword"];
+
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 
 export interface UseServerResetPasswordResult
 {
@@ -27,7 +31,9 @@ export interface UseServerResetPasswordResult
     onNewPwdChange: (value: string) => void;
     onConfirmPwdChange: (value: string) => void;
 }
+// #endregion
 
+// #region Public
 export const useServerResetPassword = (theme: IBETheme): UseServerResetPasswordResult =>
 {
     // 宣告變數
@@ -170,7 +176,9 @@ export const useServerResetPassword = (theme: IBETheme): UseServerResetPasswordR
         onConfirmPwdChange: setConfirmPwd,
     };
 };
+// #endregion
 
+// #region Private
 const useAccountListDataByAdapter = (adapter: ReturnType<typeof AccountAdapter>) =>
 {
     // 宣告變數
@@ -199,3 +207,4 @@ const useAccountListDataByAdapter = (adapter: ReturnType<typeof AccountAdapter>)
     // return
     return { rawData: (query.data ?? []) as AccountSet[], isLoading: Boolean(query.isLoading), error: query.errorText ?? null };
 };
+// #endregion

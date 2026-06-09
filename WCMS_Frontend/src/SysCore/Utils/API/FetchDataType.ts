@@ -1,3 +1,4 @@
+// #region Property
 // FetchDataTypes.ts
 
 /** Hook 統一出口：rawData 可自定義 key/value 結構 */
@@ -16,6 +17,7 @@ export interface UseFetchDataResult<TRawData extends Record<string, unknown>, TA
     refetchRefData?: () => Promise<void>;
 }
 
+
 /** （可選）SSR/Loader 初始資料格式：用 argsKey 判斷是否需要 CSR 補抓 */
 // 重要 - 需要給前台SSR的入口參數
 export interface FetchInitialData<TRawData extends Record<string, unknown>>
@@ -29,3 +31,4 @@ export interface FetchInitialData<TRawData extends Record<string, unknown>>
     /** SSR 階段整理出的錯誤（通常 isLoading 不需要） */
     errors: string[];
 }
+// #endregion

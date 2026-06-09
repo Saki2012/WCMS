@@ -9,8 +9,26 @@ import type { ReactNode } from "react";
 import type { SpecJournalMode } from "./Server_SpecJournal_Form_Hook";
 import { type SpecJournalListRenderers, type SpecJournalSet, useSpecJournalListGridTemplate } from "./Server_SpecJournal_List_Hooks";
 
+// #region Property
 const authorListStyle = { listStylePosition: "inside" } as const;
 
+const specJournalListRenderers: SpecJournalListRenderers = {
+    renderTitleContent: renderSpecJournalTitleContent,
+    renderAuthorContent: renderSpecJournalAuthorContent,
+};
+// #endregion
+
+// #region Public
+/** 後台期刊列表 */
+export const Server_SpecJournal_List_Comp = (prop: { title: string; theme: IBETheme; lang: Lang; mode: SpecJournalMode; }) =>
+{
+    const template = useSpecJournalListGridTemplate({ lang: prop.lang, mode: prop.mode, renderers: specJournalListRenderers });
+
+    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} renderSearchBar={renderSpecJournalSearchBar} />;
+};
+// #endregion
+
+// #region EntityComp
 /** 渲染中英文標題欄位內容 */
 const renderSpecJournalTitleContent = (set: SpecJournalSet): ReactNode =>
 {
@@ -25,6 +43,7 @@ const renderSpecJournalTitleContent = (set: SpecJournalSet): ReactNode =>
     );
 };
 
+
 /** 渲染中英文作者欄位內容 */
 const renderSpecJournalAuthorContent = (set: SpecJournalSet): ReactNode =>
 {
@@ -37,18 +56,7 @@ const renderSpecJournalAuthorContent = (set: SpecJournalSet): ReactNode =>
         </ul>
     );
 };
-const specJournalListRenderers: SpecJournalListRenderers = {
-    renderTitleContent: renderSpecJournalTitleContent,
-    renderAuthorContent: renderSpecJournalAuthorContent,
-};
 
-/** 後台期刊列表 */
-export const Server_SpecJournal_List_Comp = (prop: { title: string; theme: IBETheme; lang: Lang; mode: SpecJournalMode; }) =>
-{
-    const template = useSpecJournalListGridTemplate({ lang: prop.lang, mode: prop.mode, renderers: specJournalListRenderers });
-
-    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} renderSearchBar={renderSpecJournalSearchBar} />;
-};
 
 /** 渲染期刊列表搜尋列 */
 const renderSpecJournalSearchBar = (props: ServerListGridSearchRenderProps): ReactNode =>
@@ -64,15 +72,19 @@ const renderSpecJournalSearchBar = (props: ServerListGridSearchRenderProps): Rea
     );
 };
 
+
 /** 建立作者列表 key */
 const buildSpecJournalAuthorKey = (author: NonNullable<SpecJournalSet["SpecJournalAuthor"]>[number], index: number): string =>
 {
     return `${author.AuthorName ?? ""}-${author.AuthorName_en ?? ""}-${index}`;
 };
+// #endregion
 
+// #region Private
 /** 格式化作者顯示名稱 */
 const formatSpecJournalAuthorName = (author: NonNullable<SpecJournalSet["SpecJournalAuthor"]>[number]): string | undefined =>
 {
     if (author.AuthorName && author.AuthorName_en) return `${author.AuthorName} (${author.AuthorName_en})`;
     return author.AuthorName || author.AuthorName_en || "";
 };
+// #endregion

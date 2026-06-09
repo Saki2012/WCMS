@@ -1,4 +1,6 @@
 import bgImg from "@/SpecFetures/1817/Assets/Client/images/bg/underline_01_W_1920x292.svg";
+
+// #region Public
 export const PerformancesPage = (props: { title: string; subTitle: string; showtime: string; }) =>
 {
     return (
@@ -44,3 +46,4 @@ export const PerformancesPage = (props: { title: string; subTitle: string; showt
         </section>
     );
 };
+// #endregion

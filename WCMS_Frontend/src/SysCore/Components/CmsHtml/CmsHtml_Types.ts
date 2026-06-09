@@ -1,5 +1,6 @@
 import type { Lang } from "@/SysCore/i18n/lang";
 
+// #region Property
 export interface CmsHtmlFileMeta
 {
     id: string;
@@ -11,7 +12,9 @@ export interface CmsHtmlFileMeta
     height?: number | null;
 }
 
+
 export type CmsHtmlFileMetaMap = Record<string, CmsHtmlFileMeta | undefined>;
+
 
 export interface CmsHtmlTransformOptions
 {
@@ -23,10 +26,13 @@ export interface CmsHtmlTransformOptions
     buildDownloadUrl?: (internalId: string, meta?: CmsHtmlFileMeta) => string;
 }
 
+
 export interface CmsHtmlParseOptions
 {
     lang: Lang;
 }
 
+
 export interface CmsHtmlContentOptions extends CmsHtmlTransformOptions, CmsHtmlParseOptions
 {}
+// #endregion

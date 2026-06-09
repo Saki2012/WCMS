@@ -2,9 +2,11 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { DefaultLang } from "@/SysCore/i18n/lang";
 import "./SkipToContent.css"
 
+// #region Property
 interface SkipToContentProps {
   lang?: Lang;
 }
+
 
 /* =========================
  * i18n
@@ -24,11 +26,14 @@ const SKIP_MAP: Record<Lang, { skip: string; noscript: string }> = {
     noscript: "Your browser does not support JavaScript.",
   },
 };
+// #endregion
 
+// #region Private
 const getSkipText = (lang?: Lang) => {
   const key = lang ?? DefaultLang;
   return SKIP_MAP[key] ?? SKIP_MAP[DefaultLang];
 };
+
 
 /* =========================
  * component
@@ -59,4 +64,6 @@ const SkipToContent: React.FC<SkipToContentProps> = ({ lang }) => {
   );
 };
 
+
 export default SkipToContent;
+// #endregion

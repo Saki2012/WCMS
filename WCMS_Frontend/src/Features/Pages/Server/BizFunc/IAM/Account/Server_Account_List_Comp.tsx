@@ -8,6 +8,7 @@ import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import type { ReactNode } from "react";
 import { useAccountListGridTemplate } from "./Server_Account_List_Hook";
 
+// #region Public
 /** 帳號列表 */
 export const Server_Account_List_Comp = (prop: { title?: string; theme: IBETheme; lang?: Lang; }) =>
 {
@@ -16,7 +17,9 @@ export const Server_Account_List_Comp = (prop: { title?: string; theme: IBETheme
 
     return <Server_ListGridTemplate_Comp Title={prop.title ?? "帳號列表"} Theme={prop.theme} template={template} renderSearchBar={renderAccountSearchBar} />;
 };
+// #endregion
 
+// #region EntityComp
 /** 渲染帳號列表搜尋列 */
 const renderAccountSearchBar = (props: ServerListGridSearchRenderProps): ReactNode =>
 {
@@ -30,3 +33,4 @@ const renderAccountSearchBar = (props: ServerListGridSearchRenderProps): ReactNo
         />
     );
 };
+// #endregion

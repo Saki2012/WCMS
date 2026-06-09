@@ -8,6 +8,23 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import type { ReactNode } from "react";
 import { type SpecResearchListRenderers, useSpecResearchListGridTemplate } from "./Server_SpecResearch_List_Hook";
 
+// #region Property
+const specResearchListRenderers: SpecResearchListRenderers = {
+    renderTagContent: renderSpecResearchTagContent,
+};
+// #endregion
+
+// #region Public
+/** 研究計畫列表 */
+export const Server_ResearchProjListComp = (prop: { title: string; theme: IBETheme; lang: Lang; }) =>
+{
+    const template = useSpecResearchListGridTemplate({ lang: prop.lang, renderers: specResearchListRenderers });
+
+    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} renderSearchBar={renderSpecResearchSearchBar} />;
+};
+// #endregion
+
+// #region EntityComp
 /** 渲染研究計畫列表搜尋列 */
 const renderSpecResearchSearchBar = (props: ServerListGridSearchRenderProps): ReactNode =>
 {
@@ -22,6 +39,7 @@ const renderSpecResearchSearchBar = (props: ServerListGridSearchRenderProps): Re
     );
 };
 
+
 /** 渲染標籤欄位內容 */
 const renderSpecResearchTagContent = (ids: string | null | undefined, map: Record<string, string>): ReactNode =>
 {
@@ -35,20 +53,10 @@ const renderSpecResearchTagContent = (ids: string | null | undefined, map: Recor
     );
 };
 
+
 /** 將標籤代碼字串轉成顯示名稱清單 */
 const buildSpecResearchTagNames = (ids: string | null | undefined, map: Record<string, string>): string[] =>
 {
     return (ids ?? "").split(",").map((item) => item.trim()).filter(Boolean).map((id) => map[id] ?? id);
 };
-
-const specResearchListRenderers: SpecResearchListRenderers = {
-    renderTagContent: renderSpecResearchTagContent,
-};
-
-/** 研究計畫列表 */
-export const Server_ResearchProjListComp = (prop: { title: string; theme: IBETheme; lang: Lang; }) =>
-{
-    const template = useSpecResearchListGridTemplate({ lang: prop.lang, renderers: specResearchListRenderers });
-
-    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} renderSearchBar={renderSpecResearchSearchBar} />;
-};
+// #endregion

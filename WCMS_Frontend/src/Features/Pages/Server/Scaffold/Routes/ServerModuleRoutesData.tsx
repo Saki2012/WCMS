@@ -37,7 +37,7 @@ import { Server_SurveySubmission_List_Comp } from "../../BizFunc/WEB/SurveySubmi
 import { Server_Timeline_Form_Comp } from "../../BizFunc/WEB/Timeline/Server_Timeline_Form_Comp";
 import { Server_Timeline_List_Comp } from "../../BizFunc/WEB/Timeline/Server_Timeline_List_Comp";
 
-// #region Interface
+// #region Property
 export interface IModuleMeta
 {
     ModuleCode: string;
@@ -46,6 +46,7 @@ export interface IModuleMeta
     IconClassName?: string;
     Progs: IProgMeta[];
 }
+
 export interface IProgMeta
 {
     /** 前端選單唯一鍵，不影響後端 ProgId / 權限 */
@@ -57,6 +58,7 @@ export interface IProgMeta
     DefaultActionCode: IActionMeta["ActionCode"];
     Actions: IActionMeta[];
 }
+
 export interface IActionMeta
 {
     ActionCode: string;
@@ -67,6 +69,7 @@ export interface IActionMeta
     elementFactory?: ServerElementFactory;
 }
 
+
 export interface IActionHandle
 {
     ActionCode: string;
@@ -74,20 +77,22 @@ export interface IActionHandle
     /** ✅ 給 Router 用：由 data 決定要 render 什麼 element */
 }
 
+
 export interface IServerElementFactoryCtx
 {
     theme: IBETheme;
     lang: Lang;
     // params?: Record<string, string | undefined>;
 }
+
 export type ServerElementFactory = (ctx: IServerElementFactoryCtx) => ReactNode;
 
-// #endregion
+
 /** 後台功能路由資料 */
-const isSpec1816 = String(import.meta.env.VITE_SPEC_CODE ?? "") === "1816"; // 暫時寫死
+const isSpec1816 = String(import.meta.env.VITE_SPEC_CODE ?? "") === "1816";
+ // 暫時寫死
 
 const ServerModuleRoutesData: IModuleMeta[] = [
-    // #region Dashboard （網站管理）
     {
         ModuleCode: "Dashboard",
         Title: "網站管理",
@@ -122,9 +127,7 @@ const ServerModuleRoutesData: IModuleMeta[] = [
                 : []),
         ],
     },
-    // #endregion
 
-    // #region 網站功能管理模組 (WEB)
     {
         ModuleCode: "WebManagement",
         Title: "網站功能管理",
@@ -336,16 +339,13 @@ const ServerModuleRoutesData: IModuleMeta[] = [
             },
         ],
     },
-    // #endregion
 
-    // #region 物件資料管理模組 (MAT)
     {
         ModuleCode: "MAT",
         Title: "物件資料管理",
         DefaultPath: `/Server/MAT/${PGID.Material}/List`,
         IconClassName: "fas fa-boxes",
         Progs: [
-            // #region 物件基礎資料
             {
                 ProgId: PGID.Material,
                 Title: "物件基礎資料",
@@ -378,12 +378,9 @@ const ServerModuleRoutesData: IModuleMeta[] = [
                     elementFactory: (ctx) => <Server_Tag_ListForm_Comp progId={PGID.Material} title="標籤" theme={ctx.theme} lang={ctx.lang} />,
                 }],
             },
-            // #endregion
         ],
     },
-    // #endregion
 
-    // #region 帳號管理模組 (IAM)
     {
         ModuleCode: "AccountManage",
         Title: "帳號管理",
@@ -455,25 +452,23 @@ const ServerModuleRoutesData: IModuleMeta[] = [
             },
         ],
     },
-    // #endregion
 
-    // #region 登出系統
     { ModuleCode: "Logout", Title: "登出系統", DefaultPath: "/Server/Logout", IconClassName: "far fa-sign-out", Progs: [] },
-    // #endregion
 ];
 
-// #region ExternalData (For Spec)
+
 export interface IServerMenuExtModule
 {
     extendServerModuleRoutes?: (modules: IModuleMeta[]) => IModuleMeta[];
     default?: (modules: IModuleMeta[]) => IModuleMeta[];
 }
-// #region ExternalData (For Spec)
+
 export interface IServerMenuExtModule
 {
     extendServerModuleRoutes?: (modules: IModuleMeta[]) => IModuleMeta[];
     default?: (modules: IModuleMeta[]) => IModuleMeta[];
 }
+
 
 /** 只載入目前 SpecCode 的後台擴充路由，避免其他 Spec 被編譯 */
 const activeExtModules = import.meta.glob("SpecFeature/Pages/Server/Scaffold/ServerModuleRoutesExtData.tsx", { eager: true }) as Record<
@@ -481,18 +476,26 @@ const activeExtModules = import.meta.glob("SpecFeature/Pages/Server/Scaffold/Ser
     IServerMenuExtModule
 >;
 
+
 /** 載入預設 Spec 擴充路由，作為 fallback */
 const defaultExtModules = import.meta.glob("SpecDefault/Pages/Server/Scaffold/ServerModuleRoutesExtData.tsx", { eager: true }) as Record<
     string,
     IServerMenuExtModule
 >;
+// #endregion
 
+// #region Public
+export const ServerModuleRoutes: IModuleMeta[] = getServerModuleRoutes();
+// #endregion
+
+// #region Private
 /** 取得 glob 載入的第一個模組 */
 const getFirstExtModule = (modules: Record<string, IServerMenuExtModule>): IServerMenuExtModule =>
 {
     const first = Object.values(modules)[0];
     return first ?? {};
 };
+
 /** 解析目前 Spec 可用的後台擴充路由 */
 const resolveServerMenuExt = (): IServerMenuExtModule =>
 {
@@ -501,6 +504,7 @@ const resolveServerMenuExt = (): IServerMenuExtModule =>
 
     return getFirstExtModule(defaultExtModules);
 };
+
 const getServerModuleRoutes = (): IModuleMeta[] =>
 {
     const base = ServerModuleRoutesData;
@@ -512,4 +516,3 @@ const getServerModuleRoutes = (): IModuleMeta[] =>
     return Array.isArray(next) ? next : base;
 };
 // #endregion
-export const ServerModuleRoutes: IModuleMeta[] = getServerModuleRoutes();

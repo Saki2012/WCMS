@@ -11,7 +11,7 @@ import type { SearchFieldConfig, SearchValue, SearchValues } from "@/SysCore/Com
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
-import { FormatDate, FormatDateTime } from "@/SysCore/Utils/Library/LibData";
+import { formatDate, formatDateTime } from "@/SysCore/Utils/Library/LibData";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
@@ -19,12 +19,15 @@ import { AccountFields, PGID, TimelineFields, TimelineItemFields, TimelineLangDe
 import { createElement, useCallback, useMemo, type ReactNode } from "react";
 import { type NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 type TimelineSet = components["schemas"]["TimelineSet_DTO"];
+
 type TimelineApiAdapter = ReturnType<typeof TimelineAdapter>;
+
 type TimelineCudActions = ReturnType<TimelineApiAdapter["hooks"]["useCudActions"]>;
 
-export const TIMELINE_NAME_SEARCH_KEY = "title";
 
 export interface TimelineSearchParams
 {
@@ -34,6 +37,7 @@ export interface TimelineSearchParams
     /** 紀事表名稱搜尋關鍵字 */
     title?: string;
 }
+
 
 export interface TimelineListRawData
 {
@@ -59,6 +63,7 @@ export interface TimelineListRawData
     param: QueryListParam;
 }
 
+
 export interface TimelineListAdapter
 {
     /** 紀事表 API adapter */
@@ -74,7 +79,28 @@ export interface TimelineListAdapter
     dirUrl: string;
 }
 
+
 export type TimelineListGridTemplate = ServerListGridTemplate<TimelineSearchParams, TimelineListRawData, TimelineListAdapter, QueryListParam>;
+
+
+type CrudDeps = {
+    /** React Router 導頁方法 */
+    navigate: NavigateFunction;
+
+    /** 目前 List 對應的 Form 路徑 */
+    dirUrl: string;
+
+    /** 刪除資料方法 */
+    deleteAsync: TimelineCudActions["deleteAsync"];
+
+    /** 刪除後重新查詢 */
+    afterDelete: () => Promise<void>;
+};
+// #endregion
+
+// #region Public
+export const TIMELINE_NAME_SEARCH_KEY = "title";
+
 
 /** 建立紀事表後台 ListGridTemplate 設定 */
 export const useTimelineListGridTemplate = (opt: { lang: Lang; }): TimelineListGridTemplate =>
@@ -94,7 +120,9 @@ export const useTimelineListGridTemplate = (opt: { lang: Lang; }): TimelineListG
         };
     }, [opt.lang]);
 };
+// #endregion
 
+// #region Private
 /** 執行紀事表列表資料來源 Hook */
 const useTimelineListGridDataSource = (
     ctx: ServerListGridDataSourceContext<TimelineSearchParams, QueryListParam>,
@@ -146,6 +174,7 @@ const useTimelineListGridDataSource = (
     return { adapter: { ...apiAdapter, cudActions, navigate, dirUrl }, rawData, isLoading, errors, refetchData };
 };
 
+
 /** 建立紀事表搜尋欄位設定 */
 const buildTimelineSearchFields = (rawData: TimelineListRawData): SearchFieldConfig[] =>
 {
@@ -154,11 +183,13 @@ const buildTimelineSearchFields = (rawData: TimelineListRawData): SearchFieldCon
     return [{ key: TIMELINE_NAME_SEARCH_KEY, title, type: "text", placeholder: `請輸入${title}` }];
 };
 
+
 /** 將 SearchValues 轉為紀事表列表查詢參數 */
 const toTimelineSearchParams = (values: SearchValues, lang: Lang): TimelineSearchParams =>
 {
     return { lang, title: getSearchStringValue(values[TIMELINE_NAME_SEARCH_KEY]) };
 };
+
 
 /** 建立紀事表搜尋條件 */
 const buildTimelineSearchConditions = (ctx: { searchParams: TimelineSearchParams; }): string[] =>
@@ -167,6 +198,7 @@ const buildTimelineSearchConditions = (ctx: { searchParams: TimelineSearchParams
 
     return [`${TimelineFields.TimelineName} Like ${ctx.searchParams.title}`];
 };
+
 
 /** 建立紀事表列表完整 QueryParam */
 const buildTimelineQueryParam = (ctx: { searchParams: TimelineSearchParams; searchCondition: string; }): QueryListParam =>
@@ -177,6 +209,7 @@ const buildTimelineQueryParam = (ctx: { searchParams: TimelineSearchParams; sear
 
     return { Fields: fields, Condition: condition, OrderBy: [{ Col: TimelineFields.CreateTime, Desc: true }], PageNumber: 1, PageSize: 10 };
 };
+
 
 /** 建立紀事表列表查詢欄位 */
 const buildTimelineQueryFields = (): string[] =>
@@ -195,19 +228,6 @@ const buildTimelineQueryFields = (): string[] =>
     ];
 };
 
-type CrudDeps = {
-    /** React Router 導頁方法 */
-    navigate: NavigateFunction;
-
-    /** 目前 List 對應的 Form 路徑 */
-    dirUrl: string;
-
-    /** 刪除資料方法 */
-    deleteAsync: TimelineCudActions["deleteAsync"];
-
-    /** 刪除後重新查詢 */
-    afterDelete: () => Promise<void>;
-};
 
 /** 將紀事表資料轉為 GridProps */
 const buildTimelineGridProps = (
@@ -240,6 +260,7 @@ const buildTimelineGridProps = (
     });
 };
 
+
 /** 注入紀事表 Grid 編輯與刪除動作 */
 const enhanceTimelineGrid = (
     opt: {
@@ -270,11 +291,13 @@ const enhanceTimelineGrid = (
     });
 };
 
+
 /** 建立紀事表列表欄位定義 */
 const buildColumns = (visibleCols: string[], raw: TimelineListRawData): ColumnConfig[] =>
 {
     return visibleCols.map((col) => ({ key: col, title: getColumnTitle(raw.modelDisplayName, col, `【${col}】`) }));
 };
+
 
 /** 建立紀事表列表列資料 */
 const buildTimelineRows = (raw: TimelineListRawData, lang: Lang, columns: ColumnConfig[]): GridRow[] =>
@@ -286,12 +309,13 @@ const buildTimelineRows = (raw: TimelineListRawData, lang: Lang, columns: Column
             { col: columns[0], content: set.Timeline?.TimelineName ?? "" },
             { col: columns[1], content: buildTimelineItemList(set, lang) },
             { col: columns[2], content: set.Timeline?.ModifyUser?.AccountName ?? "" },
-            { col: columns[3], content: FormatDateTime(set.Timeline?.ModifyTime) },
+            { col: columns[3], content: formatDateTime(set.Timeline?.ModifyTime) },
         ];
 
         return { keyId, cells };
     });
 };
+
 
 /** 建立紀事表事件預覽清單 */
 const buildTimelineItemList = (set: TimelineSet, lang: Lang): ReactNode =>
@@ -308,6 +332,7 @@ const buildTimelineItemList = (set: TimelineSet, lang: Lang): ReactNode =>
     );
 };
 
+
 /** 建立紀事表事件顯示文字 */
 const buildTimelineItemTexts = (set: TimelineSet, lang: Lang): { key: string; text: string; }[] =>
 {
@@ -317,10 +342,11 @@ const buildTimelineItemTexts = (set: TimelineSet, lang: Lang): { key: string; te
 
         return details.map((detail, detailIndex) => ({
             key: `${item.RowId ?? itemIndex}-${detail.RowId ?? detailIndex}-${detail.Lang ?? lang}`,
-            text: `【${FormatDate(item.Date)}】${detail.Title ?? ""}`,
+            text: `【${formatDate(item.Date)}】${detail.Title ?? ""}`,
         }));
     });
 };
+
 
 /** 依欄位代碼取得 ModelDisplayName 顯示文字 */
 const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, columnId: string, fallback: string): string =>
@@ -330,6 +356,7 @@ const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, columnId: s
     return hit?.ColumnDisplayName ?? fallback;
 };
 
+
 /** 取得 SearchValue 的文字值 */
 const getSearchStringValue = (value: SearchValue): string | undefined =>
 {
@@ -338,3 +365,4 @@ const getSearchStringValue = (value: SearchValue): string | undefined =>
     const text = value.trim();
     return text.length > 0 ? text : undefined;
 };
+// #endregion

@@ -1,6 +1,7 @@
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { useCallback, useEffect, useState } from "react";
 
+// #region Property
 export interface UseFetchFormDataResult<T>
 {
     data: T;
@@ -10,7 +11,9 @@ export interface UseFetchFormDataResult<T>
     error: string | null;
     refetch: () => void;
 }
+// #endregion
 
+// #region Public
 /**
  * 通用取得表單資料 Hook，可用於新增或編輯模式
  * @param provider API provider，需實作 fetchData
@@ -58,3 +61,4 @@ export const useFetchFormData = <T>(provider: any, internalId?: string | null, e
     }, [internalId]);
     return { displayName, data, setFormData, isLoading, error, refetch: fetchData };
 };
+// #endregion

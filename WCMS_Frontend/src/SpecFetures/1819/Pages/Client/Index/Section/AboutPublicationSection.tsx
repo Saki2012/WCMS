@@ -8,10 +8,15 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import { useMemo } from "react";
 
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 type BannerSet = components["schemas"]["BannerSet_DTO"];
+
 type BannerDetail = NonNullable<BannerSet["BannerDetail"]>[number];
+
 type BannerDetailInfo = NonNullable<BannerSet["BannerDetailInfo"]>[number];
+
 
 interface AboutPublicationSectionProps
 {
@@ -19,53 +24,9 @@ interface AboutPublicationSectionProps
     aboutPublicationParam: QueryListParam;
     initialAboutPublicationBanner: BannerSet | null;
 }
+// #endregion
 
-const toOkEnv = <T,>(data: T): ApiResponse<T> =>
-{
-    // return：統一成功 env
-    return { IsSuccess: true, Data: data, SysMessage: [] };
-};
-
-const toListInitial = <T,>(args: QueryListParam, data: T[]) =>
-{
-    // return：統一 queryList initial 結構
-    return { args, apiRes: toOkEnv(data) };
-};
-
-const getBanner = (data?: BannerSet[]): BannerSet | null =>
-{
-    // return
-    return data?.[0] ?? null;
-};
-
-const getBannerContent = (banner: BannerSet | null, lang: Lang): string =>
-{
-    // 宣告變數
-    const infoList = banner?.BannerDetailInfo ?? [];
-    const content = infoList.find((p) => p.Lang === lang && (p.Content ?? "").trim() !== "")?.Content ?? "";
-
-    // return
-    return content;
-};
-
-const getBannerTitleByParentRowId = (banner: BannerSet | null, parentRowId: BannerDetailInfo["ParentRowId"], lang: Lang): string =>
-{
-    // 宣告變數
-    const infoList = banner?.BannerDetailInfo ?? [];
-    const title = infoList.find((p) => p.ParentRowId === parentRowId && p.Lang === lang)?.Title ?? "";
-
-    // return
-    return title;
-};
-
-const getIssueImage = (banner: BannerSet | null, idx: number, lang: Lang) =>
-{
-    const detail = banner?.BannerDetail?.[idx];
-    const title = detail ? getBannerTitleByParentRowId(banner, detail.RowId, lang) : "";
-    const src = FileManagementAPI.get_Public_Preview_Url(detail?.PicSrcId, title);
-    return { title, src };
-};
-
+// #region Public
 /** 關於本刊（Prototype: .AboutPublication_section） */
 export const AboutPublicationSection = (props: AboutPublicationSectionProps) =>
 {
@@ -200,5 +161,60 @@ export const AboutPublicationSection = (props: AboutPublicationSectionProps) =>
         </section>
     );
 };
+// #endregion
+
+// #region Private
+const toOkEnv = <T,>(data: T): ApiResponse<T> =>
+{
+    // return：統一成功 env
+    return { IsSuccess: true, Data: data, SysMessage: [] };
+};
+
+
+const toListInitial = <T,>(args: QueryListParam, data: T[]) =>
+{
+    // return：統一 queryList initial 結構
+    return { args, apiRes: toOkEnv(data) };
+};
+
+
+const getBanner = (data?: BannerSet[]): BannerSet | null =>
+{
+    // return
+    return data?.[0] ?? null;
+};
+
+
+const getBannerContent = (banner: BannerSet | null, lang: Lang): string =>
+{
+    // 宣告變數
+    const infoList = banner?.BannerDetailInfo ?? [];
+    const content = infoList.find((p) => p.Lang === lang && (p.Content ?? "").trim() !== "")?.Content ?? "";
+
+    // return
+    return content;
+};
+
+
+const getBannerTitleByParentRowId = (banner: BannerSet | null, parentRowId: BannerDetailInfo["ParentRowId"], lang: Lang): string =>
+{
+    // 宣告變數
+    const infoList = banner?.BannerDetailInfo ?? [];
+    const title = infoList.find((p) => p.ParentRowId === parentRowId && p.Lang === lang)?.Title ?? "";
+
+    // return
+    return title;
+};
+
+
+const getIssueImage = (banner: BannerSet | null, idx: number, lang: Lang) =>
+{
+    const detail = banner?.BannerDetail?.[idx];
+    const title = detail ? getBannerTitleByParentRowId(banner, detail.RowId, lang) : "";
+    const src = FileManagementAPI.get_Public_Preview_Url(detail?.PicSrcId, title);
+    return { title, src };
+};
+
 
 export default AboutPublicationSection;
+// #endregion

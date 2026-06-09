@@ -5,7 +5,7 @@ import "yet-another-react-lightbox/plugins/captions.css";
 import "yet-another-react-lightbox/plugins/counter.css";
 import "yet-another-react-lightbox/styles.css";
 import "yet-another-react-lightbox/plugins/thumbnails.css";
-import { useGalleryFormFetchData } from "@/Features/Pages/Client/BizFunc/WEB/Gallery/GalleryForm_Loader";
+import { useGalleryFormFetchData } from "@/Features/Pages/Client/BizFunc/WEB/Gallery/Client_Gallery_Form_Loader";
 import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
@@ -19,6 +19,7 @@ import Share from "yet-another-react-lightbox/plugins/share";
 import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 
+// #region Property
 type GallerySet = components["schemas"]["GallerySet_DTO"];
 
 interface PhotoInfos
@@ -26,7 +27,9 @@ interface PhotoInfos
     pictureInternalId: string;
     pictureDescription: string;
 }
+// #endregion
 
+// #region Private
 /** 取得當前語系的相簿資訊 */
 const getGalleryInfoByLang = (p: { data: GallerySet; lang: Lang; }) =>
 {
@@ -147,3 +150,4 @@ const TitleContentBar = ({ title, categoryName, content }: { title: string; cate
         <hr className="hr-Css" />
     </>
 );
+// #endregion

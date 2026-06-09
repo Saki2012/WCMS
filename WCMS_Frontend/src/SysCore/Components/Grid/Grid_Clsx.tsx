@@ -1,3 +1,4 @@
+// #region Property
 export interface IGridView_Style
 {
     TableStyle: string;
@@ -7,3 +8,4 @@ export interface IGridView_Style
     Even: string;
     CellStyle: string;
 }
+// #endregion

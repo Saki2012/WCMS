@@ -33,11 +33,17 @@ import {
 
 // #region Property
 type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
+
 type SpecJournalAuthor = components["schemas"]["SpecJournalAuthor_DTO"];
+
 type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
+
 type SpecJournalIndexDetailSet = components["schemas"]["SpecJournalIndexDetail_DTO"];
+
 type AuthorType = 0 | 1;
+
 type SpecJournalAdapterType = SpecJournalFormAdapter["SpecJournal"];
+
 
 const emptyData: SpecJournalSet = {
     SpecJournal: {},
@@ -50,6 +56,7 @@ const emptyData: SpecJournalSet = {
     SpecJournalTypes: [],
 };
 
+
 const editGridStyle: IEditGridView_Style = {
     TableStyle: "table table-striped table-bordered table-hover",
     ToolbarStyle: "d-flex align-items-center justify-content-between mb-2",
@@ -57,6 +64,9 @@ const editGridStyle: IEditGridView_Style = {
     DangerButtonStyle: "btn btn-danger btn-rounded btn-sm",
     ErrorStyle: "text-danger small mt-1",
 };
+
+
+const TAB_PREFIX = "REF_";
 // #endregion
 
 // #region Public
@@ -108,7 +118,6 @@ export const Server_SpecJournal_Form_Comp = (prop: { theme: IBETheme; lang: Lang
         />
     );
 };
-
 // #endregion
 
 // #region Section
@@ -179,6 +188,7 @@ const MainFormComp = (
     };
     return <TabContentComp tabInfos={tabInfo} components={components}></TabContentComp>;
 };
+
 
 const BasicComp = (
     props: {
@@ -455,6 +465,7 @@ const BasicComp = (
     );
 };
 
+
 const AuthorComp = (
     props: {
         theme: IBETheme;
@@ -677,7 +688,6 @@ const AuthorComp = (
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
 
-const TAB_PREFIX = "REF_";
 
 const RefFormatComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalSet>; }) =>
 {
@@ -881,6 +891,7 @@ const RefFormatComp = (props: { theme: IBETheme; formData: ServerFormBinding<Spe
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
 
+
 const FilesComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalSet>; }) =>
 {
     return (
@@ -902,6 +913,7 @@ const FilesComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJou
     );
 };
 
+
 const OpenPointComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalSet>; }) =>
 {
     const openPointGrid = useSpecJournalOpenPointFileEditGrid({ binding: props.formData, style: editGridStyle });
@@ -909,12 +921,14 @@ const OpenPointComp = (props: { theme: IBETheme; formData: ServerFormBinding<Spe
     return <EditGrid {...openPointGrid.editGridProps} />;
 };
 
+
 const RefFilesComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalSet>; }) =>
 {
     const refFileGrid = useSpecJournalRefFileEditGrid({ binding: props.formData, style: editGridStyle });
 
     return <EditGrid {...refFileGrid.editGridProps} />;
 };
+
 
 const KeywordComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalSet>; keywords: SpecJournalSet[]; }) =>
 {
@@ -1101,6 +1115,7 @@ const KeywordComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJ
     );
 };
 
+
 const DocumentsComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalSet>; specDocumentTypeOptionsRaw: Map<string, string>; }) =>
 {
     const documentGrid = useSpecJournalDocumentEditGrid({
@@ -1112,95 +1127,8 @@ const DocumentsComp = (props: { theme: IBETheme; formData: ServerFormBinding<Spe
     return <EditGrid {...documentGrid.editGridProps} />;
 };
 
-/** ✅ 共用：取下一個 RowId（明細用） */
-// #endregion
 
-// #region Private
-/** 取得明細下一個 RowId。 */
-const getNextRowId = (rows: Array<{ RowId?: number; }> = []): number =>
-{
-    // 取最大 RowId + 1
-    const maxId = rows.reduce((max, r) => (typeof r.RowId === "number" && r.RowId > max ? r.RowId : max), 0);
-    return maxId + 1;
-};
 
-/** ✅ 共用：debounce（停止輸入 delayMs 後才更新值） */
-const useDebouncedValue = (value: string, delayMs: number): string =>
-{
-    const [debounced, setDebounced] = useState<string>(value);
-
-    useEffect(() =>
-    {
-        const t = window.setTimeout(() => setDebounced(value), delayMs);
-        return () => window.clearTimeout(t);
-    }, [value, delayMs]);
-
-    return debounced;
-};
-
-/** ✅ Header 下拉：IndexId -> IndexName */
-const buildIndexHeaderOptions = (rawData: SpecJournalIndexSet[] = []): Map<string, string> =>
-{
-    return rawData.reduce<Map<string, string>>((acc, x) =>
-    {
-        const id = String(x?.SpecJournalIndex?.IndexId ?? "");
-        const name = String(x?.SpecJournalIndex?.IndexName ?? "");
-        if (!id) return acc;
-        acc.set(id, name || id);
-        return acc;
-    }, new Map<string, string>());
-};
-
-/** ✅ Detail 下拉：IndexId -> (RowId -> "X卷Y期") */
-const buildIndexDetailOptionsByIndexId = (rawData: SpecJournalIndexSet[] = []): Record<string, Map<string, string>> =>
-{
-    return rawData.reduce<Record<string, Map<string, string>>>((acc, x) =>
-    {
-        const indexId = String(x?.SpecJournalIndex?.IndexId ?? "");
-        if (!indexId) return acc;
-
-        const details = ((x?.SpecJournalIndexDetail ?? []) as SpecJournalIndexDetailSet[]).slice().sort((a, b) =>
-        {
-            const volumeA = Number(a?.Volume ?? 0);
-            const volumeB = Number(b?.Volume ?? 0);
-            const issueA = Number(a?.Issue ?? 0);
-            const issueB = Number(b?.Issue ?? 0);
-
-            if (volumeA !== volumeB) return volumeA - volumeB;
-            return issueA - issueB;
-        });
-
-        const dict = details.reduce<Map<string, string>>((dAcc, d) =>
-        {
-            const rowId = String(d?.RowId ?? "");
-            if (!rowId) return dAcc;
-
-            const v = d?.Volume ?? "";
-            const i = d?.Issue ?? "";
-            const label = `${v}卷${i}期`;
-
-            dAcc.set(rowId, label);
-            return dAcc;
-        }, new Map<string, string>());
-
-        acc[indexId] = dict;
-        return acc;
-    }, {});
-};
-
-/** ✅ ArticleLang 下拉：LangCode -> 顯示名稱（來源：lang.ts） */
-const buildArticleLangOptions = (): Map<string, string> =>
-{
-    return SUPPORTED_LANGS.reduce<Map<string, string>>((acc, lang) =>
-    {
-        acc.set(String(lang), LangLabelMap[lang] ?? String(lang));
-        return acc;
-    }, new Map<string, string>());
-};
-
-// #endregion
-
-// #region EntityComp
 /** 發佈期刊 / 退回預刊功能 Bar（內含 Dialog 狀態） */
 const ModeActionBarComp = (
     props: {
@@ -1297,5 +1225,96 @@ const ModeActionBarComp = (
             />
         </>
     );
+};
+// #endregion
+
+// #region EntityComp
+/** ✅ Header 下拉：IndexId -> IndexName */
+const buildIndexHeaderOptions = (rawData: SpecJournalIndexSet[] = []): Map<string, string> =>
+{
+    return rawData.reduce<Map<string, string>>((acc, x) =>
+    {
+        const id = String(x?.SpecJournalIndex?.IndexId ?? "");
+        const name = String(x?.SpecJournalIndex?.IndexName ?? "");
+        if (!id) return acc;
+        acc.set(id, name || id);
+        return acc;
+    }, new Map<string, string>());
+};
+
+
+/** ✅ Detail 下拉：IndexId -> (RowId -> "X卷Y期") */
+const buildIndexDetailOptionsByIndexId = (rawData: SpecJournalIndexSet[] = []): Record<string, Map<string, string>> =>
+{
+    return rawData.reduce<Record<string, Map<string, string>>>((acc, x) =>
+    {
+        const indexId = String(x?.SpecJournalIndex?.IndexId ?? "");
+        if (!indexId) return acc;
+
+        const details = ((x?.SpecJournalIndexDetail ?? []) as SpecJournalIndexDetailSet[]).slice().sort((a, b) =>
+        {
+            const volumeA = Number(a?.Volume ?? 0);
+            const volumeB = Number(b?.Volume ?? 0);
+            const issueA = Number(a?.Issue ?? 0);
+            const issueB = Number(b?.Issue ?? 0);
+
+            if (volumeA !== volumeB) return volumeA - volumeB;
+            return issueA - issueB;
+        });
+
+        const dict = details.reduce<Map<string, string>>((dAcc, d) =>
+        {
+            const rowId = String(d?.RowId ?? "");
+            if (!rowId) return dAcc;
+
+            const v = d?.Volume ?? "";
+            const i = d?.Issue ?? "";
+            const label = `${v}卷${i}期`;
+
+            dAcc.set(rowId, label);
+            return dAcc;
+        }, new Map<string, string>());
+
+        acc[indexId] = dict;
+        return acc;
+    }, {});
+};
+
+
+/** ✅ ArticleLang 下拉：LangCode -> 顯示名稱（來源：lang.ts） */
+const buildArticleLangOptions = (): Map<string, string> =>
+{
+    return SUPPORTED_LANGS.reduce<Map<string, string>>((acc, lang) =>
+    {
+        acc.set(String(lang), LangLabelMap[lang] ?? String(lang));
+        return acc;
+    }, new Map<string, string>());
+};
+// #endregion
+
+// #region Private
+/** ✅ 共用：取下一個 RowId（明細用） */
+
+/** 取得明細下一個 RowId。 */
+const getNextRowId = (rows: Array<{ RowId?: number; }> = []): number =>
+{
+    // 取最大 RowId + 1
+    const maxId = rows.reduce((max, r) => (typeof r.RowId === "number" && r.RowId > max ? r.RowId : max), 0);
+    return maxId + 1;
+};
+
+
+/** ✅ 共用：debounce（停止輸入 delayMs 後才更新值） */
+const useDebouncedValue = (value: string, delayMs: number): string =>
+{
+    const [debounced, setDebounced] = useState<string>(value);
+
+    useEffect(() =>
+    {
+        const t = window.setTimeout(() => setDebounced(value), delayMs);
+        return () => window.clearTimeout(t);
+    }, [value, delayMs]);
+
+    return debounced;
 };
 // #endregion

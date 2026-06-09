@@ -1,5 +1,6 @@
 import { clsx } from "clsx";
 
+// #region Property
 export interface IPaginator_Style
 {
     ul: string;
@@ -10,7 +11,9 @@ export interface IPaginator_Style
     NextPage: string;
     LastPage: string;
 }
+// #endregion
 
+// #region Public
 export const Classic_Paginator = {
     ul: clsx("pagination"),
     li: clsx("page-item"),
@@ -20,3 +23,4 @@ export const Classic_Paginator = {
     NextPage: clsx("far", "fa-angle-right"),
     LastPage: clsx("far", "fa-arrow-to-right"),
 };
+// #endregion

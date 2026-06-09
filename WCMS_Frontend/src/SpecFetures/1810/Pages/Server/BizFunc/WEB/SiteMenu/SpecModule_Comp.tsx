@@ -9,15 +9,20 @@ import type { components } from "@/types/api";
 import { PGID, SiteMenu_Item_ModuleFields, SiteMenuSetFields } from "@/types/SchemaFields";
 import { useMemo } from "react";
 
+// #region Property
 type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"];
+
 type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"];
+
 type TagSet = components["schemas"]["TagSet_DTO"];
+
 
 interface ModuleOptionsJson
 {
     Category: string;
     Tag: string;
 }
+
 
 interface SpecModuleProps
 {
@@ -28,6 +33,7 @@ interface SpecModuleProps
     tagSets: TagSet[];
 }
 
+
 interface SpecModuleBaseProps extends SpecModuleProps
 {
     progId: PGID;
@@ -35,8 +41,11 @@ interface SpecModuleBaseProps extends SpecModuleProps
     tagTitle: string;
 }
 
-const moduleOptionsDefaults: ModuleOptionsJson = { Category: "", Tag: "" };
 
+const moduleOptionsDefaults: ModuleOptionsJson = { Category: "", Tag: "" };
+// #endregion
+
+// #region Public
 /** 研究計畫模型參數 */
 export const Module_SpecResearch_Comp = (prop: SpecModuleProps): React.ReactNode =>
 {
@@ -44,13 +53,16 @@ export const Module_SpecResearch_Comp = (prop: SpecModuleProps): React.ReactNode
     return <Module_SpecBase_Comp {...prop} progId={PGID.SpecResearch} categoryTitle="研究計畫類別" tagTitle="研究計畫標籤" />;
 };
 
+
 /** 計畫成果模型參數 */
 export const Module_SpecUSR_Comp = (prop: SpecModuleProps): React.ReactNode =>
 {
     // return
     return <Module_SpecBase_Comp {...prop} progId={PGID.SpecUSR} categoryTitle="計畫成果類別" tagTitle="計畫成果標籤" />;
 };
+// #endregion
 
+// #region Section
 /** 1810 Spec 模型共用參數 */
 const Module_SpecBase_Comp = (prop: SpecModuleBaseProps): React.ReactNode =>
 {
@@ -91,7 +103,9 @@ const Module_SpecBase_Comp = (prop: SpecModuleBaseProps): React.ReactNode =>
         </>
     );
 };
+// #endregion
 
+// #region Private
 /** 取得目前選取項目的 Module row key */
 const getModuleRowKeys = (selectedItemEdit: SiteMenuItem | null) =>
 {
@@ -101,6 +115,7 @@ const getModuleRowKeys = (selectedItemEdit: SiteMenuItem | null) =>
         [SiteMenu_Item_ModuleFields.ItemRowId]: selectedItemEdit?.menuItem.RowId,
     };
 };
+
 
 /** 依 ProgId 取得 1810 SpecCategory 下拉資料 */
 const useGetSpecCategoryOptions = (progId: PGID, lang: Lang): Map<string, string> =>
@@ -127,6 +142,7 @@ const useGetSpecCategoryOptions = (progId: PGID, lang: Lang): Map<string, string
     return options;
 };
 
+
 /** 依 ProgId 取得共用 Tag 勾選資料 */
 const useGetTagDict = (progId: PGID, lang: Lang, tagSets: TagSet[]): Record<string, string> =>
 {
@@ -149,3 +165,4 @@ const useGetTagDict = (progId: PGID, lang: Lang, tagSets: TagSet[]): Record<stri
     // return
     return tagDic;
 };
+// #endregion

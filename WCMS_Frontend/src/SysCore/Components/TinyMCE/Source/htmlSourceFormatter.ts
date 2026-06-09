@@ -1,8 +1,14 @@
+// #region Property
 const ELEMENT_NODE = 1;
+
 const TEXT_NODE = 3;
+
 const COMMENT_NODE = 8;
+
 const INDENT_UNIT = "  ";
+
 const ATTRIBUTE_WRAP_WIDTH = 120;
+
 
 const VOID_ELEMENTS = new Set([
     "area",
@@ -21,9 +27,29 @@ const VOID_ELEMENTS = new Set([
     "wbr",
 ]);
 
-const PRESERVE_OUTER_HTML = new Set(["pre", "script", "style", "textarea"]);
 
+const PRESERVE_OUTER_HTML = new Set(["pre", "script", "style", "textarea"]);
+// #endregion
+
+// #region Public
+export const formatHtmlSource = (html: string) =>
+{
+    if (typeof DOMParser === "undefined") return html;
+    if (html.trim().length === 0) return html;
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+    const blocks = Array.from(doc.body.childNodes)
+        .map((node) => serializeBlockNode(node, 0))
+        .filter((block) => block.length > 0);
+
+    return blocks.join("\n");
+};
+// #endregion
+
+// #region Private
 const repeatIndent = (depth: number) => INDENT_UNIT.repeat(depth);
+
 
 const escapeText = (value: string) =>
 {
@@ -34,20 +60,24 @@ const escapeText = (value: string) =>
         .replace(/\u00a0/g, "&nbsp;");
 };
 
+
 const escapeAttribute = (value: string) =>
 {
     return escapeText(value).replace(/"/g, "&quot;");
 };
+
 
 const isMeaningfulTextNode = (node: ChildNode) =>
 {
     return node.nodeType === TEXT_NODE && (node.textContent ?? "").trim().length > 0;
 };
 
+
 const isIgnorableWhitespaceNode = (node: ChildNode) =>
 {
     return node.nodeType === TEXT_NODE && (node.textContent ?? "").trim().length === 0;
 };
+
 
 const createStartTag = (element: Element, depth: number) =>
 {
@@ -73,10 +103,12 @@ const createStartTag = (element: Element, depth: number) =>
     ].join("\n");
 };
 
+
 const createEndTag = (element: Element) =>
 {
     return VOID_ELEMENTS.has(element.tagName.toLowerCase()) ? "" : `</${element.tagName.toLowerCase()}>`;
 };
+
 
 const indentMultiline = (value: string, depth: number) =>
 {
@@ -86,6 +118,7 @@ const indentMultiline = (value: string, depth: number) =>
         .map((line) => line.length > 0 ? `${indent}${line}` : line)
         .join("\n");
 };
+
 
 const serializeInlineNode = (node: ChildNode, depth: number): string =>
 {
@@ -107,6 +140,7 @@ const serializeInlineNode = (node: ChildNode, depth: number): string =>
 
     return `${startTag}${innerHtml}${createEndTag(element)}`;
 };
+
 
 const serializeBlockNode = (node: ChildNode, depth: number): string =>
 {
@@ -147,17 +181,4 @@ const serializeBlockNode = (node: ChildNode, depth: number): string =>
 
     return `${indent}${startTag}\n${childBlocks.join("\n")}\n${indent}${endTag}`;
 };
-
-export const formatHtmlSource = (html: string) =>
-{
-    if (typeof DOMParser === "undefined") return html;
-    if (html.trim().length === 0) return html;
-
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, "text/html");
-    const blocks = Array.from(doc.body.childNodes)
-        .map((node) => serializeBlockNode(node, 0))
-        .filter((block) => block.length > 0);
-
-    return blocks.join("\n");
-};
+// #endregion

@@ -7,15 +7,93 @@ import { LangGuard } from "@/SysCore/Utils/Route/LangGuardRoute";
 import { createBrowserRouter, type RouteObject } from "react-router-dom";
 import { createStaticHandler, createStaticRouter, type StaticHandlerContext } from "react-router-dom/server";
 
-
+// #region Property
 type BrowserRouterOptions = NonNullable<Parameters<typeof createBrowserRouter>[1]>;
+
 type WcmsInitialState = Readonly<{ hydrationData?: BrowserRouterOptions["hydrationData"]; }>;
 
+
+interface Boot
+{
+    lang?: Lang;
+    cookieLang?: Lang;
+    module: IRouteModule;
+}
+
+
+export type ServerRouterBuildResult = { kind: "router"; router: ReturnType<typeof createStaticRouter>; context: StaticHandlerContext; } | {
+    kind: "response";
+    response: Response;
+};
+// #endregion
+
+// #region Public
+export const buildRoutes = async (boot: Boot): Promise<RouteObject[]> =>
+{
+    const routes = await boot.module.getRoutes(); // 等待 Promise
+    const children = normalizeChildren(routes);
+
+    return [
+        // /:lang 家族（只做語系正規化）
+        {
+            path: "/:lang",
+            loader: langGuardLoader,
+            element: <LangGuard ssrAcceptLang={boot.lang} cookieLang={boot.cookieLang} />, // 元件內只用 useLoaderData 取 resolvedLang；不再 useNavigate 導頁
+            children: [{ path: "404", element: <Error404Page /> }, ...children, { path: "*", element: <Error404Page /> }],
+        },
+        // 根 "/" 家族（不 redirect，只注入語系）
+        {
+            path: "/",
+            loader: langGuardLoader,
+            element: <LangGuard ssrAcceptLang={boot.lang} cookieLang={boot.cookieLang} />,
+            children: [{ path: "404", element: <Error404Page /> }, ...children, { path: "*", element: <Error404Page /> }],
+        },
+    ];
+};
+
+
+export const createClientRouter = async (boot: Boot) =>
+{
+    const routes = await buildRoutes(boot);
+    assertNoIndexWithChildren(routes);
+
+    const hydrationData = typeof window !== "undefined" ? getWindowInitialState()?.hydrationData : undefined;
+
+    return hydrationData ? createBrowserRouter(routes, { hydrationData }) : createBrowserRouter(routes);
+};
+
+
+export const createServerRouter = async (boot: Boot, request: Request): Promise<ServerRouterBuildResult> =>
+{
+    // 宣告變數
+    const routes = await buildRoutes(boot);
+
+    // 執行 function
+    assertNoIndexWithChildren(routes);
+
+    const handler = createStaticHandler(routes);
+    const queryResult = await handler.query(request);
+
+    // ✅ loader redirect / errors 會回 Response，SSR 端必須先處理掉
+    if (queryResult instanceof Response)
+    {
+        return { kind: "response", response: queryResult };
+    }
+
+    const router = createStaticRouter(handler.dataRoutes, queryResult);
+
+    // return
+    return { kind: "router", router, context: queryResult };
+};
+// #endregion
+
+// #region Private
 const getWindowInitialState = (): WcmsInitialState | undefined =>
 {
     const win = window as Window & { __INITIAL_STATE__?: WcmsInitialState; };
     return win.__INITIAL_STATE__;
 };
+
 
 // 把模組的絕對子路徑轉相對；"/" 改成 index:true
 const normalizeChildren = (routes: RouteObject[]): RouteObject[] =>
@@ -56,35 +134,6 @@ const normalizeChildren = (routes: RouteObject[]): RouteObject[] =>
         return clone;
     });
 
-interface Boot
-{
-    lang?: Lang;
-    cookieLang?: Lang;
-    module: IRouteModule;
-}
-
-export const buildRoutes = async (boot: Boot): Promise<RouteObject[]> =>
-{
-    const routes = await boot.module.getRoutes(); // 等待 Promise
-    const children = normalizeChildren(routes);
-
-    return [
-        // /:lang 家族（只做語系正規化）
-        {
-            path: "/:lang",
-            loader: langGuardLoader,
-            element: <LangGuard ssrAcceptLang={boot.lang} cookieLang={boot.cookieLang} />, // 元件內只用 useLoaderData 取 resolvedLang；不再 useNavigate 導頁
-            children: [{ path: "404", element: <Error404Page /> }, ...children, { path: "*", element: <Error404Page /> }],
-        },
-        // 根 "/" 家族（不 redirect，只注入語系）
-        {
-            path: "/",
-            loader: langGuardLoader,
-            element: <LangGuard ssrAcceptLang={boot.lang} cookieLang={boot.cookieLang} />,
-            children: [{ path: "404", element: <Error404Page /> }, ...children, { path: "*", element: <Error404Page /> }],
-        },
-    ];
-};
 
 const assertNoIndexWithChildren = (routes: RouteObject[], parent = "") =>
 {
@@ -99,41 +148,4 @@ const assertNoIndexWithChildren = (routes: RouteObject[], parent = "") =>
         if (r.children?.length) assertNoIndexWithChildren(r.children, here);
     }
 };
-
-export const createClientRouter = async (boot: Boot) =>
-{
-    const routes = await buildRoutes(boot);
-    assertNoIndexWithChildren(routes);
-
-    const hydrationData = typeof window !== "undefined" ? getWindowInitialState()?.hydrationData : undefined;
-
-    return hydrationData ? createBrowserRouter(routes, { hydrationData }) : createBrowserRouter(routes);
-};
-
-export type ServerRouterBuildResult = { kind: "router"; router: ReturnType<typeof createStaticRouter>; context: StaticHandlerContext; } | {
-    kind: "response";
-    response: Response;
-};
-
-export const createServerRouter = async (boot: Boot, request: Request): Promise<ServerRouterBuildResult> =>
-{
-    // 宣告變數
-    const routes = await buildRoutes(boot);
-
-    // 執行 function
-    assertNoIndexWithChildren(routes);
-
-    const handler = createStaticHandler(routes);
-    const queryResult = await handler.query(request);
-
-    // ✅ loader redirect / errors 會回 Response，SSR 端必須先處理掉
-    if (queryResult instanceof Response)
-    {
-        return { kind: "response", response: queryResult };
-    }
-
-    const router = createStaticRouter(handler.dataRoutes, queryResult);
-
-    // return
-    return { kind: "router", router, context: queryResult };
-};
+// #endregion

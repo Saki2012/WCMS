@@ -1,13 +1,17 @@
 /**預覽功能模組 */
 import { useEffect, useState } from "react";
 
-type ModuleKey = "announcement" | "pagemanagement"; // 先列你會用到的模組
+// #region Property
+type ModuleKey = "announcement" | "pagemanagement";
+ // 先列你會用到的模組
 type Msg = { type: "wcms:preview"; module: ModuleKey; payload: { kind: "dto"; lang?: string; dto: any; }; } | {
     type: "wcms:preview";
     module: ModuleKey;
     payload: { kind: "internalId"; lang?: string; mode?: "db" | "public"; internalId: string; };
 };
+// #endregion
 
+// #region Public
 export default function TemplateHub(props: { site: any; defaultLang: string; })
 {
     const { defaultLang } = props;
@@ -73,7 +77,9 @@ export default function TemplateHub(props: { site: any; defaultLang: string; })
             return <div className="p-4">未知模組。</div>;
     }
 }
+// #endregion
 
+// #region Private
 /** —— 以下兩個函式暫時用假資料打通；等你接 adapter —— */
 async function adaptDto(module: ModuleKey, dto: any, lang: string)
 {
@@ -85,6 +91,7 @@ async function adaptDto(module: ModuleKey, dto: any, lang: string)
     }
     return dto;
 }
+
 
 async function fetchById(module: ModuleKey, internalId: string, lang: string, mode: "db" | "public")
 {
@@ -109,3 +116,4 @@ async function fetchById(module: ModuleKey, internalId: string, lang: string, mo
     }
     return {};
 }
+// #endregion

@@ -1,11 +1,14 @@
 import { useId } from "react";
 import type { ILibFileProp } from "./LibFile_Data";
 
+// #region Property
 interface LibFileithParentClassProp extends ILibFileProp
 {
     parentClass?: string; // 新增
 }
+// #endregion
 
+// #region Private
 const LibFile = ({ children, ...prop }: LibFileithParentClassProp) =>
 {
     const inputId = useId();
@@ -49,4 +52,6 @@ const LibFile = ({ children, ...prop }: LibFileithParentClassProp) =>
     );
 };
 
+
 export default LibFile;
+// #endregion

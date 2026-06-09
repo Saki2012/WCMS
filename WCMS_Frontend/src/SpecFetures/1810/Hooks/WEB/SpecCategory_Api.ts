@@ -16,32 +16,23 @@ import type { AxiosInstance } from "axios";
 import { useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 
+// #region Property
 type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"];
+
 type SpecCategoryDetail = components["schemas"]["SpecCategoryDetailModel_DTO"];
+
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 type ShowColumnMap = Record<string, string>;
+
 type ShowColumnMapList = ShowColumnMap[];
+
 type CateMapArgs = { progId: PGID; lang: Lang; };
+
 type CateMapData = { list: SpecCategorySet[]; map: Record<string, string>; };
+
 type ShowColumnRaw = ShowColumnMap | ShowColumnMapList;
 
-class SpecCategoryService extends ApiDataService<SpecCategorySet>
-{
-    // #region Construct
-    constructor(apiInstance?: AxiosInstance)
-    {
-        super(PGID.SpecCategory, apiInstance);
-    }
-    // #endregion
-
-    // #region Public
-    /** 依 ProgId 取得顯示欄位原始資料 */
-    async getShowColumnItems(progId: PGID): Promise<ApiResponse<ShowColumnRaw>>
-    {
-        return await this.CallApi<ShowColumnRaw>(() => this.Api.get<ApiResponse<ShowColumnRaw>>(`${this.Module}/GetShowColumnItems`, { params: { progId } }));
-    }
-    // #endregion
-}
 
 type SpecExtraLoaders = {
     /** 取得顯示欄位 map */
@@ -54,6 +45,7 @@ type SpecExtraLoaders = {
         opt: { getArgs: (args: LoaderFunctionArgs) => CateMapArgs; getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; },
     ) => (args: LoaderFunctionArgs) => Promise<ApiLoaderData<CateMapArgs, CateMapData>>;
 };
+
 
 type SpecExtraHooks = {
     /** 取得顯示欄位 map */
@@ -79,37 +71,36 @@ type SpecExtraHooks = {
         refetch: () => Promise<void>;
     };
 };
+// #endregion
+
+// #region Public
+class SpecCategoryService extends ApiDataService<SpecCategorySet>
+{
+    // #region Public
+    constructor(apiInstance?: AxiosInstance)
+    {
+        super(PGID.SpecCategory, apiInstance);
+    }
+
+
+    /** 依 ProgId 取得顯示欄位原始資料 */
+    async getShowColumnItems(progId: PGID): Promise<ApiResponse<ShowColumnRaw>>
+    {
+        return await this.CallApi<ShowColumnRaw>(() => this.Api.get<ApiResponse<ShowColumnRaw>>(`${this.Module}/GetShowColumnItems`, { params: { progId } }));
+    }
+    // #endregion
+}
+
 
 class SpecCategoryAdapterImpl extends ApiDataAdapter<SpecCategorySet, SpecCategoryService>
 {
     // #region Property
     declare public loader: ApiDataLoaderGroup<SpecCategorySet> & SpecExtraLoaders;
+
     declare public hooks: ApiDataHookGroup<SpecCategorySet> & SpecExtraHooks;
-    // #endregion
 
-    // #region Protect Virtual Func
-    protected override buildExtendedLoader(base: ApiDataLoaderGroup<SpecCategorySet>): ApiDataLoaderGroup<SpecCategorySet> & SpecExtraLoaders
-    {
-        return {
-            ...base,
-            getShowColItemsLoader: (opt: Parameters<SpecExtraLoaders["getShowColItemsLoader"]>[0]) => this.getShowColItemsLoader(opt),
-            getCateMapByProgIdLoader: (opt: Parameters<SpecExtraLoaders["getCateMapByProgIdLoader"]>[0]) => this.getCateMapByProgIdLoader(opt),
-        };
-    }
 
-    protected override buildExtendedHooks(base: ApiDataHookGroup<SpecCategorySet>): ApiDataHookGroup<SpecCategorySet> & SpecExtraHooks
-    {
-        return {
-            ...base,
-            useGetShowColItems: (opt: Parameters<SpecExtraHooks["useGetShowColItems"]>[0]) => this.useGetShowColItems(opt),
-            useMapByProgId: (opt: Parameters<SpecExtraHooks["useMapByProgId"]>[0]) => this.useMapByProgId(opt),
-        };
-    }
-    // #endregion
 
-    // #region Private
-
-    // #region Loader Func
     /** 載入顯示欄位 map */
     private getShowColItemsLoader: SpecExtraLoaders["getShowColItemsLoader"] = (opt) =>
     {
@@ -121,6 +112,7 @@ class SpecCategoryAdapterImpl extends ApiDataAdapter<SpecCategorySet, SpecCatego
         });
     };
 
+
     /** 載入 Category map */
     private getCateMapByProgIdLoader: SpecExtraLoaders["getCateMapByProgIdLoader"] = (opt) =>
     {
@@ -131,9 +123,8 @@ class SpecCategoryAdapterImpl extends ApiDataAdapter<SpecCategorySet, SpecCatego
             getApiInstance: opt.getApiInstance,
         });
     };
-    // #endregion
 
-    // #region Hook Func
+
     /** 取得 Category map */
     private useMapByProgId: SpecExtraHooks["useMapByProgId"] = (opt) =>
     {
@@ -155,6 +146,7 @@ class SpecCategoryAdapterImpl extends ApiDataAdapter<SpecCategorySet, SpecCatego
 
         return { ...r, data, map };
     };
+
 
     /** 取得顯示欄位 map */
     private useGetShowColItems: SpecExtraHooks["useGetShowColItems"] = (opt) =>
@@ -179,6 +171,28 @@ class SpecCategoryAdapterImpl extends ApiDataAdapter<SpecCategorySet, SpecCatego
     };
     // #endregion
 
+    // #region Public
+    protected override buildExtendedLoader(base: ApiDataLoaderGroup<SpecCategorySet>): ApiDataLoaderGroup<SpecCategorySet> & SpecExtraLoaders
+    {
+        return {
+            ...base,
+            getShowColItemsLoader: (opt: Parameters<SpecExtraLoaders["getShowColItemsLoader"]>[0]) => this.getShowColItemsLoader(opt),
+            getCateMapByProgIdLoader: (opt: Parameters<SpecExtraLoaders["getCateMapByProgIdLoader"]>[0]) => this.getCateMapByProgIdLoader(opt),
+        };
+    }
+
+
+    protected override buildExtendedHooks(base: ApiDataHookGroup<SpecCategorySet>): ApiDataHookGroup<SpecCategorySet> & SpecExtraHooks
+    {
+        return {
+            ...base,
+            useGetShowColItems: (opt: Parameters<SpecExtraHooks["useGetShowColItems"]>[0]) => this.useGetShowColItems(opt),
+            useMapByProgId: (opt: Parameters<SpecExtraHooks["useMapByProgId"]>[0]) => this.useMapByProgId(opt),
+        };
+    }
+    // #endregion
+
+    // #region Private
     /** 建立 Category map 查詢條件 */
     private buildCateMapQuery(a: CateMapArgs): QueryListParam
     {
@@ -198,6 +212,7 @@ class SpecCategoryAdapterImpl extends ApiDataAdapter<SpecCategorySet, SpecCatego
         return { Fields: fields, Condition: condition, OrderBy: [{ Col: SpecCategoryModelFields.ModifyTime, Desc: true }], PageNumber: 0, PageSize: 0 };
     }
 
+
     /** 把 Category list 轉成 map */
     private buildCateMap(rows: SpecCategorySet[], lang: Lang): Record<string, string>
     {
@@ -215,6 +230,7 @@ class SpecCategoryAdapterImpl extends ApiDataAdapter<SpecCategorySet, SpecCatego
         return map;
     }
 
+
     /** 取後端 Data 第一筆 dictionary */
     private pickShowColumnMap(raw?: ShowColumnRaw | null): ShowColumnMap
     {
@@ -222,6 +238,7 @@ class SpecCategoryAdapterImpl extends ApiDataAdapter<SpecCategorySet, SpecCatego
         if (Array.isArray(raw)) return raw[0] ?? {};
         return raw;
     }
+
 
     /** 查詢顯示欄位 map */
     private async queryShowColItemsAsync(svc: SpecCategoryService, progId: PGID): Promise<ApiResponse<ShowColumnMap>>
@@ -232,6 +249,7 @@ class SpecCategoryAdapterImpl extends ApiDataAdapter<SpecCategorySet, SpecCatego
         const map = this.pickShowColumnMap(env.Data);
         return { IsSuccess: true, Data: map, SysMessage: env.SysMessage ?? [] };
     }
+
 
     /** 查詢 Category map */
     private async queryCateMapByProgIdAsync(svc: SpecCategoryService, a: CateMapArgs): Promise<ApiResponse<CateMapData>>
@@ -249,5 +267,7 @@ class SpecCategoryAdapterImpl extends ApiDataAdapter<SpecCategorySet, SpecCatego
     // #endregion
 }
 
+
 export const SpecCategoryAdapter = (apiInstance?: AxiosInstance) =>
     new SpecCategoryAdapterImpl((api?: AxiosInstance) => new SpecCategoryService(api ?? apiInstance));
+// #endregion

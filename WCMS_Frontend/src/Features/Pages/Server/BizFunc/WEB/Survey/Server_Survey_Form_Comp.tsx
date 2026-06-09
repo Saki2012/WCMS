@@ -25,6 +25,7 @@ import {
 // #region Property
 type SurveySet = components["schemas"]["SurveySet_DTO"];
 
+
 interface SurveyFormCompProps
 {
     /** 後台主題設定 */
@@ -33,6 +34,7 @@ interface SurveyFormCompProps
     /** 目前語系 */
     lang: Lang;
 }
+
 
 interface SurveyContentProps
 {
@@ -49,6 +51,7 @@ interface SurveyContentProps
     inputOpts: Record<string, string>;
 }
 
+
 interface HeaderSectionProps
 {
     /** 後台主題設定 */
@@ -58,11 +61,13 @@ interface HeaderSectionProps
     binding: ServerFormBinding<SurveySet>;
 }
 
+
 interface HeaderTabContentOptions extends HeaderSectionProps
 {
     /** 欄位 binding helper */
     setField: ReturnType<typeof useSetTableField<SurveySet>>;
 }
+
 
 interface SurveyItemLangGridProps extends SurveyContentProps
 {
@@ -72,6 +77,7 @@ interface SurveyItemLangGridProps extends SurveyContentProps
     /** 子層 Grid 編輯狀態變化，回報給父層避免資料語意錯位 */
     onEditingStateChange: (args: EditGridEditingStateArgs) => void;
 }
+
 
 const editGridStyle: IEditGridView_Style = {
     TableStyle: "table table-striped table-bordered table-hover",
@@ -146,6 +152,7 @@ const SurveyContentComp = (props: SurveyContentProps) =>
     );
 };
 
+
 /** 問卷 Header 區塊，保留舊版 Header input 並改用 Template Binding。 */
 const HeaderComp = (props: HeaderSectionProps) =>
 {
@@ -160,6 +167,7 @@ const HeaderComp = (props: HeaderSectionProps) =>
         ></TabContentComp>
     );
 };
+
 
 /** 問卷欄位父層 Grid，透過查看按鈕展開語系明細。 */
 const SurveyItemGridComp = (props: SurveyContentProps) =>
@@ -202,6 +210,7 @@ const SurveyItemGridComp = (props: SurveyContentProps) =>
     );
 };
 
+
 /** 問卷欄位語系子明細 Grid，負責維護各語系欄位顯示名稱。 */
 const SurveyItemLangGridComp = (props: SurveyItemLangGridProps) =>
 {
@@ -240,6 +249,7 @@ const buildHeaderTabContent = (opt: HeaderTabContentOptions): Record<string, Rea
     };
 };
 
+
 /** 建立基本資料欄位。 */
 const buildBasicFields = (opt: HeaderTabContentOptions): ReactNode[] =>
 {
@@ -260,6 +270,15 @@ const buildBasicFields = (opt: HeaderTabContentOptions): ReactNode[] =>
     ];
 };
 
+
+/** 建立返回列表頁路徑。 */
+const buildBackToListPath = (pathname: string): string =>
+{
+    return pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
+};
+// #endregion
+
+// #region Private
 /** 問卷欄位語系明細展開按鈕。 */
 const SurveySubDetailToggleButton = (props: { row: GridRow; expandedRowKey: string | null; isSubDetailEditing: boolean; onToggle: (row: GridRow) => void; }) =>
 {
@@ -274,14 +293,7 @@ const SurveySubDetailToggleButton = (props: { row: GridRow; expandedRowKey: stri
         </button>
     );
 };
-// #endregion
 
-// #region Private
-/** 建立返回列表頁路徑。 */
-const buildBackToListPath = (pathname: string): string =>
-{
-    return pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
-};
 
 /** 取得 Grid Row key，讓展開狀態與 EditGrid 內部 row key 一致。 */
 const getSurveyGridRowKey = (row: GridRow | null | undefined, rowIndex?: number): string =>

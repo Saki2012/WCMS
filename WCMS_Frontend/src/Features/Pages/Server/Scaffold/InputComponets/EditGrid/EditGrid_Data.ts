@@ -1,11 +1,13 @@
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ReactNode } from "react";
 
-// #region Public Types
-
+// #region Property
 export type EditGridPrimitiveValue = string | number | boolean | null | undefined;
+
 export type EditGridOptionValue = string | number | boolean;
+
 export type EditGridSelectionMode = "single" | "multiple";
+
 export type EditGridInputType =
     | "text"
     | "email"
@@ -27,8 +29,11 @@ export type EditGridInputType =
     | "dateRange"
     | "dateTimeRange"
     | "readonly";
+
 export type EditGridRowState = "none" | "insert" | "update" | "delete";
+
 export type EditGridLang = Lang;
+
 
 export interface EditGridFileValue
 {
@@ -40,7 +45,9 @@ export interface EditGridFileValue
     size?: number;
 }
 
+
 export type EditGridCellValue = EditGridPrimitiveValue | EditGridOptionValue[] | EditGridFileValue;
+
 
 export interface EditGridCellValueChangeArgs
 {
@@ -53,6 +60,7 @@ export interface EditGridCellValueChangeArgs
     rawValue: unknown;
 }
 
+
 export interface EditGridCellValueChangeResult
 {
     /** 本次欄位要回寫的值 */
@@ -62,8 +70,11 @@ export interface EditGridCellValueChangeResult
     rowValues?: Record<string, EditGridCellValue>;
 }
 
+
 export type EditGridCellValueChangeReturn = EditGridCellValue | EditGridCellValueChangeResult;
+
 export type EditGridCellValueChangeHandler = (args: EditGridCellValueChangeArgs) => EditGridCellValueChangeReturn | Promise<EditGridCellValueChangeReturn>;
+
 
 export interface EditGridSelectOption
 {
@@ -71,6 +82,7 @@ export interface EditGridSelectOption
     value: EditGridOptionValue;
     disabled?: boolean;
 }
+
 
 export interface ColumnConfig
 {
@@ -105,6 +117,7 @@ export interface ColumnConfig
     validate?: (value: EditGridCellValue, row: GridRow, rowIndex: number) => string | undefined;
 }
 
+
 export interface RowCell
 {
     col: ColumnConfig;
@@ -136,6 +149,7 @@ export interface RowCell
     validate?: (value: EditGridCellValue, row: GridRow, rowIndex: number) => string | undefined;
 }
 
+
 export interface GridRow
 {
     keyId: string;
@@ -149,6 +163,7 @@ export interface GridRow
     rowno?: number;
 }
 
+
 export interface GridProps
 {
     columns: ColumnConfig[];
@@ -157,6 +172,7 @@ export interface GridProps
     TotalPage: number;
     onPageChange: (page: number) => void;
 }
+
 
 export interface EditGridCellRenderArgs
 {
@@ -172,6 +188,7 @@ export interface EditGridCellRenderArgs
     updateValues: (values: Record<string, EditGridCellValue>) => void;
 }
 
+
 export interface EditGridSubDetailRenderArgs
 {
     row: GridRow;
@@ -180,11 +197,13 @@ export interface EditGridSubDetailRenderArgs
     disabled: boolean;
 }
 
+
 export interface EditGridEditingStateArgs
 {
     editingKeys: string[];
     hasEditingRow: boolean;
 }
+
 
 export interface IEditGridView_Style
 {
@@ -200,6 +219,7 @@ export interface IEditGridView_Style
     ActionCellStyle?: string;
     ErrorStyle?: string;
 }
+
 
 export interface EditGridProps
 {
@@ -242,5 +262,4 @@ export interface EditGridProps
     subDetailRender?: (args: EditGridSubDetailRenderArgs) => ReactNode;
     onEditingStateChange?: (args: EditGridEditingStateArgs) => void;
 }
-
 // #endregion

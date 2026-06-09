@@ -8,8 +8,11 @@ import type { components } from "@/types/api";
 import { useMemo } from "react";
 import type { HomePageRawData } from "../HomePage_Loader";
 
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
+
 
 interface RelatedLinksSectionProps
 {
@@ -17,19 +20,9 @@ interface RelatedLinksSectionProps
     relatedLinksParam: QueryListParam;
     initialData: Pick<HomePageRawData, "relatedLinksList">;
 }
+// #endregion
 
-const toOkEnv = <T,>(data: T): ApiResponse<T> =>
-{
-    // return：統一成功 env
-    return { IsSuccess: true, Data: data, SysMessage: [] };
-};
-
-const toListInitial = <T,>(args: QueryListParam, data: T[]) =>
-{
-    // return：統一 queryList initial 結構
-    return { args, apiRes: toOkEnv(data) };
-};
-
+// #region Public
 /** 相關連結（Prototype: .RelatedLinks_section） */
 export const RelatedLinksSection = (props: RelatedLinksSectionProps) =>
 {
@@ -119,5 +112,22 @@ export const RelatedLinksSection = (props: RelatedLinksSectionProps) =>
         </section>
     );
 };
+// #endregion
+
+// #region Private
+const toOkEnv = <T,>(data: T): ApiResponse<T> =>
+{
+    // return：統一成功 env
+    return { IsSuccess: true, Data: data, SysMessage: [] };
+};
+
+
+const toListInitial = <T,>(args: QueryListParam, data: T[]) =>
+{
+    // return：統一 queryList initial 結構
+    return { args, apiRes: toOkEnv(data) };
+};
+
 
 export default RelatedLinksSection;
+// #endregion

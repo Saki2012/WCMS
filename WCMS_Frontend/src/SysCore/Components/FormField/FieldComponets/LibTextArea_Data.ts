@@ -1,3 +1,4 @@
+// #region Property
 export interface ILibTextAreaStyle
 {
     Labelstyle: string;
@@ -5,12 +6,14 @@ export interface ILibTextAreaStyle
     InputStyle: string;
 }
 
+
 export interface ILibTextAreaStyle2
 {
     Labelstyle: string;
     SelectStyle: string;
     InputStyle: string;
 }
+
 
 export interface ILibTextAreaProp
 {
@@ -20,3 +23,4 @@ export interface ILibTextAreaProp
     InputValue?: string | null | undefined;
     OnChange?: (value: string) => void;
 }
+// #endregion

@@ -1,4 +1,6 @@
 import type * as jquery from "jquery";
+
+// #region Property
 declare global
 {
     interface Window
@@ -12,12 +14,15 @@ declare global
     }
 }
 
+
 interface OwlCarouselProps
 {
     selectorId: string; // '#Event' or '#Gallery' or '#Video'
     itemCount: number; // items: 2 or 3 or 4
 }
+// #endregion
 
+// #region Public
 export function BaseCarousel({ selectorId, itemCount }: OwlCarouselProps)
 {
     if (typeof window === "undefined") return;
@@ -49,3 +54,4 @@ export function BaseCarousel({ selectorId, itemCount }: OwlCarouselProps)
         window.$(`${selectorId} .owl-nav button`).attr("tabIndex", "7");
     }
 }
+// #endregion

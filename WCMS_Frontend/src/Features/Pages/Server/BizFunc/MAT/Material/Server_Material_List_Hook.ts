@@ -12,7 +12,7 @@ import type { SearchFieldConfig, SearchValue, SearchValues } from "@/SysCore/Com
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
-import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
+import { findTextByKey, formatDateTime } from "@/SysCore/Utils/Library/LibData";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
@@ -20,16 +20,21 @@ import { AccountFields, MaterialFields, MaterialLangInfoFields, PGID } from "@/t
 import { createElement, useCallback, useMemo, type ReactNode } from "react";
 import { type NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 type MaterialSet = components["schemas"]["MaterialSet_DTO"];
+
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
+
 type MaterialApiAdapter = ReturnType<typeof MaterialAdapter>;
+
 type CategoryApiAdapter = ReturnType<typeof CategoryAdapter>;
+
 type MaterialCudActions = ReturnType<MaterialApiAdapter["hooks"]["useCudActions"]>;
+
 type CategoryMapValue = string | CategorySet | null | undefined;
 
-export const MATERIAL_NAME_SEARCH_KEY = "materialName";
-export const MATERIAL_CATEGORY_SEARCH_KEY = "categoryId";
 
 export interface MaterialSearchParams
 {
@@ -42,6 +47,7 @@ export interface MaterialSearchParams
     /** 物件類別搜尋條件 */
     categoryId?: string;
 }
+
 
 export interface MaterialListRawData
 {
@@ -70,6 +76,7 @@ export interface MaterialListRawData
     categoryMap: Record<string, string>;
 }
 
+
 export interface MaterialListAdapter
 {
     /** 物件 API adapter */
@@ -88,7 +95,30 @@ export interface MaterialListAdapter
     dirUrl: string;
 }
 
+
 export type MaterialListGridTemplate = ServerListGridTemplate<MaterialSearchParams, MaterialListRawData, MaterialListAdapter, QueryListParam>;
+
+
+type CrudDeps = {
+    /** React Router 導頁方法 */
+    navigate: NavigateFunction;
+
+    /** 目前 List 對應的 Form 路徑 */
+    dirUrl: string;
+
+    /** 刪除資料方法 */
+    deleteAsync: MaterialCudActions["deleteAsync"];
+
+    /** 刪除後重新查詢 */
+    afterDelete: () => Promise<void>;
+};
+// #endregion
+
+// #region Public
+export const MATERIAL_NAME_SEARCH_KEY = "materialName";
+
+export const MATERIAL_CATEGORY_SEARCH_KEY = "categoryId";
+
 
 /** 建立物件後台 ListGridTemplate 設定 */
 export const useMaterialListGridTemplate = (opt: { lang: Lang; }): MaterialListGridTemplate =>
@@ -108,7 +138,9 @@ export const useMaterialListGridTemplate = (opt: { lang: Lang; }): MaterialListG
         };
     }, [opt.lang]);
 };
+// #endregion
 
+// #region Private
 /** 執行物件列表資料來源 Hook */
 const useMaterialListGridDataSource = (
     ctx: ServerListGridDataSourceContext<MaterialSearchParams, QueryListParam>,
@@ -168,6 +200,7 @@ const useMaterialListGridDataSource = (
     return { adapter: { ...apiAdapter, cudActions, navigate, dirUrl }, rawData, isLoading, errors, refetchData, refetchRefData };
 };
 
+
 /** 建立物件搜尋欄位設定 */
 const buildMaterialSearchFields = (rawData: MaterialListRawData): SearchFieldConfig[] =>
 {
@@ -180,6 +213,7 @@ const buildMaterialSearchFields = (rawData: MaterialListRawData): SearchFieldCon
     ];
 };
 
+
 /** 將 SearchValues 轉為物件列表查詢參數 */
 const toMaterialSearchParams = (values: SearchValues, lang: Lang): MaterialSearchParams =>
 {
@@ -189,6 +223,7 @@ const toMaterialSearchParams = (values: SearchValues, lang: Lang): MaterialSearc
         categoryId: getSearchStringValue(values[MATERIAL_CATEGORY_SEARCH_KEY]),
     };
 };
+
 
 /** 建立物件搜尋條件 */
 const buildMaterialSearchConditions = (ctx: { searchParams: MaterialSearchParams; }): string[] =>
@@ -208,6 +243,7 @@ const buildMaterialSearchConditions = (ctx: { searchParams: MaterialSearchParams
     return conditions;
 };
 
+
 /** 建立物件列表完整 QueryParam */
 const buildMaterialQueryParam = (ctx: { searchParams: MaterialSearchParams; searchCondition: string; }): QueryListParam =>
 {
@@ -218,6 +254,7 @@ const buildMaterialQueryParam = (ctx: { searchParams: MaterialSearchParams; sear
 
     return { Fields: fields, Condition: condition, OrderBy: [{ Col: MaterialFields.ModifyTime, Desc: true }], PageNumber: 1, PageSize: 10 };
 };
+
 
 /** 建立物件列表查詢欄位 */
 const buildMaterialQueryFields = (): string[] =>
@@ -234,25 +271,13 @@ const buildMaterialQueryFields = (): string[] =>
     ];
 };
 
+
 /** 建立類別下拉搜尋選項 */
 const buildCategorySearchOptions = (categoryMap: Record<string, string>): SearchFieldConfig["options"] =>
 {
     return Object.entries(categoryMap).map(([value, title]) => ({ value, title: title || value }));
 };
 
-type CrudDeps = {
-    /** React Router 導頁方法 */
-    navigate: NavigateFunction;
-
-    /** 目前 List 對應的 Form 路徑 */
-    dirUrl: string;
-
-    /** 刪除資料方法 */
-    deleteAsync: MaterialCudActions["deleteAsync"];
-
-    /** 刪除後重新查詢 */
-    afterDelete: () => Promise<void>;
-};
 
 /** 將物件資料轉為 GridProps */
 const buildMaterialGridProps = (
@@ -285,6 +310,7 @@ const buildMaterialGridProps = (
     });
 };
 
+
 /** 注入物件 Grid 編輯與刪除動作 */
 const enhanceMaterialGrid = (
     opt: {
@@ -315,17 +341,20 @@ const enhanceMaterialGrid = (
     });
 };
 
+
 /** 建立物件列表欄位定義 */
 const buildColumns = (visibleCols: string[], raw: MaterialListRawData): ColumnConfig[] =>
 {
     return visibleCols.map((col) => ({ key: col, title: getColumnTitle(raw.modelDisplayName, col, `【${col}】`) }));
 };
 
+
 /** 建立物件列表列資料 */
 const buildMaterialRows = (raw: MaterialListRawData, lang: Lang, columns: ColumnConfig[]): GridRow[] =>
 {
     return (raw.list ?? []).map((set) => buildMaterialRow(set, lang, columns, raw.categoryMap));
 };
+
 
 /** 建立物件列表單列資料 */
 const buildMaterialRow = (set: MaterialSet, lang: Lang, columns: ColumnConfig[], categoryMap: Record<string, string>): GridRow =>
@@ -337,19 +366,21 @@ const buildMaterialRow = (set: MaterialSet, lang: Lang, columns: ColumnConfig[],
         { col: columns[1], content: buildNameContent(set, lang) },
         { col: columns[2], content: mapIdsToList(material?.CategoryId, categoryMap) },
         { col: columns[3], content: material?.ModifyUser?.AccountName ?? "" },
-        { col: columns[4], content: FormatDateTime(material?.ModifyTime) },
+        { col: columns[4], content: formatDateTime(material?.ModifyTime) },
     ];
 
     return { keyId, cells };
 };
 
+
 /** 建立物件名稱內容 */
 const buildNameContent = (set: MaterialSet, lang: Lang): ReactNode =>
 {
-    const title = (set.MaterialLangInfo ?? []).find((detail) => detail?.Lang === lang)?.MaterialName ?? "";
+    const title = findTextByKey(set.MaterialLangInfo, (detail) => detail?.Lang, lang, (detail) => detail?.MaterialName);
 
     return createElement("div", { className: "d-flex flex-column gap-1" }, createElement("span", null, title));
 };
+
 
 /** 將逗號分隔代碼轉為清單顯示 */
 const mapIdsToList = (ids: string | null | undefined, map: Record<string, string>): ReactNode =>
@@ -363,6 +394,7 @@ const mapIdsToList = (ids: string | null | undefined, map: Record<string, string
     );
 };
 
+
 /** 將類別 Hook 回傳值轉成文字 map，避免不同 Adapter map 版本造成型別不一致 */
 const buildCategoryTextMap = (source: Record<string, CategoryMapValue>, lang: Lang): Record<string, string> =>
 {
@@ -373,14 +405,16 @@ const buildCategoryTextMap = (source: Record<string, CategoryMapValue>, lang: La
     }, {});
 };
 
+
 /** 取得類別顯示文字 */
 const getCategoryText = (value: CategoryMapValue, lang: Lang): string =>
 {
     if (!value) return "";
     if (typeof value === "string") return value;
 
-    return (value.CategoryDetail ?? []).find((detail) => detail?.Lang === lang)?.CategoryName ?? "";
+    return findTextByKey(value.CategoryDetail, (detail) => detail?.Lang, lang, (detail) => detail?.CategoryName);
 };
+
 
 /** 依欄位代碼取得 ModelDisplayName 顯示文字 */
 const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, columnId: string, fallback: string): string =>
@@ -390,6 +424,7 @@ const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, columnId: s
     return hit?.ColumnDisplayName ?? fallback;
 };
 
+
 /** 取得 SearchValue 的文字值 */
 const getSearchStringValue = (value: SearchValue): string | undefined =>
 {
@@ -398,3 +433,4 @@ const getSearchStringValue = (value: SearchValue): string | undefined =>
     const text = value.trim();
     return text.length > 0 ? text : undefined;
 };
+// #endregion

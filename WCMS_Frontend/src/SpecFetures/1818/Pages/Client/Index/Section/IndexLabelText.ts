@@ -1,5 +1,6 @@
 import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 
+// #region Property
 const labels = {
     "zh-tw": {
         LinkDataTitle: "相關連結",
@@ -22,5 +23,8 @@ const labels = {
     },
     "zh-cn": { LinkDataTitle: "", AboutUsTitle: "", AdmissionsTitle: "", AdmissionsContent: "", NewsTitle: "", AlbumTitle: "", MoreInfo: "" },
 } as const satisfies Record<Lang, {}>;
+// #endregion
 
+// #region Public
 export const IndexLabel = (lang?: Lang) => labels[lang ?? DefaultLang] ?? labels[DefaultLang];
+// #endregion

@@ -7,10 +7,13 @@ import type { UseFetchDataResult } from "@/SysCore/Utils/API/FetchDataType";
 import type { components } from "@/types/api";
 import { useCallback, useMemo, useState } from "react";
 
+// #region Property
 type CalendarDetail = components["schemas"]["CalendarDetail_DTO"];
+
 
 /** YYYY-MM-DD -> 單日 DTO */
 export type CalendarYearMap = Record<string, CalendarDetail>;
+
 
 export interface DialogAnchorRect
 {
@@ -22,14 +25,18 @@ export interface DialogAnchorRect
     viewportHeight: number;
 }
 
+
 export type CalendarPageAdapter = { Calendar: ReturnType<typeof CalendarAdapter>; };
 
+
 export type CalendarPageRawData = { yearDetails: CalendarDetail[]; daysByDate: CalendarYearMap; selectedDay: CalendarDetail | null; };
+
 
 export type CalendarPageFetchDataResult = UseFetchDataResult<CalendarPageRawData, CalendarPageAdapter> & {
     isDaySaving: boolean;
     updateDayInfoAsync: (dayInfo: CalendarDetail) => Promise<ApiResponse<CalendarDetail>>;
 };
+
 
 export type CalendarPageHookResult = CalendarPageFetchDataResult & {
     year: number;
@@ -48,10 +55,12 @@ export type CalendarPageHookResult = CalendarPageFetchDataResult & {
     handleDialogSave: (updated: CalendarDetail) => Promise<void>;
 };
 
+
 export interface UseCalendarPageOpt
 {
     defaultYear?: number;
 }
+
 
 export interface UseCalendarPageFetchDataOpt
 {
@@ -59,9 +68,9 @@ export interface UseCalendarPageFetchDataOpt
     selectedDate: string | null;
     refreshKey?: number;
 }
+// #endregion
 
-// #region Public Helper
-
+// #region Public
 /** 將後端 Date 轉成 YYYY-MM-DD（避免帶時間造成 key 對不到） */
 export const normalizeDateKey = (dateStr?: string | null): string =>
 {
@@ -72,6 +81,7 @@ export const normalizeDateKey = (dateStr?: string | null): string =>
     if (!s) return "";
     return s.length >= 10 ? s.slice(0, 10) : s;
 };
+
 
 /** year + month(0-based) + day -> YYYY-MM-DD */
 export const formatDateString = (year: number, monthZeroBased: number, day: number): string =>
@@ -84,6 +94,7 @@ export const formatDateString = (year: number, monthZeroBased: number, day: numb
     return `${year}-${mm}-${dd}`;
 };
 
+
 /** 0~6 -> 日一二三四五六 */
 export const getWeekdayNameZh = (weekDay: number | null | undefined): string =>
 {
@@ -94,6 +105,7 @@ export const getWeekdayNameZh = (weekDay: number | null | undefined): string =>
     // return
     return map[w] ?? "";
 };
+
 
 /** 24h "HH:mm" -> {hh, mm} */
 export const parseHHmm = (v?: string | null): { hh: number; mm: number; } | null =>
@@ -116,6 +128,7 @@ export const parseHHmm = (v?: string | null): { hh: number; mm: number; } | null
     return { hh, mm };
 };
 
+
 /** 24h -> 12h parts */
 export const to12hParts = (hh24: number): { meridiem: "AM" | "PM"; hh12: number; } =>
 {
@@ -128,6 +141,7 @@ export const to12hParts = (hh24: number): { meridiem: "AM" | "PM"; hh12: number;
     return { meridiem, hh12 };
 };
 
+
 /** 12h parts -> 24h hour */
 export const to24hHour = (meridiem: "AM" | "PM", hh12: number): number =>
 {
@@ -139,6 +153,7 @@ export const to24hHour = (meridiem: "AM" | "PM", hh12: number): number =>
     return h === 12 ? 12 : h + 12;
 };
 
+
 /** number -> "HH:mm" */
 export const formatHHmm = (hh: number, mm: number): string =>
 {
@@ -149,6 +164,7 @@ export const formatHHmm = (hh: number, mm: number): string =>
     // return
     return `${h}:${m}`;
 };
+
 
 /** Calendar 專用：聚合年度資料查詢 + daysByDate mapping + UpdateDayInfo */
 export const useCalendarPageFetchData = (opt: UseCalendarPageFetchDataOpt): CalendarPageFetchDataResult =>
@@ -196,6 +212,7 @@ export const useCalendarPageFetchData = (opt: UseCalendarPageFetchDataOpt): Cale
     // return
     return { adapter, rawData, isLoading, errors, refetchData, isDaySaving: dayActions.isSaving, updateDayInfoAsync: dayActions.updateDayInfoAsync };
 };
+
 
 /** Calendar 專用：頁面狀態、月份切換、dialog、保存流程 */
 export const useCalendarPage = (opt: UseCalendarPageOpt): CalendarPageHookResult =>
@@ -320,11 +337,9 @@ export const useCalendarPage = (opt: UseCalendarPageOpt): CalendarPageHookResult
         handleDialogSave,
     };
 };
-
 // #endregion
 
-// #region Private Helper
-
+// #region Private
 /** 建立 Query 錯誤 toast handler */
 const useCalendarQueryErrorHandler = (): (e: ApiAdapterError) => void =>
 {
@@ -337,6 +352,7 @@ const useCalendarQueryErrorHandler = (): (e: ApiAdapterError) => void =>
         publish({ level: MessageStatus.Error, title: e.messageText });
     }, [publish]);
 };
+
 
 /** 建立一筆單日預設值 */
 const createEmptyDayInfo = (year: number, dateStr: string): CalendarDetail =>
@@ -357,6 +373,7 @@ const createEmptyDayInfo = (year: number, dateStr: string): CalendarDetail =>
         Spec_ModifyMemo: "",
     };
 };
+
 
 /** 把後端 CalendarDetail[] 轉成年字典，並補齊該年每一天 */
 const buildYearMapFromList = (year: number, list: CalendarDetail[]): CalendarYearMap =>
@@ -390,5 +407,4 @@ const buildYearMapFromList = (year: number, list: CalendarDetail[]): CalendarYea
     // return
     return map;
 };
-
 // #endregion

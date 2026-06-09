@@ -1,150 +1,116 @@
 // src/SysCore/Utils/Route/langGuardLoader.ts
-import { DefaultLang, isSupportedLang, type Lang } from "@/SysCore/i18n/lang";
-import { LANG_COOKIE_KEY } from "@/SysCore/Utils/Library/SysParam";
+import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
+import { LibRouteLang, LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { type LoaderFunctionArgs, redirect } from "react-router-dom";
-/** 後台路徑前綴：完全不做語系處理 */
-const BYPASS_PREFIXES = new Set(["server"]);
 
-export const langGuardLoader = async ({ request }: LoaderFunctionArgs) =>
+// #region Property
+/** 語系守門 Loader 回傳結果 */
+interface LangGuardLoaderResult
+{
+    /** 實際解析後的語系 */
+    resolvedLang: Lang;
+    /** 目前請求 pathname */
+    pathname: string;
+}
+/** 語系守門 Loader 解析內容 */
+interface LangGuardContext
+{
+    /** 目前 request */
+    request: Request;
+    /** 目前 URL */
+    url: URL;
+    /** 第一層 route segment */
+    leadingSegment: string;
+    /** 第一層 route segment 對應語系 */
+    leadingLang: Lang | null;
+    /** 移除第一層 route segment 後的路徑 */
+    restPath: string;
+}
+/** Redirect HTTP 狀態碼 */
+const REDIRECT_STATUS_CODE = 302;
+// #endregion
+
+// #region Public
+/** 前台路由語系守門 Loader。 */
+export const langGuardLoader = ({ request }: LoaderFunctionArgs): LangGuardLoaderResult =>
+{
+    const context = buildLangGuardContext(request);
+    const result = resolveLangGuardResult(context);
+    return result;
+};
+// #endregion
+
+// #region Protected
+/** 依目前路由狀態解析語系守門結果。 */
+const resolveLangGuardResult = (context: LangGuardContext): LangGuardLoaderResult =>
+{
+    const bypassResult = resolveBypassRoute(context);
+    if (bypassResult) return bypassResult;
+    const langSegmentResult = resolveRouteWithLangSegment(context);
+    if (langSegmentResult) return langSegmentResult;
+    return resolveRouteWithoutLangSegment(context);
+};
+
+/** 處理不需要語系守門的路由。 */
+const resolveBypassRoute = (context: LangGuardContext): LangGuardLoaderResult | null =>
+{
+    if (!LibRouteLang.isRouteLangBypassPathname(context.url.pathname)) return null;
+    return createLangGuardResult(DefaultLang, context.url.pathname);
+};
+
+/** 處理網址第一段已有語系的路由。 */
+const resolveRouteWithLangSegment = (context: LangGuardContext): LangGuardLoaderResult | null =>
+{
+    if (!context.leadingLang) return null;
+    if (context.leadingLang === DefaultLang)
+    {
+        const defaultLangPath = LibRoutePath.normalizeInternalPath(context.restPath);
+        throw redirect(buildRedirectUrl(context.url, defaultLangPath), REDIRECT_STATUS_CODE);
+    }
+    if (context.leadingSegment !== context.leadingLang)
+    {
+        const canonicalLangPath = LibRouteLang.buildLangPathname(context.restPath, context.leadingLang);
+        throw redirect(buildRedirectUrl(context.url, canonicalLangPath), REDIRECT_STATUS_CODE);
+    }
+    return createLangGuardResult(context.leadingLang, context.url.pathname);
+};
+
+/** 處理網址第一段沒有語系的前台路由。 */
+const resolveRouteWithoutLangSegment = (context: LangGuardContext): LangGuardLoaderResult =>
+{
+    const cookieLang = LibRouteLang.readRouteLangCookieFromRequest(context.request);
+    const acceptLang = LibRouteLang.readRouteLangFromRequestAcceptLanguage(context.request);
+    const preferredLang = cookieLang ?? acceptLang ?? DefaultLang;
+    if (preferredLang !== DefaultLang)
+    {
+        const preferredLangPath = LibRouteLang.buildLangPathname(context.url.pathname, preferredLang);
+        throw redirect(buildRedirectUrl(context.url, preferredLangPath), REDIRECT_STATUS_CODE);
+    }
+    return createLangGuardResult(DefaultLang, context.url.pathname);
+};
+// #endregion
+
+// #region Private
+/** 建立語系守門 Loader 解析內容。 */
+const buildLangGuardContext = (request: Request): LangGuardContext =>
 {
     const url = new URL(request.url);
-    const parts = url.pathname.split("/").filter(Boolean);
-    const seg1 = parts[0];
-
-    // 1) /Server/... 完全不處理（避免影響後台）
-    if (seg1 && BYPASS_PREFIXES.has(seg1.toLowerCase()))
-    {
-        return { resolvedLang: DefaultLang as Lang, pathname: url.pathname };
-    }
-
-    const seg1Lang = toCanonicalLangStrict(seg1);
-    const rest = url.pathname.replace(/^\/[^/]+/, ""); // 去掉第一段後剩餘路徑（含 leading "/" 或空字串）
-
-    // 2) 第一段是本站支援語系（或 alias 被 map 成支援語系）
-    if (seg1Lang)
-    {
-        // 2-1) default lang 不允許出現在網址上：/zh-tw/xxx -> /xxx
-        if (seg1Lang === DefaultLang)
-        {
-            const toPath = rest && rest.startsWith("/") ? rest : "/";
-            throw redirect(`${toPath}${url.search}${url.hash}`, 302);
-        }
-
-        // 2-2) 非 default：語系段必須 canonical（如果 alias 有 mapping，這裡會導到 canonical）
-        const seg1Lower = seg1?.toLowerCase() ?? "";
-        if (seg1Lower !== seg1Lang)
-        {
-            throw redirect(`/${seg1Lang}${rest}${url.search}${url.hash}`, 302);
-        }
-
-        return { resolvedLang: seg1Lang as Lang, pathname: url.pathname };
-    }
-
-    // // 3) 嚴格：如果第一段「像語系碼」但不支援 => 直接 401
-    // if (isPotentialLangSegment(seg1))
-    // {
-    //     const from = encodeURIComponent(url.pathname + url.search + url.hash);
-    //     throw redirect(`${UNAUTHORIZED_PATH}?from=${from}`, 302);
-    // }
-
-    // 4) 沒語系段（一般前台路由）=> 視為 default
-    const cookieLang = readCookieLang(request);
-    const acceptLang = pickLangFromAcceptLanguage(request);
-    const preferred = (cookieLang ?? acceptLang ?? DefaultLang) as Lang;
-
-    // 非 default：要導到 /:lang 形態
-    if (preferred !== DefaultLang)
-    {
-        const toPath = url.pathname === "/" ? `/${preferred}` : `/${preferred}${url.pathname}`;
-        throw redirect(`${toPath}${url.search}${url.hash}`, 302);
-    }
-
-    return { resolvedLang: DefaultLang as Lang, pathname: url.pathname };
+    const leadingSegment = LibRoutePath.getLeadingPathSegment(url.pathname);
+    const leadingLang = LibRouteLang.tryParseRouteLangSegment(leadingSegment);
+    const restPath = LibRoutePath.removeLeadingPathSegment(url.pathname);
+    return { request, url, leadingSegment, leadingLang, restPath };
 };
 
-// #region Cookies相關
-const getCookieValue = (cookieStr: string, name: string): string | undefined =>
+/** 建立完整 redirect url。 */
+const buildRedirectUrl = (url: URL, pathname: string): string =>
 {
-    if (!cookieStr) return undefined;
-    const escapedName = name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-    const patternText = `(?:^|;\\s*)${escapedName}=([^;]*)`;
-    const pattern = new RegExp(patternText);
-    const m = cookieStr.match(pattern);
-    return m ? decodeURIComponent(m[1]) : undefined;
+    const redirectUrl = `${pathname}${url.search}${url.hash}`;
+    return redirectUrl;
 };
 
-const mapLangAlias = (raw: string): Lang | null =>
+/** 建立語系守門 Loader 結果。 */
+const createLangGuardResult = (resolvedLang: Lang, pathname: string): LangGuardLoaderResult =>
 {
-    const s = raw.trim().toLowerCase().replace(/_/g, "-");
-    if (!s) return null;
-
-    // exact hit
-    if (isSupportedLang(s)) return s as Lang;
-
-    // en-xx → en
-    if (s === "en-us" || s.startsWith("en-")) return isSupportedLang("en") ? ("en" as Lang) : null;
-
-    // zh-hant-xx / zh-tw → zh-tw
-    if (s === "zh-tw" || s === "zh-hant-tw" || s.startsWith("zh-hant"))
-    {
-        return isSupportedLang("zh-tw") ? ("zh-tw" as Lang) : null;
-    }
-
-    // （未來如果你支援 zh-cn，再放開這段）
-    // if (s === "zh-cn" || s.startsWith("zh-hans")) return isSupportedLang("zh-cn") ? ("zh-cn" as Lang) : null;
-
-    return null;
-};
-
-// 嚴格收斂（支援 alias → canonical）
-const toCanonicalLangStrict = (seg?: string | null): Lang | null =>
-{
-    if (!seg) return null;
-
-    let s = "";
-    try
-    {
-        s = decodeURIComponent(seg).trim().toLowerCase();
-    } catch
-    {
-        s = String(seg).trim().toLowerCase();
-    }
-
-    if (!s) return null;
-
-    if (isSupportedLang(s)) return s as Lang;
-    return mapLangAlias(s);
-};
-
-const readCookieLang = (request: Request): Lang | null =>
-{
-    const cookieStr = request.headers.get("cookie") ?? (typeof document !== "undefined" ? document.cookie : "");
-    const v = getCookieValue(cookieStr, LANG_COOKIE_KEY);
-    return v ? toCanonicalLangStrict(v) : null;
-};
-
-// Accept-Language 解析（q 值排序）
-const parseAcceptLanguage = (header: string): string[] =>
-{
-    if (!header) return [];
-    return header.split(",").map(p =>
-    {
-        const [tag, qpart] = p.trim().split(";");
-        const q = qpart?.toLowerCase().startsWith("q=") ? Number(qpart.slice(2)) : 1;
-        return { tag: tag.trim(), q: Number.isFinite(q) ? q : 1 };
-    }).sort((a, b) => b.q - a.q).map(x => x.tag).filter(Boolean);
-};
-
-const pickLangFromAcceptLanguage = (request: Request): Lang | null =>
-{
-    const header = request.headers.get("accept-language")
-        ?? (typeof navigator !== "undefined" ? (navigator.languages?.join(",") || navigator.language || "") : "");
-
-    for (const tag of parseAcceptLanguage(header))
-    {
-        const c = toCanonicalLangStrict(tag);
-        if (c) return c;
-    }
-    return null;
+    return { resolvedLang, pathname };
 };
 // #endregion

@@ -24,11 +24,11 @@ import {
     useEditGridBinding,
 } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { type Lang, LangLabelMap, SUPPORTED_LANGS, useEnsureLangDetails } from "@/SysCore/i18n/lang";
+import { buildSupportedLangOrder, type Lang, LangLabelMap, normalizeSupportedLang, SUPPORTED_LANGS, useEnsureLangDetails } from "@/SysCore/i18n/lang";
 import type { ApiFormInitial, ServerFormActions } from "@/SysCore/Utils/API/APIAdapter";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { LibText } from "@/SysCore/Utils/Library/LibData";
 import { useUploadFile } from "@/SysCore/Utils/UI_HookFunc/useUploadFile";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
@@ -37,13 +37,19 @@ import { useCallback, useMemo } from "react";
 
 // #region Property
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
+
 type AnnouncementDetail = NonNullable<AnnouncementSet["AnnouncementDetail"]>[number];
+
 type AnnouncementDetailFile = components["schemas"]["AnnouncementDetailFile_DTO"];
 
 export type AnnouncementFileCellValue = EditGridFileValue & { internalId?: string; originalFileName?: string; };
+
 export type AnnouncementFileGridRow = GridRow & { AnnouncementId?: string | null; ParentRowId?: number | null; FileRowId?: number | null; };
+
 type UploadFileHandler = ReturnType<typeof useUploadFile>["handleFileChange"];
+
 export type AnnouncementDetailRowKeys = Record<string, string | number | boolean | null | undefined>;
+
 export interface UseAnnouncementFileEditGridOptions
 {
     /** 新版 Form Template 提供的資料 binding */
@@ -92,8 +98,6 @@ export interface AnnouncementDetailTabsResult
     items: AnnouncementDetailTabItem[];
 }
 
-export const announcementEmptyData: AnnouncementSet = { Announcement: {}, AnnouncementDetail: [], AnnouncementDetailFile: [] };
-
 export type AnnouncementFormRefs = { categoryMap: Record<string, string>; tagMap: Record<string, string>; statusOpts: Record<string, string>; };
 
 export type AnnouncementFormActionsOpt = {
@@ -112,6 +116,8 @@ export type AnnouncementFormAdapter = {
 // #endregion
 
 // #region Public
+export const announcementEmptyData: AnnouncementSet = { Announcement: {}, AnnouncementDetail: [], AnnouncementDetailFile: [] };
+
 /** 建立 Announcement Form Template，統一交給 Server_FormTemplate 處理資料流程 */
 export const useAnnouncementFormTemplate = (
     opt: { lang: Lang; theme: IBETheme; internalId: string; emptyData: AnnouncementSet; actionsOpt: AnnouncementFormActionsOpt; },
@@ -179,9 +185,64 @@ export const useAnnouncementFileEditGrid = (opt: UseAnnouncementFileEditGridOpti
         editGridProps: buildAnnouncementFileGridProps(opt.parentRowId, opt.style, displayName),
     });
 };
+
+/** 建立附件 CellValue，附件欄位顯示原始檔名與 internalId，不混用附件名稱。 */
+export const buildAnnouncementFileCellValue = (file: AnnouncementDetailFile): AnnouncementFileCellValue =>
+{
+    const internalId = file.FileId ?? file.File?.InternalId ?? "";
+    const originalName = file.File?.FileName ?? "";
+
+    return {
+        internalId,
+        fileName: buildAnnouncementFileFieldDisplayName(originalName, internalId),
+        originalFileName: originalName,
+        url: getAnnouncementFilePreviewUrl(internalId),
+        downloadUrl: getAnnouncementFileDownloadUrl(internalId),
+    };
+};
+
+/** 上傳後建立新的附件 CellValue，檔案欄位固定顯示原始檔名與 internalId。 */
+export const buildUploadedAnnouncementFileCellValue = (
+    _current: AnnouncementFileCellValue,
+    internalId: string,
+    originalName?: string,
+): AnnouncementFileCellValue =>
+{
+    const safeOriginalName = originalName ?? "";
+
+    return {
+        internalId,
+        fileName: buildAnnouncementFileFieldDisplayName(safeOriginalName, internalId),
+        originalFileName: safeOriginalName,
+        url: getAnnouncementFilePreviewUrl(internalId),
+        downloadUrl: getAnnouncementFileDownloadUrl(internalId),
+    };
+};
+
+/** 將 EditGrid 值正規化成附件 CellValue。 */
+export const toAnnouncementFileCellValue = (value: EditGridCellValue): AnnouncementFileCellValue =>
+{
+    if (isAnnouncementFileCellValue(value)) return value;
+    if (typeof value === "string") return { internalId: value, fileName: buildAnnouncementFileFieldDisplayName("", value) };
+    return { fileName: "", internalId: "" };
+};
+
+/** 取得附件欄位顯示名稱。 */
+export const getAnnouncementFileDisplayName = (file: AnnouncementFileCellValue): string =>
+{
+    return (file.fileName || buildAnnouncementFileFieldDisplayName(file.originalFileName, file.internalId)).trim();
+};
+
+/** 開啟附件下載。 */
+export const openAnnouncementFileDownload = (fileId: string): void =>
+{
+    const url = getAnnouncementFileDownloadUrl(fileId);
+    if (!url || typeof window === "undefined") return;
+    window.open(url, "_blank", "noopener");
+};
 // #endregion
 
-// #region Timing
+// #region Private
 /** 建立 Announcement Form 標題，功能名稱優先讀 ModelDisplayName。 */
 const buildAnnouncementFormTitle = (ctx: { mode: "new" | "edit"; displayName: ModelDisplaySchema; }): string =>
 {
@@ -260,9 +321,6 @@ const buildAnnouncementActions = (
     return { ...defaultActions, Preview: () => ctx.actionsOpt.onPreviewFromDto(ctx.binding.data) };
 };
 
-// #endregion
-
-// #region Private
 /** ContentStatus enum options（去掉 key=0） */
 const useContentStatusOptions = (): { data: Record<string, string>; isLoading: boolean; error: string | null; } =>
 {
@@ -308,21 +366,6 @@ const buildSupportedDetailMap = (details: AnnouncementDetail[]): Map<string, Ann
     }, new Map<string, AnnouncementDetail>());
 };
 
-/** 建立目前 Case 支援語系順序，當前語系優先。 */
-const buildSupportedLangOrder = (preferLang: Lang): Lang[] =>
-{
-    const langs = [preferLang, ...SUPPORTED_LANGS];
-    return langs.filter((lang, index) => langs.indexOf(lang) === index && Boolean(normalizeSupportedLang(lang)));
-};
-
-/** 正規化並檢查語系是否屬於目前 Case 支援語系。 */
-const normalizeSupportedLang = (lang?: Lang | string | null): string | null =>
-{
-    const value = String(lang ?? "").trim().toLowerCase();
-    const isSupport = SUPPORTED_LANGS.some(item => item.toLowerCase() === value);
-    return isSupport ? value : null;
-};
-
 /** 建立單一 Detail Tab 項目。 */
 const buildAnnouncementDetailTabItem = (detail: AnnouncementDetail | undefined, index: number): AnnouncementDetailTabItem | null =>
 {
@@ -331,8 +374,8 @@ const buildAnnouncementDetailTabItem = (detail: AnnouncementDetail | undefined, 
     const lang = normalizeSupportedLang(detail.Lang);
     if (!lang) return null;
 
-    const key = LibMerge("_", true, detail.AnnouncementId, detail.RowId, lang);
-    const label = LangLabelMap[lang as Lang] ?? lang;
+    const key = LibText.Merge("_", true, detail.AnnouncementId, detail.RowId, lang);
+    const label = LangLabelMap[lang] ?? lang;
     const detailRowId = Number(detail.RowId ?? index + 1);
     const rowKeys = buildAnnouncementDetailRowKeys(detail);
 
@@ -583,57 +626,10 @@ const buildEmptyAnnouncementFileCellValue = (): AnnouncementFileCellValue =>
     return { fileName: "", internalId: "", originalFileName: "" };
 };
 
-/** 建立附件 CellValue，附件欄位顯示原始檔名與 internalId，不混用附件名稱。 */
-export const buildAnnouncementFileCellValue = (file: AnnouncementDetailFile): AnnouncementFileCellValue =>
-{
-    const internalId = file.FileId ?? file.File?.InternalId ?? "";
-    const originalName = file.File?.FileName ?? "";
-
-    return {
-        internalId,
-        fileName: buildAnnouncementFileFieldDisplayName(originalName, internalId),
-        originalFileName: originalName,
-        url: getAnnouncementFilePreviewUrl(internalId),
-        downloadUrl: getAnnouncementFileDownloadUrl(internalId),
-    };
-};
-
-/** 上傳後建立新的附件 CellValue，檔案欄位固定顯示原始檔名與 internalId。 */
-export const buildUploadedAnnouncementFileCellValue = (
-    _current: AnnouncementFileCellValue,
-    internalId: string,
-    originalName?: string,
-): AnnouncementFileCellValue =>
-{
-    const safeOriginalName = originalName ?? "";
-
-    return {
-        internalId,
-        fileName: buildAnnouncementFileFieldDisplayName(safeOriginalName, internalId),
-        originalFileName: safeOriginalName,
-        url: getAnnouncementFilePreviewUrl(internalId),
-        downloadUrl: getAnnouncementFileDownloadUrl(internalId),
-    };
-};
-
-/** 將 EditGrid 值正規化成附件 CellValue。 */
-export const toAnnouncementFileCellValue = (value: EditGridCellValue): AnnouncementFileCellValue =>
-{
-    if (isAnnouncementFileCellValue(value)) return value;
-    if (typeof value === "string") return { internalId: value, fileName: buildAnnouncementFileFieldDisplayName("", value) };
-    return { fileName: "", internalId: "" };
-};
-
 /** 判斷是否為附件 CellValue。 */
 const isAnnouncementFileCellValue = (value: EditGridCellValue): value is AnnouncementFileCellValue =>
 {
     return typeof value === "object" && value !== null && "fileName" in value;
-};
-
-/** 取得附件欄位顯示名稱。 */
-export const getAnnouncementFileDisplayName = (file: AnnouncementFileCellValue): string =>
-{
-    return (file.fileName || buildAnnouncementFileFieldDisplayName(file.originalFileName, file.internalId)).trim();
 };
 
 /** 建立檔案欄位顯示文字：原始檔名 (internalId)。 */
@@ -657,14 +653,6 @@ const getAnnouncementFileDownloadUrl = (fileId?: string | null): string | undefi
 {
     const id = String(fileId ?? "").trim();
     return id ? `/Service/FileManagement/Server_Download/${encodeURIComponent(id)}` : undefined;
-};
-
-/** 開啟附件下載。 */
-export const openAnnouncementFileDownload = (fileId: string): void =>
-{
-    const url = getAnnouncementFileDownloadUrl(fileId);
-    if (!url || typeof window === "undefined") return;
-    window.open(url, "_blank", "noopener");
 };
 
 /** 建立附件 Row key。 */

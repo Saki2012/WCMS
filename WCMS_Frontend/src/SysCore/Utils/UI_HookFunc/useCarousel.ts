@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
+// #region Property
 type UseCarouselOpts = {
     length: number; // 幻燈片數
     interval?: number; // 例如 5000 ms
     autoPlay?: boolean; // 是否自動播放
 };
+// #endregion
 
+// #region Public
 export function useCarousel({ length, interval = 5000, autoPlay = true }: UseCarouselOpts)
 {
     const [index, setIndex] = useState(0);
@@ -53,3 +56,4 @@ export function useCarousel({ length, interval = 5000, autoPlay = true }: UseCar
 
     return { index, goTo, next, prev, play, pause, playing, bind };
 }
+// #endregion

@@ -1,3 +1,4 @@
+// #region Property
 export interface ILibTextBoxStyle
 {
     Labelstyle: string;
@@ -5,18 +6,21 @@ export interface ILibTextBoxStyle
     InputStyle: string;
 }
 
+
 export interface ILibTextBoxStyle2
 {
     Labelstyle: string;
     SelectStyle: string;
     InputStyle: string;
 }
+
 export interface ILibTextBoxStyle3
 {
     Labelstyle: string;
     SelectStyle: string;
     InputStyle: string;
 }
+
 
 export interface ILibTextBoxProp
 {
@@ -27,3 +31,4 @@ export interface ILibTextBoxProp
     OnChange?: (value: string) => void;
     disabled?: boolean;
 }
+// #endregion

@@ -22,11 +22,15 @@ import {
 
 // #region Property
 type RolePermissionSet = components["schemas"]["RolePermissionSet_DTO"];
+
 type RolePermissionBinding = ServerFormBinding<RolePermissionSet>;
+
 
 type RolePermissionUI = ReturnType<typeof useRolePermissionPermissionUI>;
 
+
 type SetRolePermissionField = ReturnType<typeof useSetTableField<RolePermissionSet>>;
+
 
 interface RolePermissionFormCompProps
 {
@@ -36,6 +40,7 @@ interface RolePermissionFormCompProps
     /** 目前語系 */
     lang: Lang;
 }
+
 
 interface RolePermissionContentProps
 {
@@ -52,6 +57,7 @@ interface RolePermissionContentProps
     isAddNew: boolean;
 }
 
+
 interface HeaderSectionProps
 {
     /** 後台主題設定 */
@@ -64,13 +70,16 @@ interface HeaderSectionProps
     isAddNew: boolean;
 }
 
+
 interface RoleFieldGroupProps extends HeaderSectionProps
 {
     /** 欄位 binding helper */
     setField: SetRolePermissionField;
 }
 
+
 interface PermissionSectionProps extends RolePermissionCatalogAccordionProps { }
+
 
 interface ModuleItemProps
 {
@@ -84,6 +93,7 @@ interface ModuleItemProps
     moduleIndex: number;
 }
 
+
 interface ProgramItemProps extends ModuleItemProps
 {
     /** 功能資料 */
@@ -92,6 +102,7 @@ interface ProgramItemProps extends ModuleItemProps
     /** 功能 index */
     progIndex: number;
 }
+
 
 interface PermissionCheckboxProps
 {
@@ -167,6 +178,7 @@ const RolePermissionContentComp = (props: RolePermissionContentProps) =>
     );
 };
 
+
 /** 角色基本資料區。 */
 const HeaderSectionComp = (props: HeaderSectionProps) =>
 {
@@ -186,6 +198,7 @@ const HeaderSectionComp = (props: HeaderSectionProps) =>
         </div>
     );
 };
+
 
 /** 權限設定區。 */
 const PermissionSectionComp = (props: PermissionSectionProps) =>
@@ -207,9 +220,8 @@ const PermissionSectionComp = (props: PermissionSectionProps) =>
         </div>
     );
 };
-// #endregion
 
-// #region EntityComp
+
 /** 角色代碼與角色名稱欄位。 */
 const RoleFieldGroupComp = (props: RoleFieldGroupProps) =>
 {
@@ -232,6 +244,7 @@ const RoleFieldGroupComp = (props: RoleFieldGroupProps) =>
     );
 };
 
+
 /** 權限設定工具列。 */
 const PermissionToolbarComp = (props: { ui: RolePermissionUI; }) =>
 {
@@ -249,6 +262,7 @@ const PermissionToolbarComp = (props: { ui: RolePermissionUI; }) =>
     );
 };
 
+
 /** 模組 Accordion 清單。 */
 const ModuleAccordionListComp = (props: { ui: RolePermissionUI; modules: PermissionCatalogModuleDTO[]; }) =>
 {
@@ -262,6 +276,7 @@ const ModuleAccordionListComp = (props: { ui: RolePermissionUI; modules: Permiss
         </div>
     );
 };
+
 
 /** 單一模組 Accordion。 */
 const ModuleAccordionItemComp = (props: ModuleItemProps) =>
@@ -282,6 +297,7 @@ const ModuleAccordionItemComp = (props: ModuleItemProps) =>
     );
 };
 
+
 /** 模組標題列。 */
 const ModuleHeaderComp = (props: ModuleItemProps & { ids: ReturnType<typeof buildModuleIds>; isOpen: boolean; }) =>
 {
@@ -300,6 +316,7 @@ const ModuleHeaderComp = (props: ModuleItemProps & { ids: ReturnType<typeof buil
     );
 };
 
+
 /** 單一模組全選 checkbox。 */
 const ModulePermissionAllComp = (props: ModuleItemProps & { ids: ReturnType<typeof buildModuleIds>; }) =>
 {
@@ -317,6 +334,7 @@ const ModulePermissionAllComp = (props: ModuleItemProps & { ids: ReturnType<type
     );
 };
 
+
 /** 功能 Accordion 清單。 */
 const ProgramAccordionListComp = (props: ModuleItemProps) =>
 {
@@ -328,6 +346,7 @@ const ProgramAccordionListComp = (props: ModuleItemProps) =>
         </>
     );
 };
+
 
 /** 單一功能 Accordion。 */
 const ProgramAccordionItemComp = (props: ProgramItemProps) =>
@@ -349,6 +368,7 @@ const ProgramAccordionItemComp = (props: ProgramItemProps) =>
     );
 };
 
+
 /** 功能標題列。 */
 const ProgramHeaderComp = (props: ProgramItemProps & { ids: ReturnType<typeof buildProgramIds>; isOpen: boolean; }) =>
 {
@@ -367,6 +387,7 @@ const ProgramHeaderComp = (props: ProgramItemProps & { ids: ReturnType<typeof bu
     );
 };
 
+
 /** 功能權限設定內容。 */
 const ProgramPermissionBodyComp = (props: ProgramItemProps & { ids: ReturnType<typeof buildProgramIds>; }) =>
 {
@@ -382,6 +403,7 @@ const ProgramPermissionBodyComp = (props: ProgramItemProps & { ids: ReturnType<t
     );
 };
 
+
 /** 功能權限選項。 */
 const ProgramPermissionOptionsComp = (props: ProgramItemProps & { ids: ReturnType<typeof buildProgramIds>; }) =>
 {
@@ -395,6 +417,7 @@ const ProgramPermissionOptionsComp = (props: ProgramItemProps & { ids: ReturnTyp
         </>
     );
 };
+
 
 /** 功能全選 checkbox。 */
 const ProgramAllPermissionCheckboxComp = (props: ProgramItemProps & { ids: ReturnType<typeof buildProgramIds>; }) =>
@@ -410,6 +433,7 @@ const ProgramAllPermissionCheckboxComp = (props: ProgramItemProps & { ids: Retur
         </div>
     );
 };
+
 
 /** 單一動作 checkbox。 */
 const ProgramActionCheckboxComp = (props: ProgramItemProps & { ids: ReturnType<typeof buildProgramIds>; action: PermissionActionOption; }) =>
@@ -428,6 +452,7 @@ const ProgramActionCheckboxComp = (props: ProgramItemProps & { ids: ReturnType<t
         </div>
     );
 };
+
 
 /** 權限 checkbox 共用元件。 */
 const PermissionCheckboxComp = (props: PermissionCheckboxProps) =>
@@ -449,12 +474,13 @@ const PermissionCheckboxComp = (props: PermissionCheckboxProps) =>
 };
 // #endregion
 
-// #region Private
+// #region EntityComp
 /** 建立返回角色權限列表路徑。 */
 const buildBackToListPath = (pathname: string): string =>
 {
     return pathname.replace(/\/Form(?:\/[^/]+)?$/, "/List");
 };
+
 
 /** 建立模組 Accordion 使用的 id 與顯示文字。 */
 const buildModuleIds = (rid: string, module: PermissionCatalogModuleDTO, moduleIndex: number) =>
@@ -470,6 +496,7 @@ const buildModuleIds = (rid: string, module: PermissionCatalogModuleDTO, moduleI
         moduleAllId: `${rid}-mod-all-${moduleIndex}-${moduleCode}`,
     };
 };
+
 
 /** 建立功能 Accordion 使用的 id 與顯示文字。 */
 const buildProgramIds = (rid: string, module: PermissionCatalogModuleDTO, moduleIndex: number, prog: PermissionCatalogProgDTO, progIndex: number) =>

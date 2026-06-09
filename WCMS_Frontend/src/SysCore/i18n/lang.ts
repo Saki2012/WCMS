@@ -1,19 +1,8 @@
 import type { components } from "@/types/api";
 import { useEffect } from "react";
 
-export type Lang = components["schemas"]["LangCode"]; // ← 以後端 Swagger 為準
-
-/**應該可以從後端提供顯示名稱，暫時寫死 */
-export const LangLabelMap: Record<Lang, string> = { "zh-tw": "中文", "zh-cn": "简体中文", "en": "English" };
-export const getLangLabel = (code?: string) =>
-{
-    const key = (code ?? "").trim() as Lang;
-    return (LangLabelMap as any)[key] ?? (code ?? "");
-};
-/** 下面這三個應該要從SiteInfo讀出來的結果來處理，後續再看如何移除 */
-export const DefaultLang: Lang = "zh-tw";
-export const SUPPORTED_LANGS: Lang[] = ["zh-tw", "en"]; /** 支援語系，之後做參數設定 */
-export const isSupportedLang = (x?: Lang | string | null): x is Lang => SUPPORTED_LANGS.includes(x as Lang);
+// #region Property
+export type Lang = components["schemas"]["LangCode"];
 
 export interface EnsureLangSimpleOptions
 {
@@ -27,7 +16,23 @@ export interface EnsureLangSimpleOptions
     deps?: unknown[];
     preferFirstLang?: Lang; // 或用你的 Lang 型別：preferFirstLang?: Lang;
 }
+// #endregion
 
+// #region Public
+// ← 以後端 Swagger 為準
+
+/**應該可以從後端提供顯示名稱，暫時寫死 */
+export const LangLabelMap: Record<Lang, string> = { "zh-tw": "中文", "zh-cn": "简体中文", "en": "English" };
+export const getLangLabel = (code?: string) =>
+{
+    const key = (code ?? "").trim() as Lang;
+    return (LangLabelMap as any)[key] ?? (code ?? "");
+};
+/** 下面這三個應該要從SiteInfo讀出來的結果來處理，後續再看如何移除 */
+export const DefaultLang: Lang = "zh-tw";
+export const SUPPORTED_LANGS: Lang[] = ["zh-tw", "en"];
+/** 支援語系，之後做參數設定 */
+export const isSupportedLang = (x?: Lang | string | null): x is Lang => SUPPORTED_LANGS.includes(x as Lang);
 /** 自動匹配並補齊「多語系明細列（detail）」的 Hook。
  * useEnsureLangDetails
  * --------------------
@@ -93,7 +98,6 @@ export const useEnsureLangDetails = (
 ) =>
 {
     const langs = (opt.langs && opt.langs.length > 0) ? opt.langs : (["zh-tw", "en"] as Lang[]);
-
     useEffect(() =>
     {
         const data = formData?.data;
@@ -237,3 +241,20 @@ export const useEnsureLangDetails = (
         });
     }, [formData?.data, opt.headerName, opt.detailName, opt.parentKeys.join("|"), langs.join("|"), opt.preferFirstLang ?? ""]);
 };
+
+/** 正規化語系代碼，僅允許系統支援語系。 */
+export const normalizeSupportedLang = (lang?: Lang): Lang | null =>
+{
+    const value = String(lang ?? "").trim().toLowerCase();
+    if (!isSupportedLang(value)) return null;
+    return value;
+};
+
+/** 建立支援語系排序，目前語系會優先排在第一個。 */
+export const buildSupportedLangOrder = (preferLang?: Lang): Lang[] =>
+{
+    const normalizedPreferLang = normalizeSupportedLang(preferLang);
+    const langs = normalizedPreferLang ? [normalizedPreferLang, ...SUPPORTED_LANGS] : [...SUPPORTED_LANGS];
+    return langs.filter((lang, index) => langs.indexOf(lang) === index);
+};
+// #endregion

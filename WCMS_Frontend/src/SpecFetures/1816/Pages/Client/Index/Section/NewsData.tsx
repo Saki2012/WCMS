@@ -10,10 +10,17 @@ import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WEB/Announcement_A
 
 import more_d from "@/SpecFetures/1816/Assets/Client/images/svg_icon/more-d.svg";
 
+import { findTextByKey } from "@/SysCore/Utils/Library/LibData";
+
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
+
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"];
+
 type TagSet = components["schemas"]["TagSet_DTO"];
+
 
 export interface NewsDataProps
 {
@@ -34,66 +41,30 @@ export interface NewsDataProps
     initialTags: TagSet[];
 }
 
-const toListInitial = <TArgs, TItem>(args: TArgs, data: TItem[]) =>
+
+interface GetDataProp
 {
-    // return：符合 adapter hook 的 initial 型別
-    return { args, apiRes: { IsSuccess: true, Data: data, SysMessage: [] } };
-};
+    redir: string;
+    announceInternalId: string;
+    title: string;
+    date: string;
+    month: string;
+    year: string;
+    monthNum: number;
+    tagName: string;
+    categoryName: string;
+    contentStatus: number;
+    internalId: string;
+}
 
-const useAnnouncementLists = (
-    p: {
-        listParam01: QueryListParam;
-        listParam02: QueryListParam;
-        listParam03: QueryListParam;
-        listParam04: QueryListParam;
-        initialList01: AnnouncementSet[];
-        initialList02: AnnouncementSet[];
-        initialList03: AnnouncementSet[];
-        initialList04: AnnouncementSet[];
-    },
-) =>
-{
-    // 宣告變數
-    const adapter = useMemo(() => AnnouncementAdapter(), []);
 
-    const initial01 = useMemo(() => toListInitial(p.listParam01, p.initialList01 ?? []), [p.listParam01, p.initialList01]);
-    const initial02 = useMemo(() => toListInitial(p.listParam02, p.initialList02 ?? []), [p.listParam02, p.initialList02]);
-    const initial03 = useMemo(() => toListInitial(p.listParam03, p.initialList03 ?? []), [p.listParam03, p.initialList03]);
-    const initial04 = useMemo(() => toListInitial(p.listParam04, p.initialList04 ?? []), [p.listParam04, p.initialList04]);
+type TagKey = "top" | "new" | "hot";
 
-    // 執行 function：SSR 有 initial → hydration 不重抓
-    const q01 = adapter.hooks.useQueryList({ condition: p.listParam01, initial: initial01, deps: [p.listParam01.Condition ?? ""] });
-    const q02 = adapter.hooks.useQueryList({ condition: p.listParam02, initial: initial02, deps: [p.listParam02.Condition ?? ""] });
-    const q03 = adapter.hooks.useQueryList({ condition: p.listParam03, initial: initial03, deps: [p.listParam03.Condition ?? ""] });
-    const q04 = adapter.hooks.useQueryList({ condition: p.listParam04, initial: initial04, deps: [p.listParam04.Condition ?? ""] });
 
-    // return
-    return { list01: q01.data ?? [], list02: q02.data ?? [], list03: q03.data ?? [], list04: q04.data ?? [] };
-};
+const DAY_MS = 24 * 60 * 60 * 1000;
+// #endregion
 
-const useCategoryTagDict = (
-    p: { lang: Lang; cateParam: QueryListParam; tagParam: QueryListParam; initialCategories: CategoryDataSet[]; initialTags: TagSet[]; },
-) =>
-{
-    // 宣告變數
-    const cateAdapter = useMemo(() => CategoryAdapter(), []);
-    const tagAdapter = useMemo(() => TagAdapter(), []);
-
-    const cateInitial = useMemo(() => toListInitial(p.cateParam, p.initialCategories ?? []), [p.cateParam, p.initialCategories]);
-    const tagInitial = useMemo(() => toListInitial(p.tagParam, p.initialTags ?? []), [p.tagParam, p.initialTags]);
-
-    // 執行 function
-    const cateQ = cateAdapter.hooks.useQueryList({ condition: p.cateParam, initial: cateInitial, deps: [p.cateParam.Condition ?? ""] });
-    const tagQ = tagAdapter.hooks.useQueryList({ condition: p.tagParam, initial: tagInitial, deps: [p.tagParam.Condition ?? ""] });
-
-    // 宣告變數：dict
-    const categoryDict = useMemo(() => buildCategoryDict(cateQ.data ?? [], p.lang), [cateQ.data, p.lang]);
-    const tagDict = useMemo(() => buildTagDict(tagQ.data ?? [], p.lang), [tagQ.data, p.lang]);
-
-    // return
-    return { categoryDict, tagDict };
-};
-
+// #region Public
 export const NewsData = (props: NewsDataProps) =>
 {
     // 宣告變數：資料（adapter hooks）
@@ -398,7 +369,9 @@ export const NewsData = (props: NewsDataProps) =>
         </div>
     );
 };
+// #endregion
 
+// #region EntityComp
 // =========================
 // helpers（維持原本邏輯）
 // =========================
@@ -409,13 +382,14 @@ const buildCategoryDict = (list: CategoryDataSet[], lang: Lang): Record<string, 
     const pairs = list.map((cat) =>
     {
         const id = cat.Category?.CategoryId;
-        const name = cat.CategoryDetail?.find((p) => p.Lang === lang)?.CategoryName ?? "";
+        const name = findTextByKey(cat.CategoryDetail, (p) => p?.Lang, lang, (p) => p?.CategoryName);
         return [String(id ?? ""), name] as const;
     });
 
     // return
     return Object.fromEntries(pairs.filter(([id]) => Boolean(id)));
 };
+
 
 const buildTagDict = (list: TagSet[], lang: Lang): Record<string, string> =>
 {
@@ -423,28 +397,78 @@ const buildTagDict = (list: TagSet[], lang: Lang): Record<string, string> =>
     const pairs = list.map((t) =>
     {
         const id = t.TagData?.TagId;
-        const name = t.TagDetail?.find((p) => p.Lang === lang)?.TagName ?? "";
+        const name = findTextByKey(t.TagDetail, (p) => p?.Lang, lang, (p) => p?.TagName);
         return [String(id ?? ""), name] as const;
     });
 
     // return
     return Object.fromEntries(pairs.filter(([id]) => Boolean(id)));
 };
+// #endregion
 
-interface GetDataProp
+// #region Private
+const toListInitial = <TArgs, TItem>(args: TArgs, data: TItem[]) =>
 {
-    redir: string;
-    announceInternalId: string;
-    title: string;
-    date: string;
-    month: string;
-    year: string;
-    monthNum: number;
-    tagName: string;
-    categoryName: string;
-    contentStatus: number;
-    internalId: string;
-}
+    // return：符合 adapter hook 的 initial 型別
+    return { args, apiRes: { IsSuccess: true, Data: data, SysMessage: [] } };
+};
+
+
+const useAnnouncementLists = (
+    p: {
+        listParam01: QueryListParam;
+        listParam02: QueryListParam;
+        listParam03: QueryListParam;
+        listParam04: QueryListParam;
+        initialList01: AnnouncementSet[];
+        initialList02: AnnouncementSet[];
+        initialList03: AnnouncementSet[];
+        initialList04: AnnouncementSet[];
+    },
+) =>
+{
+    // 宣告變數
+    const adapter = useMemo(() => AnnouncementAdapter(), []);
+
+    const initial01 = useMemo(() => toListInitial(p.listParam01, p.initialList01 ?? []), [p.listParam01, p.initialList01]);
+    const initial02 = useMemo(() => toListInitial(p.listParam02, p.initialList02 ?? []), [p.listParam02, p.initialList02]);
+    const initial03 = useMemo(() => toListInitial(p.listParam03, p.initialList03 ?? []), [p.listParam03, p.initialList03]);
+    const initial04 = useMemo(() => toListInitial(p.listParam04, p.initialList04 ?? []), [p.listParam04, p.initialList04]);
+
+    // 執行 function：SSR 有 initial → hydration 不重抓
+    const q01 = adapter.hooks.useQueryList({ condition: p.listParam01, initial: initial01, deps: [p.listParam01.Condition ?? ""] });
+    const q02 = adapter.hooks.useQueryList({ condition: p.listParam02, initial: initial02, deps: [p.listParam02.Condition ?? ""] });
+    const q03 = adapter.hooks.useQueryList({ condition: p.listParam03, initial: initial03, deps: [p.listParam03.Condition ?? ""] });
+    const q04 = adapter.hooks.useQueryList({ condition: p.listParam04, initial: initial04, deps: [p.listParam04.Condition ?? ""] });
+
+    // return
+    return { list01: q01.data ?? [], list02: q02.data ?? [], list03: q03.data ?? [], list04: q04.data ?? [] };
+};
+
+
+const useCategoryTagDict = (
+    p: { lang: Lang; cateParam: QueryListParam; tagParam: QueryListParam; initialCategories: CategoryDataSet[]; initialTags: TagSet[]; },
+) =>
+{
+    // 宣告變數
+    const cateAdapter = useMemo(() => CategoryAdapter(), []);
+    const tagAdapter = useMemo(() => TagAdapter(), []);
+
+    const cateInitial = useMemo(() => toListInitial(p.cateParam, p.initialCategories ?? []), [p.cateParam, p.initialCategories]);
+    const tagInitial = useMemo(() => toListInitial(p.tagParam, p.initialTags ?? []), [p.tagParam, p.initialTags]);
+
+    // 執行 function
+    const cateQ = cateAdapter.hooks.useQueryList({ condition: p.cateParam, initial: cateInitial, deps: [p.cateParam.Condition ?? ""] });
+    const tagQ = tagAdapter.hooks.useQueryList({ condition: p.tagParam, initial: tagInitial, deps: [p.tagParam.Condition ?? ""] });
+
+    // 宣告變數：dict
+    const categoryDict = useMemo(() => buildCategoryDict(cateQ.data ?? [], p.lang), [cateQ.data, p.lang]);
+    const tagDict = useMemo(() => buildTagDict(tagQ.data ?? [], p.lang), [tagQ.data, p.lang]);
+
+    // return
+    return { categoryDict, tagDict };
+};
+
 
 const getNewsDataProps = (
     newsData: AnnouncementSet[],
@@ -476,7 +500,7 @@ const getNewsDataProps = (
         resultProps.push({
             redir,
             announceInternalId: internalId,
-            title: item.AnnouncementDetail?.find((p) => p.Lang === lang)?.Title ?? "",
+            title: findTextByKey(item.AnnouncementDetail, (p) => p?.Lang, lang, (p) => p?.Title),
             date: date.day,
             month: date.month,
             year: date.year,
@@ -491,6 +515,7 @@ const getNewsDataProps = (
     // return
     return resultProps;
 };
+
 
 const pickNewsByCategories = <T extends { Announcement?: { Categories?: string | null | undefined; }; }>(
     newsData: T[] | undefined,
@@ -512,6 +537,7 @@ const pickNewsByCategories = <T extends { Announcement?: { Categories?: string |
     return result.slice(0, take);
 };
 
+
 const formatDate = (dateStr: string) =>
 {
     const date = new Date(dateStr);
@@ -521,7 +547,6 @@ const formatDate = (dateStr: string) =>
     return { day, month, year };
 };
 
-type TagKey = "top" | "new" | "hot";
 
 const GetData = (props: { lang: Lang; prop: GetDataProp[]; }) =>
 {
@@ -572,7 +597,6 @@ const GetData = (props: { lang: Lang; prop: GetDataProp[]; }) =>
     );
 };
 
-const DAY_MS = 24 * 60 * 60 * 1000;
 
 const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: number = 8): boolean =>
 {
@@ -593,3 +617,4 @@ const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: numb
     const diffDays = Math.floor((nowUTC - candidateUTC) / DAY_MS);
     return diffDays >= 0 && diffDays <= n;
 };
+// #endregion

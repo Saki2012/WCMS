@@ -3,7 +3,9 @@ import type { ReactNode } from "react";
 import { createPortal } from "react-dom"; // 👈 加這行
 import "./Dialog.css";
 
+// #region Property
 type MessageType = "info" | "success" | "error";
+
 
 interface Toast
 {
@@ -13,6 +15,7 @@ interface Toast
     sticky?: boolean;
 }
 
+
 interface ConfirmOptions
 {
     message: string;
@@ -20,20 +23,25 @@ interface ConfirmOptions
     onCancel?: () => void;
 }
 
+
 interface MessageContextType
 {
     showToast: (message: string, type?: MessageType, sticky?: boolean) => void;
     showConfirm: (options: ConfirmOptions) => void;
 }
 
-const MessageContext = createContext<MessageContextType | null>(null);
 
+const MessageContext = createContext<MessageContextType | null>(null);
+// #endregion
+
+// #region Public
 export const useMessage = () =>
 {
     const ctx = useContext(MessageContext);
     if (!ctx) throw new Error("useMessage must be used within MessageProvider");
     return ctx;
 };
+
 
 export const MessageProvider = ({ children }: { children: ReactNode; }) =>
 {
@@ -115,3 +123,4 @@ export const MessageProvider = ({ children }: { children: ReactNode; }) =>
         </MessageContext.Provider>
     );
 };
+// #endregion

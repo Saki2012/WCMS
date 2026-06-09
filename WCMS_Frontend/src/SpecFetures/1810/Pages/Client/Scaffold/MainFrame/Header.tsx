@@ -13,6 +13,18 @@ import { useEffect, useRef } from "react";
 import { useLocation } from "react-router";
 import { SpecLangSwitchBtn } from "./SpecLangSwitchBtn";
 
+// #region Property
+declare global
+{
+    interface Window
+    {
+        google: any;
+        googleTranslateElementInit: () => void;
+    }
+}
+// #endregion
+
+// #region Public
 export const Header = ({ lang, site, style }: { lang: Lang; site: INormSite; style: IFETheme; }) =>
 {
     const data = { Title: "國立臺灣藝術大學_研究發展處 LOGO", SrcImg: logImg, SubSrcImg: subLogImg };
@@ -62,16 +74,121 @@ export const Header = ({ lang, site, style }: { lang: Lang; site: INormSite; sty
     );
 };
 
+
+/** 這邊雖然是模擬js，但應該可以再看如何轉換成原本吃js的動作，來移除該功能 */
+export const useLegacyMenuDOM = (menuRef: React.RefObject<HTMLUListElement>) =>
+{
+    useEffect(() =>
+    {
+        if (typeof window === "undefined") return; // SSR guard
+        const root = menuRef.current;
+        if (!root) return;
+
+        const getIcon = (li: HTMLElement) => li.querySelector(":scope > a i");
+        const setArrow = (li: HTMLElement, open: boolean) =>
+        {
+            const icon = getIcon(li);
+            if (!icon) return;
+            icon.classList.toggle("fa-angle-right", !open);
+            icon.classList.toggle("fa-angle-down", open);
+        };
+
+        const closeBranch = (li: HTMLElement) =>
+        {
+            const childUl = li.querySelector(":scope > ul") as HTMLElement | null;
+
+            if (childUl) childUl.classList.remove("in");
+            li.classList.remove("active");
+            setArrow(li, false);
+            // 也把後代全部收掉（避免留下展開殘影）
+            childUl?.querySelectorAll("li").forEach(n =>
+            {
+                const h = n as HTMLElement;
+                h.classList.remove("active");
+                const sub = h.querySelector(":scope > ul") as HTMLElement | null;
+                if (sub) sub.classList.remove("in");
+                setArrow(h, false);
+            });
+        };
+
+        const closeAllMenu = (root: HTMLElement) =>
+        {
+            root.querySelectorAll(":scope li").forEach(node =>
+            {
+                closeBranch(node as HTMLElement);
+            });
+        };
+
+        const onClick = (e: Event) =>
+        {
+            const target = e.target as Element;
+            const link = target.closest("a");
+
+            if (!link || !root.contains(link)) return;
+
+            const li = link.closest("li") as HTMLElement | null;
+            if (!li) return;
+
+            const childUl = li.querySelector(":scope > ul") as HTMLElement | null;
+
+            // 沒子層 = 正常導頁並關閉menu；若要只設 active 可在這裡加 li.classList.add("active")
+            if (!childUl) return closeMenu();
+
+            // 有子層：阻止導頁，改為展開/收合
+            e.preventDefault();
+
+            const isOpen = childUl.classList.contains("in");
+
+            // 只關閉「同層」兄弟的直屬子層與箭頭
+            const parentUl = li.parentElement as HTMLElement | null; // li 的父層 ul
+            const siblings = parentUl ? Array.from(parentUl.children) : [];
+            siblings.forEach(node =>
+            {
+                const sib = node as HTMLElement;
+                if (sib !== li) closeBranch(sib);
+            });
+
+            if (isOpen)
+            {
+                // ✅ 目前已展開 → 縮回
+                closeBranch(li);
+            } else
+            {
+                // ✅ 目前收合 → 展開
+                childUl.classList.add("in");
+                li.classList.add("active");
+                setArrow(li, true);
+            }
+        };
+        root.addEventListener("click", onClick);
+
+        // 監聽 header_Box 的 active class
+        const headerBox = document.querySelector(".header_Box");
+        let observer: MutationObserver | null = null;
+        if (headerBox)
+        {
+            observer = new MutationObserver(() =>
+            {
+                if (headerBox.classList.contains("active"))
+                {
+                    closeAllMenu(root); // header_Box 再次 active → 收掉全部展開的 menu
+                }
+            });
+            observer.observe(headerBox, { attributes: true, attributeFilter: ["class"] });
+        }
+
+        return () =>
+        {
+            root.removeEventListener("click", onClick);
+            if (observer) observer.disconnect();
+        };
+    }, [menuRef]);
+};
+// #endregion
+
+// #region Private
 export default Header;
 
-declare global
-{
-    interface Window
-    {
-        google: any;
-        googleTranslateElementInit: () => void;
-    }
-}
 
 const GetMenuData = (lang: Lang, site: INormSite): MenuItemData[] =>
 {
@@ -79,6 +196,7 @@ const GetMenuData = (lang: Lang, site: INormSite): MenuItemData[] =>
     if (!roots) return [];
     return buildMenuItems(roots, 0);
 };
+
 
 const MainMenu = (prop: { lang: Lang; site: INormSite; style: IFETheme; }) =>
 {
@@ -225,115 +343,6 @@ const MainMenu = (prop: { lang: Lang; site: INormSite; style: IFETheme; }) =>
     );
 };
 
-/** 這邊雖然是模擬js，但應該可以再看如何轉換成原本吃js的動作，來移除該功能 */
-export const useLegacyMenuDOM = (menuRef: React.RefObject<HTMLUListElement>) =>
-{
-    useEffect(() =>
-    {
-        if (typeof window === "undefined") return; // SSR guard
-        const root = menuRef.current;
-        if (!root) return;
-
-        const getIcon = (li: HTMLElement) => li.querySelector(":scope > a i");
-        const setArrow = (li: HTMLElement, open: boolean) =>
-        {
-            const icon = getIcon(li);
-            if (!icon) return;
-            icon.classList.toggle("fa-angle-right", !open);
-            icon.classList.toggle("fa-angle-down", open);
-        };
-
-        const closeBranch = (li: HTMLElement) =>
-        {
-            const childUl = li.querySelector(":scope > ul") as HTMLElement | null;
-
-            if (childUl) childUl.classList.remove("in");
-            li.classList.remove("active");
-            setArrow(li, false);
-            // 也把後代全部收掉（避免留下展開殘影）
-            childUl?.querySelectorAll("li").forEach(n =>
-            {
-                const h = n as HTMLElement;
-                h.classList.remove("active");
-                const sub = h.querySelector(":scope > ul") as HTMLElement | null;
-                if (sub) sub.classList.remove("in");
-                setArrow(h, false);
-            });
-        };
-
-        const closeAllMenu = (root: HTMLElement) =>
-        {
-            root.querySelectorAll(":scope li").forEach(node =>
-            {
-                closeBranch(node as HTMLElement);
-            });
-        };
-
-        const onClick = (e: Event) =>
-        {
-            const target = e.target as Element;
-            const link = target.closest("a");
-
-            if (!link || !root.contains(link)) return;
-
-            const li = link.closest("li") as HTMLElement | null;
-            if (!li) return;
-
-            const childUl = li.querySelector(":scope > ul") as HTMLElement | null;
-
-            // 沒子層 = 正常導頁並關閉menu；若要只設 active 可在這裡加 li.classList.add("active")
-            if (!childUl) return closeMenu();
-
-            // 有子層：阻止導頁，改為展開/收合
-            e.preventDefault();
-
-            const isOpen = childUl.classList.contains("in");
-
-            // 只關閉「同層」兄弟的直屬子層與箭頭
-            const parentUl = li.parentElement as HTMLElement | null; // li 的父層 ul
-            const siblings = parentUl ? Array.from(parentUl.children) : [];
-            siblings.forEach(node =>
-            {
-                const sib = node as HTMLElement;
-                if (sib !== li) closeBranch(sib);
-            });
-
-            if (isOpen)
-            {
-                // ✅ 目前已展開 → 縮回
-                closeBranch(li);
-            } else
-            {
-                // ✅ 目前收合 → 展開
-                childUl.classList.add("in");
-                li.classList.add("active");
-                setArrow(li, true);
-            }
-        };
-        root.addEventListener("click", onClick);
-
-        // 監聽 header_Box 的 active class
-        const headerBox = document.querySelector(".header_Box");
-        let observer: MutationObserver | null = null;
-        if (headerBox)
-        {
-            observer = new MutationObserver(() =>
-            {
-                if (headerBox.classList.contains("active"))
-                {
-                    closeAllMenu(root); // header_Box 再次 active → 收掉全部展開的 menu
-                }
-            });
-            observer.observe(headerBox, { attributes: true, attributeFilter: ["class"] });
-        }
-
-        return () =>
-        {
-            root.removeEventListener("click", onClick);
-            if (observer) observer.disconnect();
-        };
-    }, [menuRef]);
-};
 
 const closeMenu = () =>
 {
@@ -344,6 +353,7 @@ const closeMenu = () =>
         headerBox.classList.remove("active");
     }
 };
+
 const closeHeaderMenu = (headerEl: HTMLElement) =>
 {
     // 執行 function：統一關閉 header menu
@@ -351,12 +361,14 @@ const closeHeaderMenu = (headerEl: HTMLElement) =>
     headerEl.classList.remove("active");
 };
 
+
 const openHeaderMenu = (headerEl: HTMLElement) =>
 {
     // 執行 function：統一開啟 header menu
     document.body.style.overflow = "hidden";
     headerEl.classList.add("active");
 };
+
 const toggleHeaderMenu = (headerEl: HTMLElement) =>
 {
     // 宣告變數
@@ -366,6 +378,7 @@ const toggleHeaderMenu = (headerEl: HTMLElement) =>
     if (isActive) closeHeaderMenu(headerEl);
     else openHeaderMenu(headerEl);
 };
+
 function useHeaderBehaviorRef(headerRef: React.RefObject<HTMLElement | null>, pathname: string, lang: Lang)
 {
     useEffect(() =>
@@ -411,3 +424,4 @@ function useHeaderBehaviorRef(headerRef: React.RefObject<HTMLElement | null>, pa
         };
     }, [headerRef, pathname, lang]);
 }
+// #endregion

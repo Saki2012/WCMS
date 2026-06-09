@@ -1,6 +1,7 @@
 import { clsx } from "clsx";
 import { type KeyboardEvent, useEffect, useId, useState } from "react";
 
+// #region Property
 export interface ILibTabsStyle
 {
     UlStyle: string;
@@ -8,6 +9,7 @@ export interface ILibTabsStyle
     BtnStyle: string;
     RemoveBtnStyle?: string;
 }
+
 
 export interface LibTabsProp
 {
@@ -20,9 +22,12 @@ export interface LibTabsProp
     onActiveKeyChange?: (key: string) => void;
     tabIdPrefix?: string;
 }
+// #endregion
 
+// #region Private
 /** 取得目前可切換的 tab key 清單。 */
 const getTabKeys = (item: Record<string, string>): string[] => Object.keys(item);
+
 
 /** 依鍵盤操作取得下一個 tab key。 */
 const getNextKey = (keys: string[], activeKey: string, action: "prev" | "next" | "first" | "last"): string =>
@@ -35,6 +40,7 @@ const getNextKey = (keys: string[], activeKey: string, action: "prev" | "next" |
     const nextIndex = action === "next" ? (index + 1) % keys.length : (index - 1 + keys.length) % keys.length;
     return keys[nextIndex];
 };
+
 
 const LibTabs = (prop: LibTabsProp) =>
 {
@@ -129,4 +135,6 @@ const LibTabs = (prop: LibTabsProp) =>
     );
 };
 
+
 export default LibTabs;
+// #endregion

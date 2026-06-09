@@ -1,6 +1,7 @@
 // src/preview/PreviewFrame.tsx
 import React, { useEffect, useMemo, useRef } from "react";
 
+// #region Property
 export interface PreviewFrameProps
 {
     /** 是否顯示 */
@@ -34,7 +35,9 @@ export interface PreviewFrameProps
     /** 視窗寬度（Tailwind 類似的樣式字串）預設 min(1280px,95vw) */
     widthClassName?: string;
 }
+// #endregion
 
+// #region Public
 export const PreviewFrame: React.FC<PreviewFrameProps> = (props) =>
 {
     const {
@@ -136,3 +139,4 @@ export const PreviewFrame: React.FC<PreviewFrameProps> = (props) =>
         </div>
     );
 };
+// #endregion

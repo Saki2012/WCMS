@@ -3,6 +3,7 @@ import "./OperationGuideHelp_Comp.css";
 import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import img from "./GridListOperationGuide.gif";
 
+// #region Public
 export const OperationGuideHelp_Comp = (props: { lang?: Lang; }) =>
 {
     const lang = props.lang ?? DefaultLang;
@@ -63,7 +64,9 @@ export const OperationGuideHelp_Comp = (props: { lang?: Lang; }) =>
         </>
     );
 };
+// #endregion
 
+// #region Private
 const getOperationGuideHelpText = (lang: Lang) =>
 {
     // 宣告變數
@@ -84,3 +87,4 @@ const getOperationGuideHelpText = (lang: Lang) =>
     // return
     return hit ?? fallback;
 };
+// #endregion

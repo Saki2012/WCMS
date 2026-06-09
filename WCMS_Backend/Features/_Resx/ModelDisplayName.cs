@@ -212,6 +212,20 @@ public static class ModelDisplayName
     public const string Common_Name = nameof(Common_Name);
     #endregion
 
+    #region Language
+    /// <summary>
+    /// 繁體中文
+    /// </summary>
+    public const string Lang_zhtw = nameof(Lang_zhtw);
+    /// <summary>
+    /// 简体中文
+    /// </summary>
+    public const string Lang_zhcn = nameof(Lang_zhcn);
+    /// <summary>
+    /// English
+    /// </summary>
+    public const string Lang_en = nameof(Lang_en);
+    #endregion
 
     #region Module
     /// <summary>

@@ -12,10 +12,16 @@ import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { AccountFields, CategoryDetailFields, CategoryFields, PGID } from "@/types/SchemaFields";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
+
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
+
 type CategoryListFormRawData = { editForm: UseFetchFormDataResult<CategorySet>; actions: UseActionsResult; list: CategorySet[]; param: QueryListParam; };
+
 type CategoryListFormAdapter = { Category: ReturnType<typeof CategoryAdapter>; };
+// #endregion
 
 // #region Public
 export const useCategoryListFormFetchData = (
@@ -100,6 +106,7 @@ const useCategoryListFormDataByAdapter = (
         displayName: (model.data ?? ({ ModelId: "", ModelDisplayName: "", Tables: [] } as ModelDisplaySchema)),
     };
 };
+
 const useCategoryListFormActionsFromAdapter = (
     dirUrl: string,
     adapter: ReturnType<typeof CategoryAdapter>,
@@ -170,6 +177,7 @@ const useCategoryListFormActionsFromAdapter = (
         {},
     }), [server.isSaving, onSave, onDelete, onCancelBack, onAddNew, onEdit]);
 };
+
 const useCategoryListQueryParam = (p: { lang: Lang; pgId: PGID; }): QueryListParam =>
 {
     const fields = useMemo<string[]>(() =>

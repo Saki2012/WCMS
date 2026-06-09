@@ -1,3 +1,4 @@
+// #region Property
 export interface ISearchQuery
 {
     keyword?: string;
@@ -5,6 +6,7 @@ export interface ISearchQuery
     from?: string; // yyyy-MM-dd
     to?: string; // yyyy-MM-dd
 }
+
 
 export interface SearchBarProps
 {
@@ -14,7 +16,9 @@ export interface SearchBarProps
     onSubmit: () => void;
     onReset?: () => void;
 }
+// #endregion
 
+// #region Public
 export const SearchBarComp: React.FC<SearchBarProps> = ({ value, tags, onChange, onSubmit, onReset }) =>
 {
     return (
@@ -66,3 +70,4 @@ export const SearchBarComp: React.FC<SearchBarProps> = ({ value, tags, onChange,
         </form>
     );
 };
+// #endregion

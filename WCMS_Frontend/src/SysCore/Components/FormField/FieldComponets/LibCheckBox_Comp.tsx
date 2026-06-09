@@ -1,6 +1,7 @@
 import { useId, useMemo } from "react";
 import type { ILibCheckBoxProp } from "./LibCheckBox_Data";
 
+// #region Private
 const LibCheckBox = (prop: ILibCheckBoxProp) =>
 {
     const groupId = useId();
@@ -85,4 +86,6 @@ const LibCheckBox = (prop: ILibCheckBoxProp) =>
     );
 };
 
+
 export default LibCheckBox;
+// #endregion

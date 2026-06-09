@@ -18,11 +18,13 @@ import {
 // #region Property
 type PersonSet = components["schemas"]["PersonSet_DTO"];
 
+
 interface PersonFormCompProps
 {
     /** 後台主題設定 */
     theme: IBETheme;
 }
+
 
 interface PersonContentProps
 {
@@ -36,11 +38,13 @@ interface PersonContentProps
     refs: PersonFormRefs;
 }
 
+
 interface PersonFieldSectionProps extends PersonContentProps
 {
     /** 欄位 binding helper */
     setField: ReturnType<typeof useSetTableField<PersonSet>>;
 }
+
 
 interface PersonUserCardProps
 {
@@ -108,6 +112,7 @@ const PersonContentComp = (props: PersonContentProps) =>
     );
 };
 
+
 /** 人員資料右側 Panel 區塊。 */
 const PersonPanelComp = (props: PersonContentProps) =>
 {
@@ -123,9 +128,8 @@ const PersonPanelComp = (props: PersonContentProps) =>
         </div>
     );
 };
-// #endregion
 
-// #region EntityComp
+
 /** 左側人員頭像卡片，圖片上傳後回寫 PersonImgId。 */
 const PersonUserCardComp = (props: PersonUserCardProps) =>
 {
@@ -147,6 +151,7 @@ const PersonUserCardComp = (props: PersonUserCardProps) =>
     );
 };
 
+
 /** 人員資料欄位區。 */
 const PersonFieldSectionComp = (props: PersonFieldSectionProps) =>
 {
@@ -161,20 +166,13 @@ const PersonFieldSectionComp = (props: PersonFieldSectionProps) =>
 };
 // #endregion
 
-// #region Private
+// #region EntityComp
 /** 建立返回人員列表路徑。 */
 const buildBackToListPath = (pathname: string): string =>
 {
     return pathname.replace(/\/Form(?:\/[^/]+)?$/, "/List");
 };
 
-/** 更新 PersonImgId，供左側人員頭像上傳後回寫。 */
-const updatePersonImgId = (prev: PersonSet, id: string): PersonSet =>
-{
-    const cur = prev ?? {};
-    const nextPerson = { ...(cur.Person ?? {}), PersonImgId: id };
-    return { ...cur, Person: nextPerson };
-};
 
 /** 建立人員代碼與姓名欄位。 */
 const buildPersonIdFields = (props: PersonFieldSectionProps) =>
@@ -199,6 +197,7 @@ const buildPersonIdFields = (props: PersonFieldSectionProps) =>
     );
 };
 
+
 /** 建立性別欄位。 */
 const buildPersonGenderFields = (props: PersonFieldSectionProps) =>
 {
@@ -217,6 +216,7 @@ const buildPersonGenderFields = (props: PersonFieldSectionProps) =>
     );
 };
 
+
 /** 建立 Email 欄位。 */
 const buildPersonEmailFields = (props: PersonFieldSectionProps) =>
 {
@@ -234,6 +234,7 @@ const buildPersonEmailFields = (props: PersonFieldSectionProps) =>
         </div>
     );
 };
+
 
 /** 建立電話欄位。 */
 const buildPersonPhoneFields = (props: PersonFieldSectionProps) =>
@@ -256,5 +257,15 @@ const buildPersonPhoneFields = (props: PersonFieldSectionProps) =>
             </div>
         </div>
     );
+};
+// #endregion
+
+// #region Private
+/** 更新 PersonImgId，供左側人員頭像上傳後回寫。 */
+const updatePersonImgId = (prev: PersonSet, id: string): PersonSet =>
+{
+    const cur = prev ?? {};
+    const nextPerson = { ...(cur.Person ?? {}), PersonImgId: id };
+    return { ...cur, Person: nextPerson };
 };
 // #endregion

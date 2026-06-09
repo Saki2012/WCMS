@@ -3,6 +3,7 @@ import { DefaultLang } from "@/SysCore/i18n/lang";
 import { PGID } from "@/types/SchemaFields";
 import { Module_SpecResearch_Comp, Module_SpecUSR_Comp } from "./SpecModule_Comp";
 
+// #region Property
 const MODULE_ALLOW_KEYS: readonly string[] = [
     PGID.Announcement,
     PGID.FileArchive,
@@ -12,7 +13,9 @@ const MODULE_ALLOW_KEYS: readonly string[] = [
     PGID.SpecResearch,
     PGID.SpecUSR,
 ];
+// #endregion
 
+// #region Public
 /** 1810 網站導覽模型功能擴充 */
 export const useModuleSettingTabSpecExtension = (): ModuleSettingTabExtension =>
 {
@@ -42,3 +45,4 @@ export const useModuleSettingTabSpecExtension = (): ModuleSettingTabExtension =>
         },
     };
 };
+// #endregion

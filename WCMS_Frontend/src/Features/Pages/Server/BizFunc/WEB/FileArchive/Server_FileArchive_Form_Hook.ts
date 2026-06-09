@@ -27,11 +27,11 @@ import {
     useEditGridBinding,
 } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { type Lang, LangLabelMap, SUPPORTED_LANGS, useEnsureLangDetails } from "@/SysCore/i18n/lang";
+import { buildSupportedLangOrder, type Lang, LangLabelMap, normalizeSupportedLang, SUPPORTED_LANGS, useEnsureLangDetails } from "@/SysCore/i18n/lang";
 import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { LibText } from "@/SysCore/Utils/Library/LibData";
 import { useUploadFile } from "@/SysCore/Utils/UI_HookFunc/useUploadFile";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
@@ -40,14 +40,21 @@ import { useCallback, useMemo } from "react";
 
 // #region Property
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];
+
 type FileArchiveInfo = NonNullable<FileArchiveSet["FileArchiveInfo"]>[number];
+
 type FileArchiveDetail = components["schemas"]["FileArchiveDetail_DTO"];
+
 type FileArchiveUrlDetail = components["schemas"]["FileArchiveUrlDetail_DTO"];
+
 type UploadFileHandler = ReturnType<typeof useUploadFile>["handleFileChange"];
 
 export type FileArchiveInfoRowKeys = Record<string, string | number | boolean | null | undefined>;
+
 export type FileArchiveFileCellValue = EditGridFileValue & { internalId?: string; originalFileName?: string; };
+
 export type FileArchiveFileGridRow = GridRow & { FileArchiveId?: string | null; ParentRowId?: number | null; FileRowId?: number | null; };
+
 export type FileArchiveUrlGridRow = GridRow & { FileArchiveId?: string | null; ParentRowId?: number | null; UrlRowId?: number | null; };
 
 export interface UseFileArchiveFormTemplateOptions
@@ -131,8 +138,6 @@ export interface FileArchiveDetailTabsResult
     items: FileArchiveDetailTabItem[];
 }
 
-export const fileArchiveEmptyData: FileArchiveSet = { FileArchive: {}, FileArchiveInfo: [], FileArchiveDetail: [], FileArchiveUrlDetail: [] };
-
 export type FileArchiveFormRefs = {
     /** 檔案室類別選項 */
     categoryMap: Record<string, string>;
@@ -160,6 +165,8 @@ export type FileArchiveFormAdapter = {
 // #endregion
 
 // #region Public
+export const fileArchiveEmptyData: FileArchiveSet = { FileArchive: {}, FileArchiveInfo: [], FileArchiveDetail: [], FileArchiveUrlDetail: [] };
+
 /** 建立 FileArchive Form Template，統一交給 Server_FormTemplate 處理資料流程。 */
 export const useFileArchiveFormTemplate = (
     opt: UseFileArchiveFormTemplateOptions,
@@ -247,9 +254,50 @@ export const useFileArchiveUrlEditGrid = (opt: UseFileArchiveUrlEditGridOptions)
         editGridProps: buildFileArchiveUrlGridProps(opt.parentRowId, opt.style, displayName),
     });
 };
+
+/** 建立檔案 CellValue，檔案欄位顯示原始檔名與 internalId，不混用業務名稱。 */
+export const buildFileArchiveFileCellValue = (file: FileArchiveDetail): FileArchiveFileCellValue =>
+{
+    const internalId = file.FileSrcId ?? file.FileSrc?.InternalId ?? "";
+    const originalName = file.FileSrc?.FileName ?? "";
+
+    return {
+        internalId,
+        fileName: buildFileArchiveFileFieldDisplayName(originalName, internalId),
+        originalFileName: originalName,
+        url: getFileArchiveFilePreviewUrl(internalId),
+        downloadUrl: getFileArchiveFileDownloadUrl(internalId),
+    };
+};
+
+/** 上傳後建立新的檔案 CellValue，檔案欄位固定顯示原始檔名與 internalId。 */
+export const buildUploadedFileArchiveFileCellValue = (
+    _current: FileArchiveFileCellValue,
+    internalId: string,
+    originalName?: string,
+): FileArchiveFileCellValue =>
+{
+    const safeOriginalName = originalName ?? "";
+
+    return {
+        internalId,
+        fileName: buildFileArchiveFileFieldDisplayName(safeOriginalName, internalId),
+        originalFileName: safeOriginalName,
+        url: getFileArchiveFilePreviewUrl(internalId),
+        downloadUrl: getFileArchiveFileDownloadUrl(internalId),
+    };
+};
+
+/** 將 EditGrid 值正規化成檔案 CellValue。 */
+export const toFileArchiveFileCellValue = (value: EditGridCellValue): FileArchiveFileCellValue =>
+{
+    if (isFileArchiveFileCellValue(value)) return value;
+    if (typeof value === "string") return { internalId: value, fileName: buildFileArchiveFileFieldDisplayName("", value) };
+    return { fileName: "", internalId: "" };
+};
 // #endregion
 
-// #region Timing
+// #region Private
 /** 建立 FileArchive Form 標題，功能名稱優先讀 ModelDisplayName。 */
 const buildFileArchiveFormTitle = (ctx: { mode: "new" | "edit"; displayName: ModelDisplaySchema; }): string =>
 {
@@ -316,9 +364,7 @@ const useFileArchiveReferenceData = (
         windowTargetOpts.isLoading,
     ]);
 };
-// #endregion
 
-// #region Private
 /** 取得 FileArchive Model 顯示名稱，避免 Form 標題寫死功能名稱。 */
 const getFileArchiveModelTitle = (displayName: ModelDisplaySchema, fallback: string): string =>
 {
@@ -388,21 +434,6 @@ const buildSupportedDetailMap = (details: FileArchiveInfo[]): Map<string, FileAr
     }, new Map<string, FileArchiveInfo>());
 };
 
-/** 建立目前 Case 支援語系順序，當前語系優先。 */
-const buildSupportedLangOrder = (preferLang: Lang): Lang[] =>
-{
-    const langs = [preferLang, ...SUPPORTED_LANGS];
-    return langs.filter((lang, index) => langs.indexOf(lang) === index && Boolean(normalizeSupportedLang(lang)));
-};
-
-/** 正規化並檢查語系是否屬於目前 Case 支援語系。 */
-const normalizeSupportedLang = (lang?: Lang | string | null): string | null =>
-{
-    const value = String(lang ?? "").trim().toLowerCase();
-    const isSupport = SUPPORTED_LANGS.some(item => item.toLowerCase() === value);
-    return isSupport ? value : null;
-};
-
 /** 建立單一 Detail Tab 項目。 */
 const buildFileArchiveDetailTabItem = (detail: FileArchiveInfo | undefined, index: number): FileArchiveDetailTabItem | null =>
 {
@@ -411,8 +442,8 @@ const buildFileArchiveDetailTabItem = (detail: FileArchiveInfo | undefined, inde
     const lang = normalizeSupportedLang(detail.Lang);
     if (!lang) return null;
 
-    const key = LibMerge("_", true, detail.FileArchiveId, detail.RowId, lang);
-    const label = LangLabelMap[lang as Lang] ?? lang;
+    const key = LibText.Merge("_", true, detail.FileArchiveId, detail.RowId, lang);
+    const label = LangLabelMap[lang] ?? lang;
     const detailRowId = Number(detail.RowId ?? index + 1);
     const rowKeys = buildFileArchiveInfoRowKeys(detail);
 
@@ -802,47 +833,6 @@ const isEditGridFileValue = (value: EditGridCellValue): value is EditGridFileVal
 const buildEmptyFileArchiveFileCellValue = (): FileArchiveFileCellValue =>
 {
     return { fileName: "", internalId: "", originalFileName: "" };
-};
-
-/** 建立檔案 CellValue，檔案欄位顯示原始檔名與 internalId，不混用業務名稱。 */
-export const buildFileArchiveFileCellValue = (file: FileArchiveDetail): FileArchiveFileCellValue =>
-{
-    const internalId = file.FileSrcId ?? file.FileSrc?.InternalId ?? "";
-    const originalName = file.FileSrc?.FileName ?? "";
-
-    return {
-        internalId,
-        fileName: buildFileArchiveFileFieldDisplayName(originalName, internalId),
-        originalFileName: originalName,
-        url: getFileArchiveFilePreviewUrl(internalId),
-        downloadUrl: getFileArchiveFileDownloadUrl(internalId),
-    };
-};
-
-/** 上傳後建立新的檔案 CellValue，檔案欄位固定顯示原始檔名與 internalId。 */
-export const buildUploadedFileArchiveFileCellValue = (
-    _current: FileArchiveFileCellValue,
-    internalId: string,
-    originalName?: string,
-): FileArchiveFileCellValue =>
-{
-    const safeOriginalName = originalName ?? "";
-
-    return {
-        internalId,
-        fileName: buildFileArchiveFileFieldDisplayName(safeOriginalName, internalId),
-        originalFileName: safeOriginalName,
-        url: getFileArchiveFilePreviewUrl(internalId),
-        downloadUrl: getFileArchiveFileDownloadUrl(internalId),
-    };
-};
-
-/** 將 EditGrid 值正規化成檔案 CellValue。 */
-export const toFileArchiveFileCellValue = (value: EditGridCellValue): FileArchiveFileCellValue =>
-{
-    if (isFileArchiveFileCellValue(value)) return value;
-    if (typeof value === "string") return { internalId: value, fileName: buildFileArchiveFileFieldDisplayName("", value) };
-    return { fileName: "", internalId: "" };
 };
 
 /** 判斷是否為檔案室檔案 CellValue。 */

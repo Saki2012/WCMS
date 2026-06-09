@@ -7,7 +7,6 @@ import { PageManagementAdapter } from "@/Features/Hooks/BizFunc/WEB/PageManageme
 import { WebResourceAdapter } from "@/Features/Hooks/BizFunc/WEB/WebResource_Api";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
 import {
     AnnouncementDetailFields,
@@ -25,13 +24,23 @@ import {
 } from "@/types/SchemaFields";
 import type { LoaderFunctionArgs } from "react-router-dom";
 
+import { formatLocalIso, LibCondition, Operator } from "@/SysCore/Utils/Library/LibData";
+
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 type BannerSet = components["schemas"]["BannerSet_DTO"];
+
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
+
 type PageManagementSet = components["schemas"]["PageManagementSet_DTO"];
+
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
+
 type GallerySet = components["schemas"]["GallerySet_DTO"];
+
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
+
 type TagSet = components["schemas"]["TagSet_DTO"];
 
 export interface HomePageRawData
@@ -55,6 +64,7 @@ export interface HomePageRawData
     galleryCategories: CategorySet[];
     galleryTags: TagSet[];
 }
+
 export interface HomePageLoaderArgs
 {
     lang: Lang;
@@ -83,193 +93,20 @@ export interface HomePageLoaderArgs
     galleryCateParam: QueryListParam;
     galleryTagParam: QueryListParam;
 }
+
 export interface HomePageLoaderRes
 {
     rawData: HomePageRawData;
 }
+
 export interface HomePageLoaderData
 {
     args: HomePageLoaderArgs;
     res: HomePageLoaderRes;
 }
-const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`);
-const formatLocalIso = (d: Date): string =>
-{
-    const y = d.getFullYear();
-    const m = pad(d.getMonth() + 1);
-    const day = pad(d.getDate());
-    const h = pad(d.getHours());
-    const mi = pad(d.getMinutes());
-    const s = pad(d.getSeconds());
-    const ms = `${d.getMilliseconds()}`.padStart(3, "0");
-    return `${y}-${m}-${day}T${h}:${mi}:${s}.${ms}`;
-};
-const takeTopThenFill = <T>(top: T[] | undefined, rest: T[] | undefined, limit: number, getKey: (x: T) => string): T[] =>
-{
-    const seen = new Set<string>();
-    const out: T[] = [];
-    for (const it of top ?? [])
-    {
-        const k = getKey(it);
-        if (!seen.has(k) && out.length < limit)
-        {
-            seen.add(k);
-            out.push(it);
-        }
-    }
-    for (const it of rest ?? [])
-    {
-        if (out.length >= limit) break;
-        const k = getKey(it);
-        if (!seen.has(k))
-        {
-            seen.add(k);
-            out.push(it);
-        }
-    }
-    return out;
-};
-const takeFirstOrNull = <T>(d: T | T[] | null | undefined): T | null =>
-{
-    if (!d) return null;
-    return Array.isArray(d) ? d[0] ?? null : d;
-};
-const buildBannerByBannerIdParam = (bannerId: string): QueryListParam =>
-{
-    return {
-        Fields: [
-            BannerFields.InternalId,
-            BannerFields.BannerId,
-            BannerFields.BannerCategoryName,
-            `${BannerFields._BannerDetail}.${BannerDetailFields.RowId}`,
-            `${BannerFields._BannerDetail}.${BannerDetailFields.PicSrcId}`,
-            `${BannerFields._BannerDetail}.${BannerDetailFields.Sort}`,
-            `${BannerFields._BannerDetail}.${BannerDetailFields.Validate_Start}`,
-            `${BannerFields._BannerDetail}.${BannerDetailFields.Validate_End}`,
-            `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.Lang}`,
-            `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.Title}`,
-            `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.Content}`,
-            `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.URL}`,
-            `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.URL_Open}`,
-        ],
-        Condition: bannerId ? `${BannerFields.BannerId} = ${bannerId}` : "",
-        OrderBy: [{ Col: BannerFields.CreateTime, Desc: true }],
-        PageNumber: 1,
-        PageSize: 1,
-    };
-};
-const buildCategoryQuery = (progId: string): QueryListParam =>
-{
-    return {
-        Fields: [
-            CategoryFields.InternalId,
-            CategoryFields.CategoryId,
-            CategoryFields.ProgId,
-            `${CategoryFields._CategoryDetail}.${CategoryDetailFields.Lang}`,
-            `${CategoryFields._CategoryDetail}.${CategoryDetailFields.CategoryName}`,
-        ],
-        Condition: progId ? `${CategoryFields.ProgId} = ${progId}` : "",
-        OrderBy: [{ Col: CategoryFields.CreateTime, Desc: false }],
-        PageNumber: 0,
-        PageSize: 0,
-    };
-};
-const buildTagQuery = (progId: string): QueryListParam =>
-{
-    return {
-        Fields: [
-            TagDataFields.InternalId,
-            TagDataFields.TagId,
-            TagDataFields.ProgId,
-            `${TagDataFields._TagDetail}.${TagDetailFields.Lang}`,
-            `${TagDataFields._TagDetail}.${TagDetailFields.TagName}`,
-        ],
-        Condition: progId ? `${TagDataFields.ProgId} = ${progId}` : "",
-        OrderBy: [{ Col: TagDataFields.ModifyTime, Desc: true }],
-        PageNumber: 0,
-        PageSize: 0,
-    };
-};
-const buildAnnouncementHomeCondition = (p: { lang: Lang; nowIsoLocal: string; categoryIds: string; isTop: boolean; }): string =>
-{
-    let cdt = "";
-    cdt = LibMerge(
-        " And ",
-        false,
-        cdt,
-        `${AnnouncementFields.Validate_Start} <= ${p.nowIsoLocal}`,
-        `(${AnnouncementFields.Validate_End} >= ${p.nowIsoLocal} Or ${AnnouncementFields.Validate_End} is null)`,
-        `${AnnouncementFields.ContentStatus} !& 4`,
-    );
-    // 執行：置頂/非置頂
-    cdt = p.isTop
-        ? LibMerge(" And ", false, cdt, `${AnnouncementFields.ContentStatus} & 1`)
-        : LibMerge(" And ", false, cdt, `${AnnouncementFields.ContentStatus} !& 1`);
-    cdt = LibMerge(" And ", false, cdt, `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang} = ${p.lang}`);
-    cdt = LibMerge(" And ", false, cdt, `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title} != ''`);
-    if (p.categoryIds)
-    {
-        cdt = LibMerge(" And ", false, cdt, `${AnnouncementFields.Categories} HasAny [${p.categoryIds}]`);
-    }
-    return cdt;
-};
-const buildAnnouncementHomeQuery = (p: { condition: string; take: number; }): QueryListParam =>
-{
-    return {
-        Fields: [
-            AnnouncementFields.AnnouncementId,
-            AnnouncementFields.InternalId,
-            AnnouncementFields.ContentStatus,
-            AnnouncementFields.PictureId,
-            AnnouncementFields.PicDescription,
-            AnnouncementFields.Categories,
-            AnnouncementFields.Tags,
-            AnnouncementFields.Validate_Start,
-            `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang}`,
-            `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title}`,
-            `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.SubTitle}`,
-            `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Content}`,
-        ],
-        Condition: p.condition,
-        OrderBy: [{ Col: AnnouncementFields.Validate_Start, Desc: true }, { Col: AnnouncementFields.CreateTime, Desc: true }],
-        PageNumber: 1,
-        PageSize: p.take,
-    };
-};
-const buildGalleryHomeCondition = (p: { lang: Lang; nowIsoLocal: string; categoryIds: string; isTop: boolean; }): string =>
-{
-    let cdt = "";
-    cdt = LibMerge(" And ", false, cdt, `${GalleryFields.Validate_Start} <= ${p.nowIsoLocal}`);
-    cdt = LibMerge(" And ", false, cdt, `${GalleryFields.ContentStatus} !& 4`);
-    cdt = p.isTop ? LibMerge(" And ", false, cdt, `${GalleryFields.ContentStatus} & 1`) : LibMerge(" And ", false, cdt, `${GalleryFields.ContentStatus} !& 1`);
-    // 執行：語系（避免找不到 info）
-    cdt = LibMerge(" And ", false, cdt, `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Lang} = ${p.lang}`);
-    cdt = LibMerge(" And ", false, cdt, `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Title} != ''`);
-    if (p.categoryIds) cdt = LibMerge(" And ", false, cdt, `${GalleryFields.Categories} HasAny [${p.categoryIds}]`);
-    return cdt;
-};
-const buildGalleryHomeQuery = (p: { condition: string; take: number; }): QueryListParam =>
-{
-    return {
-        Fields: [
-            GalleryFields.GalleryId,
-            GalleryFields.InternalId,
-            GalleryFields.Categories,
-            GalleryFields.Tags,
-            GalleryFields.ContentStatus,
-            GalleryFields.Validate_Start,
-            GalleryFields.CoverPicSrcId,
-            `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Lang}`,
-            `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Title}`,
-            `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Content}`,
-        ],
-        Condition: p.condition,
-        OrderBy: [{ Col: GalleryFields.Validate_Start, Desc: true }],
-        PageNumber: 1,
-        PageSize: p.take,
-    };
-};
+// #endregion
 
+// #region Public
 /**
  * ✅ 首頁 loader factory：對標 AnnouncementList_Loader.ts
  * - 回傳 res.rawData：一次包含首頁所有 section 需要的資料
@@ -424,3 +261,160 @@ export const HomePageLoader = (p: { lang: Lang; }) => async ({ request }: Loader
         },
     };
 };
+// #endregion
+
+// #region Private
+const takeTopThenFill = <T>(top: T[] | undefined, rest: T[] | undefined, limit: number, getKey: (x: T) => string): T[] =>
+{
+    const seen = new Set<string>();
+    const out: T[] = [];
+    for (const it of top ?? [])
+    {
+        const k = getKey(it);
+        if (!seen.has(k) && out.length < limit)
+        {
+            seen.add(k);
+            out.push(it);
+        }
+    }
+    for (const it of rest ?? [])
+    {
+        if (out.length >= limit) break;
+        const k = getKey(it);
+        if (!seen.has(k))
+        {
+            seen.add(k);
+            out.push(it);
+        }
+    }
+    return out;
+};
+const takeFirstOrNull = <T>(d: T | T[] | null | undefined): T | null =>
+{
+    if (!d) return null;
+    return Array.isArray(d) ? d[0] ?? null : d;
+};
+const buildBannerByBannerIdParam = (bannerId: string): QueryListParam =>
+{
+    return {
+        Fields: [
+            BannerFields.InternalId,
+            BannerFields.BannerId,
+            BannerFields.BannerCategoryName,
+            `${BannerFields._BannerDetail}.${BannerDetailFields.RowId}`,
+            `${BannerFields._BannerDetail}.${BannerDetailFields.PicSrcId}`,
+            `${BannerFields._BannerDetail}.${BannerDetailFields.Sort}`,
+            `${BannerFields._BannerDetail}.${BannerDetailFields.Validate_Start}`,
+            `${BannerFields._BannerDetail}.${BannerDetailFields.Validate_End}`,
+            `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.Lang}`,
+            `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.Title}`,
+            `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.Content}`,
+            `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.URL}`,
+            `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.URL_Open}`,
+        ],
+        Condition: bannerId ? `${BannerFields.BannerId} = ${bannerId}` : "",
+        OrderBy: [{ Col: BannerFields.CreateTime, Desc: true }],
+        PageNumber: 1,
+        PageSize: 1,
+    };
+};
+const buildCategoryQuery = (progId: string): QueryListParam =>
+{
+    return {
+        Fields: [
+            CategoryFields.InternalId,
+            CategoryFields.CategoryId,
+            CategoryFields.ProgId,
+            `${CategoryFields._CategoryDetail}.${CategoryDetailFields.Lang}`,
+            `${CategoryFields._CategoryDetail}.${CategoryDetailFields.CategoryName}`,
+        ],
+        Condition: progId ? `${CategoryFields.ProgId} = ${progId}` : "",
+        OrderBy: [{ Col: CategoryFields.CreateTime, Desc: false }],
+        PageNumber: 0,
+        PageSize: 0,
+    };
+};
+const buildTagQuery = (progId: string): QueryListParam =>
+{
+    return {
+        Fields: [
+            TagDataFields.InternalId,
+            TagDataFields.TagId,
+            TagDataFields.ProgId,
+            `${TagDataFields._TagDetail}.${TagDetailFields.Lang}`,
+            `${TagDataFields._TagDetail}.${TagDetailFields.TagName}`,
+        ],
+        Condition: progId ? `${TagDataFields.ProgId} = ${progId}` : "",
+        OrderBy: [{ Col: TagDataFields.ModifyTime, Desc: true }],
+        PageNumber: 0,
+        PageSize: 0,
+    };
+};
+const buildAnnouncementHomeCondition = (p: { lang: Lang; nowIsoLocal: string; categoryIds: string; isTop: boolean; }): string =>
+{
+    return LibCondition.joinConditions([
+        LibCondition.createCondition(AnnouncementFields.Validate_Start, Operator.LessThanOrEqual, p.nowIsoLocal),
+        `(${AnnouncementFields.Validate_End} >= ${p.nowIsoLocal} Or ${AnnouncementFields.Validate_End} is null)`,
+        LibCondition.createCondition(AnnouncementFields.ContentStatus, Operator.BitwiseHasNone, 4),
+        LibCondition.createCondition(AnnouncementFields.ContentStatus, p.isTop ? Operator.BitwiseHasAny : Operator.BitwiseHasNone, 1),
+        LibCondition.createCondition(`${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang}`, Operator.Equal, p.lang),
+        LibCondition.createCondition(`${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title}`, Operator.NotEqual, "", true),
+        LibCondition.createCondition(AnnouncementFields.Categories, Operator.HasAny, p.categoryIds),
+    ]);
+};
+const buildAnnouncementHomeQuery = (p: { condition: string; take: number; }): QueryListParam =>
+{
+    return {
+        Fields: [
+            AnnouncementFields.AnnouncementId,
+            AnnouncementFields.InternalId,
+            AnnouncementFields.ContentStatus,
+            AnnouncementFields.PictureId,
+            AnnouncementFields.PicDescription,
+            AnnouncementFields.Categories,
+            AnnouncementFields.Tags,
+            AnnouncementFields.Validate_Start,
+            `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang}`,
+            `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title}`,
+            `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.SubTitle}`,
+            `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Content}`,
+        ],
+        Condition: p.condition,
+        OrderBy: [{ Col: AnnouncementFields.Validate_Start, Desc: true }, { Col: AnnouncementFields.CreateTime, Desc: true }],
+        PageNumber: 1,
+        PageSize: p.take,
+    };
+};
+const buildGalleryHomeCondition = (p: { lang: Lang; nowIsoLocal: string; categoryIds: string; isTop: boolean; }): string =>
+{
+    return LibCondition.joinConditions([
+        LibCondition.createCondition(GalleryFields.Validate_Start, Operator.LessThanOrEqual, p.nowIsoLocal),
+        LibCondition.createCondition(GalleryFields.ContentStatus, Operator.BitwiseHasNone, 4),
+        LibCondition.createCondition(GalleryFields.ContentStatus, p.isTop ? Operator.BitwiseHasAny : Operator.BitwiseHasNone, 1),
+        LibCondition.createCondition(`${GalleryFields._GalleryInfo}.${GalleryInfoFields.Lang}`, Operator.Equal, p.lang),
+        LibCondition.createCondition(`${GalleryFields._GalleryInfo}.${GalleryInfoFields.Title}`, Operator.NotEqual, "", true),
+        LibCondition.createCondition(GalleryFields.Categories, Operator.HasAny, p.categoryIds),
+    ]);
+};
+const buildGalleryHomeQuery = (p: { condition: string; take: number; }): QueryListParam =>
+{
+    return {
+        Fields: [
+            GalleryFields.GalleryId,
+            GalleryFields.InternalId,
+            GalleryFields.Categories,
+            GalleryFields.Tags,
+            GalleryFields.ContentStatus,
+            GalleryFields.Validate_Start,
+            GalleryFields.CoverPicSrcId,
+            `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Lang}`,
+            `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Title}`,
+            `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Content}`,
+        ],
+        Condition: p.condition,
+        OrderBy: [{ Col: GalleryFields.Validate_Start, Desc: true }],
+        PageNumber: 1,
+        PageSize: p.take,
+    };
+};
+// #endregion

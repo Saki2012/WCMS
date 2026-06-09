@@ -5,6 +5,7 @@ import { LANG_COOKIE_KEY } from "@/SysCore/Utils/Library/SysParam";
 import React, { useCallback, useMemo, useRef } from "react";
 import { useFetcher, useLocation, useNavigate } from "react-router-dom";
 
+// #region Public
 export const SpecLangSwitchBtn: React.FC<{ site: INormSite; }> = ({ site }) =>
 {
     // 宣告變數：語系/路由/導頁工具
@@ -153,3 +154,4 @@ export const SpecLangSwitchBtn: React.FC<{ site: INormSite; }> = ({ site }) =>
         </div>
     );
 };
+// #endregion

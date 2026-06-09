@@ -1,42 +1,40 @@
 /**公告清單 */
-import { type IWebResourceListProps, resolveYoutubeEmbedUrl } from "@/Features/Pages/Client/BizFunc/WEB/WebResource/WebResourceList";
-import { useWebResourceListData } from "@/Features/Pages/Client/BizFunc/WEB/WebResource/WebResourceList_Loader";
+import { type IWebResourceListProps } from "@/Features/Pages/Client/BizFunc/WEB/WebResource/Client_WebResource_List_Comp";
+import { useWebResourceListData } from "@/Features/Pages/Client/BizFunc/WEB/WebResource/Client_WebResource_List_Loader";
+import { Client_SearchBar_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/SearchBar/Client_SearchBar_Comp";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import DefaultImg from "@/SpecFetures/1810/Assets/Custom/WebResource_Default.png";
 import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
 import type { GridProps, GridRow } from "@/SysCore/Components/Grid/Grid_Data";
 import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
-import { Client_SearchBar_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/SearchBar/Client_SearchBar_Comp";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import { LibMedia } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { WebResourceFields, WebResourceInfoFields } from "@/types/SchemaFields";
 import { useEffect, useMemo, useRef } from "react";
 import { isWithinLastNDaysFromString } from "../Announcement/AnnouncementList";
 
+// #region Property
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
+
 type WindowTarget = components["schemas"]["WindowTarget"];
+
 type CategoryMap = Record<string, string>;
 
 interface IVenoBoxInstance
 {
     destroy?: () => void;
 }
+
 interface IVenoBoxWindow extends Window
 {
     VenoBox?: new(options: Record<string, string | boolean>) => IVenoBoxInstance;
 }
+// #endregion
 
-/** 把 category ids 轉成名稱 */
-const formatCategoriesNameByMap = (content: string, categoryMap: CategoryMap) =>
-{
-    const raw = (content?.toString?.() ?? "").trim();
-    if (!raw) return "";
-
-    return raw.split(",").map(s => s.trim()).filter(Boolean).map(id => categoryMap[id] ?? "").filter(Boolean).join("、");
-};
-
+// #region Section
 const WebResourceListComp = (props: IWebResourceListProps) =>
 {
     // 宣告變數：直接吃 feature data
@@ -75,6 +73,27 @@ const WebResourceListComp = (props: IWebResourceListProps) =>
             {content}
         </LoadingErrorHandler>
     );
+};
+
+const GridList_Comp = (prop: { lang: Lang; Theme: IFETheme; GridData: GridProps; }) =>
+{
+    return (
+        <>
+            <OperationGuideHelp_Comp lang={prop.lang} />
+            <Grid gridData={prop.GridData} style={prop.Theme.GridView} pageStyle={prop.Theme.Paginator} />
+        </>
+    );
+};
+// #endregion
+
+// #region Private
+/** 把 category ids 轉成名稱 */
+const formatCategoriesNameByMap = (content: string, categoryMap: CategoryMap) =>
+{
+    const raw = (content?.toString?.() ?? "").trim();
+    if (!raw) return "";
+
+    return raw.split(",").map(s => s.trim()).filter(Boolean).map(id => categoryMap[id] ?? "").filter(Boolean).join("、");
 };
 
 export default WebResourceListComp;
@@ -119,7 +138,7 @@ const YoutubeContent = (prop: { lang: string; datas: WebResourceSet[]; }) =>
                     const title = detail?.Title ?? "";
                     const urlRaw = detail?.ResUrl ?? "";
                     const tar = detail?.Url_OpenType === 0 ? "_self" : "_blank";
-                    const { url } = resolveYoutubeEmbedUrl(urlRaw);
+                    const { url } = LibMedia.resolveYoutubeEmbedUrl(urlRaw);
 
                     return (
                         <div className="col-lg-4 col-md-6 col-sm-6 col-12 photo_standardbox">
@@ -185,16 +204,6 @@ const PictureListContent = (prop: { lang: string; datas: WebResourceSet[]; }) =>
     );
 };
 
-const GridList_Comp = (prop: { lang: Lang; Theme: IFETheme; GridData: GridProps; }) =>
-{
-    return (
-        <>
-            <OperationGuideHelp_Comp lang={prop.lang} />
-            <Grid gridData={prop.GridData} style={prop.Theme.GridView} pageStyle={prop.Theme.Paginator} />
-        </>
-    );
-};
-
 const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: WebResourceSet[], catMap: CategoryMap): GridProps =>
 {
     const newRows: GridRow[] = (gridProps.rows ?? []).map((row, index) =>
@@ -252,3 +261,4 @@ const SetUrlIcon = (url: string, descript: string, target: WindowTarget) =>
         </a>
     );
 };
+// #endregion

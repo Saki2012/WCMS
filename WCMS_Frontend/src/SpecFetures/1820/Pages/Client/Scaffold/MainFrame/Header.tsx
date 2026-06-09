@@ -17,6 +17,116 @@ import { useEffect, useRef } from "react";
 import React from "react";
 import { useLocation } from "react-router-dom";
 
+// #region Section
+const Header_Section = (props: { lang: Lang; site: INormSite; }) =>
+{
+    return (
+        <section className="header_section">
+            <header className="header_Box bg-custom-rgba">
+                <div className="navsBox">
+                    <div className="container-customize0 d-flex justify-content-lg-between justify-content-center flex-wrap">
+                        <p className="small pt-2 mt-lg-2 mt-1 mb-lg-2 mb-1 mr-md-3 mr-1" style={{color:"#bd1f1f"}}>本網站為試營運階段，如有住宿、訂餐等本場服務，請致電服務專線：06-5900022</p>
+                        <ul className="nav custom_nav justify-content-xl-end justify-content-center">
+                            <NavBar lang={props.lang} />
+                            <LangSwitchBtn site={props.site} />
+                        </ul>
+                    </div>
+                </div>
+            </header>
+        </section>
+    );
+};
+
+
+const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
+{
+    const menuRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() =>
+    {
+        // 原本邏輯保留
+    }, []);
+
+    return (
+        <section className="menu_section">
+            <div className="customMENU_Box bg-custom-rgba">
+                <div className="menuBox">
+                    <div className="container-customize0">
+                        <div className="navbar navbar-expand-lg px-0 py-0" ref={menuRef}>
+                            <LogoComp />
+                            <MobileBtn />
+                            <MainMenu {...props} />
+                            <PCBtn />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+};
+
+const LogoComp = () =>
+{
+    return (
+        <h1 className="logo">
+            <LangLink className="navbar-brand my-0" to="/" title="">
+                <img src={LogoImg} alt=" LOGO" />
+            </LangLink>
+        </h1>
+    );
+};
+// #endregion
+
+// #region EntityComp
+/**
+ * 遞迴渲染多層選單
+ * parentDepth = 0 代表「第二層」，對應原本的 className 設計：
+ * - 第二層 parent 的子層 <ul> 用 "dropdown-menu"
+ * - 再往下（第四層以後）用 "dropdown-menu dropdown-submenu"
+ */
+const renderDropdownItems = (items: MenuItemData[], parentDepth: number): JSX.Element[] =>
+{
+    return items.map((item, index) =>
+    {
+        const hasChildren = (item.SubItem ?? []).length > 0;
+        const key = `${parentDepth}-${index}`;
+        const isExternal = /^https?:\/\//i.test(item.Url || "");
+
+        if (!hasChildren)
+        {
+            // 純連結項目
+            return (
+                <li key={key}>
+                    <LangNavLink className="dropdown-item" to={item.Url || "#"} role="button" target={item.URL_Open}>
+                        {isExternal && <i className="fad fa-link me-2"></i>}
+                        {item.SrcData}
+                    </LangNavLink>
+                </li>
+            );
+        }
+        // 有子項目 -> dropend submenu 結構
+        const submenuClassName = parentDepth === 0 ? "dropdown-menu" : "dropdown-menu dropdown-submenu";
+        return (
+            <li key={key} className="dropend submenu">
+                <LangLink
+                    to={item.Url || "#"}
+                    role="button"
+                    className="dropdown-item dropdown-toggle"
+                    data-bs-toggle="dropdown"
+                    data-bs-auto-close="outside"
+                    target={item.URL_Open}
+                >
+                    {item.SrcData}
+                </LangLink>
+
+                <ul className={submenuClassName}>{renderDropdownItems(item.SubItem ?? [], parentDepth + 1)}</ul>
+            </li>
+        );
+    });
+};
+// #endregion
+
+// #region Private
 /** 判斷是否為首頁（支援多語系首頁） */
 const isHomePage = (pathname: string, lang: Lang) =>
 {
@@ -26,6 +136,7 @@ const isHomePage = (pathname: string, lang: Lang) =>
 
     return homePaths.includes(cleanPath);
 };
+
 
 const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
 {
@@ -81,26 +192,9 @@ const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
     );
 };
 
+
 export default Header;
 
-const Header_Section = (props: { lang: Lang; site: INormSite; }) =>
-{
-    return (
-        <section className="header_section">
-            <header className="header_Box bg-custom-rgba">
-                <div className="navsBox">
-                    <div className="container-customize0 d-flex justify-content-lg-between justify-content-center flex-wrap">
-                        <p className="small pt-2 mt-lg-2 mt-1 mb-lg-2 mb-1 mr-md-3 mr-1" style={{color:"#bd1f1f"}}>本網站為試營運階段，如有住宿、訂餐等本場服務，請致電服務專線：06-5900022</p>
-                        <ul className="nav custom_nav justify-content-xl-end justify-content-center">
-                            <NavBar lang={props.lang} />
-                            <LangSwitchBtn site={props.site} />
-                        </ul>
-                    </div>
-                </div>
-            </header>
-        </section>
-    );
-};
 const NavBar = (props: { lang: Lang; }) =>
 {
     const title = props.lang === "zh-tw"
@@ -129,42 +223,6 @@ const NavBar = (props: { lang: Lang; }) =>
     );
 };
 
-const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
-{
-    const menuRef = useRef<HTMLDivElement | null>(null);
-
-    useEffect(() =>
-    {
-        // 原本邏輯保留
-    }, []);
-
-    return (
-        <section className="menu_section">
-            <div className="customMENU_Box bg-custom-rgba">
-                <div className="menuBox">
-                    <div className="container-customize0">
-                        <div className="navbar navbar-expand-lg px-0 py-0" ref={menuRef}>
-                            <LogoComp />
-                            <MobileBtn />
-                            <MainMenu {...props} />
-                            <PCBtn />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    );
-};
-const LogoComp = () =>
-{
-    return (
-        <h1 className="logo">
-            <LangLink className="navbar-brand my-0" to="/" title="">
-                <img src={LogoImg} alt=" LOGO" />
-            </LangLink>
-        </h1>
-    );
-};
 const MobileBtn = () =>
 {
     return (
@@ -194,6 +252,7 @@ const MobileBtn = () =>
         </>
     );
 };
+
 const MainMenu = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
 {
     const menuItems = GetMenuData(props.lang, props.site);
@@ -213,6 +272,7 @@ const MainMenu = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
         </div>
     );
 };
+
 const PCBtn = () =>
 {
     return (
@@ -223,6 +283,7 @@ const PCBtn = () =>
         </div>
     );
 };
+
 
 /** 1. 一般單選 */
 const SingleMenuItem = (props: { menuItem: MenuItemData; }) =>
@@ -236,6 +297,7 @@ const SingleMenuItem = (props: { menuItem: MenuItemData; }) =>
         </li>
     );
 };
+
 
 /** 2. 多層下拉 */
 const DropdownMenuItem = (props: { menuItem: MenuItemData; }) =>
@@ -258,56 +320,11 @@ const DropdownMenuItem = (props: { menuItem: MenuItemData; }) =>
     );
 };
 
+
 const GetMenuData = (lang: Lang, site: INormSite): MenuItemData[] =>
 {
     const roots = site.treeByLang?.[lang] ?? [];
     if (!roots) return [];
     return buildMenuItems(roots, 0);
 };
-
-/**
- * 遞迴渲染多層選單
- * parentDepth = 0 代表「第二層」，對應原本的 className 設計：
- * - 第二層 parent 的子層 <ul> 用 "dropdown-menu"
- * - 再往下（第四層以後）用 "dropdown-menu dropdown-submenu"
- */
-const renderDropdownItems = (items: MenuItemData[], parentDepth: number): JSX.Element[] =>
-{
-    return items.map((item, index) =>
-    {
-        const hasChildren = (item.SubItem ?? []).length > 0;
-        const key = `${parentDepth}-${index}`;
-        const isExternal = /^https?:\/\//i.test(item.Url || "");
-
-        if (!hasChildren)
-        {
-            // 純連結項目
-            return (
-                <li key={key}>
-                    <LangNavLink className="dropdown-item" to={item.Url || "#"} role="button" target={item.URL_Open}>
-                        {isExternal && <i className="fad fa-link me-2"></i>}
-                        {item.SrcData}
-                    </LangNavLink>
-                </li>
-            );
-        }
-        // 有子項目 -> dropend submenu 結構
-        const submenuClassName = parentDepth === 0 ? "dropdown-menu" : "dropdown-menu dropdown-submenu";
-        return (
-            <li key={key} className="dropend submenu">
-                <LangLink
-                    to={item.Url || "#"}
-                    role="button"
-                    className="dropdown-item dropdown-toggle"
-                    data-bs-toggle="dropdown"
-                    data-bs-auto-close="outside"
-                    target={item.URL_Open}
-                >
-                    {item.SrcData}
-                </LangLink>
-
-                <ul className={submenuClassName}>{renderDropdownItems(item.SubItem ?? [], parentDepth + 1)}</ul>
-            </li>
-        );
-    });
-};
+// #endregion

@@ -1,4 +1,3 @@
-//#region Property
 import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 import { AboutPage } from "@/SpecFetures/1818/Pages/Client/Index/Section/AboutPage";
 import { ActivityPhotoData } from "@/SpecFetures/1818/Pages/Client/Index/Section/ActivityPhotoData";
@@ -8,9 +7,7 @@ import { NewsData } from "@/SpecFetures/1818/Pages/Client/Index/Section/NewsData
 import { type Lang } from "@/SysCore/i18n/lang";
 import { useHomePageTemplateData } from "./HomePage_Loader";
 
-//#endregion
-
-//#region Public
+// #region Private
 const HomePage = (props: { lang: Lang; }) =>
 {
     const homePage = useHomePageTemplateData(props.lang);
@@ -67,5 +64,6 @@ const HomePage = (props: { lang: Lang; }) =>
     );
 };
 
+
 export default HomePage;
-//#endregion
+// #endregion

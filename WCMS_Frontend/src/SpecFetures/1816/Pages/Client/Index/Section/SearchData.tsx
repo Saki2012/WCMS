@@ -4,9 +4,12 @@ import { LangLink } from "@/SysCore/i18n/LangLink";
 import type React from "react";
 import { useCallback, useId, useMemo, useRef } from "react";
 
+// #region Property
 const urlBase =
     "https://tnua.on.worldcat.org/external-search?queryString=#T#&databaseList=&clusterResults=on&groupVariantRecords=off&stickyFacetsChecked=on&baseScope=wz%3A11833#F#";
+// #endregion
 
+// #region Public
 export const SearchData = (props: { lang: Lang; }) =>
 {
     // 宣告變數：輸入框 ref
@@ -129,3 +132,4 @@ export const SearchData = (props: { lang: Lang; }) =>
         </section>
     );
 };
+// #endregion

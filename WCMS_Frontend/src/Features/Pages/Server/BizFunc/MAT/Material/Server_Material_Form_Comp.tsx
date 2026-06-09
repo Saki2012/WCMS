@@ -31,7 +31,9 @@ import {
 
 // #region Property
 type MaterialSet = components["schemas"]["MaterialSet_DTO"];
+
 type MaterialInfoJson = Record<string, string>;
+
 
 interface MaterialFormCompProps
 {
@@ -44,6 +46,7 @@ interface MaterialFormCompProps
     /** 目前語系 */
     lang: Lang;
 }
+
 
 interface MaterialContentProps
 {
@@ -60,8 +63,10 @@ interface MaterialContentProps
     refs: MaterialFormRefs;
 }
 
+
 interface MaterialBasicProps extends MaterialContentProps
 {}
+
 
 interface MaterialLangProps
 {
@@ -77,6 +82,7 @@ interface MaterialLangProps
     /** Material Hook 整理後的參照資料 */
     refs: MaterialFormRefs;
 }
+
 
 interface MaterialLangItemProps
 {
@@ -96,6 +102,7 @@ interface MaterialLangItemProps
     infoDefaults: MaterialInfoJson;
 }
 
+
 interface MaterialInfoJsonEditorProps
 {
     /** 後台主題設定 */
@@ -114,6 +121,7 @@ interface MaterialInfoJsonEditorProps
     infoDefaults: MaterialInfoJson;
 }
 
+
 interface MaterialPictureProps
 {
     /** 後台主題設定 */
@@ -123,14 +131,17 @@ interface MaterialPictureProps
     binding: ServerFormBinding<MaterialSet>;
 }
 
+
 interface MaterialBatchUploadProps extends MaterialPictureProps
 {}
+
 
 interface MaterialBasicRenderOptions extends MaterialBasicProps
 {
     /** 欄位 binding helper */
     setField: ReturnType<typeof useSetTableField<MaterialSet>>;
 }
+
 
 const editGridStyle: IEditGridView_Style = {
     TableStyle: "table table-striped table-bordered table-hover",
@@ -180,6 +191,7 @@ const MaterialContentComp = (props: MaterialContentProps) =>
     return <TabContentComp tabInfos={tabInfo} components={components}></TabContentComp>;
 };
 
+
 /** 物件基本資料區塊，類別、標籤、語系內容維持同一頁顯示。 */
 const MaterialBasicComp = (props: MaterialBasicProps) =>
 {
@@ -196,6 +208,7 @@ const MaterialBasicComp = (props: MaterialBasicProps) =>
         </div>
     );
 };
+
 
 /** 物件語系 Detail 區塊，語系資料由 Hook 統一整理。 */
 const MaterialLangComp = (props: MaterialLangProps) =>
@@ -226,6 +239,7 @@ const MaterialLangComp = (props: MaterialLangProps) =>
     return <TabContentComp tabInfos={tabInfo} components={components}></TabContentComp>;
 };
 
+
 /** 物件相片區塊，批次上傳按鈕與 EditGrid 單筆新增按鈕分離。 */
 const MaterialPictureGridComp = (props: MaterialPictureProps) =>
 {
@@ -239,40 +253,7 @@ const MaterialPictureGridComp = (props: MaterialPictureProps) =>
         </div>
     );
 };
-// #endregion
 
-// #region EntityComp
-/** 建立物件主分頁內容。 */
-const buildMaterialMainTabContent = (props: MaterialContentProps): Record<string, ReactNode[]> =>
-{
-    return {
-        Basic: [<MaterialBasicComp key="Basic" theme={props.theme} lang={props.lang} binding={props.binding} refs={props.refs} />],
-        Picture: [<MaterialPictureGridComp key="Picture" theme={props.theme} binding={props.binding} />],
-        System: [<SystemInfoTabComp key="System" theme={props.theme} formData={props.binding} setKey={MaterialSetFields.Material} />],
-    };
-};
-
-/** 建立物件基本資料欄位。 */
-const buildMaterialBasicFields = (opt: MaterialBasicRenderOptions): ReactNode[] =>
-{
-    const categoryOpts = new Map<string, string>(Object.entries(opt.refs.categoryMap ?? {}));
-
-    return [
-        <LibDropList
-            key="CategoryId"
-            Style={opt.theme.DropList}
-            Options={categoryOpts}
-            AutoDefaultFirst={false}
-            {...opt.setField(MaterialSetFields.Material, MaterialFields.CategoryId, "string")}
-        />,
-    ];
-};
-
-/** 建立物件標籤欄位。 */
-const buildMaterialTagFields = (opt: MaterialBasicRenderOptions): ReactNode[] =>
-{
-    return [<MaterialTagEditorComp key="Tags" theme={opt.theme} binding={opt.binding} tagMap={opt.refs.tagMap} />];
-};
 
 /** 標籤編輯區，DTO 異動交給 Hook 處理。 */
 const MaterialTagEditorComp = (props: { theme: IBETheme; binding: ServerFormBinding<MaterialSet>; tagMap: Record<string, string>; }) =>
@@ -289,6 +270,7 @@ const MaterialTagEditorComp = (props: { theme: IBETheme; binding: ServerFormBind
         />
     );
 };
+
 
 /** 單一語系內容區。 */
 const MaterialLangItemComp = (props: MaterialLangItemProps) =>
@@ -315,6 +297,7 @@ const MaterialLangItemComp = (props: MaterialLangItemProps) =>
     );
 };
 
+
 /** 動態物件資訊 JSON 編輯器。 */
 const MaterialInfoJsonEditorComp = (props: MaterialInfoJsonEditorProps) =>
 {
@@ -333,6 +316,7 @@ const MaterialInfoJsonEditorComp = (props: MaterialInfoJsonEditorProps) =>
 
     return <div className="row g-3">{props.infoItems.map(item => buildMaterialInfoField(props.theme, binder, item))}</div>;
 };
+
 
 /** 批次上傳物件相片，與 EditGrid 單筆新增分離。 */
 const MaterialBatchUploadComp = (props: MaterialBatchUploadProps) =>
@@ -367,6 +351,7 @@ const MaterialBatchUploadComp = (props: MaterialBatchUploadProps) =>
     );
 };
 
+
 /** 批次上傳前的圖片預覽清單。 */
 const MaterialBatchPreviewComp = (props: { files: File[]; }) =>
 {
@@ -392,21 +377,44 @@ const MaterialBatchPreviewComp = (props: { files: File[]; }) =>
         </div>
     );
 };
-
-/** EditGrid 圖片預覽欄位。 */
-const MaterialPicturePreview = (props: { value: unknown; }) =>
-{
-    const picValue = toMaterialPictureCellValue(props.value as never);
-    const picSrc = picValue.url || getMaterialPicturePreviewUrl(picValue.internalId);
-    const label = picValue.originalFileName || picValue.fileName || picValue.internalId || "物件照片";
-
-    if (!picSrc) return <span className="text-muted">尚未選擇圖片</span>;
-
-    return <LibPicturePreview ColumnDisplayName={label} PicSrc={picSrc} PicDescription={label} />;
-};
 // #endregion
 
-// #region Private
+// #region EntityComp
+/** 建立物件主分頁內容。 */
+const buildMaterialMainTabContent = (props: MaterialContentProps): Record<string, ReactNode[]> =>
+{
+    return {
+        Basic: [<MaterialBasicComp key="Basic" theme={props.theme} lang={props.lang} binding={props.binding} refs={props.refs} />],
+        Picture: [<MaterialPictureGridComp key="Picture" theme={props.theme} binding={props.binding} />],
+        System: [<SystemInfoTabComp key="System" theme={props.theme} formData={props.binding} setKey={MaterialSetFields.Material} />],
+    };
+};
+
+
+/** 建立物件基本資料欄位。 */
+const buildMaterialBasicFields = (opt: MaterialBasicRenderOptions): ReactNode[] =>
+{
+    const categoryOpts = new Map<string, string>(Object.entries(opt.refs.categoryMap ?? {}));
+
+    return [
+        <LibDropList
+            key="CategoryId"
+            Style={opt.theme.DropList}
+            Options={categoryOpts}
+            AutoDefaultFirst={false}
+            {...opt.setField(MaterialSetFields.Material, MaterialFields.CategoryId, "string")}
+        />,
+    ];
+};
+
+
+/** 建立物件標籤欄位。 */
+const buildMaterialTagFields = (opt: MaterialBasicRenderOptions): ReactNode[] =>
+{
+    return [<MaterialTagEditorComp key="Tags" theme={opt.theme} binding={opt.binding} tagMap={opt.refs.tagMap} />];
+};
+
+
 /** 建立動態資訊欄位。 */
 const buildMaterialInfoField = (
     theme: IBETheme,
@@ -428,9 +436,24 @@ const buildMaterialInfoField = (
     );
 };
 
+
 /** 建立返回列表路徑。 */
 const buildBackToListPath = (pathname: string): string =>
 {
     return pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
+};
+// #endregion
+
+// #region Private
+/** EditGrid 圖片預覽欄位。 */
+const MaterialPicturePreview = (props: { value: unknown; }) =>
+{
+    const picValue = toMaterialPictureCellValue(props.value as never);
+    const picSrc = picValue.url || getMaterialPicturePreviewUrl(picValue.internalId);
+    const label = picValue.originalFileName || picValue.fileName || picValue.internalId || "物件照片";
+
+    if (!picSrc) return <span className="text-muted">尚未選擇圖片</span>;
+
+    return <LibPicturePreview ColumnDisplayName={label} PicSrc={picSrc} PicDescription={label} />;
 };
 // #endregion

@@ -4,6 +4,7 @@ import LibPwdTextBox from "@/SysCore/Components/FormField/FieldComponets/LibPwdT
 import { LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
 import { useServerChangePassword } from "./Server_ChangePassword_Hook";
 
+// #region Public
 export const Server_ChangePassword_Comp = (props: { theme: IBETheme; }) =>
 {
     const vm = useServerChangePassword(props.theme);
@@ -77,3 +78,4 @@ export const Server_ChangePassword_Comp = (props: { theme: IBETheme; }) =>
         </FormComp>
     );
 };
+// #endregion

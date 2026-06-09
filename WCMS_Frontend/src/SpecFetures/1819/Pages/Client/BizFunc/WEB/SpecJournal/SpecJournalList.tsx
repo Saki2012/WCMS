@@ -1,4 +1,3 @@
-//#region Property
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import { useBreadcrumb } from "@/Features/Pages/Client/Scaffold/SubPages/Module/BreadCrumb/BreadCrumb_Comp";
@@ -13,13 +12,19 @@ import { SpecJournalKeywordSearch_Comp } from "./SpecJournalKeywordSearchComp";
 import { type SpecJournalListLoaderData, useSpecJournalListData } from "./SpecJournalList_Loader";
 import { useSpecJournalSearchNav } from "./SpecJournalSearchUtils";
 
+// #region Property
 type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
+
 type SpecJournalFilters = { q: string; articleLang: string; tagId: string; tagName: string; author: string; keyword: string; includeRef: string; };
 
-/** SpecJournal：用 ModuleContent 包住 Journal_List_content */
-//#endregion
 
-//#region Public
+
+type Document = { key: string; fileId: string; fileName: string; };
+// #endregion
+
+// #region Public
+/** SpecJournal：用 ModuleContent 包住 Journal_List_content */
+
 export const SpecJournalList = (props: { site: INormSite; node: INormNode; lang: Lang; }) =>
 {
     // 宣告變數
@@ -110,11 +115,23 @@ export const SpecJournalList = (props: { site: INormSite; node: INormNode; lang:
         </ModuleContent>
     );
 };
+// #endregion
 
+// #region EntityComp
+const buildDocuments = (data: SpecJournalSet): Document[] =>
+{
+    const files: Document[] = [];
+    data?.SpecJournalDocument?.slice().sort((a, b) => (a.DocumentType ?? 0) - (b.DocumentType ?? 0)).forEach((item, idx) =>
+    {
+        files.push({ key: `document-${idx}`, fileId: item.DocumentId ?? "", fileName: item.DocumentName || item.DocumentId || "" });
+    });
+    return files;
+};
+// #endregion
+
+// #region Private
 /** SpecJournalListContent：對齊 prototype 的 Journal_List_content DOM 結構 */
-//#endregion
 
-//#region Section
 const SpecJournalListContent = (
     props: {
         lang: Lang;
@@ -286,10 +303,9 @@ const SpecJournalListContent = (
     );
 };
 
-/** JournalCard：拆小塊，保持 function 不要太長 */
-//#endregion
 
-//#region EntityComp
+/** JournalCard：拆小塊，保持 function 不要太長 */
+
 const JournalCard = (
     props: { item: SpecJournalSet; lang: Lang; onPickArticleLang: (langCode: string) => void; onPickTypeTag: (tagId: string, tagName?: string) => void; },
 ) =>
@@ -363,6 +379,7 @@ const JournalCard = (
     );
 };
 
+
 const IssueSummaryDownload = (props: { fileId?: string; fileName?: string; downloadCount?: number; isPdf?: boolean; }) =>
 {
     const fileId = (props.fileId ?? "").trim();
@@ -395,23 +412,7 @@ const IssueSummaryDownload = (props: { fileId?: string; fileName?: string; downl
     );
 };
 
-//#endregion
 
-//#region Private - File Helpers
-type Document = { key: string; fileId: string; fileName: string; };
-
-const buildDocuments = (data: SpecJournalSet): Document[] =>
-{
-    const files: Document[] = [];
-    data?.SpecJournalDocument?.slice().sort((a, b) => (a.DocumentType ?? 0) - (b.DocumentType ?? 0)).forEach((item, idx) =>
-    {
-        files.push({ key: `document-${idx}`, fileId: item.DocumentId ?? "", fileName: item.DocumentName || item.DocumentId || "" });
-    });
-    return files;
-};
-//#endregion
-
-//#region EntityComp
 const DocumentList = (props: { data: SpecJournalSet; }) =>
 {
     // 宣告變數
@@ -456,4 +457,4 @@ const DocumentList = (props: { data: SpecJournalSet; }) =>
         </div>
     );
 };
-//#endregion
+// #endregion

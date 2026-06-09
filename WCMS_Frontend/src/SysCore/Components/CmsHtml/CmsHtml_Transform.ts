@@ -5,10 +5,15 @@ import { DomUtils, parseDocument } from "htmlparser2";
 import { INTERNAL_ATTR } from "../TinyMCE/Core/tinyMceConstants";
 import type { CmsHtmlFileMeta, CmsHtmlTransformOptions } from "./CmsHtml_Types";
 
+// #region Property
 const UNSAFE_ELEMENT_NAMES = new Set(["script", "object", "embed", "base"]);
-const MEDIA_PREVIEW_ELEMENT_NAMES = new Set(["img", "iframe", "video", "audio", "source"]);
-const DANGEROUS_URL_PATTERN = /^\s*(javascript|vbscript|data):/i;
 
+const MEDIA_PREVIEW_ELEMENT_NAMES = new Set(["img", "iframe", "video", "audio", "source"]);
+
+const DANGEROUS_URL_PATTERN = /^\s*(javascript|vbscript|data):/i;
+// #endregion
+
+// #region Public
 /** 擷取 TinyMCE HTML 內所有 data-internalid。 */
 export const extractCmsHtmlInternalIds = (html?: string | null): string[] =>
 {
@@ -27,6 +32,7 @@ export const extractCmsHtmlInternalIds = (html?: string | null): string[] =>
     return Array.from(ids);
 };
 
+
 /** 將 CMS HTML 字串正規化成 SSR / CSR 都可直接輸出的安全格式。 */
 export const transformCmsHtml = (html?: string | null, options?: CmsHtmlTransformOptions): string =>
 {
@@ -41,6 +47,7 @@ export const transformCmsHtml = (html?: string | null, options?: CmsHtmlTransfor
     return render(doc, { encodeEntities: false });
 };
 
+
 /** 依 internalId 建立前台預覽網址。 */
 export const buildCmsHtmlPreviewUrl = (internalId: string, meta?: CmsHtmlFileMeta, options?: CmsHtmlTransformOptions): string =>
 {
@@ -49,13 +56,16 @@ export const buildCmsHtmlPreviewUrl = (internalId: string, meta?: CmsHtmlFileMet
     return FileManagementAPI.get_Public_Preview_Url(internalId, getMetaFileName(meta));
 };
 
+
 /** 依 internalId 建立前台下載網址。 */
 export const buildCmsHtmlDownloadUrl = (internalId: string, meta?: CmsHtmlFileMeta, options?: CmsHtmlTransformOptions): string =>
 {
     if (options?.buildDownloadUrl) return options.buildDownloadUrl(internalId, meta);
     return FileManagementAPI.get_Public_Download_Url(internalId, getMetaFileName(meta));
 };
+// #endregion
 
+// #region Private
 /** 移除不應出現在 CMS HTML 的高風險標籤。 */
 const removeUnsafeElements = (nodes: Element["children"]): void =>
 {
@@ -74,6 +84,7 @@ const removeUnsafeElements = (nodes: Element["children"]): void =>
     }
 };
 
+
 /** 正規化單一 HTML Element。 */
 const normalizeElement = (el: Element, options?: CmsHtmlTransformOptions): void =>
 {
@@ -84,6 +95,7 @@ const normalizeElement = (el: Element, options?: CmsHtmlTransformOptions): void 
     if (el.name.toLowerCase() === "iframe") normalizeIframe(el, options);
     if (MEDIA_PREVIEW_ELEMENT_NAMES.has(el.name.toLowerCase())) normalizeInternalPreviewElement(el, options);
 };
+
 
 /** 將 data-internalid 的媒體標籤轉成前台預覽網址。 */
 const normalizeInternalPreviewElement = (el: Element, options?: CmsHtmlTransformOptions): void =>
@@ -103,6 +115,7 @@ const normalizeInternalPreviewElement = (el: Element, options?: CmsHtmlTransform
     if (tagName === "iframe") normalizeIframeAttributes(el, meta);
 };
 
+
 /** 正規化 CMS HTML 內的連結。 */
 const normalizeAnchor = (el: Element, options?: CmsHtmlTransformOptions): void =>
 {
@@ -113,6 +126,7 @@ const normalizeAnchor = (el: Element, options?: CmsHtmlTransformOptions): void =
     normalizeAnchorHref(el);
     normalizeBlankAnchorRel(el);
 };
+
 
 /** 將 data-internalid 的 a 轉成前台下載網址。 */
 const normalizeInternalDownloadAnchor = (el: Element, internalId: string, options?: CmsHtmlTransformOptions): void =>
@@ -128,6 +142,7 @@ const normalizeInternalDownloadAnchor = (el: Element, internalId: string, option
     if (!options?.keepDataInternalId) delete el.attribs[INTERNAL_ATTR];
 };
 
+
 /** 移除 javascript: 這類不安全 href。 */
 const normalizeAnchorHref = (el: Element): void =>
 {
@@ -135,6 +150,7 @@ const normalizeAnchorHref = (el: Element): void =>
     if (!href) return;
     if (DANGEROUS_URL_PATTERN.test(href)) el.attribs.href = "#";
 };
+
 
 /** target=_blank 時補齊 noopener noreferrer。 */
 const normalizeBlankAnchorRel = (el: Element): void =>
@@ -144,6 +160,7 @@ const normalizeBlankAnchorRel = (el: Element): void =>
     el.attribs.rel = mergeRel(el.attribs.rel, ["noopener", "noreferrer"]);
 };
 
+
 /** 正規化 iframe 安全與 AA 屬性。 */
 const normalizeIframe = (el: Element, options?: CmsHtmlTransformOptions): void =>
 {
@@ -151,6 +168,7 @@ const normalizeIframe = (el: Element, options?: CmsHtmlTransformOptions): void =
     const meta = internalId ? options?.fileMetaMap?.[internalId] : undefined;
     normalizeIframeAttributes(el, meta);
 };
+
 
 /** 補圖片必要屬性。 */
 const normalizeImgAttributes = (el: Element, meta?: CmsHtmlFileMeta): void =>
@@ -162,6 +180,7 @@ const normalizeImgAttributes = (el: Element, meta?: CmsHtmlFileMeta): void =>
     if (!hasNonEmptyAttribute(el, "height") && meta?.height) el.attribs.height = String(meta.height);
 };
 
+
 /** 補 iframe 必要屬性。 */
 const normalizeIframeAttributes = (el: Element, meta?: CmsHtmlFileMeta): void =>
 {
@@ -169,6 +188,7 @@ const normalizeIframeAttributes = (el: Element, meta?: CmsHtmlFileMeta): void =>
     if (!hasNonEmptyAttribute(el, "loading")) el.attribs.loading = "lazy";
     if (!hasNonEmptyAttribute(el, "referrerpolicy")) el.attribs.referrerpolicy = "no-referrer";
 };
+
 
 /** 移除 on* inline event，配合 CSP script-src-attr none。 */
 const removeInlineEventAttributes = (el: Element): void =>
@@ -179,11 +199,13 @@ const removeInlineEventAttributes = (el: Element): void =>
     });
 };
 
+
 /** 取得 data-internalid。 */
 const getInternalId = (el: Element): string =>
 {
     return `${el.attribs?.[INTERNAL_ATTR] ?? ""}`.trim();
 };
+
 
 /** 取得檔名 fallback。 */
 const getMetaFileName = (meta?: CmsHtmlFileMeta): string =>
@@ -191,17 +213,20 @@ const getMetaFileName = (meta?: CmsHtmlFileMeta): string =>
     return `${meta?.fileName ?? meta?.alt ?? ""}`.trim();
 };
 
+
 /** 取得 a 文字內容。 */
 const getAnchorText = (el: Element): string =>
 {
     return DomUtils.textContent(el).replace(/\s+/g, " ").trim();
 };
 
+
 /** 判斷屬性是否有有效值。 */
 const hasNonEmptyAttribute = (el: Element, name: string): boolean =>
 {
     return `${el.attribs?.[name] ?? ""}`.trim() !== "";
 };
+
 
 /** 合併 rel token，避免重複。 */
 const mergeRel = (source: string | undefined, values: string[]): string =>
@@ -211,8 +236,10 @@ const mergeRel = (source: string | undefined, values: string[]): string =>
     return Array.from(set).join(" ");
 };
 
+
 /** 判斷是否為 HTML element。 */
 const isTagElement = (node: unknown): node is Element =>
 {
     return !!node && typeof node === "object" && (node as Element).type === "tag" && typeof (node as Element).name === "string";
 };
+// #endregion

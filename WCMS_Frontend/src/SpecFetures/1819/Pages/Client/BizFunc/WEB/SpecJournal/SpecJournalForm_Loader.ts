@@ -1,4 +1,3 @@
-//#region Property
 import { SiteViewCountAdapter } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
 import {
     buildClientDataQueryKey,
@@ -34,9 +33,13 @@ import { useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router-dom";
 import { useLoaderData } from "react-router-dom";
 
+// #region Property
 type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
+
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 type SiteViewCountSet = components["schemas"]["SiteViewCountSet_DTO"];
+
 
 type SiteViewCountDetailRow = {
     ProgId?: string | null;
@@ -47,7 +50,9 @@ type SiteViewCountDetailRow = {
     LinkClickCount?: number | null;
 };
 
+
 type SiteViewCountSetLike = SiteViewCountSet & { SiteViewCountDetail?: SiteViewCountDetailRow[] | null; };
+
 
 export interface SpecJournalFormLoaderArgs
 {
@@ -58,6 +63,7 @@ export interface SpecJournalFormLoaderArgs
     viewCountParam: QueryListParam;
 }
 
+
 export interface SpecJournalFormLoaderRes
 {
     countRes: number;
@@ -65,11 +71,13 @@ export interface SpecJournalFormLoaderRes
     viewCountRes: SiteViewCountSet[];
 }
 
+
 export interface SpecJournalFormLoaderData
 {
     args: SpecJournalFormLoaderArgs;
     res: SpecJournalFormLoaderRes;
 }
+
 
 export interface SpecJournalViewCountData
 {
@@ -78,6 +86,7 @@ export interface SpecJournalViewCountData
     fileDownloadCount: number;
     linkClickCount: number;
 }
+
 
 export interface UseSpecJournalFormDataResult
 {
@@ -91,10 +100,84 @@ export interface UseSpecJournalFormDataResult
     errorList: string[];
 }
 
-/** 建立文章 detail 查詢參數 */
-//#endregion
 
-//#region Private - Query Helpers
+
+
+type SpecJournalFormAdapter = { Journal: ReturnType<typeof SpecJournalAdapter>; ViewCount: ReturnType<typeof SiteViewCountAdapter>; };
+
+type SpecJournalFormTemplate = ClientDataQueryTemplate<
+    SpecJournalFormLoaderArgs,
+    UseSpecJournalFormDataResult,
+    UseSpecJournalFormDataResult,
+    SpecJournalFormAdapter,
+    QueryListParam,
+    SpecJournalFormLoaderData
+>;
+
+type SpecJournalFormDataSourceContext = Parameters<NonNullable<NonNullable<SpecJournalFormTemplate["spec"]>["useDataSource"]>>[0];
+// #endregion
+
+// #region Public
+/** ✅ SSR loader：文章 detail 首屏預載（1 筆 + viewCount） */
+
+export const SpecJournalForm_Loader = () => async ({ request, params }: LoaderFunctionArgs): Promise<SpecJournalFormLoaderData> =>
+{
+    const indexId = `${params?.indexId ?? ""}`.trim();
+    const rowId = `${params?.rowId ?? ""}`.trim();
+    const journalId = `${params?.journalId ?? ""}`.trim();
+    const baseParam = buildBaseParam(journalId);
+
+    const ssrApi = getSsrApi(request);
+    const adapter = SpecJournalAdapter(ssrApi);
+    const siteViewAdapter = SiteViewCountAdapter(ssrApi);
+
+    const countLoader = adapter.loader.createQueryCountLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
+
+    const listLoader = adapter.loader.createQueryListLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
+
+    const [countLD, listLD] = await Promise.all([
+        countLoader({ request, params } as LoaderFunctionArgs),
+        listLoader({ request, params } as LoaderFunctionArgs),
+    ]);
+
+    const listRes = listLD.apiRes.Data ?? [];
+    const currentInternalId = getSpecJournalInternalId(listRes);
+    const viewCountParam = buildViewCountQuery(currentInternalId);
+
+    const viewCountLoader = siteViewAdapter.loader.createQueryListLoader({ getCondition: () => viewCountParam, getApiInstance: () => ssrApi });
+
+    const viewCountLD = await viewCountLoader({ request, params } as LoaderFunctionArgs);
+
+    // return
+    return {
+        args: { indexId, rowId, journalId, baseParam, viewCountParam },
+        res: { countRes: countLD.apiRes.Data ?? 0, listRes, viewCountRes: viewCountLD.apiRes.Data ?? [] },
+    };
+};
+
+
+/** CSR Hook：Component 最後一行直接取 detail + viewCount */
+
+export const useSpecJournalFormData = (): UseSpecJournalFormDataResult =>
+{
+    // 宣告變數
+    const initial = useLoaderData() as SpecJournalFormLoaderData;
+    const template = useMemo(() =>
+    {
+        const queryState = buildSpecJournalFormQueryState(initial.args);
+        return createSpecJournalFormDataQueryTemplate({ ...initial.args, baseParam: queryState.queryParam });
+    }, [initial.args]);
+
+    const templateVm = useClientDataQueryTemplate(template);
+
+    // return
+    return { ...templateVm.viewModel, isLoading: templateVm.isLoading, errorList: templateVm.errorList };
+};
+// #endregion
+
+// #region Private
+/** 建立文章 detail 查詢參數 */
+
 const buildBaseParam = (journalId: string): QueryListParam =>
 {
     const condition = `${SpecJournalModelFields.JournalId} = ${journalId}`;
@@ -188,12 +271,14 @@ const buildBaseParam = (journalId: string): QueryListParam =>
     };
 };
 
+
 /** 取得 detail 頁文章 internalId */
 const getSpecJournalInternalId = (rows: SpecJournalSet[]): string =>
 {
     // return
     return rows[0]?.SpecJournal?.InternalId ?? "";
 };
+
 
 /** 建立 site view count 查詢條件 */
 const buildViewCountCondition = (internalId: string): string =>
@@ -203,6 +288,7 @@ const buildViewCountCondition = (internalId: string): string =>
     // return
     return `${SiteViewCountHeaderModelFields._SiteViewCountDetail}.${SiteViewCountDetailModelFields.ProgId} = ${PGID.SpecJournal} And ${SiteViewCountHeaderModelFields._SiteViewCountDetail}.${SiteViewCountDetailModelFields.TargetInternalId} = ${value}`;
 };
+
 
 /** 建立 site view count 查詢參數 */
 const buildViewCountQuery = (internalId: string): QueryListParam =>
@@ -223,6 +309,7 @@ const buildViewCountQuery = (internalId: string): QueryListParam =>
     };
 };
 
+
 /** 建立 loader initial 資料 */
 const buildLoaderInitial = <TArgs, TData>(args: TArgs, data: TData): ApiLoaderData<TArgs, TData> =>
 {
@@ -231,6 +318,7 @@ const buildLoaderInitial = <TArgs, TData>(args: TArgs, data: TData): ApiLoaderDa
     // return
     return { args, apiRes };
 };
+
 
 /** 比對目前參數是否可沿用 loader 初始值 */
 const matchInitialArgs = <TArgs, TData>(currentArgs: TArgs, initialArgs: TArgs, initialData: TData): ApiLoaderData<TArgs, TData> | null =>
@@ -244,6 +332,7 @@ const matchInitialArgs = <TArgs, TData>(currentArgs: TArgs, initialArgs: TArgs, 
     return buildLoaderInitial(initialArgs, initialData);
 };
 
+
 /** 取得 site view detail rows */
 const getSiteViewCountDetails = (item: SiteViewCountSet): SiteViewCountDetailRow[] =>
 {
@@ -254,6 +343,7 @@ const getSiteViewCountDetails = (item: SiteViewCountSet): SiteViewCountDetailRow
     // return
     return detailRows;
 };
+
 
 /** 彙整瀏覽相關統計 */
 const buildViewCountData = (rows: SiteViewCountSet[]): SpecJournalViewCountData =>
@@ -277,59 +367,6 @@ const buildViewCountData = (rows: SiteViewCountSet[]): SpecJournalViewCountData 
     return result;
 };
 
-/** ✅ SSR loader：文章 detail 首屏預載（1 筆 + viewCount） */
-//#endregion
-
-//#region Public - SSR Loader
-export const SpecJournalForm_Loader = () => async ({ request, params }: LoaderFunctionArgs): Promise<SpecJournalFormLoaderData> =>
-{
-    const indexId = `${params?.indexId ?? ""}`.trim();
-    const rowId = `${params?.rowId ?? ""}`.trim();
-    const journalId = `${params?.journalId ?? ""}`.trim();
-    const baseParam = buildBaseParam(journalId);
-
-    const ssrApi = getSsrApi(request);
-    const adapter = SpecJournalAdapter(ssrApi);
-    const siteViewAdapter = SiteViewCountAdapter(ssrApi);
-
-    const countLoader = adapter.loader.createQueryCountLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
-
-    const listLoader = adapter.loader.createQueryListLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
-
-    const [countLD, listLD] = await Promise.all([
-        countLoader({ request, params } as LoaderFunctionArgs),
-        listLoader({ request, params } as LoaderFunctionArgs),
-    ]);
-
-    const listRes = listLD.apiRes.Data ?? [];
-    const currentInternalId = getSpecJournalInternalId(listRes);
-    const viewCountParam = buildViewCountQuery(currentInternalId);
-
-    const viewCountLoader = siteViewAdapter.loader.createQueryListLoader({ getCondition: () => viewCountParam, getApiInstance: () => ssrApi });
-
-    const viewCountLD = await viewCountLoader({ request, params } as LoaderFunctionArgs);
-
-    // return
-    return {
-        args: { indexId, rowId, journalId, baseParam, viewCountParam },
-        res: { countRes: countLD.apiRes.Data ?? 0, listRes, viewCountRes: viewCountLD.apiRes.Data ?? [] },
-    };
-};
-
-
-//#endregion
-
-//#region Template - Client DataQuery
-type SpecJournalFormAdapter = { Journal: ReturnType<typeof SpecJournalAdapter>; ViewCount: ReturnType<typeof SiteViewCountAdapter>; };
-type SpecJournalFormTemplate = ClientDataQueryTemplate<
-    SpecJournalFormLoaderArgs,
-    UseSpecJournalFormDataResult,
-    UseSpecJournalFormDataResult,
-    SpecJournalFormAdapter,
-    QueryListParam,
-    SpecJournalFormLoaderData
->;
-type SpecJournalFormDataSourceContext = Parameters<NonNullable<NonNullable<SpecJournalFormTemplate["spec"]>["useDataSource"]>>[0];
 
 /** 建立 detail loader / hook 共用查詢狀態 */
 const buildSpecJournalFormQueryState = (args: SpecJournalFormLoaderArgs) =>
@@ -342,6 +379,7 @@ const buildSpecJournalFormQueryState = (args: SpecJournalFormLoaderArgs) =>
     // return
     return buildClientDataQueryState(template, searchValues, viewState);
 };
+
 
 /** 建立 SpecJournal Form DataQuery Template */
 const createSpecJournalFormDataQueryTemplate = (args: SpecJournalFormLoaderArgs): SpecJournalFormTemplate =>
@@ -361,6 +399,7 @@ const createSpecJournalFormDataQueryTemplate = (args: SpecJournalFormLoaderArgs)
         },
     };
 };
+
 
 /** DataSource：用 Template 統一接文章 detail 與 viewCount */
 const useSpecJournalFormDataSource = (
@@ -420,24 +459,4 @@ const useSpecJournalFormDataSource = (
         paginator: null,
     };
 };
-
-/** CSR Hook：Component 最後一行直接取 detail + viewCount */
-//#endregion
-
-//#region Public - CSR Hook
-export const useSpecJournalFormData = (): UseSpecJournalFormDataResult =>
-{
-    // 宣告變數
-    const initial = useLoaderData() as SpecJournalFormLoaderData;
-    const template = useMemo(() =>
-    {
-        const queryState = buildSpecJournalFormQueryState(initial.args);
-        return createSpecJournalFormDataQueryTemplate({ ...initial.args, baseParam: queryState.queryParam });
-    }, [initial.args]);
-
-    const templateVm = useClientDataQueryTemplate(template);
-
-    // return
-    return { ...templateVm.viewModel, isLoading: templateVm.isLoading, errorList: templateVm.errorList };
-};
-//#endregion
+// #endregion

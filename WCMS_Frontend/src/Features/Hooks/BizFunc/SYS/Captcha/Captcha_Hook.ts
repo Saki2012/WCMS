@@ -3,17 +3,16 @@ import type { AxiosInstance } from "axios";
 import { type RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CaptchaAdapter, type CaptchaConfigViewModel, type CaptchaPublicConfigLoaderData } from "./Captcha_Api";
 
-export type CaptchaClientState = "idle" | "passed" | "required" | "expired" | "error";
-
-export interface CaptchaMessageOptions
+// #region Property
+type CaptchaClientState = "idle" | "passed" | "required" | "expired" | "error";
+interface CaptchaMessageOptions
 {
     requiredText?: string;
     expiredText?: string;
     errorText?: string;
     configInvalidText?: string;
 }
-
-export interface UseCaptchaControllerOptions
+interface UseCaptchaControllerOptions
 {
     apiInstance?: AxiosInstance;
     deps?: EffectDeps;
@@ -22,7 +21,6 @@ export interface UseCaptchaControllerOptions
     onConfigError?: (err: ApiAdapterError) => void;
     onTokenChange?: (token: string | null) => void;
 }
-
 export interface CaptchaController
 {
     config: CaptchaConfigViewModel;
@@ -42,14 +40,15 @@ export interface CaptchaController
     handleExpired: () => void;
     handleError: (errorCode?: string) => void;
 }
-
 const defaultMessages: Required<CaptchaMessageOptions> = {
     requiredText: "請先完成驗證碼。",
     expiredText: "驗證碼已逾時，請重新驗證。",
     errorText: "驗證碼載入或驗證發生錯誤，請重新驗證。",
     configInvalidText: "驗證碼設定異常，暫時無法送出。",
 };
+// #endregion
 
+// #region Public
 /** 建立 Captcha 設定、token 狀態與送出前檢查流程 */
 export const useCaptchaController = (opt?: UseCaptchaControllerOptions): CaptchaController =>
 {
@@ -61,19 +60,16 @@ export const useCaptchaController = (opt?: UseCaptchaControllerOptions): Captcha
     const [clientState, setClientState] = useState<CaptchaClientState>("idle");
     const [validationErrorText, setValidationErrorText] = useState<string | null>(null);
     const rootRef = useRef<HTMLFieldSetElement | null>(null);
-
     const focusCaptcha = useCallback(() =>
     {
         if (typeof window === "undefined") return;
         window.setTimeout(() => rootRef.current?.focus(), 0);
     }, []);
-
     const setToken = useCallback((token: string | null) =>
     {
         setCaptchaToken(token);
         opt?.onTokenChange?.(token);
     }, [opt?.onTokenChange]);
-
     /** 清除 token 並要求 Turnstile 重新渲染 */
     const resetCaptcha = useCallback(() =>
     {
@@ -82,7 +78,6 @@ export const useCaptchaController = (opt?: UseCaptchaControllerOptions): Captcha
         setValidationErrorText(null);
         setResetKey((value) => value + 1);
     }, [setToken]);
-
     /** 接收 Turnstile callback token */
     const handleTokenChange = useCallback((token: string | null) =>
     {
@@ -90,7 +85,6 @@ export const useCaptchaController = (opt?: UseCaptchaControllerOptions): Captcha
         setClientState(token ? "passed" : "idle");
         setValidationErrorText(null);
     }, [setToken]);
-
     /** 處理 Turnstile token 過期 */
     const handleExpired = useCallback(() =>
     {
@@ -98,7 +92,6 @@ export const useCaptchaController = (opt?: UseCaptchaControllerOptions): Captcha
         setClientState("expired");
         setValidationErrorText(messages.expiredText);
     }, [messages.expiredText, setToken]);
-
     /** 處理 Turnstile 載入或驗證錯誤 */
     const handleError = useCallback((_errorCode?: string) =>
     {
@@ -106,7 +99,6 @@ export const useCaptchaController = (opt?: UseCaptchaControllerOptions): Captcha
         setClientState("error");
         setValidationErrorText(messages.errorText);
     }, [messages.errorText, setToken]);
-
     /** 送出前檢查 Captcha 狀態 */
     const validateCaptcha = useCallback((): boolean =>
     {
@@ -128,14 +120,12 @@ export const useCaptchaController = (opt?: UseCaptchaControllerOptions): Captcha
         setValidationErrorText(null);
         return true;
     }, [captchaToken, configQuery.config, focusCaptcha, messages.configInvalidText, messages.requiredText]);
-
     useEffect(() =>
     {
         if (configQuery.config.canRender || !captchaToken) return;
         setToken(null);
         setClientState("idle");
     }, [captchaToken, configQuery.config.canRender, setToken]);
-
     return {
         config: configQuery.config,
         captchaToken: configQuery.config.isEnabled ? captchaToken : null,
@@ -155,3 +145,4 @@ export const useCaptchaController = (opt?: UseCaptchaControllerOptions): Captcha
         handleError,
     };
 };
+// #endregion

@@ -5,13 +5,19 @@ import { InterfaceDeclaration, Project, TypeAliasDeclaration } from "ts-morph";
 import type { Symbol, Type } from "ts-morph";
 import { fileURLToPath } from "url";
 
+// #region Property
 const __filename = fileURLToPath(import.meta.url);
+
 const __dirname = path.dirname(__filename);
+
 
 // 路徑設定
 const apiPath = path.resolve(__dirname, "api.d.ts");
-const outputPath = path.resolve(__dirname, "SchemaFields.ts");
 
+const outputPath = path.resolve(__dirname, "SchemaFields.ts");
+// #endregion
+
+// #region Private
 /** 取得 components 定義（interface 或 type alias） */
 const getComponentsType = (sourceFile: any) =>
 {
@@ -22,6 +28,7 @@ const getComponentsType = (sourceFile: any) =>
     // return xxx
     return t;
 };
+
 
 /** 從 components.schemas 取得 schema symbols */
 const getSchemas = (componentsType: InterfaceDeclaration | TypeAliasDeclaration) =>
@@ -37,6 +44,7 @@ const getSchemas = (componentsType: InterfaceDeclaration | TypeAliasDeclaration)
     // return xxx
     return schemas;
 };
+
 
 /** 從 api.d.ts(text) 抽出所有 /Service/{Controller}/... 的 Controller 名稱 */
 const extractControllers = (dtsText: string): string[] =>
@@ -56,6 +64,7 @@ const extractControllers = (dtsText: string): string[] =>
     return Array.from(set).sort((a, b) => a.localeCompare(b));
 };
 
+
 /** 產生 PGID record 的 TS 物件內容 */
 const buildPgidRecordLines = (controllers: string[]): string =>
 {
@@ -72,6 +81,7 @@ const buildPgidRecordLines = (controllers: string[]): string =>
     // return xxx
     return lines.join("\n");
 };
+
 const getSchemaOwnKeys = (schemaType: Type, apiFilePath: string): string[] =>
 {
     // 宣告變數
@@ -82,6 +92,7 @@ const getSchemaOwnKeys = (schemaType: Type, apiFilePath: string): string[] =>
     // return xxx
     return Array.from(new Set(keys));
 };
+
 const main = (): void =>
 {
     // 宣告變數
@@ -157,4 +168,6 @@ const main = (): void =>
     console.log(`\n🎉 SchemaFields.ts 已產生：schemas=${schemas.length}, pgid=${controllers.length}`);
 };
 
+
 main();
+// #endregion

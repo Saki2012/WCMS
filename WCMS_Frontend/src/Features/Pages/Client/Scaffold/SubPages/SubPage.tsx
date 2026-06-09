@@ -17,6 +17,7 @@ import type { ISubPageLoaderData } from "./SubPage_Loader";
 // import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 import "./subpage-content.css";
 
+// #region Property
 interface ISubPageProps
 {
     style: IFETheme;
@@ -26,6 +27,14 @@ interface ISubPageProps
     backHref?: string;
 }
 
+
+interface IContentContainerProps extends ISubPageProps
+{
+    bannerInitial: ISubPageLoaderData["bannerInitial"];
+}
+// #endregion
+
+// #region Private
 const SubPage = (props: ISubPageProps) =>
 {
     // 讀取 SSR loader 初始資料
@@ -55,12 +64,9 @@ const SubPage = (props: ISubPageProps) =>
     );
 };
 
+
 export default SubPage;
 
-interface IContentContainerProps extends ISubPageProps
-{
-    bannerInitial: ISubPageLoaderData["bannerInitial"];
-}
 
 const ContentContainer = (props: IContentContainerProps) =>
 {
@@ -79,3 +85,4 @@ const ContentContainer = (props: IContentContainerProps) =>
         </div>
     );
 };
+// #endregion

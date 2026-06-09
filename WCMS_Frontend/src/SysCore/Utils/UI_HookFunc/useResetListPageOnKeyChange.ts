@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 
+// #region Public
 /** 當 resetKey 改變時，將清單頁碼重設為第 1 頁 */
 export const useResetListPageOnKeyChange = (resetKey: string, onPageChange: (page: number) => void): void =>
 {
@@ -11,3 +12,4 @@ export const useResetListPageOnKeyChange = (resetKey: string, onPageChange: (pag
         onPageChange(1);
     }, [resetKey, onPageChange]);
 };
+// #endregion

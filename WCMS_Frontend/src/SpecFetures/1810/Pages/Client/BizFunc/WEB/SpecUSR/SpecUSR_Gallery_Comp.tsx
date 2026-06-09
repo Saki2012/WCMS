@@ -16,6 +16,7 @@ import "yet-another-react-lightbox/plugins/captions.css";
 import "yet-another-react-lightbox/plugins/counter.css";
 import "yet-another-react-lightbox/plugins/thumbnails.css";
 
+// #region Property
 /** 單張相片資料 */
 export interface ISpecUSRPhoto
 {
@@ -27,6 +28,7 @@ export interface ISpecUSRPhoto
     height?: number;
 }
 
+
 /** 元件參數 */
 export interface ISpecUSR_Gallery_Props
 {
@@ -37,54 +39,11 @@ export interface ISpecUSR_Gallery_Props
     onPick?: (photo: ISpecUSRPhoto, index: number) => void;
 }
 
-const OVERLAY_Z = 4000; // 高過任何其它 modal/backdrop
 
-/** 開啟時鎖定 body 滾動 */
-const useLockBodyScroll = (lock: boolean) =>
-{
-    useEffect(() =>
-    {
-        if (!lock || import.meta.env.SSR) return;
-        const prev = document.body.style.overflow;
-        document.body.style.overflow = "hidden";
-        return () =>
-        {
-            document.body.style.overflow = prev;
-        };
-    }, [lock]);
-};
+const OVERLAY_Z = 4000;
+// #endregion
 
-/** 開啟時將焦點移入，關閉後歸還焦點 */
-const useRestoreFocus = (active: boolean, focusRef: React.RefObject<HTMLElement>) =>
-{
-    const prevRef = useRef<HTMLElement | null>(null);
-    useEffect(() =>
-    {
-        if (import.meta.env.SSR) return;
-        if (active)
-        {
-            prevRef.current = document.activeElement as HTMLElement;
-            focusRef.current?.focus();
-        } else prevRef.current?.focus?.();
-    }, [active]);
-};
-
-/** Header（關閉鈕可聚焦） */
-const Header: React.FC<{ title: string; onClose: () => void; closeRef: React.RefObject<HTMLButtonElement>; }> = ({ title, onClose, closeRef }) => (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-        <h2 id="specusr-gallery-title" style={{ fontSize: 18, margin: 0 }}>{title}</h2>
-        <button
-            ref={closeRef}
-            type="button"
-            onClick={onClose}
-            aria-label="關閉相簿"
-            style={{ fontSize: 20, lineHeight: 1, padding: "4px 8px", background: "transparent", border: "none", cursor: "pointer" }}
-        >
-            ×
-        </button>
-    </div>
-);
-
+// #region Public
 export const SpecUSR_Gallery_Comp: React.FC<ISpecUSR_Gallery_Props> = ({ open, title = "相簿", photos, onClose, onPick }) =>
 {
     const dialogRef = useRef<HTMLDivElement>(null);
@@ -246,5 +205,59 @@ export const SpecUSR_Gallery_Comp: React.FC<ISpecUSR_Gallery_Props> = ({ open, t
         document.body,
     );
 };
+// #endregion
+
+// #region Private
+ // 高過任何其它 modal/backdrop
+
+/** 開啟時鎖定 body 滾動 */
+const useLockBodyScroll = (lock: boolean) =>
+{
+    useEffect(() =>
+    {
+        if (!lock || import.meta.env.SSR) return;
+        const prev = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+        return () =>
+        {
+            document.body.style.overflow = prev;
+        };
+    }, [lock]);
+};
+
+
+/** 開啟時將焦點移入，關閉後歸還焦點 */
+const useRestoreFocus = (active: boolean, focusRef: React.RefObject<HTMLElement>) =>
+{
+    const prevRef = useRef<HTMLElement | null>(null);
+    useEffect(() =>
+    {
+        if (import.meta.env.SSR) return;
+        if (active)
+        {
+            prevRef.current = document.activeElement as HTMLElement;
+            focusRef.current?.focus();
+        } else prevRef.current?.focus?.();
+    }, [active]);
+};
+
+
+/** Header（關閉鈕可聚焦） */
+const Header: React.FC<{ title: string; onClose: () => void; closeRef: React.RefObject<HTMLButtonElement>; }> = ({ title, onClose, closeRef }) => (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+        <h2 id="specusr-gallery-title" style={{ fontSize: 18, margin: 0 }}>{title}</h2>
+        <button
+            ref={closeRef}
+            type="button"
+            onClick={onClose}
+            aria-label="關閉相簿"
+            style={{ fontSize: 20, lineHeight: 1, padding: "4px 8px", background: "transparent", border: "none", cursor: "pointer" }}
+        >
+            ×
+        </button>
+    </div>
+);
+
 
 export default SpecUSR_Gallery_Comp;
+// #endregion

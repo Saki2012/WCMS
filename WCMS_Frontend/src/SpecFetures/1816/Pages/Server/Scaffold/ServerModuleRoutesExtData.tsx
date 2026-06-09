@@ -4,6 +4,7 @@ import { PGID } from "@/types/SchemaFields";
 import { Server_ScheduleRule_Form_Comp } from "../BizFunc/WEB/SpecOpenScheduleRule/Server_ScheduleRule_Form_Comp";
 import { Server_ScheduleRule_List_Comp } from "../BizFunc/WEB/SpecOpenScheduleRule/Server_ScheduleRule_List_Comp";
 
+// #region Private
 const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] =>
 {
     const web = modules.find((m) => m.ModuleCode === ModuleCode.Dashboard);
@@ -35,4 +36,6 @@ const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] =>
     return modules;
 };
 
+
 export default extendServerModuleRoutes;
+// #endregion

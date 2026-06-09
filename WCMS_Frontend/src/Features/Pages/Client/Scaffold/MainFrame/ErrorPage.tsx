@@ -3,6 +3,8 @@ import { useLang } from "@/SysCore/i18n/LangContext";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import React from "react";
 import { useSearchParams } from "react-router-dom";
+
+// #region Public
 // ✅ 確保圖片會被 Vite bundle 進 dist（不要用硬編 /images/...）
 // import errorSvgUrl from "SpecFeature/Assets/Client/images/svg_icon/error.svg?url";
 
@@ -62,3 +64,4 @@ export const Error404Page: React.FC = () =>
         </>
     );
 };
+// #endregion

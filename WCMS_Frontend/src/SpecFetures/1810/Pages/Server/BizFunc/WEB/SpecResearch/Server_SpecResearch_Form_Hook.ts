@@ -16,10 +16,12 @@ import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { PGID } from "@/types/SchemaFields";
 
+// #region Property
 type SpecResearchSet = components["schemas"]["SpecResearchSet_DTO"];
+
 type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"];
 
-// #region Public
+
 export type SpecResearchFormRawData = {
     formData: UseFetchFormDataResult<SpecResearchSet>;
     categoryMap: Record<string, string>;
@@ -29,17 +31,21 @@ export type SpecResearchFormRawData = {
     actions: ServerFormActions;
 };
 
+
 export type SpecResearchFormActionsOpt = {
     /** 儲存/刪除成功後要回到列表（或其他導頁） */
     onBackToList: () => void;
 };
+
 
 export type SpecResearchFormAdapter = {
     SpecResearch: ReturnType<typeof SpecResearchAdapter>;
     SpecCategory: ReturnType<typeof SpecCategoryAdapter>;
     Tag: ReturnType<typeof TagAdapter>;
 };
+// #endregion
 
+// #region Public
 /** ✅ 主入口：Server SpecResearch Form 的所有「讀取資料」都集中在這裡 */
 export const useSpecResearchFormFetchData = (
     opt: { lang: Lang; internalId: string; emptyData: SpecResearchSet; actionsOpt: SpecResearchFormActionsOpt; },
@@ -126,6 +132,7 @@ const useContentStatusOptions = (): { data: Record<string, string>; isLoading: b
     }, [src.data, src.isLoading, src.error]);
 };
 
+
 /** ✅ FormData：QueryData + ModelDisplayName（含 editable state） */
 const useSpecResearchFormDataByAdapter = (
     adapter: ReturnType<typeof SpecResearchAdapter>,
@@ -181,6 +188,7 @@ const useSpecResearchFormDataByAdapter = (
     };
 };
 
+
 const useSpecResearchFormActionsByAdapter = (
     adapter: ReturnType<typeof SpecResearchAdapter>,
     internalId: string,
@@ -212,6 +220,7 @@ const useSpecResearchFormActionsByAdapter = (
     };
 };
 
+
 /** ✅ SpecCategory.ShowColumnItems → Record<CategoryId, string[]> */
 const buildCategoryCols = (rows: SpecCategorySet[]): Record<string, string[]> =>
 {
@@ -232,6 +241,7 @@ const buildCategoryCols = (rows: SpecCategorySet[]): Record<string, string[]> =>
     return map;
 };
 
+
 const parseShowColumnItems = (raw: string): string[] =>
 {
     // 宣告變數
@@ -249,6 +259,7 @@ const parseShowColumnItems = (raw: string): string[] =>
     // return
     return parts;
 };
+
 
 const safeParseJsonArray = (raw: string): string[] | null =>
 {

@@ -14,7 +14,7 @@ import type { SearchFieldConfig, SearchValue, SearchValues } from "@/SysCore/Com
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
-import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
+import { findTextByKey, formatDateTime } from "@/SysCore/Utils/Library/LibData";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
@@ -22,19 +22,27 @@ import { AccountFields, FileArchiveFields, FileArchiveInfoFields, PGID } from "@
 import { createElement, Fragment, type ReactNode, useCallback, useMemo } from "react";
 import { type NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];
+
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
+
 type TagSet = components["schemas"]["TagSet_DTO"];
+
 type FileArchiveApiAdapter = ReturnType<typeof FileArchiveAdapter>;
+
 type CategoryApiAdapter = ReturnType<typeof CategoryAdapter>;
+
 type TagApiAdapter = ReturnType<typeof TagAdapter>;
+
 type FileArchiveCudActions = ReturnType<FileArchiveApiAdapter["hooks"]["useCudActions"]>;
+
 type CategoryMapValue = string | CategorySet | null | undefined;
+
 type TagMapValue = string | TagSet | null | undefined;
 
-export const FILE_ARCHIVE_TITLE_SEARCH_KEY = "title";
-export const FILE_ARCHIVE_CATEGORY_SEARCH_KEY = "categoryId";
 
 export interface FileArchiveSearchParams
 {
@@ -47,6 +55,7 @@ export interface FileArchiveSearchParams
     /** 檔案室分類搜尋條件 */
     categoryId?: string;
 }
+
 
 export interface FileArchiveListRawData
 {
@@ -78,6 +87,7 @@ export interface FileArchiveListRawData
     tagMap: Record<string, string>;
 }
 
+
 export interface FileArchiveListAdapter
 {
     /** 檔案室 API adapter */
@@ -99,7 +109,30 @@ export interface FileArchiveListAdapter
     dirUrl: string;
 }
 
+
 export type FileArchiveListGridTemplate = ServerListGridTemplate<FileArchiveSearchParams, FileArchiveListRawData, FileArchiveListAdapter, QueryListParam>;
+
+
+type CrudDeps = {
+    /** React Router 導頁方法 */
+    navigate: NavigateFunction;
+
+    /** 目前 List 對應的 Form 路徑 */
+    dirUrl: string;
+
+    /** 刪除資料方法 */
+    deleteAsync: FileArchiveCudActions["deleteAsync"];
+
+    /** 刪除後重新查詢 */
+    afterDelete: () => Promise<void>;
+};
+// #endregion
+
+// #region Public
+export const FILE_ARCHIVE_TITLE_SEARCH_KEY = "title";
+
+export const FILE_ARCHIVE_CATEGORY_SEARCH_KEY = "categoryId";
+
 
 /** 建立檔案室後台 ListGridTemplate 設定 */
 export const useFileArchiveListGridTemplate = (opt: { lang: Lang; }): FileArchiveListGridTemplate =>
@@ -120,7 +153,9 @@ export const useFileArchiveListGridTemplate = (opt: { lang: Lang; }): FileArchiv
         };
     }, [opt.lang]);
 };
+// #endregion
 
+// #region Private
 /** 執行檔案室列表資料來源 Hook */
 const useFileArchiveListGridDataSource = (
     ctx: ServerListGridDataSourceContext<FileArchiveSearchParams, QueryListParam>,
@@ -187,6 +222,7 @@ const useFileArchiveListGridDataSource = (
     return { adapter: { ...apiAdapter, cudActions, navigate, dirUrl }, rawData, isLoading, errors, refetchData, refetchRefData };
 };
 
+
 /** 建立檔案室搜尋欄位設定 */
 const buildFileArchiveSearchFields = (rawData: FileArchiveListRawData): SearchFieldConfig[] =>
 {
@@ -201,6 +237,7 @@ const buildFileArchiveSearchFields = (rawData: FileArchiveListRawData): SearchFi
     }];
 };
 
+
 /** 將 SearchValues 轉為檔案室列表查詢參數 */
 const toFileArchiveSearchParams = (values: SearchValues, lang: Lang): FileArchiveSearchParams =>
 {
@@ -210,6 +247,7 @@ const toFileArchiveSearchParams = (values: SearchValues, lang: Lang): FileArchiv
         categoryId: getSearchStringValue(values[FILE_ARCHIVE_CATEGORY_SEARCH_KEY]),
     };
 };
+
 
 /** 建立檔案室搜尋條件 */
 const buildFileArchiveSearchConditions = (ctx: { searchParams: FileArchiveSearchParams; }): string[] =>
@@ -229,6 +267,7 @@ const buildFileArchiveSearchConditions = (ctx: { searchParams: FileArchiveSearch
     return conditions;
 };
 
+
 /** 建立檔案室列表完整 QueryParam */
 const buildFileArchiveQueryParam = (ctx: { searchParams: FileArchiveSearchParams; searchCondition: string; }): QueryListParam =>
 {
@@ -245,6 +284,7 @@ const buildFileArchiveQueryParam = (ctx: { searchParams: FileArchiveSearchParams
         PageSize: 10,
     };
 };
+
 
 /** 建立檔案室列表查詢欄位 */
 const buildFileArchiveQueryFields = (): string[] =>
@@ -264,25 +304,13 @@ const buildFileArchiveQueryFields = (): string[] =>
     ];
 };
 
+
 /** 建立分類下拉搜尋選項 */
 const buildCategorySearchOptions = (categoryMap: Record<string, string>): SearchFieldConfig["options"] =>
 {
     return Object.entries(categoryMap).map(([value, title]) => ({ value, title: title || value }));
 };
 
-type CrudDeps = {
-    /** React Router 導頁方法 */
-    navigate: NavigateFunction;
-
-    /** 目前 List 對應的 Form 路徑 */
-    dirUrl: string;
-
-    /** 刪除資料方法 */
-    deleteAsync: FileArchiveCudActions["deleteAsync"];
-
-    /** 刪除後重新查詢 */
-    afterDelete: () => Promise<void>;
-};
 
 /** 將檔案室資料轉為 GridProps */
 const buildFileArchiveGridProps = (
@@ -315,6 +343,7 @@ const buildFileArchiveGridProps = (
     });
 };
 
+
 /** 注入檔案室 Grid 編輯與刪除動作 */
 const enhanceFileArchiveGrid = (
     opt: {
@@ -345,11 +374,13 @@ const enhanceFileArchiveGrid = (
     });
 };
 
+
 /** 建立檔案室列表欄位定義 */
 const buildColumns = (visibleCols: string[], raw: FileArchiveListRawData): ColumnConfig[] =>
 {
     return visibleCols.map((col) => ({ key: col, title: getColumnTitle(raw.modelDisplayName, col, `【${col}】`) }));
 };
+
 
 /** 建立檔案室列表列資料 */
 const buildFileArchiveRows = (raw: FileArchiveListRawData, lang: Lang, columns: ColumnConfig[]): GridRow[] =>
@@ -361,20 +392,22 @@ const buildFileArchiveRows = (raw: FileArchiveListRawData, lang: Lang, columns: 
             { col: columns[0], content: mapIdsToList(set.FileArchive?.CategoriesId, raw.categoryMap) },
             { col: columns[1], content: buildTitleCell(set, lang) },
             { col: columns[2], content: set.FileArchive?.ModifyUser?.AccountName ?? "" },
-            { col: columns[3], content: FormatDateTime(set.FileArchive?.ModifyTime) },
+            { col: columns[3], content: formatDateTime(set.FileArchive?.ModifyTime) },
         ];
 
         return { keyId, cells };
     });
 };
 
+
 /** 建立標題與資料狀態欄位內容 */
 const buildTitleCell = (set: FileArchiveSet, lang: Lang): ReactNode =>
 {
-    const title = (set.FileArchiveInfo ?? []).find((d) => d?.Lang === lang)?.Title ?? "";
+    const title = findTextByKey(set.FileArchiveInfo, (d) => d?.Lang, lang, (d) => d?.Title);
 
     return createElement(Fragment, null, createElement("span", { key: "title" }, title), GetDataStatusContent(set.FileArchive?.ContentStatus ?? 0));
 };
+
 
 /** 將逗號分隔代碼轉為清單顯示 */
 const mapIdsToList = (ids: string | null | undefined, map: Record<string, string>): ReactNode =>
@@ -388,6 +421,7 @@ const mapIdsToList = (ids: string | null | undefined, map: Record<string, string
     );
 };
 
+
 /** 將分類 Hook 回傳值轉成文字 map，避免不同 Adapter map 版本造成型別不一致 */
 const buildCategoryTextMap = (source: Record<string, CategoryMapValue>, lang: Lang): Record<string, string> =>
 {
@@ -398,14 +432,16 @@ const buildCategoryTextMap = (source: Record<string, CategoryMapValue>, lang: La
     }, {});
 };
 
+
 /** 取得分類顯示文字 */
 const getCategoryText = (value: CategoryMapValue, lang: Lang): string =>
 {
     if (!value) return "";
     if (typeof value === "string") return value;
 
-    return (value.CategoryDetail ?? []).find((detail) => detail?.Lang === lang)?.CategoryName ?? "";
+    return findTextByKey(value.CategoryDetail, (detail) => detail?.Lang, lang, (detail) => detail?.CategoryName);
 };
+
 
 /** 將標籤 Hook 回傳值轉成文字 map，避免不同 Adapter map 版本造成型別不一致 */
 const buildTagTextMap = (source: Record<string, TagMapValue>, lang: Lang): Record<string, string> =>
@@ -417,14 +453,16 @@ const buildTagTextMap = (source: Record<string, TagMapValue>, lang: Lang): Recor
     }, {});
 };
 
+
 /** 取得標籤顯示文字 */
 const getTagText = (value: TagMapValue, lang: Lang): string =>
 {
     if (!value) return "";
     if (typeof value === "string") return value;
 
-    return (value.TagDetail ?? []).find((detail) => detail?.Lang === lang)?.TagName ?? "";
+    return findTextByKey(value.TagDetail, (detail) => detail?.Lang, lang, (detail) => detail?.TagName);
 };
+
 
 /** 依欄位代碼取得 ModelDisplayName 顯示文字 */
 const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, columnId: string, fallback: string): string =>
@@ -434,6 +472,7 @@ const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, columnId: s
     return hit?.ColumnDisplayName ?? fallback;
 };
 
+
 /** 取得 SearchValue 的文字值 */
 const getSearchStringValue = (value: SearchValue): string | undefined =>
 {
@@ -442,3 +481,4 @@ const getSearchStringValue = (value: SearchValue): string | undefined =>
     const text = value.trim();
     return text.length > 0 ? text : undefined;
 };
+// #endregion

@@ -6,6 +6,7 @@ import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import React from "react";
 import { useMatches } from "react-router-dom";
 
+// #region Private
 const BreadCrumb = ({ theme }: { theme: IBETheme; }) =>
 {
     // 1) 從當前匹配到的所有路由收集麵包屑文字
@@ -28,4 +29,6 @@ const BreadCrumb = ({ theme }: { theme: IBETheme; }) =>
     return <BreadCrumbComp items={crumbs} style={theme.BreadCrumb}></BreadCrumbComp>;
 };
 
+
 export default BreadCrumb;
+// #endregion

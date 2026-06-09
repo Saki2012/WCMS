@@ -17,9 +17,13 @@ import { useCallback, useMemo } from "react";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 type SurveySubmissionSet = components["schemas"]["SurveySubmissionsSet_DTO"];
+
 type SurveySubmissionQueryFormOptions = Parameters<ApiDataHookGroup<SurveySubmissionSet>["useQueryFormData"]>[0];
+
 type SurveySubmissionQueryFormResult = ReturnType<ApiDataHookGroup<SurveySubmissionSet>["useQueryFormData"]>;
+
 
 export interface UseSurveySubmissionFormTemplateOptions
 {
@@ -36,6 +40,7 @@ export interface UseSurveySubmissionFormTemplateOptions
     actionsOpt: SurveySubmissionFormActionsOpt;
 }
 
+
 export interface SurveySubmissionFormRawData extends ServerFormDefaultRawData<SurveySubmissionSet, SurveySubmissionFormRefs>
 {
     /** ModelDisplayName，給只讀畫面顯示欄位名稱 */
@@ -45,12 +50,15 @@ export interface SurveySubmissionFormRawData extends ServerFormDefaultRawData<Su
     data: SurveySubmissionSet | null;
 }
 
+
 export type SurveySubmissionFormRefs = Record<string, never>;
+
 
 export type SurveySubmissionFormActionsOpt = {
     /** 返回列表頁 */
     onBackToList: () => void;
 };
+
 
 export type SurveySubmissionFormAdapter = {
     /** 問卷回應原始 Adapter */
@@ -59,11 +67,12 @@ export type SurveySubmissionFormAdapter = {
     /** 只讀表單 Adapter，將 Grid Query 包成 Form Query */
     ReadonlySubmission: ServerFormDataAdapter<SurveySubmissionSet>;
 };
-
-export const surveySubmissionEmptyData: SurveySubmissionSet = { SurveySubmissions: {} };
 // #endregion
 
 // #region Public
+export const surveySubmissionEmptyData: SurveySubmissionSet = { SurveySubmissions: {} };
+
+
 /** 建立 SurveySubmission 只讀 Form Template，統一交給 Server_FormTemplate 處理 loading / error 外框。 */
 export const useSurveySubmissionFormTemplate = (
     opt: UseSurveySubmissionFormTemplateOptions,
@@ -100,7 +109,7 @@ export const useSurveySubmissionFormTemplate = (
 };
 // #endregion
 
-// #region Timing
+// #region Private
 /** 建立只讀表單標題，功能名稱優先讀 ModelDisplayName。 */
 const buildSurveySubmissionFormTitle = (ctx: { displayName: ModelDisplaySchema; }): string =>
 {
@@ -108,11 +117,13 @@ const buildSurveySubmissionFormTitle = (ctx: { displayName: ModelDisplaySchema; 
     return `查看${modelTitle}`;
 };
 
+
 /** 只讀查詢不使用新增 initial，資料來源固定由 Readonly Adapter 查詢。 */
 const buildSurveySubmissionInitialData = (): ApiFormInitial<SurveySubmissionSet> | undefined =>
 {
     return undefined;
 };
+
 
 /** 建立 SurveySubmission Adapter，另外包一層只讀 DataAdapter 給 FormTemplate 使用。 */
 const buildSurveySubmissionFormAdapter = (): SurveySubmissionFormAdapter =>
@@ -121,6 +132,7 @@ const buildSurveySubmissionFormAdapter = (): SurveySubmissionFormAdapter =>
 
     return { SurveySubmission: surveySubmission, ReadonlySubmission: buildReadonlySurveySubmissionDataAdapter(surveySubmission) };
 };
+
 
 /** 建立只讀 rawData，讓 Comp 不需要知道 Template 內部資料流。 */
 const buildSurveySubmissionRawData = (
@@ -136,6 +148,7 @@ const buildSurveySubmissionRawData = (
     };
 };
 
+
 /** 移除 Save / Delete Toolbar，並用問卷名稱補強只讀標題。 */
 const buildSurveySubmissionFormProp = (ctx: { rawData: SurveySubmissionFormRawData; }, baseProp: FormCompProp): FormCompProp =>
 {
@@ -144,14 +157,14 @@ const buildSurveySubmissionFormProp = (ctx: { rawData: SurveySubmissionFormRawDa
 
     return { ...baseProp, Title: title, Actions: undefined };
 };
-// #endregion
 
-// #region Private
+
 /** 建立只讀 DataAdapter，把 QueryGridData 包成 QueryFormData。 */
 const buildReadonlySurveySubmissionDataAdapter = (adapter: ReturnType<typeof SurveySubmissionAdapter>): ServerFormDataAdapter<SurveySubmissionSet> =>
 {
     return { hooks: { useQueryFormData: opt => useReadonlySurveySubmissionFormData(adapter, opt) }, useServerActions: useReadonlySurveySubmissionActions };
 };
+
 
 /** 查詢單筆問卷回應，因後端以 SurveySubmissionId 篩選，所以使用 Grid Query 取第一筆。 */
 const useReadonlySurveySubmissionFormData = (
@@ -182,6 +195,7 @@ const useReadonlySurveySubmissionFormData = (
     }, [grid.errorText, grid.errors, grid.isLoading, grid.list, grid.modelDisplayName, grid.refetchData]);
 };
 
+
 /** 建立問卷提交明細查詢條件。 */
 const useSurveySubmissionFormQueryParam = (surveySubmissionId: string): QueryListParam =>
 {
@@ -193,6 +207,7 @@ const useSurveySubmissionFormQueryParam = (surveySubmissionId: string): QueryLis
         return { Fields: fields, Condition: condition, OrderBy: [], PageNumber: 1, PageSize: 1 };
     }, [condition, fields]);
 };
+
 
 /** 建立查詢欄位清單，避免只讀畫面額外取得不需要的欄位。 */
 const buildSurveySubmissionQueryFields = (): string[] =>
@@ -222,6 +237,7 @@ const buildSurveySubmissionQueryFields = (): string[] =>
     ];
 };
 
+
 /** 建立單筆回應查詢條件，空值時刻意查不到資料。 */
 const buildSurveySubmissionCondition = (surveySubmissionId: string): string =>
 {
@@ -229,11 +245,13 @@ const buildSurveySubmissionCondition = (surveySubmissionId: string): string =>
     return id ? `${SurveySubmissionsFields.SurveySubmissionId} = ${id}` : `${SurveySubmissionsFields.SurveySubmissionId} = __empty__`;
 };
 
+
 /** 判斷 binding 是否已取得有效回應資料。 */
 const hasSurveySubmissionData = (data: SurveySubmissionSet | null | undefined): boolean =>
 {
     return Boolean(data?.SurveySubmissions?.SurveySubmissionId);
 };
+
 
 /** 只讀頁不允許 CUD，保留 no-op action 只為滿足 FormTemplate 共用介面。 */
 const useReadonlySurveySubmissionActions = (_opt?: UseServerActionsOptions): UseServerActionsResult<SurveySubmissionSet> =>

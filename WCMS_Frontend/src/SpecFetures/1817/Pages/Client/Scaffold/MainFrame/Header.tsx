@@ -10,7 +10,10 @@ import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
 import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { useEffect, useRef } from "react";
+
+// #region Property
 type HeaderA11yText = { mainNavLabel: string; openNewWindowSuffix: string; hamburger: string; search: string; logoLink: string; logoAlt: string; };
+
 
 const HEADER_A11Y_TEXT: Partial<Record<Lang, HeaderA11yText>> = {
     "zh-tw": {
@@ -31,172 +34,11 @@ const HEADER_A11Y_TEXT: Partial<Record<Lang, HeaderA11yText>> = {
     },
 };
 
-const getHeaderA11y = (lang?: Lang): HeaderA11yText =>
-{
-    const key = (lang ?? DefaultLang) as Lang;
-    return HEADER_A11Y_TEXT[key] ?? HEADER_A11Y_TEXT[DefaultLang]
-        ?? {
-            mainNavLabel: "Main menu",
-            openNewWindowSuffix: " (opens in a new window)",
-            hamburger: "Open main menu",
-            search: "Search",
-            logoLink: "Home",
-            logoAlt: "Site logo",
-        };
-};
-
-const isBlankTarget = (t?: string) => String(t ?? "").toLowerCase() === "_blank";
-
-const withNewWindowSuffix = (a11y: HeaderA11yText, text: string, target?: string) =>
-{
-    return isBlankTarget(target) ? `${text}${a11y.openNewWindowSuffix}` : text;
-};
-
-const getRelByTarget = (target?: string) => (isBlankTarget(target) ? "noopener noreferrer" : undefined);
 
 const HEADER_MENU_STYLE_ID = "wcms-1817-header-menu-behavior-style";
+// #endregion
 
-const isKeyboardActivateKey = (event: KeyboardEvent): boolean =>
-{
-    return event.key === "Enter" || event.key === " " || event.key === "Spacebar" || event.code === "Space";
-};
-
-const ensureHeaderMenuBehaviorStyle = (): void =>
-{
-    if (typeof document === "undefined") return;
-    if (document.getElementById(HEADER_MENU_STYLE_ID)) return;
-
-    const style = document.createElement("style");
-    style.id = HEADER_MENU_STYLE_ID;
-    style.textContent = `
-@media screen and (min-width: 992px) {
-    #Site-Header .dropdown.is-hover-suppressed:hover > .dropdown-menu,
-    #Site-Header .dropend.is-hover-suppressed:hover > .dropdown-menu {
-        display: none !important;
-        visibility: hidden !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
-    }
-
-    #Site-Header #navbar-content .navbar-nav > .nav-item.dropdown.is-hover-suppressed:hover > .nav-link {
-        color: var(--blackcolor) !important;
-    }
-
-    #Site-Header #navbar-content .navbar-nav > .nav-item.dropdown.is-hover-suppressed:hover > .nav-link::before {
-        -webkit-transform: scale(0, 0) translate(-100%, 0) !important;
-        transform: scale(0, 0) translate(-100%, 0) !important;
-    }
-
-    #Site-Header #navbar-content ul .dropdown.is-hover-suppressed > .dropdown-toggle:hover::after,
-    #Site-Header #navbar-content ul .dropend.is-hover-suppressed > .dropdown-toggle:hover::after {
-        color: var(--G999color) !important;
-    }
-
-    #Site-Header #navbar-content .navbar-nav .dropend.is-hover-suppressed:hover > .dropdown-toggle {
-        color: var(--blackcolor) !important;
-        background-color: transparent !important;
-    }
-}
-
-#Site-Header #navbar-content a.nav-link:focus-visible,
-#Site-Header #navbar-content a.dropdown-item:focus-visible,
-#Site-Header #navbar-content .dropdown-toggle:focus-visible {
-    outline: 2px dashed var(--a_focusbordercolor) !important;
-    outline-offset: -2px !important;
-    box-shadow: none !important;
-}
-
-#Site-Header #navbar-content a.dropdown-item:focus-visible {
-    color: var(--blackcolor) !important;
-    background-color: var(--a_focuscolor) !important;
-}
-`;
-    document.head.appendChild(style);
-};
-
-const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
-{
-    const headerRef = useRef<HTMLDivElement | null>(null);
-
-    useEffect(() =>
-    {
-        if (typeof window === "undefined") return;
-
-        // 宣告變數
-        const header = headerRef.current;
-        if (!header) return;
-
-        // 執行 function：判斷是否手機寬度（Bootstrap lg 以下）
-        const isMobileWidth = (): boolean => window.matchMedia?.("(max-width: 991.98px)")?.matches ?? (window.innerWidth < 992);
-
-        // 執行 function：收起 navbar collapse + hamburger 狀態（避免手機預設展開）
-        const resetNavbarCollapse = () =>
-        {
-            const collapse = header.querySelector<HTMLElement>("#navbar-content");
-            collapse?.classList.remove("show");
-
-            const toggler = header.querySelector<HTMLElement>(".navbar-toggler");
-            toggler?.classList.add("collapsed");
-            toggler?.setAttribute("aria-expanded", "false");
-            toggler?.querySelector<HTMLElement>(".hamburger")?.classList.remove("active");
-        };
-
-        // 執行 function：控制 header overlay 開關
-        const setOpen = (open: boolean) =>
-        {
-            header.classList.toggle("active", open);
-            document.body.style.overflow = open ? "hidden" : "auto";
-            if (!open) resetNavbarCollapse();
-        };
-
-        // 初始化：避免進站時手機板就展開
-        setOpen(false);
-
-        // 執行 function：點擊事件（hamburger / overlay）
-        const onClick = (ev: MouseEvent) =>
-        {
-            const el = ev.target as Element;
-
-            // 1) 點到 .navbar-toggler → 開/關
-            const toggler = el.closest(".navbar-toggler");
-            if (toggler && header.contains(toggler)) return;
-            // 2) 點 overlay → 關閉
-            const overlay = el.closest(".overlayer");
-            if (overlay && header.contains(overlay)) setOpen(false);
-        };
-
-        // 執行 function：resize 進手機寬度時，清掉 dropdown/collapse 的殘留狀態
-        const onResize = () =>
-        {
-            if (!isMobileWidth()) return;
-            setOpen(false);
-        };
-
-        header.addEventListener("click", onClick);
-        window.addEventListener("resize", onResize);
-        window.addEventListener("orientationchange", onResize);
-
-        return () =>
-        {
-            header.removeEventListener("click", onClick);
-            window.removeEventListener("resize", onResize);
-            window.removeEventListener("orientationchange", onResize);
-        };
-    }, []);
-
-    return (
-        <>
-            <A11yContent />
-            <div id="Site-Header" className="ALL_Header_DivBar main-header" ref={headerRef}>
-                <Header_Section {...props} />
-                <Menu_Section {...props} />
-                <div className="overlayer" aria-hidden="true" />
-            </div>
-        </>
-    );
-};
-export default Header;
-
+// #region Section
 const Header_Section = (props: { lang: Lang; site: INormSite; }) =>
 {
     const sizeGroupRef = useRef<HTMLUListElement | null>(null);
@@ -248,51 +90,6 @@ const Header_Section = (props: { lang: Lang; site: INormSite; }) =>
     );
 };
 
-const NavBar = (props: { lang: Lang; }) =>
-{
-    const title = props.lang === "zh-tw"
-        ? { Home: "首頁", TNUA: "臺北藝術大學", FB: "FB粉絲團", SiteMap: "網站導覽" }
-        : props.lang === "en"
-        ? { Home: "Home", TNUA: "TNUA", FB: "Facebook", SiteMap: "SiteMap" }
-        : ({} as any);
-
-    return (
-        <li>
-            <ul className="nav custom_nav py-0 justify-content-center my-1">
-                <li className="nav-item">
-                    <LangLink className="nav-link" to="/" tabIndex={0} title={title.Home}>{title.Home}</LangLink>
-                </li>
-                <li className="nav-item">
-                    <a
-                        className="nav-link"
-                        href="https://w3.tnua.edu.tw/"
-                        tabIndex={0}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title={withNewWindowSuffix(getHeaderA11y(props.lang), title.TNUA, "_blank")}
-                    >
-                        {title.TNUA}
-                    </a>
-                </li>
-                <li className="nav-item">
-                    <a
-                        className="nav-link"
-                        href="https://www.facebook.com/TaiwanTraditionalMusic/"
-                        tabIndex={0}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title={withNewWindowSuffix(getHeaderA11y(props.lang), title.FB, "_blank")}
-                    >
-                        {title.FB}
-                    </a>
-                </li>
-                <li className="nav-item">
-                    <LangLink className="nav-link" to={`/${SITEMAP_SEGMENT}`} tabIndex={0} target="_self" title={title.SiteMap}>{title.SiteMap}</LangLink>
-                </li>
-            </ul>
-        </li>
-    );
-};
 
 const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
 {
@@ -742,6 +539,7 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme; }) 
         </section>
     );
 };
+
 const LogoComp = (props: { lang: Lang; }) =>
 {
     // 宣告變數
@@ -756,6 +554,293 @@ const LogoComp = (props: { lang: Lang; }) =>
         </h1>
     );
 };
+// #endregion
+
+// #region EntityComp
+/**
+ * 遞迴渲染多層選單
+ */
+const renderDropdownItems = (items: MenuItemData[], parentDepth: number, lang: Lang): JSX.Element[] =>
+{
+    // 宣告變數
+    const a11y = getHeaderA11y(lang);
+
+    // return
+    return items.map((item, index) =>
+    {
+        const hasChildren = (item.SubItem ?? []).length > 0;
+        const key = `${parentDepth}-${index}`;
+        const label = withNewWindowSuffix(a11y, item.SrcData, item.URL_Open);
+        const isExternal = /^https?:\/\//i.test(item.Url || "");
+
+        if (!hasChildren)
+        {
+            return (
+                <li key={key}>
+                    <LangNavLink
+                        className="dropdown-item"
+                        to={item.Url || "#"}
+                        role="button"
+                        tabIndex={0}
+                        target={item.URL_Open}
+                        rel={getRelByTarget(item.URL_Open)}
+                        title={label}
+                        aria-label={label}
+                    >
+                        {isExternal && <i className="fad fa-link me-2"></i>}
+                        {item.SrcData}
+                    </LangNavLink>
+                </li>
+            );
+        }
+
+        const submenuClassName = parentDepth === 0 ? "dropdown-menu" : "dropdown-menu dropdown-submenu";
+
+        return (
+            <li key={key} className="dropend submenu">
+                <LangNavLink
+                    to={item.Url || "#"}
+                    role="button"
+                    tabIndex={0}
+                    className="dropdown-item dropdown-toggle"
+                    data-bs-toggle="dropdown"
+                    data-bs-auto-close="outside"
+                    target={item.URL_Open}
+                    rel={getRelByTarget(item.URL_Open)}
+                    aria-haspopup="menu"
+                    aria-expanded="false"
+                    title={label}
+                    aria-label={label}
+                >
+                    {item.SrcData}
+                </LangNavLink>
+
+                <ul className={submenuClassName}>{renderDropdownItems(item.SubItem ?? [], parentDepth + 1, lang)}</ul>
+            </li>
+        );
+    });
+};
+// #endregion
+
+// #region Private
+const getHeaderA11y = (lang?: Lang): HeaderA11yText =>
+{
+    const key = (lang ?? DefaultLang) as Lang;
+    return HEADER_A11Y_TEXT[key] ?? HEADER_A11Y_TEXT[DefaultLang]
+        ?? {
+            mainNavLabel: "Main menu",
+            openNewWindowSuffix: " (opens in a new window)",
+            hamburger: "Open main menu",
+            search: "Search",
+            logoLink: "Home",
+            logoAlt: "Site logo",
+        };
+};
+
+
+const isBlankTarget = (t?: string) => String(t ?? "").toLowerCase() === "_blank";
+
+
+const withNewWindowSuffix = (a11y: HeaderA11yText, text: string, target?: string) =>
+{
+    return isBlankTarget(target) ? `${text}${a11y.openNewWindowSuffix}` : text;
+};
+
+
+const getRelByTarget = (target?: string) => (isBlankTarget(target) ? "noopener noreferrer" : undefined);
+
+
+const isKeyboardActivateKey = (event: KeyboardEvent): boolean =>
+{
+    return event.key === "Enter" || event.key === " " || event.key === "Spacebar" || event.code === "Space";
+};
+
+
+const ensureHeaderMenuBehaviorStyle = (): void =>
+{
+    if (typeof document === "undefined") return;
+    if (document.getElementById(HEADER_MENU_STYLE_ID)) return;
+
+    const style = document.createElement("style");
+    style.id = HEADER_MENU_STYLE_ID;
+    style.textContent = `
+@media screen and (min-width: 992px) {
+    #Site-Header .dropdown.is-hover-suppressed:hover > .dropdown-menu,
+    #Site-Header .dropend.is-hover-suppressed:hover > .dropdown-menu {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+
+    #Site-Header #navbar-content .navbar-nav > .nav-item.dropdown.is-hover-suppressed:hover > .nav-link {
+        color: var(--blackcolor) !important;
+    }
+
+    #Site-Header #navbar-content .navbar-nav > .nav-item.dropdown.is-hover-suppressed:hover > .nav-link::before {
+        -webkit-transform: scale(0, 0) translate(-100%, 0) !important;
+        transform: scale(0, 0) translate(-100%, 0) !important;
+    }
+
+    #Site-Header #navbar-content ul .dropdown.is-hover-suppressed > .dropdown-toggle:hover::after,
+    #Site-Header #navbar-content ul .dropend.is-hover-suppressed > .dropdown-toggle:hover::after {
+        color: var(--G999color) !important;
+    }
+
+    #Site-Header #navbar-content .navbar-nav .dropend.is-hover-suppressed:hover > .dropdown-toggle {
+        color: var(--blackcolor) !important;
+        background-color: transparent !important;
+    }
+}
+
+#Site-Header #navbar-content a.nav-link:focus-visible,
+#Site-Header #navbar-content a.dropdown-item:focus-visible,
+#Site-Header #navbar-content .dropdown-toggle:focus-visible {
+    outline: 2px dashed var(--a_focusbordercolor) !important;
+    outline-offset: -2px !important;
+    box-shadow: none !important;
+}
+
+#Site-Header #navbar-content a.dropdown-item:focus-visible {
+    color: var(--blackcolor) !important;
+    background-color: var(--a_focuscolor) !important;
+}
+`;
+    document.head.appendChild(style);
+};
+
+
+const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
+{
+    const headerRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() =>
+    {
+        if (typeof window === "undefined") return;
+
+        // 宣告變數
+        const header = headerRef.current;
+        if (!header) return;
+
+        // 執行 function：判斷是否手機寬度（Bootstrap lg 以下）
+        const isMobileWidth = (): boolean => window.matchMedia?.("(max-width: 991.98px)")?.matches ?? (window.innerWidth < 992);
+
+        // 執行 function：收起 navbar collapse + hamburger 狀態（避免手機預設展開）
+        const resetNavbarCollapse = () =>
+        {
+            const collapse = header.querySelector<HTMLElement>("#navbar-content");
+            collapse?.classList.remove("show");
+
+            const toggler = header.querySelector<HTMLElement>(".navbar-toggler");
+            toggler?.classList.add("collapsed");
+            toggler?.setAttribute("aria-expanded", "false");
+            toggler?.querySelector<HTMLElement>(".hamburger")?.classList.remove("active");
+        };
+
+        // 執行 function：控制 header overlay 開關
+        const setOpen = (open: boolean) =>
+        {
+            header.classList.toggle("active", open);
+            document.body.style.overflow = open ? "hidden" : "auto";
+            if (!open) resetNavbarCollapse();
+        };
+
+        // 初始化：避免進站時手機板就展開
+        setOpen(false);
+
+        // 執行 function：點擊事件（hamburger / overlay）
+        const onClick = (ev: MouseEvent) =>
+        {
+            const el = ev.target as Element;
+
+            // 1) 點到 .navbar-toggler → 開/關
+            const toggler = el.closest(".navbar-toggler");
+            if (toggler && header.contains(toggler)) return;
+            // 2) 點 overlay → 關閉
+            const overlay = el.closest(".overlayer");
+            if (overlay && header.contains(overlay)) setOpen(false);
+        };
+
+        // 執行 function：resize 進手機寬度時，清掉 dropdown/collapse 的殘留狀態
+        const onResize = () =>
+        {
+            if (!isMobileWidth()) return;
+            setOpen(false);
+        };
+
+        header.addEventListener("click", onClick);
+        window.addEventListener("resize", onResize);
+        window.addEventListener("orientationchange", onResize);
+
+        return () =>
+        {
+            header.removeEventListener("click", onClick);
+            window.removeEventListener("resize", onResize);
+            window.removeEventListener("orientationchange", onResize);
+        };
+    }, []);
+
+    return (
+        <>
+            <A11yContent />
+            <div id="Site-Header" className="ALL_Header_DivBar main-header" ref={headerRef}>
+                <Header_Section {...props} />
+                <Menu_Section {...props} />
+                <div className="overlayer" aria-hidden="true" />
+            </div>
+        </>
+    );
+};
+
+export default Header;
+
+
+const NavBar = (props: { lang: Lang; }) =>
+{
+    const title = props.lang === "zh-tw"
+        ? { Home: "首頁", TNUA: "臺北藝術大學", FB: "FB粉絲團", SiteMap: "網站導覽" }
+        : props.lang === "en"
+        ? { Home: "Home", TNUA: "TNUA", FB: "Facebook", SiteMap: "SiteMap" }
+        : ({} as any);
+
+    return (
+        <li>
+            <ul className="nav custom_nav py-0 justify-content-center my-1">
+                <li className="nav-item">
+                    <LangLink className="nav-link" to="/" tabIndex={0} title={title.Home}>{title.Home}</LangLink>
+                </li>
+                <li className="nav-item">
+                    <a
+                        className="nav-link"
+                        href="https://w3.tnua.edu.tw/"
+                        tabIndex={0}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={withNewWindowSuffix(getHeaderA11y(props.lang), title.TNUA, "_blank")}
+                    >
+                        {title.TNUA}
+                    </a>
+                </li>
+                <li className="nav-item">
+                    <a
+                        className="nav-link"
+                        href="https://www.facebook.com/TaiwanTraditionalMusic/"
+                        tabIndex={0}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={withNewWindowSuffix(getHeaderA11y(props.lang), title.FB, "_blank")}
+                    >
+                        {title.FB}
+                    </a>
+                </li>
+                <li className="nav-item">
+                    <LangLink className="nav-link" to={`/${SITEMAP_SEGMENT}`} tabIndex={0} target="_self" title={title.SiteMap}>{title.SiteMap}</LangLink>
+                </li>
+            </ul>
+        </li>
+    );
+};
+
 
 const MobileBtn = (props: { lang: Lang; }) =>
 {
@@ -823,6 +908,7 @@ const MobileBtn = (props: { lang: Lang; }) =>
     );
 };
 
+
 const MainMenu = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
 {
     const menuItems = GetMenuData(props.lang, props.site);
@@ -841,6 +927,7 @@ const MainMenu = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
         </div>
     );
 };
+
 
 /** 1. 一般單選 */
 const SingleMenuItem = (props: { lang: Lang; menuItem: MenuItemData; }) =>
@@ -868,6 +955,7 @@ const SingleMenuItem = (props: { lang: Lang; menuItem: MenuItemData; }) =>
         </li>
     );
 };
+
 
 /** 2. 多層下拉 */
 const DropdownMenuItem = (props: { lang: Lang; menuItem: MenuItemData; }) =>
@@ -901,73 +989,11 @@ const DropdownMenuItem = (props: { lang: Lang; menuItem: MenuItemData; }) =>
     );
 };
 
+
 const GetMenuData = (lang: Lang, site: INormSite): MenuItemData[] =>
 {
     const roots = site.treeByLang?.[lang] ?? [];
     if (!roots) return [];
     return buildMenuItems(roots, 0);
 };
-
-/**
- * 遞迴渲染多層選單
- */
-const renderDropdownItems = (items: MenuItemData[], parentDepth: number, lang: Lang): JSX.Element[] =>
-{
-    // 宣告變數
-    const a11y = getHeaderA11y(lang);
-
-    // return
-    return items.map((item, index) =>
-    {
-        const hasChildren = (item.SubItem ?? []).length > 0;
-        const key = `${parentDepth}-${index}`;
-        const label = withNewWindowSuffix(a11y, item.SrcData, item.URL_Open);
-        const isExternal = /^https?:\/\//i.test(item.Url || "");
-
-        if (!hasChildren)
-        {
-            return (
-                <li key={key}>
-                    <LangNavLink
-                        className="dropdown-item"
-                        to={item.Url || "#"}
-                        role="button"
-                        tabIndex={0}
-                        target={item.URL_Open}
-                        rel={getRelByTarget(item.URL_Open)}
-                        title={label}
-                        aria-label={label}
-                    >
-                        {isExternal && <i className="fad fa-link me-2"></i>}
-                        {item.SrcData}
-                    </LangNavLink>
-                </li>
-            );
-        }
-
-        const submenuClassName = parentDepth === 0 ? "dropdown-menu" : "dropdown-menu dropdown-submenu";
-
-        return (
-            <li key={key} className="dropend submenu">
-                <LangNavLink
-                    to={item.Url || "#"}
-                    role="button"
-                    tabIndex={0}
-                    className="dropdown-item dropdown-toggle"
-                    data-bs-toggle="dropdown"
-                    data-bs-auto-close="outside"
-                    target={item.URL_Open}
-                    rel={getRelByTarget(item.URL_Open)}
-                    aria-haspopup="menu"
-                    aria-expanded="false"
-                    title={label}
-                    aria-label={label}
-                >
-                    {item.SrcData}
-                </LangNavLink>
-
-                <ul className={submenuClassName}>{renderDropdownItems(item.SubItem ?? [], parentDepth + 1, lang)}</ul>
-            </li>
-        );
-    });
-};
+// #endregion

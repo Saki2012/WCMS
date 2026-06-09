@@ -6,6 +6,11 @@ import { applyAAFocusStyle, clearAAFocusStyle } from "../AAInputField_Focus";
 import { buildControlClass, buildDescribedBy, getAriaInvalid, getAriaRequired, getNativeRequired, toStringArray } from "../AAInputField_Utils";
 import { type DateRangeValue, addDateRangeMonths, formatFullIsoDateText, getDateRangeValue, getInitialDateRangeViewMonth, getNextDateRangeValue, getOpenDateRangeViewMonth, getWeekdayText, handleDateRangeInputKeyDown, isValidIsoDate, renderDateRangeMonth, toDateRangeMonthStart } from "./DateRangeField";
 
+// #region Property
+interface DateTimeRangeValue { startDate: string; startTime: string; endDate: string; endTime: string; }
+// #endregion
+
+// #region Public
 /**
  * 使用範例：
  * <AAInputFieldList fields={[{ key: "dateTimeRange", type: "dateTimeRange", label: "日期時間區間", aaLabel: "請選擇日期與時間區間", value: ["2026-10-11T05:08", "2026-11-01T20:11"] }]} onChange={handleChange} />
@@ -122,171 +127,25 @@ export const DateTimeRangeField = (props: { field: AAInputField; context: FieldR
 };
 
 
-/** 讓 trigger 的 Tab 進入 Portal 浮層內容，避免因 Portal DOM 順序跳過日曆。 */
-const handleDatePortalTriggerKeyDown = (
-    event: KeyboardEvent<HTMLInputElement>,
-    isOpen: boolean,
-    wrapperRef: RefObject<HTMLDivElement>,
-    popupRef: RefObject<HTMLDivElement>,
-    openPicker: () => void,
-    closePicker: () => void,
-) =>
+/** 正規化 dateTimeRange 值，讓 SSR/CSR 都收到固定陣列格式。 */
+export const normalizeDateTimeRangeValue = (value: AAInputValue): string[] =>
 {
-    if (event.key === "Escape" && isOpen)
-    {
-        event.preventDefault();
-        closePicker();
-        focusPortalAnchor(wrapperRef.current);
-        return;
-    }
-
-    if (event.key === "Enter" || event.key === " " || event.key === "ArrowDown")
-    {
-        event.preventDefault();
-        openPicker();
-        focusFirstPortalElement(popupRef);
-        return;
-    }
-
-    if (event.key === "Tab" && isOpen && !event.shiftKey)
-    {
-        event.preventDefault();
-        focusFirstPortalElement(popupRef);
-    }
+    return buildDateTimeRangeOutputList(getDateTimeRangeValue(value));
 };
 
-/** 控制 Portal 浮層內 Tab 離開時回到原表單流程，而不是跳到 body 結尾。 */
-const handleDatePortalPopupKeyDown = (
-    event: KeyboardEvent<HTMLDivElement>,
-    wrapperRef: RefObject<HTMLDivElement> | undefined,
-    popupRef: RefObject<HTMLDivElement>,
-    closePicker: () => void,
-) =>
+
+/** 正規化日期時間區間初始月份。 */
+export const normalizeDateTimeRangeBaseDate = (value: string | undefined, fieldValue: AAInputValue) =>
 {
-    if (event.key === "Escape")
-    {
-        event.preventDefault();
-        closePicker();
-        focusPortalAnchor(wrapperRef?.current);
-        return;
-    }
-
-    if (event.key !== "Tab" || !isBrowserDocumentReady()) return;
-
-    const focusableList = getPortalFocusableElements(popupRef.current);
-    if (focusableList.length === 0) return;
-
-    const activeElement = document.activeElement as HTMLElement | null;
-    const firstElement = focusableList[0];
-    const lastElement = focusableList[focusableList.length - 1];
-
-    if (event.shiftKey && activeElement === firstElement)
-    {
-        event.preventDefault();
-        closePicker();
-        focusLastBeforeElement(wrapperRef?.current);
-        return;
-    }
-
-    if (!event.shiftKey && activeElement === lastElement)
-    {
-        event.preventDefault();
-        closePicker();
-        focusFirstAfterElement(wrapperRef?.current);
-    }
+    if (isValidIsoDate(value ?? "")) return toDateRangeMonthStart(value ?? "");
+    const range = getDateTimeRangeValue(fieldValue);
+    if (range.startDate) return toDateRangeMonthStart(range.startDate);
+    if (range.endDate) return toDateRangeMonthStart(range.endDate);
+    return undefined;
 };
+// #endregion
 
-/** ESC 關閉 Portal 後，將 focus 回到原本開啟 popup 的欄位。 */
-const focusPortalAnchor = (anchor: HTMLElement | null | undefined) =>
-{
-    if (!anchor || !isBrowserDocumentReady()) return;
-
-    const focusableList = getPortalFocusableElements(anchor);
-    focusElementWithoutScroll(focusableList[0] ?? anchor);
-};
-
-/** 將 focus 移到 Portal 內第一個可操作元素。 */
-const focusFirstPortalElement = (popupRef: RefObject<HTMLDivElement>) =>
-{
-    if (!isBrowserDocumentReady()) return;
-
-    focusFirstPortalElementWithRetry(popupRef, 0);
-};
-
-/** Portal render 需要等待 React commit，最多重試數次以確保 Enter 後能進入 popup。 */
-const focusFirstPortalElementWithRetry = (popupRef: RefObject<HTMLDivElement>, retryCount: number) =>
-{
-    window.requestAnimationFrame(() =>
-    {
-        const firstElement = getPortalFocusableElements(popupRef.current)[0];
-        if (firstElement) { focusElementWithoutScroll(firstElement); return; }
-        if (retryCount < 5) focusFirstPortalElementWithRetry(popupRef, retryCount + 1);
-    });
-};
-
-/** focus 元素但避免瀏覽器自動捲動頁面。 */
-const focusElementWithoutScroll = (element: HTMLElement | null | undefined) =>
-{
-    if (!element) return;
-    element.focus({ preventScroll: true });
-};
-
-/** 取得可被鍵盤 focus 的元素。 */
-const getPortalFocusableElements = (root: ParentNode | null) =>
-{
-    if (!root) return [] as HTMLElement[];
-
-    return Array.from(root.querySelectorAll<HTMLElement>(getPortalFocusableSelector()))
-        .filter((element) => !element.hasAttribute("disabled") && element.getAttribute("aria-hidden") !== "true" && element.tabIndex !== -1 && !isHiddenInputElement(element) && isElementVisible(element));
-};
-
-/** 取得可被鍵盤 focus 的 selector。 */
-const getPortalFocusableSelector = () => [
-    "a[href]",
-    "button",
-    "input",
-    "select",
-    "textarea",
-    "[tabindex]",
-    "[role='button']",
-    "[role='option']",
-    "[role='combobox']",
-].join(", ");
-
-/** focus 到指定元素後方的下一個可操作元素。 */
-const focusFirstAfterElement = (anchor: HTMLElement | null | undefined) =>
-{
-    if (!anchor || !isBrowserDocumentReady()) return;
-
-    const focusableList = getPortalFocusableElements(document.body);
-    const anchorIndex = focusableList.findIndex((element) => element === anchor || anchor.contains(element));
-    focusElementWithoutScroll(focusableList.slice(anchorIndex + 1).find((element) => !anchor.contains(element)));
-};
-
-/** focus 到指定元素前方的上一個可操作元素。 */
-const focusLastBeforeElement = (anchor: HTMLElement | null | undefined) =>
-{
-    if (!anchor || !isBrowserDocumentReady()) return;
-
-    const focusableList = getPortalFocusableElements(document.body);
-    const anchorIndex = focusableList.findIndex((element) => element === anchor || anchor.contains(element));
-    const previousList = anchorIndex <= 0 ? [] : focusableList.slice(0, anchorIndex).reverse();
-    focusElementWithoutScroll(previousList.find((element) => !anchor.contains(element)));
-};
-
-/** 排除 hidden input，避免 Tab 離開 Portal 後回到錯誤位置。 */
-const isHiddenInputElement = (element: HTMLElement) =>
-{
-    return element instanceof HTMLInputElement && element.type === "hidden";
-};
-
-/** 判斷元素目前是否可視。 */
-const isElementVisible = (element: HTMLElement) =>
-{
-    const style = window.getComputedStyle(element);
-    return style.visibility !== "hidden" && style.display !== "none";
-};
-
+// #region EntityComp
 /** 渲染日期時間區間下拉日曆與時間選擇。 */
 const renderDateTimeRangeDropdown = (
     field: AAInputField,
@@ -346,51 +205,6 @@ const renderDateTimeRangeDropdown = (
 };
 
 
-/** 綁定自製日期選擇器的外部點擊，Portal 面板與原 input 都視為內部。 */
-const bindDatePickerPortalOutsideClick = (
-    isOpen: boolean,
-    wrapperRef: RefObject<HTMLDivElement>,
-    popupRef: RefObject<HTMLDivElement>,
-    closePicker: () => void,
-) =>
-{
-    if (!isOpen || !isBrowserDocumentReady()) return;
-
-    const handleMouseDown = (event: MouseEvent) =>
-    {
-        const target = event.target as Node | null;
-        if (!target) return;
-        if (wrapperRef.current?.contains(target) || popupRef.current?.contains(target)) return;
-        closePicker();
-    };
-
-    document.addEventListener("mousedown", handleMouseDown, true);
-    return () => document.removeEventListener("mousedown", handleMouseDown, true);
-};
-
-/** 綁定 Portal 面板定位，讓日期區間可浮在表格與 overflow 容器上方。 */
-const bindDatePickerPortalPosition = (
-    isOpen: boolean,
-    wrapperRef: RefObject<HTMLDivElement>,
-    popupRef: RefObject<HTMLDivElement>,
-    setPopupStyle: (style: CSSProperties) => void,
-) =>
-{
-    if (!isOpen || !isBrowserDocumentReady()) return;
-
-    const updatePosition = () => setPopupStyle(buildDatePickerPortalStyle(wrapperRef.current, popupRef.current));
-    updatePosition();
-
-    window.addEventListener("resize", updatePosition);
-    window.addEventListener("scroll", updatePosition, true);
-
-    return () =>
-    {
-        window.removeEventListener("resize", updatePosition);
-        window.removeEventListener("scroll", updatePosition, true);
-    };
-};
-
 /** 產生 fixed 浮層位置，避免被 table/td/overflow 裁切。 */
 const buildDatePickerPortalStyle = (anchor: HTMLDivElement | null, popup: HTMLDivElement | null): CSSProperties =>
 {
@@ -424,6 +238,271 @@ const buildDatePickerPortalStyle = (anchor: HTMLDivElement | null, popup: HTMLDi
     };
 };
 
+
+/** 依下一組日期區間建立日期時間區間。 */
+const buildNextDateTimeRange = (range: DateTimeRangeValue, dateRange: DateRangeValue): DateTimeRangeValue =>
+{
+    return { startDate: dateRange.startDate, startTime: normalizeTimeText(range.startTime, "00:00"), endDate: dateRange.endDate, endTime: normalizeTimeText(range.endTime, "23:59") };
+};
+
+
+/** 建立 dateTimeRange 輸出陣列。 */
+const buildDateTimeRangeOutputList = (range: DateTimeRangeValue): string[] =>
+{
+    const startValue = buildDateTimeRangeHiddenValue(range.startDate, range.startTime);
+    const endValue = buildDateTimeRangeHiddenValue(range.endDate, range.endTime);
+    return startValue || endValue ? [startValue, endValue] : [];
+};
+
+
+/** 建立日期時間儲存字串。 */
+const buildDateTimeRangeHiddenValue = (date: string, time: string) => date && isValidIsoDate(date) ? `${date}T${normalizeTimeText(time, "00:00")}` : "";
+
+
+/** 建立日期時間區間顯示文字。 */
+const buildDateTimeRangeDisplayText = (range: DateTimeRangeValue) =>
+{
+    if (range.startDate && range.endDate) return `${formatDateTimeRangeDisplayItem(range.startDate, range.startTime)} ~ ${formatDateTimeRangeDisplayItem(range.endDate, range.endTime)}`;
+    if (range.startDate) return `${formatDateTimeRangeDisplayItem(range.startDate, range.startTime)} ~ 請選擇結束日`;
+    return "";
+};
+
+
+/** 日期時間區間操作回饋文字。 */
+const buildDateTimeRangeAnnounceText = (range: DateTimeRangeValue) =>
+{
+    if (range.startDate && range.endDate) return `已選取日期時間區間：${formatDateTimeRangeDisplayItem(range.startDate, range.startTime)} 至 ${formatDateTimeRangeDisplayItem(range.endDate, range.endTime)}`;
+    if (range.startDate) return `已選取開始日期時間：${formatDateTimeRangeDisplayItem(range.startDate, range.startTime)}`;
+    return "目前尚未選取日期時間區間";
+};
+// #endregion
+
+// #region Private
+/** 讓 trigger 的 Tab 進入 Portal 浮層內容，避免因 Portal DOM 順序跳過日曆。 */
+const handleDatePortalTriggerKeyDown = (
+    event: KeyboardEvent<HTMLInputElement>,
+    isOpen: boolean,
+    wrapperRef: RefObject<HTMLDivElement>,
+    popupRef: RefObject<HTMLDivElement>,
+    openPicker: () => void,
+    closePicker: () => void,
+) =>
+{
+    if (event.key === "Escape" && isOpen)
+    {
+        event.preventDefault();
+        closePicker();
+        focusPortalAnchor(wrapperRef.current);
+        return;
+    }
+
+    if (event.key === "Enter" || event.key === " " || event.key === "ArrowDown")
+    {
+        event.preventDefault();
+        openPicker();
+        focusFirstPortalElement(popupRef);
+        return;
+    }
+
+    if (event.key === "Tab" && isOpen && !event.shiftKey)
+    {
+        event.preventDefault();
+        focusFirstPortalElement(popupRef);
+    }
+};
+
+
+/** 控制 Portal 浮層內 Tab 離開時回到原表單流程，而不是跳到 body 結尾。 */
+const handleDatePortalPopupKeyDown = (
+    event: KeyboardEvent<HTMLDivElement>,
+    wrapperRef: RefObject<HTMLDivElement> | undefined,
+    popupRef: RefObject<HTMLDivElement>,
+    closePicker: () => void,
+) =>
+{
+    if (event.key === "Escape")
+    {
+        event.preventDefault();
+        closePicker();
+        focusPortalAnchor(wrapperRef?.current);
+        return;
+    }
+
+    if (event.key !== "Tab" || !isBrowserDocumentReady()) return;
+
+    const focusableList = getPortalFocusableElements(popupRef.current);
+    if (focusableList.length === 0) return;
+
+    const activeElement = document.activeElement as HTMLElement | null;
+    const firstElement = focusableList[0];
+    const lastElement = focusableList[focusableList.length - 1];
+
+    if (event.shiftKey && activeElement === firstElement)
+    {
+        event.preventDefault();
+        closePicker();
+        focusLastBeforeElement(wrapperRef?.current);
+        return;
+    }
+
+    if (!event.shiftKey && activeElement === lastElement)
+    {
+        event.preventDefault();
+        closePicker();
+        focusFirstAfterElement(wrapperRef?.current);
+    }
+};
+
+
+/** ESC 關閉 Portal 後，將 focus 回到原本開啟 popup 的欄位。 */
+const focusPortalAnchor = (anchor: HTMLElement | null | undefined) =>
+{
+    if (!anchor || !isBrowserDocumentReady()) return;
+
+    const focusableList = getPortalFocusableElements(anchor);
+    focusElementWithoutScroll(focusableList[0] ?? anchor);
+};
+
+
+/** 將 focus 移到 Portal 內第一個可操作元素。 */
+const focusFirstPortalElement = (popupRef: RefObject<HTMLDivElement>) =>
+{
+    if (!isBrowserDocumentReady()) return;
+
+    focusFirstPortalElementWithRetry(popupRef, 0);
+};
+
+
+/** Portal render 需要等待 React commit，最多重試數次以確保 Enter 後能進入 popup。 */
+const focusFirstPortalElementWithRetry = (popupRef: RefObject<HTMLDivElement>, retryCount: number) =>
+{
+    window.requestAnimationFrame(() =>
+    {
+        const firstElement = getPortalFocusableElements(popupRef.current)[0];
+        if (firstElement) { focusElementWithoutScroll(firstElement); return; }
+        if (retryCount < 5) focusFirstPortalElementWithRetry(popupRef, retryCount + 1);
+    });
+};
+
+
+/** focus 元素但避免瀏覽器自動捲動頁面。 */
+const focusElementWithoutScroll = (element: HTMLElement | null | undefined) =>
+{
+    if (!element) return;
+    element.focus({ preventScroll: true });
+};
+
+
+/** 取得可被鍵盤 focus 的元素。 */
+const getPortalFocusableElements = (root: ParentNode | null) =>
+{
+    if (!root) return [] as HTMLElement[];
+
+    return Array.from(root.querySelectorAll<HTMLElement>(getPortalFocusableSelector()))
+        .filter((element) => !element.hasAttribute("disabled") && element.getAttribute("aria-hidden") !== "true" && element.tabIndex !== -1 && !isHiddenInputElement(element) && isElementVisible(element));
+};
+
+
+/** 取得可被鍵盤 focus 的 selector。 */
+const getPortalFocusableSelector = () => [
+    "a[href]",
+    "button",
+    "input",
+    "select",
+    "textarea",
+    "[tabindex]",
+    "[role='button']",
+    "[role='option']",
+    "[role='combobox']",
+].join(", ");
+
+
+/** focus 到指定元素後方的下一個可操作元素。 */
+const focusFirstAfterElement = (anchor: HTMLElement | null | undefined) =>
+{
+    if (!anchor || !isBrowserDocumentReady()) return;
+
+    const focusableList = getPortalFocusableElements(document.body);
+    const anchorIndex = focusableList.findIndex((element) => element === anchor || anchor.contains(element));
+    focusElementWithoutScroll(focusableList.slice(anchorIndex + 1).find((element) => !anchor.contains(element)));
+};
+
+
+/** focus 到指定元素前方的上一個可操作元素。 */
+const focusLastBeforeElement = (anchor: HTMLElement | null | undefined) =>
+{
+    if (!anchor || !isBrowserDocumentReady()) return;
+
+    const focusableList = getPortalFocusableElements(document.body);
+    const anchorIndex = focusableList.findIndex((element) => element === anchor || anchor.contains(element));
+    const previousList = anchorIndex <= 0 ? [] : focusableList.slice(0, anchorIndex).reverse();
+    focusElementWithoutScroll(previousList.find((element) => !anchor.contains(element)));
+};
+
+
+/** 排除 hidden input，避免 Tab 離開 Portal 後回到錯誤位置。 */
+const isHiddenInputElement = (element: HTMLElement) =>
+{
+    return element instanceof HTMLInputElement && element.type === "hidden";
+};
+
+
+/** 判斷元素目前是否可視。 */
+const isElementVisible = (element: HTMLElement) =>
+{
+    const style = window.getComputedStyle(element);
+    return style.visibility !== "hidden" && style.display !== "none";
+};
+
+
+
+/** 綁定自製日期選擇器的外部點擊，Portal 面板與原 input 都視為內部。 */
+const bindDatePickerPortalOutsideClick = (
+    isOpen: boolean,
+    wrapperRef: RefObject<HTMLDivElement>,
+    popupRef: RefObject<HTMLDivElement>,
+    closePicker: () => void,
+) =>
+{
+    if (!isOpen || !isBrowserDocumentReady()) return;
+
+    const handleMouseDown = (event: MouseEvent) =>
+    {
+        const target = event.target as Node | null;
+        if (!target) return;
+        if (wrapperRef.current?.contains(target) || popupRef.current?.contains(target)) return;
+        closePicker();
+    };
+
+    document.addEventListener("mousedown", handleMouseDown, true);
+    return () => document.removeEventListener("mousedown", handleMouseDown, true);
+};
+
+
+/** 綁定 Portal 面板定位，讓日期區間可浮在表格與 overflow 容器上方。 */
+const bindDatePickerPortalPosition = (
+    isOpen: boolean,
+    wrapperRef: RefObject<HTMLDivElement>,
+    popupRef: RefObject<HTMLDivElement>,
+    setPopupStyle: (style: CSSProperties) => void,
+) =>
+{
+    if (!isOpen || !isBrowserDocumentReady()) return;
+
+    const updatePosition = () => setPopupStyle(buildDatePickerPortalStyle(wrapperRef.current, popupRef.current));
+    updatePosition();
+
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
+
+    return () =>
+    {
+        window.removeEventListener("resize", updatePosition);
+        window.removeEventListener("scroll", updatePosition, true);
+    };
+};
+
+
 /** focus 離開 input 與 Portal 面板後關閉日期選擇器。 */
 const closeDatePickerWhenPortalFocusLeaves = (
     event: FocusEvent<HTMLDivElement>,
@@ -443,10 +522,10 @@ const closeDatePickerWhenPortalFocusLeaves = (
     });
 };
 
+
 /** 確認目前可使用 document，避免 SSR render 階段碰到 browser API。 */
 const isBrowserDocumentReady = () => typeof document !== "undefined" && typeof window !== "undefined";
 
-interface DateTimeRangeValue { startDate: string; startTime: string; endDate: string; endTime: string; }
 
 /** 取得日期時間區間值，固定回傳日期與時間欄位。 */
 const getDateTimeRangeValue = (value: AAInputValue): DateTimeRangeValue =>
@@ -457,21 +536,6 @@ const getDateTimeRangeValue = (value: AAInputValue): DateTimeRangeValue =>
     return { startDate: start.date, startTime: start.time, endDate: end.date, endTime: end.time };
 };
 
-/** 正規化 dateTimeRange 值，讓 SSR/CSR 都收到固定陣列格式。 */
-export const normalizeDateTimeRangeValue = (value: AAInputValue): string[] =>
-{
-    return buildDateTimeRangeOutputList(getDateTimeRangeValue(value));
-};
-
-/** 正規化日期時間區間初始月份。 */
-export const normalizeDateTimeRangeBaseDate = (value: string | undefined, fieldValue: AAInputValue) =>
-{
-    if (isValidIsoDate(value ?? "")) return toDateRangeMonthStart(value ?? "");
-    const range = getDateTimeRangeValue(fieldValue);
-    if (range.startDate) return toDateRangeMonthStart(range.startDate);
-    if (range.endDate) return toDateRangeMonthStart(range.endDate);
-    return undefined;
-};
 
 /** 解析日期時間字串，支援 yyyy-MM-ddTHH:mm 與 yyyy-MM-dd HH:mm。 */
 const parseDateTimeRangeItem = (value: string, fallbackTime: string) =>
@@ -482,14 +546,10 @@ const parseDateTimeRangeItem = (value: string, fallbackTime: string) =>
     return { date, time };
 };
 
+
 /** 由日期時間區間取得日期區間。 */
 const getDateTimeRangeDateRange = (range: DateTimeRangeValue): DateRangeValue => ({ startDate: range.startDate, endDate: range.endDate });
 
-/** 依下一組日期區間建立日期時間區間。 */
-const buildNextDateTimeRange = (range: DateTimeRangeValue, dateRange: DateRangeValue): DateTimeRangeValue =>
-{
-    return { startDate: dateRange.startDate, startTime: normalizeTimeText(range.startTime, "00:00"), endDate: dateRange.endDate, endTime: normalizeTimeText(range.endTime, "23:59") };
-};
 
 /** 回填日期時間區間值。 */
 const commitDateTimeRangeValue = (field: AAInputField, range: DateTimeRangeValue, onChange: (fieldKey: string, value: AAInputValue) => void) =>
@@ -497,24 +557,6 @@ const commitDateTimeRangeValue = (field: AAInputField, range: DateTimeRangeValue
     onChange(field.key, buildDateTimeRangeOutputList(range));
 };
 
-/** 建立 dateTimeRange 輸出陣列。 */
-const buildDateTimeRangeOutputList = (range: DateTimeRangeValue): string[] =>
-{
-    const startValue = buildDateTimeRangeHiddenValue(range.startDate, range.startTime);
-    const endValue = buildDateTimeRangeHiddenValue(range.endDate, range.endTime);
-    return startValue || endValue ? [startValue, endValue] : [];
-};
-
-/** 建立日期時間儲存字串。 */
-const buildDateTimeRangeHiddenValue = (date: string, time: string) => date && isValidIsoDate(date) ? `${date}T${normalizeTimeText(time, "00:00")}` : "";
-
-/** 建立日期時間區間顯示文字。 */
-const buildDateTimeRangeDisplayText = (range: DateTimeRangeValue) =>
-{
-    if (range.startDate && range.endDate) return `${formatDateTimeRangeDisplayItem(range.startDate, range.startTime)} ~ ${formatDateTimeRangeDisplayItem(range.endDate, range.endTime)}`;
-    if (range.startDate) return `${formatDateTimeRangeDisplayItem(range.startDate, range.startTime)} ~ 請選擇結束日`;
-    return "";
-};
 
 /** 建立單一日期時間顯示文字。 */
 const formatDateTimeRangeDisplayItem = (date: string, time: string) =>
@@ -522,6 +564,7 @@ const formatDateTimeRangeDisplayItem = (date: string, time: string) =>
     const [year, month, day] = date.split("-");
     return year && month && day ? `${year}/${month}/${day} (${getWeekdayText(date)}) ${formatTimeDisplayText(time)}` : "";
 };
+
 
 /** 建立時間顯示文字。 */
 const formatTimeDisplayText = (time: string) =>
@@ -533,6 +576,7 @@ const formatTimeDisplayText = (time: string) =>
     return `${period} ${String(hour).padStart(2, "0")}:${String(parts.minute).padStart(2, "0")}`;
 };
 
+
 /** 日期時間區間目前狀態文字。 */
 const getDateTimeRangeStatusText = (range: DateTimeRangeValue) =>
 {
@@ -541,19 +585,14 @@ const getDateTimeRangeStatusText = (range: DateTimeRangeValue) =>
     return "目前尚未選取日期時間區間";
 };
 
-/** 日期時間區間操作回饋文字。 */
-const buildDateTimeRangeAnnounceText = (range: DateTimeRangeValue) =>
-{
-    if (range.startDate && range.endDate) return `已選取日期時間區間：${formatDateTimeRangeDisplayItem(range.startDate, range.startTime)} 至 ${formatDateTimeRangeDisplayItem(range.endDate, range.endTime)}`;
-    if (range.startDate) return `已選取開始日期時間：${formatDateTimeRangeDisplayItem(range.startDate, range.startTime)}`;
-    return "目前尚未選取日期時間區間";
-};
 
 /** 正規化時間文字。 */
 const normalizeTimeText = (value: string, fallback: string) => isValidTimeText(value) ? value : fallback;
 
+
 /** 檢查 HH:mm 是否有效。 */
 const isValidTimeText = (value: string) => Boolean(getTimeParts(value));
+
 
 /** 解析 HH:mm。 */
 const getTimeParts = (value: string) =>
@@ -565,3 +604,4 @@ const getTimeParts = (value: string) =>
     if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return null;
     return { hour, minute };
 };
+// #endregion

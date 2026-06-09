@@ -4,6 +4,7 @@ import { FieldError } from "../AAInputField_Shell";
 import { applyAAFocusStyle, clearAAFocusStyle } from "../AAInputField_Focus";
 import { buildControlClass, buildDescribedBy, getAriaInvalid, getAriaRequired, getHintText, getNativeRequired, normalizeTextValue, stringifyValue } from "../AAInputField_Utils";
 
+// #region Public
 /**
  * 使用範例：
  * <AAInputFieldList fields={[{ key: "password", type: "password", label: "請輸入新密碼", aaLabel: "請輸入新密碼", autoComplete: "new-password", value: state.password }]} onChange={handleChange} />
@@ -71,7 +72,9 @@ export const PasswordField = (props: { field: AAInputField; context: FieldRender
         </div>
     );
 };
+// #endregion
 
+// #region Private
 /** 單一密碼輸入框，右側提供顯示/隱藏密碼按鈕。 */
 const PasswordInputBox = (props: { field: AAInputField; id: string; name: string; label: string; value: string; inputType: "password" | "text"; describedBy: string; buttonLabel: string; showPassword: boolean; confirmError?: string; onToggle: () => void; onChange: (event: ChangeEvent<HTMLInputElement>) => void; }) =>
 {
@@ -117,6 +120,7 @@ const PasswordInputBox = (props: { field: AAInputField; id: string; name: string
     );
 };
 
+
 /** 取得密碼輸入框樣式，避免 Bootstrap invalid icon 與眼睛按鈕重疊。 */
 const getPasswordInputStyle = (field: AAInputField, confirmError?: string) =>
 {
@@ -128,11 +132,13 @@ const getPasswordInputStyle = (field: AAInputField, confirmError?: string) =>
     };
 };
 
+
 /** 取得密碼欄位樣式，確認密碼不一致時補上 invalid 樣式。 */
 const getPasswordControlClass = (field: AAInputField, confirmError?: string) =>
 {
     return `${buildControlClass(field)}${confirmError && !field.errorText ? " is-invalid" : ""}`;
 };
+
 
 /** 取得確認密碼錯誤文字，空值時不提示。 */
 const getConfirmPasswordError = (passwordValue: string, confirmPassword: string) =>
@@ -140,3 +146,4 @@ const getConfirmPasswordError = (passwordValue: string, confirmPassword: string)
     if (!confirmPassword) return "";
     return passwordValue === confirmPassword ? "" : "兩次輸入的密碼不一致";
 };
+// #endregion

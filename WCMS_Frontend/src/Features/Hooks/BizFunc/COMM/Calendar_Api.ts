@@ -8,40 +8,24 @@ import {
 } from "@/SysCore/Utils/API/APIAdapter";
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import { ApiDataService } from "@/SysCore/Utils/API/APIClient";
+import { LibCondition } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { CalendarFields, PGID } from "@/types/SchemaFields";
 import type { AxiosInstance } from "axios";
-import { useCallback, useMemo, useState } from "react";
+import { useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router";
+
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 type CalendarSet = components["schemas"]["CalendarSet_DTO"];
 type CalendarDetail = components["schemas"]["CalendarDetail_DTO"];
 type CalendarYearArgs = { year: number; };
-
-export class CalendarService extends ApiDataService<CalendarSet>
-{
-    // #region Construct
-    constructor(apiInstance?: AxiosInstance)
-    {
-        super(PGID.Calendar, apiInstance);
-    }
-    // #endregion
-
-    // #region API Func
-    async updateDayInfo(dayInfo: CalendarDetail): Promise<ApiResponse<CalendarDetail>>
-    {
-        return await this.CallApi<CalendarDetail>(() => this.Api.put<ApiResponse<CalendarDetail>>(`${this.Module}/UpdateDayInfo`, dayInfo));
-    }
-    // #endregion
-}
-
 type ExtraLoaders = {
     /** 依年份抓 CalendarDetail（先 QueryList 找 internalId，再 QueryData 拿明細） */
     getCalendarDetailsByYearLoader: (
         opt: { getArgs: (args: LoaderFunctionArgs) => CalendarYearArgs; getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; },
     ) => (args: LoaderFunctionArgs) => Promise<ApiLoaderData<CalendarYearArgs, CalendarDetail[]>>;
 };
-
 type ExtraHooks = {
     useFetchCalendarDetailsByYear: (
         opt: {
@@ -56,7 +40,23 @@ type ExtraHooks = {
         opt?: { apiInstance?: AxiosInstance; },
     ) => { isSaving: boolean; updateDayInfoAsync: (dayInfo: CalendarDetail) => Promise<ApiResponse<CalendarDetail>>; };
 };
+// #endregion
 
+// #region Public
+export class CalendarService extends ApiDataService<CalendarSet>
+{
+    // #region Public
+    constructor(apiInstance?: AxiosInstance)
+    {
+        super(PGID.Calendar, apiInstance);
+    }
+    /** 更新單日行事曆明細資料。 */
+    public async updateDayInfo(dayInfo: CalendarDetail): Promise<ApiResponse<CalendarDetail>>
+    {
+        return await this.CallApi<CalendarDetail>(() => this.Api.put<ApiResponse<CalendarDetail>>(`${this.Module}/UpdateDayInfo`, dayInfo));
+    }
+    // #endregion
+}
 export class CalendarAdapterImpl extends ApiDataAdapter<CalendarSet, CalendarService>
 {
     // #region Property
@@ -64,27 +64,17 @@ export class CalendarAdapterImpl extends ApiDataAdapter<CalendarSet, CalendarSer
     declare public hooks: ApiDataHookGroup<CalendarSet> & ExtraHooks;
     // #endregion
 
-    // #region Protect Virtual Func
+    // #region Protected Virtual
     protected override buildExtendedLoader(base: ApiDataLoaderGroup<CalendarSet>): ApiDataLoaderGroup<CalendarSet> & ExtraLoaders
     {
-        const wrapGetCalendarDetailsByYearLoader: ExtraLoaders["getCalendarDetailsByYearLoader"] = (opt) =>
-        {
-            return this.getCalendarDetailsByYearLoader(opt);
-        };
+        const wrapGetCalendarDetailsByYearLoader: ExtraLoaders["getCalendarDetailsByYearLoader"] = (opt) => this.getCalendarDetailsByYearLoader(opt);
         const merged: ApiDataLoaderGroup<CalendarSet> & ExtraLoaders = { ...base, getCalendarDetailsByYearLoader: wrapGetCalendarDetailsByYearLoader };
         return merged;
     }
-
     protected override buildExtendedHooks(base: ApiDataHookGroup<CalendarSet>): ApiDataHookGroup<CalendarSet> & ExtraHooks
     {
-        const wrapUseFetchCalendarDetailsByYear: ExtraHooks["useFetchCalendarDetailsByYear"] = (opt) =>
-        {
-            return this.useFetchCalendarDetailsByYear(opt);
-        };
-        const wrapUseUpdateDayInfo: ExtraHooks["useUpdateDayInfo"] = (opt) =>
-        {
-            return this.useUpdateDayInfo(opt);
-        };
+        const wrapUseFetchCalendarDetailsByYear: ExtraHooks["useFetchCalendarDetailsByYear"] = (opt) => this.useFetchCalendarDetailsByYear(opt);
+        const wrapUseUpdateDayInfo: ExtraHooks["useUpdateDayInfo"] = (opt) => this.useUpdateDayInfo(opt);
         const merged: ApiDataHookGroup<CalendarSet> & ExtraHooks = {
             ...base,
             useFetchCalendarDetailsByYear: wrapUseFetchCalendarDetailsByYear,
@@ -94,10 +84,9 @@ export class CalendarAdapterImpl extends ApiDataAdapter<CalendarSet, CalendarSer
     }
     // #endregion
 
-    // #region Loader Func
-    private getCalendarDetailsByYearLoader: ExtraLoaders["getCalendarDetailsByYearLoader"] = (opt) =>
+    // #region Protected
+    protected getCalendarDetailsByYearLoader: ExtraLoaders["getCalendarDetailsByYearLoader"] = (opt) =>
     {
-        // return：SSR/loader 用，統一走 queryCalendarDetailsByYearAsync
         return this.createApiLoader<CalendarYearArgs, CalendarDetail[]>({
             action: "Calendar.Query.CalendarDetailsByYear",
             getArgs: opt.getArgs,
@@ -105,10 +94,7 @@ export class CalendarAdapterImpl extends ApiDataAdapter<CalendarSet, CalendarSer
             getApiInstance: opt.getApiInstance,
         });
     };
-    // #endregion
-
-    // #region Hook Func
-    private useFetchCalendarDetailsByYear: ExtraHooks["useFetchCalendarDetailsByYear"] = (opt) =>
+    protected useFetchCalendarDetailsByYear: ExtraHooks["useFetchCalendarDetailsByYear"] = (opt) =>
     {
         const deps = opt.deps ?? [opt.year];
         const args = useMemo<CalendarYearArgs>(() => ({ year: opt.year }), [opt.year]);
@@ -125,30 +111,28 @@ export class CalendarAdapterImpl extends ApiDataAdapter<CalendarSet, CalendarSer
         const data = useMemo(() => r.data ?? [], [r.data]);
         return { ...r, data };
     };
-    private useUpdateDayInfo: ExtraHooks["useUpdateDayInfo"] = (opt) =>
+    /** 提供更新單日行事曆明細的 action hook。 */
+    protected useUpdateDayInfo: ExtraHooks["useUpdateDayInfo"] = (opt) =>
     {
-        const [isSaving, setIsSaving] = useState<boolean>(false);
-        const svc = useMemo(() => new CalendarService(opt?.apiInstance), [opt?.apiInstance]);
-        const updateDayInfoAsync = useCallback(async (dayInfo: CalendarDetail) =>
-        {
-            setIsSaving(true);
-            try
-            {
-                return await svc.updateDayInfo(dayInfo);
-            } finally
-            {
-                setIsSaving(false);
-            }
-        }, [svc]);
-        return { isSaving, updateDayInfoAsync };
+        const action = this.useApiAction<CalendarDetail, CalendarDetail>({
+            action: "Calendar.Action.UpdateDayInfo",
+            fallbackError: "更新行事曆日期資訊失敗",
+            apiInstance: opt?.apiInstance,
+            call: (svc, dayInfo) => svc.updateDayInfo(dayInfo),
+        });
+        return { isSaving: action.isLoading, updateDayInfoAsync: action.execute };
     };
     // #endregion
 
-    // #region Private Helper
+    // #region Private
     private buildCalendarQueryByYearParam(opt: { year: number; }): QueryListParam
     {
-        const fields: string[] = [CalendarFields.InternalId];
-        return { Fields: fields, Condition: `${CalendarFields.Year} = ${opt.year}`, PageNumber: 0, PageSize: 1 };
+        return {
+            Fields: [CalendarFields.InternalId],
+            Condition: LibCondition.joinConditions([LibCondition.createCondition(CalendarFields.Year, LibCondition.Operator.Equal, opt.year)]),
+            PageNumber: 0,
+            PageSize: 1,
+        };
     }
     private async queryCalendarDetailsByYearAsync(svc: CalendarService, a: CalendarYearArgs): Promise<ApiResponse<CalendarDetail[]>>
     {
@@ -162,6 +146,7 @@ export class CalendarAdapterImpl extends ApiDataAdapter<CalendarSet, CalendarSer
         if (!dataOk) return { IsSuccess: false, Data: null, SysMessage: dataEnv.SysMessage ?? [] };
         return { IsSuccess: true, Data: dataEnv.Data?.[0]?.CalendarDetail ?? [], SysMessage: dataEnv.SysMessage ?? [] };
     }
+    // #endregion
 }
-
 export const CalendarAdapter = (apiInstance?: AxiosInstance) => new CalendarAdapterImpl((api?: AxiosInstance) => new CalendarService(api ?? apiInstance));
+// #endregion

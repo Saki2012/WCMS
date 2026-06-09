@@ -7,10 +7,10 @@ import type {
     ServerFormTemplate,
 } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { type Lang, LangLabelMap, SUPPORTED_LANGS, useEnsureLangDetails } from "@/SysCore/i18n/lang";
+import { buildSupportedLangOrder, type Lang, LangLabelMap, normalizeSupportedLang, SUPPORTED_LANGS, useEnsureLangDetails } from "@/SysCore/i18n/lang";
 import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { PGID, WebResourceFields, WebResourceInfoFields, WebResourceSetFields } from "@/types/SchemaFields";
@@ -18,6 +18,7 @@ import { useMemo } from "react";
 
 // #region Property
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
+
 type WebResourceInfo = NonNullable<WebResourceSet["WebResourceInfo"]>[number];
 
 export interface UseWebResourceFormTemplateOptions
@@ -71,8 +72,6 @@ export interface WebResourceDetailTabsResult
     items: WebResourceDetailTabItem[];
 }
 
-export const webResourceEmptyData: WebResourceSet = { WebResource: {}, WebResourceInfo: [] };
-
 export type WebResourceFormRefs = {
     /** 網路資源類別選項 */
     categoryMap: Record<string, string>;
@@ -100,6 +99,8 @@ export type WebResourceFormAdapter = {
 // #endregion
 
 // #region Public
+export const webResourceEmptyData: WebResourceSet = { WebResource: {}, WebResourceInfo: [] };
+
 /** 建立 WebResource Form Template，統一交給 Server_FormTemplate 處理資料流程。 */
 export const useWebResourceFormTemplate = (
     opt: UseWebResourceFormTemplateOptions,
@@ -143,7 +144,7 @@ export const useWebResourceDetailTabs = (opt: UseWebResourceDetailTabsOptions): 
 };
 // #endregion
 
-// #region Timing
+// #region Private
 /** 建立 WebResource Form 標題，功能名稱優先讀 ModelDisplayName。 */
 const buildWebResourceFormTitle = (ctx: { mode: "new" | "edit"; displayName: ModelDisplaySchema; }): string =>
 {
@@ -165,9 +166,7 @@ const buildWebResourceFormAdapter = (): WebResourceFormAdapter =>
 };
 
 /** 取得 Header / Detail 需要的參照資料與語系明細補齊。 */
-const useWebResourceReferenceData = (
-    ctx: { adapter: WebResourceFormAdapter; binding: ServerFormBinding<WebResourceSet>; lang: Lang; },
-) =>
+const useWebResourceReferenceData = (ctx: { adapter: WebResourceFormAdapter; binding: ServerFormBinding<WebResourceSet>; lang: Lang; }) =>
 {
     useEnsureLangDetails(ctx.binding, {
         headerName: WebResourceSetFields.WebResource,
@@ -187,9 +186,7 @@ const useWebResourceReferenceData = (
         return buildWebResourceReferenceResult({ category, tag, statusOpts, windowTargetOpts });
     }, [category, tag, statusOpts, windowTargetOpts]);
 };
-// #endregion
 
-// #region Private
 /** 取得 WebResource Model 顯示名稱，避免 Form 標題寫死功能名稱。 */
 const getWebResourceModelTitle = (displayName: ModelDisplaySchema, fallback: string): string =>
 {
@@ -238,12 +235,7 @@ const buildWebResourceReferenceResult = (
 ) =>
 {
     return {
-        refs: {
-            categoryMap: opt.category.map ?? {},
-            tagMap: opt.tag.map ?? {},
-            statusOpts: opt.statusOpts.data,
-            windowTargetOpts: opt.windowTargetOpts.data,
-        },
+        refs: { categoryMap: opt.category.map ?? {}, tagMap: opt.tag.map ?? {}, statusOpts: opt.statusOpts.data, windowTargetOpts: opt.windowTargetOpts.data },
         isLoading: Boolean(opt.category.isLoading || opt.tag.isLoading || opt.statusOpts.isLoading || opt.windowTargetOpts.isLoading),
         errors: [opt.category.errorText, opt.tag.errorText, opt.statusOpts.error, opt.windowTargetOpts.error],
         refetchRefData: async () =>
@@ -267,8 +259,9 @@ const filterSupportedDetailRows = (details: WebResourceInfo[], preferLang: Lang)
 {
     const detailMap = buildSupportedDetailMap(details);
     const langs = buildSupportedLangOrder(preferLang);
-
-    return langs.map(lang => buildWebResourceDetailTabItem(detailMap.get(lang.toLowerCase()))).filter((item): item is WebResourceDetailTabItem => Boolean(item));
+    return langs.map(lang => buildWebResourceDetailTabItem(detailMap.get(lang.toLowerCase()))).filter((item): item is WebResourceDetailTabItem =>
+        Boolean(item)
+    );
 };
 
 /** 將有效語系 Detail 建成 Map，同語系只保留第一筆。 */
@@ -283,21 +276,6 @@ const buildSupportedDetailMap = (details: WebResourceInfo[]): Map<string, WebRes
     }, new Map<string, WebResourceInfo>());
 };
 
-/** 建立目前 Case 支援語系順序，當前語系優先。 */
-const buildSupportedLangOrder = (preferLang: Lang): Lang[] =>
-{
-    const langs = [preferLang, ...SUPPORTED_LANGS];
-    return langs.filter((lang, index) => langs.indexOf(lang) === index && Boolean(normalizeSupportedLang(lang)));
-};
-
-/** 正規化並檢查語系是否屬於目前 Case 支援語系。 */
-const normalizeSupportedLang = (lang?: Lang | string | null): string | null =>
-{
-    const value = String(lang ?? "").trim().toLowerCase();
-    const isSupport = SUPPORTED_LANGS.some(item => item.toLowerCase() === value);
-    return isSupport ? value : null;
-};
-
 /** 建立單一 Detail Tab 項目。 */
 const buildWebResourceDetailTabItem = (detail: WebResourceInfo | undefined): WebResourceDetailTabItem | null =>
 {
@@ -306,8 +284,8 @@ const buildWebResourceDetailTabItem = (detail: WebResourceInfo | undefined): Web
     const lang = normalizeSupportedLang(detail.Lang);
     if (!lang) return null;
 
-    const key = LibMerge("_", true, detail.WebResourceId, detail.RowId, lang);
-    const label = LangLabelMap[lang as Lang] ?? lang;
+    const key = LibText.Merge("_", true, detail.WebResourceId, detail.RowId, lang);
+    const label = LangLabelMap[lang] ?? lang;
     const rowKeys = buildWebResourceInfoRowKeys(detail);
 
     return { key, label, detail, rowKeys };
@@ -316,10 +294,7 @@ const buildWebResourceDetailTabItem = (detail: WebResourceInfo | undefined): Web
 /** 建立 Detail RowKeys，統一將 null 轉成 undefined。 */
 const buildWebResourceInfoRowKeys = (detail: WebResourceInfo): Record<string, string | number | undefined> =>
 {
-    return {
-        [WebResourceInfoFields.WebResourceId]: toBindingRowKey(detail.WebResourceId),
-        [WebResourceInfoFields.RowId]: toBindingRowKey(detail.RowId),
-    };
+    return { [WebResourceInfoFields.WebResourceId]: toBindingRowKey(detail.WebResourceId), [WebResourceInfoFields.RowId]: toBindingRowKey(detail.RowId) };
 };
 
 /** 建立 Detail TabContentComp 需要的 item map。 */

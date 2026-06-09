@@ -1,13 +1,16 @@
 import { useId, useMemo, useState } from "react";
 import type { ILibTextBoxProp } from "./LibTextBox_Data";
 
+// #region Property
 interface ILibPwdTextBoxProp extends ILibTextBoxProp
 {
     InputName?: string;
     AutoComplete?: string;
     PreventAutoFill?: boolean;
 }
+// #endregion
 
+// #region Private
 const LibPwdTextBox = (prop: ILibPwdTextBoxProp) =>
 {
     // 控制顯示/隱藏密碼
@@ -87,4 +90,6 @@ const LibPwdTextBox = (prop: ILibPwdTextBoxProp) =>
     );
 };
 
+
 export default LibPwdTextBox;
+// #endregion

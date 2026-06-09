@@ -30,6 +30,7 @@ import {
 // #region Property
 type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"];
 
+
 interface SpecMusicalFormCompProps
 {
     /** 後台主題設定 */
@@ -38,6 +39,7 @@ interface SpecMusicalFormCompProps
     /** 目前語系 */
     lang: Lang;
 }
+
 
 interface SpecMusicalContentProps
 {
@@ -51,11 +53,13 @@ interface SpecMusicalContentProps
     refs: SpecMusicalFormRefs;
 }
 
+
 interface SpecMusicalBasicProps extends SpecMusicalContentProps
 {
     /** 類別下拉選項 */
     cateOpts: Map<string, string>;
 }
+
 
 interface SpecMusicalGridProps
 {
@@ -65,6 +69,7 @@ interface SpecMusicalGridProps
     /** Form Template 提供的主資料 binding */
     binding: ServerFormBinding<SpecMusicalSet>;
 }
+
 
 const editGridStyle: IEditGridView_Style = {
     TableStyle: "table table-striped table-bordered table-hover",
@@ -115,6 +120,7 @@ const SpecMusicalContentComp = (props: SpecMusicalContentProps) =>
     return <TabContentComp tabInfos={tabInfo} components={components} />;
 };
 
+
 /** 基本資料欄位，維持舊版欄位排列。 */
 const SpecMusicalBasicComp = (props: SpecMusicalBasicProps) =>
 {
@@ -122,6 +128,7 @@ const SpecMusicalBasicComp = (props: SpecMusicalBasicProps) =>
 
     return <>{buildSpecMusicalBasicFields(props.theme, setField, props.cateOpts)}</>;
 };
+
 
 /** 相片區塊，改由 EditGrid 處理單筆新增、上傳、封面、排序與刪除。 */
 const SpecMusicalPhotoGridComp = (props: SpecMusicalGridProps) =>
@@ -142,6 +149,7 @@ const SpecMusicalPhotoGridComp = (props: SpecMusicalGridProps) =>
     );
 };
 
+
 /** 音檔區塊，改由 EditGrid 處理單筆新增、上傳、名稱與刪除。 */
 const SpecMusicalSoundGridComp = (props: SpecMusicalGridProps) =>
 {
@@ -151,6 +159,42 @@ const SpecMusicalSoundGridComp = (props: SpecMusicalGridProps) =>
     return (
         <div className="form-group">
             <EditGrid {...soundGrid.editGridProps} />
+        </div>
+    );
+};
+
+
+/** 批次上傳圖片，和 EditGrid 內建新增單筆按鈕分離。 */
+const SpecMusicalPhotoBatchUploadComp = (props: { theme: IBETheme; binding: ServerFormBinding<SpecMusicalSet>; }) =>
+{
+    const batch = useSpecMusicalBatchPhotoUpload({ binding: props.binding });
+
+    return (
+        <div className="mb-3">
+            <LibModal
+                ModalName="批次上傳圖片"
+                BtnName1="關閉"
+                BtnName2="儲存並上傳"
+                onConfirm={batch.uploadSelectedFiles}
+                confirmDisabled={batch.isUploading || batch.selectedFiles.length === 0}
+                confirmBusy={batch.isUploading}
+            >
+                <div className="row mx-0">
+                    <div className="col-12">
+                        <div className="row">
+                            <LibFile
+                                Style={props.theme.File}
+                                ColumnDisplayName="選擇圖片(多選)"
+                                Multiple={true}
+                                onChange={batch.setSelectedFiles}
+                                InputValue=""
+                            />
+                        </div>
+                        {batch.error && <div className="col-12 alert alert-danger mt-2">{batch.error}</div>}
+                    </div>
+                    <SpecMusicalPhotoBatchPreview files={batch.selectedFiles} />
+                </div>
+            </LibModal>
         </div>
     );
 };
@@ -166,6 +210,7 @@ const buildSpecMusicalTabContent = (props: SpecMusicalBasicProps): Record<string
         Sound: [<SpecMusicalSoundGridComp key="sound-grid" theme={props.theme} binding={props.binding} />],
     };
 };
+
 
 /** 建立基本資料欄位。 */
 const buildSpecMusicalBasicFields = (
@@ -242,41 +287,15 @@ const buildSpecMusicalBasicFields = (
     ];
 };
 
-/** 批次上傳圖片，和 EditGrid 內建新增單筆按鈕分離。 */
-const SpecMusicalPhotoBatchUploadComp = (props: { theme: IBETheme; binding: ServerFormBinding<SpecMusicalSet>; }) =>
+
+/** 建立返回 List 的路徑。 */
+const buildBackToListPath = (pathname: string): string =>
 {
-    const batch = useSpecMusicalBatchPhotoUpload({ binding: props.binding });
-
-    return (
-        <div className="mb-3">
-            <LibModal
-                ModalName="批次上傳圖片"
-                BtnName1="關閉"
-                BtnName2="儲存並上傳"
-                onConfirm={batch.uploadSelectedFiles}
-                confirmDisabled={batch.isUploading || batch.selectedFiles.length === 0}
-                confirmBusy={batch.isUploading}
-            >
-                <div className="row mx-0">
-                    <div className="col-12">
-                        <div className="row">
-                            <LibFile
-                                Style={props.theme.File}
-                                ColumnDisplayName="選擇圖片(多選)"
-                                Multiple={true}
-                                onChange={batch.setSelectedFiles}
-                                InputValue=""
-                            />
-                        </div>
-                        {batch.error && <div className="col-12 alert alert-danger mt-2">{batch.error}</div>}
-                    </div>
-                    <SpecMusicalPhotoBatchPreview files={batch.selectedFiles} />
-                </div>
-            </LibModal>
-        </div>
-    );
+    return pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
 };
+// #endregion
 
+// #region Private
 /** 批次上傳前預覽圖片。 */
 const SpecMusicalPhotoBatchPreview = (props: { files: File[]; }) =>
 {
@@ -302,6 +321,7 @@ const SpecMusicalPhotoBatchPreview = (props: { files: File[]; }) =>
     );
 };
 
+
 /** 相片預覽元件，沒有圖片時以文字提示避免破圖。 */
 const SpecMusicalPicturePreview = (props: { value: EditGridCellValue; }) =>
 {
@@ -312,6 +332,7 @@ const SpecMusicalPicturePreview = (props: { value: EditGridCellValue; }) =>
     if (!previewUrl) return <span className="small">尚未選擇圖片</span>;
     return <img src={previewUrl} alt={alt} style={{ maxWidth: "160px", maxHeight: "120px", objectFit: "contain" }} />;
 };
+
 
 /** 封面選擇按鈕，實際資料寫回 Header 的 CoverPicId。 */
 const SpecMusicalCoverSelector = (props: { value: EditGridCellValue; selected: string | null; onSelect: (picId: string) => void; }) =>
@@ -333,6 +354,7 @@ const SpecMusicalCoverSelector = (props: { value: EditGridCellValue; selected: s
     );
 };
 
+
 /** 音檔預覽元件，支援瀏覽器可播放格式與下載連結。 */
 const SpecMusicalSoundPreview = (props: { value: EditGridCellValue; }) =>
 {
@@ -348,13 +370,5 @@ const SpecMusicalSoundPreview = (props: { value: EditGridCellValue; }) =>
             {sound.downloadUrl ? <a className="small text-break" href={sound.downloadUrl} target="_blank" rel="noopener noreferrer">{displayName}</a> : <span className="small text-break">{displayName}</span>}
         </div>
     );
-};
-// #endregion
-
-// #region Private
-/** 建立返回 List 的路徑。 */
-const buildBackToListPath = (pathname: string): string =>
-{
-    return pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
 };
 // #endregion

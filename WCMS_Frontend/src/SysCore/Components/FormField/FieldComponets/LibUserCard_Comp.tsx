@@ -2,6 +2,8 @@ import { LangLink } from "@/SysCore/i18n/LangLink";
 import { useUploadFile } from "@/SysCore/Utils/UI_HookFunc/useUploadFile";
 import { useCallback, useId, useMemo } from "react";
 import type { ILibUserCardProp } from "./LibUserCard_Data";
+
+// #region Private
 // import { Link } from 'react-router-dom';
 
 const LibUserCard = (prop: ILibUserCardProp) =>
@@ -103,4 +105,6 @@ const LibUserCard = (prop: ILibUserCardProp) =>
     );
 };
 
+
 export default LibUserCard;
+// #endregion

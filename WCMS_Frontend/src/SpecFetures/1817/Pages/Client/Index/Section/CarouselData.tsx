@@ -13,9 +13,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { KeyboardEvent, MouseEvent } from "react";
 import { PerformancesPage } from "./PerformancesPage";
 
+// #region Property
 type BannerSet = components["schemas"]["BannerSet_DTO"];
+
 type BannerDetail = NonNullable<BannerSet["BannerDetail"]>[number];
+
 type BannerDetailInfo = NonNullable<BannerSet["BannerDetailInfo"]>[number];
+
 
 interface CarouselDataProps
 {
@@ -24,117 +28,20 @@ interface CarouselDataProps
     initialBanner: BannerSet | null;
 }
 
+
 type BootstrapCarouselConfig = { interval: number; ride: "carousel"; pause: false; };
+
 
 type BootstrapCarouselInstance = { cycle: () => void; pause: () => void; dispose?: () => void; };
 
+
 type BootstrapCarouselStatic = { getOrCreateInstance: (element: HTMLElement, config: BootstrapCarouselConfig) => BootstrapCarouselInstance; };
 
+
 type SlideEvent = Event & { to?: number; };
+// #endregion
 
-const toOkEnv = <T,>(data: T): ApiResponse<T> =>
-{
-    // return：統一成功 env
-    return { IsSuccess: true, SysMessage: [], Data: data };
-};
-
-const toInitial = <TArgs, TData>(args: TArgs, data: TData): ApiLoaderData<TArgs, TData> =>
-{
-    // return：SSR hydration 初始資料
-    return { args, apiRes: toOkEnv(data) };
-};
-
-const resolveIntervalMs = (banner: BannerSet | null): number =>
-{
-    // 宣告變數：後端 interval 單位為秒
-    const sec = banner?.Banner?.Interval;
-    const num = Number(sec);
-
-    // return：前端 Bootstrap 需要毫秒
-    if (!Number.isFinite(num) || num <= 0) return 5000;
-    return Math.round(num * 1000);
-};
-
-const sortBannerDetails = (banner: BannerSet | null): BannerDetail[] =>
-{
-    // 宣告變數：原始明細
-    const list = banner?.BannerDetail ?? [];
-
-    // return：依 Sort 與 RowId 穩定排序
-    return [...list].sort((a, b) =>
-    {
-        const aSort = Number.isFinite(a?.Sort) ? Number(a.Sort) : Number.MAX_SAFE_INTEGER;
-        const bSort = Number.isFinite(b?.Sort) ? Number(b.Sort) : Number.MAX_SAFE_INTEGER;
-
-        return aSort - bSort || (a.RowId ?? 0) - (b.RowId ?? 0);
-    });
-};
-
-const findBannerInfo = (banner: BannerSet | null, detail: BannerDetail | undefined, lang: Lang): BannerDetailInfo | undefined =>
-{
-    // return：依當前 slide + 語系找對應資訊
-    if (!detail) return undefined;
-
-    return banner?.BannerDetailInfo?.find((item) =>
-    {
-        return (item.BannerId === detail.BannerId && item.ParentRowId === detail.RowId && item.Lang === lang);
-    });
-};
-
-const getSafeIndex = (index: number, total: number): number =>
-{
-    // return：避免索引超界
-    if (total <= 0) return 0;
-    if (index < 0) return 0;
-    if (index >= total) return 0;
-    return index;
-};
-
-const getPerformanceData = (banner: BannerSet | null, detail: BannerDetail | undefined, lang: Lang) =>
-{
-    // 宣告變數：語系明細
-    const info = findBannerInfo(banner, detail, lang);
-
-    // return：下方展演資訊
-    return { title: info?.SpecLatestShows ?? "", subTitle: info?.SpecShowLocation ?? "", showtime: info?.SpecShowDate ?? "" };
-};
-
-const applyPlayState = (carousel: BootstrapCarouselInstance | null, isPlaying: boolean): void =>
-{
-    // 執行 function：切換播放狀態
-    if (!carousel) return;
-    if (isPlaying) carousel.cycle();
-    else carousel.pause();
-};
-
-const initBootstrapCarousel = async (element: HTMLElement, intervalMs: number): Promise<BootstrapCarouselInstance> =>
-{
-    // 宣告變數：動態載入 bootstrap carousel
-    const mod = await import("bootstrap/js/dist/carousel");
-    const CarouselClass = mod.default as BootstrapCarouselStatic;
-
-    // return：建立或取得 carousel instance
-    return CarouselClass.getOrCreateInstance(element, { interval: intervalMs, ride: "carousel", pause: false });
-};
-
-const buildToggleLabel = (isPlaying: boolean): string =>
-{
-    // return：播放按鈕文字
-    return isPlaying ? "暫停" : "播放";
-};
-
-const preventDefault = (event: MouseEvent<HTMLElement>): void =>
-{
-    // 執行 function：阻止 a 標籤預設跳轉
-    event.preventDefault();
-};
-
-const isToggleKey = (event: KeyboardEvent<HTMLElement>): boolean =>
-{
-    // return：支援 Enter / Space
-    return event.key === "Enter" || event.key === " ";
-};
-
+// #region Public
 export const CarouselData = (props: CarouselDataProps) =>
 {
     // 宣告變數：adapter
@@ -418,3 +325,121 @@ export const CarouselData = (props: CarouselDataProps) =>
         </>
     );
 };
+// #endregion
+
+// #region EntityComp
+const buildToggleLabel = (isPlaying: boolean): string =>
+{
+    // return：播放按鈕文字
+    return isPlaying ? "暫停" : "播放";
+};
+// #endregion
+
+// #region Private
+const toOkEnv = <T,>(data: T): ApiResponse<T> =>
+{
+    // return：統一成功 env
+    return { IsSuccess: true, SysMessage: [], Data: data };
+};
+
+
+const toInitial = <TArgs, TData>(args: TArgs, data: TData): ApiLoaderData<TArgs, TData> =>
+{
+    // return：SSR hydration 初始資料
+    return { args, apiRes: toOkEnv(data) };
+};
+
+
+const resolveIntervalMs = (banner: BannerSet | null): number =>
+{
+    // 宣告變數：後端 interval 單位為秒
+    const sec = banner?.Banner?.Interval;
+    const num = Number(sec);
+
+    // return：前端 Bootstrap 需要毫秒
+    if (!Number.isFinite(num) || num <= 0) return 5000;
+    return Math.round(num * 1000);
+};
+
+
+const sortBannerDetails = (banner: BannerSet | null): BannerDetail[] =>
+{
+    // 宣告變數：原始明細
+    const list = banner?.BannerDetail ?? [];
+
+    // return：依 Sort 與 RowId 穩定排序
+    return [...list].sort((a, b) =>
+    {
+        const aSort = Number.isFinite(a?.Sort) ? Number(a.Sort) : Number.MAX_SAFE_INTEGER;
+        const bSort = Number.isFinite(b?.Sort) ? Number(b.Sort) : Number.MAX_SAFE_INTEGER;
+
+        return aSort - bSort || (a.RowId ?? 0) - (b.RowId ?? 0);
+    });
+};
+
+
+const findBannerInfo = (banner: BannerSet | null, detail: BannerDetail | undefined, lang: Lang): BannerDetailInfo | undefined =>
+{
+    // return：依當前 slide + 語系找對應資訊
+    if (!detail) return undefined;
+
+    return banner?.BannerDetailInfo?.find((item) =>
+    {
+        return (item.BannerId === detail.BannerId && item.ParentRowId === detail.RowId && item.Lang === lang);
+    });
+};
+
+
+const getSafeIndex = (index: number, total: number): number =>
+{
+    // return：避免索引超界
+    if (total <= 0) return 0;
+    if (index < 0) return 0;
+    if (index >= total) return 0;
+    return index;
+};
+
+
+const getPerformanceData = (banner: BannerSet | null, detail: BannerDetail | undefined, lang: Lang) =>
+{
+    // 宣告變數：語系明細
+    const info = findBannerInfo(banner, detail, lang);
+
+    // return：下方展演資訊
+    return { title: info?.SpecLatestShows ?? "", subTitle: info?.SpecShowLocation ?? "", showtime: info?.SpecShowDate ?? "" };
+};
+
+
+const applyPlayState = (carousel: BootstrapCarouselInstance | null, isPlaying: boolean): void =>
+{
+    // 執行 function：切換播放狀態
+    if (!carousel) return;
+    if (isPlaying) carousel.cycle();
+    else carousel.pause();
+};
+
+
+const initBootstrapCarousel = async (element: HTMLElement, intervalMs: number): Promise<BootstrapCarouselInstance> =>
+{
+    // 宣告變數：動態載入 bootstrap carousel
+    const mod = await import("bootstrap/js/dist/carousel");
+    const CarouselClass = mod.default as BootstrapCarouselStatic;
+
+    // return：建立或取得 carousel instance
+    return CarouselClass.getOrCreateInstance(element, { interval: intervalMs, ride: "carousel", pause: false });
+};
+
+
+const preventDefault = (event: MouseEvent<HTMLElement>): void =>
+{
+    // 執行 function：阻止 a 標籤預設跳轉
+    event.preventDefault();
+};
+
+
+const isToggleKey = (event: KeyboardEvent<HTMLElement>): boolean =>
+{
+    // return：支援 Enter / Space
+    return event.key === "Enter" || event.key === " ";
+};
+// #endregion

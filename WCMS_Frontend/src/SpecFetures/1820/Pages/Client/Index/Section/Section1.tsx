@@ -4,121 +4,19 @@ import type { components } from "@/types/api";
 import { useMotionValueEvent, useReducedMotion, useScroll, useSpring } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+// #region Property
 type HomePageModel = components["schemas"]["SpecHomePage1820Model_DTO"];
+
 type BannerModel = components["schemas"]["SpecHomePage1820_BannerMedia_DTO"];
+
 type BannerKind = "image" | "video";
+
 type BannerItem = { keyId: string; rowId: number; src: string; alt: string; kind: BannerKind; delayMs: number; };
+
 type SpecHomePageWeather = components["schemas"]["SpecHomePageWeather_DTO"];
-/** 線性插值 */
-const lerp = (from: number, to: number, progress: number) =>
-{
-    return from + (to - from) * progress;
-};
+// #endregion
 
-/** 限制數值範圍 */
-const clamp = (value: number, min: number, max: number) =>
-{
-    return Math.max(min, Math.min(max, value));
-};
-
-/** 判斷 banner 類型 */
-const getBannerKind = (item: BannerModel): BannerKind =>
-{
-    const fileName = (item.BannerFileDescription ?? "").toLowerCase();
-    if (fileName.endsWith(".mp4") || fileName.endsWith(".webm") || fileName.endsWith(".mov")) return "video";
-    return "image";
-};
-
-/** 取得輪播停留秒數 */
-const getBannerDelay = (kind: BannerKind) =>
-{
-    return kind === "video" ? 8000 : 5000;
-};
-
-/** 整理 banner 顯示資料 */
-const buildBannerItems = (banners: BannerModel[]): BannerItem[] =>
-{
-    return [...banners].filter((item) => !!item.BannerFileId).map((item) =>
-    {
-        const kind = getBannerKind(item);
-        return {
-            keyId: `${item.HomePageId}_${item.RowId}`,
-            rowId: item.RowId ?? 0,
-            src: FileManagementAPI.get_Public_Preview_Url(item.BannerFileId),
-            alt: item.BannerFileDescription || `banner-${item.RowId}`,
-            kind,
-            delayMs: getBannerDelay(kind),
-        };
-    });
-};
-
-/** 取得下一張索引 */
-const getNextIndex = (currentIndex: number, count: number) =>
-{
-    if (count <= 1) return 0;
-    return (currentIndex + 1) % count;
-};
-
-/** 取得上一張索引 */
-const getPrevIndex = (currentIndex: number, count: number) =>
-{
-    if (count <= 1) return 0;
-    return (currentIndex - 1 + count) % count;
-};
-
-/** 暫停所有影片 */
-const pauseAllVideos = (videoRefs: Record<number, HTMLVideoElement | null>) =>
-{
-    Object.values(videoRefs).forEach((video) =>
-    {
-        if (!video) return;
-        video.pause();
-    });
-};
-
-/** 重置非目前影片 */
-const resetInactiveVideos = (videoRefs: Record<number, HTMLVideoElement | null>, activeRowId: number) =>
-{
-    Object.entries(videoRefs).forEach(([key, video]) =>
-    {
-        if (!video) return;
-        if (Number(key) === activeRowId) return;
-        video.pause();
-        video.currentTime = 0;
-    });
-};
-
-/** 同步 section CSS 變數 */
-const applySectionVars = (section: HTMLElement | null, progress: number, prefersReducedMotion: boolean) =>
-{
-    if (!section) return;
-
-    if (prefersReducedMotion)
-    {
-        section.style.setProperty("--leftW", "33vw");
-        section.style.setProperty("--rightW", "33vw");
-        section.style.setProperty("--sideOpacity", "1");
-        section.style.setProperty("--mediaScale", "1");
-        section.style.setProperty("--heroPadding", "12px");
-        section.style.setProperty("--heroBg", "rgba(243, 241, 234, 1)");
-        return;
-    }
-
-    const p = clamp(progress, 0, 1);
-    const sideWidth = lerp(33, 0, p);
-    const sideOpacity = clamp(1 - p * 1.5, 0, 1);
-    const mediaScale = lerp(1, 1.15, p);
-    const heroPadding = lerp(12, 0, p);
-    const heroBgOpacity = clamp(1 - p, 0, 1);
-
-    section.style.setProperty("--leftW", `${sideWidth}vw`);
-    section.style.setProperty("--rightW", `${sideWidth}vw`);
-    section.style.setProperty("--sideOpacity", `${sideOpacity}`);
-    section.style.setProperty("--mediaScale", `${mediaScale}`);
-    section.style.setProperty("--heroPadding", `${heroPadding}px`);
-    section.style.setProperty("--heroBg", `rgba(243, 241, 234, ${heroBgOpacity})`);
-};
-
+// #region Public
 /** Section1 */
 export const Section1 = (props: { homePage: HomePageModel; banners: BannerModel[]; weather: SpecHomePageWeather | null; }) =>
 {
@@ -384,6 +282,130 @@ export const Section1 = (props: { homePage: HomePageModel; banners: BannerModel[
         </section>
     );
 };
+// #endregion
+
+// #region Section
+/** 同步 section CSS 變數 */
+const applySectionVars = (section: HTMLElement | null, progress: number, prefersReducedMotion: boolean) =>
+{
+    if (!section) return;
+
+    if (prefersReducedMotion)
+    {
+        section.style.setProperty("--leftW", "33vw");
+        section.style.setProperty("--rightW", "33vw");
+        section.style.setProperty("--sideOpacity", "1");
+        section.style.setProperty("--mediaScale", "1");
+        section.style.setProperty("--heroPadding", "12px");
+        section.style.setProperty("--heroBg", "rgba(243, 241, 234, 1)");
+        return;
+    }
+
+    const p = clamp(progress, 0, 1);
+    const sideWidth = lerp(33, 0, p);
+    const sideOpacity = clamp(1 - p * 1.5, 0, 1);
+    const mediaScale = lerp(1, 1.15, p);
+    const heroPadding = lerp(12, 0, p);
+    const heroBgOpacity = clamp(1 - p, 0, 1);
+
+    section.style.setProperty("--leftW", `${sideWidth}vw`);
+    section.style.setProperty("--rightW", `${sideWidth}vw`);
+    section.style.setProperty("--sideOpacity", `${sideOpacity}`);
+    section.style.setProperty("--mediaScale", `${mediaScale}`);
+    section.style.setProperty("--heroPadding", `${heroPadding}px`);
+    section.style.setProperty("--heroBg", `rgba(243, 241, 234, ${heroBgOpacity})`);
+};
+// #endregion
+
+// #region EntityComp
+/** 整理 banner 顯示資料 */
+const buildBannerItems = (banners: BannerModel[]): BannerItem[] =>
+{
+    return [...banners].filter((item) => !!item.BannerFileId).map((item) =>
+    {
+        const kind = getBannerKind(item);
+        return {
+            keyId: `${item.HomePageId}_${item.RowId}`,
+            rowId: item.RowId ?? 0,
+            src: FileManagementAPI.get_Public_Preview_Url(item.BannerFileId),
+            alt: item.BannerFileDescription || `banner-${item.RowId}`,
+            kind,
+            delayMs: getBannerDelay(kind),
+        };
+    });
+};
+// #endregion
+
+// #region Private
+/** 線性插值 */
+const lerp = (from: number, to: number, progress: number) =>
+{
+    return from + (to - from) * progress;
+};
+
+
+/** 限制數值範圍 */
+const clamp = (value: number, min: number, max: number) =>
+{
+    return Math.max(min, Math.min(max, value));
+};
+
+
+/** 判斷 banner 類型 */
+const getBannerKind = (item: BannerModel): BannerKind =>
+{
+    const fileName = (item.BannerFileDescription ?? "").toLowerCase();
+    if (fileName.endsWith(".mp4") || fileName.endsWith(".webm") || fileName.endsWith(".mov")) return "video";
+    return "image";
+};
+
+
+/** 取得輪播停留秒數 */
+const getBannerDelay = (kind: BannerKind) =>
+{
+    return kind === "video" ? 8000 : 5000;
+};
+
+
+/** 取得下一張索引 */
+const getNextIndex = (currentIndex: number, count: number) =>
+{
+    if (count <= 1) return 0;
+    return (currentIndex + 1) % count;
+};
+
+
+/** 取得上一張索引 */
+const getPrevIndex = (currentIndex: number, count: number) =>
+{
+    if (count <= 1) return 0;
+    return (currentIndex - 1 + count) % count;
+};
+
+
+/** 暫停所有影片 */
+const pauseAllVideos = (videoRefs: Record<number, HTMLVideoElement | null>) =>
+{
+    Object.values(videoRefs).forEach((video) =>
+    {
+        if (!video) return;
+        video.pause();
+    });
+};
+
+
+/** 重置非目前影片 */
+const resetInactiveVideos = (videoRefs: Record<number, HTMLVideoElement | null>, activeRowId: number) =>
+{
+    Object.entries(videoRefs).forEach(([key, video]) =>
+    {
+        if (!video) return;
+        if (Number(key) === activeRowId) return;
+        video.pause();
+        video.currentTime = 0;
+    });
+};
+
 
 const WeatherBox = (props: { weather: SpecHomePageWeather | null; }) =>
 {
@@ -433,3 +455,4 @@ const WeatherBox = (props: { weather: SpecHomePageWeather | null; }) =>
         </div>
     );
 };
+// #endregion

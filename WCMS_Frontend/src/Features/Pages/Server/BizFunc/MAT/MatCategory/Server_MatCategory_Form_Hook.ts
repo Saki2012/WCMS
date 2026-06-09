@@ -21,7 +21,7 @@ import {
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { type Lang, LangLabelMap, useEnsureLangDetails } from "@/SysCore/i18n/lang";
 import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { Merge } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import {
@@ -37,7 +37,9 @@ import { useEffect, useMemo } from "react";
 
 // #region Property
 type MatCategorySet = components["schemas"]["MatCategoryDataSet_DTO"];
+
 type MatCategoryInfoField = components["schemas"]["MatCategoryInfoField_DTO"];
+
 type MatCategoryInfoFieldDisplay = components["schemas"]["MatCategoryInfoFieldDisplay_DTO"];
 
 export interface UseMatCategoryFormTemplateOptions
@@ -133,6 +135,10 @@ export type MatCategoryFormAdapter = {
     MatCategory: ReturnType<typeof MatCategoryAdapter>;
 };
 
+const MatCategoryInfoFieldSubDetailColumnKey = "__MatCategoryInfoFieldDisplay";
+// #endregion
+
+// #region Public
 export const matCategoryEmptyData = (progId: PGID | string): MatCategorySet => ({
     Category: { ProgId: progId },
     CategoryDetail: [],
@@ -140,10 +146,6 @@ export const matCategoryEmptyData = (progId: PGID | string): MatCategorySet => (
     MatCategoryInfoFieldDisplay: [],
 });
 
-const MatCategoryInfoFieldSubDetailColumnKey = "__MatCategoryInfoFieldDisplay";
-// #endregion
-
-// #region Public
 /** 建立 MatCategory Form Template，統一交給 Server_FormTemplate 處理資料流程。 */
 export const useMatCategoryFormTemplate = (
     opt: UseMatCategoryFormTemplateOptions,
@@ -183,7 +185,7 @@ export const useMatCategoryInfoFieldEditGrid = (opt: UseMatCategoryInfoFieldEdit
 
     return useEditGridBinding<MatCategorySet, MatCategoryInfoField, MatCategoryInfoFieldGridRow>({
         binding: opt.binding,
-        emptyData: matCategoryEmptyData(getMatCategoryProgId(opt.binding)),
+        emptyData: matCategoryEmptyData(opt.binding.data?.Category?.ProgId ?? ""),
         collectionName: MatCategoryDataSetFields.MatCategoryInfoField,
         columns,
         getItemRowId: field => field.RowId,
@@ -205,7 +207,7 @@ export const useMatCategoryInfoFieldDisplayEditGrid = (opt: UseMatCategoryInfoFi
 
     return useEditGridBinding<MatCategorySet, MatCategoryInfoFieldDisplay, MatCategoryInfoFieldDisplayGridRow>({
         binding: opt.binding,
-        emptyData: matCategoryEmptyData(getMatCategoryProgId(opt.binding)),
+        emptyData: matCategoryEmptyData(opt.binding.data?.Category?.ProgId ?? ""),
         collectionName: MatCategoryDataSetFields.MatCategoryInfoFieldDisplay,
         parent: buildMatCategoryInfoFieldDisplayParent(opt.parentRowId),
         columns,
@@ -219,7 +221,7 @@ export const useMatCategoryInfoFieldDisplayEditGrid = (opt: UseMatCategoryInfoFi
 };
 // #endregion
 
-// #region Timing
+// #region Private
 /** 建立 MatCategory Form 標題，功能名稱優先讀 ModelDisplayName。 */
 const buildMatCategoryFormTitle = (ctx: { mode: "new" | "edit"; displayName: ModelDisplaySchema; }, fallbackTitle: string): string =>
 {
@@ -251,9 +253,7 @@ const useMatCategoryReferenceData = (ctx: { binding: ServerFormBinding<MatCatego
         return { refs: {}, isLoading: false, errors: [], refetchRefData: async () => Promise.resolve() };
     }, []);
 };
-// #endregion
 
-// #region Private
 /** 取得 MatCategory Model 顯示名稱，避免 Form 標題寫死功能名稱。 */
 const getMatCategoryModelTitle = (displayName: ModelDisplaySchema, fallback: string): string =>
 {
@@ -574,7 +574,7 @@ const buildMissingMatCategoryInfoFieldDisplays = (
 const removeMatCategoryInfoFieldDisplayByRow = (binding: ServerFormBinding<MatCategorySet>, row: GridRow): void =>
 {
     const parentRowId = getEditGridRowId(row, 0);
-    binding.setFormData(prev => removeMatCategoryInfoFieldDisplayFromData(prev ?? matCategoryEmptyData(getMatCategoryProgId(binding)), parentRowId));
+    binding.setFormData(prev => removeMatCategoryInfoFieldDisplayFromData(prev ?? matCategoryEmptyData(binding.data?.Category?.ProgId ?? ""), parentRowId));
 };
 
 /** 從資料中移除指定欄位的語系顯示資料。 */
@@ -641,12 +641,6 @@ const getFirstMatCategoryLang = (data: MatCategorySet): Lang =>
     return (data.CategoryDetail?.find(detail => Boolean(detail.Lang))?.Lang as Lang) ?? "zh-tw";
 };
 
-/** 從 binding 取得目前 ProgId，供 emptyData fallback 使用。 */
-const getMatCategoryProgId = (binding: ServerFormBinding<MatCategorySet>): PGID | string =>
-{
-    return binding.data?.Category?.ProgId ?? "";
-};
-
 /** 取得子表顯示名稱，避免 Grid 標題寫死。 */
 const getMatCategoryTableTitle = (displayName: ModelDisplaySchema, tableId: string, fallback: string): string =>
 {
@@ -668,13 +662,13 @@ const getMatCategoryColumnTitle = (displayName: ModelDisplaySchema, tableId: str
 /** 建立物件欄位設定 Row key。 */
 const buildMatCategoryInfoFieldRowKey = (field: MatCategoryInfoField, index: number): string =>
 {
-    return LibMerge("_", true, "mat-category-field", field.CategoryId, field.RowId ?? index + 1);
+    return Merge("_", true, "mat-category-field", field.CategoryId, field.RowId ?? index + 1);
 };
 
 /** 建立物件欄位顯示名稱 Row key。 */
 const buildMatCategoryInfoFieldDisplayRowKey = (display: MatCategoryInfoFieldDisplay, index: number): string =>
 {
-    return LibMerge("_", true, "mat-category-display", display.CategoryId, display.ParentRowId, display.RowId ?? index + 1, display.Lang);
+    return Merge("_", true, "mat-category-display", display.CategoryId, display.ParentRowId, display.RowId ?? index + 1, display.Lang);
 };
 
 /** 取得語系欄位值。 */

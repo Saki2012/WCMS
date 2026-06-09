@@ -37,6 +37,7 @@ import {
 // #region Property
 type GallerySet = components["schemas"]["GallerySet_DTO"];
 
+
 interface GalleryFormCompProps
 {
     /** 後台主題設定 */
@@ -45,6 +46,7 @@ interface GalleryFormCompProps
     /** 目前語系 */
     lang: Lang;
 }
+
 
 interface GalleryContentProps
 {
@@ -61,6 +63,7 @@ interface GalleryContentProps
     refs: GalleryFormRefs;
 }
 
+
 interface GalleryHeaderProps
 {
     /** 後台主題設定 */
@@ -72,6 +75,7 @@ interface GalleryHeaderProps
     /** Gallery Hook 整理後的參照資料 */
     refs: GalleryFormRefs;
 }
+
 
 interface GalleryInfoProps
 {
@@ -85,6 +89,7 @@ interface GalleryInfoProps
     binding: ServerFormBinding<GallerySet>;
 }
 
+
 interface PhotoGridProps
 {
     /** 後台主題設定 */
@@ -97,6 +102,7 @@ interface PhotoGridProps
     binding: ServerFormBinding<GallerySet>;
 }
 
+
 interface PhotoInfoSubDetailProps extends PhotoGridProps
 {
     /** 目前相片 RowId */
@@ -106,11 +112,13 @@ interface PhotoInfoSubDetailProps extends PhotoGridProps
     onEditingStateChange: (args: EditGridEditingStateArgs) => void;
 }
 
+
 interface GalleryHeaderTabContentOptions extends GalleryHeaderProps
 {
     /** 欄位 binding helper */
     setField: ReturnType<typeof useSetTableField<GallerySet>>;
 }
+
 
 const editGridStyle: IEditGridView_Style = {
     TableStyle: "table table-striped table-bordered table-hover",
@@ -160,6 +168,7 @@ const GalleryContentComp = (props: GalleryContentProps) =>
     return <TabContentComp tabInfos={tabInfo} components={components}></TabContentComp>;
 };
 
+
 /** 相簿 Header 區塊，維持舊版 Header input。 */
 const GalleryHeaderComp = (props: GalleryHeaderProps) =>
 {
@@ -169,6 +178,7 @@ const GalleryHeaderComp = (props: GalleryHeaderProps) =>
 
     return <TabContentComp tabInfos={tabInfo} components={components}></TabContentComp>;
 };
+
 
 /** 相簿語系 Detail 區塊，語系資料由 Hook 統一整理。 */
 const GalleryInfoComp = (props: GalleryInfoProps) =>
@@ -184,6 +194,7 @@ const GalleryInfoComp = (props: GalleryInfoProps) =>
 
     return <TabContentComp tabInfos={tabInfo} components={components}></TabContentComp>;
 };
+
 
 /** 相片區塊，批次上傳按鈕與 EditGrid 單筆新增按鈕分離。 */
 const PhotoGridComp = (props: PhotoGridProps) =>
@@ -238,6 +249,7 @@ const PhotoGridComp = (props: PhotoGridProps) =>
     );
 };
 
+
 /** 相片語系 SubDetail Grid，固定由系統語系產生，不開放新增或刪除。 */
 const PhotoInfoSubDetailGridComp = (props: PhotoInfoSubDetailProps) =>
 {
@@ -250,79 +262,7 @@ const PhotoInfoSubDetailGridComp = (props: PhotoInfoSubDetailProps) =>
         </div>
     );
 };
-// #endregion
 
-// #region EntityComp
-/** 建立相簿主分頁內容。 */
-const buildGalleryMainTabContent = (props: GalleryContentProps): Record<string, ReactNode[]> =>
-{
-    return {
-        Album: [
-            <GalleryHeaderComp theme={props.theme} binding={props.binding} refs={props.refs} />,
-            <GalleryInfoComp theme={props.theme} lang={props.lang} binding={props.binding} />,
-        ],
-        Photo: [<PhotoGridComp theme={props.theme} lang={props.lang} binding={props.binding} />],
-    };
-};
-
-/** 建立相簿 Header 的各分頁欄位。 */
-const buildGalleryHeaderTabContent = (opt: GalleryHeaderTabContentOptions): Record<string, ReactNode[]> =>
-{
-    return { Basic: buildGalleryBasicFields(opt), Status: buildGalleryStatusFields(opt), Tags: buildGalleryTagFields(opt) };
-};
-
-/** 建立相簿基本資料欄位。 */
-const buildGalleryBasicFields = (opt: GalleryHeaderTabContentOptions): ReactNode[] =>
-{
-    return [
-        <LibCheckBox
-            Style={opt.theme.CheckBox}
-            options={opt.refs.categoryMap}
-            {...opt.setField(GallerySetFields.Gallery, GalleryFields.Categories, "string", undefined, "csv")}
-        />,
-        <LibCalendar {...opt.setField(GallerySetFields.Gallery, GalleryFields.Validate_Start, "datetime")}></LibCalendar>,
-    ];
-};
-
-/** 建立相簿狀態欄位。 */
-const buildGalleryStatusFields = (opt: GalleryHeaderTabContentOptions): ReactNode[] =>
-{
-    return [
-        <LibCheckBox
-            Style={opt.theme.CheckBox}
-            options={opt.refs.statusOpts}
-            {...opt.setField(GallerySetFields.Gallery, GalleryFields.ContentStatus, "number", undefined, {
-                strategy: "sum",
-                sumKeys: Object.keys(opt.refs.statusOpts ?? {}).map(Number),
-            })}
-        />,
-    ];
-};
-
-/** 建立相簿標籤欄位。 */
-const buildGalleryTagFields = (opt: GalleryHeaderTabContentOptions): ReactNode[] =>
-{
-    return [
-        <LibCheckBox
-            Style={opt.theme.CheckBox}
-            options={opt.refs.tagMap}
-            {...opt.setField(GallerySetFields.Gallery, GalleryFields.Tags, "string", undefined, "csv")}
-        />,
-    ];
-};
-
-/** 建立相簿語系欄位。 */
-const buildGalleryInfoFields = (theme: IBETheme, setField: ReturnType<typeof useSetTableField<GallerySet>>, rowKeys: GalleryInfoRowKeys): ReactNode[] =>
-{
-    return [
-        <LibTextBox
-            Style={theme.TextBox}
-            DefaultInputDisplay="請輸入標題 ..."
-            {...setField(GallerySetFields.GalleryInfo, GalleryInfoFields.Title, "string", rowKeys)}
-        />,
-        <LibTinyMCE Style={theme.TinyMCE} {...setField(GallerySetFields.GalleryInfo, GalleryInfoFields.Content, "string", rowKeys)} />,
-    ];
-};
 
 /** 批次上傳圖片，和 EditGrid 內建新增單筆按鈕分離。 */
 const GalleryBatchUploadComp = (props: { theme: IBETheme; binding: ServerFormBinding<GallerySet>; }) =>
@@ -358,7 +298,94 @@ const GalleryBatchUploadComp = (props: { theme: IBETheme; binding: ServerFormBin
         </div>
     );
 };
+// #endregion
 
+// #region EntityComp
+/** 建立相簿主分頁內容。 */
+const buildGalleryMainTabContent = (props: GalleryContentProps): Record<string, ReactNode[]> =>
+{
+    return {
+        Album: [
+            <GalleryHeaderComp theme={props.theme} binding={props.binding} refs={props.refs} />,
+            <GalleryInfoComp theme={props.theme} lang={props.lang} binding={props.binding} />,
+        ],
+        Photo: [<PhotoGridComp theme={props.theme} lang={props.lang} binding={props.binding} />],
+    };
+};
+
+
+/** 建立相簿 Header 的各分頁欄位。 */
+const buildGalleryHeaderTabContent = (opt: GalleryHeaderTabContentOptions): Record<string, ReactNode[]> =>
+{
+    return { Basic: buildGalleryBasicFields(opt), Status: buildGalleryStatusFields(opt), Tags: buildGalleryTagFields(opt) };
+};
+
+
+/** 建立相簿基本資料欄位。 */
+const buildGalleryBasicFields = (opt: GalleryHeaderTabContentOptions): ReactNode[] =>
+{
+    return [
+        <LibCheckBox
+            Style={opt.theme.CheckBox}
+            options={opt.refs.categoryMap}
+            {...opt.setField(GallerySetFields.Gallery, GalleryFields.Categories, "string", undefined, "csv")}
+        />,
+        <LibCalendar {...opt.setField(GallerySetFields.Gallery, GalleryFields.Validate_Start, "datetime")}></LibCalendar>,
+    ];
+};
+
+
+/** 建立相簿狀態欄位。 */
+const buildGalleryStatusFields = (opt: GalleryHeaderTabContentOptions): ReactNode[] =>
+{
+    return [
+        <LibCheckBox
+            Style={opt.theme.CheckBox}
+            options={opt.refs.statusOpts}
+            {...opt.setField(GallerySetFields.Gallery, GalleryFields.ContentStatus, "number", undefined, {
+                strategy: "sum",
+                sumKeys: Object.keys(opt.refs.statusOpts ?? {}).map(Number),
+            })}
+        />,
+    ];
+};
+
+
+/** 建立相簿標籤欄位。 */
+const buildGalleryTagFields = (opt: GalleryHeaderTabContentOptions): ReactNode[] =>
+{
+    return [
+        <LibCheckBox
+            Style={opt.theme.CheckBox}
+            options={opt.refs.tagMap}
+            {...opt.setField(GallerySetFields.Gallery, GalleryFields.Tags, "string", undefined, "csv")}
+        />,
+    ];
+};
+
+
+/** 建立相簿語系欄位。 */
+const buildGalleryInfoFields = (theme: IBETheme, setField: ReturnType<typeof useSetTableField<GallerySet>>, rowKeys: GalleryInfoRowKeys): ReactNode[] =>
+{
+    return [
+        <LibTextBox
+            Style={theme.TextBox}
+            DefaultInputDisplay="請輸入標題 ..."
+            {...setField(GallerySetFields.GalleryInfo, GalleryInfoFields.Title, "string", rowKeys)}
+        />,
+        <LibTinyMCE Style={theme.TinyMCE} {...setField(GallerySetFields.GalleryInfo, GalleryInfoFields.Content, "string", rowKeys)} />,
+    ];
+};
+
+
+/** 建立回列表路徑，避免 Back 行為散在 JSX 中。 */
+const buildBackToListPath = (pathname: string): string =>
+{
+    return pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
+};
+// #endregion
+
+// #region Private
 /** 批次上傳前預覽圖片。 */
 const GalleryBatchPreview = (props: { files: File[]; }) =>
 {
@@ -384,6 +411,7 @@ const GalleryBatchPreview = (props: { files: File[]; }) =>
     );
 };
 
+
 /** 相片預覽元件，沒有圖片時以文字提示避免破圖。 */
 const GalleryPicturePreview = (props: { value: EditGridCellValue; }) =>
 {
@@ -394,6 +422,7 @@ const GalleryPicturePreview = (props: { value: EditGridCellValue; }) =>
     if (!previewUrl) return <span className="small">尚未選擇圖片</span>;
     return <img src={previewUrl} alt={alt} style={{ maxWidth: "160px", maxHeight: "120px", objectFit: "contain" }} />;
 };
+
 
 /** 封面選擇按鈕，實際資料寫回 Header 的 CoverPicSrcId。 */
 const GalleryCoverSelector = (props: { value: EditGridCellValue; selected: string | null; onSelect: (picId: string) => void; }) =>
@@ -415,6 +444,7 @@ const GalleryCoverSelector = (props: { value: EditGridCellValue; selected: strin
     );
 };
 
+
 /** 語系明細展開按鈕，避免把子 Grid 直接塞在同一欄位。 */
 const GallerySubDetailToggleButton = (props: { row: GridRow; expandedRowKey: string | null; isSubDetailEditing: boolean; onToggle: (row: GridRow) => void; }) =>
 {
@@ -434,13 +464,5 @@ const GallerySubDetailToggleButton = (props: { row: GridRow; expandedRowKey: str
             <span className="ml-1">{isExpanded ? "收合" : "查看"}</span>
         </button>
     );
-};
-// #endregion
-
-// #region Private
-/** 建立回列表路徑，避免 Back 行為散在 JSX 中。 */
-const buildBackToListPath = (pathname: string): string =>
-{
-    return pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
 };
 // #endregion

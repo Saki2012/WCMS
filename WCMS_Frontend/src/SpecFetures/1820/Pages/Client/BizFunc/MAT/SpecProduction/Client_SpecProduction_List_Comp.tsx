@@ -10,8 +10,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router";
 import { useClientSpecProductionListFetchData } from "./Client_SpecProduction_List_Loader";
 
+import { findTextByKey } from "@/SysCore/Utils/Library/LibData";
+
+// #region Property
 type MaterialSet = components["schemas"]["MaterialSet_DTO"];
+
 type MaterialTag = components["schemas"]["MaterialTags_DTO"];
+
 
 export interface ClientSpecProductionListProps
 {
@@ -21,6 +26,12 @@ export interface ClientSpecProductionListProps
     opts?: Module_SpecProduction_OptionsJson;
 }
 
+type MaterialInfoJsonValue = string | number | boolean | null;
+
+type MaterialInfoJsonMap = Record<string, MaterialInfoJsonValue>;
+// #endregion
+
+// #region Public
 /// <summary>
 /// 前台情境圖文導覽列表頁，ModuleContent 負責共用內頁外框。
 /// </summary>
@@ -41,7 +52,30 @@ export const Client_SpecProduction_List_Comp = (props: ClientSpecProductionListP
         </ModuleContent>
     );
 };
+// #endregion
 
+// #region EntityComp
+/// <summary>
+/// 依類別欄位設定產生動態資訊列。
+/// </summary>
+const buildMaterialInfoRows = (item: MaterialSet, lang: Lang) =>
+{
+    const langInfo = getMaterialLangInfo(item, lang);
+    const infoJson = parseMaterialInfoJson(langInfo?.MaterialInfoJson);
+    const fields = item.Material?.Category?._MatCategoryInfoField ?? [];
+
+    return fields.map((field) =>
+    {
+        const fieldKey = field.Field ?? "";
+        const displayName = field._MatCategoryInfoFieldDisplay?.find((p) => p.Lang === lang)?.FieldDisplayName ?? fieldKey;
+        const valueText = formatInfoValue(infoJson[fieldKey] ?? null);
+
+        return { fieldKey, displayName, valueText };
+    }).filter((p) => p.fieldKey && p.valueText);
+};
+// #endregion
+
+// #region Private
 /// <summary>
 /// 渲染情境圖文導覽主要內容。
 /// </summary>
@@ -124,13 +158,15 @@ const SpecProductionContent = (props: { lang: Lang; intro?: string; catName?: st
     );
 };
 
+
 /// <summary>
 /// 取得 Tag 顯示名稱。
 /// </summary>
 const getTagName = (tag: MaterialTag, lang: Lang): string =>
 {
-    return tag.Tag?._TagDetail?.find((p) => p.Lang === lang)?.TagName ?? "";
+    return findTextByKey(tag.Tag?._TagDetail, (p) => p?.Lang, lang, (p) => p?.TagName);
 };
+
 
 /// <summary>
 /// 渲染物件類別 Tab。
@@ -169,6 +205,7 @@ const ProductionTabs = (
     );
 };
 
+
 /// <summary>
 /// 渲染目前選取的 Tab 內容。
 /// </summary>
@@ -191,6 +228,7 @@ const ProductionTabPanel = ({ lang, activeTab, items, viewMoreText }: { lang: La
         </div>
     );
 };
+
 
 /// <summary>
 /// 用 React 狀態模擬 Owl 結構，處理播放、暫停、自動輪播與左右滑動。
@@ -401,8 +439,7 @@ const ProductionCarousel = (props: { lang: Lang; items: MaterialSet[]; viewMoreT
         </div>
     );
 };
-type MaterialInfoJsonValue = string | number | boolean | null;
-type MaterialInfoJsonMap = Record<string, MaterialInfoJsonValue>;
+
 /// <summary>
 /// 解析 MaterialInfoJson，支援後端回傳物件或 JSON 字串。
 /// </summary>
@@ -420,6 +457,7 @@ const parseMaterialInfoJson = (source?: string | MaterialInfoJsonMap | null): Ma
     }
 };
 
+
 /// <summary>
 /// 取得目前語系的物件語系資料。
 /// </summary>
@@ -427,6 +465,7 @@ const getMaterialLangInfo = (item: MaterialSet, lang: Lang) =>
 {
     return item.MaterialLangInfo?.find((p) => p.Lang === lang);
 };
+
 
 /// <summary>
 /// 將 Json 欄位值轉成畫面文字。
@@ -438,24 +477,6 @@ const formatInfoValue = (value: MaterialInfoJsonValue): string =>
     return String(value);
 };
 
-/// <summary>
-/// 依類別欄位設定產生動態資訊列。
-/// </summary>
-const buildMaterialInfoRows = (item: MaterialSet, lang: Lang) =>
-{
-    const langInfo = getMaterialLangInfo(item, lang);
-    const infoJson = parseMaterialInfoJson(langInfo?.MaterialInfoJson);
-    const fields = item.Material?.Category?._MatCategoryInfoField ?? [];
-
-    return fields.map((field) =>
-    {
-        const fieldKey = field.Field ?? "";
-        const displayName = field._MatCategoryInfoFieldDisplay?.find((p) => p.Lang === lang)?.FieldDisplayName ?? fieldKey;
-        const valueText = formatInfoValue(infoJson[fieldKey] ?? null);
-
-        return { fieldKey, displayName, valueText };
-    }).filter((p) => p.fieldKey && p.valueText);
-};
 /// <summary>
 /// 渲染單一物件資訊卡。
 /// </summary>
@@ -504,6 +525,7 @@ const ProductionCard = (props: { lang: Lang; item: MaterialSet; viewMoreText: st
     );
 };
 
+
 /// <summary>
 /// 渲染資訊列，空資料不輸出。
 /// </summary>
@@ -518,4 +540,6 @@ const InfoRow = ({ text, className }: { text: string; className?: string; }) =>
     );
 };
 
+
 export default Client_SpecProduction_List_Comp;
+// #endregion

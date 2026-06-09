@@ -1,12 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
 import { SystemAPI } from "./APIClient";
 
+// #region Property
 export interface EnumOption
 {
     Key: number;
     DisplayName: string;
 }
+// #endregion
 
+// #region Public
 export const useFetchEnumOptions = (enumName: string) =>
 {
     const [data, setData] = useState<Record<string, string>>({});
@@ -36,3 +39,4 @@ export const useFetchEnumOptions = (enumName: string) =>
     }, [fetchData]);
     return { data, isLoading, error };
 };
+// #endregion

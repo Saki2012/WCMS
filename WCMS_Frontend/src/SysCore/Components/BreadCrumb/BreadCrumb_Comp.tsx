@@ -1,5 +1,7 @@
 import type { IBreadCrumbStyle } from "@/SysCore/Components/BreadCrumb/BreadCrumb_Clsx";
 import type { ReactNode } from "react";
+
+// #region Section
 /** 路徑導覽元件
  * @param items 路徑導覽源資料
  * @param theme 主題風格
@@ -27,5 +29,8 @@ const BreadCrumbComp = (
         </>
     );
 };
+// #endregion
 
+// #region Private
 export default BreadCrumbComp;
+// #endregion

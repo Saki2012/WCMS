@@ -2,6 +2,7 @@ import type { IModuleMeta, IProgMeta } from "@/Features/Pages/Server/Scaffold/Ro
 import { PGID } from "@/types/SchemaFields";
 import { Server_HomePage1820_Form_Comp } from "../BizFunc/WEB/HomePageSetting/Server_HomePageSetting_Form_Comp";
 
+// #region Private
 const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] =>
 {
     const web = modules.find((m) => m.ModuleCode === "WebManagement");
@@ -41,4 +42,6 @@ const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] =>
     return modules;
 };
 
+
 export default extendServerModuleRoutes;
+// #endregion

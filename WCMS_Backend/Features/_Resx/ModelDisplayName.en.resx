@@ -1014,4 +1014,13 @@
   <data name="BannerSet" xml:space="preserve">
     <value>橫幅表單</value>
   </data>
+  <data name="Lang_zhtw" xml:space="preserve">
+    <value>繁體中文</value>
+  </data>
+  <data name="Lang_zhcn" xml:space="preserve">
+    <value>简体中文</value>
+  </data>
+  <data name="Lang_en" xml:space="preserve">
+    <value>English</value>
+  </data>
 </root>

@@ -1,10 +1,12 @@
 import type { ILibBaseComponentsProp } from "./LibBaseData";
 
+// #region Property
 export interface ILibTinyMCEStyle
 {
     Labelstyle: string;
     SelectStyle: string;
 }
+
 
 export interface ILibTinyMCEProp extends ILibBaseComponentsProp
 {
@@ -13,3 +15,4 @@ export interface ILibTinyMCEProp extends ILibBaseComponentsProp
     InputValue: string | null | undefined;
     OnChange: (value: string) => void;
 }
+// #endregion

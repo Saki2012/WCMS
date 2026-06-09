@@ -19,16 +19,57 @@ import React, { type ReactNode, useCallback, useEffect, useMemo, useRef, useStat
 import { useLocation, useParams } from "react-router";
 import { useSpecJournalFormData } from "./SpecJournalForm_Loader";
 import { useSpecJournalSearchNav } from "./SpecJournalSearchUtils";
+
+// #region Property
 type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
 
-const joinPath = (base: string, path: string) =>
+
+interface PreviewSectionItem
 {
-    const b = (base ?? "").replace(/\/+$/, "");
-    const p = (path ?? "").replace(/^\/+/, "");
-    if (!b) return `/${p}`;
-    return `${b}/${p}`;
+    id: string;
+    title: string;
+    content: ReactNode;
+}
+
+
+const PREVIEW_LINE_COUNT = 10;
+
+const PREVIEW_FALLBACK_LINE_PX = 28;
+
+
+type SpecJournalDocumentItem = NonNullable<SpecJournalSet["SpecJournalDocument"]>[number];
+
+
+interface DocumentGroup
+{
+    typeKey: string;
+    title: string;
+    items: SpecJournalDocumentItem[];
+}
+
+
+const DOCUMENT_TYPE_TITLE_MAP: Record<string, string> = {
+    // enum 名稱
+    None: "其他",
+    Errata: "勘誤",
+    Correction: "校正",
+    Announcements: "公告事項",
+    Ethics_Statement: "倫理聲明",
+    Other: "其他",
+
+    // enum 數值
+    "0": "其他",
+    "1": "勘誤",
+    "2": "校正",
+    "3": "公告事項",
+    "4": "倫理聲明",
 };
 
+
+const DOCUMENT_TYPE_ORDER = ["Errata", "Correction", "Announcements", "Ethics_Statement", "Other", "1", "2", "3", "4", "0"];
+// #endregion
+
+// #region Public
 export const SpecJournalForm_Comp = (props: { site: INormSite; node: INormNode; lang: Lang; }) =>
 {
     const { indexId, rowId } = useParams();
@@ -88,33 +129,9 @@ export const SpecJournalForm_Comp = (props: { site: INormSite; node: INormNode; 
         </ModuleContent>
     );
 };
+// #endregion
 
-const SpecJournalFormContent = (props: { lang: Lang; data?: SpecJournalSet; pageViewCount: number; }) =>
-{
-    return (
-        <div className="Journal_List_content">
-            <div className="row">
-                <div className="CategoryBar w-100">
-                    <SpecJournalKeywordSearch_Comp basePath="../List" />
-                </div>
-                <div className="col row-group">
-                    <hr className="hr-my-4" />
-                </div>
-                <JournalTitle_Comp {...props} />
-                <BrowseCount_Comp pageViewCount={props.pageViewCount} />
-                <Authors_Comp {...props} />
-                <DOI_Comp {...props} />
-                <JournalInfo_Comp {...props} />
-                <FileDownload_Comp {...props} />
-                <OpenPoint_Comp {...props} />
-                <RefFile_Comp {...props} />
-                <Accordion_Comp {...props} />
-                <Documents_Comp {...props} />
-            </div>
-        </div>
-    );
-};
-
+// #region Section
 /** 期刊標題 */
 const JournalTitle_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
 {
@@ -206,6 +223,7 @@ const JournalTitle_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
     );
 };
 
+
 /** 瀏覽次數 */
 const BrowseCount_Comp = (props: { pageViewCount: number; }) =>
 {
@@ -227,6 +245,7 @@ const BrowseCount_Comp = (props: { pageViewCount: number; }) =>
         </>
     );
 };
+
 
 /** 作者列表 */
 const Authors_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
@@ -368,6 +387,7 @@ const Authors_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
         </>
     );
 };
+
 /** DOI */
 const DOI_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
 {
@@ -398,6 +418,7 @@ const DOI_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
         </>
     );
 };
+
 /** 期刊資訊 */
 const JournalInfo_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
 {
@@ -494,6 +515,7 @@ const JournalInfo_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
         </>
     );
 };
+
 /** 檔案下載區 */
 const FileDownload_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
 {
@@ -580,6 +602,7 @@ const FileDownload_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
         </>
     );
 };
+
 /** 開放觀點 */
 const OpenPoint_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
 {
@@ -643,6 +666,7 @@ const OpenPoint_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
         </>
     );
 };
+
 /** 相關檔案 */
 const RefFile_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
 {
@@ -704,50 +728,6 @@ const RefFile_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
     );
 };
 
-interface PreviewSectionItem
-{
-    id: string;
-    title: string;
-    content: ReactNode;
-}
-
-const PREVIEW_LINE_COUNT = 10;
-const PREVIEW_FALLBACK_LINE_PX = 28;
-
-/** 取得 line-height px */
-const getLineHeightPx = (value: string) =>
-{
-    // 宣告變數
-    const px = Number.parseFloat(value ?? "0");
-
-    // return
-    return Number.isFinite(px) && px > 0 ? px : PREVIEW_FALLBACK_LINE_PX;
-};
-
-/** 計算預覽高度 */
-const getPreviewHeight = (el: HTMLElement) =>
-{
-    // 宣告變數
-    const style = window.getComputedStyle(el);
-    const lineHeight = getLineHeightPx(style.lineHeight);
-    const paddingTop = Number.parseFloat(style.paddingTop || "0");
-    const paddingBottom = Number.parseFloat(style.paddingBottom || "0");
-
-    // return
-    return Math.ceil(lineHeight * PREVIEW_LINE_COUNT + paddingTop + paddingBottom);
-};
-
-/** 計算內容高度 */
-const getBodyHeights = (el: HTMLDivElement) =>
-{
-    // 宣告變數
-    const previewHeight = getPreviewHeight(el);
-    const fullHeight = Math.ceil(el.scrollHeight);
-    const canToggle = fullHeight > previewHeight + 4;
-
-    // return
-    return { previewHeight, fullHeight, canToggle };
-};
 
 /** 可預覽前 10 行的展開區塊 */
 const PreviewSectionCard_Comp = (props: { item: PreviewSectionItem; isExpanded: boolean; onToggle: (id: string) => void; }) =>
@@ -834,6 +814,7 @@ const PreviewSectionCard_Comp = (props: { item: PreviewSectionItem; isExpanded: 
     );
 };
 
+
 /** 摘要 + 參考文獻 + 引文格式 */
 const Accordion_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
 {
@@ -898,6 +879,7 @@ const Accordion_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
         </>
     );
 };
+
 /** 說明檔案區塊 */
 const Documents_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
 {
@@ -962,74 +944,9 @@ const Documents_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
         </>
     );
 };
+// #endregion
 
-// #region Func
-const preventHashOrVoidNav = (e: React.MouseEvent<HTMLAnchorElement>) =>
-{
-    // 宣告變數
-    const href = e.currentTarget.getAttribute("href") ?? "";
-    const isFake = href === "" || href === "#" || href.startsWith("#");
-    // 執行 function
-    if (isFake) e.preventDefault();
-};
-
-type SpecJournalDocumentItem = NonNullable<SpecJournalSet["SpecJournalDocument"]>[number];
-
-interface DocumentGroup
-{
-    typeKey: string;
-    title: string;
-    items: SpecJournalDocumentItem[];
-}
-
-const DOCUMENT_TYPE_TITLE_MAP: Record<string, string> = {
-    // enum 名稱
-    None: "其他",
-    Errata: "勘誤",
-    Correction: "校正",
-    Announcements: "公告事項",
-    Ethics_Statement: "倫理聲明",
-    Other: "其他",
-
-    // enum 數值
-    "0": "其他",
-    "1": "勘誤",
-    "2": "校正",
-    "3": "公告事項",
-    "4": "倫理聲明",
-};
-
-const DOCUMENT_TYPE_ORDER = ["Errata", "Correction", "Announcements", "Ethics_Statement", "Other", "1", "2", "3", "4", "0"];
-/** 取得文件分類 key */
-const getDocumentTypeKey = (doc: SpecJournalDocumentItem): string =>
-{
-    // 宣告變數
-    const rawType = doc.DocumentType;
-
-    // return
-    return String(rawType ?? "").trim() || "Other";
-};
-
-/** 取得文件分類標題 */
-const getDocumentTypeTitle = (typeKey: string): string =>
-{
-    // return
-    return DOCUMENT_TYPE_TITLE_MAP[typeKey] ?? "其他";
-};
-
-/** 依既定順序排序分類 */
-const sortDocumentGroups = (groups: DocumentGroup[]): DocumentGroup[] =>
-{
-    // 宣告變數
-    const getSortIndex = (typeKey: string): number =>
-    {
-        const index = DOCUMENT_TYPE_ORDER.indexOf(typeKey);
-        return index >= 0 ? index : Number.MAX_SAFE_INTEGER;
-    };
-    // return
-    return [...groups].sort((a, b) => getSortIndex(a.typeKey) - getSortIndex(b.typeKey));
-};
-
+// #region EntityComp
 /** 將文件依 DocumentType 分組 */
 const buildDocumentGroups = (documents?: SpecJournalDocumentItem[] | null): DocumentGroup[] =>
 {
@@ -1051,5 +968,121 @@ const buildDocumentGroups = (documents?: SpecJournalDocumentItem[] | null): Docu
     // return
     return sortDocumentGroups(Array.from(groupMap.values()));
 };
+// #endregion
 
+// #region Private
+const joinPath = (base: string, path: string) =>
+{
+    const b = (base ?? "").replace(/\/+$/, "");
+    const p = (path ?? "").replace(/^\/+/, "");
+    if (!b) return `/${p}`;
+    return `${b}/${p}`;
+};
+
+
+const SpecJournalFormContent = (props: { lang: Lang; data?: SpecJournalSet; pageViewCount: number; }) =>
+{
+    return (
+        <div className="Journal_List_content">
+            <div className="row">
+                <div className="CategoryBar w-100">
+                    <SpecJournalKeywordSearch_Comp basePath="../List" />
+                </div>
+                <div className="col row-group">
+                    <hr className="hr-my-4" />
+                </div>
+                <JournalTitle_Comp {...props} />
+                <BrowseCount_Comp pageViewCount={props.pageViewCount} />
+                <Authors_Comp {...props} />
+                <DOI_Comp {...props} />
+                <JournalInfo_Comp {...props} />
+                <FileDownload_Comp {...props} />
+                <OpenPoint_Comp {...props} />
+                <RefFile_Comp {...props} />
+                <Accordion_Comp {...props} />
+                <Documents_Comp {...props} />
+            </div>
+        </div>
+    );
+};
+
+
+/** 取得 line-height px */
+const getLineHeightPx = (value: string) =>
+{
+    // 宣告變數
+    const px = Number.parseFloat(value ?? "0");
+
+    // return
+    return Number.isFinite(px) && px > 0 ? px : PREVIEW_FALLBACK_LINE_PX;
+};
+
+
+/** 計算預覽高度 */
+const getPreviewHeight = (el: HTMLElement) =>
+{
+    // 宣告變數
+    const style = window.getComputedStyle(el);
+    const lineHeight = getLineHeightPx(style.lineHeight);
+    const paddingTop = Number.parseFloat(style.paddingTop || "0");
+    const paddingBottom = Number.parseFloat(style.paddingBottom || "0");
+
+    // return
+    return Math.ceil(lineHeight * PREVIEW_LINE_COUNT + paddingTop + paddingBottom);
+};
+
+
+/** 計算內容高度 */
+const getBodyHeights = (el: HTMLDivElement) =>
+{
+    // 宣告變數
+    const previewHeight = getPreviewHeight(el);
+    const fullHeight = Math.ceil(el.scrollHeight);
+    const canToggle = fullHeight > previewHeight + 4;
+
+    // return
+    return { previewHeight, fullHeight, canToggle };
+};
+
+
+const preventHashOrVoidNav = (e: React.MouseEvent<HTMLAnchorElement>) =>
+{
+    // 宣告變數
+    const href = e.currentTarget.getAttribute("href") ?? "";
+    const isFake = href === "" || href === "#" || href.startsWith("#");
+    // 執行 function
+    if (isFake) e.preventDefault();
+};
+
+/** 取得文件分類 key */
+const getDocumentTypeKey = (doc: SpecJournalDocumentItem): string =>
+{
+    // 宣告變數
+    const rawType = doc.DocumentType;
+
+    // return
+    return String(rawType ?? "").trim() || "Other";
+};
+
+
+/** 取得文件分類標題 */
+const getDocumentTypeTitle = (typeKey: string): string =>
+{
+    // return
+    return DOCUMENT_TYPE_TITLE_MAP[typeKey] ?? "其他";
+};
+
+
+/** 依既定順序排序分類 */
+const sortDocumentGroups = (groups: DocumentGroup[]): DocumentGroup[] =>
+{
+    // 宣告變數
+    const getSortIndex = (typeKey: string): number =>
+    {
+        const index = DOCUMENT_TYPE_ORDER.indexOf(typeKey);
+        return index >= 0 ? index : Number.MAX_SAFE_INTEGER;
+    };
+    // return
+    return [...groups].sort((a, b) => getSortIndex(a.typeKey) - getSortIndex(b.typeKey));
+};
 // #endregion

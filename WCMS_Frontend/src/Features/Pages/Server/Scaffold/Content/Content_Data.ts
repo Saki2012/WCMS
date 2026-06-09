@@ -3,6 +3,7 @@ import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { SearchBarProps } from "@/SysCore/Components/SearchBar/Searchbar_ForServer_Comp";
 import type { ServerFormActions } from "@/SysCore/Utils/API/APIAdapter";
 
+// #region Property
 export interface FormCompProp
 {
     Title: string;
@@ -12,5 +13,4 @@ export interface FormCompProp
     Actions?: UseActionsResult | ServerFormActions;
     SearchBar?: SearchBarProps;
 }
-
-/** 標籤/類別使用 */
+// #endregion

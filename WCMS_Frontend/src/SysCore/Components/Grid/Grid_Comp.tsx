@@ -1,11 +1,18 @@
+import { LibJson } from "@/SysCore/Utils/Library/LibData";
 import { useEffect, useState } from "react";
 import type { IPaginator_Style } from "../Paginator/Paginator_Clsx";
 import { NewPaginatorCanInputPage } from "../Paginator/Paginator_Comp";
 import type { IGridView_Style } from "./Grid_Clsx";
-import type { ColumnConfig, GridProps, GridRow } from "./Grid_Data";
+import type { ColumnConfig, GridColumnWidthMap, GridProps, GridRow } from "./Grid_Data";
 
+// #region Property
+/** Grid 欄寬 localStorage key */
 export const STORAGE_KEY = "grid-col-widths";
+/** Grid 欄位最小寬度 */
+const MIN_COLUMN_WIDTH_PX = 50;
+// #endregion
 
+// #region Public
 export const ColRender = (props: { columns: ColumnConfig[]; style?: IGridView_Style; onResize: (index: number, width: number) => void; }) =>
 {
     const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>, index: number) =>
@@ -17,7 +24,7 @@ export const ColRender = (props: { columns: ColumnConfig[]; style?: IGridView_St
         const startWidth = th.getBoundingClientRect().width;
         const onMouseMove = (e: MouseEvent) =>
         {
-            const newWidth = Math.max(50, startWidth + (e.clientX - startX));
+            const newWidth = Math.max(MIN_COLUMN_WIDTH_PX, startWidth + (e.clientX - startX));
             props.onResize(index, newWidth);
         };
         const onMouseUp = () =>
@@ -47,7 +54,6 @@ export const ColRender = (props: { columns: ColumnConfig[]; style?: IGridView_St
         </thead>
     );
 };
-
 export const RowRender = (props: { rows: GridRow[]; style?: IGridView_Style; }) =>
 {
     return (
@@ -55,45 +61,28 @@ export const RowRender = (props: { rows: GridRow[]; style?: IGridView_Style; }) 
             {props.rows
                 && props.rows.map((row, idx) => (
                     <tr key={row.keyId} className={idx % 2 === 1 ? props.style?.Odd : props.style?.Even}>
-                        {(row.cells ?? []).map((data, cellIdx) => (
-                            <td key={cellIdx} headers={data.col.key} className={"table_td_vertical_align"} data-th={data.col.title}>{data.content}</td>
-                        ))}
+                        {(row.cells ?? []).map((data, cellIdx) => <td key={cellIdx} headers={data.col.key} className={"table_td_vertical_align"} data-th={data.col.title}>{data.content}</td>)}
                     </tr>
                 ))}
         </tbody>
     );
 };
-
 export const Grid = (props: { gridData: GridProps; style: IGridView_Style; pageStyle: IPaginator_Style; }) =>
 {
     const [columns, setColumns] = useState<ColumnConfig[]>(props.gridData.columns);
-    const [_, setCurrentPage] = useState(1);
+    const [, setCurrentPage] = useState(1);
     useEffect(() =>
     {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved)
-        {
-            const widths = JSON.parse(saved);
-            setColumns((prev) =>
-                prev.map((col) => ({
-                    ...col,
-                    width: typeof widths[col.key] === "number" ? widths[col.key] : typeof col.width === "number" ? col.width : undefined,
-                }))
-            );
-        }
+        const widths = LibJson.readLocalStorageJson<GridColumnWidthMap>(STORAGE_KEY, {}, { guard: LibJson.isNumberRecord });
+        setColumns((prev) => applySavedColumnWidths(prev, widths));
     }, []);
-
     const handleResize = (index: number, width: number) =>
     {
         setColumns((prev) =>
         {
             const updated = prev.map((col, idx) => idx === index ? { ...col, width } : col);
-            const widths: Record<string, number> = {};
-            updated.forEach((c) =>
-            {
-                if (typeof c.width === "number") widths[c.key] = c.width;
-            });
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(widths));
+            const widths = buildColumnWidthMap(updated);
+            LibJson.writeLocalStorageJson(STORAGE_KEY, widths);
             return updated;
         });
     };
@@ -102,7 +91,6 @@ export const Grid = (props: { gridData: GridProps; style: IGridView_Style; pageS
         setCurrentPage(page);
         if (props.gridData.onPageChange) props.gridData.onPageChange(page);
     };
-
     return (
         <>
             <div className="row mx-0">
@@ -124,3 +112,32 @@ export const Grid = (props: { gridData: GridProps; style: IGridView_Style; pageS
         </>
     );
 };
+// #endregion
+
+// #region Private
+/** 套用 localStorage 記錄的 Grid 欄寬。 */
+const applySavedColumnWidths = (columns: ColumnConfig[], widths: GridColumnWidthMap): ColumnConfig[] =>
+{
+    return columns.map((col) => ({
+        ...col,
+        width: resolveColumnWidth(col, widths),
+    }));
+};
+/** 解析欄位目前應使用的寬度。 */
+const resolveColumnWidth = (col: ColumnConfig, widths: GridColumnWidthMap): number | undefined =>
+{
+    if (typeof widths[col.key] === "number") return widths[col.key];
+    if (typeof col.width === "number") return col.width;
+    return undefined;
+};
+/** 建立可保存到 localStorage 的欄寬資料。 */
+const buildColumnWidthMap = (columns: ColumnConfig[]): GridColumnWidthMap =>
+{
+    const widths: GridColumnWidthMap = {};
+    columns.forEach((col) =>
+    {
+        if (typeof col.width === "number") widths[col.key] = col.width;
+    });
+    return widths;
+};
+// #endregion

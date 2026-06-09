@@ -18,8 +18,11 @@ import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+// #region Property
 export type ServerFormBinding<TSet> = UseFetchFormDataResult<TSet>;
+
 export type ServerFormRefetch = () => Promise<void>;
+
 
 export interface ServerFormBaseActionOptions
 {
@@ -30,6 +33,7 @@ export interface ServerFormBaseActionOptions
     onPreview?: () => void;
 }
 
+
 export interface ServerFormDataAdapter<TSet>
 {
     /** 後台表單標準查詢 Hook */
@@ -38,6 +42,7 @@ export interface ServerFormDataAdapter<TSet>
     /** 後台表單標準 CUD 行為 */
     useServerActions: (opt?: UseServerActionsOptions) => UseServerActionsResult<TSet>;
 }
+
 
 export interface ServerFormModeContext<TSet, TActionOpt>
 {
@@ -51,6 +56,7 @@ export interface ServerFormModeContext<TSet, TActionOpt>
     actionsOpt: TActionOpt;
 }
 
+
 export interface ServerFormTitleContext<TSet, TActionOpt> extends ServerFormModeContext<TSet, TActionOpt>
 {
     /** 表單模式，給 Feature / Spec 判斷標題 */
@@ -59,6 +65,7 @@ export interface ServerFormTitleContext<TSet, TActionOpt> extends ServerFormMode
     /** 後端 ModelDisplayName，給 Feature / Spec 建立標題 */
     displayName: ModelDisplaySchema;
 }
+
 
 export interface ServerFormDataSourceContext<TSet, TAdapter, TActionOpt> extends ServerFormModeContext<TSet, TActionOpt>
 {
@@ -72,6 +79,7 @@ export interface ServerFormDataSourceContext<TSet, TAdapter, TActionOpt> extends
     mode: ApiFormMode;
 }
 
+
 export interface ServerFormReferenceContext<TSet, TAdapter, TActionOpt, TRefs> extends ServerFormDataSourceContext<TSet, TAdapter, TActionOpt>
 {
     /** 表單可編輯 Binding */
@@ -80,6 +88,7 @@ export interface ServerFormReferenceContext<TSet, TAdapter, TActionOpt, TRefs> e
     /** Feature 已建立出的參照資料，Spec 可用來追加或覆寫 */
     featureRefs?: TRefs;
 }
+
 
 export interface ServerFormReferenceResult<TRefs>
 {
@@ -96,6 +105,7 @@ export interface ServerFormReferenceResult<TRefs>
     refetchRefData?: () => Promise<void> | void;
 }
 
+
 export interface ServerFormActionContext<TSet, TAdapter, TRefs, TRawData, TActionOpt> extends ServerFormReferenceContext<TSet, TAdapter, TActionOpt, TRefs>
 {
     /** Header / Detail 最終使用的參照資料 */
@@ -111,6 +121,7 @@ export interface ServerFormActionContext<TSet, TAdapter, TRefs, TRawData, TActio
     rawData?: TRawData;
 }
 
+
 export interface ServerFormRawDataContext<TSet, TAdapter, TRefs, TActionOpt> extends ServerFormReferenceContext<TSet, TAdapter, TActionOpt, TRefs>
 {
     /** Header / Detail 最終使用的參照資料 */
@@ -119,6 +130,7 @@ export interface ServerFormRawDataContext<TSet, TAdapter, TRefs, TActionOpt> ext
     /** 後台 Form Toolbar 使用的動作 */
     actions: ServerFormActions;
 }
+
 
 export interface ServerFormPropContext<TSet, TAdapter, TRefs, TRawData, TActionOpt> extends ServerFormRawDataContext<TSet, TAdapter, TRefs, TActionOpt>
 {
@@ -132,6 +144,7 @@ export interface ServerFormPropContext<TSet, TAdapter, TRefs, TRawData, TActionO
     errors: string[];
 }
 
+
 export interface ServerFormDefaultRawData<TSet, TRefs>
 {
     /** 給 Header / Detail 使用的表單 Binding */
@@ -143,6 +156,7 @@ export interface ServerFormDefaultRawData<TSet, TRefs>
     /** 給 Form Toolbar 使用的標準行為 */
     actions: ServerFormActions;
 }
+
 
 export interface ServerFormFeatureTiming<TSet, TAdapter, TRefs, TRawData, TActionOpt>
 {
@@ -176,6 +190,7 @@ export interface ServerFormFeatureTiming<TSet, TAdapter, TRefs, TRawData, TActio
     /** 建立 FormCompProp，通常由 Template 產生預設值即可 */
     buildFormProp?: (ctx: ServerFormPropContext<TSet, TAdapter, TRefs, TRawData, TActionOpt>, featureProp: FormCompProp) => FormCompProp;
 }
+
 
 export interface ServerFormSpecTiming<TSet, TAdapter, TRefs, TRawData, TActionOpt>
 {
@@ -216,6 +231,7 @@ export interface ServerFormSpecTiming<TSet, TAdapter, TRefs, TRawData, TActionOp
     buildFormProp?: (ctx: ServerFormPropContext<TSet, TAdapter, TRefs, TRawData, TActionOpt>, baseProp: FormCompProp) => FormCompProp;
 }
 
+
 export interface ServerFormTemplateBase<TSet, TActionOpt>
 {
     /** 功能識別碼 */
@@ -243,6 +259,7 @@ export interface ServerFormTemplateBase<TSet, TActionOpt>
     modelDeps?: EffectDeps;
 }
 
+
 export interface ServerFormTemplate<TSet, TAdapter, TRefs = unknown, TRawData = ServerFormDefaultRawData<TSet, TRefs>, TActionOpt = ServerFormBaseActionOptions>
     extends ServerFormTemplateBase<TSet, TActionOpt>
 {
@@ -252,6 +269,7 @@ export interface ServerFormTemplate<TSet, TAdapter, TRefs = unknown, TRawData = 
     /** Spec 客製流程，可用於 F 有 S 有、F 沒有 S 有情境 */
     spec?: ServerFormSpecTiming<TSet, TAdapter, TRefs, TRawData, TActionOpt>;
 }
+
 
 export interface ServerFormTemplateViewModel<
     TSet,
@@ -310,240 +328,13 @@ export interface ServerFormTemplateViewModel<
     actionsOpt: TActionOpt;
 }
 
+
 const emptyDisplayName: ModelDisplaySchema = { ModelId: "", ModelDisplayName: "", Tables: [] } as ModelDisplaySchema;
+
 const emptyRefs = {} as unknown;
+// #endregion
 
-/** 確認 Template 至少提供 Feature 或 Spec 流程，避免回到舊式 top-level 入口 */
-const assertTemplateTiming = <TSet, TAdapter, TRefs, TRawData, TActionOpt>(template: ServerFormTemplate<TSet, TAdapter, TRefs, TRawData, TActionOpt>): void =>
-{
-    if (template.feature || template.spec) return;
-    throw new Error(`Server_FormTemplate(${template.featureKey}) 需要提供 feature 或 spec timing。`);
-};
-
-/** 建立缺少必要 timing 的錯誤訊息，讓規格問題能快速定位 */
-const buildMissingTimingError = (featureKey: string, timingName: string): Error =>
-{
-    return new Error(`Server_FormTemplate(${featureKey}) 需要提供 ${timingName}。`);
-};
-
-/** 建立目前 Form 使用的 Adapter，支援 Feature 基礎流程與 Spec-only 流程 */
-const buildTemplateAdapter = <TSet, TAdapter, TRefs, TRawData, TActionOpt>(
-    template: ServerFormTemplate<TSet, TAdapter, TRefs, TRawData, TActionOpt>,
-): TAdapter =>
-{
-    assertTemplateTiming(template);
-    if (template.feature)
-    {
-        const featureAdapter = template.feature.buildAdapter();
-        return template.spec?.extendAdapter?.(featureAdapter) ?? featureAdapter;
-    }
-
-    const specAdapter = template.spec?.buildAdapter?.();
-    if (specAdapter !== undefined) return specAdapter;
-    throw buildMissingTimingError(template.featureKey, "feature.buildAdapter 或 spec.buildAdapter");
-};
-
-/** 取得主資料 Adapter，Spec 可覆寫 Feature 的結果，也可獨立提供 Spec-only Adapter */
-const selectTemplateDataAdapter = <TSet, TAdapter, TRefs, TRawData, TActionOpt>(
-    template: ServerFormTemplate<TSet, TAdapter, TRefs, TRawData, TActionOpt>,
-    adapter: TAdapter,
-): ServerFormDataAdapter<TSet> =>
-{
-    const featureAdapter = template.feature
-        ? template.feature.selectDataAdapter?.(adapter) ?? (adapter as ServerFormDataAdapter<TSet>)
-        : undefined;
-    return template.spec?.selectDataAdapter?.(adapter, featureAdapter) ?? featureAdapter ?? (adapter as ServerFormDataAdapter<TSet>);
-};
-
-/** 建立表單模式，Feature 先建立基準，Spec 可在後續覆寫 */
-const resolveTemplateMode = <TSet, TAdapter, TRefs, TRawData, TActionOpt>(
-    template: ServerFormTemplate<TSet, TAdapter, TRefs, TRawData, TActionOpt>,
-    ctx: ServerFormModeContext<TSet, TActionOpt>,
-): ApiFormMode =>
-{
-    const defaultMode: ApiFormMode = ctx.internalId ? "edit" : "new";
-    const featureMode = template.feature?.resolveMode?.(ctx) ?? defaultMode;
-    return template.spec?.resolveMode?.(ctx, featureMode) ?? featureMode;
-};
-
-/** 建立後台卡片標題，必須由 Feature 或 Spec 的 timing 明確提供 */
-const buildTemplateTitle = <TSet, TAdapter, TRefs, TRawData, TActionOpt>(
-    template: ServerFormTemplate<TSet, TAdapter, TRefs, TRawData, TActionOpt>,
-    ctx: ServerFormTitleContext<TSet, TActionOpt>,
-): string =>
-{
-    const featureTitle = template.feature?.buildTitle(ctx);
-    const specTitle = template.spec?.buildTitle?.(ctx, featureTitle);
-    const title = specTitle ?? featureTitle;
-    if (title !== undefined) return title;
-    throw buildMissingTimingError(template.featureKey, "feature.buildTitle 或 spec.buildTitle");
-};
-
-/** 建立 QueryForm initial，必須由 Feature 或 Spec 的 timing 明確提供 */
-const buildTemplateInitial = <TSet, TAdapter, TRefs, TRawData, TActionOpt>(
-    template: ServerFormTemplate<TSet, TAdapter, TRefs, TRawData, TActionOpt>,
-    ctx: ServerFormDataSourceContext<TSet, TAdapter, TActionOpt>,
-): ApiFormInitial<TSet> | undefined =>
-{
-    const hasSpecInitial = Boolean(template.spec?.buildInitialData);
-    if (!template.feature && !hasSpecInitial) throw buildMissingTimingError(template.featureKey, "feature.buildInitialData 或 spec.buildInitialData");
-
-    const featureInitial = template.feature?.buildInitialData(ctx);
-    return hasSpecInitial ? template.spec?.buildInitialData?.(ctx, featureInitial) : featureInitial;
-};
-
-/** 將 QueryFormData 結果同步成可編輯 Binding */
-const useEditableFormBinding = <TSet>(
-    opt: { source: ReturnType<ApiDataHookGroup<TSet>["useQueryFormData"]>; emptyData: TSet; mode: ApiFormMode; },
-): ServerFormBinding<TSet> =>
-{
-    const [data, setFormData] = useState<TSet>(opt.emptyData);
-    useEffect(() =>
-    {
-        if (opt.source.data) setFormData(opt.source.data);
-        else if (opt.mode === "new") setFormData(opt.emptyData);
-    }, [opt.source.data, opt.mode, opt.emptyData]);
-
-    return {
-        data,
-        setFormData,
-        isLoading: opt.source.isLoading,
-        error: opt.source.errorText,
-        refetch: () => void opt.source.refetchData(),
-        displayName: opt.source.modelDisplayName ?? emptyDisplayName,
-    };
-};
-
-/** 建立預設參照資料結果，避免沒有 refs 時 Header / Detail 取值爆掉 */
-const buildEmptyReferenceResult = <TRefs>(): ServerFormReferenceResult<TRefs> =>
-{
-    return { refs: emptyRefs as TRefs, isLoading: false, errors: [], refetchRefData: undefined };
-};
-
-/** 建立 Feature 參照資料，沒有 Feature 時回傳空參照 */
-const useFeatureReferenceData = <TSet, TAdapter, TRefs, TRawData, TActionOpt>(
-    template: ServerFormTemplate<TSet, TAdapter, TRefs, TRawData, TActionOpt>,
-    ctx: ServerFormReferenceContext<TSet, TAdapter, TActionOpt, TRefs>,
-): ServerFormReferenceResult<TRefs> =>
-{
-    return template.feature?.useReferenceData?.(ctx) ?? buildEmptyReferenceResult<TRefs>();
-};
-
-/** 建立 Spec 參照資料，Feature + Spec 時可取得 featureRefs */
-const useSpecReferenceData = <TSet, TAdapter, TRefs, TRawData, TActionOpt>(
-    template: ServerFormTemplate<TSet, TAdapter, TRefs, TRawData, TActionOpt>,
-    ctx: ServerFormReferenceContext<TSet, TAdapter, TActionOpt, TRefs>,
-): ServerFormReferenceResult<TRefs> | null =>
-{
-    return template.spec?.useReferenceData?.(ctx) ?? null;
-};
-
-/** 建立儲存成功後的 callback，執行順序固定為 Feature 先、Spec 後 */
-const buildTemplateSuccessActions = <TSet, TAdapter, TRefs, TRawData, TActionOpt>(
-    template: ServerFormTemplate<TSet, TAdapter, TRefs, TRawData, TActionOpt>,
-    ctx: ServerFormReferenceContext<TSet, TAdapter, TActionOpt, TRefs>,
-): Partial<Record<ServerActionMode, () => void | Promise<void>>> =>
-{
-    const featureActions = template.feature?.buildSuccessActions?.(ctx) ?? {};
-    return template.spec?.buildSuccessActions?.(ctx, featureActions) ?? featureActions;
-};
-
-/** 建立預設成功 callback，若未客製則 CUD 成功後返回清單 */
-const buildDefaultSuccessActions = <TActionOpt>(actionsOpt: TActionOpt): Partial<Record<ServerActionMode, () => void | Promise<void>>> =>
-{
-    const back = (actionsOpt as ServerFormBaseActionOptions | undefined)?.onBackToList;
-    if (!back) return {};
-    return { create: back, update: back, delete: back };
-};
-
-/** 建立預設 Form Toolbar Actions */
-const useDefaultFormActions = <TSet, TActionOpt>(
-    opt: { mode: ApiFormMode; internalId: string; binding: ServerFormBinding<TSet>; serverActions: UseServerActionsResult<TSet>; actionsOpt: TActionOpt; },
-): ServerFormActions =>
-{
-    const save = useCallback(async () =>
-    {
-        if (opt.mode === "new") await opt.serverActions.createAsync(opt.binding.data);
-        else await opt.serverActions.updateAsync(opt.internalId, opt.binding.data);
-    }, [opt.mode, opt.internalId, opt.binding.data, opt.serverActions]);
-
-    const deleteData = useCallback(async () =>
-    {
-        if (!opt.internalId) return;
-        await opt.serverActions.deleteAsync(opt.internalId);
-    }, [opt.internalId, opt.serverActions]);
-
-    return {
-        Save: save,
-        Delete: deleteData,
-        Back: (opt.actionsOpt as ServerFormBaseActionOptions).onBackToList,
-        Preview: (opt.actionsOpt as ServerFormBaseActionOptions).onPreview,
-        IsSaving: opt.serverActions.isSaving,
-    };
-};
-
-/** 建立最終 Actions，執行順序固定為 Feature 先、Spec 後 */
-const buildTemplateActions = <TSet, TAdapter, TRefs, TRawData, TActionOpt>(
-    template: ServerFormTemplate<TSet, TAdapter, TRefs, TRawData, TActionOpt>,
-    ctx: ServerFormActionContext<TSet, TAdapter, TRefs, TRawData, TActionOpt>,
-): ServerFormActions =>
-{
-    const featureActions = template.feature?.buildActions?.(ctx, ctx.defaultActions) ?? ctx.defaultActions;
-    return template.spec?.buildActions?.(ctx, featureActions) ?? featureActions;
-};
-
-/** 建立預設 rawData，讓新模板與舊 Form 寫法都能銜接 */
-const buildDefaultRawData = <TSet, TRefs, TRawData>(ctx: ServerFormRawDataContext<TSet, unknown, TRefs, unknown>): TRawData =>
-{
-    return { formData: ctx.binding, refs: ctx.refs, actions: ctx.actions } as TRawData;
-};
-
-/** 建立最終 rawData，執行順序固定為 Feature 先、Spec 後 */
-const buildTemplateRawData = <TSet, TAdapter, TRefs, TRawData, TActionOpt>(
-    template: ServerFormTemplate<TSet, TAdapter, TRefs, TRawData, TActionOpt>,
-    ctx: ServerFormRawDataContext<TSet, TAdapter, TRefs, TActionOpt>,
-): TRawData =>
-{
-    const featureRaw = template.feature?.buildRawData?.(ctx) ?? buildDefaultRawData<TSet, TRefs, TRawData>(ctx);
-    return template.spec?.buildRawData?.(ctx, featureRaw) ?? featureRaw;
-};
-
-/** 建立預設 FormCompProp */
-const buildDefaultFormProp = <TSet, TActionOpt>(
-    template: ServerFormTemplateBase<TSet, TActionOpt>,
-    ctx: { title: string; isLoading: boolean; errors: string[]; actions: ServerFormActions; },
-): FormCompProp =>
-{
-    return { Title: ctx.title, Theme: template.theme, IsLoading: ctx.isLoading, ErrorList: ctx.errors, Actions: ctx.actions };
-};
-
-/** 建立最終 FormCompProp，執行順序固定為 Feature 先、Spec 後 */
-const buildTemplateFormProp = <TSet, TAdapter, TRefs, TRawData, TActionOpt>(
-    template: ServerFormTemplate<TSet, TAdapter, TRefs, TRawData, TActionOpt>,
-    ctx: ServerFormPropContext<TSet, TAdapter, TRefs, TRawData, TActionOpt> & { title: string; },
-): FormCompProp =>
-{
-    const baseProp = buildDefaultFormProp(template, { title: ctx.title, isLoading: ctx.isLoading, errors: ctx.errors, actions: ctx.actions });
-    const featureProp = template.feature?.buildFormProp?.(ctx, baseProp) ?? baseProp;
-    return template.spec?.buildFormProp?.(ctx, featureProp) ?? featureProp;
-};
-
-/** 正規化錯誤訊息，移除空字串與 null */
-const normalizeErrors = (errors: (string | null | undefined)[]): string[] =>
-{
-    return errors.filter((item): item is string => Boolean(item));
-};
-
-/** 建立重新查詢參照資料的固定動作 */
-const useReferenceRefetch = <TRefs>(featureRefs: ServerFormReferenceResult<TRefs>, specRefs: ServerFormReferenceResult<TRefs> | null): ServerFormRefetch =>
-{
-    return useCallback(async () =>
-    {
-        await featureRefs.refetchRefData?.();
-        await specRefs?.refetchRefData?.();
-    }, [featureRefs, specRefs]);
-};
-
+// #region Public
 /** 後台 Form 共用流程：支援 F 有 S 沒有、F 有 S 有、F 沒有 S 有三種情境 */
 export const useServerFormTemplate = <
     TSet,
@@ -623,3 +414,257 @@ export const useServerFormTemplate = <
         actionsOpt: template.actionsOpt,
     };
 };
+// #endregion
+
+// #region Private
+/** 確認 Template 至少提供 Feature 或 Spec 流程，避免回到舊式 top-level 入口 */
+const assertTemplateTiming = <TSet, TAdapter, TRefs, TRawData, TActionOpt>(template: ServerFormTemplate<TSet, TAdapter, TRefs, TRawData, TActionOpt>): void =>
+{
+    if (template.feature || template.spec) return;
+    throw new Error(`Server_FormTemplate(${template.featureKey}) 需要提供 feature 或 spec timing。`);
+};
+
+
+/** 建立缺少必要 timing 的錯誤訊息，讓規格問題能快速定位 */
+const buildMissingTimingError = (featureKey: string, timingName: string): Error =>
+{
+    return new Error(`Server_FormTemplate(${featureKey}) 需要提供 ${timingName}。`);
+};
+
+
+/** 建立目前 Form 使用的 Adapter，支援 Feature 基礎流程與 Spec-only 流程 */
+const buildTemplateAdapter = <TSet, TAdapter, TRefs, TRawData, TActionOpt>(
+    template: ServerFormTemplate<TSet, TAdapter, TRefs, TRawData, TActionOpt>,
+): TAdapter =>
+{
+    assertTemplateTiming(template);
+    if (template.feature)
+    {
+        const featureAdapter = template.feature.buildAdapter();
+        return template.spec?.extendAdapter?.(featureAdapter) ?? featureAdapter;
+    }
+
+    const specAdapter = template.spec?.buildAdapter?.();
+    if (specAdapter !== undefined) return specAdapter;
+    throw buildMissingTimingError(template.featureKey, "feature.buildAdapter 或 spec.buildAdapter");
+};
+
+
+/** 取得主資料 Adapter，Spec 可覆寫 Feature 的結果，也可獨立提供 Spec-only Adapter */
+const selectTemplateDataAdapter = <TSet, TAdapter, TRefs, TRawData, TActionOpt>(
+    template: ServerFormTemplate<TSet, TAdapter, TRefs, TRawData, TActionOpt>,
+    adapter: TAdapter,
+): ServerFormDataAdapter<TSet> =>
+{
+    const featureAdapter = template.feature
+        ? template.feature.selectDataAdapter?.(adapter) ?? (adapter as ServerFormDataAdapter<TSet>)
+        : undefined;
+    return template.spec?.selectDataAdapter?.(adapter, featureAdapter) ?? featureAdapter ?? (adapter as ServerFormDataAdapter<TSet>);
+};
+
+
+/** 建立表單模式，Feature 先建立基準，Spec 可在後續覆寫 */
+const resolveTemplateMode = <TSet, TAdapter, TRefs, TRawData, TActionOpt>(
+    template: ServerFormTemplate<TSet, TAdapter, TRefs, TRawData, TActionOpt>,
+    ctx: ServerFormModeContext<TSet, TActionOpt>,
+): ApiFormMode =>
+{
+    const defaultMode: ApiFormMode = ctx.internalId ? "edit" : "new";
+    const featureMode = template.feature?.resolveMode?.(ctx) ?? defaultMode;
+    return template.spec?.resolveMode?.(ctx, featureMode) ?? featureMode;
+};
+
+
+/** 建立後台卡片標題，必須由 Feature 或 Spec 的 timing 明確提供 */
+const buildTemplateTitle = <TSet, TAdapter, TRefs, TRawData, TActionOpt>(
+    template: ServerFormTemplate<TSet, TAdapter, TRefs, TRawData, TActionOpt>,
+    ctx: ServerFormTitleContext<TSet, TActionOpt>,
+): string =>
+{
+    const featureTitle = template.feature?.buildTitle(ctx);
+    const specTitle = template.spec?.buildTitle?.(ctx, featureTitle);
+    const title = specTitle ?? featureTitle;
+    if (title !== undefined) return title;
+    throw buildMissingTimingError(template.featureKey, "feature.buildTitle 或 spec.buildTitle");
+};
+
+
+/** 建立 QueryForm initial，必須由 Feature 或 Spec 的 timing 明確提供 */
+const buildTemplateInitial = <TSet, TAdapter, TRefs, TRawData, TActionOpt>(
+    template: ServerFormTemplate<TSet, TAdapter, TRefs, TRawData, TActionOpt>,
+    ctx: ServerFormDataSourceContext<TSet, TAdapter, TActionOpt>,
+): ApiFormInitial<TSet> | undefined =>
+{
+    const hasSpecInitial = Boolean(template.spec?.buildInitialData);
+    if (!template.feature && !hasSpecInitial) throw buildMissingTimingError(template.featureKey, "feature.buildInitialData 或 spec.buildInitialData");
+
+    const featureInitial = template.feature?.buildInitialData(ctx);
+    return hasSpecInitial ? template.spec?.buildInitialData?.(ctx, featureInitial) : featureInitial;
+};
+
+
+/** 將 QueryFormData 結果同步成可編輯 Binding */
+const useEditableFormBinding = <TSet>(
+    opt: { source: ReturnType<ApiDataHookGroup<TSet>["useQueryFormData"]>; emptyData: TSet; mode: ApiFormMode; },
+): ServerFormBinding<TSet> =>
+{
+    const [data, setFormData] = useState<TSet>(opt.emptyData);
+    useEffect(() =>
+    {
+        if (opt.source.data) setFormData(opt.source.data);
+        else if (opt.mode === "new") setFormData(opt.emptyData);
+    }, [opt.source.data, opt.mode, opt.emptyData]);
+
+    return {
+        data,
+        setFormData,
+        isLoading: opt.source.isLoading,
+        error: opt.source.errorText,
+        refetch: () => void opt.source.refetchData(),
+        displayName: opt.source.modelDisplayName ?? emptyDisplayName,
+    };
+};
+
+
+/** 建立預設參照資料結果，避免沒有 refs 時 Header / Detail 取值爆掉 */
+const buildEmptyReferenceResult = <TRefs>(): ServerFormReferenceResult<TRefs> =>
+{
+    return { refs: emptyRefs as TRefs, isLoading: false, errors: [], refetchRefData: undefined };
+};
+
+
+/** 建立 Feature 參照資料，沒有 Feature 時回傳空參照 */
+const useFeatureReferenceData = <TSet, TAdapter, TRefs, TRawData, TActionOpt>(
+    template: ServerFormTemplate<TSet, TAdapter, TRefs, TRawData, TActionOpt>,
+    ctx: ServerFormReferenceContext<TSet, TAdapter, TActionOpt, TRefs>,
+): ServerFormReferenceResult<TRefs> =>
+{
+    return template.feature?.useReferenceData?.(ctx) ?? buildEmptyReferenceResult<TRefs>();
+};
+
+
+/** 建立 Spec 參照資料，Feature + Spec 時可取得 featureRefs */
+const useSpecReferenceData = <TSet, TAdapter, TRefs, TRawData, TActionOpt>(
+    template: ServerFormTemplate<TSet, TAdapter, TRefs, TRawData, TActionOpt>,
+    ctx: ServerFormReferenceContext<TSet, TAdapter, TActionOpt, TRefs>,
+): ServerFormReferenceResult<TRefs> | null =>
+{
+    return template.spec?.useReferenceData?.(ctx) ?? null;
+};
+
+
+/** 建立儲存成功後的 callback，執行順序固定為 Feature 先、Spec 後 */
+const buildTemplateSuccessActions = <TSet, TAdapter, TRefs, TRawData, TActionOpt>(
+    template: ServerFormTemplate<TSet, TAdapter, TRefs, TRawData, TActionOpt>,
+    ctx: ServerFormReferenceContext<TSet, TAdapter, TActionOpt, TRefs>,
+): Partial<Record<ServerActionMode, () => void | Promise<void>>> =>
+{
+    const featureActions = template.feature?.buildSuccessActions?.(ctx) ?? {};
+    return template.spec?.buildSuccessActions?.(ctx, featureActions) ?? featureActions;
+};
+
+
+/** 建立預設成功 callback，若未客製則 CUD 成功後返回清單 */
+const buildDefaultSuccessActions = <TActionOpt>(actionsOpt: TActionOpt): Partial<Record<ServerActionMode, () => void | Promise<void>>> =>
+{
+    const back = (actionsOpt as ServerFormBaseActionOptions | undefined)?.onBackToList;
+    if (!back) return {};
+    return { create: back, update: back, delete: back };
+};
+
+
+/** 建立預設 Form Toolbar Actions */
+const useDefaultFormActions = <TSet, TActionOpt>(
+    opt: { mode: ApiFormMode; internalId: string; binding: ServerFormBinding<TSet>; serverActions: UseServerActionsResult<TSet>; actionsOpt: TActionOpt; },
+): ServerFormActions =>
+{
+    const save = useCallback(async () =>
+    {
+        if (opt.mode === "new") await opt.serverActions.createAsync(opt.binding.data);
+        else await opt.serverActions.updateAsync(opt.internalId, opt.binding.data);
+    }, [opt.mode, opt.internalId, opt.binding.data, opt.serverActions]);
+
+    const deleteData = useCallback(async () =>
+    {
+        if (!opt.internalId) return;
+        await opt.serverActions.deleteAsync(opt.internalId);
+    }, [opt.internalId, opt.serverActions]);
+
+    return {
+        Save: save,
+        Delete: deleteData,
+        Back: (opt.actionsOpt as ServerFormBaseActionOptions).onBackToList,
+        Preview: (opt.actionsOpt as ServerFormBaseActionOptions).onPreview,
+        IsSaving: opt.serverActions.isSaving,
+    };
+};
+
+
+/** 建立最終 Actions，執行順序固定為 Feature 先、Spec 後 */
+const buildTemplateActions = <TSet, TAdapter, TRefs, TRawData, TActionOpt>(
+    template: ServerFormTemplate<TSet, TAdapter, TRefs, TRawData, TActionOpt>,
+    ctx: ServerFormActionContext<TSet, TAdapter, TRefs, TRawData, TActionOpt>,
+): ServerFormActions =>
+{
+    const featureActions = template.feature?.buildActions?.(ctx, ctx.defaultActions) ?? ctx.defaultActions;
+    return template.spec?.buildActions?.(ctx, featureActions) ?? featureActions;
+};
+
+
+/** 建立預設 rawData，讓新模板與舊 Form 寫法都能銜接 */
+const buildDefaultRawData = <TSet, TRefs, TRawData>(ctx: ServerFormRawDataContext<TSet, unknown, TRefs, unknown>): TRawData =>
+{
+    return { formData: ctx.binding, refs: ctx.refs, actions: ctx.actions } as TRawData;
+};
+
+
+/** 建立最終 rawData，執行順序固定為 Feature 先、Spec 後 */
+const buildTemplateRawData = <TSet, TAdapter, TRefs, TRawData, TActionOpt>(
+    template: ServerFormTemplate<TSet, TAdapter, TRefs, TRawData, TActionOpt>,
+    ctx: ServerFormRawDataContext<TSet, TAdapter, TRefs, TActionOpt>,
+): TRawData =>
+{
+    const featureRaw = template.feature?.buildRawData?.(ctx) ?? buildDefaultRawData<TSet, TRefs, TRawData>(ctx);
+    return template.spec?.buildRawData?.(ctx, featureRaw) ?? featureRaw;
+};
+
+
+/** 建立預設 FormCompProp */
+const buildDefaultFormProp = <TSet, TActionOpt>(
+    template: ServerFormTemplateBase<TSet, TActionOpt>,
+    ctx: { title: string; isLoading: boolean; errors: string[]; actions: ServerFormActions; },
+): FormCompProp =>
+{
+    return { Title: ctx.title, Theme: template.theme, IsLoading: ctx.isLoading, ErrorList: ctx.errors, Actions: ctx.actions };
+};
+
+
+/** 建立最終 FormCompProp，執行順序固定為 Feature 先、Spec 後 */
+const buildTemplateFormProp = <TSet, TAdapter, TRefs, TRawData, TActionOpt>(
+    template: ServerFormTemplate<TSet, TAdapter, TRefs, TRawData, TActionOpt>,
+    ctx: ServerFormPropContext<TSet, TAdapter, TRefs, TRawData, TActionOpt> & { title: string; },
+): FormCompProp =>
+{
+    const baseProp = buildDefaultFormProp(template, { title: ctx.title, isLoading: ctx.isLoading, errors: ctx.errors, actions: ctx.actions });
+    const featureProp = template.feature?.buildFormProp?.(ctx, baseProp) ?? baseProp;
+    return template.spec?.buildFormProp?.(ctx, featureProp) ?? featureProp;
+};
+
+
+/** 正規化錯誤訊息，移除空字串與 null */
+const normalizeErrors = (errors: (string | null | undefined)[]): string[] =>
+{
+    return errors.filter((item): item is string => Boolean(item));
+};
+
+
+/** 建立重新查詢參照資料的固定動作 */
+const useReferenceRefetch = <TRefs>(featureRefs: ServerFormReferenceResult<TRefs>, specRefs: ServerFormReferenceResult<TRefs> | null): ServerFormRefetch =>
+{
+    return useCallback(async () =>
+    {
+        await featureRefs.refetchRefData?.();
+        await specRefs?.refetchRefData?.();
+    }, [featureRefs, specRefs]);
+};
+// #endregion

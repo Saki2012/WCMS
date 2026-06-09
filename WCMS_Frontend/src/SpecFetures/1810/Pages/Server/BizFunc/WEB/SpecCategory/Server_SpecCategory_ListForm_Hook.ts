@@ -13,8 +13,12 @@ import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { AccountFields, PGID, SpecCategoryDetailModelFields, SpecCategoryModelFields } from "@/types/SchemaFields";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
+
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"];
+
 
 type SpecCategoryListFormRawData = {
     editForm: UseFetchFormDataResult<SpecCategorySet>;
@@ -24,7 +28,9 @@ type SpecCategoryListFormRawData = {
     showCols: Record<string, string>;
 };
 
+
 type SpecCategoryListFormAdapter = { SpecCategory: ReturnType<typeof SpecCategoryAdapter>; };
+// #endregion
 
 // #region Public
 export const useSpecCategoryListFormFetchData = (
@@ -146,6 +152,7 @@ const useSpecCategoryListFormDataByAdapter = (
     };
 };
 
+
 const useSpecCategoryListFormActionsFromAdapter = (
     dirUrl: string,
     adapter: ReturnType<typeof SpecCategoryAdapter>,
@@ -229,6 +236,7 @@ const useSpecCategoryListFormActionsFromAdapter = (
         {},
     }), [server.isSaving, onSave, onDelete, onCancelBack, onAddNew, onEdit]);
 };
+
 
 const useSpecCategoryListQueryParam = (p: { lang: Lang; pgId: PGID; }): QueryListParam =>
 {

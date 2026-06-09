@@ -23,6 +23,7 @@ import {
 // #region Property
 type BannerSet = components["schemas"]["BannerSet_DTO"];
 
+
 interface BannerSliderFormCompProps
 {
     /** 後台主題設定 */
@@ -31,6 +32,7 @@ interface BannerSliderFormCompProps
     /** 目前語系 */
     lang: Lang;
 }
+
 
 interface BannerContentProps
 {
@@ -47,6 +49,7 @@ interface BannerContentProps
     refs: BannerSliderFormRefs;
 }
 
+
 interface HeaderSectionProps
 {
     /** 後台主題設定 */
@@ -56,9 +59,11 @@ interface HeaderSectionProps
     binding: ServerFormBinding<BannerSet>;
 }
 
+
 interface DetailSectionProps extends BannerContentProps
 {
 }
+
 
 interface DetailInfoSubDetailProps extends BannerContentProps
 {
@@ -68,6 +73,7 @@ interface DetailInfoSubDetailProps extends BannerContentProps
     /** 子明細編輯狀態變化 */
     onEditingStateChange: (args: EditGridEditingStateArgs) => void;
 }
+
 
 const editGridStyle: IEditGridView_Style = {
     TableStyle: "table table-striped table-bordered table-hover",
@@ -140,6 +146,7 @@ const BannerContentComp = (props: BannerContentProps) =>
     );
 };
 
+
 /** 表頭設定區塊，維持既有 Header input 綁定方式。 */
 const HeaderSectionComp = (props: HeaderSectionProps) =>
 {
@@ -188,6 +195,7 @@ const HeaderSectionComp = (props: HeaderSectionProps) =>
     );
 };
 
+
 /** 圖片明細 Grid，透過眼睛按鈕展開該列的語系子明細。 */
 const DetailSectionComp = (props: DetailSectionProps) =>
 {
@@ -229,6 +237,7 @@ const DetailSectionComp = (props: DetailSectionProps) =>
     );
 };
 
+
 /** 語系子明細 Grid：固定由系統語系產生，不開放新增或刪除。 */
 const DetailInfoSubDetailGridComp = (props: DetailInfoSubDetailProps) =>
 {
@@ -253,6 +262,14 @@ const DetailInfoSubDetailGridComp = (props: DetailInfoSubDetailProps) =>
 // #endregion
 
 // #region EntityComp
+/** 建立返回列表路徑，維持舊 Form 的 /Form -> /List 規則。 */
+const buildBackToListPath = (pathname: string): string =>
+{
+    return pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
+};
+// #endregion
+
+// #region Private
 /** 圖片預覽元件，沒有圖片時以文字提示避免破圖。 */
 const BannerPicturePreview = (props: { value: EditGridCellValue; }) =>
 {
@@ -264,6 +281,7 @@ const BannerPicturePreview = (props: { value: EditGridCellValue; }) =>
 
     return <img src={previewUrl} alt={altText} style={{ display: "block", maxWidth: "12rem", maxHeight: "6rem", objectFit: "contain" }} />;
 };
+
 
 /** 語系明細展開按鈕，避免把子 Grid 直接塞在同一欄位。 */
 const SubDetailToggleButton = (props: { row: GridRow; expandedRowKey: string | null; isSubDetailEditing: boolean; onToggle: (row: GridRow) => void; }) =>
@@ -279,14 +297,7 @@ const SubDetailToggleButton = (props: { row: GridRow; expandedRowKey: string | n
         </button>
     );
 };
-// #endregion
 
-// #region Private
-/** 建立返回列表路徑，維持舊 Form 的 /Form -> /List 規則。 */
-const buildBackToListPath = (pathname: string): string =>
-{
-    return pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
-};
 
 /** 取得 Grid Row key，讓主 Grid 與子明細展開狀態一致。 */
 const getBannerGridRowKey = (row: GridRow): string =>

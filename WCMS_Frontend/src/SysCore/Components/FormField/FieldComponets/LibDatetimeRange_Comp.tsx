@@ -2,7 +2,9 @@ import { format, isValid, parse } from "date-fns";
 import { useEffect, useId, useState } from "react";
 import type { ILibTextBoxStyle } from "./LibTextBox_Data";
 
+// #region Property
 export type LibDatetimeValueType = "DateTime" | "DateOnly" | "TimeOnly";
+
 
 export interface ILibDatetimeRangeProp
 {
@@ -21,9 +23,12 @@ export interface ILibDatetimeRangeProp
     onChangeEnd?: (value: string | null) => void;
 }
 
+
 // ---- parse / format 工具 ----
 const DATE_FORMATS = ["yyyy/MM/dd", "yyyy/M/d", "yyyy-MM-dd", "yyyy-M-d", "yyyy.MM.dd", "yyyy.M.d", "yyyyMMdd"] as const;
+
 const TIME_FORMATS = ["HH:mm", "H:mm", "HHmm", "HH:mm:ss"] as const;
+
 const DATETIME_FORMATS = [
     "yyyy/MM/dd HH:mm",
     "yyyy/MM/dd HH:mm:ss",
@@ -32,6 +37,25 @@ const DATETIME_FORMATS = [
     "yyyy.MM.dd HH:mm",
     "yyyy.MM.dd HH:mm:ss",
 ] as const;
+// #endregion
+
+// #region EntityComp
+const buildPlaceholder = (kind: LibDatetimeValueType): string =>
+{
+    switch (kind)
+    {
+        case "TimeOnly":
+            return "HH:mm";
+        case "DateTime":
+            return "YYYY/MM/DD HH:mm";
+        case "DateOnly":
+        default:
+            return "YYYY/MM/DD";
+    }
+};
+// #endregion
+
+// #region Private
 const parseByType = (raw: string, kind: LibDatetimeValueType): Date | null =>
 {
     const v = (raw || "").trim();
@@ -66,6 +90,7 @@ const parseByType = (raw: string, kind: LibDatetimeValueType): Date | null =>
     }
     return null;
 };
+
 const formatByType = (d: Date, kind: LibDatetimeValueType): string =>
 {
     switch (kind)
@@ -80,19 +105,6 @@ const formatByType = (d: Date, kind: LibDatetimeValueType): string =>
     }
 };
 
-const buildPlaceholder = (kind: LibDatetimeValueType): string =>
-{
-    switch (kind)
-    {
-        case "TimeOnly":
-            return "HH:mm";
-        case "DateTime":
-            return "YYYY/MM/DD HH:mm";
-        case "DateOnly":
-        default:
-            return "YYYY/MM/DD";
-    }
-};
 
 const LibDatetimeRange = (prop: ILibDatetimeRangeProp) =>
 {
@@ -240,4 +252,6 @@ const LibDatetimeRange = (prop: ILibDatetimeRangeProp) =>
     );
 };
 
+
 export default LibDatetimeRange;
+// #endregion

@@ -6,18 +6,37 @@ import type { AxiosInstance } from "axios";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { LoaderFunctionArgs } from "react-router-dom";
 
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 export type EffectDeps = ReadonlyArray<string | number | boolean | object | null | undefined>;
+
 export type ServerFormActions = { Save: () => Promise<void>; Delete: () => Promise<void>; Back: () => void; Preview?: () => void; IsSaving?: boolean; };
+
 export type ApiLoaderData<TArgs, TData> = { args: TArgs; apiRes: ApiResponse<TData>; };
+
 export type ApiGridLoaderData<TSet> = {
     model: ApiLoaderData<null, ModelDisplaySchema[]>;
     count: ApiLoaderData<QueryListParam, number>;
     list: ApiLoaderData<QueryListParam, TSet[]>;
 };
+
 export type ApiAdapterError = { messageText: string; sysMessages: SysMessageModel[]; httpStatus?: number; action?: string; };
+
+export type ApiActionOptions<TService, TArgs, TData> = {
+    action: string;
+    fallbackError: string;
+    call: (svc: TService, args: TArgs) => Promise<ApiResponse<TData>>;
+    apiInstance?: AxiosInstance;
+    onSuccess?: (res: ApiResponse<TData>) => void | Promise<void>;
+    onError?: (err: ApiAdapterError) => void;
+};
+
+export type ApiActionResult<TArgs, TData> = { execute: (args: TArgs) => Promise<ApiResponse<TData>>; isLoading: boolean; apiRes: ApiResponse<TData> | null; };
+
 /** 後台標準動作：用來區分成功後是哪個 action */
 export type ServerActionMode = "create" | "update" | "delete" | "invalid";
+
 export type UseServerActionsResult<TSet> = {
     isSaving: boolean;
     createAsync: (data: TSet) => Promise<ApiResponse<TSet>>;
@@ -25,6 +44,7 @@ export type UseServerActionsResult<TSet> = {
     deleteAsync: (internalId: string) => Promise<ApiResponse<TSet>>;
     invalidAsync: (internalId: string, isInvalid: boolean) => Promise<ApiResponse<TSet>>;
 };
+
 /** useServerActions 的可選參數：完全不傳也可（只做 toast） */
 export type UseServerActionsOptions = {
     apiInstance?: AxiosInstance;
@@ -33,122 +53,196 @@ export type UseServerActionsOptions = {
     confirmDelete?: (internalId: string) => Promise<boolean> | boolean;
 };
 
-// -------------------------
-// 共用小工具（不依賴 class 狀態）
-// -------------------------
-const parseHttpStatus = (sysMessages: SysMessageModel[]): number | undefined =>
-{
-    const code = sysMessages.find(m => (m?.MessageCode ?? "").startsWith("Http Error "))?.MessageCode ?? "";
-    const match = /Http Error\s+(\d+)/i.exec(code);
-    if (!match) return undefined;
-    const n = Number(match[1]);
-    return Number.isFinite(n) ? n : undefined;
-};
-const toMessageText = (sysMessages: SysMessageModel[], fallback: string): string =>
-{
-    const texts = sysMessages.map(m => `${m?.MessageCode ?? ""}:${m?.Message ?? ""}`.trim()).filter(s => s.length > 0);
-    return texts.length > 0 ? texts.join("；") : fallback;
-};
-const buildError = (apiRes: ApiResponse<unknown>, fallback: string, action?: string): ApiAdapterError =>
-{
-    const sysMessages = apiRes?.SysMessage ?? [];
-    return { messageText: toMessageText(sysMessages, fallback), sysMessages, httpStatus: parseHttpStatus(sysMessages), action };
-};
-const isOk = <T>(apiRes: ApiResponse<T>): apiRes is ApiResponse<T> & { IsSuccess: true; Data: T; } =>
-{
-    return Boolean(apiRes?.IsSuccess) && apiRes.Data !== null && apiRes.Data !== undefined;
-};
 type MaybeArray<T> = T | ReadonlyArray<T>;
 
-/** 兼容舊版：QueryData 可能回傳 Data 為陣列（只取第一筆） */
-const normalizeOneData = <T>(apiRes: ApiResponse<T>): ApiResponse<T> =>
-{
-    // 宣告變數
-    const raw = apiRes?.Data as MaybeArray<T> | null | undefined;
-    const isArray = Array.isArray(raw);
+// ============================================================================
+// 2) ApiDataAdapter（資料型共用：Query/Count/Data + CUD hooks）
+// ============================================================================
 
-    // return
-    if (!isArray) return apiRes;
-    return { ...apiRes, Data: (raw as ReadonlyArray<T>)[0] ?? null };
+export interface ApiDataService<TSet>
+{
+    getModelDisplayName: () => Promise<ApiResponse<ModelDisplaySchema[]>>;
+    queryData: (internalId: string) => Promise<ApiResponse<TSet>>;
+    queryList: (condition: QueryListParam) => Promise<ApiResponse<TSet[]>>;
+    queryCount: (condition: QueryListParam) => Promise<ApiResponse<number>>;
+
+    create?: (data: TSet) => Promise<ApiResponse<TSet>>;
+    update?: (internalId: string, data: TSet) => Promise<ApiResponse<TSet>>;
+    delete?: (internalId: string) => Promise<ApiResponse<TSet>>;
+    invalid?: (internalId: string, isInvalid: boolean) => Promise<ApiResponse<TSet>>;
+}
+
+export type ApiDataLoaderGroup<TSet> = {
+    createModelDisplayNameLoader: (
+        opt?: { getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; },
+    ) => (args: LoaderFunctionArgs) => Promise<ApiLoaderData<null, ModelDisplaySchema[]>>;
+
+    createQueryListLoader: (
+        opt: { getCondition: (args: LoaderFunctionArgs) => QueryListParam; getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; },
+    ) => (args: LoaderFunctionArgs) => Promise<ApiLoaderData<QueryListParam, TSet[]>>;
+
+    createQueryCountLoader: (
+        opt: { getCondition: (args: LoaderFunctionArgs) => QueryListParam; getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; },
+    ) => (args: LoaderFunctionArgs) => Promise<ApiLoaderData<QueryListParam, number>>;
+
+    createQueryDataLoader: (
+        opt: { getInternalId: (args: LoaderFunctionArgs) => string; getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; },
+    ) => (args: LoaderFunctionArgs) => Promise<ApiLoaderData<string, TSet>>;
+    createQueryGridDataLoader: (
+        opt: { getCondition: (args: LoaderFunctionArgs) => QueryListParam; getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; },
+    ) => (args: LoaderFunctionArgs) => Promise<ApiGridLoaderData<TSet>>;
 };
 
-/** 將 API 初始資料轉成穩定快照，避免每次 render 產生新物件時重複 setState。 */
-const toStableSnapshotText = (value: unknown): string =>
-{
-    const seen = new WeakSet<object>();
+export type ApiGridInitial<TSet> = {
+    model?: ApiLoaderData<null, ModelDisplaySchema[]> | null;
+    count?: ApiLoaderData<QueryListParam, number> | null;
+    list?: ApiLoaderData<QueryListParam, TSet[]> | null;
+};
 
-    /** 遞迴整理快照資料，物件 key 排序後再 stringify。 */
-    const normalize = (input: unknown): unknown =>
-    {
-        if (input === null || input === undefined) return input;
-        if (typeof input !== "object") return input;
-        if (input instanceof Date) return input.toISOString();
-        if (isBrowserFile(input)) return buildBrowserFileSnapshot(input);
-        if (seen.has(input)) return "[Circular]";
+export type ApiFormInitial<TSet> = { model?: ApiLoaderData<null, ModelDisplaySchema[]> | null; data?: ApiLoaderData<string, TSet> | null; };
 
-        seen.add(input);
+export type ApiFormMode = "new" | "edit";
 
-        if (Array.isArray(input)) return input.map(normalize);
-
-        return Object.keys(input as Record<string, unknown>).sort().reduce<Record<string, unknown>>((snapshot, key) =>
-        {
-            const item = (input as Record<string, unknown>)[key];
-            if (typeof item === "function") return snapshot;
-
-            snapshot[key] = normalize(item);
-            return snapshot;
-        }, {});
+export type ApiDataHookGroup<TSet> = {
+    useModelDisplayName: (
+        opt?: {
+            initial?: ApiLoaderData<null, ModelDisplaySchema[]> | null;
+            deps?: EffectDeps;
+            onError?: (err: ApiAdapterError) => void;
+            apiInstance?: AxiosInstance;
+        },
+    ) => {
+        data: ModelDisplaySchema | null;
+        apiRes: ApiResponse<ModelDisplaySchema[]> | null;
+        isLoading: boolean;
+        errorText: string | null;
+        refetch: () => Promise<void>;
     };
 
-    try
-    {
-        return JSON.stringify(normalize(value));
-    } catch
-    {
-        return String(value);
-    }
+    useQueryList: (
+        opt: {
+            condition: QueryListParam;
+            initial?: ApiLoaderData<QueryListParam, TSet[]> | null;
+            deps: EffectDeps;
+            onError?: (err: ApiAdapterError) => void;
+            apiInstance?: AxiosInstance;
+        },
+    ) => { data: TSet[]; apiRes: ApiResponse<TSet[]> | null; isLoading: boolean; errorText: string | null; refetch: () => Promise<void>; };
+
+    useQueryCount: (
+        opt: {
+            condition: QueryListParam;
+            initial?: ApiLoaderData<QueryListParam, number> | null;
+            deps: EffectDeps;
+            onError?: (err: ApiAdapterError) => void;
+            apiInstance?: AxiosInstance;
+        },
+    ) => { data: number; apiRes: ApiResponse<number> | null; isLoading: boolean; errorText: string | null; refetch: () => Promise<void>; };
+
+    usePagedQueryList: (
+        opt: {
+            baseParam: QueryListParam;
+            count: number;
+            initial?: ApiLoaderData<QueryListParam, TSet[]> | null;
+            deps: EffectDeps;
+            onError?: (err: ApiAdapterError) => void;
+            apiInstance?: AxiosInstance;
+        },
+    ) => {
+        data: TSet[];
+        apiRes: ApiResponse<TSet[]> | null;
+        isLoading: boolean;
+        errorText: string | null;
+        refetch: () => Promise<void>;
+
+        pageNumber: number;
+        totalPages: number;
+        onPageChange: (page: number) => void;
+        // 方便外部 debug/取用
+        param: QueryListParam;
+    };
+
+    useQueryData: (
+        opt: {
+            internalId: string;
+            initial?: ApiLoaderData<string, TSet> | null;
+            deps: EffectDeps;
+            onError?: (err: ApiAdapterError) => void;
+            apiInstance?: AxiosInstance;
+        },
+    ) => { data: TSet | null; apiRes: ApiResponse<TSet> | null; isLoading: boolean; errorText: string | null; refetch: () => Promise<void>; };
+
+    useCudActions: (
+        opt?: { onError?: (err: ApiAdapterError) => void; apiInstance?: AxiosInstance; },
+    ) => {
+        isSaving: boolean;
+        createAsync: (data: TSet) => Promise<ApiResponse<TSet>>;
+        updateAsync: (internalId: string, data: TSet) => Promise<ApiResponse<TSet>>;
+        deleteAsync: (internalId: string) => Promise<ApiResponse<TSet>>;
+        invalidAsync: (internalId: string, isInvalid: boolean) => Promise<ApiResponse<TSet>>;
+    };
+    useQueryGridData: (
+        opt: {
+            baseParam: QueryListParam;
+            deps: EffectDeps;
+            modelDeps?: EffectDeps;
+            initial?: ApiGridInitial<TSet>;
+            onError?: (err: ApiAdapterError) => void;
+            apiInstance?: AxiosInstance;
+        },
+    ) => {
+        modelDisplayName: ModelDisplaySchema | null;
+        count: number;
+        list: TSet[];
+        isLoading: boolean;
+        errors: string[];
+        errorText: string | null;
+        refetchData: () => Promise<void>;
+        pageNumber: number;
+        totalPages: number;
+        onPageChange: (page: number) => void;
+        param: QueryListParam;
+    };
+
+    useQueryFormData: (
+        opt: {
+            mode: ApiFormMode;
+            internalId?: string;
+            empty?: TSet;
+            deps: EffectDeps;
+            modelDeps?: EffectDeps;
+            initial?: ApiFormInitial<TSet>;
+            onError?: (err: ApiAdapterError) => void;
+            apiInstance?: AxiosInstance;
+        },
+    ) => {
+        modelDisplayName: ModelDisplaySchema | null;
+        data: TSet | null;
+        isLoading: boolean;
+        errors: string[];
+        errorText: string | null;
+        refetchData: () => Promise<void>;
+    };
 };
+// #endregion
 
-/** 判斷是否為瀏覽器 File，SSR 環境不直接取用 File 避免錯誤。 */
-const isBrowserFile = (value: unknown): value is File =>
-{
-    return typeof File !== "undefined" && value instanceof File;
-};
-
-/** 建立 File 快照，避免把整個 File 物件放進 JSON.stringify。 */
-const buildBrowserFileSnapshot = (file: File): Record<string, string | number> =>
-{
-    return { name: file.name, size: file.size, type: file.type, lastModified: file.lastModified };
-};
-
-/** 建立 ApiResponse 快照，供 setState 前判斷資料是否真的變更。 */
-const buildApiResponseSnapshotText = <T>(apiRes: ApiResponse<T> | null | undefined): string =>
-{
-    if (!apiRes) return "";
-
-    return toStableSnapshotText({ IsSuccess: apiRes.IsSuccess, Data: apiRes.Data, SysMessage: apiRes.SysMessage });
-};
-
-/** 建立 Loader initial 快照，避免 initial object 每次重建造成 useEffect 循環。 */
-const buildApiLoaderDataSnapshotText = <TArgs, TData>(initial: ApiLoaderData<TArgs, TData> | null | undefined): string =>
-{
-    if (!initial) return "";
-
-    return toStableSnapshotText({ args: initial.args, apiRes: initial.apiRes });
-};
-
+// #region Public
 // ============================================================================
 // 1) ApiBaseAdapter（只有共用底，不綁定「資料型共用 API」）
 // ============================================================================
 export class ApiBaseAdapter<TService>
 {
+    // #region Property
     protected readonly createService: (apiInstance?: AxiosInstance) => TService;
+    // #endregion
 
+    // #region Public
     constructor(createService: (apiInstance?: AxiosInstance) => TService)
     {
         // 宣告變數
         this.createService = createService;
     }
+
     protected getService(apiInstance?: AxiosInstance): TService
     {
         // return
@@ -261,211 +355,66 @@ export class ApiBaseAdapter<TService>
         }, [...opt.deps, initialSnapshotText]);
         return { data, apiRes: apiRes, isLoading, errorText, refetch: fetchAsync };
     }
+
+    /** 封裝手動觸發的 API action，例如修改密碼、重置密碼。 */
+    protected useApiAction<TArgs, TData>(opt: ApiActionOptions<TService, TArgs, TData>): ApiActionResult<TArgs, TData>
+    {
+        // 宣告變數
+        const [isLoading, setIsLoading] = useState<boolean>(false);
+        const [apiRes, setApiRes] = useState<ApiResponse<TData> | null>(null);
+        const svc = useMemo(() => this.getService(opt.apiInstance), [opt.apiInstance]);
+        const execute = useCallback(async (args: TArgs): Promise<ApiResponse<TData>> =>
+        {
+            // 執行 function：呼叫 API action 並統一處理 loading / callback。
+            setIsLoading(true);
+            try
+            {
+                const res = await opt.call(svc, args);
+                setApiRes(res);
+                if (!res.IsSuccess)
+                {
+                    opt.onError?.(buildError(res, opt.fallbackError, opt.action));
+                } else
+                {
+                    await opt.onSuccess?.(res);
+                }
+                return res;
+            } finally
+            {
+                setIsLoading(false);
+            }
+        }, [svc, opt.call, opt.action, opt.fallbackError, opt.onError, opt.onSuccess]);
+        return { execute, isLoading, apiRes };
+    }
+    // #endregion
 }
-
-// ============================================================================
-// 2) ApiDataAdapter（資料型共用：Query/Count/Data + CUD hooks）
-// ============================================================================
-
-export interface ApiDataService<TSet>
-{
-    getModelDisplayName: () => Promise<ApiResponse<ModelDisplaySchema[]>>;
-    queryData: (internalId: string) => Promise<ApiResponse<TSet>>;
-    queryList: (condition: QueryListParam) => Promise<ApiResponse<TSet[]>>;
-    queryCount: (condition: QueryListParam) => Promise<ApiResponse<number>>;
-
-    create?: (data: TSet) => Promise<ApiResponse<TSet>>;
-    update?: (internalId: string, data: TSet) => Promise<ApiResponse<TSet>>;
-    delete?: (internalId: string) => Promise<ApiResponse<TSet>>;
-    invalid?: (internalId: string, isInvalid: boolean) => Promise<ApiResponse<TSet>>;
-}
-
-export type ApiDataLoaderGroup<TSet> = {
-    // #region Basic Loader Func
-    createModelDisplayNameLoader: (
-        opt?: { getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; },
-    ) => (args: LoaderFunctionArgs) => Promise<ApiLoaderData<null, ModelDisplaySchema[]>>;
-
-    createQueryListLoader: (
-        opt: { getCondition: (args: LoaderFunctionArgs) => QueryListParam; getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; },
-    ) => (args: LoaderFunctionArgs) => Promise<ApiLoaderData<QueryListParam, TSet[]>>;
-
-    createQueryCountLoader: (
-        opt: { getCondition: (args: LoaderFunctionArgs) => QueryListParam; getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; },
-    ) => (args: LoaderFunctionArgs) => Promise<ApiLoaderData<QueryListParam, number>>;
-
-    createQueryDataLoader: (
-        opt: { getInternalId: (args: LoaderFunctionArgs) => string; getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; },
-    ) => (args: LoaderFunctionArgs) => Promise<ApiLoaderData<string, TSet>>;
-    // #endregion
-    // #region Advance Loader Func
-    createQueryGridDataLoader: (
-        opt: { getCondition: (args: LoaderFunctionArgs) => QueryListParam; getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; },
-    ) => (args: LoaderFunctionArgs) => Promise<ApiGridLoaderData<TSet>>;
-    // #endregion
-};
-export type ApiGridInitial<TSet> = {
-    model?: ApiLoaderData<null, ModelDisplaySchema[]> | null;
-    count?: ApiLoaderData<QueryListParam, number> | null;
-    list?: ApiLoaderData<QueryListParam, TSet[]> | null;
-};
-
-export type ApiFormInitial<TSet> = { model?: ApiLoaderData<null, ModelDisplaySchema[]> | null; data?: ApiLoaderData<string, TSet> | null; };
-
-export type ApiFormMode = "new" | "edit";
-export type ApiDataHookGroup<TSet> = {
-    // #region Basic API Hooks
-    useModelDisplayName: (
-        opt?: {
-            initial?: ApiLoaderData<null, ModelDisplaySchema[]> | null;
-            deps?: EffectDeps;
-            onError?: (err: ApiAdapterError) => void;
-            apiInstance?: AxiosInstance;
-        },
-    ) => {
-        data: ModelDisplaySchema | null;
-        apiRes: ApiResponse<ModelDisplaySchema[]> | null;
-        isLoading: boolean;
-        errorText: string | null;
-        refetch: () => Promise<void>;
-    };
-
-    useQueryList: (
-        opt: {
-            condition: QueryListParam;
-            initial?: ApiLoaderData<QueryListParam, TSet[]> | null;
-            deps: EffectDeps;
-            onError?: (err: ApiAdapterError) => void;
-            apiInstance?: AxiosInstance;
-        },
-    ) => { data: TSet[]; apiRes: ApiResponse<TSet[]> | null; isLoading: boolean; errorText: string | null; refetch: () => Promise<void>; };
-
-    useQueryCount: (
-        opt: {
-            condition: QueryListParam;
-            initial?: ApiLoaderData<QueryListParam, number> | null;
-            deps: EffectDeps;
-            onError?: (err: ApiAdapterError) => void;
-            apiInstance?: AxiosInstance;
-        },
-    ) => { data: number; apiRes: ApiResponse<number> | null; isLoading: boolean; errorText: string | null; refetch: () => Promise<void>; };
-
-    usePagedQueryList: (
-        opt: {
-            baseParam: QueryListParam;
-            count: number;
-            initial?: ApiLoaderData<QueryListParam, TSet[]> | null;
-            deps: EffectDeps;
-            onError?: (err: ApiAdapterError) => void;
-            apiInstance?: AxiosInstance;
-        },
-    ) => {
-        data: TSet[];
-        apiRes: ApiResponse<TSet[]> | null;
-        isLoading: boolean;
-        errorText: string | null;
-        refetch: () => Promise<void>;
-
-        pageNumber: number;
-        totalPages: number;
-        onPageChange: (page: number) => void;
-        // 方便外部 debug/取用
-        param: QueryListParam;
-    };
-
-    useQueryData: (
-        opt: {
-            internalId: string;
-            initial?: ApiLoaderData<string, TSet> | null;
-            deps: EffectDeps;
-            onError?: (err: ApiAdapterError) => void;
-            apiInstance?: AxiosInstance;
-        },
-    ) => { data: TSet | null; apiRes: ApiResponse<TSet> | null; isLoading: boolean; errorText: string | null; refetch: () => Promise<void>; };
-
-    useCudActions: (
-        opt?: { onError?: (err: ApiAdapterError) => void; apiInstance?: AxiosInstance; },
-    ) => {
-        isSaving: boolean;
-        createAsync: (data: TSet) => Promise<ApiResponse<TSet>>;
-        updateAsync: (internalId: string, data: TSet) => Promise<ApiResponse<TSet>>;
-        deleteAsync: (internalId: string) => Promise<ApiResponse<TSet>>;
-        invalidAsync: (internalId: string, isInvalid: boolean) => Promise<ApiResponse<TSet>>;
-    };
-    // #endregion
-    // #region Advance API Hooks
-    useQueryGridData: (
-        opt: {
-            baseParam: QueryListParam;
-            deps: EffectDeps;
-            modelDeps?: EffectDeps;
-            initial?: ApiGridInitial<TSet>;
-            onError?: (err: ApiAdapterError) => void;
-            apiInstance?: AxiosInstance;
-        },
-    ) => {
-        modelDisplayName: ModelDisplaySchema | null;
-        count: number;
-        list: TSet[];
-        isLoading: boolean;
-        errors: string[];
-        errorText: string | null;
-        refetchData: () => Promise<void>;
-        pageNumber: number;
-        totalPages: number;
-        onPageChange: (page: number) => void;
-        param: QueryListParam;
-    };
-
-    useQueryFormData: (
-        opt: {
-            mode: ApiFormMode;
-            internalId?: string;
-            empty?: TSet;
-            deps: EffectDeps;
-            modelDeps?: EffectDeps;
-            initial?: ApiFormInitial<TSet>;
-            onError?: (err: ApiAdapterError) => void;
-            apiInstance?: AxiosInstance;
-        },
-    ) => {
-        modelDisplayName: ModelDisplaySchema | null;
-        data: TSet | null;
-        isLoading: boolean;
-        errors: string[];
-        errorText: string | null;
-        refetchData: () => Promise<void>;
-    };
-    // #endregion
-};
 
 export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends ApiBaseAdapter<TSvc>
 {
     // #region Property
     public loader: ApiDataLoaderGroup<TSet>;
+
     public hooks: ApiDataHookGroup<TSet>;
     // #endregion
 
-    // #region Construct
+    // #region Public
     constructor(createService: (apiInstance?: AxiosInstance) => TSvc)
     {
         super(createService);
         this.loader = this.buildLoaderGroup();
         this.hooks = this.buildHookGroup();
     }
-    // #endregion
-    // #region Protect Virtual Func
+
     protected buildExtendedLoader(base: ApiDataLoaderGroup<TSet>): ApiDataLoaderGroup<TSet>
     {
         return base;
     }
+
     protected buildExtendedHooks(base: ApiDataHookGroup<TSet>): ApiDataHookGroup<TSet>
     {
         return base;
     }
-    // #endregion
 
-    // #region Public
     /** 後台標準行為：CUD + Toast + Success / Error callback */
     public useServerActions(opt?: UseServerActionsOptions): UseServerActionsResult<TSet>
     {
@@ -525,7 +474,6 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
     // #region Private
     private buildLoaderGroup(): ApiDataLoaderGroup<TSet>
     {
-        // #region Basic Loader Func
         const createModelDisplayNameLoader: ApiDataLoaderGroup<TSet>["createModelDisplayNameLoader"] = (opt) =>
         {
             return this.createApiLoader<null, ModelDisplaySchema[]>({
@@ -566,9 +514,7 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
                 getApiInstance: opt.getApiInstance,
             });
         };
-        // #endregion
 
-        // #region Advance Loader Func
         const createQueryGridDataLoader: ApiDataLoaderGroup<TSet>["createQueryGridDataLoader"] = (opt) =>
         {
             const loadModel = createModelDisplayNameLoader({ getApiInstance: opt.getApiInstance });
@@ -590,7 +536,6 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
                 return { model, list, count };
             };
         };
-        // #endregion
 
         return this.buildExtendedLoader({
             createModelDisplayNameLoader,
@@ -600,9 +545,9 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
             createQueryGridDataLoader,
         });
     }
+
     private buildHookGroup(): ApiDataHookGroup<TSet>
     {
-        // #region Basic Api Hooks
         const useModelDisplayName: ApiDataHookGroup<TSet>["useModelDisplayName"] = (opt) =>
         {
             const r = this.useApiQuery<null, ModelDisplaySchema[]>({
@@ -721,46 +666,73 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
         };
         const useCudActions: ApiDataHookGroup<TSet>["useCudActions"] = (opt) =>
         {
-            const [isSaving, setIsSaving] = useState(false);
-            const svc = useMemo(() => this.getService(opt?.apiInstance), [opt?.apiInstance]);
-            const exec = useCallback(async <U>(fn: () => Promise<ApiResponse<U>>, fallback: string, action: string) =>
-            {
-                setIsSaving(true);
-                try
+            const createAction = this.useApiAction<TSet, TSet>({
+                action: "CUD.Create",
+                fallbackError: "新增失敗",
+                apiInstance: opt?.apiInstance,
+                onError: opt?.onError,
+                call: (svc, data) =>
                 {
-                    const env = await fn();
-                    if (!env.IsSuccess) opt?.onError?.(buildError(env, fallback, action));
-                    return env;
-                } finally
+                    if (!svc.create) throw new Error("[ApiDataAdapter] service.create not implemented");
+                    return svc.create(data);
+                },
+            });
+            const updateAction = this.useApiAction<{ internalId: string; data: TSet; }, TSet>({
+                action: "CUD.Update",
+                fallbackError: "更新失敗",
+                apiInstance: opt?.apiInstance,
+                onError: opt?.onError,
+                call: (svc, args) =>
                 {
-                    setIsSaving(false);
-                }
-            }, [opt?.onError]);
+                    if (!svc.update) throw new Error("[ApiDataAdapter] service.update not implemented");
+                    return svc.update(args.internalId, args.data);
+                },
+            });
+            const deleteAction = this.useApiAction<string, TSet>({
+                action: "CUD.Delete",
+                fallbackError: "刪除失敗",
+                apiInstance: opt?.apiInstance,
+                onError: opt?.onError,
+                call: (svc, internalId) =>
+                {
+                    if (!svc.delete) throw new Error("[ApiDataAdapter] service.delete not implemented");
+                    return svc.delete(internalId);
+                },
+            });
+            const invalidAction = this.useApiAction<{ internalId: string; isInvalid: boolean; }, TSet>({
+                action: "CUD.Invalid",
+                fallbackError: "失效操作失敗",
+                apiInstance: opt?.apiInstance,
+                onError: opt?.onError,
+                call: (svc, args) =>
+                {
+                    if (!svc.invalid) throw new Error("[ApiDataAdapter] service.invalid not implemented");
+                    return svc.invalid(args.internalId, args.isInvalid);
+                },
+            });
+
             const createAsync = useCallback(async (data: TSet) =>
             {
-                if (!svc.create) throw new Error("[ApiDataAdapter] service.create not implemented");
-                return await exec(() => svc.create!(data), "新增失敗", "CUD.Create");
-            }, [svc, exec]);
+                return await createAction.execute(data);
+            }, [createAction.execute]);
             const updateAsync = useCallback(async (internalId: string, data: TSet) =>
             {
-                if (!svc.update) throw new Error("[ApiDataAdapter] service.update not implemented");
-                return await exec(() => svc.update!(internalId, data), "更新失敗", "CUD.Update");
-            }, [svc, exec]);
+                return await updateAction.execute({ internalId, data });
+            }, [updateAction.execute]);
             const deleteAsync = useCallback(async (internalId: string) =>
             {
-                if (!svc.delete) throw new Error("[ApiDataAdapter] service.delete not implemented");
-                return await exec(() => svc.delete!(internalId), "刪除失敗", "CUD.Delete");
-            }, [svc, exec]);
+                return await deleteAction.execute(internalId);
+            }, [deleteAction.execute]);
             const invalidAsync = useCallback(async (internalId: string, isInvalid: boolean) =>
             {
-                if (!svc.invalid) throw new Error("[ApiDataAdapter] service.invalid not implemented");
-                return await exec(() => svc.invalid!(internalId, isInvalid), "失效操作失敗", "CUD.Invalid");
-            }, [svc, exec]);
+                return await invalidAction.execute({ internalId, isInvalid });
+            }, [invalidAction.execute]);
+
+            const isSaving = Boolean(createAction.isLoading || updateAction.isLoading || deleteAction.isLoading || invalidAction.isLoading);
+
             return { isSaving, createAsync, updateAsync, deleteAsync, invalidAsync };
         };
-        // #endregion
 
-        // #region Advance Api Hooks (compose Basic)
         const useQueryGridData: ApiDataHookGroup<TSet>["useQueryGridData"] = (opt) =>
         {
             const pageSize = opt.baseParam.PageSize ?? 0;
@@ -860,7 +832,6 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
             }, [opt.mode, data]);
             return { modelDisplayName: model.data, data: data.data, isLoading, errors, errorText, refetchData };
         };
-        // #endregion
 
         return this.buildExtendedHooks({
             useModelDisplayName,
@@ -886,3 +857,112 @@ export const emitApiMessages = (publish: ReturnType<typeof useToast>["publish"],
         publish({ level: m.Status ?? (env.IsSuccess ? MessageStatus.Green : MessageStatus.Error), code: m.MessageCode, title, text: m.Message });
     });
 };
+// #endregion
+
+// #region Private
+// -------------------------
+// 共用小工具（不依賴 class 狀態）
+// -------------------------
+const parseHttpStatus = (sysMessages: SysMessageModel[]): number | undefined =>
+{
+    const code = sysMessages.find(m => (m?.MessageCode ?? "").startsWith("Http Error "))?.MessageCode ?? "";
+    const match = /Http Error\s+(\d+)/i.exec(code);
+    if (!match) return undefined;
+    const n = Number(match[1]);
+    return Number.isFinite(n) ? n : undefined;
+};
+
+const toMessageText = (sysMessages: SysMessageModel[], fallback: string): string =>
+{
+    const texts = sysMessages.map(m => `${m?.MessageCode ?? ""}:${m?.Message ?? ""}`.trim()).filter(s => s.length > 0);
+    return texts.length > 0 ? texts.join("；") : fallback;
+};
+
+const buildError = (apiRes: ApiResponse<unknown>, fallback: string, action?: string): ApiAdapterError =>
+{
+    const sysMessages = apiRes?.SysMessage ?? [];
+    return { messageText: toMessageText(sysMessages, fallback), sysMessages, httpStatus: parseHttpStatus(sysMessages), action };
+};
+
+const isOk = <T>(apiRes: ApiResponse<T>): apiRes is ApiResponse<T> & { IsSuccess: true; Data: T; } =>
+{
+    return Boolean(apiRes?.IsSuccess) && apiRes.Data !== null && apiRes.Data !== undefined;
+};
+
+/** 兼容舊版：QueryData 可能回傳 Data 為陣列（只取第一筆） */
+const normalizeOneData = <T>(apiRes: ApiResponse<T>): ApiResponse<T> =>
+{
+    // 宣告變數
+    const raw = apiRes?.Data as MaybeArray<T> | null | undefined;
+    const isArray = Array.isArray(raw);
+
+    // return
+    if (!isArray) return apiRes;
+    return { ...apiRes, Data: (raw as ReadonlyArray<T>)[0] ?? null };
+};
+
+/** 將 API 初始資料轉成穩定快照，避免每次 render 產生新物件時重複 setState。 */
+const toStableSnapshotText = (value: unknown): string =>
+{
+    const seen = new WeakSet<object>();
+
+    /** 遞迴整理快照資料，物件 key 排序後再 stringify。 */
+    const normalize = (input: unknown): unknown =>
+    {
+        if (input === null || input === undefined) return input;
+        if (typeof input !== "object") return input;
+        if (input instanceof Date) return input.toISOString();
+        if (isBrowserFile(input)) return buildBrowserFileSnapshot(input);
+        if (seen.has(input)) return "[Circular]";
+
+        seen.add(input);
+
+        if (Array.isArray(input)) return input.map(normalize);
+
+        return Object.keys(input as Record<string, unknown>).sort().reduce<Record<string, unknown>>((snapshot, key) =>
+        {
+            const item = (input as Record<string, unknown>)[key];
+            if (typeof item === "function") return snapshot;
+
+            snapshot[key] = normalize(item);
+            return snapshot;
+        }, {});
+    };
+
+    try
+    {
+        return JSON.stringify(normalize(value));
+    } catch
+    {
+        return String(value);
+    }
+};
+
+/** 判斷是否為瀏覽器 File，SSR 環境不直接取用 File 避免錯誤。 */
+const isBrowserFile = (value: unknown): value is File =>
+{
+    return typeof File !== "undefined" && value instanceof File;
+};
+
+/** 建立 File 快照，避免把整個 File 物件放進 JSON.stringify。 */
+const buildBrowserFileSnapshot = (file: File): Record<string, string | number> =>
+{
+    return { name: file.name, size: file.size, type: file.type, lastModified: file.lastModified };
+};
+
+/** 建立 ApiResponse 快照，供 setState 前判斷資料是否真的變更。 */
+const buildApiResponseSnapshotText = <T>(apiRes: ApiResponse<T> | null | undefined): string =>
+{
+    if (!apiRes) return "";
+
+    return toStableSnapshotText({ IsSuccess: apiRes.IsSuccess, Data: apiRes.Data, SysMessage: apiRes.SysMessage });
+};
+
+/** 建立 Loader initial 快照，避免 initial object 每次重建造成 useEffect 循環。 */
+const buildApiLoaderDataSnapshotText = <TArgs, TData>(initial: ApiLoaderData<TArgs, TData> | null | undefined): string =>
+{
+    if (!initial) return "";
+
+    return toStableSnapshotText({ args: initial.args, apiRes: initial.apiRes });
+};
+// #endregion

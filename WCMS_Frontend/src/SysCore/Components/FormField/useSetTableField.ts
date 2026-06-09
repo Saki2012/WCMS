@@ -1,212 +1,101 @@
 // hooks/useSetTableField.ts
-import { parseBitmaskToStringArray, sumStringArrayToBitmask } from "@/SysCore/Utils/Library/LibData";
+import type { ILibDatetimeRangeProp } from "@/SysCore/Components/FormField/FieldComponets/LibDatetimeRange_Comp";
+import { LibJson, parseBitmaskToStringArray, splitTrimToArray, sumStringArrayToBitmask } from "@/SysCore/Utils/Library/LibData";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import type { ModelDisplaySchema } from "../../../types/IApiSchema";
 import type { UseFetchFormDataResult } from "../../Utils/API/FetchFormData";
 
+// #region Property
 export type FormDataLike<T> = { data: T; setFormData: React.Dispatch<React.SetStateAction<T>>; displayName?: ModelDisplaySchema | null; };
+
 type CoerceMode = "string" | "number" | "boolean" | "datetime" | ((v: unknown) => any);
 
-/** 更新表格欄位，內容相同時回傳原 reference，避免不必要 re-render。 */
-const upsertRow = (currentTable: any, rowKeys: Record<string, any> | undefined, field: string | number | symbol, value: any) =>
-{
-    const fieldKey = String(field);
-
-    if (!rowKeys)
-    {
-        if (Array.isArray(currentTable)) return currentTable;
-
-        const currentObj = currentTable ?? {};
-        if (currentTable && Object.is(currentObj[fieldKey], value)) return currentTable;
-
-        return { ...currentObj, [fieldKey]: value };
-    }
-
-    const rows: RowLike[] = Array.isArray(currentTable) ? (currentTable as RowLike[]) : currentTable ? [currentTable as RowLike] : [];
-
-    let found = false;
-    let changed = false;
-    const nextRows = rows.map(r =>
-    {
-        if (!matchRowKeys(r, rowKeys)) return r;
-
-        found = true;
-        if (Object.is(r[fieldKey], value)) return r;
-
-        changed = true;
-        return { ...r, [fieldKey]: value };
-    });
-
-    if (!found)
-    {
-        changed = true;
-        nextRows.push({ ...rowKeys, [fieldKey]: value });
-    }
-
-    return changed ? nextRows : currentTable;
-};
-const coerce = (mode: CoerceMode, val: unknown) =>
-{
-    switch (typeof mode === "function" ? "function" : mode)
-    {
-        case "function":
-            return (mode as (val: unknown) => unknown)(val);
-        case "number":
-            return Number(val) || 0;
-        case "boolean":
-        {
-            if (val === true) return true;
-            if (val === false) return false;
-            const raw = `${val ?? ""}`.trim().toLowerCase();
-            return raw === "true" || raw === "1";
-        }
-        case "datetime":
-        {
-            // 空值一律回 null
-            if (val === null || val === undefined) return null;
-            if (typeof val === "string")
-            {
-                const s = val.trim();
-                return s === "" ? null : s; // 保留原始字串（YYYY-MM-DD 或 ISO）
-            }
-            if (val instanceof Date)
-            {
-                return isNaN(val.getTime()) ? null : val.toISOString();
-            }
-            const d = new Date(val as any);
-            return isNaN(d.getTime()) ? null : d.toISOString();
-        }
-        case "string":
-        default:
-            return val;
-    }
-};
-
-/** DefaultWhen：何時套用「預設值」的判斷條件
- * - "never"   ：永不套用預設值（完全關閉懶初始化）
- * - "nullish" ：僅在值為 null 或 undefined 時套用（不包含 ""、0、false）
- * - "empty"   ：在值為 null/undefined 或空字串 "" 時套用（不包含 0、false）
- * - "falsy"   ：在任何 JS 的「假值」時套用：undefined、null、""、0、false、NaN
- *
- * 使用建議：
- * - 文字/CSV 欄位   → "empty"  （空字串才補，不會覆蓋 0/false）
- * - 數字/bitmask    → "nullish"（0 是合法值，不要被當成需補預設）
- * - 下拉選單         → "nullish"（未選才補第一筆）
- * - 布林欄位         → "nullish"（false 是合法值，不要被當成需補）
- *
- * 範例對照：
- *   值        →  never   nullish  empty  falsy
- *   undefined →   ×        ✓       ✓      ✓
- *   null      →   ×        ✓       ✓      ✓
- *   ""        →   ×        ×       ✓      ✓
- *   "abc"     →   ×        ×       ×      ×
- *   0         →   ×        ×       ×      ✓
- *   false     →   ×        ×       ×      ✓
- *   NaN       →   ×        ×       ×      ✓
- *
- * 備註：目前 "empty" 僅判斷嚴格等於 ""（不含空白字元）。若想把 "   " 視為空白，
- * 可改成：typeof v === "string" && v.trim() === ""。
- */
+/** DefaultWhen：何時套用「預設值」的判斷條件 */
 type DefaultWhen = "never" | "nullish" | "empty" | "falsy";
-const getColumnDisplayName = (schema: ModelDisplaySchema | null, tableName: string, columnId: string): string =>
-{
-    return (schema?.Tables?.find(t => t.TableId === tableName)?.Columns?.find((c: any) => c.ColumnId === columnId)?.ColumnDisplayName ?? "");
-};
+
 type RowLike = Record<string, any>;
+
 type TableType<T, K extends keyof T> = NonNullable<T[K]>;
+
 type RowType<X> = X extends (infer U)[] ? NonNullable<U> : NonNullable<X>;
-const computeAutoDefault = (mode: CoerceMode, strategy: SetStrategy) =>
-{
-    if (strategy === "csv") return "";
-    if (strategy === "sum") return 0;
-    if (typeof mode === "function") return undefined;
 
-    switch (mode)
-    {
-        case "string":
-            return "";
-        case "number":
-            return 0;
-        case "boolean":
-            return false;
-        case "datetime":
-            return null;
-        default:
-            return undefined;
-    }
-};
-const ensureDefaultOnce = (
-    ref: React.MutableRefObject<Set<string>>,
-    args: { key: string; current: unknown; mode: CoerceMode; strategy: SetStrategy; setType?: SetOptions; writeBack: (v: unknown) => void; },
-) =>
-{
-    const { key, current, mode, strategy, setType, writeBack } = args;
-    if (ref.current.has(key)) return;
-
-    const cfg = (typeof setType === "object" ? setType : undefined) ?? {};
-    const when: DefaultWhen = cfg.defaultWhen ?? (mode === "datetime" ? "empty" : "nullish");
-    const enabled = cfg.autoDefault ?? true;
-
-    if (!enabled)
-    {
-        ref.current.add(key);
-        return;
-    }
-
-    const isEmptyString = typeof current === "string" && current === "";
-    const isNullish = current === null || current === undefined;
-    const isFalsy = !current;
-
-    const needDefault = when === "never" ? false : when === "nullish" ? isNullish : when === "empty" ? (isNullish || isEmptyString) : isFalsy; // "falsy"
-
-    if (!needDefault)
-    {
-        ref.current.add(key);
-        return;
-    }
-
-    // 1) 呼叫端覆寫 > 2) 自動推導 > 3) 放棄
-    let dv = typeof cfg.defaultValue === "function" ? (cfg.defaultValue as any)({ current, table: "", field: "", rowKeys: undefined }) : cfg.defaultValue;
-
-    if (dv === undefined) dv = computeAutoDefault(mode, strategy);
-    if (dv === undefined)
-    {
-        ref.current.add(key);
-        return;
-    }
-
-    writeBack(dv);
-    ref.current.add(key);
-};
-/** 比對是否符合複合主鍵（全部 key 都相等才算符合） */
-const matchRowKeys = (row: RowLike, rowKeys?: Record<string, string | number | boolean | null | undefined>): boolean =>
-{
-    if (!rowKeys) return false;
-    const entries = Object.entries(rowKeys);
-    if (!entries.length) return false;
-    return entries.every(([k, v]) => String(row?.[k]) === String(v));
-};
 type SetStrategy = "default" | "sum" | "csv";
+
 type SetOptions = SetStrategy | {
     strategy?: SetStrategy;
-    /** sum 模式用到的位元鍵集合（例：useContentStatus.data?.map(d => d.Key)） */
+    /** sum 模式用到的位元鍵集合 */
     sumKeys?: Array<number>;
-    /** csv 模式的分隔字元（預設 ","） */
+    /** csv 模式的分隔字元 */
     csvDelimiter?: string;
-    // 預設值設定（可不帶，則走自動規則）
+    /** 預設值設定 */
     defaultValue?: unknown | ((ctx: { table: string; field: string; rowKeys?: Record<string, unknown>; current: unknown; }) => unknown);
-    // 何時套用預設值；預設 nullish（null/undefined）
+    /** 何時套用預設值 */
     defaultWhen?: DefaultWhen;
-    // 是否啟用自動預設（預設 true）
+    /** 是否啟用自動預設 */
     autoDefault?: boolean;
 };
+
+interface UseSetTableFileFieldOptions
+{
+    /** 第一次上傳時，若檔名為空，要如何帶入預設值 */
+    defaultNameFromOriginal?: "original" | "basename" | "none";
+
+    /** 僅在目前檔名為空時才自動帶入 */
+    onlyFillNameIfEmpty?: boolean;
+
+    /** 底層預設值套用時機 */
+    defaultWhen?: DefaultWhen;
+
+    /** 預設 FileId */
+    defaultId?: string;
+
+    /** 預設檔名 */
+    defaultName?: string | ((ctx: { table: string; rowKeys?: Record<string, unknown>; }) => string);
+
+    /** 顯示用實體檔名 */
+    fileName?: string;
+}
+
+/** 回傳給 LibFileInput 可以直接展開的屬性 */
+export interface FileFieldBindProps
+{
+    ColumnDisplayName: string;
+    InputValue: string;
+    FileInternalId: string;
+    FileName?: string;
+    onFileUploaded: (internalId: string, originalName?: string) => void;
+    onNameChange: (name: string) => void;
+}
+
+export interface JsonFieldBinder<TJson extends object>
+{
+    /** 取出完整 JSON 物件 */
+    get: () => TJson;
+
+    /** 直接整包寫回 */
+    set: (next: TJson) => void;
+
+    /** 綁定某個 JSON 內 key */
+    bind: <K extends keyof TJson>(key: K, mode?: "string" | "number" | "csv" | "boolean") => {
+        value: any;
+        onChange: (v: any) => void;
+    };
+}
+
+type RangeBind = Omit<ILibDatetimeRangeProp, "Style" | "valueType" | "disabled">;
+// #endregion
+
+// #region Public
+/** 建立 table field 綁定器，提供欄位讀寫與預設值套用。 */
 export const useSetTableField = <T>(form: FormDataLike<T>) =>
 {
     const appliedDefaultsRef = useRef<Set<string>>(new Set());
     const pendingWritesRef = useRef<Array<() => void>>([]);
+
     useEffect(() =>
     {
         if (pendingWritesRef.current.length === 0) return;
+
         const jobs = pendingWritesRef.current.splice(0);
         for (const job of jobs) job();
     });
@@ -214,43 +103,22 @@ export const useSetTableField = <T>(form: FormDataLike<T>) =>
     return useCallback(<TableName extends keyof NonNullable<T>, FieldName extends keyof RowType<TableType<NonNullable<T>, TableName>>>(
         table: TableName,
         field: FieldName,
-        mode: CoerceMode = "string", // ✅ 只用這個來決定輸入值轉型
-        /** 複合主鍵（若表是陣列，需提供；若是單物件可省略） */
+        mode: CoerceMode = "string",
         rowKeys?: Record<string, string | number | boolean | any>,
         setType?: SetOptions,
     ) =>
     {
         const dataAny = form.data as any;
         const tableVal = dataAny?.[table];
-
-        // 取目前值：若有 rowId 則從陣列那筆取；否則從物件取
-        let raw: any;
-        if (rowKeys !== undefined && Array.isArray(tableVal))
-        {
-            const row = (tableVal as RowLike[]).find(r => matchRowKeys(r, rowKeys));
-            raw = row?.[field as any];
-        } else
-        {
-            raw = tableVal?.[field as any];
-        }
-
+        const raw = resolveCurrentFieldValue(tableVal, field, rowKeys);
         const label = getColumnDisplayName(form.displayName ?? null, String(table), String(field)) || `【${String(field)}】`;
-
-        // 解析 setType
         const strategy: SetStrategy = typeof setType === "string" ? setType : (setType?.strategy ?? "default");
-
         const sumKeys = typeof setType === "object" ? setType.sumKeys : undefined;
-
         const csvDelimiter = typeof setType === "object" && setType.csvDelimiter ? setType.csvDelimiter : ",";
+        const inputValue = resolveInputValue(raw, mode, strategy, sumKeys, csvDelimiter);
 
-        // InputValue 視策略決定
-        const inputValue = strategy === "sum"
-            ? parseBitmaskToStringArray(Number(raw ?? 0), sumKeys ?? [])
-            : strategy === "csv"
-            ? String(raw ?? "").split(csvDelimiter).map(s => s.trim()).filter(s => s.length > 0)
-            : raw ?? (mode === "number" ? 0 : mode === "boolean" ? false : "");
         ensureDefaultOnce(appliedDefaultsRef, {
-            key: `${String(table)}|${String(field)}|${JSON.stringify(rowKeys ?? {})}`,
+            key: `${String(table)}|${String(field)}|${buildRowKeysSignature(rowKeys)}`,
             current: raw,
             mode,
             strategy,
@@ -272,71 +140,33 @@ export const useSetTableField = <T>(form: FormDataLike<T>) =>
                 });
             },
         });
-        const onChange = (v: unknown) =>
+
+        const onChange = (v: unknown): void =>
         {
             form.setFormData((prev: any) =>
             {
-                // 尚未有資料時，直接回傳原值
                 if (!prev) return prev;
 
                 const currentTable = prev[table];
-
-                // 根據策略先把要寫入的值算出來
-                const nextCellValue = strategy === "sum"
-                    ? (sumStringArrayToBitmask(v as string[]) as any)
-                    : strategy === "csv"
-                    ? (Array.isArray(v) ? (v as string[]).join(csvDelimiter) : String(v ?? ""))
-                    : coerce(mode, v);
-
+                const nextCellValue = resolveNextCellValue(v, mode, strategy, csvDelimiter);
                 const nextTable = upsertRow(currentTable, rowKeys, field as any, nextCellValue);
 
                 return nextTable === currentTable ? prev : { ...prev, [table]: nextTable };
             });
         };
+
         const bind = { ColumnDisplayName: label, InputValue: inputValue, OnChange: onChange } as const;
 
-        // 常用別名：維持你原本的呼叫習慣
         return { ...bind, Input: bind.InputValue, onChange: bind.OnChange };
     }, [form.data, form.displayName, form.setFormData]);
 };
 
-interface UseSetTableFileFieldOptions
-{
-    /** 第一次上傳時，若檔名為空，要如何帶入預設值（original=全名；basename=去副檔名；none=不帶） */
-    defaultNameFromOriginal?: "original" | "basename" | "none";
-    /** 僅在目前檔名為空時才自動帶入（預設 true） */
-    onlyFillNameIfEmpty?: boolean;
-    // 底層預設值（新增明細時就可先帶）
-    defaultWhen?: DefaultWhen; // 預設 "nullish"
-    defaultId?: string; // 預設 FileId（通常空字串即可）
-    defaultName?: string | ((ctx: { table: string; rowKeys?: Record<string, unknown>; }) => string);
-    fileName?: string;
-}
-const deriveName = (originalName: string | undefined, mode: UseSetTableFileFieldOptions["defaultNameFromOriginal"] = "basename"): string =>
-{
-    if (!originalName) return "";
-    if (mode === "none") return "";
-    if (mode === "basename") return originalName.replace(/\.[^.]+$/, "");
-    return originalName; // original
-};
-
-/** 回傳給 <LibFileInput /> 可以直接展開的屬性 */
-export interface FileFieldBindProps
-{
-    ColumnDisplayName: string;
-    InputValue: string; // 檔名（可編輯）
-    FileInternalId: string; // 檔案 internalId（唯讀顯示）
-    FileName?: string; // 下方：顯示用實體檔名
-    onFileUploaded: (internalId: string, originalName?: string) => void;
-    onNameChange: (name: string) => void; // 只有有提供檔名欄位時才會真的更新
-}
-
+/** 建立 table file field 綁定器，提供檔案 internalId 與檔名欄位同步。 */
 export const useSetTableFileField = <TSet>(formData: FormDataLike<TSet>) =>
 {
     const fileWritesRef = useRef<Array<() => void>>([]);
     const fileDefaultKeysRef = useRef<Set<string>>(new Set());
 
-    /** commit 後才寫入檔案預設值，避免 render 中 setFormData。 */
     useEffect(() =>
     {
         if (fileWritesRef.current.length === 0) return;
@@ -344,6 +174,7 @@ export const useSetTableFileField = <TSet>(formData: FormDataLike<TSet>) =>
         const jobs = fileWritesRef.current.splice(0);
         for (const job of jobs) job();
     });
+
     const setFileField = useMemo(() =>
     {
         return (
@@ -356,40 +187,12 @@ export const useSetTableFileField = <TSet>(formData: FormDataLike<TSet>) =>
         {
             const data: any = formData.data ?? {};
             const table = data?.[tableName];
-            // 讀取目前值（header 物件或 detail 陣列）
-            let currentRow: any = undefined;
-            if (Array.isArray(table))
-            {
-                currentRow = table.find((r: any) => matchRowKeys(r, rowKeys));
-            } else if (table && typeof table === "object")
-            {
-                currentRow = table;
-            }
-
+            const currentRow = resolveCurrentRow(table, rowKeys);
             const currentId: string = String(currentRow?.[fileIdField] ?? "");
             const currentName: string = fileNameField ? String(currentRow?.[fileNameField] ?? "") : "";
-
-            // 若為新增列且欄位為空，先灌入預設
             const fileDefaultWhen: DefaultWhen = opts?.defaultWhen ?? "nullish";
-
-            const shouldDefault = (v: unknown) =>
-            {
-                const isEmptyStr = typeof v === "string" && v === "";
-                const isNullish = v === null || v === undefined;
-                switch (fileDefaultWhen)
-                {
-                    case "never":
-                        return false;
-                    case "nullish":
-                        return isNullish;
-                    case "empty":
-                        return isNullish || isEmptyStr;
-                    case "falsy":
-                        return !v;
-                }
-            };
-
-            const fileDefaultKey = `${tableName}|${fileIdField}|${fileNameField ?? ""}|${JSON.stringify(rowKeys ?? {})}`;
+            const shouldDefault = (v: unknown): boolean => isDefaultRequired(v, fileDefaultWhen);
+            const fileDefaultKey = `${tableName}|${fileIdField}|${fileNameField ?? ""}|${buildRowKeysSignature(rowKeys)}`;
             const needFileDefault = shouldDefault(currentId) || shouldDefault(currentName);
 
             if (needFileDefault && !fileDefaultKeysRef.current.has(fileDefaultKey))
@@ -402,15 +205,15 @@ export const useSetTableFileField = <TSet>(formData: FormDataLike<TSet>) =>
                         const prev = prevAny ?? {};
                         const t = prev?.[tableName];
 
-                        const computeName = () =>
+                        const computeName = (): string =>
                         {
-                            if (typeof opts?.defaultName === "function") return (opts!.defaultName as any)({ table: tableName, rowKeys });
-                            if (typeof opts?.defaultName === "string") return opts!.defaultName;
+                            if (typeof opts?.defaultName === "function") return (opts.defaultName as any)({ table: tableName, rowKeys });
+                            if (typeof opts?.defaultName === "string") return opts.defaultName;
 
                             return "";
                         };
 
-                        const apply = (row: any) =>
+                        const apply = (row: any): any =>
                         {
                             const next = { ...(row ?? {}) };
                             let changed = false;
@@ -459,8 +262,7 @@ export const useSetTableFileField = <TSet>(formData: FormDataLike<TSet>) =>
                 });
             }
 
-            // 寫入工具：immutable 更新 header/detail
-            const updateRow = (updater: (row: any) => any) =>
+            const updateRow = (updater: (row: any) => any): void =>
             {
                 formData.setFormData((prevAny: any) =>
                 {
@@ -471,44 +273,45 @@ export const useSetTableFileField = <TSet>(formData: FormDataLike<TSet>) =>
                     {
                         const nextList = (t ?? []).map((r: any) => (matchRowKeys(r, rowKeys) ? updater(r) : r));
                         return { ...prev, [tableName]: nextList };
-                    } else if (t && typeof t === "object")
+                    }
+
+                    if (t && typeof t === "object")
                     {
                         const nextObj = updater(t);
                         return { ...prev, [tableName]: nextObj };
-                    } else
-                    {
-                        // 若不存在，建 header 物件
-                        const nextObj = updater({});
-                        return { ...prev, [tableName]: nextObj };
                     }
+
+                    const nextObj = updater({});
+                    return { ...prev, [tableName]: nextObj };
                 });
             };
 
             const onlyFillIfEmpty = opts?.onlyFillNameIfEmpty ?? true;
             const nameMode = opts?.defaultNameFromOriginal ?? "basename";
 
-            const onFileUploaded = (internalId: string, originalName?: string) =>
+            const onFileUploaded = (internalId: string, originalName?: string): void =>
             {
                 updateRow((row) =>
                 {
                     const next: any = { ...row, [fileIdField]: internalId };
+
                     if (fileNameField)
                     {
                         const needFill = onlyFillIfEmpty ? !String(row?.[fileNameField] ?? "").trim() : true;
-                        if (needFill)
-                        {
-                            next[fileNameField] = deriveName(originalName, nameMode);
-                        }
+                        if (needFill) next[fileNameField] = deriveName(originalName, nameMode);
                     }
+
                     return next;
                 });
             };
 
-            const onNameChange = (name: string) =>
+            const onNameChange = (name: string): void =>
             {
-                if (!fileNameField) return; // 未提供檔名欄位就無動作
+                if (!fileNameField) return;
+
                 updateRow((row) => ({ ...row, [fileNameField]: name }));
             };
+
             const label = getColumnDisplayName(formData.displayName ?? null, String(tableName), String(fileIdField)) || `[${String(fileIdField)}]`;
 
             return {
@@ -525,79 +328,38 @@ export const useSetTableFileField = <TSet>(formData: FormDataLike<TSet>) =>
     return setFileField;
 };
 
-export interface JsonFieldBinder<TJson extends object>
-{
-    /** 取出完整 JSON 物件（已做安全解析 + 預設值套用） */
-    get: () => TJson;
-    /** 直接整包寫回（會自動 JSON.stringify） */
-    set: (next: TJson) => void;
-    /**
-     * 綁定某個 JSON 內 key（支援 string / number / csv 三種 UI 型別）
-     * - string: 直接存字串
-     * - number: 轉成 number 後存
-     * - csv: 以陣列<string> 映射 UI，入庫時存 "a,b,c" 這種字串
-     */
-    bind: <K extends keyof TJson>(key: K, mode?: "string" | "number" | "csv" | "boolean") => {
-        value: any; // 給 UI 用的值（csv 會是 string[]）
-        onChange: (v: any) => void; // 給 UI 用的改變事件
-    };
-}
-
-const safeParse = <T extends object>(raw: unknown, fallback: T): T =>
-{
-    if (typeof raw !== "string" || raw.trim() === "") return fallback;
-    try
-    {
-        const obj = JSON.parse(raw);
-        return (obj && typeof obj === "object") ? { ...fallback, ...obj } : fallback;
-    } catch
-    {
-        return fallback;
-    }
-};
-
-const toCSV = (arr: string[] | number[] | undefined | null) => (arr ?? []).map(String).filter(Boolean).join(",");
-
-const fromCSV = (s: string | undefined | null) => (s ?? "").split(",").map(x => x.trim()).filter(Boolean);
-
+/** 建立 JSON 欄位綁定器，提供 JSON object 安全解析與欄位綁定。 */
 export const useSetJsonField = <TSet, TJson extends Record<string, any>>(
-    formData: UseFetchFormDataResult<TSet>, // 🟢 1) 型別改成 UseFetchFormDataResult<TSet>
+    formData: UseFetchFormDataResult<TSet>,
     tableName: string,
-    fieldName: string, // 目標 JSON 欄位（如 ModuleOptions）
-    rowKeys: Record<string, any>, // 定位該列的 keys（SiteIndex+ItemRowId）
-    defaults: TJson, // JSON 預設值
+    fieldName: string,
+    rowKeys: Record<string, any>,
+    defaults: TJson,
 ): JsonFieldBinder<TJson> =>
 {
     const setField = useSetTableField<TSet>(formData);
-
     const base = useMemo(() => setField(tableName as any, fieldName as any, "string", rowKeys), [setField, tableName, fieldName, rowKeys]);
 
-    const get = () => safeParse<TJson>(base.InputValue as any, defaults); // 🟢 2) 用 InputValue
-    const set = (next: TJson) => base.onChange?.(JSON.stringify(next)); // 🟢 2) 用 onChange
+    const get = (): TJson =>
+    {
+        return LibJson.parseJsonRecordWithFallback<TJson>(base.InputValue, defaults);
+    };
+
+    const set = (next: TJson): void =>
+    {
+        const json = LibJson.stringifyJson(next);
+        if (!json) return;
+
+        base.onChange?.(json);
+    };
 
     const bind = <K extends keyof TJson>(key: K, mode: "string" | "number" | "csv" | "boolean" = "string") =>
     {
         const json = get();
         const rawVal = (json as any)[key];
+        const value = resolveJsonBindValue(rawVal, mode);
 
-        const normalizeBool = (value: unknown): boolean =>
-        {
-            if (value === true) return true;
-            if (value === false) return false;
-
-            const raw = `${value ?? ""}`.trim().toLowerCase();
-            return raw === "true" || raw === "1";
-        };
-
-        const value = mode === "csv"
-            ? fromCSV(String(rawVal ?? ""))
-            : mode === "number"
-            ? Number(rawVal ?? 0)
-            : mode === "boolean"
-            ? normalizeBool(rawVal)
-            : String(rawVal ?? "");
-
-        const onChange = (uiVal: any) =>
+        const onChange = (uiVal: any): void =>
         {
             const next: any = { ...json };
 
@@ -625,12 +387,7 @@ export const useSetJsonField = <TSet, TJson extends Record<string, any>>(
     return { get, set, bind };
 };
 
-// /SysCore/Components/FormField/useSetDateRangeField.ts
-import type { ILibDatetimeRangeProp } from "@/SysCore/Components/FormField/FieldComponets/LibDatetimeRange_Comp";
-
-type RangeBind = Omit<ILibDatetimeRangeProp, "Style" | "valueType" | "disabled">;
-
-// 跟 useSetTableField 一樣綁在 formData 上
+/** 建立日期區間欄位綁定器，將起訖欄位合成 Range Field props。 */
 export const useSetDateRangeField = <TSet>(formData: UseFetchFormDataResult<TSet>) =>
 {
     const setField = useSetTableField<TSet>(formData);
@@ -646,27 +403,300 @@ export const useSetDateRangeField = <TSet>(formData: UseFetchFormDataResult<TSet
         const start = setField(table as any, startField as any, mode as any, rowKeys);
         const end = setField(table as any, endField as any, mode as any, rowKeys);
 
-        // 共用一個 normalize：空字串 / null / undefined 都轉成 null
-        const normalize = (val: string | null | undefined) =>
-        {
-            if (val == null) return null;
-            const s = String(val).trim();
-            return s === "" ? null : s;
-        };
-
         return {
             ColumnDisplayName: start.ColumnDisplayName,
-            // 給 UI 顯示的值：null 就顯示成 ""，避免 uncontrolled warning
             StartValue: ((start.InputValue ?? "") as string),
             EndValue: ((end.InputValue ?? "") as string),
             onChangeStart: (val) =>
             {
-                start.onChange?.(normalize(val));
+                start.onChange?.(normalizeDateRangeValue(val));
             },
             onChangeEnd: (val) =>
             {
-                end.onChange?.(normalize(val));
+                end.onChange?.(normalizeDateRangeValue(val));
             },
         };
     };
 };
+// #endregion
+
+// #region Private
+/** 讀取目前欄位值，支援 detail array 與 header object。 */
+const resolveCurrentFieldValue = <FieldName extends string | number | symbol>(
+    tableVal: any,
+    field: FieldName,
+    rowKeys?: Record<string, string | number | boolean | any>,
+): any =>
+{
+    if (rowKeys !== undefined && Array.isArray(tableVal))
+    {
+        const row = (tableVal as RowLike[]).find(r => matchRowKeys(r, rowKeys));
+        return row?.[field as any];
+    }
+
+    return tableVal?.[field as any];
+};
+
+/** 解析目前 row，支援 detail array 與 header object。 */
+const resolveCurrentRow = (table: any, rowKeys?: Record<string, string | number | boolean | null | undefined>): any =>
+{
+    if (Array.isArray(table)) return table.find((r: any) => matchRowKeys(r, rowKeys));
+    if (table && typeof table === "object") return table;
+
+    return undefined;
+};
+
+/** 解析欄位顯示用輸入值。 */
+const resolveInputValue = (
+    raw: any,
+    mode: CoerceMode,
+    strategy: SetStrategy,
+    sumKeys: Array<number> | undefined,
+    csvDelimiter: string,
+): any =>
+{
+    if (strategy === "sum") return parseBitmaskToStringArray(Number(raw ?? 0), sumKeys ?? []);
+    if (strategy === "csv") return splitTrimToArray(String(raw ?? ""), csvDelimiter);
+
+    return raw ?? (mode === "number" ? 0 : mode === "boolean" ? false : "");
+};
+
+/** 解析欄位變更後要寫回表單的值。 */
+const resolveNextCellValue = (value: unknown, mode: CoerceMode, strategy: SetStrategy, csvDelimiter: string): any =>
+{
+    if (strategy === "sum") return sumStringArrayToBitmask(value as string[]);
+    if (strategy === "csv") return Array.isArray(value) ? (value as string[]).join(csvDelimiter) : String(value ?? "");
+
+    return coerce(mode, value);
+};
+
+/** 更新表格欄位，內容相同時回傳原 reference。 */
+const upsertRow = (currentTable: any, rowKeys: Record<string, any> | undefined, field: string | number | symbol, value: any): any =>
+{
+    const fieldKey = String(field);
+
+    if (!rowKeys)
+    {
+        if (Array.isArray(currentTable)) return currentTable;
+
+        const currentObj = currentTable ?? {};
+        if (currentTable && Object.is(currentObj[fieldKey], value)) return currentTable;
+
+        return { ...currentObj, [fieldKey]: value };
+    }
+
+    const rows: RowLike[] = Array.isArray(currentTable) ? (currentTable as RowLike[]) : currentTable ? [currentTable as RowLike] : [];
+    let found = false;
+    let changed = false;
+
+    const nextRows = rows.map(r =>
+    {
+        if (!matchRowKeys(r, rowKeys)) return r;
+
+        found = true;
+        if (Object.is(r[fieldKey], value)) return r;
+
+        changed = true;
+        return { ...r, [fieldKey]: value };
+    });
+
+    if (!found)
+    {
+        changed = true;
+        nextRows.push({ ...rowKeys, [fieldKey]: value });
+    }
+
+    return changed ? nextRows : currentTable;
+};
+
+/** 依欄位模式轉換寫入值。 */
+const coerce = (mode: CoerceMode, val: unknown): any =>
+{
+    switch (typeof mode === "function" ? "function" : mode)
+    {
+        case "function":
+            return (mode as (val: unknown) => unknown)(val);
+        case "number":
+            return Number(val) || 0;
+        case "boolean":
+            return normalizeBool(val);
+        case "datetime":
+            return coerceDatetime(val);
+        case "string":
+        default:
+            return val;
+    }
+};
+
+/** 將輸入值轉換為 datetime 欄位可寫入值。 */
+const coerceDatetime = (val: unknown): string | null =>
+{
+    if (val === null || val === undefined) return null;
+
+    if (typeof val === "string")
+    {
+        const s = val.trim();
+        return s === "" ? null : s;
+    }
+
+    if (val instanceof Date) return isNaN(val.getTime()) ? null : val.toISOString();
+
+    const d = new Date(val as any);
+    return isNaN(d.getTime()) ? null : d.toISOString();
+};
+
+/** 取得欄位顯示名稱。 */
+const getColumnDisplayName = (schema: ModelDisplaySchema | null, tableName: string, columnId: string): string =>
+{
+    return (schema?.Tables?.find(t => t.TableId === tableName)?.Columns?.find((c: any) => c.ColumnId === columnId)?.ColumnDisplayName ?? "");
+};
+
+/** 依欄位模式與策略推導自動預設值。 */
+const computeAutoDefault = (mode: CoerceMode, strategy: SetStrategy): unknown =>
+{
+    if (strategy === "csv") return "";
+    if (strategy === "sum") return 0;
+    if (typeof mode === "function") return undefined;
+
+    switch (mode)
+    {
+        case "string":
+            return "";
+        case "number":
+            return 0;
+        case "boolean":
+            return false;
+        case "datetime":
+            return null;
+        default:
+            return undefined;
+    }
+};
+
+/** 確認欄位預設值只套用一次，避免 render 中重複寫入。 */
+const ensureDefaultOnce = (
+    ref: React.MutableRefObject<Set<string>>,
+    args: { key: string; current: unknown; mode: CoerceMode; strategy: SetStrategy; setType?: SetOptions; writeBack: (v: unknown) => void; },
+): void =>
+{
+    const { key, current, mode, strategy, setType, writeBack } = args;
+    if (ref.current.has(key)) return;
+
+    const cfg = (typeof setType === "object" ? setType : undefined) ?? {};
+    const when: DefaultWhen = cfg.defaultWhen ?? (mode === "datetime" ? "empty" : "nullish");
+    const enabled = cfg.autoDefault ?? true;
+
+    if (!enabled)
+    {
+        ref.current.add(key);
+        return;
+    }
+
+    const needDefault = isDefaultRequired(current, when);
+
+    if (!needDefault)
+    {
+        ref.current.add(key);
+        return;
+    }
+
+    let dv = typeof cfg.defaultValue === "function" ? (cfg.defaultValue as any)({ current, table: "", field: "", rowKeys: undefined }) : cfg.defaultValue;
+
+    if (dv === undefined) dv = computeAutoDefault(mode, strategy);
+    if (dv === undefined)
+    {
+        ref.current.add(key);
+        return;
+    }
+
+    writeBack(dv);
+    ref.current.add(key);
+};
+
+/** 判斷指定值是否需要套用預設值。 */
+const isDefaultRequired = (value: unknown, when: DefaultWhen): boolean =>
+{
+    const isEmptyString = typeof value === "string" && value === "";
+    const isNullish = value === null || value === undefined;
+
+    switch (when)
+    {
+        case "never":
+            return false;
+        case "nullish":
+            return isNullish;
+        case "empty":
+            return isNullish || isEmptyString;
+        case "falsy":
+            return !value;
+    }
+};
+
+/** 比對是否符合複合主鍵。 */
+const matchRowKeys = (row: RowLike, rowKeys?: Record<string, string | number | boolean | null | undefined>): boolean =>
+{
+    if (!rowKeys) return false;
+
+    const entries = Object.entries(rowKeys);
+    if (!entries.length) return false;
+
+    return entries.every(([k, v]) => String(row?.[k]) === String(v));
+};
+
+/** 建立 rowKeys 的穩定字串簽章。 */
+const buildRowKeysSignature = (rowKeys?: Record<string, unknown>): string =>
+{
+    return LibJson.stringifyJson(rowKeys ?? {}, "{}");
+};
+
+/** 從原始檔名推導欄位檔名。 */
+const deriveName = (originalName: string | undefined, mode: UseSetTableFileFieldOptions["defaultNameFromOriginal"] = "basename"): string =>
+{
+    if (!originalName) return "";
+    if (mode === "none") return "";
+    if (mode === "basename") return originalName.replace(/\.[^.]+$/, "");
+
+    return originalName;
+};
+
+/** 將陣列轉成 CSV 字串。 */
+const toCSV = (arr: string[] | number[] | undefined | null): string =>
+{
+    return (arr ?? []).map(String).filter(Boolean).join(",");
+};
+
+/** 將 CSV 字串轉成陣列。 */
+const fromCSV = (s: string | undefined | null): string[] =>
+{
+    return splitTrimToArray(s);
+};
+
+/** 將輸入值轉成 boolean。 */
+const normalizeBool = (value: unknown): boolean =>
+{
+    if (value === true) return true;
+    if (value === false) return false;
+
+    const raw = `${value ?? ""}`.trim().toLowerCase();
+    return raw === "true" || raw === "1";
+};
+
+/** 解析 JSON 欄位綁定值。 */
+const resolveJsonBindValue = (rawVal: unknown, mode: "string" | "number" | "csv" | "boolean"): any =>
+{
+    if (mode === "csv") return fromCSV(String(rawVal ?? ""));
+    if (mode === "number") return Number(rawVal ?? 0);
+    if (mode === "boolean") return normalizeBool(rawVal);
+
+    return String(rawVal ?? "");
+};
+
+/** 將日期區間空值統一轉為 null。 */
+const normalizeDateRangeValue = (val: string | null | undefined): string | null =>
+{
+    if (val == null) return null;
+
+    const text = String(val).trim();
+    return text === "" ? null : text;
+};
+// #endregion

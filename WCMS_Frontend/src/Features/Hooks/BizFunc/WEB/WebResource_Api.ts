@@ -3,13 +3,23 @@ import { ApiDataService } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import { PGID } from "@/types/SchemaFields";
 import type { AxiosInstance } from "axios";
+
+// #region Property
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
-class WebResourceService extends ApiDataService<WebResourceSet>
+// #endregion
+
+// #region Public
+export class WebResourceService extends ApiDataService<WebResourceSet>
 {
+    // #region Public
     constructor(apiInstance?: AxiosInstance)
     {
         super(PGID.WebResource, apiInstance);
     }
+    // #endregion
 }
+export class WebResourceAdapterImpl extends ApiDataAdapter<WebResourceSet, WebResourceService>
+{}
 export const WebResourceAdapter = (apiInstance?: AxiosInstance) =>
-    new ApiDataAdapter<WebResourceSet, WebResourceService>((api?: AxiosInstance) => new WebResourceService(api ?? apiInstance));
+    new WebResourceAdapterImpl((api?: AxiosInstance) => new WebResourceService(api ?? apiInstance));
+// #endregion

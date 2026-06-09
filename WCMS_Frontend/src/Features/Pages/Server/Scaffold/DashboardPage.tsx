@@ -8,6 +8,7 @@ import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { Outlet, useMatches } from "react-router-dom";
 import { GoTop } from "@/Features/Pages/Client/Scaffold/MainFrame/GoTop/GoTop";
 
+// #region Public
 export const DashboardPage = ({ theme }: { theme: IBETheme; }) =>
 {
     const matches = useMatches();
@@ -45,4 +46,8 @@ export const DashboardPage = ({ theme }: { theme: IBETheme; }) =>
         </>
     );
 };
+// #endregion
+
+// #region Private
 export default DashboardPage;
+// #endregion

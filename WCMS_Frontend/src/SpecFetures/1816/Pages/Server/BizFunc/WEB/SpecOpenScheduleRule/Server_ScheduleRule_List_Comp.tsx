@@ -7,6 +7,17 @@ import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { ReactNode } from "react";
 import { useScheduleRuleListGridTemplate } from "./Server_ScheduleRule_List_Hook";
 
+// #region Public
+/** 學年度開放規則列表 */
+export const Server_ScheduleRule_List_Comp = (prop: { title: string; theme: IBETheme; }) =>
+{
+    const template = useScheduleRuleListGridTemplate();
+
+    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} renderSearchBar={renderScheduleRuleSearchBar} />;
+};
+// #endregion
+
+// #region EntityComp
 /** 渲染開放規則列表搜尋列 */
 const renderScheduleRuleSearchBar = (props: ServerListGridSearchRenderProps): ReactNode =>
 {
@@ -20,11 +31,4 @@ const renderScheduleRuleSearchBar = (props: ServerListGridSearchRenderProps): Re
         />
     );
 };
-
-/** 學年度開放規則列表 */
-export const Server_ScheduleRule_List_Comp = (prop: { title: string; theme: IBETheme; }) =>
-{
-    const template = useScheduleRuleListGridTemplate();
-
-    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} renderSearchBar={renderScheduleRuleSearchBar} />;
-};
+// #endregion

@@ -1,4 +1,4 @@
-import api, { type ApiResponse, MessageStatus, type SysMessageModel } from "@/SysCore/Utils/API/APIBase";
+import { api, type ApiResponse, MessageStatus, type SysMessageModel } from "@/SysCore/Utils/API/APIBase";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { PGID } from "@/types/SchemaFields";
@@ -6,8 +6,11 @@ import type { AxiosInstance, AxiosResponse } from "axios";
 import axios from "axios";
 import type { EnumOption } from "./SystemAPI_Hook";
 
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+// #endregion
 
+// #region Public
 /** API服務層
  * 注意:繼承的Function須一律Return ApiResponse格式，好讓後續hook、loader接收後有共同處理方式
  */
@@ -15,18 +18,17 @@ export class ApiBaseService
 {
     // #region Property
     protected readonly Module: PGID;
+
     protected readonly Api: AxiosInstance;
     // #endregion
 
-    // #region Construct
+    // #region Public
     constructor(module: PGID, apiInstance?: AxiosInstance)
     {
         this.Module = module;
         this.Api = apiInstance ?? api;
     }
-    // #endregion
 
-    // #region Protected
     protected async CallApi<U>(fn: () => Promise<AxiosResponse<ApiResponse<U>>>): Promise<ApiResponse<U>>
     {
         try
@@ -66,18 +68,22 @@ export class ApiBaseService
 
 export class ApiDataService<T> extends ApiBaseService
 {
+    // #region Public
     async create(data: T): Promise<ApiResponse<T>>
     {
         return await this.CallApi<T>(() => this.Api.post<ApiResponse<T>>(`${this.Module}/Create`, data));
     }
+
     async update(internalId: string, data: T): Promise<ApiResponse<T>>
     {
         return await this.CallApi<T>(() => this.Api.put<ApiResponse<T>>(`${this.Module}/Update`, { InternalId: internalId, Data: data }));
     }
+
     async delete(internalId: string): Promise<ApiResponse<T>>
     {
         return await this.CallApi<T>(() => this.Api.delete<ApiResponse<T>>(`${this.Module}/Delete`, { params: { internalId } }));
     }
+
     async invalid(internalId: string, isInvalid: boolean): Promise<ApiResponse<T>>
     {
         return await this.CallApi<T>(() => this.Api.delete<ApiResponse<T>>(`${this.Module}/Invalid`, { data: { internalId, isInvalid } }));
@@ -88,55 +94,59 @@ export class ApiDataService<T> extends ApiBaseService
         const query = await this.CallApi<T>(() => this.Api.get<ApiResponse<T>>(`${this.Module}/QueryData`, { params: { internalId } }));
         return query;
     }
+
     async queryList(condition: QueryListParam): Promise<ApiResponse<T[]>>
     {
         return await this.CallApi<T[]>(() => this.Api.post<ApiResponse<T[]>>(`${this.Module}/QueryList`, condition));
     }
+
     async queryCount(condition: QueryListParam): Promise<ApiResponse<number>>
     {
         return await this.CallApi<number>(() => this.Api.post<ApiResponse<number>>(`${this.Module}/GetTotalCounts`, condition));
     }
+
     async getModelDisplayName(): Promise<ApiResponse<ModelDisplaySchema[]>>
     {
         return await this.CallApi<ModelDisplaySchema[]>(() => this.Api.get<ApiResponse<ModelDisplaySchema[]>>(`${this.Module}/GetModelDisplayName`));
     }
+    // #endregion
 }
 
 export class SystemAPI extends ApiBaseService
 {
+    // #region Public
     constructor(apiInstance?: AxiosInstance)
     {
         super(PGID.SystemAPI, apiInstance);
     }
+
     async getEnumOptions(enumName: string): Promise<ApiResponse<EnumOption[]>>
     {
         return await this.CallApi<EnumOption[]>(() => this.Api.get(`${this.Module}/GetEnumOptions`, { params: { enumName } }));
     }
+    // #endregion
 }
 
 export class FileManagementAPI
 {
-    // #region property
+    // #region Property
     private static readonly BASEURL = PGID.FileManagement;
+
     private static readonly baseUrl = "/Service";
 
-    // #region 前台使用公開API
     private static readonly PUBLIC_PREVIEW_URL: string = `${this.baseUrl}/${this.BASEURL}/Public_Preview`;
-    private static readonly PUBLIC_DOWNLOAD_URL: string = `${this.baseUrl}/${this.BASEURL}/Public_Download`;
-    // #endregion
 
-    // #region 後台權限使用API
+    private static readonly PUBLIC_DOWNLOAD_URL: string = `${this.baseUrl}/${this.BASEURL}/Public_Download`;
+
     private static readonly SERVER_Preview_URL: string = `${this.baseUrl}/${this.BASEURL}/Server_Preview`;
+
     private static readonly SERVER_DOWNLOAD_URL: string = `${this.baseUrl}/${this.BASEURL}/Server_Download`;
+
     /** 後台上傳檔案url (但流程應該可以優化共用，待處理) */
     public static readonly Server_UploadTemp: string = `${this.baseUrl}/${this.BASEURL}/Server_UploadTemp`;
     // #endregion
 
-    // #endregion
-
     // #region Public
-
-    // #region 前台使用公開API
     /** 取得前台預覽網址
      *
      * @param internalId
@@ -149,6 +159,7 @@ export class FileManagementAPI
         const baseUrl = `${this.PUBLIC_PREVIEW_URL}/${encodeURIComponent(internalId)}`;
         return `${baseUrl}${this.buildQueryString(fileName)}`;
     }
+
     /** 取得前台下載網址
      *
      * @param internalId
@@ -161,9 +172,7 @@ export class FileManagementAPI
         const baseUrl = `${this.PUBLIC_DOWNLOAD_URL}/${encodeURIComponent(internalId)}`;
         return `${baseUrl}${this.buildQueryString(fileName)}`;
     }
-    // #endregion
 
-    // #region 後台權限使用API
     /** 取得前台預覽網址
      *
      * @param internalId
@@ -176,6 +185,7 @@ export class FileManagementAPI
         const baseUrl = `${this.SERVER_Preview_URL}/${encodeURIComponent(internalId)}`;
         return `${baseUrl}${this.buildQueryString(fileName)}`;
     }
+
     /** 取得後台下載網址
      *
      * @param internalId
@@ -188,8 +198,6 @@ export class FileManagementAPI
         const baseUrl = `${this.SERVER_DOWNLOAD_URL}/${encodeURIComponent(internalId)}`;
         return `${baseUrl}${this.buildQueryString(fileName)}`;
     }
-    // #endregion
-
     // #endregion
 
     // #region Private
@@ -205,3 +213,4 @@ export class FileManagementAPI
     }
     // #endregion
 }
+// #endregion

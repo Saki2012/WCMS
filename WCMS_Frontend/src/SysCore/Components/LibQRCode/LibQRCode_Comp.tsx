@@ -2,6 +2,7 @@
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import { QRCodeCanvas } from "qrcode.react";
 
+// #region Property
 export interface IQrCodeWithLogoProps
 {
     value: string;
@@ -13,7 +14,9 @@ export interface IQrCodeWithLogoProps
     enableLink?: boolean; // ✅ 是否可點擊
     linkTarget?: "_blank" | "_self"; // ✅ 另開/當前
 }
+// #endregion
 
+// #region Public
 export const QrCodeWithLogo_Comp = (props: IQrCodeWithLogoProps) =>
 {
     // 宣告變數
@@ -52,3 +55,4 @@ export const QrCodeWithLogo_Comp = (props: IQrCodeWithLogoProps) =>
         </LangNavLink>
     );
 };
+// #endregion

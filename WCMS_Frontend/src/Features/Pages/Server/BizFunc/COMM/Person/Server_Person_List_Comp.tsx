@@ -8,6 +8,7 @@ import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import type { ReactNode } from "react";
 import { usePersonListGridTemplate } from "./Server_Person_List_Hook";
 
+// #region Public
 /** 人員列表 */
 export const Server_Person_List_Comp = (prop: { title?: string; theme: IBETheme; lang?: Lang; }) =>
 {
@@ -16,7 +17,9 @@ export const Server_Person_List_Comp = (prop: { title?: string; theme: IBETheme;
 
     return <Server_ListGridTemplate_Comp Title={prop.title ?? "人員列表"} Theme={prop.theme} template={template} renderSearchBar={renderPersonSearchBar} />;
 };
+// #endregion
 
+// #region EntityComp
 /** 渲染人員列表搜尋列 */
 const renderPersonSearchBar = (props: ServerListGridSearchRenderProps): ReactNode =>
 {
@@ -30,3 +33,4 @@ const renderPersonSearchBar = (props: ServerListGridSearchRenderProps): ReactNod
         />
     );
 };
+// #endregion

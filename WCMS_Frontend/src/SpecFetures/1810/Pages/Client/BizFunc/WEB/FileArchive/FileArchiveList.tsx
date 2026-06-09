@@ -1,11 +1,11 @@
 /**公告清單 */
-import type { FileArchiveProps } from "@/Features/Pages/Client/BizFunc/WEB/FileArchive/FileArchiveList";
-import { useFileArchiveListData } from "@/Features/Pages/Client/BizFunc/WEB/FileArchive/FileArchiveList_Loader";
+import type { FileArchiveProps } from "@/Features/Pages/Client/BizFunc/WEB/FileArchive/Client_FileArchive_List_Comp";
+import { useFileArchiveListData } from "@/Features/Pages/Client/BizFunc/WEB/FileArchive/Client_FileArchive_List_Loader";
+import { Client_SearchBar_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/SearchBar/Client_SearchBar_Comp";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
 import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
-import { Client_SearchBar_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/SearchBar/Client_SearchBar_Comp";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
@@ -13,56 +13,31 @@ import type { components } from "@/types/api";
 import { FileArchiveFields, FileArchiveInfoFields } from "@/types/SchemaFields";
 import { useMemo } from "react";
 
+// #region Property
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];
+
 type FileArchiveDetail = components["schemas"]["FileArchiveDetail_DTO"];
+
 type FileArchiveUrlDetail = components["schemas"]["FileArchiveUrlDetail_DTO"];
+
 type WindowTarget = components["schemas"]["WindowTarget"];
+// #endregion
 
-const FileArchiveList = (props: FileArchiveProps) =>
+// #region Section
+/** 清單式 */
+const List_Comp = (prop: { lang: Lang; gridData: GridProps; theme: IFETheme; }) =>
 {
-    // 宣告變數
-    const useFileArchiveList = useFileArchiveListData({ lang: props.lang, opts: props.options });
-
-    const baseGrid = useMemo(() =>
-    {
-        // 執行 function：維持 1810 原本基礎欄位結構
-        return buildGridProps(
-            props.lang,
-            useFileArchiveList.list,
-            useFileArchiveList.pageNumber,
-            useFileArchiveList.totalPages,
-            useFileArchiveList.onPageChange,
-        );
-    }, [
-        props.lang,
-        useFileArchiveList.list,
-        useFileArchiveList.pageNumber,
-        useFileArchiveList.totalPages,
-        useFileArchiveList.onPageChange,
-    ]);
-
-    const adjustedGrid = useMemo(() =>
-    {
-        // 執行 function：補下載 / 下載次數欄位與 tag 名稱
-        return SetAdjustFunction(props.lang, baseGrid, useFileArchiveList.list, useFileArchiveList.tagMap);
-    }, [props.lang, baseGrid, useFileArchiveList.list, useFileArchiveList.tagMap]);
-
-    const content = useMemo(() =>
-    {
-        // return：保留 1810 原本 DOM 結構
-        return <List_Comp key="grid" lang={props.lang} gridData={adjustedGrid} theme={props.theme} />;
-    }, [props.lang, adjustedGrid, props.theme]);
-
+    // return：保留 1810 原本 DOM 結構
     return (
         <>
-            {useFileArchiveList.searchBar && <Client_SearchBar_Comp {...useFileArchiveList.searchBar} />}
-            <LoadingErrorHandler isLoading={useFileArchiveList.isLoading} errorList={useFileArchiveList.errorList}>{content}</LoadingErrorHandler>
+            <OperationGuideHelp_Comp lang={prop.lang} />
+            <Grid gridData={prop.gridData} style={prop.theme.GridView} pageStyle={prop.theme.Paginator} />
         </>
     );
 };
+// #endregion
 
-export default FileArchiveList;
-
+// #region EntityComp
 /** 建立 1810 基礎欄位 */
 const buildGridColumns = (): ColumnConfig[] =>
 {
@@ -86,6 +61,80 @@ const buildGridRows = (lang: Lang, datas: FileArchiveSet[], columns: ColumnConfi
     });
 };
 
+/** 建立 1810 GridProps */
+const buildGridProps = (lang: Lang, datas: FileArchiveSet[], pageNumber: number, totalPages: number, onPageChange: (page: number) => void): GridProps =>
+{
+    // 宣告變數
+    const columns = buildGridColumns();
+    const rows = buildGridRows(lang, datas, columns);
+
+    // return
+    return { columns, rows, CurrentPage: pageNumber, TotalPage: totalPages, onPageChange } as GridProps;
+};
+
+/** 建立下載內容 */
+const buildDownloadContent = (fileRows: FileArchiveDetail[], urlRows: FileArchiveUrlDetail[]): JSX.Element =>
+{
+    // 宣告變數
+    let content = <></>;
+
+    // 執行 function：實體檔案
+    fileRows.forEach(item =>
+    {
+        content = <>{content} {SetDownloadIcon(item.FileSrcId ?? "", item.FileSrc?.FileExtension ?? "docx", item.FileName ?? "")}</>;
+    });
+
+    // 執行 function：外部連結
+    urlRows.forEach(item =>
+    {
+        content = <>{content} {SetUrlIcon(item.Url ?? "", item.UrlDescription ?? "", item.WindowTarget ?? 0)}</>;
+    });
+
+    // return
+    return content;
+};
+// #endregion
+
+// #region Private
+const FileArchiveList = (props: FileArchiveProps) =>
+{
+    // 宣告變數
+    const useFileArchiveList = useFileArchiveListData({ lang: props.lang, opts: props.options });
+
+    const baseGrid = useMemo(() =>
+    {
+        // 執行 function：維持 1810 原本基礎欄位結構
+        return buildGridProps(
+            props.lang,
+            useFileArchiveList.list,
+            useFileArchiveList.pageNumber,
+            useFileArchiveList.totalPages,
+            useFileArchiveList.onPageChange,
+        );
+    }, [props.lang, useFileArchiveList.list, useFileArchiveList.pageNumber, useFileArchiveList.totalPages, useFileArchiveList.onPageChange]);
+
+    const adjustedGrid = useMemo(() =>
+    {
+        // 執行 function：補下載 / 下載次數欄位與 tag 名稱
+        return SetAdjustFunction(props.lang, baseGrid, useFileArchiveList.list, useFileArchiveList.tagMap);
+    }, [props.lang, baseGrid, useFileArchiveList.list, useFileArchiveList.tagMap]);
+
+    const content = useMemo(() =>
+    {
+        // return：保留 1810 原本 DOM 結構
+        return <List_Comp key="grid" lang={props.lang} gridData={adjustedGrid} theme={props.theme} />;
+    }, [props.lang, adjustedGrid, props.theme]);
+
+    return (
+        <>
+            {useFileArchiveList.searchBar && <Client_SearchBar_Comp {...useFileArchiveList.searchBar} />}
+            <LoadingErrorHandler isLoading={useFileArchiveList.isLoading} errorList={useFileArchiveList.errorList}>{content}</LoadingErrorHandler>
+        </>
+    );
+};
+
+export default FileArchiveList;
+
 /** 取得基礎欄位內容 */
 const getBaseCellContent = (lang: Lang, item: FileArchiveSet, key: string): string =>
 {
@@ -99,17 +148,6 @@ const getBaseCellContent = (lang: Lang, item: FileArchiveSet, key: string): stri
         default:
             return "";
     }
-};
-
-/** 建立 1810 GridProps */
-const buildGridProps = (lang: Lang, datas: FileArchiveSet[], pageNumber: number, totalPages: number, onPageChange: (page: number) => void): GridProps =>
-{
-    // 宣告變數
-    const columns = buildGridColumns();
-    const rows = buildGridRows(lang, datas, columns);
-
-    // return
-    return { columns, rows, CurrentPage: pageNumber, TotalPage: totalPages, onPageChange } as GridProps;
 };
 
 /** 補下載 / 下載次數欄位與 tag 名稱 */
@@ -158,28 +196,6 @@ const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: FileArchiv
 
     // return：即使 rows 為空，也保留欄位
     return { ...gridProps, columns: newColumns, rows: newRows };
-};
-
-/** 建立下載內容 */
-const buildDownloadContent = (fileRows: FileArchiveDetail[], urlRows: FileArchiveUrlDetail[]): JSX.Element =>
-{
-    // 宣告變數
-    let content = <></>;
-
-    // 執行 function：實體檔案
-    fileRows.forEach(item =>
-    {
-        content = <>{content} {SetDownloadIcon(item.FileSrcId ?? "", item.FileSrc?.FileExtension ?? "docx", item.FileName ?? "")}</>;
-    });
-
-    // 執行 function：外部連結
-    urlRows.forEach(item =>
-    {
-        content = <>{content} {SetUrlIcon(item.Url ?? "", item.UrlDescription ?? "", item.WindowTarget ?? 0)}</>;
-    });
-
-    // return
-    return content;
 };
 
 /** 取得目前語系的檔案列 */
@@ -256,15 +272,4 @@ const SetUrlIcon = (url: string, descript: string, target: WindowTarget) =>
         </a>
     );
 };
-
-/** 清單式 */
-const List_Comp = (prop: { lang: Lang; gridData: GridProps; theme: IFETheme; }) =>
-{
-    // return：保留 1810 原本 DOM 結構
-    return (
-        <>
-            <OperationGuideHelp_Comp lang={prop.lang} />
-            <Grid gridData={prop.gridData} style={prop.theme.GridView} pageStyle={prop.theme.Paginator} />
-        </>
-    );
-};
+// #endregion

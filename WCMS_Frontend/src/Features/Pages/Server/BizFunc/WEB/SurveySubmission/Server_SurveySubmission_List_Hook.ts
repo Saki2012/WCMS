@@ -11,7 +11,7 @@ import type { SearchFieldConfig, SearchValue, SearchValues } from "@/SysCore/Com
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
-import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
+import { formatDateTime } from "@/SysCore/Utils/Library/LibData";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
@@ -19,13 +19,13 @@ import { PGID, SurveyFields, SurveySubmissionsFields } from "@/types/SchemaField
 import { useCallback, useMemo } from "react";
 import { type NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 type SurveySubmissionSet = components["schemas"]["SurveySubmissionsSet_DTO"];
+
 type SurveySubmissionApiAdapter = ReturnType<typeof SurveySubmissionAdapter>;
 
-export const SURVEY_SUBMISSION_SURVEY_NAME_SEARCH_KEY = "surveyName";
-export const SURVEY_SUBMISSION_USER_NAME_SEARCH_KEY = "userName";
-export const SURVEY_SUBMISSION_EMAIL_SEARCH_KEY = "email";
 
 export interface SurveySubmissionSearchParams
 {
@@ -41,6 +41,7 @@ export interface SurveySubmissionSearchParams
     /** 填寫人 Email 搜尋關鍵字 */
     email?: string;
 }
+
 
 export interface SurveySubmissionListRawData
 {
@@ -66,6 +67,7 @@ export interface SurveySubmissionListRawData
     param: QueryListParam;
 }
 
+
 export interface SurveySubmissionListAdapter
 {
     /** 問卷回應 API adapter */
@@ -78,7 +80,17 @@ export interface SurveySubmissionListAdapter
     viewUrl: string;
 }
 
+
 export type SurveySubmissionListGridTemplate = ServerListGridTemplate<SurveySubmissionSearchParams, SurveySubmissionListRawData, SurveySubmissionListAdapter, QueryListParam>;
+// #endregion
+
+// #region Public
+export const SURVEY_SUBMISSION_SURVEY_NAME_SEARCH_KEY = "surveyName";
+
+export const SURVEY_SUBMISSION_USER_NAME_SEARCH_KEY = "userName";
+
+export const SURVEY_SUBMISSION_EMAIL_SEARCH_KEY = "email";
+
 
 /** 建立問卷回應後台 ListGridTemplate 設定 */
 export const useSurveySubmissionListGridTemplate = (opt: { lang: Lang; }): SurveySubmissionListGridTemplate =>
@@ -98,7 +110,9 @@ export const useSurveySubmissionListGridTemplate = (opt: { lang: Lang; }): Surve
         };
     }, [opt.lang]);
 };
+// #endregion
 
+// #region Private
 /** 執行問卷回應列表資料來源 Hook */
 const useSurveySubmissionListGridDataSource = (
     ctx: ServerListGridDataSourceContext<SurveySubmissionSearchParams, QueryListParam>,
@@ -149,6 +163,7 @@ const useSurveySubmissionListGridDataSource = (
     return { adapter: { ...apiAdapter, navigate, viewUrl }, rawData, isLoading, errors, refetchData };
 };
 
+
 /** 建立問卷回應搜尋欄位設定 */
 const buildSurveySubmissionSearchFields = (rawData: SurveySubmissionListRawData): SearchFieldConfig[] =>
 {
@@ -163,6 +178,7 @@ const buildSurveySubmissionSearchFields = (rawData: SurveySubmissionListRawData)
     ];
 };
 
+
 /** 將 SearchValues 轉為問卷回應列表查詢參數 */
 const toSurveySubmissionSearchParams = (values: SearchValues, lang: Lang): SurveySubmissionSearchParams =>
 {
@@ -173,6 +189,7 @@ const toSurveySubmissionSearchParams = (values: SearchValues, lang: Lang): Surve
         email: getSearchStringValue(values[SURVEY_SUBMISSION_EMAIL_SEARCH_KEY]),
     };
 };
+
 
 /** 建立問卷回應搜尋條件 */
 const buildSurveySubmissionSearchConditions = (ctx: { searchParams: SurveySubmissionSearchParams; }): string[] =>
@@ -197,6 +214,7 @@ const buildSurveySubmissionSearchConditions = (ctx: { searchParams: SurveySubmis
     return conditions;
 };
 
+
 /** 建立問卷回應列表完整 QueryParam */
 const buildSurveySubmissionQueryParam = (ctx: { searchParams: SurveySubmissionSearchParams; searchCondition: string; }): QueryListParam =>
 {
@@ -206,6 +224,7 @@ const buildSurveySubmissionQueryParam = (ctx: { searchParams: SurveySubmissionSe
 
     return { Fields: fields, Condition: condition, OrderBy: [{ Col: SurveySubmissionsFields.SubmitTime, Desc: true }], PageNumber: 1, PageSize: 10 };
 };
+
 
 /** 建立問卷回應列表查詢欄位 */
 const buildSurveySubmissionQueryFields = (): string[] =>
@@ -234,6 +253,7 @@ const buildSurveySubmissionQueryFields = (): string[] =>
     ];
 };
 
+
 /** 將問卷回應資料轉為 GridProps */
 const buildSurveySubmissionGridProps = (opt: { raw: SurveySubmissionListRawData; lang: Lang; adapter?: SurveySubmissionListAdapter; }): GridProps =>
 {
@@ -260,6 +280,7 @@ const buildSurveySubmissionGridProps = (opt: { raw: SurveySubmissionListRawData;
     });
 };
 
+
 /** 建立查看動作 */
 const buildViewActions = <TItem,>(adapter: SurveySubmissionListAdapter): GridAdjustAction<TItem>[] =>
 {
@@ -276,11 +297,13 @@ const buildViewActions = <TItem,>(adapter: SurveySubmissionListAdapter): GridAdj
     }];
 };
 
+
 /** 建立問卷回應列表欄位 */
 const buildColumns = (visibleCols: string[], raw: SurveySubmissionListRawData): ColumnConfig[] =>
 {
     return visibleCols.map((col) => ({ key: col, title: getColumnTitle(raw.modelDisplayName, col, getColumnFallbackTitle(col)) }));
 };
+
 
 /** 建立問卷回應列表列資料 */
 const buildSurveySubmissionRows = (raw: SurveySubmissionListRawData, lang: Lang, columns: ColumnConfig[]): GridRow[] =>
@@ -295,13 +318,14 @@ const buildSurveySubmissionRows = (raw: SurveySubmissionListRawData, lang: Lang,
             { col: columns[2], content: item?.Email ?? "" },
             { col: columns[3], content: item?.ContactPhone ?? "" },
             { col: columns[4], content: item?.Lang ?? "" },
-            { col: columns[5], content: FormatDateTime(item?.SubmitTime) },
+            { col: columns[5], content: formatDateTime(item?.SubmitTime) },
             { col: columns[6], content: getReplyStatusText(item?.ReplyStatus, lang) },
         ];
 
         return { keyId, cells };
     });
 };
+
 
 /** 依欄位代碼取得 ModelDisplayName 顯示文字 */
 const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, columnId: string, fallback: string): string =>
@@ -310,6 +334,7 @@ const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, columnId: s
     const hit = tables.flatMap((t) => t.Columns ?? []).find((c) => c.ColumnId === columnId);
     return hit?.ColumnDisplayName ?? fallback;
 };
+
 
 /** 取得欄位預設名稱 */
 const getColumnFallbackTitle = (col: string): string =>
@@ -327,6 +352,7 @@ const getColumnFallbackTitle = (col: string): string =>
     return map[col] ?? `【${col}】`;
 };
 
+
 /** 取得 SearchValue 的文字值 */
 const getSearchStringValue = (value: SearchValue): string | undefined =>
 {
@@ -336,9 +362,11 @@ const getSearchStringValue = (value: SearchValue): string | undefined =>
     return text.length > 0 ? text : undefined;
 };
 
+
 /** 取得回覆狀態文字 */
 const getReplyStatusText = (value: boolean | null | undefined, lang: Lang): string =>
 {
     if (lang === "en") return value ? "Replied" : "Not replied";
     return value ? "已回覆" : "未回覆";
 };
+// #endregion

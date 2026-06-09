@@ -9,10 +9,15 @@ import clsx from "clsx";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { KeyboardEvent, MouseEvent } from "react";
 
+// #region Property
 type BannerSet = components["schemas"]["BannerSet_DTO"];
+
 type BannerDetail = NonNullable<BannerSet["BannerDetail"]>[number];
+
 type BannerDetailInfo = NonNullable<BannerSet["BannerDetailInfo"]>[number];
+
 type SlideDirection = "next" | "prev";
+
 
 export interface CarouselDataProps
 {
@@ -21,6 +26,7 @@ export interface CarouselDataProps
     initialBanner: BannerSet | null;
 }
 
+
 interface SlideState
 {
     fromIndex: number;
@@ -28,6 +34,7 @@ interface SlideState
     direction: SlideDirection;
     phase: "prepare" | "animate";
 }
+
 
 interface CarouselA11yText
 {
@@ -38,145 +45,9 @@ interface CarouselA11yText
     fallbackLink: string;
     indicator: (index: number) => string;
 }
+// #endregion
 
-const getCarouselA11yText = (lang: Lang): CarouselA11yText =>
-{
-    if (lang === "en")
-    {
-        return {
-            play: "Play carousel",
-            pause: "Pause carousel",
-            prev: "Previous slide",
-            next: "Next slide",
-            fallbackLink: "Carousel link",
-            indicator: (index) => `Go to slide ${index + 1}`,
-        };
-    }
-
-    return { play: "播放輪播", pause: "暫停輪播", prev: "上一張", next: "下一張", fallbackLink: "輪播連結", indicator: (index) => `切換到第 ${index + 1} 張` };
-};
-
-const toOkEnv = <T,>(data: T): ApiResponse<T> =>
-{
-    // return：統一成功 env
-    return { IsSuccess: true, SysMessage: [], Data: data };
-};
-
-const toInitial = <TArgs, TData>(args: TArgs, data: TData): ApiLoaderData<TArgs, TData> =>
-{
-    // return：SSR initial data
-    return { args, apiRes: toOkEnv(data) };
-};
-
-const buildBannerSetting = (banner: BannerSet | null) =>
-{
-    // 宣告變數：後端 interval 為秒，前端轉 ms
-    const intervalRaw = banner?.Banner?.Interval;
-    const speedRaw = banner?.Banner?.Speed;
-    const intervalNum = typeof intervalRaw === "number" ? intervalRaw : Number(intervalRaw);
-    const speedNum = typeof speedRaw === "number" ? speedRaw : Number(speedRaw);
-
-    // return：停留時間 + 動畫時間
-    return {
-        interval: Number.isFinite(intervalNum) && intervalNum > 0 ? intervalNum * 1000 : 5000,
-        speed: Number.isFinite(speedNum) && speedNum > 0 ? speedNum : 600,
-    };
-};
-
-const sortBannerDetails = (banner: BannerSet | null): BannerDetail[] =>
-{
-    // 宣告變數
-    const list = banner?.BannerDetail ?? [];
-
-    // return：依 Sort 穩定排序
-    return [...list].sort((a, b) =>
-    {
-        const as = Number.isFinite(a?.Sort) ? Number(a.Sort) : Number.MAX_SAFE_INTEGER;
-        const bs = Number.isFinite(b?.Sort) ? Number(b.Sort) : Number.MAX_SAFE_INTEGER;
-        return as - bs || (a.RowId ?? 0) - (b.RowId ?? 0);
-    });
-};
-
-const findBannerInfo = (banner: BannerSet | null, detail: BannerDetail, lang: Lang): BannerDetailInfo | undefined =>
-{
-    // return：找對應語系資料
-    return banner?.BannerDetailInfo?.find((x) => x.BannerId === detail.BannerId && x.ParentRowId === detail.RowId && x.Lang === lang);
-};
-
-const clampIndex = (index: number, total: number): number =>
-{
-    // return：避免索引超界
-    if (total <= 0) return 0;
-    if (index < 0) return 0;
-    if (index >= total) return 0;
-    return index;
-};
-
-const getNextIndex = (index: number, total: number): number =>
-{
-    // return：下一張索引
-    if (total <= 0) return 0;
-    return (index + 1) % total;
-};
-
-const getPrevIndex = (index: number, total: number): number =>
-{
-    // return：上一張索引
-    if (total <= 0) return 0;
-    return (index - 1 + total) % total;
-};
-
-const buildIdleItemClass = (itemIndex: number, activeIndex: number): string =>
-{
-    // return：非動畫中 class
-    return clsx("carousel-item", itemIndex === activeIndex ? "active" : "");
-};
-
-const buildSlidingItemClass = (itemIndex: number, activeIndex: number, slideState: SlideState): string =>
-{
-    // 宣告變數
-    const isFrom = itemIndex === slideState.fromIndex;
-    const isTo = itemIndex === slideState.toIndex;
-    const isNext = slideState.direction === "next";
-
-    // 執行 function：不在本次切換內的 slide
-    if (!isFrom && !isTo)
-    {
-        return clsx("carousel-item", itemIndex === activeIndex ? "active" : "");
-    }
-
-    // 執行 function：prepare 階段
-    if (slideState.phase === "prepare")
-    {
-        if (isFrom) return "carousel-item active";
-        if (isTo)
-        {
-            return clsx("carousel-item", isNext ? "carousel-item-next" : "carousel-item-prev");
-        }
-    }
-
-    // 執行 function：animate 階段
-    if (isFrom)
-    {
-        return clsx("carousel-item", "active", isNext ? "carousel-item-start" : "carousel-item-end");
-    }
-
-    if (isTo)
-    {
-        return clsx("carousel-item", isNext ? "carousel-item-next" : "carousel-item-prev", isNext ? "carousel-item-start" : "carousel-item-end");
-    }
-
-    // return：保底
-    return "carousel-item";
-};
-
-const buildItemClass = (itemIndex: number, activeIndex: number, slideState: SlideState | null): string =>
-{
-    // return：依是否動畫中決定 class
-    if (!slideState) return buildIdleItemClass(itemIndex, activeIndex);
-    return buildSlidingItemClass(itemIndex, activeIndex, slideState);
-};
-
+// #region Public
 export const CarouselData = (props: CarouselDataProps) =>
 {
     // 宣告變數：adapter
@@ -530,3 +401,156 @@ export const CarouselData = (props: CarouselDataProps) =>
         </div>
     );
 };
+// #endregion
+
+// #region EntityComp
+const buildBannerSetting = (banner: BannerSet | null) =>
+{
+    // 宣告變數：後端 interval 為秒，前端轉 ms
+    const intervalRaw = banner?.Banner?.Interval;
+    const speedRaw = banner?.Banner?.Speed;
+    const intervalNum = typeof intervalRaw === "number" ? intervalRaw : Number(intervalRaw);
+    const speedNum = typeof speedRaw === "number" ? speedRaw : Number(speedRaw);
+
+    // return：停留時間 + 動畫時間
+    return {
+        interval: Number.isFinite(intervalNum) && intervalNum > 0 ? intervalNum * 1000 : 5000,
+        speed: Number.isFinite(speedNum) && speedNum > 0 ? speedNum : 600,
+    };
+};
+
+
+const buildIdleItemClass = (itemIndex: number, activeIndex: number): string =>
+{
+    // return：非動畫中 class
+    return clsx("carousel-item", itemIndex === activeIndex ? "active" : "");
+};
+
+
+const buildSlidingItemClass = (itemIndex: number, activeIndex: number, slideState: SlideState): string =>
+{
+    // 宣告變數
+    const isFrom = itemIndex === slideState.fromIndex;
+    const isTo = itemIndex === slideState.toIndex;
+    const isNext = slideState.direction === "next";
+
+    // 執行 function：不在本次切換內的 slide
+    if (!isFrom && !isTo)
+    {
+        return clsx("carousel-item", itemIndex === activeIndex ? "active" : "");
+    }
+
+    // 執行 function：prepare 階段
+    if (slideState.phase === "prepare")
+    {
+        if (isFrom) return "carousel-item active";
+        if (isTo)
+        {
+            return clsx("carousel-item", isNext ? "carousel-item-next" : "carousel-item-prev");
+        }
+    }
+
+    // 執行 function：animate 階段
+    if (isFrom)
+    {
+        return clsx("carousel-item", "active", isNext ? "carousel-item-start" : "carousel-item-end");
+    }
+
+    if (isTo)
+    {
+        return clsx("carousel-item", isNext ? "carousel-item-next" : "carousel-item-prev", isNext ? "carousel-item-start" : "carousel-item-end");
+    }
+
+    // return：保底
+    return "carousel-item";
+};
+
+
+const buildItemClass = (itemIndex: number, activeIndex: number, slideState: SlideState | null): string =>
+{
+    // return：依是否動畫中決定 class
+    if (!slideState) return buildIdleItemClass(itemIndex, activeIndex);
+    return buildSlidingItemClass(itemIndex, activeIndex, slideState);
+};
+// #endregion
+
+// #region Private
+const getCarouselA11yText = (lang: Lang): CarouselA11yText =>
+{
+    if (lang === "en")
+    {
+        return {
+            play: "Play carousel",
+            pause: "Pause carousel",
+            prev: "Previous slide",
+            next: "Next slide",
+            fallbackLink: "Carousel link",
+            indicator: (index) => `Go to slide ${index + 1}`,
+        };
+    }
+
+    return { play: "播放輪播", pause: "暫停輪播", prev: "上一張", next: "下一張", fallbackLink: "輪播連結", indicator: (index) => `切換到第 ${index + 1} 張` };
+};
+
+
+const toOkEnv = <T,>(data: T): ApiResponse<T> =>
+{
+    // return：統一成功 env
+    return { IsSuccess: true, SysMessage: [], Data: data };
+};
+
+
+const toInitial = <TArgs, TData>(args: TArgs, data: TData): ApiLoaderData<TArgs, TData> =>
+{
+    // return：SSR initial data
+    return { args, apiRes: toOkEnv(data) };
+};
+
+
+const sortBannerDetails = (banner: BannerSet | null): BannerDetail[] =>
+{
+    // 宣告變數
+    const list = banner?.BannerDetail ?? [];
+
+    // return：依 Sort 穩定排序
+    return [...list].sort((a, b) =>
+    {
+        const as = Number.isFinite(a?.Sort) ? Number(a.Sort) : Number.MAX_SAFE_INTEGER;
+        const bs = Number.isFinite(b?.Sort) ? Number(b.Sort) : Number.MAX_SAFE_INTEGER;
+        return as - bs || (a.RowId ?? 0) - (b.RowId ?? 0);
+    });
+};
+
+
+const findBannerInfo = (banner: BannerSet | null, detail: BannerDetail, lang: Lang): BannerDetailInfo | undefined =>
+{
+    // return：找對應語系資料
+    return banner?.BannerDetailInfo?.find((x) => x.BannerId === detail.BannerId && x.ParentRowId === detail.RowId && x.Lang === lang);
+};
+
+
+const clampIndex = (index: number, total: number): number =>
+{
+    // return：避免索引超界
+    if (total <= 0) return 0;
+    if (index < 0) return 0;
+    if (index >= total) return 0;
+    return index;
+};
+
+
+const getNextIndex = (index: number, total: number): number =>
+{
+    // return：下一張索引
+    if (total <= 0) return 0;
+    return (index + 1) % total;
+};
+
+
+const getPrevIndex = (index: number, total: number): number =>
+{
+    // return：上一張索引
+    if (total <= 0) return 0;
+    return (index - 1 + total) % total;
+};
+// #endregion

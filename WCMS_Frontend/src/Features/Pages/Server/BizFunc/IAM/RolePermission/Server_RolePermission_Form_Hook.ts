@@ -14,10 +14,14 @@ import { useCallback, useEffect, useId, useMemo, useState, type CSSProperties, t
 
 // #region Property
 type RolePermissionSet = components["schemas"]["RolePermissionSet_DTO"];
+
 type RolePermissionRow = { PermissionKey?: string | null; GrantMask?: number | string | null; RoleId?: string | null; };
 
+
 type PermissionCatalogModule = components["schemas"]["PermissionCatalogModuleDTO"];
+
 type PermissionCatalogProg = components["schemas"]["PermissionCatalogProgDTO"];
+
 
 export interface PermissionCatalogProgDTO
 {
@@ -31,6 +35,7 @@ export interface PermissionCatalogProgDTO
     SupportMask: number;
 }
 
+
 export interface PermissionCatalogModuleDTO
 {
     /** 模組代碼 */
@@ -43,6 +48,7 @@ export interface PermissionCatalogModuleDTO
     Progs: PermissionCatalogProgDTO[];
 }
 
+
 export interface RolePermissionFormRefs
 {
     /** 權限模組目錄 */
@@ -51,6 +57,7 @@ export interface RolePermissionFormRefs
     /** 權限動作名稱對照 */
     actionNameMap: Record<string, string>;
 }
+
 
 export interface UseRolePermissionFormTemplateOptions
 {
@@ -70,13 +77,17 @@ export interface UseRolePermissionFormTemplateOptions
     actionsOpt: RolePermissionFormActionsOpt;
 }
 
+
 export type RolePermissionFormActionsOpt = {
     /** 儲存成功後返回角色權限列表 */
     onBackToList: () => void;
 };
 
+
 export type RolePermissionFormAdapter = ReturnType<typeof RolePermissionAdapter>;
+
 export type RolePermissionFormRawData = ServerFormDefaultRawData<RolePermissionSet, RolePermissionFormRefs>;
+
 
 export interface UseRolePermissionGrantBindingResult
 {
@@ -86,6 +97,7 @@ export interface UseRolePermissionGrantBindingResult
     /** 更新單一功能權限遮罩 */
     onGrantChange: (progId: string, nextGrantMask: number) => void;
 }
+
 
 export interface RolePermissionCatalogAccordionProps
 {
@@ -102,19 +114,9 @@ export interface RolePermissionCatalogAccordionProps
     actionNameMap?: Record<string, string>;
 }
 
-export const FuncAction = {
-    None: 0,
-    Use: 1 << 0,
-    Query: 1 << 1,
-    View: 1 << 2,
-    Create: 1 << 3,
-    Update: 1 << 4,
-    Delete: 1 << 5,
-    Invalid: 1 << 6,
-    All: (1 << 0) | (1 << 1) | (1 << 2) | (1 << 3) | (1 << 4) | (1 << 5) | (1 << 6),
-} as const;
 
 export type FuncAction = (typeof FuncAction)[keyof typeof FuncAction];
+
 
 export interface PermissionActionOption
 {
@@ -130,6 +132,7 @@ export interface PermissionActionOption
     /** 是否顯示 */
     visible: boolean;
 }
+
 
 export interface UseRolePermissionPermissionUIResult
 {
@@ -151,8 +154,9 @@ export interface UseRolePermissionPermissionUIResult
     onToggleModuleAll: (module: PermissionCatalogModuleDTO, checked: boolean) => void;
 }
 
+
 const rolePermissionEmptyRoleData = {} as NonNullable<RolePermissionSet["RoleData"]>;
-export const rolePermissionEmptyData: RolePermissionSet = { RoleData: rolePermissionEmptyRoleData, RolePermission: [] };
+
 
 const actionBase: { key: string; value: FuncAction; fallbackLabel: string; }[] = [
     { key: "use", value: FuncAction.Use, fallbackLabel: "使用" },
@@ -166,6 +170,21 @@ const actionBase: { key: string; value: FuncAction; fallbackLabel: string; }[] =
 // #endregion
 
 // #region Public
+export const FuncAction = {
+    None: 0,
+    Use: 1 << 0,
+    Query: 1 << 1,
+    View: 1 << 2,
+    Create: 1 << 3,
+    Update: 1 << 4,
+    Delete: 1 << 5,
+    Invalid: 1 << 6,
+    All: (1 << 0) | (1 << 1) | (1 << 2) | (1 << 3) | (1 << 4) | (1 << 5) | (1 << 6),
+} as const;
+
+export const rolePermissionEmptyData: RolePermissionSet = { RoleData: rolePermissionEmptyRoleData, RolePermission: [] };
+
+
 /** 建立 RolePermission Form Template，交給 Server_FormTemplate 統一處理查詢、CUD 與 toast。 */
 export const useRolePermissionFormTemplate = (
     opt: UseRolePermissionFormTemplateOptions,
@@ -190,6 +209,7 @@ export const useRolePermissionFormTemplate = (
     }, [opt.actionsOpt, opt.emptyData, opt.internalId, opt.lang, opt.theme]);
 };
 
+
 /** 建立 RolePermission 權限資料 binding，將 checkbox map 同步回 Form DTO。 */
 export const useRolePermissionGrantBinding = (binding: ServerFormBinding<RolePermissionSet>): UseRolePermissionGrantBindingResult =>
 {
@@ -209,6 +229,7 @@ export const useRolePermissionGrantBinding = (binding: ServerFormBinding<RolePer
 
     return { grantMap, onGrantChange };
 };
+
 
 /** RolePermission 權限 UI 行為 hook，處理 accordion、checkbox 與全選。 */
 export const useRolePermissionPermissionUI = (props: RolePermissionCatalogAccordionProps): UseRolePermissionPermissionUIResult =>
@@ -250,13 +271,14 @@ export const useRolePermissionPermissionUI = (props: RolePermissionCatalogAccord
 };
 // #endregion
 
-// #region Timing
+// #region Private
 /** 建立 RolePermission Form 標題，功能名稱優先讀 ModelDisplayName。 */
 const buildRolePermissionFormTitle = (ctx: { mode: "new" | "edit"; displayName: ModelDisplaySchema; }): string =>
 {
     const modelTitle = getRolePermissionModelTitle(ctx.displayName, "角色權限");
     return `${ctx.mode === "edit" ? "修改" : "新增"}${modelTitle}`;
 };
+
 
 /** 建立新增模式 initial data，避免保留舊 top-level initial 入口。 */
 const buildRolePermissionInitialData = (ctx: { mode: "new" | "edit"; emptyData: RolePermissionSet; }): ApiFormInitial<RolePermissionSet> | undefined =>
@@ -265,11 +287,13 @@ const buildRolePermissionInitialData = (ctx: { mode: "new" | "edit"; emptyData: 
     return { data: { args: "__new__", apiRes: { IsSuccess: true, Data: ctx.emptyData, SysMessage: [] } } };
 };
 
+
 /** 建立 RolePermission Form 主資料 Adapter。 */
 const buildRolePermissionFormAdapter = (): RolePermissionFormAdapter =>
 {
     return RolePermissionAdapter();
 };
+
 
 /** 取得 RolePermission 需要的權限目錄與動作 enum。 */
 const useRolePermissionReferenceData = (ctx: { adapter: RolePermissionFormAdapter; lang: Lang; }) =>
@@ -294,14 +318,14 @@ const useRolePermissionReferenceData = (ctx: { adapter: RolePermissionFormAdapte
         };
     }, [catalog.data, catalog.errorText, catalog.isLoading, catalog.refetch, funcAction.data, funcAction.error, funcAction.isLoading, funcAction.refetch]);
 };
-// #endregion
 
-// #region Private
+
 /** 取得 RolePermission Model 顯示名稱，避免標題寫死。 */
 const getRolePermissionModelTitle = (displayName: ModelDisplaySchema, fallback: string): string =>
 {
     return displayName.ModelDisplayName || fallback;
 };
+
 
 /** 將權限目錄轉成畫面需要的乾淨 DTO。 */
 const normalizePermissionModules = (modules: PermissionCatalogModule[] | undefined): PermissionCatalogModuleDTO[] =>
@@ -313,6 +337,7 @@ const normalizePermissionModules = (modules: PermissionCatalogModule[] | undefin
     }));
 };
 
+
 /** 將模組底下功能清單轉成畫面需要的乾淨 DTO。 */
 const normalizePermissionProgs = (progs: PermissionCatalogProg[] | undefined): PermissionCatalogProgDTO[] =>
 {
@@ -323,12 +348,14 @@ const normalizePermissionProgs = (progs: PermissionCatalogProg[] | undefined): P
     }));
 };
 
+
 /** GrantMask 轉 number。 */
 const toMaskNumber = (value: number | string | null | undefined): number =>
 {
     const parsed = typeof value === "number" ? value : Number(value);
     return Number.isFinite(parsed) ? parsed : 0;
 };
+
 
 /** 從表單資料建立 grantMap。 */
 const buildGrantMapFromForm = (set?: RolePermissionSet | null): Record<string, number> =>
@@ -346,6 +373,7 @@ const buildGrantMapFromForm = (set?: RolePermissionSet | null): Record<string, n
     return map;
 };
 
+
 /** 建立下一版 grantMap，供 checkbox 即時顯示。 */
 const buildNextGrantMap = (prev: Record<string, number>, key: string, nextGrantMask: number): Record<string, number> =>
 {
@@ -354,6 +382,7 @@ const buildNextGrantMap = (prev: Record<string, number>, key: string, nextGrantM
     else next[key] = nextGrantMask;
     return next;
 };
+
 
 /** 寫回單一 progId 對應的 GrantMask。 */
 const applyGrantToForm = (prev: RolePermissionSet, progId: string, nextGrantMask: number): RolePermissionSet =>
@@ -367,6 +396,7 @@ const applyGrantToForm = (prev: RolePermissionSet, progId: string, nextGrantMask
         ? upsertGrantRow(next, list, index, roleId, progId, nextGrantMask)
         : removeGrantRow(next, list, index);
 };
+
 
 /** 新增或更新權限列。 */
 const upsertGrantRow = (
@@ -390,6 +420,7 @@ const upsertGrantRow = (
     return next;
 };
 
+
 /** 移除權限列。 */
 const removeGrantRow = (next: RolePermissionSet, list: RolePermissionRow[], index: number): RolePermissionSet =>
 {
@@ -398,11 +429,13 @@ const removeGrantRow = (next: RolePermissionSet, list: RolePermissionRow[], inde
     return next;
 };
 
+
 /** 建立所有模組代碼。 */
 const buildModuleCodes = (modules: PermissionCatalogModuleDTO[]): string[] =>
 {
     return modules.map(module => module.ModuleCode).filter(Boolean);
 };
+
 
 /** 建立 RolePermission collapse 樣式 helper。 */
 const useRolePermissionCollapse = () =>
@@ -420,6 +453,7 @@ const useRolePermissionCollapse = () =>
     return { getCollapseStyle, getCollapseBodyStyle };
 };
 
+
 /** 建立權限動作選項。 */
 const useRolePermissionActionOptions = (actionNameMap: Record<string, string>) =>
 {
@@ -435,6 +469,7 @@ const useRolePermissionActionOptions = (actionNameMap: Record<string, string>) =
 
     return { actionOptions };
 };
+
 
 /** 建立模組展開 / 收合行為。 */
 const useRolePermissionModuleActions = (opt: {
@@ -457,6 +492,7 @@ const useRolePermissionModuleActions = (opt: {
     return { setAllExpanded, toggleModule };
 };
 
+
 /** 建立功能展開 / 收合行為。 */
 const useRolePermissionProgActions = (opt: { setExpandedProg: Dispatch<SetStateAction<Record<string, boolean>>>; }) =>
 {
@@ -469,6 +505,7 @@ const useRolePermissionProgActions = (opt: { setExpandedProg: Dispatch<SetStateA
     return { toggleProg };
 };
 
+
 /** 建立全部展開狀態 map。 */
 const buildExpandedMap = (codes: string[], isOpen: boolean): Record<string, boolean> =>
 {
@@ -477,11 +514,13 @@ const buildExpandedMap = (codes: string[], isOpen: boolean): Record<string, bool
     return state;
 };
 
+
 /** 建立功能展開 key。 */
 const getRolePermissionProgKey = (moduleCode: string, progId: string): string =>
 {
     return `${moduleCode}::${progId}`;
 };
+
 
 /** 建立權限勾選行為。 */
 const useRolePermissionGrantActions = (opt: {
@@ -504,6 +543,7 @@ const useRolePermissionGrantActions = (opt: {
 
     return useRolePermissionGrantActionResult({ ...opt, getGrantMask, getSupportedActions, getSupportedActionMask, isAllSupportedChecked, hasFlag });
 };
+
 
 /** 建立權限勾選回傳物件。 */
 const useRolePermissionGrantActionResult = (opt: {
@@ -542,11 +582,13 @@ const useRolePermissionGrantActionResult = (opt: {
     return { getSupportedActions: opt.getSupportedActions, getGrantMask: opt.getGrantMask, isAllSupportedChecked: opt.isAllSupportedChecked, isModuleAllChecked, onToggleAction, onToggleAllAction, onToggleModuleAll };
 };
 
+
 /** 建立支援動作遮罩。 */
 const buildSupportedActionMask = (actions: PermissionActionOption[]): number =>
 {
     return actions.reduce((acc, action) => acc | action.value, 0);
 };
+
 
 /** 建立全選 / 取消全選後的 GrantMask。 */
 const buildToggleAllGrantMask = (current: number, supportedMask: number, checked: boolean): number =>

@@ -10,12 +10,18 @@ import { type CSSProperties, useMemo, useState } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 import { type SpecUSRFormLoaderData, useSpecUSRFormFetchData } from "./SpecUSR_Form_Loader";
 
+// #region Property
 type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"];
+
 type SpecUSRPhoto = components["schemas"]["SpecUSRPhoto_DTO"];
+
 type SpecUSRDetail = components["schemas"]["SpecUSRDetail_DTO"];
+
 type FieldValue = string | number | boolean | null | undefined;
 
+
 const emptyData: SpecUSRSet = {};
+
 
 interface ISpecUSRFormProps
 {
@@ -23,6 +29,15 @@ interface ISpecUSRFormProps
     Lang: Lang;
 }
 
+
+interface GalleryOpenButtonProps
+{
+    count: number;
+    onOpen: () => void;
+}
+// #endregion
+
+// #region Public
 export const SpecUSRFormComp = (props: ISpecUSRFormProps) =>
 {
     // 宣告變數
@@ -42,12 +57,15 @@ export const SpecUSRFormComp = (props: ISpecUSRFormProps) =>
         </LoadingErrorHandler>
     );
 };
+// #endregion
 
+// #region Private
 const getColumnTitle = (columns: ColumnConfig[], key: string): string =>
 {
     // return
     return columns.find(p => p.key === key)?.title ?? "";
 };
+
 
 const getDetailValue = (detail: SpecUSRDetail | undefined, key: string): FieldValue =>
 {
@@ -58,17 +76,20 @@ const getDetailValue = (detail: SpecUSRDetail | undefined, key: string): FieldVa
     return data?.[key];
 };
 
+
 const hasValue = (value: FieldValue): boolean =>
 {
     // return
     return !(value === null || value === undefined || (typeof value === "string" && value.trim().length === 0));
 };
 
+
 const shouldRenderField = (showColumns: string[], colId: string, value: FieldValue): boolean =>
 {
     // return
     return showColumns.length > 0 && showColumns.includes(colId) && hasValue(value);
 };
+
 
 const SpecUSRForm = (
     { lang, rawData, showColumns, showColTitle }: { lang: string | Lang; rawData: SpecUSRSet; showColumns: string[]; showColTitle: ColumnConfig[]; },
@@ -254,11 +275,6 @@ const SpecUSRForm = (
     );
 };
 
-interface GalleryOpenButtonProps
-{
-    count: number;
-    onOpen: () => void;
-}
 
 const GalleryOpenButton = ({ count, onOpen }: GalleryOpenButtonProps) =>
 {
@@ -283,3 +299,4 @@ const GalleryOpenButton = ({ count, onOpen }: GalleryOpenButtonProps) =>
         </div>
     );
 };
+// #endregion

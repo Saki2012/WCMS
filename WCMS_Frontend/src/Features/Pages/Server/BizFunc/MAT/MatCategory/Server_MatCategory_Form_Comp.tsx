@@ -34,6 +34,7 @@ import {
 // #region Property
 type MatCategorySet = components["schemas"]["MatCategoryDataSet_DTO"];
 
+
 interface MatCategoryFormCompProps
 {
     /** 目前 ProgId，保留原 Route 傳入模式 */
@@ -49,6 +50,7 @@ interface MatCategoryFormCompProps
     lang: Lang;
 }
 
+
 interface MatCategoryContentProps
 {
     /** 後台主題設定 */
@@ -61,8 +63,10 @@ interface MatCategoryContentProps
     binding: ServerFormBinding<MatCategorySet>;
 }
 
+
 interface MatCategoryInfoFieldGridProps extends MatCategoryContentProps
 {}
+
 
 interface MatCategoryInfoFieldDisplayGridProps extends MatCategoryContentProps
 {
@@ -75,6 +79,7 @@ interface MatCategoryInfoFieldDisplayGridProps extends MatCategoryContentProps
     /** 子層 EditGrid 編輯狀態，回報給父層避免語意錯位 */
     onEditingStateChange: (args: EditGridEditingStateArgs) => void;
 }
+
 interface BuildMatCategorySubDetailToggleOptions
 {
     /** EditGrid Cell render 參數。 */
@@ -89,6 +94,7 @@ interface BuildMatCategorySubDetailToggleOptions
     /** 切換語系明細展開狀態。 */
     toggleSubDetail: (row: GridRow) => void;
 }
+
 const editGridStyle: IEditGridView_Style = {
     TableStyle: "table table-striped table-bordered table-hover",
     ToolbarStyle: "d-flex align-items-center justify-content-between mb-2",
@@ -145,6 +151,7 @@ const MatCategoryContentComp = (props: MatCategoryContentProps) =>
     return <TabContentComp tabInfos={tabInfo} components={components}></TabContentComp>;
 };
 
+
 /** 物件欄位設定區塊，父層欄位與語系顯示名稱皆改走 EditGrid。 */
 const MatCategoryInfoFieldGridComp = (props: MatCategoryInfoFieldGridProps) =>
 {
@@ -189,6 +196,7 @@ const MatCategoryInfoFieldGridComp = (props: MatCategoryInfoFieldGridProps) =>
     return <EditGrid {...fieldGrid.editGridProps} />;
 };
 
+
 /** 物件欄位語系顯示名稱子明細 Grid。 */
 const MatCategoryInfoFieldDisplayGridComp = (props: MatCategoryInfoFieldDisplayGridProps) =>
 {
@@ -215,6 +223,7 @@ const buildMatCategoryMainTabContent = (props: MatCategoryContentProps): Record<
     };
 };
 
+
 /** 建立欄位語系明細展開按鈕，父層編輯中不可開啟避免資料錯位。 */
 const buildMatCategorySubDetailToggle = (opt: BuildMatCategorySubDetailToggleOptions): ReactNode =>
 {
@@ -237,6 +246,15 @@ const buildMatCategorySubDetailToggle = (opt: BuildMatCategorySubDetailToggleOpt
     );
 };
 
+
+/** 建立返回列表路徑。 */
+const buildBackToListPath = (pathname: string): string =>
+{
+    return pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
+};
+// #endregion
+
+// #region Private
 /** 判斷語系明細按鈕是否停用，避免父層尚未確認時編輯子層。 */
 const shouldDisableMatCategorySubDetailToggle = (opt: BuildMatCategorySubDetailToggleOptions, isExpanded: boolean): boolean =>
 {
@@ -246,6 +264,7 @@ const shouldDisableMatCategorySubDetailToggle = (opt: BuildMatCategorySubDetailT
 
     return isParentRowEditing || !hasFieldValue || isOtherSubDetailEditing;
 };
+
 
 /** 取得語系明細按鈕提示文字。 */
 const getMatCategorySubDetailToggleTitle = (opt: BuildMatCategorySubDetailToggleOptions, isExpanded: boolean): string =>
@@ -258,13 +277,5 @@ const getMatCategorySubDetailToggleTitle = (opt: BuildMatCategorySubDetailToggle
     if (opt.isSubDetailEditing && !isExpanded) return "請先完成目前語系明細編輯";
 
     return isExpanded ? "收合語系明細" : "查看語系明細";
-};
-// #endregion
-
-// #region Private
-/** 建立返回列表路徑。 */
-const buildBackToListPath = (pathname: string): string =>
-{
-    return pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
 };
 // #endregion

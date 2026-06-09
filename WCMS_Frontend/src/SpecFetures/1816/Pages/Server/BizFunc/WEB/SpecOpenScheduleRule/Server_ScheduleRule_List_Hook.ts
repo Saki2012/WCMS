@@ -11,7 +11,7 @@ import type { SearchFieldConfig, SearchValue, SearchValues } from "@/SysCore/Com
 import { DefaultLang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
-import { FormatDate, FormatDateTime } from "@/SysCore/Utils/Library/LibData";
+import { formatDate, formatDateTime } from "@/SysCore/Utils/Library/LibData";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
@@ -19,18 +19,22 @@ import { AccountFields, PGID, SpecOpenScheduleRuleModelFields, SpecOpenScheduleR
 import { useCallback, useMemo } from "react";
 import { type NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 type SpecOpenScheduleRuleSet = components["schemas"]["SpecOpenScheduleRuleSet_DTO"];
+
 type ScheduleRuleApiAdapter = ReturnType<typeof SpecOpenScheduleRuleAdapter>;
+
 type ScheduleRuleCudActions = ReturnType<ScheduleRuleApiAdapter["hooks"]["useCudActions"]>;
 
-export const SCHEDULE_RULE_ACADEMIC_YEAR_SEARCH_KEY = "academicYearId";
 
 export interface ScheduleRuleSearchParams
 {
     /** 學年度搜尋關鍵字 */
     academicYearId?: string;
 }
+
 
 export interface ScheduleRuleListRawData
 {
@@ -56,6 +60,7 @@ export interface ScheduleRuleListRawData
     param: QueryListParam;
 }
 
+
 export interface ScheduleRuleListAdapter
 {
     /** 學年度開放規則 API adapter */
@@ -71,7 +76,43 @@ export interface ScheduleRuleListAdapter
     dirUrl: string;
 }
 
+
 export type ScheduleRuleListGridTemplate = ServerListGridTemplate<ScheduleRuleSearchParams, ScheduleRuleListRawData, ScheduleRuleListAdapter, QueryListParam>;
+
+
+type CrudDeps = {
+    /** React Router 導頁方法 */
+    navigate: NavigateFunction;
+
+    /** 目前 List 對應的 Form 路徑 */
+    dirUrl: string;
+
+    /** 刪除資料方法 */
+    deleteAsync: ScheduleRuleCudActions["deleteAsync"];
+
+    /** 刪除後重新查詢 */
+    afterDelete: () => Promise<void>;
+};
+
+
+type ScheduleRuleVisibleColumn = {
+    /** Grid 欄位 key */
+    key: string;
+
+    /** ModelDisplayName 對應表格代號 */
+    tableId: string;
+
+    /** ModelDisplayName 對應欄位代號 */
+    columnId: string;
+
+    /** 找不到 ModelDisplayName 時的預設標題 */
+    fallback: string;
+};
+// #endregion
+
+// #region Public
+export const SCHEDULE_RULE_ACADEMIC_YEAR_SEARCH_KEY = "academicYearId";
+
 
 /** 建立學年度開放規則純 Spec ListGridTemplate 設定 */
 export const useScheduleRuleListGridTemplate = (): ScheduleRuleListGridTemplate =>
@@ -91,7 +132,9 @@ export const useScheduleRuleListGridTemplate = (): ScheduleRuleListGridTemplate 
         };
     }, []);
 };
+// #endregion
 
+// #region Private
 /** 執行學年度開放規則列表資料來源 Hook */
 const useScheduleRuleListGridDataSource = (
     ctx: ServerListGridDataSourceContext<ScheduleRuleSearchParams, QueryListParam>,
@@ -136,6 +179,7 @@ const useScheduleRuleListGridDataSource = (
     return { adapter: { ...apiAdapter, cudActions, navigate, dirUrl }, rawData, isLoading: grid.isLoading, errors: grid.errors ?? [], refetchData };
 };
 
+
 /** 建立學年度開放規則搜尋欄位設定 */
 const buildScheduleRuleSearchFields = (rawData: ScheduleRuleListRawData): SearchFieldConfig[] =>
 {
@@ -149,6 +193,7 @@ const buildScheduleRuleSearchFields = (rawData: ScheduleRuleListRawData): Search
     return [{ key: SCHEDULE_RULE_ACADEMIC_YEAR_SEARCH_KEY, title: academicYearTitle, type: "text", placeholder: `請輸入${academicYearTitle}` }];
 };
 
+
 /** 將 SearchValues 轉為學年度開放規則查詢參數 */
 const toScheduleRuleSearchParams = (values: SearchValues): ScheduleRuleSearchParams =>
 {
@@ -156,6 +201,7 @@ const toScheduleRuleSearchParams = (values: SearchValues): ScheduleRuleSearchPar
         academicYearId: getSearchStringValue(values[SCHEDULE_RULE_ACADEMIC_YEAR_SEARCH_KEY]),
     };
 };
+
 
 /** 建立學年度開放規則搜尋條件 */
 const buildScheduleRuleSearchConditions = (ctx: { searchParams: ScheduleRuleSearchParams; }): string[] =>
@@ -170,6 +216,7 @@ const buildScheduleRuleSearchConditions = (ctx: { searchParams: ScheduleRuleSear
     return conditions;
 };
 
+
 /** 建立學年度開放規則列表完整 QueryParam */
 const buildScheduleRuleQueryParam = (ctx: { searchCondition: string; }): QueryListParam =>
 {
@@ -181,6 +228,7 @@ const buildScheduleRuleQueryParam = (ctx: { searchCondition: string; }): QueryLi
         PageSize: 10,
     };
 };
+
 
 /** 建立學年度開放規則列表查詢欄位 */
 const buildScheduleRuleQueryFields = (): string[] =>
@@ -197,33 +245,6 @@ const buildScheduleRuleQueryFields = (): string[] =>
     ];
 };
 
-type CrudDeps = {
-    /** React Router 導頁方法 */
-    navigate: NavigateFunction;
-
-    /** 目前 List 對應的 Form 路徑 */
-    dirUrl: string;
-
-    /** 刪除資料方法 */
-    deleteAsync: ScheduleRuleCudActions["deleteAsync"];
-
-    /** 刪除後重新查詢 */
-    afterDelete: () => Promise<void>;
-};
-
-type ScheduleRuleVisibleColumn = {
-    /** Grid 欄位 key */
-    key: string;
-
-    /** ModelDisplayName 對應表格代號 */
-    tableId: string;
-
-    /** ModelDisplayName 對應欄位代號 */
-    columnId: string;
-
-    /** 找不到 ModelDisplayName 時的預設標題 */
-    fallback: string;
-};
 
 /** 將學年度開放規則資料轉為 GridProps */
 const buildScheduleRuleGridProps = (
@@ -254,6 +275,7 @@ const buildScheduleRuleGridProps = (
     });
 };
 
+
 /** 注入學年度開放規則 Grid 編輯與刪除動作 */
 const enhanceScheduleRuleGrid = (
     opt: {
@@ -282,6 +304,7 @@ const enhanceScheduleRuleGrid = (
         getInternalId: (set) => set.SpecOpenScheduleRule?.InternalId ?? "",
     });
 };
+
 
 /** 建立學年度開放規則列表顯示欄位設定 */
 const buildScheduleRuleVisibleColumns = (): ScheduleRuleVisibleColumn[] =>
@@ -326,17 +349,20 @@ const buildScheduleRuleVisibleColumns = (): ScheduleRuleVisibleColumn[] =>
     ];
 };
 
+
 /** 建立學年度開放規則列表欄位定義 */
 const buildColumns = (visibleCols: ScheduleRuleVisibleColumn[], raw: ScheduleRuleListRawData): ColumnConfig[] =>
 {
     return visibleCols.map((col) => ({ key: col.key, title: getColumnTitle(raw.modelDisplayName, col.tableId, col.columnId, col.fallback) }));
 };
 
+
 /** 建立學年度開放規則列表列資料 */
 const buildScheduleRuleRows = (raw: ScheduleRuleListRawData, columns: ColumnConfig[]): GridRow[] =>
 {
     return (raw.list ?? []).map((set) => buildScheduleRuleRow(set, columns));
 };
+
 
 /** 建立學年度開放規則列表單列資料 */
 const buildScheduleRuleRow = (set: SpecOpenScheduleRuleSet, columns: ColumnConfig[]): GridRow =>
@@ -348,6 +374,7 @@ const buildScheduleRuleRow = (set: SpecOpenScheduleRuleSet, columns: ColumnConfi
     return { keyId, cells };
 };
 
+
 /** 依欄位 key 取得學年度開放規則 Grid 內容 */
 const getScheduleRuleCellContent = (key: string, set: SpecOpenScheduleRuleSet): RowCell["content"] =>
 {
@@ -358,19 +385,20 @@ const getScheduleRuleCellContent = (key: string, set: SpecOpenScheduleRuleSet): 
         case SpecOpenScheduleRuleModelFields.AcademicYearId:
             return scheduleRule?.AcademicYearId ?? "";
         case SpecOpenScheduleRuleModelFields.AcademicStart:
-            return FormatDate(scheduleRule?.AcademicStart);
+            return formatDate(scheduleRule?.AcademicStart);
         case SpecOpenScheduleRuleModelFields.AcademicEnd:
-            return FormatDate(scheduleRule?.AcademicEnd);
+            return formatDate(scheduleRule?.AcademicEnd);
         case SpecOpenScheduleRuleModelFields.CreateTime:
-            return FormatDateTime(scheduleRule?.CreateTime);
+            return formatDateTime(scheduleRule?.CreateTime);
         case AccountFields.AccountName:
             return scheduleRule?.ModifyUser?.AccountName ?? "";
         case SpecOpenScheduleRuleModelFields.ModifyTime:
-            return FormatDateTime(scheduleRule?.ModifyTime);
+            return formatDateTime(scheduleRule?.ModifyTime);
         default:
             return "";
     }
 };
+
 
 /** 依表格與欄位代碼取得 ModelDisplayName 顯示文字 */
 const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, tableId: string, columnId: string, fallback: string): string =>
@@ -382,6 +410,7 @@ const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, tableId: st
     return hit?.ColumnDisplayName ?? fallback;
 };
 
+
 /** 取得 SearchValue 的文字值 */
 const getSearchStringValue = (value: SearchValue): string | undefined =>
 {
@@ -390,3 +419,4 @@ const getSearchStringValue = (value: SearchValue): string | undefined =>
     const text = value.trim();
     return text.length > 0 ? text : undefined;
 };
+// #endregion

@@ -1,9 +1,10 @@
-import { useEffect } from "react";
-import type { FC } from "react";
 import { DefaultLang } from "@/SysCore/i18n/lang";
 import type { Lang } from "@/SysCore/i18n/lang";
+import { useEffect } from "react";
+import type { FC } from "react";
 import "./Accesskey.css";
 
+// #region Property
 /**
  * import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
  * <Accesskey type="U" lang={lang} /> 上方導覽連結區
@@ -17,24 +18,18 @@ import "./Accesskey.css";
  * ========================= */
 
 type AccesskeyType = "U" | "C" | "L" | "Z";
-
-type AccesskeyA11yText = {
-    title: string;
-};
-
-interface AccesskeyProps {
+type AccesskeyA11yText = { title: string; };
+interface AccesskeyProps
+{
     type: AccesskeyType;
     lang?: Lang;
     className?: string;
 }
-
 /* =========================
  * constants
  * ========================= */
-
 const SITE_HEADER_ID = "Site-Header";
 const ACCESSKEY_HEIGHT_CSS_VAR = "--for-accesskey-height";
-
 /* =========================
  * i18n map
  * ========================= */
@@ -61,11 +56,9 @@ const ACCESSKEY_MAP: Record<AccesskeyType, Partial<Record<Lang, AccesskeyA11yTex
         en: { title: "Website Footer (Alt+Z)" },
     },
 };
-
 /* =========================
  * className map
  * ========================= */
-
 const ACCESSKEY_CLASS_MAP: Record<AccesskeyType, string> = {
     U: "accesskey_header",
     C: "accesskey_main",
@@ -76,16 +69,31 @@ const ACCESSKEY_CLASS_MAP: Record<AccesskeyType, string> = {
 /* =========================
  * shared resize binding
  * ========================= */
-
 let accesskeyBindingCount = 0;
 let accesskeyCleanup: (() => void) | null = null;
+// #endregion
 
+// #region Public
+export const Accesskey: FC<AccesskeyProps> = ({ type, lang, className }) =>
+{
+    useAccesskeyHeaderHeight();
+    const a11y = getAccesskey(type, lang);
+    return (
+        <section className="accesskey_section">
+            <a accessKey={type} id={`A${type}`} href={`#A${type}`} className={`${ACCESSKEY_CLASS_MAP[type]} ${className ?? ""}`} title={a11y.title} aria-label={a11y.title}>
+                :::
+            </a>
+        </section>
+    );
+};
+// #endregion
+
+// #region Private
 /** 取得 Accesskey 顯示文案 */
 const getAccesskey = (type: AccesskeyType, lang?: Lang): AccesskeyA11yText =>
 {
     const key = lang ?? DefaultLang;
     const map = ACCESSKEY_MAP[type];
-
     return map[key] ?? ACCESSKEY_MAP[type][DefaultLang]!;
 };
 
@@ -93,7 +101,6 @@ const getAccesskey = (type: AccesskeyType, lang?: Lang): AccesskeyA11yText =>
 const getSiteHeaderHeight = (): number =>
 {
     const header = document.getElementById(SITE_HEADER_ID);
-
     return Math.ceil(header?.getBoundingClientRect().height ?? 0);
 };
 
@@ -107,39 +114,32 @@ const setAccesskeyHeight = (height: number): void =>
 const syncAccesskeyHeight = (): void =>
 {
     const height = getSiteHeaderHeight();
-
     setAccesskeyHeight(height);
 };
 
 /** 建立共用監聽 */
-const bindAccesskeyHeight = (): (() => void) =>
+const bindAccesskeyHeight = (): () => void =>
 {
     let frameId = 0;
-
     const sync = (): void =>
     {
         if (frameId > 0) window.cancelAnimationFrame(frameId);
-
         frameId = window.requestAnimationFrame(() =>
         {
             frameId = 0;
             syncAccesskeyHeight();
         });
     };
-
     const header = document.getElementById(SITE_HEADER_ID);
     const resizeObserver = header && "ResizeObserver" in window ? new ResizeObserver(sync) : null;
-
     sync();
     window.addEventListener("load", sync);
     window.addEventListener("pageshow", sync);
     window.addEventListener("resize", sync);
     resizeObserver?.observe(header!);
-
     return () =>
     {
         if (frameId > 0) window.cancelAnimationFrame(frameId);
-
         window.removeEventListener("load", sync);
         window.removeEventListener("pageshow", sync);
         window.removeEventListener("resize", sync);
@@ -169,29 +169,4 @@ const useAccesskeyHeaderHeight = (): void =>
         };
     }, []);
 };
-
-/* =========================
- * component
- * ========================= */
-
-export const Accesskey: FC<AccesskeyProps> = ({ type, lang, className }) =>
-{
-    useAccesskeyHeaderHeight();
-
-    const a11y = getAccesskey(type, lang);
-
-    return (
-        <section className="accesskey_section">
-            <a
-                accessKey={type}
-                id={`A${type}`}
-                href={`#A${type}`}
-                className={`${ACCESSKEY_CLASS_MAP[type]} ${className ?? ""}`}
-                title={a11y.title}
-                aria-label={a11y.title}
-            >
-                :::
-            </a>
-        </section>
-    );
-};
+// #endregion

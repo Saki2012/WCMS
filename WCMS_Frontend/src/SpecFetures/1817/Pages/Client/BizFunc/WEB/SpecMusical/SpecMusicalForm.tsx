@@ -1,4 +1,3 @@
-//#region Property
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
@@ -11,73 +10,27 @@ import { useParams } from "react-router";
 import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
 import { useSpecMusicalFormData } from "./SpecMusicalForm_Loader";
 
+// #region Property
 type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"];
+
 type SpecMusicalModel = components["schemas"]["SpecMusicalModel_DTO"];
+
 type SpecMusicalPictureList = components["schemas"]["SpecMusicalPictureList_DTO"];
+
 type SpecMusicalSoundList = components["schemas"]["SpecMusicalSoundList_DTO"];
 
+
 let globalCurrentAudio: HTMLAudioElement | null = null;
+
 
 interface ISpecMusicalFormProps
 {
     site: INormSite;
     node: INormNode;
 }
+// #endregion
 
-//#endregion
-
-//#region Public
-const SpecMusicalForm = (props: ISpecMusicalFormProps) =>
-{
-    // 宣告變數
-    const { internalId } = useParams();
-    const safeInternalId = `${internalId ?? ""}`.trim();
-
-    // 執行 function：QueryData / DisplayName 交給 Client_DataQueryTemplate
-    const useData = useSpecMusicalFormData({ internalId: safeInternalId });
-
-    const errorList = useData.errorList;
-
-    const title = useData.title;
-    const viewCountConfig = useMemo<ModuleViewCountConfig>(() =>
-    {
-        const request: TryCountDetailViewRequest = { SiteIndex: props.site.siteIndex, ProgId: PGID.SpecMusical, InternalId: safeInternalId };
-        return { mode: "form", contentKey: safeInternalId, request };
-    }, [safeInternalId]);
-    // return（DOM 不改）
-    return (
-        <ModuleContent nodeTitle={props.node.title} title={title} isLoading={useData.isLoading} errorList={errorList} viewCountConfig={viewCountConfig}>
-            <MainContent data={useData.data ?? undefined} displayName={useData.displaySchema} />
-        </ModuleContent>
-    );
-};
-
-export default SpecMusicalForm;
-//#endregion
-
-//#region Section / EntityComp
-
-const MainContent = (props: { data?: SpecMusicalSet; displayName: ModelDisplaySchema | null; }) =>
-{
-    if (!props.data) return null;
-
-    return (
-        <>
-            <div className="commodity_details_content + Layout_Padding_2_bottom">
-                <div className="row">
-                    <PicturesComp pics={props.data?.SpecMusicalPictureList ?? []} />
-                    <InfoComp info={props.data?.SpecMusical ?? {}} displayName={props.displayName} />
-                </div>
-            </div>
-            <div className="commodity_details_content + Layout_Padding_2_top">
-                <div id="commodity_Horizontal" className="H-commodity-nav-tabs-content-box">
-                    <SoundComp sounds={props.data?.SpecMusicalSoundList ?? []} />
-                </div>
-            </div>
-        </>
-    );
-};
-
+// #region Section
 const PicturesComp = (props: { pics: SpecMusicalPictureList[]; }) =>
 {
     const mainRef = useRef<HTMLDivElement | null>(null);
@@ -283,6 +236,7 @@ const PicturesComp = (props: { pics: SpecMusicalPictureList[]; }) =>
     );
 };
 
+
 const InfoComp = (props: { info: SpecMusicalModel; displayName: ModelDisplaySchema | null; }) =>
 {
     const columns = props.displayName?.Tables?.find(p => p.TableId === SpecMusicalSetFields.SpecMusical)?.Columns ?? [];
@@ -362,6 +316,7 @@ const InfoComp = (props: { info: SpecMusicalModel; displayName: ModelDisplaySche
     );
 };
 
+
 const SoundComp = (props: { sounds: SpecMusicalSoundList[]; }) =>
 {
     return (
@@ -392,6 +347,60 @@ const SoundComp = (props: { sounds: SpecMusicalSoundList[]; }) =>
         </div>
     );
 };
+// #endregion
+
+// #region Private
+const SpecMusicalForm = (props: ISpecMusicalFormProps) =>
+{
+    // 宣告變數
+    const { internalId } = useParams();
+    const safeInternalId = `${internalId ?? ""}`.trim();
+
+    // 執行 function：QueryData / DisplayName 交給 Client_DataQueryTemplate
+    const useData = useSpecMusicalFormData({ internalId: safeInternalId });
+
+    const errorList = useData.errorList;
+
+    const title = useData.title;
+    const viewCountConfig = useMemo<ModuleViewCountConfig>(() =>
+    {
+        const request: TryCountDetailViewRequest = { SiteIndex: props.site.siteIndex, ProgId: PGID.SpecMusical, InternalId: safeInternalId };
+        return { mode: "form", contentKey: safeInternalId, request };
+    }, [safeInternalId]);
+    // return（DOM 不改）
+    return (
+        <ModuleContent nodeTitle={props.node.title} title={title} isLoading={useData.isLoading} errorList={errorList} viewCountConfig={viewCountConfig}>
+            <MainContent data={useData.data ?? undefined} displayName={useData.displaySchema} />
+        </ModuleContent>
+    );
+};
+
+
+export default SpecMusicalForm;
+
+
+
+const MainContent = (props: { data?: SpecMusicalSet; displayName: ModelDisplaySchema | null; }) =>
+{
+    if (!props.data) return null;
+
+    return (
+        <>
+            <div className="commodity_details_content + Layout_Padding_2_bottom">
+                <div className="row">
+                    <PicturesComp pics={props.data?.SpecMusicalPictureList ?? []} />
+                    <InfoComp info={props.data?.SpecMusical ?? {}} displayName={props.displayName} />
+                </div>
+            </div>
+            <div className="commodity_details_content + Layout_Padding_2_top">
+                <div id="commodity_Horizontal" className="H-commodity-nav-tabs-content-box">
+                    <SoundComp sounds={props.data?.SpecMusicalSoundList ?? []} />
+                </div>
+            </div>
+        </>
+    );
+};
+
 
 const AudioPlayer = (props: { src: string; }) =>
 {
@@ -617,4 +626,4 @@ const AudioPlayer = (props: { src: string; }) =>
         </div>
     );
 };
-//#endregion
+// #endregion

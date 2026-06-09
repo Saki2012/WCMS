@@ -22,11 +22,14 @@ import type { INaviBarStyle } from "@/SysCore/Components/NaviBar/NaviBar_Clsx";
 import type { IPaginator_Style } from "@/SysCore/Components/Paginator/Paginator_Clsx";
 import { clsx } from "clsx";
 
+// #region Public
 /** 後台BreadCrumb樣式 */
 export const Classic_BreadCrumb: IBreadCrumbStyle = { ul: clsx("breadcrumb", "mb-0"), li: (isLast: boolean) => clsx("breadcrumb-item", { "active": isLast }) };
 
+
 /** 經典樣式 */
 export const Classic_NaviBarMenu: INaviBarStyle = { ul: clsx("navbar-nav", "me-auto", "mb-2", "mb-lg-0"), li: clsx("nav-item") };
+
 
 /** 經典Menu樣式 */
 export const Classic_SidebarMenu: IMenu_Style = {
@@ -36,8 +39,10 @@ export const Classic_SidebarMenu: IMenu_Style = {
         clsx("pc-item", { "pc-caption": isFirst, "Left_line": isFirst, "pc-hasmenu": hasMenu, "open-trigger": isExpanded }),
 };
 
+
 /** 頁籤樣式 */
 export const Classic_LibTabs: ILibTabsStyle = { UlStyle: clsx("nav", "nav-tabs", "wcms-tabs"), LiStyle: clsx("nav-item"), BtnStyle: clsx("nav-link") };
+
 
 /** 下拉選單樣式 */
 export const Classic_LibDropList: ILibDropListStyle = {
@@ -45,11 +50,13 @@ export const Classic_LibDropList: ILibDropListStyle = {
     SelectStyle: clsx("col-md-10", "col-sm-12", "float-md-left", "float-sm-none", "mb-1"),
     OptionsStyle: clsx("form-select"),
 };
+
 export const Classic_LibDropList2: ILibDropListStyle = {
     Labelstyle: clsx("col-md-2", "col-sm-12", "float-md-left", "float-sm-none", "col-form-label", "mb-1"),
     SelectStyle: clsx("col-md-4", "col-sm-12", "float-md-left", "float-sm-none", "mb-1"),
     OptionsStyle: clsx("form-select"),
 };
+
 
 /** 文字輸入框樣式 */
 export const Classic_LibTextBox: ILibTextBoxStyle = {
@@ -57,12 +64,14 @@ export const Classic_LibTextBox: ILibTextBoxStyle = {
     SelectStyle: clsx("col-md-10", "col-sm-12", "float-md-left", "float-sm-none", "mb-1"),
     InputStyle: clsx("form-control"),
 };
+
 /** 文字輸入框樣式2 */
 export const Classic_LibTextBox2: ILibTextBoxStyle2 = {
     Labelstyle: clsx("col-md-4", "col-sm-12", "float-md-left", "float-sm-none", "col-form-label", "mb-1"),
     SelectStyle: clsx("col-md-8", "col-sm-12", "float-md-left", "float-sm-none", "mb-1"),
     InputStyle: clsx("form-control"),
 };
+
 /** 文字輸入框樣式3 */
 export const Classic_LibTextBox3: ILibTextBoxStyle3 = {
     Labelstyle: clsx("col-md-2", "col-sm-12", "float-md-left", "float-sm-none", "col-form-label", "mb-1"),
@@ -70,12 +79,14 @@ export const Classic_LibTextBox3: ILibTextBoxStyle3 = {
     InputStyle: clsx("form-control"),
 };
 
+
 /** 多行文字輸入框樣式 */
 export const Classic_LibTextArea: ILibTextAreaStyle = {
     Labelstyle: clsx("col-md-2", "col-sm-12", "float-md-left", "float-sm-none", "col-form-label", "mb-1"),
     SelectStyle: clsx("col-md-10", "col-sm-12", "float-md-left", "float-sm-none", "mb-1"),
     InputStyle: clsx("custom-form-control-height-lg", "form-control"),
 };
+
 /** 多行文字輸入框樣式2 */
 export const Classic_LibTextArea2: ILibTextAreaStyle2 = {
     Labelstyle: clsx("col-md-4", "col-sm-12", "float-md-left", "float-sm-none", "col-form-label", "mb-1"),
@@ -83,11 +94,13 @@ export const Classic_LibTextArea2: ILibTextAreaStyle2 = {
     InputStyle: clsx("custom-form-control-height-lg", "form-control"),
 };
 
+
 /** TinyMCE輸入框樣式 */
 export const Classic_LibTinyMCE: ILibTinyMCEStyle = {
     Labelstyle: clsx("col-md-2", "col-sm-12", "float-md-left", "float-sm-none", "col-form-label", "mb-1"),
     SelectStyle: clsx("col-md-10", "col-sm-12", "float-md-left", "float-sm-none", "mb-1"),
 };
+
 
 /** 檔案樣式 */
 export const Classic_LibFile: ILibFileStyle = {
@@ -96,6 +109,7 @@ export const Classic_LibFile: ILibFileStyle = {
     InputStyle: clsx("form-control"),
 };
 
+
 /** 檔案文字輸入樣式 */
 export const Classic_LibFileInput: ILibFileInputStyle = {
     Labelstyle: clsx("col-md-2", "col-sm-12", "float-md-left", "float-sm-none", "col-form-label", "mb-1"),
@@ -103,9 +117,13 @@ export const Classic_LibFileInput: ILibFileInputStyle = {
     InputStyle: clsx("form-control"),
 };
 
+
 export const Classic_LibUserEditCard: ILibUserCardStyle = { Bgstyle: clsx(""), LinkType: "Edit" };
+
 export const Classic_LibUserImageUploadCard: ILibUserCardStyle = { Bgstyle: clsx(""), LinkType: "ImageUpload" };
+
 export const Classic_LibUserCard: ILibUserCardStyle = { Bgstyle: clsx(""), LinkType: "None" };
+
 
 /** Grid表樣式 */
 export const Classic_GridView: IGridView_Style = {
@@ -117,6 +135,7 @@ export const Classic_GridView: IGridView_Style = {
     CellStyle: clsx("table_td_vertical_align"),
 };
 
+
 /** 分頁樣式 */
 export const Classic_Paginator: IPaginator_Style = {
     ul: clsx("pagination"),
@@ -127,22 +146,24 @@ export const Classic_Paginator: IPaginator_Style = {
     NextPage: clsx("far", "fa-angle-right"),
     LastPage: clsx("far", "fa-arrow-to-right"),
 };
+
 /** 類別/標籤用的list表 */
 export const Classic_CategoryListTag: IMenu_Style = { isUl: true, ul: () => clsx("list-group", "p-0"), li: () => clsx("list-group-item") };
 
+
 export const Classic_CheckBox: ILibCheckBoxStyle = { Labelstyle: "", SelectStyle: "", OptionsStyle: "checkbox" };
+
 
 export const Classic_RadioBox: ILibCheckBoxStyle = { Labelstyle: "", SelectStyle: "", OptionsStyle: "radio" };
 
+
 /** 經典主題 */
 export const Classic_BETheme: IBETheme = {
-    // #region Componets
     SidebarMenu: Classic_SidebarMenu,
     BreadCrumb: Classic_BreadCrumb,
     NavBarMenu: Classic_NaviBarMenu,
     Paginator: Classic_Paginator,
     CategoryTagList: Classic_CategoryListTag,
-    // #region Fields
     GridView: Classic_GridView,
     DropList: Classic_LibDropList,
     DropList2: Classic_LibDropList2,
@@ -161,3 +182,4 @@ export const Classic_BETheme: IBETheme = {
     CheckBox: Classic_CheckBox,
     RadioBox: Classic_RadioBox,
 };
+// #endregion

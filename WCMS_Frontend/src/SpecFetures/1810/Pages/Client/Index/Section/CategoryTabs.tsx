@@ -1,13 +1,25 @@
-{/* // 最新消息 // */}
-import "swiper/swiper-bundle.css";
-import bgImg from "@/SpecFetures/1810/Assets/Client/Images/bg/background-transparent-image_1920x600.png";
-import type { HomePageCategoryTabsHookResult } from "@/SpecFetures/1810/Pages/Client/Index/HomePage_Loader";
-import type { Lang } from "@/SysCore/i18n/lang";
-import { LangLink } from "@/SysCore/i18n/LangLink";
-import type { components } from "@/types/api";
-
+// #region Property
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 
+
+interface getDataProp
+{
+    redir: string;
+    announceInternalId: string;
+    title: string;
+    date: string;
+    month: string;
+    monthNum: number;
+    tagName: string;
+    categoryName: string;
+    contentStatus: number;
+}
+
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+// #endregion
+
+// #region Public
 export const CategoryTabs = (props: { lang: Lang; hydrationData: HomePageCategoryTabsHookResult; }) =>
 {
     // 宣告變數：統一吃 Homepage hydration source
@@ -201,19 +213,23 @@ export const CategoryTabs = (props: { lang: Lang; hydrationData: HomePageCategor
         // </LoadingErrorHandler>
     );
 };
+// #endregion
 
-interface getDataProp
-{
-    redir: string;
-    announceInternalId: string;
-    title: string;
-    date: string;
-    month: string;
-    monthNum: number;
-    tagName: string;
-    categoryName: string;
-    contentStatus: number;
-}
+// #region Private
+{/* // 最新消息 // */}
+
+import "swiper/swiper-bundle.css";
+
+import bgImg from "@/SpecFetures/1810/Assets/Client/Images/bg/background-transparent-image_1920x600.png";
+
+import type { HomePageCategoryTabsHookResult } from "@/SpecFetures/1810/Pages/Client/Index/HomePage_Loader";
+
+import type { Lang } from "@/SysCore/i18n/lang";
+
+import { LangLink } from "@/SysCore/i18n/LangLink";
+
+import type { components } from "@/types/api";
+
 
 // 最新公告
 /** 注:預計把targetCategoryId的參數拿掉，會影響邏輯 */
@@ -255,6 +271,7 @@ const getNewsDataProps = (
     return resultProps;
 };
 
+
 const formatDate = (dateStr: string) =>
 {
     const date = new Date(dateStr);
@@ -263,6 +280,7 @@ const formatDate = (dateStr: string) =>
 
     return { day, month };
 };
+
 
 const pickNewsByCategories = <T extends { Announcement?: { Categories?: string | null | undefined; }; }>(
     newsData: T[] | undefined,
@@ -286,6 +304,7 @@ const pickNewsByCategories = <T extends { Announcement?: { Categories?: string |
 
     return result.slice(0, take);
 };
+
 
 const GetData = ({ prop }: { prop: getDataProp[]; }) =>
 {
@@ -336,7 +355,6 @@ const GetData = ({ prop }: { prop: getDataProp[]; }) =>
     );
 };
 
-const DAY_MS = 24 * 60 * 60 * 1000;
 
 const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: number = 8): boolean =>
 {
@@ -358,3 +376,4 @@ const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: numb
     const diffDays = Math.floor((nowUTC - candidateUTC) / DAY_MS);
     return diffDays >= 0 && diffDays <= n;
 };
+// #endregion

@@ -14,24 +14,20 @@ import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/Searc
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
-import { FormatDate, FormatDateTime } from "@/SysCore/Utils/Library/LibData";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { formatDate, formatDateTime, LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { AccountFields, AnnouncementDetailFields, AnnouncementFields, PGID } from "@/types/SchemaFields";
 import { createElement, Fragment, type ReactNode, useCallback, useMemo } from "react";
 import { type NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 type AnnouncementApiAdapter = ReturnType<typeof AnnouncementAdapter>;
 type CategoryApiAdapter = ReturnType<typeof CategoryAdapter>;
 type TagApiAdapter = ReturnType<typeof TagAdapter>;
 type AnnouncementCudActions = ReturnType<AnnouncementApiAdapter["hooks"]["useCudActions"]>;
-
-export const ANNOUNCEMENT_TITLE_SEARCH_KEY = "title";
-export const ANNOUNCEMENT_CATEGORY_SEARCH_KEY = "categoryId";
-
 export interface AnnouncementSearchParams
 {
     /** 目前列表語系 */
@@ -97,6 +93,26 @@ export interface AnnouncementListAdapter
 
 export type AnnouncementListGridTemplate = ServerListGridTemplate<AnnouncementSearchParams, AnnouncementListRawData, AnnouncementListAdapter, QueryListParam>;
 
+type CrudDeps = {
+    /** React Router 導頁方法 */
+    navigate: NavigateFunction;
+
+    /** 目前 List 對應的 Form 路徑 */
+    dirUrl: string;
+
+    /** 刪除資料方法 */
+    deleteAsync: AnnouncementCudActions["deleteAsync"];
+
+    /** 刪除後重新查詢 */
+    afterDelete: () => Promise<void>;
+};
+// #endregion
+
+// #region Public
+export const ANNOUNCEMENT_TITLE_SEARCH_KEY = "title";
+
+export const ANNOUNCEMENT_CATEGORY_SEARCH_KEY = "categoryId";
+
 /** 建立公告後台 ListGridTemplate 設定 */
 export const useAnnouncementListGridTemplate = (opt: { lang: Lang; }): AnnouncementListGridTemplate =>
 {
@@ -116,7 +132,9 @@ export const useAnnouncementListGridTemplate = (opt: { lang: Lang; }): Announcem
         };
     }, [opt.lang]);
 };
+// #endregion
 
+// #region Private
 /** 執行公告列表資料來源 Hook */
 const useAnnouncementListGridDataSource = (
     ctx: ServerListGridDataSourceContext<AnnouncementSearchParams, QueryListParam>,
@@ -185,10 +203,12 @@ const buildAnnouncementSearchFields = (rawData: AnnouncementListRawData): Search
     const title = getColumnTitle(rawData.modelDisplayName, AnnouncementDetailFields.Title, "公告標題");
     const categoryTitle = getColumnTitle(rawData.modelDisplayName, AnnouncementFields.Categories, "分類");
 
-    return [
-        { key: ANNOUNCEMENT_TITLE_SEARCH_KEY, title, type: "text", placeholder: `請輸入${title}` },
-        { key: ANNOUNCEMENT_CATEGORY_SEARCH_KEY, title: categoryTitle, type: "select", options: buildCategorySearchOptions(rawData.categoryMap) },
-    ];
+    return [{ key: ANNOUNCEMENT_TITLE_SEARCH_KEY, title, type: "text", placeholder: `請輸入${title}` }, {
+        key: ANNOUNCEMENT_CATEGORY_SEARCH_KEY,
+        title: categoryTitle,
+        type: "select",
+        options: buildCategorySearchOptions(rawData.categoryMap),
+    }];
 };
 
 /** 將 SearchValues 轉為公告列表查詢參數 */
@@ -221,13 +241,26 @@ const buildAnnouncementSearchConditions = (ctx: { searchParams: AnnouncementSear
 /** 建立公告列表完整 QueryParam */
 const buildAnnouncementQueryParam = (ctx: { searchParams: AnnouncementSearchParams; searchCondition: string; }): QueryListParam =>
 {
-    const fields = buildAnnouncementQueryFields();
-    const langCondition = `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang} = ${ctx.searchParams.lang}`;
-    const condition = LibMerge(" And ", false, langCondition, ctx.searchCondition);
-
     return {
-        Fields: fields,
-        Condition: condition,
+        Fields: [
+            AnnouncementFields.AnnouncementId,
+            AnnouncementFields.Categories,
+            AnnouncementFields.Tags,
+            AnnouncementFields.ContentStatus,
+            AnnouncementFields.Validate_Start,
+            AnnouncementFields.Validate_End,
+            AnnouncementFields.ModifyUserId,
+            AnnouncementFields.CreateTime,
+            AnnouncementFields.ModifyTime,
+            AnnouncementFields.InternalId,
+            `${AnnouncementFields.ModifyUser}.${AccountFields.AccountName}`,
+            `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang}`,
+            `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title}`,
+        ],
+        Condition: LibCondition.joinConditions([
+            ctx.searchCondition,
+            LibCondition.createCondition(`${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang}`, Operator.Equal, ctx.searchParams.lang),
+        ]),
         RankGroups: [{ Condition: `${AnnouncementFields.ContentStatus} & 1` }],
         OrderBy: [{ Col: AnnouncementFields.CreateTime, Desc: true }],
         PageNumber: 1,
@@ -235,44 +268,10 @@ const buildAnnouncementQueryParam = (ctx: { searchParams: AnnouncementSearchPara
     };
 };
 
-/** 建立公告列表查詢欄位 */
-const buildAnnouncementQueryFields = (): string[] =>
-{
-    return [
-        AnnouncementFields.AnnouncementId,
-        AnnouncementFields.Categories,
-        AnnouncementFields.Tags,
-        AnnouncementFields.ContentStatus,
-        AnnouncementFields.Validate_Start,
-        AnnouncementFields.Validate_End,
-        AnnouncementFields.ModifyUserId,
-        AnnouncementFields.CreateTime,
-        AnnouncementFields.ModifyTime,
-        AnnouncementFields.InternalId,
-        `${AnnouncementFields.ModifyUser}.${AccountFields.AccountName}`,
-        `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang}`,
-        `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title}`,
-    ];
-};
-
 /** 建立分類下拉搜尋選項 */
 const buildCategorySearchOptions = (categoryMap: Record<string, string>): SearchFieldConfig["options"] =>
 {
     return Object.entries(categoryMap).map(([value, title]) => ({ value, title: title || value }));
-};
-
-type CrudDeps = {
-    /** React Router 導頁方法 */
-    navigate: NavigateFunction;
-
-    /** 目前 List 對應的 Form 路徑 */
-    dirUrl: string;
-
-    /** 刪除資料方法 */
-    deleteAsync: AnnouncementCudActions["deleteAsync"];
-
-    /** 刪除後重新查詢 */
-    afterDelete: () => Promise<void>;
 };
 
 /** 將公告資料轉為 GridProps */
@@ -359,7 +358,7 @@ const buildAnnouncementRows = (raw: AnnouncementListRawData, lang: Lang, columns
 {
     return (raw.list ?? []).map((set) =>
     {
-        const keyId = LibMerge("|", false, set.Announcement?.AnnouncementId);
+        const keyId = LibText.Merge("|", false, set.Announcement?.AnnouncementId);
         const a = set.Announcement;
         const detail = createElement(
             Fragment,
@@ -371,10 +370,10 @@ const buildAnnouncementRows = (raw: AnnouncementListRawData, lang: Lang, columns
         const cells: RowCell[] = [
             { col: columns[0], content: mapIdsToText(a?.Categories, raw.categoryMap) },
             { col: columns[1], content: detail },
-            { col: columns[2], content: FormatDate(a?.Validate_Start) },
-            { col: columns[3], content: FormatDate(a?.Validate_End) },
+            { col: columns[2], content: formatDate(a?.Validate_Start) },
+            { col: columns[3], content: formatDate(a?.Validate_End) },
             { col: columns[4], content: a?.ModifyUser?.AccountName ?? "" },
-            { col: columns[5], content: FormatDateTime(a?.ModifyTime) },
+            { col: columns[5], content: formatDateTime(a?.ModifyTime) },
         ];
 
         return { keyId, cells };
@@ -410,3 +409,4 @@ const getSearchStringValue = (value: unknown): string | undefined =>
     const text = value.trim();
     return text.length > 0 ? text : undefined;
 };
+// #endregion

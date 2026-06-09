@@ -1,4 +1,3 @@
-//#region Property
 import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 import { SpecHomePage1820Adapter } from "@/SpecFetures/1820/Hooks/WEB/HomePage_Api";
 import { Section1 } from "@/SpecFetures/1820/Pages/Client/Index/Section/Section1";
@@ -11,9 +10,7 @@ import { Section4 } from "./Section/Section4";
 import { Section5 } from "./Section/Section5";
 import { Section6 } from "./Section/Section6";
 
-//#endregion
-
-//#region Public
+// #region Private
 const HomePage = (props: { lang: Lang; }) =>
 {
     // 宣告變數：讀取 SSR / CSR loader 資料
@@ -53,5 +50,6 @@ const HomePage = (props: { lang: Lang; }) =>
     );
 };
 
+
 export default HomePage;
-//#endregion
+// #endregion

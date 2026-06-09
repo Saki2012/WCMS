@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+// #region Property
 export interface ColumnConfig
 {
     key: string; // 對應的欄位 key
@@ -28,3 +29,6 @@ export interface GridProps
     TotalPage: number;
     onPageChange: (page: number) => void;
 }
+
+export type GridColumnWidthMap = Record<string, number>;
+// #endregion

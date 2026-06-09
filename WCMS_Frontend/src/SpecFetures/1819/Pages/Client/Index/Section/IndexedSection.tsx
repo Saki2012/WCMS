@@ -7,43 +7,22 @@ import type { components } from "@/types/api";
 import { useMemo } from "react";
 import type { HomePageRawData } from "../HomePage_Loader";
 
+// #region Property
 type BannerSet = components["schemas"]["BannerSet_DTO"];
+
 type BannerDetail = NonNullable<BannerSet["BannerDetail"]>[number];
+
 type BannerDetailInfo = NonNullable<BannerDetail["_BannerDetailInfo"]>[number];
+
 
 interface IndexedSectionProps
 {
     lang: Lang;
     initialData: Pick<HomePageRawData, "indexedBanner">;
 }
+// #endregion
 
-/** 取得對應語系的索引資訊 */
-const getBannerInfo = (dt: BannerDetail, lang: Lang): BannerDetailInfo | null =>
-{
-    // 宣告變數
-    const info = dt._BannerDetailInfo?.find(p => p.Lang === lang) ?? null;
-
-    // return
-    return info;
-};
-
-/** 過濾可顯示的索引項目 */
-const getVisibleDetails = (banner: BannerSet | null, lang: Lang): BannerDetail[] =>
-{
-    // 宣告變數
-    const details = banner?.BannerDetail ?? [];
-
-    // return
-    return details.filter(dt =>
-    {
-        const inRange = isInValidTimeRange(dt.Validate_Start, dt.Validate_End);
-        const info = getBannerInfo(dt, lang);
-        const hasTitle = Boolean(info?.Title && info.Title.trim() !== "");
-
-        return inRange && hasTitle;
-    });
-};
-
+// #region Public
 /** 索引（Prototype: .Indexed_section） */
 export const IndexedSection = (props: IndexedSectionProps) =>
 {
@@ -102,5 +81,37 @@ export const IndexedSection = (props: IndexedSectionProps) =>
         </section>
     );
 };
+// #endregion
+
+// #region Private
+/** 取得對應語系的索引資訊 */
+const getBannerInfo = (dt: BannerDetail, lang: Lang): BannerDetailInfo | null =>
+{
+    // 宣告變數
+    const info = dt._BannerDetailInfo?.find(p => p.Lang === lang) ?? null;
+
+    // return
+    return info;
+};
+
+
+/** 過濾可顯示的索引項目 */
+const getVisibleDetails = (banner: BannerSet | null, lang: Lang): BannerDetail[] =>
+{
+    // 宣告變數
+    const details = banner?.BannerDetail ?? [];
+
+    // return
+    return details.filter(dt =>
+    {
+        const inRange = isInValidTimeRange(dt.Validate_Start, dt.Validate_End);
+        const info = getBannerInfo(dt, lang);
+        const hasTitle = Boolean(info?.Title && info.Title.trim() !== "");
+
+        return inRange && hasTitle;
+    });
+};
+
 
 export default IndexedSection;
+// #endregion

@@ -34,17 +34,25 @@ import { useCallback, useMemo } from "react";
 
 // #region Property
 type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
+
 type SpecJournalIndexDetail = components["schemas"]["SpecJournalIndexDetail_DTO"];
+
 export type SpecJournalIndexGridFileValue = EditGridFileValue & { internalId?: string; originalFileName?: string; };
+
 type UploadFileHandler = ReturnType<typeof useUploadFile>["handleFileChange"];
 
+
 export type SpecJournalIndexFormRefs = { categoryMap: Record<string, string>; };
+
 export type SpecJournalIndexFormRawData = ServerFormDefaultRawData<SpecJournalIndexSet, SpecJournalIndexFormRefs>;
+
 export type SpecJournalIndexFormAdapter = { SpecJournalIndex: ReturnType<typeof SpecJournalIndexAdapter>; Category: ReturnType<typeof CategoryAdapter>; };
+
 export type SpecJournalIndexFormActionsOpt = {
     /** 儲存成功後回列表 */
     onBackToList: () => void;
 };
+
 
 export interface UseSpecJournalIndexDetailEditGridOptions
 {
@@ -87,9 +95,8 @@ export const useSpecJournalIndexFormTemplate = (
         };
     }, [opt.actionsOpt, opt.emptyData, opt.internalId, opt.lang, opt.theme]);
 };
-// #endregion
 
-// #region Public - EditGrid Binding
+
 /** 建立期刊目次明細 EditGrid，取代原本每一期一個 Tab 的維護方式。 */
 export const useSpecJournalIndexDetailEditGrid = (opt: UseSpecJournalIndexDetailEditGridOptions) =>
 {
@@ -114,12 +121,13 @@ export const useSpecJournalIndexDetailEditGrid = (opt: UseSpecJournalIndexDetail
 };
 // #endregion
 
-// #region Timing
+// #region Private
 /** 建立 SpecJournalIndex Form 會使用到的 Adapter 群組 */
 const buildSpecJournalIndexFormAdapter = (): SpecJournalIndexFormAdapter =>
 {
     return { SpecJournalIndex: SpecJournalIndexAdapter(), Category: CategoryAdapter() };
 };
+
 
 /** 建立 SpecJournalIndex Form 標題，保留原本固定標題行為 */
 const buildSpecJournalIndexFormTitle = (ctx: { displayName: ModelDisplaySchema; }): string =>
@@ -127,12 +135,14 @@ const buildSpecJournalIndexFormTitle = (ctx: { displayName: ModelDisplaySchema; 
     return ctx.displayName.ModelDisplayName || "期刊目次";
 };
 
+
 /** 建立新增模式的 initial data，避免新增時查詢 __new__ */
 const buildSpecJournalIndexInitialData = (ctx: { mode: "new" | "edit"; emptyData: SpecJournalIndexSet; }): ApiFormInitial<SpecJournalIndexSet> | undefined =>
 {
     if (ctx.mode !== "new") return undefined;
     return { data: { args: "__new__", apiRes: { IsSuccess: true, Data: ctx.emptyData, SysMessage: [] } } };
 };
+
 
 /** 取得 SpecJournalIndex 參照資料，保留原本 Category 查詢入口 */
 const useSpecJournalIndexReferenceData = (ctx: { adapter: SpecJournalIndexFormAdapter; lang: Lang; }): ServerFormReferenceResult<SpecJournalIndexFormRefs> =>
@@ -152,9 +162,8 @@ const useSpecJournalIndexReferenceData = (ctx: { adapter: SpecJournalIndexFormAd
         };
     }, [category.errorText, category.isLoading, category.map, category.refetch]);
 };
-// #endregion
 
-// #region Private - EditGrid Helpers
+
 /** 建立期刊目次明細 Grid 欄位設定。 */
 const buildSpecJournalIndexDetailColumns = (
     onSummaryFileChange: (args: EditGridCellValueChangeArgs) => Promise<EditGridCellValueChangeResult>,
@@ -179,6 +188,7 @@ const buildSpecJournalIndexDetailColumns = (
     ];
 };
 
+
 /** 建立期刊目次明細 EditGrid 固定設定。 */
 const buildSpecJournalIndexDetailGridProps = (style: IEditGridView_Style) =>
 {
@@ -199,6 +209,7 @@ const buildSpecJournalIndexDetailGridProps = (style: IEditGridView_Style) =>
     };
 };
 
+
 /** 建立新增的期刊目次明細 DTO。 */
 const buildSpecJournalIndexDetailCreateItem = (data: SpecJournalIndexSet, rowId: number): SpecJournalIndexDetail =>
 {
@@ -211,6 +222,7 @@ const buildSpecJournalIndexDetailCreateItem = (data: SpecJournalIndexSet, rowId:
         Issue: String(getNextSpecJournalIndexIssue(base, firstVolume)),
     };
 };
+
 
 /** 將期刊目次明細 DTO 轉成 EditGrid Row。 */
 const buildSpecJournalIndexDetailGridRow = (
@@ -246,6 +258,7 @@ const buildSpecJournalIndexDetailGridRow = (
     };
 };
 
+
 /** 將 EditGrid Row 轉回期刊目次明細 DTO。 */
 const buildSpecJournalIndexDetailItem = (row: GridRow, index: number, data: SpecJournalIndexSet): SpecJournalIndexDetail =>
 {
@@ -263,6 +276,7 @@ const buildSpecJournalIndexDetailItem = (row: GridRow, index: number, data: Spec
         SummaryFileName: getSpecJournalIndexEditGridFileName(row, SpecJournalIndexDetailFields.SummaryFileName, file),
     };
 };
+
 
 /** 上傳期刊目次檔案並回寫 EditGrid file value。 */
 const uploadSpecJournalIndexFileValue = async (
@@ -291,6 +305,7 @@ const uploadSpecJournalIndexFileValue = async (
     return { value: uploadedValue, rowValues: { [SpecJournalIndexDetailFields.SummaryFileName]: displayName } };
 };
 
+
 /** 建立既有檔案的 EditGrid value。 */
 const buildSpecJournalIndexFileCellValue = (
     internalId?: string | null,
@@ -309,6 +324,7 @@ const buildSpecJournalIndexFileCellValue = (
     };
 };
 
+
 /** 建立上傳後的 EditGrid 檔案值。 */
 const buildUploadedSpecJournalIndexFileCellValue = (internalId: string, originalName?: string): SpecJournalIndexGridFileValue =>
 {
@@ -321,11 +337,13 @@ const buildUploadedSpecJournalIndexFileCellValue = (internalId: string, original
     };
 };
 
+
 /** 建立空檔案值。 */
 const buildEmptySpecJournalIndexFileCellValue = (): SpecJournalIndexGridFileValue =>
 {
     return { internalId: "", fileName: "", originalFileName: "" };
 };
+
 
 /** 將任意 EditGrid value 正規化成期刊目次檔案值。 */
 const toSpecJournalIndexFileCellValue = (value: EditGridCellValue): SpecJournalIndexGridFileValue =>
@@ -335,11 +353,13 @@ const toSpecJournalIndexFileCellValue = (value: EditGridCellValue): SpecJournalI
     return buildEmptySpecJournalIndexFileCellValue();
 };
 
+
 /** 判斷是否為期刊目次檔案值。 */
 const isSpecJournalIndexFileValue = (value: EditGridCellValue): value is SpecJournalIndexGridFileValue =>
 {
     return typeof value === "object" && value !== null && !Array.isArray(value) && "fileName" in value;
 };
+
 
 /** 取得剛選取的檔案。 */
 const getSelectedSpecJournalIndexFile = (value: EditGridCellValue): SpecJournalIndexGridFileValue | null =>
@@ -348,17 +368,20 @@ const getSelectedSpecJournalIndexFile = (value: EditGridCellValue): SpecJournalI
     return value;
 };
 
+
 /** 取得上傳前原始檔名。 */
 const getSpecJournalIndexSelectedFileName = (file: SpecJournalIndexGridFileValue): string =>
 {
     return String(file.file?.name || file.fileName || "").trim();
 };
 
+
 /** 取得 DTO 檔案物件中的原始檔名。 */
 const getSpecJournalIndexDtoFileName = (file?: { FileName?: string | null; fileName?: string | null; } | null): string =>
 {
     return String(file?.FileName ?? file?.fileName ?? "").trim();
 };
+
 
 /** 取得檔案預覽網址。 */
 const getSpecJournalIndexFilePreviewUrl = (fileId?: string | null): string | undefined =>
@@ -367,12 +390,14 @@ const getSpecJournalIndexFilePreviewUrl = (fileId?: string | null): string | und
     return id ? FileManagementAPI.get_Server_Preview_Url(id) ?? undefined : undefined;
 };
 
+
 /** 取得檔案下載網址。 */
 const getSpecJournalIndexFileDownloadUrl = (fileId?: string | null): string | undefined =>
 {
     const id = String(fileId ?? "").trim();
     return id ? `/Service/FileManagement/Server_Download/${encodeURIComponent(id)}` : undefined;
 };
+
 
 /** 取得新增時下一個期數。 */
 const getNextSpecJournalIndexIssue = (items: SpecJournalIndexDetail[], volume?: number | null): number =>
@@ -387,6 +412,7 @@ const getNextSpecJournalIndexIssue = (items: SpecJournalIndexDetail[], volume?: 
     return maxIssue + 1;
 };
 
+
 /** 取得 EditGrid 中使用者輸入的期刊檔案名稱，空值時回退檔案原始名稱。 */
 const getSpecJournalIndexEditGridFileName = (row: GridRow, fieldName: string, file: SpecJournalIndexGridFileValue): string =>
 {
@@ -394,6 +420,7 @@ const getSpecJournalIndexEditGridFileName = (row: GridRow, fieldName: string, fi
     if (inputName) return inputName;
     return getFileNameWithoutExtension(file.originalFileName || file.fileName);
 };
+
 
 /** 取得不含副檔名的檔案名稱。 */
 const getFileNameWithoutExtension = (fileName?: string | null): string =>

@@ -19,10 +19,10 @@ import type { IMenu_Style } from "@/SysCore/Components/MenuList/MenuList_Clsx";
 import type { INaviBarStyle } from "@/SysCore/Components/NaviBar/NaviBar_Clsx";
 import type { IPaginator_Style } from "@/SysCore/Components/Paginator/Paginator_Clsx";
 
+// #region Property
 /** 後台主題設定 */
 export interface IBETheme
 {
-    // #region Componets
     SidebarMenu: IMenu_Style;
     BreadCrumb: IBreadCrumbStyle;
     NavBarMenu: INaviBarStyle;
@@ -30,7 +30,6 @@ export interface IBETheme
     Paginator: IPaginator_Style;
     CategoryTagList: IMenu_Style;
 
-    // #region Fields
     DropList: ILibDropListStyle;
     DropList2: ILibDropListStyle;
     Tabs: ILibTabsStyle;
@@ -48,3 +47,4 @@ export interface IBETheme
     CheckBox: ILibCheckBoxStyle;
     RadioBox: ILibCheckBoxStyle;
 }
+// #endregion

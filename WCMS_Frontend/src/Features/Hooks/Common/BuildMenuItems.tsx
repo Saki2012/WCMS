@@ -4,16 +4,18 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import type { ReactNode } from "react";
 
+/**這支應該放在Feature Client，後去待處理 */
+
+// #region Property
 type MenuTarget = "_self" | "_blank";
+// #endregion
 
 // #region Public
-
 /** 建立多層選單項目資料，並統一透過 LangLink 輸出連結。 */
 export const buildMenuItems = (nodes: INormNode[] = [], activeId?: number, currentDepth: number = 1, maxDepth: number = Infinity): MenuItemData[] =>
 {
     return nodes.filter(n => n.isShowOnMenu !== false).map(n => buildMenuItem(n, activeId, currentDepth, maxDepth));
 };
-
 /** 取得目前節點所在 root 底下的選單資料。 */
 export const GetMenuData = (lang: Lang, site: INormSite, node: INormNode, maxDepth: number = Infinity): MenuItemData[] =>
 {
@@ -22,7 +24,6 @@ export const GetMenuData = (lang: Lang, site: INormSite, node: INormNode, maxDep
     if (!rootNode) return [];
     return buildMenuItems(rootNode.children ?? [], node.id, 1, maxDepth);
 };
-
 /** 取得指定層級的上層節點，level=1 表示 root 的第一層子節點。 */
 export const getAncestorAtLevel = (lang: Lang, site: INormSite, node: INormNode, level: number): INormNode | undefined =>
 {
@@ -44,11 +45,9 @@ export const getAncestorAtLevel = (lang: Lang, site: INormSite, node: INormNode,
 
     return undefined;
 };
-
 // #endregion
 
-// #region Protected
-
+// #region EntityComp
 /** 建立單筆選單資料。 */
 const buildMenuItem = (n: INormNode, activeId: number | undefined, currentDepth: number, maxDepth: number): MenuItemData =>
 {
@@ -68,13 +67,11 @@ const buildMenuItem = (n: INormNode, activeId: number | undefined, currentDepth:
         SubItem: subItems,
     };
 };
-
 /** 建立 LangLink 選單連結。 */
 const buildLangMenuLink = (n: INormNode, finalUrl: string, target: MenuTarget, isActiveId: boolean, children: ReactNode): ReactNode =>
 {
     return <LangLink to={finalUrl} title={n.title} target={target} aria-current={isActiveId ? "page" : undefined}>{children}</LangLink>;
 };
-
 /** 建立選單顯示內容。 */
 const buildMenuContent = (n: INormNode, hasChildren: boolean, currentDepth: number, maxDepth: number): ReactNode =>
 {
@@ -87,47 +84,39 @@ const buildMenuContent = (n: INormNode, hasChildren: boolean, currentDepth: numb
         </>
     );
 };
-
-// #endregion
-
-// #region Private
-
-/** 判斷節點是否有子選單。 */
-const hasMenuChildren = (n: INormNode): boolean =>
-{
-    return !!(n.children && n.children.length > 0);
-};
-
-/** 解析節點實際連結網址。 */
-const resolveFinalUrl = (n: INormNode): string =>
-{
-    const redirect = n.redirectTo ?? "";
-    const isInternalLink = n.type === "redirect-internal" && redirect.startsWith("/");
-
-    if (isInternalLink && redirect) return redirect;
-    if (n.type !== "module" && redirect) return redirect;
-
-    return buildRoutePath(n);
-};
-
 /** 建立 module 節點的 route path。 */
 const buildRoutePath = (n: INormNode): string =>
 {
     const segments = (n.absSegments ?? []).filter(Boolean);
     return segments.length > 0 ? "/" + segments.map(s => encodeURIComponent(s)).join("/") : "#";
 };
+// #endregion
 
+// #region Private
+/** 判斷節點是否有子選單。 */
+const hasMenuChildren = (n: INormNode): boolean =>
+{
+    return !!(n.children && n.children.length > 0);
+};
+/** 解析節點實際連結網址。 */
+const resolveFinalUrl = (n: INormNode): string =>
+{
+    const redirect = n.redirectTo ?? "";
+    const isInternalLink = n.type === "redirect-internal" && redirect.startsWith("/");
+    if (isInternalLink && redirect) return redirect;
+    if (n.type !== "module" && redirect) return redirect;
+
+    return buildRoutePath(n);
+};
 /** 解析選單開啟方式，外部 http 連結預設另開。 */
 const resolveMenuTarget = (n: INormNode, finalUrl: string): MenuTarget =>
 {
     if (n.windowTarget === 1) return "_blank";
     return isExternalHttpUrl(finalUrl) ? "_blank" : "_self";
 };
-
 /** 判斷是否為 http / https / protocol-relative 外部網址。 */
 const isExternalHttpUrl = (url: string): boolean =>
 {
     return /^(https?:)?\/\//i.test(url);
 };
-
 // #endregion

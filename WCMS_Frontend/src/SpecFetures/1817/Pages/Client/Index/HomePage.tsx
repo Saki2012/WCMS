@@ -1,4 +1,3 @@
-//#region Property
 import { AboutPage } from "@/SpecFetures/1817/Pages/Client/Index/Section/AboutPage";
 import { CarouselData } from "@/SpecFetures/1817/Pages/Client/Index/Section/CarouselData";
 import { ExhibitionNewsData } from "@/SpecFetures/1817/Pages/Client/Index/Section/ExhibitionNewsData";
@@ -8,9 +7,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { Navigate } from "react-router";
 import { useHomePageTemplateData } from "./HomePage_Loader";
 
-//#endregion
-
-//#region Public
+// #region Private
 const HomePage = (props: { lang: Lang; }) =>
 {
     // 宣告變數：SSR loader 資料
@@ -71,5 +68,6 @@ const HomePage = (props: { lang: Lang; }) =>
     );
 };
 
+
 export default HomePage;
-//#endregion
+// #endregion

@@ -1,4 +1,3 @@
-// #region 模型配置
 import type { IMaterialListOptions } from "@/Features/Pages/Client/BizFunc/MAT/Material/Client_Material_List_Loader";
 import type { ISurveyOptions } from "@/Features/Pages/Client/BizFunc/WEB/Survey/Client_Survey_Form_Loader";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
@@ -14,12 +13,19 @@ import { useEffect, useMemo } from "react";
 import type { SiteMenuItem } from "../../SiteMenu_Hook";
 import type { ModelKey } from "../RenderRightBox_Comp";
 
+// #region Property
 type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"];
+
 type SiteMenu_Item = components["schemas"]["SiteMenu_Item_DTO"];
+
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
+
 type TagSet = components["schemas"]["TagSet_DTO"];
+
 type SiteMenu_Item_Module = components["schemas"]["SiteMenu_Item_Module_DTO"];
+
 type PageSet = components["schemas"]["PageManagementSet_DTO"];
+
 
 const BaseModuleOpts: Record<string, string> = {
     Announcement: "公告",
@@ -32,11 +38,13 @@ const BaseModuleOpts: Record<string, string> = {
     Material: "產品物件",
 };
 
+
 interface ModuleTimelineOptionsJson
 {
     TimelineId: string;
     IsDesc: boolean;
 }
+
 
 interface ModuleOptionsJson
 {
@@ -46,7 +54,9 @@ interface ModuleOptionsJson
     Style: number;
 }
 
+
 const moduleOptionsDefaults: ModuleOptionsJson = { PageId: "", Category: "", Tag: "", Style: 1 };
+
 
 interface ModuleSettingTabExtensionContext
 {
@@ -63,6 +73,7 @@ interface ModuleSettingTabExtensionContext
     timelineMap: Map<string, string>;
     surveyMap: Map<string, string>;
 }
+
 export interface ModuleSettingTabExtension
 {
     moduleOptions?: Partial<Record<ModelKey, string>>;
@@ -70,13 +81,11 @@ export interface ModuleSettingTabExtension
     /** 功能白名單 */
     moduleAllowKeys?: readonly string[];
 }
+
 type ModuleRenderFactory = (ctx: ModuleSettingTabExtensionContext) => ReactNode;
+
 type UseModuleSettingTabExtensionSlot = () => ModuleSettingTabExtension;
-/** 預設擴充：沒有 Spec 時不做任何額外 Module 擴充 */
-const useModuleSettingTabExtensionBase: UseModuleSettingTabExtensionSlot = () =>
-{
-    return {};
-};
+
 
 /** 解析 ModuleSettingTab Spec 擴充 */
 const useResolvedModuleSettingTabExtension = resolveSpecFunc<UseModuleSettingTabExtensionSlot>(
@@ -84,47 +93,7 @@ const useResolvedModuleSettingTabExtension = resolveSpecFunc<UseModuleSettingTab
     useModuleSettingTabExtensionBase,
     ["useModuleSettingTabSpecExtension"],
 );
-/** 合併 Feature 與 Spec 模型功能選項 */
-const mergeModuleOptions = (baseOptions: Record<string, string>, specOptions?: Partial<Record<ModelKey, string>>): Record<string, string> =>
-{
-    const merged: Record<string, string> = { ...baseOptions };
 
-    Object.entries(specOptions ?? {}).forEach(([key, value]) =>
-    {
-        if (!value) return;
-        merged[key] = value;
-    });
-
-    return merged;
-};
-
-/** 依 Spec 白名單過濾模型功能 */
-const filterModuleOptions = (options: Record<string, string>, allowKeys?: readonly string[]): Record<string, string> =>
-{
-    if (!allowKeys?.length) return options;
-    const allowSet = new Set<string>(allowKeys);
-
-    return Object.entries(options).reduce<Record<string, string>>((acc, [key, value]) =>
-    {
-        if (!allowSet.has(key)) return acc;
-        acc[key] = value;
-        return acc;
-    }, {});
-};
-
-/** 依 Spec 白名單過濾模型功能渲染器 */
-const filterModuleRenderers = (renderers: Record<string, ModuleRenderFactory>, allowKeys?: readonly string[]): Record<string, ModuleRenderFactory> =>
-{
-    if (!allowKeys?.length) return renderers;
-    const allowSet = new Set<string>(allowKeys);
-
-    return Object.entries(renderers).reduce<Record<string, ModuleRenderFactory>>((acc, [key, value]) =>
-    {
-        if (!allowSet.has(key)) return acc;
-        acc[key] = value;
-        return acc;
-    }, {});
-};
 interface ModuleSettingTabProps
 {
     theme: IBETheme;
@@ -143,7 +112,9 @@ interface ModuleSettingTabProps
     timelineMap: Map<string, string>;
     surveyMap: Map<string, string>;
 }
+// #endregion
 
+// #region Public
 export const ModuleSettingTab = (prop: ModuleSettingTabProps) =>
 {
     const selectedMenuItem = useSelectedMenuItem(prop.formData.data, prop.selectedItemEdit);
@@ -222,7 +193,6 @@ export const ModuleSettingTab = (prop: ModuleSettingTabProps) =>
     const baseRendererMap = useMemo<Record<string, ModuleRenderFactory>>(() =>
     {
         return {
-            // #region WEB
             Announcement: (ctx) => (
                 <Module_Announcement_Comp
                     theme={ctx.theme}
@@ -286,8 +256,6 @@ export const ModuleSettingTab = (prop: ModuleSettingTabProps) =>
                 />
             ),
             Survey: (ctx) => <Module_Survey_Comp theme={ctx.theme} formData={ctx.formData} selectedItemEdit={ctx.selectedItemEdit} surveyMap={ctx.surveyMap} />,
-            // #endregion
-            // #region MAT
             Material: (ctx) => (
                 <Module_Material_Comp
                     theme={ctx.theme}
@@ -299,7 +267,6 @@ export const ModuleSettingTab = (prop: ModuleSettingTabProps) =>
                     lang={DefaultLang}
                 />
             ),
-            // #endregion
         };
     }, []);
 
@@ -349,7 +316,9 @@ export const ModuleSettingTab = (prop: ModuleSettingTabProps) =>
         </>
     );
 };
+// #endregion
 
+// #region Section
 const Module_Banner_Comp = (
     prop: { theme: IBETheme; formData: UseFetchFormDataResult<SiteMenuSet>; selectedItemEdit: SiteMenuItem | null; bannerDict: Record<string, string>; },
 ): ReactNode[] =>
@@ -370,6 +339,7 @@ const Module_Banner_Comp = (
         />,
     ];
 };
+
 
 const Module_Announcement_Comp = (
     prop: {
@@ -415,6 +385,7 @@ const Module_Announcement_Comp = (
     );
 };
 
+
 const Module_Pagemanagement_Comp = (
     prop: { theme: IBETheme; formData: UseFetchFormDataResult<SiteMenuSet>; selectedItemEdit: SiteMenuItem | null; pageSets: PageSet[]; lang: Lang; },
 ): ReactNode =>
@@ -440,6 +411,7 @@ const Module_Pagemanagement_Comp = (
         />
     );
 };
+
 
 const Module_Gallery_Comp = (
     prop: {
@@ -485,6 +457,7 @@ const Module_Gallery_Comp = (
     );
 };
 
+
 const Module_FileArchive_Comp = (
     prop: {
         theme: IBETheme;
@@ -529,6 +502,7 @@ const Module_FileArchive_Comp = (
     );
 };
 
+
 const Module_WebResource_Comp = (
     prop: {
         theme: IBETheme;
@@ -572,6 +546,7 @@ const Module_WebResource_Comp = (
         </>
     );
 };
+
 const Module_Timeline_Comp = (
     prop: {
         theme: IBETheme;
@@ -628,6 +603,7 @@ const Module_Timeline_Comp = (
         </>
     );
 };
+
 const Module_Survey_Comp = (
     prop: { theme: IBETheme; formData: UseFetchFormDataResult<SiteMenuSet>; selectedItemEdit: SiteMenuItem | null; surveyMap: Map<string, string>; },
 ): ReactNode =>
@@ -652,6 +628,7 @@ const Module_Survey_Comp = (
         />
     );
 };
+
 
 const Module_Material_Comp = (
     prop: {
@@ -693,51 +670,9 @@ const Module_Material_Comp = (
         </>
     );
 };
+// #endregion
 
-const normalizeBool = (value: unknown): boolean =>
-{
-    if (value === true) return true;
-    if (value === false) return false;
-
-    const raw = `${value ?? ""}`.trim().toLowerCase();
-    return raw === "true" || raw === "1";
-};
-
-const toCheckboxBool = (value: unknown): boolean =>
-{
-    const raw = Array.isArray(value) ? value : `${value ?? ""}`.split(",");
-    return raw.map(s => `${s}`.trim()).includes("1");
-};
-
-const useSelectedMenuItem = (data: SiteMenuSet, selected?: SiteMenuItem | null): SiteMenu_Item | null =>
-{
-    return useMemo(() =>
-    {
-        const selectedRowId = Number(selected?.id ?? selected?.menuItem?.RowId ?? 0);
-        if (!selectedRowId) return null;
-
-        const current = (data.SiteMenu_Item ?? []).find(x => Number(x.RowId) === selectedRowId);
-        return current ?? selected?.menuItem ?? null;
-    }, [data.SiteMenu_Item, selected]);
-};
-
-const useSelectedNode = (selected: SiteMenuItem | null, menuItem: SiteMenu_Item | null): SiteMenuItem | null =>
-{
-    return useMemo(() =>
-    {
-        if (!selected || !menuItem) return selected;
-        return { ...selected, menuItem };
-    }, [selected, menuItem]);
-};
-
-const getModuleRowKeys = (selectedItemEdit: SiteMenuItem | null) =>
-{
-    return {
-        [SiteMenu_Item_ModuleFields.SiteIndex]: selectedItemEdit?.menuItem.SiteIndex,
-        [SiteMenu_Item_ModuleFields.ItemRowId]: selectedItemEdit?.menuItem.RowId,
-    };
-};
-
+// #region EntityComp
 /** 依指定 ProgId 過濾 PageManagement 頁面並轉成下拉 Map */
 const buildPageMapByProgId = (pageSets: PageSet[], progId: PGID, lang: Lang): Map<string, string> =>
 {
@@ -752,6 +687,108 @@ const buildPageMapByProgId = (pageSets: PageSet[], progId: PGID, lang: Lang): Ma
         return acc;
     }, new Map<string, string>());
 };
+// #endregion
+
+// #region Private
+/** 預設擴充：沒有 Spec 時不做任何額外 Module 擴充 */
+const useModuleSettingTabExtensionBase: UseModuleSettingTabExtensionSlot = () =>
+{
+    return {};
+};
+
+/** 合併 Feature 與 Spec 模型功能選項 */
+const mergeModuleOptions = (baseOptions: Record<string, string>, specOptions?: Partial<Record<ModelKey, string>>): Record<string, string> =>
+{
+    const merged: Record<string, string> = { ...baseOptions };
+
+    Object.entries(specOptions ?? {}).forEach(([key, value]) =>
+    {
+        if (!value) return;
+        merged[key] = value;
+    });
+
+    return merged;
+};
+
+
+/** 依 Spec 白名單過濾模型功能 */
+const filterModuleOptions = (options: Record<string, string>, allowKeys?: readonly string[]): Record<string, string> =>
+{
+    if (!allowKeys?.length) return options;
+    const allowSet = new Set<string>(allowKeys);
+
+    return Object.entries(options).reduce<Record<string, string>>((acc, [key, value]) =>
+    {
+        if (!allowSet.has(key)) return acc;
+        acc[key] = value;
+        return acc;
+    }, {});
+};
+
+
+/** 依 Spec 白名單過濾模型功能渲染器 */
+const filterModuleRenderers = (renderers: Record<string, ModuleRenderFactory>, allowKeys?: readonly string[]): Record<string, ModuleRenderFactory> =>
+{
+    if (!allowKeys?.length) return renderers;
+    const allowSet = new Set<string>(allowKeys);
+
+    return Object.entries(renderers).reduce<Record<string, ModuleRenderFactory>>((acc, [key, value]) =>
+    {
+        if (!allowSet.has(key)) return acc;
+        acc[key] = value;
+        return acc;
+    }, {});
+};
+
+
+const normalizeBool = (value: unknown): boolean =>
+{
+    if (value === true) return true;
+    if (value === false) return false;
+
+    const raw = `${value ?? ""}`.trim().toLowerCase();
+    return raw === "true" || raw === "1";
+};
+
+
+const toCheckboxBool = (value: unknown): boolean =>
+{
+    const raw = Array.isArray(value) ? value : `${value ?? ""}`.split(",");
+    return raw.map(s => `${s}`.trim()).includes("1");
+};
+
+
+const useSelectedMenuItem = (data: SiteMenuSet, selected?: SiteMenuItem | null): SiteMenu_Item | null =>
+{
+    return useMemo(() =>
+    {
+        const selectedRowId = Number(selected?.id ?? selected?.menuItem?.RowId ?? 0);
+        if (!selectedRowId) return null;
+
+        const current = (data.SiteMenu_Item ?? []).find(x => Number(x.RowId) === selectedRowId);
+        return current ?? selected?.menuItem ?? null;
+    }, [data.SiteMenu_Item, selected]);
+};
+
+
+const useSelectedNode = (selected: SiteMenuItem | null, menuItem: SiteMenu_Item | null): SiteMenuItem | null =>
+{
+    return useMemo(() =>
+    {
+        if (!selected || !menuItem) return selected;
+        return { ...selected, menuItem };
+    }, [selected, menuItem]);
+};
+
+
+const getModuleRowKeys = (selectedItemEdit: SiteMenuItem | null) =>
+{
+    return {
+        [SiteMenu_Item_ModuleFields.SiteIndex]: selectedItemEdit?.menuItem.SiteIndex,
+        [SiteMenu_Item_ModuleFields.ItemRowId]: selectedItemEdit?.menuItem.RowId,
+    };
+};
+
 
 const useGetCategoryTagDict = (progId: PGID, lang: Lang, categorySets: CategorySet[], tagSets: TagSet[]) =>
 {

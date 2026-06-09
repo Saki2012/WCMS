@@ -3,6 +3,7 @@ import { AuthAPI } from "@/SysCore/Utils/API/AuthClient";
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+// #region Public
 export default function LogoutPage()
 {
     const nav = useNavigate();
@@ -35,3 +36,4 @@ export default function LogoutPage()
     // AA：可讀的狀態提示
     return <div role="status" aria-live="polite" style={{ padding: 16 }}>登出中…</div>;
 }
+// #endregion

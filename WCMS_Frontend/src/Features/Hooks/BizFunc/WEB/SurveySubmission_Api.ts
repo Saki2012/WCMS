@@ -4,8 +4,8 @@ import { ApiDataService } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import { PGID } from "@/types/SchemaFields";
 import type { AxiosInstance } from "axios";
-import { useCallback, useMemo, useState } from "react";
 
+// #region Property
 type SurveySubmissionSet = components["schemas"]["SurveySubmissionsSet_DTO"];
 type SurveySubmissionRequest = components["schemas"]["SurveySubmissionRequest_DTO"];
 type ExtraHooks = {
@@ -14,7 +14,9 @@ type ExtraHooks = {
         opt?: { apiInstance?: AxiosInstance; },
     ) => { isSubmitting: boolean; publicSubmitAsync: (request: SurveySubmissionRequest) => Promise<ApiResponse<string | null>>; };
 };
+// #endregion
 
+// #region Public
 export class SurveySubmissionService extends ApiDataService<SurveySubmissionSet>
 {
     // #region Public
@@ -32,37 +34,36 @@ export class SurveySubmissionService extends ApiDataService<SurveySubmissionSet>
 
 export class SurveySubmissionAdapterImpl extends ApiDataAdapter<SurveySubmissionSet, SurveySubmissionService>
 {
-    // #region Public
+    // #region Property
     declare public hooks: ApiDataHookGroup<SurveySubmissionSet> & ExtraHooks;
     // #endregion
 
-    // #region Protected
+    // #region Public
     protected override buildExtendedHooks(base: ApiDataHookGroup<SurveySubmissionSet>): ApiDataHookGroup<SurveySubmissionSet> & ExtraHooks
     {
         return { ...base, useSubmitActions: (opt) => this.useSubmitActions(opt) };
     }
     // #endregion
 
-    // #region Private
+    // #region Protected
     /** 提供 CSR 使用的問卷提交 actions */
-    private useSubmitActions: ExtraHooks["useSubmitActions"] = (opt) =>
+    protected useSubmitActions: ExtraHooks["useSubmitActions"] = (opt) =>
     {
-        const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-        const svc = useMemo(() => new SurveySubmissionService(opt?.apiInstance), [opt?.apiInstance]);
-        const publicSubmitAsync = useCallback(async (request: SurveySubmissionRequest): Promise<ApiResponse<string | null>> =>
-        {
-            setIsSubmitting(true);
-            try
+        const submitAction = this.useApiAction<SurveySubmissionRequest, string | null>({
+            action: "SurveySubmission.PublicSubmit",
+            fallbackError: "問卷提交失敗",
+            apiInstance: opt?.apiInstance,
+            call: async (svc, request) =>
             {
                 const apiRes = await svc.publicSubmit(request);
                 return this.normalizeSubmitResult(apiRes);
-            } finally
-            {
-                setIsSubmitting(false);
-            }
-        }, [svc]);
-        return { isSubmitting, publicSubmitAsync };
+            },
+        });
+        return { isSubmitting: submitAction.isLoading, publicSubmitAsync: submitAction.execute };
     };
+    // #endregion
+
+    // #region Private
     /** 將後端陣列結果轉成單筆提交代碼 */
     private normalizeSubmitResult(apiRes: ApiResponse<string[]>): ApiResponse<string | null>
     {
@@ -74,3 +75,4 @@ export class SurveySubmissionAdapterImpl extends ApiDataAdapter<SurveySubmission
 
 export const SurveySubmissionAdapter = (apiInstance?: AxiosInstance) =>
     new SurveySubmissionAdapterImpl((api?: AxiosInstance) => new SurveySubmissionService(api ?? apiInstance));
+// #endregion

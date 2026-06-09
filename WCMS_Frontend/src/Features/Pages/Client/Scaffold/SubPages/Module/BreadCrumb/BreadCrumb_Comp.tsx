@@ -1,26 +1,13 @@
 /** breadcrumb + return-box */
-
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import { type Lang, SUPPORTED_LANGS } from "@/SysCore/i18n/lang";
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import { createContext, Fragment, type MouseEvent, type ReactNode, useContext, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import "./BreadCrumb.css";
+import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 
-/** 取得目前網址的 module base（例：/Issues/Form/... -> /Issues；/en/Issues/... -> /Issues） */
-const resolveModuleBaseFromPathname = (pathname: string): string =>
-{
-    // 宣告變數
-    const segs = (pathname ?? "").split("/").filter(Boolean);
-    const s0 = (segs[0] ?? "").toLowerCase();
-    const hasLang = (SUPPORTED_LANGS as readonly string[]).includes(s0);
-    const mod = hasLang ? segs[1] : segs[0];
-
-    // return
-    if (!mod) return "/";
-    return `/${mod}`;
-};
-
+// #region Property
 type GetBreadCrumbDataOptions = {
     /** 當頁有 dynamic crumbs 時，把 current node 也變成可點 */
     treatCurrentAsLink?: boolean;
@@ -28,111 +15,15 @@ type GetBreadCrumbDataOptions = {
     currentNodeFallbackTo?: string;
 };
 
-/** 站台 menu breadcrumb（原本既有邏輯 + 支援 dynamic crumbs 時 current node 可點回 module） */
-const GetBreadCrumbData = (lang: Lang, site: INormSite, node: INormNode, opts?: GetBreadCrumbDataOptions): ReactNode[] =>
-{
-    // 宣告變數
-    const result: ReactNode[] = [];
-    let curNodes = site.treeByLang[lang];
-    const treatCurrentAsLink = opts?.treatCurrentAsLink ?? false;
-    const currentNodeFallbackTo = opts?.currentNodeFallbackTo ?? "";
-
-    // 執行 function
-    node.absIds?.forEach((id) =>
-    {
-        const curNode = curNodes?.find((n: INormNode) => n.id === id);
-        if (!curNode) return;
-
-        const isCurrent = curNode.id === node.id;
-
-        // ✅ 原本：current node 一律純文字
-        // ✅ 修正：如果有 dynamic crumbs，current node 改成可點（導回 module root / redirectTo）
-        if (isCurrent)
-        {
-            const rawTo = (curNode.redirectTo ?? "").trim();
-            const canUseRawTo = rawTo !== "" && rawTo !== "/";
-            const finalTo = canUseRawTo ? rawTo : currentNodeFallbackTo;
-
-            if (treatCurrentAsLink && finalTo)
-            {
-                result.push(<LangNavLink key={id} to={finalTo} title={curNode.title} aria-label={curNode.title}>{curNode.title}</LangNavLink>);
-            } else
-            {
-                result.push(<Fragment key={id}>{curNode.title}</Fragment>);
-            }
-        } else
-        {
-            const to = (curNode.redirectTo ?? "").trim();
-            if (to)
-            {
-                result.push(<LangNavLink key={id} to={to} title={curNode.title} aria-label={curNode.title}>{curNode.title}</LangNavLink>);
-            } else
-            {
-                result.push(<Fragment key={id}>{curNode.title}</Fragment>);
-            }
-        }
-
-        curNodes = curNode.children ?? [];
-    });
-
-    // return
-    return result;
-};
-
 export type BreadcrumbItem = { label: string; to?: string; };
 
 type CrumbPart = { key: string; label: string; to?: string; isActive: boolean; };
 
-/** 取得 menu path nodes（用 absIds 往下找） */
-const GetMenuPathNodes = (lang: Lang, site: INormSite, node: INormNode): Array<{ id: string; title: string; to: string; }> =>
-{
-    // 宣告變數
-    const result: Array<{ id: string; title: string; to: string; }> = [];
-    let curNodes = site.treeByLang[lang];
-
-    // 執行 function：依 absIds 往下找
-    node.absIds?.forEach((id) =>
-    {
-        const curNode = curNodes?.find((n: INormNode) => n.id === id);
-        if (!curNode) return;
-
-        result.push({ id: String(id), title: curNode.title ?? "", to: curNode.redirectTo ?? "" });
-        curNodes = curNode.children ?? [];
-    });
-
-    // return
-    return result;
-};
-
-/** 組合 menu crumbs + dynamic crumbs（最後一個為 active） */
-const Build1816CrumbParts = (lang: Lang, site: INormSite, node: INormNode, dynamicItems: BreadcrumbItem[]): CrumbPart[] =>
-{
-    // 宣告變數
-    const menuNodes = GetMenuPathNodes(lang, site, node);
-    const raw: Array<{ key: string; label: string; to?: string; }> = [];
-
-    // 執行 function：menu crumbs
-    menuNodes.forEach((n) =>
-    {
-        const isLastMenu = String(n.id) === String(node.id);
-        raw.push({ key: `m-${n.id}`, label: n.title, to: isLastMenu ? undefined : n.to });
-    });
-
-    // 執行 function：append dynamic crumbs
-    (dynamicItems ?? []).forEach((d, idx) =>
-    {
-        raw.push({ key: `d-${idx}`, label: d.label, to: d.to });
-    });
-
-    const lastIdx = Math.max(0, raw.length - 1);
-
-    // return
-    return raw.map((r, idx) => ({ ...r, isActive: idx === lastIdx }));
-};
-
 // --- Breadcrumb Context（給頁面動態設定） ---
 type BreadcrumbContextValue = { items: BreadcrumbItem[]; setItems: (items: BreadcrumbItem[]) => void; };
+// #endregion
 
+// #region Public
 export const BreadcrumbContext = createContext<BreadcrumbContextValue | null>(null);
 
 export const useBreadcrumb = () =>
@@ -142,6 +33,61 @@ export const useBreadcrumb = () =>
     return ctx;
 };
 
+// --- Component ---
+export const BreadCrumb_Comp = (props: { lang: Lang; site: INormSite; node: INormNode; backHref?: string; }) =>
+{
+    // 宣告變數
+    const is1816 = import.meta.env.VITE_SPEC_CODE === "1816";
+
+    const isZh = props.lang === "zh-tw";
+    const homepageTitle = isZh ? "首頁" : "Home";
+    const gobackTitle = isZh ? "返回上一層" : "Back";
+    const printTitle = isZh ? "友善列印" : "Print";
+    const shareTitle = isZh ? "分享" : "Share";
+
+    const location = useLocation();
+    const moduleBase = useMemo(() => resolveModuleBaseFromPathname(location.pathname), [location.pathname]);
+
+    // ✅ 動態 crumbs（由 page setItems）
+    const { items } = useBreadcrumb();
+    const treatCurrentAsLink = (items?.length ?? 0) > 0;
+
+    // ✅ 原本 menu breadcrumb（修正：有 dynamic crumbs 時 current node 也可點）
+    const breadCrumbData: ReactNode[] = GetBreadCrumbData(props.lang, props.site, props.node, { treatCurrentAsLink, currentNodeFallbackTo: moduleBase });
+
+    // ✅ 1816 crumbs（menu + dynamic，最後一個 active）
+    const crumbParts1816 = Build1816CrumbParts(props.lang, props.site, props.node, items);
+
+    // 返回上一層
+    const handleGoBack = (e: MouseEvent<HTMLAnchorElement>) =>
+    {
+        // 避免 # 跳動
+        e.preventDefault();
+        history.back();
+    };
+
+    // ✅ 1816：prototype DOM
+    if (is1816)
+    {
+        return (
+            <BreadCrumb1816Comp
+                homepageTitle={homepageTitle}
+                gobackTitle={gobackTitle}
+                printTitle={printTitle}
+                shareTitle={shareTitle}
+                isZh={isZh}
+                crumbParts={crumbParts1816}
+                onGoBack={handleGoBack}
+            />
+        );
+    }
+
+    // ✅ 其他 spec：維持原本 DOM
+    return <BreadCrumbDefaultComp homepageTitle={homepageTitle} gobackTitle={gobackTitle} breadCrumbData={breadCrumbData} items={items} onGoBack={handleGoBack} />;
+};
+// #endregion
+
+// #region Section
 /** 1816：prototype DOM（先內嵌在同檔，後續好搬移） */
 const BreadCrumb1816Comp = (
     props: {
@@ -270,58 +216,96 @@ const BreadCrumbDefaultComp = (
         </div>
     );
 };
+// #endregion
 
-// --- Component ---
-export const BreadCrumb_Comp = (props: { lang: Lang; site: INormSite; node: INormNode; backHref?: string; }) =>
+// #region Private
+/** 取得目前網址的 module base（例：/Issues/Form/... -> /Issues；/en/Issues/... -> /Issues） */
+const resolveModuleBaseFromPathname = (pathname: string): string =>
 {
-    // 宣告變數
-    const is1816 = import.meta.env.VITE_SPEC_CODE === "1816";
-
-    const isZh = props.lang === "zh-tw";
-    const homepageTitle = isZh ? "首頁" : "Home";
-    const gobackTitle = isZh ? "返回上一層" : "Back";
-    const printTitle = isZh ? "友善列印" : "Print";
-    const shareTitle = isZh ? "分享" : "Share";
-
-    const location = useLocation();
-    const moduleBase = useMemo(() => resolveModuleBaseFromPathname(location.pathname), [location.pathname]);
-
-    // ✅ 動態 crumbs（由 page setItems）
-    const { items } = useBreadcrumb();
-    const treatCurrentAsLink = (items?.length ?? 0) > 0;
-
-    // ✅ 原本 menu breadcrumb（修正：有 dynamic crumbs 時 current node 也可點）
-    const breadCrumbData: ReactNode[] = GetBreadCrumbData(props.lang, props.site, props.node, { treatCurrentAsLink, currentNodeFallbackTo: moduleBase });
-
-    // ✅ 1816 crumbs（menu + dynamic，最後一個 active）
-    const crumbParts1816 = Build1816CrumbParts(props.lang, props.site, props.node, items);
-
-    // 返回上一層
-    const handleGoBack = (e: MouseEvent<HTMLAnchorElement>) =>
-    {
-        // 避免 # 跳動
-        e.preventDefault();
-        history.back();
-    };
-
-    // ✅ 1816：prototype DOM
-    if (is1816)
-    {
-        return (
-            <BreadCrumb1816Comp
-                homepageTitle={homepageTitle}
-                gobackTitle={gobackTitle}
-                printTitle={printTitle}
-                shareTitle={shareTitle}
-                isZh={isZh}
-                crumbParts={crumbParts1816}
-                onGoBack={handleGoBack}
-            />
-        );
-    }
-
-    // ✅ 其他 spec：維持原本 DOM
-    return (
-        <BreadCrumbDefaultComp homepageTitle={homepageTitle} gobackTitle={gobackTitle} breadCrumbData={breadCrumbData} items={items} onGoBack={handleGoBack} />
-    );
+    const segs = LibRoutePath.splitPathSegments(pathname);
+    const s0 = (segs[0] ?? "").toLowerCase();
+    const hasLang = (SUPPORTED_LANGS as readonly string[]).includes(s0);
+    const mod = hasLang ? segs[1] : segs[0];
+    if (!mod) return "/";
+    return `/${mod}`;
 };
+
+/** 站台 menu breadcrumb（原本既有邏輯 + 支援 dynamic crumbs 時 current node 可點回 module） */
+const GetBreadCrumbData = (lang: Lang, site: INormSite, node: INormNode, opts?: GetBreadCrumbDataOptions): ReactNode[] =>
+{
+    const result: ReactNode[] = [];
+    let curNodes = site.treeByLang[lang];
+    const treatCurrentAsLink = opts?.treatCurrentAsLink ?? false;
+    const currentNodeFallbackTo = opts?.currentNodeFallbackTo ?? "";
+    node.absIds?.forEach((id) =>
+    {
+        const curNode = curNodes?.find((n: INormNode) => n.id === id);
+        if (!curNode) return;
+        const isCurrent = curNode.id === node.id;
+        // ✅ 原本：current node 一律純文字
+        // ✅ 修正：如果有 dynamic crumbs，current node 改成可點（導回 module root / redirectTo）
+        if (isCurrent)
+        {
+            const rawTo = (curNode.redirectTo ?? "").trim();
+            const canUseRawTo = rawTo !== "" && rawTo !== "/";
+            const finalTo = canUseRawTo ? rawTo : currentNodeFallbackTo;
+            if (treatCurrentAsLink && finalTo)
+            {
+                result.push(<LangNavLink key={id} to={finalTo} title={curNode.title} aria-label={curNode.title}>{curNode.title}</LangNavLink>);
+            } else
+            {
+                result.push(<Fragment key={id}>{curNode.title}</Fragment>);
+            }
+        } else
+        {
+            const to = (curNode.redirectTo ?? "").trim();
+            if (to)
+            {
+                result.push(<LangNavLink key={id} to={to} title={curNode.title} aria-label={curNode.title}>{curNode.title}</LangNavLink>);
+            } else
+            {
+                result.push(<Fragment key={id}>{curNode.title}</Fragment>);
+            }
+        }
+        curNodes = curNode.children ?? [];
+    });
+    return result;
+};
+
+/** 取得 menu path nodes（用 absIds 往下找） */
+const GetMenuPathNodes = (lang: Lang, site: INormSite, node: INormNode): Array<{ id: string; title: string; to: string; }> =>
+{
+    const result: Array<{ id: string; title: string; to: string; }> = [];
+    let curNodes = site.treeByLang[lang];
+    // 執行 function：依 absIds 往下找
+    node.absIds?.forEach((id) =>
+    {
+        const curNode = curNodes?.find((n: INormNode) => n.id === id);
+        if (!curNode) return;
+
+        result.push({ id: String(id), title: curNode.title ?? "", to: curNode.redirectTo ?? "" });
+        curNodes = curNode.children ?? [];
+    });
+    return result;
+};
+
+/** 組合 menu crumbs + dynamic crumbs（最後一個為 active） */
+const Build1816CrumbParts = (lang: Lang, site: INormSite, node: INormNode, dynamicItems: BreadcrumbItem[]): CrumbPart[] =>
+{
+    const menuNodes = GetMenuPathNodes(lang, site, node);
+    const raw: Array<{ key: string; label: string; to?: string; }> = [];
+    // 執行 function：menu crumbs
+    menuNodes.forEach((n) =>
+    {
+        const isLastMenu = String(n.id) === String(node.id);
+        raw.push({ key: `m-${n.id}`, label: n.title, to: isLastMenu ? undefined : n.to });
+    });
+    // 執行 function：append dynamic crumbs
+    (dynamicItems ?? []).forEach((d, idx) =>
+    {
+        raw.push({ key: `d-${idx}`, label: d.label, to: d.to });
+    });
+    const lastIdx = Math.max(0, raw.length - 1);
+    return raw.map((r, idx) => ({ ...r, isActive: idx === lastIdx }));
+};
+// #endregion

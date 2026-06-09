@@ -1,3 +1,4 @@
+// #region Public
 /** 分隔線 */
 export const DividerComp = () =>
 {
@@ -16,3 +17,4 @@ export const DividerComp = () =>
         </div>
     );
 };
+// #endregion

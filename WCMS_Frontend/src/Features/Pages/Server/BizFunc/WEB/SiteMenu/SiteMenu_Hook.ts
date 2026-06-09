@@ -31,21 +31,33 @@ import {
 } from "@/types/SchemaFields";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+// #region Property
 type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"];
+
 type SiteMenu_Item = components["schemas"]["SiteMenu_Item_DTO"];
+
 type SaveSiteInfoDTO = components["schemas"]["SaveSiteInfo_DTO"];
+
 type SaveMenuStructureDTO = components["schemas"]["SaveMenuStructure_DTO"];
+
 type SaveMenuItemDTO = components["schemas"]["SaveMenuItem_DTO"];
+
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
+
 type TagSet = components["schemas"]["TagSet_DTO"];
+
 type PageSet = components["schemas"]["PageManagementSet_DTO"];
+
 type BannerSet = components["schemas"]["BannerSet_DTO"];
+
 type TimelineSet = components["schemas"]["TimelineSet_DTO"];
+
 type SurveySet = components["schemas"]["SurveySet_DTO"];
+
 
 const emptyData: SiteMenuSet = {};
 
-// #region Public Types
+
 export interface SiteMenuItem
 {
     id: number;
@@ -54,13 +66,16 @@ export interface SiteMenuItem
     children?: SiteMenuItem[];
 }
 
+
 export type SiteMenuEditTarget = null | { type: "site"; title: string; } | { type: "menu"; item: SiteMenuItem; };
+
 
 export type SiteMenuActions = UseActionsResult & {
     onSaveSiteInfo: () => Promise<boolean>;
     onSaveMenuItem: (item: SiteMenuItem) => Promise<boolean>;
     onSaveMenuStructure: (tree: SiteMenuItem[], deletedRowIds: number[]) => Promise<boolean>;
 };
+
 
 export type SiteMenuFetchRawData = {
     internalId: string | null;
@@ -79,6 +94,7 @@ export type SiteMenuFetchRawData = {
     surveyMap: Map<string, string>;
 };
 
+
 export type SiteMenuFetchAdapter = {
     SiteMenu: ReturnType<typeof SiteMenuAdapter>;
     Category: ReturnType<typeof CategoryAdapter>;
@@ -88,9 +104,38 @@ export type SiteMenuFetchAdapter = {
     Timeline: ReturnType<typeof TimelineAdapter>;
     Survey: ReturnType<typeof SurveyAdapter>;
 };
+
+
+type SiteMenuMainDataResult = {
+    internalId: string | null;
+    formData: UseFetchFormDataResult<SiteMenuSet>;
+    isLoading: boolean;
+    errors: Array<string | null | undefined>;
+    refetchData: () => Promise<void>;
+};
+
+
+type SiteMenuRefDataResult = {
+    windowTarget: Record<string, string>;
+    menuUrlType: Record<string, string>;
+    modulePageType: Record<string, string>;
+    moduleDisplayStyle: Record<string, string>;
+    bannerDict: Record<string, string>;
+    categorySets: CategorySet[];
+    tagSets: TagSet[];
+    pageSets: PageSet[];
+    timelineMap: Map<string, string>;
+    surveyMap: Map<string, string>;
+    isLoading: boolean;
+    errors: Array<string | null | undefined>;
+    refetch: () => Promise<void>;
+};
+
+
+const GUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 // #endregion
 
-// #region Public Hook
+// #region Public
 /** SiteMenu 頁面資料總入口：主資料 / 參照資料 / actions 一次取回 */
 export const useSiteMenuFetchData = (opt: { lang: Lang; }): UseFetchDataResult<SiteMenuFetchRawData, SiteMenuFetchAdapter> =>
 {
@@ -181,15 +226,7 @@ export const useSiteMenuFetchData = (opt: { lang: Lang; }): UseFetchDataResult<S
 };
 // #endregion
 
-// #region Private - Main Data
-type SiteMenuMainDataResult = {
-    internalId: string | null;
-    formData: UseFetchFormDataResult<SiteMenuSet>;
-    isLoading: boolean;
-    errors: Array<string | null | undefined>;
-    refetchData: () => Promise<void>;
-};
-
+// #region Private
 const useSiteMenuMainDataByAdapter = (adapter: ReturnType<typeof SiteMenuAdapter>, onError: (e: ApiAdapterError) => void): SiteMenuMainDataResult =>
 {
     const siteList = adapter.hooks.useQueryList({ condition: { Fields: [SiteMenu_IndexFields.InternalId], PageNumber: 0, PageSize: 50 }, deps: [], onError });
@@ -275,9 +312,8 @@ const useSiteMenuMainDataByAdapter = (adapter: ReturnType<typeof SiteMenuAdapter
 
     return { internalId, formData, isLoading: formData.isLoading, errors, refetchData };
 };
-// #endregion
 
-// #region Private - Actions
+
 const useSiteMenuActionsByAdapter = (
     adapter: ReturnType<typeof SiteMenuAdapter>,
     internalId: string | null,
@@ -365,15 +401,18 @@ const useSiteMenuActionsByAdapter = (
     }, [onCancelBack, onSaveMenuItem, onSaveMenuStructure, onSaveSiteInfo, saveMenuItem.isSaving, saveMenuStructure.isSaving, saveSiteInfo.isSaving]);
 };
 
+
 const buildSaveSiteInfoRequest = (internalId: string, data: SiteMenuSet): SaveSiteInfoDTO =>
 {
     return { InternalId: internalId, SiteMenu_Index: data.SiteMenu_Index ?? {}, SiteMenu_IndexInfo: data.SiteMenu_IndexInfo ?? [] } as SaveSiteInfoDTO;
 };
 
+
 const buildSaveMenuStructureRequest = (internalId: string, tree: SiteMenuItem[], deletedRowIds: number[]): SaveMenuStructureDTO =>
 {
     return { InternalId: internalId, Items: flattenStructureItems(tree), DeletedRowIds: deletedRowIds.filter(x => x > 0) } as SaveMenuStructureDTO;
 };
+
 
 const flattenStructureItems = (tree: SiteMenuItem[]): Array<{ RowId: number; ParentRowId: number | null; DisplayOrder: number; }> =>
 {
@@ -391,6 +430,7 @@ const flattenStructureItems = (tree: SiteMenuItem[]): Array<{ RowId: number; Par
     walk(tree, null);
     return result;
 };
+
 
 const buildSaveMenuItemRequest = (internalId: string, data: SiteMenuSet, node: SiteMenuItem): SaveMenuItemDTO =>
 {
@@ -416,6 +456,7 @@ const buildSaveMenuItemRequest = (internalId: string, data: SiteMenuSet, node: S
     } as SaveMenuItemDTO;
 };
 
+
 const buildSaveMenuItemTitles = (data: SiteMenuSet, itemRowId: number) =>
 {
     return (data.SiteMenu_Item_Title ?? []).filter(x => Number(x.ItemRowId) === itemRowId).map(x =>
@@ -423,6 +464,7 @@ const buildSaveMenuItemTitles = (data: SiteMenuSet, itemRowId: number) =>
         return { RowId: x.RowId, Lang: x.Lang, Title: x.Title, IsShowOnMenu: x.IsShowOnMenu ?? false };
     });
 };
+
 
 const buildSaveMenuItemUrl = (data: SiteMenuSet, itemRowId: number) =>
 {
@@ -432,6 +474,7 @@ const buildSaveMenuItemUrl = (data: SiteMenuSet, itemRowId: number) =>
     return { RedirectType: src.RedirectType, RedirectUrl: src.RedirectUrl };
 };
 
+
 const buildSaveMenuItemModule = (data: SiteMenuSet, itemRowId: number) =>
 {
     const src = (data.SiteMenu_Item_Module ?? []).find(x => Number(x.ItemRowId) === itemRowId);
@@ -440,16 +483,19 @@ const buildSaveMenuItemModule = (data: SiteMenuSet, itemRowId: number) =>
     return { BannerId: src.BannerId, PageType: src.PageType, ModuleProgId: src.ModuleProgId, ModuleOptions: src.ModuleOptions };
 };
 
+
 const findMenuItem = (data: SiteMenuSet, rowId: number): SiteMenu_Item | undefined =>
 {
     return (data.SiteMenu_Item ?? []).find(x => Number(x.RowId) === rowId);
 };
+
 
 const toNullableNumber = (value: unknown): number | null =>
 {
     const n = Number(value);
     return Number.isFinite(n) && n > 0 ? n : null;
 };
+
 
 const handleSaveResult = async <T>(res: ApiResponse<T>, refetchData: () => Promise<void>): Promise<boolean> =>
 {
@@ -459,24 +505,7 @@ const handleSaveResult = async <T>(res: ApiResponse<T>, refetchData: () => Promi
     await refetchData();
     return true;
 };
-// #endregion
 
-// #region Private - Ref Data
-type SiteMenuRefDataResult = {
-    windowTarget: Record<string, string>;
-    menuUrlType: Record<string, string>;
-    modulePageType: Record<string, string>;
-    moduleDisplayStyle: Record<string, string>;
-    bannerDict: Record<string, string>;
-    categorySets: CategorySet[];
-    tagSets: TagSet[];
-    pageSets: PageSet[];
-    timelineMap: Map<string, string>;
-    surveyMap: Map<string, string>;
-    isLoading: boolean;
-    errors: Array<string | null | undefined>;
-    refetch: () => Promise<void>;
-};
 
 const useSiteMenuRefDataByAdapter = (adapter: SiteMenuFetchAdapter, lang: Lang, onError: (e: ApiAdapterError) => void): SiteMenuRefDataResult =>
 {
@@ -653,6 +682,7 @@ const useSiteMenuRefDataByAdapter = (adapter: SiteMenuFetchAdapter, lang: Lang, 
     };
 };
 
+
 const useEnumOptions = (enumName: string): { data: Record<string, string>; isLoading: boolean; error: string | null; } =>
 {
     const src = useFetchEnumOptions(enumName);
@@ -661,7 +691,7 @@ const useEnumOptions = (enumName: string): { data: Record<string, string>; isLoa
         return { data: src.data ?? {}, isLoading: Boolean(src.isLoading), error: src.error ?? null };
     }, [src.data, src.error, src.isLoading]);
 };
-// #endregion
+
 
 /** 將 SiteMenuSet 轉換成 SiteMenuItem 樹狀資料 */
 const transSetToItem = (data: SiteMenuSet, lang: Lang): SiteMenuItem[] =>
@@ -739,7 +769,6 @@ const transSetToItem = (data: SiteMenuSet, lang: Lang): SiteMenuItem[] =>
     return roots;
 };
 
-const GUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 /** 檢查字串是否為 GUID 格式 */
 const isGuid = (value: string | null | undefined): value is string =>
@@ -747,3 +776,4 @@ const isGuid = (value: string | null | undefined): value is string =>
     const text = value?.trim() ?? "";
     return GUID_REGEX.test(text);
 };
+// #endregion

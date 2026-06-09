@@ -3,6 +3,25 @@ import React from "react";
 import type { IMenu_Style } from "./MenuList_Clsx";
 import type { MenuItemData } from "./MenuList_Data";
 
+// #region Section
+const MenuListComp = (
+    { items, Style, expandedKeys, onToggleKey }: {
+        items: MenuItemData[];
+        Style: IMenu_Style;
+        expandedKeys?: Set<string>;
+        onToggleKey?: (key: string) => void;
+    },
+) =>
+{
+    return (
+        <ul className={Style.ul(1)}>
+            {items.map((item, idx) => RecursiveMenuItem(item, item.Id ?? `menu-${idx}`, Style, 1, expandedKeys, onToggleKey, idx === 0))}
+        </ul>
+    );
+};
+// #endregion
+
+// #region Private
 const RecursiveMenuItem = (
     item: MenuItemData,
     key: string,
@@ -50,20 +69,6 @@ const RecursiveMenuItem = (
     );
 };
 
-const MenuListComp = (
-    { items, Style, expandedKeys, onToggleKey }: {
-        items: MenuItemData[];
-        Style: IMenu_Style;
-        expandedKeys?: Set<string>;
-        onToggleKey?: (key: string) => void;
-    },
-) =>
-{
-    return (
-        <ul className={Style.ul(1)}>
-            {items.map((item, idx) => RecursiveMenuItem(item, item.Id ?? `menu-${idx}`, Style, 1, expandedKeys, onToggleKey, idx === 0))}
-        </ul>
-    );
-};
 
 export default MenuListComp;
+// #endregion

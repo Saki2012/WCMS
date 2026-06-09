@@ -7,6 +7,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { Outlet, useLocation } from "react-router-dom";
 import Header from "SpecFeature/Pages/Client/Scaffold/MainFrame/Header";
 
+// #region Public
 export const Index = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
 {
     const location = useLocation();
@@ -25,3 +26,4 @@ export const Index = (props: { lang: Lang; site: INormSite; style: IFETheme; }) 
         </>
     );
 };
+// #endregion

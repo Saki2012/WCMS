@@ -1,6 +1,7 @@
 // 後續再來處理這支
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+// #region Property
 // ✅ 統一錯誤結構（可對應你後端 ProblemDetails / ValidationProblemDetails）
 export interface ApiProblem
 {
@@ -13,6 +14,27 @@ export interface ApiProblem
     raw?: unknown; // 原始錯誤保留，方便除錯
 }
 
+
+export interface UseExecuteApiOptions<TData>
+{
+    onSuccess?: (data: TData) => void;
+    onError?: (problem: ApiProblem) => void;
+    captureResult?: boolean; // 預設 true：把結果放進 data
+    autoResetOnRun?: boolean; // 預設 true：每次執行前清空 error/data
+}
+
+
+export interface UseExecuteApiResult<TData>
+{
+    run: <R>(action: () => Promise<R>) => Promise<R>; // 可執行任何 async 動作
+    isLoading: boolean;
+    error: ApiProblem | null;
+    data: TData | null;
+    reset: () => void;
+}
+// #endregion
+
+// #region Public
 export const normalizeError = (err: unknown): ApiProblem =>
 {
     const anyErr = err as any;
@@ -30,22 +52,6 @@ export const normalizeError = (err: unknown): ApiProblem =>
     };
 };
 
-export interface UseExecuteApiOptions<TData>
-{
-    onSuccess?: (data: TData) => void;
-    onError?: (problem: ApiProblem) => void;
-    captureResult?: boolean; // 預設 true：把結果放進 data
-    autoResetOnRun?: boolean; // 預設 true：每次執行前清空 error/data
-}
-
-export interface UseExecuteApiResult<TData>
-{
-    run: <R>(action: () => Promise<R>) => Promise<R>; // 可執行任何 async 動作
-    isLoading: boolean;
-    error: ApiProblem | null;
-    data: TData | null;
-    reset: () => void;
-}
 
 /** ✅ 通用 API 執行器：把任意 Promise 包成「有 loading/error/data」的流程 */
 export const useExecuteApi = <TData = unknown>(opt?: UseExecuteApiOptions<TData>): UseExecuteApiResult<TData> =>
@@ -110,3 +116,4 @@ export const useExecuteApi = <TData = unknown>(opt?: UseExecuteApiOptions<TData>
 
     return { run, isLoading, error, data, reset };
 };
+// #endregion

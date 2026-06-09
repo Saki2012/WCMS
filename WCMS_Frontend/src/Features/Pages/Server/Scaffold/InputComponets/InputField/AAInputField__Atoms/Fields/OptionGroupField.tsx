@@ -4,6 +4,7 @@ import { FieldGroupShell } from "../AAInputField_Shell";
 import { applyAAFocusStyle, clearAAFocusStyle } from "../AAInputField_Focus";
 import { getAriaRequired, getNativeRequired, toStringArray } from "../AAInputField_Utils";
 
+// #region Public
 /** 渲染 radio 或多選 checkbox 群組。 */
 export const OptionGroupField = (props: { field: AAInputField; context: FieldRenderContext; mode: "radio" | "checkbox"; }) =>
 {
@@ -16,6 +17,27 @@ export const OptionGroupField = (props: { field: AAInputField; context: FieldRen
     );
 };
 
+
+
+/**
+ * 使用範例：
+ * <AAInputFieldList fields={[{ key: "radio", type: "radio", label: "狀態", aaLabel: "請選擇項目(擇一)", options, value: state.radio }]} onChange={handleChange} />
+ */
+
+/** radio 欄位。 */
+export const RadioField = (props: { field: AAInputField; context: FieldRenderContext; }) => <OptionGroupField field={props.field} context={props.context} mode="radio" />;
+
+
+/**
+ * 使用範例：
+ * <AAInputFieldList fields={[{ key: "checkboxMultiple", type: "checkboxMultiple", label: "分類", aaLabel: "請勾選項目(可複選)", options, value: state.checkboxMultiple }]} onChange={handleChange} />
+ */
+
+/** checkboxMultiple 欄位。 */
+export const CheckboxMultipleField = (props: { field: AAInputField; context: FieldRenderContext; }) => <OptionGroupField field={props.field} context={props.context} mode="checkbox" />;
+// #endregion
+
+// #region EntityComp
 /** 渲染 radio / checkbox 群組內的單一項目。 */
 const renderOptionItem = (field: AAInputField, fieldId: string, item: AAInputOption, index: number, mode: "radio" | "checkbox", selectedValues: string[], onChange: (fieldKey: string, value: AAInputValue) => void) =>
 {
@@ -30,7 +52,9 @@ const renderOptionItem = (field: AAInputField, fieldId: string, item: AAInputOpt
         </div>
     );
 };
+// #endregion
 
+// #region Private
 /** checkboxMultiple 補上 Enter 切換，radio 保留原生鍵盤行為。 */
 const handleOptionItemEnterKeyDown = (event: KeyboardEvent<HTMLInputElement>, mode: "radio" | "checkbox", toggleCheckbox: () => void) =>
 {
@@ -39,22 +63,7 @@ const handleOptionItemEnterKeyDown = (event: KeyboardEvent<HTMLInputElement>, mo
     toggleCheckbox();
 };
 
+
 /** 切換多選陣列值。 */
 const toggleStringValue = (current: string[], value: string, checked: boolean) => checked ? Array.from(new Set([...current, value])) : current.filter((item) => item !== value);
-
-
-/**
- * 使用範例：
- * <AAInputFieldList fields={[{ key: "radio", type: "radio", label: "狀態", aaLabel: "請選擇項目(擇一)", options, value: state.radio }]} onChange={handleChange} />
- */
-
-/** radio 欄位。 */
-export const RadioField = (props: { field: AAInputField; context: FieldRenderContext; }) => <OptionGroupField field={props.field} context={props.context} mode="radio" />;
-
-/**
- * 使用範例：
- * <AAInputFieldList fields={[{ key: "checkboxMultiple", type: "checkboxMultiple", label: "分類", aaLabel: "請勾選項目(可複選)", options, value: state.checkboxMultiple }]} onChange={handleChange} />
- */
-
-/** checkboxMultiple 欄位。 */
-export const CheckboxMultipleField = (props: { field: AAInputField; context: FieldRenderContext; }) => <OptionGroupField field={props.field} context={props.context} mode="checkbox" />;
+// #endregion

@@ -1,5 +1,7 @@
 import { useId } from "react";
 import type { ILibTextAreaProp } from "./LibTextArea_Data";
+
+// #region Private
 /** 富文本 */
 const LibTextArea = (prop: ILibTextAreaProp) =>
 {
@@ -20,4 +22,6 @@ const LibTextArea = (prop: ILibTextAreaProp) =>
     );
 };
 
+
 export default LibTextArea;
+// #endregion

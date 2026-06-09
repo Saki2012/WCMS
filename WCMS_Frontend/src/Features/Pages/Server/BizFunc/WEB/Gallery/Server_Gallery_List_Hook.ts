@@ -15,7 +15,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
+import { findTextByKey, formatDateTime } from "@/SysCore/Utils/Library/LibData";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
@@ -23,18 +23,27 @@ import { AccountFields, GalleryFields, GalleryInfoFields, PGID } from "@/types/S
 import { createElement, Fragment, useCallback, useMemo, type ReactNode } from "react";
 import { type NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 type GallerySet = components["schemas"]["GallerySet_DTO"];
+
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
+
 type TagSet = components["schemas"]["TagSet_DTO"];
+
 type GalleryApiAdapter = ReturnType<typeof GalleryAdapter>;
+
 type CategoryApiAdapter = ReturnType<typeof CategoryAdapter>;
+
 type TagApiAdapter = ReturnType<typeof TagAdapter>;
+
 type GalleryCudActions = ReturnType<GalleryApiAdapter["hooks"]["useCudActions"]>;
+
 type CategoryMapValue = string | CategorySet | null | undefined;
+
 type TagMapValue = string | TagSet | null | undefined;
 
-export const GALLERY_TITLE_SEARCH_KEY = "title";
 
 export interface GallerySearchParams
 {
@@ -44,6 +53,7 @@ export interface GallerySearchParams
     /** 相簿標題搜尋關鍵字 */
     title?: string;
 }
+
 
 export interface GalleryListRawData
 {
@@ -75,6 +85,7 @@ export interface GalleryListRawData
     tagMap: Record<string, string>;
 }
 
+
 export interface GalleryListAdapter
 {
     /** 相簿 API adapter */
@@ -96,7 +107,28 @@ export interface GalleryListAdapter
     dirUrl: string;
 }
 
+
 export type GalleryListGridTemplate = ServerListGridTemplate<GallerySearchParams, GalleryListRawData, GalleryListAdapter, QueryListParam>;
+
+
+type CrudDeps = {
+    /** React Router 導頁方法 */
+    navigate: NavigateFunction;
+
+    /** 目前 List 對應的 Form 路徑 */
+    dirUrl: string;
+
+    /** 刪除資料方法 */
+    deleteAsync: GalleryCudActions["deleteAsync"];
+
+    /** 刪除後重新查詢 */
+    afterDelete: () => Promise<void>;
+};
+// #endregion
+
+// #region Public
+export const GALLERY_TITLE_SEARCH_KEY = "title";
+
 
 /** 建立相簿後台 ListGridTemplate 設定 */
 export const useGalleryListGridTemplate = (opt: { lang: Lang; }): GalleryListGridTemplate =>
@@ -116,7 +148,9 @@ export const useGalleryListGridTemplate = (opt: { lang: Lang; }): GalleryListGri
         };
     }, [opt.lang]);
 };
+// #endregion
 
+// #region Private
 /** 執行相簿列表資料來源 Hook */
 const useGalleryListGridDataSource = (
     ctx: ServerListGridDataSourceContext<GallerySearchParams, QueryListParam>,
@@ -179,6 +213,7 @@ const useGalleryListGridDataSource = (
     return { adapter: { ...apiAdapter, cudActions, navigate, dirUrl }, rawData, isLoading, errors, refetchData, refetchRefData };
 };
 
+
 /** 建立相簿搜尋欄位設定 */
 const buildGallerySearchFields = (rawData: GalleryListRawData): SearchFieldConfig[] =>
 {
@@ -187,11 +222,13 @@ const buildGallerySearchFields = (rawData: GalleryListRawData): SearchFieldConfi
     return [{ key: GALLERY_TITLE_SEARCH_KEY, title, type: "text", placeholder: `請輸入${title}` }];
 };
 
+
 /** 將 SearchValues 轉為相簿列表查詢參數 */
 const toGallerySearchParams = (values: SearchValues, lang: Lang): GallerySearchParams =>
 {
     return { lang, title: getSearchStringValue(values[GALLERY_TITLE_SEARCH_KEY]) };
 };
+
 
 /** 建立相簿搜尋條件 */
 const buildGallerySearchConditions = (ctx: { searchParams: GallerySearchParams; }): string[] =>
@@ -200,6 +237,7 @@ const buildGallerySearchConditions = (ctx: { searchParams: GallerySearchParams; 
 
     return [`${GalleryFields._GalleryInfo}.${GalleryInfoFields.Title} Like ${ctx.searchParams.title}`];
 };
+
 
 /** 建立相簿列表完整 QueryParam */
 const buildGalleryQueryParam = (ctx: { searchParams: GallerySearchParams; searchCondition: string; }): QueryListParam =>
@@ -217,6 +255,7 @@ const buildGalleryQueryParam = (ctx: { searchParams: GallerySearchParams; search
         PageSize: 10,
     };
 };
+
 
 /** 建立相簿列表查詢欄位 */
 const buildGalleryQueryFields = (): string[] =>
@@ -237,19 +276,6 @@ const buildGalleryQueryFields = (): string[] =>
     ];
 };
 
-type CrudDeps = {
-    /** React Router 導頁方法 */
-    navigate: NavigateFunction;
-
-    /** 目前 List 對應的 Form 路徑 */
-    dirUrl: string;
-
-    /** 刪除資料方法 */
-    deleteAsync: GalleryCudActions["deleteAsync"];
-
-    /** 刪除後重新查詢 */
-    afterDelete: () => Promise<void>;
-};
 
 /** 將相簿資料轉為 GridProps */
 const buildGalleryGridProps = (
@@ -282,6 +308,7 @@ const buildGalleryGridProps = (
     });
 };
 
+
 /** 注入相簿 Grid 編輯與刪除動作 */
 const enhanceGalleryGrid = (
     opt: {
@@ -312,11 +339,13 @@ const enhanceGalleryGrid = (
     });
 };
 
+
 /** 建立相簿列表欄位定義 */
 const buildColumns = (visibleCols: string[], raw: GalleryListRawData): ColumnConfig[] =>
 {
     return visibleCols.map((col) => ({ key: col, title: getColumnTitle(raw.modelDisplayName, col, `【${col}】`) }));
 };
+
 
 /** 建立相簿列表列資料 */
 const buildGalleryRows = (raw: GalleryListRawData, lang: Lang, columns: ColumnConfig[]): GridRow[] =>
@@ -330,12 +359,13 @@ const buildGalleryRows = (raw: GalleryListRawData, lang: Lang, columns: ColumnCo
             { col: columns[0], content: buildCoverCell(gallery?.CoverPicSrcId, title) },
             { col: columns[1], content: buildTitleCell(set, lang) },
             { col: columns[2], content: gallery?.ModifyUser?.AccountName ?? "" },
-            { col: columns[3], content: FormatDateTime(gallery?.ModifyTime) },
+            { col: columns[3], content: formatDateTime(gallery?.ModifyTime) },
         ];
 
         return { keyId, cells };
     });
 };
+
 
 /** 建立相簿封面圖片欄位內容 */
 const buildCoverCell = (coverPicSrcId: string | null | undefined, title: string): ReactNode =>
@@ -349,6 +379,7 @@ const buildCoverCell = (coverPicSrcId: string | null | undefined, title: string)
     });
 };
 
+
 /** 建立標題與資料狀態欄位內容 */
 const buildTitleCell = (set: GallerySet, lang: Lang): ReactNode =>
 {
@@ -357,11 +388,13 @@ const buildTitleCell = (set: GallerySet, lang: Lang): ReactNode =>
     return createElement(Fragment, null, createElement("span", { key: "title" }, title), GetDataStatusContent(set.Gallery?.ContentStatus ?? 0));
 };
 
+
 /** 取得相簿目前語系標題 */
 const getGalleryTitle = (set: GallerySet, lang: Lang): string =>
 {
-    return (set.GalleryInfo ?? []).find((detail) => detail?.Lang === lang)?.Title ?? "";
+    return findTextByKey(set.GalleryInfo, (detail) => detail?.Lang, lang, (detail) => detail?.Title);
 };
+
 
 /** 將分類 Hook 回傳值轉成文字 map，避免不同 Adapter map 版本造成型別不一致 */
 const buildCategoryTextMap = (source: Record<string, CategoryMapValue>, lang: Lang): Record<string, string> =>
@@ -373,14 +406,16 @@ const buildCategoryTextMap = (source: Record<string, CategoryMapValue>, lang: La
     }, {});
 };
 
+
 /** 取得分類顯示文字 */
 const getCategoryText = (value: CategoryMapValue, lang: Lang): string =>
 {
     if (!value) return "";
     if (typeof value === "string") return value;
 
-    return (value.CategoryDetail ?? []).find((detail) => detail?.Lang === lang)?.CategoryName ?? "";
+    return findTextByKey(value.CategoryDetail, (detail) => detail?.Lang, lang, (detail) => detail?.CategoryName);
 };
+
 
 /** 將標籤 Hook 回傳值轉成文字 map，避免不同 Adapter map 版本造成型別不一致 */
 const buildTagTextMap = (source: Record<string, TagMapValue>, lang: Lang): Record<string, string> =>
@@ -392,14 +427,16 @@ const buildTagTextMap = (source: Record<string, TagMapValue>, lang: Lang): Recor
     }, {});
 };
 
+
 /** 取得標籤顯示文字 */
 const getTagText = (value: TagMapValue, lang: Lang): string =>
 {
     if (!value) return "";
     if (typeof value === "string") return value;
 
-    return (value.TagDetail ?? []).find((detail) => detail?.Lang === lang)?.TagName ?? "";
+    return findTextByKey(value.TagDetail, (detail) => detail?.Lang, lang, (detail) => detail?.TagName);
 };
+
 
 /** 依欄位代碼取得 ModelDisplayName 顯示文字 */
 const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, columnId: string, fallback: string): string =>
@@ -409,6 +446,7 @@ const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, columnId: s
     return hit?.ColumnDisplayName ?? fallback;
 };
 
+
 /** 取得 SearchValue 的文字值 */
 const getSearchStringValue = (value: SearchValue): string | undefined =>
 {
@@ -417,3 +455,4 @@ const getSearchStringValue = (value: SearchValue): string | undefined =>
     const text = value.trim();
     return text.length > 0 ? text : undefined;
 };
+// #endregion

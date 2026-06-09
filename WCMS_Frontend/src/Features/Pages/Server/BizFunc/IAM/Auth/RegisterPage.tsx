@@ -3,6 +3,7 @@ import { AuthAPI, UserAPI } from "@/SysCore/Utils/API/AuthClient";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+// #region Property
 /** 介面：表單資料 */
 export interface IRegisterForm
 {
@@ -12,7 +13,9 @@ export interface IRegisterForm
     password: string;
     confirmPassword: string;
 }
+// #endregion
 
+// #region Public
 export const RegisterPage: React.FC = () =>
 {
     const nav = useNavigate();
@@ -296,5 +299,8 @@ export const RegisterPage: React.FC = () =>
         </div>
     );
 };
+// #endregion
 
+// #region Private
 export default RegisterPage;
+// #endregion

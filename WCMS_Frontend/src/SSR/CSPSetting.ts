@@ -1,54 +1,15 @@
+// #region Property
 export type CspStyleMode = "balanced" | "legacy" | "strict";
+
 
 export type BuildProdCspOptions = Readonly<{ enforceTrustedTypes?: boolean; styleMode?: CspStyleMode; scriptBaseOrigin?: string; }>;
 
-const uniqueSources = (sources: readonly string[]): string[] =>
-{
-    return [...new Set(sources.map(s => String(s || "").trim()).filter(Boolean))];
-};
-
-const joinSources = (sources: readonly string[]): string =>
-{
-    return uniqueSources(sources).join(" ");
-};
-
-const trimEndSlash = (value: string): string =>
-{
-    return String(value || "").trim().replace(/\/+$/, "");
-};
 
 /** Cloudflare Turnstile 前台驗證碼來源；需允許 script 與 iframe 載入。 */
 const turnstileSource = "https://challenges.cloudflare.com";
+// #endregion
 
-/** 建立 script 可載入來源；只允許正式靜態 bundle、自架 TinyMCE 與 Turnstile 驗證碼來源。 */
-const buildScriptSources = (scriptBaseOrigin?: string): string[] =>
-{
-    const origin = trimEndSlash(scriptBaseOrigin ?? "");
-    if (!origin) return ["'self'", turnstileSource];
-
-    return [`${origin}/assets/`, `${origin}/tinymce/`, `${origin}/tinymce-i18n/`, turnstileSource];
-};
-
-const buildStyleSources = (styleMode: CspStyleMode): string[] =>
-{
-    const sources = [
-        "'self'",
-        "https://fonts.googleapis.com",
-        "https://www.gstatic.com",
-        "https://calendar.google.com",
-        "https://accounts.google.com",
-        "https://maps.gstatic.com",
-    ];
-
-    return styleMode === "legacy" ? [...sources, "'unsafe-inline'"] : sources;
-};
-
-const buildStyleAttrSources = (styleMode: CspStyleMode): string[] =>
-{
-    if (styleMode === "strict") return ["'none'"];
-    return ["'unsafe-inline'"];
-};
-
+// #region Public
 /**
  * 建立正式環境 CSP。
  * script 不使用 nonce / strict-dynamic / unsafe-inline / self，改用同網域路徑級白名單，避免 /Service 或其他動態端點被納入可執行 script 來源。
@@ -147,3 +108,55 @@ export const buildProdCsp = (_nonce: string, options: BuildProdCspOptions = {}):
 
     return csp.join("; ");
 };
+// #endregion
+
+// #region Private
+const uniqueSources = (sources: readonly string[]): string[] =>
+{
+    return [...new Set(sources.map(s => String(s || "").trim()).filter(Boolean))];
+};
+
+
+const joinSources = (sources: readonly string[]): string =>
+{
+    return uniqueSources(sources).join(" ");
+};
+
+
+const trimEndSlash = (value: string): string =>
+{
+    return String(value || "").trim().replace(/\/+$/, "");
+};
+
+
+/** 建立 script 可載入來源；只允許正式靜態 bundle、自架 TinyMCE 與 Turnstile 驗證碼來源。 */
+const buildScriptSources = (scriptBaseOrigin?: string): string[] =>
+{
+    const origin = trimEndSlash(scriptBaseOrigin ?? "");
+    if (!origin) return ["'self'", turnstileSource];
+
+    return [`${origin}/assets/`, `${origin}/tinymce/`, `${origin}/tinymce-i18n/`, turnstileSource];
+};
+
+
+const buildStyleSources = (styleMode: CspStyleMode): string[] =>
+{
+    const sources = [
+        "'self'",
+        "https://fonts.googleapis.com",
+        "https://www.gstatic.com",
+        "https://calendar.google.com",
+        "https://accounts.google.com",
+        "https://maps.gstatic.com",
+    ];
+
+    return styleMode === "legacy" ? [...sources, "'unsafe-inline'"] : sources;
+};
+
+
+const buildStyleAttrSources = (styleMode: CspStyleMode): string[] =>
+{
+    if (styleMode === "strict") return ["'none'"];
+    return ["'unsafe-inline'"];
+};
+// #endregion

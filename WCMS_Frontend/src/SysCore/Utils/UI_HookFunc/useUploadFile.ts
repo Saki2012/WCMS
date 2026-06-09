@@ -4,6 +4,7 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useState } from "react";
 import { type ApiResponse, MessageStatus, type SysMessageModel } from "../API/APIBase";
 
+// #region Property
 export interface UploadResult
 {
     internalId: string | null;
@@ -13,6 +14,7 @@ export interface UploadResult
     error: string | null;
 }
 
+
 export interface UseUploadFileOptions
 {
     /** 是否嘗試建立本地預覽（圖片用），預設 true */
@@ -21,8 +23,11 @@ export interface UseUploadFileOptions
     keepOriginalName?: boolean;
 }
 
-type UploadedCallback = (internalId: string, originalName: string) => void;
 
+type UploadedCallback = (internalId: string, originalName: string) => void;
+// #endregion
+
+// #region Public
 export const useUploadFile = (opts?: UseUploadFileOptions) =>
 {
     const { publish } = useToast();
@@ -85,3 +90,4 @@ export const useUploadFile = (opts?: UseUploadFileOptions) =>
 
     return { result, handleFileChange, reset };
 };
+// #endregion

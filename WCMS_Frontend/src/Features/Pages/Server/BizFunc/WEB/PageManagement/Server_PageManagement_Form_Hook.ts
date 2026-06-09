@@ -6,9 +6,9 @@ import type {
     ServerFormTemplate,
 } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { type Lang, LangLabelMap, SUPPORTED_LANGS, useEnsureLangDetails } from "@/SysCore/i18n/lang";
+import { buildSupportedLangOrder, type Lang, LangLabelMap, normalizeSupportedLang, SUPPORTED_LANGS, useEnsureLangDetails } from "@/SysCore/i18n/lang";
 import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { PageManagementDetailFields, PageManagementSetFields, PGID } from "@/types/SchemaFields";
@@ -16,7 +16,9 @@ import { useMemo } from "react";
 
 // #region Property
 type PageManagementSet = components["schemas"]["PageManagementSet_DTO"];
+
 type PageManagementDetail = NonNullable<PageManagementSet["PageManagementDetail"]>[number];
+
 export type PageManagementDetailRowKeys = Record<string, string | number | boolean | null | undefined>;
 
 export interface UsePageManagementFormTemplateOptions
@@ -70,8 +72,6 @@ export interface PageManagementDetailTabsResult
     items: PageManagementDetailTabItem[];
 }
 
-export const pageManagementEmptyData: PageManagementSet = { PageManagement: {}, PageManagementDetail: [] };
-
 export type PageManagementFormRefs = {
     /** 頁面分類下拉選項 */
     categoryMap: Record<string, string>;
@@ -91,6 +91,8 @@ const emptyUsedProgMap = new Map<string, string>();
 // #endregion
 
 // #region Public
+export const pageManagementEmptyData: PageManagementSet = { PageManagement: {}, PageManagementDetail: [] };
+
 /** 建立 PageManagement Form Template，統一交給 Server_FormTemplate 處理資料流程。 */
 export const usePageManagementFormTemplate = (
     opt: UsePageManagementFormTemplateOptions,
@@ -134,7 +136,7 @@ export const usePageManagementDetailTabs = (opt: UsePageManagementDetailTabsOpti
 };
 // #endregion
 
-// #region Timing
+// #region Private
 /** 建立 PageManagement Form 標題，功能名稱優先讀 ModelDisplayName。 */
 const buildPageManagementFormTitle = (ctx: { mode: "new" | "edit"; displayName: ModelDisplaySchema; }): string =>
 {
@@ -184,9 +186,7 @@ const usePageManagementReferenceData = (
         };
     }, [category.errorText, category.isLoading, category.map, category.refetch, usedProg.data, usedProg.errorText, usedProg.isLoading, usedProg.refetch]);
 };
-// #endregion
 
-// #region Private
 /** 取得 PageManagement Model 顯示名稱，避免 Form 標題寫死功能名稱。 */
 const getPageManagementModelTitle = (displayName: ModelDisplaySchema, fallback: string): string =>
 {
@@ -225,21 +225,6 @@ const buildSupportedDetailMap = (details: PageManagementDetail[]): Map<string, P
     }, new Map<string, PageManagementDetail>());
 };
 
-/** 建立目前 Case 支援語系順序，當前語系優先。 */
-const buildSupportedLangOrder = (preferLang: Lang): Lang[] =>
-{
-    const langs = [preferLang, ...SUPPORTED_LANGS];
-    return langs.filter((lang, index) => langs.indexOf(lang) === index && Boolean(normalizeSupportedLang(lang)));
-};
-
-/** 正規化並檢查語系是否屬於目前 Case 支援語系。 */
-const normalizeSupportedLang = (lang?: Lang | string | null): string | null =>
-{
-    const value = String(lang ?? "").trim().toLowerCase();
-    const isSupport = SUPPORTED_LANGS.some(item => item.toLowerCase() === value);
-    return isSupport ? value : null;
-};
-
 /** 建立單一 Detail Tab 項目。 */
 const buildPageManagementDetailTabItem = (detail: PageManagementDetail | undefined): PageManagementDetailTabItem | null =>
 {
@@ -248,8 +233,8 @@ const buildPageManagementDetailTabItem = (detail: PageManagementDetail | undefin
     const lang = normalizeSupportedLang(detail.Lang);
     if (!lang) return null;
 
-    const key = LibMerge("_", true, detail.PageId, detail.RowId, lang);
-    const label = LangLabelMap[lang as Lang] ?? lang;
+    const key = LibText.Merge("_", true, detail.PageId, detail.RowId, lang);
+    const label = LangLabelMap[lang] ?? lang;
     const rowKeys = buildPageManagementDetailRowKeys(detail);
 
     return { key, label, detail, rowKeys };

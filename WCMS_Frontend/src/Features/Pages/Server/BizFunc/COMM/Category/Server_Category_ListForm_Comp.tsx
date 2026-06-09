@@ -9,15 +9,18 @@ import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
 import { type Lang, LangLabelMap, useEnsureLangDetails } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { CategoryDataSetFields, CategoryDetailFields, CategoryFields, type PGID } from "@/types/SchemaFields";
 import { useMemo } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { useCategoryListFormFetchData } from "./Server_Category_ListForm_Hook";
-type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"];
 
-const buildEmptyCategorySet = (progId: string): CategoryDataSet => ({ Category: { ProgId: progId }, CategoryDetail: [] });
+// #region Property
+type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"];
+// #endregion
+
+// #region Public
 export const Server_CategoryListFormComp = (prop: { progId: PGID; title: string; theme: IBETheme; lang: Lang; }) =>
 {
     const { internalId } = useParams();
@@ -56,7 +59,9 @@ export const Server_CategoryListFormComp = (prop: { progId: PGID; title: string;
         />
     );
 };
+// #endregion
 
+// #region Section
 const CateEditComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<CategoryDataSet>; }) =>
 {
     const setField = useSetTableField<CategoryDataSet>(props.formData);
@@ -65,14 +70,14 @@ const CateEditComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult
         Style: props.theme.Tabs,
         item: rawDetails.reduce<Record<string, string>>((tabItems, info) =>
         {
-            const langKey = LibMerge("_", true, info.CategoryId, info.RowId, info.Lang);
+            const langKey = LibText.Merge("_", true, info.CategoryId, info.RowId, info.Lang);
             tabItems[langKey] = LangLabelMap[info.Lang as Lang] ?? info.Lang ?? "Unknown";
             return tabItems;
         }, {}),
     };
     const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>((compMap, info) =>
     {
-        const langKey = LibMerge("_", true, info.CategoryId, info.RowId, info.Lang);
+        const langKey = LibText.Merge("_", true, info.CategoryId, info.RowId, info.Lang);
         const rowKeys = { [CategoryDetailFields.CategoryId]: info.CategoryId, [CategoryDetailFields.RowId]: info.RowId };
         compMap[langKey] = [
             <LibTextBox
@@ -119,3 +124,8 @@ const CateListComp = (prop: { theme: IBETheme; cateSets: CategoryDataSet[]; lang
         </ul>
     );
 };
+// #endregion
+
+// #region EntityComp
+const buildEmptyCategorySet = (progId: string): CategoryDataSet => ({ Category: { ProgId: progId }, CategoryDetail: [] });
+// #endregion

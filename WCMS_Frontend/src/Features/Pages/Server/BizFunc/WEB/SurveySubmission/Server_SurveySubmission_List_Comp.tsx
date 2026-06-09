@@ -8,6 +8,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import type { ReactNode } from "react";
 import { useSurveySubmissionListGridTemplate } from "./Server_SurveySubmission_List_Hook";
 
+// #region Public
 /** 問卷回應列表 */
 export const Server_SurveySubmission_List_Comp = (prop: { title: string; theme: IBETheme; lang: Lang; }) =>
 {
@@ -15,7 +16,9 @@ export const Server_SurveySubmission_List_Comp = (prop: { title: string; theme: 
 
     return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} renderSearchBar={renderSurveySubmissionSearchBar} />;
 };
+// #endregion
 
+// #region EntityComp
 /** 渲染問卷回應列表搜尋列 */
 const renderSurveySubmissionSearchBar = (props: ServerListGridSearchRenderProps): ReactNode =>
 {
@@ -29,3 +32,4 @@ const renderSurveySubmissionSearchBar = (props: ServerListGridSearchRenderProps)
         />
     );
 };
+// #endregion

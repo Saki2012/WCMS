@@ -1,13 +1,11 @@
 import type { UseActionsResult } from "@/Features/Hooks/Common/useActions";
 import type { ServerFormActions } from "@/SysCore/Utils/API/APIAdapter";
 
+// #region Property
 export type ToolbarActions = UseActionsResult | ServerFormActions;
+// #endregion
 
-const isLegacy = (a: ToolbarActions): a is UseActionsResult =>
-{
-    return typeof (a as UseActionsResult).onSave === "function";
-};
-
+// #region Public
 export const FormList_Toolbar = (prop: { action: ToolbarActions; }) =>
 {
     const onSave = isLegacy(prop.action) ? prop.action.onSave : prop.action.Save;
@@ -22,6 +20,7 @@ export const FormList_Toolbar = (prop: { action: ToolbarActions; }) =>
         </div>
     );
 };
+
 
 export const List_Toolbar = (prop: { action: ToolbarActions; }) =>
 {
@@ -38,6 +37,7 @@ export const List_Toolbar = (prop: { action: ToolbarActions; }) =>
         </div>
     );
 };
+
 
 export const Form_Toolbar = (prop: { action: ToolbarActions; }) =>
 {
@@ -57,6 +57,7 @@ export const Form_Toolbar = (prop: { action: ToolbarActions; }) =>
         </div>
     );
 };
+
 
 export const GridCol_Toolbar = (prop: { action: ToolbarActions; internalId: string; }) =>
 {
@@ -78,3 +79,11 @@ export const GridCol_Toolbar = (prop: { action: ToolbarActions; internalId: stri
         </div>
     );
 };
+// #endregion
+
+// #region Private
+const isLegacy = (a: ToolbarActions): a is UseActionsResult =>
+{
+    return typeof (a as UseActionsResult).onSave === "function";
+};
+// #endregion

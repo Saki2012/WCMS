@@ -1,4 +1,4 @@
-import { type IPageManagementOptions, usePageManagementFormFetchData } from "@/Features/Pages/Client/BizFunc/WEB/PageManagement/PageManagementForm_Loader";
+import { type IPageManagementOptions, usePageManagementFormFetchData } from "@/Features/Pages/Client/BizFunc/WEB/PageManagement/Client_PageManagement_Form_Loader";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
@@ -6,23 +6,13 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import type { ReactNode } from "react";
 
+// #region Property
 export interface IPageManagementProps
 {
     lang: Lang;
     theme?: IFETheme;
     options?: IPageManagementOptions;
 }
-
-const PageManagementFormComp = (props: IPageManagementProps) =>
-{
-    const pageId = `${props.options?.PageId ?? ""}`.trim();
-    const formData = usePageManagementFormFetchData({ lang: props.lang, pageId });
-    const content = <CmsHtml_Comp html={formData.contentHtml} lang={props.lang} />;
-
-    return <ContentComp Theme={props.theme} isLoading={formData.isLoading} ErrorList={formData.errorList} Title={formData.title} Content={content} />;
-};
-
-export default PageManagementFormComp;
 
 interface ContentCompProp
 {
@@ -43,6 +33,17 @@ interface FileLinkItem
     url?: string;
     name?: string;
 }
+// #endregion
+
+// #region Section
+const PageManagementFormComp = (props: IPageManagementProps) =>
+{
+    const pageId = `${props.options?.PageId ?? ""}`.trim();
+    const formData = usePageManagementFormFetchData({ lang: props.lang, pageId });
+    const content = <CmsHtml_Comp html={formData.contentHtml} lang={props.lang} />;
+
+    return <ContentComp Theme={props.theme} isLoading={formData.isLoading} ErrorList={formData.errorList} Title={formData.title} Content={content} />;
+};
 
 const ContentComp = (prop: ContentCompProp) =>
 {
@@ -54,6 +55,10 @@ const ContentComp = (prop: ContentCompProp) =>
         </>
     );
 };
+// #endregion
+
+// #region Private
+export default PageManagementFormComp;
 
 const Content = (prop: ContentCompProp) =>
 {
@@ -116,3 +121,4 @@ const Content = (prop: ContentCompProp) =>
         </>
     );
 };
+// #endregion

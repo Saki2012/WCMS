@@ -8,23 +8,7 @@ import img3 from "@/SpecFetures/1810/Assets/Client/images/icon/icon_03_256x256.s
 import img4 from "@/SpecFetures/1810/Assets/Client/images/icon/icon_04_256x256.svg";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 
-/// 建立 IconCard Swiper
-const createIconCardSwiper = (element: HTMLElement) =>
-{
-    return new Swiper(element, {
-        direction: "horizontal",
-        rewind: true,
-        watchOverflow: true,
-        observer: true,
-        observeParents: true,
-        slidesPerView: 4,
-        spaceBetween: 30,
-        breakpoints: { 1200: { slidesPerView: 4 }, 992: { slidesPerView: 3 }, 576: { slidesPerView: 2 }, 0: { slidesPerView: 2 } },
-        navigation: { nextEl: ".swiper-next", prevEl: ".swiper-prev" },
-        pagination: { el: ".swiper-pagination", clickable: false },
-    });
-};
-
+// #region Public
 export const IconCardMenu = () =>
 {
     const swiperRootRef = useRef<HTMLDivElement>(null);
@@ -155,3 +139,23 @@ export const IconCardMenu = () =>
         </section>
     );
 };
+// #endregion
+
+// #region Private
+/// 建立 IconCard Swiper
+const createIconCardSwiper = (element: HTMLElement) =>
+{
+    return new Swiper(element, {
+        direction: "horizontal",
+        rewind: true,
+        watchOverflow: true,
+        observer: true,
+        observeParents: true,
+        slidesPerView: 4,
+        spaceBetween: 30,
+        breakpoints: { 1200: { slidesPerView: 4 }, 992: { slidesPerView: 3 }, 576: { slidesPerView: 2 }, 0: { slidesPerView: 2 } },
+        navigation: { nextEl: ".swiper-next", prevEl: ".swiper-prev" },
+        pagination: { el: ".swiper-pagination", clickable: false },
+    });
+};
+// #endregion

@@ -1,12 +1,16 @@
-import { SiteViewCountAdapter, type TryCountDetailViewRequest, type TryCountResultDto } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
+import { SiteViewCountAdapter, type TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
+import type { components } from "@/types/api";
 import type { AxiosInstance } from "axios";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 
+/** 這隻之後再看如何搬移 */
+
+// #region Property
+type TryCountResult = components["schemas"]["TryCountResult_DTO"];
 const SITE_VIEW_COUNT_STORAGE_PREFIX = "wcms:site-view-count";
 const DEFAULT_COOLDOWN_MS = 2 * 60 * 1000;
 const pendingMap = new Map<string, boolean>();
-
 /** 共用 count hook 參數 */
 interface UseCountGuardOptions
 {
@@ -14,7 +18,7 @@ interface UseCountGuardOptions
     auto?: boolean;
     storageKey: string;
     cooldownMs?: number;
-    action: () => Promise<ApiResponse<TryCountResultDto | null>>;
+    action: () => Promise<ApiResponse<TryCountResult | null>>;
 }
 
 /** SiteView 專用 hook 參數 */
@@ -46,19 +50,101 @@ export interface UseLinkClickCountOptions
     request?: TryCountDetailViewRequest | null;
     apiInstance?: AxiosInstance;
 }
+// #endregion
 
+// #region Public
+/** Index / 站台層瀏覽次數 */
+export const useSiteViewCount = (options: UseSiteViewCountOptions) =>
+{
+    const adapter = useMemo(() => SiteViewCountAdapter(options.apiInstance), [options.apiInstance]);
+    const { isCounting, tryCountSiteViewAsync } = adapter.hooks.useCountActions({ apiInstance: options.apiInstance });
+    const siteIndex = options.siteIndex ?? "";
+    const enabled = options.enabled !== false;
+    const storageKey = useMemo(() =>
+    {
+        return `site:${siteIndex}`;
+    }, [siteIndex]);
+    const { runCount } = useCountGuard({
+        enabled,
+        auto: true,
+        storageKey,
+        cooldownMs: options.cooldownMs,
+        action: async (): Promise<ApiResponse<TryCountResult | null>> =>
+        {
+            return await tryCountSiteViewAsync(siteIndex);
+        },
+    });
+    return { isCounting, runCount };
+};
+/** Form / Detail 頁瀏覽次數 */
+export const useFormDetailViewCount = (options: UseFormDetailViewCountOptions) =>
+{
+    const adapter = useMemo(() => SiteViewCountAdapter(options.apiInstance), [options.apiInstance]);
+    const { isCounting, tryCountPageViewAsync } = adapter.hooks.useCountActions({ apiInstance: options.apiInstance });
+
+    const contentKey = `${options.contentKey ?? ""}`.trim();
+    const enabled = Boolean(contentKey) && Boolean(options.request) && options.enabled !== false;
+
+    const storageKey = useMemo(() =>
+    {
+        return `page:${contentKey}`;
+    }, [contentKey]);
+
+    const { runCount } = useCountGuard({
+        enabled,
+        auto: true,
+        storageKey,
+        cooldownMs: options.cooldownMs,
+        action: async (): Promise<ApiResponse<TryCountResult | null>> =>
+        {
+            if (!options.request) return buildFailedResponse();
+            return await tryCountPageViewAsync(options.request);
+        },
+    });
+
+    return { isCounting, runCount };
+};
+/** Link Click 計數 */
+export const useLinkClickCount = (options: UseLinkClickCountOptions) =>
+{
+    const adapter = useMemo(() => SiteViewCountAdapter(options.apiInstance), [options.apiInstance]);
+    const { isCounting, tryCountLinkClickAsync } = adapter.hooks.useCountActions({ apiInstance: options.apiInstance });
+
+    const targetKey = `${options.targetKey ?? ""}`.trim();
+    const enabled = Boolean(options.featureKey) && Boolean(targetKey) && Boolean(options.request) && options.enabled !== false;
+
+    const storageKey = useMemo(() =>
+    {
+        return `link:${options.featureKey}:${targetKey}`;
+    }, [options.featureKey, targetKey]);
+
+    const { runCount } = useCountGuard({
+        enabled,
+        auto: false,
+        storageKey,
+        cooldownMs: options.cooldownMs,
+        action: async (): Promise<ApiResponse<TryCountResult | null>> =>
+        {
+            if (!options.request) return buildFailedResponse();
+            return await tryCountLinkClickAsync(options.request);
+        },
+    });
+
+    return { isCounting, runCount };
+};
+// #endregion
+
+// #region Private
 /** 判斷是否為瀏覽器環境 */
 const isBrowser = (): boolean =>
 {
     return typeof window !== "undefined";
 };
-
 /** 組 sessionStorage key */
 const buildStorageKey = (key: string): string =>
 {
     return `${SITE_VIEW_COUNT_STORAGE_PREFIX}:${key}`;
 };
-
 /** 讀取上次成功送出時間 */
 const getLastCountTime = (key: string): number =>
 {
@@ -69,7 +155,6 @@ const getLastCountTime = (key: string): number =>
 
     return Number.isFinite(lastTime) ? lastTime : 0;
 };
-
 /** 判斷是否仍在冷卻時間內 */
 const isCoolingDown = (key: string, cooldownMs: number): boolean =>
 {
@@ -78,7 +163,6 @@ const isCoolingDown = (key: string, cooldownMs: number): boolean =>
 
     return Date.now() - lastTime < cooldownMs;
 };
-
 /** 記錄成功送出時間 */
 const saveCountTime = (key: string): void =>
 {
@@ -86,15 +170,13 @@ const saveCountTime = (key: string): void =>
 
     window.sessionStorage.setItem(buildStorageKey(key), String(Date.now()));
 };
-
 /** 建立失敗用的空回應 */
-const buildFailedResponse = (): ApiResponse<TryCountResultDto | null> =>
+const buildFailedResponse = (): ApiResponse<TryCountResult | null> =>
 {
     return { IsSuccess: false, Data: null, SysMessage: [] };
 };
-
 /** 執行真正的 count，內含 pending + cooldown 防重送 */
-const executeCountAsync = async (key: string, cooldownMs: number, action: () => Promise<ApiResponse<TryCountResultDto | null>>): Promise<boolean> =>
+const executeCountAsync = async (key: string, cooldownMs: number, action: () => Promise<ApiResponse<TryCountResult | null>>): Promise<boolean> =>
 {
     if (pendingMap.get(key)) return false;
     if (isCoolingDown(key, cooldownMs)) return false;
@@ -117,7 +199,6 @@ const executeCountAsync = async (key: string, cooldownMs: number, action: () => 
         pendingMap.delete(key);
     }
 };
-
 /** 最底層共用 hook：Site / Page / Link 都走這裡 */
 const useCountGuard = (options: UseCountGuardOptions) =>
 {
@@ -144,89 +225,4 @@ const useCountGuard = (options: UseCountGuardOptions) =>
 
     return { runCount };
 };
-
-/** Index / 站台層瀏覽次數 */
-export const useSiteViewCount = (options: UseSiteViewCountOptions) =>
-{
-    const adapter = useMemo(() => SiteViewCountAdapter(options.apiInstance), [options.apiInstance]);
-    const { isCounting, tryCountSiteViewAsync } = adapter.hooks.useCountActions({ apiInstance: options.apiInstance });
-
-    const siteIndex = options.siteIndex ?? "";
-    const enabled = options.enabled !== false;
-
-    const storageKey = useMemo(() =>
-    {
-        return `site:${siteIndex}`;
-    }, [siteIndex]);
-
-    const { runCount } = useCountGuard({
-        enabled,
-        auto: true,
-        storageKey,
-        cooldownMs: options.cooldownMs,
-        action: async (): Promise<ApiResponse<TryCountResultDto | null>> =>
-        {
-            return await tryCountSiteViewAsync(siteIndex);
-        },
-    });
-
-    return { isCounting, runCount };
-};
-
-/** Form / Detail 頁瀏覽次數 */
-export const useFormDetailViewCount = (options: UseFormDetailViewCountOptions) =>
-{
-    const adapter = useMemo(() => SiteViewCountAdapter(options.apiInstance), [options.apiInstance]);
-    const { isCounting, tryCountPageViewAsync } = adapter.hooks.useCountActions({ apiInstance: options.apiInstance });
-
-    const contentKey = `${options.contentKey ?? ""}`.trim();
-    const enabled = Boolean(contentKey) && Boolean(options.request) && options.enabled !== false;
-
-    const storageKey = useMemo(() =>
-    {
-        return `page:${contentKey}`;
-    }, [contentKey]);
-
-    const { runCount } = useCountGuard({
-        enabled,
-        auto: true,
-        storageKey,
-        cooldownMs: options.cooldownMs,
-        action: async (): Promise<ApiResponse<TryCountResultDto | null>> =>
-        {
-            if (!options.request) return buildFailedResponse();
-            return await tryCountPageViewAsync(options.request);
-        },
-    });
-
-    return { isCounting, runCount };
-};
-
-/** Link Click 計數 */
-export const useLinkClickCount = (options: UseLinkClickCountOptions) =>
-{
-    const adapter = useMemo(() => SiteViewCountAdapter(options.apiInstance), [options.apiInstance]);
-    const { isCounting, tryCountLinkClickAsync } = adapter.hooks.useCountActions({ apiInstance: options.apiInstance });
-
-    const targetKey = `${options.targetKey ?? ""}`.trim();
-    const enabled = Boolean(options.featureKey) && Boolean(targetKey) && Boolean(options.request) && options.enabled !== false;
-
-    const storageKey = useMemo(() =>
-    {
-        return `link:${options.featureKey}:${targetKey}`;
-    }, [options.featureKey, targetKey]);
-
-    const { runCount } = useCountGuard({
-        enabled,
-        auto: false,
-        storageKey,
-        cooldownMs: options.cooldownMs,
-        action: async (): Promise<ApiResponse<TryCountResultDto | null>> =>
-        {
-            if (!options.request) return buildFailedResponse();
-            return await tryCountLinkClickAsync(options.request);
-        },
-    });
-
-    return { isCounting, runCount };
-};
+// #endregion

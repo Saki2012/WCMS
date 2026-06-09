@@ -5,12 +5,19 @@ import { type ComponentProps, type Dispatch, useCallback, useEffect, useMemo, us
 import Nestable from "react-nestable";
 import type { SiteMenuActions, SiteMenuEditTarget, SiteMenuItem } from "../SiteMenu_Hook";
 
+// #region Property
 type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"];
+
 type SiteMenu_Item = components["schemas"]["SiteMenu_Item_DTO"];
+
 type SiteMenu_IndexInfo = components["schemas"]["SiteMenu_IndexInfo_DTO"];
+
 type SiteMenu_Item_Title = components["schemas"]["SiteMenu_Item_Title_DTO"];
+
 type SiteMenu_Item_Module = components["schemas"]["SiteMenu_Item_Module_DTO"];
+
 type SiteMenu_Item_Url = components["schemas"]["SiteMenu_Item_Url_DTO"];
+
 
 type RenderLeftBoxProp = {
     setSelectedItemEdit: Dispatch<SiteMenuEditTarget>;
@@ -20,9 +27,16 @@ type RenderLeftBoxProp = {
     action: SiteMenuActions;
 };
 
+
 type NestableOnChange = NonNullable<ComponentProps<typeof Nestable>["onChange"]>;
+
 type NestableRenderItem = NonNullable<ComponentProps<typeof Nestable>["renderItem"]>;
 
+
+type ComfirmDialogProp = { candidate: SiteMenuItem; onDeleteAll: () => void; onDeleteOne: () => void; onCancel: () => void; };
+// #endregion
+
+// #region Public
 export const RenderLeftBox = (prop: RenderLeftBoxProp) =>
 {
     const [collapseAll, setCollapseAll] = useState(false);
@@ -261,7 +275,9 @@ export const RenderLeftBox = (prop: RenderLeftBoxProp) =>
         </>
     );
 };
+// #endregion
 
+// #region Section
 const SiteInfoItem_Comp = (prop: { title: string; onSelect: () => void; }) =>
 {
     const handleEditClick = (e: React.MouseEvent<HTMLButtonElement>) =>
@@ -293,6 +309,7 @@ const SiteInfoItem_Comp = (prop: { title: string; onSelect: () => void; }) =>
     );
 };
 
+
 const ActionPlaceholder_Comp = (prop: { iconClass: string; title: string; }) =>
 {
     return (
@@ -303,6 +320,7 @@ const ActionPlaceholder_Comp = (prop: { iconClass: string; title: string; }) =>
         </div>
     );
 };
+
 
 const Item_Comp = (
     prop: {
@@ -376,43 +394,6 @@ const Item_Comp = (
     );
 };
 
-const CheckFrontBtn = (prop: { fullPath: string; disabled?: boolean; }) =>
-{
-    const toAbsolute = useCallback((path: string) =>
-    {
-        if (!path) return "/";
-        if (/^https?:\/\//i.test(path)) return path;
-        const normalized = path.startsWith("/") ? path : `/${path}`;
-        return `${window.location.origin}${normalized}`;
-    }, []);
-
-    const openInNewTab = useCallback((fullPath: string) =>
-    {
-        if (prop.disabled) return;
-        const href = toAbsolute(fullPath);
-        window.open(href, "_blank", "noopener,noreferrer");
-    }, [prop.disabled, toAbsolute]);
-
-    return (
-        <div className="icon">
-            <button
-                type="button"
-                title={prop.disabled ? "暫存項目尚未建立前台網址" : "查看前台"}
-                className="Ieye btn btn-ctm btn-ctm-rounded"
-                disabled={prop.disabled}
-                onClick={(e) =>
-                {
-                    e.stopPropagation();
-                    openInNewTab(prop.fullPath);
-                }}
-            >
-                <i className="far fa-eye" />
-            </button>
-        </div>
-    );
-};
-
-type ComfirmDialogProp = { candidate: SiteMenuItem; onDeleteAll: () => void; onDeleteOne: () => void; onCancel: () => void; };
 
 const ComfirmDialog_Comp = (prop: ComfirmDialogProp) =>
 {
@@ -465,6 +446,64 @@ const ComfirmDialog_Comp = (prop: ComfirmDialogProp) =>
         </div>
     );
 };
+// #endregion
+
+// #region EntityComp
+const buildStructureSnapshot = (nodes: SiteMenuItem[]): string =>
+{
+    const rows: Array<{ RowId: number; ParentRowId: number | null; DisplayOrder: number; }> = [];
+
+    const walk = (list: SiteMenuItem[], parentRowId: number | null) =>
+    {
+        list.filter((x) => x.id > 0).forEach((x, i) =>
+        {
+            rows.push({ RowId: x.id, ParentRowId: parentRowId, DisplayOrder: i + 1 });
+            walk(x.children ?? [], x.id);
+        });
+    };
+
+    walk(nodes, null);
+    return JSON.stringify(rows);
+};
+// #endregion
+
+// #region Private
+const CheckFrontBtn = (prop: { fullPath: string; disabled?: boolean; }) =>
+{
+    const toAbsolute = useCallback((path: string) =>
+    {
+        if (!path) return "/";
+        if (/^https?:\/\//i.test(path)) return path;
+        const normalized = path.startsWith("/") ? path : `/${path}`;
+        return `${window.location.origin}${normalized}`;
+    }, []);
+
+    const openInNewTab = useCallback((fullPath: string) =>
+    {
+        if (prop.disabled) return;
+        const href = toAbsolute(fullPath);
+        window.open(href, "_blank", "noopener,noreferrer");
+    }, [prop.disabled, toAbsolute]);
+
+    return (
+        <div className="icon">
+            <button
+                type="button"
+                title={prop.disabled ? "暫存項目尚未建立前台網址" : "查看前台"}
+                className="Ieye btn btn-ctm btn-ctm-rounded"
+                disabled={prop.disabled}
+                onClick={(e) =>
+                {
+                    e.stopPropagation();
+                    openInNewTab(prop.fullPath);
+                }}
+            >
+                <i className="far fa-eye" />
+            </button>
+        </div>
+    );
+};
+
 
 const collectRowIds = (node: SiteMenuItem): number[] =>
 {
@@ -473,10 +512,12 @@ const collectRowIds = (node: SiteMenuItem): number[] =>
     return [self, ...children];
 };
 
+
 const removeNodeAndSubtree = (arr: SiteMenuItem[], id: number): SiteMenuItem[] =>
 {
     return arr.filter((n) => n.id !== id).map((n) => ({ ...n, children: n.children ? removeNodeAndSubtree(n.children, id) : undefined }));
 };
+
 
 const promoteChildrenToParent = (arr: SiteMenuItem[], id: number): SiteMenuItem[] =>
 {
@@ -522,6 +563,7 @@ const promoteChildrenToParent = (arr: SiteMenuItem[], id: number): SiteMenuItem[
     return next;
 };
 
+
 const appendChildNode = (nodes: SiteMenuItem[], parentId: number, newNode: SiteMenuItem): SiteMenuItem[] =>
 {
     return nodes.map((node) =>
@@ -530,6 +572,7 @@ const appendChildNode = (nodes: SiteMenuItem[], parentId: number, newNode: SiteM
         return { ...node, children: node.children ? appendChildNode(node.children, parentId, newNode) : undefined };
     });
 };
+
 
 const applyRemovalToForm = (formData: UseFetchFormDataResult<SiteMenuSet>, idsToRemove: Set<number>) =>
 {
@@ -547,6 +590,7 @@ const applyRemovalToForm = (formData: UseFetchFormDataResult<SiteMenuSet>, idsTo
         return next;
     });
 };
+
 
 /** 將樹的資料同步更新回 formData */
 const syncTreeToForm = (tree: SiteMenuItem[], formData: UseFetchFormDataResult<SiteMenuSet>) =>
@@ -587,6 +631,7 @@ const syncTreeToForm = (tree: SiteMenuItem[], formData: UseFetchFormDataResult<S
     });
 };
 
+
 const resolveSiteInfoTitle = (data: SiteMenuSet, lang: Lang): string =>
 {
     const siteIndex = data?.SiteMenu_Index?.SiteIndex ?? "";
@@ -612,34 +657,21 @@ const resolveSiteInfoTitle = (data: SiteMenuSet, lang: Lang): string =>
     return String(exact?.Title ?? fallback?.Title ?? "網站整體資訊");
 };
 
+
 const createTempRowId = (): number =>
 {
     return -(Date.now() + Math.floor(Math.random() * 1000));
 };
+
 
 const mergeIds = (prev: number[], next: number[]): number[] =>
 {
     return Array.from(new Set([...prev, ...next].filter((x) => x > 0)));
 };
 
+
 const hasDraftItem = (nodes: SiteMenuItem[]): boolean =>
 {
     return nodes.some((x) => x.id <= 0 || hasDraftItem(x.children ?? []));
 };
-
-const buildStructureSnapshot = (nodes: SiteMenuItem[]): string =>
-{
-    const rows: Array<{ RowId: number; ParentRowId: number | null; DisplayOrder: number; }> = [];
-
-    const walk = (list: SiteMenuItem[], parentRowId: number | null) =>
-    {
-        list.filter((x) => x.id > 0).forEach((x, i) =>
-        {
-            rows.push({ RowId: x.id, ParentRowId: parentRowId, DisplayOrder: i + 1 });
-            walk(x.children ?? [], x.id);
-        });
-    };
-
-    walk(nodes, null);
-    return JSON.stringify(rows);
-};
+// #endregion

@@ -3,28 +3,12 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useState } from "react";
 import type { ILibPictureProp } from "./LibPicture_Data";
 
+// #region Property
 interface LibPictureWithParentClassProp extends ILibPictureProp
 {
     parentClass?: string; // 新增
 }
 
-const LibPicture = ({ children, ...prop }: LibPictureWithParentClassProp) =>
-{
-    return (
-        <div className="col-xxl-4 col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12">
-            <div className="panel align-items-center">
-                <div className="panel-body w-100">
-                    <div className="col-12 float-md-left float-sm-none py-1 d-flex justify-content-center">
-                        <picture className="imgALL_box">
-                            <img src={prop.PicSrc} className="d-block w-100 h-100 object-fit-contain card_image" alt={prop.PicDescription} />
-                        </picture>
-                    </div>
-                    {children}
-                </div>
-            </div>
-        </div>
-    );
-};
 
 interface UploadResult
 {
@@ -33,7 +17,9 @@ interface UploadResult
     uploading: boolean;
     error: string | null;
 }
+// #endregion
 
+// #region Public
 export const useUploadPicture = () =>
 {
     const uploadUrl: string = FileManagementAPI.Server_UploadTemp;
@@ -73,5 +59,27 @@ export const useUploadPicture = () =>
 
     return { result, handleFileChange };
 };
+// #endregion
+
+// #region Private
+const LibPicture = ({ children, ...prop }: LibPictureWithParentClassProp) =>
+{
+    return (
+        <div className="col-xxl-4 col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12">
+            <div className="panel align-items-center">
+                <div className="panel-body w-100">
+                    <div className="col-12 float-md-left float-sm-none py-1 d-flex justify-content-center">
+                        <picture className="imgALL_box">
+                            <img src={prop.PicSrc} className="d-block w-100 h-100 object-fit-contain card_image" alt={prop.PicDescription} />
+                        </picture>
+                    </div>
+                    {children}
+                </div>
+            </div>
+        </div>
+    );
+};
+
 
 export default LibPicture;
+// #endregion

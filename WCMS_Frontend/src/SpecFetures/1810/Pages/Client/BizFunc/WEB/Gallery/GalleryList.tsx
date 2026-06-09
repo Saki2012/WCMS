@@ -1,17 +1,18 @@
-import type { IGalleryListProps } from "@/Features/Pages/Client/BizFunc/WEB/Gallery/GalleryList_Comp";
-import { useGalleryListData } from "@/Features/Pages/Client/BizFunc/WEB/Gallery/GalleryList_Loader";
-import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
+import type { IGalleryListProps } from "@/Features/Pages/Client/BizFunc/WEB/Gallery/Client_Gallery_List_Comp";
+import { useGalleryListData } from "@/Features/Pages/Client/BizFunc/WEB/Gallery/Client_Gallery_List_Loader";
 import { Client_SearchBar_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/SearchBar/Client_SearchBar_Comp";
+import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import { NewPaginatorCanInputPage } from "@/SysCore/Components/Paginator/Paginator_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import { FormatDate } from "@/SysCore/Utils/Library/LibData";
+import { formatDate } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { useMemo } from "react";
 import { useLocation } from "react-router";
 
+// #region Property
 type GallerySet = components["schemas"]["GallerySet_DTO"];
 
 interface GalleryPageProps
@@ -39,36 +40,9 @@ export interface GridViewContentProps
     ErrorList: (string | null | undefined)[];
     Theme: IFETheme;
 }
+// #endregion
 
-/** 將 feature 資料轉成 1810 畫面需要的結構 */
-const getGridViewContentProps = (p: { lang: Lang; rawData: GallerySet[]; categoryMap: Record<string, string>; }): MainGridContentProp[] =>
-{
-    return p.rawData.map((item) =>
-    {
-        const gly = item.Gallery;
-        const galleryId = gly?.InternalId ?? "";
-        const title = item.GalleryInfo?.find((row) => row?.Lang?.toLowerCase() === p.lang.toLowerCase())?.Title ?? "未命名";
-
-        const coverPic = gly?.CoverPicSrcId ?? "";
-        const categoryIds = (gly?.Categories ?? "").split(",").map((s) => s.trim()).filter(Boolean);
-
-        const categories = categoryIds.map((catId) => p.categoryMap[catId] ?? "").filter((x): x is string => Boolean(x)).join("、");
-
-        const validateStart = FormatDate(gly?.Validate_Start) ?? "";
-
-        return { galleryInternalId: galleryId, Title: title, CoverPicInternlId: coverPic, CategoryNames: categories, Validate_StartDate: validateStart };
-    });
-};
-
-/** 將 feature 分頁資料轉成 1810 paginator 需要的格式 */
-const useGalleryPageProps = (p: { currentPage: number; totalPages: number; onPageChange: (page: number) => void; }): GalleryPageProps =>
-{
-    return useMemo(() =>
-    {
-        return { CurrentPage: p.currentPage, TotalPage: p.totalPages, onPageChange: p.onPageChange };
-    }, [p.currentPage, p.totalPages, p.onPageChange]);
-};
-
+// #region Section
 const GalleryListComp = (props: IGalleryListProps) =>
 {
     // 讀取 feature 收斂後的資料入口
@@ -95,6 +69,37 @@ const GalleryListComp = (props: IGalleryListProps) =>
             <MainContent props={compProps} gridProps={gridProps} theme={props.theme} />
         </LoadingErrorHandler>
     );
+};
+// #endregion
+
+// #region Private
+/** 將 feature 資料轉成 1810 畫面需要的結構 */
+const getGridViewContentProps = (p: { lang: Lang; rawData: GallerySet[]; categoryMap: Record<string, string>; }): MainGridContentProp[] =>
+{
+    return p.rawData.map((item) =>
+    {
+        const gly = item.Gallery;
+        const galleryId = gly?.InternalId ?? "";
+        const title = item.GalleryInfo?.find((row) => row?.Lang?.toLowerCase() === p.lang.toLowerCase())?.Title ?? "未命名";
+
+        const coverPic = gly?.CoverPicSrcId ?? "";
+        const categoryIds = (gly?.Categories ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+
+        const categories = categoryIds.map((catId) => p.categoryMap[catId] ?? "").filter((x): x is string => Boolean(x)).join("、");
+
+        const validateStart = formatDate(gly?.Validate_Start) ?? "";
+
+        return { galleryInternalId: galleryId, Title: title, CoverPicInternlId: coverPic, CategoryNames: categories, Validate_StartDate: validateStart };
+    });
+};
+
+/** 將 feature 分頁資料轉成 1810 paginator 需要的格式 */
+const useGalleryPageProps = (p: { currentPage: number; totalPages: number; onPageChange: (page: number) => void; }): GalleryPageProps =>
+{
+    return useMemo(() =>
+    {
+        return { CurrentPage: p.currentPage, TotalPage: p.totalPages, onPageChange: p.onPageChange };
+    }, [p.currentPage, p.totalPages, p.onPageChange]);
 };
 
 export default GalleryListComp;
@@ -146,3 +151,4 @@ const MainContent = ({ props, gridProps, theme }: { props: MainGridContentProp[]
         </>
     );
 };
+// #endregion

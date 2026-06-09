@@ -11,6 +11,7 @@ import type { ReactNode } from "react";
 import { useServerListGridTemplate } from "./Server_ListGridTemplate_Hook";
 import type { ServerListGridTemplate } from "./Server_ListGridTemplate_Hook";
 
+// #region Property
 export interface ServerListGridSearchRenderProps
 {
     /** 最終給 SearchBar 渲染的欄位設定 */
@@ -25,6 +26,7 @@ export interface ServerListGridSearchRenderProps
     /** 清除 SearchBar 搜尋值 */
     onReset: () => void;
 }
+
 
 export interface ServerListGridTemplateCompProps<TSearchParams, TRawData, TAdapter = unknown, TQueryParam = unknown>
 {
@@ -43,7 +45,9 @@ export interface ServerListGridTemplateCompProps<TSearchParams, TRawData, TAdapt
     /** SearchBar 渲染插槽 */
     renderSearchBar?: (props: ServerListGridSearchRenderProps) => ReactNode;
 }
+// #endregion
 
+// #region Public
 /** 後台 ListGrid 標準板模，統一處理 SearchBar、Toolbar、Loading/Error 與 Grid 渲染位置 */
 export const Server_ListGridTemplate_Comp = <TSearchParams, TRawData, TAdapter = unknown, TQueryParam = unknown>(
     props: ServerListGridTemplateCompProps<TSearchParams, TRawData, TAdapter, TQueryParam>,
@@ -95,3 +99,4 @@ export const Server_ListGridTemplate_Comp = <TSearchParams, TRawData, TAdapter =
         </div>
     );
 };
+// #endregion

@@ -1,6 +1,7 @@
 import type { SearchCustomSlots, SearchDateRangeValue, SearchFieldConfig, SearchValue, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import { useEffect, useMemo, useState } from "react";
 
+// #region Property
 export interface ServerSearchBarCompProps
 {
     /** 搜尋欄位設定 */
@@ -25,6 +26,7 @@ export interface ServerSearchBarCompProps
     title?: string;
 }
 
+
 interface SearchFieldRendererProps
 {
     /** 欄位設定 */
@@ -39,7 +41,9 @@ interface SearchFieldRendererProps
     /** 客製欄位渲染插槽 */
     customSlots?: SearchCustomSlots;
 }
+// #endregion
 
+// #region Public
 /** 後台動態搜尋列 */
 export const Server_SearchBar_Comp = (props: ServerSearchBarCompProps) =>
 {
@@ -109,7 +113,9 @@ export const Server_SearchBar_Comp = (props: ServerSearchBarCompProps) =>
         </form>
     );
 };
+// #endregion
 
+// #region Private
 /** 依搜尋欄位類型渲染對應輸入元件 */
 const SearchFieldRenderer = (props: SearchFieldRendererProps) =>
 {
@@ -123,6 +129,7 @@ const SearchFieldRenderer = (props: SearchFieldRendererProps) =>
 
     return <SearchTextField {...props} />;
 };
+
 
 /** 渲染文字搜尋欄位 */
 const SearchTextField = (props: SearchFieldRendererProps) =>
@@ -149,6 +156,7 @@ const SearchTextField = (props: SearchFieldRendererProps) =>
         </div>
     );
 };
+
 
 /** 渲染下拉搜尋欄位 */
 const SearchSelectField = (props: SearchFieldRendererProps) =>
@@ -177,6 +185,7 @@ const SearchSelectField = (props: SearchFieldRendererProps) =>
     );
 };
 
+
 /** 渲染單一 checkbox 搜尋欄位 */
 const SearchCheckboxField = (props: SearchFieldRendererProps) =>
 {
@@ -203,6 +212,7 @@ const SearchCheckboxField = (props: SearchFieldRendererProps) =>
         </div>
     );
 };
+
 
 /** 渲染 checkboxGroup 多選搜尋欄位 */
 const SearchCheckboxGroupField = (props: SearchFieldRendererProps) =>
@@ -246,6 +256,7 @@ const SearchCheckboxGroupField = (props: SearchFieldRendererProps) =>
     );
 };
 
+
 /** 渲染 radio 單選搜尋欄位 */
 const SearchRadioField = (props: SearchFieldRendererProps) =>
 {
@@ -282,6 +293,7 @@ const SearchRadioField = (props: SearchFieldRendererProps) =>
     );
 };
 
+
 /** 渲染日期搜尋欄位 */
 const SearchDateField = (props: SearchFieldRendererProps) =>
 {
@@ -306,6 +318,7 @@ const SearchDateField = (props: SearchFieldRendererProps) =>
         </div>
     );
 };
+
 
 /** 渲染日期區間搜尋欄位 */
 const SearchDateRangeField = (props: SearchFieldRendererProps) =>
@@ -354,6 +367,7 @@ const SearchDateRangeField = (props: SearchFieldRendererProps) =>
     );
 };
 
+
 /** 渲染客製搜尋欄位 */
 const SearchCustomField = (props: SearchFieldRendererProps) =>
 {
@@ -373,6 +387,7 @@ const SearchCustomField = (props: SearchFieldRendererProps) =>
     return <>{renderer({ field: props.field, value: props.value, onChange: props.onChange })}</>;
 };
 
+
 /** 渲染搜尋欄位提示文字 */
 const SearchHelpText = (props: { field: SearchFieldConfig; }) =>
 {
@@ -380,6 +395,7 @@ const SearchHelpText = (props: { field: SearchFieldConfig; }) =>
 
     return <div id={getSearchHintId(props.field)} className="form-text">{props.field.helpText}</div>;
 };
+
 
 /** 正規化搜尋值，避免空字串或空陣列送入查詢 */
 const normalizeSearchValues = (values: SearchValues): SearchValues =>
@@ -392,6 +408,7 @@ const normalizeSearchValues = (values: SearchValues): SearchValues =>
         return next;
     }, {});
 };
+
 
 /** 正規化單一搜尋值 */
 const normalizeSearchValue = (value: SearchValue): SearchValue =>
@@ -414,6 +431,7 @@ const normalizeSearchValue = (value: SearchValue): SearchValue =>
     return undefined;
 };
 
+
 /** 正規化日期區間搜尋值 */
 const normalizeDateRangeValue = (value: SearchDateRangeValue): SearchValue =>
 {
@@ -423,11 +441,13 @@ const normalizeDateRangeValue = (value: SearchDateRangeValue): SearchValue =>
     return from || to ? { from, to } : undefined;
 };
 
+
 /** 取得字串陣列搜尋值 */
 const getStringArrayValue = (value: SearchValue): string[] =>
 {
     return Array.isArray(value) ? value : [];
 };
+
 
 /** 取得日期區間搜尋值 */
 const getDateRangeValue = (value: SearchValue): SearchDateRangeValue =>
@@ -435,11 +455,13 @@ const getDateRangeValue = (value: SearchValue): SearchDateRangeValue =>
     return value && typeof value === "object" && !Array.isArray(value) ? value : {};
 };
 
+
 /** 建立搜尋欄位 ID */
 const getSearchFieldId = (field: SearchFieldConfig): string =>
 {
     return `server-search-${normalizeDomId(field.key)}`;
 };
+
 
 /** 建立搜尋欄位提示文字 ID */
 const getSearchHintId = (field: SearchFieldConfig): string =>
@@ -447,14 +469,17 @@ const getSearchHintId = (field: SearchFieldConfig): string =>
     return `${getSearchFieldId(field)}-hint`;
 };
 
+
 /** 建立搜尋選項 ID */
 const getSearchOptionId = (field: SearchFieldConfig, value: string): string =>
 {
     return `${getSearchFieldId(field)}-${normalizeDomId(value)}`;
 };
 
+
 /** 將任意 key 轉為穩定 DOM ID */
 const normalizeDomId = (value: string): string =>
 {
     return value.replace(/[^a-zA-Z0-9_-]/g, "-");
 };
+// #endregion

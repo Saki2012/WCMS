@@ -2,6 +2,7 @@ import { useId } from "react";
 import TinyMCE_Comp from "../../TinyMCE/TinyMCE_Comp";
 import type { ILibTinyMCEProp } from "./LibTinyMCE_Data";
 
+// #region Private
 const LibTinyMCE = (prop: ILibTinyMCEProp) =>
 {
     const inputId = useId();
@@ -15,4 +16,6 @@ const LibTinyMCE = (prop: ILibTinyMCEProp) =>
     );
 };
 
+
 export default LibTinyMCE;
+// #endregion

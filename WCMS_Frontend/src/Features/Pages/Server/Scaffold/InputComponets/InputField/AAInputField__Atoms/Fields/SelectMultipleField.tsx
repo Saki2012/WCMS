@@ -6,6 +6,7 @@ import { applyAAFocusStyle, clearAAFocusStyle } from "../AAInputField_Focus";
 import { buildDescribedBy, buildSelectClass, getAriaInvalid, getAriaRequired, getHintText, getNativeRequired, getSelectedValues, toStringArray } from "../AAInputField_Utils";
 import { buildSearchOptionClass, filterUnselectedSelectOptions, getFirstEnabledIndex, getNextEnabledIndex, getSearchOptionId, normalizeSearchText, renderSearchClearButton } from "./SelectHelpers";
 
+// #region Public
 /**
  * 使用範例：
  * <AAInputFieldList fields={[{ key: "selectMultiple", type: "selectMultiple", label: "分類", aaLabel: "請選擇項目(可複選)", options, value: state.selectMultiple }]} onChange={handleChange} />
@@ -17,7 +18,189 @@ export const SelectMultipleField = (props: { field: AAInputField; context: Field
     if (props.field.searchable === false) return <NativeSelectMultipleField field={props.field} context={props.context} />;
     return <SearchableSelectMultipleField field={props.field} context={props.context} />;
 };
+// #endregion
 
+// #region EntityComp
+/** 建立 select Portal 浮層樣式，會依可視空間自動往上或往下開。 */
+const buildSelectPortalStyle = (anchor: HTMLDivElement | null, popup: HTMLDivElement | null): CSSProperties =>
+{
+    if (!anchor || !isBrowserDocumentReady()) return { display: "none" };
+
+    const rect = anchor.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const margin = 12;
+    const gap = 4;
+    const width = Math.min(Math.max(rect.width, 320), Math.max(280, viewportWidth - margin * 2));
+    const left = Math.min(Math.max(rect.left, margin), Math.max(margin, viewportWidth - width - margin));
+    const bottomSpace = Math.max(120, viewportHeight - rect.bottom - margin - gap);
+    const topSpace = Math.max(120, rect.top - margin - gap);
+    const estimatedHeight = Math.min(popup?.offsetHeight || 360, viewportHeight - margin * 2);
+    const shouldOpenAbove = bottomSpace < estimatedHeight && topSpace > bottomSpace;
+    const maxHeight = Math.max(120, Math.min(360, shouldOpenAbove ? topSpace : bottomSpace));
+    const top = shouldOpenAbove ? Math.max(margin, rect.top - Math.min(estimatedHeight, maxHeight) - gap) : Math.min(rect.bottom + gap, viewportHeight - margin - 120);
+
+    return {
+        position: "fixed",
+        left: `${left}px`,
+        top: `${top}px`,
+        width: `${width}px`,
+        maxWidth: `calc(100vw - ${margin * 2}px)`,
+        maxHeight: `${maxHeight}px`,
+        overflowX: "hidden",
+        overflowY: "hidden",
+        boxSizing: "border-box",
+        zIndex: 99999,
+    };
+};
+
+
+/** 渲染多選搜尋選單的展開內容。 */
+const renderSearchMultiSelectDropdown = (
+    field: AAInputField,
+    fieldId: string,
+    wrapperRef: RefObject<HTMLDivElement>,
+    popupRef: RefObject<HTMLDivElement>,
+    popupStyle: CSSProperties,
+    searchInputRef: RefObject<HTMLInputElement>,
+    filteredOptions: AAInputOption[],
+    activeIndex: number,
+    searchText: string,
+    searchId: string,
+    listboxId: string,
+    activeOptionId: string | undefined,
+    describedBy: string,
+    updateSearch: (value: string) => void,
+    clearSearch: () => void,
+    addOption: (item: AAInputOption) => void,
+    closeSelect: () => void,
+    setActiveIndex: Dispatch<SetStateAction<number>>,
+    shouldTabToSelectedList: boolean,
+    focusSelectedList: () => void,
+) =>
+{
+    return (
+        <div ref={popupRef} className="bg-white border rounded shadow-sm" style={popupStyle} onKeyDown={(event) => handleSelectPortalPopupKeyDown(event, wrapperRef, popupRef, closeSelect)} onBlur={(event) => closeSelectWhenPortalFocusLeaves(event, undefined, popupRef, closeSelect)}>
+            <div className="px-2 py-2 border-bottom">
+                <label htmlFor={searchId} className="visually-hidden">搜尋選項</label>
+                <div className="position-relative">
+                    <input
+                        ref={searchInputRef}
+                        id={searchId}
+                        type="text"
+                        className="form-control form-control-sm rounded-pill"
+                        style={{ paddingRight: searchText ? "2.25rem" : undefined }}
+                        value={searchText}
+                        placeholder={field.searchPlaceholder ?? "Search tags"}
+                        disabled={field.disabled}
+                        autoComplete="off"
+                        maxLength={field.maxSearchLength ?? 80}
+                        role="combobox"
+                        aria-autocomplete="list"
+                        aria-haspopup="listbox"
+                        aria-expanded="true"
+                        aria-controls={listboxId}
+                        aria-activedescendant={activeOptionId}
+                        aria-describedby={describedBy}
+                        onFocus={applyAAFocusStyle}
+                        onBlur={clearAAFocusStyle}
+                        onChange={(event) => updateSearch(event.target.value)}
+                        onKeyDown={(event) => handleSearchMultiInputKeyDown(event, fieldId, filteredOptions, activeIndex, addOption, closeSelect, setActiveIndex, toStringArray(field.value), () => undefined, wrapperRef, shouldTabToSelectedList, focusSelectedList)}
+                    />
+                    {searchText && renderSearchClearButton("清除查詢文字", clearSearch)}
+                </div>
+            </div>
+            <ul id={listboxId} className="list-group list-group-flush overflow-auto mb-0" style={{ maxHeight: 280 }} role="listbox" aria-label={field.label} aria-multiselectable="true">
+                {filteredOptions.length === 0 && <li className="list-group-item text-muted small" role="presentation">{field.emptyText ?? "查無可加入項目"}</li>}
+                {filteredOptions.map((item, index) => renderSearchMultiSelectOption(fieldId, item, index, activeIndex, filteredOptions, addOption, setActiveIndex, shouldTabToSelectedList, focusSelectedList, closeSelect))}
+            </ul>
+        </div>
+    );
+};
+
+
+/** 渲染可加入的多選選項。 */
+const renderSearchMultiSelectOption = (
+    fieldId: string,
+    item: AAInputOption,
+    index: number,
+    activeIndex: number,
+    _optionList: AAInputOption[],
+    addOption: (item: AAInputOption) => void,
+    setActiveIndex: Dispatch<SetStateAction<number>>,
+    _shouldTabToSelectedList: boolean,
+    _focusSelectedList: () => void,
+    _closeSelect: () => void,
+) =>
+{
+    const isActive = index === activeIndex;
+
+    return (
+        <li
+            key={item.value}
+            id={getSearchOptionId(fieldId, item.value)}
+            className={buildSearchOptionClass(false, isActive, item.disabled)}
+            role="option"
+            tabIndex={-1}
+            aria-selected={false}
+            aria-disabled={item.disabled || undefined}
+            onMouseEnter={() => setActiveIndex(index)}
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={() => { if (!item.disabled) addOption(item); }}
+        >
+            <span className="me-2" aria-hidden="true">＋</span>
+            <span>{item.label}</span>
+        </li>
+    );
+};
+
+
+/** 渲染多選已選取項目清單。 */
+const renderSelectedMultiTagList = (
+    selectedOptionList: AAInputOption[],
+    field: AAInputField,
+    removeOption: (value: string) => void,
+    wrapperRef: RefObject<HTMLDivElement>,
+    setShouldLeaveFieldOnNextTab: Dispatch<SetStateAction<boolean>>,
+) =>
+{
+    if (selectedOptionList.length === 0) return null;
+
+    return (
+        <div className="d-flex flex-wrap align-items-center gap-2" aria-label={`${field.label}已選取項目`}>
+            {selectedOptionList.map((item, index) => (
+                <span key={item.value} className="badge rounded-pill bg-light text-dark border d-inline-flex align-items-center gap-1 py-2 px-2">
+                    <span className="text-break">{item.label}</span>
+                    <button
+                        type="button"
+                        className="btn-close btn-close-sm ms-1 aa-selected-remove-button"
+                        style={{ fontSize: "0.65rem" }}
+                        disabled={field.disabled || item.disabled}
+                        aria-label={`移除 ${item.label}`}
+                        onFocus={applyAAFocusStyle}
+                        onBlur={clearAAFocusStyle}
+                        onKeyDown={(event) => handleSelectedRemoveButtonKeyDown(event, wrapperRef, index, setShouldLeaveFieldOnNextTab, () => removeOption(item.value))}
+                        onClick={(event) => { event.stopPropagation(); removeOption(item.value); }}
+                    ></button>
+                </span>
+            ))}
+        </div>
+    );
+};
+
+
+/** 建立可搜尋多選框樣式。 */
+const buildSearchMultiSelectClass = (field: AAInputField, isOpen: boolean) =>
+{
+    const classList = ["form-select", "d-flex", "flex-wrap", "align-items-center", "gap-2", "py-2", "h-auto"];
+    if (field.errorText) classList.push("is-invalid");
+    if (isOpen) classList.push("shadow-md");
+    if (field.disabled) classList.push("bg-light", "opacity-75");
+    return classList.join(" ");
+};
+// #endregion
+
+// #region Private
 /** 原生多選下拉欄位。 */
 const NativeSelectMultipleField = (props: { field: AAInputField; context: FieldRenderContext; }) =>
 {
@@ -35,6 +218,7 @@ const NativeSelectMultipleField = (props: { field: AAInputField; context: FieldR
         </div>
     );
 };
+
 
 /** 可搜尋多選欄位，選取後以標籤方式加入框內，並提供 aria-live 操作回饋。 */
 const SearchableSelectMultipleField = (props: { field: AAInputField; context: FieldRenderContext; }) =>
@@ -177,6 +361,7 @@ const SearchableSelectMultipleField = (props: { field: AAInputField; context: Fi
 
 
 
+
 /** 控制 Select Portal 內 Tab 離開時回到原表單流程，而不是跳到 body 結尾。 */
 const handleSelectPortalPopupKeyDown = (
     event: KeyboardEvent<HTMLDivElement>,
@@ -218,6 +403,7 @@ const handleSelectPortalPopupKeyDown = (
     }
 };
 
+
 /** ESC 關閉 Portal 後，將 focus 回到原本開啟 popup 的欄位。 */
 const focusPortalAnchor = (anchor: HTMLElement | null | undefined) =>
 {
@@ -227,12 +413,14 @@ const focusPortalAnchor = (anchor: HTMLElement | null | undefined) =>
     focusElementWithoutScroll(focusableList[0] ?? anchor);
 };
 
+
 /** focus 元素但避免瀏覽器自動捲動頁面或表格容器。 */
 const focusElementWithoutScroll = (element: HTMLElement | null | undefined) =>
 {
     if (!element) return;
     element.focus({ preventScroll: true });
 };
+
 
 /** 只捲動 popup 內部 listbox，不讓 active option 觸發 body / table 的 scroll。 */
 const scrollActiveSelectOptionInPopup = (
@@ -255,6 +443,7 @@ const scrollActiveSelectOptionInPopup = (
     });
 };
 
+
 /** 以調整 listbox.scrollTop 的方式讓選項可視，避免使用 scrollIntoView 造成頁面位移。 */
 const scrollElementIntoListbox = (element: HTMLElement, listbox: HTMLElement) =>
 {
@@ -273,6 +462,7 @@ const scrollElementIntoListbox = (element: HTMLElement, listbox: HTMLElement) =>
     }
 };
 
+
 /** 取得可被鍵盤 focus 的元素。 */
 const getPortalFocusableElements = (root: ParentNode | null) =>
 {
@@ -281,6 +471,7 @@ const getPortalFocusableElements = (root: ParentNode | null) =>
     return Array.from(root.querySelectorAll<HTMLElement>(getPortalFocusableSelector()))
         .filter((element) => !element.hasAttribute("disabled") && element.getAttribute("aria-hidden") !== "true" && element.tabIndex !== -1 && !isHiddenInputElement(element) && isElementVisible(element));
 };
+
 
 /** 取得可被鍵盤 focus 的 selector。 */
 const getPortalFocusableSelector = () => [
@@ -295,6 +486,7 @@ const getPortalFocusableSelector = () => [
     "[role='combobox']",
 ].join(", ");
 
+
 /** focus 到指定元素後方的下一個可操作元素。 */
 const focusFirstAfterElement = (anchor: HTMLElement | null | undefined) =>
 {
@@ -304,6 +496,7 @@ const focusFirstAfterElement = (anchor: HTMLElement | null | undefined) =>
     const anchorIndex = focusableList.findIndex((element) => element === anchor || anchor.contains(element));
     focusElementWithoutScroll(focusableList.slice(anchorIndex + 1).find((element) => !anchor.contains(element)));
 };
+
 
 /** focus 到指定元素前方的上一個可操作元素。 */
 const focusLastBeforeElement = (anchor: HTMLElement | null | undefined) =>
@@ -316,11 +509,13 @@ const focusLastBeforeElement = (anchor: HTMLElement | null | undefined) =>
     focusElementWithoutScroll(previousList.find((element) => !anchor.contains(element)));
 };
 
+
 /** 排除 hidden input，避免 ESC 後 focus 回到隱藏欄位。 */
 const isHiddenInputElement = (element: HTMLElement) =>
 {
     return element instanceof HTMLInputElement && element.type === "hidden";
 };
+
 
 /** 判斷元素目前是否可視。 */
 const isElementVisible = (element: HTMLElement) =>
@@ -328,6 +523,7 @@ const isElementVisible = (element: HTMLElement) =>
     const style = window.getComputedStyle(element);
     return style.visibility !== "hidden" && style.display !== "none";
 };
+
 
 /** 綁定自製 select 的外部點擊，Portal 面板與原欄位都視為內部。 */
 const bindSelectPortalOutsideClick = (
@@ -350,6 +546,7 @@ const bindSelectPortalOutsideClick = (
     document.addEventListener("mousedown", handleMouseDown, true);
     return () => document.removeEventListener("mousedown", handleMouseDown, true);
 };
+
 
 /** 綁定 Portal 面板定位，避免 select 選單被 table/td/overflow 裁切。 */
 const bindSelectPortalPosition = (
@@ -375,38 +572,6 @@ const bindSelectPortalPosition = (
     };
 };
 
-/** 建立 select Portal 浮層樣式，會依可視空間自動往上或往下開。 */
-const buildSelectPortalStyle = (anchor: HTMLDivElement | null, popup: HTMLDivElement | null): CSSProperties =>
-{
-    if (!anchor || !isBrowserDocumentReady()) return { display: "none" };
-
-    const rect = anchor.getBoundingClientRect();
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-    const margin = 12;
-    const gap = 4;
-    const width = Math.min(Math.max(rect.width, 320), Math.max(280, viewportWidth - margin * 2));
-    const left = Math.min(Math.max(rect.left, margin), Math.max(margin, viewportWidth - width - margin));
-    const bottomSpace = Math.max(120, viewportHeight - rect.bottom - margin - gap);
-    const topSpace = Math.max(120, rect.top - margin - gap);
-    const estimatedHeight = Math.min(popup?.offsetHeight || 360, viewportHeight - margin * 2);
-    const shouldOpenAbove = bottomSpace < estimatedHeight && topSpace > bottomSpace;
-    const maxHeight = Math.max(120, Math.min(360, shouldOpenAbove ? topSpace : bottomSpace));
-    const top = shouldOpenAbove ? Math.max(margin, rect.top - Math.min(estimatedHeight, maxHeight) - gap) : Math.min(rect.bottom + gap, viewportHeight - margin - 120);
-
-    return {
-        position: "fixed",
-        left: `${left}px`,
-        top: `${top}px`,
-        width: `${width}px`,
-        maxWidth: `calc(100vw - ${margin * 2}px)`,
-        maxHeight: `${maxHeight}px`,
-        overflowX: "hidden",
-        overflowY: "hidden",
-        boxSizing: "border-box",
-        zIndex: 99999,
-    };
-};
 
 /** focus 離開原欄位與 Portal 面板後關閉 select。 */
 const closeSelectWhenPortalFocusLeaves = (
@@ -428,139 +593,10 @@ const closeSelectWhenPortalFocusLeaves = (
     });
 };
 
+
 /** 確認目前可使用 document，避免 SSR render 階段碰到 browser API。 */
 const isBrowserDocumentReady = () => typeof document !== "undefined" && typeof window !== "undefined";
 
-/** 渲染多選搜尋選單的展開內容。 */
-const renderSearchMultiSelectDropdown = (
-    field: AAInputField,
-    fieldId: string,
-    wrapperRef: RefObject<HTMLDivElement>,
-    popupRef: RefObject<HTMLDivElement>,
-    popupStyle: CSSProperties,
-    searchInputRef: RefObject<HTMLInputElement>,
-    filteredOptions: AAInputOption[],
-    activeIndex: number,
-    searchText: string,
-    searchId: string,
-    listboxId: string,
-    activeOptionId: string | undefined,
-    describedBy: string,
-    updateSearch: (value: string) => void,
-    clearSearch: () => void,
-    addOption: (item: AAInputOption) => void,
-    closeSelect: () => void,
-    setActiveIndex: Dispatch<SetStateAction<number>>,
-    shouldTabToSelectedList: boolean,
-    focusSelectedList: () => void,
-) =>
-{
-    return (
-        <div ref={popupRef} className="bg-white border rounded shadow-sm" style={popupStyle} onKeyDown={(event) => handleSelectPortalPopupKeyDown(event, wrapperRef, popupRef, closeSelect)} onBlur={(event) => closeSelectWhenPortalFocusLeaves(event, undefined, popupRef, closeSelect)}>
-            <div className="px-2 py-2 border-bottom">
-                <label htmlFor={searchId} className="visually-hidden">搜尋選項</label>
-                <div className="position-relative">
-                    <input
-                        ref={searchInputRef}
-                        id={searchId}
-                        type="text"
-                        className="form-control form-control-sm rounded-pill"
-                        style={{ paddingRight: searchText ? "2.25rem" : undefined }}
-                        value={searchText}
-                        placeholder={field.searchPlaceholder ?? "Search tags"}
-                        disabled={field.disabled}
-                        autoComplete="off"
-                        maxLength={field.maxSearchLength ?? 80}
-                        role="combobox"
-                        aria-autocomplete="list"
-                        aria-haspopup="listbox"
-                        aria-expanded="true"
-                        aria-controls={listboxId}
-                        aria-activedescendant={activeOptionId}
-                        aria-describedby={describedBy}
-                        onFocus={applyAAFocusStyle}
-                        onBlur={clearAAFocusStyle}
-                        onChange={(event) => updateSearch(event.target.value)}
-                        onKeyDown={(event) => handleSearchMultiInputKeyDown(event, fieldId, filteredOptions, activeIndex, addOption, closeSelect, setActiveIndex, toStringArray(field.value), () => undefined, wrapperRef, shouldTabToSelectedList, focusSelectedList)}
-                    />
-                    {searchText && renderSearchClearButton("清除查詢文字", clearSearch)}
-                </div>
-            </div>
-            <ul id={listboxId} className="list-group list-group-flush overflow-auto mb-0" style={{ maxHeight: 280 }} role="listbox" aria-label={field.label} aria-multiselectable="true">
-                {filteredOptions.length === 0 && <li className="list-group-item text-muted small" role="presentation">{field.emptyText ?? "查無可加入項目"}</li>}
-                {filteredOptions.map((item, index) => renderSearchMultiSelectOption(fieldId, item, index, activeIndex, filteredOptions, addOption, setActiveIndex, shouldTabToSelectedList, focusSelectedList, closeSelect))}
-            </ul>
-        </div>
-    );
-};
-
-/** 渲染可加入的多選選項。 */
-const renderSearchMultiSelectOption = (
-    fieldId: string,
-    item: AAInputOption,
-    index: number,
-    activeIndex: number,
-    _optionList: AAInputOption[],
-    addOption: (item: AAInputOption) => void,
-    setActiveIndex: Dispatch<SetStateAction<number>>,
-    _shouldTabToSelectedList: boolean,
-    _focusSelectedList: () => void,
-    _closeSelect: () => void,
-) =>
-{
-    const isActive = index === activeIndex;
-
-    return (
-        <li
-            key={item.value}
-            id={getSearchOptionId(fieldId, item.value)}
-            className={buildSearchOptionClass(false, isActive, item.disabled)}
-            role="option"
-            tabIndex={-1}
-            aria-selected={false}
-            aria-disabled={item.disabled || undefined}
-            onMouseEnter={() => setActiveIndex(index)}
-            onMouseDown={(event) => event.preventDefault()}
-            onClick={() => { if (!item.disabled) addOption(item); }}
-        >
-            <span className="me-2" aria-hidden="true">＋</span>
-            <span>{item.label}</span>
-        </li>
-    );
-};
-
-/** 渲染多選已選取項目清單。 */
-const renderSelectedMultiTagList = (
-    selectedOptionList: AAInputOption[],
-    field: AAInputField,
-    removeOption: (value: string) => void,
-    wrapperRef: RefObject<HTMLDivElement>,
-    setShouldLeaveFieldOnNextTab: Dispatch<SetStateAction<boolean>>,
-) =>
-{
-    if (selectedOptionList.length === 0) return null;
-
-    return (
-        <div className="d-flex flex-wrap align-items-center gap-2" aria-label={`${field.label}已選取項目`}>
-            {selectedOptionList.map((item, index) => (
-                <span key={item.value} className="badge rounded-pill bg-light text-dark border d-inline-flex align-items-center gap-1 py-2 px-2">
-                    <span className="text-break">{item.label}</span>
-                    <button
-                        type="button"
-                        className="btn-close btn-close-sm ms-1 aa-selected-remove-button"
-                        style={{ fontSize: "0.65rem" }}
-                        disabled={field.disabled || item.disabled}
-                        aria-label={`移除 ${item.label}`}
-                        onFocus={applyAAFocusStyle}
-                        onBlur={clearAAFocusStyle}
-                        onKeyDown={(event) => handleSelectedRemoveButtonKeyDown(event, wrapperRef, index, setShouldLeaveFieldOnNextTab, () => removeOption(item.value))}
-                        onClick={(event) => { event.stopPropagation(); removeOption(item.value); }}
-                    ></button>
-                </span>
-            ))}
-        </div>
-    );
-};
 
 /** selectMultiple 主框只有自身取得 focus 時才套用焦點樣式，避免子層 X 按鈕 focus 冒泡污染主框。 */
 const handleSelectMultipleFrameFocus = (event: FocusEvent<HTMLDivElement>) =>
@@ -569,6 +605,7 @@ const handleSelectMultipleFrameFocus = (event: FocusEvent<HTMLDivElement>) =>
     applyAAFocusStyle(event);
 };
 
+
 /** selectMultiple 主框離開整個框內時清除焦點樣式。 */
 const handleSelectMultipleFrameBlur = (event: FocusEvent<HTMLDivElement>) =>
 {
@@ -576,6 +613,7 @@ const handleSelectMultipleFrameBlur = (event: FocusEvent<HTMLDivElement>) =>
     if (nextFocus && event.currentTarget.contains(nextFocus)) return;
     clearAAFocusStyle(event);
 };
+
 
 /** 清除 selectMultiple 主框可能殘留的 inline focus 樣式。 */
 const clearSelectMultipleFrameFocusStyle = (wrapper: HTMLElement | null) =>
@@ -587,6 +625,7 @@ const clearSelectMultipleFrameFocusStyle = (wrapper: HTMLElement | null) =>
     frame.style.outlineOffset = "";
     frame.style.boxShadow = "";
 };
+
 
 /** 處理多選主框鍵盤操作。 */
 const handleReadonlyMultiSelectBoxKeyDown = (
@@ -633,6 +672,7 @@ const handleReadonlyMultiSelectBoxKeyDown = (
         removeOption(selectedValues[selectedValues.length - 1]);
     }
 };
+
 
 /** 處理多選搜尋輸入框鍵盤操作。 */
 const handleSearchMultiInputKeyDown = (
@@ -684,6 +724,7 @@ const handleSearchMultiInputKeyDown = (
     }
 };
 
+
 /** 處理多選選項本身的鍵盤操作。 */
 const handleSearchMultiOptionKeyDown = (
     event: KeyboardEvent<HTMLLIElement>,
@@ -726,6 +767,7 @@ const handleSearchMultiOptionKeyDown = (
     }
 };
 
+
 /** 控制已選項目 X 鍵的 Tab 流程，最後回到 selectMultiple 框。 */
 const handleSelectedRemoveButtonKeyDown = (
     event: KeyboardEvent<HTMLButtonElement>,
@@ -765,6 +807,7 @@ const handleSelectedRemoveButtonKeyDown = (
     focusFirstAfterElement(wrapperRef.current);
 };
 
+
 /** popup 以 Tab 離開時，優先進入已選項目的移除按鈕，沒有已選項目才往下一欄位。 */
 const focusFirstSelectedRemoveOrAfter = (wrapper: HTMLElement | null) =>
 {
@@ -773,6 +816,7 @@ const focusFirstSelectedRemoveOrAfter = (wrapper: HTMLElement | null) =>
 
     focusFirstAfterElement(wrapper);
 };
+
 
 /** 刪除已選項目後，focus 下一個 X；若已無下一個則往下一個欄位。 */
 const focusSelectedRemoveByIndexWithRetry = (
@@ -797,6 +841,7 @@ const focusSelectedRemoveByIndexWithRetry = (
 };
 
 
+
 /** 沒有已選項目時回主框，下一次 Tab 直接離開欄位。 */
 const focusFrameAfterSelectedList = (
     wrapperRef: RefObject<HTMLDivElement>,
@@ -807,6 +852,7 @@ const focusFrameAfterSelectedList = (
     focusPortalAnchor(wrapperRef.current);
 };
 
+
 /** 取得已選項目的移除按鈕。 */
 const getSelectedRemoveButtons = (wrapper: HTMLElement | null) =>
 {
@@ -815,6 +861,7 @@ const getSelectedRemoveButtons = (wrapper: HTMLElement | null) =>
     return Array.from(wrapper.querySelectorAll<HTMLButtonElement>(".aa-selected-remove-button"))
         .filter((button) => !button.disabled);
 };
+
 
 /** 從 search 進入第一個可用 item，成功時回傳 true。 */
 const focusFirstMultiOption = (
@@ -832,6 +879,7 @@ const focusFirstMultiOption = (
     return true;
 };
 
+
 /** option Shift + Tab 時回到同一個 popup 內的 search。 */
 const focusSearchInputFromOption = (optionElement: HTMLElement) =>
 {
@@ -840,12 +888,14 @@ const focusSearchInputFromOption = (optionElement: HTMLElement) =>
     focusElementWithoutScroll(searchInput);
 };
 
+
 /** 從主框 Shift + Tab 倒退到最後一個已選 X。 */
 const focusLastSelectedRemoveButton = (wrapperRef: RefObject<HTMLDivElement>) =>
 {
     const buttonList = getSelectedRemoveButtons(wrapperRef.current);
     focusElementWithoutScroll(buttonList[buttonList.length - 1]);
 };
+
 
 /** 多選選取後，focus 下一個可選選項；若已無選項，回到 search。 */
 const focusOptionAfterMultiSelect = (
@@ -864,6 +914,7 @@ const focusOptionAfterMultiSelect = (
     focusSearchOption(fieldId, optionList[activeIndex].value);
 };
 
+
 /** 從 Portal 選項回到原本的 selectMultiple 主框。 */
 const focusPortalAnchorFromOption = (optionElement: HTMLElement) =>
 {
@@ -873,6 +924,7 @@ const focusPortalAnchorFromOption = (optionElement: HTMLElement) =>
     if (anchor) { anchor.focus(); return; }
 };
 
+
 /** 從 option id 反推欄位 id。 */
 const getFieldIdFromSearchOptionId = (optionId: string) =>
 {
@@ -880,6 +932,7 @@ const getFieldIdFromSearchOptionId = (optionId: string) =>
     const index = optionId.indexOf(separator);
     return index > 0 ? optionId.slice(0, index) : "";
 };
+
 
 /** 等待 Portal render 後 focus 到 search 欄位。 */
 const focusSearchInputWithRetry = (popupRef: RefObject<HTMLDivElement>, retryCount: number) =>
@@ -893,6 +946,7 @@ const focusSearchInputWithRetry = (popupRef: RefObject<HTMLDivElement>, retryCou
         if (retryCount < 5) focusSearchInputWithRetry(popupRef, retryCount + 1);
     });
 };
+
 
 /** 移動選項焦點。 */
 const moveOptionFocus = (
@@ -913,12 +967,14 @@ const moveOptionFocus = (
     focusSearchOption(fieldId, optionList[nextIndex].value);
 };
 
+
 /** 取得目前可用選項 index。 */
 const getEnabledOptionIndex = (optionList: AAInputOption[], activeIndex: number) =>
 {
     if (activeIndex >= 0 && optionList[activeIndex] && !optionList[activeIndex].disabled) return activeIndex;
     return optionList.findIndex((item) => !item.disabled);
 };
+
 
 /** focus 指定選項。 */
 const focusSearchOption = (fieldId: string, value: string) =>
@@ -927,12 +983,14 @@ const focusSearchOption = (fieldId: string, value: string) =>
     window.requestAnimationFrame(() => document.getElementById(getSearchOptionId(fieldId, value))?.focus());
 };
 
+
 /** 移動可搜尋選單的鍵盤焦點。 */
 const moveSelectActiveIndex = (event: KeyboardEvent<HTMLInputElement>, optionList: AAInputOption[], activeIndex: number, step: number, setActiveIndex: Dispatch<SetStateAction<number>>) =>
 {
     event.preventDefault();
     setActiveIndex(getNextEnabledIndex(optionList, activeIndex, step));
 };
+
 
 /** Enter 時選取目前 active option。 */
 const commitActiveSelectOption = (event: KeyboardEvent<HTMLElement>, optionList: AAInputOption[], activeIndex: number, addOption: (item: AAInputOption) => void) =>
@@ -943,6 +1001,7 @@ const commitActiveSelectOption = (event: KeyboardEvent<HTMLElement>, optionList:
     addOption(item);
 };
 
+
 /** 依目前值取得已選取項目，保留外部 value 的排序。 */
 const getSelectedMultiOptions = (optionList: AAInputOption[], selectedValues: string[]) =>
 {
@@ -950,15 +1009,7 @@ const getSelectedMultiOptions = (optionList: AAInputOption[], selectedValues: st
     return selectedValues.map((value) => optionMap.get(value) ?? { value, label: value });
 };
 
+
 /** 取得多選狀態文字。 */
 const getMultiSelectStatusText = (selectedOptionList: AAInputOption[]) => selectedOptionList.length > 0 ? `目前已選取 ${selectedOptionList.length} 個項目：${selectedOptionList.map((item) => item.label).join("、")}` : "目前尚未選取項目";
-
-/** 建立可搜尋多選框樣式。 */
-const buildSearchMultiSelectClass = (field: AAInputField, isOpen: boolean) =>
-{
-    const classList = ["form-select", "d-flex", "flex-wrap", "align-items-center", "gap-2", "py-2", "h-auto"];
-    if (field.errorText) classList.push("is-invalid");
-    if (isOpen) classList.push("shadow-md");
-    if (field.disabled) classList.push("bg-light", "opacity-75");
-    return classList.join(" ");
-};
+// #endregion

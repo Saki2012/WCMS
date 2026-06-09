@@ -1,6 +1,7 @@
 import React from "react";
 import { type Lang, LangLabelMap } from "./lang";
 
+// #region Property
 interface LangState
 {
     // 只存語系代碼
@@ -10,8 +11,11 @@ interface LangState
     setCode: (l: Lang) => void;
 }
 
-const Ctx = React.createContext<LangState | null>(null);
 
+const Ctx = React.createContext<LangState | null>(null);
+// #endregion
+
+// #region Public
 export const LangProvider: React.FC<{ initial: Lang; children: React.ReactNode; }> = ({ initial, children }) =>
 {
     const [code, setCode] = React.useState<Lang>(initial);
@@ -23,6 +27,7 @@ export const LangProvider: React.FC<{ initial: Lang; children: React.ReactNode; 
     return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 };
 
+
 // 想要像 useState 一樣好用也可以回傳 tuple
 export const useLang = () =>
 {
@@ -30,3 +35,4 @@ export const useLang = () =>
     if (!ctx) throw new Error("useLang must be used within LangProvider");
     return ctx; // ctx.code 會是 'zh-tw' 這種代碼
 };
+// #endregion

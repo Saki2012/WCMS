@@ -1,44 +1,22 @@
 import React, { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
+// #region Property
 export type SearchPatch = { q?: string; articleLang?: string; tagId?: string; tagName?: string; author?: string; keyword?: string; includeRef?: boolean; };
+
 
 type SearchActions = { setQuery: (patch: SearchPatch) => void; clearQuery: () => void; };
 
+
 type Props = { basePath: string; placeholder?: string; onBind?: (actions: SearchActions) => void; };
 
+
 const DEFAULT_PLACEHOLDER = "請輸入關鍵字進行搜尋...";
+
 const INCLUDE_REF_QS_KEY = "includeRef";
+// #endregion
 
-/** 解析 includeRef */
-const parseIncludeRef = (v: string | null): boolean =>
-{
-    // 宣告變數
-    const s = (v ?? "").trim().toLowerCase();
-
-    // return
-    return s === "1" || s === "true";
-};
-
-/** 設定 includeRef querystring */
-const setIncludeRefQs = (qs: URLSearchParams, checked: boolean): void =>
-{
-    // 執行 function
-    if (checked) qs.set(INCLUDE_REF_QS_KEY, "1");
-    else qs.delete(INCLUDE_REF_QS_KEY);
-};
-
-/** 解析目標 pathname（支援 "." 相對當前頁） */
-const resolveTargetPathname = (basePath: string, currentPathname: string): string =>
-{
-    // 宣告變數
-    const path = (basePath ?? "").trim();
-
-    // return
-    if (!path || path === ".") return currentPathname;
-    return path;
-};
-
+// #region Public
 export const SpecJournalKeywordSearch_Comp: React.FC<Props> = (props) =>
 {
     // 宣告變數
@@ -170,3 +148,37 @@ export const SpecJournalKeywordSearch_Comp: React.FC<Props> = (props) =>
         </>
     );
 };
+// #endregion
+
+// #region Private
+/** 解析 includeRef */
+const parseIncludeRef = (v: string | null): boolean =>
+{
+    // 宣告變數
+    const s = (v ?? "").trim().toLowerCase();
+
+    // return
+    return s === "1" || s === "true";
+};
+
+
+/** 設定 includeRef querystring */
+const setIncludeRefQs = (qs: URLSearchParams, checked: boolean): void =>
+{
+    // 執行 function
+    if (checked) qs.set(INCLUDE_REF_QS_KEY, "1");
+    else qs.delete(INCLUDE_REF_QS_KEY);
+};
+
+
+/** 解析目標 pathname（支援 "." 相對當前頁） */
+const resolveTargetPathname = (basePath: string, currentPathname: string): string =>
+{
+    // 宣告變數
+    const path = (basePath ?? "").trim();
+
+    // return
+    if (!path || path === ".") return currentPathname;
+    return path;
+};
+// #endregion

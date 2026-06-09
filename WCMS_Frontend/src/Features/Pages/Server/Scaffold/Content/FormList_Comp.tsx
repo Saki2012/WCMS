@@ -5,6 +5,7 @@ import { DividerComp } from "@/SysCore/Components/Divider/Divider_Comp";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import type { ReactNode } from "react";
 
+// #region Property
 interface FormListCompProp
 {
     Title: string;
@@ -16,7 +17,9 @@ interface FormListCompProp
     GridItems: ReactNode;
     Actions: UseActionsResult;
 }
+// #endregion
 
+// #region Public
 /**類別/標籤使用 */
 export const FormListComp = (prop: FormListCompProp) =>
 {
@@ -74,3 +77,4 @@ export const FormListComp = (prop: FormListCompProp) =>
         </div>
     );
 };
+// #endregion

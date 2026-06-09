@@ -13760,10 +13760,13 @@ export interface components {
             Url?: string | null;
             /** @description 網址描述 */
             UrlDescription?: string | null;
+            _Announcement?: components["schemas"]["Announcement_DTO"];
+            _AnnouncementDetailFile?: components["schemas"]["AnnouncementDetailFile_DTO"][] | null;
         };
         AnnouncementSet_DTO: {
             Announcement?: components["schemas"]["Announcement_DTO"];
             AnnouncementDetail?: components["schemas"]["AnnouncementDetail_DTO"][] | null;
+            /** @description 公告附件明細 */
             AnnouncementDetailFile?: components["schemas"]["AnnouncementDetailFile_DTO"][] | null;
         };
         AnnouncementSet_DTOApiRequest: {
@@ -14124,7 +14127,9 @@ export interface components {
         FileArchiveSet_DTO: {
             FileArchive?: components["schemas"]["FileArchive_DTO"];
             FileArchiveInfo?: components["schemas"]["FileArchiveInfo_DTO"][] | null;
+            /** @description 檔案明細 */
             FileArchiveDetail?: components["schemas"]["FileArchiveDetail_DTO"][] | null;
+            /** @description 超連結明細 */
             FileArchiveUrlDetail?: components["schemas"]["FileArchiveUrlDetail_DTO"][] | null;
         };
         FileArchiveSet_DTOApiRequest: {
@@ -14489,6 +14494,7 @@ export interface components {
         MatCategoryDataSet_DTO: {
             Category?: components["schemas"]["Category_DTO"];
             CategoryDetail?: components["schemas"]["CategoryDetail_DTO"][] | null;
+            /** @description 物件類別欄位明細 */
             MatCategoryInfoField?: components["schemas"]["MatCategoryInfoField_DTO"][] | null;
             MatCategoryInfoFieldDisplay?: components["schemas"]["MatCategoryInfoFieldDisplay_DTO"][] | null;
         };
@@ -14556,6 +14562,7 @@ export interface components {
         MaterialSet_DTO: {
             Material?: components["schemas"]["Material_DTO"];
             MaterialLangInfo?: components["schemas"]["MaterialLangInfo_DTO"][] | null;
+            /** @description 物件照片 */
             MaterialPicture?: components["schemas"]["MaterialPicture_DTO"][] | null;
             MaterialTags?: components["schemas"]["MaterialTags_DTO"][] | null;
         };
@@ -15320,31 +15327,31 @@ export interface components {
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
             OrgLvId?: string | null;
-            /** @description 首頁設定表ID */
+            /** @description [Spec_HomePageId] */
             HomePageId?: string | null;
             /** @description 語系 */
             Lang?: string | null;
-            /** @description 橫幅左側標語 */
+            /** @description [Spec_Section1Title_L] */
             Section1Title_L?: string | null;
-            /** @description 橫幅中間標語 */
+            /** @description [Spec_Section1Title_M] */
             Section1Title_M?: string | null;
-            /** @description 橫幅右側標語 */
+            /** @description [Spec_Section1Title_R] */
             Section1Title_R?: string | null;
-            /** @description 主視覺文案 */
+            /** @description [Spec_HeroText] */
             HeroText?: string | null;
-            /** @description 主視覺文案查看更多連結 */
+            /** @description [Spec_HeroTextUrl] */
             HeroText_ViewMoreLink?: string | null;
-            /** @description 公告區塊標題 */
+            /** @description [Spec_AnnouncementTitle] */
             AnnouncementTitle?: string | null;
-            /** @description 公告區塊副標題 */
+            /** @description [Spec_AnnouncementSubTitle] */
             AnnouncementSubTitle?: string | null;
-            /** @description 公告類別篩選條件 */
+            /** @description [Spec_AnnouncementCategoryIds] */
             AnnouncementCategoryIds?: string | null;
-            /** @description 公告區塊查看更多連結 */
+            /** @description [Spec_Announcement_ViewMoreLink] */
             Announcement_ViewMoreLink?: string | null;
-            /** @description 資源區塊標題 */
+            /** @description [Spec_Resource_Title] */
             Resource_Title?: string | null;
-            /** @description 資源區塊副標題 */
+            /** @description [Spec_Resource_SubTitle] */
             Resource_SubTitle?: string | null;
             _SpecHomePage1820_BannerMedia?: components["schemas"]["SpecHomePage1820_BannerMedia_DTO"][] | null;
             _SpecHomePage1820_Detail?: components["schemas"]["SpecHomePage1820_Detail_DTO"][] | null;
@@ -15353,13 +15360,13 @@ export interface components {
         };
         SpecHomePage1820Set_DTO: {
             SpecHomePage1820?: components["schemas"]["SpecHomePage1820Model_DTO"];
-            /** @description 1820首頁BannerMedia子表 */
+            /** @description [SpecHomePage1820_BannerMedia] */
             SpecHomePage1820_BannerMedia?: components["schemas"]["SpecHomePage1820_BannerMedia_DTO"][] | null;
-            /** @description 1820首頁介紹清單列表 */
+            /** @description [SpecHomePage1820_Detail] */
             SpecHomePage1820_Detail?: components["schemas"]["SpecHomePage1820_Detail_DTO"][] | null;
-            /** @description 1820首頁跑馬燈子表 */
+            /** @description [SpecHomePage1820_Marquee] */
             SpecHomePage1820_Marquee?: components["schemas"]["SpecHomePage1820_Marquee_DTO"][] | null;
-            /** @description 1820首頁資源連結子表 */
+            /** @description [SpecHomePage1820_Resource] */
             SpecHomePage1820_Resource?: components["schemas"]["SpecHomePage1820_Resource_DTO"][] | null;
         };
         SpecHomePage1820Set_DTOApiRequest: {
@@ -15368,7 +15375,7 @@ export interface components {
         };
         SpecHomePage1820_BannerMedia_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 首頁設定表ID */
+            /** @description [Spec_HomePageId] */
             HomePageId?: string | null;
             /**
              * Format: int32
@@ -15376,15 +15383,15 @@ export interface components {
              */
             RowId?: number | null;
             BannerFile?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 橫幅媒體來源 */
+            /** @description [Spec_BannerFileId] */
             BannerFileId?: string | null;
-            /** @description 橫幅媒體檔案說明 */
+            /** @description [Spec_BannerFileDescription] */
             BannerFileDescription?: string | null;
             _SpecHomePage1820?: components["schemas"]["SpecHomePage1820Model_DTO"];
         };
         SpecHomePage1820_Detail_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 首頁設定表ID */
+            /** @description [Spec_HomePageId] */
             HomePageId?: string | null;
             /**
              * Format: int32
@@ -15396,38 +15403,38 @@ export interface components {
             /** @description 副標題 */
             SubTitle?: string | null;
             MainPicture?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 主視覺圖片來源 */
+            /** @description [Spec_MainPicId] */
             MainPictureId?: string | null;
-            /** @description 主視覺圖片說明 */
+            /** @description [Spec_MainPicDescription] */
             MainPictureDescription?: string | null;
             SubPicture?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 延伸視覺圖片來源 */
+            /** @description [Spec_SubPicId] */
             SubPictureId?: string | null;
-            /** @description 延伸視覺圖片說明 */
+            /** @description [Spec_SubPicDescription] */
             SubPictureDescription?: string | null;
-            /** @description 內文說明 */
+            /** @description [Spec_ContentInfo] */
             Intro?: string | null;
-            /** @description 主連結標題 */
+            /** @description [Spec_MainLinkTitle] */
             MainLinkTitle?: string | null;
-            /** @description 主連結URL */
+            /** @description [Spec_MainLinkUrl] */
             MainLink?: string | null;
-            /** @description 子連結標題(1) */
+            /** @description [Spec_SubLinkTitle1] */
             SubLinkTitle1?: string | null;
-            /** @description 子連結URL(1) */
+            /** @description [Spec_SubLinkUrl1] */
             SubLink1?: string | null;
-            /** @description 子連結標題(2) */
+            /** @description [Spec_SubLinkTitle2] */
             SubLinkTitle2?: string | null;
-            /** @description 子連結URL(2) */
+            /** @description [Spec_SubLinkUrl2] */
             SubLink2?: string | null;
-            /** @description 子連結標題(3) */
+            /** @description [Spec_SubLinkTitle3] */
             SubLinkTitle3?: string | null;
-            /** @description 子連結URL(3) */
+            /** @description [Spec_SubLinkUrl3] */
             SubLink3?: string | null;
             _SpecHomePage1820?: components["schemas"]["SpecHomePage1820Model_DTO"];
         };
         SpecHomePage1820_Marquee_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 首頁設定表ID */
+            /** @description [Spec_HomePageId] */
             HomePageId?: string | null;
             /**
              * Format: int32
@@ -15445,7 +15452,7 @@ export interface components {
         };
         SpecHomePage1820_Resource_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 首頁設定表ID */
+            /** @description [Spec_HomePageId] */
             HomePageId?: string | null;
             /**
              * Format: int32
@@ -15457,7 +15464,7 @@ export interface components {
             /** @description 副標題 */
             PicSubTitle?: string | null;
             PicFile?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 資源圖片來源 */
+            /** @description [Spec_ResourcePictureId] */
             PicFileId?: string | null;
             /** @description [Spec_ResourcePictureDescription] */
             PicFileDescription?: string | null;
@@ -16532,6 +16539,7 @@ export interface components {
         SurveySet_DTO: {
             Survey?: components["schemas"]["Survey_DTO"];
             SurveyItem?: components["schemas"]["SurveyItem_DTO"][] | null;
+            /** @description 語系資料 */
             SurveyItemLang?: components["schemas"]["SurveyItemLang_DTO"][] | null;
         };
         SurveySet_DTOApiRequest: {
@@ -16735,6 +16743,7 @@ export interface components {
         TimelineSet_DTO: {
             Timeline?: components["schemas"]["Timeline_DTO"];
             TimelineItem?: components["schemas"]["TimelineItem_DTO"][] | null;
+            /** @description 語系資料 */
             TimelineLangDetail?: components["schemas"]["TimelineLangDetail_DTO"][] | null;
         };
         TimelineSet_DTOApiRequest: {

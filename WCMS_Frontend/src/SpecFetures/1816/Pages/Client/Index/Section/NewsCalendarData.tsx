@@ -7,8 +7,17 @@ import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import type { components } from "@/types/api";
 import { useEffect, useMemo, useState } from "react";
 
+// #region Property
 type CurrentOpenTime = components["schemas"]["SpecCurrentOpenTime_DTO"];
 
+const monthEnLong = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+
+const weekdayMapZh = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
+
+const weekdayMapEnFull = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
+// #endregion
+
+// #region Public
 export const NewsCalendarData = (props: { lang: Lang; initialOpenTime: CurrentOpenTime | null; }) =>
 {
     // 宣告變數：adapter（穩定引用）
@@ -117,7 +126,9 @@ export const NewsCalendarData = (props: { lang: Lang; initialOpenTime: CurrentOp
         </section>
     );
 };
+// #endregion
 
+// #region EntityComp
 // =========================
 // helpers（保持小且可維護）
 // =========================
@@ -128,10 +139,9 @@ const buildCurrentOpenTimeInitial = (openTime: CurrentOpenTime | null): ApiLoade
     const apiRes: ApiResponse<CurrentOpenTime[]> = { IsSuccess: true, Data: [openTime], SysMessage: [] };
     return { args: null, apiRes };
 };
-const monthEnLong = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
-const weekdayMapZh = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
-const weekdayMapEnFull = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
+// #endregion
 
+// #region Private
 const formatMonthWithIndex = (lang: Lang, d: Date) =>
 {
     const idx = d.getMonth();
@@ -139,6 +149,7 @@ const formatMonthWithIndex = (lang: Lang, d: Date) =>
     if (lang === "zh-tw") return idx + 1;
     return monthEnLong[idx];
 };
+
 
 const formatWeekdayBilingual = (lang: Lang, d: Date) =>
 {
@@ -148,14 +159,17 @@ const formatWeekdayBilingual = (lang: Lang, d: Date) =>
     return weekdayMapEnFull[idx];
 };
 
+
 const formatHolidayName = (holidayName?: string | null) =>
 {
     if (!holidayName) return "";
     return `（${holidayName}）`;
 };
 
+
 const formatTimeHHmm = (timeStr?: string | null) =>
 {
     if (!timeStr) return "";
     return timeStr.substring(0, 5);
 };
+// #endregion

@@ -3,35 +3,14 @@ import { LibTabs } from "@/SysCore/Components/FormField/LibFormField";
 import { clsx } from "clsx";
 import React, { type ReactNode, useEffect, useId, useMemo, useRef, useState } from "react";
 
+// #region Property
 const AnimationMs = 150;
 
+
 type ContentProps = { tabIdPrefix: string; tabId: string; components: ReactNode[]; isActive: boolean; isVisible: boolean; };
+// #endregion
 
-const Content = ({ tabIdPrefix, tabId, components, isActive, isVisible }: ContentProps) =>
-{
-    return (
-        <div className={clsx("tab-pane fade", { active: isActive, show: isVisible })} role="tabpanel" id={`${tabIdPrefix}_${tabId}`} aria-labelledby={`${tabIdPrefix}_tab_${tabId}`}>
-            <div className="form row px-3">
-                {components.map((ComponentNode, idx) =>
-                {
-                    const className = React.isValidElement(ComponentNode) && ComponentNode.props.parentClass ? ComponentNode.props.parentClass : "col-12";
-
-                    return (
-                        <div className={className} key={idx}>
-                            <div className="form-group">
-                                <div className="row justify-content-center-start">{ComponentNode}</div>
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
-        </div>
-    );
-};
-
-/** 取得目前 tab 初始 key。 */
-const resolveInitialKey = (items: Record<string, string>): string => Object.keys(items)[0] ?? "";
-
+// #region Section
 const TabContentComp = (props: { tabInfos: LibTabsProp; components: Record<string, React.ReactNode[]>; }) =>
 {
     const uid = useId().replace(/:/g, "");
@@ -92,5 +71,35 @@ const TabContentComp = (props: { tabInfos: LibTabsProp; components: Record<strin
         </div>
     );
 };
+// #endregion
+
+// #region Private
+const Content = ({ tabIdPrefix, tabId, components, isActive, isVisible }: ContentProps) =>
+{
+    return (
+        <div className={clsx("tab-pane fade", { active: isActive, show: isVisible })} role="tabpanel" id={`${tabIdPrefix}_${tabId}`} aria-labelledby={`${tabIdPrefix}_tab_${tabId}`}>
+            <div className="form row px-3">
+                {components.map((ComponentNode, idx) =>
+                {
+                    const className = React.isValidElement(ComponentNode) && ComponentNode.props.parentClass ? ComponentNode.props.parentClass : "col-12";
+
+                    return (
+                        <div className={className} key={idx}>
+                            <div className="form-group">
+                                <div className="row justify-content-center-start">{ComponentNode}</div>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
+
+
+/** 取得目前 tab 初始 key。 */
+const resolveInitialKey = (items: Record<string, string>): string => Object.keys(items)[0] ?? "";
+
 
 export default TabContentComp;
+// #endregion

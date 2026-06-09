@@ -2,6 +2,29 @@ import { useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import type { SearchPatch } from "./SpecJournalKeywordSearchComp";
 
+// #region Public
+export const useSpecJournalSearchNav = (basePath: string) =>
+{
+    // 宣告變數
+    const nav = useNavigate();
+    const location = useLocation();
+
+    const goExclusive = useCallback((patch: SearchPatch) =>
+    {
+        // 宣告變數
+        const pathname = resolveTargetPathname(basePath, location.pathname);
+        const search = buildExclusiveSearch(patch);
+
+        // 執行 function
+        nav({ pathname, search: search ? `?${search}` : "" });
+    }, [nav, basePath, location.pathname]);
+
+    // return
+    return { goExclusive };
+};
+// #endregion
+
+// #region Private
 /** 把 patch 轉成互斥 query（只保留一種條件） */
 const normalizeExclusivePatch = (patch: SearchPatch): SearchPatch =>
 {
@@ -16,6 +39,7 @@ const normalizeExclusivePatch = (patch: SearchPatch): SearchPatch =>
     return {};
 };
 
+
 /** 解析目標 pathname（支援 "." 相對當前頁） */
 const resolveTargetPathname = (basePath: string, currentPathname: string): string =>
 {
@@ -26,6 +50,7 @@ const resolveTargetPathname = (basePath: string, currentPathname: string): strin
     if (!path || path === ".") return currentPathname;
     return path;
 };
+
 
 /** 建立搜尋 querystring */
 const buildExclusiveSearch = (patch: SearchPatch): string =>
@@ -65,23 +90,4 @@ const buildExclusiveSearch = (patch: SearchPatch): string =>
     // return
     return qs.toString();
 };
-
-export const useSpecJournalSearchNav = (basePath: string) =>
-{
-    // 宣告變數
-    const nav = useNavigate();
-    const location = useLocation();
-
-    const goExclusive = useCallback((patch: SearchPatch) =>
-    {
-        // 宣告變數
-        const pathname = resolveTargetPathname(basePath, location.pathname);
-        const search = buildExclusiveSearch(patch);
-
-        // 執行 function
-        nav({ pathname, search: search ? `?${search}` : "" });
-    }, [nav, basePath, location.pathname]);
-
-    // return
-    return { goExclusive };
-};
+// #endregion

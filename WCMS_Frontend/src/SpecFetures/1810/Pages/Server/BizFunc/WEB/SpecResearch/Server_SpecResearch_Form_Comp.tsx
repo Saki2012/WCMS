@@ -13,9 +13,13 @@ import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useSpecResearchFormFetchData } from "./Server_SpecResearch_Form_Hook";
 
+// #region Property
 type SpecResearchSet = components["schemas"]["SpecResearchSet_DTO"];
-const emptyData: SpecResearchSet = { SpecResearch: {}, SpecResearchDetail: [] };
 
+const emptyData: SpecResearchSet = { SpecResearch: {}, SpecResearchDetail: [] };
+// #endregion
+
+// #region Public
 /** 網路資源表單 */
 export const Server_ResearchProjFormComp = (prop: { theme: IBETheme; lang: Lang; }) =>
 {
@@ -70,7 +74,9 @@ export const Server_ResearchProjFormComp = (prop: { theme: IBETheme; lang: Lang;
         </FormComp>
     );
 };
+// #endregion
 
+// #region Section
 const HeaderComp = (
     prop: {
         theme: IBETheme;
@@ -112,6 +118,7 @@ const HeaderComp = (
     };
     return <TabContentComp tabInfos={LibTabsPropA} components={componentsA}></TabContentComp>;
 };
+
 
 const DetailComp = (
     prop: {
@@ -390,3 +397,4 @@ const DetailComp = (
     }, {});
     return <TabContentComp tabInfos={tabInfo} components={tabContent} />;
 };
+// #endregion

@@ -8,6 +8,8 @@ import { Banner_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/Ba
 import { BreadCrumb_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/BreadCrumb/BreadCrumb_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ISubPageLoaderData } from "../../SubPage_Loader";
+
+// #region Property
 // import { Toolbar_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/Toolbar/Toolbar_Comp"
 
 interface ITopFrameProps
@@ -18,7 +20,9 @@ interface ITopFrameProps
     backHref?: string;
     initialBanner: ISubPageLoaderData["bannerInitial"];
 }
+// #endregion
 
+// #region Private
 const TopFrame = (props: ITopFrameProps) =>
 {
     return (
@@ -37,4 +41,6 @@ const TopFrame = (props: ITopFrameProps) =>
     );
 };
 
+
 export default TopFrame;
+// #endregion

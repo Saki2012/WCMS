@@ -1,10 +1,14 @@
-import type { FileArchiveListGridAdjustSlot } from "@/Features/Pages/Client/BizFunc/WEB/FileArchive/FileArchiveList";
+import type { FileArchiveListGridAdjustSlot } from "@/Features/Pages/Client/BizFunc/WEB/FileArchive/Client_FileArchive_List_Comp";
 import type { ColumnConfig, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
-import { FormatDate } from "@/SysCore/Utils/Library/LibData";
+import { formatDate } from "@/SysCore/Utils/Library/LibData";
 
+// #region Property
 const modifyColKey = "__ModifyTime__";
-const downloadColKey = "__Download__";
 
+const downloadColKey = "__Download__";
+// #endregion
+
+// #region Public
 export const extendFileArchiveListGridAdjust: FileArchiveListGridAdjustSlot = (ctx) =>
 {
     // 宣告變數：新增欄位
@@ -21,7 +25,7 @@ export const extendFileArchiveListGridAdjust: FileArchiveListGridAdjustSlot = (c
     const rows = ctx.result.rows.map((row, index) =>
     {
         const item = ctx.rawData[index];
-        const modifyCell: RowCell = { col: modifyCol, content: FormatDate(item?.FileArchive?.ModifyTime) };
+        const modifyCell: RowCell = { col: modifyCol, content: formatDate(item?.FileArchive?.ModifyTime) };
         const mixedCells = [...row.cells.filter(cell => cell.col.key !== modifyColKey), modifyCell];
         const cells = columns.map(col => mixedCells.find(cell => cell.col.key === col.key) ?? ({ col, content: "" } as RowCell));
         return { ...row, cells };
@@ -30,3 +34,4 @@ export const extendFileArchiveListGridAdjust: FileArchiveListGridAdjustSlot = (c
     // return
     return { ...ctx.result, columns, rows };
 };
+// #endregion

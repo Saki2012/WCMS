@@ -1,3 +1,4 @@
+// #region Property
 export type AAInputType =
     | "text"
     | "email"
@@ -17,13 +18,19 @@ export type AAInputType =
     | "checkboxMultiple"
     | "readonly";
 
+
 export type AAInputValue = string | number | boolean | string[] | AAFileValue[] | null | undefined;
 
+
 export interface AAInputOption { value: string; label: string; disabled?: boolean; }
+
 export interface AAFileValue { file?: File; name: string; size: number; type: string; url?: string; }
+
 export interface AAInputState { [key: string]: AAInputValue; }
 
+
 export type AAInputFieldRenderVariant = "form" | "gridCell";
+
 
 export interface AAInputField
 {
@@ -57,6 +64,7 @@ export interface AAInputField
     renderVariant?: AAInputFieldRenderVariant;
 }
 
+
 export interface AAInputFieldItemProps
 {
     field: AAInputField;
@@ -65,6 +73,7 @@ export interface AAInputFieldItemProps
     variant?: AAInputFieldRenderVariant;
     className?: string;
 }
+
 
 export interface AAInputFieldListProps
 {
@@ -76,12 +85,14 @@ export interface AAInputFieldListProps
     idPrefix?: string;
 }
 
+
 export interface FieldRendererProps
 {
     baseId: string;
     field: AAInputField;
     onChange: (fieldKey: string, value: AAInputValue) => void;
 }
+
 
 export interface FieldRenderContext
 {
@@ -92,8 +103,13 @@ export interface FieldRenderContext
     onChange: (fieldKey: string, value: AAInputValue) => void;
 }
 
+
 export interface AAInputFieldAdapterOptions { baseId: string; fields: AAInputField[]; }
+
 export interface AAInputFieldAdapterResult { baseId: string; fields: AAInputField[]; }
 
+
 export interface FileReadResult { value: AAFileValue[]; fileList: File[]; errorText: string; }
+
 export interface FilePreviewItem { key: string; name: string; size: number; type: string; previewUrl: string; isImage: boolean; isVideo: boolean; }
+// #endregion

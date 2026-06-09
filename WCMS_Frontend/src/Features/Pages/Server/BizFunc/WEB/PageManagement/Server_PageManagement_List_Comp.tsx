@@ -8,6 +8,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import type { ReactNode } from "react";
 import { usePageManagementListGridTemplate } from "./Server_PageManagement_List_Hook";
 
+// #region Public
 /** 頁面清單 */
 export const PageListComp = (prop: { title: string; theme: IBETheme; lang: Lang; }) =>
 {
@@ -15,7 +16,9 @@ export const PageListComp = (prop: { title: string; theme: IBETheme; lang: Lang;
 
     return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} renderSearchBar={renderPageManagementSearchBar} />;
 };
+// #endregion
 
+// #region EntityComp
 /** 渲染頁面列表搜尋列 */
 const renderPageManagementSearchBar = (props: ServerListGridSearchRenderProps): ReactNode =>
 {
@@ -29,3 +32,4 @@ const renderPageManagementSearchBar = (props: ServerListGridSearchRenderProps): 
         />
     );
 };
+// #endregion

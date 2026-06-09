@@ -1,3 +1,4 @@
+// #region Property
 export interface ILibCheckBoxSingleStyle
 {
     Labelstyle: string;
@@ -5,11 +6,13 @@ export interface ILibCheckBoxSingleStyle
     OptionsStyle: string;
 }
 
+
 export interface ILibCheckItemSingleProp
 {
     itemId: string; // 對應欄位值
     itemDisplayName: string; // 顯示用名稱
 }
+
 
 export interface ILibCheckBoxSingleProp
 {
@@ -21,3 +24,4 @@ export interface ILibCheckBoxSingleProp
     onChange?: (val: string[]) => void; // 勾選變更時的 callback
     name?: string;
 }
+// #endregion

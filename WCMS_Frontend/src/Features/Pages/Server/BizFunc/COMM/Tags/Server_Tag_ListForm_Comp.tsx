@@ -15,8 +15,12 @@ import { type PGID, TagDataFields, TagDetailFields, TagSetFields } from "@/types
 import { useMemo } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { useTagListFormFetchData } from "./Server_Tag_ListForm_Hook";
+
+// #region Property
 type TagSet = components["schemas"]["TagSet_DTO"];
-const buildEmptyTagSet = (progId: string): TagSet => ({ TagData: { ProgId: progId }, TagDetail: [] });
+// #endregion
+
+// #region Public
 /** Tag 清單 + 表單 */
 export const Server_Tag_ListForm_Comp = (prop: { progId: PGID; title: string; theme: IBETheme; lang: Lang; }) =>
 {
@@ -56,7 +60,9 @@ export const Server_Tag_ListForm_Comp = (prop: { progId: PGID; title: string; th
         />
     );
 };
+// #endregion
 
+// #region Section
 const TagEditComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<TagSet>; }) =>
 {
     const setField = useSetTableField<TagSet>(props.formData);
@@ -85,6 +91,7 @@ const TagEditComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<
     }, {});
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
+
 const TagListComp = (prop: { theme: IBETheme; tagSets: TagSet[]; lang: Lang; actions: UseActionsResult; }) =>
 {
     const basePath = useLocation().pathname.split("/Tag")[0];
@@ -118,3 +125,8 @@ const TagListComp = (prop: { theme: IBETheme; tagSets: TagSet[]; lang: Lang; act
         </ul>
     );
 };
+// #endregion
+
+// #region EntityComp
+const buildEmptyTagSet = (progId: string): TagSet => ({ TagData: { ProgId: progId }, TagDetail: [] });
+// #endregion

@@ -7,18 +7,11 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import { useEffect, useMemo, useRef } from "react";
 
+// #region Property
 type BannerSet = components["schemas"]["BannerSet_DTO"];
+// #endregion
 
-const buildQueryDataInitial = (internalId: string, banner: BannerSet | null): ApiLoaderData<string, BannerSet> | null =>
-{
-    // 宣告變數：沒有 SSR initial 就回 null（CSR 會自己抓）
-    if (!banner) return null;
-    // 宣告變數：組成功 env
-    const apiRes: ApiResponse<BannerSet> = { IsSuccess: true, Data: banner, SysMessage: [] };
-    // return
-    return { args: internalId, apiRes };
-};
-
+// #region Public
 export const SpecialLinkData = (props: { lang: Lang; internalId: string; initialBanner: BannerSet | null; }) =>
 {
     // 宣告變數：Adapter（固定一次）
@@ -347,3 +340,16 @@ export const SpecialLinkData = (props: { lang: Lang; internalId: string; initial
         </section>
     );
 };
+// #endregion
+
+// #region EntityComp
+const buildQueryDataInitial = (internalId: string, banner: BannerSet | null): ApiLoaderData<string, BannerSet> | null =>
+{
+    // 宣告變數：沒有 SSR initial 就回 null（CSR 會自己抓）
+    if (!banner) return null;
+    // 宣告變數：組成功 env
+    const apiRes: ApiResponse<BannerSet> = { IsSuccess: true, Data: banner, SysMessage: [] };
+    // return
+    return { args: internalId, apiRes };
+};
+// #endregion

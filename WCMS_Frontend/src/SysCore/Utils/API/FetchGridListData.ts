@@ -4,7 +4,9 @@ import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 
 export interface UseGridListOptions<T>
 {
@@ -26,10 +28,15 @@ export interface UseGridListOptions<T>
     enabled?: boolean; // ✅ 控制是否要打 API
 }
 
+
 type RefetchOpt =
     | { mode?: "current"; } // 預設：重抓目前的 page（不動頁碼）
     | { mode: "first"; } // 回到第 1 頁再抓
-    | { mode: "page"; page: number; }; // 指定頁碼
+    | { mode: "page"; page: number; };
+// #endregion
+
+// #region Public
+ // 指定頁碼
 
 export const useFetchGridListData = <T>(props: UseGridListOptions<T>) =>
 {
@@ -169,7 +176,9 @@ export const useFetchGridListData = <T>(props: UseGridListOptions<T>) =>
     // return xxx
     return { rawData, gridProps, isLoading, error, refetchCurrent, refetchFirst };
 };
+// #endregion
 
+// #region Private
 /**
  * 根據 Provider 的 getModelDisplayName 回傳欄位定義與 visibleKeys 產生對應欄位設定
  * @param getModelDisplayFn - 傳入像 AnnouncementProvider().getModelDisplayName 的函式
@@ -200,8 +209,10 @@ const BuildVisibleColumns = async (
     return columns;
 };
 
+
 const buildStableQueryKey = (cond: QueryListParam) =>
 {
     const { Fields, Condition, OrderBy, RankGroups, PageNumber, PageSize } = cond as QueryListParam;
     return JSON.stringify({ Fields, Condition, OrderBy, RankGroups, PageNumber, PageSize });
 };
+// #endregion

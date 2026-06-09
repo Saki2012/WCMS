@@ -1,7 +1,10 @@
 import { useCallback } from "react";
 
+// #region Property
 export type AnchorClickHandler = React.MouseEventHandler<HTMLAnchorElement>;
+// #endregion
 
+// #region Public
 /** 用來處理 href="javascript:void(0);" 的<a>，避免之後無法編譯*/
 export const useAnchorPreventDefaultClick = (onClick?: AnchorClickHandler) =>
 {
@@ -13,3 +16,4 @@ export const useAnchorPreventDefaultClick = (onClick?: AnchorClickHandler) =>
     }, [onClick]);
     return handler;
 };
+// #endregion

@@ -8,6 +8,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import type { ReactNode } from "react";
 import { useFileArchiveListGridTemplate } from "./Server_FileArchive_List_Hook";
 
+// #region Public
 /** 檔案室列表 */
 export const Server_FileArchiveListComp = (prop: { title: string; theme: IBETheme; lang: Lang; }) =>
 {
@@ -15,7 +16,9 @@ export const Server_FileArchiveListComp = (prop: { title: string; theme: IBEThem
 
     return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} renderSearchBar={renderFileArchiveSearchBar} />;
 };
+// #endregion
 
+// #region EntityComp
 /** 渲染檔案室列表搜尋列 */
 const renderFileArchiveSearchBar = (props: ServerListGridSearchRenderProps): ReactNode =>
 {
@@ -29,3 +32,4 @@ const renderFileArchiveSearchBar = (props: ServerListGridSearchRenderProps): Rea
         />
     );
 };
+// #endregion

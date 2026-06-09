@@ -1,4 +1,3 @@
-//#region Property
 import { SpecJournalIndexAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/WEB/SpecJournalIndex_Api";
 import {
     buildClientDataQueryKey,
@@ -18,23 +17,30 @@ import type { IListViewState } from "@/SysCore/Interface/IListViewState";
 import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { useMemo } from "react";
 import { type LoaderFunctionArgs, useLoaderData } from "react-router-dom";
+
+// #region Property
 type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
+
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 export interface SpecJournalIndexLoaderArgs
 {
     pageSize: number;
     baseParam: QueryListParam;
 }
+
 export interface SpecJournalIndexLoaderRes
 {
     countRes: number;
     listRes: SpecJournalIndexSet[];
 }
+
 export interface SpecJournalIndexLoaderData
 {
     args: SpecJournalIndexLoaderArgs;
     res: SpecJournalIndexLoaderRes;
 }
+
 
 export interface UseSpecJournalIndexDataResult
 {
@@ -46,7 +52,9 @@ export interface UseSpecJournalIndexDataResult
     paginatorProps: PaginatorProps | null;
 }
 
+
 type SpecJournalIndexAdapterType = ReturnType<typeof SpecJournalIndexAdapter>;
+
 type SpecJournalIndexTemplate = ClientDataQueryTemplate<
     { pageSize: number; },
     SpecJournalIndexSet[],
@@ -55,11 +63,57 @@ type SpecJournalIndexTemplate = ClientDataQueryTemplate<
     QueryListParam,
     SpecJournalIndexLoaderData
 >;
+
 type SpecJournalIndexDataSourceContext = Parameters<NonNullable<NonNullable<SpecJournalIndexTemplate["spec"]>["useDataSource"]>>[0];
+// #endregion
 
-//#endregion
+// #region Public
+/** ✅ SSR loader：Index 年度清單（含明細）首屏預載 */
 
-//#region Private - Query Helpers
+export const SpecJournalIndex_Loader = (p?: { pageSize?: number; }) => async ({ request }: LoaderFunctionArgs): Promise<SpecJournalIndexLoaderData> =>
+{
+    // 宣告變數
+    const pageSize = p?.pageSize ?? 10;
+    const queryState = buildSpecJournalIndexQueryState({ pageSize });
+    const baseParam = queryState.queryParam;
+    const ssrApi = getSsrApi(request);
+    const adapter = SpecJournalIndexAdapter(ssrApi);
+
+    // 執行 function：count/list
+    const countLoader = adapter.loader.createQueryCountLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
+
+    const listLoader = adapter.loader.createQueryListLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
+
+    const [countLD, listLD] = await Promise.all([countLoader({ request } as LoaderFunctionArgs), listLoader({ request } as LoaderFunctionArgs)]);
+
+    // return
+    return { args: { pageSize, baseParam }, res: { countRes: countLD.apiRes.Data ?? 0, listRes: listLD.apiRes.Data ?? [] } };
+};
+
+
+/** CSR Hook：期刊卷期列表走 Client_DataQueryTemplate */
+
+export const useSpecJournalIndexData = (p?: { pageSize?: number; }): UseSpecJournalIndexDataResult =>
+{
+    // 宣告變數
+    const loaderData = useLoaderData() as SpecJournalIndexLoaderData | null;
+    const pageSize = p?.pageSize ?? loaderData?.args.pageSize ?? 10;
+    const template = useMemo(() => createSpecJournalIndexDataQueryTemplate({ pageSize }), [pageSize]);
+    const templateVm = useClientDataQueryTemplate(template);
+
+    // return
+    return {
+        rawData: templateVm.viewModel,
+        isLoading: templateVm.isLoading,
+        errorList: templateVm.errorList,
+        pageNumber: templateVm.paginator?.currentPage ?? 1,
+        totalPages: templateVm.paginator?.totalPages ?? 1,
+        paginatorProps: templateVm.paginatorProps,
+    };
+};
+// #endregion
+
+// #region Private
 const buildBaseParam = (pageSize: number, pageNumber = 1): QueryListParam =>
 {
     // 宣告變數
@@ -82,35 +136,11 @@ const buildBaseParam = (pageSize: number, pageNumber = 1): QueryListParam =>
         PageSize: pageSize,
     };
 };
-/** ✅ SSR loader：Index 年度清單（含明細）首屏預載 */
-//#endregion
 
-//#region Public - SSR Loader
-export const SpecJournalIndex_Loader = (p?: { pageSize?: number; }) => async ({ request }: LoaderFunctionArgs): Promise<SpecJournalIndexLoaderData> =>
-{
-    // 宣告變數
-    const pageSize = p?.pageSize ?? 10;
-    const queryState = buildSpecJournalIndexQueryState({ pageSize });
-    const baseParam = queryState.queryParam;
-    const ssrApi = getSsrApi(request);
-    const adapter = SpecJournalIndexAdapter(ssrApi);
-
-    // 執行 function：count/list
-    const countLoader = adapter.loader.createQueryCountLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
-
-    const listLoader = adapter.loader.createQueryListLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
-
-    const [countLD, listLD] = await Promise.all([countLoader({ request } as LoaderFunctionArgs), listLoader({ request } as LoaderFunctionArgs)]);
-
-    // return
-    return { args: { pageSize, baseParam }, res: { countRes: countLD.apiRes.Data ?? 0, listRes: listLD.apiRes.Data ?? [] } };
-};
 
 
 /** 建立 loader / hook 共用查詢狀態 */
-//#endregion
 
-//#region Template - Client DataQuery
 const buildSpecJournalIndexQueryState = (p: { pageSize: number; pageNumber?: number; }) =>
 {
     // 宣告變數
@@ -122,6 +152,7 @@ const buildSpecJournalIndexQueryState = (p: { pageSize: number; pageNumber?: num
     return buildClientDataQueryState(template, searchValues, viewState);
 };
 
+
 /** 建立 SSR initial */
 const buildInitial = <TData>(p: { loaderData: SpecJournalIndexLoaderData | null; queryParam: QueryListParam; data: TData; }): ApiLoaderData<QueryListParam, TData> | null =>
 {
@@ -132,6 +163,7 @@ const buildInitial = <TData>(p: { loaderData: SpecJournalIndexLoaderData | null;
     // return
     return { args: p.loaderData.args.baseParam, apiRes: { IsSuccess: true, Data: p.data, SysMessage: [] } };
 };
+
 
 /** 建立 SpecJournalIndex DataQuery Template */
 const createSpecJournalIndexDataQueryTemplate = (p: { pageSize: number; }): SpecJournalIndexTemplate =>
@@ -152,6 +184,7 @@ const createSpecJournalIndexDataQueryTemplate = (p: { pageSize: number; }): Spec
         },
     };
 };
+
 
 /** DataSource：用 Template 統一接 SSR initial、count、list 與 paginator */
 const useSpecJournalIndexDataSource = (
@@ -191,27 +224,4 @@ const useSpecJournalIndexDataSource = (
         paginator,
     };
 };
-
-/** CSR Hook：期刊卷期列表走 Client_DataQueryTemplate */
-//#endregion
-
-//#region Public - CSR Hook
-export const useSpecJournalIndexData = (p?: { pageSize?: number; }): UseSpecJournalIndexDataResult =>
-{
-    // 宣告變數
-    const loaderData = useLoaderData() as SpecJournalIndexLoaderData | null;
-    const pageSize = p?.pageSize ?? loaderData?.args.pageSize ?? 10;
-    const template = useMemo(() => createSpecJournalIndexDataQueryTemplate({ pageSize }), [pageSize]);
-    const templateVm = useClientDataQueryTemplate(template);
-
-    // return
-    return {
-        rawData: templateVm.viewModel,
-        isLoading: templateVm.isLoading,
-        errorList: templateVm.errorList,
-        pageNumber: templateVm.paginator?.currentPage ?? 1,
-        totalPages: templateVm.paginator?.totalPages ?? 1,
-        paginatorProps: templateVm.paginatorProps,
-    };
-};
-//#endregion
+// #endregion

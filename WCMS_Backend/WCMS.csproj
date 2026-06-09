@@ -184,6 +184,13 @@
 	  <Compile Include="SpecFeatures\Spec1820\_Resx\SpecMessageCode.cs" />
 	  <Compile Include="SpecFeatures\Spec1820\_Resx\SpecModelDisplayName.cs" />
 	  <Compile Include="SpecFeatures\Spec1820\_Resx\SpecProgKeys.cs" />
+	  <Compile Include="SpecFeatures\Spec1821\WEB\SpecHomePage\SpecHomePage1821_Api.cs" />
+	  <Compile Include="SpecFeatures\Spec1821\WEB\SpecHomePage\SpecHomePage1821_Biz.cs" />
+	  <Compile Include="SpecFeatures\Spec1821\WEB\SpecHomePage\SpecHomePage1821_DTO.cs" />
+	  <Compile Include="SpecFeatures\Spec1821\WEB\SpecHomePage\SpecHomePage1821_Model.cs" />
+	  <Compile Include="SpecFeatures\Spec1821\_Resx\SpecMessageCode.cs" />
+	  <Compile Include="SpecFeatures\Spec1821\_Resx\SpecModelDisplayName.cs" />
+	  <Compile Include="SpecFeatures\Spec1821\_Resx\SpecProgKeys.cs" />
 	</ItemGroup>
 	<ItemGroup>
 		<Content Include="Scripts\Zip-PublishedBackend.ps1" />
@@ -205,6 +212,9 @@
 	  <EmbeddedResource Include="SpecFeatures\Spec1820\_Resx\SpecMessageCode.zh-TW.resx" />
 	  <EmbeddedResource Include="SpecFeatures\Spec1820\_Resx\SpecModelDisplayName.en.resx" />
 	  <EmbeddedResource Include="SpecFeatures\Spec1820\_Resx\SpecModelDisplayName.zh-TW.resx" />
+	  <EmbeddedResource Include="SpecFeatures\Spec1821\_Resx\SpecMessageCode.zh-TW.resx" />
+	  <EmbeddedResource Include="SpecFeatures\Spec1821\_Resx\SpecModelDisplayName.en.resx" />
+	  <EmbeddedResource Include="SpecFeatures\Spec1821\_Resx\SpecModelDisplayName.zh-TW.resx" />
 	</ItemGroup>
 	<Target Name="ValidateSpecCodeCompile" BeforeTargets="CoreCompile">
 		<Message Importance="High" Text="Spec compile enabled. SettingsFile=$(SpecSettingsFile), SpecCode=$(SpecCode), HasSpecFeatureDir=$(HasCurrentSpecFeatureDir)" Condition="'$(UseSpecCodeCompile)' == 'true'" />

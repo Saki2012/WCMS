@@ -4,90 +4,52 @@
 // 2. 找得到 Spec 元件就用 Spec
 // 3. 找不到就直接 fallback 到 Feature base
 // 4. 不再讓 _default 介入 component resolver，避免空殼覆蓋 Feature
-import { HomePage as DefaultHomePage } from "@/Features/Pages/Client/Index/HomePage";
+
+import { Client_Announcement_Form as AnnouncementFormBase } from "@/Features/Pages/Client/BizFunc/WEB/Announcement/Client_Announcement_Form_Comp";
+import { Client_Announcement_List as AnnouncementListBase, type IAnnouncementListOptions } from "@/Features/Pages/Client/BizFunc/WEB/Announcement/Client_Announcement_List_Comp";
+import { Client_FileArchive_List as FileArchiveListBase, type IFileArchiveOptions } from "@/Features/Pages/Client/BizFunc/WEB/FileArchive/Client_FileArchive_List_Comp";
+import { Client_Gallery_Form as GalleryFormBase } from "@/Features/Pages/Client/BizFunc/WEB/Gallery/Client_Gallery_Form_Comp";
+import { Client_Gallery_List as GalleryListBase } from "@/Features/Pages/Client/BizFunc/WEB/Gallery/Client_Gallery_List_Comp";
+import type { IGalleryListOptions } from "@/Features/Pages/Client/BizFunc/WEB/Gallery/Client_Gallery_List_Loader";
+import { Client_PageManagement_Form as PageManagementFormBase } from "@/Features/Pages/Client/BizFunc/WEB/PageManagement/Client_PageManagement_Form_Comp";
+import type { IPageManagementOptions } from "@/Features/Pages/Client/BizFunc/WEB/PageManagement/Client_PageManagement_Form_Loader";
+import { Client_WebResource_List_Comp as WebResourceListBase, type IWebResourceListOptions } from "@/Features/Pages/Client/BizFunc/WEB/WebResource/Client_WebResource_List_Comp";
+import { HomePage as HomePageBase } from "@/Features/Pages/Client/Index/HomePage";
 import { HomePageLoader as HomePageLoaderBase } from "@/Features/Pages/Client/Index/HomePage_Loader";
 import { getClientSlotPath } from "@/Features/Pages/Client/Scaffold/Slot/Client_SlotPath";
-import { resolveSpecComponent, resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
-// ---------------- Feature 基準版元件 ----------------
-import AnnouncementFormCompBase from "@/Features/Pages/Client/BizFunc/WEB/Announcement/AnnouncementForm";
-import AnnouncementListBase, { type IAnnouncementListOptions } from "@/Features/Pages/Client/BizFunc/WEB/Announcement/AnnouncementList";
-import FileArchiveListBase, { type IFileArchiveOptions } from "@/Features/Pages/Client/BizFunc/WEB/FileArchive/FileArchiveList";
-import GalleryFormCompBase from "@/Features/Pages/Client/BizFunc/WEB/Gallery/GalleryForm_Comp";
-import GalleryListCompBase from "@/Features/Pages/Client/BizFunc/WEB/Gallery/GalleryList_Comp";
-import type { IGalleryListOptions } from "@/Features/Pages/Client/BizFunc/WEB/Gallery/GalleryList_Loader";
-import PageManagementFormCompBase from "@/Features/Pages/Client/BizFunc/WEB/PageManagement/PageManagementForm_Comp";
-import type { IPageManagementOptions } from "@/Features/Pages/Client/BizFunc/WEB/PageManagement/PageManagementForm_Loader";
-import WebResourceListCompBase, { type IWebResourceListOptions } from "@/Features/Pages/Client/BizFunc/WEB/WebResource/WebResourceList";
 import SubPageBase from "@/Features/Pages/Client/Scaffold/SubPages/SubPage";
+import { resolveSpecComponent, resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
 
-// ====================================================
-// 共用 Resolver 已收斂到 SlotResolver.ts
-// 這邊只保留各模組的 core + export mapping
-// ====================================================
+// #region Property
+// Options 型別一起 re-export，讓 ClientRouter 不需要直接依賴各功能 Comp。
+export type {
+    IAnnouncementListOptions,
+    IFileArchiveOptions,
+    IGalleryListOptions,
+    IPageManagementOptions,
+    IWebResourceListOptions,
+};
+// #endregion
 
-// ====================================================
-// 各模組對外輸出的「已套用 Spec 的元件」
-// 之後 ClientRouter 一律從這裡 import
-// ====================================================
-
+// #region Public
 // SubPage
 export const SubPage: typeof SubPageBase = resolveSpecComponent(getClientSlotPath("SubPage"), SubPageBase, ["SubPage", "default"]);
-
 // HomePage
-export const HomePage: typeof DefaultHomePage = resolveSpecComponent(getClientSlotPath("HomePage"), DefaultHomePage, ["HomePage", "default"]);
-
-export const HomePageLoader: typeof HomePageLoaderBase = resolveSpecFunc(getClientSlotPath("HomePageLoader"), HomePageLoaderBase, [
-    "HomePageLoader",
-    "default",
-]);
+export const HomePage: typeof HomePageBase = resolveSpecComponent(getClientSlotPath("HomePage"), HomePageBase, ["HomePage", "default"]);
+// HomePage Loader
+export const HomePageLoader: typeof HomePageLoaderBase = resolveSpecFunc(getClientSlotPath("HomePageLoader"), HomePageLoaderBase, ["HomePageLoader", "default"]);
 // PageManagement Form
-export const PageManagementForm: typeof PageManagementFormCompBase = resolveSpecComponent(
-    getClientSlotPath("PageManagementForm"),
-    PageManagementFormCompBase,
-    ["PageManagementFormComp", "PageManagementForm", "default"],
-);
-
+export const PageManagementForm: typeof PageManagementFormBase = resolveSpecComponent(getClientSlotPath("PageManagementForm"), PageManagementFormBase, ["PageManagementFormComp", "PageManagementForm", "default"]);
 // Announcement List
-export const AnnouncementList = resolveSpecComponent(getClientSlotPath("AnnouncementList"), AnnouncementListBase, [
-    "AnnouncementList",
-    "AnnouncementListComp",
-    "default",
-]);
-
+export const AnnouncementList: typeof AnnouncementListBase = resolveSpecComponent(getClientSlotPath("AnnouncementList"), AnnouncementListBase, ["AnnouncementList", "AnnouncementListComp", "default"]);
 // Announcement Form
-export const AnnouncementForm: typeof AnnouncementFormCompBase = resolveSpecComponent(
-    getClientSlotPath("AnnouncementForm"),
-    AnnouncementFormCompBase,
-    ["AnnouncementFormComp", "AnnouncementForm", "default"],
-);
-
+export const AnnouncementForm: typeof AnnouncementFormBase = resolveSpecComponent(getClientSlotPath("AnnouncementForm"), AnnouncementFormBase, ["AnnouncementFormComp", "AnnouncementForm", "default"]);
 // FileArchive List
-export const FileArchiveList = resolveSpecComponent(getClientSlotPath("FileArchiveList"), FileArchiveListBase, [
-    "FileArchiveList",
-    "FileArchiveListComp",
-    "default",
-]);
-
+export const FileArchiveList: typeof FileArchiveListBase = resolveSpecComponent(getClientSlotPath("FileArchiveList"), FileArchiveListBase, ["FileArchiveList", "FileArchiveListComp", "default"]);
 // Gallery List
-export const GalleryListComp = resolveSpecComponent(getClientSlotPath("GalleryList"), GalleryListCompBase, [
-    "GalleryListComp",
-    "GalleryList",
-    "default",
-]);
-
+export const GalleryListComp: typeof GalleryListBase = resolveSpecComponent(getClientSlotPath("GalleryList"), GalleryListBase, ["GalleryListComp", "GalleryList", "default"]);
 // Gallery Form
-export const GalleryForm = resolveSpecComponent(getClientSlotPath("GalleryForm"), GalleryFormCompBase, [
-    "GalleryFormComp",
-    "GalleryForm",
-    "default",
-]);
-
+export const GalleryForm: typeof GalleryFormBase = resolveSpecComponent(getClientSlotPath("GalleryForm"), GalleryFormBase, ["GalleryFormComp", "GalleryForm", "default"]);
 // WebResource List
-export const WebResourceListComp = resolveSpecComponent(getClientSlotPath("WebResourceList"), WebResourceListCompBase, [
-    "WebResourceListComp",
-    "WebResourceList",
-    "default",
-]);
-
-// Options 型別一起 re-export，讓 ClientRouter 只依賴這支
-export type { IAnnouncementListOptions, IFileArchiveOptions, IGalleryListOptions, IPageManagementOptions, IWebResourceListOptions };
+export const WebResourceListComp: typeof WebResourceListBase = resolveSpecComponent(getClientSlotPath("WebResourceList"), WebResourceListBase, ["WebResourceListComp", "WebResourceList", "default"]);
+// #endregion

@@ -14,14 +14,34 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useLocation } from "react-router-dom";
 import { SearchData } from "../../Index/Section/SearchData";
 
+// #region Property
 const MOBILE_BREAKPOINT = 991.98;
+
 const SHADOW_SCROLL_TOP = 180;
+
 const MEGA_MENU_ANIMATION_MS = 220;
 
+
+interface IMegaMenuItemProps
+{
+    menuItem: MenuItemData;
+    isOpen: boolean;
+    isClosing: boolean;
+    isHoverSuppressed: boolean;
+    onToggle: (id: string) => void;
+    onLeafClick: (menuId?: string) => void;
+    onHoverOpen: (id: string) => void;
+    onHoverClose: (id: string) => void;
+    onHoverRelease: () => void;
+}
+// #endregion
+
+// #region Private
 const isKeyboardActivateKey = (event: React.KeyboardEvent): boolean =>
 {
     return event.key === "Enter" || event.key === " " || event.key === "Spacebar" || event.code === "Space";
 };
+
 
 const Header = (props: HeaderProps) =>
 {
@@ -82,7 +102,9 @@ const Header = (props: HeaderProps) =>
     );
 };
 
+
 export default Header;
+
 
 /* =========================
  * Hooks：Header 基礎控制
@@ -110,6 +132,7 @@ const useViewportMode = (setIsMobileView: React.Dispatch<React.SetStateAction<bo
     }, [closeMobileMenu, setIsMobileView]);
 };
 
+
 const useHeaderShadow = (headerRef: React.RefObject<HTMLDivElement | null>) =>
 {
     useEffect(() =>
@@ -133,6 +156,7 @@ const useHeaderShadow = (headerRef: React.RefObject<HTMLDivElement | null>) =>
     }, [headerRef]);
 };
 
+
 const useBodyScrollLock = (isLocked: boolean) =>
 {
     useEffect(() =>
@@ -148,6 +172,7 @@ const useBodyScrollLock = (isLocked: boolean) =>
         };
     }, [isLocked]);
 };
+
 
 const useCloseOnOutside = (headerRef: React.RefObject<HTMLDivElement | null>, isMobileMenuOpen: boolean, closeMobileMenu: () => void) =>
 {
@@ -173,6 +198,7 @@ const useCloseOnOutside = (headerRef: React.RefObject<HTMLDivElement | null>, is
     }, [closeMobileMenu, headerRef, isMobileMenuOpen]);
 };
 
+
 const useCloseOnEscape = (isEnabled: boolean, close: () => void) =>
 {
     useEffect(() =>
@@ -193,6 +219,7 @@ const useCloseOnEscape = (isEnabled: boolean, close: () => void) =>
     }, [close, isEnabled]);
 };
 
+
 const useCloseOnRouteChange = (pathname: string, search: string, hash: string, close: () => void) =>
 {
     useEffect(() =>
@@ -201,6 +228,7 @@ const useCloseOnRouteChange = (pathname: string, search: string, hash: string, c
         close();
     }, [close, pathname, search, hash]);
 };
+
 
 const useCloseOnFocusLeave = <T extends HTMLElement>(rootRef: React.RefObject<T | null>, isEnabled: boolean, close: () => void) =>
 {
@@ -229,6 +257,7 @@ const useCloseOnFocusLeave = <T extends HTMLElement>(rootRef: React.RefObject<T 
     }, [close, isEnabled, rootRef]);
 };
 
+
 /* =========================
  * DOM blocks：對標 index.html
  * ========================= */
@@ -243,6 +272,7 @@ const LogoBlock = () =>
         </h1>
     );
 };
+
 
 const MobileToggler = (props: { isMobileMenuOpen: boolean; toggleMobileMenu: () => void; }) =>
 {
@@ -283,6 +313,7 @@ const MobileToggler = (props: { isMobileMenuOpen: boolean; toggleMobileMenu: () 
         </button>
     );
 };
+
 
 const NavbarContent = (
     props: { lang: Lang; site: INormSite; style: IFETheme; isMobileView: boolean; isMobileMenuOpen: boolean; closeMobileMenu: () => void; },
@@ -333,6 +364,7 @@ const NavbarContent = (
     );
 };
 
+
 /* =========================
  * behaviors
  * ========================= */
@@ -364,6 +396,7 @@ const useMenuHeightVar = () =>
     }, []);
 };
 
+
 /* =========================
  * Header small blocks
  * ========================= */
@@ -382,6 +415,7 @@ const SiteMapLink = (props: { lang: Lang; }) =>
         </li>
     );
 };
+
 
 const SizeChange = () =>
 {
@@ -500,6 +534,7 @@ const SizeChange = () =>
         </li>
     );
 };
+
 
 /* =========================
  * Menu：data + render
@@ -725,6 +760,7 @@ const MainMenu = (
     );
 };
 
+
 const SingleMenuItem = (props: { menuItem: MenuItemData; onLeafClick: (menuId?: string) => void; }) =>
 {
     const handleLeafClick = () =>
@@ -759,18 +795,6 @@ const SingleMenuItem = (props: { menuItem: MenuItemData; onLeafClick: (menuId?: 
     );
 };
 
-interface IMegaMenuItemProps
-{
-    menuItem: MenuItemData;
-    isOpen: boolean;
-    isClosing: boolean;
-    isHoverSuppressed: boolean;
-    onToggle: (id: string) => void;
-    onLeafClick: (menuId?: string) => void;
-    onHoverOpen: (id: string) => void;
-    onHoverClose: (id: string) => void;
-    onHoverRelease: () => void;
-}
 
 const MegaMenuItem = (props: IMegaMenuItemProps) =>
 {
@@ -888,6 +912,7 @@ const MegaMenuItem = (props: IMegaMenuItemProps) =>
     );
 };
 
+
 const GetMenuData = (lang: Lang, site: INormSite): MenuItemData[] =>
 {
     // 宣告變數：依語系取得 menu roots
@@ -898,3 +923,4 @@ const GetMenuData = (lang: Lang, site: INormSite): MenuItemData[] =>
     // return：build 成 header 用 menu data
     return buildMenuItems(roots, 0);
 };
+// #endregion

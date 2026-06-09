@@ -1,10 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { formatLocalIso } from "@/SysCore/Utils/Library/LibData";
+
+// #region Property
 export interface UseNowOptions
 {
     tickMs?: number; // 更新頻率；只做條件判斷可拉大或設很久，例如 60_000
     startPaused?: boolean; // true 時不自動跑秒（僅初次計一次）
 }
+
 
 export interface NowState
 {
@@ -14,20 +18,9 @@ export interface NowState
     isoLocal: string | null;
     hydrated: boolean; // 是否已進入瀏覽器（可避免 SSR Hydration mismatch）
 }
+// #endregion
 
-const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`);
-const formatLocalIso = (d: Date): string =>
-{
-    const y = d.getFullYear();
-    const m = pad(d.getMonth() + 1);
-    const day = pad(d.getDate());
-    const h = pad(d.getHours());
-    const mi = pad(d.getMinutes());
-    const s = pad(d.getSeconds());
-    const ms = `${d.getMilliseconds()}`.padStart(3, "0");
-    return `${y}-${m}-${day}T${h}:${mi}:${s}.${ms}`;
-};
-
+// #region Public
 export const useNow = (opts?: UseNowOptions): NowState =>
 {
     const tickMs = opts?.tickMs ?? 1000;
@@ -63,3 +56,4 @@ export const useNow = (opts?: UseNowOptions): NowState =>
     const isoLocal = useMemo(() => (now ? formatLocalIso(now) : null), [now]);
     return { now, nowMs: ms, isoUtc, isoLocal, hydrated };
 };
+// #endregion

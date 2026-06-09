@@ -10,13 +10,16 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import clsx from "clsx";
 import { Outlet } from "react-router";
 
+// #region Property
 interface IRightFrameProps
 {
     lang: Lang;
     site: INormSite;
     node: INormNode;
 }
+// #endregion
 
+// #region Private
 const RightFrame = (props: IRightFrameProps) =>
 {
     // 判斷是否需要預留左側選單寬度
@@ -35,5 +38,5 @@ const RightFrame = (props: IRightFrameProps) =>
         </div>
     );
 };
-
 export default RightFrame;
+// #endregion

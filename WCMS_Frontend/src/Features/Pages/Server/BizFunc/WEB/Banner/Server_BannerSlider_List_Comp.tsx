@@ -8,6 +8,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import type { ReactNode } from "react";
 import { useBannerSliderListGridTemplate } from "./Server_BannerSlider_List_Hook";
 
+// #region Public
 /** 廣告輪播列表 */
 export const BannerSliderListComp = (prop: { title: string; theme: IBETheme; lang: Lang; }) =>
 {
@@ -15,7 +16,9 @@ export const BannerSliderListComp = (prop: { title: string; theme: IBETheme; lan
 
     return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} renderSearchBar={renderBannerSliderSearchBar} />;
 };
+// #endregion
 
+// #region EntityComp
 /** 渲染廣告輪播列表搜尋列 */
 const renderBannerSliderSearchBar = (props: ServerListGridSearchRenderProps): ReactNode =>
 {
@@ -29,3 +32,4 @@ const renderBannerSliderSearchBar = (props: ServerListGridSearchRenderProps): Re
         />
     );
 };
+// #endregion

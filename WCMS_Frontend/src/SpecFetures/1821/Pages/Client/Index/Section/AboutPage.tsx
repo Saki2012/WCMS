@@ -8,16 +8,15 @@ import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import type { components } from "@/types/api";
 import { useMemo } from "react";
 
+// #region Property
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
+
 type PageManagementSet = components["schemas"]["PageManagementSet_DTO"];
+
 type BannerSet = components["schemas"]["BannerSet_DTO"];
+// #endregion
 
-const toInitial = <TArgs, TData>(args: TArgs, data: TData) =>
-{
-    // return：符合 adapter hook 的 initial 結構（SSR loader 轉成 CSR hook 初始資料）
-    return { args, apiRes: { IsSuccess: true, Data: data, SysMessage: [] } };
-};
-
+// #region Public
 export const AboutPage = (
     props: {
         lang: Lang;
@@ -103,3 +102,12 @@ export const AboutPage = (
         </section>
     );
 };
+// #endregion
+
+// #region Private
+const toInitial = <TArgs, TData>(args: TArgs, data: TData) =>
+{
+    // return：符合 adapter hook 的 initial 結構（SSR loader 轉成 CSR hook 初始資料）
+    return { args, apiRes: { IsSuccess: true, Data: data, SysMessage: [] } };
+};
+// #endregion

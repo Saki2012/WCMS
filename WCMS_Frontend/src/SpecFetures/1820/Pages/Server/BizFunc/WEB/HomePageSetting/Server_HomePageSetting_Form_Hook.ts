@@ -44,18 +44,30 @@ import { type SetStateAction, useCallback, useMemo } from "react";
 
 // #region Property
 type HomePageSet = components["schemas"]["SpecHomePage1820Set_DTO"];
+
 type HomePageModel = components["schemas"]["SpecHomePage1820Model_DTO"];
+
 type BannerMedia = components["schemas"]["SpecHomePage1820_BannerMedia_DTO"];
+
 type HomePageDetail = components["schemas"]["SpecHomePage1820_Detail_DTO"];
+
 type HomePageMarquee = components["schemas"]["SpecHomePage1820_Marquee_DTO"];
+
 type HomePageResource = components["schemas"]["SpecHomePage1820_Resource_DTO"];
+
 export type HomePageGridFileValue = EditGridFileValue & { internalId?: string; originalFileName?: string; };
+
 type UploadFileHandler = ReturnType<typeof useUploadFile>["handleFileChange"];
+
 type QueryListParam = components["schemas"]["QueryListParam"];
 
+
 type HomePageImageRender = ColumnConfig["render"];
+
 type HomePageIntroRender = ColumnConfig["render"];
+
 type HomePageIntroEditRender = ColumnConfig["editRender"];
+
 
 interface HomePageEditGridBaseOptions
 {
@@ -72,6 +84,7 @@ interface HomePageEditGridBaseOptions
     renderPicturePreview?: HomePageImageRender;
 }
 
+
 interface HomePageDetailEditGridOptions extends HomePageEditGridBaseOptions
 {
     /** Section4 內文唯讀預覽 render */
@@ -81,20 +94,26 @@ interface HomePageDetailEditGridOptions extends HomePageEditGridBaseOptions
     renderIntroEditor?: HomePageIntroEditRender;
 }
 
+
 export type HomePage1820SummaryRow = { InternalId: string; HomePageId: string; Lang: string; };
+
 
 export type HomePage1820SummaryRawData = {
     supportLangs: Lang[];
     langInternalIdMap: Record<string, string>;
     langSummaryMap: Record<string, HomePage1820SummaryRow>;
 };
+
 export type HomePage1820FormRefs = { categoryMap: Record<string, string>; };
+
 export type HomePage1820FormRawData = Record<string, unknown> & ServerFormDefaultRawData<HomePageSet, HomePage1820FormRefs> & {
     formData: UseFetchFormDataResult<HomePageSet>;
     categoryMap: Record<string, string>;
 };
 
+
 export type HomePage1820FormAdapter = { HomePage: ReturnType<typeof SpecHomePage1820Adapter>; Category: ReturnType<typeof CategoryAdapter>; };
+
 export type HomePage1820FormActionsOpt = {
     /** 目前語系 */
     lang: Lang;
@@ -106,44 +125,11 @@ export type HomePage1820FormActionsOpt = {
     onAfterSave: () => Promise<void> | void;
 };
 
-export type HomePage1820SummaryAdapter = { HomePage: ReturnType<typeof SpecHomePage1820Adapter>; };
 
+export type HomePage1820SummaryAdapter = { HomePage: ReturnType<typeof SpecHomePage1820Adapter>; };
 // #endregion
 
-// #region Data Model / Summary Helpers
-const normalizeLang = (lang?: string) =>
-{
-    // 統一語系 key
-    return String(lang ?? "").trim().toLowerCase();
-};
-
-const resolveLangKey = (supportLangs: string[], lang?: string) =>
-{
-    // 依 supportLang 找實際語系 key
-    const target = normalizeLang(lang);
-    return supportLangs.find(a => normalizeLang(a) === target) ?? "";
-};
-
-const createEmptyModel = (lang: string): HomePageModel =>
-{
-    // 建立空主表
-    return {
-        Lang: lang,
-        HomePageId: "",
-        Section1Title_L: "",
-        Section1Title_M: "",
-        Section1Title_R: "",
-        HeroText: "",
-        HeroText_ViewMoreLink: "",
-        AnnouncementTitle: "",
-        AnnouncementSubTitle: "",
-        AnnouncementCategoryIds: "",
-        Announcement_ViewMoreLink: "",
-        Resource_Title: "",
-        Resource_SubTitle: "",
-    };
-};
-
+// #region Public
 export const createEmptyHomePage1820Set = (lang: string): HomePageSet =>
 {
     // 建立空 set
@@ -156,87 +142,8 @@ export const createEmptyHomePage1820Set = (lang: string): HomePageSet =>
     };
 };
 
-const normalizeSet = (lang: string, data?: HomePageSet | null): HomePageSet =>
-{
-    // 正規化 set
-    const base = data ?? createEmptyHomePage1820Set(lang);
 
-    return {
-        SpecHomePage1820: { ...createEmptyModel(lang), ...(base.SpecHomePage1820 ?? {}), Lang: base.SpecHomePage1820?.Lang || lang },
-        SpecHomePage1820_BannerMedia: [...(base.SpecHomePage1820_BannerMedia ?? [])],
-        SpecHomePage1820_Detail: [...(base.SpecHomePage1820_Detail ?? [])],
-        SpecHomePage1820_Marquee: [...(base.SpecHomePage1820_Marquee ?? [])],
-        SpecHomePage1820_Resource: [...(base.SpecHomePage1820_Resource ?? [])],
-    };
-};
 
-const normalizeText = (value?: string | null) =>
-{
-    // 統一字串空值
-    return String(value ?? "").trim();
-};
-
-const resolveChildHomePageId = (childHomePageId?: string | null, parentHomePageId?: string | null) =>
-{
-    // 子表沒有 HomePageId 時，回補主表 HomePageId
-    const child = normalizeText(childHomePageId);
-    if (child) return child;
-    return normalizeText(parentHomePageId);
-};
-
-const sanitizeSetBeforeSave = (lang: string, data: HomePageSet): HomePageSet =>
-{
-    // 儲存前補齊語系與主子表關聯鍵
-    const set = normalizeSet(lang, data);
-    const homePageId = normalizeText(set.SpecHomePage1820?.HomePageId);
-
-    return {
-        ...set,
-        SpecHomePage1820: { ...set.SpecHomePage1820, Lang: set.SpecHomePage1820?.Lang || lang, HomePageId: homePageId },
-        SpecHomePage1820_BannerMedia: (set.SpecHomePage1820_BannerMedia ?? []).map(a => ({
-            ...a,
-            HomePageId: resolveChildHomePageId(a.HomePageId, homePageId),
-        })),
-        SpecHomePage1820_Detail: (set.SpecHomePage1820_Detail ?? []).map(a => ({ ...a, HomePageId: resolveChildHomePageId(a.HomePageId, homePageId) })),
-        SpecHomePage1820_Marquee: (set.SpecHomePage1820_Marquee ?? []).map(a => ({ ...a, HomePageId: resolveChildHomePageId(a.HomePageId, homePageId) })),
-        SpecHomePage1820_Resource: (set.SpecHomePage1820_Resource ?? []).map(a => ({ ...a, HomePageId: resolveChildHomePageId(a.HomePageId, homePageId) })),
-    };
-};
-
-const buildInitialSummaryMap = (supportLangs: string[]) =>
-{
-    // 建立空摘要 map
-    return Object.fromEntries(supportLangs.map(lang => [lang, { InternalId: "", HomePageId: "", Lang: lang }])) as Record<string, HomePage1820SummaryRow>;
-};
-
-const buildSummaryMap = (supportLangs: string[], list?: HomePageSet[] | null) =>
-{
-    // 由 list 建立 lang -> summary
-    const next = buildInitialSummaryMap(supportLangs);
-
-    for (const item of list ?? [])
-    {
-        const model = item?.SpecHomePage1820;
-        const key = resolveLangKey(supportLangs, model?.Lang ?? DefaultLang);
-        if (!key) continue;
-
-        next[key] = { InternalId: model?.InternalId ?? "", HomePageId: model?.HomePageId ?? "", Lang: model?.Lang ?? key };
-    }
-
-    return next;
-};
-
-const resolveNextFormData = (lang: string, prev: HomePageSet, next: SetStateAction<HomePageSet>) =>
-{
-    // 處理 setFormData 的 function / object 兩種寫法
-    const current = normalizeSet(lang, prev);
-    if (typeof next === "function") return (next as (prevState: HomePageSet) => HomePageSet)(current);
-    return next;
-};
-
-// #endregion
-
-// #region Public - Template Entry
 /** 外層：只撈 lang + internalId，儲存與 toast 交給內層 Server_FormTemplate。 */
 export const useHomePage1820SummaryFetchData = (opt: { supportLangs: Lang[]; }): UseFetchDataResult<HomePage1820SummaryRawData, HomePage1820SummaryAdapter> =>
 {
@@ -291,6 +198,7 @@ export const useHomePage1820SummaryFetchData = (opt: { supportLangs: Lang[]; }):
     return { adapter, rawData, isLoading: list.isLoading, errors: [list.errorText].filter((x): x is string => Boolean(x)), refetchData, refetchRefData };
 };
 
+
 /** 內層：單一語系用 internalId 組 Spec Form Template */
 export const useHomePage1820LangFormTemplate = (
     opt: { theme: IBETheme; adapter: ReturnType<typeof SpecHomePage1820Adapter>; lang: Lang; internalId: string; onAfterSave: () => Promise<void> | void; },
@@ -330,99 +238,8 @@ export const useHomePage1820LangFormTemplate = (
     }, [actionsOpt, emptyData, opt.adapter, opt.internalId, opt.lang, opt.theme]);
 };
 
-// #endregion
 
-// #region Timing
-/** 建立 HomePage1820 Form 會使用到的 Adapter 群組 */
-const buildHomePage1820FormAdapter = (adapter: ReturnType<typeof SpecHomePage1820Adapter>): HomePage1820FormAdapter =>
-{
-    return { HomePage: adapter, Category: CategoryAdapter() };
-};
 
-/** 建立 HomePage1820 內層語系表單標題 */
-const buildHomePage1820FormTitle = (): string =>
-{
-    return "首頁設定";
-};
-
-/** 建立新增模式的 initial data，避免新增時查詢 __new__ */
-const buildHomePage1820InitialData = (ctx: { mode: "new" | "edit"; emptyData: HomePageSet; }): ApiFormInitial<HomePageSet> | undefined =>
-{
-    if (ctx.mode !== "new") return undefined;
-    return { data: { args: "__new__", apiRes: { IsSuccess: true, Data: ctx.emptyData, SysMessage: [] } } };
-};
-
-/** 取得 HomePage1820 內層語系表單參照資料 */
-const useHomePage1820ReferenceData = (ctx: { adapter: HomePage1820FormAdapter; lang: Lang; }): ServerFormReferenceResult<HomePage1820FormRefs> =>
-{
-    const category = ctx.adapter.Category.hooks.useMapByProgId({ progId: PGID.Announcement, lang: ctx.lang });
-
-    return useMemo(() =>
-    {
-        return {
-            refs: { categoryMap: category.map ?? {} },
-            isLoading: Boolean(category.isLoading),
-            errors: [category.errorText],
-            refetchRefData: async () =>
-            {
-                await Promise.resolve(category.refetch());
-            },
-        };
-    }, [category.errorText, category.isLoading, category.map, category.refetch]);
-};
-
-/** 建立 HomePage1820 儲存成功後的摘要重抓動作。 */
-const buildHomePage1820SuccessActions = (
-    ctx: ServerFormReferenceContext<HomePageSet, HomePage1820FormAdapter, HomePage1820FormActionsOpt, HomePage1820FormRefs>,
-) =>
-{
-    return { create: ctx.actionsOpt.onAfterSave, update: ctx.actionsOpt.onAfterSave };
-};
-
-/** 覆寫 HomePage1820 儲存行為，讓 Template Toolbar 儲存前先正規化語系與子表鍵值。 */
-const buildHomePage1820Actions = (
-    ctx: ServerFormActionContext<HomePageSet, HomePage1820FormAdapter, HomePage1820FormRefs, HomePage1820FormRawData, HomePage1820FormActionsOpt>,
-    baseActions: ServerFormActions,
-): ServerFormActions =>
-{
-    const save = async () =>
-    {
-        // 儲存前統一補齊 1820 語系與子表關聯鍵。
-        const payload = sanitizeSetBeforeSave(ctx.actionsOpt.lang, ctx.binding.data);
-        if (ctx.mode === "new") await ctx.serverActions.createAsync(payload);
-        else await ctx.serverActions.updateAsync(ctx.internalId, payload);
-    };
-
-    return {
-        ...baseActions,
-        Save: save,
-        Delete: async () =>
-        {},
-        Back: ctx.actionsOpt.onBackToList,
-        IsSaving: ctx.serverActions.isSaving,
-    };
-};
-
-/** 建立 HomePage1820 內層 rawData，並保留語系正規化 setFormData 行為 */
-const buildHomePage1820RawData = (
-    ctx: { binding: UseFetchFormDataResult<HomePageSet>; refs: HomePage1820FormRefs; actions: ServerFormActions; },
-    baseRawData: ServerFormDefaultRawData<HomePageSet, HomePage1820FormRefs>,
-    lang: Lang,
-): HomePage1820FormRawData =>
-{
-    const langKey = normalizeLang(lang);
-    const formData: UseFetchFormDataResult<HomePageSet> = {
-        ...ctx.binding,
-        data: normalizeSet(langKey, ctx.binding.data),
-        setFormData: next => ctx.binding.setFormData(prev => resolveNextFormData(langKey, prev, next)),
-    };
-
-    return { ...baseRawData, formData, categoryMap: ctx.refs.categoryMap, actions: ctx.actions };
-};
-
-// #endregion
-
-// #region Public - EditGrid Binding
 /** 建立 Section1 Banner 的 EditGrid 綁定。 */
 export const useHomePage1820BannerMediaEditGrid = (opt: HomePageEditGridBaseOptions) =>
 {
@@ -450,6 +267,7 @@ export const useHomePage1820BannerMediaEditGrid = (opt: HomePageEditGridBaseOpti
         editGridProps: buildHomePageGridProps("Section1 Banner", "Banner", "server-home-page-1820-banner-grid", 760, opt.style),
     });
 };
+
 
 /** 建立 Section4 Detail 的 EditGrid 綁定。 */
 export const useHomePage1820DetailEditGrid = (opt: HomePageDetailEditGridOptions) =>
@@ -483,6 +301,7 @@ export const useHomePage1820DetailEditGrid = (opt: HomePageDetailEditGridOptions
     });
 };
 
+
 /** 建立 Section5 Marquee 的 EditGrid 綁定。 */
 export const useHomePage1820MarqueeEditGrid = (opt: HomePageEditGridBaseOptions) =>
 {
@@ -509,6 +328,7 @@ export const useHomePage1820MarqueeEditGrid = (opt: HomePageEditGridBaseOptions)
         editGridProps: buildHomePageGridProps("Section5 跑馬燈", "跑馬燈", "server-home-page-1820-marquee-grid", 920, opt.style),
     });
 };
+
 
 /** 建立 Section6 Resource 的 EditGrid 綁定。 */
 export const useHomePage1820ResourceEditGrid = (opt: HomePageEditGridBaseOptions) =>
@@ -537,14 +357,248 @@ export const useHomePage1820ResourceEditGrid = (opt: HomePageEditGridBaseOptions
     });
 };
 
+
+/** 將任意 EditGrid value 正規化成首頁檔案值。 */
+export const toHomePageFileCellValue = (value: EditGridCellValue): HomePageGridFileValue =>
+{
+    if (isHomePageFileValue(value)) return value;
+    if (typeof value === "string") return buildHomePageFileCellValue(value);
+    return buildEmptyHomePageFileCellValue();
+};
+
+
+/** 取得預覽網址。 */
+export const getHomePageFilePreviewUrl = (fileId?: string | null): string | undefined =>
+{
+    const id = String(fileId ?? "").trim();
+    return id ? FileManagementAPI.get_Server_Preview_Url(id) ?? undefined : undefined;
+};
 // #endregion
 
 // #region Private
+const normalizeLang = (lang?: string) =>
+{
+    // 統一語系 key
+    return String(lang ?? "").trim().toLowerCase();
+};
+
+
+const resolveLangKey = (supportLangs: string[], lang?: string) =>
+{
+    // 依 supportLang 找實際語系 key
+    const target = normalizeLang(lang);
+    return supportLangs.find(a => normalizeLang(a) === target) ?? "";
+};
+
+
+const createEmptyModel = (lang: string): HomePageModel =>
+{
+    // 建立空主表
+    return {
+        Lang: lang,
+        HomePageId: "",
+        Section1Title_L: "",
+        Section1Title_M: "",
+        Section1Title_R: "",
+        HeroText: "",
+        HeroText_ViewMoreLink: "",
+        AnnouncementTitle: "",
+        AnnouncementSubTitle: "",
+        AnnouncementCategoryIds: "",
+        Announcement_ViewMoreLink: "",
+        Resource_Title: "",
+        Resource_SubTitle: "",
+    };
+};
+
+
+const normalizeSet = (lang: string, data?: HomePageSet | null): HomePageSet =>
+{
+    // 正規化 set
+    const base = data ?? createEmptyHomePage1820Set(lang);
+
+    return {
+        SpecHomePage1820: { ...createEmptyModel(lang), ...(base.SpecHomePage1820 ?? {}), Lang: base.SpecHomePage1820?.Lang || lang },
+        SpecHomePage1820_BannerMedia: [...(base.SpecHomePage1820_BannerMedia ?? [])],
+        SpecHomePage1820_Detail: [...(base.SpecHomePage1820_Detail ?? [])],
+        SpecHomePage1820_Marquee: [...(base.SpecHomePage1820_Marquee ?? [])],
+        SpecHomePage1820_Resource: [...(base.SpecHomePage1820_Resource ?? [])],
+    };
+};
+
+
+const normalizeText = (value?: string | null) =>
+{
+    // 統一字串空值
+    return String(value ?? "").trim();
+};
+
+
+const resolveChildHomePageId = (childHomePageId?: string | null, parentHomePageId?: string | null) =>
+{
+    // 子表沒有 HomePageId 時，回補主表 HomePageId
+    const child = normalizeText(childHomePageId);
+    if (child) return child;
+    return normalizeText(parentHomePageId);
+};
+
+
+const sanitizeSetBeforeSave = (lang: string, data: HomePageSet): HomePageSet =>
+{
+    // 儲存前補齊語系與主子表關聯鍵
+    const set = normalizeSet(lang, data);
+    const homePageId = normalizeText(set.SpecHomePage1820?.HomePageId);
+
+    return {
+        ...set,
+        SpecHomePage1820: { ...set.SpecHomePage1820, Lang: set.SpecHomePage1820?.Lang || lang, HomePageId: homePageId },
+        SpecHomePage1820_BannerMedia: (set.SpecHomePage1820_BannerMedia ?? []).map(a => ({
+            ...a,
+            HomePageId: resolveChildHomePageId(a.HomePageId, homePageId),
+        })),
+        SpecHomePage1820_Detail: (set.SpecHomePage1820_Detail ?? []).map(a => ({ ...a, HomePageId: resolveChildHomePageId(a.HomePageId, homePageId) })),
+        SpecHomePage1820_Marquee: (set.SpecHomePage1820_Marquee ?? []).map(a => ({ ...a, HomePageId: resolveChildHomePageId(a.HomePageId, homePageId) })),
+        SpecHomePage1820_Resource: (set.SpecHomePage1820_Resource ?? []).map(a => ({ ...a, HomePageId: resolveChildHomePageId(a.HomePageId, homePageId) })),
+    };
+};
+
+
+const buildInitialSummaryMap = (supportLangs: string[]) =>
+{
+    // 建立空摘要 map
+    return Object.fromEntries(supportLangs.map(lang => [lang, { InternalId: "", HomePageId: "", Lang: lang }])) as Record<string, HomePage1820SummaryRow>;
+};
+
+
+const buildSummaryMap = (supportLangs: string[], list?: HomePageSet[] | null) =>
+{
+    // 由 list 建立 lang -> summary
+    const next = buildInitialSummaryMap(supportLangs);
+
+    for (const item of list ?? [])
+    {
+        const model = item?.SpecHomePage1820;
+        const key = resolveLangKey(supportLangs, model?.Lang ?? DefaultLang);
+        if (!key) continue;
+
+        next[key] = { InternalId: model?.InternalId ?? "", HomePageId: model?.HomePageId ?? "", Lang: model?.Lang ?? key };
+    }
+
+    return next;
+};
+
+
+const resolveNextFormData = (lang: string, prev: HomePageSet, next: SetStateAction<HomePageSet>) =>
+{
+    // 處理 setFormData 的 function / object 兩種寫法
+    const current = normalizeSet(lang, prev);
+    if (typeof next === "function") return (next as (prevState: HomePageSet) => HomePageSet)(current);
+    return next;
+};
+
+
+
+/** 建立 HomePage1820 Form 會使用到的 Adapter 群組 */
+const buildHomePage1820FormAdapter = (adapter: ReturnType<typeof SpecHomePage1820Adapter>): HomePage1820FormAdapter =>
+{
+    return { HomePage: adapter, Category: CategoryAdapter() };
+};
+
+
+/** 建立 HomePage1820 內層語系表單標題 */
+const buildHomePage1820FormTitle = (): string =>
+{
+    return "首頁設定";
+};
+
+
+/** 建立新增模式的 initial data，避免新增時查詢 __new__ */
+const buildHomePage1820InitialData = (ctx: { mode: "new" | "edit"; emptyData: HomePageSet; }): ApiFormInitial<HomePageSet> | undefined =>
+{
+    if (ctx.mode !== "new") return undefined;
+    return { data: { args: "__new__", apiRes: { IsSuccess: true, Data: ctx.emptyData, SysMessage: [] } } };
+};
+
+
+/** 取得 HomePage1820 內層語系表單參照資料 */
+const useHomePage1820ReferenceData = (ctx: { adapter: HomePage1820FormAdapter; lang: Lang; }): ServerFormReferenceResult<HomePage1820FormRefs> =>
+{
+    const category = ctx.adapter.Category.hooks.useMapByProgId({ progId: PGID.Announcement, lang: ctx.lang });
+
+    return useMemo(() =>
+    {
+        return {
+            refs: { categoryMap: category.map ?? {} },
+            isLoading: Boolean(category.isLoading),
+            errors: [category.errorText],
+            refetchRefData: async () =>
+            {
+                await Promise.resolve(category.refetch());
+            },
+        };
+    }, [category.errorText, category.isLoading, category.map, category.refetch]);
+};
+
+
+/** 建立 HomePage1820 儲存成功後的摘要重抓動作。 */
+const buildHomePage1820SuccessActions = (
+    ctx: ServerFormReferenceContext<HomePageSet, HomePage1820FormAdapter, HomePage1820FormActionsOpt, HomePage1820FormRefs>,
+) =>
+{
+    return { create: ctx.actionsOpt.onAfterSave, update: ctx.actionsOpt.onAfterSave };
+};
+
+
+/** 覆寫 HomePage1820 儲存行為，讓 Template Toolbar 儲存前先正規化語系與子表鍵值。 */
+const buildHomePage1820Actions = (
+    ctx: ServerFormActionContext<HomePageSet, HomePage1820FormAdapter, HomePage1820FormRefs, HomePage1820FormRawData, HomePage1820FormActionsOpt>,
+    baseActions: ServerFormActions,
+): ServerFormActions =>
+{
+    const save = async () =>
+    {
+        // 儲存前統一補齊 1820 語系與子表關聯鍵。
+        const payload = sanitizeSetBeforeSave(ctx.actionsOpt.lang, ctx.binding.data);
+        if (ctx.mode === "new") await ctx.serverActions.createAsync(payload);
+        else await ctx.serverActions.updateAsync(ctx.internalId, payload);
+    };
+
+    return {
+        ...baseActions,
+        Save: save,
+        Delete: async () =>
+        {},
+        Back: ctx.actionsOpt.onBackToList,
+        IsSaving: ctx.serverActions.isSaving,
+    };
+};
+
+
+/** 建立 HomePage1820 內層 rawData，並保留語系正規化 setFormData 行為 */
+const buildHomePage1820RawData = (
+    ctx: { binding: UseFetchFormDataResult<HomePageSet>; refs: HomePage1820FormRefs; actions: ServerFormActions; },
+    baseRawData: ServerFormDefaultRawData<HomePageSet, HomePage1820FormRefs>,
+    lang: Lang,
+): HomePage1820FormRawData =>
+{
+    const langKey = normalizeLang(lang);
+    const formData: UseFetchFormDataResult<HomePageSet> = {
+        ...ctx.binding,
+        data: normalizeSet(langKey, ctx.binding.data),
+        setFormData: next => ctx.binding.setFormData(prev => resolveNextFormData(langKey, prev, next)),
+    };
+
+    return { ...baseRawData, formData, categoryMap: ctx.refs.categoryMap, actions: ctx.actions };
+};
+
+
+
 /** 建立 EditGrid 可用的表單 binding，避免 Component 直接處理 rows 同步。 */
 const buildHomePageEditGridBinding = (binding: UseFetchFormDataResult<HomePageSet>) =>
 {
     return { data: binding.data, setFormData: binding.setFormData };
 };
+
 
 /** 建立首頁子資料 Grid 的共用設定。 */
 const buildHomePageGridProps = (title: string, itemName: string, storageKey: string, minTableWidth: number, style: IEditGridView_Style) =>
@@ -568,17 +622,20 @@ const buildHomePageGridProps = (title: string, itemName: string, storageKey: str
     };
 };
 
+
 /** 依 RowId 排序首頁子資料。 */
 const sortHomePageRows = <TItem extends { RowId?: number | null; }>(items: TItem[]): TItem[] =>
 {
     return [...items].sort((a, b) => Number(a.RowId ?? 0) - Number(b.RowId ?? 0));
 };
 
+
 /** 取得主表 HomePageId，新增子資料時優先綁定主表。 */
 const getHomePageId = (data: HomePageSet): string =>
 {
     return String(data.SpecHomePage1820?.HomePageId ?? "").trim();
 };
+
 
 /** 建立 Banner 欄位設定。 */
 const buildHomePageBannerMediaColumns = (
@@ -591,6 +648,7 @@ const buildHomePageBannerMediaColumns = (
         buildFileColumn(SpecHomePage1820_BannerMediaFields.BannerFileId, "Banner 圖片", 460, onFileChange, renderPicturePreview),
     ];
 };
+
 
 /** 建立 Section4 Detail 欄位設定。 */
 const buildHomePageDetailColumns = (
@@ -620,6 +678,7 @@ const buildHomePageDetailColumns = (
     ];
 };
 
+
 /** 建立 Marquee 欄位設定。 */
 const buildHomePageMarqueeColumns = (
     onFileChange: (args: EditGridCellValueChangeArgs) => Promise<EditGridCellValueChangeResult>,
@@ -632,6 +691,7 @@ const buildHomePageMarqueeColumns = (
         { key: SpecHomePage1820_MarqueeFields.IsHide, title: "隱藏", width: 120, inputType: "checkboxSingle", editable: true },
     ];
 };
+
 
 /** 建立 Resource 欄位設定。 */
 const buildHomePageResourceColumns = (
@@ -648,17 +708,20 @@ const buildHomePageResourceColumns = (
     ];
 };
 
+
 /** 建立文字欄位設定。 */
 const buildTextColumn = (key: string, title: string, width: number, maxLength: number): ColumnConfig =>
 {
     return { key, title, width, inputType: "text", editable: true, maxLength };
 };
 
+
 /** 建立 TinyMCE 欄位設定。 */
 const buildTinyMceColumn = (key: string, title: string, width: number, render?: HomePageIntroRender, editRender?: HomePageIntroEditRender): ColumnConfig =>
 {
     return { key, title, width, inputType: "textarea", editable: true, render, editRender };
 };
+
 
 /** 建立檔案欄位設定。 */
 const buildFileColumn = (
@@ -684,11 +747,13 @@ const buildFileColumn = (
     };
 };
 
+
 /** 建立 Banner 新增資料。 */
 const buildNewBannerMediaItem = (data: HomePageSet, rowId: number): BannerMedia =>
 {
     return { HomePageId: getHomePageId(data), RowId: rowId, BannerFileId: "", BannerFileDescription: "" };
 };
+
 
 /** 建立 Detail 新增資料。 */
 const buildNewDetailItem = (data: HomePageSet, rowId: number): HomePageDetail =>
@@ -714,17 +779,20 @@ const buildNewDetailItem = (data: HomePageSet, rowId: number): HomePageDetail =>
     };
 };
 
+
 /** 建立 Marquee 新增資料。 */
 const buildNewMarqueeItem = (data: HomePageSet, rowId: number): HomePageMarquee =>
 {
     return { HomePageId: getHomePageId(data), RowId: rowId, PictureId: "", PictureTitle: "", IsHide: false };
 };
 
+
 /** 建立 Resource 新增資料。 */
 const buildNewResourceItem = (data: HomePageSet, rowId: number): HomePageResource =>
 {
     return { HomePageId: getHomePageId(data), RowId: rowId, PicTitle: "", PicSubTitle: "", PicFileId: "", PicFileDescription: "", Link: "" };
 };
+
 
 /** 將 Banner DTO 轉成 GridRow。 */
 const buildBannerMediaGridRow = (
@@ -743,6 +811,7 @@ const buildBannerMediaGridRow = (
         cells: buildBannerMediaCells(item, onFileChange, renderPicturePreview),
     };
 };
+
 
 /** 將 Detail DTO 轉成 GridRow。 */
 const buildDetailGridRow = (
@@ -765,6 +834,7 @@ const buildDetailGridRow = (
     };
 };
 
+
 /** 將 Marquee DTO 轉成 GridRow。 */
 const buildMarqueeGridRow = (
     item: HomePageMarquee,
@@ -783,6 +853,7 @@ const buildMarqueeGridRow = (
     };
 };
 
+
 /** 將 Resource DTO 轉成 GridRow。 */
 const buildResourceGridRow = (
     item: HomePageResource,
@@ -800,6 +871,7 @@ const buildResourceGridRow = (
         cells: buildResourceCells(item, onFileChange, renderPicturePreview),
     };
 };
+
 
 /** 建立 Banner cells。 */
 const buildBannerMediaCells = (
@@ -822,6 +894,7 @@ const buildBannerMediaCells = (
         ),
     ];
 };
+
 
 /** 建立 Detail cells。 */
 const buildDetailCells = (
@@ -891,6 +964,7 @@ const buildDetailCells = (
     ];
 };
 
+
 /** 建立 Marquee cells。 */
 const buildMarqueeCells = (
     item: HomePageMarquee,
@@ -909,6 +983,7 @@ const buildMarqueeCells = (
         buildEditGridCell(SpecHomePage1820_MarqueeFields.IsHide, "隱藏", Boolean(item.IsHide), { inputType: "checkboxSingle", editable: true }),
     ];
 };
+
 
 /** 建立 Resource cells。 */
 const buildResourceCells = (
@@ -935,6 +1010,7 @@ const buildResourceCells = (
     ];
 };
 
+
 /** 將 Banner GridRow 轉回 DTO。 */
 const toBannerMediaDto = (data: HomePageSet, row: GridRow, index: number): BannerMedia =>
 {
@@ -946,6 +1022,7 @@ const toBannerMediaDto = (data: HomePageSet, row: GridRow, index: number): Banne
         BannerFileDescription: getEditGridStringCellValue(row, SpecHomePage1820_BannerMediaFields.BannerFileDescription),
     };
 };
+
 
 /** 將 Detail GridRow 轉回 DTO。 */
 const toDetailDto = (data: HomePageSet, row: GridRow, index: number): HomePageDetail =>
@@ -974,6 +1051,7 @@ const toDetailDto = (data: HomePageSet, row: GridRow, index: number): HomePageDe
     };
 };
 
+
 /** 將 Marquee GridRow 轉回 DTO。 */
 const toMarqueeDto = (data: HomePageSet, row: GridRow, index: number): HomePageMarquee =>
 {
@@ -986,6 +1064,7 @@ const toMarqueeDto = (data: HomePageSet, row: GridRow, index: number): HomePageM
         IsHide: Boolean(getEditGridCellValue(row, SpecHomePage1820_MarqueeFields.IsHide)),
     };
 };
+
 
 /** 將 Resource GridRow 轉回 DTO。 */
 const toResourceDto = (data: HomePageSet, row: GridRow, index: number): HomePageResource =>
@@ -1002,11 +1081,13 @@ const toResourceDto = (data: HomePageSet, row: GridRow, index: number): HomePage
     };
 };
 
+
 /** 建立首頁子資料 row key。 */
 const buildHomePageRowKey = (section: string, homePageId?: string | null, rowId?: number | null): string =>
 {
     return `home-page-1820-${section}-${homePageId ?? "new"}-${rowId ?? 0}`;
 };
+
 
 /** 上傳首頁圖片並回寫檔案欄位與說明欄位。 */
 const uploadHomePageFileValue = async (
@@ -1030,11 +1111,13 @@ const uploadHomePageFileValue = async (
     return buildHomePageUploadChangeResult(uploadedValue, descriptionField);
 };
 
+
 /** 建立首頁圖片上傳後的欄位更新結果。 */
 const buildHomePageUploadChangeResult = (file: HomePageGridFileValue, descriptionField: string): EditGridCellValueChangeResult =>
 {
     return { value: file, rowValues: { [descriptionField]: getFileNameWithoutExtension(file.originalFileName ?? file.fileName) } };
 };
+
 
 /** 建立既有檔案的 EditGrid value。 */
 const buildHomePageFileCellValue = (internalId?: string | null, originalName?: string | null, description?: string | null): HomePageGridFileValue =>
@@ -1050,6 +1133,7 @@ const buildHomePageFileCellValue = (internalId?: string | null, originalName?: s
     };
 };
 
+
 /** 建立上傳後的 EditGrid 檔案值。 */
 const buildUploadedHomePageFileCellValue = (internalId: string, originalName?: string): HomePageGridFileValue =>
 {
@@ -1062,25 +1146,20 @@ const buildUploadedHomePageFileCellValue = (internalId: string, originalName?: s
     };
 };
 
+
 /** 建立空檔案值。 */
 const buildEmptyHomePageFileCellValue = (): HomePageGridFileValue =>
 {
     return { internalId: "", fileName: "", originalFileName: "" };
 };
 
-/** 將任意 EditGrid value 正規化成首頁檔案值。 */
-export const toHomePageFileCellValue = (value: EditGridCellValue): HomePageGridFileValue =>
-{
-    if (isHomePageFileValue(value)) return value;
-    if (typeof value === "string") return buildHomePageFileCellValue(value);
-    return buildEmptyHomePageFileCellValue();
-};
 
 /** 判斷是否為首頁檔案值。 */
 const isHomePageFileValue = (value: EditGridCellValue): value is HomePageGridFileValue =>
 {
     return typeof value === "object" && value !== null && !Array.isArray(value) && "fileName" in value;
 };
+
 
 /** 取得剛選取的檔案。 */
 const getSelectedHomePageFile = (value: EditGridCellValue): HomePageGridFileValue | null =>
@@ -1089,11 +1168,13 @@ const getSelectedHomePageFile = (value: EditGridCellValue): HomePageGridFileValu
     return value;
 };
 
+
 /** 取得上傳前原始檔名。 */
 const getHomePageSelectedFileName = (file: HomePageGridFileValue): string =>
 {
     return String(file.file?.name || file.fileName || "").trim();
 };
+
 
 /** 取得 DTO 檔案物件中的原始檔名。 */
 const getDtoFileName = (file?: { FileName?: string | null; fileName?: string | null; } | null): string =>
@@ -1101,12 +1182,6 @@ const getDtoFileName = (file?: { FileName?: string | null; fileName?: string | n
     return String(file?.FileName ?? file?.fileName ?? "").trim();
 };
 
-/** 取得預覽網址。 */
-export const getHomePageFilePreviewUrl = (fileId?: string | null): string | undefined =>
-{
-    const id = String(fileId ?? "").trim();
-    return id ? FileManagementAPI.get_Server_Preview_Url(id) ?? undefined : undefined;
-};
 
 /** 取得下載網址。 */
 const getHomePageFileDownloadUrl = (fileId?: string | null): string | undefined =>
@@ -1114,6 +1189,7 @@ const getHomePageFileDownloadUrl = (fileId?: string | null): string | undefined 
     const id = String(fileId ?? "").trim();
     return id ? `/Service/FileManagement/Server_Download/${encodeURIComponent(id)}` : undefined;
 };
+
 
 /** 取得不含副檔名的檔案名稱。 */
 const getFileNameWithoutExtension = (fileName?: string | null): string =>

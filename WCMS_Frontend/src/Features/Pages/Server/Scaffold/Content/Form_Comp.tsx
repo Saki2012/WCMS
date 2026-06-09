@@ -3,6 +3,7 @@ import { Form_Toolbar } from "@/Features/Pages/Server/Scaffold/Toolbar/Toolbar_C
 import { DividerComp } from "@/SysCore/Components/Divider/Divider_Comp";
 import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 
+// #region Public
 export const FormComp = ({ prop, children }: { prop: FormCompProp; children: React.ReactNode; }) =>
 {
     const hasToolbar = Boolean(prop.Actions);
@@ -39,3 +40,4 @@ export const FormComp = ({ prop, children }: { prop: FormCompProp; children: Rea
         </div>
     );
 };
+// #endregion

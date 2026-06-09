@@ -5,11 +5,13 @@ import type { HomePageEventHookResult } from "@/SpecFetures/1810/Pages/Client/In
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import { FormatDate } from "@/SysCore/Utils/Library/LibData";
+import { formatDate } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { useEffect, useMemo, useRef } from "react";
 
+// #region Property
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
+
 
 interface EventData
 {
@@ -22,6 +24,11 @@ interface EventData
     contentStatus: number;
 }
 
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+// #endregion
+
+// #region Public
 export const EventSession = (props: { lang: Lang; hydrationData: HomePageEventHookResult; }) =>
 {
     // 宣告變數：統一吃 Homepage hydration source
@@ -201,7 +208,7 @@ export const EventSession = (props: { lang: Lang; hydrationData: HomePageEventHo
                                                                     <div className="TimeBoxDiv">
                                                                         <div className="card_time">
                                                                             <i className="fa fa-clock-o" aria-hidden="true"></i>
-                                                                            {FormatDate(item.date)}
+                                                                            {formatDate(item.date)}
                                                                         </div>
                                                                         <div className="card_arrow">
                                                                             <i className="fa fa-arrow-circle-right" aria-hidden="true"></i>
@@ -275,7 +282,9 @@ export const EventSession = (props: { lang: Lang; hydrationData: HomePageEventHo
         // </LoadingErrorHandler>
     );
 };
+// #endregion
 
+// #region Private
 const getData = (lang: string, rawData: AnnouncementSet[], tagDict: Record<string, string>): EventData[] =>
 {
     const result: EventData[] = [];
@@ -301,6 +310,7 @@ const getData = (lang: string, rawData: AnnouncementSet[], tagDict: Record<strin
     return result;
 };
 
+
 const getMonthDayNums = (d?: string | Date | null): { month?: number; day?: number; } =>
 {
     if (!d) return {};
@@ -311,7 +321,6 @@ const getMonthDayNums = (d?: string | Date | null): { month?: number; day?: numb
     return { month: dt.getUTCMonth() + 1, day: dt.getUTCDate() };
 };
 
-const DAY_MS = 24 * 60 * 60 * 1000;
 
 const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: number = 8): boolean =>
 {
@@ -333,3 +342,4 @@ const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: numb
     const diffDays = Math.floor((nowUTC - candidateUTC) / DAY_MS);
     return diffDays >= 0 && diffDays <= n;
 };
+// #endregion

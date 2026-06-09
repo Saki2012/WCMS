@@ -1,6 +1,7 @@
 import { useId, useMemo } from "react";
 import type { ILibSwitchProp } from "./LibSwitch_Data";
 
+// #region Private
 const LibSwitch = (prop: ILibSwitchProp) =>
 {
     const inputId = useId();
@@ -47,4 +48,6 @@ const LibSwitch = (prop: ILibSwitchProp) =>
     );
 };
 
+
 export default LibSwitch;
+// #endregion

@@ -12,7 +12,7 @@ import type { SearchFieldConfig, SearchValue, SearchValues } from "@/SysCore/Com
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
-import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
+import { findTextByKey, formatDateTime } from "@/SysCore/Utils/Library/LibData";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
@@ -20,16 +20,21 @@ import { AccountFields, PageManagementDetailFields, PageManagementFields, PGID }
 import { createElement, useCallback, useMemo, type ReactNode } from "react";
 import { type NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 type PageManagementSet = components["schemas"]["PageManagementSet_DTO"];
+
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
+
 type PageManagementApiAdapter = ReturnType<typeof PageManagementAdapter>;
+
 type CategoryApiAdapter = ReturnType<typeof CategoryAdapter>;
+
 type PageManagementCudActions = ReturnType<PageManagementApiAdapter["hooks"]["useCudActions"]>;
+
 type CategoryMapValue = string | CategorySet | null | undefined;
 
-export const PAGE_MANAGEMENT_TITLE_SEARCH_KEY = "title";
-export const PAGE_MANAGEMENT_CATEGORY_SEARCH_KEY = "categoryId";
 
 export interface PageManagementSearchParams
 {
@@ -42,6 +47,7 @@ export interface PageManagementSearchParams
     /** 頁面類別搜尋條件 */
     categoryId?: string;
 }
+
 
 export interface PageManagementListRawData
 {
@@ -70,6 +76,7 @@ export interface PageManagementListRawData
     categoryMap: Record<string, string>;
 }
 
+
 export interface PageManagementListAdapter
 {
     /** 頁面管理 API adapter */
@@ -88,7 +95,30 @@ export interface PageManagementListAdapter
     dirUrl: string;
 }
 
+
 export type PageManagementListGridTemplate = ServerListGridTemplate<PageManagementSearchParams, PageManagementListRawData, PageManagementListAdapter, QueryListParam>;
+
+
+type CrudDeps = {
+    /** React Router 導頁方法 */
+    navigate: NavigateFunction;
+
+    /** 目前 List 對應的 Form 路徑 */
+    dirUrl: string;
+
+    /** 刪除資料方法 */
+    deleteAsync: PageManagementCudActions["deleteAsync"];
+
+    /** 刪除後重新查詢 */
+    afterDelete: () => Promise<void>;
+};
+// #endregion
+
+// #region Public
+export const PAGE_MANAGEMENT_TITLE_SEARCH_KEY = "title";
+
+export const PAGE_MANAGEMENT_CATEGORY_SEARCH_KEY = "categoryId";
+
 
 /** 建立頁面管理後台 ListGridTemplate 設定 */
 export const usePageManagementListGridTemplate = (opt: { lang: Lang; }): PageManagementListGridTemplate =>
@@ -108,7 +138,9 @@ export const usePageManagementListGridTemplate = (opt: { lang: Lang; }): PageMan
         };
     }, [opt.lang]);
 };
+// #endregion
 
+// #region Private
 /** 執行頁面管理列表資料來源 Hook */
 const usePageManagementListGridDataSource = (
     ctx: ServerListGridDataSourceContext<PageManagementSearchParams, QueryListParam>,
@@ -168,6 +200,7 @@ const usePageManagementListGridDataSource = (
     return { adapter: { ...apiAdapter, cudActions, navigate, dirUrl }, rawData, isLoading, errors, refetchData, refetchRefData };
 };
 
+
 /** 建立頁面管理搜尋欄位設定 */
 const buildPageManagementSearchFields = (rawData: PageManagementListRawData): SearchFieldConfig[] =>
 {
@@ -180,6 +213,7 @@ const buildPageManagementSearchFields = (rawData: PageManagementListRawData): Se
     ];
 };
 
+
 /** 將 SearchValues 轉為頁面管理列表查詢參數 */
 const toPageManagementSearchParams = (values: SearchValues, lang: Lang): PageManagementSearchParams =>
 {
@@ -189,6 +223,7 @@ const toPageManagementSearchParams = (values: SearchValues, lang: Lang): PageMan
         categoryId: getSearchStringValue(values[PAGE_MANAGEMENT_CATEGORY_SEARCH_KEY]),
     };
 };
+
 
 /** 建立頁面管理搜尋條件 */
 const buildPageManagementSearchConditions = (ctx: { searchParams: PageManagementSearchParams; }): string[] =>
@@ -208,6 +243,7 @@ const buildPageManagementSearchConditions = (ctx: { searchParams: PageManagement
     return conditions;
 };
 
+
 /** 建立頁面管理列表完整 QueryParam */
 const buildPageManagementQueryParam = (ctx: { searchParams: PageManagementSearchParams; searchCondition: string; }): QueryListParam =>
 {
@@ -217,6 +253,7 @@ const buildPageManagementQueryParam = (ctx: { searchParams: PageManagementSearch
 
     return { Fields: fields, Condition: condition, OrderBy: [{ Col: PageManagementFields.CreateTime, Desc: true }], PageNumber: 1, PageSize: 10 };
 };
+
 
 /** 建立頁面管理列表查詢欄位 */
 const buildPageManagementQueryFields = (): string[] =>
@@ -233,25 +270,13 @@ const buildPageManagementQueryFields = (): string[] =>
     ];
 };
 
+
 /** 建立類別下拉搜尋選項 */
 const buildCategorySearchOptions = (categoryMap: Record<string, string>): SearchFieldConfig["options"] =>
 {
     return Object.entries(categoryMap).map(([value, title]) => ({ value, title: title || value }));
 };
 
-type CrudDeps = {
-    /** React Router 導頁方法 */
-    navigate: NavigateFunction;
-
-    /** 目前 List 對應的 Form 路徑 */
-    dirUrl: string;
-
-    /** 刪除資料方法 */
-    deleteAsync: PageManagementCudActions["deleteAsync"];
-
-    /** 刪除後重新查詢 */
-    afterDelete: () => Promise<void>;
-};
 
 /** 將頁面管理資料轉為 GridProps */
 const buildPageManagementGridProps = (
@@ -284,6 +309,7 @@ const buildPageManagementGridProps = (
     });
 };
 
+
 /** 注入頁面管理 Grid 編輯與刪除動作 */
 const enhancePageManagementGrid = (
     opt: {
@@ -314,11 +340,13 @@ const enhancePageManagementGrid = (
     });
 };
 
+
 /** 建立頁面管理列表欄位定義 */
 const buildColumns = (visibleCols: string[], raw: PageManagementListRawData): ColumnConfig[] =>
 {
     return visibleCols.map((col) => ({ key: col, title: getColumnTitle(raw.modelDisplayName, col, `【${col}】`) }));
 };
+
 
 /** 建立頁面管理列表列資料 */
 const buildPageManagementRows = (raw: PageManagementListRawData, lang: Lang, columns: ColumnConfig[]): GridRow[] =>
@@ -331,18 +359,20 @@ const buildPageManagementRows = (raw: PageManagementListRawData, lang: Lang, col
             { col: columns[0], content: mapIdsToList(pageManagement?.CategoryId, raw.categoryMap) },
             { col: columns[1], content: getPageManagementTitle(set, lang) },
             { col: columns[2], content: pageManagement?.ModifyUser?.AccountName ?? "" },
-            { col: columns[3], content: FormatDateTime(pageManagement?.ModifyTime) },
+            { col: columns[3], content: formatDateTime(pageManagement?.ModifyTime) },
         ];
 
         return { keyId, cells };
     });
 };
 
+
 /** 取得頁面目前語系標題 */
 const getPageManagementTitle = (set: PageManagementSet, lang: Lang): string =>
 {
-    return (set.PageManagementDetail ?? []).find((detail) => detail?.Lang === lang)?.Title ?? "";
+    return findTextByKey(set.PageManagementDetail, (detail) => detail?.Lang, lang, (detail) => detail?.Title);
 };
+
 
 /** 將逗號分隔代碼轉為清單顯示 */
 const mapIdsToList = (ids: string | null | undefined, map: Record<string, string>): ReactNode =>
@@ -356,6 +386,7 @@ const mapIdsToList = (ids: string | null | undefined, map: Record<string, string
     );
 };
 
+
 /** 將類別 Hook 回傳值轉成文字 map，避免不同 Adapter map 版本造成型別不一致 */
 const buildCategoryTextMap = (source: Record<string, CategoryMapValue>, lang: Lang): Record<string, string> =>
 {
@@ -366,14 +397,16 @@ const buildCategoryTextMap = (source: Record<string, CategoryMapValue>, lang: La
     }, {});
 };
 
+
 /** 取得類別顯示文字 */
 const getCategoryText = (value: CategoryMapValue, lang: Lang): string =>
 {
     if (!value) return "";
     if (typeof value === "string") return value;
 
-    return (value.CategoryDetail ?? []).find((detail) => detail?.Lang === lang)?.CategoryName ?? "";
+    return findTextByKey(value.CategoryDetail, (detail) => detail?.Lang, lang, (detail) => detail?.CategoryName);
 };
+
 
 /** 依欄位代碼取得 ModelDisplayName 顯示文字 */
 const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, columnId: string, fallback: string): string =>
@@ -383,6 +416,7 @@ const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, columnId: s
     return hit?.ColumnDisplayName ?? fallback;
 };
 
+
 /** 取得 SearchValue 的文字值 */
 const getSearchStringValue = (value: SearchValue): string | undefined =>
 {
@@ -391,3 +425,4 @@ const getSearchStringValue = (value: SearchValue): string | undefined =>
     const text = value.trim();
     return text.length > 0 ? text : undefined;
 };
+// #endregion

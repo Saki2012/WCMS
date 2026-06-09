@@ -14,6 +14,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import serveStatic from "serve-static";
 import { buildProdCsp, type CspStyleMode } from "./CSPSetting";
 
+// #region Property
 type SsrConfig = Readonly<{
     port: number;
     isProd: boolean;
@@ -21,16 +22,36 @@ type SsrConfig = Readonly<{
     allowInsecureBackendTls: boolean;
 }>;
 
+
 type ProdPaths = Readonly<{ clientRoot: string; serverEntry: string; indexPath: string; }>;
+
 type HeaderValue = string | number | readonly string[];
+
 type HeadersMap = Record<string, HeaderValue>;
+
 type ProxyHeaderMap = Record<string, string | string[] | undefined>;
+
 type ProxyResponseLike = { headers: ProxyHeaderMap; };
 
+
 const noStoreHeaderValue = "no-store, no-cache, must-revalidate, proxy-revalidate";
+
 const defaultReferrerPolicy = "strict-origin-when-cross-origin";
+
 const defaultPermissionsPolicy = "geolocation=(), microphone=(), camera=(), fullscreen=(self)";
 
+
+type ViteManifestEntry = Readonly<{ file: string; css?: string[]; imports?: string[]; isEntry?: boolean; }>;
+
+type ViteManifest = Record<string, ViteManifestEntry>;
+
+
+const INITIAL_STATE_MARKER = "<!--initial-state-->";
+
+const INITIAL_STATE_TEMPLATE_RE = /<template\b[^>]*\bid=["']wcms-initial-state["'][^>]*>[\s\S]*?<\/template>/i;
+// #endregion
+
+// #region Private
 /** 設定 HTML/API 不落地快取，避免 SSL 頁面被弱掃判定可快取。 */
 const setNoStoreHeaders = (res: Response): void =>
 {
@@ -38,6 +59,7 @@ const setNoStoreHeaders = (res: Response): void =>
     res.setHeader("Pragma", "no-cache");
     res.setHeader("Expires", "0");
 };
+
 
 /** 讀取布林環境參數，讓弱掃與相容性可逐案微調。 */
 const readBoolEnv = (key: string, defaultValue = false): boolean =>
@@ -47,6 +69,7 @@ const readBoolEnv = (key: string, defaultValue = false): boolean =>
     return raw === "1" || raw === "true" || raw === "yes" || raw === "y";
 };
 
+
 /** 讀取 CSP style 模式，預設 balanced：保留 inline style attribute，但不開放 inline style element。 */
 const readStyleModeEnv = (): CspStyleMode =>
 {
@@ -55,6 +78,7 @@ const readStyleModeEnv = (): CspStyleMode =>
     return "balanced";
 };
 
+
 /** 取得 Referrer-Policy；預設兼顧安全與 Google/外部服務相容性。 */
 const getReferrerPolicy = (): string =>
 {
@@ -62,12 +86,14 @@ const getReferrerPolicy = (): string =>
     return raw || defaultReferrerPolicy;
 };
 
+
 /** 移除由 Node/Proxy 可控制的技術洩漏標頭。 */
 const stripDisclosureHeaders = (res: Response): void =>
 {
     res.removeHeader("X-Powered-By");
     res.removeHeader("Server");
 };
+
 
 /** 從 proxy header map 移除指定標頭，避免後端/IIS/Node 重複輸出。 */
 const deleteProxyHeader = (headers: ProxyHeaderMap, name: string): void =>
@@ -78,6 +104,7 @@ const deleteProxyHeader = (headers: ProxyHeaderMap, name: string): void =>
         if (key.toLowerCase() === lower) delete headers[key];
     }
 };
+
 
 /** 移除後端 proxy 回來、但應由 Node 對外統一管理的安全標頭。 */
 const stripProxyOwnedHeaders = (headers: ProxyHeaderMap): void =>
@@ -99,6 +126,7 @@ const stripProxyOwnedHeaders = (headers: ProxyHeaderMap): void =>
     for (const name of names) deleteProxyHeader(headers, name);
 };
 
+
 /** 取得同一個 response 生命週期共用的 CSP nonce。 */
 const getResponseNonce = (res: Response): string =>
 {
@@ -110,11 +138,13 @@ const getResponseNonce = (res: Response): string =>
     return nonce;
 };
 
+
 const readHeaderFirstValue = (value: string | string[] | undefined): string =>
 {
     const raw = Array.isArray(value) ? value[0] : value;
     return String(raw || "").split(",")[0].trim();
 };
+
 
 const sanitizeRequestProto = (value: string): string =>
 {
@@ -122,11 +152,13 @@ const sanitizeRequestProto = (value: string): string =>
     return proto === "http" || proto === "https" ? proto : "https";
 };
 
+
 const sanitizeRequestHost = (value: string): string =>
 {
     const host = String(value || "").trim();
     return /^[a-z0-9.-]+(?::\d+)?$/i.test(host) ? host : "";
 };
+
 
 /** 取得目前對外 Origin，讓 CSP script 可以收斂到同網域指定路徑。 */
 const getRequestPublicOrigin = (req: Request): string =>
@@ -140,6 +172,7 @@ const getRequestPublicOrigin = (req: Request): string =>
     return host ? `${proto}://${host}` : "";
 };
 
+
 /** 建立正式環境 HTML CSP 的調整參數。 */
 const getHtmlCspOptions = (req: Request) =>
 {
@@ -152,6 +185,7 @@ const getHtmlCspOptions = (req: Request) =>
         scriptBaseOrigin: getRequestPublicOrigin(req),
     };
 };
+
 
 /** 設定 HTML、靜態資源共用的基礎安全標頭，不在這裡塞 CSP。 */
 const setBaseSecurityHeaders = (res: Response, cfg: SsrConfig): void =>
@@ -168,6 +202,7 @@ const setBaseSecurityHeaders = (res: Response, cfg: SsrConfig): void =>
     stripDisclosureHeaders(res);
 };
 
+
 /** 設定 SSR HTML 專用安全標頭；CSP 只放在 HTML response。 */
 const setHtmlSecurityHeaders = (req: Request, res: Response, cfg: SsrConfig, nonce: string): void =>
 {
@@ -176,6 +211,7 @@ const setHtmlSecurityHeaders = (req: Request, res: Response, cfg: SsrConfig, non
 
     res.setHeader("Content-Security-Policy", buildProdCsp(nonce, getHtmlCspOptions(req)));
 };
+
 
 /** 讓 HTML/靜態資源先帶基礎安全標頭；API proxy 由 onProxyRes 統一重寫。 */
 const setupSecurityHeaders = (app: express.Express, cfg: SsrConfig): void =>
@@ -197,6 +233,7 @@ const setupSecurityHeaders = (app: express.Express, cfg: SsrConfig): void =>
     });
 };
 
+
 /** 清掉後端 Proxy 轉回來的重複標頭，並讓 API 採用 Node 統一安全標頭。 */
 const setProxySecurityHeaders = (proxyRes: ProxyResponseLike, cfg: SsrConfig): void =>
 {
@@ -216,6 +253,7 @@ const setProxySecurityHeaders = (proxyRes: ProxyResponseLike, cfg: SsrConfig): v
     if (cfg.isProd) proxyRes.headers["strict-transport-security"] = "max-age=31536000; includeSubDomains";
 };
 
+
 const isRecord = (v: unknown): v is Record<string, unknown> =>
 {
     // 宣告變數
@@ -224,6 +262,7 @@ const isRecord = (v: unknown): v is Record<string, unknown> =>
     // return
     return ok;
 };
+
 
 const coerceHeaderValue = (v: unknown): HeaderValue | null =>
 {
@@ -244,6 +283,7 @@ const coerceHeaderValue = (v: unknown): HeaderValue | null =>
     return String(v);
 };
 
+
 const coerceHeadersMap = (raw: unknown): HeadersMap =>
 {
     // 宣告變數
@@ -261,6 +301,7 @@ const coerceHeadersMap = (raw: unknown): HeadersMap =>
     // return
     return out;
 };
+
 
 const trySendResponseResult = (res: Response, result: unknown): boolean =>
 {
@@ -280,6 +321,7 @@ const trySendResponseResult = (res: Response, result: unknown): boolean =>
     return true;
 };
 
+
 const resolveFirstExistingDir = (root: string, candidates: string[]): string =>
 {
     // 宣告變數
@@ -296,6 +338,7 @@ const resolveFirstExistingDir = (root: string, candidates: string[]): string =>
     return path.resolve(base, candidates[0]);
 };
 
+
 const tryBuildProdPaths = (root: string): ProdPaths | null =>
 {
     // 宣告變數
@@ -311,6 +354,7 @@ const tryBuildProdPaths = (root: string): ProdPaths | null =>
     // return
     return { clientRoot, indexPath, serverEntry: pathToFileURL(serverEntryAbs).href };
 };
+
 
 const getProdPaths = (): ProdPaths =>
 {
@@ -340,6 +384,7 @@ const getProdPaths = (): ProdPaths =>
     throw new Error("Cannot resolve prod paths: missing CSR/client or SSR/server build output.");
 };
 
+
 const tryParseUrl = (s: string): URL | null =>
 {
     // 宣告變數
@@ -357,11 +402,13 @@ const tryParseUrl = (s: string): URL | null =>
     }
 };
 
+
 const isLocalhostHost = (host: string): boolean =>
 {
     const h = String(host || "").toLowerCase();
     return h === "localhost" || h === "127.0.0.1" || h === "::1";
 };
+
 
 const shouldAllowInsecureBackendTls = (isProd: boolean, apiTarget: string, allowInsecureTls: boolean): boolean =>
 {
@@ -373,6 +420,7 @@ const shouldAllowInsecureBackendTls = (isProd: boolean, apiTarget: string, allow
     if (!isProd) return true;
     return allowInsecureTls && isLocalhost;
 };
+
 
 const applyProdTlsGuard = (isProd: boolean, apiTarget: string, allowInsecureTls: boolean): boolean =>
 {
@@ -391,6 +439,7 @@ const applyProdTlsGuard = (isProd: boolean, apiTarget: string, allowInsecureTls:
 
     return allowBackendTls;
 };
+
 
 // 讀 env 並整理成 config
 const getConfig = (): SsrConfig =>
@@ -415,6 +464,7 @@ const getConfig = (): SsrConfig =>
     return { port, isProd, apiTarget, allowInsecureBackendTls };
 };
 
+
 const isPathSegmentPrefix = (pathname: string, segment: string): boolean =>
 {
     const p = String(pathname || "").toLowerCase();
@@ -422,6 +472,7 @@ const isPathSegmentPrefix = (pathname: string, segment: string): boolean =>
     const ok = p === s || p.startsWith(`${s}/`);
     return ok;
 };
+
 
 // 判斷是否要進 SSR（避免靜態資源/代理被 SSR 吃掉）
 const shouldSSR = (req: Request): boolean =>
@@ -444,6 +495,7 @@ const shouldSSR = (req: Request): boolean =>
     return true;
 };
 
+
 // 讀取 TS 檔內的 css import，轉成 href 清單（dev 用）
 const readCssImportHrefs = async (absTsFilePath: string, devPublicBase: string): Promise<string[]> =>
 {
@@ -464,6 +516,7 @@ const readCssImportHrefs = async (absTsFilePath: string, devPublicBase: string):
     // return
     return hrefs;
 };
+
 
 const normalizeCssHref = (href: string): string =>
 {
@@ -486,6 +539,7 @@ const normalizeCssHref = (href: string): string =>
     // return
     return h;
 };
+
 
 const getExistingCssHrefsInHead = (html: string): Set<string> =>
 {
@@ -512,6 +566,7 @@ const getExistingCssHrefsInHead = (html: string): Set<string> =>
     return out;
 };
 
+
 const injectCssLinksToHead = (html: string, hrefs: string[]): string =>
 {
     // 宣告變數
@@ -526,8 +581,6 @@ const injectCssLinksToHead = (html: string, hrefs: string[]): string =>
     return html.replace(/<\/head>/i, `${links}</head>`);
 };
 
-type ViteManifestEntry = Readonly<{ file: string; css?: string[]; imports?: string[]; isEntry?: boolean; }>;
-type ViteManifest = Record<string, ViteManifestEntry>;
 
 const tryReadViteManifest = async (clientRoot: string): Promise<ViteManifest | null> =>
 {
@@ -542,6 +595,7 @@ const tryReadViteManifest = async (clientRoot: string): Promise<ViteManifest | n
     // return
     return json;
 };
+
 
 const addCssByManifestKey = (m: ViteManifest, key: string, seen: Set<string>, out: Set<string>) =>
 {
@@ -574,12 +628,14 @@ const addCssByManifestKey = (m: ViteManifest, key: string, seen: Set<string>, ou
     }
 };
 
+
 const findManifestEntryKeys = (m: ViteManifest): string[] =>
 {
     const keys = Object.keys(m);
     const entries = keys.filter(k => (m[k] as ViteManifestEntry)?.isEntry);
     return entries;
 };
+
 
 const getProdCssHrefsFromManifest = (m: ViteManifest, spec: string, isServer: boolean): string[] =>
 {
@@ -654,6 +710,7 @@ const getProdCssHrefsFromManifest = (m: ViteManifest, spec: string, isServer: bo
     // return
     return [...out];
 };
+
 // 讓 SSR_Render 回傳的東西統一成 payload
 const toPayload = (result: any) =>
 {
@@ -664,19 +721,19 @@ const toPayload = (result: any) =>
     return { appHtml: result.appHtml ?? "", headTags: result.headTags ?? "", initialState: result.initialState };
 };
 
+
 const removeStaticRouterHydrationScripts = (appHtml: string): string =>
 {
     const re = /<script\b[^>]*>[\s\S]*?__staticRouterHydrationData[\s\S]*?<\/script>/gi;
     return appHtml.replace(re, "");
 };
 
+
 const escapeJsonForTemplate = (value: unknown): string =>
 {
     return JSON.stringify(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
 };
 
-const INITIAL_STATE_MARKER = "<!--initial-state-->";
-const INITIAL_STATE_TEMPLATE_RE = /<template\b[^>]*\bid=["']wcms-initial-state["'][^>]*>[\s\S]*?<\/template>/i;
 
 /** 把 SSR 初始資料放進 template，避免正式 CSP 需要 inline script。 */
 const injectInitialState = (html: string, initialState: unknown): string =>
@@ -695,6 +752,7 @@ const injectInitialState = (html: string, initialState: unknown): string =>
 
     return html.replace(/<\/body>/i, `${stateTemplate}</body>`);
 };
+
 // 優先用 <!--app-html-->，沒有就塞進 <div id="root"></div>
 const injectAppHtmlToRoot = (html: string, appHtml: string): string =>
 {
@@ -717,6 +775,7 @@ const injectAppHtmlToRoot = (html: string, appHtml: string): string =>
     return html;
 };
 
+
 // 組 SSR HTML（dev/prod 共用）
 const buildHtml = (template: string, payload: { appHtml: string; headTags?: string; initialState?: unknown; }, _nonce: string, _isProd: boolean): string =>
 {
@@ -729,6 +788,7 @@ const buildHtml = (template: string, payload: { appHtml: string; headTags?: stri
 
     return html;
 };
+
 
 // SSR Render（dev/prod 共用呼叫 Entry-Server）
 const renderByEntry = async (SSR_Render: (url: string, headers?: Record<string, string>) => Promise<any>, req: Request) =>
@@ -743,6 +803,7 @@ const renderByEntry = async (SSR_Render: (url: string, headers?: Record<string, 
     // return
     return result;
 };
+
 
 // Dev SSR：Vite middleware + transformIndexHtml + ssrLoadModule
 const setupDevSSR = async (app: express.Express, cfg: SsrConfig) =>
@@ -818,6 +879,7 @@ const setupDevSSR = async (app: express.Express, cfg: SsrConfig) =>
         }
     });
 };
+
 // Prod SSR：dist/client 靜態 + dist/server/entry-server.js
 const setupProdSSR = async (app: express.Express, cfg: SsrConfig) =>
 {
@@ -864,6 +926,7 @@ const setupProdSSR = async (app: express.Express, cfg: SsrConfig) =>
     });
 };
 
+
 // API Proxy：/Service -> cfg.apiTarget（後端）
 const setupApiProxy = (app: express.Express, cfg: SsrConfig) =>
 {
@@ -898,6 +961,7 @@ const setupApiProxy = (app: express.Express, cfg: SsrConfig) =>
     app.use("/Service", createProxyMiddleware(options));
 };
 
+
 // 啟動
 const start = async () =>
 {
@@ -931,4 +995,6 @@ const start = async () =>
     });
 };
 
+
 start();
+// #endregion

@@ -1,3 +1,4 @@
+// #region Property
 export interface IMenu_Style
 {
     isUl: boolean;
@@ -5,3 +6,4 @@ export interface IMenu_Style
     ulStyle?: React.CSSProperties;
     li: (lv: number, isFirst: boolean, hasMenu: boolean, isExpanded: boolean) => string;
 }
+// #endregion

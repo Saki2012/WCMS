@@ -8,7 +8,9 @@ import type { components } from "@/types/api";
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 
+// #region Property
 type BannerSet = components["schemas"]["BannerSet_DTO"];
+
 
 type SwiperOptions = {
     direction?: "horizontal" | "vertical";
@@ -21,9 +23,12 @@ type SwiperOptions = {
     grabCursor?: boolean;
 };
 
+
 type SwiperInstance = { destroy: (deleteInstance?: boolean, cleanStyles?: boolean) => void; update?: () => void; };
 
+
 type SwiperConstructor = new(el: Element, options: SwiperOptions) => SwiperInstance;
+
 
 declare global
 {
@@ -32,6 +37,7 @@ declare global
         Swiper?: SwiperConstructor;
     }
 }
+
 
 export interface LinkDataProps
 {
@@ -42,6 +48,60 @@ export interface LinkDataProps
     initialBanner: BannerSet | null;
 }
 
+
+// --------------------
+// Swiper loader（沿用原本邏輯）
+// --------------------
+const ensureSwiper = (() =>
+{
+    let promise: Promise<SwiperConstructor | null> | null = null;
+
+    return () =>
+    {
+        // SSR guard
+        if (typeof window === "undefined") return Promise.resolve(null);
+
+        if (window.Swiper) return Promise.resolve(window.Swiper);
+
+        if (!promise)
+        {
+            promise = (async () =>
+            {
+                const [{ default: jsUrl }, { default: cssUrl }] = await Promise.all([
+                    import("@/Features/Assets/Client/Content/css_import/assets/swiper-11.1.14/swiper-bundle.min.js?url"),
+                    import("@/Features/Assets/Client/Content/css_import/assets/swiper-11.1.14/swiper-bundle.min.css?url"),
+                ]);
+
+                // 插入 CSS
+                if (!document.querySelector(`link[href="${cssUrl}"]`))
+                {
+                    const link = document.createElement("link");
+                    link.rel = "stylesheet";
+                    link.href = cssUrl;
+                    document.head.appendChild(link);
+                }
+
+                // 插入 JS
+                await new Promise<void>((resolve, reject) =>
+                {
+                    const s = document.createElement("script");
+                    s.src = jsUrl;
+                    s.async = true;
+                    s.onload = () => resolve();
+                    s.onerror = () => reject(new Error("Load Swiper failed"));
+                    document.head.appendChild(s);
+                });
+
+                return window.Swiper ?? null;
+            })();
+        }
+
+        return promise;
+    };
+})();
+// #endregion
+
+// #region Public
 export const LinkData = (props: LinkDataProps) =>
 {
     // 宣告變數：adapter（固定一次）
@@ -219,7 +279,9 @@ export const LinkData = (props: LinkDataProps) =>
         </section>
     );
 };
+// #endregion
 
+// #region EntityComp
 // --------------------
 // helpers（避免 effect 過長）
 // --------------------
@@ -235,6 +297,24 @@ const buildQueryDataInitial = (internalId: string, banner: BannerSet | null): Ap
     return { args: internalId, apiRes };
 };
 
+
+const buildSwiperOptions = (els: { nextBtn: Element; prevBtn: Element; paginationEl: Element; }): SwiperOptions =>
+{
+    // return
+    return {
+        direction: "horizontal",
+        slidesPerView: 1,
+        spaceBetween: 0,
+        breakpoints: { 1200: { slidesPerView: 6 }, 992: { slidesPerView: 5 }, 768: { slidesPerView: 4 }, 680: { slidesPerView: 3 }, 480: { slidesPerView: 2 } },
+        navigation: { nextEl: els.nextBtn, prevEl: els.prevBtn },
+        pagination: { el: els.paginationEl, clickable: false },
+        simulateTouch: true,
+        grabCursor: true,
+    };
+};
+// #endregion
+
+// #region Private
 const destroySwiperSafe = (ref: React.MutableRefObject<SwiperInstance | null>) =>
 {
     // 宣告變數
@@ -254,6 +334,7 @@ const destroySwiperSafe = (ref: React.MutableRefObject<SwiperInstance | null>) =
     ref.current = null;
 };
 
+
 const getSwiperElements = (root: Element) =>
 {
     // 宣告變數
@@ -266,69 +347,4 @@ const getSwiperElements = (root: Element) =>
     if (!nextBtn || !prevBtn || !paginationEl || !wrapperEl) return null;
     return { nextBtn, prevBtn, paginationEl };
 };
-
-const buildSwiperOptions = (els: { nextBtn: Element; prevBtn: Element; paginationEl: Element; }): SwiperOptions =>
-{
-    // return
-    return {
-        direction: "horizontal",
-        slidesPerView: 1,
-        spaceBetween: 0,
-        breakpoints: { 1200: { slidesPerView: 6 }, 992: { slidesPerView: 5 }, 768: { slidesPerView: 4 }, 680: { slidesPerView: 3 }, 480: { slidesPerView: 2 } },
-        navigation: { nextEl: els.nextBtn, prevEl: els.prevBtn },
-        pagination: { el: els.paginationEl, clickable: false },
-        simulateTouch: true,
-        grabCursor: true,
-    };
-};
-
-// --------------------
-// Swiper loader（沿用原本邏輯）
-// --------------------
-const ensureSwiper = (() =>
-{
-    let promise: Promise<SwiperConstructor | null> | null = null;
-
-    return () =>
-    {
-        // SSR guard
-        if (typeof window === "undefined") return Promise.resolve(null);
-
-        if (window.Swiper) return Promise.resolve(window.Swiper);
-
-        if (!promise)
-        {
-            promise = (async () =>
-            {
-                const [{ default: jsUrl }, { default: cssUrl }] = await Promise.all([
-                    import("@/Features/Assets/Client/Content/css_import/assets/swiper-11.1.14/swiper-bundle.min.js?url"),
-                    import("@/Features/Assets/Client/Content/css_import/assets/swiper-11.1.14/swiper-bundle.min.css?url"),
-                ]);
-
-                // 插入 CSS
-                if (!document.querySelector(`link[href="${cssUrl}"]`))
-                {
-                    const link = document.createElement("link");
-                    link.rel = "stylesheet";
-                    link.href = cssUrl;
-                    document.head.appendChild(link);
-                }
-
-                // 插入 JS
-                await new Promise<void>((resolve, reject) =>
-                {
-                    const s = document.createElement("script");
-                    s.src = jsUrl;
-                    s.async = true;
-                    s.onload = () => resolve();
-                    s.onerror = () => reject(new Error("Load Swiper failed"));
-                    document.head.appendChild(s);
-                });
-
-                return window.Swiper ?? null;
-            })();
-        }
-
-        return promise;
-    };
-})();
+// #endregion

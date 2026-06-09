@@ -1,9 +1,12 @@
+// #region Property
 interface ILibSelectCardProp
 {
     ColDisplayName: string; // 上方顯示欄位名稱
     children?: React.ReactNode;
 }
+// #endregion
 
+// #region Private
 const LibSelectCard = (prop: ILibSelectCardProp) =>
 {
     return (
@@ -24,4 +27,6 @@ const LibSelectCard = (prop: ILibSelectCardProp) =>
     );
 };
 
+
 export default LibSelectCard;
+// #endregion

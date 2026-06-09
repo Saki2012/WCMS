@@ -1,5 +1,6 @@
 import { type ReactNode, useCallback, useId, useState } from "react";
 
+// #region Property
 export interface SearchBarProps
 {
     /** 標題 */
@@ -18,8 +19,11 @@ export interface SearchBarProps
     onSubmit?: (kw: string) => void;
     onReset?: () => void;
 }
+// #endregion
 
+// #region Public
 export const SEARCH_PARAM = "q" as const;
+
 
 export const LibSearchBar: React.FC<SearchBarProps> = (prop) =>
 {
@@ -82,3 +86,4 @@ export const LibSearchBar: React.FC<SearchBarProps> = (prop) =>
         </form>
     );
 };
+// #endregion

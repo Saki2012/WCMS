@@ -6,6 +6,7 @@ import { useOptionalSpecAssetUrl } from "@/SysCore/Utils/UI_HookFunc/useOptional
 import clsx from "clsx";
 import { useEffect, useState } from "react";
 
+// #region Private
 const NavibarMenu = () =>
 {
     const operateFileUrl = useOptionalSpecAssetUrl({ relativePath: "Assets/Server/後台操作手冊.pdf", fallbackToDefault: true }) ?? "";
@@ -122,4 +123,6 @@ const NavibarMenu = () =>
     );
 };
 
+
 export default NavibarMenu;
+// #endregion

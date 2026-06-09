@@ -1,9 +1,11 @@
+// #region Property
 export interface ILibCalendarStyle
 {
     Labelstyle: string;
     SelectStyle: string;
     OptionsStyle: string;
 }
+
 
 export interface ILibCalendarProp
 {
@@ -12,3 +14,4 @@ export interface ILibCalendarProp
     InputValue?: string;
     onChange?: (val: string) => void;
 }
+// #endregion

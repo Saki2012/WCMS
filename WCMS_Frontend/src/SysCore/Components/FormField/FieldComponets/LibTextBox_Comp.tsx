@@ -1,12 +1,15 @@
 import { useId } from "react";
 import type { ILibTextBoxProp } from "./LibTextBox_Data";
 
+// #region Property
 interface LibTextBoxWithParentClassProp extends ILibTextBoxProp
 {
     parentClass?: string; // 新增
     onBlur?: (e: string) => void;
 }
+// #endregion
 
+// #region Private
 const LibTextBox = (prop: LibTextBoxWithParentClassProp) =>
 {
     const inputId = useId();
@@ -34,4 +37,6 @@ const LibTextBox = (prop: LibTextBoxWithParentClassProp) =>
     );
 };
 
+
 export default LibTextBox;
+// #endregion

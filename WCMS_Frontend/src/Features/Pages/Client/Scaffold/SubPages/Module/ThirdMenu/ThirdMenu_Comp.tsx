@@ -7,6 +7,7 @@ import { useEffect, useRef } from "react";
 import { NavLink } from "react-router-dom";
 import "./ThirdMenu.css";
 
+// #region Public
 export const ThirdMenu_Comp = (props: { lang: Lang; site: INormSite; node: INormNode; backHref?: string; }) =>
 {
     const SIDE_MAX_DEPTH = 3;
@@ -60,7 +61,9 @@ export const ThirdMenu_Comp = (props: { lang: Lang; site: INormSite; node: INorm
         </>
     );
 };
+// #endregion
 
+// #region Private
 const getAncestorAtLevel = (lang: Lang, site: INormSite, node: INormNode, level: number): INormNode | undefined =>
 {
     const roots = site.treeByLang?.[lang] ?? [];
@@ -83,3 +86,4 @@ const getAncestorAtLevel = (lang: Lang, site: INormSite, node: INormNode, level:
     // 若實際深度不夠，回傳最接近的（最後找到的）節點
     return undefined;
 };
+// #endregion

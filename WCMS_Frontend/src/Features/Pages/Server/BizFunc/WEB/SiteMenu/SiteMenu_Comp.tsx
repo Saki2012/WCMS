@@ -8,6 +8,7 @@ import { type SiteMenuEditTarget, useSiteMenuFetchData } from "./SiteMenu_Hook";
 import { RenderLeftBox } from "./SubComponents/RenderLeftBox_Comp";
 import { RenderRightBox } from "./SubComponents/RenderRightBox_Comp";
 
+// #region Public
 export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang; }) =>
 {
     const getData = useSiteMenuFetchData({ lang: prop.lang });
@@ -50,3 +51,4 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang; }) =>
         </FormComp>
     );
 };
+// #endregion

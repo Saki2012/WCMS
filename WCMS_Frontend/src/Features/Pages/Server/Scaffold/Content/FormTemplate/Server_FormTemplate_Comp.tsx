@@ -10,11 +10,13 @@ import type {
     ServerFormTemplateViewModel,
 } from "./Server_FormTemplate_Hook";
 
+// #region Property
 export interface ServerFormTemplateRenderProps<TSet, TAdapter, TRefs = unknown, TRawData = ServerFormDefaultRawData<TSet, TRefs>, TActionOpt = ServerFormBaseActionOptions>
 {
     /** Form Template 統一產生的 ViewModel */
     vm: ServerFormTemplateViewModel<TSet, TAdapter, TRefs, TRawData, TActionOpt>;
 }
+
 
 export interface ServerFormTemplateCompProps<TSet, TAdapter, TRefs = unknown, TRawData = ServerFormDefaultRawData<TSet, TRefs>, TActionOpt = ServerFormBaseActionOptions>
 {
@@ -30,7 +32,9 @@ export interface ServerFormTemplateCompProps<TSet, TAdapter, TRefs = unknown, TR
     /** Toolbar 後方額外內容，例如 debug 或特殊操作 */
     renderAfterToolbar?: (props: ServerFormTemplateRenderProps<TSet, TAdapter, TRefs, TRawData, TActionOpt>) => ReactNode;
 }
+// #endregion
 
+// #region Public
 /** 後台 Form 標準板模，統一處理資料流程、Loading/Error、內容插槽與 Form Toolbar */
 export const Server_FormTemplate_Comp = <TSet, TAdapter, TRefs = unknown, TRawData = ServerFormDefaultRawData<TSet, TRefs>, TActionOpt = ServerFormBaseActionOptions>(
     props: ServerFormTemplateCompProps<TSet, TAdapter, TRefs, TRawData, TActionOpt>,
@@ -74,3 +78,4 @@ export const Server_FormTemplate_Comp = <TSet, TAdapter, TRefs = unknown, TRawDa
         </div>
     );
 };
+// #endregion

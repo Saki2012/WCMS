@@ -1,4 +1,3 @@
-//#region Property
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import { SpecJournalKeywordSearch_Comp } from "@/SpecFetures/1819/Pages/Client/BizFunc/WEB/SpecJournal/SpecJournalKeywordSearchComp";
@@ -10,26 +9,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useSpecJournalIndexData } from "./SpecJournalIndex_Loader";
 
+// #region Property
 type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
-/** ===== Helpers (放 component 外面，方便 code review 後續整理) ===== */
 
 
-//#endregion
+const ACCORDION_ANIMATION_MS = 280;
+// #endregion
 
-//#region Private - Accordion Helpers
-const buildCollapseIds = (year: string) =>
-{
-    // 宣告變數
-    const collapseId = `collapse-${year}`;
-    const headerId = `heading-${year}`;
-    // return
-    return { collapseId, headerId };
-};
-
-
-//#endregion
-
-//#region Public
+// #region Public
 export const SpecJournalIndex = (props: { site: INormSite; node: INormNode; lang: Lang; }) =>
 {
     const pageSize = 10;
@@ -50,11 +37,24 @@ export const SpecJournalIndex = (props: { site: INormSite; node: INormNode; lang
         </ModuleContent>
     );
 };
+// #endregion
+
+// #region EntityComp
+/** ===== Helpers (放 component 外面，方便 code review 後續整理) ===== */
 
 
-//#endregion
 
-//#region Private - Accordion Helpers
+const buildCollapseIds = (year: string) =>
+{
+    // 宣告變數
+    const collapseId = `collapse-${year}`;
+    const headerId = `heading-${year}`;
+    // return
+    return { collapseId, headerId };
+};
+// #endregion
+
+// #region Private
 const handleAccordionKeyDown = (e: React.KeyboardEvent<HTMLAnchorElement>, onToggle: () => void): void =>
 {
     if (e.key !== "Enter" && e.key !== " " && e.key !== "Spacebar") return;
@@ -62,7 +62,6 @@ const handleAccordionKeyDown = (e: React.KeyboardEvent<HTMLAnchorElement>, onTog
     onToggle();
 };
 
-const ACCORDION_ANIMATION_MS = 280;
 
 const stopAccordionTimer = (el: HTMLDivElement): void =>
 {
@@ -73,6 +72,7 @@ const stopAccordionTimer = (el: HTMLDivElement): void =>
     // 執行 function：清掉暫存 timer
     delete el.dataset.timerId;
 };
+
 
 const syncAccordionPanel = (el: HTMLDivElement, isOpen: boolean): void =>
 {
@@ -86,6 +86,7 @@ const syncAccordionPanel = (el: HTMLDivElement, isOpen: boolean): void =>
     el.style.opacity = "";
     el.style.display = isOpen ? "block" : "none";
 };
+
 
 const animateAccordionPanel = (el: HTMLDivElement, isOpen: boolean): void =>
 {
@@ -160,9 +161,8 @@ const animateAccordionPanel = (el: HTMLDivElement, isOpen: boolean): void =>
 };
 
 
-//#endregion
 
-//#region Section
+
 const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalIndexSet[]; lang: Lang; }) =>
 {
     // 宣告變數：目前開啟中的 IndexId
@@ -372,4 +372,4 @@ const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalInde
         </div>
     );
 };
-//#endregion
+// #endregion

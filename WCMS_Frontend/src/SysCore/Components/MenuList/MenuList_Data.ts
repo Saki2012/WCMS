@@ -1,6 +1,7 @@
 /** 清單 */
 import type { ReactNode } from "react";
 
+// #region Property
 export interface MenuItemData
 {
     /** 項目主鍵 */
@@ -18,3 +19,4 @@ export interface MenuItemData
     /** 動態DOM欄位資料處理與渲染。取得資料後在此做動態邏輯渲染 */
     DOMContent?: ReactNode;
 }
+// #endregion

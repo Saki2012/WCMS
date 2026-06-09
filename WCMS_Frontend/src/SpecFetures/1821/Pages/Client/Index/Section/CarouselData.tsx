@@ -9,17 +9,11 @@ import type { components } from "@/types/api";
 import clsx from "clsx";
 import { useMemo } from "react";
 
+// #region Property
 type BannerSet = components["schemas"]["BannerSet_DTO"];
+// #endregion
 
-const toOkEnv = <T,>(data: T): ApiResponse<T> =>
-{
-    return { IsSuccess: true, SysMessage: [], Data: data };
-};
-const toInitial = <TArgs, TData>(args: TArgs, data: TData): ApiLoaderData<TArgs, TData> =>
-{
-    return { args, apiRes: toOkEnv(data) };
-};
-
+// #region Public
 export const CarouselData = (props: { lang: Lang; internalId: string; initialBanner: BannerSet | null; }) =>
 {
     const adapter = useMemo(() => BannerSliderAdapter(), []);
@@ -182,3 +176,16 @@ export const CarouselData = (props: { lang: Lang; internalId: string; initialBan
         </section>
     );
 };
+// #endregion
+
+// #region Private
+const toOkEnv = <T,>(data: T): ApiResponse<T> =>
+{
+    return { IsSuccess: true, SysMessage: [], Data: data };
+};
+
+const toInitial = <TArgs, TData>(args: TArgs, data: TData): ApiLoaderData<TArgs, TData> =>
+{
+    return { args, apiRes: toOkEnv(data) };
+};
+// #endregion

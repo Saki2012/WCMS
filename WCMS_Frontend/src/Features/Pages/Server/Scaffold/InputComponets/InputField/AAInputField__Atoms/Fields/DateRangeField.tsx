@@ -5,6 +5,11 @@ import { FieldControlShell } from "../AAInputField_Shell";
 import { applyAAFocusStyle, clearAAFocusStyle, handleCalendarDayKeyDown } from "../AAInputField_Focus";
 import { buildControlClass, buildDescribedBy, getAriaInvalid, getAriaRequired, getNativeRequired, toStringArray } from "../AAInputField_Utils";
 
+// #region Property
+export interface DateRangeValue { startDate: string; endDate: string; }
+// #endregion
+
+// #region Public
 /**
  * 使用範例：
  * <AAInputFieldList fields={[{ key: "dateRange", type: "dateRange", label: "日期區間", aaLabel: "請選擇日期區間", value: state.dateRange }]} onChange={handleChange} />
@@ -101,171 +106,6 @@ export const DateRangeField = (props: { field: AAInputField; context: FieldRende
 };
 
 
-/** 讓 trigger 的 Tab 進入 Portal 浮層內容，避免因 Portal DOM 順序跳過日曆。 */
-const handleDatePortalTriggerKeyDown = (
-    event: KeyboardEvent<HTMLInputElement>,
-    isOpen: boolean,
-    wrapperRef: RefObject<HTMLDivElement>,
-    popupRef: RefObject<HTMLDivElement>,
-    openPicker: () => void,
-    closePicker: () => void,
-) =>
-{
-    if (event.key === "Escape" && isOpen)
-    {
-        event.preventDefault();
-        closePicker();
-        focusPortalAnchor(wrapperRef.current);
-        return;
-    }
-
-    if (event.key === "Enter" || event.key === " " || event.key === "ArrowDown")
-    {
-        event.preventDefault();
-        openPicker();
-        focusFirstPortalElement(popupRef);
-        return;
-    }
-
-    if (event.key === "Tab" && isOpen && !event.shiftKey)
-    {
-        event.preventDefault();
-        focusFirstPortalElement(popupRef);
-    }
-};
-
-/** 控制 Portal 浮層內 Tab 離開時回到原表單流程，而不是跳到 body 結尾。 */
-const handleDatePortalPopupKeyDown = (
-    event: KeyboardEvent<HTMLDivElement>,
-    wrapperRef: RefObject<HTMLDivElement> | undefined,
-    popupRef: RefObject<HTMLDivElement>,
-    closePicker: () => void,
-) =>
-{
-    if (event.key === "Escape")
-    {
-        event.preventDefault();
-        closePicker();
-        focusPortalAnchor(wrapperRef?.current);
-        return;
-    }
-
-    if (event.key !== "Tab" || !isBrowserDocumentReady()) return;
-
-    const focusableList = getPortalFocusableElements(popupRef.current);
-    if (focusableList.length === 0) return;
-
-    const activeElement = document.activeElement as HTMLElement | null;
-    const firstElement = focusableList[0];
-    const lastElement = focusableList[focusableList.length - 1];
-
-    if (event.shiftKey && activeElement === firstElement)
-    {
-        event.preventDefault();
-        closePicker();
-        focusLastBeforeElement(wrapperRef?.current);
-        return;
-    }
-
-    if (!event.shiftKey && activeElement === lastElement)
-    {
-        event.preventDefault();
-        closePicker();
-        focusFirstAfterElement(wrapperRef?.current);
-    }
-};
-
-/** ESC 關閉 Portal 後，將 focus 回到原本開啟 popup 的欄位。 */
-const focusPortalAnchor = (anchor: HTMLElement | null | undefined) =>
-{
-    if (!anchor || !isBrowserDocumentReady()) return;
-
-    const focusableList = getPortalFocusableElements(anchor);
-    focusElementWithoutScroll(focusableList[0] ?? anchor);
-};
-
-/** 將 focus 移到 Portal 內第一個可操作元素。 */
-const focusFirstPortalElement = (popupRef: RefObject<HTMLDivElement>) =>
-{
-    if (!isBrowserDocumentReady()) return;
-
-    focusFirstPortalElementWithRetry(popupRef, 0);
-};
-
-/** Portal render 需要等待 React commit，最多重試數次以確保 Enter 後能進入 popup。 */
-const focusFirstPortalElementWithRetry = (popupRef: RefObject<HTMLDivElement>, retryCount: number) =>
-{
-    window.requestAnimationFrame(() =>
-    {
-        const firstElement = getPortalFocusableElements(popupRef.current)[0];
-        if (firstElement) { focusElementWithoutScroll(firstElement); return; }
-        if (retryCount < 5) focusFirstPortalElementWithRetry(popupRef, retryCount + 1);
-    });
-};
-
-/** focus 元素但避免瀏覽器自動捲動頁面。 */
-const focusElementWithoutScroll = (element: HTMLElement | null | undefined) =>
-{
-    if (!element) return;
-    element.focus({ preventScroll: true });
-};
-
-/** 取得可被鍵盤 focus 的元素。 */
-const getPortalFocusableElements = (root: ParentNode | null) =>
-{
-    if (!root) return [] as HTMLElement[];
-
-    return Array.from(root.querySelectorAll<HTMLElement>(getPortalFocusableSelector()))
-        .filter((element) => !element.hasAttribute("disabled") && element.getAttribute("aria-hidden") !== "true" && element.tabIndex !== -1 && !isHiddenInputElement(element) && isElementVisible(element));
-};
-
-/** 取得可被鍵盤 focus 的 selector。 */
-const getPortalFocusableSelector = () => [
-    "a[href]",
-    "button",
-    "input",
-    "select",
-    "textarea",
-    "[tabindex]",
-    "[role='button']",
-    "[role='option']",
-    "[role='combobox']",
-].join(", ");
-
-/** focus 到指定元素後方的下一個可操作元素。 */
-const focusFirstAfterElement = (anchor: HTMLElement | null | undefined) =>
-{
-    if (!anchor || !isBrowserDocumentReady()) return;
-
-    const focusableList = getPortalFocusableElements(document.body);
-    const anchorIndex = focusableList.findIndex((element) => element === anchor || anchor.contains(element));
-    focusElementWithoutScroll(focusableList.slice(anchorIndex + 1).find((element) => !anchor.contains(element)));
-};
-
-/** focus 到指定元素前方的上一個可操作元素。 */
-const focusLastBeforeElement = (anchor: HTMLElement | null | undefined) =>
-{
-    if (!anchor || !isBrowserDocumentReady()) return;
-
-    const focusableList = getPortalFocusableElements(document.body);
-    const anchorIndex = focusableList.findIndex((element) => element === anchor || anchor.contains(element));
-    const previousList = anchorIndex <= 0 ? [] : focusableList.slice(0, anchorIndex).reverse();
-    focusElementWithoutScroll(previousList.find((element) => !anchor.contains(element)));
-};
-
-/** 排除 hidden input，避免 Tab 離開 Portal 後回到錯誤位置。 */
-const isHiddenInputElement = (element: HTMLElement) =>
-{
-    return element instanceof HTMLInputElement && element.type === "hidden";
-};
-
-/** 判斷元素目前是否可視。 */
-const isElementVisible = (element: HTMLElement) =>
-{
-    const style = window.getComputedStyle(element);
-    return style.visibility !== "hidden" && style.display !== "none";
-};
-
 /** 渲染日期區間下拉日曆。 */
 export const renderDateRangeDropdown = (
     field: AAInputField,
@@ -309,6 +149,7 @@ export const renderDateRangeDropdown = (
     );
 };
 
+
 /** 渲染單一月份日曆。 */
 export const renderDateRangeMonth = (monthStart: string, range: DateRangeValue, selectDate: (date: string) => void) =>
 {
@@ -331,6 +172,141 @@ export const renderDateRangeMonth = (monthStart: string, range: DateRangeValue, 
     );
 };
 
+
+/** 取得日期區間值，固定回傳 startDate/endDate 兩個欄位。 */
+export const getDateRangeValue = (value: AAInputValue): DateRangeValue =>
+{
+    const valueList = toStringArray(value);
+    return { startDate: isValidIsoDate(valueList[0] ?? "") ? valueList[0] : "", endDate: isValidIsoDate(valueList[1] ?? "") ? valueList[1] : "" };
+};
+
+
+/** 正規化 dateRange 值，讓 SSR/CSR 都收到固定陣列格式。 */
+export const normalizeDateRangeValue = (value: AAInputValue): string[] =>
+{
+    const range = getDateRangeValue(value);
+    return range.startDate || range.endDate ? [range.startDate, range.endDate] : [];
+};
+
+
+/** 正規化日期區間初始月份，可由 loader/adapter 傳入避免 SSR/CSR 對今日日期判讀不同。 */
+export const normalizeDateRangeBaseDate = (value: string | undefined, fieldValue: AAInputValue) =>
+{
+    if (isValidIsoDate(value ?? "")) return toDateRangeMonthStart(value ?? "");
+    const range = getDateRangeValue(fieldValue);
+    if (range.startDate) return toDateRangeMonthStart(range.startDate);
+    if (range.endDate) return toDateRangeMonthStart(range.endDate);
+    return undefined;
+};
+
+
+/** 取得初始渲染月份。 */
+export const getInitialDateRangeViewMonth = (range: DateRangeValue, calendarBaseDate?: string) =>
+{
+    if (range.startDate) return toDateRangeMonthStart(range.startDate);
+    if (range.endDate) return toDateRangeMonthStart(range.endDate);
+    if (isValidIsoDate(calendarBaseDate ?? "")) return toDateRangeMonthStart(calendarBaseDate ?? "");
+    return "2000-01-01";
+};
+
+
+/** 開啟時取得顯示月份。 */
+export const getOpenDateRangeViewMonth = (range: DateRangeValue, calendarBaseDate?: string) =>
+{
+    if (range.startDate) return toDateRangeMonthStart(range.startDate);
+    if (range.endDate) return toDateRangeMonthStart(range.endDate);
+    if (isValidIsoDate(calendarBaseDate ?? "")) return toDateRangeMonthStart(calendarBaseDate ?? "");
+    return toDateRangeMonthStart(getLocalTodayIsoDate());
+};
+
+
+/** 鍵盤開關日期區間選單。 */
+export const handleDateRangeInputKeyDown = (event: KeyboardEvent<HTMLInputElement>, openDateRange: () => void, closeDateRange: () => void) =>
+{
+    if (event.key === "Enter" || event.key === " " || event.key === "ArrowDown") { event.preventDefault(); openDateRange(); return; }
+    if (event.key === "Escape") { event.preventDefault(); closeDateRange(); return; }
+    if (isDateRangeEditKey(event.key)) event.preventDefault();
+};
+
+
+/** 依目前日期區間與點選日期決定下一組區間值。 */
+export const getNextDateRangeValue = (range: DateRangeValue, date: string): DateRangeValue =>
+{
+    if (!range.startDate || range.endDate) return { startDate: date, endDate: "" };
+    if (date < range.startDate) return { startDate: date, endDate: range.startDate };
+    return { startDate: range.startDate, endDate: date };
+};
+
+
+/** 短日期顯示文字。 */
+export const formatShortIsoDateText = (date: string) =>
+{
+    const parts = getIsoDateParts(date);
+    return parts ? `${parts.year}/${String(parts.month).padStart(2, "0")}/${String(parts.day).padStart(2, "0")} (${getWeekdayText(date)})` : "";
+};
+
+
+/** 完整日期朗讀文字。 */
+export const formatFullIsoDateText = (date: string) =>
+{
+    const parts = getIsoDateParts(date);
+    return parts ? `${parts.year} 年 ${parts.month} 月 ${parts.day} 日 星期${getWeekdayText(date)}` : "";
+};
+
+
+/** 取得星期文字。 */
+export const getWeekdayText = (date: string) =>
+{
+    const parts = getIsoDateParts(date);
+    if (!parts) return "";
+    return ["日", "一", "二", "三", "四", "五", "六"][new Date(parts.year, parts.month - 1, parts.day).getDay()];
+};
+
+
+/** 增減月份。 */
+export const addDateRangeMonths = (monthStart: string, count: number) =>
+{
+    const parts = getIsoDateParts(monthStart) ?? { year: 2000, month: 1, day: 1 };
+    const date = new Date(parts.year, parts.month - 1 + count, 1);
+    return buildIsoDate(date.getFullYear(), date.getMonth() + 1, 1);
+};
+
+
+/** 轉成月份第一天。 */
+export const toDateRangeMonthStart = (date: string) =>
+{
+    const parts = getIsoDateParts(date);
+    return parts ? buildIsoDate(parts.year, parts.month, 1) : "2000-01-01";
+};
+
+
+/** 檢查 ISO 日期是否有效。 */
+export const isValidIsoDate = (value: string) =>
+{
+    const parts = getIsoDateParts(value);
+    if (!parts) return false;
+    return parts.day >= 1 && parts.day <= getDateRangeDaysInMonth(parts.year, parts.month);
+};
+
+
+/** 解析 yyyy-MM-dd。 */
+export const getIsoDateParts = (value: string) =>
+{
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+    if (!match) return null;
+    const year = Number(match[1]);
+    const month = Number(match[2]);
+    const day = Number(match[3]);
+    if (month < 1 || month > 12) return null;
+    return { year, month, day };
+};
+
+
+/** 建立 yyyy-MM-dd。 */
+export const buildIsoDate = (year: number, month: number, day: number) => `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+// #endregion
+
+// #region EntityComp
 /** 渲染日期格。 */
 const renderDateRangeDayCell = (date: string, key: string, range: DateRangeValue, selectDate: (date: string) => void) =>
 {
@@ -356,51 +332,6 @@ const renderDateRangeDayCell = (date: string, key: string, range: DateRangeValue
     );
 };
 
-
-/** 綁定自製日期選擇器的外部點擊，Portal 面板與原 input 都視為內部。 */
-const bindDatePickerPortalOutsideClick = (
-    isOpen: boolean,
-    wrapperRef: RefObject<HTMLDivElement>,
-    popupRef: RefObject<HTMLDivElement>,
-    closePicker: () => void,
-) =>
-{
-    if (!isOpen || !isBrowserDocumentReady()) return;
-
-    const handleMouseDown = (event: MouseEvent) =>
-    {
-        const target = event.target as Node | null;
-        if (!target) return;
-        if (wrapperRef.current?.contains(target) || popupRef.current?.contains(target)) return;
-        closePicker();
-    };
-
-    document.addEventListener("mousedown", handleMouseDown, true);
-    return () => document.removeEventListener("mousedown", handleMouseDown, true);
-};
-
-/** 綁定 Portal 面板定位，讓日期區間可浮在表格與 overflow 容器上方。 */
-const bindDatePickerPortalPosition = (
-    isOpen: boolean,
-    wrapperRef: RefObject<HTMLDivElement>,
-    popupRef: RefObject<HTMLDivElement>,
-    setPopupStyle: (style: CSSProperties) => void,
-) =>
-{
-    if (!isOpen || !isBrowserDocumentReady()) return;
-
-    const updatePosition = () => setPopupStyle(buildDatePickerPortalStyle(wrapperRef.current, popupRef.current));
-    updatePosition();
-
-    window.addEventListener("resize", updatePosition);
-    window.addEventListener("scroll", updatePosition, true);
-
-    return () =>
-    {
-        window.removeEventListener("resize", updatePosition);
-        window.removeEventListener("scroll", updatePosition, true);
-    };
-};
 
 /** 產生 fixed 浮層位置，避免被 table/td/overflow 裁切。 */
 const buildDatePickerPortalStyle = (anchor: HTMLDivElement | null, popup: HTMLDivElement | null): CSSProperties =>
@@ -435,90 +366,6 @@ const buildDatePickerPortalStyle = (anchor: HTMLDivElement | null, popup: HTMLDi
     };
 };
 
-/** focus 離開 input 與 Portal 面板後關閉日期選擇器。 */
-const closeDatePickerWhenPortalFocusLeaves = (
-    event: FocusEvent<HTMLDivElement>,
-    wrapperRef: RefObject<HTMLDivElement> | undefined,
-    popupRef: RefObject<HTMLDivElement>,
-    closePicker: () => void,
-) =>
-{
-    if (!isBrowserDocumentReady()) return;
-
-    window.requestAnimationFrame(() =>
-    {
-        const activeElement = document.activeElement;
-        if (!activeElement) { closePicker(); return; }
-        if (wrapperRef?.current?.contains(activeElement) || popupRef.current?.contains(activeElement)) return;
-        closePicker();
-    });
-};
-
-/** 確認目前可使用 document，避免 SSR render 階段碰到 browser API。 */
-const isBrowserDocumentReady = () => typeof document !== "undefined" && typeof window !== "undefined";
-
-export interface DateRangeValue { startDate: string; endDate: string; }
-
-/** 取得日期區間值，固定回傳 startDate/endDate 兩個欄位。 */
-export const getDateRangeValue = (value: AAInputValue): DateRangeValue =>
-{
-    const valueList = toStringArray(value);
-    return { startDate: isValidIsoDate(valueList[0] ?? "") ? valueList[0] : "", endDate: isValidIsoDate(valueList[1] ?? "") ? valueList[1] : "" };
-};
-
-/** 正規化 dateRange 值，讓 SSR/CSR 都收到固定陣列格式。 */
-export const normalizeDateRangeValue = (value: AAInputValue): string[] =>
-{
-    const range = getDateRangeValue(value);
-    return range.startDate || range.endDate ? [range.startDate, range.endDate] : [];
-};
-
-/** 正規化日期區間初始月份，可由 loader/adapter 傳入避免 SSR/CSR 對今日日期判讀不同。 */
-export const normalizeDateRangeBaseDate = (value: string | undefined, fieldValue: AAInputValue) =>
-{
-    if (isValidIsoDate(value ?? "")) return toDateRangeMonthStart(value ?? "");
-    const range = getDateRangeValue(fieldValue);
-    if (range.startDate) return toDateRangeMonthStart(range.startDate);
-    if (range.endDate) return toDateRangeMonthStart(range.endDate);
-    return undefined;
-};
-
-/** 取得初始渲染月份。 */
-export const getInitialDateRangeViewMonth = (range: DateRangeValue, calendarBaseDate?: string) =>
-{
-    if (range.startDate) return toDateRangeMonthStart(range.startDate);
-    if (range.endDate) return toDateRangeMonthStart(range.endDate);
-    if (isValidIsoDate(calendarBaseDate ?? "")) return toDateRangeMonthStart(calendarBaseDate ?? "");
-    return "2000-01-01";
-};
-
-/** 開啟時取得顯示月份。 */
-export const getOpenDateRangeViewMonth = (range: DateRangeValue, calendarBaseDate?: string) =>
-{
-    if (range.startDate) return toDateRangeMonthStart(range.startDate);
-    if (range.endDate) return toDateRangeMonthStart(range.endDate);
-    if (isValidIsoDate(calendarBaseDate ?? "")) return toDateRangeMonthStart(calendarBaseDate ?? "");
-    return toDateRangeMonthStart(getLocalTodayIsoDate());
-};
-
-/** 鍵盤開關日期區間選單。 */
-export const handleDateRangeInputKeyDown = (event: KeyboardEvent<HTMLInputElement>, openDateRange: () => void, closeDateRange: () => void) =>
-{
-    if (event.key === "Enter" || event.key === " " || event.key === "ArrowDown") { event.preventDefault(); openDateRange(); return; }
-    if (event.key === "Escape") { event.preventDefault(); closeDateRange(); return; }
-    if (isDateRangeEditKey(event.key)) event.preventDefault();
-};
-
-/** 阻擋使用者直接修改顯示框內容，只允許透過日期選擇器更新值。 */
-const isDateRangeEditKey = (key: string) => key.length === 1 || key === "Backspace" || key === "Delete";
-
-/** 依目前日期區間與點選日期決定下一組區間值。 */
-export const getNextDateRangeValue = (range: DateRangeValue, date: string): DateRangeValue =>
-{
-    if (!range.startDate || range.endDate) return { startDate: date, endDate: "" };
-    if (date < range.startDate) return { startDate: date, endDate: range.startDate };
-    return { startDate: range.startDate, endDate: date };
-};
 
 /** 建立月份日曆列。 */
 const buildDateRangeCalendarRows = (monthStart: string) =>
@@ -545,6 +392,7 @@ const buildDateRangeCalendarRows = (monthStart: string) =>
     return rows;
 };
 
+
 /** 建立日期按鈕樣式。 */
 const buildDateRangeDayClass = (date: string, range: DateRangeValue) =>
 {
@@ -554,6 +402,7 @@ const buildDateRangeDayClass = (date: string, range: DateRangeValue) =>
     else classList.push("btn-light", "border-0");
     return classList.join(" ");
 };
+
 
 /** 建立日期按鈕朗讀文字。 */
 const buildDateRangeDayAriaLabel = (date: string, range: DateRangeValue) =>
@@ -566,11 +415,281 @@ const buildDateRangeDayAriaLabel = (date: string, range: DateRangeValue) =>
     return `選擇 ${text}`;
 };
 
+
+/** 日期區間操作回饋文字。 */
+const buildDateRangeAnnounceText = (range: DateRangeValue) => range.endDate ? `已選取日期區間：${formatFullIsoDateText(range.startDate)} 至 ${formatFullIsoDateText(range.endDate)}` : `已選取開始日期：${formatFullIsoDateText(range.startDate)}`;
+
+
+/** 建立輸入框顯示文字。 */
+const buildDateRangeDisplayText = (range: DateRangeValue) =>
+{
+    if (range.startDate && range.endDate) return `${formatShortIsoDateText(range.startDate)} ~ ${formatShortIsoDateText(range.endDate)}`;
+    if (range.startDate) return `${formatShortIsoDateText(range.startDate)} ~ 請選擇結束日`;
+    return "";
+};
+// #endregion
+
+// #region Private
+/** 讓 trigger 的 Tab 進入 Portal 浮層內容，避免因 Portal DOM 順序跳過日曆。 */
+const handleDatePortalTriggerKeyDown = (
+    event: KeyboardEvent<HTMLInputElement>,
+    isOpen: boolean,
+    wrapperRef: RefObject<HTMLDivElement>,
+    popupRef: RefObject<HTMLDivElement>,
+    openPicker: () => void,
+    closePicker: () => void,
+) =>
+{
+    if (event.key === "Escape" && isOpen)
+    {
+        event.preventDefault();
+        closePicker();
+        focusPortalAnchor(wrapperRef.current);
+        return;
+    }
+
+    if (event.key === "Enter" || event.key === " " || event.key === "ArrowDown")
+    {
+        event.preventDefault();
+        openPicker();
+        focusFirstPortalElement(popupRef);
+        return;
+    }
+
+    if (event.key === "Tab" && isOpen && !event.shiftKey)
+    {
+        event.preventDefault();
+        focusFirstPortalElement(popupRef);
+    }
+};
+
+
+/** 控制 Portal 浮層內 Tab 離開時回到原表單流程，而不是跳到 body 結尾。 */
+const handleDatePortalPopupKeyDown = (
+    event: KeyboardEvent<HTMLDivElement>,
+    wrapperRef: RefObject<HTMLDivElement> | undefined,
+    popupRef: RefObject<HTMLDivElement>,
+    closePicker: () => void,
+) =>
+{
+    if (event.key === "Escape")
+    {
+        event.preventDefault();
+        closePicker();
+        focusPortalAnchor(wrapperRef?.current);
+        return;
+    }
+
+    if (event.key !== "Tab" || !isBrowserDocumentReady()) return;
+
+    const focusableList = getPortalFocusableElements(popupRef.current);
+    if (focusableList.length === 0) return;
+
+    const activeElement = document.activeElement as HTMLElement | null;
+    const firstElement = focusableList[0];
+    const lastElement = focusableList[focusableList.length - 1];
+
+    if (event.shiftKey && activeElement === firstElement)
+    {
+        event.preventDefault();
+        closePicker();
+        focusLastBeforeElement(wrapperRef?.current);
+        return;
+    }
+
+    if (!event.shiftKey && activeElement === lastElement)
+    {
+        event.preventDefault();
+        closePicker();
+        focusFirstAfterElement(wrapperRef?.current);
+    }
+};
+
+
+/** ESC 關閉 Portal 後，將 focus 回到原本開啟 popup 的欄位。 */
+const focusPortalAnchor = (anchor: HTMLElement | null | undefined) =>
+{
+    if (!anchor || !isBrowserDocumentReady()) return;
+
+    const focusableList = getPortalFocusableElements(anchor);
+    focusElementWithoutScroll(focusableList[0] ?? anchor);
+};
+
+
+/** 將 focus 移到 Portal 內第一個可操作元素。 */
+const focusFirstPortalElement = (popupRef: RefObject<HTMLDivElement>) =>
+{
+    if (!isBrowserDocumentReady()) return;
+
+    focusFirstPortalElementWithRetry(popupRef, 0);
+};
+
+
+/** Portal render 需要等待 React commit，最多重試數次以確保 Enter 後能進入 popup。 */
+const focusFirstPortalElementWithRetry = (popupRef: RefObject<HTMLDivElement>, retryCount: number) =>
+{
+    window.requestAnimationFrame(() =>
+    {
+        const firstElement = getPortalFocusableElements(popupRef.current)[0];
+        if (firstElement) { focusElementWithoutScroll(firstElement); return; }
+        if (retryCount < 5) focusFirstPortalElementWithRetry(popupRef, retryCount + 1);
+    });
+};
+
+
+/** focus 元素但避免瀏覽器自動捲動頁面。 */
+const focusElementWithoutScroll = (element: HTMLElement | null | undefined) =>
+{
+    if (!element) return;
+    element.focus({ preventScroll: true });
+};
+
+
+/** 取得可被鍵盤 focus 的元素。 */
+const getPortalFocusableElements = (root: ParentNode | null) =>
+{
+    if (!root) return [] as HTMLElement[];
+
+    return Array.from(root.querySelectorAll<HTMLElement>(getPortalFocusableSelector()))
+        .filter((element) => !element.hasAttribute("disabled") && element.getAttribute("aria-hidden") !== "true" && element.tabIndex !== -1 && !isHiddenInputElement(element) && isElementVisible(element));
+};
+
+
+/** 取得可被鍵盤 focus 的 selector。 */
+const getPortalFocusableSelector = () => [
+    "a[href]",
+    "button",
+    "input",
+    "select",
+    "textarea",
+    "[tabindex]",
+    "[role='button']",
+    "[role='option']",
+    "[role='combobox']",
+].join(", ");
+
+
+/** focus 到指定元素後方的下一個可操作元素。 */
+const focusFirstAfterElement = (anchor: HTMLElement | null | undefined) =>
+{
+    if (!anchor || !isBrowserDocumentReady()) return;
+
+    const focusableList = getPortalFocusableElements(document.body);
+    const anchorIndex = focusableList.findIndex((element) => element === anchor || anchor.contains(element));
+    focusElementWithoutScroll(focusableList.slice(anchorIndex + 1).find((element) => !anchor.contains(element)));
+};
+
+
+/** focus 到指定元素前方的上一個可操作元素。 */
+const focusLastBeforeElement = (anchor: HTMLElement | null | undefined) =>
+{
+    if (!anchor || !isBrowserDocumentReady()) return;
+
+    const focusableList = getPortalFocusableElements(document.body);
+    const anchorIndex = focusableList.findIndex((element) => element === anchor || anchor.contains(element));
+    const previousList = anchorIndex <= 0 ? [] : focusableList.slice(0, anchorIndex).reverse();
+    focusElementWithoutScroll(previousList.find((element) => !anchor.contains(element)));
+};
+
+
+/** 排除 hidden input，避免 Tab 離開 Portal 後回到錯誤位置。 */
+const isHiddenInputElement = (element: HTMLElement) =>
+{
+    return element instanceof HTMLInputElement && element.type === "hidden";
+};
+
+
+/** 判斷元素目前是否可視。 */
+const isElementVisible = (element: HTMLElement) =>
+{
+    const style = window.getComputedStyle(element);
+    return style.visibility !== "hidden" && style.display !== "none";
+};
+
+
+
+/** 綁定自製日期選擇器的外部點擊，Portal 面板與原 input 都視為內部。 */
+const bindDatePickerPortalOutsideClick = (
+    isOpen: boolean,
+    wrapperRef: RefObject<HTMLDivElement>,
+    popupRef: RefObject<HTMLDivElement>,
+    closePicker: () => void,
+) =>
+{
+    if (!isOpen || !isBrowserDocumentReady()) return;
+
+    const handleMouseDown = (event: MouseEvent) =>
+    {
+        const target = event.target as Node | null;
+        if (!target) return;
+        if (wrapperRef.current?.contains(target) || popupRef.current?.contains(target)) return;
+        closePicker();
+    };
+
+    document.addEventListener("mousedown", handleMouseDown, true);
+    return () => document.removeEventListener("mousedown", handleMouseDown, true);
+};
+
+
+/** 綁定 Portal 面板定位，讓日期區間可浮在表格與 overflow 容器上方。 */
+const bindDatePickerPortalPosition = (
+    isOpen: boolean,
+    wrapperRef: RefObject<HTMLDivElement>,
+    popupRef: RefObject<HTMLDivElement>,
+    setPopupStyle: (style: CSSProperties) => void,
+) =>
+{
+    if (!isOpen || !isBrowserDocumentReady()) return;
+
+    const updatePosition = () => setPopupStyle(buildDatePickerPortalStyle(wrapperRef.current, popupRef.current));
+    updatePosition();
+
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
+
+    return () =>
+    {
+        window.removeEventListener("resize", updatePosition);
+        window.removeEventListener("scroll", updatePosition, true);
+    };
+};
+
+
+/** focus 離開 input 與 Portal 面板後關閉日期選擇器。 */
+const closeDatePickerWhenPortalFocusLeaves = (
+    event: FocusEvent<HTMLDivElement>,
+    wrapperRef: RefObject<HTMLDivElement> | undefined,
+    popupRef: RefObject<HTMLDivElement>,
+    closePicker: () => void,
+) =>
+{
+    if (!isBrowserDocumentReady()) return;
+
+    window.requestAnimationFrame(() =>
+    {
+        const activeElement = document.activeElement;
+        if (!activeElement) { closePicker(); return; }
+        if (wrapperRef?.current?.contains(activeElement) || popupRef.current?.contains(activeElement)) return;
+        closePicker();
+    });
+};
+
+
+/** 確認目前可使用 document，避免 SSR render 階段碰到 browser API。 */
+const isBrowserDocumentReady = () => typeof document !== "undefined" && typeof window !== "undefined";
+
+
+/** 阻擋使用者直接修改顯示框內容，只允許透過日期選擇器更新值。 */
+const isDateRangeEditKey = (key: string) => key.length === 1 || key === "Backspace" || key === "Delete";
+
+
 /** 日期是否為起訖端點。 */
 const isDateRangeEndpoint = (date: string, range: DateRangeValue) => date === range.startDate || date === range.endDate;
 
+
 /** 日期是否在已選區間內。 */
 const isDateInSelectedRange = (date: string, range: DateRangeValue) => Boolean(range.startDate && range.endDate && date > range.startDate && date < range.endDate);
+
 
 /** 日期區間目前狀態文字。 */
 const getDateRangeStatusText = (range: DateRangeValue) =>
@@ -580,16 +699,6 @@ const getDateRangeStatusText = (range: DateRangeValue) =>
     return "目前尚未選取日期區間";
 };
 
-/** 日期區間操作回饋文字。 */
-const buildDateRangeAnnounceText = (range: DateRangeValue) => range.endDate ? `已選取日期區間：${formatFullIsoDateText(range.startDate)} 至 ${formatFullIsoDateText(range.endDate)}` : `已選取開始日期：${formatFullIsoDateText(range.startDate)}`;
-
-/** 建立輸入框顯示文字。 */
-const buildDateRangeDisplayText = (range: DateRangeValue) =>
-{
-    if (range.startDate && range.endDate) return `${formatShortIsoDateText(range.startDate)} ~ ${formatShortIsoDateText(range.endDate)}`;
-    if (range.startDate) return `${formatShortIsoDateText(range.startDate)} ~ 請選擇結束日`;
-    return "";
-};
 
 /** 月份標題。 */
 const formatDateRangeMonthTitle = (monthStart: string) =>
@@ -598,42 +707,6 @@ const formatDateRangeMonthTitle = (monthStart: string) =>
     return parts ? `${parts.month} 月 ${parts.year}` : "";
 };
 
-/** 短日期顯示文字。 */
-export const formatShortIsoDateText = (date: string) =>
-{
-    const parts = getIsoDateParts(date);
-    return parts ? `${parts.year}/${String(parts.month).padStart(2, "0")}/${String(parts.day).padStart(2, "0")} (${getWeekdayText(date)})` : "";
-};
-
-/** 完整日期朗讀文字。 */
-export const formatFullIsoDateText = (date: string) =>
-{
-    const parts = getIsoDateParts(date);
-    return parts ? `${parts.year} 年 ${parts.month} 月 ${parts.day} 日 星期${getWeekdayText(date)}` : "";
-};
-
-/** 取得星期文字。 */
-export const getWeekdayText = (date: string) =>
-{
-    const parts = getIsoDateParts(date);
-    if (!parts) return "";
-    return ["日", "一", "二", "三", "四", "五", "六"][new Date(parts.year, parts.month - 1, parts.day).getDay()];
-};
-
-/** 增減月份。 */
-export const addDateRangeMonths = (monthStart: string, count: number) =>
-{
-    const parts = getIsoDateParts(monthStart) ?? { year: 2000, month: 1, day: 1 };
-    const date = new Date(parts.year, parts.month - 1 + count, 1);
-    return buildIsoDate(date.getFullYear(), date.getMonth() + 1, 1);
-};
-
-/** 轉成月份第一天。 */
-export const toDateRangeMonthStart = (date: string) =>
-{
-    const parts = getIsoDateParts(date);
-    return parts ? buildIsoDate(parts.year, parts.month, 1) : "2000-01-01";
-};
 
 /** 取得本地今日日期，僅於 CSR 使用者操作事件後呼叫。 */
 const getLocalTodayIsoDate = () =>
@@ -642,28 +715,7 @@ const getLocalTodayIsoDate = () =>
     return buildIsoDate(date.getFullYear(), date.getMonth() + 1, date.getDate());
 };
 
-/** 檢查 ISO 日期是否有效。 */
-export const isValidIsoDate = (value: string) =>
-{
-    const parts = getIsoDateParts(value);
-    if (!parts) return false;
-    return parts.day >= 1 && parts.day <= getDateRangeDaysInMonth(parts.year, parts.month);
-};
-
-/** 解析 yyyy-MM-dd。 */
-export const getIsoDateParts = (value: string) =>
-{
-    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-    if (!match) return null;
-    const year = Number(match[1]);
-    const month = Number(match[2]);
-    const day = Number(match[3]);
-    if (month < 1 || month > 12) return null;
-    return { year, month, day };
-};
 
 /** 取得月份天數。 */
 const getDateRangeDaysInMonth = (year: number, month: number) => new Date(year, month, 0).getDate();
-
-/** 建立 yyyy-MM-dd。 */
-export const buildIsoDate = (year: number, month: number, day: number) => `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+// #endregion

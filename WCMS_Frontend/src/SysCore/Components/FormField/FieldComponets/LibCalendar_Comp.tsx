@@ -4,7 +4,11 @@ import "react-datepicker/dist/react-datepicker.css";
 import { format, isSameDay, isValid, parse } from "date-fns";
 import type { ILibCalendarProp } from "./LibCalendar_Data";
 
+// #region Property
 const SUPPORTED_FORMATS = ["yyyy/MM/dd", "yyyy/M/d", "yyyy-MM-dd", "yyyy-M-d", "yyyy.MM.dd", "yyyy.M.d", "yyyyMMdd"] as const;
+// #endregion
+
+// #region Private
 const parseUserDate = (raw: string): Date | null =>
 {
     const v = (raw || "").trim();
@@ -21,6 +25,7 @@ const parseUserDate = (raw: string): Date | null =>
     }
     return null;
 };
+
 const LibCalendar = (prop: ILibCalendarProp) =>
 {
     const inputId = useId();
@@ -204,4 +209,6 @@ const LibCalendar = (prop: ILibCalendarProp) =>
     );
 };
 
+
 export default LibCalendar;
+// #endregion

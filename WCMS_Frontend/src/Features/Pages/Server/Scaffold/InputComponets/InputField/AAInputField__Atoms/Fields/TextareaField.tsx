@@ -4,6 +4,7 @@ import { FieldControlShell } from "../AAInputField_Shell";
 import { applyAAFocusStyle, clearAAFocusStyle } from "../AAInputField_Focus";
 import { buildControlClass, getAriaInvalid, getAriaRequired, getNativeRequired, normalizeTextValue, stringifyValue } from "../AAInputField_Utils";
 
+// #region Public
 /**
  * 使用範例：
  * <AAInputFieldList fields={[{ key: "textarea", type: "textarea", label: "內容", aaLabel: "請輸入文字內容(可多行)", rows: 5, value: state.textarea }]} onChange={handleChange} />
@@ -36,3 +37,4 @@ export const TextareaField = (props: { field: AAInputField; context: FieldRender
         </FieldControlShell>
     );
 };
+// #endregion

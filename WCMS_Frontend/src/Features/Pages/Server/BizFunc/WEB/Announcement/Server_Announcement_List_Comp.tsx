@@ -8,6 +8,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import type { ReactNode } from "react";
 import { useAnnouncementListGridTemplate } from "./Server_Announcement_List_Hook";
 
+// #region Public
 /** 公告列表 */
 export const Server_AnnouncementListComp = (prop: { title: string; theme: IBETheme; lang: Lang; }) =>
 {
@@ -15,7 +16,9 @@ export const Server_AnnouncementListComp = (prop: { title: string; theme: IBEThe
 
     return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} renderSearchBar={renderAnnouncementSearchBar} />;
 };
+// #endregion
 
+// #region EntityComp
 /** 渲染公告列表搜尋列 */
 const renderAnnouncementSearchBar = (props: ServerListGridSearchRenderProps): ReactNode =>
 {
@@ -29,3 +32,4 @@ const renderAnnouncementSearchBar = (props: ServerListGridSearchRenderProps): Re
         />
     );
 };
+// #endregion

@@ -1,6 +1,7 @@
 import { useId } from "react";
 import type { ILibPicturePreviewProp } from "./LibPicturePreview_Data";
 
+// #region Private
 const LibPicturePreview = (prop: ILibPicturePreviewProp) =>
 {
     const inputId = useId();
@@ -18,4 +19,6 @@ const LibPicturePreview = (prop: ILibPicturePreviewProp) =>
     );
 };
 
+
 export default LibPicturePreview;
+// #endregion

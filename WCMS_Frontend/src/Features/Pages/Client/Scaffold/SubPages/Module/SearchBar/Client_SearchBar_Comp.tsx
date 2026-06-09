@@ -2,6 +2,7 @@ import type { ClientDataQuerySearchBarModel } from "@/Features/Pages/Client/Scaf
 import { type CSSProperties, useMemo } from "react";
 import { type ClientSearchFieldViewModel, useClientSearchBar } from "./Client_SearchBar_Hook";
 
+// #region Public
 /** 前台共用搜尋列 */
 export const Client_SearchBar_Comp = (
     { title = "搜尋條件", fields, values, actionAlign = "right", searchButtonText = "搜尋", resetButtonText = "重置", columnCount = 3, onSearch, onReset }:
@@ -115,3 +116,4 @@ export const Client_SearchBar_Comp = (
         </section>
     );
 };
+// #endregion

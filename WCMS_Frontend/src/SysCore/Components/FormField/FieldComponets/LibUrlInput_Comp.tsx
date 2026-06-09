@@ -1,7 +1,9 @@
 // SysCore/Components/FormField/FieldComponets/LibUrlInput_Comp.tsx
 import { useCallback, useId, useMemo } from "react";
 
+// #region Property
 type KeyOf<T> = Extract<keyof T, string>;
+
 
 export interface UrlFieldMap<T>
 {
@@ -11,6 +13,7 @@ export interface UrlFieldMap<T>
     url: KeyOf<T>;
     target?: KeyOf<T>;
 }
+
 
 export interface LibUrlInputRepeaterProps<T extends Record<string, any>>
 {
@@ -38,6 +41,18 @@ export interface LibUrlInputRepeaterProps<T extends Record<string, any>>
     addButtonText?: string;
 }
 
+
+interface LibUrlInputRowProps<T extends Record<string, any>>
+{
+    value: T;
+    fields: UrlFieldMap<T>;
+    onChange: (next: T) => void;
+    onDelete: () => void;
+    targets?: Record<number, string>;
+}
+// #endregion
+
+// #region Public
 export const LibUrlInput = <T extends Record<string, any>>(props: LibUrlInputRepeaterProps<T>) =>
 {
     const { items, onChange, fields, parentValue, getDefault, label = "外部連結", targets, addButtonText = "新增" } = props;
@@ -131,16 +146,9 @@ export const LibUrlInput = <T extends Record<string, any>>(props: LibUrlInputRep
         </div>
     );
 };
+// #endregion
 
-interface LibUrlInputRowProps<T extends Record<string, any>>
-{
-    value: T;
-    fields: UrlFieldMap<T>;
-    onChange: (next: T) => void;
-    onDelete: () => void;
-    targets?: Record<number, string>;
-}
-
+// #region Private
 const LibUrlInputRow = <T extends Record<string, any>>(props: LibUrlInputRowProps<T>) =>
 {
     const { value, fields, onChange, onDelete, targets } = props;
@@ -210,3 +218,4 @@ const LibUrlInputRow = <T extends Record<string, any>>(props: LibUrlInputRowProp
         </div>
     );
 };
+// #endregion

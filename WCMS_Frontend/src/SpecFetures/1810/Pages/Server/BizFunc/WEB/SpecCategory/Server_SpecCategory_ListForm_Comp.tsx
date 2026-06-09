@@ -17,11 +17,11 @@ import { useMemo } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { useSpecCategoryListFormFetchData } from "./Server_SpecCategory_ListForm_Hook";
 
+// #region Property
 type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"];
+// #endregion
 
-/** 建立空資料（新增模式用） */
-const buildEmptySet = (progId: string): SpecCategorySet => ({ SpecCategory: { ProgId: progId }, SpecCategoryDetail: [] });
-
+// #region Public
 /** 類別（SpecCategory）List/Form 主頁（抽離 FetchData 到 Hook） */
 export const Server_SpecCategoryListFormComp = (prop: { progId: SchemaFields.PGID; title: string; theme: IBETheme; lang: Lang; }) =>
 {
@@ -76,7 +76,9 @@ export const Server_SpecCategoryListFormComp = (prop: { progId: SchemaFields.PGI
         </FormListComp>
     );
 };
+// #endregion
 
+// #region Section
 /** 編輯區塊（多語系 Tab + 欄位控制） */
 const SpecCateEditComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<SpecCategorySet>; showCols: Record<string, string>; }) =>
 {
@@ -124,6 +126,7 @@ const SpecCateEditComp = (props: { theme: IBETheme; formData: UseFetchFormDataRe
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
 
+
 /** 清單區塊（維持原 UL/LI 結構） */
 const SpecCateListComp = (prop: { theme: IBETheme; SpecCateSets: SpecCategorySet[]; lang: Lang; actions: UseActionsResult; }) =>
 {
@@ -164,3 +167,9 @@ const SpecCateListComp = (prop: { theme: IBETheme; SpecCateSets: SpecCategorySet
         </ul>
     );
 };
+// #endregion
+
+// #region EntityComp
+/** 建立空資料（新增模式用） */
+const buildEmptySet = (progId: string): SpecCategorySet => ({ SpecCategory: { ProgId: progId }, SpecCategoryDetail: [] });
+// #endregion

@@ -8,13 +8,230 @@ import clsx from "clsx";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import "./SubMenu.css";
+import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 
+// #region Property
 type SubMenuProps = { lang: Lang; site: INormSite; node: INormNode; maxDepth?: number; };
-
 type UseExpandedMenuStateResult = { expandedIds: Set<string>; toggleExpand: (itemId: string, depth: number) => void; };
-
 type CollapsePhase = "idle" | "opening" | "closing";
+// #endregion
 
+// #region Public
+export const SubMenu_Comp: React.FC<SubMenuProps> = (props) =>
+{
+    const { lang, site, node, maxDepth = 3 } = props;
+    const location = useLocation();
+    const specCode = getSpecCode();
+    const isSpec1816 = specCode === "1816";
+
+    const menuItems = useMemo(() => GetMenuData(lang, site, node, maxDepth), [lang, site, node, maxDepth]);
+
+    const { activeIds, expandedIdsByPath } = useMemo(() => calcActiveAndExpanded(menuItems, location.pathname), [menuItems, location.pathname]);
+
+    if (!menuItems.length) return null;
+
+    if (isSpec1816)
+    {
+        return (
+            <SubMenu_1816_Comp
+                menuItems={menuItems}
+                activeIds={activeIds}
+                expandedIdsByPath={expandedIdsByPath}
+                pathname={location.pathname}
+                lang={props.lang}
+            />
+        );
+    }
+
+    return (
+        <SubMenu_Default_Comp
+            menuItems={menuItems}
+            activeIds={activeIds}
+            expandedIdsByPath={expandedIdsByPath}
+            pathname={location.pathname}
+            lang={props.lang}
+        />
+    );
+};
+// #endregion
+
+// #region Section
+/** 共用：保留原本 ul DOM，只補動畫控制 */
+const CollapseSubMenu_Comp: React.FC<{ expanded: boolean; children: React.ReactNode; }> = ({ expanded, children }) =>
+{
+    const { submenuRef, submenuStyle, handleTransitionEnd } = useCollapseAnimation(expanded);
+
+    return (
+        <ul
+            ref={submenuRef}
+            className={clsx("submenu", "collapse", expanded && "show")}
+            style={submenuStyle}
+            onTransitionEnd={handleTransitionEnd}
+            aria-hidden={!expanded}
+        >
+            {children}
+        </ul>
+    );
+};
+
+/** =========================
+ *  Spec 1816 專用 Component
+ *  - 保留原本 DOM 結構
+ *  - 改由 React state 控制 open/collapse
+ *  ========================= */
+const SubMenu_1816_Comp: React.FC<{ menuItems: MenuItemData[]; activeIds: Set<string>; expandedIdsByPath: Set<string>; pathname: string; lang: Lang; }> = (
+    props,
+) =>
+{
+    const { menuItems, activeIds, expandedIdsByPath, pathname } = props;
+    const { expandedIds, toggleExpand } = useExpandedMenuState(menuItems, pathname, expandedIdsByPath, true);
+
+    const isItemActive = (item: MenuItemData) => activeIds.has(item.Id);
+
+    /** render：父節點（1816 保持 a 標籤結構） */
+    const renderParent = (item: MenuItemData, expanded: boolean, depth: number): React.ReactNode =>
+    {
+        const handleClick = (e: React.MouseEvent<HTMLAnchorElement>): void =>
+        {
+            e.preventDefault();
+            toggleExpand(item.Id, depth);
+        };
+
+        return (
+            <a href="#" role="button" className={clsx("list-group-item", expanded ? "open" : "collapsed")} onClick={handleClick} aria-expanded={expanded}>
+                {renderLinkIcon(item.Url)}
+                {item.SrcData}
+            </a>
+        );
+    };
+
+    /** render：items（1816 保持 submenu / collapse DOM） */
+    const renderItems = (items: MenuItemData[], depth: number = 1): React.ReactNode =>
+        items.map((item, idx) =>
+        {
+            const key = `${item.Id}-${idx}`;
+            const active = isItemActive(item);
+            const expanded = hasSubItems(item) && expandedIds.has(item.Id);
+
+            return (
+                <li key={key} className={clsx("nav-item", hasSubItems(item) && "has-submenu")}>
+                    {hasSubItems(item) ? renderParent(item, expanded, depth) : renderLeafItem(item, active)}
+                    {hasSubItems(item) && <CollapseSubMenu_Comp expanded={expanded}>{renderItems(item.SubItem!, depth + 1)}</CollapseSubMenu_Comp>}
+                </li>
+            );
+        });
+
+    return (
+        <div className="col-xl-2 col-lg-3 col-md-12 col-sm-12 col-12">
+            <Accesskey type="L" lang={props.lang} />
+            <div id="ContentPlaceContent_ContentSubMenu" className="col-sm-12 col-12 px-0 SubPage-leftMenu">
+                <div id="SubPage-SidebarMenu">
+                    <nav className="sidebar sidebar-custom mb-5">
+                        <ul className="nav list-group" id="nav_accordion">{renderItems(menuItems)}</ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+/** =========================
+ *  Default Component
+ *  - 保留原本 DOM 結構
+ *  - 改善 expanded state 被重設的問題
+ *  ========================= */
+const SubMenu_Default_Comp: React.FC<{ menuItems: MenuItemData[]; activeIds: Set<string>; expandedIdsByPath: Set<string>; pathname: string; lang: Lang; }> = (
+    props,
+) =>
+{
+    const { menuItems, activeIds, expandedIdsByPath, pathname } = props;
+    const { expandedIds, toggleExpand } = useExpandedMenuState(menuItems, pathname, expandedIdsByPath, true);
+    // 20260414 useExpandedMenuState - 原exclusiveFirstLevel為false，改為true
+
+    const isItemActive = (item: MenuItemData) => activeIds.has(item.Id);
+
+    /** render：items（default 保持 button / ul 結構） */
+    const renderItems = (items: MenuItemData[], depth: number = 1): React.ReactNode =>
+        items.map((item, idx) =>
+        {
+            const key = `${item.Id}-${idx}`;
+            const active = isItemActive(item);
+            const expanded = hasSubItems(item) && expandedIds.has(item.Id);
+
+            return (
+                <li key={key} className={clsx("nav-item", hasSubItems(item) && "has-submenu")}>
+                    {hasSubItems(item)
+                        ? (
+                            <button
+                                type="button"
+                                className={clsx("list-group-item", expanded && "parent-active")}
+                                onClick={() => toggleExpand(item.Id, depth)}
+                                aria-expanded={expanded}
+                            >
+                                {renderLinkIcon(item.Url)}
+                                {item.SrcData}
+                            </button>
+                        )
+                        : (renderLeafItem(item, active))}
+
+                    {hasSubItems(item) && <CollapseSubMenu_Comp expanded={expanded}>{renderItems(item.SubItem!, depth + 1)}</CollapseSubMenu_Comp>}
+                </li>
+            );
+        });
+
+    if (!menuItems.length) return null;
+
+    return (
+        <div className="col-xl-2 col-lg-3 col-md-12 col-sm-12 col-12 mb-4">
+            <Accesskey type="L" lang={props.lang} />
+            <nav className="sidebar">
+                <ul className="list-group">{renderItems(menuItems)}</ul>
+            </nav>
+        </div>
+    );
+};
+// #endregion
+
+// #region EntityComp
+// 若為外部連結 新增icon
+const renderLinkIcon = (url?: string | null) =>
+{
+    return isExternalUrl(url) ? <i className="fad fa-link me-2"></i> : null;
+};
+
+/** 建立 menu tree key，避免單純 re-render 就重設展開狀態 */
+const buildMenuTreeKey = (items: MenuItemData[]): string =>
+{
+    return items.map((item) => `${item.Id}[${buildMenuTreeKey(item.SubItem ?? [])}]`).join("|");
+};
+
+/** 共用：leaf（內/外連結） */
+const renderLeafItem = (item: MenuItemData, active: boolean): React.ReactNode =>
+{
+    const icon = renderLinkIcon(item.Url);
+    if (!item.Url)
+    {
+        return <span className={clsx("list-group-item", active && "active")}>{icon} {item.SrcData}</span>;
+    }
+    if (isExternalUrl(item.Url))
+    {
+        return <LangLink to={item.Url} className={clsx("list-group-item", active && "active")} title={item.SrcData}>{icon} {item.SrcData}</LangLink>;
+    }
+    return (
+        <LangNavLink
+            to={item.Url}
+            title={item.SrcData}
+            className={({ isActive }) => clsx("list-group-item", (isActive || active) && "active")}
+            aria-current={active ? "page" : undefined}
+        >
+            {icon}
+            {item.SrcData}
+        </LangNavLink>
+    );
+};
+// #endregion
+
+// #region Private
 /** 依照 lang / site / node 取得當前節點底下的 menu */
 const GetMenuData = (lang: Lang, site: INormSite, node: INormNode, maxDepth: number = Infinity): MenuItemData[] =>
 {
@@ -29,11 +246,6 @@ const isExternalUrl = (url?: string | null): boolean =>
 {
     if (!url) return false;
     return /^https?:\/\//i.test(url) || url.startsWith("//");
-};
-// 若為外部連結 新增icon
-const renderLinkIcon = (url?: string | null) =>
-{
-    return isExternalUrl(url) ? <i className="fad fa-link me-2"></i> : null;
 };
 
 /** 判斷 item 是否有子節點 */
@@ -54,7 +266,7 @@ const normalizePath = (path: string): string =>
 const stripLangPrefixFromPath = (path: string): string =>
 {
     const p = normalizePath(path);
-    const segs = p.split("/").filter(Boolean);
+    const segs = LibRoutePath.splitPathSegments(p);
     if (segs.length === 0) return "/";
 
     const first = segs[0]?.toLowerCase();
@@ -109,12 +321,6 @@ const calcActiveAndExpanded = (items: MenuItemData[], pathname: string) =>
 
 /** 取得 SpecCode */
 const getSpecCode = (): string => String(import.meta.env.VITE_SPEC_CODE ?? "");
-
-/** 建立 menu tree key，避免單純 re-render 就重設展開狀態 */
-const buildMenuTreeKey = (items: MenuItemData[]): string =>
-{
-    return items.map((item) => `${item.Id}[${buildMenuTreeKey(item.SubItem ?? [])}]`).join("|");
-};
 
 /** 移除某個節點底下所有已展開的 parent id */
 const removeExpandedIdsInNode = (item: MenuItemData, next: Set<string>): void =>
@@ -315,200 +521,4 @@ const useCollapseAnimation = (expanded: boolean) =>
 
     return { submenuRef, submenuStyle, handleTransitionEnd };
 };
-
-/** 共用：保留原本 ul DOM，只補動畫控制 */
-const CollapseSubMenu_Comp: React.FC<{ expanded: boolean; children: React.ReactNode; }> = ({ expanded, children }) =>
-{
-    const { submenuRef, submenuStyle, handleTransitionEnd } = useCollapseAnimation(expanded);
-
-    return (
-        <ul
-            ref={submenuRef}
-            className={clsx("submenu", "collapse", expanded && "show")}
-            style={submenuStyle}
-            onTransitionEnd={handleTransitionEnd}
-            aria-hidden={!expanded}
-        >
-            {children}
-        </ul>
-    );
-};
-
-/** 共用：leaf（內/外連結） */
-const renderLeafItem = (item: MenuItemData, active: boolean): React.ReactNode =>
-{
-    const icon = renderLinkIcon(item.Url);
-    if (!item.Url)
-    {
-        return <span className={clsx("list-group-item", active && "active")}>{icon} {item.SrcData}</span>;
-    }
-    if (isExternalUrl(item.Url))
-    {
-        return <LangLink to={item.Url} className={clsx("list-group-item", active && "active")} title={item.SrcData}>{icon} {item.SrcData}</LangLink>;
-    }
-    return (
-        <LangNavLink
-            to={item.Url}
-            title={item.SrcData}
-            className={({ isActive }) => clsx("list-group-item", (isActive || active) && "active")}
-            aria-current={active ? "page" : undefined}
-        >
-            {icon}
-            {item.SrcData}
-        </LangNavLink>
-    );
-};
-
-/** =========================
- *  Spec 1816 專用 Component
- *  - 保留原本 DOM 結構
- *  - 改由 React state 控制 open/collapse
- *  ========================= */
-const SubMenu_1816_Comp: React.FC<{ menuItems: MenuItemData[]; activeIds: Set<string>; expandedIdsByPath: Set<string>; pathname: string; lang: Lang; }> = (
-    props,
-) =>
-{
-    const { menuItems, activeIds, expandedIdsByPath, pathname } = props;
-    const { expandedIds, toggleExpand } = useExpandedMenuState(menuItems, pathname, expandedIdsByPath, true);
-
-    const isItemActive = (item: MenuItemData) => activeIds.has(item.Id);
-
-    /** render：父節點（1816 保持 a 標籤結構） */
-    const renderParent = (item: MenuItemData, expanded: boolean, depth: number): React.ReactNode =>
-    {
-        const handleClick = (e: React.MouseEvent<HTMLAnchorElement>): void =>
-        {
-            e.preventDefault();
-            toggleExpand(item.Id, depth);
-        };
-
-        return (
-            <a href="#" role="button" className={clsx("list-group-item", expanded ? "open" : "collapsed")} onClick={handleClick} aria-expanded={expanded}>
-                {renderLinkIcon(item.Url)}
-                {item.SrcData}
-            </a>
-        );
-    };
-
-    /** render：items（1816 保持 submenu / collapse DOM） */
-    const renderItems = (items: MenuItemData[], depth: number = 1): React.ReactNode =>
-        items.map((item, idx) =>
-        {
-            const key = `${item.Id}-${idx}`;
-            const active = isItemActive(item);
-            const expanded = hasSubItems(item) && expandedIds.has(item.Id);
-
-            return (
-                <li key={key} className={clsx("nav-item", hasSubItems(item) && "has-submenu")}>
-                    {hasSubItems(item) ? renderParent(item, expanded, depth) : renderLeafItem(item, active)}
-                    {hasSubItems(item) && <CollapseSubMenu_Comp expanded={expanded}>{renderItems(item.SubItem!, depth + 1)}</CollapseSubMenu_Comp>}
-                </li>
-            );
-        });
-
-    return (
-        <div className="col-xl-2 col-lg-3 col-md-12 col-sm-12 col-12">
-            <Accesskey type="L" lang={props.lang} />
-            <div id="ContentPlaceContent_ContentSubMenu" className="col-sm-12 col-12 px-0 SubPage-leftMenu">
-                <div id="SubPage-SidebarMenu">
-                    <nav className="sidebar sidebar-custom mb-5">
-                        <ul className="nav list-group" id="nav_accordion">{renderItems(menuItems)}</ul>
-                    </nav>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-/** =========================
- *  Default Component
- *  - 保留原本 DOM 結構
- *  - 改善 expanded state 被重設的問題
- *  ========================= */
-const SubMenu_Default_Comp: React.FC<{ menuItems: MenuItemData[]; activeIds: Set<string>; expandedIdsByPath: Set<string>; pathname: string; lang: Lang; }> = (
-    props,
-) =>
-{
-    const { menuItems, activeIds, expandedIdsByPath, pathname } = props;
-    const { expandedIds, toggleExpand } = useExpandedMenuState(menuItems, pathname, expandedIdsByPath, true);
-    // 20260414 useExpandedMenuState - 原exclusiveFirstLevel為false，改為true
-
-    const isItemActive = (item: MenuItemData) => activeIds.has(item.Id);
-
-    /** render：items（default 保持 button / ul 結構） */
-    const renderItems = (items: MenuItemData[], depth: number = 1): React.ReactNode =>
-        items.map((item, idx) =>
-        {
-            const key = `${item.Id}-${idx}`;
-            const active = isItemActive(item);
-            const expanded = hasSubItems(item) && expandedIds.has(item.Id);
-
-            return (
-                <li key={key} className={clsx("nav-item", hasSubItems(item) && "has-submenu")}>
-                    {hasSubItems(item)
-                        ? (
-                            <button
-                                type="button"
-                                className={clsx("list-group-item", expanded && "parent-active")}
-                                onClick={() => toggleExpand(item.Id, depth)}
-                                aria-expanded={expanded}
-                            >
-                                {renderLinkIcon(item.Url)}
-                                {item.SrcData}
-                            </button>
-                        )
-                        : (renderLeafItem(item, active))}
-
-                    {hasSubItems(item) && <CollapseSubMenu_Comp expanded={expanded}>{renderItems(item.SubItem!, depth + 1)}</CollapseSubMenu_Comp>}
-                </li>
-            );
-        });
-
-    if (!menuItems.length) return null;
-
-    return (
-        <div className="col-xl-2 col-lg-3 col-md-12 col-sm-12 col-12 mb-4">
-            <Accesskey type="L" lang={props.lang} />
-            <nav className="sidebar">
-                <ul className="list-group">{renderItems(menuItems)}</ul>
-            </nav>
-        </div>
-    );
-};
-
-export const SubMenu_Comp: React.FC<SubMenuProps> = (props) =>
-{
-    const { lang, site, node, maxDepth = 3 } = props;
-    const location = useLocation();
-    const specCode = getSpecCode();
-    const isSpec1816 = specCode === "1816";
-
-    const menuItems = useMemo(() => GetMenuData(lang, site, node, maxDepth), [lang, site, node, maxDepth]);
-
-    const { activeIds, expandedIdsByPath } = useMemo(() => calcActiveAndExpanded(menuItems, location.pathname), [menuItems, location.pathname]);
-
-    if (!menuItems.length) return null;
-
-    if (isSpec1816)
-    {
-        return (
-            <SubMenu_1816_Comp
-                menuItems={menuItems}
-                activeIds={activeIds}
-                expandedIdsByPath={expandedIdsByPath}
-                pathname={location.pathname}
-                lang={props.lang}
-            />
-        );
-    }
-
-    return (
-        <SubMenu_Default_Comp
-            menuItems={menuItems}
-            activeIds={activeIds}
-            expandedIdsByPath={expandedIdsByPath}
-            pathname={location.pathname}
-            lang={props.lang}
-        />
-    );
-};
+// #endregion

@@ -13,7 +13,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
+import { formatDateTime } from "@/SysCore/Utils/Library/LibData";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
@@ -21,15 +21,19 @@ import { AccountFields, PersonModelFields, PGID, RoleDataModelFields } from "@/t
 import { createElement, type ReactNode, useCallback, useMemo } from "react";
 import { type NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 type AccountSet = components["schemas"]["AccountSet_DTO"];
+
 type RolePermissionSet = components["schemas"]["RolePermissionSet_DTO"];
+
 type AccountApiAdapter = ReturnType<typeof AccountAdapter>;
+
 type RolePermissionApiAdapter = ReturnType<typeof RolePermissionAdapter>;
+
 type AccountCudActions = ReturnType<AccountApiAdapter["hooks"]["useCudActions"]>;
 
-export const ACCOUNT_USER_NAME_SEARCH_KEY = "userName";
-export const ACCOUNT_ROLE_ID_SEARCH_KEY = "roleId";
 
 export interface AccountSearchParams
 {
@@ -42,6 +46,7 @@ export interface AccountSearchParams
     /** 角色代號搜尋條件 */
     roleId?: string;
 }
+
 
 export interface AccountListRawData
 {
@@ -70,6 +75,7 @@ export interface AccountListRawData
     roleMap: Record<string, string>;
 }
 
+
 export interface AccountListAdapter
 {
     /** 帳號 API adapter */
@@ -88,7 +94,30 @@ export interface AccountListAdapter
     dirUrl: string;
 }
 
+
 export type AccountListGridTemplate = ServerListGridTemplate<AccountSearchParams, AccountListRawData, AccountListAdapter, QueryListParam>;
+
+
+type CrudDeps = {
+    /** React Router 導頁方法 */
+    navigate: NavigateFunction;
+
+    /** 目前 List 對應的 Form 路徑 */
+    dirUrl: string;
+
+    /** 刪除資料方法 */
+    deleteAsync: AccountCudActions["deleteAsync"];
+
+    /** 刪除後重新查詢 */
+    afterDelete: () => Promise<void>;
+};
+// #endregion
+
+// #region Public
+export const ACCOUNT_USER_NAME_SEARCH_KEY = "userName";
+
+export const ACCOUNT_ROLE_ID_SEARCH_KEY = "roleId";
+
 
 /** 建立帳號後台 ListGridTemplate 設定 */
 export const useAccountListGridTemplate = (opt: { lang: Lang; }): AccountListGridTemplate =>
@@ -109,7 +138,9 @@ export const useAccountListGridTemplate = (opt: { lang: Lang; }): AccountListGri
         };
     }, [opt.lang]);
 };
+// #endregion
 
+// #region Private
 /** 執行帳號列表資料來源 Hook */
 const useAccountListGridDataSource = (
     ctx: ServerListGridDataSourceContext<AccountSearchParams, QueryListParam>,
@@ -168,6 +199,7 @@ const useAccountListGridDataSource = (
     return { adapter: { ...apiAdapter, cudActions, navigate, dirUrl }, rawData, isLoading, errors, refetchData, refetchRefData };
 };
 
+
 /** 建立帳號搜尋欄位設定 */
 const buildAccountSearchFields = (rawData: AccountListRawData): SearchFieldConfig[] =>
 {
@@ -182,11 +214,13 @@ const buildAccountSearchFields = (rawData: AccountListRawData): SearchFieldConfi
     }];
 };
 
+
 /** 將 SearchValues 轉為帳號列表查詢參數 */
 const toAccountSearchParams = (values: SearchValues, lang: Lang): AccountSearchParams =>
 {
     return { lang, userName: getSearchStringValue(values[ACCOUNT_USER_NAME_SEARCH_KEY]), roleId: getSearchStringValue(values[ACCOUNT_ROLE_ID_SEARCH_KEY]) };
 };
+
 
 /** 建立帳號搜尋條件 */
 const buildAccountSearchConditions = (ctx: { searchParams: AccountSearchParams; }): string[] =>
@@ -206,6 +240,7 @@ const buildAccountSearchConditions = (ctx: { searchParams: AccountSearchParams; 
     return conditions;
 };
 
+
 /** 建立帳號列表完整 QueryParam */
 const buildAccountQueryParam = (ctx: { searchParams: AccountSearchParams; searchCondition: string; }): QueryListParam =>
 {
@@ -214,6 +249,7 @@ const buildAccountQueryParam = (ctx: { searchParams: AccountSearchParams; search
 
     return { Fields: fields, Condition: condition, OrderBy: [{ Col: AccountFields.CreateTime, Desc: true }], PageNumber: 1, PageSize: 10 };
 };
+
 
 /** 建立帳號列表查詢欄位 */
 const buildAccountQueryFields = (): string[] =>
@@ -230,6 +266,7 @@ const buildAccountQueryFields = (): string[] =>
     ];
 };
 
+
 /** 建立角色下拉查詢參數 */
 const buildRoleQueryParam = (): QueryListParam =>
 {
@@ -241,25 +278,13 @@ const buildRoleQueryParam = (): QueryListParam =>
     };
 };
 
+
 /** 建立角色下拉搜尋選項 */
 const buildRoleSearchOptions = (roleMap: Record<string, string>): SearchFieldConfig["options"] =>
 {
     return Object.entries(roleMap).map(([value, title]) => ({ value, title: title || value }));
 };
 
-type CrudDeps = {
-    /** React Router 導頁方法 */
-    navigate: NavigateFunction;
-
-    /** 目前 List 對應的 Form 路徑 */
-    dirUrl: string;
-
-    /** 刪除資料方法 */
-    deleteAsync: AccountCudActions["deleteAsync"];
-
-    /** 刪除後重新查詢 */
-    afterDelete: () => Promise<void>;
-};
 
 /** 將帳號資料轉為 GridProps */
 const buildAccountGridProps = (
@@ -292,6 +317,7 @@ const buildAccountGridProps = (
     });
 };
 
+
 /** 注入帳號 Grid 編輯與刪除動作 */
 const enhanceAccountGrid = (
     opt: {
@@ -322,17 +348,20 @@ const enhanceAccountGrid = (
     });
 };
 
+
 /** 建立帳號列表欄位定義 */
 const buildColumns = (visibleCols: string[], raw: AccountListRawData): ColumnConfig[] =>
 {
     return visibleCols.map((col) => ({ key: col, title: getColumnTitle(raw.modelDisplayName, col, getAccountColumnFallback(col)) }));
 };
 
+
 /** 建立帳號列表列資料 */
 const buildAccountRows = (raw: AccountListRawData, columns: ColumnConfig[]): GridRow[] =>
 {
     return (raw.list ?? []).map((set) => buildAccountRow(set, columns, raw.roleMap));
 };
+
 
 /** 建立帳號列表單列資料 */
 const buildAccountRow = (set: AccountSet, columns: ColumnConfig[], roleMap: Record<string, string>): GridRow =>
@@ -344,11 +373,12 @@ const buildAccountRow = (set: AccountSet, columns: ColumnConfig[], roleMap: Reco
         { col: columns[1], content: account?.AccountId ?? "" },
         { col: columns[2], content: account?.AccountName ?? "" },
         { col: columns[3], content: buildRoleContent(account?.RoleId, account?.Role?.RoleName, roleMap) },
-        { col: columns[4], content: FormatDateTime(account?.ModifyTime) },
+        { col: columns[4], content: formatDateTime(account?.ModifyTime) },
     ];
 
     return { keyId, cells };
 };
+
 
 /** 建立帳號圖片預覽 */
 const buildAccountImage = (set: AccountSet): RowCell["content"] =>
@@ -363,6 +393,7 @@ const buildAccountImage = (set: AccountSet): RowCell["content"] =>
     });
 };
 
+
 /** 建立角色欄位顯示內容 */
 const buildRoleContent = (roleId: string | null | undefined, roleName: string | null | undefined, roleMap: Record<string, string>): ReactNode =>
 {
@@ -374,6 +405,7 @@ const buildRoleContent = (roleId: string | null | undefined, roleName: string | 
 
     return createElement("div", { className: "d-flex flex-column gap-1" }, createElement("span", null, name), createElement("small", null, id));
 };
+
 
 /** 將角色資料轉成下拉 map */
 const buildRoleMap = (roles: RolePermissionSet[]): Record<string, string> =>
@@ -389,6 +421,7 @@ const buildRoleMap = (roles: RolePermissionSet[]): Record<string, string> =>
     }, {});
 };
 
+
 /** 依欄位代碼取得 ModelDisplayName 顯示文字 */
 const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, columnId: string, fallback: string): string =>
 {
@@ -396,6 +429,7 @@ const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, columnId: s
     const hit = tables.flatMap((t) => t.Columns ?? []).find((c) => c.ColumnId === columnId);
     return hit?.ColumnDisplayName ?? fallback;
 };
+
 
 /** 取得帳號列表欄位預設顯示文字 */
 const getAccountColumnFallback = (columnId: string): string =>
@@ -411,6 +445,7 @@ const getAccountColumnFallback = (columnId: string): string =>
     return map[columnId] ?? `【${columnId}】`;
 };
 
+
 /** 取得 SearchValue 的文字值 */
 const getSearchStringValue = (value: SearchValue): string | undefined =>
 {
@@ -419,3 +454,4 @@ const getSearchStringValue = (value: SearchValue): string | undefined =>
     const text = value.trim();
     return text.length > 0 ? text : undefined;
 };
+// #endregion

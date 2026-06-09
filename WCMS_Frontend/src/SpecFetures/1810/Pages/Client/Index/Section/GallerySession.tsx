@@ -1,7 +1,7 @@
 /* Banner */
 import "swiper/swiper-bundle.css";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import { FormatDate } from "@/SysCore/Utils/Library/LibData";
+import { formatDate } from "@/SysCore/Utils/Library/LibData";
 import { useEffect, useMemo, useRef } from "react";
 
 import bgImg from "@/SpecFetures/1810/Assets/Client/Images/bg/background-transparent-image_1920x600.png";
@@ -10,7 +10,9 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import type { components } from "@/types/api";
 
+// #region Property
 type GallerySet = components["schemas"]["GallerySet_DTO"];
+
 
 interface DataProp
 {
@@ -20,28 +22,9 @@ interface DataProp
     date: string;
     catName: string;
 }
+// #endregion
 
-const getDataProps = (lang: string, galleryData: GallerySet[], categoryDict: Record<string, string>): DataProp[] =>
-{
-    const result: DataProp[] = [];
-
-    galleryData.map((item) =>
-    {
-        const cats = (item.Gallery?.Categories ?? "").split(",").map(s => s.trim()).filter(Boolean);
-        const catsName = cats.map(id => categoryDict[id] ?? "").filter(Boolean).join(", ");
-
-        result.push({
-            internalId: item.Gallery?.InternalId ?? "",
-            picInternalId: item.Gallery?.CoverPicSrcId ?? "",
-            title: item.GalleryInfo?.find(p => p.Lang === lang)?.Title ?? "",
-            date: FormatDate(item.Gallery?.Validate_Start),
-            catName: catsName,
-        });
-    });
-
-    return result;
-};
-
+// #region Public
 export const GallerySession = (props: { lang: Lang; hydrationData: HomePageGalleryHookResult; }) =>
 {
     // 宣告變數：統一吃 Homepage hydration source
@@ -269,3 +252,27 @@ export const GallerySession = (props: { lang: Lang; hydrationData: HomePageGalle
         // </LoadingErrorHandler>
     );
 };
+// #endregion
+
+// #region Private
+const getDataProps = (lang: string, galleryData: GallerySet[], categoryDict: Record<string, string>): DataProp[] =>
+{
+    const result: DataProp[] = [];
+
+    galleryData.map((item) =>
+    {
+        const cats = (item.Gallery?.Categories ?? "").split(",").map(s => s.trim()).filter(Boolean);
+        const catsName = cats.map(id => categoryDict[id] ?? "").filter(Boolean).join(", ");
+
+        result.push({
+            internalId: item.Gallery?.InternalId ?? "",
+            picInternalId: item.Gallery?.CoverPicSrcId ?? "",
+            title: item.GalleryInfo?.find(p => p.Lang === lang)?.Title ?? "",
+            date: formatDate(item.Gallery?.Validate_Start),
+            catName: catsName,
+        });
+    });
+
+    return result;
+};
+// #endregion

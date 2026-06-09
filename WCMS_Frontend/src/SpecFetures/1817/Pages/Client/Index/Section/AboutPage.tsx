@@ -1,6 +1,7 @@
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 
+// #region Public
 export const AboutPage = (props: { lang: Lang; }) =>
 {
     return (
@@ -163,3 +164,4 @@ export const AboutPage = (props: { lang: Lang; }) =>
         </section>
     );
 };
+// #endregion

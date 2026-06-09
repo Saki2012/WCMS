@@ -1,13 +1,16 @@
 import { extend } from "jquery";
 import type { ILibBaseComponentsProp } from "./LibBaseData";
 
+// #region Property
 export interface ILibCheckBoxStyle
 {
     Labelstyle: string;
     SelectStyle: string;
     OptionsStyle: "checkbox" | "radio";
 }
+
 type CheckValue = string | string[] | boolean;
+
 
 export interface ILibCheckBoxProp extends ILibBaseComponentsProp
 {
@@ -16,3 +19,4 @@ export interface ILibCheckBoxProp extends ILibBaseComponentsProp
     InputValue: CheckValue; // 當前選中的 value 陣列（通常是 string[]）
     onChange?: (val: CheckValue) => void; // 勾選變更時的 callback
 }
+// #endregion

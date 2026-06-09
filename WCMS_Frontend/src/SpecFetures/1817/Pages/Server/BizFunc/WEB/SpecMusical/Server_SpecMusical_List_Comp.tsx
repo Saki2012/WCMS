@@ -13,8 +13,26 @@ import {
     useSpecMusicalListGridTemplate,
 } from "./Server_SpecMusical_List_Hook";
 
+// #region Property
 const coverImageStyle = { width: "80px", height: "80px", objectFit: "cover" } as const;
 
+
+const specMusicalListRenderers: SpecMusicalListRenderers = {
+    renderCoverContent: renderSpecMusicalCoverContent,
+};
+// #endregion
+
+// #region Public
+/** 後台樂器列表 */
+export const Server_SpecMusical_List_Comp = (prop: { title: string; theme: IBETheme; lang: Lang; }) =>
+{
+    const template = useSpecMusicalListGridTemplate({ lang: prop.lang, renderers: specMusicalListRenderers });
+
+    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} renderSearchBar={renderSpecMusicalSearchBar} />;
+};
+// #endregion
+
+// #region EntityComp
 /** 渲染樂器列表搜尋列 */
 const renderSpecMusicalSearchBar = (props: ServerListGridSearchRenderProps): ReactNode =>
 {
@@ -29,6 +47,7 @@ const renderSpecMusicalSearchBar = (props: ServerListGridSearchRenderProps): Rea
     );
 };
 
+
 /** 渲染樂器封面圖 */
 const renderSpecMusicalCoverContent = (set: SpecMusicalSet): ReactNode =>
 {
@@ -38,15 +57,4 @@ const renderSpecMusicalCoverContent = (set: SpecMusicalSet): ReactNode =>
     const musicalName = set.SpecMusical?.MusicalName ?? "樂器";
     return <img src={FileManagementAPI.get_Server_Preview_Url(fileId)} style={coverImageStyle} alt={`${musicalName}封面圖`} />;
 };
-
-const specMusicalListRenderers: SpecMusicalListRenderers = {
-    renderCoverContent: renderSpecMusicalCoverContent,
-};
-
-/** 後台樂器列表 */
-export const Server_SpecMusical_List_Comp = (prop: { title: string; theme: IBETheme; lang: Lang; }) =>
-{
-    const template = useSpecMusicalListGridTemplate({ lang: prop.lang, renderers: specMusicalListRenderers });
-
-    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} renderSearchBar={renderSpecMusicalSearchBar} />;
-};
+// #endregion

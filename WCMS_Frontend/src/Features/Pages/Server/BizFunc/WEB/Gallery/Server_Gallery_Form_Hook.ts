@@ -27,11 +27,12 @@ import {
     useEditGridBinding,
 } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { type Lang, LangLabelMap, SUPPORTED_LANGS, useEnsureLangDetails } from "@/SysCore/i18n/lang";
+import { buildSupportedLangOrder, type Lang, LangLabelMap, normalizeSupportedLang, SUPPORTED_LANGS, useEnsureLangDetails } from "@/SysCore/i18n/lang";
 import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { LibText } from "@/SysCore/Utils/Library/LibData";
+
 import { useUploadFile } from "@/SysCore/Utils/UI_HookFunc/useUploadFile";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
@@ -41,13 +42,21 @@ import { useCallback, useMemo, useState } from "react";
 
 // #region Property
 type GallerySet = components["schemas"]["GallerySet_DTO"];
+
 type GalleryInfo = NonNullable<GallerySet["GalleryInfo"]>[number];
+
 type GalleryPhoto = components["schemas"]["GalleryPhotos_DTO"];
+
 type GalleryPhotoInfo = components["schemas"]["GalleryPhotosInfo_DTO"];
+
 type UploadFileHandler = ReturnType<typeof useUploadFile>["handleFileChange"];
+
 export type GalleryInfoRowKeys = Record<string, string | number | boolean | null | undefined>;
+
 export type GalleryPhotoCellValue = EditGridFileValue & { internalId?: string; originalFileName?: string; };
+
 export type GalleryPhotoGridRow = GridRow & { GalleryId?: string | null; PhotoRowId?: number | null; };
+
 export type GalleryPhotoInfoGridRow = GridRow & { GalleryId?: string | null; ParentRowId?: number | null; InfoRowId?: number | null; };
 
 export interface UseGalleryFormTemplateOptions
@@ -182,10 +191,6 @@ export interface GalleryBatchPhotoUploadResult
     uploadSelectedFiles: () => Promise<void>;
 }
 
-export const galleryEmptyData: GallerySet = { Gallery: {}, GalleryInfo: [], GalleryPhotos: [], GalleryPhotosInfo: [] };
-export const GalleryPhotoSubDetailColumnKey = "__GalleryPhotosInfo";
-export const GalleryPhotoCoverColumnKey = "__GalleryCover";
-
 export type GalleryFormRefs = {
     /** 相簿類別選項 */
     categoryMap: Record<string, string>;
@@ -210,6 +215,12 @@ export type GalleryFormAdapter = {
 // #endregion
 
 // #region Public
+export const galleryEmptyData: GallerySet = { Gallery: {}, GalleryInfo: [], GalleryPhotos: [], GalleryPhotosInfo: [] };
+
+export const GalleryPhotoSubDetailColumnKey = "__GalleryPhotosInfo";
+
+export const GalleryPhotoCoverColumnKey = "__GalleryCover";
+
 /** 建立 Gallery Form Template，統一交給 Server_FormTemplate 處理資料流程。 */
 export const useGalleryFormTemplate = (
     opt: UseGalleryFormTemplateOptions,
@@ -325,9 +336,45 @@ export const useGalleryBatchPhotoUpload = (opt: UseGalleryBatchPhotoUploadOption
 
     return { selectedFiles, isUploading, error, setSelectedFiles, clearSelectedFiles, uploadSelectedFiles };
 };
+
+/** 建立相片 CellValue，保留預覽 url 給 EditGrid readonly render 使用。 */
+export const buildGalleryPhotoCellValue = (photo: GalleryPhoto): GalleryPhotoCellValue =>
+{
+    const internalId = photo.PicSrcId ?? "";
+
+    return { internalId, fileName: internalId, originalFileName: "", url: getGalleryPhotoPreviewUrl(internalId) };
+};
+
+/** 上傳後建立新的相片 CellValue，欄位顯示原始檔名與 internalId。 */
+export const buildUploadedGalleryPhotoCellValue = (internalId: string, originalName?: string): GalleryPhotoCellValue =>
+{
+    const safeOriginalName = originalName ?? "";
+
+    return {
+        internalId,
+        fileName: buildGalleryPhotoFieldDisplayName(safeOriginalName, internalId),
+        originalFileName: safeOriginalName,
+        url: getGalleryPhotoPreviewUrl(internalId),
+    };
+};
+
+/** 將 EditGrid 值正規化成相片 CellValue。 */
+export const toGalleryPhotoCellValue = (value: EditGridCellValue): GalleryPhotoCellValue =>
+{
+    if (isGalleryPhotoCellValue(value)) return value;
+    if (typeof value === "string") return { internalId: value, fileName: buildGalleryPhotoFieldDisplayName("", value), url: getGalleryPhotoPreviewUrl(value) };
+    return { fileName: "", internalId: "" };
+};
+
+/** 取得相片預覽網址。 */
+export const getGalleryPhotoPreviewUrl = (picId?: string | null): string | undefined =>
+{
+    const id = String(picId ?? "").trim();
+    return id ? FileManagementAPI.get_Public_Preview_Url(id) ?? undefined : undefined;
+};
 // #endregion
 
-// #region Timing
+// #region Private
 /** 建立 Gallery Form 標題，功能名稱優先讀 ModelDisplayName。 */
 const buildGalleryFormTitle = (ctx: { mode: "new" | "edit"; displayName: ModelDisplaySchema; }): string =>
 {
@@ -384,9 +431,7 @@ const useGalleryReferenceData = (
         tag.refetch,
     ]);
 };
-// #endregion
 
-// #region Private
 /** 取得 Gallery Model 顯示名稱，避免 Form 標題寫死功能名稱。 */
 const getGalleryModelTitle = (displayName: ModelDisplaySchema, fallback: string): string =>
 {
@@ -458,43 +503,22 @@ const buildSupportedGalleryInfoMap = (details: GalleryInfo[]): Map<string, Galle
     }, new Map<string, GalleryInfo>());
 };
 
-/** 建立目前 Case 支援語系順序，當前語系優先。 */
-const buildSupportedLangOrder = (preferLang: Lang): Lang[] =>
-{
-    const langs = [preferLang, ...SUPPORTED_LANGS];
-    return langs.filter((lang, index) => langs.indexOf(lang) === index && Boolean(normalizeSupportedLang(lang)));
-};
-
-/** 正規化並檢查語系是否屬於目前 Case 支援語系。 */
-const normalizeSupportedLang = (lang?: Lang | string | null): string | null =>
-{
-    const value = String(lang ?? "").trim().toLowerCase();
-    const isSupport = SUPPORTED_LANGS.some(item => item.toLowerCase() === value);
-    return isSupport ? value : null;
-};
-
 /** 建立單一相簿語系 Tab 項目。 */
 const buildGalleryInfoTabItem = (detail: GalleryInfo | undefined, index: number): GalleryInfoTabItem | null =>
 {
     if (!detail) return null;
-
     const lang = normalizeSupportedLang(detail.Lang);
     if (!lang) return null;
-
-    const key = LibMerge("_", true, detail.GalleryId, detail.RowId, lang);
-    const label = LangLabelMap[lang as Lang] ?? lang;
+    const key = LibText.Merge("_", true, detail.GalleryId, detail.RowId, lang);
+    const label = LangLabelMap[lang] ?? lang;
     const rowKeys = buildGalleryInfoRowKeys(detail, index);
-
     return { key, label, detail, rowKeys };
 };
 
 /** 建立相簿語系 RowKeys，保留 null 主鍵並加入 Lang，避免 Template 寫入時新建無語系列。 */
 const buildGalleryInfoRowKeys = (detail: GalleryInfo, index: number): GalleryInfoRowKeys =>
 {
-    // 宣告變數
     const lang = normalizeSupportedLang(detail.Lang);
-
-    // return
     return {
         [GalleryInfoFields.GalleryId]: toBindingRowKey(detail.GalleryId),
         [GalleryInfoFields.RowId]: toBindingRowKey(detail.RowId ?? index + 1),
@@ -515,7 +539,6 @@ const buildGalleryInfoTabItems = (items: GalleryInfoTabItem[]): Record<string, s
 /** 保留 DTO 原始 key 值，避免 null 被轉成 undefined 後比對不到原列。 */
 const toBindingRowKey = (value: string | number | null | undefined): string | number | null | undefined =>
 {
-    // return
     return value;
 };
 
@@ -551,7 +574,6 @@ const buildGalleryPhotoGridProps = (style: IEditGridView_Style, displayName: Mod
 const buildGalleryPhotoInfoGridProps = (parentRowId: number, style: IEditGridView_Style, displayName: ModelDisplaySchema) =>
 {
     const gridTitle = getGalleryTableTitle(displayName, GallerySetFields.GalleryPhotosInfo, "相片語系明細");
-
     return {
         title: gridTitle,
         ariaLabel: `相片 ${parentRowId} ${gridTitle}`,
@@ -1076,35 +1098,6 @@ const buildEmptyGalleryPhotoCellValue = (): GalleryPhotoCellValue =>
     return { fileName: "", internalId: "", originalFileName: "" };
 };
 
-/** 建立相片 CellValue，保留預覽 url 給 EditGrid readonly render 使用。 */
-export const buildGalleryPhotoCellValue = (photo: GalleryPhoto): GalleryPhotoCellValue =>
-{
-    const internalId = photo.PicSrcId ?? "";
-
-    return { internalId, fileName: internalId, originalFileName: "", url: getGalleryPhotoPreviewUrl(internalId) };
-};
-
-/** 上傳後建立新的相片 CellValue，欄位顯示原始檔名與 internalId。 */
-export const buildUploadedGalleryPhotoCellValue = (internalId: string, originalName?: string): GalleryPhotoCellValue =>
-{
-    const safeOriginalName = originalName ?? "";
-
-    return {
-        internalId,
-        fileName: buildGalleryPhotoFieldDisplayName(safeOriginalName, internalId),
-        originalFileName: safeOriginalName,
-        url: getGalleryPhotoPreviewUrl(internalId),
-    };
-};
-
-/** 將 EditGrid 值正規化成相片 CellValue。 */
-export const toGalleryPhotoCellValue = (value: EditGridCellValue): GalleryPhotoCellValue =>
-{
-    if (isGalleryPhotoCellValue(value)) return value;
-    if (typeof value === "string") return { internalId: value, fileName: buildGalleryPhotoFieldDisplayName("", value), url: getGalleryPhotoPreviewUrl(value) };
-    return { fileName: "", internalId: "" };
-};
-
 /** 判斷是否為相片 CellValue。 */
 const isGalleryPhotoCellValue = (value: EditGridCellValue): value is GalleryPhotoCellValue =>
 {
@@ -1118,13 +1111,6 @@ const buildGalleryPhotoFieldDisplayName = (originalName?: string | null, interna
     const id = String(internalId ?? "").trim();
     if (name && id) return `${name} (${id})`;
     return name || id;
-};
-
-/** 取得相片預覽網址。 */
-export const getGalleryPhotoPreviewUrl = (picId?: string | null): string | undefined =>
-{
-    const id = String(picId ?? "").trim();
-    return id ? FileManagementAPI.get_Public_Preview_Url(id) ?? undefined : undefined;
 };
 
 /** 建立相片 Row key。 */

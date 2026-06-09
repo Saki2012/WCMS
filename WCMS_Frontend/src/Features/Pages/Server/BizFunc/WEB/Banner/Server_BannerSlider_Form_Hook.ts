@@ -28,7 +28,7 @@ import {
     useEditGridBinding,
 } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { type Lang, LangLabelMap, SUPPORTED_LANGS, useEnsureLangDetails } from "@/SysCore/i18n/lang";
+import { buildSupportedLangOrder, type Lang, LangLabelMap, SUPPORTED_LANGS, useEnsureLangDetails } from "@/SysCore/i18n/lang";
 import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
@@ -41,13 +41,19 @@ import { useCallback, useMemo } from "react";
 
 // #region Property
 type BannerSet = components["schemas"]["BannerSet_DTO"];
+
 type BannerDetail = components["schemas"]["BannerDetail_DTO"];
+
 type BannerDetailInfo = components["schemas"]["BannerDetailInfo_DTO"];
+
 type WindowTarget = components["schemas"]["WindowTarget"];
+
 type UploadFileHandler = ReturnType<typeof useUploadFile>["handleFileChange"];
 
 export type BannerPictureCellValue = EditGridFileValue & { internalId?: string; originalFileName?: string; };
+
 export type BannerDetailGridRow = GridRow & { BannerId?: string | null; DetailRowId?: number | null; };
+
 export type BannerDetailInfoGridRow = GridRow & { BannerId?: string | null; ParentRowId?: number | null; InfoRowId?: number | null; };
 
 export interface UseBannerSliderFormTemplateOptions
@@ -90,7 +96,6 @@ export interface UseBannerDetailEditGridOptions
 
     /** 子明細編輯中時鎖住父層 */
     isSubDetailEditing: boolean;
-
 }
 
 export interface UseBannerDetailInfoEditGridOptions
@@ -111,9 +116,6 @@ export interface UseBannerDetailInfoEditGridOptions
     style: IEditGridView_Style;
 }
 
-export const bannerSliderEmptyData: BannerSet = { Banner: {}, BannerDetail: [{ RowId: 1 }], BannerDetailInfo: [] };
-export const BannerDetailInfoSubDetailColumnKey = "__BannerDetailInfo";
-
 export type BannerSliderFormRefs = {
     /** 外部連結開啟方式選項 */
     windowTargetOpts: Record<string, string>;
@@ -124,16 +126,27 @@ export type BannerSliderFormActionsOpt = {
     onBackToList: () => void;
 };
 
-export type BannerSliderFormAdapter = {
-    BannerSlider: ReturnType<typeof BannerSliderAdapter>;
-};
+export type BannerSliderFormAdapter = { BannerSlider: ReturnType<typeof BannerSliderAdapter>; };
+
+/** 標題顏色，後續看是否可調成進階選取 RGBA。 */
+const fontColorOptions = toEditGridOptions({ "0": "系統預設", "1": "白色", "2": "綠色" }, true);
 // #endregion
 
 // #region Public
+export const bannerSliderEmptyData: BannerSet = { Banner: {}, BannerDetail: [{ RowId: 1 }], BannerDetailInfo: [] };
+
+export const BannerDetailInfoSubDetailColumnKey = "__BannerDetailInfo";
+
 /** 建立 BannerSlider Form Template，統一交給 Server_FormTemplate 處理資料流程。 */
 export const useBannerSliderFormTemplate = (
     opt: UseBannerSliderFormTemplateOptions,
-): ServerFormTemplate<BannerSet, BannerSliderFormAdapter, BannerSliderFormRefs, ServerFormDefaultRawData<BannerSet, BannerSliderFormRefs>, BannerSliderFormActionsOpt> =>
+): ServerFormTemplate<
+    BannerSet,
+    BannerSliderFormAdapter,
+    BannerSliderFormRefs,
+    ServerFormDefaultRawData<BannerSet, BannerSliderFormRefs>,
+    BannerSliderFormActionsOpt
+> =>
 {
     return useMemo(() =>
     {
@@ -161,10 +174,9 @@ export const useBannerDetailEditGrid = (opt: UseBannerDetailEditGridOptions) =>
     const uploadFile = useUploadFile({ enablePreview: false });
     const displayName = opt.binding.displayName;
     const columns = useMemo(() => buildBannerDetailColumns(displayName), [displayName]);
-    const handlePictureValueChange = useCallback(
-        (args: EditGridCellValueChangeArgs) => uploadBannerPictureValue(args, uploadFile.handleFileChange),
-        [uploadFile.handleFileChange],
-    );
+    const handlePictureValueChange = useCallback((args: EditGridCellValueChangeArgs) => uploadBannerPictureValue(args, uploadFile.handleFileChange), [
+        uploadFile.handleFileChange,
+    ]);
 
     return useEditGridBinding<BannerSet, BannerDetail, BannerDetailGridRow>({
         binding: opt.binding,
@@ -202,9 +214,48 @@ export const useBannerDetailInfoEditGrid = (opt: UseBannerDetailInfoEditGridOpti
         editGridProps: buildBannerDetailInfoGridProps(opt.parentRowId, opt.style, displayName),
     });
 };
+
+/** 建立圖片 CellValue，保留預覽 url 給 EditGrid readonly render 使用。 */
+export const buildBannerPictureCellValue = (detail: BannerDetail): BannerPictureCellValue =>
+{
+    const internalId = detail.PicSrcId ?? "";
+
+    return { internalId, fileName: buildBannerPictureFieldDisplayName("", internalId), originalFileName: "", url: getBannerPicturePreviewUrl(internalId) };
+};
+
+/** 上傳後建立新的圖片 CellValue，欄位顯示原始檔名與 internalId。 */
+export const buildUploadedBannerPictureCellValue = (internalId: string, originalName?: string): BannerPictureCellValue =>
+{
+    const safeOriginalName = originalName ?? "";
+
+    return {
+        internalId,
+        fileName: buildBannerPictureFieldDisplayName(safeOriginalName, internalId),
+        originalFileName: safeOriginalName,
+        url: getBannerPicturePreviewUrl(internalId),
+    };
+};
+
+/** 將 EditGrid 值正規化成圖片 CellValue。 */
+export const toBannerPictureCellValue = (value: EditGridCellValue): BannerPictureCellValue =>
+{
+    if (isBannerPictureCellValue(value)) return value;
+    if (typeof value === "string")
+    {
+        return { internalId: value, fileName: buildBannerPictureFieldDisplayName("", value), url: getBannerPicturePreviewUrl(value) };
+    }
+    return { fileName: "", internalId: "" };
+};
+
+/** 取得圖片預覽網址。 */
+export const getBannerPicturePreviewUrl = (picId?: string | null): string | undefined =>
+{
+    const id = String(picId ?? "").trim();
+    return id ? FileManagementAPI.get_Server_Preview_Url(id) ?? undefined : undefined;
+};
 // #endregion
 
-// #region Timing
+// #region Private
 /** 建立 BannerSlider Form 標題，功能名稱優先讀 ModelDisplayName。 */
 const buildBannerSliderFormTitle = (ctx: { mode: "new" | "edit"; displayName: ModelDisplaySchema; }): string =>
 {
@@ -226,9 +277,7 @@ const buildBannerSliderFormAdapter = (): BannerSliderFormAdapter =>
 };
 
 /** 取得 Header / Detail 需要的參照資料與語系明細補齊。 */
-const useBannerSliderReferenceData = (
-    ctx: { binding: ServerFormDefaultRawData<BannerSet, BannerSliderFormRefs>["formData"]; lang: Lang; },
-) =>
+const useBannerSliderReferenceData = (ctx: { binding: ServerFormDefaultRawData<BannerSet, BannerSliderFormRefs>["formData"]; lang: Lang; }) =>
 {
     useEnsureLangDetails(ctx.binding, {
         headerName: BannerSetFields.BannerDetail,
@@ -250,9 +299,7 @@ const useBannerSliderReferenceData = (
         };
     }, [windowTargetOpts.data, windowTargetOpts.error, windowTargetOpts.isLoading]);
 };
-// #endregion
 
-// #region Private
 /** 取得 Banner Model 顯示名稱，避免 Form 標題寫死功能名稱。 */
 const getBannerModelTitle = (displayName: ModelDisplaySchema, fallback: string): string =>
 {
@@ -350,7 +397,17 @@ const buildBannerDetailColumns = (displayName: ModelDisplaySchema): ColumnConfig
     const sortTitle = getBannerColumnTitle(displayName, BannerSetFields.BannerDetail, BannerDetailFields.Sort, "排序編號");
 
     return [
-        { key: BannerDetailFields.PicSrcId, title: picTitle, width: 280, inputType: "file", editable: true, accept: "image/*", multiple: false, maxFileCount: 1, maxFileSizeMB: 10 },
+        {
+            key: BannerDetailFields.PicSrcId,
+            title: picTitle,
+            width: 280,
+            inputType: "file",
+            editable: true,
+            accept: "image/*",
+            multiple: false,
+            maxFileCount: 1,
+            maxFileSizeMB: 10,
+        },
         { key: BannerDetailFields.Validate_Start, title: startTitle, width: 180, inputType: "date-time", editable: true },
         { key: BannerDetailFields.Validate_End, title: endTitle, width: 180, inputType: "date-time", editable: true },
         { key: BannerDetailFields.FontColor, title: fontTitle, width: 140, inputType: "selectSingle", editable: true, options: fontColorOptions },
@@ -362,13 +419,41 @@ const buildBannerDetailColumns = (displayName: ModelDisplaySchema): ColumnConfig
 /** 建立語系明細欄位設定，欄位名稱優先讀 ModelDisplayName。 */
 const buildBannerDetailInfoColumns = (displayName: ModelDisplaySchema, windowTargetOpts: Record<string, string>): ColumnConfig[] =>
 {
-    const baseColumns: ColumnConfig[] = [
-        { key: BannerDetailInfoFields.Lang, title: getBannerColumnTitle(displayName, BannerSetFields.BannerDetailInfo, BannerDetailInfoFields.Lang, "語系"), width: 110, inputType: "readonly", editable: false },
-        { key: BannerDetailInfoFields.Title, title: getBannerColumnTitle(displayName, BannerSetFields.BannerDetailInfo, BannerDetailInfoFields.Title, "標題"), width: 180, inputType: "text", editable: true, maxLength: 200 },
-        { key: BannerDetailInfoFields.Content, title: getBannerColumnTitle(displayName, BannerSetFields.BannerDetailInfo, BannerDetailInfoFields.Content, "內文"), width: 260, inputType: "textarea", editable: true, rows: 3 },
-        { key: BannerDetailInfoFields.URL, title: getBannerColumnTitle(displayName, BannerSetFields.BannerDetailInfo, BannerDetailInfoFields.URL, "網址"), width: 260, inputType: "text", editable: true, maxLength: 500 },
-        { key: BannerDetailInfoFields.URL_Open, title: getBannerColumnTitle(displayName, BannerSetFields.BannerDetailInfo, BannerDetailInfoFields.URL_Open, "開啟方式"), width: 140, inputType: "selectSingle", editable: true, options: buildWindowTargetEditGridOptions(windowTargetOpts) },
-    ];
+    const baseColumns: ColumnConfig[] = [{
+        key: BannerDetailInfoFields.Lang,
+        title: getBannerColumnTitle(displayName, BannerSetFields.BannerDetailInfo, BannerDetailInfoFields.Lang, "語系"),
+        width: 110,
+        inputType: "readonly",
+        editable: false,
+    }, {
+        key: BannerDetailInfoFields.Title,
+        title: getBannerColumnTitle(displayName, BannerSetFields.BannerDetailInfo, BannerDetailInfoFields.Title, "標題"),
+        width: 180,
+        inputType: "text",
+        editable: true,
+        maxLength: 200,
+    }, {
+        key: BannerDetailInfoFields.Content,
+        title: getBannerColumnTitle(displayName, BannerSetFields.BannerDetailInfo, BannerDetailInfoFields.Content, "內文"),
+        width: 260,
+        inputType: "textarea",
+        editable: true,
+        rows: 3,
+    }, {
+        key: BannerDetailInfoFields.URL,
+        title: getBannerColumnTitle(displayName, BannerSetFields.BannerDetailInfo, BannerDetailInfoFields.URL, "網址"),
+        width: 260,
+        inputType: "text",
+        editable: true,
+        maxLength: 500,
+    }, {
+        key: BannerDetailInfoFields.URL_Open,
+        title: getBannerColumnTitle(displayName, BannerSetFields.BannerDetailInfo, BannerDetailInfoFields.URL_Open, "開啟方式"),
+        width: 140,
+        inputType: "selectSingle",
+        editable: true,
+        options: buildWindowTargetEditGridOptions(windowTargetOpts),
+    }];
 
     return shouldShowSpec1817Fields() ? [...baseColumns, ...buildSpec1817Columns()] : baseColumns;
 };
@@ -376,11 +461,13 @@ const buildBannerDetailInfoColumns = (displayName: ModelDisplaySchema, windowTar
 /** 建立 1817 客製欄位。 */
 const buildSpec1817Columns = (): ColumnConfig[] =>
 {
-    return [
-        { key: BannerDetailInfoFields.SpecLatestShows, title: "Latest Shows", width: 180, inputType: "text", editable: true },
-        { key: BannerDetailInfoFields.SpecShowLocation, title: "Show Location", width: 180, inputType: "text", editable: true },
-        { key: BannerDetailInfoFields.SpecShowDate, title: "Show Date", width: 180, inputType: "text", editable: true },
-    ];
+    return [{ key: BannerDetailInfoFields.SpecLatestShows, title: "Latest Shows", width: 180, inputType: "text", editable: true }, {
+        key: BannerDetailInfoFields.SpecShowLocation,
+        title: "Show Location",
+        width: 180,
+        inputType: "text",
+        editable: true,
+    }, { key: BannerDetailInfoFields.SpecShowDate, title: "Show Date", width: 180, inputType: "text", editable: true }];
 };
 
 /** 建立 WindowTarget 的 EditGrid options。 */
@@ -462,7 +549,11 @@ const buildBannerDetailCells = (
         }),
         buildEditGridCell(BannerDetailFields.Validate_Start, startTitle, detail.Validate_Start ?? "", { inputType: "date-time", editable: true }),
         buildEditGridCell(BannerDetailFields.Validate_End, endTitle, detail.Validate_End ?? "", { inputType: "date-time", editable: true }),
-        buildEditGridCell(BannerDetailFields.FontColor, fontTitle, detail.FontColor ?? "0", { inputType: "selectSingle", editable: true, options: fontColorOptions }),
+        buildEditGridCell(BannerDetailFields.FontColor, fontTitle, detail.FontColor ?? "0", {
+            inputType: "selectSingle",
+            editable: true,
+            options: fontColorOptions,
+        }),
         buildEditGridCell(BannerDetailFields.Sort, sortTitle, detail.Sort ?? rowId, { inputType: "number", editable: true, min: 0 }),
         buildEditGridCell(BannerDetailInfoSubDetailColumnKey, "語系明細", "", { inputType: "readonly", editable: false, render: opt.renderSubDetailToggle }),
     ];
@@ -472,11 +563,36 @@ const buildBannerDetailCells = (
 const buildBannerDetailInfoCells = (info: BannerDetailInfo, displayName: ModelDisplaySchema, windowTargetOpts: Record<string, string>): RowCell[] =>
 {
     const cells = [
-        buildEditGridCell(BannerDetailInfoFields.Lang, getBannerColumnTitle(displayName, BannerSetFields.BannerDetailInfo, BannerDetailInfoFields.Lang, "語系"), info.Lang ?? "zh-tw", { inputType: "readonly", editable: false, render: args => getBannerLangText(args.value) }),
-        buildEditGridCell(BannerDetailInfoFields.Title, getBannerColumnTitle(displayName, BannerSetFields.BannerDetailInfo, BannerDetailInfoFields.Title, "標題"), info.Title ?? "", { inputType: "text", editable: true, maxLength: 200 }),
-        buildEditGridCell(BannerDetailInfoFields.Content, getBannerColumnTitle(displayName, BannerSetFields.BannerDetailInfo, BannerDetailInfoFields.Content, "內文"), info.Content ?? "", { inputType: "textarea", editable: true, rows: 3 }),
-        buildEditGridCell(BannerDetailInfoFields.URL, getBannerColumnTitle(displayName, BannerSetFields.BannerDetailInfo, BannerDetailInfoFields.URL, "網址"), info.URL ?? "", { inputType: "text", editable: true, maxLength: 500 }),
-        buildEditGridCell(BannerDetailInfoFields.URL_Open, getBannerColumnTitle(displayName, BannerSetFields.BannerDetailInfo, BannerDetailInfoFields.URL_Open, "開啟方式"), info.URL_Open ?? 0, { inputType: "selectSingle", editable: true, options: buildWindowTargetEditGridOptions(windowTargetOpts) }),
+        buildEditGridCell(
+            BannerDetailInfoFields.Lang,
+            getBannerColumnTitle(displayName, BannerSetFields.BannerDetailInfo, BannerDetailInfoFields.Lang, "語系"),
+            info.Lang ?? "zh-tw",
+            { inputType: "readonly", editable: false, render: args => getBannerLangText(args.value) },
+        ),
+        buildEditGridCell(
+            BannerDetailInfoFields.Title,
+            getBannerColumnTitle(displayName, BannerSetFields.BannerDetailInfo, BannerDetailInfoFields.Title, "標題"),
+            info.Title ?? "",
+            { inputType: "text", editable: true, maxLength: 200 },
+        ),
+        buildEditGridCell(
+            BannerDetailInfoFields.Content,
+            getBannerColumnTitle(displayName, BannerSetFields.BannerDetailInfo, BannerDetailInfoFields.Content, "內文"),
+            info.Content ?? "",
+            { inputType: "textarea", editable: true, rows: 3 },
+        ),
+        buildEditGridCell(
+            BannerDetailInfoFields.URL,
+            getBannerColumnTitle(displayName, BannerSetFields.BannerDetailInfo, BannerDetailInfoFields.URL, "網址"),
+            info.URL ?? "",
+            { inputType: "text", editable: true, maxLength: 500 },
+        ),
+        buildEditGridCell(
+            BannerDetailInfoFields.URL_Open,
+            getBannerColumnTitle(displayName, BannerSetFields.BannerDetailInfo, BannerDetailInfoFields.URL_Open, "開啟方式"),
+            info.URL_Open ?? 0,
+            { inputType: "selectSingle", editable: true, options: buildWindowTargetEditGridOptions(windowTargetOpts) },
+        ),
     ];
 
     return shouldShowSpec1817Fields() ? [...cells, ...buildSpec1817Cells(info)] : cells;
@@ -616,10 +732,7 @@ const removeBannerDetailInfoFromData = (data: BannerSet, parentRowId: number): B
 };
 
 /** 使用 EditGrid 內建 file 欄位選圖後，上傳並轉回圖片值。 */
-const uploadBannerPictureValue = async (
-    args: EditGridCellValueChangeArgs,
-    handleFileChange: UploadFileHandler,
-): Promise<EditGridCellValueChangeResult> =>
+const uploadBannerPictureValue = async (args: EditGridCellValueChangeArgs, handleFileChange: UploadFileHandler): Promise<EditGridCellValueChangeResult> =>
 {
     const selectedFile = getSelectedEditGridFile(args.nextValue);
     if (!selectedFile?.file) return { value: buildEmptyBannerPictureCellValue() };
@@ -660,40 +773,6 @@ const buildEmptyBannerPictureCellValue = (): BannerPictureCellValue =>
     return { fileName: "", internalId: "", originalFileName: "" };
 };
 
-/** 建立圖片 CellValue，保留預覽 url 給 EditGrid readonly render 使用。 */
-export const buildBannerPictureCellValue = (detail: BannerDetail): BannerPictureCellValue =>
-{
-    const internalId = detail.PicSrcId ?? "";
-
-    return {
-        internalId,
-        fileName: buildBannerPictureFieldDisplayName("", internalId),
-        originalFileName: "",
-        url: getBannerPicturePreviewUrl(internalId),
-    };
-};
-
-/** 上傳後建立新的圖片 CellValue，欄位顯示原始檔名與 internalId。 */
-export const buildUploadedBannerPictureCellValue = (internalId: string, originalName?: string): BannerPictureCellValue =>
-{
-    const safeOriginalName = originalName ?? "";
-
-    return {
-        internalId,
-        fileName: buildBannerPictureFieldDisplayName(safeOriginalName, internalId),
-        originalFileName: safeOriginalName,
-        url: getBannerPicturePreviewUrl(internalId),
-    };
-};
-
-/** 將 EditGrid 值正規化成圖片 CellValue。 */
-export const toBannerPictureCellValue = (value: EditGridCellValue): BannerPictureCellValue =>
-{
-    if (isBannerPictureCellValue(value)) return value;
-    if (typeof value === "string") return { internalId: value, fileName: buildBannerPictureFieldDisplayName("", value), url: getBannerPicturePreviewUrl(value) };
-    return { fileName: "", internalId: "" };
-};
-
 /** 判斷是否為輪播圖片 CellValue。 */
 const isBannerPictureCellValue = (value: EditGridCellValue): value is BannerPictureCellValue =>
 {
@@ -709,13 +788,6 @@ const buildBannerPictureFieldDisplayName = (originalName?: string | null, intern
     return name || id;
 };
 
-/** 取得圖片預覽網址。 */
-export const getBannerPicturePreviewUrl = (picId?: string | null): string | undefined =>
-{
-    const id = String(picId ?? "").trim();
-    return id ? FileManagementAPI.get_Server_Preview_Url(id) ?? undefined : undefined;
-};
-
 /** 建立圖片 Row key。 */
 const buildBannerDetailRowKey = (detail: BannerDetail, index: number): string =>
 {
@@ -726,13 +798,6 @@ const buildBannerDetailRowKey = (detail: BannerDetail, index: number): string =>
 const buildBannerDetailInfoRowKey = (info: BannerDetailInfo, index: number): string =>
 {
     return `banner-info-${info.BannerId ?? "new"}-${info.ParentRowId ?? 0}-${info.RowId ?? index + 1}-${info.Lang ?? "unknown"}`;
-};
-
-/** 建立目前 Case 支援語系順序，當前語系優先。 */
-const buildSupportedLangOrder = (preferLang: Lang): Lang[] =>
-{
-    const langs = [preferLang, ...SUPPORTED_LANGS];
-    return langs.filter((lang, index) => langs.indexOf(lang) === index);
 };
 
 /** 取得語系欄位值。 */
@@ -754,7 +819,4 @@ const shouldShowSpec1817Fields = (): boolean =>
 {
     return String(import.meta.env.VITE_SPEC_CODE ?? "") === "1817";
 };
-
-/** 標題顏色，後續看是否可調成進階選取 RGBA。 */
-const fontColorOptions = toEditGridOptions({ "0": "系統預設", "1": "白色", "2": "綠色" }, true);
 // #endregion

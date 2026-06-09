@@ -12,6 +12,23 @@ import {
     useMatCategoryListGridTemplate,
 } from "./Server_MatCategory_List_Hook";
 
+// #region Property
+const matCategoryListRenderers: MatCategoryListRenderers = {
+    renderInfoFieldContent: renderMatCategoryInfoFieldContent,
+};
+// #endregion
+
+// #region Public
+/** 物件類別列表 */
+export const Server_MatCategory_List_Comp = (prop: { title: string; theme: IBETheme; lang: Lang; }) =>
+{
+    const template = useMatCategoryListGridTemplate({ lang: prop.lang, renderers: matCategoryListRenderers });
+
+    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} renderSearchBar={renderMatCategorySearchBar} />;
+};
+// #endregion
+
+// #region EntityComp
 /** 渲染物件類別列表搜尋列 */
 const renderMatCategorySearchBar = (props: ServerListGridSearchRenderProps): ReactNode =>
 {
@@ -26,6 +43,7 @@ const renderMatCategorySearchBar = (props: ServerListGridSearchRenderProps): Rea
     );
 };
 
+
 /** 渲染自定義欄位資訊 */
 const renderMatCategoryInfoFieldContent = (set: MatCategorySet, lang: Lang): ReactNode =>
 {
@@ -38,15 +56,4 @@ const renderMatCategoryInfoFieldContent = (set: MatCategorySet, lang: Lang): Rea
         </ul>
     );
 };
-
-const matCategoryListRenderers: MatCategoryListRenderers = {
-    renderInfoFieldContent: renderMatCategoryInfoFieldContent,
-};
-
-/** 物件類別列表 */
-export const Server_MatCategory_List_Comp = (prop: { title: string; theme: IBETheme; lang: Lang; }) =>
-{
-    const template = useMatCategoryListGridTemplate({ lang: prop.lang, renderers: matCategoryListRenderers });
-
-    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} renderSearchBar={renderMatCategorySearchBar} />;
-};
+// #endregion

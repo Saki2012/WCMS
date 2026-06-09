@@ -3,6 +3,7 @@ import img2 from "@/SpecFetures/1817/Assets/Client/images/media_reports/TOPic_02
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 
+// #region Public
 export const LinkData = (props: { lang: Lang; }) =>
 {
     return (
@@ -44,3 +45,4 @@ export const LinkData = (props: { lang: Lang; }) =>
         </div>
     );
 };
+// #endregion

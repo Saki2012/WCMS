@@ -1,11 +1,13 @@
 import type { ILibBaseComponentsProp } from "./LibBaseData";
 
+// #region Property
 export interface ILibFileInputStyle
 {
     Labelstyle: string;
     SelectStyle: string;
     InputStyle: string;
 }
+
 
 export interface ILibFileInputProp extends ILibBaseComponentsProp
 {
@@ -19,3 +21,4 @@ export interface ILibFileInputProp extends ILibBaseComponentsProp
     accept?: string;
     disabled?: boolean;
 }
+// #endregion

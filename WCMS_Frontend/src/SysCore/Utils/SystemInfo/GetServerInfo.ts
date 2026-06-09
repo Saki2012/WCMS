@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 
+// #region Public
 export const SysCurrentDate = () =>
 {
     const [date, setDate] = useState<Date | null>(null);
@@ -21,3 +22,4 @@ export const SysCurrentDate = () =>
 
     return date;
 };
+// #endregion

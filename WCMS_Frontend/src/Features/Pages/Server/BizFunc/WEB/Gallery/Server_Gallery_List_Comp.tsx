@@ -8,6 +8,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import type { ReactNode } from "react";
 import { useGalleryListGridTemplate } from "./Server_Gallery_List_Hook";
 
+// #region Public
 /** 相簿列表 */
 export const Server_GalleryListComp = (prop: { title: string; theme: IBETheme; lang: Lang; }) =>
 {
@@ -15,7 +16,9 @@ export const Server_GalleryListComp = (prop: { title: string; theme: IBETheme; l
 
     return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} renderSearchBar={renderGallerySearchBar} />;
 };
+// #endregion
 
+// #region EntityComp
 /** 渲染相簿列表搜尋列 */
 const renderGallerySearchBar = (props: ServerListGridSearchRenderProps): ReactNode =>
 {
@@ -29,3 +32,4 @@ const renderGallerySearchBar = (props: ServerListGridSearchRenderProps): ReactNo
         />
     );
 };
+// #endregion

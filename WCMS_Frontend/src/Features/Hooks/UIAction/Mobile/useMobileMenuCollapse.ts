@@ -1,5 +1,6 @@
 import { type RefObject, useCallback, useEffect, useRef } from "react";
 
+// #region Property
 /** Bootstrap Collapse instance 型別（避免 any） */
 interface BootstrapCollapseInstance
 {
@@ -14,7 +15,6 @@ interface BootstrapGlobal
 {
     Collapse?: BootstrapCollapseCtor;
 }
-
 export interface UseMobileMenuCollapseOptions
 {
     headerRef: RefObject<HTMLElement>;
@@ -25,16 +25,13 @@ export interface UseMobileMenuCollapseOptions
     headerActiveClass?: string;
     lockBodyScroll?: boolean;
     disableBootstrapAutoToggle?: boolean;
-
     /** 是否啟用 dropdown/submenu 的點擊展開（預設 true） */
     enableDropdownToggle?: boolean;
     /** 是否攔截 hover/focus 的 bubble（避免滑過就互斥收合）（預設 true） */
     stopHoverAutoClose?: boolean;
-
     /** 判斷 mobile 寬度用的 media query（預設 navbar-expand-xl） */
     mobileMediaQuery?: string;
 }
-
 export interface UseMobileMenuCollapseResult
 {
     /** 目前是否展開（ref，不觸發 rerender） */
@@ -46,33 +43,22 @@ export interface UseMobileMenuCollapseResult
     /** 手動切換 */
     toggleMenu: () => void;
 }
+// #endregion
 
+// #region Public
 export const useMobileMenuCollapse = (opts: UseMobileMenuCollapseOptions): UseMobileMenuCollapseResult =>
 {
     // 宣告變數：狀態與 API
     const isOpenRef = useRef<boolean>(false);
     const apiRef = useRef<{ open: () => void; close: () => void; toggle: () => void; } | null>(null);
-
     // function：對外 API（穩定引用）
-    const openMenu = useCallback(() =>
-    {
-        apiRef.current?.open();
-    }, []);
-
-    const closeMenu = useCallback(() =>
-    {
-        apiRef.current?.close();
-    }, []);
-
-    const toggleMenu = useCallback(() =>
-    {
-        apiRef.current?.toggle();
-    }, []);
+    const openMenu = useCallback(() => apiRef.current?.open(), []);
+    const closeMenu = useCallback(() => apiRef.current?.close(), []);
+    const toggleMenu = useCallback(() => apiRef.current?.toggle(), []);
 
     useEffect(() =>
     {
         if (typeof window === "undefined") return;
-
         // 宣告變數：預設 selector / options
         const collapseSelector = opts.collapseSelector ?? "#navbar-content";
         const togglerSelector = opts.togglerSelector ?? ".navbar-toggler";
@@ -81,40 +67,31 @@ export const useMobileMenuCollapse = (opts: UseMobileMenuCollapseOptions): UseMo
         const headerActiveClass = opts.headerActiveClass ?? "active";
         const lockBodyScroll = opts.lockBodyScroll ?? true;
         const disableBootstrapAutoToggle = opts.disableBootstrapAutoToggle ?? true;
-
         const enableDropdownToggle = opts.enableDropdownToggle ?? true;
         const stopHoverAutoClose = opts.stopHoverAutoClose ?? true;
-
         const mobileMediaQuery = opts.mobileMediaQuery ?? "(max-width: 1199.98px)"; // navbar-expand-xl
-
         // 宣告變數：DOM
         const header = opts.headerRef.current;
         if (!header) return;
-
         const collapseEl = header.querySelector<HTMLElement>(collapseSelector);
         const togglerEl = header.querySelector<HTMLElement>(togglerSelector);
         const overlayEl = header.querySelector<HTMLElement>(overlaySelector);
         const hamburgerEl = header.querySelector<HTMLElement>(hamburgerSelector);
-
         if (!collapseEl || !togglerEl) return;
-
         // function：是否 mobile
         const isMobileWidth = () => window.matchMedia(mobileMediaQuery).matches;
-
         // function：body scroll lock
         const setBodyScrollLock = (locked: boolean) =>
         {
             if (!lockBodyScroll) return;
             document.body.style.overflow = locked ? "hidden" : "auto";
         };
-
         // function：同步 header active
         const setHeaderActive = (open: boolean) =>
         {
             header.classList.toggle(headerActiveClass, open);
             setBodyScrollLock(open);
         };
-
         // function：同步 hamburger/toggler aria
         const setHamburgerActive = (open: boolean) =>
         {
@@ -122,7 +99,6 @@ export const useMobileMenuCollapse = (opts: UseMobileMenuCollapseOptions): UseMo
             togglerEl.classList.toggle("collapsed", !open);
             togglerEl.setAttribute("aria-expanded", open ? "true" : "false");
         };
-
         // function：套用 open 狀態
         const applyOpenState = (open: boolean) =>
         {
@@ -130,7 +106,6 @@ export const useMobileMenuCollapse = (opts: UseMobileMenuCollapseOptions): UseMo
             setHeaderActive(open);
             setHamburgerActive(open);
         };
-
         // function：拿 Bootstrap Collapse（有就用，保留動畫）
         const getBootstrapCollapse = (): BootstrapCollapseInstance | null =>
         {
@@ -139,7 +114,6 @@ export const useMobileMenuCollapse = (opts: UseMobileMenuCollapseOptions): UseMo
             if (!ctor) return null;
             return ctor.getOrCreateInstance(collapseEl, { toggle: false });
         };
-
         // function：避免 Bootstrap 自己接管 toggler click（避免打架）
         const disableBsToggleAttrs = () =>
         {
@@ -148,7 +122,6 @@ export const useMobileMenuCollapse = (opts: UseMobileMenuCollapseOptions): UseMo
             togglerEl.removeAttribute("data-bs-target");
             togglerEl.removeAttribute("data-bs-parent");
         };
-
         // function：重置 collapse（避免殘留 show/collapsing）
         const resetCollapseInstant = () =>
         {
@@ -158,7 +131,6 @@ export const useMobileMenuCollapse = (opts: UseMobileMenuCollapseOptions): UseMo
             collapseEl.style.height = "";
             applyOpenState(false);
         };
-
         // function：fallback 關閉（不靠 bootstrap）
         const forceCloseCollapse = () =>
         {
@@ -167,7 +139,6 @@ export const useMobileMenuCollapse = (opts: UseMobileMenuCollapseOptions): UseMo
             collapseEl.classList.add("collapse");
             collapseEl.style.height = "";
         };
-
         // ---------- Dropdown helpers（點擊展開用） ----------
         const isDropdownHost = (el: Element | null): el is HTMLElement =>
         {
@@ -175,42 +146,35 @@ export const useMobileMenuCollapse = (opts: UseMobileMenuCollapseOptions): UseMo
             if (!(el instanceof HTMLElement)) return false;
             return el.matches("li.nav-item.dropdown") || el.matches("li.dropend.submenu");
         };
-
         const getHostMenu = (host: HTMLElement): HTMLElement | null =>
         {
             // 註解：用 :scope 取得直接子層，避免抓錯層
             return host.querySelector<HTMLElement>(":scope > .dropdown-menu");
         };
-
         const getHostToggle = (host: HTMLElement): HTMLElement | null =>
         {
             // 註解：用 :scope 取得直接子層，避免抓到子孫 toggle
             return host.querySelector<HTMLElement>(":scope > .dropdown-toggle");
         };
-
         const setToggleExpanded = (toggle: HTMLElement | null, expanded: boolean) =>
         {
             if (!toggle) return;
             toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
-
             // 註解：有些 prototype CSS 會看 toggle 自身的 show 狀態（+ / -）
             toggle.classList.toggle("show", expanded);
         };
-
         const closeSubtree = (host: HTMLElement) =>
         {
             // 註解：關閉自己 + 內層所有展開狀態
             host.classList.remove("show");
             getHostMenu(host)?.classList.remove("show");
             setToggleExpanded(getHostToggle(host), false);
-
             host.querySelectorAll<HTMLElement>("li.nav-item.dropdown.show, li.dropend.submenu.show").forEach((h) =>
             {
                 h.classList.remove("show");
                 getHostMenu(h)?.classList.remove("show");
                 setToggleExpanded(getHostToggle(h), false);
             });
-
             host.querySelectorAll<HTMLElement>(".dropdown-menu.show").forEach(m => m.classList.remove("show"));
             host.querySelectorAll<HTMLElement>(".dropdown-toggle.show").forEach(t => t.classList.remove("show"));
             host.querySelectorAll<HTMLElement>(".dropdown-toggle[aria-expanded=\"true\"]").forEach(t => t.setAttribute("aria-expanded", "false"));
@@ -473,3 +437,4 @@ export const useMobileMenuCollapse = (opts: UseMobileMenuCollapseOptions): UseMo
 
     return { isOpenRef, openMenu, closeMenu, toggleMenu };
 };
+// #endregion

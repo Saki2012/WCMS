@@ -4,10 +4,10 @@ import type { IMenu_Style } from "../../../../SysCore/Components/MenuList/MenuLi
 import type { INaviBarStyle } from "../../../../SysCore/Components/NaviBar/NaviBar_Clsx";
 import type { IPaginator_Style } from "../../../../SysCore/Components/Paginator/Paginator_Clsx";
 
+// #region Property
 /** 前台主題設定 */
 export interface IFETheme
 {
-    // #region Componets
     MainMenu: IMenu_Style;
     SideMenu: IMenu_Style;
     BreadCrumb: IBreadCrumbStyle;
@@ -21,3 +21,4 @@ export interface IFETheme
     // TextBox:ILibTextBoxStyle
     // TinyMCE:ILibTinyMCEStyle
 }
+// #endregion

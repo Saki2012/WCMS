@@ -13,12 +13,15 @@ import type {
     RowCell,
 } from "./EditGrid_Data";
 
-// #region Public Types
-
+// #region Property
 export type EditGridRowIdValue = string | number;
+
 export type EditGridMaybeRowIdValue = EditGridRowIdValue | null | undefined;
+
 export type EditGridCollectionName<TData> = Extract<keyof TData, string>;
+
 export type EditGridItemField<TItem> = Extract<keyof TItem, string>;
+
 
 export interface EditGridFormBinding<TData>
 {
@@ -28,6 +31,7 @@ export interface EditGridFormBinding<TData>
     /** 更新 Form 資料，通常可直接銜接 useQueryFormData / ServerFormTemplate 的 setFormData */
     setFormData: (updater: (prev: TData | undefined) => TData) => void;
 }
+
 
 export interface EditGridParentBinding<TItem>
 {
@@ -40,6 +44,7 @@ export interface EditGridParentBinding<TItem>
     /** 自訂 parent 比對規則，未提供時會用字串化後比對 */
     compare?: (itemValue: unknown, parentValue: EditGridMaybeRowIdValue) => boolean;
 }
+
 
 export interface EditGridBindingContext<TData, TItem>
 {
@@ -59,6 +64,7 @@ export interface EditGridBindingContext<TData, TItem>
     nextRowId: number;
 }
 
+
 export interface EditGridRowsCommitContext<TData, TItem>
 {
     /** 更新前完整 Form 資料 */
@@ -77,6 +83,7 @@ export interface EditGridRowsCommitContext<TData, TItem>
     nextItems: TItem[];
 }
 
+
 export interface EditGridDeleteContext<TData, TItem>
 {
     /** 目前完整 Form 資料 */
@@ -88,6 +95,7 @@ export interface EditGridDeleteContext<TData, TItem>
     /** 更新前 collection 全部資料 */
     sourceItems: TItem[];
 }
+
 
 export interface UseEditGridBindingOptions<TData, TItem, TRow extends GridRow = GridRow>
 {
@@ -140,6 +148,7 @@ export interface UseEditGridBindingOptions<TData, TItem, TRow extends GridRow = 
     editGridProps?: Omit<EditGridProps, "GridData" | "gridData" | "createRow" | "onRowsChange" | "onDeleteRow">;
 }
 
+
 export interface UseEditGridBindingResult<TItem>
 {
     /** 目前顯示在 Grid 的 DTO 資料 */
@@ -161,6 +170,7 @@ export interface UseEditGridBindingResult<TItem>
     onDeleteRow: (row: GridRow) => void;
 }
 
+
 export interface UseEditGridSubDetailStateOptions
 {
     /** 編輯中是否禁止切換展開列 */
@@ -169,6 +179,7 @@ export interface UseEditGridSubDetailStateOptions
     /** 自訂 row key 取得方式 */
     getRowKey?: (row: GridRow) => string;
 }
+
 
 export interface UseEditGridSubDetailStateResult
 {
@@ -190,11 +201,9 @@ export interface UseEditGridSubDetailStateResult
     /** 接給子層 EditGrid 的 editing state callback */
     onSubDetailEditingStateChange: (args: EditGridEditingStateArgs) => void;
 }
-
 // #endregion
 
-// #region Public Hooks
-
+// #region Public
 /** 建立 EditGrid 與 Form collection 的標準資料綁定流程。 */
 export const useEditGridBinding = <TData, TItem, TRow extends GridRow = GridRow>(
     opt: UseEditGridBindingOptions<TData, TItem, TRow>,
@@ -241,6 +250,7 @@ export const useEditGridBinding = <TData, TItem, TRow extends GridRow = GridRow>
     return { items, gridData, editGridProps, createRow, onRowsChange, onDeleteRow };
 };
 
+
 /** 管理 EditGrid 子明細展開狀態與子明細編輯鎖定。 */
 export const useEditGridSubDetailState = (opt?: UseEditGridSubDetailStateOptions): UseEditGridSubDetailStateResult =>
 {
@@ -266,9 +276,8 @@ export const useEditGridSubDetailState = (opt?: UseEditGridSubDetailStateOptions
     return { expandedRowKey, isSubDetailEditing, setExpandedRowKey, toggleSubDetail, closeSubDetail, onSubDetailEditingStateChange };
 };
 
-// #endregion
 
-// #region Public Helpers
+
 
 /** 建立共用 Cell，避免每支 Form 重複組 RowCell 結構。 */
 export const buildEditGridCell = (key: string, title: string, value: EditGridCellValue, opt?: Partial<RowCell>): RowCell =>
@@ -276,11 +285,13 @@ export const buildEditGridCell = (key: string, title: string, value: EditGridCel
     return { col: { key, title }, content: value as ReactNode, value, ...opt };
 };
 
+
 /** 取得 GridRow 的 RowId，缺值時以 index + 1 補上。 */
 export const getEditGridRowId = (row: GridRow, index: number = 0): number =>
 {
     return Number(row.RowId ?? row.rowId ?? row.rowid ?? index + 1);
 };
+
 
 /** 取得 GridRow 的穩定 key，供 SubDetail 展開或外部狀態使用。 */
 export const getEditGridRowKey = (row: GridRow): string =>
@@ -288,11 +299,13 @@ export const getEditGridRowKey = (row: GridRow): string =>
     return String(row.keyId || row.RowId || row.rowId || row.rowid || "");
 };
 
+
 /** 取得指定 Cell 值。 */
 export const getEditGridCellValue = (row: GridRow, key: string): EditGridCellValue =>
 {
     return row.cells.find(cell => cell.col.key === key)?.value;
 };
+
 
 /** 取得指定 Cell 的字串值，null / undefined 會轉為空字串。 */
 export const getEditGridStringCellValue = (row: GridRow, key: string): string =>
@@ -301,12 +314,14 @@ export const getEditGridStringCellValue = (row: GridRow, key: string): string =>
     return value === null || value === undefined ? "" : String(value);
 };
 
+
 /** 取得指定 Cell 的 nullable 字串值，空字串會轉為 null。 */
 export const getEditGridNullableStringCellValue = (row: GridRow, key: string): string | null =>
 {
     const value = getEditGridStringCellValue(row, key).trim();
     return value.length > 0 ? value : null;
 };
+
 
 /** 取得指定 Cell 的數字值，轉換失敗時回傳 fallback。 */
 export const getEditGridNumberCellValue = (row: GridRow, key: string, fallback: number): number =>
@@ -316,22 +331,22 @@ export const getEditGridNumberCellValue = (row: GridRow, key: string, fallback: 
     return Number.isFinite(numberValue) ? numberValue : fallback;
 };
 
+
 /** 將 enum map 轉為 EditGrid select options。 */
 export const toEditGridOptions = (data: Record<string, string>, keepStringValue = false): EditGridSelectOption[] =>
 {
     return Object.entries(data).map(([value, label]) => ({ label, value: keepStringValue ? value : toEditGridOptionValue(value) }));
 };
-
 // #endregion
 
-// #region Private Binding Helpers
-
+// #region Private
 /** 讀取目前 Form data 裡的 collection。 */
 const readCollectionItems = <TData, TItem, TRow extends GridRow>(data: TData, opt: UseEditGridBindingOptions<TData, TItem, TRow>): TItem[] =>
 {
     const items = opt.getItems?.(data) ?? readNamedCollectionItems(data, opt.collectionName);
     return Array.isArray(items) ? items : [];
 };
+
 
 /** 從指定 collectionName 讀取資料。 */
 const readNamedCollectionItems = <TData, TItem>(data: TData, collectionName?: EditGridCollectionName<TData>): TItem[] =>
@@ -341,12 +356,14 @@ const readNamedCollectionItems = <TData, TItem>(data: TData, collectionName?: Ed
     return Array.isArray(items) ? items as TItem[] : [];
 };
 
+
 /** 套用 parent 過濾與排序規則，取得目前 Grid 要顯示的資料。 */
 const buildVisibleItems = <TData, TItem, TRow extends GridRow>(sourceItems: TItem[], opt: UseEditGridBindingOptions<TData, TItem, TRow>): TItem[] =>
 {
     const filtered = opt.parent ? sourceItems.filter(item => isSameParentItem(item, opt.parent!)) : [...sourceItems];
     return opt.sortItems ? opt.sortItems(filtered) : filtered;
 };
+
 
 /** 建立 Hook 內部共用 context。 */
 const buildBindingContext = <TData, TItem, TRow extends GridRow>(
@@ -358,6 +375,7 @@ const buildBindingContext = <TData, TItem, TRow extends GridRow>(
 {
     return { data, sourceItems, visibleItems, nextRowNo: visibleItems.length + 1, nextRowId: getNextItemRowId(visibleItems, opt.getItemRowId) };
 };
+
 
 /** 建立新增列 Row。 */
 const buildCreateRow = <TData, TItem, TRow extends GridRow>(
@@ -373,6 +391,7 @@ const buildCreateRow = <TData, TItem, TRow extends GridRow>(
     if (opt.createItem) return opt.toRow(opt.createItem(ctx), nextRowNo - 1, ctx);
     return buildEmptyEditGridRow(nextRowNo);
 };
+
 
 /** 將 EditGrid rows 同步回 Form binding。 */
 const commitRowsToBinding = <TData, TItem, TRow extends GridRow>(rows: GridRow[], opt: UseEditGridBindingOptions<TData, TItem, TRow>): void =>
@@ -391,6 +410,7 @@ const commitRowsToBinding = <TData, TItem, TRow extends GridRow>(rows: GridRow[]
     });
 };
 
+
 /** 處理刪除列時的額外資料同步。 */
 const handleBindingDeleteRow = <TData, TItem, TRow extends GridRow>(row: GridRow, opt: UseEditGridBindingOptions<TData, TItem, TRow>): void =>
 {
@@ -400,6 +420,7 @@ const handleBindingDeleteRow = <TData, TItem, TRow extends GridRow>(row: GridRow
     opt.onDeleteRow({ data, row, sourceItems });
 };
 
+
 /** 寫回 collection 到 Form data。 */
 const writeCollectionItems = <TData, TItem, TRow extends GridRow>(data: TData, items: TItem[], opt: UseEditGridBindingOptions<TData, TItem, TRow>): TData =>
 {
@@ -407,6 +428,7 @@ const writeCollectionItems = <TData, TItem, TRow extends GridRow>(data: TData, i
     if (!opt.collectionName) return data;
     return { ...(data as Record<string, unknown>), [opt.collectionName]: items } as TData;
 };
+
 
 /** 合併 parent collection，子明細只替換同 parent 資料。 */
 const mergeCollectionItems = <TItem>(sourceItems: TItem[], nextVisibleItems: TItem[], parent?: EditGridParentBinding<TItem>): TItem[] =>
@@ -416,6 +438,7 @@ const mergeCollectionItems = <TItem>(sourceItems: TItem[], nextVisibleItems: TIt
     return [...otherItems, ...nextVisibleItems];
 };
 
+
 /** 判斷資料是否屬於目前 parent。 */
 const isSameParentItem = <TItem>(item: TItem, parent: EditGridParentBinding<TItem>): boolean =>
 {
@@ -424,6 +447,7 @@ const isSameParentItem = <TItem>(item: TItem, parent: EditGridParentBinding<TIte
     return normalizeCompareValue(itemValue) === normalizeCompareValue(parent.value);
 };
 
+
 /** 取得下一個 RowId。 */
 const getNextItemRowId = <TItem>(items: TItem[], getItemRowId?: (item: TItem, index: number) => EditGridMaybeRowIdValue): number =>
 {
@@ -431,17 +455,20 @@ const getNextItemRowId = <TItem>(items: TItem[], getItemRowId?: (item: TItem, in
     return maxRowId + 1;
 };
 
+
 /** 建立空白新增列，避免未提供 createItem/createRow 時 EditGrid 爆掉。 */
 const buildEmptyEditGridRow = (nextRowNo: number): GridRow =>
 {
     return { keyId: `edit-grid-new-${Date.now()}-${nextRowNo}`, rowId: nextRowNo, RowId: nextRowNo, RowNo: nextRowNo, rowState: "insert", cells: [] };
 };
 
+
 /** 建立 GridData。 */
 const buildEditGridData = (columns: ColumnConfig[], rows: GridRow[]): GridProps =>
 {
     return { columns, rows, CurrentPage: 1, TotalPage: 1, onPageChange: () => undefined };
 };
+
 
 /** 建立可直接傳入 EditGrid 的 props。 */
 const buildEditGridProps = <TData, TItem, TRow extends GridRow>(
@@ -455,9 +482,8 @@ const buildEditGridProps = <TData, TItem, TRow extends GridRow>(
     return { ...opt.editGridProps, GridData: gridData, createRow, onRowsChange, onDeleteRow };
 };
 
-// #endregion
 
-// #region Private Stable Snapshot Helpers
+
 
 /** 保存最新值，但不把整包物件放入 dependency，避免 inline option 造成循環。 */
 const useLatestRef = <TValue>(value: TValue) =>
@@ -467,6 +493,7 @@ const useLatestRef = <TValue>(value: TValue) =>
     return ref;
 };
 
+
 /** 建立 parent 設定簽章，避免 parent 每次 inline new object 造成重算。 */
 const buildParentBindingSignature = <TItem>(parent?: EditGridParentBinding<TItem>): string =>
 {
@@ -474,17 +501,20 @@ const buildParentBindingSignature = <TItem>(parent?: EditGridParentBinding<TItem
     return [String(parent.field), normalizeCompareValue(parent.value), Boolean(parent.compare)].join("|");
 };
 
+
 /** 建立 EditGrid 額外 props 簽章，避免 inline props 物件造成每次重建。 */
 const buildEditGridPropsSignature = (props?: UseEditGridBindingOptions<unknown, unknown>["editGridProps"]): string =>
 {
     return buildStableSnapshot(props ?? {});
 };
 
+
 /** 建立欄位清單簽章，忽略 render callback reference。 */
 const buildColumnListSignature = (columns: ColumnConfig[]): string =>
 {
     return (Array.isArray(columns) ? columns : []).map(buildColumnSignature).join("§");
 };
+
 
 /** 建立單一欄位簽章，避免 function reference 影響穩定性。 */
 const buildColumnSignature = (column: ColumnConfig): string =>
@@ -518,11 +548,13 @@ const buildColumnSignature = (column: ColumnConfig): string =>
     ].join("|");
 };
 
+
 /** 建立資料列清單簽章，讓 GridData 在內容沒變時維持穩定。 */
 const buildRowListSignature = (rows: GridRow[]): string =>
 {
     return (Array.isArray(rows) ? rows : []).map(buildRowSignature).join("§");
 };
+
 
 /** 建立單一資料列簽章，避免 ReactNode / callback reference 影響比對。 */
 const buildRowSignature = (row: GridRow): string =>
@@ -530,6 +562,7 @@ const buildRowSignature = (row: GridRow): string =>
     const cells = row.cells.map(cell => [cell.col.key, buildStableSnapshot(cell.value)].join(":")).join("|");
     return [row.keyId, row.RowId, row.rowId, row.rowid, row.RowNo, row.rowNo, row.rowno, row.rowState, cells].join("|");
 };
+
 
 /** 建立穩定快照文字，遇到 function / ReactNode / File 只保留可比對資訊。 */
 const buildStableSnapshot = (value: unknown): string =>
@@ -543,6 +576,7 @@ const buildStableSnapshot = (value: unknown): string =>
     }
 };
 
+
 /** JSON snapshot replacer，避免不可序列化物件造成比對失敗。 */
 const stableSnapshotReplacer = (_key: string, value: unknown): unknown =>
 {
@@ -552,11 +586,13 @@ const stableSnapshotReplacer = (_key: string, value: unknown): unknown =>
     return value;
 };
 
+
 /** 判斷是否為瀏覽器 File 物件。 */
 const isFileValue = (value: unknown): value is File =>
 {
     return typeof File !== "undefined" && value instanceof File;
 };
+
 
 /** 建立 File 快照內容，避免整個 File 物件進入 dependency。 */
 const buildFileValueSnapshot = (file: File): EditGridFileValue =>
@@ -564,21 +600,22 @@ const buildFileValueSnapshot = (file: File): EditGridFileValue =>
     return { fileName: file.name, size: file.size, mimeType: file.type };
 };
 
+
 /** 判斷是否像 React Element，避免 snapshot 讀入整包 React internals。 */
 const isReactElementLike = (value: unknown): boolean =>
 {
     return typeof value === "object" && value !== null && "$$typeof" in value;
 };
 
-// #endregion
 
-// #region Private Value Helpers
+
 
 /** 解析欄位設定，支援固定陣列或工廠方法。 */
 const resolveEditGridColumns = (columns: ColumnConfig[] | (() => ColumnConfig[])): ColumnConfig[] =>
 {
     return typeof columns === "function" ? columns() : columns;
 };
+
 
 /** 轉換 enum key 成 EditGrid option value。 */
 const toEditGridOptionValue = (value: string): EditGridOptionValue =>
@@ -587,10 +624,10 @@ const toEditGridOptionValue = (value: string): EditGridOptionValue =>
     return Number.isFinite(numberValue) && value.trim() !== "" ? numberValue : value;
 };
 
+
 /** 將值正規化為可比對文字。 */
 const normalizeCompareValue = (value: unknown): string =>
 {
     return String(value ?? "");
 };
-
 // #endregion

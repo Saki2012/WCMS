@@ -3,11 +3,13 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { useCallback, useEffect, useRef, useState } from "react";
 import "./GoTop.css";
 
+// #region Property
 /* =========================
  * i18n types
  * ========================= */
 
 type GoTopA11yText = { label: string; };
+
 
 /* =========================
  * i18n map
@@ -15,19 +17,6 @@ type GoTopA11yText = { label: string; };
 
 const GOTOP_A11Y_MAP: Partial<Record<Lang, GoTopA11yText>> = { "zh-tw": { label: "回到頂端" }, "zh-cn": { label: "回到顶端" }, en: { label: "Back to top" } };
 
-/* =========================
- * i18n getter (same style as paginator)
- * ========================= */
-
-const getGoTopA11y = (lang?: Lang): GoTopA11yText =>
-{
-    const key = (lang ?? DefaultLang) as Lang;
-
-    const byLang = GOTOP_A11Y_MAP[key];
-    const byDefault = GOTOP_A11Y_MAP[DefaultLang];
-
-    return byLang ?? byDefault ?? { label: "回到頂端" };
-};
 
 /* =========================
  * Props
@@ -39,7 +28,9 @@ interface GoTopProps
     threshold?: number;
     durationMs?: number;
 }
+// #endregion
 
+// #region Public
 /* =========================
  * Component
  * ========================= */
@@ -191,3 +182,20 @@ export const GoTop: React.FC<GoTopProps> = ({
         </button>
     );
 };
+// #endregion
+
+// #region Private
+/* =========================
+ * i18n getter (same style as paginator)
+ * ========================= */
+
+const getGoTopA11y = (lang?: Lang): GoTopA11yText =>
+{
+    const key = (lang ?? DefaultLang) as Lang;
+
+    const byLang = GOTOP_A11Y_MAP[key];
+    const byDefault = GOTOP_A11Y_MAP[DefaultLang];
+
+    return byLang ?? byDefault ?? { label: "回到頂端" };
+};
+// #endregion

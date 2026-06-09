@@ -4,18 +4,22 @@ e.x.:
 */
 import type { FieldDisplayName, SiteInfoItem } from "./SiteInfo_Data";
 
+// #region Property
 interface Props
 {
     items: SiteInfoItem[];
     displays: FieldDisplayName[];
 }
+// #endregion
 
-function getFieldName(FieldId: string, map: FieldDisplayName[]): string
+// #region Public
+export default function SiteInfo({ items, displays }: Props)
 {
-    const match = map.find((f) => f.FieldId === FieldId);
-    return match ? match.DisplayName : FieldId;
+    return <>{items.map((item, idx) => <SiteInfoComp key={idx} displayNameMap={displays} infoData={item} />)}</>;
 }
+// #endregion
 
+// #region Section
 function SiteInfoComp({ displayNameMap, infoData }: { displayNameMap: FieldDisplayName[]; infoData: SiteInfoItem; })
 {
     return (
@@ -30,8 +34,12 @@ function SiteInfoComp({ displayNameMap, infoData }: { displayNameMap: FieldDispl
         </div>
     );
 }
+// #endregion
 
-export default function SiteInfo({ items, displays }: Props)
+// #region Private
+function getFieldName(FieldId: string, map: FieldDisplayName[]): string
 {
-    return <>{items.map((item, idx) => <SiteInfoComp key={idx} displayNameMap={displays} infoData={item} />)}</>;
+    const match = map.find((f) => f.FieldId === FieldId);
+    return match ? match.DisplayName : FieldId;
 }
+// #endregion

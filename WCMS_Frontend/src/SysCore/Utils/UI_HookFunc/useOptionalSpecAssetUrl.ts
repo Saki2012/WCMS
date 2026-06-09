@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 
+// #region Property
 /**
  * 用 Vite glob 建「可選用」資產 URL。
  *
@@ -8,7 +9,6 @@ import { useMemo } from "react";
  * - 避免用 /src/SpecFetures/* 的 wildcard，否則會把所有 case 的 Assets 都打進 bundle
  */
 
-// #region Glob maps
 
 /** 目前 Spec（vite.config.ts: alias SpecFeature -> /src/SpecFetures/{VITE_SPEC_CODE}） */
 const RawSpecAssetUrlMap = import.meta.glob(
@@ -16,13 +16,14 @@ const RawSpecAssetUrlMap = import.meta.glob(
     { eager: true, query: "?url", import: "default" },
 ) as Record<string, string>;
 
+
 /** _default（vite.config.ts: alias SpecDefault -> /src/SpecFetures/_default） */
 const RawDefaultAssetUrlMap = import.meta.glob(
     "SpecDefault/Assets/**/**/*.{pdf,png,jpg,jpeg,gif,svg,webp,mp4,webm,mp3,wav,ogg,zip,rar,7z,txt,doc,docx,xls,xlsx,ppt,pptx}",
     { eager: true, query: "?url", import: "default" },
 ) as Record<string, string>;
 
-// #endregion
+
 
 export interface UseOptionalSpecAssetUrlArgs
 {
@@ -33,41 +34,13 @@ export interface UseOptionalSpecAssetUrlArgs
     fallbackToDefault?: boolean;
 }
 
-/** 統一路徑格式，避免多個 / 造成 key 對不上 */
-const normalizeRelativePath = (relativePath: string): string =>
-{
-    const s = (relativePath ?? "").trim();
-    return s.replace(/^\/+/, "");
-};
-
-/** 從 glob key 抽出我們想要的 key：一律使用 `Assets/...` */
-const tryGetAssetsRelativeKey = (globKey: string): string | null =>
-{
-    const idx = globKey.indexOf("/Assets/");
-    if (idx < 0) return null;
-
-    // idx+1：去掉前面的 '/'，讓 key 變成 `Assets/...`
-    return globKey.slice(idx + 1);
-};
-
-/** 將 glob map 轉為 `{ 'Assets/xxx': 'url' }` 的形式 */
-const toAssetsRelativeMap = (raw: Record<string, string>): Record<string, string> =>
-{
-    const out: Record<string, string> = {};
-
-    for (const [k, v] of Object.entries(raw))
-    {
-        const rel = tryGetAssetsRelativeKey(k);
-        if (!rel) continue;
-        out[rel] = v;
-    }
-
-    return out;
-};
 
 const SpecAssetUrlMap = toAssetsRelativeMap(RawSpecAssetUrlMap);
-const DefaultAssetUrlMap = toAssetsRelativeMap(RawDefaultAssetUrlMap);
 
+const DefaultAssetUrlMap = toAssetsRelativeMap(RawDefaultAssetUrlMap);
+// #endregion
+
+// #region Public
 /**
  * 依 `relativePath` 取得資產 URL。
  * - 先找當前 Spec
@@ -89,3 +62,40 @@ export const useOptionalSpecAssetUrl = (args: UseOptionalSpecAssetUrlArgs): stri
 
     return url;
 };
+// #endregion
+
+// #region Private
+/** 統一路徑格式，避免多個 / 造成 key 對不上 */
+const normalizeRelativePath = (relativePath: string): string =>
+{
+    const s = (relativePath ?? "").trim();
+    return s.replace(/^\/+/, "");
+};
+
+
+/** 從 glob key 抽出我們想要的 key：一律使用 `Assets/...` */
+const tryGetAssetsRelativeKey = (globKey: string): string | null =>
+{
+    const idx = globKey.indexOf("/Assets/");
+    if (idx < 0) return null;
+
+    // idx+1：去掉前面的 '/'，讓 key 變成 `Assets/...`
+    return globKey.slice(idx + 1);
+};
+
+
+/** 將 glob map 轉為 `{ 'Assets/xxx': 'url' }` 的形式 */
+const toAssetsRelativeMap = (raw: Record<string, string>): Record<string, string> =>
+{
+    const out: Record<string, string> = {};
+
+    for (const [k, v] of Object.entries(raw))
+    {
+        const rel = tryGetAssetsRelativeKey(k);
+        if (!rel) continue;
+        out[rel] = v;
+    }
+
+    return out;
+};
+// #endregion

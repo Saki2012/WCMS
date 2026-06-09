@@ -1,0 +1,120 @@
+.spec1821-banner {
+    position: relative;
+    overflow: hidden;
+}
+
+.spec1821-banner__media img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.spec1821-banner__caption {
+    position: absolute;
+    left: 4rem;
+    top: 20%;
+    max-width: 28rem;
+}
+
+.spec1821-banner__controls {
+    position: absolute;
+    right: 2rem;
+    bottom: 2rem;
+    display: flex;
+    gap: .5rem;
+}
+
+.spec1821-shortcut__list {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.spec1821-shortcut__item {
+    display: flex;
+    min-height: 8rem;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: .5rem;
+    text-decoration: none;
+}
+
+.spec1821-shortcut__icon {
+    width: 3rem;
+    height: 3rem;
+    object-fit: contain;
+}
+
+.spec1821-feature,
+.spec1821-links {
+    padding: 4rem 5vw;
+}
+
+.spec1821-section-title {
+    display: flex;
+    align-items: baseline;
+    gap: .75rem;
+    margin-bottom: 1.5rem;
+}
+
+.spec1821-feature__list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.spec1821-feature__card {
+    position: relative;
+    display: block;
+    min-height: 12rem;
+    overflow: hidden;
+    text-decoration: none;
+}
+
+.spec1821-feature__card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.spec1821-feature__caption {
+    position: absolute;
+    left: 50%;
+    bottom: 1rem;
+    transform: translateX(-50%);
+    text-align: center;
+}
+
+.spec1821-links__list {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.5rem;
+}
+
+.spec1821-links__item {
+    display: flex;
+    min-height: 5rem;
+    align-items: center;
+    justify-content: center;
+    gap: .75rem;
+    padding: 1rem;
+    text-decoration: none;
+}
+
+.spec1821-links__item img {
+    max-width: 10rem;
+    max-height: 3rem;
+    object-fit: contain;
+}
+
+@media (max-width: 991.98px) {
+    .spec1821-shortcut__list,
+    .spec1821-feature__list,
+    .spec1821-links__list {
+        grid-template-columns: 1fr;
+    }
+
+    .spec1821-banner__caption {
+        position: static;
+        padding: 1rem;
+    }
+}

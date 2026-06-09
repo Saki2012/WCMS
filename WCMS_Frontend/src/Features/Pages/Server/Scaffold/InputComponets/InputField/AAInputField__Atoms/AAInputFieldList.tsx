@@ -3,6 +3,7 @@ import type { AAInputFieldListProps } from "./AAInputField_Types";
 import { AAInputFieldItem } from "./AAInputFieldItem";
 import { buildAdapterBaseId } from "./AAInputField_Utils";
 
+// #region Public
 /**
  * 使用範例：
  * <AAInputFieldList title="欄位設定" fields={fields} onChange={handleChange} />
@@ -32,3 +33,4 @@ export const AAInputFieldList = (props: AAInputFieldListProps) =>
         </section>
     );
 };
+// #endregion

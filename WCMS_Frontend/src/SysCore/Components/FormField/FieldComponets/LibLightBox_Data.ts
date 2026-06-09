@@ -1,6 +1,8 @@
 import type { Lang } from "@/SysCore/i18n/lang";
 
+// #region Property
 export interface LibLightBoxSlide { src: string; title?: string; description?: string; download?: string; }
+
 
 export interface LibLightBoxProps {
     open: boolean;
@@ -10,4 +12,6 @@ export interface LibLightBoxProps {
     onClose: () => void;
 }
 
+
 export interface LibLightBoxRootStyle { [key: `--yarl__${string}`]: string | number; }
+// #endregion

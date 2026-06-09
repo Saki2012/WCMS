@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useLocation, useNavigationType } from "react-router-dom";
 
+// #region Public
 // 每次路徑改變就捲到最上方（但首次 Hydration 不要動，避免把使用者已滑動的位置拉回頂端）
 export const ScrollToTop = () =>
 {
@@ -26,3 +27,4 @@ export const ScrollToTop = () =>
     }, [key, hash, navType]);
     return null;
 };
+// #endregion

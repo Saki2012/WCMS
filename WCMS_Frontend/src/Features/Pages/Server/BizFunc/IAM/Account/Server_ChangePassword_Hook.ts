@@ -11,7 +11,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMatches } from "react-router";
 import { useLocation, useNavigate } from "react-router-dom";
 
+// #region Property
 type ChangePassword = components["schemas"]["ChangePassword"];
+
 
 export interface UseServerChangePasswordResult
 {
@@ -24,7 +26,9 @@ export interface UseServerChangePasswordResult
     onNewPwdChange: (value: string) => void;
     onConfirmPwdChange: (value: string) => void;
 }
+// #endregion
 
+// #region Public
 export const useServerChangePassword = (theme: IBETheme): UseServerChangePasswordResult =>
 {
     // 宣告變數
@@ -146,3 +150,4 @@ export const useServerChangePassword = (theme: IBETheme): UseServerChangePasswor
     // return
     return { prop, displayName, oldPwd, newPwd, confirmPwd, onOldPwdChange: setOldPwd, onNewPwdChange: setNewPwd, onConfirmPwdChange: setConfirmPwd };
 };
+// #endregion

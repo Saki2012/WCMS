@@ -4,17 +4,18 @@ import type { RouteHandleMeta } from "@/Features/Pages/Server/Scaffold/Routes/Se
 import { AutoRedirect } from "@/SysCore/Utils/Route/AutoRedirect";
 import type { IndexRouteObject, NonIndexRouteObject, RouteObject } from "react-router-dom";
 
-type ActionKey = `${string}/${string}/${string}`; // module/prog/action
+// #region Property
+type ActionKey = `${string}/${string}/${string}`;
+ // module/prog/action
 
 let cached: {
     modules: Map<string, IModuleMeta>;
     progs: Map<string, IProgMeta>; // module/prog
     actions: Map<ActionKey, IActionMeta>;
 } | undefined;
+// #endregion
 
-const progKey = (moduleCode: string, progId: string) => `${moduleCode}/${progId}` as const;
-const actionKey = (moduleCode: string, progId: string, actionCode: string) => `${moduleCode}/${progId}/${actionCode}` as ActionKey;
-
+// #region Public
 export const getServerMenuIndex = () =>
 {
     if (cached) return cached;
@@ -41,10 +42,14 @@ export const getServerMenuIndex = () =>
     return cached;
 };
 
+
 export const findModuleMeta = (moduleCode: string) => getServerMenuIndex().modules.get(moduleCode);
+
 export const findProgMeta = (moduleCode: string, progId: string) => getServerMenuIndex().progs.get(`${moduleCode}/${progId}`);
+
 export const findActionMeta = (moduleCode: string, progId: string, actionCode: string) =>
     getServerMenuIndex().actions.get(`${moduleCode}/${progId}/${actionCode}` as ActionKey);
+
 
 /** 若你在 dev 會熱更新 menu data，可在必要時呼叫它刷新 */
 export const resetServerMenuIndexCache = () =>
@@ -52,30 +57,42 @@ export const resetServerMenuIndexCache = () =>
     cached = undefined;
 };
 
+
 export const buildModuleHandle = (moduleCode: string): RouteHandleMeta =>
 {
     const m = findModuleMeta(moduleCode);
     return { moduleCode, title: m?.Title ?? moduleCode };
 };
+
 export const buildProgHandle = (moduleCode: string, progId: string): RouteHandleMeta =>
 {
     const p = findProgMeta(moduleCode, progId);
     return { moduleCode, progId, title: p?.Title ?? progId };
 };
+
 export const buildActionHandle = (moduleCode: string, progId: string, actionCode: string): RouteHandleMeta =>
 {
     const a = findActionMeta(moduleCode, progId, actionCode);
     return { moduleCode, progId, actionCode, title: a?.Title ?? actionCode };
 };
 
-/** 取得 action 的路由片段（優先 RoutePath，否則用 ActionCode） */
-const getActionPath = (a: IActionMeta): string => (a.RoutePath ?? a.ActionCode).replace(/^\//, "");
+
+/** 從 Data 產生 /Server 的 children routes */
+export const buildServerChildrenFromData = (modules: IModuleMeta[], ctx: IServerElementFactoryCtx): RouteObject[] =>
+{
+    return (modules ?? []).filter(m => (m.Progs?.length ?? 0) > 0) // ✅ 避免把 Logout 這種空 module 生成進 /Server children
+        .map(m => buildModuleRoute(m, ctx));
+};
+// #endregion
+
+// #region EntityComp
 /** 建立 action handle */
 const buildActionHandleFromMeta = (moduleCode: string, progId: string, a: IActionMeta): RouteHandleMeta =>
 {
     // return：直接使用目前 action meta，避免共用 ProgId 時被 map 覆蓋
     return { moduleCode, progId, actionCode: a.ActionCode, title: a.Title };
 };
+
 /** 建 action route（支援 index action：RoutePath === ""） */
 const buildActionRoute = (moduleCode: string, progId: string, a: IActionMeta, ctx: IServerElementFactoryCtx): RouteObject =>
 {
@@ -85,6 +102,7 @@ const buildActionRoute = (moduleCode: string, progId: string, a: IActionMeta, ct
     if (path === "") return { index: true, handle, element } as IndexRouteObject;
     return { path, handle, element } as NonIndexRouteObject;
 };
+
 /** 建 prog route（含 default action redirect + actions） */
 const buildProgRoute = (moduleCode: string, p: IProgMeta, ctx: IServerElementFactoryCtx): NonIndexRouteObject =>
 {
@@ -103,16 +121,21 @@ const buildProgRoute = (moduleCode: string, p: IProgMeta, ctx: IServerElementFac
     };
 };
 
+
 /** 建 module route（只產生有 progs 的 module；像 Logout 這種沒 progs 的先別生成） */
 const buildModuleRoute = (m: IModuleMeta, ctx: IServerElementFactoryCtx): NonIndexRouteObject => ({
     path: m.ModuleCode,
     handle: buildModuleHandle(m.ModuleCode),
     children: (m.Progs ?? []).map(p => buildProgRoute(m.ModuleCode, p, ctx)),
 });
+// #endregion
 
-/** 從 Data 產生 /Server 的 children routes */
-export const buildServerChildrenFromData = (modules: IModuleMeta[], ctx: IServerElementFactoryCtx): RouteObject[] =>
-{
-    return (modules ?? []).filter(m => (m.Progs?.length ?? 0) > 0) // ✅ 避免把 Logout 這種空 module 生成進 /Server children
-        .map(m => buildModuleRoute(m, ctx));
-};
+// #region Private
+const progKey = (moduleCode: string, progId: string) => `${moduleCode}/${progId}` as const;
+
+const actionKey = (moduleCode: string, progId: string, actionCode: string) => `${moduleCode}/${progId}/${actionCode}` as ActionKey;
+
+
+/** 取得 action 的路由片段（優先 RoutePath，否則用 ActionCode） */
+const getActionPath = (a: IActionMeta): string => (a.RoutePath ?? a.ActionCode).replace(/^\//, "");
+// #endregion

@@ -8,45 +8,39 @@ import { CategoryAdapter } from "@/Features/Hooks/BizFunc/COMM/Category_Api";
 import { TagAdapter } from "@/Features/Hooks/BizFunc/COMM/Tag_Api";
 import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WEB/Announcement_Api";
 
+import { findTextByKey } from "@/SysCore/Utils/Library/LibData";
+
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
+
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"];
+
 type TagSet = components["schemas"]["TagSet_DTO"];
 
-const toListInitial = <TArgs, TItem>(args: TArgs, data: TItem[]) =>
+
+interface getDataProp
 {
-    // return：符合 adapter hook 的 initial 型別
-    return { args, apiRes: { IsSuccess: true, Data: data, SysMessage: [] } };
-};
+    redir: string;
+    announceInternalId: string;
+    title: string;
+    content: string;
+    date: string;
+    month: string;
+    year: string;
+    monthNum: number;
+    tagName: string;
+    categoryName: string;
+    contentStatus: number;
+    internalId: string;
+}
 
-const buildCategoryDict = (list: CategoryDataSet[], lang: Lang): Record<string, string> =>
-{
-    // 宣告變數
-    const pairs = list.map((cat) =>
-    {
-        const id = cat.Category?.CategoryId ?? "";
-        const name = cat.CategoryDetail?.find((p) => p.Lang === lang)?.CategoryName ?? "";
-        return [id, name] as const;
-    });
 
-    // return
-    return Object.fromEntries(pairs.filter(([id]) => Boolean(id)));
-};
+const DAY_MS = 24 * 60 * 60 * 1000;
+// #endregion
 
-const buildTagDict = (list: TagSet[], lang: Lang): Record<string, string> =>
-{
-    // 宣告變數
-    const pairs = list.map((t) =>
-    {
-        const id = t.TagData?.TagId ?? "";
-        const name = t.TagDetail?.find((p) => p.Lang === lang)?.TagName ?? "";
-        return [id, name] as const;
-    });
-
-    // return
-    return Object.fromEntries(pairs.filter(([id]) => Boolean(id)));
-};
-
+// #region Public
 export const NewsData = (
     props: {
         lang: Lang;
@@ -154,22 +148,46 @@ export const NewsData = (
         </section>
     );
 };
+// #endregion
 
-interface getDataProp
+// #region EntityComp
+const buildCategoryDict = (list: CategoryDataSet[], lang: Lang): Record<string, string> =>
 {
-    redir: string;
-    announceInternalId: string;
-    title: string;
-    content: string;
-    date: string;
-    month: string;
-    year: string;
-    monthNum: number;
-    tagName: string;
-    categoryName: string;
-    contentStatus: number;
-    internalId: string;
-}
+    // 宣告變數
+    const pairs = list.map((cat) =>
+    {
+        const id = cat.Category?.CategoryId ?? "";
+        const name = findTextByKey(cat.CategoryDetail, (p) => p?.Lang, lang, (p) => p?.CategoryName);
+        return [id, name] as const;
+    });
+
+    // return
+    return Object.fromEntries(pairs.filter(([id]) => Boolean(id)));
+};
+
+
+const buildTagDict = (list: TagSet[], lang: Lang): Record<string, string> =>
+{
+    // 宣告變數
+    const pairs = list.map((t) =>
+    {
+        const id = t.TagData?.TagId ?? "";
+        const name = findTextByKey(t.TagDetail, (p) => p?.Lang, lang, (p) => p?.TagName);
+        return [id, name] as const;
+    });
+
+    // return
+    return Object.fromEntries(pairs.filter(([id]) => Boolean(id)));
+};
+// #endregion
+
+// #region Private
+const toListInitial = <TArgs, TItem>(args: TArgs, data: TItem[]) =>
+{
+    // return：符合 adapter hook 的 initial 型別
+    return { args, apiRes: { IsSuccess: true, Data: data, SysMessage: [] } };
+};
+
 
 const getNewsDataProps = (
     newsData: AnnouncementSet[],
@@ -199,8 +217,8 @@ const getNewsDataProps = (
         resultProps.push({
             redir: redir,
             announceInternalId: item.Announcement?.InternalId ?? "",
-            title: item.AnnouncementDetail?.find((p) => p.Lang === lang)?.Title ?? "",
-            content: item.AnnouncementDetail?.find((p) => p.Lang === lang)?.Content ?? "",
+            title: findTextByKey(item.AnnouncementDetail, (p) => p?.Lang, lang, (p) => p?.Title),
+            content: findTextByKey(item.AnnouncementDetail, (p) => p?.Lang, lang, (p) => p?.Content),
             date: date.day,
             month: date.month,
             year: date.year,
@@ -215,6 +233,7 @@ const getNewsDataProps = (
     // return
     return resultProps;
 };
+
 
 const pickNewsByCategories = <T extends { Announcement?: { Categories?: string | null | undefined; }; }>(
     newsData: T[] | undefined,
@@ -236,6 +255,7 @@ const pickNewsByCategories = <T extends { Announcement?: { Categories?: string |
     return result.slice(0, take);
 };
 
+
 const formatDate = (dateStr: string) =>
 {
     const date = new Date(dateStr);
@@ -244,6 +264,7 @@ const formatDate = (dateStr: string) =>
     const year = date.getFullYear().toString();
     return { day, month, year };
 };
+
 
 const GetData = ({ prop }: { prop: getDataProp[]; }) =>
 {
@@ -291,7 +312,6 @@ const GetData = ({ prop }: { prop: getDataProp[]; }) =>
     );
 };
 
-const DAY_MS = 24 * 60 * 60 * 1000;
 
 const takeTopThenFill = (top: AnnouncementSet[] | undefined, rest: AnnouncementSet[] | undefined, limit: number = 3): AnnouncementSet[] =>
 {
@@ -320,6 +340,7 @@ const takeTopThenFill = (top: AnnouncementSet[] | undefined, rest: AnnouncementS
     return out;
 };
 
+
 const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: number = 8): boolean =>
 {
     if (!month1to12 || !day1to31) return false;
@@ -335,3 +356,4 @@ const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: numb
     const diffDays = Math.floor((nowUTC - candidateUTC) / DAY_MS);
     return diffDays >= 0 && diffDays <= n;
 };
+// #endregion

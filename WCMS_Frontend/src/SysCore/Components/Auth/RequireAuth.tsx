@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { AuthAPI, startAuthIdleGuard } from "../../Utils/API/AuthClient";
+
+// #region Property
 /**
  * 輕量節流策略：
  * - 預設 300s 內同來源的路由切換不重打 /Me（除非是第一次或上次結果是 unauth）
@@ -10,18 +12,25 @@ import { AuthAPI, startAuthIdleGuard } from "../../Utils/API/AuthClient";
  */
 const THROTTLE_MS = 300_000;
 
+
 // 模組級快取：在 SPA 生命週期內可共享（避免每個頁面都重新打）
 let lastCheckAt = 0;
+
 let lastOK = false;
 
-type Status = "checking" | "ok" | "unauth";
-type Props = { children: ReactNode; };
 
+type Status = "checking" | "ok" | "unauth";
+
+type Props = { children: ReactNode; };
+// #endregion
+
+// #region Public
 export function resetAuthProbe()
 {
     lastOK = false;
     lastCheckAt = 0;
 }
+
 
 export default function RequireAuth({ children }: Props)
 {
@@ -134,3 +143,4 @@ export default function RequireAuth({ children }: Props)
 
     return <>{children}</>;
 }
+// #endregion

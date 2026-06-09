@@ -13,97 +13,47 @@ import {
     useCalendarPage,
 } from "./Server_Calendar_Hook";
 
+// #region Property
 type CalendarDetail = components["schemas"]["CalendarDetail_DTO"];
+
 
 export interface CalendarPageCompProps
 {
     defaultYear?: number;
 }
 
+
 type YearSetterPage = { setYear?: (year: number) => void; };
 
-/** 取得 hook 是否有暴露 setYear */
-const getYearSetter = (page: object): ((year: number) => void) | null =>
+
+interface CalendarMonthGridProps
 {
-    const typedPage = page as YearSetterPage;
-    return typeof typedPage.setYear === "function" ? typedPage.setYear : null;
-};
+    year: number;
+    month: number;
+    daysByDate: CalendarYearMap;
+    onDayClick: (dateStr: string, anchor: DialogAnchorRect) => void;
+}
 
-/** 將時間安全轉成 HH:mm */
-const toSafeHHmm = (value?: string | null): string =>
+
+interface CalendarDayDialogProps
 {
-    const parsed = parseHHmm(value);
-    if (!parsed) return "";
+    day: CalendarDetail;
+    anchor: DialogAnchorRect;
+    onCancel: () => void;
+    onSave: (updated: CalendarDetail) => Promise<void> | void;
+}
 
-    return formatHHmm(parsed.hh, parsed.mm);
-};
 
-/** 組出開閉館顯示文字 */
-const renderOpenCloseText = (day?: CalendarDetail | null): string =>
+interface TimePicker12hWithConfirmProps
 {
-    if (!day) return "";
+    inputId: string;
+    label: string;
+    value24: string | null;
+    onConfirm: (value24: string | null) => void;
+}
+// #endregion
 
-    const open = toSafeHHmm(day.Spec_OpenTime);
-    const close = toSafeHHmm(day.Spec_CloseTime);
-
-    if (!open && !close) return "閉館";
-    return `開館時間：${open || "--"} ~ ${close || "--"}`;
-};
-
-/** 取得假日顯示文字 */
-const getHolidayText = (day?: CalendarDetail | null): string =>
-{
-    if (!day) return "";
-    return (day.HolidayName ?? "").trim() || (day.IsHoliday ? "假日" : "");
-};
-
-/** 建立格子 className */
-const buildCellClassName = (isWeekend: boolean, isHoliday: boolean, isToday: boolean): string =>
-{
-    const classNames = ["calendar-cell", isWeekend ? "is-weekend" : "", isHoliday ? "is-holiday" : "", isToday ? "is-today" : ""];
-
-    return classNames.filter(Boolean).join(" ");
-};
-
-/** 建立格子 aria-label */
-const buildCellAriaLabel = (dateStr: string, weekDay: number, day?: CalendarDetail | null): string =>
-{
-    const parts = [`編輯 ${dateStr}（星期${getWeekdayNameZh(weekDay)}）`];
-    const holidayText = getHolidayText(day);
-    const openCloseText = renderOpenCloseText(day);
-
-    if (holidayText) parts.push(`假日：${holidayText}`);
-    if (openCloseText) parts.push(openCloseText);
-
-    return parts.join("，");
-};
-
-/** 產生月曆 6x7 週資料 */
-const buildMonthWeeks = (year: number, month: number): Array<Array<string | null>> =>
-{
-    const firstDay = new Date(year, month, 1);
-    const firstWeekday = firstDay.getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const totalCells = 42;
-
-    const cells: Array<string | null> = [];
-    let currentDay = 1;
-
-    for (let i = 0; i < totalCells; i += 1)
-    {
-        if (i < firstWeekday || currentDay > daysInMonth)
-        {
-            cells.push(null);
-            continue;
-        }
-
-        cells.push(formatDateString(year, month, currentDay));
-        currentDay += 1;
-    }
-
-    return Array.from({ length: 6 }, (_, rowIndex) => cells.slice(rowIndex * 7, rowIndex * 7 + 7));
-};
-
+// #region Public
 /** Page 主元件：用現在 hook 的資料，但 DOM 改回舊版 */
 export const CalendarPageComp: React.FC<CalendarPageCompProps> = ({ defaultYear }) =>
 {
@@ -174,14 +124,106 @@ export const CalendarPageComp: React.FC<CalendarPageCompProps> = ({ defaultYear 
         </main>
     );
 };
+// #endregion
 
-interface CalendarMonthGridProps
+// #region EntityComp
+/** 組出開閉館顯示文字 */
+const renderOpenCloseText = (day?: CalendarDetail | null): string =>
 {
-    year: number;
-    month: number;
-    daysByDate: CalendarYearMap;
-    onDayClick: (dateStr: string, anchor: DialogAnchorRect) => void;
-}
+    if (!day) return "";
+
+    const open = toSafeHHmm(day.Spec_OpenTime);
+    const close = toSafeHHmm(day.Spec_CloseTime);
+
+    if (!open && !close) return "閉館";
+    return `開館時間：${open || "--"} ~ ${close || "--"}`;
+};
+
+
+/** 建立格子 className */
+const buildCellClassName = (isWeekend: boolean, isHoliday: boolean, isToday: boolean): string =>
+{
+    const classNames = ["calendar-cell", isWeekend ? "is-weekend" : "", isHoliday ? "is-holiday" : "", isToday ? "is-today" : ""];
+
+    return classNames.filter(Boolean).join(" ");
+};
+
+
+/** 建立格子 aria-label */
+const buildCellAriaLabel = (dateStr: string, weekDay: number, day?: CalendarDetail | null): string =>
+{
+    const parts = [`編輯 ${dateStr}（星期${getWeekdayNameZh(weekDay)}）`];
+    const holidayText = getHolidayText(day);
+    const openCloseText = renderOpenCloseText(day);
+
+    if (holidayText) parts.push(`假日：${holidayText}`);
+    if (openCloseText) parts.push(openCloseText);
+
+    return parts.join("，");
+};
+
+
+/** 產生月曆 6x7 週資料 */
+const buildMonthWeeks = (year: number, month: number): Array<Array<string | null>> =>
+{
+    const firstDay = new Date(year, month, 1);
+    const firstWeekday = firstDay.getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const totalCells = 42;
+
+    const cells: Array<string | null> = [];
+    let currentDay = 1;
+
+    for (let i = 0; i < totalCells; i += 1)
+    {
+        if (i < firstWeekday || currentDay > daysInMonth)
+        {
+            cells.push(null);
+            continue;
+        }
+
+        cells.push(formatDateString(year, month, currentDay));
+        currentDay += 1;
+    }
+
+    return Array.from({ length: 6 }, (_, rowIndex) => cells.slice(rowIndex * 7, rowIndex * 7 + 7));
+};
+
+
+/** 12h 面板組回 24h */
+const build24HourValue = (meridiem: "AM" | "PM", hour12: number, minute: number): string =>
+{
+    const hour24 = to24hHour(meridiem, hour12);
+    return formatHHmm(hour24, minute);
+};
+// #endregion
+
+// #region Private
+/** 取得 hook 是否有暴露 setYear */
+const getYearSetter = (page: object): ((year: number) => void) | null =>
+{
+    const typedPage = page as YearSetterPage;
+    return typeof typedPage.setYear === "function" ? typedPage.setYear : null;
+};
+
+
+/** 將時間安全轉成 HH:mm */
+const toSafeHHmm = (value?: string | null): string =>
+{
+    const parsed = parseHHmm(value);
+    if (!parsed) return "";
+
+    return formatHHmm(parsed.hh, parsed.mm);
+};
+
+
+/** 取得假日顯示文字 */
+const getHolidayText = (day?: CalendarDetail | null): string =>
+{
+    if (!day) return "";
+    return (day.HolidayName ?? "").trim() || (day.IsHoliday ? "假日" : "");
+};
+
 
 /** 月曆表格：舊版 table DOM */
 const CalendarMonthGrid: React.FC<CalendarMonthGridProps> = (props) =>
@@ -268,13 +310,6 @@ const CalendarMonthGrid: React.FC<CalendarMonthGridProps> = (props) =>
     );
 };
 
-interface CalendarDayDialogProps
-{
-    day: CalendarDetail;
-    anchor: DialogAnchorRect;
-    onCancel: () => void;
-    onSave: (updated: CalendarDetail) => Promise<void> | void;
-}
 
 /** 編輯 Dialog：保留現在資料結構 */
 const CalendarDayDialog: React.FC<CalendarDayDialogProps> = ({ day, anchor, onCancel, onSave }) =>
@@ -406,13 +441,6 @@ const CalendarDayDialog: React.FC<CalendarDayDialogProps> = ({ day, anchor, onCa
     );
 };
 
-interface TimePicker12hWithConfirmProps
-{
-    inputId: string;
-    label: string;
-    value24: string | null;
-    onConfirm: (value24: string | null) => void;
-}
 
 /** 24h 轉 12h 顯示文字 */
 const format12hDisplay = (value24?: string | null): string =>
@@ -428,12 +456,6 @@ const format12hDisplay = (value24?: string | null): string =>
     return `${meridiemText} ${hourText}:${minuteText}`;
 };
 
-/** 12h 面板組回 24h */
-const build24HourValue = (meridiem: "AM" | "PM", hour12: number, minute: number): string =>
-{
-    const hour24 = to24hHour(meridiem, hour12);
-    return formatHHmm(hour24, minute);
-};
 
 /** 12 小時制時間選擇器 */
 const TimePicker12hWithConfirm: React.FC<TimePicker12hWithConfirmProps> = (props) =>
@@ -595,4 +617,6 @@ const TimePicker12hWithConfirm: React.FC<TimePicker12hWithConfirmProps> = (props
     );
 };
 
+
 export default CalendarPageComp;
+// #endregion

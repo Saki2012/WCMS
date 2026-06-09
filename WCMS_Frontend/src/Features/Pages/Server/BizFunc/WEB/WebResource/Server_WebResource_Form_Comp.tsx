@@ -25,6 +25,7 @@ import {
 // #region Property
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
 
+
 interface WebResourceFormCompProps
 {
     /** 後台主題設定 */
@@ -33,6 +34,7 @@ interface WebResourceFormCompProps
     /** 目前語系 */
     lang: Lang;
 }
+
 
 interface HeaderSectionProps
 {
@@ -45,6 +47,7 @@ interface HeaderSectionProps
     /** WebResource Hook 整理後的參照資料 */
     refs: WebResourceFormRefs;
 }
+
 
 interface DetailSectionProps
 {
@@ -61,6 +64,7 @@ interface DetailSectionProps
     refs: WebResourceFormRefs;
 }
 
+
 interface HeaderTabContentOptions extends HeaderSectionProps
 {
     /** 欄位 binding helper */
@@ -69,6 +73,7 @@ interface HeaderTabContentOptions extends HeaderSectionProps
     /** 圖片上傳 helper，維持 Hook 在 Component 階段呼叫 */
     uploadPic: ReturnType<typeof useUploadPicture>;
 }
+
 
 interface DetailTabContentOptions
 {
@@ -84,6 +89,7 @@ interface DetailTabContentOptions
     /** WindowTarget 下拉選項 */
     windowTargetOptions: Map<string, string>;
 }
+
 
 interface DetailFieldsOptions extends Omit<DetailTabContentOptions, "tabItems">
 {
@@ -160,6 +166,7 @@ const HeaderComp = (props: HeaderSectionProps) =>
     );
 };
 
+
 /** 網路資源多語 Detail 區塊，語系資料由 Hook 統一整理。 */
 const DetailComp = (props: DetailSectionProps) =>
 {
@@ -197,6 +204,7 @@ const buildHeaderTabContent = (opt: HeaderTabContentOptions): Record<string, Rea
     };
 };
 
+
 /** 建立基本資料欄位。 */
 const buildBasicFields = (opt: HeaderTabContentOptions): ReactNode[] =>
 {
@@ -208,6 +216,7 @@ const buildBasicFields = (opt: HeaderTabContentOptions): ReactNode[] =>
         />,
     ];
 };
+
 
 /** 建立狀態欄位。 */
 const buildStatusFields = (opt: HeaderTabContentOptions): ReactNode[] =>
@@ -224,6 +233,7 @@ const buildStatusFields = (opt: HeaderTabContentOptions): ReactNode[] =>
     ];
 };
 
+
 /** 建立標籤欄位。 */
 const buildTagFields = (opt: HeaderTabContentOptions): ReactNode[] =>
 {
@@ -235,6 +245,7 @@ const buildTagFields = (opt: HeaderTabContentOptions): ReactNode[] =>
         />,
     ];
 };
+
 
 /** 建立圖片上傳與圖片說明欄位。 */
 const buildImageFields = (opt: HeaderTabContentOptions): ReactNode[] =>
@@ -266,6 +277,7 @@ const buildImageFields = (opt: HeaderTabContentOptions): ReactNode[] =>
     ];
 };
 
+
 /** 建立 Detail 語系分頁內容，畫面只依 Hook 整理後的 Tab 項目渲染。 */
 const buildDetailTabContent = (opt: DetailTabContentOptions): Record<string, ReactNode[]> =>
 {
@@ -275,6 +287,7 @@ const buildDetailTabContent = (opt: DetailTabContentOptions): Record<string, Rea
         return compMap;
     }, {});
 };
+
 
 /** 建立單一語系 Detail 欄位。 */
 const buildDetailFields = (opt: DetailFieldsOptions): ReactNode[] =>
@@ -303,14 +316,14 @@ const buildDetailFields = (opt: DetailFieldsOptions): ReactNode[] =>
         />,
     ];
 };
-// #endregion
 
-// #region Private
+
 /** 建立回列表路徑，避免 Back 行為散在 JSX 中。 */
 const buildBackToListPath = (pathname: string): string =>
 {
     return pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
 };
+
 
 /** 建立圖片預覽路徑，沒有圖片時顯示預設圖。 */
 const buildPicturePreviewSrc = (previewUrl: string, picId?: string | null): string =>
@@ -318,15 +331,18 @@ const buildPicturePreviewSrc = (previewUrl: string, picId?: string | null): stri
     return previewUrl || FileManagementAPI.get_Server_Preview_Url(picId) || "https://dummyimage.com/1920x550/555/fff.png";
 };
 
-/** 回寫 Header 圖片 internalId。 */
-const updateHeaderPictureId = (binding: ServerFormBinding<WebResourceSet>, internalId: string): void =>
-{
-    binding.setFormData(prev => ({ ...prev, WebResource: { ...prev?.WebResource, PicId: internalId } }));
-};
 
 /** 將 WindowTarget object 轉成 LibDropList 使用的 Map。 */
 const buildWindowTargetOptions = (options: Record<string, string>): Map<string, string> =>
 {
     return new Map<string, string>(Object.entries(options ?? {}));
+};
+// #endregion
+
+// #region Private
+/** 回寫 Header 圖片 internalId。 */
+const updateHeaderPictureId = (binding: ServerFormBinding<WebResourceSet>, internalId: string): void =>
+{
+    binding.setFormData(prev => ({ ...prev, WebResource: { ...prev?.WebResource, PicId: internalId } }));
 };
 // #endregion

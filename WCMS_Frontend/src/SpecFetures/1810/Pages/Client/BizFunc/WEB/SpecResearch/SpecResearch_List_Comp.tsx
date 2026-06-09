@@ -5,18 +5,22 @@ import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { useSpecResearchListFetchData } from "./SpecResearch_List_Loader";
 
+// #region Property
 export interface ISpecResearchListOptions
 {
     Category?: string;
     Tag?: string;
 }
+
 export interface ISpecResearchListProps
 {
     Theme: IFETheme;
     Lang: Lang;
     Options?: ISpecResearchListOptions;
 }
+// #endregion
 
+// #region Public
 /** SpecResearch 清單元件 */
 export const SpecResearchListComp = (props: ISpecResearchListProps) =>
 {
@@ -31,5 +35,8 @@ export const SpecResearchListComp = (props: ISpecResearchListProps) =>
         </LoadingErrorHandler>
     );
 };
+// #endregion
 
+// #region Private
 export default SpecResearchListComp;
+// #endregion

@@ -8,10 +8,15 @@ import { SiteMenu_Item_UrlFields, SiteMenuSetFields } from "@/types/SchemaFields
 import { type Dispatch, type SetStateAction, useEffect, useMemo } from "react";
 import type { SiteMenuItem } from "../../SiteMenu_Hook";
 
+// #region Property
 type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"];
+
 type SiteMenu_Item = components["schemas"]["SiteMenu_Item_DTO"];
+
 type SiteMenu_Item_Url = components["schemas"]["SiteMenu_Item_Url_DTO"];
+
 type MenuUrlType = components["schemas"]["MenuUrlType"];
+
 
 interface HyperlinkSettingTabProps
 {
@@ -26,9 +31,13 @@ interface HyperlinkSettingTabProps
     setNavType: Dispatch<SetStateAction<MenuUrlType>>;
 }
 
-const URL_REDIRECT_TYPE: MenuUrlType = 1;
-const MODULE_REDIRECT_TYPE: MenuUrlType = 2;
 
+const URL_REDIRECT_TYPE: MenuUrlType = 1;
+
+const MODULE_REDIRECT_TYPE: MenuUrlType = 2;
+// #endregion
+
+// #region Public
 /** 超連結設定頁籤：外部連結 / 內部連結切換與綁定 */
 export const HyperlinkSettingTab = (prop: HyperlinkSettingTabProps) =>
 {
@@ -86,7 +95,32 @@ export const HyperlinkSettingTab = (prop: HyperlinkSettingTabProps) =>
         </>
     );
 };
+// #endregion
 
+// #region EntityComp
+/** 建立內部連結下拉選單 */
+const buildInternalUrlOptions = (items: SiteMenuItem[], currentRowId: number | null): Map<string, string> =>
+{
+    const options = new Map<string, string>();
+    const thinSpace = "\u2009";
+
+    const walk = (nodes: SiteMenuItem[] | undefined, depth: number): void =>
+    {
+        if (!nodes?.length) return;
+
+        for (const node of nodes)
+        {
+            appendInternalUrlOption(options, node, depth, thinSpace, currentRowId);
+            walk(node.children, depth + 1);
+        }
+    };
+
+    walk(items, 0);
+    return options;
+};
+// #endregion
+
+// #region Private
 /** 取得目前選取的最新 SiteMenu_Item */
 const useSelectedMenuItem = (data: SiteMenuSet, selected?: SiteMenuItem | null): SiteMenu_Item | null =>
 {
@@ -98,6 +132,7 @@ const useSelectedMenuItem = (data: SiteMenuSet, selected?: SiteMenuItem | null):
         return current ?? selected?.menuItem ?? null;
     }, [data.SiteMenu_Item, selected]);
 };
+
 
 /** 確保目前選取項目有 Url row，並把不合法 RedirectType 修回預設值 */
 const ensureSelectedUrlRow = (formData: UseFetchFormDataResult<SiteMenuSet>, siteIndex?: string | null, rowId?: number | null): void =>
@@ -120,6 +155,7 @@ const ensureSelectedUrlRow = (formData: UseFetchFormDataResult<SiteMenuSet>, sit
     });
 };
 
+
 /** 同步目前選取項目的 RedirectType */
 const syncSelectedNavType = (
     data: SiteMenuSet,
@@ -136,11 +172,13 @@ const syncSelectedNavType = (
     setNavType(normalizeRedirectType(row?.RedirectType));
 };
 
+
 /** 建立預設超連結設定列 */
 const createDefaultUrlRow = (siteIndex: string, rowId: number): SiteMenu_Item_Url =>
 {
     return { SiteIndex: siteIndex, ItemRowId: rowId, RedirectType: URL_REDIRECT_TYPE, RedirectUrl: "" } as SiteMenu_Item_Url;
 };
+
 
 /** 取得指定 Url row index */
 const findUrlRowIndex = (list: SiteMenu_Item_Url[], siteIndex: string, rowId: number): number =>
@@ -151,6 +189,7 @@ const findUrlRowIndex = (list: SiteMenu_Item_Url[], siteIndex: string, rowId: nu
     });
 };
 
+
 /** RedirectType 只有 1 / 2 合法，0 視為未初始化 */
 const normalizeRedirectType = (value?: unknown): MenuUrlType =>
 {
@@ -159,26 +198,6 @@ const normalizeRedirectType = (value?: unknown): MenuUrlType =>
     return URL_REDIRECT_TYPE;
 };
 
-/** 建立內部連結下拉選單 */
-const buildInternalUrlOptions = (items: SiteMenuItem[], currentRowId: number | null): Map<string, string> =>
-{
-    const options = new Map<string, string>();
-    const thinSpace = "\u2009";
-
-    const walk = (nodes: SiteMenuItem[] | undefined, depth: number): void =>
-    {
-        if (!nodes?.length) return;
-
-        for (const node of nodes)
-        {
-            appendInternalUrlOption(options, node, depth, thinSpace, currentRowId);
-            walk(node.children, depth + 1);
-        }
-    };
-
-    walk(items, 0);
-    return options;
-};
 
 /** 加入可被內部連結選取的選單項目 */
 const appendInternalUrlOption = (options: Map<string, string>, node: SiteMenuItem, depth: number, thinSpace: string, currentRowId: number | null): void =>
@@ -194,3 +213,4 @@ const appendInternalUrlOption = (options: Map<string, string>, node: SiteMenuIte
     const indent = depth > 0 ? thinSpace.repeat(depth * 2) : "";
     options.set(fullUrl, `${indent}${node.name}`);
 };
+// #endregion

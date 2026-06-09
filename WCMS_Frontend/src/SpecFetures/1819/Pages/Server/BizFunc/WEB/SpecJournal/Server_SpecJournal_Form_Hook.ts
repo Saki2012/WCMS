@@ -47,16 +47,27 @@ import { useCallback, useMemo } from "react";
 
 // #region Property
 type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
+
 type SpecJournalAuthor = components["schemas"]["SpecJournalAuthor_DTO"];
+
 type SpecJournalDocument = components["schemas"]["SpecJournalDocument_DTO"];
+
 type SpecJournalOpenPointFiles = components["schemas"]["SpecJournalOpenPointFiles_DTO"];
+
 type SpecJournalRefFiles = components["schemas"]["SpecJournalRefFiles_DTO"];
+
 type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
+
 type ORCIDData = components["schemas"]["ORCIDData"];
+
 export type SpecJournalMode = "preprint" | "journal";
+
 export type SpecJournalAuthorRowKeys = Record<string, string | number | null | undefined>;
+
 export type SpecJournalGridFileValue = EditGridFileValue & { internalId?: string; originalFileName?: string; };
+
 type UploadFileHandler = ReturnType<typeof useUploadFile>["handleFileChange"];
+
 
 export type SpecJournalFormRefs = {
     indexRawData: SpecJournalIndexSet[];
@@ -66,7 +77,9 @@ export type SpecJournalFormRefs = {
     keywords: SpecJournalSet[];
 };
 
+
 export type SpecJournalFormRawData = ServerFormDefaultRawData<SpecJournalSet, SpecJournalFormRefs>;
+
 
 export type SpecJournalFormActionsOpt = {
     /** 儲存成功後回到列表 */
@@ -76,11 +89,13 @@ export type SpecJournalFormActionsOpt = {
     journalMode: SpecJournalMode;
 };
 
+
 export type SpecJournalFormAdapter = {
     SpecJournal: ReturnType<typeof SpecJournalAdapter>;
     SpecJournalIndex: ReturnType<typeof SpecJournalIndexAdapter>;
     Tag: ReturnType<typeof TagAdapter>;
 };
+
 
 export interface UseSpecJournalAuthorOrcidOptions
 {
@@ -91,6 +106,7 @@ export interface UseSpecJournalAuthorOrcidOptions
     binding: ServerFormBinding<SpecJournalSet>;
 }
 
+
 export interface UseSpecJournalFileEditGridOptions
 {
     /** Form Template 提供的資料 binding */
@@ -99,6 +115,7 @@ export interface UseSpecJournalFileEditGridOptions
     /** EditGrid UI 樣式 */
     style: IEditGridView_Style;
 }
+
 
 export interface UseSpecJournalDocumentEditGridOptions extends UseSpecJournalFileEditGridOptions
 {
@@ -132,6 +149,7 @@ export const useSpecJournalFormTemplate = (
         };
     }, [opt.actionsOpt, opt.emptyData, opt.internalId, opt.lang, opt.theme]);
 };
+
 
 /** 建立作者 ORCID 查詢動作，讓 Comp 不直接處理 API Toast 與回寫流程。 */
 export const useSpecJournalAuthorOrcid = (
@@ -169,9 +187,8 @@ export const useSpecJournalAuthorOrcid = (
 
     return { handleOrcidBlur };
 };
-// #endregion
 
-// #region Public - EditGrid Binding
+
 /** 建立開放觀點檔案 EditGrid，取代原本手動新增列的檔案區塊。 */
 export const useSpecJournalOpenPointFileEditGrid = (opt: UseSpecJournalFileEditGridOptions) =>
 {
@@ -196,6 +213,7 @@ export const useSpecJournalOpenPointFileEditGrid = (opt: UseSpecJournalFileEditG
     });
 };
 
+
 /** 建立相關檔案 EditGrid，取代原本手動新增列的檔案區塊。 */
 export const useSpecJournalRefFileEditGrid = (opt: UseSpecJournalFileEditGridOptions) =>
 {
@@ -219,6 +237,7 @@ export const useSpecJournalRefFileEditGrid = (opt: UseSpecJournalFileEditGridOpt
         editGridProps: buildSpecJournalFileGridProps("相關檔案", "SpecJournal_RefFiles_EditGrid", opt.style),
     });
 };
+
 
 /** 建立說明文件 EditGrid，取代原本手動新增列的說明文件區塊。 */
 export const useSpecJournalDocumentEditGrid = (opt: UseSpecJournalDocumentEditGridOptions) =>
@@ -246,13 +265,13 @@ export const useSpecJournalDocumentEditGrid = (opt: UseSpecJournalDocumentEditGr
 };
 // #endregion
 
-// #region Timing
-
+// #region Private
 /** 建立 SpecJournal Form 會使用到的 Adapter 群組 */
 const buildSpecJournalFormAdapter = (): SpecJournalFormAdapter =>
 {
     return { SpecJournal: SpecJournalAdapter(), SpecJournalIndex: SpecJournalIndexAdapter(), Tag: TagAdapter() };
 };
+
 
 /** 建立 SpecJournal Form 標題，依預刊本 / 期刊模式顯示 */
 const buildSpecJournalFormTitle = (ctx: { mode: "new" | "edit"; actionsOpt: SpecJournalFormActionsOpt; }): string =>
@@ -261,12 +280,14 @@ const buildSpecJournalFormTitle = (ctx: { mode: "new" | "edit"; actionsOpt: Spec
     return `${ctx.mode === "edit" ? "修改" : "新增"}${displayName}`;
 };
 
+
 /** 建立新增模式的 initial data，避免新增時查詢 __new__ */
 const buildSpecJournalInitialData = (ctx: { mode: "new" | "edit"; emptyData: SpecJournalSet; }): ApiFormInitial<SpecJournalSet> | undefined =>
 {
     if (ctx.mode !== "new") return undefined;
     return { data: { args: "__new__", apiRes: { IsSuccess: true, Data: ctx.emptyData, SysMessage: [] } } };
 };
+
 
 /** 取得 SpecJournal Header / Detail 需要的參照資料 */
 const useSpecJournalReferenceData = (ctx: { adapter: SpecJournalFormAdapter; lang: Lang; }): ServerFormReferenceResult<SpecJournalFormRefs> =>
@@ -315,9 +336,8 @@ const useSpecJournalReferenceData = (ctx: { adapter: SpecJournalFormAdapter; lan
         tag.refetch,
     ]);
 };
-// #endregion
 
-// #region Reference Hooks
+
 /** Index 下拉資料 */
 const useSpecJournalIndexListByAdapter = (
     adapter: ReturnType<typeof SpecJournalIndexAdapter>,
@@ -348,6 +368,7 @@ const useSpecJournalIndexListByAdapter = (
     return { rawData: q.data ?? [], isLoading: q.isLoading, error: q.errorText, refetch };
 };
 
+
 /** 關鍵字建議來源資料 */
 const useSpecJournalKeywordsByAdapter = (
     adapter: ReturnType<typeof SpecJournalAdapter>,
@@ -374,9 +395,8 @@ const useSpecJournalKeywordsByAdapter = (
 
     return { rawData: q.data ?? [], isLoading: q.isLoading, error: q.errorText, refetch };
 };
-// #endregion
 
-// #region Private
+
 /** 正規化 ORCID 輸入，支援網址貼上並移除不合法字元。 */
 const normalizeSpecJournalOrcid = (value: string): string =>
 {
@@ -385,11 +405,13 @@ const normalizeSpecJournalOrcid = (value: string): string =>
     return text.replace(/^https?:\/\/orcid\.org\//i, "").replace(/\/+$/g, "").replace(/\s+/g, "").replace(/[^0-9X-]/gi, "");
 };
 
+
 /** 檢查 ORCID 是否符合 0000-0000-0000-0000 格式。 */
 const isLikelySpecJournalOrcid = (value: string): boolean =>
 {
     return /^\d{4}-\d{4}-\d{4}-\d{3}[\dX]$/i.test(value);
 };
+
 
 /** 只在原欄位為空時回填 ORCID API 回傳資料，避免覆蓋使用者輸入。 */
 const fillIfEmpty = (oldValue: string | null | undefined, newValue: string | null | undefined): string | null | undefined =>
@@ -400,6 +422,7 @@ const fillIfEmpty = (oldValue: string | null | undefined, newValue: string | nul
     return oldValue;
 };
 
+
 /** 找出目前要更新的作者列位置。 */
 const findSpecJournalAuthorIndex = (list: SpecJournalAuthor[], rowKeys: SpecJournalAuthorRowKeys): number =>
 {
@@ -408,6 +431,7 @@ const findSpecJournalAuthorIndex = (list: SpecJournalAuthor[], rowKeys: SpecJour
         && String(item?.[SpecJournalAuthorFields.RowId] ?? "") === String(rowKeys?.[SpecJournalAuthorFields.RowId] ?? "")
     );
 };
+
 
 /** 回寫指定作者列，集中處理 setFormData 的 immutable 更新。 */
 const updateSpecJournalAuthor = (
@@ -430,6 +454,7 @@ const updateSpecJournalAuthor = (
     });
 };
 
+
 /** 將 ORCID API DTO 轉成作者列可回填資料。 */
 const buildAuthorFromOrcid = (cur: SpecJournalAuthor, dto: ORCIDData): SpecJournalAuthor =>
 {
@@ -445,9 +470,8 @@ const buildAuthorFromOrcid = (cur: SpecJournalAuthor, dto: ORCIDData): SpecJourn
         Country: fillIfEmpty(cur.Country, dto?.Country),
     };
 };
-// #endregion
 
-// #region Private - EditGrid Helpers
+
 /** 建立空的期刊 Set，供 EditGrid 新增模式安全寫回 collection。 */
 const buildEmptySpecJournalSet = (): SpecJournalSet =>
 {
@@ -462,6 +486,7 @@ const buildEmptySpecJournalSet = (): SpecJournalSet =>
         SpecJournalTypes: [],
     };
 };
+
 
 /** 建立檔案類 EditGrid 固定設定。 */
 const buildSpecJournalFileGridProps = (title: string, storageKey: string, style: IEditGridView_Style) =>
@@ -482,6 +507,7 @@ const buildSpecJournalFileGridProps = (title: string, storageKey: string, style:
         ariaLabel: `${title}編輯表格`,
     };
 };
+
 
 /** 建立開放觀點欄位設定。 */
 const buildSpecJournalOpenPointColumns = (onFileChange: (args: EditGridCellValueChangeArgs) => Promise<EditGridCellValueChangeResult>): ColumnConfig[] =>
@@ -504,6 +530,7 @@ const buildSpecJournalOpenPointColumns = (onFileChange: (args: EditGridCellValue
     }];
 };
 
+
 /** 建立相關檔案欄位設定。 */
 const buildSpecJournalRefFileColumns = (onFileChange: (args: EditGridCellValueChangeArgs) => Promise<EditGridCellValueChangeResult>): ColumnConfig[] =>
 {
@@ -517,6 +544,7 @@ const buildSpecJournalRefFileColumns = (onFileChange: (args: EditGridCellValueCh
         onValueChange: onFileChange,
     }];
 };
+
 
 /** 建立說明文件欄位設定。 */
 const buildSpecJournalDocumentColumns = (
@@ -538,6 +566,7 @@ const buildSpecJournalDocumentColumns = (
         { key: SpecJournalDocumentFields.DocumentId, title: "說明檔案來源", width: 520, inputType: "file", editable: true, onValueChange: onFileChange },
     ];
 };
+
 
 /** 將開放觀點 DTO 轉成 EditGrid Row。 */
 const buildSpecJournalOpenPointRow = (
@@ -567,6 +596,7 @@ const buildSpecJournalOpenPointRow = (
     };
 };
 
+
 /** 將相關檔案 DTO 轉成 EditGrid Row。 */
 const buildSpecJournalRefFileRow = (
     item: SpecJournalRefFiles,
@@ -594,6 +624,7 @@ const buildSpecJournalRefFileRow = (
         ],
     };
 };
+
 
 /** 將說明文件 DTO 轉成 EditGrid Row。 */
 const buildSpecJournalDocumentRow = (
@@ -630,6 +661,7 @@ const buildSpecJournalDocumentRow = (
     };
 };
 
+
 /** 將 EditGrid Row 轉回開放觀點 DTO。 */
 const buildSpecJournalOpenPointItem = (row: GridRow, index: number, data: SpecJournalSet): SpecJournalOpenPointFiles =>
 {
@@ -642,6 +674,7 @@ const buildSpecJournalOpenPointItem = (row: GridRow, index: number, data: SpecJo
     };
 };
 
+
 /** 將 EditGrid Row 轉回相關檔案 DTO。 */
 const buildSpecJournalRefFileItem = (row: GridRow, index: number, data: SpecJournalSet): SpecJournalRefFiles =>
 {
@@ -653,6 +686,7 @@ const buildSpecJournalRefFileItem = (row: GridRow, index: number, data: SpecJour
         RefFileName: getSpecJournalEditGridFileName(row, SpecJournalRefFilesFields.RefFileName, file),
     };
 };
+
 
 /** 將 EditGrid Row 轉回說明文件 DTO。 */
 const buildSpecJournalDocumentItem = (row: GridRow, index: number, data: SpecJournalSet): SpecJournalDocument =>
@@ -667,11 +701,13 @@ const buildSpecJournalDocumentItem = (row: GridRow, index: number, data: SpecJou
     };
 };
 
+
 /** 依 RowId 排序 EditGrid 資料。 */
 const sortSpecJournalRows = <T extends { RowId?: number | null; }>(items: T[]): T[] =>
 {
     return [...items].sort((a, b) => Number(a.RowId ?? 0) - Number(b.RowId ?? 0));
 };
+
 
 /** 上傳期刊檔案並回寫 EditGrid file value。 */
 const uploadSpecJournalFileValue = async (
@@ -695,6 +731,7 @@ const uploadSpecJournalFileValue = async (
     return { value: uploadedValue, rowValues: { [fileNameField]: displayName } };
 };
 
+
 /** 建立既有檔案的 EditGrid value。 */
 const buildSpecJournalFileCellValue = (internalId?: string | null, originalName?: string | null, displayName?: string | null): SpecJournalGridFileValue =>
 {
@@ -709,6 +746,7 @@ const buildSpecJournalFileCellValue = (internalId?: string | null, originalName?
     };
 };
 
+
 /** 建立上傳後的 EditGrid 檔案值。 */
 const buildUploadedSpecJournalFileCellValue = (internalId: string, originalName?: string): SpecJournalGridFileValue =>
 {
@@ -721,11 +759,13 @@ const buildUploadedSpecJournalFileCellValue = (internalId: string, originalName?
     };
 };
 
+
 /** 建立空檔案值。 */
 const buildEmptySpecJournalFileCellValue = (): SpecJournalGridFileValue =>
 {
     return { internalId: "", fileName: "", originalFileName: "" };
 };
+
 
 /** 將任意 EditGrid value 正規化成期刊檔案值。 */
 const toSpecJournalFileCellValue = (value: EditGridCellValue): SpecJournalGridFileValue =>
@@ -735,11 +775,13 @@ const toSpecJournalFileCellValue = (value: EditGridCellValue): SpecJournalGridFi
     return buildEmptySpecJournalFileCellValue();
 };
 
+
 /** 判斷是否為期刊檔案值。 */
 const isSpecJournalFileValue = (value: EditGridCellValue): value is SpecJournalGridFileValue =>
 {
     return typeof value === "object" && value !== null && !Array.isArray(value) && "fileName" in value;
 };
+
 
 /** 取得剛選取的檔案。 */
 const getSelectedSpecJournalFile = (value: EditGridCellValue): SpecJournalGridFileValue | null =>
@@ -748,17 +790,20 @@ const getSelectedSpecJournalFile = (value: EditGridCellValue): SpecJournalGridFi
     return value;
 };
 
+
 /** 取得上傳前原始檔名。 */
 const getSpecJournalSelectedFileName = (file: SpecJournalGridFileValue): string =>
 {
     return String(file.file?.name || file.fileName || "").trim();
 };
 
+
 /** 取得 DTO 檔案物件中的原始檔名。 */
 const getSpecJournalDtoFileName = (file?: { FileName?: string | null; fileName?: string | null; } | null): string =>
 {
     return String(file?.FileName ?? file?.fileName ?? "").trim();
 };
+
 
 /** 取得檔案預覽網址。 */
 const getSpecJournalFilePreviewUrl = (fileId?: string | null): string | undefined =>
@@ -767,12 +812,14 @@ const getSpecJournalFilePreviewUrl = (fileId?: string | null): string | undefine
     return id ? FileManagementAPI.get_Server_Preview_Url(id) ?? undefined : undefined;
 };
 
+
 /** 取得檔案下載網址。 */
 const getSpecJournalFileDownloadUrl = (fileId?: string | null): string | undefined =>
 {
     const id = String(fileId ?? "").trim();
     return id ? `/Service/FileManagement/Server_Download/${encodeURIComponent(id)}` : undefined;
 };
+
 
 /** 取得 EditGrid 中使用者輸入的檔案名稱，空值時回退檔案原始名稱。 */
 const getSpecJournalEditGridFileName = (row: GridRow, fieldName: string, file: SpecJournalGridFileValue): string =>
@@ -782,6 +829,7 @@ const getSpecJournalEditGridFileName = (row: GridRow, fieldName: string, file: S
 
     return getFileNameWithoutExtension(file.originalFileName || file.fileName);
 };
+
 
 /** 取得不含副檔名的檔案名稱。 */
 const getFileNameWithoutExtension = (fileName?: string | null): string =>

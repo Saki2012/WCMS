@@ -12,10 +12,16 @@ import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { AccountFields, PGID, TagDataFields, TagDetailFields } from "@/types/SchemaFields";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
+
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 type TagSet = components["schemas"]["TagSet_DTO"];
+
 type TagListFormRawData = { editForm: UseFetchFormDataResult<TagSet>; actions: UseActionsResult; list: TagSet[]; param: QueryListParam; };
+
 type TagListFormAdapter = { Tag: ReturnType<typeof TagAdapter>; };
+// #endregion
 
 // #region Public
 export const useTagListFormFetchData = (
@@ -95,6 +101,7 @@ const useTagListFormDataByAdapter = (
         displayName: (model.data ?? ({ ModelId: "", ModelDisplayName: "", Tables: [] } as ModelDisplaySchema)),
     };
 };
+
 const useTagListFormActionsFromAdapter = (
     dirUrl: string,
     adapter: ReturnType<typeof TagAdapter>,
@@ -165,6 +172,7 @@ const useTagListFormActionsFromAdapter = (
         {},
     }), [server.isSaving, onSave, onDelete, onCancelBack, onAddNew, onEdit]);
 };
+
 const useTagListQueryParam = (p: { lang: Lang; pgId: PGID; }): QueryListParam =>
 {
     const fields = useMemo<string[]>(() =>

@@ -171,16 +171,7 @@ namespace WCMS.Features.WEB.SiteViewCount
             ct.ThrowIfCancellationRequested();
             if (currentRecent == null)
             {
-                await CreateRecentlyInfoAsync(
-                    siteIndex,
-                    progId,
-                    targetInternalId,
-                    targetType,
-                    actionType,
-                    visitorKey,
-                    refererUrl,
-                    now,
-                    ct);
+                await CreateRecentlyInfoAsync(siteIndex,progId,targetInternalId,targetType,actionType,visitorKey,refererUrl,now,ct);
                 return;
             }
             await UpdateRecentlyInfoAsync(currentRecent, refererUrl, now, ct);

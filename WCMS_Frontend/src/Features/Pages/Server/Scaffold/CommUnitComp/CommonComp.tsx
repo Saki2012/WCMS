@@ -1,3 +1,4 @@
+// #region Public
 /** 目前說只有公告/檔案室/網路資源/相簿會用到 */
 export const GetDataStatusContent = (contentStatus: number): React.ReactNode =>
 {
@@ -7,3 +8,4 @@ export const GetDataStatusContent = (contentStatus: number): React.ReactNode =>
     if (contentStatus & 4) statusItems.push(<div key="hide" className="icon-small hide-bg">隱藏</div>);
     return <div className="CustomState">{statusItems}</div>;
 };
+// #endregion

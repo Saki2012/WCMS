@@ -1,5 +1,6 @@
 import type { FocusEvent, KeyboardEvent } from "react";
 
+// #region Public
 /** 套用明確鍵盤焦點樣式，避免專案 CSS reset 後看不出目前焦點位置。 */
 export const applyAAFocusStyle = (event: FocusEvent<HTMLElement>) =>
 {
@@ -8,6 +9,7 @@ export const applyAAFocusStyle = (event: FocusEvent<HTMLElement>) =>
     target.style.outlineOffset = "-1px";
     target.style.boxShadow = "none";
 };
+
 
 /** 清除元件自行套用的焦點樣式。 */
 export const clearAAFocusStyle = (event: FocusEvent<HTMLElement>) =>
@@ -18,6 +20,7 @@ export const clearAAFocusStyle = (event: FocusEvent<HTMLElement>) =>
     target.style.boxShadow = "none";
 };
 
+
 /** file input focus 時，改外層虛框 border。 */
 export const applyFileAAFocusStyle = (event: FocusEvent<HTMLElement>) =>
 {
@@ -27,6 +30,7 @@ export const applyFileAAFocusStyle = (event: FocusEvent<HTMLElement>) =>
     parentElement.style.border = "1px solid #111";
 };
 
+
 /** file input blur 時，還原外層虛框 border。 */
 export const clearFileAAFocusStyle = (event: FocusEvent<HTMLElement>) =>
 {
@@ -35,6 +39,7 @@ export const clearFileAAFocusStyle = (event: FocusEvent<HTMLElement>) =>
 
     parentElement.style.border = "1px dashed #777";
 };
+
 
 /** 讓月曆日期支援方向鍵移動焦點。 */
 export const handleCalendarDayKeyDown = (event: KeyboardEvent<HTMLButtonElement>, date: string) =>
@@ -47,6 +52,17 @@ export const handleCalendarDayKeyDown = (event: KeyboardEvent<HTMLButtonElement>
     focusCalendarDate(event.currentTarget, addIsoDateDays(date, offset));
 };
 
+
+/** dateRange / dateTimeRange 透過 Tab 離開整個選擇器時，自動關閉浮層。 */
+export const closeDatePickerWhenFocusLeaves = (event: FocusEvent<HTMLDivElement>, closePicker: () => void) =>
+{
+    const nextFocus = event.relatedTarget as Node | null;
+    if (nextFocus && event.currentTarget.contains(nextFocus)) return;
+    closePicker();
+};
+// #endregion
+
+// #region Private
 /** 移動到目前月曆面板中指定日期的按鈕。 */
 const focusCalendarDate = (sourceButton: HTMLButtonElement, targetDate: string) =>
 {
@@ -54,6 +70,7 @@ const focusCalendarDate = (sourceButton: HTMLButtonElement, targetDate: string) 
     const targetButton = dialog?.querySelector<HTMLButtonElement>(`[data-calendar-date="${targetDate}"]`);
     targetButton?.focus();
 };
+
 
 /** 增減 ISO 日期天數。 */
 const addIsoDateDays = (date: string, count: number) =>
@@ -64,6 +81,7 @@ const addIsoDateDays = (date: string, count: number) =>
     return buildLocalIsoDate(nextDate.getFullYear(), nextDate.getMonth() + 1, nextDate.getDate());
 };
 
+
 /** 解析 yyyy-MM-dd，避免焦點工具與日期元件產生循環依賴。 */
 const getLocalIsoDateParts = (value: string) =>
 {
@@ -72,13 +90,7 @@ const getLocalIsoDateParts = (value: string) =>
     return { year: Number(match[1]), month: Number(match[2]), day: Number(match[3]) };
 };
 
+
 /** 建立 yyyy-MM-dd，避免焦點工具與日期元件產生循環依賴。 */
 const buildLocalIsoDate = (year: number, month: number, day: number) => `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-
-/** dateRange / dateTimeRange 透過 Tab 離開整個選擇器時，自動關閉浮層。 */
-export const closeDatePickerWhenFocusLeaves = (event: FocusEvent<HTMLDivElement>, closePicker: () => void) =>
-{
-    const nextFocus = event.relatedTarget as Node | null;
-    if (nextFocus && event.currentTarget.contains(nextFocus)) return;
-    closePicker();
-};
+// #endregion

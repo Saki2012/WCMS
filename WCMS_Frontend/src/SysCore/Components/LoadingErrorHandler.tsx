@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 
+// #region Property
 type Props = { isLoading: boolean; errorList: (string | null | undefined)[]; children?: ReactNode; };
+// #endregion
 
+// #region Private
 const LoadingErrorHandler = (prop: Props) =>
 {
     const error = prop.errorList.find(Boolean);
@@ -43,4 +46,6 @@ const LoadingErrorHandler = (prop: Props) =>
     }
     return <>{prop.children}</>;
 };
+
 export default LoadingErrorHandler;
+// #endregion

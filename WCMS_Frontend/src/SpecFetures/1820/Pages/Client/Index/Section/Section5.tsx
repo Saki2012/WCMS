@@ -2,52 +2,13 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import { type KeyboardEvent, type MouseEvent, useMemo, useState } from "react";
 
+// #region Property
 type Marquee = components["schemas"]["SpecHomePage1820_Marquee_DTO"];
+
 type RenderMarquee = Marquee & { KeyId: string; IsClone: boolean; };
+// #endregion
 
-/** 建立跑馬燈渲染資料 */
-const buildRenderItems = (data: Marquee[]): RenderMarquee[] =>
-{
-    const source = data.map((item) => ({ ...item, KeyId: `origin-${item.RowId}`, IsClone: false }));
-    const clone = data.map((item) => ({ ...item, KeyId: `clone-${item.RowId}`, IsClone: true }));
-    return [...source, ...clone];
-};
-
-/** 取得控制鈕 aria 文字 */
-const getControlText = (isManualPaused: boolean) =>
-{
-    return isManualPaused ? "圖片輪播已暫停，點擊播放" : "圖片輪播播放中，點擊暫停";
-};
-
-/** 取得控制鈕 title */
-const getControlTitle = (isManualPaused: boolean) =>
-{
-    return isManualPaused ? "播放" : "暫停";
-};
-
-/** 取得控制鈕 icon class */
-const getControlIconClass = (isManualPaused: boolean) =>
-{
-    return isManualPaused ? "MControl-toggle control-play-icon" : "MControl-toggle control-pause-icon";
-};
-
-/** 取得圖片替代文字 */
-const getPictureAlt = (item: RenderMarquee) =>
-{
-    if (item.IsClone) return "";
-    return item.PictureTitle ?? "";
-};
-
-/** 渲染單一圖片 */
-const renderPhotoItem = (item: RenderMarquee) =>
-{
-    return (
-        <li key={item.KeyId} aria-hidden={item.IsClone}>
-            <img src={FileManagementAPI.get_Public_Preview_Url(item.PictureId)} alt={getPictureAlt(item)} />
-        </li>
-    );
-};
-
+// #region Public
 /** 1820 首頁跑馬燈 */
 export const Section5 = (props: { data: Marquee[]; durationSec?: number; }) =>
 {
@@ -164,3 +125,55 @@ export const Section5 = (props: { data: Marquee[]; durationSec?: number; }) =>
         </section>
     );
 };
+// #endregion
+
+// #region EntityComp
+/** 建立跑馬燈渲染資料 */
+const buildRenderItems = (data: Marquee[]): RenderMarquee[] =>
+{
+    const source = data.map((item) => ({ ...item, KeyId: `origin-${item.RowId}`, IsClone: false }));
+    const clone = data.map((item) => ({ ...item, KeyId: `clone-${item.RowId}`, IsClone: true }));
+    return [...source, ...clone];
+};
+
+
+/** 渲染單一圖片 */
+const renderPhotoItem = (item: RenderMarquee) =>
+{
+    return (
+        <li key={item.KeyId} aria-hidden={item.IsClone}>
+            <img src={FileManagementAPI.get_Public_Preview_Url(item.PictureId)} alt={getPictureAlt(item)} />
+        </li>
+    );
+};
+// #endregion
+
+// #region Private
+/** 取得控制鈕 aria 文字 */
+const getControlText = (isManualPaused: boolean) =>
+{
+    return isManualPaused ? "圖片輪播已暫停，點擊播放" : "圖片輪播播放中，點擊暫停";
+};
+
+
+/** 取得控制鈕 title */
+const getControlTitle = (isManualPaused: boolean) =>
+{
+    return isManualPaused ? "播放" : "暫停";
+};
+
+
+/** 取得控制鈕 icon class */
+const getControlIconClass = (isManualPaused: boolean) =>
+{
+    return isManualPaused ? "MControl-toggle control-play-icon" : "MControl-toggle control-pause-icon";
+};
+
+
+/** 取得圖片替代文字 */
+const getPictureAlt = (item: RenderMarquee) =>
+{
+    if (item.IsClone) return "";
+    return item.PictureTitle ?? "";
+};
+// #endregion

@@ -2,6 +2,7 @@ import { PGID } from "@/types/SchemaFields";
 import { useCallback } from "react";
 import { INTERNAL_ATTR } from "./tinyMceConstants";
 
+// #region Property
 export interface UseContentTransformOptions
 {
     /** 來源 API 前綴（以 / 結尾） */
@@ -9,7 +10,9 @@ export interface UseContentTransformOptions
     /** 內嵌屬性名稱 */
     attrName?: string; // default: data-internalid
 }
+// #endregion
 
+// #region Public
 /** 內容轉換：<img src="/Service/FileManagement/Preview/{id}"> ⇄ <img data-internalid="{id}"> */
 export const useContentTransform = (opts?: UseContentTransformOptions) =>
 {
@@ -51,3 +54,4 @@ export const useContentTransform = (opts?: UseContentTransformOptions) =>
 
     return { toDb, toEditor, previewPrefix, attrName } as const;
 };
+// #endregion

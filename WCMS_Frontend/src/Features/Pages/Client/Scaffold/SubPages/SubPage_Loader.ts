@@ -6,14 +6,46 @@ import type { components } from "@/types/api";
 import { BannerDetailFields, BannerDetailInfoFields, BannerFields } from "@/types/SchemaFields";
 import type { LoaderFunctionArgs } from "react-router-dom";
 
+// #region Property
 type BannerSet = components["schemas"]["BannerSet_DTO"];
+
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 
 export interface ISubPageLoaderData
 {
     bannerInitial: ApiLoaderData<QueryListParam, BannerSet[]> | null;
 }
+// #endregion
 
+// #region Public
+/** SubPage 外框 loader：只負責 BannerData（SSR 首屏用） */
+export const SubPageLoader = (ctx: { lang: Lang; site: INormSite; node: INormNode; }) =>
+{
+    return async (args: LoaderFunctionArgs): Promise<ISubPageLoaderData> =>
+    {
+        // 宣告變數
+        const node = ctx.node;
+        const bannerId = (node.bannerId ?? "").trim();
+
+        // 執行 function：沒 bannerId 就不撈
+        if (!canLoadBanner(node)) return { bannerInitial: null };
+
+        const adapter = BannerSliderAdapter();
+        const loader = adapter.loader.createQueryListLoader({ getCondition: () => buildBannerQueryCondition(bannerId) });
+
+        const bannerInitial = await loader(args);
+
+        // 執行 function：API 失敗就回 null（避免錯誤狀態污染 Banner_Comp）
+        if (!bannerInitial.apiRes?.IsSuccess) return { bannerInitial: null };
+
+        // return
+        return { bannerInitial };
+    };
+};
+// #endregion
+
+// #region Private
 const buildBannerQueryCondition = (bannerId: string): QueryListParam =>
 {
     // 宣告變數
@@ -41,6 +73,7 @@ const buildBannerQueryCondition = (bannerId: string): QueryListParam =>
     };
 };
 
+
 const canLoadBanner = (node: INormNode): boolean =>
 {
     // 宣告變數
@@ -49,28 +82,4 @@ const canLoadBanner = (node: INormNode): boolean =>
     // return
     return bannerId.length > 0;
 };
-
-/** SubPage 外框 loader：只負責 BannerData（SSR 首屏用） */
-export const SubPageLoader = (ctx: { lang: Lang; site: INormSite; node: INormNode; }) =>
-{
-    return async (args: LoaderFunctionArgs): Promise<ISubPageLoaderData> =>
-    {
-        // 宣告變數
-        const node = ctx.node;
-        const bannerId = (node.bannerId ?? "").trim();
-
-        // 執行 function：沒 bannerId 就不撈
-        if (!canLoadBanner(node)) return { bannerInitial: null };
-
-        const adapter = BannerSliderAdapter();
-        const loader = adapter.loader.createQueryListLoader({ getCondition: () => buildBannerQueryCondition(bannerId) });
-
-        const bannerInitial = await loader(args);
-
-        // 執行 function：API 失敗就回 null（避免錯誤狀態污染 Banner_Comp）
-        if (!bannerInitial.apiRes?.IsSuccess) return { bannerInitial: null };
-
-        // return
-        return { bannerInitial };
-    };
-};
+// #endregion

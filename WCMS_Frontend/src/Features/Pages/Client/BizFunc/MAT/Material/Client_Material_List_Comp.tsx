@@ -5,15 +5,15 @@ import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import { LibText } from "@/SysCore/Utils/Library/LibData";
 import { useOptionalSpecAssetUrl } from "@/SysCore/Utils/UI_HookFunc/useOptionalSpecAssetUrl";
 import type { components } from "@/types/api";
 import { type MouseEvent, useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { getCsvValues, getInitialMaterialTagId, type IMaterialListOptions, useMaterialListData } from "./Client_Material_List_Loader";
-
-type MaterialSet = components["schemas"]["MaterialSet_DTO"];
+import { type IMaterialListOptions, useMaterialListData } from "./Client_Material_List_Loader";
 
 // #region Property
+type MaterialSet = components["schemas"]["MaterialSet_DTO"];
 export interface IMaterialListProps
 {
     theme: IFETheme;
@@ -22,7 +22,6 @@ export interface IMaterialListProps
     site: INormSite;
     node: INormNode;
 }
-
 interface MaterialCardView
 {
     key: string;
@@ -33,7 +32,6 @@ interface MaterialCardView
     picUrl: string;
     picAlt: string;
 }
-
 interface MaterialTabView
 {
     id: string;
@@ -41,12 +39,12 @@ interface MaterialTabView
 }
 // #endregion
 
-// #region Public Component
+// #region Public
 /** 物件清單：先顯示 PageManagement 內容，再依照 Prototype 商品卡片結構顯示 Material 資料 */
 export const Client_Material_List_Comp = (props: IMaterialListProps) =>
 {
     const dirUrl = useLocation().pathname.replace(/\/List$/, "");
-    const [activeTabId, setActiveTabId] = useState<string>(() => getInitialMaterialTagId(props.options.TagIds));
+    const [activeTabId, setActiveTabId] = useState<string>(() => LibText.splitTrimToArray(props.options.TagIds, ",", true)[0] ?? "");
     const listOptions = useMemo<IMaterialListOptions>(
         () => ({ PageId: props.options.PageId, CategoryId: props.options.CategoryId, TagIds: activeTabId || props.options.TagIds }),
         [props.options.PageId, props.options.CategoryId, props.options.TagIds, activeTabId],
@@ -54,13 +52,18 @@ export const Client_Material_List_Comp = (props: IMaterialListProps) =>
     const vm = useMaterialListData({ lang: props.lang, opts: listOptions });
     const rawData = vm.rawData;
     const content = rawData.pageDetail?.Content ?? "";
-    const tagList = useMemo(() => buildMaterialTabList(rawData.tagMap, props.options.TagIds), [rawData.tagMap, props.options.TagIds]);
+    const tagList = useMemo<MaterialTabView[]>(
+        () =>
+            LibText.splitTrimToArray(props.options.TagIds, ",", true).map(id => ({ id, name: rawData.tagMap[id] ?? "" })).filter(tag =>
+                Boolean(tag.id && tag.name)
+            ),
+        [rawData.tagMap, props.options.TagIds],
+    );
     /** 當後台設定的 Tag 條件改變時，自動切到第一個可用 Tab */
     useEffect(() =>
     {
         if (tagList.length <= 0) return;
         if (tagList.some(p => p.id === activeTabId)) return;
-
         setActiveTabId(tagList[0].id);
     }, [tagList, activeTabId]);
 
@@ -89,7 +92,7 @@ export const Client_Material_List_Comp = (props: IMaterialListProps) =>
 };
 // #endregion
 
-// #region Private Components
+// #region Section
 /** Material 卡片列表 */
 const MaterialCardList_Comp = (
     props: {
@@ -105,7 +108,6 @@ const MaterialCardList_Comp = (
 {
     const defaultPic = useOptionalSpecAssetUrl({ relativePath: "Assets/Custom/DefaultMaterialPic.jpg", fallbackToDefault: true }) ?? "";
     const tabPanelId = props.activeTabId ? `H-navTabs-${props.activeTabId}` : "H-navTabs-MaterialList";
-
     const cards = useMemo(() => props.listData.map(item => buildMaterialCardView(item, props.lang, props.dirUrl, props.categoryMap, defaultPic)), [
         props.listData,
         props.lang,
@@ -121,7 +123,6 @@ const MaterialCardList_Comp = (
                     <ProductionTabs tagList={props.tagList} activeTabId={props.activeTabId} tabPanelId={tabPanelId} onChange={props.onTabChange} />
                 </div>
             )}
-
             <div
                 id={tabPanelId}
                 className="SubPage_Standard_itemBoxs"
@@ -133,45 +134,6 @@ const MaterialCardList_Comp = (
         </div>
     );
 };
-
-/** 渲染物件類別 Tab */
-const ProductionTabs = (props: { tagList: MaterialTabView[]; activeTabId: string; tabPanelId: string; onChange: (id: string) => void; }) =>
-{
-    return (
-        <div className="Horizontal nav-tabs-list mb-3">
-            <ul className="nav nav-tabs" role="tablist">
-                {props.tagList.map((tag) =>
-                {
-                    return (
-                        <li key={tag.id} className="nav-item + me-3" role="presentation">
-                            <a
-                                href="#"
-                                type="button"
-                                className={`more-link font-wt-lg ${tag.id === props.activeTabId ? "active" : ""}`}
-                                role="tab"
-                                aria-selected={tag.id === props.activeTabId}
-                                aria-controls={props.tabPanelId}
-                                id={`H-Tabs__${tag.id}`}
-                                onClick={(event) => handleMaterialTabClick(event, tag.id, props.onChange)}
-                            >
-                                <span className="vm">{tag.name}</span>
-                                <span className="ms-1">〉</span>
-                            </a>
-                        </li>
-                    );
-                })}
-            </ul>
-        </div>
-    );
-};
-
-/** 處理 Material Tab 點擊，避免 href 預設跳動 */
-const handleMaterialTabClick = (event: MouseEvent<HTMLAnchorElement>, id: string, onChange: (id: string) => void): void =>
-{
-    event.preventDefault();
-    onChange(id);
-};
-
 /** Material 卡片項目 */
 const MaterialCardItem_Comp = (props: { item: MaterialCardView; }) =>
 {
@@ -202,7 +164,6 @@ const MaterialCardItem_Comp = (props: { item: MaterialCardView; }) =>
                             </div>
                         </div>
                     </div>
-
                     <div className="card_titleDiv d-flex justify-content-between align-items-end mb-md-2 mb-sm-1 mb-2">
                         <LangNavLink to={props.item.linkUrl} className="card_title">{props.item.title}</LangNavLink>
                         {props.item.price && (
@@ -212,11 +173,9 @@ const MaterialCardItem_Comp = (props: { item: MaterialCardView; }) =>
                             </span>
                         )}
                     </div>
-
                     <div className="d-flex justify-content-between align-items-center mb-md-3 mb-sm-2 mb-2">
                         <span className="Discount-text">{}</span>
                     </div>
-
                     <div className="card_StateDiv">
                         <div className="more-link-box my-0">
                             <LangNavLink
@@ -239,7 +198,40 @@ const MaterialCardItem_Comp = (props: { item: MaterialCardView; }) =>
 };
 // #endregion
 
-// #region Private Func
+// #region EntityComp
+/** 渲染物件類別 Tab */
+const ProductionTabs = (props: { tagList: MaterialTabView[]; activeTabId: string; tabPanelId: string; onChange: (id: string) => void; }) =>
+{
+    return (
+        <div className="Horizontal nav-tabs-list mb-3">
+            <ul className="nav nav-tabs" role="tablist">
+                {props.tagList.map((tag) =>
+                {
+                    return (
+                        <li key={tag.id} className="nav-item + me-3" role="presentation">
+                            <a
+                                href="#"
+                                type="button"
+                                className={`more-link font-wt-lg ${tag.id === props.activeTabId ? "active" : ""}`}
+                                role="tab"
+                                aria-selected={tag.id === props.activeTabId}
+                                aria-controls={props.tabPanelId}
+                                id={`H-Tabs__${tag.id}`}
+                                onClick={(event) => handleMaterialTabClick(event, tag.id, props.onChange)}
+                            >
+                                <span className="vm">{tag.name}</span>
+                                <span className="ms-1">〉</span>
+                            </a>
+                        </li>
+                    );
+                })}
+            </ul>
+        </div>
+    );
+};
+// #endregion
+
+// #region Private
 /** 組成卡片顯示資料 */
 const buildMaterialCardView = (item: MaterialSet, lang: Lang, dirUrl: string, categoryMap: Record<string, string>, defaultPic: string): MaterialCardView =>
 {
@@ -248,23 +240,16 @@ const buildMaterialCardView = (item: MaterialSet, lang: Lang, dirUrl: string, ca
     const internalId = main?.InternalId ?? "";
     const price = item.Material?.Price ?? 0;
     const title = langInfo?.MaterialName ?? "";
-    const categoryName = getMapText(categoryMap, main?.CategoryId);
+    const categoryName = main?.CategoryId ? categoryMap[main.CategoryId] ?? "" : "";
     const picData = item.MaterialPicture?.[0];
     const picAlt = picData?.PictureName ?? title;
     const picUrl = picData?.PictureId ? FileManagementAPI.get_Public_Preview_Url(picData.PictureId, picAlt) : defaultPic;
-
     return { key: internalId, linkUrl: `${dirUrl}/${internalId}`, title, price, categoryName, picUrl, picAlt };
 };
-
-/** 依後台設定的 TagIds 組成前台 Tab */
-const buildMaterialTabList = (tagMap: Record<string, string>, tagIds?: string | null): MaterialTabView[] =>
+/** 處理 Material Tab 點擊，避免 href 預設跳動 */
+const handleMaterialTabClick = (event: MouseEvent<HTMLAnchorElement>, id: string, onChange: (id: string) => void): void =>
 {
-    return getCsvValues(tagIds ?? "").map(id => ({ id, name: tagMap[id] ?? "" })).filter(p => p.id && p.name);
-};
-/** 從 map 取得顯示名稱 */
-const getMapText = (map: Record<string, string>, key?: string | null): string =>
-{
-    if (!key) return "";
-    return map[key] ?? "";
+    event.preventDefault();
+    onChange(id);
 };
 // #endregion

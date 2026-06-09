@@ -1,3 +1,8 @@
+// #region Property
+export type ClientSlotPathKey = keyof typeof ClientSlotPath;
+// #endregion
+
+// #region Public
 /** 前台 Spec slot 相對路徑集中管理，避免 resolver 與擴充點各自手刻路徑造成漏改。 */
 export const ClientSlotPath = {
     SubPage: "Pages/Client/Scaffold/SubPages/SubPage.tsx",
@@ -13,11 +18,9 @@ export const ClientSlotPath = {
     WebResourceList: "Pages/Client/BizFunc/WEB/WebResource/WebResourceList.tsx",
 } as const;
 
-export type ClientSlotPathKey = keyof typeof ClientSlotPath;
-
 /** 以 key 取得 slot path，讓呼叫端接近 nameof 的用法。 */
 export const getClientSlotPath = (key: ClientSlotPathKey): string =>
 {
-    // return
     return ClientSlotPath[key];
 };
+// #endregion

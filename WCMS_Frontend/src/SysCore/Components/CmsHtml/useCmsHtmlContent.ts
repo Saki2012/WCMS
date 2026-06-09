@@ -3,12 +3,15 @@ import { parseCmsHtml } from "./CmsHtml_Parse";
 import { transformCmsHtml } from "./CmsHtml_Transform";
 import type { CmsHtmlContentOptions } from "./CmsHtml_Types";
 
+// #region Property
 export interface CmsHtmlContentResult
 {
     html: string;
     node: ReactNode;
 }
+// #endregion
 
+// #region Public
 /** SSR-safe CMS HTML 轉換 Hook；只使用同步 useMemo，不依賴 useEffect。 */
 export const useCmsHtmlContent = (html: string | null | undefined, options: CmsHtmlContentOptions): CmsHtmlContentResult =>
 {
@@ -17,3 +20,4 @@ export const useCmsHtmlContent = (html: string | null | undefined, options: CmsH
 
     return { html: normalizedHtml, node };
 };
+// #endregion

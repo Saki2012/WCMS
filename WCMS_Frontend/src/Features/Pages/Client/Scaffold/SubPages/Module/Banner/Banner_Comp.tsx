@@ -11,13 +11,20 @@ import { BannerDetailFields, BannerDetailInfoFields, BannerFields } from "@/type
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "./Banner.css";
 
+// #region Property
 type BannerSet = components["schemas"]["BannerSet_DTO"];
+
 type BannerDetail = components["schemas"]["BannerDetail_DTO"];
+
 type BannerDetailInfo = components["schemas"]["BannerDetailInfo_DTO"];
+
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type BootstrapCarouselInstance = { cycle: () => void; pause: () => void; dispose?: () => void; };
 
+type BootstrapCarouselInstance = { cycle: () => void; pause: () => void; dispose?: () => void; };
+// #endregion
+
+// #region Public
 export const Banner_Comp = (props: { lang: Lang; node: INormNode; initialBanner?: ApiLoaderData<QueryListParam, BannerSet[]> | null; }) =>
 {
     // 變數宣告
@@ -188,7 +195,9 @@ export const Banner_Comp = (props: { lang: Lang; node: INormNode; initialBanner?
         </section>
     );
 };
+// #endregion
 
+// #region Private
 const BannerFetch = (
     adapter: ReturnType<typeof BannerSliderAdapter>,
     lang: Lang,
@@ -233,6 +242,7 @@ const BannerFetch = (
     return adapter.hooks.useQueryList({ condition: queryCondition, initial, deps: [bannerId, lang] });
 };
 
+
 const toCarouselIntervalMs = (value: unknown): number =>
 {
     const n = Number(value ?? 0);
@@ -242,6 +252,7 @@ const toCarouselIntervalMs = (value: unknown): number =>
     return n < 100 ? n * 1000 : n;
 };
 
+
 const toCarouselSpeedMs = (value: unknown): number =>
 {
     const n = Number(value ?? 0);
@@ -249,6 +260,7 @@ const toCarouselSpeedMs = (value: unknown): number =>
 
     return n;
 };
+
 
 const pickBannerDetailInfo = (detail: BannerDetail, lang: Lang): BannerDetailInfo | null =>
 {
@@ -263,14 +275,17 @@ const pickBannerDetailInfo = (detail: BannerDetail, lang: Lang): BannerDetailInf
     return hit ?? list[0] ?? null;
 };
 
+
 const getInfoTitle = (info: BannerDetailInfo | null): string =>
 {
     // return
     return (info?.Title ?? "").toString();
 };
 
+
 const getInfoUrl = (info: BannerDetailInfo | null): string =>
 {
     // return
     return (info?.URL ?? "").toString();
 };
+// #endregion

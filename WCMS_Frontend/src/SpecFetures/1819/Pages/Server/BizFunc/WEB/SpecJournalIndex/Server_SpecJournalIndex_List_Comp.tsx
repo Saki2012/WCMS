@@ -12,8 +12,26 @@ import {
     useSpecJournalIndexListGridTemplate,
 } from "./Server_SpecJournalIndex_List_Hook";
 
+// #region Property
 const volumeIssueListStyle = { listStylePosition: "inside" } as const;
 
+
+const specJournalIndexListRenderers: SpecJournalIndexListRenderers = {
+    renderVolumeIssueContent: renderSpecJournalIndexVolumeIssueContent,
+};
+// #endregion
+
+// #region Public
+/** 後台期刊目次列表 */
+export const Server_SpecJournalIndex_List_Comp = (prop: { title: string; theme: IBETheme; lang: Lang; }) =>
+{
+    const template = useSpecJournalIndexListGridTemplate({ lang: prop.lang, renderers: specJournalIndexListRenderers });
+
+    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} renderSearchBar={renderSpecJournalIndexSearchBar} />;
+};
+// #endregion
+
+// #region EntityComp
 /** 渲染期刊目次搜尋列 */
 const renderSpecJournalIndexSearchBar = (props: ServerListGridSearchRenderProps): ReactNode =>
 {
@@ -28,6 +46,7 @@ const renderSpecJournalIndexSearchBar = (props: ServerListGridSearchRenderProps)
     );
 };
 
+
 /** 渲染卷期欄位內容 */
 const renderSpecJournalIndexVolumeIssueContent = (set: SpecJournalIndexSet): ReactNode =>
 {
@@ -41,12 +60,15 @@ const renderSpecJournalIndexVolumeIssueContent = (set: SpecJournalIndexSet): Rea
     );
 };
 
+
 /** 建立卷期列表 key */
 const buildSpecJournalIndexDetailKey = (detail: NonNullable<SpecJournalIndexSet["SpecJournalIndexDetail"]>[number], index: number): string =>
 {
     return `${detail.IndexId ?? ""}-${detail.RowId ?? ""}-${index}`;
 };
+// #endregion
 
+// #region Private
 /** 格式化卷期顯示文字 */
 const formatSpecJournalIndexDetail = (detail: NonNullable<SpecJournalIndexSet["SpecJournalIndexDetail"]>[number]): string =>
 {
@@ -55,15 +77,4 @@ const formatSpecJournalIndexDetail = (detail: NonNullable<SpecJournalIndexSet["S
     const hasValue = Boolean(volume) || Boolean(issue);
     return hasValue ? `${volume}卷${issue}期` : "";
 };
-
-const specJournalIndexListRenderers: SpecJournalIndexListRenderers = {
-    renderVolumeIssueContent: renderSpecJournalIndexVolumeIssueContent,
-};
-
-/** 後台期刊目次列表 */
-export const Server_SpecJournalIndex_List_Comp = (prop: { title: string; theme: IBETheme; lang: Lang; }) =>
-{
-    const template = useSpecJournalIndexListGridTemplate({ lang: prop.lang, renderers: specJournalIndexListRenderers });
-
-    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} renderSearchBar={renderSpecJournalIndexSearchBar} />;
-};
+// #endregion

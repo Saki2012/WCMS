@@ -11,7 +11,7 @@ import type { SearchFieldConfig, SearchValue, SearchValues } from "@/SysCore/Com
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
-import { FormatDateTime } from "@/SysCore/Utils/Library/LibData";
+import { formatDateTime } from "@/SysCore/Utils/Library/LibData";
 import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
@@ -19,18 +19,22 @@ import { AccountFields, PGID, SpecMusicalModelFields, SpecMusicalSetFields } fro
 import { useCallback, useMemo } from "react";
 import { type NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 export type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"];
+
 type SpecMusicalApiAdapter = ReturnType<typeof SpecMusicalAdapter>;
+
 type SpecMusicalCudActions = ReturnType<SpecMusicalApiAdapter["hooks"]["useCudActions"]>;
 
-export const SPEC_MUSICAL_NAME_SEARCH_KEY = "musicalName";
 
 export interface SpecMusicalListRenderers
 {
     /** 渲染封面圖欄位內容，JSX 請留在 Comp 實作 */
     renderCoverContent: (set: SpecMusicalSet) => RowCell["content"];
 }
+
 
 export interface SpecMusicalSearchParams
 {
@@ -40,6 +44,7 @@ export interface SpecMusicalSearchParams
     /** 樂器名稱搜尋關鍵字 */
     musicalName?: string;
 }
+
 
 export interface SpecMusicalListRawData
 {
@@ -65,6 +70,7 @@ export interface SpecMusicalListRawData
     param: QueryListParam;
 }
 
+
 export interface SpecMusicalListAdapter
 {
     /** 樂器 API adapter */
@@ -80,7 +86,43 @@ export interface SpecMusicalListAdapter
     dirUrl: string;
 }
 
+
 export type SpecMusicalListGridTemplate = ServerListGridTemplate<SpecMusicalSearchParams, SpecMusicalListRawData, SpecMusicalListAdapter, QueryListParam>;
+
+
+type CrudDeps = {
+    /** React Router 導頁方法 */
+    navigate: NavigateFunction;
+
+    /** 目前 List 對應的 Form 路徑 */
+    dirUrl: string;
+
+    /** 刪除資料方法 */
+    deleteAsync: SpecMusicalCudActions["deleteAsync"];
+
+    /** 刪除後重新查詢 */
+    afterDelete: () => Promise<void>;
+};
+
+
+type SpecMusicalVisibleColumn = {
+    /** Grid 欄位 key */
+    key: string;
+
+    /** ModelDisplayName 對應表格代號 */
+    tableId: string;
+
+    /** ModelDisplayName 對應欄位代號 */
+    columnId: string;
+
+    /** 找不到 ModelDisplayName 時的預設標題 */
+    fallback: string;
+};
+// #endregion
+
+// #region Public
+export const SPEC_MUSICAL_NAME_SEARCH_KEY = "musicalName";
+
 
 /** 建立樂器後台純 Spec ListGridTemplate 設定 */
 export const useSpecMusicalListGridTemplate = (opt: { lang: Lang; renderers: SpecMusicalListRenderers; }): SpecMusicalListGridTemplate =>
@@ -106,7 +148,9 @@ export const useSpecMusicalListGridTemplate = (opt: { lang: Lang; renderers: Spe
         };
     }, [opt.lang, opt.renderers]);
 };
+// #endregion
 
+// #region Private
 /** 執行樂器列表資料來源 Hook */
 const useSpecMusicalListGridDataSource = (
     ctx: ServerListGridDataSourceContext<SpecMusicalSearchParams, QueryListParam>,
@@ -152,6 +196,7 @@ const useSpecMusicalListGridDataSource = (
     return { adapter: { ...apiAdapter, cudActions, navigate, dirUrl }, rawData, isLoading: grid.isLoading, errors: grid.errors ?? [], refetchData };
 };
 
+
 /** 建立樂器搜尋欄位設定 */
 const buildSpecMusicalSearchFields = (rawData: SpecMusicalListRawData): SearchFieldConfig[] =>
 {
@@ -159,6 +204,7 @@ const buildSpecMusicalSearchFields = (rawData: SpecMusicalListRawData): SearchFi
 
     return [{ key: SPEC_MUSICAL_NAME_SEARCH_KEY, title: musicalNameTitle, type: "text", placeholder: `請輸入${musicalNameTitle}` }];
 };
+
 
 /** 將 SearchValues 轉為樂器列表查詢參數 */
 const toSpecMusicalSearchParams = (values: SearchValues, lang: Lang): SpecMusicalSearchParams =>
@@ -168,6 +214,7 @@ const toSpecMusicalSearchParams = (values: SearchValues, lang: Lang): SpecMusica
         musicalName: getSearchStringValue(values[SPEC_MUSICAL_NAME_SEARCH_KEY]),
     };
 };
+
 
 /** 建立樂器搜尋條件 */
 const buildSpecMusicalSearchConditions = (ctx: { searchParams: SpecMusicalSearchParams; }): string[] =>
@@ -182,6 +229,7 @@ const buildSpecMusicalSearchConditions = (ctx: { searchParams: SpecMusicalSearch
     return conditions;
 };
 
+
 /** 建立樂器列表完整 QueryParam */
 const buildSpecMusicalQueryParam = (ctx: { searchCondition: string; }): QueryListParam =>
 {
@@ -193,6 +241,7 @@ const buildSpecMusicalQueryParam = (ctx: { searchCondition: string; }): QueryLis
         PageSize: 10,
     };
 };
+
 
 /** 建立樂器列表查詢欄位 */
 const buildSpecMusicalQueryFields = (): string[] =>
@@ -210,33 +259,6 @@ const buildSpecMusicalQueryFields = (): string[] =>
     ];
 };
 
-type CrudDeps = {
-    /** React Router 導頁方法 */
-    navigate: NavigateFunction;
-
-    /** 目前 List 對應的 Form 路徑 */
-    dirUrl: string;
-
-    /** 刪除資料方法 */
-    deleteAsync: SpecMusicalCudActions["deleteAsync"];
-
-    /** 刪除後重新查詢 */
-    afterDelete: () => Promise<void>;
-};
-
-type SpecMusicalVisibleColumn = {
-    /** Grid 欄位 key */
-    key: string;
-
-    /** ModelDisplayName 對應表格代號 */
-    tableId: string;
-
-    /** ModelDisplayName 對應欄位代號 */
-    columnId: string;
-
-    /** 找不到 ModelDisplayName 時的預設標題 */
-    fallback: string;
-};
 
 /** 將樂器資料轉為 GridProps */
 const buildSpecMusicalGridProps = (
@@ -270,6 +292,7 @@ const buildSpecMusicalGridProps = (
     });
 };
 
+
 /** 注入樂器 Grid 編輯與刪除動作 */
 const enhanceSpecMusicalGrid = (
     opt: {
@@ -299,6 +322,7 @@ const enhanceSpecMusicalGrid = (
         getInternalId: (set) => set.SpecMusical?.InternalId ?? "",
     });
 };
+
 
 /** 建立樂器顯示欄位設定 */
 const buildSpecMusicalVisibleColumns = (): SpecMusicalVisibleColumn[] =>
@@ -337,6 +361,7 @@ const buildSpecMusicalVisibleColumns = (): SpecMusicalVisibleColumn[] =>
     ];
 };
 
+
 /** 建立 Grid 欄位 */
 const buildColumns = (visibleCols: SpecMusicalVisibleColumn[], raw: SpecMusicalListRawData): ColumnConfig[] =>
 {
@@ -346,11 +371,13 @@ const buildColumns = (visibleCols: SpecMusicalVisibleColumn[], raw: SpecMusicalL
     }));
 };
 
+
 /** 建立 Grid Rows */
 const buildSpecMusicalRows = (raw: SpecMusicalListRawData, columns: ColumnConfig[], renderers: SpecMusicalListRenderers): GridRow[] =>
 {
     return (raw.list ?? []).map((set) => buildSpecMusicalRow(set, columns, renderers));
 };
+
 
 /** 建立單筆樂器 Row */
 const buildSpecMusicalRow = (set: SpecMusicalSet, columns: ColumnConfig[], renderers: SpecMusicalListRenderers): GridRow =>
@@ -361,12 +388,14 @@ const buildSpecMusicalRow = (set: SpecMusicalSet, columns: ColumnConfig[], rende
     return { keyId, cells };
 };
 
+
 /** 建立樂器欄位內容 */
 const buildSpecMusicalCell = (set: SpecMusicalSet, col: ColumnConfig, renderers: SpecMusicalListRenderers): RowCell =>
 {
     const content = resolveSpecMusicalCellContent(set, col.key, renderers);
     return { col, content };
 };
+
 
 /** 解析樂器欄位內容 */
 const resolveSpecMusicalCellContent = (set: SpecMusicalSet, key: string, renderers: SpecMusicalListRenderers): RowCell["content"] =>
@@ -380,13 +409,14 @@ const resolveSpecMusicalCellContent = (set: SpecMusicalSet, key: string, rendere
             return renderers.renderCoverContent(set);
         case SpecMusicalModelFields.CreateTime:
         case SpecMusicalModelFields.ModifyTime:
-            return FormatDateTime(String(dataRecord[key] ?? ""));
+            return formatDateTime(String(dataRecord[key] ?? ""));
         case SpecMusicalModelFields.ModifyUserId:
             return data?.ModifyUser?.AccountName ?? "";
         default:
             return String(dataRecord[key] ?? "");
     }
 };
+
 
 /** 取得搜尋文字值 */
 const getSearchStringValue = (value: SearchValue): string | undefined =>
@@ -396,6 +426,7 @@ const getSearchStringValue = (value: SearchValue): string | undefined =>
     return trimValue.length > 0 ? trimValue : undefined;
 };
 
+
 /** 從 ModelDisplayName 取得欄位顯示名稱 */
 const getColumnTitle = (schema: ModelDisplaySchema | null, tableId: string, columnId: string, fallback: string): string =>
 {
@@ -403,3 +434,4 @@ const getColumnTitle = (schema: ModelDisplaySchema | null, tableId: string, colu
     const column = table?.Columns?.find((item) => item.ColumnId === columnId);
     return column?.ColumnDisplayName ?? fallback;
 };
+// #endregion

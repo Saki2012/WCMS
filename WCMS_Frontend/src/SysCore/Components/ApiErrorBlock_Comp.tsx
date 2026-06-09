@@ -1,5 +1,6 @@
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 
+// #region Public
 export const ApiErrorBlock_Comp = (props: { title: string; env: ApiResponse<any> | null | undefined; }) =>
 {
     const env = props.env;
@@ -11,3 +12,4 @@ export const ApiErrorBlock_Comp = (props: { title: string; env: ApiResponse<any>
         </div>
     );
 };
+// #endregion

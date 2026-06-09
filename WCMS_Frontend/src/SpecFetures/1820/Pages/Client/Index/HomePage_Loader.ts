@@ -1,4 +1,3 @@
-//#region Property
 import { useClientDataQueryTemplate, type ClientDataQueryDataSourceResult, type ClientDataQueryTemplate } from "@/Features/Pages/Client/Scaffold/DataQueryTemplate/Client_DataQueryTemplate_Hook";
 import { CategoryAdapter } from "@/Features/Hooks/BizFunc/COMM/Category_Api";
 import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WEB/Announcement_Api";
@@ -11,14 +10,23 @@ import { AnnouncementDetailFields, AnnouncementFields, PGID } from "@/types/Sche
 import { useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router-dom";
 
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 type SpecHomePage1820Set = components["schemas"]["SpecHomePage1820Set_DTO"];
+
 type HomePageModel = components["schemas"]["SpecHomePage1820Model_DTO"];
+
 type BannerModel = components["schemas"]["SpecHomePage1820_BannerMedia_DTO"];
+
 type DetailModel = components["schemas"]["SpecHomePage1820_Detail_DTO"];
+
 type MarqueeModel = components["schemas"]["SpecHomePage1820_Marquee_DTO"];
+
 type ResourceModel = components["schemas"]["SpecHomePage1820_Resource_DTO"];
+
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
+
 
 export interface HomePageRawData
 {
@@ -31,11 +39,13 @@ export interface HomePageRawData
     announcementCategoryMap: Record<string, string>;
 }
 
+
 export interface HomePageLoaderArgs
 {
     lang: Lang;
     internalId: string;
 }
+
 
 export interface HomePageLoaderRes
 {
@@ -44,242 +54,36 @@ export interface HomePageLoaderRes
     weatherInitial: WeatherLoaderData | null;
 }
 
+
 export interface HomePageLoaderData
 {
     args: HomePageLoaderArgs;
     res: HomePageLoaderRes;
 }
 
-/** 取得安全字串 */
-//#endregion
 
-//#region Private - Loader Helpers
-const getSafeString = (value?: string | null) =>
+
+
+interface HomePageTemplateQueryParam
 {
-    return `${value ?? ""}`.trim();
-};
+    lang: Lang;
+}
 
-/** 跳脫查詢字串 */
-const escapeQueryValue = (value?: string | null) =>
-{
-    return getSafeString(value).replace(/"/g, `""`);
-};
 
-/** 依 RowId 排序 */
-const sortByRowId = <T extends { RowId?: number | null; }>(rows?: T[] | null) =>
-{
-    return [...(rows ?? [])].sort((a, b) => (a.RowId ?? 0) - (b.RowId ?? 0));
-};
+type HomePageTemplate = ClientDataQueryTemplate<HomePageTemplateQueryParam, HomePageRawData | null, HomePageLoaderData | null, unknown, HomePageTemplateQueryParam, HomePageLoaderData>;
+// #endregion
 
-/** 建立空資料 */
-const createEmptyRawData = (): HomePageRawData =>
-{
-    return { homePage: null, banners: [], details: [], marquees: [], resources: [], announcements: [], announcementCategoryMap: {} };
-};
-
-/** 正規化首頁 set */
-const normalizeSetData = (setData: SpecHomePage1820Set | null): HomePageRawData =>
-{
-    if (!setData) return createEmptyRawData();
-
-    return {
-        homePage: setData.SpecHomePage1820 ?? null,
-        banners: sortByRowId(setData.SpecHomePage1820_BannerMedia),
-        details: sortByRowId(setData.SpecHomePage1820_Detail),
-        marquees: sortByRowId(setData.SpecHomePage1820_Marquee),
-        resources: sortByRowId(setData.SpecHomePage1820_Resource),
-        announcements: [],
-        announcementCategoryMap: {},
-    };
-};
-/** 讀取公告分類名稱對照 */
-const loadAnnouncementCategoryMap = async (
-    args: LoaderFunctionArgs,
-    adapter: ReturnType<typeof CategoryAdapter>,
-    lang: Lang,
-): Promise<Record<string, string>> =>
-{
-    const api = getSsrApi(args.request);
-
-    const mapLoader = adapter.loader.createMapByProgIdLoader({ progId: PGID.Announcement, lang, getApiInstance: () => api });
-
-    const env = await mapLoader(args);
-    return env.apiRes.IsSuccess ? (env.apiRes.Data ?? {}) : {};
-};
-/** 建立首頁 queryList 條件 */
-const buildHomePageQueryParam = (lang?: Lang): QueryListParam =>
-{
-    const safeLang = escapeQueryValue(lang);
-
-    return {
-        Fields: ["InternalId", "Lang", "CreateTime", "ModifyTime"],
-        Condition: safeLang ? `Lang = "${safeLang}"` : "",
-        OrderBy: [{ Col: "ModifyTime", Desc: true }, { Col: "CreateTime", Desc: true }],
-        PageNumber: 1,
-        PageSize: 1,
-    };
-};
-
-/** 從 queryList 的列資料取出 InternalId */
-const getInternalIdFromListRow = (row?: SpecHomePage1820Set | null) =>
-{
-    if (!row) return "";
-
-    if ("InternalId" in row) return getSafeString(row.SpecHomePage1820?.InternalId);
-    return getSafeString(row.SpecHomePage1820?.InternalId);
-};
-
-/** 讀首頁第一筆清單資料 */
-const loadFirstHomePageRow = async (
-    args: LoaderFunctionArgs,
-    adapter: ReturnType<typeof SpecHomePage1820Adapter>,
-    condition: QueryListParam,
-): Promise<SpecHomePage1820Set | null> =>
-{
-    const api = getSsrApi(args.request);
-
-    const queryListLoader = adapter.loader.createQueryListLoader({ getApiInstance: () => api, getCondition: () => condition });
-
-    const env = await queryListLoader(args);
-    const list = (env.apiRes.IsSuccess ? (env.apiRes.Data ?? []) : []) as SpecHomePage1820Set[];
-
-    return list[0] ?? null;
-};
-
-/** 依 InternalId 讀首頁完整資料 */
-const loadHomePageSet = async (
-    args: LoaderFunctionArgs,
-    adapter: ReturnType<typeof SpecHomePage1820Adapter>,
-    internalId: string,
-): Promise<SpecHomePage1820Set | null> =>
-{
-    if (!internalId) return null;
-
-    const api = getSsrApi(args.request);
-
-    const queryDataLoader = adapter.loader.createQueryDataLoader({ getApiInstance: () => api, getInternalId: () => internalId });
-
-    const env = await queryDataLoader(args);
-    return env.apiRes.IsSuccess ? (env.apiRes.Data ?? null) : null;
-};
-
-/** 依語系解析首頁 InternalId */
-const resolveHomePageInternalId = async (args: LoaderFunctionArgs, adapter: ReturnType<typeof SpecHomePage1820Adapter>, lang: Lang): Promise<string> =>
-{
-    const currentRow = await loadFirstHomePageRow(args, adapter, buildHomePageQueryParam(lang));
-    const currentId = getInternalIdFromListRow(currentRow);
-    if (currentId) return currentId;
-
-    const defaultRow = await loadFirstHomePageRow(args, adapter, buildHomePageQueryParam("zh-tw"));
-    const defaultId = getInternalIdFromListRow(defaultRow);
-    if (defaultId) return defaultId;
-
-    const anyRow = await loadFirstHomePageRow(args, adapter, buildHomePageQueryParam());
-    return getInternalIdFromListRow(anyRow);
-};
-
-/** 轉查詢時間字串 */
-const formatQueryDateTime = (value: Date) =>
-{
-    const pad = (num: number) => `${num}`.padStart(2, "0");
-    const yyyy = value.getFullYear();
-    const mm = pad(value.getMonth() + 1);
-    const dd = pad(value.getDate());
-    const hh = pad(value.getHours());
-    const mi = pad(value.getMinutes());
-    const ss = pad(value.getSeconds());
-
-    return `${yyyy}-${mm}-${dd}T${hh}:${mi}:${ss}`;
-};
-
-/** 建立公告查詢條件 */
-const buildAnnouncementCondition = (p: { lang: Lang; categoryIds?: string | null; }) =>
-{
-    const nowText = formatQueryDateTime(new Date());
-    const categoryIds = getSafeString(p.categoryIds);
-
-    let condition = LibMerge(
-        " And ",
-        false,
-        `${AnnouncementFields.Validate_Start} <= ${nowText}`,
-        `(${AnnouncementFields.Validate_End} >= ${nowText} Or ${AnnouncementFields.Validate_End} is null)`,
-        `${AnnouncementFields.ContentStatus} !& 4`,
-        `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang} = ${p.lang}`,
-        `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title} != ''`,
-    );
-
-    if (!categoryIds) return "";
-
-    condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Categories} HasAny [${categoryIds}]`);
-
-    return condition;
-};
-
-/** 建立公告 queryList 條件 */
-const buildAnnouncementQueryParam = (p: { lang: Lang; categoryIds?: string | null; }): QueryListParam | null =>
-{
-    const condition = buildAnnouncementCondition(p);
-    if (!condition) return null;
-
-    return {
-        Fields: [
-            AnnouncementFields.AnnouncementId,
-            AnnouncementFields.InternalId,
-            AnnouncementFields.ContentStatus,
-            AnnouncementFields.PictureId,
-            AnnouncementFields.PicDescription,
-            AnnouncementFields.Categories,
-            AnnouncementFields.Validate_Start,
-            `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang}`,
-            `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title}`,
-            `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.SubTitle}`,
-            `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Content}`,
-        ],
-        Condition: condition,
-        RankGroups: [{ Condition: `${AnnouncementFields.ContentStatus} & 1` }],
-        OrderBy: [{ Col: AnnouncementFields.Validate_Start, Desc: true }, { Col: AnnouncementFields.CreateTime, Desc: true }],
-        PageNumber: 1,
-        PageSize: 12,
-    };
-};
-/** 讀取首頁天氣資料 */
-const loadWeatherInitial = async (args: LoaderFunctionArgs, adapter: ReturnType<typeof SpecHomePage1820Adapter>): Promise<WeatherLoaderData | null> =>
-{
-    const api = getSsrApi(args.request);
-
-    const weatherLoader = adapter.loader.createWeatherLoader({ getApiInstance: () => api });
-
-    const env = await weatherLoader(args);
-    return env?.apiRes?.IsSuccess ? env : null;
-};
-/** 讀取首頁公告清單 */
-const loadAnnouncementList = async (
-    args: LoaderFunctionArgs,
-    adapter: ReturnType<typeof AnnouncementAdapter>,
-    condition: QueryListParam | null,
-): Promise<AnnouncementSet[]> =>
-{
-    if (!condition) return [];
-
-    const api = getSsrApi(args.request);
-
-    const queryListLoader = adapter.loader.createQueryListLoader({ getApiInstance: () => api, getCondition: () => condition });
-
-    const env = await queryListLoader(args);
-    return env.apiRes.IsSuccess ? (env.apiRes.Data ?? []) : [];
-};
-
+// #region Public
 /** 建立 loader args */
 export const buildHomePageLoaderArgs = (p: { lang: Lang; internalId: string; }): HomePageLoaderArgs =>
 {
     return { lang: p.lang, internalId: getSafeString(p.internalId) };
 };
 
-/** 1820 首頁 loader */
-/** 1820 首頁 loader */
-//#endregion
 
-//#region Public - SSR Loader
+/** 1820 首頁 loader */
+/** 1820 首頁 loader */
+
 export const HomePageLoader = (props: { lang: Lang; }) => async (args: LoaderFunctionArgs): Promise<HomePageLoaderData> =>
 {
     const api = getSsrApi(args.request);
@@ -309,19 +113,256 @@ export const HomePageLoader = (props: { lang: Lang; }) => async (args: LoaderFun
     return { args: loaderArgs, res: { rawData: { ...rawData, announcements, announcementCategoryMap }, setData, weatherInitial } };
 };
 
+
+/** CSR Hook：首頁統一透過 Client_DataQueryTemplate 取資料 */
+
+export const useHomePageTemplateData = (lang: Lang) =>
+{
+    // 宣告變數
+    const template = useMemo(() => createHomePageTemplate(lang), [lang]);
+    const templateVm = useClientDataQueryTemplate(template);
+
+    // return
+    return { loaderData: templateVm.viewModel, rawData: templateVm.rawData, isLoading: templateVm.isLoading, errorList: templateVm.errorList };
+};
+// #endregion
+
+// #region Private
+/** 取得安全字串 */
+
+const getSafeString = (value?: string | null) =>
+{
+    return `${value ?? ""}`.trim();
+};
+
+
+/** 跳脫查詢字串 */
+const escapeQueryValue = (value?: string | null) =>
+{
+    return getSafeString(value).replace(/"/g, `""`);
+};
+
+
+/** 依 RowId 排序 */
+const sortByRowId = <T extends { RowId?: number | null; }>(rows?: T[] | null) =>
+{
+    return [...(rows ?? [])].sort((a, b) => (a.RowId ?? 0) - (b.RowId ?? 0));
+};
+
+
+/** 建立空資料 */
+const createEmptyRawData = (): HomePageRawData =>
+{
+    return { homePage: null, banners: [], details: [], marquees: [], resources: [], announcements: [], announcementCategoryMap: {} };
+};
+
+
+/** 正規化首頁 set */
+const normalizeSetData = (setData: SpecHomePage1820Set | null): HomePageRawData =>
+{
+    if (!setData) return createEmptyRawData();
+
+    return {
+        homePage: setData.SpecHomePage1820 ?? null,
+        banners: sortByRowId(setData.SpecHomePage1820_BannerMedia),
+        details: sortByRowId(setData.SpecHomePage1820_Detail),
+        marquees: sortByRowId(setData.SpecHomePage1820_Marquee),
+        resources: sortByRowId(setData.SpecHomePage1820_Resource),
+        announcements: [],
+        announcementCategoryMap: {},
+    };
+};
+
+/** 讀取公告分類名稱對照 */
+const loadAnnouncementCategoryMap = async (
+    args: LoaderFunctionArgs,
+    adapter: ReturnType<typeof CategoryAdapter>,
+    lang: Lang,
+): Promise<Record<string, string>> =>
+{
+    const api = getSsrApi(args.request);
+
+    const mapLoader = adapter.loader.createMapByProgIdLoader({ progId: PGID.Announcement, lang, getApiInstance: () => api });
+
+    const env = await mapLoader(args);
+    return env.apiRes.IsSuccess ? (env.apiRes.Data ?? {}) : {};
+};
+
+/** 建立首頁 queryList 條件 */
+const buildHomePageQueryParam = (lang?: Lang): QueryListParam =>
+{
+    const safeLang = escapeQueryValue(lang);
+
+    return {
+        Fields: ["InternalId", "Lang", "CreateTime", "ModifyTime"],
+        Condition: safeLang ? `Lang = "${safeLang}"` : "",
+        OrderBy: [{ Col: "ModifyTime", Desc: true }, { Col: "CreateTime", Desc: true }],
+        PageNumber: 1,
+        PageSize: 1,
+    };
+};
+
+
+/** 從 queryList 的列資料取出 InternalId */
+const getInternalIdFromListRow = (row?: SpecHomePage1820Set | null) =>
+{
+    if (!row) return "";
+
+    if ("InternalId" in row) return getSafeString(row.SpecHomePage1820?.InternalId);
+    return getSafeString(row.SpecHomePage1820?.InternalId);
+};
+
+
+/** 讀首頁第一筆清單資料 */
+const loadFirstHomePageRow = async (
+    args: LoaderFunctionArgs,
+    adapter: ReturnType<typeof SpecHomePage1820Adapter>,
+    condition: QueryListParam,
+): Promise<SpecHomePage1820Set | null> =>
+{
+    const api = getSsrApi(args.request);
+
+    const queryListLoader = adapter.loader.createQueryListLoader({ getApiInstance: () => api, getCondition: () => condition });
+
+    const env = await queryListLoader(args);
+    const list = (env.apiRes.IsSuccess ? (env.apiRes.Data ?? []) : []) as SpecHomePage1820Set[];
+
+    return list[0] ?? null;
+};
+
+
+/** 依 InternalId 讀首頁完整資料 */
+const loadHomePageSet = async (
+    args: LoaderFunctionArgs,
+    adapter: ReturnType<typeof SpecHomePage1820Adapter>,
+    internalId: string,
+): Promise<SpecHomePage1820Set | null> =>
+{
+    if (!internalId) return null;
+
+    const api = getSsrApi(args.request);
+
+    const queryDataLoader = adapter.loader.createQueryDataLoader({ getApiInstance: () => api, getInternalId: () => internalId });
+
+    const env = await queryDataLoader(args);
+    return env.apiRes.IsSuccess ? (env.apiRes.Data ?? null) : null;
+};
+
+
+/** 依語系解析首頁 InternalId */
+const resolveHomePageInternalId = async (args: LoaderFunctionArgs, adapter: ReturnType<typeof SpecHomePage1820Adapter>, lang: Lang): Promise<string> =>
+{
+    const currentRow = await loadFirstHomePageRow(args, adapter, buildHomePageQueryParam(lang));
+    const currentId = getInternalIdFromListRow(currentRow);
+    if (currentId) return currentId;
+
+    const defaultRow = await loadFirstHomePageRow(args, adapter, buildHomePageQueryParam("zh-tw"));
+    const defaultId = getInternalIdFromListRow(defaultRow);
+    if (defaultId) return defaultId;
+
+    const anyRow = await loadFirstHomePageRow(args, adapter, buildHomePageQueryParam());
+    return getInternalIdFromListRow(anyRow);
+};
+
+
+/** 轉查詢時間字串 */
+const formatQueryDateTime = (value: Date) =>
+{
+    const pad = (num: number) => `${num}`.padStart(2, "0");
+    const yyyy = value.getFullYear();
+    const mm = pad(value.getMonth() + 1);
+    const dd = pad(value.getDate());
+    const hh = pad(value.getHours());
+    const mi = pad(value.getMinutes());
+    const ss = pad(value.getSeconds());
+
+    return `${yyyy}-${mm}-${dd}T${hh}:${mi}:${ss}`;
+};
+
+
+/** 建立公告查詢條件 */
+const buildAnnouncementCondition = (p: { lang: Lang; categoryIds?: string | null; }) =>
+{
+    const nowText = formatQueryDateTime(new Date());
+    const categoryIds = getSafeString(p.categoryIds);
+
+    let condition = LibMerge(
+        " And ",
+        false,
+        `${AnnouncementFields.Validate_Start} <= ${nowText}`,
+        `(${AnnouncementFields.Validate_End} >= ${nowText} Or ${AnnouncementFields.Validate_End} is null)`,
+        `${AnnouncementFields.ContentStatus} !& 4`,
+        `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang} = ${p.lang}`,
+        `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title} != ''`,
+    );
+
+    if (!categoryIds) return "";
+
+    condition = LibMerge(" And ", false, condition, `${AnnouncementFields.Categories} HasAny [${categoryIds}]`);
+
+    return condition;
+};
+
+
+/** 建立公告 queryList 條件 */
+const buildAnnouncementQueryParam = (p: { lang: Lang; categoryIds?: string | null; }): QueryListParam | null =>
+{
+    const condition = buildAnnouncementCondition(p);
+    if (!condition) return null;
+
+    return {
+        Fields: [
+            AnnouncementFields.AnnouncementId,
+            AnnouncementFields.InternalId,
+            AnnouncementFields.ContentStatus,
+            AnnouncementFields.PictureId,
+            AnnouncementFields.PicDescription,
+            AnnouncementFields.Categories,
+            AnnouncementFields.Validate_Start,
+            `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang}`,
+            `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title}`,
+            `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.SubTitle}`,
+            `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Content}`,
+        ],
+        Condition: condition,
+        RankGroups: [{ Condition: `${AnnouncementFields.ContentStatus} & 1` }],
+        OrderBy: [{ Col: AnnouncementFields.Validate_Start, Desc: true }, { Col: AnnouncementFields.CreateTime, Desc: true }],
+        PageNumber: 1,
+        PageSize: 12,
+    };
+};
+
+/** 讀取首頁天氣資料 */
+const loadWeatherInitial = async (args: LoaderFunctionArgs, adapter: ReturnType<typeof SpecHomePage1820Adapter>): Promise<WeatherLoaderData | null> =>
+{
+    const api = getSsrApi(args.request);
+
+    const weatherLoader = adapter.loader.createWeatherLoader({ getApiInstance: () => api });
+
+    const env = await weatherLoader(args);
+    return env?.apiRes?.IsSuccess ? env : null;
+};
+
+/** 讀取首頁公告清單 */
+const loadAnnouncementList = async (
+    args: LoaderFunctionArgs,
+    adapter: ReturnType<typeof AnnouncementAdapter>,
+    condition: QueryListParam | null,
+): Promise<AnnouncementSet[]> =>
+{
+    if (!condition) return [];
+
+    const api = getSsrApi(args.request);
+
+    const queryListLoader = adapter.loader.createQueryListLoader({ getApiInstance: () => api, getCondition: () => condition });
+
+    const env = await queryListLoader(args);
+    return env.apiRes.IsSuccess ? (env.apiRes.Data ?? []) : [];
+};
+
+
 export default HomePageLoader;
 
-
-// #region Client DataQuery Template
-//#endregion
-
-//#region Template - Client DataQuery
-interface HomePageTemplateQueryParam
-{
-    lang: Lang;
-}
-
-type HomePageTemplate = ClientDataQueryTemplate<HomePageTemplateQueryParam, HomePageRawData | null, HomePageLoaderData | null, unknown, HomePageTemplateQueryParam, HomePageLoaderData>;
 
 /** 建立首頁 DataQuery Template，讓首頁資料流程也進入前台 Template 管線 */
 const createHomePageTemplate = (lang: Lang): HomePageTemplate =>
@@ -342,6 +383,7 @@ const createHomePageTemplate = (lang: Lang): HomePageTemplate =>
     };
 };
 
+
 /** DataSource：首頁目前以 SSR loaderData 為主，先統一掛入 Template 流程 */
 const useHomePageTemplateDataSource = (ctx: { loaderData: HomePageLoaderData | null; }): ClientDataQueryDataSourceResult<HomePageRawData | null> =>
 {
@@ -351,19 +393,4 @@ const useHomePageTemplateDataSource = (ctx: { loaderData: HomePageLoaderData | n
     // return
     return { rawData, isLoading: false, errors: [], paginator: null };
 };
-
-/** CSR Hook：首頁統一透過 Client_DataQueryTemplate 取資料 */
-//#endregion
-
-//#region Public - CSR Hook
-export const useHomePageTemplateData = (lang: Lang) =>
-{
-    // 宣告變數
-    const template = useMemo(() => createHomePageTemplate(lang), [lang]);
-    const templateVm = useClientDataQueryTemplate(template);
-
-    // return
-    return { loaderData: templateVm.viewModel, rawData: templateVm.rawData, isLoading: templateVm.isLoading, errorList: templateVm.errorList };
-};
 // #endregion
-//#endregion

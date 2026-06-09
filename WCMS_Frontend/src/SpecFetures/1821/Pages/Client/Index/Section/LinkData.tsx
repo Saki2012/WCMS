@@ -5,9 +5,13 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import { useEffect, useMemo, useRef } from "react";
 
+// #region Property
 type BannerSet = components["schemas"]["BannerSet_DTO"];
-type QueryListParam = components["schemas"]["QueryListParam"];
 
+type QueryListParam = components["schemas"]["QueryListParam"];
+// #endregion
+
+// #region Public
 export const LinkData = (props: { lang?: Lang; bannerParam: QueryListParam; initialBanner: BannerSet | null; }) =>
 {
     // 宣告變數：adapter
@@ -184,11 +188,14 @@ export const LinkData = (props: { lang?: Lang; bannerParam: QueryListParam; init
         </section>
     );
 };
+// #endregion
 
+// #region Private
 // --------------------
 // 以下維持你原本的 Owl 初始化（只改掉 any）
 // --------------------
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
 
 const waitForOwlReady = async (opt?: { timeoutMs?: number; intervalMs?: number; }) =>
 {
@@ -209,6 +216,7 @@ const waitForOwlReady = async (opt?: { timeoutMs?: number; intervalMs?: number; 
     // return：逾時就放棄（不擋頁面）
     return null;
 };
+
 
 const useLinksCarousel = (dep: number) =>
 {
@@ -316,3 +324,4 @@ const useLinksCarousel = (dep: number) =>
 
     return { carouselRef, pauseRef, startRef };
 };
+// #endregion

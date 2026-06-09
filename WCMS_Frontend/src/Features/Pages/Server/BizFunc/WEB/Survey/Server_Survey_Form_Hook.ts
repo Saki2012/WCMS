@@ -23,23 +23,26 @@ import {
     useEditGridBinding,
 } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { type Lang, LangLabelMap, SUPPORTED_LANGS, useEnsureLangDetails } from "@/SysCore/i18n/lang";
+import { buildSupportedLangOrder, type Lang, LangLabelMap, SUPPORTED_LANGS, useEnsureLangDetails } from "@/SysCore/i18n/lang";
 import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { PGID, SurveyFields, SurveyItemFields, SurveyItemLangFields, SurveySetFields } from "@/types/SchemaFields";
+import { PGID, SurveyItemFields, SurveyItemLangFields, SurveySetFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
 import { useMemo } from "react";
 
 // #region Property
 type SurveySet = components["schemas"]["SurveySet_DTO"];
+
 type SurveyItem = NonNullable<SurveySet["SurveyItem"]>[number];
+
 type SurveyItemLang = NonNullable<SurveySet["SurveyItemLang"]>[number];
 
 type SurveyInputTypeValue = SurveyItem["InputType"];
 
 export type SurveyItemGridRow = GridRow & { SurveyId?: string | null; DetailRowId?: number | null; };
+
 export type SurveyItemLangGridRow = GridRow & { SurveyId?: string | null; ParentRowId?: number | null; DetailRowId?: number | null; Lang?: string | null; };
 
 export interface UseSurveyFormTemplateOptions
@@ -99,9 +102,6 @@ export interface UseSurveyItemLangEditGridOptions
     style: IEditGridView_Style;
 }
 
-export const surveyEmptyData: SurveySet = { Survey: {}, SurveyItem: [], SurveyItemLang: [] };
-export const SurveyItemLangColumnKey = "__SurveyItemLang";
-
 export type SurveyFormRefs = {
     /** 問卷欄位型別選項 */
     inputOpts: Record<string, string>;
@@ -118,10 +118,15 @@ export type SurveyFormAdapter = {
 };
 
 const emptySurveyRefs: SurveyFormRefs = { inputOpts: {} };
+
 const optionInputTypeKeys = new Set(["10", "11", "20"]);
 // #endregion
 
 // #region Public
+export const surveyEmptyData: SurveySet = { Survey: {}, SurveyItem: [], SurveyItemLang: [] };
+
+export const SurveyItemLangColumnKey = "__SurveyItemLang";
+
 /** 建立 Survey Form Template，統一交給 Server_FormTemplate 處理資料流程。 */
 export const useSurveyFormTemplate = (
     opt: UseSurveyFormTemplateOptions,
@@ -191,7 +196,7 @@ export const useSurveyItemLangEditGrid = (opt: UseSurveyItemLangEditGridOptions)
 };
 // #endregion
 
-// #region Timing
+// #region Private
 /** 建立 Survey Form 標題，功能名稱優先讀 ModelDisplayName。 */
 const buildSurveyFormTitle = (ctx: { mode: "new" | "edit"; displayName: ModelDisplaySchema; }): string =>
 {
@@ -213,9 +218,7 @@ const buildSurveyFormAdapter = (): SurveyFormAdapter =>
 };
 
 /** 取得問卷動態欄位參照資料，並補齊 SurveyItem 語系子明細。 */
-const useSurveyReferenceData = (
-    ctx: { binding: ServerFormBinding<SurveySet>; lang: Lang; },
-) =>
+const useSurveyReferenceData = (ctx: { binding: ServerFormBinding<SurveySet>; lang: Lang; }) =>
 {
     useEnsureLangDetails(ctx.binding, {
         headerName: SurveySetFields.SurveyItem,
@@ -237,9 +240,7 @@ const useSurveyReferenceData = (
         };
     }, [inputTypeOpts.data, inputTypeOpts.error, inputTypeOpts.isLoading]);
 };
-// #endregion
 
-// #region Private
 /** 取得 Survey Model 顯示名稱，避免 Form 標題寫死功能名稱。 */
 const getSurveyModelTitle = (displayName: ModelDisplaySchema, fallback: string): string =>
 {
@@ -260,22 +261,62 @@ const useLibInputTypeOptions = (): { data: Record<string, string>; isLoading: bo
 /** 建立父層 SurveyItem Grid 欄位。 */
 const buildSurveyItemColumns = (displayName: ModelDisplaySchema, inputOpts: Record<string, string>): ColumnConfig[] =>
 {
-    return [
-        { key: SurveyItemFields.FieldId, title: getSurveyColumnTitle(displayName, SurveySetFields.SurveyItem, SurveyItemFields.FieldId, "欄位代號"), inputType: "text", editable: true, required: true, maxLength: 100, width: 180 },
-        { key: SurveyItemFields.IsRequired, title: getSurveyColumnTitle(displayName, SurveySetFields.SurveyItem, SurveyItemFields.IsRequired, "必填"), inputType: "checkboxSingle", editable: true, width: 90 },
-        { key: SurveyItemFields.InputType, title: getSurveyColumnTitle(displayName, SurveySetFields.SurveyItem, SurveyItemFields.InputType, "欄位型別"), inputType: "selectSingle", editable: true, options: toEditGridOptions(inputOpts), searchable: true, width: 180 },
-        { key: SurveyItemFields.Options, title: getSurveyColumnTitle(displayName, SurveySetFields.SurveyItem, SurveyItemFields.Options, "選項資料"), inputType: "textarea", editable: true, rows: 3, width: 320, helpText: "單選、複選或下拉類型才需要填寫。" },
-        { key: SurveyItemLangColumnKey, title: getSurveyTableTitle(displayName, SurveySetFields.SurveyItemLang, "語系明細"), inputType: "readonly", editable: false, width: 140 },
-    ];
+    return [{
+        key: SurveyItemFields.FieldId,
+        title: getSurveyColumnTitle(displayName, SurveySetFields.SurveyItem, SurveyItemFields.FieldId, "欄位代號"),
+        inputType: "text",
+        editable: true,
+        required: true,
+        maxLength: 100,
+        width: 180,
+    }, {
+        key: SurveyItemFields.IsRequired,
+        title: getSurveyColumnTitle(displayName, SurveySetFields.SurveyItem, SurveyItemFields.IsRequired, "必填"),
+        inputType: "checkboxSingle",
+        editable: true,
+        width: 90,
+    }, {
+        key: SurveyItemFields.InputType,
+        title: getSurveyColumnTitle(displayName, SurveySetFields.SurveyItem, SurveyItemFields.InputType, "欄位型別"),
+        inputType: "selectSingle",
+        editable: true,
+        options: toEditGridOptions(inputOpts),
+        searchable: true,
+        width: 180,
+    }, {
+        key: SurveyItemFields.Options,
+        title: getSurveyColumnTitle(displayName, SurveySetFields.SurveyItem, SurveyItemFields.Options, "選項資料"),
+        inputType: "textarea",
+        editable: true,
+        rows: 3,
+        width: 320,
+        helpText: "單選、複選或下拉類型才需要填寫。",
+    }, {
+        key: SurveyItemLangColumnKey,
+        title: getSurveyTableTitle(displayName, SurveySetFields.SurveyItemLang, "語系明細"),
+        inputType: "readonly",
+        editable: false,
+        width: 140,
+    }];
 };
 
 /** 建立子層 SurveyItemLang Grid 欄位。 */
 const buildSurveyItemLangColumns = (displayName: ModelDisplaySchema): ColumnConfig[] =>
 {
-    return [
-        { key: SurveyItemLangFields.Lang, title: getSurveyColumnTitle(displayName, SurveySetFields.SurveyItemLang, SurveyItemLangFields.Lang, "語系"), inputType: "readonly", editable: false, width: 120 },
-        { key: SurveyItemLangFields.FieldName, title: getSurveyColumnTitle(displayName, SurveySetFields.SurveyItemLang, SurveyItemLangFields.FieldName, "欄位顯示名稱"), inputType: "text", editable: true, required: true, maxLength: 200 },
-    ];
+    return [{
+        key: SurveyItemLangFields.Lang,
+        title: getSurveyColumnTitle(displayName, SurveySetFields.SurveyItemLang, SurveyItemLangFields.Lang, "語系"),
+        inputType: "readonly",
+        editable: false,
+        width: 120,
+    }, {
+        key: SurveyItemLangFields.FieldName,
+        title: getSurveyColumnTitle(displayName, SurveySetFields.SurveyItemLang, SurveyItemLangFields.FieldName, "欄位顯示名稱"),
+        inputType: "text",
+        editable: true,
+        required: true,
+        maxLength: 200,
+    }];
 };
 
 /** 建立父層 SurveyItem Row。 */
@@ -297,16 +338,45 @@ const buildSurveyItemGridRow = (item: SurveyItem, index: number, opt: UseSurveyI
 const buildSurveyItemCells = (item: SurveyItem, rowId: number, opt: UseSurveyItemEditGridOptions, displayName: ModelDisplaySchema): RowCell[] =>
 {
     return [
-        buildEditGridCell(SurveyItemFields.FieldId, getSurveyColumnTitle(displayName, SurveySetFields.SurveyItem, SurveyItemFields.FieldId, "欄位代號"), item.FieldId ?? "", { inputType: "text", editable: true, required: true, maxLength: 100 }),
-        buildEditGridCell(SurveyItemFields.IsRequired, getSurveyColumnTitle(displayName, SurveySetFields.SurveyItem, SurveyItemFields.IsRequired, "必填"), Boolean(item.IsRequired), { inputType: "checkboxSingle", editable: true }),
-        buildEditGridCell(SurveyItemFields.InputType, getSurveyColumnTitle(displayName, SurveySetFields.SurveyItem, SurveyItemFields.InputType, "欄位型別"), item.InputType ?? "", { inputType: "selectSingle", editable: true, options: toEditGridOptions(opt.inputOpts), searchable: true }),
-        buildEditGridCell(SurveyItemFields.Options, getSurveyColumnTitle(displayName, SurveySetFields.SurveyItem, SurveyItemFields.Options, "選項資料"), item.Options ?? "", { inputType: "textarea", editable: true, rows: 3, helpText: buildSurveyOptionHelpText(item, opt.inputOpts) }),
-        buildEditGridCell(SurveyItemLangColumnKey, getSurveyTableTitle(displayName, SurveySetFields.SurveyItemLang, "語系明細"), rowId, { inputType: "readonly", editable: false, render: opt.renderSubDetailToggle }),
+        buildEditGridCell(
+            SurveyItemFields.FieldId,
+            getSurveyColumnTitle(displayName, SurveySetFields.SurveyItem, SurveyItemFields.FieldId, "欄位代號"),
+            item.FieldId ?? "",
+            { inputType: "text", editable: true, required: true, maxLength: 100 },
+        ),
+        buildEditGridCell(
+            SurveyItemFields.IsRequired,
+            getSurveyColumnTitle(displayName, SurveySetFields.SurveyItem, SurveyItemFields.IsRequired, "必填"),
+            Boolean(item.IsRequired),
+            { inputType: "checkboxSingle", editable: true },
+        ),
+        buildEditGridCell(
+            SurveyItemFields.InputType,
+            getSurveyColumnTitle(displayName, SurveySetFields.SurveyItem, SurveyItemFields.InputType, "欄位型別"),
+            item.InputType ?? "",
+            { inputType: "selectSingle", editable: true, options: toEditGridOptions(opt.inputOpts), searchable: true },
+        ),
+        buildEditGridCell(
+            SurveyItemFields.Options,
+            getSurveyColumnTitle(displayName, SurveySetFields.SurveyItem, SurveyItemFields.Options, "選項資料"),
+            item.Options ?? "",
+            { inputType: "textarea", editable: true, rows: 3, helpText: buildSurveyOptionHelpText(item, opt.inputOpts) },
+        ),
+        buildEditGridCell(SurveyItemLangColumnKey, getSurveyTableTitle(displayName, SurveySetFields.SurveyItemLang, "語系明細"), rowId, {
+            inputType: "readonly",
+            editable: false,
+            render: opt.renderSubDetailToggle,
+        }),
     ];
 };
 
 /** 建立子層 SurveyItemLang Row。 */
-const buildSurveyItemLangGridRow = (detail: SurveyItemLang, index: number, opt: UseSurveyItemLangEditGridOptions, displayName: ModelDisplaySchema): SurveyItemLangGridRow =>
+const buildSurveyItemLangGridRow = (
+    detail: SurveyItemLang,
+    index: number,
+    opt: UseSurveyItemLangEditGridOptions,
+    displayName: ModelDisplaySchema,
+): SurveyItemLangGridRow =>
 {
     const rowId = Number(detail.RowId ?? index + 1);
     const lang = String(detail.Lang ?? "");
@@ -327,8 +397,18 @@ const buildSurveyItemLangGridRow = (detail: SurveyItemLang, index: number, opt: 
 const buildSurveyItemLangCells = (detail: SurveyItemLang, displayName: ModelDisplaySchema): RowCell[] =>
 {
     return [
-        buildEditGridCell(SurveyItemLangFields.Lang, getSurveyColumnTitle(displayName, SurveySetFields.SurveyItemLang, SurveyItemLangFields.Lang, "語系"), detail.Lang ?? "", { inputType: "readonly", editable: false, render: args => getSurveyLangText(args.value) }),
-        buildEditGridCell(SurveyItemLangFields.FieldName, getSurveyColumnTitle(displayName, SurveySetFields.SurveyItemLang, SurveyItemLangFields.FieldName, "欄位顯示名稱"), detail.FieldName ?? "", { inputType: "text", editable: true, required: true, maxLength: 200 }),
+        buildEditGridCell(
+            SurveyItemLangFields.Lang,
+            getSurveyColumnTitle(displayName, SurveySetFields.SurveyItemLang, SurveyItemLangFields.Lang, "語系"),
+            detail.Lang ?? "",
+            { inputType: "readonly", editable: false, render: args => getSurveyLangText(args.value) },
+        ),
+        buildEditGridCell(
+            SurveyItemLangFields.FieldName,
+            getSurveyColumnTitle(displayName, SurveySetFields.SurveyItemLang, SurveyItemLangFields.FieldName, "欄位顯示名稱"),
+            detail.FieldName ?? "",
+            { inputType: "text", editable: true, required: true, maxLength: 200 },
+        ),
     ];
 };
 
@@ -420,11 +500,7 @@ const buildNewSurveyItemLang = (data: SurveySet, parentRowId: number, rowId: num
 /** 父層 Grid 寫回時，同步保留有效語系明細並補齊缺少語系。 */
 const syncSurveyItemCollection = (data: SurveySet, items: SurveyItem[]): SurveySet =>
 {
-    return {
-        ...data,
-        SurveyItem: items,
-        SurveyItemLang: syncSurveyItemLangParents(data.SurveyItemLang ?? [], items, data.Survey?.SurveyId),
-    };
+    return { ...data, SurveyItem: items, SurveyItemLang: syncSurveyItemLangParents(data.SurveyItemLang ?? [], items, data.Survey?.SurveyId) };
 };
 
 /** 清理孤兒語系明細，並替每個 SurveyItem 補齊支援語系。 */
@@ -476,13 +552,6 @@ const sortSurveyItemLangs = (details: SurveyItemLang[], preferLang: Lang): Surve
     return [...details].sort((a, b) => getSurveyLangOrder(a.Lang, order) - getSurveyLangOrder(b.Lang, order));
 };
 
-/** 建立目前支援語系順序，當前語系優先。 */
-const buildSupportedLangOrder = (preferLang: Lang): string[] =>
-{
-    const langs = [preferLang, ...SUPPORTED_LANGS];
-    return langs.map(lang => String(lang).toLowerCase()).filter((lang, index, list) => list.indexOf(lang) === index);
-};
-
 /** 取得語系排序權重。 */
 const getSurveyLangOrder = (lang: string | null | undefined, order: string[]): number =>
 {
@@ -509,9 +578,8 @@ const getSurveyInputTypeCellValue = (row: GridRow): SurveyInputTypeValue =>
 {
     const value = getEditGridNumberCellValue(row, SurveyItemFields.InputType, Number.NaN);
     if (Number.isFinite(value)) return value as SurveyInputTypeValue;
-
     const text = getEditGridStringCellValue(row, SurveyItemFields.InputType);
-    return text ? text as SurveyInputTypeValue : undefined;
+    return text as unknown as SurveyInputTypeValue;
 };
 
 /** 判斷目前欄位型別是否需要保留 Options。 */
@@ -519,7 +587,6 @@ const shouldKeepSurveyOptions = (inputType: SurveyInputTypeValue, inputOpts?: Re
 {
     const key = String(inputType ?? "");
     const label = inputOpts?.[key] ?? key;
-
     return optionInputTypeKeys.has(key) || optionInputTypeKeys.has(label.trim().toLowerCase());
 };
 
@@ -529,7 +596,6 @@ const buildSurveyOptionHelpText = (item: SurveyItem, inputOpts: Record<string, s
     const inputKey = String(item.InputType ?? "");
     const label = inputOpts[inputKey] ?? inputKey;
     if (shouldKeepSurveyOptions(item.InputType, inputOpts)) return `目前型別：${label}，可填寫選項資料。`;
-
     return "此欄位僅在單選、複選或下拉類型保存。";
 };
 

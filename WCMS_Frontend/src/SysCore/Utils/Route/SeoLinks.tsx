@@ -1,42 +1,18 @@
 import { HeaderMetaComp } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";
-import { DefaultLang, isSupportedLang, type Lang, SUPPORTED_LANGS } from "@/SysCore/i18n/lang";
+import { DefaultLang, type Lang, SUPPORTED_LANGS } from "@/SysCore/i18n/lang";
+import { LibRouteLang } from "@/SysCore/Utils/Route/LibRoute";
 
-const stripLeadingLang = (pathname: string) =>
-{
-    const parts = pathname.split("/").filter(Boolean);
-    const seg1 = (parts[0] ?? "").toLowerCase();
-    if (seg1 && isSupportedLang(seg1)) parts.shift();
-    const rest = "/" + parts.join("/");
-    return rest === "" ? "/" : rest;
-};
-const buildPathByLang = (lang: Lang, basePath: string) =>
-{
-    if (lang === DefaultLang) return basePath; // default：/xxx
-    return basePath === "/" ? `/${lang}` : `/${lang}${basePath}`; // 非 default：/en/xxx
-};
-const isPathSegmentPrefix = (pathname: string, segment: string): boolean =>
-{
-    // 宣告變數
-    const p = String(pathname || "").toLowerCase();
-    const s = String(segment || "").toLowerCase();
-
-    // 執行 function
-    const ok = p === s || p.startsWith(`${s}/`);
-
-    // return
-    return ok;
-};
-
+// #region Public
+/** 輸出目前頁面的 canonical 與 alternate SEO 語系連結。 */
 export const SeoLinks = (props: { resolvedLang: Lang; pathname: string; }) =>
 {
-    if (isPathSegmentPrefix(props.pathname, "/Server") || isPathSegmentPrefix(props.pathname, "/Service")) return null; // 後台先不做語系
-    const basePath = stripLeadingLang(props.pathname);
-    // canonical：指向「當前語系版本」
-    const canonicalUrl = buildPathByLang(props.resolvedLang, basePath);
-    // alternates：第一筆放 x-default -> default 版本
+    if (LibRouteLang.isRouteLangBypassPathname(props.pathname)) return null;
+    const basePath = LibRouteLang.stripLeadingRouteLang(props.pathname);
+    const canonicalUrl = LibRouteLang.buildLangPathname(basePath, props.resolvedLang);
     const alternates = [
-        { hrefLang: "x-default", href: buildPathByLang(DefaultLang, basePath) },
-        ...SUPPORTED_LANGS.map(l => ({ hrefLang: l, href: buildPathByLang(l, basePath) })),
+        { hrefLang: "x-default", href: LibRouteLang.buildLangPathname(basePath, DefaultLang) },
+        ...SUPPORTED_LANGS.map(lang => ({ hrefLang: lang, href: LibRouteLang.buildLangPathname(basePath, lang) })),
     ];
     return <HeaderMetaComp htmlLang={props.resolvedLang} canonicalUrl={canonicalUrl} alternates={alternates} />;
 };
+// #endregion

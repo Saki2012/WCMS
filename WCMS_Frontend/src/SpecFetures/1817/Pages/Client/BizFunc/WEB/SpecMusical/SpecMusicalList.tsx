@@ -1,4 +1,3 @@
-//#region Property
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import { LangLink } from "@/SysCore/i18n/LangLink";
@@ -7,44 +6,17 @@ import type { components } from "@/types/api";
 import { useLocation } from "react-router-dom";
 import { useSpecMusicalListData } from "./SpecMusicalList_Loader";
 
+// #region Property
 type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"];
+
 
 export interface ISpecMusicalOptions
 {
     Category?: string;
 }
+// #endregion
 
-//#endregion
-
-//#region Public
-const SpecMusicalList = (props: { options?: ISpecMusicalOptions; site: INormSite; node: INormNode; }) =>
-{
-    // 宣告變數
-    const pageSize = 9;
-
-    // 執行 function：list/count 交給 Client_DataQueryTemplate
-    const useList = useSpecMusicalListData({ categoryIds: props.options?.Category ?? "", pageSize });
-
-    const errorList = useList.errorList;
-    const viewCountConfig: ModuleViewCountConfig = { mode: "list" };
-    // return（DOM 不改）
-    return (
-        <ModuleContent
-            nodeTitle={props.node.title}
-            isLoading={useList.isLoading}
-            errorList={errorList}
-            paginatorProps={useList.paginatorProps}
-            viewCountConfig={viewCountConfig}
-        >
-            <GridList_Comp title={""} data={useList.rawData} />
-        </ModuleContent>
-    );
-};
-export default SpecMusicalList;
-//#endregion
-
-//#region Section
-
+// #region Section
 const GridList_Comp = (props: { title: string; data: SpecMusicalSet[]; }) =>
 {
     // 宣告變數：取得目前目錄網址
@@ -95,4 +67,32 @@ const GridList_Comp = (props: { title: string; data: SpecMusicalSet[]; }) =>
         </div>
     );
 };
-//#endregion
+// #endregion
+
+// #region Private
+const SpecMusicalList = (props: { options?: ISpecMusicalOptions; site: INormSite; node: INormNode; }) =>
+{
+    // 宣告變數
+    const pageSize = 9;
+
+    // 執行 function：list/count 交給 Client_DataQueryTemplate
+    const useList = useSpecMusicalListData({ categoryIds: props.options?.Category ?? "", pageSize });
+
+    const errorList = useList.errorList;
+    const viewCountConfig: ModuleViewCountConfig = { mode: "list" };
+    // return（DOM 不改）
+    return (
+        <ModuleContent
+            nodeTitle={props.node.title}
+            isLoading={useList.isLoading}
+            errorList={errorList}
+            paginatorProps={useList.paginatorProps}
+            viewCountConfig={viewCountConfig}
+        >
+            <GridList_Comp title={""} data={useList.rawData} />
+        </ModuleContent>
+    );
+};
+
+export default SpecMusicalList;
+// #endregion

@@ -3,6 +3,7 @@ import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import clsx from "clsx";
 import { type ChangeEvent, type KeyboardEvent, type MouseEvent, useEffect, useId, useState } from "react";
 
+// #region Property
 /** 分頁 a11y 文案結構 */
 type PaginatorA11yText = {
     navLabel: string;
@@ -17,6 +18,7 @@ type PaginatorA11yText = {
     page: (p: number) => string;
     currentPage: (p: number) => string;
 };
+
 
 /** 分頁 a11y 文案表（用 xxx[lang] 讀；不足語系會 fallback） */
 const PAGINATOR_A11Y_MAP: Partial<Record<Lang, PaginatorA11yText>> = {
@@ -60,105 +62,9 @@ const PAGINATOR_A11Y_MAP: Partial<Record<Lang, PaginatorA11yText>> = {
         total: (p) => `of　${p}`, // 20260415
     },
 };
+// #endregion
 
-/** 取得分頁 a11y 文案（語系不在表內時，回退到 DefaultLang） */
-const getPaginatorA11y = (lang?: Lang): PaginatorA11yText =>
-{
-    // 宣告：fallback key
-    const key = (lang ?? DefaultLang) as Lang;
-
-    // 執行：依語系取值，取不到就回 default
-    const byLang = PAGINATOR_A11Y_MAP[key];
-    const byDefault = PAGINATOR_A11Y_MAP[DefaultLang];
-
-    // return：保證回傳一份可用文案
-    return byLang ?? byDefault ?? {
-        navLabel: "分頁",
-        first: "第一頁",
-        prev: "上一頁",
-        next: "下一頁",
-        last: "最後一頁",
-        page: (p) => `第 ${p} 頁`,
-        currentPage: (p) => `第 ${p} 頁，目前頁面`,
-        input: "輸入頁碼", // 20260415
-        go: "前往頁面", // 20260415
-        goBtn: "前往", // 20260416
-        total: (p) => `/　${p}`, // 20260415
-    };
-};
-
-/** 限制頁碼範圍 */
-const clampPage = (page: number, totalPages: number): number =>
-{
-    // return：限制在 1 ~ totalPages
-    return Math.min(Math.max(page, 1), totalPages);
-};
-
-/** 只保留數字 */
-const normalizePageInput = (value: string): string =>
-{
-    // return：移除非數字字元
-    return value.replace(/\D/g, "");
-};
-
-/** 計算可視頁碼（最多顯示 maxVisible 個） */
-const buildVisiblePages = (currentPage: number, totalPages: number, maxVisible = 5): number[] =>
-{
-    // 宣告變數：計算左右範圍
-    const half = Math.floor(maxVisible / 2);
-    let start = Math.max(currentPage - half, 1);
-    let end = start + maxVisible - 1;
-
-    // 執行：向右超出就回推
-    if (end > totalPages)
-    {
-        end = totalPages;
-        start = Math.max(end - maxVisible + 1, 1);
-    }
-
-    // return：頁碼陣列
-    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
-};
-
-/** 判斷是否為「啟用」按鍵（Enter / Space） */
-const isActivateKey = (key: string) => key === "Enter" || key === " ";
-
-/** a(role=button) 的 click 行為：disabled 時不動作 */
-const handleAnchorClick = (e: MouseEvent<HTMLAnchorElement>, isDisabled: boolean, action: () => void) =>
-{
-    // 執行：避免未來加 href 造成跳動
-    e.preventDefault();
-
-    // 執行：disabled 就不做事
-    if (isDisabled) return;
-    action();
-};
-
-// /** a(role=button) 的鍵盤行為：Enter/Space 觸發 click 同等效果 */
-// const handleAnchorKeyDown = (
-//     e: KeyboardEvent<HTMLAnchorElement>,
-//     isDisabled: boolean,
-//     action: () => void
-// ) => {
-//     // 宣告：disabled 不處理
-//     if (isDisabled) return;
-
-//     // 執行：Enter/Space 觸發
-//     if (!isActivateKey(e.key)) return;
-//     e.preventDefault();
-//     action();
-// };
-/** a(role=button) 的鍵盤行為：Enter/Space 觸發 */
-const handleAnchorKeyDown = (e: KeyboardEvent<HTMLAnchorElement>, isDisabled: boolean, action: () => void) =>
-{
-    // 執行：disabled 不處理
-    if (isDisabled) return;
-
-    // 執行：只處理 Enter / Space
-    if (e.key !== "Enter" && e.key !== " ") return;
-    e.preventDefault();
-    action();
-};
+// #region Public
 /** 第一版本 無樣式 */
 export const Paginator = (props: PaginatorProps) =>
 {
@@ -283,6 +189,7 @@ export const Paginator = (props: PaginatorProps) =>
         </div>
     );
 };
+
 
 /** 第二版本 前台BaseLine用的格式，待確認這邊使用方式及邏輯*/
 export const NewPaginator = (props: PaginatorProps) =>
@@ -410,6 +317,7 @@ export const NewPaginator = (props: PaginatorProps) =>
         </div>
     );
 };
+
 
 // ************************** */
 
@@ -666,3 +574,112 @@ export const NewPaginatorCanInputPage = (props: PaginatorProps) =>
         </div>
     );
 };
+// #endregion
+
+// #region EntityComp
+/** 計算可視頁碼（最多顯示 maxVisible 個） */
+const buildVisiblePages = (currentPage: number, totalPages: number, maxVisible = 5): number[] =>
+{
+    // 宣告變數：計算左右範圍
+    const half = Math.floor(maxVisible / 2);
+    let start = Math.max(currentPage - half, 1);
+    let end = start + maxVisible - 1;
+
+    // 執行：向右超出就回推
+    if (end > totalPages)
+    {
+        end = totalPages;
+        start = Math.max(end - maxVisible + 1, 1);
+    }
+
+    // return：頁碼陣列
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+};
+// #endregion
+
+// #region Private
+/** 取得分頁 a11y 文案（語系不在表內時，回退到 DefaultLang） */
+const getPaginatorA11y = (lang?: Lang): PaginatorA11yText =>
+{
+    // 宣告：fallback key
+    const key = (lang ?? DefaultLang) as Lang;
+
+    // 執行：依語系取值，取不到就回 default
+    const byLang = PAGINATOR_A11Y_MAP[key];
+    const byDefault = PAGINATOR_A11Y_MAP[DefaultLang];
+
+    // return：保證回傳一份可用文案
+    return byLang ?? byDefault ?? {
+        navLabel: "分頁",
+        first: "第一頁",
+        prev: "上一頁",
+        next: "下一頁",
+        last: "最後一頁",
+        page: (p) => `第 ${p} 頁`,
+        currentPage: (p) => `第 ${p} 頁，目前頁面`,
+        input: "輸入頁碼", // 20260415
+        go: "前往頁面", // 20260415
+        goBtn: "前往", // 20260416
+        total: (p) => `/　${p}`, // 20260415
+    };
+};
+
+
+/** 限制頁碼範圍 */
+const clampPage = (page: number, totalPages: number): number =>
+{
+    // return：限制在 1 ~ totalPages
+    return Math.min(Math.max(page, 1), totalPages);
+};
+
+
+/** 只保留數字 */
+const normalizePageInput = (value: string): string =>
+{
+    // return：移除非數字字元
+    return value.replace(/\D/g, "");
+};
+
+
+/** 判斷是否為「啟用」按鍵（Enter / Space） */
+const isActivateKey = (key: string) => key === "Enter" || key === " ";
+
+
+/** a(role=button) 的 click 行為：disabled 時不動作 */
+const handleAnchorClick = (e: MouseEvent<HTMLAnchorElement>, isDisabled: boolean, action: () => void) =>
+{
+    // 執行：避免未來加 href 造成跳動
+    e.preventDefault();
+
+    // 執行：disabled 就不做事
+    if (isDisabled) return;
+    action();
+};
+
+
+// /** a(role=button) 的鍵盤行為：Enter/Space 觸發 click 同等效果 */
+// const handleAnchorKeyDown = (
+//     e: KeyboardEvent<HTMLAnchorElement>,
+//     isDisabled: boolean,
+//     action: () => void
+// ) => {
+//     // 宣告：disabled 不處理
+//     if (isDisabled) return;
+
+//     // 執行：Enter/Space 觸發
+//     if (!isActivateKey(e.key)) return;
+//     e.preventDefault();
+//     action();
+// };
+/** a(role=button) 的鍵盤行為：Enter/Space 觸發 */
+const handleAnchorKeyDown = (e: KeyboardEvent<HTMLAnchorElement>, isDisabled: boolean, action: () => void) =>
+{
+    // 執行：disabled 不處理
+    if (isDisabled) return;
+
+    // 執行：只處理 Enter / Space
+    if (e.key !== "Enter" && e.key !== " ") return;
+    e.preventDefault();
+    action();
+};
+// #endregion

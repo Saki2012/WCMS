@@ -14,6 +14,7 @@ import { FileField } from "./Fields/FileField";
 import { CheckboxSingleField } from "./Fields/CheckboxSingleField";
 import { CheckboxMultipleField, RadioField } from "./Fields/OptionGroupField";
 
+// #region Public
 /**
  * 使用範例：
  * <AAInputFieldItem
@@ -40,6 +41,7 @@ export const AAInputFieldItem = (props: AAInputFieldItemProps) =>
     return <div className={props.className}>{renderAAInputField(field, context)}</div>;
 };
 
+
 /** 依欄位型別轉出對應 HTML 控制項。 */
 export const renderAAInputField = (field: AAInputField, context: FieldRenderContext) =>
 {
@@ -62,3 +64,4 @@ export const renderAAInputField = (field: AAInputField, context: FieldRenderCont
     if (field.type === "readonly") return <ReadonlyField field={field} context={context} />;
     return <TextField field={field} context={context} />;
 };
+// #endregion

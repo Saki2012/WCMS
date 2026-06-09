@@ -2,8 +2,59 @@ import ScholarOneLogo from "@/SpecFetures/1819/Assets/Client/images/logo/Scholar
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+// #region Property
 const STORAGE_KEY = "wcms.srs.dismissed";
 
+
+type SubmissionReviewSystemProps = {
+    /** 連結（預設 ScholarOne） */
+    href?: string;
+    /** Menu 顯示文字（預設：投審稿系統） */
+    label?: string;
+};
+// #endregion
+
+// #region Public
+/**
+ * 全站共用：投審稿系統（浮動 + Menu入口）
+ *
+ * 規則：
+ * - Desktop：預設顯示右側浮動；按 X 後 → 浮動隱藏、Menu 出現入口
+ * - 點 Menu 入口：會另開視窗 + 還原浮動（同時移除 Menu 入口）
+ * - RWD：永遠只顯示 Menu 入口，不顯示右側浮動
+ */
+export const SubmissionReviewSystem: React.FC<SubmissionReviewSystemProps> = (props) =>
+{
+    const href = props.href ?? "https://mc.manuscriptcentral.com/joemls";
+    const label = props.label ?? "投審稿系統";
+
+    const isMobile = useIsMobile();
+    const { dismissed, dismiss, restore } = useDismissedState();
+
+    const showFloating = useMemo(() =>
+    {
+        if (isMobile) return false;
+        return dismissed === false;
+    }, [dismissed, isMobile]);
+
+    const showMenuEntry = useMemo(() =>
+    {
+        if (isMobile) return true;
+        return dismissed === true;
+    }, [dismissed, isMobile]);
+
+    return (
+        <>
+            {showFloating && <FloatingWidget href={href} label={label} onClose={dismiss} />}
+
+            {/* Menu 入口：你要放到 Header 的 Menu 區塊時，就 render 這段 */}
+            {showMenuEntry && <MenuEntry href={href} label={label} onRestore={restore} isMobile={isMobile} />}
+        </>
+    );
+};
+// #endregion
+
+// #region Private
 /** 取得 RWD 狀態：小於等於 lg(992) 就視為 Mobile */
 const useIsMobile = (): boolean =>
 {
@@ -43,6 +94,7 @@ const useIsMobile = (): boolean =>
     return isMobile;
 };
 
+
 /** 讀/寫關閉狀態（跨頁維持） */
 const useDismissedState = () =>
 {
@@ -73,50 +125,6 @@ const useDismissedState = () =>
     return { dismissed, dismiss, restore };
 };
 
-type SubmissionReviewSystemProps = {
-    /** 連結（預設 ScholarOne） */
-    href?: string;
-    /** Menu 顯示文字（預設：投審稿系統） */
-    label?: string;
-};
-
-/**
- * 全站共用：投審稿系統（浮動 + Menu入口）
- *
- * 規則：
- * - Desktop：預設顯示右側浮動；按 X 後 → 浮動隱藏、Menu 出現入口
- * - 點 Menu 入口：會另開視窗 + 還原浮動（同時移除 Menu 入口）
- * - RWD：永遠只顯示 Menu 入口，不顯示右側浮動
- */
-export const SubmissionReviewSystem: React.FC<SubmissionReviewSystemProps> = (props) =>
-{
-    const href = props.href ?? "https://mc.manuscriptcentral.com/joemls";
-    const label = props.label ?? "投審稿系統";
-
-    const isMobile = useIsMobile();
-    const { dismissed, dismiss, restore } = useDismissedState();
-
-    const showFloating = useMemo(() =>
-    {
-        if (isMobile) return false;
-        return dismissed === false;
-    }, [dismissed, isMobile]);
-
-    const showMenuEntry = useMemo(() =>
-    {
-        if (isMobile) return true;
-        return dismissed === true;
-    }, [dismissed, isMobile]);
-
-    return (
-        <>
-            {showFloating && <FloatingWidget href={href} label={label} onClose={dismiss} />}
-
-            {/* Menu 入口：你要放到 Header 的 Menu 區塊時，就 render 這段 */}
-            {showMenuEntry && <MenuEntry href={href} label={label} onRestore={restore} isMobile={isMobile} />}
-        </>
-    );
-};
 
 /** 右側浮動：投審稿系統（Prototype: #Fixed_Right_Div.Circle_Div） */
 const FloatingWidget = (props: { href: string; label: string; onClose: () => void; }) =>
@@ -158,6 +166,7 @@ const FloatingWidget = (props: { href: string; label: string; onClose: () => voi
     );
 };
 
+
 /**
  * Menu 入口（小圖示 + 文字）
  * - 點擊後：另開視窗 + 還原浮動（Desktop 才會還原；Mobile 永遠只保留 Menu）
@@ -178,3 +187,4 @@ const MenuEntry = (props: { href: string; label: string; onRestore: () => void; 
         </li>
     );
 };
+// #endregion

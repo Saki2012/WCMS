@@ -13,10 +13,16 @@ import { PGID } from "@/types/SchemaFields";
 import type { AxiosInstance } from "axios";
 import { useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router-dom";
+
+// #region Property
 type SpecHomePage1820Set = components["schemas"]["SpecHomePage1820Set_DTO"];
+
 type SpecHomePageWeather = components["schemas"]["SpecHomePageWeather_DTO"];
+
 export type WeatherArgs = Record<string, never>;
+
 export type WeatherLoaderData = ApiLoaderData<WeatherArgs, SpecHomePageWeather[]>;
+
 interface IUseWeatherData
 {
     apiInstance?: AxiosInstance;
@@ -25,10 +31,12 @@ interface IUseWeatherData
     initial?: WeatherLoaderData | null;
 }
 
+
 interface ICreateWeatherLoader
 {
     getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined;
 }
+
 
 type WeatherHookResult = {
     data: SpecHomePageWeather | null;
@@ -40,33 +48,29 @@ type WeatherHookResult = {
     refetch: () => Promise<void>;
 };
 
+
 type ExtraLoaders = {
     /** SSR loader：取得首頁天氣資料 */
     createWeatherLoader: (opt?: ICreateWeatherLoader) => (args: LoaderFunctionArgs) => Promise<WeatherLoaderData>;
 };
 
+
 type ExtraHooks = {
     /** CSR / Hydration hook：取得首頁天氣資料 */
     useWeatherData: (opt?: IUseWeatherData) => WeatherHookResult;
 };
+// #endregion
 
-/** 取第一筆 weather 資料 */
-const pickWeather = (data?: SpecHomePageWeather[] | null): SpecHomePageWeather | null =>
-{
-    // return
-    return data?.[0] ?? null;
-};
-
+// #region Public
 export class SpecHomePage1820Service extends ApiDataService<SpecHomePage1820Set>
 {
-    // #region Construct
+    // #region Public
     constructor(apiInstance?: AxiosInstance)
     {
         super(PGID.SpecHomePageApi, apiInstance);
     }
-    // #endregion
 
-    // #region Public
+
     /** 呼叫首頁天氣 API */
     public async getWeatherDataAsync(): Promise<ApiResponse<SpecHomePageWeather[]>>
     {
@@ -76,34 +80,15 @@ export class SpecHomePage1820Service extends ApiDataService<SpecHomePage1820Set>
     // #endregion
 }
 
+
 export class SpecHomePage1820AdapterImpl extends ApiDataAdapter<SpecHomePage1820Set, SpecHomePage1820Service>
 {
     // #region Property
     declare public loader: ApiDataLoaderGroup<SpecHomePage1820Set> & ExtraLoaders;
+
     declare public hooks: ApiDataHookGroup<SpecHomePage1820Set> & ExtraHooks;
-    // #endregion
 
-    // #region Protect Virtual Func
-    protected override buildExtendedLoader(base: ApiDataLoaderGroup<SpecHomePage1820Set>): ApiDataLoaderGroup<SpecHomePage1820Set> & ExtraLoaders
-    {
-        const wrapCreateWeatherLoader: ExtraLoaders["createWeatherLoader"] = (opt) =>
-        {
-            return this.createWeatherLoader(opt);
-        };
-        return { ...base, createWeatherLoader: wrapCreateWeatherLoader };
-    }
 
-    protected override buildExtendedHooks(base: ApiDataHookGroup<SpecHomePage1820Set>): ApiDataHookGroup<SpecHomePage1820Set> & ExtraHooks
-    {
-        const wrapUseWeatherData: ExtraHooks["useWeatherData"] = (opt) =>
-        {
-            return this.useWeatherData(opt);
-        };
-        return { ...base, useWeatherData: wrapUseWeatherData };
-    }
-    // #endregion
-
-    // #region Loader Func
     /** loader：建立首頁 weather loader */
     private createWeatherLoader: ExtraLoaders["createWeatherLoader"] = (opt) =>
     {
@@ -114,9 +99,8 @@ export class SpecHomePage1820AdapterImpl extends ApiDataAdapter<SpecHomePage1820
             getApiInstance: opt?.getApiInstance,
         });
     };
-    // #endregion
 
-    // #region Hook Func
+
     /** hook：取得首頁 weather */
     private useWeatherData: ExtraHooks["useWeatherData"] = (opt) =>
     {
@@ -151,7 +135,28 @@ export class SpecHomePage1820AdapterImpl extends ApiDataAdapter<SpecHomePage1820
     };
     // #endregion
 
-    // #region Private Helper
+    // #region Public
+    protected override buildExtendedLoader(base: ApiDataLoaderGroup<SpecHomePage1820Set>): ApiDataLoaderGroup<SpecHomePage1820Set> & ExtraLoaders
+    {
+        const wrapCreateWeatherLoader: ExtraLoaders["createWeatherLoader"] = (opt) =>
+        {
+            return this.createWeatherLoader(opt);
+        };
+        return { ...base, createWeatherLoader: wrapCreateWeatherLoader };
+    }
+
+
+    protected override buildExtendedHooks(base: ApiDataHookGroup<SpecHomePage1820Set>): ApiDataHookGroup<SpecHomePage1820Set> & ExtraHooks
+    {
+        const wrapUseWeatherData: ExtraHooks["useWeatherData"] = (opt) =>
+        {
+            return this.useWeatherData(opt);
+        };
+        return { ...base, useWeatherData: wrapUseWeatherData };
+    }
+    // #endregion
+
+    // #region Private
     /** 建立共用 weather 查詢參數 */
     private buildWeatherArgs(): WeatherArgs
     {
@@ -161,7 +166,18 @@ export class SpecHomePage1820AdapterImpl extends ApiDataAdapter<SpecHomePage1820
     // #endregion
 }
 
+
 export const SpecHomePage1820Adapter = (apiInstance?: AxiosInstance) =>
 {
     return new SpecHomePage1820AdapterImpl((api?: AxiosInstance) => new SpecHomePage1820Service(api ?? apiInstance));
 };
+// #endregion
+
+// #region Private
+/** 取第一筆 weather 資料 */
+const pickWeather = (data?: SpecHomePageWeather[] | null): SpecHomePageWeather | null =>
+{
+    // return
+    return data?.[0] ?? null;
+};
+// #endregion

@@ -9,9 +9,13 @@ import { SpecCategoryModelFields, SpecUSRDetailFields, SpecUSRModelFields, SpecU
 import { useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router-dom";
 
+// #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"];
+
 type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"];
+
 
 const formVisibleKeys: ReadonlyArray<readonly [string, string]> = [
     [SpecUSRSetFields.SpecUSR, SpecUSRModelFields.PictureId],
@@ -39,12 +43,14 @@ const formVisibleKeys: ReadonlyArray<readonly [string, string]> = [
     [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Url],
 ];
 
+
 /** loader args */
 export interface SpecUSRFormLoaderArgs
 {
     internalId: string;
     categoryParam: QueryListParam;
 }
+
 
 /** loader res */
 export interface SpecUSRFormLoaderRes
@@ -54,11 +60,13 @@ export interface SpecUSRFormLoaderRes
     displayNameRes: ModelDisplaySchema[] | null;
 }
 
+
 export interface SpecUSRFormLoaderData
 {
     args: SpecUSRFormLoaderArgs;
     res: SpecUSRFormLoaderRes;
 }
+
 
 export interface UseSpecUSRFormFetchDataArgs
 {
@@ -67,107 +75,16 @@ export interface UseSpecUSRFormFetchDataArgs
     loaderData?: SpecUSRFormLoaderData | null;
 }
 
+
 export interface SpecUSRFormFetchData
 {
     formData: SpecUSRSet;
     showColumns: string[];
     showColTitle: ColumnConfig[];
 }
+// #endregion
 
-const buildEmptySpecCategoryQuery = (): QueryListParam =>
-{
-    // return：避免沒 categoryId 時打出整包資料
-    return {
-        Fields: [
-            SpecCategoryModelFields.InternalId,
-            SpecCategoryModelFields.CategoryId,
-            SpecCategoryModelFields.ProgId,
-            SpecCategoryModelFields.ShowColumnItems,
-        ],
-        Condition: "1=0",
-        PageNumber: 0,
-        PageSize: 0,
-    };
-};
-
-const buildSpecCategoryQuery = (categoryId: string): QueryListParam =>
-{
-    // 宣告變數
-    const safeCategoryId = `${categoryId ?? ""}`.trim();
-    if (!safeCategoryId) return buildEmptySpecCategoryQuery();
-
-    // return
-    return {
-        Fields: [
-            SpecCategoryModelFields.InternalId,
-            SpecCategoryModelFields.CategoryId,
-            SpecCategoryModelFields.ProgId,
-            SpecCategoryModelFields.ShowColumnItems,
-        ],
-        Condition: `${SpecCategoryModelFields.CategoryId} = ${safeCategoryId}`,
-        PageNumber: 0,
-        PageSize: 0,
-    };
-};
-
-const buildVisibleColumns = (schema: ModelDisplaySchema | null | undefined, visibleKeys: ReadonlyArray<readonly [string, string]>): ColumnConfig[] =>
-{
-    // 宣告變數
-    if (!schema?.Tables?.length || visibleKeys.length === 0) return [];
-
-    // return
-    return visibleKeys.map(([tableId, columnId]) =>
-    {
-        const table = schema.Tables.find(p => p.TableId === tableId);
-        const column = table?.Columns.find(p => p.ColumnId === columnId);
-        if (!column) return null;
-        return { key: column.ColumnId, title: column.ColumnDisplayName } as ColumnConfig;
-    }).filter((p): p is ColumnConfig => p !== null);
-};
-
-const buildDataInitial = (
-    p: { internalId: string; emptyData: SpecUSRSet; loaderData?: SpecUSRFormLoaderData | null; },
-): ApiLoaderData<string, SpecUSRSet> | null =>
-{
-    // 宣告變數
-    const safeInternalId = `${p.internalId ?? ""}`.trim();
-    const internalKey = safeInternalId || "__empty__";
-
-    if (!safeInternalId)
-    {
-        return { args: internalKey, apiRes: { IsSuccess: true, Data: p.emptyData, SysMessage: [] } };
-    }
-
-    if (!p.loaderData?.args?.internalId || p.loaderData.args.internalId !== safeInternalId) return null;
-
-    // return
-    return { args: internalKey, apiRes: { IsSuccess: true, Data: p.loaderData.res.dataRes ?? p.emptyData, SysMessage: [] } };
-};
-
-const buildCategoryInitial = (
-    p: { categoryParam: QueryListParam; loaderData?: SpecUSRFormLoaderData | null; },
-): ApiLoaderData<QueryListParam, SpecCategorySet[]> | null =>
-{
-    // 宣告變數
-    if (!p.loaderData?.args?.categoryParam) return null;
-
-    const currentKey = JSON.stringify(p.categoryParam ?? null);
-    const initialKey = JSON.stringify(p.loaderData.args.categoryParam ?? null);
-    if (currentKey !== initialKey) return null;
-
-    // return
-    return { args: p.loaderData.args.categoryParam, apiRes: { IsSuccess: true, Data: p.loaderData.res.categoryRes ?? [], SysMessage: [] } };
-};
-
-const buildDisplayNameInitial = (loaderData?: SpecUSRFormLoaderData | null): ApiLoaderData<null, ModelDisplaySchema[]> | null =>
-{
-    // 宣告變數
-    if (!loaderData?.res?.displayNameRes) return null;
-
-    // return
-    return { args: null, apiRes: { IsSuccess: true, Data: loaderData.res.displayNameRes, SysMessage: [] } };
-};
-
+// #region Public
 /** ✅ SSR loader：預載 SpecUSR_Form 所需主資料 / 顯示欄位 / 欄位標題 */
 export const SpecUSRForm_Loader = () => async ({ request, params }: LoaderFunctionArgs): Promise<SpecUSRFormLoaderData> =>
 {
@@ -205,6 +122,7 @@ export const SpecUSRForm_Loader = () => async ({ request, params }: LoaderFuncti
         res: { dataRes, categoryRes: categoryLD.apiRes.Data ?? [], displayNameRes: displayNameLD.apiRes.Data ?? null },
     };
 };
+
 
 /** ✅ CSR 主入口：集中 SpecUSR_Form 所需 hooks / hydration initial */
 export const useSpecUSRFormFetchData = (opt: UseSpecUSRFormFetchDataArgs) =>
@@ -261,3 +179,105 @@ export const useSpecUSRFormFetchData = (opt: UseSpecUSRFormFetchDataArgs) =>
     // return
     return { rawData, isLoading, errors, refetchData: useData.refetch, refetchRefData: useCategory.refetch };
 };
+// #endregion
+
+// #region Private
+const buildEmptySpecCategoryQuery = (): QueryListParam =>
+{
+    // return：避免沒 categoryId 時打出整包資料
+    return {
+        Fields: [
+            SpecCategoryModelFields.InternalId,
+            SpecCategoryModelFields.CategoryId,
+            SpecCategoryModelFields.ProgId,
+            SpecCategoryModelFields.ShowColumnItems,
+        ],
+        Condition: "1=0",
+        PageNumber: 0,
+        PageSize: 0,
+    };
+};
+
+
+const buildSpecCategoryQuery = (categoryId: string): QueryListParam =>
+{
+    // 宣告變數
+    const safeCategoryId = `${categoryId ?? ""}`.trim();
+    if (!safeCategoryId) return buildEmptySpecCategoryQuery();
+
+    // return
+    return {
+        Fields: [
+            SpecCategoryModelFields.InternalId,
+            SpecCategoryModelFields.CategoryId,
+            SpecCategoryModelFields.ProgId,
+            SpecCategoryModelFields.ShowColumnItems,
+        ],
+        Condition: `${SpecCategoryModelFields.CategoryId} = ${safeCategoryId}`,
+        PageNumber: 0,
+        PageSize: 0,
+    };
+};
+
+
+const buildVisibleColumns = (schema: ModelDisplaySchema | null | undefined, visibleKeys: ReadonlyArray<readonly [string, string]>): ColumnConfig[] =>
+{
+    // 宣告變數
+    if (!schema?.Tables?.length || visibleKeys.length === 0) return [];
+
+    // return
+    return visibleKeys.map(([tableId, columnId]) =>
+    {
+        const table = schema.Tables.find(p => p.TableId === tableId);
+        const column = table?.Columns.find(p => p.ColumnId === columnId);
+        if (!column) return null;
+        return { key: column.ColumnId, title: column.ColumnDisplayName } as ColumnConfig;
+    }).filter((p): p is ColumnConfig => p !== null);
+};
+
+
+const buildDataInitial = (
+    p: { internalId: string; emptyData: SpecUSRSet; loaderData?: SpecUSRFormLoaderData | null; },
+): ApiLoaderData<string, SpecUSRSet> | null =>
+{
+    // 宣告變數
+    const safeInternalId = `${p.internalId ?? ""}`.trim();
+    const internalKey = safeInternalId || "__empty__";
+
+    if (!safeInternalId)
+    {
+        return { args: internalKey, apiRes: { IsSuccess: true, Data: p.emptyData, SysMessage: [] } };
+    }
+
+    if (!p.loaderData?.args?.internalId || p.loaderData.args.internalId !== safeInternalId) return null;
+
+    // return
+    return { args: internalKey, apiRes: { IsSuccess: true, Data: p.loaderData.res.dataRes ?? p.emptyData, SysMessage: [] } };
+};
+
+
+const buildCategoryInitial = (
+    p: { categoryParam: QueryListParam; loaderData?: SpecUSRFormLoaderData | null; },
+): ApiLoaderData<QueryListParam, SpecCategorySet[]> | null =>
+{
+    // 宣告變數
+    if (!p.loaderData?.args?.categoryParam) return null;
+
+    const currentKey = JSON.stringify(p.categoryParam ?? null);
+    const initialKey = JSON.stringify(p.loaderData.args.categoryParam ?? null);
+    if (currentKey !== initialKey) return null;
+
+    // return
+    return { args: p.loaderData.args.categoryParam, apiRes: { IsSuccess: true, Data: p.loaderData.res.categoryRes ?? [], SysMessage: [] } };
+};
+
+
+const buildDisplayNameInitial = (loaderData?: SpecUSRFormLoaderData | null): ApiLoaderData<null, ModelDisplaySchema[]> | null =>
+{
+    // 宣告變數
+    if (!loaderData?.res?.displayNameRes) return null;
+
+    // return
+    return { args: null, apiRes: { IsSuccess: true, Data: loaderData.res.displayNameRes, SysMessage: [] } };
+};
+// #endregion

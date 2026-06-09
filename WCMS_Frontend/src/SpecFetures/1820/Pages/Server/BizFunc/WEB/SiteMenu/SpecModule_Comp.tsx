@@ -8,10 +8,15 @@ import type { components } from "@/types/api";
 import { PGID, SiteMenu_Item_ModuleFields, SiteMenuSetFields } from "@/types/SchemaFields";
 import { useMemo } from "react";
 
+// #region Property
 type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"];
+
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
+
 type TagSet = components["schemas"]["TagSet_DTO"];
+
 type PageSet = components["schemas"]["PageManagementSet_DTO"];
+
 
 export interface Module_SpecProduction_OptionsJson
 {
@@ -20,8 +25,11 @@ export interface Module_SpecProduction_OptionsJson
     PageId: string;
 }
 
-const moduleOptionsDefaults: Module_SpecProduction_OptionsJson = { CategoryId: "", TagIds: "", PageId: "" };
 
+const moduleOptionsDefaults: Module_SpecProduction_OptionsJson = { CategoryId: "", TagIds: "", PageId: "" };
+// #endregion
+
+// #region Public
 export const Module_SpecProduction_Comp = (
     prop: {
         theme: IBETheme;
@@ -77,7 +85,25 @@ export const Module_SpecProduction_Comp = (
         </>
     );
 };
+// #endregion
 
+// #region EntityComp
+const buildPageMapByProgId = (pageSets: PageSet[], progId: PGID, lang: Lang): Map<string, string> =>
+{
+    const targetProgId = String(progId ?? "");
+    return pageSets.reduce<Map<string, string>>((acc, item) =>
+    {
+        const page = item.PageManagement;
+        if (!page?.InternalId) return acc;
+        if (String(page.ProgId ?? "") !== targetProgId) return acc;
+        const title = item.PageManagementDetail?.find(p => p.Lang === lang)?.Title ?? "";
+        acc.set(String(page.InternalId), title);
+        return acc;
+    }, new Map<string, string>());
+};
+// #endregion
+
+// #region Private
 /** 取得物件類別下拉選單 */
 const useGetCategoryDict = (progId: PGID, lang: Lang, categorySets: CategorySet[]) =>
 {
@@ -98,6 +124,7 @@ const useGetCategoryDict = (progId: PGID, lang: Lang, categorySets: CategorySet[
     return cateDic;
 };
 
+
 const useGetTagDict = (progId: PGID, lang: Lang, tagSets: TagSet[]) =>
 {
     const tagDic = useMemo<Record<string, string>>(() =>
@@ -116,17 +143,4 @@ const useGetTagDict = (progId: PGID, lang: Lang, tagSets: TagSet[]) =>
 
     return tagDic;
 };
-
-const buildPageMapByProgId = (pageSets: PageSet[], progId: PGID, lang: Lang): Map<string, string> =>
-{
-    const targetProgId = String(progId ?? "");
-    return pageSets.reduce<Map<string, string>>((acc, item) =>
-    {
-        const page = item.PageManagement;
-        if (!page?.InternalId) return acc;
-        if (String(page.ProgId ?? "") !== targetProgId) return acc;
-        const title = item.PageManagementDetail?.find(p => p.Lang === lang)?.Title ?? "";
-        acc.set(String(page.InternalId), title);
-        return acc;
-    }, new Map<string, string>());
-};
+// #endregion

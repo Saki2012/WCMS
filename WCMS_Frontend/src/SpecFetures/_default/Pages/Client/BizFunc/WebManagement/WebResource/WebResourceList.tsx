@@ -2,6 +2,7 @@ import type { IWebResourceListOptions } from "@/Features/Pages/Client/BizFunc/We
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import type { Lang } from "@/SysCore/i18n/lang";
 
+// #region Property
 interface IWebResourceListProps
 {
     Theme: IFETheme;
@@ -9,7 +10,11 @@ interface IWebResourceListProps
     Options?: IWebResourceListOptions;
     title: string;
 }
+// #endregion
+
+// #region Public
 export const WebResourceListComp = (props: IWebResourceListProps) =>
 {
     return <></>;
 };
+// #endregion

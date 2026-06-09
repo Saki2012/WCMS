@@ -24,6 +24,7 @@ import {
 // #region Property
 type PageManagementSet = components["schemas"]["PageManagementSet_DTO"];
 
+
 interface PageManagementFormCompProps
 {
     /** 後台主題設定 */
@@ -32,6 +33,7 @@ interface PageManagementFormCompProps
     /** 目前語系 */
     lang: Lang;
 }
+
 
 interface HeaderSectionProps
 {
@@ -45,6 +47,7 @@ interface HeaderSectionProps
     refs: PageManagementFormRefs;
 }
 
+
 interface DetailSectionProps
 {
     /** 後台主題設定 */
@@ -57,6 +60,7 @@ interface DetailSectionProps
     binding: ServerFormBinding<PageManagementSet>;
 }
 
+
 interface HeaderTabContentOptions extends HeaderSectionProps
 {
     /** 欄位 binding helper */
@@ -65,6 +69,7 @@ interface HeaderTabContentOptions extends HeaderSectionProps
     /** 頁面分類下拉選項 */
     categoryOptions: Map<string, string>;
 }
+
 
 interface DetailTabContentOptions
 {
@@ -77,6 +82,7 @@ interface DetailTabContentOptions
     /** 欄位 binding helper */
     setField: ReturnType<typeof useSetTableField<PageManagementSet>>;
 }
+
 
 interface DetailFieldsOptions
 {
@@ -143,6 +149,7 @@ const HeaderComp = (props: HeaderSectionProps) =>
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
 
+
 /** 頁面管理多語 Detail 區塊，語系資料由 Hook 統一整理。 */
 const DetailComp = (props: DetailSectionProps) =>
 {
@@ -165,6 +172,7 @@ const buildHeaderTabContent = (opt: HeaderTabContentOptions): Record<string, Rea
     };
 };
 
+
 /** 建立基本資料欄位。 */
 const buildBasicFields = (opt: HeaderTabContentOptions): ReactNode[] =>
 {
@@ -183,6 +191,7 @@ const buildBasicFields = (opt: HeaderTabContentOptions): ReactNode[] =>
     ];
 };
 
+
 /** 建立 Detail 語系分頁內容，畫面只依 Hook 整理後的 Tab 項目渲染。 */
 const buildDetailTabContent = (opt: DetailTabContentOptions): Record<string, ReactNode[]> =>
 {
@@ -192,6 +201,7 @@ const buildDetailTabContent = (opt: DetailTabContentOptions): Record<string, Rea
         return compMap;
     }, {});
 };
+
 
 /** 建立單一語系 Detail 欄位。 */
 const buildDetailFields = (opt: DetailFieldsOptions): ReactNode[] =>
@@ -208,14 +218,14 @@ const buildDetailFields = (opt: DetailFieldsOptions): ReactNode[] =>
         />,
     ];
 };
-// #endregion
 
-// #region Private
+
 /** 建立回列表路徑，避免 Back 行為散在 JSX 中。 */
 const buildBackToListPath = (pathname: string): string =>
 {
     return pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
 };
+
 
 /** 將 category object 轉成 LibDropList 使用的 Map。 */
 const buildCategoryOptions = (categoryMap: Record<string, string>): Map<string, string> =>

@@ -31,7 +31,9 @@ import {
 
 // #region Property
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
+
 type PreviewPayload = { type: "wcms:preview"; module: "announcement"; payload: { kind: "dto"; dto: AnnouncementSet; }; };
+
 
 interface AnnouncementFormCompProps
 {
@@ -41,6 +43,7 @@ interface AnnouncementFormCompProps
     /** 目前語系 */
     lang: Lang;
 }
+
 
 interface HeaderSectionProps
 {
@@ -54,6 +57,7 @@ interface HeaderSectionProps
     refs: AnnouncementFormRefs;
 }
 
+
 interface DetailSectionProps
 {
     /** 後台主題設定 */
@@ -66,6 +70,7 @@ interface DetailSectionProps
     binding: ServerFormBinding<AnnouncementSet>;
 }
 
+
 interface SubDetailSectionProps
 {
     /** Form Template 提供的主資料 binding */
@@ -74,6 +79,7 @@ interface SubDetailSectionProps
     /** 目前 Detail RowId，給附件 Grid 綁 ParentRowId */
     parentRowId: number;
 }
+
 
 interface HeaderTabContentOptions extends HeaderSectionProps
 {
@@ -86,6 +92,7 @@ interface HeaderTabContentOptions extends HeaderSectionProps
     /** 圖片預覽來源 */
     previewSrc: string;
 }
+
 
 interface DetailTabContentOptions
 {
@@ -101,6 +108,7 @@ interface DetailTabContentOptions
     /** 欄位 binding helper */
     setField: ReturnType<typeof useSetTableField<AnnouncementSet>>;
 }
+
 
 interface DetailFieldsOptions
 {
@@ -119,6 +127,7 @@ interface DetailFieldsOptions
     /** Detail RowId，給附件 SubDetail 綁 ParentRowId */
     detailRowId: number;
 }
+
 
 const editGridStyle: IEditGridView_Style = {
     TableStyle: "table table-striped table-bordered table-hover",
@@ -197,6 +206,7 @@ const HeaderComp = (props: HeaderSectionProps) =>
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
 
+
 /** 公告多語 Detail 區塊，語系資料由 Announcement Hook 統一整理。 */
 const DetailComp = (props: DetailSectionProps) =>
 {
@@ -207,6 +217,7 @@ const DetailComp = (props: DetailSectionProps) =>
 
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
+
 
 /** 公告附件 SubDetail 區塊，直接掛載 Announcement Hook 產生的 EditGrid props。 */
 const SubDetailComp = (props: SubDetailSectionProps) =>
@@ -234,6 +245,7 @@ const buildHeaderTabContent = (opt: HeaderTabContentOptions): Record<string, Rea
     };
 };
 
+
 /** 建立基本資料欄位。 */
 const buildBasicFields = (opt: HeaderTabContentOptions): ReactNode[] =>
 {
@@ -247,6 +259,7 @@ const buildBasicFields = (opt: HeaderTabContentOptions): ReactNode[] =>
         <LibCalendar {...opt.setField(AnnouncementSetFields.Announcement, AnnouncementFields.Validate_End, "datetime")} />,
     ];
 };
+
 
 /** 建立狀態欄位。 */
 const buildStatusFields = (opt: HeaderTabContentOptions): ReactNode[] =>
@@ -263,6 +276,7 @@ const buildStatusFields = (opt: HeaderTabContentOptions): ReactNode[] =>
     ];
 };
 
+
 /** 建立標籤欄位。 */
 const buildTagFields = (opt: HeaderTabContentOptions): ReactNode[] =>
 {
@@ -274,6 +288,7 @@ const buildTagFields = (opt: HeaderTabContentOptions): ReactNode[] =>
         />,
     ];
 };
+
 
 /** 建立圖片欄位。 */
 const buildPictureFields = (opt: HeaderTabContentOptions): ReactNode[] =>
@@ -298,6 +313,7 @@ const buildPictureFields = (opt: HeaderTabContentOptions): ReactNode[] =>
     ];
 };
 
+
 /** 建立 Detail 語系分頁內容，畫面只依 Hook 整理後的 Tab 項目渲染。 */
 const buildDetailTabContent = (opt: DetailTabContentOptions): Record<string, ReactNode[]> =>
 {
@@ -307,6 +323,7 @@ const buildDetailTabContent = (opt: DetailTabContentOptions): Record<string, Rea
         return compMap;
     }, {});
 };
+
 
 /** 建立單一語系 Detail 欄位。 */
 const buildDetailFields = (opt: DetailFieldsOptions): ReactNode[] =>
@@ -339,14 +356,14 @@ const buildDetailFields = (opt: DetailFieldsOptions): ReactNode[] =>
         <SubDetailComp binding={opt.binding} parentRowId={opt.detailRowId} />,
     ];
 };
-// #endregion
 
-// #region Private
+
 /** 建立回列表路徑，避免 Back 行為散在 JSX 中。 */
 const buildBackToListPath = (pathname: string): string =>
 {
     return pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
 };
+
 
 /** 建立公告預覽 payload，讓 PreviewFrame 只接固定資料格式。 */
 const buildPreviewPayload = (dto: AnnouncementSet): PreviewPayload =>
@@ -354,13 +371,16 @@ const buildPreviewPayload = (dto: AnnouncementSet): PreviewPayload =>
     return { type: "wcms:preview", module: "announcement", payload: { kind: "dto", dto } };
 };
 
+
 /** 建立圖片預覽來源，沒有圖片時回傳預設圖。 */
 const buildPicturePreviewSrc = (binding: ServerFormBinding<AnnouncementSet>, uploadPic: ReturnType<typeof useUploadPicture>): string =>
 {
     const initialPicId = binding.data?.Announcement?.PictureId;
     return (uploadPic.result.previewUrl || (FileManagementAPI.get_Server_Preview_Url(initialPicId) ?? "https://dummyimage.com/1920x550/555/fff.png"));
 };
+// #endregion
 
+// #region Private
 /** 回寫公告主圖 InternalId，避免圖片欄位直接處理 DTO 細節。 */
 const updateAnnouncementPictureId = (binding: ServerFormBinding<AnnouncementSet>, fileId: string): void =>
 {

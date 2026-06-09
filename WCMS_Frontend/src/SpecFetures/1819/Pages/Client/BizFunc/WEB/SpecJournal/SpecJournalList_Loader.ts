@@ -1,4 +1,3 @@
-//#region Property
 import { SpecJournalAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/WEB/SpecJournal_Api";
 import {
     buildClientDataQueryKey,
@@ -28,14 +27,19 @@ import type { IListViewState } from "@/SysCore/Interface/IListViewState";
 import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { useMemo } from "react";
 import { type LoaderFunctionArgs, useLoaderData } from "react-router-dom";
+
+// #region Property
 type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
+
 type QueryListParam = components["schemas"]["QueryListParam"];
+
 export interface SpecJournalListLoaderOptions
 {
     pageSize?: number;
     pageTitle?: string;
     isPreprint?: boolean;
 }
+
 export interface SpecJournalListFilters
 {
     q: string;
@@ -46,6 +50,7 @@ export interface SpecJournalListFilters
     keyword: string;
     includeRef: string;
 }
+
 export interface SpecJournalListLoaderArgs
 {
     indexId: string;
@@ -56,16 +61,19 @@ export interface SpecJournalListLoaderArgs
     filters: SpecJournalListFilters;
     baseParam: QueryListParam;
 }
+
 export interface SpecJournalListLoaderRes
 {
     countRes: number;
     listRes: SpecJournalSet[];
 }
+
 export interface SpecJournalListLoaderData
 {
     args: SpecJournalListLoaderArgs;
     res: SpecJournalListLoaderRes;
 }
+
 
 export interface UseSpecJournalListDataResult
 {
@@ -78,7 +86,9 @@ export interface UseSpecJournalListDataResult
     paginatorProps: PaginatorProps | null;
 }
 
+
 type SpecJournalListAdapter = ReturnType<typeof SpecJournalAdapter>;
+
 type SpecJournalListTemplate = ClientDataQueryTemplate<
     SpecJournalListLoaderArgs,
     { list: SpecJournalSet[]; totalCount: number; },
@@ -87,7 +97,9 @@ type SpecJournalListTemplate = ClientDataQueryTemplate<
     QueryListParam,
     SpecJournalListLoaderData
 >;
+
 type SpecJournalListDataSourceContext = Parameters<NonNullable<NonNullable<SpecJournalListTemplate["spec"]>["useDataSource"]>>[0];
+
 interface BuildConditionArgs
 {
     indexId: string;
@@ -95,16 +107,95 @@ interface BuildConditionArgs
     isPreprint: boolean;
     filters: SpecJournalListFilters;
 }
+
 interface BuildBaseParamArgs extends BuildConditionArgs
 {
     pageSize: number;
 }
+// #endregion
+
+// #region Public
+/**
+ * SpecJournal List Loader
+ */
+
+export const SpecJournalList_Loader =
+    (opt: SpecJournalListLoaderOptions) => async ({ request, params }: LoaderFunctionArgs): Promise<SpecJournalListLoaderData> =>
+    {
+        // 宣告變數
+        const pageSize = opt.pageSize ?? 10;
+        const indexId = `${params?.indexId ?? ""}`.trim();
+        const rowId = `${params?.rowId ?? ""}`.trim();
+        const pageTitle = opt.pageTitle ?? "";
+        const filters = parseFilters(request.url);
+        const isPreprint = opt.isPreprint ?? false;
+        const queryState = buildSpecJournalListQueryState({ indexId, rowId, isPreprint, pageSize, pageTitle, filters, baseParam: buildBaseParam({ indexId, rowId, isPreprint, pageSize, filters }) });
+        const baseParam = queryState.queryParam;
+        const ssrApi = getSsrApi(request);
+        const adapter = SpecJournalAdapter(ssrApi);
+        // 執行 function：count / list
+        const countLoader = adapter.loader.createQueryCountLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
+        const listLoader = adapter.loader.createQueryListLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
+        const [countLD, listLD] = await Promise.all([
+            countLoader({ request, params } as LoaderFunctionArgs),
+            listLoader({ request, params } as LoaderFunctionArgs),
+        ]);
+
+        // return
+        return {
+            args: { indexId, rowId, isPreprint, pageSize, pageTitle, filters, baseParam },
+            res: { countRes: countLD.apiRes.Data ?? 0, listRes: listLD.apiRes.Data ?? [] },
+        };
+    };
+
+
+/** CSR Hook：期刊文章列表走 Client_DataQueryTemplate */
+
+export const useSpecJournalListData = (p?: { pageSize?: number; }): UseSpecJournalListDataResult =>
+{
+    // 宣告變數
+    const loaderData = useLoaderData() as SpecJournalListLoaderData | null;
+    const fallbackArgs: SpecJournalListLoaderArgs = loaderData?.args ?? {
+        indexId: "",
+        rowId: "",
+        isPreprint: false,
+        pageSize: p?.pageSize ?? 10,
+        pageTitle: "",
+        filters: { q: "", articleLang: "", tagId: "", tagName: "", author: "", keyword: "", includeRef: "" },
+        baseParam: buildBaseParam({ indexId: "", rowId: "", isPreprint: false, pageSize: p?.pageSize ?? 10, filters: { q: "", articleLang: "", tagId: "", tagName: "", author: "", keyword: "", includeRef: "" } }),
+    };
+
+    const templateArgs = useMemo(() =>
+    {
+        return { ...fallbackArgs, pageSize: p?.pageSize ?? fallbackArgs.pageSize };
+    }, [fallbackArgs, p?.pageSize]);
+
+    const template = useMemo(() =>
+    {
+        const queryState = buildSpecJournalListQueryState(templateArgs);
+        return createSpecJournalListDataQueryTemplate({ ...templateArgs, baseParam: queryState.queryParam });
+    }, [templateArgs]);
+
+    const templateVm = useClientDataQueryTemplate(template);
+
+    // return
+    return {
+        rawData: templateVm.viewModel.list,
+        totalCount: templateVm.viewModel.totalCount,
+        isLoading: templateVm.isLoading,
+        errorList: templateVm.errorList,
+        pageNumber: templateVm.paginator?.currentPage ?? 1,
+        totalPages: templateVm.paginator?.totalPages ?? 1,
+        paginatorProps: templateVm.paginatorProps,
+    };
+};
+// #endregion
+
+// #region Private
 /**
  * 解析網址查詢條件
  */
-//#endregion
 
-//#region Private - Query Helpers
 const parseFilters = (url: string): SpecJournalListFilters =>
 {
     const sp = new URL(url).searchParams;
@@ -118,6 +209,7 @@ const parseFilters = (url: string): SpecJournalListFilters =>
         includeRef: (sp.get("includeRef") ?? "").trim(),
     };
 };
+
 /**
  * 轉義單引號
  */
@@ -126,6 +218,7 @@ const escapeSqlValue = (value: string): string =>
     // return
     return value.replace(/'/g, "''");
 };
+
 /**
  * 建立查詢條件
  */
@@ -206,6 +299,7 @@ const buildCondition = (p: BuildConditionArgs): string =>
     return condition;
 };
 
+
 /**
  * 建立 QueryListParam
  */
@@ -246,40 +340,7 @@ const buildBaseParam = (p: BuildBaseParamArgs): QueryListParam =>
         PageSize: p.pageSize,
     };
 };
-/**
- * SpecJournal List Loader
- */
-//#endregion
 
-//#region Public - SSR Loader
-export const SpecJournalList_Loader =
-    (opt: SpecJournalListLoaderOptions) => async ({ request, params }: LoaderFunctionArgs): Promise<SpecJournalListLoaderData> =>
-    {
-        // 宣告變數
-        const pageSize = opt.pageSize ?? 10;
-        const indexId = `${params?.indexId ?? ""}`.trim();
-        const rowId = `${params?.rowId ?? ""}`.trim();
-        const pageTitle = opt.pageTitle ?? "";
-        const filters = parseFilters(request.url);
-        const isPreprint = opt.isPreprint ?? false;
-        const queryState = buildSpecJournalListQueryState({ indexId, rowId, isPreprint, pageSize, pageTitle, filters, baseParam: buildBaseParam({ indexId, rowId, isPreprint, pageSize, filters }) });
-        const baseParam = queryState.queryParam;
-        const ssrApi = getSsrApi(request);
-        const adapter = SpecJournalAdapter(ssrApi);
-        // 執行 function：count / list
-        const countLoader = adapter.loader.createQueryCountLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
-        const listLoader = adapter.loader.createQueryListLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
-        const [countLD, listLD] = await Promise.all([
-            countLoader({ request, params } as LoaderFunctionArgs),
-            listLoader({ request, params } as LoaderFunctionArgs),
-        ]);
-
-        // return
-        return {
-            args: { indexId, rowId, isPreprint, pageSize, pageTitle, filters, baseParam },
-            res: { countRes: countLD.apiRes.Data ?? 0, listRes: listLD.apiRes.Data ?? [] },
-        };
-    };
 
 /**
  * 建立資料範圍條件
@@ -302,6 +363,7 @@ const buildScopeCondition = (p: BuildConditionArgs): string =>
     // return
     return LibMerge(" And ", false, `${SpecJournalModelFields.JournalIndexId} = '${indexId}'`, `${SpecJournalModelFields.JournalIndexRowId} = '${rowId}'`);
 };
+
 const hasSearchFilters = (f: SpecJournalListFilters): boolean =>
 {
     // return
@@ -309,10 +371,9 @@ const hasSearchFilters = (f: SpecJournalListFilters): boolean =>
 };
 
 
-/** 建立 loader / hook 共用查詢狀態 */
-//#endregion
 
-//#region Template - Client DataQuery
+/** 建立 loader / hook 共用查詢狀態 */
+
 const buildSpecJournalListQueryState = (args: SpecJournalListLoaderArgs) =>
 {
     // 宣告變數
@@ -324,6 +385,7 @@ const buildSpecJournalListQueryState = (args: SpecJournalListLoaderArgs) =>
     return buildClientDataQueryState(template, searchValues, viewState);
 };
 
+
 /** 建立 SSR initial */
 const buildInitial = <TData>(p: { loaderData: SpecJournalListLoaderData | null; queryParam: QueryListParam; data: TData; }): ApiLoaderData<QueryListParam, TData> | null =>
 {
@@ -334,6 +396,7 @@ const buildInitial = <TData>(p: { loaderData: SpecJournalListLoaderData | null; 
     // return
     return { args: p.loaderData.args.baseParam, apiRes: { IsSuccess: true, Data: p.data, SysMessage: [] } };
 };
+
 
 /** 建立 SpecJournal List DataQuery Template */
 const createSpecJournalListDataQueryTemplate = (args: SpecJournalListLoaderArgs): SpecJournalListTemplate =>
@@ -354,6 +417,7 @@ const createSpecJournalListDataQueryTemplate = (args: SpecJournalListLoaderArgs)
         },
     };
 };
+
 
 /** DataSource：用 Template 統一接 SSR initial、count、list 與 paginator */
 const useSpecJournalListDataSource = (
@@ -398,47 +462,4 @@ const useSpecJournalListDataSource = (
         paginator,
     };
 };
-
-/** CSR Hook：期刊文章列表走 Client_DataQueryTemplate */
-//#endregion
-
-//#region Public - CSR Hook
-export const useSpecJournalListData = (p?: { pageSize?: number; }): UseSpecJournalListDataResult =>
-{
-    // 宣告變數
-    const loaderData = useLoaderData() as SpecJournalListLoaderData | null;
-    const fallbackArgs: SpecJournalListLoaderArgs = loaderData?.args ?? {
-        indexId: "",
-        rowId: "",
-        isPreprint: false,
-        pageSize: p?.pageSize ?? 10,
-        pageTitle: "",
-        filters: { q: "", articleLang: "", tagId: "", tagName: "", author: "", keyword: "", includeRef: "" },
-        baseParam: buildBaseParam({ indexId: "", rowId: "", isPreprint: false, pageSize: p?.pageSize ?? 10, filters: { q: "", articleLang: "", tagId: "", tagName: "", author: "", keyword: "", includeRef: "" } }),
-    };
-
-    const templateArgs = useMemo(() =>
-    {
-        return { ...fallbackArgs, pageSize: p?.pageSize ?? fallbackArgs.pageSize };
-    }, [fallbackArgs, p?.pageSize]);
-
-    const template = useMemo(() =>
-    {
-        const queryState = buildSpecJournalListQueryState(templateArgs);
-        return createSpecJournalListDataQueryTemplate({ ...templateArgs, baseParam: queryState.queryParam });
-    }, [templateArgs]);
-
-    const templateVm = useClientDataQueryTemplate(template);
-
-    // return
-    return {
-        rawData: templateVm.viewModel.list,
-        totalCount: templateVm.viewModel.totalCount,
-        isLoading: templateVm.isLoading,
-        errorList: templateVm.errorList,
-        pageNumber: templateVm.paginator?.currentPage ?? 1,
-        totalPages: templateVm.paginator?.totalPages ?? 1,
-        paginatorProps: templateVm.paginatorProps,
-    };
-};
-//#endregion
+// #endregion

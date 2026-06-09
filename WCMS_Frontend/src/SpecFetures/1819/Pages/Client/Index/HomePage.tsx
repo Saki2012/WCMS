@@ -8,6 +8,7 @@ import { LatestIssueSection } from "./Section/LatestIssueSection";
 import { NewsSection } from "./Section/NewsSection";
 import { RelatedLinksSection } from "./Section/RelatedLinksSection";
 
+// #region Private
 /**
  * 1819 - HomePage
  * - 對標 1816：首頁殼層先接 SSR loader
@@ -63,4 +64,6 @@ const HomePage = (props: { lang: Lang; }) =>
     );
 };
 
+
 export default HomePage;
+// #endregion

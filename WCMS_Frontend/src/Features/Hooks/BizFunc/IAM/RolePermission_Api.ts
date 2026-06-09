@@ -1,96 +1,85 @@
 import type { Lang } from "@/SysCore/i18n/lang";
-import { type ApiAdapterError, ApiDataAdapter, type EffectDeps } from "@/SysCore/Utils/API/APIAdapter";
+import { type ApiAdapterError, ApiDataAdapter, type ApiDataHookGroup, type ApiDataLoaderGroup, type EffectDeps } from "@/SysCore/Utils/API/APIAdapter";
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import { ApiDataService } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import { PGID } from "@/types/SchemaFields";
 import type { AxiosInstance } from "axios";
-import { useCallback, useEffect, useMemo, useState } from "react";
 
+// #region Property
 type RolePermissionSet = components["schemas"]["RolePermissionSet_DTO"];
 type PermissionCatalog = components["schemas"]["PermissionCatalogModuleDTO"];
+type ExtraLoaders = {};
+type PermissionCatalogHookResult = {
+    data: PermissionCatalog[];
+    apiRes: ApiResponse<PermissionCatalog[]> | null;
+    isLoading: boolean;
+    errorText: string | null;
+    refetch: () => Promise<void>;
+};
+export type UsePermissionCatalogOptions = { lang: Lang; apiInstance?: AxiosInstance; deps?: EffectDeps; onError?: (e: ApiAdapterError) => void; };
+type ExtraHooks = {
+    /** 讀取權限目錄 hook */
+    usePermissionCatalog: (opt: UsePermissionCatalogOptions) => PermissionCatalogHookResult;
+};
+// #endregion
 
+// #region Public
 export class RolePermissionService extends ApiDataService<RolePermissionSet>
 {
+    // #region Public
     constructor(apiInstance?: AxiosInstance)
     {
         super(PGID.RolePermission, apiInstance);
     }
-
-    /** 讀取權限目錄（custom endpoint） */
-    async getPermissionCatalog(): Promise<ApiResponse<PermissionCatalog[]>>
+    /** 讀取權限目錄。 */
+    public async getPermissionCatalog(): Promise<ApiResponse<PermissionCatalog[]>>
     {
         return await this.CallApi<PermissionCatalog[]>(() => this.Api.get<ApiResponse<PermissionCatalog[]>>(`${this.Module}/GetPermissionCatalog`));
     }
+    // #endregion
 }
-
-export type UsePermissionCatalogOptions = { lang: Lang; apiInstance?: AxiosInstance; deps?: EffectDeps; onError?: (e: ApiAdapterError) => void; };
-
-export const RolePermissionAdapter = (apiInstance?: AxiosInstance) =>
+export class RolePermissionAdapterImpl extends ApiDataAdapter<RolePermissionSet, RolePermissionService>
 {
-    // 宣告變數
-    const adapter = new ApiDataAdapter<RolePermissionSet, RolePermissionService>((api?: AxiosInstance) => new RolePermissionService(api ?? apiInstance));
+    // #region Property
+    declare public loader: ApiDataLoaderGroup<RolePermissionSet> & ExtraLoaders;
+    declare public hooks: ApiDataHookGroup<RolePermissionSet> & ExtraHooks;
+    // #endregion
 
-    const usePermissionCatalog = (opt: UsePermissionCatalogOptions) =>
+    // #region Protected Virtual
+    /** 擴充 loader 入口，目前 RolePermission 暫無額外 loader。 */
+    protected override buildExtendedLoader(base: ApiDataLoaderGroup<RolePermissionSet>): ApiDataLoaderGroup<RolePermissionSet> & ExtraLoaders
     {
-        // 宣告變數
-        const deps = opt.deps ?? [opt.lang];
+        const merged: ApiDataLoaderGroup<RolePermissionSet> & ExtraLoaders = { ...base };
+        return merged;
+    }
+    /** 擴充 hooks 入口，掛入權限目錄查詢。 */
+    protected override buildExtendedHooks(base: ApiDataHookGroup<RolePermissionSet>): ApiDataHookGroup<RolePermissionSet> & ExtraHooks
+    {
+        const wrapUsePermissionCatalog: ExtraHooks["usePermissionCatalog"] = (opt) => this.usePermissionCatalog(opt);
+        const merged: ApiDataHookGroup<RolePermissionSet> & ExtraHooks = { ...base, usePermissionCatalog: wrapUsePermissionCatalog };
+        return merged;
+    }
+    // #endregion
 
-        const [data, setData] = useState<PermissionCatalog[]>([]);
-        const [isLoading, setIsLoading] = useState<boolean>(false);
-        const [errorText, setErrorText] = useState<string | null>(null);
-
-        const refetch = useCallback(async () =>
-        {
-            try
-            {
-                // 宣告變數
-                setIsLoading(true);
-                setErrorText(null);
-
-                // 執行 function：支援 hook 端覆寫 apiInstance
-                const svc = new RolePermissionService(opt.apiInstance ?? apiInstance);
-                const res = await svc.getPermissionCatalog();
-
-                if (!res.IsSuccess)
-                {
-                    const msg = (res.SysMessage ?? []).map(m => m?.Message).filter(Boolean).join("；");
-
-                    setErrorText(msg || "讀取權限目錄失敗");
-                    return;
-                }
-
-                setData(res.Data ?? []);
-            } catch (e)
-            {
-                // 宣告變數：維持你們 adapter error 型別
-                const err: ApiAdapterError = { messageText: "讀取權限目錄失敗", sysMessages: [] };
-
-                setErrorText(err.messageText);
-                opt.onError?.(err);
-            } finally
-            {
-                setIsLoading(false);
-            }
-        }, [opt.apiInstance, apiInstance, opt.onError]);
-
-        useEffect(() =>
-        {
-            // 執行 function
-            void refetch();
-        }, deps); // eslint-disable-line react-hooks/exhaustive-deps
-
-        // return（維持 query hook 的回傳風格）
-        return useMemo(() => ({ data, isLoading, errorText, refetch }), [data, isLoading, errorText, refetch]);
+    // #region Protected
+    /** 讀取權限目錄 hook。 */
+    private usePermissionCatalog: ExtraHooks["usePermissionCatalog"] = (opt) =>
+    {
+        const result = this.useApiQuery<null, PermissionCatalog[]>({
+            action: "RolePermission.GetPermissionCatalog",
+            args: null,
+            initial: null,
+            call: (svc) => svc.getPermissionCatalog(),
+            fallbackError: "讀取權限目錄失敗",
+            deps: opt.deps ?? [opt.lang],
+            onError: opt.onError,
+            apiInstance: opt.apiInstance,
+        });
+        return { ...result, data: result.data ?? [] };
     };
-
-    // ✅ 關鍵：擴充 hooks，但不把 adapter 展平成 plain object（保留 prototype：useServerActions）
-    const extAdapter = adapter as ApiDataAdapter<RolePermissionSet, RolePermissionService> & {
-        hooks: typeof adapter.hooks & { usePermissionCatalog: typeof usePermissionCatalog; };
-    };
-
-    extAdapter.hooks = { ...adapter.hooks, usePermissionCatalog };
-
-    // return：仍是 ApiDataAdapter instance
-    return extAdapter;
-};
+    // #endregion
+}
+export const RolePermissionAdapter = (apiInstance?: AxiosInstance) =>
+    new RolePermissionAdapterImpl((api?: AxiosInstance) => new RolePermissionService(api ?? apiInstance));
+// #endregion

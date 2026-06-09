@@ -1,9 +1,11 @@
 import type { ReactNode } from "react";
 
+// #region Property
 export interface ILibModalStyle
 {
     // BtnStyle:string,
 }
+
 
 export interface LibModalProp
 {
@@ -13,3 +15,4 @@ export interface LibModalProp
     BtnName2?: string;
     children?: ReactNode;
 }
+// #endregion

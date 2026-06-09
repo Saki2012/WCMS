@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="SpecHomePage1821" xml:space="preserve"><value>Admissions home page setting</value></data>
+  <data name="SpecHomePage1821_Banner" xml:space="preserve"><value>Section1 banner list</value></data>
+  <data name="SpecHomePage1821_Shortcut" xml:space="preserve"><value>Section2 shortcuts</value></data>
+  <data name="SpecHomePage1821_FeatureCard" xml:space="preserve"><value>Section3 feature cards</value></data>
+  <data name="SpecHomePage1821_RelatedLink" xml:space="preserve"><value>Section4 related links</value></data>
+  <data name="Spec_HomePageId" xml:space="preserve"><value>Home page ID</value></data>
+  <data name="Spec_Section3Title" xml:space="preserve"><value>Section3 title</value></data>
+  <data name="Spec_Section3SubTitle" xml:space="preserve"><value>Section3 subtitle</value></data>
+  <data name="Spec_Section4Title" xml:space="preserve"><value>Section4 title</value></data>
+  <data name="Spec_Section4SubTitle" xml:space="preserve"><value>Section4 subtitle</value></data>
+  <data name="Spec_BannerFileId" xml:space="preserve"><value>Banner image</value></data>
+  <data name="Spec_BannerFileDescription" xml:space="preserve"><value>Banner image description</value></data>
+  <data name="Spec_ShortcutCode" xml:space="preserve"><value>Shortcut code</value></data>
+  <data name="Spec_IconFileId" xml:space="preserve"><value>Icon file</value></data>
+  <data name="Spec_IconFileDescription" xml:space="preserve"><value>Icon description</value></data>
+  <data name="Spec_ActionType" xml:space="preserve"><value>Action type (draft)</value></data>
+  <data name="Spec_ActionValue" xml:space="preserve"><value>Action value (draft)</value></data>
+  <data name="Spec_PictureId" xml:space="preserve"><value>Picture</value></data>
+  <data name="Spec_PictureDescription" xml:space="preserve"><value>Picture description</value></data>
+</root>

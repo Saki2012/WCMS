@@ -6,6 +6,7 @@ import { Server_SpecJournalIndex_Form_Comp } from "@/SpecFetures/1819/Pages/Serv
 import { Server_SpecJournalIndex_List_Comp } from "@/SpecFetures/1819/Pages/Server/BizFunc/WEB/SpecJournalIndex/Server_SpecJournalIndex_List_Comp";
 import { PGID } from "@/types/SchemaFields";
 
+// #region Private
 const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] =>
 {
     const web = modules.find((m) => m.ModuleCode === "WebManagement");
@@ -76,4 +77,6 @@ const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] =>
     return modules;
 };
 
+
 export default extendServerModuleRoutes;
+// #endregion

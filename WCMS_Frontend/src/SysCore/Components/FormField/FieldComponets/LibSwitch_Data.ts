@@ -1,3 +1,4 @@
+// #region Property
 export interface ILibSwitchStyle
 {
     Labelstyle: string;
@@ -5,11 +6,13 @@ export interface ILibSwitchStyle
     OptionsStyle: string;
 }
 
+
 export interface ILibSwitchItemProp
 {
     itemId: string; // 對應欄位值
     itemDisplayName: string; // 顯示用名稱
 }
+
 
 export interface ILibSwitchProp
 {
@@ -20,3 +23,4 @@ export interface ILibSwitchProp
     value?: string[]; // 當前選中的 value 陣列（通常是 string[]）
     onChange?: (val: string[]) => void; // 勾選變更時的 callback
 }
+// #endregion

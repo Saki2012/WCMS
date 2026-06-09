@@ -2,6 +2,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import "./Toolbar.css";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 
+// #region Public
 export const Toolbar_Comp = (props: { lang: Lang; }) =>
 {
     const shareTitle = props.lang === "zh-tw" ? "分享" : "Share";
@@ -35,3 +36,4 @@ export const Toolbar_Comp = (props: { lang: Lang; }) =>
         </>
     );
 };
+// #endregion

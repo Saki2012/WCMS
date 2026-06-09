@@ -1,8 +1,10 @@
 // src/hooks/useToastCenter.ts
-
 import type { MessageStatusCode } from "@/SysCore/Utils/API/APIBase";
-import * as React from "react";
+import { useCallback, useSyncExternalStore } from "react";
 
+/** Toast目前都是後台再用 */
+
+// #region Property
 /** 類型：錯誤 / 警告 / 提示 */
 // export type ToastLevel = "error" | "warning" | "info" | "success";
 
@@ -49,8 +51,32 @@ type Store = {
 };
 
 const listeners = new Set<() => void>();
+
 let state: ToastMessage[] = [];
 
+// #endregion
+
+// #region Public
+/** 供 Node 使用：讀取目前所有訊息 */
+export const useToastState = (): ToastMessage[] =>
+{
+    // 第三個參數為 SSR 快照，和 CSR 相同即可
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot);
+};
+
+/** 供任何元件送出／關閉提示 */
+export const useToast = () =>
+{
+    const publish = useCallback(store.publish, []);
+    const dismiss = useCallback(store.dismiss, []);
+    const clear = useCallback(store.clear, []);
+    const replaceLatest = useCallback(store.replaceLatest, []);
+    return { publish, dismiss, clear, replaceLatest };
+};
+// #endregion
+
+// #region Private
 const notifyAll = () => listeners.forEach(l => l());
 
 const genId = () => crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2);
@@ -126,21 +152,4 @@ const clear: Store["clear"] = () =>
 };
 
 const store: Store = { getSnapshot, subscribe, publish, dismiss, clear, replaceLatest };
-
-/** 供 Node 使用：讀取目前所有訊息 */
-export const useToastState = (): ToastMessage[] =>
-{
-    // 第三個參數為 SSR 快照，和 CSR 相同即可
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    return React.useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot);
-};
-
-/** 供任何元件送出／關閉提示 */
-export const useToast = () =>
-{
-    const publish = React.useCallback(store.publish, []);
-    const dismiss = React.useCallback(store.dismiss, []);
-    const clear = React.useCallback(store.clear, []);
-    const replaceLatest = React.useCallback(store.replaceLatest, []);
-    return { publish, dismiss, clear, replaceLatest };
-};
+// #endregion

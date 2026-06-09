@@ -4,6 +4,32 @@ import { FieldControlShell } from "../AAInputField_Shell";
 import { applyAAFocusStyle, clearAAFocusStyle } from "../AAInputField_Focus";
 import { buildControlClass, getAriaInvalid, getAriaRequired, getNativeRequired, normalizeTextValue, stringifyValue } from "../AAInputField_Utils";
 
+// #region Public
+/** text 欄位。 */
+export const TextField = (props: { field: AAInputField; context: FieldRenderContext; }) => <BaseTextInputField field={props.field} context={props.context} inputType="text" />;
+
+
+/** email 欄位。 */
+export const EmailField = (props: { field: AAInputField; context: FieldRenderContext; }) => <BaseTextInputField field={props.field} context={props.context} inputType="email" />;
+
+
+/** tel 欄位。 */
+export const TelField = (props: { field: AAInputField; context: FieldRenderContext; }) => <BaseTextInputField field={props.field} context={props.context} inputType="tel" />;
+
+
+/** date 欄位。 */
+export const DateField = (props: { field: AAInputField; context: FieldRenderContext; }) => <BaseTextInputField field={props.field} context={props.context} inputType="date" />;
+
+
+/** date-time 欄位，實際 HTML input type 使用 datetime-local。 */
+export const DateTimeField = (props: { field: AAInputField; context: FieldRenderContext; }) => <BaseTextInputField field={props.field} context={props.context} inputType="datetime-local" />;
+
+
+/** readonly 欄位。 */
+export const ReadonlyField = (props: { field: AAInputField; context: FieldRenderContext; }) => <BaseTextInputField field={{ ...props.field, readOnly: true }} context={props.context} inputType="text" />;
+// #endregion
+
+// #region Private
 /**
  * 使用範例：
  * <AAInputFieldList fields={[{ key: "text", type: "text", label: "文字", aaLabel: "請輸入文字內容", value: state.text }]} onChange={handleChange} />
@@ -44,21 +70,4 @@ const BaseTextInputField = (props: { field: AAInputField; context: FieldRenderCo
         </FieldControlShell>
     );
 };
-
-/** text 欄位。 */
-export const TextField = (props: { field: AAInputField; context: FieldRenderContext; }) => <BaseTextInputField field={props.field} context={props.context} inputType="text" />;
-
-/** email 欄位。 */
-export const EmailField = (props: { field: AAInputField; context: FieldRenderContext; }) => <BaseTextInputField field={props.field} context={props.context} inputType="email" />;
-
-/** tel 欄位。 */
-export const TelField = (props: { field: AAInputField; context: FieldRenderContext; }) => <BaseTextInputField field={props.field} context={props.context} inputType="tel" />;
-
-/** date 欄位。 */
-export const DateField = (props: { field: AAInputField; context: FieldRenderContext; }) => <BaseTextInputField field={props.field} context={props.context} inputType="date" />;
-
-/** date-time 欄位，實際 HTML input type 使用 datetime-local。 */
-export const DateTimeField = (props: { field: AAInputField; context: FieldRenderContext; }) => <BaseTextInputField field={props.field} context={props.context} inputType="datetime-local" />;
-
-/** readonly 欄位。 */
-export const ReadonlyField = (props: { field: AAInputField; context: FieldRenderContext; }) => <BaseTextInputField field={{ ...props.field, readOnly: true }} context={props.context} inputType="text" />;
+// #endregion

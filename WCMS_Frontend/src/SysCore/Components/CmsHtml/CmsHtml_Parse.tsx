@@ -4,11 +4,16 @@ import { parseDocument } from "htmlparser2";
 import { type AnchorHTMLAttributes, createElement, type CSSProperties, Fragment, type ReactElement, type ReactNode } from "react";
 import type { CmsHtmlParseOptions } from "./CmsHtml_Types";
 
+// #region Property
 const NATIVE_SCHEMES = /^(mailto|tel|sms|fax|blob):/i;
 
+
 const VOID_ELEMENT_NAMES = new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"]);
+
 const BLOCKED_ELEMENT_NAMES = new Set(["script", "style"]);
+
 const BLOCKED_ATTRIBUTE_NAMES = new Set(["srcdoc"]);
+
 
 const BOOLEAN_ATTRIBUTE_NAMES = new Set([
     "allowfullscreen",
@@ -34,6 +39,7 @@ const BOOLEAN_ATTRIBUTE_NAMES = new Set([
     "reversed",
     "selected",
 ]);
+
 
 const REACT_PROP_NAME_MAP: Record<string, string> = {
     class: "className",
@@ -61,9 +67,13 @@ const REACT_PROP_NAME_MAP: Record<string, string> = {
     httpEquiv: "httpEquiv",
 };
 
-type HtmlPropValue = string | boolean | CSSProperties;
-type HtmlProps = Record<string, HtmlPropValue | undefined> & { key?: string; };
 
+type HtmlPropValue = string | boolean | CSSProperties;
+
+type HtmlProps = Record<string, HtmlPropValue | undefined> & { key?: string; };
+// #endregion
+
+// #region Public
 /** 將已正規化的 CMS HTML 解析成 ReactNode，避免 html-react-parser 在 CSR 觸發 Trusted Types innerHTML 錯誤。 */
 export const parseCmsHtml = (html: string, options: CmsHtmlParseOptions): ReactNode =>
 {
@@ -77,12 +87,15 @@ export const parseCmsHtml = (html: string, options: CmsHtmlParseOptions): ReactN
 
     return createElement(Fragment, null, ...children);
 };
+// #endregion
 
+// #region EntityComp
 /** 批次轉換 DOM nodes。 */
 const renderNodes = (nodes: ChildNode[], options: CmsHtmlParseOptions): ReactNode[] =>
 {
     return nodes.map((node, index) => renderNode(node, `${index}`, options)).filter((node): node is ReactNode => node !== null);
 };
+
 
 /** 轉換單一 DOM node。 */
 const renderNode = (node: ChildNode, key: string, options: CmsHtmlParseOptions): ReactNode | null =>
@@ -97,6 +110,7 @@ const renderNode = (node: ChildNode, key: string, options: CmsHtmlParseOptions):
     return renderNativeElement(node, key, options);
 };
 
+
 /** 渲染一般 HTML element。 */
 const renderNativeElement = (node: Element, key: string, options: CmsHtmlParseOptions): ReactElement =>
 {
@@ -108,6 +122,7 @@ const renderNativeElement = (node: Element, key: string, options: CmsHtmlParseOp
     const children = renderNodes(node.children ?? [], options);
     return createElement(tagName, props, ...children);
 };
+
 
 /** 渲染 a，讓可 SPA 化的內站連結走 LangLink。 */
 const renderAnchor = (node: Element, key: string, options: CmsHtmlParseOptions): ReactElement =>
@@ -124,6 +139,7 @@ const renderAnchor = (node: Element, key: string, options: CmsHtmlParseOptions):
     const { href: _href, ...linkProps } = props;
     return <LangLink {...linkProps} to={href} lang={options.lang}>{children}</LangLink>;
 };
+
 
 /** 將 HTML attributes 轉成 React props。 */
 const buildReactProps = (attribs: Record<string, string>, key: string): HtmlProps =>
@@ -147,7 +163,9 @@ const buildReactProps = (attribs: Record<string, string>, key: string): HtmlProp
 
     return props;
 };
+// #endregion
 
+// #region Private
 /** 轉換 React prop 名稱。 */
 const toReactPropName = (lowerName: string): string =>
 {
@@ -155,6 +173,7 @@ const toReactPropName = (lowerName: string): string =>
     if (lowerName.startsWith("data-")) return lowerName;
     return REACT_PROP_NAME_MAP[lowerName] ?? lowerName;
 };
+
 
 /** 轉換 React prop 值。 */
 const toReactPropValue = (lowerName: string, value: string): HtmlPropValue | undefined =>
@@ -167,6 +186,7 @@ const toReactPropValue = (lowerName: string, value: string): HtmlPropValue | und
 
     return text;
 };
+
 
 /** 將 style 字串轉為 React CSSProperties。 */
 const parseStyleAttribute = (styleText: string): CSSProperties =>
@@ -190,11 +210,13 @@ const parseStyleAttribute = (styleText: string): CSSProperties =>
     return result as CSSProperties;
 };
 
+
 /** 將 CSS kebab-case 轉 camelCase。 */
 const toCamelCase = (value: string): string =>
 {
     return value.replace(/-([a-z])/g, (_, char: string) => char.toUpperCase());
 };
+
 
 /** 判斷 a 是否必須保留原生瀏覽器行為。 */
 const shouldKeepNativeAnchor = (href: string, props: AnchorHTMLAttributes<HTMLAnchorElement>): boolean =>
@@ -212,14 +234,17 @@ const shouldKeepNativeAnchor = (href: string, props: AnchorHTMLAttributes<HTMLAn
     return false;
 };
 
+
 /** 判斷是否為文字節點。 */
 const isTextNode = (node: ChildNode) =>
 {
     return node.type === "text";
 };
 
+
 /** 判斷是否為 HTML element。 */
 const isElementNode = (node: ChildNode): node is Element =>
 {
     return "name" in node && typeof node.name === "string";
 };
+// #endregion

@@ -4,9 +4,12 @@ import { type PublishJournalReq, SpecJournalAdapter } from "@/SpecFetures/1819/H
 import { type ApiResponse, MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+// #region Property
 type SpecJournalAdapterType = ReturnType<typeof SpecJournalAdapter>;
 
+
 export type SpecJournalDialogActionType = "publish" | "revert";
+
 
 export interface ISpecJournalDialogConfirmPayload
 {
@@ -14,6 +17,7 @@ export interface ISpecJournalDialogConfirmPayload
     journalIndexId: string | null;
     journalIndexRowId: number | null;
 }
+
 
 export interface IServerSpecJournalDialogCompProps
 {
@@ -29,7 +33,9 @@ export interface IServerSpecJournalDialogCompProps
     onClose: () => void;
     onConfirm?: (payload: ISpecJournalDialogConfirmPayload) => void;
 }
+// #endregion
 
+// #region Public
 /** SpecJournal 共用 Dialog：發布 / 退回 */
 export const Server_SpecJournal_Dialog_Comp = (props: IServerSpecJournalDialogCompProps) =>
 {
@@ -154,87 +160,9 @@ export const Server_SpecJournal_Dialog_Comp = (props: IServerSpecJournalDialogCo
         </>
     );
 };
+// #endregion
 
-/** 執行發布期刊 API */
-const executePublishAsync = async (
-    execute: (dto: PublishJournalReq) => Promise<ApiResponse<object>>,
-    internalId: string,
-    journalIndexId: string | null,
-    journalIndexRowId: number | null,
-): Promise<ApiResponse<object>> =>
-{
-    const req: PublishJournalReq = { InternalId: internalId, JournalIndexId: journalIndexId, JournalIndexRowId: journalIndexRowId };
-    return await execute(req);
-};
-
-/** Dialog 標題 */
-const useDialogTitle = (actionType: SpecJournalDialogActionType): string =>
-{
-    return useMemo(() =>
-    {
-        return actionType === "publish" ? "發布期刊" : "退回預刊";
-    }, [actionType]);
-};
-
-/** Dialog 確認按鈕文字 */
-const useDialogConfirmText = (actionType: SpecJournalDialogActionType): string =>
-{
-    return useMemo(() =>
-    {
-        return actionType === "publish" ? "確定出刊" : "確定退回";
-    }, [actionType]);
-};
-
-/** 依期刊目次取得卷期 options */
-const useRowOptions = (indexRowOptionsByIndexId: Record<string, Map<string, string>>, journalIndexId: string): Map<string, string> =>
-{
-    return useMemo(() =>
-    {
-        return indexRowOptionsByIndexId[journalIndexId] ?? new Map<string, string>();
-    }, [indexRowOptionsByIndexId, journalIndexId]);
-};
-
-/** Dialog 開啟時同步預設值 */
-const useSyncDialogState = (
-    open: boolean,
-    initialIndexId: string | null | undefined,
-    initialIndexRowId: number | null,
-    setJournalIndexId: (value: string) => void,
-    setJournalIndexRowId: (value: number | null) => void,
-): void =>
-{
-    useEffect(() =>
-    {
-        if (!open) return;
-        setJournalIndexId(String(initialIndexId ?? ""));
-        setJournalIndexRowId(initialIndexRowId);
-    }, [open, initialIndexId, initialIndexRowId, setJournalIndexId, setJournalIndexRowId]);
-};
-
-/** Header */
-const DialogHeader = (props: { title: string; onClose: () => void; }) =>
-{
-    return (
-        <div className="modal-header">
-            <h5 id="spec-journal-dialog-title" className="modal-title">{props.title}</h5>
-            <button type="button" className="btn-close" aria-label="關閉視窗" onClick={props.onClose} />
-        </div>
-    );
-};
-
-/** Footer */
-const DialogFooter = (props: { confirmText: string; disabled?: boolean; onClose: () => void; onConfirm: () => void; }) =>
-{
-    return (
-        <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" onClick={props.onClose} aria-label="取消返回" disabled={props.disabled}>取消返回</button>
-            <button type="button" className="btn btn-primary" onClick={props.onConfirm} aria-label={props.confirmText} disabled={props.disabled}>
-                {props.confirmText}
-            </button>
-        </div>
-    );
-};
-
+// #region Section
 /** 退回預刊 body */
 const RevertDialogBodyComp = () =>
 {
@@ -244,6 +172,7 @@ const RevertDialogBodyComp = () =>
         </div>
     );
 };
+
 
 /** 發布期刊 body */
 const PublishDialogBodyComp = (
@@ -291,12 +220,102 @@ const PublishDialogBodyComp = (
         </div>
     );
 };
+// #endregion
+
+// #region Private
+/** 執行發布期刊 API */
+const executePublishAsync = async (
+    execute: (dto: PublishJournalReq) => Promise<ApiResponse<object>>,
+    internalId: string,
+    journalIndexId: string | null,
+    journalIndexRowId: number | null,
+): Promise<ApiResponse<object>> =>
+{
+    const req: PublishJournalReq = { InternalId: internalId, JournalIndexId: journalIndexId, JournalIndexRowId: journalIndexRowId };
+    return await execute(req);
+};
+
+
+/** Dialog 標題 */
+const useDialogTitle = (actionType: SpecJournalDialogActionType): string =>
+{
+    return useMemo(() =>
+    {
+        return actionType === "publish" ? "發布期刊" : "退回預刊";
+    }, [actionType]);
+};
+
+
+/** Dialog 確認按鈕文字 */
+const useDialogConfirmText = (actionType: SpecJournalDialogActionType): string =>
+{
+    return useMemo(() =>
+    {
+        return actionType === "publish" ? "確定出刊" : "確定退回";
+    }, [actionType]);
+};
+
+
+/** 依期刊目次取得卷期 options */
+const useRowOptions = (indexRowOptionsByIndexId: Record<string, Map<string, string>>, journalIndexId: string): Map<string, string> =>
+{
+    return useMemo(() =>
+    {
+        return indexRowOptionsByIndexId[journalIndexId] ?? new Map<string, string>();
+    }, [indexRowOptionsByIndexId, journalIndexId]);
+};
+
+
+/** Dialog 開啟時同步預設值 */
+const useSyncDialogState = (
+    open: boolean,
+    initialIndexId: string | null | undefined,
+    initialIndexRowId: number | null,
+    setJournalIndexId: (value: string) => void,
+    setJournalIndexRowId: (value: number | null) => void,
+): void =>
+{
+    useEffect(() =>
+    {
+        if (!open) return;
+        setJournalIndexId(String(initialIndexId ?? ""));
+        setJournalIndexRowId(initialIndexRowId);
+    }, [open, initialIndexId, initialIndexRowId, setJournalIndexId, setJournalIndexRowId]);
+};
+
+
+/** Header */
+const DialogHeader = (props: { title: string; onClose: () => void; }) =>
+{
+    return (
+        <div className="modal-header">
+            <h5 id="spec-journal-dialog-title" className="modal-title">{props.title}</h5>
+            <button type="button" className="btn-close" aria-label="關閉視窗" onClick={props.onClose} />
+        </div>
+    );
+};
+
+
+/** Footer */
+const DialogFooter = (props: { confirmText: string; disabled?: boolean; onClose: () => void; onConfirm: () => void; }) =>
+{
+    return (
+        <div className="modal-footer">
+            <button type="button" className="btn btn-secondary" onClick={props.onClose} aria-label="取消返回" disabled={props.disabled}>取消返回</button>
+            <button type="button" className="btn btn-primary" onClick={props.onConfirm} aria-label={props.confirmText} disabled={props.disabled}>
+                {props.confirmText}
+            </button>
+        </div>
+    );
+};
+
 
 /** 空字串轉 null */
 const toNullable = (value: string): string | null =>
 {
     return value.trim() ? value : null;
 };
+
 
 const toNullableNumber = (value: string): number | null =>
 {
@@ -305,3 +324,4 @@ const toNullableNumber = (value: string): number | null =>
     const num = Number(raw);
     return Number.isNaN(num) ? null : num;
 };
+// #endregion
