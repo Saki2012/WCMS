@@ -83,6 +83,23 @@ const startClientEntry = async (): Promise<void> =>
 };
 // #endregion
 
+// #region EntityComp
+/** Bootstrap 元件集中包裝 Provider，避免入口檔混入畫面邏輯。 */
+const ClientBootstrap: FC<{ router: ClientRouter; }> = ({ router }) =>
+{
+    const siteHeaderMeta = getSiteHeaderMeta();
+
+    return (
+        <MessageProvider>
+            <HelmetProvider>
+                <HeaderMetaComp title={siteHeaderMeta.title} description={siteHeaderMeta.description} />
+                <RouterProvider router={router} />
+            </HelmetProvider>
+        </MessageProvider>
+    );
+};
+// #endregion
+
 // #region Protected
 /** 初始化前端執行環境與必要資源。 */
 const initClientRuntime = (): void =>
@@ -121,23 +138,6 @@ const subscribeRouterLog = (router: ClientRouter): void =>
     {
         log("router subscribe", { location: state.location.pathname, navigation: state.navigation.state, revalidation: state.revalidation });
     });
-};
-// #endregion
-
-// #region EntityComp
-/** Bootstrap 元件集中包裝 Provider，避免入口檔混入畫面邏輯。 */
-const ClientBootstrap: FC<{ router: ClientRouter; }> = ({ router }) =>
-{
-    const siteHeaderMeta = getSiteHeaderMeta();
-
-    return (
-        <MessageProvider>
-            <HelmetProvider>
-                <HeaderMetaComp title={siteHeaderMeta.title} description={siteHeaderMeta.description} />
-                <RouterProvider router={router} />
-            </HelmetProvider>
-        </MessageProvider>
-    );
 };
 // #endregion
 

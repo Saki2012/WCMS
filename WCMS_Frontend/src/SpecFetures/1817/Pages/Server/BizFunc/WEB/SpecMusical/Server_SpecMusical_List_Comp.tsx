@@ -15,11 +15,6 @@ import {
 
 // #region Property
 const coverImageStyle = { width: "80px", height: "80px", objectFit: "cover" } as const;
-
-
-const specMusicalListRenderers: SpecMusicalListRenderers = {
-    renderCoverContent: renderSpecMusicalCoverContent,
-};
 // #endregion
 
 // #region Public
@@ -28,13 +23,13 @@ export const Server_SpecMusical_List_Comp = (prop: { title: string; theme: IBETh
 {
     const template = useSpecMusicalListGridTemplate({ lang: prop.lang, renderers: specMusicalListRenderers });
 
-    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} renderSearchBar={renderSpecMusicalSearchBar} />;
+    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} buildSearchBarNode={SpecMusicalSearchBarSection} />;
 };
 // #endregion
 
-// #region EntityComp
+// #region Section
 /** 渲染樂器列表搜尋列 */
-const renderSpecMusicalSearchBar = (props: ServerListGridSearchRenderProps): ReactNode =>
+const SpecMusicalSearchBarSection = (props: ServerListGridSearchRenderProps) =>
 {
     return (
         <Server_SearchBar_Comp
@@ -46,15 +41,23 @@ const renderSpecMusicalSearchBar = (props: ServerListGridSearchRenderProps): Rea
         />
     );
 };
+// #endregion
 
-
+// #region Protected
 /** 渲染樂器封面圖 */
-const renderSpecMusicalCoverContent = (set: SpecMusicalSet): ReactNode =>
+const buildSpecMusicalCoverContentNode = (set: SpecMusicalSet): ReactNode =>
 {
     const fileId = set.SpecMusical?.CoverPicId;
     if (!fileId) return "";
 
     const musicalName = set.SpecMusical?.MusicalName ?? "樂器";
     return <img src={FileManagementAPI.get_Server_Preview_Url(fileId)} style={coverImageStyle} alt={`${musicalName}封面圖`} />;
+};
+// #endregion
+
+// #region Private
+/** 建立列表自定義欄位節點產生器 */
+const specMusicalListRenderers: SpecMusicalListRenderers = {
+    buildCoverContentNode: buildSpecMusicalCoverContentNode,
 };
 // #endregion

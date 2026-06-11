@@ -2,7 +2,7 @@ import type { IGalleryListProps } from "@/Features/Pages/Client/BizFunc/WEB/Gall
 import { useGalleryListData } from "@/Features/Pages/Client/BizFunc/WEB/Gallery/Client_Gallery_List_Loader";
 import { Client_SearchBar_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/SearchBar/Client_SearchBar_Comp";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
+import { LoadingErrorHandler } from "@/SysCore/Components/LoadingErrorHandler";
 import { NewPaginatorCanInputPage } from "@/SysCore/Components/Paginator/Paginator_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
@@ -43,7 +43,7 @@ export interface GridViewContentProps
 // #endregion
 
 // #region Section
-const GalleryListComp = (props: IGalleryListProps) =>
+export const GalleryListComp = (props: IGalleryListProps) =>
 {
     // 讀取 feature 收斂後的資料入口
     const galleryData = useGalleryListData({ lang: props.lang, opts: props.options });
@@ -101,9 +101,6 @@ const useGalleryPageProps = (p: { currentPage: number; totalPages: number; onPag
         return { CurrentPage: p.currentPage, TotalPage: p.totalPages, onPageChange: p.onPageChange };
     }, [p.currentPage, p.totalPages, p.onPageChange]);
 };
-
-export default GalleryListComp;
-
 const MainContent = ({ props, gridProps, theme }: { props: MainGridContentProp[]; gridProps: GalleryPageProps; theme: IFETheme; }) =>
 {
     const dirUrl = useLocation().pathname.replace(/\/List$/, ``);

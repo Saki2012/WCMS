@@ -11,7 +11,7 @@ interface ILibPwdTextBoxProp extends ILibTextBoxProp
 // #endregion
 
 // #region Private
-const LibPwdTextBox = (prop: ILibPwdTextBoxProp) =>
+export const LibPwdTextBox = (prop: ILibPwdTextBoxProp) =>
 {
     // 控制顯示/隱藏密碼
     const [showPwd, setShowPwd] = useState(false);
@@ -89,7 +89,4 @@ const LibPwdTextBox = (prop: ILibPwdTextBoxProp) =>
         </>
     );
 };
-
-
-export default LibPwdTextBox;
 // #endregion

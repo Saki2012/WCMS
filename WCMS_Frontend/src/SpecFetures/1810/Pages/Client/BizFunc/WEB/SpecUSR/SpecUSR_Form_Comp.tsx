@@ -1,7 +1,7 @@
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-import SpecUSR_Gallery_Comp, { type ISpecUSRPhoto } from "@/SpecFetures/1810/Pages/Client/BizFunc/WEB/SpecUSR/SpecUSR_Gallery_Comp";
+import { SpecUSR_Gallery_Comp, type ISpecUSRPhoto } from "@/SpecFetures/1810/Pages/Client/BizFunc/WEB/SpecUSR/SpecUSR_Gallery_Comp";
 import type { ColumnConfig } from "@/SysCore/Components/Grid/Grid_Data";
-import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
+import { LoadingErrorHandler } from "@/SysCore/Components/LoadingErrorHandler";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";

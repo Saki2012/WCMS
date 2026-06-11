@@ -8,6 +8,7 @@ import { useTinyMceIframeEdit } from "./Iframe/tinyMceIframeFeature";
 import { useTinyMceInternalImage } from "./Image/tinyMceImageFeature";
 import { useTinyMCE } from "./TinyMCE_Hook";
 
+// #region Public
 type Props = {
     args: {
         id: string;
@@ -28,11 +29,14 @@ type Props = {
 type TinyMceScriptState = "loading" | "ready" | "error";
 type TinyMceWindow = Window & { tinymce?: object; };
 type TinyMceReactInit = NonNullable<IAllProps["init"]>;
-type WcmsTinyMceInit = TinyMceReactInit & {
+
+type WcmsTinyMceInit = Record<string, unknown> & {
     content_style?: string;
     contextmenu?: string;
     extended_valid_elements?: string;
     setup?: (editor: TinyMCEEditor) => void;
+    license_key?: string;
+    tinymceScriptSrc?: string;
 };
 type WcmsTinyMceEditor = TinyMCEEditor & { _wcmsComposing?: boolean; };
 
@@ -139,7 +143,7 @@ const buildTinyMceLanguageUrl = (langCode: string): string =>
     return `/tinymce-i18n/langs5/${langCode}.js`;
 };
 
-const TinyMCE_Comp = ({ args }: Props) =>
+export const TinyMCE_Comp = ({ args }: Props) =>
 {
     const baseUrl = args.baseUrl ?? "/tinymce";
     const tinymceScriptSrc = `${baseUrl}/tinymce.min.js`;
@@ -175,8 +179,14 @@ const TinyMCE_Comp = ({ args }: Props) =>
     const init = useMemo(() =>
     {
         const existingInit = tiny.init as WcmsTinyMceInit;
-        const originalSetup = existingInit?.setup;
-        const mergedContentStyle = `${existingInit?.content_style ? `${existingInit.content_style}\n` : ""}
+        const {
+            license_key: _licenseKey,
+            tinymceScriptSrc: _tinymceScriptSrc,
+            ...safeInit
+        } = existingInit;
+
+        const originalSetup = safeInit.setup;
+        const mergedContentStyle = `${safeInit.content_style ? `${safeInit.content_style}\n` : ""}
    /* 讓 iFrame 在編輯器內可被右鍵/雙擊（事件回到 TinyMCE） */
    iframe {
      pointer-events: none;     /* 右鍵/點擊不進入內嵌頁面 */
@@ -184,12 +194,12 @@ const TinyMCE_Comp = ({ args }: Props) =>
      max-width: 100%;
    }
    `;
-        const mergedContextMenu = `${existingInit?.contextmenu ? `${existingInit.contextmenu} ` : ""}wcms-iframe-menu`;
+        const mergedContextMenu = `${safeInit.contextmenu ? `${safeInit.contextmenu} ` : ""}wcms-iframe-menu`;
         return {
-            ...existingInit,
+            ...safeInit,
             content_style: mergedContentStyle,
             extended_valid_elements: [
-                existingInit?.extended_valid_elements || "",
+                safeInit?.extended_valid_elements || "",
                 // ⬇️ 多了 sandbox
                 "iframe[src|title|width|height|style|allow|loading|referrerpolicy|frameborder|allowfullscreen]",
             ].filter(Boolean).join(","),
@@ -236,7 +246,7 @@ const TinyMCE_Comp = ({ args }: Props) =>
                 editor.on("Blur", pushUpstream);
                 editor.on("wcms-iframe-updated", pushUpstream);
             },
-        } as const;
+        } as TinyMceReactInit;
     }, [tiny.init, image, iframe]);
 
     if (scriptState === "error")
@@ -251,12 +261,11 @@ const TinyMCE_Comp = ({ args }: Props) =>
 
     return (
         <>
-            <Editor id={args.id} tinymceScriptSrc={tinymceScriptSrc} value={tiny.value} onEditorChange={tiny.onChange} init={init} />
+            <Editor id={args.id} tinymceScriptSrc={tinymceScriptSrc} licenseKey="gpl" value={tiny.value} onEditorChange={tiny.onChange} init={init} />
             <p style={{ color: "rgba(0,0,0,.3)", textAlign: "right", marginTop: 8, pointerEvents: "none", userSelect: "none", fontSize: 12 }}>
                 本網站內容編輯器採用 TinyMCE 開源版 (MIT)
             </p>
         </>
     );
 };
-
-export default TinyMCE_Comp;
+// #endregion

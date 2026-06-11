@@ -1,24 +1,24 @@
 import { CategoryAdapter } from "@/Features/Hooks/BizFunc/COMM/Category_Api";
 import { TagAdapter } from "@/Features/Hooks/BizFunc/COMM/Tag_Api";
 import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WEB/Announcement_Api";
+import {
+    buildClientCategoryTextDict as buildCategoryDict,
+    buildClientListInitial as toListInitial,
+    buildClientTagTextDict as buildTagDict,
+} from "@/Features/Pages/Client/Index/HomePage_Helper";
 import img from "@/SpecFetures/1817/Assets/Client/images/line_title.svg";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
+import { findTextByKey } from "@/SysCore/Utils/Library/LibData";
+import { formatDateParts as formatDate } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { useMemo } from "react";
 
-import { findTextByKey } from "@/SysCore/Utils/Library/LibData";
-
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
-
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
-
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"];
-
 type TagSet = components["schemas"]["TagSet_DTO"];
-
-
 interface NewsDataProps
 {
     lang: Lang;
@@ -29,8 +29,6 @@ interface NewsDataProps
     initialCategories: CategoryDataSet[];
     initialTags: TagSet[];
 }
-
-
 interface NewsItemViewModel
 {
     redir: string;
@@ -46,8 +44,6 @@ interface NewsItemViewModel
     contentStatus: number;
     internalId: string;
 }
-
-
 const DAY_MS = 24 * 60 * 60 * 1000;
 // #endregion
 
@@ -128,70 +124,18 @@ export const NewsData = (props: NewsDataProps) =>
 };
 // #endregion
 
-// #region EntityComp
-const buildCategoryDict = (rows: CategoryDataSet[], lang: Lang): Record<string, string> =>
-{
-    // return：分類 id -> 名稱
-    return rows.reduce<Record<string, string>>((acc, row) =>
-    {
-        const id = row.Category?.CategoryId;
-        if (!id) return acc;
-
-        const name = findTextByKey(row.CategoryDetail, (item) => item?.Lang, lang, (item) => item?.CategoryName);
-
-        acc[String(id)] = name;
-        return acc;
-    }, {});
-};
-
-
-const buildTagDict = (rows: TagSet[], lang: Lang): Record<string, string> =>
-{
-    // return：標籤 id -> 名稱
-    return rows.reduce<Record<string, string>>((acc, row) =>
-    {
-        const id = row.TagData?.TagId;
-        if (!id) return acc;
-
-        const name = findTextByKey(row.TagDetail, (item) => item?.Lang, lang, (item) => item?.TagName);
-
-        acc[String(id)] = name;
-        return acc;
-    }, {});
-};
-// #endregion
-
 // #region Private
-const toListInitial = <TArgs, TItem>(args: TArgs, data: TItem[]) =>
-{
-    // return：符合 adapter hook 的 initial 結構
-    return { args, apiRes: { IsSuccess: true, Data: data, SysMessage: [] } };
-};
-
-
-const formatDate = (dateStr: string) =>
-{
-    // 宣告變數：日期
-    const date = new Date(dateStr);
-
-    // return：首頁列表顯示格式
-    return { day: date.getDate().toString().padStart(2, "0"), month: (date.getMonth() + 1).toString().padStart(2, "0"), year: date.getFullYear().toString() };
-};
-
-
 const splitCsvIds = (value: string | null | undefined): string[] =>
 {
     // return：把 csv id 字串拆成陣列
     return (value ?? "").split(",").map((item) => item.trim()).filter(Boolean);
 };
 
-
 const joinDisplayNames = (ids: string[], dict: Record<string, string>): string =>
 {
     // return：依字典把 id 轉成顯示名稱
     return ids.map((id) => dict[id] ?? "").filter(Boolean).join(", ");
 };
-
 
 const getNewsDataProps = (
     newsData: AnnouncementSet[],
@@ -229,7 +173,6 @@ const getNewsDataProps = (
     });
 };
 
-
 const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: number = 8): boolean =>
 {
     // 宣告變數：缺值直接不是最新
@@ -252,7 +195,6 @@ const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: numb
     return diffDays >= 0 && diffDays <= n;
 };
 
-
 const useNewsList = (props: { listParam: QueryListParam; initialList: AnnouncementSet[]; }) =>
 {
     // 宣告變數：adapter / initial
@@ -269,7 +211,6 @@ const useNewsList = (props: { listParam: QueryListParam; initialList: Announceme
         deps: [props.listParam.Condition ?? "", props.listParam.PageNumber ?? 0, props.listParam.PageSize ?? 0],
     });
 };
-
 
 const useCategoryTagDict = (
     props: { lang: Lang; cateParam: QueryListParam; tagParam: QueryListParam; initialCategories: CategoryDataSet[]; initialTags: TagSet[]; },
@@ -308,7 +249,6 @@ const useCategoryTagDict = (
     // return：畫面對照字典
     return { categoryDict, tagDict };
 };
-
 
 const GetData = (props: { data: NewsItemViewModel[]; lang: Lang; }) =>
 {

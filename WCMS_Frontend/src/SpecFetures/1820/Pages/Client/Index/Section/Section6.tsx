@@ -9,11 +9,13 @@ type Resources = components["schemas"]["SpecHomePage1820_Resource_DTO"];
 // #endregion
 
 // #region Public
+/** 1820 首頁資源區塊 */
 export const Section6 = (props: { header: HomePageModel; data: Resources[]; }) =>
 {
     const header = props.header;
     const data = props.data;
     if (data.length === 0) return null;
+
     return (
         <section className="Resources_section Layout_Padding_1 bg-custom">
             <div className="Mask-DivBox">
@@ -28,7 +30,7 @@ export const Section6 = (props: { header: HomePageModel; data: Resources[]; }) =
                             </div>
                             <div className="col-12">
                                 <div className="DivBox_style">
-                                    <div className="Expand-wrapper">{data.map(renderCard)}</div>
+                                    <div className="Expand-wrapper">{data.map((item) => <ResourceCard key={`${item.HomePageId}_${item.RowId}`} item={item} />)}</div>
                                 </div>
                             </div>
                         </div>
@@ -41,31 +43,21 @@ export const Section6 = (props: { header: HomePageModel; data: Resources[]; }) =
 // #endregion
 
 // #region EntityComp
-/** 渲染單一卡片 */
-const renderCard = (item: Resources) =>
+/** 資源卡片 */
+const ResourceCard = (props: { item: Resources; }) =>
 {
     return (
-        <div
-            className="Expand-card"
-            style={{ backgroundImage: `url('${FileManagementAPI.get_Public_Preview_Url(item.PicFileId)}')` }}
-            key={`${item.HomePageId}_${item.RowId}`}
-        >
+        <div className="Expand-card" style={{ backgroundImage: `url('${FileManagementAPI.get_Public_Preview_Url(props.item.PicFileId)}')` }}>
             <div className="overlay"></div>
 
             <div className="Expand-content text-center text-white">
-                <div className="Expand-title-tw font-wt-xxl">{item.PicTitle}</div>
-                <div className="Expand-title-en font-wt-xxl">{item.PicSubTitle}</div>
+                <div className="Expand-title-tw font-wt-xxl">{props.item.PicTitle}</div>
+                <div className="Expand-title-en font-wt-xxl">{props.item.PicSubTitle}</div>
             </div>
 
             <div className="special__box">
                 <div className="Rmore-link-box">
-                    <LangLink
-                        to={item.Link ?? ""}
-                        className="Rmore-link font-wt-lg"
-                        target="_self"
-                        title={item.PicTitle ?? ""}
-                        aria-label={item.PicTitle ?? ""}
-                    >
+                    <LangLink to={props.item.Link ?? ""} className="Rmore-link font-wt-lg" target="_self" title={props.item.PicTitle ?? ""} aria-label={props.item.PicTitle ?? ""}>
                         <span className="ms-1">〉</span>
                         <span className="vm">View More</span>
                     </LangLink>

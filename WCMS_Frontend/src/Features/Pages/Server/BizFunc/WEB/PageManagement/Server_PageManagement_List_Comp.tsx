@@ -5,7 +5,6 @@ import {
 import { Server_SearchBar_Comp } from "@/Features/Pages/Server/Scaffold/SearchBar/Server_SearchBar_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { Lang } from "@/SysCore/i18n/lang";
-import type { ReactNode } from "react";
 import { usePageManagementListGridTemplate } from "./Server_PageManagement_List_Hook";
 
 // #region Public
@@ -14,13 +13,13 @@ export const PageListComp = (prop: { title: string; theme: IBETheme; lang: Lang;
 {
     const template = usePageManagementListGridTemplate({ lang: prop.lang });
 
-    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} renderSearchBar={renderPageManagementSearchBar} />;
+    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} buildSearchBarNode={PageManagementSearchBarSection} />;
 };
 // #endregion
 
-// #region EntityComp
+// #region Section
 /** 渲染頁面列表搜尋列 */
-const renderPageManagementSearchBar = (props: ServerListGridSearchRenderProps): ReactNode =>
+const PageManagementSearchBarSection = (props: ServerListGridSearchRenderProps) =>
 {
     return (
         <Server_SearchBar_Comp

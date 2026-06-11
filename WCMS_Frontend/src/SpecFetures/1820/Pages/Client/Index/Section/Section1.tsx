@@ -1,5 +1,6 @@
 import btmImg from "@/SpecFetures/1820/Assets/Client/images/bg/bottom_img_2800x280.jpg";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import { LibNumber } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { useMotionValueEvent, useReducedMotion, useScroll, useSpring } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -284,7 +285,7 @@ export const Section1 = (props: { homePage: HomePageModel; banners: BannerModel[
 };
 // #endregion
 
-// #region Section
+// #region Protected
 /** 同步 section CSS 變數 */
 const applySectionVars = (section: HTMLElement | null, progress: number, prefersReducedMotion: boolean) =>
 {
@@ -301,12 +302,12 @@ const applySectionVars = (section: HTMLElement | null, progress: number, prefers
         return;
     }
 
-    const p = clamp(progress, 0, 1);
+    const p = LibNumber.clamp(progress, 0, 1);
     const sideWidth = lerp(33, 0, p);
-    const sideOpacity = clamp(1 - p * 1.5, 0, 1);
+    const sideOpacity = LibNumber.clamp(1 - p * 1.5, 0, 1);
     const mediaScale = lerp(1, 1.15, p);
     const heroPadding = lerp(12, 0, p);
-    const heroBgOpacity = clamp(1 - p, 0, 1);
+    const heroBgOpacity = LibNumber.clamp(1 - p, 0, 1);
 
     section.style.setProperty("--leftW", `${sideWidth}vw`);
     section.style.setProperty("--rightW", `${sideWidth}vw`);
@@ -315,9 +316,7 @@ const applySectionVars = (section: HTMLElement | null, progress: number, prefers
     section.style.setProperty("--heroPadding", `${heroPadding}px`);
     section.style.setProperty("--heroBg", `rgba(243, 241, 234, ${heroBgOpacity})`);
 };
-// #endregion
 
-// #region EntityComp
 /** 整理 banner 顯示資料 */
 const buildBannerItems = (banners: BannerModel[]): BannerItem[] =>
 {
@@ -343,12 +342,6 @@ const lerp = (from: number, to: number, progress: number) =>
     return from + (to - from) * progress;
 };
 
-
-/** 限制數值範圍 */
-const clamp = (value: number, min: number, max: number) =>
-{
-    return Math.max(min, Math.min(max, value));
-};
 
 
 /** 判斷 banner 類型 */

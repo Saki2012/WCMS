@@ -1,4 +1,6 @@
 /** LibData 統一入口：文字資料處理 */
+
+// #region Public
 export * as LibText from "./LibData/LibText";
 /** LibData 統一入口：型別轉換與 Enum 處理 */
 export * as LibType from "./LibData/LibType";
@@ -30,3 +32,4 @@ export * from "./LibData/LibNumber";
 export * from "./LibData/LibText";
 export * from "./LibData/LibType";
 export * from "./LibData/LibValidation";
+// #endregion

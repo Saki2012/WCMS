@@ -15,6 +15,7 @@ import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { PGID, WebResourceFields, WebResourceInfoFields, WebResourceSetFields } from "@/types/SchemaFields";
 import { useMemo } from "react";
+import { buildServerSupportedLangDetailMap } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Helper";
 
 // #region Property
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
@@ -257,23 +258,11 @@ const buildWebResourceDetailTabs = (details: WebResourceInfo[], preferLang: Lang
 /** 依支援語系排序並過濾 Detail，避免無效語系產生 Unknown Tab。 */
 const filterSupportedDetailRows = (details: WebResourceInfo[], preferLang: Lang): WebResourceDetailTabItem[] =>
 {
-    const detailMap = buildSupportedDetailMap(details);
+    const detailMap = buildServerSupportedLangDetailMap(details);
     const langs = buildSupportedLangOrder(preferLang);
     return langs.map(lang => buildWebResourceDetailTabItem(detailMap.get(lang.toLowerCase()))).filter((item): item is WebResourceDetailTabItem =>
         Boolean(item)
     );
-};
-
-/** 將有效語系 Detail 建成 Map，同語系只保留第一筆。 */
-const buildSupportedDetailMap = (details: WebResourceInfo[]): Map<string, WebResourceInfo> =>
-{
-    return details.reduce<Map<string, WebResourceInfo>>((map, detail) =>
-    {
-        const lang = normalizeSupportedLang(detail.Lang);
-        if (!lang || map.has(lang)) return map;
-        map.set(lang, detail);
-        return map;
-    }, new Map<string, WebResourceInfo>());
 };
 
 /** 建立單一 Detail Tab 項目。 */

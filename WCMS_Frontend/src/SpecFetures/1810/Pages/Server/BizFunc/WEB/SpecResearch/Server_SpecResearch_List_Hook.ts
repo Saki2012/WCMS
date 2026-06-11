@@ -1,6 +1,12 @@
 import { TagAdapter } from "@/Features/Hooks/BizFunc/COMM/Tag_Api";
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import { createGridCrudActions, enhanceGridWithAdjustCell, type GridConfirmFn } from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
+import {
+    buildServerListColumns,
+    buildServerListSelectOptions as buildSearchOptions,
+    getServerSearchStringValue as getSearchStringValue,
+    mapServerListIdToText as mapIdToText,
+} from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Helper";
 import type {
     ServerListGridDataSourceContext,
     ServerListGridDataSourceResult,
@@ -9,12 +15,11 @@ import type {
 import { SpecCategoryAdapter } from "@/SpecFetures/1810/Hooks/WEB/SpecCategory_Api";
 import { SpecResearchAdapter } from "@/SpecFetures/1810/Hooks/WEB/SpecResearch_Api";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
-import type { SearchFieldConfig, SearchValue, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
+import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
-import { formatDateTime } from "@/SysCore/Utils/Library/LibData";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { formatDateTime, LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { AccountFields, PGID, SpecResearchDetailModelFields, SpecResearchModelFields, SpecResearchSetFields } from "@/types/SchemaFields";
@@ -36,7 +41,6 @@ type TagApiAdapter = ReturnType<typeof TagAdapter>;
 
 type SpecResearchCudActions = ReturnType<SpecResearchApiAdapter["hooks"]["useCudActions"]>;
 
-
 export interface SpecResearchSearchParams
 {
     /** 目前列表語系 */
@@ -51,7 +55,6 @@ export interface SpecResearchSearchParams
     /** 已選取的研究計畫標籤代碼 */
     tagId?: string;
 }
-
 
 export interface SpecResearchListRawData
 {
@@ -86,7 +89,6 @@ export interface SpecResearchListRawData
     tagMap: Record<string, string>;
 }
 
-
 export interface SpecResearchListAdapter
 {
     /** 研究計畫 API adapter */
@@ -108,16 +110,13 @@ export interface SpecResearchListAdapter
     dirUrl: string;
 }
 
-
 export interface SpecResearchListRenderers
 {
     /** 渲染標籤欄位內容 */
-    renderTagContent: (ids: string | null | undefined, map: Record<string, string>) => RowCell["content"];
+    buildTagContentNode: (ids: string | null | undefined, map: Record<string, string>) => RowCell["content"];
 }
 
-
 export type SpecResearchListGridTemplate = ServerListGridTemplate<SpecResearchSearchParams, SpecResearchListRawData, SpecResearchListAdapter, QueryListParam>;
-
 
 type CrudDeps = {
     /** React Router 導頁方法 */
@@ -132,7 +131,6 @@ type CrudDeps = {
     /** 刪除後重新查詢 */
     afterDelete: () => Promise<void>;
 };
-
 
 type SpecResearchVisibleColumn = {
     /** Grid 欄位 key */
@@ -155,7 +153,6 @@ export const SPEC_RESEARCH_TITLE_SEARCH_KEY = "title";
 export const SPEC_RESEARCH_CATEGORY_SEARCH_KEY = "categoryId";
 
 export const SPEC_RESEARCH_TAG_SEARCH_KEY = "tagId";
-
 
 /** 建立研究計畫純 Spec ListGridTemplate 設定 */
 export const useSpecResearchListGridTemplate = (opt: { lang: Lang; renderers: SpecResearchListRenderers; }): SpecResearchListGridTemplate =>
@@ -250,7 +247,6 @@ const useSpecResearchListGridDataSource = (
     return { adapter: { ...apiAdapter, cudActions, navigate, dirUrl }, rawData, isLoading, errors, refetchData, refetchRefData };
 };
 
-
 /** 建立研究計畫搜尋欄位設定 */
 const buildSpecResearchSearchFields = (rawData: SpecResearchListRawData): SearchFieldConfig[] =>
 {
@@ -262,7 +258,6 @@ const buildSpecResearchSearchFields = (rawData: SpecResearchListRawData): Search
     }, { key: SPEC_RESEARCH_TAG_SEARCH_KEY, title: "標籤", type: "select", options: buildSearchOptions(rawData.tagMap) }];
 };
 
-
 /** 將 SearchValues 轉為研究計畫列表查詢參數 */
 const toSpecResearchSearchParams = (values: SearchValues, lang: Lang): SpecResearchSearchParams =>
 {
@@ -273,7 +268,6 @@ const toSpecResearchSearchParams = (values: SearchValues, lang: Lang): SpecResea
         tagId: getSearchStringValue(values[SPEC_RESEARCH_TAG_SEARCH_KEY]),
     };
 };
-
 
 /** 建立研究計畫搜尋條件 */
 const buildSpecResearchSearchConditions = (ctx: { searchParams: SpecResearchSearchParams; }): string[] =>
@@ -288,44 +282,35 @@ const buildSpecResearchSearchConditions = (ctx: { searchParams: SpecResearchSear
     return conditions;
 };
 
-
 /** 建立研究計畫文字模糊查詢條件 */
 const buildSpecResearchTitleCondition = (title?: string): string =>
 {
     const query = title?.trim() ?? "";
     if (!query) return "";
-
-    let condition = "";
-    condition = LibMerge(" Or ", false, condition, `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.ProjectName} Like ${query}`);
-    condition = LibMerge(" Or ", false, condition, `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.PaperTitle} Like ${query}`);
-    condition = LibMerge(
-        " Or ",
-        false,
-        condition,
-        `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.CooperationProject} Like ${query}`,
-    );
-    condition = LibMerge(" Or ", false, condition, `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Courses} Like ${query}`);
-
+    let condition = LibCondition.joinConditions([
+        LibCondition.createCondition(`${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.ProjectName}`, Operator.Like, query),
+        LibCondition.createCondition(`${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.PaperTitle}`, Operator.Like, query),
+        LibCondition.createCondition(`${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.CooperationProject}`, Operator.Like, query),
+        LibCondition.createCondition(`${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Courses}`, Operator.Like, query),
+    ], LibCondition.JoinMode.Or);
     return condition ? `(${condition})` : "";
 };
-
 
 /** 建立研究計畫列表完整 QueryParam */
 const buildSpecResearchQueryParam = (ctx: { searchParams: SpecResearchSearchParams; searchCondition: string; }): QueryListParam =>
 {
-    const langCondition = `${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Lang} = ${ctx.searchParams.lang}`;
-    const condition = LibMerge(" And ", false, langCondition, ctx.searchCondition);
-
     return {
         Fields: buildSpecResearchQueryFields(),
-        Condition: condition,
+        Condition: LibCondition.joinConditions([
+            LibCondition.createCondition(`${SpecResearchModelFields._SpecResearchDetail}.${SpecResearchDetailModelFields.Lang}`, Operator.Equal, ctx.searchParams.lang),
+            ctx.searchCondition,
+        ]),
         RankGroups: [{ Condition: `${SpecResearchModelFields.ContentStatus} & 1` }],
         OrderBy: [{ Col: SpecResearchModelFields.CreateTime, Desc: true }],
         PageNumber: 1,
         PageSize: 10,
     };
 };
-
 
 /** 建立研究計畫列表查詢欄位 */
 const buildSpecResearchQueryFields = (): string[] =>
@@ -352,7 +337,6 @@ const buildSpecResearchQueryFields = (): string[] =>
     ];
 };
 
-
 /** 將研究計畫資料轉為 GridProps */
 const buildSpecResearchGridProps = (
     opt: {
@@ -368,7 +352,7 @@ const buildSpecResearchGridProps = (
 ): GridProps =>
 {
     const visibleCols = buildSpecResearchVisibleColumns();
-    const columns = buildColumns(visibleCols, opt.raw);
+    const columns = buildServerListColumns(visibleCols, opt.raw.modelDisplayName);
     const rows = buildSpecResearchRows({ raw: opt.raw, lang: opt.lang, columns, renderers: opt.renderers });
     const baseGrid: GridProps = { columns, rows, CurrentPage: opt.raw.pageNumber ?? 1, TotalPage: opt.raw.totalPages ?? 1, onPageChange: opt.raw.onPageChange };
 
@@ -384,7 +368,6 @@ const buildSpecResearchGridProps = (
         confirm: opt.confirm,
     });
 };
-
 
 /** 注入研究計畫 Grid 編輯與刪除動作 */
 const enhanceSpecResearchGrid = (
@@ -415,7 +398,6 @@ const enhanceSpecResearchGrid = (
         getInternalId: (set) => set.SpecResearch?.InternalId ?? "",
     });
 };
-
 
 /** 建立研究計畫列表顯示欄位設定 */
 const buildSpecResearchVisibleColumns = (): SpecResearchVisibleColumn[] =>
@@ -486,20 +468,11 @@ const buildSpecResearchVisibleColumns = (): SpecResearchVisibleColumn[] =>
     ];
 };
 
-
-/** 建立研究計畫列表欄位定義 */
-const buildColumns = (visibleCols: SpecResearchVisibleColumn[], raw: SpecResearchListRawData): ColumnConfig[] =>
-{
-    return visibleCols.map((col) => ({ key: col.key, title: getColumnTitle(raw.modelDisplayName, col.tableId, col.columnId, col.fallback) }));
-};
-
-
 /** 建立研究計畫列表列資料 */
 const buildSpecResearchRows = (opt: { raw: SpecResearchListRawData; lang: Lang; columns: ColumnConfig[]; renderers: SpecResearchListRenderers; }): GridRow[] =>
 {
     return (opt.raw.list ?? []).map((set) => buildSpecResearchRow({ set, raw: opt.raw, lang: opt.lang, columns: opt.columns, renderers: opt.renderers }));
 };
-
 
 /** 建立研究計畫列表單列資料 */
 const buildSpecResearchRow = (
@@ -511,11 +484,10 @@ const buildSpecResearchRow = (
         col,
         content: getSpecResearchCellContent({ key: col.key, set: opt.set, detail, raw: opt.raw, renderers: opt.renderers }),
     }));
-    const keyId = opt.set.SpecResearch?.InternalId ?? LibMerge("|", false, opt.set.SpecResearch?.ResearchId, detail?.RowId);
+    const keyId = opt.set.SpecResearch?.InternalId ?? LibText.Merge("|", false, opt.set.SpecResearch?.ResearchId, detail?.RowId);
 
     return { keyId, cells };
 };
-
 
 /** 依欄位 key 取得研究計畫 Grid 內容 */
 const getSpecResearchCellContent = (
@@ -535,7 +507,7 @@ const getSpecResearchCellContent = (
         case SpecResearchModelFields.CategoryId:
             return mapIdToText(item?.CategoryId, opt.raw.categoryMap);
         case SpecResearchModelFields.Tags:
-            return opt.renderers.renderTagContent(item?.Tags, opt.raw.tagMap);
+            return opt.renderers.buildTagContentNode(item?.Tags, opt.raw.tagMap);
         case SpecResearchDetailModelFields.Year:
             return opt.detail?.Year ?? "";
         case SpecResearchDetailModelFields.AcademicYear:
@@ -561,39 +533,4 @@ const getSpecResearchCellContent = (
     }
 };
 
-
-/** 建立搜尋選項 */
-const buildSearchOptions = (map: Record<string, string>) =>
-{
-    return Object.entries(map).filter(([key]) => Boolean(key)).map(([value, title]) => ({ value, title: title || value }));
-};
-
-
-/** 將代碼轉成顯示文字 */
-const mapIdToText = (id: string | number | null | undefined, map: Record<string, string>): string =>
-{
-    const key = id == null ? "" : String(id);
-    return key ? (map[key] ?? key) : "";
-};
-
-
-/** 依表格與欄位代碼取得 ModelDisplayName 顯示文字 */
-const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, tableId: string, columnId: string, fallback: string): string =>
-{
-    const tables = modelDisplayName?.Tables ?? [];
-    const table = tables.find((item) => item.TableId === tableId);
-    const hit = table?.Columns?.find((item) => item.ColumnId === columnId);
-
-    return hit?.ColumnDisplayName ?? fallback;
-};
-
-
-/** 取得 SearchValue 的文字值 */
-const getSearchStringValue = (value: SearchValue): string | undefined =>
-{
-    if (typeof value !== "string") return undefined;
-
-    const text = value.trim();
-    return text.length > 0 ? text : undefined;
-};
 // #endregion

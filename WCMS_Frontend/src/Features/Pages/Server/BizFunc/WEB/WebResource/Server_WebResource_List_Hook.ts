@@ -3,19 +3,26 @@ import { WebResourceAdapter } from "@/Features/Hooks/BizFunc/WEB/WebResource_Api
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import { GetDataStatusContent } from "@/Features/Pages/Server/Scaffold/CommUnitComp/CommonComp";
 import { createGridCrudActions, enhanceGridWithAdjustCell, type GridConfirmFn } from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
+import {
+    buildServerCategoryTextMap as buildCategoryTextMap,
+    buildServerListColumns,
+    buildServerListIdListNode as mapIdsToList,
+    buildServerListSelectOptions as buildCategorySearchOptions,
+    getServerColumnTitle as getColumnTitle,
+    getServerSearchStringValue as getSearchStringValue,
+} from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Helper";
 import type {
     ServerListGridDataSourceContext,
     ServerListGridDataSourceResult,
     ServerListGridTemplate,
 } from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Hook";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
-import type { SearchFieldConfig, SearchValue, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
+import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import { findTextByKey, formatDateTime } from "@/SysCore/Utils/Library/LibData";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { findTextByKey, formatDateTime, LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { AccountFields, PGID, WebResourceFields, WebResourceInfoFields } from "@/types/SchemaFields";
@@ -27,16 +34,11 @@ type QueryListParam = components["schemas"]["QueryListParam"];
 
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
 
-type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
-
 type WebResourceApiAdapter = ReturnType<typeof WebResourceAdapter>;
 
 type CategoryApiAdapter = ReturnType<typeof CategoryAdapter>;
 
 type WebResourceCudActions = ReturnType<WebResourceApiAdapter["hooks"]["useCudActions"]>;
-
-type CategoryMapValue = string | CategorySet | null | undefined;
-
 
 export interface WebResourceSearchParams
 {
@@ -49,7 +51,6 @@ export interface WebResourceSearchParams
     /** 網路資源分類搜尋條件 */
     categoryId?: string;
 }
-
 
 export interface WebResourceListRawData
 {
@@ -78,7 +79,6 @@ export interface WebResourceListRawData
     categoryMap: Record<string, string>;
 }
 
-
 export interface WebResourceListAdapter
 {
     /** 網路資源 API adapter */
@@ -97,9 +97,7 @@ export interface WebResourceListAdapter
     dirUrl: string;
 }
 
-
 export type WebResourceListGridTemplate = ServerListGridTemplate<WebResourceSearchParams, WebResourceListRawData, WebResourceListAdapter, QueryListParam>;
-
 
 type CrudDeps = {
     /** React Router 導頁方法 */
@@ -121,7 +119,6 @@ export const WEB_RESOURCE_TITLE_SEARCH_KEY = "title";
 
 export const WEB_RESOURCE_CATEGORY_SEARCH_KEY = "categoryId";
 
-
 /** 建立網路資源後台 ListGridTemplate 設定 */
 export const useWebResourceListGridTemplate = (opt: { lang: Lang; }): WebResourceListGridTemplate =>
 {
@@ -135,8 +132,7 @@ export const useWebResourceListGridTemplate = (opt: { lang: Lang; }): WebResourc
                 buildSearchConditions: buildWebResourceSearchConditions,
                 buildQueryParam: buildWebResourceQueryParam,
                 useDataSource: useWebResourceListGridDataSource,
-                buildGridProps: (ctx) =>
-                    buildWebResourceGridProps({ raw: ctx.rawData, lang: ctx.searchParams.lang, adapter: ctx.adapter, refetchData: ctx.refetchData }),
+                buildGridProps: (ctx) => buildWebResourceGridProps({ raw: ctx.rawData, lang: ctx.searchParams.lang, adapter: ctx.adapter, refetchData: ctx.refetchData }),
             },
         };
     }, [opt.lang]);
@@ -203,7 +199,6 @@ const useWebResourceListGridDataSource = (
     return { adapter: { ...apiAdapter, cudActions, navigate, dirUrl }, rawData, isLoading, errors, refetchData, refetchRefData };
 };
 
-
 /** 建立網路資源搜尋欄位設定 */
 const buildWebResourceSearchFields = (rawData: WebResourceListRawData): SearchFieldConfig[] =>
 {
@@ -218,7 +213,6 @@ const buildWebResourceSearchFields = (rawData: WebResourceListRawData): SearchFi
     }];
 };
 
-
 /** 將 SearchValues 轉為網路資源列表查詢參數 */
 const toWebResourceSearchParams = (values: SearchValues, lang: Lang): WebResourceSearchParams =>
 {
@@ -228,7 +222,6 @@ const toWebResourceSearchParams = (values: SearchValues, lang: Lang): WebResourc
         categoryId: getSearchStringValue(values[WEB_RESOURCE_CATEGORY_SEARCH_KEY]),
     };
 };
-
 
 /** 建立網路資源搜尋條件 */
 const buildWebResourceSearchConditions = (ctx: { searchParams: WebResourceSearchParams; }): string[] =>
@@ -248,24 +241,18 @@ const buildWebResourceSearchConditions = (ctx: { searchParams: WebResourceSearch
     return conditions;
 };
 
-
 /** 建立網路資源列表完整 QueryParam */
 const buildWebResourceQueryParam = (ctx: { searchParams: WebResourceSearchParams; searchCondition: string; }): QueryListParam =>
 {
-    const fields = buildWebResourceQueryFields();
-    const langCondition = `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Lang} = ${ctx.searchParams.lang}`;
-    const condition = LibMerge(" And ", false, langCondition, ctx.searchCondition);
-
     return {
-        Fields: fields,
-        Condition: condition,
+        Fields: buildWebResourceQueryFields(),
+        Condition: LibCondition.joinConditions([LibCondition.createCondition(`${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Lang}`, Operator.Equal, ctx.searchParams.lang), ctx.searchCondition]),
         RankGroups: [{ Condition: `${WebResourceFields.ContentStatus} & 1` }],
         OrderBy: [{ Col: WebResourceFields.CreateTime, Desc: true }],
         PageNumber: 1,
         PageSize: 10,
     };
 };
-
 
 /** 建立網路資源列表查詢欄位 */
 const buildWebResourceQueryFields = (): string[] =>
@@ -287,14 +274,6 @@ const buildWebResourceQueryFields = (): string[] =>
     ];
 };
 
-
-/** 建立分類下拉搜尋選項 */
-const buildCategorySearchOptions = (categoryMap: Record<string, string>): SearchFieldConfig["options"] =>
-{
-    return Object.entries(categoryMap).map(([value, title]) => ({ value, title: title || value }));
-};
-
-
 /** 將網路資源資料轉為 GridProps */
 const buildWebResourceGridProps = (
     opt: {
@@ -315,7 +294,7 @@ const buildWebResourceGridProps = (
         WebResourceFields.ModifyUserId,
         WebResourceFields.ModifyTime,
     ];
-    const columns = buildColumns(visibleCols, opt.raw);
+    const columns = buildServerListColumns(visibleCols, opt.raw.modelDisplayName);
     const rows = buildWebResourceRows(opt.raw, opt.lang, columns);
     const baseGrid: GridProps = { columns, rows, CurrentPage: opt.raw.pageNumber ?? 1, TotalPage: opt.raw.totalPages ?? 1, onPageChange: opt.raw.onPageChange };
 
@@ -331,7 +310,6 @@ const buildWebResourceGridProps = (
         confirm: opt.confirm,
     });
 };
-
 
 /** 注入網路資源 Grid 編輯與刪除動作 */
 const enhanceWebResourceGrid = (
@@ -363,20 +341,12 @@ const enhanceWebResourceGrid = (
     });
 };
 
-
-/** 建立網路資源列表欄位定義 */
-const buildColumns = (visibleCols: string[], raw: WebResourceListRawData): ColumnConfig[] =>
-{
-    return visibleCols.map((col) => ({ key: col, title: getColumnTitle(raw.modelDisplayName, col, `【${col}】`) }));
-};
-
-
 /** 建立網路資源列表列資料 */
 const buildWebResourceRows = (raw: WebResourceListRawData, lang: Lang, columns: ColumnConfig[]): GridRow[] =>
 {
     return (raw.list ?? []).map((set) =>
     {
-        const keyId = set.WebResource?.InternalId ?? LibMerge("|", false, set.WebResource?.WebResourceId);
+        const keyId = set.WebResource?.InternalId ?? LibText.Merge("|", false, set.WebResource?.WebResourceId);
         const webResource = set.WebResource;
         const cells: RowCell[] = [
             { col: columns[0], content: buildPictureCell(webResource?.PicId, webResource?.PicDescription) },
@@ -390,7 +360,6 @@ const buildWebResourceRows = (raw: WebResourceListRawData, lang: Lang, columns: 
     });
 };
 
-
 /** 建立網路資源封面圖片欄位內容 */
 const buildPictureCell = (picId: string | null | undefined, picDescription: string | null | undefined): ReactNode =>
 {
@@ -403,7 +372,6 @@ const buildPictureCell = (picId: string | null | undefined, picDescription: stri
     });
 };
 
-
 /** 建立標題與資料狀態欄位內容 */
 const buildTitleCell = (set: WebResourceSet, lang: Lang): ReactNode =>
 {
@@ -412,56 +380,4 @@ const buildTitleCell = (set: WebResourceSet, lang: Lang): ReactNode =>
     return createElement(Fragment, null, createElement("span", { key: "title" }, title), GetDataStatusContent(set.WebResource?.ContentStatus ?? 0));
 };
 
-
-/** 將逗號分隔代碼轉為清單顯示 */
-const mapIdsToList = (ids: string | null | undefined, map: Record<string, string>): ReactNode =>
-{
-    const names = (ids ?? "").split(",").map((x) => x.trim()).filter(Boolean).map((id) => map[id] ?? id);
-
-    return createElement(
-        "ul",
-        { className: "m-0 p-0", style: { listStylePosition: "inside" } },
-        names.map((line, index) => createElement("li", { key: `${line}-${index}`, className: "m-0 p-0" }, line)),
-    );
-};
-
-
-/** 將分類 Hook 回傳值轉成文字 map，避免不同 Adapter map 版本造成型別不一致 */
-const buildCategoryTextMap = (source: Record<string, CategoryMapValue>, lang: Lang): Record<string, string> =>
-{
-    return Object.entries(source).reduce<Record<string, string>>((acc, [key, value]) =>
-    {
-        acc[key] = getCategoryText(value, lang);
-        return acc;
-    }, {});
-};
-
-
-/** 取得分類顯示文字 */
-const getCategoryText = (value: CategoryMapValue, lang: Lang): string =>
-{
-    if (!value) return "";
-    if (typeof value === "string") return value;
-
-    return findTextByKey(value.CategoryDetail, (detail) => detail?.Lang, lang, (detail) => detail?.CategoryName);
-};
-
-
-/** 依欄位代碼取得 ModelDisplayName 顯示文字 */
-const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, columnId: string, fallback: string): string =>
-{
-    const tables = modelDisplayName?.Tables ?? [];
-    const hit = tables.flatMap((t) => t.Columns ?? []).find((c) => c.ColumnId === columnId);
-    return hit?.ColumnDisplayName ?? fallback;
-};
-
-
-/** 取得 SearchValue 的文字值 */
-const getSearchStringValue = (value: SearchValue): string | undefined =>
-{
-    if (typeof value !== "string") return undefined;
-
-    const text = value.trim();
-    return text.length > 0 ? text : undefined;
-};
 // #endregion

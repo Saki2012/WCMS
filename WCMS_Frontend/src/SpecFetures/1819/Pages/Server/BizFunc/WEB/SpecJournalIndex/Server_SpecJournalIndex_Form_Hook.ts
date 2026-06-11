@@ -26,6 +26,7 @@ import { SpecJournalIndexAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/WEB/Sp
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import { LibAttachment } from "@/SysCore/Utils/Library/LibData";
 import { useUploadFile } from "@/SysCore/Utils/UI_HookFunc/useUploadFile";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
@@ -301,7 +302,7 @@ const uploadSpecJournalIndexFileValue = async (
         uploadedValue = buildUploadedSpecJournalIndexFileCellValue(internalId, uploadedName || originalName);
     });
 
-    const displayName = getFileNameWithoutExtension(uploadedValue.originalFileName || uploadedValue.fileName);
+    const displayName = LibAttachment.getDisplayFileNameWithoutExtension(uploadedValue.originalFileName || uploadedValue.fileName);
     return { value: uploadedValue, rowValues: { [SpecJournalIndexDetailFields.SummaryFileName]: displayName } };
 };
 
@@ -418,16 +419,8 @@ const getSpecJournalIndexEditGridFileName = (row: GridRow, fieldName: string, fi
 {
     const inputName = getEditGridStringCellValue(row, fieldName).trim();
     if (inputName) return inputName;
-    return getFileNameWithoutExtension(file.originalFileName || file.fileName);
+    return LibAttachment.getDisplayFileNameWithoutExtension(file.originalFileName || file.fileName);
 };
 
 
-/** 取得不含副檔名的檔案名稱。 */
-const getFileNameWithoutExtension = (fileName?: string | null): string =>
-{
-    const safeFileName = String(fileName ?? "").trim();
-    const extIndex = safeFileName.lastIndexOf(".");
-    if (extIndex <= 0) return safeFileName;
-    return safeFileName.slice(0, extIndex);
-};
 // #endregion

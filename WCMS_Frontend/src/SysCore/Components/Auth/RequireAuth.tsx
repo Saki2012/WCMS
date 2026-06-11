@@ -25,15 +25,15 @@ type Props = { children: ReactNode; };
 // #endregion
 
 // #region Public
-export function resetAuthProbe()
+/** 重設驗證探測快取 */
+export const resetAuthProbe = (): void =>
 {
     lastOK = false;
     lastCheckAt = 0;
-}
+};
 
 
-export default function RequireAuth({ children }: Props)
-{
+export const RequireAuth = ({ children }: Props) => {
     const loc = useLocation();
     const [status, setStatus] = useState<Status>("checking");
     const inFlight = useRef<Promise<void> | null>(null); // 同步去重，避免多次同時打 /Me

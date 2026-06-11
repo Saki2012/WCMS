@@ -29,7 +29,7 @@ interface LibFileInputProps
 // #endregion
 
 // #region Private
-const LibFileInput = (props: LibFileInputProps) =>
+export const LibFileInput = (props: LibFileInputProps) =>
 {
     // NOTE: AA - 唯一 id，讓 label 可以對應到檔名輸入框
     const baseId = useId();
@@ -258,7 +258,4 @@ const LibFileInput = (props: LibFileInputProps) =>
         </div>
     );
 };
-
-
-export default LibFileInput;
 // #endregion

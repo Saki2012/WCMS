@@ -8,11 +8,12 @@ import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import { LibTextBox, LibTinyMCE } from "@/SysCore/Components/FormField/LibFormField";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
-import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
+import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
 import { SurveyFields, SurveySetFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
+import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -100,7 +101,7 @@ export const Server_Survey_Form_Comp = (
 
     const onBackToList = useCallback(() =>
     {
-        navigate(buildBackToListPath(pathname));
+        navigate(LibRoutePath.buildServerBackToListPath(pathname));
     }, [navigate, pathname]);
 
     const actionsOpt = useMemo(() =>
@@ -234,6 +235,10 @@ const SurveyItemLangGridComp = (props: SurveyItemLangGridProps) =>
 // #endregion
 
 // #region EntityComp
+/** 建立返回列表頁路徑。 */
+// #endregion
+
+// #region Protected
 /** 建立問卷 Header 的各分頁欄位。 */
 const buildHeaderTabContent = (opt: HeaderTabContentOptions): Record<string, ReactNode[]> =>
 {
@@ -268,13 +273,6 @@ const buildBasicFields = (opt: HeaderTabContentOptions): ReactNode[] =>
             {...opt.setField(SurveySetFields.Survey, SurveyFields.SurveySuccessContent, "string")}
         />,
     ];
-};
-
-
-/** 建立返回列表頁路徑。 */
-const buildBackToListPath = (pathname: string): string =>
-{
-    return pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
 };
 // #endregion
 

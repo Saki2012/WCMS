@@ -300,7 +300,3 @@ export const RegisterPage: React.FC = () =>
     );
 };
 // #endregion
-
-// #region Private
-export default RegisterPage;
-// #endregion

@@ -230,7 +230,7 @@ export const enhanceGridWithAdjustCell = <TItem,>(gridProps: GridProps, opt: Enh
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /** 產生 ActionCell 的 view model */
 const buildActionView = <TItem,>(lang: Lang, actions: readonly GridAdjustAction<TItem>[], ctx: GridAdjustActionCtx<TItem>): ActionViewItem<TItem>[] =>
 {

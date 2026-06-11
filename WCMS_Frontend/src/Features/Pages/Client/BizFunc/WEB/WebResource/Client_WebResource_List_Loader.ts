@@ -7,6 +7,7 @@ import {
     type ClientDataQueryPaginatorModel,
     type ClientDataQuerySearchBarModel,
     type ClientDataQueryTemplate,
+    getClientSearchStringValue,
     isSameClientDataQueryParam,
     useClientDataQueryTemplate,
 } from "@/Features/Pages/Client/Scaffold/DataQueryTemplate/Client_DataQueryTemplate_Hook";
@@ -109,12 +110,6 @@ export const useWebResourceListData = (p: { lang: Lang; opts?: IWebResourceListO
 // #endregion
 
 // #region Private
-/** 讀取 SearchValues 的字串值 */
-const getSearchStringValue = (values: SearchValues, key: string): string | undefined =>
-{
-    const value = (values as Record<string, unknown>)[key];
-    return typeof value === "string" ? value : value == null ? undefined : `${value}`;
-};
 /** 建立 WebResource 前台搜尋欄位，目前只提供標題查詢 */
 const buildWebResourceSearchFields = (): SearchFieldConfig[] =>
 {
@@ -172,7 +167,7 @@ const buildWebResourceQuery = (p: { condition: string; pageNumber: number; pageS
 /** 建立 WebResource 查詢參數 */
 const buildWebResourceSearchParams = (p: { lang: Lang; opts?: IWebResourceListOptions; overrides?: Partial<{ title: string; categoryIds: string; tagIds: string; style: number; }>; values: SearchValues; viewState: IListViewState; }): WebResourceSearchParams =>
 {
-    const title = LibText.safeTrim(getSearchStringValue(p.values, SEARCH_TITLE_KEY) ?? p.overrides?.title);
+    const title = getClientSearchStringValue(p.values, SEARCH_TITLE_KEY) ?? p.overrides?.title;
     const categoryIds = p.overrides?.categoryIds ?? LibText.safeTrim(p.opts?.Category);
     const tagIds = p.overrides?.tagIds ?? LibText.safeTrim(p.opts?.Tag);
     const style = p.overrides?.style ?? p.opts?.Style ?? 1;

@@ -2,7 +2,7 @@ import BgTransparentImg from "@/SpecFetures/1819/Assets/Client/images/bg/backgro
 import IndexPic from "@/SpecFetures/1819/Assets/Client/images/Indexed_150x150.svg";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
-import { isInValidTimeRange } from "@/SysCore/Utils/Library/DateRangeHelper";
+import { isInValidTimeRange } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { useMemo } from "react";
 import type { HomePageRawData } from "../HomePage_Loader";
@@ -13,7 +13,6 @@ type BannerSet = components["schemas"]["BannerSet_DTO"];
 type BannerDetail = NonNullable<BannerSet["BannerDetail"]>[number];
 
 type BannerDetailInfo = NonNullable<BannerDetail["_BannerDetailInfo"]>[number];
-
 
 interface IndexedSectionProps
 {
@@ -94,7 +93,6 @@ const getBannerInfo = (dt: BannerDetail, lang: Lang): BannerDetailInfo | null =>
     return info;
 };
 
-
 /** 過濾可顯示的索引項目 */
 const getVisibleDetails = (banner: BannerSet | null, lang: Lang): BannerDetail[] =>
 {
@@ -111,7 +109,4 @@ const getVisibleDetails = (banner: BannerSet | null, lang: Lang): BannerDetail[]
         return inRange && hasTitle;
     });
 };
-
-
-export default IndexedSection;
 // #endregion

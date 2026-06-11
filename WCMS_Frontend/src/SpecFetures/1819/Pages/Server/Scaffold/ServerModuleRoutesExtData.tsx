@@ -7,7 +7,7 @@ import { Server_SpecJournalIndex_List_Comp } from "@/SpecFetures/1819/Pages/Serv
 import { PGID } from "@/types/SchemaFields";
 
 // #region Private
-const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] =>
+export const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] =>
 {
     const web = modules.find((m) => m.ModuleCode === "WebManagement");
     if (!web) return modules;
@@ -76,7 +76,4 @@ const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] =>
     });
     return modules;
 };
-
-
-export default extendServerModuleRoutes;
 // #endregion

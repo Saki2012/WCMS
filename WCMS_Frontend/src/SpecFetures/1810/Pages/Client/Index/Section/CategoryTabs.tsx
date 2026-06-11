@@ -1,3 +1,5 @@
+import { formatDateMonthTextParts as formatDate } from "@/SysCore/Utils/Library/LibData";
+
 // #region Property
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 
@@ -271,15 +273,6 @@ const getNewsDataProps = (
     return resultProps;
 };
 
-
-const formatDate = (dateStr: string) =>
-{
-    const date = new Date(dateStr);
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = date.toLocaleString("en-US", { month: "short" });
-
-    return { day, month };
-};
 
 
 const pickNewsByCategories = <T extends { Announcement?: { Categories?: string | null | undefined; }; }>(

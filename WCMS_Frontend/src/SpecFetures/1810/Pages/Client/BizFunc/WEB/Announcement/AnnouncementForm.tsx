@@ -5,7 +5,7 @@ import { useAnnouncementFormFetchData } from "@/Features/Pages/Client/BizFunc/WE
 import type { ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
-import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
+import { LoadingErrorHandler } from "@/SysCore/Components/LoadingErrorHandler";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { formatDate } from "@/SysCore/Utils/Library/LibData";
@@ -22,7 +22,7 @@ type AnnouncementDetailFile = components["schemas"]["AnnouncementDetailFile_DTO"
 const emptyData: AnnouncementSet = { Announcement: {}, AnnouncementDetail: [] };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 const buildDetailViewCountOptions = (config: ModuleViewCountConfig) =>
 {
     if (config.mode === "list")
@@ -34,7 +34,7 @@ const buildDetailViewCountOptions = (config: ModuleViewCountConfig) =>
 // #endregion
 
 // #region Private
-const AnnouncementForm = (props: IAnnouncementFormProps) =>
+export const AnnouncementForm = (props: IAnnouncementFormProps) =>
 {
     // 宣告變數
     const { internalId } = useParams();
@@ -65,9 +65,6 @@ const AnnouncementForm = (props: IAnnouncementFormProps) =>
         </>
     );
 };
-
-export default AnnouncementForm;
-
 const Content = (prop: { lang: Lang; theme: IFETheme; data: AnnouncementSet; categoryNameText: string; tagNameText: string; }) =>
 {
     // 宣告變數

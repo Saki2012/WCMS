@@ -6,11 +6,11 @@ import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import { LibCheckBox, LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
-import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
+import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import { type Lang, LangLabelMap, useEnsureLangDetails } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import * as SchemaFields from "@/types/SchemaFields";
 import { useMemo } from "react";
@@ -91,7 +91,7 @@ const SpecCateEditComp = (props: { theme: IBETheme; formData: UseFetchFormDataRe
         Style: props.theme.Tabs,
         item: rawDetails.reduce<Record<string, string>>((tabItems, info) =>
         {
-            const langKey = LibMerge("_", true, info.CategoryId, info.RowId, info.Lang);
+            const langKey = LibText.Merge("_", true, info.CategoryId, info.RowId, info.Lang);
             tabItems[langKey] = LangLabelMap[info.Lang as Lang] ?? info.Lang ?? "Unknown";
             return tabItems;
         }, {}),
@@ -99,7 +99,7 @@ const SpecCateEditComp = (props: { theme: IBETheme; formData: UseFetchFormDataRe
 
     const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>((compMap, info) =>
     {
-        const langKey = LibMerge("_", true, info.CategoryId, info.RowId, info.Lang);
+        const langKey = LibText.Merge("_", true, info.CategoryId, info.RowId, info.Lang);
         const rowKeys = {
             [SchemaFields.SpecCategoryDetailModelFields.CategoryId]: info.CategoryId,
             [SchemaFields.SpecCategoryDetailModelFields.RowId]: info.RowId,
@@ -126,7 +126,6 @@ const SpecCateEditComp = (props: { theme: IBETheme; formData: UseFetchFormDataRe
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
 
-
 /** 清單區塊（維持原 UL/LI 結構） */
 const SpecCateListComp = (prop: { theme: IBETheme; SpecCateSets: SpecCategorySet[]; lang: Lang; actions: UseActionsResult; }) =>
 {
@@ -150,9 +149,7 @@ const SpecCateListComp = (prop: { theme: IBETheme; SpecCateSets: SpecCategorySet
                                 <LangLink
                                     to={`${dirPath}/${item.SpecCategory?.InternalId}`}
                                     className="form-check-label"
-                                    aria-label={`前往 ${
-                                        item.SpecCategoryDetail?.find((p) => p.Lang === prop.lang)?.CategoryName
-                                    } 詳細頁`}
+                                    aria-label={`前往 ${item.SpecCategoryDetail?.find((p) => p.Lang === prop.lang)?.CategoryName} 詳細頁`}
                                 >
                                     <span className="check-txt">{item.SpecCategoryDetail?.find((p) => p.Lang === prop.lang)?.CategoryName}</span>
                                 </LangLink>
@@ -169,7 +166,7 @@ const SpecCateListComp = (prop: { theme: IBETheme; SpecCateSets: SpecCategorySet
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /** 建立空資料（新增模式用） */
 const buildEmptySet = (progId: string): SpecCategorySet => ({ SpecCategory: { ProgId: progId }, SpecCategoryDetail: [] });
 // #endregion

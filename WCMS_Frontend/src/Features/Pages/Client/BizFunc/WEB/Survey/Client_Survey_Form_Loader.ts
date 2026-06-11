@@ -3,6 +3,7 @@ import { SurveySubmissionAdapter } from "@/Features/Hooks/BizFunc/WEB/SurveySubm
 import {
     buildClientDataQueryKey,
     buildClientDataQueryState,
+    buildClientLoaderInitial,
     type ClientDataQueryDataSourceResult,
     type ClientDataQueryTemplate,
     isSameClientDataQueryParam,
@@ -117,11 +118,6 @@ export const useSurveyFormFetchData = (p: { lang: Lang; surveyId: string; emptyD
 
 // #region Private
 /** 組出給 hydration 用的 initial 格式 */
-const buildLoaderInitial = <TArgs, TData>(args: TArgs, data: TData): ApiLoaderData<TArgs, TData> =>
-{
-    const apiRes: ApiResponse<TData> = { IsSuccess: true, Data: data, SysMessage: [] };
-    return { args, apiRes };
-};
 /** 建立 Survey Form 查詢條件 */
 const buildSurveyFormCondition = (surveyId: string): string =>
 {
@@ -163,7 +159,7 @@ const buildListInitial = (p: { loaderData: SurveyFormLoaderData | null; queryPar
     const loaderParam = p.loaderData?.args?.queryParam;
     if (!loaderParam) return null;
     if (!isSameClientDataQueryParam(p.queryParam, loaderParam)) return null;
-    return buildLoaderInitial(loaderParam, p.loaderData?.res.listRes ?? [p.fallbackData]);
+    return buildClientLoaderInitial(loaderParam, p.loaderData?.res.listRes ?? [p.fallbackData]);
 };
 /** 建立 Survey Form 初始 ViewState */
 const buildSurveyFormInitialViewState = (): IListViewState =>

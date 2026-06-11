@@ -2,10 +2,10 @@ import { buildMenuItems } from "@/Features/Hooks/Common/BuildMenuItems";
 import { SITEMAP_SEGMENT } from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap/Sitemap";
 import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
+import { A11yContent, type HeaderProps } from "@/Features/Pages/Client/Scaffold/MainFrame/Header";
 import { LangSwitchBtn } from "@/Features/Pages/Client/Scaffold/MainFrame/LangSwitchBtn";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import LogoImg from "@/SpecFetures/1816/Assets/Client/images/logo/LOGO_266x41.svg";
-import { A11yContent, type HeaderProps } from "@/SpecFetures/_default/Pages/Client/Scaffold/MainFrame/Header";
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
@@ -20,7 +20,6 @@ const MOBILE_BREAKPOINT = 991.98;
 const SHADOW_SCROLL_TOP = 180;
 
 const MEGA_MENU_ANIMATION_MS = 220;
-
 
 interface IMegaMenuItemProps
 {
@@ -42,8 +41,7 @@ const isKeyboardActivateKey = (event: React.KeyboardEvent): boolean =>
     return event.key === "Enter" || event.key === " " || event.key === "Spacebar" || event.code === "Space";
 };
 
-
-const Header = (props: HeaderProps) =>
+export const Header = (props: HeaderProps) =>
 {
     // 宣告變數：Site-Header root ref
     const headerRef = useRef<HTMLDivElement | null>(null);
@@ -82,30 +80,18 @@ const Header = (props: HeaderProps) =>
                                 <div className="navbar navbar-expand-lg navbar-dark px-0 py-0">
                                     <LogoBlock />
                                     <MobileToggler isMobileMenuOpen={isMobileMenuOpen} toggleMobileMenu={toggleMobileMenu} />
-                                    <NavbarContent
-                                        {...props}
-                                        isMobileView={isMobileView}
-                                        isMobileMenuOpen={isMobileMenuOpen}
-                                        closeMobileMenu={closeMobileMenu}
-                                    />
+                                    <NavbarContent {...props} isMobileView={isMobileView} isMobileMenuOpen={isMobileMenuOpen} closeMobileMenu={closeMobileMenu} />
                                 </div>
                             </div>
                         </div>
                     </div>
                 </section>
-
                 <div className="overlayer" aria-hidden="true" onClick={closeMobileMenu} />
             </div>
-
             <SearchData {...props} />
         </>
     );
 };
-
-
-export default Header;
-
-
 /* =========================
  * Hooks：Header 基礎控制
  * ========================= */
@@ -116,7 +102,6 @@ const useViewportMode = (setIsMobileView: React.Dispatch<React.SetStateAction<bo
     {
         // 執行 function：同步 breakpoint 狀態
         if (typeof window === "undefined") return;
-
         const updateViewport = () =>
         {
             const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
@@ -124,14 +109,11 @@ const useViewportMode = (setIsMobileView: React.Dispatch<React.SetStateAction<bo
 
             if (!isMobile) closeMobileMenu();
         };
-
         updateViewport();
         window.addEventListener("resize", updateViewport);
-
         return () => window.removeEventListener("resize", updateViewport);
     }, [closeMobileMenu, setIsMobileView]);
 };
-
 
 const useHeaderShadow = (headerRef: React.RefObject<HTMLDivElement | null>) =>
 {
@@ -156,7 +138,6 @@ const useHeaderShadow = (headerRef: React.RefObject<HTMLDivElement | null>) =>
     }, [headerRef]);
 };
 
-
 const useBodyScrollLock = (isLocked: boolean) =>
 {
     useEffect(() =>
@@ -172,7 +153,6 @@ const useBodyScrollLock = (isLocked: boolean) =>
         };
     }, [isLocked]);
 };
-
 
 const useCloseOnOutside = (headerRef: React.RefObject<HTMLDivElement | null>, isMobileMenuOpen: boolean, closeMobileMenu: () => void) =>
 {
@@ -198,7 +178,6 @@ const useCloseOnOutside = (headerRef: React.RefObject<HTMLDivElement | null>, is
     }, [closeMobileMenu, headerRef, isMobileMenuOpen]);
 };
 
-
 const useCloseOnEscape = (isEnabled: boolean, close: () => void) =>
 {
     useEffect(() =>
@@ -219,7 +198,6 @@ const useCloseOnEscape = (isEnabled: boolean, close: () => void) =>
     }, [close, isEnabled]);
 };
 
-
 const useCloseOnRouteChange = (pathname: string, search: string, hash: string, close: () => void) =>
 {
     useEffect(() =>
@@ -228,7 +206,6 @@ const useCloseOnRouteChange = (pathname: string, search: string, hash: string, c
         close();
     }, [close, pathname, search, hash]);
 };
-
 
 const useCloseOnFocusLeave = <T extends HTMLElement>(rootRef: React.RefObject<T | null>, isEnabled: boolean, close: () => void) =>
 {
@@ -257,7 +234,6 @@ const useCloseOnFocusLeave = <T extends HTMLElement>(rootRef: React.RefObject<T 
     }, [close, isEnabled, rootRef]);
 };
 
-
 /* =========================
  * DOM blocks：對標 index.html
  * ========================= */
@@ -272,7 +248,6 @@ const LogoBlock = () =>
         </h1>
     );
 };
-
 
 const MobileToggler = (props: { isMobileMenuOpen: boolean; toggleMobileMenu: () => void; }) =>
 {
@@ -313,7 +288,6 @@ const MobileToggler = (props: { isMobileMenuOpen: boolean; toggleMobileMenu: () 
         </button>
     );
 };
-
 
 const NavbarContent = (
     props: { lang: Lang; site: INormSite; style: IFETheme; isMobileView: boolean; isMobileMenuOpen: boolean; closeMobileMenu: () => void; },
@@ -364,7 +338,6 @@ const NavbarContent = (
     );
 };
 
-
 /* =========================
  * behaviors
  * ========================= */
@@ -396,7 +369,6 @@ const useMenuHeightVar = () =>
     }, []);
 };
 
-
 /* =========================
  * Header small blocks
  * ========================= */
@@ -415,7 +387,6 @@ const SiteMapLink = (props: { lang: Lang; }) =>
         </li>
     );
 };
-
 
 const SizeChange = () =>
 {
@@ -534,7 +505,6 @@ const SizeChange = () =>
         </li>
     );
 };
-
 
 /* =========================
  * Menu：data + render
@@ -760,7 +730,6 @@ const MainMenu = (
     );
 };
 
-
 const SingleMenuItem = (props: { menuItem: MenuItemData; onLeafClick: (menuId?: string) => void; }) =>
 {
     const handleLeafClick = () =>
@@ -794,7 +763,6 @@ const SingleMenuItem = (props: { menuItem: MenuItemData; onLeafClick: (menuId?: 
         </li>
     );
 };
-
 
 const MegaMenuItem = (props: IMegaMenuItemProps) =>
 {
@@ -911,7 +879,6 @@ const MegaMenuItem = (props: IMegaMenuItemProps) =>
         </li>
     );
 };
-
 
 const GetMenuData = (lang: Lang, site: INormSite): MenuItemData[] =>
 {

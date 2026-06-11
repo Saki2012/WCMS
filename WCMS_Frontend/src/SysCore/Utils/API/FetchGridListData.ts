@@ -1,12 +1,11 @@
 import type { ColumnConfig, GridProps, GridRow } from "@/SysCore/Components/Grid/Grid_Data";
-import type { ApiResponse } from "@/SysCore/Interface/IApiProvider";
+import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
-
 
 export interface UseGridListOptions<T>
 {
@@ -28,7 +27,6 @@ export interface UseGridListOptions<T>
     enabled?: boolean; // ✅ 控制是否要打 API
 }
 
-
 type RefetchOpt =
     | { mode?: "current"; } // 預設：重抓目前的 page（不動頁碼）
     | { mode: "first"; } // 回到第 1 頁再抓
@@ -36,7 +34,7 @@ type RefetchOpt =
 // #endregion
 
 // #region Public
- // 指定頁碼
+// 指定頁碼
 
 export const useFetchGridListData = <T>(props: UseGridListOptions<T>) =>
 {
@@ -208,7 +206,6 @@ const BuildVisibleColumns = async (
     // return xxx
     return columns;
 };
-
 
 const buildStableQueryKey = (cond: QueryListParam) =>
 {

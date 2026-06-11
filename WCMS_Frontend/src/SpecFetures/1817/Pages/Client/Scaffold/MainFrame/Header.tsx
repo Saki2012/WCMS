@@ -2,10 +2,10 @@ import { buildMenuItems } from "@/Features/Hooks/Common/BuildMenuItems";
 import { SITEMAP_SEGMENT } from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap/Sitemap";
 import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
+import { A11yContent } from "@/Features/Pages/Client/Scaffold/MainFrame/Header";
 import { LangSwitchBtn } from "@/Features/Pages/Client/Scaffold/MainFrame/LangSwitchBtn";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import LogoImg from "@/SpecFetures/1817/Assets/Client/images/logo/LOGO_475x120.svg";
-import { A11yContent } from "@/SpecFetures/_default/Pages/Client/Scaffold/MainFrame/Header";
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
 import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
@@ -13,7 +13,6 @@ import { useEffect, useRef } from "react";
 
 // #region Property
 type HeaderA11yText = { mainNavLabel: string; openNewWindowSuffix: string; hamburger: string; search: string; logoLink: string; logoAlt: string; };
-
 
 const HEADER_A11Y_TEXT: Partial<Record<Lang, HeaderA11yText>> = {
     "zh-tw": {
@@ -33,7 +32,6 @@ const HEADER_A11Y_TEXT: Partial<Record<Lang, HeaderA11yText>> = {
         logoAlt: "Site logo",
     },
 };
-
 
 const HEADER_MENU_STYLE_ID = "wcms-1817-header-menu-behavior-style";
 // #endregion
@@ -89,7 +87,6 @@ const Header_Section = (props: { lang: Lang; site: INormSite; }) =>
         </section>
     );
 };
-
 
 const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
 {
@@ -556,7 +553,7 @@ const LogoComp = (props: { lang: Lang; }) =>
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /**
  * 遞迴渲染多層選單
  */
@@ -637,24 +634,19 @@ const getHeaderA11y = (lang?: Lang): HeaderA11yText =>
         };
 };
 
-
 const isBlankTarget = (t?: string) => String(t ?? "").toLowerCase() === "_blank";
-
 
 const withNewWindowSuffix = (a11y: HeaderA11yText, text: string, target?: string) =>
 {
     return isBlankTarget(target) ? `${text}${a11y.openNewWindowSuffix}` : text;
 };
 
-
 const getRelByTarget = (target?: string) => (isBlankTarget(target) ? "noopener noreferrer" : undefined);
-
 
 const isKeyboardActivateKey = (event: KeyboardEvent): boolean =>
 {
     return event.key === "Enter" || event.key === " " || event.key === "Spacebar" || event.code === "Space";
 };
-
 
 const ensureHeaderMenuBehaviorStyle = (): void =>
 {
@@ -709,8 +701,7 @@ const ensureHeaderMenuBehaviorStyle = (): void =>
     document.head.appendChild(style);
 };
 
-
-const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
+export const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
 {
     const headerRef = useRef<HTMLDivElement | null>(null);
 
@@ -791,10 +782,6 @@ const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
         </>
     );
 };
-
-export default Header;
-
-
 const NavBar = (props: { lang: Lang; }) =>
 {
     const title = props.lang === "zh-tw"
@@ -840,7 +827,6 @@ const NavBar = (props: { lang: Lang; }) =>
         </li>
     );
 };
-
 
 const MobileBtn = (props: { lang: Lang; }) =>
 {
@@ -908,7 +894,6 @@ const MobileBtn = (props: { lang: Lang; }) =>
     );
 };
 
-
 const MainMenu = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
 {
     const menuItems = GetMenuData(props.lang, props.site);
@@ -927,7 +912,6 @@ const MainMenu = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
         </div>
     );
 };
-
 
 /** 1. 一般單選 */
 const SingleMenuItem = (props: { lang: Lang; menuItem: MenuItemData; }) =>
@@ -955,7 +939,6 @@ const SingleMenuItem = (props: { lang: Lang; menuItem: MenuItemData; }) =>
         </li>
     );
 };
-
 
 /** 2. 多層下拉 */
 const DropdownMenuItem = (props: { lang: Lang; menuItem: MenuItemData; }) =>
@@ -988,7 +971,6 @@ const DropdownMenuItem = (props: { lang: Lang; menuItem: MenuItemData; }) =>
         </li>
     );
 };
-
 
 const GetMenuData = (lang: Lang, site: INormSite): MenuItemData[] =>
 {

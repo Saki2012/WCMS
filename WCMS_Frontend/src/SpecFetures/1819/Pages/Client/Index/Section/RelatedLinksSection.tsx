@@ -127,7 +127,4 @@ const toListInitial = <T,>(args: QueryListParam, data: T[]) =>
     // return：統一 queryList initial 結構
     return { args, apiRes: toOkEnv(data) };
 };
-
-
-export default RelatedLinksSection;
 // #endregion

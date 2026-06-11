@@ -22,32 +22,11 @@ interface VenoBoxInstance
     destroy?: () => void;
 }
 
-interface VenoBoxConstructor
-{
-    new(
-        options: {
-            selector: string;
-            autoplay: boolean;
-            maxWidth: string;
-            border: string;
-            titleattr: string;
-            numeration: boolean;
-            infinigall: boolean;
-            share: boolean;
-        },
-    ): VenoBoxInstance;
-}
-
 interface JQueryCarousel
 {
     hasClass: (className: string) => boolean;
     owlCarousel: (options: Record<string, unknown>) => void;
     trigger: (eventName: string, args?: unknown[]) => void;
-}
-
-interface BootstrapWindow extends Window
-{
-    VenoBox?: VenoBoxConstructor;
 }
 // #endregion
 
@@ -158,8 +137,7 @@ export const VideoSession = (props: { lang: Lang; hydrationData: HomePageVideoHo
             // 執行 function：初始化 venobox
             if (typeof window !== "undefined")
             {
-                const venoboxWindow = window as BootstrapWindow;
-                const VenoBoxCtor = venoboxWindow.VenoBox;
+                const VenoBoxCtor = window.VenoBox;
 
                 if (VenoBoxCtor)
                 {

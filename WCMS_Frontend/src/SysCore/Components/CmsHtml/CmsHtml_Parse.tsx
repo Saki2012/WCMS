@@ -89,7 +89,7 @@ export const parseCmsHtml = (html: string, options: CmsHtmlParseOptions): ReactN
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /** 批次轉換 DOM nodes。 */
 const renderNodes = (nodes: ChildNode[], options: CmsHtmlParseOptions): ReactNode[] =>
 {

@@ -1,22 +1,26 @@
 import { TimelineAdapter } from "@/Features/Hooks/BizFunc/WEB/Timeline_Api";
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import { createGridCrudActions, enhanceGridWithAdjustCell, type GridConfirmFn } from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
+import {
+    buildServerListColumns,
+    getServerColumnTitle as getColumnTitle,
+    getServerSearchStringValue as getSearchStringValue,
+} from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Helper";
 import type {
     ServerListGridDataSourceContext,
     ServerListGridDataSourceResult,
     ServerListGridTemplate,
 } from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Hook";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
-import type { SearchFieldConfig, SearchValue, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
+import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
-import { formatDate, formatDateTime } from "@/SysCore/Utils/Library/LibData";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { formatDate, formatDateTime, LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { AccountFields, PGID, TimelineFields, TimelineItemFields, TimelineLangDetailFields } from "@/types/SchemaFields";
-import { createElement, useCallback, useMemo, type ReactNode } from "react";
+import { createElement, type ReactNode, useCallback, useMemo } from "react";
 import { type NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 
 // #region Property
@@ -28,7 +32,6 @@ type TimelineApiAdapter = ReturnType<typeof TimelineAdapter>;
 
 type TimelineCudActions = ReturnType<TimelineApiAdapter["hooks"]["useCudActions"]>;
 
-
 export interface TimelineSearchParams
 {
     /** 目前列表語系 */
@@ -37,7 +40,6 @@ export interface TimelineSearchParams
     /** 紀事表名稱搜尋關鍵字 */
     title?: string;
 }
-
 
 export interface TimelineListRawData
 {
@@ -63,7 +65,6 @@ export interface TimelineListRawData
     param: QueryListParam;
 }
 
-
 export interface TimelineListAdapter
 {
     /** 紀事表 API adapter */
@@ -79,9 +80,7 @@ export interface TimelineListAdapter
     dirUrl: string;
 }
 
-
 export type TimelineListGridTemplate = ServerListGridTemplate<TimelineSearchParams, TimelineListRawData, TimelineListAdapter, QueryListParam>;
-
 
 type CrudDeps = {
     /** React Router 導頁方法 */
@@ -100,7 +99,6 @@ type CrudDeps = {
 
 // #region Public
 export const TIMELINE_NAME_SEARCH_KEY = "title";
-
 
 /** 建立紀事表後台 ListGridTemplate 設定 */
 export const useTimelineListGridTemplate = (opt: { lang: Lang; }): TimelineListGridTemplate =>
@@ -174,7 +172,6 @@ const useTimelineListGridDataSource = (
     return { adapter: { ...apiAdapter, cudActions, navigate, dirUrl }, rawData, isLoading, errors, refetchData };
 };
 
-
 /** 建立紀事表搜尋欄位設定 */
 const buildTimelineSearchFields = (rawData: TimelineListRawData): SearchFieldConfig[] =>
 {
@@ -183,13 +180,11 @@ const buildTimelineSearchFields = (rawData: TimelineListRawData): SearchFieldCon
     return [{ key: TIMELINE_NAME_SEARCH_KEY, title, type: "text", placeholder: `請輸入${title}` }];
 };
 
-
 /** 將 SearchValues 轉為紀事表列表查詢參數 */
 const toTimelineSearchParams = (values: SearchValues, lang: Lang): TimelineSearchParams =>
 {
     return { lang, title: getSearchStringValue(values[TIMELINE_NAME_SEARCH_KEY]) };
 };
-
 
 /** 建立紀事表搜尋條件 */
 const buildTimelineSearchConditions = (ctx: { searchParams: TimelineSearchParams; }): string[] =>
@@ -199,17 +194,17 @@ const buildTimelineSearchConditions = (ctx: { searchParams: TimelineSearchParams
     return [`${TimelineFields.TimelineName} Like ${ctx.searchParams.title}`];
 };
 
-
 /** 建立紀事表列表完整 QueryParam */
 const buildTimelineQueryParam = (ctx: { searchParams: TimelineSearchParams; searchCondition: string; }): QueryListParam =>
 {
-    const fields = buildTimelineQueryFields();
-    const langCondition = `${TimelineFields._TimelineItem}.${TimelineItemFields._TimelineLangDetail}.${TimelineLangDetailFields.Lang} = ${ctx.searchParams.lang}`;
-    const condition = LibMerge(" And ", false, langCondition, ctx.searchCondition);
-
-    return { Fields: fields, Condition: condition, OrderBy: [{ Col: TimelineFields.CreateTime, Desc: true }], PageNumber: 1, PageSize: 10 };
+    return {
+        Fields: buildTimelineQueryFields(),
+        Condition: LibCondition.joinConditions([LibCondition.createCondition(`${TimelineFields._TimelineItem}.${TimelineItemFields._TimelineLangDetail}.${TimelineLangDetailFields.Lang}`, Operator.Equal, ctx.searchParams.lang), ctx.searchCondition]),
+        OrderBy: [{ Col: TimelineFields.CreateTime, Desc: true }],
+        PageNumber: 1,
+        PageSize: 10,
+    };
 };
-
 
 /** 建立紀事表列表查詢欄位 */
 const buildTimelineQueryFields = (): string[] =>
@@ -228,7 +223,6 @@ const buildTimelineQueryFields = (): string[] =>
     ];
 };
 
-
 /** 將紀事表資料轉為 GridProps */
 const buildTimelineGridProps = (
     opt: {
@@ -243,7 +237,7 @@ const buildTimelineGridProps = (
 ): GridProps =>
 {
     const visibleCols = [TimelineFields.TimelineName, "事件", TimelineFields.ModifyUserId, TimelineFields.ModifyTime];
-    const columns = buildColumns(visibleCols, opt.raw);
+    const columns = buildServerListColumns(visibleCols, opt.raw.modelDisplayName);
     const rows = buildTimelineRows(opt.raw, opt.lang, columns);
     const baseGrid: GridProps = { columns, rows, CurrentPage: opt.raw.pageNumber ?? 1, TotalPage: opt.raw.totalPages ?? 1, onPageChange: opt.raw.onPageChange };
 
@@ -259,7 +253,6 @@ const buildTimelineGridProps = (
         confirm: opt.confirm,
     });
 };
-
 
 /** 注入紀事表 Grid 編輯與刪除動作 */
 const enhanceTimelineGrid = (
@@ -291,20 +284,12 @@ const enhanceTimelineGrid = (
     });
 };
 
-
-/** 建立紀事表列表欄位定義 */
-const buildColumns = (visibleCols: string[], raw: TimelineListRawData): ColumnConfig[] =>
-{
-    return visibleCols.map((col) => ({ key: col, title: getColumnTitle(raw.modelDisplayName, col, `【${col}】`) }));
-};
-
-
 /** 建立紀事表列表列資料 */
 const buildTimelineRows = (raw: TimelineListRawData, lang: Lang, columns: ColumnConfig[]): GridRow[] =>
 {
     return (raw.list ?? []).map((set) =>
     {
-        const keyId = set.Timeline?.InternalId ?? LibMerge("|", false, set.Timeline?.TimelineId);
+        const keyId = set.Timeline?.InternalId ?? LibText.Merge("|", false, set.Timeline?.TimelineId);
         const cells: RowCell[] = [
             { col: columns[0], content: set.Timeline?.TimelineName ?? "" },
             { col: columns[1], content: buildTimelineItemList(set, lang) },
@@ -315,7 +300,6 @@ const buildTimelineRows = (raw: TimelineListRawData, lang: Lang, columns: Column
         return { keyId, cells };
     });
 };
-
 
 /** 建立紀事表事件預覽清單 */
 const buildTimelineItemList = (set: TimelineSet, lang: Lang): ReactNode =>
@@ -332,7 +316,6 @@ const buildTimelineItemList = (set: TimelineSet, lang: Lang): ReactNode =>
     );
 };
 
-
 /** 建立紀事表事件顯示文字 */
 const buildTimelineItemTexts = (set: TimelineSet, lang: Lang): { key: string; text: string; }[] =>
 {
@@ -347,22 +330,4 @@ const buildTimelineItemTexts = (set: TimelineSet, lang: Lang): { key: string; te
     });
 };
 
-
-/** 依欄位代碼取得 ModelDisplayName 顯示文字 */
-const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, columnId: string, fallback: string): string =>
-{
-    const tables = modelDisplayName?.Tables ?? [];
-    const hit = tables.flatMap((t) => t.Columns ?? []).find((c) => c.ColumnId === columnId);
-    return hit?.ColumnDisplayName ?? fallback;
-};
-
-
-/** 取得 SearchValue 的文字值 */
-const getSearchStringValue = (value: SearchValue): string | undefined =>
-{
-    if (typeof value !== "string") return undefined;
-
-    const text = value.trim();
-    return text.length > 0 ? text : undefined;
-};
 // #endregion

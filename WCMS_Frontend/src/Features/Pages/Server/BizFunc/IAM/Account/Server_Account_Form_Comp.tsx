@@ -3,15 +3,16 @@ import { Server_FormTemplate_Comp } from "@/Features/Pages/Server/Scaffold/Conte
 import type { ServerFormBinding } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
 import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import LibPwdTextBox from "@/SysCore/Components/FormField/FieldComponets/LibPwdTextBox_Comp";
+import { LibPwdTextBox } from "@/SysCore/Components/FormField/FieldComponets/LibPwdTextBox_Comp";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import { LibCheckBox, LibDropList, LibTextBox, LibUserCard } from "@/SysCore/Components/FormField/LibFormField";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
-import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
+import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import { AccountFields, AccountSetFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
+import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -87,7 +88,7 @@ export const Server_Account_Form_Comp = (props: AccountFormCompProps) =>
 
     const onBackToList = useCallback(() =>
     {
-        navigate(buildBackToListPath(pathname));
+        navigate(LibRoutePath.buildServerBackToListPath(pathname));
     }, [navigate, pathname]);
 
     const actionsOpt = useMemo(() =>
@@ -213,7 +214,7 @@ const PersonFieldsComp = () =>
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /** 建立帳號 Form 各分頁內容。 */
 const buildAccountTabContent = (props: AccountSectionProps): Record<string, ReactNode[]> =>
 {
@@ -233,12 +234,6 @@ const buildAccountTabContent = (props: AccountSectionProps): Record<string, Reac
 
 
 /** 建立返回帳號列表路徑。 */
-const buildBackToListPath = (pathname: string): string =>
-{
-    return pathname.replace(/\/Form(?:\/[^/]+)?$/, "/List");
-};
-
-
 /** 建立 Tab 設定。 */
 const buildAccountTabInfo = (theme: IBETheme): LibTabsProp =>
 {

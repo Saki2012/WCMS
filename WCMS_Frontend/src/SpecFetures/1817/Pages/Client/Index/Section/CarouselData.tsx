@@ -327,7 +327,7 @@ export const CarouselData = (props: CarouselDataProps) =>
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 const buildToggleLabel = (isPlaying: boolean): string =>
 {
     // return：播放按鈕文字

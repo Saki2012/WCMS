@@ -1,7 +1,7 @@
 import { type IPageManagementOptions, usePageManagementFormFetchData } from "@/Features/Pages/Client/BizFunc/WEB/PageManagement/Client_PageManagement_Form_Loader";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
-import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
+import { LoadingErrorHandler } from "@/SysCore/Components/LoadingErrorHandler";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import type { ReactNode } from "react";
@@ -36,7 +36,7 @@ interface FileLinkItem
 // #endregion
 
 // #region Section
-const PageManagementFormComp = (props: IPageManagementProps) =>
+export const PageManagementFormComp = (props: IPageManagementProps) =>
 {
     const pageId = `${props.options?.PageId ?? ""}`.trim();
     const formData = usePageManagementFormFetchData({ lang: props.lang, pageId });
@@ -58,8 +58,6 @@ const ContentComp = (prop: ContentCompProp) =>
 // #endregion
 
 // #region Private
-export default PageManagementFormComp;
-
 const Content = (prop: ContentCompProp) =>
 {
     return (

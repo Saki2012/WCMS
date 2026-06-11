@@ -1,5 +1,5 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
+import { ModuleContent, type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
@@ -19,9 +19,7 @@ type SpecMusicalPictureList = components["schemas"]["SpecMusicalPictureList_DTO"
 
 type SpecMusicalSoundList = components["schemas"]["SpecMusicalSoundList_DTO"];
 
-
 let globalCurrentAudio: HTMLAudioElement | null = null;
-
 
 interface ISpecMusicalFormProps
 {
@@ -236,7 +234,6 @@ const PicturesComp = (props: { pics: SpecMusicalPictureList[]; }) =>
     );
 };
 
-
 const InfoComp = (props: { info: SpecMusicalModel; displayName: ModelDisplaySchema | null; }) =>
 {
     const columns = props.displayName?.Tables?.find(p => p.TableId === SpecMusicalSetFields.SpecMusical)?.Columns ?? [];
@@ -316,7 +313,6 @@ const InfoComp = (props: { info: SpecMusicalModel; displayName: ModelDisplaySche
     );
 };
 
-
 const SoundComp = (props: { sounds: SpecMusicalSoundList[]; }) =>
 {
     return (
@@ -350,7 +346,7 @@ const SoundComp = (props: { sounds: SpecMusicalSoundList[]; }) =>
 // #endregion
 
 // #region Private
-const SpecMusicalForm = (props: ISpecMusicalFormProps) =>
+export const SpecMusicalForm = (props: ISpecMusicalFormProps) =>
 {
     // 宣告變數
     const { internalId } = useParams();
@@ -374,12 +370,6 @@ const SpecMusicalForm = (props: ISpecMusicalFormProps) =>
         </ModuleContent>
     );
 };
-
-
-export default SpecMusicalForm;
-
-
-
 const MainContent = (props: { data?: SpecMusicalSet; displayName: ModelDisplaySchema | null; }) =>
 {
     if (!props.data) return null;
@@ -400,7 +390,6 @@ const MainContent = (props: { data?: SpecMusicalSet; displayName: ModelDisplaySc
         </>
     );
 };
-
 
 const AudioPlayer = (props: { src: string; }) =>
 {

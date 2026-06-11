@@ -1,6 +1,7 @@
 import { INTERNAL_ATTR } from "../Core/tinyMceConstants";
 import type { TinyMCEEditor } from "../Core/tinyMceTypes";
 
+// #region Public
 export type PickLocalFileOptions = { accept?: string; };
 
 export const pickLocalFile = (cb: (file: File) => void, opt?: PickLocalFileOptions) =>
@@ -65,3 +66,4 @@ export const applyFileLinkToSelection = (
     if (wrapped) setAttrs(wrapped as HTMLElement);
     ed.nodeChanged();
 };
+// #endregion

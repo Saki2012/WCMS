@@ -5,7 +5,6 @@ import {
 import { Server_SearchBar_Comp } from "@/Features/Pages/Server/Scaffold/SearchBar/Server_SearchBar_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
-import type { ReactNode } from "react";
 import { useRolePermissionListGridTemplate } from "./Server_RolePermission_List_Hook";
 
 // #region Public
@@ -15,13 +14,13 @@ export const Server_RolePermission_Comp = (prop: { title?: string; theme: IBEThe
     const lang = prop.lang ?? DefaultLang;
     const template = useRolePermissionListGridTemplate({ lang });
 
-    return <Server_ListGridTemplate_Comp Title={prop.title ?? "角色列表"} Theme={prop.theme} template={template} renderSearchBar={renderRolePermissionSearchBar} />;
+    return <Server_ListGridTemplate_Comp Title={prop.title ?? "角色列表"} Theme={prop.theme} template={template} buildSearchBarNode={RolePermissionSearchBarSection} />;
 };
 // #endregion
 
-// #region EntityComp
+// #region Section
 /** 渲染角色權限列表搜尋列 */
-const renderRolePermissionSearchBar = (props: ServerListGridSearchRenderProps): ReactNode =>
+const RolePermissionSearchBarSection = (props: ServerListGridSearchRenderProps) =>
 {
     return (
         <Server_SearchBar_Comp

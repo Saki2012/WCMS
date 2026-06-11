@@ -7,7 +7,7 @@ import "yet-another-react-lightbox/styles.css";
 import "yet-another-react-lightbox/plugins/thumbnails.css";
 import { useGalleryFormFetchData } from "@/Features/Pages/Client/BizFunc/WEB/Gallery/Client_Gallery_Form_Loader";
 import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
-import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
+import { LoadingErrorHandler } from "@/SysCore/Components/LoadingErrorHandler";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import Lightbox from "yet-another-react-lightbox";
@@ -60,7 +60,7 @@ const getPhotoInfoProps = (p: { data: GallerySet; lang: Lang; }): PhotoInfos[] =
     }).filter((item) => item.pictureInternalId);
 };
 
-const GalleryForm = (prop: { theme: IFETheme; lang: Lang; }) =>
+export const GalleryForm = (prop: { theme: IFETheme; lang: Lang; }) =>
 {
     const [open, setOpen] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -129,9 +129,6 @@ const GalleryForm = (prop: { theme: IFETheme; lang: Lang; }) =>
         </LoadingErrorHandler>
     );
 };
-
-export default GalleryForm;
-
 const TitleContentBar = ({ title, categoryName, content }: { title: string; categoryName: string; content: ReactNode; }) => (
     <>
         <div className="row">

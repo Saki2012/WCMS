@@ -5,7 +5,6 @@ import {
 import { Server_SearchBar_Comp } from "@/Features/Pages/Server/Scaffold/SearchBar/Server_SearchBar_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { Lang } from "@/SysCore/i18n/lang";
-import type { ReactNode } from "react";
 import { useGalleryListGridTemplate } from "./Server_Gallery_List_Hook";
 
 // #region Public
@@ -14,13 +13,13 @@ export const Server_GalleryListComp = (prop: { title: string; theme: IBETheme; l
 {
     const template = useGalleryListGridTemplate({ lang: prop.lang });
 
-    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} renderSearchBar={renderGallerySearchBar} />;
+    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} buildSearchBarNode={GallerySearchBarSection} />;
 };
 // #endregion
 
-// #region EntityComp
+// #region Section
 /** 渲染相簿列表搜尋列 */
-const renderGallerySearchBar = (props: ServerListGridSearchRenderProps): ReactNode =>
+const GallerySearchBarSection = (props: ServerListGridSearchRenderProps) =>
 {
     return (
         <Server_SearchBar_Comp

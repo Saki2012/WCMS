@@ -9,7 +9,7 @@ interface LibFileithParentClassProp extends ILibFileProp
 // #endregion
 
 // #region Private
-const LibFile = ({ children, ...prop }: LibFileithParentClassProp) =>
+export const LibFile = ({ children, ...prop }: LibFileithParentClassProp) =>
 {
     const inputId = useId();
     const hasChildren = !!children;
@@ -51,7 +51,4 @@ const LibFile = ({ children, ...prop }: LibFileithParentClassProp) =>
         </>
     );
 };
-
-
-export default LibFile;
 // #endregion

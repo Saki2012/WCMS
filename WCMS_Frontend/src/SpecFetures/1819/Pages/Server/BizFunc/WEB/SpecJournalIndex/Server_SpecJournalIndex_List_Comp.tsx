@@ -14,11 +14,6 @@ import {
 
 // #region Property
 const volumeIssueListStyle = { listStylePosition: "inside" } as const;
-
-
-const specJournalIndexListRenderers: SpecJournalIndexListRenderers = {
-    renderVolumeIssueContent: renderSpecJournalIndexVolumeIssueContent,
-};
 // #endregion
 
 // #region Public
@@ -27,13 +22,13 @@ export const Server_SpecJournalIndex_List_Comp = (prop: { title: string; theme: 
 {
     const template = useSpecJournalIndexListGridTemplate({ lang: prop.lang, renderers: specJournalIndexListRenderers });
 
-    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} renderSearchBar={renderSpecJournalIndexSearchBar} />;
+    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} buildSearchBarNode={SpecJournalIndexSearchBarSection} />;
 };
 // #endregion
 
-// #region EntityComp
+// #region Section
 /** 渲染期刊目次搜尋列 */
-const renderSpecJournalIndexSearchBar = (props: ServerListGridSearchRenderProps): ReactNode =>
+const SpecJournalIndexSearchBarSection = (props: ServerListGridSearchRenderProps) =>
 {
     return (
         <Server_SearchBar_Comp
@@ -45,10 +40,11 @@ const renderSpecJournalIndexSearchBar = (props: ServerListGridSearchRenderProps)
         />
     );
 };
+// #endregion
 
-
+// #region Protected
 /** 渲染卷期欄位內容 */
-const renderSpecJournalIndexVolumeIssueContent = (set: SpecJournalIndexSet): ReactNode =>
+const buildSpecJournalIndexVolumeIssueContentNode = (set: SpecJournalIndexSet): ReactNode =>
 {
     return (
         <ul className="m-0 p-0" style={volumeIssueListStyle}>
@@ -76,5 +72,11 @@ const formatSpecJournalIndexDetail = (detail: NonNullable<SpecJournalIndexSet["S
     const issue = detail.Issue ?? "";
     const hasValue = Boolean(volume) || Boolean(issue);
     return hasValue ? `${volume}卷${issue}期` : "";
+};
+
+
+/** 建立列表自定義欄位節點產生器 */
+const specJournalIndexListRenderers: SpecJournalIndexListRenderers = {
+    buildVolumeIssueContentNode: buildSpecJournalIndexVolumeIssueContentNode,
 };
 // #endregion

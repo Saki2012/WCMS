@@ -62,7 +62,7 @@ export const useUploadPicture = () =>
 // #endregion
 
 // #region Private
-const LibPicture = ({ children, ...prop }: LibPictureWithParentClassProp) =>
+export const LibPicture = ({ children, ...prop }: LibPictureWithParentClassProp) =>
 {
     return (
         <div className="col-xxl-4 col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12">
@@ -79,7 +79,4 @@ const LibPicture = ({ children, ...prop }: LibPictureWithParentClassProp) =>
         </div>
     );
 };
-
-
-export default LibPicture;
 // #endregion

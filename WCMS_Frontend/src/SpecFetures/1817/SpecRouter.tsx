@@ -2,11 +2,11 @@ import { type INormNode, type INormSite, type ModuleEntry } from "@/Features/Pag
 
 import { SubPage } from "@/Features/Pages/Client/Route/ClientComponentResolver";
 import { Classic_FETheme } from "@/Features/Pages/Client/Theme/ClassicTheme_Clsx";
-import SpecMusicalForm from "@/SpecFetures/1817/Pages/Client/BizFunc/WEB/SpecMusical/SpecMusicalForm";
+import { SpecMusicalForm } from "@/SpecFetures/1817/Pages/Client/BizFunc/WEB/SpecMusical/SpecMusicalForm";
 import type { IHeaderMetaProps } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { SpecMusicalForm_Loader } from "./Pages/Client/BizFunc/WEB/SpecMusical/SpecMusicalForm_Loader";
-import SpecMusicalList, { type ISpecMusicalOptions } from "./Pages/Client/BizFunc/WEB/SpecMusical/SpecMusicalList";
+import { SpecMusicalList, type ISpecMusicalOptions } from "./Pages/Client/BizFunc/WEB/SpecMusical/SpecMusicalList";
 import { SpecMusicalList_Loader } from "./Pages/Client/BizFunc/WEB/SpecMusical/SpecMusicalList_Loader";
 
 // #region Public

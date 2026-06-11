@@ -9,7 +9,8 @@ type UseCarouselOpts = {
 // #endregion
 
 // #region Public
-export function useCarousel({ length, interval = 5000, autoPlay = true }: UseCarouselOpts)
+/** 控制前台輪播索引與播放狀態 */
+export const useCarousel = ({ length, interval = 5000, autoPlay = true }: UseCarouselOpts) =>
 {
     const [index, setIndex] = useState(0);
     const [playing, setPlaying] = useState(autoPlay);
@@ -55,5 +56,5 @@ export function useCarousel({ length, interval = 5000, autoPlay = true }: UseCar
     const bind = { onMouseEnter: pause, onMouseLeave: play, onFocus: pause, onBlur: play, onTouchStart, onTouchEnd } as const;
 
     return { index, goTo, next, prev, play, pause, playing, bind };
-}
+};
 // #endregion

@@ -5,18 +5,19 @@ import type { IEditGridView_Style } from "@/Features/Pages/Server/Scaffold/Input
 import { PreviewFrame } from "@/Features/Pages/Server/Scaffold/PreviewFrame/PreviewFrame";
 import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import LibCalendar from "@/SysCore/Components/FormField/FieldComponets/LibCalendar_Comp";
-import LibCheckBox from "@/SysCore/Components/FormField/FieldComponets/LibCheckBox_Comp";
+import { LibCalendar } from "@/SysCore/Components/FormField/FieldComponets/LibCalendar_Comp";
+import { LibCheckBox } from "@/SysCore/Components/FormField/FieldComponets/LibCheckBox_Comp";
 import { useUploadPicture } from "@/SysCore/Components/FormField/FieldComponets/LibPicture_Comp";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import { LibFile, LibPicture, LibTextBox, LibTinyMCE } from "@/SysCore/Components/FormField/LibFormField";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
-import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
+import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import { AnnouncementDetailFields, AnnouncementFields, AnnouncementSetFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
+import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { useCallback, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -150,7 +151,7 @@ export const Server_Announcement_Form_Comp = (props: AnnouncementFormCompProps) 
 
     const onBackToList = useCallback(() =>
     {
-        navigate(buildBackToListPath(pathname));
+        navigate(LibRoutePath.buildServerBackToListPath(pathname));
     }, [navigate, pathname]);
 
     const handlePreviewFromDto = useCallback((dto: AnnouncementSet) =>
@@ -232,7 +233,7 @@ const SubDetailComp = (props: SubDetailSectionProps) =>
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /** 建立公告 Header 的各分頁欄位。 */
 const buildHeaderTabContent = (opt: HeaderTabContentOptions): Record<string, ReactNode[]> =>
 {
@@ -355,13 +356,6 @@ const buildDetailFields = (opt: DetailFieldsOptions): ReactNode[] =>
         />,
         <SubDetailComp binding={opt.binding} parentRowId={opt.detailRowId} />,
     ];
-};
-
-
-/** 建立回列表路徑，避免 Back 行為散在 JSX 中。 */
-const buildBackToListPath = (pathname: string): string =>
-{
-    return pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
 };
 
 

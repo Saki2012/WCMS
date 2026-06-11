@@ -2,10 +2,10 @@ import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import { LibCheckBox, LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
-import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
+import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import { type Lang, LangLabelMap } from "@/SysCore/i18n/lang";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { SiteMenu_Item_TitleFields, SiteMenu_ItemFields, SiteMenuSetFields } from "@/types/SchemaFields";
 import { useMemo } from "react";
@@ -20,7 +20,6 @@ type SiteMenu_Item_Title = components["schemas"]["SiteMenu_Item_Title_DTO"];
 
 type MenuUrlType = components["schemas"]["MenuUrlType"];
 
-
 interface BasicSettingTab_Props
 {
     theme: IBETheme;
@@ -31,7 +30,6 @@ interface BasicSettingTab_Props
     windowTarget: Record<string, string>;
     setLinkType: React.Dispatch<React.SetStateAction<MenuUrlType>>;
 }
-
 
 type MenuTitleCompProps = BasicSettingTab_Props & { selectedMenuItem?: SiteMenu_Item | null; };
 // #endregion
@@ -153,11 +151,11 @@ const MenuTitle_Comp = (prop: MenuTitleCompProps) =>
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /** 建立多語頁籤 key */
 const buildTitleTabKey = (info: SiteMenu_Item_Title): string =>
 {
-    return LibMerge("_", true, info.SiteIndex, info.ItemRowId, info.RowId, info.Lang);
+    return LibText.Merge("_", true, info.SiteIndex, info.ItemRowId, info.RowId, info.Lang);
 };
 // #endregion
 
@@ -174,7 +172,6 @@ const useSelectedMenuItem = (data: SiteMenuSet, selected?: SiteMenuItem | null):
         return current ?? selected?.menuItem ?? null;
     }, [data.SiteMenu_Item, selected]);
 };
-
 
 /** 取得目前選取 item 的多語標題列 */
 const getSelectedTitleRows = (data: SiteMenuSet, selected?: SiteMenu_Item | null): SiteMenu_Item_Title[] =>

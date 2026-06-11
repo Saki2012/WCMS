@@ -126,7 +126,7 @@ export const CalendarPageComp: React.FC<CalendarPageCompProps> = ({ defaultYear 
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /** 組出開閉館顯示文字 */
 const renderOpenCloseText = (day?: CalendarDetail | null): string =>
 {
@@ -616,7 +616,4 @@ const TimePicker12hWithConfirm: React.FC<TimePicker12hWithConfirmProps> = (props
         </div>
     );
 };
-
-
-export default CalendarPageComp;
 // #endregion

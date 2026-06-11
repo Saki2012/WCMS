@@ -47,7 +47,7 @@ export const getAncestorAtLevel = (lang: Lang, site: INormSite, node: INormNode,
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /** 建立單筆選單資料。 */
 const buildMenuItem = (n: INormNode, activeId: number | undefined, currentDepth: number, maxDepth: number): MenuItemData =>
 {

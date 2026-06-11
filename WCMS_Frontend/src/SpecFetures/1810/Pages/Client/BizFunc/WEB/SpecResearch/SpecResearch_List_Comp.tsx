@@ -1,7 +1,7 @@
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
 import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
-import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
+import { LoadingErrorHandler } from "@/SysCore/Components/LoadingErrorHandler";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { useSpecResearchListFetchData } from "./SpecResearch_List_Loader";
 
@@ -35,8 +35,4 @@ export const SpecResearchListComp = (props: ISpecResearchListProps) =>
         </LoadingErrorHandler>
     );
 };
-// #endregion
-
-// #region Private
-export default SpecResearchListComp;
 // #endregion

@@ -1,7 +1,7 @@
 import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
 import { Form_Toolbar } from "@/Features/Pages/Server/Scaffold/Toolbar/Toolbar_Comp";
 import { DividerComp } from "@/SysCore/Components/Divider/Divider_Comp";
-import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
+import { LoadingErrorHandler } from "@/SysCore/Components/LoadingErrorHandler";
 
 // #region Public
 export const FormComp = ({ prop, children }: { prop: FormCompProp; children: React.ReactNode; }) =>

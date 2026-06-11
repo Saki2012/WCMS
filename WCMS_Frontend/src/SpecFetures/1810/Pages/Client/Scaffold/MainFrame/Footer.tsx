@@ -234,7 +234,4 @@ const getTextByLang = (lang: "zh-tw" | "en") =>
         designByText: "Design by it-easygo.",
     };
 };
-
-
-export default Footer;
 // #endregion

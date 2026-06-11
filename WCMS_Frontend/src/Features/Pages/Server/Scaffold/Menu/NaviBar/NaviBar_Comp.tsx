@@ -7,7 +7,7 @@ import clsx from "clsx";
 import { useEffect, useState } from "react";
 
 // #region Private
-const NavibarMenu = () =>
+export const NavibarMenu = () =>
 {
     const operateFileUrl = useOptionalSpecAssetUrl({ relativePath: "Assets/Server/後台操作手冊.pdf", fallbackToDefault: true }) ?? "";
     const [userName, setUserName] = useState<string>("");
@@ -122,7 +122,4 @@ const NavibarMenu = () =>
         </header>
     );
 };
-
-
-export default NavibarMenu;
 // #endregion

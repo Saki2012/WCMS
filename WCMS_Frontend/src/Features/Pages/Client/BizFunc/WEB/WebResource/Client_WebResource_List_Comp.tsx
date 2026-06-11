@@ -36,7 +36,6 @@ const WEB_RESOURCE_GRID_COLUMN_WIDTH_STORAGE_KEY = "client-webresource-grid-colu
 // #endregion
 
 // #region Public
-
 export const Client_WebResource_List_Comp = (props: IWebResourceListProps) =>
 {
     const vm = useWebResourceListData({ lang: props.lang, opts: props.options });
@@ -66,7 +65,6 @@ export const Client_WebResource_List_Comp = (props: IWebResourceListProps) =>
 // #endregion
 
 // #region Section
-
 const GridList_Comp = (props: { lang: Lang; title: string; GridData: GridProps; }) =>
 {
     const [columns, setColumns] = useState<ColumnConfig[]>(props.GridData.columns);

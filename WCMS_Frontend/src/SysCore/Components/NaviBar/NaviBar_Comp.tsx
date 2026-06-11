@@ -9,12 +9,8 @@ import type { INaviBarStyle } from "./NaviBar_Clsx";
  * @param theme 主題風格
  * @returns
  */
-const NaviBarComp = ({ items, style }: { items: NaviData[]; style: INaviBarStyle; }) =>
+export const NaviBarComp = ({ items, style }: { items: NaviData[]; style: INaviBarStyle; }) =>
 {
     return <ul className={style.ul}>{items.map((item, idx) => <li className={style.li} key={idx}>{item.DOMContent}</li>)}</ul>;
 };
-// #endregion
-
-// #region Private
-export default NaviBarComp;
 // #endregion

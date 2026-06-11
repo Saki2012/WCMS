@@ -37,6 +37,16 @@ export const getFileNameWithoutExtension = (file: File | string | null | undefin
 };
 
 
+/** 取得附件顯示用檔名，避免點號開頭檔案被清空 */
+export const getDisplayFileNameWithoutExtension = (file: File | string | null | undefined): string =>
+{
+    const fileName = resolveFileName(file).trim();
+    const index = fileName.lastIndexOf(".");
+
+    return index <= 0 ? fileName : fileName.slice(0, index);
+};
+
+
 /** 判斷檔案是否符合允許的副檔名或 MIME type */
 export const isAcceptedFile = (file: File | string | null | undefined, options: AcceptFileOptions): boolean =>
 {
@@ -51,6 +61,20 @@ export const isAcceptedFile = (file: File | string | null | undefined, options: 
     const mimeMatched = validMimeTypes.length === 0 || validMimeTypes.includes(file.type);
 
     return extensionMatched && mimeMatched;
+};
+
+
+/** 判斷檔案是否符合 input accept 字串白名單 */
+export const isAcceptedByAcceptText = (file: File | string | null | undefined, accept: string | null | undefined): boolean =>
+{
+    if (!file) return false;
+
+    const tokenList = parseAcceptText(accept);
+    const fileName = resolveFileName(file).toLowerCase();
+    const fileType = typeof file === "string" ? "" : file.type.toLowerCase();
+    if (tokenList.length === 0) return true;
+
+    return tokenList.some((token) => isAcceptedFileToken(token, fileName, fileType));
 };
 
 
@@ -71,6 +95,21 @@ const normalizeExtension = (value: string): string =>
     const text = value.trim().toLowerCase();
     if (!text) return "";
     return text.startsWith(".") ? text : `.${text}`;
+};
+
+/** 解析 input accept 字串為白名單 token */
+const parseAcceptText = (accept: string | null | undefined): string[] =>
+{
+    return (accept ?? "").split(",").map((item) => item.trim().toLowerCase()).filter(Boolean);
+};
+
+/** 判斷單一 accept token 是否允許目前檔案 */
+const isAcceptedFileToken = (token: string, fileName: string, fileType: string): boolean =>
+{
+    if (token === "*" || token === "*/*") return true;
+    if (token.startsWith(".")) return fileName.endsWith(token);
+    if (token.endsWith("/*")) return fileType.startsWith(token.replace("/*", "/"));
+    return fileType === token;
 };
 
 /** 取得 File 或檔名字串的名稱 */

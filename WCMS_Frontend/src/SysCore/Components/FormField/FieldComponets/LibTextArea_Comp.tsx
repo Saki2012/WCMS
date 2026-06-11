@@ -3,7 +3,7 @@ import type { ILibTextAreaProp } from "./LibTextArea_Data";
 
 // #region Private
 /** 富文本 */
-const LibTextArea = (prop: ILibTextAreaProp) =>
+export const LibTextArea = (prop: ILibTextAreaProp) =>
 {
     const inputId = useId();
     return (
@@ -21,7 +21,4 @@ const LibTextArea = (prop: ILibTextAreaProp) =>
         </>
     );
 };
-
-
-export default LibTextArea;
 // #endregion

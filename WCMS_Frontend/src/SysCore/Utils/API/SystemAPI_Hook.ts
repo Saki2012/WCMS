@@ -37,6 +37,6 @@ export const useFetchEnumOptions = (enumName: string) =>
     {
         fetchData();
     }, [fetchData]);
-    return { data, isLoading, error };
+    return { data, isLoading, error, refetch: fetchData };
 };
 // #endregion

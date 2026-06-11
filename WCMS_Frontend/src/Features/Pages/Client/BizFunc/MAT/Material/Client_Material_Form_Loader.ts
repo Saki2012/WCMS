@@ -5,6 +5,7 @@ import { MaterialAdapter } from "@/Features/Hooks/BizFunc/MAT/Material_Api";
 import {
     buildClientDataQueryKey,
     buildClientDataQueryState,
+    buildClientLoaderInitial,
     type ClientDataQueryDataSourceResult,
     type ClientDataQueryTemplate,
     isSameClientDataQueryParam,
@@ -14,7 +15,7 @@ import type { SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { IListViewState } from "@/SysCore/Interface/IListViewState";
 import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
-import { type ApiResponse, getSsrApi } from "@/SysCore/Utils/API/APIBase";
+import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { MaterialFields, MaterialLangInfoFields, MaterialPictureFields, MaterialTagsFields, PGID } from "@/types/SchemaFields";
@@ -159,11 +160,6 @@ const buildMaterialFormLoaderArgs = (p: { lang: Lang; internalId: string; queryP
     return { internalId: safeInternalId, progId: PGID.Material, lang: p.lang, queryParam };
 };
 /** 組出給 hydration 用的 initial 格式 */
-const buildLoaderInitial = <TArgs, TData>(args: TArgs, data: TData): ApiLoaderData<TArgs, TData> =>
-{
-    const apiRes: ApiResponse<TData> = { IsSuccess: true, Data: data, SysMessage: [] };
-    return { args, apiRes };
-};
 /** 建立 Material Form 查詢條件 */
 const buildMaterialFormCondition = (internalId: string): string =>
 {
@@ -208,7 +204,7 @@ const buildListInitial = (
     const loaderParam = p.loaderData?.args?.queryParam;
     if (!loaderParam) return null;
     if (!isSameClientDataQueryParam(p.queryParam, loaderParam)) return null;
-    return buildLoaderInitial(loaderParam, p.loaderData?.res.listRes ?? [p.fallbackData]);
+    return buildClientLoaderInitial(loaderParam, p.loaderData?.res.listRes ?? [p.fallbackData]);
 };
 
 /** 建立 Category map initial，避免 hydration 首次重抓 */
@@ -245,7 +241,7 @@ const matchInitialArgs = <TArgs, TData>(currentArgs: TArgs, initialArgs: TArgs, 
     const currentKey = JSON.stringify(currentArgs ?? null);
     const initialKey = JSON.stringify(initialArgs ?? null);
     if (currentKey !== initialKey) return null;
-    return buildLoaderInitial(initialArgs, initialData);
+    return buildClientLoaderInitial(initialArgs, initialData);
 };
 /** 建立 Material Form 初始 ViewState */
 const buildMaterialFormInitialViewState = (): IListViewState =>

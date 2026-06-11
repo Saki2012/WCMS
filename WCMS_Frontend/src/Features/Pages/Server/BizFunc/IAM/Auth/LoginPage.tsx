@@ -5,19 +5,14 @@ import { AuthAPI } from "@/SysCore/Utils/API/AuthClient";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-// #region Property
-const logoModules = import.meta.glob("SpecFeature/Assets/Server/login_logo_PC.{svg,png,jpg,jpeg,gif,webp}", {
-    eager: true,
-    query: "?url",
-    import: "default",
-}) as Record<string, string>;
-
+// #region Initialization
+const logoModules = import.meta.glob("SpecFeature/Assets/Server/login_logo_PC.{svg,png,jpg,jpeg,gif,webp}", { eager: true, query: "?url", import: "default" }) as Record<string, string>;
 // 只拿第一個（實務上這個 pattern 只會 match 一個檔案）
 const logImg = Object.values(logoModules)[0] ?? "";
 // #endregion
 
 // #region Public
-export default function LoginPage()
+export const LoginPage = () =>
 {
     const [account, setAccount] = useState(""); // HTML 的 email 欄位 -> 後端 account
     const [password, setPassword] = useState("");
@@ -249,5 +244,5 @@ export default function LoginPage()
             )}
         </main>
     );
-}
+};
 // #endregion

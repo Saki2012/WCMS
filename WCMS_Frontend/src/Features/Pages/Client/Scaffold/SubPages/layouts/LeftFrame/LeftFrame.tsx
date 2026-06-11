@@ -12,9 +12,8 @@ interface ILeftFrameProps
 // #endregion
 
 // #region Private
-const LeftFrame = (props: ILeftFrameProps) =>
+export const LeftFrame = (props: ILeftFrameProps) =>
 {
     return <SubMenu_Comp lang={props.lang} site={props.site} node={props.node} />;
 };
-export default LeftFrame;
 // #endregion

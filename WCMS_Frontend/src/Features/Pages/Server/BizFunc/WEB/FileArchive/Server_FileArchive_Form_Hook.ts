@@ -21,6 +21,7 @@ import type {
 import {
     buildEditGridCell,
     getEditGridCellValue,
+    getSelectedEditGridFile,
     getEditGridNumberCellValue,
     getEditGridStringCellValue,
     toEditGridOptions,
@@ -31,12 +32,13 @@ import { buildSupportedLangOrder, type Lang, LangLabelMap, normalizeSupportedLan
 import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
-import { LibText } from "@/SysCore/Utils/Library/LibData";
+import { LibAttachment, LibText } from "@/SysCore/Utils/Library/LibData";
 import { useUploadFile } from "@/SysCore/Utils/UI_HookFunc/useUploadFile";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { FileArchiveDetailFields, FileArchiveInfoFields, FileArchiveSetFields, FileArchiveUrlDetailFields, PGID } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
+import { buildServerSupportedLangDetailMap } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Helper";
 
 // #region Property
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];
@@ -414,24 +416,12 @@ const buildFileArchiveDetailTabs = (details: FileArchiveInfo[], preferLang: Lang
 /** 依支援語系排序並過濾 Detail，避免無效語系產生 Unknown Tab。 */
 const filterSupportedDetailRows = (details: FileArchiveInfo[], preferLang: Lang): FileArchiveDetailTabItem[] =>
 {
-    const detailMap = buildSupportedDetailMap(details);
+    const detailMap = buildServerSupportedLangDetailMap(details);
     const langs = buildSupportedLangOrder(preferLang);
 
     return langs.map((lang, index) => buildFileArchiveDetailTabItem(detailMap.get(lang.toLowerCase()), index)).filter((
         item,
     ): item is FileArchiveDetailTabItem => Boolean(item));
-};
-
-/** 將有效語系 Detail 建成 Map，同語系只保留第一筆。 */
-const buildSupportedDetailMap = (details: FileArchiveInfo[]): Map<string, FileArchiveInfo> =>
-{
-    return details.reduce<Map<string, FileArchiveInfo>>((map, detail) =>
-    {
-        const lang = normalizeSupportedLang(detail.Lang);
-        if (!lang || map.has(lang)) return map;
-        map.set(lang, detail);
-        return map;
-    }, new Map<string, FileArchiveInfo>());
 };
 
 /** 建立單一 Detail Tab 項目。 */
@@ -797,36 +787,13 @@ const uploadFileArchiveFileValue = async (args: EditGridCellValueChangeArgs, han
 /** 建立檔案上傳後的欄位更新結果，同步覆蓋檔案名稱。 */
 const buildFileArchiveFileUploadChangeResult = (file: FileArchiveFileCellValue): EditGridCellValueChangeResult =>
 {
-    return { value: file, rowValues: { [FileArchiveDetailFields.FileName]: getFileNameWithoutExtension(file.originalFileName) } };
+    return { value: file, rowValues: { [FileArchiveDetailFields.FileName]: LibAttachment.getDisplayFileNameWithoutExtension(file.originalFileName) } };
 };
 
 /** 取得本次選檔的原始檔名，避免上傳 callback 未帶檔名時只剩 internalId。 */
 const getSelectedFileArchiveFileName = (file: EditGridFileValue): string =>
 {
     return String(file.file?.name || file.fileName || "").trim();
-};
-
-/** 取得不含副檔名的檔名，供檔案名稱欄位預設帶入。 */
-const getFileNameWithoutExtension = (fileName?: string | null): string =>
-{
-    const safeFileName = String(fileName ?? "").trim();
-    const extIndex = safeFileName.lastIndexOf(".");
-
-    if (extIndex <= 0) return safeFileName;
-    return safeFileName.slice(0, extIndex);
-};
-
-/** 從 EditGrid file value 取得使用者剛選的 File。 */
-const getSelectedEditGridFile = (value: EditGridCellValue): EditGridFileValue | null =>
-{
-    if (isEditGridFileValue(value)) return value;
-    return null;
-};
-
-/** 判斷是否為 EditGrid file value。 */
-const isEditGridFileValue = (value: EditGridCellValue): value is EditGridFileValue =>
-{
-    return typeof value === "object" && value !== null && "fileName" in value;
 };
 
 /** 建立空檔案值，用於使用者清除 file 欄位。 */

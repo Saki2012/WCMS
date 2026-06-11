@@ -1,16 +1,19 @@
-import type { Lang } from "@/SysCore/i18n/lang";
-import { LangLink } from "@/SysCore/i18n/LangLink";
-import type { components } from "@/types/api";
-import type React from "react";
-import { useCallback, useMemo, useState } from "react";
-
 import { CategoryAdapter } from "@/Features/Hooks/BizFunc/COMM/Category_Api";
 import { TagAdapter } from "@/Features/Hooks/BizFunc/COMM/Tag_Api";
 import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WEB/Announcement_Api";
-
+import {
+    buildClientCategoryTextDict as buildCategoryDict,
+    buildClientListInitial as toListInitial,
+    buildClientTagTextDict as buildTagDict,
+} from "@/Features/Pages/Client/Index/HomePage_Helper";
 import more_d from "@/SpecFetures/1816/Assets/Client/images/svg_icon/more-d.svg";
-
+import type { Lang } from "@/SysCore/i18n/lang";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 import { findTextByKey } from "@/SysCore/Utils/Library/LibData";
+import { formatDateParts as formatDate } from "@/SysCore/Utils/Library/LibData";
+import type { components } from "@/types/api";
+import type React from "react";
+import { useCallback, useMemo, useState } from "react";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
@@ -20,7 +23,6 @@ type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"];
 
 type TagSet = components["schemas"]["TagSet_DTO"];
-
 
 export interface NewsDataProps
 {
@@ -41,7 +43,6 @@ export interface NewsDataProps
     initialTags: TagSet[];
 }
 
-
 interface GetDataProp
 {
     redir: string;
@@ -57,9 +58,7 @@ interface GetDataProp
     internalId: string;
 }
 
-
 type TagKey = "top" | "new" | "hot";
-
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 // #endregion
@@ -375,45 +374,9 @@ export const NewsData = (props: NewsDataProps) =>
 // =========================
 // helpers（維持原本邏輯）
 // =========================
-
-const buildCategoryDict = (list: CategoryDataSet[], lang: Lang): Record<string, string> =>
-{
-    // 宣告變數
-    const pairs = list.map((cat) =>
-    {
-        const id = cat.Category?.CategoryId;
-        const name = findTextByKey(cat.CategoryDetail, (p) => p?.Lang, lang, (p) => p?.CategoryName);
-        return [String(id ?? ""), name] as const;
-    });
-
-    // return
-    return Object.fromEntries(pairs.filter(([id]) => Boolean(id)));
-};
-
-
-const buildTagDict = (list: TagSet[], lang: Lang): Record<string, string> =>
-{
-    // 宣告變數
-    const pairs = list.map((t) =>
-    {
-        const id = t.TagData?.TagId;
-        const name = findTextByKey(t.TagDetail, (p) => p?.Lang, lang, (p) => p?.TagName);
-        return [String(id ?? ""), name] as const;
-    });
-
-    // return
-    return Object.fromEntries(pairs.filter(([id]) => Boolean(id)));
-};
 // #endregion
 
 // #region Private
-const toListInitial = <TArgs, TItem>(args: TArgs, data: TItem[]) =>
-{
-    // return：符合 adapter hook 的 initial 型別
-    return { args, apiRes: { IsSuccess: true, Data: data, SysMessage: [] } };
-};
-
-
 const useAnnouncementLists = (
     p: {
         listParam01: QueryListParam;
@@ -445,7 +408,6 @@ const useAnnouncementLists = (
     return { list01: q01.data ?? [], list02: q02.data ?? [], list03: q03.data ?? [], list04: q04.data ?? [] };
 };
 
-
 const useCategoryTagDict = (
     p: { lang: Lang; cateParam: QueryListParam; tagParam: QueryListParam; initialCategories: CategoryDataSet[]; initialTags: TagSet[]; },
 ) =>
@@ -468,7 +430,6 @@ const useCategoryTagDict = (
     // return
     return { categoryDict, tagDict };
 };
-
 
 const getNewsDataProps = (
     newsData: AnnouncementSet[],
@@ -516,7 +477,6 @@ const getNewsDataProps = (
     return resultProps;
 };
 
-
 const pickNewsByCategories = <T extends { Announcement?: { Categories?: string | null | undefined; }; }>(
     newsData: T[] | undefined,
     categories: string | string[],
@@ -536,17 +496,6 @@ const pickNewsByCategories = <T extends { Announcement?: { Categories?: string |
 
     return result.slice(0, take);
 };
-
-
-const formatDate = (dateStr: string) =>
-{
-    const date = new Date(dateStr);
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear().toString();
-    return { day, month, year };
-};
-
 
 const GetData = (props: { lang: Lang; prop: GetDataProp[]; }) =>
 {
@@ -596,7 +545,6 @@ const GetData = (props: { lang: Lang; prop: GetDataProp[]; }) =>
         </>
     );
 };
-
 
 const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: number = 8): boolean =>
 {

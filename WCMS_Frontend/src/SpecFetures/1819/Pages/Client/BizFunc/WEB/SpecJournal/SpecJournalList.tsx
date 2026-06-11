@@ -1,5 +1,5 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
+import { ModuleContent, type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import { useBreadcrumb } from "@/Features/Pages/Client/Scaffold/SubPages/Module/BreadCrumb/BreadCrumb_Comp";
 import { getLangLabel, type Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
@@ -16,8 +16,6 @@ import { useSpecJournalSearchNav } from "./SpecJournalSearchUtils";
 type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
 
 type SpecJournalFilters = { q: string; articleLang: string; tagId: string; tagName: string; author: string; keyword: string; includeRef: string; };
-
-
 
 type Document = { key: string; fileId: string; fileName: string; };
 // #endregion
@@ -117,7 +115,7 @@ export const SpecJournalList = (props: { site: INormSite; node: INormNode; lang:
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 const buildDocuments = (data: SpecJournalSet): Document[] =>
 {
     const files: Document[] = [];
@@ -204,9 +202,7 @@ const SpecJournalListContent = (
                                 <div className="row__group">
                                     <LangLink
                                         className="Jitem-inner"
-                                        to={`../Form/${it.SpecJournal?._JournalIndexDetail?.IndexId}/${it.SpecJournal?._JournalIndexDetail?.RowId}/${
-                                            it.SpecJournal?.JournalId ?? ""
-                                        }`}
+                                        to={`../Form/${it.SpecJournal?._JournalIndexDetail?.IndexId}/${it.SpecJournal?._JournalIndexDetail?.RowId}/${it.SpecJournal?.JournalId ?? ""}`}
                                         target="_self"
                                         title={it.SpecJournal?.Title ?? ""}
                                     >
@@ -223,9 +219,7 @@ const SpecJournalListContent = (
                                                         return (
                                                             <li key={`${it.SpecJournal?.JournalId}-au-${au.RowId}`} className="authorlist-item">
                                                                 <LangLink
-                                                                    to={`../Form/${it.SpecJournal?._JournalIndexDetail?.IndexId}/${it.SpecJournal?._JournalIndexDetail?.RowId}/${
-                                                                        it.SpecJournal?.JournalId ?? ""
-                                                                    }`}
+                                                                    to={`../Form/${it.SpecJournal?._JournalIndexDetail?.IndexId}/${it.SpecJournal?._JournalIndexDetail?.RowId}/${it.SpecJournal?.JournalId ?? ""}`}
                                                                 >
                                                                     {(() =>
                                                                     {
@@ -303,7 +297,6 @@ const SpecJournalListContent = (
     );
 };
 
-
 /** JournalCard：拆小塊，保持 function 不要太長 */
 
 const JournalCard = (
@@ -379,7 +372,6 @@ const JournalCard = (
     );
 };
 
-
 const IssueSummaryDownload = (props: { fileId?: string; fileName?: string; downloadCount?: number; isPdf?: boolean; }) =>
 {
     const fileId = (props.fileId ?? "").trim();
@@ -411,7 +403,6 @@ const IssueSummaryDownload = (props: { fileId?: string; fileName?: string; downl
         </>
     );
 };
-
 
 const DocumentList = (props: { data: SpecJournalSet; }) =>
 {

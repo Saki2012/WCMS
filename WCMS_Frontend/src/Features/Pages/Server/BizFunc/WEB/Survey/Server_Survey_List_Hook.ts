@@ -7,7 +7,7 @@ import type {
     ServerListGridTemplate,
 } from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Hook";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
-import type { SearchFieldConfig, SearchValue, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
+import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
@@ -17,6 +17,11 @@ import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { AccountFields, PGID, SurveyFields } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
 import { type NavigateFunction, useLocation, useNavigate } from "react-router-dom";
+import {
+    getServerColumnTitle as getColumnTitle,
+    getServerSearchStringValue as getSearchStringValue,
+    buildServerListColumns,
+} from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Helper";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
@@ -235,7 +240,7 @@ const buildSurveyGridProps = (
 ): GridProps =>
 {
     const visibleCols = [SurveyFields.SurveyName, SurveyFields.ModifyUserId, SurveyFields.ModifyTime];
-    const columns = buildColumns(visibleCols, opt.raw);
+    const columns = buildServerListColumns(visibleCols, opt.raw.modelDisplayName);
     const rows = buildSurveyRows(opt.raw, columns);
     const baseGrid: GridProps = { columns, rows, CurrentPage: opt.raw.pageNumber ?? 1, TotalPage: opt.raw.totalPages ?? 1, onPageChange: opt.raw.onPageChange };
 
@@ -284,12 +289,6 @@ const enhanceSurveyGrid = (
 };
 
 
-/** 建立問卷列表欄位定義 */
-const buildColumns = (visibleCols: string[], raw: SurveyListRawData): ColumnConfig[] =>
-{
-    return visibleCols.map((col) => ({ key: col, title: getColumnTitle(raw.modelDisplayName, col, `【${col}】`) }));
-};
-
 
 /** 建立問卷列表列資料 */
 const buildSurveyRows = (raw: SurveyListRawData, columns: ColumnConfig[]): GridRow[] =>
@@ -308,21 +307,6 @@ const buildSurveyRows = (raw: SurveyListRawData, columns: ColumnConfig[]): GridR
 };
 
 
-/** 依欄位代碼取得 ModelDisplayName 顯示文字 */
-const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, columnId: string, fallback: string): string =>
-{
-    const tables = modelDisplayName?.Tables ?? [];
-    const hit = tables.flatMap((t) => t.Columns ?? []).find((c) => c.ColumnId === columnId);
-    return hit?.ColumnDisplayName ?? fallback;
-};
 
 
-/** 取得 SearchValue 的文字值 */
-const getSearchStringValue = (value: SearchValue): string | undefined =>
-{
-    if (typeof value !== "string") return undefined;
-
-    const text = value.trim();
-    return text.length > 0 ? text : undefined;
-};
 // #endregion

@@ -1,8 +1,8 @@
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import { LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
-import type { ReactNode } from "react";
 
 // #region Property
 type ShortcutModel = components["schemas"]["SpecHomePage1821_Shortcut_DTO"];
@@ -19,65 +19,61 @@ export const Section2 = (props: { lang: Lang; data: ShortcutModel[]; }) =>
 
     return (
         <section className="spec1821-shortcut" aria-label="招生快捷功能">
-            <div className="spec1821-shortcut__list">{shortcuts.map((item) => renderShortcut(item, props.lang))}</div>
+            <div className="spec1821-shortcut__list">
+                {shortcuts.map((item) => <ShortcutItem key={`${item.HomePageId}-${item.RowId}`} item={item} lang={props.lang} />)}
+            </div>
         </section>
     );
 };
 // #endregion
 
 // #region EntityComp
-/** 渲染快捷按鈕 */
-const renderShortcut = (item: ShortcutModel, lang: Lang) =>
+/** 快捷按鈕項目 */
+const ShortcutItem = (props: { item: ShortcutModel; lang: Lang; }) =>
 {
-    const content = renderShortcutContent(item);
-    if (!hasLink(item.Link)) return renderPendingShortcut(item, content);
+    if (!LibText.isNonEmptyString(props.item.Link)) return <PendingShortcutItem item={props.item} />;
 
     return (
         <LangLink
-            key={`${item.HomePageId}-${item.RowId}`}
-            to={item.Link ?? ""}
-            lang={lang}
+            to={props.item.Link ?? ""}
+            lang={props.lang}
             className="spec1821-shortcut__item"
-            title={item.Title ?? ""}
-            aria-label={getShortcutLabel(item)}
-            data-action-type={item.ActionType ?? ""}
-            data-action-value={item.ActionValue ?? ""}
+            title={props.item.Title ?? ""}
+            aria-label={getShortcutLabel(props.item)}
+            data-action-type={props.item.ActionType ?? ""}
+            data-action-value={props.item.ActionValue ?? ""}
         >
-            {content}
+            <ShortcutContent item={props.item} />
         </LangLink>
     );
 };
 
-/** 渲染暫定功能按鈕 */
-const renderPendingShortcut = (item: ShortcutModel, content: ReactNode) =>
+/** 暫定功能快捷按鈕 */
+const PendingShortcutItem = (props: { item: ShortcutModel; }) =>
 {
     return (
-        <div key={`${item.HomePageId}-${item.RowId}`} className="spec1821-shortcut__item is-pending" aria-label={`${getShortcutLabel(item)}（功能暫定）`}>
-            {content}
+        <div className="spec1821-shortcut__item is-pending" aria-label={`${getShortcutLabel(props.item)}（功能暫定）`}>
+            <ShortcutContent item={props.item} />
         </div>
     );
 };
 
-/** 渲染快捷按鈕內容 */
-const renderShortcutContent = (item: ShortcutModel) =>
+/** 快捷按鈕內容 */
+const ShortcutContent = (props: { item: ShortcutModel; }) =>
 {
     return (
         <>
-            {item.IconFileId && <img className="spec1821-shortcut__icon" src={FileManagementAPI.get_Public_Preview_Url(item.IconFileId)} alt={item.IconFileDescription ?? ""} />}
-            <span className="spec1821-shortcut__title">{item.Title}</span>
-            {item.SubTitle && <span className="spec1821-shortcut__subtitle">{item.SubTitle}</span>}
+            {props.item.IconFileId && (
+                <img className="spec1821-shortcut__icon" src={FileManagementAPI.get_Public_Preview_Url(props.item.IconFileId)} alt={props.item.IconFileDescription ?? ""} />
+            )}
+            <span className="spec1821-shortcut__title">{props.item.Title}</span>
+            {props.item.SubTitle && <span className="spec1821-shortcut__subtitle">{props.item.SubTitle}</span>}
         </>
     );
 };
 // #endregion
 
 // #region Private
-/** 判斷是否有連結 */
-const hasLink = (link?: string | null) =>
-{
-    return !!link?.trim();
-};
-
 /** 取得快捷按鈕說明 */
 const getShortcutLabel = (item: ShortcutModel) =>
 {

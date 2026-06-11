@@ -4,10 +4,11 @@ import { useMobileMenuCollapse } from "@/Features/Hooks/UIAction/Mobile/useMobil
 import { SITEMAP_SEGMENT } from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap/Sitemap";
 import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
+import { A11yContent } from "@/Features/Pages/Client/Scaffold/MainFrame/Header";
 import { LangSwitchBtn } from "@/Features/Pages/Client/Scaffold/MainFrame/LangSwitchBtn";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import LogoImg from "@/SpecFetures/1818/Assets/Client/images/logo/LOGO_300x100.svg";
-import { A11yContent } from "@/SpecFetures/_default/Pages/Client/Scaffold/MainFrame/Header";
+
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
@@ -258,7 +259,7 @@ const LogoComp = () =>
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /**
  * 遞迴渲染多層選單
  * parentDepth = 0 代表「第二層」，對應原本的 className 設計：
@@ -309,7 +310,7 @@ const renderDropdownItems = (items: MenuItemData[], parentDepth: number): JSX.El
 // #endregion
 
 // #region Private
-const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
+export const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
 {
     const headerRef = useRef<HTMLDivElement | null>(null);
     useMobileMenuCollapse({
@@ -334,9 +335,6 @@ const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
         </>
     );
 };
-
-export default Header;
-
 const NavBar = (props: { lang: Lang; }) =>
 {
     const title = props.lang === "zh-tw"
@@ -480,7 +478,6 @@ const PCBtn = () =>
     );
 };
 
-
 /** 1. 一般單選 */
 const SingleMenuItem = (props: { menuItem: MenuItemData; }) =>
 {
@@ -501,7 +498,6 @@ const SingleMenuItem = (props: { menuItem: MenuItemData; }) =>
         </li>
     );
 };
-
 
 /** 2. 多層下拉 */
 const DropdownMenuItem = (props: { menuItem: MenuItemData; }) =>
@@ -524,7 +520,6 @@ const DropdownMenuItem = (props: { menuItem: MenuItemData; }) =>
         </li>
     );
 };
-
 
 /** 3. Mega 選項：明細動態渲染 */
 const MegaMenuItem = (props: { menuItem: MenuItemData; }) =>
@@ -561,7 +556,6 @@ const MegaMenuItem = (props: { menuItem: MenuItemData; }) =>
         </li>
     );
 };
-
 
 const GetMenuData = (lang: Lang, site: INormSite): MenuItemData[] =>
 {

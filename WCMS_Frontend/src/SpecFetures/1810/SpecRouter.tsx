@@ -5,7 +5,7 @@ import { Classic_FETheme } from "@/Features/Pages/Client/Theme/ClassicTheme_Clsx
 import { type ISpecResearchListOptions, SpecResearchListComp } from "@/SpecFetures/1810/Pages/Client/BizFunc/WEB/SpecResearch/SpecResearch_List_Comp";
 import { SpecUSRFormComp } from "@/SpecFetures/1810/Pages/Client/BizFunc/WEB/SpecUSR/SpecUSR_Form_Comp";
 import { SpecUSRListComp } from "@/SpecFetures/1810/Pages/Client/BizFunc/WEB/SpecUSR/SpecUSR_List";
-import SubPage from "@/SpecFetures/1810/Pages/Client/Scaffold/SubPages/SubPage";
+import { SubPage } from "@/SpecFetures/1810/Pages/Client/Scaffold/SubPages/SubPage";
 import type { IHeaderMetaProps } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
 

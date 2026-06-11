@@ -4,7 +4,7 @@ import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { DividerComp } from "@/SysCore/Components/Divider/Divider_Comp";
 import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
 import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
-import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
+import { LoadingErrorHandler } from "@/SysCore/Components/LoadingErrorHandler";
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import { DefaultLang } from "@/SysCore/i18n/lang";
 import type { ReactNode } from "react";
@@ -43,7 +43,7 @@ export interface ServerListGridTemplateCompProps<TSearchParams, TRawData, TAdapt
     template: ServerListGridTemplate<TSearchParams, TRawData, TAdapter, TQueryParam>;
 
     /** SearchBar 渲染插槽 */
-    renderSearchBar?: (props: ServerListGridSearchRenderProps) => ReactNode;
+    buildSearchBarNode?: (props: ServerListGridSearchRenderProps) => ReactNode;
 }
 // #endregion
 
@@ -72,7 +72,7 @@ export const Server_ListGridTemplate_Comp = <TSearchParams, TRawData, TAdapter =
                                     <div className="panel">
                                         <div className="panel-body">
                                             <div className="form">
-                                                {props.renderSearchBar?.({
+                                                {props.buildSearchBarNode?.({
                                                     fields: vm.searchFields,
                                                     submittedValues: vm.submittedValues,
                                                     onSubmit: vm.submitSearch,

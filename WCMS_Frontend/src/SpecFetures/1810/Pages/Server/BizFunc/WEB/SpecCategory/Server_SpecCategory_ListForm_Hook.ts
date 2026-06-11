@@ -7,7 +7,7 @@ import type { ApiAdapterError, ApiLoaderData } from "@/SysCore/Utils/API/APIAdap
 import { type ApiResponse, MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import type { UseFetchDataResult } from "@/SysCore/Utils/API/FetchDataType";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { LibCondition, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { AccountFields, PGID, SpecCategoryDetailModelFields, SpecCategoryModelFields } from "@/types/SchemaFields";
@@ -19,7 +19,6 @@ type QueryListParam = components["schemas"]["QueryListParam"];
 
 type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"];
 
-
 type SpecCategoryListFormRawData = {
     editForm: UseFetchFormDataResult<SpecCategorySet>;
     actions: UseActionsResult;
@@ -27,7 +26,6 @@ type SpecCategoryListFormRawData = {
     param: QueryListParam;
     showCols: Record<string, string>;
 };
-
 
 type SpecCategoryListFormAdapter = { SpecCategory: ReturnType<typeof SpecCategoryAdapter>; };
 // #endregion
@@ -67,8 +65,7 @@ export const useSpecCategoryListFormFetchData = (
 
     const showCols = useMemo<Record<string, string>>(() =>
     {
-        const first = (showColQuery.data ?? [])[0];
-        return first ?? {};
+        return showColQuery.data ?? {};
     }, [showColQuery.data]);
 
     const actions = useSpecCategoryListFormActionsFromAdapter(opt.dirUrl, adapter.SpecCategory, opt.internalId, formData, opt.emptyData, grid.refetchData);
@@ -151,7 +148,6 @@ const useSpecCategoryListFormDataByAdapter = (
         displayName: (model.data ?? ({ ModelId: "", ModelDisplayName: "", Tables: [] } as ModelDisplaySchema)),
     };
 };
-
 
 const useSpecCategoryListFormActionsFromAdapter = (
     dirUrl: string,
@@ -237,34 +233,25 @@ const useSpecCategoryListFormActionsFromAdapter = (
     }), [server.isSaving, onSave, onDelete, onCancelBack, onAddNew, onEdit]);
 };
 
-
 const useSpecCategoryListQueryParam = (p: { lang: Lang; pgId: PGID; }): QueryListParam =>
 {
     // 宣告變數
-    const fields = useMemo<string[]>(() =>
-    {
-        return [
-            SpecCategoryModelFields.InternalId,
-            SpecCategoryModelFields.CategoryId,
-            SpecCategoryModelFields.ModifyUserId,
-            SpecCategoryModelFields.ModifyTime,
-            `${SpecCategoryModelFields._SpecCategoryDetail}.${SpecCategoryDetailModelFields.Lang}`,
-            `${SpecCategoryModelFields._SpecCategoryDetail}.${SpecCategoryDetailModelFields.CategoryName}`,
-            `${SpecCategoryModelFields.ModifyUser}.${AccountFields.AccountName}`,
-        ];
-    }, []);
+    const fields = useMemo<string[]>(() => [
+        SpecCategoryModelFields.InternalId,
+        SpecCategoryModelFields.CategoryId,
+        SpecCategoryModelFields.ModifyUserId,
+        SpecCategoryModelFields.ModifyTime,
+        `${SpecCategoryModelFields._SpecCategoryDetail}.${SpecCategoryDetailModelFields.Lang}`,
+        `${SpecCategoryModelFields._SpecCategoryDetail}.${SpecCategoryDetailModelFields.CategoryName}`,
+        `${SpecCategoryModelFields.ModifyUser}.${AccountFields.AccountName}`,
+    ], []);
 
     const condition = useMemo(() =>
-    {
-        let cdt = `${SpecCategoryModelFields._SpecCategoryDetail}.${SpecCategoryDetailModelFields.Lang} = "${p.lang}"`;
-        cdt = LibMerge(" And ", false, cdt, `${SpecCategoryModelFields.ProgId} = "${p.pgId}"`);
-        return cdt;
-    }, [p.lang, p.pgId]);
+        LibCondition.joinConditions([
+            LibCondition.createCondition(`${SpecCategoryModelFields._SpecCategoryDetail}.${SpecCategoryDetailModelFields.Lang}`, Operator.Equal, p.lang),
+            LibCondition.createCondition(SpecCategoryModelFields.ProgId, Operator.Equal, p.pgId),
+        ]), [p.lang, p.pgId]);
 
-    // return
-    return useMemo(() =>
-    {
-        return { Fields: fields, Condition: condition, OrderBy: [{ Col: SpecCategoryModelFields.ModifyTime, Desc: true }] };
-    }, [fields, condition]);
+    return useMemo(() => ({ Fields: fields, Condition: condition, OrderBy: [{ Col: SpecCategoryModelFields.ModifyTime, Desc: true }] }), [fields, condition]);
 };
 // #endregion

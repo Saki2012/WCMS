@@ -26,7 +26,7 @@ interface ILibDropListProp
 // #endregion
 
 // #region Private
-const LibDropList = (prop: ILibDropListProp) =>
+export const LibDropList = (prop: ILibDropListProp) =>
 {
     // 宣告變數
     const inputId = useId();
@@ -64,7 +64,4 @@ const LibDropList = (prop: ILibDropListProp) =>
         </>
     );
 };
-
-
-export default LibDropList;
 // #endregion

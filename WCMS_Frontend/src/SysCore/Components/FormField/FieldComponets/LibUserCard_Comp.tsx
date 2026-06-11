@@ -6,7 +6,7 @@ import type { ILibUserCardProp } from "./LibUserCard_Data";
 // #region Private
 // import { Link } from 'react-router-dom';
 
-const LibUserCard = (prop: ILibUserCardProp) =>
+export const LibUserCard = (prop: ILibUserCardProp) =>
 {
     const inputFileId = useId();
 
@@ -104,7 +104,4 @@ const LibUserCard = (prop: ILibUserCardProp) =>
         </>
     );
 };
-
-
-export default LibUserCard;
 // #endregion

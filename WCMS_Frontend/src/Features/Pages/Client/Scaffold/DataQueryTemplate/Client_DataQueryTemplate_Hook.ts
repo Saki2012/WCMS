@@ -1,6 +1,9 @@
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { IListViewState } from "@/SysCore/Interface/IListViewState";
+import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
+import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
+import { LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { useCallback, useMemo, useState } from "react";
 import { useLoaderData } from "react-router-dom";
@@ -434,6 +437,20 @@ export const useClientDataQueryTemplate = <TSearchParams, TRawData, TViewModel, 
         refetchData,
         refetchRefData,
     };
+};
+
+/** 取得前台查詢欄位文字，空白值統一轉為 undefined */
+export const getClientSearchStringValue = (values: SearchValues, key: string): string | undefined =>
+{
+    const text = LibText.safeTrim(values[key]);
+    return text.length > 0 ? text : undefined;
+};
+
+/** 建立前台 loader initial 包裝資料 */
+export const buildClientLoaderInitial = <TArgs, TData>(args: TArgs, data: TData): ApiLoaderData<TArgs, TData> =>
+{
+    const apiRes: ApiResponse<TData> = { IsSuccess: true, Data: data, SysMessage: [] };
+    return { args, apiRes };
 };
 // #endregion
 

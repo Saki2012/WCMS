@@ -3,6 +3,7 @@ import type { TinyMCEEditor } from "../Core/tinyMceTypes";
 import { getIframeReferrerPolicy } from "../Iframe/tinyMceIframeUtils";
 import { normalizeImageHtmlBeforeSave, normalizeImageHtmlForEditor, syncResponsiveImageElement } from "./tinyMceImageUtils";
 
+// #region Public
 export interface UseTinyMceInternalImageOptions
 {
     resolvePreviewUrl: (internalId: string) => string;
@@ -146,3 +147,4 @@ export const useTinyMceInternalImage = (opts: UseTinyMceInternalImageOptions): U
 
     return { setup, transformForEditor, transformForDb } as const;
 };
+// #endregion

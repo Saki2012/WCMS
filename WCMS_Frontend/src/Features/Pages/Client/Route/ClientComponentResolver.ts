@@ -17,7 +17,7 @@ import { Client_WebResource_List_Comp as WebResourceListBase, type IWebResourceL
 import { HomePage as HomePageBase } from "@/Features/Pages/Client/Index/HomePage";
 import { HomePageLoader as HomePageLoaderBase } from "@/Features/Pages/Client/Index/HomePage_Loader";
 import { getClientSlotPath } from "@/Features/Pages/Client/Scaffold/Slot/Client_SlotPath";
-import SubPageBase from "@/Features/Pages/Client/Scaffold/SubPages/SubPage";
+import { SubPage as SubPageBase } from "@/Features/Pages/Client/Scaffold/SubPages/SubPage";
 import { resolveSpecComponent, resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
 
 // #region Property
@@ -31,7 +31,7 @@ export type {
 };
 // #endregion
 
-// #region Public
+// #region Initialization
 // SubPage
 export const SubPage: typeof SubPageBase = resolveSpecComponent(getClientSlotPath("SubPage"), SubPageBase, ["SubPage", "default"]);
 // HomePage

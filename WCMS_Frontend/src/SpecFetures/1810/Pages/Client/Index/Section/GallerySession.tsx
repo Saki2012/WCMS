@@ -13,7 +13,6 @@ import type { components } from "@/types/api";
 // #region Property
 type GallerySet = components["schemas"]["GallerySet_DTO"];
 
-
 interface DataProp
 {
     internalId: string;
@@ -49,84 +48,53 @@ export const GallerySession = (props: { lang: Lang; hydrationData: HomePageGalle
 
     useEffect(() =>
     {
-        // 宣告變數
         const el = carouselRef.current;
         if (!el) return;
-
         const $owl = $(el);
-
+        const owlCarousel = $owl.owlCarousel;
+        if (typeof owlCarousel !== "function") return;
         const cleanup = () =>
         {
-            // 執行 function：清掉延遲 init
             if (initTimerRef.current !== null)
             {
                 window.clearTimeout(initTimerRef.current);
                 initTimerRef.current = null;
             }
-
-            // 執行 function：解除事件綁定
             $("#Gallery_start").off("click.gallerySession");
             $("#Gallery_pause").off("click.gallerySession");
-
-            // 執行 function：銷毀 carousel
             if (isOwlInitedRef.current && $owl.hasClass("owl-loaded"))
             {
                 $owl.trigger("destroy.owl.carousel");
             }
-
             isOwlInitedRef.current = false;
         };
-
-        // 執行 function：先清一輪，避免 StrictMode / 重 mount 殘留
         cleanup();
-
-        // 執行 function：無資料不初始化
         if (result.length === 0) return;
-
         initTimerRef.current = window.setTimeout(() =>
         {
             if (!carouselRef.current) return;
-
-            $owl.owlCarousel({
-                items: 3,
-                loop: true,
-                dots: true,
-                nav: true,
-                margin: 30,
-                autoplayTimeout: 3000,
-                autoplayHoverPause: true,
-                responsive: { 0: { items: 1 }, 767: { items: 2 }, 991: { items: 3 }, 1200: { items: 3 } },
-            });
-
+            owlCarousel.call($owl, { items: 3, loop: true, dots: true, nav: true, margin: 30, autoplayTimeout: 3000, autoplayHoverPause: true, responsive: { 0: { items: 1 }, 767: { items: 2 }, 991: { items: 3 }, 1200: { items: 3 } } });
             isOwlInitedRef.current = true;
-
-            // 執行 function：設定 tabindex
             $("#Gallery .owl-nav button").attr("tabindex", "7");
-
-            // 執行 function：播放 / 暫停控制
             $("#Gallery_start").off("click.gallerySession").on("click.gallerySession", () =>
             {
                 $owl.trigger("play.owl.autoplay", [6000]);
             });
-
             $("#Gallery_pause").off("click.gallerySession").on("click.gallerySession", () =>
             {
                 $owl.trigger("stop.owl.autoplay");
             });
         }, 0);
-
         return cleanup;
     }, [galleryKey]);
 
     return (
-        // <LoadingErrorHandler loadingList={isLoading} errorList={errors}>
         <section className="Gallery-section owl-box" style={{ backgroundImage: `url(${bgImg})` }}>
             <div className="Mask-DivBox layout_padding2">
                 <div className="customizeBox">
                     <div className="container-customize1">
                         <div className="row">
                             <div className="col-12 px-4 + animate__animated animate__slow wow animate__bounceInUp" data-wow-delay="0.1s">
-                                {/* // 標題 start // */}
                                 <div className="Standard-TitleDiv div-header">
                                     <div className="TextDIV">
                                         <h3>
@@ -142,17 +110,14 @@ export const GallerySession = (props: { lang: Lang; hydrationData: HomePageGalle
                             </div>
                         </div>
                     </div>
-
                     <div className="container-customize1">
                         <div className="row">
                             <div className="col-12 + p-0">
                                 <div className="content-box + animate__animated animate__slow wow animate__zoomIn" data-wow-delay="0.15s">
                                     <div id="Gallery" className="owl-carousel owl-theme px-2" ref={carouselRef} key={galleryKey}>
-                                        {/* <asp:Literal ID="Li_Album" runat="server" /> */}
                                         {result.map((item) =>
                                         {
                                             const imgUrl = FileManagementAPI.get_Public_Preview_Url(item.picInternalId, item.title);
-
                                             return item && (
                                                 <div className="item" key={item.internalId}>
                                                     <LangLink to={`/EventHighlights/event-album/${item.internalId}`} tabIndex={13} title={item.title}>
@@ -164,12 +129,10 @@ export const GallerySession = (props: { lang: Lang; hydrationData: HomePageGalle
                                                                     </div>
                                                                 </div>
                                                             </div>
-
                                                             <div className="TxtBoxDiv">
                                                                 <div className="card_titleDiv">
                                                                     <div className="card_title">{item.title}</div>
                                                                 </div>
-
                                                                 <div className="m-news_detail">
                                                                     <div className="category_box">
                                                                         <div className="m-news_category">
@@ -177,7 +140,6 @@ export const GallerySession = (props: { lang: Lang; hydrationData: HomePageGalle
                                                                             <div className="tags-text">{item.catName}</div>
                                                                         </div>
                                                                     </div>
-
                                                                     <div className="TimeBoxDiv">
                                                                         <div className="card_time">
                                                                             <i className="fa fa-clock-o" aria-hidden="true"></i>
@@ -195,8 +157,6 @@ export const GallerySession = (props: { lang: Lang; hydrationData: HomePageGalle
                                             );
                                         })}
                                     </div>
-
-                                    {/* // Banner 控制 暫停 / 播放 按鈕 START // */}
                                     <div className="control-box">
                                         <a
                                             id="Gallery_start"
@@ -249,7 +209,6 @@ export const GallerySession = (props: { lang: Lang; hydrationData: HomePageGalle
                 </div>
             </div>
         </section>
-        // </LoadingErrorHandler>
     );
 };
 // #endregion

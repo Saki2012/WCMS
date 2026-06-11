@@ -1,7 +1,8 @@
+import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { useCallback, useEffect, useState } from "react";
-
 // #region Property
+type ApiSysMessage = components["schemas"]["SysMessageModel"];
 export interface UseFetchFormDataResult<T>
 {
     data: T;
@@ -43,7 +44,7 @@ export const useFetchFormData = <T>(provider: any, internalId?: string | null, e
             const res = await provider.fetchData(internalId);
             if (!res.IsSuccess)
             {
-                const msg = res.SysMessage?.map(m => `${m.MessageCode}:${m.Message}`).join("；") ?? "查詢失敗";
+                const msg = res.SysMessage?.map((m: ApiSysMessage) => `${m.MessageCode}:${m.Message}`).join("；") ?? "查詢失敗";
                 throw new Error(msg);
             }
             setFormData((res.Data as T[])?.[0] ?? null as T);

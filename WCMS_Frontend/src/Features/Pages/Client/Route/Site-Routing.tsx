@@ -2,7 +2,7 @@
 import { Index } from "@/Features/Pages/Client/BizFunc/MainPage/Index";
 import { SITEMAP_NODE_ID, SITEMAP_SEGMENT, SitemapNode } from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap/Sitemap";
 import { HomePage, HomePageLoader } from "@/Features/Pages/Client/Route/ClientComponentResolver";
-import TemplateHub from "@/Features/Pages/Server/Scaffold/PreviewFrame/TemplateHub.tsx";
+import { TemplateHub } from "@/Features/Pages/Server/Scaffold/PreviewFrame/TemplateHub.tsx";
 import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { LibText } from "@/SysCore/Utils/Library/LibData";
@@ -182,7 +182,6 @@ export const resolveRouteLangFromRequest = (request: Request): Lang =>
 {
     const url = new URL(request.url, "http://local");
     const lang = resolveRouteLangFromPathnameSegments(url.pathname);
-
     return lang ?? DefaultLang;
 };
 /** 依站台資料建立 React Router 路由。 */
@@ -321,11 +320,9 @@ const resolveLangFromArgs = (args: LoaderFunctionArgs): Lang =>
 {
     const paramLang = LibRouteLang.tryParseRouteLangSegment(args.params?.["lang"]);
     if (paramLang) return paramLang;
-
     const url = new URL(args.request.url, "http://local");
     const pathLang = resolveRouteLangFromPathnameSegments(url.pathname);
     if (pathLang) return pathLang;
-
     return LibRouteLang.resolveRouteLangFromRequest(args.request);
 };
 
@@ -391,9 +388,7 @@ const createNormNode = (item: SiteMenuTreeItem, relationMap: ISiteMenuRelationMa
 {
     const id = item.ItemRowId ?? 0;
     const node = createBaseNormNode(item, id);
-
     applyNodeDetail(node, item, relationMap);
-
     return node;
 };
 

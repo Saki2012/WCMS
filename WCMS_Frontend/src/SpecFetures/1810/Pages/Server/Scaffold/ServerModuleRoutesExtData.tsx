@@ -14,7 +14,7 @@ const FEATURE_WEB_PROG_LIMIT = 6;
 const KEEP_MODULE_CODE_SET = new Set<string>(["Dashboard", "WebManagement", "AccountManage", "Logout"]);
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /** 建立 1810 客製 WebManagement Prog */
 const buildSpecWebProgs = (): IProgMeta[] =>
 {
@@ -111,13 +111,10 @@ const appendSpecWebProgs = (modules: IModuleMeta[]): IModuleMeta[] =>
 
 
 /** 1810 後台選單：保留指定主模組、裁切 Web Prog、加入客製功能 */
-const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] =>
+export const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] =>
 {
     const filtered = filterModulesFor1810(modules);
     const trimmed = trimFeatureWebProgs(filtered);
     return appendSpecWebProgs(trimmed);
 };
-
-
-export default extendServerModuleRoutes;
 // #endregion

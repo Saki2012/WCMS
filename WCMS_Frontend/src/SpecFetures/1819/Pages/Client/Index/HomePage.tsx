@@ -15,7 +15,7 @@ import { RelatedLinksSection } from "./Section/RelatedLinksSection";
  * - 本階段先不改 section DOM，只先把 loader data 接進來
  * - 後續各 section 再逐步改成 initial + hook 接手
  */
-const HomePage = (props: { lang: Lang; }) =>
+export const HomePage = (props: { lang: Lang; }) =>
 {
     const loaderData = useLoaderData() as HomePageLoaderData | undefined;
     const homePage = useHomePageData({ lang: props.lang, loaderData });
@@ -63,7 +63,4 @@ const HomePage = (props: { lang: Lang; }) =>
         </main>
     );
 };
-
-
-export default HomePage;
 // #endregion

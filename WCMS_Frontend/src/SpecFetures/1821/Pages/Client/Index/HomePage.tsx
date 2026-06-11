@@ -31,6 +31,4 @@ export const HomePage = (props: { lang: Lang; }) =>
         </>
     );
 };
-
-export default HomePage;
 // #endregion

@@ -1,5 +1,5 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
+import { ModuleContent, type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import type { Module_SpecProduction_OptionsJson } from "@/SpecFetures/1820/Pages/Server/BizFunc/WEB/SiteMenu/SpecModule_Comp";
 import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
@@ -16,7 +16,6 @@ import { findTextByKey } from "@/SysCore/Utils/Library/LibData";
 type MaterialSet = components["schemas"]["MaterialSet_DTO"];
 
 type MaterialTag = components["schemas"]["MaterialTags_DTO"];
-
 
 export interface ClientSpecProductionListProps
 {
@@ -54,7 +53,7 @@ export const Client_SpecProduction_List_Comp = (props: ClientSpecProductionListP
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /// <summary>
 /// 依類別欄位設定產生動態資訊列。
 /// </summary>
@@ -146,9 +145,7 @@ const SpecProductionContent = (props: { lang: Lang; intro?: string; catName?: st
                         <>
                             <ProductionTabs lang={props.lang} tagList={tagList} activeTabId={currentActiveTabId} onChange={changeTab} />
                             <div style={{ opacity: isTabVisible ? 1 : 0, transition: "opacity 220ms ease" }}>
-                                {activeTab && (
-                                    <ProductionTabPanel lang={props.lang} activeTab={activeTab} items={activeItems} viewMoreText={props.viewMoreText} />
-                                )}
+                                {activeTab && <ProductionTabPanel lang={props.lang} activeTab={activeTab} items={activeItems} viewMoreText={props.viewMoreText} />}
                             </div>
                         </>
                     )}
@@ -158,7 +155,6 @@ const SpecProductionContent = (props: { lang: Lang; intro?: string; catName?: st
     );
 };
 
-
 /// <summary>
 /// 取得 Tag 顯示名稱。
 /// </summary>
@@ -166,7 +162,6 @@ const getTagName = (tag: MaterialTag, lang: Lang): string =>
 {
     return findTextByKey(tag.Tag?._TagDetail, (p) => p?.Lang, lang, (p) => p?.TagName);
 };
-
 
 /// <summary>
 /// 渲染物件類別 Tab。
@@ -205,7 +200,6 @@ const ProductionTabs = (
     );
 };
 
-
 /// <summary>
 /// 渲染目前選取的 Tab 內容。
 /// </summary>
@@ -228,7 +222,6 @@ const ProductionTabPanel = ({ lang, activeTab, items, viewMoreText }: { lang: La
         </div>
     );
 };
-
 
 /// <summary>
 /// 用 React 狀態模擬 Owl 結構，處理播放、暫停、自動輪播與左右滑動。
@@ -457,7 +450,6 @@ const parseMaterialInfoJson = (source?: string | MaterialInfoJsonMap | null): Ma
     }
 };
 
-
 /// <summary>
 /// 取得目前語系的物件語系資料。
 /// </summary>
@@ -465,7 +457,6 @@ const getMaterialLangInfo = (item: MaterialSet, lang: Lang) =>
 {
     return item.MaterialLangInfo?.find((p) => p.Lang === lang);
 };
-
 
 /// <summary>
 /// 將 Json 欄位值轉成畫面文字。
@@ -525,7 +516,6 @@ const ProductionCard = (props: { lang: Lang; item: MaterialSet; viewMoreText: st
     );
 };
 
-
 /// <summary>
 /// 渲染資訊列，空資料不輸出。
 /// </summary>
@@ -539,7 +529,4 @@ const InfoRow = ({ text, className }: { text: string; className?: string; }) =>
         </li>
     );
 };
-
-
-export default Client_SpecProduction_List_Comp;
 // #endregion

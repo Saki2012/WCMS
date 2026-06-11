@@ -5,6 +5,8 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import { useEffect, useMemo, useRef } from "react";
 
+import { delayMs as sleep } from "@/Features/Pages/Client/Index/HomePage_Helper";
+
 // #region Property
 type BannerSet = components["schemas"]["BannerSet_DTO"];
 
@@ -194,7 +196,6 @@ export const LinkData = (props: { lang?: Lang; bannerParam: QueryListParam; init
 // --------------------
 // 以下維持你原本的 Owl 初始化（只改掉 any）
 // --------------------
-const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 
 const waitForOwlReady = async (opt?: { timeoutMs?: number; intervalMs?: number; }) =>

@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
  * @param theme 主題風格
  * @returns
  */
-const BreadCrumbComp = (
+export const BreadCrumbComp = (
     { items, style, isUl = true, externalDOM = null }: { items: ReactNode[]; style: IBreadCrumbStyle; isUl?: boolean; externalDOM?: ReactNode; },
 ) =>
 {
@@ -29,8 +29,4 @@ const BreadCrumbComp = (
         </>
     );
 };
-// #endregion
-
-// #region Private
-export default BreadCrumbComp;
 // #endregion

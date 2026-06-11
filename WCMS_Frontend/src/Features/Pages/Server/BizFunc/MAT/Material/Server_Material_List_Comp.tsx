@@ -5,7 +5,6 @@ import {
 import { Server_SearchBar_Comp } from "@/Features/Pages/Server/Scaffold/SearchBar/Server_SearchBar_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { Lang } from "@/SysCore/i18n/lang";
-import type { ReactNode } from "react";
 import { useMaterialListGridTemplate } from "./Server_Material_List_Hook";
 
 // #region Public
@@ -14,13 +13,13 @@ export const Server_Material_List_Comp = (prop: { title: string; theme: IBETheme
 {
     const template = useMaterialListGridTemplate({ lang: prop.lang });
 
-    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} renderSearchBar={renderMaterialSearchBar} />;
+    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} buildSearchBarNode={MaterialSearchBarSection} />;
 };
 // #endregion
 
-// #region EntityComp
+// #region Section
 /** 渲染物件列表搜尋列 */
-const renderMaterialSearchBar = (props: ServerListGridSearchRenderProps): ReactNode =>
+const MaterialSearchBarSection = (props: ServerListGridSearchRenderProps) =>
 {
     return (
         <Server_SearchBar_Comp

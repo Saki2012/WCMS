@@ -9,18 +9,17 @@ interface Props
 {
     items: SiteInfoItem[];
     displays: FieldDisplayName[];
-}
+};
 // #endregion
 
 // #region Public
-export default function SiteInfo({ items, displays }: Props)
-{
+export const SiteInfo = ({ items, displays }: Props) => {
     return <>{items.map((item, idx) => <SiteInfoComp key={idx} displayNameMap={displays} infoData={item} />)}</>;
 }
 // #endregion
 
 // #region Section
-function SiteInfoComp({ displayNameMap, infoData }: { displayNameMap: FieldDisplayName[]; infoData: SiteInfoItem; })
+const SiteInfoComp = ({ displayNameMap, infoData }: { displayNameMap: FieldDisplayName[]; infoData: SiteInfoItem; }) =>
 {
     return (
         <div className="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
@@ -33,13 +32,13 @@ function SiteInfoComp({ displayNameMap, infoData }: { displayNameMap: FieldDispl
             </div>
         </div>
     );
-}
+};
 // #endregion
 
 // #region Private
-function getFieldName(FieldId: string, map: FieldDisplayName[]): string
+const getFieldName = (FieldId: string, map: FieldDisplayName[]): string =>
 {
     const match = map.find((f) => f.FieldId === FieldId);
     return match ? match.DisplayName : FieldId;
-}
+};
 // #endregion

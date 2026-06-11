@@ -47,6 +47,9 @@ export interface FileArchiveListGridAdjustContext
     result: GridProps;
 }
 export type FileArchiveListGridAdjustSlot = (ctx: FileArchiveListGridAdjustContext) => GridProps;
+// #endregion
+
+// #region Initialization
 const extendFileArchiveListGridAdjust: FileArchiveListGridAdjustSlot = (ctx) => ctx.result;
 const resolvedFileArchiveListGridAdjust = resolveSpecFunc<FileArchiveListGridAdjustSlot>(getClientSlotPath("FileArchiveList"), extendFileArchiveListGridAdjust, ["extendFileArchiveListGridAdjust"]);
 // #endregion
@@ -102,7 +105,7 @@ const GridList_Comp = (props: { lang: Lang; title: string; gridData: GridProps; 
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /** 建立基礎 GridProps */
 const buildGridProps = (lang: Lang, datas: FileArchiveSet[], pageNumber: number, totalPage: number, onPageChange: (page: number) => void): GridProps =>
 {

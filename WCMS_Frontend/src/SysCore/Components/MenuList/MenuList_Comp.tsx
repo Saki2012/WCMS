@@ -4,7 +4,7 @@ import type { IMenu_Style } from "./MenuList_Clsx";
 import type { MenuItemData } from "./MenuList_Data";
 
 // #region Section
-const MenuListComp = (
+export const MenuListComp = (
     { items, Style, expandedKeys, onToggleKey }: {
         items: MenuItemData[];
         Style: IMenu_Style;
@@ -68,7 +68,4 @@ const RecursiveMenuItem = (
         </li>
     );
 };
-
-
-export default MenuListComp;
 // #endregion

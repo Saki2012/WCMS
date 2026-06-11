@@ -38,6 +38,16 @@ export interface DateTimeParts
     /** 毫秒 */
     millisecond: string;
 }
+
+/** 日期月份文字拆解結果 */
+export interface DateMonthTextParts
+{
+    /** 月份文字 */
+    month: string;
+
+    /** 日 */
+    day: string;
+}
 // #endregion
 
 // #region Public
@@ -54,16 +64,31 @@ export const formatDate = (value: LibDateInput): string =>
     return dayjs(value).format("YYYY-MM-DD");
 };
 /** 拆解日期時間為補零後的字串片段 */
-export const formatDateParts = (value: Date): DateTimeParts =>
+export const formatDateParts = (value: LibDateInput): DateTimeParts =>
 {
+    const date = toDateOrNull(value);
+    if (!date) return buildEmptyDateTimeParts();
+
     return {
-        year: `${value.getFullYear()}`,
-        month: pad2(value.getMonth() + 1),
-        day: pad2(value.getDate()),
-        hour: pad2(value.getHours()),
-        minute: pad2(value.getMinutes()),
-        second: pad2(value.getSeconds()),
-        millisecond: `${value.getMilliseconds()}`.padStart(3, "0"),
+        year: `${date.getFullYear()}`,
+        month: pad2(date.getMonth() + 1),
+        day: pad2(date.getDate()),
+        hour: pad2(date.getHours()),
+        minute: pad2(date.getMinutes()),
+        second: pad2(date.getSeconds()),
+        millisecond: `${date.getMilliseconds()}`.padStart(3, "0"),
+    };
+};
+
+/** 格式化日期為月份文字與日期片段 */
+export const formatDateMonthTextParts = (value: LibDateInput, locale: string = "en-US"): DateMonthTextParts =>
+{
+    const date = toDateOrNull(value);
+    if (!date) return { month: "", day: "" };
+
+    return {
+        month: date.toLocaleString(locale, { month: "short" }),
+        day: pad2(date.getDate()),
     };
 };
 /** 將 Date 轉成本地 ISO 格式字串 */
@@ -135,6 +160,12 @@ export const isWithinLastDays = (input: LibDateInput, days: number, now: Date = 
 // #endregion
 
 // #region Private
+/** 建立空白日期時間片段 */
+const buildEmptyDateTimeParts = (): DateTimeParts =>
+{
+    return { year: "", month: "", day: "", hour: "", minute: "", second: "", millisecond: "" };
+};
+
 /** 將數字補成兩位數 */
 const pad2 = (value: number): string =>
 {

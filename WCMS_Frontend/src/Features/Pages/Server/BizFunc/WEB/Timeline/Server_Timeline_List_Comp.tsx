@@ -5,7 +5,6 @@ import {
 import { Server_SearchBar_Comp } from "@/Features/Pages/Server/Scaffold/SearchBar/Server_SearchBar_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { Lang } from "@/SysCore/i18n/lang";
-import type { ReactNode } from "react";
 import { useTimelineListGridTemplate } from "./Server_Timeline_List_Hook";
 
 // #region Public
@@ -14,13 +13,13 @@ export const Server_Timeline_List_Comp = (prop: { title: string; theme: IBETheme
 {
     const template = useTimelineListGridTemplate({ lang: prop.lang });
 
-    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} renderSearchBar={renderTimelineSearchBar} />;
+    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} buildSearchBarNode={TimelineSearchBarSection} />;
 };
 // #endregion
 
-// #region EntityComp
+// #region Section
 /** 渲染紀事表列表搜尋列 */
-const renderTimelineSearchBar = (props: ServerListGridSearchRenderProps): ReactNode =>
+const TimelineSearchBarSection = (props: ServerListGridSearchRenderProps) =>
 {
     return (
         <Server_SearchBar_Comp

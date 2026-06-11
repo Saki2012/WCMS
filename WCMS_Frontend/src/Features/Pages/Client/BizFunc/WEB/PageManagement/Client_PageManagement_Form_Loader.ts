@@ -5,6 +5,7 @@ import { PageManagementAdapter } from "@/Features/Hooks/BizFunc/WEB/PageManageme
 import {
     buildClientDataQueryKey,
     buildClientDataQueryState,
+    buildClientLoaderInitial,
     type ClientDataQueryDataSourceResult,
     type ClientDataQueryTemplate,
     isSameClientDataQueryParam,
@@ -14,7 +15,7 @@ import type { SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { IListViewState } from "@/SysCore/Interface/IListViewState";
 import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
-import { type ApiResponse, getSsrApi } from "@/SysCore/Utils/API/APIBase";
+import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { PageManagementDetailFields, PageManagementFields } from "@/types/SchemaFields";
@@ -108,11 +109,6 @@ const buildPageManagementFormLoaderArgs = (p: { lang: Lang; pageId: string; quer
     return { pageId: safePageId, lang: p.lang, queryParam };
 };
 /** 組出給 hydration 用的 initial 格式 */
-const buildLoaderInitial = <TArgs, TData>(args: TArgs, data: TData): ApiLoaderData<TArgs, TData> =>
-{
-    const apiRes: ApiResponse<TData> = { IsSuccess: true, Data: data, SysMessage: [] };
-    return { args, apiRes };
-};
 /** 建立 PageManagement Form 查詢條件 */
 const buildPageManagementFormCondition = (pageId: string): string =>
 {
@@ -144,7 +140,7 @@ const buildListInitial = (p: { loaderData: PageManagementFormLoaderData | null; 
     const loaderParam = p.loaderData?.args?.queryParam;
     if (!loaderParam) return null;
     if (!isSameClientDataQueryParam(p.queryParam, loaderParam)) return null;
-    return buildLoaderInitial(loaderParam, p.loaderData?.res.listRes ?? [p.fallbackData]);
+    return buildClientLoaderInitial(loaderParam, p.loaderData?.res.listRes ?? [p.fallbackData]);
 };
 /** 依語系取目前 detail */
 const findLangDetail = (p: { data: PageManagementSet; lang: Lang; }): PageManagementDetail | null =>

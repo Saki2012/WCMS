@@ -28,21 +28,13 @@ import { formatLocalIso, LibCondition, Operator } from "@/SysCore/Utils/Library/
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
-
 type BannerSet = components["schemas"]["BannerSet_DTO"];
-
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
-
 type PageManagementSet = components["schemas"]["PageManagementSet_DTO"];
-
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
-
 type GallerySet = components["schemas"]["GallerySet_DTO"];
-
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
-
 type TagSet = components["schemas"]["TagSet_DTO"];
-
 export interface HomePageRawData
 {
     heroBanner: BannerSet | null;
@@ -64,7 +56,6 @@ export interface HomePageRawData
     galleryCategories: CategorySet[];
     galleryTags: TagSet[];
 }
-
 export interface HomePageLoaderArgs
 {
     lang: Lang;
@@ -93,12 +84,10 @@ export interface HomePageLoaderArgs
     galleryCateParam: QueryListParam;
     galleryTagParam: QueryListParam;
 }
-
 export interface HomePageLoaderRes
 {
     rawData: HomePageRawData;
 }
-
 export interface HomePageLoaderData
 {
     args: HomePageLoaderArgs;
@@ -107,8 +96,7 @@ export interface HomePageLoaderData
 // #endregion
 
 // #region Public
-/**
- * ✅ 首頁 loader factory：對標 AnnouncementList_Loader.ts
+/*** ✅ 首頁 loader factory：對標 AnnouncementList_Loader.ts
  * - 回傳 res.rawData：一次包含首頁所有 section 需要的資料
  * - args 也保留：後續 hydration hook 要做「同條件 refetch」可直接用
  */

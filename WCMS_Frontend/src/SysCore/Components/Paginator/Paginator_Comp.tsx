@@ -576,7 +576,7 @@ export const NewPaginatorCanInputPage = (props: PaginatorProps) =>
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /** 計算可視頁碼（最多顯示 maxVisible 個） */
 const buildVisiblePages = (currentPage: number, totalPages: number, maxVisible = 5): number[] =>
 {

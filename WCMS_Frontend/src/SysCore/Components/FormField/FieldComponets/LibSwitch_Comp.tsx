@@ -1,13 +1,16 @@
 import { useId, useMemo } from "react";
 import type { ILibSwitchProp } from "./LibSwitch_Data";
 
-// #region Private
-const LibSwitch = (prop: ILibSwitchProp) =>
+// #region Public
+/** 切換選項欄位，支援 checkbox / switch 類型的多選值。 */
+export const LibSwitch = (prop: ILibSwitchProp) =>
 {
     const inputId = useId();
+    const selectedValues = prop.value ?? [];
+
     const uidList = useMemo(() =>
     {
-        return prop.options?.map(opt => `checkbox-${opt.itemId}`);
+        return (prop.options ?? []).map(opt => `checkbox-${opt.itemId}`);
     }, [prop.options]);
 
     return (
@@ -16,8 +19,16 @@ const LibSwitch = (prop: ILibSwitchProp) =>
             <div className="col-md-10 col-sm-12 float-md-left float-sm-none">
                 {prop.options?.map((item, idx) =>
                 {
-                    const uid = uidList?.[idx];
-                    const isChecked = prop.value.includes(item.itemId);
+                    const uid = uidList[idx] ?? `${inputId}-${idx}`;
+                    const isChecked = selectedValues.includes(item.itemId);
+
+                    /** 更新目前切換欄位的選取值。 */
+                    const handleChange = (checked: boolean) =>
+                    {
+                        const newVal = checked ? [...selectedValues, item.itemId] : selectedValues.filter(v => v !== item.itemId);
+                        prop.onChange?.(newVal);
+                    };
+
                     return (
                         <div key={uid} className="col-12 float-left p-0">
                             <div className="custom-control form-check form-switch">
@@ -28,11 +39,7 @@ const LibSwitch = (prop: ILibSwitchProp) =>
                                     id={uid}
                                     value={item.itemId}
                                     checked={isChecked}
-                                    onChange={(e) =>
-                                    {
-                                        const newVal = e.target.checked ? [...prop.value, item.itemId] : prop.value.filter((v) => v !== item.itemId);
-                                        prop.onChange(newVal);
-                                    }}
+                                    onChange={(e) => handleChange(e.target.checked)}
                                 />
                                 <label className="form-check-label" htmlFor={uid}>
                                     <span className="check-txt">
@@ -47,7 +54,4 @@ const LibSwitch = (prop: ILibSwitchProp) =>
         </>
     );
 };
-
-
-export default LibSwitch;
 // #endregion

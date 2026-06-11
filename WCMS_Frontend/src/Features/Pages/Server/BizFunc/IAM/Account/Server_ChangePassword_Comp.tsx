@@ -1,6 +1,6 @@
 import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import LibPwdTextBox from "@/SysCore/Components/FormField/FieldComponets/LibPwdTextBox_Comp";
+import { LibPwdTextBox } from "@/SysCore/Components/FormField/FieldComponets/LibPwdTextBox_Comp";
 import { LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
 import { useServerChangePassword } from "./Server_ChangePassword_Hook";
 

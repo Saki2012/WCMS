@@ -13,11 +13,12 @@ import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import { LibCalendar, LibCheckBox, LibFile, LibModal, LibPicturePreview, LibTextBox, LibTinyMCE } from "@/SysCore/Components/FormField/LibFormField";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
-import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
+import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
 import { GalleryFields, GalleryInfoFields, GallerySetFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
+import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -139,7 +140,7 @@ export const Server_GalleryFormComp = (props: GalleryFormCompProps) =>
 
     const onBackToList = useCallback(() =>
     {
-        navigate(buildBackToListPath(pathname));
+        navigate(LibRoutePath.buildServerBackToListPath(pathname));
     }, [navigate, pathname]);
 
     const actionsOpt = useMemo(() =>
@@ -300,7 +301,7 @@ const GalleryBatchUploadComp = (props: { theme: IBETheme; binding: ServerFormBin
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /** 建立相簿主分頁內容。 */
 const buildGalleryMainTabContent = (props: GalleryContentProps): Record<string, ReactNode[]> =>
 {
@@ -375,13 +376,6 @@ const buildGalleryInfoFields = (theme: IBETheme, setField: ReturnType<typeof use
         />,
         <LibTinyMCE Style={theme.TinyMCE} {...setField(GallerySetFields.GalleryInfo, GalleryInfoFields.Content, "string", rowKeys)} />,
     ];
-};
-
-
-/** 建立回列表路徑，避免 Back 行為散在 JSX 中。 */
-const buildBackToListPath = (pathname: string): string =>
-{
-    return pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
 };
 // #endregion
 

@@ -87,7 +87,7 @@ export const Module_SpecProduction_Comp = (
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 const buildPageMapByProgId = (pageSets: PageSet[], progId: PGID, lang: Lang): Map<string, string> =>
 {
     const targetProgId = String(progId ?? "");

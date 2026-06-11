@@ -1,18 +1,22 @@
 import { RolePermissionAdapter } from "@/Features/Hooks/BizFunc/IAM/RolePermission_Api";
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import { createGridCrudActions, enhanceGridWithAdjustCell, type GridConfirmFn } from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
+import {
+    buildServerListColumns,
+    getServerSearchStringValue as getSearchStringValue,
+    getServerTableColumnTitle as getColumnTitle,
+} from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Helper";
 import type {
     ServerListGridDataSourceContext,
     ServerListGridDataSourceResult,
     ServerListGridTemplate,
 } from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Hook";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
-import type { SearchFieldConfig, SearchValue, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
+import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
-import { formatDateTime } from "@/SysCore/Utils/Library/LibData";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { formatDateTime, LibCondition, LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { AccountFields, PGID, RoleDataModelFields, RolePermissionSetFields } from "@/types/SchemaFields";
@@ -28,7 +32,6 @@ type RolePermissionApiAdapter = ReturnType<typeof RolePermissionAdapter>;
 
 type RolePermissionCudActions = ReturnType<RolePermissionApiAdapter["hooks"]["useCudActions"]>;
 
-
 export interface RolePermissionSearchParams
 {
     /** 目前列表語系 */
@@ -37,7 +40,6 @@ export interface RolePermissionSearchParams
     /** 角色名稱搜尋關鍵字 */
     roleName?: string;
 }
-
 
 export interface RolePermissionListRawData
 {
@@ -63,7 +65,6 @@ export interface RolePermissionListRawData
     param: QueryListParam;
 }
 
-
 export interface RolePermissionListAdapter
 {
     /** 角色權限 API adapter */
@@ -79,9 +80,7 @@ export interface RolePermissionListAdapter
     dirUrl: string;
 }
 
-
 export type RolePermissionListGridTemplate = ServerListGridTemplate<RolePermissionSearchParams, RolePermissionListRawData, RolePermissionListAdapter, QueryListParam>;
-
 
 type CrudDeps = {
     /** React Router 導頁方法 */
@@ -96,7 +95,6 @@ type CrudDeps = {
     /** 刪除後重新查詢 */
     afterDelete: () => Promise<void>;
 };
-
 
 type RolePermissionVisibleColumn = {
     /** Grid 欄位 key */
@@ -115,7 +113,6 @@ type RolePermissionVisibleColumn = {
 
 // #region Public
 export const ROLE_PERMISSION_ROLE_NAME_SEARCH_KEY = "roleName";
-
 
 /** 建立角色權限後台 ListGridTemplate 設定 */
 export const useRolePermissionListGridTemplate = (opt: { lang: Lang; }): RolePermissionListGridTemplate =>
@@ -183,7 +180,6 @@ const useRolePermissionListGridDataSource = (
     return { adapter: { ...apiAdapter, cudActions, navigate, dirUrl }, rawData, isLoading: grid.isLoading, errors: grid.errors ?? [], refetchData };
 };
 
-
 /** 建立角色權限搜尋欄位設定 */
 const buildRolePermissionSearchFields = (rawData: RolePermissionListRawData): SearchFieldConfig[] =>
 {
@@ -191,7 +187,6 @@ const buildRolePermissionSearchFields = (rawData: RolePermissionListRawData): Se
 
     return [{ key: ROLE_PERMISSION_ROLE_NAME_SEARCH_KEY, title: roleNameTitle, type: "text", placeholder: `請輸入${roleNameTitle}` }];
 };
-
 
 /** 將 SearchValues 轉為角色權限列表查詢參數 */
 const toRolePermissionSearchParams = (values: SearchValues, lang: Lang): RolePermissionSearchParams =>
@@ -201,7 +196,6 @@ const toRolePermissionSearchParams = (values: SearchValues, lang: Lang): RolePer
         roleName: getSearchStringValue(values[ROLE_PERMISSION_ROLE_NAME_SEARCH_KEY]),
     };
 };
-
 
 /** 建立角色權限搜尋條件 */
 const buildRolePermissionSearchConditions = (ctx: { searchParams: RolePermissionSearchParams; }): string[] =>
@@ -216,16 +210,13 @@ const buildRolePermissionSearchConditions = (ctx: { searchParams: RolePermission
     return conditions;
 };
 
-
 /** 建立角色權限列表完整 QueryParam */
 const buildRolePermissionQueryParam = (ctx: { searchParams: RolePermissionSearchParams; searchCondition: string; }): QueryListParam =>
 {
     const fields = buildRolePermissionQueryFields();
-    const condition = LibMerge(" And ", false, ctx.searchCondition);
-
+    const condition = LibCondition.joinConditions([ctx.searchCondition]);
     return { Fields: fields, Condition: condition, OrderBy: [{ Col: RoleDataModelFields.CreateTime, Desc: true }], PageNumber: 1, PageSize: 10 };
 };
-
 
 /** 建立角色權限列表查詢欄位 */
 const buildRolePermissionQueryFields = (): string[] =>
@@ -241,7 +232,6 @@ const buildRolePermissionQueryFields = (): string[] =>
     ];
 };
 
-
 /** 將角色權限資料轉為 GridProps */
 const buildRolePermissionGridProps = (
     opt: {
@@ -256,7 +246,7 @@ const buildRolePermissionGridProps = (
 ): GridProps =>
 {
     const visibleCols = buildRolePermissionVisibleColumns();
-    const columns = buildColumns(visibleCols, opt.raw);
+    const columns = buildServerListColumns(visibleCols, opt.raw.modelDisplayName);
     const rows = buildRolePermissionRows(opt.raw, columns);
     const baseGrid: GridProps = { columns, rows, CurrentPage: opt.raw.pageNumber ?? 1, TotalPage: opt.raw.totalPages ?? 1, onPageChange: opt.raw.onPageChange };
 
@@ -272,7 +262,6 @@ const buildRolePermissionGridProps = (
         confirm: opt.confirm,
     });
 };
-
 
 /** 注入角色權限 Grid 編輯與刪除動作 */
 const enhanceRolePermissionGrid = (
@@ -304,7 +293,6 @@ const enhanceRolePermissionGrid = (
     });
 };
 
-
 /** 建立角色權限列表顯示欄位設定 */
 const buildRolePermissionVisibleColumns = (): RolePermissionVisibleColumn[] =>
 {
@@ -317,26 +305,17 @@ const buildRolePermissionVisibleColumns = (): RolePermissionVisibleColumn[] =>
     ];
 };
 
-
-/** 建立角色權限列表欄位定義 */
-const buildColumns = (visibleCols: RolePermissionVisibleColumn[], raw: RolePermissionListRawData): ColumnConfig[] =>
-{
-    return visibleCols.map((col) => ({ key: col.key, title: getColumnTitle(raw.modelDisplayName, col.tableId, col.columnId, col.fallback) }));
-};
-
-
 /** 建立角色權限列表列資料 */
 const buildRolePermissionRows = (raw: RolePermissionListRawData, columns: ColumnConfig[]): GridRow[] =>
 {
     return (raw.list ?? []).map((set) => buildRolePermissionRow(set, columns));
 };
 
-
 /** 建立角色權限列表單列資料 */
 const buildRolePermissionRow = (set: RolePermissionSet, columns: ColumnConfig[]): GridRow =>
 {
     const role = set.RoleData;
-    const keyId = role?.InternalId ?? LibMerge("|", false, role?.RoleId, role?.RoleName);
+    const keyId = role?.InternalId ?? LibText.Merge("|", false, role?.RoleId, role?.RoleName);
     const cells: RowCell[] = [
         { col: columns[0], content: role?.RoleName ?? "" },
         { col: columns[1], content: formatDateTime(role?.CreateTime) },
@@ -348,24 +327,4 @@ const buildRolePermissionRow = (set: RolePermissionSet, columns: ColumnConfig[])
     return { keyId, cells };
 };
 
-
-/** 依表格與欄位代碼取得 ModelDisplayName 顯示文字 */
-const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, tableId: string, columnId: string, fallback: string): string =>
-{
-    const tables = modelDisplayName?.Tables ?? [];
-    const table = tables.find((item) => item.TableId === tableId);
-    const hit = table?.Columns?.find((item) => item.ColumnId === columnId);
-
-    return hit?.ColumnDisplayName ?? fallback;
-};
-
-
-/** 取得 SearchValue 的文字值 */
-const getSearchStringValue = (value: SearchValue): string | undefined =>
-{
-    if (typeof value !== "string") return undefined;
-
-    const text = value.trim();
-    return text.length > 0 ? text : undefined;
-};
 // #endregion

@@ -2,12 +2,13 @@ import { Server_FormTemplate_Comp } from "@/Features/Pages/Server/Scaffold/Conte
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import { LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
-import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
+import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { formatDateTime } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { SurveyFields, SurveySubmissionsFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
+import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -117,7 +118,7 @@ export const Server_SurveySubmission_Form_Comp = (
 
     const onBackToList = useCallback(() =>
     {
-        navigate(buildBackToListPath(pathname));
+        navigate(LibRoutePath.buildServerBackToListPath(pathname));
     }, [navigate, pathname]);
 
     const actionsOpt = useMemo(() =>
@@ -145,16 +146,18 @@ export const Server_SurveySubmission_Form_Comp = (
 };
 // #endregion
 
-// #region Section
+// #region EntityComp
+/** 建立返回列表頁路徑。 */
+// #endregion
+
+// #region Protected
 /** 渲染回覆內容區塊，沒有快照時顯示提示。 */
 const renderAnswerSection = (p: { theme: IBETheme; items: AnswerDisplayItem[]; }): ReactNode[] =>
 {
     if (p.items.length <= 0) return [<div key="empty-answer" className="alert alert-secondary mb-0">沒有可顯示的回覆內容</div>];
     return renderAnswerFields(p);
 };
-// #endregion
 
-// #region EntityComp
 /** 渲染只讀欄位，維持舊版 Header input 外觀但全部 disabled。 */
 const renderReadonlyFields = (p: { theme: IBETheme; items: ReadonlyFieldItem[]; }): ReactNode[] =>
 {
@@ -293,13 +296,6 @@ const buildSystemItems = (raw: SurveySubmissionFormRawData): ReadonlyFieldItem[]
             parentClass: "col-12",
         },
     ];
-};
-
-
-/** 建立返回列表頁路徑。 */
-const buildBackToListPath = (pathname: string): string =>
-{
-    return pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
 };
 // #endregion
 

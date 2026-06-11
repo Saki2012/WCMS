@@ -20,6 +20,7 @@ import type {
 import {
     buildEditGridCell,
     getEditGridCellValue,
+    getSelectedEditGridFile,
     getEditGridStringCellValue,
     useEditGridBinding,
 } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
@@ -28,12 +29,13 @@ import { buildSupportedLangOrder, type Lang, LangLabelMap, normalizeSupportedLan
 import type { ApiFormInitial, ServerFormActions } from "@/SysCore/Utils/API/APIAdapter";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
-import { LibText } from "@/SysCore/Utils/Library/LibData";
+import { LibAttachment, LibText } from "@/SysCore/Utils/Library/LibData";
 import { useUploadFile } from "@/SysCore/Utils/UI_HookFunc/useUploadFile";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { AnnouncementDetailFields, AnnouncementDetailFileFields, AnnouncementSetFields, PGID } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
+import { buildServerSupportedLangDetailMap } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Helper";
 
 // #region Property
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
@@ -346,24 +348,12 @@ const buildAnnouncementDetailTabs = (details: AnnouncementDetail[], preferLang: 
 /** 依支援語系排序並過濾 Detail，避免無效語系產生 Unknown Tab。 */
 const filterSupportedDetailRows = (details: AnnouncementDetail[], preferLang: Lang): AnnouncementDetailTabItem[] =>
 {
-    const detailMap = buildSupportedDetailMap(details);
+    const detailMap = buildServerSupportedLangDetailMap(details);
     const langs = buildSupportedLangOrder(preferLang);
 
     return langs.map((lang, index) => buildAnnouncementDetailTabItem(detailMap.get(lang.toLowerCase()), index)).filter((
         item,
     ): item is AnnouncementDetailTabItem => Boolean(item));
-};
-
-/** 將有效語系 Detail 建成 Map，同語系只保留第一筆。 */
-const buildSupportedDetailMap = (details: AnnouncementDetail[]): Map<string, AnnouncementDetail> =>
-{
-    return details.reduce<Map<string, AnnouncementDetail>>((map, detail) =>
-    {
-        const lang = normalizeSupportedLang(detail.Lang);
-        if (!lang || map.has(lang)) return map;
-        map.set(lang, detail);
-        return map;
-    }, new Map<string, AnnouncementDetail>());
 };
 
 /** 建立單一 Detail Tab 項目。 */
@@ -588,36 +578,13 @@ const uploadAnnouncementFileValue = async (args: EditGridCellValueChangeArgs, ha
 /** 建立附件上傳後的欄位更新結果，同步覆蓋附件名稱。 */
 const buildAnnouncementFileUploadChangeResult = (file: AnnouncementFileCellValue): EditGridCellValueChangeResult =>
 {
-    return { value: file, rowValues: { [AnnouncementDetailFileFields.FileName]: getFileNameWithoutExtension(file.originalFileName) } };
+    return { value: file, rowValues: { [AnnouncementDetailFileFields.FileName]: LibAttachment.getDisplayFileNameWithoutExtension(file.originalFileName) } };
 };
 
 /** 取得本次選檔的原始檔名，避免上傳 callback 未帶檔名時只剩 internalId。 */
 const getSelectedAnnouncementFileName = (file: EditGridFileValue): string =>
 {
     return String(file.file?.name || file.fileName || "").trim();
-};
-
-/** 取得不含副檔名的檔名，供附件名稱欄位預設帶入。 */
-const getFileNameWithoutExtension = (fileName?: string | null): string =>
-{
-    const safeFileName = String(fileName ?? "").trim();
-    const extIndex = safeFileName.lastIndexOf(".");
-
-    if (extIndex <= 0) return safeFileName;
-    return safeFileName.slice(0, extIndex);
-};
-
-/** 從 EditGrid file value 取得使用者剛選的 File。 */
-const getSelectedEditGridFile = (value: EditGridCellValue): EditGridFileValue | null =>
-{
-    if (isEditGridFileValue(value)) return value;
-    return null;
-};
-
-/** 判斷是否為 EditGrid file value。 */
-const isEditGridFileValue = (value: EditGridCellValue): value is EditGridFileValue =>
-{
-    return typeof value === "object" && value !== null && "fileName" in value;
 };
 
 /** 建立空附件值，用於使用者清除 file 欄位。 */

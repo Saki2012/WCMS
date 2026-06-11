@@ -3,10 +3,10 @@ import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import { LibTextArea, LibTextBox, LibTinyMCE } from "@/SysCore/Components/FormField/LibFormField";
 import type { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
-import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
+import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import { type Lang, LangLabelMap } from "@/SysCore/i18n/lang";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { SiteMenu_IndexFields, SiteMenu_IndexInfoFields, SiteMenuSetFields } from "@/types/SchemaFields";
 import { useMemo } from "react";
@@ -16,14 +16,12 @@ type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"];
 
 type SiteMenu_IndexInfo = components["schemas"]["SiteMenu_IndexInfo_DTO"];
 
-
 interface SiteInfoCompProps
 {
     theme: IBETheme;
     formData: UseFetchFormDataResult<SiteMenuSet>;
     setField: ReturnType<typeof useSetTableField<SiteMenuSet>>;
 }
-
 
 interface BasicSettingTabProps extends SiteInfoCompProps
 {}
@@ -70,14 +68,14 @@ const SiteTitle_Comp = (prop: BasicSettingTabProps) =>
         Style: prop.theme.Tabs,
         item: dedupDetails.reduce<Record<string, string>>((tabItems, info) =>
         {
-            const langKey = LibMerge("_", true, info.SiteIndex, info.RowId, info.Lang);
+            const langKey = LibText.Merge("_", true, info.SiteIndex, info.RowId, info.Lang);
             tabItems[langKey] = LangLabelMap[info.Lang as Lang] ?? info.Lang ?? "Unknown";
             return tabItems;
         }, {}),
     };
     const tabContent = dedupDetails.reduce<Record<string, React.ReactNode[]>>((compMap, info) =>
     {
-        const langKey = LibMerge("_", true, info.SiteIndex, info.RowId, info.Lang);
+        const langKey = LibText.Merge("_", true, info.SiteIndex, info.RowId, info.Lang);
         const rowKeys = { [SiteMenu_IndexInfoFields.SiteIndex]: info.SiteIndex, [SiteMenu_IndexInfoFields.RowId]: info.RowId };
         compMap[langKey] = [
             <LibTextBox
@@ -102,7 +100,6 @@ const SiteTitle_Comp = (prop: BasicSettingTabProps) =>
     }, {});
     return <TabContentComp tabInfos={tabInfo} components={tabContent} />;
 };
-
 
 const SEO_Comp = (prop: BasicSettingTabProps) =>
 {

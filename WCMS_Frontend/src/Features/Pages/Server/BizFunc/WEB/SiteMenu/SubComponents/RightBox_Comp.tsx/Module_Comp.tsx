@@ -26,7 +26,6 @@ type SiteMenu_Item_Module = components["schemas"]["SiteMenu_Item_Module_DTO"];
 
 type PageSet = components["schemas"]["PageManagementSet_DTO"];
 
-
 const BaseModuleOpts: Record<string, string> = {
     Announcement: "公告",
     FileArchive: "檔案室",
@@ -38,13 +37,11 @@ const BaseModuleOpts: Record<string, string> = {
     Material: "產品物件",
 };
 
-
 interface ModuleTimelineOptionsJson
 {
     TimelineId: string;
     IsDesc: boolean;
 }
-
 
 interface ModuleOptionsJson
 {
@@ -54,9 +51,7 @@ interface ModuleOptionsJson
     Style: number;
 }
 
-
 const moduleOptionsDefaults: ModuleOptionsJson = { PageId: "", Category: "", Tag: "", Style: 1 };
-
 
 interface ModuleSettingTabExtensionContext
 {
@@ -86,14 +81,6 @@ type ModuleRenderFactory = (ctx: ModuleSettingTabExtensionContext) => ReactNode;
 
 type UseModuleSettingTabExtensionSlot = () => ModuleSettingTabExtension;
 
-
-/** 解析 ModuleSettingTab Spec 擴充 */
-const useResolvedModuleSettingTabExtension = resolveSpecFunc<UseModuleSettingTabExtensionSlot>(
-    "Pages/Server/BizFunc/WEB/SiteMenu/Module_Extension.tsx",
-    useModuleSettingTabExtensionBase,
-    ["useModuleSettingTabSpecExtension"],
-);
-
 interface ModuleSettingTabProps
 {
     theme: IBETheme;
@@ -112,6 +99,12 @@ interface ModuleSettingTabProps
     timelineMap: Map<string, string>;
     surveyMap: Map<string, string>;
 }
+// #endregion
+
+// #region Initialization
+const useModuleSettingTabExtensionBase: UseModuleSettingTabExtensionSlot = () => ({});
+/** 解析 ModuleSettingTab Spec 擴充 */
+const useResolvedModuleSettingTabExtension = resolveSpecFunc<UseModuleSettingTabExtensionSlot>("Pages/Server/BizFunc/WEB/SiteMenu/Module_Extension.tsx", useModuleSettingTabExtensionBase, ["useModuleSettingTabSpecExtension"]);
 // #endregion
 
 // #region Public
@@ -340,7 +333,6 @@ const Module_Banner_Comp = (
     ];
 };
 
-
 const Module_Announcement_Comp = (
     prop: {
         theme: IBETheme;
@@ -385,7 +377,6 @@ const Module_Announcement_Comp = (
     );
 };
 
-
 const Module_Pagemanagement_Comp = (
     prop: { theme: IBETheme; formData: UseFetchFormDataResult<SiteMenuSet>; selectedItemEdit: SiteMenuItem | null; pageSets: PageSet[]; lang: Lang; },
 ): ReactNode =>
@@ -411,7 +402,6 @@ const Module_Pagemanagement_Comp = (
         />
     );
 };
-
 
 const Module_Gallery_Comp = (
     prop: {
@@ -457,7 +447,6 @@ const Module_Gallery_Comp = (
     );
 };
 
-
 const Module_FileArchive_Comp = (
     prop: {
         theme: IBETheme;
@@ -501,7 +490,6 @@ const Module_FileArchive_Comp = (
         </>
     );
 };
-
 
 const Module_WebResource_Comp = (
     prop: {
@@ -629,7 +617,6 @@ const Module_Survey_Comp = (
     );
 };
 
-
 const Module_Material_Comp = (
     prop: {
         theme: IBETheme;
@@ -672,7 +659,7 @@ const Module_Material_Comp = (
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /** 依指定 ProgId 過濾 PageManagement 頁面並轉成下拉 Map */
 const buildPageMapByProgId = (pageSets: PageSet[], progId: PGID, lang: Lang): Map<string, string> =>
 {
@@ -691,10 +678,6 @@ const buildPageMapByProgId = (pageSets: PageSet[], progId: PGID, lang: Lang): Ma
 
 // #region Private
 /** 預設擴充：沒有 Spec 時不做任何額外 Module 擴充 */
-const useModuleSettingTabExtensionBase: UseModuleSettingTabExtensionSlot = () =>
-{
-    return {};
-};
 
 /** 合併 Feature 與 Spec 模型功能選項 */
 const mergeModuleOptions = (baseOptions: Record<string, string>, specOptions?: Partial<Record<ModelKey, string>>): Record<string, string> =>
@@ -710,7 +693,6 @@ const mergeModuleOptions = (baseOptions: Record<string, string>, specOptions?: P
     return merged;
 };
 
-
 /** 依 Spec 白名單過濾模型功能 */
 const filterModuleOptions = (options: Record<string, string>, allowKeys?: readonly string[]): Record<string, string> =>
 {
@@ -724,7 +706,6 @@ const filterModuleOptions = (options: Record<string, string>, allowKeys?: readon
         return acc;
     }, {});
 };
-
 
 /** 依 Spec 白名單過濾模型功能渲染器 */
 const filterModuleRenderers = (renderers: Record<string, ModuleRenderFactory>, allowKeys?: readonly string[]): Record<string, ModuleRenderFactory> =>
@@ -740,7 +721,6 @@ const filterModuleRenderers = (renderers: Record<string, ModuleRenderFactory>, a
     }, {});
 };
 
-
 const normalizeBool = (value: unknown): boolean =>
 {
     if (value === true) return true;
@@ -750,13 +730,11 @@ const normalizeBool = (value: unknown): boolean =>
     return raw === "true" || raw === "1";
 };
 
-
 const toCheckboxBool = (value: unknown): boolean =>
 {
     const raw = Array.isArray(value) ? value : `${value ?? ""}`.split(",");
     return raw.map(s => `${s}`.trim()).includes("1");
 };
-
 
 const useSelectedMenuItem = (data: SiteMenuSet, selected?: SiteMenuItem | null): SiteMenu_Item | null =>
 {
@@ -770,7 +748,6 @@ const useSelectedMenuItem = (data: SiteMenuSet, selected?: SiteMenuItem | null):
     }, [data.SiteMenu_Item, selected]);
 };
 
-
 const useSelectedNode = (selected: SiteMenuItem | null, menuItem: SiteMenu_Item | null): SiteMenuItem | null =>
 {
     return useMemo(() =>
@@ -780,7 +757,6 @@ const useSelectedNode = (selected: SiteMenuItem | null, menuItem: SiteMenu_Item 
     }, [selected, menuItem]);
 };
 
-
 const getModuleRowKeys = (selectedItemEdit: SiteMenuItem | null) =>
 {
     return {
@@ -788,7 +764,6 @@ const getModuleRowKeys = (selectedItemEdit: SiteMenuItem | null) =>
         [SiteMenu_Item_ModuleFields.ItemRowId]: selectedItemEdit?.menuItem.RowId,
     };
 };
-
 
 const useGetCategoryTagDict = (progId: PGID, lang: Lang, categorySets: CategorySet[], tagSets: TagSet[]) =>
 {
@@ -820,4 +795,5 @@ const useGetCategoryTagDict = (progId: PGID, lang: Lang, categorySets: CategoryS
 
     return { cateDic, tagDic };
 };
+
 // #endregion

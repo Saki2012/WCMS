@@ -1,7 +1,7 @@
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import DefaultPic from "@/SpecFetures/1810/Assets/Custom/images_960x960.jpg";
 import type { ColumnConfig } from "@/SysCore/Components/Grid/Grid_Data";
-import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
+import { LoadingErrorHandler } from "@/SysCore/Components/LoadingErrorHandler";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
@@ -82,9 +82,6 @@ export const SpecUSRListComp = (props: ISpecUSRListProps) =>
 // #endregion
 
 // #region Private
-export default SpecUSRListComp;
-
-
 /** 取得 detail 指定欄位值 */
 const getDetailValue = (detail: SpecUSRDetail | undefined, key: ColKey): string =>
 {

@@ -5,7 +5,6 @@ import {
 import { Server_SearchBar_Comp } from "@/Features/Pages/Server/Scaffold/SearchBar/Server_SearchBar_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
-import type { ReactNode } from "react";
 import { useAccountListGridTemplate } from "./Server_Account_List_Hook";
 
 // #region Public
@@ -15,13 +14,13 @@ export const Server_Account_List_Comp = (prop: { title?: string; theme: IBETheme
     const lang = prop.lang ?? DefaultLang;
     const template = useAccountListGridTemplate({ lang });
 
-    return <Server_ListGridTemplate_Comp Title={prop.title ?? "帳號列表"} Theme={prop.theme} template={template} renderSearchBar={renderAccountSearchBar} />;
+    return <Server_ListGridTemplate_Comp Title={prop.title ?? "帳號列表"} Theme={prop.theme} template={template} buildSearchBarNode={AccountSearchBarSection} />;
 };
 // #endregion
 
-// #region EntityComp
+// #region Section
 /** 渲染帳號列表搜尋列 */
-const renderAccountSearchBar = (props: ServerListGridSearchRenderProps): ReactNode =>
+const AccountSearchBarSection = (props: ServerListGridSearchRenderProps) =>
 {
     return (
         <Server_SearchBar_Comp

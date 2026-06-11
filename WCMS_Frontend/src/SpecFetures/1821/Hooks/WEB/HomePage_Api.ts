@@ -6,7 +6,6 @@ import type { AxiosInstance } from "axios";
 
 // #region Property
 type SpecHomePage1821Set = components["schemas"]["SpecHomePage1821Set_DTO"];
-
 const SPEC_HOME_PAGE_1821_API = "SpecHomePage1821Api" as PGID;
 // #endregion
 

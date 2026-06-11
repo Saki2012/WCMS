@@ -142,7 +142,7 @@ const PreprintComp = () =>
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /** 組卷期顯示字串 */
 const buildIssueTitle = (detail?: SpecJournalIndexDetail): string =>
 {
@@ -203,7 +203,4 @@ const formatYyyyMm = (publishDate: unknown): string =>
     // return
     return `${yyyy} / ${mm}`;
 };
-
-
-export default LatestIssueSection;
 // #endregion

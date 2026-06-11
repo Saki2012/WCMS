@@ -1,134 +1,16 @@
+import defaultLogoImg from "@/Features/Assets/Server/images/logo/logo_PC_210x63.svg"; // 之後一定要改
 import { type IActionMeta, type IModuleMeta, ServerModuleRoutes } from "@/Features/Pages/Server/Scaffold/Routes/ServerModuleRoutesData";
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
+import { resolveSpecAsset } from "@/SysCore/Utils/Library/SlotResolver";
 import { useEffect, useMemo, useRef } from "react";
 import { useLocation } from "react-router-dom";
-import { resolveSpecAsset } from "@/SysCore/Utils/Library/SlotResolver";
-import defaultLogoImg from "SpecDefault/Assets/Server/menu_logo_PC.svg";
 
-// #region Property
+// #region Initialization
 const logoImg = resolveSpecAsset("Assets/Server/menu_logo_PC", defaultLogoImg);
 // #endregion
 
-// #region EntityComp
-/** 建立後台 action 連結 */
-const buildActionPath = (moduleCode: string, progId: string, act: IActionMeta): string =>
-{
-    // 宣告變數：取得 action 路徑
-    const actionPath = getActionMenuPath(act);
-
-    // return
-    return `/Server/${moduleCode}/${progId}/${actionPath}`;
-};
-// #endregion
-
-// #region Private
-/** 移除路由參數，讓選單可導到乾淨路徑 */
-const trimRouteParamPath = (path: string): string =>
-{
-    // 宣告變數：移除 /:internalId? 這類參數
-    const cleanPath = path.replace(/\/:[^/]+/g, "");
-
-    // return：移除多餘斜線
-    return cleanPath.replace(/\/+$/, "");
-};
-
-
-/** 取得選單使用的 action path */
-const getActionMenuPath = (act: IActionMeta): string =>
-{
-    // 宣告變數：優先使用 RoutePath
-    const path = act.RoutePath || act.ActionCode;
-
-    // return
-    return trimRouteParamPath(path);
-};
-
-/** 讓 path 比較更穩：去掉尾端 / */
-const normalizePath = (path: string): string =>
-{
-    // NOTE: 避免 /xxx/ 與 /xxx 被當作不同頁
-    if (!path) return "";
-    return path.length > 1 ? path.replace(/\/+$/, "") : path;
-};
-
-
-/** 對 submenu 做「可動畫」的展開/收合（不用額外 CSS 檔） */
-const setSubmenuOpen = (li: HTMLLIElement, isOpen: boolean): void =>
-{
-    // NOTE: prototype 的主要狀態 class
-    if (isOpen) li.classList.add("pc-trigger");
-    else li.classList.remove("pc-trigger");
-
-    const toggle = li.querySelector<HTMLAnchorElement>(":scope > .pc-link");
-    if (toggle) toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
-
-    const submenu = li.querySelector<HTMLElement>(":scope > .pc-submenu");
-    if (!submenu) return;
-
-    const arrowIcon = li.querySelector<HTMLElement>(":scope > .pc-link .pc-arrow i");
-    if (arrowIcon)
-    {
-        arrowIcon.style.transition = "transform 220ms ease";
-        arrowIcon.style.transform = isOpen ? "rotate(90deg)" : "rotate(0deg)";
-    }
-
-    // NOTE: 不依賴外部 CSS，直接把可動畫的屬性補齊
-    submenu.style.overflow = "hidden";
-    submenu.style.transition = "max-height 220ms ease";
-    submenu.style.willChange = "max-height";
-
-    // NOTE: 先移除舊的 transitionend，避免重複掛載
-    const oldHandler = (submenu as any).__wcmsTransitionEndHandler as ((ev: TransitionEvent) => void) | undefined;
-
-    if (oldHandler)
-    {
-        submenu.removeEventListener("transitionend", oldHandler);
-        (submenu as any).__wcmsTransitionEndHandler = undefined;
-    }
-
-    if (isOpen)
-    {
-        // NOTE: display:none → 要先改成 block 才能量到 scrollHeight
-        submenu.style.display = "block";
-
-        // NOTE: 先設 0，再下一個 frame 設為實際高度，才能觸發動畫
-        submenu.style.maxHeight = "0px";
-        requestAnimationFrame(() =>
-        {
-            const h = submenu.scrollHeight;
-            submenu.style.maxHeight = `${h}px`;
-        });
-
-        return;
-    }
-
-    // NOTE: 收合：先做動畫到 0，再在 transitionend 時 display:none
-    submenu.style.maxHeight = "0px";
-
-    const onEnd = (ev: TransitionEvent) =>
-    {
-        if (ev.propertyName !== "max-height") return;
-        submenu.style.display = "none";
-    };
-
-    submenu.addEventListener("transitionend", onEnd);
-    (submenu as any).__wcmsTransitionEndHandler = onEnd;
-};
-
-
-/** 關閉同層其他 menu（prototype 常見：同層只開一個） */
-const closeSiblings = (all: HTMLLIElement[], current: HTMLLIElement): void =>
-{
-    // NOTE: 避免同層同時展開太多，和 prototype 對齊
-    all.forEach((li) =>
-    {
-        if (li === current) return;
-        setSubmenuOpen(li, false);
-    });
-};
-
-
-const SidebarMenu = (prop: { moduleCode: IModuleMeta["ModuleCode"]; }) =>
+// #region Public
+export const SidebarMenu = (prop: { moduleCode: IModuleMeta["ModuleCode"]; }) =>
 {
     const module = useMemo(() => ServerModuleRoutes.find((p) => p.ModuleCode === prop.moduleCode), [prop.moduleCode]);
 
@@ -288,7 +170,121 @@ const SidebarMenu = (prop: { moduleCode: IModuleMeta["ModuleCode"]; }) =>
         </nav>
     );
 };
+// #endregion
 
+// #region Protected
+/** 建立後台 action 連結 */
+const buildActionPath = (moduleCode: string, progId: string, act: IActionMeta): string =>
+{
+    // 宣告變數：取得 action 路徑
+    const actionPath = getActionMenuPath(act);
 
-export default SidebarMenu;
+    // return
+    return `/Server/${moduleCode}/${progId}/${actionPath}`;
+};
+// #endregion
+
+// #region Private
+/** 移除路由參數，讓選單可導到乾淨路徑 */
+const trimRouteParamPath = (path: string): string =>
+{
+    // 宣告變數：移除 /:internalId? 這類參數
+    const cleanPath = path.replace(/\/:[^/]+/g, "");
+
+    // return：移除多餘斜線
+    return cleanPath.replace(/\/+$/, "");
+};
+
+/** 取得選單使用的 action path */
+const getActionMenuPath = (act: IActionMeta): string =>
+{
+    // 宣告變數：優先使用 RoutePath
+    const path = act.RoutePath || act.ActionCode;
+
+    // return
+    return trimRouteParamPath(path);
+};
+
+/** 讓 path 比較更穩：去掉尾端 / */
+const normalizePath = (path: string): string =>
+{
+    // NOTE: 避免 /xxx/ 與 /xxx 被當作不同頁
+    if (!path) return "";
+    return path.length > 1 ? path.replace(/\/+$/, "") : path;
+};
+
+/** 對 submenu 做「可動畫」的展開/收合（不用額外 CSS 檔） */
+const setSubmenuOpen = (li: HTMLLIElement, isOpen: boolean): void =>
+{
+    // NOTE: prototype 的主要狀態 class
+    if (isOpen) li.classList.add("pc-trigger");
+    else li.classList.remove("pc-trigger");
+
+    const toggle = li.querySelector<HTMLAnchorElement>(":scope > .pc-link");
+    if (toggle) toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+
+    const submenu = li.querySelector<HTMLElement>(":scope > .pc-submenu");
+    if (!submenu) return;
+
+    const arrowIcon = li.querySelector<HTMLElement>(":scope > .pc-link .pc-arrow i");
+    if (arrowIcon)
+    {
+        arrowIcon.style.transition = "transform 220ms ease";
+        arrowIcon.style.transform = isOpen ? "rotate(90deg)" : "rotate(0deg)";
+    }
+
+    // NOTE: 不依賴外部 CSS，直接把可動畫的屬性補齊
+    submenu.style.overflow = "hidden";
+    submenu.style.transition = "max-height 220ms ease";
+    submenu.style.willChange = "max-height";
+
+    // NOTE: 先移除舊的 transitionend，避免重複掛載
+    const oldHandler = (submenu as any).__wcmsTransitionEndHandler as ((ev: TransitionEvent) => void) | undefined;
+
+    if (oldHandler)
+    {
+        submenu.removeEventListener("transitionend", oldHandler);
+        (submenu as any).__wcmsTransitionEndHandler = undefined;
+    }
+
+    if (isOpen)
+    {
+        // NOTE: display:none → 要先改成 block 才能量到 scrollHeight
+        submenu.style.display = "block";
+
+        // NOTE: 先設 0，再下一個 frame 設為實際高度，才能觸發動畫
+        submenu.style.maxHeight = "0px";
+        requestAnimationFrame(() =>
+        {
+            const h = submenu.scrollHeight;
+            submenu.style.maxHeight = `${h}px`;
+        });
+
+        return;
+    }
+
+    // NOTE: 收合：先做動畫到 0，再在 transitionend 時 display:none
+    submenu.style.maxHeight = "0px";
+
+    const onEnd = (ev: TransitionEvent) =>
+    {
+        if (ev.propertyName !== "max-height") return;
+        submenu.style.display = "none";
+    };
+
+    submenu.addEventListener("transitionend", onEnd);
+    (submenu as any).__wcmsTransitionEndHandler = onEnd;
+};
+
+/** 關閉同層其他 menu（prototype 常見：同層只開一個） */
+const closeSiblings = (all: HTMLLIElement[], current: HTMLLIElement): void =>
+{
+    // NOTE: 避免同層同時展開太多，和 prototype 對齊
+    all.forEach((li) =>
+    {
+        if (li === current) return;
+        setSubmenuOpen(li, false);
+    });
+};
+
 // #endregion

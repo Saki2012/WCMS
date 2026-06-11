@@ -4,7 +4,7 @@ import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
 import type { GridProps } from "@/SysCore/Components/Grid/Grid_Data";
 import type { GridRow } from "@/SysCore/Components/Grid/Grid_Data";
-import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
+import { LoadingErrorHandler } from "@/SysCore/Components/LoadingErrorHandler";
 import { NewPaginatorCanInputPage } from "@/SysCore/Components/Paginator/Paginator_Comp";
 import { type ISearchQuery, SearchBarComp } from "@/SysCore/Components/SearchBar/SearchBar_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
@@ -207,7 +207,7 @@ const QAList_Comp = (
 // #endregion
 
 // #region Private
-const AnnouncementList = (props: IAnnouncementListProps) =>
+export const AnnouncementList = (props: IAnnouncementListProps) =>
 {
     // 宣告變數
     const dirUrl = useLocation().pathname.replace(/\/List$/, "");
@@ -290,9 +290,6 @@ const AnnouncementList = (props: IAnnouncementListProps) =>
         </>
     );
 };
-
-export default AnnouncementList;
-
 const SetAdjustFunction = (
     lang: Lang,
     dirUrl: string,

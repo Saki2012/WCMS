@@ -7,6 +7,8 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import { useEffect, useMemo } from "react";
 
+import { delayMs as sleep } from "@/Features/Pages/Client/Index/HomePage_Helper";
+
 // #region Property
 type BannerSet = components["schemas"]["BannerSet_DTO"];
 
@@ -86,13 +88,6 @@ export const QuickLinksData = (props: QuickLinksDataProps) =>
         let cancelled = false;
         let isPlaying = true;
         let jqRef: JQueryStaticLike | null = null;
-
-        const sleep = (ms: number): Promise<void> =>
-        {
-            // 宣告變數
-            // 執行 function
-            return new Promise<void>((r) => setTimeout(r, ms));
-        };
 
         const buildOwlOptions = (): OwlOptions =>
         {
@@ -384,7 +379,7 @@ export const QuickLinksData = (props: QuickLinksDataProps) =>
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 const buildQueryDataInitial = (internalId: string, banner: BannerSet | null): ApiLoaderData<string, BannerSet> | null =>
 {
     // 宣告變數：沒有 SSR initial 就回 null（CSR 會自己抓）

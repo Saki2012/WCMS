@@ -15,6 +15,8 @@ const TRAILING_SLASH_PATTERN = /\/+$/g;
 const REPEATED_SLASH_PATTERN = /\/{2,}/g;
 /** 第一層路由 segment 比對規則 */
 const LEADING_SEGMENT_PATTERN = /^\/[^/]+/;
+/** 後台 Form 路由結尾比對規則 */
+const SERVER_FORM_TAIL_PATTERN = /\/Form(?:\/[^/]*)?$/;
 // #endregion
 
 // #region Public
@@ -65,6 +67,14 @@ export const isPathSegmentPrefix = (pathname: string | null | undefined, segment
 
     const isMatched = path === target || path.startsWith(`${target}${ROOT_PATH}`);
     return isMatched;
+};
+
+
+/** 將後台 Form 路由轉回同模組 List 路由。 */
+export const buildServerBackToListPath = (pathname: string | null | undefined): string =>
+{
+    const path = normalizeInternalPath(pathname);
+    return path.replace(SERVER_FORM_TAIL_PATTERN, "/List");
 };
 // #endregion
 

@@ -10,7 +10,7 @@ interface EditButtonProps
 // #endregion
 
 // #region Private
-const EditButton: FC<EditButtonProps> = ({ id, routePath }) =>
+export const EditButton: FC<EditButtonProps> = ({ id, routePath }) =>
 {
     const navigate = useNavigate();
 
@@ -25,7 +25,4 @@ const EditButton: FC<EditButtonProps> = ({ id, routePath }) =>
         </button>
     );
 };
-
-
-export default EditButton;
 // #endregion

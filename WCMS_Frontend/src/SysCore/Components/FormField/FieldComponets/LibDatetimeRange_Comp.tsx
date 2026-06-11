@@ -39,7 +39,7 @@ const DATETIME_FORMATS = [
 ] as const;
 // #endregion
 
-// #region EntityComp
+// #region Protected
 const buildPlaceholder = (kind: LibDatetimeValueType): string =>
 {
     switch (kind)
@@ -106,7 +106,7 @@ const formatByType = (d: Date, kind: LibDatetimeValueType): string =>
 };
 
 
-const LibDatetimeRange = (prop: ILibDatetimeRangeProp) =>
+export const LibDatetimeRange = (prop: ILibDatetimeRangeProp) =>
 {
     const { Style, ColumnDisplayName, StartValue, EndValue, valueType = "DateOnly", disabled, onChangeStart, onChangeEnd } = prop;
     const startId = useId();
@@ -251,7 +251,4 @@ const LibDatetimeRange = (prop: ILibDatetimeRangeProp) =>
         </>
     );
 };
-
-
-export default LibDatetimeRange;
 // #endregion

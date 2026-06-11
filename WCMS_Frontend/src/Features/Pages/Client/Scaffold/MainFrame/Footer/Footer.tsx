@@ -44,7 +44,7 @@ interface FooterText
 }
 // #endregion
 
-// #region EntityComp
+// #region Protected
 const buildStatusLine = (text: FooterText, runtimeInfo: FooterRuntimeInfo | undefined): string =>
 {
     // 宣告變數
@@ -56,7 +56,6 @@ const buildStatusLine = (text: FooterText, runtimeInfo: FooterRuntimeInfo | unde
     // return
     return `${text.currentViewCountTitle}:${currentViewCount} | ${text.totalViewCountTitle}:${viewCount} | ${text.updateDateTitle}:${updateDate} | ${text.systemVersionTitle}:FE-${feVersion} / BE-${beVersion}`;
 };
-
 
 const buildCopyrightPrefix = (currentYear: number, siteTitle: string): string =>
 {
@@ -142,7 +141,7 @@ const getBeVersion = (value?: string | null): string =>
 };
 
 
-const Footer = (props: FooterProps) =>
+export const Footer = (props: FooterProps) =>
 {
     // 宣告變數
     const text = getFooterText(props.lang);
@@ -178,7 +177,4 @@ const Footer = (props: FooterProps) =>
         </footer>
     );
 };
-
-
-export default Footer;
 // #endregion

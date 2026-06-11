@@ -1,8 +1,8 @@
 import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
+import { ModuleContent, type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-import { LibLightBox, type LibLightBoxSlide } from "@/SysCore/Components/FormField/LibFormField";
+import { LibLightBox_Comp, type LibLightBoxSlide } from "@/SysCore/Components/FormField/LibFormField";
 import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LibText } from "@/SysCore/Utils/Library/LibData";
@@ -58,7 +58,7 @@ export const Client_Gallery_Form = (props: GalleryFormProps) =>
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /** 建立單張相簿圖片的 Lightbox 資料 */
 const buildGallerySlide = (data: GallerySet, item: GalleryPhoto, lang: Lang): LibLightBoxSlide =>
 {
@@ -153,7 +153,7 @@ const GalleryPhotoList_Section = (props: GalleryFormListProps) =>
                     );
                 })}
             </div>
-            <LibLightBox open={open} index={index} slides={slides} lang={props.lang} onClose={closeGallery} />
+            <LibLightBox_Comp open={open} index={index} slides={slides} lang={props.lang} onClose={closeGallery} />
         </>
     );
 };

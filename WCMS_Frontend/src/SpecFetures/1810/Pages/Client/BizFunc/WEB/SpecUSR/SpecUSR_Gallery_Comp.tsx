@@ -257,7 +257,4 @@ const Header: React.FC<{ title: string; onClose: () => void; closeRef: React.Ref
         </button>
     </div>
 );
-
-
-export default SpecUSR_Gallery_Comp;
 // #endregion

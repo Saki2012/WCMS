@@ -2,7 +2,8 @@ import { type ChangeEvent, type DragEvent, useEffect, useMemo, useRef, useState 
 import type { AAFileValue, AAInputField, FilePreviewItem, FileReadResult, FieldRenderContext } from "../AAInputField_Types";
 import { FieldError } from "../AAInputField_Shell";
 import { applyAAFocusStyle, clearAAFocusStyle, applyFileAAFocusStyle, clearFileAAFocusStyle } from "../AAInputField_Focus";
-import { defaultAccept, getAriaInvalid, getAriaRequired, getNativeRequired, sanitizeFileName, toFileArray } from "../AAInputField_Utils";
+import { defaultAccept, getAriaRequired, getNativeRequired, sanitizeFileName, toFileArray } from "../AAInputField_Utils";
+import { LibAttachment } from "@/SysCore/Utils/Library/LibData";
 
 // #region Public
 /**
@@ -111,7 +112,7 @@ export const FileField = (props: { field: AAInputField; context: FieldRenderCont
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /** 渲染未上傳時的虛框內容。 */
 const renderEmptyFileDropContent = (field: AAInputField, onBrowseClick: () => void) =>
 {
@@ -187,7 +188,7 @@ const readSafeFiles = (files: FileList | null, field: AAInputField): FileReadRes
 /** 驗證單一檔案的副檔名與大小。 */
 const validateFile = (file: File, field: AAInputField, maxSize: number, errorList: string[]) =>
 {
-    const accepted = isAcceptedFile(file, field.accept ?? defaultAccept);
+    const accepted = LibAttachment.isAcceptedByAcceptText(file, field.accept ?? defaultAccept);
     const validSize = file.size <= maxSize;
     if (!accepted) errorList.push(`${sanitizeFileName(file.name)} 的檔案類型不允許。`);
     if (!validSize) errorList.push(`${sanitizeFileName(file.name)} 超過 ${field.maxFileSizeMB ?? 10}MB。`);
@@ -266,26 +267,5 @@ const sanitizePreviewUrl = (value: string) =>
     if (!url) return "";
     if (url.startsWith("/") || url.startsWith("blob:") || url.startsWith("https://") || url.startsWith("http://")) return url;
     return "";
-};
-
-
-/** 判斷檔案是否符合 accept 白名單。 */
-const isAcceptedFile = (file: File, accept: string) =>
-{
-    const tokenList = accept.split(",").map((item) => item.trim().toLowerCase()).filter(Boolean);
-    const fileName = file.name.toLowerCase();
-    const fileType = file.type.toLowerCase();
-    if (tokenList.length === 0) return true;
-    return tokenList.some((token) => isAcceptedFileToken(token, fileName, fileType));
-};
-
-
-/** 判斷單一 accept token 是否允許目前檔案。 */
-const isAcceptedFileToken = (token: string, fileName: string, fileType: string) =>
-{
-    if (token === "*" || token === "*/*") return true;
-    if (token.startsWith(".")) return fileName.endsWith(token);
-    if (token.endsWith("/*")) return fileType.startsWith(token.replace("/*", "/"));
-    return fileType === token;
 };
 // #endregion

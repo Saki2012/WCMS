@@ -2,7 +2,7 @@ import type { UseActionsResult } from "@/Features/Hooks/Common/useActions";
 import { FormList_Toolbar } from "@/Features/Pages/Server/Scaffold/Toolbar/Toolbar_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { DividerComp } from "@/SysCore/Components/Divider/Divider_Comp";
-import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
+import { LoadingErrorHandler } from "@/SysCore/Components/LoadingErrorHandler";
 import type { ReactNode } from "react";
 
 // #region Property

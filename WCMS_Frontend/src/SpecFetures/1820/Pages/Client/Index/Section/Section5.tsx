@@ -116,7 +116,7 @@ export const Section5 = (props: { data: Marquee[]; durationSec?: number; }) =>
                     >
                         <div className="institution-wrapper">
                             <ul id="A1" className={`Photo-list${isPaused ? " is-paused" : ""}`} style={{ animationDuration: `${durationSec}s` }}>
-                                {renderItems.map(renderPhotoItem)}
+                                {renderItems.map((item) => <PhotoItem key={item.KeyId} item={item} />)}
                             </ul>
                         </div>
                     </div>
@@ -128,23 +128,24 @@ export const Section5 = (props: { data: Marquee[]; durationSec?: number; }) =>
 // #endregion
 
 // #region EntityComp
+/** 跑馬燈圖片項目 */
+const PhotoItem = (props: { item: RenderMarquee; }) =>
+{
+    return (
+        <li aria-hidden={props.item.IsClone}>
+            <img src={FileManagementAPI.get_Public_Preview_Url(props.item.PictureId)} alt={getPictureAlt(props.item)} />
+        </li>
+    );
+};
+// #endregion
+
+// #region Protected
 /** 建立跑馬燈渲染資料 */
 const buildRenderItems = (data: Marquee[]): RenderMarquee[] =>
 {
     const source = data.map((item) => ({ ...item, KeyId: `origin-${item.RowId}`, IsClone: false }));
     const clone = data.map((item) => ({ ...item, KeyId: `clone-${item.RowId}`, IsClone: true }));
     return [...source, ...clone];
-};
-
-
-/** 渲染單一圖片 */
-const renderPhotoItem = (item: RenderMarquee) =>
-{
-    return (
-        <li key={item.KeyId} aria-hidden={item.IsClone}>
-            <img src={FileManagementAPI.get_Public_Preview_Url(item.PictureId)} alt={getPictureAlt(item)} />
-        </li>
-    );
 };
 // #endregion
 

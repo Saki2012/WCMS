@@ -1,6 +1,6 @@
 import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import LibPwdTextBox from "@/SysCore/Components/FormField/FieldComponets/LibPwdTextBox_Comp";
+import { LibPwdTextBox } from "@/SysCore/Components/FormField/FieldComponets/LibPwdTextBox_Comp";
 import { LibDropList } from "@/SysCore/Components/FormField/LibFormField";
 import { useMemo } from "react";
 import { useServerResetPassword } from "./Server_ResetPassword_Hook";

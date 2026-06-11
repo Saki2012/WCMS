@@ -17,6 +17,7 @@ import { openFormattedSourceCodeDialog } from "./Source/tinyMceSourceFeature";
 import { registerTinyMceTableFeature } from "./Table/tinyMceTableFeature";
 import { normalizePastedTableElement, normalizeTableHtmlBeforeSave, normalizeTableHtmlForEditor } from "./Table/tinyMceTableUtils";
 
+// #region Public
 export { INTERNAL_ATTR } from "./Core/tinyMceConstants";
 export { useTinyMceIframeEdit } from "./Iframe/tinyMceIframeFeature";
 export { useTinyMceInternalImage } from "./Image/tinyMceImageFeature";
@@ -339,9 +340,10 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                 normalizePastedTableElement(args.node);
             },
             ...(p.initExtras ?? {}),
-        } as const;
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [p.id, p.language, p.languageUrl, p.baseUrl, p.uploadFileApi, p.makeFileUrl, p.initExtras, toDb, toEditor]);
 
     return { editorRef, init: editorInit, value: p.value, onChange: p.onChange, uploadAndReturn, toUrl };
 };
+// #endregion

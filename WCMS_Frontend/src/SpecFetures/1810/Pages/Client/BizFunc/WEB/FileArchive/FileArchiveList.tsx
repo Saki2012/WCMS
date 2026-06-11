@@ -6,7 +6,7 @@ import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
 import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
-import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
+import { LoadingErrorHandler } from "@/SysCore/Components/LoadingErrorHandler";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
@@ -37,7 +37,7 @@ const List_Comp = (prop: { lang: Lang; gridData: GridProps; theme: IFETheme; }) 
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /** 建立 1810 基礎欄位 */
 const buildGridColumns = (): ColumnConfig[] =>
 {
@@ -96,7 +96,7 @@ const buildDownloadContent = (fileRows: FileArchiveDetail[], urlRows: FileArchiv
 // #endregion
 
 // #region Private
-const FileArchiveList = (props: FileArchiveProps) =>
+export const FileArchiveList = (props: FileArchiveProps) =>
 {
     // 宣告變數
     const useFileArchiveList = useFileArchiveListData({ lang: props.lang, opts: props.options });
@@ -132,9 +132,6 @@ const FileArchiveList = (props: FileArchiveProps) =>
         </>
     );
 };
-
-export default FileArchiveList;
-
 /** 取得基礎欄位內容 */
 const getBaseCellContent = (lang: Lang, item: FileArchiveSet, key: string): string =>
 {

@@ -10,12 +10,11 @@ import {
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { formatLocalIsoByMinute, LibCondition, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { AnnouncementDetailFields, AnnouncementFields, CategoryDetailFields, CategoryFields, PGID, TagDataFields, TagDetailFields } from "@/types/SchemaFields";
 import { useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router-dom";
-import { formatLocalIsoByMinute } from "@/SysCore/Utils/Library/LibData";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
@@ -30,9 +29,7 @@ type TagSet = components["schemas"]["TagSet_DTO"];
 
 type CurrentOpenTime = components["schemas"]["SpecCurrentOpenTime_DTO"];
 
-
 type ApiLoaderDataCompat<TArgs, TData> = { args: TArgs; env: ApiResponse<TData>; } | { args: TArgs; apiRes: ApiResponse<TData>; };
-
 
 export interface HomePageRawData
 {
@@ -51,7 +48,6 @@ export interface HomePageRawData
     newsCategories: CategorySet[];
     newsTags: TagSet[];
 }
-
 
 export interface HomePageLoaderArgs
 {
@@ -73,12 +69,10 @@ export interface HomePageLoaderArgs
     newsTagParam: QueryListParam;
 }
 
-
 export interface HomePageLoaderRes
 {
     rawData: HomePageRawData;
 }
-
 
 export interface HomePageLoaderData
 {
@@ -86,24 +80,13 @@ export interface HomePageLoaderData
     res: HomePageLoaderRes;
 }
 
-
 // 1) nowIsoLocal 改成分鐘精度（秒=00、ms=000），避免每次請求都長得不一樣
 
-// 2) 首頁 loader 短 TTL cache（避免短時間內切語系/回首頁重打 12 包 API）
-const HOME_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
- // 1 day
-
-type CacheItem = { ts: number; data: HomePageLoaderData; };
-
-const homeLoaderCache = new Map<string, CacheItem>();
-
-
-
+// 1 day
 interface HomePageTemplateQueryParam
 {
     lang: Lang;
 }
-
 
 type HomePageTemplate = ClientDataQueryTemplate<
     HomePageTemplateQueryParam,
@@ -207,7 +190,6 @@ export const HomePageLoader = (p: { lang: Lang; }) => async ({ request }: Loader
     return result;
 };
 
-
 /** CSR Hook：首頁統一透過 Client_DataQueryTemplate 取資料 */
 
 export const useHomePageTemplateData = (lang: Lang) =>
@@ -228,40 +210,12 @@ const getEnv = <TArgs, TData>(d: ApiLoaderDataCompat<TArgs, TData>): ApiResponse
     return "env" in d ? d.env : d.apiRes;
 };
 
-
-const getCacheKey = (lang: Lang, nowIsoLocal: string) =>
-{
-    const day = nowIsoLocal.slice(0, 10);
-    return `${lang}|${day}`;
-};
-
-
-const tryGetCache = (key: string): HomePageLoaderData | null =>
-{
-    const hit = homeLoaderCache.get(key);
-    if (!hit) return null;
-    if (Date.now() - hit.ts > HOME_CACHE_TTL_MS)
-    {
-        homeLoaderCache.delete(key);
-        return null;
-    }
-    return hit.data;
-};
-
-
-const setCache = (key: string, data: HomePageLoaderData) =>
-{
-    homeLoaderCache.set(key, { ts: Date.now(), data });
-};
-
-
 const takeFirstOrNull = <T>(d: T | T[] | null | undefined): T | null =>
 {
     // return：兼容後端偶發回傳 list 的狀況
     if (!d) return null;
     return Array.isArray(d) ? d[0] ?? null : d;
 };
-
 
 const buildCategoryQuery = (progId: string): QueryListParam =>
 {
@@ -281,7 +235,6 @@ const buildCategoryQuery = (progId: string): QueryListParam =>
     };
 };
 
-
 const buildTagQuery = (progId: string): QueryListParam =>
 {
     // return
@@ -300,29 +253,17 @@ const buildTagQuery = (progId: string): QueryListParam =>
     };
 };
 
-
 const buildAnnouncementHomeCondition = (p: { lang: Lang; nowIsoLocal: string; categoryId: string; }): string =>
 {
-    // 宣告變數
-    let cdt = "";
-    cdt = LibMerge(
-        " And ",
-        false,
-        cdt,
-        // 執行：有效時間 + 非作廢
-        `${AnnouncementFields.Validate_Start} <= ${p.nowIsoLocal}`,
+    return LibCondition.joinConditions([
+        LibCondition.createCondition(AnnouncementFields.Validate_Start, Operator.LessThanOrEqual, p.nowIsoLocal),
         `(${AnnouncementFields.Validate_End} >= ${p.nowIsoLocal} Or ${AnnouncementFields.Validate_End} is null)`,
-        `${AnnouncementFields.ContentStatus} !& 4`,
-        // 執行：語系 + 必填標題
-        `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang} = ${p.lang}`,
-        `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title} != ''`,
-    );
-    // 執行：分類（首頁 01~04）
-    if (p.categoryId) cdt = LibMerge(" And ", false, cdt, `${AnnouncementFields.Categories} HasAny [${p.categoryId}]`);
-    // return
-    return cdt;
+        LibCondition.createCondition(AnnouncementFields.ContentStatus, Operator.BitwiseHasNone, 4),
+        LibCondition.createCondition(`${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang}`, Operator.Equal, p.lang),
+        LibCondition.createCondition(`${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title}`, Operator.NotEqual, "", true),
+        LibCondition.createCondition(AnnouncementFields.Categories, Operator.HasAny, p.categoryId),
+    ]);
 };
-
 
 const buildAnnouncementHomeQuery = (p: { condition: string; take: number; }): QueryListParam =>
 {
@@ -347,7 +288,6 @@ const buildAnnouncementHomeQuery = (p: { condition: string; take: number; }): Qu
     };
 };
 
-
 const fetchCurrentOpenTime = async (opt: { ssrApi: ReturnType<typeof getSsrApi>; }): Promise<CurrentOpenTime | null> =>
 {
     // 宣告變數
@@ -368,7 +308,6 @@ const fetchCurrentOpenTime = async (opt: { ssrApi: ReturnType<typeof getSsrApi>;
         return null;
     }
 };
-
 
 const buildDefaultArgs = (lang: Lang): HomePageLoaderArgs =>
 {
@@ -408,7 +347,6 @@ const buildDefaultArgs = (lang: Lang): HomePageLoaderArgs =>
     };
 };
 
-
 /** 建立首頁 DataQuery Template，讓首頁資料流程也進入前台 Template 管線 */
 const createHomePageTemplate = (lang: Lang): HomePageTemplate =>
 {
@@ -427,7 +365,6 @@ const createHomePageTemplate = (lang: Lang): HomePageTemplate =>
         },
     };
 };
-
 
 /** DataSource：首頁目前以 SSR loaderData 為主，先統一掛入 Template 流程 */
 const useHomePageTemplateDataSource = (ctx: { loaderData: HomePageLoaderData | null; }): ClientDataQueryDataSourceResult<HomePageRawData | null> =>

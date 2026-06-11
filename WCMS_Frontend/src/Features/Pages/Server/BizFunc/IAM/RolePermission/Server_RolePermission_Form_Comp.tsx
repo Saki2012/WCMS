@@ -6,6 +6,7 @@ import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableFiel
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
 import { RoleDataModelFields, RolePermissionSetFields } from "@/types/SchemaFields";
+import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -130,7 +131,7 @@ export const Server_RolePermission_Form_Comp = (props: RolePermissionFormCompPro
 
     const onBackToList = useCallback(() =>
     {
-        navigate(buildBackToListPath(pathname));
+        navigate(LibRoutePath.buildServerBackToListPath(pathname));
     }, [navigate, pathname]);
 
     const actionsOpt = useMemo(() => ({ onBackToList }), [onBackToList]);
@@ -474,14 +475,8 @@ const PermissionCheckboxComp = (props: PermissionCheckboxProps) =>
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /** 建立返回角色權限列表路徑。 */
-const buildBackToListPath = (pathname: string): string =>
-{
-    return pathname.replace(/\/Form(?:\/[^/]+)?$/, "/List");
-};
-
-
 /** 建立模組 Accordion 使用的 id 與顯示文字。 */
 const buildModuleIds = (rid: string, module: PermissionCatalogModuleDTO, moduleIndex: number) =>
 {

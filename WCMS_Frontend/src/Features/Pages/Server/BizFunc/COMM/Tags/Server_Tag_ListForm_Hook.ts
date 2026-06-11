@@ -6,7 +6,7 @@ import type { ApiAdapterError, ApiLoaderData } from "@/SysCore/Utils/API/APIAdap
 import { type ApiResponse, MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import type { UseFetchDataResult } from "@/SysCore/Utils/API/FetchDataType";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { LibCondition, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { AccountFields, PGID, TagDataFields, TagDetailFields } from "@/types/SchemaFields";
@@ -175,27 +175,20 @@ const useTagListFormActionsFromAdapter = (
 
 const useTagListQueryParam = (p: { lang: Lang; pgId: PGID; }): QueryListParam =>
 {
-    const fields = useMemo<string[]>(() =>
-    {
-        return [
-            TagDataFields.InternalId,
-            TagDataFields.TagId,
-            TagDataFields.ModifyUserId,
-            TagDataFields.ModifyTime,
-            `${TagDataFields._TagDetail}.${TagDetailFields.Lang}`,
-            `${TagDataFields._TagDetail}.${TagDetailFields.TagName}`,
-            `${TagDataFields.ModifyUser}.${AccountFields.AccountName}`,
-        ];
-    }, []);
+    const fields = useMemo<string[]>(() => [
+        TagDataFields.InternalId,
+        TagDataFields.TagId,
+        TagDataFields.ModifyUserId,
+        TagDataFields.ModifyTime,
+        `${TagDataFields._TagDetail}.${TagDetailFields.Lang}`,
+        `${TagDataFields._TagDetail}.${TagDetailFields.TagName}`,
+        `${TagDataFields.ModifyUser}.${AccountFields.AccountName}`,
+    ], []);
     const condition = useMemo(() =>
-    {
-        let cdt = `${TagDataFields._TagDetail}.${TagDetailFields.Lang} = ${p.lang}`;
-        cdt = LibMerge(" And ", false, cdt, `${TagDataFields.ProgId} = ${p.pgId}`);
-        return cdt;
-    }, [p.lang, p.pgId]);
-    return useMemo(() =>
-    {
-        return { Fields: fields, Condition: condition, OrderBy: [{ Col: TagDataFields.CreateTime, Desc: true }] };
-    }, [fields, condition]);
+        LibCondition.joinConditions([
+            LibCondition.createCondition(`${TagDataFields._TagDetail}.${TagDetailFields.Lang}`, Operator.Equal, p.lang),
+            LibCondition.createCondition(TagDataFields.ProgId, Operator.Equal, p.pgId),
+        ]), [p.lang, p.pgId]);
+    return useMemo(() => ({ Fields: fields, Condition: condition, OrderBy: [{ Col: TagDataFields.CreateTime, Desc: true }] }), [fields, condition]);
 };
 // #endregion

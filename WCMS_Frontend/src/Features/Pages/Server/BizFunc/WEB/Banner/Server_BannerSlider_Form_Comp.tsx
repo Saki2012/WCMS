@@ -9,6 +9,7 @@ import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableFiel
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
 import { BannerFields, BannerSetFields } from "@/types/SchemaFields";
+import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -94,7 +95,7 @@ export const BannerSliderFormComp = (props: BannerSliderFormCompProps) =>
 
     const onBackToList = useCallback(() =>
     {
-        navigate(buildBackToListPath(pathname));
+        navigate(LibRoutePath.buildServerBackToListPath(pathname));
     }, [navigate, pathname]);
 
     const actionsOpt = useMemo(() =>
@@ -263,10 +264,6 @@ const DetailInfoSubDetailGridComp = (props: DetailInfoSubDetailProps) =>
 
 // #region EntityComp
 /** 建立返回列表路徑，維持舊 Form 的 /Form -> /List 規則。 */
-const buildBackToListPath = (pathname: string): string =>
-{
-    return pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
-};
 // #endregion
 
 // #region Private

@@ -4,18 +4,26 @@ import { FileArchiveAdapter } from "@/Features/Hooks/BizFunc/WEB/FileArchive_Api
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import { GetDataStatusContent } from "@/Features/Pages/Server/Scaffold/CommUnitComp/CommonComp";
 import { createGridCrudActions, enhanceGridWithAdjustCell, type GridConfirmFn } from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
+import {
+    buildServerCategoryTextMap as buildCategoryTextMap,
+    buildServerListColumns,
+    buildServerListIdListNode as mapIdsToList,
+    buildServerListSelectOptions as buildCategorySearchOptions,
+    buildServerTagTextMap as buildTagTextMap,
+    getServerColumnTitle as getColumnTitle,
+    getServerSearchStringValue as getSearchStringValue,
+} from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Helper";
 import type {
     ServerListGridDataSourceContext,
     ServerListGridDataSourceResult,
     ServerListGridTemplate,
 } from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Hook";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
-import type { SearchFieldConfig, SearchValue, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
+import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
-import { findTextByKey, formatDateTime } from "@/SysCore/Utils/Library/LibData";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { findTextByKey, formatDateTime, LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { AccountFields, FileArchiveFields, FileArchiveInfoFields, PGID } from "@/types/SchemaFields";
@@ -27,10 +35,6 @@ type QueryListParam = components["schemas"]["QueryListParam"];
 
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];
 
-type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
-
-type TagSet = components["schemas"]["TagSet_DTO"];
-
 type FileArchiveApiAdapter = ReturnType<typeof FileArchiveAdapter>;
 
 type CategoryApiAdapter = ReturnType<typeof CategoryAdapter>;
@@ -38,11 +42,6 @@ type CategoryApiAdapter = ReturnType<typeof CategoryAdapter>;
 type TagApiAdapter = ReturnType<typeof TagAdapter>;
 
 type FileArchiveCudActions = ReturnType<FileArchiveApiAdapter["hooks"]["useCudActions"]>;
-
-type CategoryMapValue = string | CategorySet | null | undefined;
-
-type TagMapValue = string | TagSet | null | undefined;
-
 
 export interface FileArchiveSearchParams
 {
@@ -55,7 +54,6 @@ export interface FileArchiveSearchParams
     /** 檔案室分類搜尋條件 */
     categoryId?: string;
 }
-
 
 export interface FileArchiveListRawData
 {
@@ -87,7 +85,6 @@ export interface FileArchiveListRawData
     tagMap: Record<string, string>;
 }
 
-
 export interface FileArchiveListAdapter
 {
     /** 檔案室 API adapter */
@@ -109,9 +106,7 @@ export interface FileArchiveListAdapter
     dirUrl: string;
 }
 
-
 export type FileArchiveListGridTemplate = ServerListGridTemplate<FileArchiveSearchParams, FileArchiveListRawData, FileArchiveListAdapter, QueryListParam>;
-
 
 type CrudDeps = {
     /** React Router 導頁方法 */
@@ -133,7 +128,6 @@ export const FILE_ARCHIVE_TITLE_SEARCH_KEY = "title";
 
 export const FILE_ARCHIVE_CATEGORY_SEARCH_KEY = "categoryId";
 
-
 /** 建立檔案室後台 ListGridTemplate 設定 */
 export const useFileArchiveListGridTemplate = (opt: { lang: Lang; }): FileArchiveListGridTemplate =>
 {
@@ -147,8 +141,7 @@ export const useFileArchiveListGridTemplate = (opt: { lang: Lang; }): FileArchiv
                 buildSearchConditions: buildFileArchiveSearchConditions,
                 buildQueryParam: buildFileArchiveQueryParam,
                 useDataSource: useFileArchiveListGridDataSource,
-                buildGridProps: (ctx) =>
-                    buildFileArchiveGridProps({ raw: ctx.rawData, lang: ctx.searchParams.lang, adapter: ctx.adapter, refetchData: ctx.refetchData }),
+                buildGridProps: (ctx) => buildFileArchiveGridProps({ raw: ctx.rawData, lang: ctx.searchParams.lang, adapter: ctx.adapter, refetchData: ctx.refetchData }),
             },
         };
     }, [opt.lang]);
@@ -222,7 +215,6 @@ const useFileArchiveListGridDataSource = (
     return { adapter: { ...apiAdapter, cudActions, navigate, dirUrl }, rawData, isLoading, errors, refetchData, refetchRefData };
 };
 
-
 /** 建立檔案室搜尋欄位設定 */
 const buildFileArchiveSearchFields = (rawData: FileArchiveListRawData): SearchFieldConfig[] =>
 {
@@ -237,7 +229,6 @@ const buildFileArchiveSearchFields = (rawData: FileArchiveListRawData): SearchFi
     }];
 };
 
-
 /** 將 SearchValues 轉為檔案室列表查詢參數 */
 const toFileArchiveSearchParams = (values: SearchValues, lang: Lang): FileArchiveSearchParams =>
 {
@@ -247,7 +238,6 @@ const toFileArchiveSearchParams = (values: SearchValues, lang: Lang): FileArchiv
         categoryId: getSearchStringValue(values[FILE_ARCHIVE_CATEGORY_SEARCH_KEY]),
     };
 };
-
 
 /** 建立檔案室搜尋條件 */
 const buildFileArchiveSearchConditions = (ctx: { searchParams: FileArchiveSearchParams; }): string[] =>
@@ -267,24 +257,18 @@ const buildFileArchiveSearchConditions = (ctx: { searchParams: FileArchiveSearch
     return conditions;
 };
 
-
 /** 建立檔案室列表完整 QueryParam */
 const buildFileArchiveQueryParam = (ctx: { searchParams: FileArchiveSearchParams; searchCondition: string; }): QueryListParam =>
 {
-    const fields = buildFileArchiveQueryFields();
-    const langCondition = `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.Lang} = ${ctx.searchParams.lang}`;
-    const condition = LibMerge(" And ", false, langCondition, ctx.searchCondition);
-
     return {
-        Fields: fields,
-        Condition: condition,
+        Fields: buildFileArchiveQueryFields(),
+        Condition: LibCondition.joinConditions([LibCondition.createCondition(`${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.Lang}`, Operator.Equal, ctx.searchParams.lang), ctx.searchCondition]),
         RankGroups: [{ Condition: `${FileArchiveFields.ContentStatus} & 1` }],
         OrderBy: [{ Col: FileArchiveFields.CreateTime, Desc: true }],
         PageNumber: 1,
         PageSize: 10,
     };
 };
-
 
 /** 建立檔案室列表查詢欄位 */
 const buildFileArchiveQueryFields = (): string[] =>
@@ -304,14 +288,6 @@ const buildFileArchiveQueryFields = (): string[] =>
     ];
 };
 
-
-/** 建立分類下拉搜尋選項 */
-const buildCategorySearchOptions = (categoryMap: Record<string, string>): SearchFieldConfig["options"] =>
-{
-    return Object.entries(categoryMap).map(([value, title]) => ({ value, title: title || value }));
-};
-
-
 /** 將檔案室資料轉為 GridProps */
 const buildFileArchiveGridProps = (
     opt: {
@@ -326,7 +302,7 @@ const buildFileArchiveGridProps = (
 ): GridProps =>
 {
     const visibleCols = [FileArchiveFields.CategoriesId, FileArchiveInfoFields.Title, FileArchiveFields.ModifyUserId, FileArchiveFields.ModifyTime];
-    const columns = buildColumns(visibleCols, opt.raw);
+    const columns = buildServerListColumns(visibleCols, opt.raw.modelDisplayName);
     const rows = buildFileArchiveRows(opt.raw, opt.lang, columns);
     const baseGrid: GridProps = { columns, rows, CurrentPage: opt.raw.pageNumber ?? 1, TotalPage: opt.raw.totalPages ?? 1, onPageChange: opt.raw.onPageChange };
 
@@ -342,7 +318,6 @@ const buildFileArchiveGridProps = (
         confirm: opt.confirm,
     });
 };
-
 
 /** 注入檔案室 Grid 編輯與刪除動作 */
 const enhanceFileArchiveGrid = (
@@ -374,20 +349,12 @@ const enhanceFileArchiveGrid = (
     });
 };
 
-
-/** 建立檔案室列表欄位定義 */
-const buildColumns = (visibleCols: string[], raw: FileArchiveListRawData): ColumnConfig[] =>
-{
-    return visibleCols.map((col) => ({ key: col, title: getColumnTitle(raw.modelDisplayName, col, `【${col}】`) }));
-};
-
-
 /** 建立檔案室列表列資料 */
 const buildFileArchiveRows = (raw: FileArchiveListRawData, lang: Lang, columns: ColumnConfig[]): GridRow[] =>
 {
     return (raw.list ?? []).map((set) =>
     {
-        const keyId = set.FileArchive?.InternalId ?? LibMerge("|", false, set.FileArchive?.FileArchiveId);
+        const keyId = set.FileArchive?.InternalId ?? LibText.Merge("|", false, set.FileArchive?.FileArchiveId);
         const cells: RowCell[] = [
             { col: columns[0], content: mapIdsToList(set.FileArchive?.CategoriesId, raw.categoryMap) },
             { col: columns[1], content: buildTitleCell(set, lang) },
@@ -399,7 +366,6 @@ const buildFileArchiveRows = (raw: FileArchiveListRawData, lang: Lang, columns: 
     });
 };
 
-
 /** 建立標題與資料狀態欄位內容 */
 const buildTitleCell = (set: FileArchiveSet, lang: Lang): ReactNode =>
 {
@@ -408,77 +374,4 @@ const buildTitleCell = (set: FileArchiveSet, lang: Lang): ReactNode =>
     return createElement(Fragment, null, createElement("span", { key: "title" }, title), GetDataStatusContent(set.FileArchive?.ContentStatus ?? 0));
 };
 
-
-/** 將逗號分隔代碼轉為清單顯示 */
-const mapIdsToList = (ids: string | null | undefined, map: Record<string, string>): ReactNode =>
-{
-    const names = (ids ?? "").split(",").map((x) => x.trim()).filter(Boolean).map((id) => map[id] ?? id);
-
-    return createElement(
-        "ul",
-        { className: "m-0 p-0", style: { listStylePosition: "inside" } },
-        names.map((line, index) => createElement("li", { key: `${line}-${index}`, className: "m-0 p-0" }, line)),
-    );
-};
-
-
-/** 將分類 Hook 回傳值轉成文字 map，避免不同 Adapter map 版本造成型別不一致 */
-const buildCategoryTextMap = (source: Record<string, CategoryMapValue>, lang: Lang): Record<string, string> =>
-{
-    return Object.entries(source).reduce<Record<string, string>>((acc, [key, value]) =>
-    {
-        acc[key] = getCategoryText(value, lang);
-        return acc;
-    }, {});
-};
-
-
-/** 取得分類顯示文字 */
-const getCategoryText = (value: CategoryMapValue, lang: Lang): string =>
-{
-    if (!value) return "";
-    if (typeof value === "string") return value;
-
-    return findTextByKey(value.CategoryDetail, (detail) => detail?.Lang, lang, (detail) => detail?.CategoryName);
-};
-
-
-/** 將標籤 Hook 回傳值轉成文字 map，避免不同 Adapter map 版本造成型別不一致 */
-const buildTagTextMap = (source: Record<string, TagMapValue>, lang: Lang): Record<string, string> =>
-{
-    return Object.entries(source).reduce<Record<string, string>>((acc, [key, value]) =>
-    {
-        acc[key] = getTagText(value, lang);
-        return acc;
-    }, {});
-};
-
-
-/** 取得標籤顯示文字 */
-const getTagText = (value: TagMapValue, lang: Lang): string =>
-{
-    if (!value) return "";
-    if (typeof value === "string") return value;
-
-    return findTextByKey(value.TagDetail, (detail) => detail?.Lang, lang, (detail) => detail?.TagName);
-};
-
-
-/** 依欄位代碼取得 ModelDisplayName 顯示文字 */
-const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, columnId: string, fallback: string): string =>
-{
-    const tables = modelDisplayName?.Tables ?? [];
-    const hit = tables.flatMap((t) => t.Columns ?? []).find((c) => c.ColumnId === columnId);
-    return hit?.ColumnDisplayName ?? fallback;
-};
-
-
-/** 取得 SearchValue 的文字值 */
-const getSearchStringValue = (value: SearchValue): string | undefined =>
-{
-    if (typeof value !== "string") return undefined;
-
-    const text = value.trim();
-    return text.length > 0 ? text : undefined;
-};
 // #endregion

@@ -11,6 +11,17 @@ import { GalleryAdapter } from "@/Features/Hooks/BizFunc/WEB/Gallery_Api";
 
 import { findTextByKey } from "@/SysCore/Utils/Library/LibData";
 
+import { formatDateParts as formatDate } from "@/SysCore/Utils/Library/LibData";
+import {
+    buildClientCategoryTextDict as buildCategoryDict,
+    buildClientListInitial as toListInitial,
+    buildClientTagTextDict as buildTagDict,
+    getAnnouncementSetKey,
+    getGallerySetKey,
+    takeTopThenFill,
+    delayMs as sleep,
+} from "@/Features/Pages/Client/Index/HomePage_Helper";
+
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
@@ -86,7 +97,7 @@ export const ActivityPhotoData = (
     // 宣告：合併（置頂優先補滿 6）
     const allGalleryRawData1 = useMemo(() =>
     {
-        return takeTopThenFill(useTopList.data ?? [], useList.data ?? [], 6);
+        return takeTopThenFill(useTopList.data ?? [], useList.data ?? [], 6, getGallerySetKey);
     }, [useTopList.data, useList.data]);
 
     // 宣告：字典
@@ -128,7 +139,7 @@ export const ActivityPhotoData = (
 
     type JQueryLike = ((el: HTMLElement | string) => JQueryObj) & { fn?: { owlCarousel?: (opts: OwlOptions) => void; }; };
 
-    const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+    
 
     const getJQuery = (): JQueryLike | null =>
     {
@@ -342,45 +353,7 @@ export const ActivityPhotoData = (
 };
 // #endregion
 
-// #region EntityComp
-const buildCategoryDict = (list: CategoryDataSet[], lang: Lang): Record<string, string> =>
-{
-    // 宣告變數
-    const pairs = list.map((cat) =>
-    {
-        const id = cat.Category?.CategoryId ?? "";
-        const name = findTextByKey(cat.CategoryDetail, (p) => p?.Lang, lang, (p) => p?.CategoryName);
-        return [id, name] as const;
-    }).filter(([id]) => Boolean(id));
-
-    // return
-    return Object.fromEntries(pairs);
-};
-
-
-const buildTagDict = (list: TagSet[], lang: Lang): Record<string, string> =>
-{
-    // 宣告變數
-    const pairs = list.map((t) =>
-    {
-        const id = t.TagData?.TagId ?? "";
-        const name = findTextByKey(t.TagDetail, (p) => p?.Lang, lang, (p) => p?.TagName);
-        return [id, name] as const;
-    }).filter(([id]) => Boolean(id));
-
-    // return
-    return Object.fromEntries(pairs);
-};
-// #endregion
-
 // #region Private
-const toListInitial = <TArgs, TItem>(args: TArgs, data: TItem[]) =>
-{
-    // return：符合 adapter hook 的 initial 型別
-    return { args, apiRes: { IsSuccess: true, Data: data, SysMessage: [] } };
-};
-
-
 const getGalleryDataProps = (
     GalleryData: GallerySet[],
     lang: string,
@@ -442,15 +415,6 @@ const pickGallerysByCategories = <T extends { Gallery?: { Categories?: string | 
 };
 
 
-const formatDate = (dateStr: string) =>
-{
-    const date = new Date(dateStr);
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear().toString();
-    return { day, month, year };
-};
-
 
 const GetData = ({ prop }: { prop: getDataProp[]; }) =>
 {
@@ -483,33 +447,5 @@ const GetData = ({ prop }: { prop: getDataProp[]; }) =>
             })}
         </>
     );
-};
-
-
-const takeTopThenFill = (top: GallerySet[] | undefined, rest: GallerySet[] | undefined, limit: number = 3): GallerySet[] =>
-{
-    const getKey = (x: GallerySet) => x.Gallery?.InternalId ?? String(x.Gallery?.GalleryId ?? "");
-    const seen = new Set<string>();
-    const out: GallerySet[] = [];
-    for (const it of (top ?? []))
-    {
-        const k = getKey(it);
-        if (!seen.has(k) && out.length < limit)
-        {
-            seen.add(k);
-            out.push(it);
-        }
-    }
-    for (const it of (rest ?? []))
-    {
-        if (out.length >= limit) break;
-        const k = getKey(it);
-        if (!seen.has(k))
-        {
-            seen.add(k);
-            out.push(it);
-        }
-    }
-    return out;
 };
 // #endregion

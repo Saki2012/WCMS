@@ -5,6 +5,8 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import { useEffect, useMemo, useRef } from "react";
 
+import { delayMs as sleep } from "@/Features/Pages/Client/Index/HomePage_Helper";
+
 // #region Property
 type BannerSet = components["schemas"]["BannerSet_DTO"];
 // #endregion
@@ -48,7 +50,7 @@ export const AdmissionsCarouselData = (props: { lang: Lang; internalId: string; 
 
     type JQueryLike = ((el: HTMLElement) => JQueryObj) & { fn?: { owlCarousel?: (opts: OwlOptions) => void; }; };
 
-    const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+    
 
     const getJQuery = (): JQueryLike | null =>
     {

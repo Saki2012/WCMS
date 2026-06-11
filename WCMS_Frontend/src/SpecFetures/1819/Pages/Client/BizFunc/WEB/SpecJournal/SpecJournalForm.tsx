@@ -1,6 +1,6 @@
 import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
+import { ModuleContent, type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import { useBreadcrumb } from "@/Features/Pages/Client/Scaffold/SubPages/Module/BreadCrumb/BreadCrumb_Comp";
 import insightpointImg1 from "@/SpecFetures/1819/Assets/Client/images/links/150x32/InSight_Point_bt_150x32.svg";
 import insightpointImg2 from "@/SpecFetures/1819/Assets/Client/images/links/150x32/InSight_Point_bt_W_150x32.svg";
@@ -23,7 +23,6 @@ import { useSpecJournalSearchNav } from "./SpecJournalSearchUtils";
 // #region Property
 type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
 
-
 interface PreviewSectionItem
 {
     id: string;
@@ -31,14 +30,11 @@ interface PreviewSectionItem
     content: ReactNode;
 }
 
-
 const PREVIEW_LINE_COUNT = 10;
 
 const PREVIEW_FALLBACK_LINE_PX = 28;
 
-
 type SpecJournalDocumentItem = NonNullable<SpecJournalSet["SpecJournalDocument"]>[number];
-
 
 interface DocumentGroup
 {
@@ -46,7 +42,6 @@ interface DocumentGroup
     title: string;
     items: SpecJournalDocumentItem[];
 }
-
 
 const DOCUMENT_TYPE_TITLE_MAP: Record<string, string> = {
     // enum 名稱
@@ -64,7 +59,6 @@ const DOCUMENT_TYPE_TITLE_MAP: Record<string, string> = {
     "3": "公告事項",
     "4": "倫理聲明",
 };
-
 
 const DOCUMENT_TYPE_ORDER = ["Errata", "Correction", "Announcements", "Ethics_Statement", "Other", "1", "2", "3", "4", "0"];
 // #endregion
@@ -223,7 +217,6 @@ const JournalTitle_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
     );
 };
 
-
 /** 瀏覽次數 */
 const BrowseCount_Comp = (props: { pageViewCount: number; }) =>
 {
@@ -245,7 +238,6 @@ const BrowseCount_Comp = (props: { pageViewCount: number; }) =>
         </>
     );
 };
-
 
 /** 作者列表 */
 const Authors_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
@@ -446,9 +438,7 @@ const JournalInfo_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
                                         </>
                                     )}
                                     <span>
-                                        {`${props.data?.SpecJournal?._JournalIndexDetail?.Volume ?? ""}卷${
-                                            props.data?.SpecJournal?._JournalIndexDetail?.Issue ?? ""
-                                        }期`}
+                                        {`${props.data?.SpecJournal?._JournalIndexDetail?.Volume ?? ""}卷${props.data?.SpecJournal?._JournalIndexDetail?.Issue ?? ""}期`}
                                     </span>
                                     <span className="G_Vline">│</span>
                                     <span>{`${props.data?.SpecJournal?.PageStart ?? ""}頁~${props.data?.SpecJournal?.PageEnd ?? ""}頁`}</span>
@@ -728,7 +718,6 @@ const RefFile_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
     );
 };
 
-
 /** 可預覽前 10 行的展開區塊 */
 const PreviewSectionCard_Comp = (props: { item: PreviewSectionItem; isExpanded: boolean; onToggle: (id: string) => void; }) =>
 {
@@ -814,7 +803,6 @@ const PreviewSectionCard_Comp = (props: { item: PreviewSectionItem; isExpanded: 
     );
 };
 
-
 /** 摘要 + 參考文獻 + 引文格式 */
 const Accordion_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
 {
@@ -862,12 +850,14 @@ const Accordion_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
         <>
             <div id="accordion" className="Expand_Close_Bar">
                 <ul className="EC_info">
-                    {sections.map((item) => <PreviewSectionCard_Comp
-                        key={item.id}
-                        item={item}
-                        isExpanded={expandedId === item.id}
-                        onToggle={onToggleSection}
-                    />)}
+                    {sections.map((item) => (
+                        <PreviewSectionCard_Comp
+                            key={item.id}
+                            item={item}
+                            isExpanded={expandedId === item.id}
+                            onToggle={onToggleSection}
+                        />
+                    ))}
                 </ul>
             </div>
 
@@ -946,7 +936,7 @@ const Documents_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /** 將文件依 DocumentType 分組 */
 const buildDocumentGroups = (documents?: SpecJournalDocumentItem[] | null): DocumentGroup[] =>
 {
@@ -979,7 +969,6 @@ const joinPath = (base: string, path: string) =>
     return `${b}/${p}`;
 };
 
-
 const SpecJournalFormContent = (props: { lang: Lang; data?: SpecJournalSet; pageViewCount: number; }) =>
 {
     return (
@@ -1006,7 +995,6 @@ const SpecJournalFormContent = (props: { lang: Lang; data?: SpecJournalSet; page
     );
 };
 
-
 /** 取得 line-height px */
 const getLineHeightPx = (value: string) =>
 {
@@ -1016,7 +1004,6 @@ const getLineHeightPx = (value: string) =>
     // return
     return Number.isFinite(px) && px > 0 ? px : PREVIEW_FALLBACK_LINE_PX;
 };
-
 
 /** 計算預覽高度 */
 const getPreviewHeight = (el: HTMLElement) =>
@@ -1031,7 +1018,6 @@ const getPreviewHeight = (el: HTMLElement) =>
     return Math.ceil(lineHeight * PREVIEW_LINE_COUNT + paddingTop + paddingBottom);
 };
 
-
 /** 計算內容高度 */
 const getBodyHeights = (el: HTMLDivElement) =>
 {
@@ -1043,7 +1029,6 @@ const getBodyHeights = (el: HTMLDivElement) =>
     // return
     return { previewHeight, fullHeight, canToggle };
 };
-
 
 const preventHashOrVoidNav = (e: React.MouseEvent<HTMLAnchorElement>) =>
 {
@@ -1064,14 +1049,12 @@ const getDocumentTypeKey = (doc: SpecJournalDocumentItem): string =>
     return String(rawType ?? "").trim() || "Other";
 };
 
-
 /** 取得文件分類標題 */
 const getDocumentTypeTitle = (typeKey: string): string =>
 {
     // return
     return DOCUMENT_TYPE_TITLE_MAP[typeKey] ?? "其他";
 };
-
 
 /** 依既定順序排序分類 */
 const sortDocumentGroups = (groups: DocumentGroup[]): DocumentGroup[] =>

@@ -10,6 +10,15 @@ import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WEB/Announcement_A
 
 import { findTextByKey } from "@/SysCore/Utils/Library/LibData";
 
+import {
+    buildClientCategoryTextDict as buildCategoryDict,
+    buildClientListInitial as toListInitial,
+    buildClientTagTextDict as buildTagDict,
+    getAnnouncementSetKey,
+    takeTopThenFill,
+} from "@/Features/Pages/Client/Index/HomePage_Helper";
+import { formatDateParts as formatDate } from "@/SysCore/Utils/Library/LibData";
+
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
@@ -18,7 +27,6 @@ type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"];
 
 type TagSet = components["schemas"]["TagSet_DTO"];
-
 
 interface getDataProp
 {
@@ -35,7 +43,6 @@ interface getDataProp
     contentStatus: number;
     internalId: string;
 }
-
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 // #endregion
@@ -80,7 +87,7 @@ export const NewsData = (
     // 宣告變數：資料整理（置頂優先補滿）
     const allNewsRawData1 = useMemo(() =>
     {
-        return takeTopThenFill(useTopList.data ?? [], useList.data ?? [], 6);
+        return takeTopThenFill(useTopList.data ?? [], useList.data ?? [], 6, getAnnouncementSetKey);
     }, [useTopList.data, useList.data]);
 
     const categoryDict = useMemo(() =>
@@ -150,45 +157,7 @@ export const NewsData = (
 };
 // #endregion
 
-// #region EntityComp
-const buildCategoryDict = (list: CategoryDataSet[], lang: Lang): Record<string, string> =>
-{
-    // 宣告變數
-    const pairs = list.map((cat) =>
-    {
-        const id = cat.Category?.CategoryId ?? "";
-        const name = findTextByKey(cat.CategoryDetail, (p) => p?.Lang, lang, (p) => p?.CategoryName);
-        return [id, name] as const;
-    });
-
-    // return
-    return Object.fromEntries(pairs.filter(([id]) => Boolean(id)));
-};
-
-
-const buildTagDict = (list: TagSet[], lang: Lang): Record<string, string> =>
-{
-    // 宣告變數
-    const pairs = list.map((t) =>
-    {
-        const id = t.TagData?.TagId ?? "";
-        const name = findTextByKey(t.TagDetail, (p) => p?.Lang, lang, (p) => p?.TagName);
-        return [id, name] as const;
-    });
-
-    // return
-    return Object.fromEntries(pairs.filter(([id]) => Boolean(id)));
-};
-// #endregion
-
 // #region Private
-const toListInitial = <TArgs, TItem>(args: TArgs, data: TItem[]) =>
-{
-    // return：符合 adapter hook 的 initial 型別
-    return { args, apiRes: { IsSuccess: true, Data: data, SysMessage: [] } };
-};
-
-
 const getNewsDataProps = (
     newsData: AnnouncementSet[],
     lang: string,
@@ -234,7 +203,6 @@ const getNewsDataProps = (
     return resultProps;
 };
 
-
 const pickNewsByCategories = <T extends { Announcement?: { Categories?: string | null | undefined; }; }>(
     newsData: T[] | undefined,
     categories: string | string[],
@@ -254,17 +222,6 @@ const pickNewsByCategories = <T extends { Announcement?: { Categories?: string |
 
     return result.slice(0, take);
 };
-
-
-const formatDate = (dateStr: string) =>
-{
-    const date = new Date(dateStr);
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear().toString();
-    return { day, month, year };
-};
-
 
 const GetData = ({ prop }: { prop: getDataProp[]; }) =>
 {
@@ -311,35 +268,6 @@ const GetData = ({ prop }: { prop: getDataProp[]; }) =>
         </>
     );
 };
-
-
-const takeTopThenFill = (top: AnnouncementSet[] | undefined, rest: AnnouncementSet[] | undefined, limit: number = 3): AnnouncementSet[] =>
-{
-    const getKey = (x: AnnouncementSet) => x.Announcement?.InternalId ?? String(x.Announcement?.AnnouncementId ?? "");
-    const seen = new Set<string>();
-    const out: AnnouncementSet[] = [];
-    for (const it of top ?? [])
-    {
-        const k = getKey(it);
-        if (!seen.has(k) && out.length < limit)
-        {
-            seen.add(k);
-            out.push(it);
-        }
-    }
-    for (const it of rest ?? [])
-    {
-        if (out.length >= limit) break;
-        const k = getKey(it);
-        if (!seen.has(k))
-        {
-            seen.add(k);
-            out.push(it);
-        }
-    }
-    return out;
-};
-
 
 const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: number = 8): boolean =>
 {

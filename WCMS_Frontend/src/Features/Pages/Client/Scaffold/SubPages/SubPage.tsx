@@ -5,9 +5,9 @@
  */
 
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import LeftFrame from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/LeftFrame/LeftFrame";
-import RightFrame from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/RightFrame";
-import TopFrame from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/TopFrame/TopFrame";
+import { LeftFrame } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/LeftFrame/LeftFrame";
+import { RightFrame } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/RightFrame";
+import { TopFrame } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/TopFrame/TopFrame";
 import { BreadcrumbContext, type BreadcrumbItem } from "@/Features/Pages/Client/Scaffold/SubPages/Module/BreadCrumb/BreadCrumb_Comp";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import type { Lang } from "@/SysCore/i18n/lang";
@@ -35,7 +35,7 @@ interface IContentContainerProps extends ISubPageProps
 // #endregion
 
 // #region Private
-const SubPage = (props: ISubPageProps) =>
+export const SubPage = (props: ISubPageProps) =>
 {
     // 讀取 SSR loader 初始資料
     const data = useLoaderData() as ISubPageLoaderData | undefined;
@@ -63,11 +63,6 @@ const SubPage = (props: ISubPageProps) =>
         </>
     );
 };
-
-
-export default SubPage;
-
-
 const ContentContainer = (props: IContentContainerProps) =>
 {
     return (

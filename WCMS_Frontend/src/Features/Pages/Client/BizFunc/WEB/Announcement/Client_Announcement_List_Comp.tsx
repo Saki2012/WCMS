@@ -479,7 +479,6 @@ const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementS
 // #endregion
 
 // #region Private
-
 const resolveAdjustedCellText = (
     p: { colKey: string; rawContent: string; rowTitle: string; curRow: AnnouncementSet; catData: CategorySet[]; tagData: TagSet[]; lang: Lang; },
 ): string =>
@@ -554,5 +553,4 @@ const SetAdjustFunction = (
     });
     return { ...gridProps, rows: newRows };
 };
-
 // #endregion

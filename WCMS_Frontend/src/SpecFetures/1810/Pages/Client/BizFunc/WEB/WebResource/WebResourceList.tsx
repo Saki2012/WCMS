@@ -7,7 +7,7 @@ import DefaultImg from "@/SpecFetures/1810/Assets/Custom/WebResource_Default.png
 import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
 import type { GridProps, GridRow } from "@/SysCore/Components/Grid/Grid_Data";
 import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
-import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
+import { LoadingErrorHandler } from "@/SysCore/Components/LoadingErrorHandler";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LibMedia } from "@/SysCore/Utils/Library/LibData";
@@ -28,14 +28,10 @@ interface IVenoBoxInstance
     destroy?: () => void;
 }
 
-interface IVenoBoxWindow extends Window
-{
-    VenoBox?: new(options: Record<string, string | boolean>) => IVenoBoxInstance;
-}
 // #endregion
 
 // #region Section
-const WebResourceListComp = (props: IWebResourceListProps) =>
+export const WebResourceListComp = (props: IWebResourceListProps) =>
 {
     // 宣告變數：直接吃 feature data
     const getData = useWebResourceListData({ lang: props.lang, opts: props.options });
@@ -95,9 +91,6 @@ const formatCategoriesNameByMap = (content: string, categoryMap: CategoryMap) =>
 
     return raw.split(",").map(s => s.trim()).filter(Boolean).map(id => categoryMap[id] ?? "").filter(Boolean).join("、");
 };
-
-export default WebResourceListComp;
-
 const YoutubeContent = (prop: { lang: string; datas: WebResourceSet[]; }) =>
 {
     const venoboxInstanceRef = useRef<IVenoBoxInstance | null>(null);
@@ -106,12 +99,12 @@ const YoutubeContent = (prop: { lang: string; datas: WebResourceSet[]; }) =>
     {
         if (typeof window === "undefined") return;
 
-        const win = window as IVenoBoxWindow;
-        if (!win.VenoBox) return;
+        const VenoBoxCtor = window.VenoBox;
+        if (!VenoBoxCtor) return;
 
         if (venoboxInstanceRef.current?.destroy) venoboxInstanceRef.current.destroy();
 
-        venoboxInstanceRef.current = new win.VenoBox({
+        venoboxInstanceRef.current = new VenoBoxCtor({
             selector: ".photo_standardbox .venobox",
             autoplay: true,
             maxWidth: "1200px",

@@ -1,6 +1,7 @@
 import type { TinyMCEEditor } from "../Core/tinyMceTypes";
 import { formatHtmlSource } from "./htmlSourceFormatter";
 
+// #region Public
 const setSourceEditorContent = (editor: TinyMCEEditor, html: string) =>
 {
     editor.focus();
@@ -41,3 +42,4 @@ export const openFormattedSourceCodeDialog = (editor: TinyMCEEditor) =>
         },
     });
 };
+// #endregion

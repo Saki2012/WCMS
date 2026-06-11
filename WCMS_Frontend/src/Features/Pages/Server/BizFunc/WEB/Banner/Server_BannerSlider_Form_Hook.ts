@@ -20,6 +20,7 @@ import type {
 import {
     buildEditGridCell,
     getEditGridCellValue,
+    getSelectedEditGridFile,
     getEditGridNullableStringCellValue,
     getEditGridNumberCellValue,
     getEditGridRowId,
@@ -752,19 +753,6 @@ const uploadBannerPictureValue = async (args: EditGridCellValueChangeArgs, handl
 const getSelectedBannerPictureName = (file: EditGridFileValue): string =>
 {
     return String(file.file?.name || file.fileName || "").trim();
-};
-
-/** 從 EditGrid file value 取得使用者剛選的 File。 */
-const getSelectedEditGridFile = (value: EditGridCellValue): EditGridFileValue | null =>
-{
-    if (isEditGridFileValue(value)) return value;
-    return null;
-};
-
-/** 判斷是否為 EditGrid file value。 */
-const isEditGridFileValue = (value: EditGridCellValue): value is EditGridFileValue =>
-{
-    return typeof value === "object" && value !== null && "fileName" in value;
 };
 
 /** 建立空圖片值，用於使用者清除 file 欄位。 */

@@ -22,6 +22,7 @@ import type {
 import {
     buildEditGridCell,
     getEditGridCellValue,
+    getSelectedEditGridFile,
     getEditGridRowId,
     getEditGridStringCellValue,
     useEditGridBinding,
@@ -31,7 +32,7 @@ import { buildSupportedLangOrder, type Lang, LangLabelMap, normalizeSupportedLan
 import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
-import { LibText } from "@/SysCore/Utils/Library/LibData";
+import { LibAttachment, LibText } from "@/SysCore/Utils/Library/LibData";
 
 import { useUploadFile } from "@/SysCore/Utils/UI_HookFunc/useUploadFile";
 import type { components } from "@/types/api";
@@ -825,7 +826,7 @@ const syncGalleryPhotoInfoTitlesFromRows = (infos: GalleryPhotoInfo[], galleryId
     return rows.reduce<GalleryPhotoInfo[]>((nextInfos, row, index) =>
     {
         const fileValue = toGalleryPhotoCellValue(getEditGridCellValue(row, GalleryPhotosFields.PicSrcId));
-        const title = getFileNameWithoutExtension(fileValue.originalFileName);
+        const title = LibAttachment.getDisplayFileNameWithoutExtension(fileValue.originalFileName);
         if (!title) return nextInfos;
         return upsertGalleryPhotoInfos(nextInfos, galleryId, getEditGridRowId(row, index), title);
     }, infos);
@@ -971,7 +972,7 @@ const uploadSingleGalleryFile = async (file: File, uploadFile: UploadFileHandler
         uploadedId = internalId;
     });
 
-    return { internalId: uploadedId, originalFileName, title: getFileNameWithoutExtension(originalFileName) };
+    return { internalId: uploadedId, originalFileName, title: LibAttachment.getDisplayFileNameWithoutExtension(originalFileName) };
 };
 
 /** 將批次上傳結果追加成 GalleryPhotos 與 GalleryPhotosInfo。 */
@@ -1063,33 +1064,10 @@ const getNextGalleryPhotoRowId = (photos: GalleryPhoto[]): number =>
     return photos.reduce((max, photo) => Math.max(max, Number(photo.RowId ?? 0)), 0) + 1;
 };
 
-/** 取得不含副檔名的檔名，供相片語系標題預設帶入。 */
-const getFileNameWithoutExtension = (fileName?: string | null): string =>
-{
-    const safeFileName = String(fileName ?? "").trim();
-    const extIndex = safeFileName.lastIndexOf(".");
-
-    if (extIndex <= 0) return safeFileName;
-    return safeFileName.slice(0, extIndex);
-};
-
 /** 取得本次選圖的原始檔名，避免上傳 callback 未帶檔名時只剩 internalId。 */
 const getSelectedGalleryPhotoName = (file: EditGridFileValue): string =>
 {
     return String(file.file?.name || file.fileName || "").trim();
-};
-
-/** 從 EditGrid file value 取得使用者剛選的 File。 */
-const getSelectedEditGridFile = (value: EditGridCellValue): EditGridFileValue | null =>
-{
-    if (isEditGridFileValue(value)) return value;
-    return null;
-};
-
-/** 判斷是否為 EditGrid file value。 */
-const isEditGridFileValue = (value: EditGridCellValue): value is EditGridFileValue =>
-{
-    return typeof value === "object" && value !== null && "fileName" in value;
 };
 
 /** 建立空相片值，用於使用者清除 file 欄位。 */

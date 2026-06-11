@@ -6,11 +6,12 @@ import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import { LibDropList, LibFile, LibModal, LibPicturePreview, LibTextArea, LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
-import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
+import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
 import { SpecMusicalModelFields, SpecMusicalSetFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
+import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -90,7 +91,7 @@ export const Server_SpecMusical_Form_Comp = (props: SpecMusicalFormCompProps) =>
 
     const onBackToList = useCallback(() =>
     {
-        navigate(buildBackToListPath(pathname));
+        navigate(LibRoutePath.buildServerBackToListPath(pathname));
     }, [navigate, pathname]);
 
     const actionsOpt = useMemo(() =>
@@ -201,6 +202,10 @@ const SpecMusicalPhotoBatchUploadComp = (props: { theme: IBETheme; binding: Serv
 // #endregion
 
 // #region EntityComp
+/** 建立返回 List 的路徑。 */
+// #endregion
+
+// #region Protected
 /** 建立主分頁內容。 */
 const buildSpecMusicalTabContent = (props: SpecMusicalBasicProps): Record<string, ReactNode[]> =>
 {
@@ -285,13 +290,6 @@ const buildSpecMusicalBasicFields = (
             />
         </div>,
     ];
-};
-
-
-/** 建立返回 List 的路徑。 */
-const buildBackToListPath = (pathname: string): string =>
-{
-    return pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
 };
 // #endregion
 

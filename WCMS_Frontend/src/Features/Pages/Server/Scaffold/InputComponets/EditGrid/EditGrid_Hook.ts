@@ -307,6 +307,21 @@ export const getEditGridCellValue = (row: GridRow, key: string): EditGridCellVal
 };
 
 
+/** 判斷 Cell 值是否為 EditGrid file value。 */
+export const isEditGridFileValue = (value: EditGridCellValue): value is EditGridFileValue =>
+{
+    return typeof value === "object" && value !== null && !Array.isArray(value) && "fileName" in value;
+};
+
+
+/** 取得使用者選擇的 EditGrid file value，非檔案欄位則回傳 null。 */
+export const getSelectedEditGridFile = (value: EditGridCellValue): EditGridFileValue | null =>
+{
+    if (isEditGridFileValue(value)) return value;
+    return null;
+};
+
+
 /** 取得指定 Cell 的字串值，null / undefined 會轉為空字串。 */
 export const getEditGridStringCellValue = (row: GridRow, key: string): string =>
 {

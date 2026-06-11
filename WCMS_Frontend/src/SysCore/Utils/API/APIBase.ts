@@ -95,6 +95,8 @@ const TRAILING_SLASH_REGEX = /\/$/;
 
 /** SSR：同一個 request 只建立一次 AxiosInstance。 */
 const ssrApiCache = new WeakMap<Request, AxiosInstance>();
+/** 預設 API 實例快取，避免模組初始化階段提早建立 Axios。 */
+let defaultApiInstance: AxiosInstance | null = null;
 // #endregion
 
 // #region Public
@@ -110,7 +112,22 @@ export const createUniversalApi = (opts?: UniversalApiOptions): AxiosInstance =>
     return api;
 };
 /** 預設輸出一個通用 API 實例。 */
-export const api = createUniversalApi();
+export const api = new Proxy({} as AxiosInstance, {
+    get: (_target, prop) =>
+    {
+        const instance = getDefaultApiInstance();
+        const value = instance[prop as keyof AxiosInstance];
+
+        return typeof value === "function" ? value.bind(instance) : value;
+    },
+    set: (_target, prop, value) =>
+    {
+        const instance = getDefaultApiInstance();
+        (instance as any)[prop] = value;
+
+        return true;
+    },
+}) as AxiosInstance;
 /** SSR：同一個 request 只建立一次 AxiosInstance，給多個 loader 共用。 */
 export const getSsrApi = (req: Request): AxiosInstance =>
 {
@@ -300,5 +317,14 @@ const toAcceptLanguage = (raw?: string): string =>
     if (text === "en" || text.startsWith("en-")) return "en";
 
     return "zh-TW";
+};
+/** 取得預設 API 實例，第一次使用時才建立。 */
+const getDefaultApiInstance = (): AxiosInstance =>
+{
+    if (defaultApiInstance) return defaultApiInstance;
+
+    defaultApiInstance = createUniversalApi();
+
+    return defaultApiInstance;
 };
 // #endregion

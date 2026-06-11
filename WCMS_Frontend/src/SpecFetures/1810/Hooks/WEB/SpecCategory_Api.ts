@@ -9,7 +9,7 @@ import {
 } from "@/SysCore/Utils/API/APIAdapter";
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import { ApiDataService } from "@/SysCore/Utils/API/APIClient";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { LibCondition, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { PGID, SpecCategoryDetailModelFields, SpecCategoryModelFields } from "@/types/SchemaFields";
 import type { AxiosInstance } from "axios";
@@ -33,7 +33,6 @@ type CateMapData = { list: SpecCategorySet[]; map: Record<string, string>; };
 
 type ShowColumnRaw = ShowColumnMap | ShowColumnMapList;
 
-
 type SpecExtraLoaders = {
     /** 取得顯示欄位 map */
     getShowColItemsLoader: (
@@ -45,7 +44,6 @@ type SpecExtraLoaders = {
         opt: { getArgs: (args: LoaderFunctionArgs) => CateMapArgs; getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; },
     ) => (args: LoaderFunctionArgs) => Promise<ApiLoaderData<CateMapArgs, CateMapData>>;
 };
-
 
 type SpecExtraHooks = {
     /** 取得顯示欄位 map */
@@ -82,7 +80,6 @@ class SpecCategoryService extends ApiDataService<SpecCategorySet>
         super(PGID.SpecCategory, apiInstance);
     }
 
-
     /** 依 ProgId 取得顯示欄位原始資料 */
     async getShowColumnItems(progId: PGID): Promise<ApiResponse<ShowColumnRaw>>
     {
@@ -91,15 +88,12 @@ class SpecCategoryService extends ApiDataService<SpecCategorySet>
     // #endregion
 }
 
-
 class SpecCategoryAdapterImpl extends ApiDataAdapter<SpecCategorySet, SpecCategoryService>
 {
     // #region Property
     declare public loader: ApiDataLoaderGroup<SpecCategorySet> & SpecExtraLoaders;
 
     declare public hooks: ApiDataHookGroup<SpecCategorySet> & SpecExtraHooks;
-
-
 
     /** 載入顯示欄位 map */
     private getShowColItemsLoader: SpecExtraLoaders["getShowColItemsLoader"] = (opt) =>
@@ -112,7 +106,6 @@ class SpecCategoryAdapterImpl extends ApiDataAdapter<SpecCategorySet, SpecCatego
         });
     };
 
-
     /** 載入 Category map */
     private getCateMapByProgIdLoader: SpecExtraLoaders["getCateMapByProgIdLoader"] = (opt) =>
     {
@@ -123,7 +116,6 @@ class SpecCategoryAdapterImpl extends ApiDataAdapter<SpecCategorySet, SpecCatego
             getApiInstance: opt.getApiInstance,
         });
     };
-
 
     /** 取得 Category map */
     private useMapByProgId: SpecExtraHooks["useMapByProgId"] = (opt) =>
@@ -146,7 +138,6 @@ class SpecCategoryAdapterImpl extends ApiDataAdapter<SpecCategorySet, SpecCatego
 
         return { ...r, data, map };
     };
-
 
     /** 取得顯示欄位 map */
     private useGetShowColItems: SpecExtraHooks["useGetShowColItems"] = (opt) =>
@@ -181,7 +172,6 @@ class SpecCategoryAdapterImpl extends ApiDataAdapter<SpecCategorySet, SpecCatego
         };
     }
 
-
     protected override buildExtendedHooks(base: ApiDataHookGroup<SpecCategorySet>): ApiDataHookGroup<SpecCategorySet> & SpecExtraHooks
     {
         return {
@@ -201,17 +191,14 @@ class SpecCategoryAdapterImpl extends ApiDataAdapter<SpecCategorySet, SpecCatego
             `${SpecCategoryModelFields._SpecCategoryDetail}.${SpecCategoryDetailModelFields.Lang}`,
             `${SpecCategoryModelFields._SpecCategoryDetail}.${SpecCategoryDetailModelFields.CategoryName}`,
         ];
-
-        const condition = LibMerge(
-            " And ",
-            false,
-            `${SpecCategoryModelFields.ProgId} = "${a.progId}"`,
-            `${SpecCategoryModelFields._SpecCategoryDetail}.${SpecCategoryDetailModelFields.Lang} = "${a.lang}"`,
+        const condition = LibCondition.joinConditions(
+            [
+                LibCondition.createCondition(SpecCategoryModelFields.ProgId, Operator.Equal, a.progId),
+                LibCondition.createCondition(`${SpecCategoryModelFields._SpecCategoryDetail}.${SpecCategoryDetailModelFields.Lang}`, Operator.Equal, a.lang),
+            ],
         );
-
         return { Fields: fields, Condition: condition, OrderBy: [{ Col: SpecCategoryModelFields.ModifyTime, Desc: true }], PageNumber: 0, PageSize: 0 };
     }
-
 
     /** 把 Category list 轉成 map */
     private buildCateMap(rows: SpecCategorySet[], lang: Lang): Record<string, string>
@@ -230,7 +217,6 @@ class SpecCategoryAdapterImpl extends ApiDataAdapter<SpecCategorySet, SpecCatego
         return map;
     }
 
-
     /** 取後端 Data 第一筆 dictionary */
     private pickShowColumnMap(raw?: ShowColumnRaw | null): ShowColumnMap
     {
@@ -238,7 +224,6 @@ class SpecCategoryAdapterImpl extends ApiDataAdapter<SpecCategorySet, SpecCatego
         if (Array.isArray(raw)) return raw[0] ?? {};
         return raw;
     }
-
 
     /** 查詢顯示欄位 map */
     private async queryShowColItemsAsync(svc: SpecCategoryService, progId: PGID): Promise<ApiResponse<ShowColumnMap>>
@@ -249,7 +234,6 @@ class SpecCategoryAdapterImpl extends ApiDataAdapter<SpecCategorySet, SpecCatego
         const map = this.pickShowColumnMap(env.Data);
         return { IsSuccess: true, Data: map, SysMessage: env.SysMessage ?? [] };
     }
-
 
     /** 查詢 Category map */
     private async queryCateMapByProgIdAsync(svc: SpecCategoryService, a: CateMapArgs): Promise<ApiResponse<CateMapData>>
@@ -267,7 +251,5 @@ class SpecCategoryAdapterImpl extends ApiDataAdapter<SpecCategorySet, SpecCatego
     // #endregion
 }
 
-
-export const SpecCategoryAdapter = (apiInstance?: AxiosInstance) =>
-    new SpecCategoryAdapterImpl((api?: AxiosInstance) => new SpecCategoryService(api ?? apiInstance));
+export const SpecCategoryAdapter = (apiInstance?: AxiosInstance) => new SpecCategoryAdapterImpl((api?: AxiosInstance) => new SpecCategoryService(api ?? apiInstance));
 // #endregion

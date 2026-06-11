@@ -4,8 +4,7 @@ import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 // #region Public
-export default function LogoutPage()
-{
+export const LogoutPage = () => {
     const nav = useNavigate();
     const loc = useLocation();
 

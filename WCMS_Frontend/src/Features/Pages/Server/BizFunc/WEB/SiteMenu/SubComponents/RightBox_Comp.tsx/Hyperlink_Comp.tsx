@@ -97,7 +97,7 @@ export const HyperlinkSettingTab = (prop: HyperlinkSettingTabProps) =>
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /** 建立內部連結下拉選單 */
 const buildInternalUrlOptions = (items: SiteMenuItem[], currentRowId: number | null): Map<string, string> =>
 {

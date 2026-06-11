@@ -10,7 +10,7 @@ interface LibTextBoxWithParentClassProp extends ILibTextBoxProp
 // #endregion
 
 // #region Private
-const LibTextBox = (prop: LibTextBoxWithParentClassProp) =>
+export const LibTextBox = (prop: LibTextBoxWithParentClassProp) =>
 {
     const inputId = useId();
     const handleBlur = (e: React.FocusEvent<HTMLInputElement>) =>
@@ -36,7 +36,4 @@ const LibTextBox = (prop: LibTextBoxWithParentClassProp) =>
         </>
     );
 };
-
-
-export default LibTextBox;
 // #endregion

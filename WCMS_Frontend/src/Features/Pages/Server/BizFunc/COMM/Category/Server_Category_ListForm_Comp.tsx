@@ -5,7 +5,7 @@ import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import { LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
-import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
+import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import { type Lang, LangLabelMap, useEnsureLangDetails } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
@@ -126,6 +126,6 @@ const CateListComp = (prop: { theme: IBETheme; cateSets: CategoryDataSet[]; lang
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 const buildEmptyCategorySet = (progId: string): CategoryDataSet => ({ Category: { ProgId: progId }, CategoryDetail: [] });
 // #endregion

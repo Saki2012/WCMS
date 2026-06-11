@@ -2,7 +2,6 @@
 import { buildMenuItems } from "@/Features/Hooks/Common/BuildMenuItems";
 import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-import { A11yContent } from "@/SpecFetures/_default/Pages/Client/Scaffold/MainFrame/Header";
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -11,6 +10,7 @@ import LogoImg from "@/SpecFetures/1819/Assets/Client/images/logo/LOGO_400x95.sv
 
 import { SITEMAP_SEGMENT } from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap/Sitemap";
 import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
+import { A11yContent } from "@/Features/Pages/Client/Scaffold/MainFrame/Header";
 import { LangSwitchBtn } from "@/Features/Pages/Client/Scaffold/MainFrame/LangSwitchBtn";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import React from "react";
@@ -18,7 +18,6 @@ import { SubmissionReviewSystem } from "./SubmissionReviewSystem";
 
 // #region Property
 type HeaderProps = { lang: Lang; site: INormSite; style: IFETheme; };
-
 
 type MenuControl = {
     isMobileView: boolean;
@@ -31,9 +30,7 @@ type MenuControl = {
     handleLeafClick: () => void;
 };
 
-
 const MOBILE_BREAKPOINT = 991.98;
-
 
 type RenderDropdownItemsProps = {
     items: MenuItemData[];
@@ -100,7 +97,6 @@ const Header_Section = (props: { lang: Lang; site: INormSite; }) =>
         </section>
     );
 };
-
 
 const Menu_Section = (props: HeaderProps & MenuControl) =>
 {
@@ -194,7 +190,6 @@ const Menu_Section = (props: HeaderProps & MenuControl) =>
     );
 };
 
-
 const LogoComp = () =>
 {
     return (
@@ -207,7 +202,7 @@ const LogoComp = () =>
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /**
  * 遞迴渲染多層選單
  * parentDepth = 0 代表「第二層」
@@ -305,15 +300,13 @@ const getParentKey = (key: string): string =>
     return lastIndex === -1 ? "" : key.slice(0, lastIndex);
 };
 
-
 const removeBranchKeys = (keys: string[], rootKey: string): string[] =>
 {
     // return：移除某個節點以及其底下所有子節點
     return keys.filter((item) => item !== rootKey && !item.startsWith(`${rootKey}-`));
 };
 
-
-const Header = (props: HeaderProps) =>
+export const Header = (props: HeaderProps) =>
 {
     const headerRef = useRef<HTMLDivElement | null>(null);
     const [isMobileView, setIsMobileView] = useState<boolean>(false);
@@ -488,11 +481,6 @@ const Header = (props: HeaderProps) =>
         </>
     );
 };
-
-
-export default Header;
-
-
 const NavBar = (props: { lang: Lang; }) =>
 {
     const title = props.lang === "zh-tw"
@@ -523,7 +511,6 @@ const NavBar = (props: { lang: Lang; }) =>
         </li>
     );
 };
-
 
 const SearchBar = () =>
 {
@@ -556,7 +543,6 @@ const SearchBar = () =>
         </li>
     );
 };
-
 
 const MobileBtn = (props: { isMobileMenuOpen: boolean; toggleMobileMenu: () => void; }) =>
 {
@@ -606,7 +592,6 @@ const MobileBtn = (props: { isMobileMenuOpen: boolean; toggleMobileMenu: () => v
     );
 };
 
-
 const MainMenu = (props: HeaderProps & MenuControl) =>
 {
     const menuItems = GetMenuData(props.lang, props.site);
@@ -641,7 +626,6 @@ const MainMenu = (props: HeaderProps & MenuControl) =>
     );
 };
 
-
 const PCBtn = () =>
 {
     return (
@@ -652,7 +636,6 @@ const PCBtn = () =>
         </div>
     );
 };
-
 
 /** 1. 一般單選 */
 const SingleMenuItem = (props: { menuItem: MenuItemData; handleLeafClick: () => void; }) =>
@@ -681,7 +664,6 @@ const SingleMenuItem = (props: { menuItem: MenuItemData; handleLeafClick: () => 
         </li>
     );
 };
-
 
 /** 2. 多層下拉 */
 const DropdownMenuItem = (
@@ -746,7 +728,6 @@ const DropdownMenuItem = (
         </li>
     );
 };
-
 
 const GetMenuData = (lang: Lang, site: INormSite): MenuItemData[] =>
 {

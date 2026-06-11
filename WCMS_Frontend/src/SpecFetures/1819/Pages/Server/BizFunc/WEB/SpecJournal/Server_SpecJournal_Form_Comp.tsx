@@ -7,7 +7,7 @@ import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import { LibCheckBox, LibDropList, LibFileInput, LibTextBox, LibTinyMCE } from "@/SysCore/Components/FormField/LibFormField";
 import { useSetTableField, useSetTableFileField } from "@/SysCore/Components/FormField/useSetTableField";
-import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
+import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import { DefaultLang, type Lang, LangLabelMap, SUPPORTED_LANGS } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
 import {
@@ -1228,7 +1228,7 @@ const ModeActionBarComp = (
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /** ✅ Header 下拉：IndexId -> IndexName */
 const buildIndexHeaderOptions = (rawData: SpecJournalIndexSet[] = []): Map<string, string> =>
 {

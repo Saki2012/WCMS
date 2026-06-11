@@ -1,18 +1,22 @@
 import { SurveySubmissionAdapter } from "@/Features/Hooks/BizFunc/WEB/SurveySubmission_Api";
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import { enhanceGridWithAdjustCell, type GridAdjustAction } from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
+import {
+    buildServerListColumns,
+    getServerColumnTitle as getColumnTitle,
+    getServerSearchStringValue as getSearchStringValue,
+} from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Helper";
 import type {
     ServerListGridDataSourceContext,
     ServerListGridDataSourceResult,
     ServerListGridTemplate,
 } from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Hook";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
-import type { SearchFieldConfig, SearchValue, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
+import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
-import { formatDateTime } from "@/SysCore/Utils/Library/LibData";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { formatDateTime, LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { PGID, SurveyFields, SurveySubmissionsFields } from "@/types/SchemaFields";
@@ -25,7 +29,6 @@ type QueryListParam = components["schemas"]["QueryListParam"];
 type SurveySubmissionSet = components["schemas"]["SurveySubmissionsSet_DTO"];
 
 type SurveySubmissionApiAdapter = ReturnType<typeof SurveySubmissionAdapter>;
-
 
 export interface SurveySubmissionSearchParams
 {
@@ -41,7 +44,6 @@ export interface SurveySubmissionSearchParams
     /** 填寫人 Email 搜尋關鍵字 */
     email?: string;
 }
-
 
 export interface SurveySubmissionListRawData
 {
@@ -67,7 +69,6 @@ export interface SurveySubmissionListRawData
     param: QueryListParam;
 }
 
-
 export interface SurveySubmissionListAdapter
 {
     /** 問卷回應 API adapter */
@@ -80,7 +81,6 @@ export interface SurveySubmissionListAdapter
     viewUrl: string;
 }
 
-
 export type SurveySubmissionListGridTemplate = ServerListGridTemplate<SurveySubmissionSearchParams, SurveySubmissionListRawData, SurveySubmissionListAdapter, QueryListParam>;
 // #endregion
 
@@ -90,7 +90,6 @@ export const SURVEY_SUBMISSION_SURVEY_NAME_SEARCH_KEY = "surveyName";
 export const SURVEY_SUBMISSION_USER_NAME_SEARCH_KEY = "userName";
 
 export const SURVEY_SUBMISSION_EMAIL_SEARCH_KEY = "email";
-
 
 /** 建立問卷回應後台 ListGridTemplate 設定 */
 export const useSurveySubmissionListGridTemplate = (opt: { lang: Lang; }): SurveySubmissionListGridTemplate =>
@@ -163,7 +162,6 @@ const useSurveySubmissionListGridDataSource = (
     return { adapter: { ...apiAdapter, navigate, viewUrl }, rawData, isLoading, errors, refetchData };
 };
 
-
 /** 建立問卷回應搜尋欄位設定 */
 const buildSurveySubmissionSearchFields = (rawData: SurveySubmissionListRawData): SearchFieldConfig[] =>
 {
@@ -178,7 +176,6 @@ const buildSurveySubmissionSearchFields = (rawData: SurveySubmissionListRawData)
     ];
 };
 
-
 /** 將 SearchValues 轉為問卷回應列表查詢參數 */
 const toSurveySubmissionSearchParams = (values: SearchValues, lang: Lang): SurveySubmissionSearchParams =>
 {
@@ -189,7 +186,6 @@ const toSurveySubmissionSearchParams = (values: SearchValues, lang: Lang): Surve
         email: getSearchStringValue(values[SURVEY_SUBMISSION_EMAIL_SEARCH_KEY]),
     };
 };
-
 
 /** 建立問卷回應搜尋條件 */
 const buildSurveySubmissionSearchConditions = (ctx: { searchParams: SurveySubmissionSearchParams; }): string[] =>
@@ -214,17 +210,17 @@ const buildSurveySubmissionSearchConditions = (ctx: { searchParams: SurveySubmis
     return conditions;
 };
 
-
 /** 建立問卷回應列表完整 QueryParam */
 const buildSurveySubmissionQueryParam = (ctx: { searchParams: SurveySubmissionSearchParams; searchCondition: string; }): QueryListParam =>
 {
-    const fields = buildSurveySubmissionQueryFields();
-    const langCondition = `${SurveySubmissionsFields.Lang} = ${ctx.searchParams.lang}`;
-    const condition = LibMerge(" And ", false, langCondition, ctx.searchCondition);
-
-    return { Fields: fields, Condition: condition, OrderBy: [{ Col: SurveySubmissionsFields.SubmitTime, Desc: true }], PageNumber: 1, PageSize: 10 };
+    return {
+        Fields: buildSurveySubmissionQueryFields(),
+        Condition: LibCondition.joinConditions([LibCondition.createCondition(SurveySubmissionsFields.Lang, Operator.Equal, ctx.searchParams.lang), ctx.searchCondition]),
+        OrderBy: [{ Col: SurveySubmissionsFields.SubmitTime, Desc: true }],
+        PageNumber: 1,
+        PageSize: 10,
+    };
 };
-
 
 /** 建立問卷回應列表查詢欄位 */
 const buildSurveySubmissionQueryFields = (): string[] =>
@@ -253,7 +249,6 @@ const buildSurveySubmissionQueryFields = (): string[] =>
     ];
 };
 
-
 /** 將問卷回應資料轉為 GridProps */
 const buildSurveySubmissionGridProps = (opt: { raw: SurveySubmissionListRawData; lang: Lang; adapter?: SurveySubmissionListAdapter; }): GridProps =>
 {
@@ -266,7 +261,7 @@ const buildSurveySubmissionGridProps = (opt: { raw: SurveySubmissionListRawData;
         SurveySubmissionsFields.SubmitTime,
         SurveySubmissionsFields.ReplyStatus,
     ];
-    const columns = buildColumns(visibleCols, opt.raw);
+    const columns = buildServerListColumns(visibleCols, opt.raw.modelDisplayName, { buildFallback: getColumnFallbackTitle });
     const rows = buildSurveySubmissionRows(opt.raw, opt.lang, columns);
     const baseGrid: GridProps = { columns, rows, CurrentPage: opt.raw.pageNumber ?? 1, TotalPage: opt.raw.totalPages ?? 1, onPageChange: opt.raw.onPageChange };
 
@@ -280,9 +275,8 @@ const buildSurveySubmissionGridProps = (opt: { raw: SurveySubmissionListRawData;
     });
 };
 
-
 /** 建立查看動作 */
-const buildViewActions = <TItem,>(adapter: SurveySubmissionListAdapter): GridAdjustAction<TItem>[] =>
+const buildViewActions = <TItem>(adapter: SurveySubmissionListAdapter): GridAdjustAction<TItem>[] =>
 {
     return [{
         id: "view",
@@ -297,21 +291,13 @@ const buildViewActions = <TItem,>(adapter: SurveySubmissionListAdapter): GridAdj
     }];
 };
 
-
-/** 建立問卷回應列表欄位 */
-const buildColumns = (visibleCols: string[], raw: SurveySubmissionListRawData): ColumnConfig[] =>
-{
-    return visibleCols.map((col) => ({ key: col, title: getColumnTitle(raw.modelDisplayName, col, getColumnFallbackTitle(col)) }));
-};
-
-
 /** 建立問卷回應列表列資料 */
 const buildSurveySubmissionRows = (raw: SurveySubmissionListRawData, lang: Lang, columns: ColumnConfig[]): GridRow[] =>
 {
     return (raw.list ?? []).map((set) =>
     {
         const item = set.SurveySubmissions;
-        const keyId = LibMerge("|", false, item?.SurveySubmissionId, item?.SurveyId);
+        const keyId = LibText.Merge("|", false, item?.SurveySubmissionId, item?.SurveyId);
         const cells: RowCell[] = [
             { col: columns[0], content: item?.Survey?.SurveyName ?? item?.SurveyId ?? "" },
             { col: columns[1], content: item?.UserName ?? "" },
@@ -325,16 +311,6 @@ const buildSurveySubmissionRows = (raw: SurveySubmissionListRawData, lang: Lang,
         return { keyId, cells };
     });
 };
-
-
-/** 依欄位代碼取得 ModelDisplayName 顯示文字 */
-const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, columnId: string, fallback: string): string =>
-{
-    const tables = modelDisplayName?.Tables ?? [];
-    const hit = tables.flatMap((t) => t.Columns ?? []).find((c) => c.ColumnId === columnId);
-    return hit?.ColumnDisplayName ?? fallback;
-};
-
 
 /** 取得欄位預設名稱 */
 const getColumnFallbackTitle = (col: string): string =>
@@ -351,17 +327,6 @@ const getColumnFallbackTitle = (col: string): string =>
 
     return map[col] ?? `【${col}】`;
 };
-
-
-/** 取得 SearchValue 的文字值 */
-const getSearchStringValue = (value: SearchValue): string | undefined =>
-{
-    if (typeof value !== "string") return undefined;
-
-    const text = value.trim();
-    return text.length > 0 ? text : undefined;
-};
-
 
 /** 取得回覆狀態文字 */
 const getReplyStatusText = (value: boolean | null | undefined, lang: Lang): string =>

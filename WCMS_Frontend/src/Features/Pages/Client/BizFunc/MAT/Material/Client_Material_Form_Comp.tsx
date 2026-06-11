@@ -340,7 +340,7 @@ const MaterialInfoContent_Comp = (props: { rawData: MaterialFormRawData; lang: L
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /** 建立圖片清單 */
 const buildPictures = (data: MaterialSet, title: string): Array<{ url: string; alt: string; title: string; }> =>
 {

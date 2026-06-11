@@ -15,11 +15,12 @@ import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/
 import { LibTextBox, LibTinyMCE } from "@/SysCore/Components/FormField/LibFormField";
 import type { ILibTinyMCEStyle } from "@/SysCore/Components/FormField/LibFormField";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
-import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
+import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
 import { TimelineFields, TimelineLangDetailFields, TimelineSetFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
+import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -113,7 +114,7 @@ export const Server_Timeline_Form_Comp = (props: TimelineFormCompProps) =>
 
     const onBackToList = useCallback(() =>
     {
-        navigate(buildBackToListPath(pathname));
+        navigate(LibRoutePath.buildServerBackToListPath(pathname));
     }, [navigate, pathname]);
 
     const actionsOpt = useMemo(() =>
@@ -252,7 +253,7 @@ const TimelineContentEditorComp = (props: ContentEditorProps) =>
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /** 建立紀事表 Header 的各分頁欄位。 */
 const buildHeaderTabContent = (opt: HeaderTabContentOptions): Record<string, ReactNode[]> =>
 {
@@ -274,12 +275,6 @@ const buildBasicFields = (opt: HeaderTabContentOptions): ReactNode[] =>
 
 
 /** 建立返回列表頁路徑。 */
-const buildBackToListPath = (pathname: string): string =>
-{
-    return pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
-};
-
-
 /** 建立 TimelineLangDetail 的 Binding row keys，避免 undefined/null 主鍵造成 upsert 追加空白列。 */
 const buildTimelineLangDetailRowKeys = (row: TimelineLangDetailGridRow): Record<string, string | number> =>
 {

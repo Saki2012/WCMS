@@ -10,7 +10,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { useHomePageTemplateData } from "./HomePage_Loader";
 
 // #region Private
-const HomePage = (props: { lang: Lang; }) =>
+export const HomePage = (props: { lang: Lang; }) =>
 {
     const homePage = useHomePageTemplateData(props.lang);
     const loaderData = homePage.loaderData;
@@ -62,7 +62,4 @@ const HomePage = (props: { lang: Lang; }) =>
         </main>
     );
 };
-
-
-export default HomePage;
 // #endregion

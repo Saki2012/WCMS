@@ -5,7 +5,6 @@ import {
 import { Server_SearchBar_Comp } from "@/Features/Pages/Server/Scaffold/SearchBar/Server_SearchBar_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { Lang } from "@/SysCore/i18n/lang";
-import type { ReactNode } from "react";
 import { useSurveySubmissionListGridTemplate } from "./Server_SurveySubmission_List_Hook";
 
 // #region Public
@@ -14,13 +13,13 @@ export const Server_SurveySubmission_List_Comp = (prop: { title: string; theme: 
 {
     const template = useSurveySubmissionListGridTemplate({ lang: prop.lang });
 
-    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} renderSearchBar={renderSurveySubmissionSearchBar} />;
+    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} buildSearchBarNode={SurveySubmissionSearchBarSection} />;
 };
 // #endregion
 
-// #region EntityComp
+// #region Section
 /** 渲染問卷回應列表搜尋列 */
-const renderSurveySubmissionSearchBar = (props: ServerListGridSearchRenderProps): ReactNode =>
+const SurveySubmissionSearchBarSection = (props: ServerListGridSearchRenderProps) =>
 {
     return (
         <Server_SearchBar_Comp

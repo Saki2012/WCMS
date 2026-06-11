@@ -5,6 +5,7 @@ export type ClientSlotPathKey = keyof typeof ClientSlotPath;
 // #region Public
 /** 前台 Spec slot 相對路徑集中管理，避免 resolver 與擴充點各自手刻路徑造成漏改。 */
 export const ClientSlotPath = {
+    Header: "Pages/Client/Scaffold/MainFrame/Header.tsx",
     SubPage: "Pages/Client/Scaffold/SubPages/SubPage.tsx",
     HomePage: "Pages/Client/Index/HomePage.tsx",
     HomePageLoader: "Pages/Client/Index/HomePage_Loader.ts",

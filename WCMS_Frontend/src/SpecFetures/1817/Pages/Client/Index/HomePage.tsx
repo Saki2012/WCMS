@@ -8,7 +8,7 @@ import { Navigate } from "react-router";
 import { useHomePageTemplateData } from "./HomePage_Loader";
 
 // #region Private
-const HomePage = (props: { lang: Lang; }) =>
+export const HomePage = (props: { lang: Lang; }) =>
 {
     // 宣告變數：SSR loader 資料
     const homePage = useHomePageTemplateData(props.lang);
@@ -67,7 +67,4 @@ const HomePage = (props: { lang: Lang; }) =>
         </main>
     );
 };
-
-
-export default HomePage;
 // #endregion

@@ -16,11 +16,12 @@ import {
 import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
+import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
 import { CategoryDataSetFields, MatCategoryInfoFieldFields, type PGID } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
+import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { CategorySharedEditorComp } from "../../COMM/Category/Server_CategorySharedEditor_Comp";
@@ -115,7 +116,7 @@ export const Server_MatCategory_Form_Comp = (props: MatCategoryFormCompProps) =>
 
     const onBackToList = useCallback(() =>
     {
-        navigate(buildBackToListPath(pathname));
+        navigate(LibRoutePath.buildServerBackToListPath(pathname));
     }, [navigate, pathname]);
 
     const actionsOpt = useMemo(() =>
@@ -213,6 +214,10 @@ const MatCategoryInfoFieldDisplayGridComp = (props: MatCategoryInfoFieldDisplayG
 // #endregion
 
 // #region EntityComp
+/** 建立返回列表路徑。 */
+// #endregion
+
+// #region Protected
 /** 建立物件類別主分頁內容。 */
 const buildMatCategoryMainTabContent = (props: MatCategoryContentProps): Record<string, ReactNode[]> =>
 {
@@ -244,13 +249,6 @@ const buildMatCategorySubDetailToggle = (opt: BuildMatCategorySubDetailToggleOpt
             {buttonText}
         </button>
     );
-};
-
-
-/** 建立返回列表路徑。 */
-const buildBackToListPath = (pathname: string): string =>
-{
-    return pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
 };
 // #endregion
 

@@ -37,7 +37,7 @@ export const RadioField = (props: { field: AAInputField; context: FieldRenderCon
 export const CheckboxMultipleField = (props: { field: AAInputField; context: FieldRenderContext; }) => <OptionGroupField field={props.field} context={props.context} mode="checkbox" />;
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /** 渲染 radio / checkbox 群組內的單一項目。 */
 const renderOptionItem = (field: AAInputField, fieldId: string, item: AAInputOption, index: number, mode: "radio" | "checkbox", selectedValues: string[], onChange: (fieldKey: string, value: AAInputValue) => void) =>
 {

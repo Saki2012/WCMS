@@ -5,7 +5,6 @@ import {
 import { Server_SearchBar_Comp } from "@/Features/Pages/Server/Scaffold/SearchBar/Server_SearchBar_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { Lang } from "@/SysCore/i18n/lang";
-import type { ReactNode } from "react";
 import { useBannerSliderListGridTemplate } from "./Server_BannerSlider_List_Hook";
 
 // #region Public
@@ -14,13 +13,13 @@ export const BannerSliderListComp = (prop: { title: string; theme: IBETheme; lan
 {
     const template = useBannerSliderListGridTemplate({ lang: prop.lang });
 
-    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} renderSearchBar={renderBannerSliderSearchBar} />;
+    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} buildSearchBarNode={BannerSliderSearchBarSection} />;
 };
 // #endregion
 
-// #region EntityComp
+// #region Section
 /** 渲染廣告輪播列表搜尋列 */
-const renderBannerSliderSearchBar = (props: ServerListGridSearchRenderProps): ReactNode =>
+const BannerSliderSearchBarSection = (props: ServerListGridSearchRenderProps) =>
 {
     return (
         <Server_SearchBar_Comp

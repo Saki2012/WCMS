@@ -13,6 +13,7 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import serveStatic from "serve-static";
 import { buildProdCsp, type CspStyleMode } from "./CSPSetting";
+import { LibType } from "../SysCore/Utils/Library/LibData";
 
 // #region Property
 type SsrConfig = Readonly<{
@@ -254,15 +255,6 @@ const setProxySecurityHeaders = (proxyRes: ProxyResponseLike, cfg: SsrConfig): v
 };
 
 
-const isRecord = (v: unknown): v is Record<string, unknown> =>
-{
-    // 宣告變數
-    const ok = typeof v === "object" && v !== null && !Array.isArray(v);
-
-    // return
-    return ok;
-};
-
 
 const coerceHeaderValue = (v: unknown): HeaderValue | null =>
 {
@@ -290,7 +282,7 @@ const coerceHeadersMap = (raw: unknown): HeadersMap =>
     const out: HeadersMap = {};
 
     // 執行 function
-    if (!isRecord(raw)) return out;
+    if (!LibType.isRecord(raw)) return out;
 
     for (const [k, v] of Object.entries(raw))
     {
@@ -306,7 +298,7 @@ const coerceHeadersMap = (raw: unknown): HeadersMap =>
 const trySendResponseResult = (res: Response, result: unknown): boolean =>
 {
     // 宣告變數
-    if (!isRecord(result)) return false;
+    if (!LibType.isRecord(result)) return false;
     if (result.kind !== "response") return false;
 
     const status = Number(result.status ?? 302);

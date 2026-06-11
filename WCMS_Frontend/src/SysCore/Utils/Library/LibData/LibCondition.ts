@@ -58,6 +58,7 @@ export const joinConditions = (conditions: ConditionSource[], mode: JoinMode = J
     const validConditions = normalizeConditionSources(conditions);
     const separator = ` ${mode} `;
     const condition = mergeText(separator, { hasEmpty: false }, ...validConditions);
+    // TODO: 如果mode為Or的話，要不要自動包一個()?
     return condition;
 };
 /** 建立參數化條件項目 */

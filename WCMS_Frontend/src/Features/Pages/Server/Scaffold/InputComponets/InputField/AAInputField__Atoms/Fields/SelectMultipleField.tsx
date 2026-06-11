@@ -5,6 +5,7 @@ import { FieldError } from "../AAInputField_Shell";
 import { applyAAFocusStyle, clearAAFocusStyle } from "../AAInputField_Focus";
 import { buildDescribedBy, buildSelectClass, getAriaInvalid, getAriaRequired, getHintText, getNativeRequired, getSelectedValues, toStringArray } from "../AAInputField_Utils";
 import { buildSearchOptionClass, filterUnselectedSelectOptions, getFirstEnabledIndex, getNextEnabledIndex, getSearchOptionId, normalizeSearchText, renderSearchClearButton } from "./SelectHelpers";
+import { getPortalFocusableElements, isBrowserDocumentReady } from "../AAInputField_Dom";
 
 // #region Public
 /**
@@ -20,7 +21,7 @@ export const SelectMultipleField = (props: { field: AAInputField; context: Field
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /** 建立 select Portal 浮層樣式，會依可視空間自動往上或往下開。 */
 const buildSelectPortalStyle = (anchor: HTMLDivElement | null, popup: HTMLDivElement | null): CSSProperties =>
 {
@@ -463,30 +464,6 @@ const scrollElementIntoListbox = (element: HTMLElement, listbox: HTMLElement) =>
 };
 
 
-/** 取得可被鍵盤 focus 的元素。 */
-const getPortalFocusableElements = (root: ParentNode | null) =>
-{
-    if (!root) return [] as HTMLElement[];
-
-    return Array.from(root.querySelectorAll<HTMLElement>(getPortalFocusableSelector()))
-        .filter((element) => !element.hasAttribute("disabled") && element.getAttribute("aria-hidden") !== "true" && element.tabIndex !== -1 && !isHiddenInputElement(element) && isElementVisible(element));
-};
-
-
-/** 取得可被鍵盤 focus 的 selector。 */
-const getPortalFocusableSelector = () => [
-    "a[href]",
-    "button",
-    "input",
-    "select",
-    "textarea",
-    "[tabindex]",
-    "[role='button']",
-    "[role='option']",
-    "[role='combobox']",
-].join(", ");
-
-
 /** focus 到指定元素後方的下一個可操作元素。 */
 const focusFirstAfterElement = (anchor: HTMLElement | null | undefined) =>
 {
@@ -507,21 +484,6 @@ const focusLastBeforeElement = (anchor: HTMLElement | null | undefined) =>
     const anchorIndex = focusableList.findIndex((element) => element === anchor || anchor.contains(element));
     const previousList = anchorIndex <= 0 ? [] : focusableList.slice(0, anchorIndex).reverse();
     focusElementWithoutScroll(previousList.find((element) => !anchor.contains(element)));
-};
-
-
-/** 排除 hidden input，避免 ESC 後 focus 回到隱藏欄位。 */
-const isHiddenInputElement = (element: HTMLElement) =>
-{
-    return element instanceof HTMLInputElement && element.type === "hidden";
-};
-
-
-/** 判斷元素目前是否可視。 */
-const isElementVisible = (element: HTMLElement) =>
-{
-    const style = window.getComputedStyle(element);
-    return style.visibility !== "hidden" && style.display !== "none";
 };
 
 
@@ -593,9 +555,6 @@ const closeSelectWhenPortalFocusLeaves = (
     });
 };
 
-
-/** 確認目前可使用 document，避免 SSR render 階段碰到 browser API。 */
-const isBrowserDocumentReady = () => typeof document !== "undefined" && typeof window !== "undefined";
 
 
 /** selectMultiple 主框只有自身取得 focus 時才套用焦點樣式，避免子層 X 按鈕 focus 冒泡污染主框。 */

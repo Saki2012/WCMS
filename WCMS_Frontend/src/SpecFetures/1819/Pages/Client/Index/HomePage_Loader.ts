@@ -1,13 +1,12 @@
-import { useClientDataQueryTemplate, type ClientDataQueryDataSourceResult, type ClientDataQueryTemplate } from "@/Features/Pages/Client/Scaffold/DataQueryTemplate/Client_DataQueryTemplate_Hook";
 import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WEB/Announcement_Api";
 import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WEB/BannerSlider_Api";
 import { WebResourceAdapter } from "@/Features/Hooks/BizFunc/WEB/WebResource_Api";
+import { type ClientDataQueryDataSourceResult, type ClientDataQueryTemplate, useClientDataQueryTemplate } from "@/Features/Pages/Client/Scaffold/DataQueryTemplate/Client_DataQueryTemplate_Hook";
 import { SpecJournalIndexAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/WEB/SpecJournalIndex_Api";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
 import {
     AnnouncementDetailFields,
@@ -23,7 +22,7 @@ import {
 import { useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router-dom";
 
-import { formatLocalIsoByMinute } from "@/SysCore/Utils/Library/LibData";
+import { formatLocalIsoByMinute, LibCondition, Operator } from "@/SysCore/Utils/Library/LibData";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
@@ -36,9 +35,7 @@ type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
 
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
 
-
 type ApiLoaderDataCompat<TArgs, TData> = { args: TArgs; env: ApiResponse<TData>; } | { args: TArgs; apiRes: ApiResponse<TData>; };
-
 
 export interface HomePageRawData
 {
@@ -53,7 +50,6 @@ export interface HomePageRawData
     aboutPublicationBanner: BannerSet | null;
     relatedLinksList: WebResourceSet[];
 }
-
 
 export interface HomePageLoaderArgs
 {
@@ -80,12 +76,10 @@ export interface HomePageLoaderArgs
     relatedLinksParam: QueryListParam;
 }
 
-
 export interface HomePageLoaderRes
 {
     rawData: HomePageRawData;
 }
-
 
 export interface HomePageLoaderData
 {
@@ -93,25 +87,19 @@ export interface HomePageLoaderData
     res: HomePageLoaderRes;
 }
 
-
-
 const HOME_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
-
 
 type CacheItem = { ts: number; data: HomePageLoaderData; };
 
 const homeLoaderCache = new Map<string, CacheItem>();
 
-
 // 以下Hooks
-
 
 interface UseHomePageDataProps
 {
     lang: Lang;
     loaderData?: HomePageLoaderData | null;
 }
-
 
 interface UseHomePageDataResult
 {
@@ -120,9 +108,6 @@ interface UseHomePageDataResult
     isLoading: boolean;
     errorText: string | null;
 }
-
-
-
 
 type HomePageTemplate = ClientDataQueryTemplate<UseHomePageDataProps, UseHomePageDataResult, UseHomePageDataResult, unknown, UseHomePageDataProps, HomePageLoaderData>;
 // #endregion
@@ -238,7 +223,6 @@ export const HomePageLoader = (p: { lang: Lang; }) => async ({ request }: Loader
     return result;
 };
 
-
 /** 1819 首頁 CSR/SSR 共用資料 hook：Template 入口 */
 
 export const useHomePageData = (props: UseHomePageDataProps): UseHomePageDataResult =>
@@ -259,7 +243,6 @@ const getEnv = <TArgs, TData>(d: ApiLoaderDataCompat<TArgs, TData>): ApiResponse
     return "env" in d ? d.env : d.apiRes;
 };
 
-
 const getCacheKey = (lang: Lang, nowIsoLocal: string): string =>
 {
     // 宣告變數
@@ -268,7 +251,6 @@ const getCacheKey = (lang: Lang, nowIsoLocal: string): string =>
     // return
     return `${lang}|${day}`;
 };
-
 
 const tryGetCache = (key: string): HomePageLoaderData | null =>
 {
@@ -287,20 +269,17 @@ const tryGetCache = (key: string): HomePageLoaderData | null =>
     return hit.data;
 };
 
-
 const setCache = (key: string, data: HomePageLoaderData): void =>
 {
     // 執行 function
     homeLoaderCache.set(key, { ts: Date.now(), data });
 };
 
-
 const takeFirstOrNull = <T>(d: T | T[] | null | undefined): T | null =>
 {
     if (!d) return null;
     return Array.isArray(d) ? d[0] ?? null : d;
 };
-
 
 const takeTopThenFill = <T>(top: T[], rest: T[], limit: number, getKey: (item: T) => string): T[] =>
 {
@@ -330,19 +309,6 @@ const takeTopThenFill = <T>(top: T[], rest: T[], limit: number, getKey: (item: T
 
 const buildBannerByBannerIdParam = (opt: { bannerId: string; lang?: Lang; }): QueryListParam =>
 {
-    let condition = "";
-    condition = LibMerge(" And ", false, condition, `${BannerFields.BannerId} = ${opt.bannerId}`);
-
-    if (opt.lang)
-    {
-        condition = LibMerge(
-            " And ",
-            false,
-            condition,
-            `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.Lang} = ${opt.lang}`,
-        );
-    }
-
     return {
         Fields: [
             BannerFields.InternalId,
@@ -361,13 +327,15 @@ const buildBannerByBannerIdParam = (opt: { bannerId: string; lang?: Lang; }): Qu
             `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.URL}`,
             `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.URL_Open}`,
         ],
-        Condition: condition,
+        Condition: LibCondition.joinConditions([
+            LibCondition.createCondition(BannerFields.BannerId, Operator.Equal, opt.bannerId),
+            LibCondition.createCondition(`${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.Lang}`, Operator.Equal, opt.lang),
+        ]),
         OrderBy: [{ Col: `${BannerFields._BannerDetail}.${BannerDetailFields.Sort}`, Desc: true }],
         PageNumber: 1,
         PageSize: 1,
     };
 };
-
 
 const buildSpecJournalIndexParam = (): QueryListParam =>
 {
@@ -395,29 +363,18 @@ const buildSpecJournalIndexParam = (): QueryListParam =>
     };
 };
 
-
 const buildNewsCondition = (opt: { lang: Lang; nowIsoLocal: string; categoryId: string; isTop: boolean; }): string =>
 {
-    // 宣告變數
-    let condition = "";
-    // 執行 function
-    condition = LibMerge(
-        " And ",
-        false,
-        condition,
-        `${AnnouncementFields.Validate_Start} <= ${opt.nowIsoLocal}`,
+    return LibCondition.joinConditions([
+        LibCondition.createCondition(AnnouncementFields.Validate_Start, Operator.LessThanOrEqual, opt.nowIsoLocal),
         `(${AnnouncementFields.Validate_End} >= ${opt.nowIsoLocal} Or ${AnnouncementFields.Validate_End} is null)`,
-        `${AnnouncementFields.ContentStatus} !& 4`,
-        `${AnnouncementFields.Categories} HasAll ${opt.categoryId}`,
-        `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang} = ${opt.lang}`,
-        `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title} != ''`,
-    );
-
-    condition = LibMerge(" And ", false, condition, `${AnnouncementFields.ContentStatus} ${opt.isTop ? "&" : "!&"} 1`);
-    // return
-    return condition;
+        LibCondition.createCondition(AnnouncementFields.ContentStatus, Operator.BitwiseHasNone, 4),
+        LibCondition.createCondition(AnnouncementFields.Categories, Operator.HasAll, opt.categoryId),
+        LibCondition.createCondition(`${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang}`, Operator.Equal, opt.lang),
+        LibCondition.createCondition(`${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title}`, Operator.NotEqual, "", true),
+        LibCondition.createCondition(AnnouncementFields.ContentStatus, opt.isTop ? Operator.BitwiseHasAny : Operator.BitwiseHasNone, 1),
+    ]);
 };
-
 
 const buildNewsParam = (opt: { condition: string; take: number; }): QueryListParam =>
 {
@@ -441,15 +398,8 @@ const buildNewsParam = (opt: { condition: string; take: number; }): QueryListPar
     };
 };
 
-
 const buildRelatedLinksParam = (opt: { categoryId: string; lang: Lang; }): QueryListParam =>
 {
-    // 宣告變數
-    let condition = "";
-    condition = LibMerge(" And ", false, condition, `${WebResourceFields.Categories} HasAll ${opt.categoryId}`);
-    condition = LibMerge(" And ", false, condition, `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Lang} = ${opt.lang}`);
-
-    // return
     return {
         Fields: [
             WebResourceFields.InternalId,
@@ -461,13 +411,15 @@ const buildRelatedLinksParam = (opt: { categoryId: string; lang: Lang; }): Query
             `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.ResUrl}`,
             `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Url_OpenType}`,
         ],
-        Condition: condition,
+        Condition: LibCondition.joinConditions([
+            LibCondition.createCondition(WebResourceFields.Categories, Operator.HasAll, opt.categoryId),
+            LibCondition.createCondition(`${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Lang}`, Operator.Equal, opt.lang),
+        ]),
         OrderBy: [{ Col: WebResourceFields.ModifyTime, Desc: true }],
         PageNumber: 1,
         PageSize: 8,
     };
 };
-
 
 const buildHomePageArgs = (lang: Lang): HomePageLoaderArgs =>
 {
@@ -512,20 +464,17 @@ const buildHomePageArgs = (lang: Lang): HomePageLoaderArgs =>
     };
 };
 
-
 /** 建立 hook initial 成功回應 */
 const toOkEnv = <T>(data: T): ApiResponse<T> =>
 {
     return { IsSuccess: true, Data: data, SysMessage: [] };
 };
 
-
 /** 建立 QueryList initial */
 const toListInitial = <T>(args: QueryListParam, data: T[]): ApiLoaderData<QueryListParam, T[]> =>
 {
     return { args, apiRes: toOkEnv(data) };
 };
-
 
 /** 只有 loader 真有回資料時才給 initial，避免空陣列阻止 CSR 補資料 */
 const toInitialByLoader = <T>(hasLoaderRaw: boolean, args: QueryListParam, data: T[]): ApiLoaderData<QueryListParam, T[]> | null =>
@@ -534,13 +483,11 @@ const toInitialByLoader = <T>(hasLoaderRaw: boolean, args: QueryListParam, data:
     return toListInitial(args, data);
 };
 
-
 /** 單筆 banner 轉 QueryList initial */
 const toBannerList = (data?: BannerSet | null): BannerSet[] =>
 {
     return data ? [data] : [];
 };
-
 
 /** 合併錯誤訊息 */
 const joinErrorText = (errors: Array<string | null>): string | null =>
@@ -548,7 +495,6 @@ const joinErrorText = (errors: Array<string | null>): string | null =>
     const list = errors.filter((x): x is string => Boolean(x));
     return list.length > 0 ? list.join("；") : null;
 };
-
 
 /** 1819 首頁 CSR/SSR 共用資料 hook */
 const useHomePageDataLegacy = (props: UseHomePageDataProps): UseHomePageDataResult =>
@@ -774,7 +720,6 @@ const useHomePageDataLegacy = (props: UseHomePageDataProps): UseHomePageDataResu
     return { args, rawData, isLoading, errorText };
 };
 
-
 /** 建立 1819 首頁 DataQuery Template，保留既有 CSR/SSR 資料收斂並掛入 Template 流程 */
 const createHomePageTemplate = (props: UseHomePageDataProps): HomePageTemplate =>
 {
@@ -793,7 +738,6 @@ const createHomePageTemplate = (props: UseHomePageDataProps): HomePageTemplate =
         },
     };
 };
-
 
 /** DataSource：沿用 1819 首頁既有 CSR/SSR hook，但由 Client_DataQueryTemplate 統一包裝 */
 const useHomePageTemplateDataSource = (props: UseHomePageDataProps): ClientDataQueryDataSourceResult<UseHomePageDataResult> =>

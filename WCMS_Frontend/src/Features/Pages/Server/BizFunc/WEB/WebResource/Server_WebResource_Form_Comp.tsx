@@ -6,12 +6,13 @@ import { useUploadPicture } from "@/SysCore/Components/FormField/FieldComponets/
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import { LibCheckBox, LibDropList, LibFile, LibPicture, LibTextArea, LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
-import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
+import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import { WebResourceFields, WebResourceInfoFields, WebResourceSetFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
+import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -110,7 +111,7 @@ export const WebResourceFormComp = (
 
     const onBackToList = useCallback(() =>
     {
-        navigate(buildBackToListPath(pathname));
+        navigate(LibRoutePath.buildServerBackToListPath(pathname));
     }, [navigate, pathname]);
 
     const actionsOpt = useMemo(() =>
@@ -185,7 +186,7 @@ const DetailComp = (props: DetailSectionProps) =>
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /** 建立網路資源 Header 的各分頁欄位。 */
 const buildHeaderTabContent = (opt: HeaderTabContentOptions): Record<string, ReactNode[]> =>
 {
@@ -315,13 +316,6 @@ const buildDetailFields = (opt: DetailFieldsOptions): ReactNode[] =>
             {...opt.setField(WebResourceSetFields.WebResourceInfo, WebResourceInfoFields.Url_OpenType, "number", opt.rowKeys)}
         />,
     ];
-};
-
-
-/** 建立回列表路徑，避免 Back 行為散在 JSX 中。 */
-const buildBackToListPath = (pathname: string): string =>
-{
-    return pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
 };
 
 

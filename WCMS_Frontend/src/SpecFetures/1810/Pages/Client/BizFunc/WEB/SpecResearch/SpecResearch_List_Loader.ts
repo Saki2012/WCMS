@@ -1,10 +1,11 @@
+import { buildClientLoaderInitial } from "@/Features/Pages/Client/Scaffold/DataQueryTemplate/Client_DataQueryTemplate_Hook";
 import { SpecCategoryAdapter } from "@/SpecFetures/1810/Hooks/WEB/SpecCategory_Api";
 import { SpecResearchAdapter } from "@/SpecFetures/1810/Hooks/WEB/SpecResearch_Api";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
-import { type ApiResponse, getSsrApi } from "@/SysCore/Utils/API/APIBase";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
+import { LibCondition, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { PGID, SpecCategoryModelFields, SpecResearchDetailModelFields, SpecResearchModelFields } from "@/types/SchemaFields";
 import { useMemo } from "react";
@@ -22,9 +23,7 @@ type SpecResearchDetail = components["schemas"]["SpecResearchDetailModel_DTO"];
 
 type ShowColumnMap = Record<string, string>;
 
-
 const EMPTY_QUERY: QueryListParam = { Fields: [], Condition: "1=0", PageNumber: 1, PageSize: 15 };
-
 
 const ORDER: string[] = [
     SpecResearchDetailModelFields.Year,
@@ -55,7 +54,6 @@ const ORDER: string[] = [
     SpecResearchDetailModelFields.Remark,
 ];
 
-
 export interface SpecResearchListLoaderArgs
 {
     lang: Lang;
@@ -66,7 +64,6 @@ export interface SpecResearchListLoaderArgs
     categoryShowColParam: QueryListParam | null;
 }
 
-
 export interface SpecResearchListLoaderRes
 {
     showColumnMapRes: ShowColumnMap;
@@ -76,13 +73,11 @@ export interface SpecResearchListLoaderRes
     listRes: SpecResearchSet[];
 }
 
-
 export interface SpecResearchListLoaderData
 {
     args: SpecResearchListLoaderArgs;
     res: SpecResearchListLoaderRes;
 }
-
 
 export interface SpecResearchListRawData
 {
@@ -96,7 +91,6 @@ export interface SpecResearchListRawData
     gridProps: GridProps;
 }
 
-
 export interface UseSpecResearchListFetchDataResult
 {
     rawData: SpecResearchListRawData;
@@ -107,56 +101,54 @@ export interface UseSpecResearchListFetchDataResult
 
 // #region Public
 /** SpecResearch SSR loader */
-export const SpecResearchList_Loader =
-    (p: { lang: Lang; opts?: ISpecResearchListOptions; }) => async ({ request }: LoaderFunctionArgs): Promise<SpecResearchListLoaderData> =>
+export const SpecResearchList_Loader = (p: { lang: Lang; opts?: ISpecResearchListOptions; }) => async ({ request }: LoaderFunctionArgs): Promise<SpecResearchListLoaderData> =>
+{
+    const ssrApi = getSsrApi(request);
+    const specCategory = SpecCategoryAdapter(ssrApi);
+    const specResearch = SpecResearchAdapter(ssrApi);
+    const categoryIds = p.opts?.Category ?? "";
+    const tagIds = p.opts?.Tag ?? "";
+    const categoryShowColParam = buildCategoryShowColParam(categoryIds);
+
+    /** 顯示欄位標題 loader */
+    const showColLoader = specCategory.loader.getShowColItemsLoader({ progId: PGID.SpecResearch, getApiInstance: () => ssrApi });
+    const showColLD = await showColLoader({ request } as LoaderFunctionArgs);
+    const showColumnMapRes = normalizeShowColumnMap(showColLD.apiRes.Data ?? {});
+
+    /** category 實際勾選欄位 loader */
+    let categoryShowColListRes: SpecCategorySet[] = [];
+    let visibleColumnKeysRes: string[] = [];
+
+    if (categoryShowColParam)
     {
-        const ssrApi = getSsrApi(request);
-        const specCategory = SpecCategoryAdapter(ssrApi);
-        const specResearch = SpecResearchAdapter(ssrApi);
-        const categoryIds = p.opts?.Category ?? "";
-        const tagIds = p.opts?.Tag ?? "";
-        const categoryShowColParam = buildCategoryShowColParam(categoryIds);
+        const categoryShowColLoader = specCategory.loader.createQueryListLoader({ getCondition: () => categoryShowColParam, getApiInstance: () => ssrApi });
+        const categoryShowColLD = await categoryShowColLoader({ request } as LoaderFunctionArgs);
+        categoryShowColListRes = categoryShowColLD.apiRes.Data ?? [];
+        visibleColumnKeysRes = getVisibleColumnKeys(categoryShowColListRes);
+    }
 
-        /** 顯示欄位標題 loader */
-        const showColLoader = specCategory.loader.getShowColItemsLoader({ progId: PGID.SpecResearch, getApiInstance: () => ssrApi });
-        const showColLD = await showColLoader({ request } as LoaderFunctionArgs);
-        const showColumnMapRes = normalizeShowColumnMap(showColLD.apiRes.Data ?? {});
-
-        /** category 實際勾選欄位 loader */
-        let categoryShowColListRes: SpecCategorySet[] = [];
-        let visibleColumnKeysRes: string[] = [];
-
-        if (categoryShowColParam)
-        {
-            const categoryShowColLoader = specCategory.loader.createQueryListLoader({ getCondition: () => categoryShowColParam, getApiInstance: () => ssrApi });
-            const categoryShowColLD = await categoryShowColLoader({ request } as LoaderFunctionArgs);
-            categoryShowColListRes = categoryShowColLD.apiRes.Data ?? [];
-            visibleColumnKeysRes = getVisibleColumnKeys(categoryShowColListRes);
-        }
-
-        const baseParam = buildBaseParam({ categoryIds, tagIds, visibleColumnKeys: visibleColumnKeysRes });
-        if (!baseParam)
-        {
-            return {
-                args: { lang: p.lang, categoryIds, tagIds, showColProgId: PGID.SpecResearch, baseParam: null, categoryShowColParam },
-                res: { showColumnMapRes, categoryShowColListRes, visibleColumnKeysRes, countRes: 0, listRes: [] },
-            };
-        }
-
-        /** 主資料 count loader */
-        const countLoader = specResearch.loader.createQueryCountLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
-
-        /** 主資料 list loader */
-        const listLoader = specResearch.loader.createQueryListLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
-
-        const [countLD, listLD] = await Promise.all([countLoader({ request } as LoaderFunctionArgs), listLoader({ request } as LoaderFunctionArgs)]);
-
+    const baseParam = buildBaseParam({ categoryIds, tagIds, visibleColumnKeys: visibleColumnKeysRes });
+    if (!baseParam)
+    {
         return {
-            args: { lang: p.lang, categoryIds, tagIds, showColProgId: PGID.SpecResearch, baseParam, categoryShowColParam },
-            res: { showColumnMapRes, categoryShowColListRes, visibleColumnKeysRes, countRes: countLD.apiRes.Data ?? 0, listRes: listLD.apiRes.Data ?? [] },
+            args: { lang: p.lang, categoryIds, tagIds, showColProgId: PGID.SpecResearch, baseParam: null, categoryShowColParam },
+            res: { showColumnMapRes, categoryShowColListRes, visibleColumnKeysRes, countRes: 0, listRes: [] },
         };
-    };
+    }
 
+    /** 主資料 count loader */
+    const countLoader = specResearch.loader.createQueryCountLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
+
+    /** 主資料 list loader */
+    const listLoader = specResearch.loader.createQueryListLoader({ getCondition: () => baseParam, getApiInstance: () => ssrApi });
+
+    const [countLD, listLD] = await Promise.all([countLoader({ request } as LoaderFunctionArgs), listLoader({ request } as LoaderFunctionArgs)]);
+
+    return {
+        args: { lang: p.lang, categoryIds, tagIds, showColProgId: PGID.SpecResearch, baseParam, categoryShowColParam },
+        res: { showColumnMapRes, categoryShowColListRes, visibleColumnKeysRes, countRes: countLD.apiRes.Data ?? 0, listRes: listLD.apiRes.Data ?? [] },
+    };
+};
 
 /** 統一提供 SpecResearch list 所需資料 */
 export const useSpecResearchListFetchData = (p: { lang: Lang; options?: ISpecResearchListOptions; }): UseSpecResearchListFetchDataResult =>
@@ -169,7 +161,7 @@ export const useSpecResearchListFetchData = (p: { lang: Lang; options?: ISpecRes
     const showColInitial = useMemo<ApiLoaderData<PGID, ShowColumnMap> | null>(() =>
     {
         if (!canUseShowColInitial(loaderData)) return null;
-        return buildLoaderInitial(PGID.SpecResearch, loaderData?.res?.showColumnMapRes ?? {});
+        return buildClientLoaderInitial(PGID.SpecResearch, loaderData?.res?.showColumnMapRes ?? {});
     }, [loaderData]);
 
     /** 顯示欄位標題 hook */
@@ -181,7 +173,7 @@ export const useSpecResearchListFetchData = (p: { lang: Lang; options?: ISpecRes
     const categoryShowColInitial = useMemo<ApiLoaderData<QueryListParam, SpecCategorySet[]> | null>(() =>
     {
         if (!canUseCategoryShowColInitial(loaderData, categoryIds)) return null;
-        return buildLoaderInitial(loaderData!.args.categoryShowColParam!, loaderData?.res?.categoryShowColListRes ?? []);
+        return buildClientLoaderInitial(loaderData!.args.categoryShowColParam!, loaderData?.res?.categoryShowColListRes ?? []);
     }, [loaderData, categoryIds]);
 
     /** category 實際勾選欄位 hook */
@@ -193,13 +185,13 @@ export const useSpecResearchListFetchData = (p: { lang: Lang; options?: ISpecRes
     const countInitial = useMemo<ApiLoaderData<QueryListParam, number> | null>(() =>
     {
         if (!canUseBaseInitial(loaderData, { lang: p.lang, categoryIds, tagIds })) return null;
-        return buildLoaderInitial(loaderData!.args.baseParam!, loaderData?.res?.countRes ?? 0);
+        return buildClientLoaderInitial(loaderData!.args.baseParam!, loaderData?.res?.countRes ?? 0);
     }, [loaderData, p.lang, categoryIds, tagIds]);
 
     const listInitial = useMemo<ApiLoaderData<QueryListParam, SpecResearchSet[]> | null>(() =>
     {
         if (!canUseBaseInitial(loaderData, { lang: p.lang, categoryIds, tagIds })) return null;
-        return buildLoaderInitial(loaderData!.args.baseParam!, loaderData?.res?.listRes ?? []);
+        return buildClientLoaderInitial(loaderData!.args.baseParam!, loaderData?.res?.listRes ?? []);
     }, [loaderData, p.lang, categoryIds, tagIds]);
 
     /** 主資料 count */
@@ -255,29 +247,16 @@ export const useSpecResearchListFetchData = (p: { lang: Lang; options?: ISpecRes
 
 // #region Private
 /** 建立 SSR initial */
-const buildLoaderInitial = <TArgs, TData>(args: TArgs, data: TData): ApiLoaderData<TArgs, TData> =>
-{
-    const apiRes: ApiResponse<TData> = { IsSuccess: true, Data: data, SysMessage: [] };
-    return { args, apiRes };
-};
-
 
 /** 建立主查詢條件 */
 const buildCondition = (p: { categoryIds: string; tagIds: string; }) =>
 {
-    let condition = "";
-    if (p.categoryIds)
-    {
-        condition = LibMerge(" And ", false, condition, `${SpecResearchModelFields.CategoryId} = ${p.categoryIds}`);
-    }
-    if (p.tagIds)
-    {
-        condition = LibMerge(" And ", false, condition, `${SpecResearchModelFields.Tags} HasAllOf ${p.tagIds}`);
-    }
-    condition = LibMerge(" And ", false, condition, `${SpecResearchModelFields.ContentStatus} !& 4`);
-    return condition;
+    return LibCondition.joinConditions([
+        LibCondition.createCondition(SpecResearchModelFields.CategoryId, Operator.Equal, p.categoryIds),
+        LibCondition.createCondition(SpecResearchModelFields.Tags, Operator.HasAllOf, p.tagIds),
+        LibCondition.createCondition(SpecResearchModelFields.ContentStatus, Operator.BitwiseHasNone, 4),
+    ]);
 };
-
 
 /** 正規化 showColumnMap，key 當欄位 key，value 當顯示名稱 */
 const normalizeShowColumnMap = (rawMap?: ShowColumnMap | null): ShowColumnMap =>
@@ -297,7 +276,6 @@ const normalizeShowColumnMap = (rawMap?: ShowColumnMap | null): ShowColumnMap =>
     return map;
 };
 
-
 /** 正規化 category 的 showColumnItems */
 const normalizeShowColumnItems = (raw?: string | null): string[] =>
 {
@@ -315,14 +293,12 @@ const normalizeShowColumnItems = (raw?: string | null): string[] =>
     return keys.sort((a, b) => ORDER.indexOf(a) - ORDER.indexOf(b));
 };
 
-
 /** 取得 category 實際勾選的顯示欄位 */
 const getVisibleColumnKeys = (rows?: SpecCategorySet[] | null): string[] =>
 {
     const showColumnItems = rows?.[0]?.SpecCategory?.ShowColumnItems ?? "";
     return normalizeShowColumnItems(showColumnItems);
 };
-
 
 /** 建立 category show column 查詢 */
 const buildCategoryShowColParam = (categoryIds: string): QueryListParam | null =>
@@ -342,7 +318,6 @@ const buildCategoryShowColParam = (categoryIds: string): QueryListParam | null =
     };
 };
 
-
 /** 建立 detail fields */
 const buildDetailFields = (): string[] =>
 {
@@ -351,7 +326,6 @@ const buildDetailFields = (): string[] =>
         ...ORDER.map(key => `${SpecResearchModelFields._SpecResearchDetail}.${key}`),
     ];
 };
-
 
 /** 建立主查詢參數 */
 const buildBaseParam = (p: { categoryIds: string; tagIds: string; visibleColumnKeys: string[]; }): QueryListParam | null =>
@@ -372,7 +346,6 @@ const buildBaseParam = (p: { categoryIds: string; tagIds: string; visibleColumnK
     };
 };
 
-
 /** 是否可沿用 SSR 顯示欄位 initial */
 const canUseShowColInitial = (loaderData: SpecResearchListLoaderData | null) =>
 {
@@ -380,14 +353,12 @@ const canUseShowColInitial = (loaderData: SpecResearchListLoaderData | null) =>
     return loaderData.args.showColProgId === PGID.SpecResearch;
 };
 
-
 /** 是否可沿用 SSR category show column initial */
 const canUseCategoryShowColInitial = (loaderData: SpecResearchListLoaderData | null, categoryIds: string) =>
 {
     if (!loaderData?.args?.categoryShowColParam) return false;
     return loaderData.args.categoryIds === categoryIds;
 };
-
 
 /** 是否可沿用 SSR list/count initial */
 const canUseBaseInitial = (loaderData: SpecResearchListLoaderData | null, p: { lang: Lang; categoryIds: string; tagIds: string; }) =>
@@ -399,10 +370,8 @@ const canUseBaseInitial = (loaderData: SpecResearchListLoaderData | null, p: { l
     return true;
 };
 
-
 /** 取得指定語系 detail */
 const getDetail = (item: SpecResearchSet, lang: Lang) => item.SpecResearchDetail?.find(p => p.Lang === lang);
-
 
 /** 取得 detail 欄位文字 */
 const getDetailText = (detail: SpecResearchDetail | undefined, key: string, lang: Lang) =>
@@ -420,13 +389,11 @@ const getDetailText = (detail: SpecResearchDetail | undefined, key: string, lang
     return raw == null ? "" : String(raw);
 };
 
-
 /** 建立 Grid columns */
 const buildColumns = (p: { visibleColumnKeys: string[]; showColumnMap: ShowColumnMap; }): ColumnConfig[] =>
 {
     return p.visibleColumnKeys.map(key => ({ key, title: p.showColumnMap[key] ?? key }));
 };
-
 
 /** 建立 GridProps */
 const buildGridProps = (

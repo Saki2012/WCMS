@@ -5,7 +5,6 @@ import {
 import { Server_SearchBar_Comp } from "@/Features/Pages/Server/Scaffold/SearchBar/Server_SearchBar_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { Lang } from "@/SysCore/i18n/lang";
-import type { ReactNode } from "react";
 import { useFileArchiveListGridTemplate } from "./Server_FileArchive_List_Hook";
 
 // #region Public
@@ -14,13 +13,13 @@ export const Server_FileArchiveListComp = (prop: { title: string; theme: IBEThem
 {
     const template = useFileArchiveListGridTemplate({ lang: prop.lang });
 
-    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} renderSearchBar={renderFileArchiveSearchBar} />;
+    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} buildSearchBarNode={FileArchiveSearchBarSection} />;
 };
 // #endregion
 
-// #region EntityComp
+// #region Section
 /** 渲染檔案室列表搜尋列 */
-const renderFileArchiveSearchBar = (props: ServerListGridSearchRenderProps): ReactNode =>
+const FileArchiveSearchBarSection = (props: ServerListGridSearchRenderProps) =>
 {
     return (
         <Server_SearchBar_Comp

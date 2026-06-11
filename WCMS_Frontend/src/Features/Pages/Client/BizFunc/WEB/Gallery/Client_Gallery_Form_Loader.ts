@@ -8,6 +8,7 @@ import { GalleryAdapter } from "@/Features/Hooks/BizFunc/WEB/Gallery_Api";
 import {
     buildClientDataQueryKey,
     buildClientDataQueryState,
+    buildClientLoaderInitial,
     type ClientDataQueryDataSourceResult,
     type ClientDataQueryTemplate,
     isSameClientDataQueryParam,
@@ -17,7 +18,7 @@ import type { SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { IListViewState } from "@/SysCore/Interface/IListViewState";
 import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
-import { type ApiResponse, getSsrApi } from "@/SysCore/Utils/API/APIBase";
+import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { GalleryFields, GalleryInfoFields, GalleryPhotosFields, GalleryPhotosInfoFields, PGID } from "@/types/SchemaFields";
@@ -129,18 +130,13 @@ export const useGalleryFormFetchData = (p: { lang: Lang; emptyData?: GallerySet;
 // #region Private
 
 /** 組出給 hydration 用的 initial 格式 */
-const buildLoaderInitial = <TArgs, TData>(args: TArgs, data: TData): ApiLoaderData<TArgs, TData> =>
-{
-    const apiRes: ApiResponse<TData> = { IsSuccess: true, Data: data, SysMessage: [] };
-    return { args, apiRes };
-};
 /** 比對目前參數與 loader 參數是否一致 */
 const matchInitialArgs = <TArgs, TData>(currentArgs: TArgs, initialArgs: TArgs, initialData: TData): ApiLoaderData<TArgs, TData> | null =>
 {
     const currentKey = JSON.stringify(currentArgs ?? null);
     const initialKey = JSON.stringify(initialArgs ?? null);
     if (currentKey !== initialKey) return null;
-    return buildLoaderInitial(initialArgs, initialData);
+    return buildClientLoaderInitial(initialArgs, initialData);
 };
 /** 建立 Gallery Form 查詢條件 */
 const buildGalleryFormCondition = (internalId: string): string =>
@@ -187,7 +183,7 @@ const buildListInitial = (p: { loaderData: GalleryFormLoaderData | null; queryPa
     const loaderParam = p.loaderData?.args?.queryParam;
     if (!loaderParam) return null;
     if (!isSameClientDataQueryParam(p.queryParam, loaderParam)) return null;
-    return buildLoaderInitial(loaderParam, p.loaderData?.res.listRes ?? [p.fallbackData]);
+    return buildClientLoaderInitial(loaderParam, p.loaderData?.res.listRes ?? [p.fallbackData]);
 };
 /** 建立 Category map initial，避免 hydration 首次重抓 */
 const buildCategoryInitial = (p: { loaderData: GalleryFormLoaderData | null; args: GalleryFormLoaderArgs; }): CategoryMapLoaderData | null =>

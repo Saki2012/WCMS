@@ -28,5 +28,11 @@
   "ts-node": {
     "esm": true
   },
-  
+  "exclude": [
+        "node_modules",
+        "dist",
+        "src/Features/Assets/**/spec/**",
+        "src/Features/Assets/**/*.spec.ts",
+        "src/Features/Assets/**/*.test.ts"
+    ]
 }

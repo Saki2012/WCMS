@@ -4,15 +4,15 @@ import { useMobileMenuCollapse } from "@/Features/Hooks/UIAction/Mobile/useMobil
 import { SITEMAP_SEGMENT } from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap/Sitemap";
 import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
+import { A11yContent } from "@/Features/Pages/Client/Scaffold/MainFrame/Header";
 import { LangSwitchBtn } from "@/Features/Pages/Client/Scaffold/MainFrame/LangSwitchBtn";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import LogoImg from "@/SpecFetures/1820/Assets/Client/images/logo/LOGO_400x95.png";
-import { A11yContent } from "@/SpecFetures/_default/Pages/Client/Scaffold/MainFrame/Header";
+
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import clsx from "clsx";
-import { color } from "framer-motion";
 import { useEffect, useRef } from "react";
 import React from "react";
 import { useLocation } from "react-router-dom";
@@ -25,7 +25,7 @@ const Header_Section = (props: { lang: Lang; site: INormSite; }) =>
             <header className="header_Box bg-custom-rgba">
                 <div className="navsBox">
                     <div className="container-customize0 d-flex justify-content-lg-between justify-content-center flex-wrap">
-                        <p className="small pt-2 mt-lg-2 mt-1 mb-lg-2 mb-1 mr-md-3 mr-1" style={{color:"#bd1f1f"}}>本網站為試營運階段，如有住宿、訂餐等本場服務，請致電服務專線：06-5900022</p>
+                        <p className="small pt-2 mt-lg-2 mt-1 mb-lg-2 mb-1 mr-md-3 mr-1" style={{ color: "#bd1f1f" }}>本網站為試營運階段，如有住宿、訂餐等本場服務，請致電服務專線：06-5900022</p>
                         <ul className="nav custom_nav justify-content-xl-end justify-content-center">
                             <NavBar lang={props.lang} />
                             <LangSwitchBtn site={props.site} />
@@ -36,7 +36,6 @@ const Header_Section = (props: { lang: Lang; site: INormSite; }) =>
         </section>
     );
 };
-
 
 const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
 {
@@ -77,7 +76,7 @@ const LogoComp = () =>
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /**
  * 遞迴渲染多層選單
  * parentDepth = 0 代表「第二層」，對應原本的 className 設計：
@@ -137,8 +136,7 @@ const isHomePage = (pathname: string, lang: Lang) =>
     return homePaths.includes(cleanPath);
 };
 
-
-const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
+export const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
 {
     const headerRef = useRef<HTMLDivElement | null>(null);
     const location = useLocation();
@@ -182,7 +180,6 @@ const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
     return (
         <>
             <A11yContent />
-
             <div id="Site-Header" ref={headerRef} className={clsx("ALL_Header_DivBar", "main-header", isHome && "position-fixed")}>
                 <Header_Section lang={props.lang} site={props.site} />
                 <Menu_Section {...props} />
@@ -191,10 +188,6 @@ const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
         </>
     );
 };
-
-
-export default Header;
-
 const NavBar = (props: { lang: Lang; }) =>
 {
     const title = props.lang === "zh-tw"
@@ -284,7 +277,6 @@ const PCBtn = () =>
     );
 };
 
-
 /** 1. 一般單選 */
 const SingleMenuItem = (props: { menuItem: MenuItemData; }) =>
 {
@@ -297,7 +289,6 @@ const SingleMenuItem = (props: { menuItem: MenuItemData; }) =>
         </li>
     );
 };
-
 
 /** 2. 多層下拉 */
 const DropdownMenuItem = (props: { menuItem: MenuItemData; }) =>
@@ -319,7 +310,6 @@ const DropdownMenuItem = (props: { menuItem: MenuItemData; }) =>
         </li>
     );
 };
-
 
 const GetMenuData = (lang: Lang, site: INormSite): MenuItemData[] =>
 {

@@ -15,7 +15,6 @@ type BannerDetail = NonNullable<BannerSet["BannerDetail"]>[number];
 
 type BannerDetailInfo = NonNullable<BannerSet["BannerDetailInfo"]>[number];
 
-
 interface SpecialLinkDataProps
 {
     lang: Lang;
@@ -23,9 +22,7 @@ interface SpecialLinkDataProps
     initialBanner: BannerSet | null;
 }
 
-
 type OwlResponsiveOption = { items: number; };
-
 
 type OwlCarouselOptions = {
     items: number;
@@ -39,9 +36,7 @@ type OwlCarouselOptions = {
     responsive: Record<number, OwlResponsiveOption>;
 };
 
-
 type OwlJQueryElement = JQuery<HTMLElement> & { owlCarousel: (options: OwlCarouselOptions) => OwlJQueryElement; };
-
 
 type JQueryGlobal = Window & typeof globalThis & { $?: JQueryStatic; jQuery?: JQueryStatic; };
 // #endregion
@@ -207,7 +202,7 @@ export const SpecialLinkData = (props: SpecialLinkDataProps) =>
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 const buildQueryDataInitial = (internalId: string, banner: BannerSet | null): ApiLoaderData<string, BannerSet> | null =>
 {
     // 宣告變數：沒有 SSR 初始資料時直接回 null
@@ -219,7 +214,6 @@ const buildQueryDataInitial = (internalId: string, banner: BannerSet | null): Ap
     return { args: internalId, apiRes };
 };
 
-
 const buildOwlKey = (lang: Lang, banner: BannerSet | null): string =>
 {
     // 宣告變數：排序後資料
@@ -228,7 +222,6 @@ const buildOwlKey = (lang: Lang, banner: BannerSet | null): string =>
     // return：資料變更時用來強制重建 owl
     return `${lang}|${details.map((item) => `${item.RowId ?? ""}_${item.PicSrcId ?? ""}_${item.Sort ?? ""}`).join("|")}`;
 };
-
 
 const renderLinkCard = (props: { item: BannerDetail; info: BannerDetailInfo | undefined; index: number; }) =>
 {
@@ -299,7 +292,6 @@ const getJQuery = (): JQueryStatic | null =>
     return jqWindow.jQuery ?? jqWindow.$ ?? null;
 };
 
-
 const sortBannerDetails = (banner: BannerSet | null): BannerDetail[] =>
 {
     // 宣告變數：原始明細
@@ -314,7 +306,6 @@ const sortBannerDetails = (banner: BannerSet | null): BannerDetail[] =>
         return aSort - bSort || (a.RowId ?? 0) - (b.RowId ?? 0);
     });
 };
-
 
 const initOwlCarousel = ($owl: OwlJQueryElement): void =>
 {
@@ -332,7 +323,6 @@ const initOwlCarousel = ($owl: OwlJQueryElement): void =>
     });
 };
 
-
 const destroyOwlSafe = ($owl: JQuery<HTMLElement>): void =>
 {
     // 執行 function：安全摧毀 owl
@@ -344,7 +334,6 @@ const destroyOwlSafe = ($owl: JQuery<HTMLElement>): void =>
         //
     }
 };
-
 
 const updateToggleButton = (toggleEl: HTMLAnchorElement, isPlaying: boolean): void =>
 {
@@ -381,7 +370,6 @@ const updateToggleButton = (toggleEl: HTMLAnchorElement, isPlaying: boolean): vo
         srText.textContent = "圖片輪播已暫停，點擊播放";
     }
 };
-
 
 const findBannerInfo = (
     banner: BannerSet | null,

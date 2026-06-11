@@ -2,7 +2,7 @@ import { LangLink } from "@/SysCore/i18n/LangLink";
 import { SysCurrentDate } from "../../../../../SysCore/Utils/SystemInfo/GetServerInfo";
 
 // #region Section
-const FooterComp = () =>
+export const FooterComp = () =>
 {
     const date = SysCurrentDate();
     return (
@@ -24,8 +24,4 @@ const FooterComp = () =>
         </footer>
     );
 };
-// #endregion
-
-// #region Private
-export default FooterComp;
 // #endregion

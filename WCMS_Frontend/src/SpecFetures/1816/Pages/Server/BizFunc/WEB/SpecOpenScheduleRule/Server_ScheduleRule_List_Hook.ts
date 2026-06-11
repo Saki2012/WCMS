@@ -1,5 +1,10 @@
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import { createGridCrudActions, enhanceGridWithAdjustCell, type GridConfirmFn } from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
+import {
+    buildServerListColumns,
+    getServerSearchStringValue as getSearchStringValue,
+    getServerTableColumnTitle as getColumnTitle,
+} from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Helper";
 import type {
     ServerListGridDataSourceContext,
     ServerListGridDataSourceResult,
@@ -7,12 +12,11 @@ import type {
 } from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Hook";
 import { SpecOpenScheduleRuleAdapter } from "@/SpecFetures/1816/Hooks/BizFunc/Calendar/SpecOpenScheduleRule_Api";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
-import type { SearchFieldConfig, SearchValue, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
+import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import { DefaultLang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
-import { formatDate, formatDateTime } from "@/SysCore/Utils/Library/LibData";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { formatDate, formatDateTime, LibCondition } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { AccountFields, PGID, SpecOpenScheduleRuleModelFields, SpecOpenScheduleRuleSetFields } from "@/types/SchemaFields";
@@ -28,13 +32,11 @@ type ScheduleRuleApiAdapter = ReturnType<typeof SpecOpenScheduleRuleAdapter>;
 
 type ScheduleRuleCudActions = ReturnType<ScheduleRuleApiAdapter["hooks"]["useCudActions"]>;
 
-
 export interface ScheduleRuleSearchParams
 {
     /** 學年度搜尋關鍵字 */
     academicYearId?: string;
 }
-
 
 export interface ScheduleRuleListRawData
 {
@@ -60,7 +62,6 @@ export interface ScheduleRuleListRawData
     param: QueryListParam;
 }
 
-
 export interface ScheduleRuleListAdapter
 {
     /** 學年度開放規則 API adapter */
@@ -76,9 +77,7 @@ export interface ScheduleRuleListAdapter
     dirUrl: string;
 }
 
-
 export type ScheduleRuleListGridTemplate = ServerListGridTemplate<ScheduleRuleSearchParams, ScheduleRuleListRawData, ScheduleRuleListAdapter, QueryListParam>;
-
 
 type CrudDeps = {
     /** React Router 導頁方法 */
@@ -93,7 +92,6 @@ type CrudDeps = {
     /** 刪除後重新查詢 */
     afterDelete: () => Promise<void>;
 };
-
 
 type ScheduleRuleVisibleColumn = {
     /** Grid 欄位 key */
@@ -112,7 +110,6 @@ type ScheduleRuleVisibleColumn = {
 
 // #region Public
 export const SCHEDULE_RULE_ACADEMIC_YEAR_SEARCH_KEY = "academicYearId";
-
 
 /** 建立學年度開放規則純 Spec ListGridTemplate 設定 */
 export const useScheduleRuleListGridTemplate = (): ScheduleRuleListGridTemplate =>
@@ -179,7 +176,6 @@ const useScheduleRuleListGridDataSource = (
     return { adapter: { ...apiAdapter, cudActions, navigate, dirUrl }, rawData, isLoading: grid.isLoading, errors: grid.errors ?? [], refetchData };
 };
 
-
 /** 建立學年度開放規則搜尋欄位設定 */
 const buildScheduleRuleSearchFields = (rawData: ScheduleRuleListRawData): SearchFieldConfig[] =>
 {
@@ -193,7 +189,6 @@ const buildScheduleRuleSearchFields = (rawData: ScheduleRuleListRawData): Search
     return [{ key: SCHEDULE_RULE_ACADEMIC_YEAR_SEARCH_KEY, title: academicYearTitle, type: "text", placeholder: `請輸入${academicYearTitle}` }];
 };
 
-
 /** 將 SearchValues 轉為學年度開放規則查詢參數 */
 const toScheduleRuleSearchParams = (values: SearchValues): ScheduleRuleSearchParams =>
 {
@@ -201,7 +196,6 @@ const toScheduleRuleSearchParams = (values: SearchValues): ScheduleRuleSearchPar
         academicYearId: getSearchStringValue(values[SCHEDULE_RULE_ACADEMIC_YEAR_SEARCH_KEY]),
     };
 };
-
 
 /** 建立學年度開放規則搜尋條件 */
 const buildScheduleRuleSearchConditions = (ctx: { searchParams: ScheduleRuleSearchParams; }): string[] =>
@@ -216,19 +210,17 @@ const buildScheduleRuleSearchConditions = (ctx: { searchParams: ScheduleRuleSear
     return conditions;
 };
 
-
 /** 建立學年度開放規則列表完整 QueryParam */
 const buildScheduleRuleQueryParam = (ctx: { searchCondition: string; }): QueryListParam =>
 {
     return {
         Fields: buildScheduleRuleQueryFields(),
-        Condition: LibMerge(" And ", false, ctx.searchCondition),
+        Condition: LibCondition.joinConditions([ctx.searchCondition]),
         OrderBy: [{ Col: SpecOpenScheduleRuleModelFields.CreateTime, Desc: true }],
         PageNumber: 1,
         PageSize: 10,
     };
 };
-
 
 /** 建立學年度開放規則列表查詢欄位 */
 const buildScheduleRuleQueryFields = (): string[] =>
@@ -245,7 +237,6 @@ const buildScheduleRuleQueryFields = (): string[] =>
     ];
 };
 
-
 /** 將學年度開放規則資料轉為 GridProps */
 const buildScheduleRuleGridProps = (
     opt: {
@@ -259,7 +250,7 @@ const buildScheduleRuleGridProps = (
 ): GridProps =>
 {
     const visibleCols = buildScheduleRuleVisibleColumns();
-    const columns = buildColumns(visibleCols, opt.raw);
+    const columns = buildServerListColumns(visibleCols, opt.raw.modelDisplayName);
     const rows = buildScheduleRuleRows(opt.raw, columns);
     const baseGrid: GridProps = { columns, rows, CurrentPage: opt.raw.pageNumber ?? 1, TotalPage: opt.raw.totalPages ?? 1, onPageChange: opt.raw.onPageChange };
 
@@ -274,7 +265,6 @@ const buildScheduleRuleGridProps = (
         confirm: opt.confirm,
     });
 };
-
 
 /** 注入學年度開放規則 Grid 編輯與刪除動作 */
 const enhanceScheduleRuleGrid = (
@@ -304,7 +294,6 @@ const enhanceScheduleRuleGrid = (
         getInternalId: (set) => set.SpecOpenScheduleRule?.InternalId ?? "",
     });
 };
-
 
 /** 建立學年度開放規則列表顯示欄位設定 */
 const buildScheduleRuleVisibleColumns = (): ScheduleRuleVisibleColumn[] =>
@@ -349,20 +338,11 @@ const buildScheduleRuleVisibleColumns = (): ScheduleRuleVisibleColumn[] =>
     ];
 };
 
-
-/** 建立學年度開放規則列表欄位定義 */
-const buildColumns = (visibleCols: ScheduleRuleVisibleColumn[], raw: ScheduleRuleListRawData): ColumnConfig[] =>
-{
-    return visibleCols.map((col) => ({ key: col.key, title: getColumnTitle(raw.modelDisplayName, col.tableId, col.columnId, col.fallback) }));
-};
-
-
 /** 建立學年度開放規則列表列資料 */
 const buildScheduleRuleRows = (raw: ScheduleRuleListRawData, columns: ColumnConfig[]): GridRow[] =>
 {
     return (raw.list ?? []).map((set) => buildScheduleRuleRow(set, columns));
 };
-
 
 /** 建立學年度開放規則列表單列資料 */
 const buildScheduleRuleRow = (set: SpecOpenScheduleRuleSet, columns: ColumnConfig[]): GridRow =>
@@ -373,7 +353,6 @@ const buildScheduleRuleRow = (set: SpecOpenScheduleRuleSet, columns: ColumnConfi
 
     return { keyId, cells };
 };
-
 
 /** 依欄位 key 取得學年度開放規則 Grid 內容 */
 const getScheduleRuleCellContent = (key: string, set: SpecOpenScheduleRuleSet): RowCell["content"] =>
@@ -399,24 +378,4 @@ const getScheduleRuleCellContent = (key: string, set: SpecOpenScheduleRuleSet): 
     }
 };
 
-
-/** 依表格與欄位代碼取得 ModelDisplayName 顯示文字 */
-const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, tableId: string, columnId: string, fallback: string): string =>
-{
-    const tables = modelDisplayName?.Tables ?? [];
-    const table = tables.find((item) => item.TableId === tableId);
-    const hit = table?.Columns?.find((item) => item.ColumnId === columnId);
-
-    return hit?.ColumnDisplayName ?? fallback;
-};
-
-
-/** 取得 SearchValue 的文字值 */
-const getSearchStringValue = (value: SearchValue): string | undefined =>
-{
-    if (typeof value !== "string") return undefined;
-
-    const text = value.trim();
-    return text.length > 0 ? text : undefined;
-};
 // #endregion

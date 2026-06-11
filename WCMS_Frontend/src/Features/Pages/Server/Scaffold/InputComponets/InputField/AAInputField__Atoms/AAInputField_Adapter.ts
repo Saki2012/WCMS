@@ -1,7 +1,7 @@
-import type { AAFileValue, AAInputField, AAInputFieldAdapterOptions, AAInputFieldAdapterResult, AAInputOption, AAInputValue } from "./AAInputField_Types";
-import { getDateRangeValue, normalizeDateRangeBaseDate, normalizeDateRangeValue } from "./Fields/DateRangeField";
-import { normalizeDateTimeRangeBaseDate, normalizeDateTimeRangeValue } from "./Fields/DateTimeRangeField";
+import type { AAInputField, AAInputFieldAdapterOptions, AAInputFieldAdapterResult, AAInputOption, AAInputValue } from "./AAInputField_Types";
 import { buildAdapterBaseId, defaultAccept, normalizeAcceptText, normalizeAdapterOptionalText, normalizeAdapterText, sanitizeFileName, stringifyValue, toFileArray, toStringArray } from "./AAInputField_Utils";
+import { normalizeDateRangeBaseDate, normalizeDateRangeValue } from "./Fields/DateRangeField";
+import { normalizeDateTimeRangeBaseDate, normalizeDateTimeRangeValue } from "./Fields/DateTimeRangeField";
 
 // #region Public
 /**
@@ -14,7 +14,6 @@ export const buildAAInputFieldAdapter = (options: AAInputFieldAdapterOptions): A
     const fields = options.fields.map((field) => adaptAAInputField(field));
     return { baseId, fields };
 };
-
 
 /** 正規化單一欄位，避免 SSR 與 CSR 對 null、undefined、選項、檔案值解讀不同。 */
 export const adaptAAInputField = (field: AAInputField): AAInputField =>
@@ -51,7 +50,6 @@ const adaptInputOptions = (options?: AAInputOption[]): AAInputOption[] =>
     return (options ?? []).map((item) => ({ value: normalizeAdapterText(item.value, ""), label: normalizeAdapterText(item.label, item.value), disabled: item.disabled }));
 };
 
-
 /** 正規化欄位值，讓 SSR/CSR hydrated 後不會因型別差異造成不同畫面。 */
 const adaptInputValue = (field: AAInputField): AAInputValue =>
 {
@@ -64,7 +62,6 @@ const adaptInputValue = (field: AAInputField): AAInputValue =>
     return typeof field.value === "boolean" ? String(field.value) : stringifyValue(field.value);
 };
 
-
 /** 多選值只保留字串，並去除重複。 */
 const normalizeSelectedStringArray = (value: AAInputValue, options: AAInputOption[]) =>
 {
@@ -73,7 +70,6 @@ const normalizeSelectedStringArray = (value: AAInputValue, options: AAInputOptio
     const filteredList = optionSet.size === 0 ? valueList : valueList.filter((item) => optionSet.has(item));
     return Array.from(new Set(filteredList));
 };
-
 
 /** 避免預覽網址使用 javascript 等不安全協定。 */
 const sanitizePreviewUrl = (value: string) =>

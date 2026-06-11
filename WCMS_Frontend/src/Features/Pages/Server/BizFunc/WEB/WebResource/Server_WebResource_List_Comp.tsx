@@ -5,7 +5,6 @@ import {
 import { Server_SearchBar_Comp } from "@/Features/Pages/Server/Scaffold/SearchBar/Server_SearchBar_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { Lang } from "@/SysCore/i18n/lang";
-import type { ReactNode } from "react";
 import { useWebResourceListGridTemplate } from "./Server_WebResource_List_Hook";
 
 // #region Public
@@ -14,13 +13,13 @@ export const WebResourceListComp = (prop: { title: string; theme: IBETheme; lang
 {
     const template = useWebResourceListGridTemplate({ lang: prop.lang });
 
-    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} renderSearchBar={renderWebResourceSearchBar} />;
+    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} buildSearchBarNode={WebResourceSearchBarSection} />;
 };
 // #endregion
 
-// #region EntityComp
+// #region Section
 /** 渲染網路資源列表搜尋列 */
-const renderWebResourceSearchBar = (props: ServerListGridSearchRenderProps): ReactNode =>
+const WebResourceSearchBarSection = (props: ServerListGridSearchRenderProps) =>
 {
     return (
         <Server_SearchBar_Comp

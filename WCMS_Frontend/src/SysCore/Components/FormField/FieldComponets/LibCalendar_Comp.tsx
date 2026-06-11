@@ -8,25 +8,8 @@ import type { ILibCalendarProp } from "./LibCalendar_Data";
 const SUPPORTED_FORMATS = ["yyyy/MM/dd", "yyyy/M/d", "yyyy-MM-dd", "yyyy-M-d", "yyyy.MM.dd", "yyyy.M.d", "yyyyMMdd"] as const;
 // #endregion
 
-// #region Private
-const parseUserDate = (raw: string): Date | null =>
-{
-    const v = (raw || "").trim();
-    if (!v) return null;
-    for (const fmt of SUPPORTED_FORMATS)
-    {
-        const d = parse(v, fmt, new Date());
-        if (isValid(d))
-        {
-            // 安全帶：限制合理年份（可依需求調整）
-            const y = d.getFullYear();
-            if (y >= 1900 && y <= 2100) return d;
-        }
-    }
-    return null;
-};
-
-const LibCalendar = (prop: ILibCalendarProp) =>
+// #region Public
+export const LibCalendar = (prop: ILibCalendarProp) =>
 {
     const inputId = useId();
     const [text, setText] = useState<string>(""); // 使用者正在輸入的文字
@@ -208,7 +191,24 @@ const LibCalendar = (prop: ILibCalendarProp) =>
         </>
     );
 };
+// #endregion
 
+// #region Private
+const parseUserDate = (raw: string): Date | null =>
+{
+    const v = (raw || "").trim();
+    if (!v) return null;
+    for (const fmt of SUPPORTED_FORMATS)
+    {
+        const d = parse(v, fmt, new Date());
+        if (isValid(d))
+        {
+            // 安全帶：限制合理年份（可依需求調整）
+            const y = d.getFullYear();
+            if (y >= 1900 && y <= 2100) return d;
+        }
+    }
+    return null;
+};
 
-export default LibCalendar;
 // #endregion

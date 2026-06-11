@@ -1,4 +1,3 @@
-import { useClientDataQueryTemplate, type ClientDataQueryDataSourceResult, type ClientDataQueryTemplate } from "@/Features/Pages/Client/Scaffold/DataQueryTemplate/Client_DataQueryTemplate_Hook";
 import { CategoryAdapter } from "@/Features/Hooks/BizFunc/COMM/Category_Api";
 import { TagAdapter } from "@/Features/Hooks/BizFunc/COMM/Tag_Api";
 import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WEB/Announcement_Api";
@@ -6,9 +5,9 @@ import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WEB/BannerSlider_A
 import { GalleryAdapter } from "@/Features/Hooks/BizFunc/WEB/Gallery_Api";
 import { PageManagementAdapter } from "@/Features/Hooks/BizFunc/WEB/PageManagement_Api";
 import { WebResourceAdapter } from "@/Features/Hooks/BizFunc/WEB/WebResource_Api";
+import { type ClientDataQueryDataSourceResult, type ClientDataQueryTemplate, useClientDataQueryTemplate } from "@/Features/Pages/Client/Scaffold/DataQueryTemplate/Client_DataQueryTemplate_Hook";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
 import {
     AnnouncementDetailFields,
@@ -27,7 +26,7 @@ import {
 import { useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router-dom";
 
-import { formatLocalIso } from "@/SysCore/Utils/Library/LibData";
+import { formatLocalIso, LibCondition, Operator } from "@/SysCore/Utils/Library/LibData";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
@@ -45,7 +44,6 @@ type GallerySet = components["schemas"]["GallerySet_DTO"];
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
 
 type TagSet = components["schemas"]["TagSet_DTO"];
-
 
 export interface HomePageRawData
 {
@@ -109,14 +107,10 @@ export interface HomePageLoaderData
     res: HomePageLoaderRes;
 }
 
-
-
-
 interface HomePageTemplateQueryParam
 {
     lang: Lang;
 }
-
 
 type HomePageTemplate = ClientDataQueryTemplate<HomePageTemplateQueryParam, HomePageRawData | null, HomePageLoaderData | null, unknown, HomePageTemplateQueryParam, HomePageLoaderData>;
 // #endregion
@@ -278,7 +272,6 @@ export const HomePageLoader = (p: { lang: Lang; }) => async ({ request }: Loader
     };
 };
 
-
 /** CSR Hook：首頁統一透過 Client_DataQueryTemplate 取資料 */
 
 export const useHomePageTemplateData = (lang: Lang) =>
@@ -390,26 +383,15 @@ const buildTagQuery = (progId: string): QueryListParam =>
 
 const buildAnnouncementHomeCondition = (p: { lang: Lang; nowIsoLocal: string; categoryIds: string; isTop: boolean; }): string =>
 {
-    let cdt = "";
-    cdt = LibMerge(
-        " And ",
-        false,
-        cdt,
-        `${AnnouncementFields.Validate_Start} <= ${p.nowIsoLocal}`,
+    return LibCondition.joinConditions([
+        LibCondition.createCondition(AnnouncementFields.Validate_Start, Operator.LessThanOrEqual, p.nowIsoLocal),
         `(${AnnouncementFields.Validate_End} >= ${p.nowIsoLocal} Or ${AnnouncementFields.Validate_End} is null)`,
-        `${AnnouncementFields.ContentStatus} !& 4`,
-    );
-    // 執行：置頂/非置頂
-    cdt = p.isTop
-        ? LibMerge(" And ", false, cdt, `${AnnouncementFields.ContentStatus} & 1`)
-        : LibMerge(" And ", false, cdt, `${AnnouncementFields.ContentStatus} !& 1`);
-    cdt = LibMerge(" And ", false, cdt, `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang} = ${p.lang}`);
-    cdt = LibMerge(" And ", false, cdt, `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title} != ''`);
-    if (p.categoryIds)
-    {
-        cdt = LibMerge(" And ", false, cdt, `${AnnouncementFields.Categories} HasAny [${p.categoryIds}]`);
-    }
-    return cdt;
+        LibCondition.createCondition(AnnouncementFields.ContentStatus, Operator.BitwiseHasNone, 4),
+        LibCondition.createCondition(AnnouncementFields.ContentStatus, p.isTop ? Operator.BitwiseHasAny : Operator.BitwiseHasNone, 1),
+        LibCondition.createCondition(`${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang}`, Operator.Equal, p.lang),
+        LibCondition.createCondition(`${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title}`, Operator.NotEqual, "", true),
+        LibCondition.createCondition(AnnouncementFields.Categories, Operator.HasAny, p.categoryIds),
+    ]);
 };
 
 const buildAnnouncementHomeQuery = (p: { condition: string; take: number; }): QueryListParam =>
@@ -438,15 +420,14 @@ const buildAnnouncementHomeQuery = (p: { condition: string; take: number; }): Qu
 
 const buildGalleryHomeCondition = (p: { lang: Lang; nowIsoLocal: string; categoryIds: string; isTop: boolean; }): string =>
 {
-    let cdt = "";
-    cdt = LibMerge(" And ", false, cdt, `${GalleryFields.Validate_Start} <= ${p.nowIsoLocal}`);
-    cdt = LibMerge(" And ", false, cdt, `${GalleryFields.ContentStatus} !& 4`);
-    cdt = p.isTop ? LibMerge(" And ", false, cdt, `${GalleryFields.ContentStatus} & 1`) : LibMerge(" And ", false, cdt, `${GalleryFields.ContentStatus} !& 1`);
-    // 執行：語系（避免找不到 info）
-    cdt = LibMerge(" And ", false, cdt, `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Lang} = ${p.lang}`);
-    cdt = LibMerge(" And ", false, cdt, `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Title} != ''`);
-    if (p.categoryIds) cdt = LibMerge(" And ", false, cdt, `${GalleryFields.Categories} HasAny [${p.categoryIds}]`);
-    return cdt;
+    return LibCondition.joinConditions([
+        LibCondition.createCondition(GalleryFields.Validate_Start, Operator.LessThanOrEqual, p.nowIsoLocal),
+        LibCondition.createCondition(GalleryFields.ContentStatus, Operator.BitwiseHasNone, 4),
+        LibCondition.createCondition(GalleryFields.ContentStatus, p.isTop ? Operator.BitwiseHasAny : Operator.BitwiseHasNone, 1),
+        LibCondition.createCondition(`${GalleryFields._GalleryInfo}.${GalleryInfoFields.Lang}`, Operator.Equal, p.lang),
+        LibCondition.createCondition(`${GalleryFields._GalleryInfo}.${GalleryInfoFields.Title}`, Operator.NotEqual, "", true),
+        LibCondition.createCondition(GalleryFields.Categories, Operator.HasAny, p.categoryIds),
+    ]);
 };
 
 const buildGalleryHomeQuery = (p: { condition: string; take: number; }): QueryListParam =>
@@ -471,7 +452,6 @@ const buildGalleryHomeQuery = (p: { condition: string; take: number; }): QueryLi
     };
 };
 
-
 /** 建立首頁 DataQuery Template，讓首頁資料流程也進入前台 Template 管線 */
 const createHomePageTemplate = (lang: Lang): HomePageTemplate =>
 {
@@ -490,7 +470,6 @@ const createHomePageTemplate = (lang: Lang): HomePageTemplate =>
         },
     };
 };
-
 
 /** DataSource：首頁目前以 SSR loaderData 為主，先統一掛入 Template 流程 */
 const useHomePageTemplateDataSource = (ctx: { loaderData: HomePageLoaderData | null; }): ClientDataQueryDataSourceResult<HomePageRawData | null> =>

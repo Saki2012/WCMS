@@ -12,7 +12,6 @@ import { useEffect, useMemo, useRef } from "react";
 // #region Property
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 
-
 interface EventData
 {
     Id: string;
@@ -23,7 +22,6 @@ interface EventData
     date: string;
     contentStatus: number;
 }
-
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 // #endregion
@@ -62,7 +60,8 @@ export const EventSession = (props: { lang: Lang; hydrationData: HomePageEventHo
         if (!el) return;
 
         const $owl = $(el);
-
+        const owlCarousel = $owl.owlCarousel;
+        if (typeof owlCarousel !== "function") return;
         const cleanup = () =>
         {
             // 宣告：清掉延遲 init（避免 unmount 後還 init）
@@ -93,11 +92,8 @@ export const EventSession = (props: { lang: Lang; hydrationData: HomePageEventHo
 
         initTimerRef.current = window.setTimeout(() =>
         {
-            // 宣告：如果已 unmount 就不處理
             if (!carouselRef.current) return;
-
-            // 執行：初始化
-            $owl.owlCarousel({
+            owlCarousel.call($owl, {
                 items: 4,
                 loop: true,
                 dots: true,
@@ -107,18 +103,12 @@ export const EventSession = (props: { lang: Lang; hydrationData: HomePageEventHo
                 autoplayHoverPause: true,
                 responsive: { 0: { items: 1 }, 767: { items: 2 }, 991: { items: 3 }, 1200: { items: 4 } },
             });
-
             isOwlInitedRef.current = true;
-
-            // 執行：設定 tabindex
             $("#Event .owl-nav button").attr("tabindex", "7");
-
-            // 執行：播放/暫停（namespace 綁定）
             $("#Event_start").off("click.eventSession").on("click.eventSession", () =>
             {
                 $owl.trigger("play.owl.autoplay", [6000]);
             });
-
             $("#Event_pause").off("click.eventSession").on("click.eventSession", () =>
             {
                 $owl.trigger("stop.owl.autoplay");
@@ -126,17 +116,15 @@ export const EventSession = (props: { lang: Lang; hydrationData: HomePageEventHo
         }, 0);
 
         return cleanup;
-    }, [eventKey]); // 不要用 [eventList]
+    }, [eventKey]);
 
     return (
-        // <LoadingErrorHandler loadingList={isLoading} errorList={errors}>
         <section className="Event-section owl-box" style={{ backgroundImage: `url(${bgImg})` }}>
             <div className="Mask-DivBox layout_padding2">
                 <div className="customizeBox">
                     <div className="container-customize1">
                         <div className="row">
                             <div className="col-12 px-4 + animate__animated animate__slow wow animate__bounceInUp" data-wow-delay="0.1s">
-                                {/* // 標題 start // */}
                                 <div className="Standard-TitleDiv div-header">
                                     <div className="TextDIV">
                                         <h3>
@@ -157,18 +145,12 @@ export const EventSession = (props: { lang: Lang; hydrationData: HomePageEventHo
                             <div className="col-12 + p-0">
                                 <div className="content-box + animate__animated animate__slow wow animate__bounceInUp" data-wow-delay="0.1s">
                                     <div id="Event" className="owl-carousel owl-theme px-2" ref={carouselRef} key={eventKey}>
-                                        {/* <asp:Literal ID="Lit_Event" runat="server" /> 輪播項目 */}
                                         {eventList.map((item, index) =>
                                         {
                                             const { month, day } = getMonthDayNums(item.date);
-
                                             return item && (
                                                 <div className="item" key={item.Id}>
-                                                    <LangLink
-                                                        to={`Allnews/Intramural-activities/In-school-activities${item.Url}`}
-                                                        title={item.Title}
-                                                        tabIndex={index + 1}
-                                                    >
+                                                    <LangLink to={`Allnews/Intramural-activities/In-school-activities${item.Url}`} title={item.Title} tabIndex={index + 1}>
                                                         <div className="DivBox_content v_itemBOX">
                                                             <div className="Picture_Div">
                                                                 <div className="img_wrapper">
@@ -183,17 +165,11 @@ export const EventSession = (props: { lang: Lang; hydrationData: HomePageEventHo
                                                                 </div>
                                                                 <div className="m-news_detail">
                                                                     <div className="customstyle-hotop">
-                                                                        {isWithinLastNDaysFromMD(Number(month), Number(day)) && (
-                                                                            <div className="icon-small new-bg" role="status" aria-label="最新">最新</div>
-                                                                        )}
+                                                                        {isWithinLastNDaysFromMD(Number(month), Number(day)) && <div className="icon-small new-bg" role="status" aria-label="最新">最新</div>}
                                                                         {item.contentStatus != 0 && (
                                                                             <>
-                                                                                {Boolean(item.contentStatus & 1) && (
-                                                                                    <div className="icon-small top-bg">置頂</div>
-                                                                                )}
-                                                                                {Boolean(item.contentStatus & 2) && (
-                                                                                    <div className="icon-small hot-bg">熱門</div>
-                                                                                )}
+                                                                                {Boolean(item.contentStatus & 1) && <div className="icon-small top-bg">置頂</div>}
+                                                                                {Boolean(item.contentStatus & 2) && <div className="icon-small hot-bg">熱門</div>}
                                                                             </>
                                                                         )}
                                                                     </div>
@@ -310,7 +286,6 @@ const getData = (lang: string, rawData: AnnouncementSet[], tagDict: Record<strin
     return result;
 };
 
-
 const getMonthDayNums = (d?: string | Date | null): { month?: number; day?: number; } =>
 {
     if (!d) return {};
@@ -320,7 +295,6 @@ const getMonthDayNums = (d?: string | Date | null): { month?: number; day?: numb
 
     return { month: dt.getUTCMonth() + 1, day: dt.getUTCDate() };
 };
-
 
 const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: number = 8): boolean =>
 {

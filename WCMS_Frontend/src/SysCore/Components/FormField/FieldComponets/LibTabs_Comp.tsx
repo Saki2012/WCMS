@@ -42,7 +42,7 @@ const getNextKey = (keys: string[], activeKey: string, action: "prev" | "next" |
 };
 
 
-const LibTabs = (prop: LibTabsProp) =>
+export const LibTabs = (prop: LibTabsProp) =>
 {
     const uid = useId();
     const tabIdPrefix = prop.tabIdPrefix ?? "Tab_TWEN";
@@ -134,7 +134,4 @@ const LibTabs = (prop: LibTabsProp) =>
         </ul>
     );
 };
-
-
-export default LibTabs;
 // #endregion

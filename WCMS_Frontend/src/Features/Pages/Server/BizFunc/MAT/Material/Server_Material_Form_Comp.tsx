@@ -7,11 +7,12 @@ import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import { LibCheckBox, LibDropList, LibFile, LibModal, LibPicturePreview, LibTextBox, LibTinyMCE } from "@/SysCore/Components/FormField/LibFormField";
 import { useSetJsonField, useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
-import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
+import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
 import { MaterialFields, MaterialLangInfoFields, MaterialSetFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
+import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -162,7 +163,7 @@ export const Server_Material_Form_Comp = (props: MaterialFormCompProps) =>
 
     const onBackToList = useCallback(() =>
     {
-        navigate(buildBackToListPath(pathname));
+        navigate(LibRoutePath.buildServerBackToListPath(pathname));
     }, [navigate, pathname]);
 
     const actionsOpt = useMemo(() =>
@@ -380,6 +381,10 @@ const MaterialBatchPreviewComp = (props: { files: File[]; }) =>
 // #endregion
 
 // #region EntityComp
+/** 建立返回列表路徑。 */
+// #endregion
+
+// #region Protected
 /** 建立物件主分頁內容。 */
 const buildMaterialMainTabContent = (props: MaterialContentProps): Record<string, ReactNode[]> =>
 {
@@ -434,13 +439,6 @@ const buildMaterialInfoField = (
             OnChange={bind.onChange}
         />
     );
-};
-
-
-/** 建立返回列表路徑。 */
-const buildBackToListPath = (pathname: string): string =>
-{
-    return pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
 };
 // #endregion
 

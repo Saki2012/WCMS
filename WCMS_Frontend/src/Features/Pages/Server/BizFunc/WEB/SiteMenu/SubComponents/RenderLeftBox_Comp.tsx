@@ -448,7 +448,7 @@ const ComfirmDialog_Comp = (prop: ComfirmDialogProp) =>
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 const buildStructureSnapshot = (nodes: SiteMenuItem[]): string =>
 {
     const rows: Array<{ RowId: number; ParentRowId: number | null; DisplayOrder: number; }> = [];

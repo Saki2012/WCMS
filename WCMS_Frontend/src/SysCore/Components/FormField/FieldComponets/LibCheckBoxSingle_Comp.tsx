@@ -2,7 +2,7 @@ import { useId, useMemo } from "react";
 import type { ILibCheckBoxSingleProp } from "./LibCheckBoxSingle_Data";
 
 // #region Private
-const LibCheckBoxSingle = (prop: ILibCheckBoxSingleProp) =>
+export const LibCheckBoxSingle = (prop: ILibCheckBoxSingleProp) =>
 {
     const inputId = useId();
     const uidList = useMemo(() => prop.options?.map((opt, i) => `checkbox-${opt.itemId ?? i}-${inputId}`), [prop.options, inputId]);
@@ -57,7 +57,4 @@ const LibCheckBoxSingle = (prop: ILibCheckBoxSingleProp) =>
         </>
     );
 };
-
-
-export default LibCheckBoxSingle;
 // #endregion

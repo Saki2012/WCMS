@@ -21,7 +21,6 @@ export const FormList_Toolbar = (prop: { action: ToolbarActions; }) =>
     );
 };
 
-
 export const List_Toolbar = (prop: { action: ToolbarActions; }) =>
 {
     // List toolbar 舊版才有 onAddNew，新的 ServerFormActions 不含（先保留舊行為）
@@ -37,7 +36,6 @@ export const List_Toolbar = (prop: { action: ToolbarActions; }) =>
         </div>
     );
 };
-
 
 export const Form_Toolbar = (prop: { action: ToolbarActions; }) =>
 {
@@ -58,20 +56,30 @@ export const Form_Toolbar = (prop: { action: ToolbarActions; }) =>
     );
 };
 
-
+/** 表格欄位操作按鈕，提供舊版列表的編輯與刪除行為。 */
 export const GridCol_Toolbar = (prop: { action: ToolbarActions; internalId: string; }) =>
 {
-    // 先只支援舊 actions（避免一次擴到全部）
-    if (!isLegacy(prop.action)) return null;
-
+    const action = prop.action;
+    // 先只支援舊 actions，避免 ServerFormActions 誤用列表列操作。
+    if (!isLegacy(action)) return null;
+    /** 執行目前資料列的編輯動作。 */
+    const handleEditClick = () =>
+    {
+        action.onEdit(prop.internalId);
+    };
+    /** 執行目前資料列的刪除動作。 */
+    const handleDeleteClick = () =>
+    {
+        action.onDelete(prop.internalId);
+    };
     return (
         <div className="all-btn Edit Icon">
-            <a id="edit" className="icon" onClick={() => prop.action.onEdit(prop.internalId)} target="_self">
+            <a id="edit" className="icon" onClick={handleEditClick} target="_self">
                 <button type="button" className="Ipencil btn btn-ctm btn-ctm-rounded" data-bs-toggle="tooltip" title="內容編輯">
                     <i className="far fa-edit"></i>
                 </button>
             </a>
-            <a id="trash" className="icon" onClick={() => prop.action.onDelete(prop.internalId)} data-bs-toggle="modal" data-bs-target="#All_Delete">
+            <a id="trash" className="icon" onClick={handleDeleteClick} data-bs-toggle="modal" data-bs-target="#All_Delete">
                 <button type="button" className="Itrash btn btn-ctm btn-ctm-rounded" data-bs-toggle="tooltip" title="刪除">
                     <i className="far fa-trash-alt"></i>
                 </button>

@@ -192,7 +192,7 @@ const SubMenu_Default_Comp: React.FC<{ menuItems: MenuItemData[]; activeIds: Set
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 // 若為外部連結 新增icon
 const renderLinkIcon = (url?: string | null) =>
 {

@@ -1,6 +1,12 @@
 import { TagAdapter } from "@/Features/Hooks/BizFunc/COMM/Tag_Api";
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import { createGridCrudActions, enhanceGridWithAdjustCell, type GridConfirmFn } from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
+import {
+    buildServerListColumns,
+    buildServerListSelectOptions as buildSearchOptions,
+    getServerSearchStringValue as getSearchStringValue,
+    mapServerListIdToText as mapIdToText,
+} from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Helper";
 import type {
     ServerListGridDataSourceContext,
     ServerListGridDataSourceResult,
@@ -9,12 +15,11 @@ import type {
 import { SpecCategoryAdapter } from "@/SpecFetures/1810/Hooks/WEB/SpecCategory_Api";
 import { SpecUSRAdapter } from "@/SpecFetures/1810/Hooks/WEB/SpecUSR_Api";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
-import type { SearchFieldConfig, SearchValue, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
+import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
-import { formatDateTime } from "@/SysCore/Utils/Library/LibData";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { formatDateTime, LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { AccountFields, PGID, SpecUSRDetailFields, SpecUSRModelFields, SpecUSRSetFields } from "@/types/SchemaFields";
@@ -36,7 +41,6 @@ type TagApiAdapter = ReturnType<typeof TagAdapter>;
 
 type SpecUSRCudActions = ReturnType<SpecUSRApiAdapter["hooks"]["useCudActions"]>;
 
-
 export interface SpecUSRSearchParams
 {
     /** 目前列表語系 */
@@ -51,7 +55,6 @@ export interface SpecUSRSearchParams
     /** 已選取的計畫成果標籤代碼 */
     tagId?: string;
 }
-
 
 export interface SpecUSRListRawData
 {
@@ -86,7 +89,6 @@ export interface SpecUSRListRawData
     tagMap: Record<string, string>;
 }
 
-
 export interface SpecUSRListAdapter
 {
     /** 計畫成果 API adapter */
@@ -108,16 +110,13 @@ export interface SpecUSRListAdapter
     dirUrl: string;
 }
 
-
 export interface SpecUSRListRenderers
 {
     /** 渲染標籤欄位內容 */
-    renderTagContent: (ids: string | null | undefined, map: Record<string, string>) => RowCell["content"];
+    buildTagContentNode: (ids: string | null | undefined, map: Record<string, string>) => RowCell["content"];
 }
 
-
 export type SpecUSRListGridTemplate = ServerListGridTemplate<SpecUSRSearchParams, SpecUSRListRawData, SpecUSRListAdapter, QueryListParam>;
-
 
 type CrudDeps = {
     /** React Router 導頁方法 */
@@ -132,7 +131,6 @@ type CrudDeps = {
     /** 刪除後重新查詢 */
     afterDelete: () => Promise<void>;
 };
-
 
 type SpecUSRVisibleColumn = {
     /** Grid 欄位 key */
@@ -155,7 +153,6 @@ export const SPEC_USR_TITLE_SEARCH_KEY = "title";
 export const SPEC_USR_CATEGORY_SEARCH_KEY = "categoryId";
 
 export const SPEC_USR_TAG_SEARCH_KEY = "tagId";
-
 
 /** 建立計畫成果純 Spec ListGridTemplate 設定 */
 export const useSpecUSRListGridTemplate = (opt: { lang: Lang; renderers: SpecUSRListRenderers; }): SpecUSRListGridTemplate =>
@@ -250,7 +247,6 @@ const useSpecUSRListGridDataSource = (
     return { adapter: { ...apiAdapter, cudActions, navigate, dirUrl }, rawData, isLoading, errors, refetchData, refetchRefData };
 };
 
-
 /** 建立計畫成果搜尋欄位設定 */
 const buildSpecUSRSearchFields = (rawData: SpecUSRListRawData): SearchFieldConfig[] =>
 {
@@ -262,7 +258,6 @@ const buildSpecUSRSearchFields = (rawData: SpecUSRListRawData): SearchFieldConfi
     }, { key: SPEC_USR_TAG_SEARCH_KEY, title: "標籤", type: "select", options: buildSearchOptions(rawData.tagMap) }];
 };
 
-
 /** 將 SearchValues 轉為計畫成果列表查詢參數 */
 const toSpecUSRSearchParams = (values: SearchValues, lang: Lang): SpecUSRSearchParams =>
 {
@@ -273,7 +268,6 @@ const toSpecUSRSearchParams = (values: SearchValues, lang: Lang): SpecUSRSearchP
         tagId: getSearchStringValue(values[SPEC_USR_TAG_SEARCH_KEY]),
     };
 };
-
 
 /** 建立計畫成果搜尋條件 */
 const buildSpecUSRSearchConditions = (ctx: { searchParams: SpecUSRSearchParams; }): string[] =>
@@ -288,44 +282,33 @@ const buildSpecUSRSearchConditions = (ctx: { searchParams: SpecUSRSearchParams; 
     return conditions;
 };
 
-
 /** 建立計畫名稱與計畫理念模糊查詢條件 */
 const buildSpecUSRTitleCondition = (title?: string): string =>
 {
-    const query = title?.trim() ?? "";
+    const query = LibText.safeTrim(title);
     if (!query) return "";
-
-    let condition = "";
-
-    if (/^\d+$/.test(query))
-    {
-        condition = LibMerge(" Or ", false, condition, `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.Year} = ${query}`);
-        condition = LibMerge(" Or ", false, condition, `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.AcademicYear} = ${query}`);
-    }
-
-    condition = LibMerge(" Or ", false, condition, `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectName} Like ${query}`);
-    condition = LibMerge(" Or ", false, condition, `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectConcept} Like ${query}`);
-
+    const isNumVal: Boolean = /^\d+$/.test(query);
+    let condition = LibCondition.joinConditions([
+        isNumVal ? LibCondition.createCondition(`${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.Year}`, Operator.Equal, query) : null,
+        isNumVal ? LibCondition.createCondition(`${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.AcademicYear}`, Operator.Equal, query) : null,
+        LibCondition.createCondition(`${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectName}`, Operator.Like, query),
+        LibCondition.createCondition(`${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.ProjectConcept}`, Operator.Like, query),
+    ], LibCondition.JoinMode.Or);
     return condition ? `(${condition})` : "";
 };
-
 
 /** 建立計畫成果列表完整 QueryParam */
 const buildSpecUSRQueryParam = (ctx: { searchParams: SpecUSRSearchParams; searchCondition: string; }): QueryListParam =>
 {
-    const langCondition = `${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.Lang} = ${ctx.searchParams.lang}`;
-    const condition = LibMerge(" And ", false, langCondition, ctx.searchCondition);
-
     return {
         Fields: buildSpecUSRQueryFields(),
-        Condition: condition,
+        Condition: LibCondition.joinConditions([LibCondition.createCondition(`${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.Lang}`, Operator.Equal, ctx.searchParams.lang), ctx.searchCondition]),
         RankGroups: [{ Condition: `${SpecUSRModelFields.ContentStatus} & 1` }],
         OrderBy: [{ Col: SpecUSRModelFields.CreateTime, Desc: true }],
         PageNumber: 1,
         PageSize: 10,
     };
 };
-
 
 /** 建立計畫成果列表查詢欄位 */
 const buildSpecUSRQueryFields = (): string[] =>
@@ -349,7 +332,6 @@ const buildSpecUSRQueryFields = (): string[] =>
     ];
 };
 
-
 /** 將計畫成果資料轉為 GridProps */
 const buildSpecUSRGridProps = (
     opt: {
@@ -365,7 +347,7 @@ const buildSpecUSRGridProps = (
 ): GridProps =>
 {
     const visibleCols = buildSpecUSRVisibleColumns();
-    const columns = buildColumns(visibleCols, opt.raw);
+    const columns = buildServerListColumns(visibleCols, opt.raw.modelDisplayName);
     const rows = buildSpecUSRRows({ raw: opt.raw, lang: opt.lang, columns, renderers: opt.renderers });
     const baseGrid: GridProps = { columns, rows, CurrentPage: opt.raw.pageNumber ?? 1, TotalPage: opt.raw.totalPages ?? 1, onPageChange: opt.raw.onPageChange };
 
@@ -381,7 +363,6 @@ const buildSpecUSRGridProps = (
         confirm: opt.confirm,
     });
 };
-
 
 /** 注入計畫成果 Grid 編輯與刪除動作 */
 const enhanceSpecUSRGrid = (
@@ -413,7 +394,6 @@ const enhanceSpecUSRGrid = (
     });
 };
 
-
 /** 建立計畫成果列表顯示欄位設定 */
 const buildSpecUSRVisibleColumns = (): SpecUSRVisibleColumn[] =>
 {
@@ -435,20 +415,11 @@ const buildSpecUSRVisibleColumns = (): SpecUSRVisibleColumn[] =>
     ];
 };
 
-
-/** 建立計畫成果列表欄位定義 */
-const buildColumns = (visibleCols: SpecUSRVisibleColumn[], raw: SpecUSRListRawData): ColumnConfig[] =>
-{
-    return visibleCols.map((col) => ({ key: col.key, title: getColumnTitle(raw.modelDisplayName, col.tableId, col.columnId, col.fallback) }));
-};
-
-
 /** 建立計畫成果列表列資料 */
 const buildSpecUSRRows = (opt: { raw: SpecUSRListRawData; lang: Lang; columns: ColumnConfig[]; renderers: SpecUSRListRenderers; }): GridRow[] =>
 {
     return (opt.raw.list ?? []).map((set) => buildSpecUSRRow({ set, raw: opt.raw, lang: opt.lang, columns: opt.columns, renderers: opt.renderers }));
 };
-
 
 /** 建立計畫成果列表單列資料 */
 const buildSpecUSRRow = (opt: { set: SpecUSRSet; raw: SpecUSRListRawData; lang: Lang; columns: ColumnConfig[]; renderers: SpecUSRListRenderers; }): GridRow =>
@@ -458,11 +429,10 @@ const buildSpecUSRRow = (opt: { set: SpecUSRSet; raw: SpecUSRListRawData; lang: 
         col,
         content: getSpecUSRCellContent({ key: col.key, set: opt.set, detail, raw: opt.raw, renderers: opt.renderers }),
     }));
-    const keyId = opt.set.SpecUSR?.InternalId ?? LibMerge("|", false, opt.set.SpecUSR?.USRId, detail?.RowId);
+    const keyId = opt.set.SpecUSR?.InternalId ?? LibText.Merge("|", false, opt.set.SpecUSR?.USRId, detail?.RowId);
 
     return { keyId, cells };
 };
-
 
 /** 依欄位 key 取得計畫成果 Grid 內容 */
 const getSpecUSRCellContent = (
@@ -482,7 +452,7 @@ const getSpecUSRCellContent = (
         case SpecUSRModelFields.CategoryId:
             return mapIdToText(item?.CategoryId, opt.raw.categoryMap);
         case SpecUSRModelFields.Tags:
-            return opt.renderers.renderTagContent(item?.Tags, opt.raw.tagMap);
+            return opt.renderers.buildTagContentNode(item?.Tags, opt.raw.tagMap);
         case SpecUSRDetailFields.Year:
             return opt.detail?.Year ?? "";
         case SpecUSRDetailFields.AcademicYear:
@@ -502,39 +472,4 @@ const getSpecUSRCellContent = (
     }
 };
 
-
-/** 建立搜尋選項 */
-const buildSearchOptions = (map: Record<string, string>) =>
-{
-    return Object.entries(map).filter(([key]) => Boolean(key)).map(([value, title]) => ({ value, title: title || value }));
-};
-
-
-/** 將代碼轉成顯示文字 */
-const mapIdToText = (id: string | number | null | undefined, map: Record<string, string>): string =>
-{
-    const key = id == null ? "" : String(id);
-    return key ? (map[key] ?? key) : "";
-};
-
-
-/** 依表格與欄位代碼取得 ModelDisplayName 顯示文字 */
-const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, tableId: string, columnId: string, fallback: string): string =>
-{
-    const tables = modelDisplayName?.Tables ?? [];
-    const table = tables.find((item) => item.TableId === tableId);
-    const hit = table?.Columns?.find((item) => item.ColumnId === columnId);
-
-    return hit?.ColumnDisplayName ?? fallback;
-};
-
-
-/** 取得 SearchValue 的文字值 */
-const getSearchStringValue = (value: SearchValue): string | undefined =>
-{
-    if (typeof value !== "string") return undefined;
-
-    const text = value.trim();
-    return text.length > 0 ? text : undefined;
-};
 // #endregion

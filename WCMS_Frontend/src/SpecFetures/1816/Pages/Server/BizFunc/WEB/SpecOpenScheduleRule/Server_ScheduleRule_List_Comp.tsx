@@ -4,7 +4,6 @@ import {
 } from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Comp";
 import { Server_SearchBar_Comp } from "@/Features/Pages/Server/Scaffold/SearchBar/Server_SearchBar_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import type { ReactNode } from "react";
 import { useScheduleRuleListGridTemplate } from "./Server_ScheduleRule_List_Hook";
 
 // #region Public
@@ -13,13 +12,13 @@ export const Server_ScheduleRule_List_Comp = (prop: { title: string; theme: IBET
 {
     const template = useScheduleRuleListGridTemplate();
 
-    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} renderSearchBar={renderScheduleRuleSearchBar} />;
+    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} buildSearchBarNode={ScheduleRuleSearchBarSection} />;
 };
 // #endregion
 
-// #region EntityComp
+// #region Section
 /** 渲染開放規則列表搜尋列 */
-const renderScheduleRuleSearchBar = (props: ServerListGridSearchRenderProps): ReactNode =>
+const ScheduleRuleSearchBarSection = (props: ServerListGridSearchRenderProps) =>
 {
     return (
         <Server_SearchBar_Comp

@@ -12,8 +12,7 @@ type Msg = { type: "wcms:preview"; module: ModuleKey; payload: { kind: "dto"; la
 // #endregion
 
 // #region Public
-export default function TemplateHub(props: { site: any; defaultLang: string; })
-{
+export const TemplateHub = (props: { site: any; defaultLang: string; }) => {
     const { defaultLang } = props;
     const [state, setState] = useState<{ module: ModuleKey; lang: string; vm: any; } | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -60,28 +59,20 @@ export default function TemplateHub(props: { site: any; defaultLang: string; })
         case "announcement":
             // 先暫時用最簡渲染；打通後再換成 <AnnouncementPublicView vm={state.vm} preview />
             return (
-                <div className="p-4">PageManagement 預覽尚未接上 Content。</div>
-                // <SubPageShell
-                //   Style={Classic_FETheme}
-                //   Lang={'zh-tw'}
-                //   site={undefined}
-                //   node={undefined}               // ← 找到要預覽的那個模組節點（對應該內容會出現在哪個子頁）
-                // >
-                //   <>測試</>
-                //   {/* <AnnouncementPublicView vm={vm} preview /> */}
-                // </SubPageShell>
+                <div className="p-4">Announcement 預覽尚未接上 Content。</div>
             );
         case "pagemanagement":
             return <div className="p-4">PageManagement 預覽尚未接上 Content。</div>;
         default:
             return <div className="p-4">未知模組。</div>;
     }
-}
+};
 // #endregion
 
 // #region Private
 /** —— 以下兩個函式暫時用假資料打通；等你接 adapter —— */
-async function adaptDto(module: ModuleKey, dto: any, lang: string)
+/** 將預覽 DTO 轉成前台檢視資料 */
+const adaptDto = async (module: ModuleKey, dto: any, lang: string) =>
 {
     if (module === "announcement")
     {
@@ -93,7 +84,8 @@ async function adaptDto(module: ModuleKey, dto: any, lang: string)
 }
 
 
-async function fetchById(module: ModuleKey, internalId: string, lang: string, mode: "db" | "public")
+/** 依預覽識別碼取得前台檢視資料 */
+const fetchById = async (module: ModuleKey, internalId: string, lang: string, mode: "db" | "public") =>
 {
     const apiBase = import.meta.env.VITE_API_BASE_URL ?? "";
     if (module === "announcement")
@@ -115,5 +107,5 @@ async function fetchById(module: ModuleKey, internalId: string, lang: string, mo
         }
     }
     return {};
-}
+};
 // #endregion

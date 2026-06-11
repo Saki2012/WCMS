@@ -4,7 +4,7 @@ import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import logImg from "@/SpecFetures/1810/Assets/Client/images/logo/logo_450x80.svg";
 import subLogImg from "@/SpecFetures/1810/Assets/Client/images/logo/logo_M320_191x60.svg";
-import MenuListComp from "@/SysCore/Components/MenuList/MenuList_Comp";
+import { MenuListComp } from "@/SysCore/Components/MenuList/MenuList_Comp";
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
@@ -187,9 +187,6 @@ export const useLegacyMenuDOM = (menuRef: React.RefObject<HTMLUListElement>) =>
 // #endregion
 
 // #region Private
-export default Header;
-
-
 const GetMenuData = (lang: Lang, site: INormSite): MenuItemData[] =>
 {
     const roots = site.treeByLang?.[lang] ?? [];
@@ -379,7 +376,7 @@ const toggleHeaderMenu = (headerEl: HTMLElement) =>
     else openHeaderMenu(headerEl);
 };
 
-function useHeaderBehaviorRef(headerRef: React.RefObject<HTMLElement | null>, pathname: string, lang: Lang)
+const useHeaderBehaviorRef = (headerRef: React.RefObject<HTMLElement | null>, pathname: string, lang: Lang) =>
 {
     useEffect(() =>
     {

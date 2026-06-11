@@ -5,7 +5,6 @@ import React, { useMemo } from "react";
 import "./Sitemap.css";
 
 // #region Property
-
 /** Sitemap 這頁自己的虛擬路由節點 - 以下 */
 // 手動建立，路由節點定義、metadata、給 breadcrumb / routing / menu 用的資料，
 // 這部分也可以獨立出去一隻檔案，命名為SitemapNode.ts
@@ -52,7 +51,6 @@ export const Sitemap = (props: { lang: Lang; site: INormSite; includeHidden?: bo
         </>
     );
 };
-
 // #endregion
 
 // #region Section
@@ -237,7 +235,7 @@ const SiteMapSection = (props: { siteIndex: string; node: INormNode; }) =>
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 const renderNodeLink = (siteIndex: string, node: INormNode): React.ReactNode =>
 {
     // 依 node 型別輸出 Link（外連用 <a>，內連用 LangNavLink）

@@ -1,13 +1,13 @@
 // src/SysCore/Components/BreadCrumb/BreadCrumb_Comp.tsx
 import { type RouteHandleMeta } from "@/Features/Pages/Server/Scaffold/Routes/ServerRouter";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import BreadCrumbComp from "@/SysCore/Components/BreadCrumb/BreadCrumb_Comp";
+import { BreadCrumbComp } from "@/SysCore/Components/BreadCrumb/BreadCrumb_Comp";
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import React from "react";
 import { useMatches } from "react-router-dom";
 
 // #region Private
-const BreadCrumb = ({ theme }: { theme: IBETheme; }) =>
+export const BreadCrumb = ({ theme }: { theme: IBETheme; }) =>
 {
     // 1) 從當前匹配到的所有路由收集麵包屑文字
     const matches = useMatches();
@@ -28,7 +28,4 @@ const BreadCrumb = ({ theme }: { theme: IBETheme; }) =>
     // 2) 輸出 AA 友善的 <nav><ol>，最後一顆加 aria-current="page"
     return <BreadCrumbComp items={crumbs} style={theme.BreadCrumb}></BreadCrumbComp>;
 };
-
-
-export default BreadCrumb;
 // #endregion

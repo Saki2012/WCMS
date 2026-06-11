@@ -5,7 +5,6 @@ import {
 import { Server_SearchBar_Comp } from "@/Features/Pages/Server/Scaffold/SearchBar/Server_SearchBar_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { Lang } from "@/SysCore/i18n/lang";
-import type { ReactNode } from "react";
 import { useAnnouncementListGridTemplate } from "./Server_Announcement_List_Hook";
 
 // #region Public
@@ -14,13 +13,13 @@ export const Server_AnnouncementListComp = (prop: { title: string; theme: IBEThe
 {
     const template = useAnnouncementListGridTemplate({ lang: prop.lang });
 
-    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} renderSearchBar={renderAnnouncementSearchBar} />;
+    return <Server_ListGridTemplate_Comp Title={prop.title} Theme={prop.theme} template={template} buildSearchBarNode={AnnouncementSearchBarSection} />;
 };
 // #endregion
 
-// #region EntityComp
+// #region Section
 /** 渲染公告列表搜尋列 */
-const renderAnnouncementSearchBar = (props: ServerListGridSearchRenderProps): ReactNode =>
+const AnnouncementSearchBarSection = (props: ServerListGridSearchRenderProps) =>
 {
     return (
         <Server_SearchBar_Comp

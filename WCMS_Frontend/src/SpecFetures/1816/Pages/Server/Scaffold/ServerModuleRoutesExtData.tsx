@@ -5,7 +5,7 @@ import { Server_ScheduleRule_Form_Comp } from "../BizFunc/WEB/SpecOpenScheduleRu
 import { Server_ScheduleRule_List_Comp } from "../BizFunc/WEB/SpecOpenScheduleRule/Server_ScheduleRule_List_Comp";
 
 // #region Private
-const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] =>
+export const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] =>
 {
     const web = modules.find((m) => m.ModuleCode === ModuleCode.Dashboard);
     if (!web) return modules;
@@ -35,7 +35,4 @@ const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] =>
     web.Progs.push(prog);
     return modules;
 };
-
-
-export default extendServerModuleRoutes;
 // #endregion

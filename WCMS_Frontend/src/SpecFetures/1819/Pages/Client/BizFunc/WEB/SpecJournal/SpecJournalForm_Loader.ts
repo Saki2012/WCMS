@@ -2,15 +2,16 @@ import { SiteViewCountAdapter } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount
 import {
     buildClientDataQueryKey,
     buildClientDataQueryState,
-    useClientDataQueryTemplate,
+    buildClientLoaderInitial,
     type ClientDataQueryDataSourceResult,
     type ClientDataQueryTemplate,
+    useClientDataQueryTemplate,
 } from "@/Features/Pages/Client/Scaffold/DataQueryTemplate/Client_DataQueryTemplate_Hook";
 import { SpecJournalAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/WEB/SpecJournal_Api";
 import type { SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { IListViewState } from "@/SysCore/Interface/IListViewState";
 import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
-import { type ApiResponse, getSsrApi } from "@/SysCore/Utils/API/APIBase";
+import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import type { components } from "@/types/api";
 import {
     FileManageModelFields,
@@ -40,7 +41,6 @@ type QueryListParam = components["schemas"]["QueryListParam"];
 
 type SiteViewCountSet = components["schemas"]["SiteViewCountSet_DTO"];
 
-
 type SiteViewCountDetailRow = {
     ProgId?: string | null;
     TargetInternalId?: string | null;
@@ -50,9 +50,7 @@ type SiteViewCountDetailRow = {
     LinkClickCount?: number | null;
 };
 
-
 type SiteViewCountSetLike = SiteViewCountSet & { SiteViewCountDetail?: SiteViewCountDetailRow[] | null; };
-
 
 export interface SpecJournalFormLoaderArgs
 {
@@ -63,7 +61,6 @@ export interface SpecJournalFormLoaderArgs
     viewCountParam: QueryListParam;
 }
 
-
 export interface SpecJournalFormLoaderRes
 {
     countRes: number;
@@ -71,13 +68,11 @@ export interface SpecJournalFormLoaderRes
     viewCountRes: SiteViewCountSet[];
 }
 
-
 export interface SpecJournalFormLoaderData
 {
     args: SpecJournalFormLoaderArgs;
     res: SpecJournalFormLoaderRes;
 }
-
 
 export interface SpecJournalViewCountData
 {
@@ -86,7 +81,6 @@ export interface SpecJournalViewCountData
     fileDownloadCount: number;
     linkClickCount: number;
 }
-
 
 export interface UseSpecJournalFormDataResult
 {
@@ -99,9 +93,6 @@ export interface UseSpecJournalFormDataResult
     isLoading: boolean;
     errorList: string[];
 }
-
-
-
 
 type SpecJournalFormAdapter = { Journal: ReturnType<typeof SpecJournalAdapter>; ViewCount: ReturnType<typeof SiteViewCountAdapter>; };
 
@@ -154,7 +145,6 @@ export const SpecJournalForm_Loader = () => async ({ request, params }: LoaderFu
         res: { countRes: countLD.apiRes.Data ?? 0, listRes, viewCountRes: viewCountLD.apiRes.Data ?? [] },
     };
 };
-
 
 /** CSR Hook：Component 最後一行直接取 detail + viewCount */
 
@@ -271,14 +261,12 @@ const buildBaseParam = (journalId: string): QueryListParam =>
     };
 };
 
-
 /** 取得 detail 頁文章 internalId */
 const getSpecJournalInternalId = (rows: SpecJournalSet[]): string =>
 {
     // return
     return rows[0]?.SpecJournal?.InternalId ?? "";
 };
-
 
 /** 建立 site view count 查詢條件 */
 const buildViewCountCondition = (internalId: string): string =>
@@ -288,7 +276,6 @@ const buildViewCountCondition = (internalId: string): string =>
     // return
     return `${SiteViewCountHeaderModelFields._SiteViewCountDetail}.${SiteViewCountDetailModelFields.ProgId} = ${PGID.SpecJournal} And ${SiteViewCountHeaderModelFields._SiteViewCountDetail}.${SiteViewCountDetailModelFields.TargetInternalId} = ${value}`;
 };
-
 
 /** 建立 site view count 查詢參數 */
 const buildViewCountQuery = (internalId: string): QueryListParam =>
@@ -309,29 +296,14 @@ const buildViewCountQuery = (internalId: string): QueryListParam =>
     };
 };
 
-
-/** 建立 loader initial 資料 */
-const buildLoaderInitial = <TArgs, TData>(args: TArgs, data: TData): ApiLoaderData<TArgs, TData> =>
-{
-    const apiRes: ApiResponse<TData> = { IsSuccess: true, Data: data, SysMessage: [] };
-
-    // return
-    return { args, apiRes };
-};
-
-
 /** 比對目前參數是否可沿用 loader 初始值 */
 const matchInitialArgs = <TArgs, TData>(currentArgs: TArgs, initialArgs: TArgs, initialData: TData): ApiLoaderData<TArgs, TData> | null =>
 {
     const currentKey = JSON.stringify(currentArgs ?? null);
     const initialKey = JSON.stringify(initialArgs ?? null);
-
     if (currentKey !== initialKey) return null;
-
-    // return
-    return buildLoaderInitial(initialArgs, initialData);
+    return buildClientLoaderInitial(initialArgs, initialData);
 };
-
 
 /** 取得 site view detail rows */
 const getSiteViewCountDetails = (item: SiteViewCountSet): SiteViewCountDetailRow[] =>
@@ -343,7 +315,6 @@ const getSiteViewCountDetails = (item: SiteViewCountSet): SiteViewCountDetailRow
     // return
     return detailRows;
 };
-
 
 /** 彙整瀏覽相關統計 */
 const buildViewCountData = (rows: SiteViewCountSet[]): SpecJournalViewCountData =>
@@ -367,7 +338,6 @@ const buildViewCountData = (rows: SiteViewCountSet[]): SpecJournalViewCountData 
     return result;
 };
 
-
 /** 建立 detail loader / hook 共用查詢狀態 */
 const buildSpecJournalFormQueryState = (args: SpecJournalFormLoaderArgs) =>
 {
@@ -379,7 +349,6 @@ const buildSpecJournalFormQueryState = (args: SpecJournalFormLoaderArgs) =>
     // return
     return buildClientDataQueryState(template, searchValues, viewState);
 };
-
 
 /** 建立 SpecJournal Form DataQuery Template */
 const createSpecJournalFormDataQueryTemplate = (args: SpecJournalFormLoaderArgs): SpecJournalFormTemplate =>
@@ -399,7 +368,6 @@ const createSpecJournalFormDataQueryTemplate = (args: SpecJournalFormLoaderArgs)
         },
     };
 };
-
 
 /** DataSource：用 Template 統一接文章 detail 與 viewCount */
 const useSpecJournalFormDataSource = (

@@ -403,7 +403,7 @@ export const CarouselData = (props: CarouselDataProps) =>
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 const buildBannerSetting = (banner: BannerSet | null) =>
 {
     // 宣告變數：後端 interval 為秒，前端轉 ms
@@ -419,13 +419,11 @@ const buildBannerSetting = (banner: BannerSet | null) =>
     };
 };
 
-
 const buildIdleItemClass = (itemIndex: number, activeIndex: number): string =>
 {
     // return：非動畫中 class
     return clsx("carousel-item", itemIndex === activeIndex ? "active" : "");
 };
-
 
 const buildSlidingItemClass = (itemIndex: number, activeIndex: number, slideState: SlideState): string =>
 {
@@ -464,7 +462,6 @@ const buildSlidingItemClass = (itemIndex: number, activeIndex: number, slideStat
     // return：保底
     return "carousel-item";
 };
-
 
 const buildItemClass = (itemIndex: number, activeIndex: number, slideState: SlideState | null): string =>
 {

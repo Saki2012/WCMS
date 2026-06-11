@@ -4,7 +4,7 @@ import { getSiteHeaderMeta } from "@/Features/Pages/AppRoute";
 import type { ClientDataQuerySearchBarModel } from "@/Features/Pages/Client/Scaffold/DataQueryTemplate/Client_DataQueryTemplate_Hook";
 import { Client_SearchBar_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/SearchBar/Client_SearchBar_Comp";
 import { HeaderMetaComp, type IHeaderMetaProps } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";
-import LoadingErrorHandler from "@/SysCore/Components/LoadingErrorHandler";
+import { LoadingErrorHandler } from "@/SysCore/Components/LoadingErrorHandler";
 import { NewPaginatorCanInputPage } from "@/SysCore/Components/Paginator/Paginator_Comp";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import { type Lang, SUPPORTED_LANGS } from "@/SysCore/i18n/lang";
@@ -151,24 +151,6 @@ export const ModuleContent = (props: ModuleContentProps) =>
 };
 // #endregion
 
-// #region Protected
-/** 建立模組內容所需狀態與瀏覽次數行為。 */
-const useModuleContentState = (props: ModuleContentProps): ModuleContentState =>
-{
-    const siteHeaderMeta = getSiteHeaderMeta();
-    const ctx = useLang();
-    const lang = LibRouteLang.normalizeRouteLang(ctx.code);
-    const loc = useLocation();
-    const origin = typeof window !== "undefined" ? window.location.origin : "";
-    const fullTitle = LibText.mergeText("｜", {}, siteHeaderMeta.title, props.nodeTitle, props.title);
-    const canonicalUrl = origin ? `${origin}${loc.pathname}` : undefined;
-    const alternates = buildModuleAlternates(origin, loc.pathname);
-    const detailViewCountOptions = useMemo(() => buildDetailViewCountOptions(props.viewCountConfig), [props.viewCountConfig]);
-    useFormDetailViewCount(detailViewCountOptions);
-    return { lang, fullTitle, description: siteHeaderMeta.description, canonicalUrl, alternates };
-};
-// #endregion
-
 // #region Section
 /** 建立模組 Header Meta。
  */
@@ -226,6 +208,24 @@ const ModuleContentSubTitle = (props: SubTitleProps) =>
             </div>
         </div>
     );
+};
+// #endregion
+
+// #region Protected
+/** 建立模組內容所需狀態與瀏覽次數行為。 */
+const useModuleContentState = (props: ModuleContentProps): ModuleContentState =>
+{
+    const siteHeaderMeta = getSiteHeaderMeta();
+    const ctx = useLang();
+    const lang = LibRouteLang.normalizeRouteLang(ctx.code);
+    const loc = useLocation();
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const fullTitle = LibText.mergeText("｜", {}, siteHeaderMeta.title, props.nodeTitle, props.title);
+    const canonicalUrl = origin ? `${origin}${loc.pathname}` : undefined;
+    const alternates = buildModuleAlternates(origin, loc.pathname);
+    const detailViewCountOptions = useMemo(() => buildDetailViewCountOptions(props.viewCountConfig), [props.viewCountConfig]);
+    useFormDetailViewCount(detailViewCountOptions);
+    return { lang, fullTitle, description: siteHeaderMeta.description, canonicalUrl, alternates };
 };
 // #endregion
 

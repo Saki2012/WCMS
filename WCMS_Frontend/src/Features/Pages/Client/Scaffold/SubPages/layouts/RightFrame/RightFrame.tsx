@@ -20,7 +20,7 @@ interface IRightFrameProps
 // #endregion
 
 // #region Private
-const RightFrame = (props: IRightFrameProps) =>
+export const RightFrame = (props: IRightFrameProps) =>
 {
     // 判斷是否需要預留左側選單寬度
     const hasSubMenu = props.node.pageType === 0 && ((props.node.level ?? 0) > 0 || (props.node.children?.length ?? 0) > 0);
@@ -38,5 +38,4 @@ const RightFrame = (props: IRightFrameProps) =>
         </div>
     );
 };
-export default RightFrame;
 // #endregion

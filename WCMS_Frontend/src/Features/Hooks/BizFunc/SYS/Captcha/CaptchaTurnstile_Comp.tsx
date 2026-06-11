@@ -1,4 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
+
 // #region Property
 type TurnstileTheme = "auto" | "light" | "dark";
 type TurnstileSize = "normal" | "compact" | "flexible";
@@ -135,7 +136,7 @@ export const CaptchaTurnstile_Comp = (props: CaptchaTurnstileProps) =>
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /** 建立 Turnstile script 標籤 */
 const buildTurnstileScript = (nonce?: string): HTMLScriptElement =>
 {

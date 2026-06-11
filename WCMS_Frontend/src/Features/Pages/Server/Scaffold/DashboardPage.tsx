@@ -1,7 +1,7 @@
-import FooterComp from "@/Features/Pages/Server/Scaffold/Footer/Footer_Comp";
-import BreadCrumb from "@/Features/Pages/Server/Scaffold/Menu/BreadCrumb/BreadCrumb_Comp";
-import NavibarMenu from "@/Features/Pages/Server/Scaffold/Menu/NaviBar/NaviBar_Comp";
-import SidebarMenu from "@/Features/Pages/Server/Scaffold/Menu/SideMenu/SideMenu_Comp";
+import { FooterComp } from "@/Features/Pages/Server/Scaffold/Footer/Footer_Comp";
+import { BreadCrumb } from "@/Features/Pages/Server/Scaffold/Menu/BreadCrumb/BreadCrumb_Comp";
+import { NavibarMenu } from "@/Features/Pages/Server/Scaffold/Menu/NaviBar/NaviBar_Comp";
+import { SidebarMenu } from "@/Features/Pages/Server/Scaffold/Menu/SideMenu/SideMenu_Comp";
 import { type RouteHandleMeta } from "@/Features/Pages/Server/Scaffold/Routes/ServerRouter";
 import { ToastViewport_Comp } from "@/Features/Pages/Server/Scaffold/Toast/ToastViewport_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
@@ -46,8 +46,4 @@ export const DashboardPage = ({ theme }: { theme: IBETheme; }) =>
         </>
     );
 };
-// #endregion
-
-// #region Private
-export default DashboardPage;
 // #endregion

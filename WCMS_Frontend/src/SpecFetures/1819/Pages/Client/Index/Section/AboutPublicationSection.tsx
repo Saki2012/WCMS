@@ -214,7 +214,4 @@ const getIssueImage = (banner: BannerSet | null, idx: number, lang: Lang) =>
     const src = FileManagementAPI.get_Public_Preview_Url(detail?.PicSrcId, title);
     return { title, src };
 };
-
-
-export default AboutPublicationSection;
 // #endregion

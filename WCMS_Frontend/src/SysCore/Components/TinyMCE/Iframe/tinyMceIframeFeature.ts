@@ -8,17 +8,9 @@ import {
     validateIframeSrc,
 } from "./tinyMceIframeUtils";
 
+// #region Public
 type InsertIframeDialogData = { url?: string; title?: string; width?: string; height?: string; };
 type EditIframeDialogData = { src: string; "data-mce-src": string; title: string; width: string; height: string; };
-
-const isIframeObjectWrapper = (editor: TinyMCEEditor, node: Node) =>
-{
-    const el = node as HTMLElement;
-    return editor.dom.hasClass(el, "mce-preview-object")
-        || editor.dom.hasClass(el, "mce-object")
-        || editor.dom.hasClass(el, "mce-object-iframe")
-        || node.nodeName === "FIGURE";
-};
 
 export const openInsertIframeDialog = (ed: TinyMCEEditor) =>
 {
@@ -94,8 +86,8 @@ export const useTinyMceIframeEdit = (): TinySetup =>
     {
         const ifr = resolveIframeElm(editor, node);
         const dom = editor.dom;
-        const wrapper = ifr ? dom.getParent(ifr, (n: Node) => isIframeObjectWrapper(editor, n)) : null;
-
+        const wrapperNode = ifr ? dom.getParent(ifr, (n: Node) => isIframeObjectWrapper(editor, n)) : null;
+        const wrapper = isElementNode(wrapperNode) ? wrapperNode : null;
         const data: EditIframeDialogData = {
             src: node.getAttribute("src") || "",
             "data-mce-src": node.getAttribute("src") || "",
@@ -161,7 +153,8 @@ export const useTinyMceIframeEdit = (): TinySetup =>
                     dom.setStyle(ifr, "max-width", "100%");
                     dom.setStyle(ifr, "border", "0");
 
-                    const wrapper = dom.getParent(ifr, (n: Node) => isIframeObjectWrapper(editor, n));
+                    const wrapperNode = dom.getParent(ifr, (n: Node) => isIframeObjectWrapper(editor, n));
+                    const wrapper = isElementNode(wrapperNode) ? wrapperNode : null;
 
                     if (wrapper)
                     {
@@ -244,3 +237,21 @@ export const useTinyMceIframeEdit = (): TinySetup =>
 
     return { setup };
 };
+// #endregion
+
+// #region Private
+const isIframeObjectWrapper = (editor: TinyMCEEditor, node: Node) =>
+{
+    const el = node as HTMLElement;
+    return editor.dom.hasClass(el, "mce-preview-object")
+        || editor.dom.hasClass(el, "mce-object")
+        || editor.dom.hasClass(el, "mce-object-iframe")
+        || node.nodeName === "FIGURE";
+};
+
+/** 判斷節點是否為 TinyMCE DOM API 可操作的 Element。 */
+const isElementNode = (node: Node | null): node is Element =>
+{
+    return node?.nodeType === 1;
+};
+// #endregion

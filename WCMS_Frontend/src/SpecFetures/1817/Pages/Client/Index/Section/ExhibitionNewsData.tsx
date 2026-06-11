@@ -13,6 +13,13 @@ import { useEffect, useMemo } from "react";
 
 import { findTextByKey } from "@/SysCore/Utils/Library/LibData";
 
+import {
+    buildClientCategoryTextDict as buildCategoryDict,
+    buildClientListInitial as toListInitial,
+    buildClientTagTextDict as buildTagDict,
+} from "@/Features/Pages/Client/Index/HomePage_Helper";
+import { formatDateParts as formatDate } from "@/SysCore/Utils/Library/LibData";
+
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
@@ -21,7 +28,6 @@ type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"];
 
 type TagSet = components["schemas"]["TagSet_DTO"];
-
 
 interface ExhibitionNewsDataProps
 {
@@ -33,7 +39,6 @@ interface ExhibitionNewsDataProps
     initialCategories: CategoryDataSet[];
     initialTags: TagSet[];
 }
-
 
 interface NewsItemViewModel
 {
@@ -52,9 +57,7 @@ interface NewsItemViewModel
     pictureId: string;
 }
 
-
 type OwlResponsiveOption = { items: number; };
-
 
 type OwlCarouselOptions = {
     items: number;
@@ -68,12 +71,9 @@ type OwlCarouselOptions = {
     responsive: Record<number, OwlResponsiveOption>;
 };
 
-
 type OwlJQueryElement = JQuery<HTMLElement> & { owlCarousel: (options: OwlCarouselOptions) => OwlJQueryElement; };
 
-
 type JQueryGlobal = Window & typeof globalThis & { $?: JQueryStatic; jQuery?: JQueryStatic; };
-
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 // #endregion
@@ -234,70 +234,18 @@ export const ExhibitionNewsData = (props: ExhibitionNewsDataProps) =>
 };
 // #endregion
 
-// #region EntityComp
-const buildCategoryDict = (rows: CategoryDataSet[], lang: Lang): Record<string, string> =>
-{
-    // return：分類 id -> 名稱
-    return rows.reduce<Record<string, string>>((acc, row) =>
-    {
-        const id = row.Category?.CategoryId;
-        if (!id) return acc;
-
-        const name = findTextByKey(row.CategoryDetail, (item) => item?.Lang, lang, (item) => item?.CategoryName);
-
-        acc[String(id)] = name;
-        return acc;
-    }, {});
-};
-
-
-const buildTagDict = (rows: TagSet[], lang: Lang): Record<string, string> =>
-{
-    // return：標籤 id -> 名稱
-    return rows.reduce<Record<string, string>>((acc, row) =>
-    {
-        const id = row.TagData?.TagId;
-        if (!id) return acc;
-
-        const name = findTextByKey(row.TagDetail, (item) => item?.Lang, lang, (item) => item?.TagName);
-
-        acc[String(id)] = name;
-        return acc;
-    }, {});
-};
-// #endregion
-
 // #region Private
-const toListInitial = <TArgs, TItem>(args: TArgs, data: TItem[]) =>
-{
-    // return：符合 adapter hook 的 initial 結構
-    return { args, apiRes: { IsSuccess: true, Data: data, SysMessage: [] } };
-};
-
-
-const formatDate = (dateStr: string) =>
-{
-    // 宣告變數：日期
-    const date = new Date(dateStr);
-
-    // return：首頁列表顯示格式
-    return { day: date.getDate().toString().padStart(2, "0"), month: (date.getMonth() + 1).toString().padStart(2, "0"), year: date.getFullYear().toString() };
-};
-
-
 const splitCsvIds = (value: string | null | undefined): string[] =>
 {
     // return：把 csv id 字串拆成陣列
     return (value ?? "").split(",").map((item) => item.trim()).filter(Boolean);
 };
 
-
 const joinDisplayNames = (ids: string[], dict: Record<string, string>): string =>
 {
     // return：依字典把 id 轉成顯示名稱
     return ids.map((id) => dict[id] ?? "").filter(Boolean).join(", ");
 };
-
 
 const getNewsDataProps = (
     newsData: AnnouncementSet[],
@@ -337,7 +285,6 @@ const getNewsDataProps = (
     });
 };
 
-
 const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: number = 8): boolean =>
 {
     // 宣告變數：缺值直接不是最新
@@ -360,14 +307,12 @@ const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: numb
     return diffDays >= 0 && diffDays <= n;
 };
 
-
 const resolvePictureUrl = (pictureId: string, title: string): string =>
 {
     // return：有圖用 preview，沒圖用預設圖
     if (!pictureId) return defaultPic;
     return FileManagementAPI.get_Public_Preview_Url(pictureId, title);
 };
-
 
 const getJQuery = (): JQueryStatic | null =>
 {
@@ -377,7 +322,6 @@ const getJQuery = (): JQueryStatic | null =>
     const jqWindow = window as JQueryGlobal;
     return jqWindow.jQuery ?? jqWindow.$ ?? null;
 };
-
 
 const initOwlCarousel = ($owl: OwlJQueryElement): void =>
 {
@@ -394,7 +338,6 @@ const initOwlCarousel = ($owl: OwlJQueryElement): void =>
         responsive: { 0: { items: 2 }, 575: { items: 2 }, 767: { items: 2 }, 991: { items: 3 }, 1199: { items: 3 } },
     });
 };
-
 
 const updateToggleButton = ($toggle: JQuery<HTMLElement>, isPlaying: boolean): void =>
 {
@@ -421,7 +364,6 @@ const updateToggleButton = ($toggle: JQuery<HTMLElement>, isPlaying: boolean): v
     $srText.text("圖片輪播已暫停，點擊播放");
 };
 
-
 const useExhibitionList = (props: { listParam: QueryListParam; initialList: AnnouncementSet[]; }) =>
 {
     // 宣告變數：adapter / initial
@@ -438,7 +380,6 @@ const useExhibitionList = (props: { listParam: QueryListParam; initialList: Anno
         deps: [props.listParam.Condition ?? "", props.listParam.PageNumber ?? 0, props.listParam.PageSize ?? 0],
     });
 };
-
 
 const useCategoryTagDict = (
     props: { lang: Lang; cateParam: QueryListParam; tagParam: QueryListParam; initialCategories: CategoryDataSet[]; initialTags: TagSet[]; },
@@ -477,7 +418,6 @@ const useCategoryTagDict = (
     // return：畫面對照字典
     return { categoryDict, tagDict };
 };
-
 
 const GetData = ({ prop }: { prop: NewsItemViewModel[]; }) =>
 {
@@ -529,9 +469,7 @@ const GetData = ({ prop }: { prop: NewsItemViewModel[]; }) =>
                                             </div>
 
                                             <div className="CustomState">
-                                                {isWithinLastNDaysFromMD(Number(item.monthNum), Number(item.date)) && (
-                                                    <span className="label icon-small label-warning">最新</span>
-                                                )}
+                                                {isWithinLastNDaysFromMD(Number(item.monthNum), Number(item.date)) && <span className="label icon-small label-warning">最新</span>}
 
                                                 {item.contentStatus !== 0 && (
                                                     <>

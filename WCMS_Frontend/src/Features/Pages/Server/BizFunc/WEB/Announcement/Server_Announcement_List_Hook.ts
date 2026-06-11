@@ -20,6 +20,12 @@ import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { AccountFields, AnnouncementDetailFields, AnnouncementFields, PGID } from "@/types/SchemaFields";
 import { createElement, Fragment, type ReactNode, useCallback, useMemo } from "react";
 import { type NavigateFunction, useLocation, useNavigate } from "react-router-dom";
+import {
+    getServerColumnTitle as getColumnTitle,
+    getServerSearchStringValue as getSearchStringValue,
+    buildServerListSelectOptions as buildCategorySearchOptions,
+    buildServerListColumns,
+} from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Helper";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
@@ -268,11 +274,6 @@ const buildAnnouncementQueryParam = (ctx: { searchParams: AnnouncementSearchPara
     };
 };
 
-/** 建立分類下拉搜尋選項 */
-const buildCategorySearchOptions = (categoryMap: Record<string, string>): SearchFieldConfig["options"] =>
-{
-    return Object.entries(categoryMap).map(([value, title]) => ({ value, title: title || value }));
-};
 
 /** 將公告資料轉為 GridProps */
 const buildAnnouncementGridProps = (
@@ -296,7 +297,7 @@ const buildAnnouncementGridProps = (
         AnnouncementFields.ModifyTime,
     ];
 
-    const columns = buildColumns(visibleCols, opt.raw);
+    const columns = buildServerListColumns(visibleCols, opt.raw.modelDisplayName);
     const rows = buildAnnouncementRows(opt.raw, opt.lang, columns);
     const baseGrid: GridProps = { columns, rows, CurrentPage: opt.raw.pageNumber ?? 1, TotalPage: opt.raw.totalPages ?? 1, onPageChange: opt.raw.onPageChange };
 
@@ -343,15 +344,6 @@ const enhanceAnnouncementGrid = (
     });
 };
 
-/** 建立公告列表欄位定義 */
-const buildColumns = (visibleCols: string[], raw: AnnouncementListRawData): ColumnConfig[] =>
-{
-    return visibleCols.map((col) =>
-    {
-        const title = getColumnTitle(raw.modelDisplayName, col, `【${col}】`);
-        return { key: col, title };
-    });
-};
 
 /** 建立公告列表列資料 */
 const buildAnnouncementRows = (raw: AnnouncementListRawData, lang: Lang, columns: ColumnConfig[]): GridRow[] =>
@@ -393,20 +385,6 @@ const mapIdsToText = (ids: string | null | undefined, map: Record<string, string
     );
 };
 
-/** 依欄位代碼取得 ModelDisplayName 顯示文字 */
-const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, columnId: string, fallback: string): string =>
-{
-    const tables = modelDisplayName?.Tables ?? [];
-    const hit = tables.flatMap((t) => t.Columns ?? []).find((c) => c.ColumnId === columnId);
-    return hit?.ColumnDisplayName ?? fallback;
-};
 
-/** 取得 SearchValue 的文字值 */
-const getSearchStringValue = (value: unknown): string | undefined =>
-{
-    if (typeof value !== "string") return undefined;
 
-    const text = value.trim();
-    return text.length > 0 ? text : undefined;
-};
 // #endregion

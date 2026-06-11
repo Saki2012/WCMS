@@ -5,7 +5,6 @@ import {
 import { Server_SearchBar_Comp } from "@/Features/Pages/Server/Scaffold/SearchBar/Server_SearchBar_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
-import type { ReactNode } from "react";
 import { usePersonListGridTemplate } from "./Server_Person_List_Hook";
 
 // #region Public
@@ -15,13 +14,13 @@ export const Server_Person_List_Comp = (prop: { title?: string; theme: IBETheme;
     const lang = prop.lang ?? DefaultLang;
     const template = usePersonListGridTemplate({ lang });
 
-    return <Server_ListGridTemplate_Comp Title={prop.title ?? "人員列表"} Theme={prop.theme} template={template} renderSearchBar={renderPersonSearchBar} />;
+    return <Server_ListGridTemplate_Comp Title={prop.title ?? "人員列表"} Theme={prop.theme} template={template} buildSearchBarNode={PersonSearchBarSection} />;
 };
 // #endregion
 
-// #region EntityComp
+// #region Section
 /** 渲染人員列表搜尋列 */
-const renderPersonSearchBar = (props: ServerListGridSearchRenderProps): ReactNode =>
+const PersonSearchBarSection = (props: ServerListGridSearchRenderProps) =>
 {
     return (
         <Server_SearchBar_Comp

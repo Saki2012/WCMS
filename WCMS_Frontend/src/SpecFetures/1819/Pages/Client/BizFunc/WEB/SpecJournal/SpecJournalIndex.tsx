@@ -1,17 +1,16 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
+import { ModuleContent, type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import { SpecJournalKeywordSearch_Comp } from "@/SpecFetures/1819/Pages/Client/BizFunc/WEB/SpecJournal/SpecJournalKeywordSearchComp";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import type { components } from "@/types/api";
 import clsx from "clsx";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useSpecJournalIndexData } from "./SpecJournalIndex_Loader";
 
 // #region Property
 type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
-
 
 const ACCORDION_ANIMATION_MS = 280;
 // #endregion
@@ -41,9 +40,9 @@ export const SpecJournalIndex = (props: { site: INormSite; node: INormNode; lang
 
 // #region EntityComp
 /** ===== Helpers (放 component 外面，方便 code review 後續整理) ===== */
+// #endregion
 
-
-
+// #region Protected
 const buildCollapseIds = (year: string) =>
 {
     // 宣告變數
@@ -62,7 +61,6 @@ const handleAccordionKeyDown = (e: React.KeyboardEvent<HTMLAnchorElement>, onTog
     onToggle();
 };
 
-
 const stopAccordionTimer = (el: HTMLDivElement): void =>
 {
     // 宣告變數：取出 timer id
@@ -72,7 +70,6 @@ const stopAccordionTimer = (el: HTMLDivElement): void =>
     // 執行 function：清掉暫存 timer
     delete el.dataset.timerId;
 };
-
 
 const syncAccordionPanel = (el: HTMLDivElement, isOpen: boolean): void =>
 {
@@ -86,7 +83,6 @@ const syncAccordionPanel = (el: HTMLDivElement, isOpen: boolean): void =>
     el.style.opacity = "";
     el.style.display = isOpen ? "block" : "none";
 };
-
 
 const animateAccordionPanel = (el: HTMLDivElement, isOpen: boolean): void =>
 {
@@ -159,9 +155,6 @@ const animateAccordionPanel = (el: HTMLDivElement, isOpen: boolean): void =>
 
     el.dataset.timerId = String(timerId);
 };
-
-
-
 
 const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalIndexSet[]; lang: Lang; }) =>
 {

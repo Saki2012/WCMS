@@ -5,11 +5,11 @@ import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import { LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
-import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
+import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import { type Lang, LangLabelMap, useEnsureLangDetails } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { type PGID, TagDataFields, TagDetailFields, TagSetFields } from "@/types/SchemaFields";
 import { useMemo } from "react";
@@ -71,14 +71,14 @@ const TagEditComp = (props: { theme: IBETheme; formData: UseFetchFormDataResult<
         Style: props.theme.Tabs,
         item: rawDetails.reduce<Record<string, string>>((tabItems, info) =>
         {
-            const langKey = LibMerge("_", true, info.TagId, info.RowId, info.Lang);
+            const langKey = LibText.Merge("_", true, info.TagId, info.RowId, info.Lang);
             tabItems[langKey] = LangLabelMap[info.Lang as Lang] ?? info.Lang ?? "Unknown";
             return tabItems;
         }, {}),
     };
     const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>((compMap, info) =>
     {
-        const langKey = LibMerge("_", true, info.TagId, info.RowId, info.Lang);
+        const langKey = LibText.Merge("_", true, info.TagId, info.RowId, info.Lang);
         const rowKeys = { [TagDetailFields.TagId]: info.TagId, [TagDetailFields.RowId]: info.RowId };
         compMap[langKey] = [
             <LibTextBox
@@ -108,9 +108,7 @@ const TagListComp = (prop: { theme: IBETheme; tagSets: TagSet[]; lang: Lang; act
                                 <LangLink
                                     to={`${dirPath}/${item.TagData?.InternalId}`}
                                     className="form-check-label"
-                                    aria-label={`前往 ${
-                                        item.TagDetail?.find(p => p.Lang === prop.lang)?.TagName
-                                    } 詳細頁`}
+                                    aria-label={`前往 ${item.TagDetail?.find(p => p.Lang === prop.lang)?.TagName} 詳細頁`}
                                 >
                                     <span className="check-txt">{item.TagDetail?.find(p => p.Lang === prop.lang)?.TagName}</span>
                                 </LangLink>
@@ -127,6 +125,6 @@ const TagListComp = (prop: { theme: IBETheme; tagSets: TagSet[]; lang: Lang; act
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 const buildEmptyTagSet = (progId: string): TagSet => ({ TagData: { ProgId: progId }, TagDetail: [] });
 // #endregion

@@ -9,7 +9,7 @@ interface DeleteButtonProps
 // #endregion
 
 // #region Private
-const DeleteButton: FC<DeleteButtonProps> = ({ id, onDelete }) =>
+export const DeleteButton: FC<DeleteButtonProps> = ({ id, onDelete }) =>
 {
     const handleDelete = async () =>
     {
@@ -32,7 +32,4 @@ const DeleteButton: FC<DeleteButtonProps> = ({ id, onDelete }) =>
         </button>
     );
 };
-
-
-export default DeleteButton;
 // #endregion

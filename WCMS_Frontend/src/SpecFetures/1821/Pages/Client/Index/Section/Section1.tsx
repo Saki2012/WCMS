@@ -1,6 +1,7 @@
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import { LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { useState } from "react";
 
@@ -24,58 +25,62 @@ export const Section1 = (props: { lang: Lang; data: BannerModel[]; }) =>
 
     return (
         <section className="spec1821-banner" aria-label="首頁主視覺輪播">
-            <div className="spec1821-banner__media">{renderBannerMedia(activeItem, props.lang)}</div>
-            {renderBannerText(activeItem)}
-            {banners.length > 1 && renderBannerControls({ banners, safeIndex, onPrev: handlePrev, onNext: handleNext, onSelect: setActiveIndex })}
+            <div className="spec1821-banner__media"><BannerMediaSection item={activeItem} lang={props.lang} /></div>
+            <BannerCaptionSection item={activeItem} />
+            {banners.length > 1 && <BannerControlsSection banners={banners} safeIndex={safeIndex} onPrev={handlePrev} onNext={handleNext} onSelect={setActiveIndex} />}
         </section>
     );
 };
 // #endregion
 
-// #region EntityComp
-/** 渲染 Banner 圖片或連結 */
-const renderBannerMedia = (item: BannerModel, lang: Lang) =>
+// #region Section
+/** Banner 圖片或連結區塊 */
+const BannerMediaSection = (props: { item: BannerModel; lang: Lang; }) =>
 {
-    const image = <img src={FileManagementAPI.get_Public_Preview_Url(item.BannerFileId)} alt={getBannerAlt(item)} />;
-    if (!hasLink(item.Link)) return image;
+    const image = <img src={FileManagementAPI.get_Public_Preview_Url(props.item.BannerFileId)} alt={getBannerAlt(props.item)} />;
+    if (!LibText.isNonEmptyString(props.item.Link)) return image;
 
     return (
-        <LangLink to={item.Link ?? ""} lang={lang} title={item.Title ?? ""} aria-label={getBannerLinkLabel(item)}>
+        <LangLink to={props.item.Link ?? ""} lang={props.lang} title={props.item.Title ?? ""} aria-label={getBannerLinkLabel(props.item)}>
             {image}
         </LangLink>
     );
 };
 
-/** 渲染 Banner 文字 */
-const renderBannerText = (item: BannerModel) =>
+/** Banner 文字區塊 */
+const BannerCaptionSection = (props: { item: BannerModel; }) =>
 {
-    if (!item.Title && !item.SubTitle) return null;
+    if (!props.item.Title && !props.item.SubTitle) return null;
 
     return (
         <div className="spec1821-banner__caption">
-            {item.SubTitle && <div className="spec1821-banner__subtitle">{item.SubTitle}</div>}
-            {item.Title && <h2 className="spec1821-banner__title">{item.Title}</h2>}
+            {props.item.SubTitle && <div className="spec1821-banner__subtitle">{props.item.SubTitle}</div>}
+            {props.item.Title && <h2 className="spec1821-banner__title">{props.item.Title}</h2>}
         </div>
     );
 };
 
-/** 渲染 Banner 控制列 */
-const renderBannerControls = (p: { banners: BannerModel[]; safeIndex: number; onPrev: () => void; onNext: () => void; onSelect: (index: number) => void; }) =>
+/** Banner 控制列區塊 */
+const BannerControlsSection = (props: { banners: BannerModel[]; safeIndex: number; onPrev: () => void; onNext: () => void; onSelect: (index: number) => void; }) =>
 {
     return (
         <div className="spec1821-banner__controls" aria-label="Banner控制列">
-            <button type="button" onClick={p.onPrev} aria-label="上一張 Banner">‹</button>
-            {p.banners.map((item, index) => renderIndicator({ item, index, active: index === p.safeIndex, onSelect: p.onSelect }))}
-            <button type="button" onClick={p.onNext} aria-label="下一張 Banner">›</button>
+            <button type="button" onClick={props.onPrev} aria-label="上一張 Banner">‹</button>
+            {props.banners.map((item, index) => (
+                <BannerIndicator key={`${item.HomePageId}-${item.RowId}`} item={item} index={index} active={index === props.safeIndex} onSelect={props.onSelect} />
+            ))}
+            <button type="button" onClick={props.onNext} aria-label="下一張 Banner">›</button>
         </div>
     );
 };
+// #endregion
 
-/** 渲染 Banner 指示鈕 */
-const renderIndicator = (p: { item: BannerModel; index: number; active: boolean; onSelect: (index: number) => void; }) =>
+// #region EntityComp
+/** Banner 指示鈕 */
+const BannerIndicator = (props: { item: BannerModel; index: number; active: boolean; onSelect: (index: number) => void; }) =>
 {
-    const title = p.item.Title || `第 ${p.index + 1} 張 Banner`;
-    return <button key={`${p.item.HomePageId}-${p.item.RowId}`} type="button" aria-label={`切換至${title}`} aria-current={p.active} onClick={() => p.onSelect(p.index)} />;
+    const title = props.item.Title || `第 ${props.index + 1} 張 Banner`;
+    return <button type="button" aria-label={`切換至${title}`} aria-current={props.active} onClick={() => props.onSelect(props.index)} />;
 };
 // #endregion
 
@@ -97,12 +102,6 @@ const getPrevIndex = (index: number, total: number) =>
 const getNextIndex = (index: number, total: number) =>
 {
     return total <= 1 ? 0 : (index + 1) % total;
-};
-
-/** 判斷是否有連結 */
-const hasLink = (link?: string | null) =>
-{
-    return !!link?.trim();
 };
 
 /** 取得 Banner 圖片替代文字 */

@@ -3,7 +3,7 @@ import { PGID } from "@/types/SchemaFields";
 import { Server_HomePage1820_Form_Comp } from "../BizFunc/WEB/HomePageSetting/Server_HomePageSetting_Form_Comp";
 
 // #region Private
-const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] =>
+export const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] =>
 {
     const web = modules.find((m) => m.ModuleCode === "WebManagement");
     if (!web) return modules;
@@ -41,7 +41,4 @@ const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] =>
     // web.Progs.push(prog);
     return modules;
 };
-
-
-export default extendServerModuleRoutes;
 // #endregion

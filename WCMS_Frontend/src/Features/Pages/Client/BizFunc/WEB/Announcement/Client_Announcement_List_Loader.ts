@@ -2,6 +2,7 @@ import { CategoryAdapter } from "@/Features/Hooks/BizFunc/COMM/Category_Api";
 import { TagAdapter } from "@/Features/Hooks/BizFunc/COMM/Tag_Api";
 import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WEB/Announcement_Api";
 import { SiteViewCountAdapter } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
+
 import {
     buildClientDataQueryKey,
     buildClientDataQueryState,
@@ -9,6 +10,7 @@ import {
     type ClientDataQueryPaginatorModel,
     type ClientDataQuerySearchBarModel,
     type ClientDataQueryTemplate,
+    getClientSearchStringValue,
     isSameClientDataQueryParam,
     useClientDataQueryTemplate,
 } from "@/Features/Pages/Client/Scaffold/DataQueryTemplate/Client_DataQueryTemplate_Hook";
@@ -370,12 +372,6 @@ const buildAnnouncementSearchValues = (keyword?: string): SearchValues =>
 {
     return { [SEARCH_KEYWORD_KEY]: LibText.safeTrim(keyword) } as SearchValues;
 };
-/** 讀取 SearchValues 的字串值 */
-const getSearchStringValue = (values: SearchValues, key: string): string | undefined =>
-{
-    const value = (values as Record<string, unknown>)[key];
-    return typeof value === "string" ? value : value == null ? undefined : `${value}`;
-};
 /** 建立 Announcement 初始 ViewState */
 const buildAnnouncementInitialViewState = (
     p: { opts?: IAnnouncementListOptions; overrides?: Partial<{ pageNumber: number; pageSize: number; }>; },
@@ -398,7 +394,7 @@ const buildAnnouncementSearchParams = (
     },
 ): AnnouncementSearchParams =>
 {
-    const keyword = LibText.safeTrim(getSearchStringValue(p.values, SEARCH_KEYWORD_KEY) ?? p.overrides?.keyword);
+    const keyword = getClientSearchStringValue(p.values, SEARCH_KEYWORD_KEY) ?? p.overrides?.keyword;
     const categoryIds = p.overrides?.categoryIds ?? (p.opts?.Category ?? "");
     const tagIds = p.overrides?.tagIds ?? (p.opts?.Tag ?? "");
     return {

@@ -2,10 +2,10 @@ import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import { LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
-import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
+import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import { type Lang, LangLabelMap } from "@/SysCore/i18n/lang";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { CategoryDataSetFields, CategoryDetailFields } from "@/types/SchemaFields";
 import { type ReactNode, useMemo } from "react";
@@ -24,7 +24,7 @@ export const CategorySharedEditorComp = <TSet extends CategorySet>(prop: { theme
         Style: prop.theme.Tabs,
         item: rawDetails.reduce<Record<string, string>>((tabItems, info) =>
         {
-            const langKey = LibMerge("_", true, info.CategoryId, info.RowId, info.Lang);
+            const langKey = LibText.Merge("_", true, info.CategoryId, info.RowId, info.Lang);
             tabItems[langKey] = LangLabelMap[info.Lang as Lang] ?? info.Lang ?? "Unknown";
             return tabItems;
         }, {}),
@@ -33,7 +33,7 @@ export const CategorySharedEditorComp = <TSet extends CategorySet>(prop: { theme
     {
         return rawDetails.reduce<Record<string, ReactNode[]>>((map, item) =>
         {
-            const key = LibMerge("_", true, item.CategoryId, item.RowId, item.Lang);
+            const key = LibText.Merge("_", true, item.CategoryId, item.RowId, item.Lang);
             const rowKeys = { [CategoryDetailFields.CategoryId]: item.CategoryId, [CategoryDetailFields.RowId]: item.RowId };
             map[key] = [
                 <LibTextBox

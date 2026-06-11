@@ -1,8 +1,3 @@
-/**
- * Banner
- * BreadCrumb + Toolbar
- */
-
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import { Banner_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/Banner/Banner_Comp";
 import { BreadCrumb_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/BreadCrumb/BreadCrumb_Comp";
@@ -10,8 +5,6 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import type { ISubPageLoaderData } from "../../SubPage_Loader";
 
 // #region Property
-// import { Toolbar_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/Toolbar/Toolbar_Comp"
-
 interface ITopFrameProps
 {
     lang: Lang;
@@ -23,7 +16,7 @@ interface ITopFrameProps
 // #endregion
 
 // #region Private
-const TopFrame = (props: ITopFrameProps) =>
+export const TopFrame = (props: ITopFrameProps) =>
 {
     return (
         <>
@@ -40,7 +33,4 @@ const TopFrame = (props: ITopFrameProps) =>
         </>
     );
 };
-
-
-export default TopFrame;
 // #endregion

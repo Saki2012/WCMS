@@ -3,9 +3,9 @@ import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Ro
 import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 import type { ISubPageLoaderData } from "@/Features/Pages/Client/Scaffold/SubPages/SubPage_Loader";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-import SubBannerComp from "@/SpecFetures/1810/Pages/Client/Scaffold/SubPages/Section/SubBanner_Comp";
+import { SubBannerComp } from "@/SpecFetures/1810/Pages/Client/Scaffold/SubPages/Section/SubBanner_Comp";
 import { ThirdMenuComp } from "@/SpecFetures/1810/Pages/Client/Scaffold/SubPages/Section/ThirdMenu";
-import BreadCrumbComp from "@/SysCore/Components/BreadCrumb/BreadCrumb_Comp";
+import { BreadCrumbComp } from "@/SysCore/Components/BreadCrumb/BreadCrumb_Comp";
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { isSupportedLang } from "@/SysCore/i18n/lang";
@@ -150,13 +150,12 @@ const SideMenuComp = (props: ISideMenuProps) =>
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 // 若為外部連結 新增icon
 const renderLinkIcon = (url?: string | null) =>
 {
     return isExternalUrl(url) ? <i className="fa fa-link me-2"></i> : null;
 };
-
 
 const buildMenuTreeKey = (items: MenuItemData[]): string =>
 {
@@ -555,10 +554,7 @@ const SubPageBase = (props: ISubPagesProps & { renderMain: () => ReactNode; }) =
 };
 
 
-const SubPage = (props: ISubPagesProps) => (
+export const SubPage = (props: ISubPagesProps) => (
     <SubPageBase {...props} renderMain={() => <Outlet context={{ lang: props.lang, site: props.site, node: props.node }} />} />
 );
-
-
-export default SubPage;
 // #endregion

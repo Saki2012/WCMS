@@ -6,7 +6,7 @@ import type { ApiAdapterError, ApiLoaderData } from "@/SysCore/Utils/API/APIAdap
 import { type ApiResponse, MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import type { UseFetchDataResult } from "@/SysCore/Utils/API/FetchDataType";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { LibCondition, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { AccountFields, CategoryDetailFields, CategoryFields, PGID } from "@/types/SchemaFields";
@@ -194,9 +194,10 @@ const useCategoryListQueryParam = (p: { lang: Lang; pgId: PGID; }): QueryListPar
     }, []);
     const condition = useMemo(() =>
     {
-        let cdt = `${CategoryFields._CategoryDetail}.${CategoryDetailFields.Lang} = ${p.lang}`;
-        cdt = LibMerge(" And ", false, cdt, `${CategoryFields.ProgId} = ${p.pgId}`);
-        return cdt;
+        return LibCondition.joinConditions([
+            LibCondition.createCondition(`${CategoryFields._CategoryDetail}.${CategoryDetailFields.Lang}`, Operator.Equal, p.lang),
+            LibCondition.createCondition(CategoryFields.ProgId, Operator.Equal, p.pgId),
+        ]);
     }, [p.lang, p.pgId]);
     return useMemo(() =>
     {

@@ -14,7 +14,7 @@ type Extended = LibModalProp & {
 // #endregion
 
 // #region Private
-const LibModal = ({ children, ...prop }: Extended) =>
+export const LibModal = ({ children, ...prop }: Extended) =>
 {
     const uid = useId();
     const modalRef = useRef<HTMLDivElement>(null);
@@ -132,7 +132,4 @@ const LibModal = ({ children, ...prop }: Extended) =>
         </div>
     );
 };
-
-
-export default LibModal;
 // #endregion

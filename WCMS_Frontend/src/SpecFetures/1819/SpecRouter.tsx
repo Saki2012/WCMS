@@ -1,5 +1,5 @@
 import { type INormNode, type INormSite, type ModuleEntry } from "@/Features/Pages/Client/Route/Site-Routing";
-import SubPage from "@/Features/Pages/Client/Scaffold/SubPages/SubPage";
+import { SubPage } from "@/Features/Pages/Client/Scaffold/SubPages/SubPage";
 import { Classic_FETheme } from "@/Features/Pages/Client/Theme/ClassicTheme_Clsx";
 import { SpecJournalForm_Comp } from "@/SpecFetures/1819/Pages/Client/BizFunc/WEB/SpecJournal/SpecJournalForm";
 import { SpecJournalForm_Loader } from "@/SpecFetures/1819/Pages/Client/BizFunc/WEB/SpecJournal/SpecJournalForm_Loader";

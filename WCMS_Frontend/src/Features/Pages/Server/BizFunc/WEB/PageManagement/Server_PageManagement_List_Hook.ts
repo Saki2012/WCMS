@@ -2,22 +2,29 @@ import { CategoryAdapter } from "@/Features/Hooks/BizFunc/COMM/Category_Api";
 import { PageManagementAdapter } from "@/Features/Hooks/BizFunc/WEB/PageManagement_Api";
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import { createGridCrudActions, enhanceGridWithAdjustCell, type GridConfirmFn } from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
+import {
+    buildServerCategoryTextMap as buildCategoryTextMap,
+    buildServerListColumns,
+    buildServerListIdListNode as mapIdsToList,
+    buildServerListSelectOptions as buildCategorySearchOptions,
+    getServerColumnTitle as getColumnTitle,
+    getServerSearchStringValue as getSearchStringValue,
+} from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Helper";
 import type {
     ServerListGridDataSourceContext,
     ServerListGridDataSourceResult,
     ServerListGridTemplate,
 } from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Hook";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
-import type { SearchFieldConfig, SearchValue, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
+import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
-import { findTextByKey, formatDateTime } from "@/SysCore/Utils/Library/LibData";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { findTextByKey, formatDateTime, LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { AccountFields, PageManagementDetailFields, PageManagementFields, PGID } from "@/types/SchemaFields";
-import { createElement, useCallback, useMemo, type ReactNode } from "react";
+import { useCallback, useMemo } from "react";
 import { type NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 
 // #region Property
@@ -25,16 +32,11 @@ type QueryListParam = components["schemas"]["QueryListParam"];
 
 type PageManagementSet = components["schemas"]["PageManagementSet_DTO"];
 
-type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
-
 type PageManagementApiAdapter = ReturnType<typeof PageManagementAdapter>;
 
 type CategoryApiAdapter = ReturnType<typeof CategoryAdapter>;
 
 type PageManagementCudActions = ReturnType<PageManagementApiAdapter["hooks"]["useCudActions"]>;
-
-type CategoryMapValue = string | CategorySet | null | undefined;
-
 
 export interface PageManagementSearchParams
 {
@@ -47,7 +49,6 @@ export interface PageManagementSearchParams
     /** 頁面類別搜尋條件 */
     categoryId?: string;
 }
-
 
 export interface PageManagementListRawData
 {
@@ -76,7 +77,6 @@ export interface PageManagementListRawData
     categoryMap: Record<string, string>;
 }
 
-
 export interface PageManagementListAdapter
 {
     /** 頁面管理 API adapter */
@@ -95,9 +95,7 @@ export interface PageManagementListAdapter
     dirUrl: string;
 }
 
-
 export type PageManagementListGridTemplate = ServerListGridTemplate<PageManagementSearchParams, PageManagementListRawData, PageManagementListAdapter, QueryListParam>;
-
 
 type CrudDeps = {
     /** React Router 導頁方法 */
@@ -118,7 +116,6 @@ type CrudDeps = {
 export const PAGE_MANAGEMENT_TITLE_SEARCH_KEY = "title";
 
 export const PAGE_MANAGEMENT_CATEGORY_SEARCH_KEY = "categoryId";
-
 
 /** 建立頁面管理後台 ListGridTemplate 設定 */
 export const usePageManagementListGridTemplate = (opt: { lang: Lang; }): PageManagementListGridTemplate =>
@@ -200,7 +197,6 @@ const usePageManagementListGridDataSource = (
     return { adapter: { ...apiAdapter, cudActions, navigate, dirUrl }, rawData, isLoading, errors, refetchData, refetchRefData };
 };
 
-
 /** 建立頁面管理搜尋欄位設定 */
 const buildPageManagementSearchFields = (rawData: PageManagementListRawData): SearchFieldConfig[] =>
 {
@@ -213,7 +209,6 @@ const buildPageManagementSearchFields = (rawData: PageManagementListRawData): Se
     ];
 };
 
-
 /** 將 SearchValues 轉為頁面管理列表查詢參數 */
 const toPageManagementSearchParams = (values: SearchValues, lang: Lang): PageManagementSearchParams =>
 {
@@ -223,7 +218,6 @@ const toPageManagementSearchParams = (values: SearchValues, lang: Lang): PageMan
         categoryId: getSearchStringValue(values[PAGE_MANAGEMENT_CATEGORY_SEARCH_KEY]),
     };
 };
-
 
 /** 建立頁面管理搜尋條件 */
 const buildPageManagementSearchConditions = (ctx: { searchParams: PageManagementSearchParams; }): string[] =>
@@ -243,17 +237,17 @@ const buildPageManagementSearchConditions = (ctx: { searchParams: PageManagement
     return conditions;
 };
 
-
 /** 建立頁面管理列表完整 QueryParam */
 const buildPageManagementQueryParam = (ctx: { searchParams: PageManagementSearchParams; searchCondition: string; }): QueryListParam =>
 {
-    const fields = buildPageManagementQueryFields();
-    const langCondition = `${PageManagementFields._PageManagementDetail}.${PageManagementDetailFields.Lang} = ${ctx.searchParams.lang}`;
-    const condition = LibMerge(" And ", false, langCondition, ctx.searchCondition);
-
-    return { Fields: fields, Condition: condition, OrderBy: [{ Col: PageManagementFields.CreateTime, Desc: true }], PageNumber: 1, PageSize: 10 };
+    return {
+        Fields: buildPageManagementQueryFields(),
+        Condition: LibCondition.joinConditions([LibCondition.createCondition(`${PageManagementFields._PageManagementDetail}.${PageManagementDetailFields.Lang}`, Operator.Equal, ctx.searchParams.lang), ctx.searchCondition]),
+        OrderBy: [{ Col: PageManagementFields.CreateTime, Desc: true }],
+        PageNumber: 1,
+        PageSize: 10,
+    };
 };
-
 
 /** 建立頁面管理列表查詢欄位 */
 const buildPageManagementQueryFields = (): string[] =>
@@ -270,14 +264,6 @@ const buildPageManagementQueryFields = (): string[] =>
     ];
 };
 
-
-/** 建立類別下拉搜尋選項 */
-const buildCategorySearchOptions = (categoryMap: Record<string, string>): SearchFieldConfig["options"] =>
-{
-    return Object.entries(categoryMap).map(([value, title]) => ({ value, title: title || value }));
-};
-
-
 /** 將頁面管理資料轉為 GridProps */
 const buildPageManagementGridProps = (
     opt: {
@@ -292,7 +278,7 @@ const buildPageManagementGridProps = (
 ): GridProps =>
 {
     const visibleCols = [PageManagementFields.CategoryId, PageManagementDetailFields.Title, PageManagementFields.ModifyUserId, PageManagementFields.ModifyTime];
-    const columns = buildColumns(visibleCols, opt.raw);
+    const columns = buildServerListColumns(visibleCols, opt.raw.modelDisplayName);
     const rows = buildPageManagementRows(opt.raw, opt.lang, columns);
     const baseGrid: GridProps = { columns, rows, CurrentPage: opt.raw.pageNumber ?? 1, TotalPage: opt.raw.totalPages ?? 1, onPageChange: opt.raw.onPageChange };
 
@@ -308,7 +294,6 @@ const buildPageManagementGridProps = (
         confirm: opt.confirm,
     });
 };
-
 
 /** 注入頁面管理 Grid 編輯與刪除動作 */
 const enhancePageManagementGrid = (
@@ -340,21 +325,13 @@ const enhancePageManagementGrid = (
     });
 };
 
-
-/** 建立頁面管理列表欄位定義 */
-const buildColumns = (visibleCols: string[], raw: PageManagementListRawData): ColumnConfig[] =>
-{
-    return visibleCols.map((col) => ({ key: col, title: getColumnTitle(raw.modelDisplayName, col, `【${col}】`) }));
-};
-
-
 /** 建立頁面管理列表列資料 */
 const buildPageManagementRows = (raw: PageManagementListRawData, lang: Lang, columns: ColumnConfig[]): GridRow[] =>
 {
     return (raw.list ?? []).map((set) =>
     {
         const pageManagement = set.PageManagement;
-        const keyId = pageManagement?.InternalId ?? LibMerge("|", false, pageManagement?.PageId);
+        const keyId = pageManagement?.InternalId ?? LibText.Merge("|", false, pageManagement?.PageId);
         const cells: RowCell[] = [
             { col: columns[0], content: mapIdsToList(pageManagement?.CategoryId, raw.categoryMap) },
             { col: columns[1], content: getPageManagementTitle(set, lang) },
@@ -366,63 +343,10 @@ const buildPageManagementRows = (raw: PageManagementListRawData, lang: Lang, col
     });
 };
 
-
 /** 取得頁面目前語系標題 */
 const getPageManagementTitle = (set: PageManagementSet, lang: Lang): string =>
 {
     return findTextByKey(set.PageManagementDetail, (detail) => detail?.Lang, lang, (detail) => detail?.Title);
 };
 
-
-/** 將逗號分隔代碼轉為清單顯示 */
-const mapIdsToList = (ids: string | null | undefined, map: Record<string, string>): ReactNode =>
-{
-    const names = (ids ?? "").split(",").map((x) => x.trim()).filter(Boolean).map((id) => map[id] ?? id);
-
-    return createElement(
-        "ul",
-        { className: "m-0 p-0", style: { listStylePosition: "inside" } },
-        names.map((line, index) => createElement("li", { key: `${line}-${index}`, className: "m-0 p-0" }, line)),
-    );
-};
-
-
-/** 將類別 Hook 回傳值轉成文字 map，避免不同 Adapter map 版本造成型別不一致 */
-const buildCategoryTextMap = (source: Record<string, CategoryMapValue>, lang: Lang): Record<string, string> =>
-{
-    return Object.entries(source).reduce<Record<string, string>>((acc, [key, value]) =>
-    {
-        acc[key] = getCategoryText(value, lang);
-        return acc;
-    }, {});
-};
-
-
-/** 取得類別顯示文字 */
-const getCategoryText = (value: CategoryMapValue, lang: Lang): string =>
-{
-    if (!value) return "";
-    if (typeof value === "string") return value;
-
-    return findTextByKey(value.CategoryDetail, (detail) => detail?.Lang, lang, (detail) => detail?.CategoryName);
-};
-
-
-/** 依欄位代碼取得 ModelDisplayName 顯示文字 */
-const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, columnId: string, fallback: string): string =>
-{
-    const tables = modelDisplayName?.Tables ?? [];
-    const hit = tables.flatMap((t) => t.Columns ?? []).find((c) => c.ColumnId === columnId);
-    return hit?.ColumnDisplayName ?? fallback;
-};
-
-
-/** 取得 SearchValue 的文字值 */
-const getSearchStringValue = (value: SearchValue): string | undefined =>
-{
-    if (typeof value !== "string") return undefined;
-
-    const text = value.trim();
-    return text.length > 0 ? text : undefined;
-};
 // #endregion

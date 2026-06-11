@@ -6,6 +6,7 @@ import {
     type ClientDataQueryPaginatorModel,
     type ClientDataQuerySearchBarModel,
     type ClientDataQueryTemplate,
+    getClientSearchStringValue,
     isSameClientDataQueryParam,
     useClientDataQueryTemplate,
 } from "@/Features/Pages/Client/Scaffold/DataQueryTemplate/Client_DataQueryTemplate_Hook";
@@ -17,7 +18,7 @@ import type { ApiGridInitial, ApiGridLoaderData } from "@/SysCore/Utils/API/APIA
 import { type ApiResponse, getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
-import { GalleryFields, GalleryInfoFields, PGID } from "@/types/SchemaFields";
+import { GalleryFields, GalleryInfoFields, GalleryPhotosFields, GalleryPhotosInfoFields, PGID } from "@/types/SchemaFields";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { type LoaderFunctionArgs, useLoaderData } from "react-router-dom";
 
@@ -26,6 +27,7 @@ type QueryListParam = components["schemas"]["QueryListParam"];
 type GallerySet = components["schemas"]["GallerySet_DTO"];
 const SEARCH_TITLE_KEY = "title";
 const DEFAULT_PAGE_SIZE = 12;
+
 export interface IGalleryListOptions
 {
     Title: string;
@@ -117,12 +119,6 @@ export const useGalleryListData = (p: { lang: Lang; opts?: IGalleryListOptions; 
 // #endregion
 
 // #region Private
-/** 讀取 SearchValues 的字串值 */
-const getSearchStringValue = (values: SearchValues, key: string): string | undefined =>
-{
-    const value = (values as Record<string, unknown>)[key];
-    return typeof value === "string" ? value : value == null ? undefined : `${value}`;
-};
 /** 建立 Gallery 前台搜尋欄位，目前只提供標題查詢 */
 const buildGallerySearchFields = (): SearchFieldConfig[] =>
 {
@@ -147,10 +143,9 @@ const buildGalleryCondition = (p: GallerySearchParams): string =>
         LibCondition.createCondition(GalleryFields.ContentStatus, Operator.BitwiseHasNone, 4),
         LibCondition.createCondition(`${GalleryFields._GalleryInfo}.${GalleryInfoFields.Lang}`, Operator.Equal, p.lang),
         LibCondition.createCondition(`${GalleryFields._GalleryInfo}.${GalleryInfoFields.Title}`, Operator.NotEqual, "", true),
-        LibCondition.createCondition(GalleryFields.Categories, Operator.HasAny, p.categoryIds),
-        LibCondition.createCondition(GalleryFields.Tags, Operator.HasAny, p.tagIds),
-        // SearchCondition:
-        LibCondition.createCondition(`${GalleryFields._GalleryInfo}.${GalleryInfoFields.Title}`, Operator.Like, p.title),
+        p.categoryIds ? LibCondition.createCondition(GalleryFields.Categories, Operator.HasAny, p.categoryIds) : null,
+        p.tagIds ? LibCondition.createCondition(GalleryFields.Tags, Operator.HasAny, p.tagIds) : null,
+        p.title ? LibCondition.createCondition(`${GalleryFields._GalleryInfo}.${GalleryInfoFields.Title}`, Operator.Like, p.title) : null,
     ]);
 };
 /** 建立 Gallery QueryListParam */
@@ -159,17 +154,22 @@ const buildGalleryQuery = (p: { condition: string; pageNumber: number; pageSize:
     return {
         Fields: [
             GalleryFields.InternalId,
+            GalleryFields.GalleryId,
             GalleryFields.Categories,
-            GalleryFields.CoverPicSrcId,
-            GalleryFields.CreateTime,
-            GalleryFields.Validate_Start,
+            GalleryFields.Tags,
             GalleryFields.ContentStatus,
+            GalleryFields.CoverPicSrcId,
+            GalleryFields.Validate_Start,
+            GalleryFields.CreateTime,
             `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Lang}`,
             `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Title}`,
+            `${GalleryFields._GalleryPhotos}.${GalleryPhotosFields.PicSrcId}`,
+            `${GalleryFields._GalleryPhotos}.${GalleryPhotosFields.GalleryPhotosInfo}.${GalleryPhotosInfoFields.Lang}`,
+            `${GalleryFields._GalleryPhotos}.${GalleryPhotosFields.GalleryPhotosInfo}.${GalleryPhotosInfoFields.Title}`,
         ],
         Condition: p.condition,
         RankGroups: [{ Condition: `${GalleryFields.ContentStatus} & 1` }],
-        OrderBy: [{ Col: GalleryFields.Validate_Start, Desc: true }, { Col: GalleryFields.CreateTime, Desc: true }],
+        OrderBy: [{ Col: GalleryFields.CreateTime, Desc: true }],
         PageNumber: p.pageNumber,
         PageSize: p.pageSize,
     };
@@ -177,7 +177,7 @@ const buildGalleryQuery = (p: { condition: string; pageNumber: number; pageSize:
 /** 建立 Gallery 查詢參數 */
 const buildGallerySearchParams = (p: { lang: Lang; opts?: IGalleryListOptions; overrides?: Partial<{ title: string; categoryIds: string; tagIds: string; }>; values: SearchValues; viewState: IListViewState; }): GallerySearchParams =>
 {
-    const title = LibText.safeTrim(getSearchStringValue(p.values, SEARCH_TITLE_KEY) ?? p.overrides?.title);
+    const title = getClientSearchStringValue(p.values, SEARCH_TITLE_KEY) ?? p.overrides?.title ?? p.opts?.Title;
     const categoryIds = p.overrides?.categoryIds ?? LibText.safeTrim(p.opts?.Category);
     const tagIds = p.overrides?.tagIds ?? LibText.safeTrim(p.opts?.Tag);
     return { lang: p.lang, pageNumber: p.viewState.pageNumber, pageSize: p.viewState.pageSize, title, categoryIds, tagIds };
@@ -188,12 +188,11 @@ const buildGalleryQueryArgs = (p: GallerySearchParams & { condition: string; }):
     const listParam = buildGalleryQuery({ condition: p.condition, pageNumber: p.pageNumber, pageSize: p.pageSize });
     return { lang: p.lang, pageSize: p.pageSize, pageNumber: p.pageNumber, title: p.title, categoryIds: p.categoryIds, tagIds: p.tagIds, condition: p.condition, listParam, progId: PGID.Gallery };
 };
-
 /** 建立 Gallery DataQueryTemplate */
 const createGalleryDataQueryTemplate = (p: { lang: Lang; opts?: IGalleryListOptions; overrides?: Partial<{ pageNumber: number; pageSize: number; title: string; categoryIds: string; tagIds: string; }>; }): GalleryDataQueryTemplate =>
 {
     const initialViewState = buildGalleryInitialViewState(p.overrides);
-    const initialSearchValues = buildGallerySearchValues(p.overrides?.title);
+    const initialSearchValues = buildGallerySearchValues(p.overrides?.title ?? p.opts?.Title);
     return {
         featureKey: "GalleryList",
         dataMode: "multiple",
@@ -216,7 +215,7 @@ const buildLoaderArgs = (p: { lang: Lang; opts?: IGalleryListOptions; overrides?
 {
     const template = createGalleryDataQueryTemplate(p);
     const viewState = buildGalleryInitialViewState(p.overrides);
-    const searchValues = buildGallerySearchValues(p.overrides?.title);
+    const searchValues = buildGallerySearchValues(p.overrides?.title ?? p.opts?.Title);
     return buildClientDataQueryState(template, searchValues, viewState).queryParam;
 };
 /** 組出 Category map hydration initial */

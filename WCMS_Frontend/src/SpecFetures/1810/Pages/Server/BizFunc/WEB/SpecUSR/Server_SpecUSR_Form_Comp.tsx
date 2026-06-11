@@ -17,11 +17,10 @@ import {
     LibTextBox,
 } from "@/SysCore/Components/FormField/LibFormField";
 import { useSetTableField, useSetTableFileField } from "@/SysCore/Components/FormField/useSetTableField";
-import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
+import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import { type Lang, LangLabelMap, useEnsureLangDetails } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
 import type { components } from "@/types/api";
 import { SpecUSRDetailFields, SpecUSRFileFields, SpecUSRModelFields, SpecUSRPhotoFields, SpecUSRPhotoInfoFields, SpecUSRSetFields } from "@/types/SchemaFields";
 import { useCallback, useMemo, useState } from "react";
@@ -29,6 +28,7 @@ import { useLocation, useNavigate, useParams } from "react-router";
 
 // ✅ provider → adapter：改用你已產生好的 hook
 import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
+import { LibText } from "@/SysCore/Utils/Library/LibData";
 import { useSpecUSRFormFetchData } from "./Server_SpecUSR_Form_Hook";
 
 // #region Property
@@ -37,7 +37,6 @@ type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"];
 type SpecUSRFile = components["schemas"]["SpecUSRFile_DTO"];
 
 type SpecUSRUrl = components["schemas"]["SpecUSRUrl_DTO"];
-
 
 // ✅ 補齊空資料結構（不影響 DOM，只避免 new 時缺欄位）
 const emptyData: SpecUSRSet = { SpecUSR: {}, SpecUSRDetail: [], SpecUSRFile: [], SpecUSRUrl: [], SpecUSRPhoto: [], SpecUSRPhotoInfo: [] };
@@ -155,10 +154,11 @@ const HeaderComp = (
                 InputValue={""}
                 accept="image/*"
                 parentClass="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12"
-                onChange={(files) => useUploadPic.handleFileChange(files, (internalId) =>
-                {
-                    prop.formData.setFormData((prev) => ({ ...prev, SpecUSR: { ...prev?.SpecUSR, PictureId: internalId } }));
-                })}
+                onChange={(files) =>
+                    useUploadPic.handleFileChange(files, (internalId) =>
+                    {
+                        prop.formData.setFormData((prev) => ({ ...prev, SpecUSR: { ...prev?.SpecUSR, PictureId: internalId } }));
+                    })}
             >
                 <LibPicture key="preview" ColumnDisplayName={useUploadPic?.result.previewUrl ?? ""} PicSrc={previewSrc} PicDescription={`選中的圖片`} />
             </LibFile>,
@@ -174,7 +174,6 @@ const HeaderComp = (
     return <TabContentComp tabInfos={LibTabsPropA} components={componentsA}></TabContentComp>;
 };
 
-
 const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<SpecUSRSet>; visibleCols: Set<string>; }) =>
 {
     const setField = useSetTableField<SpecUSRSet>(prop.formData);
@@ -184,7 +183,7 @@ const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Sp
         Style: prop.theme.Tabs,
         item: rawDetails.reduce<Record<string, string>>((tabItems, info) =>
         {
-            const langKey = LibMerge("_", true, info.USRId, info.RowId, info.Lang);
+            const langKey = LibText.Merge("_", true, info.USRId, info.RowId, info.Lang);
             tabItems[langKey] = LangLabelMap[info.Lang as Lang] ?? info.Lang ?? "Unknown";
             return tabItems;
         }, {}),
@@ -393,7 +392,7 @@ const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Sp
     const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>((compMap, info, idx) =>
     {
         const detailRowId = info.RowId ?? idx;
-        const langKey = LibMerge("_", true, info.USRId, info.RowId, info.Lang);
+        const langKey = LibText.Merge("_", true, info.USRId, info.RowId, info.Lang);
         const rowKeys = { [SpecUSRDetailFields.USRId]: info.USRId, [SpecUSRDetailFields.RowId]: info.RowId };
         const nodes = makeNodes(rowKeys);
         const showAll = prop.visibleCols.size === 0;
@@ -413,7 +412,6 @@ const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Sp
 
     return <TabContentComp tabInfos={tabInfo} components={tabContent} />;
 };
-
 
 const SubFilesComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<SpecUSRSet>; parentRowId: number; }) =>
 {
@@ -488,7 +486,6 @@ const SubFilesComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
     );
 };
 
-
 const SubUrlComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<SpecUSRSet>; parentRowId: number; }) =>
 {
     const allUrls: SpecUSRUrl[] = prop.formData.data?.SpecUSRUrl ?? [];
@@ -511,7 +508,6 @@ const SubUrlComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Sp
         />
     );
 };
-
 
 const UploadPicComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<SpecUSRSet>; }) =>
 {
@@ -744,14 +740,14 @@ const PhotoInfoComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult
         Style: prop.theme.Tabs,
         item: rawDetails.reduce<Record<string, string>>((tabItems, info) =>
         {
-            const langKey = LibMerge("_", true, info.USRId, info.ParentRowId, info.RowId, info.Lang);
+            const langKey = LibText.Merge("_", true, info.USRId, info.ParentRowId, info.RowId, info.Lang);
             tabItems[langKey] = LangLabelMap[info.Lang as Lang] ?? info.Lang ?? "Unknown";
             return tabItems;
         }, {}),
     };
     const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>((compMap, info) =>
     {
-        const langKey = LibMerge("_", true, info.USRId, info.ParentRowId, info.RowId, info.Lang);
+        const langKey = LibText.Merge("_", true, info.USRId, info.ParentRowId, info.RowId, info.Lang);
         const rowKeys = {
             [SpecUSRPhotoInfoFields.USRId]: info.USRId,
             [SpecUSRPhotoInfoFields.ParentRowId]: info.ParentRowId,

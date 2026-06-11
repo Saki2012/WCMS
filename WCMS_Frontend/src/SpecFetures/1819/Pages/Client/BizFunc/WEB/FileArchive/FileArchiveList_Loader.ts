@@ -6,15 +6,9 @@ import { FileArchiveFields } from "@/types/SchemaFields";
 export const extendFileArchiveListDataQuerySpec: FileArchiveListDataQuerySpecSlot = {
     buildQueryParam: (_ctx, featureQueryParam) =>
     {
-        // 宣告變數
-        const listParam = {
-            ...featureQueryParam.listParam,
-            Fields: appendModifyTimeField(featureQueryParam.listParam.Fields ?? []),
-            OrderBy: buildModifyTimeOrderBy(),
-        };
-
-        // return
-        return { ...featureQueryParam, listParam };
+        const queryParam = featureQueryParam!;
+        const listParam = { ...queryParam.listParam, Fields: appendModifyTimeField(queryParam.listParam.Fields ?? []), OrderBy: buildModifyTimeOrderBy() };
+        return { ...queryParam, listParam };
     },
 };
 // #endregion
@@ -22,21 +16,16 @@ export const extendFileArchiveListDataQuerySpec: FileArchiveListDataQuerySpecSlo
 // #region Private
 const appendUnique = (source: string[], items: string[]): string[] =>
 {
-    // return
     return [...source, ...items.filter(item => !source.includes(item))];
 };
-
 /** 1819：補抓更新時間欄位 */
 const appendModifyTimeField = (fields?: string[]): string[] =>
 {
-    // return
     return appendUnique(fields ?? [], [FileArchiveFields.ModifyTime]);
 };
-
 /** 1819：改用更新時間排序 */
 const buildModifyTimeOrderBy = () =>
 {
-    // return
     return [{ Col: FileArchiveFields.ModifyTime, Desc: true }];
 };
 // #endregion

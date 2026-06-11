@@ -20,6 +20,7 @@ import type {
 import {
     buildEditGridCell,
     getEditGridCellValue,
+    getSelectedEditGridFile,
     getEditGridNullableStringCellValue,
     getEditGridNumberCellValue,
     getEditGridRowId,
@@ -31,6 +32,7 @@ import { SpecMusicalAdapter } from "@/SpecFetures/1817/Hooks/BizFunc/WEB/SpecMus
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import { LibAttachment } from "@/SysCore/Utils/Library/LibData";
 import { useUploadFile } from "@/SysCore/Utils/UI_HookFunc/useUploadFile";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
@@ -749,7 +751,7 @@ const uploadSingleSpecMusicalPhotoFile = async (file: File, uploadFile: UploadFi
     });
 
     if (!uploadedId) throw new Error(`Upload ${originalFileName}: missing InternalId`);
-    return { internalId: uploadedId, originalFileName, info: getFileNameWithoutExtension(originalFileName) };
+    return { internalId: uploadedId, originalFileName, info: LibAttachment.getDisplayFileNameWithoutExtension(originalFileName) };
 };
 
 
@@ -809,7 +811,7 @@ const uploadSpecMusicalSoundValue = async (args: EditGridCellValueChangeArgs, ha
         uploadedValue = buildUploadedSpecMusicalSoundCellValue(internalId, originalName || selectedOriginalName);
     });
 
-    const fileTitle = getFileNameWithoutExtension(uploadedValue.originalFileName || uploadedValue.fileName);
+    const fileTitle = LibAttachment.getDisplayFileNameWithoutExtension(uploadedValue.originalFileName || uploadedValue.fileName);
     return { value: uploadedValue, rowValues: { [SpecMusicalSoundListFields.Info]: fileTitle } };
 };
 
@@ -910,13 +912,6 @@ const isSpecMusicalSoundCellValue = (value: EditGridCellValue): value is SpecMus
 
 
 /** 從 EditGrid file value 取得使用者剛選的 File。 */
-const getSelectedEditGridFile = (value: EditGridCellValue): EditGridFileValue | null =>
-{
-    if (!value || typeof value !== "object" || Array.isArray(value)) return null;
-    return "fileName" in value ? value as EditGridFileValue : null;
-};
-
-
 /** 取得本次選檔的原始檔名。 */
 const getSelectedFileName = (file: EditGridFileValue): string =>
 {
@@ -931,17 +926,6 @@ const buildFileFieldDisplayName = (originalName?: string | null, internalId?: st
     const id = String(internalId ?? "").trim();
     if (name && id) return `${name} (${id})`;
     return name || id;
-};
-
-
-/** 取得不含副檔名的檔名。 */
-const getFileNameWithoutExtension = (fileName?: string | null): string =>
-{
-    const safeFileName = String(fileName ?? "").trim();
-    const extIndex = safeFileName.lastIndexOf(".");
-
-    if (extIndex <= 0) return safeFileName;
-    return safeFileName.slice(0, extIndex);
 };
 
 

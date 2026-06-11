@@ -11,19 +11,17 @@ import { Section5 } from "./Section/Section5";
 import { Section6 } from "./Section/Section6";
 
 // #region Private
-const HomePage = (props: { lang: Lang; }) =>
+export const HomePage = (props: { lang: Lang; }) =>
 {
     // 宣告變數：讀取 SSR / CSR loader 資料
-    const homePage = useHomePageTemplateData(props.lang);
-    const loaderData = homePage.loaderData;
-    const rawData = homePage.rawData;
+    const homePageData = useHomePageTemplateData(props.lang);
+    const loaderData = homePageData.loaderData;
+    const rawData = homePageData.rawData;
     const adapter = useMemo(() => SpecHomePage1820Adapter(), []);
     const weatherQuery = adapter.hooks.useWeatherData({ initial: loaderData?.res?.weatherInitial ?? null });
     // 執行 function：主資料不存在就先不渲染
     if (!rawData?.homePage) return null;
-
-    const homePage = rawData.homePage;
-
+    const homePage = homePageData.rawData?.homePage ?? {};
     return (
         <>
             <Section1 homePage={homePage} banners={rawData.banners} weather={weatherQuery.weather} />
@@ -49,7 +47,4 @@ const HomePage = (props: { lang: Lang; }) =>
         </>
     );
 };
-
-
-export default HomePage;
 // #endregion

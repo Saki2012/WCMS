@@ -11,7 +11,7 @@ type ContentProps = { tabIdPrefix: string; tabId: string; components: ReactNode[
 // #endregion
 
 // #region Section
-const TabContentComp = (props: { tabInfos: LibTabsProp; components: Record<string, React.ReactNode[]>; }) =>
+export const TabContentComp = (props: { tabInfos: LibTabsProp; components: Record<string, React.ReactNode[]>; }) =>
 {
     const uid = useId().replace(/:/g, "");
     const tabIdPrefix = `Tab_TWEN_${uid}`;
@@ -99,7 +99,4 @@ const Content = ({ tabIdPrefix, tabId, components, isActive, isVisible }: Conten
 
 /** 取得目前 tab 初始 key。 */
 const resolveInitialKey = (items: Record<string, string>): string => Object.keys(items)[0] ?? "";
-
-
-export default TabContentComp;
 // #endregion

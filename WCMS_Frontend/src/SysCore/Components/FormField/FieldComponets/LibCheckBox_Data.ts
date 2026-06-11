@@ -1,4 +1,3 @@
-import { extend } from "jquery";
 import type { ILibBaseComponentsProp } from "./LibBaseData";
 
 // #region Property
@@ -10,7 +9,6 @@ export interface ILibCheckBoxStyle
 }
 
 type CheckValue = string | string[] | boolean;
-
 
 export interface ILibCheckBoxProp extends ILibBaseComponentsProp
 {

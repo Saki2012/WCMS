@@ -85,7 +85,7 @@ export const buildServerChildrenFromData = (modules: IModuleMeta[], ctx: IServer
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /** 建立 action handle */
 const buildActionHandleFromMeta = (moduleCode: string, progId: string, a: IActionMeta): RouteHandleMeta =>
 {

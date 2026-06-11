@@ -29,48 +29,37 @@ export type { ILibTinyMCEProp as LibTinyMCEProp, ILibTinyMCEStyle } from "./Fiel
 // #endregion
 
 // #region Public
-export { default as LibCalendar } from "./FieldComponets/LibCalendar_Comp";
+export { LibCalendar } from "./FieldComponets/LibCalendar_Comp";
 
-export { default as LibCheckBox } from "./FieldComponets/LibCheckBox_Comp";
+export { LibCheckBox } from "./FieldComponets/LibCheckBox_Comp";
 
-export { default as LibCheckBoxSingle } from "./FieldComponets/LibCheckBoxSingle_Comp";
+export { LibCheckBoxSingle } from "./FieldComponets/LibCheckBoxSingle_Comp";
 
-export { default as LibDropList } from "./FieldComponets/LibDropList_Comp";
+export { LibDropList } from "./FieldComponets/LibDropList_Comp";
 
-export { default as LibFile } from "./FieldComponets/LibFile_Comp";
+export { LibFile } from "./FieldComponets/LibFile_Comp";
 
-export { default as LibFileInput } from "./FieldComponets/LibFileInput_Comp";
+export { LibFileInput } from "./FieldComponets/LibFileInput_Comp";
 
-export { default as LibModal } from "./FieldComponets/LibModal_Comp";
+export { LibModal } from "./FieldComponets/LibModal_Comp";
 
-export { default as LibPicture } from "./FieldComponets/LibPicture_Comp";
+export { LibPicture } from "./FieldComponets/LibPicture_Comp";
 
-export { default as LibPicturePreview } from "./FieldComponets/LibPicturePreview_Comp";
+export { LibPicturePreview } from "./FieldComponets/LibPicturePreview_Comp";
 
-export { default as LibLightBox } from "./FieldComponets/LibLightBox_Comp";
+export { LibLightBox_Comp } from "./FieldComponets/LibLightBox_Comp";
 
-export { default as LibSelectCard } from "./FieldComponets/LibSelectCard_Comp";
+export { LibSelectCard } from "./FieldComponets/LibSelectCard_Comp";
 
-export { default as LibSwitch } from "./FieldComponets/LibSwitch_Comp";
+export { LibSwitch } from "./FieldComponets/LibSwitch_Comp";
 
-export { default as LibTabs } from "./FieldComponets/LibTabs_Comp";
+export { LibTabs } from "./FieldComponets/LibTabs_Comp";
 
-export { default as LibTextArea } from "./FieldComponets/LibTextArea_Comp";
+export { LibTextArea } from "./FieldComponets/LibTextArea_Comp";
 
-export { default as LibTextBox } from "./FieldComponets/LibTextBox_Comp";
+export { LibTextBox } from "./FieldComponets/LibTextBox_Comp";
 
-export { default as LibUserCard } from "./FieldComponets/LibUserCard_Comp";
+export { LibUserCard } from "./FieldComponets/LibUserCard_Comp";
 
-// export {default as LibDropList} from "./FieldComponets/LibDropList_Comp"
-// export {default as LibDropList} from "./FieldComponets/LibDropList_Comp"
-// export {default as LibDropList} from "./FieldComponets/LibDropList_Comp"
-// export {default as LibDropList} from "./FieldComponets/LibDropList_Comp"
-// export {default as LibDropList} from "./FieldComponets/LibDropList_Comp"
-// export {default as LibDropList} from "./FieldComponets/LibDropList_Comp"
-// export {default as LibDropList} from "./FieldComponets/LibDropList_Comp"
-// export {default as LibDropList} from "./FieldComponets/LibDropList_Comp"
-// export {default as LibDropList} from "./FieldComponets/LibDropList_Comp"
-// export {default as LibDropList} from "./FieldComponets/LibDropList_Comp"
-// export {default as LibDropList} from "./FieldComponets/LibDropList_Comp"
-export { default as LibTinyMCE } from "./FieldComponets/LibTinyMCE_Comp";
+export { LibTinyMCE } from "./FieldComponets/LibTinyMCE_Comp";
 // #endregion

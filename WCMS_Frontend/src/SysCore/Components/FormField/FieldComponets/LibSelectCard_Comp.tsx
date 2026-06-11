@@ -7,7 +7,7 @@ interface ILibSelectCardProp
 // #endregion
 
 // #region Private
-const LibSelectCard = (prop: ILibSelectCardProp) =>
+export const LibSelectCard = (prop: ILibSelectCardProp) =>
 {
     return (
         <>
@@ -26,7 +26,4 @@ const LibSelectCard = (prop: ILibSelectCardProp) =>
         </>
     );
 };
-
-
-export default LibSelectCard;
 // #endregion

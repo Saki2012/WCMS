@@ -7,6 +7,7 @@ import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableFiel
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import { PersonModelFields, PersonSetFields } from "@/types/SchemaFields";
+import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -66,7 +67,7 @@ export const Server_Person_Form_Comp = (props: PersonFormCompProps) =>
 
     const onBackToList = useCallback(() =>
     {
-        navigate(buildBackToListPath(pathname));
+        navigate(LibRoutePath.buildServerBackToListPath(pathname));
     }, [navigate, pathname]);
 
     const actionsOpt = useMemo(() =>
@@ -166,14 +167,8 @@ const PersonFieldSectionComp = (props: PersonFieldSectionProps) =>
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /** 建立返回人員列表路徑。 */
-const buildBackToListPath = (pathname: string): string =>
-{
-    return pathname.replace(/\/Form(?:\/[^/]+)?$/, "/List");
-};
-
-
 /** 建立人員代碼與姓名欄位。 */
 const buildPersonIdFields = (props: PersonFieldSectionProps) =>
 {

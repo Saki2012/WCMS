@@ -1,5 +1,5 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import ModuleContent from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
+import { ModuleContent } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
@@ -53,10 +53,7 @@ export const Client_Material_List_Comp = (props: IMaterialListProps) =>
     const rawData = vm.rawData;
     const content = rawData.pageDetail?.Content ?? "";
     const tagList = useMemo<MaterialTabView[]>(
-        () =>
-            LibText.splitTrimToArray(props.options.TagIds, ",", true).map(id => ({ id, name: rawData.tagMap[id] ?? "" })).filter(tag =>
-                Boolean(tag.id && tag.name)
-            ),
+        () => LibText.splitTrimToArray(props.options.TagIds, ",", true).map(id => ({ id, name: rawData.tagMap[id] ?? "" })).filter(tag => Boolean(tag.id && tag.name)),
         [rawData.tagMap, props.options.TagIds],
     );
     /** 當後台設定的 Tag 條件改變時，自動切到第一個可用 Tab */

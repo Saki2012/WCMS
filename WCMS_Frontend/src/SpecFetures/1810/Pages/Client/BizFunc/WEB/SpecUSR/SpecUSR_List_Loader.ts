@@ -1,10 +1,11 @@
+import { buildClientLoaderInitial } from "@/Features/Pages/Client/Scaffold/DataQueryTemplate/Client_DataQueryTemplate_Hook";
 import { SpecCategoryAdapter } from "@/SpecFetures/1810/Hooks/WEB/SpecCategory_Api";
 import { SpecUSRAdapter } from "@/SpecFetures/1810/Hooks/WEB/SpecUSR_Api";
 import type { ColumnConfig } from "@/SysCore/Components/Grid/Grid_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
-import { type ApiResponse, getSsrApi } from "@/SysCore/Utils/API/APIBase";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
+import { LibCondition, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { PGID, SpecCategoryModelFields, SpecUSRDetailFields, SpecUSRModelFields } from "@/types/SchemaFields";
 import { useMemo } from "react";
@@ -19,9 +20,7 @@ type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"];
 
 type ShowColumnMap = Record<string, string>;
 
-
 const EMPTY_QUERY: QueryListParam = { Fields: [], Condition: "1=0", PageNumber: 0, PageSize: 0 };
-
 
 const SUPPORTED_KEYS: string[] = [
     SpecUSRDetailFields.Year,
@@ -37,13 +36,11 @@ const SUPPORTED_KEYS: string[] = [
     SpecUSRDetailFields.Commissioned,
 ];
 
-
 export interface ISpecUSRListOptions
 {
     Category?: string;
     Tag?: string;
 }
-
 
 export interface SpecUSRListLoaderArgs
 {
@@ -55,7 +52,6 @@ export interface SpecUSRListLoaderArgs
     showColParam: QueryListParam | null;
 }
 
-
 export interface SpecUSRListLoaderRes
 {
     listRes: SpecUSRSet[];
@@ -64,13 +60,11 @@ export interface SpecUSRListLoaderRes
     showColumnMapRes: ShowColumnMap;
 }
 
-
 export interface SpecUSRListLoaderData
 {
     args: SpecUSRListLoaderArgs;
     res: SpecUSRListLoaderRes;
 }
-
 
 export interface SpecUSRListRawData
 {
@@ -78,7 +72,6 @@ export interface SpecUSRListRawData
     showColumnItems: string[];
     showColTitle: ColumnConfig[];
 }
-
 
 export interface UseSpecUSRListFetchDataResult
 {
@@ -136,7 +129,6 @@ export const SpecUSRList_Loader = (p: { lang: Lang; opts?: ISpecUSRListOptions; 
     };
 };
 
-
 /** 統一提供 SpecUSR list 所需資料 */
 export const useSpecUSRListFetchData = (p: { lang: Lang | string; options?: ISpecUSRListOptions; }): UseSpecUSRListFetchDataResult =>
 {
@@ -151,19 +143,19 @@ export const useSpecUSRListFetchData = (p: { lang: Lang | string; options?: ISpe
     const showColInitial = useMemo<ApiLoaderData<QueryListParam, SpecCategorySet[]> | null>(() =>
     {
         if (!canUseShowColInitial(loaderData, categoryId)) return null;
-        return buildLoaderInitial(loaderData!.args.showColParam!, loaderData?.res?.showColRowsRes ?? []);
+        return buildClientLoaderInitial(loaderData!.args.showColParam!, loaderData?.res?.showColRowsRes ?? []);
     }, [loaderData, categoryId]);
 
     const showColMapInitial = useMemo<ApiLoaderData<PGID, ShowColumnMap> | null>(() =>
     {
         if (!canUseShowColMapInitial(loaderData)) return null;
-        return buildLoaderInitial(PGID.SpecUSR, loaderData?.res?.showColumnMapRes ?? {});
+        return buildClientLoaderInitial(PGID.SpecUSR, loaderData?.res?.showColumnMapRes ?? {});
     }, [loaderData]);
 
     const listInitial = useMemo<ApiLoaderData<QueryListParam, SpecUSRSet[]> | null>(() =>
     {
         if (!canUseListInitial(loaderData, { lang: p.lang, categoryId, tagIds })) return null;
-        return buildLoaderInitial(loaderData!.args.baseParam!, loaderData?.res?.listRes ?? []);
+        return buildClientLoaderInitial(loaderData!.args.baseParam!, loaderData?.res?.listRes ?? []);
     }, [loaderData, p.lang, categoryId, tagIds]);
 
     /** 顯示欄位 title hook */
@@ -202,25 +194,16 @@ export const useSpecUSRListFetchData = (p: { lang: Lang | string; options?: ISpe
 
 // #region Private
 /** 建立 SSR initial */
-const buildLoaderInitial = <TArgs, TData>(args: TArgs, data: TData): ApiLoaderData<TArgs, TData> =>
-{
-    const apiRes: ApiResponse<TData> = { IsSuccess: true, Data: data, SysMessage: [] };
-    return { args, apiRes };
-};
-
 
 /** 建立主查詢條件 */
 const buildCondition = (p: { categoryId: string; tagIds: string; }) =>
 {
-    let condition = "";
-
-    if (p.categoryId) condition = `${SpecUSRModelFields.CategoryId} = ${p.categoryId}`;
-    if (p.tagIds) condition = LibMerge(" And ", false, condition, `${SpecUSRModelFields.Tags} HasAllOf [${p.tagIds}]`);
-    condition = LibMerge(" And ", false, condition, `${SpecUSRModelFields.ContentStatus} !& 4`);
-
-    return condition;
+    return LibCondition.joinConditions([
+        LibCondition.createCondition(SpecUSRModelFields.CategoryId, Operator.Equal, p.categoryId),
+        LibCondition.createCondition(SpecUSRModelFields.Tags, Operator.HasAllOf, p.tagIds),
+        LibCondition.createCondition(SpecUSRModelFields.ContentStatus, Operator.BitwiseHasNone, 4),
+    ]);
 };
-
 
 /** 建立主資料查詢參數 */
 const buildBaseParam = (p: { categoryId: string; tagIds: string; }): QueryListParam | null =>
@@ -260,7 +243,6 @@ const buildBaseParam = (p: { categoryId: string; tagIds: string; }): QueryListPa
     };
 };
 
-
 /** 建立顯示欄位查詢參數 */
 const buildShowColParam = (categoryId: string): QueryListParam | null =>
 {
@@ -279,17 +261,15 @@ const buildShowColParam = (categoryId: string): QueryListParam | null =>
     };
 };
 
-
 /** 解析 category 的 ShowColumnItems */
 const buildShowColumnItems = (raw?: string | null): string[] =>
 {
     const seen = new Set<string>();
 
     return (raw ?? "").split(",").map(p => p.split(".").pop()?.trim() ?? "").filter(p => !!p && SUPPORTED_KEYS.includes(p) && !seen.has(p)).map(
-        p => (seen.add(p), p)
+        p => (seen.add(p), p),
     );
 };
-
 
 /** 正規化後端顯示欄位 title map */
 const normalizeShowColumnMap = (raw?: ShowColumnMap | null): ShowColumnMap =>
@@ -309,13 +289,11 @@ const normalizeShowColumnMap = (raw?: ShowColumnMap | null): ShowColumnMap =>
     return map;
 };
 
-
 /** 建立顯示欄位標題 */
 const buildShowColTitle = (showColumnMap: ShowColumnMap): ColumnConfig[] =>
 {
     return SUPPORTED_KEYS.map(key => ({ key, title: showColumnMap[key] ?? key }));
 };
-
 
 /** 是否可沿用 SSR show column initial */
 const canUseShowColInitial = (loaderData: SpecUSRListLoaderData | null, categoryId: string) =>
@@ -325,14 +303,12 @@ const canUseShowColInitial = (loaderData: SpecUSRListLoaderData | null, category
     return true;
 };
 
-
 /** 是否可沿用 SSR show column title initial */
 const canUseShowColMapInitial = (loaderData: SpecUSRListLoaderData | null) =>
 {
     if (!loaderData?.args) return false;
     return loaderData.args.showColProgId === PGID.SpecUSR;
 };
-
 
 /** 是否可沿用 SSR list initial */
 const canUseListInitial = (loaderData: SpecUSRListLoaderData | null, p: { lang: Lang | string; categoryId: string; tagIds: string; }) =>

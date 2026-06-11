@@ -4,6 +4,7 @@ import type { AAInputField, AAInputValue, FieldRenderContext } from "../AAInputF
 import { FieldControlShell } from "../AAInputField_Shell";
 import { applyAAFocusStyle, clearAAFocusStyle, handleCalendarDayKeyDown } from "../AAInputField_Focus";
 import { buildControlClass, buildDescribedBy, getAriaInvalid, getAriaRequired, getNativeRequired, toStringArray } from "../AAInputField_Utils";
+import { getPortalFocusableElements, isBrowserDocumentReady } from "../AAInputField_Dom";
 
 // #region Property
 export interface DateRangeValue { startDate: string; endDate: string; }
@@ -43,10 +44,10 @@ export const DateRangeField = (props: { field: AAInputField; context: FieldRende
     };
 
     /** 關閉日期區間選單。 */
-    function closeDateRange()
+    const closeDateRange = () =>
     {
         setIsOpen(false);
-    }
+    };
 
     /** 選取日期並回填 [startDate, endDate]，選完後由完成按鈕關閉。 */
     const selectDate = (date: string) =>
@@ -306,7 +307,7 @@ export const getIsoDateParts = (value: string) =>
 export const buildIsoDate = (year: number, month: number, day: number) => `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /** 渲染日期格。 */
 const renderDateRangeDayCell = (date: string, key: string, range: DateRangeValue, selectDate: (date: string) => void) =>
 {
@@ -545,30 +546,6 @@ const focusElementWithoutScroll = (element: HTMLElement | null | undefined) =>
 };
 
 
-/** 取得可被鍵盤 focus 的元素。 */
-const getPortalFocusableElements = (root: ParentNode | null) =>
-{
-    if (!root) return [] as HTMLElement[];
-
-    return Array.from(root.querySelectorAll<HTMLElement>(getPortalFocusableSelector()))
-        .filter((element) => !element.hasAttribute("disabled") && element.getAttribute("aria-hidden") !== "true" && element.tabIndex !== -1 && !isHiddenInputElement(element) && isElementVisible(element));
-};
-
-
-/** 取得可被鍵盤 focus 的 selector。 */
-const getPortalFocusableSelector = () => [
-    "a[href]",
-    "button",
-    "input",
-    "select",
-    "textarea",
-    "[tabindex]",
-    "[role='button']",
-    "[role='option']",
-    "[role='combobox']",
-].join(", ");
-
-
 /** focus 到指定元素後方的下一個可操作元素。 */
 const focusFirstAfterElement = (anchor: HTMLElement | null | undefined) =>
 {
@@ -590,22 +567,6 @@ const focusLastBeforeElement = (anchor: HTMLElement | null | undefined) =>
     const previousList = anchorIndex <= 0 ? [] : focusableList.slice(0, anchorIndex).reverse();
     focusElementWithoutScroll(previousList.find((element) => !anchor.contains(element)));
 };
-
-
-/** 排除 hidden input，避免 Tab 離開 Portal 後回到錯誤位置。 */
-const isHiddenInputElement = (element: HTMLElement) =>
-{
-    return element instanceof HTMLInputElement && element.type === "hidden";
-};
-
-
-/** 判斷元素目前是否可視。 */
-const isElementVisible = (element: HTMLElement) =>
-{
-    const style = window.getComputedStyle(element);
-    return style.visibility !== "hidden" && style.display !== "none";
-};
-
 
 
 /** 綁定自製日期選擇器的外部點擊，Portal 面板與原 input 都視為內部。 */
@@ -674,9 +635,6 @@ const closeDatePickerWhenPortalFocusLeaves = (
     });
 };
 
-
-/** 確認目前可使用 document，避免 SSR render 階段碰到 browser API。 */
-const isBrowserDocumentReady = () => typeof document !== "undefined" && typeof window !== "undefined";
 
 
 /** 阻擋使用者直接修改顯示框內容，只允許透過日期選擇器更新值。 */

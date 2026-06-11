@@ -119,6 +119,83 @@ export const LangSwitchBtn: React.FC<LangSwitchBtnProps> = ({ site }) =>
 };
 // #endregion
 
+// #region EntityComp
+/** 建立語系切換內容。 */
+const LangSwitchContent = ({ state }: LangSwitchContentProps) =>
+{
+    if (state.supportedLangs.length === 2) return <TwoLangSwitch state={state} />;
+
+    return <DropdownLangSwitch state={state} />;
+};
+
+/** 建立兩語系切換按鈕。 */
+const TwoLangSwitch = ({ state }: TwoLangSwitchProps) =>
+{
+    const other = resolveOtherLang(state.supportedLangs, state.activeLang);
+    const switchUrl = state.buildSwitchTo(other);
+    const intentHandlers = state.getIntentPrefetchHandlers(switchUrl);
+
+    return (
+        <li>
+            <div className="icons">
+                <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1">
+                    <LangLink to={switchUrl} noLangPrefix type="button" role="button" title={LangLabelMap?.[other] ?? other} {...intentHandlers} onClick={(e) => state.onLinkClick(e, other)}>
+                        <LangText lang={other} isSpec1816={state.isSpec1816} />
+                    </LangLink>
+                </div>
+            </div>
+        </li>
+    );
+};
+
+/** 建立多語系下拉切換選單。 */
+const DropdownLangSwitch = ({ state }: DropdownLangSwitchProps) =>
+{
+    return (
+        <li>
+            <div className="icons">
+                <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1 dropdown">
+                    <a className="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" role="button" title="Language" onClick={(e) => e.preventDefault()}>
+                        <div className="link-text">{LangLabelMap?.[state.activeLang] ?? state.activeLang}</div>
+                    </a>
+                    <ul className="dropdown-menu">
+                        {state.supportedLangs.map(lang => <DropdownLangItem key={lang} lang={lang} state={state} />)}
+                    </ul>
+                </div>
+            </div>
+        </li>
+    );
+};
+
+/** 建立多語系下拉選單項目。 */
+const DropdownLangItem = ({ lang, state }: DropdownLangItemProps) =>
+{
+    const url = state.buildSwitchTo(lang);
+    const intentHandlers = state.getIntentPrefetchHandlers(url);
+
+    return (
+        <li>
+            <a href={url} className={`dropdown-item ${lang === state.activeLang ? "active" : ""}`} {...intentHandlers} onClick={(e) => state.onLinkClick(e, lang)}>
+                {LangLabelMap?.[lang] ?? lang}
+            </a>
+        </li>
+    );
+};
+
+/** 建立語系顯示文字。 */
+const LangText = ({ lang, isSpec1816 }: LangTextProps) =>
+{
+    if (!isSpec1816) return <div className="link-text">{LangLabelMap?.[lang] ?? lang}</div>;
+
+    return (
+        <div className="link-text">
+            <img src={GlobalPic} alt="" className="me-1" />
+            {lang === "zh-tw" ? "中文" : "ＥＮ"}
+        </div>
+    );
+};
+// #endregion
+
 // #region Protected
 /** 建立語系切換按鈕所需狀態與行為。 */
 const useLangSwitchBtnState = (site: INormSite): LangSwitchBtnState =>
@@ -195,83 +272,6 @@ const useIntentPrefetchHandlers = (): (url: string) => LangSwitchIntentHandlers 
     {
         return { onMouseEnter: () => prefetchUrl(url), onFocus: () => prefetchUrl(url), onTouchStart: () => prefetchUrl(url) };
     }, [prefetchUrl]);
-};
-// #endregion
-
-// #region EntityComp
-/** 建立語系切換內容。 */
-const LangSwitchContent = ({ state }: LangSwitchContentProps) =>
-{
-    if (state.supportedLangs.length === 2) return <TwoLangSwitch state={state} />;
-
-    return <DropdownLangSwitch state={state} />;
-};
-
-/** 建立兩語系切換按鈕。 */
-const TwoLangSwitch = ({ state }: TwoLangSwitchProps) =>
-{
-    const other = resolveOtherLang(state.supportedLangs, state.activeLang);
-    const switchUrl = state.buildSwitchTo(other);
-    const intentHandlers = state.getIntentPrefetchHandlers(switchUrl);
-
-    return (
-        <li>
-            <div className="icons">
-                <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1">
-                    <LangLink to={switchUrl} noLangPrefix type="button" role="button" title={LangLabelMap?.[other] ?? other} {...intentHandlers} onClick={(e) => state.onLinkClick(e, other)}>
-                        <LangText lang={other} isSpec1816={state.isSpec1816} />
-                    </LangLink>
-                </div>
-            </div>
-        </li>
-    );
-};
-
-/** 建立多語系下拉切換選單。 */
-const DropdownLangSwitch = ({ state }: DropdownLangSwitchProps) =>
-{
-    return (
-        <li>
-            <div className="icons">
-                <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1 dropdown">
-                    <a className="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" role="button" title="Language" onClick={(e) => e.preventDefault()}>
-                        <div className="link-text">{LangLabelMap?.[state.activeLang] ?? state.activeLang}</div>
-                    </a>
-                    <ul className="dropdown-menu">
-                        {state.supportedLangs.map(lang => <DropdownLangItem key={lang} lang={lang} state={state} />)}
-                    </ul>
-                </div>
-            </div>
-        </li>
-    );
-};
-
-/** 建立多語系下拉選單項目。 */
-const DropdownLangItem = ({ lang, state }: DropdownLangItemProps) =>
-{
-    const url = state.buildSwitchTo(lang);
-    const intentHandlers = state.getIntentPrefetchHandlers(url);
-
-    return (
-        <li>
-            <a href={url} className={`dropdown-item ${lang === state.activeLang ? "active" : ""}`} {...intentHandlers} onClick={(e) => state.onLinkClick(e, lang)}>
-                {LangLabelMap?.[lang] ?? lang}
-            </a>
-        </li>
-    );
-};
-
-/** 建立語系顯示文字。 */
-const LangText = ({ lang, isSpec1816 }: LangTextProps) =>
-{
-    if (!isSpec1816) return <div className="link-text">{LangLabelMap?.[lang] ?? lang}</div>;
-
-    return (
-        <div className="link-text">
-            <img src={GlobalPic} alt="" className="me-1" />
-            {lang === "zh-tw" ? "中文" : "ＥＮ"}
-        </div>
-    );
 };
 // #endregion
 

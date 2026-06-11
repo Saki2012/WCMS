@@ -19,8 +19,8 @@ export interface FieldDisplayName
 // #endregion
 
 // #region Public
-export default function getSiteInfoData(): [SiteInfoItem, FieldDisplayName[]]
-{
+/** 取得站台資訊測試資料 */
+export const getSiteInfoData = (): [SiteInfoItem, FieldDisplayName[]] => {
     return [{ Visitors: 10, UpdateDate: new Date(2025, 5, 27) }, [{ FieldId: "Visitors", DisplayName: "瀏覽人數" }, {
         FieldId: "UpdateDate",
         DisplayName: "更新日期",
@@ -28,11 +28,9 @@ export default function getSiteInfoData(): [SiteInfoItem, FieldDisplayName[]]
 }
 
 
-export function mock_SiteInfoData(): [SiteInfoItem, FieldDisplayName[]]
+/** 取得相容舊呼叫的站台資訊測試資料 */
+export const mock_SiteInfoData = (): [SiteInfoItem, FieldDisplayName[]] =>
 {
-    return [{ Visitors: 10, UpdateDate: new Date(2025, 5, 27) }, [{ FieldId: "Visitors", DisplayName: "瀏覽人數" }, {
-        FieldId: "UpdateDate",
-        DisplayName: "更新日期",
-    }]];
-}
+    return getSiteInfoData();
+};
 // #endregion

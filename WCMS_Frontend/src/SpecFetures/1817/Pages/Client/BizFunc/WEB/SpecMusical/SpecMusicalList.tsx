@@ -1,5 +1,5 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import ModuleContent, { type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
+import { ModuleContent, type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
@@ -8,7 +8,6 @@ import { useSpecMusicalListData } from "./SpecMusicalList_Loader";
 
 // #region Property
 type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"];
-
 
 export interface ISpecMusicalOptions
 {
@@ -70,7 +69,7 @@ const GridList_Comp = (props: { title: string; data: SpecMusicalSet[]; }) =>
 // #endregion
 
 // #region Private
-const SpecMusicalList = (props: { options?: ISpecMusicalOptions; site: INormSite; node: INormNode; }) =>
+export const SpecMusicalList = (props: { options?: ISpecMusicalOptions; site: INormSite; node: INormNode; }) =>
 {
     // 宣告變數
     const pageSize = 9;
@@ -93,6 +92,4 @@ const SpecMusicalList = (props: { options?: ISpecMusicalOptions; site: INormSite
         </ModuleContent>
     );
 };
-
-export default SpecMusicalList;
 // #endregion

@@ -1,5 +1,5 @@
 // #region Section
-const SubBannerComp = ({ title, srcImg }: { title: string; srcImg: string; }) =>
+export const SubBannerComp = ({ title, srcImg }: { title: string; srcImg: string; }) =>
 {
     return (
         <div className="container-fluid-customize px-0">
@@ -19,8 +19,4 @@ const SubBannerComp = ({ title, srcImg }: { title: string; srcImg: string; }) =>
         </div>
     );
 };
-// #endregion
-
-// #region Private
-export default SubBannerComp;
 // #endregion

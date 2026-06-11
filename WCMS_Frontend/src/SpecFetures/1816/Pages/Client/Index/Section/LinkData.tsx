@@ -281,7 +281,7 @@ export const LinkData = (props: LinkDataProps) =>
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 // --------------------
 // helpers（避免 effect 過長）
 // --------------------
@@ -296,7 +296,6 @@ const buildQueryDataInitial = (internalId: string, banner: BannerSet | null): Ap
     // return
     return { args: internalId, apiRes };
 };
-
 
 const buildSwiperOptions = (els: { nextBtn: Element; prevBtn: Element; paginationEl: Element; }): SwiperOptions =>
 {

@@ -27,6 +27,7 @@ import { SpecHomePage1820Adapter } from "@/SpecFetures/1820/Hooks/WEB/HomePage_A
 import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import type { ApiFormInitial, ServerFormActions } from "@/SysCore/Utils/API/APIAdapter";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import { LibAttachment } from "@/SysCore/Utils/Library/LibData";
 import type { UseFetchDataResult } from "@/SysCore/Utils/API/FetchDataType";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import { useUploadFile } from "@/SysCore/Utils/UI_HookFunc/useUploadFile";
@@ -1115,7 +1116,7 @@ const uploadHomePageFileValue = async (
 /** 建立首頁圖片上傳後的欄位更新結果。 */
 const buildHomePageUploadChangeResult = (file: HomePageGridFileValue, descriptionField: string): EditGridCellValueChangeResult =>
 {
-    return { value: file, rowValues: { [descriptionField]: getFileNameWithoutExtension(file.originalFileName ?? file.fileName) } };
+    return { value: file, rowValues: { [descriptionField]: LibAttachment.getDisplayFileNameWithoutExtension(file.originalFileName ?? file.fileName) } };
 };
 
 
@@ -1191,12 +1192,4 @@ const getHomePageFileDownloadUrl = (fileId?: string | null): string | undefined 
 };
 
 
-/** 取得不含副檔名的檔案名稱。 */
-const getFileNameWithoutExtension = (fileName?: string | null): string =>
-{
-    const safeFileName = String(fileName ?? "").trim();
-    const extIndex = safeFileName.lastIndexOf(".");
-    if (extIndex <= 0) return safeFileName;
-    return safeFileName.slice(0, extIndex);
-};
 // #endregion

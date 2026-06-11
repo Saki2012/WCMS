@@ -229,7 +229,4 @@ const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: numb
     // return
     return diffDays >= 0 && diffDays <= n;
 };
-
-
-export default NewsSection;
 // #endregion

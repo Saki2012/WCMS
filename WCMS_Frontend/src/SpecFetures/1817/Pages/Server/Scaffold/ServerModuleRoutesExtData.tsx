@@ -5,7 +5,7 @@ import { Server_SpecMusical_Form_Comp } from "../BizFunc/WEB/SpecMusical/Server_
 import { Server_SpecMusical_List_Comp } from "../BizFunc/WEB/SpecMusical/Server_SpecMusical_List_Comp";
 
 // #region Private
-const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] =>
+export const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] =>
 {
     const web = modules.find((m) => m.ModuleCode === "WebManagement");
     if (!web) return modules;
@@ -36,7 +36,4 @@ const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] =>
     web.Progs.push(prog);
     return modules;
 };
-
-
-export default extendServerModuleRoutes;
 // #endregion

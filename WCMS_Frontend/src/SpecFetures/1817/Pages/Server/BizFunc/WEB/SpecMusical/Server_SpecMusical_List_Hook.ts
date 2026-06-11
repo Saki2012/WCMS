@@ -1,5 +1,10 @@
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import { createGridCrudActions, enhanceGridWithAdjustCell, type GridConfirmFn } from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
+import {
+    buildServerListColumns,
+    getServerSearchStringValue as getSearchStringValue,
+    getServerTableColumnTitle as getColumnTitle,
+} from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Helper";
 import type {
     ServerListGridDataSourceContext,
     ServerListGridDataSourceResult,
@@ -7,12 +12,11 @@ import type {
 } from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Hook";
 import { SpecMusicalAdapter } from "@/SpecFetures/1817/Hooks/BizFunc/WEB/SpecMusical_Api";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
-import type { SearchFieldConfig, SearchValue, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
+import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
-import { formatDateTime } from "@/SysCore/Utils/Library/LibData";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { formatDateTime, LibCondition, LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { AccountFields, PGID, SpecMusicalModelFields, SpecMusicalSetFields } from "@/types/SchemaFields";
@@ -28,13 +32,11 @@ type SpecMusicalApiAdapter = ReturnType<typeof SpecMusicalAdapter>;
 
 type SpecMusicalCudActions = ReturnType<SpecMusicalApiAdapter["hooks"]["useCudActions"]>;
 
-
 export interface SpecMusicalListRenderers
 {
     /** 渲染封面圖欄位內容，JSX 請留在 Comp 實作 */
-    renderCoverContent: (set: SpecMusicalSet) => RowCell["content"];
+    buildCoverContentNode: (set: SpecMusicalSet) => RowCell["content"];
 }
-
 
 export interface SpecMusicalSearchParams
 {
@@ -44,7 +46,6 @@ export interface SpecMusicalSearchParams
     /** 樂器名稱搜尋關鍵字 */
     musicalName?: string;
 }
-
 
 export interface SpecMusicalListRawData
 {
@@ -70,7 +71,6 @@ export interface SpecMusicalListRawData
     param: QueryListParam;
 }
 
-
 export interface SpecMusicalListAdapter
 {
     /** 樂器 API adapter */
@@ -86,9 +86,7 @@ export interface SpecMusicalListAdapter
     dirUrl: string;
 }
 
-
 export type SpecMusicalListGridTemplate = ServerListGridTemplate<SpecMusicalSearchParams, SpecMusicalListRawData, SpecMusicalListAdapter, QueryListParam>;
-
 
 type CrudDeps = {
     /** React Router 導頁方法 */
@@ -103,7 +101,6 @@ type CrudDeps = {
     /** 刪除後重新查詢 */
     afterDelete: () => Promise<void>;
 };
-
 
 type SpecMusicalVisibleColumn = {
     /** Grid 欄位 key */
@@ -123,7 +120,6 @@ type SpecMusicalVisibleColumn = {
 // #region Public
 export const SPEC_MUSICAL_NAME_SEARCH_KEY = "musicalName";
 
-
 /** 建立樂器後台純 Spec ListGridTemplate 設定 */
 export const useSpecMusicalListGridTemplate = (opt: { lang: Lang; renderers: SpecMusicalListRenderers; }): SpecMusicalListGridTemplate =>
 {
@@ -137,13 +133,14 @@ export const useSpecMusicalListGridTemplate = (opt: { lang: Lang; renderers: Spe
                 buildSearchConditions: buildSpecMusicalSearchConditions,
                 buildQueryParam: buildSpecMusicalQueryParam,
                 useDataSource: useSpecMusicalListGridDataSource,
-                buildGridProps: (ctx) => buildSpecMusicalGridProps({
-                    raw: ctx.rawData,
-                    lang: ctx.searchParams.lang,
-                    adapter: ctx.adapter,
-                    refetchData: ctx.refetchData,
-                    renderers: opt.renderers,
-                }),
+                buildGridProps: (ctx) =>
+                    buildSpecMusicalGridProps({
+                        raw: ctx.rawData,
+                        lang: ctx.searchParams.lang,
+                        adapter: ctx.adapter,
+                        refetchData: ctx.refetchData,
+                        renderers: opt.renderers,
+                    }),
             },
         };
     }, [opt.lang, opt.renderers]);
@@ -196,7 +193,6 @@ const useSpecMusicalListGridDataSource = (
     return { adapter: { ...apiAdapter, cudActions, navigate, dirUrl }, rawData, isLoading: grid.isLoading, errors: grid.errors ?? [], refetchData };
 };
 
-
 /** 建立樂器搜尋欄位設定 */
 const buildSpecMusicalSearchFields = (rawData: SpecMusicalListRawData): SearchFieldConfig[] =>
 {
@@ -204,7 +200,6 @@ const buildSpecMusicalSearchFields = (rawData: SpecMusicalListRawData): SearchFi
 
     return [{ key: SPEC_MUSICAL_NAME_SEARCH_KEY, title: musicalNameTitle, type: "text", placeholder: `請輸入${musicalNameTitle}` }];
 };
-
 
 /** 將 SearchValues 轉為樂器列表查詢參數 */
 const toSpecMusicalSearchParams = (values: SearchValues, lang: Lang): SpecMusicalSearchParams =>
@@ -214,7 +209,6 @@ const toSpecMusicalSearchParams = (values: SearchValues, lang: Lang): SpecMusica
         musicalName: getSearchStringValue(values[SPEC_MUSICAL_NAME_SEARCH_KEY]),
     };
 };
-
 
 /** 建立樂器搜尋條件 */
 const buildSpecMusicalSearchConditions = (ctx: { searchParams: SpecMusicalSearchParams; }): string[] =>
@@ -229,19 +223,17 @@ const buildSpecMusicalSearchConditions = (ctx: { searchParams: SpecMusicalSearch
     return conditions;
 };
 
-
 /** 建立樂器列表完整 QueryParam */
 const buildSpecMusicalQueryParam = (ctx: { searchCondition: string; }): QueryListParam =>
 {
     return {
         Fields: buildSpecMusicalQueryFields(),
-        Condition: LibMerge(" And ", false, ctx.searchCondition),
+        Condition: LibCondition.joinConditions([ctx.searchCondition]),
         OrderBy: [{ Col: SpecMusicalModelFields.CreateTime, Desc: true }],
         PageNumber: 1,
         PageSize: 10,
     };
 };
-
 
 /** 建立樂器列表查詢欄位 */
 const buildSpecMusicalQueryFields = (): string[] =>
@@ -259,7 +251,6 @@ const buildSpecMusicalQueryFields = (): string[] =>
     ];
 };
 
-
 /** 將樂器資料轉為 GridProps */
 const buildSpecMusicalGridProps = (
     opt: {
@@ -275,7 +266,7 @@ const buildSpecMusicalGridProps = (
 ): GridProps =>
 {
     const visibleCols = buildSpecMusicalVisibleColumns();
-    const columns = buildColumns(visibleCols, opt.raw);
+    const columns = buildServerListColumns(visibleCols, opt.raw.modelDisplayName);
     const rows = buildSpecMusicalRows(opt.raw, columns, opt.renderers);
     const baseGrid: GridProps = { columns, rows, CurrentPage: opt.raw.pageNumber ?? 1, TotalPage: opt.raw.totalPages ?? 1, onPageChange: opt.raw.onPageChange };
 
@@ -291,7 +282,6 @@ const buildSpecMusicalGridProps = (
         confirm: opt.confirm,
     });
 };
-
 
 /** 注入樂器 Grid 編輯與刪除動作 */
 const enhanceSpecMusicalGrid = (
@@ -322,7 +312,6 @@ const enhanceSpecMusicalGrid = (
         getInternalId: (set) => set.SpecMusical?.InternalId ?? "",
     });
 };
-
 
 /** 建立樂器顯示欄位設定 */
 const buildSpecMusicalVisibleColumns = (): SpecMusicalVisibleColumn[] =>
@@ -361,33 +350,20 @@ const buildSpecMusicalVisibleColumns = (): SpecMusicalVisibleColumn[] =>
     ];
 };
 
-
-/** 建立 Grid 欄位 */
-const buildColumns = (visibleCols: SpecMusicalVisibleColumn[], raw: SpecMusicalListRawData): ColumnConfig[] =>
-{
-    return visibleCols.map((item) => ({
-        key: item.key,
-        title: getColumnTitle(raw.modelDisplayName, item.tableId, item.columnId, item.fallback),
-    }));
-};
-
-
 /** 建立 Grid Rows */
 const buildSpecMusicalRows = (raw: SpecMusicalListRawData, columns: ColumnConfig[], renderers: SpecMusicalListRenderers): GridRow[] =>
 {
     return (raw.list ?? []).map((set) => buildSpecMusicalRow(set, columns, renderers));
 };
 
-
 /** 建立單筆樂器 Row */
 const buildSpecMusicalRow = (set: SpecMusicalSet, columns: ColumnConfig[], renderers: SpecMusicalListRenderers): GridRow =>
 {
-    const keyId = LibMerge("|", false, set.SpecMusical?.MusicalId, set.SpecMusical?.InternalId);
+    const keyId = LibText.Merge("|", false, set.SpecMusical?.MusicalId, set.SpecMusical?.InternalId);
     const cells = columns.map((col) => buildSpecMusicalCell(set, col, renderers));
 
     return { keyId, cells };
 };
-
 
 /** 建立樂器欄位內容 */
 const buildSpecMusicalCell = (set: SpecMusicalSet, col: ColumnConfig, renderers: SpecMusicalListRenderers): RowCell =>
@@ -395,7 +371,6 @@ const buildSpecMusicalCell = (set: SpecMusicalSet, col: ColumnConfig, renderers:
     const content = resolveSpecMusicalCellContent(set, col.key, renderers);
     return { col, content };
 };
-
 
 /** 解析樂器欄位內容 */
 const resolveSpecMusicalCellContent = (set: SpecMusicalSet, key: string, renderers: SpecMusicalListRenderers): RowCell["content"] =>
@@ -406,7 +381,7 @@ const resolveSpecMusicalCellContent = (set: SpecMusicalSet, key: string, rendere
     switch (key)
     {
         case SpecMusicalModelFields.CoverPicId:
-            return renderers.renderCoverContent(set);
+            return renderers.buildCoverContentNode(set);
         case SpecMusicalModelFields.CreateTime:
         case SpecMusicalModelFields.ModifyTime:
             return formatDateTime(String(dataRecord[key] ?? ""));
@@ -417,21 +392,4 @@ const resolveSpecMusicalCellContent = (set: SpecMusicalSet, key: string, rendere
     }
 };
 
-
-/** 取得搜尋文字值 */
-const getSearchStringValue = (value: SearchValue): string | undefined =>
-{
-    if (typeof value !== "string") return undefined;
-    const trimValue = value.trim();
-    return trimValue.length > 0 ? trimValue : undefined;
-};
-
-
-/** 從 ModelDisplayName 取得欄位顯示名稱 */
-const getColumnTitle = (schema: ModelDisplaySchema | null, tableId: string, columnId: string, fallback: string): string =>
-{
-    const table = schema?.Tables?.find((item) => item.TableId === tableId);
-    const column = table?.Columns?.find((item) => item.ColumnId === columnId);
-    return column?.ColumnDisplayName ?? fallback;
-};
 // #endregion

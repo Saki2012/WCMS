@@ -1,5 +1,6 @@
 import type { TinyMCEEditor } from "../Core/tinyMceTypes";
 
+// #region Public
 export const registerTinyMceFormatControls = (editor: TinyMCEEditor) =>
 {
     const FORMAT_WHITELIST: Array<keyof CSSStyleDeclaration> = [
@@ -187,3 +188,4 @@ export const registerTinyMceFormatControls = (editor: TinyMCEEditor) =>
         editor.execCommand("mceVisualBlocks");
     });
 };
+// #endregion

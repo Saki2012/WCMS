@@ -1,5 +1,5 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import ModuleContent from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
+import { ModuleContent } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
@@ -119,6 +119,9 @@ const TimelineRow_Comp = (props: { lang: Lang; row: ITimelineEntryVm; }) =>
         </li>
     );
 };
+// #endregion
+
+// #region Protected
 /** 依 listData 組出年份區塊 */
 const buildTimelineBlocksFromList = (listData: TimelineSet[], lang: Lang, isDesc?: boolean): ITimelineYearBlockVm[] =>
 {

@@ -107,15 +107,6 @@ const SurveyField_Comp = (props: SurveyFieldProps) =>
         </div>
     );
 };
-/** 依欄位類型決定輸入元件 */
-const renderSurveyInput = (p: RenderInputProps): ReactNode =>
-{
-    if (p.inputType === SURVEY_INPUT_TYPE.TextArea) return <TextArea_Comp {...p} />;
-    if (p.inputType === SURVEY_INPUT_TYPE.Radio) return <Radio_Comp {...p} />;
-    if (p.inputType === SURVEY_INPUT_TYPE.Checkbox) return <Checkbox_Comp {...p} />;
-    if (p.inputType === SURVEY_INPUT_TYPE.Select) return <Select_Comp {...p} />;
-    return <TextInput_Comp {...p} />;
-};
 // #endregion
 
 // #region EntityComp
@@ -269,6 +260,19 @@ const CheckboxOption_Comp = (props: { p: RenderInputProps; option: SurveyInputOp
         </div>
     );
 };
+// #endregion
+
+// #region Protected
+/** 依欄位類型決定輸入元件 */
+const renderSurveyInput = (p: RenderInputProps): ReactNode =>
+{
+    if (p.inputType === SURVEY_INPUT_TYPE.TextArea) return <TextArea_Comp {...p} />;
+    if (p.inputType === SURVEY_INPUT_TYPE.Radio) return <Radio_Comp {...p} />;
+    if (p.inputType === SURVEY_INPUT_TYPE.Checkbox) return <Checkbox_Comp {...p} />;
+    if (p.inputType === SURVEY_INPUT_TYPE.Select) return <Select_Comp {...p} />;
+    return <TextInput_Comp {...p} />;
+};
+
 /** 顯示無選項提示 */
 const renderOptionEmpty = (options: SurveyInputOption[], text: SurveyInputText): ReactNode =>
 {

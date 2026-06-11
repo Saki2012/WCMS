@@ -1,7 +1,7 @@
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -11,7 +11,6 @@ type HomePageModel = components["schemas"]["SpecHomePage1820Model_DTO"];
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 
 type NewsDateParts = { year: string; monthDay: string; fullDate: string; };
-
 
 const NEWS_MARGIN = 30;
 
@@ -315,13 +314,11 @@ const getToggleLabel = (isPlaying: boolean) =>
     return isPlaying ? "圖片輪播播放中，點擊暫停" : "圖片輪播已暫停，點擊播放";
 };
 
-
 /** 取得切換按鈕 title */
 const getToggleTitle = (isPlaying: boolean) =>
 {
     return isPlaying ? "暫停" : "播放";
 };
-
 
 /** 取得目前視窗寬度 */
 const getViewportWidth = () =>
@@ -330,7 +327,6 @@ const getViewportWidth = () =>
     return window.innerWidth;
 };
 
-
 /** 依 prototype 斷點取得顯示張數 */
 const getItemsPerView = (viewportWidth: number) =>
 {
@@ -338,7 +334,6 @@ const getItemsPerView = (viewportWidth: number) =>
     if (viewportWidth >= 767) return 2;
     return 1;
 };
-
 
 /** 取得初始外框寬度 */
 const getInitialOuterWidth = () =>
@@ -351,7 +346,6 @@ const getInitialOuterWidth = () =>
     return Math.max(viewportWidth - 32, 320);
 };
 
-
 /** 限制索引範圍 */
 const clampIndex = (value: number, maxValue: number) =>
 {
@@ -360,20 +354,17 @@ const clampIndex = (value: number, maxValue: number) =>
     return value;
 };
 
-
 /** 取得最大起始索引 */
 const getMaxStartIndex = (count: number, itemsPerView: number) =>
 {
     return Math.max(0, count - itemsPerView);
 };
 
-
 /** 判斷是否在目前可見範圍 */
 const isActiveItem = (index: number, startIndex: number, itemsPerView: number) =>
 {
     return index >= startIndex && index < startIndex + itemsPerView;
 };
-
 
 /** 取得下一個索引 */
 const getNextIndex = (currentIndex: number, maxIndex: number, loop: boolean) =>
@@ -382,7 +373,6 @@ const getNextIndex = (currentIndex: number, maxIndex: number, loop: boolean) =>
     return currentIndex + 1;
 };
 
-
 /** 整理分類名稱 */
 const formatCategoryNames = (value?: string | null, categoryMap?: Record<string, string>) =>
 {
@@ -390,7 +380,6 @@ const formatCategoryNames = (value?: string | null, categoryMap?: Record<string,
     const names = ids.map(id => categoryMap?.[id]).filter((s): s is string => Boolean(s));
     return names.join("、");
 };
-
 
 /** 格式化日期字串 */
 const formatNewsDate = (value?: string | null): NewsDateParts =>
@@ -408,18 +397,16 @@ const formatNewsDate = (value?: string | null): NewsDateParts =>
     return { year, monthDay: `${month}.${day}`, fullDate: `${year}-${month}-${day}` };
 };
 
-
 /** 取得圖片預覽網址 */
 const getNewsImageUrl = (item: AnnouncementSet) =>
 {
     return FileManagementAPI.get_Public_Preview_Url(item.Announcement?.PictureId);
 };
 
-
 /** 取得圖片替代文字 */
 /** 取得卡片連結 */
 const getNewsLink = (viewMoreLink?: string | null, item?: AnnouncementSet) =>
 {
-    return LibMerge("/", false, viewMoreLink, item?.Announcement?.InternalId);
+    return LibText.Merge("/", false, viewMoreLink, item?.Announcement?.InternalId);
 };
 // #endregion

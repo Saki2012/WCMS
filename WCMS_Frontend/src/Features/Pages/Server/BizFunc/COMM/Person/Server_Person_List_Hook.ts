@@ -1,19 +1,23 @@
 import { PersonAdapter } from "@/Features/Hooks/BizFunc/COMM/Person_Api";
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import { createGridCrudActions, enhanceGridWithAdjustCell, type GridConfirmFn } from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
+import {
+    buildServerListColumns,
+    getServerColumnTitle as getColumnTitle,
+    getServerSearchStringValue as getSearchStringValue,
+} from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Helper";
 import type {
     ServerListGridDataSourceContext,
     ServerListGridDataSourceResult,
     ServerListGridTemplate,
 } from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Hook";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
-import type { SearchFieldConfig, SearchValue, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
+import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
-import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
-import { formatDateTime } from "@/SysCore/Utils/Library/LibData";
-import { LibMerge } from "@/SysCore/Utils/Library/LibMergeData";
+import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import { formatDateTime, LibCondition, LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { PersonModelFields, PGID } from "@/types/SchemaFields";
@@ -29,7 +33,6 @@ type PersonApiAdapter = ReturnType<typeof PersonAdapter>;
 
 type PersonCudActions = ReturnType<PersonApiAdapter["hooks"]["useCudActions"]>;
 
-
 export interface PersonSearchParams
 {
     /** 目前列表語系 */
@@ -41,7 +44,6 @@ export interface PersonSearchParams
     /** Email 搜尋關鍵字 */
     email?: string;
 }
-
 
 export interface PersonListRawData
 {
@@ -67,7 +69,6 @@ export interface PersonListRawData
     param: QueryListParam;
 }
 
-
 export interface PersonListAdapter
 {
     /** 人員 API adapter */
@@ -83,9 +84,7 @@ export interface PersonListAdapter
     dirUrl: string;
 }
 
-
 export type PersonListGridTemplate = ServerListGridTemplate<PersonSearchParams, PersonListRawData, PersonListAdapter, QueryListParam>;
-
 
 type CrudDeps = {
     /** React Router 導頁方法 */
@@ -106,7 +105,6 @@ type CrudDeps = {
 export const PERSON_NAME_SEARCH_KEY = "personName";
 
 export const PERSON_EMAIL_SEARCH_KEY = "email";
-
 
 /** 建立人員後台 ListGridTemplate 設定 */
 export const usePersonListGridTemplate = (opt: { lang: Lang; }): PersonListGridTemplate =>
@@ -174,7 +172,6 @@ const usePersonListGridDataSource = (
     return { adapter: { ...apiAdapter, cudActions, navigate, dirUrl }, rawData, isLoading: grid.isLoading, errors: grid.errors ?? [], refetchData };
 };
 
-
 /** 建立人員搜尋欄位設定 */
 const buildPersonSearchFields = (rawData: PersonListRawData): SearchFieldConfig[] =>
 {
@@ -187,7 +184,6 @@ const buildPersonSearchFields = (rawData: PersonListRawData): SearchFieldConfig[
     ];
 };
 
-
 /** 將 SearchValues 轉為人員列表查詢參數 */
 const toPersonSearchParams = (values: SearchValues, lang: Lang): PersonSearchParams =>
 {
@@ -197,7 +193,6 @@ const toPersonSearchParams = (values: SearchValues, lang: Lang): PersonSearchPar
         email: getSearchStringValue(values[PERSON_EMAIL_SEARCH_KEY]),
     };
 };
-
 
 /** 建立人員搜尋條件 */
 const buildPersonSearchConditions = (ctx: { searchParams: PersonSearchParams; }): string[] =>
@@ -217,16 +212,13 @@ const buildPersonSearchConditions = (ctx: { searchParams: PersonSearchParams; })
     return conditions;
 };
 
-
 /** 建立人員列表完整 QueryParam */
 const buildPersonQueryParam = (ctx: { searchParams: PersonSearchParams; searchCondition: string; }): QueryListParam =>
 {
     const fields = buildPersonQueryFields();
-    const condition = LibMerge(" And ", false, ctx.searchCondition);
-
+    const condition = LibCondition.joinConditions([ctx.searchCondition]);
     return { Fields: fields, Condition: condition, OrderBy: [{ Col: PersonModelFields.CreateTime, Desc: true }], PageNumber: 1, PageSize: 10 };
 };
-
 
 /** 建立人員列表查詢欄位 */
 const buildPersonQueryFields = (): string[] =>
@@ -243,7 +235,6 @@ const buildPersonQueryFields = (): string[] =>
     ];
 };
 
-
 /** 將人員資料轉為 GridProps */
 const buildPersonGridProps = (
     opt: {
@@ -258,7 +249,7 @@ const buildPersonGridProps = (
 ): GridProps =>
 {
     const visibleCols = [PersonModelFields.PersonImgId, PersonModelFields.PersonId, PersonModelFields.PersonName, PersonModelFields.Email, PersonModelFields.MobilePhone, PersonModelFields.ModifyTime];
-    const columns = buildColumns(visibleCols, opt.raw);
+    const columns = buildServerListColumns(visibleCols, opt.raw.modelDisplayName, { buildFallback: getPersonColumnFallback });
     const rows = buildPersonRows(opt.raw, columns);
     const baseGrid: GridProps = { columns, rows, CurrentPage: opt.raw.pageNumber ?? 1, TotalPage: opt.raw.totalPages ?? 1, onPageChange: opt.raw.onPageChange };
 
@@ -274,7 +265,6 @@ const buildPersonGridProps = (
         confirm: opt.confirm,
     });
 };
-
 
 /** 注入人員 Grid 編輯與刪除動作 */
 const enhancePersonGrid = (
@@ -306,26 +296,17 @@ const enhancePersonGrid = (
     });
 };
 
-
-/** 建立人員列表欄位定義 */
-const buildColumns = (visibleCols: string[], raw: PersonListRawData): ColumnConfig[] =>
-{
-    return visibleCols.map((col) => ({ key: col, title: getColumnTitle(raw.modelDisplayName, col, getPersonColumnFallback(col)) }));
-};
-
-
 /** 建立人員列表列資料 */
 const buildPersonRows = (raw: PersonListRawData, columns: ColumnConfig[]): GridRow[] =>
 {
     return (raw.list ?? []).map((set) => buildPersonRow(set, columns));
 };
 
-
 /** 建立人員列表單列資料 */
 const buildPersonRow = (set: PersonSet, columns: ColumnConfig[]): GridRow =>
 {
     const person = set.Person;
-    const keyId = person?.InternalId ?? LibMerge("|", false, person?.PersonId, person?.Email);
+    const keyId = person?.InternalId ?? LibText.Merge("|", false, person?.PersonId, person?.Email);
     const cells: RowCell[] = [
         { col: columns[0], content: buildPersonImage(set) },
         { col: columns[1], content: person?.PersonId ?? "" },
@@ -337,7 +318,6 @@ const buildPersonRow = (set: PersonSet, columns: ColumnConfig[]): GridRow =>
 
     return { keyId, cells };
 };
-
 
 /** 建立人員圖片預覽 */
 const buildPersonImage = (set: PersonSet): RowCell["content"] =>
@@ -351,16 +331,6 @@ const buildPersonImage = (set: PersonSet): RowCell["content"] =>
         style: { width: "72px", height: "72px", objectFit: "cover", borderRadius: "50%" },
     });
 };
-
-
-/** 依欄位代碼取得 ModelDisplayName 顯示文字 */
-const getColumnTitle = (modelDisplayName: ModelDisplaySchema | null, columnId: string, fallback: string): string =>
-{
-    const tables = modelDisplayName?.Tables ?? [];
-    const hit = tables.flatMap((t) => t.Columns ?? []).find((c) => c.ColumnId === columnId);
-    return hit?.ColumnDisplayName ?? fallback;
-};
-
 
 /** 取得人員列表欄位預設顯示文字 */
 const getPersonColumnFallback = (columnId: string): string =>
@@ -377,13 +347,4 @@ const getPersonColumnFallback = (columnId: string): string =>
     return map[columnId] ?? `【${columnId}】`;
 };
 
-
-/** 取得 SearchValue 的文字值 */
-const getSearchStringValue = (value: SearchValue): string | undefined =>
-{
-    if (typeof value !== "string") return undefined;
-
-    const text = value.trim();
-    return text.length > 0 ? text : undefined;
-};
 // #endregion

@@ -1,6 +1,7 @@
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import { LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 
 // #region Property
@@ -19,60 +20,56 @@ export const Section3 = (props: { lang: Lang; header: HomePageModel; data: Featu
 
     return (
         <section className="spec1821-feature" aria-labelledby="spec1821-feature-title">
-            {renderHeader(props.header)}
-            <div className="spec1821-feature__list">{cards.map((item, index) => renderFeatureCard(item, index, props.lang))}</div>
+            <HeaderSection header={props.header} />
+            <div className="spec1821-feature__list">
+                {cards.map((item, index) => <FeatureCard key={`${item.HomePageId}-${item.RowId}`} item={item} index={index} lang={props.lang} />)}
+            </div>
         </section>
     );
 };
 // #endregion
 
-// #region EntityComp
-/** 渲染標題 */
-const renderHeader = (header: HomePageModel) =>
+// #region Section
+/** 招生特色標題區塊 */
+const HeaderSection = (props: { header: HomePageModel; }) =>
 {
-    if (!header.Section3Title && !header.Section3SubTitle) return null;
+    if (!props.header.Section3Title && !props.header.Section3SubTitle) return null;
 
     return (
         <div className="spec1821-section-title">
-            <h2 id="spec1821-feature-title">{header.Section3Title}</h2>
-            {header.Section3SubTitle && <span>{header.Section3SubTitle}</span>}
+            <h2 id="spec1821-feature-title">{props.header.Section3Title}</h2>
+            {props.header.Section3SubTitle && <span>{props.header.Section3SubTitle}</span>}
         </div>
     );
 };
+// #endregion
 
-/** 渲染招生特色卡片 */
-const renderFeatureCard = (item: FeatureCardModel, index: number, lang: Lang) =>
+// #region EntityComp
+/** 招生特色卡片 */
+const FeatureCard = (props: { item: FeatureCardModel; index: number; lang: Lang; }) =>
 {
-    const content = renderCardContent(item, index);
-    if (!hasLink(item.Link)) return <div key={`${item.HomePageId}-${item.RowId}`} className="spec1821-feature__card">{content}</div>;
+    const content = <FeatureCardContent item={props.item} index={props.index} />;
+    if (!LibText.isNonEmptyString(props.item.Link)) return <div className="spec1821-feature__card">{content}</div>;
 
     return (
-        <LangLink key={`${item.HomePageId}-${item.RowId}`} to={item.Link ?? ""} lang={lang} className="spec1821-feature__card" title={item.Title ?? ""}>
+        <LangLink to={props.item.Link ?? ""} lang={props.lang} className="spec1821-feature__card" title={props.item.Title ?? ""}>
             {content}
         </LangLink>
     );
 };
 
-/** 渲染卡片內容 */
-const renderCardContent = (item: FeatureCardModel, index: number) =>
+/** 招生特色卡片內容 */
+const FeatureCardContent = (props: { item: FeatureCardModel; index: number; }) =>
 {
     return (
         <>
-            <img src={FileManagementAPI.get_Public_Preview_Url(item.PictureId)} alt={item.PictureDescription || item.Title || ""} />
+            <img src={FileManagementAPI.get_Public_Preview_Url(props.item.PictureId)} alt={props.item.PictureDescription || props.item.Title || ""} />
             <div className="spec1821-feature__caption">
-                <span className="spec1821-feature__number">{String(index + 1).padStart(2, "0")}</span>
-                <strong>{item.Title}</strong>
-                {item.SubTitle && <span>{item.SubTitle}</span>}
+                <span className="spec1821-feature__number">{String(props.index + 1).padStart(2, "0")}</span>
+                <strong>{props.item.Title}</strong>
+                {props.item.SubTitle && <span>{props.item.SubTitle}</span>}
             </div>
         </>
     );
-};
-// #endregion
-
-// #region Private
-/** 判斷是否有連結 */
-const hasLink = (link?: string | null) =>
-{
-    return !!link?.trim();
 };
 // #endregion

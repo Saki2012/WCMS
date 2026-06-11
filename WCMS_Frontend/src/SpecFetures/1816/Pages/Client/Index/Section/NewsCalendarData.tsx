@@ -132,7 +132,9 @@ export const NewsCalendarData = (props: { lang: Lang; initialOpenTime: CurrentOp
 // =========================
 // helpers（保持小且可維護）
 // =========================
+// #endregion
 
+// #region Protected
 const buildCurrentOpenTimeInitial = (openTime: CurrentOpenTime | null): ApiLoaderData<null, CurrentOpenTime[]> | null =>
 {
     if (!openTime) return null;

@@ -9,7 +9,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { useLoaderData } from "react-router-dom";
 
 // #region Private
-const HomePage = (props: { lang: Lang; }) =>
+export const HomePage = (props: { lang: Lang; }) =>
 {
     // 宣告變數：先取 SSR loader 資料
     const loaderData = useLoaderData() as HomePageLoaderData | undefined;
@@ -43,7 +43,4 @@ const HomePage = (props: { lang: Lang; }) =>
         </main>
     );
 };
-
-
-export default HomePage;
 // #endregion

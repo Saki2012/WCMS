@@ -5,11 +5,12 @@ import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import { LibDropList, LibTextBox, LibTinyMCE } from "@/SysCore/Components/FormField/LibFormField";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
-import TabContentComp from "@/SysCore/Components/TabContent/TabContent";
+import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
 import { PageManagementDetailFields, PageManagementFields, PageManagementSetFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
+import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -107,7 +108,7 @@ export const Server_PageManagement_Form_Comp = (props: PageManagementFormCompPro
 
     const onBackToList = useCallback(() =>
     {
-        navigate(buildBackToListPath(pathname));
+        navigate(LibRoutePath.buildServerBackToListPath(pathname));
     }, [navigate, pathname]);
 
     const actionsOpt = useMemo(() =>
@@ -162,7 +163,7 @@ const DetailComp = (props: DetailSectionProps) =>
 };
 // #endregion
 
-// #region EntityComp
+// #region Protected
 /** 建立頁面管理 Header 的各分頁欄位。 */
 const buildHeaderTabContent = (opt: HeaderTabContentOptions): Record<string, ReactNode[]> =>
 {
@@ -217,13 +218,6 @@ const buildDetailFields = (opt: DetailFieldsOptions): ReactNode[] =>
             {...opt.setField(PageManagementSetFields.PageManagementDetail, PageManagementDetailFields.Content, "string", opt.rowKeys)}
         />,
     ];
-};
-
-
-/** 建立回列表路徑，避免 Back 行為散在 JSX 中。 */
-const buildBackToListPath = (pathname: string): string =>
-{
-    return pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
 };
 
 
