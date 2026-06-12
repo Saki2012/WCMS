@@ -27,6 +27,16 @@
         /// 請輸入[{0}]語系的[{1}]。
         /// </summary>
         public const string AACode00003 = nameof(AACode00003);
+        /// <summary>
+        /// [{0}]-序號[{1}]：請輸入[{2}]語系的[{3}]
+        /// </summary>
+        /// <remarks>
+        /// {0}:表名稱
+        /// {1}:序號值
+        /// {2}:語系
+        /// {3}:欄位名稱
+        /// </remarks>
+        public const string AACode00004 = nameof(AACode00004);
         #endregion
 
         #region 一般訊息

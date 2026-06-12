@@ -152,16 +152,19 @@ namespace WCMS.Features.WEB.Announcement
         }
         #endregion
 
-        #region Private
+        #region Protected
         private void CheckData(AnnouncementSet set)
         {
             CheckDateIsEmpty(set);
         }
-
         private void SetData(AnnouncementSet set)
         {
             DoRemergeData(set.Announcement);
         }
+        #endregion
+
+        #region Private
+
 
         private void CheckDateIsEmpty(AnnouncementSet set)
         {

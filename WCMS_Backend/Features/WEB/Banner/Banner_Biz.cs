@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using WCMS.Features._Resx;
+using WCMS.Features.WEB.PageManagement;
 using WCMS.SysCore;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Interface;
@@ -12,7 +13,7 @@ namespace WCMS.Features.WEB.Banner;
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.Banner)]
 public class BannerBiz(BizDeps bizDeps) : BizService<BannerSet>(bizDeps), IBizService<BannerSet> 
 {
-    #region Protected
+    #region Protected Virtual
     protected override async Task BeforeUpdate(BannerSet set, FuncAction act, CancellationToken ct = default)
     {
         await base.BeforeUpdate(set, act, ct);
@@ -20,17 +21,41 @@ public class BannerBiz(BizDeps bizDeps) : BizService<BannerSet>(bizDeps), IBizSe
         {
             case FuncAction.Create:
             case FuncAction.Update:
+                if (!CheckData(set)) return;
                 SetData(set);
                 break;
         }
 
     }
     #endregion
-    #region Private
-    private static void SetData(BannerSet set)
+
+    #region Protected
+    protected bool CheckData(BannerSet set)
+    {
+        AACheck(set.BannerDetailInfo);
+        return Message.HasError;
+    }
+    protected static void SetData(BannerSet set)
     {
         ResetBannerSort(set.BannerDetail);
     }
+    #endregion
+
+    #region Private
+
+    /// <summary>
+    /// 檢查AAContent，將舊資料的AAContent轉成新的格式
+    /// </summary>
+    /// <param name="langDt"></param>
+    private void AACheck(List< BannerDetailInfo >infos)
+    {
+        if (!SpecSettings.AACheck) return;
+        infos.ForEach(dt =>
+        {
+            if(dt.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.AACode00004,I18nCache.GetLabel<BannerDetailInfo_DTO>(),dt._BannerDetail.RowId,dt.Lang.ToLabel(), I18nCache.GetLabel<BannerDetailInfo_DTO>(x => x.Title));
+        });
+    }
+
     private static void ResetBannerSort(List<BannerDetail> dt)
     {
         if (!dt.HasData()) return;

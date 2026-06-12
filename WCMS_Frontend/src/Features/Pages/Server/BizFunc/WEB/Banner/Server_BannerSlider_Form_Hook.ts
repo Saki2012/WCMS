@@ -20,11 +20,11 @@ import type {
 import {
     buildEditGridCell,
     getEditGridCellValue,
-    getSelectedEditGridFile,
     getEditGridNullableStringCellValue,
     getEditGridNumberCellValue,
     getEditGridRowId,
     getEditGridStringCellValue,
+    getSelectedEditGridFile,
     toEditGridOptions,
     useEditGridBinding,
 } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
@@ -33,6 +33,7 @@ import { buildSupportedLangOrder, type Lang, LangLabelMap, SUPPORTED_LANGS, useE
 import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
+import { LibText } from "@/SysCore/Utils/Library/LibData";
 import { useUploadFile } from "@/SysCore/Utils/UI_HookFunc/useUploadFile";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
@@ -42,21 +43,13 @@ import { useCallback, useMemo } from "react";
 
 // #region Property
 type BannerSet = components["schemas"]["BannerSet_DTO"];
-
 type BannerDetail = components["schemas"]["BannerDetail_DTO"];
-
 type BannerDetailInfo = components["schemas"]["BannerDetailInfo_DTO"];
-
 type WindowTarget = components["schemas"]["WindowTarget"];
-
 type UploadFileHandler = ReturnType<typeof useUploadFile>["handleFileChange"];
-
 export type BannerPictureCellValue = EditGridFileValue & { internalId?: string; originalFileName?: string; };
-
 export type BannerDetailGridRow = GridRow & { BannerId?: string | null; DetailRowId?: number | null; };
-
 export type BannerDetailInfoGridRow = GridRow & { BannerId?: string | null; ParentRowId?: number | null; InfoRowId?: number | null; };
-
 export interface UseBannerSliderFormTemplateOptions
 {
     /** 目前語系 */
@@ -74,7 +67,6 @@ export interface UseBannerSliderFormTemplateOptions
     /** Form Template 標準動作設定 */
     actionsOpt: BannerSliderFormActionsOpt;
 }
-
 export interface UseBannerDetailEditGridOptions
 {
     /** 新版 Form Template 提供的資料 binding */
@@ -98,7 +90,6 @@ export interface UseBannerDetailEditGridOptions
     /** 子明細編輯中時鎖住父層 */
     isSubDetailEditing: boolean;
 }
-
 export interface UseBannerDetailInfoEditGridOptions
 {
     /** 新版 Form Template 提供的資料 binding */
@@ -116,21 +107,18 @@ export interface UseBannerDetailInfoEditGridOptions
     /** EditGrid UI 樣式，仍由 Comp 決定 */
     style: IEditGridView_Style;
 }
-
 export type BannerSliderFormRefs = {
     /** 外部連結開啟方式選項 */
     windowTargetOpts: Record<string, string>;
 };
-
 export type BannerSliderFormActionsOpt = {
     /** 儲存成功後要回到列表（或其他導頁） */
     onBackToList: () => void;
 };
-
 export type BannerSliderFormAdapter = { BannerSlider: ReturnType<typeof BannerSliderAdapter>; };
-
 /** 標題顏色，後續看是否可調成進階選取 RGBA。 */
 const fontColorOptions = toEditGridOptions({ "0": "系統預設", "1": "白色", "2": "綠色" }, true);
+const BANNER_DETAIL_INFO_TITLE_MAX_LENGTH = 200;
 // #endregion
 
 // #region Public
@@ -175,9 +163,10 @@ export const useBannerDetailEditGrid = (opt: UseBannerDetailEditGridOptions) =>
     const uploadFile = useUploadFile({ enablePreview: false });
     const displayName = opt.binding.displayName;
     const columns = useMemo(() => buildBannerDetailColumns(displayName), [displayName]);
-    const handlePictureValueChange = useCallback((args: EditGridCellValueChangeArgs) => uploadBannerPictureValue(args, uploadFile.handleFileChange), [
-        uploadFile.handleFileChange,
-    ]);
+    const handlePictureValueChange = useCallback((args: EditGridCellValueChangeArgs) =>
+    {
+        return uploadBannerPictureValue(args, opt.binding, uploadFile.handleFileChange);
+    }, [opt.binding, uploadFile.handleFileChange]);
 
     return useEditGridBinding<BannerSet, BannerDetail, BannerDetailGridRow>({
         binding: opt.binding,
@@ -251,7 +240,7 @@ export const toBannerPictureCellValue = (value: EditGridCellValue): BannerPictur
 /** 取得圖片預覽網址。 */
 export const getBannerPicturePreviewUrl = (picId?: string | null): string | undefined =>
 {
-    const id = String(picId ?? "").trim();
+    const id = LibText.safeTrim(picId);
     return id ? FileManagementAPI.get_Server_Preview_Url(id) ?? undefined : undefined;
 };
 // #endregion
@@ -432,7 +421,7 @@ const buildBannerDetailInfoColumns = (displayName: ModelDisplaySchema, windowTar
         width: 180,
         inputType: "text",
         editable: true,
-        maxLength: 200,
+        maxLength: BANNER_DETAIL_INFO_TITLE_MAX_LENGTH,
     }, {
         key: BannerDetailInfoFields.Content,
         title: getBannerColumnTitle(displayName, BannerSetFields.BannerDetailInfo, BannerDetailInfoFields.Content, "內文"),
@@ -732,27 +721,25 @@ const removeBannerDetailInfoFromData = (data: BannerSet, parentRowId: number): B
     return { ...data, BannerDetailInfo: nextInfos };
 };
 
-/** 使用 EditGrid 內建 file 欄位選圖後，上傳並轉回圖片值。 */
-const uploadBannerPictureValue = async (args: EditGridCellValueChangeArgs, handleFileChange: UploadFileHandler): Promise<EditGridCellValueChangeResult> =>
+/** 使用 EditGrid 內建 file 欄位選圖後，上傳並同步補齊語系標題。 */
+const uploadBannerPictureValue = async (args: EditGridCellValueChangeArgs, binding: ServerFormBinding<BannerSet>, handleFileChange: UploadFileHandler): Promise<EditGridCellValueChangeResult> =>
 {
     const selectedFile = getSelectedEditGridFile(args.nextValue);
     if (!selectedFile?.file) return { value: buildEmptyBannerPictureCellValue() };
-
     let uploadedValue = toBannerPictureCellValue(args.value);
     const selectedOriginalName = getSelectedBannerPictureName(selectedFile);
-
     await handleFileChange([selectedFile.file], (internalId, originalName) =>
     {
         uploadedValue = buildUploadedBannerPictureCellValue(internalId, originalName || selectedOriginalName);
     });
-
+    syncBannerDetailInfoTitlesByPictureName(args, binding, selectedOriginalName, uploadedValue);
     return { value: uploadedValue };
 };
 
 /** 取得本次選圖的原始檔名，避免上傳 callback 未帶檔名時只剩 internalId。 */
 const getSelectedBannerPictureName = (file: EditGridFileValue): string =>
 {
-    return String(file.file?.name || file.fileName || "").trim();
+    return LibText.safeTrim(file.file?.name || file.fileName);
 };
 
 /** 建立空圖片值，用於使用者清除 file 欄位。 */
@@ -770,8 +757,8 @@ const isBannerPictureCellValue = (value: EditGridCellValue): value is BannerPict
 /** 建立圖片欄位顯示文字：原始檔名 (internalId)。 */
 const buildBannerPictureFieldDisplayName = (originalName?: string | null, internalId?: string | null): string =>
 {
-    const name = String(originalName ?? "").trim();
-    const id = String(internalId ?? "").trim();
+    const name = LibText.safeTrim(originalName);
+    const id = LibText.safeTrim(internalId);
     if (name && id) return `${name} (${id})`;
     return name || id;
 };
@@ -806,5 +793,46 @@ const getBannerLangText = (value: EditGridCellValue): string =>
 const shouldShowSpec1817Fields = (): boolean =>
 {
     return String(import.meta.env.VITE_SPEC_CODE ?? "") === "1817";
+};
+
+/** 依圖片檔名補齊該圖片列底下所有語系標題。 */
+const syncBannerDetailInfoTitlesByPictureName = (
+    args: EditGridCellValueChangeArgs,
+    binding: ServerFormBinding<BannerSet>,
+    originalName: string,
+    uploadedValue: BannerPictureCellValue,
+): void =>
+{
+    const title = buildBannerTitleFromFileName(originalName);
+    const parentRowId = getEditGridRowId(args.row, args.rowIndex);
+    if (!uploadedValue.internalId || !title) return;
+
+    binding.setFormData(prev => syncBannerDetailInfoTitles(prev ?? bannerSliderEmptyData, parentRowId, title));
+};
+
+/** 同步 BannerDetailInfo 標題，僅補空白標題避免覆蓋人工輸入。 */
+const syncBannerDetailInfoTitles = (data: BannerSet, parentRowId: number, title: string): BannerSet =>
+{
+    const details = data.BannerDetail ?? [];
+    const syncedInfos = syncBannerDetailInfoParents(data.BannerDetailInfo ?? [], details, data.Banner?.BannerId);
+    const nextInfos = syncedInfos.map(info => fillBannerDetailInfoTitle(info, parentRowId, title));
+
+    return { ...data, BannerDetailInfo: nextInfos };
+};
+
+/** 補上單筆語系標題，已有標題時保留原值。 */
+const fillBannerDetailInfoTitle = (info: BannerDetailInfo, parentRowId: number, title: string): BannerDetailInfo =>
+{
+    if (Number(info.ParentRowId ?? 0) !== parentRowId) return info;
+    if (LibText.safeTrim(info.Title)) return info;
+    return { ...info, Title: title };
+};
+
+/** 從圖片檔名建立標題文字，去除副檔名並限制長度。 */
+const buildBannerTitleFromFileName = (fileName: string): string =>
+{
+    const rawName = String(fileName ?? "").split(/[\\/]/).pop() ?? "";
+    const nameWithoutExt = LibText.safeTrim(rawName.replace(/\.[^/.]+$/, ""));
+    return nameWithoutExt.slice(0, BANNER_DETAIL_INFO_TITLE_MAX_LENGTH);
 };
 // #endregion
