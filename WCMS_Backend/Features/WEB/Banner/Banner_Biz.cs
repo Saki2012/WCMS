@@ -52,7 +52,7 @@ public class BannerBiz(BizDeps bizDeps) : BizService<BannerSet>(bizDeps), IBizSe
         if (!SpecSettings.AACheck) return;
         infos.ForEach(dt =>
         {
-            if(dt.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.AACode00004,I18nCache.GetLabel<BannerDetailInfo_DTO>(),dt._BannerDetail.RowId,dt.Lang.ToLabel(), I18nCache.GetLabel<BannerDetailInfo_DTO>(x => x.Title));
+            if(dt.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.AACode00004,I18nCache.GetLabel<BannerDetailInfo_DTO>(),dt.ParentRowId, dt.Lang.ToLabel(), I18nCache.GetLabel<BannerDetailInfo_DTO>(x => x.Title));
         });
     }
 

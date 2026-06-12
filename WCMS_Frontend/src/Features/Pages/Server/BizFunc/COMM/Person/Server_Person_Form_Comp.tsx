@@ -5,9 +5,9 @@ import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { LibCheckBox, LibTextBox, LibUserCard } from "@/SysCore/Components/FormField/LibFormField";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import type { components } from "@/types/api";
 import { PersonModelFields, PersonSetFields } from "@/types/SchemaFields";
-import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -19,13 +19,11 @@ import {
 // #region Property
 type PersonSet = components["schemas"]["PersonSet_DTO"];
 
-
 interface PersonFormCompProps
 {
     /** 後台主題設定 */
     theme: IBETheme;
 }
-
 
 interface PersonContentProps
 {
@@ -39,13 +37,11 @@ interface PersonContentProps
     refs: PersonFormRefs;
 }
 
-
 interface PersonFieldSectionProps extends PersonContentProps
 {
     /** 欄位 binding helper */
     setField: ReturnType<typeof useSetTableField<PersonSet>>;
 }
-
 
 interface PersonUserCardProps
 {
@@ -113,7 +109,6 @@ const PersonContentComp = (props: PersonContentProps) =>
     );
 };
 
-
 /** 人員資料右側 Panel 區塊。 */
 const PersonPanelComp = (props: PersonContentProps) =>
 {
@@ -129,7 +124,6 @@ const PersonPanelComp = (props: PersonContentProps) =>
         </div>
     );
 };
-
 
 /** 左側人員頭像卡片，圖片上傳後回寫 PersonImgId。 */
 const PersonUserCardComp = (props: PersonUserCardProps) =>
@@ -151,7 +145,6 @@ const PersonUserCardComp = (props: PersonUserCardProps) =>
         />
     );
 };
-
 
 /** 人員資料欄位區。 */
 const PersonFieldSectionComp = (props: PersonFieldSectionProps) =>
@@ -192,7 +185,6 @@ const buildPersonIdFields = (props: PersonFieldSectionProps) =>
     );
 };
 
-
 /** 建立性別欄位。 */
 const buildPersonGenderFields = (props: PersonFieldSectionProps) =>
 {
@@ -211,7 +203,6 @@ const buildPersonGenderFields = (props: PersonFieldSectionProps) =>
     );
 };
 
-
 /** 建立 Email 欄位。 */
 const buildPersonEmailFields = (props: PersonFieldSectionProps) =>
 {
@@ -229,7 +220,6 @@ const buildPersonEmailFields = (props: PersonFieldSectionProps) =>
         </div>
     );
 };
-
 
 /** 建立電話欄位。 */
 const buildPersonPhoneFields = (props: PersonFieldSectionProps) =>
