@@ -494,14 +494,7 @@ const resolveAdjustedCellText = (
     }
     return p.rawContent;
 };
-const SetAdjustFunction = (
-    lang: Lang,
-    dirUrl: string,
-    gridProps: GridProps,
-    rawData: AnnouncementSet[],
-    catData: CategorySet[],
-    tagData: TagSet[],
-): GridProps =>
+const SetAdjustFunction = (lang: Lang, dirUrl: string, gridProps: GridProps, rawData: AnnouncementSet[], catData: CategorySet[], tagData: TagSet[]): GridProps =>
 {
     const newRows: GridRow[] = gridProps.rows.map((row, index) =>
     {

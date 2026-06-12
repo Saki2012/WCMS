@@ -69,13 +69,15 @@ export const RowRender = (props: { rows: GridRow[]; style?: IGridView_Style; }) 
 };
 export const Grid = (props: { gridData: GridProps; style: IGridView_Style; pageStyle: IPaginator_Style; }) =>
 {
-    const [columns, setColumns] = useState<ColumnConfig[]>(props.gridData.columns);
+    const [columns, setColumns] = useState<ColumnConfig[]>(() => props.gridData.columns);
     const [, setCurrentPage] = useState(1);
+
     useEffect(() =>
     {
         const widths = LibJson.readLocalStorageJson<GridColumnWidthMap>(STORAGE_KEY, {}, { guard: LibJson.isNumberRecord });
-        setColumns((prev) => applySavedColumnWidths(prev, widths));
-    }, []);
+        setColumns((prev) => syncGridColumns(props.gridData.columns, prev, widths));
+    }, [props.gridData.columns]);
+
     const handleResize = (index: number, width: number) =>
     {
         setColumns((prev) =>
@@ -115,21 +117,6 @@ export const Grid = (props: { gridData: GridProps; style: IGridView_Style; pageS
 // #endregion
 
 // #region Private
-/** 套用 localStorage 記錄的 Grid 欄寬。 */
-const applySavedColumnWidths = (columns: ColumnConfig[], widths: GridColumnWidthMap): ColumnConfig[] =>
-{
-    return columns.map((col) => ({
-        ...col,
-        width: resolveColumnWidth(col, widths),
-    }));
-};
-/** 解析欄位目前應使用的寬度。 */
-const resolveColumnWidth = (col: ColumnConfig, widths: GridColumnWidthMap): number | undefined =>
-{
-    if (typeof widths[col.key] === "number") return widths[col.key];
-    if (typeof col.width === "number") return col.width;
-    return undefined;
-};
 /** 建立可保存到 localStorage 的欄寬資料。 */
 const buildColumnWidthMap = (columns: ColumnConfig[]): GridColumnWidthMap =>
 {
@@ -139,5 +126,48 @@ const buildColumnWidthMap = (columns: ColumnConfig[]): GridColumnWidthMap =>
         if (typeof col.width === "number") widths[col.key] = col.width;
     });
     return widths;
+};
+/** 同步外部傳入的欄位設定，並保留目前欄寬。 */
+const syncGridColumns = (
+    nextColumns: ColumnConfig[],
+    currentColumns: ColumnConfig[],
+    savedWidths: GridColumnWidthMap,
+): ColumnConfig[] =>
+{
+    const currentWidths = buildColumnWidthMap(currentColumns);
+    const syncedColumns = nextColumns.map((col) => ({
+        ...col,
+        width: resolveSyncedColumnWidth(col, currentWidths, savedWidths),
+    }));
+
+    return isSameGridColumns(currentColumns, syncedColumns) ? currentColumns : syncedColumns;
+};
+
+/** 取得同步後欄位寬度，優先保留使用者目前調整的寬度。 */
+const resolveSyncedColumnWidth = (
+    col: ColumnConfig,
+    currentWidths: GridColumnWidthMap,
+    savedWidths: GridColumnWidthMap,
+): number | undefined =>
+{
+    if (typeof currentWidths[col.key] === "number") return currentWidths[col.key];
+    if (typeof savedWidths[col.key] === "number") return savedWidths[col.key];
+    if (typeof col.width === "number") return col.width;
+    return undefined;
+};
+
+/** 判斷欄位設定是否相同，避免不必要的 setState。 */
+const isSameGridColumns = (left: ColumnConfig[], right: ColumnConfig[]): boolean =>
+{
+    if (left.length !== right.length) return false;
+
+    return left.every((col, index) =>
+    {
+        const target = right[index];
+        return col.key === target.key
+            && col.title === target.title
+            && col.width === target.width
+            && col.visible === target.visible;
+    });
 };
 // #endregion

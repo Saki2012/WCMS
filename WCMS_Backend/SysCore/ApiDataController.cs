@@ -375,8 +375,6 @@ namespace WCMS.SysCore
         }
         #endregion
 
-
-
         #region Private
 
         #endregion
