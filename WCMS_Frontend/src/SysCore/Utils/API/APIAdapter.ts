@@ -314,20 +314,20 @@ export class ApiBaseAdapter<TService>
         {
             const init = opt.initial ?? null;
             const nextInitialSnapshotText = buildApiLoaderDataSnapshotText(init);
-
-            if (!init) return false;
+            if (!init)
+            {
+                lastInitialSnapshotRef.current = "";
+                return false;
+            }
             if (lastInitialSnapshotRef.current === nextInitialSnapshotText) return false;
-
             lastInitialSnapshotRef.current = nextInitialSnapshotText;
             setApiRes(prev => buildApiResponseSnapshotText(prev) === buildApiResponseSnapshotText(init.apiRes) ? prev : init.apiRes);
-
             if (isOk(init.apiRes))
             {
                 setData(prev => toStableSnapshotText(prev) === toStableSnapshotText(init.apiRes.Data) ? prev : init.apiRes.Data);
                 setErrorText(prev => prev === null ? prev : null);
                 return true;
             }
-
             applyError(init.apiRes, opt.fallbackError);
             return true;
         };
@@ -596,26 +596,32 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
         };
         const usePagedQueryList: ApiDataHookGroup<TSet>["usePagedQueryList"] = (opt) =>
         {
-            const [pageNumber, setPageNumber] = useState<number>(opt.baseParam.PageNumber ?? 1);
+            const defaultPageNumber = opt.baseParam.PageNumber ?? 1;
+            const resetKey = useMemo(() => buildPagedQueryResetKey(opt.baseParam, opt.deps), [opt.baseParam, opt.deps]);
+            const prevResetKeyRef = useRef<string>(resetKey);
+            const prevDefaultPageRef = useRef<number>(defaultPageNumber);
+            const [pageNumber, setPageNumber] = useState<number>(defaultPageNumber);
+
+            const shouldResetPage = prevResetKeyRef.current !== resetKey;
+            const shouldSyncDefaultPage = prevDefaultPageRef.current !== defaultPageNumber;
+            const effectivePageNumber = shouldResetPage || shouldSyncDefaultPage ? defaultPageNumber : pageNumber;
 
             useEffect(() =>
             {
-                setPageNumber(opt.baseParam.PageNumber ?? 1);
-            }, [opt.baseParam.PageNumber]);
+                if (!shouldResetPage && !shouldSyncDefaultPage) return;
 
-            const param = useMemo(() => ({ ...opt.baseParam, PageNumber: pageNumber }), [opt.baseParam, pageNumber]);
+                prevResetKeyRef.current = resetKey;
+                prevDefaultPageRef.current = defaultPageNumber;
+                setPageNumber(defaultPageNumber);
+            }, [resetKey, defaultPageNumber, shouldResetPage, shouldSyncDefaultPage]);
 
-            const deps = useMemo<EffectDeps>(() => [param.Condition, param.PageNumber, param.PageSize, ...opt.deps], [
-                param.Condition,
-                param.PageNumber,
-                param.PageSize,
-                opt.deps,
-            ]);
+            const param = useMemo(() => ({ ...opt.baseParam, PageNumber: effectivePageNumber }), [opt.baseParam, effectivePageNumber]);
+
+            const deps = useMemo<EffectDeps>(() => [buildPagedQueryResetKey(param, opt.deps), param.PageNumber], [param, opt.deps]);
 
             const currentParamKey = useMemo(() => JSON.stringify(param ?? null), [param]);
             const initialParamKey = useMemo(() => JSON.stringify(opt.initial?.args ?? null), [opt.initial]);
 
-            // 宣告變數：只有目前查詢參數與 SSR initial 完全相同時，才沿用 initial
             const matchedInitial = useMemo(() =>
             {
                 return currentParamKey === initialParamKey;
@@ -645,7 +651,12 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
                 return Math.max(1, Math.ceil(count / size));
             }, [opt.count, param.PageSize]);
 
-            return { ...r, data: r.data ?? [], pageNumber, totalPages, onPageChange: (p: number) => setPageNumber(p), param };
+            const onPageChange = useCallback((p: number): void =>
+            {
+                setPageNumber(p);
+            }, []);
+
+            return { ...r, data: r.data ?? [], pageNumber: effectivePageNumber, totalPages, onPageChange, param };
         };
         const useQueryData: ApiDataHookGroup<TSet>["useQueryData"] = (opt) =>
         {
@@ -936,6 +947,13 @@ const toStableSnapshotText = (value: unknown): string =>
     {
         return String(value);
     }
+};
+/** 建立分頁查詢重置 key，排除 PageNumber，避免單純換頁時又被重設回第一頁。 */
+const buildPagedQueryResetKey = (param: QueryListParam, deps: EffectDeps): string =>
+{
+    const { PageNumber: _pageNumber, ...resetParam } = param;
+
+    return toStableSnapshotText({ param: resetParam, deps });
 };
 
 /** 判斷是否為瀏覽器 File，SSR 環境不直接取用 File 避免錯誤。 */

@@ -5,8 +5,7 @@ import { type ClientSearchFieldViewModel, useClientSearchBar } from "./Client_Se
 // #region Public
 /** 前台共用搜尋列 */
 export const Client_SearchBar_Comp = (
-    { title = "搜尋條件", fields, values, actionAlign = "right", searchButtonText = "搜尋", resetButtonText = "重置", columnCount = 3, onSearch, onReset }:
-        ClientDataQuerySearchBarModel,
+    { title = "搜尋條件", fields, values, actionAlign = "right", searchButtonText = "搜尋", resetButtonText = "重置", columnCount = 3, onSearch, onReset }: ClientDataQuerySearchBarModel,
 ) =>
 {
     const { values: draftValues, fieldRows, getFieldId, handleFieldChange, handleSearch, handleReset } = useClientSearchBar({
@@ -64,40 +63,31 @@ export const Client_SearchBar_Comp = (
             >
                 <option value="">全部</option>
 
-                {field.options?.map((option) => (
-                    <option key={`${field.key}-${option.value}`} value={option.value} disabled={option.disabled}>{option.label}</option>
-                ))}
+                {field.options?.map((option) => <option key={`${field.key}-${option.value}`} value={option.value} disabled={option.disabled}>{option.label}</option>)}
             </select>
         );
     };
-
     /** 依照欄位類型渲染控制項 */
     const renderControl = (field: ClientSearchFieldViewModel) =>
     {
         if (field.type === "select") return renderSelectField(field);
         return renderInputField(field);
     };
-
     /** 渲染單一搜尋欄位 */
     const renderField = (field: ClientSearchFieldViewModel) =>
     {
         return (
             <div key={field.key} className="client-searchbar__field">
                 <label htmlFor={getFieldId(field.key)} className="client-searchbar__label">{field.label}</label>
-
                 {renderControl(field)}
             </div>
         );
     };
-
     /** 渲染一列搜尋欄位 */
     const renderRow = (row: ClientSearchFieldViewModel[], rowIndex: number) =>
     {
         return <div key={`client-search-row-${rowIndex}`} className="client-searchbar__row">{row.map(renderField)}</div>;
     };
-
-    console.log("props:", { title, fields, values, actionAlign });
-
     return (
         <section className="client-searchbar" aria-labelledby="client-searchbar-title">
             <form className="client-searchbar__form" role="search" style={formStyle} onSubmit={handleSearch}>
@@ -109,7 +99,6 @@ export const Client_SearchBar_Comp = (
 
                 <div className={`client-searchbar__actions client-searchbar__actions--${actionAlign}`}>
                     <button type="button" className="client-searchbar__button client-searchbar__button--reset" onClick={handleReset}>{resetButtonText}</button>
-
                     <button type="submit" className="client-searchbar__button client-searchbar__button--search">{searchButtonText}</button>
                 </div>
             </form>
