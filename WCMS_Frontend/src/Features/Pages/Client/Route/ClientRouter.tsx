@@ -1,19 +1,5 @@
-import {
-    AnnouncementForm,
-    AnnouncementList,
-    FileArchiveList,
-    GalleryListComp,
-    PageManagementForm,
-    SubPage,
-    WebResourceListComp,
-} from "@/Features/Pages/Client/Route/ClientComponentResolver";
-import {
-    type IAnnouncementListOptions,
-    type IFileArchiveOptions,
-    type IGalleryListOptions,
-    type IPageManagementOptions,
-    type IWebResourceListOptions,
-} from "@/Features/Pages/Client/Route/ClientComponentResolver";
+import { AnnouncementForm, AnnouncementList, FileArchiveList, GalleryListComp, PageManagementForm, SubPage, WebResourceListComp } from "@/Features/Pages/Client/Route/ClientComponentResolver";
+import { type IAnnouncementListOptions, type IFileArchiveOptions, type IGalleryListOptions, type IPageManagementOptions, type IWebResourceListOptions } from "@/Features/Pages/Client/Route/ClientComponentResolver";
 import { Classic_FETheme } from "@/Features/Pages/Client/Theme/ClassicTheme_Clsx";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter";

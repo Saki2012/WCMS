@@ -39,17 +39,17 @@ export const HomePage: typeof HomePageBase = resolveSpecComponent(getClientSlotP
 // HomePage Loader
 export const HomePageLoader: typeof HomePageLoaderBase = resolveSpecFunc(getClientSlotPath("HomePageLoader"), HomePageLoaderBase, ["HomePageLoader", "default"]);
 // PageManagement Form
-export const PageManagementForm: typeof PageManagementFormBase = resolveSpecComponent(getClientSlotPath("PageManagementForm"), PageManagementFormBase, ["PageManagementFormComp", "PageManagementForm", "default"]);
+export const PageManagementForm: typeof PageManagementFormBase = resolveSpecComponent(getClientSlotPath("Slot_PageManagement_Form_Comp"), PageManagementFormBase, ["PageManagementFormComp", "PageManagementForm", "default"]);
 // Announcement List
-export const AnnouncementList: typeof AnnouncementListBase = resolveSpecComponent(getClientSlotPath("AnnouncementList"), AnnouncementListBase, ["AnnouncementList", "AnnouncementListComp", "default"]);
+export const AnnouncementList: typeof AnnouncementListBase = resolveSpecComponent(getClientSlotPath("Slot_Announcement_List_Comp"), AnnouncementListBase, ["AnnouncementList", "AnnouncementListComp", "default"]);
 // Announcement Form
-export const AnnouncementForm: typeof AnnouncementFormBase = resolveSpecComponent(getClientSlotPath("AnnouncementForm"), AnnouncementFormBase, ["AnnouncementFormComp", "AnnouncementForm", "default"]);
+export const AnnouncementForm: typeof AnnouncementFormBase = resolveSpecComponent(getClientSlotPath("Slot_Announcement_Form_Comp"), AnnouncementFormBase, ["AnnouncementFormComp", "AnnouncementForm", "default"]);
 // FileArchive List
-export const FileArchiveList: typeof FileArchiveListBase = resolveSpecComponent(getClientSlotPath("FileArchiveList"), FileArchiveListBase, ["FileArchiveList", "FileArchiveListComp", "default"]);
+export const FileArchiveList: typeof FileArchiveListBase = resolveSpecComponent(getClientSlotPath("Slot_FileArchive_List_Comp"), FileArchiveListBase, ["FileArchiveList", "FileArchiveListComp", "default"]);
 // Gallery List
-export const GalleryListComp: typeof GalleryListBase = resolveSpecComponent(getClientSlotPath("GalleryList"), GalleryListBase, ["GalleryListComp", "GalleryList", "default"]);
+export const GalleryListComp: typeof GalleryListBase = resolveSpecComponent(getClientSlotPath("Slot_Gallery_List_Comp"), GalleryListBase, ["GalleryListComp", "GalleryList", "default"]);
 // Gallery Form
-export const GalleryForm: typeof GalleryFormBase = resolveSpecComponent(getClientSlotPath("GalleryForm"), GalleryFormBase, ["GalleryFormComp", "GalleryForm", "default"]);
+export const GalleryForm: typeof GalleryFormBase = resolveSpecComponent(getClientSlotPath("Slot_Gallery_Form_Comp"), GalleryFormBase, ["GalleryFormComp", "GalleryForm", "default"]);
 // WebResource List
-export const WebResourceListComp: typeof WebResourceListBase = resolveSpecComponent(getClientSlotPath("WebResourceList"), WebResourceListBase, ["WebResourceListComp", "WebResourceList", "default"]);
+export const WebResourceListComp: typeof WebResourceListBase = resolveSpecComponent(getClientSlotPath("Slot_WebResource_List_Comp"), WebResourceListBase, ["WebResourceListComp", "WebResourceList", "default"]);
 // #endregion

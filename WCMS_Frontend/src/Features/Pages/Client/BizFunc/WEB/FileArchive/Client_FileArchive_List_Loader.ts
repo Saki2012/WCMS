@@ -127,6 +127,16 @@ export const useFileArchiveListData = (p: { lang: Lang; opts: IFileArchiveOption
 };
 // #endregion
 
+// #region Protected
+/** 延後解析 spec data query slot，避免 SSR import 期循環引用 */
+const getResolvedFileArchiveListDataQuerySpec = (): FileArchiveListDataQuerySpecSlot =>
+{
+    if (_resolvedFileArchiveListDataQuerySpec) return _resolvedFileArchiveListDataQuerySpec;
+    _resolvedFileArchiveListDataQuerySpec = resolveSpecFunc<FileArchiveListDataQuerySpecSlot>(getClientSlotPath("Slot_FileArchive_List_Loader"), extendFileArchiveListDataQuerySpec, ["extendFileArchiveListDataQuerySpec"]);
+    return _resolvedFileArchiveListDataQuerySpec;
+};
+// #endregion
+
 // #region Private
 /** 建立 FileArchive 前台搜尋欄位，標籤選單由 tag map 動態提供 */
 const buildFileArchiveSearchFields = (tagOptions: FileArchiveTagOption[] = []): SearchFieldConfig[] =>
@@ -215,13 +225,7 @@ const buildFileArchiveQueryArgs = (p: FileArchiveSearchParams & { condition: str
     const listParam = buildFileArchiveQuery({ condition: p.condition, pageNumber: p.pageNumber, pageSize: p.pageSize });
     return { lang: p.lang, pageSize: p.pageSize, pageNumber: p.pageNumber, title: p.title, categoryIds: p.categoryIds, tagIds: p.tagIds, condition: p.condition, listParam };
 };
-/** 延後解析 spec data query slot，避免 SSR import 期循環引用 */
-const getResolvedFileArchiveListDataQuerySpec = (): FileArchiveListDataQuerySpecSlot =>
-{
-    if (_resolvedFileArchiveListDataQuerySpec) return _resolvedFileArchiveListDataQuerySpec;
-    _resolvedFileArchiveListDataQuerySpec = resolveSpecFunc<FileArchiveListDataQuerySpecSlot>(getClientSlotPath("FileArchiveListLoader"), extendFileArchiveListDataQuerySpec, ["extendFileArchiveListDataQuerySpec"]);
-    return _resolvedFileArchiveListDataQuerySpec;
-};
+
 /** 建立 FileArchive DataQueryTemplate */
 const createFileArchiveDataQueryTemplate = (p: { lang: Lang; opts: IFileArchiveOptions; overrides?: Partial<{ pageNumber: number; pageSize: number; title: string; categoryIds: string; tagIds: string; }>; }): FileArchiveDataQueryTemplate =>
 {

@@ -7,17 +7,19 @@ import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import { applyGridColumnWidths, readGridColumnWidths, writeGridColumnWidths } from "@/SysCore/Components/Grid/Grid_ColumnWidth";
 import { ColRender, RowRender } from "@/SysCore/Components/Grid/Grid_Comp";
-import type { ColumnConfig, GridProps, GridRow } from "@/SysCore/Components/Grid/Grid_Data";
+import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
 import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { formatDate, LibDate, LibText } from "@/SysCore/Utils/Library/LibData";
+import { resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
 import { useOptionalSpecAssetUrl } from "@/SysCore/Utils/UI_HookFunc/useOptionalSpecAssetUrl";
 import type { components } from "@/types/api";
 import { AnnouncementDetailFields, AnnouncementFields } from "@/types/SchemaFields";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { getClientSlotPath } from "../../../Scaffold/Slot/Client_SlotPath";
 
 // #region Property
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
@@ -39,6 +41,35 @@ export interface IAnnouncementListProps
 }
 type NativeMouseEventWithStopImmediate = MouseEvent & { stopImmediatePropagation?: () => void; };
 const ANNOUNCEMENT_GRID_COLUMN_WIDTH_STORAGE_KEY = "client-announcement-grid-column-widths";
+export interface AnnouncementListGridContext
+{
+    lang: Lang;
+    dirUrl: string;
+    gridProps: GridProps;
+    rawData: AnnouncementSet[];
+    categoryData: CategorySet[];
+    tagData: TagSet[];
+}
+
+export interface AnnouncementListGridRowContext extends AnnouncementListGridContext
+{
+    rowData?: AnnouncementSet;
+    rowIndex: number;
+    columns: ColumnConfig[];
+}
+
+export interface AnnouncementListGridSpecSlot
+{
+    /** 調整公告清單欄位，可用於隱藏、新增、排序欄位。 */
+    resolveGridColumns?: (columns: ColumnConfig[], context: AnnouncementListGridContext) => ColumnConfig[];
+    /** 調整公告清單每列 cells，可用於追加或改寫客製欄位內容。 */
+    resolveGridCells?: (cells: RowCell[], context: AnnouncementListGridRowContext) => RowCell[];
+}
+// #endregion
+
+// #region Initialization
+const extendAnnouncementListGridSpec: AnnouncementListGridSpecSlot = {};
+const resolvedAnnouncementListGridSpec = resolveSpecFunc<AnnouncementListGridSpecSlot>(getClientSlotPath("Slot_Announcement_List_Comp"), extendAnnouncementListGridSpec, ["extendAnnouncementListGridSpec"]);
 // #endregion
 
 // #region Public
@@ -46,7 +77,17 @@ export const Client_Announcement_List = (props: IAnnouncementListProps) =>
 {
     const dirUrl = useLocation().pathname.replace(/\/List$/, "");
     const vm = useAnnouncementListData({ lang: props.lang, opts: props.options });
-    const adjustedGrid = useMemo(() => SetAdjustFunction(props.lang, dirUrl, vm.gridPropsFromList, vm.listData, vm.categoryData, vm.tagData), [props.lang, dirUrl, vm.gridPropsFromList, vm.listData, vm.categoryData, vm.tagData]);
+    const adjustedGrid = useMemo(() =>
+    {
+        return SetAdjustFunction({
+            lang: props.lang,
+            dirUrl,
+            gridProps: vm.gridPropsFromList,
+            rawData: vm.listData,
+            categoryData: vm.categoryData,
+            tagData: vm.tagData,
+        });
+    }, [props.lang, dirUrl, vm.gridPropsFromList, vm.listData, vm.categoryData, vm.tagData]);
     const children = useMemo(() =>
     {
         switch (props.options?.Style)
@@ -82,15 +123,12 @@ export const Client_Announcement_List = (props: IAnnouncementListProps) =>
 const GridList_Comp = (props: { lang: Lang; title: string; gridData: GridProps; }) =>
 {
     const [columns, setColumns] = useState<ColumnConfig[]>(props.gridData.columns);
-
     useEffect(() =>
     {
         const widths = readGridColumnWidths(ANNOUNCEMENT_GRID_COLUMN_WIDTH_STORAGE_KEY);
-        if (Object.keys(widths).length === 0) return;
-
-        setColumns((prev) => applyGridColumnWidths(prev, widths));
-    }, []);
-
+        const nextColumns = Object.keys(widths).length > 0 ? applyGridColumnWidths(props.gridData.columns, widths) : props.gridData.columns;
+        setColumns(nextColumns);
+    }, [props.gridData.columns]);
     const handleResize = (index: number, width: number): void =>
     {
         setColumns((prev) =>
@@ -100,7 +138,6 @@ const GridList_Comp = (props: { lang: Lang; title: string; gridData: GridProps; 
             return updated;
         });
     };
-
     return (
         <>
             <OperationGuideHelp_Comp lang={props.lang} />
@@ -494,56 +531,57 @@ const resolveAdjustedCellText = (
     }
     return p.rawContent;
 };
-const SetAdjustFunction = (lang: Lang, dirUrl: string, gridProps: GridProps, rawData: AnnouncementSet[], catData: CategorySet[], tagData: TagSet[]): GridProps =>
+/** 建立公告列表 Grid，並套用 Spec 欄位與 cell 擴充。 */
+const SetAdjustFunction = (context: AnnouncementListGridContext): GridProps =>
 {
-    const newRows: GridRow[] = gridProps.rows.map((row, index) =>
-    {
-        const curRow = rawData?.[index];
-        const internalId = curRow?.Announcement?.InternalId ?? "";
-        const contentStatus = curRow?.Announcement?.ContentStatus ?? 0;
-        const titleId = `title-${internalId}`;
-        const rowTitle = curRow?.AnnouncementDetail?.find(p => p.Lang === lang)?.Title?.trim() ?? "";
-        const srLinkText = rowTitle ? `前往：${rowTitle}` : "前往內容";
-        const newCells = row.cells.map((cell) =>
-        {
-            const isTitle = cell.col.key === AnnouncementDetailFields.Title;
-            const displayText = resolveAdjustedCellText({
-                colKey: cell.col.key,
-                rawContent: typeof cell.content === "string" ? cell.content : "",
-                rowTitle,
-                curRow,
-                catData,
-                tagData,
-                lang,
-            });
-            return {
-                ...cell,
-                content: (
-                    <>
-                        {isTitle
-                            ? (
-                                <>
-                                    {LibDate.isWithinLastDays(curRow?.Announcement?.Validate_Start, 8) && <span className="label label-warning">最新</span>}
-                                    {Boolean(contentStatus & 1) && <span className="label label-success">置頂</span>}
-                                    {Boolean(contentStatus & 2) && <span className="label label-danger">熱門</span>}
-                                    <LangLink
-                                        to={`${dirUrl}/${internalId}`}
-                                        className="link-cell"
-                                        id={isTitle ? titleId : undefined}
-                                        aria-labelledby={isTitle ? undefined : titleId}
-                                    >
-                                        <span aria-hidden={!isTitle}>{displayText}</span>
-                                        {!isTitle && <span className="visually-hidden">{srLinkText}</span>}
-                                    </LangLink>
-                                </>
-                            )
-                            : <span>{displayText}</span>}
-                    </>
-                ),
-            };
-        });
-        return { ...row, cells: newCells };
-    });
-    return { ...gridProps, rows: newRows };
+    const columns = resolveAnnouncementGridColumns(context);
+    const columnKeys = new Set(columns.map(col => col.key));
+    const rows = context.gridProps.rows.map((row, index) => buildAnnouncementGridRow(context, row, index, columns, columnKeys));
+
+    return { ...context.gridProps, columns, rows };
+};
+
+/** 解析公告列表欄位，可讓 Spec 隱藏、新增或排序欄位。 */
+const resolveAnnouncementGridColumns = (context: AnnouncementListGridContext): ColumnConfig[] =>
+{
+    const columns = context.gridProps.columns;
+
+    return resolvedAnnouncementListGridSpec.resolveGridColumns?.(columns, context) ?? columns;
+};
+
+/** 建立公告列表單列資料，並套用 Spec cell 擴充。 */
+const buildAnnouncementGridRow = (context: AnnouncementListGridContext, row: GridRow, index: number, columns: ColumnConfig[], columnKeys: Set<string>): GridRow =>
+{
+    const adjustedCells = row.cells.map(cell => buildAnnouncementGridCell(context, cell, index)).filter(cell => columnKeys.has(cell.col.key));
+    const finalCells = resolvedAnnouncementListGridSpec.resolveGridCells?.(adjustedCells, { ...context, rowData: context.rawData?.[index], rowIndex: index, columns }) ?? adjustedCells;
+    return { ...row, cells: finalCells };
+};
+/** 建立公告列表 cell 顯示內容。 */
+const buildAnnouncementGridCell = (context: AnnouncementListGridContext, cell: RowCell, index: number): RowCell =>
+{
+    const curRow = context.rawData?.[index];
+    const internalId = curRow?.Announcement?.InternalId ?? "";
+    const contentStatus = curRow?.Announcement?.ContentStatus ?? 0;
+    const titleId = `title-${internalId}`;
+    const rowTitle = curRow?.AnnouncementDetail?.find(p => p.Lang === context.lang)?.Title?.trim() ?? "";
+    const srLinkText = rowTitle ? `前往：${rowTitle}` : "前往內容";
+    const isTitle = cell.col.key === AnnouncementDetailFields.Title;
+    const displayText = resolveAdjustedCellText({ colKey: cell.col.key, rawContent: typeof cell.content === "string" ? cell.content : "", rowTitle, curRow, catData: context.categoryData, tagData: context.tagData, lang: context.lang });
+    return { ...cell, content: buildAnnouncementGridCellContent({ context, internalId, contentStatus, titleId, srLinkText, isTitle, displayText }) };
+};
+/** 建立公告列表 cell JSX。 */
+const buildAnnouncementGridCellContent = (p: { context: AnnouncementListGridContext; internalId: string; contentStatus: number; titleId: string; srLinkText: string; isTitle: boolean; displayText: string; }): JSX.Element =>
+{
+    if (!p.isTitle) return <span>{p.displayText}</span>;
+    return (
+        <>
+            {LibDate.isWithinLastDays(p.context.rawData.find(x => x.Announcement?.InternalId === p.internalId)?.Announcement?.Validate_Start, 8) && <span className="label label-warning">最新</span>}
+            {Boolean(p.contentStatus & 1) && <span className="label label-success">置頂</span>}
+            {Boolean(p.contentStatus & 2) && <span className="label label-danger">熱門</span>}
+            <LangLink to={`${p.context.dirUrl}/${p.internalId}`} className="link-cell" id={p.titleId}>
+                <span>{p.displayText}</span>
+            </LangLink>
+        </>
+    );
 };
 // #endregion

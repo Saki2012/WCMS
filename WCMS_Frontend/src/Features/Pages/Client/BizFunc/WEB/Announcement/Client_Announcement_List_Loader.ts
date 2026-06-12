@@ -22,6 +22,7 @@ import type { IListViewState } from "@/SysCore/Interface/IListViewState";
 import type { ApiGridInitial, ApiGridLoaderData, ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { formatDate, getTodayRange, LibCondition, LibText } from "@/SysCore/Utils/Library/LibData";
+import { resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
 import type { components } from "@/types/api";
 import {
     AnnouncementDetailFields,
@@ -37,6 +38,7 @@ import {
 import { useEffect, useMemo, useRef } from "react";
 import type { LoaderFunctionArgs } from "react-router-dom";
 import { useLoaderData } from "react-router-dom";
+import { getClientSlotPath } from "../../../Scaffold/Slot/Client_SlotPath";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
@@ -112,14 +114,11 @@ type AnnouncementSearchParams = {
 };
 type AnnouncementQueryParam = Omit<AnnouncementListLoaderArgs, "viewCountParam">;
 type AnnouncementListViewModel = Omit<UseAnnouncementListDataResult, "isLoading" | "errorList" | "searchBar">;
-type AnnouncementDataQueryTemplate = ClientDataQueryTemplate<
-    AnnouncementSearchParams,
-    AnnouncementListViewModel,
-    AnnouncementListViewModel,
-    unknown,
-    AnnouncementQueryParam,
-    AnnouncementListLoaderData
->;
+type AnnouncementDataQueryTemplate = ClientDataQueryTemplate<AnnouncementSearchParams, AnnouncementListViewModel, AnnouncementListViewModel, unknown, AnnouncementQueryParam, AnnouncementListLoaderData>;
+export type AnnouncementListDataQuerySpecSlot = NonNullable<AnnouncementDataQueryTemplate["spec"]>;
+let _resolvedAnnouncementListDataQuerySpec: AnnouncementListDataQuerySpecSlot | null = null;
+/** Announcement 預設 DataQuery 客製 slot，Spec 未覆寫時不做任何事。 */
+export const extendAnnouncementListDataQuerySpec: AnnouncementListDataQuerySpecSlot = {};
 // #endregion
 
 // #region Public
@@ -209,6 +208,15 @@ export const useAnnouncementListData = (p: { lang: Lang; opts?: IAnnouncementLis
         isLoading: templateVm.isLoading,
         errorList: templateVm.errorList,
     };
+};
+// #endregion
+
+// #region Protected
+const getResolvedAnnouncementListDataQuerySpec = (): AnnouncementListDataQuerySpecSlot =>
+{
+    if (_resolvedAnnouncementListDataQuerySpec) return _resolvedAnnouncementListDataQuerySpec;
+    _resolvedAnnouncementListDataQuerySpec = resolveSpecFunc<AnnouncementListDataQuerySpecSlot>(getClientSlotPath("Slot_Announcement_List_Loader"), extendAnnouncementListDataQuerySpec, ["extendAnnouncementListDataQuerySpec"]);
+    return _resolvedAnnouncementListDataQuerySpec;
 };
 // #endregion
 
@@ -449,6 +457,7 @@ const createAnnouncementDataQueryTemplate = (
         initialViewState,
         pagination,
         searchBar: { title: "搜尋條件", actionAlign: "right", columnCount: 3 },
+        spec: getResolvedAnnouncementListDataQuerySpec(),
         feature: {
             searchFields: buildAnnouncementSearchFields(),
             toSearchParams: (values, viewState) => buildAnnouncementSearchParams({ ...p, values, viewState }),
