@@ -44,7 +44,7 @@ public partial class Banner_DTO : DTOBasicDataModel
     public List<BannerDetail_DTO>? _BannerDetail { get; set; }
     #endregion
 }
-public partial class BannerDetail_DTO
+[LibDesc(ModelDisplayName.BannerDetail)]public partial class BannerDetail_DTO
 {
     /// <summary>
     /// 

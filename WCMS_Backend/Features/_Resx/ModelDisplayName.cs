@@ -906,7 +906,10 @@ public static class ModelDisplayName
     /// 橫幅表單
     /// </summary>
     public const string BannerSet = nameof(BannerSet);
-
+    /// <summary>
+    /// 橫幅明細
+    /// </summary>
+    public const string BannerDetail = nameof(BannerDetail);
     /// <summary>
     /// 中：橫幅廣告
     /// 英：Banner Ad

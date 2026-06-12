@@ -129,21 +129,8 @@ const PersonPanelComp = (props: PersonContentProps) =>
 const PersonUserCardComp = (props: PersonUserCardProps) =>
 {
     const userPic = FileManagementAPI.get_Server_Preview_Url(props.binding.data?.Person?.PersonImgId) ?? pic;
-    const setPersonImgId = useCallback((id: string) =>
-    {
-        props.binding.setFormData(prev => updatePersonImgId(prev, id));
-    }, [props.binding]);
-
-    return (
-        <LibUserCard
-            DisplayNameEN={props.binding.data?.Person?.PersonId ?? ""}
-            DisplayNameTW={props.binding.data?.Person?.PersonName ?? ""}
-            DisplayRole={""}
-            PicSrc={userPic}
-            Style={props.theme.UserImageUploadCard}
-            onUploadedTempId={setPersonImgId}
-        />
-    );
+    const setPersonImgId = useCallback((id: string) => (props.binding.setFormData(prev => updatePersonImgId(prev, id))), [props.binding]);
+    return <LibUserCard DisplayNameEN={props.binding.data?.Person?.PersonId ?? ""} DisplayNameTW={props.binding.data?.Person?.PersonName ?? ""} DisplayRole={""} PicSrc={userPic} Style={props.theme.UserImageUploadCard} onUploadedTempId={setPersonImgId} />;
 };
 
 /** 人員資料欄位區。 */
