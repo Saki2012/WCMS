@@ -98,8 +98,8 @@ namespace WCMS.Features.WEB.Announcement
         [LibDesc(ModelDisplayName.Common_UrlDescription)] public string? UrlDescription { get; set; }
 
         #region 主子表關聯
-        public Announcement_DTO _Announcement { get; set; } = null!;
-        public List<AnnouncementDetailFile_DTO> _AnnouncementDetailFile { get; set; }
+        public Announcement_DTO? _Announcement { get; set; } = null!;
+        public List<AnnouncementDetailFile_DTO>? _AnnouncementDetailFile { get; set; }
         #endregion
     }
     /// <summary>
@@ -129,5 +129,9 @@ namespace WCMS.Features.WEB.Announcement
         /// 檔案名稱
         /// </summary>
         [LibDesc(ModelDisplayName.Announcement_FileName)] public string? FileName { get; set; }
+
+        #region 主子表關聯
+        public AnnouncementDetail_DTO? _AnnouncementDetail { get; set; }
+        #endregion
     }
 }

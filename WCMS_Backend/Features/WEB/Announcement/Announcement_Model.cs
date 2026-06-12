@@ -116,6 +116,7 @@ namespace WCMS.Features.WEB.Announcement
         /// 檔案名稱
         /// </summary>
         [StringLength(SysLengthParam.Title)] public string FileName { get; set; }
+
         #region 主子表關聯
         [ForeignKey($@"{nameof(AnnouncementId)},{nameof(ParentRowId)}")] public AnnouncementDetail _AnnouncementDetail { get; set; }
         #endregion

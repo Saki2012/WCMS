@@ -754,18 +754,12 @@ DB SpecCode 檢查未通過。App SpecCode = '{FormatSpecCode(appSpecCode)}'，D
         /// </summary>
         private static void AddInvalidModelMessage(ActionContext context, ErrorHelper message, string key)
         {
-            // 宣告變數
             var prop = FindModelProperty(context, key);
             var displayName = prop == null ? GetFieldName(key) : $"{I18nCache.GetLabel(prop)}【{key}】";
             var errorText = context.ModelState[key]?.Errors.FirstOrDefault()?.ErrorMessage ?? string.Empty;
             var maxLength = GetMaxLength(prop);
-            // 執行 function
-            if (maxLength.HasValue && !IsRequiredError(errorText))
-            {
-                message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00034, displayName, maxLength.Value);
-                return;
-            }
-            message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00035, displayName);
+            if (maxLength.HasValue && !IsRequiredError(errorText)) message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00034, displayName, maxLength.Value);
+            else message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00035, displayName);
         }
 
         /// <summary>
