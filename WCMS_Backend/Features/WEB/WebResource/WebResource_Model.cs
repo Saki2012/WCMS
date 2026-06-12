@@ -81,7 +81,7 @@ namespace WCMS.Features.WEB.WebResource
         /// <summary>
         /// 超連結開啟方式
         /// </summary>
-        [StringLength(SysLengthParam.ID)] public WindowTarget Url_OpenType { get; set; }
+        public WindowTarget Url_OpenType { get; set; }
 
         #region 主子表關聯
         [ForeignKey(nameof(WebResourceId))] public WebResource _WebResource { get; set; }

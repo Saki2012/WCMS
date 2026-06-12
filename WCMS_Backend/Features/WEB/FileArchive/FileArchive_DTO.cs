@@ -23,7 +23,7 @@ namespace WCMS.Features.WEB.FileArchive
         /// <summary>
         /// 檔案分類ID
         /// </summary>
-        [LibDesc(ModelDisplayName.FileArchiveId)] public string? FileArchiveId { get; set; }
+        [LibDesc(ModelDisplayName.FileArchiveId), StringLength(SysLengthParam.ID)] public string? FileArchiveId { get; set; }
         /// <summary>
         /// 狀態:置頂/熱門/隱藏
         /// </summary>
@@ -31,11 +31,11 @@ namespace WCMS.Features.WEB.FileArchive
         /// <summary>
         /// 類別ID(多個)
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_Category)] public string? CategoriesId { get; set; }
+        [LibDesc(ModelDisplayName.Common_Category), StringLength(SysLengthParam.Title)] public string? CategoriesId { get; set; }
         /// <summary>
         /// 標籤ID(多個)
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_Tag)] public string? TagsId { get; set; }
+        [LibDesc(ModelDisplayName.Common_Tag), StringLength(SysLengthParam.Title)] public string? TagsId { get; set; }
 
         #region 主子表關聯
         public List<FileArchiveInfo_DTO>? _FileArchiveInfo { get; set; } = [];
@@ -46,7 +46,7 @@ namespace WCMS.Features.WEB.FileArchive
         /// <summary>
         /// 檔案分類ID
         /// </summary>
-        [LibDesc(ModelDisplayName.FileArchiveId)] public string? FileArchiveId { get; set; }
+        [LibDesc(ModelDisplayName.FileArchiveId), StringLength(SysLengthParam.ID)] public string? FileArchiveId { get; set; }
         /// <summary>
         /// 行主鍵
         /// </summary>
@@ -58,7 +58,7 @@ namespace WCMS.Features.WEB.FileArchive
         /// <summary>
         /// 標題
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_Title)] public string? Title { get; set; }
+        [LibDesc(ModelDisplayName.Common_Title), StringLength(SysLengthParam.Title)] public string? Title { get; set; }
 
         #region 主子表關聯
         public List<FileArchiveDetail_DTO> _FileArchiveDetail { get; set; } = [];
@@ -70,7 +70,7 @@ namespace WCMS.Features.WEB.FileArchive
         /// <summary>
         /// 靜態客製頁面ID
         /// </summary>
-        [LibDesc(ModelDisplayName.FileArchiveId)] public string? FileArchiveId { get; set; }
+        [LibDesc(ModelDisplayName.FileArchiveId), StringLength(SysLengthParam.ID)] public string? FileArchiveId { get; set; }
         /// <summary>
         /// 父行主鍵 (_FileArchiveInfo)
         /// </summary>
@@ -83,18 +83,18 @@ namespace WCMS.Features.WEB.FileArchive
         /// 檔案來源
         /// </summary>
         [ForeignKey(nameof(FileSrcId))] public FileManageModel_DTO? FileSrc { get; set; }
-        [LibDesc(ModelDisplayName.FileArchive_FileSrcId)] public string? FileSrcId { get; set; }
+        [LibDesc(ModelDisplayName.FileArchive_FileSrcId), StringLength(SysLengthParam.InternalId)] public string? FileSrcId { get; set; }
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
-        [LibDesc(ModelDisplayName.FileArchive_FileName)] public string? FileName { get; set; }
+        [LibDesc(ModelDisplayName.FileArchive_FileName), StringLength(SysLengthParam.Title)] public string? FileName { get; set; }
     }
     [LibDesc(ModelDisplayName.FileArchiveUrlDetail)] public class FileArchiveUrlDetail_DTO
     {
         /// <summary>
         /// 靜態客製頁面ID
         /// </summary>
-        [LibDesc(ModelDisplayName.FileArchiveId)] public string? FileArchiveId { get; set; }
+        [LibDesc(ModelDisplayName.FileArchiveId), StringLength(SysLengthParam.ID)] public string? FileArchiveId { get; set; }
         /// <summary>
         /// 父行主鍵 (_FileArchiveInfo)
         /// </summary>
@@ -106,11 +106,11 @@ namespace WCMS.Features.WEB.FileArchive
         /// <summary>
         /// 檔案來源
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_Url)] public string? Url { get; set; }
+        [LibDesc(ModelDisplayName.Common_Url), StringLength(SysLengthParam.Url)] public string? Url { get; set; }
         /// <summary>
         /// 語系 SysEnum.Lang
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_UrlDescription)] public string? UrlDescription { get; set; }
+        [LibDesc(ModelDisplayName.Common_UrlDescription), StringLength(SysLengthParam.Title)] public string? UrlDescription { get; set; }
         /// <summary>
         /// 開啟連結方式
         /// </summary>

@@ -1,4 +1,6 @@
-﻿using WCMS.Features._Resx;
+﻿using System.ComponentModel.DataAnnotations;
+using WCMS.Features._Resx;
+using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
@@ -15,11 +17,11 @@ namespace WCMS.Features.COMM.Tag
         /// <summary>
         /// 類別ID
         /// </summary>
-        [LibDesc(ModelDisplayName.TagId)] public string? TagId { get; set; } = string.Empty;
+        [LibDesc(ModelDisplayName.TagId), StringLength(SysLengthParam.ID)] public string? TagId { get; set; } = string.Empty;
         /// <summary>
         /// 對應功能模塊ID
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_ProgId)] public string? ProgId { get; set; } = string.Empty;
+        [LibDesc(ModelDisplayName.Common_ProgId), StringLength(SysLengthParam.ProgId)] public string? ProgId { get; set; } = string.Empty;
 
         #region 主子表關聯
         public List<TagDetail_DTO>? _TagDetail { get; set; }
@@ -30,7 +32,7 @@ namespace WCMS.Features.COMM.Tag
         /// <summary>
         /// 靜態客製頁面ID
         /// </summary>
-        [LibDesc(ModelDisplayName.TagId)] public string? TagId { get; set; } = string.Empty;
+        [LibDesc(ModelDisplayName.TagId), StringLength(SysLengthParam.ID)] public string? TagId { get; set; } = string.Empty;
         /// <summary>
         /// 行主鍵
         /// </summary>
@@ -42,6 +44,6 @@ namespace WCMS.Features.COMM.Tag
         /// <summary>
         /// 標籤名稱
         /// </summary>
-        [LibDesc(ModelDisplayName.Tag_TagName)] public string? TagName { get; set; } = string.Empty;
+        [LibDesc(ModelDisplayName.Tag_TagName), StringLength(SysLengthParam.Title)] public string? TagName { get; set; } = string.Empty;
     }
 }

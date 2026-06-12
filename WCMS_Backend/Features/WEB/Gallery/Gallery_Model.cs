@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using WCMS.Features._Resx;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library.LibAttribute;
@@ -78,7 +79,7 @@ namespace WCMS.Features.WEB.Gallery
     /// <summary>
     /// 相簿裡的相片
     /// </summary>
-    public class GalleryPhotos : DetailRowModel
+    [LibDesc(ModelDisplayName.Gallery_Photos)] public class GalleryPhotos : DetailRowModel
     {
         /// <summary>
         /// 檔案分類ID

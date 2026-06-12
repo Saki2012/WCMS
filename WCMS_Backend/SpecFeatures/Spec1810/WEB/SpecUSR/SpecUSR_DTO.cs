@@ -33,7 +33,7 @@ public class SpecUSRModel_DTO : DTOBasicDataModel
     /// <summary>
     /// 類別ID
     /// </summary>
-    [LibDesc(SpecModelDisplayName.SpecResearch_Categories)] public string? CategoryId { get; set; }
+    [LibDesc(SpecModelDisplayName.SpecResearch_Categories), StringLength(SysLengthParam.ID)] public string? CategoryId { get; set; }
     /// <summary>
     /// 狀態 (多個)
     /// </summary>
@@ -41,17 +41,17 @@ public class SpecUSRModel_DTO : DTOBasicDataModel
     /// <summary>
     /// 標籤 (多個) 
     /// </summary>
-    [LibDesc(SpecModelDisplayName.SpecResearch_Tags)] public string? Tags { get; set; } = string.Empty;
+    [LibDesc(SpecModelDisplayName.SpecResearch_Tags), StringLength(SysLengthParam.Title)] public string? Tags { get; set; } = string.Empty;
     /// <summary>
     /// 圖片 (關聯檔案資料)
     /// 注:後續應改關聯SpecUSRPhoto的RowId去指向對應的相片，以及SpecUSRPhotoInfo的Title
     /// </summary>
     public FileManageModel_DTO? Picture { get; set; }
-    [LibDesc(SpecModelDisplayName.SpecUSR_PictureId)] public string? PictureId { get; set; } = string.Empty;
+    [LibDesc(SpecModelDisplayName.SpecUSR_PictureId), StringLength(SysLengthParam.InternalId)] public string? PictureId { get; set; } = string.Empty;
     /// <summary>
     /// 圖片描述
     /// </summary>
-    [LibDesc(SpecModelDisplayName.SpecUSR_PicDescription)] public string? PicDescription { get; set; } = string.Empty;
+    [LibDesc(SpecModelDisplayName.SpecUSR_PicDescription), StringLength(SysLengthParam.Memo)] public string? PicDescription { get; set; } = string.Empty;
 
     #region 主子表關聯
     public List<SpecUSRDetail_DTO>? _SpecUSRDetail { get; set; }
@@ -75,20 +75,20 @@ public class SpecUSRDetail_DTO
     [LibDesc(SpecModelDisplayName.SpecUSR_Department), StringLength(200)] public string? Department { get; set; }
     [LibDesc(SpecModelDisplayName.SpecUSR_DuringExecution), StringLength(200)] public string? DuringExecution { get; set; }
     [LibDesc(SpecModelDisplayName.SpecUSR_PlanAmount)] public decimal? PlanAmount { get; set; }
-    [LibDesc(SpecModelDisplayName.SpecUSR_ExecutionStrategy)] public string? ExecutionStrategy { get; set; }
+    [LibDesc(SpecModelDisplayName.SpecUSR_ExecutionStrategy), StringLength(1000)] public string? ExecutionStrategy { get; set; }
     [LibDesc(SpecModelDisplayName.SpecUSR_ContentIntro)] public string? ContentIntroduction { get; set; }
-    [LibDesc(SpecModelDisplayName.SpecUSR_ProjectConcept)] public string? ProjectConcept { get; set; }
-    [LibDesc(SpecModelDisplayName.SpecUSR_KeyHighlights)] public string? ProjectHighlights { get; set; }
+    [LibDesc(SpecModelDisplayName.SpecUSR_ProjectConcept), StringLength(1000)] public string? ProjectConcept { get; set; }
+    [LibDesc(SpecModelDisplayName.SpecUSR_KeyHighlights), StringLength(4000)] public string? ProjectHighlights { get; set; }
     [LibDesc(SpecModelDisplayName.SpecUSR_ProjectLeader), StringLength(200)] public string? ProjectLeader { get; set; }
     [LibDesc(SpecModelDisplayName.SpecUSR_ProjectSubLeader), StringLength(1000)] public string? ProjectSubLeader { get; set; }
     [LibDesc(SpecModelDisplayName.SpecUSR_AttendTeam), StringLength(1000)] public string? AttendTeam { get; set; }
     [LibDesc(SpecModelDisplayName.SpecUSR_Cohost1), StringLength(200)] public string? Cohost1 { get; set; }
     [LibDesc(SpecModelDisplayName.SpecUSR_Cohost2), StringLength(200)] public string? Cohost2 { get; set; }
     [LibDesc(SpecModelDisplayName.SpecUSR_Commissioned), StringLength(200)] public string? Commissioned { get; set; }
-    [LibDesc(SpecModelDisplayName.SpecUSR_Remark)] public string? Remark { get; set; }
-    [LibDesc(SpecModelDisplayName.SpecUSR_ProjectItem)] public string? ProjectItem { get; set; }
-    [Obsolete, LibDesc(SpecModelDisplayName.SpecUSR_Url)] public string? Url { get; set; }
-    [Obsolete,LibDesc(SpecModelDisplayName.SpecUSR_UrlDescription)] public string? UrlDescription { get; set; }
+    [LibDesc(SpecModelDisplayName.SpecUSR_Remark), StringLength(500)] public string? Remark { get; set; }
+    [LibDesc(SpecModelDisplayName.SpecUSR_ProjectItem), StringLength(500)] public string? ProjectItem { get; set; }
+    [Obsolete, LibDesc(SpecModelDisplayName.SpecUSR_Url), StringLength(SysLengthParam.Url)] public string? Url { get; set; }
+    [Obsolete,LibDesc(SpecModelDisplayName.SpecUSR_UrlDescription), StringLength(SysLengthParam.Url)] public string? UrlDescription { get; set; }
 }
 
 /// <summary>

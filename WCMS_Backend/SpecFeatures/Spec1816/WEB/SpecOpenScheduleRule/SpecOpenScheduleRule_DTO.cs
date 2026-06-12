@@ -6,7 +6,7 @@ using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
 namespace WCMS.SpecFeatures.Spec1816.WEB.SpecOpenScheduleRule;
 
-public class SpecOpenScheduleRuleSet_DTO:ITSet_DTO 
+[LibDesc(SpecModelDisplayName.SpecOpenScheduleRuleSet_DTO)]public class SpecOpenScheduleRuleSet_DTO:ITSet_DTO 
 {
     public SpecOpenScheduleRuleModel_DTO SpecOpenScheduleRule { get; set; } = new();
 }

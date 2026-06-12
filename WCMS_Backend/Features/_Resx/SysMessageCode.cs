@@ -117,7 +117,7 @@
         /// </summary>
         public const string BECode00018 = nameof(BECode00018);
         /// <summary>
-        /// 
+        /// 請上傳照片。
         /// </summary>
         public const string BECode00019 = nameof(BECode00019);
         /// <summary>

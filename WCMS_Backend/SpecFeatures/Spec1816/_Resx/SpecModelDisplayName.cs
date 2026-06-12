@@ -3,6 +3,11 @@
 public static class SpecModelDisplayName
 {
     #region SpecOpenScheduleRule
+
+    /// <summary>
+    /// 開館時間規則表單
+    /// </summary>
+    public const string SpecOpenScheduleRuleSet_DTO = nameof(SpecOpenScheduleRuleSet_DTO);
     public const string SpecOpenScheduleRule = "SpecOpenScheduleRule";
     public const string SpecAcademicYearId = "SpecAcademicYearId";
     public const string SpecAcademicStart = "SpecAcademicStart";

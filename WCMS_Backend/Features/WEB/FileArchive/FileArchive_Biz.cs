@@ -158,7 +158,7 @@ public class FileArchiveBiz(BizDeps bizDeps) : BizService<FileArchiveSet>(bizDep
     /// <param name="header"></param>
     private void CheckDataIsEmpty(FileArchiveSet set)
     {
-        if (set.FileArchive.CategoriesId == "") Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<FileArchive>(x => x.CategoriesId));
+        if (set.FileArchive.CategoriesId == "") Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<FileArchive_DTO>(x => x.CategoriesId));
         if (set.FileArchiveInfo.FirstOrDefault(p => p.Lang==SiteDefaultLang) == null || set.FileArchiveInfo.FirstOrDefault(p => p.Lang == SiteDefaultLang).Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, SiteDefaultLang.ToLabel(), I18nCache.GetLabel<AnnouncementDetail_DTO>(x => x.Title));
     }
     /// <summary>

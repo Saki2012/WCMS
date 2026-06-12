@@ -19,6 +19,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 // import "./EditGrid.css";
+import { LibDate } from "@/SysCore/Utils/Library/LibData";
 import type {
     ColumnConfig,
     EditGridCellRenderArgs,
@@ -908,6 +909,7 @@ const toAAInputValue = (value: EditGridCellValue, aaType: AAInputType): AAInputV
     if (aaType === "selectMultiple" || aaType === "checkboxMultiple" || aaType === "dateRange" || aaType === "dateTimeRange") return toStringValueArray(value);
     if (aaType === "file") return toAAFileValueList(value);
     if (aaType === "number") return value === null || value === undefined ? "" : String(value);
+    if (aaType === "date") return formatEditGridDateValue(value) ?? "";
     return toInputValue(value);
 };
 
@@ -2318,15 +2320,28 @@ const confirmDelete = (message?: string) =>
 // #endregion
 
 // #region Private
+/** 格式化單一日期欄位。 */
+const formatEditGridDateValue = (value: EditGridCellValue): string | undefined =>
+{
+    const input = getEditGridDateInput(value);
+    if (!LibDate.toDateOrNull(input)) return undefined;
+    return LibDate.formatDate(input);
+};
+/** 取得可交給 LibDate 處理的日期值。 */
+const getEditGridDateInput = (value: EditGridCellValue): string | number | null | undefined =>
+{
+    if (typeof value === "string" || typeof value === "number") return value;
+    return undefined;
+};
 /** 依欄位型別取得 EditGrid 唯讀日期文字。 */
 const getEditGridReadonlyDateText = (value: EditGridCellValue, aaType: AAInputType) =>
 {
+    if (aaType === "date") return formatEditGridDateValue(value);
     if (aaType === "date-time") return formatEditGridDateTimeValue(value);
     if (aaType === "dateRange") return formatEditGridDateRangeValue(value);
     if (aaType === "dateTimeRange") return formatEditGridDateTimeRangeValue(value);
     return undefined;
 };
-
 /** 依 cell 設定取得 AA 欄位型別，供儲存 content 時套用。 */
 const getEditGridCellAAInputType = (cell: RowCell): AAInputType =>
 {

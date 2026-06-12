@@ -245,7 +245,6 @@ const buildMaterialQueryParam = (ctx: { searchParams: MaterialSearchParams; sear
         Condition: LibCondition.joinConditions(
             [
                 LibCondition.createCondition(`${MaterialFields._MaterialLangInfo}.${MaterialLangInfoFields.Lang}`, Operator.Equal, ctx.searchParams.lang),
-                LibCondition.createCondition(`${MaterialFields._MaterialLangInfo}.${MaterialLangInfoFields.MaterialName}`, Operator.NotEqual, "", true),
                 ctx.searchCondition,
             ],
         ),

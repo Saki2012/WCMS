@@ -144,7 +144,7 @@ public class GalleryBiz(BizDeps bizDeps) : BizService<GallerySet>(bizDeps), IBiz
     }
     #endregion
 
-    #region Protected
+    #region Protected Virtual
     protected override async Task BeforeUpdate(GallerySet set, FuncAction act, CancellationToken ct = default)
     {
         await base.BeforeUpdate(set, act, ct);
@@ -152,28 +152,45 @@ public class GalleryBiz(BizDeps bizDeps) : BizService<GallerySet>(bizDeps), IBiz
         {
             case FuncAction.Create:
             case FuncAction.Update:
-                CheckData(set);
+                if (!CheckData(set)) return;
                 SetData(set);
                 break;
         }
     }
     #endregion
 
-    #region Private
-    private void CheckData(GallerySet set)
+    #region Protected
+    protected bool CheckData(GallerySet set)
     {
+        PreDelData(set);
         CheckIsEmpty(set);
         AACheck(set);
+        return Message.HasError;
     }
-    private void SetData(GallerySet set)
+    protected void SetData(GallerySet set)
     {
         DoRemergeData(set.Gallery);
         ResetPhotoSort(set.GalleryPhotos);
     }
+    /// <summary>
+    /// AA檢查
+    /// </summary>
+    /// <param name="set"></param>
+    protected void AACheck(GallerySet set)
+    {
+        if (!SpecSettings.AACheck) return;
+        AA_CheckAlbumTitle(set.GalleryInfo);
+        AA_CheckPhotoTitle(set.GalleryPhotosInfo);
+    }
+    #endregion
+
+    #region Private
+
     private void CheckIsEmpty(GallerySet set)
     {
         if (set.Gallery.Validate_Start == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Gallery_DTO>(x => x.Validate_Start));
-        
+
+        if (!LibData.HasData(set.GalleryPhotos)) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00019);
     }
     
     /// <summary>
@@ -185,6 +202,10 @@ public class GalleryBiz(BizDeps bizDeps) : BizService<GallerySet>(bizDeps), IBiz
         header.Categories = header.Categories.Remerge(",");
         header.Tags = header.Tags.Remerge(",");
     }
+    /// <summary>
+    /// 重新排序相簿順序(應該後續會拿掉)
+    /// </summary>
+    /// <param name="dt"></param>
     private static void ResetPhotoSort(List<GalleryPhotos> dt)
     {
         if (!dt.HasData()) return;
@@ -192,14 +213,15 @@ public class GalleryBiz(BizDeps bizDeps) : BizService<GallerySet>(bizDeps), IBiz
         for (int i = 0; i < sorted.Count; i++) sorted[i].Sort = (ushort)(i + 1);
     }
     /// <summary>
-    /// AA檢查
+    /// 防呆刪除不需要的資料
     /// </summary>
-    /// <param name="set"></param>
-    private void AACheck(GallerySet set)
-    {
-        if (!SpecSettings.AACheck) return;
-        AA_CheckAlbumTitle(set.GalleryInfo);
-        AA_CheckPhotoTitle(set.GalleryPhotosInfo);
+    private static void PreDelData(GallerySet set) 
+    { 
+        for(int i = set.GalleryPhotos.Count - 1; i >= 0; i--)
+        {
+            var data = set.GalleryPhotos[i];
+            if (data.PicSrcId.IsNullOrEmpty()) set.GalleryPhotos.Remove(data);
+        }
     }
     /// <summary>
     /// AA檢查-相本有無輸入標題

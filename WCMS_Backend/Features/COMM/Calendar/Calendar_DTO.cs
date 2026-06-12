@@ -40,7 +40,9 @@ namespace WCMS.Features.SystemSetting.Calendar
         public DateOnly? Date { get; set; }
         public DayOfWeek? DayOfWeek { get; set; }
         public bool? IsHoliday { get; set; }
+        [StringLength(SysLengthParam.Title)]
         public string? HolidayName { get; set; }
+        [StringLength(SysLengthParam.Title)]
         public string? Description { get; set; }
         public bool? IsEdit { get; set; }
         /// <summary>

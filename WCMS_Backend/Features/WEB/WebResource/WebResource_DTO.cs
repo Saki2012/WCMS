@@ -1,4 +1,6 @@
-﻿using WCMS.Features._Resx;
+﻿using System.ComponentModel.DataAnnotations;
+using WCMS.Features._Resx;
+using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
@@ -18,15 +20,15 @@ public class WebResource_DTO : DTOBasicDataModel
     /// <summary>
     /// 檔案分類ID
     /// </summary>
-    [LibDesc(ModelDisplayName.WebResourceId)] public string?  WebResourceId { get; set; }
+    [LibDesc(ModelDisplayName.WebResourceId), StringLength(SysLengthParam.ID)] public string?  WebResourceId { get; set; }
     /// <summary>
     /// 類別ID(多個)
     /// </summary>
-    [LibDesc(ModelDisplayName.Common_Category)] public string?  Categories { get; set; }
+    [LibDesc(ModelDisplayName.Common_Category), StringLength(SysLengthParam.Title)] public string?  Categories { get; set; }
     /// <summary>
     /// 標籤ID(多個)
     /// </summary>
-    [LibDesc(ModelDisplayName.Common_Tag)] public string?  Tags { get; set; }
+    [LibDesc(ModelDisplayName.Common_Tag), StringLength(SysLengthParam.Title)] public string?  Tags { get; set; }
     /// <summary>
     /// 狀態:置頂/熱門/隱藏
     /// </summary>
@@ -34,11 +36,11 @@ public class WebResource_DTO : DTOBasicDataModel
     /// <summary>
     /// 圖片顯示
     /// </summary>
-    [LibDesc(ModelDisplayName.WebResource_PicId)] public string?  PicId { get; set; }
+    [LibDesc(ModelDisplayName.WebResource_PicId), StringLength(SysLengthParam.InternalId)] public string?  PicId { get; set; }
     /// <summary>
     /// 圖片顯示描述
     /// </summary>
-    [LibDesc(ModelDisplayName.WebResource_PicDescription)] public string?  PicDescription { get; set; }
+    [LibDesc(ModelDisplayName.WebResource_PicDescription), StringLength(SysLengthParam.Memo)] public string?  PicDescription { get; set; }
     /// <summary>
     /// 資料有效日期-起
     /// </summary>
@@ -60,7 +62,7 @@ public class WebResourceInfo_DTO
     /// <summary>
     /// 檔案分類ID
     /// </summary>
-    [LibDesc(ModelDisplayName.WebResourceId)] public string?  WebResourceId { get; set; }
+    [LibDesc(ModelDisplayName.WebResourceId), StringLength(SysLengthParam.ID)] public string?  WebResourceId { get; set; }
     /// <summary>
     /// 行主鍵
     /// </summary>
@@ -72,7 +74,7 @@ public class WebResourceInfo_DTO
     /// <summary>
     /// 標題
     /// </summary>
-    [LibDesc(ModelDisplayName.Common_Title)] public string?  Title { get; set; }
+    [LibDesc(ModelDisplayName.Common_Title), StringLength(SysLengthParam.Title)] public string?  Title { get; set; }
     /// <summary>
     /// 內容
     /// </summary>
@@ -80,7 +82,7 @@ public class WebResourceInfo_DTO
     /// <summary>
     /// 超連結
     /// </summary>
-    [LibDesc(ModelDisplayName.Common_Url)] public string?  ResUrl { get; set; }
+    [LibDesc(ModelDisplayName.Common_Url), StringLength(SysLengthParam.Url)] public string?  ResUrl { get; set; }
     /// <summary>
     /// 超連結開啟方式
     /// </summary>

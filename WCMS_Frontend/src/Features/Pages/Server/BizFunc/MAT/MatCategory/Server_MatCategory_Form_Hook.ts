@@ -19,9 +19,9 @@ import {
     useEditGridBinding,
 } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { type Lang, LangLabelMap, useEnsureLangDetails } from "@/SysCore/i18n/lang";
+import { DefaultLang, type Lang, LangLabelMap, normalizeSupportedLang, useEnsureLangDetails } from "@/SysCore/i18n/lang";
 import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
-import { Merge } from "@/SysCore/Utils/Library/LibData";
+import { LibText, LibType, Merge } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import {
@@ -68,6 +68,9 @@ export interface UseMatCategoryInfoFieldEditGridOptions
     /** 新版 Form Template 提供的資料 binding */
     binding: ServerFormBinding<MatCategorySet>;
 
+    /** 目前語系，欄位名稱會優先顯示此語系 */
+    lang: Lang;
+
     /** EditGrid UI 樣式，仍由 Comp 決定 */
     style: IEditGridView_Style;
 
@@ -83,7 +86,6 @@ export interface UseMatCategoryInfoFieldEditGridOptions
     /** 子明細切換按鈕渲染 */
     renderSubDetailToggle: (args: EditGridCellRenderArgs) => ReactNode;
 }
-
 export interface UseMatCategoryInfoFieldDisplayEditGridOptions
 {
     /** 新版 Form Template 提供的資料 binding */
@@ -135,6 +137,8 @@ export type MatCategoryFormAdapter = {
     MatCategory: ReturnType<typeof MatCategoryAdapter>;
 };
 
+const MatCategoryInfoFieldDisplayNameColumnKey = "__MatCategoryInfoFieldDisplayName";
+const MatCategoryInfoFieldDisplayNameColumnTitle = "【欄位名稱】";
 const MatCategoryInfoFieldSubDetailColumnKey = "__MatCategoryInfoFieldDisplay";
 // #endregion
 
@@ -316,7 +320,7 @@ const buildMatCategoryInfoFieldGridProps = (style: IEditGridView_Style, displayN
         ariaLabel: `${gridTitle}清單`,
         style,
         storageKey: "server-mat-category-info-field-grid",
-        minTableWidth: 900,
+        minTableWidth: 1100,
         maxVisibleRows: 5,
         disabled: opt.isSubDetailEditing,
         canAdd: true,
@@ -360,9 +364,23 @@ const buildMatCategoryInfoFieldDisplayGridProps = (parentRowId: number, style: I
 /** 建立物件欄位設定欄位定義。 */
 const buildMatCategoryInfoFieldColumns = (displayName: ModelDisplaySchema): ColumnConfig[] =>
 {
-    const fieldTitle = getMatCategoryColumnTitle(displayName, MatCategoryDataSetFields.MatCategoryInfoField, MatCategoryInfoFieldFields.Field, "欄位代碼");
+    const fieldTitle = getMatCategoryColumnTitle(displayName, MatCategoryDataSetFields.MatCategoryInfoField, MatCategoryInfoFieldFields.Field, "欄位代號");
 
-    return [{ key: MatCategoryInfoFieldFields.Field, title: fieldTitle, width: 260, inputType: "text", editable: true, required: true, maxLength: 100 }, {
+    return [{
+        key: MatCategoryInfoFieldFields.Field,
+        title: fieldTitle,
+        width: 220,
+        inputType: "text",
+        editable: true,
+        required: true,
+        maxLength: 100,
+    }, {
+        key: MatCategoryInfoFieldDisplayNameColumnKey,
+        title: MatCategoryInfoFieldDisplayNameColumnTitle,
+        minWidth: 260,
+        inputType: "readonly",
+        editable: false,
+    }, {
         key: MatCategoryInfoFieldSubDetailColumnKey,
         title: "語系明細",
         width: 130,
@@ -441,14 +459,18 @@ const buildMatCategoryInfoFieldDisplayGridRow = (
 /** 建立物件欄位設定 Row cells。 */
 const buildMatCategoryInfoFieldCells = (field: MatCategoryInfoField, opt: UseMatCategoryInfoFieldEditGridOptions, displayName: ModelDisplaySchema): RowCell[] =>
 {
-    const fieldTitle = getMatCategoryColumnTitle(displayName, MatCategoryDataSetFields.MatCategoryInfoField, MatCategoryInfoFieldFields.Field, "欄位代碼");
-
+    const fieldTitle = getMatCategoryColumnTitle(displayName, MatCategoryDataSetFields.MatCategoryInfoField, MatCategoryInfoFieldFields.Field, "欄位代號");
+    const rowId = LibType.toSafeNumber(field.RowId);
     return [
         buildEditGridCell(MatCategoryInfoFieldFields.Field, fieldTitle, field.Field ?? "", {
             inputType: "text",
             editable: true,
             required: true,
             maxLength: 100,
+        }),
+        buildEditGridCell(MatCategoryInfoFieldDisplayNameColumnKey, MatCategoryInfoFieldDisplayNameColumnTitle, getMatCategoryInfoFieldDisplayName(opt.binding.data, rowId, opt.lang), {
+            inputType: "readonly",
+            editable: false,
         }),
         buildEditGridCell(MatCategoryInfoFieldSubDetailColumnKey, "語系明細", "", {
             inputType: "readonly",
@@ -593,7 +615,39 @@ const buildMatCategoryInfoFieldDisplayParent = (parentRowId: number) =>
         compare: (itemValue: unknown, parentValue: string | number | null | undefined) => Number(itemValue ?? 0) === Number(parentValue ?? 0),
     };
 };
+/** 取得父層欄位名稱，優先目前語系，找不到時回退 DefaultLang。 */
+const getMatCategoryInfoFieldDisplayName = (data: MatCategorySet | undefined, parentRowId: number, lang: Lang): string =>
+{
+    const displays = data?.MatCategoryInfoFieldDisplay ?? [];
+    const langs = buildMatCategoryInfoFieldDisplayNameLangs(lang);
+    const names = langs.map(item => findMatCategoryInfoFieldDisplayName(displays, parentRowId, item));
 
+    return LibText.getFirstNonEmptyText(...names);
+};
+
+/** 建立欄位名稱語系優先順序。 */
+const buildMatCategoryInfoFieldDisplayNameLangs = (lang: Lang): Lang[] =>
+{
+    const langs = [normalizeSupportedLang(lang), normalizeSupportedLang(DefaultLang)];
+    return Array.from(new Set(langs.filter((item): item is Lang => item !== null)));
+};
+
+/** 依 parent row 與語系取得欄位顯示名稱。 */
+const findMatCategoryInfoFieldDisplayName = (displays: MatCategoryInfoFieldDisplay[], parentRowId: number, lang: Lang): string =>
+{
+    const parentKey = LibType.toSafeNumber(parentRowId);
+    const langKey = normalizeSupportedLang(lang);
+    const display = displays.find(item => isMatCategoryInfoFieldDisplayMatched(item, parentKey, langKey));
+
+    return LibText.safeTrim(display?.FieldDisplayName);
+};
+
+/** 判斷欄位顯示資料是否符合父層與語系。 */
+const isMatCategoryInfoFieldDisplayMatched = (display: MatCategoryInfoFieldDisplay, parentRowId: number, lang: Lang | null): boolean =>
+{
+    return LibType.toSafeNumber(display.ParentRowId) === parentRowId
+        && normalizeSupportedLang((display.Lang ?? undefined) as Lang | undefined) === lang;
+};
 /** 依 RowId 排序物件欄位設定。 */
 const sortMatCategoryInfoFields = (fields: MatCategoryInfoField[]): MatCategoryInfoField[] =>
 {

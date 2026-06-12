@@ -23,9 +23,10 @@ import {
     useEditGridBinding,
 } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { buildSupportedLangOrder, type Lang, LangLabelMap, SUPPORTED_LANGS, useEnsureLangDetails } from "@/SysCore/i18n/lang";
+import { buildSupportedLangOrder, DefaultLang, type Lang, LangLabelMap, normalizeSupportedLang, SUPPORTED_LANGS, useEnsureLangDetails } from "@/SysCore/i18n/lang";
 import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
+import { LibText, LibType } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { PGID, SurveyItemFields, SurveyItemLangFields, SurveySetFields } from "@/types/SchemaFields";
@@ -67,22 +68,18 @@ export interface UseSurveyItemEditGridOptions
 {
     /** 新版 Form Template 提供的資料 binding */
     binding: ServerFormBinding<SurveySet>;
-
+    /** 目前語系，欄位名稱會優先顯示此語系 */
+    lang: Lang;
     /** 問卷欄位型別選項 */
     inputOpts: Record<string, string>;
-
     /** EditGrid UI 樣式，仍由 Comp 決定 */
     style: IEditGridView_Style;
-
     /** SubDetail 展開按鈕渲染，畫面職責留在 Comp */
     renderSubDetailToggle: (args: EditGridCellRenderArgs) => ReactNode;
-
     /** SubDetail 區塊渲染，畫面職責留在 Comp */
     renderSubDetail: (args: EditGridSubDetailRenderArgs) => ReactNode;
-
     /** 子明細展開列 key */
     expandedRowKey: string | null;
-
     /** 子明細編輯中時鎖住父層 */
     isSubDetailEditing: boolean;
 }
@@ -126,7 +123,8 @@ const optionInputTypeKeys = new Set(["10", "11", "20"]);
 export const surveyEmptyData: SurveySet = { Survey: {}, SurveyItem: [], SurveyItemLang: [] };
 
 export const SurveyItemLangColumnKey = "__SurveyItemLang";
-
+export const SurveyItemFieldNameColumnKey = "__SurveyItemFieldName";
+const SurveyItemFieldNameColumnTitle = "欄位名稱";
 /** 建立 Survey Form Template，統一交給 Server_FormTemplate 處理資料流程。 */
 export const useSurveyFormTemplate = (
     opt: UseSurveyFormTemplateOptions,
@@ -270,6 +268,12 @@ const buildSurveyItemColumns = (displayName: ModelDisplaySchema, inputOpts: Reco
         maxLength: 100,
         width: 180,
     }, {
+        key: SurveyItemFieldNameColumnKey,
+        title: SurveyItemFieldNameColumnTitle,
+        inputType: "readonly",
+        editable: false,
+        minWidth: 240,
+    }, {
         key: SurveyItemFields.IsRequired,
         title: getSurveyColumnTitle(displayName, SurveySetFields.SurveyItem, SurveyItemFields.IsRequired, "必填"),
         inputType: "checkboxSingle",
@@ -344,6 +348,10 @@ const buildSurveyItemCells = (item: SurveyItem, rowId: number, opt: UseSurveyIte
             item.FieldId ?? "",
             { inputType: "text", editable: true, required: true, maxLength: 100 },
         ),
+        buildEditGridCell(SurveyItemFieldNameColumnKey, SurveyItemFieldNameColumnTitle, getSurveyItemFieldName(opt.binding.data, rowId, opt.lang), {
+            inputType: "readonly",
+            editable: false,
+        }),
         buildEditGridCell(
             SurveyItemFields.IsRequired,
             getSurveyColumnTitle(displayName, SurveySetFields.SurveyItem, SurveyItemFields.IsRequired, "必填"),
@@ -544,7 +552,38 @@ const sortSurveyItems = (items: SurveyItem[]): SurveyItem[] =>
 {
     return [...items].sort((a, b) => Number(a.RowId ?? 0) - Number(b.RowId ?? 0));
 };
+/** 取得父層欄位名稱，優先目前語系，找不到時回退 DefaultLang。 */
+const getSurveyItemFieldName = (data: SurveySet | undefined, parentRowId: number, lang: Lang): string =>
+{
+    const details = data?.SurveyItemLang ?? [];
+    const langs = buildSurveyItemNameLangs(lang);
+    const names = langs.map(item => findSurveyItemLangFieldName(details, parentRowId, item));
 
+    return LibText.getFirstNonEmptyText(...names);
+};
+
+/** 建立欄位名稱語系優先順序。 */
+const buildSurveyItemNameLangs = (lang: Lang): Lang[] =>
+{
+    const langs = [normalizeSupportedLang(lang), normalizeSupportedLang(DefaultLang)];
+    return Array.from(new Set(langs.filter((item): item is Lang => item !== null)));
+};
+
+/** 依 parent row 與語系取得欄位顯示名稱。 */
+const findSurveyItemLangFieldName = (details: SurveyItemLang[], parentRowId: number, lang: Lang): string =>
+{
+    const parentKey = LibType.toSafeNumber(parentRowId);
+    const langKey = normalizeSupportedLang(lang);
+    const detail = details.find(item => isSurveyItemLangMatched(item, parentKey, langKey));
+    return LibText.safeTrim(detail?.FieldName);
+};
+
+/** 判斷語系明細是否符合父層與語系。 */
+const isSurveyItemLangMatched = (detail: SurveyItemLang, parentRowId: number, lang: Lang | null): boolean =>
+{
+    return LibType.toSafeNumber(detail.ParentRowId) === parentRowId
+        && normalizeSupportedLang((detail.Lang ?? undefined) as Lang | undefined) === lang;
+};
 /** 依目前語系優先排序 SurveyItemLang。 */
 const sortSurveyItemLangs = (details: SurveyItemLang[], preferLang: Lang): SurveyItemLang[] =>
 {

@@ -755,7 +755,7 @@ DB SpecCode 檢查未通過。App SpecCode = '{FormatSpecCode(appSpecCode)}'，D
         private static void AddInvalidModelMessage(ActionContext context, ErrorHelper message, string key)
         {
             var prop = FindModelProperty(context, key);
-            var displayName = prop == null ? GetFieldName(key) : $"{I18nCache.GetLabel(prop)}【{key}】";
+            var displayName = prop == null ? GetFieldName(key) : $"{I18nCache.GetLabel(prop)}";
             var errorText = context.ModelState[key]?.Errors.FirstOrDefault()?.ErrorMessage ?? string.Empty;
             var maxLength = GetMaxLength(prop);
             if (maxLength.HasValue && !IsRequiredError(errorText)) message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00034, displayName, maxLength.Value);

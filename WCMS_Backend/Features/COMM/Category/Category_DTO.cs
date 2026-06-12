@@ -20,11 +20,11 @@ namespace WCMS.Features.COMM.Category
         /// <summary>
         /// 類別ID
         /// </summary>
-        [LibDesc(ModelDisplayName.CategoryId)] public string? CategoryId { get; set; }
+        [LibDesc(ModelDisplayName.CategoryId), StringLength(SysLengthParam.ID)] public string? CategoryId { get; set; }
         /// <summary>
         /// 對應功能模塊ID
         /// </summary>
-        [LibDesc(ModelDisplayName.Common_ProgId)] public string? ProgId { get; set; }
+        [LibDesc(ModelDisplayName.Common_ProgId), StringLength(SysLengthParam.ProgId)] public string? ProgId { get; set; }
 
         #region 主子表關聯
         public List<CategoryDetail_DTO>? _CategoryDetail { get; set; }
@@ -38,7 +38,7 @@ namespace WCMS.Features.COMM.Category
         /// <summary>
         /// 靜態客製頁面ID
         /// </summary>
-        [LibDesc(ModelDisplayName.CategoryId)] public string? CategoryId { get; set; }
+        [LibDesc(ModelDisplayName.CategoryId), StringLength(SysLengthParam.ID)] public string? CategoryId { get; set; }
         /// <summary>
         /// 行主鍵
         /// </summary>
@@ -50,6 +50,6 @@ namespace WCMS.Features.COMM.Category
         /// <summary>
         /// 標題
         /// </summary>
-        [LibDesc(ModelDisplayName.Category_CategoryName)] public string? CategoryName { get; set; }
+        [LibDesc(ModelDisplayName.Category_CategoryName), StringLength(SysLengthParam.Title)] public string? CategoryName { get; set; }
     }
 }

@@ -34,7 +34,7 @@ public class Material: MasterDataModel
     /// 類別
     /// </summary>
     [ForeignKey(nameof(CategoryId))] public Category Category { get; set; }
-    [LibDesc(ModelDisplayName.CategoryId), StringLength(SysLengthParam.ID)] public string CategoryId { get; set; }
+    [LibDesc(ModelDisplayName.CategoryId), StringLength(SysLengthParam.ID)] public string? CategoryId { get; set; }
     /// <summary>
     /// 商品價格 (未來要移動到商品資料，而非物件資料)
     /// </summary>

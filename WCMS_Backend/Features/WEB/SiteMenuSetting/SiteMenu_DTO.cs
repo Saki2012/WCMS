@@ -124,7 +124,7 @@ namespace WCMS.Features.WEB.SiteMenuSetting
         /// <summary>
         /// 主站Url，最主要的會是Empty，新的子站則是https://xxx.com/{SiteIndex}
         /// </summary>
-        [LibDesc(ModelDisplayName.SiteMenu_SiteIndex)] public string? SiteIndex { get; set; }
+        [LibDesc(ModelDisplayName.SiteMenu_SiteIndex), StringLength(SysLengthParam.ID)] public string? SiteIndex { get; set; }
         /// <summary>
         /// url主鍵
         /// </summary>
@@ -136,11 +136,11 @@ namespace WCMS.Features.WEB.SiteMenuSetting
         /// <summary>
         /// 當前頁面Url E.x.:AllNews
         /// </summary>
-        [LibDesc(ModelDisplayName.SiteMenu_ItemSiteUrl)] public string? ItemSiteUrl { get; set; }
+        [LibDesc(ModelDisplayName.SiteMenu_ItemSiteUrl), StringLength(SysLengthParam.Url)] public string? ItemSiteUrl { get; set; }
         /// <summary>
         /// 完整的Url，整個系統唯一值，後端賦值處理
         /// </summary>
-        [LibDesc(ModelDisplayName.SiteMenu_FullUrl)] public string? FullUrl { get; set; }
+        [LibDesc(ModelDisplayName.SiteMenu_FullUrl), StringLength(SysLengthParam.Url)] public string? FullUrl { get; set; }
         /// <summary>
         /// 層級
         /// </summary>
@@ -170,11 +170,11 @@ namespace WCMS.Features.WEB.SiteMenuSetting
     /// </summary>
     public class SiteMenu_Item_Title_DTO
     {
-        [LibDesc(ModelDisplayName.SiteMenu_SiteIndex)] public string? SiteIndex { get; set; }
+        [LibDesc(ModelDisplayName.SiteMenu_SiteIndex), StringLength(SysLengthParam.ID)] public string? SiteIndex { get; set; }
         [LibDesc(ModelDisplayName.Common_RowId)] public int? ItemRowId { get; set; }
         [LibDesc(ModelDisplayName.Common_RowId)] public int? RowId { get; set; }
         [LibDesc(ModelDisplayName.Common_Lang)] public LangCode? Lang { get; set; }
-        [LibDesc(ModelDisplayName.SiteMenu_MenuTitle)] public string? Title { get; set; }
+        [LibDesc(ModelDisplayName.SiteMenu_MenuTitle), StringLength(SysLengthParam.Title)] public string? Title { get; set; }
         [LibDesc(ModelDisplayName.SiteMenu_IsShowOnMenu)] public bool IsShowOnMenu { get; set; }
 
         #region 主子表關聯
@@ -189,7 +189,7 @@ namespace WCMS.Features.WEB.SiteMenuSetting
         [LibDesc(ModelDisplayName.SiteMenu_SiteIndex)] public string? SiteIndex { get; set; }
         [LibDesc(ModelDisplayName.Common_RowId)] public int? ItemRowId { get; set; }
         [LibDesc(ModelDisplayName.SiteMenu_RedirectType)] public MenuUrlType RedirectType { get; set; } //0:無, 1:外部,2:內部模型功能(直接轉FullUrl、但是是用下拉的看Title/Url)
-        [LibDesc(ModelDisplayName.Common_Url)] public string? RedirectUrl { get; set; }
+        [LibDesc(ModelDisplayName.Common_Url), StringLength(SysLengthParam.Url)] public string? RedirectUrl { get; set; }
 
         #region 主子表關聯
         public SiteMenu_Item_DTO? _SiteMenu_Index { get; set; }
@@ -200,11 +200,11 @@ namespace WCMS.Features.WEB.SiteMenuSetting
     /// </summary>
     public class SiteMenu_Item_Module_DTO
     {
-        [LibDesc(ModelDisplayName.SiteMenu_SiteIndex)] public string? SiteIndex { get; set; }
+        [LibDesc(ModelDisplayName.SiteMenu_SiteIndex), StringLength(SysLengthParam.ID)] public string? SiteIndex { get; set; }
         [LibDesc(ModelDisplayName.Common_RowId)] public int? ItemRowId { get; set; }
-        [LibDesc(ModelDisplayName.BannerId)] public string? BannerId { get; set; }
+        [LibDesc(ModelDisplayName.BannerId), StringLength(SysLengthParam.ID)] public string? BannerId { get; set; }
         [LibDesc(ModelDisplayName.SiteMenu_ItemType)] public ModulePageType PageType { get; set; }
-        [LibDesc(ModelDisplayName.SiteMenu_ModuleProgId)] public string? ModuleProgId { get; set; } //功能代碼
+        [LibDesc(ModelDisplayName.SiteMenu_ModuleProgId), StringLength(SysLengthParam.ProgId)] public string? ModuleProgId { get; set; } //功能代碼
         [LibDesc(ModelDisplayName.SiteMenu_ModuleOptions)] public string? ModuleOptions { get; set; }//動態參數，存Json格式
 
         #region 主子表關聯

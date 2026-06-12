@@ -18,10 +18,10 @@ import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
+import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import type { components } from "@/types/api";
 import { CategoryDataSetFields, MatCategoryInfoFieldFields, type PGID } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
-import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { CategorySharedEditorComp } from "../../COMM/Category/Server_CategorySharedEditor_Comp";
@@ -34,7 +34,6 @@ import {
 
 // #region Property
 type MatCategorySet = components["schemas"]["MatCategoryDataSet_DTO"];
-
 
 interface MatCategoryFormCompProps
 {
@@ -51,7 +50,6 @@ interface MatCategoryFormCompProps
     lang: Lang;
 }
 
-
 interface MatCategoryContentProps
 {
     /** 後台主題設定 */
@@ -64,10 +62,8 @@ interface MatCategoryContentProps
     binding: ServerFormBinding<MatCategorySet>;
 }
 
-
 interface MatCategoryInfoFieldGridProps extends MatCategoryContentProps
 {}
-
 
 interface MatCategoryInfoFieldDisplayGridProps extends MatCategoryContentProps
 {
@@ -152,7 +148,6 @@ const MatCategoryContentComp = (props: MatCategoryContentProps) =>
     return <TabContentComp tabInfos={tabInfo} components={components}></TabContentComp>;
 };
 
-
 /** 物件欄位設定區塊，父層欄位與語系顯示名稱皆改走 EditGrid。 */
 const MatCategoryInfoFieldGridComp = (props: MatCategoryInfoFieldGridProps) =>
 {
@@ -187,6 +182,7 @@ const MatCategoryInfoFieldGridComp = (props: MatCategoryInfoFieldGridProps) =>
 
     const fieldGrid = useMatCategoryInfoFieldEditGrid({
         binding: props.binding,
+        lang: props.lang,
         style: editGridStyle,
         isSubDetailEditing: subDetailState.isSubDetailEditing,
         expandedRowKey: subDetailState.expandedRowKey,
@@ -196,7 +192,6 @@ const MatCategoryInfoFieldGridComp = (props: MatCategoryInfoFieldGridProps) =>
 
     return <EditGrid {...fieldGrid.editGridProps} />;
 };
-
 
 /** 物件欄位語系顯示名稱子明細 Grid。 */
 const MatCategoryInfoFieldDisplayGridComp = (props: MatCategoryInfoFieldDisplayGridProps) =>
@@ -227,7 +222,6 @@ const buildMatCategoryMainTabContent = (props: MatCategoryContentProps): Record<
         System: [<SystemInfoTabComp key="SystemInfo" theme={props.theme} formData={props.binding} setKey={CategoryDataSetFields.Category} />],
     };
 };
-
 
 /** 建立欄位語系明細展開按鈕，父層編輯中不可開啟避免資料錯位。 */
 const buildMatCategorySubDetailToggle = (opt: BuildMatCategorySubDetailToggleOptions): ReactNode =>
@@ -262,7 +256,6 @@ const shouldDisableMatCategorySubDetailToggle = (opt: BuildMatCategorySubDetailT
 
     return isParentRowEditing || !hasFieldValue || isOtherSubDetailEditing;
 };
-
 
 /** 取得語系明細按鈕提示文字。 */
 const getMatCategorySubDetailToggleTitle = (opt: BuildMatCategorySubDetailToggleOptions, isExpanded: boolean): string =>

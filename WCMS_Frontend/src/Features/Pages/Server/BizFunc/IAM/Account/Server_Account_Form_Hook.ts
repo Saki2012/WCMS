@@ -9,6 +9,7 @@ import type {
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { ApiFormInitial, ServerFormActions } from "@/SysCore/Utils/API/APIAdapter";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
+import { LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { AccountFields, PersonModelFields, RoleDataModelFields } from "@/types/SchemaFields";
@@ -23,7 +24,6 @@ type PersonSet = components["schemas"]["PersonSet_DTO"];
 type RoleSet = components["schemas"]["RolePermissionSet_DTO"];
 
 type QueryListParam = components["schemas"]["QueryListParam"];
-
 
 export interface UseAccountFormTemplateOptions
 {
@@ -40,7 +40,6 @@ export interface UseAccountFormTemplateOptions
     actionsOpt: AccountFormActionsOpt;
 }
 
-
 export interface AccountFormRefs
 {
     /** 帳號狀態 enum 選項 */
@@ -52,7 +51,6 @@ export interface AccountFormRefs
     /** 角色下拉選項 */
     roleIds: Record<string, string>;
 }
-
 
 export interface AccountFormRawData extends ServerFormDefaultRawData<AccountSet, AccountFormRefs>
 {
@@ -72,12 +70,10 @@ export interface AccountFormRawData extends ServerFormDefaultRawData<AccountSet,
     validationErrors: string[];
 }
 
-
 export type AccountFormActionsOpt = {
     /** 儲存成功後返回帳號列表 */
     onBackToList: () => void;
 };
-
 
 export type AccountFormAdapter = {
     /** 帳號主資料 Adapter */
@@ -93,7 +89,6 @@ export type AccountFormAdapter = {
 
 // #region Public
 export const accountEmptyData: AccountSet = { Account: {} };
-
 
 /** 建立 Account Form Template，統一交給 Server_FormTemplate 處理 CUD 與 toast。 */
 export const useAccountFormTemplate = (
@@ -136,7 +131,6 @@ export const useAccountFormTemplate = (
                 useReferenceData: useAccountReferenceData,
                 buildActions: (ctx, actions) => buildAccountFormActions(ctx, actions, validateBeforeSave),
                 buildRawData: ctx => buildAccountRawData(ctx.binding, ctx.refs, ctx.actions, confirmPwdRef.current, onConfirmPwdChange, validationErrorsRef.current, ctx.mode === "new"),
-                buildFormProp: (_ctx, prop) => ({ ...prop, ErrorList: [...prop.ErrorList, ...validationErrorsRef.current] }),
             },
         };
     }, [opt.actionsOpt, opt.emptyData, opt.internalId, opt.theme, onConfirmPwdChange, validateBeforeSave]);
@@ -151,7 +145,6 @@ const buildAccountFormTitle = (ctx: { mode: "new" | "edit"; displayName: ModelDi
     return `${ctx.mode === "edit" ? "修改" : "新增"}${modelTitle}`;
 };
 
-
 /** 建立新增模式的 initial data，統一由 Feature Timing 交給 Template。 */
 const buildAccountInitialData = (ctx: { mode: "new" | "edit"; emptyData: AccountSet; }): ApiFormInitial<AccountSet> | undefined =>
 {
@@ -159,13 +152,11 @@ const buildAccountInitialData = (ctx: { mode: "new" | "edit"; emptyData: Account
     return { data: { args: "__new__", apiRes: { IsSuccess: true, Data: ctx.emptyData, SysMessage: [] } } };
 };
 
-
 /** 建立 Account Form 會使用到的 Adapter 群組。 */
 const buildAccountFormAdapter = (): AccountFormAdapter =>
 {
     return { Account: AccountAdapter(), Person: PersonAdapter(), Role: RolePermissionAdapter() };
 };
-
 
 /** 取得 Account Header 需要的 enum 與下拉資料。 */
 const useAccountReferenceData = (ctx: { adapter: AccountFormAdapter; internalId: string; }) =>
@@ -206,13 +197,11 @@ const useAccountReferenceData = (ctx: { adapter: AccountFormAdapter; internalId:
     ]);
 };
 
-
 /** 取得 Account Model 顯示名稱，避免標題寫死功能名稱。 */
 const getAccountModelTitle = (displayName: ModelDisplaySchema, fallback: string): string =>
 {
     return displayName.ModelDisplayName || fallback;
 };
-
 
 /** 更新確認密碼，並清掉本地檢核訊息。 */
 const updateConfirmPassword = (
@@ -228,7 +217,6 @@ const updateConfirmPassword = (
     setConfirmPwd(value);
     setValidationErrors([]);
 };
-
 
 /** 建立儲存前檢核後的 Actions，讓 Template 仍負責真正 CUD。 */
 const buildAccountFormActions = (
@@ -247,7 +235,6 @@ const buildAccountFormActions = (
         },
     };
 };
-
 
 /** 建立 Account FormComp 會額外使用的 rawData。 */
 const buildAccountRawData = (
@@ -272,7 +259,6 @@ const buildAccountRawData = (
     };
 };
 
-
 /** 檢查新增帳號時密碼與確認密碼是否正確。 */
 const validateAccountBeforeSave = (
     data: AccountSet,
@@ -288,19 +274,16 @@ const validateAccountBeforeSave = (
     return errors.length === 0;
 };
 
-
 /** 建立 Account 儲存前本地檢核訊息。 */
 const buildAccountValidationErrors = (data: AccountSet, isAddNew: boolean, confirmPwd: string): string[] =>
 {
     if (!isAddNew) return [];
-
-    const pwd = String(data?.Account?.Password ?? "");
-    if (!pwd || !confirmPwd) return ["請輸入密碼並再次確認"];
-    if (pwd !== confirmPwd) return ["兩次密碼不一致"];
-
+    const pwd = LibText.safeTrim(data?.Account?.Password);
+    const confirm = LibText.safeTrim(confirmPwd);
+    if (!pwd || !confirm) return ["請輸入密碼並再次確認"];
+    if (pwd !== confirm) return ["兩次密碼不一致"];
     return [];
 };
-
 
 /** 建立 person 清單查詢。 */
 const usePersonListByAdapter = (adapter: ReturnType<typeof PersonAdapter>) =>
@@ -319,7 +302,6 @@ const usePersonListByAdapter = (adapter: ReturnType<typeof PersonAdapter>) =>
     return { rawData: (query.data ?? []) as PersonSet[], isLoading: Boolean(query.isLoading), error: query.errorText ?? null, refetch: query.refetch };
 };
 
-
 /** 建立 role 清單查詢。 */
 const useRoleListByAdapter = (adapter: ReturnType<typeof RolePermissionAdapter>) =>
 {
@@ -337,7 +319,6 @@ const useRoleListByAdapter = (adapter: ReturnType<typeof RolePermissionAdapter>)
     return { rawData: (query.data ?? []) as RoleSet[], isLoading: Boolean(query.isLoading), error: query.errorText ?? null, refetch: query.refetch };
 };
 
-
 /** 建立帳號與人員關聯查詢，避免同一人員被重複綁定。 */
 const useAccountPersonListByAdapter = (adapter: ReturnType<typeof AccountAdapter>) =>
 {
@@ -349,7 +330,6 @@ const useAccountPersonListByAdapter = (adapter: ReturnType<typeof AccountAdapter
     return { rawData: (query.data ?? []) as AccountSet[], isLoading: Boolean(query.isLoading), error: query.errorText ?? null, refetch: query.refetch };
 };
 
-
 /** 建立可選人員下拉字典。 */
 const useAvailablePersonDict = (personRawData: PersonSet[], accountRawData: AccountSet[], currentAccountInternalId: string): Record<string, string> =>
 {
@@ -359,7 +339,6 @@ const useAvailablePersonDict = (personRawData: PersonSet[], accountRawData: Acco
         return buildAvailablePersonDict(personRawData, usedPersonIds);
     }, [personRawData, accountRawData, currentAccountInternalId]);
 };
-
 
 /** 建立其他帳號已使用的人員代號。 */
 const buildUsedPersonIds = (rawData: AccountSet[], currentAccountInternalId: string): Set<string> =>
@@ -380,7 +359,6 @@ const buildUsedPersonIds = (rawData: AccountSet[], currentAccountInternalId: str
     return usedIds;
 };
 
-
 /** 建立尚可選的人員下拉資料。 */
 const buildAvailablePersonDict = (rawData: PersonSet[], usedPersonIds: Set<string>): Record<string, string> =>
 {
@@ -395,7 +373,6 @@ const buildAvailablePersonDict = (rawData: PersonSet[], usedPersonIds: Set<strin
 
     return dict;
 };
-
 
 /** 將 role 資料轉為下拉字典。 */
 const useRoleDict = (rawData: RoleSet[]): Record<string, string> =>

@@ -43,7 +43,7 @@ namespace WCMS.Features.WEB.Timeline;
     /// <summary>
     /// 代碼
     /// </summary>
-    [LibDesc(ModelDisplayName.TimelineId)] public string? TimelineId { get; set; }
+    [LibDesc(ModelDisplayName.TimelineId), StringLength(SysLengthParam.ID)] public string? TimelineId { get; set; }
     /// <summary>
     /// 行代碼
     /// </summary>
@@ -67,7 +67,7 @@ public class TimelineLangDetail_DTO
     /// <summary>
     /// 代碼
     /// </summary>
-    [LibDesc(ModelDisplayName.TimelineId)] public string? TimelineId { get; set; }
+    [LibDesc(ModelDisplayName.TimelineId), StringLength(SysLengthParam.ID)] public string? TimelineId { get; set; }
     /// <summary>
     /// 父行代碼
     /// </summary>

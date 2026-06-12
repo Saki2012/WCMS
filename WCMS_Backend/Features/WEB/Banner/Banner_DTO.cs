@@ -1,9 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 using WCMS.Features._Resx;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
 using static WCMS.SysCore.Enum.SysEnum;
+using WCMS.SysCore.Enum;
 
 namespace WCMS.Features.WEB.Banner;
 
@@ -18,11 +20,11 @@ public partial class Banner_DTO : DTOBasicDataModel
     /// <summary>
     /// 橫幅ID
     /// </summary>
-    [LibDesc(ModelDisplayName.BannerId)] public string? BannerId { get; set; }
+    [LibDesc(ModelDisplayName.BannerId), StringLength(SysLengthParam.ID)] public string? BannerId { get; set; }
     /// <summary>
     /// 類別ID
     /// </summary>
-    [LibDesc(ModelDisplayName.Banner_CategoryName)] public string? BannerCategoryName { get; set; }
+    [LibDesc(ModelDisplayName.Banner_CategoryName), StringLength(SysLengthParam.Name)] public string? BannerCategoryName { get; set; }
     /// <summary>
     /// 轉換間隔
     /// </summary>
@@ -85,7 +87,7 @@ public partial class BannerDetailInfo_DTO
     /// <summary>
     /// 
     /// </summary>
-    [LibDesc(ModelDisplayName.BannerId)] public string? BannerId { get; set; }
+    [LibDesc(ModelDisplayName.BannerId), StringLength(SysLengthParam.ID)] public string? BannerId { get; set; }
     /// <summary>
     /// 
     /// </summary>
@@ -101,13 +103,13 @@ public partial class BannerDetailInfo_DTO
     /// <summary>
     /// 標題
     /// </summary>
-    [LibDesc(ModelDisplayName.Common_Title)] public string? Title { get; set; }
+    [LibDesc(ModelDisplayName.Common_Title), StringLength(SysLengthParam.Title)] public string? Title { get; set; }
     /// <summary>
     /// 
     /// </summary>
     [LibDesc(ModelDisplayName.Common_Content)] public string? Content { get; set; }
 
-    [LibDesc(ModelDisplayName.Common_Url)] public string? URL { get; set; }
+    [LibDesc(ModelDisplayName.Common_Url), StringLength(SysLengthParam.Url)] public string? URL { get; set; }
     /// <summary>
     /// 網址開啟方式
     /// </summary>

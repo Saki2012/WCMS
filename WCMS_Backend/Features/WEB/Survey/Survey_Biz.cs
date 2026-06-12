@@ -1,5 +1,8 @@
 ﻿using WCMS.Features._Resx;
+using WCMS.Features.WEB.Timeline;
+using WCMS.Features.WEB.WebResource;
 using WCMS.SysCore;
+using WCMS.SysCore.I18n;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.LibAttribute;
@@ -14,17 +17,17 @@ public class SurveyBiz(BizDeps bizDeps) : BizService<SurveySet>(bizDeps), IBizSe
     /// <summary>
     /// 保存前處理
     /// </summary>
-    protected override Task BeforeUpdate(SurveySet set, FuncAction act, CancellationToken ct = default)
+    protected override async Task BeforeUpdate(SurveySet set, FuncAction act, CancellationToken ct = default)
     {
-        var result = base.BeforeUpdate(set, act, ct);
+        await base.BeforeUpdate(set, act, ct);
         switch (act)
         {
             case FuncAction.Create:
             case FuncAction.Update:
                 AutoSetData(set);
+                if (!CheckData(set)) return;
                 break;
         }
-        return result;
     }
     #endregion
 
@@ -36,6 +39,11 @@ public class SurveyBiz(BizDeps bizDeps) : BizService<SurveySet>(bizDeps), IBizSe
     {
         if (set == null) return;
         set.SurveyItem.ForEach(item => AutoSetOptions(item));
+    }
+    protected bool CheckData(SurveySet set)
+    {
+        if (set.Survey.SurveyName.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Survey_DTO>(x => x.SurveyName));
+        return Message.HasError;
     }
     #endregion
 

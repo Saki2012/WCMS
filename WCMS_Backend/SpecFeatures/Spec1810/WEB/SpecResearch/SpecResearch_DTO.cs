@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using WCMS.Features._Resx;
 using WCMS.SpecFeatures.Spec1810._Resx;
+using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
@@ -18,11 +19,11 @@ public class SpecResearchModel_DTO : DTOBasicDataModel
     /// <summary>
     /// 橫幅ID
     /// </summary>
-    [LibDesc(SpecModelDisplayName.SpecResearchId), Key] public string? ResearchId { get; set; }
+    [LibDesc(SpecModelDisplayName.SpecResearchId), Key, StringLength(SysLengthParam.ID)] public string? ResearchId { get; set; }
     /// <summary>
     /// 類別ID
     /// </summary>
-    [LibDesc(SpecModelDisplayName.SpecResearch_Categories)] public string? CategoryId { get; set; }
+    [LibDesc(SpecModelDisplayName.SpecResearch_Categories), StringLength(SysLengthParam.ID)] public string? CategoryId { get; set; }
     /// <summary>
     /// 狀態 (多個)
     /// </summary>
@@ -30,13 +31,13 @@ public class SpecResearchModel_DTO : DTOBasicDataModel
     /// <summary>
     /// 標籤 (多個) 
     /// </summary>
-    [LibDesc(SpecModelDisplayName.SpecResearch_Tags)] public string? Tags { get; set; } = string.Empty;
+    [LibDesc(SpecModelDisplayName.SpecResearch_Tags), StringLength(SysLengthParam.Title)] public string? Tags { get; set; } = string.Empty;
 
     public List<SpecResearchDetailModel_DTO>? _SpecResearchDetail { get; set; } = [];
 }
 public class SpecResearchDetailModel_DTO
 {
-    [LibDesc(SpecModelDisplayName.SpecResearchId), Key] public string? ResearchId { get; set; }
+    [LibDesc(SpecModelDisplayName.SpecResearchId), Key, StringLength(SysLengthParam.ID)] public string? ResearchId { get; set; }
     [LibDesc(ModelDisplayName.Common_RowId), Key] public int RowId { get; set; }
     [LibDesc(ModelDisplayName.Common_Lang)] public LangCode? Lang { get; set; } = default!;
     [LibDesc(SpecModelDisplayName.SpecResearch_Year)] public int? Year { get; set; }
@@ -56,9 +57,9 @@ public class SpecResearchDetailModel_DTO
     [LibDesc(SpecModelDisplayName.SpecResearch_CoUnits), StringLength(200)] public string? CooperatingUnits { get; set; }
     [LibDesc(SpecModelDisplayName.SpecResearch_CoProject), StringLength(200)] public string? CooperationProject { get; set; }
     [LibDesc(SpecModelDisplayName.SpecResearch_Courses), StringLength(200)] public string? Courses { get; set; }
-    [LibDesc(SpecModelDisplayName.SpecResearch_ProjectName)] public string? ProjectName { get; set; }
+    [LibDesc(SpecModelDisplayName.SpecResearch_ProjectName), StringLength(SysLengthParam.Memo)] public string? ProjectName { get; set; }
     [LibDesc(SpecModelDisplayName.SpecResearch_PaperTitle), StringLength(200)] public string? PaperTitle { get; set; }
-    [LibDesc(SpecModelDisplayName.SpecResearch_Remark)] public string? Remark { get; set; }
+    [LibDesc(SpecModelDisplayName.SpecResearch_Remark), StringLength(SysLengthParam.Memo)] public string? Remark { get; set; }
     [LibDesc(SpecModelDisplayName.SpecResearch_Cohost1), StringLength(200)] public string? Cohost1 { get; set; }
     [LibDesc(SpecModelDisplayName.SpecResearch_Cohost2), StringLength(200)] public string? Cohost2 { get; set; }
     [LibDesc(SpecModelDisplayName.SpecResearch_Commissioned), StringLength(200)] public string? Commissioned { get; set; }

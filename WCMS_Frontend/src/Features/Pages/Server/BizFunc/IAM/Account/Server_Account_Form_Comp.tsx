@@ -9,29 +9,22 @@ import { LibCheckBox, LibDropList, LibTextBox, LibUserCard } from "@/SysCore/Com
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import type { components } from "@/types/api";
 import { AccountFields, AccountSetFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
-import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import {
-    accountEmptyData,
-    type AccountFormRawData,
-    type AccountFormRefs,
-    useAccountFormTemplate,
-} from "./Server_Account_Form_Hook";
+import { accountEmptyData, type AccountFormRawData, type AccountFormRefs, useAccountFormTemplate } from "./Server_Account_Form_Hook";
 
 // #region Property
 type AccountSet = components["schemas"]["AccountSet_DTO"];
-
 
 interface AccountFormCompProps
 {
     /** 後台主題設定 */
     theme: IBETheme;
 }
-
 
 interface AccountContentProps
 {
@@ -48,7 +41,6 @@ interface AccountContentProps
     rawData: AccountFormRawData;
 }
 
-
 interface AccountSectionProps extends AccountContentProps
 {
     /** 欄位 binding helper */
@@ -63,7 +55,6 @@ interface AccountSectionProps extends AccountContentProps
     /** Role 選項 */
     roleOptions: Map<string, string>;
 }
-
 
 interface UserCardSectionProps
 {
@@ -139,7 +130,6 @@ const AccountContentComp = (props: AccountContentProps) =>
     );
 };
 
-
 /** 帳號資料右側 Panel 區塊。 */
 const AccountPanelComp = (props: AccountContentProps) =>
 {
@@ -169,7 +159,6 @@ const AccountPanelComp = (props: AccountContentProps) =>
     );
 };
 
-
 /** 左側使用者卡片，圖片來源與顯示名稱由 Account binding 統一提供。 */
 const UserCardComp = (props: UserCardSectionProps) =>
 {
@@ -186,7 +175,6 @@ const UserCardComp = (props: UserCardSectionProps) =>
     );
 };
 
-
 /** 帳戶資訊欄位。 */
 const AccountFieldsComp = (props: AccountSectionProps) =>
 {
@@ -199,7 +187,6 @@ const AccountFieldsComp = (props: AccountSectionProps) =>
         </>
     );
 };
-
 
 /** 人員資料區，目前維持舊版空白區塊，避免擴大調整範圍。 */
 const PersonFieldsComp = () =>
@@ -232,7 +219,6 @@ const buildAccountTabContent = (props: AccountSectionProps): Record<string, Reac
     };
 };
 
-
 /** 建立返回帳號列表路徑。 */
 /** 建立 Tab 設定。 */
 const buildAccountTabInfo = (theme: IBETheme): LibTabsProp =>
@@ -240,13 +226,11 @@ const buildAccountTabInfo = (theme: IBETheme): LibTabsProp =>
     return { Style: theme.Tabs, item: { Account: "帳戶資訊", Person: "人員資料", System: "系統資料" } };
 };
 
-
 /** 將 Record 選項轉成舊版 LibDropList 使用的 Map。 */
 const buildOptionsMap = (data: Record<string, string>): Map<string, string> =>
 {
     return new Map<string, string>(Object.entries(data ?? {}));
 };
-
 
 /** 建立帳號與名稱欄位。 */
 const buildAccountIdFields = (props: AccountSectionProps): ReactNode =>
@@ -272,7 +256,6 @@ const buildAccountIdFields = (props: AccountSectionProps): ReactNode =>
     );
 };
 
-
 /** 建立人員與角色下拉欄位。 */
 const buildAccountRefFields = (props: AccountSectionProps): ReactNode =>
 {
@@ -297,7 +280,6 @@ const buildAccountRefFields = (props: AccountSectionProps): ReactNode =>
         </div>
     );
 };
-
 
 /** 建立新增帳號使用的密碼欄位。 */
 const buildAccountPasswordFields = (props: AccountSectionProps): ReactNode =>
@@ -325,7 +307,6 @@ const buildAccountPasswordFields = (props: AccountSectionProps): ReactNode =>
     );
 };
 
-
 /** 建立本地檢核訊息。 */
 const buildValidationMessages = (errors: string[]): ReactNode =>
 {
@@ -333,13 +314,10 @@ const buildValidationMessages = (errors: string[]): ReactNode =>
 
     return (
         <div className="text-danger small mt-1" role="alert">
-            {errors.map(item => (
-                <div key={item}>{item}</div>
-            ))}
+            {errors.map(item => <div key={item}>{item}</div>)}
         </div>
     );
 };
-
 
 /** 建立帳號狀態欄位。 */
 const buildAccountStatusFields = (props: AccountSectionProps): ReactNode =>
