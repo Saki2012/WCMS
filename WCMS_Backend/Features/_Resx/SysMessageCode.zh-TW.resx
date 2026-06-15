@@ -178,7 +178,7 @@
     <value>請上傳照片。</value>
   </data>
   <data name="BECode00020" xml:space="preserve">
-    <value />
+    <value>資料已被【{0}】的【{1}】欄位使用，無法{2}。</value>
   </data>
   <data name="BECode00021" xml:space="preserve">
     <value>檔案已存在至系統，略過重複上傳。</value>

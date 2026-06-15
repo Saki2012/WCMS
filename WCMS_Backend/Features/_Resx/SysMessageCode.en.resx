@@ -175,10 +175,10 @@
     <value>Tag [{0}] is in use and cannot be deleted.</value>
   </data>
   <data name="BECode00019" xml:space="preserve">
-    <value />
+    <value>請上傳照片。</value>
   </data>
   <data name="BECode00020" xml:space="preserve">
-    <value />
+    <value>資料已被【{0}】的【{1}】欄位使用，無法{2}。</value>
   </data>
   <data name="BECode00021" xml:space="preserve">
     <value>The file already exists in the system; duplicate upload was skipped.</value>

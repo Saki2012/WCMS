@@ -121,7 +121,7 @@
         /// </summary>
         public const string BECode00019 = nameof(BECode00019);
         /// <summary>
-        /// 
+        /// 資料已被【{0}】的【{1}】欄位使用，無法{2}。
         /// </summary>
         public const string BECode00020 = nameof(BECode00020);
         /// <summary>
@@ -189,6 +189,7 @@
         /// </summary>
         public const string BECode00036 = nameof(BECode00036);
         /// <summary>
+        /// 
         /// </summary>
         public const string BECode00037 = nameof(BECode00037);
         /// <summary>

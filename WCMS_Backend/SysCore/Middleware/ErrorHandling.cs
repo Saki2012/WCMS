@@ -1,6 +1,9 @@
-﻿using System.Text.Json;
+﻿using Microsoft.Data.SqlClient;
 using NLog;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 using WCMS.Features._Resx;
+using WCMS.SysCore.I18n;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.Middleware
@@ -42,21 +45,24 @@ namespace WCMS.SysCore.Middleware
             // 3) 回傳 JSON
             await WriteJsonAsync(context, apiRes);
         }
-
         /// <summary>
         /// 建立 ApiResponse，並補上 SysMessage
         /// </summary>
         private ApiResponse<string> BuildApiResponse(IErrorHelper message, Exception exception)
         {
+            // 執行：資料被使用的 FK 錯誤轉成可讀訊息
+            if (TryAddForeignKeyUsedMessage(message, exception))
+                return new ApiResponse<string>() { SysMessage = message.Messages };
+
+            // 執行：非預期錯誤維持原本系統錯誤
             message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00001);
 
 #if DEBUG
-            // DEBUG 額外帶 exception（你原本就有這段）
             message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00000, exception);
 #endif
+
             return new ApiResponse<string>() { SysMessage = message.Messages };
         }
-
         /// <summary>
         /// 將錯誤以「一筆一區塊」的方式記錄，包含 request 必要資訊
         /// </summary>
@@ -84,7 +90,6 @@ Request: {method} {path}{query}
 {sep}
 ");
         }
-
         /// <summary>
         /// 回傳 JSON（統一 ContentType）
         /// </summary>
@@ -93,6 +98,65 @@ Request: {method} {path}{query}
             context.Response.ContentType = "application/json";
             await context.Response.WriteAsync(JsonSerializer.Serialize(apiRes));
         }
+        /// <summary>
+        /// 嘗試將 SQL FK 使用中錯誤轉成使用者可讀訊息。
+        /// </summary>
+        private static bool TryAddForeignKeyUsedMessage(IErrorHelper message, Exception exception)
+        {
+            SqlException? sqlException = GetSqlException(exception);
+            if (sqlException == null || sqlException.Number != 547) return false;
+            if (!sqlException.Message.Contains("REFERENCE", StringComparison.OrdinalIgnoreCase)) return false;
+            var info = ParseForeignKeyUsedInfo(sqlException.Message);
+            message.AddMessage(MessageStatus.Error,SysMessageCode.BECode00020, I18nCache.GetDtoFirstTypeLabel(info.TableName), I18nCache.GetDtoFirstPropertyLabel(info.TableName, info.ColumnName), info.ActionName);
+            return true;
+        }
+        /// <summary>
+        /// 從例外鏈中取得 SqlException。
+        /// </summary>
+        private static SqlException? GetSqlException(Exception exception)
+        {
+            Exception? current = exception;
+            while (current != null)
+            {
+                if (current is SqlException sqlException) return sqlException;
+                current = current.InnerException;
+            }
+            return null;
+        }
+        /// <summary>
+        /// 解析 FK 錯誤內的資料表、欄位與動作。
+        /// </summary>
+        private static ForeignKeyUsedInfo ParseForeignKeyUsedInfo(string errorMessage)
+        {
+            string tableName = ParseRegexValue(errorMessage, @"(?:table|資料表)\s+""(?:[^"".]+\.)?(?<value>[^""]+)""");
+            string columnName = ParseRegexValue(errorMessage, @"(?:column|資料行)\s+'(?<value>[^']+)'");
+            string actionName = GetDbActionName(errorMessage);
+            return new ForeignKeyUsedInfo(tableName, columnName, actionName);
+        }
+        /// <summary>
+        /// 解析 Regex 群組值。
+        /// </summary>
+        private static string ParseRegexValue(string value, string pattern)
+        {
+            var match = Regex.Match(value, pattern, RegexOptions.IgnoreCase);
+            return match.Success ? match.Groups["value"].Value : "未知資料";
+        }
+        /// <summary>
+        /// 依 SQL 訊息判斷目前動作。
+        /// </summary>
+        private static string GetDbActionName(string errorMessage)
+        {
+            // 執行：刪除失敗
+            if (errorMessage.Contains("DELETE", StringComparison.OrdinalIgnoreCase)) return "刪除";
+            // 執行：更新失敗
+            if (errorMessage.Contains("UPDATE", StringComparison.OrdinalIgnoreCase)) return "更新";
+            return "保存";
+        }
+
+        /// <summary>
+        /// FK 使用中錯誤資訊。
+        /// </summary>
+        private sealed record ForeignKeyUsedInfo(string TableName, string ColumnName, string ActionName);
         #endregion
     }
 }

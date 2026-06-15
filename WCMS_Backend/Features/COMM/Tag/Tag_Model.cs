@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using WCMS.Features._Resx;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;
+using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
 
 namespace WCMS.Features.COMM.Tag
@@ -11,7 +13,7 @@ namespace WCMS.Features.COMM.Tag
         public TagData TagData { get; set; } = new TagData();
         public List<TagDetail> TagDetail { get; set; } = [];
     }
-    public class TagData : MasterDataModel
+    [LibDesc(ModelDisplayName.Tag_Data)] public class TagData : MasterDataModel
     {
         /// <summary>
         /// 標籤ID

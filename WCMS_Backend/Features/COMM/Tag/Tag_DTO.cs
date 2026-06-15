@@ -12,7 +12,7 @@ namespace WCMS.Features.COMM.Tag
         public TagData_DTO TagData { get; set; } = new();
         public List<TagDetail_DTO> TagDetail { get; set; } = [];
     }
-    public class TagData_DTO : DTOBasicDataModel
+    [LibDesc(ModelDisplayName.Tag_Data)] public class TagData_DTO : DTOBasicDataModel
     {
         /// <summary>
         /// 類別ID
