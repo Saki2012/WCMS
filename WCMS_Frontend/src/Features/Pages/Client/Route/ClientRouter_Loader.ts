@@ -85,7 +85,8 @@ export const loadSitesForRouting = async (opt?: { request?: Request; initialStat
 {
     const fromOpt = opt?.initialState?.sites ?? null;
     const fromWindow = readInitialStateFromWindow()?.sites ?? null;
-    const fromCache = getCache();
+    const shouldUseCache = !isSsrRoutingRequest(opt);
+    const fromCache = shouldUseCache ? getCache() : null;
     if (fromOpt && fromOpt.length > 0)
     {
         setCache(fromOpt);
@@ -108,6 +109,7 @@ export const loadSitesForRouting = async (opt?: { request?: Request; initialStat
     const sites = await fetchSitesByQuery({ api, args });
     setCache(sites);
     await warmFooterRuntimeCache({ request: opt?.request, initialState: opt?.initialState, sites });
+
     return sites;
 };
 /** 提供 CSR 使用的 Footer runtime 狀態與重新整理方法。
@@ -267,7 +269,6 @@ const fetchSitesByQuery = async (opt: { api?: AxiosInstance; args: LoaderFunctio
     const normSites = await Promise.all(tasks);
     return normSites.filter((x): x is INormSite => Boolean(x));
 };
-
 /** 建立 Footer 瀏覽數查詢條件。 */
 const buildFooterViewCountCondition = (siteIndex: string): string =>
 {
@@ -290,5 +291,10 @@ const warmFooterRuntimeCache = async (opt: { request?: Request; initialState?: S
 const buildLoaderArgs = (request?: Request): LoaderFunctionArgs =>
 {
     return { request: request ?? new Request(DEFAULT_LOADER_REQUEST_URL), params: {} };
+};
+/** 判斷目前是否為 SSR 路由建構請求。 */
+const isSsrRoutingRequest = (opt?: { request?: Request; }): boolean =>
+{
+    return typeof window === "undefined" && Boolean(opt?.request);
 };
 // #endregion

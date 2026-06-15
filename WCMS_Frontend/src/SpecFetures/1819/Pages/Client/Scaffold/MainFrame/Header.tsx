@@ -44,6 +44,184 @@ type RenderDropdownItemsProps = {
 };
 // #endregion
 
+// #region Public
+export const Header = (props: HeaderProps) =>
+{
+    const headerRef = useRef<HTMLDivElement | null>(null);
+    const [isMobileView, setIsMobileView] = useState<boolean>(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
+    const [openDropdownKeys, setOpenDropdownKeys] = useState<string[]>([]);
+
+    const closeAllDropdowns = useCallback((): void =>
+    {
+        // 執行 function：關閉所有手機版子選單
+        setOpenDropdownKeys([]);
+    }, []);
+
+    const closeMobileMenu = useCallback((): void =>
+    {
+        // 執行 function：關閉手機版主選單與所有子選單
+        setIsMobileMenuOpen(false);
+        closeAllDropdowns();
+    }, [closeAllDropdowns]);
+
+    const toggleMobileMenu = useCallback((): void =>
+    {
+        // 執行 function：切換手機版主選單開關
+        setIsMobileMenuOpen((prev) =>
+        {
+            const next = !prev;
+            if (!next) closeAllDropdowns();
+            return next;
+        });
+    }, [closeAllDropdowns]);
+
+    const isDropdownOpen = useCallback((key: string): boolean =>
+    {
+        // return：判斷某個手機版子選單是否展開
+        return openDropdownKeys.includes(key);
+    }, [openDropdownKeys]);
+
+    const toggleDropdown = useCallback((key: string): void =>
+    {
+        // 執行 function：切換手機版某個子選單，並關閉同層兄弟節點
+        setOpenDropdownKeys((prev) =>
+        {
+            if (prev.includes(key)) return removeBranchKeys(prev, key);
+
+            const parentKey = getParentKey(key);
+            const siblingRoots = prev.filter((item) => getParentKey(item) === parentKey && item !== key);
+            const next = prev.filter((item) => !siblingRoots.some((rootKey) => item === rootKey || item.startsWith(`${rootKey}-`)));
+
+            return [...next, key];
+        });
+    }, []);
+
+    const handleLeafClick = useCallback((): void =>
+    {
+        // 執行 function：點擊葉節點時，自動收回手機版主選單
+        if (!isMobileView) return;
+        closeMobileMenu();
+    }, [closeMobileMenu, isMobileView]);
+
+    useEffect(() =>
+    {
+        // 執行 function：判斷目前是否為手機 breakpoint
+        if (typeof window === "undefined") return;
+
+        const updateViewport = () =>
+        {
+            const mobile = window.innerWidth <= MOBILE_BREAKPOINT;
+            setIsMobileView(mobile);
+
+            if (!mobile)
+            {
+                setIsMobileMenuOpen(false);
+                setOpenDropdownKeys([]);
+            }
+        };
+
+        updateViewport();
+        window.addEventListener("resize", updateViewport);
+
+        return () => window.removeEventListener("resize", updateViewport);
+    }, []);
+
+    useEffect(() =>
+    {
+        // 執行 function：prototype scroll 到一定高度才加陰影
+        if (typeof window === "undefined") return;
+
+        const header = headerRef.current;
+        if (!header) return;
+
+        const threshold = 180;
+
+        const onScroll = () =>
+        {
+            // 執行 function：同步 header shadow 狀態
+            header.classList.toggle("shadow", window.scrollY >= threshold);
+        };
+
+        onScroll();
+        window.addEventListener("scroll", onScroll, { passive: true });
+
+        return () => window.removeEventListener("scroll", onScroll);
+    }, []);
+
+    useEffect(() =>
+    {
+        // 執行 function：同步 body 捲動鎖定
+        if (typeof document === "undefined") return;
+
+        document.body.style.overflow = isMobileMenuOpen ? "hidden" : "auto";
+
+        return () =>
+        {
+            document.body.style.overflow = "auto";
+        };
+    }, [isMobileMenuOpen]);
+
+    useEffect(() =>
+    {
+        // 執行 function：點 menu 外部時收回手機版 menu
+        if (typeof document === "undefined") return;
+        if (!isMobileMenuOpen) return;
+
+        const onPointerDown = (event: PointerEvent) =>
+        {
+            const header = headerRef.current;
+            const menuSection = header?.querySelector(".menu_section");
+            const target = event.target as Node | null;
+
+            if (!header || !menuSection || !target) return;
+            if (!menuSection.contains(target)) closeMobileMenu();
+        };
+
+        document.addEventListener("pointerdown", onPointerDown);
+
+        return () => document.removeEventListener("pointerdown", onPointerDown);
+    }, [closeMobileMenu, isMobileMenuOpen]);
+
+    useEffect(() =>
+    {
+        // 執行 function：按 Esc 收回手機版 menu
+        if (typeof document === "undefined") return;
+
+        const onKeyDown = (event: KeyboardEvent) =>
+        {
+            if (event.key !== "Escape") return;
+            closeMobileMenu();
+        };
+
+        document.addEventListener("keydown", onKeyDown);
+
+        return () => document.removeEventListener("keydown", onKeyDown);
+    }, [closeMobileMenu]);
+
+    return (
+        <>
+            <A11yContent />
+            <div id="Site-Header" className={`ALL_Header_DivBar main-header${isMobileMenuOpen ? " active" : ""}`} ref={headerRef}>
+                <Header_Section lang={props.lang} site={props.site} />
+                <Menu_Section
+                    {...props}
+                    isMobileView={isMobileView}
+                    isMobileMenuOpen={isMobileMenuOpen}
+                    toggleMobileMenu={toggleMobileMenu}
+                    closeMobileMenu={closeMobileMenu}
+                    isDropdownOpen={isDropdownOpen}
+                    toggleDropdown={toggleDropdown}
+                    closeAllDropdowns={closeAllDropdowns}
+                    handleLeafClick={handleLeafClick}
+                />
+                <div className="overlayer" aria-hidden="true" onClick={closeMobileMenu} />
+            </div>
+        </>
+    );
+};
+// #endregion
+
 // #region Section
 const Header_Section = (props: { lang: Lang; site: INormSite; }) =>
 {
@@ -306,181 +484,6 @@ const removeBranchKeys = (keys: string[], rootKey: string): string[] =>
     return keys.filter((item) => item !== rootKey && !item.startsWith(`${rootKey}-`));
 };
 
-export const Header = (props: HeaderProps) =>
-{
-    const headerRef = useRef<HTMLDivElement | null>(null);
-    const [isMobileView, setIsMobileView] = useState<boolean>(false);
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
-    const [openDropdownKeys, setOpenDropdownKeys] = useState<string[]>([]);
-
-    const closeAllDropdowns = useCallback((): void =>
-    {
-        // 執行 function：關閉所有手機版子選單
-        setOpenDropdownKeys([]);
-    }, []);
-
-    const closeMobileMenu = useCallback((): void =>
-    {
-        // 執行 function：關閉手機版主選單與所有子選單
-        setIsMobileMenuOpen(false);
-        closeAllDropdowns();
-    }, [closeAllDropdowns]);
-
-    const toggleMobileMenu = useCallback((): void =>
-    {
-        // 執行 function：切換手機版主選單開關
-        setIsMobileMenuOpen((prev) =>
-        {
-            const next = !prev;
-            if (!next) closeAllDropdowns();
-            return next;
-        });
-    }, [closeAllDropdowns]);
-
-    const isDropdownOpen = useCallback((key: string): boolean =>
-    {
-        // return：判斷某個手機版子選單是否展開
-        return openDropdownKeys.includes(key);
-    }, [openDropdownKeys]);
-
-    const toggleDropdown = useCallback((key: string): void =>
-    {
-        // 執行 function：切換手機版某個子選單，並關閉同層兄弟節點
-        setOpenDropdownKeys((prev) =>
-        {
-            if (prev.includes(key)) return removeBranchKeys(prev, key);
-
-            const parentKey = getParentKey(key);
-            const siblingRoots = prev.filter((item) => getParentKey(item) === parentKey && item !== key);
-            const next = prev.filter((item) => !siblingRoots.some((rootKey) => item === rootKey || item.startsWith(`${rootKey}-`)));
-
-            return [...next, key];
-        });
-    }, []);
-
-    const handleLeafClick = useCallback((): void =>
-    {
-        // 執行 function：點擊葉節點時，自動收回手機版主選單
-        if (!isMobileView) return;
-        closeMobileMenu();
-    }, [closeMobileMenu, isMobileView]);
-
-    useEffect(() =>
-    {
-        // 執行 function：判斷目前是否為手機 breakpoint
-        if (typeof window === "undefined") return;
-
-        const updateViewport = () =>
-        {
-            const mobile = window.innerWidth <= MOBILE_BREAKPOINT;
-            setIsMobileView(mobile);
-
-            if (!mobile)
-            {
-                setIsMobileMenuOpen(false);
-                setOpenDropdownKeys([]);
-            }
-        };
-
-        updateViewport();
-        window.addEventListener("resize", updateViewport);
-
-        return () => window.removeEventListener("resize", updateViewport);
-    }, []);
-
-    useEffect(() =>
-    {
-        // 執行 function：prototype scroll 到一定高度才加陰影
-        if (typeof window === "undefined") return;
-
-        const header = headerRef.current;
-        if (!header) return;
-
-        const threshold = 180;
-
-        const onScroll = () =>
-        {
-            // 執行 function：同步 header shadow 狀態
-            header.classList.toggle("shadow", window.scrollY >= threshold);
-        };
-
-        onScroll();
-        window.addEventListener("scroll", onScroll, { passive: true });
-
-        return () => window.removeEventListener("scroll", onScroll);
-    }, []);
-
-    useEffect(() =>
-    {
-        // 執行 function：同步 body 捲動鎖定
-        if (typeof document === "undefined") return;
-
-        document.body.style.overflow = isMobileMenuOpen ? "hidden" : "auto";
-
-        return () =>
-        {
-            document.body.style.overflow = "auto";
-        };
-    }, [isMobileMenuOpen]);
-
-    useEffect(() =>
-    {
-        // 執行 function：點 menu 外部時收回手機版 menu
-        if (typeof document === "undefined") return;
-        if (!isMobileMenuOpen) return;
-
-        const onPointerDown = (event: PointerEvent) =>
-        {
-            const header = headerRef.current;
-            const menuSection = header?.querySelector(".menu_section");
-            const target = event.target as Node | null;
-
-            if (!header || !menuSection || !target) return;
-            if (!menuSection.contains(target)) closeMobileMenu();
-        };
-
-        document.addEventListener("pointerdown", onPointerDown);
-
-        return () => document.removeEventListener("pointerdown", onPointerDown);
-    }, [closeMobileMenu, isMobileMenuOpen]);
-
-    useEffect(() =>
-    {
-        // 執行 function：按 Esc 收回手機版 menu
-        if (typeof document === "undefined") return;
-
-        const onKeyDown = (event: KeyboardEvent) =>
-        {
-            if (event.key !== "Escape") return;
-            closeMobileMenu();
-        };
-
-        document.addEventListener("keydown", onKeyDown);
-
-        return () => document.removeEventListener("keydown", onKeyDown);
-    }, [closeMobileMenu]);
-
-    return (
-        <>
-            <A11yContent />
-            <div id="Site-Header" className={`ALL_Header_DivBar main-header${isMobileMenuOpen ? " active" : ""}`} ref={headerRef}>
-                <Header_Section lang={props.lang} site={props.site} />
-                <Menu_Section
-                    {...props}
-                    isMobileView={isMobileView}
-                    isMobileMenuOpen={isMobileMenuOpen}
-                    toggleMobileMenu={toggleMobileMenu}
-                    closeMobileMenu={closeMobileMenu}
-                    isDropdownOpen={isDropdownOpen}
-                    toggleDropdown={toggleDropdown}
-                    closeAllDropdowns={closeAllDropdowns}
-                    handleLeafClick={handleLeafClick}
-                />
-                <div className="overlayer" aria-hidden="true" onClick={closeMobileMenu} />
-            </div>
-        </>
-    );
-};
 const NavBar = (props: { lang: Lang; }) =>
 {
     const title = props.lang === "zh-tw"
@@ -508,38 +511,6 @@ const NavBar = (props: { lang: Lang; }) =>
                     <LangNavLink to={`/${SITEMAP_SEGMENT}`} className="nav-link" title={title.SiteMap}>{title.SiteMap}</LangNavLink>
                 </li>
             </ul>
-        </li>
-    );
-};
-
-const SearchBar = () =>
-{
-    const doZoom = useCallback((px: number) =>
-    {
-        // 執行 function：切換 font-size 並保存
-        document.documentElement.style.fontSize = `${px}px`;
-        localStorage.setItem("font-zoom", String(px));
-    }, []);
-
-    useEffect(() =>
-    {
-        // 執行 function：初始化讀取 font-size 設定
-        const saved = +localStorage.getItem("font-zoom")!;
-        if (saved) doZoom(saved);
-    }, [doZoom]);
-
-    return (
-        <li>
-            <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1 d-sm-inline-block d-none">
-                <a className="search-button" id="top-sss" data-bs-toggle="dropdown">
-                    <i className="far fa-search" />
-                    <span className="sr-only">Search</span>
-                </a>
-            </div>
-            <div className="searchdropdown dropdown-menu search-input-dropdown" aria-labelledby="top-sss">
-                <input type="search" id="search-box" placeholder="Search..." />
-                <button className="far fa-search" type="button" />
-            </div>
         </li>
     );
 };

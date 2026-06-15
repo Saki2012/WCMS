@@ -54,7 +54,7 @@ export const Error404Page: React.FC = () =>
                                 </div>
 
                                 <div className="col-lg-7 col-md-6">
-                                    <div className="error-img">errorSvgUrl {/* <img src={errorSvgUrl} alt={imgAlt} /> */}</div>
+                                    <div className="error-img" aria-hidden="true" />
                                 </div>
                             </div>
                         </div>

@@ -2,7 +2,7 @@ import { loadClientChildren } from "@/Features/Pages/Client/Route/ClientRouter";
 import type { ModuleEntry } from "@/Features/Pages/Client/Route/Site-Routing";
 import { BackendRouteModule } from "@/Features/Pages/Server/Scaffold/Routes/ServerRouter";
 import type { IHeaderMetaProps } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";
-import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter";
+import type { IRouteBuildContext, IRouteModule } from "@/SysCore/Interface/IBaseRouter";
 import { resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
 import type { RouteObject } from "react-router-dom";
 
@@ -14,11 +14,12 @@ const defaultSiteHeaderMeta: IHeaderMetaProps = { title: "網站標題", descrip
 export class AppRouteModule implements IRouteModule
 {
     // #region Public
-    async getRoutes(): Promise<RouteObject[]>
+    async getRoutes(ctx?: IRouteBuildContext): Promise<RouteObject[]>
     {
-        const frontendRoutes = await loadClientChildren();
+        const frontendRoutes = await loadClientChildren(ctx);
         const backendRoutes = new BackendRouteModule().getRoutes();
         const customRoutes = await getCustomRoutes();
+
         return [...frontendRoutes, ...backendRoutes, ...customRoutes];
     }
     // #endregion

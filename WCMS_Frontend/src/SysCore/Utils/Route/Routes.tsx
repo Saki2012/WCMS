@@ -1,7 +1,7 @@
 // src/SysCore/Utils/Routes.tsx
 import { Error404Page } from "@/Features/Pages/Client/Scaffold/MainFrame/ErrorPage";
 import { type Lang } from "@/SysCore/i18n/lang";
-import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter";
+import type { IRouteBuildContext, IRouteModule } from "@/SysCore/Interface/IBaseRouter";
 import { langGuardLoader } from "@/SysCore/Utils/Route/langGuardLoader";
 import { LangGuard } from "@/SysCore/Utils/Route/LangGuardRoute";
 import { createBrowserRouter, type RouteObject } from "react-router-dom";
@@ -12,14 +12,12 @@ type BrowserRouterOptions = NonNullable<Parameters<typeof createBrowserRouter>[1
 
 type WcmsInitialState = Readonly<{ hydrationData?: BrowserRouterOptions["hydrationData"]; }>;
 
-
 interface Boot
 {
     lang?: Lang;
     cookieLang?: Lang;
     module: IRouteModule;
 }
-
 
 export type ServerRouterBuildResult = { kind: "router"; router: ReturnType<typeof createStaticRouter>; context: StaticHandlerContext; } | {
     kind: "response";
@@ -28,9 +26,9 @@ export type ServerRouterBuildResult = { kind: "router"; router: ReturnType<typeo
 // #endregion
 
 // #region Public
-export const buildRoutes = async (boot: Boot): Promise<RouteObject[]> =>
+export const buildRoutes = async (boot: Boot, ctx?: IRouteBuildContext): Promise<RouteObject[]> =>
 {
-    const routes = await boot.module.getRoutes(); // 等待 Promise
+    const routes = await boot.module.getRoutes(ctx);
     const children = normalizeChildren(routes);
 
     return [
@@ -51,7 +49,6 @@ export const buildRoutes = async (boot: Boot): Promise<RouteObject[]> =>
     ];
 };
 
-
 export const createClientRouter = async (boot: Boot) =>
 {
     const routes = await buildRoutes(boot);
@@ -62,27 +59,18 @@ export const createClientRouter = async (boot: Boot) =>
     return hydrationData ? createBrowserRouter(routes, { hydrationData }) : createBrowserRouter(routes);
 };
 
-
 export const createServerRouter = async (boot: Boot, request: Request): Promise<ServerRouterBuildResult> =>
 {
-    // 宣告變數
-    const routes = await buildRoutes(boot);
-
-    // 執行 function
+    const routes = await buildRoutes(boot, { request });
     assertNoIndexWithChildren(routes);
-
     const handler = createStaticHandler(routes);
     const queryResult = await handler.query(request);
-
     // ✅ loader redirect / errors 會回 Response，SSR 端必須先處理掉
     if (queryResult instanceof Response)
     {
         return { kind: "response", response: queryResult };
     }
-
     const router = createStaticRouter(handler.dataRoutes, queryResult);
-
-    // return
     return { kind: "router", router, context: queryResult };
 };
 // #endregion
@@ -94,17 +82,14 @@ const getWindowInitialState = (): WcmsInitialState | undefined =>
     return win.__INITIAL_STATE__;
 };
 
-
 // 把模組的絕對子路徑轉相對；"/" 改成 index:true
 const normalizeChildren = (routes: RouteObject[]): RouteObject[] =>
     routes.map((r) =>
     {
         const hasChildren = !!r.children?.length;
         const clone: RouteObject = { ...r };
-
         // 先遞迴處理子層
         if (hasChildren) clone.children = normalizeChildren(clone.children!);
-
         // A) "/"：有 children → 變成路由群組(path:"")；沒有 children → 變成 index
         if (clone.path === "/")
         {
@@ -117,23 +102,19 @@ const normalizeChildren = (routes: RouteObject[]): RouteObject[] =>
                 (clone as any).index = true; // 單純首頁
             }
         }
-
         // B) "/xxx" → "xxx"（轉成相對路徑）
         if (typeof clone.path === "string" && clone.path.startsWith("/") && clone.path !== "/")
         {
             clone.path = clone.path.replace(/^\/+/, "");
         }
-
         // C) 若有人把 index 與 children 併用，強制改回群組（拿掉 index）
         if ((clone as any).index && hasChildren)
         {
             delete (clone as any).index;
             if (!clone.path) clone.path = ""; // 明確作為群組
         }
-
         return clone;
     });
-
 
 const assertNoIndexWithChildren = (routes: RouteObject[], parent = "") =>
 {

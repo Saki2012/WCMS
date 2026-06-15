@@ -16,6 +16,7 @@ import type { IPageManagementOptions } from "@/Features/Pages/Client/BizFunc/WEB
 import { Client_WebResource_List_Comp as WebResourceListBase, type IWebResourceListOptions } from "@/Features/Pages/Client/BizFunc/WEB/WebResource/Client_WebResource_List_Comp";
 import { HomePage as HomePageBase } from "@/Features/Pages/Client/Index/HomePage";
 import { HomePageLoader as HomePageLoaderBase } from "@/Features/Pages/Client/Index/HomePage_Loader";
+import { Header as HeaderBase } from "@/Features/Pages/Client/Scaffold/MainFrame/Header";
 import { getClientSlotPath } from "@/Features/Pages/Client/Scaffold/Slot/Client_SlotPath";
 import { SubPage as SubPageBase } from "@/Features/Pages/Client/Scaffold/SubPages/SubPage";
 import { resolveSpecComponent, resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
@@ -32,6 +33,8 @@ export type {
 // #endregion
 
 // #region Initialization
+// Header
+export const Header: typeof HeaderBase = resolveSpecComponent(getClientSlotPath("Header"), HeaderBase, ["Header", "default"]);
 // SubPage
 export const SubPage: typeof SubPageBase = resolveSpecComponent(getClientSlotPath("SubPage"), SubPageBase, ["SubPage", "default"]);
 // HomePage
