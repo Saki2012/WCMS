@@ -3,7 +3,7 @@ import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/Searc
 import type { IListViewState } from "@/SysCore/Interface/IListViewState";
 import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
-import { LibText } from "@/SysCore/Utils/Library/LibData";
+import { LibCondition, LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { useCallback, useMemo, useState } from "react";
 import { useLoaderData } from "react-router-dom";
@@ -266,7 +266,7 @@ export const buildClientDataQueryState = <TSearchParams, TRawData, TViewModel, T
     const searchParams = buildTemplateSearchParams(template, submittedValues, viewState);
     const conditionCtx: ClientDataQueryConditionContext<TSearchParams> = { searchValues: submittedValues, searchParams, viewState, dataMode: template.dataMode };
     const searchConditions = buildTemplateSearchConditions(template, conditionCtx);
-    const searchCondition = searchConditions.join(" And ");
+    const searchCondition = LibCondition.joinConditions(searchConditions);
     const queryCtx: ClientDataQueryParamContext<TSearchParams> = { ...conditionCtx, searchConditions, searchCondition };
     const queryParam = buildTemplateQueryParam(template, queryCtx);
     return { searchValues: submittedValues, searchParams, viewState, searchConditions, searchCondition, queryParam };

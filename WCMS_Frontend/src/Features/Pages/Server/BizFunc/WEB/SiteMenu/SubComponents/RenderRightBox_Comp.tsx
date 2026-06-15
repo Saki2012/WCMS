@@ -8,10 +8,10 @@ import type { components } from "@/types/api";
 import type { PGID } from "@/types/SchemaFields";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { SiteMenuActions, SiteMenuEditTarget, SiteMenuItem } from "../SiteMenu_Hook";
-import { HyperlinkSettingTab } from "./RightBox_Comp.tsx/Hyperlink_Comp";
-import { BasicSettingTab } from "./RightBox_Comp.tsx/MenuInfo_Comp";
-import { ModuleSettingTab } from "./RightBox_Comp.tsx/Module_Comp";
-import { SiteInfo_Comp } from "./RightBox_Comp.tsx/SiteInfo_Comp";
+import { HyperlinkSettingTab } from "./RightBox/Hyperlink_Comp";
+import { BasicSettingTab } from "./RightBox/MenuInfo_Comp";
+import { ModuleSettingTab } from "./RightBox/Module_Comp";
+import { SiteInfo_Comp } from "./RightBox/SiteInfo_Comp";
 
 // #region Property
 type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"];
@@ -28,9 +28,7 @@ type MenuUrlType = components["schemas"]["MenuUrlType"];
 
 type PageSet = components["schemas"]["PageManagementSet_DTO"];
 
-
 export type ModelKey = string | PGID;
-
 
 type RenderRightBoxProp = {
     theme: IBETheme;
@@ -49,7 +47,6 @@ type RenderRightBoxProp = {
     surveyMap: Map<string, string>;
     action: SiteMenuActions;
 };
-
 
 type MenuInfoCompProps = {
     theme: IBETheme;
@@ -124,13 +121,11 @@ export const RenderRightBox = (prop: RenderRightBoxProp) =>
     const handleSave = useCallback(async () =>
     {
         if (!prop.selectedItemEdit) return;
-
         if (prop.selectedItemEdit.type === "site")
         {
             await prop.action.onSaveSiteInfo();
             return;
         }
-
         await prop.action.onSaveMenuItem(prop.selectedItemEdit.item);
     }, [prop.action, prop.selectedItemEdit]);
 
@@ -144,7 +139,6 @@ export const RenderRightBox = (prop: RenderRightBoxProp) =>
             setModelKey("");
             return;
         }
-
         setLinkType(Number(selectedMenuItem.ItemType ?? 1) as MenuUrlType);
         setNavType(Number(selectedUrlRow?.RedirectType ?? 1) as MenuUrlType);
         setModelKey(String(selectedModuleRow?.ModuleProgId ?? "") as ModelKey);
@@ -320,7 +314,6 @@ const findSelectedUrlRow = (list: SiteMenu_Item_Url[], siteIndex?: string | null
 {
     return list.find((row) => row.SiteIndex === siteIndex && row.ItemRowId === itemRowId);
 };
-
 
 /** 依目前選取項目取得對應的 Module 設定列 */
 const findSelectedModuleRow = (list: SiteMenu_Item_Module[], siteIndex?: string | null, itemRowId?: number | null): SiteMenu_Item_Module | undefined =>

@@ -51,7 +51,7 @@ export type FileArchiveListGridAdjustSlot = (ctx: FileArchiveListGridAdjustConte
 
 // #region Initialization
 const extendFileArchiveListGridAdjust: FileArchiveListGridAdjustSlot = (ctx) => ctx.result;
-const resolvedFileArchiveListGridAdjust = resolveSpecFunc<FileArchiveListGridAdjustSlot>(getClientSlotPath("FileArchiveList"), extendFileArchiveListGridAdjust, ["extendFileArchiveListGridAdjust"]);
+const resolvedFileArchiveListGridAdjust = resolveSpecFunc<FileArchiveListGridAdjustSlot>(getClientSlotPath("Slot_FileArchive_List_Comp"), extendFileArchiveListGridAdjust, ["extendFileArchiveListGridAdjust"]);
 // #endregion
 
 // #region Public

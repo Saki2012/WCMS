@@ -1,4 +1,4 @@
-import type { ModuleSettingTabExtension } from "@/Features/Pages/Server/BizFunc/WEB/SiteMenu/SubComponents/RightBox_Comp.tsx/Module_Comp";
+import type { ModuleSettingTabExtension } from "@/Features/Pages/Server/BizFunc/WEB/SiteMenu/SubComponents/RightBox/Module_Comp";
 import { DefaultLang } from "@/SysCore/i18n/lang";
 import { PGID } from "@/types/SchemaFields";
 import { Module_SpecResearch_Comp, Module_SpecUSR_Comp } from "./SpecModule_Comp";
