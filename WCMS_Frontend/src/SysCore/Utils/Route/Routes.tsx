@@ -4,8 +4,9 @@ import { type Lang } from "@/SysCore/i18n/lang";
 import type { IRouteBuildContext, IRouteModule } from "@/SysCore/Interface/IBaseRouter";
 import { langGuardLoader } from "@/SysCore/Utils/Route/langGuardLoader";
 import { LangGuard } from "@/SysCore/Utils/Route/LangGuardRoute";
-import { createBrowserRouter, type RouteObject } from "react-router-dom";
+import { createBrowserRouter, type LoaderFunctionArgs, redirect, type RouteObject } from "react-router-dom";
 import { createStaticHandler, createStaticRouter, type StaticHandlerContext } from "react-router-dom/server";
+import { LibRouteLang } from "./LibRoute";
 
 // #region Property
 type BrowserRouterOptions = NonNullable<Parameters<typeof createBrowserRouter>[1]>;
@@ -35,16 +36,16 @@ export const buildRoutes = async (boot: Boot, ctx?: IRouteBuildContext): Promise
         // /:lang 家族（只做語系正規化）
         {
             path: "/:lang",
-            loader: langGuardLoader,
-            element: <LangGuard ssrAcceptLang={boot.lang} cookieLang={boot.cookieLang} />, // 元件內只用 useLoaderData 取 resolvedLang；不再 useNavigate 導頁
-            children: [{ path: "404", element: <Error404Page /> }, ...children, { path: "*", element: <Error404Page /> }],
+            loader: langRootGuardLoader,
+            element: <LangGuard ssrAcceptLang={boot.lang} cookieLang={boot.cookieLang} />,
+            children: [{ path: "404", element: <Error404Page /> }, ...children, { path: "*", loader: notFoundRedirectLoader }],
         },
         // 根 "/" 家族（不 redirect，只注入語系）
         {
             path: "/",
             loader: langGuardLoader,
             element: <LangGuard ssrAcceptLang={boot.lang} cookieLang={boot.cookieLang} />,
-            children: [{ path: "404", element: <Error404Page /> }, ...children, { path: "*", element: <Error404Page /> }],
+            children: [{ path: "404", element: <Error404Page /> }, ...children, { path: "*", loader: notFoundRedirectLoader }],
         },
     ];
 };
@@ -128,5 +129,36 @@ const assertNoIndexWithChildren = (routes: RouteObject[], parent = "") =>
         }
         if (r.children?.length) assertNoIndexWithChildren(r.children, here);
     }
+};
+/** 語系根路由守門：/:lang 只允許合法語系，其他單段錯誤網址導到 404 */
+const langRootGuardLoader = (args: LoaderFunctionArgs) =>
+{
+    const url = new URL(args.request.url);
+
+    if (LibRouteLang.isRouteLangBypassPathname(url.pathname))
+    {
+        return langGuardLoader(args);
+    }
+
+    const routeLang = LibRouteLang.tryParseRouteLangSegment(args.params.lang);
+
+    if (!routeLang)
+    {
+        return notFoundRedirectLoader(args);
+    }
+
+    return langGuardLoader(args);
+};
+const notFoundRedirectLoader = ({ request }: LoaderFunctionArgs): never =>
+{
+    const url = new URL(request.url);
+    if (LibRouteLang.isRouteLangBypassPathname(url.pathname))
+    {
+        throw redirect("/Server/Login", 302);
+    }
+    const lang = LibRouteLang.resolveRouteLangFromRequest(request);
+    const notFoundPath = LibRouteLang.buildLangPathname("/404", lang);
+    const from = encodeURIComponent(`${url.pathname}${url.search}`);
+    throw redirect(`${notFoundPath}?from=${from}`, 302);
 };
 // #endregion

@@ -21,6 +21,7 @@ import type { components } from "@/types/api";
 import { AnnouncementDetailFields, AnnouncementDetailFileFields, AnnouncementFields, PGID } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router-dom";
+import { redirectClientNotFound } from "../../../Route/ClientRouteRedirect_Helper";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
@@ -87,7 +88,7 @@ export const AnnouncementFormLoader = (p: { lang: Lang; }) => async ({ request, 
     const args = buildAnnouncementFormLoaderArgs({ lang: p.lang, internalId, queryParam: queryState.queryParam });
     if (!internalId)
     {
-        return { args, res: { listRes: [], dataRes: null, categoryMap: {}, tagMap: {} } };
+        redirectClientNotFound(request);
     }
     const listLoader = adapter.Announcement.loader.createQueryListLoader({ getCondition: () => args.queryParam, getApiInstance: () => ssrApi });
     const cateLoader = adapter.Category.loader.createMapByProgIdLoader({ progId: args.progId, lang: args.lang, getApiInstance: () => ssrApi });
@@ -98,7 +99,22 @@ export const AnnouncementFormLoader = (p: { lang: Lang; }) => async ({ request, 
         tagLoader({ request, params } as LoaderFunctionArgs),
     ]);
     const listRes = listLD.apiRes.Data ?? [];
-    return { args, res: { listRes, dataRes: listRes[0] ?? null, categoryMap: cateLD.apiRes.Data ?? {}, tagMap: tagLD.apiRes.Data ?? {} } };
+    const dataRes = listRes[0] ?? null;
+
+    if (!dataRes)
+    {
+        redirectClientNotFound(request);
+    }
+
+    return {
+        args,
+        res: {
+            listRes,
+            dataRes,
+            categoryMap: cateLD.apiRes.Data ?? {},
+            tagMap: tagLD.apiRes.Data ?? {},
+        },
+    };
 };
 /** CSR Hook：新版 Form 入口，資料查詢流程交給 Client_DataQueryTemplate */
 export const useAnnouncementFormData = (opt: { lang: Lang; internalId: string; emptyData: AnnouncementSet; }): UseAnnouncementFormDataResult =>

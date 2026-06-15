@@ -7,7 +7,8 @@ import { Classic_BETheme } from "@/Features/Pages/Server/Theme/ClassicTheme_Clsx
 import { RequireAuth } from "@/SysCore/Components/Auth/RequireAuth";
 import { DefaultLang } from "@/SysCore/i18n/lang";
 import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter";
-import { type RouteObject } from "react-router-dom";
+import { Navigate, type RouteObject } from "react-router-dom";
+import { Server_NotFoundPage } from "../ErrorPage/Server_NotFoundPage";
 import { buildServerChildrenFromData } from "./ServerMenuIndex";
 
 // #region Property
@@ -37,7 +38,14 @@ export class BackendRouteModule implements IRouteModule
                     <DashboardPage theme={Classic_BETheme} />
                 </RequireAuth>
             ),
-            children: [...buildServerChildrenFromData(ServerModuleRoutes, { theme: Classic_BETheme, lang: DefaultLang })],
+            children: [
+                ...buildServerChildrenFromData(ServerModuleRoutes, { theme: Classic_BETheme, lang: DefaultLang }),
+                {
+                    path: "*",
+                    handle: { title: "找不到頁面" } as RouteHandleMeta,
+                    element: <Server_NotFoundPage />,
+                },
+            ],
         }];
         return routes;
     }

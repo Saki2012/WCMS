@@ -1,23 +1,30 @@
 import { HeaderMetaComp } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";
 import { useLang } from "@/SysCore/i18n/LangContext";
 import { LangLink } from "@/SysCore/i18n/LangLink";
-import React from "react";
-import { useSearchParams } from "react-router-dom";
+import { LibRouteLang } from "@/SysCore/Utils/Route/LibRoute";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+
+// #region Property
+const AUTO_REDIRECT_SECONDS = 5;
+
+interface UseNotFoundCountdownOptions
+{
+    /** 倒數初始秒數 */
+    initialSeconds: number;
+
+    /** 倒數結束後執行的動作 */
+    onFinished: () => void;
+}
+// #endregion
 
 // #region Public
-// ✅ 確保圖片會被 Vite bundle 進 dist（不要用硬編 /images/...）
-// import errorSvgUrl from "SpecFeature/Assets/Client/images/svg_icon/error.svg?url";
-
-/**
- * /401
- * - 目前用於「語系不支援」或「語系格式不合法」的導頁
- * - 視覺樣式沿用 404 prototype 的 error-area
- */
-// ✅ /404
+/** 前台 404 頁面：顯示找不到頁面，CSR hydration 後倒數返回首頁 */
 export const Error404Page: React.FC = () =>
 {
     const { code } = useLang();
     const [sp] = useSearchParams();
+    const navigate = useNavigate();
     const from = (sp.get("from") ?? "").trim();
 
     const isEn = String(code ?? "zh-tw").toLowerCase() === "en";
@@ -27,6 +34,21 @@ export const Error404Page: React.FC = () =>
     const goHomeTitle = isEn ? "Go back home" : "返回首頁";
     const goHomeText = isEn ? "GO BACK HOME" : "返回首頁";
     const fromLabel = isEn ? "Original URL:" : "原始網址：";
+    const countdownText = isEn ? "You will be redirected to the homepage in" : "秒後將自動返回首頁。";
+    const isServerFrom = from.toLowerCase().startsWith("/server");
+    const homePath = useMemo(() =>
+    {
+        if (isServerFrom) return "/Server";
+        const lang = LibRouteLang.normalizeRouteLang(code);
+        return LibRouteLang.buildLangPathname("/", lang);
+    }, [isServerFrom, code]);
+
+    const goHome = useCallback((): void =>
+    {
+        navigate(homePath, { replace: true });
+    }, [navigate, homePath]);
+
+    const seconds = useNotFoundCountdown({ initialSeconds: AUTO_REDIRECT_SECONDS, onFinished: goHome });
 
     return (
         <>
@@ -49,7 +71,15 @@ export const Error404Page: React.FC = () =>
                                             )
                                             : null}
 
-                                        <LangLink to="/" title={goHomeTitle} className="default-btn">{goHomeText}</LangLink>
+                                        <p aria-live="polite">
+                                            {isEn
+                                                ? `${countdownText} ${seconds} seconds.`
+                                                : `${seconds} ${countdownText}`}
+                                        </p>
+
+                                        <LangLink to="/" title={goHomeTitle} className="default-btn">
+                                            {goHomeText}
+                                        </LangLink>
                                     </div>
                                 </div>
 
@@ -63,5 +93,31 @@ export const Error404Page: React.FC = () =>
             </div>
         </>
     );
+};
+// #endregion
+
+// #region Private
+/** CSR 倒數計時，SSR 不會執行 useEffect，因此只會在瀏覽器端跳轉 */
+const useNotFoundCountdown = (opt: UseNotFoundCountdownOptions): number =>
+{
+    const [seconds, setSeconds] = useState(opt.initialSeconds);
+
+    useEffect(() =>
+    {
+        if (seconds <= 0)
+        {
+            opt.onFinished();
+            return;
+        }
+
+        const timer = window.setTimeout(() =>
+        {
+            setSeconds(prev => prev - 1);
+        }, 1000);
+
+        return () => window.clearTimeout(timer);
+    }, [seconds, opt.onFinished]);
+
+    return seconds;
 };
 // #endregion
