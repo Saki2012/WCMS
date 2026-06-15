@@ -1,4 +1,3 @@
-import defaultLogoImg from "@/Features/Assets/Server/images/logo/logo_PC_210x63.svg"; // 之後一定要改
 import { type IActionMeta, type IModuleMeta, ServerModuleRoutes } from "@/Features/Pages/Server/Scaffold/Routes/ServerModuleRoutesData";
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import { resolveSpecAsset } from "@/SysCore/Utils/Library/SlotResolver";
@@ -6,7 +5,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
 // #region Initialization
-const logoImg = resolveSpecAsset("Assets/Server/menu_logo_PC", defaultLogoImg);
+const logoImg = resolveSpecAsset("Assets/Server/menu_logo_PC", "");
 // #endregion
 
 // #region Public

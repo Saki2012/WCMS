@@ -1,10 +1,14 @@
-import logImg from "@/Features/Assets/Server/images/logo/logo_PC_210x63.svg";
 import { ServerModuleRoutes } from "@/Features/Pages/Server/Scaffold/Routes/ServerModuleRoutesData";
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import { AuthAPI } from "@/SysCore/Utils/API/AuthClient";
+import { resolveSpecAsset } from "@/SysCore/Utils/Library/SlotResolver";
 import { useOptionalSpecAssetUrl } from "@/SysCore/Utils/UI_HookFunc/useOptionalSpecAssetUrl";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
+
+// #region Initialization
+const logoImg = resolveSpecAsset("Assets/Server/menu_logo_PC", "");
+// #endregion
 
 // #region Private
 export const NavibarMenu = () =>
@@ -62,7 +66,7 @@ export const NavibarMenu = () =>
                                     e.preventDefault();
                                 }}
                             >
-                                <img src={logImg} className="pcm-logo img-fluid logo-lg" alt="logo" />
+                                <img src={logoImg} className="pcm-logo img-fluid logo-lg" alt="logo" />
                             </a>
                         </li>
                     </ul>
