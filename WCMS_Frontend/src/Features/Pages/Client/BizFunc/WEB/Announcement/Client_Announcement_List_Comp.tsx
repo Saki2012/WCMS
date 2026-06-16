@@ -151,14 +151,14 @@ const GridList_Comp = (props: { lang: Lang; title: string; gridData: GridProps; 
 };
 const PictureList_Row_Comp = (props: { dirUrl: string; lang: Lang; gridData: AnnouncementSet[]; categoryData: CategorySet[]; }) =>
 {
-    const defaultAnnouncePic = useOptionalSpecAssetUrl({ relativePath: "Assets/Custom/DefaultEventPic.jpg", fallbackToDefault: true }) ?? "";
+    const defaultAnnouncePic = useOptionalSpecAssetUrl({ relativePath: "Assets/Client/Spec/DefaultEventPic.jpg", fallbackToDefault: true }) ?? "";
     return (
         <div id="Row_Colitem" className="SubPage_Standard_itemBoxs">
             {props.gridData && props.gridData.map((item) =>
             {
                 const linkUrl = `${props.dirUrl}/${item.Announcement?.InternalId}`;
                 const title = item.AnnouncementDetail?.find(p => p.Lang === props.lang)?.Title?.trim() ?? "";
-                const picUrl = FileManagementAPI.get_Public_Preview_Url(item.Announcement?.PictureId, item.Announcement?.PicDescription) ?? defaultAnnouncePic;
+                const picUrl = FileManagementAPI.get_Public_Preview_Url(item.Announcement?.PictureId, item.Announcement?.PicDescription) || defaultAnnouncePic;
                 const picDesc = item.Announcement?.PicDescription?.trim() || title;
                 const validate = formatDate(item.Announcement?.Validate_Start);
                 const catName = formatCategoriesName(item.Announcement?.Categories ?? "", props.categoryData, props.lang);
