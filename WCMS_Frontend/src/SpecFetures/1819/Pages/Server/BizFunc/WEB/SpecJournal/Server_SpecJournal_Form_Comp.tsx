@@ -1,7 +1,7 @@
 import { Server_FormTemplate_Comp } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Comp";
+import type { ServerFormBinding } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
 import { EditGrid } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid";
 import type { IEditGridView_Style } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Data";
-import type { ServerFormBinding } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
 import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
@@ -44,7 +44,6 @@ type AuthorType = 0 | 1;
 
 type SpecJournalAdapterType = SpecJournalFormAdapter["SpecJournal"];
 
-
 const emptyData: SpecJournalSet = {
     SpecJournal: {},
     SpecJournalAuthor: [],
@@ -56,7 +55,6 @@ const emptyData: SpecJournalSet = {
     SpecJournalTypes: [],
 };
 
-
 const editGridStyle: IEditGridView_Style = {
     TableStyle: "table table-striped table-bordered table-hover",
     ToolbarStyle: "d-flex align-items-center justify-content-between mb-2",
@@ -64,7 +62,6 @@ const editGridStyle: IEditGridView_Style = {
     DangerButtonStyle: "btn btn-danger btn-rounded btn-sm",
     ErrorStyle: "text-danger small mt-1",
 };
-
 
 const TAB_PREFIX = "REF_";
 // #endregion
@@ -188,7 +185,6 @@ const MainFormComp = (
     };
     return <TabContentComp tabInfos={tabInfo} components={components}></TabContentComp>;
 };
-
 
 const BasicComp = (
     props: {
@@ -465,7 +461,6 @@ const BasicComp = (
     );
 };
 
-
 const AuthorComp = (
     props: {
         theme: IBETheme;
@@ -688,7 +683,6 @@ const AuthorComp = (
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
 
-
 const RefFormatComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalSet>; }) =>
 {
     const setField = useSetTableField<SpecJournalSet>(props.formData);
@@ -722,19 +716,6 @@ const RefFormatComp = (props: { theme: IBETheme; formData: ServerFormBinding<Spe
 
     useEffect(() =>
     {
-        // 表單資料載入後：確保至少有一筆可編輯
-        if (!props.formData.data) return;
-        const current = props.formData.data.SpecJournalRefFormat ?? [];
-        if (current.length > 0) return;
-
-        const firstItem: any = { JournalId: props.formData.data.SpecJournal?.JournalId, RowId: 1 };
-
-        props.formData.setFormData({ ...props.formData.data, SpecJournalRefFormat: [firstItem] });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props.formData.data]);
-
-    useEffect(() =>
-    {
         // ✅ 新增後：跳到新增的 tab
         const pendingKey = pendingActiveTabKeyRef.current;
         if (pendingKey)
@@ -746,7 +727,6 @@ const RefFormatComp = (props: { theme: IBETheme; formData: ServerFormBinding<Spe
             });
             return;
         }
-
         // ✅ 刪除當前 tab：回第一筆
         if (pendingGoFirstRef.current)
         {
@@ -756,7 +736,6 @@ const RefFormatComp = (props: { theme: IBETheme; formData: ServerFormBinding<Spe
                 pendingGoFirstRef.current = false;
             });
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [formats.length]);
 
     const getNextRowId = (): number =>
@@ -891,7 +870,6 @@ const RefFormatComp = (props: { theme: IBETheme; formData: ServerFormBinding<Spe
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
 
-
 const FilesComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalSet>; }) =>
 {
     return (
@@ -913,7 +891,6 @@ const FilesComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJou
     );
 };
 
-
 const OpenPointComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalSet>; }) =>
 {
     const openPointGrid = useSpecJournalOpenPointFileEditGrid({ binding: props.formData, style: editGridStyle });
@@ -921,14 +898,12 @@ const OpenPointComp = (props: { theme: IBETheme; formData: ServerFormBinding<Spe
     return <EditGrid {...openPointGrid.editGridProps} />;
 };
 
-
 const RefFilesComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalSet>; }) =>
 {
     const refFileGrid = useSpecJournalRefFileEditGrid({ binding: props.formData, style: editGridStyle });
 
     return <EditGrid {...refFileGrid.editGridProps} />;
 };
-
 
 const KeywordComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalSet>; keywords: SpecJournalSet[]; }) =>
 {
@@ -1115,7 +1090,6 @@ const KeywordComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJ
     );
 };
 
-
 const DocumentsComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalSet>; specDocumentTypeOptionsRaw: Map<string, string>; }) =>
 {
     const documentGrid = useSpecJournalDocumentEditGrid({
@@ -1126,8 +1100,6 @@ const DocumentsComp = (props: { theme: IBETheme; formData: ServerFormBinding<Spe
 
     return <EditGrid {...documentGrid.editGridProps} />;
 };
-
-
 
 /** 發佈期刊 / 退回預刊功能 Bar（內含 Dialog 狀態） */
 const ModeActionBarComp = (
@@ -1201,12 +1173,9 @@ const ModeActionBarComp = (
         <>
             <div className="col-12 mb-3">
                 <div className="d-flex flex-wrap gap-2 justify-content-end">
-                    {props.mode === "preprint" && (
-                        <button type="button" className="btn btn-success" onClick={handleOpenPublish} aria-label={title}>{title}</button>
-                    )}
+                    {props.mode === "preprint" && <button type="button" className="btn btn-success" onClick={handleOpenPublish} aria-label={title}>{title}</button>}
 
-                    {props.mode === "journal" && <button type="button" className="btn btn-danger" onClick={handleOpenRevert} aria-label={title}>{title}
-                    </button>}
+                    {props.mode === "journal" && <button type="button" className="btn btn-danger" onClick={handleOpenRevert} aria-label={title}>{title}</button>}
                 </div>
             </div>
 
@@ -1241,7 +1210,6 @@ const buildIndexHeaderOptions = (rawData: SpecJournalIndexSet[] = []): Map<strin
         return acc;
     }, new Map<string, string>());
 };
-
 
 /** ✅ Detail 下拉：IndexId -> (RowId -> "X卷Y期") */
 const buildIndexDetailOptionsByIndexId = (rawData: SpecJournalIndexSet[] = []): Record<string, Map<string, string>> =>
@@ -1280,7 +1248,6 @@ const buildIndexDetailOptionsByIndexId = (rawData: SpecJournalIndexSet[] = []): 
     }, {});
 };
 
-
 /** ✅ ArticleLang 下拉：LangCode -> 顯示名稱（來源：lang.ts） */
 const buildArticleLangOptions = (): Map<string, string> =>
 {
@@ -1302,7 +1269,6 @@ const getNextRowId = (rows: Array<{ RowId?: number; }> = []): number =>
     const maxId = rows.reduce((max, r) => (typeof r.RowId === "number" && r.RowId > max ? r.RowId : max), 0);
     return maxId + 1;
 };
-
 
 /** ✅ 共用：debounce（停止輸入 delayMs 後才更新值） */
 const useDebouncedValue = (value: string, delayMs: number): string =>
