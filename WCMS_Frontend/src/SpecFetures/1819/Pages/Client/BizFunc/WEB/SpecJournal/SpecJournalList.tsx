@@ -1,7 +1,7 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import { ModuleContent, type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import { useBreadcrumb } from "@/Features/Pages/Client/Scaffold/SubPages/Module/BreadCrumb/BreadCrumb_Comp";
-import { getLangLabel, type Lang } from "@/SysCore/i18n/lang";
+import { DefaultLang, getLangLabel, type Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
@@ -58,8 +58,8 @@ export const SpecJournalList = (props: { site: INormSite; node: INormNode; lang:
         if (!detail) return pageTitle;
 
         // return
-        return `Vol.${detail.Volume}, No.${detail.Issue}`;
-    }, [isSearchMode, routeIndexId, routeRowId, pageTitle, useVolume.rawData]);
+        return buildIssueText(props.lang, detail.Volume, detail.Issue);
+    }, [isSearchMode, routeIndexId, routeRowId, pageTitle, props.lang, useVolume.rawData]);
 
     const issueSummary = useMemo(() =>
     {
@@ -91,7 +91,8 @@ export const SpecJournalList = (props: { site: INormSite; node: INormNode; lang:
 
     const loadingList = useVolume.isLoading;
     const errorList = useVolume.errorList;
-    const moduleTitle = isSearchMode ? "搜尋結果" : (issueLabel || pageTitle);
+    const text = getSpecJournalListLangText(props.lang);
+    const moduleTitle = isSearchMode ? text.searchResultTitle : (issueLabel || pageTitle);
 
     const viewCountConfig: ModuleViewCountConfig = { mode: "list" };
     return (
@@ -128,6 +129,7 @@ const buildDocuments = (data: SpecJournalSet): Document[] =>
 // #endregion
 
 // #region Private
+
 /** SpecJournalListContent：對齊 prototype 的 Journal_List_content DOM 結構 */
 
 const SpecJournalListContent = (
@@ -142,6 +144,7 @@ const SpecJournalListContent = (
 {
     // 宣告變數
     const filters = props.queryFilters;
+    const text = getSpecJournalListLangText(props.lang);
     const { goExclusive } = useSpecJournalSearchNav(".");
 
     // 執行 function
@@ -166,14 +169,14 @@ const SpecJournalListContent = (
     const buildFilterLabel = useMemo(() =>
     {
         const parts: string[] = [];
-        if (filters.q) parts.push(`搜尋：${filters.q}`);
-        if (filters.articleLang) parts.push(`語言：${getLangLabel(filters.articleLang)}`);
-        if (filters.tagId) parts.push(`類型：${filters.tagName || filters.tagId}`);
-        if (filters.author) parts.push(`作者：${filters.author}`);
-        if (filters.keyword) parts.push(`關鍵詞：${filters.keyword}`);
-        const label = parts.join("；") || "未選擇條件";
-        return `${label}（共 ${props.totalCount} 筆）`;
-    }, [filters.q, filters.articleLang, filters.tagId, filters.tagName, filters.author, filters.keyword, props.totalCount]);
+        if (filters.q) parts.push(text.searchFilter(filters.q));
+        if (filters.articleLang) parts.push(text.languageFilter(getLangLabel(filters.articleLang)));
+        if (filters.tagId) parts.push(text.typeFilter(filters.tagName || filters.tagId));
+        if (filters.author) parts.push(text.authorFilter(filters.author));
+        if (filters.keyword) parts.push(text.keywordFilter(filters.keyword));
+        const label = parts.join(text.filterSeparator) || text.noFilterSelected;
+        return text.resultCount(label, props.totalCount);
+    }, [filters.q, filters.articleLang, filters.tagId, filters.tagName, filters.author, filters.keyword, props.totalCount, text]);
 
     return (
         <div className="Journal_List_content">
@@ -193,7 +196,7 @@ const SpecJournalListContent = (
                     <hr className="hr-my-4" />
                 </div>
 
-                <IssueSummaryDownload {...props.issueSummary} />
+                <IssueSummaryDownload lang={props.lang} {...props.issueSummary} />
 
                 <div className="JJ_main_contentDIV">
                     <ul className="ListInfo">
@@ -211,7 +214,7 @@ const SpecJournalListContent = (
 
                                     <div className="card_authorDiv">
                                         <div className="card_author">
-                                            <span className="me-3">作者 :</span>
+                                            <span className="me-3">{text.authorLabel}</span>
                                             <div className="authorName" aria-label="authorName">
                                                 <ul className="authorName_list">
                                                     {it.SpecJournalAuthor?.map((au) =>
@@ -242,7 +245,7 @@ const SpecJournalListContent = (
                                                                                         <a
                                                                                             href="#"
                                                                                             onClick={onPick(zh)}
-                                                                                            aria-label={`依作者篩選：${zh}${en ? ` (${en})` : ""}`}
+                                                                                            aria-label={text.filterByAuthor(`${zh}${en ? ` (${en})` : ""}`)}
                                                                                             style={{ color: "inherit", textDecoration: "none" }}
                                                                                         >
                                                                                             {zh}
@@ -255,7 +258,7 @@ const SpecJournalListContent = (
                                                                                         <a
                                                                                             href="#"
                                                                                             onClick={onPick(en)}
-                                                                                            aria-label={`依作者篩選：${en}`}
+                                                                                            aria-label={text.filterByAuthor(en)}
                                                                                             style={{ color: "inherit", textDecoration: "none" }}
                                                                                         >
                                                                                             ({en})
@@ -268,7 +271,7 @@ const SpecJournalListContent = (
                                                                                         <a
                                                                                             href="#"
                                                                                             onClick={onPick(en)}
-                                                                                            aria-label={`依作者篩選：${en}`}
+                                                                                            aria-label={text.filterByAuthor(en)}
                                                                                             style={{ color: "inherit", textDecoration: "none" }}
                                                                                         >
                                                                                             {en}
@@ -286,7 +289,7 @@ const SpecJournalListContent = (
                                             </div>
                                         </div>
                                     </div>
-                                    <DocumentList data={it} />
+                                    <DocumentList data={it} lang={props.lang} />
                                 </div>
                             </li>
                         ))}
@@ -306,6 +309,7 @@ const JournalCard = (
     // 宣告變數
     const langCode = props.item.SpecJournal?.ArticleLang ?? "";
     const langLabel = getLangLabel(langCode);
+    const text = getSpecJournalListLangText(props.lang);
     // return
     return (
         <div className="IItemBox">
@@ -322,7 +326,7 @@ const JournalCard = (
                                     e.stopPropagation();
                                     props.onPickArticleLang(langCode);
                                 }}
-                                aria-label={`依語言篩選：${langLabel}`}
+                                aria-label={text.filterByLanguage(langLabel)}
                                 style={{ color: "inherit", textDecoration: "none" }}
                             >
                                 {langLabel}
@@ -346,7 +350,7 @@ const JournalCard = (
                                             e.stopPropagation();
                                             props.onPickTypeTag(type.TagId ?? "", tagName ?? "");
                                         }}
-                                        aria-label={`依分類篩選：${tagName ?? ""}`}
+                                        aria-label={text.filterByCategory(tagName ?? "")}
                                         style={{ color: "inherit", textDecoration: "none" }}
                                     >
                                         {tagName}
@@ -372,12 +376,13 @@ const JournalCard = (
     );
 };
 
-const IssueSummaryDownload = (props: { fileId?: string; fileName?: string; downloadCount?: number; isPdf?: boolean; }) =>
+const IssueSummaryDownload = (props: { lang: Lang; fileId?: string; fileName?: string; downloadCount?: number; isPdf?: boolean; }) =>
 {
     const fileId = (props.fileId ?? "").trim();
     const fileName = (props.fileName ?? "").trim();
     const href = props.isPdf ? FileManagementAPI.get_Public_Preview_Url(fileId, fileName) : FileManagementAPI.get_Public_Download_Url(fileId, fileName);
     const canShow = !!fileId && !!fileName;
+    const text = getSpecJournalListLangText(props.lang);
     if (!canShow) return null;
     return (
         <>
@@ -394,7 +399,7 @@ const IssueSummaryDownload = (props: { fileId?: string; fileName?: string; downl
                     <span className="G_Vline_Down">│</span>
                     <span className="Div_All_Ttext + views">
                         <i className="fas fa-download me-1" aria-hidden="true"></i>
-                        <span className="font-SW-normal">下載次數 :</span>
+                        <span className="font-SW-normal">{text.downloadCountLabel}</span>
                         <span className="font-SW-normal + ms-2">{props.downloadCount}</span>
                     </span>
                 </div>
@@ -404,10 +409,11 @@ const IssueSummaryDownload = (props: { fileId?: string; fileName?: string; downl
     );
 };
 
-const DocumentList = (props: { data: SpecJournalSet; }) =>
+const DocumentList = (props: { lang: Lang; data: SpecJournalSet; }) =>
 {
     // 宣告變數
-    const MAX_PREVIEW_FILES = 4; // 最多顯示檔案數量
+    const MAX_PREVIEW_FILES = 4;
+    const text = getSpecJournalListLangText(props.lang);
     const files = useMemo(() => buildDocuments(props.data), [props.data]);
     const previewFiles = useMemo(() => files.slice(0, MAX_PREVIEW_FILES), [files]);
     const hasMoreFiles = files.length > MAX_PREVIEW_FILES;
@@ -443,9 +449,78 @@ const DocumentList = (props: { data: SpecJournalSet; }) =>
                         );
                     })}
                 </ul>
-                {hasMoreFiles && <div className="small text-muted mt-1" aria-label="更多說明檔案請進入詳細頁查看">...</div>}
+                {hasMoreFiles && <div className="small text-muted mt-1" aria-label={text.moreDocumentsAriaLabel}>...</div>}
             </div>
         </div>
     );
+};
+// #endregion
+
+// #region LangText
+interface SpecJournalListLangText
+{
+    authorLabel: string;
+    downloadCountLabel: string;
+    filterSeparator: string;
+    moreDocumentsAriaLabel: string;
+    noFilterSelected: string;
+    searchResultTitle: string;
+    authorFilter: (value: string) => string;
+    filterByAuthor: (value: string) => string;
+    filterByCategory: (value: string) => string;
+    filterByLanguage: (value: string) => string;
+    keywordFilter: (value: string) => string;
+    languageFilter: (value: string) => string;
+    resultCount: (label: string, totalCount: number) => string;
+    searchFilter: (value: string) => string;
+    typeFilter: (value: string) => string;
+}
+const SPEC_JOURNAL_LIST_LANG_TEXT_MAP: Record<string, SpecJournalListLangText> = {
+    "zh-tw": {
+        authorLabel: "作者 :",
+        downloadCountLabel: "下載次數 :",
+        filterSeparator: "；",
+        moreDocumentsAriaLabel: "更多說明檔案請進入詳細頁查看",
+        noFilterSelected: "未選擇條件",
+        searchResultTitle: "搜尋結果",
+        authorFilter: (value: string) => `作者：${value}`,
+        filterByAuthor: (value: string) => `依作者篩選：${value}`,
+        filterByCategory: (value: string) => `依分類篩選：${value}`,
+        filterByLanguage: (value: string) => `依語言篩選：${value}`,
+        keywordFilter: (value: string) => `關鍵詞：${value}`,
+        languageFilter: (value: string) => `語言：${value}`,
+        resultCount: (label: string, totalCount: number) => `${label}（共 ${totalCount} 筆）`,
+        searchFilter: (value: string) => `搜尋：${value}`,
+        typeFilter: (value: string) => `類型：${value}`,
+    },
+    en: {
+        authorLabel: "Author :",
+        downloadCountLabel: "Downloads :",
+        filterSeparator: "; ",
+        moreDocumentsAriaLabel: "View the detail page for more documents",
+        noFilterSelected: "No filters selected",
+        searchResultTitle: "Search Results",
+        authorFilter: (value: string) => `Author: ${value}`,
+        filterByAuthor: (value: string) => `Filter by author: ${value}`,
+        filterByCategory: (value: string) => `Filter by category: ${value}`,
+        filterByLanguage: (value: string) => `Filter by language: ${value}`,
+        keywordFilter: (value: string) => `Keyword: ${value}`,
+        languageFilter: (value: string) => `Language: ${value}`,
+        resultCount: (label: string, totalCount: number) => `${label} (${totalCount} result${totalCount === 1 ? "" : "s"})`,
+        searchFilter: (value: string) => `Search: ${value}`,
+        typeFilter: (value: string) => `Type: ${value}`,
+    },
+};
+/** 取得期刊列表頁文字設定 */
+const getSpecJournalListLangText = (lang: Lang): SpecJournalListLangText =>
+{
+    return SPEC_JOURNAL_LIST_LANG_TEXT_MAP[lang] ?? SPEC_JOURNAL_LIST_LANG_TEXT_MAP[DefaultLang];
+};
+/** 建立卷期文字 */
+const buildIssueText = (lang: Lang, volume?: string | number | null, issue?: string | number | null): string =>
+{
+    const volumeText = `${volume ?? ""}`.trim();
+    const issueText = `${issue ?? ""}`.trim();
+    return lang === "en" ? `Vol. ${volumeText}, No. ${issueText}` : `${volumeText}卷${issueText}期`;
 };
 // #endregion

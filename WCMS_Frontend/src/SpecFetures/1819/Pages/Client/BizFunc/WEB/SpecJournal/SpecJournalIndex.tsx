@@ -1,7 +1,7 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
 import { ModuleContent, type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
 import { SpecJournalKeywordSearch_Comp } from "@/SpecFetures/1819/Pages/Client/BizFunc/WEB/SpecJournal/SpecJournalKeywordSearchComp";
-import type { Lang } from "@/SysCore/i18n/lang";
+import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import type { components } from "@/types/api";
 import clsx from "clsx";
@@ -54,6 +54,7 @@ const buildCollapseIds = (year: string) =>
 // #endregion
 
 // #region Private
+
 const handleAccordionKeyDown = (e: React.KeyboardEvent<HTMLAnchorElement>, onToggle: () => void): void =>
 {
     if (e.key !== "Enter" && e.key !== " " && e.key !== "Spacebar") return;
@@ -163,6 +164,7 @@ const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalInde
     const panelRefs = useRef<Record<string, HTMLDivElement | null>>({});
     const panelStateRef = useRef<Record<string, boolean>>({});
     const hasInitRef = useRef<boolean>(false);
+    const text = getSpecJournalIndexLangText(props.lang);
 
     const handleToggle = (indexId: string): void =>
     {
@@ -249,11 +251,11 @@ const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalInde
                                         className={clsx("card-link", "collapsed")}
                                         role="button"
                                         aria-expanded={false}
-                                        title={"預刊本"}
+                                        title={text.preprintTitle}
                                     >
                                         <span className="fs-5">
                                             <i className={clsx("fas", "fa-folder-open", "me-3")} aria-hidden="true" />
-                                            預刊本
+                                            {text.preprintTitle}
                                         </span>
                                     </LangNavLink>
                                 </div>
@@ -272,8 +274,8 @@ const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalInde
                                     const masterData = group.SpecJournalIndex;
                                     const detailDatas = group.SpecJournalIndexDetail ?? [];
                                     const indexId = masterData?.IndexId ?? "";
-                                    const indexTitle = `${masterData?.IndexName}${props.lang === "zh-tw" ? " 年" : ""}`;
-                                    const volTitle = `(Vol.${detailDatas[0]?.Volume ?? ""})`;
+                                    const indexTitle = buildIndexTitle(props.lang, masterData?.IndexName);
+                                    const volTitle = buildVolumeText(props.lang, detailDatas[0]?.Volume);
                                     const { collapseId, headerId } = buildCollapseIds(indexId);
                                     const isOpen = openIndexId === indexId;
 
@@ -312,7 +314,7 @@ const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalInde
                                                     >
                                                         <span className="fs-5">
                                                             <i className={clsx("fas", "fa-folder-open", "me-3")} aria-hidden="true"></i>
-                                                            {indexTitle} {volTitle}
+                                                            {indexTitle} {volTitle ? `(${volTitle})` : ""}
                                                         </span>
                                                     </a>
                                                 </div>
@@ -331,14 +333,14 @@ const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalInde
                                                         <ul className="Journallist-group">
                                                             {sortedDetailDatas.map((dt) =>
                                                             {
-                                                                const volumeTitle = `Vol.${dt.Volume}, No.${dt.Issue}`;
+                                                                const volumeTitle = buildIssueText(props.lang, dt.Volume, dt.Issue);
                                                                 return (
                                                                     <li key={dt.RowId}>
                                                                         <LangLink
                                                                             className="list-group-item"
                                                                             to={`../List/${indexId}/${dt.RowId}`}
                                                                             title={volumeTitle}
-                                                                            aria-label={`前往 ${volumeTitle} 期刊列表`}
+                                                                            aria-label={text.goToIssueList(volumeTitle)}
                                                                         >
                                                                             <div className="icontxtbox">
                                                                                 <span className="page_icon">
@@ -364,5 +366,49 @@ const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalInde
             </div>
         </div>
     );
+};
+// #endregion
+
+// #region LangText
+interface SpecJournalIndexLangText
+{
+    preprintTitle: string;
+    goToIssueList: (value: string) => string;
+}
+const SPEC_JOURNAL_INDEX_LANG_TEXT_MAP: Record<string, SpecJournalIndexLangText> = {
+    "zh-tw": {
+        preprintTitle: "預刊本",
+        goToIssueList: (value: string) => `前往 ${value} 期刊列表`,
+    },
+    en: {
+        preprintTitle: "Preprints",
+        goToIssueList: (value: string) => `Go to ${value} journal list`,
+    },
+};
+/** 取得期刊索引頁文字設定 */
+const getSpecJournalIndexLangText = (lang: Lang): SpecJournalIndexLangText =>
+{
+    return SPEC_JOURNAL_INDEX_LANG_TEXT_MAP[lang] ?? SPEC_JOURNAL_INDEX_LANG_TEXT_MAP[DefaultLang];
+};
+
+/** 建立年度文字 */
+const buildIndexTitle = (lang: Lang, indexName?: string | number | null): string =>
+{
+    const indexText = `${indexName ?? ""}`.trim();
+    return lang === "en" ? indexText : `${indexText} 年`;
+};
+/** 建立卷別文字 */
+const buildVolumeText = (lang: Lang, volume?: string | number | null): string =>
+{
+    const volumeText = `${volume ?? ""}`.trim();
+    if (!volumeText) return "";
+    return lang === "en" ? `Vol. ${volumeText}` : `${volumeText}卷`;
+};
+/** 建立卷期文字 */
+const buildIssueText = (lang: Lang, volume?: string | number | null, issue?: string | number | null): string =>
+{
+    const volumeText = `${volume ?? ""}`.trim();
+    const issueText = `${issue ?? ""}`.trim();
+    return lang === "en" ? `Vol. ${volumeText}, No. ${issueText}` : `${volumeText}卷${issueText}期`;
 };
 // #endregion
