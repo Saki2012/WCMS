@@ -6,6 +6,7 @@ import { SiteMenuAdapter } from "@/Features/Hooks/BizFunc/WEB/SiteMenu_Api";
 import { SiteViewCountAdapter } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
+import { SystemAPI } from "@/SysCore/Utils/API/APIClient";
 import { LibCondition, LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { SiteMenu_IndexFields, SiteViewCountHeaderModelFields } from "@/types/SchemaFields";
@@ -64,6 +65,17 @@ export interface UseSiteFooterRuntimeResult
 let cachedSites: INormSite[] | null = null;
 /** Footer runtime 資訊的記憶體快取。 */
 let cachedFooterRuntimeBySiteIndex: Record<string, SiteFooterRuntimeInfo> | null = null;
+/** SiteViewCount API 回傳的站台瀏覽數資料集合型別。 */
+type SiteViewCountSet = components["schemas"]["SiteViewCountSet_DTO"];
+
+/** 最近在線人數 API 回傳資料型別。 */
+type CurrentSiteOnlineCountResult = components["schemas"]["GetCurrentSiteOnlineCountResult_DTO"];
+
+/** Loader 回傳 ApiResponse 的包裝型別。 */
+type LoaderApiResult<T> = {
+    env?: ApiResponse<T>;
+    apiRes?: ApiResponse<T>;
+};
 // #endregion
 
 // #region Public
@@ -169,22 +181,24 @@ const fetchSiteFooterRuntime = async (opt: { api?: AxiosInstance; args: LoaderFu
 {
     const siteIndex = LibText.safeTrim(opt.siteIndex);
     const siteView = SiteViewCountAdapter(opt.api);
+    const systemApi = new SystemAPI(opt.api);
     const viewCountLoader = siteView.loader.createQueryListLoader({ getApiInstance: () => opt.api, getCondition: () => buildFooterViewCountQuery(siteIndex) });
     const recentlyViewCountLoader = siteView.loader.createRecentlySiteViewCountLoader({ getApiInstance: () => opt.api, getArgs: () => ({ siteIndex }) });
-    const [viewCountLD, recentlyViewCountLD] = await Promise.all([viewCountLoader(opt.args), recentlyViewCountLoader(opt.args)]);
-    const recentlyViewCountApiRes = getApiRes(recentlyViewCountLD);
-    const recentlyViewCountRows = unwrapArrayOrEmpty(recentlyViewCountApiRes);
-    const recentlyViewCount = recentlyViewCountRows?.[0]?.CurrentOnlineCount ?? 0;
-    const viewCountApiRes = getApiRes(viewCountLD);
-    const viewCountRows = unwrapArrayOrEmpty(viewCountApiRes);
-    const viewCount = viewCountRows?.[0]?.SiteViewCountHeader?.PublicViewCount ?? 0;
-    return { recentlyViewCount, viewCount, siteUpdatedAt: null, feVersion: null, beVersion: null };
+    const [viewCountLD, recentlyViewCountLD, backendVersionRes] = await Promise.all([
+        viewCountLoader(opt.args),
+        recentlyViewCountLoader(opt.args),
+        systemApi.getBackendVersion(),
+    ]);
+    const recentlyViewCount = getRecentlyViewCount(recentlyViewCountLD);
+    const viewCount = getViewCount(viewCountLD);
+    const beVersion = getBackendVersionText(backendVersionRes);
+    return { recentlyViewCount, viewCount, siteUpdatedAt: null, feVersion: null, beVersion };
 };
 // #endregion
 
 // #region Private
 /** 取得 API loader 回傳中的 ApiResponse。 */
-const getApiRes = <T>(x: { env?: ApiResponse<T>; apiRes?: ApiResponse<T>; }): ApiResponse<T> | undefined =>
+const getApiRes = <T>(x: LoaderApiResult<T>): ApiResponse<T> | undefined =>
 {
     return x.apiRes ?? x.env;
 };
@@ -296,5 +310,30 @@ const buildLoaderArgs = (request?: Request): LoaderFunctionArgs =>
 const isSsrRoutingRequest = (opt?: { request?: Request; }): boolean =>
 {
     return typeof window === "undefined" && Boolean(opt?.request);
+};
+/** 取得 Footer 最近在線人數。 */
+const getRecentlyViewCount = (loaderData: LoaderApiResult<CurrentSiteOnlineCountResult[]>): number =>
+{
+    const apiRes = getApiRes(loaderData);
+    const rows = unwrapArrayOrEmpty(apiRes);
+    const count = rows?.[0]?.CurrentOnlineCount ?? 0;
+    return count;
+};
+
+/** 取得 Footer 總瀏覽人數。 */
+const getViewCount = (loaderData: LoaderApiResult<SiteViewCountSet[]>): number =>
+{
+    const apiRes = getApiRes(loaderData);
+    const rows = unwrapArrayOrEmpty(apiRes);
+    const count = rows?.[0]?.SiteViewCountHeader?.PublicViewCount ?? 0;
+    return count;
+};
+
+/** 取得後端版本文字。 */
+const getBackendVersionText = (apiRes?: ApiResponse<string[]>): string | null =>
+{
+    const rows = unwrapArrayOrEmpty(apiRes);
+    const version = LibText.safeTrim(rows?.[0]);
+    return version || null;
 };
 // #endregion

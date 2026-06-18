@@ -25,6 +25,7 @@ using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.SystemFunc.FileManagement;
+using WCMS.SysCore.SystemFunc.SystemVersion;
 using static WCMS.SysCore.Enum.SysEnum;
 using static WCMS.SysCore.Library.LibData;
 
@@ -382,20 +383,24 @@ namespace WCMS.SysCore
     /// <summary>
     /// 系統功能API
     /// </summary>
-    [ApiController, Route(SysParam.ServiceRoute)] public class SystemAPIController(IAntiforgery anti) : ControllerBase
+    [ApiController, Route(SysParam.ServiceRoute)] public class SystemAPIController(IAntiforgery anti, SystemVersion_Biz systemVersionBiz) : ControllerBase
     {
         #region Property
         private readonly IAntiforgery _anti = anti;
+        private readonly SystemVersion_Biz _systemVersionBiz = systemVersionBiz;
+
         protected IOperateLog OperateLog => _OperateLog ??= HttpContext.RequestServices.GetRequiredService<IOperateLog>();
         private IOperateLog? _OperateLog;
         #endregion
+
         #region Public
-        /// <summary>發出/更新 XSRF Token，寫入可讀 Cookie：XSRF-TOKEN</summary>
+        /// <summary>
+        /// 發出/更新 XSRF Token，寫入可讀 Cookie：XSRF-TOKEN
+        /// </summary>
         [HttpGet(nameof(GetXsrfToken)), AllowAnonymous, ResponseCache(NoStore = true, Location = ResponseCacheLocation.None), IgnoreAntiforgeryToken]
         public IActionResult GetXsrfToken()
         {
             var tokens = _anti.GetAndStoreTokens(HttpContext);
-
             Response.Cookies.Append("XSRF-TOKEN", tokens.RequestToken!, new CookieOptions
             {
                 HttpOnly = false,                 // 讓前端可讀，axios 才能送到 header
@@ -403,7 +408,7 @@ namespace WCMS.SysCore
                 SameSite = SameSiteMode.Strict,      // 同站情境會自動帶上
                 Path = "/"
             });
-            return NoContent();                   // 204
+            return NoContent();                 
         }
         /// <summary>
         /// 獲取EnumOption
@@ -423,6 +428,16 @@ namespace WCMS.SysCore
             {
                 return NotFound(new { message = ex.Message });
             }
+        }
+        /// <summary>
+        /// 取得後端版本號。
+        /// </summary>
+        [HttpGet(nameof(GetBackendVersion)), AllowAnonymous, ResponseCache(NoStore = true, Location = ResponseCacheLocation.None), IgnoreAntiforgeryToken]
+        public IActionResult GetBackendVersion()
+        {
+            string result = _systemVersionBiz.GetBackendVersion();
+            var response = new ApiResponse<string>() { Data =[ result ]};
+            return Ok(response);
         }
         /// <summary>
         /// 轉移舊資料

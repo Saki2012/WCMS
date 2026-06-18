@@ -124,6 +124,12 @@ export class SystemAPI extends ApiBaseService
     {
         return await this.CallApi<EnumOption[]>(() => this.Api.get(`${this.Module}/GetEnumOptions`, { params: { enumName } }));
     }
+
+    /** 取得後端版本號。 */
+    async getBackendVersion(): Promise<ApiResponse<string[]>>
+    {
+        return await this.CallApi<string[]>(() => this.Api.get(`${this.Module}/GetBackendVersion`));
+    }
     // #endregion
 }
 

@@ -46,6 +46,7 @@ using WCMS.SysCore.Library.Security;
 using WCMS.SysCore.Middleware;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.SystemFunc.Captcha;
+using WCMS.SysCore.SystemFunc.SystemVersion;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS
@@ -261,7 +262,7 @@ namespace WCMS
                 services.AddHttpClient();
                 services.AddScoped<ICaptchaBiz, Captcha_BIZ>();
                 RegisterBizServices(services);
-
+                RegisterSystemVersionBiz(services);
                 // 暫時先不用Redis，等開始能架Docker包Linux後再來
                 //services.AddStackExchangeRedisOutputCache(o =>
                 //{
@@ -308,24 +309,37 @@ namespace WCMS
                 var biz = typeof(BizService<>);
                 var ibiz = typeof(IBizService<>);
 
-                var pairs = asm.GetTypes().Where(t => !t.IsAbstract && !t.IsInterface && t != biz)
-                    .SelectMany(t => t.GetInterfaces()
-                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == ibiz)
-                    .Select(i => new
+                var pairs = asm.GetTypes().Where(t => !t.IsAbstract && !t.IsInterface && t != biz).SelectMany(t => t.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == ibiz)                    .Select(i => new
                     {
                         Service = i,
                         Impl = t,
                         Ns = t.Namespace ?? string.Empty
                     })).ToList();
-
                 foreach (var p in pairs.Where(p => p.Ns.StartsWith(SysParam.WCMSFeaturesNameSpace, StringComparison.Ordinal))) services.AddScoped(p.Service, p.Impl);
-
                 foreach (var p in pairs.Where(p => !p.Ns.StartsWith(SysParam.WCMSFeaturesNameSpace, StringComparison.Ordinal) && !SpecSettings.IsSpecFeaturesNamespace(p.Ns))) services.AddScoped(p.Service, p.Impl);
-
                 foreach (var p in pairs.Where(p => SpecSettings.IsCurrentSpecNamespace(p.Ns))) services.AddScoped(p.Service, p.Impl);
-
                 services.AddScoped<IAuthService, AuthBiz>();
             }
+
+            /// <summary>
+            /// 註冊系統版本服務。
+            /// </summary>
+            private static void RegisterSystemVersionBiz(IServiceCollection services)
+            {
+                Type serviceType = typeof(SystemVersion_Biz);
+                Type implType = GetCurrentSpecSystemVersionBizType() ?? serviceType;
+                services.AddScoped(serviceType, implType);
+            }
+            /// <summary>
+            /// 取得目前 Spec 的系統版本服務型別。
+            /// </summary>
+            private static Type? GetCurrentSpecSystemVersionBizType()
+            {
+                Type serviceType = typeof(SystemVersion_Biz);
+                Type? specBizType = typeof(Program).Assembly.GetTypes().FirstOrDefault(t =>!t.IsAbstract &&!t.IsInterface &&t != serviceType &&serviceType.IsAssignableFrom(t) && SpecSettings.IsCurrentSpecNamespace(t.Namespace ?? string.Empty));
+                return specBizType;
+            }
+
             /// <summary>
             /// Development-only服務（如 Swagger）
             /// </summary>

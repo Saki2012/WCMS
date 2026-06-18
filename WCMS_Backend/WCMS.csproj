@@ -130,6 +130,7 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <Compile Include="SpecFeatures\Spec1810\COMM\Tag\SpecTag_Biz.cs" />
+	  <Compile Include="SpecFeatures\Spec1810\SYS\SystemVersion\SystemVersion_Biz.cs" />
 	  <Compile Include="SpecFeatures\Spec1810\WEB\SpecCategory\SpecCategory_Api.cs" />
 	  <Compile Include="SpecFeatures\Spec1810\WEB\SpecCategory\SpecCategory_Biz.cs" />
 	  <Compile Include="SpecFeatures\Spec1810\WEB\SpecCategory\SpecCategory_DTO.cs" />
@@ -149,6 +150,7 @@
 	  <Compile Include="SpecFeatures\Spec1816\COMM\Calendar\SpecCalendar_Biz.cs" />
 	  <Compile Include="SpecFeatures\Spec1816\COMM\Calendar\SpecCalendar_DTO.cs" />
 	  <Compile Include="SpecFeatures\Spec1816\COMM\Calendar\SpecCalendar_Model.cs" />
+	  <Compile Include="SpecFeatures\Spec1816\SYS\SystemVersion\SystemVersion_Biz.cs" />
 	  <Compile Include="SpecFeatures\Spec1816\WEB\SpecOpenScheduleRule\SpecOpenScheduleRule_API.cs" />
 	  <Compile Include="SpecFeatures\Spec1816\WEB\SpecOpenScheduleRule\SpecOpenScheduleRule_Biz.cs" />
 	  <Compile Include="SpecFeatures\Spec1816\WEB\SpecOpenScheduleRule\SpecOpenScheduleRule_DTO.cs" />
@@ -156,6 +158,7 @@
 	  <Compile Include="SpecFeatures\Spec1816\_Resx\SpecMessageCode.cs" />
 	  <Compile Include="SpecFeatures\Spec1816\_Resx\SpecModelDisplayName.cs" />
 	  <Compile Include="SpecFeatures\Spec1816\_Resx\SpecProgKeys.cs" />
+	  <Compile Include="SpecFeatures\Spec1817\SYS\SystemVersion\SystemVersion_Biz.cs" />
 	  <Compile Include="SpecFeatures\Spec1817\WEB\Banner\Banner_DTO.cs" />
 	  <Compile Include="SpecFeatures\Spec1817\WEB\Banner\Banner_Model.cs" />
 	  <Compile Include="SpecFeatures\Spec1817\WEB\SpecMusical\SpecMusical_Api.cs" />
@@ -165,6 +168,7 @@
 	  <Compile Include="SpecFeatures\Spec1817\_Resx\SpecMessageCode.cs" />
 	  <Compile Include="SpecFeatures\Spec1817\_Resx\SpecModelDisplayName.cs" />
 	  <Compile Include="SpecFeatures\Spec1817\_Resx\SpecProgKeys.cs" />
+	  <Compile Include="SpecFeatures\Spec1819\SYS\SystemVersion\SystemVersion_Biz.cs" />
 	  <Compile Include="SpecFeatures\Spec1819\WEB\SpecJournalIndex\SpecJournalIndex_Api.cs" />
 	  <Compile Include="SpecFeatures\Spec1819\WEB\SpecJournalIndex\SpecJournalIndex_Biz.cs" />
 	  <Compile Include="SpecFeatures\Spec1819\WEB\SpecJournalIndex\SpecJournalIndex_DTO.cs" />
@@ -177,6 +181,7 @@
 	  <Compile Include="SpecFeatures\Spec1819\_Resx\SpecMessageCode.cs" />
 	  <Compile Include="SpecFeatures\Spec1819\_Resx\SpecModelDisplayName.cs" />
 	  <Compile Include="SpecFeatures\Spec1819\_Resx\SpecProgKeys.cs" />
+	  <Compile Include="SpecFeatures\Spec1820\SYS\SystemVersion\SystemVersion_Biz.cs" />
 	  <Compile Include="SpecFeatures\Spec1820\WEB\SpecHomePage\SpecHomePage1820_Api.cs" />
 	  <Compile Include="SpecFeatures\Spec1820\WEB\SpecHomePage\SpecHomePage1820_Biz.cs" />
 	  <Compile Include="SpecFeatures\Spec1820\WEB\SpecHomePage\SpecHomePage1820_DTO.cs" />
@@ -184,6 +189,7 @@
 	  <Compile Include="SpecFeatures\Spec1820\_Resx\SpecMessageCode.cs" />
 	  <Compile Include="SpecFeatures\Spec1820\_Resx\SpecModelDisplayName.cs" />
 	  <Compile Include="SpecFeatures\Spec1820\_Resx\SpecProgKeys.cs" />
+	  <Compile Include="SpecFeatures\Spec1821\SYS\SystemVersion\SystemVersion_Biz.cs" />
 	  <Compile Include="SpecFeatures\Spec1821\WEB\SpecHomePage\SpecHomePage1821_Api.cs" />
 	  <Compile Include="SpecFeatures\Spec1821\WEB\SpecHomePage\SpecHomePage1821_Biz.cs" />
 	  <Compile Include="SpecFeatures\Spec1821\WEB\SpecHomePage\SpecHomePage1821_DTO.cs" />
