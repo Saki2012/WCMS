@@ -2,7 +2,7 @@ import { formatCategoriesName } from "@/Features/Hooks/BizFunc/COMM/Category_Api
 import { formatTagsName } from "@/Features/Hooks/BizFunc/COMM/Tag_Api";
 import { useAnnouncementListData } from "@/Features/Pages/Client/BizFunc/WEB/Announcement/Client_Announcement_List_Loader";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import { ModuleContent } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
+import { ModuleContent } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import { applyGridColumnWidths, readGridColumnWidths, writeGridColumnWidths } from "@/SysCore/Components/Grid/Grid_ColumnWidth";

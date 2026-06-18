@@ -19,7 +19,6 @@ type PaginatorA11yText = {
     currentPage: (p: number) => string;
 };
 
-
 /** 分頁 a11y 文案表（用 xxx[lang] 讀；不足語系會 fallback） */
 const PAGINATOR_A11Y_MAP: Partial<Record<Lang, PaginatorA11yText>> = {
     "zh-tw": {
@@ -190,7 +189,6 @@ export const Paginator = (props: PaginatorProps) =>
     );
 };
 
-
 /** 第二版本 前台BaseLine用的格式，待確認這邊使用方式及邏輯*/
 export const NewPaginator = (props: PaginatorProps) =>
 {
@@ -317,7 +315,6 @@ export const NewPaginator = (props: PaginatorProps) =>
         </div>
     );
 };
-
 
 // ************************** */
 
@@ -624,26 +621,12 @@ const getPaginatorA11y = (lang?: Lang): PaginatorA11yText =>
     };
 };
 
-
 /** 限制頁碼範圍 */
 const clampPage = (page: number, totalPages: number): number =>
 {
     // return：限制在 1 ~ totalPages
     return Math.min(Math.max(page, 1), totalPages);
 };
-
-
-/** 只保留數字 */
-const normalizePageInput = (value: string): string =>
-{
-    // return：移除非數字字元
-    return value.replace(/\D/g, "");
-};
-
-
-/** 判斷是否為「啟用」按鍵（Enter / Space） */
-const isActivateKey = (key: string) => key === "Enter" || key === " ";
-
 
 /** a(role=button) 的 click 行為：disabled 時不動作 */
 const handleAnchorClick = (e: MouseEvent<HTMLAnchorElement>, isDisabled: boolean, action: () => void) =>
@@ -655,7 +638,6 @@ const handleAnchorClick = (e: MouseEvent<HTMLAnchorElement>, isDisabled: boolean
     if (isDisabled) return;
     action();
 };
-
 
 // /** a(role=button) 的鍵盤行為：Enter/Space 觸發 click 同等效果 */
 // const handleAnchorKeyDown = (

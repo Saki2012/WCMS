@@ -1,11 +1,9 @@
 import { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react";
-import { createPortal } from "react-dom"; // 👈 加這行
 import "./Dialog.css";
 
 // #region Property
 type MessageType = "info" | "success" | "error";
-
 
 interface Toast
 {
@@ -15,7 +13,6 @@ interface Toast
     sticky?: boolean;
 }
 
-
 interface ConfirmOptions
 {
     message: string;
@@ -23,13 +20,11 @@ interface ConfirmOptions
     onCancel?: () => void;
 }
 
-
 interface MessageContextType
 {
     showToast: (message: string, type?: MessageType, sticky?: boolean) => void;
     showConfirm: (options: ConfirmOptions) => void;
 }
-
 
 const MessageContext = createContext<MessageContextType | null>(null);
 // #endregion
@@ -42,10 +37,9 @@ export const useMessage = () =>
     return ctx;
 };
 
-
 export const MessageProvider = ({ children }: { children: ReactNode; }) =>
 {
-    const [toasts, setToasts] = useState<Toast[]>([]);
+    const [_, setToasts] = useState<Toast[]>([]);
     const [confirm, setConfirm] = useState<ConfirmOptions | null>(null);
 
     const showToast = (message: string, type: MessageType = "info", sticky = false) =>
@@ -59,11 +53,6 @@ export const MessageProvider = ({ children }: { children: ReactNode; }) =>
                 setToasts(prev => prev.filter(t => t.id !== id));
             }, 3000);
         }
-    };
-
-    const removeToast = (id: number) =>
-    {
-        setToasts(prev => prev.filter(t => t.id !== id));
     };
 
     const showConfirm = (options: ConfirmOptions) =>

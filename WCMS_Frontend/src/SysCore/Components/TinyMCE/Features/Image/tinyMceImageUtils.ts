@@ -22,7 +22,6 @@ export const syncResponsiveImageElement = (img: HTMLImageElement, internalAttr: 
     return true;
 };
 
-
 export const syncResponsiveImageClasses = (root: ParentNode, internalAttr: string): boolean =>
 {
     let changed = false;
@@ -35,12 +34,10 @@ export const syncResponsiveImageClasses = (root: ParentNode, internalAttr: strin
     return changed;
 };
 
-
 export const normalizeImageHtmlForEditor = (html: string, internalAttr: string): string =>
 {
     return normalizeImageHtml(html, internalAttr);
 };
-
 
 export const normalizeImageHtmlBeforeSave = (html: string, internalAttr: string): string =>
 {
@@ -56,7 +53,6 @@ const hasExplicitDimension = (img: HTMLImageElement, property: "width" | "height
 
     return img.style.getPropertyValue(property).trim().length > 0;
 };
-
 
 const normalizeImageHtml = (html: string, internalAttr: string): string =>
 {

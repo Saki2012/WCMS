@@ -1,22 +1,19 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import { ModuleContent, type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
+import { ModuleContent, type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent";
 import type { Module_SpecProduction_OptionsJson } from "@/SpecFetures/1820/Pages/Server/BizFunc/WEB/SiteMenu/SpecModule_Comp";
 import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import { findTextByKey } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router";
 import { useClientSpecProductionListFetchData } from "./Client_SpecProduction_List_Loader";
 
-import { findTextByKey } from "@/SysCore/Utils/Library/LibData";
-
 // #region Property
 type MaterialSet = components["schemas"]["MaterialSet_DTO"];
-
 type MaterialTag = components["schemas"]["MaterialTags_DTO"];
-
 export interface ClientSpecProductionListProps
 {
     site: INormSite;
@@ -24,9 +21,7 @@ export interface ClientSpecProductionListProps
     lang: Lang;
     opts?: Module_SpecProduction_OptionsJson;
 }
-
 type MaterialInfoJsonValue = string | number | boolean | null;
-
 type MaterialInfoJsonMap = Record<string, MaterialInfoJsonValue>;
 // #endregion
 
@@ -38,16 +33,9 @@ export const Client_SpecProduction_List_Comp = (props: ClientSpecProductionListP
 {
     const fetchData = useClientSpecProductionListFetchData({ lang: props.lang, options: props.opts });
     const viewCountConfig = useMemo<ModuleViewCountConfig>(() => ({ mode: "list" }), []);
-
     return (
         <ModuleContent nodeTitle={props.node.title} isLoading={fetchData.isLoading} errorList={fetchData.errorList} viewCountConfig={viewCountConfig}>
-            <SpecProductionContent
-                lang={props.lang}
-                intro={fetchData.rawData.pageContent}
-                catName={fetchData.rawData.catName}
-                matDataList={fetchData.rawData.prodData}
-                viewMoreText={"View More"}
-            />
+            <SpecProductionContent lang={props.lang} intro={fetchData.rawData.pageContent} catName={fetchData.rawData.catName} matDataList={fetchData.rawData.prodData} viewMoreText={"View More"} />
         </ModuleContent>
     );
 };
@@ -62,13 +50,11 @@ const buildMaterialInfoRows = (item: MaterialSet, lang: Lang) =>
     const langInfo = getMaterialLangInfo(item, lang);
     const infoJson = parseMaterialInfoJson(langInfo?.MaterialInfoJson);
     const fields = item.Material?.Category?._MatCategoryInfoField ?? [];
-
     return fields.map((field) =>
     {
         const fieldKey = field.Field ?? "";
         const displayName = field._MatCategoryInfoFieldDisplay?.find((p) => p.Lang === lang)?.FieldDisplayName ?? fieldKey;
         const valueText = formatInfoValue(infoJson[fieldKey] ?? null);
-
         return { fieldKey, displayName, valueText };
     }).filter((p) => p.fieldKey && p.valueText);
 };

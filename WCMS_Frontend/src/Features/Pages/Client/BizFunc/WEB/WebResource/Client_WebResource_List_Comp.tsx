@@ -1,5 +1,5 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import { ModuleContent, type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
+import { ModuleContent, type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { applyGridColumnWidths, readGridColumnWidths, writeGridColumnWidths } from "@/SysCore/Components/Grid/Grid_ColumnWidth";
 import { ColRender, RowRender } from "@/SysCore/Components/Grid/Grid_Comp";

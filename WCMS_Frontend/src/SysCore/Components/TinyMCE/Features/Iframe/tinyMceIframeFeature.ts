@@ -1,4 +1,4 @@
-import type { TinyMCEEditor, TinySetup } from "../Core/tinyMceTypes";
+import type { TinyMCEEditor, TinySetup } from "../../Core/tinyMceTypes";
 import {
     getIframeReferrerPolicy,
     normalizeIframeHeight,
@@ -8,10 +8,12 @@ import {
     validateIframeSrc,
 } from "./tinyMceIframeUtils";
 
-// #region Public
+// #region Property
 type InsertIframeDialogData = { url?: string; title?: string; width?: string; height?: string; };
 type EditIframeDialogData = { src: string; "data-mce-src": string; title: string; width: string; height: string; };
+// #endregion
 
+// #region Public
 export const openInsertIframeDialog = (ed: TinyMCEEditor) =>
 {
     ed.windowManager.open({
@@ -176,7 +178,10 @@ export const useTinyMceIframeEdit = (): TinySetup =>
                             "data-mce-p-referrerpolicy": referrerPolicy,
                             "data-mce-p-allowfullscreen": "",
                         };
-                        Object.entries(cacheAttrs).forEach(([k, val]) => setWrap(k, val));
+                        Object.entries(cacheAttrs).forEach(([k, val]) =>
+                        {
+                            setWrap(k, val);
+                        });
                     }
 
                     editor.nodeChanged();

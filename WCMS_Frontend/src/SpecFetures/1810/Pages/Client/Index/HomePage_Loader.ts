@@ -5,8 +5,6 @@ import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WEB/BannerSlider_A
 import { GalleryAdapter } from "@/Features/Hooks/BizFunc/WEB/Gallery_Api";
 import { WebResourceAdapter } from "@/Features/Hooks/BizFunc/WEB/WebResource_Api";
 import type { Lang } from "@/SysCore/i18n/lang";
-import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
-import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import type { components } from "@/types/api";
 import {
@@ -29,7 +27,7 @@ import type { AxiosInstance } from "axios";
 import { useMemo } from "react";
 import { type LoaderFunctionArgs, redirect } from "react-router-dom";
 
-import { findTextByKey, formatLocalIso, LibCondition, Operator } from "@/SysCore/Utils/Library/LibData";
+import { formatLocalIso, LibCondition, Operator } from "@/SysCore/Utils/Library/LibData";
 
 import {
     buildClientCategoryTextDict as buildCategoryDict,
@@ -867,17 +865,12 @@ const shouldRedirectEnHome = (request: Request, lang: Lang): boolean =>
     return pathname === "/en";
 };
 
-
-
 const takeFirstOrNull = <T>(data: T[] | T | null | undefined): T | null =>
 {
     if (!data) return null;
 
     return Array.isArray(data) ? data[0] ?? null : data;
 };
-
-
-
 
 const buildBannerSliderParam = (): QueryListParam => ({
     Fields: BANNER_SLIDER_FIELDS,

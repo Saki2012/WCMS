@@ -2,7 +2,7 @@ import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/WEB/Sit
 import { useFormDetailViewCount } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Hooks";
 import type { IAnnouncementFormProps } from "@/Features/Pages/Client/BizFunc/WEB/Announcement/Client_Announcement_Form_Comp";
 import { useAnnouncementFormFetchData } from "@/Features/Pages/Client/BizFunc/WEB/Announcement/Client_Announcement_Form_Loader";
-import type { ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
+import type { ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import { LoadingErrorHandler } from "@/SysCore/Components/LoadingErrorHandler";

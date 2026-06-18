@@ -1,6 +1,6 @@
 import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import { ModuleContent, type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
+import { ModuleContent, type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { LibLightBox_Comp, type LibLightBoxSlide } from "@/SysCore/Components/FormField/LibFormField";
 import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";

@@ -9,7 +9,6 @@ const INDENT_UNIT = "  ";
 
 const ATTRIBUTE_WRAP_WIDTH = 120;
 
-
 const VOID_ELEMENTS = new Set([
     "area",
     "base",
@@ -26,7 +25,6 @@ const VOID_ELEMENTS = new Set([
     "track",
     "wbr",
 ]);
-
 
 const PRESERVE_OUTER_HTML = new Set(["pre", "script", "style", "textarea"]);
 // #endregion
@@ -50,7 +48,6 @@ export const formatHtmlSource = (html: string) =>
 // #region Private
 const repeatIndent = (depth: number) => INDENT_UNIT.repeat(depth);
 
-
 const escapeText = (value: string) =>
 {
     return value
@@ -60,24 +57,20 @@ const escapeText = (value: string) =>
         .replace(/\u00a0/g, "&nbsp;");
 };
 
-
 const escapeAttribute = (value: string) =>
 {
     return escapeText(value).replace(/"/g, "&quot;");
 };
-
 
 const isMeaningfulTextNode = (node: ChildNode) =>
 {
     return node.nodeType === TEXT_NODE && (node.textContent ?? "").trim().length > 0;
 };
 
-
 const isIgnorableWhitespaceNode = (node: ChildNode) =>
 {
     return node.nodeType === TEXT_NODE && (node.textContent ?? "").trim().length === 0;
 };
-
 
 const createStartTag = (element: Element, depth: number) =>
 {
@@ -103,12 +96,10 @@ const createStartTag = (element: Element, depth: number) =>
     ].join("\n");
 };
 
-
 const createEndTag = (element: Element) =>
 {
     return VOID_ELEMENTS.has(element.tagName.toLowerCase()) ? "" : `</${element.tagName.toLowerCase()}>`;
 };
-
 
 const indentMultiline = (value: string, depth: number) =>
 {
@@ -118,7 +109,6 @@ const indentMultiline = (value: string, depth: number) =>
         .map((line) => line.length > 0 ? `${indent}${line}` : line)
         .join("\n");
 };
-
 
 const serializeInlineNode = (node: ChildNode, depth: number): string =>
 {
@@ -140,7 +130,6 @@ const serializeInlineNode = (node: ChildNode, depth: number): string =>
 
     return `${startTag}${innerHtml}${createEndTag(element)}`;
 };
-
 
 const serializeBlockNode = (node: ChildNode, depth: number): string =>
 {

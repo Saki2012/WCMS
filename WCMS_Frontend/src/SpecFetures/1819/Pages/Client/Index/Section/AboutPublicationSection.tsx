@@ -13,10 +13,7 @@ type QueryListParam = components["schemas"]["QueryListParam"];
 
 type BannerSet = components["schemas"]["BannerSet_DTO"];
 
-type BannerDetail = NonNullable<BannerSet["BannerDetail"]>[number];
-
 type BannerDetailInfo = NonNullable<BannerSet["BannerDetailInfo"]>[number];
-
 
 interface AboutPublicationSectionProps
 {
@@ -170,20 +167,17 @@ const toOkEnv = <T,>(data: T): ApiResponse<T> =>
     return { IsSuccess: true, Data: data, SysMessage: [] };
 };
 
-
 const toListInitial = <T,>(args: QueryListParam, data: T[]) =>
 {
     // return：統一 queryList initial 結構
     return { args, apiRes: toOkEnv(data) };
 };
 
-
 const getBanner = (data?: BannerSet[]): BannerSet | null =>
 {
     // return
     return data?.[0] ?? null;
 };
-
 
 const getBannerContent = (banner: BannerSet | null, lang: Lang): string =>
 {
@@ -195,7 +189,6 @@ const getBannerContent = (banner: BannerSet | null, lang: Lang): string =>
     return content;
 };
 
-
 const getBannerTitleByParentRowId = (banner: BannerSet | null, parentRowId: BannerDetailInfo["ParentRowId"], lang: Lang): string =>
 {
     // 宣告變數
@@ -205,7 +198,6 @@ const getBannerTitleByParentRowId = (banner: BannerSet | null, parentRowId: Bann
     // return
     return title;
 };
-
 
 const getIssueImage = (banner: BannerSet | null, idx: number, lang: Lang) =>
 {

@@ -5,9 +5,9 @@
  */
 
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import { LeftFrame } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/LeftFrame/LeftFrame";
-import { RightFrame } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/RightFrame";
-import { TopFrame } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/TopFrame/TopFrame";
+import { LeftFrame } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/LeftFrame/LeftFrame";
+import { RightFrame } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/RightFrame";
+import { TopFrame } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/TopFrame/TopFrame";
 import { BreadcrumbContext, type BreadcrumbItem } from "@/Features/Pages/Client/Scaffold/SubPages/Module/BreadCrumb/BreadCrumb_Comp";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import type { Lang } from "@/SysCore/i18n/lang";
@@ -26,7 +26,6 @@ interface ISubPageProps
     node: INormNode;
     backHref?: string;
 }
-
 
 interface IContentContainerProps extends ISubPageProps
 {

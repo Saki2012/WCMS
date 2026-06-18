@@ -2,7 +2,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 
 // #region Public
-export const AboutPage = (props: { lang: Lang; }) =>
+export const AboutPage = (_: { lang: Lang; }) =>
 {
     return (
         <section className="About_section + Layout_Padding_1 + bg-custom-Video_color">

@@ -1,5 +1,5 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import { ModuleContent, type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
+import { ModuleContent, type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";

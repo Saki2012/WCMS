@@ -6,7 +6,7 @@ import { SpecMusicalForm } from "@/SpecFetures/1817/Pages/Client/BizFunc/WEB/Spe
 import type { IHeaderMetaProps } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { SpecMusicalForm_Loader } from "./Pages/Client/BizFunc/WEB/SpecMusical/SpecMusicalForm_Loader";
-import { SpecMusicalList, type ISpecMusicalOptions } from "./Pages/Client/BizFunc/WEB/SpecMusical/SpecMusicalList";
+import { type ISpecMusicalOptions, SpecMusicalList } from "./Pages/Client/BizFunc/WEB/SpecMusical/SpecMusicalList";
 import { SpecMusicalList_Loader } from "./Pages/Client/BizFunc/WEB/SpecMusical/SpecMusicalList_Loader";
 
 // #region Public
@@ -14,7 +14,7 @@ export const specClientEntries: Record<string, ModuleEntry> = {
     SpecMusical: {
         kind: "routes",
         element: (lang: Lang, site: INormSite, node: INormNode) => <SubPage style={Classic_FETheme} lang={lang} site={site} node={node} />,
-        children: (opts, lang, site: INormSite, node: INormNode) =>
+        children: (opts, _, site: INormSite, node: INormNode) =>
         {
             const musicalOpts = (opts as ISpecMusicalOptions) ?? {};
             return [{
@@ -25,7 +25,6 @@ export const specClientEntries: Record<string, ModuleEntry> = {
         },
     },
 };
-
 
 export const siteHeaderMeta: IHeaderMetaProps = { title: "國立臺北藝術大學_傳統音樂學系", description: "國立臺北藝術大學_傳統音樂學系" };
 // #endregion

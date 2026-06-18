@@ -7,7 +7,7 @@ import { Classic_BETheme } from "@/Features/Pages/Server/Theme/ClassicTheme_Clsx
 import { RequireAuth } from "@/SysCore/Components/Auth/RequireAuth";
 import { DefaultLang } from "@/SysCore/i18n/lang";
 import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter";
-import { Navigate, type RouteObject } from "react-router-dom";
+import { type RouteObject } from "react-router-dom";
 import { Server_NotFoundPage } from "../ErrorPage/Server_NotFoundPage";
 import { buildServerChildrenFromData } from "./ServerMenuIndex";
 

@@ -1,4 +1,4 @@
-import type { TinyMCEEditor } from "../Core/tinyMceTypes";
+import type { TinyMCEEditor } from "../../Core/tinyMceTypes";
 
 // #region Public
 export const registerTinyMceFormatControls = (editor: TinyMCEEditor) =>

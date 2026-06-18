@@ -11,7 +11,7 @@ import LogoImg from "@/SpecFetures/1818/Assets/Client/images/logo/LOGO_300x100.s
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import React from "react";
 
 // #region Section
@@ -155,25 +155,6 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme; }) 
                 if (keep && keep.contains(m)) return;
                 m.classList.remove("show");
             });
-        };
-
-        let lastHoverHost: HTMLElement | null = null;
-        const onPointerOver = (e: Event) =>
-        {
-            // hover 到別的第一層 menu 時，收合目前被 click 打開的 .show
-            const host = (e.target as Element | null)?.closest?.(".navbar-nav > .nav-item.dropdown") as HTMLElement | null;
-            if (!host || !root.contains(host)) return;
-            if (lastHoverHost === host) return;
-            lastHoverHost = host;
-            closeAllExcept(host);
-        };
-
-        const onFocusIn = (e: Event) =>
-        {
-            // 鍵盤 tab 切換到別的第一層 menu 時，也要互斥收合（AA 友善）
-            const host = (e.target as Element | null)?.closest?.(".navbar-nav > .nav-item.dropdown") as HTMLElement | null;
-            if (!host || !root.contains(host)) return;
-            closeAllExcept(host);
         };
 
         const onRootClick = (e: MouseEvent) =>
@@ -364,34 +345,6 @@ const NavBar = (props: { lang: Lang; }) =>
     );
 };
 
-const SearchBar = () =>
-{
-    const doZoom = useCallback((px: number) =>
-    {
-        document.documentElement.style.fontSize = `${px}px`;
-        localStorage.setItem("font-zoom", String(px));
-    }, []);
-    useEffect(() =>
-    {
-        const saved = +localStorage.getItem("font-zoom")!;
-        if (saved) doZoom(saved);
-    }, [doZoom]);
-    return (
-        <li>
-            <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-2 mx-1 d-sm-inline-block d-none">
-                <a className="search-button" id="top-sss" data-bs-toggle="dropdown">
-                    <i className="far fa-search"></i>
-                    <span className="sr-only">Search</span>
-                </a>
-            </div>
-            <div className="searchdropdown dropdown-menu search-input-dropdown" aria-labelledby="top-sss">
-                <input type="search" id="search-box" placeholder="Search..." />
-                <button className="far fa-search" type="button"></button>
-            </div>
-        </li>
-    );
-};
-
 const MobileBtn = () =>
 {
     return (
@@ -516,42 +469,6 @@ const DropdownMenuItem = (props: { menuItem: MenuItemData; }) =>
             </LangNavLink>
             {/* 第二層（原本的 <ul className="dropdown-menu">） */}
             <ul className="dropdown-menu">{renderDropdownItems(props.menuItem.SubItem, 0)}</ul>
-        </li>
-    );
-};
-
-/** 3. Mega 選項：明細動態渲染 */
-const MegaMenuItem = (props: { menuItem: MenuItemData; }) =>
-{
-    return (
-        <li className="nav-item dropdown dropdown-mega position-static">
-            <LangNavLink className="nav-link dropdown-toggle" to={props.menuItem.Url} tabIndex={0} data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                {props.menuItem.SrcData}
-            </LangNavLink>
-
-            <div className="dropdown-menu">
-                <div className="mega-content">
-                    <div className="container-customize4">
-                        <div className="row">
-                            {props.menuItem.SubItem.map((col, colIndex) => (
-                                <div key={colIndex} className="col-12 col-sm-4 col-md-3">
-                                    {/* 每一欄的標題 */}
-                                    <div className="mega-item-tilte">{col.SrcData}</div>
-
-                                    {/* 每一欄底下的連結列表 */}
-                                    <div className="list-group">
-                                        {(col.SubItem ?? []).map((link, linkIndex) => (
-                                            <LangNavLink key={linkIndex} className="list-group-item" to={link.Url || "#"} tabIndex={0}>
-                                                {link.SrcData}
-                                            </LangNavLink>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </div>
         </li>
     );
 };

@@ -1,4 +1,4 @@
-import { type CSSProperties, type Dispatch, type FocusEvent, type KeyboardEvent, type RefObject, type SetStateAction, useEffect, useRef, useState } from "react";
+import { type CSSProperties, type Dispatch, type KeyboardEvent, type RefObject, type SetStateAction, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { getPortalFocusableElements, isBrowserDocumentReady } from "../AAInputField_Dom";
 import { applyAAFocusStyle, clearAAFocusStyle } from "../AAInputField_Focus";
@@ -497,29 +497,6 @@ const bindDatePickerPortalPosition = (
         window.removeEventListener("resize", updatePosition);
         window.removeEventListener("scroll", updatePosition, true);
     };
-};
-
-/** focus 離開 input 與 Portal 面板後關閉日期選擇器。 */
-const closeDatePickerWhenPortalFocusLeaves = (
-    event: FocusEvent<HTMLDivElement>,
-    wrapperRef: RefObject<HTMLDivElement> | undefined,
-    popupRef: RefObject<HTMLDivElement>,
-    closePicker: () => void,
-) =>
-{
-    if (!isBrowserDocumentReady()) return;
-
-    window.requestAnimationFrame(() =>
-    {
-        const activeElement = document.activeElement;
-        if (!activeElement)
-        {
-            closePicker();
-            return;
-        }
-        if (wrapperRef?.current?.contains(activeElement) || popupRef.current?.contains(activeElement)) return;
-        closePicker();
-    });
 };
 
 /** 取得日期時間區間值，固定回傳日期與時間欄位。 */

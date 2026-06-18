@@ -1,18 +1,7 @@
-import type { TinyMCEEditor } from "../Core/tinyMceTypes";
+import type { TinyMCEEditor } from "../../Core/tinyMceTypes";
 import { formatHtmlSource } from "./htmlSourceFormatter";
 
 // #region Public
-const setSourceEditorContent = (editor: TinyMCEEditor, html: string) =>
-{
-    editor.focus();
-    editor.undoManager.transact(() =>
-    {
-        editor.setContent(html);
-    });
-    editor.selection.setCursorLocation();
-    editor.nodeChanged();
-};
-
 export const openFormattedSourceCodeDialog = (editor: TinyMCEEditor) =>
 {
     const originalContent = editor.getContent({ source_view: true });
@@ -41,5 +30,18 @@ export const openFormattedSourceCodeDialog = (editor: TinyMCEEditor) =>
             api.close();
         },
     });
+};
+// #endregion
+
+// #region Private
+const setSourceEditorContent = (editor: TinyMCEEditor, html: string) =>
+{
+    editor.focus();
+    editor.undoManager.transact(() =>
+    {
+        editor.setContent(html);
+    });
+    editor.selection.setCursorLocation();
+    editor.nodeChanged();
 };
 // #endregion

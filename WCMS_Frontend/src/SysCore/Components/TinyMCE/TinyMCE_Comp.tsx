@@ -4,11 +4,11 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { Editor, type IAllProps } from "@tinymce/tinymce-react";
 import { useEffect, useMemo, useState } from "react";
 import type { TinyMCEEditor } from "./Core/tinyMceTypes";
-import { useTinyMceIframeEdit } from "./Iframe/tinyMceIframeFeature";
-import { useTinyMceInternalImage } from "./Image/tinyMceImageFeature";
+import { useTinyMceIframeEdit } from "./Features/Iframe/tinyMceIframeFeature";
+import { useTinyMceInternalImage } from "./Features/Image/tinyMceImageFeature";
 import { useTinyMCE } from "./TinyMCE_Hook";
 
-// #region Public
+// #region Property
 type Props = {
     args: {
         id: string;
@@ -39,110 +39,9 @@ type WcmsTinyMceInit = Record<string, unknown> & {
     tinymceScriptSrc?: string;
 };
 type WcmsTinyMceEditor = TinyMCEEditor & { _wcmsComposing?: boolean; };
+// #endregion
 
-/** 取得頁面既有 nonce；正式 CSP 改以同站外部 script 為主，保留相容舊設定。 */
-const getCspNonce = (): string =>
-{
-    const script = document.querySelector("script[nonce]") as HTMLScriptElement | null;
-    const scriptNonce = script?.nonce?.trim() ?? "";
-    if (scriptNonce) return scriptNonce;
-
-    const meta = document.querySelector("meta[property=\"csp-nonce\"]") as HTMLElement | null;
-    return meta?.nonce?.trim() ?? "";
-};
-
-/** 檢查 TinyMCE 是否已由同站 script 載入完成。 */
-const hasTinyMceGlobal = (): boolean =>
-{
-    const win = window as TinyMceWindow;
-    return Boolean(win.tinymce);
-};
-
-/** 尋找頁面上已存在的 TinyMCE script，避免重複插入。 */
-const findTinyMceScript = (src: string): HTMLScriptElement | null =>
-{
-    const sourcePath = new URL(src, window.location.origin).pathname;
-    const scripts = Array.from(document.scripts);
-    return scripts.find(script => new URL(script.src, window.location.origin).pathname === sourcePath) ?? null;
-};
-
-/** 載入 public 內的 TinyMCE；正式 CSP 僅允許同站外部 script。 */
-const loadTinyMceScript = (src: string): Promise<void> =>
-{
-    return new Promise((resolve, reject) =>
-    {
-        if (hasTinyMceGlobal())
-        {
-            resolve();
-            return;
-        }
-
-        const existing = findTinyMceScript(src);
-        if (existing)
-        {
-            existing.addEventListener("load", () => resolve(), { once: true });
-            existing.addEventListener("error", () => reject(new Error("TinyMCE script load failed")), { once: true });
-            return;
-        }
-
-        const script = document.createElement("script");
-        const nonce = getCspNonce();
-        script.src = src;
-        script.async = true;
-        script.referrerPolicy = "strict-origin-when-cross-origin";
-        if (nonce) script.nonce = nonce;
-
-        script.addEventListener("load", () => resolve(), { once: true });
-        script.addEventListener("error", () => reject(new Error("TinyMCE script load failed")), { once: true });
-        document.head.appendChild(script);
-    });
-};
-
-/** 後台編輯器先載入自架 TinyMCE，避免初始化時重複插入 script。 */
-const useTinyMceScript = (src: string): TinyMceScriptState =>
-{
-    const [state, setState] = useState<TinyMceScriptState>(() => typeof window === "undefined" ? "loading" : hasTinyMceGlobal() ? "ready" : "loading");
-
-    useEffect(() =>
-    {
-        let disposed = false;
-        setState(hasTinyMceGlobal() ? "ready" : "loading");
-
-        loadTinyMceScript(src).then(() =>
-        {
-            if (!disposed) setState("ready");
-        }).catch(() =>
-        {
-            if (!disposed) setState("error");
-        });
-
-        return () =>
-        {
-            disposed = true;
-        };
-    }, [src]);
-
-    return state;
-};
-
-/** 將 WCMS 語系代碼轉成 TinyMCE 使用的語系代碼。 */
-const normalizeTinyMceLangCode = (lang?: string): string =>
-{
-    const code = (lang ?? DefaultLang).trim().toLowerCase();
-
-    if (code === "zh-tw" || code === "zh_tw") return "zh_TW";
-    if (code === "zh-cn" || code === "zh_cn") return "zh_CN";
-    if (code === "en-us" || code === "en_us") return "en";
-
-    return code.replace(/-([a-z]{2})$/, (_, region: string) => `_${region.toUpperCase()}`);
-};
-
-/** 建立 TinyMCE 語系檔路徑，讓 language 與 language_url 保持一致。 */
-const buildTinyMceLanguageUrl = (langCode: string): string =>
-{
-    return `/tinymce-i18n/langs5/${langCode}.js`;
-};
-
+// #region Public
 export const TinyMCE_Comp = ({ args }: Props) =>
 {
     const baseUrl = args.baseUrl ?? "/tinymce";
@@ -268,4 +167,111 @@ export const TinyMCE_Comp = ({ args }: Props) =>
         </>
     );
 };
+
+// #endregion
+
+// #region Private
+/** 取得頁面既有 nonce；正式 CSP 改以同站外部 script 為主，保留相容舊設定。 */
+const getCspNonce = (): string =>
+{
+    const script = document.querySelector("script[nonce]") as HTMLScriptElement | null;
+    const scriptNonce = script?.nonce?.trim() ?? "";
+    if (scriptNonce) return scriptNonce;
+
+    const meta = document.querySelector("meta[property=\"csp-nonce\"]") as HTMLElement | null;
+    return meta?.nonce?.trim() ?? "";
+};
+
+/** 檢查 TinyMCE 是否已由同站 script 載入完成。 */
+const hasTinyMceGlobal = (): boolean =>
+{
+    const win = window as TinyMceWindow;
+    return Boolean(win.tinymce);
+};
+
+/** 尋找頁面上已存在的 TinyMCE script，避免重複插入。 */
+const findTinyMceScript = (src: string): HTMLScriptElement | null =>
+{
+    const sourcePath = new URL(src, window.location.origin).pathname;
+    const scripts = Array.from(document.scripts);
+    return scripts.find(script => new URL(script.src, window.location.origin).pathname === sourcePath) ?? null;
+};
+
+/** 載入 public 內的 TinyMCE；正式 CSP 僅允許同站外部 script。 */
+const loadTinyMceScript = (src: string): Promise<void> =>
+{
+    return new Promise((resolve, reject) =>
+    {
+        if (hasTinyMceGlobal())
+        {
+            resolve();
+            return;
+        }
+
+        const existing = findTinyMceScript(src);
+        if (existing)
+        {
+            existing.addEventListener("load", () => resolve(), { once: true });
+            existing.addEventListener("error", () => reject(new Error("TinyMCE script load failed")), { once: true });
+            return;
+        }
+
+        const script = document.createElement("script");
+        const nonce = getCspNonce();
+        script.src = src;
+        script.async = true;
+        script.referrerPolicy = "strict-origin-when-cross-origin";
+        if (nonce) script.nonce = nonce;
+
+        script.addEventListener("load", () => resolve(), { once: true });
+        script.addEventListener("error", () => reject(new Error("TinyMCE script load failed")), { once: true });
+        document.head.appendChild(script);
+    });
+};
+
+/** 後台編輯器先載入自架 TinyMCE，避免初始化時重複插入 script。 */
+const useTinyMceScript = (src: string): TinyMceScriptState =>
+{
+    const [state, setState] = useState<TinyMceScriptState>(() => typeof window === "undefined" ? "loading" : hasTinyMceGlobal() ? "ready" : "loading");
+
+    useEffect(() =>
+    {
+        let disposed = false;
+        setState(hasTinyMceGlobal() ? "ready" : "loading");
+
+        loadTinyMceScript(src).then(() =>
+        {
+            if (!disposed) setState("ready");
+        }).catch(() =>
+        {
+            if (!disposed) setState("error");
+        });
+
+        return () =>
+        {
+            disposed = true;
+        };
+    }, [src]);
+
+    return state;
+};
+
+/** 將 WCMS 語系代碼轉成 TinyMCE 使用的語系代碼。 */
+const normalizeTinyMceLangCode = (lang?: string): string =>
+{
+    const code = (lang ?? DefaultLang).trim().toLowerCase();
+
+    if (code === "zh-tw" || code === "zh_tw") return "zh_TW";
+    if (code === "zh-cn" || code === "zh_cn") return "zh_CN";
+    if (code === "en-us" || code === "en_us") return "en";
+
+    return code.replace(/-([a-z]{2})$/, (_, region: string) => `_${region.toUpperCase()}`);
+};
+
+/** 建立 TinyMCE 語系檔路徑，讓 language 與 language_url 保持一致。 */
+const buildTinyMceLanguageUrl = (langCode: string): string =>
+{
+    return `/tinymce-i18n/langs5/${langCode}.js`;
+};
+
 // #endregion

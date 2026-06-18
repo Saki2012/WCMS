@@ -1,5 +1,5 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import { ModuleContent, type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
+import { ModuleContent, type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent";
 import { SpecJournalKeywordSearch_Comp } from "@/SpecFetures/1819/Pages/Client/BizFunc/WEB/SpecJournal/SpecJournalKeywordSearchComp";
 import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";

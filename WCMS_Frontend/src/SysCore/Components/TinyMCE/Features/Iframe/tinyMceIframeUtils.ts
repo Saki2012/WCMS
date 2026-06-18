@@ -1,10 +1,7 @@
 // #region Property
 const IFRAME_DIMENSION_RE = /^\d+(?:\.\d+)?(?:px|%|vh|vw|rem|em)?$/i;
-
 const GOOGLE_MAPS_HOST_PATTERN = /(^|\.)google\.[^/]+$/i;
-
 const NUMERIC_IFRAME_DIMENSION_RE = /^\d+(?:\.\d+)?$/;
-
 const PX_IFRAME_DIMENSION_RE = /^\d+(?:\.\d+)?px$/i;
 // #endregion
 
@@ -26,18 +23,14 @@ export const WCMS_TINYMCE_IFRAME_SANDBOX_EXCLUSIONS = [
     "maps.google.com",
 ] as const;
 
-
 export const normalizeIframeWidth = (raw?: string): string => normalizeIframeDimension(raw, "100%");
 
-
 export const normalizeIframeHeight = (raw?: string): string => normalizeIframeDimension(raw, "360");
-
 
 export const toIframeCssDimension = (value: string): string =>
 {
     return NUMERIC_IFRAME_DIMENSION_RE.test(value) ? `${value}px` : value;
 };
-
 
 export const toIframeDimensionAttribute = (value: string): string | null =>
 {
@@ -47,7 +40,6 @@ export const toIframeDimensionAttribute = (value: string): string | null =>
     return null;
 };
 
-
 export const isGoogleMapsUrl = (value: string): boolean =>
 {
     const url = tryParseUrl(value);
@@ -56,7 +48,6 @@ export const isGoogleMapsUrl = (value: string): boolean =>
 
     return url.hostname.startsWith("maps.") || url.pathname.startsWith("/maps");
 };
-
 
 export const isGoogleMapsEmbedUrl = (value: string): boolean =>
 {
@@ -69,7 +60,6 @@ export const isGoogleMapsEmbedUrl = (value: string): boolean =>
         || (url.pathname.startsWith("/maps") && url.searchParams.get("output") === "embed");
 };
 
-
 export const validateIframeSrc = (raw?: string): { url: string; warning?: string; } =>
 {
     const url = `${raw ?? ""}`.trim();
@@ -80,7 +70,6 @@ export const validateIframeSrc = (raw?: string): { url: string; warning?: string
     }
     return { url };
 };
-
 
 export const getIframeReferrerPolicy = (value: string): string =>
 {
@@ -96,7 +85,6 @@ const normalizeIframeDimension = (raw: string | undefined, fallback: string): st
     if (!IFRAME_DIMENSION_RE.test(value)) return fallback;
     return value.toLowerCase();
 };
-
 
 const tryParseUrl = (value: string): URL | null =>
 {

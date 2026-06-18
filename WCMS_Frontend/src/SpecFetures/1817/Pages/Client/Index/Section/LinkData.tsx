@@ -4,7 +4,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 
 // #region Public
-export const LinkData = (props: { lang: Lang; }) =>
+export const LinkData = (_: { lang: Lang; }) =>
 {
     return (
         <div className="TOPic">

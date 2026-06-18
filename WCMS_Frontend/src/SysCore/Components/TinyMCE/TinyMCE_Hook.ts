@@ -3,29 +3,27 @@ import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import { MessageStatus, type SysMessageModel } from "@/SysCore/Utils/API/APIBase";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { PGID } from "@/types/SchemaFields";
-import { useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { INTERNAL_ATTR } from "./Core/tinyMceConstants";
 import type { TinyMCEEditor } from "./Core/tinyMceTypes";
 import { useContentTransform } from "./Core/useContentTransform";
-import { applyFileLinkToSelection, pickLocalFile } from "./File/tinyMceFileFeature";
-import { registerTinyMceFormatControls } from "./Format/tinyMceFormatFeature";
-import { openInsertIframeDialog } from "./Iframe/tinyMceIframeFeature";
-import { WCMS_TINYMCE_IFRAME_SANDBOX_EXCLUSIONS } from "./Iframe/tinyMceIframeUtils";
-import { registerInternalImageSync } from "./Image/tinyMceImageFeature";
-import { normalizeListHtmlBeforeSave } from "./List/tinyMceListNormalize";
-import { openFormattedSourceCodeDialog } from "./Source/tinyMceSourceFeature";
-import { registerTinyMceTableFeature } from "./Table/tinyMceTableFeature";
-import { normalizePastedTableElement, normalizeTableHtmlBeforeSave, normalizeTableHtmlForEditor } from "./Table/tinyMceTableUtils";
+import { applyFileLinkToSelection, pickLocalFile } from "./Features/File/tinyMceFileFeature";
+import { registerTinyMceFormatControls } from "./Features/Format/tinyMceFormatFeature";
+import { openInsertIframeDialog } from "./Features/Iframe/tinyMceIframeFeature";
+import { WCMS_TINYMCE_IFRAME_SANDBOX_EXCLUSIONS } from "./Features/Iframe/tinyMceIframeUtils";
+import { registerInternalImageSync } from "./Features/Image/tinyMceImageFeature";
+import { normalizeListHtmlBeforeSave } from "./Features/List/tinyMceListNormalize";
+import { openFormattedSourceCodeDialog } from "./Features/Source/tinyMceSourceFeature";
+import { registerTinyMceTableFeature } from "./Features/Table/tinyMceTableFeature";
+import { normalizePastedTableElement, normalizeTableHtmlBeforeSave, normalizeTableHtmlForEditor } from "./Features/Table/tinyMceTableUtils";
 
-// #region Public
-export { INTERNAL_ATTR } from "./Core/tinyMceConstants";
-export { useTinyMceIframeEdit } from "./Iframe/tinyMceIframeFeature";
-export { useTinyMceInternalImage } from "./Image/tinyMceImageFeature";
-
+// #region Property
 type TinyMceInitExtras = Record<string, unknown> & { setup?: (editor: TinyMCEEditor) => void; };
 type TinyMceFilePickerCallback = (url: string, meta?: Record<string, unknown>) => void;
 type TinyMceFilePickerMeta = { filetype?: "file" | "image" | string; };
 type TinyMceContentEvent = { content: string; };
+type TinyMceUploadResult = { isSuccess: boolean; internalId: string; name: string; };
+type TinyMceToastPublish = ReturnType<typeof useToast>["publish"];
 
 export interface TinyMceHookOptions
 {
@@ -44,6 +42,12 @@ export interface TinyMceHookOptions
     baseUrl?: string; // "/tinymce"
     initExtras?: TinyMceInitExtras;
 }
+// #endregion
+
+// #region Public
+export { INTERNAL_ATTR } from "./Core/tinyMceConstants";
+export { useTinyMceIframeEdit } from "./Features/Iframe/tinyMceIframeFeature";
+export { useTinyMceInternalImage } from "./Features/Image/tinyMceImageFeature";
 
 export const useTinyMCE = (p: TinyMceHookOptions) =>
 {
@@ -55,29 +59,15 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
         attrName: INTERNAL_ATTR,
     });
 
-    const uploadAndReturn = async (file: File) =>
+    const uploadAndReturn = useCallback((file: File) =>
     {
-        const api = p.uploadFileApi ?? `${FileManagementAPI.Server_UploadTemp}`;
-        const fd = new FormData();
-        fd.append("file", file);
-        const res = await fetch(api, { method: "POST", body: fd });
-        if (!res.ok) throw new Error("Upload failed");
-        // 後端請回傳 { internalId: "xxx", name: "filename.ext" }
-        const json = await res.json();
-        if (!json.IsSuccess)
-        {
-            (json.SysMessage as SysMessageModel[]).forEach((msg) =>
-            {
-                if (msg.Status === 3)
-                {
-                    publish({ level: MessageStatus.Error, title: msg.MessageCode, text: msg.Message });
-                }
-            });
-        }
-        return { isSuccess: json.IsSuccess, internalId: json.Data[0], name: file.name };
-    };
+        return uploadTinyMceFile(file, p.uploadFileApi ?? `${FileManagementAPI.Server_UploadTemp}`, publish);
+    }, [p.uploadFileApi, publish]);
 
-    const toUrl = (id: string, kind: "file" | "image") => (p.makeFileUrl?.(id, { kind })) ?? FileManagementAPI.get_Public_Preview_Url(id);
+    const toUrl = useCallback((id: string, kind: "file" | "image") =>
+    {
+        return resolveTinyMceFileUrl(id, kind, p.makeFileUrl);
+    }, [p.makeFileUrl]);
 
     const editorInit = useMemo(() =>
     {
@@ -345,5 +335,38 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
     }, [p.id, p.language, p.languageUrl, p.baseUrl, p.uploadFileApi, p.makeFileUrl, p.initExtras, toDb, toEditor]);
 
     return { editorRef, init: editorInit, value: p.value, onChange: p.onChange, uploadAndReturn, toUrl };
+};
+// #endregion
+
+// #region Private
+const uploadTinyMceFile = async (file: File, api: string, publish: TinyMceToastPublish): Promise<TinyMceUploadResult> =>
+{
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch(api, { method: "POST", body: fd });
+    if (!res.ok) throw new Error("Upload failed");
+    // 後端請回傳 { internalId: "xxx", name: "filename.ext" }
+    const json = await res.json();
+    if (!json.IsSuccess)
+    {
+        (json.SysMessage as SysMessageModel[]).forEach((msg) =>
+        {
+            if (msg.Status === 3)
+            {
+                publish({ level: MessageStatus.Error, title: msg.MessageCode, text: msg.Message });
+            }
+        });
+    }
+    return { isSuccess: json.IsSuccess, internalId: json.Data[0], name: file.name };
+};
+
+const resolveTinyMceFileUrl = (
+    id: string,
+    kind: "file" | "image",
+    makeFileUrl?: TinyMceHookOptions["makeFileUrl"],
+): string =>
+{
+    return makeFileUrl?.(id, { kind })
+        ?? (kind === "image" ? FileManagementAPI.get_Public_Preview_Url(id) : FileManagementAPI.get_Public_Download_Url(id));
 };
 // #endregion

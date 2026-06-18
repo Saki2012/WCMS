@@ -1,11 +1,11 @@
 import { type CSSProperties, type Dispatch, type FocusEvent, type KeyboardEvent, type MutableRefObject, type RefObject, type SetStateAction, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import type { AAInputField, AAInputOption, FieldRenderContext } from "../AAInputField_Types";
-import { FieldControlShell } from "../AAInputField_Shell";
-import { applyAAFocusStyle, clearAAFocusStyle } from "../AAInputField_Focus";
-import { buildDescribedBy, buildSelectClass, getAriaInvalid, getAriaRequired, getNativeRequired, stringifyValue } from "../AAInputField_Utils";
-import { buildSearchOptionClass, commitSearchableSelectOption, filterSelectOptions, getFirstEnabledIndex, getNextEnabledIndex, getSearchOptionId, getSelectedOptionLabel, normalizeSearchText, renderSearchClearButton } from "./SelectHelpers";
 import { getPortalFocusableElements, isBrowserDocumentReady } from "../AAInputField_Dom";
+import { applyAAFocusStyle, clearAAFocusStyle } from "../AAInputField_Focus";
+import { FieldControlShell } from "../AAInputField_Shell";
+import type { AAInputField, AAInputOption, FieldRenderContext } from "../AAInputField_Types";
+import { buildDescribedBy, buildSelectClass, getAriaInvalid, getAriaRequired, getNativeRequired, stringifyValue } from "../AAInputField_Utils";
+import { buildSearchOptionClass, commitSearchableSelectOption, filterSelectOptions, getFirstEnabledIndex, getSearchOptionId, getSelectedOptionLabel, normalizeSearchText, renderSearchClearButton } from "./SelectHelpers";
 
 // #region Public
 /**
@@ -55,7 +55,6 @@ const buildSelectPortalStyle = (anchor: HTMLDivElement | null, popup: HTMLDivEle
     };
 };
 
-
 /** 渲染可搜尋單選選單的展開內容。 */
 const renderSearchSelectDropdown = (
     field: AAInputField,
@@ -81,7 +80,13 @@ const renderSearchSelectDropdown = (
 ) =>
 {
     return (
-        <div ref={popupRef} className="bg-white border rounded shadow-sm" style={popupStyle} onKeyDown={(event) => handleSelectPortalPopupKeyDown(event, wrapperRef, popupRef, closeSelect)} onBlur={(event) => closeSelectWhenPortalFocusLeaves(event, undefined, popupRef, closeSelect)}>
+        <div
+            ref={popupRef}
+            className="bg-white border rounded shadow-sm"
+            style={popupStyle}
+            onKeyDown={(event) => handleSelectPortalPopupKeyDown(event, wrapperRef, popupRef, closeSelect)}
+            onBlur={(event) => closeSelectWhenPortalFocusLeaves(event, undefined, popupRef, closeSelect)}
+        >
             <div className="px-2 py-2 border-bottom">
                 <label htmlFor={searchId} className="visually-hidden">搜尋選項</label>
                 <div className="position-relative">
@@ -119,7 +124,6 @@ const renderSearchSelectDropdown = (
     );
 };
 
-
 /** 渲染可搜尋單選選單的單一選項。 */
 const renderSearchSelectOption = (
     fieldId: string,
@@ -146,14 +150,16 @@ const renderSearchSelectOption = (
             aria-disabled={item.disabled || undefined}
             onMouseEnter={() => setActiveIndex(index)}
             onMouseDown={(event) => event.preventDefault()}
-            onClick={() => { if (!item.disabled) selectOption(item); }}
+            onClick={() =>
+            {
+                if (!item.disabled) selectOption(item);
+            }}
         >
             <span className="me-2" aria-hidden="true">{isSelected ? "✓" : ""}</span>
             <span>{item.label}</span>
         </li>
     );
 };
-
 
 /** 建立可搜尋單選 input 樣式。 */
 const buildSearchSelectInputClass = (field: AAInputField, isOpen: boolean) => `form-select${field.errorText ? " is-invalid" : ""}${isOpen ? " shadow-md" : ""}`;
@@ -165,14 +171,26 @@ const NativeSelectSingleField = (props: { field: AAInputField; context: FieldRen
 {
     return (
         <FieldControlShell field={props.field} fieldId={props.context.fieldId} hintId={props.context.hintId} errorId={props.context.errorId}>
-            <select id={props.context.fieldId} name={props.field.key} className={buildSelectClass(props.field)} value={stringifyValue(props.field.value)} disabled={props.field.disabled} required={getNativeRequired(props.field)} aria-required={getAriaRequired(props.field)} aria-invalid={getAriaInvalid(props.field)} aria-describedby={props.context.describedBy} onFocus={applyAAFocusStyle} onBlur={clearAAFocusStyle} onChange={(event) => props.context.onChange(props.field.key, event.target.value)}>
+            <select
+                id={props.context.fieldId}
+                name={props.field.key}
+                className={buildSelectClass(props.field)}
+                value={stringifyValue(props.field.value)}
+                disabled={props.field.disabled}
+                required={getNativeRequired(props.field)}
+                aria-required={getAriaRequired(props.field)}
+                aria-invalid={getAriaInvalid(props.field)}
+                aria-describedby={props.context.describedBy}
+                onFocus={applyAAFocusStyle}
+                onBlur={clearAAFocusStyle}
+                onChange={(event) => props.context.onChange(props.field.key, event.target.value)}
+            >
                 <option value="">請選擇...</option>
                 {(props.field.options ?? []).map((item) => <option key={item.value} value={item.value} disabled={item.disabled}>{item.label}</option>)}
             </select>
         </FieldControlShell>
     );
 };
-
 
 /** 可搜尋單選選單，主欄位負責開啟，下方搜尋框負責查詢與鍵盤選取。 */
 const SearchableSelectSingleField = (props: { field: AAInputField; context: FieldRenderContext; }) =>
@@ -199,7 +217,10 @@ const SearchableSelectSingleField = (props: { field: AAInputField; context: Fiel
 
     useEffect(() => bindSelectPortalOutsideClick(isOpen, wrapperRef, popupRef, closeSelect), [isOpen]);
     useEffect(() => bindSelectPortalPosition(isOpen, wrapperRef, popupRef, setPopupStyle), [isOpen]);
-    useEffect(() => { if (isOpen) focusSearchInputWithRetry(popupRef, 0); }, [isOpen]);
+    useEffect(() =>
+    {
+        if (isOpen) focusSearchInputWithRetry(popupRef, 0);
+    }, [isOpen]);
     useEffect(() => scrollActiveSelectOptionInPopup(activeOptionId, popupRef), [activeOptionId]);
 
     /** 開啟單選搜尋選單。 */
@@ -275,14 +296,36 @@ const SearchableSelectSingleField = (props: { field: AAInputField; context: Fiel
                     onKeyDown={(event) => handleReadonlySelectInputKeyDown(event, isOpen, props.context.fieldId, optionList, activeIndexRef, selectOption, setActiveIndex, wrapperRef, popupRef, openSelect, closeSelect)}
                 />
                 <div id={statusId} className="visually-hidden" aria-live="polite" aria-atomic="true">{announceText || getSingleSelectStatusText(selectedLabel)}</div>
-                {isOpen && isBrowserDocumentReady() && createPortal(renderSearchSelectDropdown(props.field, props.context.fieldId, wrapperRef, popupRef, popupStyle, searchInputRef, filteredOptions, selectedValue, activeIndex, activeIndexRef, searchText, searchId, listboxId, activeOptionId, describedBy, updateSearch, clearSearch, selectOption, closeSelect, setActiveIndex), document.body)}
+                {isOpen && isBrowserDocumentReady()
+                    && createPortal(
+                        renderSearchSelectDropdown(
+                            props.field,
+                            props.context.fieldId,
+                            wrapperRef,
+                            popupRef,
+                            popupStyle,
+                            searchInputRef,
+                            filteredOptions,
+                            selectedValue,
+                            activeIndex,
+                            activeIndexRef,
+                            searchText,
+                            searchId,
+                            listboxId,
+                            activeOptionId,
+                            describedBy,
+                            updateSearch,
+                            clearSearch,
+                            selectOption,
+                            closeSelect,
+                            setActiveIndex,
+                        ),
+                        document.body,
+                    )}
             </div>
         </FieldControlShell>
     );
 };
-
-
-
 
 /** 綁定單選 popup 的文件層鍵盤操作，避免 focus 留在主框或 Portal input 時無法接到 ↑↓/Enter。 */
 const bindSelectSingleDocumentKeyboard = (
@@ -334,7 +377,6 @@ const bindSelectSingleDocumentKeyboard = (
     return () => document.removeEventListener("keydown", handleKeyDown, true);
 };
 
-
 /** 判斷目前鍵盤事件是否來自 selectSingle 主框或 popup。 */
 const isSelectSingleKeyboardTarget = (
     target: EventTarget | null,
@@ -349,7 +391,6 @@ const isSelectSingleKeyboardTarget = (
     if (popupRef.current?.contains(target)) return true;
     return false;
 };
-
 
 /** 控制 Select Portal 內 Tab 離開時回到原表單流程，而不是跳到 body 結尾。 */
 const handleSelectPortalPopupKeyDown = (
@@ -392,7 +433,6 @@ const handleSelectPortalPopupKeyDown = (
     }
 };
 
-
 /** ESC 關閉 Portal 後，將 focus 回到原本開啟 popup 的欄位。 */
 const focusPortalAnchor = (anchor: HTMLElement | null | undefined) =>
 {
@@ -402,14 +442,12 @@ const focusPortalAnchor = (anchor: HTMLElement | null | undefined) =>
     focusElementWithoutScroll(focusableList[0] ?? anchor);
 };
 
-
 /** focus 元素但避免瀏覽器自動捲動頁面或表格容器。 */
 const focusElementWithoutScroll = (element: HTMLElement | null | undefined) =>
 {
     if (!element) return;
     element.focus({ preventScroll: true });
 };
-
 
 /** 只捲動 popup 內部 listbox，不讓 active option 觸發 body / table 的 scroll。 */
 const scrollActiveSelectOptionInPopup = (
@@ -432,7 +470,6 @@ const scrollActiveSelectOptionInPopup = (
     });
 };
 
-
 /** 以調整 listbox.scrollTop 的方式讓選項可視，避免使用 scrollIntoView 造成頁面位移。 */
 const scrollElementIntoListbox = (element: HTMLElement, listbox: HTMLElement) =>
 {
@@ -451,7 +488,6 @@ const scrollElementIntoListbox = (element: HTMLElement, listbox: HTMLElement) =>
     }
 };
 
-
 /** focus 到指定元素後方的下一個可操作元素。 */
 const focusFirstAfterElement = (anchor: HTMLElement | null | undefined) =>
 {
@@ -461,7 +497,6 @@ const focusFirstAfterElement = (anchor: HTMLElement | null | undefined) =>
     const anchorIndex = focusableList.findIndex((element) => element === anchor || anchor.contains(element));
     focusElementWithoutScroll(focusableList.slice(anchorIndex + 1).find((element) => !anchor.contains(element)));
 };
-
 
 /** focus 到指定元素前方的上一個可操作元素。 */
 const focusLastBeforeElement = (anchor: HTMLElement | null | undefined) =>
@@ -473,7 +508,6 @@ const focusLastBeforeElement = (anchor: HTMLElement | null | undefined) =>
     const previousList = anchorIndex <= 0 ? [] : focusableList.slice(0, anchorIndex).reverse();
     focusElementWithoutScroll(previousList.find((element) => !anchor.contains(element)));
 };
-
 
 /** 綁定自製 select 的外部點擊，Portal 面板與原欄位都視為內部。 */
 const bindSelectPortalOutsideClick = (
@@ -496,7 +530,6 @@ const bindSelectPortalOutsideClick = (
     document.addEventListener("mousedown", handleMouseDown, true);
     return () => document.removeEventListener("mousedown", handleMouseDown, true);
 };
-
 
 /** 綁定 Portal 面板定位，避免 select 選單被 table/td/overflow 裁切。 */
 const bindSelectPortalPosition = (
@@ -522,7 +555,6 @@ const bindSelectPortalPosition = (
     };
 };
 
-
 /** focus 離開原欄位與 Portal 面板後關閉 select。 */
 const closeSelectWhenPortalFocusLeaves = (
     event: FocusEvent<HTMLDivElement>,
@@ -537,13 +569,15 @@ const closeSelectWhenPortalFocusLeaves = (
     window.requestAnimationFrame(() =>
     {
         const activeElement = document.activeElement;
-        if (!activeElement) { closeSelect(); return; }
+        if (!activeElement)
+        {
+            closeSelect();
+            return;
+        }
         if (wrapperRef?.current?.contains(activeElement) || popupRef.current?.contains(activeElement)) return;
         closeSelect();
     });
 };
-
-
 
 /** 處理搜尋輸入框鍵盤操作。 */
 const handleSearchInputKeyDown = (
@@ -569,42 +603,6 @@ const handleSearchInputKeyDown = (
     if (event.key === "ArrowUp") moveSelectActiveIndex(event, fieldId, optionList, activeIndexRef, -1, setActiveIndex);
     if (event.key === "Enter") commitActiveSelectOption(event, optionList, activeIndexRef, selectOption);
 };
-
-
-/** 處理選項本身的鍵盤操作。 */
-const handleSearchOptionKeyDown = (
-    event: KeyboardEvent<HTMLLIElement>,
-    fieldId: string,
-    optionList: AAInputOption[],
-    activeIndex: number,
-    selectOption: (item: AAInputOption) => void,
-    setActiveIndex: Dispatch<SetStateAction<number>>,
-) =>
-{
-    if (event.key === "ArrowDown") moveOptionFocus(event, fieldId, optionList, activeIndex, 1, setActiveIndex);
-    if (event.key === "ArrowUp") moveOptionFocus(event, fieldId, optionList, activeIndex, -1, setActiveIndex);
-    if (event.key === "Enter") commitFocusedSelectOption(event, optionList, activeIndex, selectOption);
-
-    if (event.key === "Tab" && event.shiftKey)
-    {
-        event.preventDefault();
-        focusSearchInputFromOption(event.currentTarget);
-        return;
-    }
-
-    if (event.key === "Tab")
-    {
-        event.preventDefault();
-        focusPortalAnchorFromOption(event.currentTarget);
-    }
-
-    if (event.key === "Escape")
-    {
-        event.preventDefault();
-        focusPortalAnchorFromOption(event.currentTarget);
-    }
-};
-
 
 /** 處理已選文字欄位的鍵盤開關。 */
 const handleReadonlySelectInputKeyDown = (
@@ -632,7 +630,12 @@ const handleReadonlySelectInputKeyDown = (
     if (event.key === "ArrowDown")
     {
         event.preventDefault();
-        if (!isOpen) { openSelect(); focusSearchInputWithRetry(popupRef, 0); return; }
+        if (!isOpen)
+        {
+            openSelect();
+            focusSearchInputWithRetry(popupRef, 0);
+            return;
+        }
         moveSelectActiveIndex(event, fieldId, optionList, activeIndexRef, 1, setActiveIndex);
         return;
     }
@@ -640,7 +643,12 @@ const handleReadonlySelectInputKeyDown = (
     if (event.key === "ArrowUp")
     {
         event.preventDefault();
-        if (!isOpen) { openSelect(); focusSearchInputWithRetry(popupRef, 0); return; }
+        if (!isOpen)
+        {
+            openSelect();
+            focusSearchInputWithRetry(popupRef, 0);
+            return;
+        }
         moveSelectActiveIndex(event, fieldId, optionList, activeIndexRef, -1, setActiveIndex);
         return;
     }
@@ -648,7 +656,12 @@ const handleReadonlySelectInputKeyDown = (
     if (event.key === "Enter")
     {
         event.preventDefault();
-        if (!isOpen) { openSelect(); focusSearchInputWithRetry(popupRef, 0); return; }
+        if (!isOpen)
+        {
+            openSelect();
+            focusSearchInputWithRetry(popupRef, 0);
+            return;
+        }
         commitActiveSelectOption(event, optionList, activeIndexRef, selectOption);
         return;
     }
@@ -661,70 +674,6 @@ const handleReadonlySelectInputKeyDown = (
     }
 };
 
-
-/** 從 search 以方向鍵/Enter 進入 option，後續由 option 本身接 ↑↓/Enter。 */
-const focusSingleOptionFromSearch = (
-    fieldId: string,
-    optionList: AAInputOption[],
-    activeIndexRef: MutableRefObject<number>,
-    step: number,
-    setActiveIndex: Dispatch<SetStateAction<number>>,
-) =>
-{
-    const nextIndex = getNextEnabledSearchOptionIndex(optionList, activeIndexRef.current, step);
-    if (nextIndex < 0) return false;
-
-    setSelectActiveIndex(nextIndex, activeIndexRef, setActiveIndex);
-    focusSearchOption(fieldId, optionList[nextIndex].value);
-    return true;
-};
-
-
-/** 從 search 進入第一個可用 item，成功時回傳 true。 */
-const focusFirstSingleOption = (
-    fieldId: string,
-    optionList: AAInputOption[],
-    activeIndex: number,
-    setActiveIndex: Dispatch<SetStateAction<number>>,
-) =>
-{
-    const targetIndex = getEnabledOptionIndex(optionList, activeIndex);
-    if (targetIndex < 0) return false;
-
-    setActiveIndex(targetIndex);
-    focusSearchOption(fieldId, optionList[targetIndex].value);
-    return true;
-};
-
-
-/** option Shift + Tab 時回到同一個 popup 內的 search。 */
-const focusSearchInputFromOption = (optionElement: HTMLElement) =>
-{
-    const popup = optionElement.closest("[role='dialog']");
-    const searchInput = popup?.querySelector<HTMLInputElement>("input[type='text']");
-    focusElementWithoutScroll(searchInput);
-};
-
-
-/** 從 Portal 選項回到原本的 selectSingle 主框。 */
-const focusPortalAnchorFromOption = (optionElement: HTMLElement) =>
-{
-    const fieldId = getFieldIdFromSearchOptionId(optionElement.id);
-    const anchor = fieldId ? document.getElementById(fieldId) as HTMLElement | null : null;
-
-    if (anchor) focusElementWithoutScroll(anchor);
-};
-
-
-/** 從 option id 反推欄位 id。 */
-const getFieldIdFromSearchOptionId = (optionId: string) =>
-{
-    const separator = "-option-";
-    const index = optionId.indexOf(separator);
-    return index > 0 ? optionId.slice(0, index) : "";
-};
-
-
 /** 等待 Portal render 後 focus 到 search 欄位。 */
 const focusSearchInputWithRetry = (popupRef: RefObject<HTMLDivElement>, retryCount: number) =>
 {
@@ -733,31 +682,14 @@ const focusSearchInputWithRetry = (popupRef: RefObject<HTMLDivElement>, retryCou
     window.requestAnimationFrame(() =>
     {
         const searchInput = popupRef.current?.querySelector<HTMLInputElement>("input[type='text']");
-        if (searchInput) { focusElementWithoutScroll(searchInput); return; }
+        if (searchInput)
+        {
+            focusElementWithoutScroll(searchInput);
+            return;
+        }
         if (retryCount < 5) focusSearchInputWithRetry(popupRef, retryCount + 1);
     });
 };
-
-
-/** 移動選項焦點。 */
-const moveOptionFocus = (
-    event: KeyboardEvent<HTMLElement>,
-    fieldId: string,
-    optionList: AAInputOption[],
-    activeIndex: number,
-    step: number,
-    setActiveIndex: Dispatch<SetStateAction<number>>,
-) =>
-{
-    event.preventDefault();
-
-    const nextIndex = getNextEnabledIndex(optionList, activeIndex, step);
-    if (nextIndex < 0) return;
-
-    setActiveIndex(nextIndex);
-    focusSearchOption(fieldId, optionList[nextIndex].value);
-};
-
 
 /** 取得目前可用選項 index。 */
 const getEnabledOptionIndex = (optionList: AAInputOption[], activeIndex: number) =>
@@ -765,15 +697,6 @@ const getEnabledOptionIndex = (optionList: AAInputOption[], activeIndex: number)
     if (activeIndex >= 0 && activeIndex < optionList.length && optionList[activeIndex] && !optionList[activeIndex].disabled) return activeIndex;
     return optionList.findIndex((item) => !item.disabled);
 };
-
-
-/** focus 指定選項。 */
-const focusSearchOption = (fieldId: string, value: string) =>
-{
-    if (!isBrowserDocumentReady()) return;
-    window.requestAnimationFrame(() => document.getElementById(getSearchOptionId(fieldId, value))?.focus());
-};
-
 
 /** 取得下一個可用選項 index，SelectSingle 專用避免與其他檔案 helper 撞名。 */
 const getNextEnabledSearchOptionIndex = (optionList: AAInputOption[], activeIndex: number, step: number) =>
@@ -791,14 +714,12 @@ const getNextEnabledSearchOptionIndex = (optionList: AAInputOption[], activeInde
     return activeIndex;
 };
 
-
 /** 同步設定 active index，避免 Enter 抓到上一次 render 的舊值。 */
 const setSelectActiveIndex = (nextIndex: number, activeIndexRef: MutableRefObject<number>, setActiveIndex: Dispatch<SetStateAction<number>>) =>
 {
     activeIndexRef.current = nextIndex;
     setActiveIndex(nextIndex);
 };
-
 
 /** 文件層鍵盤事件：移動可搜尋選單的 active option。 */
 const moveSelectActiveIndexFromNativeEvent = (
@@ -818,7 +739,6 @@ const moveSelectActiveIndexFromNativeEvent = (
     scrollOptionIntoViewByIndex(fieldId, optionList, nextIndex);
 };
 
-
 /** 文件層鍵盤事件：選取目前 active option。 */
 const commitActiveSelectOptionFromNativeEvent = (
     event: globalThis.KeyboardEvent,
@@ -837,7 +757,6 @@ const commitActiveSelectOptionFromNativeEvent = (
     selectOption(item);
 };
 
-
 /** 移動可搜尋選單的鍵盤焦點。 */
 const moveSelectActiveIndex = (
     event: KeyboardEvent<HTMLInputElement>,
@@ -854,7 +773,6 @@ const moveSelectActiveIndex = (
     setSelectActiveIndex(nextIndex, activeIndexRef, setActiveIndex);
     scrollOptionIntoViewByIndex(fieldId, optionList, nextIndex);
 };
-
 
 /** Enter 時選取目前 active option。 */
 const commitActiveSelectOption = (
@@ -873,23 +791,6 @@ const commitActiveSelectOption = (
     selectOption(item);
 };
 
-
-/** option focus 中按 Enter 時選取目前 option。 */
-const commitFocusedSelectOption = (
-    event: KeyboardEvent<HTMLElement>,
-    optionList: AAInputOption[],
-    activeIndex: number,
-    selectOption: (item: AAInputOption) => void,
-) =>
-{
-    const item = optionList[activeIndex];
-    if (!item || item.disabled) return;
-
-    event.preventDefault();
-    selectOption(item);
-};
-
-
 /** 確保鍵盤移動時 active option 會進入可視範圍。 */
 const scrollOptionIntoViewByIndex = (fieldId: string, optionList: AAInputOption[], activeIndex: number) =>
 {
@@ -902,14 +803,12 @@ const scrollOptionIntoViewByIndex = (fieldId: string, optionList: AAInputOption[
     });
 };
 
-
 /** 取得打開選單時預設 active index。 */
 const getInitialSelectActiveIndex = (optionList: AAInputOption[], selectedValue: string) =>
 {
     const selectedIndex = optionList.findIndex((item) => item.value === selectedValue && !item.disabled);
     return selectedIndex >= 0 ? selectedIndex : getFirstEnabledIndex(optionList);
 };
-
 
 /** 取得單選狀態文字。 */
 const getSingleSelectStatusText = (selectedLabel: string) => selectedLabel ? `目前已選取：${selectedLabel}` : "目前尚未選取項目";

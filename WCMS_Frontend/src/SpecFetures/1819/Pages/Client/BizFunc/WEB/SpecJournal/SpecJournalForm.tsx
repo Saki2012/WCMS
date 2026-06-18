@@ -1,6 +1,6 @@
 import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
-import { ModuleContent, type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/Layouts/RightFrame/ModuleContent";
+import { ModuleContent, type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent";
 import { useBreadcrumb } from "@/Features/Pages/Client/Scaffold/SubPages/Module/BreadCrumb/BreadCrumb_Comp";
 import insightpointImg1 from "@/SpecFetures/1819/Assets/Client/images/links/150x32/InSight_Point_bt_150x32.svg";
 import insightpointImg2 from "@/SpecFetures/1819/Assets/Client/images/links/150x32/InSight_Point_bt_W_150x32.svg";
