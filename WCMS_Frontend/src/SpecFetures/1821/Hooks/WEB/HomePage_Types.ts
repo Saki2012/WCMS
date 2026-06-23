@@ -39,6 +39,7 @@ export interface SpecHomePage1821Banner
     Title?: string | null;
     SubTitle?: string | null;
     BannerFileId?: string | null;
+    BannerFile?: FileManageDto | null;
     BannerFileDescription?: string | null;
     Link?: string | null;
     IsHide?: boolean | null;
@@ -53,6 +54,7 @@ export interface SpecHomePage1821Shortcut
     Title?: string | null;
     SubTitle?: string | null;
     IconFileId?: string | null;
+    IconFile?: FileManageDto | null;
     IconFileDescription?: string | null;
     ActionType?: string | null;
     ActionValue?: string | null;
@@ -160,6 +162,8 @@ export const SpecHomePage1821ModelFields = {
     InternalId: "InternalId",
     HomePageId: "HomePageId",
     Lang: "Lang",
+    Section3Title: "Section3Title",
+    Section3SubTitle: "Section3SubTitle",
     Card1Title: "Card1Title",
     Card1PicId: "Card1PicId",
     Card2Title: "Card2Title",
