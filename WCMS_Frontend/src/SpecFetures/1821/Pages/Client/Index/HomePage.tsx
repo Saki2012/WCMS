@@ -1,5 +1,5 @@
 import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
-import { type Lang } from "@/SysCore/i18n/lang";
+import type { Lang } from "@/SysCore/i18n/lang";
 import { useHomePageTemplateData } from "./HomePage_Loader";
 import { Section1 } from "./Section/Section1";
 import { Section2 } from "./Section/Section2";
@@ -18,14 +18,23 @@ export const HomePage = (props: { lang: Lang; }) =>
     return (
         <>
             <Section1 lang={props.lang} data={rawData.banners} />
+            {/* biome-ignore lint/correctness/useUniqueElementIds: Site-Main is the shared client landmark id used by skip links. */}
             <main id="Site-Main" className="ALL_Main_DivBar main-fullpage-wraper">
                 <div className="background_area spec1821-home">
                     <div className="container-customize3" style={{ height: 0 }}>
                         <Accesskey type="C" lang={props.lang} />
                     </div>
                     <Section2 lang={props.lang} data={rawData.shortcuts} />
-                    <Section3 lang={props.lang} header={rawData.homePage} data={rawData.featureCards} />
-                    <Section4 lang={props.lang} header={rawData.homePage} data={rawData.relatedLinks} />
+                    <Section3
+                        lang={props.lang}
+                        header={rawData.homePage}
+                        data={rawData.featureCards}
+                    />
+                    <Section4
+                        lang={props.lang}
+                        header={rawData.homePage}
+                        data={rawData.linkList}
+                    />
                 </div>
             </main>
         </>

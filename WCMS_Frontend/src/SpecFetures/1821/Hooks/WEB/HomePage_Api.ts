@@ -1,11 +1,10 @@
 import { ApiDataAdapter } from "@/SysCore/Utils/API/APIAdapter";
 import { ApiDataService } from "@/SysCore/Utils/API/APIClient";
-import type { components } from "@/types/api";
-import { PGID } from "@/types/SchemaFields";
+import type { PGID } from "@/types/SchemaFields";
 import type { AxiosInstance } from "axios";
+import type { SpecHomePage1821Set } from "./HomePage_Types";
 
 // #region Property
-type SpecHomePage1821Set = components["schemas"]["SpecHomePage1821Set_DTO"];
 const SPEC_HOME_PAGE_1821_API = "SpecHomePage1821Api" as PGID;
 // #endregion
 
@@ -20,11 +19,16 @@ export class SpecHomePage1821Service extends ApiDataService<SpecHomePage1821Set>
     // #endregion
 }
 
-export class SpecHomePage1821AdapterImpl extends ApiDataAdapter<SpecHomePage1821Set, SpecHomePage1821Service>
+export class SpecHomePage1821AdapterImpl extends ApiDataAdapter<
+    SpecHomePage1821Set,
+    SpecHomePage1821Service
+>
 {}
 
 export const SpecHomePage1821Adapter = (apiInstance?: AxiosInstance) =>
 {
-    return new SpecHomePage1821AdapterImpl((api?: AxiosInstance) => new SpecHomePage1821Service(api ?? apiInstance));
+    return new SpecHomePage1821AdapterImpl(
+        (api?: AxiosInstance) => new SpecHomePage1821Service(api ?? apiInstance),
+    );
 };
 // #endregion
