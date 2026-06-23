@@ -9,7 +9,7 @@ public class SystemVersion_Biz
     {
         SystemVersion_DTO data = new()
         {
-            FeatVersion = 0,
+            FeatVersion = 1,
             ModelVersion = 0,
         };
         SetSpecVersion(data);

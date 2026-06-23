@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using WCMS.Features._Resx;
+using WCMS.Features.WEB.PageManagement;
 using WCMS.SysCore;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Interface;
@@ -153,11 +154,12 @@ namespace WCMS.Features.WEB.Announcement
         #endregion
 
         #region Protected
-        private void CheckData(AnnouncementSet set)
+        protected void CheckData(AnnouncementSet set)
         {
+            AACheck(set);
             CheckDateIsEmpty(set);
         }
-        private void SetData(AnnouncementSet set)
+        protected void SetData(AnnouncementSet set)
         {
             DoRemergeData(set.Announcement);
         }
@@ -165,13 +167,24 @@ namespace WCMS.Features.WEB.Announcement
 
         #region Private
 
-
+        /// <summary>
+        /// 檢查AAContent，將舊資料的AAContent轉成新的格式
+        /// </summary>
+        /// <param name="langDt"></param>
+        private void AACheck(AnnouncementSet set)
+        {
+            if (!SpecSettings.AACheck) return;
+            set.AnnouncementDetail.ForEach(dt =>
+            {
+                if (dt.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.AACode00003, dt.Lang.ToLabel(), I18nCache.GetLabel<AnnouncementDetail_DTO>(x => x.Title));
+                if (LibAAData.CheckAAContent(dt.Content, Message, out string newContent)) dt.Content = newContent;
+            });
+        }
         private void CheckDateIsEmpty(AnnouncementSet set)
         {
             if (set.Announcement.Validate_Start == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Announcement_DTO>(x => x.Validate_Start));
             if (set.Announcement.Validate_End != null && set.Announcement.Validate_Start >= set.Announcement.Validate_End) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014, I18nCache.GetLabel<Announcement_DTO>(x => x.Validate_End), I18nCache.GetLabel<Announcement_DTO>(x => x.Validate_Start));
             if (set.Announcement.Categories == "") Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Announcement_DTO>(x => x.Categories));
-            if(set.AnnouncementDetail.FirstOrDefault(p=>p.Lang==SiteDefaultLang) == null || set.AnnouncementDetail.FirstOrDefault(p => p.Lang==SiteDefaultLang).Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, SiteDefaultLang.ToLabel(), I18nCache.GetLabel<AnnouncementDetail_DTO>(x => x.Title));
         }
 
         /// <summary>

@@ -67,7 +67,7 @@ namespace WCMS.Features.WEB.Announcement
         /// <summary>
         /// 語系
         /// </summary>
-        public LangCode? Lang { get; set; }
+        public LangCode Lang { get; set; }
         /// <summary>
         /// 標題
         /// </summary>
