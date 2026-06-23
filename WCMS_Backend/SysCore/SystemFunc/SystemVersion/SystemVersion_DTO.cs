@@ -6,6 +6,8 @@ public class SystemVersion_DTO
 
     public int ModelVersion { get; set; }
 
+    public int Patch { get; set; }
+
     public string? SpecCode { get; set; }
 
     public string? SpecTitle { get; set; }

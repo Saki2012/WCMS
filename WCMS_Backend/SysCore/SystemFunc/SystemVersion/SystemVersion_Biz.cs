@@ -9,11 +9,12 @@ public class SystemVersion_Biz
     {
         SystemVersion_DTO data = new()
         {
-            FeatVersion = 1,
+            FeatVersion = 0,
             ModelVersion = 0,
+            Patch = 1,
         };
         SetSpecVersion(data);
-        string version = $@"1.{data.FeatVersion}.{data.ModelVersion}";
+        string version = $@"1.{data.FeatVersion}.{data.ModelVersion}.{data.Patch}";
         if (data.SpecCode != null && data.SpecTitle != null && data.SpecFeatVersion != null && data.SpecModelVersion != null)
             version = LibData.Merge("-", false, version, $@"R{data.SpecFeatVersion}.{data.SpecModelVersion}");
         return version;
