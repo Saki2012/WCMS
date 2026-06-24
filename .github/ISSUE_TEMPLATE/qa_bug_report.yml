@@ -1,0 +1,113 @@
+name: QA Bug Report
+description: QA 回報 Bug / 測試問題
+labels: ["bug"]
+projects: ["Saki2012/2"]
+
+body:
+  - type: dropdown
+    id: test_type
+    attributes:
+      label: 一、測項類型
+      description: 請選擇這次問題是透過哪一類測試發現。
+      options:
+        - 探索式
+        - 回歸
+        - 邊界值
+        - 例外流程
+        - 相容性
+      default: 0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: 二、嚴重度
+      description: 請先依 QA 觀察到的影響程度初判，RD 後續可再調整。
+      options:
+        - S1 阻斷
+        - S2 主要流程
+        - S3 一般問題
+        - S4 優化
+      default: 2
+    validations:
+      required: true
+
+  - type: dropdown
+    id: reproducible
+    attributes:
+      label: 三、可重現性
+      description: 請依照目前測試結果選擇。
+      options:
+        - 穩定重現
+        - 偶發
+        - 無法重現
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: 四、測試環境
+      value: |
+        - 環境：本機 / 測試機 / 正式機
+        - 測試網址：
+        - 瀏覽器：
+        - 裝置：PC / 手機 / 平板
+        - 語系：
+        - 帳號角色：
+        - 是否使用 LINE 內建瀏覽器：是 / 否
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 五、重現步驟
+      description: 請寫到 RD 可以照著操作重現。
+      placeholder: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 六、預期結果
+      description: 正常情況下應該看到什麼？
+      placeholder: 例如：頁面應正常顯示公告明細內容。
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: 七、實際結果
+      description: 目前實際發生什麼問題？
+      placeholder: 例如：頁面顯示空白，Console 出現錯誤訊息。
+    validations:
+      required: true
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: 八、附件 / 錯誤紀錄
+      description: 可貼截圖、影片、Console、Network、Log，或描述附件內容。
+      placeholder: |
+        - 截圖：
+        - 影片：
+        - Console 錯誤：
+        - Network 錯誤：
+    validations:
+      required: false
+
+  - type: textarea
+    id: qa_note
+    attributes:
+      label: 九、QA 補充說明
+      description: 其他補充、懷疑原因、相關 Issue 或 PR。沒有可留空。
+    validations:
+      required: false

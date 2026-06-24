@@ -1,0 +1,176 @@
+name: Sync QA Issue Fields to Project
+
+on:
+  issues:
+    types:
+      - opened
+      - edited
+      - labeled
+
+permissions:
+  contents: read
+  issues: read
+
+jobs:
+  sync_issue_project_fields:
+    if: contains(github.event.issue.labels.*.name, 'bug')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Sync issue form fields to project
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PROJECT_SYNC_TOKEN }}
+          script: |
+            const projectOwner = 'Saki2012';
+            const projectNumber = 2;
+            const issueNodeId = context.payload.issue.node_id;
+            const issueBody = context.payload.issue.body || '';
+
+            // 從 Issue Form 產生的 Markdown 內容中抓指定欄位值
+            const getFormValue = (title) => {
+              const escapedTitle = title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+              const regex = new RegExp(`###\\s*${escapedTitle}\\s*\\n+([\\s\\S]*?)(?=\\n###\\s|$)`, 'm');
+              const match = issueBody.match(regex);
+
+              if (!match) {
+                return '';
+              }
+
+              return match[1].trim().split('\n')[0].trim();
+            };
+
+            // QA 開單時需要同步到 Project 的欄位
+            const syncValues = {
+              '測項類型': getFormValue('一、測項類型'),
+              '嚴重度': getFormValue('二、嚴重度'),
+              '可重現性': getFormValue('三、可重現性'),
+            };
+
+            core.info(`Issue values: ${JSON.stringify(syncValues)}`);
+
+            // 等待 Project auto-add workflow 先執行
+            await new Promise(resolve => setTimeout(resolve, 5000));
+
+            const getProjectQuery = `
+              query($login: String!, $number: Int!) {
+                user(login: $login) {
+                  projectV2(number: $number) {
+                    id
+                    fields(first: 50) {
+                      nodes {
+                        ... on ProjectV2SingleSelectField {
+                          id
+                          name
+                          options {
+                            id
+                            name
+                          }
+                        }
+                      }
+                    }
+                    items(first: 100) {
+                      nodes {
+                        id
+                        content {
+                          ... on Issue {
+                            id
+                            number
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+
+            const loadProject = async () => {
+              const result = await github.graphql(getProjectQuery, {
+                login: projectOwner,
+                number: projectNumber,
+              });
+
+              return result.user.projectV2;
+            };
+
+            let project = await loadProject();
+            let projectItem = project.items.nodes.find(item => item.content?.id === issueNodeId);
+
+            // 若還沒被 Project workflow 加入，這裡補加一次
+            if (!projectItem) {
+              core.warning('Project item not found. Trying to add issue to project.');
+
+              const addResult = await github.graphql(`
+                mutation($projectId: ID!, $contentId: ID!) {
+                  addProjectV2ItemById(input: {
+                    projectId: $projectId
+                    contentId: $contentId
+                  }) {
+                    item {
+                      id
+                    }
+                  }
+                }
+              `, {
+                projectId: project.id,
+                contentId: issueNodeId,
+              });
+
+              projectItem = addResult.addProjectV2ItemById.item;
+            }
+
+            // 同步 Single select 欄位
+            const updateSingleSelectField = async (fieldName, optionName) => {
+              if (!optionName) {
+                core.warning(`Skip ${fieldName}: empty option value.`);
+                return;
+              }
+
+              const field = project.fields.nodes.find(item => item.name === fieldName);
+
+              if (!field) {
+                core.warning(`Skip ${fieldName}: project field not found.`);
+                return;
+              }
+
+              const option = field.options.find(item => item.name === optionName);
+
+              if (!option) {
+                core.warning(`Skip ${fieldName}: option "${optionName}" not found.`);
+                return;
+              }
+
+              await github.graphql(`
+                mutation(
+                  $projectId: ID!
+                  $itemId: ID!
+                  $fieldId: ID!
+                  $optionId: String!
+                ) {
+                  updateProjectV2ItemFieldValue(input: {
+                    projectId: $projectId
+                    itemId: $itemId
+                    fieldId: $fieldId
+                    value: {
+                      singleSelectOptionId: $optionId
+                    }
+                  }) {
+                    projectV2Item {
+                      id
+                    }
+                  }
+                }
+              `, {
+                projectId: project.id,
+                itemId: projectItem.id,
+                fieldId: field.id,
+                optionId: option.id,
+              });
+
+              core.info(`Synced ${fieldName} = ${optionName}`);
+            };
+
+            for (const [fieldName, optionName] of Object.entries(syncValues)) {
+              await updateSingleSelectField(fieldName, optionName);
+            }
