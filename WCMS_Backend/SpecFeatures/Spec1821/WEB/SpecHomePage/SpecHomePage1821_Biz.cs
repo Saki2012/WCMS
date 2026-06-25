@@ -52,7 +52,6 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
         set.SpecHomePage1821_FeatureCard ??= [];
         set.SpecHomePage1821_RelatedLink ??= [];
 
-        string homePageId = set.SpecHomePage1821?.HomePageId ?? string.Empty;
         if (set.SpecHomePage1821 != null)
         {
             set.SpecHomePage1821.Card1PicId = NormalizeRelationId(set.SpecHomePage1821.Card1PicId);
@@ -60,9 +59,9 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
             set.SpecHomePage1821.LinkOptions = NormalizeOptionsJson(set.SpecHomePage1821.LinkOptions);
         }
 
-        NormalizeBanner(set.SpecHomePage1821_Banner, homePageId);
-        NormalizeShortcut(set.SpecHomePage1821_Shortcut, homePageId);
-        NormalizeShortcutModuleItem(set.SpecHomePage1821_ShortcutModuleItem, set.SpecHomePage1821_Shortcut, homePageId);
+        NormalizeBanner(set.SpecHomePage1821_Banner);
+        NormalizeShortcut(set.SpecHomePage1821_Shortcut);
+        NormalizeShortcutModuleItem(set.SpecHomePage1821_ShortcutModuleItem, set.SpecHomePage1821_Shortcut);
     }
 
     private void CheckHeader(SpecHomePage1821Model header)
@@ -131,21 +130,19 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
         }
     }
 
-    private static void NormalizeBanner(List<SpecHomePage1821_Banner> rows, string homePageId)
+    private static void NormalizeBanner(List<SpecHomePage1821_Banner> rows)
     {
         for (int i = 0; i < rows.Count; i++)
         {
-            rows[i].HomePageId = ResolveChildHomePageId(rows[i].HomePageId, homePageId);
             rows[i].BannerFileId = NormalizeRelationId(rows[i].BannerFileId);
             if (rows[i].RowNo <= 0) rows[i].RowNo = i + 1;
         }
     }
 
-    private static void NormalizeShortcut(List<SpecHomePage1821_Shortcut> rows, string homePageId)
+    private static void NormalizeShortcut(List<SpecHomePage1821_Shortcut> rows)
     {
         for (int i = 0; i < rows.Count; i++)
         {
-            rows[i].HomePageId = ResolveChildHomePageId(rows[i].HomePageId, homePageId);
             rows[i].IconFileId = NormalizeRelationId(rows[i].IconFileId);
             rows[i].LinkPicId = NormalizeRelationId(rows[i].LinkPicId);
             if (rows[i].RowNo <= 0) rows[i].RowNo = i + 1;
@@ -156,7 +153,7 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
         }
     }
 
-    private static void NormalizeShortcutModuleItem(List<SpecHomePage1821_ShortcutModuleItem> rows, List<SpecHomePage1821_Shortcut> shortcuts, string homePageId)
+    private static void NormalizeShortcutModuleItem(List<SpecHomePage1821_ShortcutModuleItem> rows, List<SpecHomePage1821_Shortcut> shortcuts)
     {
         HashSet<int> linkParentRowIds = shortcuts.Where(item => item.IsLink).Select(item => item.RowId).ToHashSet();
         rows.RemoveAll(item => linkParentRowIds.Contains(item.ParentRowId));
@@ -164,19 +161,12 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
         Dictionary<int, int> rowIndexByParent = [];
         foreach (var row in rows)
         {
-            row.HomePageId = ResolveChildHomePageId(row.HomePageId, homePageId);
             row.ModuleOptions = NormalizeOptionsJson(row.ModuleOptions);
 
             if (!rowIndexByParent.ContainsKey(row.ParentRowId)) rowIndexByParent[row.ParentRowId] = 0;
             rowIndexByParent[row.ParentRowId]++;
             if (row.RowNo <= 0) row.RowNo = rowIndexByParent[row.ParentRowId];
         }
-    }
-
-    private static string ResolveChildHomePageId(string? childHomePageId, string? parentHomePageId)
-    {
-        if (!childHomePageId.IsNullOrEmpty()) return childHomePageId;
-        return parentHomePageId ?? string.Empty;
     }
 
     private static string NormalizeOptionsJson(string? options)
