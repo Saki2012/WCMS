@@ -8,8 +8,6 @@
   <data name="SpecHomePage1821_Banner" xml:space="preserve"><value>Section1 Banner清單</value></data>
   <data name="SpecHomePage1821_Shortcut" xml:space="preserve"><value>Section2 快捷按鈕</value></data>
   <data name="SpecHomePage1821_ShortcutModuleItem" xml:space="preserve"><value>Section2 模組子項目</value></data>
-  <data name="SpecHomePage1821_FeatureCard" xml:space="preserve"><value>Section3 招生特色卡片</value></data>
-  <data name="SpecHomePage1821_RelatedLink" xml:space="preserve"><value>Section4 相關連結</value></data>
   <data name="Spec_HomePageId" xml:space="preserve"><value>首頁設定ID</value></data>
   <data name="Spec_Section3Title" xml:space="preserve"><value>Section3標題</value></data>
   <data name="Spec_Section3SubTitle" xml:space="preserve"><value>Section3副標題</value></data>
@@ -36,6 +34,4 @@
   <data name="Spec_ModuleType_FileArchive" xml:space="preserve"><value>檔案室</value></data>
   <data name="Spec_ModuleOptions" xml:space="preserve"><value>條件參數</value></data>
   <data name="Spec_MoreViewLink" xml:space="preserve"><value>查看更多連結</value></data>
-  <data name="Spec_PictureId" xml:space="preserve"><value>圖片</value></data>
-  <data name="Spec_PictureDescription" xml:space="preserve"><value>圖片說明</value></data>
 </root>

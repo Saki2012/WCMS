@@ -49,8 +49,6 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
         set.SpecHomePage1821_Banner ??= [];
         set.SpecHomePage1821_Shortcut ??= [];
         set.SpecHomePage1821_ShortcutModuleItem ??= [];
-        set.SpecHomePage1821_FeatureCard ??= [];
-        set.SpecHomePage1821_RelatedLink ??= [];
 
         if (set.SpecHomePage1821 != null)
         {

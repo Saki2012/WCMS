@@ -8,8 +8,6 @@
   <data name="SpecHomePage1821_Banner" xml:space="preserve"><value>Section1 banner list</value></data>
   <data name="SpecHomePage1821_Shortcut" xml:space="preserve"><value>Section2 shortcuts</value></data>
   <data name="SpecHomePage1821_ShortcutModuleItem" xml:space="preserve"><value>Section2 module items</value></data>
-  <data name="SpecHomePage1821_FeatureCard" xml:space="preserve"><value>Section3 feature cards</value></data>
-  <data name="SpecHomePage1821_RelatedLink" xml:space="preserve"><value>Section4 related links</value></data>
   <data name="Spec_HomePageId" xml:space="preserve"><value>Home page ID</value></data>
   <data name="Spec_Section3Title" xml:space="preserve"><value>Section3 title</value></data>
   <data name="Spec_Section3SubTitle" xml:space="preserve"><value>Section3 subtitle</value></data>
@@ -36,6 +34,4 @@
   <data name="Spec_ModuleType_FileArchive" xml:space="preserve"><value>File archive</value></data>
   <data name="Spec_ModuleOptions" xml:space="preserve"><value>Module options</value></data>
   <data name="Spec_MoreViewLink" xml:space="preserve"><value>View more link</value></data>
-  <data name="Spec_PictureId" xml:space="preserve"><value>Picture</value></data>
-  <data name="Spec_PictureDescription" xml:space="preserve"><value>Picture description</value></data>
 </root>

@@ -2,59 +2,55 @@ namespace WCMS.SpecFeatures.Spec1821._Resx;
 
 public static class SpecModelDisplayName
 {
-    /// <summary>1821招生首頁設定表</summary>
+    /// <summary>1821 招生首頁設定</summary>
     public const string SpecHomePage1821 = nameof(SpecHomePage1821);
-    /// <summary>1821招生首頁 Banner 子表</summary>
+    /// <summary>1821 招生首頁 Banner 明細</summary>
     public const string SpecHomePage1821_Banner = nameof(SpecHomePage1821_Banner);
-    /// <summary>1821招生首頁快捷按鈕子表</summary>
+    /// <summary>1821 招生首頁快捷按鈕明細</summary>
     public const string SpecHomePage1821_Shortcut = nameof(SpecHomePage1821_Shortcut);
-    /// <summary>1821招生首頁快捷按鈕模組子項目</summary>
+    /// <summary>1821 招生首頁快捷按鈕模組子項目</summary>
     public const string SpecHomePage1821_ShortcutModuleItem = nameof(SpecHomePage1821_ShortcutModuleItem);
-    /// <summary>1821招生首頁特色卡片子表</summary>
-    public const string SpecHomePage1821_FeatureCard = nameof(SpecHomePage1821_FeatureCard);
-    /// <summary>1821招生首頁相關連結子表</summary>
-    public const string SpecHomePage1821_RelatedLink = nameof(SpecHomePage1821_RelatedLink);
-    /// <summary>首頁設定表 ID</summary>
+    /// <summary>首頁設定 ID</summary>
     public const string HomePageId = "Spec_HomePageId";
     /// <summary>Section3 標題</summary>
     public const string Section3Title = "Spec_Section3Title";
     /// <summary>Section3 副標題</summary>
     public const string Section3SubTitle = "Spec_Section3SubTitle";
-    /// <summary>圖片區塊1標題</summary>
+    /// <summary>卡片一標題</summary>
     public const string Card1Title = "Spec_Card1Title";
-    /// <summary>圖片區塊1圖片來源</summary>
+    /// <summary>卡片一圖片</summary>
     public const string Card1PicId = "Spec_Card1PicId";
-    /// <summary>圖片區塊2標題</summary>
+    /// <summary>卡片二標題</summary>
     public const string Card2Title = "Spec_Card2Title";
-    /// <summary>圖片區塊2圖片來源</summary>
+    /// <summary>卡片二圖片</summary>
     public const string Card2PicId = "Spec_Card2PicId";
     /// <summary>Section4 標題</summary>
     public const string Section4Title = "Spec_Section4Title";
     /// <summary>Section4 副標題</summary>
     public const string Section4SubTitle = "Spec_Section4SubTitle";
-    /// <summary>相關連結條件參數</summary>
+    /// <summary>相關連結設定</summary>
     public const string LinkOptions = "Spec_LinkOptions";
-    /// <summary>相關連結查看更多網址</summary>
+    /// <summary>相關連結查看更多連結</summary>
     public const string LinkViewMore = "Spec_LinkViewMore";
-    /// <summary>顯示排序</summary>
+    /// <summary>顯示順序</summary>
     public const string RowNo = "Spec_RowNo";
-    /// <summary>Banner 圖片來源</summary>
+    /// <summary>Banner 圖片</summary>
     public const string BannerFileId = "Spec_BannerFileId";
     /// <summary>Banner 圖片說明</summary>
     public const string BannerFileDescription = "Spec_BannerFileDescription";
     /// <summary>快捷按鈕代碼</summary>
     public const string ShortcutCode = "Spec_ShortcutCode";
-    /// <summary>圖示檔案來源</summary>
+    /// <summary>圖示檔案</summary>
     public const string IconFileId = "Spec_IconFileId";
     /// <summary>圖示檔案說明</summary>
     public const string IconFileDescription = "Spec_IconFileDescription";
-    /// <summary>動作類型，暫定給 Section2 後續串功能使用</summary>
+    /// <summary>動作類型，提供 Section2 功能串聯使用</summary>
     public const string ActionType = "Spec_ActionType";
-    /// <summary>動作值，暫定給 Section2 後續串功能使用</summary>
+    /// <summary>動作值，提供 Section2 功能串聯使用</summary>
     public const string ActionValue = "Spec_ActionValue";
-    /// <summary>是否為連結 Tab</summary>
+    /// <summary>是否為單一連結 Tab</summary>
     public const string IsLink = "Spec_IsLink";
-    /// <summary>連結圖片來源</summary>
+    /// <summary>連結圖片</summary>
     public const string LinkPicId = "Spec_LinkPicId";
     /// <summary>模組類型</summary>
     public const string ModuleType = "Spec_ModuleType";
@@ -62,12 +58,8 @@ public static class SpecModelDisplayName
     public const string ModuleType_Announcement = "Spec_ModuleType_Announcement";
     /// <summary>檔案室</summary>
     public const string ModuleType_FileArchive = "Spec_ModuleType_FileArchive";
-    /// <summary>模組條件參數</summary>
+    /// <summary>模組設定</summary>
     public const string ModuleOptions = "Spec_ModuleOptions";
     /// <summary>模組查看更多連結</summary>
     public const string MoreViewLink = "Spec_MoreViewLink";
-    /// <summary>圖片來源</summary>
-    public const string PictureId = "Spec_PictureId";
-    /// <summary>圖片說明</summary>
-    public const string PictureDescription = "Spec_PictureDescription";
 }
