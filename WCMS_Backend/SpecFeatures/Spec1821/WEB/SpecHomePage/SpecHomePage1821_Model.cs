@@ -109,7 +109,7 @@ public class SpecHomePage1821_ShortcutModuleItem : DetailRowModel
     [LibDesc(SpecModelDisplayName.RowNo)] public int RowNo { get; set; }
     [LibDesc(ModelDisplayName.Common_Title), StringLength(SysLengthParam.Title)] public string Title { get; set; }
     [LibDesc(ModelDisplayName.Common_SubTitle), StringLength(SysLengthParam.Title)] public string SubTitle { get; set; }
-    [LibDesc(SpecModelDisplayName.ModuleType)] public byte ModuleType { get; set; }
+    [LibDesc(SpecModelDisplayName.ModuleType)] public SpecHomePageModuleType ModuleType { get; set; }
     [LibDesc(SpecModelDisplayName.ModuleOptions)] public string ModuleOptions { get; set; }
     [LibDesc(SpecModelDisplayName.MoreViewLink), StringLength(SysLengthParam.Url)] public string MoreViewLink { get; set; }
     [LibDesc(ModelDisplayName.Common_IsHide)] public bool IsHide { get; set; }

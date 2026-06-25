@@ -58,6 +58,10 @@ public static class SpecModelDisplayName
     public const string LinkPicId = "Spec_LinkPicId";
     /// <summary>模組類型</summary>
     public const string ModuleType = "Spec_ModuleType";
+    /// <summary>公告</summary>
+    public const string ModuleType_Announcement = "Spec_ModuleType_Announcement";
+    /// <summary>檔案室</summary>
+    public const string ModuleType_FileArchive = "Spec_ModuleType_FileArchive";
     /// <summary>模組條件參數</summary>
     public const string ModuleOptions = "Spec_ModuleOptions";
     /// <summary>模組查看更多連結</summary>

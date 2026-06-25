@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using WCMS.Features._Resx;
+using WCMS.SpecFeatures.Spec1821._Resx;
 using WCMS.SysCore;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Interface;
@@ -16,8 +17,6 @@ namespace WCMS.SpecFeatures.Spec1821.WEB.SpecHomePage;
 public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821Set>(bizDeps), IBizService<SpecHomePage1821Set>
 {
     #region Property
-    private const byte ModuleTypeAnnouncement = 1;
-    private const byte ModuleTypeFileArchive = 2;
     private static readonly JsonSerializerOptions OptionsJsonSerializerOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
     #endregion
 
@@ -202,9 +201,9 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
         if (!url.IsNullOrEmpty() && !LibData.UrlChecks.IsHttpOrRelativeUrl(url)) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00027, url);
     }
 
-    private void CheckModuleType(byte moduleType)
+    private void CheckModuleType(SpecHomePageModuleType moduleType)
     {
-        if (moduleType is ModuleTypeAnnouncement or ModuleTypeFileArchive) return;
+        if (moduleType is SpecHomePageModuleType.Announcement or SpecHomePageModuleType.FileArchive) return;
         Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00000, $"{I18nCache.GetLabel<SpecHomePage1821_ShortcutModuleItem_DTO>(x => x.ModuleType)}只允許公告或檔案室。");
     }
 

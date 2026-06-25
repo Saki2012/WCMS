@@ -32,6 +32,8 @@
   <data name="Spec_IsLink" xml:space="preserve"><value>Is external link</value></data>
   <data name="Spec_LinkPicId" xml:space="preserve"><value>Link picture</value></data>
   <data name="Spec_ModuleType" xml:space="preserve"><value>Module type</value></data>
+  <data name="Spec_ModuleType_Announcement" xml:space="preserve"><value>Announcement</value></data>
+  <data name="Spec_ModuleType_FileArchive" xml:space="preserve"><value>File archive</value></data>
   <data name="Spec_ModuleOptions" xml:space="preserve"><value>Module options</value></data>
   <data name="Spec_MoreViewLink" xml:space="preserve"><value>View more link</value></data>
   <data name="Spec_PictureId" xml:space="preserve"><value>Picture</value></data>
