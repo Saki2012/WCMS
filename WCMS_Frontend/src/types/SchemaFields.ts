@@ -1371,6 +1371,113 @@ export const SpecHomePage1820_ResourceFields = {
 
 export type SpecHomePage1820_ResourceFieldKey = keyof typeof SpecHomePage1820_ResourceFields;
 
+export const SpecHomePage1821ModelFields = {
+  CreateTime: 'CreateTime',
+  CreateUserId: 'CreateUserId',
+  CreateUser: 'CreateUser',
+  ModifyTime: 'ModifyTime',
+  ModifyUserId: 'ModifyUserId',
+  ModifyUser: 'ModifyUser',
+  FormStatus: 'FormStatus',
+  DataStatus: 'DataStatus',
+  InvalidTime: 'InvalidTime',
+  InvalidUserId: 'InvalidUserId',
+  InternalId: 'InternalId',
+  OrgLvId: 'OrgLvId',
+  HomePageId: 'HomePageId',
+  Lang: 'Lang',
+  Section3Title: 'Section3Title',
+  Section3SubTitle: 'Section3SubTitle',
+  Card1Title: 'Card1Title',
+  Card1Pic: 'Card1Pic',
+  Card1PicId: 'Card1PicId',
+  Card2Title: 'Card2Title',
+  Card2Pic: 'Card2Pic',
+  Card2PicId: 'Card2PicId',
+  Section4Title: 'Section4Title',
+  Section4SubTitle: 'Section4SubTitle',
+  LinkOptions: 'LinkOptions',
+  LinkViewMore: 'LinkViewMore',
+  _SpecHomePage1821_Banner: '_SpecHomePage1821_Banner',
+  _SpecHomePage1821_Shortcut: '_SpecHomePage1821_Shortcut',
+} as const;
+
+export type SpecHomePage1821ModelFieldKey = keyof typeof SpecHomePage1821ModelFields;
+
+export const SpecHomePage1821SetFields = {
+  SpecHomePage1821: 'SpecHomePage1821',
+  SpecHomePage1821_Banner: 'SpecHomePage1821_Banner',
+  SpecHomePage1821_Shortcut: 'SpecHomePage1821_Shortcut',
+  SpecHomePage1821_ShortcutModuleItem: 'SpecHomePage1821_ShortcutModuleItem',
+} as const;
+
+export type SpecHomePage1821SetFieldKey = keyof typeof SpecHomePage1821SetFields;
+
+export const SpecHomePage1821Set_DTOApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type SpecHomePage1821Set_DTOApiRequestFieldKey = keyof typeof SpecHomePage1821Set_DTOApiRequestFields;
+
+export const SpecHomePage1821_BannerFields = {
+  RowState: 'RowState',
+  HomePageId: 'HomePageId',
+  RowId: 'RowId',
+  RowNo: 'RowNo',
+  Title: 'Title',
+  SubTitle: 'SubTitle',
+  BannerFile: 'BannerFile',
+  BannerFileId: 'BannerFileId',
+  BannerFileDescription: 'BannerFileDescription',
+  Link: 'Link',
+  IsHide: 'IsHide',
+  _SpecHomePage1821: '_SpecHomePage1821',
+} as const;
+
+export type SpecHomePage1821_BannerFieldKey = keyof typeof SpecHomePage1821_BannerFields;
+
+export const SpecHomePage1821_ShortcutFields = {
+  RowState: 'RowState',
+  HomePageId: 'HomePageId',
+  RowId: 'RowId',
+  RowNo: 'RowNo',
+  ShortcutCode: 'ShortcutCode',
+  Title: 'Title',
+  SubTitle: 'SubTitle',
+  IconFile: 'IconFile',
+  IconFileId: 'IconFileId',
+  IconFileDescription: 'IconFileDescription',
+  ActionType: 'ActionType',
+  ActionValue: 'ActionValue',
+  IsLink: 'IsLink',
+  Link: 'Link',
+  LinkPic: 'LinkPic',
+  LinkPicId: 'LinkPicId',
+  IsHide: 'IsHide',
+  _SpecHomePage1821: '_SpecHomePage1821',
+  _SpecHomePage1821_ShortcutModuleItem: '_SpecHomePage1821_ShortcutModuleItem',
+} as const;
+
+export type SpecHomePage1821_ShortcutFieldKey = keyof typeof SpecHomePage1821_ShortcutFields;
+
+export const SpecHomePage1821_ShortcutModuleItemFields = {
+  RowState: 'RowState',
+  HomePageId: 'HomePageId',
+  ParentRowId: 'ParentRowId',
+  RowId: 'RowId',
+  RowNo: 'RowNo',
+  Title: 'Title',
+  SubTitle: 'SubTitle',
+  ModuleType: 'ModuleType',
+  ModuleOptions: 'ModuleOptions',
+  MoreViewLink: 'MoreViewLink',
+  IsHide: 'IsHide',
+  _SpecHomePage1821_Shortcut: '_SpecHomePage1821_Shortcut',
+} as const;
+
+export type SpecHomePage1821_ShortcutModuleItemFieldKey = keyof typeof SpecHomePage1821_ShortcutModuleItemFields;
+
 export const SpecHomePageWeatherFields = {
   CityCode: 'CityCode',
   LocationName: 'LocationName',
@@ -2259,6 +2366,7 @@ export const PGID = {
     SiteMenu: "SiteMenu",
     SiteViewCount: "SiteViewCount",
     SpecCategory: "SpecCategory",
+    SpecHomePage1821Api: "SpecHomePage1821Api",
     SpecHomePageApi: "SpecHomePageApi",
     SpecJournal: "SpecJournal",
     SpecJournalIndex: "SpecJournalIndex",

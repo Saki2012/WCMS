@@ -8637,6 +8637,48 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/SpecHomePage1821Api/QueryList": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["QueryListParam"];
+                    "text/json": components["schemas"]["QueryListParam"];
+                    "application/*+json": components["schemas"]["QueryListParam"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/SpecHomePageApi/GetTotalCounts": {
         parameters: {
             query?: never;
@@ -15471,6 +15513,150 @@ export interface components {
             /** @description 網址 */
             Link?: string | null;
             _SpecHomePage1820?: components["schemas"]["SpecHomePage1820Model_DTO"];
+        };
+        /**
+         * Format: int32
+         * @enum {integer}
+         */
+        SpecHomePageModuleType: 1 | 2;
+        SpecHomePage1821Model_DTO: {
+            /** Format: date-time */
+            CreateTime?: string | null;
+            CreateUserId?: string | null;
+            CreateUser?: components["schemas"]["Account_DTO"];
+            /** Format: date-time */
+            ModifyTime?: string | null;
+            ModifyUserId?: string | null;
+            ModifyUser?: components["schemas"]["Account_DTO"];
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            InvalidTime?: string | null;
+            InvalidUserId?: string | null;
+            InternalId?: string | null;
+            OrgLvId?: string | null;
+            /** @description [Spec_HomePageId] */
+            HomePageId?: string | null;
+            /** @description 語系 */
+            Lang?: string | null;
+            /** @description [Spec_Section3Title] */
+            Section3Title?: string | null;
+            /** @description [Spec_Section3SubTitle] */
+            Section3SubTitle?: string | null;
+            /** @description [Spec_Card1Title] */
+            Card1Title?: string | null;
+            Card1Pic?: components["schemas"]["FileManageModel_DTO"];
+            /** @description [Spec_Card1PicId] */
+            Card1PicId?: string | null;
+            /** @description [Spec_Card2Title] */
+            Card2Title?: string | null;
+            Card2Pic?: components["schemas"]["FileManageModel_DTO"];
+            /** @description [Spec_Card2PicId] */
+            Card2PicId?: string | null;
+            /** @description [Spec_Section4Title] */
+            Section4Title?: string | null;
+            /** @description [Spec_Section4SubTitle] */
+            Section4SubTitle?: string | null;
+            /** @description [Spec_LinkOptions] */
+            LinkOptions?: string | null;
+            /** @description [Spec_LinkViewMore] */
+            LinkViewMore?: string | null;
+            _SpecHomePage1821_Banner?: components["schemas"]["SpecHomePage1821_Banner_DTO"][] | null;
+            _SpecHomePage1821_Shortcut?: components["schemas"]["SpecHomePage1821_Shortcut_DTO"][] | null;
+        };
+        SpecHomePage1821Set_DTO: {
+            SpecHomePage1821?: components["schemas"]["SpecHomePage1821Model_DTO"];
+            /** @description [SpecHomePage1821_Banner] */
+            SpecHomePage1821_Banner?: components["schemas"]["SpecHomePage1821_Banner_DTO"][] | null;
+            /** @description [SpecHomePage1821_Shortcut] */
+            SpecHomePage1821_Shortcut?: components["schemas"]["SpecHomePage1821_Shortcut_DTO"][] | null;
+            /** @description [SpecHomePage1821_ShortcutModuleItem] */
+            SpecHomePage1821_ShortcutModuleItem?: components["schemas"]["SpecHomePage1821_ShortcutModuleItem_DTO"][] | null;
+        };
+        SpecHomePage1821Set_DTOApiRequest: {
+            InternalId?: string | null;
+            Data?: components["schemas"]["SpecHomePage1821Set_DTO"];
+        };
+        SpecHomePage1821_Banner_DTO: {
+            RowState?: components["schemas"]["RowState"];
+            /** @description [Spec_HomePageId] */
+            HomePageId?: string | null;
+            /** Format: int32 */
+            RowId?: number | null;
+            /** Format: int32 */
+            RowNo?: number | null;
+            /** @description 標題 */
+            Title?: string | null;
+            /** @description 副標題 */
+            SubTitle?: string | null;
+            BannerFile?: components["schemas"]["FileManageModel_DTO"];
+            /** @description [Spec_BannerFileId] */
+            BannerFileId?: string | null;
+            /** @description [Spec_BannerFileDescription] */
+            BannerFileDescription?: string | null;
+            /** @description 網址 */
+            Link?: string | null;
+            /** @description 是否隱藏 */
+            IsHide?: boolean | null;
+            _SpecHomePage1821?: components["schemas"]["SpecHomePage1821Model_DTO"];
+        };
+        SpecHomePage1821_Shortcut_DTO: {
+            RowState?: components["schemas"]["RowState"];
+            /** @description [Spec_HomePageId] */
+            HomePageId?: string | null;
+            /** Format: int32 */
+            RowId?: number | null;
+            /** Format: int32 */
+            RowNo?: number | null;
+            /** @description [Spec_ShortcutCode] */
+            ShortcutCode?: string | null;
+            /** @description 標題 */
+            Title?: string | null;
+            /** @description 副標題 */
+            SubTitle?: string | null;
+            IconFile?: components["schemas"]["FileManageModel_DTO"];
+            /** @description [Spec_IconFileId] */
+            IconFileId?: string | null;
+            /** @description [Spec_IconFileDescription] */
+            IconFileDescription?: string | null;
+            /** @description [Spec_ActionType] */
+            ActionType?: string | null;
+            /** @description [Spec_ActionValue] */
+            ActionValue?: string | null;
+            /** @description [Spec_IsLink] */
+            IsLink?: boolean | null;
+            /** @description 網址 */
+            Link?: string | null;
+            LinkPic?: components["schemas"]["FileManageModel_DTO"];
+            /** @description [Spec_LinkPicId] */
+            LinkPicId?: string | null;
+            /** @description 是否隱藏 */
+            IsHide?: boolean | null;
+            _SpecHomePage1821?: components["schemas"]["SpecHomePage1821Model_DTO"];
+            _SpecHomePage1821_ShortcutModuleItem?: components["schemas"]["SpecHomePage1821_ShortcutModuleItem_DTO"][] | null;
+        };
+        SpecHomePage1821_ShortcutModuleItem_DTO: {
+            RowState?: components["schemas"]["RowState"];
+            /** @description [Spec_HomePageId] */
+            HomePageId?: string | null;
+            /** Format: int32 */
+            ParentRowId?: number | null;
+            /** Format: int32 */
+            RowId?: number | null;
+            /** Format: int32 */
+            RowNo?: number | null;
+            /** @description 標題 */
+            Title?: string | null;
+            /** @description 副標題 */
+            SubTitle?: string | null;
+            ModuleType?: components["schemas"]["SpecHomePageModuleType"];
+            /** @description [Spec_ModuleOptions] */
+            ModuleOptions?: string | null;
+            /** @description [Spec_MoreViewLink] */
+            MoreViewLink?: string | null;
+            /** @description 是否隱藏 */
+            IsHide?: boolean | null;
+            _SpecHomePage1821_Shortcut?: components["schemas"]["SpecHomePage1821_Shortcut_DTO"];
         };
         SpecHomePageWeather_DTO: {
             CityCode?: string | null;
