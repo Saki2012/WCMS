@@ -31,11 +31,11 @@ public class SpecHomePage1821Model : MasterDataModel
     [LibDesc(SpecModelDisplayName.Section3Title), StringLength(SysLengthParam.Title)] public string Section3Title { get; set; }
     [LibDesc(SpecModelDisplayName.Section3SubTitle), StringLength(SysLengthParam.Title_en)] public string Section3SubTitle { get; set; }
     [LibDesc(SpecModelDisplayName.Card1Title), StringLength(SysLengthParam.Title)] public string Card1Title { get; set; }
-    [ForeignKey(nameof(Card1PicId))] public FileManageModel Card1Pic { get; set; }
-    [LibDesc(SpecModelDisplayName.Card1PicId), StringLength(SysLengthParam.InternalId)] public string Card1PicId { get; set; }
+    [ForeignKey(nameof(Card1PicId))] public FileManageModel? Card1Pic { get; set; }
+    [LibDesc(SpecModelDisplayName.Card1PicId), StringLength(SysLengthParam.InternalId)] public string? Card1PicId { get; set; }
     [LibDesc(SpecModelDisplayName.Card2Title), StringLength(SysLengthParam.Title)] public string Card2Title { get; set; }
-    [ForeignKey(nameof(Card2PicId))] public FileManageModel Card2Pic { get; set; }
-    [LibDesc(SpecModelDisplayName.Card2PicId), StringLength(SysLengthParam.InternalId)] public string Card2PicId { get; set; }
+    [ForeignKey(nameof(Card2PicId))] public FileManageModel? Card2Pic { get; set; }
+    [LibDesc(SpecModelDisplayName.Card2PicId), StringLength(SysLengthParam.InternalId)] public string? Card2PicId { get; set; }
     [LibDesc(SpecModelDisplayName.Section4Title), StringLength(SysLengthParam.Title)] public string Section4Title { get; set; }
     [LibDesc(SpecModelDisplayName.Section4SubTitle), StringLength(SysLengthParam.Title_en)] public string Section4SubTitle { get; set; }
     [LibDesc(SpecModelDisplayName.LinkOptions)] public string LinkOptions { get; set; }
@@ -59,8 +59,8 @@ public class SpecHomePage1821_Banner : DetailRowModel
     [LibDesc(SpecModelDisplayName.RowNo)] public int RowNo { get; set; }
     [LibDesc(ModelDisplayName.Common_Title), StringLength(SysLengthParam.Title)] public string Title { get; set; }
     [LibDesc(ModelDisplayName.Common_SubTitle), StringLength(SysLengthParam.Title_en)] public string SubTitle { get; set; }
-    [ForeignKey(nameof(BannerFileId))] public FileManageModel BannerFile { get; set; }
-    [LibDesc(SpecModelDisplayName.BannerFileId), StringLength(SysLengthParam.InternalId)] public string BannerFileId { get; set; }
+    [ForeignKey(nameof(BannerFileId))] public FileManageModel? BannerFile { get; set; }
+    [LibDesc(SpecModelDisplayName.BannerFileId), StringLength(SysLengthParam.InternalId)] public string? BannerFileId { get; set; }
     [LibDesc(SpecModelDisplayName.BannerFileDescription), StringLength(SysLengthParam.Title_en)] public string BannerFileDescription { get; set; }
     [LibDesc(ModelDisplayName.Common_Url), StringLength(SysLengthParam.Url)] public string Link { get; set; }
     [LibDesc(ModelDisplayName.Common_IsHide)] public bool IsHide { get; set; }
@@ -81,15 +81,15 @@ public class SpecHomePage1821_Shortcut : DetailRowModel
     [LibDesc(SpecModelDisplayName.ShortcutCode), StringLength(SysLengthParam.ID)] public string ShortcutCode { get; set; }
     [LibDesc(ModelDisplayName.Common_Title), StringLength(SysLengthParam.Title)] public string Title { get; set; }
     [LibDesc(ModelDisplayName.Common_SubTitle), StringLength(SysLengthParam.Title)] public string SubTitle { get; set; }
-    [ForeignKey(nameof(IconFileId))] public FileManageModel IconFile { get; set; }
-    [LibDesc(SpecModelDisplayName.IconFileId), StringLength(SysLengthParam.InternalId)] public string IconFileId { get; set; }
+    [ForeignKey(nameof(IconFileId))] public FileManageModel? IconFile { get; set; }
+    [LibDesc(SpecModelDisplayName.IconFileId), StringLength(SysLengthParam.InternalId)] public string? IconFileId { get; set; }
     [LibDesc(SpecModelDisplayName.IconFileDescription), StringLength(SysLengthParam.Title_en)] public string IconFileDescription { get; set; }
     [LibDesc(SpecModelDisplayName.ActionType), StringLength(SysLengthParam.Info)] public string ActionType { get; set; }
     [LibDesc(SpecModelDisplayName.ActionValue), StringLength(SysLengthParam.Memo)] public string ActionValue { get; set; }
     [LibDesc(SpecModelDisplayName.IsLink)] public bool IsLink { get; set; }
     [LibDesc(ModelDisplayName.Common_Url), StringLength(SysLengthParam.Url)] public string Link { get; set; }
-    [ForeignKey(nameof(LinkPicId))] public FileManageModel LinkPic { get; set; }
-    [LibDesc(SpecModelDisplayName.LinkPicId), StringLength(SysLengthParam.InternalId)] public string LinkPicId { get; set; }
+    [ForeignKey(nameof(LinkPicId))] public FileManageModel? LinkPic { get; set; }
+    [LibDesc(SpecModelDisplayName.LinkPicId), StringLength(SysLengthParam.InternalId)] public string? LinkPicId { get; set; }
     [LibDesc(ModelDisplayName.Common_IsHide)] public bool IsHide { get; set; }
 
     #region 主子表關聯

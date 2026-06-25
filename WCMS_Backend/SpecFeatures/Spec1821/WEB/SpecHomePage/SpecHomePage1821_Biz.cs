@@ -53,7 +53,12 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
         set.SpecHomePage1821_RelatedLink ??= [];
 
         string homePageId = set.SpecHomePage1821?.HomePageId ?? string.Empty;
-        if (set.SpecHomePage1821 != null) set.SpecHomePage1821.LinkOptions = NormalizeOptionsJson(set.SpecHomePage1821.LinkOptions);
+        if (set.SpecHomePage1821 != null)
+        {
+            set.SpecHomePage1821.Card1PicId = NormalizeRelationId(set.SpecHomePage1821.Card1PicId);
+            set.SpecHomePage1821.Card2PicId = NormalizeRelationId(set.SpecHomePage1821.Card2PicId);
+            set.SpecHomePage1821.LinkOptions = NormalizeOptionsJson(set.SpecHomePage1821.LinkOptions);
+        }
 
         NormalizeBanner(set.SpecHomePage1821_Banner, homePageId);
         NormalizeShortcut(set.SpecHomePage1821_Shortcut, homePageId);
@@ -131,6 +136,7 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
         for (int i = 0; i < rows.Count; i++)
         {
             rows[i].HomePageId = ResolveChildHomePageId(rows[i].HomePageId, homePageId);
+            rows[i].BannerFileId = NormalizeRelationId(rows[i].BannerFileId);
             if (rows[i].RowNo <= 0) rows[i].RowNo = i + 1;
         }
     }
@@ -140,11 +146,13 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
         for (int i = 0; i < rows.Count; i++)
         {
             rows[i].HomePageId = ResolveChildHomePageId(rows[i].HomePageId, homePageId);
+            rows[i].IconFileId = NormalizeRelationId(rows[i].IconFileId);
+            rows[i].LinkPicId = NormalizeRelationId(rows[i].LinkPicId);
             if (rows[i].RowNo <= 0) rows[i].RowNo = i + 1;
 
             if (rows[i].IsLink) continue;
             rows[i].Link = string.Empty;
-            rows[i].LinkPicId = string.Empty;
+            rows[i].LinkPicId = null;
         }
     }
 
@@ -165,13 +173,13 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
         }
     }
 
-    private static string ResolveChildHomePageId(string childHomePageId, string parentHomePageId)
+    private static string ResolveChildHomePageId(string? childHomePageId, string? parentHomePageId)
     {
         if (!childHomePageId.IsNullOrEmpty()) return childHomePageId;
         return parentHomePageId ?? string.Empty;
     }
 
-    private static string NormalizeOptionsJson(string options)
+    private static string NormalizeOptionsJson(string? options)
     {
         if (options.IsNullOrEmpty()) return SerializeOptions(new HomePageOptions());
         if (!TryParseOptions(options, out HomePageOptions parsed)) return options;
@@ -181,12 +189,17 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
         return SerializeOptions(parsed);
     }
 
+    private static string? NormalizeRelationId(string? relationId)
+    {
+        return relationId.IsNullOrEmpty() ? null : relationId;
+    }
+
     private static string SerializeOptions(HomePageOptions options)
     {
         return JsonSerializer.Serialize(options, OptionsJsonSerializerOptions);
     }
 
-    private void CheckRequired(string value, string fieldName)
+    private void CheckRequired(string? value, string fieldName)
     {
         if (value.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, fieldName);
     }
@@ -196,7 +209,7 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
         if (value <= 0) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, fieldName);
     }
 
-    private void CheckUrl(string url)
+    private void CheckUrl(string? url)
     {
         if (!url.IsNullOrEmpty() && !LibData.UrlChecks.IsHttpOrRelativeUrl(url)) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00027, url);
     }
@@ -207,15 +220,18 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
         Message.AddMessage(MessageStatus.Error, SpecMessageCode.SpecBECode0001, I18nCache.GetLabel<SpecHomePage1821_ShortcutModuleItem_DTO>(x => x.ModuleType));
     }
 
-    private void CheckOptionsJson(string options, string fieldName)
+    private void CheckOptionsJson(string? options, string fieldName)
     {
+        if (options.IsNullOrEmpty()) return;
         if (TryParseOptions(options, out _)) return;
         Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00035, fieldName);
     }
 
-    private static bool TryParseOptions(string options, out HomePageOptions result)
+    private static bool TryParseOptions(string? options, out HomePageOptions result)
     {
         result = new();
+        if (options.IsNullOrEmpty()) return false;
+
         try
         {
             result = JsonSerializer.Deserialize<HomePageOptions>(options, OptionsJsonSerializerOptions) ?? new();
