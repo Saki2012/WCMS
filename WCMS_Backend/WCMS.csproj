@@ -194,6 +194,7 @@
 	  <Compile Include="SpecFeatures\Spec1821\WEB\SpecHomePage\SpecHomePage1821_Biz.cs" />
 	  <Compile Include="SpecFeatures\Spec1821\WEB\SpecHomePage\SpecHomePage1821_DTO.cs" />
 	  <Compile Include="SpecFeatures\Spec1821\WEB\SpecHomePage\SpecHomePage1821_Model.cs" />
+	  <Compile Include="SpecFeatures\Spec1821\_Resx\SpecEnum.cs" />
 	  <Compile Include="SpecFeatures\Spec1821\_Resx\SpecMessageCode.cs" />
 	  <Compile Include="SpecFeatures\Spec1821\_Resx\SpecModelDisplayName.cs" />
 	  <Compile Include="SpecFeatures\Spec1821\_Resx\SpecProgKeys.cs" />
@@ -218,6 +219,7 @@
 	  <EmbeddedResource Include="SpecFeatures\Spec1820\_Resx\SpecMessageCode.zh-TW.resx" />
 	  <EmbeddedResource Include="SpecFeatures\Spec1820\_Resx\SpecModelDisplayName.en.resx" />
 	  <EmbeddedResource Include="SpecFeatures\Spec1820\_Resx\SpecModelDisplayName.zh-TW.resx" />
+	  <EmbeddedResource Include="SpecFeatures\Spec1821\_Resx\SpecMessageCode.en.resx" />
 	  <EmbeddedResource Include="SpecFeatures\Spec1821\_Resx\SpecMessageCode.zh-TW.resx" />
 	  <EmbeddedResource Include="SpecFeatures\Spec1821\_Resx\SpecModelDisplayName.en.resx" />
 	  <EmbeddedResource Include="SpecFeatures\Spec1821\_Resx\SpecModelDisplayName.zh-TW.resx" />
