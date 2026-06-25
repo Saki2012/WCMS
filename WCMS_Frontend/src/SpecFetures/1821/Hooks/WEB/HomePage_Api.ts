@@ -1,11 +1,11 @@
 import { ApiDataAdapter } from "@/SysCore/Utils/API/APIAdapter";
 import { ApiDataService } from "@/SysCore/Utils/API/APIClient";
-import type { PGID } from "@/types/SchemaFields";
+import { PGID } from "@/types/SchemaFields";
 import type { AxiosInstance } from "axios";
 import type { SpecHomePage1821Set } from "./HomePage_Types";
 
 // #region Property
-const SPEC_HOME_PAGE_1821_API = "SpecHomePage1821Api" as PGID;
+const SPEC_HOME_PAGE_1821_API = PGID.SpecHomePage1821Api;
 // #endregion
 
 // #region Public

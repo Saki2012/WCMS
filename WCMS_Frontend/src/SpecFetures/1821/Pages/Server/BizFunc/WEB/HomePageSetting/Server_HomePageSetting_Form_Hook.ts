@@ -115,8 +115,6 @@ export const createEmptyHomePage1821Set = (lang: string): HomePageSet =>
         SpecHomePage1821_Banner: [],
         SpecHomePage1821_Shortcut: [],
         SpecHomePage1821_ShortcutModuleItem: [],
-        SpecHomePage1821_FeatureCard: [],
-        SpecHomePage1821_RelatedLink: [],
     };
 };
 
@@ -318,8 +316,6 @@ const normalizeSet = (lang: string, data?: HomePageSet | null): HomePageSet =>
         SpecHomePage1821_Banner: [...(base.SpecHomePage1821_Banner ?? [])],
         SpecHomePage1821_Shortcut: [...(base.SpecHomePage1821_Shortcut ?? [])],
         SpecHomePage1821_ShortcutModuleItem: [...(base.SpecHomePage1821_ShortcutModuleItem ?? [])],
-        SpecHomePage1821_FeatureCard: [...(base.SpecHomePage1821_FeatureCard ?? [])],
-        SpecHomePage1821_RelatedLink: [...(base.SpecHomePage1821_RelatedLink ?? [])],
     };
 };
 
@@ -339,13 +335,6 @@ const resolveLangKey = (supportLangs: string[], lang?: string) =>
     return supportLangs.find(a => normalizeLang(a) === target) ?? "";
 };
 
-const resolveChildHomePageId = (childHomePageId?: string | null, parentHomePageId?: string | null) =>
-{
-    const child = normalizeText(childHomePageId);
-    if (child) return child;
-    return normalizeText(parentHomePageId);
-};
-
 const sanitizeSetBeforeSave = (lang: string, data: HomePageSet): HomePageSet =>
 {
     const set = normalizeSet(lang, data);
@@ -359,40 +348,36 @@ const sanitizeSetBeforeSave = (lang: string, data: HomePageSet): HomePageSet =>
             HomePageId: homePageId,
             LinkOptions: normalizeOptionsText(set.SpecHomePage1821?.LinkOptions),
         },
-        SpecHomePage1821_Banner: normalizeBannerForSave(set.SpecHomePage1821_Banner ?? [], homePageId),
-        SpecHomePage1821_Shortcut: normalizeShortcutForSave(set.SpecHomePage1821_Shortcut ?? [], homePageId),
-        SpecHomePage1821_ShortcutModuleItem: normalizeModuleForSave(set.SpecHomePage1821_ShortcutModuleItem ?? [], homePageId),
-        SpecHomePage1821_FeatureCard: (set.SpecHomePage1821_FeatureCard ?? []).map(a => ({ ...a, HomePageId: resolveChildHomePageId(a.HomePageId, homePageId) })),
-        SpecHomePage1821_RelatedLink: (set.SpecHomePage1821_RelatedLink ?? []).map(a => ({ ...a, HomePageId: resolveChildHomePageId(a.HomePageId, homePageId) })),
+        SpecHomePage1821_Banner: normalizeBannerForSave(set.SpecHomePage1821_Banner ?? []),
+        SpecHomePage1821_Shortcut: normalizeShortcutForSave(set.SpecHomePage1821_Shortcut ?? []),
+        SpecHomePage1821_ShortcutModuleItem: normalizeModuleForSave(set.SpecHomePage1821_ShortcutModuleItem ?? []),
     };
 };
 
-const normalizeBannerForSave = (rows: Banner[], homePageId: string): Banner[] =>
+const normalizeBannerForSave = (rows: Banner[]): Banner[] =>
 {
-    return rows.map((row, index) => ({ ...row, HomePageId: resolveChildHomePageId(row.HomePageId, homePageId), RowNo: index + 1 }));
+    return rows.map((row, index) => ({ ...row, RowNo: index + 1 }));
 };
 
-const normalizeShortcutForSave = (rows: Shortcut[], homePageId: string): Shortcut[] =>
+const normalizeShortcutForSave = (rows: Shortcut[]): Shortcut[] =>
 {
     return rows.map((row, index) =>
     {
         const isLink = Boolean(row.IsLink);
         return {
             ...row,
-            HomePageId: resolveChildHomePageId(row.HomePageId, homePageId),
             RowNo: index + 1,
             IsLink: isLink,
             Link: isLink ? row.Link ?? "" : "",
-            LinkPicId: isLink ? row.LinkPicId ?? "" : "",
+            LinkPicId: isLink ? row.LinkPicId ?? "" : null,
         };
     });
 };
 
-const normalizeModuleForSave = (rows: ShortcutModuleItem[], homePageId: string): ShortcutModuleItem[] =>
+const normalizeModuleForSave = (rows: ShortcutModuleItem[]): ShortcutModuleItem[] =>
 {
     return normalizeModuleItemRowNo(rows).map(row => ({
         ...row,
-        HomePageId: resolveChildHomePageId(row.HomePageId, homePageId),
         ModuleOptions: normalizeOptionsText(row.ModuleOptions),
     }));
 };
