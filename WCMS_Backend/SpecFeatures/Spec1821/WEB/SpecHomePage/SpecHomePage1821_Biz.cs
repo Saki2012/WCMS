@@ -204,7 +204,7 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
     private void CheckModuleType(SpecHomePageModuleType moduleType)
     {
         if (moduleType is SpecHomePageModuleType.Announcement or SpecHomePageModuleType.FileArchive) return;
-        Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00000, $"{I18nCache.GetLabel<SpecHomePage1821_ShortcutModuleItem_DTO>(x => x.ModuleType)}只允許公告或檔案室。");
+        Message.AddMessage(MessageStatus.Error, SpecMessageCode.SpecBECode0001, I18nCache.GetLabel<SpecHomePage1821_ShortcutModuleItem_DTO>(x => x.ModuleType));
     }
 
     private void CheckOptionsJson(string options, string fieldName)
