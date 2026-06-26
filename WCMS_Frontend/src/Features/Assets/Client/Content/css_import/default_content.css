@@ -889,6 +889,9 @@ hr.hr-dotted-my-6 {
 .bg-custom-rgba {
 	background-color: rgba(243, 241, 234, 0.9) !important;
 }
+.bg-custom-white{
+	background-color: var(--FFFcolor);
+}
 /* ---------------------------------------------------- */
 .filter-custom {
 	text-orientation: mixed;
