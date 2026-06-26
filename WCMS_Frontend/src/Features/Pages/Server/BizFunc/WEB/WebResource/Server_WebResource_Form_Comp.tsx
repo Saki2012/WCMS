@@ -9,23 +9,28 @@ import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableFiel
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import type { components } from "@/types/api";
 import { WebResourceFields, WebResourceInfoFields, WebResourceSetFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
-import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
+    useWebResourceDetailTabs,
+    useWebResourceFormTemplate,
     type WebResourceDetailTabItem,
     webResourceEmptyData,
     type WebResourceFormRefs,
-    useWebResourceDetailTabs,
-    useWebResourceFormTemplate,
 } from "./Server_WebResource_Form_Hook";
 
 // #region Property
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
 
+type DetailRowKeyValue = string | number | null | undefined;
+
+type DetailRowKeys = Record<string, DetailRowKeyValue>;
+
+type BindingRowKeys = Record<string, string | number | undefined>;
 
 interface WebResourceFormCompProps
 {
@@ -35,7 +40,6 @@ interface WebResourceFormCompProps
     /** 目前語系 */
     lang: Lang;
 }
-
 
 interface HeaderSectionProps
 {
@@ -48,7 +52,6 @@ interface HeaderSectionProps
     /** WebResource Hook 整理後的參照資料 */
     refs: WebResourceFormRefs;
 }
-
 
 interface DetailSectionProps
 {
@@ -65,7 +68,6 @@ interface DetailSectionProps
     refs: WebResourceFormRefs;
 }
 
-
 interface HeaderTabContentOptions extends HeaderSectionProps
 {
     /** 欄位 binding helper */
@@ -74,7 +76,6 @@ interface HeaderTabContentOptions extends HeaderSectionProps
     /** 圖片上傳 helper，維持 Hook 在 Component 階段呼叫 */
     uploadPic: ReturnType<typeof useUploadPicture>;
 }
-
 
 interface DetailTabContentOptions
 {
@@ -91,11 +92,10 @@ interface DetailTabContentOptions
     windowTargetOptions: Map<string, string>;
 }
 
-
 interface DetailFieldsOptions extends Omit<DetailTabContentOptions, "tabItems">
 {
     /** Detail row keys，給 useSetTableField 綁定欄位 */
-    rowKeys: Record<string, string | number | undefined>;
+    rowKeys: BindingRowKeys;
 }
 // #endregion
 
@@ -163,10 +163,10 @@ const HeaderComp = (props: HeaderSectionProps) =>
         <TabContentComp
             tabInfos={tabInfo}
             components={tabContent}
-        ></TabContentComp>
+        >
+        </TabContentComp>
     );
 };
-
 
 /** 網路資源多語 Detail 區塊，語系資料由 Hook 統一整理。 */
 const DetailComp = (props: DetailSectionProps) =>
@@ -181,7 +181,8 @@ const DetailComp = (props: DetailSectionProps) =>
         <TabContentComp
             tabInfos={tabInfo}
             components={tabContent}
-        ></TabContentComp>
+        >
+        </TabContentComp>
     );
 };
 // #endregion
@@ -205,7 +206,6 @@ const buildHeaderTabContent = (opt: HeaderTabContentOptions): Record<string, Rea
     };
 };
 
-
 /** 建立基本資料欄位。 */
 const buildBasicFields = (opt: HeaderTabContentOptions): ReactNode[] =>
 {
@@ -217,7 +217,6 @@ const buildBasicFields = (opt: HeaderTabContentOptions): ReactNode[] =>
         />,
     ];
 };
-
 
 /** 建立狀態欄位。 */
 const buildStatusFields = (opt: HeaderTabContentOptions): ReactNode[] =>
@@ -234,7 +233,6 @@ const buildStatusFields = (opt: HeaderTabContentOptions): ReactNode[] =>
     ];
 };
 
-
 /** 建立標籤欄位。 */
 const buildTagFields = (opt: HeaderTabContentOptions): ReactNode[] =>
 {
@@ -246,7 +244,6 @@ const buildTagFields = (opt: HeaderTabContentOptions): ReactNode[] =>
         />,
     ];
 };
-
 
 /** 建立圖片上傳與圖片說明欄位。 */
 const buildImageFields = (opt: HeaderTabContentOptions): ReactNode[] =>
@@ -278,17 +275,16 @@ const buildImageFields = (opt: HeaderTabContentOptions): ReactNode[] =>
     ];
 };
 
-
 /** 建立 Detail 語系分頁內容，畫面只依 Hook 整理後的 Tab 項目渲染。 */
 const buildDetailTabContent = (opt: DetailTabContentOptions): Record<string, ReactNode[]> =>
 {
     return opt.tabItems.reduce<Record<string, ReactNode[]>>((compMap, tabItem) =>
     {
-        compMap[tabItem.key] = buildDetailFields({ theme: opt.theme, setField: opt.setField, windowTargetOptions: opt.windowTargetOptions, rowKeys: tabItem.rowKeys });
+        const rowKeys = normalizeDetailRowKeys(tabItem.rowKeys);
+        compMap[tabItem.key] = buildDetailFields({ theme: opt.theme, setField: opt.setField, windowTargetOptions: opt.windowTargetOptions, rowKeys });
         return compMap;
     }, {});
 };
-
 
 /** 建立單一語系 Detail 欄位。 */
 const buildDetailFields = (opt: DetailFieldsOptions): ReactNode[] =>
@@ -318,13 +314,11 @@ const buildDetailFields = (opt: DetailFieldsOptions): ReactNode[] =>
     ];
 };
 
-
 /** 建立圖片預覽路徑，沒有圖片時顯示預設圖。 */
 const buildPicturePreviewSrc = (previewUrl: string, picId?: string | null): string =>
 {
     return previewUrl || FileManagementAPI.get_Server_Preview_Url(picId) || "https://dummyimage.com/1920x550/555/fff.png";
 };
-
 
 /** 將 WindowTarget object 轉成 LibDropList 使用的 Map。 */
 const buildWindowTargetOptions = (options: Record<string, string>): Map<string, string> =>
@@ -334,6 +328,22 @@ const buildWindowTargetOptions = (options: Record<string, string>): Map<string, 
 // #endregion
 
 // #region Private
+/** 將 Detail rowKeys 轉成欄位綁定可接受的 key。 */
+const normalizeDetailRowKeys = (rowKeys: DetailRowKeys): BindingRowKeys =>
+{
+    return Object.entries(rowKeys).reduce<BindingRowKeys>((result, [key, value]) =>
+    {
+        result[key] = normalizeDetailRowKey(value);
+        return result;
+    }, {});
+};
+
+/** 將 null row key 統一轉為 undefined，避免 useSetTableField 型別不一致。 */
+const normalizeDetailRowKey = (value: DetailRowKeyValue): string | number | undefined =>
+{
+    return value ?? undefined;
+};
+
 /** 回寫 Header 圖片 internalId。 */
 const updateHeaderPictureId = (binding: ServerFormBinding<WebResourceSet>, internalId: string): void =>
 {

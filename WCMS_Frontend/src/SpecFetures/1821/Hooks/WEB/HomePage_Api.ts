@@ -1,11 +1,11 @@
 import { ApiDataAdapter } from "@/SysCore/Utils/API/APIAdapter";
 import { ApiDataService } from "@/SysCore/Utils/API/APIClient";
+import type { components } from "@/types/api";
 import { PGID } from "@/types/SchemaFields";
 import type { AxiosInstance } from "axios";
-import type { SpecHomePage1821Set } from "./HomePage_Types";
 
 // #region Property
-const SPEC_HOME_PAGE_1821_API = PGID.SpecHomePage1821Api;
+type SpecHomePage1821Set = components["schemas"]["SpecHomePage1821Set_DTO"];
 // #endregion
 
 // #region Public
@@ -14,7 +14,7 @@ export class SpecHomePage1821Service extends ApiDataService<SpecHomePage1821Set>
     // #region Public
     constructor(apiInstance?: AxiosInstance)
     {
-        super(SPEC_HOME_PAGE_1821_API, apiInstance);
+        super(PGID.SpecHomePageApi, apiInstance);
     }
     // #endregion
 }

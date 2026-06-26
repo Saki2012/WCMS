@@ -59,7 +59,6 @@ public class SpecHomePage1821_Banner_DTO : DetailRowModel
     [LibDesc(SpecModelDisplayName.BannerFileId), StringLength(SysLengthParam.InternalId)] public string? BannerFileId { get; set; }
     [LibDesc(SpecModelDisplayName.BannerFileDescription), StringLength(SysLengthParam.Title_en)] public string? BannerFileDescription { get; set; }
     [LibDesc(ModelDisplayName.Common_Url), StringLength(SysLengthParam.Url)] public string? Link { get; set; }
-    [LibDesc(ModelDisplayName.Common_IsHide)] public bool? IsHide { get; set; }
 
     #region 主子表關聯
     [ForeignKey(nameof(HomePageId))] public SpecHomePage1821Model_DTO? _SpecHomePage1821 { get; set; }
@@ -86,7 +85,6 @@ public class SpecHomePage1821_Shortcut_DTO : DetailRowModel
     [LibDesc(ModelDisplayName.Common_Url), StringLength(SysLengthParam.Url)] public string? Link { get; set; }
     [ForeignKey(nameof(LinkPicId))] public FileManageModel_DTO? LinkPic { get; set; }
     [LibDesc(SpecModelDisplayName.LinkPicId), StringLength(SysLengthParam.InternalId)] public string? LinkPicId { get; set; }
-    [LibDesc(ModelDisplayName.Common_IsHide)] public bool? IsHide { get; set; }
 
     #region 主子表關聯
     [ForeignKey(nameof(HomePageId))] public SpecHomePage1821Model_DTO? _SpecHomePage1821 { get; set; }
@@ -108,7 +106,6 @@ public class SpecHomePage1821_ShortcutModuleItem_DTO : DetailRowModel
     [LibDesc(SpecModelDisplayName.ModuleType)] public SpecHomePageModuleType? ModuleType { get; set; }
     [LibDesc(SpecModelDisplayName.ModuleOptions)] public string? ModuleOptions { get; set; }
     [LibDesc(SpecModelDisplayName.MoreViewLink), StringLength(SysLengthParam.Url)] public string? MoreViewLink { get; set; }
-    [LibDesc(ModelDisplayName.Common_IsHide)] public bool? IsHide { get; set; }
 
     #region 主子表關聯
     [ForeignKey($@"{nameof(HomePageId)},{nameof(ParentRowId)}")] public SpecHomePage1821_Shortcut_DTO? _SpecHomePage1821_Shortcut { get; set; }

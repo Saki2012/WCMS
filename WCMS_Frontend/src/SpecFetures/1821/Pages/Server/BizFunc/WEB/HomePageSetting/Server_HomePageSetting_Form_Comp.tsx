@@ -1,19 +1,21 @@
 import { Server_FormTemplate_Comp } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Comp";
 import type { ServerFormBinding } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
 import { EditGrid } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid";
-import type { EditGridCellRenderArgs, EditGridCellValue, IEditGridView_Style } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Data";
+import { useEditGridSubDetailState } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
+import type { EditGridCellRenderArgs, EditGridCellValue, EditGridEditingStateArgs, EditGridSubDetailRenderArgs, IEditGridView_Style } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Data";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import type { SpecHomePage1821Set } from "@/SpecFetures/1821/Hooks/WEB/HomePage_Types";
-import { SpecHomePage1821ModelFields, SpecHomePage1821SetFields } from "@/SpecFetures/1821/Hooks/WEB/HomePage_Types";
 import { useUploadPicture } from "@/SysCore/Components/FormField/FieldComponets/LibPicture_Comp";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-import { LibFile, LibPicture, LibTextArea, LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
+import { LibCheckBox, LibFile, LibPicture, LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
 import { LoadingErrorHandler } from "@/SysCore/Components/LoadingErrorHandler";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import { type Lang, LangLabelMap, SUPPORTED_LANGS } from "@/SysCore/i18n/lang";
+import type { components } from "@/types/api";
+import { SpecHomePage1821ModelFields, SpecHomePage1821SetFields } from "@/types/SchemaFields";
 import { type ReactNode, useCallback, useMemo } from "react";
 import {
+    type HomePage1821FormRefs,
     createEmptyHomePage1821Set,
     getHomePageFilePreviewUrl,
     toHomePageFileCellValue,
@@ -25,7 +27,7 @@ import {
 } from "./Server_HomePageSetting_Form_Hook";
 
 // #region Property
-type HomePageSet = SpecHomePage1821Set;
+type HomePageSet = components["schemas"]["SpecHomePage1821Set_DTO"];
 
 const editGridStyle: IEditGridView_Style = {
     TableStyle: "table table-striped table-bordered table-hover",
@@ -43,6 +45,14 @@ interface HeaderPictureFieldProps
     fieldName: typeof SpecHomePage1821ModelFields.Card1PicId | typeof SpecHomePage1821ModelFields.Card2PicId;
     label: string;
 }
+
+interface HomePageOptionsJson
+{
+    categoryIds: string;
+    tagIds: string;
+}
+
+type HomePageOptionsKey = keyof HomePageOptionsJson;
 // #endregion
 
 // #region Public
@@ -91,32 +101,30 @@ const LangFormTabComp = (prop: { theme: IBETheme; lang: Lang; summary: ReturnTyp
         <Server_FormTemplate_Comp
             key={`${prop.lang}_${internalId || "new"}`}
             template={template}
-            renderContent={({ vm }) => <LangSetTabComp theme={prop.theme} lang={prop.lang} binding={vm.rawData.formData} />}
+            renderContent={({ vm }) => <LangSetTabComp theme={prop.theme} lang={prop.lang} binding={vm.rawData.formData} refs={vm.refs} />}
         />
     );
 };
 
-const LangSetTabComp = (prop: { theme: IBETheme; lang: Lang; binding: ServerFormBinding<HomePageSet>; }) =>
+const LangSetTabComp = (prop: { theme: IBETheme; lang: Lang; binding: ServerFormBinding<HomePageSet>; refs: HomePage1821FormRefs; }) =>
 {
     const buildSectionKey = (section: string) => `${prop.lang}_${section}`;
 
     const sectionTabs: LibTabsProp = {
         Style: prop.theme.Tabs,
         item: {
-            [buildSectionKey("Banner")]: "Banner",
-            [buildSectionKey("Tabs")]: "Tabs",
-            [buildSectionKey("ModuleItems")]: "Module Items",
-            [buildSectionKey("Cards")]: "Cards",
-            [buildSectionKey("Links")]: "Links",
+            [buildSectionKey("Banner")]: "橫幅圖片",
+            [buildSectionKey("ShortcutItems")]: "標籤項目",
+            [buildSectionKey("Cards")]: "卡片設定",
+            [buildSectionKey("Links")]: "相關連結",
         },
     };
 
     const sectionComponents: Record<string, ReactNode[]> = {
         [buildSectionKey("Banner")]: [<BannerSectionComp key="banner" theme={prop.theme} formData={prop.binding} lang={prop.lang} />],
-        [buildSectionKey("Tabs")]: [<ShortcutSectionComp key="tabs" theme={prop.theme} formData={prop.binding} lang={prop.lang} />],
-        [buildSectionKey("ModuleItems")]: [<ModuleItemSectionComp key="module-items" theme={prop.theme} formData={prop.binding} lang={prop.lang} />],
+        [buildSectionKey("ShortcutItems")]: [<ShortcutItemsSectionComp key="shortcut-items" theme={prop.theme} formData={prop.binding} lang={prop.lang} refs={prop.refs} />],
         [buildSectionKey("Cards")]: [<CardsSectionComp key="cards" theme={prop.theme} formData={prop.binding} lang={prop.lang} />],
-        [buildSectionKey("Links")]: [<LinksSectionComp key="links" theme={prop.theme} formData={prop.binding} />],
+        [buildSectionKey("Links")]: [<LinksSectionComp key="links" theme={prop.theme} formData={prop.binding} lang={prop.lang} refs={prop.refs} />],
     };
 
     return (
@@ -138,25 +146,78 @@ const BannerSectionComp = (prop: { theme: IBETheme; formData: ServerFormBinding<
     );
 };
 
-const ShortcutSectionComp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; lang: string; }) =>
+const ShortcutItemsSectionComp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; lang: string; refs: HomePage1821FormRefs; }) =>
 {
-    const { renderPicturePreview } = useHomePageEditGridRenderers();
-    const shortcutGrid = useHomePage1821ShortcutEditGrid({ binding: prop.formData, lang: prop.lang, style: editGridStyle, renderPicturePreview });
-
     return (
         <div className="col-12">
-            <EditGrid {...shortcutGrid.editGridProps} />
+            <ShortcutSectionComp theme={prop.theme} formData={prop.formData} lang={prop.lang} refs={prop.refs} />
         </div>
     );
 };
 
-const ModuleItemSectionComp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; lang: string; }) =>
+const ShortcutSectionComp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; lang: string; refs: HomePage1821FormRefs; }) =>
 {
-    const moduleItemGrid = useHomePage1821ShortcutModuleItemEditGrid({ binding: prop.formData, lang: prop.lang, style: editGridStyle });
+    const subDetail = useEditGridSubDetailState();
+    const { renderPicturePreview } = useHomePageEditGridRenderers();
+    const renderModuleDetailAction = useCallback(
+        (args: EditGridCellRenderArgs) => <ModuleDetailActionButton args={args} expandedRowKey={subDetail.expandedRowKey} onToggle={subDetail.toggleSubDetail} />,
+        [subDetail.expandedRowKey, subDetail.toggleSubDetail],
+    );
+    const shortcutGrid = useHomePage1821ShortcutEditGrid({
+        binding: prop.formData,
+        lang: prop.lang,
+        style: editGridStyle,
+        renderPicturePreview,
+        renderModuleDetailAction,
+    });
+    const renderSubDetail = useCallback(
+        (args: EditGridSubDetailRenderArgs) => (
+            <ModuleItemSubDetailComp
+                theme={prop.theme}
+                formData={prop.formData}
+                lang={prop.lang}
+                refs={prop.refs}
+                parentRowId={getShortcutParentRowId(args)}
+                onEditingStateChange={subDetail.onSubDetailEditingStateChange}
+            />
+        ),
+        [prop.formData, prop.lang, prop.refs, prop.theme, subDetail.onSubDetailEditingStateChange],
+    );
 
     return (
         <div className="col-12">
-            <EditGrid {...moduleItemGrid.editGridProps} />
+            <EditGrid
+                {...shortcutGrid.editGridProps}
+                expandedRowKey={subDetail.expandedRowKey}
+                subDetailRender={renderSubDetail}
+                subDetailRowClassName="edit-grid-sub-detail-row bg-light"
+            />
+        </div>
+    );
+};
+
+const ModuleItemSubDetailComp = (
+    prop: {
+        theme: IBETheme;
+        formData: ServerFormBinding<HomePageSet>;
+        lang: string;
+        refs: HomePage1821FormRefs;
+        parentRowId: number;
+        onEditingStateChange: (args: EditGridEditingStateArgs) => void;
+    },
+) =>
+{
+    const moduleItemGrid = useHomePage1821ShortcutModuleItemEditGrid({
+        binding: prop.formData,
+        lang: prop.lang,
+        style: editGridStyle,
+        refs: prop.refs,
+        parentRowId: prop.parentRowId,
+    });
+
+    return (
+        <div className="p-3">
+            <EditGrid {...moduleItemGrid.editGridProps} onEditingStateChange={prop.onEditingStateChange} />
         </div>
     );
 };
@@ -205,30 +266,40 @@ const CardsSectionComp = (prop: { theme: IBETheme; formData: ServerFormBinding<H
     );
 };
 
-const LinksSectionComp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; }) =>
+const LinksSectionComp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; lang: Lang; refs: HomePage1821FormRefs; }) =>
 {
     const setField = useSetTableField<HomePageSet>(prop.formData);
+    const options = parseOptionsText(prop.formData.data?.SpecHomePage1821?.LinkOptions);
 
     return (
         <>
             <LibTextBox
                 Style={prop.theme.TextBox}
-                DefaultInputDisplay="請輸入連結區標題"
+                DefaultInputDisplay="請輸入相關連結標題"
                 {...setField(SpecHomePage1821SetFields.SpecHomePage1821, SpecHomePage1821ModelFields.Section4Title, "string")}
             />
             <LibTextBox
                 Style={prop.theme.TextBox}
-                DefaultInputDisplay="請輸入連結區副標題"
+                DefaultInputDisplay="請輸入相關連結副標題"
                 {...setField(SpecHomePage1821SetFields.SpecHomePage1821, SpecHomePage1821ModelFields.Section4SubTitle, "string")}
             />
-            <LibTextArea
-                Style={prop.theme.TextArea}
-                DefaultInputDisplay="{&quot;categoryIds&quot;:&quot;&quot;,&quot;tagIds&quot;:&quot;&quot;}"
-                {...setField(SpecHomePage1821SetFields.SpecHomePage1821, SpecHomePage1821ModelFields.LinkOptions, "string")}
+            <LibCheckBox
+                Style={prop.theme.CheckBox}
+                ColumnDisplayName="相關連結類別"
+                options={prop.refs.webResource.categoryMap}
+                InputValue={splitCsvValues(options.categoryIds)}
+                onChange={(value) => updateHeaderOptions(prop.formData, prop.lang, "categoryIds", value)}
+            />
+            <LibCheckBox
+                Style={prop.theme.CheckBox}
+                ColumnDisplayName="相關連結標籤"
+                options={prop.refs.webResource.tagMap}
+                InputValue={splitCsvValues(options.tagIds)}
+                onChange={(value) => updateHeaderOptions(prop.formData, prop.lang, "tagIds", value)}
             />
             <LibTextBox
                 Style={prop.theme.TextBox}
-                DefaultInputDisplay="請輸入 More View 連結"
+                DefaultInputDisplay="請輸入查看更多連結"
                 {...setField(SpecHomePage1821SetFields.SpecHomePage1821, SpecHomePage1821ModelFields.LinkViewMore, "string")}
             />
         </>
@@ -251,13 +322,29 @@ const HeaderPictureField = (props: HeaderPictureFieldProps) =>
             parentClass="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12"
             onChange={(files) => uploadPic.handleFileChange(files, internalId => updateHeaderPictureId(props.formData, props.lang, props.fieldName, internalId))}
         >
-            <LibPicture key="preview" ColumnDisplayName={props.label} InputValue="" PicSrc={previewSrc} PicDescription={props.label} />
+            <LibPicture key="preview" ColumnDisplayName={props.label} PicSrc={previewSrc} PicDescription={props.label} />
         </LibFile>
     );
 };
 // #endregion
 
-// #region Private
+// #region EntityComp
+const ModuleDetailActionButton = (props: { args: EditGridCellRenderArgs; expandedRowKey: string | null; onToggle: (row: EditGridCellRenderArgs["row"]) => void; }) =>
+{
+    const isExpanded = props.expandedRowKey === props.args.row.keyId;
+
+    return (
+        <button
+            type="button"
+            className="btn btn-outline-primary btn-sm"
+            aria-expanded={isExpanded}
+            onClick={() => props.onToggle(props.args.row)}
+        >
+            {isExpanded ? "收合" : "查看"}
+        </button>
+    );
+};
+
 const HomePageImagePreview = (props: { value: EditGridCellValue; }) =>
 {
     const file = toHomePageFileCellValue(props.value);
@@ -266,6 +353,73 @@ const HomePageImagePreview = (props: { value: EditGridCellValue; }) =>
 
     if (!previewUrl) return <span className="small">尚未選擇圖片</span>;
     return <img src={previewUrl} alt={alt} style={{ maxWidth: "160px", maxHeight: "120px", objectFit: "contain" }} />;
+};
+// #endregion
+
+// #region Private
+const getShortcutParentRowId = (args: EditGridSubDetailRenderArgs): number =>
+{
+    const rowId = Number(args.row.RowId ?? args.row.rowId ?? args.row.rowid ?? 0);
+    return Number.isFinite(rowId) ? rowId : 0;
+};
+
+const DefaultOptionsJson = "{\"categoryIds\":\"\",\"tagIds\":\"\"}";
+
+const parseOptionsText = (value?: string | null): HomePageOptionsJson =>
+{
+    try
+    {
+        const parsed = JSON.parse(normalizeOptionsText(value)) as Partial<HomePageOptionsJson>;
+        return { categoryIds: normalizeText(parsed.categoryIds), tagIds: normalizeText(parsed.tagIds) };
+    } catch
+    {
+        return { categoryIds: "", tagIds: "" };
+    }
+};
+
+const updateHeaderOptions = (
+    binding: ServerFormBinding<HomePageSet>,
+    lang: Lang,
+    key: HomePageOptionsKey,
+    value: unknown,
+): void =>
+{
+    binding.setFormData(prev =>
+    {
+        const base = prev ?? createEmptyHomePage1821Set(lang);
+        const currentOptions = parseOptionsText(base.SpecHomePage1821?.LinkOptions);
+        const nextOptions = { ...currentOptions, [key]: toCsvText(value) };
+
+        return {
+            ...base,
+            SpecHomePage1821: {
+                ...base.SpecHomePage1821,
+                LinkOptions: JSON.stringify(nextOptions),
+            },
+        };
+    });
+};
+
+const normalizeOptionsText = (value?: string | null): string =>
+{
+    const text = normalizeText(value);
+    return text || DefaultOptionsJson;
+};
+
+const splitCsvValues = (value?: string | null): string[] =>
+{
+    return normalizeText(value).split(",").map(item => item.trim()).filter(Boolean);
+};
+
+const toCsvText = (value: unknown): string =>
+{
+    if (Array.isArray(value)) return value.map(item => String(item).trim()).filter(Boolean).join(",");
+    return normalizeText(value as string | number | boolean | null | undefined);
+};
+
+const normalizeText = (value?: string | number | boolean | null): string =>
+{
+    return String(value ?? "").trim();
 };
 
 const getLangDisplayName = (lang?: string) =>
@@ -293,10 +447,18 @@ const updateHeaderPictureId = (
     internalId: string,
 ): void =>
 {
+    const nextId = normalizeRelationId(internalId);
+
     binding.setFormData(prev =>
     {
         const base = prev ?? createEmptyHomePage1821Set(lang);
-        return { ...base, SpecHomePage1821: { ...base.SpecHomePage1821, [fieldName]: internalId } };
+        return { ...base, SpecHomePage1821: { ...base.SpecHomePage1821, [fieldName]: nextId } };
     });
+};
+
+const normalizeRelationId = (value?: string | null): string | null =>
+{
+    const text = String(value ?? "").trim();
+    return text || null;
 };
 // #endregion

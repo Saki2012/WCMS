@@ -1,3 +1,5 @@
+import { CategoryAdapter } from "@/Features/Hooks/BizFunc/COMM/Category_Api";
+import { TagAdapter } from "@/Features/Hooks/BizFunc/COMM/Tag_Api";
 import type {
     ServerFormActionContext,
     ServerFormDefaultRawData,
@@ -24,23 +26,6 @@ import {
 } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { SpecHomePage1821Adapter } from "@/SpecFetures/1821/Hooks/WEB/HomePage_Api";
-import type {
-    FileManageDto,
-    QueryListParam,
-    SpecHomePage1821Banner,
-    SpecHomePage1821Model,
-    SpecHomePage1821Set,
-    SpecHomePage1821Shortcut,
-    SpecHomePage1821ShortcutModuleItem,
-} from "@/SpecFetures/1821/Hooks/WEB/HomePage_Types";
-import {
-    HomePageModuleType,
-    SpecHomePage1821BannerFields,
-    SpecHomePage1821ModelFields,
-    SpecHomePage1821SetFields,
-    SpecHomePage1821ShortcutFields,
-    SpecHomePage1821ShortcutModuleItemFields,
-} from "@/SpecFetures/1821/Hooks/WEB/HomePage_Types";
 import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import type { ApiFormInitial, ServerFormActions } from "@/SysCore/Utils/API/APIAdapter";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
@@ -48,18 +33,39 @@ import type { UseFetchDataResult } from "@/SysCore/Utils/API/FetchDataType";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import { LibAttachment } from "@/SysCore/Utils/Library/LibData";
 import { useUploadFile } from "@/SysCore/Utils/UI_HookFunc/useUploadFile";
+import type { components } from "@/types/api";
+import {
+    PGID,
+    SpecHomePage1821_BannerFields,
+    SpecHomePage1821_ShortcutFields,
+    SpecHomePage1821_ShortcutModuleItemFields,
+    SpecHomePage1821ModelFields,
+    SpecHomePage1821SetFields,
+} from "@/types/SchemaFields";
 import { type SetStateAction, useCallback, useMemo } from "react";
 
 // #region Property
-type HomePageSet = SpecHomePage1821Set;
+type HomePageSet = components["schemas"]["SpecHomePage1821Set_DTO"];
 
-type HomePageModel = SpecHomePage1821Model;
+type HomePageModel = components["schemas"]["SpecHomePage1821Model_DTO"];
 
-type Banner = SpecHomePage1821Banner;
+type Banner = components["schemas"]["SpecHomePage1821_Banner_DTO"];
 
-type Shortcut = SpecHomePage1821Shortcut;
+type Shortcut = components["schemas"]["SpecHomePage1821_Shortcut_DTO"];
 
-type ShortcutModuleItem = SpecHomePage1821ShortcutModuleItem;
+type ShortcutModuleItem = components["schemas"]["SpecHomePage1821_ShortcutModuleItem_DTO"];
+
+type FileManageDto = components["schemas"]["FileManageModel_DTO"];
+
+type QueryListParam = components["schemas"]["QueryListParam"];
+
+type SpecHomePageModuleType = components["schemas"]["SpecHomePageModuleType"];
+
+type OptionMap = Record<string, string>;
+
+type HomePageTextValue = string | number | boolean | null | undefined;
+
+export type HomePageOptionMapSet = { categoryMap: OptionMap; tagMap: OptionMap; };
 
 export type HomePageGridFileValue = EditGridFileValue & { internalId?: string; originalFileName?: string; };
 
@@ -83,13 +89,21 @@ export type HomePage1821SummaryRawData = {
     langSummaryMap: Record<string, HomePage1821SummaryRow>;
 };
 
-export type HomePage1821FormRefs = Record<string, never>;
+export type HomePage1821FormRefs = {
+    announcement: HomePageOptionMapSet;
+    fileArchive: HomePageOptionMapSet;
+    webResource: HomePageOptionMapSet;
+};
 
 export type HomePage1821FormRawData = Record<string, unknown> & ServerFormDefaultRawData<HomePageSet, HomePage1821FormRefs> & {
     formData: UseFetchFormDataResult<HomePageSet>;
 };
 
-export type HomePage1821FormAdapter = { HomePage: ReturnType<typeof SpecHomePage1821Adapter>; };
+export type HomePage1821FormAdapter = {
+    HomePage: ReturnType<typeof SpecHomePage1821Adapter>;
+    Category: ReturnType<typeof CategoryAdapter>;
+    Tag: ReturnType<typeof TagAdapter>;
+};
 
 export type HomePage1821FormActionsOpt = {
     lang: Lang;
@@ -100,6 +114,20 @@ export type HomePage1821FormActionsOpt = {
 export type HomePage1821SummaryAdapter = { HomePage: ReturnType<typeof SpecHomePage1821Adapter>; };
 
 const DefaultOptionsJson = "{\"categoryIds\":\"\",\"tagIds\":\"\"}";
+const ModuleDetailActionField = "__ModuleDetailAction";
+const ModuleCategoryIdsField = "__ModuleCategoryIds";
+const ModuleTagIdsField = "__ModuleTagIds";
+
+interface HomePageOptionsJson
+{
+    categoryIds: string;
+    tagIds: string;
+}
+
+const HomePageModuleType = {
+    Announcement: 1,
+    FileArchive: 2,
+} as const satisfies Record<string, SpecHomePageModuleType>;
 
 const moduleTypeOptions = [
     { label: "最新消息", value: HomePageModuleType.Announcement },
@@ -205,7 +233,7 @@ export const useHomePage1821BannerEditGrid = (opt: HomePageEditGridBaseOptions) 
 {
     const uploadFile = useUploadFile({ enablePreview: false });
     const handleFileValueChange = useCallback(
-        (args: EditGridCellValueChangeArgs) => uploadHomePageFileValue(args, uploadFile.handleFileChange, SpecHomePage1821BannerFields.BannerFileDescription),
+        (args: EditGridCellValueChangeArgs) => uploadHomePageFileValue(args, uploadFile.handleFileChange, SpecHomePage1821_BannerFields.BannerFileDescription),
         [uploadFile.handleFileChange],
     );
     const columns = useMemo(() => buildBannerColumns(handleFileValueChange, opt.renderPicturePreview), [handleFileValueChange, opt.renderPicturePreview]);
@@ -219,16 +247,16 @@ export const useHomePage1821BannerEditGrid = (opt: HomePageEditGridBaseOptions) 
         sortItems: sortHomePageRows,
         createItem: ctx => buildNewBannerItem(ctx.data, ctx.nextRowId),
         toRow: (item, index) => buildBannerGridRow(item, index, handleFileValueChange, opt.renderPicturePreview),
-        toItem: (row, index, ctx) => toBannerDto(ctx.data, row, index),
-        editGridProps: buildHomePageGridProps("Section1 Banner", "Banner", "server-home-page-1821-banner-grid", 1180, opt.style),
+        toItem: (row, index, ctx) => toBannerDto(ctx.visibleItems[index], row, index),
+        editGridProps: buildHomePageGridProps("橫幅圖片", "橫幅圖片", "server-home-page-1821-banner-grid", 1180, opt.style),
     });
 };
 
-export const useHomePage1821ShortcutEditGrid = (opt: HomePageEditGridBaseOptions) =>
+export const useHomePage1821ShortcutEditGrid = (opt: HomePageEditGridBaseOptions & { renderModuleDetailAction?: HomePageImageRender; }) =>
 {
     const uploadFile = useUploadFile({ enablePreview: false });
     const handleIconFileChange = useCallback(
-        (args: EditGridCellValueChangeArgs) => uploadHomePageFileValue(args, uploadFile.handleFileChange, SpecHomePage1821ShortcutFields.IconFileDescription),
+        (args: EditGridCellValueChangeArgs) => uploadHomePageFileValue(args, uploadFile.handleFileChange, SpecHomePage1821_ShortcutFields.IconFileDescription),
         [uploadFile.handleFileChange],
     );
     const handleLinkPicChange = useCallback(
@@ -236,8 +264,8 @@ export const useHomePage1821ShortcutEditGrid = (opt: HomePageEditGridBaseOptions
         [uploadFile.handleFileChange],
     );
     const columns = useMemo(
-        () => buildShortcutColumns(handleIconFileChange, handleLinkPicChange, opt.renderPicturePreview),
-        [handleIconFileChange, handleLinkPicChange, opt.renderPicturePreview],
+        () => buildShortcutColumns(handleIconFileChange, handleLinkPicChange, opt.renderPicturePreview, opt.renderModuleDetailAction),
+        [handleIconFileChange, handleLinkPicChange, opt.renderModuleDetailAction, opt.renderPicturePreview],
     );
 
     return useEditGridBinding<HomePageSet, Shortcut>({
@@ -248,16 +276,17 @@ export const useHomePage1821ShortcutEditGrid = (opt: HomePageEditGridBaseOptions
         getItemRowId: item => item.RowId,
         sortItems: sortHomePageRows,
         createItem: ctx => buildNewShortcutItem(ctx.data, ctx.nextRowId),
-        toRow: (item, index) => buildShortcutGridRow(item, index, handleIconFileChange, handleLinkPicChange, opt.renderPicturePreview),
-        toItem: (row, index, ctx) => toShortcutDto(ctx.data, row, index),
-        editGridProps: buildHomePageGridProps("Section2 Tabs", "Tab", "server-home-page-1821-shortcut-grid", 1760, opt.style),
+        toRow: (item, index) => buildShortcutGridRow(item, index, handleIconFileChange, handleLinkPicChange, opt.renderPicturePreview, opt.renderModuleDetailAction),
+        toItem: (row, index, ctx) => toShortcutDto(ctx.visibleItems[index], row, index),
+        editGridProps: buildHomePageGridProps("標籤設定", "標籤", "server-home-page-1821-shortcut-grid", 1920, opt.style),
     });
 };
 
-export const useHomePage1821ShortcutModuleItemEditGrid = (opt: HomePageEditGridBaseOptions) =>
+export const useHomePage1821ShortcutModuleItemEditGrid = (opt: HomePageEditGridBaseOptions & { refs: HomePage1821FormRefs; parentRowId?: number | null; }) =>
 {
+    const parentRowId = normalizeParentRowId(opt.parentRowId);
     const shortcutOptions = useMemo(() => buildShortcutParentOptions(opt.binding.data?.SpecHomePage1821_Shortcut), [opt.binding.data?.SpecHomePage1821_Shortcut]);
-    const columns = useMemo(() => buildModuleItemColumns(shortcutOptions), [shortcutOptions]);
+    const columns = useMemo(() => buildModuleItemColumns(shortcutOptions, !parentRowId), [parentRowId, shortcutOptions]);
 
     return useEditGridBinding<HomePageSet, ShortcutModuleItem>({
         binding: buildHomePageEditGridBinding(opt.binding),
@@ -266,11 +295,12 @@ export const useHomePage1821ShortcutModuleItemEditGrid = (opt: HomePageEditGridB
         columns,
         getItemRowId: item => item.RowId,
         sortItems: sortModuleRows,
-        createItem: ctx => buildNewModuleItem(ctx.data, ctx.nextRowId),
-        toRow: buildModuleItemGridRow,
-        toItem: (row, index, ctx) => toModuleItemDto(ctx.data, row, index),
-        beforeCommit: ctx => normalizeModuleItemRowNo(ctx.nextVisibleItems),
-        editGridProps: buildHomePageGridProps("Section2 Module Items", "Module Item", "server-home-page-1821-module-item-grid", 1320, opt.style),
+        createItem: ctx => buildNewModuleItem(ctx.data, ctx.nextRowId, parentRowId),
+        toRow: (item, index) => buildModuleItemGridRow(item, index, opt.refs, !parentRowId),
+        toItem: (row, index, ctx) => toModuleItemDto(ctx.visibleItems[index], row, index, parentRowId),
+        parent: parentRowId ? { field: SpecHomePage1821_ShortcutModuleItemFields.ParentRowId, value: parentRowId } : undefined,
+        beforeCommit: ctx => normalizeModuleItemRowNo(ctx.nextItems),
+        editGridProps: buildHomePageGridProps("標籤模組項目", "模組項目", "server-home-page-1821-module-item-grid", 1580, opt.style),
     });
 };
 
@@ -297,9 +327,9 @@ const createEmptyModel = (lang: string): HomePageModel =>
         Section3Title: "",
         Section3SubTitle: "",
         Card1Title: "",
-        Card1PicId: "",
+        Card1PicId: null,
         Card2Title: "",
-        Card2PicId: "",
+        Card2PicId: null,
         Section4Title: "",
         Section4SubTitle: "",
         LinkOptions: DefaultOptionsJson,
@@ -319,9 +349,21 @@ const normalizeSet = (lang: string, data?: HomePageSet | null): HomePageSet =>
     };
 };
 
-const normalizeText = (value?: string | null) =>
+const normalizeText = (value?: HomePageTextValue): string =>
 {
     return String(value ?? "").trim();
+};
+
+/** 判斷 EditGrid 值是否可轉成一般文字。 */
+const isHomePageTextValue = (value: EditGridCellValue): value is HomePageTextValue =>
+{
+    return value === null || value === undefined || ["string", "number", "boolean"].includes(typeof value);
+};
+
+const normalizeRelationId = (value?: string | null): string | null =>
+{
+    const text = normalizeText(value);
+    return text || null;
 };
 
 const normalizeLang = (lang?: string) =>
@@ -346,6 +388,8 @@ const sanitizeSetBeforeSave = (lang: string, data: HomePageSet): HomePageSet =>
             ...set.SpecHomePage1821,
             Lang: set.SpecHomePage1821?.Lang || lang,
             HomePageId: homePageId,
+            Card1PicId: normalizeRelationId(set.SpecHomePage1821?.Card1PicId),
+            Card2PicId: normalizeRelationId(set.SpecHomePage1821?.Card2PicId),
             LinkOptions: normalizeOptionsText(set.SpecHomePage1821?.LinkOptions),
         },
         SpecHomePage1821_Banner: normalizeBannerForSave(set.SpecHomePage1821_Banner ?? []),
@@ -356,7 +400,11 @@ const sanitizeSetBeforeSave = (lang: string, data: HomePageSet): HomePageSet =>
 
 const normalizeBannerForSave = (rows: Banner[]): Banner[] =>
 {
-    return rows.map((row, index) => ({ ...row, RowNo: index + 1 }));
+    return rows.map((row, index) => ({
+        ...row,
+        RowNo: index + 1,
+        BannerFileId: normalizeRelationId(row.BannerFileId),
+    }));
 };
 
 const normalizeShortcutForSave = (rows: Shortcut[]): Shortcut[] =>
@@ -368,8 +416,9 @@ const normalizeShortcutForSave = (rows: Shortcut[]): Shortcut[] =>
             ...row,
             RowNo: index + 1,
             IsLink: isLink,
+            IconFileId: normalizeRelationId(row.IconFileId),
             Link: isLink ? row.Link ?? "" : "",
-            LinkPicId: isLink ? row.LinkPicId ?? "" : null,
+            LinkPicId: isLink ? normalizeRelationId(row.LinkPicId) : null,
         };
     });
 };
@@ -418,7 +467,54 @@ const resolveNextFormData = (lang: string, prev: HomePageSet, next: SetStateActi
 
 const buildHomePage1821FormAdapter = (adapter: ReturnType<typeof SpecHomePage1821Adapter>): HomePage1821FormAdapter =>
 {
-    return { HomePage: adapter };
+    return { HomePage: adapter, Category: CategoryAdapter(), Tag: TagAdapter() };
+};
+
+const buildHomePage1821ReferenceResult = (
+    opt: {
+        announcementCategory: { map?: OptionMap; isLoading: boolean; errorText?: string | null; refetch: () => Promise<void>; };
+        announcementTag: { map?: OptionMap; isLoading: boolean; errorText?: string | null; refetch: () => Promise<void>; };
+        fileArchiveCategory: { map?: OptionMap; isLoading: boolean; errorText?: string | null; refetch: () => Promise<void>; };
+        fileArchiveTag: { map?: OptionMap; isLoading: boolean; errorText?: string | null; refetch: () => Promise<void>; };
+        webResourceCategory: { map?: OptionMap; isLoading: boolean; errorText?: string | null; refetch: () => Promise<void>; };
+        webResourceTag: { map?: OptionMap; isLoading: boolean; errorText?: string | null; refetch: () => Promise<void>; };
+    },
+): ServerFormReferenceResult<HomePage1821FormRefs> =>
+{
+    return {
+        refs: {
+            announcement: { categoryMap: opt.announcementCategory.map ?? {}, tagMap: opt.announcementTag.map ?? {} },
+            fileArchive: { categoryMap: opt.fileArchiveCategory.map ?? {}, tagMap: opt.fileArchiveTag.map ?? {} },
+            webResource: { categoryMap: opt.webResourceCategory.map ?? {}, tagMap: opt.webResourceTag.map ?? {} },
+        },
+        isLoading: Boolean(
+            opt.announcementCategory.isLoading
+                || opt.announcementTag.isLoading
+                || opt.fileArchiveCategory.isLoading
+                || opt.fileArchiveTag.isLoading
+                || opt.webResourceCategory.isLoading
+                || opt.webResourceTag.isLoading,
+        ),
+        errors: [
+            opt.announcementCategory.errorText,
+            opt.announcementTag.errorText,
+            opt.fileArchiveCategory.errorText,
+            opt.fileArchiveTag.errorText,
+            opt.webResourceCategory.errorText,
+            opt.webResourceTag.errorText,
+        ],
+        refetchRefData: async () =>
+        {
+            await Promise.all([
+                opt.announcementCategory.refetch(),
+                opt.announcementTag.refetch(),
+                opt.fileArchiveCategory.refetch(),
+                opt.fileArchiveTag.refetch(),
+                opt.webResourceCategory.refetch(),
+                opt.webResourceTag.refetch(),
+            ]);
+        },
+    };
 };
 
 const buildHomePage1821FormTitle = (): string =>
@@ -432,12 +528,29 @@ const buildHomePage1821InitialData = (ctx: { mode: "new" | "edit"; emptyData: Ho
     return { data: { args: "__new__", apiRes: { IsSuccess: true, Data: ctx.emptyData, SysMessage: [] } } };
 };
 
-const useHomePage1821ReferenceData = (): ServerFormReferenceResult<HomePage1821FormRefs> =>
+const useHomePage1821ReferenceData = (
+    ctx: ServerFormReferenceContext<HomePageSet, HomePage1821FormAdapter, HomePage1821FormActionsOpt, HomePage1821FormRefs>,
+): ServerFormReferenceResult<HomePage1821FormRefs> =>
 {
+    const lang = ctx.actionsOpt.lang;
+    const announcementCategory = ctx.adapter.Category.hooks.useMapByProgId({ progId: PGID.Announcement, lang });
+    const announcementTag = ctx.adapter.Tag.hooks.useMapByProgId({ progId: PGID.Announcement, lang });
+    const fileArchiveCategory = ctx.adapter.Category.hooks.useMapByProgId({ progId: PGID.FileArchive, lang });
+    const fileArchiveTag = ctx.adapter.Tag.hooks.useMapByProgId({ progId: PGID.FileArchive, lang });
+    const webResourceCategory = ctx.adapter.Category.hooks.useMapByProgId({ progId: PGID.WebResource, lang });
+    const webResourceTag = ctx.adapter.Tag.hooks.useMapByProgId({ progId: PGID.WebResource, lang });
+
     return useMemo(() =>
     {
-        return { refs: {}, isLoading: false, errors: [], refetchRefData: async () => undefined };
-    }, []);
+        return buildHomePage1821ReferenceResult({
+            announcementCategory,
+            announcementTag,
+            fileArchiveCategory,
+            fileArchiveTag,
+            webResourceCategory,
+            webResourceTag,
+        });
+    }, [announcementCategory, announcementTag, fileArchiveCategory, fileArchiveTag, webResourceCategory, webResourceTag]);
 };
 
 const buildHomePage1821SuccessActions = (
@@ -526,21 +639,15 @@ const compareNumber = (a?: number | null, b?: number | null): number =>
     return Number(a ?? 0) - Number(b ?? 0);
 };
 
-const getHomePageId = (data: HomePageSet): string =>
-{
-    return normalizeText(data.SpecHomePage1821?.HomePageId);
-};
-
 const buildBannerColumns = (
     onFileChange: (args: EditGridCellValueChangeArgs) => Promise<EditGridCellValueChangeResult>,
     renderPicturePreview?: HomePageImageRender,
 ): ColumnConfig[] =>
 {
     return [
-        buildFileColumn(SpecHomePage1821BannerFields.BannerFileId, "Banner 圖片", 360, onFileChange, renderPicturePreview),
-        buildTextColumn(SpecHomePage1821BannerFields.BannerFileDescription, "圖片說明", 220, 200),
-        buildTextColumn(SpecHomePage1821BannerFields.Link, "連結", 300, 500),
-        buildCheckboxColumn(SpecHomePage1821BannerFields.IsHide, "隱藏", 100),
+        buildFileColumn(SpecHomePage1821_BannerFields.BannerFileId, "Banner 圖片", 360, onFileChange, renderPicturePreview),
+        buildTextColumn(SpecHomePage1821_BannerFields.BannerFileDescription, "圖片說明", 220, 200),
+        buildTextColumn(SpecHomePage1821_BannerFields.Link, "連結", 300, 500),
     ];
 };
 
@@ -548,30 +655,35 @@ const buildShortcutColumns = (
     onIconFileChange: (args: EditGridCellValueChangeArgs) => Promise<EditGridCellValueChangeResult>,
     onLinkPicChange: (args: EditGridCellValueChangeArgs) => Promise<EditGridCellValueChangeResult>,
     renderPicturePreview?: HomePageImageRender,
+    renderModuleDetailAction?: HomePageImageRender,
 ): ColumnConfig[] =>
 {
     return [
-        buildFileColumn(SpecHomePage1821ShortcutFields.IconFileId, "Icon", 280, onIconFileChange, renderPicturePreview),
-        buildTextColumn(SpecHomePage1821ShortcutFields.IconFileDescription, "Icon 說明", 180, 200),
-        buildTextColumn(SpecHomePage1821ShortcutFields.Title, "標題", 180, 120),
-        buildTextColumn(SpecHomePage1821ShortcutFields.SubTitle, "副標題", 200, 160),
-        buildCheckboxColumn(SpecHomePage1821ShortcutFields.IsLink, "連結頁籤", 120),
-        buildTextColumn(SpecHomePage1821ShortcutFields.Link, "連結", 300, 500),
-        buildFileColumn(SpecHomePage1821ShortcutFields.LinkPicId, "連結圖片", 280, onLinkPicChange, renderPicturePreview),
-        buildCheckboxColumn(SpecHomePage1821ShortcutFields.IsHide, "隱藏", 100),
+        buildFileColumn(SpecHomePage1821_ShortcutFields.IconFileId, "Icon", 280, onIconFileChange, renderPicturePreview),
+        buildTextColumn(SpecHomePage1821_ShortcutFields.IconFileDescription, "Icon 說明", 180, 200),
+        buildTextColumn(SpecHomePage1821_ShortcutFields.Title, "標題", 180, 120),
+        buildTextColumn(SpecHomePage1821_ShortcutFields.SubTitle, "副標題", 200, 160),
+        buildCheckboxColumn(SpecHomePage1821_ShortcutFields.IsLink, "連結頁籤", 120),
+        buildTextColumn(SpecHomePage1821_ShortcutFields.Link, "連結", 300, 500),
+        buildFileColumn(SpecHomePage1821_ShortcutFields.LinkPicId, "連結圖片", 280, onLinkPicChange, renderPicturePreview),
+        buildReadonlyColumn(ModuleDetailActionField, "模組項目明細", 160, renderModuleDetailAction),
     ];
 };
 
-const buildModuleItemColumns = (shortcutOptions: { label: string; value: number; }[]): ColumnConfig[] =>
+const buildModuleItemColumns = (shortcutOptions: { label: string; value: number; }[], showParentColumn: boolean): ColumnConfig[] =>
 {
+    const parentColumns: ColumnConfig[] = showParentColumn
+        ? [{ key: SpecHomePage1821_ShortcutModuleItemFields.ParentRowId, title: "所屬標籤", width: 220, inputType: "selectSingle", editable: true, options: shortcutOptions }]
+        : [];
+
     return [
-        { key: SpecHomePage1821ShortcutModuleItemFields.ParentRowId, title: "所屬頁籤", width: 220, inputType: "selectSingle", editable: true, options: shortcutOptions },
-        buildTextColumn(SpecHomePage1821ShortcutModuleItemFields.Title, "標題", 180, 120),
-        buildTextColumn(SpecHomePage1821ShortcutModuleItemFields.SubTitle, "副標題", 200, 160),
-        { key: SpecHomePage1821ShortcutModuleItemFields.ModuleType, title: "模組類型", width: 160, inputType: "selectSingle", editable: true, options: moduleTypeOptions },
-        buildTextareaColumn(SpecHomePage1821ShortcutModuleItemFields.ModuleOptions, "模組條件 JSON", 260, 220),
-        buildTextColumn(SpecHomePage1821ShortcutModuleItemFields.MoreViewLink, "More View 連結", 280, 500),
-        buildCheckboxColumn(SpecHomePage1821ShortcutModuleItemFields.IsHide, "隱藏", 100),
+        ...parentColumns,
+        buildTextColumn(SpecHomePage1821_ShortcutModuleItemFields.Title, "標題", 180, 120),
+        buildTextColumn(SpecHomePage1821_ShortcutModuleItemFields.SubTitle, "副標題", 200, 160),
+        { key: SpecHomePage1821_ShortcutModuleItemFields.ModuleType, title: "模組類型", width: 160, inputType: "selectSingle", editable: true, options: moduleTypeOptions },
+        buildCheckboxMultipleColumn(ModuleCategoryIdsField, "類別", 260),
+        buildCheckboxMultipleColumn(ModuleTagIdsField, "標籤", 260),
+        buildTextColumn(SpecHomePage1821_ShortcutModuleItemFields.MoreViewLink, "查看更多連結", 280, 500),
     ];
 };
 
@@ -580,14 +692,19 @@ const buildTextColumn = (key: string, title: string, width: number, maxLength: n
     return { key, title, width, inputType: "text", editable: true, maxLength };
 };
 
-const buildTextareaColumn = (key: string, title: string, width: number, maxLength: number): ColumnConfig =>
-{
-    return { key, title, width, inputType: "textarea", editable: true, maxLength, rows: 3 };
-};
-
 const buildCheckboxColumn = (key: string, title: string, width: number): ColumnConfig =>
 {
     return { key, title, width, inputType: "checkboxSingle", editable: true };
+};
+
+const buildCheckboxMultipleColumn = (key: string, title: string, width: number): ColumnConfig =>
+{
+    return { key, title, width, inputType: "checkboxMultiple", editable: true };
+};
+
+const buildReadonlyColumn = (key: string, title: string, width: number, render?: HomePageImageRender): ColumnConfig =>
+{
+    return { key, title, width, inputType: "readonly", editable: false, render };
 };
 
 const buildFileColumn = (
@@ -615,31 +732,30 @@ const buildFileColumn = (
 
 const buildNewBannerItem = (data: HomePageSet, rowId: number): Banner =>
 {
-    return { HomePageId: getHomePageId(data), RowId: rowId, RowNo: rowId, BannerFileId: "", BannerFileDescription: "", Link: "", IsHide: false };
+    return { HomePageId: data.SpecHomePage1821?.HomePageId ?? "", RowId: rowId, RowNo: rowId, BannerFileId: null, BannerFileDescription: "", Link: "" };
 };
 
 const buildNewShortcutItem = (data: HomePageSet, rowId: number): Shortcut =>
 {
     return {
-        HomePageId: getHomePageId(data),
+        HomePageId: data.SpecHomePage1821?.HomePageId ?? "",
         RowId: rowId,
         RowNo: rowId,
         Title: "",
         SubTitle: "",
-        IconFileId: "",
+        IconFileId: null,
         IconFileDescription: "",
         IsLink: false,
         Link: "",
-        LinkPicId: "",
-        IsHide: false,
+        LinkPicId: null,
     };
 };
 
-const buildNewModuleItem = (data: HomePageSet, rowId: number): ShortcutModuleItem =>
+const buildNewModuleItem = (data: HomePageSet, rowId: number, parentRowId?: number): ShortcutModuleItem =>
 {
     return {
-        HomePageId: getHomePageId(data),
-        ParentRowId: getDefaultParentRowId(data.SpecHomePage1821_Shortcut),
+        HomePageId: data.SpecHomePage1821?.HomePageId ?? "",
+        ParentRowId: parentRowId || getDefaultParentRowId(data.SpecHomePage1821_Shortcut),
         RowId: rowId,
         RowNo: rowId,
         Title: "",
@@ -647,7 +763,6 @@ const buildNewModuleItem = (data: HomePageSet, rowId: number): ShortcutModuleIte
         ModuleType: HomePageModuleType.Announcement,
         ModuleOptions: DefaultOptionsJson,
         MoreViewLink: "",
-        IsHide: false,
     };
 };
 
@@ -674,6 +789,7 @@ const buildShortcutGridRow = (
     onIconFileChange: (args: EditGridCellValueChangeArgs) => Promise<EditGridCellValueChangeResult>,
     onLinkPicChange: (args: EditGridCellValueChangeArgs) => Promise<EditGridCellValueChangeResult>,
     renderPicturePreview?: HomePageImageRender,
+    renderModuleDetailAction?: HomePageImageRender,
 ): GridRow =>
 {
     const rowId = Number(item.RowId ?? index + 1);
@@ -682,11 +798,11 @@ const buildShortcutGridRow = (
         rowId,
         RowId: rowId,
         RowNo: Number(item.RowNo ?? index + 1),
-        cells: buildShortcutCells(item, onIconFileChange, onLinkPicChange, renderPicturePreview),
+        cells: buildShortcutCells(item, onIconFileChange, onLinkPicChange, renderPicturePreview, renderModuleDetailAction),
     };
 };
 
-const buildModuleItemGridRow = (item: ShortcutModuleItem, index: number): GridRow =>
+const buildModuleItemGridRow = (item: ShortcutModuleItem, index: number, refs: HomePage1821FormRefs, showParentCell: boolean): GridRow =>
 {
     const rowId = Number(item.RowId ?? index + 1);
     return {
@@ -694,7 +810,7 @@ const buildModuleItemGridRow = (item: ShortcutModuleItem, index: number): GridRo
         rowId,
         RowId: rowId,
         RowNo: Number(item.RowNo ?? index + 1),
-        cells: buildModuleItemCells(item),
+        cells: buildModuleItemCells(item, refs, showParentCell),
     };
 };
 
@@ -706,18 +822,17 @@ const buildBannerCells = (
 {
     return [
         buildEditGridCell(
-            SpecHomePage1821BannerFields.BannerFileId,
+            SpecHomePage1821_BannerFields.BannerFileId,
             "Banner 圖片",
             buildHomePageFileCellValue(item.BannerFileId, getDtoFileName(item.BannerFile), item.BannerFileDescription),
             { inputType: "file", editable: true, accept: "image/*", render: renderPicturePreview, onValueChange: onFileChange },
         ),
-        buildEditGridCell(SpecHomePage1821BannerFields.BannerFileDescription, "圖片說明", item.BannerFileDescription ?? "", {
+        buildEditGridCell(SpecHomePage1821_BannerFields.BannerFileDescription, "圖片說明", item.BannerFileDescription ?? "", {
             inputType: "text",
             editable: true,
             maxLength: 200,
         }),
-        buildEditGridCell(SpecHomePage1821BannerFields.Link, "連結", item.Link ?? "", { inputType: "text", editable: true, maxLength: 500 }),
-        buildEditGridCell(SpecHomePage1821BannerFields.IsHide, "隱藏", Boolean(item.IsHide), { inputType: "checkboxSingle", editable: true }),
+        buildEditGridCell(SpecHomePage1821_BannerFields.Link, "連結", item.Link ?? "", { inputType: "text", editable: true, maxLength: 500 }),
     ];
 };
 
@@ -726,112 +841,186 @@ const buildShortcutCells = (
     onIconFileChange: (args: EditGridCellValueChangeArgs) => Promise<EditGridCellValueChangeResult>,
     onLinkPicChange: (args: EditGridCellValueChangeArgs) => Promise<EditGridCellValueChangeResult>,
     renderPicturePreview?: HomePageImageRender,
+    renderModuleDetailAction?: HomePageImageRender,
 ): RowCell[] =>
 {
     return [
         buildEditGridCell(
-            SpecHomePage1821ShortcutFields.IconFileId,
+            SpecHomePage1821_ShortcutFields.IconFileId,
             "Icon",
             buildHomePageFileCellValue(item.IconFileId, getDtoFileName(item.IconFile), item.IconFileDescription),
             { inputType: "file", editable: true, accept: "image/*", render: renderPicturePreview, onValueChange: onIconFileChange },
         ),
-        buildEditGridCell(SpecHomePage1821ShortcutFields.IconFileDescription, "Icon 說明", item.IconFileDescription ?? "", {
+        buildEditGridCell(SpecHomePage1821_ShortcutFields.IconFileDescription, "Icon 說明", item.IconFileDescription ?? "", {
             inputType: "text",
             editable: true,
             maxLength: 200,
         }),
-        buildEditGridCell(SpecHomePage1821ShortcutFields.Title, "標題", item.Title ?? "", { inputType: "text", editable: true, maxLength: 120 }),
-        buildEditGridCell(SpecHomePage1821ShortcutFields.SubTitle, "副標題", item.SubTitle ?? "", { inputType: "text", editable: true, maxLength: 160 }),
-        buildEditGridCell(SpecHomePage1821ShortcutFields.IsLink, "連結頁籤", Boolean(item.IsLink), { inputType: "checkboxSingle", editable: true }),
-        buildEditGridCell(SpecHomePage1821ShortcutFields.Link, "連結", item.Link ?? "", { inputType: "text", editable: true, maxLength: 500 }),
+        buildEditGridCell(SpecHomePage1821_ShortcutFields.Title, "標題", item.Title ?? "", { inputType: "text", editable: true, maxLength: 120 }),
+        buildEditGridCell(SpecHomePage1821_ShortcutFields.SubTitle, "副標題", item.SubTitle ?? "", { inputType: "text", editable: true, maxLength: 160 }),
+        buildEditGridCell(SpecHomePage1821_ShortcutFields.IsLink, "連結頁籤", Boolean(item.IsLink), { inputType: "checkboxSingle", editable: true }),
+        buildEditGridCell(SpecHomePage1821_ShortcutFields.Link, "連結", item.Link ?? "", { inputType: "text", editable: true, maxLength: 500 }),
         buildEditGridCell(
-            SpecHomePage1821ShortcutFields.LinkPicId,
+            SpecHomePage1821_ShortcutFields.LinkPicId,
             "連結圖片",
             buildHomePageFileCellValue(item.LinkPicId, getDtoFileName(item.LinkPic), item.Title),
             { inputType: "file", editable: true, accept: "image/*", render: renderPicturePreview, onValueChange: onLinkPicChange },
         ),
-        buildEditGridCell(SpecHomePage1821ShortcutFields.IsHide, "隱藏", Boolean(item.IsHide), { inputType: "checkboxSingle", editable: true }),
+        buildEditGridCell(ModuleDetailActionField, "模組項目明細", Number(item.RowId ?? 0), {
+            inputType: "readonly",
+            editable: false,
+            render: renderModuleDetailAction,
+        }),
     ];
 };
 
-const buildModuleItemCells = (item: ShortcutModuleItem): RowCell[] =>
+const buildModuleItemCells = (item: ShortcutModuleItem, refs: HomePage1821FormRefs, showParentCell: boolean): RowCell[] =>
 {
-    return [
-        buildEditGridCell(SpecHomePage1821ShortcutModuleItemFields.ParentRowId, "所屬頁籤", Number(item.ParentRowId ?? 0), {
+    const moduleType = toHomePageModuleType(Number(item.ModuleType ?? HomePageModuleType.Announcement));
+    const optionMaps = getModuleOptionMaps(refs, moduleType);
+    const options = parseOptionsText(item.ModuleOptions);
+
+    const parentCells: RowCell[] = showParentCell
+        ? [buildEditGridCell(SpecHomePage1821_ShortcutModuleItemFields.ParentRowId, "所屬標籤", Number(item.ParentRowId ?? 0), {
             inputType: "selectSingle",
             editable: true,
-        }),
-        buildEditGridCell(SpecHomePage1821ShortcutModuleItemFields.Title, "標題", item.Title ?? "", { inputType: "text", editable: true, maxLength: 120 }),
-        buildEditGridCell(SpecHomePage1821ShortcutModuleItemFields.SubTitle, "副標題", item.SubTitle ?? "", { inputType: "text", editable: true, maxLength: 160 }),
-        buildEditGridCell(SpecHomePage1821ShortcutModuleItemFields.ModuleType, "模組類型", Number(item.ModuleType ?? HomePageModuleType.Announcement), {
+        })]
+        : [];
+
+    return [
+        ...parentCells,
+        buildEditGridCell(SpecHomePage1821_ShortcutModuleItemFields.Title, "標題", item.Title ?? "", { inputType: "text", editable: true, maxLength: 120 }),
+        buildEditGridCell(SpecHomePage1821_ShortcutModuleItemFields.SubTitle, "副標題", item.SubTitle ?? "", { inputType: "text", editable: true, maxLength: 160 }),
+        buildEditGridCell(SpecHomePage1821_ShortcutModuleItemFields.ModuleType, "模組類型", moduleType, {
             inputType: "selectSingle",
             editable: true,
             options: moduleTypeOptions,
+            onValueChange: resetModuleOptionsOnTypeChange,
         }),
-        buildEditGridCell(SpecHomePage1821ShortcutModuleItemFields.ModuleOptions, "模組條件 JSON", normalizeOptionsText(item.ModuleOptions), {
-            inputType: "textarea",
+        buildEditGridCell(ModuleCategoryIdsField, "類別", splitCsvValues(options.categoryIds), {
+            inputType: "checkboxMultiple",
             editable: true,
-            rows: 3,
-            maxLength: 220,
+            options: toCheckOptions(optionMaps.categoryMap),
         }),
-        buildEditGridCell(SpecHomePage1821ShortcutModuleItemFields.MoreViewLink, "More View 連結", item.MoreViewLink ?? "", {
+        buildEditGridCell(ModuleTagIdsField, "標籤", splitCsvValues(options.tagIds), {
+            inputType: "checkboxMultiple",
+            editable: true,
+            options: toCheckOptions(optionMaps.tagMap),
+        }),
+        buildEditGridCell(SpecHomePage1821_ShortcutModuleItemFields.MoreViewLink, "查看更多連結", item.MoreViewLink ?? "", {
             inputType: "text",
             editable: true,
             maxLength: 500,
         }),
-        buildEditGridCell(SpecHomePage1821ShortcutModuleItemFields.IsHide, "隱藏", Boolean(item.IsHide), { inputType: "checkboxSingle", editable: true }),
     ];
 };
 
-const toBannerDto = (data: HomePageSet, row: GridRow, index: number): Banner =>
+const toBannerDto = (source: Banner | undefined, row: GridRow, index: number): Banner =>
 {
-    const file = toHomePageFileCellValue(getEditGridCellValue(row, SpecHomePage1821BannerFields.BannerFileId));
+    const file = toHomePageFileCellValue(getEditGridCellValue(row, SpecHomePage1821_BannerFields.BannerFileId));
     return {
-        HomePageId: getHomePageId(data),
+        ...source,
         RowId: getGridRowId(row, index),
         RowNo: index + 1,
-        BannerFileId: file.internalId ?? "",
-        BannerFileDescription: getEditGridStringCellValue(row, SpecHomePage1821BannerFields.BannerFileDescription),
-        Link: getEditGridStringCellValue(row, SpecHomePage1821BannerFields.Link),
-        IsHide: Boolean(getEditGridCellValue(row, SpecHomePage1821BannerFields.IsHide)),
+        BannerFileId: normalizeRelationId(file.internalId),
+        BannerFileDescription: getEditGridStringCellValue(row, SpecHomePage1821_BannerFields.BannerFileDescription),
+        Link: getEditGridStringCellValue(row, SpecHomePage1821_BannerFields.Link),
     };
 };
 
-const toShortcutDto = (data: HomePageSet, row: GridRow, index: number): Shortcut =>
+const toShortcutDto = (source: Shortcut | undefined, row: GridRow, index: number): Shortcut =>
 {
-    const iconFile = toHomePageFileCellValue(getEditGridCellValue(row, SpecHomePage1821ShortcutFields.IconFileId));
-    const linkPic = toHomePageFileCellValue(getEditGridCellValue(row, SpecHomePage1821ShortcutFields.LinkPicId));
-    const isLink = Boolean(getEditGridCellValue(row, SpecHomePage1821ShortcutFields.IsLink));
+    const iconFile = toHomePageFileCellValue(getEditGridCellValue(row, SpecHomePage1821_ShortcutFields.IconFileId));
+    const linkPic = toHomePageFileCellValue(getEditGridCellValue(row, SpecHomePage1821_ShortcutFields.LinkPicId));
+    const isLink = Boolean(getEditGridCellValue(row, SpecHomePage1821_ShortcutFields.IsLink));
 
     return {
-        HomePageId: getHomePageId(data),
+        ...source,
         RowId: getGridRowId(row, index),
         RowNo: index + 1,
-        Title: getEditGridStringCellValue(row, SpecHomePage1821ShortcutFields.Title),
-        SubTitle: getEditGridStringCellValue(row, SpecHomePage1821ShortcutFields.SubTitle),
-        IconFileId: iconFile.internalId ?? "",
-        IconFileDescription: getEditGridStringCellValue(row, SpecHomePage1821ShortcutFields.IconFileDescription),
+        Title: getEditGridStringCellValue(row, SpecHomePage1821_ShortcutFields.Title),
+        SubTitle: getEditGridStringCellValue(row, SpecHomePage1821_ShortcutFields.SubTitle),
+        IconFileId: normalizeRelationId(iconFile.internalId),
+        IconFileDescription: getEditGridStringCellValue(row, SpecHomePage1821_ShortcutFields.IconFileDescription),
         IsLink: isLink,
-        Link: isLink ? getEditGridStringCellValue(row, SpecHomePage1821ShortcutFields.Link) : "",
-        LinkPicId: isLink ? linkPic.internalId ?? "" : "",
-        IsHide: Boolean(getEditGridCellValue(row, SpecHomePage1821ShortcutFields.IsHide)),
+        Link: isLink ? getEditGridStringCellValue(row, SpecHomePage1821_ShortcutFields.Link) : "",
+        LinkPicId: isLink ? normalizeRelationId(linkPic.internalId) : null,
     };
 };
 
-const toModuleItemDto = (data: HomePageSet, row: GridRow, index: number): ShortcutModuleItem =>
+const toHomePageModuleType = (value: number): SpecHomePageModuleType =>
+{
+    if (value === HomePageModuleType.FileArchive) return HomePageModuleType.FileArchive;
+    return HomePageModuleType.Announcement;
+};
+
+const toModuleItemDto = (source: ShortcutModuleItem | undefined, row: GridRow, index: number, parentRowId?: number): ShortcutModuleItem =>
 {
     return {
-        HomePageId: getHomePageId(data),
-        ParentRowId: getEditGridNumberCellValue(row, SpecHomePage1821ShortcutModuleItemFields.ParentRowId, 0),
+        ...source,
+        ParentRowId: parentRowId || getEditGridNumberCellValue(row, SpecHomePage1821_ShortcutModuleItemFields.ParentRowId, 0),
         RowId: getGridRowId(row, index),
         RowNo: index + 1,
-        Title: getEditGridStringCellValue(row, SpecHomePage1821ShortcutModuleItemFields.Title),
-        SubTitle: getEditGridStringCellValue(row, SpecHomePage1821ShortcutModuleItemFields.SubTitle),
-        ModuleType: getEditGridNumberCellValue(row, SpecHomePage1821ShortcutModuleItemFields.ModuleType, HomePageModuleType.Announcement),
-        ModuleOptions: normalizeOptionsText(getEditGridStringCellValue(row, SpecHomePage1821ShortcutModuleItemFields.ModuleOptions)),
-        MoreViewLink: getEditGridStringCellValue(row, SpecHomePage1821ShortcutModuleItemFields.MoreViewLink),
-        IsHide: Boolean(getEditGridCellValue(row, SpecHomePage1821ShortcutModuleItemFields.IsHide)),
+        Title: getEditGridStringCellValue(row, SpecHomePage1821_ShortcutModuleItemFields.Title),
+        SubTitle: getEditGridStringCellValue(row, SpecHomePage1821_ShortcutModuleItemFields.SubTitle),
+        ModuleType: toHomePageModuleType(getEditGridNumberCellValue(row, SpecHomePage1821_ShortcutModuleItemFields.ModuleType, HomePageModuleType.Announcement)),
+        ModuleOptions: buildOptionsText(
+            getEditGridCellValue(row, ModuleCategoryIdsField),
+            getEditGridCellValue(row, ModuleTagIdsField),
+        ),
+        MoreViewLink: getEditGridStringCellValue(row, SpecHomePage1821_ShortcutModuleItemFields.MoreViewLink),
     };
+};
+
+const resetModuleOptionsOnTypeChange = (args: EditGridCellValueChangeArgs): EditGridCellValueChangeResult =>
+{
+    return { value: args.nextValue, rowValues: { [ModuleCategoryIdsField]: [], [ModuleTagIdsField]: [] } };
+};
+
+const getModuleOptionMaps = (refs: HomePage1821FormRefs, moduleType: SpecHomePageModuleType): HomePageOptionMapSet =>
+{
+    if (moduleType === HomePageModuleType.FileArchive) return refs.fileArchive;
+    if (moduleType === HomePageModuleType.Announcement) return refs.announcement;
+    return { categoryMap: {}, tagMap: {} };
+};
+
+const toCheckOptions = (map: OptionMap) =>
+{
+    return Object.entries(map ?? {}).map(([value, label]) => ({ value, label }));
+};
+
+const parseOptionsText = (value?: string | null): HomePageOptionsJson =>
+{
+    try
+    {
+        const parsed = JSON.parse(normalizeOptionsText(value)) as Partial<HomePageOptionsJson>;
+        return { categoryIds: normalizeText(parsed.categoryIds), tagIds: normalizeText(parsed.tagIds) };
+    } catch
+    {
+        return { categoryIds: "", tagIds: "" };
+    }
+};
+
+const buildOptionsText = (categoryValue: EditGridCellValue, tagValue: EditGridCellValue): string =>
+{
+    return JSON.stringify({ categoryIds: toCsvText(categoryValue), tagIds: toCsvText(tagValue) });
+};
+
+const splitCsvValues = (value?: string | null): string[] =>
+{
+    return normalizeText(value).split(",").map(item => item.trim()).filter(Boolean);
+};
+
+const toCsvText = (value: EditGridCellValue): string =>
+{
+    if (Array.isArray(value)) return value.map(item => String(item).trim()).filter(Boolean).join(",");
+    return isHomePageTextValue(value) ? normalizeText(value) : "";
+};
+
+const normalizeParentRowId = (value?: number | null): number | undefined =>
+{
+    const rowId = Number(value ?? 0);
+    return Number.isFinite(rowId) && rowId > 0 ? rowId : undefined;
 };
 
 const normalizeModuleItemRowNo = (items: ShortcutModuleItem[]): ShortcutModuleItem[] =>
@@ -848,7 +1037,7 @@ const normalizeModuleItemRowNo = (items: ShortcutModuleItem[]): ShortcutModuleIt
 const buildShortcutParentOptions = (shortcuts?: Shortcut[] | null) =>
 {
     return sortHomePageRows(shortcuts ?? []).map((item, index) => ({
-        label: `${index + 1}. ${item.Title || item.ShortcutCode || item.RowId || "未命名頁籤"}`,
+        label: `${index + 1}. ${item.Title || item.ShortcutCode || item.RowId || "未命名標籤"}`,
         value: Number(item.RowId ?? index + 1),
     }));
 };
@@ -876,17 +1065,18 @@ const uploadHomePageFileValue = async (
     descriptionField?: string,
 ): Promise<EditGridCellValueChangeResult> =>
 {
-    const current = toHomePageFileCellValue(args.value);
     const selectedFile = getSelectedHomePageFile(args.nextValue);
     if (!selectedFile?.file) return buildHomePageUploadChangeResult(buildEmptyHomePageFileCellValue(), descriptionField);
 
-    let uploadedValue: HomePageGridFileValue = current;
+    let uploadedValue = buildEmptyHomePageFileCellValue();
     const originalName = getHomePageSelectedFileName(selectedFile);
 
     await handleFileChange([selectedFile.file], (internalId, uploadedName) =>
     {
         uploadedValue = buildUploadedHomePageFileCellValue(internalId, uploadedName || originalName);
     });
+
+    if (!uploadedValue.internalId) return buildHomePageUploadChangeResult(buildEmptyHomePageFileCellValue(), descriptionField);
 
     return buildHomePageUploadChangeResult(uploadedValue, descriptionField);
 };
@@ -902,7 +1092,7 @@ const buildHomePageFileCellValue = (internalId?: string | null, originalName?: s
     const id = normalizeText(internalId);
     const name = String(originalName || description || id).trim();
     return {
-        internalId: id,
+        internalId: id || undefined,
         fileName: name,
         originalFileName: String(originalName ?? ""),
         url: getHomePageFilePreviewUrl(id),
@@ -923,7 +1113,7 @@ const buildUploadedHomePageFileCellValue = (internalId: string, originalName?: s
 
 const buildEmptyHomePageFileCellValue = (): HomePageGridFileValue =>
 {
-    return { internalId: "", fileName: "", originalFileName: "" };
+    return { internalId: undefined, fileName: "", originalFileName: "" };
 };
 
 const isHomePageFileValue = (value: EditGridCellValue): value is HomePageGridFileValue =>

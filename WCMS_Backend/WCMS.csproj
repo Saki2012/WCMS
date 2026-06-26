@@ -31,10 +31,9 @@
 		<CurrentSpecFeatureDir>$(MSBuildProjectDirectory)\SpecFeatures\$(SpecCode)</CurrentSpecFeatureDir>
 		<HasCurrentSpecFeatureDir Condition="'$(SpecCode)' != '' and Exists('$(CurrentSpecFeatureDir)')">true</HasCurrentSpecFeatureDir>
 		<HasCurrentSpecFeatureDir Condition="'$(HasCurrentSpecFeatureDir)' == ''">false</HasCurrentSpecFeatureDir>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(UseSpecCodeCompile)' == 'true'">
-		<!-- 啟用 Spec 條件編譯時，先讓 SDK 預設 Compile 不自動吃 SpecFeatures -->
-		<DefaultItemExcludes>$(DefaultItemExcludes);SpecFeatures\**\*.cs;SpecFeatures\**\*.resx</DefaultItemExcludes>
+		<!-- 開發 / 發佈實際編譯時啟用 SpecFeatures 過濾；不使用 DefaultItemExcludes，避免 IDE 找不到其他 Spec 檔案 -->
+		<EnableSpecCompileFilter Condition="'$(EnableSpecCompileFilter)' == '' and '$(UseSpecCodeCompile)' == 'true'">true</EnableSpecCompileFilter>
+		<EnableSpecCompileFilter Condition="'$(EnableSpecCompileFilter)' == ''">false</EnableSpecCompileFilter>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
 		<!-- 不要自動產生 / 轉換 web.config，避免發布時又長出一份預設檔 -->
@@ -128,107 +127,29 @@
 		<None Remove="Publish\**" />
 		<None Remove="SysCore\SystemFunc\UserRolePermission\**" />
 	</ItemGroup>
-	<ItemGroup>
-	  <Compile Include="SpecFeatures\Spec1810\COMM\Tag\SpecTag_Biz.cs" />
-	  <Compile Include="SpecFeatures\Spec1810\SYS\SystemVersion\SystemVersion_Biz.cs" />
-	  <Compile Include="SpecFeatures\Spec1810\WEB\SpecCategory\SpecCategory_Api.cs" />
-	  <Compile Include="SpecFeatures\Spec1810\WEB\SpecCategory\SpecCategory_Biz.cs" />
-	  <Compile Include="SpecFeatures\Spec1810\WEB\SpecCategory\SpecCategory_DTO.cs" />
-	  <Compile Include="SpecFeatures\Spec1810\WEB\SpecCategory\SpecCategory_Model.cs" />
-	  <Compile Include="SpecFeatures\Spec1810\WEB\SpecResearch\SpecResearch_Api.cs" />
-	  <Compile Include="SpecFeatures\Spec1810\WEB\SpecResearch\SpecResearch_Biz.cs" />
-	  <Compile Include="SpecFeatures\Spec1810\WEB\SpecResearch\SpecResearch_DTO.cs" />
-	  <Compile Include="SpecFeatures\Spec1810\WEB\SpecResearch\SpecResearch_Model.cs" />
-	  <Compile Include="SpecFeatures\Spec1810\WEB\SpecUSR\SpecUSR_Api.cs" />
-	  <Compile Include="SpecFeatures\Spec1810\WEB\SpecUSR\SpecUSR_Biz.cs" />
-	  <Compile Include="SpecFeatures\Spec1810\WEB\SpecUSR\SpecUSR_DTO.cs" />
-	  <Compile Include="SpecFeatures\Spec1810\WEB\SpecUSR\SpecUSR_Model.cs" />
-	  <Compile Include="SpecFeatures\Spec1810\_Resx\SpecMessageCode.cs" />
-	  <Compile Include="SpecFeatures\Spec1810\_Resx\SpecModelDisplayName.cs" />
-	  <Compile Include="SpecFeatures\Spec1810\_Resx\SpecProgKeys.cs" />
-	  <Compile Include="SpecFeatures\Spec1816\COMM\Calendar\SpecCalendar_API.cs" />
-	  <Compile Include="SpecFeatures\Spec1816\COMM\Calendar\SpecCalendar_Biz.cs" />
-	  <Compile Include="SpecFeatures\Spec1816\COMM\Calendar\SpecCalendar_DTO.cs" />
-	  <Compile Include="SpecFeatures\Spec1816\COMM\Calendar\SpecCalendar_Model.cs" />
-	  <Compile Include="SpecFeatures\Spec1816\SYS\SystemVersion\SystemVersion_Biz.cs" />
-	  <Compile Include="SpecFeatures\Spec1816\WEB\SpecOpenScheduleRule\SpecOpenScheduleRule_API.cs" />
-	  <Compile Include="SpecFeatures\Spec1816\WEB\SpecOpenScheduleRule\SpecOpenScheduleRule_Biz.cs" />
-	  <Compile Include="SpecFeatures\Spec1816\WEB\SpecOpenScheduleRule\SpecOpenScheduleRule_DTO.cs" />
-	  <Compile Include="SpecFeatures\Spec1816\WEB\SpecOpenScheduleRule\SpecOpenScheduleRule_Model.cs" />
-	  <Compile Include="SpecFeatures\Spec1816\_Resx\SpecMessageCode.cs" />
-	  <Compile Include="SpecFeatures\Spec1816\_Resx\SpecModelDisplayName.cs" />
-	  <Compile Include="SpecFeatures\Spec1816\_Resx\SpecProgKeys.cs" />
-	  <Compile Include="SpecFeatures\Spec1817\SYS\SystemVersion\SystemVersion_Biz.cs" />
-	  <Compile Include="SpecFeatures\Spec1817\WEB\Banner\Banner_DTO.cs" />
-	  <Compile Include="SpecFeatures\Spec1817\WEB\Banner\Banner_Model.cs" />
-	  <Compile Include="SpecFeatures\Spec1817\WEB\SpecMusical\SpecMusical_Api.cs" />
-	  <Compile Include="SpecFeatures\Spec1817\WEB\SpecMusical\SpecMusical_Biz.cs" />
-	  <Compile Include="SpecFeatures\Spec1817\WEB\SpecMusical\SpecMusical_DTO.cs" />
-	  <Compile Include="SpecFeatures\Spec1817\WEB\SpecMusical\SpecMusical_Model.cs" />
-	  <Compile Include="SpecFeatures\Spec1817\_Resx\SpecMessageCode.cs" />
-	  <Compile Include="SpecFeatures\Spec1817\_Resx\SpecModelDisplayName.cs" />
-	  <Compile Include="SpecFeatures\Spec1817\_Resx\SpecProgKeys.cs" />
-	  <Compile Include="SpecFeatures\Spec1819\SYS\SystemVersion\SystemVersion_Biz.cs" />
-	  <Compile Include="SpecFeatures\Spec1819\WEB\SpecJournalIndex\SpecJournalIndex_Api.cs" />
-	  <Compile Include="SpecFeatures\Spec1819\WEB\SpecJournalIndex\SpecJournalIndex_Biz.cs" />
-	  <Compile Include="SpecFeatures\Spec1819\WEB\SpecJournalIndex\SpecJournalIndex_DTO.cs" />
-	  <Compile Include="SpecFeatures\Spec1819\WEB\SpecJournalIndex\SpecJournalIndex_Model.cs" />
-	  <Compile Include="SpecFeatures\Spec1819\WEB\SpecJournal\SpecJournal_Api.cs" />
-	  <Compile Include="SpecFeatures\Spec1819\WEB\SpecJournal\SpecJournal_Biz.cs" />
-	  <Compile Include="SpecFeatures\Spec1819\WEB\SpecJournal\SpecJournal_DTO.cs" />
-	  <Compile Include="SpecFeatures\Spec1819\WEB\SpecJournal\SpecJournal_Model.cs" />
-	  <Compile Include="SpecFeatures\Spec1819\_Resx\SpecEnum.cs" />
-	  <Compile Include="SpecFeatures\Spec1819\_Resx\SpecMessageCode.cs" />
-	  <Compile Include="SpecFeatures\Spec1819\_Resx\SpecModelDisplayName.cs" />
-	  <Compile Include="SpecFeatures\Spec1819\_Resx\SpecProgKeys.cs" />
-	  <Compile Include="SpecFeatures\Spec1820\SYS\SystemVersion\SystemVersion_Biz.cs" />
-	  <Compile Include="SpecFeatures\Spec1820\WEB\SpecHomePage\SpecHomePage1820_Api.cs" />
-	  <Compile Include="SpecFeatures\Spec1820\WEB\SpecHomePage\SpecHomePage1820_Biz.cs" />
-	  <Compile Include="SpecFeatures\Spec1820\WEB\SpecHomePage\SpecHomePage1820_DTO.cs" />
-	  <Compile Include="SpecFeatures\Spec1820\WEB\SpecHomePage\SpecHomePage1820_Model.cs" />
-	  <Compile Include="SpecFeatures\Spec1820\_Resx\SpecMessageCode.cs" />
-	  <Compile Include="SpecFeatures\Spec1820\_Resx\SpecModelDisplayName.cs" />
-	  <Compile Include="SpecFeatures\Spec1820\_Resx\SpecProgKeys.cs" />
-	  <Compile Include="SpecFeatures\Spec1821\SYS\SystemVersion\SystemVersion_Biz.cs" />
-	  <Compile Include="SpecFeatures\Spec1821\WEB\SpecHomePage\SpecHomePage1821_Api.cs" />
-	  <Compile Include="SpecFeatures\Spec1821\WEB\SpecHomePage\SpecHomePage1821_Biz.cs" />
-	  <Compile Include="SpecFeatures\Spec1821\WEB\SpecHomePage\SpecHomePage1821_DTO.cs" />
-	  <Compile Include="SpecFeatures\Spec1821\WEB\SpecHomePage\SpecHomePage1821_Model.cs" />
-	  <Compile Include="SpecFeatures\Spec1821\_Resx\SpecEnum.cs" />
-	  <Compile Include="SpecFeatures\Spec1821\_Resx\SpecMessageCode.cs" />
-	  <Compile Include="SpecFeatures\Spec1821\_Resx\SpecModelDisplayName.cs" />
-	  <Compile Include="SpecFeatures\Spec1821\_Resx\SpecProgKeys.cs" />
+	<ItemGroup Condition="'$(EnableSpecCompileFilter)' == 'true'">
+		<!-- 實際編譯時先移除所有 SpecFeatures，避免不同 Spec 的 partial / 資源互相污染 -->
+		<Compile Remove="SpecFeatures\**\*.cs" />
+		<EmbeddedResource Remove="SpecFeatures\**\*.resx" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(EnableSpecCompileFilter)' == 'true' and '$(HasCurrentSpecFeatureDir)' == 'true'">
+		<!-- 依 SpecCode 只編譯目前開發 / 發佈指定的 Spec -->
+		<Compile Include="SpecFeatures\$(SpecCode)\**\*.cs" />
+		<EmbeddedResource Include="SpecFeatures\$(SpecCode)\**\*.resx" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(EnableSpecCompileFilter)' == 'true'">
+		<!-- 其他 Spec 仍保留在 IDE 可見，但不參與目前 Spec 編譯 -->
+		<None Include="SpecFeatures\**\*.cs" Exclude="SpecFeatures\$(SpecCode)\**\*.cs" />
+		<None Include="SpecFeatures\**\*.resx" Exclude="SpecFeatures\$(SpecCode)\**\*.resx" />
 	</ItemGroup>
 	<ItemGroup>
 		<Content Include="Scripts\Zip-PublishedBackend.ps1" />
 	</ItemGroup>
-	<ItemGroup>
-	  <EmbeddedResource Include="SpecFeatures\Spec1810\_Resx\SpecMessageCode.zh-TW.resx" />
-	  <EmbeddedResource Include="SpecFeatures\Spec1810\_Resx\SpecModelDisplayName.en.resx" />
-	  <EmbeddedResource Include="SpecFeatures\Spec1810\_Resx\SpecModelDisplayName.zh-TW.resx" />
-	  <EmbeddedResource Include="SpecFeatures\Spec1816\_Resx\SpecMessageCode.zh-TW.resx" />
-	  <EmbeddedResource Include="SpecFeatures\Spec1816\_Resx\SpecModelDisplayName.en.resx" />
-	  <EmbeddedResource Include="SpecFeatures\Spec1816\_Resx\SpecModelDisplayName.zh-TW.resx" />
-	  <EmbeddedResource Include="SpecFeatures\Spec1817\_Resx\SpecMessageCode.zh-TW.resx" />
-	  <EmbeddedResource Include="SpecFeatures\Spec1817\_Resx\SpecModelDisplayName.en.resx" />
-	  <EmbeddedResource Include="SpecFeatures\Spec1817\_Resx\SpecModelDisplayName.zh-TW.resx" />
-	  <EmbeddedResource Include="SpecFeatures\Spec1819\_Resx\SpecMessageCode.en.resx" />
-	  <EmbeddedResource Include="SpecFeatures\Spec1819\_Resx\SpecMessageCode.zh-TW.resx" />
-	  <EmbeddedResource Include="SpecFeatures\Spec1819\_Resx\SpecModelDisplayName.en.resx" />
-	  <EmbeddedResource Include="SpecFeatures\Spec1819\_Resx\SpecModelDisplayName.zh-TW.resx" />
-	  <EmbeddedResource Include="SpecFeatures\Spec1820\_Resx\SpecMessageCode.zh-TW.resx" />
-	  <EmbeddedResource Include="SpecFeatures\Spec1820\_Resx\SpecModelDisplayName.en.resx" />
-	  <EmbeddedResource Include="SpecFeatures\Spec1820\_Resx\SpecModelDisplayName.zh-TW.resx" />
-	  <EmbeddedResource Include="SpecFeatures\Spec1821\_Resx\SpecMessageCode.en.resx" />
-	  <EmbeddedResource Include="SpecFeatures\Spec1821\_Resx\SpecMessageCode.zh-TW.resx" />
-	  <EmbeddedResource Include="SpecFeatures\Spec1821\_Resx\SpecModelDisplayName.en.resx" />
-	  <EmbeddedResource Include="SpecFeatures\Spec1821\_Resx\SpecModelDisplayName.zh-TW.resx" />
-	</ItemGroup>
 	<Target Name="ValidateSpecCodeCompile" BeforeTargets="CoreCompile">
-		<Message Importance="High" Text="Spec compile enabled. SettingsFile=$(SpecSettingsFile), SpecCode=$(SpecCode), HasSpecFeatureDir=$(HasCurrentSpecFeatureDir)" Condition="'$(UseSpecCodeCompile)' == 'true'" />
-		<Message Importance="High" Text="SpecFeatures\$(SpecCode) does not exist. This Spec will use shared Features only." Condition="'$(UseSpecCodeCompile)' == 'true' and '$(SpecCode)' != '' and '$(HasCurrentSpecFeatureDir)' != 'true'" />
-		<Error Condition="'$(UseSpecCodeCompile)' == 'true' and !Exists('$(MSBuildProjectDirectory)\$(SpecSettingsFile)')" Text="找不到 Spec 設定檔：$(SpecSettingsFile)。請確認 appsettings 檔案存在。" />
-		<Error Condition="'$(UseSpecCodeCompile)' == 'true' and '$(SpecCodeFromSettings)' == ''" Text="$(SpecSettingsFile) 未設定 SpecCode，無法進行 SpecFeatures 條件編譯。" />
-		<Error Condition="'$(UseSpecCodeCompile)' == 'true' and '$(SpecCode)' != '' and '$(SpecCodeFromSettings)' != '' and '$(SpecCode)' != '$(SpecCodeFromSettings)'" Text="MSBuild SpecCode=$(SpecCode) 與 $(SpecSettingsFile) 的 SpecCode=$(SpecCodeFromSettings) 不一致，請修正後再編譯。" />
+		<Message Importance="High" Text="Spec compile enabled. SettingsFile=$(SpecSettingsFile), SpecCode=$(SpecCode), HasSpecFeatureDir=$(HasCurrentSpecFeatureDir), EnableSpecCompileFilter=$(EnableSpecCompileFilter)" Condition="'$(EnableSpecCompileFilter)' == 'true'" />
+		<Message Importance="High" Text="SpecFeatures\$(SpecCode) does not exist. This Spec will use shared Features only." Condition="'$(EnableSpecCompileFilter)' == 'true' and '$(SpecCode)' != '' and '$(HasCurrentSpecFeatureDir)' != 'true'" />
+		<Error Condition="'$(EnableSpecCompileFilter)' == 'true' and !Exists('$(MSBuildProjectDirectory)\$(SpecSettingsFile)')" Text="找不到 Spec 設定檔：$(SpecSettingsFile)。請確認 appsettings 檔案存在。" />
+		<Error Condition="'$(EnableSpecCompileFilter)' == 'true' and '$(SpecCodeFromSettings)' == ''" Text="$(SpecSettingsFile) 未設定 SpecCode，無法進行 SpecFeatures 條件編譯。" />
+		<Error Condition="'$(EnableSpecCompileFilter)' == 'true' and '$(SpecCode)' != '' and '$(SpecCodeFromSettings)' != '' and '$(SpecCode)' != '$(SpecCodeFromSettings)'" Text="MSBuild SpecCode=$(SpecCode) 與 $(SpecSettingsFile) 的 SpecCode=$(SpecCodeFromSettings) 不一致，請修正後再編譯。" />
 	</Target>
 </Project>

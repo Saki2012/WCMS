@@ -1,5 +1,4 @@
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using WCMS.Features._Resx;
 using WCMS.SpecFeatures.Spec1821._Resx;
 using WCMS.SysCore;
@@ -20,7 +19,10 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
     private static readonly JsonSerializerOptions OptionsJsonSerializerOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
     #endregion
 
-    #region Protected
+    #region Protected Virtual
+    /// <summary>
+    /// 儲存前整理首頁設定資料並執行 1821 業務檢查。
+    /// </summary>
     protected override async Task BeforeUpdate(SpecHomePage1821Set set, FuncAction act, CancellationToken ct = default)
     {
         await base.BeforeUpdate(set, act, ct);
@@ -35,8 +37,12 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
     }
     #endregion
 
-    #region Private
-    private void CheckData(SpecHomePage1821Set set)
+
+    #region Protected
+    /// <summary>
+    /// 檢查首頁設定 Header、Banner、Shortcut 與 ModuleItem 資料。
+    /// </summary>
+    protected void CheckData(SpecHomePage1821Set set)
     {
         CheckHeader(set.SpecHomePage1821);
         CheckBanner(set.SpecHomePage1821_Banner);
@@ -44,24 +50,26 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
         CheckShortcutModuleItem(set.SpecHomePage1821_ShortcutModuleItem);
     }
 
-    private static void NormalizeData(SpecHomePage1821Set set)
+    /// <summary>
+    /// 整理首頁設定明細集合與 JSON 條件資料。
+    /// </summary>
+    protected static void NormalizeData(SpecHomePage1821Set set)
     {
         set.SpecHomePage1821_Banner ??= [];
         set.SpecHomePage1821_Shortcut ??= [];
         set.SpecHomePage1821_ShortcutModuleItem ??= [];
-
-        if (set.SpecHomePage1821 != null)
-        {
-            set.SpecHomePage1821.Card1PicId = NormalizeRelationId(set.SpecHomePage1821.Card1PicId);
-            set.SpecHomePage1821.Card2PicId = NormalizeRelationId(set.SpecHomePage1821.Card2PicId);
-            set.SpecHomePage1821.LinkOptions = NormalizeOptionsJson(set.SpecHomePage1821.LinkOptions);
-        }
-
+        if (set.SpecHomePage1821 != null) set.SpecHomePage1821.LinkOptions = NormalizeOptionsJson(set.SpecHomePage1821.LinkOptions);
         NormalizeBanner(set.SpecHomePage1821_Banner);
         NormalizeShortcut(set.SpecHomePage1821_Shortcut);
         NormalizeShortcutModuleItem(set.SpecHomePage1821_ShortcutModuleItem, set.SpecHomePage1821_Shortcut);
     }
 
+    #endregion
+
+    #region Private
+    /// <summary>
+    /// 檢查首頁設定 Header 必填欄位、連結格式與相關連結條件。
+    /// </summary>
     private void CheckHeader(SpecHomePage1821Model header)
     {
         if (header == null)
@@ -69,7 +77,6 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
             Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SpecHomePage1821Set_DTO>(x => x.SpecHomePage1821));
             return;
         }
-
         CheckRequired(header.Lang, I18nCache.GetLabel<SpecHomePage1821Model_DTO>(x => x.Lang));
         CheckRequired(header.Card1Title, I18nCache.GetLabel<SpecHomePage1821Model_DTO>(x => x.Card1Title));
         CheckRequired(header.Card1PicId, I18nCache.GetLabel<SpecHomePage1821Model_DTO>(x => x.Card1PicId));
@@ -81,25 +88,26 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
         CheckUrl(header.LinkViewMore);
         CheckOptionsJson(header.LinkOptions, I18nCache.GetLabel<SpecHomePage1821Model_DTO>(x => x.LinkOptions));
     }
-
+    /// <summary>
+    /// 檢查 Banner 圖片與連結格式。
+    /// </summary>
     private void CheckBanner(List<SpecHomePage1821_Banner> rows)
     {
         foreach (var row in rows)
         {
-            CheckRequired(row.RowNo, I18nCache.GetLabel<SpecHomePage1821_Banner_DTO>(x => x.RowNo));
             CheckRequired(row.BannerFileId, I18nCache.GetLabel<SpecHomePage1821_Banner_DTO>(x => x.BannerFileId));
             CheckUrl(row.Link);
         }
     }
-
+    /// <summary>
+    /// 檢查 Shortcut 主項目與連結 / 模組資料的條件關係。
+    /// </summary>
     private void CheckShortcut(List<SpecHomePage1821_Shortcut> rows, List<SpecHomePage1821_ShortcutModuleItem> moduleItems)
     {
         foreach (var row in rows)
         {
-            CheckRequired(row.RowNo, I18nCache.GetLabel<SpecHomePage1821_Shortcut_DTO>(x => x.RowNo));
             CheckRequired(row.IconFileId, I18nCache.GetLabel<SpecHomePage1821_Shortcut_DTO>(x => x.IconFileId));
             CheckRequired(row.Title, I18nCache.GetLabel<SpecHomePage1821_Shortcut_DTO>(x => x.Title));
-
             if (row.IsLink)
             {
                 CheckRequired(row.Link, I18nCache.GetLabel<SpecHomePage1821_Shortcut_DTO>(x => x.Link));
@@ -107,18 +115,17 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
                 CheckUrl(row.Link);
                 continue;
             }
-
-            bool hasVisibleModuleItem = moduleItems.Any(item => item.ParentRowId == row.RowId && !item.IsHide);
+            bool hasVisibleModuleItem = moduleItems.Any(item => item.ParentRowId == row.RowId);
             if (!hasVisibleModuleItem) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SpecHomePage1821Set_DTO>(x => x.SpecHomePage1821_ShortcutModuleItem));
         }
     }
-
+    /// <summary>
+    /// 檢查 Shortcut 模組項目的標題、條件、查看更多連結與模組類型。
+    /// </summary>
     private void CheckShortcutModuleItem(List<SpecHomePage1821_ShortcutModuleItem> rows)
     {
         foreach (var row in rows)
         {
-            CheckRequired(row.ParentRowId, I18nCache.GetLabel<SpecHomePage1821_ShortcutModuleItem_DTO>(x => x.ParentRowId));
-            CheckRequired(row.RowNo, I18nCache.GetLabel<SpecHomePage1821_ShortcutModuleItem_DTO>(x => x.RowNo));
             CheckRequired(row.Title, I18nCache.GetLabel<SpecHomePage1821_ShortcutModuleItem_DTO>(x => x.Title));
             CheckRequired(row.ModuleOptions, I18nCache.GetLabel<SpecHomePage1821_ShortcutModuleItem_DTO>(x => x.ModuleOptions));
             CheckRequired(row.MoreViewLink, I18nCache.GetLabel<SpecHomePage1821_ShortcutModuleItem_DTO>(x => x.MoreViewLink));
@@ -127,95 +134,97 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
             CheckUrl(row.MoreViewLink);
         }
     }
-
+    /// <summary>
+    /// 整理 Banner 明細排序預設值。
+    /// </summary>
     private static void NormalizeBanner(List<SpecHomePage1821_Banner> rows)
     {
         for (int i = 0; i < rows.Count; i++)
         {
-            rows[i].BannerFileId = NormalizeRelationId(rows[i].BannerFileId);
             if (rows[i].RowNo <= 0) rows[i].RowNo = i + 1;
         }
     }
-
+    /// <summary>
+    /// 整理 Shortcut 明細排序與非連結模式欄位。
+    /// </summary>
     private static void NormalizeShortcut(List<SpecHomePage1821_Shortcut> rows)
     {
         for (int i = 0; i < rows.Count; i++)
         {
-            rows[i].IconFileId = NormalizeRelationId(rows[i].IconFileId);
-            rows[i].LinkPicId = NormalizeRelationId(rows[i].LinkPicId);
             if (rows[i].RowNo <= 0) rows[i].RowNo = i + 1;
-
             if (rows[i].IsLink) continue;
-            rows[i].Link = string.Empty;
-            rows[i].LinkPicId = null;
+
         }
     }
-
+    /// <summary>
+    /// 整理 Shortcut 模組項目排序、移除連結 Shortcut 的子項並正規化查詢條件。
+    /// </summary>
     private static void NormalizeShortcutModuleItem(List<SpecHomePage1821_ShortcutModuleItem> rows, List<SpecHomePage1821_Shortcut> shortcuts)
     {
         HashSet<int> linkParentRowIds = shortcuts.Where(item => item.IsLink).Select(item => item.RowId).ToHashSet();
         rows.RemoveAll(item => linkParentRowIds.Contains(item.ParentRowId));
-
         Dictionary<int, int> rowIndexByParent = [];
         foreach (var row in rows)
         {
             row.ModuleOptions = NormalizeOptionsJson(row.ModuleOptions);
-
             if (!rowIndexByParent.ContainsKey(row.ParentRowId)) rowIndexByParent[row.ParentRowId] = 0;
             rowIndexByParent[row.ParentRowId]++;
             if (row.RowNo <= 0) row.RowNo = rowIndexByParent[row.ParentRowId];
         }
     }
-
-    private static string NormalizeOptionsJson(string? options)
+    /// <summary>
+    /// 正規化首頁查詢條件 JSON 的類別與標籤欄位。
+    /// </summary>
+    private static string NormalizeOptionsJson(string options)
     {
         if (options.IsNullOrEmpty()) return SerializeOptions(new HomePageOptions());
         if (!TryParseOptions(options, out HomePageOptions parsed)) return options;
-
         parsed.CategoryIds = parsed.CategoryIds.Remerge(",");
         parsed.TagIds = parsed.TagIds.Remerge(",");
         return SerializeOptions(parsed);
     }
-
-    private static string? NormalizeRelationId(string? relationId)
-    {
-        return relationId.IsNullOrEmpty() ? null : relationId;
-    }
-
+    /// <summary>
+    /// 將首頁查詢條件轉換為統一格式的 JSON 字串。
+    /// </summary>
     private static string SerializeOptions(HomePageOptions options)
     {
         return JsonSerializer.Serialize(options, OptionsJsonSerializerOptions);
     }
-
-    private void CheckRequired(string? value, string fieldName)
+    /// <summary>
+    /// 檢查字串欄位是否有填寫。
+    /// </summary>
+    private void CheckRequired(string value, string fieldName)
     {
         if (value.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, fieldName);
     }
-
-    private void CheckRequired(int value, string fieldName)
-    {
-        if (value <= 0) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, fieldName);
-    }
-
-    private void CheckUrl(string? url)
+    /// <summary>
+    /// 檢查網址是否為 HTTP(S) 或站內相對路徑。
+    /// </summary>
+    private void CheckUrl(string url)
     {
         if (!url.IsNullOrEmpty() && !LibData.UrlChecks.IsHttpOrRelativeUrl(url)) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00027, url);
     }
-
+    /// <summary>
+    /// 檢查 Shortcut 模組類型是否為允許的首頁模組。
+    /// </summary>
     private void CheckModuleType(SpecHomePageModuleType moduleType)
     {
         if (moduleType is SpecHomePageModuleType.Announcement or SpecHomePageModuleType.FileArchive) return;
-        Message.AddMessage(MessageStatus.Error, SpecMessageCode.SpecBECode0001, I18nCache.GetLabel<SpecHomePage1821_ShortcutModuleItem_DTO>(x => x.ModuleType));
+        Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00000, $"{I18nCache.GetLabel<SpecHomePage1821_ShortcutModuleItem_DTO>(x => x.ModuleType)}只允許公告或檔案室。");
     }
-
-    private void CheckOptionsJson(string? options, string fieldName)
+    /// <summary>
+    /// 檢查查詢條件 JSON 是否可被解析。
+    /// </summary>
+    private void CheckOptionsJson(string options, string fieldName)
     {
         if (options.IsNullOrEmpty()) return;
         if (TryParseOptions(options, out _)) return;
         Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00035, fieldName);
     }
-
-    private static bool TryParseOptions(string? options, out HomePageOptions result)
+    /// <summary>
+    /// 嘗試將查詢條件 JSON 解析為首頁條件物件。
+    /// </summary>
+    private static bool TryParseOptions(string options, out HomePageOptions result)
     {
         result = new();
         if (options.IsNullOrEmpty()) return false;
@@ -233,8 +242,17 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
     #endregion
 }
 
+/// <summary>
+/// 首頁模組與相關連結的查詢條件。
+/// </summary>
 internal sealed class HomePageOptions
 {
-    [JsonPropertyName("categoryIds")] public string CategoryIds { get; set; } = string.Empty;
-    [JsonPropertyName("tagIds")] public string TagIds { get; set; } = string.Empty;
+    /// <summary>
+    /// 類別代碼集合字串。
+    /// </summary>
+    public string CategoryIds { get; set; } = string.Empty;
+    /// <summary>
+    /// 標籤代碼集合字串。
+    /// </summary>
+    public string TagIds { get; set; } = string.Empty;
 }

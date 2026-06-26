@@ -7,31 +7,14 @@ import {
     useClientDataQueryTemplate,
 } from "@/Features/Pages/Client/Scaffold/DataQueryTemplate/Client_DataQueryTemplate_Hook";
 import { SpecHomePage1821Adapter } from "@/SpecFetures/1821/Hooks/WEB/HomePage_Api";
-import {
-    type AnnouncementSet,
-    type FileArchiveSet,
-    type HomePageFeatureCardViewModel,
-    type HomePageLinkViewModel,
-    HomePageModuleType,
-    type HomePageModuleTypeValue,
-    type HomePageOptions,
-    type HomePageShortcutModuleViewModel,
-    type HomePageShortcutViewModel,
-    type QueryListParam,
-    type SpecHomePage1821Banner,
-    type SpecHomePage1821Model,
-    type SpecHomePage1821Set,
-    type SpecHomePage1821Shortcut,
-    type SpecHomePage1821ShortcutModuleItem,
-    type WebResourceSet,
-} from "@/SpecFetures/1821/Hooks/WEB/HomePage_Types";
-import type { Lang } from "@/SysCore/i18n/lang";
+import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import {
     formatLocalIso,
     LibCondition,
     Operator,
 } from "@/SysCore/Utils/Library/LibData";
+import type { components } from "@/types/api";
 import {
     AnnouncementDetailFields,
     AnnouncementFields,
@@ -40,6 +23,7 @@ import {
     FileArchiveInfoFields,
     FileArchiveUrlDetailFields,
     FileManageModelFields,
+    SpecHomePage1821ModelFields,
     WebResourceFields,
     WebResourceInfoFields,
 } from "@/types/SchemaFields";
@@ -47,6 +31,60 @@ import { useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router-dom";
 
 // #region Property
+type QueryListParam = components["schemas"]["QueryListParam"];
+type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
+type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];
+type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
+type SpecHomePage1821Model = components["schemas"]["SpecHomePage1821Model_DTO"];
+type SpecHomePage1821Set = components["schemas"]["SpecHomePage1821Set_DTO"];
+type SpecHomePage1821Banner = components["schemas"]["SpecHomePage1821_Banner_DTO"];
+type SpecHomePage1821Shortcut = components["schemas"]["SpecHomePage1821_Shortcut_DTO"];
+type SpecHomePage1821ShortcutModuleItem = components["schemas"]["SpecHomePage1821_ShortcutModuleItem_DTO"];
+type SpecHomePageModuleType = components["schemas"]["SpecHomePageModuleType"];
+type HomePageModuleTypeValue = Exclude<SpecHomePageModuleType, 0>;
+
+interface HomePageOptions
+{
+    categoryIds: string;
+    tagIds: string;
+}
+
+interface HomePageShortcutModuleViewModel
+{
+    setting: SpecHomePage1821ShortcutModuleItem;
+    moduleType: HomePageModuleTypeValue;
+    announcementList: AnnouncementSet[];
+    fileArchiveList: FileArchiveSet[];
+}
+
+interface HomePageShortcutViewModel
+{
+    shortcut: SpecHomePage1821Shortcut;
+    modules: HomePageShortcutModuleViewModel[];
+}
+
+interface HomePageFeatureCardViewModel
+{
+    key: string;
+    title: string;
+    pictureId: string;
+    pictureDescription: string;
+}
+
+interface HomePageLinkViewModel
+{
+    key: string;
+    title: string;
+    url: string;
+    pictureId: string;
+    pictureDescription: string;
+}
+
+const HomePageModuleType = {
+    Announcement: 1,
+    FileArchive: 2,
+} as const satisfies Record<string, HomePageModuleTypeValue>;
+
 type HomePageTemplate = ClientDataQueryTemplate<
     HomePageTemplateQueryParam,
     HomePageRawData | null,
@@ -148,33 +186,14 @@ const escapeQueryValue = (value?: string | null) =>
     return getSafeString(value).replace(/"/g, `""`);
 };
 
-const sortByRowNo = <
-    T extends { RowNo?: number | null; RowId?: number | null; },
->(
-    rows?: T[] | null,
-) =>
+const sortByRowNo = <T extends { RowNo?: number | null; RowId?: number | null; }>(rows?: T[] | null) =>
 {
-    return [...(rows ?? [])].sort(
-        (a, b) => (a.RowNo ?? a.RowId ?? 0) - (b.RowNo ?? b.RowId ?? 0),
-    );
-};
-
-const filterVisible = <T extends { IsHide?: boolean | null; }>(
-    rows?: T[] | null,
-) =>
-{
-    return (rows ?? []).filter((item) => item.IsHide !== true);
+    return [...(rows ?? [])].sort((a, b) => (a.RowNo ?? a.RowId ?? 0) - (b.RowNo ?? b.RowId ?? 0));
 };
 
 const createEmptyRawData = (): HomePageRawData =>
 {
-    return {
-        homePage: null,
-        banners: [],
-        shortcuts: [],
-        featureCards: [],
-        linkList: [],
-    };
+    return { homePage: null, banners: [], shortcuts: [], featureCards: [], linkList: [] };
 };
 
 const buildEmptyLoaderData = (args: HomePageLoaderArgs): HomePageLoaderData =>
@@ -182,47 +201,22 @@ const buildEmptyLoaderData = (args: HomePageLoaderArgs): HomePageLoaderData =>
     return { args, res: { rawData: createEmptyRawData(), setData: null } };
 };
 
-const normalizeSetData = async (
-    args: LoaderFunctionArgs,
-    setData: SpecHomePage1821Set | null,
-    lang: Lang,
-): Promise<HomePageRawData> =>
+const normalizeSetData = async (args: LoaderFunctionArgs, setData: SpecHomePage1821Set | null, lang: Lang): Promise<HomePageRawData> =>
 {
     if (!setData) return createEmptyRawData();
-
     const homePage = setData.SpecHomePage1821 ?? null;
-    const banners = sortByRowNo(filterVisible(setData.SpecHomePage1821_Banner));
-    const shortcuts = sortByRowNo(
-        filterVisible(setData.SpecHomePage1821_Shortcut),
-    ).slice(0, 5);
-    const moduleItems = sortByRowNo(
-        filterVisible(setData.SpecHomePage1821_ShortcutModuleItem),
-    );
+    const banners = sortByRowNo(setData.SpecHomePage1821_Banner);
+    const shortcuts = sortByRowNo(setData.SpecHomePage1821_Shortcut).slice(0, 5);
+    const moduleItems = sortByRowNo(setData.SpecHomePage1821_ShortcutModuleItem);
     const nowIsoLocal = formatLocalIso(new Date());
-    const shortcutViewModels = await buildShortcutViewModels(
-        args,
-        lang,
-        shortcuts,
-        moduleItems,
-        nowIsoLocal,
-    );
+    const shortcutViewModels = await buildShortcutViewModels(args, lang, shortcuts, moduleItems, nowIsoLocal);
     const linkList = await loadSection4Links(args, lang, homePage);
-
-    return {
-        homePage,
-        banners,
-        shortcuts: shortcutViewModels,
-        featureCards: buildFeatureCards(homePage),
-        linkList,
-    };
+    return { homePage, banners, shortcuts: shortcutViewModels, featureCards: buildFeatureCards(homePage), linkList };
 };
 
-const buildFeatureCards = (
-    homePage: SpecHomePage1821Model | null,
-): HomePageFeatureCardViewModel[] =>
+const buildFeatureCards = (homePage: SpecHomePage1821Model | null): HomePageFeatureCardViewModel[] =>
 {
     if (!homePage) return [];
-
     return [
         {
             key: "card1",
@@ -441,11 +435,7 @@ const buildAnnouncementHomeQuery = (p: {
         Condition: p.condition,
         RankGroups: [
             {
-                Condition: LibCondition.createCondition(
-                    AnnouncementFields.ContentStatus,
-                    Operator.BitwiseHasAny,
-                    1,
-                ),
+                Condition: LibCondition.joinConditions([LibCondition.createCondition(AnnouncementFields.ContentStatus, Operator.BitwiseHasAny, 1)]),
             },
         ],
         OrderBy: [
@@ -547,11 +537,7 @@ const buildFileArchiveHomeQuery = (p: {
         Condition: p.condition,
         RankGroups: [
             {
-                Condition: LibCondition.createCondition(
-                    FileArchiveFields.ContentStatus,
-                    Operator.BitwiseHasAny,
-                    1,
-                ),
+                Condition: LibCondition.joinConditions([LibCondition.createCondition(FileArchiveFields.ContentStatus, Operator.BitwiseHasAny, 1)]),
             },
         ],
         OrderBy: [{ Col: FileArchiveFields.CreateTime, Desc: true }],
@@ -650,11 +636,7 @@ const buildWebResourceHomeQuery = (p: {
         Condition: p.condition,
         RankGroups: [
             {
-                Condition: LibCondition.createCondition(
-                    WebResourceFields.ContentStatus,
-                    Operator.BitwiseHasAny,
-                    1,
-                ),
+                Condition: LibCondition.joinConditions([LibCondition.createCondition(WebResourceFields.ContentStatus, Operator.BitwiseHasAny, 1)]),
             },
         ],
         OrderBy: [{ Col: WebResourceFields.CreateTime, Desc: true }],
@@ -692,11 +674,18 @@ const buildHomePageQueryParam = (lang?: Lang): QueryListParam =>
     const safeLang = escapeQueryValue(lang);
 
     return {
-        Fields: ["InternalId", "Lang", "CreateTime", "ModifyTime"],
-        Condition: safeLang ? `Lang = "${safeLang}"` : "",
+        Fields: [
+            SpecHomePage1821ModelFields.InternalId,
+            SpecHomePage1821ModelFields.Lang,
+            SpecHomePage1821ModelFields.CreateTime,
+            SpecHomePage1821ModelFields.ModifyTime,
+        ],
+        Condition: safeLang
+            ? `${SpecHomePage1821ModelFields.Lang} = "${safeLang}"`
+            : "",
         OrderBy: [
-            { Col: "ModifyTime", Desc: true },
-            { Col: "CreateTime", Desc: true },
+            { Col: SpecHomePage1821ModelFields.ModifyTime, Desc: true },
+            { Col: SpecHomePage1821ModelFields.CreateTime, Desc: true },
         ],
         PageNumber: 1,
         PageSize: 1,
@@ -760,7 +749,7 @@ const resolveHomePageInternalId = async (
     const defaultRow = await loadFirstHomePageRow(
         args,
         adapter,
-        buildHomePageQueryParam("zh-tw"),
+        buildHomePageQueryParam(DefaultLang),
     );
     const defaultId = getInternalIdFromListRow(defaultRow);
     if (defaultId) return defaultId;

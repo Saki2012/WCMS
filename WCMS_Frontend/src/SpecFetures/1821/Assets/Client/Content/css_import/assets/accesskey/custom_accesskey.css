@@ -1,0 +1,168 @@
+@charset "utf-8";
+/* CSS Document */
+
+/* ----- ****** 以下文字 需放在-- 網站導覽 裡 上方位置 ****** ----- */
+/* -------------------------------------------------------
+
+HTML : <p> ...以下文字... </p>
+
+
+本網站依無障礙網頁設計原則建置，網站的主要內容分為二大區塊：
+1.上方主選單連結區(U)、2.中間內容區(C)、3.下方連結區(B)。
+
+本網站的快速鍵﹝Accesskey﹞設定如下：
+Alt + U：上方主選單連結區(U)
+Alt + C：中間內容區(C)
+Alt + B：下方連結區(B)
+Alt + L：左方選單區(L)
+Alt + R：右方連結區(R)
+
+--------------------------------------------------------*/
+/* ----- ****** 以下文字 需放在-- 網站導覽 裡 ****** ----- */
+
+.accesskey_section {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: center;
+	
+	padding-bottom: 10px;
+	background-color: var(--FFFcolor);
+}
+
+.accesskey_header {
+	/*position: relative;*/
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	-ms-flex-direction: column;
+	flex-direction: column;
+	
+	justify-content: center;
+	align-items: baseline;
+	
+	font-size: 100%;
+	color: var(--G999color);
+	margin-right: 5px;
+	top: 30px;
+	left: 375px;
+}
+
+.accesskey_search {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	-ms-flex-direction: column;
+	flex-direction: column;
+	
+	justify-content: center;
+	align-items: baseline;
+	
+	font-size: 100%;
+	color: var(--FFFcolor);
+	margin-right: 5px;
+	/*top: 30px;*/
+	left: -20px;
+}
+
+.accesskey_menu {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	-ms-flex-direction: column;
+	flex-direction: column;
+	
+	font-size: 100%;
+	color: var(--blackcolor);
+	margin-right: 5px;
+	top: 5px;
+	/*left: 60px;*/
+}
+
+.accesskey_main {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	-ms-flex-direction: column;
+	flex-direction: column;
+	
+	width: 15px;
+	font-size: 100%;
+	color: var(--blackcolor);
+	margin-right: 5px;
+	left: 0px;
+	/*top: 30px;*/
+}
+.accesskey_C_Auto {
+	height: auto;
+}
+.accesskey_C_H {
+	height: 0px;
+}
+.accesskey_main.left-30 {
+  position: relative;
+  left: -30px;
+}
+
+.accesskey_left {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	-ms-flex-direction: column;
+	flex-direction: column;
+	
+	font-size: 100%;
+	color: var(--blackcolor);
+	margin-right: 5px;
+	left: -10px;
+}
+
+.accesskey_right {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	-ms-flex-direction: column;
+	flex-direction: column;
+	
+	font-size: 100%;
+	color: var(--blackcolor);
+	margin-right: 5px;
+	left: -10px;
+}
+
+.accesskey_footer {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	-ms-flex-direction: column;
+	flex-direction: column;
+	
+	width: 15px;
+	font-size: 100%;
+	color: var(--FFFcolor);
+	margin-right: 5px;
+	left: 10px;
+}

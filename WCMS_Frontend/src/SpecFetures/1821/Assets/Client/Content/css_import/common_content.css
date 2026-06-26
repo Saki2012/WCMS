@@ -1,0 +1,936 @@
+@charset "utf-8";
+/* CSS Document */
+
+
+/* ======================= */
+/* -------------------------
+**	內頁  H1~H6
+**	標準 Standard-Style-1 ITEM 內容
+**	標準 表單所有 內容 ( 以下 )
+**	自訂 按鈕 --- 共用
+**	自訂 Model
+-------------------------- */
+/* ======================= */
+
+
+
+
+/* ========================================================================== */
+/* 所有 常見內容 CSS 設定 ( 以下 )  OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO */
+/* ========================================================================== */
+
+
+
+/* ====================================================== */
+/* =====  標準 Standard-Style-1 ITEM 內容  =============== */
+/* ====================================================== */
+.Standard-Style-1 {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	margin: 1px;
+}
+
+.Standard-Style-1 a {
+	position: relative;
+	display: block;
+}
+.Standard-Style-1 a:focus {}
+
+.Standard-Style-1 a .box-content,
+.Standard-Style-1 .box-content {
+	position: relative;
+	display: block;
+	background-color: var(--FFFcolor);
+}
+
+/* ============================================= */
+/* ------ img_box ------------------------------ */
+.Standard-Style-1 a .img_box,
+.Standard-Style-1 .img_box {
+	position: relative;
+	aspect-ratio: 4/3;  /*1/1*//*4/3*//*6/4*//*16/9*/
+	overflow: hidden;
+	border-radius: 30px;
+	margin: 0;
+}
+
+.Standard-Style-1 a .img_box .img-wrapper,
+.Standard-Style-1 .img_box .img-wrapper {
+	position: relative;
+	width: 100%;
+	border-radius: 30px;
+}
+.Standard-Style-1 a .img_box .img-wrapper img,
+.Standard-Style-1 .img_box .img-wrapper img {
+	-webkit-transition: all 0.5s ease 0s;
+	-moz-transition: all 0.5s ease 0s;
+	-ms-transition: all 0.5s ease 0s;
+	-o-transition: all 0.5s ease 0s;
+	transition: all 0.5s ease 0s;
+}
+.Standard-Style-1 a:hover .img_box .img-wrapper img,
+.Standard-Style-1 .img_box:hover .img-wrapper img {
+	-webkit-transform: scale(1.05);
+	-ms-transform: scale(1.05);
+	-moz-transform: scale(1.05);
+	-o-transform: scale(1.05);
+	transform: scale(1.05);
+}
+/* ------ img_box ------------------------------ */
+/* ============================================= */
+
+/* ============================================= */
+/* ------ btn-wrapper -------------------------- */
+.Standard-Style-1 a .img_box .btn-wrapper,
+.Standard-Style-1 .img_box .btn-wrapper {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;	
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	border-radius: 50%;
+	width: 48px;
+	height: 48px;		
+	background-color: var(--FFFcolor);
+	transition: all .5s ease-in-out 0s;
+}
+.Standard-Style-1 a .img_box .btn-wrapper,
+.Standard-Style-1 .img_box .btn-wrapper {
+	top: 1rem;
+	right: 1rem;
+	bottom: inherit;
+}
+.Standard-Style-1 a .img_box .btn-wrapper,
+.Standard-Style-1 .img_box .btn-wrapper {
+	-webkit-transition: all 0.5s ease 0s;
+	-moz-transition: all 0.5s ease 0s;
+	-ms-transition: all 0.5s ease 0s;
+	-o-transition: all 0.5s ease 0s;
+	transition: all 0.5s ease 0s;
+}
+
+.Standard-Style-1 a:hover .img_box .btn-wrapper,
+.Standard-Style-1 .img_box:hover .btn-wrapper {
+	background-color: var(--Customize_HRcolor);
+}
+/* ------ btn-wrapper -------------------------- */
+/* ============================================= */
+
+/* ============================================= */
+/* ------ button-icon -------------------------- */
+.Standard-Style-1 a .img_box .button-icon,
+.Standard-Style-1 .img_box .button-icon {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	border-radius: 50%;
+	width: 48px;
+	height: 48px;
+}
+
+.Standard-Style-1 a .img_box .button-icon i,
+.Standard-Style-1 .img_box .button-icon i {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	border-radius: 50%;
+	width: 24px;
+	height: 24px;
+	
+	font-size: 93.75%;
+	color: var(--Customize_color);
+	transform: rotate(-45deg);
+}
+.Standard-Style-1 a:hover .img_box .button-icon i,
+.Standard-Style-1 .img_box:hover .button-icon i {
+	color: var(--FFFcolor);
+}
+/* ------ button-icon -------------------------- */
+/* ============================================= */
+
+/* ============================================= */
+/* ------ label-Allcontent --------------------- */
+.label-Allcontent,
+a .label-Allcontent {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+	margin-bottom: 0.5rem;
+}
+@media(max-width: 360px) {
+	.label-Allcontent,
+	a .label-Allcontent {
+		flex-direction: column;
+        justify-content: flex-start;
+		align-items: flex-start;
+    }
+}
+/* ------ box_content -------------------------- */
+/* ============================================= */
+
+/* ============================================= */
+/* ------ left_wrap / right_wrap --------------- */
+.left_wrap,
+.right_wrap {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+}
+/* ------ left_wrap / right_wrap --------------- */
+/* ============================================= */
+
+/* ============================================= */
+/* ------ standard-category -------------------- */
+.standard-category {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+}
+.standard-category .category-small {
+	display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;    
+	
+	font-weight: 900;	
+	color: var(--FFFcolor);
+	border-radius: 20px;
+	padding: 0.5px 0.5rem;
+	margin-right: 0.25rem;
+	border: 1px solid var(--Customize_color);
+	background-color: var(--Customize_color);
+}
+/* ------ standard-category -------------------- */
+/* ============================================= */
+
+/* ============================================= */
+/* ------ standard-TOPHOTNEW-label 至頂標籤 ----- */
+.standard-TOPHOTNEW-label {
+	position: relative;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.standard-TOPHOTNEW-label .icon-small {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+	
+	font-weight: 900;	
+	border-radius: 20px;
+	padding: 0.5px 0.5rem;
+	margin-right: 0.25rem;
+}
+.standard-TOPHOTNEW-label .icon-small.hot-bg {
+	color: var(--FFFcolor);   
+	border: 1px solid #ce1800;
+	background-color: #ce1800;
+}
+.standard-TOPHOTNEW-label .icon-small.top-bg {
+	color: var(--FFFcolor);
+	border: 1px solid #004aa5;
+	background-color: #004aa5;
+}
+.standard-TOPHOTNEW-label .icon-small.new-bg {
+	color: var(--blackcolor);
+	border: 1px solid #fda601;
+	background-color: #fda601;
+}
+/* ------ standard-TOPHOTNEW-label 至頂標籤 ----- */
+/* ============================================= */
+/* ============================================= */
+/* ------ 文字尺寸設定 --------------------------- */
+/* ------ standard-category -------------------- */
+/* ------ standard-TOPHOTNEW-label ------------- */
+@media(max-width: 575px) {
+	.standard-category .category-small,
+	.standard-TOPHOTNEW-label .icon-small {
+        font-size: 65%;		
+		margin-bottom: 0.5rem;
+    }
+}
+@media(min-width: 576px) {
+	.standard-category .category-small,
+	.standard-TOPHOTNEW-label .icon-small {
+        font-size: 70%;
+    }
+}
+/* ------ 文字尺寸設定 --------------------------- */
+/* ------ standard-TOPHOTNEW-label ------------- */
+/* ------ standard-category -------------------- */
+/* ------ 文字尺寸設定 --------------------------- */
+/* ============================================= */
+
+/* ============================================= */
+/* ------ content-wrapper ---------------------- */
+.Standard-Style-1 a .content-wrapper,
+.Standard-Style-1 .content-wrapper {
+	position: relative;
+	padding: 1rem 1rem 1rem 1rem;
+}
+/* ------ content-wrapper ---------------------- */
+/* ============================================= */
+
+/* ============================================= */
+/* ------ date-wraper -------------------------- */
+.Standard-Style-1 a .content-wrapper .date-wraper,
+.Standard-Style-1 .content-wrapper .date-wraper {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: center;
+	margin-bottom: 0.5rem;
+}
+/* ------ date-wraper -------------------------- */
+/* ============================================= */
+
+/* ============================================= */
+/* ------ meta-date-wrapper -------------------- */
+.Standard-Style-1 .content-wrapper .meta-date-wrapper,
+.Standard-Style-1 .content-wrapper .meta-author-wrapper {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	margin-right: 1rem;
+}
+/* ------ meta-date-wrapper -------------------- */
+/* ============================================= */
+
+/* ============================================= */
+/* ------ meta-post-date ----------------------- */
+.Standard-Style-1 .content-wrapper .meta-post-date {
+	font-size: 87.5%;
+	line-height: 26px;
+	letter-spacing: .5px;
+	text-transform: uppercase;
+	color: var(--G666color);
+}
+.Standard-Style-1 .content-wrapper .meta-post-date i {
+	font-size: 106.25%;
+	color: var(--Customize_color);
+	margin-right: 0.25rem;
+}
+
+.Standard-Style-1 .meta-post-author {
+	font-size: 87.5%;
+	line-height: 26px;
+	letter-spacing: .5px;
+	text-transform: uppercase;
+	color: var(--G666color);
+}
+.Standard-Style-1 .meta-post-author i {
+	font-size: 106.25%;
+	color: var(--Customize_color);
+	margin-right: 0.25rem;
+}
+/* ------ meta-post-date ----------------------- */
+/* ============================================= */
+
+/* ============================================= */
+/* ------ title-box ---------------------------- */
+.Standard-Style-1 .title-box,
+.Standard-Style-1 a .tit-text {
+	font-family: "Noto Sans TC";
+    font-weight: bold;
+	line-height: 1.25rem;
+    color: var(--G333color);
+    text-transform: uppercase;
+    word-break: break-all;
+	
+	display: -webkit-box;
+	/* 第一步：設定 display 為 -webkit-box 元素。 */
+	-webkit-box-orient: vertical;
+	/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/
+	-webkit-line-clamp: 2;
+	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
+	overflow: hidden;
+	/* 第四步：設定超過上述指定之行數時隱藏。 */
+	max-height: 42px;
+	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
+    
+	height: 42px;
+    margin-bottom: 0.25rem;
+}
+@media(max-width: 575px) {
+	.Standard-Style-1 .title-box,
+	.Standard-Style-1 a .tit-text {
+        font-size: 93.75%;
+        
+    }
+}
+@media(min-width: 576px) {
+	.Standard-Style-1 .title-box,
+	.Standard-Style-1 a .tit-text {
+        font-size: 106.25%;
+    }
+}
+a:hover .title-box {
+	color: var(--Customize_HRcolor);
+}
+/* ------ tit-text ----------------------------- */
+/* ============================================= */
+
+/* ============================================= */
+/* ------ sub-description-text ----------------- */
+.Standard-Style-1 .desc-box,
+.Standard-Style-1 a .desc-box {
+    font-family: "Noto Sans TC";
+    font-weight: normal;  
+	line-height: 1.25rem;
+    color: var(--G777color);
+    text-transform: uppercase;
+    word-break: break-all;
+    
+	display: -webkit-box;
+	/* 第一步：設定 display 為 -webkit-box 元素。 */
+	-webkit-box-orient: vertical;
+	/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/
+	-webkit-line-clamp: 2;
+	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
+	overflow: hidden;
+	/* 第四步：設定超過上述指定之行數時隱藏。 */
+	max-height: 42px;
+	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
+}
+@media(max-width: 575px) {
+	.Standard-Style-1 .desc-box,
+	.Standard-Style-1 a .desc-box {
+        font-size: 81.25%;
+    }
+}
+@media(min-width: 576px) {
+	.Standard-Style-1 .desc-box,
+	.Standard-Style-1 a .desc-box {
+        font-size: 87.5%; 
+    }
+}
+.Standard-Style-1 a:hover .desc-box {
+    color: var(--G777color);
+}
+/* ------ sub-description-text ----------------- */
+/* ============================================= */
+
+/* ====================================================== */
+/* =====  標準 Standard-Style-1 ITEM 內容  =============== */
+/* ====================================================== */
+
+
+
+/* ====================================================== */
+/* =====  標準 表單所有 內容 ( 以下 )  ===================== */
+/* ====================================================== */
+
+/* ==================================================== */
+/* ------ 紅色 星號重點 --------------------------------- */
+.required {
+	color: red;
+	font-size: 87.5%; /*0.875em*/
+	margin-left: 5px;
+}
+
+.y-required {
+	color: yellow;
+	font-size: 87.5%; /*0.875em*/
+	margin-left: 5px;
+}
+/* ------ 紅色 星號重點 --------------------------------- */
+/* ==================================================== */
+
+/* ==================================================== */
+/* ------ 標準 col-form-元素 --------------------------- */
+.col-form-label {
+    padding-top: calc(.375rem + 1px);
+    padding-bottom: calc(.375rem + 1px);
+    margin-bottom: 0;
+    font-size: inherit;
+    line-height: 1.5;
+}
+
+.form-control:not(.form-control-lg):not(.form-control-sm), 
+.swal-modal input.swal-content__input:not(.form-control-lg):not(.form-control-sm) {
+    height: -webkit-calc(1.5em + .75rem + 3px);
+    height: -moz-calc(1.5em + .75rem + 3px);
+    height: calc(1.5em + .75rem + 3px);
+}
+
+.form-control {
+    display: block;
+    width: 100%;
+    height: calc(1.5em + .75rem + 2px);
+    padding: .375rem .75rem;
+    font-weight: 400;
+    line-height: 1.5;    
+    color: #1e2d40;
+    background-color: var(--FFFcolor);
+    background-clip: padding-box;    
+    border: 1px solid #AEAEAE;
+    border-radius: .25rem;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+/* ------ 標準 col-form-元素 --------------------------- */
+/* ==================================================== */
+
+
+/* ==================================================== */
+/* ------ 自訂 勾選開關 --------------------------------- */
+.form-check-input {
+    position: absolute;
+    margin-top: 0.65rem; /*.3rem*/
+    margin-left: 0rem; /*-1.25rem*/
+}
+
+.form-check-input {
+	padding-top: calc(.375rem + 1px);
+	padding-bottom: calc(.375rem + 1px);
+	margin-bottom: 0;
+	font-size: inherit;
+	line-height: 1.5;
+	width: 18px;
+	height: 18px;
+}
+
+.custom-check-label {
+	padding-top: calc(.375rem + 1px);
+	padding-bottom: calc(.375rem + 1px);
+	margin-bottom: 0;
+	font-size: inherit;
+	line-height: 1.5;
+}
+
+.custom-check-label span.check-txt {
+    margin-left: 1.5rem;
+}
+/* ------ 自訂 勾選開關 --------------------------------- */
+/* ==================================================== */
+
+/* ==================================================== */
+/* ------ 自訂 輸入區 ----------------------------------- */
+textarea.custom-form-control-height-lg {
+    height: auto !important;
+}
+/* ------ 自訂 輸入區 ----------------------------------- */
+/* ==================================================== */
+
+/* ==================================================== */
+.questionnaire-block-box {
+    display: block;
+    width: 100%;
+    padding: .375rem .75rem;
+    font-size: 100%; /*1em*/
+    font-weight: 400;
+    line-height: 1.5;
+    color: #1e2d40;    
+    background-color: var(--FFFcolor);    
+    background-clip: padding-box;    
+    border: 1px solid #AEAEAE;    
+    border-radius: .25rem;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+.block-linebox {
+    display: block;
+    width: 100%;    
+    padding: .375rem .75rem;
+    font-size: 100%; /*1em*/
+    font-weight: 400;
+    line-height: 1.5;
+    
+    color: #1e2d40;
+    background-color: var(--FFFcolor);
+    background-clip: padding-box;
+    border: 1px solid #AEAEAE;
+    border-radius: .25rem;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+/* ==================================================== */
+
+/* ====================================================== */
+/* =====  標準 表單所有 內容 ( 以上 )  ===================== */
+/* ====================================================== */
+
+
+
+/* ==================================================== */
+/* ------ 自訂 按鈕 --- 共用 ---------------------------- */
+/* ==================================================== */
+.btn {
+    position: relative;	
+    
+    display: inline-block;
+    font-size: 100%;
+    line-height: 1.5;
+    font-weight: 400;
+    letter-spacing: 1.25;
+    
+    color: var(--blackcolor);
+    text-align: center;
+    vertical-align: middle;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    
+    border: 1px solid transparent;     
+    background-color: transparent;
+
+    padding: 0.5rem 1.5rem;    
+    
+    border-radius: .25rem;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+.btn:not(:disabled):not(.disabled) {
+    cursor: pointer;
+}
+.btn.btn-rounded {
+    -webkit-border-radius: 50px;
+    -moz-border-radius: 50px;
+    border-radius: 50px;
+}
+
+/* ============================================= */
+/* ------ 藍底色+白字 ---------------------------- */
+.btn.btn-customize-viewmore {
+    color: var(--FFFcolor);
+    border: 1px solid var(--Customize_color);
+    background-color: var(--Customize_color);
+    z-index: 1;
+}
+
+.btn.btn-customize-viewmore:hover {
+    color: var(--Customize_color);
+	border-color: var(--Customize_color);
+    background-color: var(--FFFcolor);
+}
+/* ============================================= */
+/* ------ 白底色+藍黑字 -------------------------- */
+.btn.btn-customize-white-viewmore {
+    color: var(--blackcolor);
+    border: 1px solid var(--Customize_color);
+    background-color: var(--FFFcolor);
+    z-index: 1;
+}
+
+.btn.btn-customize-white-viewmore:hover {
+    color: var(--FFFcolor);
+	border-color: var(--FFFcolor);
+    background-color: var(--Customize_color);
+}
+/* ============================================= */
+/* ------ 無底色+白字 ---------------------------- */
+.btn.btn-customize-transparent-viewmore {
+    color: var(--FFFcolor);
+    border: 1px solid var(--FFFcolor);
+    background-color: transparent;
+    z-index: 1;
+}
+
+.btn.btn-customize-transparent-viewmore:hover {
+    color: var(--Customize_color);
+	border-color: var(--FFFcolor);
+    background-color: var(--Customize_color);
+}
+/* ==================================================== */
+/* ------ 自訂 按鈕 --- 共用 ---------------------------- */
+/* ==================================================== */
+
+
+/* ==================================================== */
+/* ------ 自訂 Model ----------------------------------- */
+/* ==================================================== */
+.custom-model-box {
+	position: relative;
+	display: block;
+}
+
+.custom-model-box .modal-open {
+	overflow: hidden
+}
+
+.custom-model-box .modal {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 1050;
+	display: none;
+	overflow: hidden;
+	-webkit-overflow-scrolling: touch;
+	outline: 0
+}
+
+.custom-model-box .modal.fade .modal-dialog {
+	-webkit-transition: -webkit-transform .3s ease-out;
+	-o-transition: -o-transform .3s ease-out;
+	transition: transform .3s ease-out;
+	-webkit-transform: translate(0,-25%);
+	-ms-transform: translate(0,-25%);
+	-o-transform: translate(0,-25%);
+	transform: translate(0,-25%)
+}
+
+.custom-model-box .modal.in .modal-dialog {
+	-webkit-transform: translate(0,0);
+	-ms-transform: translate(0,0);
+	-o-transform: translate(0,0);
+	transform: translate(0,0)
+}
+
+.custom-model-box .modal-open .modal {
+	overflow-x: hidden;
+	overflow-y: auto
+}
+
+.custom-model-box .modal-dialog {
+	position: relative;
+	width: auto;
+	margin: 10px
+}
+
+.custom-model-box .modal-content {
+    position: relative;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    width: 100%;
+    pointer-events: auto;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 0.3rem;
+    outline: 0;
+}
+
+.custom-model-box .modal-content {
+	position: relative;    
+	background-color: var(--FFFcolor);    
+	-webkit-background-clip: padding-box;
+	background-clip: padding-box;
+	border: 1px solid #999;
+	border: 1px solid rgba(0,0,0,.2);
+	border-radius: 6px;
+	outline: 0;
+	-webkit-box-shadow: 0 3px 9px rgba(0,0,0,.5);
+	box-shadow: 0 3px 9px rgba(0,0,0,.5)
+}
+
+.custom-model-box .modal-backdrop {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 1040;
+	background-color: #000
+}
+
+.custom-model-box .modal-backdrop.fade {
+	filter: alpha(opacity=0);
+	opacity: 0
+}
+
+.custom-model-box .modal-backdrop.in {
+	filter: alpha(opacity=50);
+	opacity: .5
+}
+
+.custom-model-box .modal-header {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-align: start;
+    align-items: flex-start;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    padding: 1rem 1rem;
+    border-bottom: 1px solid #e9ecef;
+    border-top-left-radius: 0.3rem;
+    border-top-right-radius: 0.3rem;
+}
+
+.custom-model-box .modal-header {
+	padding: 15px;
+	border-bottom: 1px solid #e5e5e5
+}
+
+.custom-model-box .modal-header .close {
+	font-size: 131.25%; /*1.3125em; /*21*/
+	font-weight: 400;
+	line-height: 0.5;    
+	color: #959595;
+	text-shadow: 0 1px 0 var(--FFFcolor);
+	margin-top: -2px;
+	opacity: 1;
+}
+
+.custom-model-box .modal-header button.close {
+	padding: 5px;
+	border-radius: 50px;
+    
+	background-color: var(--FFFcolor);
+	border: 1px solid #CCCCCC;
+}
+
+.custom-model-box .modal-header button.close:hover {
+    background-color: #E6E6E6;
+    border-color: #ADADAD;
+}
+
+.custom-model-box .modal-header button.close span {
+	display: block;
+	width: 15px;
+	height: 15px;
+}
+
+.custom-model-box .modal-header h3 {
+	font-size: 125%; /*1.25em*/
+}
+
+.custom-model-box .modal-header h3 i {
+	font-size: 150%; /*1.5em*/
+	color: #FFB300;
+}
+
+.custom-model-box .modal-title {
+	font-size: 125%; /*1.25em*/
+	line-height: 1.42857143;
+	margin: 0;
+}
+
+.custom-model-box .modal-body {
+	position: relative;
+	padding: 15px
+}
+
+.custom-model-box .modal-body h4 {
+    font-size: 112.5%; /*1.125em*/
+	color: #FF0000;
+}
+
+.custom-model-box .modal-footer {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-align: center;
+    align-items: center;
+    -ms-flex-pack: end;
+    justify-content: flex-end;
+    padding: 1rem;
+    border-top: 1px solid #e9ecef;
+    border-bottom-right-radius: 0.3rem;
+    border-bottom-left-radius: 0.3rem;
+}
+
+.custom-model-box .modal-footer {
+	padding: 15px;
+	text-align: right;
+	border-top: 1px solid #e5e5e5
+}
+
+.custom-model-box .modal-footer .btn+.btn {
+	margin-bottom: 0;
+	margin-left: 5px
+}
+
+.custom-model-box .modal-footer .btn-group .btn+.btn {
+	margin-left: -1px
+}
+
+.custom-model-box .modal-footer .btn-block+.btn-block {
+	margin-left: 0
+}
+
+.custom-model-box .modal-scrollbar-measure {
+	position: absolute;
+	top: -9999px;
+	width: 50px;
+	height: 50px;
+	overflow: scroll
+}
+
+@media screen and (min-width:768px) {
+	.custom-model-box .modal-dialog {
+		width: 600px;
+		margin: 30px auto
+	}
+
+	.custom-model-box .modal-content {
+		-webkit-box-shadow: 0 5px 15px rgba(0,0,0,.5);
+		box-shadow: 0 5px 15px rgba(0,0,0,.5)
+	}
+
+	.custom-model-box .modal-sm {
+		width: 300px
+	}
+}
+/* ==================================================== */
+/* ------ 自訂 Model ----------------------------------- */
+/* ==================================================== */
+
+
+/* ==================================================== */
+/* ------ 自訂 紅色 ------------------------------------ */
+/* ==================================================== */
+.color_red {
+	color: #ae0606;
+}
+/* ==================================================== */
+/* ------ 自訂 紅色 ------------------------------------ */
+/* ==================================================== */
+
+
+
+/* ========================================================================== */
+/* 所有 常見內容 CSS 設定 ( 以上 )  OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO */
+/* ========================================================================== */
