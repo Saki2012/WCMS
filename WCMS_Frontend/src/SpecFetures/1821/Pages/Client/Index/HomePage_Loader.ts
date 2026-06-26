@@ -84,6 +84,7 @@ const HomePageModuleType = {
     Announcement: 1,
     FileArchive: 2,
 } as const satisfies Record<string, HomePageModuleTypeValue>;
+const MAX_SHORTCUT_ITEMS = 6;
 
 type HomePageTemplate = ClientDataQueryTemplate<
     HomePageTemplateQueryParam,
@@ -206,7 +207,7 @@ const normalizeSetData = async (args: LoaderFunctionArgs, setData: SpecHomePage1
     if (!setData) return createEmptyRawData();
     const homePage = setData.SpecHomePage1821 ?? null;
     const banners = sortByRowNo(setData.SpecHomePage1821_Banner);
-    const shortcuts = sortByRowNo(setData.SpecHomePage1821_Shortcut).slice(0, 5);
+    const shortcuts = sortByRowNo(setData.SpecHomePage1821_Shortcut).slice(0, MAX_SHORTCUT_ITEMS);
     const moduleItems = sortByRowNo(setData.SpecHomePage1821_ShortcutModuleItem);
     const nowIsoLocal = formatLocalIso(new Date());
     const shortcutViewModels = await buildShortcutViewModels(args, lang, shortcuts, moduleItems, nowIsoLocal);
