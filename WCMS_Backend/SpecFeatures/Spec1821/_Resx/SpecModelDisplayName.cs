@@ -18,10 +18,14 @@ public static class SpecModelDisplayName
     public const string Section3SubTitle = "Spec_Section3SubTitle";
     /// <summary>卡片一標題</summary>
     public const string Card1Title = "Spec_Card1Title";
+    /// <summary>Card 1 link</summary>
+    public const string Card1Link = "Spec_Card1Link";
     /// <summary>卡片一圖片</summary>
     public const string Card1PicId = "Spec_Card1PicId";
     /// <summary>卡片二標題</summary>
     public const string Card2Title = "Spec_Card2Title";
+    /// <summary>Card 2 link</summary>
+    public const string Card2Link = "Spec_Card2Link";
     /// <summary>卡片二圖片</summary>
     public const string Card2PicId = "Spec_Card2PicId";
     /// <summary>Section4 標題</summary>

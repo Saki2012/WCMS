@@ -29,9 +29,11 @@ public class SpecHomePage1821Model_DTO : DTOBasicDataModel
     [LibDesc(SpecModelDisplayName.Section3Title), StringLength(SysLengthParam.Title)] public string? Section3Title { get; set; }
     [LibDesc(SpecModelDisplayName.Section3SubTitle), StringLength(SysLengthParam.Title_en)] public string? Section3SubTitle { get; set; }
     [LibDesc(SpecModelDisplayName.Card1Title), StringLength(SysLengthParam.Title)] public string? Card1Title { get; set; }
+    [LibDesc(SpecModelDisplayName.Card1Link), StringLength(SysLengthParam.Url)] public string? Card1Link { get; set; }
     [ForeignKey(nameof(Card1PicId))] public FileManageModel_DTO? Card1Pic { get; set; }
     [LibDesc(SpecModelDisplayName.Card1PicId), StringLength(SysLengthParam.InternalId)] public string? Card1PicId { get; set; }
     [LibDesc(SpecModelDisplayName.Card2Title), StringLength(SysLengthParam.Title)] public string? Card2Title { get; set; }
+    [LibDesc(SpecModelDisplayName.Card2Link), StringLength(SysLengthParam.Url)] public string? Card2Link { get; set; }
     [ForeignKey(nameof(Card2PicId))] public FileManageModel_DTO? Card2Pic { get; set; }
     [LibDesc(SpecModelDisplayName.Card2PicId), StringLength(SysLengthParam.InternalId)] public string? Card2PicId { get; set; }
     [LibDesc(SpecModelDisplayName.Section4Title), StringLength(SysLengthParam.Title)] public string? Section4Title { get; set; }
