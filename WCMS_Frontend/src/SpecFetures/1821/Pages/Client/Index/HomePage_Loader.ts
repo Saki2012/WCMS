@@ -67,6 +67,7 @@ interface HomePageFeatureCardViewModel
 {
     key: string;
     title: string;
+    link: string;
     pictureId: string;
     pictureDescription: string;
 }
@@ -222,6 +223,7 @@ const buildFeatureCards = (homePage: SpecHomePage1821Model | null): HomePageFeat
         {
             key: "card1",
             title: getSafeString(homePage.Card1Title),
+            link: getSafeString(homePage.Card1Link),
             pictureId: getSafeString(homePage.Card1PicId),
             pictureDescription: getSafeString(
                 homePage.Card1Pic?.FileDescription
@@ -232,6 +234,7 @@ const buildFeatureCards = (homePage: SpecHomePage1821Model | null): HomePageFeat
         {
             key: "card2",
             title: getSafeString(homePage.Card2Title),
+            link: getSafeString(homePage.Card2Link),
             pictureId: getSafeString(homePage.Card2PicId),
             pictureDescription: getSafeString(
                 homePage.Card2Pic?.FileDescription

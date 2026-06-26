@@ -149,7 +149,7 @@ const TopTabItem = (props: { lang: Lang; item: SpecHomePage1821Shortcut; index: 
 const TopLinkTab = (props: { lang: Lang; item: SpecHomePage1821Shortcut; index: number; }) =>
 {
     return (
-        <LangLink id={getTopTabId(props.index)} to={props.item.Link ?? ""} lang={props.lang} className="nav-link" role="button" title={getShortcutTitle(props.item)}>
+        <LangLink id={getTopTabId(props.index)} to={props.item.Link ?? ""} lang={props.lang} className="nav-link" role="button" aria-selected={false} title={getShortcutTitle(props.item)}>
             <TopTabContentInner item={props.item} />
         </LangLink>
     );
