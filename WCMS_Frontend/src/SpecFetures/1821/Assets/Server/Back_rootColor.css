@@ -1,16 +1,24 @@
 :root {
-	--Customize_color: #895ECC;
-	--Customize_HRcolor: #2579CC;
-	--Customize_ACcolor: #EEEEEE;
-	--Customize_FCcolor: #F2F2F2;
-	--Customize_Footercolor: #F4F4F4;
-
+	--Customize_color: #96662a;
+	--Customize_color02: #402210;
+	--Customize_HRcolor: #96662a;
+	--Customize_ACcolor: #96662a;
+	--Customize_FCcolor: #96662a;
+	--Customize_Footercolor: #000000;
+	--Customize_BGcolor: #f3f1ea;
+	
+	/* =================================== */
+	
 	--Customize_TXTcolor: #000000;
-	--Customize_TXTHRcolor: #000000;				
-
-	--Customize_Btn_color: #895ECC;
-	--Customize_Btn_HRcolor: #2579CC;
-	--Customize_border_color: #000000;
+	--Customize_TXTHRcolor: #96662a;
+	--Customize_SUB_TITLEcolor: #ffb250;
+	--Customize_moreHRcolor: #ff4e00;
+	
+	/* =================================== */
+	
+	--Customize_Btn_color: #000000;
+	--Customize_Btn_HRcolor: #96662a;
+	--Customize_border_color: #00305c;
 } 
 
 :root {
@@ -22,5 +30,7 @@
 
 /* 登入 + 註冊 */
 :root {
-	--Customize__shape_color: #764eb5; /*#906323 - HSB-(B減10%)*/
+	--Customize__shape_color: #6d4310; /*#906323 - HSB-(B減10%)*/
 }
+
+
