@@ -11,11 +11,9 @@ interface HomePageFeatureCardViewModel
 {
     key: string;
     title: string;
+    link: string;
     pictureId: string;
     pictureDescription: string;
-    url?: string | null;
-    link?: string | null;
-    Link?: string | null;
 }
 // #endregion
 
@@ -83,7 +81,7 @@ const getCardStyle = (item: HomePageFeatureCardViewModel) =>
 /** 取得卡片連結。 */
 const getFeatureCardLink = (item: HomePageFeatureCardViewModel) =>
 {
-    return item.url ?? item.link ?? item.Link ?? "";
+    return item.link;
 };
 
 /** 格式化兩位數。 */

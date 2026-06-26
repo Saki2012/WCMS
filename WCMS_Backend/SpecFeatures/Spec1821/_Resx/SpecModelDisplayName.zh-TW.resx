@@ -12,8 +12,10 @@
   <data name="Spec_Section3Title" xml:space="preserve"><value>Section3標題</value></data>
   <data name="Spec_Section3SubTitle" xml:space="preserve"><value>Section3副標題</value></data>
   <data name="Spec_Card1Title" xml:space="preserve"><value>圖片區塊1標題</value></data>
+  <data name="Spec_Card1Link" xml:space="preserve"><value>圖片區塊1連結</value></data>
   <data name="Spec_Card1PicId" xml:space="preserve"><value>圖片區塊1圖片來源</value></data>
   <data name="Spec_Card2Title" xml:space="preserve"><value>圖片區塊2標題</value></data>
+  <data name="Spec_Card2Link" xml:space="preserve"><value>圖片區塊2連結</value></data>
   <data name="Spec_Card2PicId" xml:space="preserve"><value>圖片區塊2圖片來源</value></data>
   <data name="Spec_Section4Title" xml:space="preserve"><value>Section4標題</value></data>
   <data name="Spec_Section4SubTitle" xml:space="preserve"><value>Section4副標題</value></data>

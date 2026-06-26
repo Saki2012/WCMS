@@ -11864,11 +11864,15 @@ export interface components {
             Section3SubTitle?: string | null;
             /** @description 圖片區塊1標題 */
             Card1Title?: string | null;
+            /** @description 圖片區塊1連結 */
+            Card1Link?: string | null;
             Card1Pic?: components["schemas"]["FileManageModel_DTO"];
             /** @description 圖片區塊1圖片來源 */
             Card1PicId?: string | null;
             /** @description 圖片區塊2標題 */
             Card2Title?: string | null;
+            /** @description 圖片區塊2連結 */
+            Card2Link?: string | null;
             Card2Pic?: components["schemas"]["FileManageModel_DTO"];
             /** @description 圖片區塊2圖片來源 */
             Card2PicId?: string | null;

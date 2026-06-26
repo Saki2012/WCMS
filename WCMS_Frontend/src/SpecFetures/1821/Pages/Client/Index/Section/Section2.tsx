@@ -192,15 +192,11 @@ const TopTabContentInner = (props: {
             <ShortcutIcon item={props.item} />
             <div className="tit_area">
                 <div className="icons_title">
-                    {props.showLinkIcon && (
-                        <i className="fad fa-link me-2" aria-hidden="true"></i>
-                    )}
+                    {props.showLinkIcon && <i className="fad fa-link me-2" aria-hidden="true"></i>}
                     {props.item.Title}
                 </div>
 
-                {props.item.SubTitle && (
-                    <div className="icons_small">{props.item.SubTitle}</div>
-                )}
+                {props.item.SubTitle && <div className="icons_small">{props.item.SubTitle}</div>}
             </div>
         </div>
     );

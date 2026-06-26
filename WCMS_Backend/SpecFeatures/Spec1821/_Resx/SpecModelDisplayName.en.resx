@@ -12,8 +12,10 @@
   <data name="Spec_Section3Title" xml:space="preserve"><value>Section3 title</value></data>
   <data name="Spec_Section3SubTitle" xml:space="preserve"><value>Section3 subtitle</value></data>
   <data name="Spec_Card1Title" xml:space="preserve"><value>Card 1 title</value></data>
+  <data name="Spec_Card1Link" xml:space="preserve"><value>Card 1 link</value></data>
   <data name="Spec_Card1PicId" xml:space="preserve"><value>Card 1 picture</value></data>
   <data name="Spec_Card2Title" xml:space="preserve"><value>Card 2 title</value></data>
+  <data name="Spec_Card2Link" xml:space="preserve"><value>Card 2 link</value></data>
   <data name="Spec_Card2PicId" xml:space="preserve"><value>Card 2 picture</value></data>
   <data name="Spec_Section4Title" xml:space="preserve"><value>Section4 title</value></data>
   <data name="Spec_Section4SubTitle" xml:space="preserve"><value>Section4 subtitle</value></data>

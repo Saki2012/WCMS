@@ -85,6 +85,8 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
         CheckRequired(header.Section4Title, I18nCache.GetLabel<SpecHomePage1821Model_DTO>(x => x.Section4Title));
         CheckRequired(header.Section4SubTitle, I18nCache.GetLabel<SpecHomePage1821Model_DTO>(x => x.Section4SubTitle));
         CheckRequired(header.LinkViewMore, I18nCache.GetLabel<SpecHomePage1821Model_DTO>(x => x.LinkViewMore));
+        CheckUrl(header.Card1Link);
+        CheckUrl(header.Card2Link);
         CheckUrl(header.LinkViewMore);
         CheckOptionsJson(header.LinkOptions, I18nCache.GetLabel<SpecHomePage1821Model_DTO>(x => x.LinkOptions));
     }

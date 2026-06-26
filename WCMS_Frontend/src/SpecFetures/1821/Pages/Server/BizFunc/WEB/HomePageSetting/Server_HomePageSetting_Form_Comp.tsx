@@ -243,6 +243,11 @@ const CardsSectionComp = (prop: { theme: IBETheme; formData: ServerFormBinding<H
                 DefaultInputDisplay="請輸入卡片 1 標題"
                 {...setField(SpecHomePage1821SetFields.SpecHomePage1821, SpecHomePage1821ModelFields.Card1Title, "string")}
             />
+            <LibTextBox
+                Style={prop.theme.TextBox}
+                DefaultInputDisplay="請輸入卡片 1 連結"
+                {...setField(SpecHomePage1821SetFields.SpecHomePage1821, SpecHomePage1821ModelFields.Card1Link, "string")}
+            />
             <HeaderPictureField
                 theme={prop.theme}
                 lang={prop.lang}
@@ -254,6 +259,11 @@ const CardsSectionComp = (prop: { theme: IBETheme; formData: ServerFormBinding<H
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入卡片 2 標題"
                 {...setField(SpecHomePage1821SetFields.SpecHomePage1821, SpecHomePage1821ModelFields.Card2Title, "string")}
+            />
+            <LibTextBox
+                Style={prop.theme.TextBox}
+                DefaultInputDisplay="請輸入卡片 2 連結"
+                {...setField(SpecHomePage1821SetFields.SpecHomePage1821, SpecHomePage1821ModelFields.Card2Link, "string")}
             />
             <HeaderPictureField
                 theme={prop.theme}

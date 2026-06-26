@@ -21,6 +21,8 @@ WCMS_Frontend/dist-csr/
 *.rar
 *.7z
 *.html
+*.PNG
+prototype
 
 # Local test artifacts
 /.tmp/
