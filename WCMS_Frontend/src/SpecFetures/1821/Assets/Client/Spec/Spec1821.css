@@ -198,3 +198,7 @@
     max-width: calc(100% - 200px);
   }
 }
+
+#navbar-content .nav-link.active, #navbar-content .nav-link.disabled, #navbar-content .nav-link.show{
+  color: var(--FFFcolor);
+}
