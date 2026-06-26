@@ -111,7 +111,7 @@ export const EditGrid = (props: EditGridProps) =>
     const stableSourceColumns = useMemo(() => sourceColumns, [sourceColumnSignature]);
     const { columns, resizeColumn } = useEditGridColumns(stableSourceColumns, storageKey);
     const rows = sourceRows;
-
+    const rowKeySignature = useMemo(() => buildRowKeySignature(rows), [rows]);
     const disabled = props.disabled === true;
     const hasEditingRow = editingKeys.size > 0;
     const canAdd = props.canAdd === true && !disabled && !hasEditingRow;
@@ -146,7 +146,12 @@ export const EditGrid = (props: EditGridProps) =>
         const normalized = normalizeGridData(sourceGridDataRef.current);
         setGridData(prev => isSameGridDataSnapshot(prev, normalized) ? prev : normalized);
     }, [sourceGridDataSignature]);
-
+    useEffect(() =>
+    {
+        const rowKeySet = buildRowKeySet(rows);
+        setEditingKeys(prev => syncEditingKeys(prev, rowKeySet));
+        setBackupMap(prev => syncBackupMap(prev, rowKeySet));
+    }, [rowKeySignature]);
     useEffect(() => setSystemWidths(readSavedWidths(storageKey)), [storageKey]);
     useEffect(() => scrollPendingAddedRowIntoView(scrollBoxRef, pendingAddedRowIndexRef), [rows.length]);
 
@@ -2542,6 +2547,31 @@ const getFileKind = (file: EditGridFileValue): "image" | "video" | "file" =>
 // #endregion
 
 // #region Private
+/** 建立目前資料列 key 簽章，用來判斷編輯狀態是否需要同步清理。 */
+const buildRowKeySignature = (rows: GridRow[]): string =>
+{
+    return rows.map((row, index) => getRowKey(row, index)).join("|");
+};
+
+/** 建立目前仍存在的資料列 key 集合。 */
+const buildRowKeySet = (rows: GridRow[]): Set<string> =>
+{
+    return new Set(rows.map((row, index) => getRowKey(row, index)));
+};
+
+/** 清掉已不存在資料列的編輯狀態，避免 Grid 被鎖住不能新增或修改。 */
+const syncEditingKeys = (prev: Set<string>, rowKeySet: Set<string>): Set<string> =>
+{
+    const next = new Set(Array.from(prev).filter(key => rowKeySet.has(key)));
+    return next.size === prev.size ? prev : next;
+};
+
+/** 清掉已不存在資料列的備份資料，避免取消編輯時吃到舊列。 */
+const syncBackupMap = (prev: Record<string, GridRow>, rowKeySet: Set<string>): Record<string, GridRow> =>
+{
+    const next = Object.fromEntries(Object.entries(prev).filter(([key]) => rowKeySet.has(key)));
+    return Object.keys(next).length === Object.keys(prev).length ? prev : next;
+};
 /** 取得表格外框 className，捲動中會補上紅框狀態 class。 */
 const getEditGridTableWrapClassName = (isScrolling: boolean) =>
 {

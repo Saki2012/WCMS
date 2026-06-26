@@ -243,7 +243,7 @@ export const useHomePage1821BannerEditGrid = (opt: HomePageEditGridBaseOptions) 
         emptyData: createEmptyHomePage1821Set(opt.lang),
         collectionName: SpecHomePage1821SetFields.SpecHomePage1821_Banner,
         columns,
-        getItemRowId: item => item.RowId,
+        getItemRowId: (item, index) => resolveHomePageRowId(item.RowId, index + 1),
         sortItems: sortHomePageRows,
         createItem: ctx => buildNewBannerItem(ctx.data, ctx.nextRowId),
         toRow: (item, index) => buildBannerGridRow(item, index, handleFileValueChange, opt.renderPicturePreview),
@@ -273,7 +273,7 @@ export const useHomePage1821ShortcutEditGrid = (opt: HomePageEditGridBaseOptions
         emptyData: createEmptyHomePage1821Set(opt.lang),
         collectionName: SpecHomePage1821SetFields.SpecHomePage1821_Shortcut,
         columns,
-        getItemRowId: item => item.RowId,
+        getItemRowId: (item, index) => resolveHomePageRowId(item.RowId, index + 1),
         sortItems: sortHomePageRows,
         createItem: ctx => buildNewShortcutItem(ctx.data, ctx.nextRowId),
         toRow: (item, index) => buildShortcutGridRow(item, index, handleIconFileChange, handleLinkPicChange, opt.renderPicturePreview, opt.renderModuleDetailAction),
@@ -293,7 +293,7 @@ export const useHomePage1821ShortcutModuleItemEditGrid = (opt: HomePageEditGridB
         emptyData: createEmptyHomePage1821Set(opt.lang),
         collectionName: SpecHomePage1821SetFields.SpecHomePage1821_ShortcutModuleItem,
         columns,
-        getItemRowId: item => item.RowId,
+        getItemRowId: (item, index) => resolveHomePageRowId(item.RowId, index + 1),
         sortItems: sortModuleRows,
         createItem: ctx => buildNewModuleItem(ctx.data, ctx.nextRowId, parentRowId),
         toRow: (item, index) => buildModuleItemGridRow(item, index, opt.refs, !parentRowId),
@@ -773,7 +773,7 @@ const buildBannerGridRow = (
     renderPicturePreview?: HomePageImageRender,
 ): GridRow =>
 {
-    const rowId = Number(item.RowId ?? index + 1);
+    const rowId = resolveHomePageRowId(item.RowId, index + 1);
     return {
         keyId: buildHomePageRowKey("banner", item.HomePageId, rowId),
         rowId,
@@ -792,7 +792,7 @@ const buildShortcutGridRow = (
     renderModuleDetailAction?: HomePageImageRender,
 ): GridRow =>
 {
-    const rowId = Number(item.RowId ?? index + 1);
+    const rowId = resolveHomePageRowId(item.RowId, index + 1);
     return {
         keyId: buildHomePageRowKey("shortcut", item.HomePageId, rowId),
         rowId,
@@ -804,7 +804,7 @@ const buildShortcutGridRow = (
 
 const buildModuleItemGridRow = (item: ShortcutModuleItem, index: number, refs: HomePage1821FormRefs, showParentCell: boolean): GridRow =>
 {
-    const rowId = Number(item.RowId ?? index + 1);
+    const rowId = resolveHomePageRowId(item.RowId, index + 1);
     return {
         keyId: buildHomePageRowKey(`module-${item.ParentRowId ?? 0}`, item.HomePageId, rowId),
         rowId,
@@ -1033,25 +1033,31 @@ const normalizeModuleItemRowNo = (items: ShortcutModuleItem[]): ShortcutModuleIt
         return { ...item, RowNo: rowNoByParent[parent] };
     });
 };
+/** 建立標籤項目所屬父層選項，避免 RowId 異常造成子項目無法綁定。 */
 
 const buildShortcutParentOptions = (shortcuts?: Shortcut[] | null) =>
 {
-    return sortHomePageRows(shortcuts ?? []).map((item, index) => ({
-        label: `${index + 1}. ${item.Title || item.ShortcutCode || item.RowId || "未命名標籤"}`,
-        value: Number(item.RowId ?? index + 1),
-    }));
+    return sortHomePageRows(shortcuts ?? []).map((item, index) =>
+    {
+        const rowId = resolveHomePageRowId(item.RowId, index + 1);
+        return {
+            label: `${index + 1}. ${item.Title || item.ShortcutCode || rowId || "未命名標籤"}`,
+            value: rowId,
+        };
+    });
 };
-
+/** 取得新增模組項目的預設父層 RowId。 */
 const getDefaultParentRowId = (shortcuts?: Shortcut[] | null): number =>
 {
-    const first = sortHomePageRows(shortcuts ?? [])[0];
-    return Number(first?.RowId ?? 0);
+    const items = sortHomePageRows(shortcuts ?? []);
+    if (items.length === 0) return 0;
+    return resolveHomePageRowId(items[0].RowId, 1);
 };
 
+/** 取得 GridRow 的有效 RowId。 */
 const getGridRowId = (row: GridRow, index: number): number =>
 {
-    const value = Number(row.RowId ?? row.rowId ?? row.rowid ?? index + 1);
-    return Number.isFinite(value) && value > 0 ? value : index + 1;
+    return resolveHomePageRowId(row.RowId ?? row.rowId ?? row.rowid, index + 1);
 };
 
 const buildHomePageRowKey = (section: string, homePageId?: string | null, rowId?: number | null): string =>
@@ -1141,5 +1147,12 @@ const getHomePageFileDownloadUrl = (fileId?: string | null): string | undefined 
 {
     const id = normalizeText(fileId);
     return id ? `/Service/FileManagement/Server_Download/${encodeURIComponent(id)}` : undefined;
+};
+
+/** 取得有效 RowId，避免 SQL 清資料後 RowId 為 0 / 空值造成 EditGrid key 異常。 */
+const resolveHomePageRowId = (value: unknown, fallback: number): number =>
+{
+    const rowId = Number(value);
+    return Number.isFinite(rowId) && rowId > 0 ? rowId : fallback;
 };
 // #endregion

@@ -3,7 +3,7 @@ import { PGID } from "@/types/SchemaFields";
 import { Server_HomePage1821_Form_Comp } from "../BizFunc/WEB/HomePageSetting/Server_HomePageSetting_Form_Comp";
 
 // #region Private
-const HomePageSettingProgId = PGID.SpecHomePage1821Api;
+const HomePageSettingProgId = PGID.SpecHomePageApi;
 
 export const extendServerModuleRoutes = (modules: IModuleMeta[]): IModuleMeta[] =>
 {
