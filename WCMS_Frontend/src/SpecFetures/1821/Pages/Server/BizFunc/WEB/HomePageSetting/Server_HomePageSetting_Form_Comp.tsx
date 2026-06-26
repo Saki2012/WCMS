@@ -1,13 +1,13 @@
 import { Server_FormTemplate_Comp } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Comp";
 import type { ServerFormBinding } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
 import { EditGrid } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid";
-import { useEditGridSubDetailState } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
 import type { EditGridCellRenderArgs, EditGridCellValue, EditGridEditingStateArgs, EditGridSubDetailRenderArgs, IEditGridView_Style } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Data";
+import { useEditGridSubDetailState } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { useUploadPicture } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibPicture_Comp";
-import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
-import { LibCheckBox, LibFile, LibPicture, LibTextBox } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
-import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
+import { LibPicture, useUploadPicture } from "@/SysCore/Components/FormField/FieldComponets/LibPicture_Comp";
+import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
+import { LibCheckBox, LibFile, LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
+import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
 import { LoadingErrorHandler } from "@/SysCore/Components/LoadingErrorHandler";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import { type Lang, LangLabelMap, SUPPORTED_LANGS } from "@/SysCore/i18n/lang";
@@ -15,9 +15,9 @@ import type { components } from "@/types/api";
 import { SpecHomePage1821ModelFields, SpecHomePage1821SetFields } from "@/types/SchemaFields";
 import { type ReactNode, useCallback, useMemo } from "react";
 import {
-    type HomePage1821FormRefs,
     createEmptyHomePage1821Set,
     getHomePageFilePreviewUrl,
+    type HomePage1821FormRefs,
     toHomePageFileCellValue,
     useHomePage1821BannerEditGrid,
     useHomePage1821LangFormTemplate,
