@@ -4,10 +4,10 @@ import { EditGrid } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGr
 import { useEditGridSubDetailState } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
 import type { EditGridCellRenderArgs, EditGridCellValue, EditGridEditingStateArgs, EditGridSubDetailRenderArgs, IEditGridView_Style } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Data";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { useUploadPicture } from "@/SysCore/Components/FormField/FieldComponets/LibPicture_Comp";
-import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-import { LibCheckBox, LibFile, LibPicture, LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
-import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
+import { useUploadPicture } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibPicture_Comp";
+import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
+import { LibCheckBox, LibFile, LibPicture, LibTextBox } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
+import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { LoadingErrorHandler } from "@/SysCore/Components/LoadingErrorHandler";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import { type Lang, LangLabelMap, SUPPORTED_LANGS } from "@/SysCore/i18n/lang";

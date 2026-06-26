@@ -21,7 +21,7 @@ export const HomePage = (props: { lang: Lang; }) =>
             {/* biome-ignore lint/correctness/useUniqueElementIds: Site-Main is the shared client landmark id used by skip links. */}
             <main id="Site-Main" className="ALL_Main_DivBar main-fullpage-wraper">
                 <div className="background_area">
-                    <div className="container-customize3" style={{ height: 0 }}>
+                    <div className="container-customize0" style={{ height: "auto" }}>
                         <Accesskey type="C" lang={props.lang} />
                     </div>
                     <Section2 lang={props.lang} data={rawData.shortcuts} />

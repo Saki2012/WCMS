@@ -145,7 +145,7 @@ const HeaderSection = (props: HeaderSectionProp) =>
                     <div className="container-customize0">
                         <div className="topbox d-flex justify-content-lg-between justify-content-md-center justify-content-sm-center justify-content-center align-items-center">
                             <DesktopLogo text={text} />
-                            <ul className="nav custom_nav justify-content-xl-end justify-content-center">
+                            <ul className="nav custom_nav justify-content-xl-end justify-content-center align-items-center pt-lg-0">
                                 <TopNavList lang={props.lang} site={props.site} text={text} />
                                 <HeaderToolList fontSizeAction={fontSizeAction} text={text} />
                             </ul>
@@ -218,8 +218,8 @@ const TopNavList = (props: HeaderSectionProp & { text: HeaderText; }) =>
 {
     return (
         <li>
-            <ul className="nav custom_nav justify-content-center py-0 my-1">
-                <li className="nav-item">
+            <ul className="nav custom_nav justify-content-center py-0 my-1 ps-5">
+                <li className="nav-item pe-2">
                     <Accesskey type="U" lang={props.lang} />
                 </li>
                 <li className="nav-item">

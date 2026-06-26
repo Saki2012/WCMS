@@ -149,8 +149,15 @@ const TopTabItem = (props: { lang: Lang; item: SpecHomePage1821Shortcut; index: 
 const TopLinkTab = (props: { lang: Lang; item: SpecHomePage1821Shortcut; index: number; }) =>
 {
     return (
-        <LangLink id={getTopTabId(props.index)} to={props.item.Link ?? ""} lang={props.lang} className="nav-link" role="button" title={getShortcutTitle(props.item)}>
-            <TopTabContentInner item={props.item} />
+        <LangLink
+            id={getTopTabId(props.index)}
+            to={props.item.Link ?? ""}
+            lang={props.lang}
+            className="nav-link"
+            role="button"
+            title={getShortcutTitle(props.item)}
+        >
+            <TopTabContentInner item={props.item} showLinkIcon />
         </LangLink>
     );
 };
@@ -175,14 +182,25 @@ const TopButtonTab = (props: { item: SpecHomePage1821Shortcut; index: number; ac
 };
 
 /** 第一層頁籤圖文內容。 */
-const TopTabContentInner = (props: { item: SpecHomePage1821Shortcut; }) =>
+const TopTabContentInner = (props: {
+    item: SpecHomePage1821Shortcut;
+    showLinkIcon?: boolean;
+}) =>
 {
     return (
         <div className="icon_wrapper">
             <ShortcutIcon item={props.item} />
             <div className="tit_area">
-                <div className="icons_title">{props.item.Title}</div>
-                {props.item.SubTitle && <div className="icons_small">{props.item.SubTitle}</div>}
+                <div className="icons_title">
+                    {props.showLinkIcon && (
+                        <i className="fad fa-link me-2" aria-hidden="true"></i>
+                    )}
+                    {props.item.Title}
+                </div>
+
+                {props.item.SubTitle && (
+                    <div className="icons_small">{props.item.SubTitle}</div>
+                )}
             </div>
         </div>
     );
