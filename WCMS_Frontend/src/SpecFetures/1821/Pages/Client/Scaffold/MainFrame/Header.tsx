@@ -245,7 +245,7 @@ const HeaderToolList = (props: { fontSizeAction: ReturnType<typeof useFontSizeAc
             <ul className="nav custom_nav justify-content-center py-0">
                 {FONT_SIZE_OPTIONS.map(option => <FontSizeButton key={option.size} option={option} activeSize={props.fontSizeAction.fontSize} onChange={props.fontSizeAction.changeFontSize} />)}
                 <li>
-                    <SearchControl buttonId="top-sss" inputId="search-box" placeholder={props.text.searchPlaceholder} text={props.text} />
+                    {/* <SearchControl buttonId="top-sss" inputId="search-box" placeholder={props.text.searchPlaceholder} text={props.text} /> */}
                 </li>
             </ul>
         </li>
@@ -299,7 +299,7 @@ const MobileActionGroup = (props: { text: HeaderText; }) =>
         <>
             <div className="mobile-box ms-auto me-2">
                 <div className="icons">
-                    <SearchControl buttonId="mobile-sss" inputId="mobile-search-box" placeholder={props.text.searchPlaceholder} text={props.text} />
+                    {/* <SearchControl buttonId="mobile-sss" inputId="mobile-search-box" placeholder={props.text.searchPlaceholder} text={props.text} /> */}
                 </div>
             </div>
             <button className="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-content" aria-controls="navbar-content" aria-expanded="false" aria-label={props.text.mobileMenu}>
