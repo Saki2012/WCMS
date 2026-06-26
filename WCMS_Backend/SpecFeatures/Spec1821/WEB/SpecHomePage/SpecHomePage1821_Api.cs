@@ -8,6 +8,6 @@ namespace WCMS.SpecFeatures.Spec1821.WEB.SpecHomePage;
 /// 1821招生首頁設定 API
 /// </summary>
 [LibApiController(ProgKeys.WEB.Code, ProgKeys.WEB.HomePageSetting, SysEnum.FuncAction.MasterData)]
-public class SpecHomePage1821ApiController : ApiDataController<SpecHomePage1821Set, SpecHomePage1821Set_DTO>
+public class SpecHomePageApiController : ApiDataController<SpecHomePage1821Set, SpecHomePage1821Set_DTO>
 {
 }

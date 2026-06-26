@@ -7,13 +7,19 @@
   <data name="SpecHomePage1821" xml:space="preserve"><value>招生首頁設定</value></data>
   <data name="SpecHomePage1821_Banner" xml:space="preserve"><value>Section1 Banner清單</value></data>
   <data name="SpecHomePage1821_Shortcut" xml:space="preserve"><value>Section2 快捷按鈕</value></data>
-  <data name="SpecHomePage1821_FeatureCard" xml:space="preserve"><value>Section3 招生特色卡片</value></data>
-  <data name="SpecHomePage1821_RelatedLink" xml:space="preserve"><value>Section4 相關連結</value></data>
+  <data name="SpecHomePage1821_ShortcutModuleItem" xml:space="preserve"><value>Section2 模組子項目</value></data>
   <data name="Spec_HomePageId" xml:space="preserve"><value>首頁設定ID</value></data>
   <data name="Spec_Section3Title" xml:space="preserve"><value>Section3標題</value></data>
   <data name="Spec_Section3SubTitle" xml:space="preserve"><value>Section3副標題</value></data>
+  <data name="Spec_Card1Title" xml:space="preserve"><value>圖片區塊1標題</value></data>
+  <data name="Spec_Card1PicId" xml:space="preserve"><value>圖片區塊1圖片來源</value></data>
+  <data name="Spec_Card2Title" xml:space="preserve"><value>圖片區塊2標題</value></data>
+  <data name="Spec_Card2PicId" xml:space="preserve"><value>圖片區塊2圖片來源</value></data>
   <data name="Spec_Section4Title" xml:space="preserve"><value>Section4標題</value></data>
   <data name="Spec_Section4SubTitle" xml:space="preserve"><value>Section4副標題</value></data>
+  <data name="Spec_LinkOptions" xml:space="preserve"><value>相關連結條件參數</value></data>
+  <data name="Spec_LinkViewMore" xml:space="preserve"><value>相關連結查看更多網址</value></data>
+  <data name="Spec_RowNo" xml:space="preserve"><value>行序號</value></data>
   <data name="Spec_BannerFileId" xml:space="preserve"><value>Banner圖片</value></data>
   <data name="Spec_BannerFileDescription" xml:space="preserve"><value>Banner圖片說明</value></data>
   <data name="Spec_ShortcutCode" xml:space="preserve"><value>快捷按鈕代碼</value></data>
@@ -21,6 +27,11 @@
   <data name="Spec_IconFileDescription" xml:space="preserve"><value>圖示檔案說明</value></data>
   <data name="Spec_ActionType" xml:space="preserve"><value>動作類型（暫定）</value></data>
   <data name="Spec_ActionValue" xml:space="preserve"><value>動作值（暫定）</value></data>
-  <data name="Spec_PictureId" xml:space="preserve"><value>圖片</value></data>
-  <data name="Spec_PictureDescription" xml:space="preserve"><value>圖片說明</value></data>
+  <data name="Spec_IsLink" xml:space="preserve"><value>是否外部連結</value></data>
+  <data name="Spec_LinkPicId" xml:space="preserve"><value>外部連結圖片顯示</value></data>
+  <data name="Spec_ModuleType" xml:space="preserve"><value>功能類型</value></data>
+  <data name="Spec_ModuleType_Announcement" xml:space="preserve"><value>公告</value></data>
+  <data name="Spec_ModuleType_FileArchive" xml:space="preserve"><value>檔案室</value></data>
+  <data name="Spec_ModuleOptions" xml:space="preserve"><value>條件參數</value></data>
+  <data name="Spec_MoreViewLink" xml:space="preserve"><value>查看更多連結</value></data>
 </root>

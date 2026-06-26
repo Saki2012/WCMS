@@ -1,0 +1,835 @@
+@charset "utf-8";
+/* CSS Document */
+/* #ContentPlaceContent_ContentConentA 表格 RWD */
+:root {
+	--bs-padding-x: 0.75rem;
+	--bs-padding-y: 0.75rem;
+	--bs-padding-RWD-x: 0.25rem;
+	--bs-padding-RWD-y: 0.25rem;
+	--bs-label-padding-x: 0.125rem;
+	--bs-label-padding-y: 0.5rem;
+}
+/* padding: var(--bs-padding-x) var(--bs-padding-y); */
+/* padding: var(bs-label-padding-x) var(--bs-label-padding-y); */
+
+
+/* ******************************************************** */
+/* --------------- RWD TABLE CSS CODE START --------------- */
+/* ******************************************************** */
+.All_Standard_Content_CSS .table > :not(caption) > * > *,
+#ContentPlaceContent_ContentConentA .table > :not(caption) > * > * {
+	padding: var(--bs-padding-x) var(--bs-padding-y);
+	background-color: transparent;
+	border-bottom-width: 1px;
+	box-shadow: inset 0 0 0 9999px transparent;
+}
+
+.All_Standard_Content_CSS .table-rwd,
+#ContentPlaceContent_ContentConentA .table-rwd { }
+/*這是額外做顏色，沒有什麼意義*/
+
+/* --- 標題TR底色設定 ---*/
+.All_Standard_Content_CSS tr.tr-only-hide,
+#ContentPlaceContent_ContentConentA tr.tr-only-hide { 
+	font-size: 100%;
+	line-height: 1.5;
+	font-weight: 500;
+	color: var(--blackcolor);
+	background-color: #e7e7e7!important;
+}
+
+/* ====================================================== */
+/* =====  共用 標準 bootstrap.min table CSS ( 以下 )  ===== */
+/* ====================================================== */
+.All_Standard_Content_CSS .table-bordered,
+#ContentPlaceContent_ContentConentA .table-bordered {
+    border: 1px solid #dddddd;
+}
+
+.All_Standard_Content_CSS .table-striped tbody tr:nth-of-type(2n+1),
+#ContentPlaceContent_ContentConentA .table-striped tbody tr:nth-of-type(2n+1) {
+	background-color: transparent;
+    /*background-color: rgba(0, 0, 0, 0.05);*/
+}
+.All_Standard_Content_CSS .table-striped tbody tr:nth-of-type(2n),
+#ContentPlaceContent_ContentConentA .table-striped tbody tr:nth-of-type(2n) {
+    background-color: rgba(0, 0, 0, 0.0125);
+}
+
+.All_Standard_Content_CSS .table,
+#ContentPlaceContent_ContentConentA .table {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 10px;
+}
+
+.All_Standard_Content_CSS table,
+#ContentPlaceContent_ContentConentA table {
+    border-spacing: 0;
+    border-collapse: collapse;
+}
+
+.All_Standard_Content_CSS table,
+#ContentPlaceContent_ContentConentA table {
+    background-color: transparent;
+}
+
+.All_Standard_Content_CSS .table > tbody,
+#ContentPlaceContent_ContentConentA .table > tbody {
+    border-top: 1px solid transparent !important;
+}
+
+
+.All_Standard_Content_CSS .table-bordered > thead > tr > th,
+.All_Standard_Content_CSS .table-bordered > thead > tr > td,
+/* ------------------------------------------------------------------ */
+.All_Standard_Content_CSS .table-bordered > tbody > tr > td,
+.All_Standard_Content_CSS .table-bordered > tbody > tr > th,
+/* ------------------------------------------------------------------ */
+.All_Standard_Content_CSS .table-bordered > tfoot > tr > th,
+.All_Standard_Content_CSS .table-bordered > tfoot > tr > td
+/* ****************************************************************** */
+#ContentPlaceContent_ContentConentA .table-bordered > thead > tr > th,
+#ContentPlaceContent_ContentConentA .table-bordered > thead > tr > td,
+/* ------------------------------------------------------------------ */
+#ContentPlaceContent_ContentConentA .table-bordered > tbody > tr > td,
+#ContentPlaceContent_ContentConentA .table-bordered > tbody > tr > th,
+/* ------------------------------------------------------------------ */
+#ContentPlaceContent_ContentConentA .table-bordered > tfoot > tr > th,
+#ContentPlaceContent_ContentConentA .table-bordered > tfoot > tr > td {
+    border: 1px solid #dddddd;
+}
+
+
+.All_Standard_Content_CSS .table > thead > tr > th,
+#ContentPlaceContent_ContentConentA .table > thead > tr > th,
+/* ------------------------------------------------------------------ */
+.All_Standard_Content_CSS .table > tbody > tr > th,
+#ContentPlaceContent_ContentConentA .table > tbody > tr > th {
+	font-size: 93.75%;
+	font-weight: 600;
+    padding: var(--bs-padding-x) var(--bs-padding-y);
+    vertical-align: top;
+    border-top: 1px solid #dddddd;
+}
+@media screen and (max-width: 767px) {
+	.All_Standard_Content_CSS .table > thead > tr > th,
+	#ContentPlaceContent_ContentConentA .table > thead > tr > th,
+	/* ------------------------------------------------------------------ */
+	.All_Standard_Content_CSS .table > tbody > tr > th,
+	#ContentPlaceContent_ContentConentA .table > tbody > tr > th {
+		font-size: 87.5%;
+	}
+}
+
+
+.All_Standard_Content_CSS .table > thead > tr > td,
+#ContentPlaceContent_ContentConentA .table > thead > tr > td,
+/* ------------------------------------------------------------------ */
+.All_Standard_Content_CSS .table > tbody > tr > td,
+#ContentPlaceContent_ContentConentA .table > tbody > tr > td {	
+	line-height: 1.428;
+	font-weight: 500;
+	color: var(--blackcolor);
+
+    padding: var(--bs-padding-x) var(--bs-padding-y);
+    vertical-align: top;
+    border-top: 1px solid #dddddd;
+	word-break: normal;        /* 不強制斷詞 */
+    overflow-wrap: break-word; /* 超過寬度才換行 */
+    white-space: normal;       /* 確保可換行 */
+}
+@media screen and (max-width: 767px) {
+	.All_Standard_Content_CSS .table > thead > tr > td,
+	#ContentPlaceContent_ContentConentA .table > thead > tr > td,
+	/* ------------------------------------------------------------------ */
+	.All_Standard_Content_CSS .table > tbody > tr > td,
+	#ContentPlaceContent_ContentConentA .table > tbody > tr > td {
+		padding: var(--bs-padding-RWD-x) var(--bs-padding-y);
+	}
+}
+
+/* ******************************************************** */
+
+.All_Standard_Content_CSS td.table_td_vertical_align,
+#ContentPlaceContent_ContentConentA td.table_td_vertical_align {
+	font-size: 93.75%;
+	/*vertical-align: middle !important;*/ /*td 居中對齊*/
+}
+@media screen and (max-width: 767px) {
+	.All_Standard_Content_CSS td.table_td_vertical_align,
+	#ContentPlaceContent_ContentConentA td.table_td_vertical_align {
+		font-size: 87.5%;
+	}
+}
+
+.All_Standard_Content_CSS td.table_td_vertical_align a,
+#ContentPlaceContent_ContentConentA td.table_td_vertical_align a {	
+	color: var(--blackcolor);
+	display: -webkit-box;
+	/* 第一步：設定 display 為 -webkit-box 元素。 */
+	-webkit-box-orient: vertical;
+	/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/
+	-webkit-line-clamp: 2;
+	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
+	overflow: hidden;
+	/* 第四步：設定超過上述指定之行數時隱藏。 */
+	max-height: 54px;
+  	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
+}
+
+.All_Standard_Content_CSS .table > tbody > tr > td a,
+#ContentPlaceContent_ContentConentA .table > tbody > tr > td a {
+	font-weight: 500;
+	color: var(--blackcolor) !important;
+	margin-right: 0.75rem;
+}
+
+.All_Standard_Content_CSS .table > tbody > tr > td i,
+#ContentPlaceContent_ContentConentA .table > tbody > tr > td i {
+	margin-left: 10px;
+	color: var(--blackcolor);
+}
+
+.All_Standard_Content_CSS .table > tbody > tr > td a:hover,
+#ContentPlaceContent_ContentConentA .table > tbody > tr > td a:hover {
+	color: var(--Customize_HRcolor) !important;
+}
+/* ******************************************************** */
+
+.All_Standard_Content_CSS th,
+#ContentPlaceContent_ContentConentA th {
+    text-align: left;
+}
+
+.All_Standard_Content_CSS td, #ContentPlaceContent_ContentConentA th,
+#ContentPlaceContent_ContentConentA td, #ContentPlaceContent_ContentConentA th {
+    padding: 0;
+	word-break: break-all;
+}
+
+/* ******************************************************** */
+.All_Standard_Content_CSS tr.tr-only-hide-titlebar,
+#ContentPlaceContent_ContentConentA tr.tr-only-hide-titlebar { 
+	font-size: 100%;
+	line-height: 1.5;
+	font-weight: 500;
+	color: var(--blackcolor);
+	background-color: rgba(0,0,0,.075) !important;
+}
+/* ******************************************************** */
+.All_Standard_Content_CSS .table > tbody > tr.transparent > td, 
+.All_Standard_Content_CSS .table > tbody > tr.transparent > th, 
+.All_Standard_Content_CSS .table > tbody > tr > td.transparent, 
+.All_Standard_Content_CSS .table > tbody > tr > th.transparent, 
+.All_Standard_Content_CSS .table > tfoot > tr.transparent > td, 
+.All_Standard_Content_CSS .table > tfoot > tr.transparent > th, 
+.All_Standard_Content_CSS .table > tfoot > tr > td.transparent, 
+.All_Standard_Content_CSS .table > tfoot > tr > th.transparent, 
+.All_Standard_Content_CSS .table > thead > tr.transparent > td, 
+.All_Standard_Content_CSS .table > thead > tr.transparent > th, 
+.All_Standard_Content_CSS .table > thead > tr > td.transparent, 
+.All_Standard_Content_CSS .table > thead > tr > th.transparent,
+
+#ContentPlaceContent_ContentConentA .table > tbody > tr.transparent > td, 
+#ContentPlaceContent_ContentConentA .table > tbody > tr.transparent > th, 
+#ContentPlaceContent_ContentConentA .table > tbody > tr > td.transparent, 
+#ContentPlaceContent_ContentConentA .table > tbody > tr > th.transparent, 
+#ContentPlaceContent_ContentConentA .table > tfoot > tr.transparent > td, 
+#ContentPlaceContent_ContentConentA .table > tfoot > tr.transparent > th, 
+#ContentPlaceContent_ContentConentA .table > tfoot > tr > td.transparent, 
+#ContentPlaceContent_ContentConentA .table > tfoot > tr > th.transparent, 
+#ContentPlaceContent_ContentConentA .table > thead > tr.transparent > td, 
+#ContentPlaceContent_ContentConentA .table > thead > tr.transparent > th, 
+#ContentPlaceContent_ContentConentA .table > thead > tr > td.transparent, 
+#ContentPlaceContent_ContentConentA .table > thead > tr > th.transparent {
+    background-color: transparent;
+}
+/* ******************************************************** */
+.All_Standard_Content_CSS .table > tbody > tr.gray > td, 
+.All_Standard_Content_CSS .table > tbody > tr.gray > th, 
+.All_Standard_Content_CSS .table > tbody > tr > td.gray, 
+.All_Standard_Content_CSS .table > tbody > tr > th.gray, 
+.All_Standard_Content_CSS .table > tfoot > tr.gray > td, 
+.All_Standard_Content_CSS .table > tfoot > tr.gray > th, 
+.All_Standard_Content_CSS .table > tfoot > tr > td.gray, 
+.All_Standard_Content_CSS .table > tfoot > tr > th.gray, 
+.All_Standard_Content_CSS .table > thead > tr.gray > td, 
+.All_Standard_Content_CSS .table > thead > tr.gray > th, 
+.All_Standard_Content_CSS .table > thead > tr > td.gray, 
+.All_Standard_Content_CSS .table > thead > tr > th.gray,
+
+#ContentPlaceContent_ContentConentA .table > tbody > tr.gray > td, 
+#ContentPlaceContent_ContentConentA .table > tbody > tr.gray > th, 
+#ContentPlaceContent_ContentConentA .table > tbody > tr > td.gray, 
+#ContentPlaceContent_ContentConentA .table > tbody > tr > th.gray, 
+#ContentPlaceContent_ContentConentA .table > tfoot > tr.gray > td, 
+#ContentPlaceContent_ContentConentA .table > tfoot > tr.gray > th, 
+#ContentPlaceContent_ContentConentA .table > tfoot > tr > td.gray, 
+#ContentPlaceContent_ContentConentA .table > tfoot > tr > th.gray, 
+#ContentPlaceContent_ContentConentA .table > thead > tr.gray > td, 
+#ContentPlaceContent_ContentConentA .table > thead > tr.gray > th, 
+#ContentPlaceContent_ContentConentA .table > thead > tr > td.gray, 
+#ContentPlaceContent_ContentConentA .table > thead > tr > th.gray {
+    background-color: rgba(0,0,0,.0125);
+}
+/* ******************************************************** */
+
+
+/* ==================================================== */
+/* ------ 取消TR底色設定 bootstrap.min 等都要取消 --------- */
+/*
+.All_Standard_Content_CSS .table-striped > tbody > tr:nth-of-type(2n+1)
+#ContentPlaceContent_ContentConentA .table-striped > tbody > tr:nth-of-type(2n+1) {
+    background-color: #f9f9f9;
+}
+*/
+/* ------ 取消TR底色設定 bootstrap.min 等都要取消 --------- */
+/* ==================================================== */
+#ContentPlaceContent_ContentConentA .table.table-rwd > caption,
+#ContentPlaceContent_ContentConentA .table.table-rwd > caption {
+	caption-side: top;
+	font-size: 125%;
+	font-weight: 500;
+	padding: var(--bs-padding-x) var(--bs-padding-y);
+	color: var(--blackcolor);
+	text-align: left;
+	
+	visibility: hidden; /* == 隱藏 == */
+	height: 0px;
+	padding: 0 var(--bs-padding-y);
+}
+/* ====================================================== */
+/* =====  共用 標準 bootstrap.min table CSS ( 以上 )  ===== */
+/* ====================================================== */
+
+
+/* ====================================================== */
+/* =====  共用 標準 手機模式 CSS ( 以下 )  ================= */
+/* ====================================================== */
+/*-- @media screen and (max-width: 736px) --*/
+@media screen and (max-width: 767px) {
+	.All_Standard_Content_CSS  .table-rwd,
+	#ContentPlaceContent_ContentConentA .table-rwd {
+		min-width: 100%;
+	}
+	
+	/*針對 tr 去做隱藏*/
+	.All_Standard_Content_CSS  tr.tr-only-hide,
+	#ContentPlaceContent_ContentConentA tr.tr-only-hide {
+		display: none !important;
+	}
+	
+	/*讓 tr 變成區塊主要讓他有個區塊*/
+	.All_Standard_Content_CSS A tr.tr-only-hide-titlebar,
+	#ContentPlaceContent_ContentConentA tr.tr-only-hide-titlebar {
+		display: none !important;
+	}
+	
+	.All_Standard_Content_CSS .table-rwd tr,
+	#ContentPlaceContent_ContentConentA .table-rwd tr {
+		display: block;
+		border: 1px solid #dddddd;
+		
+		margin-top: 0.75rem;
+	}	
+	.All_Standard_Content_CSS .table-rwd tr:first-child,
+	#ContentPlaceContent_ContentConentA .table-rwd tr:first-child {
+		margin-top: 0rem;
+	}
+	
+	.All_Standard_Content_CSS .table-rwd td,
+	#ContentPlaceContent_ContentConentA .table-rwd td {
+		overflow: hidden;
+		width: 100%;
+		display: block;
+	}
+	.All_Standard_Content_CSS td.table_td_vertical_align,
+	#ContentPlaceContent_ContentConentA td.table_td_vertical_align {
+		text-align: left;
+	}
+	
+	.All_Standard_Content_CSS .table-rwd td:before,
+	#ContentPlaceContent_ContentConentA .table-rwd td:before {
+		/*最重要的就是這串*/
+		content: attr(data-th) " : ";
+		/*最重要的就是這串*/
+		/*display: inline-block;*/    /* 單獨一列顯示 */
+		
+		font-size: 100%;    /* 承襲 td font-size 設為 100% */
+		font-weight: 500;
+		/*text-transform: uppercase;*/	/* 英文字母皆為大寫 */
+		text-transform: capitalize;	/* 英文第一個字母大寫，其他字母小寫 */
+		color: var(--G555color);	/* RWD 標題顏色 */
+		
+		padding: 0;
+		margin: 0;
+		margin-right: 0.5rem;
+		/*border-bottom: 1px solid #dddddd;*/
+		width: 100%;
+	}
+	
+	/* 當 RWD 縮小的時候 .table-bordered 會有兩條線，所以針對 .table-bordered 去做修正 */
+	.All_Standard_Content_CSS .table-rwd.table-bordered td,
+	.All_Standard_Content_CSS .table-rwd.table-bordered th,
+	.All_Standard_Content_CSS .table-rwd.table-bordered {
+		border: 0 !important;
+	}
+}
+/* ====================================================== */
+/* =====  共用 標準 手機模式 CSS ( 以上 )  ================= */
+/* ====================================================== */
+
+/* ******************************************************** */
+/* --------------- RWD TABLE CSS CODE END ----------------- */
+/* ******************************************************** */
+
+
+
+/* ====================================================== */
+/* =====  共用 標準 RWD TABLE 置頂標籤 CSS ( 以下 )  ======= */
+/* ====================================================== */
+.All_Standard_Content_CSS table td .CustomState,
+#ContentPlaceContent_ContentConentA table td .CustomState {
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	align-items: center;
+	
+	position: relative;
+	display: inline-flex;
+}
+@media screen and (max-width: 767px) {
+	.All_Standard_Content_CSS table td .CustomState,
+	#ContentPlaceContent_ContentConentA table td .CustomState {
+		margin-left: 0.5rem;
+	}
+}
+
+.All_Standard_Content_CSS table td .CustomState .icon-small,
+.All_Standard_Content_CSS table td span.label,
+#ContentPlaceContent_ContentConentA table td .CustomState .icon-small,
+#ContentPlaceContent_ContentConentA table td span.label {
+	font-size: 68.75%;
+	line-height: 1.25;
+	font-weight: 900;
+	text-transform: uppercase;
+	/*width: 100%;*/
+	/*width: 80px;*/
+	text-align: center;
+	padding: var(--bs-label-padding-x) var(--bs-label-padding-y);;
+	border-radius: 4px;
+}
+@media screen and (max-width: 767px) {
+	.All_Standard_Content_CSS table td .CustomState .icon-small,
+	.All_Standard_Content_CSS table td span.label,	
+	#ContentPlaceContent_ContentConentA table td .CustomState .icon-small,
+	#ContentPlaceContent_ContentConentA table td span.label {
+		margin-left: 0.25rem;
+		margin-right: 0.25rem;
+	}
+}
+@media screen and (min-width: 768px) {
+	.All_Standard_Content_CSS table td .CustomState .icon-small,
+	.All_Standard_Content_CSS table td span.label,	
+	#ContentPlaceContent_ContentConentA table td .CustomState .icon-small,
+	#ContentPlaceContent_ContentConentA table td span.label {
+		margin-left: 0.5rem;
+		margin-right: 0.5rem;
+	}
+}
+.All_Standard_Content_CSS table td span:first-child.label,
+#ContentPlaceContent_ContentConentA table td span:first-child.label {
+	margin-left: 0;
+}
+
+	
+/* 置頂 */
+.All_Standard_Content_CSS table td .CustomState .icon-small,
+.All_Standard_Content_CSS table td span:nth-child(1).label,
+#ContentPlaceContent_ContentConentA table td .CustomState .icon-small,
+#ContentPlaceContent_ContentConentA table td span:nth-child(1).label {	
+	margin-right: 0rem;
+}
+/* 熱門 */
+.All_Standard_Content_CSS table td .CustomState .icon-small,
+.All_Standard_Content_CSS table td span:nth-child(2).label,
+#ContentPlaceContent_ContentConentA table td .CustomState .icon-small,
+#ContentPlaceContent_ContentConentA table td span:nth-child(2).label {
+	margin-right: 0rem;
+}
+/* 最新 */
+.All_Standard_Content_CSS table td .CustomState .icon-small,
+.All_Standard_Content_CSS table td span:nth-child(3).label,
+#ContentPlaceContent_ContentConentA table td .CustomState .icon-small,
+#ContentPlaceContent_ContentConentA table td span:nth-child(3).label {
+	margin-right: 0rem;
+}
+
+/* ==================================================== */
+/* ------ 標籤顏色 ------------------------------------- */
+.All_Standard_Content_CSS table td .CustomState .icon-small.top-bg,
+.All_Standard_Content_CSS table td span.label.label-success,
+#ContentPlaceContent_ContentConentA table td .CustomState .icon-small.top-bg,
+#ContentPlaceContent_ContentConentA table td span.label.label-success {
+	color: var(--FFFcolor);
+	background-color: #004aa5;
+}
+
+
+.All_Standard_Content_CSS table td .CustomState .icon-small.hot-bg,
+.All_Standard_Content_CSS table td span.label.label-danger,
+#ContentPlaceContent_ContentConentA table td .CustomState .icon-small.hot-bg,
+#ContentPlaceContent_ContentConentA table td span.label.label-danger {
+	color: var(--FFFcolor);
+	background-color: #ce1800;
+}
+
+.All_Standard_Content_CSS table td .CustomState .icon-small.new-bg,
+.All_Standard_Content_CSS table td span.label.label-warning,
+#ContentPlaceContent_ContentConentA table td .CustomState .icon-small.new-bg,
+#ContentPlaceContent_ContentConentA table td span.label.label-warning {
+	color: var(--blackcolor);
+	background-color: #fda601;
+}
+
+.All_Standard_Content_CSS table td .CustomState .icon-small.default-bg,
+.All_Standard_Content_CSS table td span.label.label-default,
+#ContentPlaceContent_ContentConentA table td .CustomState .icon-small.default-bg,
+#ContentPlaceContent_ContentConentA table td span.label.label-default {
+	color: var(--FFFcolor);
+	background-color: #5e5e5e;
+}
+
+@media screen and (max-width: 767px) {
+	/*
+	.All_Standard_Content_CSS .table-rwd td:nth-of-type(2)::before,
+	.All_Standard_Content_CSS .table-rwd td:nth-of-type(3)::before,
+	#ContentPlaceContent_ContentConentA .table-rwd td:nth-of-type(2)::before,
+	#ContentPlaceContent_ContentConentA .table-rwd td:nth-of-type(3)::before {
+		/* 最重要的就是這串 *
+		/*content: none; 
+	}
+	*/
+}
+/* ------ 標籤顏色 ------------------------------------- */
+/* ==================================================== */
+
+/* ====================================================== */
+/* =====  共用 標準 RWD TABLE 置頂標籤 CSS ( 以上 )  ======= */
+/* ====================================================== */
+
+
+
+/* ============================================================= */
+/* =====  共用 標準 RWD TABLE 下載檔案表格_按鈕 CSS ( 以下 )  ======= */
+/* ============================================================= */
+.All_Standard_Content_CSS table td .Standard_btnDiv,
+#ContentPlaceContent_ContentConentA table td .Standard_btnDiv {
+	position: relative;
+	/*display: inline-block;*/
+	/*width: 12.25vw;*/
+	/*max-width: 12.25vw;*/
+}
+@media screen and (max-width: 991px) {
+	.All_Standard_Content_CSS table td .Standard_btnDiv,
+	#ContentPlaceContent_ContentConentA table td .Standard_btnDiv {
+		width: 100%;
+		max-width: 100%;
+	}
+}
+
+.All_Standard_Content_CSS table td a.btn.btn-default,
+#ContentPlaceContent_ContentConentA table td a.btn.btn-default {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	align-items: flex-start;
+	
+	position: relative;
+	float: left;
+	font-size: 93.75%;
+	line-height: 1.25;
+	font-weight: 400;
+	/*color: transparent;*/
+	text-align: left;
+	
+	white-space: normal !important; /* 允許換行 */
+	word-wrap: break-word;         /* 舊寫法，兼容性佳 */
+	overflow-wrap: anywhere;       /* 新寫法，推薦 */
+	
+	vertical-align: middle;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	
+	/*min-width: var(--Customize_size_40);*/
+	padding: 0.25rem 0.5rem 0.375rem 0.5rem !important;
+	margin-top: 0rem;
+	margin-bottom: 0.5rem;
+	margin-right: 0.5rem;
+	
+	border-top-left-radius: 4px;
+	border-top-right-radius: 8px;
+	border-bottom-right-radius: 4px;
+	border-bottom-left-radius: 4px;
+	
+	border: 1px solid rgba(0,0,0,.125);
+	background-color: transparent !important;
+	transition: none;
+}
+@media screen and (max-width: 767px) {
+	.All_Standard_Content_CSS table td a.btn.btn-default,
+	#ContentPlaceContent_ContentConentA table td a.btn.btn-default {
+		margin-top: 0.25rem;
+		margin-bottom: 0.25rem;
+		margin-right: 0.25rem;
+	}
+}
+/* ---------------------------------------------------- */
+.All_Standard_Content_CSS table td a.btn.btn-default span,
+#ContentPlaceContent_ContentConentA table td a.btn.btn-default span {
+	font-size: 87.5%;
+  	line-height: inherit;
+	font-weight: inherit;
+    margin: 0rem;
+	
+	/*transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;*/	
+}
+@media screen and (max-width: 767px) {
+	.All_Standard_Content_CSS table td a.btn.btn-default span,
+	#ContentPlaceContent_ContentConentA table td a.btn.btn-default span {
+		font-size: 87.5%;
+	}
+}
+/* ---------------------------------------------------- */
+.All_Standard_Content_CSS table td a.btn.btn-default::before,
+#ContentPlaceContent_ContentConentA table td a.btn.btn-default::before {
+	position: absolute;
+	font-size: 100%;
+	color: var(--G666color);
+	width: 12px;
+	height: 12px;
+	top: -9px;
+	right: -5px;
+	/*content: "◥";*/
+	content: url("../../../images/svg_icon/fileMask_B_8x8.svg")
+}
+.All_Standard_Content_CSS table td a:hover.btn.btn-default::before,
+#ContentPlaceContent_ContentConentA table td a:hover.btn.btn-default::before {
+	color: var(--FFFcolor);
+	content: url("../../../images/svg_icon/fileMask_W_8x8.svg")
+}
+/* ==================================================== */
+/* 標準預設 / word / excel / pdf / ppt 設定 */
+.All_Standard_Content_CSS table td a.btn.btn-default,
+#ContentPlaceContent_ContentConentA table td a.btn.btn-default {
+	color: #0b5ed7;
+}
+/* ---------------------------------------------------- */
+.All_Standard_Content_CSS table td a.btn.btn-default .docx,
+#ContentPlaceContent_ContentConentA table td a.btn.btn-default .docx {
+	color: #004395;
+}
+.All_Standard_Content_CSS table td a.btn.btn-default .odt,
+#ContentPlaceContent_ContentConentA table td a.btn.btn-default .odt {
+	color: #004395;
+}
+/* ---------------------------------------------------- */
+.All_Standard_Content_CSS table td a.btn.btn-default .xlsx,
+#ContentPlaceContent_ContentConentA table td a.btn.btn-default .xlsx {
+	color: #006c31;
+}
+.All_Standard_Content_CSS table td a.btn.btn-default .ods,
+#ContentPlaceContent_ContentConentA table td a.btn.btn-default .ods {
+	color: #006c31;
+}
+/* ---------------------------------------------------- */
+.All_Standard_Content_CSS table td a.btn.btn-default .pdf,
+#ContentPlaceContent_ContentConentA table td a.btn.btn-default .pdf {
+	color: #ce1800;
+}
+/* ---------------------------------------------------- */
+.All_Standard_Content_CSS table td a.btn.btn-default .ppt,
+#ContentPlaceContent_ContentConentA table td a.btn.btn-default .ppt {
+	color: #ce1800;
+}
+/* ---------------------------------------------------- */
+.All_Standard_Content_CSS table td a.btn.btn-default .link,
+#ContentPlaceContent_ContentConentA table td a.btn.btn-default .link {
+	color: #0b5ed7;
+}
+/* word / excel / pdf / ppt 設定 */
+/* ==================================================== */
+
+/* ==================================================== */
+/* HOVER */
+.All_Standard_Content_CSS table td a:hover.btn.bg_docx,
+#ContentPlaceContent_ContentConentA table td a:hover.bg_docx,
+.All_Standard_Content_CSS table td a:hover.btn.bg_docx span,
+#ContentPlaceContent_ContentConentA table td a:hover.bg_docx span {
+	color: var(--FFFcolor) !important;
+  	background-color: #004395 !important;
+}
+.All_Standard_Content_CSS table td a:hover.btn.bg_odt,
+#ContentPlaceContent_ContentConentA table td a:hover.bg_odt,
+.All_Standard_Content_CSS table td a:hover.btn.bg_odt span,
+#ContentPlaceContent_ContentConentA table td a:hover.bg_odt span {
+	color: var(--FFFcolor) !important;
+  	background-color: #004395 !important;
+}
+/* ---------------------------------------------------- */
+.All_Standard_Content_CSS table td a:hover.btn.bg_xlsx,
+#ContentPlaceContent_ContentConentA table td a:hover.bg_xlsx,
+.All_Standard_Content_CSS table td a:hover.btn.bg_xlsx span,
+#ContentPlaceContent_ContentConentA table td a:hover.bg_xlsx span {
+	color: var(--FFFcolor) !important;
+  	background-color: #006c31 !important;
+}
+.All_Standard_Content_CSS table td a:hover.btn.bg_ods,
+#ContentPlaceContent_ContentConentA table td a:hover.bg_ods,
+.All_Standard_Content_CSS table td a:hover.btn.bg_ods span,
+#ContentPlaceContent_ContentConentA table td a:hover.bg_ods span {
+	color: var(--FFFcolor) !important;
+  	background-color: #006c31 !important;
+}
+/* ---------------------------------------------------- */
+.All_Standard_Content_CSS table td a:hover.btn.bg_pdf,
+#ContentPlaceContent_ContentConentA table td a:hover.bg_pdf,
+.All_Standard_Content_CSS table td a:hover.btn.bg_pdf span,
+#ContentPlaceContent_ContentConentA table td a:hover.bg_pdf span {
+	color: var(--FFFcolor) !important;
+  	background-color: #ce1800 !important;
+}
+/* ---------------------------------------------------- */
+.All_Standard_Content_CSS table td a:hover.btn.bg_ppt,
+#ContentPlaceContent_ContentConentA table td a:hover.bg_ppt,
+.All_Standard_Content_CSS table td a:hover.btn.bg_ppt span,
+#ContentPlaceContent_ContentConentA table td a:hover.bg_ppt span {
+	color: var(--FFFcolor) !important;
+  	background-color: #ce1800 !important;
+}
+/* ---------------------------------------------------- */
+.All_Standard_Content_CSS table td a:hover.btn.bg_link,
+#ContentPlaceContent_ContentConentA table td a:hover.bg_link,
+.All_Standard_Content_CSS table td a:hover.btn.bg_link span,
+#ContentPlaceContent_ContentConentA table td a:hover.bg_link span {
+	color: var(--FFFcolor) !important;
+  	background-color: #0b5ed7 !important;
+}
+/* HOVER */
+/* ==================================================== */
+
+/* ==================================================== */
+/* 標準預設 / URL-Link 設定 */
+.All_Standard_Content_CSS table td a.btn.bg_urllink,
+#ContentPlaceContent_ContentConentA table td a.bg_urllink {
+	margin-right: 0rem !important;
+	
+	/* 第一步：設定 display 為 -webkit-box 元素。 */
+	-webkit-box-orient: vertical;
+	/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/
+	-webkit-line-clamp: none;
+	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
+	overflow: visible;
+	/* 第四步：設定超過上述指定之行數時隱藏。 */
+	max-height: none;
+	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
+}
+
+.All_Standard_Content_CSS table td a.btn.btn-default .URL_link,
+#ContentPlaceContent_ContentConentA table td a.btn.btn-default .URL_link {
+	font-size: 93.75%;
+	color: #0b5ed7;	
+	white-space: normal !important;
+	word-break: break-word;
+	
+	display: -webkit-box;
+	/* 第一步：設定 display 為 -webkit-box 元素。 */
+	-webkit-box-orient: vertical;
+	/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/
+	-webkit-line-clamp: 2;
+	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
+	overflow: hidden;
+	/* 第四步：設定超過上述指定之行數時隱藏。 */
+	max-height: 33px;
+  	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
+}
+
+/* HOVER */
+.All_Standard_Content_CSS table td a:hover.btn.bg_urllink,
+#ContentPlaceContent_ContentConentA table td a:hover.bg_urllink,
+.All_Standard_Content_CSS table td a:hover.btn.bg_urllink span,
+#ContentPlaceContent_ContentConentA table td a:hover.bg_urllink span {
+	color: var(--FFFcolor) !important;
+  	background-color: #0b5ed7 !important;
+}
+/* HOVER */
+/* 標準預設 / URL-Link 設定 */
+/* ==================================================== */
+/* ============================================================= */
+/* =====  共用 標準 RWD TABLE 下載檔案表格_按鈕 CSS ( 以上 )  ======= */
+/* ============================================================= */
+
+
+
+/* ====================================================== */
+/* =====  共用 標準 自定義 th / td 對齊 CSS ( 以下 )  ======= */
+/* ====================================================== */
+@media screen and (min-width: 768px) {
+	/* // 公告列表專用 // */
+	.All_Standard_Content_CSS .NEWS_table th:nth-child(2),
+	.All_Standard_Content_CSS .NEWS_table td.table_td_vertical_align:nth-child(2) {
+		text-align: center !important;
+	}
+	.All_Standard_Content_CSS .NEWS_table th:nth-child(4),
+	.All_Standard_Content_CSS .NEWS_table td.table_td_vertical_align:nth-child(4) {
+		text-align: center !important;
+	}
+	.All_Standard_Content_CSS .NEWS_table th:nth-child(5),
+	.All_Standard_Content_CSS .NEWS_table td.table_td_vertical_align:nth-child(5) {
+		/*text-align: center !important;*/
+	}
+	/* // 公告列表 專用 // */
+
+	/* // 檔案室列表 專用 // */
+	.All_Standard_Content_CSS .Files_table th:nth-child(2),
+	.All_Standard_Content_CSS .Files_table td.table_td_vertical_align:nth-child(2) {
+		text-align: center !important;
+	}
+	.All_Standard_Content_CSS .Files_table th:nth-child(5),
+	.All_Standard_Content_CSS .Files_table td.table_td_vertical_align:nth-child(5) {
+		text-align: center !important;
+	}
+	.All_Standard_Content_CSS .Files_table th:nth-child(6),
+	.All_Standard_Content_CSS .Files_table td.table_td_vertical_align:nth-child(6) {
+		/*text-align: center !important;*/
+	}
+	/* // 檔案室列表 專用 // */
+
+	/* // 網路資源列表 專用 // */
+	.All_Standard_Content_CSS .Online_table th:nth-child(2),
+	.All_Standard_Content_CSS .Online_table td.table_td_vertical_align:nth-child(2) {
+		text-align: center !important;
+	}
+	/* // 網路資源列表 專用 // */
+
+	/* // 影音列表 專用 // */
+	.All_Standard_Content_CSS .Video_table th:nth-child(2),
+	.All_Standard_Content_CSS .Video_table td.table_td_vertical_align:nth-child(2) {
+		text-align: center !important;
+	}
+	/* // 影音列表 專用 // */
+}
+/* ====================================================== */
+/* =====  共用 標準 自定義 th / td 對齊 CSS ( 以上 )  ======= */
+/* ====================================================== */
+
+
+
+
+
+

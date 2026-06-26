@@ -1,6 +1,7 @@
 import { CategoryAdapter } from "@/Features/Hooks/BizFunc/COMM/Category_Api";
 import { TagAdapter } from "@/Features/Hooks/BizFunc/COMM/Tag_Api";
 import { WebResourceAdapter } from "@/Features/Hooks/BizFunc/WEB/WebResource_Api";
+import { buildServerSupportedLangDetailMap } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Helper";
 import type {
     ServerFormBinding,
     ServerFormDefaultRawData,
@@ -15,7 +16,6 @@ import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { PGID, WebResourceFields, WebResourceInfoFields, WebResourceSetFields } from "@/types/SchemaFields";
 import { useMemo } from "react";
-import { buildServerSupportedLangDetailMap } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Helper";
 
 // #region Property
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
@@ -61,7 +61,7 @@ export interface WebResourceDetailTabItem
     detail: WebResourceInfo;
 
     /** Detail row keys，給 useSetTableField 綁定欄位 */
-    rowKeys: Record<string, string | number | undefined>;
+    rowKeys: Record<string, string | number | null | undefined>;
 }
 
 export interface WebResourceDetailTabsResult
@@ -260,9 +260,7 @@ const filterSupportedDetailRows = (details: WebResourceInfo[], preferLang: Lang)
 {
     const detailMap = buildServerSupportedLangDetailMap(details);
     const langs = buildSupportedLangOrder(preferLang);
-    return langs.map(lang => buildWebResourceDetailTabItem(detailMap.get(lang.toLowerCase()))).filter((item): item is WebResourceDetailTabItem =>
-        Boolean(item)
-    );
+    return langs.map(lang => buildWebResourceDetailTabItem(detailMap.get(lang.toLowerCase()))).filter((item): item is WebResourceDetailTabItem => Boolean(item));
 };
 
 /** 建立單一 Detail Tab 項目。 */
@@ -279,11 +277,13 @@ const buildWebResourceDetailTabItem = (detail: WebResourceInfo | undefined): Web
 
     return { key, label, detail, rowKeys };
 };
-
-/** 建立 Detail RowKeys，統一將 null 轉成 undefined。 */
-const buildWebResourceInfoRowKeys = (detail: WebResourceInfo): Record<string, string | number | undefined> =>
+/** 建立 Detail RowKeys，新增模式不使用尚未產生的 WebResourceId 避免誤新增 row。 */
+const buildWebResourceInfoRowKeys = (detail: WebResourceInfo): Record<string, string | number | null | undefined> =>
 {
-    return { [WebResourceInfoFields.WebResourceId]: toBindingRowKey(detail.WebResourceId), [WebResourceInfoFields.RowId]: toBindingRowKey(detail.RowId) };
+    return {
+        [WebResourceInfoFields.RowId]: detail.RowId,
+        [WebResourceInfoFields.Lang]: detail.Lang,
+    };
 };
 
 /** 建立 Detail TabContentComp 需要的 item map。 */
@@ -294,11 +294,5 @@ const buildWebResourceDetailTabItems = (items: WebResourceDetailTabItem[]): Reco
         tabItems[item.key] = item.label;
         return tabItems;
     }, {});
-};
-
-/** 將 DTO 的 null key 轉成 binding 可接受的 undefined。 */
-const toBindingRowKey = (value: string | number | null | undefined): string | number | undefined =>
-{
-    return value ?? undefined;
 };
 // #endregion

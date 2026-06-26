@@ -6,7 +6,6 @@ import type { AxiosInstance } from "axios";
 
 // #region Property
 type SpecHomePage1821Set = components["schemas"]["SpecHomePage1821Set_DTO"];
-const SPEC_HOME_PAGE_1821_API = "SpecHomePage1821Api" as PGID;
 // #endregion
 
 // #region Public
@@ -15,16 +14,21 @@ export class SpecHomePage1821Service extends ApiDataService<SpecHomePage1821Set>
     // #region Public
     constructor(apiInstance?: AxiosInstance)
     {
-        super(SPEC_HOME_PAGE_1821_API, apiInstance);
+        super(PGID.SpecHomePageApi, apiInstance);
     }
     // #endregion
 }
 
-export class SpecHomePage1821AdapterImpl extends ApiDataAdapter<SpecHomePage1821Set, SpecHomePage1821Service>
+export class SpecHomePage1821AdapterImpl extends ApiDataAdapter<
+    SpecHomePage1821Set,
+    SpecHomePage1821Service
+>
 {}
 
 export const SpecHomePage1821Adapter = (apiInstance?: AxiosInstance) =>
 {
-    return new SpecHomePage1821AdapterImpl((api?: AxiosInstance) => new SpecHomePage1821Service(api ?? apiInstance));
+    return new SpecHomePage1821AdapterImpl(
+        (api?: AxiosInstance) => new SpecHomePage1821Service(api ?? apiInstance),
+    );
 };
 // #endregion
