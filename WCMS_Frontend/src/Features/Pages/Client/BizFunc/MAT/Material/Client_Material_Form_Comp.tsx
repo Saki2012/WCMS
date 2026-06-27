@@ -13,7 +13,23 @@ import { useParams } from "react-router-dom";
 import { useMaterialFormData } from "./Client_Material_Form_Loader";
 
 // #region Property
-type MaterialSet = components["schemas"]["MaterialSet_DTO"];
+export type MaterialSet = components["schemas"]["MaterialSet_DTO"];
+
+export interface MaterialFormViewData
+{
+    /** 物件主資料 */
+    formData: MaterialSet;
+
+    /** 分類顯示名稱 */
+    categoryNameText: string;
+
+    /** 標籤顯示名稱 */
+    tagNameText: string;
+
+    /** 動態規格欄位顯示名稱 */
+    matCateInfoFieldsMap: Map<string, string> | Record<string, string> | Array<[string, string]>;
+}
+
 type MaterialFormRawData = ReturnType<typeof useMaterialFormData>["rawData"];
 type MaterialInfoJson = Record<string, string | number | boolean | null | undefined>;
 interface VenoBoxOption
@@ -45,12 +61,27 @@ declare global
         __materialVenoBox?: VenoBoxInstance;
     }
 }
-interface IMaterialFormProps
+export interface IMaterialFormProps
 {
     theme: IFETheme;
     lang: Lang;
     site: INormSite;
     node: INormNode;
+}
+
+export interface MaterialFormViewProps extends IMaterialFormProps
+{
+    /** 物件明細畫面資料 */
+    rawData: MaterialFormViewData;
+
+    /** 是否載入中 */
+    isLoading: boolean;
+
+    /** 錯誤訊息 */
+    errorList: string[];
+
+    /** 瀏覽次數設定，預覽模式不傳入 */
+    viewCountConfig?: ModuleViewCountConfig;
 }
 // #endregion
 
@@ -61,16 +92,26 @@ export const Client_Material_Form_Comp = (props: IMaterialFormProps) =>
     const internalId = `${params.internalId ?? ""}`;
     const emptyData = useMemo<MaterialSet>(() => ({ Material: {}, MaterialLangInfo: [], MaterialPicture: [], MaterialTags: [] }), []);
     const vm = useMaterialFormData({ lang: props.lang, internalId, emptyData });
-    const viewCountConfig = useMemo<ModuleViewCountConfig>(() =>
-    {
-        const request: TryCountDetailViewRequest = { SiteIndex: props.site.siteIndex, ProgId: PGID.Material, InternalId: internalId };
-        return { mode: "form", contentKey: internalId, request };
-    }, [props.site.siteIndex, internalId]);
+    const viewCountConfig = useMemo<ModuleViewCountConfig>(() => buildMaterialViewCountConfig(props.site.siteIndex, internalId), [props.site.siteIndex, internalId]);
 
     return (
-        <ModuleContent nodeTitle={props.node.title} isLoading={vm.isLoading} errorList={vm.errorList} viewCountConfig={viewCountConfig}>
-            <MaterialDetailContent_Comp rawData={vm.rawData} lang={props.lang} />
-            <MaterialInfoContent_Comp rawData={vm.rawData} lang={props.lang} />
+        <MaterialFormView
+            {...props}
+            rawData={vm.rawData}
+            isLoading={vm.isLoading}
+            errorList={vm.errorList}
+            viewCountConfig={viewCountConfig}
+        />
+    );
+};
+
+/** 物件明細純渲染 View，正式前台與預覽共用。 */
+export const MaterialFormView = (props: MaterialFormViewProps) =>
+{
+    return (
+        <ModuleContent nodeTitle={props.node.title} isLoading={props.isLoading} errorList={props.errorList} viewCountConfig={props.viewCountConfig}>
+            <MaterialDetailContent_Comp rawData={props.rawData} lang={props.lang} />
+            <MaterialInfoContent_Comp rawData={props.rawData} lang={props.lang} />
         </ModuleContent>
     );
 };
@@ -78,7 +119,7 @@ export const Client_Material_Form_Comp = (props: IMaterialFormProps) =>
 
 // #region Section
 /** 物件主要內容區 */
-const MaterialDetailContent_Comp = (props: { rawData: MaterialFormRawData; lang: Lang; }) =>
+const MaterialDetailContent_Comp = (props: { rawData: MaterialFormViewData; lang: Lang; }) =>
 {
     const formData = props.rawData.formData;
     const langInfo = getLangInfo(formData, props.lang);
@@ -312,7 +353,7 @@ const MaterialRightContent_Comp = (props: { title: string; price: string; descri
     );
 };
 /** 下方資訊說明 */
-const MaterialInfoContent_Comp = (props: { rawData: MaterialFormRawData; lang: Lang; }) =>
+const MaterialInfoContent_Comp = (props: { rawData: MaterialFormViewData; lang: Lang; }) =>
 {
     const langInfo = getLangInfo(props.rawData.formData, props.lang);
     const json = parseMaterialInfoJson(langInfo?.MaterialInfoJson);
@@ -353,7 +394,7 @@ const buildPictures = (data: MaterialSet, title: string): Array<{ url: string; a
     return list;
 };
 /** 建立規格列 */
-const buildSpecRows = (rawData: MaterialFormRawData, json: MaterialInfoJson): Array<{ label: string; value: string; }> =>
+const buildSpecRows = (rawData: MaterialFormViewData, json: MaterialInfoJson): Array<{ label: string; value: string; }> =>
 {
     const baseRows = [{ label: "分類", value: rawData.categoryNameText }, { label: "標籤", value: rawData.tagNameText }];
     const dynamicRows = buildDynamicSpecRows(rawData.matCateInfoFieldsMap, json);
@@ -375,6 +416,13 @@ const buildDynamicSpecRows = (
 // #endregion
 
 // #region Private
+/** 建立正式物件瀏覽次數設定，預覽模式不會呼叫。 */
+const buildMaterialViewCountConfig = (siteIndex: string, internalId: string): ModuleViewCountConfig =>
+{
+    const request: TryCountDetailViewRequest = { SiteIndex: siteIndex, ProgId: PGID.Material, InternalId: internalId };
+    return { mode: "form", contentKey: internalId, request };
+};
+
 /** 初始化 Material 圖片燈箱 */
 const initMaterialVenoBox = (): void =>
 {

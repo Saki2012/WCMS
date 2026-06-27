@@ -1708,6 +1708,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/Calendar/Spec_GetCurrentOpenTime": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["SpecCurrentOpenTime_DTOApiResponse"];
+                        "application/json": components["schemas"]["SpecCurrentOpenTime_DTOApiResponse"];
+                        "text/json": components["schemas"]["SpecCurrentOpenTime_DTOApiResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/Calendar/Create": {
         parameters: {
             query?: never;
@@ -7699,7 +7739,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecHomePageApi/Create": {
+    "/Service/SpecOpenScheduleRule/Create": {
         parameters: {
             query?: never;
             header?: never;
@@ -7720,9 +7760,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["SpecHomePage1821Set_DTO"];
-                    "text/json": components["schemas"]["SpecHomePage1821Set_DTO"];
-                    "application/*+json": components["schemas"]["SpecHomePage1821Set_DTO"];
+                    "application/json": components["schemas"]["SpecOpenScheduleRuleSet_DTO"];
+                    "text/json": components["schemas"]["SpecOpenScheduleRuleSet_DTO"];
+                    "application/*+json": components["schemas"]["SpecOpenScheduleRuleSet_DTO"];
                 };
             };
             responses: {
@@ -7741,7 +7781,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecHomePageApi/InitialCreateData": {
+    "/Service/SpecOpenScheduleRule/InitialCreateData": {
         parameters: {
             query?: never;
             header?: never;
@@ -7762,9 +7802,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["SpecHomePage1821Set_DTO"][];
-                    "text/json": components["schemas"]["SpecHomePage1821Set_DTO"][];
-                    "application/*+json": components["schemas"]["SpecHomePage1821Set_DTO"][];
+                    "application/json": components["schemas"]["SpecOpenScheduleRuleSet_DTO"][];
+                    "text/json": components["schemas"]["SpecOpenScheduleRuleSet_DTO"][];
+                    "application/*+json": components["schemas"]["SpecOpenScheduleRuleSet_DTO"][];
                 };
             };
             responses: {
@@ -7783,7 +7823,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecHomePageApi/Update": {
+    "/Service/SpecOpenScheduleRule/Update": {
         parameters: {
             query?: never;
             header?: never;
@@ -7803,9 +7843,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["SpecHomePage1821Set_DTOApiRequest"];
-                    "text/json": components["schemas"]["SpecHomePage1821Set_DTOApiRequest"];
-                    "application/*+json": components["schemas"]["SpecHomePage1821Set_DTOApiRequest"];
+                    "application/json": components["schemas"]["SpecOpenScheduleRuleSet_DTOApiRequest"];
+                    "text/json": components["schemas"]["SpecOpenScheduleRuleSet_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["SpecOpenScheduleRuleSet_DTOApiRequest"];
                 };
             };
             responses: {
@@ -7825,7 +7865,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecHomePageApi/Invalid/{pk}": {
+    "/Service/SpecOpenScheduleRule/Invalid/{pk}": {
         parameters: {
             query?: never;
             header?: never;
@@ -7866,7 +7906,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/Service/SpecHomePageApi/BatchInvalid": {
+    "/Service/SpecOpenScheduleRule/BatchInvalid": {
         parameters: {
             query?: never;
             header?: never;
@@ -7910,7 +7950,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/Service/SpecHomePageApi/Delete": {
+    "/Service/SpecOpenScheduleRule/Delete": {
         parameters: {
             query?: never;
             header?: never;
@@ -7948,7 +7988,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecHomePageApi/BatchDelete": {
+    "/Service/SpecOpenScheduleRule/BatchDelete": {
         parameters: {
             query?: never;
             header?: never;
@@ -7990,7 +8030,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecHomePageApi/QueryData": {
+    "/Service/SpecOpenScheduleRule/QueryData": {
         parameters: {
             query?: never;
             header?: never;
@@ -8028,7 +8068,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecHomePageApi/QueryList": {
+    "/Service/SpecOpenScheduleRule/QueryList": {
         parameters: {
             query?: never;
             header?: never;
@@ -8070,7 +8110,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecHomePageApi/GetTotalCounts": {
+    "/Service/SpecOpenScheduleRule/GetTotalCounts": {
         parameters: {
             query?: never;
             header?: never;
@@ -8112,7 +8152,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecHomePageApi/GetModelDisplayName": {
+    "/Service/SpecOpenScheduleRule/GetModelDisplayName": {
         parameters: {
             query?: never;
             header?: never;
@@ -10599,6 +10639,20 @@ export interface components {
             ModifyUser?: components["schemas"]["AccountModel"];
             ModifyUserId?: string | null;
             _Calendar?: components["schemas"]["Calendar_DTO"];
+            Spec_AcademicYear?: components["schemas"]["SpecOpenScheduleRuleModel"];
+            Spec_AcademicYearId?: string | null;
+            /**
+             * Format: time
+             * @description 開館時間
+             */
+            Spec_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description 閉館時間
+             */
+            Spec_CloseTime?: string | null;
+            /** @description 摘要 */
+            Spec_ModifyMemo?: string | null;
         };
         CalendarSet_DTO: {
             Calendar?: components["schemas"]["Calendar_DTO"];
@@ -11829,7 +11883,169 @@ export interface components {
             SysMessage?: components["schemas"]["SysMessageModel"][] | null;
             Data?: components["schemas"]["SiteViewCountSet_DTO"][] | null;
         };
-        SpecHomePage1821Model_DTO: {
+        SpecCurrentOpenTime_DTO: {
+            /** Format: date */
+            Date?: string;
+            DayOfWeek?: components["schemas"]["DayOfWeek"];
+            HolidayName?: string | null;
+            /** Format: time */
+            Spec_OpenTime?: string | null;
+            /** Format: time */
+            Spec_CloseTime?: string | null;
+        };
+        SpecCurrentOpenTime_DTOApiResponse: {
+            readonly IsSuccess?: boolean;
+            SysMessage?: components["schemas"]["SysMessageModel"][] | null;
+            Data?: components["schemas"]["SpecCurrentOpenTime_DTO"][] | null;
+        };
+        SpecOpenScheduleRuleModel: {
+            /** Format: date-time */
+            CreateTime?: string | null;
+            CreateUser?: components["schemas"]["AccountModel"];
+            CreateUserId?: string | null;
+            /** Format: date-time */
+            ModifyTime?: string | null;
+            ModifyUser?: components["schemas"]["AccountModel"];
+            ModifyUserId?: string | null;
+            FormStatus?: components["schemas"]["FormStatus"];
+            DataStatus?: components["schemas"]["DataStatus"];
+            /** Format: date-time */
+            InvalidTime?: string | null;
+            InvalidUser?: components["schemas"]["AccountModel"];
+            InvalidUserId?: string | null;
+            InternalId?: string | null;
+            OrgLvId?: string | null;
+            IsIniData?: boolean;
+            /** Format: date-time */
+            Validate_Start?: string | null;
+            /** Format: date-time */
+            Validate_End?: string | null;
+            /** @description 學年度 */
+            AcademicYearId?: string | null;
+            /**
+             * Format: date
+             * @description 學年度開始日
+             */
+            AcademicStart?: string;
+            /**
+             * Format: date
+             * @description 學年度結束日
+             */
+            AcademicEnd?: string;
+            /**
+             * Format: time
+             * @description 平日開館時間
+             */
+            Weekday_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description 平日閉館時間
+             */
+            Weekday_CloseTime?: string | null;
+            /**
+             * Format: time
+             * @description 週六開館時間
+             */
+            Sat_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description 週六閉館時間
+             */
+            Sat_CloseTime?: string | null;
+            /**
+             * Format: time
+             * @description 週日開館時間
+             */
+            Sun_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description 週日閉館時間
+             */
+            Sun_CloseTime?: string | null;
+            /**
+             * Format: date
+             * @description 寒假開始日
+             */
+            WinterStart?: string;
+            /**
+             * Format: date
+             * @description 寒假結束日
+             */
+            WinterEnd?: string;
+            /**
+             * Format: time
+             * @description 寒假平日開館時間
+             */
+            Winter_Weekday_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description 寒假平日閉館時間
+             */
+            Winter_Weekday_CloseTime?: string | null;
+            /**
+             * Format: time
+             * @description 寒假週六開館時間
+             */
+            Winter_Sat_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description 寒假週六閉館時間
+             */
+            Winter_Sat_CloseTime?: string | null;
+            /**
+             * Format: time
+             * @description 寒假週日開館時間
+             */
+            Winter_Sun_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description 寒假週日閉館時間
+             */
+            Winter_Sun_CloseTime?: string | null;
+            /**
+             * Format: date
+             * @description 暑假開始日
+             */
+            SummerStart?: string;
+            /**
+             * Format: date
+             * @description 暑假結束日
+             */
+            SummerEnd?: string;
+            /**
+             * Format: time
+             * @description 暑假平日開館時間
+             */
+            Summer_Weekday_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description 暑假平日閉館時間
+             */
+            Summer_Weekday_CloseTime?: string | null;
+            /**
+             * Format: time
+             * @description 暑假週六開館時間
+             */
+            Summer_Sat_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description 暑假週六閉館時間
+             */
+            Summer_Sat_CloseTime?: string | null;
+            /**
+             * Format: time
+             * @description 暑假週日開館時間
+             */
+            Summer_Sun_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description 暑假週日閉館時間
+             */
+            Summer_Sun_CloseTime?: string | null;
+            /** @description 摘要 */
+            ModifyMemo?: string | null;
+        };
+        SpecOpenScheduleRuleModel_DTO: {
             /**
              * Format: date-time
              * @description 創建時間
@@ -11854,153 +12070,138 @@ export interface components {
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
             OrgLvId?: string | null;
-            /** @description 首頁設定ID */
-            HomePageId?: string | null;
-            /** @description 語系 */
-            Lang?: string | null;
-            /** @description Section3標題 */
-            Section3Title?: string | null;
-            /** @description Section3副標題 */
-            Section3SubTitle?: string | null;
-            /** @description 圖片區塊1標題 */
-            Card1Title?: string | null;
-            /** @description 圖片區塊1連結 */
-            Card1Link?: string | null;
-            Card1Pic?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 圖片區塊1圖片來源 */
-            Card1PicId?: string | null;
-            /** @description 圖片區塊2標題 */
-            Card2Title?: string | null;
-            /** @description 圖片區塊2連結 */
-            Card2Link?: string | null;
-            Card2Pic?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 圖片區塊2圖片來源 */
-            Card2PicId?: string | null;
-            /** @description Section4標題 */
-            Section4Title?: string | null;
-            /** @description Section4副標題 */
-            Section4SubTitle?: string | null;
-            /** @description 相關連結條件參數 */
-            LinkOptions?: string | null;
-            /** @description 相關連結查看更多網址 */
-            LinkViewMore?: string | null;
-            _SpecHomePage1821_Banner?: components["schemas"]["SpecHomePage1821_Banner_DTO"][] | null;
-            _SpecHomePage1821_Shortcut?: components["schemas"]["SpecHomePage1821_Shortcut_DTO"][] | null;
+            /** @description 學年度 */
+            AcademicYearId?: string | null;
+            /**
+             * Format: date
+             * @description 學年度開始日
+             */
+            AcademicStart?: string | null;
+            /**
+             * Format: date
+             * @description 學年度結束日
+             */
+            AcademicEnd?: string | null;
+            /**
+             * Format: time
+             * @description 平日開館時間
+             */
+            Weekday_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description 平日閉館時間
+             */
+            Weekday_CloseTime?: string | null;
+            /**
+             * Format: time
+             * @description 週六開館時間
+             */
+            Sat_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description 週六閉館時間
+             */
+            Sat_CloseTime?: string | null;
+            /**
+             * Format: time
+             * @description 週日開館時間
+             */
+            Sun_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description 週日閉館時間
+             */
+            Sun_CloseTime?: string | null;
+            /**
+             * Format: date
+             * @description 寒假開始日
+             */
+            WinterStart?: string | null;
+            /**
+             * Format: date
+             * @description 寒假結束日
+             */
+            WinterEnd?: string | null;
+            /**
+             * Format: time
+             * @description 寒假平日開館時間
+             */
+            Winter_Weekday_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description 寒假平日閉館時間
+             */
+            Winter_Weekday_CloseTime?: string | null;
+            /**
+             * Format: time
+             * @description 寒假週六開館時間
+             */
+            Winter_Sat_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description 寒假週六閉館時間
+             */
+            Winter_Sat_CloseTime?: string | null;
+            /**
+             * Format: time
+             * @description 寒假週日開館時間
+             */
+            Winter_Sun_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description 寒假週日閉館時間
+             */
+            Winter_Sun_CloseTime?: string | null;
+            /**
+             * Format: date
+             * @description 暑假開始日
+             */
+            SummerStart?: string | null;
+            /**
+             * Format: date
+             * @description 暑假結束日
+             */
+            SummerEnd?: string | null;
+            /**
+             * Format: time
+             * @description 暑假平日開館時間
+             */
+            Summer_Weekday_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description 暑假平日閉館時間
+             */
+            Summer_Weekday_CloseTime?: string | null;
+            /**
+             * Format: time
+             * @description 暑假週六開館時間
+             */
+            Summer_Sat_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description 暑假週六閉館時間
+             */
+            Summer_Sat_CloseTime?: string | null;
+            /**
+             * Format: time
+             * @description 暑假週日開館時間
+             */
+            Summer_Sun_OpenTime?: string | null;
+            /**
+             * Format: time
+             * @description 暑假週日閉館時間
+             */
+            Summer_Sun_CloseTime?: string | null;
+            /** @description 摘要 */
+            ModifyMemo?: string | null;
         };
-        SpecHomePage1821Set_DTO: {
-            SpecHomePage1821?: components["schemas"]["SpecHomePage1821Model_DTO"];
-            /** @description Section1 Banner清單 */
-            SpecHomePage1821_Banner?: components["schemas"]["SpecHomePage1821_Banner_DTO"][] | null;
-            /** @description Section2 快捷按鈕 */
-            SpecHomePage1821_Shortcut?: components["schemas"]["SpecHomePage1821_Shortcut_DTO"][] | null;
-            /** @description Section2 模組子項目 */
-            SpecHomePage1821_ShortcutModuleItem?: components["schemas"]["SpecHomePage1821_ShortcutModuleItem_DTO"][] | null;
+        SpecOpenScheduleRuleSet_DTO: {
+            SpecOpenScheduleRule?: components["schemas"]["SpecOpenScheduleRuleModel_DTO"];
         };
-        SpecHomePage1821Set_DTOApiRequest: {
+        SpecOpenScheduleRuleSet_DTOApiRequest: {
             InternalId?: string | null;
-            Data?: components["schemas"]["SpecHomePage1821Set_DTO"];
+            Data?: components["schemas"]["SpecOpenScheduleRuleSet_DTO"];
         };
-        SpecHomePage1821_Banner_DTO: {
-            RowState?: components["schemas"]["RowState"];
-            /** @description 首頁設定ID */
-            HomePageId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
-            /**
-             * Format: int32
-             * @description 行序號
-             */
-            RowNo?: number | null;
-            /** @description 標題 */
-            Title?: string | null;
-            /** @description 副標題 */
-            SubTitle?: string | null;
-            BannerFile?: components["schemas"]["FileManageModel_DTO"];
-            /** @description Banner圖片 */
-            BannerFileId?: string | null;
-            /** @description Banner圖片說明 */
-            BannerFileDescription?: string | null;
-            /** @description 網址 */
-            Link?: string | null;
-            _SpecHomePage1821?: components["schemas"]["SpecHomePage1821Model_DTO"];
-        };
-        SpecHomePage1821_ShortcutModuleItem_DTO: {
-            RowState?: components["schemas"]["RowState"];
-            /** @description 首頁設定ID */
-            HomePageId?: string | null;
-            /**
-             * Format: int32
-             * @description 父行代碼
-             */
-            ParentRowId?: number | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
-            /**
-             * Format: int32
-             * @description 行序號
-             */
-            RowNo?: number | null;
-            /** @description 標題 */
-            Title?: string | null;
-            /** @description 副標題 */
-            SubTitle?: string | null;
-            ModuleType?: components["schemas"]["SpecHomePageModuleType"];
-            /** @description 條件參數 */
-            ModuleOptions?: string | null;
-            /** @description 查看更多連結 */
-            MoreViewLink?: string | null;
-            _SpecHomePage1821_Shortcut?: components["schemas"]["SpecHomePage1821_Shortcut_DTO"];
-        };
-        SpecHomePage1821_Shortcut_DTO: {
-            RowState?: components["schemas"]["RowState"];
-            /** @description 首頁設定ID */
-            HomePageId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
-            /**
-             * Format: int32
-             * @description 行序號
-             */
-            RowNo?: number | null;
-            /** @description 快捷按鈕代碼 */
-            ShortcutCode?: string | null;
-            /** @description 標題 */
-            Title?: string | null;
-            /** @description 副標題 */
-            SubTitle?: string | null;
-            IconFile?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 圖示檔案 */
-            IconFileId?: string | null;
-            /** @description 圖示檔案說明 */
-            IconFileDescription?: string | null;
-            /** @description 動作類型（暫定） */
-            ActionType?: string | null;
-            /** @description 動作值（暫定） */
-            ActionValue?: string | null;
-            /** @description 是否外部連結 */
-            IsLink?: boolean | null;
-            /** @description 網址 */
-            Link?: string | null;
-            LinkPic?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 外部連結圖片顯示 */
-            LinkPicId?: string | null;
-            _SpecHomePage1821?: components["schemas"]["SpecHomePage1821Model_DTO"];
-            _SpecHomePage1821_ShortcutModuleItem?: components["schemas"]["SpecHomePage1821_ShortcutModuleItem_DTO"][] | null;
-        };
-        /**
-         * Format: int32
-         * @enum {integer}
-         */
-        SpecHomePageModuleType: 1 | 2;
         StringApiResponse: {
             readonly IsSuccess?: boolean;
             SysMessage?: components["schemas"]["SysMessageModel"][] | null;

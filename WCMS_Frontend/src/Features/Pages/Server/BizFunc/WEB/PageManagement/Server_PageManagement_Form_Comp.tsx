@@ -1,5 +1,7 @@
 import { Server_FormTemplate_Comp } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Comp";
 import type { ServerFormBinding } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
+import { PreviewFrame } from "@/Features/Pages/Server/Scaffold/Preview/PreviewFrame";
+import { buildServerPreviewToolbarButton, useServerPreviewFrame } from "@/Features/Pages/Server/Scaffold/Preview/PreviewFrame_Hook";
 import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
@@ -7,10 +9,10 @@ import { LibDropList, LibTextBox, LibTinyMCE } from "@/SysCore/Components/FormFi
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
-import type { components } from "@/types/api";
-import { PageManagementDetailFields, PageManagementFields, PageManagementSetFields } from "@/types/SchemaFields";
-import type { ReactNode } from "react";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
+import type { components } from "@/types/api";
+import { PageManagementDetailFields, PageManagementFields, PageManagementSetFields, PGID } from "@/types/SchemaFields";
+import type { ReactNode } from "react";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -25,7 +27,6 @@ import {
 // #region Property
 type PageManagementSet = components["schemas"]["PageManagementSet_DTO"];
 
-
 interface PageManagementFormCompProps
 {
     /** 後台主題設定 */
@@ -34,7 +35,6 @@ interface PageManagementFormCompProps
     /** 目前語系 */
     lang: Lang;
 }
-
 
 interface HeaderSectionProps
 {
@@ -48,7 +48,6 @@ interface HeaderSectionProps
     refs: PageManagementFormRefs;
 }
 
-
 interface DetailSectionProps
 {
     /** 後台主題設定 */
@@ -61,7 +60,6 @@ interface DetailSectionProps
     binding: ServerFormBinding<PageManagementSet>;
 }
 
-
 interface HeaderTabContentOptions extends HeaderSectionProps
 {
     /** 欄位 binding helper */
@@ -70,7 +68,6 @@ interface HeaderTabContentOptions extends HeaderSectionProps
     /** 頁面分類下拉選項 */
     categoryOptions: Map<string, string>;
 }
-
 
 interface DetailTabContentOptions
 {
@@ -83,7 +80,6 @@ interface DetailTabContentOptions
     /** 欄位 binding helper */
     setField: ReturnType<typeof useSetTableField<PageManagementSet>>;
 }
-
 
 interface DetailFieldsOptions
 {
@@ -105,7 +101,7 @@ export const Server_PageManagement_Form_Comp = (props: PageManagementFormCompPro
     const { internalId } = useParams();
     const navigate = useNavigate();
     const pathname = useLocation().pathname;
-
+    const preview = useServerPreviewFrame<PageManagementSet>({ ProgId: PGID.PageManagement });
     const onBackToList = useCallback(() =>
     {
         navigate(LibRoutePath.buildServerBackToListPath(pathname));
@@ -113,8 +109,8 @@ export const Server_PageManagement_Form_Comp = (props: PageManagementFormCompPro
 
     const actionsOpt = useMemo(() =>
     {
-        return { onBackToList };
-    }, [onBackToList]);
+        return { onBackToList, onPreviewFromDto: preview.openPreview };
+    }, [onBackToList, preview.openPreview]);
 
     const template = usePageManagementFormTemplate({
         lang: props.lang,
@@ -127,10 +123,14 @@ export const Server_PageManagement_Form_Comp = (props: PageManagementFormCompPro
     return (
         <Server_FormTemplate_Comp
             template={template}
+            resolveActionToolbarButtons={({ vm }) => [
+                buildServerPreviewToolbarButton({ action: vm.actions.Preview }),
+            ]}
             renderContent={({ vm }) => (
                 <>
                     <HeaderComp theme={props.theme} binding={vm.binding} refs={vm.refs} />
                     <DetailComp theme={props.theme} lang={props.lang} binding={vm.binding} />
+                    <PreviewFrame open={preview.isOpen} siteIndex={preview.siteIndex} onClose={preview.closePreview} payload={preview.framePayload} title={preview.title} />
                 </>
             )}
         />
@@ -149,7 +149,6 @@ const HeaderComp = (props: HeaderSectionProps) =>
 
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
-
 
 /** 頁面管理多語 Detail 區塊，語系資料由 Hook 統一整理。 */
 const DetailComp = (props: DetailSectionProps) =>
@@ -173,7 +172,6 @@ const buildHeaderTabContent = (opt: HeaderTabContentOptions): Record<string, Rea
     };
 };
 
-
 /** 建立基本資料欄位。 */
 const buildBasicFields = (opt: HeaderTabContentOptions): ReactNode[] =>
 {
@@ -192,7 +190,6 @@ const buildBasicFields = (opt: HeaderTabContentOptions): ReactNode[] =>
     ];
 };
 
-
 /** 建立 Detail 語系分頁內容，畫面只依 Hook 整理後的 Tab 項目渲染。 */
 const buildDetailTabContent = (opt: DetailTabContentOptions): Record<string, ReactNode[]> =>
 {
@@ -202,7 +199,6 @@ const buildDetailTabContent = (opt: DetailTabContentOptions): Record<string, Rea
         return compMap;
     }, {});
 };
-
 
 /** 建立單一語系 Detail 欄位。 */
 const buildDetailFields = (opt: DetailFieldsOptions): ReactNode[] =>
@@ -219,7 +215,6 @@ const buildDetailFields = (opt: DetailFieldsOptions): ReactNode[] =>
         />,
     ];
 };
-
 
 /** 將 category object 轉成 LibDropList 使用的 Map。 */
 const buildCategoryOptions = (categoryMap: Record<string, string>): Map<string, string> =>

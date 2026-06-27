@@ -21,7 +21,7 @@ import {
 } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { buildSupportedLangOrder, type Lang, LangLabelMap, SUPPORTED_LANGS, useEnsureLangDetails } from "@/SysCore/i18n/lang";
-import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
+import type { ApiFormInitial, ServerFormActions } from "@/SysCore/Utils/API/APIAdapter";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { TimelineItemFields, TimelineLangDetailFields, TimelineSetFields } from "@/types/SchemaFields";
@@ -106,6 +106,9 @@ export type TimelineFormRefs = Record<string, never>;
 export type TimelineFormActionsOpt = {
     /** 儲存成功後要回到列表（或其他導頁） */
     onBackToList: () => void;
+
+    /** 以目前 DTO 觸發 preview（由 Component 決定怎麼開 modal） */
+    onPreviewFromDto: (dto: TimelineSet) => void;
 };
 
 export type TimelineFormAdapter = {
@@ -140,6 +143,7 @@ export const useTimelineFormTemplate = (
                 selectDataAdapter: adapter => adapter.Timeline,
                 buildTitle: buildTimelineFormTitle,
                 buildInitialData: buildTimelineInitialData,
+                buildActions: buildTimelineActions,
                 useReferenceData: ctx => useTimelineReferenceData({ ...ctx, lang: opt.lang }),
             },
         };
@@ -190,6 +194,15 @@ export const useTimelineLangDetailEditGrid = (opt: UseTimelineLangDetailEditGrid
 // #endregion
 
 // #region Private
+
+/** 建立 Toolbar 動作，保留Timeline預覽行為。 */
+const buildTimelineActions = (
+    ctx: { binding: ServerFormDefaultRawData<TimelineSet, TimelineFormRefs>["formData"]; actionsOpt: TimelineFormActionsOpt; },
+    defaultActions: ServerFormActions,
+): ServerFormActions =>
+{
+    return { ...defaultActions, Preview: () => ctx.actionsOpt.onPreviewFromDto(ctx.binding.data) };
+};
 /** 建立 Timeline Form 標題，功能名稱優先讀 ModelDisplayName。 */
 const buildTimelineFormTitle = (ctx: { mode: "new" | "edit"; displayName: ModelDisplaySchema; }): string =>
 {

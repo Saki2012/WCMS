@@ -1,4 +1,4 @@
-import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
+import { FormShellComp } from "@/Features/Pages/Server/Scaffold/Content/FormShell_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { LibPwdTextBox } from "@/SysCore/Components/FormField/FieldComponets/LibPwdTextBox_Comp";
 import { LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
@@ -9,7 +9,7 @@ export const Server_ChangePassword_Comp = (props: { theme: IBETheme; }) =>
 {
     const vm = useServerChangePassword(props.theme);
     return (
-        <FormComp prop={vm.prop}>
+        <FormShellComp prop={vm.prop}>
             <div className="row">
                 <div className="col-sm-12">
                     <div className="panel">
@@ -75,7 +75,7 @@ export const Server_ChangePassword_Comp = (props: { theme: IBETheme; }) =>
                     </div>
                 </div>
             </div>
-        </FormComp>
+        </FormShellComp>
     );
 };
 // #endregion

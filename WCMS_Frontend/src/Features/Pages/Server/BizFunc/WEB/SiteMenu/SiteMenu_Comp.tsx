@@ -1,5 +1,5 @@
 import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
-import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
+import { FormShellComp } from "@/Features/Pages/Server/Scaffold/Content/FormShell_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { type Lang } from "@/SysCore/i18n/lang";
 import { useState } from "react";
@@ -21,7 +21,7 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang; }) =>
         Actions: getData.rawData.actions,
     };
     return (
-        <FormComp prop={formProp}>
+        <FormShellComp prop={formProp}>
             <div className="row">
                 <RenderLeftBox
                     setSelectedItemEdit={setSelectedItemEdit}
@@ -48,7 +48,7 @@ export const SiteMenu_Comp = (prop: { theme: IBETheme; lang: Lang; }) =>
                     action={getData.rawData.actions}
                 />
             </div>
-        </FormComp>
+        </FormShellComp>
     );
 };
 // #endregion

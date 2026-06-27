@@ -22,13 +22,13 @@ import type {
 import {
     buildEditGridCell,
     getEditGridCellValue,
-    getSelectedEditGridFile,
     getEditGridStringCellValue,
+    getSelectedEditGridFile,
     useEditGridBinding,
 } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { buildSupportedLangOrder, type Lang, LangLabelMap, normalizeSupportedLang, SUPPORTED_LANGS, useEnsureLangDetails } from "@/SysCore/i18n/lang";
-import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
+import { buildSupportedLangOrder, DefaultLang, type Lang, LangLabelMap, normalizeSupportedLang, SUPPORTED_LANGS, useEnsureLangDetails } from "@/SysCore/i18n/lang";
+import type { ApiFormInitial, ServerFormActions } from "@/SysCore/Utils/API/APIAdapter";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LibAttachment, LibText } from "@/SysCore/Utils/Library/LibData";
 import { useUploadFile } from "@/SysCore/Utils/UI_HookFunc/useUploadFile";
@@ -248,20 +248,31 @@ export interface MaterialTagSelectionResult
 export type MaterialFormRefs = {
     /** 物件類別選項 */
     categoryMap: Record<string, string>;
-
     /** 物件標籤選項 */
     tagMap: Record<string, string>;
-
     /** 物件動態欄位定義 */
     infoFields: InfoField[];
-
     /** 物件動態欄位顯示名稱 */
     infoFieldDisplays: InfoFieldDisplay[];
 };
+export interface MaterialPreviewPayload
+{
+    /** 物件預覽主資料。 */
+    formData: MaterialSet;
+    /** 物件分類顯示文字。 */
+    categoryNameText: string;
+    /** 物件標籤顯示文字。 */
+    tagNameText: string;
+    /** 動態規格欄位顯示名稱。 */
+    matCateInfoFieldsMap: Record<string, string>;
+}
 
 export type MaterialFormActionsOpt = {
     /** 儲存成功後要回到列表（或其他導頁） */
     onBackToList: () => void;
+
+    /** 以目前 DTO 觸發 preview（由 Component 決定怎麼開 modal） */
+    onPreviewFromDto: (payload: MaterialPreviewPayload) => void;
 };
 
 export type MaterialFormAdapter = {
@@ -295,6 +306,7 @@ export const useMaterialFormTemplate = (
                 buildTitle: buildMaterialFormTitle,
                 buildInitialData: buildMaterialInitialData,
                 useReferenceData: ctx => useMaterialReferenceData({ ...ctx, lang: opt.lang }),
+                buildActions: buildMaterialActions,
             },
         };
     }, [opt.actionsOpt, opt.emptyData, opt.internalId, opt.lang, opt.theme]);
@@ -400,6 +412,15 @@ export const toMaterialPictureCellValue = (value: EditGridCellValue): MaterialPi
 // #endregion
 
 // #region Private
+
+/** 建立 Toolbar 動作，保留Material預覽行為。 */
+const buildMaterialActions = (
+    ctx: { binding: ServerFormDefaultRawData<MaterialSet, MaterialFormRefs>["formData"]; refs: MaterialFormRefs; actionsOpt: MaterialFormActionsOpt; },
+    defaultActions: ServerFormActions,
+): ServerFormActions =>
+{
+    return { ...defaultActions, Preview: () => ctx.actionsOpt.onPreviewFromDto(buildMaterialPreviewPayload(ctx.binding.data, ctx.refs)) };
+};
 /** 建立 Material Form 標題，功能名稱優先讀 ModelDisplayName。 */
 const buildMaterialFormTitle = (ctx: { mode: "new" | "edit"; displayName: ModelDisplaySchema; }): string =>
 {
@@ -1011,5 +1032,37 @@ const buildMaterialTagRow = (rows: MaterialTags[], materialId: string, tagId: st
 {
     const exists = rows.find(row => String(row.TagId ?? "") === tagId);
     return { ...(exists ?? {}), MaterialId: exists?.MaterialId ?? materialId, RowId: exists?.RowId ?? index + 1, TagId: tagId };
+};
+/** 建立物件預覽 payload，補上前台顯示需要的分類、標籤與動態欄位名稱。 */
+const buildMaterialPreviewPayload = (formData: MaterialSet, refs: MaterialFormRefs): MaterialPreviewPayload =>
+{
+    const categoryNameText = mapMaterialCategoryToText(formData.Material?.CategoryId, refs.categoryMap);
+    const tagNameText = mapMaterialTagsToText(formData.MaterialTags, refs.tagMap);
+    const matCateInfoFieldsMap = buildMaterialInfoFieldTitleMap(refs.infoFields, refs.infoFieldDisplays);
+    return { formData, categoryNameText, tagNameText, matCateInfoFieldsMap };
+};
+
+/** 將物件分類 Id 轉成顯示文字。 */
+const mapMaterialCategoryToText = (categoryId: string | null | undefined, map: Record<string, string>): string =>
+{
+    const key = String(categoryId ?? "").trim();
+    return key ? map?.[key] ?? "" : "";
+};
+
+/** 將物件標籤列轉成顯示文字。 */
+const mapMaterialTagsToText = (tags: MaterialTags[] | null | undefined, map: Record<string, string>): string =>
+{
+    const keys = (tags ?? []).map(tag => String(tag.TagId ?? "").trim()).filter(Boolean);
+    return LibText.mapKeysToDisplayText(keys, map ?? {}, "、");
+};
+
+/** 建立動態欄位 key / 顯示文字 Map。 */
+const buildMaterialInfoFieldTitleMap = (fields: InfoField[], displays: InfoFieldDisplay[]): Record<string, string> =>
+{
+    return buildMaterialInfoItems(fields, displays, DefaultLang).reduce<Record<string, string>>((map, item) =>
+    {
+        map[item.field] = item.title;
+        return map;
+    }, {});
 };
 // #endregion

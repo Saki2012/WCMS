@@ -9,16 +9,33 @@ import { useMemo } from "react";
 import { type ITimelineOptions, useTimelineFormData } from "./Client_Timeline_Form_Loader";
 
 // #region Property
-type TimelineSet = components["schemas"]["TimelineSet_DTO"];
+export type TimelineSet = components["schemas"]["TimelineSet_DTO"];
 type TimelineItem = components["schemas"]["TimelineItem_DTO"];
 type TimelineLangDetail = components["schemas"]["TimelineLangDetail_DTO"];
-interface ITimelineFormProps
+export interface ITimelineFormProps
 {
     site: INormSite;
     node: INormNode;
     lang: Lang;
     theme?: IFETheme;
     options?: ITimelineOptions;
+}
+export interface TimelineFormViewProps extends ITimelineFormProps
+{
+    /** 畫面標題 */
+    title: string;
+
+    /** Timeline 資料清單 */
+    listData: TimelineSet[];
+
+    /** 是否倒序顯示 */
+    isDesc?: boolean;
+
+    /** 是否載入中 */
+    isLoading: boolean;
+
+    /** 錯誤訊息 */
+    errorList: string[];
 }
 interface ITimelineEntryVm
 {
@@ -35,14 +52,35 @@ interface ITimelineYearBlockVm
 // #endregion
 
 // #region Public
-/** Timeline 前台 Form，資料流程統一走 Client_DataQueryTemplate */
+/** Timeline 前台 Form，資料流程統一走 Client_DataQueryTemplate。 */
 export const Client_Timeline_Form = (props: ITimelineFormProps) =>
 {
     const vm = useTimelineFormData({ lang: props.lang, opts: props.options });
-    const blocks = useMemo(() => buildTimelineBlocksFromList(vm.listData, props.lang, props.options?.IsDesc), [vm.listData, props.lang, props.options?.IsDesc]);
     const title = useMemo(() => vm.title || props.node.title, [vm.title, props.node.title]);
+
     return (
-        <ModuleContent nodeTitle={props.node.title} title={title} isLoading={vm.isLoading} errorList={vm.errorList} viewCountConfig={{ mode: "list" }}>
+        <TimelineFormView
+            {...props}
+            title={title}
+            listData={vm.listData}
+            isDesc={props.options?.IsDesc}
+            isLoading={vm.isLoading}
+            errorList={vm.errorList}
+        />
+    );
+};
+
+/** Timeline 純渲染 View，正式前台與預覽共用。 */
+export const TimelineFormView = (props: TimelineFormViewProps) =>
+{
+    const blocks = useMemo(() => buildTimelineBlocksFromList(props.listData, props.lang, props.isDesc), [
+        props.listData,
+        props.lang,
+        props.isDesc,
+    ]);
+
+    return (
+        <ModuleContent nodeTitle={props.node.title} title={props.title} isLoading={props.isLoading} errorList={props.errorList} viewCountConfig={{ mode: "list" }}>
             <TimelineBlocks_Comp lang={props.lang} blocks={blocks} />
         </ModuleContent>
     );

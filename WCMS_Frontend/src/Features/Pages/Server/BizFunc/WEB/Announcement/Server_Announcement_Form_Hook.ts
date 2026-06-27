@@ -1,6 +1,7 @@
 import { CategoryAdapter } from "@/Features/Hooks/BizFunc/COMM/Category_Api";
 import { TagAdapter } from "@/Features/Hooks/BizFunc/COMM/Tag_Api";
 import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WEB/Announcement_Api";
+import { buildServerSupportedLangDetailMap } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Helper";
 import type {
     ServerFormBinding,
     ServerFormDefaultRawData,
@@ -20,8 +21,8 @@ import type {
 import {
     buildEditGridCell,
     getEditGridCellValue,
-    getSelectedEditGridFile,
     getEditGridStringCellValue,
+    getSelectedEditGridFile,
     useEditGridBinding,
 } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
@@ -35,7 +36,6 @@ import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { AnnouncementDetailFields, AnnouncementDetailFileFields, AnnouncementSetFields, PGID } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
-import { buildServerSupportedLangDetailMap } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Helper";
 
 // #region Property
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
@@ -101,13 +101,21 @@ export interface AnnouncementDetailTabsResult
 }
 
 export type AnnouncementFormRefs = { categoryMap: Record<string, string>; tagMap: Record<string, string>; statusOpts: Record<string, string>; };
-
+export interface AnnouncementPreviewPayload
+{
+    /** 公告預覽主資料。 */
+    formData: AnnouncementSet;
+    /** 公告分類顯示文字。 */
+    categoryNameText: string;
+    /** 公告標籤顯示文字。 */
+    tagNameText: string;
+}
 export type AnnouncementFormActionsOpt = {
     /** 儲存成功後要回到列表（或其他導頁） */
     onBackToList: () => void;
 
     /** 以目前 DTO 觸發 preview（由 Component 決定怎麼開 modal） */
-    onPreviewFromDto: (dto: AnnouncementSet) => void;
+    onPreviewFromDto: (payload: AnnouncementPreviewPayload) => void;
 };
 
 export type AnnouncementFormAdapter = {
@@ -316,13 +324,12 @@ const useAnnouncementReferenceData = (
 
 /** 建立 Toolbar 動作，保留公告預覽行為 */
 const buildAnnouncementActions = (
-    ctx: { binding: ServerFormDefaultRawData<AnnouncementSet, AnnouncementFormRefs>["formData"]; actionsOpt: AnnouncementFormActionsOpt; },
+    ctx: { binding: ServerFormDefaultRawData<AnnouncementSet, AnnouncementFormRefs>["formData"]; refs: AnnouncementFormRefs; actionsOpt: AnnouncementFormActionsOpt; },
     defaultActions: ServerFormActions,
 ): ServerFormActions =>
 {
-    return { ...defaultActions, Preview: () => ctx.actionsOpt.onPreviewFromDto(ctx.binding.data) };
+    return { ...defaultActions, Preview: () => ctx.actionsOpt.onPreviewFromDto(buildAnnouncementPreviewPayload(ctx.binding.data, ctx.refs)) };
 };
-
 /** ContentStatus enum options（去掉 key=0） */
 const useContentStatusOptions = (): { data: Record<string, string>; isLoading: boolean; error: string | null; } =>
 {
@@ -626,5 +633,19 @@ const getAnnouncementFileDownloadUrl = (fileId?: string | null): string | undefi
 const buildAnnouncementFileRowKey = (file: AnnouncementDetailFile, index: number): string =>
 {
     return `announcement-file-${file.AnnouncementId ?? "new"}-${file.ParentRowId ?? 0}-${file.RowId ?? index + 1}`;
+};
+/** 建立公告預覽 payload，補上前台顯示需要的分類與標籤文字。 */
+const buildAnnouncementPreviewPayload = (formData: AnnouncementSet, refs: AnnouncementFormRefs): AnnouncementPreviewPayload =>
+{
+    const categoryNameText = mapAnnouncementIdsToText(formData.Announcement?.Categories, refs.categoryMap);
+    const tagNameText = mapAnnouncementIdsToText(formData.Announcement?.Tags, refs.tagMap);
+    return { formData, categoryNameText, tagNameText };
+};
+
+/** 將 csv id 轉成前台顯示文字。 */
+const mapAnnouncementIdsToText = (ids: string | null | undefined, map: Record<string, string>): string =>
+{
+    const keys = LibText.splitTrimToArray(ids, ",", true);
+    return LibText.mapKeysToDisplayText(keys, map ?? {}, "、");
 };
 // #endregion

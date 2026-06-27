@@ -23,6 +23,16 @@ export interface IAnnouncementFormProps
     theme: IFETheme;
     lang: Lang;
 }
+export interface AnnouncementFormViewProps extends IAnnouncementFormProps
+{
+    formData: AnnouncementSet;
+    categoryNameText?: string;
+    tagNameText?: string;
+    internalId?: string;
+    isLoading: boolean;
+    errorList: string[];
+    viewCountConfig?: ModuleViewCountConfig;
+}
 // #endregion
 
 // #region Public
@@ -31,30 +41,53 @@ export const Client_Announcement_Form = (props: IAnnouncementFormProps) =>
     const { internalId } = useParams();
     const safeInternalId = LibText.safeTrim(internalId);
     const vm = useAnnouncementFormData({ lang: props.lang, internalId: safeInternalId, emptyData });
-    const formData = vm.formData;
-    const categoryNameText = vm.categoryNameText;
-    const tagNameText = vm.tagNameText;
-    const detail = useMemo(() => formData.AnnouncementDetail?.find(p => (p.Lang ?? "").toLowerCase() === props.lang), [
-        formData.AnnouncementDetail,
-        props.lang,
-    ]);
-    const startDate = useMemo(() => formatDate(formData.Announcement?.Validate_Start), [formData.Announcement?.Validate_Start]);
-    const subTitle = useMemo<SubTitleProps>(() => ({ cat: categoryNameText, tag: tagNameText, date: startDate }), [categoryNameText, tagNameText, startDate]);
+
     const viewCountConfig = useMemo<ModuleViewCountConfig>(() =>
     {
         const request: TryCountDetailViewRequest = { SiteIndex: props.site.siteIndex, ProgId: PGID.Announcement, InternalId: safeInternalId };
         return { mode: "form", contentKey: safeInternalId, request };
     }, [props.site.siteIndex, safeInternalId]);
+
+    return (
+        <AnnouncementFormView
+            {...props}
+            formData={vm.formData}
+            categoryNameText={vm.categoryNameText}
+            tagNameText={vm.tagNameText}
+            internalId={safeInternalId}
+            isLoading={vm.isLoading}
+            errorList={vm.errorList}
+            viewCountConfig={viewCountConfig}
+        />
+    );
+};
+
+/** 公告明細純渲染 View，正式前台與預覽共用。 */
+export const AnnouncementFormView = (props: AnnouncementFormViewProps) =>
+{
+    const detail = useMemo(() => props.formData.AnnouncementDetail?.find(p => (p.Lang ?? "").toLowerCase() === props.lang), [
+        props.formData.AnnouncementDetail,
+        props.lang,
+    ]);
+
+    const startDate = useMemo(() => formatDate(props.formData.Announcement?.Validate_Start), [props.formData.Announcement?.Validate_Start]);
+
+    const subTitle = useMemo<SubTitleProps>(() => ({
+        cat: props.categoryNameText ?? "",
+        tag: props.tagNameText ?? "",
+        date: startDate,
+    }), [props.categoryNameText, props.tagNameText, startDate]);
+
     return (
         <ModuleContent
             nodeTitle={props.node.title}
             title={detail?.Title ?? ""}
             subTitle={subTitle}
-            isLoading={vm.isLoading}
-            errorList={vm.errorList}
-            viewCountConfig={viewCountConfig}
+            isLoading={props.isLoading}
+            errorList={props.errorList}
+            viewCountConfig={props.viewCountConfig}
         >
-            <Content lang={props.lang} data={formData} />
+            <Content lang={props.lang} data={props.formData} />
         </ModuleContent>
     );
 };

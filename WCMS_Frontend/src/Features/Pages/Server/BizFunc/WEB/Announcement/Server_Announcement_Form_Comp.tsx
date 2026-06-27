@@ -1,8 +1,19 @@
+import {
+    type AnnouncementDetailRowKeys,
+    type AnnouncementDetailTabItem,
+    announcementEmptyData,
+    type AnnouncementFormRefs,
+    type AnnouncementPreviewPayload,
+    useAnnouncementDetailTabs,
+    useAnnouncementFileEditGrid,
+    useAnnouncementFormTemplate,
+} from "@/Features/Pages/Server/BizFunc/WEB/Announcement/Server_Announcement_Form_Hook";
 import { Server_FormTemplate_Comp } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Comp";
 import type { ServerFormBinding } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
 import { EditGrid } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid";
 import type { IEditGridView_Style } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Data";
-import { PreviewFrame } from "@/Features/Pages/Server/Scaffold/PreviewFrame/PreviewFrame";
+import { PreviewFrame } from "@/Features/Pages/Server/Scaffold/Preview/PreviewFrame";
+import { buildServerPreviewToolbarButton, useServerPreviewFrame } from "@/Features/Pages/Server/Scaffold/Preview/PreviewFrame_Hook";
 import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { LibCalendar } from "@/SysCore/Components/FormField/FieldComponets/LibCalendar_Comp";
@@ -17,23 +28,13 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LibAttachment, LibText } from "@/SysCore/Utils/Library/LibData";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import type { components } from "@/types/api";
-import { AnnouncementDetailFields, AnnouncementFields, AnnouncementSetFields } from "@/types/SchemaFields";
+import { AnnouncementDetailFields, AnnouncementFields, AnnouncementSetFields, PGID } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import {
-    type AnnouncementDetailRowKeys,
-    type AnnouncementDetailTabItem,
-    announcementEmptyData,
-    type AnnouncementFormRefs,
-    useAnnouncementDetailTabs,
-    useAnnouncementFileEditGrid,
-    useAnnouncementFormTemplate,
-} from "./Server_Announcement_Form_Hook";
 
 // #region Property
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
-type PreviewPayload = { type: "wcms:preview"; module: "announcement"; payload: { kind: "dto"; dto: AnnouncementSet; }; };
 interface AnnouncementFormCompProps
 {
     /** 後台主題設定 */
@@ -131,24 +132,16 @@ export const Server_Announcement_Form_Comp = (props: AnnouncementFormCompProps) 
     const { internalId } = useParams();
     const navigate = useNavigate();
     const pathname = useLocation().pathname;
-    const [open, setOpen] = useState(false);
-    const [payload, setPayload] = useState<PreviewPayload | undefined>(undefined);
-
+    const preview = useServerPreviewFrame<AnnouncementPreviewPayload>({ ProgId: PGID.Announcement });
     const onBackToList = useCallback(() =>
     {
         navigate(LibRoutePath.buildServerBackToListPath(pathname));
     }, [navigate, pathname]);
 
-    const handlePreviewFromDto = useCallback((dto: AnnouncementSet) =>
-    {
-        setPayload(buildPreviewPayload(dto));
-        setOpen(true);
-    }, []);
-
     const actionsOpt = useMemo(() =>
     {
-        return { onBackToList, onPreviewFromDto: handlePreviewFromDto };
-    }, [handlePreviewFromDto, onBackToList]);
+        return { onBackToList, onPreviewFromDto: preview.openPreview };
+    }, [onBackToList, preview.openPreview]);
 
     const template = useAnnouncementFormTemplate({
         lang: props.lang,
@@ -161,16 +154,19 @@ export const Server_Announcement_Form_Comp = (props: AnnouncementFormCompProps) 
     return (
         <Server_FormTemplate_Comp
             template={template}
+            resolveActionToolbarButtons={({ vm }) => [
+                buildServerPreviewToolbarButton({ action: vm.actions.Preview }),
+            ]}
             renderContent={({ vm }) => (
                 <>
                     <HeaderComp theme={props.theme} binding={vm.binding} refs={vm.refs} />
                     <DetailComp theme={props.theme} lang={props.lang} binding={vm.binding} />
                     <PreviewFrame
-                        open={open}
-                        siteIndex={""}
-                        onClose={() => setOpen(false)}
-                        payload={payload}
-                        title="預覽"
+                        open={preview.isOpen}
+                        siteIndex={preview.siteIndex}
+                        onClose={preview.closePreview}
+                        payload={preview.framePayload}
+                        title={preview.title}
                     />
                 </>
             )}
@@ -333,12 +329,6 @@ const buildDetailFields = (opt: DetailFieldsOptions): ReactNode[] =>
         />,
         <SubDetailComp binding={opt.binding} parentRowId={opt.detailRowId} />,
     ];
-};
-
-/** 建立公告預覽 payload，讓 PreviewFrame 只接固定資料格式。 */
-const buildPreviewPayload = (dto: AnnouncementSet): PreviewPayload =>
-{
-    return { type: "wcms:preview", module: "announcement", payload: { kind: "dto", dto } };
 };
 
 /** 建立圖片預覽來源，沒有圖片時回傳預設圖。 */

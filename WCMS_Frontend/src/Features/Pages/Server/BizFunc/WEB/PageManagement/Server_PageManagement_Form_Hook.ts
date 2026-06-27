@@ -7,7 +7,7 @@ import type {
 } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { buildSupportedLangOrder, type Lang, LangLabelMap, normalizeSupportedLang, SUPPORTED_LANGS, useEnsureLangDetails } from "@/SysCore/i18n/lang";
-import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
+import type { ApiFormInitial, ServerFormActions } from "@/SysCore/Utils/API/APIAdapter";
 import { LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
@@ -84,6 +84,9 @@ export type PageManagementFormRefs = {
 export type PageManagementFormActionsOpt = {
     /** 儲存成功後要回到列表（或其他導頁） */
     onBackToList: () => void;
+
+    /** 以目前 DTO 觸發 preview（由 Component 決定怎麼開 modal） */
+    onPreviewFromDto: (dto: PageManagementSet) => void;
 };
 
 export type PageManagementFormAdapter = { PageManagement: ReturnType<typeof PageManagementAdapter>; Category: ReturnType<typeof CategoryAdapter>; };
@@ -120,6 +123,7 @@ export const usePageManagementFormTemplate = (
                 buildTitle: buildPageManagementFormTitle,
                 buildInitialData: buildPageManagementInitialData,
                 useReferenceData: ctx => usePageManagementReferenceData({ ...ctx, lang: opt.lang }),
+                buildActions: buildPageManagementActions,
             },
         };
     }, [opt.actionsOpt, opt.emptyData, opt.internalId, opt.lang, opt.theme]);
@@ -138,6 +142,15 @@ export const usePageManagementDetailTabs = (opt: UsePageManagementDetailTabsOpti
 // #endregion
 
 // #region Private
+
+/** 建立 Toolbar 動作，保留PageManagement預覽行為。 */
+const buildPageManagementActions = (
+    ctx: { binding: ServerFormDefaultRawData<PageManagementSet, PageManagementFormRefs>["formData"]; actionsOpt: PageManagementFormActionsOpt; },
+    defaultActions: ServerFormActions,
+): ServerFormActions =>
+{
+    return { ...defaultActions, Preview: () => ctx.actionsOpt.onPreviewFromDto(ctx.binding.data) };
+};
 /** 建立 PageManagement Form 標題，功能名稱優先讀 ModelDisplayName。 */
 const buildPageManagementFormTitle = (ctx: { mode: "new" | "edit"; displayName: ModelDisplaySchema; }): string =>
 {

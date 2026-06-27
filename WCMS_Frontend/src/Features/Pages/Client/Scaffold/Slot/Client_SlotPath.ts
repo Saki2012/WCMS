@@ -7,9 +7,11 @@ export type ClientSlotPathKey = keyof typeof ClientSlotPath;
 export const ClientSlotPath = {
     Header: "Pages/Client/Scaffold/MainFrame/Header.tsx",
     SubPage: "Pages/Client/Scaffold/SubPages/SubPage.tsx",
+    BreadCrumb: "Pages/Client/Scaffold/SubPages/Module/BreadCrumb/BreadCrumb_Comp.tsx",
+    SubMenu: "Pages/Client/Scaffold/SubPages/Module/SubMenu/SubMenu_Comp.tsx",
     HomePage: "Pages/Client/Index/HomePage.tsx",
     HomePageLoader: "Pages/Client/Index/HomePage_Loader.ts",
-
+    Slot_ClientPreviewEntries: "Pages/Client/Scaffold/Preview/Registry/ClientPreviewEntries.tsx",
     Slot_Announcement_List_Comp: "Pages/Client/BizFunc/WEB/Announcement/Client_Announcement_List_Comp.tsx",
     Slot_Announcement_List_Loader: "Pages/Client/BizFunc/WEB/Announcement/Client_Announcement_List_Loader.ts",
     Slot_Announcement_Form_Comp: "Pages/Client/BizFunc/WEB/Announcement/Client_Announcement_Form_Comp.tsx",

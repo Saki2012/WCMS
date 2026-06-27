@@ -71,7 +71,7 @@ export interface ModuleContentProps
     errorList: (string | null | undefined)[];
 
     /** 瀏覽次數設定 */
-    viewCountConfig: ModuleViewCountConfig;
+    viewCountConfig?: ModuleViewCountConfig;
 
     /** 模組內容 */
     children?: ReactNode;
@@ -244,14 +244,13 @@ const buildModuleAlternates = (origin: string, pathname: string): IHeaderMetaPro
 
     return alternates;
 };
-/** 建立 detail view count hook 所需參數。 */
-const buildDetailViewCountOptions = (config: ModuleViewCountConfig): UseFormDetailViewCountOptions =>
+/** 建立 detail view count hook 所需參數；未設定時不啟用瀏覽次數。 */
+const buildDetailViewCountOptions = (config?: ModuleViewCountConfig): UseFormDetailViewCountOptions =>
 {
-    if (config.mode === "list")
+    if (!config || config.mode === "list")
     {
         return { enabled: false, contentKey: "", request: null, cooldownMs: undefined, apiInstance: undefined };
     }
-
     return { enabled: true, contentKey: config.contentKey, request: config.request, cooldownMs: config.cooldownMs, apiInstance: config.apiInstance };
 };
 // #endregion

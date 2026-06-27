@@ -2,7 +2,7 @@
 import { Index } from "@/Features/Pages/Client/BizFunc/MainPage/Index";
 import { SITEMAP_NODE_ID, SITEMAP_SEGMENT, SitemapNode } from "@/Features/Pages/Client/BizFunc/MainPage/Sitemap/Sitemap";
 import { HomePage, HomePageLoader } from "@/Features/Pages/Client/Route/ClientComponentResolver";
-import { TemplateHub } from "@/Features/Pages/Server/Scaffold/PreviewFrame/TemplateHub.tsx";
+import { TemplateHub } from "@/Features/Pages/Client/Scaffold/Preview/TemplateHub";
 import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { LibText } from "@/SysCore/Utils/Library/LibData";

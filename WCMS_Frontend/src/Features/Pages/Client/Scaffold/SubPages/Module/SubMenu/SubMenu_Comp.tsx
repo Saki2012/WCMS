@@ -4,236 +4,175 @@ import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
 import { isSupportedLang, type Lang } from "@/SysCore/i18n/lang";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
+import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import clsx from "clsx";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { type CSSProperties, type ReactNode, type TransitionEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import "./SubMenu.css";
-import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 
 // #region Property
-type SubMenuProps = { lang: Lang; site: INormSite; node: INormNode; maxDepth?: number; };
+export interface SubMenuCompProps
+{
+    lang: Lang;
+    site: INormSite;
+    node: INormNode;
+    maxDepth?: number;
+}
+
+interface MenuRenderProps
+{
+    menuItems: MenuItemData[];
+    activeIds: Set<string>;
+    expandedIdsByPath: Set<string>;
+    pathname: string;
+    lang: Lang;
+}
+
+interface MenuItemsProps
+{
+    items: MenuItemData[];
+    activeIds: Set<string>;
+    expandedIds: Set<string>;
+    toggleExpand: (itemId: string, depth: number) => void;
+    depth?: number;
+}
+
 type UseExpandedMenuStateResult = { expandedIds: Set<string>; toggleExpand: (itemId: string, depth: number) => void; };
 type CollapsePhase = "idle" | "opening" | "closing";
 // #endregion
 
 // #region Public
-export const SubMenu_Comp: React.FC<SubMenuProps> = (props) =>
+/** 共用子頁左側選單，僅保留 Feature 預設版型，Spec 特規由 Slot 覆寫。 */
+export const SubMenu_Comp = (props: SubMenuCompProps) =>
 {
     const { lang, site, node, maxDepth = 3 } = props;
     const location = useLocation();
-    const specCode = getSpecCode();
-    const isSpec1816 = specCode === "1816";
-
-    const menuItems = useMemo(() => GetMenuData(lang, site, node, maxDepth), [lang, site, node, maxDepth]);
-
+    const menuItems = useMemo(() => getMenuData(lang, site, node, maxDepth), [lang, site, node, maxDepth]);
     const { activeIds, expandedIdsByPath } = useMemo(() => calcActiveAndExpanded(menuItems, location.pathname), [menuItems, location.pathname]);
 
     if (!menuItems.length) return null;
 
-    if (isSpec1816)
-    {
-        return (
-            <SubMenu_1816_Comp
-                menuItems={menuItems}
-                activeIds={activeIds}
-                expandedIdsByPath={expandedIdsByPath}
-                pathname={location.pathname}
-                lang={props.lang}
-            />
-        );
-    }
-
     return (
-        <SubMenu_Default_Comp
+        <SubMenuDefaultComp
             menuItems={menuItems}
             activeIds={activeIds}
             expandedIdsByPath={expandedIdsByPath}
             pathname={location.pathname}
-            lang={props.lang}
+            lang={lang}
         />
     );
 };
 // #endregion
 
 // #region Section
-/** 共用：保留原本 ul DOM，只補動畫控制 */
-const CollapseSubMenu_Comp: React.FC<{ expanded: boolean; children: React.ReactNode; }> = ({ expanded, children }) =>
+/** 共用版左側選單外框。 */
+const SubMenuDefaultComp = (props: MenuRenderProps) =>
 {
-    const { submenuRef, submenuStyle, handleTransitionEnd } = useCollapseAnimation(expanded);
-
-    return (
-        <ul
-            ref={submenuRef}
-            className={clsx("submenu", "collapse", expanded && "show")}
-            style={submenuStyle}
-            onTransitionEnd={handleTransitionEnd}
-            aria-hidden={!expanded}
-        >
-            {children}
-        </ul>
-    );
-};
-
-/** =========================
- *  Spec 1816 專用 Component
- *  - 保留原本 DOM 結構
- *  - 改由 React state 控制 open/collapse
- *  ========================= */
-const SubMenu_1816_Comp: React.FC<{ menuItems: MenuItemData[]; activeIds: Set<string>; expandedIdsByPath: Set<string>; pathname: string; lang: Lang; }> = (
-    props,
-) =>
-{
-    const { menuItems, activeIds, expandedIdsByPath, pathname } = props;
-    const { expandedIds, toggleExpand } = useExpandedMenuState(menuItems, pathname, expandedIdsByPath, true);
-
-    const isItemActive = (item: MenuItemData) => activeIds.has(item.Id);
-
-    /** render：父節點（1816 保持 a 標籤結構） */
-    const renderParent = (item: MenuItemData, expanded: boolean, depth: number): React.ReactNode =>
-    {
-        const handleClick = (e: React.MouseEvent<HTMLAnchorElement>): void =>
-        {
-            e.preventDefault();
-            toggleExpand(item.Id, depth);
-        };
-
-        return (
-            <a href="#" role="button" className={clsx("list-group-item", expanded ? "open" : "collapsed")} onClick={handleClick} aria-expanded={expanded}>
-                {renderLinkIcon(item.Url)}
-                {item.SrcData}
-            </a>
-        );
-    };
-
-    /** render：items（1816 保持 submenu / collapse DOM） */
-    const renderItems = (items: MenuItemData[], depth: number = 1): React.ReactNode =>
-        items.map((item, idx) =>
-        {
-            const key = `${item.Id}-${idx}`;
-            const active = isItemActive(item);
-            const expanded = hasSubItems(item) && expandedIds.has(item.Id);
-
-            return (
-                <li key={key} className={clsx("nav-item", hasSubItems(item) && "has-submenu")}>
-                    {hasSubItems(item) ? renderParent(item, expanded, depth) : renderLeafItem(item, active)}
-                    {hasSubItems(item) && <CollapseSubMenu_Comp expanded={expanded}>{renderItems(item.SubItem!, depth + 1)}</CollapseSubMenu_Comp>}
-                </li>
-            );
-        });
-
-    return (
-        <div className="col-xl-2 col-lg-3 col-md-12 col-sm-12 col-12">
-            <Accesskey type="L" lang={props.lang} />
-            <div id="ContentPlaceContent_ContentSubMenu" className="col-sm-12 col-12 px-0 SubPage-leftMenu">
-                <div id="SubPage-SidebarMenu">
-                    <nav className="sidebar sidebar-custom mb-5">
-                        <ul className="nav list-group" id="nav_accordion">{renderItems(menuItems)}</ul>
-                    </nav>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-/** =========================
- *  Default Component
- *  - 保留原本 DOM 結構
- *  - 改善 expanded state 被重設的問題
- *  ========================= */
-const SubMenu_Default_Comp: React.FC<{ menuItems: MenuItemData[]; activeIds: Set<string>; expandedIdsByPath: Set<string>; pathname: string; lang: Lang; }> = (
-    props,
-) =>
-{
-    const { menuItems, activeIds, expandedIdsByPath, pathname } = props;
-    const { expandedIds, toggleExpand } = useExpandedMenuState(menuItems, pathname, expandedIdsByPath, true);
-    // 20260414 useExpandedMenuState - 原exclusiveFirstLevel為false，改為true
-
-    const isItemActive = (item: MenuItemData) => activeIds.has(item.Id);
-
-    /** render：items（default 保持 button / ul 結構） */
-    const renderItems = (items: MenuItemData[], depth: number = 1): React.ReactNode =>
-        items.map((item, idx) =>
-        {
-            const key = `${item.Id}-${idx}`;
-            const active = isItemActive(item);
-            const expanded = hasSubItems(item) && expandedIds.has(item.Id);
-
-            return (
-                <li key={key} className={clsx("nav-item", hasSubItems(item) && "has-submenu")}>
-                    {hasSubItems(item)
-                        ? (
-                            <button
-                                type="button"
-                                className={clsx("list-group-item", expanded && "parent-active")}
-                                onClick={() => toggleExpand(item.Id, depth)}
-                                aria-expanded={expanded}
-                            >
-                                {renderLinkIcon(item.Url)}
-                                {item.SrcData}
-                            </button>
-                        )
-                        : (renderLeafItem(item, active))}
-
-                    {hasSubItems(item) && <CollapseSubMenu_Comp expanded={expanded}>{renderItems(item.SubItem!, depth + 1)}</CollapseSubMenu_Comp>}
-                </li>
-            );
-        });
-
-    if (!menuItems.length) return null;
+    const { expandedIds, toggleExpand } = useExpandedMenuState(props.menuItems, props.pathname, props.expandedIdsByPath, true);
 
     return (
         <div className="col-xl-2 col-lg-3 col-md-12 col-sm-12 col-12 mb-4">
             <Accesskey type="L" lang={props.lang} />
             <nav className="sidebar">
-                <ul className="list-group">{renderItems(menuItems)}</ul>
+                <ul className="list-group">
+                    <DefaultMenuItems items={props.menuItems} activeIds={props.activeIds} expandedIds={expandedIds} toggleExpand={toggleExpand} />
+                </ul>
             </nav>
         </div>
     );
 };
-// #endregion
 
-// #region Protected
-// 若為外部連結 新增icon
-const renderLinkIcon = (url?: string | null) =>
+/** 共用版選單項目。 */
+const DefaultMenuItems = (props: MenuItemsProps) =>
 {
-    return isExternalUrl(url) ? <i className="fad fa-link me-2"></i> : null;
+    const depth = props.depth ?? 1;
+
+    return (
+        <>
+            {props.items.map((item, idx) =>
+            {
+                const key = `${item.Id}-${idx}`;
+                const active = props.activeIds.has(item.Id);
+                const expanded = hasSubItems(item) && props.expandedIds.has(item.Id);
+
+                return (
+                    <li key={key} className={clsx("nav-item", hasSubItems(item) && "has-submenu")}>
+                        {hasSubItems(item)
+                            ? <ParentMenuButton item={item} expanded={expanded} depth={depth} toggleExpand={props.toggleExpand} />
+                            : <LeafMenuItem item={item} active={active} />}
+                        {hasSubItems(item) && (
+                            <CollapseSubMenuComp expanded={expanded}>
+                                <DefaultMenuItems items={item.SubItem ?? []} activeIds={props.activeIds} expandedIds={props.expandedIds} toggleExpand={props.toggleExpand} depth={depth + 1} />
+                            </CollapseSubMenuComp>
+                        )}
+                    </li>
+                );
+            })}
+        </>
+    );
 };
 
-/** 建立 menu tree key，避免單純 re-render 就重設展開狀態 */
-const buildMenuTreeKey = (items: MenuItemData[]): string =>
+/** 共用版父層選單按鈕。 */
+const ParentMenuButton = (props: { item: MenuItemData; expanded: boolean; depth: number; toggleExpand: (itemId: string, depth: number) => void; }) =>
 {
-    return items.map((item) => `${item.Id}[${buildMenuTreeKey(item.SubItem ?? [])}]`).join("|");
+    return (
+        <button type="button" className={clsx("list-group-item", props.expanded && "parent-active")} onClick={() => props.toggleExpand(props.item.Id, props.depth)} aria-expanded={props.expanded}>
+            <LinkIcon url={props.item.Url} />
+            {props.item.SrcData}
+        </button>
+    );
 };
 
-/** 共用：leaf（內/外連結） */
-const renderLeafItem = (item: MenuItemData, active: boolean): React.ReactNode =>
+/** 選單葉節點，依內外連結輸出正確連結元件。 */
+const LeafMenuItem = (props: { item: MenuItemData; active: boolean; }) =>
 {
-    const icon = renderLinkIcon(item.Url);
-    if (!item.Url)
+    const icon = <LinkIcon url={props.item.Url} />;
+
+    if (!props.item.Url)
     {
-        return <span className={clsx("list-group-item", active && "active")}>{icon} {item.SrcData}</span>;
+        return <span className={clsx("list-group-item", props.active && "active")}>{icon} {props.item.SrcData}</span>;
     }
-    if (isExternalUrl(item.Url))
+
+    if (isExternalUrl(props.item.Url))
     {
-        return <LangLink to={item.Url} className={clsx("list-group-item", active && "active")} title={item.SrcData}>{icon} {item.SrcData}</LangLink>;
+        return <LangLink to={props.item.Url} className={clsx("list-group-item", props.active && "active")} title={props.item.SrcData}>{icon} {props.item.SrcData}</LangLink>;
     }
+
     return (
         <LangNavLink
-            to={item.Url}
-            title={item.SrcData}
-            className={({ isActive }) => clsx("list-group-item", (isActive || active) && "active")}
-            aria-current={active ? "page" : undefined}
+            to={props.item.Url}
+            title={props.item.SrcData}
+            className={({ isActive }) => clsx("list-group-item", (isActive || props.active) && "active")}
+            aria-current={props.active ? "page" : undefined}
         >
             {icon}
-            {item.SrcData}
+            {props.item.SrcData}
         </LangNavLink>
+    );
+};
+
+/** 外部連結圖示。 */
+const LinkIcon = (props: { url?: string | null; }) =>
+{
+    return isExternalUrl(props.url) ? <i className="fad fa-link me-2"></i> : null;
+};
+
+/** 共用 submenu 收合動畫容器。 */
+const CollapseSubMenuComp = (props: { expanded: boolean; children: ReactNode; }) =>
+{
+    const { submenuRef, submenuStyle, handleTransitionEnd } = useCollapseAnimation(props.expanded);
+
+    return (
+        <ul ref={submenuRef} className={clsx("submenu", "collapse", props.expanded && "show")} style={submenuStyle} onTransitionEnd={handleTransitionEnd} aria-hidden={!props.expanded}>
+            {props.children}
+        </ul>
     );
 };
 // #endregion
 
 // #region Private
-/** 依照 lang / site / node 取得當前節點底下的 menu */
-const GetMenuData = (lang: Lang, site: INormSite, node: INormNode, maxDepth: number = Infinity): MenuItemData[] =>
+/** 依照 lang / site / node 取得目前節點底下的 menu。 */
+const getMenuData = (lang: Lang, site: INormSite, node: INormNode, maxDepth: number = Infinity): MenuItemData[] =>
 {
     const roots = site.treeByLang?.[lang] ?? [];
     const rootNode = roots.find((n) => n.id === (node.rootId ?? roots[0]?.id));
@@ -241,20 +180,26 @@ const GetMenuData = (lang: Lang, site: INormSite, node: INormNode, maxDepth: num
     return buildMenuItems(rootNode.children ?? [], node.id, 1, maxDepth);
 };
 
-/** 判斷是不是外部連結 */
+/** 判斷是否為外部連結。 */
 const isExternalUrl = (url?: string | null): boolean =>
 {
     if (!url) return false;
     return /^https?:\/\//i.test(url) || url.startsWith("//");
 };
 
-/** 判斷 item 是否有子節點 */
+/** 判斷 item 是否有子節點。 */
 const hasSubItems = (item: MenuItemData): boolean =>
 {
     return !!(item.SubItem && item.SubItem.length > 0);
 };
 
-/** 把路徑尾巴的斜線修掉 */
+/** 建立 menu tree key，避免單純 re-render 就重設展開狀態。 */
+const buildMenuTreeKey = (items: MenuItemData[]): string =>
+{
+    return items.map((item) => `${item.Id}[${buildMenuTreeKey(item.SubItem ?? [])}]`).join("|");
+};
+
+/** 把路徑尾巴的斜線修掉。 */
 const normalizePath = (path: string): string =>
 {
     const clean = (path ?? "/").split("?")[0].split("#")[0];
@@ -262,7 +207,7 @@ const normalizePath = (path: string): string =>
     return clean || "/";
 };
 
-/** 去掉網址最前面的 /:lang */
+/** 去掉網址最前面的 /:lang。 */
 const stripLangPrefixFromPath = (path: string): string =>
 {
     const p = normalizePath(path);
@@ -276,7 +221,7 @@ const stripLangPrefixFromPath = (path: string): string =>
     return rest ? `/${rest}` : "/";
 };
 
-/** 判斷目前路徑是否落在 itemUrl */
+/** 判斷目前路徑是否落在 itemUrl。 */
 const isUrlMatch = (currentPath: string, itemUrl: string | undefined): boolean =>
 {
     if (!itemUrl) return false;
@@ -286,52 +231,47 @@ const isUrlMatch = (currentPath: string, itemUrl: string | undefined): boolean =
     const url = stripLangPrefixFromPath(itemUrl);
 
     if (cur === url) return true;
-    if (url !== "/" && cur.startsWith(`${url}/`)) return true;
-    return false;
+    return url !== "/" && cur.startsWith(`${url}/`);
 };
 
-/** 計算 activeIds 與 active path 應展開的父節點 */
+/** 計算 activeIds 與 active path 應展開的父節點。 */
 const calcActiveAndExpanded = (items: MenuItemData[], pathname: string) =>
 {
     const activeIds = new Set<string>();
     const expandedIdsByPath = new Set<string>();
 
-    const dfs = (item: MenuItemData): boolean =>
-    {
-        const selfActive = !hasSubItems(item) && isUrlMatch(pathname, item.Url);
-        let hasActiveInSubtree = selfActive;
-
-        if (hasSubItems(item))
-        {
-            item.SubItem!.forEach((child) =>
-            {
-                if (dfs(child)) hasActiveInSubtree = true;
-            });
-        }
-
-        if (selfActive) activeIds.add(item.Id);
-        if (hasSubItems(item) && hasActiveInSubtree) expandedIdsByPath.add(item.Id);
-
-        return hasActiveInSubtree;
-    };
-
-    items.forEach(dfs);
+    items.forEach((item) => calcActiveItem(item, pathname, activeIds, expandedIdsByPath));
     return { activeIds, expandedIdsByPath };
 };
 
-/** 取得 SpecCode */
-const getSpecCode = (): string => String(import.meta.env.VITE_SPEC_CODE ?? "");
+/** 遞迴計算單一節點是否為目前 active path。 */
+const calcActiveItem = (item: MenuItemData, pathname: string, activeIds: Set<string>, expandedIdsByPath: Set<string>): boolean =>
+{
+    const selfActive = !hasSubItems(item) && isUrlMatch(pathname, item.Url);
+    let hasActiveInSubtree = selfActive;
 
-/** 移除某個節點底下所有已展開的 parent id */
+    if (hasSubItems(item))
+    {
+        item.SubItem!.forEach((child) =>
+        {
+            if (calcActiveItem(child, pathname, activeIds, expandedIdsByPath)) hasActiveInSubtree = true;
+        });
+    }
+
+    if (selfActive) activeIds.add(item.Id);
+    if (hasSubItems(item) && hasActiveInSubtree) expandedIdsByPath.add(item.Id);
+    return hasActiveInSubtree;
+};
+
+/** 移除某個節點底下所有已展開的 parent id。 */
 const removeExpandedIdsInNode = (item: MenuItemData, next: Set<string>): void =>
 {
     if (!hasSubItems(item)) return;
-
     next.delete(item.Id);
     item.SubItem!.forEach((child) => removeExpandedIdsInNode(child, next));
 };
 
-/** 依照 branch id 遞迴移除該分支的展開狀態 */
+/** 依照 branch id 遞迴移除該分支的展開狀態。 */
 const removeExpandedBranch = (items: MenuItemData[], branchId: string, next: Set<string>): boolean =>
 {
     for (const item of items)
@@ -341,17 +281,13 @@ const removeExpandedBranch = (items: MenuItemData[], branchId: string, next: Set
             removeExpandedIdsInNode(item, next);
             return true;
         }
-
-        if (hasSubItems(item) && removeExpandedBranch(item.SubItem!, branchId, next))
-        {
-            return true;
-        }
+        if (hasSubItems(item) && removeExpandedBranch(item.SubItem!, branchId, next)) return true;
     }
 
     return false;
 };
 
-/** 合併 active path 展開狀態 */
+/** 合併 active path 展開狀態。 */
 const mergeExpandedIds = (prev: Set<string>, expandedIdsByPath: Set<string>): Set<string> =>
 {
     const next = new Set(prev);
@@ -359,25 +295,19 @@ const mergeExpandedIds = (prev: Set<string>, expandedIdsByPath: Set<string>): Se
     return next;
 };
 
-/** 1816 專用：路由切換時維持第一層互斥 */
+/** 路由切換時維持第一層互斥。 */
 const closeOtherTopLevelBranches = (menuItems: MenuItemData[], expandedIdsByPath: Set<string>, next: Set<string>): void =>
 {
     menuItems.forEach((item) =>
     {
         if (!hasSubItems(item)) return;
         if (expandedIdsByPath.has(item.Id)) return;
-
         removeExpandedBranch(menuItems, item.Id, next);
     });
 };
 
-/** 共用：管理 submenu 展開狀態 */
-const useExpandedMenuState = (
-    menuItems: MenuItemData[],
-    pathname: string,
-    expandedIdsByPath: Set<string>,
-    exclusiveFirstLevel: boolean,
-): UseExpandedMenuStateResult =>
+/** 共用：管理 submenu 展開狀態。 */
+const useExpandedMenuState = (menuItems: MenuItemData[], pathname: string, expandedIdsByPath: Set<string>, exclusiveFirstLevel: boolean): UseExpandedMenuStateResult =>
 {
     const menuTreeKey = useMemo(() => buildMenuTreeKey(menuItems), [menuItems]);
     const [expandedIds, setExpandedIds] = useState<Set<string>>(() => new Set(expandedIdsByPath));
@@ -386,65 +316,74 @@ const useExpandedMenuState = (
 
     useEffect(() =>
     {
-        const menuChanged = prevMenuTreeKeyRef.current !== menuTreeKey;
-        const pathnameChanged = prevPathnameRef.current !== pathname;
-
-        if (menuChanged)
-        {
-            setExpandedIds(new Set(expandedIdsByPath));
-        } else if (pathnameChanged)
-        {
-            setExpandedIds((prev) =>
-            {
-                const next = mergeExpandedIds(prev, expandedIdsByPath);
-
-                if (exclusiveFirstLevel)
-                {
-                    closeOtherTopLevelBranches(menuItems, expandedIdsByPath, next);
-                }
-
-                return next;
-            });
-        }
-
-        prevMenuTreeKeyRef.current = menuTreeKey;
-        prevPathnameRef.current = pathname;
+        updateExpandedState(menuItems, menuTreeKey, pathname, expandedIdsByPath, exclusiveFirstLevel, prevMenuTreeKeyRef, prevPathnameRef, setExpandedIds);
     }, [menuItems, menuTreeKey, pathname, expandedIdsByPath, exclusiveFirstLevel]);
 
-    /** 切換展開/收合 */
     const toggleExpand = (itemId: string, depth: number): void =>
     {
-        setExpandedIds((prev) =>
-        {
-            const next = new Set(prev);
-            const isOpen = next.has(itemId);
-
-            if (isOpen)
-            {
-                removeExpandedBranch(menuItems, itemId, next);
-                return next;
-            }
-
-            if (exclusiveFirstLevel && depth === 1)
-            {
-                menuItems.forEach((item) =>
-                {
-                    if (!hasSubItems(item)) return;
-                    if (item.Id === itemId) return;
-
-                    removeExpandedBranch(menuItems, item.Id, next);
-                });
-            }
-
-            next.add(itemId);
-            return next;
-        });
+        setExpandedIds((prev) => toggleExpandedIds(prev, menuItems, itemId, depth, exclusiveFirstLevel));
     };
 
     return { expandedIds, toggleExpand };
 };
 
-/** 控制 submenu 展開/收合動畫 */
+/** 依路由或 menu tree 變化更新展開狀態。 */
+const updateExpandedState = (
+    menuItems: MenuItemData[],
+    menuTreeKey: string,
+    pathname: string,
+    expandedIdsByPath: Set<string>,
+    exclusiveFirstLevel: boolean,
+    prevMenuTreeKeyRef: React.MutableRefObject<string>,
+    prevPathnameRef: React.MutableRefObject<string>,
+    setExpandedIds: React.Dispatch<React.SetStateAction<Set<string>>>,
+): void =>
+{
+    const menuChanged = prevMenuTreeKeyRef.current !== menuTreeKey;
+    const pathnameChanged = prevPathnameRef.current !== pathname;
+
+    if (menuChanged) setExpandedIds(new Set(expandedIdsByPath));
+    else if (pathnameChanged) setExpandedIds((prev) => mergeExpandedByPath(prev, menuItems, expandedIdsByPath, exclusiveFirstLevel));
+
+    prevMenuTreeKeyRef.current = menuTreeKey;
+    prevPathnameRef.current = pathname;
+};
+
+/** 合併 active path 展開狀態並處理第一層互斥。 */
+const mergeExpandedByPath = (prev: Set<string>, menuItems: MenuItemData[], expandedIdsByPath: Set<string>, exclusiveFirstLevel: boolean): Set<string> =>
+{
+    const next = mergeExpandedIds(prev, expandedIdsByPath);
+    if (exclusiveFirstLevel) closeOtherTopLevelBranches(menuItems, expandedIdsByPath, next);
+    return next;
+};
+
+/** 切換指定節點展開狀態。 */
+const toggleExpandedIds = (prev: Set<string>, menuItems: MenuItemData[], itemId: string, depth: number, exclusiveFirstLevel: boolean): Set<string> =>
+{
+    const next = new Set(prev);
+    if (next.has(itemId))
+    {
+        removeExpandedBranch(menuItems, itemId, next);
+        return next;
+    }
+
+    if (exclusiveFirstLevel && depth === 1) closeTopLevelBranchesExcept(menuItems, itemId, next);
+    next.add(itemId);
+    return next;
+};
+
+/** 關閉同層其他第一層分支。 */
+const closeTopLevelBranchesExcept = (menuItems: MenuItemData[], itemId: string, next: Set<string>): void =>
+{
+    menuItems.forEach((item) =>
+    {
+        if (!hasSubItems(item)) return;
+        if (item.Id === itemId) return;
+        removeExpandedBranch(menuItems, item.Id, next);
+    });
+};
+
+/** 控制 submenu 展開/收合動畫。 */
 const useCollapseAnimation = (expanded: boolean) =>
 {
     const submenuRef = useRef<HTMLUListElement | null>(null);
@@ -454,62 +393,97 @@ const useCollapseAnimation = (expanded: boolean) =>
 
     useEffect(() =>
     {
-        const el = submenuRef.current;
-        if (!el || typeof window === "undefined") return;
-
-        let rafId = 0;
-
-        if (expanded)
-        {
-            setKeepVisible(true);
-            phaseRef.current = "opening";
-
-            rafId = window.requestAnimationFrame(() =>
-            {
-                setMaxHeight(`${el.scrollHeight}px`);
-            });
-
-            return () => window.cancelAnimationFrame(rafId);
-        }
-
-        if (!keepVisible)
-        {
-            setMaxHeight("0px");
-            phaseRef.current = "idle";
-            return;
-        }
-
-        phaseRef.current = "closing";
-        setMaxHeight(`${el.scrollHeight}px`);
-
-        rafId = window.requestAnimationFrame(() =>
-        {
-            setMaxHeight("0px");
-        });
-
-        return () => window.cancelAnimationFrame(rafId);
+        return updateCollapseAnimation(expanded, keepVisible, submenuRef, phaseRef, setMaxHeight, setKeepVisible);
     }, [expanded, keepVisible]);
 
-    /** 動畫結束後收尾 */
-    const handleTransitionEnd = (e: React.TransitionEvent<HTMLUListElement>): void =>
+    const handleTransitionEnd = (e: TransitionEvent<HTMLUListElement>): void =>
     {
-        if (e.propertyName !== "max-height") return;
-
-        if (phaseRef.current === "opening")
-        {
-            setMaxHeight("none");
-            phaseRef.current = "idle";
-            return;
-        }
-
-        if (phaseRef.current === "closing")
-        {
-            setKeepVisible(false);
-            phaseRef.current = "idle";
-        }
+        handleCollapseTransitionEnd(e, phaseRef, setMaxHeight, setKeepVisible);
     };
 
-    const submenuStyle: React.CSSProperties = {
+    const submenuStyle = buildSubmenuStyle(expanded, keepVisible, maxHeight);
+    return { submenuRef, submenuStyle, handleTransitionEnd };
+};
+
+/** 更新 submenu 展開/收合動畫狀態。 */
+const updateCollapseAnimation = (
+    expanded: boolean,
+    keepVisible: boolean,
+    submenuRef: React.MutableRefObject<HTMLUListElement | null>,
+    phaseRef: React.MutableRefObject<CollapsePhase>,
+    setMaxHeight: React.Dispatch<React.SetStateAction<string>>,
+    setKeepVisible: React.Dispatch<React.SetStateAction<boolean>>,
+): (() => void) | undefined =>
+{
+    const el = submenuRef.current;
+    if (!el || typeof window === "undefined") return undefined;
+
+    if (expanded) return startOpeningAnimation(el, phaseRef, setMaxHeight, setKeepVisible);
+    return startClosingAnimation(el, keepVisible, phaseRef, setMaxHeight, setKeepVisible);
+};
+
+/** 啟動展開動畫。 */
+const startOpeningAnimation = (
+    el: HTMLUListElement,
+    phaseRef: React.MutableRefObject<CollapsePhase>,
+    setMaxHeight: React.Dispatch<React.SetStateAction<string>>,
+    setKeepVisible: React.Dispatch<React.SetStateAction<boolean>>,
+): () => void =>
+{
+    setKeepVisible(true);
+    phaseRef.current = "opening";
+    const rafId = window.requestAnimationFrame(() => setMaxHeight(`${el.scrollHeight}px`));
+    return () => window.cancelAnimationFrame(rafId);
+};
+
+/** 啟動收合動畫。 */
+const startClosingAnimation = (
+    el: HTMLUListElement,
+    keepVisible: boolean,
+    phaseRef: React.MutableRefObject<CollapsePhase>,
+    setMaxHeight: React.Dispatch<React.SetStateAction<string>>,
+    setKeepVisible: React.Dispatch<React.SetStateAction<boolean>>,
+): (() => void) | undefined =>
+{
+    if (!keepVisible)
+    {
+        setMaxHeight("0px");
+        phaseRef.current = "idle";
+        return undefined;
+    }
+
+    phaseRef.current = "closing";
+    setMaxHeight(`${el.scrollHeight}px`);
+    const rafId = window.requestAnimationFrame(() => setMaxHeight("0px"));
+    return () => window.cancelAnimationFrame(rafId);
+};
+
+/** submenu 動畫結束後收尾。 */
+const handleCollapseTransitionEnd = (
+    e: TransitionEvent<HTMLUListElement>,
+    phaseRef: React.MutableRefObject<CollapsePhase>,
+    setMaxHeight: React.Dispatch<React.SetStateAction<string>>,
+    setKeepVisible: React.Dispatch<React.SetStateAction<boolean>>,
+): void =>
+{
+    if (e.propertyName !== "max-height") return;
+    if (phaseRef.current === "opening")
+    {
+        setMaxHeight("none");
+        phaseRef.current = "idle";
+        return;
+    }
+    if (phaseRef.current === "closing")
+    {
+        setKeepVisible(false);
+        phaseRef.current = "idle";
+    }
+};
+
+/** 建立 submenu 動畫樣式。 */
+const buildSubmenuStyle = (expanded: boolean, keepVisible: boolean, maxHeight: string): CSSProperties =>
+{
+    return {
         display: keepVisible ? "block" : undefined,
         overflow: "hidden",
         maxHeight,
@@ -518,7 +492,5 @@ const useCollapseAnimation = (expanded: boolean) =>
         willChange: "max-height, opacity",
         pointerEvents: expanded ? "auto" : "none",
     };
-
-    return { submenuRef, submenuStyle, handleTransitionEnd };
 };
 // #endregion

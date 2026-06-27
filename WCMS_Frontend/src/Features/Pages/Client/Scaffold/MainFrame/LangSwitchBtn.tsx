@@ -1,5 +1,6 @@
 import GlobalPic from "@/Features/Assets/Client/images/svg_icon/icon-custom-global-W.svg";
 import type { INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
+import { dispatchPreviewLangChange } from "@/Features/Pages/Client/Scaffold/Preview/PreviewLangEvent";
 import { DefaultLang, type Lang, LangLabelMap } from "@/SysCore/i18n/lang";
 import { useLang } from "@/SysCore/i18n/LangContext";
 import { LangLink } from "@/SysCore/i18n/LangLink";
@@ -45,14 +46,13 @@ interface LangSwitchNavigationActions
 {
     /** 目前 pathname */
     pathname: string;
-
+    /** 是否為 Preview Template 路由。 */
+    isPreviewMode: boolean;
     /** 建立切換語系後的目標網址 */
     buildSwitchTo: (target: Lang) => string;
-
     /** 處理語系連結點擊事件 */
     onLinkClick: (e: React.MouseEvent<HTMLAnchorElement>, target: Lang) => void;
 }
-
 /** 使用者意圖 prefetch 事件 */
 interface LangSwitchIntentHandlers
 {
@@ -203,8 +203,8 @@ const useLangSwitchBtnState = (site: INormSite): LangSwitchBtnState =>
     const ctx = useLang();
     const activeLang = LibRouteLang.normalizeRouteLang(ctx.code);
     const supportedLangs = useSupportedLangs(site);
-    const navigation = useLangSwitchNavigation(activeLang);
-    const getIntentPrefetchHandlers = useIntentPrefetchHandlers();
+    const navigation = useLangSwitchNavigation(activeLang, ctx.setCode);
+    const getIntentPrefetchHandlers = useIntentPrefetchHandlers(!navigation.isPreviewMode);
     const shouldHide = supportedLangs.length <= 1 || LibRouteLang.isRouteLangBypassPathname(navigation.pathname);
     const isSpec1816 = import.meta.env.VITE_SPEC_CODE === "1816";
 
@@ -224,23 +224,33 @@ const useSupportedLangs = (site: INormSite): Lang[] =>
 };
 
 /** 建立語系切換導頁行為。 */
-const useLangSwitchNavigation = (activeLang: Lang): LangSwitchNavigationActions =>
+const useLangSwitchNavigation = (activeLang: Lang, setLangCode: (lang: Lang) => void): LangSwitchNavigationActions =>
 {
     const location = useLocation();
     const navigate = useNavigate();
+    const isPreviewMode = isPreviewTemplatePathname(location.pathname);
+
     const buildSwitchTo = useCallback((target: Lang): string =>
     {
+        if (isPreviewMode) return `#preview-lang-${target}`;
         const nextPath = LibRouteLang.buildLangPathname(location.pathname, target);
         const url = `${nextPath}${location.search}${location.hash}`;
         return url;
-    }, [location.pathname, location.search, location.hash]);
+    }, [isPreviewMode, location.pathname, location.search, location.hash]);
 
     const go = useCallback((target: Lang): void =>
     {
         if (target === activeLang) return;
         LibRouteLang.writeRouteLangCookie(target);
+
+        if (isPreviewMode)
+        {
+            setLangCode(target);
+            dispatchPreviewLangChange(target);
+            return;
+        }
         navigate(buildSwitchTo(target), { replace: true });
-    }, [activeLang, buildSwitchTo, navigate]);
+    }, [activeLang, buildSwitchTo, isPreviewMode, navigate, setLangCode]);
 
     const onLinkClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, target: Lang): void =>
     {
@@ -250,23 +260,24 @@ const useLangSwitchNavigation = (activeLang: Lang): LangSwitchNavigationActions 
         go(target);
     }, [go]);
 
-    return { pathname: location.pathname, buildSwitchTo, onLinkClick };
+    return { pathname: location.pathname, isPreviewMode, buildSwitchTo, onLinkClick };
 };
 
 /** 建立 hover、focus、touch 的預先載入事件。 */
-const useIntentPrefetchHandlers = (): (url: string) => LangSwitchIntentHandlers =>
+const useIntentPrefetchHandlers = (enabled: boolean): (url: string) => LangSwitchIntentHandlers =>
 {
     const fetcher = useFetcher();
     const lastPrefetchUrlRef = useRef<string | null>(null);
 
     const prefetchUrl = useCallback((url: string): void =>
     {
+        if (!enabled) return;
         if (!url) return;
         if (lastPrefetchUrlRef.current === url) return;
 
         lastPrefetchUrlRef.current = url;
         fetcher.load(url);
-    }, [fetcher]);
+    }, [enabled, fetcher]);
 
     return useCallback((url: string): LangSwitchIntentHandlers =>
     {
@@ -281,5 +292,11 @@ const resolveOtherLang = (supportedLangs: Lang[], activeLang: Lang): Lang =>
 {
     const lang = supportedLangs.find(item => item !== activeLang) ?? supportedLangs[1] ?? DefaultLang;
     return lang;
+};
+/** 判斷目前是否在 Preview Template 路由。 */
+const isPreviewTemplatePathname = (pathname: string): boolean =>
+{
+    const path = LibRouteLang.stripLeadingRouteLang(pathname).toLowerCase();
+    return path === "/template" || path.endsWith("/template");
 };
 // #endregion

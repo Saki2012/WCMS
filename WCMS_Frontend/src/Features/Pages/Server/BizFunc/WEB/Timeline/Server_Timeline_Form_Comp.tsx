@@ -9,6 +9,8 @@ import type {
     IEditGridView_Style,
 } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Data";
 import { getEditGridRowId, useEditGridSubDetailState } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
+import { PreviewFrame } from "@/Features/Pages/Server/Scaffold/Preview/PreviewFrame";
+import { buildServerPreviewToolbarButton, useServerPreviewFrame } from "@/Features/Pages/Server/Scaffold/Preview/PreviewFrame_Hook";
 import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
@@ -17,10 +19,10 @@ import type { ILibTinyMCEStyle } from "@/SysCore/Components/FormField/LibFormFie
 import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
-import type { components } from "@/types/api";
-import { TimelineFields, TimelineLangDetailFields, TimelineSetFields } from "@/types/SchemaFields";
-import type { ReactNode } from "react";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
+import type { components } from "@/types/api";
+import { PGID, TimelineFields, TimelineLangDetailFields, TimelineSetFields } from "@/types/SchemaFields";
+import type { ReactNode } from "react";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -34,7 +36,6 @@ import {
 // #region Property
 type TimelineSet = components["schemas"]["TimelineSet_DTO"];
 
-
 interface TimelineFormCompProps
 {
     /** 後台主題設定 */
@@ -44,7 +45,6 @@ interface TimelineFormCompProps
     lang: Lang;
 }
 
-
 interface HeaderSectionProps
 {
     /** 後台主題設定 */
@@ -53,7 +53,6 @@ interface HeaderSectionProps
     /** Form Template 提供的主資料 binding */
     binding: ServerFormBinding<TimelineSet>;
 }
-
 
 interface DetailSectionProps
 {
@@ -67,13 +66,11 @@ interface DetailSectionProps
     binding: ServerFormBinding<TimelineSet>;
 }
 
-
 interface HeaderTabContentOptions extends HeaderSectionProps
 {
     /** 欄位 binding helper */
     setField: ReturnType<typeof useSetTableField<TimelineSet>>;
 }
-
 
 interface LangDetailGridProps extends DetailSectionProps
 {
@@ -84,13 +81,11 @@ interface LangDetailGridProps extends DetailSectionProps
     onEditingStateChange: (args: EditGridEditingStateArgs) => void;
 }
 
-
 interface ContentEditorProps extends HeaderSectionProps
 {
     /** 目前語系明細 Grid Row */
     row: GridRow;
 }
-
 
 const editGridStyle: IEditGridView_Style = {
     TableStyle: "table table-striped table-bordered table-hover",
@@ -99,7 +94,6 @@ const editGridStyle: IEditGridView_Style = {
     DangerButtonStyle: "btn btn-danger btn-rounded btn-sm",
     ErrorStyle: "text-danger small mt-1",
 };
-
 
 const fullWidthTinyMceStyle: ILibTinyMCEStyle = { Labelstyle: "sr-only visually-hidden", SelectStyle: "col-12 p-0 mb-1" };
 // #endregion
@@ -111,7 +105,7 @@ export const Server_Timeline_Form_Comp = (props: TimelineFormCompProps) =>
     const { internalId } = useParams();
     const navigate = useNavigate();
     const pathname = useLocation().pathname;
-
+    const preview = useServerPreviewFrame<TimelineSet>({ ProgId: PGID.Timeline });
     const onBackToList = useCallback(() =>
     {
         navigate(LibRoutePath.buildServerBackToListPath(pathname));
@@ -119,15 +113,23 @@ export const Server_Timeline_Form_Comp = (props: TimelineFormCompProps) =>
 
     const actionsOpt = useMemo(() =>
     {
-        return { onBackToList };
-    }, [onBackToList]);
+        return { onBackToList, onPreviewFromDto: preview.openPreview };
+    }, [onBackToList, preview.openPreview]);
 
     const template = useTimelineFormTemplate({ lang: props.lang, theme: props.theme, internalId: internalId ?? "", emptyData: timelineEmptyData, actionsOpt });
 
     return (
         <Server_FormTemplate_Comp
             template={template}
-            renderContent={({ vm }) => <TimelineContentComp theme={props.theme} lang={props.lang} binding={vm.binding} />}
+            resolveActionToolbarButtons={({ vm }) => [
+                buildServerPreviewToolbarButton({ action: vm.actions.Preview }),
+            ]}
+            renderContent={({ vm }) => (
+                <>
+                    <TimelineContentComp theme={props.theme} lang={props.lang} binding={vm.binding} />
+                    <PreviewFrame open={preview.isOpen} siteIndex={preview.siteIndex} onClose={preview.closePreview} payload={preview.framePayload} title={preview.title} />
+                </>
+            )}
         />
     );
 };
@@ -145,7 +147,6 @@ const TimelineContentComp = (props: DetailSectionProps) =>
     );
 };
 
-
 /** 紀事表 Header 區塊，保留舊版 Header input 並改用 Template Binding。 */
 const HeaderComp = (props: HeaderSectionProps) =>
 {
@@ -155,7 +156,6 @@ const HeaderComp = (props: HeaderSectionProps) =>
 
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
-
 
 /** 紀事項目父層 Grid，透過查看按鈕展開語系明細。 */
 const TimelineItemGridComp = (props: DetailSectionProps) =>
@@ -202,16 +202,13 @@ const TimelineItemGridComp = (props: DetailSectionProps) =>
     );
 };
 
-
 /** 語系子明細 Grid，TinyMCE 放在 Grid 下方，避免再插入一筆 SubDetail Row。 */
 const TimelineLangDetailGridComp = (props: LangDetailGridProps) =>
 {
     const contentState = useEditGridSubDetailState();
 
     const renderContentToggle = useCallback(
-        (args: EditGridCellRenderArgs) => (
-            <TimelineContentToggleButton row={args.row} expandedRowKey={contentState.expandedRowKey} onToggle={contentState.toggleSubDetail} />
-        ),
+        (args: EditGridCellRenderArgs) => <TimelineContentToggleButton row={args.row} expandedRowKey={contentState.expandedRowKey} onToggle={contentState.toggleSubDetail} />,
         [contentState.expandedRowKey, contentState.toggleSubDetail],
     );
 
@@ -237,7 +234,6 @@ const TimelineLangDetailGridComp = (props: LangDetailGridProps) =>
     );
 };
 
-
 /** TinyMCE 內容編輯區，移除前置 Label 並讓編輯器吃滿展開區。 */
 const TimelineContentEditorComp = (props: ContentEditorProps) =>
 {
@@ -260,7 +256,6 @@ const buildHeaderTabContent = (opt: HeaderTabContentOptions): Record<string, Rea
     return { Basic: buildBasicFields(opt), System: [<SystemInfoTabComp theme={opt.theme} formData={opt.binding} setKey={TimelineSetFields.Timeline} />] };
 };
 
-
 /** 建立基本資料欄位。 */
 const buildBasicFields = (opt: HeaderTabContentOptions): ReactNode[] =>
 {
@@ -273,7 +268,6 @@ const buildBasicFields = (opt: HeaderTabContentOptions): ReactNode[] =>
     ];
 };
 
-
 /** 建立返回列表頁路徑。 */
 /** 建立 TimelineLangDetail 的 Binding row keys，避免 undefined/null 主鍵造成 upsert 追加空白列。 */
 const buildTimelineLangDetailRowKeys = (row: TimelineLangDetailGridRow): Record<string, string | number> =>
@@ -283,7 +277,6 @@ const buildTimelineLangDetailRowKeys = (row: TimelineLangDetailGridRow): Record<
 
     return rowKeys;
 };
-
 
 /** 建立語系明細必要主鍵，使用 ParentRowId + RowId + Lang 精準定位資料列。 */
 const buildTimelineLangDetailBaseRowKeys = (row: TimelineLangDetailGridRow): Record<string, string | number> =>
@@ -320,7 +313,6 @@ const TimelineSubDetailToggleButton = (
     );
 };
 
-
 /** TinyMCE 內容展開按鈕。 */
 const TimelineContentToggleButton = (props: { row: GridRow; expandedRowKey: string | null; onToggle: (row: GridRow) => void; }) =>
 {
@@ -336,7 +328,6 @@ const TimelineContentToggleButton = (props: { row: GridRow; expandedRowKey: stri
     );
 };
 
-
 /** 取得 Grid Row key，讓展開狀態與 EditGrid 內部 row key 一致。 */
 const getTimelineGridRowKey = (row: GridRow | null | undefined, rowIndex?: number): string =>
 {
@@ -347,7 +338,6 @@ const getTimelineGridRowKey = (row: GridRow | null | undefined, rowIndex?: numbe
 
     return rowIndex === undefined ? "" : `fallback-${rowIndex}`;
 };
-
 
 /** 依目前展開 key 從最新 Grid rows 找出 TinyMCE 需要綁定的語系列。 */
 const findTimelineGridRowByKey = (rows: GridRow[], rowKey: string | null): GridRow | null =>

@@ -1,7 +1,6 @@
-import { Form_Toolbar } from "@/Features/Pages/Server/Scaffold/Toolbar/Toolbar_Comp";
-import { DividerComp } from "@/SysCore/Components/Divider/Divider_Comp";
-import { LoadingErrorHandler } from "@/SysCore/Components/LoadingErrorHandler";
+import type { ServerFormActions } from "@/SysCore/Utils/API/APIAdapter";
 import type { ReactNode } from "react";
+import { FormShellComp, type FormShellToolbarButton } from "../FormShell_Comp";
 import { useServerFormTemplate } from "./Server_FormTemplate_Hook";
 import type {
     ServerFormBaseActionOptions,
@@ -9,7 +8,6 @@ import type {
     ServerFormTemplate,
     ServerFormTemplateViewModel,
 } from "./Server_FormTemplate_Hook";
-
 // #region Property
 export interface ServerFormTemplateRenderProps<TSet, TAdapter, TRefs = unknown, TRawData = ServerFormDefaultRawData<TSet, TRefs>, TActionOpt = ServerFormBaseActionOptions>
 {
@@ -17,20 +15,16 @@ export interface ServerFormTemplateRenderProps<TSet, TAdapter, TRefs = unknown, 
     vm: ServerFormTemplateViewModel<TSet, TAdapter, TRefs, TRawData, TActionOpt>;
 }
 
-
 export interface ServerFormTemplateCompProps<TSet, TAdapter, TRefs = unknown, TRawData = ServerFormDefaultRawData<TSet, TRefs>, TActionOpt = ServerFormBaseActionOptions>
 {
     /** FormTemplate 流程設定，可支援 F 有 S 沒有、F 有 S 有、F 沒有 S 有 */
     template: ServerFormTemplate<TSet, TAdapter, TRefs, TRawData, TActionOpt>;
-
+    /** 覆寫表單類型的基礎工具列，例如儲存、返回、上一筆、下一筆。 */
+    resolveBasicToolbarButtons?: (props: ServerFormTemplateRenderProps<TSet, TAdapter, TRefs, TRawData, TActionOpt>, defaultButtons: FormShellToolbarButton[]) => FormShellToolbarButton[];
     /** Form 內容渲染插槽，可放 Header / Detail / SubDetail / EditGrid */
     renderContent: (props: ServerFormTemplateRenderProps<TSet, TAdapter, TRefs, TRawData, TActionOpt>) => ReactNode;
-
-    /** Toolbar 前方額外內容，例如提示文字或預覽區塊 */
-    renderBeforeToolbar?: (props: ServerFormTemplateRenderProps<TSet, TAdapter, TRefs, TRawData, TActionOpt>) => ReactNode;
-
-    /** Toolbar 後方額外內容，例如 debug 或特殊操作 */
-    renderAfterToolbar?: (props: ServerFormTemplateRenderProps<TSet, TAdapter, TRefs, TRawData, TActionOpt>) => ReactNode;
+    /** 建立功能自定義工具列，例如預覽、匯出、同步。 */
+    resolveActionToolbarButtons?: (props: ServerFormTemplateRenderProps<TSet, TAdapter, TRefs, TRawData, TActionOpt>) => FormShellToolbarButton[];
 }
 // #endregion
 
@@ -41,41 +35,25 @@ export const Server_FormTemplate_Comp = <TSet, TAdapter, TRefs = unknown, TRawDa
 ) =>
 {
     const vm = useServerFormTemplate(props.template);
-    const hasToolbar = Boolean(vm.formProp.Actions);
     const renderProps: ServerFormTemplateRenderProps<TSet, TAdapter, TRefs, TRawData, TActionOpt> = { vm };
-
+    const defaultBasicToolbarButtons = buildDefaultBasicToolbarButtons(vm.actions);
+    const basicToolbarButtons = props.resolveBasicToolbarButtons?.(renderProps, defaultBasicToolbarButtons) ?? defaultBasicToolbarButtons;
+    const actionToolbarButtons = props.resolveActionToolbarButtons?.(renderProps) ?? [];
     return (
-        <div className="Form-Main-Content">
-            <div className="row">
-                <div className="col-12">
-                    <div className="card">
-                        <div className="card-header">
-                            <h3>
-                                <i className="fas fa-braille me-2"></i>
-                                {vm.formProp.Title}
-                            </h3>
-                        </div>
-                        <div className="card-body">
-                            <div className="row">
-                                <div className="col-12">
-                                    <LoadingErrorHandler isLoading={vm.formProp.IsLoading} errorList={vm.formProp.ErrorList}>
-                                        {props.renderContent(renderProps)}
-                                        {props.renderBeforeToolbar?.(renderProps)}
-                                        {hasToolbar && (
-                                            <>
-                                                <DividerComp></DividerComp>
-                                                <Form_Toolbar action={vm.formProp.Actions!}></Form_Toolbar>
-                                            </>
-                                        )}
-                                        {props.renderAfterToolbar?.(renderProps)}
-                                    </LoadingErrorHandler>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <FormShellComp prop={vm.formProp} basicToolbarButtons={basicToolbarButtons} actionToolbarButtons={actionToolbarButtons}>
+            {props.renderContent(renderProps)}
+        </FormShellComp>
     );
+};
+// #endregion
+
+// #region Private
+/** 建立 FormTemplate 預設基礎工具列。 */
+const buildDefaultBasicToolbarButtons = (actions: ServerFormActions): FormShellToolbarButton[] =>
+{
+    return [
+        { title: "儲存送出", action: actions.Save, disabled: actions.IsSaving },
+        { title: "取消返回", action: actions.Back },
+    ];
 };
 // #endregion

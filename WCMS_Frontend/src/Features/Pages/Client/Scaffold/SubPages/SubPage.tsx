@@ -12,10 +12,12 @@ import { BreadcrumbContext, type BreadcrumbItem } from "@/Features/Pages/Client/
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { useState } from "react";
-import { useLoaderData } from "react-router";
+import { Outlet, useLoaderData } from "react-router";
 import type { ISubPageLoaderData } from "./SubPage_Loader";
 // import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 import "./subpage-content.css";
+import { ThirdMenu_Comp } from "./Module/ThirdMenu/ThirdMenu_Comp";
+import { SubPageShell, type SubPageShellMode } from "./SubPageShell";
 
 // #region Property
 interface ISubPageProps
@@ -32,35 +34,34 @@ interface IContentContainerProps extends ISubPageProps
     bannerInitial: ISubPageLoaderData["bannerInitial"];
 }
 // #endregion
-
-// #region Private
+// #region Public
 export const SubPage = (props: ISubPageProps) =>
 {
-    // 讀取 SSR loader 初始資料
     const data = useLoaderData() as ISubPageLoaderData | undefined;
-
-    // 給 BreadCrumb 與子頁共用的動態 breadcrumb 狀態
     const [items, setItems] = useState<BreadcrumbItem[]>([]);
+    const mode = resolveSubPageShellMode(props.node);
 
     return (
-        <>
-            <BreadcrumbContext.Provider value={{ items, setItems }}>
-                {
-                    /* <div className="container-content">
-                    <Accesskey type="C" lang={props.lang}/>
-                </div> */
-                }
-                <ContentContainer
-                    style={props.style}
-                    lang={props.lang}
-                    site={props.site}
-                    node={props.node}
-                    backHref={props.backHref}
-                    bannerInitial={data?.bannerInitial ?? null}
-                />
-            </BreadcrumbContext.Provider>
-        </>
+        <BreadcrumbContext.Provider value={{ items, setItems }}>
+            <SubPageShell
+                lang={props.lang}
+                mode={mode}
+                topSlot={<TopFrame lang={props.lang} site={props.site} node={props.node} backHref={props.backHref} initialBanner={data?.bannerInitial ?? null} />}
+                leftSlot={<LeftFrame lang={props.lang} site={props.site} node={props.node} />}
+                rightTopSlot={<ThirdMenu_Comp lang={props.lang} site={props.site} node={props.node} />}
+            >
+                <Outlet context={{ lang: props.lang, site: props.site, node: props.node }} />
+            </SubPageShell>
+        </BreadcrumbContext.Provider>
     );
+};
+// #endregion
+
+// #region Private
+const resolveSubPageShellMode = (node: INormNode): SubPageShellMode =>
+{
+    const hasSubMenu = node.pageType === 0 && ((node.level ?? 0) > 0 || (node.children?.length ?? 0) > 0);
+    return hasSubMenu ? "withMenu" : "full";
 };
 const ContentContainer = (props: IContentContainerProps) =>
 {

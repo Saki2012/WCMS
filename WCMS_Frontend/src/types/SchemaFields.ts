@@ -218,6 +218,11 @@ export const CalendarDetailFields = {
   ModifyUser: 'ModifyUser',
   ModifyUserId: 'ModifyUserId',
   _Calendar: '_Calendar',
+  Spec_AcademicYear: 'Spec_AcademicYear',
+  Spec_AcademicYearId: 'Spec_AcademicYearId',
+  Spec_OpenTime: 'Spec_OpenTime',
+  Spec_CloseTime: 'Spec_CloseTime',
+  Spec_ModifyMemo: 'Spec_ModifyMemo',
 } as const;
 
 export type CalendarDetailFieldKey = keyof typeof CalendarDetailFields;
@@ -1156,111 +1161,83 @@ export const SiteViewCountSet_DTOApiResponseFields = {
 
 export type SiteViewCountSet_DTOApiResponseFieldKey = keyof typeof SiteViewCountSet_DTOApiResponseFields;
 
-export const SpecHomePage1821ModelFields = {
+export const SpecCurrentOpenTimeFields = {
+  Date: 'Date',
+  DayOfWeek: 'DayOfWeek',
+  HolidayName: 'HolidayName',
+  Spec_OpenTime: 'Spec_OpenTime',
+  Spec_CloseTime: 'Spec_CloseTime',
+} as const;
+
+export type SpecCurrentOpenTimeFieldKey = keyof typeof SpecCurrentOpenTimeFields;
+
+export const SpecCurrentOpenTime_DTOApiResponseFields = {
+  IsSuccess: 'IsSuccess',
+  SysMessage: 'SysMessage',
+  Data: 'Data',
+} as const;
+
+export type SpecCurrentOpenTime_DTOApiResponseFieldKey = keyof typeof SpecCurrentOpenTime_DTOApiResponseFields;
+
+export const SpecOpenScheduleRuleModelFields = {
   CreateTime: 'CreateTime',
-  CreateUserId: 'CreateUserId',
   CreateUser: 'CreateUser',
+  CreateUserId: 'CreateUserId',
   ModifyTime: 'ModifyTime',
-  ModifyUserId: 'ModifyUserId',
   ModifyUser: 'ModifyUser',
+  ModifyUserId: 'ModifyUserId',
   FormStatus: 'FormStatus',
   DataStatus: 'DataStatus',
   InvalidTime: 'InvalidTime',
+  InvalidUser: 'InvalidUser',
   InvalidUserId: 'InvalidUserId',
   InternalId: 'InternalId',
   OrgLvId: 'OrgLvId',
-  HomePageId: 'HomePageId',
-  Lang: 'Lang',
-  Section3Title: 'Section3Title',
-  Section3SubTitle: 'Section3SubTitle',
-  Card1Title: 'Card1Title',
-  Card1Link: 'Card1Link',
-  Card1Pic: 'Card1Pic',
-  Card1PicId: 'Card1PicId',
-  Card2Title: 'Card2Title',
-  Card2Link: 'Card2Link',
-  Card2Pic: 'Card2Pic',
-  Card2PicId: 'Card2PicId',
-  Section4Title: 'Section4Title',
-  Section4SubTitle: 'Section4SubTitle',
-  LinkOptions: 'LinkOptions',
-  LinkViewMore: 'LinkViewMore',
-  _SpecHomePage1821_Banner: '_SpecHomePage1821_Banner',
-  _SpecHomePage1821_Shortcut: '_SpecHomePage1821_Shortcut',
+  IsIniData: 'IsIniData',
+  Validate_Start: 'Validate_Start',
+  Validate_End: 'Validate_End',
+  AcademicYearId: 'AcademicYearId',
+  AcademicStart: 'AcademicStart',
+  AcademicEnd: 'AcademicEnd',
+  Weekday_OpenTime: 'Weekday_OpenTime',
+  Weekday_CloseTime: 'Weekday_CloseTime',
+  Sat_OpenTime: 'Sat_OpenTime',
+  Sat_CloseTime: 'Sat_CloseTime',
+  Sun_OpenTime: 'Sun_OpenTime',
+  Sun_CloseTime: 'Sun_CloseTime',
+  WinterStart: 'WinterStart',
+  WinterEnd: 'WinterEnd',
+  Winter_Weekday_OpenTime: 'Winter_Weekday_OpenTime',
+  Winter_Weekday_CloseTime: 'Winter_Weekday_CloseTime',
+  Winter_Sat_OpenTime: 'Winter_Sat_OpenTime',
+  Winter_Sat_CloseTime: 'Winter_Sat_CloseTime',
+  Winter_Sun_OpenTime: 'Winter_Sun_OpenTime',
+  Winter_Sun_CloseTime: 'Winter_Sun_CloseTime',
+  SummerStart: 'SummerStart',
+  SummerEnd: 'SummerEnd',
+  Summer_Weekday_OpenTime: 'Summer_Weekday_OpenTime',
+  Summer_Weekday_CloseTime: 'Summer_Weekday_CloseTime',
+  Summer_Sat_OpenTime: 'Summer_Sat_OpenTime',
+  Summer_Sat_CloseTime: 'Summer_Sat_CloseTime',
+  Summer_Sun_OpenTime: 'Summer_Sun_OpenTime',
+  Summer_Sun_CloseTime: 'Summer_Sun_CloseTime',
+  ModifyMemo: 'ModifyMemo',
 } as const;
 
-export type SpecHomePage1821ModelFieldKey = keyof typeof SpecHomePage1821ModelFields;
+export type SpecOpenScheduleRuleModelFieldKey = keyof typeof SpecOpenScheduleRuleModelFields;
 
-export const SpecHomePage1821SetFields = {
-  SpecHomePage1821: 'SpecHomePage1821',
-  SpecHomePage1821_Banner: 'SpecHomePage1821_Banner',
-  SpecHomePage1821_Shortcut: 'SpecHomePage1821_Shortcut',
-  SpecHomePage1821_ShortcutModuleItem: 'SpecHomePage1821_ShortcutModuleItem',
+export const SpecOpenScheduleRuleSetFields = {
+  SpecOpenScheduleRule: 'SpecOpenScheduleRule',
 } as const;
 
-export type SpecHomePage1821SetFieldKey = keyof typeof SpecHomePage1821SetFields;
+export type SpecOpenScheduleRuleSetFieldKey = keyof typeof SpecOpenScheduleRuleSetFields;
 
-export const SpecHomePage1821Set_DTOApiRequestFields = {
+export const SpecOpenScheduleRuleSet_DTOApiRequestFields = {
   InternalId: 'InternalId',
   Data: 'Data',
 } as const;
 
-export type SpecHomePage1821Set_DTOApiRequestFieldKey = keyof typeof SpecHomePage1821Set_DTOApiRequestFields;
-
-export const SpecHomePage1821_BannerFields = {
-  RowState: 'RowState',
-  HomePageId: 'HomePageId',
-  RowId: 'RowId',
-  RowNo: 'RowNo',
-  Title: 'Title',
-  SubTitle: 'SubTitle',
-  BannerFile: 'BannerFile',
-  BannerFileId: 'BannerFileId',
-  BannerFileDescription: 'BannerFileDescription',
-  Link: 'Link',
-  _SpecHomePage1821: '_SpecHomePage1821',
-} as const;
-
-export type SpecHomePage1821_BannerFieldKey = keyof typeof SpecHomePage1821_BannerFields;
-
-export const SpecHomePage1821_ShortcutModuleItemFields = {
-  RowState: 'RowState',
-  HomePageId: 'HomePageId',
-  ParentRowId: 'ParentRowId',
-  RowId: 'RowId',
-  RowNo: 'RowNo',
-  Title: 'Title',
-  SubTitle: 'SubTitle',
-  ModuleType: 'ModuleType',
-  ModuleOptions: 'ModuleOptions',
-  MoreViewLink: 'MoreViewLink',
-  _SpecHomePage1821_Shortcut: '_SpecHomePage1821_Shortcut',
-} as const;
-
-export type SpecHomePage1821_ShortcutModuleItemFieldKey = keyof typeof SpecHomePage1821_ShortcutModuleItemFields;
-
-export const SpecHomePage1821_ShortcutFields = {
-  RowState: 'RowState',
-  HomePageId: 'HomePageId',
-  RowId: 'RowId',
-  RowNo: 'RowNo',
-  ShortcutCode: 'ShortcutCode',
-  Title: 'Title',
-  SubTitle: 'SubTitle',
-  IconFile: 'IconFile',
-  IconFileId: 'IconFileId',
-  IconFileDescription: 'IconFileDescription',
-  ActionType: 'ActionType',
-  ActionValue: 'ActionValue',
-  IsLink: 'IsLink',
-  Link: 'Link',
-  LinkPic: 'LinkPic',
-  LinkPicId: 'LinkPicId',
-  _SpecHomePage1821: '_SpecHomePage1821',
-  _SpecHomePage1821_ShortcutModuleItem: '_SpecHomePage1821_ShortcutModuleItem',
-} as const;
-
-export type SpecHomePage1821_ShortcutFieldKey = keyof typeof SpecHomePage1821_ShortcutFields;
+export type SpecOpenScheduleRuleSet_DTOApiRequestFieldKey = keyof typeof SpecOpenScheduleRuleSet_DTOApiRequestFields;
 
 export const StringApiResponseFields = {
   IsSuccess: 'IsSuccess',
@@ -1600,7 +1577,7 @@ export const PGID = {
     RolePermission: "RolePermission",
     SiteMenu: "SiteMenu",
     SiteViewCount: "SiteViewCount",
-    SpecHomePageApi: "SpecHomePageApi",
+    SpecOpenScheduleRule: "SpecOpenScheduleRule",
     Survey: "Survey",
     SurveySubmission: "SurveySubmission",
     SystemAPI: "SystemAPI",
