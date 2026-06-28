@@ -1,11 +1,13 @@
 import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
+import { getClientSlotPath } from "@/Features/Pages/Client/Scaffold/Slot/Client_SlotPath";
 import { ModuleContent, type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { getFirstNonEmptyText } from "@/SysCore/Utils/Library/LibData";
+import { resolveSpecComponent } from "@/SysCore/Utils/Library/SlotResolver";
 import type { components } from "@/types/api";
 import { PGID } from "@/types/SchemaFields";
 import { type KeyboardEvent, type MouseEvent, useEffect, useMemo, useRef, useState } from "react";
@@ -85,6 +87,11 @@ export interface MaterialFormViewProps extends IMaterialFormProps
 }
 // #endregion
 
+// #region Variable
+/** Material FormView 快取，避免重複解析 Spec View。 */
+let materialFormViewCache: typeof Client_Material_Form_FeatureView | null = null;
+// #endregion
+
 // #region Public
 export const Client_Material_Form_Comp = (props: IMaterialFormProps) =>
 {
@@ -95,7 +102,7 @@ export const Client_Material_Form_Comp = (props: IMaterialFormProps) =>
     const viewCountConfig = useMemo<ModuleViewCountConfig>(() => buildMaterialViewCountConfig(props.site.siteIndex, internalId), [props.site.siteIndex, internalId]);
 
     return (
-        <MaterialFormView
+        <Client_Material_Form
             {...props}
             rawData={vm.rawData}
             isLoading={vm.isLoading}
@@ -105,8 +112,15 @@ export const Client_Material_Form_Comp = (props: IMaterialFormProps) =>
     );
 };
 
-/** 物件明細純渲染 View，正式前台與預覽共用。 */
-export const MaterialFormView = (props: MaterialFormViewProps) =>
+/** 物件明細 FormView Entry，正式前台與 Preview 都從這裡進入。 */
+export const Client_Material_Form = (props: MaterialFormViewProps) =>
+{
+    const FormView = getMaterialFormView();
+    return <FormView {...props} />;
+};
+
+/** 物件明細 Feature 預設 View，只負責輸出 DOM。 */
+const Client_Material_Form_FeatureView = (props: MaterialFormViewProps) =>
 {
     return (
         <ModuleContent nodeTitle={props.node.title} isLoading={props.isLoading} errorList={props.errorList} viewCountConfig={props.viewCountConfig}>
@@ -114,6 +128,25 @@ export const MaterialFormView = (props: MaterialFormViewProps) =>
             <MaterialInfoContent_Comp rawData={props.rawData} lang={props.lang} />
         </ModuleContent>
     );
+};
+// #endregion
+
+// #region Private
+/** 取得 Material FormView，有 Spec View 時使用 Spec，否則使用 Feature View。 */
+const getMaterialFormView = (): typeof Client_Material_Form_FeatureView =>
+{
+    if (materialFormViewCache !== null)
+    {
+        return materialFormViewCache;
+    }
+
+    materialFormViewCache = resolveSpecComponent(
+        getClientSlotPath("Slot_Material_Form_Comp"),
+        Client_Material_Form_FeatureView,
+        ["Client_Material_Form"],
+    );
+
+    return materialFormViewCache;
 };
 // #endregion
 

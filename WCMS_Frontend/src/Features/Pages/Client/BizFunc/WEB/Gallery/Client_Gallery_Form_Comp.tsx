@@ -1,11 +1,13 @@
 import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
+import { getClientSlotPath } from "@/Features/Pages/Client/Scaffold/Slot/Client_SlotPath";
 import { ModuleContent, type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { LibLightBox_Comp, type LibLightBoxSlide } from "@/SysCore/Components/FormField/LibFormField";
 import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LibText } from "@/SysCore/Utils/Library/LibData";
+import { resolveSpecComponent } from "@/SysCore/Utils/Library/SlotResolver";
 import type { components } from "@/types/api";
 import { PGID } from "@/types/SchemaFields";
 import { useCallback, useMemo, useState } from "react";
@@ -27,6 +29,21 @@ interface GalleryFormListProps
     lang: Lang;
     data: GallerySet;
 }
+export interface GalleryFormViewProps extends GalleryFormProps
+{
+    /** 相簿標題 */
+    title: string;
+    /** 相簿資料 */
+    data: GallerySet;
+    /** 分類名稱對照表，提供 Spec View 顯示分類文字 */
+    categoryMap?: Record<string, string>;
+    /** 是否載入中 */
+    isLoading: boolean;
+    /** 錯誤訊息 */
+    errorList: string[];
+    /** 瀏覽次數設定，Preview 不傳入 */
+    viewCountConfig?: ModuleViewCountConfig;
+}
 const emptyData: GallerySet = { Gallery: {}, GalleryInfo: [], GalleryPhotos: [], GalleryPhotosInfo: [] };
 /** 相簿圖片 a11y 文案結構 */
 type GalleryImageA11yText = { openPreview: string; openImage: (title: string) => string; };
@@ -38,9 +55,14 @@ const GALLERY_IMAGE_A11Y_MAP: Partial<Record<Lang, GalleryImageA11yText>> = {
 };
 // #endregion
 
+// #region Variable
+/** Gallery FormView 快取，避免重複解析 Spec View。 */
+let galleryFormViewCache: typeof Client_Gallery_Form_FeatureView | null = null;
+// #endregion
+
 // #region Public
-/** 相簿表單頁面 */
-export const Client_Gallery_Form = (props: GalleryFormProps) =>
+/** 相簿表單完整 Comp，負責資料 Hook，再交給 FormView Entry。 */
+export const Client_Gallery_Form_Comp = (props: GalleryFormProps) =>
 {
     const { internalId } = useParams();
     const safeInternalId = LibText.safeTrim(internalId);
@@ -51,8 +73,31 @@ export const Client_Gallery_Form = (props: GalleryFormProps) =>
         return { mode: "form", contentKey: safeInternalId, request };
     }, [props.site.siteIndex, safeInternalId]);
     return (
-        <ModuleContent nodeTitle={props.node.title} title={vm.title} isLoading={vm.isLoading} errorList={vm.errorList} viewCountConfig={viewCountConfig}>
-            <GalleryPhotoList_Section lang={props.lang} data={vm.data} />
+        <Client_Gallery_Form
+            {...props}
+            title={vm.title}
+            data={vm.data}
+            categoryMap={vm.categoryMap}
+            isLoading={vm.isLoading}
+            errorList={vm.errorList}
+            viewCountConfig={viewCountConfig}
+        />
+    );
+};
+
+/** 相簿表單 FormView Entry，正式前台與 Preview 都從這裡進入。 */
+export const Client_Gallery_Form = (props: GalleryFormViewProps) =>
+{
+    const FormView = getGalleryFormView();
+    return <FormView {...props} />;
+};
+
+/** 相簿表單 Feature 預設 View，只負責輸出 DOM。 */
+const Client_Gallery_Form_FeatureView = (props: GalleryFormViewProps) =>
+{
+    return (
+        <ModuleContent nodeTitle={props.node.title} title={props.title} isLoading={props.isLoading} errorList={props.errorList} viewCountConfig={props.viewCountConfig}>
+            <GalleryPhotoList_Section lang={props.lang} data={props.data} />
         </ModuleContent>
     );
 };
@@ -77,6 +122,22 @@ const buildGallerySlides = (data: GallerySet, lang: Lang): LibLightBoxSlide[] =>
 // #endregion
 
 // #region Private
+/** 取得 Gallery FormView，有 Spec View 時使用 Spec，否則使用 Feature View。 */
+const getGalleryFormView = (): typeof Client_Gallery_Form_FeatureView =>
+{
+    if (galleryFormViewCache !== null)
+    {
+        return galleryFormViewCache;
+    }
+
+    galleryFormViewCache = resolveSpecComponent(
+        getClientSlotPath("Slot_Gallery_Form_Comp"),
+        Client_Gallery_Form_FeatureView,
+        ["Client_Gallery_Form"],
+    );
+
+    return galleryFormViewCache;
+};
 /** 取得相簿圖片 a11y 文案（語系不在表內時，回退到 DefaultLang） */
 const getGalleryImageA11y = (lang?: Lang): GalleryImageA11yText =>
 {

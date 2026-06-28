@@ -11,7 +11,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LibText } from "@/SysCore/Utils/Library/LibData";
-import { resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
+import { resolveSpecComponent, resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
 import type { components } from "@/types/api";
 import { FileArchiveFields, FileArchiveInfoFields } from "@/types/SchemaFields";
 import { useEffect, useMemo, useState } from "react";
@@ -38,6 +38,16 @@ export interface FileArchiveProps
     site: INormSite;
     node: INormNode;
 }
+type FileArchiveListVm = ReturnType<typeof useFileArchiveListData>;
+
+export interface FileArchiveListViewProps extends FileArchiveProps
+{
+    /** Feature List Hook 整理後的檔案清單資料。 */
+    vm: FileArchiveListVm;
+    /** Feature 基礎欄位與 Spec 欄位擴充後的 Grid 設定。 */
+    adjustedGrid: GridProps;
+}
+
 export interface FileArchiveListGridAdjustContext
 {
     lang: Lang;
@@ -52,18 +62,35 @@ export type FileArchiveListGridAdjustSlot = (ctx: FileArchiveListGridAdjustConte
 // #region Initialization
 const extendFileArchiveListGridAdjust: FileArchiveListGridAdjustSlot = (ctx) => ctx.result;
 const resolvedFileArchiveListGridAdjust = resolveSpecFunc<FileArchiveListGridAdjustSlot>(getClientSlotPath("Slot_FileArchive_List_Comp"), extendFileArchiveListGridAdjust, ["extendFileArchiveListGridAdjust"]);
+/** FileArchive List View 快取，避免每次 render 重複解析 Spec View。 */
+let fileArchiveListViewCache: typeof Client_FileArchive_List_FeatureView | null = null;
 // #endregion
 
 // #region Public
-export const Client_FileArchive_List = (props: FileArchiveProps) =>
+/** 檔案下載清單完整 Comp，負責取得 Feature Hook 資料，再交給 List Entry。 */
+export const Client_FileArchive_List_Comp = (props: FileArchiveProps) =>
 {
     const vm = useFileArchiveListData({ lang: props.lang, opts: props.options });
-    const viewCountConfig: ModuleViewCountConfig = { mode: "list" };
     const baseGrid = useMemo(() => buildGridProps(props.lang, vm.list, vm.pageNumber, vm.totalPages, vm.onPageChange), [props.lang, vm.list, vm.pageNumber, vm.totalPages, vm.onPageChange]);
     const adjustedGrid = useMemo(() => SetAdjustFunction(props.lang, baseGrid, vm.list, vm.tagMap), [props.lang, baseGrid, vm.list, vm.tagMap]);
+
+    return <Client_FileArchive_List {...props} vm={vm} adjustedGrid={adjustedGrid} />;
+};
+
+/** 檔案下載 ListView Entry，正式前台統一從這裡進入 Spec / Feature DOM。 */
+export const Client_FileArchive_List = (props: FileArchiveListViewProps) =>
+{
+    const ListView = getFileArchiveListView();
+    return <ListView {...props} />;
+};
+
+/** 檔案下載 Feature 預設 View，只負責輸出 DOM。 */
+const Client_FileArchive_List_FeatureView = (props: FileArchiveListViewProps) =>
+{
+    const viewCountConfig: ModuleViewCountConfig = { mode: "list" };
     return (
-        <ModuleContent nodeTitle={props.node.title} title={""} isLoading={vm.isLoading} errorList={vm.errorList} searchBar={vm.searchBar} paginatorProps={vm.paginatorProps} viewCountConfig={viewCountConfig}>
-            <GridList_Comp key="grid" lang={props.lang} gridData={adjustedGrid} title={props.node.title} />
+        <ModuleContent nodeTitle={props.node.title} title={""} isLoading={props.vm.isLoading} errorList={props.vm.errorList} searchBar={props.vm.searchBar} paginatorProps={props.vm.paginatorProps} viewCountConfig={viewCountConfig}>
+            <GridList_Comp key="grid" lang={props.lang} gridData={props.adjustedGrid} title={props.node.title} />
         </ModuleContent>
     );
 };
@@ -183,6 +210,25 @@ const buildDownloadContent = (fileRows: FileArchiveDetail[], urlRows: FileArchiv
         content = <>{content} {SetUrlIcon(item.Url ?? "", item.UrlDescription ?? "", item.WindowTarget ?? 0)}</>;
     });
     return content;
+};
+// #endregion
+
+// #region Protected
+/** 取得 FileArchive List View，有 Spec View 時使用 Spec，否則使用 Feature View。 */
+const getFileArchiveListView = (): typeof Client_FileArchive_List_FeatureView =>
+{
+    if (fileArchiveListViewCache !== null)
+    {
+        return fileArchiveListViewCache;
+    }
+
+    fileArchiveListViewCache = resolveSpecComponent(
+        getClientSlotPath("Slot_FileArchive_List_Comp"),
+        Client_FileArchive_List_FeatureView,
+        ["Client_FileArchive_List"],
+    );
+
+    return fileArchiveListViewCache;
 };
 // #endregion
 

@@ -1,369 +1,248 @@
 import { TagAdapter } from "@/Features/Hooks/BizFunc/COMM/Tag_Api";
-import { useToast } from "@/Features/Hooks/Common/useToastCenter";
+import type {
+    ServerFormBinding,
+    ServerFormDefaultRawData,
+    ServerFormTemplate,
+} from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
+import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
+import { SpecCategoryAdapter } from "@/SpecFetures/1810/Hooks/WEB/SpecCategory_Api";
+import { SpecUSRAdapter } from "@/SpecFetures/1810/Hooks/WEB/SpecUSR_Api";
 import type { Lang } from "@/SysCore/i18n/lang";
-import type { ApiAdapterError, ApiLoaderData, ServerFormActions } from "@/SysCore/Utils/API/APIAdapter";
-import { ApiDataAdapter } from "@/SysCore/Utils/API/APIAdapter";
-import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
-import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
-import { ApiDataService } from "@/SysCore/Utils/API/APIClient";
-import type { UseFetchDataResult } from "@/SysCore/Utils/API/FetchDataType";
-import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
+import { useEnsureLangDetails } from "@/SysCore/i18n/lang";
+import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { PGID, SpecCategoryDetailModelFields, SpecCategoryModelFields } from "@/types/SchemaFields";
-import type { AxiosInstance } from "axios";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { PGID, SpecUSRDetailFields, SpecUSRPhotoInfoFields, SpecUSRSetFields } from "@/types/SchemaFields";
+import { useMemo } from "react";
 
 // #region Property
 type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"];
 
 type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"];
 
-type SpecCategoryDetail = components["schemas"]["SpecCategoryDetailModel_DTO"];
+type SpecUSRCategorySource = {
+    /** 類別選項 Map。 */
+    map?: Record<string, string>;
 
-type QueryListParam = components["schemas"]["QueryListParam"];
+    /** 類別原始資料。 */
+    data?: SpecCategorySet[];
 
+    /** 類別查詢中。 */
+    isLoading?: boolean;
 
-export type SpecUSRFormRawData = {
-    formData: UseFetchFormDataResult<SpecUSRSet>;
-    categoryMap: Record<string, string>;
-    categoryCols: Record<string, string[]>;
-    tagMap: Record<string, string>;
-    statusOpts: Record<string, string>;
-    actions: ServerFormActions;
+    /** 類別錯誤文字。 */
+    errorText?: string | null;
+
+    /** 類別重新查詢。 */
+    refetch: () => Promise<unknown> | unknown;
 };
 
+type SpecUSRTagSource = {
+    /** 標籤選項 Map。 */
+    map?: Record<string, string>;
+
+    /** 標籤查詢中。 */
+    isLoading?: boolean;
+
+    /** 標籤錯誤文字。 */
+    errorText?: string | null;
+
+    /** 標籤重新查詢。 */
+    refetch: () => Promise<unknown> | unknown;
+};
+
+export interface UseSpecUSRFormTemplateOptions
+{
+    /** 目前語系。 */
+    lang: Lang;
+
+    /** 後台主題設定。 */
+    theme: IBETheme;
+
+    /** 資料 internalId，空值代表新增。 */
+    internalId: string;
+
+    /** 新增模式預設資料。 */
+    emptyData: SpecUSRSet;
+
+    /** Form Template 標準動作設定。 */
+    actionsOpt: SpecUSRFormActionsOpt;
+}
+
+export type SpecUSRFormRefs = {
+    /** 計畫成果類別選項。 */
+    categoryMap: Record<string, string>;
+
+    /** 類別可顯示欄位設定。 */
+    categoryCols: Record<string, string[]>;
+
+    /** 計畫成果標籤選項。 */
+    tagMap: Record<string, string>;
+
+    /** 內容狀態 enum 選項。 */
+    statusOpts: Record<string, string>;
+};
 
 export type SpecUSRFormActionsOpt = {
-    /** 儲存成功後要回到列表（或其他導頁） */
+    /** 儲存/刪除成功後要回到列表。 */
     onBackToList: () => void;
 };
 
-
 export type SpecUSRFormAdapter = {
-    SpecUSR: ReturnType<typeof createSpecUSRAdapter>;
-    SpecCategory: ReturnType<typeof createSpecCategoryAdapter>;
+    /** 計畫成果 API adapter。 */
+    SpecUSR: ReturnType<typeof SpecUSRAdapter>;
+
+    /** 1810 類別 API adapter。 */
+    SpecCategory: ReturnType<typeof SpecCategoryAdapter>;
+
+    /** 標籤 API adapter。 */
     Tag: ReturnType<typeof TagAdapter>;
 };
-
-
-const emptyDisplaySchema: ModelDisplaySchema = { ModelId: "", ModelDisplayName: "", Tables: [] };
-
-
-type JsonValue = string | number | boolean | null | JsonValue[] | { [k: string]: JsonValue; };
 // #endregion
 
 // #region Public
-/** ✅ 主入口：Server SpecUSR Form 的所有「讀取資料」集中在這裡（對標 AnnouncementFormFetchData） */
-export const useSpecUSRFormFetchData = (
-    opt: { lang: Lang; internalId: string; emptyData: SpecUSRSet; actionsOpt: SpecUSRFormActionsOpt; },
-): UseFetchDataResult<SpecUSRFormRawData, SpecUSRFormAdapter> =>
+export const specUSREmptyData: SpecUSRSet = { SpecUSR: {}, SpecUSRDetail: [], SpecUSRFile: [], SpecUSRUrl: [], SpecUSRPhoto: [], SpecUSRPhotoInfo: [] };
+
+/** 建立 SpecUSR Form Template，統一交給 Server_FormTemplate 處理資料流程。 */
+export const useSpecUSRFormTemplate = (
+    opt: UseSpecUSRFormTemplateOptions,
+): ServerFormTemplate<SpecUSRSet, SpecUSRFormAdapter, SpecUSRFormRefs, ServerFormDefaultRawData<SpecUSRSet, SpecUSRFormRefs>, SpecUSRFormActionsOpt> =>
 {
-    const { publish } = useToast();
-    const onError = useCallback((e: ApiAdapterError) =>
+    return useMemo(() =>
     {
-        // 顯示錯誤 toast（對標 Announcement）
-        publish({ level: MessageStatus.Error, title: e.messageText });
-    }, [publish]);
-
-    const adapter = useMemo<SpecUSRFormAdapter>(() =>
-    {
-        // 建立 adapter group（對標 Announcement/SpecResearch）
-        return { SpecUSR: createSpecUSRAdapter(), SpecCategory: createSpecCategoryAdapter(), Tag: TagAdapter() };
-    }, []);
-
-    // 執行 function：主資料（ModelDisplayName + QueryData + editable state）
-    const formData = useSpecUSRFormDataByAdapter(adapter.SpecUSR, opt.internalId, opt.emptyData, onError);
-    const actions = useSpecUSRFormActionsByAdapter(adapter.SpecUSR, opt.internalId, formData.data, opt.actionsOpt);
-
-    // 執行 function：關聯資料（Category / Tag / ContentStatus）
-    const category = useSpecCategoryMapAndCols(adapter.SpecCategory, { progId: PGID.SpecUSR, lang: opt.lang });
-    const tag = adapter.Tag.hooks.useMapByProgId({ progId: PGID.SpecUSR, lang: opt.lang });
-    const statusOpts = useContentStatusOptions();
-
-    // 宣告變數：Loading / Error（給 LoadingErrorHandler）
-    const loadingList = useMemo<boolean[]>(() =>
-    {
-        return [Boolean(formData.isLoading), Boolean(category.isLoading), Boolean(tag.isLoading), Boolean(statusOpts.isLoading)];
-    }, [formData.isLoading, category.isLoading, tag.isLoading, statusOpts.isLoading]);
-
-    const errorList = useMemo<(string | null | undefined)[]>(() =>
-    {
-        return [formData.error, category.errorText, tag.errorText, statusOpts.error];
-    }, [formData.error, category.errorText, tag.errorText, statusOpts.error]);
-
-    // 宣告變數：統一出口
-    const isLoading = useMemo(() => loadingList.some(Boolean), [loadingList]);
-    const errors = useMemo(() => errorList.filter((x): x is string => Boolean(x)), [errorList]);
-
-    const rawData = useMemo<SpecUSRFormRawData>(() =>
-    {
-        return { formData, categoryMap: category.map ?? {}, categoryCols: category.cols ?? {}, tagMap: tag.map ?? {}, statusOpts: statusOpts.data, actions };
-    }, [formData, category.map, category.cols, tag.map, statusOpts.data, actions]);
-
-    const refetchData = useCallback(async () =>
-    {
-        // 只重抓主資料
-        await Promise.resolve(formData.refetch());
-    }, [formData]);
-
-    const refetchRefData = useCallback(async () =>
-    {
-        // 重抓參照資料
-        await Promise.all([category.refetch(), tag.refetch()]);
-    }, [category, tag]);
-
-    // return
-    return { adapter, rawData, isLoading, errors, refetchData, refetchRefData };
+        return {
+            featureKey: PGID.SpecUSR,
+            theme: opt.theme,
+            lang: opt.lang,
+            internalId: opt.internalId,
+            emptyData: opt.emptyData,
+            actionsOpt: opt.actionsOpt,
+            spec: {
+                buildAdapter: buildSpecUSRFormAdapter,
+                selectDataAdapter: adapter => adapter.SpecUSR,
+                buildTitle: buildSpecUSRFormTitle,
+                buildInitialData: buildSpecUSRInitialData,
+                useReferenceData: ctx => useSpecUSRReferenceData({ ...ctx, lang: opt.lang }),
+            },
+        };
+    }, [opt.actionsOpt, opt.emptyData, opt.internalId, opt.lang, opt.theme]);
 };
-
-
-class SpecUSRService extends ApiDataService<SpecUSRSet>
-{
-    // #region Public
-    constructor(apiInstance?: AxiosInstance)
-    {
-        super(PGID.SpecUSR, apiInstance);
-    }
-    // #endregion
-}
-
-
-class SpecCategoryService extends ApiDataService<SpecCategorySet>
-{
-    // #region Public
-    constructor(apiInstance?: AxiosInstance)
-    {
-        super(PGID.SpecCategory, apiInstance);
-    }
-    // #endregion
-}
 // #endregion
 
 // #region Private
-/** ✅ ContentStatus enum options（去掉 key=0） */
+/** 建立 SpecUSR Form 標題，功能名稱優先讀 ModelDisplayName。 */
+const buildSpecUSRFormTitle = (ctx: { mode: "new" | "edit"; displayName: ModelDisplaySchema; }): string =>
+{
+    const modelTitle = ctx.displayName.ModelDisplayName || "計畫成果";
+    return `${ctx.mode === "edit" ? "修改" : "新增"}${modelTitle}`;
+};
+
+/** 建立新增模式的 initial data，避免新增時查詢 __new__。 */
+const buildSpecUSRInitialData = (ctx: { mode: "new" | "edit"; emptyData: SpecUSRSet; }): ApiFormInitial<SpecUSRSet> | undefined =>
+{
+    if (ctx.mode !== "new") return undefined;
+    return { data: { args: "__new__", apiRes: { IsSuccess: true, Data: ctx.emptyData, SysMessage: [] } } };
+};
+
+/** 建立 SpecUSR Form 會使用到的 Adapter 群組。 */
+const buildSpecUSRFormAdapter = (): SpecUSRFormAdapter =>
+{
+    return { SpecUSR: SpecUSRAdapter(), SpecCategory: SpecCategoryAdapter(), Tag: TagAdapter() };
+};
+
+/** 取得 Header / Detail 需要的參照資料。 */
+const useSpecUSRReferenceData = (
+    ctx: { adapter: SpecUSRFormAdapter; binding: ServerFormBinding<SpecUSRSet>; lang: Lang; },
+) =>
+{
+    useEnsureLangDetails(ctx.binding, {
+        headerName: SpecUSRSetFields.SpecUSR,
+        detailName: SpecUSRSetFields.SpecUSRDetail,
+        parentKeys: [SpecUSRDetailFields.USRId],
+        preferFirstLang: ctx.lang,
+    });
+    useEnsureLangDetails(ctx.binding, {
+        headerName: SpecUSRSetFields.SpecUSRPhoto,
+        detailName: SpecUSRSetFields.SpecUSRPhotoInfo,
+        parentKeys: [SpecUSRPhotoInfoFields.USRId, SpecUSRPhotoInfoFields.ParentRowId],
+        preferFirstLang: ctx.lang,
+    });
+
+    const category = ctx.adapter.SpecCategory.hooks.useMapByProgId({ progId: PGID.SpecUSR, lang: ctx.lang });
+    const tag = ctx.adapter.Tag.hooks.useMapByProgId({ progId: PGID.SpecUSR, lang: ctx.lang });
+    const statusOpts = useContentStatusOptions();
+
+    return useMemo(() =>
+    {
+        return buildSpecUSRReferenceResult(category, tag, statusOpts);
+    }, [category, tag, statusOpts]);
+};
+
+/** 建立 SpecUSR 參照資料結果。 */
+const buildSpecUSRReferenceResult = (
+    category: SpecUSRCategorySource,
+    tag: SpecUSRTagSource,
+    statusOpts: { data: Record<string, string>; isLoading: boolean; error: string | null; },
+) =>
+{
+    return {
+        refs: {
+            categoryMap: category.map ?? {},
+            categoryCols: buildCategoryCols(category.data ?? []),
+            tagMap: tag.map ?? {},
+            statusOpts: statusOpts.data,
+        },
+        isLoading: Boolean(category.isLoading || tag.isLoading || statusOpts.isLoading),
+        errors: [category.errorText, tag.errorText, statusOpts.error],
+        refetchRefData: async () =>
+        {
+            await Promise.all([category.refetch(), tag.refetch()]);
+        },
+    };
+};
+
+/** ContentStatus enum options，移除 key=0 的預設值。 */
 const useContentStatusOptions = (): { data: Record<string, string>; isLoading: boolean; error: string | null; } =>
 {
-    // 宣告變數
     const src = useFetchEnumOptions("ContentStatus");
 
-    // return
     return useMemo(() =>
     {
         const raw = src.data ?? {};
         const { ["0"]: _drop, ...rest } = raw;
         return { data: rest as Record<string, string>, isLoading: Boolean(src.isLoading), error: src.error };
-    }, [src.data, src.isLoading, src.error]);
+    }, [src.data, src.error, src.isLoading]);
 };
 
-
-const createSpecUSRAdapter = (apiInstance?: AxiosInstance) =>
+/** SpecCategory.ShowColumnItems 轉成 CategoryId 對顯示欄位清單。 */
+const buildCategoryCols = (rows: SpecCategorySet[]): Record<string, string[]> =>
 {
-    // 建立 adapter（與現有寫法一致，只是移到 hook 檔）
-    const adapter = new ApiDataAdapter<SpecUSRSet, SpecUSRService>((api?: AxiosInstance) => new SpecUSRService(api ?? apiInstance));
-    return adapter;
-};
-
-
-/** ✅ FormData：QueryData + ModelDisplayName（含 editable state） */
-const useSpecUSRFormDataByAdapter = (
-    adapter: ReturnType<typeof createSpecUSRAdapter>,
-    internalId: string,
-    empty: SpecUSRSet,
-    onError: (e: ApiAdapterError) => void,
-): UseFetchFormDataResult<SpecUSRSet> =>
-{
-    // 宣告變數
-    const internalKey = internalId || "__new__";
-    const isNew = useMemo(() => !internalId, [internalId]);
-
-    const initial = useMemo<ApiLoaderData<string, SpecUSRSet> | null>(() =>
+    return rows.reduce<Record<string, string[]>>((map, set) =>
     {
-        // 新建才提供 initial，避免 query "__new__"
-        if (!isNew) return null;
-
-        const apiRes: ApiResponse<SpecUSRSet> = { IsSuccess: true, Data: empty, SysMessage: [] };
-        return { args: internalKey, apiRes };
-    }, [isNew, empty, internalKey]);
-
-    // 執行 function
-    const model = adapter.hooks.useModelDisplayName({ deps: [], onError });
-    const query = adapter.hooks.useQueryData({ internalId: internalKey, initial, deps: [internalKey], onError });
-
-    const [data, setData] = useState<SpecUSRSet>(empty);
-
-    useEffect(() =>
-    {
-        // QueryData 回來後同步到可編輯 state
-        if (query.data) setData(query.data);
-        else if (isNew) setData(empty);
-    }, [query.data, isNew, empty]);
-
-    const refetch = useCallback(() =>
-    {
-        void query.refetch();
-    }, [query]);
-
-    const isLoading = Boolean((!isNew && query.isLoading) || model.isLoading);
-    const error = query.errorText ?? model.errorText ?? null;
-
-    // return（displayName 不可為 null）
-    return { data, setFormData: setData, isLoading, error, refetch, displayName: model.data ?? emptyDisplaySchema };
+        const cateId = set.SpecCategory?.CategoryId ?? "";
+        if (!cateId) return map;
+        map[cateId] = parseShowColumnItems((set.SpecCategory?.ShowColumnItems ?? "").trim());
+        return map;
+    }, {});
 };
 
-
-const useSpecUSRFormActionsByAdapter = (
-    adapter: ReturnType<typeof createSpecUSRAdapter>,
-    internalId: string,
-    formData: SpecUSRSet,
-    opt: SpecUSRFormActionsOpt,
-): ServerFormActions =>
-{
-    // 宣告變數
-    const isNew = useMemo(() => !internalId, [internalId]);
-
-    const actions = adapter.useServerActions({
-        onSuccessByMode: { create: () => opt.onBackToList(), update: () => opt.onBackToList(), delete: () => opt.onBackToList() },
-    });
-
-    // return
-    return {
-        Save: async () =>
-        {
-            if (isNew) await actions.createAsync(formData);
-            else await actions.updateAsync(internalId, formData);
-        },
-        Delete: async () =>
-        {
-            if (!internalId) return;
-            await actions.deleteAsync(internalId);
-        },
-        Back: opt.onBackToList,
-        IsSaving: actions.isSaving,
-    };
-};
-
-
-const createSpecCategoryAdapter = (apiInstance?: AxiosInstance) =>
-{
-    // 建立 adapter
-    return new ApiDataAdapter<SpecCategorySet, SpecCategoryService>((api?: AxiosInstance) => new SpecCategoryService(api ?? apiInstance));
-};
-
-
-const escapeQueryString = (value: string): string =>
-{
-    // 避免 Condition 字串被破壞
-    return value.replace(/"/g, `""`);
-};
-
-
-const buildSpecCategoryQueryByProgIdParam = (opt: { progId: string; lang?: Lang; pageSize?: number; }): QueryListParam =>
-{
-    // 宣告變數
-    const progId = escapeQueryString(opt.progId);
-    const lang = opt.lang ? escapeQueryString(opt.lang) : null;
-
-    const fields: string[] = [
-        SpecCategoryModelFields.CategoryId,
-        SpecCategoryModelFields.ShowColumnItems,
-        `${SpecCategoryModelFields._SpecCategoryDetail}.${SpecCategoryDetailModelFields.Lang}`,
-        `${SpecCategoryModelFields._SpecCategoryDetail}.${SpecCategoryDetailModelFields.CategoryName}`,
-    ];
-
-    const condLang = lang ? ` And ${SpecCategoryModelFields._SpecCategoryDetail}.${SpecCategoryDetailModelFields.Lang} = "${lang}"` : "";
-
-    // return
-    return {
-        Fields: fields,
-        Condition: `${SpecCategoryModelFields.ProgId} = "${progId}"${condLang}`,
-        OrderBy: [{ Col: SpecCategoryModelFields.ModifyTime, Desc: true }],
-        PageNumber: 0,
-        PageSize: opt.pageSize ?? 0,
-    };
-};
-
-
-const useSpecCategoryMapAndCols = (
-    adapter: ReturnType<typeof createSpecCategoryAdapter>,
-    opt: { progId: string; lang: Lang; },
-): { isLoading: boolean; errorText: string | null; refetch: () => Promise<void>; map: Record<string, string>; cols: Record<string, string[]>; } =>
-{
-    // 執行 function
-    const query = adapter.hooks.useQueryList({
-        condition: buildSpecCategoryQueryByProgIdParam({ progId: opt.progId, lang: opt.lang }),
-        deps: [opt.progId, opt.lang],
-    });
-
-    // 宣告變數：CategoryId -> CategoryName
-    const map = useMemo<Record<string, string>>(() =>
-    {
-        const rows = query.data ?? [];
-        return rows.reduce((acc, set) =>
-        {
-            const id = set.SpecCategory?.CategoryId;
-            if (!id) return acc;
-
-            const matched = (set.SpecCategoryDetail ?? []).find((d: SpecCategoryDetail) => d.Lang === opt.lang);
-            acc[String(id)] = matched?.CategoryName ?? "";
-            return acc;
-        }, {} as Record<string, string>);
-    }, [query.data, opt.lang]);
-
-    // 宣告變數：CategoryId -> visible column keys
-    const cols = useMemo<Record<string, string[]>>(() =>
-    {
-        const rows = query.data ?? [];
-        const next: Record<string, string[]> = {};
-
-        rows.forEach((set) =>
-        {
-            const cateId = set.SpecCategory?.CategoryId ?? "";
-            if (!cateId) return;
-
-            const raw = (set.SpecCategory?.ShowColumnItems ?? "").trim();
-            next[cateId] = parseShowColumnItems(raw);
-        });
-
-        return next;
-    }, [query.data]);
-
-    const refetch = useCallback(async () =>
-    {
-        await Promise.resolve(query.refetch());
-    }, [query]);
-
-    // return
-    return { isLoading: Boolean(query.isLoading), errorText: query.errorText ?? null, refetch, map, cols };
-};
-
-
+/** 解析 ShowColumnItems，支援 JSON array / CSV / pipe / semicolon。 */
 const parseShowColumnItems = (raw: string): string[] =>
 {
-    // 宣告變數
     if (!raw) return [];
-
-    // 執行 function：支援 JSON array 或逗號分隔
-    if (raw.startsWith("[") && raw.endsWith("]"))
-    {
-        const arr = safeParseJsonArray(raw);
-        return arr ?? [];
-    }
-
-    // return
-    return raw.split(/[,;|]/g).map((x) => x.trim()).filter(Boolean);
+    if (raw.startsWith("[") && raw.endsWith("]")) return safeParseJsonArray(raw) ?? [];
+    return raw.split(/[,;|]/g).map(item => item.trim()).filter(Boolean);
 };
 
-
+/** 安全解析 JSON array。 */
 const safeParseJsonArray = (raw: string): string[] | null =>
 {
     try
     {
-        const parsed = JSON.parse(raw) as JsonValue;
+        const parsed = JSON.parse(raw) as unknown;
         if (!Array.isArray(parsed)) return null;
-
-        return parsed.filter((x): x is string => typeof x === "string").map((x) => x.trim()).filter(Boolean);
+        return parsed.filter((item): item is string => typeof item === "string").map(item => item.trim()).filter(Boolean);
     } catch
     {
         return null;

@@ -6,30 +6,24 @@ import type { GridProps } from "@/SysCore/Components/Grid/Grid_Data";
 import type { GridRow } from "@/SysCore/Components/Grid/Grid_Data";
 import { LoadingErrorHandler } from "@/SysCore/Components/LoadingErrorHandler";
 import { NewPaginatorCanInputPage } from "@/SysCore/Components/Paginator/Paginator_Comp";
-import { type ISearchQuery, SearchBarComp } from "@/SysCore/Components/SearchBar/SearchBar_Comp";
+import { Client_SearchBar_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/SearchBar/Client_SearchBar_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { formatDate } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { AnnouncementDetailFields, AnnouncementFields } from "@/types/SchemaFields";
-import { useMemo, useState } from "react";
-import { useLocation } from "react-router-dom";
-
+import { useMemo } from "react";
 import { formatCategoriesName } from "@/Features/Hooks/BizFunc/COMM/Category_Api";
 import { formatTagsName } from "@/Features/Hooks/BizFunc/COMM/Tag_Api";
-import type { IAnnouncementListProps } from "@/Features/Pages/Client/BizFunc/WEB/Announcement/Client_Announcement_List_Comp";
-import { useAnnouncementListData } from "@/Features/Pages/Client/BizFunc/WEB/Announcement/Client_Announcement_List_Loader";
+import type { AnnouncementListViewProps } from "@/Features/Pages/Client/BizFunc/WEB/Announcement/Client_Announcement_List_Comp";
 import DefaultEventImg from "@/SpecFetures/1810/Assets/Custom/DefaultEventPic_940x1330.jpg";
 import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 
 // #region Property
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
-
 type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
-
 type TagSet = components["schemas"]["TagSet_DTO"];
-
 interface WithinLastOptions
 {
     /** 當字串沒有時區資訊時，假定的時區位移（單位：分鐘）。預設 0 = 當成 UTC。例：台北(+08:00)傳 480 */
@@ -54,6 +48,54 @@ export const isWithinLastNDaysFromString = (dateTimeStr?: string, n: number = 8,
 
     // return
     return diffMs >= 0 && diffMs <= n * DAY_MS;
+};
+export const Client_Announcement_List = (props: AnnouncementListViewProps) =>
+{
+    // 宣告變數：Feature Comp 已先整理資料，1810 只負責 DOM 輸出。
+    const vm = props.vm;
+
+    const content: React.ReactElement | null = useMemo(() =>
+    {
+        switch (props.options?.Style)
+        {
+            case 3:
+                return (
+                    <QAList_Comp
+                        key="qa"
+                        lang={props.lang}
+                        Theme={props.theme}
+                        rawData={vm.listData}
+                        currentPage={vm.pageNumber}
+                        totalPages={vm.totalPages}
+                        onPageChange={vm.onPageChange}
+                    />
+                );
+            case 2:
+                return (
+                    <PictureList_Comp
+                        key="picture"
+                        lang={props.lang}
+                        Theme={props.theme}
+                        rawData={vm.listData}
+                        categoryData={vm.categoryData}
+                        currentPage={vm.pageNumber}
+                        totalPages={vm.totalPages}
+                        onPageChange={vm.onPageChange}
+                    />
+                );
+            case 1:
+            default:
+                return <GridList_Comp key="grid" lang={props.lang} Theme={props.theme} GridData={props.adjustedGrid} />;
+        }
+    }, [props.options?.Style, props.lang, props.theme, vm.listData, vm.pageNumber, vm.totalPages, vm.onPageChange, vm.categoryData, props.adjustedGrid]);
+
+    // return
+    return (
+        <>
+            {vm.searchBar && <Client_SearchBar_Comp {...vm.searchBar} />}
+            <LoadingErrorHandler isLoading={vm.isLoading} errorList={vm.errorList}>{content}</LoadingErrorHandler>
+        </>
+    );
 };
 // #endregion
 
@@ -110,9 +152,7 @@ const PictureList_Comp = (
                                     <div className="card_titleDiv">
                                         <LangLink to={internalId} className="card_title" title={title}>{title}</LangLink>
                                         <>
-                                            {isWithinLastNDaysFromString(row.Announcement?.Validate_Start ?? "") && (
-                                                <span className="label label-warning">最新</span>
-                                            )}
+                                            {isWithinLastNDaysFromString(row.Announcement?.Validate_Start ?? "") && <span className="label label-warning">最新</span>}
                                             {Boolean((row.Announcement?.ContentStatus ?? 0) & 1) && <span className="label label-success">置頂</span>}
                                             {Boolean((row.Announcement?.ContentStatus ?? 0) & 2) && <span className="label label-danger">熱門</span>}
                                         </>
@@ -139,7 +179,6 @@ const PictureList_Comp = (
         </>
     );
 };
-
 /** 清單式公告 */
 const GridList_Comp = (prop: { lang: Lang; Theme: IFETheme; GridData: GridProps; }) =>
 {
@@ -151,7 +190,6 @@ const GridList_Comp = (prop: { lang: Lang; Theme: IFETheme; GridData: GridProps;
         </>
     );
 };
-
 const QAItem_Comp = (prop: { idx: number; row: AnnouncementSet; lang: Lang; }) =>
 {
     const content = <CmsHtml_Comp html={prop.row.AnnouncementDetail?.find(p => p.Lang === prop.lang)?.Content ?? ""} lang={prop.lang} />;
@@ -170,7 +208,6 @@ const QAItem_Comp = (prop: { idx: number; row: AnnouncementSet; lang: Lang; }) =
         </div>
     );
 };
-
 /** QA列表式 */
 const QAList_Comp = (
     prop: { lang: Lang; Theme: IFETheme; rawData: AnnouncementSet[]; currentPage: number; totalPages: number; onPageChange: (page: number) => void; },
@@ -183,12 +220,14 @@ const QAList_Comp = (
                 <div className="row">
                     <div className="col-12">
                         <div id="accordion" className="FAQBar">
-                            {prop.rawData.map((row, idx) => <QAItem_Comp
-                                key={row.Announcement?.InternalId ?? `${idx}`}
-                                idx={idx}
-                                row={row}
-                                lang={prop.lang}
-                            />)}
+                            {prop.rawData.map((row, idx) => (
+                                <QAItem_Comp
+                                    key={row.Announcement?.InternalId ?? `${idx}`}
+                                    idx={idx}
+                                    row={row}
+                                    lang={prop.lang}
+                                />
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -207,89 +246,6 @@ const QAList_Comp = (
 // #endregion
 
 // #region Private
-export const AnnouncementList = (props: IAnnouncementListProps) =>
-{
-    // 宣告變數
-    const dirUrl = useLocation().pathname.replace(/\/List$/, "");
-    const [queryDraft, setQueryDraft] = useState<ISearchQuery>({});
-    const [query, setQuery] = useState<ISearchQuery>({});
-
-    const effectiveOptions = useMemo(() =>
-    {
-        const searchTag = `${query.tag ?? ""}`.trim();
-        return { ...props.options, Tag: searchTag || props.options?.Tag };
-    }, [props.options, query.tag]);
-
-    // 執行 function：1810 list 資料統一改由 feature 提供
-    const vm = useAnnouncementListData({ lang: props.lang, opts: effectiveOptions, kw: `${query.keyword ?? ""}`.trim() || undefined });
-
-    const tags = useMemo(() =>
-    {
-        return (vm.tagData ?? []).map(t => ({ id: t.TagData?.TagId ?? "", name: t.TagDetail?.find(p => p.Lang === props.lang)?.TagName ?? "" }));
-    }, [vm.tagData, props.lang]);
-
-    const searchSlot = (
-        <SearchBarComp
-            value={queryDraft}
-            tags={tags}
-            onChange={(k, v) => setQueryDraft(prev => ({ ...prev, [k]: v }))}
-            onSubmit={() => setQuery(queryDraft)}
-            onReset={() =>
-            {
-                setQueryDraft({});
-                setQuery({});
-            }}
-        />
-    );
-
-    const adjustedGrid = useMemo(() =>
-    {
-        return SetAdjustFunction(props.lang, dirUrl, vm.gridPropsFromList, vm.listData, vm.categoryData, vm.tagData);
-    }, [props.lang, dirUrl, vm.gridPropsFromList, vm.listData, vm.categoryData, vm.tagData]);
-
-    const content: React.ReactElement | null = useMemo(() =>
-    {
-        switch (props.options?.Style)
-        {
-            case 3:
-                return (
-                    <QAList_Comp
-                        key="qa"
-                        lang={props.lang}
-                        Theme={props.theme}
-                        rawData={vm.listData}
-                        currentPage={vm.pageNumber}
-                        totalPages={vm.totalPages}
-                        onPageChange={vm.onPageChange}
-                    />
-                );
-            case 2:
-                return (
-                    <PictureList_Comp
-                        key="picture"
-                        lang={props.lang}
-                        Theme={props.theme}
-                        rawData={vm.listData}
-                        categoryData={vm.categoryData}
-                        currentPage={vm.pageNumber}
-                        totalPages={vm.totalPages}
-                        onPageChange={vm.onPageChange}
-                    />
-                );
-            case 1:
-            default:
-                return <GridList_Comp key="grid" lang={props.lang} Theme={props.theme} GridData={adjustedGrid} />;
-        }
-    }, [props.options?.Style, props.lang, props.theme, vm.listData, vm.pageNumber, vm.totalPages, vm.onPageChange, vm.categoryData, adjustedGrid]);
-
-    // return
-    return (
-        <>
-            {searchSlot}
-            <LoadingErrorHandler isLoading={vm.isLoading} errorList={vm.errorList}>{content}</LoadingErrorHandler>
-        </>
-    );
-};
 const SetAdjustFunction = (
     lang: Lang,
     dirUrl: string,
@@ -352,7 +308,6 @@ const SetAdjustFunction = (
     // return
     return { ...gridProps, rows: newRows };
 };
-
 const parseDateTimeToEpochMs = (input: string, assumeOffsetMinutes: number = 0): number | null =>
 {
     // 宣告變數

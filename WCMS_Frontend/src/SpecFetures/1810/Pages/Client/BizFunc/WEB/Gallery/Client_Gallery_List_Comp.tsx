@@ -1,5 +1,4 @@
-import type { IGalleryListProps } from "@/Features/Pages/Client/BizFunc/WEB/Gallery/Client_Gallery_List_Comp";
-import { useGalleryListData } from "@/Features/Pages/Client/BizFunc/WEB/Gallery/Client_Gallery_List_Loader";
+import type { GalleryListViewProps } from "@/Features/Pages/Client/BizFunc/WEB/Gallery/Client_Gallery_List_Comp";
 import { Client_SearchBar_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/SearchBar/Client_SearchBar_Comp";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { LoadingErrorHandler } from "@/SysCore/Components/LoadingErrorHandler";
@@ -43,10 +42,10 @@ export interface GridViewContentProps
 // #endregion
 
 // #region Section
-export const GalleryListComp = (props: IGalleryListProps) =>
+export const Client_Gallery_List = (props: GalleryListViewProps) =>
 {
-    // 讀取 feature 收斂後的資料入口
-    const galleryData = useGalleryListData({ lang: props.lang, opts: props.options });
+    // 讀取 Feature Comp 已整理後的資料入口
+    const galleryData = props.vm;
 
     // 整理成 1810 畫面需要的資料
     const compProps = useMemo(() =>

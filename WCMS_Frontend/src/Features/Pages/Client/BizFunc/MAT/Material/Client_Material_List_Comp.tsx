@@ -1,4 +1,5 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
+import { getClientSlotPath } from "@/Features/Pages/Client/Scaffold/Slot/Client_SlotPath";
 import { ModuleContent } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
@@ -6,6 +7,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LibText } from "@/SysCore/Utils/Library/LibData";
+import { resolveSpecComponent } from "@/SysCore/Utils/Library/SlotResolver";
 import { useOptionalSpecAssetUrl } from "@/SysCore/Utils/UI_HookFunc/useOptionalSpecAssetUrl";
 import type { components } from "@/types/api";
 import { type MouseEvent, useEffect, useMemo, useState } from "react";
@@ -22,6 +24,22 @@ export interface IMaterialListProps
     site: INormSite;
     node: INormNode;
 }
+type MaterialListVm = ReturnType<typeof useMaterialListData>;
+
+export interface MaterialListViewProps extends IMaterialListProps
+{
+    /** Feature List Hook 整理後的資料集清單資料。 */
+    vm: MaterialListVm;
+    /** 目前列表基準路徑，供明細連結使用。 */
+    dirUrl: string;
+    /** 資料集標籤 Tab 清單。 */
+    tagList: MaterialTabView[];
+    /** 目前作用中的標籤 Tab。 */
+    activeTabId: string;
+    /** 切換作用中標籤 Tab。 */
+    onTabChange: (id: string) => void;
+}
+
 interface MaterialCardView
 {
     key: string;
@@ -39,6 +57,11 @@ interface MaterialTabView
 }
 // #endregion
 
+// #region Variable
+/** Material List View 快取，避免每次 render 重複解析 Spec View。 */
+let materialListViewCache: typeof Client_Material_List_FeatureView | null = null;
+// #endregion
+
 // #region Public
 /** 物件清單：先顯示 PageManagement 內容，再依照 Prototype 商品卡片結構顯示 Material 資料 */
 export const Client_Material_List_Comp = (props: IMaterialListProps) =>
@@ -51,11 +74,11 @@ export const Client_Material_List_Comp = (props: IMaterialListProps) =>
     );
     const vm = useMaterialListData({ lang: props.lang, opts: listOptions });
     const rawData = vm.rawData;
-    const content = rawData.pageDetail?.Content ?? "";
     const tagList = useMemo<MaterialTabView[]>(
         () => LibText.splitTrimToArray(props.options.TagIds, ",", true).map(id => ({ id, name: rawData.tagMap[id] ?? "" })).filter(tag => Boolean(tag.id && tag.name)),
         [rawData.tagMap, props.options.TagIds],
     );
+
     /** 當後台設定的 Tag 條件改變時，自動切到第一個可用 Tab */
     useEffect(() =>
     {
@@ -64,25 +87,40 @@ export const Client_Material_List_Comp = (props: IMaterialListProps) =>
         setActiveTabId(tagList[0].id);
     }, [tagList, activeTabId]);
 
+    return <Client_Material_List {...props} vm={vm} dirUrl={dirUrl} tagList={tagList} activeTabId={activeTabId} onTabChange={setActiveTabId} />;
+};
+
+/** 資料集 ListView Entry，正式前台統一從這裡進入 Spec / Feature DOM。 */
+export const Client_Material_List = (props: MaterialListViewProps) =>
+{
+    const ListView = getMaterialListView();
+    return <ListView {...props} />;
+};
+
+/** 資料集 Feature 預設 View，只負責輸出 DOM。 */
+const Client_Material_List_FeatureView = (props: MaterialListViewProps) =>
+{
+    const rawData = props.vm.rawData;
+    const content = rawData.pageDetail?.Content ?? "";
     return (
         <ModuleContent
             nodeTitle={props.node.title}
-            isLoading={vm.isLoading}
-            errorList={vm.errorList}
-            paginatorProps={vm.paginatorProps}
+            isLoading={props.vm.isLoading}
+            errorList={props.vm.errorList}
+            paginatorProps={props.vm.paginatorProps}
             viewCountConfig={{ mode: "list" }}
         >
             <CmsHtml_Comp html={content} lang={props.lang} />
             {content && <hr className="hr-my-4" />}
 
             <MaterialCardList_Comp
-                dirUrl={dirUrl}
+                dirUrl={props.dirUrl}
                 lang={props.lang}
                 listData={rawData.listData}
                 categoryMap={rawData.categoryMap}
-                tagList={tagList}
-                activeTabId={activeTabId}
-                onTabChange={setActiveTabId}
+                tagList={props.tagList}
+                activeTabId={props.activeTabId}
+                onTabChange={props.onTabChange}
             />
         </ModuleContent>
     );
@@ -225,6 +263,25 @@ const ProductionTabs = (props: { tagList: MaterialTabView[]; activeTabId: string
             </ul>
         </div>
     );
+};
+// #endregion
+
+// #region Protected
+/** 取得 Material List View，有 Spec View 時使用 Spec，否則使用 Feature View。 */
+const getMaterialListView = (): typeof Client_Material_List_FeatureView =>
+{
+    if (materialListViewCache !== null)
+    {
+        return materialListViewCache;
+    }
+
+    materialListViewCache = resolveSpecComponent(
+        getClientSlotPath("Slot_Material_List_Comp"),
+        Client_Material_List_FeatureView,
+        ["Client_Material_List"],
+    );
+
+    return materialListViewCache;
 };
 // #endregion
 

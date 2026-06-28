@@ -5,18 +5,20 @@
  */
 
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
+import { getClientSlotPath } from "@/Features/Pages/Client/Scaffold/Slot/Client_SlotPath";
 import { LeftFrame } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/LeftFrame/LeftFrame";
 import { RightFrame } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/RightFrame";
 import { TopFrame } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/TopFrame/TopFrame";
 import { BreadcrumbContext, type BreadcrumbItem } from "@/Features/Pages/Client/Scaffold/SubPages/Module/BreadCrumb/BreadCrumb_Comp";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import type { Lang } from "@/SysCore/i18n/lang";
+import { resolveSpecComponent } from "@/SysCore/Utils/Library/SlotResolver";
 import { useState } from "react";
 import { Outlet, useLoaderData } from "react-router";
 import type { ISubPageLoaderData } from "./SubPage_Loader";
 // import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 import "./subpage-content.css";
-import { ThirdMenu_Comp } from "./Module/ThirdMenu/ThirdMenu_Comp";
+import { ThirdMenu_Comp as ThirdMenuBase } from "./Module/ThirdMenu/ThirdMenu_Comp";
 import { SubPageShell, type SubPageShellMode } from "./SubPageShell";
 
 // #region Property
@@ -34,12 +36,18 @@ interface IContentContainerProps extends ISubPageProps
     bannerInitial: ISubPageLoaderData["bannerInitial"];
 }
 // #endregion
+
+// #region Initialization
+/** ThirdMenu slot 快取，避免每次 render 重複解析 Spec View。 */
+let thirdMenuCompCache: typeof ThirdMenuBase | null = null;
+// #endregion
 // #region Public
 export const SubPage = (props: ISubPageProps) =>
 {
     const data = useLoaderData() as ISubPageLoaderData | undefined;
     const [items, setItems] = useState<BreadcrumbItem[]>([]);
     const mode = resolveSubPageShellMode(props.node);
+    const ThirdMenuComp = getThirdMenuComp();
 
     return (
         <BreadcrumbContext.Provider value={{ items, setItems }}>
@@ -48,7 +56,7 @@ export const SubPage = (props: ISubPageProps) =>
                 mode={mode}
                 topSlot={<TopFrame lang={props.lang} site={props.site} node={props.node} backHref={props.backHref} initialBanner={data?.bannerInitial ?? null} />}
                 leftSlot={<LeftFrame lang={props.lang} site={props.site} node={props.node} />}
-                rightTopSlot={<ThirdMenu_Comp lang={props.lang} site={props.site} node={props.node} />}
+                rightTopSlot={<ThirdMenuComp lang={props.lang} site={props.site} node={props.node} />}
             >
                 <Outlet context={{ lang: props.lang, site: props.site, node: props.node }} />
             </SubPageShell>
@@ -58,6 +66,14 @@ export const SubPage = (props: ISubPageProps) =>
 // #endregion
 
 // #region Private
+/** 延後解析 ThirdMenu slot，避免 SSR 初始化階段產生循環載入。 */
+const getThirdMenuComp = () =>
+{
+    thirdMenuCompCache ??= resolveSpecComponent<typeof ThirdMenuBase>(getClientSlotPath("ThirdMenu"), ThirdMenuBase, ["ThirdMenu_Comp", "ThirdMenuComp", "default"]);
+
+    return thirdMenuCompCache;
+};
+
 const resolveSubPageShellMode = (node: INormNode): SubPageShellMode =>
 {
     const hasSubMenu = node.pageType === 0 && ((node.level ?? 0) > 0 || (node.children?.length ?? 0) > 0);

@@ -1,5 +1,6 @@
 import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
+import { getClientSlotPath } from "@/Features/Pages/Client/Scaffold/Slot/Client_SlotPath";
 import { ModuleContent, type ModuleViewCountConfig, type SubTitleProps } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
@@ -7,6 +8,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { formatDate, LibText } from "@/SysCore/Utils/Library/LibData";
+import { resolveSpecComponent } from "@/SysCore/Utils/Library/SlotResolver";
 import type { components } from "@/types/api";
 import { PGID } from "@/types/SchemaFields";
 import { useMemo } from "react";
@@ -35,8 +37,13 @@ export interface AnnouncementFormViewProps extends IAnnouncementFormProps
 }
 // #endregion
 
+// #region Variable
+/** Announcement FormView 快取，避免重複解析 Spec View。 */
+let announcementFormViewCache: typeof Client_Announcement_Form_FeatureView | null = null;
+// #endregion
+
 // #region Public
-export const Client_Announcement_Form = (props: IAnnouncementFormProps) =>
+export const Client_Announcement_Form_Comp = (props: IAnnouncementFormProps) =>
 {
     const { internalId } = useParams();
     const safeInternalId = LibText.safeTrim(internalId);
@@ -49,7 +56,7 @@ export const Client_Announcement_Form = (props: IAnnouncementFormProps) =>
     }, [props.site.siteIndex, safeInternalId]);
 
     return (
-        <AnnouncementFormView
+        <Client_Announcement_Form
             {...props}
             formData={vm.formData}
             categoryNameText={vm.categoryNameText}
@@ -62,8 +69,15 @@ export const Client_Announcement_Form = (props: IAnnouncementFormProps) =>
     );
 };
 
-/** 公告明細純渲染 View，正式前台與預覽共用。 */
-export const AnnouncementFormView = (props: AnnouncementFormViewProps) =>
+/** 公告明細 FormView Entry，正式前台與 Preview 都從這裡進入。 */
+export const Client_Announcement_Form = (props: AnnouncementFormViewProps) =>
+{
+    const FormView = getAnnouncementFormView();
+    return <FormView {...props} />;
+};
+
+/** 公告明細 Feature 預設 View，只負責輸出 DOM。 */
+const Client_Announcement_Form_FeatureView = (props: AnnouncementFormViewProps) =>
 {
     const detail = useMemo(() => props.formData.AnnouncementDetail?.find(p => (p.Lang ?? "").toLowerCase() === props.lang), [
         props.formData.AnnouncementDetail,
@@ -94,6 +108,26 @@ export const AnnouncementFormView = (props: AnnouncementFormViewProps) =>
 // #endregion
 
 // #region Private
+
+/** 取得 Announcement FormView，有 Spec View 時使用 Spec，否則使用 Feature View。 */
+const getAnnouncementFormView = (): typeof Client_Announcement_Form_FeatureView =>
+{
+    if (announcementFormViewCache !== null)
+    {
+        return announcementFormViewCache;
+    }
+
+    announcementFormViewCache = resolveSpecComponent(
+        getClientSlotPath("Slot_Announcement_Form_Comp"),
+        Client_Announcement_Form_FeatureView,
+        ["Client_Announcement_Form"],
+    );
+
+    return announcementFormViewCache;
+};
+
+/** 取得 Announcement FormView，有 Spec View 時使用 Spec，否則使用 Feature View。 */
+
 const Content = (props: { lang: Lang; data: AnnouncementSet; }) =>
 {
     const detail = props.data.AnnouncementDetail?.find(p => (p.Lang ?? "").toLowerCase() === props.lang);

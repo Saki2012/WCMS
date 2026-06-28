@@ -21,17 +21,14 @@ interface ITopFrameProps
 // #endregion
 
 // #region Initialization
-const BreadCrumbComp = resolveSpecComponent<typeof BreadCrumbBase>(
-    getClientSlotPath("BreadCrumb"),
-    BreadCrumbBase,
-    ["BreadCrumb_Comp", "BreadCrumbComp", "default"],
-);
+let breadCrumbCompCache: typeof BreadCrumbBase | null = null;
 // #endregion
 
 // #region Public
 /** 子頁上方區塊，負責顯示 Banner 與可被 Spec 覆寫的 Breadcrumb。 */
 export const TopFrame = (props: ITopFrameProps) =>
 {
+    const BreadCrumbComp = getBreadCrumbComp();
     const breadCrumbProps: BreadCrumbCompProps = {
         lang: props.lang,
         site: props.site,
@@ -50,5 +47,15 @@ export const TopFrame = (props: ITopFrameProps) =>
             </div>
         </>
     );
+};
+// #endregion
+
+// #region Private
+/** 延後解析 Breadcrumb slot，避免 SSR 初始化階段產生循環載入。 */
+const getBreadCrumbComp = () =>
+{
+    breadCrumbCompCache ??= resolveSpecComponent<typeof BreadCrumbBase>(getClientSlotPath("BreadCrumb"), BreadCrumbBase, ["BreadCrumb_Comp", "BreadCrumbComp", "default"]);
+
+    return breadCrumbCompCache;
 };
 // #endregion

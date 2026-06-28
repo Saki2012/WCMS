@@ -14,13 +14,25 @@ interface ILeftFrameProps
 // #endregion
 
 // #region Initialization
-const SubMenuComp = resolveSpecComponent<typeof SubMenuBase>(getClientSlotPath("SubMenu"), SubMenuBase, ["SubMenu_Comp", "SubMenuComp", "default"]);
+let subMenuCompCache: typeof SubMenuBase | null = null;
 // #endregion
 
 // #region Public
 /** 子頁左側選單區塊，負責載入 Feature 或 Spec 專用 SubMenu。 */
 export const LeftFrame = (props: ILeftFrameProps) =>
 {
+    const SubMenuComp = getSubMenuComp();
+
     return <SubMenuComp lang={props.lang} site={props.site} node={props.node} />;
+};
+// #endregion
+
+// #region Private
+/** 延後解析 SubMenu slot，避免 SSR 初始化階段產生循環載入。 */
+const getSubMenuComp = () =>
+{
+    subMenuCompCache ??= resolveSpecComponent<typeof SubMenuBase>(getClientSlotPath("SubMenu"), SubMenuBase, ["SubMenu_Comp", "SubMenuComp", "default"]);
+
+    return subMenuCompCache;
 };
 // #endregion

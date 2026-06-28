@@ -1,6 +1,5 @@
 /**公告清單 */
-import { type IWebResourceListProps } from "@/Features/Pages/Client/BizFunc/WEB/WebResource/Client_WebResource_List_Comp";
-import { useWebResourceListData } from "@/Features/Pages/Client/BizFunc/WEB/WebResource/Client_WebResource_List_Loader";
+import type { WebResourceListViewProps } from "@/Features/Pages/Client/BizFunc/WEB/WebResource/Client_WebResource_List_Comp";
 import { Client_SearchBar_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/SearchBar/Client_SearchBar_Comp";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import DefaultImg from "@/SpecFetures/1810/Assets/Custom/WebResource_Default.png";
@@ -14,7 +13,7 @@ import { LibMedia } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { WebResourceFields, WebResourceInfoFields } from "@/types/SchemaFields";
 import { useEffect, useMemo, useRef } from "react";
-import { isWithinLastNDaysFromString } from "../Announcement/AnnouncementList";
+import { isWithinLastNDaysFromString } from "../Announcement/Client_Announcement_List_Comp";
 
 // #region Property
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
@@ -31,10 +30,10 @@ interface IVenoBoxInstance
 // #endregion
 
 // #region Section
-export const WebResourceListComp = (props: IWebResourceListProps) =>
+export const Client_WebResource_List = (props: WebResourceListViewProps) =>
 {
-    // 宣告變數：直接吃 feature data
-    const getData = useWebResourceListData({ lang: props.lang, opts: props.options });
+    // 宣告變數：Feature Comp 已先整理資料，1810 只負責 DOM 輸出。
+    const getData = props.vm;
     const style = props.options?.Style ?? 1;
 
     const content = useMemo(() =>

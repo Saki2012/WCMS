@@ -1,5 +1,6 @@
-import type { FormCompProp } from "@/Features/Pages/Server/Scaffold/Content/Content_Data";
-import { FormComp } from "@/Features/Pages/Server/Scaffold/Content/Form_Comp";
+import { Server_FormTemplate_Comp } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Comp";
+import type { ServerFormBinding } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
+import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { DividerComp } from "@/SysCore/Components/Divider/Divider_Comp";
 import { useUploadPicture } from "@/SysCore/Components/FormField/FieldComponets/LibPicture_Comp";
@@ -18,18 +19,16 @@ import {
 } from "@/SysCore/Components/FormField/LibFormField";
 import { useSetTableField, useSetTableFileField } from "@/SysCore/Components/FormField/useSetTableField";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
-import { type Lang, LangLabelMap, useEnsureLangDetails } from "@/SysCore/i18n/lang";
+import { type Lang, LangLabelMap } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import type { components } from "@/types/api";
 import { SpecUSRDetailFields, SpecUSRFileFields, SpecUSRModelFields, SpecUSRPhotoFields, SpecUSRPhotoInfoFields, SpecUSRSetFields } from "@/types/SchemaFields";
+import type { ReactNode } from "react";
 import { useCallback, useMemo, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router";
-
-// ✅ provider → adapter：改用你已產生好的 hook
-import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { LibText } from "@/SysCore/Utils/Library/LibData";
-import { useSpecUSRFormFetchData } from "./Server_SpecUSR_Form_Hook";
+import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
+import { specUSREmptyData, useSpecUSRFormTemplate } from "./Server_SpecUSR_Form_Hook";
 
 // #region Property
 type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"];
@@ -38,8 +37,7 @@ type SpecUSRFile = components["schemas"]["SpecUSRFile_DTO"];
 
 type SpecUSRUrl = components["schemas"]["SpecUSRUrl_DTO"];
 
-// ✅ 補齊空資料結構（不影響 DOM，只避免 new 時缺欄位）
-const emptyData: SpecUSRSet = { SpecUSR: {}, SpecUSRDetail: [], SpecUSRFile: [], SpecUSRUrl: [], SpecUSRPhoto: [], SpecUSRPhotoInfo: [] };
+type SpecUSRFormBinding = ServerFormBinding<SpecUSRSet>;
 // #endregion
 
 // #region Public
@@ -51,52 +49,26 @@ export const Server_USRProjFormComp = (prop: { theme: IBETheme; lang: Lang; }) =
     const { internalId } = useParams();
     const navigate = useNavigate();
     const pathname = useLocation().pathname;
-
-    // ✅ BackToList（給 hook actions 用）
     const onBackToList = useCallback(() =>
     {
-        navigate(pathname.replace(/\/Form(\/[^\/]*)?$/, "/List"));
+        navigate(LibRoutePath.buildServerBackToListPath(pathname));
     }, [navigate, pathname]);
-
-    // ✅ provider → adapter：統一由 hook 提供 formData / refs / actions / loading / errors
-    const getData = useSpecUSRFormFetchData({ lang: prop.lang, internalId: (internalId ?? ""), emptyData, actionsOpt: { onBackToList } });
-
-    // ✅ 以下維持原本變數命名，避免影響後續 code（不動 DOM）
-    const formData = getData.rawData.formData;
-    const useCategory = useMemo(() =>
+    const actionsOpt = useMemo(() =>
     {
-        return { data: new Map<string, string>(Object.entries(getData.rawData.categoryMap ?? {})), cols: getData.rawData.categoryCols };
-    }, [getData.rawData.categoryMap, getData.rawData.categoryCols]);
-    const useTag = useMemo(() => ({ data: getData.rawData.tagMap }), [getData.rawData.tagMap]);
-    const status = getData.rawData.statusOpts;
-    const actions = getData.rawData.actions;
+        return { onBackToList };
+    }, [onBackToList]);
+    const template = useSpecUSRFormTemplate({ lang: prop.lang, theme: prop.theme, internalId: internalId ?? "", emptyData: specUSREmptyData, actionsOpt });
 
-    useEnsureLangDetails(formData, {
-        headerName: SpecUSRSetFields.SpecUSR,
-        detailName: SpecUSRSetFields.SpecUSRDetail,
-        parentKeys: [SpecUSRModelFields.USRId],
-        preferFirstLang: prop.lang,
-    });
-    useEnsureLangDetails(formData, {
-        headerName: SpecUSRSetFields.SpecUSRPhoto,
-        detailName: SpecUSRSetFields.SpecUSRPhotoInfo,
-        parentKeys: [SpecUSRPhotoInfoFields.USRId, SpecUSRPhotoInfoFields.ParentRowId],
-        preferFirstLang: prop.lang,
-    });
-
-    const selectedCateId = formData?.data?.SpecUSR?.CategoryId ?? "";
-    const visibleCols = useMemo(() =>
-    {
-        const list = useCategory.cols?.[selectedCateId] ?? [];
-        return new Set(list);
-    }, [selectedCateId, useCategory.cols]);
-
-    const formProp: FormCompProp = { Title: "新增計畫成果版型", Theme: prop.theme, IsLoading: getData.isLoading, ErrorList: getData.errors, Actions: actions };
     return (
-        <FormComp prop={formProp}>
-            <HeaderComp theme={prop.theme} formData={formData} cateOpts={useCategory.data} statusOpts={status} tagOpts={useTag.data} />
-            <DetailComp theme={prop.theme} formData={formData} visibleCols={visibleCols} />
-        </FormComp>
+        <Server_FormTemplate_Comp
+            template={template}
+            renderContent={({ vm }) => (
+                <>
+                    <HeaderComp theme={prop.theme} formData={vm.binding} cateOpts={new Map<string, string>(Object.entries(vm.refs.categoryMap ?? {}))} statusOpts={vm.refs.statusOpts} tagOpts={vm.refs.tagMap} />
+                    <DetailComp theme={prop.theme} formData={vm.binding} visibleCols={getVisibleCols(vm.binding, vm.refs.categoryCols)} />
+                </>
+            )}
+        />
     );
 };
 // #endregion
@@ -105,7 +77,7 @@ export const Server_USRProjFormComp = (prop: { theme: IBETheme; lang: Lang; }) =
 const HeaderComp = (
     prop: {
         theme: IBETheme;
-        formData: UseFetchFormDataResult<SpecUSRSet>;
+        formData: SpecUSRFormBinding;
         cateOpts: Map<string, string>;
         statusOpts: Record<string, string>;
         tagOpts: Record<string, string>;
@@ -121,7 +93,7 @@ const HeaderComp = (
         Style: prop.theme.Tabs,
         item: { Basic: "基本", Status: "狀態", Tags: "標籤", Img: "成果照片", Photo: "相片", System: "系統資訊" },
     };
-    const componentsA: Record<string, React.ReactNode[]> = {
+    const componentsA: Record<string, ReactNode[]> = {
         Basic: [
             <LibDropList
                 Style={prop.theme.DropList}
@@ -174,7 +146,7 @@ const HeaderComp = (
     return <TabContentComp tabInfos={LibTabsPropA} components={componentsA}></TabContentComp>;
 };
 
-const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<SpecUSRSet>; visibleCols: Set<string>; }) =>
+const DetailComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; visibleCols: Set<string>; }) =>
 {
     const setField = useSetTableField<SpecUSRSet>(prop.formData);
     const rawDetails = prop.formData.data?.SpecUSRDetail ?? [];
@@ -218,7 +190,7 @@ const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Sp
     // ★ 2) 產生各欄位的 node 工廠（避免用 function 宣告）
     const makeNodes = (rowKeys: Record<string, any>) =>
     {
-        const nodes: Record<FieldKey, React.ReactNode> = {
+        const nodes: Record<FieldKey, ReactNode> = {
             Year: (
                 <LibTextBox
                     parentClass="col-md-6 col-12"
@@ -389,7 +361,7 @@ const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Sp
     };
 
     // ★ 3) 按可視欄位集合篩選並產生 tabContent
-    const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>((compMap, info, idx) =>
+    const tabContent: Record<string, ReactNode[]> = rawDetails.reduce<Record<string, ReactNode[]>>((compMap, info, idx) =>
     {
         const detailRowId = info.RowId ?? idx;
         const langKey = LibText.Merge("_", true, info.USRId, info.RowId, info.Lang);
@@ -398,7 +370,7 @@ const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Sp
         const showAll = prop.visibleCols.size === 0;
         const list = orderedKeys.filter(k => showAll || prop.visibleCols.has(k)).map(k => nodes[k]);
 
-        const extras: React.ReactNode[] = [
+        const extras: ReactNode[] = [
             <DividerComp key={`${langKey}-div-1`} />,
             <SubFilesComp key={`${langKey}-files`} theme={prop.theme} formData={prop.formData} parentRowId={detailRowId} />,
             <DividerComp key={`${langKey}-div-2`} />,
@@ -413,7 +385,7 @@ const DetailComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Sp
     return <TabContentComp tabInfos={tabInfo} components={tabContent} />;
 };
 
-const SubFilesComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<SpecUSRSet>; parentRowId: number; }) =>
+const SubFilesComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; parentRowId: number; }) =>
 {
     const setFileField = useSetTableFileField(prop.formData);
     const allFiles: SpecUSRFile[] = prop.formData.data?.SpecUSRFile ?? [];
@@ -486,7 +458,7 @@ const SubFilesComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<
     );
 };
 
-const SubUrlComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<SpecUSRSet>; parentRowId: number; }) =>
+const SubUrlComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; parentRowId: number; }) =>
 {
     const allUrls: SpecUSRUrl[] = prop.formData.data?.SpecUSRUrl ?? [];
     const handleChangeAll = (nextAll: SpecUSRUrl[]) =>
@@ -509,7 +481,7 @@ const SubUrlComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Sp
     );
 };
 
-const UploadPicComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<SpecUSRSet>; }) =>
+const UploadPicComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; }) =>
 {
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
     const [isUploading, setIsUploading] = useState(false);
@@ -672,7 +644,7 @@ const UploadPicComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult
     );
 };
 
-const PhotoComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<SpecUSRSet>; }) =>
+const PhotoComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; }) =>
 {
     const setField = useSetTableField<SpecUSRSet>(prop.formData);
     const photos = prop.formData?.data?.SpecUSRPhoto ?? [];
@@ -732,7 +704,7 @@ const PhotoComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<Spe
     return dom;
 };
 
-const PhotoInfoComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult<SpecUSRSet>; parentRowId: number; }) =>
+const PhotoInfoComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; parentRowId: number; }) =>
 {
     const setField = useSetTableField<SpecUSRSet>(prop.formData);
     const rawDetails = prop.formData.data?.SpecUSRPhotoInfo?.filter(p => p.ParentRowId === prop.parentRowId) ?? [];
@@ -745,7 +717,7 @@ const PhotoInfoComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult
             return tabItems;
         }, {}),
     };
-    const tabContent: Record<string, React.ReactNode[]> = rawDetails.reduce<Record<string, React.ReactNode[]>>((compMap, info) =>
+    const tabContent: Record<string, ReactNode[]> = rawDetails.reduce<Record<string, ReactNode[]>>((compMap, info) =>
     {
         const langKey = LibText.Merge("_", true, info.USRId, info.ParentRowId, info.RowId, info.Lang);
         const rowKeys = {
@@ -767,7 +739,14 @@ const PhotoInfoComp = (prop: { theme: IBETheme; formData: UseFetchFormDataResult
 // #endregion
 
 // #region Private
-const usePhotoRemove = (formData: UseFetchFormDataResult<SpecUSRSet>) =>
+/** 依目前選取類別取得 Detail 欄位顯示集合。 */
+const getVisibleCols = (formData: SpecUSRFormBinding, categoryCols: Record<string, string[]>): Set<string> =>
+{
+    const selectedCateId = formData.data?.SpecUSR?.CategoryId ?? "";
+    return new Set(categoryCols?.[selectedCateId] ?? []);
+};
+
+const usePhotoRemove = (formData: SpecUSRFormBinding) =>
 {
     const remove = (usrId?: string, rowId?: number) =>
     {

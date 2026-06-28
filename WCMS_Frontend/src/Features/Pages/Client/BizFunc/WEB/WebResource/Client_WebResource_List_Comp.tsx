@@ -1,4 +1,5 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
+import { getClientSlotPath } from "@/Features/Pages/Client/Scaffold/Slot/Client_SlotPath";
 import { ModuleContent, type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { applyGridColumnWidths, readGridColumnWidths, writeGridColumnWidths } from "@/SysCore/Components/Grid/Grid_ColumnWidth";
@@ -9,6 +10,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { formatDate, LibDate, LibMedia, LibText } from "@/SysCore/Utils/Library/LibData";
+import { resolveSpecComponent } from "@/SysCore/Utils/Library/SlotResolver";
 import type { components } from "@/types/api";
 import { WebResourceFields, WebResourceInfoFields } from "@/types/SchemaFields";
 import { useEffect, useMemo, useState } from "react";
@@ -33,12 +35,37 @@ export interface IWebResourceListProps
     title: string;
 }
 const WEB_RESOURCE_GRID_COLUMN_WIDTH_STORAGE_KEY = "client-webresource-grid-column-widths";
+type WebResourceListVm = ReturnType<typeof useWebResourceListData>;
+export interface WebResourceListViewProps extends IWebResourceListProps
+{
+    /** Feature List Hook 整理後的相關連結清單資料。 */
+    vm: WebResourceListVm;
+}
+// #endregion
+
+// #region Variable
+/** WebResource List View 快取，避免每次 render 重複解析 Spec View。 */
+let webResourceListViewCache: typeof Client_WebResource_List_FeatureView | null = null;
 // #endregion
 
 // #region Public
+/** 相關連結清單完整 Comp，負責取得 Feature Hook 資料，再交給 List Entry。 */
 export const Client_WebResource_List_Comp = (props: IWebResourceListProps) =>
 {
     const vm = useWebResourceListData({ lang: props.lang, opts: props.options });
+    return <Client_WebResource_List {...props} vm={vm} />;
+};
+
+/** 相關連結 ListView Entry，正式前台統一從這裡進入 Spec / Feature DOM。 */
+export const Client_WebResource_List = (props: WebResourceListViewProps) =>
+{
+    const ListView = getWebResourceListView();
+    return <ListView {...props} />;
+};
+
+/** 相關連結 Feature 預設 View，只負責輸出 DOM。 */
+const Client_WebResource_List_FeatureView = (props: WebResourceListViewProps) =>
+{
     const style = props.options?.Style ?? 1;
     const children = useMemo(() =>
     {
@@ -46,18 +73,18 @@ export const Client_WebResource_List_Comp = (props: IWebResourceListProps) =>
         {
             case 7:
             case 2:
-                return <PictureListContent key="pic" lang={props.lang} datas={vm.listData} cateMap={vm.categoryMap} />;
+                return <PictureListContent key="pic" lang={props.lang} datas={props.vm.listData} cateMap={props.vm.categoryMap} />;
             case 1:
             default:
             {
-                const adjustedGrid = SetAdjustFunction(props.lang, vm.gridProps, vm.listData, vm.categoryMap);
+                const adjustedGrid = SetAdjustFunction(props.lang, props.vm.gridProps, props.vm.listData, props.vm.categoryMap);
                 return <GridList_Comp key="grid" lang={props.lang} title={""} GridData={adjustedGrid} />;
             }
         }
-    }, [style, props.lang, vm.gridProps, vm.listData, vm.categoryMap]);
+    }, [style, props.lang, props.vm.gridProps, props.vm.listData, props.vm.categoryMap]);
     const viewCountConfig = useMemo<ModuleViewCountConfig>(() => ({ mode: "list" }), []);
     return (
-        <ModuleContent nodeTitle={props.node.title} isLoading={vm.isLoading} errorList={vm.errorList} searchBar={vm.searchBar} paginatorProps={vm.paginatorProps} viewCountConfig={viewCountConfig}>
+        <ModuleContent nodeTitle={props.node.title} isLoading={props.vm.isLoading} errorList={props.vm.errorList} searchBar={props.vm.searchBar} paginatorProps={props.vm.paginatorProps} viewCountConfig={viewCountConfig}>
             {children}
         </ModuleContent>
     );
@@ -99,6 +126,25 @@ const GridList_Comp = (props: { lang: Lang; title: string; GridData: GridProps; 
             </table>
         </>
     );
+};
+// #endregion
+
+// #region Protected
+/** 取得 WebResource List View，有 Spec View 時使用 Spec，否則使用 Feature View。 */
+const getWebResourceListView = (): typeof Client_WebResource_List_FeatureView =>
+{
+    if (webResourceListViewCache !== null)
+    {
+        return webResourceListViewCache;
+    }
+
+    webResourceListViewCache = resolveSpecComponent(
+        getClientSlotPath("Slot_WebResource_List_Comp"),
+        Client_WebResource_List_FeatureView,
+        ["Client_WebResource_List"],
+    );
+
+    return webResourceListViewCache;
 };
 // #endregion
 

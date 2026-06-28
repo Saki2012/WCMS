@@ -1,6 +1,5 @@
 /**公告清單 */
-import type { FileArchiveProps } from "@/Features/Pages/Client/BizFunc/WEB/FileArchive/Client_FileArchive_List_Comp";
-import { useFileArchiveListData } from "@/Features/Pages/Client/BizFunc/WEB/FileArchive/Client_FileArchive_List_Loader";
+import type { FileArchiveListViewProps } from "@/Features/Pages/Client/BizFunc/WEB/FileArchive/Client_FileArchive_List_Comp";
 import { Client_SearchBar_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/SearchBar/Client_SearchBar_Comp";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
@@ -96,10 +95,10 @@ const buildDownloadContent = (fileRows: FileArchiveDetail[], urlRows: FileArchiv
 // #endregion
 
 // #region Private
-export const FileArchiveList = (props: FileArchiveProps) =>
+export const Client_FileArchive_List = (props: FileArchiveListViewProps) =>
 {
-    // 宣告變數
-    const useFileArchiveList = useFileArchiveListData({ lang: props.lang, opts: props.options });
+    // 宣告變數：Feature Comp 已先整理資料，1810 只負責 DOM 輸出。
+    const useFileArchiveList = props.vm;
 
     const baseGrid = useMemo(() =>
     {

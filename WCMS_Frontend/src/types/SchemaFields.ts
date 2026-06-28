@@ -218,11 +218,6 @@ export const CalendarDetailFields = {
   ModifyUser: 'ModifyUser',
   ModifyUserId: 'ModifyUserId',
   _Calendar: '_Calendar',
-  Spec_AcademicYear: 'Spec_AcademicYear',
-  Spec_AcademicYearId: 'Spec_AcademicYearId',
-  Spec_OpenTime: 'Spec_OpenTime',
-  Spec_CloseTime: 'Spec_CloseTime',
-  Spec_ModifyMemo: 'Spec_ModifyMemo',
 } as const;
 
 export type CalendarDetailFieldKey = keyof typeof CalendarDetailFields;
@@ -1161,83 +1156,241 @@ export const SiteViewCountSet_DTOApiResponseFields = {
 
 export type SiteViewCountSet_DTOApiResponseFieldKey = keyof typeof SiteViewCountSet_DTOApiResponseFields;
 
-export const SpecCurrentOpenTimeFields = {
-  Date: 'Date',
-  DayOfWeek: 'DayOfWeek',
-  HolidayName: 'HolidayName',
-  Spec_OpenTime: 'Spec_OpenTime',
-  Spec_CloseTime: 'Spec_CloseTime',
+export const SpecCategoryDetailModelFields = {
+  CategoryId: 'CategoryId',
+  RowId: 'RowId',
+  Lang: 'Lang',
+  CategoryName: 'CategoryName',
 } as const;
 
-export type SpecCurrentOpenTimeFieldKey = keyof typeof SpecCurrentOpenTimeFields;
+export type SpecCategoryDetailModelFieldKey = keyof typeof SpecCategoryDetailModelFields;
 
-export const SpecCurrentOpenTime_DTOApiResponseFields = {
-  IsSuccess: 'IsSuccess',
-  SysMessage: 'SysMessage',
-  Data: 'Data',
-} as const;
-
-export type SpecCurrentOpenTime_DTOApiResponseFieldKey = keyof typeof SpecCurrentOpenTime_DTOApiResponseFields;
-
-export const SpecOpenScheduleRuleModelFields = {
+export const SpecCategoryModelFields = {
   CreateTime: 'CreateTime',
-  CreateUser: 'CreateUser',
   CreateUserId: 'CreateUserId',
+  CreateUser: 'CreateUser',
   ModifyTime: 'ModifyTime',
-  ModifyUser: 'ModifyUser',
   ModifyUserId: 'ModifyUserId',
+  ModifyUser: 'ModifyUser',
   FormStatus: 'FormStatus',
   DataStatus: 'DataStatus',
   InvalidTime: 'InvalidTime',
-  InvalidUser: 'InvalidUser',
   InvalidUserId: 'InvalidUserId',
   InternalId: 'InternalId',
   OrgLvId: 'OrgLvId',
-  IsIniData: 'IsIniData',
-  Validate_Start: 'Validate_Start',
-  Validate_End: 'Validate_End',
-  AcademicYearId: 'AcademicYearId',
-  AcademicStart: 'AcademicStart',
-  AcademicEnd: 'AcademicEnd',
-  Weekday_OpenTime: 'Weekday_OpenTime',
-  Weekday_CloseTime: 'Weekday_CloseTime',
-  Sat_OpenTime: 'Sat_OpenTime',
-  Sat_CloseTime: 'Sat_CloseTime',
-  Sun_OpenTime: 'Sun_OpenTime',
-  Sun_CloseTime: 'Sun_CloseTime',
-  WinterStart: 'WinterStart',
-  WinterEnd: 'WinterEnd',
-  Winter_Weekday_OpenTime: 'Winter_Weekday_OpenTime',
-  Winter_Weekday_CloseTime: 'Winter_Weekday_CloseTime',
-  Winter_Sat_OpenTime: 'Winter_Sat_OpenTime',
-  Winter_Sat_CloseTime: 'Winter_Sat_CloseTime',
-  Winter_Sun_OpenTime: 'Winter_Sun_OpenTime',
-  Winter_Sun_CloseTime: 'Winter_Sun_CloseTime',
-  SummerStart: 'SummerStart',
-  SummerEnd: 'SummerEnd',
-  Summer_Weekday_OpenTime: 'Summer_Weekday_OpenTime',
-  Summer_Weekday_CloseTime: 'Summer_Weekday_CloseTime',
-  Summer_Sat_OpenTime: 'Summer_Sat_OpenTime',
-  Summer_Sat_CloseTime: 'Summer_Sat_CloseTime',
-  Summer_Sun_OpenTime: 'Summer_Sun_OpenTime',
-  Summer_Sun_CloseTime: 'Summer_Sun_CloseTime',
-  ModifyMemo: 'ModifyMemo',
+  CategoryId: 'CategoryId',
+  ProgId: 'ProgId',
+  ShowColumnItems: 'ShowColumnItems',
+  _SpecCategoryDetail: '_SpecCategoryDetail',
 } as const;
 
-export type SpecOpenScheduleRuleModelFieldKey = keyof typeof SpecOpenScheduleRuleModelFields;
+export type SpecCategoryModelFieldKey = keyof typeof SpecCategoryModelFields;
 
-export const SpecOpenScheduleRuleSetFields = {
-  SpecOpenScheduleRule: 'SpecOpenScheduleRule',
+export const SpecCategorySetFields = {
+  SpecCategory: 'SpecCategory',
+  SpecCategoryDetail: 'SpecCategoryDetail',
 } as const;
 
-export type SpecOpenScheduleRuleSetFieldKey = keyof typeof SpecOpenScheduleRuleSetFields;
+export type SpecCategorySetFieldKey = keyof typeof SpecCategorySetFields;
 
-export const SpecOpenScheduleRuleSet_DTOApiRequestFields = {
+export const SpecCategorySet_DTOApiRequestFields = {
   InternalId: 'InternalId',
   Data: 'Data',
 } as const;
 
-export type SpecOpenScheduleRuleSet_DTOApiRequestFieldKey = keyof typeof SpecOpenScheduleRuleSet_DTOApiRequestFields;
+export type SpecCategorySet_DTOApiRequestFieldKey = keyof typeof SpecCategorySet_DTOApiRequestFields;
+
+export const SpecResearchDetailModelFields = {
+  ResearchId: 'ResearchId',
+  RowId: 'RowId',
+  Lang: 'Lang',
+  Year: 'Year',
+  AcademicYear: 'AcademicYear',
+  Semester: 'Semester',
+  DuringExecution: 'DuringExecution',
+  ContractPeriod: 'ContractPeriod',
+  ClassTime: 'ClassTime',
+  ProjectLeader: 'ProjectLeader',
+  Name: 'Name',
+  TeachingStaffOfOurSchool: 'TeachingStaffOfOurSchool',
+  ApprovalNumber: 'ApprovalNumber',
+  ApprovedAmount: 'ApprovedAmount',
+  College: 'College',
+  Department: 'Department',
+  GraduationDegree: 'GraduationDegree',
+  CooperatingUnits: 'CooperatingUnits',
+  CooperationProject: 'CooperationProject',
+  Courses: 'Courses',
+  ProjectName: 'ProjectName',
+  PaperTitle: 'PaperTitle',
+  Remark: 'Remark',
+  Cohost1: 'Cohost1',
+  Cohost2: 'Cohost2',
+  Commissioned: 'Commissioned',
+  PlanAmount: 'PlanAmount',
+  PlanContent: 'PlanContent',
+  Professor: 'Professor',
+} as const;
+
+export type SpecResearchDetailModelFieldKey = keyof typeof SpecResearchDetailModelFields;
+
+export const SpecResearchModelFields = {
+  CreateTime: 'CreateTime',
+  CreateUserId: 'CreateUserId',
+  CreateUser: 'CreateUser',
+  ModifyTime: 'ModifyTime',
+  ModifyUserId: 'ModifyUserId',
+  ModifyUser: 'ModifyUser',
+  FormStatus: 'FormStatus',
+  DataStatus: 'DataStatus',
+  InvalidTime: 'InvalidTime',
+  InvalidUserId: 'InvalidUserId',
+  InternalId: 'InternalId',
+  OrgLvId: 'OrgLvId',
+  ResearchId: 'ResearchId',
+  CategoryId: 'CategoryId',
+  ContentStatus: 'ContentStatus',
+  Tags: 'Tags',
+  _SpecResearchDetail: '_SpecResearchDetail',
+} as const;
+
+export type SpecResearchModelFieldKey = keyof typeof SpecResearchModelFields;
+
+export const SpecResearchSetFields = {
+  SpecResearch: 'SpecResearch',
+  SpecResearchDetail: 'SpecResearchDetail',
+} as const;
+
+export type SpecResearchSetFieldKey = keyof typeof SpecResearchSetFields;
+
+export const SpecResearchSet_DTOApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type SpecResearchSet_DTOApiRequestFieldKey = keyof typeof SpecResearchSet_DTOApiRequestFields;
+
+export const SpecUSRDetailFields = {
+  USRId: 'USRId',
+  RowId: 'RowId',
+  Lang: 'Lang',
+  Year: 'Year',
+  AcademicYear: 'AcademicYear',
+  Courses: 'Courses',
+  PracticeField: 'PracticeField',
+  ProjectName: 'ProjectName',
+  ExternalCooperationUnit: 'ExternalCooperationUnit',
+  Department: 'Department',
+  DuringExecution: 'DuringExecution',
+  PlanAmount: 'PlanAmount',
+  ExecutionStrategy: 'ExecutionStrategy',
+  ContentIntroduction: 'ContentIntroduction',
+  ProjectConcept: 'ProjectConcept',
+  ProjectHighlights: 'ProjectHighlights',
+  ProjectLeader: 'ProjectLeader',
+  ProjectSubLeader: 'ProjectSubLeader',
+  AttendTeam: 'AttendTeam',
+  Cohost1: 'Cohost1',
+  Cohost2: 'Cohost2',
+  Commissioned: 'Commissioned',
+  Remark: 'Remark',
+  ProjectItem: 'ProjectItem',
+  Url: 'Url',
+  UrlDescription: 'UrlDescription',
+} as const;
+
+export type SpecUSRDetailFieldKey = keyof typeof SpecUSRDetailFields;
+
+export const SpecUSRFileFields = {
+  USRId: 'USRId',
+  ParentRowId: 'ParentRowId',
+  RowId: 'RowId',
+  FileSrc: 'FileSrc',
+  FileSrcId: 'FileSrcId',
+  FileName: 'FileName',
+  _SpecUSRDetail: '_SpecUSRDetail',
+} as const;
+
+export type SpecUSRFileFieldKey = keyof typeof SpecUSRFileFields;
+
+export const SpecUSRModelFields = {
+  CreateTime: 'CreateTime',
+  CreateUserId: 'CreateUserId',
+  CreateUser: 'CreateUser',
+  ModifyTime: 'ModifyTime',
+  ModifyUserId: 'ModifyUserId',
+  ModifyUser: 'ModifyUser',
+  FormStatus: 'FormStatus',
+  DataStatus: 'DataStatus',
+  InvalidTime: 'InvalidTime',
+  InvalidUserId: 'InvalidUserId',
+  InternalId: 'InternalId',
+  OrgLvId: 'OrgLvId',
+  USRId: 'USRId',
+  CategoryId: 'CategoryId',
+  ContentStatus: 'ContentStatus',
+  Tags: 'Tags',
+  Picture: 'Picture',
+  PictureId: 'PictureId',
+  PicDescription: 'PicDescription',
+  _SpecUSRDetail: '_SpecUSRDetail',
+  _SpecUSRPhoto: '_SpecUSRPhoto',
+} as const;
+
+export type SpecUSRModelFieldKey = keyof typeof SpecUSRModelFields;
+
+export const SpecUSRPhotoInfoFields = {
+  USRId: 'USRId',
+  ParentRowId: 'ParentRowId',
+  RowId: 'RowId',
+  Lang: 'Lang',
+  Title: 'Title',
+  _SpecUSRPhoto: '_SpecUSRPhoto',
+} as const;
+
+export type SpecUSRPhotoInfoFieldKey = keyof typeof SpecUSRPhotoInfoFields;
+
+export const SpecUSRPhotoFields = {
+  USRId: 'USRId',
+  RowId: 'RowId',
+  PicSrc: 'PicSrc',
+  PicSrcId: 'PicSrcId',
+  Sort: 'Sort',
+  _SpecUSR: '_SpecUSR',
+  _SpecUSRPhotoInfo: '_SpecUSRPhotoInfo',
+} as const;
+
+export type SpecUSRPhotoFieldKey = keyof typeof SpecUSRPhotoFields;
+
+export const SpecUSRSetFields = {
+  SpecUSR: 'SpecUSR',
+  SpecUSRDetail: 'SpecUSRDetail',
+  SpecUSRPhoto: 'SpecUSRPhoto',
+  SpecUSRPhotoInfo: 'SpecUSRPhotoInfo',
+  SpecUSRFile: 'SpecUSRFile',
+  SpecUSRUrl: 'SpecUSRUrl',
+} as const;
+
+export type SpecUSRSetFieldKey = keyof typeof SpecUSRSetFields;
+
+export const SpecUSRSet_DTOApiRequestFields = {
+  InternalId: 'InternalId',
+  Data: 'Data',
+} as const;
+
+export type SpecUSRSet_DTOApiRequestFieldKey = keyof typeof SpecUSRSet_DTOApiRequestFields;
+
+export const SpecUSRUrlFields = {
+  USRId: 'USRId',
+  ParentRowId: 'ParentRowId',
+  RowId: 'RowId',
+  Url: 'Url',
+  UrlDescription: 'UrlDescription',
+  WindowTarget: 'WindowTarget',
+  _SpecUSRDetail: '_SpecUSRDetail',
+} as const;
+
+export type SpecUSRUrlFieldKey = keyof typeof SpecUSRUrlFields;
 
 export const StringApiResponseFields = {
   IsSuccess: 'IsSuccess',
@@ -1577,7 +1730,9 @@ export const PGID = {
     RolePermission: "RolePermission",
     SiteMenu: "SiteMenu",
     SiteViewCount: "SiteViewCount",
-    SpecOpenScheduleRule: "SpecOpenScheduleRule",
+    SpecCategory: "SpecCategory",
+    SpecResearch: "SpecResearch",
+    SpecUSR: "SpecUSR",
     Survey: "Survey",
     SurveySubmission: "SurveySubmission",
     SystemAPI: "SystemAPI",

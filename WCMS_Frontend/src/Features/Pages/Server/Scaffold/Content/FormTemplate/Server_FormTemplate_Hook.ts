@@ -16,10 +16,13 @@ import type {
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 // #region Property
-export type ServerFormBinding<TSet> = UseFetchFormDataResult<TSet>;
+export type ServerFormBinding<TSet> = UseFetchFormDataResult<TSet> & {
+    /** 取得目前最新表單資料，避免 Toolbar action 拿到舊 closure。 */
+    getData: () => TSet;
+};
 
 export type ServerFormRefetch = () => Promise<void>;
 
@@ -483,16 +486,27 @@ const useEditableFormBinding = <TSet>(
     opt: { source: ReturnType<ApiDataHookGroup<TSet>["useQueryFormData"]>; emptyData: TSet; mode: ApiFormMode; },
 ): ServerFormBinding<TSet> =>
 {
-    const [data, setFormData] = useState<TSet>(opt.emptyData);
+    const [data, setData] = useState<TSet>(opt.emptyData);
+    const dataRef = useRef<TSet>(opt.emptyData);
+    const setFormData = useCallback<React.Dispatch<React.SetStateAction<TSet>>>((next) =>
+    {
+        const current = dataRef.current;
+        const nextData = typeof next === "function" ? (next as (prev: TSet) => TSet)(current) : next;
+
+        dataRef.current = nextData;
+        setData(nextData);
+    }, []);
+
     useEffect(() =>
     {
         if (opt.source.data) setFormData(opt.source.data);
         else if (opt.mode === "new") setFormData(opt.emptyData);
-    }, [opt.source.data, opt.mode, opt.emptyData]);
+    }, [opt.source.data, opt.mode, opt.emptyData, setFormData]);
 
     return {
         data,
         setFormData,
+        getData: () => dataRef.current,
         isLoading: opt.source.isLoading,
         error: opt.source.errorText,
         refetch: () => void opt.source.refetchData(),
@@ -543,15 +557,22 @@ const buildDefaultSuccessActions = <TActionOpt>(actionsOpt: TActionOpt): Partial
 };
 
 /** 建立預設 Form Toolbar Actions */
+/** 取得最新表單資料，避免 Toolbar action 使用到舊的 render closure。 */
+const getServerBindingLatestData = <TSet,>(binding: ServerFormBinding<TSet>): TSet =>
+{
+    return binding.getData?.() ?? binding.data;
+};
+
 const useDefaultFormActions = <TSet, TActionOpt>(
     opt: { mode: ApiFormMode; internalId: string; binding: ServerFormBinding<TSet>; serverActions: UseServerActionsResult<TSet>; actionsOpt: TActionOpt; },
 ): ServerFormActions =>
 {
     const save = useCallback(async () =>
     {
-        if (opt.mode === "new") await opt.serverActions.createAsync(opt.binding.data);
-        else await opt.serverActions.updateAsync(opt.internalId, opt.binding.data);
-    }, [opt.mode, opt.internalId, opt.binding.data, opt.serverActions]);
+        const data = getServerBindingLatestData(opt.binding);
+        if (opt.mode === "new") await opt.serverActions.createAsync(data);
+        else await opt.serverActions.updateAsync(opt.internalId, data);
+    }, [opt.mode, opt.internalId, opt.binding, opt.serverActions]);
 
     const deleteData = useCallback(async () =>
     {

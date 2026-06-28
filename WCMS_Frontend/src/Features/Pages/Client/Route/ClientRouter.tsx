@@ -1,5 +1,4 @@
-import { AnnouncementForm, AnnouncementList, FileArchiveList, GalleryListComp, PageManagementForm, SubPage, WebResourceListComp } from "@/Features/Pages/Client/Route/ClientComponentResolver";
-import { type IAnnouncementListOptions, type IFileArchiveOptions, type IGalleryListOptions, type IPageManagementOptions, type IWebResourceListOptions } from "@/Features/Pages/Client/Route/ClientComponentResolver";
+import { SubPage } from "@/Features/Pages/Client/Route/ClientComponentResolver";
 import { Classic_FETheme } from "@/Features/Pages/Client/Theme/ClassicTheme_Clsx";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { IRouteModule } from "@/SysCore/Interface/IBaseRouter";
@@ -12,17 +11,23 @@ import { Client_Material_Form_Comp } from "../BizFunc/MAT/Material/Client_Materi
 import { Client_Material_Form_Loader } from "../BizFunc/MAT/Material/Client_Material_Form_Loader";
 import { Client_Material_List_Comp } from "../BizFunc/MAT/Material/Client_Material_List_Comp";
 import { Client_Material_List_Loader, type IMaterialListOptions } from "../BizFunc/MAT/Material/Client_Material_List_Loader";
+import { Client_Announcement_Form_Comp } from "../BizFunc/WEB/Announcement/Client_Announcement_Form_Comp";
 import { AnnouncementFormLoader } from "../BizFunc/WEB/Announcement/Client_Announcement_Form_Loader";
+import { Client_Announcement_List_Comp, type IAnnouncementListOptions } from "../BizFunc/WEB/Announcement/Client_Announcement_List_Comp";
 import { AnnouncementListLoader } from "../BizFunc/WEB/Announcement/Client_Announcement_List_Loader";
+import { Client_FileArchive_List_Comp, type IFileArchiveOptions } from "../BizFunc/WEB/FileArchive/Client_FileArchive_List_Comp";
 import { Client_FileArchiveList_Loader } from "../BizFunc/WEB/FileArchive/Client_FileArchive_List_Loader";
-import { Client_Gallery_Form } from "../BizFunc/WEB/Gallery/Client_Gallery_Form_Comp";
+import { Client_Gallery_Form_Comp } from "../BizFunc/WEB/Gallery/Client_Gallery_Form_Comp";
 import { Client_Gallery_Form_Loader } from "../BizFunc/WEB/Gallery/Client_Gallery_Form_Loader";
-import { GalleryList_Loader } from "../BizFunc/WEB/Gallery/Client_Gallery_List_Loader";
-import { Client_PageManagement_Form_Loader } from "../BizFunc/WEB/PageManagement/Client_PageManagement_Form_Loader";
+import { Client_Gallery_List_Comp } from "../BizFunc/WEB/Gallery/Client_Gallery_List_Comp";
+import { GalleryList_Loader, type IGalleryListOptions } from "../BizFunc/WEB/Gallery/Client_Gallery_List_Loader";
+import { Client_PageManagement_Form_Comp } from "../BizFunc/WEB/PageManagement/Client_PageManagement_Form_Comp";
+import { Client_PageManagement_Form_Loader, type IPageManagementOptions } from "../BizFunc/WEB/PageManagement/Client_PageManagement_Form_Loader";
 import { Client_Survey_Form_Comp } from "../BizFunc/WEB/Survey/Client_Survey_Form_Comp";
 import { Client_Survey_Form_Loader, type ISurveyOptions } from "../BizFunc/WEB/Survey/Client_Survey_Form_Loader";
-import { Client_Timeline_Form } from "../BizFunc/WEB/Timeline/Client_Timeline_Form_Comp";
+import { Client_Timeline_Form_Comp } from "../BizFunc/WEB/Timeline/Client_Timeline_Form_Comp";
 import { Client_TimelineForm_Loader, type ITimelineOptions } from "../BizFunc/WEB/Timeline/Client_Timeline_Form_Loader";
+import { Client_WebResource_List_Comp, type IWebResourceListOptions } from "../BizFunc/WEB/WebResource/Client_WebResource_List_Comp";
 import { Client_WebResourceList_Loader } from "../BizFunc/WEB/WebResource/Client_WebResource_List_Loader";
 import { loadSitesForRouting, type SiteRoutingInitialState } from "./ClientRouter_Loader";
 import { configureModuleRegistry, createRoutesFromSite, type INormNode, type INormSite, type ModuleEntry } from "./Site-Routing";
@@ -37,7 +42,7 @@ const clientEntries: Record<string, ModuleEntry> = {
         children: (opts, lang, site, node) => [{
             index: true,
             loader: withRequestLang((lang) => Client_PageManagement_Form_Loader({ lang: lang, opts: opts as IPageManagementOptions })),
-            element: <PageManagementForm lang={lang} options={opts as IPageManagementOptions} site={site} node={node} />,
+            element: <Client_PageManagement_Form_Comp lang={lang} options={opts as IPageManagementOptions} site={site} node={node} />,
         }],
     },
     /** 公告模組路由設定。 */
@@ -47,11 +52,11 @@ const clientEntries: Record<string, ModuleEntry> = {
         children: (opts, lang, site, node) => [{
             index: true,
             loader: withRequestLang((lang) => AnnouncementListLoader({ lang, opts: opts as IAnnouncementListOptions })),
-            element: <AnnouncementList theme={Classic_FETheme} lang={lang} options={opts as IAnnouncementListOptions} site={site} node={node} />,
+            element: <Client_Announcement_List_Comp theme={Classic_FETheme} lang={lang} options={opts as IAnnouncementListOptions} site={site} node={node} />,
         }, {
             path: ":internalId",
             loader: withRequestLang((lang) => AnnouncementFormLoader({ lang })),
-            element: <AnnouncementForm site={site} node={node} theme={Classic_FETheme} lang={lang} />,
+            element: <Client_Announcement_Form_Comp site={site} node={node} theme={Classic_FETheme} lang={lang} />,
         }],
     },
     /** 檔案下載模組路由設定。 */
@@ -61,7 +66,7 @@ const clientEntries: Record<string, ModuleEntry> = {
         children: (opts, lang, site, node) => [{
             index: true,
             loader: withRequestLang((lang) => Client_FileArchiveList_Loader({ lang: lang, opts: opts as IFileArchiveOptions })),
-            element: <FileArchiveList theme={Classic_FETheme} lang={lang} options={opts as IFileArchiveOptions} site={site} node={node} />,
+            element: <Client_FileArchive_List_Comp theme={Classic_FETheme} lang={lang} options={opts as IFileArchiveOptions} site={site} node={node} />,
         }],
     },
     /** 相簿模組路由設定。 */
@@ -71,11 +76,11 @@ const clientEntries: Record<string, ModuleEntry> = {
         children: (opts, lang, site, node) => [{
             index: true,
             loader: withRequestLang((lang) => GalleryList_Loader({ lang, opts: opts as IGalleryListOptions })),
-            element: <GalleryListComp node={node} theme={Classic_FETheme} lang={lang} options={opts as IGalleryListOptions} site={site} title={node.title} />,
+            element: <Client_Gallery_List_Comp node={node} theme={Classic_FETheme} lang={lang} options={opts as IGalleryListOptions} site={site} title={node.title} />,
         }, {
             path: ":internalId",
             loader: withRequestLang((lang) => Client_Gallery_Form_Loader({ lang })),
-            element: <Client_Gallery_Form site={site} node={node} theme={Classic_FETheme} lang={lang} />,
+            element: <Client_Gallery_Form_Comp site={site} node={node} theme={Classic_FETheme} lang={lang} />,
         }],
     },
     /** 相關連結模組路由設定。 */
@@ -85,7 +90,7 @@ const clientEntries: Record<string, ModuleEntry> = {
         children: (opts, lang, site, node) => [{
             index: true,
             loader: withRequestLang((lang) => Client_WebResourceList_Loader({ lang: lang, opts: opts as IWebResourceListOptions })),
-            element: <WebResourceListComp site={site} node={node} theme={Classic_FETheme} lang={lang} options={opts as IWebResourceListOptions} title={node.title} />,
+            element: <Client_WebResource_List_Comp site={site} node={node} theme={Classic_FETheme} lang={lang} options={opts as IWebResourceListOptions} title={node.title} />,
         }],
     },
     /** 大事紀模組路由設定。 */
@@ -95,7 +100,7 @@ const clientEntries: Record<string, ModuleEntry> = {
         children: (opts, lang, site, node) => [{
             index: true,
             loader: withRequestLang((lang) => Client_TimelineForm_Loader({ lang: lang, opts: opts as ITimelineOptions })),
-            element: <Client_Timeline_Form lang={lang} options={opts as ITimelineOptions} site={site} node={node} />,
+            element: <Client_Timeline_Form_Comp lang={lang} options={opts as ITimelineOptions} site={site} node={node} />,
         }],
     },
     /** 問卷模組路由設定。 */

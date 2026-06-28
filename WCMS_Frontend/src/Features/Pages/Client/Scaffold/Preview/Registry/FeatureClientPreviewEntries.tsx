@@ -1,7 +1,7 @@
-import { MaterialFormView, type MaterialFormViewData, type MaterialSet } from "@/Features/Pages/Client/BizFunc/MAT/Material/Client_Material_Form_Comp";
-import { AnnouncementFormView } from "@/Features/Pages/Client/BizFunc/WEB/Announcement/Client_Announcement_Form_Comp";
-import { buildPageManagementPreviewViewData, PageManagementFormView, type PageManagementSet } from "@/Features/Pages/Client/BizFunc/WEB/PageManagement/Client_PageManagement_Form_Comp";
-import { TimelineFormView, type TimelineSet } from "@/Features/Pages/Client/BizFunc/WEB/Timeline/Client_Timeline_Form_Comp";
+import { Client_Material_Form, type MaterialFormViewData, type MaterialSet } from "@/Features/Pages/Client/BizFunc/MAT/Material/Client_Material_Form_Comp";
+import { Client_Announcement_Form } from "@/Features/Pages/Client/BizFunc/WEB/Announcement/Client_Announcement_Form_Comp";
+import { buildPageManagementPreviewViewData, Client_PageManagement_Form, type PageManagementSet } from "@/Features/Pages/Client/BizFunc/WEB/PageManagement/Client_PageManagement_Form_Comp";
+import { Client_Timeline_Form, type TimelineSet } from "@/Features/Pages/Client/BizFunc/WEB/Timeline/Client_Timeline_Form_Comp";
 import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
 import { PreviewSubPageFrame } from "@/Features/Pages/Client/Scaffold/Preview/Frame/PreviewSubPageFrame";
 import type { ClientPreviewEntry, ClientPreviewRenderProps } from "@/Features/Pages/Client/Scaffold/Preview/Registry/ClientPreviewRegistry";
@@ -55,7 +55,7 @@ const AnnouncementPreviewContent = (props: { props: ClientPreviewRenderProps; })
 
     return (
         <PreviewSubPageFrame lang={props.props.lang} site={props.props.site} node={announcementPreviewNode}>
-            <AnnouncementFormView
+            <Client_Announcement_Form
                 site={props.props.site}
                 node={announcementPreviewNode}
                 theme={Classic_FETheme}
@@ -71,22 +71,20 @@ const AnnouncementPreviewContent = (props: { props: ClientPreviewRenderProps; })
     );
 };
 
-/** 頁面管理預覽內容，負責把 Preview payload 轉成 PageManagementFormView props。 */
+/** 頁面管理預覽內容，負責把 Preview payload 轉成 FormView Entry props。 */
 const PageManagementPreviewContent = (props: { props: ClientPreviewRenderProps; }) =>
 {
     const formData = resolvePreviewPayload<PageManagementSet>(props.props.payload, pageManagementEmptyPreviewData);
     const viewData = buildPageManagementPreviewViewData(formData, props.props.lang);
+
     return (
         <PreviewSubPageFrame lang={props.props.lang} site={props.props.site} node={pageManagementPreviewNode}>
-            <PageManagementFormView
+            <Client_PageManagement_Form
                 site={props.props.site}
                 node={pageManagementPreviewNode}
                 theme={Classic_FETheme}
                 lang={props.props.lang}
-                title={viewData.title}
-                contentHtml={viewData.contentHtml}
-                isLoading={false}
-                errorList={[]}
+                {...viewData}
             />
         </PreviewSubPageFrame>
     );
@@ -98,7 +96,7 @@ const TimelinePreviewContent = (props: { props: ClientPreviewRenderProps; }) =>
     const formData = resolvePreviewPayload<TimelineSet>(props.props.payload, timelineEmptyPreviewData);
     return (
         <PreviewSubPageFrame lang={props.props.lang} site={props.props.site} node={timelinePreviewNode}>
-            <TimelineFormView
+            <Client_Timeline_Form
                 site={props.props.site}
                 node={timelinePreviewNode}
                 theme={Classic_FETheme}
@@ -120,7 +118,7 @@ const MaterialPreviewContent = (props: { props: ClientPreviewRenderProps; }) =>
 
     return (
         <PreviewSubPageFrame lang={props.props.lang} site={props.props.site} node={materialPreviewNode}>
-            <MaterialFormView
+            <Client_Material_Form
                 site={props.props.site}
                 node={materialPreviewNode}
                 theme={Classic_FETheme}
@@ -138,8 +136,9 @@ const MaterialPreviewContent = (props: { props: ClientPreviewRenderProps; }) =>
 /** 從 Preview payload 取得資料，格式異常時回傳空資料。 */
 const resolvePreviewPayload = <TData,>(payload: unknown, fallbackData: TData): TData =>
 {
-    if (!payload || typeof payload !== "object") return fallbackData;
-    return payload as TData;
+    const unwrappedPayload = unwrapPreviewPayload(payload);
+    if (!unwrappedPayload || typeof unwrappedPayload !== "object") return fallbackData;
+    return unwrappedPayload as TData;
 };
 /** 建立 Material 預覽用 rawData，預覽模式不補分類、標籤與動態欄位。 */
 const buildMaterialPreviewRawData = (payload: MaterialPreviewPayload): MaterialFormViewData =>
@@ -170,8 +169,10 @@ const buildPreviewNode = (title: string, progId: PGID): INormNode =>
 /** 解析公告 Preview payload，並保留舊版直接傳 AnnouncementSet 的相容性。 */
 const resolveAnnouncementPreviewPayload = (payload: unknown): AnnouncementPreviewPayload =>
 {
-    if (!payload || typeof payload !== "object") return { formData: announcementEmptyPreviewData };
-    const previewPayload = payload as Partial<AnnouncementPreviewPayload>;
+    const unwrappedPayload = unwrapPreviewPayload(payload);
+    if (!unwrappedPayload || typeof unwrappedPayload !== "object") return { formData: announcementEmptyPreviewData };
+
+    const previewPayload = unwrappedPayload as Partial<AnnouncementPreviewPayload>;
     if (previewPayload.formData)
     {
         return {
@@ -180,7 +181,22 @@ const resolveAnnouncementPreviewPayload = (payload: unknown): AnnouncementPrevie
             tagNameText: previewPayload.tagNameText ?? "",
         };
     }
-    return { formData: resolvePreviewPayload<AnnouncementSet>(payload, announcementEmptyPreviewData) };
+
+    return { formData: resolvePreviewPayload<AnnouncementSet>(unwrappedPayload, announcementEmptyPreviewData) };
+};
+
+/** 解開可能被外層 Preview message 包住的 payload。 */
+const unwrapPreviewPayload = (payload: unknown): unknown =>
+{
+    if (!payload || typeof payload !== "object") return payload;
+
+    const message = payload as { type?: unknown; payload?: unknown; };
+    if (message.type === "wcms:preview" && "payload" in message)
+    {
+        return unwrapPreviewPayload(message.payload);
+    }
+
+    return payload;
 };
 const announcementEmptyPreviewData: AnnouncementSet = { Announcement: {}, AnnouncementDetail: [], AnnouncementDetailFile: [] };
 const pageManagementEmptyPreviewData: PageManagementSet = { PageManagement: {}, PageManagementDetail: [] };

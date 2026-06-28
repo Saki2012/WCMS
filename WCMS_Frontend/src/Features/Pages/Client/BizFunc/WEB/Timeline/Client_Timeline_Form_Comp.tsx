@@ -1,9 +1,11 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
+import { getClientSlotPath } from "@/Features/Pages/Client/Scaffold/Slot/Client_SlotPath";
 import { ModuleContent } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LibDate, LibText } from "@/SysCore/Utils/Library/LibData";
+import { resolveSpecComponent } from "@/SysCore/Utils/Library/SlotResolver";
 import type { components } from "@/types/api";
 import { useMemo } from "react";
 import { type ITimelineOptions, useTimelineFormData } from "./Client_Timeline_Form_Loader";
@@ -51,15 +53,20 @@ interface ITimelineYearBlockVm
 }
 // #endregion
 
+// #region Variable
+/** Timeline FormView 快取，避免重複解析 Spec View。 */
+let timelineFormViewCache: typeof Client_Timeline_Form_FeatureView | null = null;
+// #endregion
+
 // #region Public
-/** Timeline 前台 Form，資料流程統一走 Client_DataQueryTemplate。 */
-export const Client_Timeline_Form = (props: ITimelineFormProps) =>
+/** Timeline 前台完整 Comp，資料流程統一走 Client_DataQueryTemplate。 */
+export const Client_Timeline_Form_Comp = (props: ITimelineFormProps) =>
 {
     const vm = useTimelineFormData({ lang: props.lang, opts: props.options });
     const title = useMemo(() => vm.title || props.node.title, [vm.title, props.node.title]);
 
     return (
-        <TimelineFormView
+        <Client_Timeline_Form
             {...props}
             title={title}
             listData={vm.listData}
@@ -70,8 +77,15 @@ export const Client_Timeline_Form = (props: ITimelineFormProps) =>
     );
 };
 
-/** Timeline 純渲染 View，正式前台與預覽共用。 */
-export const TimelineFormView = (props: TimelineFormViewProps) =>
+/** Timeline FormView Entry，正式前台與 Preview 都從這裡進入。 */
+export const Client_Timeline_Form = (props: TimelineFormViewProps) =>
+{
+    const FormView = getTimelineFormView();
+    return <FormView {...props} />;
+};
+
+/** Timeline Feature 預設 View，只負責輸出 DOM。 */
+const Client_Timeline_Form_FeatureView = (props: TimelineFormViewProps) =>
 {
     const blocks = useMemo(() => buildTimelineBlocksFromList(props.listData, props.lang, props.isDesc), [
         props.listData,
@@ -170,6 +184,24 @@ const buildTimelineBlocksFromList = (listData: TimelineSet[], lang: Lang, isDesc
 // #endregion
 
 // #region Private
+/** 取得 Timeline FormView，有 Spec View 時使用 Spec，否則使用 Feature View。 */
+const getTimelineFormView = (): typeof Client_Timeline_Form_FeatureView =>
+{
+    if (timelineFormViewCache !== null)
+    {
+        return timelineFormViewCache;
+    }
+
+    timelineFormViewCache = resolveSpecComponent(
+        getClientSlotPath("Slot_Timeline_Form_Comp"),
+        Client_Timeline_Form_FeatureView,
+        ["Client_Timeline_Form"],
+    );
+
+    return timelineFormViewCache;
+};
+/** 取得 Timeline FormView，有 Spec View 時使用 Spec，否則使用 Feature View。 */
+
 /** 解析年份文字 */
 const resolveYearText = (date: TimelineItem["Date"]): string =>
 {

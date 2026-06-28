@@ -13,7 +13,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { formatDate, LibDate, LibText } from "@/SysCore/Utils/Library/LibData";
-import { resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
+import { resolveSpecComponent, resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
 import { useOptionalSpecAssetUrl } from "@/SysCore/Utils/UI_HookFunc/useOptionalSpecAssetUrl";
 import type { components } from "@/types/api";
 import { AnnouncementDetailFields, AnnouncementFields } from "@/types/SchemaFields";
@@ -41,6 +41,18 @@ export interface IAnnouncementListProps
 }
 type NativeMouseEventWithStopImmediate = MouseEvent & { stopImmediatePropagation?: () => void; };
 const ANNOUNCEMENT_GRID_COLUMN_WIDTH_STORAGE_KEY = "client-announcement-grid-column-widths";
+type AnnouncementListVm = ReturnType<typeof useAnnouncementListData>;
+
+export interface AnnouncementListViewProps extends IAnnouncementListProps
+{
+    /** 目前列表基準路徑，供明細連結使用。 */
+    dirUrl: string;
+    /** Feature List Hook 整理後的公告清單資料。 */
+    vm: AnnouncementListVm;
+    /** Feature 基礎欄位與 Spec 欄位擴充後的 Grid 設定。 */
+    adjustedGrid: GridProps;
+}
+
 export interface AnnouncementListGridContext
 {
     lang: Lang;
@@ -70,10 +82,13 @@ export interface AnnouncementListGridSpecSlot
 // #region Initialization
 const extendAnnouncementListGridSpec: AnnouncementListGridSpecSlot = {};
 const resolvedAnnouncementListGridSpec = resolveSpecFunc<AnnouncementListGridSpecSlot>(getClientSlotPath("Slot_Announcement_List_Comp"), extendAnnouncementListGridSpec, ["extendAnnouncementListGridSpec"]);
+/** Announcement List View 快取，避免每次 render 重複解析 Spec View。 */
+let announcementListViewCache: typeof Client_Announcement_List_FeatureView | null = null;
 // #endregion
 
 // #region Public
-export const Client_Announcement_List = (props: IAnnouncementListProps) =>
+/** 公告清單完整 Comp，負責取得 Feature Hook 資料，再交給 List Entry。 */
+export const Client_Announcement_List_Comp = (props: IAnnouncementListProps) =>
 {
     const dirUrl = useLocation().pathname.replace(/\/List$/, "");
     const vm = useAnnouncementListData({ lang: props.lang, opts: props.options });
@@ -88,29 +103,44 @@ export const Client_Announcement_List = (props: IAnnouncementListProps) =>
             tagData: vm.tagData,
         });
     }, [props.lang, dirUrl, vm.gridPropsFromList, vm.listData, vm.categoryData, vm.tagData]);
+
+    return <Client_Announcement_List {...props} dirUrl={dirUrl} vm={vm} adjustedGrid={adjustedGrid} />;
+};
+
+/** 公告清單 ListView Entry，正式前台統一從這裡進入 Spec / Feature DOM。 */
+export const Client_Announcement_List = (props: AnnouncementListViewProps) =>
+{
+    const ListView = getAnnouncementListView();
+    return <ListView {...props} />;
+};
+
+/** 公告清單 Feature 預設 View，只負責輸出 DOM。 */
+const Client_Announcement_List_FeatureView = (props: AnnouncementListViewProps) =>
+{
     const children = useMemo(() =>
     {
         switch (props.options?.Style)
         {
             case 8:
-                return <TimelineSlider dirUrl={dirUrl} lang={props.lang} data={vm.listData} />;
+                return <TimelineSlider dirUrl={props.dirUrl} lang={props.lang} data={props.vm.listData} />;
             case 3:
-                return <QAList_Comp lang={props.lang} gridData={vm.listData} currentPage={vm.pageNumber} pageSize={vm.pageSize} />;
+                return <QAList_Comp lang={props.lang} gridData={props.vm.listData} currentPage={props.vm.pageNumber} pageSize={props.vm.pageSize} />;
             case 2:
-                return <PictureList_Row_Comp dirUrl={dirUrl} lang={props.lang} gridData={vm.listData} categoryData={vm.categoryData} />;
+                return <PictureList_Row_Comp dirUrl={props.dirUrl} lang={props.lang} gridData={props.vm.listData} categoryData={props.vm.categoryData} />;
             case 1:
-                return <GridList_Comp key={`grid-${props.lang}`} lang={props.lang} gridData={adjustedGrid} title={props.node.title} />;
+                return <GridList_Comp key={`grid-${props.lang}`} lang={props.lang} gridData={props.adjustedGrid} title={props.node.title} />;
             default:
                 return null;
         }
-    }, [props.options?.Style, dirUrl, props.lang, props.node.title, vm.listData, vm.pageNumber, vm.pageSize, vm.categoryData, adjustedGrid]);
+    }, [props.options?.Style, props.dirUrl, props.lang, props.node.title, props.vm.listData, props.vm.pageNumber, props.vm.pageSize, props.vm.categoryData, props.adjustedGrid]);
+
     return (
         <ModuleContent
             nodeTitle={props.node.title}
-            isLoading={vm.isLoading}
-            errorList={vm.errorList}
-            paginatorProps={vm.paginatorProps}
-            searchBar={vm.searchBar}
+            isLoading={props.vm.isLoading}
+            errorList={props.vm.errorList}
+            paginatorProps={props.vm.paginatorProps}
+            searchBar={props.vm.searchBar}
             viewCountConfig={{ mode: "list" }}
         >
             {children}
@@ -512,6 +542,25 @@ const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementS
             </div>
         </div>
     );
+};
+// #endregion
+
+// #region Protected
+/** 取得 Announcement List View，有 Spec View 時使用 Spec，否則使用 Feature View。 */
+const getAnnouncementListView = (): typeof Client_Announcement_List_FeatureView =>
+{
+    if (announcementListViewCache !== null)
+    {
+        return announcementListViewCache;
+    }
+
+    announcementListViewCache = resolveSpecComponent(
+        getClientSlotPath("Slot_Announcement_List_Comp"),
+        Client_Announcement_List_FeatureView,
+        ["Client_Announcement_List"],
+    );
+
+    return announcementListViewCache;
 };
 // #endregion
 

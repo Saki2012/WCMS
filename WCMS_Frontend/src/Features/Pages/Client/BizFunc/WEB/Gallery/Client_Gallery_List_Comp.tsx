@@ -1,9 +1,11 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
+import { getClientSlotPath } from "@/Features/Pages/Client/Scaffold/Slot/Client_SlotPath";
 import { ModuleContent, type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import { resolveSpecComponent } from "@/SysCore/Utils/Library/SlotResolver";
 import { formatDate, splitTrimToArray } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { useMemo } from "react";
@@ -21,6 +23,14 @@ export interface IGalleryListProps
     options?: IGalleryListOptions;
     title: string;
 }
+type GalleryListVm = ReturnType<typeof useGalleryListData>;
+
+export interface GalleryListViewProps extends IGalleryListProps
+{
+    /** Feature List Hook 整理後的相簿清單資料。 */
+    vm: GalleryListVm;
+}
+
 interface GalleryCardViewModel
 {
     title: string;
@@ -34,14 +44,33 @@ interface GalleryCardViewModel
 }
 // #endregion
 
+// #region Variable
+/** Gallery List View 快取，避免每次 render 重複解析 Spec View。 */
+let galleryListViewCache: typeof Client_Gallery_List_FeatureView | null = null;
+// #endregion
+
 // #region Public
-export const Client_Gallery_List = (props: IGalleryListProps) =>
+/** 相簿清單完整 Comp，負責取得 Feature Hook 資料，再交給 List Entry。 */
+export const Client_Gallery_List_Comp = (props: IGalleryListProps) =>
 {
     const vm = useGalleryListData({ lang: props.lang, opts: props.options });
+    return <Client_Gallery_List {...props} vm={vm} />;
+};
+
+/** 相簿清單 ListView Entry，正式前台統一從這裡進入 Spec / Feature DOM。 */
+export const Client_Gallery_List = (props: GalleryListViewProps) =>
+{
+    const ListView = getGalleryListView();
+    return <ListView {...props} />;
+};
+
+/** 相簿清單 Feature 預設 View，只負責輸出 DOM。 */
+const Client_Gallery_List_FeatureView = (props: GalleryListViewProps) =>
+{
     const viewCountConfig = useMemo<ModuleViewCountConfig>(() => ({ mode: "list" }), []);
     return (
-        <ModuleContent nodeTitle={props.node.title} title={""} isLoading={vm.isLoading} errorList={vm.errorList} searchBar={vm.searchBar} paginatorProps={vm.paginatorProps} viewCountConfig={viewCountConfig}>
-            <GallerySection lang={props.lang} data={vm.list} categoryMap={vm.categoryMap} />
+        <ModuleContent nodeTitle={props.node.title} title={""} isLoading={props.vm.isLoading} errorList={props.vm.errorList} searchBar={props.vm.searchBar} paginatorProps={props.vm.paginatorProps} viewCountConfig={viewCountConfig}>
+            <GallerySection lang={props.lang} data={props.vm.list} categoryMap={props.vm.categoryMap} />
         </ModuleContent>
     );
 };
@@ -122,6 +151,25 @@ const GalleryStatusLabels = (props: { contentStatus: number; }) =>
             {Boolean(props.contentStatus & 2) && <span className="label label-danger">熱門</span>}
         </div>
     );
+};
+// #endregion
+
+// #region Protected
+/** 取得 Gallery List View，有 Spec View 時使用 Spec，否則使用 Feature View。 */
+const getGalleryListView = (): typeof Client_Gallery_List_FeatureView =>
+{
+    if (galleryListViewCache !== null)
+    {
+        return galleryListViewCache;
+    }
+
+    galleryListViewCache = resolveSpecComponent(
+        getClientSlotPath("Slot_Gallery_List_Comp"),
+        Client_Gallery_List_FeatureView,
+        ["Client_Gallery_List"],
+    );
+
+    return galleryListViewCache;
 };
 // #endregion
 

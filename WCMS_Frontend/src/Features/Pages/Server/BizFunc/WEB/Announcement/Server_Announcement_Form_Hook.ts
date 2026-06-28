@@ -328,7 +328,7 @@ const buildAnnouncementActions = (
     defaultActions: ServerFormActions,
 ): ServerFormActions =>
 {
-    return { ...defaultActions, Preview: () => ctx.actionsOpt.onPreviewFromDto(buildAnnouncementPreviewPayload(ctx.binding.data, ctx.refs)) };
+    return { ...defaultActions, Preview: () => ctx.actionsOpt.onPreviewFromDto(buildAnnouncementPreviewPayload(getLatestAnnouncementFormData(ctx.binding), ctx.refs)) };
 };
 /** ContentStatus enum options（去掉 key=0） */
 const useContentStatusOptions = (): { data: Record<string, string>; isLoading: boolean; error: string | null; } =>
@@ -637,9 +637,27 @@ const buildAnnouncementFileRowKey = (file: AnnouncementDetailFile, index: number
 /** 建立公告預覽 payload，補上前台顯示需要的分類與標籤文字。 */
 const buildAnnouncementPreviewPayload = (formData: AnnouncementSet, refs: AnnouncementFormRefs): AnnouncementPreviewPayload =>
 {
-    const categoryNameText = mapAnnouncementIdsToText(formData.Announcement?.Categories, refs.categoryMap);
-    const tagNameText = mapAnnouncementIdsToText(formData.Announcement?.Tags, refs.tagMap);
-    return { formData, categoryNameText, tagNameText };
+    const previewData = cloneAnnouncementPreviewData(formData);
+    const categoryNameText = mapAnnouncementIdsToText(previewData.Announcement?.Categories, refs.categoryMap);
+    const tagNameText = mapAnnouncementIdsToText(previewData.Announcement?.Tags, refs.tagMap);
+
+    return { formData: previewData, categoryNameText, tagNameText };
+};
+
+/** 取得目前最新的公告表單資料，避免 Preview action 拿到舊 closure。 */
+const getLatestAnnouncementFormData = (binding: ServerFormDefaultRawData<AnnouncementSet, AnnouncementFormRefs>["formData"]): AnnouncementSet =>
+{
+    return binding.getData?.() ?? binding.data;
+};
+
+/** 複製公告預覽資料，避免 iframe payload 與後台編輯狀態共用同一個 reference。 */
+const cloneAnnouncementPreviewData = (formData: AnnouncementSet): AnnouncementSet =>
+{
+    return {
+        Announcement: { ...(formData.Announcement ?? {}) },
+        AnnouncementDetail: (formData.AnnouncementDetail ?? []).map(item => ({ ...item })),
+        AnnouncementDetailFile: (formData.AnnouncementDetailFile ?? []).map(item => ({ ...item })),
+    };
 };
 
 /** 將 csv id 轉成前台顯示文字。 */
