@@ -60,7 +60,14 @@ const FILE_ARCHIVE_GRID_COLUMN_WIDTH_STORAGE_KEY = "client-homepage-1821-filearc
 export const Section2 = (props: { lang: Lang; data: HomePageShortcutViewModel[]; }) =>
 {
     const shortcuts = props.data ?? [];
-    const activeTopIndex = getFirstPanelIndex(shortcuts);
+    const firstPanelIndex = getFirstPanelIndex(shortcuts);
+    const [activeTopIndex, setActiveTopIndex] = useState(firstPanelIndex);
+
+    useEffect(() =>
+    {
+        setActiveTopIndex((current) => isValidShortcutIndex(shortcuts, current) ? current : firstPanelIndex);
+    }, [shortcuts, firstPanelIndex]);
+
     if (shortcuts.length === 0) return null;
 
     return (
@@ -69,7 +76,7 @@ export const Section2 = (props: { lang: Lang; data: HomePageShortcutViewModel[];
                 <div className="customizeBox">
                     <div className="container-customize-100">
                         <div id="Horizontal" className="H-nav-tabs-content-box">
-                            <TopTabList lang={props.lang} shortcuts={shortcuts} activeIndex={activeTopIndex} />
+                            <TopTabList lang={props.lang} shortcuts={shortcuts} activeIndex={activeTopIndex} onSelect={setActiveTopIndex} />
                             <TopTabContent lang={props.lang} shortcuts={shortcuts} activeIndex={activeTopIndex} />
                         </div>
                     </div>
@@ -82,12 +89,12 @@ export const Section2 = (props: { lang: Lang; data: HomePageShortcutViewModel[];
 
 // #region Section
 /** 第一層快捷頁籤清單。 */
-const TopTabList = (props: { lang: Lang; shortcuts: HomePageShortcutViewModel[]; activeIndex: number; }) =>
+const TopTabList = (props: { lang: Lang; shortcuts: HomePageShortcutViewModel[]; activeIndex: number; onSelect: (index: number) => void; }) =>
 {
     return (
         <div className="Horizontal nav-tabs-list">
             <ul className="nav nav-tabs nav-fill" role="tablist" id="TOP_Tab">
-                {props.shortcuts.map((item, index) => <TopTabItem key={`${item.shortcut.HomePageId}-${item.shortcut.RowId}`} lang={props.lang} item={item.shortcut} index={index} active={index === props.activeIndex} />)}
+                {props.shortcuts.map((item, index) => <TopTabItem key={`${item.shortcut.HomePageId}-${item.shortcut.RowId}`} lang={props.lang} item={item.shortcut} index={index} active={index === props.activeIndex} onSelect={props.onSelect} />)}
             </ul>
         </div>
     );
@@ -134,29 +141,40 @@ const SecondLevelContent = (props: { lang: Lang; modules: HomePageShortcutModule
 
 // #region EntityComp
 /** 第一層單一頁籤項目。 */
-const TopTabItem = (props: { lang: Lang; item: SpecHomePage1821Shortcut; index: number; active: boolean; }) =>
+const TopTabItem = (props: { lang: Lang; item: SpecHomePage1821Shortcut; index: number; active: boolean; onSelect: (index: number) => void; }) =>
 {
     return (
         <li className="nav-item" role="presentation">
-            {props.item.IsLink === true && LibText.isNonEmptyString(props.item.Link)
-                ? <TopLinkTab lang={props.lang} item={props.item} index={props.index} />
-                : <TopButtonTab item={props.item} index={props.index} active={props.active} />}
+            {isShortcutLink(props.item)
+                ? <TopLinkTab lang={props.lang} item={props.item} index={props.index} active={props.active} onSelect={props.onSelect} />
+                : <TopButtonTab item={props.item} index={props.index} active={props.active} onSelect={props.onSelect} />}
         </li>
     );
 };
 
 /** 第一層外連頁籤。 */
-const TopLinkTab = (props: { lang: Lang; item: SpecHomePage1821Shortcut; index: number; }) =>
+const TopLinkTab = (props: { lang: Lang; item: SpecHomePage1821Shortcut; index: number; active: boolean; onSelect: (index: number) => void; }) =>
 {
     return (
-        <LangLink id={getTopTabId(props.index)} to={props.item.Link ?? ""} lang={props.lang} className="nav-link" role="button" aria-selected={false} title={getShortcutTitle(props.item)}>
+        <LangLink
+            id={getTopTabId(props.index)}
+            to={props.item.Link ?? ""}
+            lang={props.lang}
+            target="_blank"
+            className={`nav-link${props.active ? " active" : ""}`}
+            role="tab"
+            aria-controls={getTopPaneId(props.index)}
+            aria-selected={props.active}
+            title={getShortcutTitle(props.item)}
+            onClick={() => props.onSelect(props.index)}
+        >
             <TopTabContentInner item={props.item} />
         </LangLink>
     );
 };
 
 /** 第一層內頁籤按鈕。 */
-const TopButtonTab = (props: { item: SpecHomePage1821Shortcut; index: number; active: boolean; }) =>
+const TopButtonTab = (props: { item: SpecHomePage1821Shortcut; index: number; active: boolean; onSelect: (index: number) => void; }) =>
 {
     return (
         <button
@@ -166,8 +184,10 @@ const TopButtonTab = (props: { item: SpecHomePage1821Shortcut; index: number; ac
             data-bs-target={`#${getTopPaneId(props.index)}`}
             type="button"
             role="tab"
+            aria-controls={getTopPaneId(props.index)}
             aria-selected={props.active}
             title={getShortcutTitle(props.item)}
+            onClick={() => props.onSelect(props.index)}
         >
             <TopTabContentInner item={props.item} />
         </button>
@@ -205,12 +225,33 @@ const ShortcutIcon = (props: { item: SpecHomePage1821Shortcut; }) =>
 /** 第一層單一內容面板。 */
 const TopTabPane = (props: { lang: Lang; item: HomePageShortcutViewModel; index: number; active: boolean; }) =>
 {
-    if (props.item.shortcut.IsLink === true) return null;
+    if (isShortcutLink(props.item.shortcut)) return <LinkTabPane lang={props.lang} item={props.item.shortcut} index={props.index} active={props.active} />;
     return (
         <div id={getTopPaneId(props.index)} className={`tab-pane fade${props.active ? " show active" : ""}`} role="tabpanel" aria-labelledby={getTopTabId(props.index)}>
             <div className="Second-Level-DivBox">
                 <SecondLevelTabList modules={props.item.modules} topIndex={props.index} />
                 <SecondLevelContent lang={props.lang} modules={props.item.modules} topIndex={props.index} />
+            </div>
+        </div>
+    );
+};
+
+const LinkTabPane = (props: { lang: Lang; item: SpecHomePage1821Shortcut; index: number; active: boolean; }) =>
+{
+    const title = getShortcutTitle(props.item);
+    const imageSrc = FileManagementAPI.get_Public_Preview_Url(props.item.LinkPicId, title);
+    return (
+        <div id={getTopPaneId(props.index)} className={`tab-pane fade${props.active ? " show active" : ""}`} role="tabpanel" aria-labelledby={getTopTabId(props.index)}>
+            <div className="Second-Level-DivBox shortcut-link-panel">
+                <div className="three_BG_display_area shortcut-link-panel__display">
+                    <div className="container-customize0">
+                        {imageSrc && (
+                            <LangLink to={props.item.Link ?? ""} lang={props.lang} target="_blank" className="shortcut-link-panel__image-link" title={title}>
+                                <img className="shortcut-link-panel__image" src={imageSrc} alt={title} />
+                            </LangLink>
+                        )}
+                    </div>
+                </div>
             </div>
         </div>
     );
@@ -474,8 +515,20 @@ const MoreButton = (props: { lang: Lang; to?: string | null; title: string; }) =
 /** 取得第一個可顯示內容的頁籤索引。 */
 const getFirstPanelIndex = (items: HomePageShortcutViewModel[]) =>
 {
-    const index = items.findIndex((item) => item.shortcut.IsLink !== true);
+    const index = items.findIndex((item) => !isShortcutLink(item.shortcut));
     return index >= 0 ? index : 0;
+};
+
+/** 判斷快捷項目是否為連結頁籤。 */
+const isShortcutLink = (item: SpecHomePage1821Shortcut) =>
+{
+    return item.IsLink === true && LibText.isNonEmptyString(item.Link);
+};
+
+/** 判斷 active index 是否仍在目前資料範圍內。 */
+const isValidShortcutIndex = (items: HomePageShortcutViewModel[], index: number) =>
+{
+    return index >= 0 && index < items.length;
 };
 
 /** 取得快捷標題。 */
