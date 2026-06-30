@@ -29,6 +29,8 @@ export const ClientSlotPath = {
     Slot_WebResource_List_Loader: "Pages/Client/BizFunc/WEB/WebResource/Client_WebResource_List_Loader.ts",
     Slot_Timeline_Form_Comp: "Pages/Client/BizFunc/WEB/Timeline/Client_Timeline_Form_Comp.tsx",
     Slot_Timeline_Form_Loader: "Pages/Client/BizFunc/WEB/Timeline/Client_Timeline_Form_Loader.ts",
+    Slot_Survey_Form_Comp: "Pages/Client/BizFunc/WEB/Survey/Client_Survey_Form_Comp.tsx",
+    Slot_Survey_Form_Loader: "Pages/Client/BizFunc/WEB/Survey/Client_Survey_Form_Loader.ts",
     Slot_Material_List_Comp: "Pages/Client/BizFunc/MAT/Material/Client_Material_List_Comp.tsx",
     Slot_Material_List_Loader: "Pages/Client/BizFunc/MAT/Material/Client_Material_List_Loader.ts",
     Slot_Material_Form_Comp: "Pages/Client/BizFunc/MAT/Material/Client_Material_Form_Comp.tsx",

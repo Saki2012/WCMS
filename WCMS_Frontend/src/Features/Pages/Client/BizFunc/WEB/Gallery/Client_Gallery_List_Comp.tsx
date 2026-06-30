@@ -29,6 +29,8 @@ export interface GalleryListViewProps extends IGalleryListProps
 {
     /** Feature List Hook 整理後的相簿清單資料。 */
     vm: GalleryListVm;
+    /** 目前列表基準路徑，供明細連結使用。 */
+    dirUrl: string;
 }
 
 interface GalleryCardViewModel
@@ -53,8 +55,9 @@ let galleryListViewCache: typeof Client_Gallery_List_FeatureView | null = null;
 /** 相簿清單完整 Comp，負責取得 Feature Hook 資料，再交給 List Entry。 */
 export const Client_Gallery_List_Comp = (props: IGalleryListProps) =>
 {
+    const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
     const vm = useGalleryListData({ lang: props.lang, opts: props.options });
-    return <Client_Gallery_List {...props} vm={vm} />;
+    return <Client_Gallery_List {...props} vm={vm} dirUrl={dirUrl} />;
 };
 
 /** 相簿清單 ListView Entry，正式前台統一從這裡進入 Spec / Feature DOM。 */
@@ -70,20 +73,19 @@ const Client_Gallery_List_FeatureView = (props: GalleryListViewProps) =>
     const viewCountConfig = useMemo<ModuleViewCountConfig>(() => ({ mode: "list" }), []);
     return (
         <ModuleContent nodeTitle={props.node.title} title={""} isLoading={props.vm.isLoading} errorList={props.vm.errorList} searchBar={props.vm.searchBar} paginatorProps={props.vm.paginatorProps} viewCountConfig={viewCountConfig}>
-            <GallerySection lang={props.lang} data={props.vm.list} categoryMap={props.vm.categoryMap} />
+            <GallerySection lang={props.lang} data={props.vm.list} categoryMap={props.vm.categoryMap} dirUrl={props.dirUrl} />
         </ModuleContent>
     );
 };
 // #endregion
 
 // #region Section
-const GallerySection = (props: { lang: Lang; data: GallerySet[]; categoryMap: Record<string, string>; }) =>
+const GallerySection = (props: { lang: Lang; data: GallerySet[]; categoryMap: Record<string, string>; dirUrl: string; }) =>
 {
-    const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
     return (
         <>
             <div id="Row_Colitem" className="SubPage_Standard_itemBoxs">
-                {props.data.map((item, idx) => <GalleryCard key={item.Gallery?.InternalId ?? idx} lang={props.lang} item={item} categoryMap={props.categoryMap} dirUrl={dirUrl} />)}
+                {props.data.map((item, idx) => <GalleryCard key={item.Gallery?.InternalId ?? idx} lang={props.lang} item={item} categoryMap={props.categoryMap} dirUrl={props.dirUrl} />)}
             </div>
             <hr className="hr-my-4" />
         </>

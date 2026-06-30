@@ -116,13 +116,7 @@ const getAnnouncementFormView = (): typeof Client_Announcement_Form_FeatureView 
     {
         return announcementFormViewCache;
     }
-
-    announcementFormViewCache = resolveSpecComponent(
-        getClientSlotPath("Slot_Announcement_Form_Comp"),
-        Client_Announcement_Form_FeatureView,
-        ["Client_Announcement_Form"],
-    );
-
+    announcementFormViewCache = resolveSpecComponent(getClientSlotPath("Slot_Announcement_Form_Comp"), Client_Announcement_Form_FeatureView, ["Client_Announcement_Form"]);
     return announcementFormViewCache;
 };
 

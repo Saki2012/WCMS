@@ -22,7 +22,10 @@ const collectSpecClientPreviewEntries = (modules: Record<string, ClientPreviewEn
 {
     return Object.values(modules).flatMap(resolveSpecPreviewEntries);
 };
-const specPreviewEntryModules = import.meta.glob<ClientPreviewEntrySlotModule>("SpecFeature/**/Pages/Client/Scaffold/Preview/Registry/ClientPreviewEntries.{ts,tsx}", { eager: true }) as Record<string, ClientPreviewEntrySlotModule>;
+const specPreviewEntryModules = import.meta.glob<ClientPreviewEntrySlotModule>([
+    "SpecFeature/Pages/Client/Scaffold/Preview/Registry/ClientPreviewEntries.{ts,tsx}",
+    "SpecFeature/**/Pages/Client/Scaffold/Preview/Registry/ClientPreviewEntries.{ts,tsx}",
+], { eager: true }) as Record<string, ClientPreviewEntrySlotModule>;
 /** 目前 SpecFeature 追加的前台預覽註冊。 */
 export const specClientPreviewEntries: ClientPreviewEntry[] = collectSpecClientPreviewEntries(specPreviewEntryModules);
 /** 前台預覽註冊總表，Feature 為基礎，Spec 可追加或覆寫。 */

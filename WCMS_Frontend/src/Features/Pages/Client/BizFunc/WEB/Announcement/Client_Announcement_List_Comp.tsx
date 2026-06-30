@@ -81,7 +81,8 @@ export interface AnnouncementListGridSpecSlot
 
 // #region Initialization
 const extendAnnouncementListGridSpec: AnnouncementListGridSpecSlot = {};
-const resolvedAnnouncementListGridSpec = resolveSpecFunc<AnnouncementListGridSpecSlot>(getClientSlotPath("Slot_Announcement_List_Comp"), extendAnnouncementListGridSpec, ["extendAnnouncementListGridSpec"]);
+/** Announcement List Grid Spec 快取，避免 top-level 立即解析造成循環載入。 */
+let announcementListGridSpecCache: AnnouncementListGridSpecSlot | null = null;
 /** Announcement List View 快取，避免每次 render 重複解析 Spec View。 */
 let announcementListViewCache: typeof Client_Announcement_List_FeatureView | null = null;
 // #endregion
@@ -562,6 +563,14 @@ const getAnnouncementListView = (): typeof Client_Announcement_List_FeatureView 
 
     return announcementListViewCache;
 };
+
+/** 取得 Announcement List Grid Spec，有 Spec 時使用 Spec 擴充，否則使用空擴充。 */
+const getAnnouncementListGridSpec = (): AnnouncementListGridSpecSlot =>
+{
+    if (announcementListGridSpecCache !== null) return announcementListGridSpecCache;
+    announcementListGridSpecCache = resolveSpecFunc<AnnouncementListGridSpecSlot>(getClientSlotPath("Slot_Announcement_List_Comp"), extendAnnouncementListGridSpec, ["extendAnnouncementListGridSpec"]);
+    return announcementListGridSpecCache;
+};
 // #endregion
 
 // #region Private
@@ -595,14 +604,16 @@ const resolveAnnouncementGridColumns = (context: AnnouncementListGridContext): C
 {
     const columns = context.gridProps.columns;
 
-    return resolvedAnnouncementListGridSpec.resolveGridColumns?.(columns, context) ?? columns;
+    const spec = getAnnouncementListGridSpec();
+    return spec.resolveGridColumns?.(columns, context) ?? columns;
 };
 
 /** 建立公告列表單列資料，並套用 Spec cell 擴充。 */
 const buildAnnouncementGridRow = (context: AnnouncementListGridContext, row: GridRow, index: number, columns: ColumnConfig[], columnKeys: Set<string>): GridRow =>
 {
     const adjustedCells = row.cells.map(cell => buildAnnouncementGridCell(context, cell, index)).filter(cell => columnKeys.has(cell.col.key));
-    const finalCells = resolvedAnnouncementListGridSpec.resolveGridCells?.(adjustedCells, { ...context, rowData: context.rawData?.[index], rowIndex: index, columns }) ?? adjustedCells;
+    const spec = getAnnouncementListGridSpec();
+    const finalCells = spec.resolveGridCells?.(adjustedCells, { ...context, rowData: context.rawData?.[index], rowIndex: index, columns }) ?? adjustedCells;
     return { ...row, cells: finalCells };
 };
 /** 建立公告列表 cell 顯示內容。 */

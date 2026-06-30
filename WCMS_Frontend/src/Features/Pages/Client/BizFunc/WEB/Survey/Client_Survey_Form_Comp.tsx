@@ -1,4 +1,5 @@
 import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Routing";
+import { getClientSlotPath } from "@/Features/Pages/Client/Scaffold/Slot/Client_SlotPath";
 import { ModuleContent, type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
@@ -11,6 +12,7 @@ import { Captcha_Comp } from "@/Features/Hooks/BizFunc/SYS/Captcha/Captcha_Comp"
 import { useCaptchaController } from "@/Features/Hooks/BizFunc/SYS/Captcha/Captcha_Hook";
 import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import { LibText, LibValidation } from "@/SysCore/Utils/Library/LibData";
+import { resolveSpecComponent } from "@/SysCore/Utils/Library/SlotResolver";
 import type { components } from "@/types/api";
 import { SurveySubmissionsFields } from "@/types/SchemaFields";
 import { type ISurveyOptions, type SurveySubmitActions, useSurveyFormData } from "./Client_Survey_Form_Loader";
@@ -18,13 +20,27 @@ import { getSurveyFieldKey, getSurveyScalarValue, normalizeSurveyInputType, SURV
 
 // #region Property
 type SurveySubmissionRequest = components["schemas"]["SurveySubmissionRequest_DTO"];
-interface ISurveyProps
+export interface ISurveyProps
 {
     site: INormSite;
     node: INormNode;
     lang: Lang;
     theme?: IFETheme;
     options?: ISurveyOptions;
+}
+type SurveyFormVm = ReturnType<typeof useSurveyFormData>;
+export interface SurveyFormViewProps extends ISurveyProps
+{
+    /** 問卷 InternalId，供瀏覽次數、送出後重置與 Spec View 使用。 */
+    surveyInternalId: string;
+    /** Feature Hook 整理後的問卷資料與送出動作。 */
+    vm: SurveyFormVm;
+    /** 問卷動態題目資料。 */
+    surveyItems: SurveyInputItem[];
+    /** 問卷動態題目語系資料。 */
+    surveyItemLangs: SurveyInputLangItem[];
+    /** 前台瀏覽次數設定。 */
+    viewCountConfig: ModuleViewCountConfig;
 }
 interface SurveySubmitText
 {
@@ -147,41 +163,59 @@ const SURVEY_SUBMIT_TEXT_MAP: Partial<Record<Lang, SurveySubmitText>> = {
 };
 // #endregion
 
+// #region Variable
+/** Survey Form View 快取，避免每次 render 重複解析 Spec View。 */
+let surveyFormViewCache: typeof Client_Survey_Form_FeatureView | null = null;
+// #endregion
+
 // #region Public
-/** Survey 表單頁 */
+/** Survey 表單完整 Comp，負責取得 Feature Hook 資料，再交給 Form Entry。 */
 export const Client_Survey_Form_Comp = (props: ISurveyProps) =>
 {
     const surveyInternalId = LibText.safeTrim(props.options?.SurveyId);
-    const data = useSurveyFormData({ lang: props.lang, surveyId: surveyInternalId });
+    const vm = useSurveyFormData({ lang: props.lang, surveyId: surveyInternalId });
     const viewCountConfig = useViewCountConfig({ siteIndex: props.site.siteIndex, surveyId: surveyInternalId });
-    const hasContentHtml = LibText.safeTrim(data.contentHtml).length > 0;
-    const hasSuccessContentHtml = LibText.safeTrim(data.successContentHtml).length > 0;
-    const content = hasContentHtml ? <CmsHtml_Comp html={data.contentHtml} lang={props.lang} /> : null;
-    const successContent = hasSuccessContentHtml ? <CmsHtml_Comp html={data.successContentHtml} lang={props.lang} /> : null;
-    const surveyItems = useMemo(() => (data.data.SurveyItem ?? []) as SurveyInputItem[], [data.data.SurveyItem]);
-    const surveyItemLangs = useMemo(() => (data.data.SurveyItemLang ?? []) as SurveyInputLangItem[], [data.data.SurveyItemLang]);
+    const surveyItems = useMemo(() => (vm.data.SurveyItem ?? []) as SurveyInputItem[], [vm.data.SurveyItem]);
+    const surveyItemLangs = useMemo(() => (vm.data.SurveyItemLang ?? []) as SurveyInputLangItem[], [vm.data.SurveyItemLang]);
+    return <Client_Survey_Form {...props} surveyInternalId={surveyInternalId} vm={vm} surveyItems={surveyItems} surveyItemLangs={surveyItemLangs} viewCountConfig={viewCountConfig} />;
+};
+
+/** Survey FormView Entry，正式前台與 Preview 都從這裡進入。 */
+export const Client_Survey_Form = (props: SurveyFormViewProps) =>
+{
+    const FormView = getSurveyFormView();
+    return <FormView {...props} />;
+};
+
+/** Survey Feature 預設 View，只負責輸出 DOM。 */
+const Client_Survey_Form_FeatureView = (props: SurveyFormViewProps) =>
+{
+    const hasContentHtml = LibText.safeTrim(props.vm.contentHtml).length > 0;
+    const hasSuccessContentHtml = LibText.safeTrim(props.vm.successContentHtml).length > 0;
+    const content = hasContentHtml ? <CmsHtml_Comp html={props.vm.contentHtml} lang={props.lang} /> : null;
+    const successContent = hasSuccessContentHtml ? <CmsHtml_Comp html={props.vm.successContentHtml} lang={props.lang} /> : null;
     const [isSubmitSuccess, setIsSubmitSuccess] = useState<boolean>(false);
     const shouldShowSuccessContent = isSubmitSuccess && hasSuccessContentHtml;
     useEffect(() =>
     {
         setIsSubmitSuccess(false);
-    }, [surveyInternalId]);
+    }, [props.surveyInternalId]);
     return (
-        <ModuleContent nodeTitle={props.node.title} title={data.data.Survey?.SurveyName ?? ""} isLoading={data.isLoading} errorList={data.errorList} viewCountConfig={viewCountConfig}>
+        <ModuleContent nodeTitle={props.node.title} title={props.vm.data.Survey?.SurveyName ?? ""} isLoading={props.vm.isLoading} errorList={props.vm.errorList} viewCountConfig={props.viewCountConfig}>
             {shouldShowSuccessContent
                 ? <section className="survey-submit-success-custom" role="status" aria-live="polite">{successContent}</section>
                 : (
                     <>
                         {content}
-                        {hasContentHtml && surveyItems.length > 0 && <hr className="hr-my-4" />}
-                        {surveyItems.length > 0 && (
+                        {hasContentHtml && props.surveyItems.length > 0 && <hr className="hr-my-4" />}
+                        {props.surveyItems.length > 0 && (
                             <SurveyInputForm_Comp
                                 lang={props.lang}
-                                surveyId={data.data.Survey?.SurveyId ?? ""}
-                                items={surveyItems}
-                                itemLangs={surveyItemLangs}
-                                disabled={data.isLoading || data.submitActions.isSubmitting}
-                                submitActions={data.submitActions}
+                                surveyId={props.vm.data.Survey?.SurveyId ?? ""}
+                                items={props.surveyItems}
+                                itemLangs={props.surveyItemLangs}
+                                disabled={props.vm.isLoading || props.vm.submitActions.isSubmitting}
+                                submitActions={props.vm.submitActions}
                                 onSubmitted={() => setIsSubmitSuccess(true)}
                             />
                         )}
@@ -358,6 +392,19 @@ const SurveyBaseFields_Comp = (props: { fields: SurveyBaseFieldSetting[]; values
             })}
         </div>
     );
+};
+// #endregion
+
+// #region Protected
+/** 取得 Survey Form View，有 Spec View 時使用 Spec，否則使用 Feature View。 */
+const getSurveyFormView = (): typeof Client_Survey_Form_FeatureView =>
+{
+    if (surveyFormViewCache !== null)
+    {
+        return surveyFormViewCache;
+    }
+    surveyFormViewCache = resolveSpecComponent(getClientSlotPath("Slot_Survey_Form_Comp"), Client_Survey_Form_FeatureView, ["Client_Survey_Form"]);
+    return surveyFormViewCache;
 };
 // #endregion
 

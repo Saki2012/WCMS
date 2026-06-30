@@ -61,7 +61,7 @@ export type FileArchiveListGridAdjustSlot = (ctx: FileArchiveListGridAdjustConte
 
 // #region Initialization
 const extendFileArchiveListGridAdjust: FileArchiveListGridAdjustSlot = (ctx) => ctx.result;
-const resolvedFileArchiveListGridAdjust = resolveSpecFunc<FileArchiveListGridAdjustSlot>(getClientSlotPath("Slot_FileArchive_List_Comp"), extendFileArchiveListGridAdjust, ["extendFileArchiveListGridAdjust"]);
+let fileArchiveListGridAdjustCache: FileArchiveListGridAdjustSlot | null = null;
 /** FileArchive List View 快取，避免每次 render 重複解析 Spec View。 */
 let fileArchiveListViewCache: typeof Client_FileArchive_List_FeatureView | null = null;
 // #endregion
@@ -214,6 +214,17 @@ const buildDownloadContent = (fileRows: FileArchiveDetail[], urlRows: FileArchiv
 // #endregion
 
 // #region Protected
+/** 取得 FileArchive List Grid Spec，延後解析避免 import 期循環引用。 */
+const getResolvedFileArchiveListGridAdjust = (): FileArchiveListGridAdjustSlot =>
+{
+    if (fileArchiveListGridAdjustCache !== null)
+    {
+        return fileArchiveListGridAdjustCache;
+    }
+    fileArchiveListGridAdjustCache = resolveSpecFunc<FileArchiveListGridAdjustSlot>(getClientSlotPath("Slot_FileArchive_List_Comp"), extendFileArchiveListGridAdjust, ["extendFileArchiveListGridAdjust"]);
+    return fileArchiveListGridAdjustCache;
+};
+
 /** 取得 FileArchive List View，有 Spec View 時使用 Spec，否則使用 Feature View。 */
 const getFileArchiveListView = (): typeof Client_FileArchive_List_FeatureView =>
 {
@@ -246,7 +257,7 @@ const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: FileArchiv
     const columns = buildAdjustedColumns(gridProps.columns);
     const rows = buildAdjustedRows({ lang, gridProps, rawData, tagMap });
     const result: GridProps = { ...gridProps, columns, rows };
-    return resolvedFileArchiveListGridAdjust({ lang, gridProps, rawData, tagMap, result });
+    return getResolvedFileArchiveListGridAdjust()({ lang, gridProps, rawData, tagMap, result });
 };
 /** 調整原本欄位顯示 */
 const adjustBaseCell = (p: { cell: RowCell; contentStatus: number; tagMap: Record<string, string>; }): RowCell =>

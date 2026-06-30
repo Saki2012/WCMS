@@ -45,7 +45,7 @@ export const Banner_Comp = (props: { lang: Lang; node: INormNode; initialBanner?
             const start = d.Validate_Start ? new Date(d.Validate_Start).getTime() : -Infinity;
             const end = d.Validate_End ? new Date(d.Validate_End).getTime() : Infinity;
             const info = pickBannerDetailInfo(d, props.lang);
-            return start <= now && now <= end && !!d.PicSrcId && !!getInfoTitle(info);
+            return start <= now && now <= end && !!d.PicSrcId;
         }).sort((a, b) => (a.Sort ?? 0) - (b.Sort ?? 0));
     }, [banner, props.lang]);
 
@@ -137,7 +137,7 @@ export const Banner_Comp = (props: { lang: Lang; node: INormNode; initialBanner?
                                     {validDetails.map((d, i) =>
                                     {
                                         const info = pickBannerDetailInfo(d, props.lang);
-                                        const title = getInfoTitle(info);
+                                        const title = getInfoTitle(info) || props.node.title || "Banner";
                                         const url = getInfoUrl(info);
                                         const imgUrl = FileManagementAPI.get_Public_Preview_Url(d.PicSrcId);
                                         return (

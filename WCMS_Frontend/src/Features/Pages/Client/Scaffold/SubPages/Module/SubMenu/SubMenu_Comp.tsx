@@ -6,7 +6,7 @@ import { isSupportedLang, type Lang } from "@/SysCore/i18n/lang";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import clsx from "clsx";
-import { type CSSProperties, type ReactNode, type TransitionEvent, useEffect, useMemo, useRef, useState } from "react";
+import { type CSSProperties, type MouseEvent, type ReactNode, type TransitionEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import "./SubMenu.css";
 
@@ -48,7 +48,7 @@ export const SubMenu_Comp = (props: SubMenuCompProps) =>
     const { lang, site, node, maxDepth = 3 } = props;
     const location = useLocation();
     const menuItems = useMemo(() => getMenuData(lang, site, node, maxDepth), [lang, site, node, maxDepth]);
-    const { activeIds, expandedIdsByPath } = useMemo(() => calcActiveAndExpanded(menuItems, location.pathname), [menuItems, location.pathname]);
+    const { activeIds, expandedIdsByPath } = useMemo(() => calcActiveAndExpanded(menuItems, location.pathname, String(node.id)), [menuItems, location.pathname, node.id]);
 
     if (!menuItems.length) return null;
 
@@ -133,6 +133,11 @@ const LeafMenuItem = (props: { item: MenuItemData; active: boolean; }) =>
         return <span className={clsx("list-group-item", props.active && "active")}>{icon} {props.item.SrcData}</span>;
     }
 
+    if (props.item.Url === "#")
+    {
+        return <a href="#" className={clsx("list-group-item", props.active && "active")} title={props.item.SrcData} aria-current={props.active ? "page" : undefined} onClick={preventSafeMenuLinkClick}>{icon} {props.item.SrcData}</a>;
+    }
+
     if (isExternalUrl(props.item.Url))
     {
         return <LangLink to={props.item.Url} className={clsx("list-group-item", props.active && "active")} title={props.item.SrcData}>{icon} {props.item.SrcData}</LangLink>;
@@ -149,6 +154,14 @@ const LeafMenuItem = (props: { item: MenuItemData; active: boolean; }) =>
             {props.item.SrcData}
         </LangNavLink>
     );
+};
+
+
+/** 阻止 Preview fake node 連結導頁。 */
+const preventSafeMenuLinkClick = (e: MouseEvent<HTMLAnchorElement>): void =>
+{
+    // 執行 function
+    e.preventDefault();
 };
 
 /** 外部連結圖示。 */
@@ -234,27 +247,27 @@ const isUrlMatch = (currentPath: string, itemUrl: string | undefined): boolean =
     return url !== "/" && cur.startsWith(`${url}/`);
 };
 
-/** 計算 activeIds 與 active path 應展開的父節點。 */
-const calcActiveAndExpanded = (items: MenuItemData[], pathname: string) =>
+/** 計算 activeIds 與 active 節點應展開的父節點。 */
+const calcActiveAndExpanded = (items: MenuItemData[], pathname: string, activeNodeId: string) =>
 {
     const activeIds = new Set<string>();
     const expandedIdsByPath = new Set<string>();
 
-    items.forEach((item) => calcActiveItem(item, pathname, activeIds, expandedIdsByPath));
+    items.forEach((item) => calcActiveItem(item, pathname, activeNodeId, activeIds, expandedIdsByPath));
     return { activeIds, expandedIdsByPath };
 };
 
-/** 遞迴計算單一節點是否為目前 active path。 */
-const calcActiveItem = (item: MenuItemData, pathname: string, activeIds: Set<string>, expandedIdsByPath: Set<string>): boolean =>
+/** 遞迴計算單一節點是否為目前 active 節點。 */
+const calcActiveItem = (item: MenuItemData, pathname: string, activeNodeId: string, activeIds: Set<string>, expandedIdsByPath: Set<string>): boolean =>
 {
-    const selfActive = !hasSubItems(item) && isUrlMatch(pathname, item.Url);
+    const selfActive = item.Id === activeNodeId || (!hasSubItems(item) && isUrlMatch(pathname, item.Url));
     let hasActiveInSubtree = selfActive;
 
     if (hasSubItems(item))
     {
         item.SubItem!.forEach((child) =>
         {
-            if (calcActiveItem(child, pathname, activeIds, expandedIdsByPath)) hasActiveInSubtree = true;
+            if (calcActiveItem(child, pathname, activeNodeId, activeIds, expandedIdsByPath)) hasActiveInSubtree = true;
         });
     }
 

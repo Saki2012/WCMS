@@ -103,6 +103,7 @@ const resolveFinalUrl = (n: INormNode): string =>
 {
     const redirect = n.redirectTo ?? "";
     const isInternalLink = n.type === "redirect-internal" && redirect.startsWith("/");
+    if (redirect === "#") return redirect;
     if (isInternalLink && redirect) return redirect;
     if (n.type !== "module" && redirect) return redirect;
 
