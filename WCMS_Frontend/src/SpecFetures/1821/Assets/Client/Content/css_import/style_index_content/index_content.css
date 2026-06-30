@@ -1568,12 +1568,12 @@ a:hover.caption-customize-btn .button-icon {
 	
 	height: auto;
 	min-height: 220px;
+	display: flex;
 }
 #Horizontal .nav-tabs-list ul.nav-tabs .nav-link:hover {
 	color: var(--FFFcolor);
 	background-color: var(--Customize_HRcolor);
 }
-
 /* : BEFORE */
 /*#Horizontal .nav-tabs-list ul.nav-tabs .nav-link::before {
 	content: "";
@@ -1907,21 +1907,21 @@ a:hover.caption-customize-btn .button-icon {
 	}
 }
 /* a : HOVER */
-#Horizontal .nav-tabs-list ul.nav-tabs a.nav-link:hover {
+#Horizontal .nav-tabs-list ul.nav-tabs .nav-link:hover {
   	background-color: var(--Customize_HRcolor);
 }
 /* a : HOVER */
 
 /* a : ACTIVE */
-#Horizontal .nav-tabs-list ul.nav-tabs a.nav-link.active,
-#Horizontal .nav-tabs-list ul.nav-tabs a.nav-link:active {
+#Horizontal .nav-tabs-list ul.nav-tabs .nav-link.active,
+#Horizontal .nav-tabs-list ul.nav-tabs .nav-link:active {
   	background-color: var(--Customize_HRcolor) !important;
 }
 /* a : ACTIVE */
 
 /* a : FOCUS */
-#Horizontal .nav-tabs-list ul.nav-tabs a.nav-link:focus,
-#Horizontal .nav-tabs-list ul.nav-tabs a.nav-link:focus-visible {
+#Horizontal .nav-tabs-list ul.nav-tabs .nav-link:focus,
+#Horizontal .nav-tabs-list ul.nav-tabs .nav-link:focus-visible {
   	background-color: var(--Customize_HRcolor) !important;
 	/*box-shadow: none;*/
 }
@@ -1931,14 +1931,14 @@ a:hover.caption-customize-btn .button-icon {
 
 /* ---------------------------------------------------- */
 /* =====  頁籤 TAB UL LI 連結按鈕 內容 =================== */
-#Horizontal .nav-tabs-list a .icon_wrapper {
+#Horizontal .nav-tabs-list .nav-link .icon_wrapper {
 	position: relative;
 	display: -webkit-box;
 	display: -ms-flexbox;
 	display: flex;
 	flex-direction: column;
-	-ms-flex-wrap: wrap;
-	flex-wrap: wrap;
+	-ms-flex-wrap: nowrap;
+	flex-wrap: nowrap;
 	justify-content: center;
 	align-items: center;
 	
@@ -1947,12 +1947,12 @@ a:hover.caption-customize-btn .button-icon {
 	background-color: transparent;
 }
 @media screen and (max-width: 575px) {
-	#Horizontal .nav-tabs-list a .icon_wrapper {
+	#Horizontal .nav-tabs-list .nav-link .icon_wrapper {
 		padding: 0;
 	}
 }
 /* ---------------------------------------------------- */
-#Horizontal .nav-tabs-list a .icon_area {
+#Horizontal .nav-tabs-list .nav-link .icon_area {
 	display: -webkit-box;
 	display: -ms-flexbox;
 	display: flex;
@@ -1963,52 +1963,60 @@ a:hover.caption-customize-btn .button-icon {
 	align-items: center;
 }
 /* ---------------------------------------------------- */
-#Horizontal .nav-tabs-list a .icon_area .icon_image {
+#Horizontal .nav-tabs-list .nav-link .icon_area .icon_image {
 	width: 76px;
 	height: 76px;
 }
 /* ---------------------------------------------------- */
-#Horizontal .nav-tabs-list a .icon_area .icon_image img {
+#Horizontal .nav-tabs-list .nav-link .icon_area .icon_image img {
 	border: 0;
 }
 /* ---------------------------------------------------- */
-#Horizontal .nav-tabs-list a .icon_area .icon_image img.ii01_img {
+#Horizontal .nav-tabs-list .nav-link .icon_area .icon_image img.ii01_img {
 	display: block;
 }
 /* HOVER Icon IMG */
-#Horizontal .nav-tabs-list a.nav-link:hover .icon_area .icon_image img.ii01_img {
+/* #Horizontal .nav-tabs-list .nav-link:hover .icon_area .icon_image img.ii01_img {
 	display: none;
+} */
+#Horizontal .nav-tabs-list ul.nav-tabs .nav-link:hover .icon_image img{
+	filter: brightness(0) invert(1);
 }
 /* HOVER Icon IMG */
 /* ---------------------------------------------------- */
 /* ACTIVE Icon IMG */
-#Horizontal .nav-tabs-list a.nav-link:focus .icon_area .icon_image img.ii01_img,
-#Horizontal .nav-tabs-list a.nav-link:active .icon_area .icon_image img.ii01_img,
-#Horizontal .nav-tabs-list a.nav-link.active .icon_area .icon_image img.ii01_img {
+/* #Horizontal .nav-tabs-list .nav-link:focus .icon_area .icon_image img.ii01_img,
+#Horizontal .nav-tabs-list .nav-link:active .icon_area .icon_image img.ii01_img,
+#Horizontal .nav-tabs-list .nav-link.active .icon_area .icon_image img.ii01_img {
 	display: none;
+} */
+#Horizontal .nav-tabs-list .nav-link:focus .icon_area .icon_image img.ii01_img,
+#Horizontal .nav-tabs-list .nav-link:active .icon_area .icon_image img.ii01_img,
+#Horizontal .nav-tabs-list .nav-link.active .icon_area .icon_image img.ii01_img{
+	filter: brightness(0) invert(1);
 }
 /* ACTIVE Icon IMG */
 /* ---------------------------------------------------- */
 
 /* ---------------------------------------------------- */
-#Horizontal .nav-tabs-list a .icon_area .icon_image img.ii02_img {
+#Horizontal .nav-tabs-list .nav-link .icon_area .icon_image img.ii02_img {
 	display: none;
 }
 /* HOVER Icon IMG */
-#Horizontal .nav-tabs-list a.nav-link:hover .icon_area .icon_image img.ii02_img {
+#Horizontal .nav-tabs-list .nav-link:hover .icon_area .icon_image img.ii02_img {
 	display: block;
 }
 /* HOVER Icon IMG */
 /* ---------------------------------------------------- */
 /* ACTIVE Icon IMG */
-#Horizontal .nav-tabs-list a.nav-link:focus .icon_area .icon_image img.ii02_img,
-#Horizontal .nav-tabs-list a.nav-link:active .icon_area .icon_image img.ii02_img,
-#Horizontal .nav-tabs-list a.nav-link.active .icon_area .icon_image img.ii02_img {
+#Horizontal .nav-tabs-list .nav-link:focus .icon_area .icon_image img.ii02_img,
+#Horizontal .nav-tabs-list .nav-link:active .icon_area .icon_image img.ii02_img,
+#Horizontal .nav-tabs-list .nav-link.active .icon_area .icon_image img.ii02_img {
 	display: block;
 }
 /* ACTIVE Icon IMG */
 /* ---------------------------------------------------- */
-#Horizontal .nav-tabs-list a .tit_area {
+#Horizontal .nav-tabs-list .nav-link .tit_area {
 	display: -webkit-box;
 	display: -ms-flexbox;
 	display: flex;
@@ -2021,7 +2029,7 @@ a:hover.caption-customize-btn .button-icon {
 	padding: 0rem;
 }
 /* ---------------------------------------------------- */
-#Horizontal .nav-tabs-list a .tit_area .icons_title {
+#Horizontal .nav-tabs-list .nav-link .tit_area .icons_title {
 	display: -webkit-box;
 	display: -ms-flexbox;
 	display: flex;
@@ -2050,7 +2058,7 @@ a:hover.caption-customize-btn .button-icon {
   	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
 }
 
-#Horizontal .nav-tabs-list a .tit_area .icons_small {
+#Horizontal .nav-tabs-list .nav-link .tit_area .icons_small {
 	display: -webkit-box;
 	display: -ms-flexbox;
 	display: flex;
@@ -2068,27 +2076,27 @@ a:hover.caption-customize-btn .button-icon {
 	margin: 0;
 }
 @media screen and (max-width: 575px) {
-	#Horizontal .nav-tabs-list a .tit_area .icons_small {
+	#Horizontal .nav-tabs-list .nav-link .tit_area .icons_small {
 		margin-top: 0.25rem;
 	}
 }
 @media screen and (min-width: 576px) {
-	#Horizontal .nav-tabs-list a .tit_area .icons_small {
+	#Horizontal .nav-tabs-list .nav-link .tit_area .icons_small {
 		margin-top: 0.5rem;
 	}
 }
 /* a : HOVER / ACTIVE / FOCUS */
-#Horizontal .nav-tabs-list a.nav-link:hover .tit_area .icons_title,
-#Horizontal .nav-tabs-list a.nav-link:hover .tit_area .icons_small,
+#Horizontal .nav-tabs-list .nav-link:hover .tit_area .icons_title,
+#Horizontal .nav-tabs-list .nav-link:hover .tit_area .icons_small,
 
-#Horizontal .nav-tabs-list a.nav-link.active .tit_area .icons_title,
-#Horizontal .nav-tabs-list a.nav-link:active .tit_area .icons_title,
+#Horizontal .nav-tabs-list .nav-link.active .tit_area .icons_title,
+#Horizontal .nav-tabs-list .nav-link:active .tit_area .icons_title,
 
-#Horizontal .nav-tabs-list a.nav-link.active .tit_area .icons_small,
-#Horizontal .nav-tabs-list a.nav-link:active .tit_area .icons_small,
+#Horizontal .nav-tabs-list .nav-link.active .tit_area .icons_small,
+#Horizontal .nav-tabs-list .nav-link:active .tit_area .icons_small,
 
-#Horizontal .nav-tabs-list a.nav-link:focus .tit_area .icons_title,
-#Horizontal .nav-tabs-list a.nav-link:focus .tit_area .icons_small {
+#Horizontal .nav-tabs-list .nav-link:focus .tit_area .icons_title,
+#Horizontal .nav-tabs-list .nav-link:focus .tit_area .icons_small {
   	color: var(--FFFcolor);
 }
 /* a : HOVER / ACTIVE / FOCUS */
@@ -2252,6 +2260,7 @@ a:hover.caption-customize-btn .button-icon {
 	align-items: center;	
 	width: 100%;
 	z-index: 1;
+	padding-right: 20px;
 }
 /* ---------------------------------------------------- */
 
@@ -2841,7 +2850,7 @@ a:hover.caption-customize-btn .button-icon {
 /* ---------------------------------------------------- */
 /* ---------------------------------------------------- */
 /* 精準還原：文字外圈的細白框 */
-.SpecialZone_section a.a-href {
+.SpecialZone_section .a-href {
 	position: relative;
 	display: -webkit-box;
 	display: -ms-flexbox;
@@ -2891,7 +2900,7 @@ a:hover.caption-customize-btn .button-icon {
 	}
 }
 /* HOVER */
-.SpecialZone_section a:hover .Outer_frame {
+.SpecialZone_section .a-href:hover .Outer_frame {
 	border: 2px solid rgba(150, 102, 42, 0.75);
 }
 /* ---------------------------------------------------- */
@@ -2929,7 +2938,7 @@ a:hover.caption-customize-btn .button-icon {
 	}
 }
 /* HOVER */
-.SpecialZone_section a:hover .Inner_frame {
+.SpecialZone_section .a-href:hover .Inner_frame {
 	background-color: rgba(150, 102, 42, 0.75);
 }
 /* ---------------------------------------------------- */
@@ -2955,7 +2964,7 @@ a:hover.caption-customize-btn .button-icon {
   	/* 第五步：其它瀏覽器降級方式：給定最大高度 */
 }
 /* HOVER */
-.SpecialZone_section a:hover .Center_title {
+.SpecialZone_section .a-href:hover .Center_title {
 	color: var(--FFFcolor);
 }
 /* ---------------------------------------------------- */

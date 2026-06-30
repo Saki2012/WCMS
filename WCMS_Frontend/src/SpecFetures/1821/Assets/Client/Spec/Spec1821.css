@@ -108,16 +108,19 @@
 .bg-change-custom {
 	background-color: #96662a;
 }
-@media screen and (max-width: 991px) {
-	.bg-change-custom {
-		background-color: var(--FFFcolor);
-	}
-}
 #navbar-content .nav-link {
 	color: var(--FFFcolor);
 }
 #navbar-content .nav-link:hover, #navbar-content .nav-link:focus, #navbar-content .nav-link:active{
   color: var(--FFFcolor) !important;
+}
+@media screen and (max-width: 991px) {
+	.bg-change-custom {
+		background-color: var(--FFFcolor);
+	}
+	#navbar-content .nav-link {
+	color: var(--blackcolorr);
+}
 }
 @media screen and (min-width: 992px) {
   #navbar-content ul .dropdown-toggle:hover::after, #navbar-content ul .dropdown-toggle:focus::after, #navbar-content ul .dropdown-toggle:active::after {

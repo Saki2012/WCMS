@@ -5,9 +5,6 @@
 /* ------ 首頁內容 index content ----------------------- */
 @import url("css_import/style_index_content/index_content.css");
 
-/* ------ 內頁內容 subpage content ----------------------- */
-@import url("css_import/style_subpage_content/subpage-content_1.css");
-
 /* GOOGLE 字型 */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@200..900&display=swap');
 /*font-family: "Noto Sans TC" */
