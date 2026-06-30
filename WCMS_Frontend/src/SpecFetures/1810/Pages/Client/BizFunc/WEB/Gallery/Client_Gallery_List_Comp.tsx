@@ -9,7 +9,6 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { formatDate } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { useMemo } from "react";
-import { useLocation } from "react-router";
 
 // #region Property
 type GallerySet = components["schemas"]["GallerySet_DTO"];
@@ -65,7 +64,7 @@ export const Client_Gallery_List = (props: GalleryListViewProps) =>
             </div>
             <hr className="hr-Css" />
             {galleryData.searchBar && <Client_SearchBar_Comp {...galleryData.searchBar} />}
-            <MainContent props={compProps} gridProps={gridProps} theme={props.theme} />
+            <MainContent props={compProps} gridProps={gridProps} theme={props.theme} dirUrl={props.dirUrl} />
         </LoadingErrorHandler>
     );
 };
@@ -100,10 +99,8 @@ const useGalleryPageProps = (p: { currentPage: number; totalPages: number; onPag
         return { CurrentPage: p.currentPage, TotalPage: p.totalPages, onPageChange: p.onPageChange };
     }, [p.currentPage, p.totalPages, p.onPageChange]);
 };
-const MainContent = ({ props, gridProps, theme }: { props: MainGridContentProp[]; gridProps: GalleryPageProps; theme: IFETheme; }) =>
+const MainContent = ({ props, gridProps, theme, dirUrl }: { props: MainGridContentProp[]; gridProps: GalleryPageProps; theme: IFETheme; dirUrl: string; }) =>
 {
-    const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
-
     return (
         <>
             <div className="row margin_0">

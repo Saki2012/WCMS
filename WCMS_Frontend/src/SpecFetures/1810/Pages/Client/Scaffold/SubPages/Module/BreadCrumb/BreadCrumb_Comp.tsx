@@ -30,16 +30,23 @@ export const BreadCrumb_Comp = (props: BreadCrumbCompProps) =>
 /** 1810 Breadcrumb 右側工具列，整合 Preview 工具與返回上一層。 */
 const BreadCrumbRightSlot = (props: { backTitle: string; toolbarRightSlot?: ReactNode; }) =>
 {
+    /** 返回上一層。 */
     const handleBack = (e: MouseEvent<HTMLAnchorElement>) =>
     {
         // 執行 function
         e.preventDefault();
-        history.back();
+
+        if (typeof window === "undefined")
+        {
+            return;
+        }
+
+        window.history.back();
     };
 
     // return
     return (
-        <li className="breadcrumb-item ms-auto list-unstyled">
+        <li className="ms-auto list-unstyled breadcrumb-action-item">
             <div className="pos-relative d-inline-flex align-items-center gap-3 ml-auto">
                 {props.toolbarRightSlot}
                 <a href="#" onClick={handleBack} role="button" aria-label={props.backTitle} title={props.backTitle}>
@@ -86,8 +93,7 @@ const getBreadCrumbData = (lang: Lang, site: BreadCrumbCompProps["site"], node: 
         if (curNode.id === node.id)
         {
             result.push(<span key={id}>{curNode.title}</span>);
-        }
-        else
+        } else
         {
             result.push(<LangLink key={id} to={curNode.redirectTo ?? ""} title={curNode.title}>{curNode.title}</LangLink>);
         }

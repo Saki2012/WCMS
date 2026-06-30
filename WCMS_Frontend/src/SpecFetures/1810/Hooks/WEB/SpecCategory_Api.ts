@@ -188,6 +188,7 @@ class SpecCategoryAdapterImpl extends ApiDataAdapter<SpecCategorySet, SpecCatego
     {
         const fields: string[] = [
             SpecCategoryModelFields.CategoryId,
+            SpecCategoryModelFields.ShowColumnItems,
             `${SpecCategoryModelFields._SpecCategoryDetail}.${SpecCategoryDetailModelFields.Lang}`,
             `${SpecCategoryModelFields._SpecCategoryDetail}.${SpecCategoryDetailModelFields.CategoryName}`,
         ];

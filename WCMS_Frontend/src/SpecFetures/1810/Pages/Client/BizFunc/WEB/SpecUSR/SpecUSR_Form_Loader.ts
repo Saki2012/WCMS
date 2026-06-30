@@ -152,8 +152,7 @@ export const useSpecUSRFormFetchData = (opt: UseSpecUSRFormFetchDataArgs) =>
 
     const showColumns = useMemo(() =>
     {
-        const raw = `${useCategory.data?.[0]?.SpecCategory?.ShowColumnItems ?? ""}`;
-        return raw.split(",").map(p => p.trim()).filter(Boolean);
+        return buildShowColumnItems(useCategory.data?.[0]?.SpecCategory?.ShowColumnItems ?? "");
     }, [useCategory.data]);
 
     const showColTitle = useMemo(() =>
@@ -219,6 +218,43 @@ const buildSpecCategoryQuery = (categoryId: string): QueryListParam =>
     };
 };
 
+
+
+const buildShowColumnItems = (raw?: string | null): string[] =>
+{
+    // 宣告變數
+    const supported = new Set(formVisibleKeys.map(([, columnId]) => columnId));
+    const seen = new Set<string>();
+    const items = parseShowColumnItems(raw ?? "");
+
+    // return
+    return items.map(item => `${item}`.split(".").pop()?.trim() ?? "").filter(item => item && supported.has(item) && !seen.has(item)).map(item => (seen.add(item), item));
+};
+
+
+const parseShowColumnItems = (raw: string): string[] =>
+{
+    // 執行 function
+    if (!raw) return [];
+    if (raw.startsWith("[") && raw.endsWith("]")) return safeParseJsonArray(raw) ?? [];
+
+    // return
+    return raw.split(/[,;|]/g).map(item => item.trim()).filter(Boolean);
+};
+
+
+const safeParseJsonArray = (raw: string): string[] | null =>
+{
+    try
+    {
+        const parsed = JSON.parse(raw) as unknown;
+        if (!Array.isArray(parsed)) return null;
+        return parsed.filter((item): item is string => typeof item === "string").map(item => item.trim()).filter(Boolean);
+    } catch
+    {
+        return null;
+    }
+};
 
 const buildVisibleColumns = (schema: ModelDisplaySchema | null | undefined, visibleKeys: ReadonlyArray<readonly [string, string]>): ColumnConfig[] =>
 {

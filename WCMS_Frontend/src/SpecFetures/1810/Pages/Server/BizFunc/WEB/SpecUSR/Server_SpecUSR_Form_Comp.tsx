@@ -1,4 +1,6 @@
 import { Server_FormTemplate_Comp } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Comp";
+import { PreviewFrame } from "@/Features/Pages/Server/Scaffold/Preview/PreviewFrame";
+import { buildServerPreviewToolbarButton, useServerPreviewFrame } from "@/Features/Pages/Server/Scaffold/Preview/PreviewFrame_Hook";
 import type { ServerFormBinding } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
 import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
@@ -22,13 +24,13 @@ import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import { type Lang, LangLabelMap } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
-import { SpecUSRDetailFields, SpecUSRFileFields, SpecUSRModelFields, SpecUSRPhotoFields, SpecUSRPhotoInfoFields, SpecUSRSetFields } from "@/types/SchemaFields";
+import { PGID, SpecUSRDetailFields, SpecUSRFileFields, SpecUSRModelFields, SpecUSRPhotoFields, SpecUSRPhotoInfoFields, SpecUSRSetFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
 import { useCallback, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { LibText } from "@/SysCore/Utils/Library/LibData";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
-import { specUSREmptyData, useSpecUSRFormTemplate } from "./Server_SpecUSR_Form_Hook";
+import { specUSREmptyData, type SpecUSRPreviewPayload, useSpecUSRFormTemplate } from "./Server_SpecUSR_Form_Hook";
 
 // #region Property
 type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"];
@@ -49,23 +51,34 @@ export const Server_USRProjFormComp = (prop: { theme: IBETheme; lang: Lang; }) =
     const { internalId } = useParams();
     const navigate = useNavigate();
     const pathname = useLocation().pathname;
+    const preview = useServerPreviewFrame<SpecUSRPreviewPayload>({ ProgId: PGID.SpecUSR });
     const onBackToList = useCallback(() =>
     {
         navigate(LibRoutePath.buildServerBackToListPath(pathname));
     }, [navigate, pathname]);
     const actionsOpt = useMemo(() =>
     {
-        return { onBackToList };
-    }, [onBackToList]);
+        return { onBackToList, onPreviewFromDto: preview.openPreview };
+    }, [onBackToList, preview.openPreview]);
     const template = useSpecUSRFormTemplate({ lang: prop.lang, theme: prop.theme, internalId: internalId ?? "", emptyData: specUSREmptyData, actionsOpt });
 
     return (
         <Server_FormTemplate_Comp
             template={template}
+            resolveActionToolbarButtons={({ vm }) => [
+                buildServerPreviewToolbarButton({ action: vm.actions.Preview }),
+            ]}
             renderContent={({ vm }) => (
                 <>
                     <HeaderComp theme={prop.theme} formData={vm.binding} cateOpts={new Map<string, string>(Object.entries(vm.refs.categoryMap ?? {}))} statusOpts={vm.refs.statusOpts} tagOpts={vm.refs.tagMap} />
                     <DetailComp theme={prop.theme} formData={vm.binding} visibleCols={getVisibleCols(vm.binding, vm.refs.categoryCols)} />
+                    <PreviewFrame
+                        open={preview.isOpen}
+                        siteIndex={preview.siteIndex}
+                        onClose={preview.closePreview}
+                        payload={preview.framePayload}
+                        title={preview.title}
+                    />
                 </>
             )}
         />

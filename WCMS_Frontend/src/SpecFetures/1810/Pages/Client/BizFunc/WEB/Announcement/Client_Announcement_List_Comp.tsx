@@ -3,16 +3,16 @@ import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
 import type { GridProps } from "@/SysCore/Components/Grid/Grid_Data";
-import type { GridRow } from "@/SysCore/Components/Grid/Grid_Data";
 import { LoadingErrorHandler } from "@/SysCore/Components/LoadingErrorHandler";
 import { NewPaginatorCanInputPage } from "@/SysCore/Components/Paginator/Paginator_Comp";
-import { Client_SearchBar_Comp } from "@/Features/Pages/Client/Scaffold/SubPages/Module/SearchBar/Client_SearchBar_Comp";
+import { type ISearchQuery, SearchBarComp } from "@/SysCore/Components/SearchBar/SearchBar_Comp";
+import type { SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { formatDate } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { AnnouncementDetailFields, AnnouncementFields } from "@/types/SchemaFields";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { formatCategoriesName } from "@/Features/Hooks/BizFunc/COMM/Category_Api";
 import { formatTagsName } from "@/Features/Hooks/BizFunc/COMM/Tag_Api";
 import type { AnnouncementListViewProps } from "@/Features/Pages/Client/BizFunc/WEB/Announcement/Client_Announcement_List_Comp";
@@ -78,6 +78,7 @@ export const Client_Announcement_List = (props: AnnouncementListViewProps) =>
                         Theme={props.theme}
                         rawData={vm.listData}
                         categoryData={vm.categoryData}
+                        dirUrl={props.dirUrl}
                         currentPage={vm.pageNumber}
                         totalPages={vm.totalPages}
                         onPageChange={vm.onPageChange}
@@ -92,7 +93,7 @@ export const Client_Announcement_List = (props: AnnouncementListViewProps) =>
     // return
     return (
         <>
-            {vm.searchBar && <Client_SearchBar_Comp {...vm.searchBar} />}
+            {vm.searchBar && <AnnouncementSearchBar1810 searchBar={vm.searchBar} />}
             <LoadingErrorHandler isLoading={vm.isLoading} errorList={vm.errorList}>{content}</LoadingErrorHandler>
         </>
     );
@@ -100,6 +101,36 @@ export const Client_Announcement_List = (props: AnnouncementListViewProps) =>
 // #endregion
 
 // #region Section
+/** 1810 公告搜尋列，維持舊版橫式 DOM，但沿用 Feature VM 的搜尋事件。 */
+const AnnouncementSearchBar1810 = (props: { searchBar: NonNullable<AnnouncementListViewProps["vm"]["searchBar"]>; }) =>
+{
+    const [queryDraft, setQueryDraft] = useState<ISearchQuery>(() => buildSearchQuery1810(props.searchBar.values));
+
+    useEffect(() =>
+    {
+        setQueryDraft(buildSearchQuery1810(props.searchBar.values));
+    }, [props.searchBar.values]);
+
+    const handleChange = <K extends keyof ISearchQuery>(key: K, value: ISearchQuery[K]): void =>
+    {
+        setQueryDraft(prev => ({ ...prev, [key]: value }));
+    };
+
+    const handleReset = (): void =>
+    {
+        setQueryDraft({});
+        props.searchBar.onReset();
+    };
+
+    return (
+        <SearchBarComp
+            value={queryDraft}
+            onChange={handleChange}
+            onSubmit={() => props.searchBar.onSearch(buildSearchValues1810(queryDraft))}
+            onReset={handleReset}
+        />
+    );
+};
 /** 圖文式公告 */
 const PictureList_Comp = (
     prop: {
@@ -107,22 +138,20 @@ const PictureList_Comp = (
         Theme: IFETheme;
         rawData: AnnouncementSet[];
         categoryData: CategorySet[];
+        dirUrl: string;
         currentPage: number;
         totalPages: number;
         onPageChange: (page: number) => void;
     },
 ) =>
 {
-    // 宣告變數
-    const dirUrl = useLocation().pathname.replace(/\/List$/, "");
-
     // return
     return (
         <>
             <div className="articles_itemBoxs">
                 {prop.rawData.map((row) =>
                 {
-                    const internalId = `${dirUrl}/${row.Announcement?.InternalId ?? ""}`;
+                    const internalId = `${prop.dirUrl}/${row.Announcement?.InternalId ?? ""}`;
                     const picDesc = row.Announcement?.PicDescription ?? "";
                     const picUrl = FileManagementAPI.get_Public_Preview_Url(row.Announcement?.PictureId, picDesc) ?? DefaultEventImg;
                     const title = row.AnnouncementDetail?.find(p => p.Lang === prop.lang)?.Title ?? "";
@@ -246,6 +275,30 @@ const QAList_Comp = (
 // #endregion
 
 // #region Private
+/** 將新版 SearchBar values 轉成 1810 舊版 SearchBar query。 */
+const buildSearchQuery1810 = (values: SearchValues): ISearchQuery =>
+{
+    return {
+        keyword: toSearchText1810(values.keyword),
+        tag: toSearchText1810(values.tag),
+    };
+};
+/** 將 1810 舊版 SearchBar query 轉回新版 DataQuery values。 */
+const buildSearchValues1810 = (query: ISearchQuery): SearchValues =>
+{
+    return {
+        keyword: query.keyword ?? "",
+        tag: query.tag ?? "",
+    };
+};
+/** 取得搜尋值文字，避免陣列或非字串值直接塞到 input。 */
+const toSearchText1810 = (value: unknown): string =>
+{
+    if (Array.isArray(value)) return `${value[0] ?? ""}`;
+    if (typeof value === "string") return value;
+    if (value === undefined || value === null) return "";
+    return `${value}`;
+};
 const SetAdjustFunction = (
     lang: Lang,
     dirUrl: string,

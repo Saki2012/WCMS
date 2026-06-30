@@ -22,6 +22,30 @@ type FieldValue = string | number | boolean | null | undefined;
 
 const emptyData: SpecUSRSet = {};
 
+const supportedDetailColumns = [
+    SpecUSRDetailFields.Year,
+    SpecUSRDetailFields.AcademicYear,
+    SpecUSRDetailFields.Courses,
+    SpecUSRDetailFields.ProjectName,
+    SpecUSRDetailFields.ProjectLeader,
+    SpecUSRDetailFields.ProjectSubLeader,
+    SpecUSRDetailFields.Cohost1,
+    SpecUSRDetailFields.Cohost2,
+    SpecUSRDetailFields.PracticeField,
+    SpecUSRDetailFields.ExternalCooperationUnit,
+    SpecUSRDetailFields.Department,
+    SpecUSRDetailFields.AttendTeam,
+    SpecUSRDetailFields.ProjectItem,
+    SpecUSRDetailFields.PlanAmount,
+    SpecUSRDetailFields.DuringExecution,
+    SpecUSRDetailFields.ExecutionStrategy,
+    SpecUSRDetailFields.ContentIntroduction,
+    SpecUSRDetailFields.ProjectConcept,
+    SpecUSRDetailFields.ProjectHighlights,
+    SpecUSRDetailFields.Commissioned,
+    SpecUSRDetailFields.Remark,
+] as const;
+
 
 interface ISpecUSRFormProps
 {
@@ -34,6 +58,21 @@ interface GalleryOpenButtonProps
 {
     count: number;
     onOpen: () => void;
+}
+
+export interface SpecUSRPreviewFormProps
+{
+    /** 目前語系。 */
+    lang: string | Lang;
+
+    /** SpecUSR 預覽資料。 */
+    rawData: SpecUSRSet;
+
+    /** 依類別設定可顯示的欄位。 */
+    showColumns: string[];
+
+    /** 前台欄位標題設定。 */
+    showColTitle: ColumnConfig[];
 }
 // #endregion
 
@@ -55,6 +94,20 @@ export const SpecUSRFormComp = (props: ISpecUSRFormProps) =>
                 showColTitle={useFetchData.rawData.showColTitle}
             />
         </LoadingErrorHandler>
+    );
+};
+
+/** SpecUSR 前台預覽內容，沿用正式頁 Detail DOM。 */
+export const SpecUSRPreviewForm = (props: SpecUSRPreviewFormProps) =>
+{
+    // return
+    return (
+        <SpecUSRForm
+            lang={props.lang}
+            rawData={props.rawData}
+            showColumns={props.showColumns}
+            showColTitle={props.showColTitle}
+        />
     );
 };
 // #endregion
@@ -84,10 +137,35 @@ const hasValue = (value: FieldValue): boolean =>
 };
 
 
-const shouldRenderField = (showColumns: string[], colId: string, value: FieldValue): boolean =>
+const shouldRenderField = (showColumns: Set<string>, colId: string, value: FieldValue): boolean =>
 {
     // return
-    return showColumns.length > 0 && showColumns.includes(colId) && hasValue(value);
+    return showColumns.size > 0 && showColumns.has(colId) && hasValue(value);
+};
+
+
+const normalizePreviewColumnKey = (item: string): string =>
+{
+    // return
+    return `${item ?? ""}`.split(".").pop()?.trim() ?? "";
+};
+
+
+const buildShowColumnSet = (items: string[]): Set<string> =>
+{
+    // 宣告變數
+    const supported = new Set<string>(supportedDetailColumns);
+    const list = items.map(normalizePreviewColumnKey).filter(item => supported.has(item));
+
+    // return
+    return new Set(list);
+};
+
+
+const isSameLang = (source: string | Lang | null | undefined, target: string | Lang): boolean =>
+{
+    // return
+    return `${source ?? ""}`.trim().toLowerCase() === `${target ?? ""}`.trim().toLowerCase();
 };
 
 
@@ -96,32 +174,11 @@ const SpecUSRForm = (
 ) =>
 {
     // 宣告變數
-    const allCols = [
-        SpecUSRDetailFields.Year,
-        SpecUSRDetailFields.AcademicYear,
-        SpecUSRDetailFields.Courses,
-        SpecUSRDetailFields.ProjectName,
-        SpecUSRDetailFields.ProjectLeader,
-        SpecUSRDetailFields.ProjectSubLeader,
-        SpecUSRDetailFields.Cohost1,
-        SpecUSRDetailFields.Cohost2,
-        SpecUSRDetailFields.PracticeField,
-        SpecUSRDetailFields.ExternalCooperationUnit,
-        SpecUSRDetailFields.Department,
-        SpecUSRDetailFields.AttendTeam,
-        SpecUSRDetailFields.ProjectItem,
-        SpecUSRDetailFields.PlanAmount,
-        SpecUSRDetailFields.DuringExecution,
-        SpecUSRDetailFields.ExecutionStrategy,
-        SpecUSRDetailFields.ContentIntroduction,
-        SpecUSRDetailFields.ProjectConcept,
-        SpecUSRDetailFields.ProjectHighlights,
-        SpecUSRDetailFields.Commissioned,
-        SpecUSRDetailFields.Remark,
-    ];
+    const allCols = supportedDetailColumns;
+    const showColumnSet = useMemo(() => buildShowColumnSet(showColumns), [showColumns]);
 
     const header = rawData.SpecUSR;
-    const detail = rawData.SpecUSRDetail?.find(p => p.Lang === lang);
+    const detail = rawData.SpecUSRDetail?.find(p => isSameLang(p.Lang, lang));
     const urlDetail = rawData.SpecUSRUrl?.filter(p => p.USRId === detail?.USRId && p.ParentRowId === detail?.RowId);
     const fileDetail = rawData.SpecUSRFile?.filter(p => p.USRId === detail?.USRId && p.ParentRowId === detail?.RowId);
     const [open, setOpen] = useState(false);
@@ -141,7 +198,7 @@ const SpecUSRForm = (
             const id = `${item?.PicSrcId ?? ""}`.trim();
             if (!id) return null;
 
-            const info = infos.find(p => p.USRId === item.USRId && p.ParentRowId === item.RowId && p.Lang === lang);
+            const info = infos.find(p => p.USRId === item.USRId && p.ParentRowId === item.RowId && isSameLang(p.Lang, lang));
             return { id, alt: info?.Title ?? "" } as ISpecUSRPhoto;
         }).filter((p): p is ISpecUSRPhoto => p !== null);
     }, [rawData.SpecUSRPhoto, rawData.SpecUSRPhotoInfo, lang]);
@@ -156,7 +213,7 @@ const SpecUSRForm = (
                         {
                             const title = getColumnTitle(showColTitle, colId);
                             const data = getDetailValue(detail, colId);
-                            if (!shouldRenderField(showColumns, colId, data)) return null;
+                            if (!shouldRenderField(showColumnSet, colId, data)) return null;
 
                             return (
                                 <div className="tr__Box" key={colId}>

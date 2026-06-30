@@ -7,13 +7,14 @@ import type {
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { SpecCategoryAdapter } from "@/SpecFetures/1810/Hooks/WEB/SpecCategory_Api";
 import { SpecUSRAdapter } from "@/SpecFetures/1810/Hooks/WEB/SpecUSR_Api";
+import type { ColumnConfig } from "@/SysCore/Components/Grid/Grid_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { useEnsureLangDetails } from "@/SysCore/i18n/lang";
-import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
+import type { ApiFormInitial, ServerFormActions } from "@/SysCore/Utils/API/APIAdapter";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { PGID, SpecUSRDetailFields, SpecUSRPhotoInfoFields, SpecUSRSetFields } from "@/types/SchemaFields";
+import { PGID, SpecUSRDetailFields, SpecUSRModelFields, SpecUSRPhotoInfoFields, SpecUSRSetFields } from "@/types/SchemaFields";
 import { useMemo } from "react";
 
 // #region Property
@@ -84,9 +85,27 @@ export type SpecUSRFormRefs = {
     statusOpts: Record<string, string>;
 };
 
+export interface SpecUSRPreviewPayload
+{
+    /** 預覽使用的語系。 */
+    lang: Lang;
+
+    /** SpecUSR 預覽主資料。 */
+    formData: SpecUSRSet;
+
+    /** 依目前類別可顯示的欄位。 */
+    showColumns: string[];
+
+    /** 前台欄位標題設定。 */
+    showColTitle: ColumnConfig[];
+}
+
 export type SpecUSRFormActionsOpt = {
     /** 儲存/刪除成功後要回到列表。 */
     onBackToList: () => void;
+
+    /** 以目前 DTO 觸發 preview。 */
+    onPreviewFromDto: (payload: SpecUSRPreviewPayload) => void;
 };
 
 export type SpecUSRFormAdapter = {
@@ -103,6 +122,32 @@ export type SpecUSRFormAdapter = {
 
 // #region Public
 export const specUSREmptyData: SpecUSRSet = { SpecUSR: {}, SpecUSRDetail: [], SpecUSRFile: [], SpecUSRUrl: [], SpecUSRPhoto: [], SpecUSRPhotoInfo: [] };
+
+const previewVisibleKeys: ReadonlyArray<readonly [string, string]> = [
+    [SpecUSRSetFields.SpecUSR, SpecUSRModelFields.PictureId],
+    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Year],
+    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.AcademicYear],
+    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Courses],
+    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.PracticeField],
+    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectName],
+    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ExternalCooperationUnit],
+    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Department],
+    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.PlanAmount],
+    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.DuringExecution],
+    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ExecutionStrategy],
+    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ContentIntroduction],
+    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectConcept],
+    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectHighlights],
+    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectLeader],
+    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectSubLeader],
+    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Cohost1],
+    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Cohost2],
+    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Commissioned],
+    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.AttendTeam],
+    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Remark],
+    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.ProjectItem],
+    [SpecUSRSetFields.SpecUSRDetail, SpecUSRDetailFields.Url],
+];
 
 /** 建立 SpecUSR Form Template，統一交給 Server_FormTemplate 處理資料流程。 */
 export const useSpecUSRFormTemplate = (
@@ -124,6 +169,7 @@ export const useSpecUSRFormTemplate = (
                 buildTitle: buildSpecUSRFormTitle,
                 buildInitialData: buildSpecUSRInitialData,
                 useReferenceData: ctx => useSpecUSRReferenceData({ ...ctx, lang: opt.lang }),
+                buildActions: (ctx, defaultActions) => buildSpecUSRActions({ ...ctx, lang: opt.lang }, defaultActions),
             },
         };
     }, [opt.actionsOpt, opt.emptyData, opt.internalId, opt.lang, opt.theme]);
@@ -143,6 +189,66 @@ const buildSpecUSRInitialData = (ctx: { mode: "new" | "edit"; emptyData: SpecUSR
 {
     if (ctx.mode !== "new") return undefined;
     return { data: { args: "__new__", apiRes: { IsSuccess: true, Data: ctx.emptyData, SysMessage: [] } } };
+};
+
+/** 建立 SpecUSR Toolbar 動作，追加前台預覽行為。 */
+const buildSpecUSRActions = (
+    ctx: { binding: ServerFormBinding<SpecUSRSet>; refs: SpecUSRFormRefs; actionsOpt: SpecUSRFormActionsOpt; lang: Lang; },
+    defaultActions: ServerFormActions,
+): ServerFormActions =>
+{
+    // return
+    return { ...defaultActions, Preview: () => ctx.actionsOpt.onPreviewFromDto(buildSpecUSRPreviewPayload(getLatestSpecUSRFormData(ctx.binding), ctx.refs, ctx.binding.displayName, ctx.lang)) };
+};
+
+/** 建立 SpecUSR 前台預覽 payload。 */
+const buildSpecUSRPreviewPayload = (formData: SpecUSRSet, refs: SpecUSRFormRefs, displayName: ModelDisplaySchema, lang: Lang): SpecUSRPreviewPayload =>
+{
+    // 宣告變數
+    const previewData = cloneSpecUSRPreviewData(formData);
+    const categoryId = `${previewData.SpecUSR?.CategoryId ?? ""}`.trim();
+    const showColumns = resolvePreviewShowColumns(refs.categoryCols?.[categoryId] ?? []);
+    const showColTitle = buildSpecUSRPreviewColumns(displayName, previewVisibleKeys);
+
+    // return
+    return { lang, formData: previewData, showColumns, showColTitle };
+};
+
+/** 取得目前最新的 SpecUSR 表單資料，避免 Preview action 拿到舊 closure。 */
+const getLatestSpecUSRFormData = (binding: ServerFormBinding<SpecUSRSet>): SpecUSRSet =>
+{
+    // return
+    return binding.getData?.() ?? binding.data;
+};
+
+/** 複製 SpecUSR 預覽資料，避免 iframe payload 與後台編輯狀態共用 reference。 */
+const cloneSpecUSRPreviewData = (formData: SpecUSRSet): SpecUSRSet =>
+{
+    // return
+    return {
+        SpecUSR: { ...(formData.SpecUSR ?? {}) },
+        SpecUSRDetail: (formData.SpecUSRDetail ?? []).map(item => ({ ...item })),
+        SpecUSRPhoto: (formData.SpecUSRPhoto ?? []).map(item => ({ ...item })),
+        SpecUSRPhotoInfo: (formData.SpecUSRPhotoInfo ?? []).map(item => ({ ...item })),
+        SpecUSRFile: (formData.SpecUSRFile ?? []).map(item => ({ ...item })),
+        SpecUSRUrl: (formData.SpecUSRUrl ?? []).map(item => ({ ...item })),
+    };
+};
+
+/** 依後端欄位顯示設定建立前台預覽欄位標題。 */
+const buildSpecUSRPreviewColumns = (schema: ModelDisplaySchema, visibleKeys: ReadonlyArray<readonly [string, string]>): ColumnConfig[] =>
+{
+    // 執行 function
+    if (!schema?.Tables?.length || visibleKeys.length === 0) return [];
+
+    // return
+    return visibleKeys.map(([tableId, columnId]) =>
+    {
+        const table = schema.Tables.find(p => p.TableId === tableId);
+        const column = table?.Columns.find(p => p.ColumnId === columnId);
+        if (!column) return null;
+        return { key: column.ColumnId, title: column.ColumnDisplayName } as ColumnConfig;
+    }).filter((p): p is ColumnConfig => p !== null);
 };
 
 /** 建立 SpecUSR Form 會使用到的 Adapter 群組。 */
@@ -231,8 +337,22 @@ const buildCategoryCols = (rows: SpecCategorySet[]): Record<string, string[]> =>
 const parseShowColumnItems = (raw: string): string[] =>
 {
     if (!raw) return [];
-    if (raw.startsWith("[") && raw.endsWith("]")) return safeParseJsonArray(raw) ?? [];
-    return raw.split(/[,;|]/g).map(item => item.trim()).filter(Boolean);
+    if (raw.startsWith("[") && raw.endsWith("]")) return resolvePreviewShowColumns(safeParseJsonArray(raw) ?? []);
+    return resolvePreviewShowColumns(raw.split(/[,;|]/g));
+};
+
+/** 正規化預覽顯示欄位，讓後台組成資料與前台 view 比對格式一致。 */
+const resolvePreviewShowColumns = (items: string[]): string[] =>
+{
+    const supported = new Set(previewVisibleKeys.map(([, col]) => col));
+    const seen = new Set<string>();
+    return items.map(item => normalizePreviewColumnKey(item)).filter(key => key && supported.has(key) && !seen.has(key)).map(key => (seen.add(key), key));
+};
+
+/** 將 SpecUSRDetail.ProjectName 這類欄位名稱轉成前台 view 使用的 ProjectName。 */
+const normalizePreviewColumnKey = (item: string): string =>
+{
+    return `${item ?? ""}`.split(".").pop()?.trim() ?? "";
 };
 
 /** 安全解析 JSON array。 */

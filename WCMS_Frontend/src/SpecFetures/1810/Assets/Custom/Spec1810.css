@@ -170,3 +170,95 @@
         max-width: 1470px;
     }
 }
+
+/* =========================================
+   1810 Menu SPA focus 修正
+   目的：舊站換頁後不會殘留滑鼠 focus；React SPA 需避免滑鼠點擊被 :focus 當成 active 色。
+   鍵盤操作仍保留 :focus-visible 外框，符合 AA 可見焦點需求。
+========================================= */
+.Left-Second-navBox ul li a:focus:not(:focus-visible):not(.active):not(.a-focus),
+.Left-Second-navBox ul li a:active:not(.active):not(.a-focus),
+#ContentPlaceContent_ContentThirdMenu ul.third-list-group li a.list-group-item:focus:not(:focus-visible):not(.active),
+#ContentPlaceContent_ContentThirdMenu ul.third-list-group li a.list-group-item:active:not(.active),
+.page-righttopmenu ul.third-list-group li a:focus:not(:focus-visible):not(.active),
+.page-righttopmenu ul.third-list-group li a:active:not(.active) {
+    color: var(--blackcolor) !important;
+    background-color: var(--FFFcolor) !important;
+    border-color: #dddddd !important;
+}
+
+.Left-Second-navBox ul li a:focus-visible,
+#ContentPlaceContent_ContentThirdMenu ul.third-list-group li a.list-group-item:focus-visible,
+.page-righttopmenu ul.third-list-group li a:focus-visible {
+    outline: 3px solid #ffbf47;
+    outline-offset: 2px;
+}
+
+
+/* =========================================
+   1810 SPA Mouse Click Color Reset
+   目的：舊站 WebForms 點擊後會換頁，所以滑鼠 focus / active 不會殘留。
+   React SPA 需把滑鼠點擊造成的 focus / active 視覺還原，只保留 hover、真正 .active 與鍵盤 focus-visible。
+========================================= */
+.header_section .header_Box .menulayer .menuBox ul li:not(.active) > a:focus:not(:focus-visible):not(.active),
+.header_section .header_Box .menulayer .menuBox ul li:not(.active) > a:active:not(.active) {
+    color: var(--FFFcolor) !important;
+    background-color: #021a1c !important;
+}
+
+.header_section .header_Box .menulayer .menuBox ul li.active > a,
+.header_section .header_Box .menulayer .menuBox ul li.active > a:focus,
+.header_section .header_Box .menulayer .menuBox ul li.active > a:active {
+    color: var(--FFFcolor) !important;
+    background-color: var(--Customize_color) !important;
+}
+
+.Left-Second-navBox ul li:not(.active) > a:focus:not(:focus-visible):not(.active),
+.Left-Second-navBox ul li:not(.active) > a:active:not(.active) {
+    color: var(--blackcolor) !important;
+    background-color: var(--FFFcolor) !important;
+    border-color: #dddddd !important;
+}
+
+.Left-Second-navBox ul li:not(.active) > a:focus:not(:focus-visible):not(.active)::before,
+.Left-Second-navBox ul li:not(.active) > a:active:not(.active)::before {
+    color: var(--blackcolor) !important;
+}
+
+.Left-Second-navBox ul li.active > a.a-focus,
+.Left-Second-navBox ul li.active > a.a-focus:focus,
+.Left-Second-navBox ul li.active > a.a-focus:active,
+.Left-Second-navBox ul li > a.active,
+.Left-Second-navBox ul li > a.active:focus,
+.Left-Second-navBox ul li > a.active:active {
+    color: var(--FFFcolor) !important;
+    background-color: var(--Customize_color) !important;
+    border-color: #dddddd !important;
+}
+
+#ContentPlaceContent_ContentThirdMenu.page-righttopmenu ul.third-list-group li a.list-group-item:focus:not(:focus-visible):not(.active),
+#ContentPlaceContent_ContentThirdMenu.page-righttopmenu ul.third-list-group li a.list-group-item:active:not(.active),
+#ContentPlaceContent_ContentThirdMenu ul.third-list-group li a.list-group-item:focus:not(:focus-visible):not(.active),
+#ContentPlaceContent_ContentThirdMenu ul.third-list-group li a.list-group-item:active:not(.active) {
+    color: var(--blackcolor) !important;
+    background-color: var(--FFFcolor) !important;
+    border-color: #dddddd !important;
+}
+
+#ContentPlaceContent_ContentThirdMenu.page-righttopmenu ul.third-list-group li a.list-group-item.active,
+#ContentPlaceContent_ContentThirdMenu.page-righttopmenu ul.third-list-group li a.list-group-item.active:focus,
+#ContentPlaceContent_ContentThirdMenu.page-righttopmenu ul.third-list-group li a.list-group-item.active:active,
+#ContentPlaceContent_ContentThirdMenu ul.third-list-group li a.list-group-item.active,
+#ContentPlaceContent_ContentThirdMenu ul.third-list-group li a.list-group-item.active:focus,
+#ContentPlaceContent_ContentThirdMenu ul.third-list-group li a.list-group-item.active:active {
+    color: var(--FFFcolor) !important;
+    background-color: var(--Customize_color) !important;
+    border-color: var(--Customize_color) !important;
+}
+
+.header_section .header_Box .menulayer .menuBox ul li a:focus-visible,
+.Left-Second-navBox ul li a:focus-visible,
+#ContentPlaceContent_ContentThirdMenu ul.third-list-group li a.list-group-item:focus-visible {
+    outline: 3px solid #ffbf47 !important;
+    outline-offset: 2px !important;
+}
