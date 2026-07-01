@@ -135,6 +135,7 @@ export const AnnouncementFields = {
   Validate_Start: 'Validate_Start',
   Validate_End: 'Validate_End',
   _AnnouncementDetail: '_AnnouncementDetail',
+  SpecSchoolYear: 'SpecSchoolYear',
 } as const;
 
 export type AnnouncementFieldKey = keyof typeof AnnouncementFields;
@@ -1156,16 +1157,7 @@ export const SiteViewCountSet_DTOApiResponseFields = {
 
 export type SiteViewCountSet_DTOApiResponseFieldKey = keyof typeof SiteViewCountSet_DTOApiResponseFields;
 
-export const SpecCategoryDetailModelFields = {
-  CategoryId: 'CategoryId',
-  RowId: 'RowId',
-  Lang: 'Lang',
-  CategoryName: 'CategoryName',
-} as const;
-
-export type SpecCategoryDetailModelFieldKey = keyof typeof SpecCategoryDetailModelFields;
-
-export const SpecCategoryModelFields = {
+export const SpecHomePage1821ModelFields = {
   CreateTime: 'CreateTime',
   CreateUserId: 'CreateUserId',
   CreateUser: 'CreateUser',
@@ -1178,219 +1170,98 @@ export const SpecCategoryModelFields = {
   InvalidUserId: 'InvalidUserId',
   InternalId: 'InternalId',
   OrgLvId: 'OrgLvId',
-  CategoryId: 'CategoryId',
-  ProgId: 'ProgId',
-  ShowColumnItems: 'ShowColumnItems',
-  _SpecCategoryDetail: '_SpecCategoryDetail',
+  HomePageId: 'HomePageId',
+  Lang: 'Lang',
+  Section3Title: 'Section3Title',
+  Section3SubTitle: 'Section3SubTitle',
+  Card1Title: 'Card1Title',
+  Card1Link: 'Card1Link',
+  Card1Pic: 'Card1Pic',
+  Card1PicId: 'Card1PicId',
+  Card2Title: 'Card2Title',
+  Card2Link: 'Card2Link',
+  Card2Pic: 'Card2Pic',
+  Card2PicId: 'Card2PicId',
+  Section4Title: 'Section4Title',
+  Section4SubTitle: 'Section4SubTitle',
+  LinkOptions: 'LinkOptions',
+  LinkViewMore: 'LinkViewMore',
+  _SpecHomePage1821_Banner: '_SpecHomePage1821_Banner',
+  _SpecHomePage1821_Shortcut: '_SpecHomePage1821_Shortcut',
 } as const;
 
-export type SpecCategoryModelFieldKey = keyof typeof SpecCategoryModelFields;
+export type SpecHomePage1821ModelFieldKey = keyof typeof SpecHomePage1821ModelFields;
 
-export const SpecCategorySetFields = {
-  SpecCategory: 'SpecCategory',
-  SpecCategoryDetail: 'SpecCategoryDetail',
+export const SpecHomePage1821SetFields = {
+  SpecHomePage1821: 'SpecHomePage1821',
+  SpecHomePage1821_Banner: 'SpecHomePage1821_Banner',
+  SpecHomePage1821_Shortcut: 'SpecHomePage1821_Shortcut',
+  SpecHomePage1821_ShortcutModuleItem: 'SpecHomePage1821_ShortcutModuleItem',
 } as const;
 
-export type SpecCategorySetFieldKey = keyof typeof SpecCategorySetFields;
+export type SpecHomePage1821SetFieldKey = keyof typeof SpecHomePage1821SetFields;
 
-export const SpecCategorySet_DTOApiRequestFields = {
+export const SpecHomePage1821Set_DTOApiRequestFields = {
   InternalId: 'InternalId',
   Data: 'Data',
 } as const;
 
-export type SpecCategorySet_DTOApiRequestFieldKey = keyof typeof SpecCategorySet_DTOApiRequestFields;
+export type SpecHomePage1821Set_DTOApiRequestFieldKey = keyof typeof SpecHomePage1821Set_DTOApiRequestFields;
 
-export const SpecResearchDetailModelFields = {
-  ResearchId: 'ResearchId',
+export const SpecHomePage1821_BannerFields = {
+  RowState: 'RowState',
+  HomePageId: 'HomePageId',
   RowId: 'RowId',
-  Lang: 'Lang',
-  Year: 'Year',
-  AcademicYear: 'AcademicYear',
-  Semester: 'Semester',
-  DuringExecution: 'DuringExecution',
-  ContractPeriod: 'ContractPeriod',
-  ClassTime: 'ClassTime',
-  ProjectLeader: 'ProjectLeader',
-  Name: 'Name',
-  TeachingStaffOfOurSchool: 'TeachingStaffOfOurSchool',
-  ApprovalNumber: 'ApprovalNumber',
-  ApprovedAmount: 'ApprovedAmount',
-  College: 'College',
-  Department: 'Department',
-  GraduationDegree: 'GraduationDegree',
-  CooperatingUnits: 'CooperatingUnits',
-  CooperationProject: 'CooperationProject',
-  Courses: 'Courses',
-  ProjectName: 'ProjectName',
-  PaperTitle: 'PaperTitle',
-  Remark: 'Remark',
-  Cohost1: 'Cohost1',
-  Cohost2: 'Cohost2',
-  Commissioned: 'Commissioned',
-  PlanAmount: 'PlanAmount',
-  PlanContent: 'PlanContent',
-  Professor: 'Professor',
-} as const;
-
-export type SpecResearchDetailModelFieldKey = keyof typeof SpecResearchDetailModelFields;
-
-export const SpecResearchModelFields = {
-  CreateTime: 'CreateTime',
-  CreateUserId: 'CreateUserId',
-  CreateUser: 'CreateUser',
-  ModifyTime: 'ModifyTime',
-  ModifyUserId: 'ModifyUserId',
-  ModifyUser: 'ModifyUser',
-  FormStatus: 'FormStatus',
-  DataStatus: 'DataStatus',
-  InvalidTime: 'InvalidTime',
-  InvalidUserId: 'InvalidUserId',
-  InternalId: 'InternalId',
-  OrgLvId: 'OrgLvId',
-  ResearchId: 'ResearchId',
-  CategoryId: 'CategoryId',
-  ContentStatus: 'ContentStatus',
-  Tags: 'Tags',
-  _SpecResearchDetail: '_SpecResearchDetail',
-} as const;
-
-export type SpecResearchModelFieldKey = keyof typeof SpecResearchModelFields;
-
-export const SpecResearchSetFields = {
-  SpecResearch: 'SpecResearch',
-  SpecResearchDetail: 'SpecResearchDetail',
-} as const;
-
-export type SpecResearchSetFieldKey = keyof typeof SpecResearchSetFields;
-
-export const SpecResearchSet_DTOApiRequestFields = {
-  InternalId: 'InternalId',
-  Data: 'Data',
-} as const;
-
-export type SpecResearchSet_DTOApiRequestFieldKey = keyof typeof SpecResearchSet_DTOApiRequestFields;
-
-export const SpecUSRDetailFields = {
-  USRId: 'USRId',
-  RowId: 'RowId',
-  Lang: 'Lang',
-  Year: 'Year',
-  AcademicYear: 'AcademicYear',
-  Courses: 'Courses',
-  PracticeField: 'PracticeField',
-  ProjectName: 'ProjectName',
-  ExternalCooperationUnit: 'ExternalCooperationUnit',
-  Department: 'Department',
-  DuringExecution: 'DuringExecution',
-  PlanAmount: 'PlanAmount',
-  ExecutionStrategy: 'ExecutionStrategy',
-  ContentIntroduction: 'ContentIntroduction',
-  ProjectConcept: 'ProjectConcept',
-  ProjectHighlights: 'ProjectHighlights',
-  ProjectLeader: 'ProjectLeader',
-  ProjectSubLeader: 'ProjectSubLeader',
-  AttendTeam: 'AttendTeam',
-  Cohost1: 'Cohost1',
-  Cohost2: 'Cohost2',
-  Commissioned: 'Commissioned',
-  Remark: 'Remark',
-  ProjectItem: 'ProjectItem',
-  Url: 'Url',
-  UrlDescription: 'UrlDescription',
-} as const;
-
-export type SpecUSRDetailFieldKey = keyof typeof SpecUSRDetailFields;
-
-export const SpecUSRFileFields = {
-  USRId: 'USRId',
-  ParentRowId: 'ParentRowId',
-  RowId: 'RowId',
-  FileSrc: 'FileSrc',
-  FileSrcId: 'FileSrcId',
-  FileName: 'FileName',
-  _SpecUSRDetail: '_SpecUSRDetail',
-} as const;
-
-export type SpecUSRFileFieldKey = keyof typeof SpecUSRFileFields;
-
-export const SpecUSRModelFields = {
-  CreateTime: 'CreateTime',
-  CreateUserId: 'CreateUserId',
-  CreateUser: 'CreateUser',
-  ModifyTime: 'ModifyTime',
-  ModifyUserId: 'ModifyUserId',
-  ModifyUser: 'ModifyUser',
-  FormStatus: 'FormStatus',
-  DataStatus: 'DataStatus',
-  InvalidTime: 'InvalidTime',
-  InvalidUserId: 'InvalidUserId',
-  InternalId: 'InternalId',
-  OrgLvId: 'OrgLvId',
-  USRId: 'USRId',
-  CategoryId: 'CategoryId',
-  ContentStatus: 'ContentStatus',
-  Tags: 'Tags',
-  Picture: 'Picture',
-  PictureId: 'PictureId',
-  PicDescription: 'PicDescription',
-  _SpecUSRDetail: '_SpecUSRDetail',
-  _SpecUSRPhoto: '_SpecUSRPhoto',
-} as const;
-
-export type SpecUSRModelFieldKey = keyof typeof SpecUSRModelFields;
-
-export const SpecUSRPhotoInfoFields = {
-  USRId: 'USRId',
-  ParentRowId: 'ParentRowId',
-  RowId: 'RowId',
-  Lang: 'Lang',
+  RowNo: 'RowNo',
   Title: 'Title',
-  _SpecUSRPhoto: '_SpecUSRPhoto',
+  SubTitle: 'SubTitle',
+  BannerFile: 'BannerFile',
+  BannerFileId: 'BannerFileId',
+  BannerFileDescription: 'BannerFileDescription',
+  Link: 'Link',
+  _SpecHomePage1821: '_SpecHomePage1821',
 } as const;
 
-export type SpecUSRPhotoInfoFieldKey = keyof typeof SpecUSRPhotoInfoFields;
+export type SpecHomePage1821_BannerFieldKey = keyof typeof SpecHomePage1821_BannerFields;
 
-export const SpecUSRPhotoFields = {
-  USRId: 'USRId',
-  RowId: 'RowId',
-  PicSrc: 'PicSrc',
-  PicSrcId: 'PicSrcId',
-  Sort: 'Sort',
-  _SpecUSR: '_SpecUSR',
-  _SpecUSRPhotoInfo: '_SpecUSRPhotoInfo',
-} as const;
-
-export type SpecUSRPhotoFieldKey = keyof typeof SpecUSRPhotoFields;
-
-export const SpecUSRSetFields = {
-  SpecUSR: 'SpecUSR',
-  SpecUSRDetail: 'SpecUSRDetail',
-  SpecUSRPhoto: 'SpecUSRPhoto',
-  SpecUSRPhotoInfo: 'SpecUSRPhotoInfo',
-  SpecUSRFile: 'SpecUSRFile',
-  SpecUSRUrl: 'SpecUSRUrl',
-} as const;
-
-export type SpecUSRSetFieldKey = keyof typeof SpecUSRSetFields;
-
-export const SpecUSRSet_DTOApiRequestFields = {
-  InternalId: 'InternalId',
-  Data: 'Data',
-} as const;
-
-export type SpecUSRSet_DTOApiRequestFieldKey = keyof typeof SpecUSRSet_DTOApiRequestFields;
-
-export const SpecUSRUrlFields = {
-  USRId: 'USRId',
+export const SpecHomePage1821_ShortcutModuleItemFields = {
+  RowState: 'RowState',
+  HomePageId: 'HomePageId',
   ParentRowId: 'ParentRowId',
   RowId: 'RowId',
-  Url: 'Url',
-  UrlDescription: 'UrlDescription',
-  WindowTarget: 'WindowTarget',
-  _SpecUSRDetail: '_SpecUSRDetail',
+  RowNo: 'RowNo',
+  Title: 'Title',
+  SubTitle: 'SubTitle',
+  ModuleType: 'ModuleType',
+  ModuleOptions: 'ModuleOptions',
+  MoreViewLink: 'MoreViewLink',
+  _SpecHomePage1821_Shortcut: '_SpecHomePage1821_Shortcut',
 } as const;
 
-export type SpecUSRUrlFieldKey = keyof typeof SpecUSRUrlFields;
+export type SpecHomePage1821_ShortcutModuleItemFieldKey = keyof typeof SpecHomePage1821_ShortcutModuleItemFields;
+
+export const SpecHomePage1821_ShortcutFields = {
+  RowState: 'RowState',
+  HomePageId: 'HomePageId',
+  RowId: 'RowId',
+  RowNo: 'RowNo',
+  ShortcutCode: 'ShortcutCode',
+  Title: 'Title',
+  SubTitle: 'SubTitle',
+  IconFile: 'IconFile',
+  IconFileId: 'IconFileId',
+  IconFileDescription: 'IconFileDescription',
+  ActionType: 'ActionType',
+  ActionValue: 'ActionValue',
+  IsLink: 'IsLink',
+  Link: 'Link',
+  LinkPic: 'LinkPic',
+  LinkPicId: 'LinkPicId',
+  _SpecHomePage1821: '_SpecHomePage1821',
+  _SpecHomePage1821_ShortcutModuleItem: '_SpecHomePage1821_ShortcutModuleItem',
+} as const;
+
+export type SpecHomePage1821_ShortcutFieldKey = keyof typeof SpecHomePage1821_ShortcutFields;
 
 export const StringApiResponseFields = {
   IsSuccess: 'IsSuccess',
@@ -1730,9 +1601,7 @@ export const PGID = {
     RolePermission: "RolePermission",
     SiteMenu: "SiteMenu",
     SiteViewCount: "SiteViewCount",
-    SpecCategory: "SpecCategory",
-    SpecResearch: "SpecResearch",
-    SpecUSR: "SpecUSR",
+    SpecHomePageApi: "SpecHomePageApi",
     Survey: "Survey",
     SurveySubmission: "SurveySubmission",
     SystemAPI: "SystemAPI",
