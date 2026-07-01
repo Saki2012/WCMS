@@ -66,4 +66,8 @@ public static class SpecModelDisplayName
     public const string ModuleOptions = "Spec_ModuleOptions";
     /// <summary>模組查看更多連結</summary>
     public const string MoreViewLink = "Spec_MoreViewLink";
+    /// <summary>
+    /// 學年度
+    /// </summary>
+    public const string SpecSchoolYear = nameof(SpecSchoolYear);
 }
