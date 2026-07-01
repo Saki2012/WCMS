@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -189,9 +190,7 @@ namespace WCMS.SysCore
         /// <summary>
         /// 查看表單清單(非同步)
         /// </summary>
-        public async Task<IList<TModel>> QueryListAsync(LambdaExpression? selectExpr, LambdaExpression? whereExpr, IReadOnlyList<OrderBySpec>? orderBy = null, int pageCt = 0, int takeCt = 0, 
-            int skipCt = 0,                 // ✅ 新增：支援 skip/take
-            bool asNoTracking = true)
+        public async Task<IList<TModel>> QueryListAsync(LambdaExpression? selectExpr,LambdaExpression? whereExpr,IReadOnlyList<OrderBySpec>? orderBy = null,int pageCt = 0,int takeCt = 0,int skipCt = 0,bool asNoTracking = true)
         {
             IQueryable<TModel> query = DataAccess.Set<TModel>();
             query = query.TagWith($"BasicRepository<{typeof(TModel).Name}>.QueryListAsync");
@@ -202,26 +201,29 @@ namespace WCMS.SysCore
                 query = query.Where((Expression<Func<TModel, bool>>)whereExpr);
 
             // ✅ 排序
-            if (orderBy != null && orderBy.Count > 0)
-                query = ApplyOrderBy(query, orderBy);
+            bool hasOrderBy = orderBy != null && orderBy.Count > 0;
+            if (hasOrderBy)
+                query = ApplyOrderBy(query, orderBy!);
 
-            // ✅ Include（兩種模式：selectExpr 抽 include / fields 空 → 預設第一層 include）
+            // ✅ 分頁前保底排序，避免 SplitQuery + Skip 沒有排序造成 EF 例外
+            if (takeCt > 0 && !hasOrderBy)
+                query = ApplyDefaultKeyOrderBy(query);
+
+            // ✅ Include：Fields 空時使用預設第一層 reference include
             if (selectExpr == null)
             {
                 query = DefaultIncludeHelper.ApplyFirstLevelReferenceIncludes(DataAccess, query, out int includeCt);
                 if (includeCt > 0) query = query.AsSplitQuery();
             }
 
-            // ✅ 分頁：優先使用 pageCt；否則使用 skipCt（給 RankGroups 精準切段用）
+            // ✅ 分頁：優先使用 pageCt，否則使用 skipCt
             if (takeCt > 0)
-            {
-                if (pageCt > 0) query = query.Skip((pageCt - 1) * takeCt).Take(takeCt);
-                else if (skipCt > 0) query = query.Skip(skipCt).Take(takeCt);
-                else if (skipCt == 0) query = query.Take(takeCt);
-            }
+                query = ApplyPaging(query, pageCt, takeCt, skipCt);
 
             // ✅ Select
             if (selectExpr == null) return await query.ToListAsync();
+
+            query = query.AsSplitQuery();
             return await query.Select((Expression<Func<TModel, TModel>>)selectExpr).ToListAsync();
         }
         /// <summary>
@@ -697,6 +699,39 @@ namespace WCMS.SysCore
             }
 
             return current;
+        }
+
+        /// <summary>
+        /// 套用分頁或 skip/take 切段。
+        /// </summary>
+        private static IQueryable<TModel> ApplyPaging(IQueryable<TModel> query,int pageCt,int takeCt,int skipCt)
+        {
+            if (pageCt > 0) return query.Skip((pageCt - 1) * takeCt).Take(takeCt);
+            if (skipCt > 0) return query.Skip(skipCt).Take(takeCt);
+            return query.Take(takeCt);
+        }
+        /// <summary>
+        /// 分頁查詢沒有指定排序時，使用主鍵建立穩定排序。
+        /// </summary>
+        private IQueryable<TModel> ApplyDefaultKeyOrderBy(IQueryable<TModel> query)
+        {
+            var keyProperties = DataAccess.Model.FindEntityType(typeof(TModel))?.FindPrimaryKey()?.Properties;
+            if (keyProperties == null || keyProperties.Count == 0) return query;
+            IQueryable<TModel> orderedQuery = ApplyKeyOrder(query, keyProperties[0], false);
+            for (int i = 1; i < keyProperties.Count; i++) orderedQuery = ApplyKeyOrder(orderedQuery, keyProperties[i], true);
+            return orderedQuery;
+        }
+        /// <summary>
+        /// 依指定欄位建立 OrderBy 或 ThenBy 查詢。
+        /// </summary>
+        private static IQueryable<TModel> ApplyKeyOrder(IQueryable<TModel> query,IProperty property,bool useThenBy)
+        {
+            var parameter = Expression.Parameter(typeof(TModel), "x");
+            var propertyAccess = Expression.Call(typeof(EF),nameof(EF.Property),[property.ClrType],parameter,Expression.Constant(property.Name));
+            var keySelector = Expression.Lambda(propertyAccess, parameter);
+            string methodName = useThenBy ? nameof(Queryable.ThenBy) : nameof(Queryable.OrderBy);
+            var orderedExpression = Expression.Call(typeof(Queryable),methodName,[typeof(TModel), property.ClrType],query.Expression,Expression.Quote(keySelector));
+            return query.Provider.CreateQuery<TModel>(orderedExpression);
         }
         #endregion
 
