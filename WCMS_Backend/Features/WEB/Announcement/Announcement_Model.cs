@@ -12,7 +12,7 @@ namespace WCMS.Features.WEB.Announcement
     /// <summary>
     /// 公告功能
     /// </summary>
-    public class AnnouncementSet:ITSet
+    public partial class AnnouncementSet:ITSet
     {
         public Announcement Announcement { get; set; } = new Announcement();
         public List<AnnouncementDetail> AnnouncementDetail { get; set; } = [];
@@ -21,7 +21,7 @@ namespace WCMS.Features.WEB.Announcement
     /// <summary>
     /// 公告主表
     /// </summary>
-    public class Announcement: MasterDataModel
+    public partial class Announcement: MasterDataModel
     {
         /// <summary>
         /// 公告代碼
@@ -54,7 +54,7 @@ namespace WCMS.Features.WEB.Announcement
     /// <summary>
     /// 公告明細
     /// </summary>
-    public class AnnouncementDetail : DetailRowModel
+    public partial class AnnouncementDetail : DetailRowModel
     {
         /// <summary>
         /// 公告代碼
@@ -93,7 +93,7 @@ namespace WCMS.Features.WEB.Announcement
     /// <summary>
     /// 明細檔案關聯
     /// </summary>
-    public class AnnouncementDetailFile : DetailRowModel
+    public partial class AnnouncementDetailFile : DetailRowModel
     {
         /// <summary>
         /// 公告代碼

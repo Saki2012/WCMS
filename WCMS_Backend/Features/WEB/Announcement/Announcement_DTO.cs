@@ -14,7 +14,7 @@ namespace WCMS.Features.WEB.Announcement
     /// 公告功能
     /// </summary>
     [LibDesc(ModelDisplayName.AnnouncementSet)]
-    public class AnnouncementSet_DTO : ITSet_DTO
+    public partial class AnnouncementSet_DTO : ITSet_DTO
     {
         [LibDesc] public Announcement_DTO Announcement { get; set; } = new();
         [LibDesc] public List<AnnouncementDetail_DTO> AnnouncementDetail { get; set; } = [];
@@ -24,7 +24,7 @@ namespace WCMS.Features.WEB.Announcement
     /// 公告主表
     /// </summary>
     [LibDesc]
-    public class Announcement_DTO : DTOBasicDataModel
+    public partial class Announcement_DTO : DTOBasicDataModel
     {
         /// <summary>
         /// 公告代碼
@@ -67,7 +67,7 @@ namespace WCMS.Features.WEB.Announcement
     /// 公告明細
     /// </summary>
     [LibDesc]
-    public class AnnouncementDetail_DTO
+    public partial class AnnouncementDetail_DTO
     {
         /// <summary>
         /// 公告代碼
@@ -111,7 +111,7 @@ namespace WCMS.Features.WEB.Announcement
     /// 明細檔案關聯
     /// </summary>
     [LibDesc(ModelDisplayName.AnnouncementDetailFile)]
-    public class AnnouncementDetailFile_DTO
+    public partial class AnnouncementDetailFile_DTO
     {
         /// <summary>
         /// 公告代碼
