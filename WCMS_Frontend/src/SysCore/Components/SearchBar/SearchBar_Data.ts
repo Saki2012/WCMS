@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 // #region Property
 /** 搜尋欄位類型 */
-export type SearchFieldType = "text" | "select" | "checkbox" | "checkboxGroup" | "radio" | "date" | "dateRange" | "custom";
+export type SearchFieldType = "text" | "number" | "select" | "checkbox" | "checkboxGroup" | "radio" | "date" | "dateRange" | "custom";
 
 
 /** 搜尋欄位 Key，可對應 fieldId，也可使用自定義 key */

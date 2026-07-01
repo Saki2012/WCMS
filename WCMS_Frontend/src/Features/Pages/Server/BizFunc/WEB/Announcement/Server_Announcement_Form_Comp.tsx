@@ -26,6 +26,7 @@ import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LibAttachment, LibText } from "@/SysCore/Utils/Library/LibData";
+import { resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import type { components } from "@/types/api";
 import { AnnouncementDetailFields, AnnouncementFields, AnnouncementSetFields, PGID } from "@/types/SchemaFields";
@@ -43,7 +44,7 @@ interface AnnouncementFormCompProps
     /** 目前語系 */
     lang: Lang;
 }
-interface HeaderSectionProps
+export interface HeaderSectionProps
 {
     /** 後台主題設定 */
     theme: IBETheme;
@@ -73,7 +74,7 @@ interface SubDetailSectionProps
     /** 目前 Detail RowId，給附件 Grid 綁 ParentRowId */
     parentRowId: number;
 }
-interface HeaderTabContentOptions extends HeaderSectionProps
+export interface HeaderTabContentOptions extends HeaderSectionProps
 {
     /** 欄位 binding helper */
     setField: ReturnType<typeof useSetTableField<AnnouncementSet>>;
@@ -84,6 +85,70 @@ interface HeaderTabContentOptions extends HeaderSectionProps
     /** 圖片預覽來源 */
     previewSrc: string;
 }
+/** Announcement Header 可擴充的 Form 區塊名稱。 */
+export const AnnouncementFormSlotNames = {
+    Basic: "Basic",
+    Status: "Status",
+    Tags: "Tags",
+    Pic: "Pic",
+    System: "System",
+} as const;
+/** Announcement 基本分頁 Feature 欄位鍵值。 */
+export const AnnouncementBasicFieldKeys = {
+    Categories: "Categories",
+    ValidateStart: "ValidateStart",
+    ValidateEnd: "ValidateEnd",
+} as const;
+/** Announcement 狀態分頁 Feature 欄位鍵值。 */
+export const AnnouncementStatusFieldKeys = {
+    ContentStatus: "ContentStatus",
+} as const;
+/** Announcement 標籤分頁 Feature 欄位鍵值。 */
+export const AnnouncementTagsFieldKeys = {
+    Tags: "Tags",
+} as const;
+/** Announcement 圖片分頁 Feature 欄位鍵值。 */
+export const AnnouncementPictureFieldKeys = {
+    Picture: "Picture",
+    PicDescription: "PicDescription",
+} as const;
+/** Announcement 系統資訊分頁 Feature 欄位鍵值。 */
+export const AnnouncementSystemFieldKeys = {
+    SystemInfo: "SystemInfo",
+} as const;
+type ValueOf<T> = T[keyof T];
+export type AnnouncementFormSlotName = ValueOf<typeof AnnouncementFormSlotNames>;
+export type AnnouncementFormFieldKey =
+    | ValueOf<typeof AnnouncementBasicFieldKeys>
+    | ValueOf<typeof AnnouncementStatusFieldKeys>
+    | ValueOf<typeof AnnouncementTagsFieldKeys>
+    | ValueOf<typeof AnnouncementPictureFieldKeys>
+    | ValueOf<typeof AnnouncementSystemFieldKeys>;
+export type AnnouncementFormFieldNode = Exclude<ReactNode, undefined>;
+export type AnnouncementFormFieldMap = Partial<Record<AnnouncementFormFieldKey, AnnouncementFormFieldNode>>;
+export interface AnnouncementFormSlotFieldData
+{
+    /** Feature 原始欄位對照表。 */
+    baseFieldMap: AnnouncementFormFieldMap;
+
+    /** Feature 原始欄位排序。 */
+    baseFieldOrder: AnnouncementFormFieldKey[];
+}
+export interface AnnouncementFormSlotContext extends HeaderTabContentOptions, AnnouncementFormSlotFieldData
+{
+    /** 目前擴充的 Form 區塊。 */
+    slotName: AnnouncementFormSlotName;
+
+    /** 取得 Feature 原始欄位。 */
+    getBaseFields: () => ReactNode[];
+
+    /** 排除指定欄位後取得 Feature 原始欄位。 */
+    getBaseFieldsWithout: (keys: AnnouncementFormFieldKey[]) => ReactNode[];
+
+    /** 只取得指定 Feature 欄位。 */
+    getOnlyBaseFields: (keys: AnnouncementFormFieldKey[]) => ReactNode[];
+}
+export type AnnouncementFormSlot = (ctx: AnnouncementFormSlotContext) => ReactNode[];
 interface DetailTabContentOptions
 {
     /** 後台主題設定 */
@@ -123,6 +188,16 @@ const editGridStyle: IEditGridView_Style = {
     ErrorStyle: "text-danger small mt-1",
 };
 type UploadPictureHandler = ReturnType<typeof useUploadPicture>["handleFileChange"];
+// #endregion
+
+// #region Initialization
+const extendAnnouncementFormSlotBase: AnnouncementFormSlot = (ctx) => ctx.getBaseFields();
+/** 解析公告 Form Spec 欄位插槽。 */
+const extendResolvedAnnouncementFormSlot = resolveSpecFunc<AnnouncementFormSlot>(
+    "Pages/Server/BizFunc/WEB/Announcement/Server_Announcement_Form_Comp.tsx",
+    extendAnnouncementFormSlotBase,
+    ["extendAnnouncementFormSlot"],
+);
 // #endregion
 
 // #region Public
@@ -216,60 +291,120 @@ const SubDetailComp = (props: SubDetailSectionProps) =>
 /** 建立公告 Header 的各分頁欄位。 */
 const buildHeaderTabContent = (opt: HeaderTabContentOptions): Record<string, ReactNode[]> =>
 {
+    const baseSlotMap = buildHeaderBaseSlotMap(opt);
     return {
-        Basic: buildBasicFields(opt),
-        Status: buildStatusFields(opt),
-        Tags: buildTagFields(opt),
-        Pic: buildPictureFields(opt),
-        System: [<SystemInfoTabComp theme={opt.theme} formData={opt.binding} setKey={AnnouncementSetFields.Announcement} />],
+        [AnnouncementFormSlotNames.Basic]: applyAnnouncementFormSlot(opt, AnnouncementFormSlotNames.Basic, baseSlotMap[AnnouncementFormSlotNames.Basic]),
+        [AnnouncementFormSlotNames.Status]: applyAnnouncementFormSlot(opt, AnnouncementFormSlotNames.Status, baseSlotMap[AnnouncementFormSlotNames.Status]),
+        [AnnouncementFormSlotNames.Tags]: applyAnnouncementFormSlot(opt, AnnouncementFormSlotNames.Tags, baseSlotMap[AnnouncementFormSlotNames.Tags]),
+        [AnnouncementFormSlotNames.Pic]: applyAnnouncementFormSlot(opt, AnnouncementFormSlotNames.Pic, baseSlotMap[AnnouncementFormSlotNames.Pic]),
+        [AnnouncementFormSlotNames.System]: applyAnnouncementFormSlot(opt, AnnouncementFormSlotNames.System, baseSlotMap[AnnouncementFormSlotNames.System]),
     };
 };
 
-/** 建立基本資料欄位。 */
-const buildBasicFields = (opt: HeaderTabContentOptions): ReactNode[] =>
+/** 建立公告 Header 的 Feature 原始欄位表。 */
+const buildHeaderBaseSlotMap = (opt: HeaderTabContentOptions): Record<AnnouncementFormSlotName, AnnouncementFormSlotFieldData> =>
 {
-    return [
-        <LibCheckBox
-            Style={opt.theme.CheckBox}
-            options={opt.refs.categoryMap}
-            {...opt.setField(AnnouncementSetFields.Announcement, AnnouncementFields.Categories, "string", undefined, "csv")}
-        />,
-        <LibCalendar {...opt.setField(AnnouncementSetFields.Announcement, AnnouncementFields.Validate_Start, "datetime")} />,
-        <LibCalendar {...opt.setField(AnnouncementSetFields.Announcement, AnnouncementFields.Validate_End, "datetime")} />,
-    ];
+    return {
+        [AnnouncementFormSlotNames.Basic]: buildBasicFieldData(opt),
+        [AnnouncementFormSlotNames.Status]: buildStatusFieldData(opt),
+        [AnnouncementFormSlotNames.Tags]: buildTagFieldData(opt),
+        [AnnouncementFormSlotNames.Pic]: buildPictureFieldData(opt),
+        [AnnouncementFormSlotNames.System]: buildSystemFieldData(opt),
+    };
 };
 
-/** 建立狀態欄位。 */
-const buildStatusFields = (opt: HeaderTabContentOptions): ReactNode[] =>
+/** 套用公告 Header 指定區塊的 Spec 欄位插槽。 */
+const applyAnnouncementFormSlot = (opt: HeaderTabContentOptions, slotName: AnnouncementFormSlotName, fieldData: AnnouncementFormSlotFieldData): ReactNode[] =>
 {
-    return [
-        <LibCheckBox
-            Style={opt.theme.CheckBox}
-            options={opt.refs.statusOpts}
-            {...opt.setField(AnnouncementSetFields.Announcement, AnnouncementFields.ContentStatus, "number", undefined, {
-                strategy: "sum",
-                sumKeys: Object.keys(opt.refs.statusOpts ?? {}).map(Number),
-            })}
-        />,
-    ];
+    const ctx = buildAnnouncementFormSlotContext(opt, slotName, fieldData);
+    return extendResolvedAnnouncementFormSlot(ctx);
 };
 
-/** 建立標籤欄位。 */
-const buildTagFields = (opt: HeaderTabContentOptions): ReactNode[] =>
+/** 建立公告 Form 欄位插槽的上下文資料。 */
+const buildAnnouncementFormSlotContext = (opt: HeaderTabContentOptions, slotName: AnnouncementFormSlotName, fieldData: AnnouncementFormSlotFieldData): AnnouncementFormSlotContext =>
 {
-    return [
-        <LibCheckBox
-            Style={opt.theme.CheckBox}
-            options={opt.refs.tagMap}
-            {...opt.setField(AnnouncementSetFields.Announcement, AnnouncementFields.Tags, "string", undefined, "csv")}
-        />,
-    ];
+    const getOnlyBaseFields = (keys: AnnouncementFormFieldKey[]): ReactNode[] => keys.map(key => fieldData.baseFieldMap[key]).filter(isAnnouncementFormFieldNode);
+    return {
+        ...opt,
+        ...fieldData,
+        slotName,
+        getOnlyBaseFields,
+        getBaseFields: () => getOnlyBaseFields(fieldData.baseFieldOrder),
+        getBaseFieldsWithout: (keys) => getOnlyBaseFields(fieldData.baseFieldOrder.filter(key => !keys.includes(key))),
+    };
 };
 
-/** 建立圖片欄位。 */
-const buildPictureFields = (opt: HeaderTabContentOptions): ReactNode[] =>
+/** 建立基本分頁的 Feature 原始欄位資料。 */
+const buildBasicFieldData = (opt: HeaderTabContentOptions): AnnouncementFormSlotFieldData =>
 {
-    return [
+    return {
+        baseFieldMap: {
+            [AnnouncementBasicFieldKeys.Categories]: <LibCheckBox Style={opt.theme.CheckBox} options={opt.refs.categoryMap} {...opt.setField(AnnouncementSetFields.Announcement, AnnouncementFields.Categories, "string", undefined, "csv")} />,
+            [AnnouncementBasicFieldKeys.ValidateStart]: <LibCalendar {...opt.setField(AnnouncementSetFields.Announcement, AnnouncementFields.Validate_Start, "datetime")} />,
+            [AnnouncementBasicFieldKeys.ValidateEnd]: <LibCalendar {...opt.setField(AnnouncementSetFields.Announcement, AnnouncementFields.Validate_End, "datetime")} />,
+        },
+        baseFieldOrder: [AnnouncementBasicFieldKeys.Categories, AnnouncementBasicFieldKeys.ValidateStart, AnnouncementBasicFieldKeys.ValidateEnd],
+    };
+};
+
+/** 建立狀態分頁的 Feature 原始欄位資料。 */
+const buildStatusFieldData = (opt: HeaderTabContentOptions): AnnouncementFormSlotFieldData =>
+{
+    return {
+        baseFieldMap: {
+            [AnnouncementStatusFieldKeys.ContentStatus]: (
+                <LibCheckBox
+                    Style={opt.theme.CheckBox}
+                    options={opt.refs.statusOpts}
+                    {...opt.setField(AnnouncementSetFields.Announcement, AnnouncementFields.ContentStatus, "number", undefined, {
+                        strategy: "sum",
+                        sumKeys: Object.keys(opt.refs.statusOpts ?? {}).map(Number),
+                    })}
+                />
+            ),
+        },
+        baseFieldOrder: [AnnouncementStatusFieldKeys.ContentStatus],
+    };
+};
+
+/** 建立標籤分頁的 Feature 原始欄位資料。 */
+const buildTagFieldData = (opt: HeaderTabContentOptions): AnnouncementFormSlotFieldData =>
+{
+    return {
+        baseFieldMap: {
+            [AnnouncementTagsFieldKeys.Tags]: <LibCheckBox Style={opt.theme.CheckBox} options={opt.refs.tagMap} {...opt.setField(AnnouncementSetFields.Announcement, AnnouncementFields.Tags, "string", undefined, "csv")} />,
+        },
+        baseFieldOrder: [AnnouncementTagsFieldKeys.Tags],
+    };
+};
+
+/** 建立圖片分頁的 Feature 原始欄位資料。 */
+const buildPictureFieldData = (opt: HeaderTabContentOptions): AnnouncementFormSlotFieldData =>
+{
+    return {
+        baseFieldMap: {
+            [AnnouncementPictureFieldKeys.Picture]: buildPictureField(opt),
+            [AnnouncementPictureFieldKeys.PicDescription]: <LibTextBox Style={opt.theme.TextBox} DefaultInputDisplay="請輸入" {...opt.setField(AnnouncementSetFields.Announcement, AnnouncementFields.PicDescription, "string")} />,
+        },
+        baseFieldOrder: [AnnouncementPictureFieldKeys.Picture, AnnouncementPictureFieldKeys.PicDescription],
+    };
+};
+
+/** 建立系統資訊分頁的 Feature 原始欄位資料。 */
+const buildSystemFieldData = (opt: HeaderTabContentOptions): AnnouncementFormSlotFieldData =>
+{
+    return {
+        baseFieldMap: {
+            [AnnouncementSystemFieldKeys.SystemInfo]: <SystemInfoTabComp theme={opt.theme} formData={opt.binding} setKey={AnnouncementSetFields.Announcement} />,
+        },
+        baseFieldOrder: [AnnouncementSystemFieldKeys.SystemInfo],
+    };
+};
+
+/** 建立圖片上傳與預覽欄位。 */
+const buildPictureField = (opt: HeaderTabContentOptions): ReactNode =>
+{
+    return (
         <LibFile
             Style={opt.theme.File}
             ColumnDisplayName="選擇圖片"
@@ -280,13 +415,14 @@ const buildPictureFields = (opt: HeaderTabContentOptions): ReactNode[] =>
             onChange={(files) => handleAnnouncementPictureChange(files, opt.binding, opt.uploadPic.handleFileChange)}
         >
             <LibPicture key="preview" ColumnDisplayName={opt.uploadPic.result.previewUrl ?? ""} PicSrc={opt.previewSrc} PicDescription="選中的圖片" />
-        </LibFile>,
-        <LibTextBox
-            Style={opt.theme.TextBox}
-            DefaultInputDisplay="請輸入"
-            {...opt.setField(AnnouncementSetFields.Announcement, AnnouncementFields.PicDescription, "string")}
-        />,
-    ];
+        </LibFile>
+    );
+};
+
+/** 判斷欄位節點是否可加入畫面陣列。 */
+const isAnnouncementFormFieldNode = (node: AnnouncementFormFieldNode | undefined): node is AnnouncementFormFieldNode =>
+{
+    return node !== undefined;
 };
 
 /** 建立 Detail 語系分頁內容，畫面只依 Hook 整理後的 Tab 項目渲染。 */

@@ -7,6 +7,7 @@ import { createGridCrudActions, enhanceGridWithAdjustCell, type GridConfirmFn } 
 import type {
     ServerListGridDataSourceContext,
     ServerListGridDataSourceResult,
+    ServerListGridSpecTiming,
     ServerListGridTemplate,
 } from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Hook";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
@@ -15,6 +16,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { formatDate, formatDateTime, LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
+import { resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { AccountFields, AnnouncementDetailFields, AnnouncementFields, PGID } from "@/types/SchemaFields";
@@ -98,6 +100,7 @@ export interface AnnouncementListAdapter
 }
 
 export type AnnouncementListGridTemplate = ServerListGridTemplate<AnnouncementSearchParams, AnnouncementListRawData, AnnouncementListAdapter, QueryListParam>;
+export type AnnouncementListSpecTiming = ServerListGridSpecTiming<AnnouncementSearchParams, AnnouncementListRawData, AnnouncementListAdapter, QueryListParam>;
 
 type CrudDeps = {
     /** React Router 導頁方法 */
@@ -112,6 +115,16 @@ type CrudDeps = {
     /** 刪除後重新查詢 */
     afterDelete: () => Promise<void>;
 };
+// #endregion
+
+// #region Initialization
+const getAnnouncementListSpecTimingBase = (): AnnouncementListSpecTiming | undefined => undefined;
+/** 解析公告列表 Spec 擴充流程。 */
+const getResolvedAnnouncementListSpecTiming = resolveSpecFunc<() => AnnouncementListSpecTiming | undefined>(
+    "Pages/Server/BizFunc/WEB/Announcement/Server_Announcement_List_Hook.ts",
+    getAnnouncementListSpecTimingBase,
+    ["getAnnouncementListSpecTiming"],
+);
 // #endregion
 
 // #region Public
@@ -135,6 +148,7 @@ export const useAnnouncementListGridTemplate = (opt: { lang: Lang; }): Announcem
                 buildGridProps: (ctx) =>
                     buildAnnouncementGridProps({ raw: ctx.rawData, lang: ctx.searchParams.lang, adapter: ctx.adapter, refetchData: ctx.refetchData }),
             },
+            spec: getResolvedAnnouncementListSpecTiming(),
         };
     }, [opt.lang]);
 };

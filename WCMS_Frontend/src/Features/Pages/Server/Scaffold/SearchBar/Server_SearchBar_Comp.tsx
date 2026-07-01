@@ -119,6 +119,7 @@ export const Server_SearchBar_Comp = (props: ServerSearchBarCompProps) =>
 /** 依搜尋欄位類型渲染對應輸入元件 */
 const SearchFieldRenderer = (props: SearchFieldRendererProps) =>
 {
+    if (props.field.type === "number") return <SearchNumberField {...props} />;
     if (props.field.type === "select") return <SearchSelectField {...props} />;
     if (props.field.type === "checkbox") return <SearchCheckboxField {...props} />;
     if (props.field.type === "checkboxGroup") return <SearchCheckboxGroupField {...props} />;
@@ -144,6 +145,33 @@ const SearchTextField = (props: SearchFieldRendererProps) =>
             <input
                 id={id}
                 type="text"
+                className="form-control"
+                value={value}
+                placeholder={props.field.placeholder}
+                required={props.field.required}
+                disabled={props.field.disabled}
+                aria-describedby={props.field.helpText ? hintId : undefined}
+                onChange={(e) => props.onChange(e.target.value)}
+            />
+            <SearchHelpText field={props.field} />
+        </div>
+    );
+};
+
+
+/** 渲染數字搜尋欄位 */
+const SearchNumberField = (props: SearchFieldRendererProps) =>
+{
+    const id = getSearchFieldId(props.field);
+    const hintId = getSearchHintId(props.field);
+    const value = typeof props.value === "string" ? props.value : "";
+
+    return (
+        <div className="form-group">
+            <label htmlFor={id} className="form-label">{props.field.title}</label>
+            <input
+                id={id}
+                type="number"
                 className="form-control"
                 value={value}
                 placeholder={props.field.placeholder}
