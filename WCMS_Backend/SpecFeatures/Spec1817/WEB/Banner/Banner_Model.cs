@@ -8,11 +8,11 @@ public partial class BannerDetailInfo
     /// <summary>
     /// 最新展演
     /// </summary>
-    [StringLength(SysLengthParam.Title)] public string SpecLatestShows { get; set; }
+    [StringLength(SysLengthParam.Title)] public string SpecLatestShows { get; set; } = string.Empty;
     /// <summary>
     /// 展演地點
     /// </summary>
-    [StringLength(SysLengthParam.Title)] public string SpecShowLocation { get; set; }
+    [StringLength(SysLengthParam.Title)] public string SpecShowLocation { get; set; } = string.Empty;
     /// <summary>
     /// 展演時間
     /// </summary>

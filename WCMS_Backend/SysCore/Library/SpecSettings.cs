@@ -2,11 +2,14 @@
 
 namespace WCMS.SysCore.Library
 {
+
     /// <summary>
     /// Spec 站台設定，集中提供目前啟用的客製代號。
     /// </summary>
     public static class SpecSettings
     {
+        public const string SpecFeatures = nameof(SpecFeatures);
+
         /// <summary>
         /// 目前啟用的 SpecCode，例如 Spec1810、Spec1817。
         /// </summary>
@@ -31,7 +34,7 @@ namespace WCMS.SysCore.Library
             get
             {
                 if (string.IsNullOrWhiteSpace(SpecCode)) return string.Empty;
-                return $"{nameof(WCMS)}.{nameof(SpecFeatures)}.{SpecCode.Trim()}";
+                return $"{nameof(WCMS)}.{SpecFeatures}.{SpecCode.Trim()}";
             }
         }
         /// <summary>
@@ -47,7 +50,7 @@ namespace WCMS.SysCore.Library
         public static bool IsSpecFeaturesNamespace(string ns)
         {
             ns = ns?.Trim() ?? string.Empty;
-            return ns == $"{nameof(WCMS)}.{nameof(SpecFeatures)}" || ns.StartsWith($"{nameof(WCMS)}.{nameof(SpecFeatures)}.", StringComparison.Ordinal);
+            return ns == $"{nameof(WCMS)}.{SpecFeatures}" || ns.StartsWith($"{nameof(WCMS)}.{SpecFeatures}.", StringComparison.Ordinal);
         }
         /// <summary>
         /// 判斷 namespace 是否屬於目前啟用的 Spec。
