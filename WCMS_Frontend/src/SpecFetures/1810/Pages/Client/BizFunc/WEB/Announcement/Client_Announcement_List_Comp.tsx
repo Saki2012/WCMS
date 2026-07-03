@@ -1,24 +1,24 @@
 /**公告清單 */
+import { formatCategoriesName } from "@/Features/Hooks/BizFunc/COMM/Category_Api";
+import { formatTagsName } from "@/Features/Hooks/BizFunc/COMM/Tag_Api";
+import type { AnnouncementListViewProps } from "@/Features/Pages/Client/BizFunc/WEB/Announcement/Client_Announcement_List_Comp";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
+import DefaultEventImg from "@/SpecFetures/1810/Assets/Custom/DefaultEventPic_940x1330.jpg";
 import { CmsHtml_Comp } from "@/SysCore/Components/CmsHtml/CmsHtml_Comp";
 import { Grid } from "@/SysCore/Components/Grid/Grid_Comp";
-import type { GridProps } from "@/SysCore/Components/Grid/Grid_Data";
+import type { GridProps, GridRow } from "@/SysCore/Components/Grid/Grid_Data";
+import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
 import { LoadingErrorHandler } from "@/SysCore/Components/LoadingErrorHandler";
 import { NewPaginatorCanInputPage } from "@/SysCore/Components/Paginator/Paginator_Comp";
 import { type ISearchQuery, SearchBarComp } from "@/SysCore/Components/SearchBar/SearchBar_Comp";
 import type { SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
+import { LangLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { formatDate } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { AnnouncementDetailFields, AnnouncementFields } from "@/types/SchemaFields";
 import { useEffect, useMemo, useState } from "react";
-import { formatCategoriesName } from "@/Features/Hooks/BizFunc/COMM/Category_Api";
-import { formatTagsName } from "@/Features/Hooks/BizFunc/COMM/Tag_Api";
-import type { AnnouncementListViewProps } from "@/Features/Pages/Client/BizFunc/WEB/Announcement/Client_Announcement_List_Comp";
-import DefaultEventImg from "@/SpecFetures/1810/Assets/Custom/DefaultEventPic_940x1330.jpg";
-import { OperationGuideHelp_Comp } from "@/SysCore/Components/Grid/OperationGuideHelp_Comp";
-import { LangLink } from "@/SysCore/i18n/LangLink";
 
 // #region Property
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
