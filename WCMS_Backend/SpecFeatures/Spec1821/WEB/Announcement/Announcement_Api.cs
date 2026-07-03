@@ -248,7 +248,6 @@ public partial class AnnouncementController
     private static AnnouncementSet BuildAnnouncementBaseSet(LegacyAcaArticle article, string categoryId)
     {
         AnnouncementSet set = new() { Announcement = BuildAnnouncementHeader(article, ParsePublishDate(article.PublishDate), categoryId) };
-        TrySetProperty(set.Announcement, "SpecSchoolYear", article.SpecSchoolYear);
         return set;
     }
 
@@ -680,7 +679,6 @@ public partial class AnnouncementController
         article.SectionTitle = FirstText(article.SectionTitle, item.SectionTitle);
         article.GroupTitle = FirstText(article.GroupTitle, item.GroupTitle);
         article.IsHistorySection ??= item.IsHistorySection;
-        if (article.SpecSchoolYear == 0) article.SpecSchoolYear = item.SpecSchoolYear;
     }
 
     /// <summary>
@@ -719,7 +717,6 @@ public partial class AnnouncementController
             SourceArticleId = item.SourceArticleId ?? string.Empty,
             SourceArticleUrl = item.SourceArticleUrl ?? string.Empty,
             Title = item.Title ?? string.Empty,
-            SpecSchoolYear = item.SpecSchoolYear,
         };
     }
 
@@ -755,7 +752,6 @@ public partial class AnnouncementController
         public string? Title { get; set; }
         public string? PublishDate { get; set; }
         public string? UnpublishDate { get; set; }
-        public short SpecSchoolYear { get; set; }
         public string? ListSectionTitle { get; set; }
         public string? SectionTitle { get; set; }
         public string? GroupTitle { get; set; }
@@ -782,7 +778,6 @@ public partial class AnnouncementController
         public string? GroupTitle { get; set; }
         public bool? IsHistorySection { get; set; }
         public int ViewCount { get; set; }
-        public short SpecSchoolYear { get; set; }
         public string? LinkType { get; set; }
         public string? ItemLinkType { get; set; }
         public string? LinkUrl { get; set; }
@@ -836,7 +831,6 @@ public partial class AnnouncementController
         public string Title { get; set; } = string.Empty;
         public string AnnouncementId { get; set; } = string.Empty;
         public string InternalId { get; set; } = string.Empty;
-        public short SpecSchoolYear { get; set; }
         public string LinkType { get; set; } = string.Empty;
         public string LinkUrl { get; set; } = string.Empty;
         public bool ManualReviewRequired { get; set; }

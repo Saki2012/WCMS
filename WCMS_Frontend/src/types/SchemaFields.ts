@@ -135,7 +135,6 @@ export const AnnouncementFields = {
   Validate_Start: 'Validate_Start',
   Validate_End: 'Validate_End',
   _AnnouncementDetail: '_AnnouncementDetail',
-  SpecSchoolYear: 'SpecSchoolYear',
 } as const;
 
 export type AnnouncementFieldKey = keyof typeof AnnouncementFields;
