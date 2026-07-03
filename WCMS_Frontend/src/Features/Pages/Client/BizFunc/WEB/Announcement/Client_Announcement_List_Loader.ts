@@ -35,6 +35,7 @@ import {
     TagDataFields,
     TagDetailFields,
 } from "@/types/SchemaFields";
+import type { AxiosInstance } from "axios";
 import { useEffect, useMemo, useRef } from "react";
 import type { LoaderFunctionArgs } from "react-router-dom";
 import { useLoaderData } from "react-router-dom";
@@ -79,6 +80,26 @@ export interface AnnouncementListLoaderData
 {
     args: AnnouncementListLoaderArgs;
     res: AnnouncementListLoaderRes;
+    /** Spec 額外 SSR initial data，供客製列表在首屏沿用。 */
+    spec?: unknown | null;
+}
+export interface AnnouncementListLoaderSpecContext
+{
+    /** SSR request，提供 Spec loader 沿用目前請求。 */
+    request: LoaderFunctionArgs["request"];
+    /** SSR API instance，讓 Spec loader 不需重複建立 request context。 */
+    apiInstance: AxiosInstance;
+    /** Feature 已完成的 loader 參數，Spec 可沿用搜尋條件與時間範圍。 */
+    args: AnnouncementListLoaderArgs;
+    /** Announcement List options，供 Spec 判斷版型與固定分類標籤。 */
+    opts?: IAnnouncementListOptions;
+    /** 外部覆寫查詢參數，供 Spec 與 Feature 首屏一致。 */
+    overrides?: Partial<{ pageNumber: number; pageSize: number; keyword: string; categoryIds: string; tagIds: string; }>;
+}
+export interface AnnouncementListLoaderSpecSlot
+{
+    /** 載入 Spec 額外 SSR initial data，例如第二組客製 Grid。 */
+    loadExtraData?: (context: AnnouncementListLoaderSpecContext) => Promise<unknown>;
 }
 export interface UseAnnouncementListDataResult
 {
@@ -117,8 +138,11 @@ type AnnouncementListViewModel = Omit<UseAnnouncementListDataResult, "isLoading"
 type AnnouncementDataQueryTemplate = ClientDataQueryTemplate<AnnouncementSearchParams, AnnouncementListViewModel, AnnouncementListViewModel, unknown, AnnouncementQueryParam, AnnouncementListLoaderData>;
 export type AnnouncementListDataQuerySpecSlot = NonNullable<AnnouncementDataQueryTemplate["spec"]>;
 let _resolvedAnnouncementListDataQuerySpec: AnnouncementListDataQuerySpecSlot | null = null;
+let _resolvedAnnouncementListLoaderSpec: AnnouncementListLoaderSpecSlot | null = null;
 /** Announcement 預設 DataQuery 客製 slot，Spec 未覆寫時不做任何事。 */
 export const extendAnnouncementListDataQuerySpec: AnnouncementListDataQuerySpecSlot = {};
+/** Announcement 預設 Loader 客製 slot，Spec 未覆寫時不載入額外 SSR 資料。 */
+export const extendAnnouncementListLoaderSpec: AnnouncementListLoaderSpecSlot = {};
 // #endregion
 
 // #region Public
@@ -164,9 +188,18 @@ async ({ request }: LoaderFunctionArgs): Promise<AnnouncementListLoaderData> =>
     const viewCountParam = buildViewCountQuery(getAnnouncementInternalIds(listRes));
     const viewCountLoader = siteView.loader.createQueryListLoader({ getCondition: () => viewCountParam, getApiInstance: () => ssrApi });
     const viewCountLD = await viewCountLoader({ request } as LoaderFunctionArgs);
+    const finalArgs: AnnouncementListLoaderArgs = { ...baseArgs, viewCountParam };
+    const spec = await getResolvedAnnouncementListLoaderSpec().loadExtraData?.({
+        request,
+        apiInstance: ssrApi,
+        args: finalArgs,
+        opts: p.opts,
+        overrides: p.overrides,
+    }) ?? null;
     return {
-        args: { ...baseArgs, viewCountParam },
+        args: finalArgs,
         res: { gridRes, categoryRes: categoryLD.apiRes.Data ?? [], tagRes: tagLD.apiRes.Data ?? [], viewCountRes: viewCountLD.apiRes.Data ?? [] },
+        spec,
     };
 };
 /** CSR Hook：Component 只拿 VM，資料查詢流程交給 Client_DataQueryTemplate */
@@ -212,6 +245,14 @@ export const useAnnouncementListData = (p: { lang: Lang; opts?: IAnnouncementLis
 // #endregion
 
 // #region Protected
+/** 取得 Announcement List Loader Spec，有 Spec 時載入額外 SSR initial data。 */
+const getResolvedAnnouncementListLoaderSpec = (): AnnouncementListLoaderSpecSlot =>
+{
+    if (_resolvedAnnouncementListLoaderSpec) return _resolvedAnnouncementListLoaderSpec;
+    _resolvedAnnouncementListLoaderSpec = resolveSpecFunc<AnnouncementListLoaderSpecSlot>(getClientSlotPath("Slot_Announcement_List_Loader"), extendAnnouncementListLoaderSpec, ["extendAnnouncementListLoaderSpec"]);
+    return _resolvedAnnouncementListLoaderSpec;
+};
+/** 取得 Announcement List DataQuery Spec，有 Spec 時調整查詢流程。 */
 const getResolvedAnnouncementListDataQuerySpec = (): AnnouncementListDataQuerySpecSlot =>
 {
     if (_resolvedAnnouncementListDataQuerySpec) return _resolvedAnnouncementListDataQuerySpec;
@@ -267,11 +308,11 @@ const buildAnnouncementCondition = (p: { lang: Lang; dayStart: number; dayEnd: n
     {
         condition = LibText.Merge(" And ", false, condition, `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title} Like ${p.keyword}`);
     }
-    if (p.categoryIds)
+    if (LibText.safeTrim(p.categoryIds) !== "")
     {
         condition = LibText.Merge(" And ", false, condition, `${AnnouncementFields.Categories} HasAny [${p.categoryIds}]`);
     }
-    if (p.tagIds)
+    if (LibText.safeTrim(p.tagIds) !== "")
     {
         condition = LibText.Merge(" And ", false, condition, `${AnnouncementFields.Tags} HasAny [${p.tagIds}]`);
     }

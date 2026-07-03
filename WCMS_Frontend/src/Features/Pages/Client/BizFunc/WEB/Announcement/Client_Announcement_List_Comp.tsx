@@ -17,7 +17,7 @@ import { resolveSpecComponent, resolveSpecFunc } from "@/SysCore/Utils/Library/S
 import { useOptionalSpecAssetUrl } from "@/SysCore/Utils/UI_HookFunc/useOptionalSpecAssetUrl";
 import type { components } from "@/types/api";
 import { AnnouncementDetailFields, AnnouncementFields } from "@/types/SchemaFields";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { type ComponentType, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { getClientSlotPath } from "../../../Scaffold/Slot/Client_SlotPath";
 
@@ -77,6 +77,14 @@ export interface AnnouncementListGridSpecSlot
     /** 調整公告清單每列 cells，可用於追加或改寫客製欄位內容。 */
     resolveGridCells?: (cells: RowCell[], context: AnnouncementListGridRowContext) => RowCell[];
 }
+
+export interface AnnouncementListCompSpecSlot
+{
+    /** 公告清單主內容上方追加區塊，供 Spec 在不覆寫 Feature View 的情況補內容。 */
+    BeforeListContent?: ComponentType<AnnouncementListViewProps>;
+    /** 公告清單主內容下方追加區塊，供 Spec 在不覆寫 Feature View 的情況補內容。 */
+    AfterListContent?: ComponentType<AnnouncementListViewProps>;
+}
 // #endregion
 
 // #region Initialization
@@ -85,6 +93,10 @@ const extendAnnouncementListGridSpec: AnnouncementListGridSpecSlot = {};
 let announcementListGridSpecCache: AnnouncementListGridSpecSlot | null = null;
 /** Announcement List View 快取，避免每次 render 重複解析 Spec View。 */
 let announcementListViewCache: typeof Client_Announcement_List_FeatureView | null = null;
+/** Announcement List Comp Spec 空擴充，讓 Spec 可以不覆寫 Feature View 追加區塊。 */
+const extendAnnouncementListCompSpec: AnnouncementListCompSpecSlot = {};
+/** Announcement List Comp Spec 快取，避免每次 render 重複解析 Spec。 */
+let announcementListCompSpecCache: AnnouncementListCompSpecSlot | null = null;
 // #endregion
 
 // #region Public
@@ -118,6 +130,9 @@ export const Client_Announcement_List = (props: AnnouncementListViewProps) =>
 /** 公告清單 Feature 預設 View，只負責輸出 DOM。 */
 const Client_Announcement_List_FeatureView = (props: AnnouncementListViewProps) =>
 {
+    const compSpec = getAnnouncementListCompSpec();
+    const BeforeListContent = compSpec.BeforeListContent;
+    const AfterListContent = compSpec.AfterListContent;
     const children = useMemo(() =>
     {
         switch (props.options?.Style)
@@ -129,23 +144,26 @@ const Client_Announcement_List_FeatureView = (props: AnnouncementListViewProps) 
             case 2:
                 return <PictureList_Row_Comp dirUrl={props.dirUrl} lang={props.lang} gridData={props.vm.listData} categoryData={props.vm.categoryData} />;
             case 1:
-                return <GridList_Comp key={`grid-${props.lang}`} lang={props.lang} gridData={props.adjustedGrid} title={props.node.title} />;
             default:
-                return null;
+                return <GridList_Comp key={`grid-${props.lang}`} lang={props.lang} gridData={props.adjustedGrid} title={props.node.title} />;
         }
     }, [props.options?.Style, props.dirUrl, props.lang, props.node.title, props.vm.listData, props.vm.pageNumber, props.vm.pageSize, props.vm.categoryData, props.adjustedGrid]);
 
     return (
-        <ModuleContent
-            nodeTitle={props.node.title}
-            isLoading={props.vm.isLoading}
-            errorList={props.vm.errorList}
-            paginatorProps={props.vm.paginatorProps}
-            searchBar={props.vm.searchBar}
-            viewCountConfig={{ mode: "list" }}
-        >
-            {children}
-        </ModuleContent>
+        <>
+            <ModuleContent
+                nodeTitle={props.node.title}
+                isLoading={props.vm.isLoading}
+                errorList={props.vm.errorList}
+                paginatorProps={props.vm.paginatorProps}
+                searchBar={props.vm.searchBar}
+                viewCountConfig={{ mode: "list" }}
+            >
+                {BeforeListContent && <BeforeListContent {...props} />}
+                {children}
+            </ModuleContent>
+            {AfterListContent && <AfterListContent {...props} />}
+        </>
     );
 };
 // #endregion
@@ -571,6 +589,14 @@ const getAnnouncementListGridSpec = (): AnnouncementListGridSpecSlot =>
     announcementListGridSpecCache = resolveSpecFunc<AnnouncementListGridSpecSlot>(getClientSlotPath("Slot_Announcement_List_Comp"), extendAnnouncementListGridSpec, ["extendAnnouncementListGridSpec"]);
     return announcementListGridSpecCache;
 };
+
+/** 取得 Announcement List Comp Spec，有 Spec 時追加 Feature 區塊。 */
+const getAnnouncementListCompSpec = (): AnnouncementListCompSpecSlot =>
+{
+    if (announcementListCompSpecCache !== null) return announcementListCompSpecCache;
+    announcementListCompSpecCache = resolveSpecFunc<AnnouncementListCompSpecSlot>(getClientSlotPath("Slot_Announcement_List_Comp"), extendAnnouncementListCompSpec, ["extendAnnouncementListCompSpec"]);
+    return announcementListCompSpecCache;
+};
 // #endregion
 
 // #region Private
@@ -627,12 +653,12 @@ const buildAnnouncementGridCell = (context: AnnouncementListGridContext, cell: R
     const srLinkText = rowTitle ? `前往：${rowTitle}` : "前往內容";
     const isTitle = cell.col.key === AnnouncementDetailFields.Title;
     const displayText = resolveAdjustedCellText({ colKey: cell.col.key, rawContent: typeof cell.content === "string" ? cell.content : "", rowTitle, curRow, catData: context.categoryData, tagData: context.tagData, lang: context.lang });
-    return { ...cell, content: buildAnnouncementGridCellContent({ context, internalId, contentStatus, titleId, srLinkText, isTitle, displayText }) };
+    return { ...cell, content: buildAnnouncementGridCellContent({ context, internalId, contentStatus, titleId, srLinkText, isTitle, displayText, colKey: cell.col.key }) };
 };
 /** 建立公告列表 cell JSX。 */
-const buildAnnouncementGridCellContent = (p: { context: AnnouncementListGridContext; internalId: string; contentStatus: number; titleId: string; srLinkText: string; isTitle: boolean; displayText: string; }): JSX.Element =>
+const buildAnnouncementGridCellContent = (p: { context: AnnouncementListGridContext; internalId: string; contentStatus: number; titleId: string; srLinkText: string; isTitle: boolean; displayText: string; colKey: string; }): JSX.Element =>
 {
-    if (!p.isTitle) return <span>{p.displayText}</span>;
+    if (!p.isTitle) return buildAnnouncementNonTitleCellContent(p.colKey, p.displayText);
     return (
         <>
             {LibDate.isWithinLastDays(p.context.rawData.find(x => x.Announcement?.InternalId === p.internalId)?.Announcement?.Validate_Start, 8) && <span className="label label-warning">最新</span>}
@@ -642,6 +668,32 @@ const buildAnnouncementGridCellContent = (p: { context: AnnouncementListGridCont
                 <span>{p.displayText}</span>
             </LangLink>
         </>
+    );
+};
+
+/** 建立非標題欄位 Cell 內容。 */
+const buildAnnouncementNonTitleCellContent = (colKey: string, displayText: string): JSX.Element =>
+{
+    if (colKey === AnnouncementFields.Categories || colKey === AnnouncementFields.Tags)
+    {
+        return <AnnouncementTermCellList items={splitAnnouncementTermText(displayText)} />;
+    }
+    return <span>{displayText}</span>;
+};
+/** 將分類與標籤格式化文字切成清單。 */
+const splitAnnouncementTermText = (text: string): string[] =>
+{
+    return text.split("、").map(item => item.trim()).filter(Boolean);
+};
+
+/** 公告清單分類與標籤 Cell 清單。 */
+const AnnouncementTermCellList = (props: { items: string[]; }) =>
+{
+    if (props.items.length === 0) return <span></span>;
+    return (
+        <ul className="mb-0 pl-3">
+            {props.items.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}
+        </ul>
     );
 };
 // #endregion

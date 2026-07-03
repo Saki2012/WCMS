@@ -168,8 +168,8 @@ const ModuleContentSection = ({ contentProps, state }: ModuleContentSectionProps
             {contentProps.title && <ModuleContentTitle title={contentProps.title} subTitle={contentProps.subTitle} />}
             {contentProps.searchBar && <Client_SearchBar_Comp {...contentProps.searchBar} />}
             <div className="ALL__Information__Display__Area">{contentProps.children}</div>
-            <hr className="hr-my-4" />
             {contentProps.paginatorProps && <NewPaginatorCanInputPage {...contentProps.paginatorProps} lang={state.lang} />}
+            <hr className="hr-my-4" />
         </LoadingErrorHandler>
     );
 };
