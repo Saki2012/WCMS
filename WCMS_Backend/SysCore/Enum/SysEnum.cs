@@ -274,6 +274,7 @@ namespace WCMS.SysCore.Enum
             public const string DOC = "doc";
             public const string ODT = "odt";
             public const string XLSX = "xlsx";
+            public const string XLS = "xls";
             public const string PPTX = "pptx";
             public const string TXT = "txt";
             public const string CSV = "csv";
@@ -317,6 +318,9 @@ namespace WCMS.SysCore.Enum
             public const string APPLICATION_VND_OPENXML_POWERPOINT = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
             public const string TEXT_PLAIN = "text/plain";
             public const string TEXT_CSV = "text/csv";
+            public const string APPLICATION_EXCEL = "application/excel";
+            public const string APPLICATION_X_EXCEL = "application/x-excel";
+            public const string APPLICATION_X_MSEXCEL = "application/x-msexcel";
             #endregion
             #region 圖片
             public const string IMAGE_JPEG = "image/jpeg";

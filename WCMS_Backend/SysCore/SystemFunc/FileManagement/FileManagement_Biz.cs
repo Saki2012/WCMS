@@ -523,6 +523,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 FileExtensions.DOCX,
                 FileExtensions.DOC,
                 FileExtensions.XLSX,
+                FileExtensions.XLS,
                 FileExtensions.PPTX,
                 FileExtensions.TXT,
                 FileExtensions.CSV,
@@ -585,6 +586,9 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 MimeTypes.AUDIO_MP4,
                 MimeTypes.VIDEO_QUICKTIME,
                 MimeTypes.VIDEO_MP4,
+                MimeTypes.APPLICATION_EXCEL,
+                MimeTypes.APPLICATION_X_EXCEL,
+                MimeTypes.APPLICATION_X_MSEXCEL,
                 ];
             return checkList.Contains(fileType.ToLowerInvariant());
         }

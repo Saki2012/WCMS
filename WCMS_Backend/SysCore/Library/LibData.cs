@@ -580,14 +580,11 @@ namespace WCMS.SysCore.Library
         /// </summary>
         public static (string Extension, string MimeType) GetUploadFileMeta(Stream stream, string fileName)
         {
-            // 宣告變數：先使用原本內容檢測
             string detectedExtension = GetFileExtenstion(stream);
             string detectedMimeType = GetFileMimeType(stream);
             string clientExtension = GetClientFileExtension(fileName);
-            bool useEncryptedOfficeMeta = ShouldUseEncryptedOfficeMeta(stream, detectedExtension, clientExtension);
-            // 執行：加密 Office 檔無法由內容檢測時，才允許使用檔名副檔名
-            if (useEncryptedOfficeMeta) return (clientExtension, GetOfficeOpenXmlMimeType(clientExtension));
-            // return：一般檔案仍使用內容檢測結果
+            if (ShouldUseEncryptedOfficeMeta(stream, detectedExtension, clientExtension)) return (clientExtension, GetOfficeOpenXmlMimeType(clientExtension));
+            if (ShouldUseLegacyOfficeMeta(stream, detectedExtension, clientExtension)) return (clientExtension, GetOfficeLegacyMimeType(clientExtension));
             return (detectedExtension, detectedMimeType);
         }
         public class EnumOption
@@ -764,6 +761,42 @@ namespace WCMS.SysCore.Library
 
             // return：確認是否為加密 Office OpenXML 檔案
             return IsEncryptedOfficeOpenXml(stream);
+        }
+
+        /// <summary>
+        /// 判斷是否可使用舊版 Office 二進位檔案資訊。
+        /// </summary>
+        private static bool ShouldUseLegacyOfficeMeta(Stream stream, string detectedExtension, string clientExtension)
+        {
+            if (!string.IsNullOrWhiteSpace(detectedExtension)) return false;
+            if (!IsOfficeLegacyExtension(clientExtension)) return false;
+            return IsCompoundFileBinary(stream);
+        }
+
+        /// <summary>
+        /// 判斷是否為舊版 Office 二進位副檔名。
+        /// </summary>
+        private static bool IsOfficeLegacyExtension(string extension)
+        {
+            return extension switch
+            {
+                FileExtensions.DOC => true,
+                FileExtensions.XLS => true,
+                _ => false,
+            };
+        }
+
+        /// <summary>
+        /// 依舊版 Office 二進位副檔名取得 MIME Type。
+        /// </summary>
+        private static string GetOfficeLegacyMimeType(string extension)
+        {
+            return extension switch
+            {
+                FileExtensions.DOC => MimeTypes.APPLICATION_MSWORD,
+                FileExtensions.XLS => MimeTypes.APPLICATION_VND_EXCEL,
+                _ => string.Empty,
+            };
         }
 
         /// <summary>
