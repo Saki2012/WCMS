@@ -157,12 +157,15 @@ const TopLinkTab = (props: { lang: Lang; item: SpecHomePage1821Shortcut; index: 
 {
     return (
         <LangLink
-            id={getTopTabId(props.index)}
-            to={props.item.Link ?? ""}
             lang={props.lang}
-            className="nav-link"
-            role="button"
+            to={props.item.Link ?? "/"}
+            className={`nav-link${props.active ? " active" : ""}`}
+            id={getTopTabId(props.index)}
+            role="tab"
+            aria-controls={getTopPaneId(props.index)}
+            aria-selected={props.active}
             title={getShortcutTitle(props.item)}
+            onClick={() => props.onSelect(props.index)}
         >
             <TopTabContentInner item={props.item} showLinkIcon />
         </LangLink>
