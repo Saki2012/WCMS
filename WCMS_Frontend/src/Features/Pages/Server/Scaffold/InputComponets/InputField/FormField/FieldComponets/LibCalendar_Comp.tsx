@@ -169,7 +169,7 @@ export const LibCalendar = (prop: ILibCalendarProp) =>
             </label>
 
             <div className="col-md-10 col-sm-12 float-md-left float-sm-none">
-                <div className="Date input-group input-daterange">
+                <div className="Date input-daterange input-group">
                     <span className="input-group-text">
                         <i className="fal fa-calendar-alt"></i>
                     </span>
@@ -239,7 +239,8 @@ export const LibCalendar = (prop: ILibCalendarProp) =>
 
   /* 時間欄位 */
   .wcms-time-input {
-    max-width: 125px;
+    max-width: 150px;
+    width: 100% !important;
   }
 
   /* 整個日曆的卡片外觀 */
