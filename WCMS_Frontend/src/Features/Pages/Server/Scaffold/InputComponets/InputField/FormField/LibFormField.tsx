@@ -1,4 +1,6 @@
 // #region Property
+export type { ILibAAInputFieldProp, LibAAInputOptions } from "./FieldComponets/LibAAInputField_Data";
+
 export type { ILibCalendarProp, ILibCalendarStyle } from "./FieldComponets/LibCalendar_Data";
 
 export type { ILibCheckBoxProp, ILibCheckBoxStyle } from "./FieldComponets/LibCheckBox_Data";
@@ -29,6 +31,8 @@ export type { ILibTinyMCEProp as LibTinyMCEProp, ILibTinyMCEStyle } from "./Fiel
 // #endregion
 
 // #region Public
+export { LibAAInputField } from "./FieldComponets/LibAAInputField_Comp";
+
 export { LibCalendar } from "./FieldComponets/LibCalendar_Comp";
 
 export { LibCheckBox } from "./FieldComponets/LibCheckBox_Comp";

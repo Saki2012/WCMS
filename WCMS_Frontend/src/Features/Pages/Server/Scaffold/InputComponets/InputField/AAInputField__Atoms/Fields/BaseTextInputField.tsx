@@ -1,10 +1,11 @@
-import type { ChangeEvent } from "react";
+import type { ChangeEvent, FocusEvent, KeyboardEvent } from "react";
 import type { AAInputField, FieldRenderContext } from "../AAInputField_Types";
 import { FieldControlShell } from "../AAInputField_Shell";
 import { applyAAFocusStyle, clearAAFocusStyle } from "../AAInputField_Focus";
 import { buildControlClass, getAriaInvalid, getAriaRequired, getNativeRequired, normalizeTextValue, stringifyValue } from "../AAInputField_Utils";
 
 // #region Public
+
 /** text 欄位。 */
 export const TextField = (props: { field: AAInputField; context: FieldRenderContext; }) => <BaseTextInputField field={props.field} context={props.context} inputType="text" />;
 
@@ -15,6 +16,10 @@ export const EmailField = (props: { field: AAInputField; context: FieldRenderCon
 
 /** tel 欄位。 */
 export const TelField = (props: { field: AAInputField; context: FieldRenderContext; }) => <BaseTextInputField field={props.field} context={props.context} inputType="tel" />;
+
+
+/** url 欄位。 */
+export const UrlField = (props: { field: AAInputField; context: FieldRenderContext; }) => <BaseTextInputField field={props.field} context={props.context} inputType="url" />;
 
 
 /** date 欄位。 */
@@ -43,6 +48,19 @@ export const ReadonlyField = (props: { field: AAInputField; context: FieldRender
 /** 共用文字型 input 底層欄位。 */
 const BaseTextInputField = (props: { field: AAInputField; context: FieldRenderContext; inputType: string; }) =>
 {
+    /** 處理文字欄位離開焦點，保留 AA focus 樣式清除與外部 blur callback。 */
+    const handleBlur = (event: FocusEvent<HTMLInputElement>) =>
+    {
+        clearAAFocusStyle(event);
+        props.context.onBlur?.(props.field.key, normalizeTextValue(event.currentTarget.value, props.field.maxLength));
+    };
+
+    /** 處理文字欄位鍵盤事件，保留外部 Enter commit callback。 */
+    const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) =>
+    {
+        props.context.onKeyDown?.(props.field.key, event);
+    };
+
     return (
         <FieldControlShell field={props.field} fieldId={props.context.fieldId} hintId={props.context.hintId} errorId={props.context.errorId}>
             <input
@@ -57,6 +75,7 @@ const BaseTextInputField = (props: { field: AAInputField; context: FieldRenderCo
                 maxLength={props.field.maxLength}
                 placeholder={props.field.placeholder}
                 autoComplete={props.field.autoComplete}
+                inputMode={props.field.inputMode}
                 disabled={props.field.disabled}
                 readOnly={props.field.readOnly}
                 required={getNativeRequired(props.field)}
@@ -64,7 +83,8 @@ const BaseTextInputField = (props: { field: AAInputField; context: FieldRenderCo
                 aria-invalid={getAriaInvalid(props.field)}
                 aria-describedby={props.context.describedBy}
                 onFocus={applyAAFocusStyle}
-                onBlur={clearAAFocusStyle}
+                onBlur={handleBlur}
+                onKeyDown={handleKeyDown}
                 onChange={(event: ChangeEvent<HTMLInputElement>) => props.context.onChange(props.field.key, normalizeTextValue(event.target.value, props.field.maxLength))}
             />
         </FieldControlShell>

@@ -1,8 +1,8 @@
 import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-import { LibTextArea, LibTextBox, LibTinyMCE } from "@/SysCore/Components/FormField/LibFormField";
-import type { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
+import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
+import { LibTextArea, LibTextBox, LibTinyMCE } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
+import type { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import { type Lang, LangLabelMap } from "@/SysCore/i18n/lang";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";

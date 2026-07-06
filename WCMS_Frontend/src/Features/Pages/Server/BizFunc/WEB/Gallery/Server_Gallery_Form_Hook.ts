@@ -33,13 +33,12 @@ import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import { LibAttachment, LibText } from "@/SysCore/Utils/Library/LibData";
-
 import { useUploadFile } from "@/SysCore/Utils/UI_HookFunc/useUploadFile";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { GalleryInfoFields, GalleryPhotosFields, GalleryPhotosInfoFields, GallerySetFields, PGID } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 // #region Property
 type GallerySet = components["schemas"]["GallerySet_DTO"];
@@ -218,6 +217,21 @@ export type GalleryFormAdapter = {
 // #region Public
 export const galleryEmptyData: GallerySet = { Gallery: {}, GalleryInfo: [], GalleryPhotos: [], GalleryPhotosInfo: [] };
 
+/** 單張相簿相片上傳限制。 */
+export const GalleryPhotoUploadLimit = {
+    accept: "image/*",
+    multiple: false,
+    maxFileCount: 1,
+    maxFileSizeMB: 10,
+} as const;
+
+/** 批次相簿相片上傳限制。 */
+export const GalleryBatchPhotoUploadLimit = {
+    accept: "image/*",
+    maxFileCount: 20,
+    maxFileSizeMB: 10,
+} as const;
+
 export const GalleryPhotoSubDetailColumnKey = "__GalleryPhotosInfo";
 
 export const GalleryPhotoCoverColumnKey = "__GalleryCover";
@@ -264,7 +278,8 @@ export const useGalleryPhotoEditGrid = (opt: UseGalleryPhotoEditGridOptions) =>
     const uploadFile = useUploadFile({ enablePreview: false });
     const displayName = opt.binding.displayName;
     const columns = useMemo(() => buildGalleryPhotoColumns(displayName), [displayName]);
-    const handlePictureValueChange = useCallback((args: EditGridCellValueChangeArgs) => uploadGalleryPhotoValue(args, uploadFile.handleFileChange), [
+    const handlePictureValueChange = useCallback((args: EditGridCellValueChangeArgs) => uploadGalleryPhotoValue(args, uploadFile.handleFileChange, opt.binding), [
+        opt.binding,
         uploadFile.handleFileChange,
     ]);
 
@@ -308,8 +323,24 @@ export const useGalleryPhotoInfoEditGrid = (opt: UseGalleryPhotoInfoEditGridOpti
 /** 管理相簿封面選取，封面仍寫在 Header 的 CoverPicSrcId。 */
 export const useGalleryCoverSelector = (binding: ServerFormBinding<GallerySet>) =>
 {
-    const selected = binding.data?.Gallery?.CoverPicSrcId ?? null;
-    const select = useCallback((picId: string) => setGalleryCoverPic(binding, picId), [binding]);
+    const bindingSelected = normalizeGalleryCoverPicId(binding.data?.Gallery?.CoverPicSrcId);
+    const [selected, setSelected] = useState<string | null>(bindingSelected);
+
+    /** 後端資料或表單資料刷新時，同步目前封面狀態。 */
+    useEffect(() =>
+    {
+        setSelected(bindingSelected);
+    }, [bindingSelected]);
+
+    /** 設定目前封面，先更新畫面，再寫回 Form data。 */
+    const select = useCallback((picId: string) =>
+    {
+        const safePicId = normalizeGalleryCoverPicId(picId);
+        if (!safePicId) return;
+
+        setSelected(safePicId);
+        setGalleryCoverPic(binding, safePicId);
+    }, [binding]);
 
     return { selected, select };
 };
@@ -459,7 +490,7 @@ const useEnsureGalleryLangDetails = (binding: ServerFormBinding<GallerySet>, lan
     });
 };
 
-/** ContentStatus enum options（去掉 key=0）。 */
+/** ContentStatus enum options，去掉 key=0。 */
 const useContentStatusOptions = (): { data: Record<string, string>; isLoading: boolean; error: string | null; } =>
 {
     const src = useFetchEnumOptions("ContentStatus");
@@ -618,10 +649,10 @@ const buildGalleryPhotoColumns = (displayName: ModelDisplaySchema): ColumnConfig
             width: 360,
             inputType: "file",
             editable: true,
-            accept: "image/*",
-            multiple: false,
-            maxFileCount: 1,
-            maxFileSizeMB: 10,
+            accept: GalleryPhotoUploadLimit.accept,
+            multiple: GalleryPhotoUploadLimit.multiple,
+            maxFileCount: GalleryPhotoUploadLimit.maxFileCount,
+            maxFileSizeMB: GalleryPhotoUploadLimit.maxFileSizeMB,
         },
         { key: GalleryPhotoCoverColumnKey, title: "封面", width: 120, inputType: "readonly", editable: false },
         { key: GalleryPhotosFields.Sort, title: sortTitle, width: 120, inputType: "number", editable: true, min: 0 },
@@ -656,6 +687,7 @@ const buildGalleryPhotoGridRow = (
 ): GalleryPhotoGridRow =>
 {
     const rowId = Number(photo.RowId ?? index + 1);
+    const selectedCoverPicId = String(opt.binding.data?.Gallery?.CoverPicSrcId ?? "").trim();
 
     return {
         keyId: buildGalleryPhotoRowKey(photo, index),
@@ -664,7 +696,7 @@ const buildGalleryPhotoGridRow = (
         RowNo: index + 1,
         GalleryId: photo.GalleryId,
         PhotoRowId: rowId,
-        cells: buildGalleryPhotoCells(photo, rowId, opt, onPictureValueChange, displayName),
+        cells: buildGalleryPhotoCells(photo, rowId, opt, onPictureValueChange, displayName, selectedCoverPicId),
     };
 };
 
@@ -692,6 +724,7 @@ const buildGalleryPhotoCells = (
     opt: UseGalleryPhotoEditGridOptions,
     onPictureValueChange: EditGridCellValueChangeHandler,
     displayName: ModelDisplaySchema,
+    selectedCoverPicId: string,
 ): RowCell[] =>
 {
     const picTitle = getGalleryColumnTitle(displayName, GallerySetFields.GalleryPhotos, GalleryPhotosFields.PicSrcId, "相片");
@@ -701,14 +734,14 @@ const buildGalleryPhotoCells = (
         buildEditGridCell(GalleryPhotosFields.PicSrcId, picTitle, buildGalleryPhotoCellValue(photo), {
             inputType: "file",
             editable: true,
-            accept: "image/*",
-            multiple: false,
-            maxFileCount: 1,
-            maxFileSizeMB: 10,
+            accept: GalleryPhotoUploadLimit.accept,
+            multiple: GalleryPhotoUploadLimit.multiple,
+            maxFileCount: GalleryPhotoUploadLimit.maxFileCount,
+            maxFileSizeMB: GalleryPhotoUploadLimit.maxFileSizeMB,
             render: opt.renderPicturePreview,
             onValueChange: onPictureValueChange,
         }),
-        buildEditGridCell(GalleryPhotoCoverColumnKey, "封面", photo.PicSrcId ?? "", {
+        buildEditGridCell(GalleryPhotoCoverColumnKey, "封面", selectedCoverPicId, {
             inputType: "readonly",
             editable: false,
             render: opt.renderCoverSelector,
@@ -897,12 +930,23 @@ const getFirstOtherPhotoId = (photos: GalleryPhoto[], removedRowId: number): str
 };
 
 /** 使用 EditGrid 內建 file 欄位選圖後，上傳並同步所有語系標題。 */
-const uploadGalleryPhotoValue = async (args: EditGridCellValueChangeArgs, handleFileChange: UploadFileHandler): Promise<EditGridCellValueChangeResult> =>
+const uploadGalleryPhotoValue = async (
+    args: EditGridCellValueChangeArgs,
+    handleFileChange: UploadFileHandler,
+    binding: ServerFormBinding<GallerySet>,
+): Promise<EditGridCellValueChangeResult> =>
 {
     const current = toGalleryPhotoCellValue(args.value);
     const selectedFile = getSelectedEditGridFile(args.nextValue);
+    const parentRowId = getEditGridRowId(args.row, args.rowIndex);
 
-    if (!selectedFile?.file) return { value: buildEmptyGalleryPhotoCellValue() };
+    if (!selectedFile?.file)
+    {
+        syncGalleryPhotoTitleByFileChange(binding, parentRowId, "");
+        syncGalleryCoverByFileChange(binding, parentRowId, current.internalId, "");
+
+        return { value: buildEmptyGalleryPhotoCellValue() };
+    }
 
     let uploadedValue: GalleryPhotoCellValue = current;
     const selectedOriginalName = getSelectedGalleryPhotoName(selectedFile);
@@ -912,7 +956,71 @@ const uploadGalleryPhotoValue = async (args: EditGridCellValueChangeArgs, handle
         uploadedValue = buildUploadedGalleryPhotoCellValue(internalId, originalName || selectedOriginalName);
     });
 
+    const title = LibAttachment.getDisplayFileNameWithoutExtension(uploadedValue.originalFileName);
+
+    syncGalleryPhotoTitleByFileChange(binding, parentRowId, title);
+    syncGalleryCoverByFileChange(binding, parentRowId, current.internalId, uploadedValue.internalId ?? "");
+
     return { value: uploadedValue };
+};
+
+/** 依相片 file 異動同步所有語系標題。 */
+const syncGalleryPhotoTitleByFileChange = (
+    binding: ServerFormBinding<GallerySet>,
+    parentRowId: number,
+    title: string,
+): void =>
+{
+    binding.setFormData(prev => syncGalleryPhotoTitleByFileChangeToData(prev ?? galleryEmptyData, parentRowId, title));
+};
+
+/** 寫入相片語系標題，清除 file 時也同步清空標題。 */
+const syncGalleryPhotoTitleByFileChangeToData = (
+    data: GallerySet,
+    parentRowId: number,
+    title: string,
+): GallerySet =>
+{
+    const nextInfos = upsertGalleryPhotoInfos(data.GalleryPhotosInfo ?? [], data.Gallery?.GalleryId, parentRowId, title);
+
+    return {
+        ...data,
+        GalleryPhotosInfo: nextInfos,
+    };
+};
+
+/** 依相片 file 異動同步封面欄位。 */
+const syncGalleryCoverByFileChange = (
+    binding: ServerFormBinding<GallerySet>,
+    parentRowId: number,
+    oldPicId?: string | null,
+    nextPicId?: string | null,
+): void =>
+{
+    binding.setFormData(prev => syncGalleryCoverByFileChangeToData(prev ?? galleryEmptyData, parentRowId, oldPicId, nextPicId));
+};
+
+/** 若目前封面是被清除或替換的相片，封面也要一起更新。 */
+const syncGalleryCoverByFileChangeToData = (
+    data: GallerySet,
+    parentRowId: number,
+    oldPicId?: string | null,
+    nextPicId?: string | null,
+): GallerySet =>
+{
+    const currentCover = String(data.Gallery?.CoverPicSrcId ?? "").trim();
+    const oldId = String(oldPicId ?? "").trim();
+    const nextId = String(nextPicId ?? "").trim();
+
+    if (!currentCover || currentCover !== oldId) return data;
+
+    return {
+        ...data,
+        Gallery: {
+            ...data.Gallery,
+            CoverPicSrcId: nextId || getFirstOtherPhotoId(data.GalleryPhotos ?? [], parentRowId),
+        },
+    };
 };
 
 /** 批次上傳所有選取檔案，成功後一次寫入 Form data。 */
@@ -1011,13 +1119,30 @@ const buildGalleryHeaderWithCover = (header: NonNullable<GallerySet["Gallery"]>,
     return { ...header, CoverPicSrcId: picId };
 };
 
+/** 正規化封面圖片 id，空值轉成 null。 */
+const normalizeGalleryCoverPicId = (picId?: string | null): string | null =>
+{
+    const safePicId = String(picId ?? "").trim();
+    return safePicId || null;
+};
+
 /** 直接指定相簿封面圖片。 */
 const setGalleryCoverPic = (binding: ServerFormBinding<GallerySet>, picId: string): void =>
 {
+    const safePicId = String(picId ?? "").trim();
+    if (!safePicId) return;
+
     binding.setFormData(prev =>
     {
         const data = prev ?? galleryEmptyData;
-        return { ...data, Gallery: { ...data.Gallery, CoverPicSrcId: picId } };
+
+        return {
+            ...data,
+            Gallery: {
+                ...data.Gallery,
+                CoverPicSrcId: safePicId,
+            },
+        };
     });
 };
 

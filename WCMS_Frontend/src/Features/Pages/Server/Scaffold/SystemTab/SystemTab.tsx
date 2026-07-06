@@ -1,6 +1,6 @@
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
-import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
+import { LibTextBox } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
+import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { formatDateTime } from "@/SysCore/Utils/Library/LibData";
 import { useMemo } from "react";
 

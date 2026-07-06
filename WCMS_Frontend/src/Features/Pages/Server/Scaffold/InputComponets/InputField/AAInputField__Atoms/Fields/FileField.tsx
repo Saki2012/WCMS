@@ -22,6 +22,7 @@ export const FileField = (props: { field: AAInputField; context: FieldRenderCont
     const displayFileList = localPreviewList.length > 0 ? localPreviewList : valuePreviewList;
     const errorId = localErrorText ? `${props.context.fieldId}-file-error` : props.context.errorId;
     const describedBy = [props.context.describedBy, localErrorText ? errorId : ""].filter(Boolean).join(" ");
+    const showFileNameAndImg = props.field.showFileNameAndImg ?? true;
 
     /** 元件卸載時釋放本機 blob 預覽網址。 */
     useEffect(() => () => revokePreviewUrls(localPreviewList), [localPreviewList]);
@@ -84,7 +85,17 @@ export const FileField = (props: { field: AAInputField; context: FieldRenderCont
         <div className="form-group">
             <label htmlFor={props.context.fieldId} className="visually-hidden">{props.field.aaLabel ?? "請上傳檔案"}</label>
             <div id={props.context.hintId} className="form-text mb-2">{getFileLimitText(props.field)}</div>
-            <div className={buildFileDropZoneClass(props.field, isDragging, localErrorText)} style={{ width: "100%", minHeight: 95, border: "1px dashed #777" }} role="group" aria-describedby={describedBy} aria-invalid={Boolean(props.field.errorText || localErrorText) || undefined} onDragOver={handleDragOver} onDragEnter={handleDragOver} onDragLeave={() => setIsDragging(false)} onDrop={handleDrop}>
+            <div
+                className={buildFileDropZoneClass(props.field, isDragging, localErrorText)}
+                style={{ width: "100%", minHeight: 95, border: "1px dashed #777" }}
+                role="group"
+                aria-describedby={describedBy}
+                aria-invalid={Boolean(props.field.errorText || localErrorText) || undefined}
+                onDragOver={handleDragOver}
+                onDragEnter={handleDragOver}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={handleDrop}
+            >
                 <input
                     ref={inputRef}
                     id={props.context.fieldId}
@@ -99,10 +110,12 @@ export const FileField = (props: { field: AAInputField; context: FieldRenderCont
                     aria-invalid={Boolean(props.field.errorText || localErrorText) || undefined}
                     aria-describedby={describedBy}
                     onChange={handleInputChange}
-                    onFocus={applyFileAAFocusStyle} 
+                    onFocus={applyFileAAFocusStyle}
                     onBlur={clearFileAAFocusStyle}
                 />
-                {displayFileList.length === 0 ? renderEmptyFileDropContent(props.field, handleBrowseClick) : renderFilePreviewList(displayFileList, handleBrowseClick, handleClearClick, props.field.disabled)}
+                {displayFileList.length === 0
+                    ? renderEmptyFileDropContent(props.field, handleBrowseClick)
+                    : renderFilePreviewList(displayFileList, handleBrowseClick, handleClearClick, props.field.disabled, showFileNameAndImg)}
             </div>
             <div className="form-text mt-2">允許格式為{props.field.accept ?? defaultAccept}</div>
             {localErrorText && <div id={errorId} className="invalid-feedback d-block" role="alert" aria-live="polite">{localErrorText}</div>}
@@ -122,20 +135,37 @@ const renderEmptyFileDropContent = (field: AAInputField, onBrowseClick: () => vo
                 <i className="fas fa-cloud-upload" aria-hidden="true"></i>
                 <span>選擇或拖曳檔案至此</span>
             </div>
-            <button type="button" className="btn btn-outline-primary btn-sm" disabled={field.disabled} onFocus={applyAAFocusStyle} onBlur={clearAAFocusStyle} onClick={onBrowseClick}>瀏覽檔案</button>
+            <button
+                type="button"
+                className="btn btn-outline-primary btn-sm"
+                disabled={field.disabled}
+                onFocus={applyAAFocusStyle}
+                onBlur={clearAAFocusStyle}
+                onClick={onBrowseClick}
+            >
+                瀏覽檔案
+            </button>
         </div>
     );
 };
 
 
 /** 渲染已選擇/已上傳檔案的預覽內容。 */
-const renderFilePreviewList = (fileList: FilePreviewItem[], onBrowseClick: () => void, onClearClick: () => void, disabled?: boolean) =>
+const renderFilePreviewList = (
+    fileList: FilePreviewItem[],
+    onBrowseClick: () => void,
+    onClearClick: () => void,
+    disabled?: boolean,
+    showFileNameAndImg = true,
+) =>
 {
     return (
         <div className="d-flex flex-column align-items-center justify-content-center gap-2 py-3 text-center">
-            <ul className="list-unstyled mb-0 w-100" aria-label="已上傳檔案">
-                {fileList.map((file) => <li key={file.key} className="mb-2">{renderFilePreviewItem(file)}</li>)}
-            </ul>
+            {showFileNameAndImg && (
+                <ul className="list-unstyled mb-0 w-100" aria-label="已上傳檔案">
+                    {fileList.map((file) => <li key={file.key} className="mb-2">{renderFilePreviewItem(file)}</li>)}
+                </ul>
+            )}
             <div className="d-flex flex-wrap justify-content-center gap-2">
                 <button type="button" className="btn btn-outline-primary btn-sm" disabled={disabled} onFocus={applyAAFocusStyle} onBlur={clearAAFocusStyle} onClick={onBrowseClick}>重新選擇檔案</button>
                 <button type="button" className="btn btn-outline-danger btn-sm" disabled={disabled} onFocus={applyAAFocusStyle} onBlur={clearAAFocusStyle} onClick={onClearClick}>清除檔案</button>
@@ -146,13 +176,13 @@ const renderFilePreviewList = (fileList: FilePreviewItem[], onBrowseClick: () =>
 
 
 /** 渲染單一檔案預覽，圖片/影片會顯示媒體，其餘只顯示檔名。 */
-const renderFilePreviewItem = (file: FilePreviewItem) =>
+const renderFilePreviewItem = (file: FilePreviewItem, showFileName = true) =>
 {
     return (
         <div className="d-flex flex-column align-items-center gap-1">
             {file.isImage && <img src={file.previewUrl} alt={`${file.name} 預覽圖`} style={{ height: 72, maxWidth: "100%", objectFit: "contain" }} />}
             {file.isVideo && <video src={file.previewUrl} controls preload="metadata" style={{ height: 72, maxWidth: "100%" }}>您的瀏覽器不支援影片預覽。</video>}
-            <span className="small text-break">{file.name}</span>
+            {showFileName && <span className="small text-break">{file.name}</span>}
         </div>
     );
 };
@@ -224,7 +254,10 @@ const toExistingPreviewItem = (file: AAFileValue): FilePreviewItem =>
 
 
 /** 釋放本機預覽網址，避免長時間停留後記憶體累積。 */
-const revokePreviewUrls = (previewList: FilePreviewItem[]) => previewList.forEach((item) => { if (item.previewUrl.startsWith("blob:")) URL.revokeObjectURL(item.previewUrl); });
+const revokePreviewUrls = (previewList: FilePreviewItem[]) => previewList.forEach((item) =>
+{
+    if (item.previewUrl.startsWith("blob:")) URL.revokeObjectURL(item.previewUrl);
+});
 
 
 /** 設定 input file 原生驗證狀態；不呼叫 reportValidity，避免隱藏 input 觸發瀏覽器自動水平捲動。 */
@@ -244,7 +277,7 @@ const clearNativeFileInput = (input: HTMLInputElement | null) =>
 
 
 /** 取得檔案上傳限制文字。 */
-const getFileLimitText = (field: AAInputField) => `選擇或拖曳檔案至虛框內，僅限上傳${field.maxFileCount ?? 1}個${field.maxFileSizeMB ?? 10}MB以內檔案。${field.required ? "(必填)" : ""}`;
+const getFileLimitText = (field: AAInputField) => `選擇或拖曳檔案至虛框內，僅限上傳${field.maxFileCount ?? 0}個${field.maxFileSizeMB ?? 0}MB以內檔案。${field.required ? "(必填)" : ""}`;
 
 
 /** 判斷是否可用圖片方式預覽，SVG 為安全考量只顯示檔名。 */

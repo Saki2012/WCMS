@@ -46,7 +46,7 @@ export const RegisterPage: React.FC = () =>
 
         if (pwdMismatch)
         {
-            setErr("密碼與再次輸入密碼不一致");
+            setErr("密碼與再次確認密碼不一致");
             return;
         }
 
@@ -240,7 +240,7 @@ export const RegisterPage: React.FC = () =>
                                                             aria-live="polite"
                                                             style={{ color: "#d9534f", paddingTop: 8 }}
                                                         >
-                                                            {pwdMismatch ? "密碼與再次輸入密碼不一致" : err}
+                                                            {pwdMismatch ? "密碼與再次確認密碼不一致" : err}
                                                         </div>
                                                     </div>
                                                 </div>

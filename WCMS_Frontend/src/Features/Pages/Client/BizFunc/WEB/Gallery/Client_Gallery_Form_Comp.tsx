@@ -3,7 +3,7 @@ import type { INormNode, INormSite } from "@/Features/Pages/Client/Route/Site-Ro
 import { getClientSlotPath } from "@/Features/Pages/Client/Scaffold/Slot/Client_SlotPath";
 import { ModuleContent, type ModuleViewCountConfig } from "@/Features/Pages/Client/Scaffold/SubPages/layouts/RightFrame/ModuleContent";
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
-import { LibLightBox_Comp, type LibLightBoxSlide } from "@/SysCore/Components/FormField/LibFormField";
+import { LibLightBox_Comp, type LibLightBoxSlide } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
 import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LibText } from "@/SysCore/Utils/Library/LibData";

@@ -1,7 +1,7 @@
 import { FormShellComp } from "@/Features/Pages/Server/Scaffold/Content/FormShell_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { LibPwdTextBox } from "@/SysCore/Components/FormField/FieldComponets/LibPwdTextBox_Comp";
-import { LibDropList } from "@/SysCore/Components/FormField/LibFormField";
+import { LibPwdTextBox } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibPwdTextBox_Comp";
+import { LibDropList } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
 import { useMemo } from "react";
 import { useServerResetPassword } from "./Server_ResetPassword_Hook";
 
@@ -57,7 +57,7 @@ export const Server_ResetPassword_Comp = (props: { theme: IBETheme; }) =>
                                             <LibPwdTextBox
                                                 Style={props.theme.TextBox3}
                                                 DefaultInputDisplay="請輸入"
-                                                ColumnDisplayName="再次輸入密碼"
+                                                ColumnDisplayName="再次確認新密碼"
                                                 InputValue={vm.confirmPwd}
                                                 OnChange={(v) => vm.onConfirmPwdChange(v)}
                                             />

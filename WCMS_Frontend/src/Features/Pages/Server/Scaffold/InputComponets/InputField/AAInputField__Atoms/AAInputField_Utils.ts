@@ -115,7 +115,8 @@ export const buildAdapterBaseId = (value: string) => value.replace(/[^a-zA-Z0-9_
 
 
 /** 預設允許上傳格式。 */
-export const defaultAccept = ".jpg,.jpeg,.png,.svg,.gif,.pdf,.odf,.odt,.doc,.docx,.xls,.ods,.xlsx,.odp,.txt,.csv,.mp4";
+// export const defaultAccept = ".jpg,.jpeg,.png,.svg,.gif,.pdf,.odf,.odt,.doc,.docx,.xls,.ods,.xlsx,.odp,.txt,.csv,.mp4";
+export const defaultAccept = "無限制";
 
 
 /** 取得 select multiple 的值。 */

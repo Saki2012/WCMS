@@ -8,20 +8,21 @@ import type {
     GridRow,
     IEditGridView_Style,
 } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Data";
-import { getEditGridRowId, useEditGridSubDetailState } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
+import { getEditGridCellValue, getEditGridRowId, getEditGridRowKey, useEditGridSubDetailState } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-import { LibCalendar, LibCheckBox, LibFile, LibModal, LibPicturePreview, LibTextBox, LibTinyMCE } from "@/SysCore/Components/FormField/LibFormField";
-import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
+import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
+import { LibCalendar, LibCheckBox, LibFile, LibModal, LibPicturePreview, LibTextBox, LibTinyMCE } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
+import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
-import { GalleryFields, GalleryInfoFields, GallerySetFields } from "@/types/SchemaFields";
+import { GalleryFields, GalleryInfoFields, GalleryPhotosFields, GallerySetFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
+    GalleryBatchPhotoUploadLimit,
     galleryEmptyData,
     type GalleryFormRefs,
     type GalleryInfoRowKeys,
@@ -38,7 +39,6 @@ import {
 // #region Property
 type GallerySet = components["schemas"]["GallerySet_DTO"];
 
-
 interface GalleryFormCompProps
 {
     /** 後台主題設定 */
@@ -47,7 +47,6 @@ interface GalleryFormCompProps
     /** 目前語系 */
     lang: Lang;
 }
-
 
 interface GalleryContentProps
 {
@@ -64,7 +63,6 @@ interface GalleryContentProps
     refs: GalleryFormRefs;
 }
 
-
 interface GalleryHeaderProps
 {
     /** 後台主題設定 */
@@ -76,7 +74,6 @@ interface GalleryHeaderProps
     /** Gallery Hook 整理後的參照資料 */
     refs: GalleryFormRefs;
 }
-
 
 interface GalleryInfoProps
 {
@@ -90,7 +87,6 @@ interface GalleryInfoProps
     binding: ServerFormBinding<GallerySet>;
 }
 
-
 interface PhotoGridProps
 {
     /** 後台主題設定 */
@@ -103,7 +99,6 @@ interface PhotoGridProps
     binding: ServerFormBinding<GallerySet>;
 }
 
-
 interface PhotoInfoSubDetailProps extends PhotoGridProps
 {
     /** 目前相片 RowId */
@@ -113,13 +108,11 @@ interface PhotoInfoSubDetailProps extends PhotoGridProps
     onEditingStateChange: (args: EditGridEditingStateArgs) => void;
 }
 
-
 interface GalleryHeaderTabContentOptions extends GalleryHeaderProps
 {
     /** 欄位 binding helper */
     setField: ReturnType<typeof useSetTableField<GallerySet>>;
 }
-
 
 const editGridStyle: IEditGridView_Style = {
     TableStyle: "table table-striped table-bordered table-hover",
@@ -169,7 +162,6 @@ const GalleryContentComp = (props: GalleryContentProps) =>
     return <TabContentComp tabInfos={tabInfo} components={components}></TabContentComp>;
 };
 
-
 /** 相簿 Header 區塊，維持舊版 Header input。 */
 const GalleryHeaderComp = (props: GalleryHeaderProps) =>
 {
@@ -179,7 +171,6 @@ const GalleryHeaderComp = (props: GalleryHeaderProps) =>
 
     return <TabContentComp tabInfos={tabInfo} components={components}></TabContentComp>;
 };
-
 
 /** 相簿語系 Detail 區塊，語系資料由 Hook 統一整理。 */
 const GalleryInfoComp = (props: GalleryInfoProps) =>
@@ -196,28 +187,45 @@ const GalleryInfoComp = (props: GalleryInfoProps) =>
     return <TabContentComp tabInfos={tabInfo} components={components}></TabContentComp>;
 };
 
-
 /** 相片區塊，批次上傳按鈕與 EditGrid 單筆新增按鈕分離。 */
 const PhotoGridComp = (props: PhotoGridProps) =>
 {
     const cover = useGalleryCoverSelector(props.binding);
+    const coverSelectedRef = useRef<string | null>(cover.selected);
     const subDetailState = useEditGridSubDetailState();
+    const subDetailExpandedRowKeyRef = useRef<string | null>(subDetailState.expandedRowKey);
+    const subDetailEditingRef = useRef<boolean>(subDetailState.isSubDetailEditing);
     const renderPicturePreview = useCallback((args: EditGridCellRenderArgs) => <GalleryPicturePreview value={args.value} />, []);
+
+    coverSelectedRef.current = cover.selected;
+    subDetailExpandedRowKeyRef.current = subDetailState.expandedRowKey;
+    subDetailEditingRef.current = subDetailState.isSubDetailEditing;
+
+    /** 渲染封面按鈕，直接讀目前唯一封面值，避免 EditGrid 內部 cell value 不同步。 */
     const renderCoverSelector = useCallback(
-        (args: EditGridCellRenderArgs) => <GalleryCoverSelector value={args.value} selected={cover.selected} onSelect={cover.select} />,
-        [cover.select, cover.selected],
+        (args: EditGridCellRenderArgs) => (
+            <GalleryCoverSelector
+                value={getEditGridCellValue(args.row, GalleryPhotosFields.PicSrcId)}
+                selected={coverSelectedRef.current}
+                onSelect={cover.select}
+            />
+        ),
+        [cover.select],
     );
+
+    /** 渲染語系明細切換按鈕，使用 ref 讀最新展開狀態，避免 EditGrid cell render 吃舊閉包。 */
     const renderSubDetailToggle = useCallback(
         (args: EditGridCellRenderArgs) => (
             <GallerySubDetailToggleButton
                 row={args.row}
-                expandedRowKey={subDetailState.expandedRowKey}
-                isSubDetailEditing={subDetailState.isSubDetailEditing}
+                expandedRowKey={subDetailExpandedRowKeyRef.current}
+                isSubDetailEditing={subDetailEditingRef.current}
                 onToggle={subDetailState.toggleSubDetail}
             />
         ),
-        [subDetailState.expandedRowKey, subDetailState.isSubDetailEditing, subDetailState.toggleSubDetail],
+        [subDetailState.toggleSubDetail],
     );
+
     const renderSubDetail = useCallback(
         (args: { row: GridRow; rowIndex: number; }) => (
             <PhotoInfoSubDetailGridComp
@@ -250,7 +258,6 @@ const PhotoGridComp = (props: PhotoGridProps) =>
     );
 };
 
-
 /** 相片語系 SubDetail Grid，固定由系統語系產生，不開放新增或刪除。 */
 const PhotoInfoSubDetailGridComp = (props: PhotoInfoSubDetailProps) =>
 {
@@ -263,7 +270,6 @@ const PhotoInfoSubDetailGridComp = (props: PhotoInfoSubDetailProps) =>
         </div>
     );
 };
-
 
 /** 批次上傳圖片，和 EditGrid 內建新增單筆按鈕分離。 */
 const GalleryBatchUploadComp = (props: { theme: IBETheme; binding: ServerFormBinding<GallerySet>; }) =>
@@ -286,7 +292,10 @@ const GalleryBatchUploadComp = (props: { theme: IBETheme; binding: ServerFormBin
                             <LibFile
                                 Style={props.theme.File}
                                 ColumnDisplayName="選擇圖片(多選)"
-                                Multiple={true}
+                                accept={GalleryBatchPhotoUploadLimit.accept}
+                                Multiple={GalleryBatchPhotoUploadLimit.maxFileCount > 1}
+                                maxFileCount={GalleryBatchPhotoUploadLimit.maxFileCount}
+                                maxFileSizeMB={GalleryBatchPhotoUploadLimit.maxFileSizeMB}
                                 onChange={batch.setSelectedFiles}
                                 InputValue=""
                             />
@@ -314,13 +323,11 @@ const buildGalleryMainTabContent = (props: GalleryContentProps): Record<string, 
     };
 };
 
-
 /** 建立相簿 Header 的各分頁欄位。 */
 const buildGalleryHeaderTabContent = (opt: GalleryHeaderTabContentOptions): Record<string, ReactNode[]> =>
 {
     return { Basic: buildGalleryBasicFields(opt), Status: buildGalleryStatusFields(opt), Tags: buildGalleryTagFields(opt) };
 };
-
 
 /** 建立相簿基本資料欄位。 */
 const buildGalleryBasicFields = (opt: GalleryHeaderTabContentOptions): ReactNode[] =>
@@ -334,7 +341,6 @@ const buildGalleryBasicFields = (opt: GalleryHeaderTabContentOptions): ReactNode
         <LibCalendar {...opt.setField(GallerySetFields.Gallery, GalleryFields.Validate_Start, "datetime")}></LibCalendar>,
     ];
 };
-
 
 /** 建立相簿狀態欄位。 */
 const buildGalleryStatusFields = (opt: GalleryHeaderTabContentOptions): ReactNode[] =>
@@ -351,7 +357,6 @@ const buildGalleryStatusFields = (opt: GalleryHeaderTabContentOptions): ReactNod
     ];
 };
 
-
 /** 建立相簿標籤欄位。 */
 const buildGalleryTagFields = (opt: GalleryHeaderTabContentOptions): ReactNode[] =>
 {
@@ -363,7 +368,6 @@ const buildGalleryTagFields = (opt: GalleryHeaderTabContentOptions): ReactNode[]
         />,
     ];
 };
-
 
 /** 建立相簿語系欄位。 */
 const buildGalleryInfoFields = (theme: IBETheme, setField: ReturnType<typeof useSetTableField<GallerySet>>, rowKeys: GalleryInfoRowKeys): ReactNode[] =>
@@ -405,7 +409,6 @@ const GalleryBatchPreview = (props: { files: File[]; }) =>
     );
 };
 
-
 /** 相片預覽元件，沒有圖片時以文字提示避免破圖。 */
 const GalleryPicturePreview = (props: { value: EditGridCellValue; }) =>
 {
@@ -416,7 +419,6 @@ const GalleryPicturePreview = (props: { value: EditGridCellValue; }) =>
     if (!previewUrl) return <span className="small">尚未選擇圖片</span>;
     return <img src={previewUrl} alt={alt} style={{ maxWidth: "160px", maxHeight: "120px", objectFit: "contain" }} />;
 };
-
 
 /** 封面選擇按鈕，實際資料寫回 Header 的 CoverPicSrcId。 */
 const GalleryCoverSelector = (props: { value: EditGridCellValue; selected: string | null; onSelect: (picId: string) => void; }) =>
@@ -438,11 +440,10 @@ const GalleryCoverSelector = (props: { value: EditGridCellValue; selected: strin
     );
 };
 
-
 /** 語系明細展開按鈕，避免把子 Grid 直接塞在同一欄位。 */
 const GallerySubDetailToggleButton = (props: { row: GridRow; expandedRowKey: string | null; isSubDetailEditing: boolean; onToggle: (row: GridRow) => void; }) =>
 {
-    const rowKey = String(props.row.keyId || props.row.RowId || props.row.rowId || "");
+    const rowKey = getEditGridRowKey(props.row);
     const isExpanded = props.expandedRowKey === rowKey;
     const title = isExpanded ? "收合語系明細" : "展開語系明細";
 
@@ -452,6 +453,7 @@ const GallerySubDetailToggleButton = (props: { row: GridRow; expandedRowKey: str
             className="btn btn-outline-primary btn-sm"
             title={title}
             disabled={props.isSubDetailEditing}
+            aria-expanded={isExpanded}
             onClick={() => props.onToggle(props.row)}
         >
             <i className={isExpanded ? "fa fa-eye-slash" : "fa fa-eye"} aria-hidden="true" />

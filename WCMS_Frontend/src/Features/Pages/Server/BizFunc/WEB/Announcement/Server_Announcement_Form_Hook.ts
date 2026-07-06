@@ -128,6 +128,20 @@ export type AnnouncementFormAdapter = {
 // #region Public
 export const announcementEmptyData: AnnouncementSet = { Announcement: {}, AnnouncementDetail: [], AnnouncementDetailFile: [] };
 
+/** 公告主圖上傳限制。 */
+export const AnnouncementPictureUploadLimit = {
+    accept: "image/*",
+    maxFileCount: 1,
+    maxFileSizeMB: 10,
+} as const;
+
+/** 公告附件上傳限制。 */
+export const AnnouncementDetailFileUploadLimit = {
+    accept: "*/*",
+    maxFileCount: 1,
+    maxFileSizeMB: 10,
+} as const;
+
 /** 建立 Announcement Form Template，統一交給 Server_FormTemplate 處理資料流程 */
 export const useAnnouncementFormTemplate = (
     opt: { lang: Lang; theme: IBETheme; internalId: string; emptyData: AnnouncementSet; actionsOpt: AnnouncementFormActionsOpt; },
@@ -462,10 +476,10 @@ const buildAnnouncementFileColumns = (displayName: ModelDisplaySchema): ColumnCo
         width: 520,
         inputType: "file",
         editable: true,
-        accept: "*/*",
-        multiple: false,
-        maxFileCount: 1,
-        maxFileSizeMB: 10,
+        accept: AnnouncementDetailFileUploadLimit.accept,
+        multiple: AnnouncementDetailFileUploadLimit.maxFileCount > 1,
+        maxFileCount: AnnouncementDetailFileUploadLimit.maxFileCount,
+        maxFileSizeMB: AnnouncementDetailFileUploadLimit.maxFileSizeMB,
     }];
 };
 
@@ -506,10 +520,10 @@ const buildAnnouncementFileCells = (
         buildEditGridCell(AnnouncementDetailFileFields.FileId, fileIdTitle, buildAnnouncementFileCellValue(file), {
             inputType: "file",
             editable: true,
-            accept: "*/*",
-            multiple: false,
-            maxFileCount: 1,
-            maxFileSizeMB: 10,
+            accept: AnnouncementDetailFileUploadLimit.accept,
+            multiple: AnnouncementDetailFileUploadLimit.maxFileCount > 1,
+            maxFileCount: AnnouncementDetailFileUploadLimit.maxFileCount,
+            maxFileSizeMB: AnnouncementDetailFileUploadLimit.maxFileSizeMB,
             onValueChange: onFileValueChange,
         }),
     ];
@@ -563,13 +577,19 @@ const toAnnouncementFileDto = (source: AnnouncementSet, parentRowId: number, row
     };
 };
 
-/** 使用 EditGrid 內建 file 欄位選檔後，上傳並轉回 Announcement 附件值。 */
+/** 使用 EditGrid 內建 file 欄位選檔後，上傳並同步附件名稱。 */
 const uploadAnnouncementFileValue = async (args: EditGridCellValueChangeArgs, handleFileChange: UploadFileHandler): Promise<EditGridCellValueChangeResult> =>
 {
     const current = toAnnouncementFileCellValue(args.value);
     const selectedFile = getSelectedEditGridFile(args.nextValue);
 
-    if (!selectedFile?.file) return { value: buildEmptyAnnouncementFileCellValue() };
+    if (!selectedFile?.file)
+    {
+        return {
+            value: buildEmptyAnnouncementFileCellValue(),
+            rowValues: { [AnnouncementDetailFileFields.FileName]: "" },
+        };
+    }
 
     let uploadedValue: AnnouncementFileCellValue = current;
     const selectedOriginalName = getSelectedAnnouncementFileName(selectedFile);

@@ -4,6 +4,7 @@ import {
     announcementEmptyData,
     type AnnouncementFormRefs,
     type AnnouncementPreviewPayload,
+    AnnouncementPictureUploadLimit,
     useAnnouncementDetailTabs,
     useAnnouncementFileEditGrid,
     useAnnouncementFormTemplate,
@@ -16,12 +17,12 @@ import { PreviewFrame } from "@/Features/Pages/Server/Scaffold/Preview/PreviewFr
 import { buildServerPreviewToolbarButton, useServerPreviewFrame } from "@/Features/Pages/Server/Scaffold/Preview/PreviewFrame_Hook";
 import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { LibCalendar } from "@/SysCore/Components/FormField/FieldComponets/LibCalendar_Comp";
-import { LibCheckBox } from "@/SysCore/Components/FormField/FieldComponets/LibCheckBox_Comp";
-import { useUploadPicture } from "@/SysCore/Components/FormField/FieldComponets/LibPicture_Comp";
-import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-import { LibFile, LibPicture, LibTextBox, LibTinyMCE } from "@/SysCore/Components/FormField/LibFormField";
-import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
+import { LibCalendar } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibCalendar_Comp";
+import { LibCheckBox } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibCheckBox_Comp";
+import { useUploadPicture } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibPicture_Comp";
+import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
+import { LibFile, LibPicture, LibTextBox, LibTinyMCE } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
+import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
@@ -36,6 +37,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 // #region Property
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
+
 interface AnnouncementFormCompProps
 {
     /** 後台主題設定 */
@@ -55,6 +57,7 @@ export interface HeaderSectionProps
     /** Announcement Hook 整理後的參照資料 */
     refs: AnnouncementFormRefs;
 }
+
 interface DetailSectionProps
 {
     /** 後台主題設定 */
@@ -66,6 +69,7 @@ interface DetailSectionProps
     /** Form Template 提供的主資料 binding */
     binding: ServerFormBinding<AnnouncementSet>;
 }
+
 interface SubDetailSectionProps
 {
     /** Form Template 提供的主資料 binding */
@@ -163,6 +167,7 @@ interface DetailTabContentOptions
     /** 欄位 binding helper */
     setField: ReturnType<typeof useSetTableField<AnnouncementSet>>;
 }
+
 interface DetailFieldsOptions
 {
     /** 後台主題設定 */
@@ -180,6 +185,7 @@ interface DetailFieldsOptions
     /** Detail RowId，給附件 SubDetail 綁 ParentRowId */
     detailRowId: number;
 }
+
 const editGridStyle: IEditGridView_Style = {
     TableStyle: "table table-striped table-bordered table-hover",
     ToolbarStyle: "d-flex align-items-center justify-content-between mb-2",
@@ -187,6 +193,7 @@ const editGridStyle: IEditGridView_Style = {
     DangerButtonStyle: "btn btn-danger btn-rounded btn-sm",
     ErrorStyle: "text-danger small mt-1",
 };
+
 type UploadPictureHandler = ReturnType<typeof useUploadPicture>["handleFileChange"];
 // #endregion
 
@@ -208,6 +215,7 @@ export const Server_Announcement_Form_Comp = (props: AnnouncementFormCompProps) 
     const navigate = useNavigate();
     const pathname = useLocation().pathname;
     const preview = useServerPreviewFrame<AnnouncementPreviewPayload>({ ProgId: PGID.Announcement });
+
     const onBackToList = useCallback(() =>
     {
         navigate(LibRoutePath.buildServerBackToListPath(pathname));
@@ -408,9 +416,13 @@ const buildPictureField = (opt: HeaderTabContentOptions): ReactNode =>
         <LibFile
             Style={opt.theme.File}
             ColumnDisplayName="選擇圖片"
-            Multiple={false}
+            Multiple={AnnouncementPictureUploadLimit.maxFileCount > 1}
             InputValue=""
-            accept="image/*"
+            accept={AnnouncementPictureUploadLimit.accept}
+            maxFileCount={AnnouncementPictureUploadLimit.maxFileCount}
+            maxFileSizeMB={AnnouncementPictureUploadLimit.maxFileSizeMB}
+            ShowPreview={true}
+            ShowFileNameAndImg={false}
             parentClass="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12"
             onChange={(files) => handleAnnouncementPictureChange(files, opt.binding, opt.uploadPic.handleFileChange)}
         >
@@ -471,29 +483,63 @@ const buildDetailFields = (opt: DetailFieldsOptions): ReactNode[] =>
 const buildPicturePreviewSrc = (binding: ServerFormBinding<AnnouncementSet>, uploadPic: ReturnType<typeof useUploadPicture>): string =>
 {
     const initialPicId = binding.data?.Announcement?.PictureId;
-    return (uploadPic.result.previewUrl || (FileManagementAPI.get_Server_Preview_Url(initialPicId) ?? "https://dummyimage.com/1920x550/555/fff.png"));
+    return uploadPic.result.previewUrl || (FileManagementAPI.get_Server_Preview_Url(initialPicId) ?? "https://dummyimage.com/1920x550/555/fff.png");
 };
 // #endregion
 
 // #region Private
-/** 上傳公告主圖，成功後回寫圖片 ID 與預設圖片說明。 */
+/** 上傳或清除公告主圖，並同步圖片 ID 與圖片說明。 */
 const handleAnnouncementPictureChange = (files: File[], binding: ServerFormBinding<AnnouncementSet>, handleFileChange: UploadPictureHandler): void =>
 {
+    if (files.length === 0)
+    {
+        clearAnnouncementPictureInfo(binding);
+        void handleFileChange([]);
+        return;
+    }
+
     const pictureDescription = buildAnnouncementPictureDescription(files[0]);
-    void handleFileChange(files, (fileId) => (updateAnnouncementPictureInfo(binding, fileId, pictureDescription)));
+    void handleFileChange(files, (fileId) => updateAnnouncementPictureInfo(binding, fileId, pictureDescription));
 };
-/** 回寫公告主圖 InternalId，並於圖片說明空白時補入檔名。 */
+
+/** 清除公告主圖 InternalId 與圖片說明。 */
+const clearAnnouncementPictureInfo = (binding: ServerFormBinding<AnnouncementSet>): void =>
+{
+    binding.setFormData(prev => buildAnnouncementPictureClearData(prev ?? announcementEmptyData));
+};
+
+/** 回寫公告主圖 InternalId，並同步覆蓋圖片說明。 */
 const updateAnnouncementPictureInfo = (binding: ServerFormBinding<AnnouncementSet>, fileId: string, pictureDescription: string): void =>
 {
-    binding.setFormData((prev) => buildAnnouncementPictureData(prev, fileId, pictureDescription));
+    binding.setFormData(prev => buildAnnouncementPictureData(prev ?? announcementEmptyData, fileId, pictureDescription));
 };
-/** 建立公告主圖更新後資料，避免覆蓋人工輸入的圖片說明。 */
+
+/** 建立公告主圖清除後資料，避免保留舊圖片與舊圖片說明。 */
+const buildAnnouncementPictureClearData = (source: AnnouncementSet): AnnouncementSet =>
+{
+    return {
+        ...source,
+        Announcement: {
+            ...source.Announcement,
+            PictureId: "",
+            PicDescription: "",
+        },
+    };
+};
+
+/** 建立公告主圖更新後資料，圖片說明跟著新檔案同步更新。 */
 const buildAnnouncementPictureData = (source: AnnouncementSet, fileId: string, pictureDescription: string): AnnouncementSet =>
 {
-    const currentDescription = LibText.safeTrim(source.Announcement?.PicDescription);
-    const nextDescription = currentDescription || pictureDescription;
-    return { ...source, Announcement: { ...source.Announcement, PictureId: fileId, PicDescription: nextDescription } };
+    return {
+        ...source,
+        Announcement: {
+            ...source.Announcement,
+            PictureId: fileId,
+            PicDescription: pictureDescription,
+        },
+    };
 };
+
 /** 從圖片檔案建立預設圖片說明，去除副檔名。 */
 const buildAnnouncementPictureDescription = (file?: File): string =>
 {

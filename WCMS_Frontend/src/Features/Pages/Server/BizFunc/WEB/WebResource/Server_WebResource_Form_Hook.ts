@@ -102,6 +102,14 @@ export type WebResourceFormAdapter = {
 // #region Public
 export const webResourceEmptyData: WebResourceSet = { WebResource: {}, WebResourceInfo: [] };
 
+/** 網路資源圖片上傳限制。 */
+export const WebResourceImageUploadLimit = {
+    accept: "image/*",
+    multiple: false,
+    maxFileCount: 1,
+    maxFileSizeMB: 10,
+} as const;
+
 /** 建立 WebResource Form Template，統一交給 Server_FormTemplate 處理資料流程。 */
 export const useWebResourceFormTemplate = (
     opt: UseWebResourceFormTemplateOptions,
@@ -194,7 +202,7 @@ const getWebResourceModelTitle = (displayName: ModelDisplaySchema, fallback: str
     return displayName.ModelDisplayName || fallback;
 };
 
-/** ContentStatus enum options（去掉 key=0）。 */
+/** ContentStatus enum options，去掉 key=0。 */
 const useContentStatusOptions = (): { data: Record<string, string>; isLoading: boolean; error: string | null; } =>
 {
     const src = useFetchEnumOptions("ContentStatus");
@@ -277,6 +285,7 @@ const buildWebResourceDetailTabItem = (detail: WebResourceInfo | undefined): Web
 
     return { key, label, detail, rowKeys };
 };
+
 /** 建立 Detail RowKeys，新增模式不使用尚未產生的 WebResourceId 避免誤新增 row。 */
 const buildWebResourceInfoRowKeys = (detail: WebResourceInfo): Record<string, string | number | null | undefined> =>
 {

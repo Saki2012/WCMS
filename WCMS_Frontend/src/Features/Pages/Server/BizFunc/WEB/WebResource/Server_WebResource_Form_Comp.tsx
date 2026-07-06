@@ -2,13 +2,14 @@ import { Server_FormTemplate_Comp } from "@/Features/Pages/Server/Scaffold/Conte
 import type { ServerFormBinding } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
 import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { useUploadPicture } from "@/SysCore/Components/FormField/FieldComponets/LibPicture_Comp";
-import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-import { LibCheckBox, LibDropList, LibFile, LibPicture, LibTextArea, LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
-import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
+import { useUploadPicture } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibPicture_Comp";
+import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
+import { LibCheckBox, LibDropList, LibFile, LibPicture, LibTextArea, LibTextBox } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
+import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
+import { LibAttachment } from "@/SysCore/Utils/Library/LibData";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import type { components } from "@/types/api";
 import { WebResourceFields, WebResourceInfoFields, WebResourceSetFields } from "@/types/SchemaFields";
@@ -18,6 +19,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
     useWebResourceDetailTabs,
     useWebResourceFormTemplate,
+    WebResourceImageUploadLimit,
     type WebResourceDetailTabItem,
     webResourceEmptyData,
     type WebResourceFormRefs,
@@ -25,6 +27,8 @@ import {
 
 // #region Property
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
+
+type UploadPictureHandler = ReturnType<typeof useUploadPicture>["handleFileChange"];
 
 type DetailRowKeyValue = string | number | null | undefined;
 
@@ -254,11 +258,13 @@ const buildImageFields = (opt: HeaderTabContentOptions): ReactNode[] =>
         <LibFile
             Style={opt.theme.File}
             ColumnDisplayName="選擇圖片"
-            Multiple={false}
+            Multiple={WebResourceImageUploadLimit.multiple}
             InputValue=""
-            accept="image/*"
+            accept={WebResourceImageUploadLimit.accept}
+            maxFileCount={WebResourceImageUploadLimit.maxFileCount}
+            maxFileSizeMB={WebResourceImageUploadLimit.maxFileSizeMB}
             parentClass="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12"
-            onChange={(files) => opt.uploadPic.handleFileChange(files, internalId => updateHeaderPictureId(opt.binding, internalId))}
+            onChange={(files) => handleHeaderPictureChange(files, opt.binding, opt.uploadPic.handleFileChange)}
         >
             <LibPicture
                 key="preview"
@@ -344,9 +350,62 @@ const normalizeDetailRowKey = (value: DetailRowKeyValue): string | number | unde
     return value ?? undefined;
 };
 
-/** 回寫 Header 圖片 internalId。 */
-const updateHeaderPictureId = (binding: ServerFormBinding<WebResourceSet>, internalId: string): void =>
+/** 上傳或清除 Header 圖片，並同步圖片 ID 與圖片說明。 */
+const handleHeaderPictureChange = (files: File[], binding: ServerFormBinding<WebResourceSet>, handleFileChange: UploadPictureHandler): void =>
 {
-    binding.setFormData(prev => ({ ...prev, WebResource: { ...prev?.WebResource, PicId: internalId } }));
+    if (files.length === 0)
+    {
+        clearHeaderPictureInfo(binding);
+        void handleFileChange([]);
+        return;
+    }
+
+    const pictureDescription = buildHeaderPictureDescription(files[0]);
+    void handleFileChange(files, internalId => updateHeaderPictureInfo(binding, internalId, pictureDescription));
+};
+
+/** 清除 Header 圖片 internalId 與圖片說明。 */
+const clearHeaderPictureInfo = (binding: ServerFormBinding<WebResourceSet>): void =>
+{
+    binding.setFormData(prev => buildHeaderPictureClearData(prev ?? webResourceEmptyData));
+};
+
+/** 回寫 Header 圖片 internalId，並同步覆蓋圖片說明。 */
+const updateHeaderPictureInfo = (binding: ServerFormBinding<WebResourceSet>, internalId: string, pictureDescription: string): void =>
+{
+    binding.setFormData(prev => buildHeaderPictureData(prev ?? webResourceEmptyData, internalId, pictureDescription));
+};
+
+/** 建立 Header 圖片清除後資料，避免保留舊圖片與舊圖片說明。 */
+const buildHeaderPictureClearData = (source: WebResourceSet): WebResourceSet =>
+{
+    return {
+        ...source,
+        WebResource: {
+            ...source.WebResource,
+            PicId: "",
+            PicDescription: "",
+        },
+    };
+};
+
+/** 建立 Header 圖片更新後資料，圖片說明跟著新檔案同步更新。 */
+const buildHeaderPictureData = (source: WebResourceSet, internalId: string, pictureDescription: string): WebResourceSet =>
+{
+    return {
+        ...source,
+        WebResource: {
+            ...source.WebResource,
+            PicId: internalId,
+            PicDescription: pictureDescription,
+        },
+    };
+};
+
+/** 從圖片檔案建立預設圖片說明，去除副檔名。 */
+const buildHeaderPictureDescription = (file?: File): string =>
+{
+    const description = LibAttachment.getDisplayFileNameWithoutExtension(file);
+    return String(description ?? "").trim();
 };
 // #endregion

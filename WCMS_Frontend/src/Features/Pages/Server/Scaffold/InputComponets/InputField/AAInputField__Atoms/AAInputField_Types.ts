@@ -1,9 +1,13 @@
+import type { KeyboardEvent } from "react";
+
 // #region Property
 export type AAInputType =
     | "text"
     | "email"
     | "tel"
+    | "url"
     | "password"
+    | "passwordSingle"
     | "number"
     | "date"
     | "date-time"
@@ -44,6 +48,8 @@ export interface AAInputField
     errorText?: string;
     required?: boolean;
     placeholder?: string;
+    /** 是否顯示空白 placeholder option，selectSingle 原生模式使用。 */
+    showPlaceholder?: boolean;
     disabled?: boolean;
     readOnly?: boolean;
     maxLength?: number;
@@ -55,7 +61,11 @@ export interface AAInputField
     multiple?: boolean;
     maxFileCount?: number;
     maxFileSizeMB?: number;
+    /** 是否顯示已選檔案名稱與圖片/影片預覽，主要給 file 欄位使用。 */
+    showFileNameAndImg?: boolean;
     autoComplete?: string;
+    /** 輸入鍵盤模式，例如 numeric、url、email。 */
+    inputMode?: "none" | "text" | "tel" | "url" | "email" | "numeric" | "decimal" | "search";
     searchable?: boolean;
     searchPlaceholder?: string;
     emptyText?: string;
@@ -69,6 +79,10 @@ export interface AAInputFieldItemProps
 {
     field: AAInputField;
     onChange: (fieldKey: string, value: AAInputValue) => void;
+    /** 處理欄位離開焦點事件。 */
+    onBlur?: (fieldKey: string, value: AAInputValue) => void;
+    /** 處理鍵盤事件，例如 Enter commit。 */
+    onKeyDown?: (fieldKey: string, event: KeyboardEvent<HTMLInputElement>) => void;
     baseId?: string;
     variant?: AAInputFieldRenderVariant;
     className?: string;
@@ -101,6 +115,10 @@ export interface FieldRenderContext
     errorId: string;
     describedBy: string;
     onChange: (fieldKey: string, value: AAInputValue) => void;
+    /** 處理欄位離開焦點事件。 */
+    onBlur?: (fieldKey: string, value: AAInputValue) => void;
+    /** 處理鍵盤事件，例如 Enter commit。 */
+    onKeyDown?: (fieldKey: string, event: KeyboardEvent<HTMLInputElement>) => void;
 }
 
 

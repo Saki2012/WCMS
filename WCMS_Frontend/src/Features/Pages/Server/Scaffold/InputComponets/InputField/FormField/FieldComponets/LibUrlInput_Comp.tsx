@@ -1,9 +1,14 @@
-// SysCore/Components/FormField/FieldComponets/LibUrlInput_Comp.tsx
+// 原 input 改以使用 "AAInputFieldItem" 20260626
 import { useCallback, useId, useMemo } from "react";
+import {
+    AAInputFieldItem,
+    buildAdapterBaseId,
+    buildFieldId,
+    type AAInputValue,
+} from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/AAInputField__Atoms";
 
 // #region Property
 type KeyOf<T> = Extract<keyof T, string>;
-
 
 export interface UrlFieldMap<T>
 {
@@ -14,33 +19,25 @@ export interface UrlFieldMap<T>
     target?: KeyOf<T>;
 }
 
-
 export interface LibUrlInputRepeaterProps<T extends Record<string, any>>
 {
-    /** 整包來源資料（同一張 detail 表的全集合） */
+    /** 整包來源資料，同一張 detail 表的全集合。 */
     items: T[];
-    /** 寫回整包資料 */
+    /** 寫回整包資料。 */
     onChange: (nextAll: T[]) => void;
-
-    /** 欄位對映 */
+    /** 欄位對映。 */
     fields: UrlFieldMap<T>;
-
-    /** 指定此 repeater 綁定哪個 parent（若有 parentRowId 欄位） */
+    /** 指定此 repeater 綁定哪個 parent。 */
     parentValue?: any;
-
-    /** 建立新列時的預設值（會自動帶 rowId、parentRowId） */
+    /** 建立新列時的預設值，會自動帶 rowId、parentRowId。 */
     getDefault?: (ctx: { rowId: number; parentValue: any; }) => Partial<T>;
-
-    /** Repeater 區塊標題 */
+    /** Repeater 區塊標題。 */
     label?: string;
-
-    /** target 選項；不傳則不顯示 target 欄位 */
+    /** target 選項，不傳則不顯示 target 欄位。 */
     targets?: Record<number, string>;
-
-    /** 新增按鈕文本 */
+    /** 新增按鈕文本。 */
     addButtonText?: string;
 }
-
 
 interface LibUrlInputRowProps<T extends Record<string, any>>
 {
@@ -53,28 +50,24 @@ interface LibUrlInputRowProps<T extends Record<string, any>>
 // #endregion
 
 // #region Public
+/** URL repeater 欄位，支援網址說明、網址連結與開啟方式。 */
 export const LibUrlInput = <T extends Record<string, any>>(props: LibUrlInputRepeaterProps<T>) =>
 {
     const { items, onChange, fields, parentValue, getDefault, label = "外部連結", targets, addButtonText = "新增" } = props;
-
     const filtered = useMemo(() =>
     {
         const list = fields.parentRowId ? items.filter(x => x[fields.parentRowId!] === parentValue) : items.slice();
-        // 依 rowId 排序
-        return list.sort((a, b) => (Number(a[fields.rowId] ?? 0)) - (Number(b[fields.rowId] ?? 0)));
+        return list.sort((a, b) => Number(a[fields.rowId] ?? 0) - Number(b[fields.rowId] ?? 0));
     }, [items, fields.parentRowId, fields.rowId, parentValue]);
-
     const nextRowId = useMemo(() =>
     {
         const last = filtered.at(-1);
         return (Number(last?.[fields.rowId] ?? 0) + 1) || 1;
     }, [filtered, fields.rowId]);
-
     const commitReplaceOne = useCallback((updated: T) =>
     {
         const rowIdVal = updated[fields.rowId];
         const parentOk = fields.parentRowId ? updated[fields.parentRowId] : undefined;
-
         const nextAll = items.map(x =>
         {
             const sameRow = x[fields.rowId] === rowIdVal && (!fields.parentRowId || x[fields.parentRowId] === parentOk);
@@ -82,7 +75,6 @@ export const LibUrlInput = <T extends Record<string, any>>(props: LibUrlInputRep
         });
         onChange(nextAll);
     }, [items, onChange, fields]);
-
     const addRow = useCallback(() =>
     {
         const base = (getDefault?.({ rowId: nextRowId, parentValue }) ?? {}) as T;
@@ -94,15 +86,12 @@ export const LibUrlInput = <T extends Record<string, any>>(props: LibUrlInputRep
             [fields.url]: (base as any)[fields.url] ?? "",
             ...(fields.target ? { [fields.target]: (base as any)[fields.target] ?? "" } : {}),
         } as T;
-
         onChange([...items, newItem]);
     }, [getDefault, nextRowId, parentValue, fields, items, onChange]);
-
     const removeAt = useCallback((i: number) =>
     {
         const target = filtered[i];
         if (!target) return;
-
         const nextAll = items.filter(x =>
         {
             const sameRow = x[fields.rowId] === target[fields.rowId] && (!fields.parentRowId || x[fields.parentRowId] === target[fields.parentRowId]);
@@ -110,7 +99,6 @@ export const LibUrlInput = <T extends Record<string, any>>(props: LibUrlInputRep
         });
         onChange(nextAll);
     }, [filtered, items, onChange, fields]);
-
     return (
         <div role="group" className="mt-4">
             <div className="mb-2 font-semibold">{label}</div>
@@ -124,7 +112,6 @@ export const LibUrlInput = <T extends Record<string, any>>(props: LibUrlInputRep
                     onDelete={() => removeAt(i)}
                 />
             ))}
-
             <div className="row mx-0">
                 <div className="col form-group">
                     <div className="row mx-0">
@@ -149,31 +136,46 @@ export const LibUrlInput = <T extends Record<string, any>>(props: LibUrlInputRep
 // #endregion
 
 // #region Private
+/** URL repeater 單列欄位。 */
 const LibUrlInputRow = <T extends Record<string, any>>(props: LibUrlInputRowProps<T>) =>
 {
     const { value, fields, onChange, onDelete, targets } = props;
-    const idTitle = useId();
-    const idUrl = useId();
-    const idTarget = useId();
-
+    const reactId = useId();
+    const baseId = buildAdapterBaseId(reactId);
+    const titleKey = String(fields.title);
+    const urlKey = String(fields.url);
+    const targetKey = fields.target ? String(fields.target) : "target";
+    const idTarget = buildFieldId(baseId, targetKey);
     const setField = <K extends KeyOf<T>>(k: K, v: any) =>
     {
         onChange({ ...value, [k]: v } as T);
     };
-
+    const handleTitleChange = (_fieldKey: string, nextValue: AAInputValue) =>
+    {
+        setField(fields.title, String(nextValue ?? ""));
+    };
+    const handleUrlChange = (_fieldKey: string, nextValue: AAInputValue) =>
+    {
+        setField(fields.url, String(nextValue ?? ""));
+    };
     return (
         <div className="flex flex-col gap-2 mb-3" role="group" aria-label="URL row">
             <div className="input-group">
-                <label htmlFor={idTitle} className="sr-only">網址說明</label>
-                <input
-                    id={idTitle}
-                    type="text"
-                    className="form-control"
-                    placeholder="網址說明 …"
-                    value={String(value[fields.title] ?? "")}
-                    onChange={e => setField(fields.title, e.target.value)}
+                <AAInputFieldItem
+                    baseId={baseId}
+                    variant="gridCell"
+                    className="flex-grow-1"
+                    field={{
+                        key: titleKey,
+                        type: "text",
+                        label: "網址說明",
+                        aaLabel: "請輸入網址說明",
+                        value: String(value[fields.title] ?? ""),
+                        placeholder: "網址說明 …",
+                        helpText: "網址說明欄位",
+                    }}
+                    onChange={handleTitleChange}
                 />
-
                 <button
                     data-repeater-delete=""
                     type="button"
@@ -187,19 +189,23 @@ const LibUrlInputRow = <T extends Record<string, any>>(props: LibUrlInputRowProp
                     <i className="far fa-times"></i>
                 </button>
             </div>
-
             <div className="input-group">
-                <label htmlFor={idUrl} className="sr-only">網址連結</label>
-                <input
-                    id={idUrl}
-                    type="url"
-                    className="form-control"
-                    placeholder="https://…"
-                    inputMode="url"
-                    value={String(value[fields.url] ?? "")}
-                    onChange={e => setField(fields.url, e.target.value)}
+                <AAInputFieldItem
+                    baseId={baseId}
+                    variant="gridCell"
+                    className="flex-grow-1"
+                    field={{
+                        key: urlKey,
+                        type: "url",
+                        label: "網址連結",
+                        aaLabel: "請輸入網址連結",
+                        value: String(value[fields.url] ?? ""),
+                        placeholder: "https://…",
+                        autoComplete: "url",
+                        helpText: "網址連結欄位",
+                    }}
+                    onChange={handleUrlChange}
                 />
-
                 {fields.target && targets && (
                     <>
                         <label htmlFor={idTarget} className="sr-only">開啟方式</label>

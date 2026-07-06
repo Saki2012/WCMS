@@ -1,6 +1,6 @@
 import type { IBreadCrumbStyle } from "@/SysCore/Components/BreadCrumb/BreadCrumb_Clsx";
-import type { ILibDropListStyle } from "@/SysCore/Components/FormField/FieldComponets/LibDropList_Comp";
-import type { ILibTabsStyle } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
+import type { ILibDropListStyle } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibDropList_Comp";
+import type { ILibTabsStyle } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
 import type {
     ILibCheckBoxStyle,
     ILibFileInputStyle,
@@ -12,7 +12,7 @@ import type {
     ILibTextBoxStyle3,
     ILibTinyMCEStyle,
     ILibUserCardStyle,
-} from "@/SysCore/Components/FormField/LibFormField";
+} from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
 
 import type { IGridView_Style } from "@/SysCore/Components/Grid/Grid_Clsx";
 import type { IMenu_Style } from "@/SysCore/Components/MenuList/MenuList_Clsx";

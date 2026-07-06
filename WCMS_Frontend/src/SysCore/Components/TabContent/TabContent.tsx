@@ -1,5 +1,5 @@
-import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-import { LibTabs } from "@/SysCore/Components/FormField/LibFormField";
+import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
+import { LibTabs } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
 import { clsx } from "clsx";
 import React, { type ReactNode, useEffect, useId, useMemo, useRef, useState } from "react";
 

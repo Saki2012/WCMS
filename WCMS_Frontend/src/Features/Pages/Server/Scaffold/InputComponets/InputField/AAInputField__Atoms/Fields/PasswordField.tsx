@@ -10,7 +10,7 @@ import { buildControlClass, buildDescribedBy, getAriaInvalid, getAriaRequired, g
  * <AAInputFieldList fields={[{ key: "password", type: "password", label: "請輸入新密碼", aaLabel: "請輸入新密碼", autoComplete: "new-password", value: state.password }]} onChange={handleChange} />
  */
 
-/** password 欄位，顯示「請輸入新密碼」與「再次輸入密碼」，不帶入原密碼。 */
+/** password 欄位，顯示「請輸入新密碼」與「再次確認密碼」，不帶入原密碼。 */
 export const PasswordField = (props: { field: AAInputField; context: FieldRenderContext; }) =>
 {
     const [showPassword, setShowPassword] = useState(false);
@@ -29,7 +29,7 @@ export const PasswordField = (props: { field: AAInputField; context: FieldRender
         props.context.onChange(props.field.key, normalizeTextValue(event.target.value, props.field.maxLength));
     };
 
-    /** 更新再次輸入密碼，只留在元件內做比對，不回寫原密碼欄位。 */
+    /** 更新再次確認密碼，只留在元件內做比對，不回寫原密碼欄位。 */
     const updateConfirmPassword = (event: ChangeEvent<HTMLInputElement>) =>
     {
         setConfirmPassword(normalizeTextValue(event.target.value, props.field.maxLength));
@@ -56,11 +56,11 @@ export const PasswordField = (props: { field: AAInputField; context: FieldRender
                     field={props.field}
                     id={confirmInputId}
                     name={`${props.field.key}-confirm`}
-                    label="再次輸入密碼"
+                    label="再次確認密碼"
                     value={confirmPassword}
                     inputType={showConfirmPassword ? "text" : "password"}
                     describedBy={buildDescribedBy(confirmHintId, confirmError ? confirmErrorId : "")}
-                    buttonLabel={showConfirmPassword ? "隱藏再次輸入密碼" : "顯示再次輸入密碼"}
+                    buttonLabel={showConfirmPassword ? "隱藏再次確認密碼" : "顯示再次確認密碼"}
                     showPassword={showConfirmPassword}
                     confirmError={confirmError}
                     onToggle={() => setShowConfirmPassword((prev) => !prev)}

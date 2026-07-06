@@ -1,9 +1,9 @@
 // hooks/useSetTableField.ts
-import type { ILibDatetimeRangeProp } from "@/SysCore/Components/FormField/FieldComponets/LibDatetimeRange_Comp";
+import type { ILibDatetimeRangeProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibDatetimeRange_Comp";
 import { LibJson, parseBitmaskToStringArray, splitTrimToArray, sumStringArrayToBitmask } from "@/SysCore/Utils/Library/LibData";
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import type { ModelDisplaySchema } from "../../../types/IApiSchema";
-import type { UseFetchFormDataResult } from "../../Utils/API/FetchFormData";
+import type { ModelDisplaySchema } from "@/types/IApiSchema";
+import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 
 // #region Property
 export type FormDataLike<T> = { data: T; setFormData: React.Dispatch<React.SetStateAction<T>>; displayName?: ModelDisplaySchema | null; };

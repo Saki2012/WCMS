@@ -3,10 +3,10 @@ import { Server_FormTemplate_Comp } from "@/Features/Pages/Server/Scaffold/Conte
 import type { ServerFormBinding } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
 import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { LibPwdTextBox } from "@/SysCore/Components/FormField/FieldComponets/LibPwdTextBox_Comp";
-import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-import { LibCheckBox, LibDropList, LibTextBox, LibUserCard } from "@/SysCore/Components/FormField/LibFormField";
-import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
+import { LibPwdTextBox } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibPwdTextBox_Comp";
+import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
+import { LibCheckBox, LibDropList, LibTextBox, LibUserCard } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
+import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
@@ -296,7 +296,7 @@ const buildAccountPasswordFields = (props: AccountSectionProps): ReactNode =>
                     <LibPwdTextBox
                         Style={props.theme.TextBox3}
                         DefaultInputDisplay="請輸入"
-                        ColumnDisplayName="再次輸入密碼"
+                        ColumnDisplayName="再次確認密碼"
                         InputValue={props.rawData.confirmPwd}
                         OnChange={props.rawData.onConfirmPwdChange}
                     />

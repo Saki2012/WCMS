@@ -1,9 +1,11 @@
 import { useId, useMemo } from "react";
+import clsx from "clsx";
 import type { AAInputField, AAInputFieldItemProps, FieldRenderContext } from "./AAInputField_Types";
 import { buildAAInputFieldAdapter } from "./AAInputField_Adapter";
 import { buildDescribedBy, buildFieldId } from "./AAInputField_Utils";
-import { DateField, DateTimeField, EmailField, ReadonlyField, TelField, TextField } from "./Fields/BaseTextInputField";
+import { DateField, DateTimeField, EmailField, ReadonlyField, TelField, TextField, UrlField } from "./Fields/BaseTextInputField";
 import { PasswordField } from "./Fields/PasswordField";
+import { PasswordSingleField } from "./Fields/PasswordSingleField";
 import { NumberField } from "./Fields/NumberField";
 import { TextareaField } from "./Fields/TextareaField";
 import { SelectSingleField } from "./Fields/SelectSingleField";
@@ -36,11 +38,18 @@ export const AAInputFieldItem = (props: AAInputFieldItemProps) =>
     const hintId = `${fieldId}-hint`;
     const errorId = `${fieldId}-error`;
     const describedBy = buildDescribedBy(hintId, field.errorText ? errorId : "");
-    const context: FieldRenderContext = { fieldId, hintId, errorId, describedBy, onChange: props.onChange };
+    const context: FieldRenderContext = {
+        fieldId,
+        hintId,
+        errorId,
+        describedBy,
+        onChange: props.onChange,
+        onBlur: props.onBlur,
+        onKeyDown: props.onKeyDown,
+    };
 
-    return <div className={props.className}>{renderAAInputField(field, context)}</div>;
+    return <div className={clsx(props.className, "aa-input-field-item")}>{renderAAInputField(field, context)}</div>;
 };
-
 
 /** 依欄位型別轉出對應 HTML 控制項。 */
 export const renderAAInputField = (field: AAInputField, context: FieldRenderContext) =>
@@ -48,7 +57,9 @@ export const renderAAInputField = (field: AAInputField, context: FieldRenderCont
     if (field.type === "text") return <TextField field={field} context={context} />;
     if (field.type === "email") return <EmailField field={field} context={context} />;
     if (field.type === "tel") return <TelField field={field} context={context} />;
+    if (field.type === "url") return <UrlField field={field} context={context} />;
     if (field.type === "password") return <PasswordField field={field} context={context} />;
+    if (field.type === "passwordSingle") return <PasswordSingleField field={field} context={context} />;
     if (field.type === "number") return <NumberField field={field} context={context} />;
     if (field.type === "date") return <DateField field={field} context={context} />;
     if (field.type === "date-time") return <DateTimeField field={field} context={context} />;

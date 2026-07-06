@@ -1,4 +1,5 @@
 import {
+    MaterialBatchPictureUploadLimit,
     buildMaterialInfoJsonDefaults,
     getMaterialPicturePreviewUrl,
     materialEmptyData,
@@ -21,9 +22,9 @@ import { PreviewFrame } from "@/Features/Pages/Server/Scaffold/Preview/PreviewFr
 import { buildServerPreviewToolbarButton, useServerPreviewFrame } from "@/Features/Pages/Server/Scaffold/Preview/PreviewFrame_Hook";
 import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-import { LibCheckBox, LibDropList, LibFile, LibModal, LibPicturePreview, LibTextBox, LibTinyMCE } from "@/SysCore/Components/FormField/LibFormField";
-import { useSetJsonField, useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
+import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
+import { LibCheckBox, LibDropList, LibFile, LibModal, LibPicturePreview, LibTextBox, LibTinyMCE }  from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
+import { useSetJsonField, useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
@@ -333,7 +334,10 @@ const MaterialBatchUploadComp = (props: MaterialBatchUploadProps) =>
                         <LibFile
                             Style={props.theme.File}
                             ColumnDisplayName="選擇圖片(多選)"
-                            Multiple={true}
+                            accept={MaterialBatchPictureUploadLimit.accept}
+                            Multiple={MaterialBatchPictureUploadLimit.maxFileCount > 1}
+                            maxFileCount={MaterialBatchPictureUploadLimit.maxFileCount}
+                            maxFileSizeMB={MaterialBatchPictureUploadLimit.maxFileSizeMB}
                             onChange={(files) => batchUpload.setSelectedFiles(files)}
                             InputValue=""
                         />

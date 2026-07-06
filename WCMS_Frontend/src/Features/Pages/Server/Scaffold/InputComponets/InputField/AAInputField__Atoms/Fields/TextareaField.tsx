@@ -1,4 +1,4 @@
-import type { ChangeEvent } from "react";
+import type { ChangeEvent, FocusEvent } from "react";
 import type { AAInputField, FieldRenderContext } from "../AAInputField_Types";
 import { FieldControlShell } from "../AAInputField_Shell";
 import { applyAAFocusStyle, clearAAFocusStyle } from "../AAInputField_Focus";
@@ -11,8 +11,15 @@ import { buildControlClass, getAriaInvalid, getAriaRequired, getNativeRequired, 
  */
 
 /** textarea 欄位。 */
+/** textarea 欄位。 */
 export const TextareaField = (props: { field: AAInputField; context: FieldRenderContext; }) =>
 {
+    /** 處理 textarea 離開焦點，保留 AA focus 樣式清除與外部 blur callback。 */
+    const handleBlur = (event: FocusEvent<HTMLTextAreaElement>) =>
+    {
+        clearAAFocusStyle(event);
+        props.context.onBlur?.(props.field.key, normalizeTextValue(event.currentTarget.value, props.field.maxLength));
+    };
     return (
         <FieldControlShell field={props.field} fieldId={props.context.fieldId} hintId={props.context.hintId} errorId={props.context.errorId}>
             <textarea
@@ -31,7 +38,7 @@ export const TextareaField = (props: { field: AAInputField; context: FieldRender
                 aria-invalid={getAriaInvalid(props.field)}
                 aria-describedby={props.context.describedBy}
                 onFocus={applyAAFocusStyle}
-                onBlur={clearAAFocusStyle}
+                onBlur={handleBlur}
                 onChange={(event: ChangeEvent<HTMLTextAreaElement>) => props.context.onChange(props.field.key, normalizeTextValue(event.target.value, props.field.maxLength))}
             />
         </FieldControlShell>

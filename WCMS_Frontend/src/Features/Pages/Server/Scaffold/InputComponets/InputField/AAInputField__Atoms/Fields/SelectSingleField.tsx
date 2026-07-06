@@ -185,11 +185,25 @@ const NativeSelectSingleField = (props: { field: AAInputField; context: FieldRen
                 onBlur={clearAAFocusStyle}
                 onChange={(event) => props.context.onChange(props.field.key, event.target.value)}
             >
-                <option value="">請選擇...</option>
+                {getNativeSelectPlaceholderVisible(props.field) && (
+                    <option value="">{getNativeSelectPlaceholderLabel(props.field)}</option>
+                )}
                 {(props.field.options ?? []).map((item) => <option key={item.value} value={item.value} disabled={item.disabled}>{item.label}</option>)}
             </select>
         </FieldControlShell>
     );
+};
+
+/** 判斷原生 select 是否顯示空白 placeholder option。 */
+const getNativeSelectPlaceholderVisible = (field: AAInputField) =>
+{
+    return field.showPlaceholder ?? true;
+};
+
+/** 取得原生 select 的 placeholder option 顯示文字。 */
+const getNativeSelectPlaceholderLabel = (field: AAInputField) =>
+{
+    return field.placeholder ?? "請選擇...";
 };
 
 /** 可搜尋單選選單，主欄位負責開啟，下方搜尋框負責查詢與鍵盤選取。 */

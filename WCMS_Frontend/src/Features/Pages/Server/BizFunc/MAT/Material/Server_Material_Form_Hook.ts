@@ -286,6 +286,20 @@ export type MaterialFormAdapter = {
 // #region Public
 export const materialEmptyData: MaterialSet = { Material: {}, MaterialLangInfo: [], MaterialPicture: [], MaterialTags: [] };
 
+/** 單張物件相片上傳限制。 */
+export const MaterialPictureUploadLimit = {
+    accept: "image/*",
+    maxFileCount: 1,
+    maxFileSizeMB: 10,
+} as const;
+
+/** 批次物件相片上傳限制。 */
+export const MaterialBatchPictureUploadLimit = {
+    accept: "image/*",
+    maxFileCount: 20,
+    maxFileSizeMB: 10,
+} as const;
+
 /** 建立 Material Form Template，統一交給 Server_FormTemplate 處理資料流程。 */
 export const useMaterialFormTemplate = (
     opt: UseMaterialFormTemplateOptions,
@@ -725,10 +739,10 @@ const buildMaterialPictureColumns = (displayName: ModelDisplaySchema): ColumnCon
         width: 360,
         inputType: "file",
         editable: true,
-        accept: "image/*",
+        accept: MaterialPictureUploadLimit.accept,
         multiple: false,
-        maxFileCount: 1,
-        maxFileSizeMB: 10,
+        maxFileCount: MaterialPictureUploadLimit.maxFileCount,
+        maxFileSizeMB: MaterialPictureUploadLimit.maxFileSizeMB,
     }, { key: MaterialPictureFields.PictureName, title: nameTitle, width: 300, inputType: "text", editable: true, maxLength: 200 }];
 };
 
@@ -769,10 +783,10 @@ const buildMaterialPictureCells = (
         buildEditGridCell(MaterialPictureFields.PictureId, picTitle, buildMaterialPictureCellValue(picture), {
             inputType: "file",
             editable: true,
-            accept: "image/*",
+            accept: MaterialPictureUploadLimit.accept,
             multiple: false,
-            maxFileCount: 1,
-            maxFileSizeMB: 10,
+            maxFileCount: MaterialPictureUploadLimit.maxFileCount,
+            maxFileSizeMB: MaterialPictureUploadLimit.maxFileSizeMB,
             render: opt.renderPicturePreview,
             onValueChange: onPictureValueChange,
         }),
@@ -825,7 +839,13 @@ const uploadMaterialPictureValue = async (args: EditGridCellValueChangeArgs, han
     const current = toMaterialPictureCellValue(args.value);
     const selectedFile = getSelectedEditGridFile(args.nextValue);
 
-    if (!selectedFile?.file) return { value: buildEmptyMaterialPictureCellValue(), rowValues: { [MaterialPictureFields.PictureName]: "" } };
+    if (!selectedFile?.file)
+    {
+        return {
+            value: buildEmptyMaterialPictureCellValue(),
+            rowValues: { [MaterialPictureFields.PictureName]: "" },
+        };
+    }
 
     let uploadedValue: MaterialPictureCellValue = current;
     const selectedOriginalName = getSelectedMaterialPictureName(selectedFile);
@@ -835,7 +855,12 @@ const uploadMaterialPictureValue = async (args: EditGridCellValueChangeArgs, han
         uploadedValue = buildUploadedMaterialPictureCellValue(internalId, originalName || selectedOriginalName);
     });
 
-    return { value: uploadedValue, rowValues: { [MaterialPictureFields.PictureName]: LibAttachment.getDisplayFileNameWithoutExtension(uploadedValue.originalFileName) } };
+    return {
+        value: uploadedValue,
+        rowValues: {
+            [MaterialPictureFields.PictureName]: LibAttachment.getDisplayFileNameWithoutExtension(uploadedValue.originalFileName),
+        },
+    };
 };
 
 /** 批次上傳所有選取檔案，成功後一次寫入 Form data。 */
