@@ -615,7 +615,7 @@ const buildHomePageGridProps = (title: string, itemName: string, storageKey: str
         style,
         storageKey,
         minTableWidth,
-        maxVisibleRows: 5,
+        maxVisibleRows: 10,
         canAdd: true,
         canEdit: true,
         canDelete: true,
