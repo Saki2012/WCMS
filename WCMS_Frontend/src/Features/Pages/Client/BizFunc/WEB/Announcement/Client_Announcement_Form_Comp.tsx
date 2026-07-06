@@ -79,19 +79,9 @@ export const Client_Announcement_Form = (props: AnnouncementFormViewProps) =>
 /** 公告明細 Feature 預設 View，只負責輸出 DOM。 */
 const Client_Announcement_Form_FeatureView = (props: AnnouncementFormViewProps) =>
 {
-    const detail = useMemo(() => props.formData.AnnouncementDetail?.find(p => (p.Lang ?? "").toLowerCase() === props.lang), [
-        props.formData.AnnouncementDetail,
-        props.lang,
-    ]);
-
+    const detail = useMemo(() => props.formData.AnnouncementDetail?.find(p => (p.Lang ?? "").toLowerCase() === props.lang), [props.formData.AnnouncementDetail, props.lang]);
     const startDate = useMemo(() => formatDate(props.formData.Announcement?.Validate_Start), [props.formData.Announcement?.Validate_Start]);
-
-    const subTitle = useMemo<SubTitleProps>(() => ({
-        cat: props.categoryNameText ?? "",
-        tag: props.tagNameText ?? "",
-        date: startDate,
-    }), [props.categoryNameText, props.tagNameText, startDate]);
-
+    const subTitle = useMemo<SubTitleProps>(() => ({ cat: props.categoryNameText ?? "", tag: props.tagNameText ?? "", date: startDate }), [props.categoryNameText, props.tagNameText, startDate]);
     return (
         <ModuleContent
             nodeTitle={props.node.title}

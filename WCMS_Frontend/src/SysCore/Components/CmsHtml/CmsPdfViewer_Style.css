@@ -1,0 +1,132 @@
+.cms-pdf-viewer-frame,
+.cms-pdf-viewer,
+.cms-pdf-viewer-toolbar,
+.cms-pdf-viewer-canvas-wrap,
+.cms-pdf-viewer-fallback,
+.cms-pdf-viewer-message,
+.cms-pdf-viewer-fallback-text {
+    display: block;
+}
+
+.cms-pdf-viewer-frame {
+    margin: 1rem 0;
+}
+
+.cms-pdf-viewer {
+    border: 1px solid #ddd;
+    border-radius: .5rem;
+    background: #f8f9fa;
+    overflow: hidden;
+}
+
+.cms-pdf-viewer--fullscreen {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    flex-direction: column;
+    border: 0;
+    border-radius: 0;
+}
+
+.cms-pdf-viewer-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    align-items: center;
+    padding: .75rem;
+    border-bottom: 1px solid #ddd;
+    background: #fff;
+}
+
+.cms-pdf-viewer-toolbar button,
+.cms-pdf-viewer-toolbar-link,
+.cms-pdf-viewer-open-link {
+    min-height: 2.5rem;
+    padding: .375rem .75rem;
+}
+
+.cms-pdf-viewer-toolbar button:disabled {
+    cursor: not-allowed;
+    opacity: .55;
+}
+
+.cms-pdf-viewer-toolbar-link,
+.cms-pdf-viewer-open-link {
+    display: inline-flex;
+    align-items: center;
+}
+
+.cms-pdf-viewer-page-status {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.5rem;
+}
+
+.cms-pdf-viewer-canvas-wrap {
+    min-height: 16rem;
+    padding: .75rem;
+    overflow: auto;
+    text-align: center;
+}
+
+.cms-pdf-viewer--fullscreen .cms-pdf-viewer-canvas-wrap {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.cms-pdf-viewer-canvas {
+    max-width: 100%;
+    background: #fff;
+    box-shadow: 0 .125rem .5rem rgba(0, 0, 0, .18);
+}
+
+.cms-pdf-viewer-message {
+    padding: 1rem;
+    text-align: left;
+}
+
+.cms-pdf-viewer-fallback {
+    margin-top: .75rem;
+}
+
+.cms-pdf-viewer-fallback-text {
+    margin-bottom: .5rem;
+}
+
+@media (max-width: 576px) {
+    .cms-pdf-viewer-toolbar {
+        align-items: stretch;
+    }
+
+    .cms-pdf-viewer-toolbar button,
+    .cms-pdf-viewer-toolbar-link,
+    .cms-pdf-viewer-page-status {
+        flex: 1 1 auto;
+        justify-content: center;
+    }
+
+    .cms-pdf-viewer-canvas-wrap {
+        padding: .5rem;
+    }
+}
+
+.cms-pdf-viewer-page-jump {
+    display: inline-flex;
+    gap: .375rem;
+    align-items: center;
+    min-height: 2.5rem;
+}
+
+.cms-pdf-viewer-page-input {
+    width: 4.25rem;
+    min-height: 2.5rem;
+    padding: .25rem .5rem;
+    text-align: center;
+}
+
+@media (max-width: 576px) {
+    .cms-pdf-viewer-page-jump {
+        flex: 1 1 100%;
+        justify-content: center;
+    }
+}

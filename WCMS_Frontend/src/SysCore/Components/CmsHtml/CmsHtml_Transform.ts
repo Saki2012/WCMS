@@ -3,7 +3,7 @@ import { render } from "dom-serializer";
 import type { Element } from "domhandler";
 import { DomUtils, parseDocument } from "htmlparser2";
 import { INTERNAL_ATTR } from "../TinyMCE/Core/tinyMceConstants";
-import type { CmsHtmlFileMeta, CmsHtmlTransformOptions } from "./CmsHtml_Types";
+import { CMS_HTML_VIEWER_ATTR, CMS_HTML_VIEWER_PDF, type CmsHtmlFileMeta, type CmsHtmlTransformOptions } from "./CmsHtml_Types";
 
 // #region Property
 const UNSAFE_ELEMENT_NAMES = new Set(["script", "object", "embed", "base"]);
@@ -11,6 +11,8 @@ const UNSAFE_ELEMENT_NAMES = new Set(["script", "object", "embed", "base"]);
 const MEDIA_PREVIEW_ELEMENT_NAMES = new Set(["img", "iframe", "video", "audio", "source"]);
 
 const DANGEROUS_URL_PATTERN = /^\s*(javascript|vbscript|data):/i;
+
+const CMS_FILE_PREVIEW_URL_FRAGMENT = "/service/filemanagement/public_preview/";
 // #endregion
 
 // #region Public
@@ -113,6 +115,7 @@ const normalizeInternalPreviewElement = (el: Element, options?: CmsHtmlTransform
 
     if (tagName === "img") normalizeImgAttributes(el, meta);
     if (tagName === "iframe") normalizeIframeAttributes(el, meta);
+    if (tagName === "iframe") markPdfViewer(el, meta, internalId);
 };
 
 
@@ -167,6 +170,46 @@ const normalizeIframe = (el: Element, options?: CmsHtmlTransformOptions): void =
     const internalId = getInternalId(el);
     const meta = internalId ? options?.fileMetaMap?.[internalId] : undefined;
     normalizeIframeAttributes(el, meta);
+    markPdfViewer(el, meta, internalId);
+};
+
+
+/** 標記可改由前台 PDF Viewer 顯示的 iframe。 */
+const markPdfViewer = (el: Element, meta?: CmsHtmlFileMeta, internalId?: string): void =>
+{
+    if (!isPdfSource(el, meta, internalId)) return;
+    el.attribs[CMS_HTML_VIEWER_ATTR] = CMS_HTML_VIEWER_PDF;
+};
+
+
+/** 判斷 iframe 來源是否為 PDF 檔案。 */
+const isPdfSource = (el: Element, meta?: CmsHtmlFileMeta, internalId?: string): boolean =>
+{
+    const mime = getMetaMime(meta).toLowerCase();
+    const fileName = getMetaFileName(meta).toLowerCase();
+    const extension = getMetaFileExtension(meta).toLowerCase();
+    const src = `${el.attribs?.src ?? ""}`.trim().toLowerCase();
+
+    if (mime === "application/pdf") return true;
+    if (extension === "pdf" || extension === ".pdf") return true;
+    if (fileName.endsWith(".pdf")) return true;
+    if (src.includes(".pdf")) return true;
+    return isLegacyPdfIframeFallback(src, internalId);
+};
+
+
+/** 判斷是否符合舊版 TinyMCE PDF iframe 的內部檔案預覽格式。 */
+const isLegacyPdfIframeFallback = (src: string, internalId?: string): boolean =>
+{
+    if (!internalId) return false;
+    return isCmsFilePreviewUrl(src);
+};
+
+
+/** 判斷是否為 WCMS 內部檔案預覽網址。 */
+const isCmsFilePreviewUrl = (src: string): boolean =>
+{
+    return src.includes(CMS_FILE_PREVIEW_URL_FRAGMENT);
 };
 
 
@@ -211,6 +254,20 @@ const getInternalId = (el: Element): string =>
 const getMetaFileName = (meta?: CmsHtmlFileMeta): string =>
 {
     return `${meta?.fileName ?? meta?.alt ?? ""}`.trim();
+};
+
+
+/** 取得檔案副檔名 fallback。 */
+const getMetaFileExtension = (meta?: CmsHtmlFileMeta): string =>
+{
+    return `${meta?.fileExtension ?? ""}`.trim();
+};
+
+
+/** 取得 MIME type fallback。 */
+const getMetaMime = (meta?: CmsHtmlFileMeta): string =>
+{
+    return `${meta?.mime ?? meta?.mimeType ?? ""}`.trim();
 };
 
 

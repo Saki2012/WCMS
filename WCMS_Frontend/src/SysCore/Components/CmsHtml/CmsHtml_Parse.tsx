@@ -1,19 +1,18 @@
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import type { ChildNode, Element } from "domhandler";
 import { parseDocument } from "htmlparser2";
-import { type AnchorHTMLAttributes, createElement, type CSSProperties, Fragment, type ReactElement, type ReactNode } from "react";
-import type { CmsHtmlParseOptions } from "./CmsHtml_Types";
+import { type AnchorHTMLAttributes, createElement, type CSSProperties, Fragment, type IframeHTMLAttributes, type ReactElement, type ReactNode } from "react";
+import { CMS_HTML_VIEWER_ATTR, CMS_HTML_VIEWER_PDF, type CmsHtmlParseOptions } from "./CmsHtml_Types";
+import { CmsPdfViewerFrame } from "./CmsPdfViewerFrame";
 
 // #region Property
 const NATIVE_SCHEMES = /^(mailto|tel|sms|fax|blob):/i;
-
 
 const VOID_ELEMENT_NAMES = new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"]);
 
 const BLOCKED_ELEMENT_NAMES = new Set(["script", "style"]);
 
 const BLOCKED_ATTRIBUTE_NAMES = new Set(["srcdoc"]);
-
 
 const BOOLEAN_ATTRIBUTE_NAMES = new Set([
     "allowfullscreen",
@@ -40,7 +39,6 @@ const BOOLEAN_ATTRIBUTE_NAMES = new Set([
     "selected",
 ]);
 
-
 const REACT_PROP_NAME_MAP: Record<string, string> = {
     class: "className",
     for: "htmlFor",
@@ -66,7 +64,6 @@ const REACT_PROP_NAME_MAP: Record<string, string> = {
     formtarget: "formTarget",
     httpEquiv: "httpEquiv",
 };
-
 
 type HtmlPropValue = string | boolean | CSSProperties;
 
@@ -96,7 +93,6 @@ const renderNodes = (nodes: ChildNode[], options: CmsHtmlParseOptions): ReactNod
     return nodes.map((node, index) => renderNode(node, `${index}`, options)).filter((node): node is ReactNode => node !== null);
 };
 
-
 /** 轉換單一 DOM node。 */
 const renderNode = (node: ChildNode, key: string, options: CmsHtmlParseOptions): ReactNode | null =>
 {
@@ -106,10 +102,10 @@ const renderNode = (node: ChildNode, key: string, options: CmsHtmlParseOptions):
     const tagName = node.name.toLowerCase();
     if (BLOCKED_ELEMENT_NAMES.has(tagName)) return null;
     if (tagName === "a") return renderAnchor(node, key, options);
+    if (tagName === "iframe") return renderIframe(node, key, options);
 
     return renderNativeElement(node, key, options);
 };
-
 
 /** 渲染一般 HTML element。 */
 const renderNativeElement = (node: Element, key: string, options: CmsHtmlParseOptions): ReactElement =>
@@ -122,7 +118,6 @@ const renderNativeElement = (node: Element, key: string, options: CmsHtmlParseOp
     const children = renderNodes(node.children ?? [], options);
     return createElement(tagName, props, ...children);
 };
-
 
 /** 渲染 a，讓可 SPA 化的內站連結走 LangLink。 */
 const renderAnchor = (node: Element, key: string, options: CmsHtmlParseOptions): ReactElement =>
@@ -140,6 +135,20 @@ const renderAnchor = (node: Element, key: string, options: CmsHtmlParseOptions):
     return <LangLink {...linkProps} to={href} lang={options.lang}>{children}</LangLink>;
 };
 
+/** 渲染 iframe，PDF 來源改走前台 PDF Viewer。 */
+const renderIframe = (node: Element, key: string, options: CmsHtmlParseOptions): ReactElement =>
+{
+    const props = buildReactProps(node.attribs ?? {}, key) as IframeHTMLAttributes<HTMLIFrameElement> & { key?: string; [CMS_HTML_VIEWER_ATTR]?: string; };
+    const src = `${props.src ?? ""}`.trim();
+    const title = `${props.title ?? ""}`.trim();
+
+    if (shouldRenderPdfViewer(props, src))
+    {
+        return <CmsPdfViewerFrame key={key} fileUrl={src} title={title} lang={options.lang} />;
+    }
+
+    return createElement("iframe", props);
+};
 
 /** 將 HTML attributes 轉成 React props。 */
 const buildReactProps = (attribs: Record<string, string>, key: string): HtmlProps =>
@@ -166,6 +175,14 @@ const buildReactProps = (attribs: Record<string, string>, key: string): HtmlProp
 // #endregion
 
 // #region Private
+/** 判斷 iframe 是否應轉成 PDF Viewer。 */
+const shouldRenderPdfViewer = (props: IframeHTMLAttributes<HTMLIFrameElement> & { [CMS_HTML_VIEWER_ATTR]?: string; }, src: string): boolean =>
+{
+    if (!src) return false;
+    if (`${props[CMS_HTML_VIEWER_ATTR] ?? ""}`.toLowerCase() === CMS_HTML_VIEWER_PDF) return true;
+    return src.toLowerCase().includes(".pdf");
+};
+
 /** 轉換 React prop 名稱。 */
 const toReactPropName = (lowerName: string): string =>
 {
@@ -173,7 +190,6 @@ const toReactPropName = (lowerName: string): string =>
     if (lowerName.startsWith("data-")) return lowerName;
     return REACT_PROP_NAME_MAP[lowerName] ?? lowerName;
 };
-
 
 /** 轉換 React prop 值。 */
 const toReactPropValue = (lowerName: string, value: string): HtmlPropValue | undefined =>
@@ -186,7 +202,6 @@ const toReactPropValue = (lowerName: string, value: string): HtmlPropValue | und
 
     return text;
 };
-
 
 /** 將 style 字串轉為 React CSSProperties。 */
 const parseStyleAttribute = (styleText: string): CSSProperties =>
@@ -210,13 +225,11 @@ const parseStyleAttribute = (styleText: string): CSSProperties =>
     return result as CSSProperties;
 };
 
-
 /** 將 CSS kebab-case 轉 camelCase。 */
 const toCamelCase = (value: string): string =>
 {
     return value.replace(/-([a-z])/g, (_, char: string) => char.toUpperCase());
 };
-
 
 /** 判斷 a 是否必須保留原生瀏覽器行為。 */
 const shouldKeepNativeAnchor = (href: string, props: AnchorHTMLAttributes<HTMLAnchorElement>): boolean =>
@@ -234,13 +247,11 @@ const shouldKeepNativeAnchor = (href: string, props: AnchorHTMLAttributes<HTMLAn
     return false;
 };
 
-
 /** 判斷是否為文字節點。 */
 const isTextNode = (node: ChildNode) =>
 {
     return node.type === "text";
 };
-
 
 /** 判斷是否為 HTML element。 */
 const isElementNode = (node: ChildNode): node is Element =>
