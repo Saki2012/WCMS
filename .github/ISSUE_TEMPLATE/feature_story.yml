@@ -1,0 +1,88 @@
+name: Feature Story
+description: 功能需求 / 開發測試 Story 單
+title: "[Story] "
+labels: ["story"]
+projects: ["Saki2012/2"]
+
+body:
+  - type: dropdown
+    id: story_type
+    attributes:
+      label: 一、需求類型
+      description: 請選擇這張 Story 的主要需求性質。
+      options:
+        - 新功能
+        - 既有功能調整
+        - UI / UX 調整
+        - 底層效能 / 重構
+      default: 0
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: impact_scope
+    attributes:
+      label: 二、影響範圍
+      description: 請勾選這次需求可能影響的範圍，可複選。
+      options:
+        - label: 前端
+        - label: 後端
+        - label: DB
+        - label: 前台
+        - label: 後台
+        - label: 底層邏輯
+    validations:
+      required: true
+
+  - type: textarea
+    id: requirement
+    attributes:
+      label: 三、需求說明
+      description: 請描述這次要新增或調整的功能內容。
+      placeholder: |
+        請說明：
+        1. 目前狀況
+        2. 希望調整成什麼
+        3. 有沒有特殊規則或限制
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: 四、驗收條件
+      description: 請用 checklist 描述怎樣算完成。
+      value: |
+        - [ ] 
+        - [ ] 
+        - [ ] 
+    validations:
+      required: true
+
+  - type: textarea
+    id: test_scope
+    attributes:
+      label: 五、測試範圍
+      description: 請列出 QA 或開發者需要確認的測試方向。
+      value: |
+        - [ ] 前台畫面確認
+        - [ ] 後台操作確認
+        - [ ] API / 資料確認
+        - [ ] 權限 / 角色確認
+        - [ ] 其他：
+    validations:
+      required: false
+
+  - type: textarea
+    id: related_info
+    attributes:
+      label: 六、關聯資料
+      description: 可放關聯 Issue、PR、收斂表項目、設計稿或補充文件。
+      value: |
+        - 關聯 Issue：
+        - 關聯 PR：
+        - 收斂表項目：
+        - 設計稿 / 截圖：
+        - 補充文件：
+    validations:
+      required: false
