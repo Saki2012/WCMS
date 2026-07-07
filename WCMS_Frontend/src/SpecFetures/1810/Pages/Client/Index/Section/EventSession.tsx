@@ -1,4 +1,3 @@
-/* Banner */
 import bgImg from "@/SpecFetures/1810/Assets/Client/Images/bg/background-transparent-image_1920x600.png";
 import defaulteventpic from "@/SpecFetures/1810/Assets/Custom/DefaultEventPic_940x1330.jpg";
 import type { HomePageEventHookResult } from "@/SpecFetures/1810/Pages/Client/Index/HomePage_Loader";
@@ -15,34 +14,60 @@ type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 interface EventData
 {
     Id: string;
-    Title: string; // 標題
-    ImgSrc: string; // 圖片來源
-    Url: string; // 連結
-    Tags: string; //
+    Title: string;
+    ImgSrc: string;
+    Url: string;
+    Tags: string;
     date: string;
     contentStatus: number;
 }
 
+interface EventSessionGlobal
+{
+    $?: unknown;
+    jQuery?: unknown;
+}
+
+interface JQueryCarousel
+{
+    hasClass: (className: string) => boolean;
+    owlCarousel?: (options: Record<string, unknown>) => JQueryCarousel;
+    trigger: (eventName: string, args?: unknown[]) => JQueryCarousel;
+    off: (eventName: string) => JQueryCarousel;
+    on: (eventName: string, handler: () => void) => JQueryCarousel;
+    attr: (name: string, value: string) => JQueryCarousel;
+}
+
+interface ValueRef<T>
+{
+    current: T;
+}
+
+type JQueryFactory = (selector: Element | string) => JQueryCarousel;
+
+/** 一天的毫秒數。 */
 const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** Plugin 初始化重試間隔。 */
+const PluginReadyRetryMs = 80;
+
+/** Plugin 初始化最大重試次數。 */
+const PluginReadyMaxRetry = 30;
 // #endregion
 
 // #region Public
+/** 首頁活動資訊專區。 */
 export const EventSession = (props: { lang: Lang; hydrationData: HomePageEventHookResult; }) =>
 {
-    // 宣告變數：統一吃 Homepage hydration source
     const source = props.hydrationData;
-
-    // 宣告變數：保留原本 tag 字典
     const tagDict = source.tagDict;
 
-    // 宣告變數：保留原本活動資料轉換邏輯
     const eventList = useMemo(() =>
     {
         const raw = source.announcementData ?? [];
         return getData(props.lang, raw, tagDict);
     }, [props.lang, source.announcementData, tagDict]);
 
-    // 宣告：用 key 強制 remount（避免 React diff 到 owl 改過的 DOM）
     const eventKey = useMemo(() =>
     {
         const ids = eventList.map(p => p.Id).join("|");
@@ -55,68 +80,71 @@ export const EventSession = (props: { lang: Lang; hydrationData: HomePageEventHo
 
     useEffect(() =>
     {
-        // 宣告變數
         const el = carouselRef.current;
         if (!el) return;
 
-        const $owl = $(el);
-        const owlCarousel = $owl.owlCarousel;
-        if (typeof owlCarousel !== "function") return;
-        const cleanup = () =>
+        let retryCount = 0;
+
+        const queueInit = (handler: () => void): void =>
         {
-            // 宣告：清掉延遲 init（避免 unmount 後還 init）
-            if (initTimerRef.current !== null)
-            {
-                window.clearTimeout(initTimerRef.current);
-                initTimerRef.current = null;
-            }
-
-            // 執行：解除事件（用 namespace 避免誤殺其他 click）
-            $("#Event_start").off("click.eventSession");
-            $("#Event_pause").off("click.eventSession");
-
-            // 執行：銷毀 carousel（只在真的 init 過才做）
-            if (isOwlInitedRef.current && $owl.hasClass("owl-loaded"))
-            {
-                $owl.trigger("destroy.owl.carousel");
-            }
-
-            isOwlInitedRef.current = false;
+            clearInitTimer(initTimerRef);
+            initTimerRef.current = window.setTimeout(handler, PluginReadyRetryMs);
         };
 
-        // 執行：StrictMode 下 effect 會 mount/cleanup/mount，先清一輪是安全的
+        const cleanup = (): void =>
+        {
+            const jquery = getWindowJQuery();
+            const $owl = jquery ? jquery(el) : null;
+
+            clearInitTimer(initTimerRef);
+            cleanupEventEvents(jquery);
+            cleanupOwlCarousel($owl, isOwlInitedRef);
+        };
+
+        const tryInit = (): void =>
+        {
+            const jquery = getWindowJQuery();
+
+            if (!jquery)
+            {
+                retryCount += 1;
+
+                if (retryCount <= PluginReadyMaxRetry)
+                {
+                    queueInit(tryInit);
+                    return;
+                }
+                return;
+            }
+
+            const $owl = jquery(el);
+
+            if (!isOwlReady($owl))
+            {
+                retryCount += 1;
+
+                if (retryCount <= PluginReadyMaxRetry)
+                {
+                    queueInit(tryInit);
+                    return;
+                }
+                return;
+            }
+
+            cleanupEventEvents(jquery);
+            initOwlCarousel($owl);
+            isOwlInitedRef.current = true;
+            setupEventControls(jquery, $owl);
+        };
+
         cleanup();
 
-        // 執行：無資料就不 init
-        if (eventList.length === 0) return;
+        if (eventList.length === 0) return cleanup;
 
-        initTimerRef.current = window.setTimeout(() =>
-        {
-            if (!carouselRef.current) return;
-            owlCarousel.call($owl, {
-                items: 4,
-                loop: true,
-                dots: true,
-                nav: true,
-                margin: 30,
-                autoplayTimeout: 3000,
-                autoplayHoverPause: true,
-                responsive: { 0: { items: 1 }, 767: { items: 2 }, 991: { items: 3 }, 1200: { items: 4 } },
-            });
-            isOwlInitedRef.current = true;
-            $("#Event .owl-nav button").attr("tabindex", "7");
-            $("#Event_start").off("click.eventSession").on("click.eventSession", () =>
-            {
-                $owl.trigger("play.owl.autoplay", [6000]);
-            });
-            $("#Event_pause").off("click.eventSession").on("click.eventSession", () =>
-            {
-                $owl.trigger("stop.owl.autoplay");
-            });
-        }, 0);
+        queueInit(tryInit);
 
         return cleanup;
-    }, [eventKey]);
+    }, [eventKey, eventList.length]);
 
     return (
         <section className="Event-section owl-box" style={{ backgroundImage: `url(${bgImg})` }}>
@@ -148,6 +176,7 @@ export const EventSession = (props: { lang: Lang; hydrationData: HomePageEventHo
                                         {eventList.map((item, index) =>
                                         {
                                             const { month, day } = getMonthDayNums(item.date);
+
                                             return item && (
                                                 <div className="item" key={item.Id}>
                                                     <LangLink to={`Allnews/Intramural-activities/In-school-activities${item.Url}`} title={item.Title} tabIndex={index + 1}>
@@ -166,21 +195,19 @@ export const EventSession = (props: { lang: Lang; hydrationData: HomePageEventHo
                                                                 <div className="m-news_detail">
                                                                     <div className="customstyle-hotop">
                                                                         {isWithinLastNDaysFromMD(Number(month), Number(day)) && <div className="icon-small new-bg" role="status" aria-label="最新">最新</div>}
-                                                                        {item.contentStatus != 0 && (
+                                                                        {item.contentStatus !== 0 && (
                                                                             <>
                                                                                 {Boolean(item.contentStatus & 1) && <div className="icon-small top-bg">置頂</div>}
                                                                                 {Boolean(item.contentStatus & 2) && <div className="icon-small hot-bg">熱門</div>}
                                                                             </>
                                                                         )}
                                                                     </div>
-
                                                                     <div className="category_box">
                                                                         <div className="m-news_category">
                                                                             <i className="fa fa-bookmark" aria-hidden="true"></i>
                                                                             <div className="tags-text">{item.Tags}</div>
                                                                         </div>
                                                                     </div>
-
                                                                     <div className="TimeBoxDiv">
                                                                         <div className="card_time">
                                                                             <i className="fa fa-clock-o" aria-hidden="true"></i>
@@ -198,7 +225,6 @@ export const EventSession = (props: { lang: Lang; hydrationData: HomePageEventHo
                                             );
                                         })}
                                     </div>
-
                                     <div className="control-box">
                                         <a
                                             id="Event_start"
@@ -235,7 +261,6 @@ export const EventSession = (props: { lang: Lang; hydrationData: HomePageEventHo
                                             </div>
                                         </a>
                                     </div>
-
                                     <div className="btn_Div justify-content-end px-2">
                                         <div className="customize_btn my-3">
                                             <LangLink
@@ -255,17 +280,17 @@ export const EventSession = (props: { lang: Lang; hydrationData: HomePageEventHo
                 </div>
             </div>
         </section>
-        // </LoadingErrorHandler>
     );
 };
 // #endregion
 
 // #region Private
+/** 轉換活動資訊資料為畫面使用格式。 */
 const getData = (lang: string, rawData: AnnouncementSet[], tagDict: Record<string, string>): EventData[] =>
 {
     const result: EventData[] = [];
 
-    rawData.map((item) =>
+    rawData.forEach((item) =>
     {
         const tags = (item.Announcement?.Tags ?? "").split(",").map(s => s.trim()).filter(Boolean);
         const tagsName = tags.map(id => tagDict[id] ?? "").filter(Boolean).join(", ");
@@ -286,6 +311,7 @@ const getData = (lang: string, rawData: AnnouncementSet[], tagDict: Record<strin
     return result;
 };
 
+/** 取得日期的 UTC 月日。 */
 const getMonthDayNums = (d?: string | Date | null): { month?: number; day?: number; } =>
 {
     if (!d) return {};
@@ -296,17 +322,16 @@ const getMonthDayNums = (d?: string | Date | null): { month?: number; day?: numb
     return { month: dt.getUTCMonth() + 1, day: dt.getUTCDate() };
 };
 
+/** 判斷指定月日是否在最近 N 天內。 */
 const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: number = 8): boolean =>
 {
     if (!month1to12 || !day1to31) return false;
 
     const now = new Date();
     const nowUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
-
     let y = now.getUTCFullYear();
     let candidateUTC = Date.UTC(y, month1to12 - 1, day1to31);
 
-    // 若候選日在未來，代表跨年情境 → 改用去年
     if (candidateUTC > nowUTC)
     {
         y -= 1;
@@ -315,5 +340,82 @@ const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: numb
 
     const diffDays = Math.floor((nowUTC - candidateUTC) / DAY_MS);
     return diffDays >= 0 && diffDays <= n;
+};
+
+/** 取得全域 jQuery，避免外部 script 尚未載入時造成頁面崩潰。 */
+const getWindowJQuery = (): JQueryFactory | null =>
+{
+    const win = window as unknown as EventSessionGlobal;
+    const jquery = typeof win.$ === "function" ? win.$ : win.jQuery;
+
+    return typeof jquery === "function"
+        ? jquery as JQueryFactory
+        : null;
+};
+
+/** 清除延遲初始化 timer。 */
+const clearInitTimer = (initTimerRef: ValueRef<number | null>): void =>
+{
+    if (initTimerRef.current === null) return;
+
+    window.clearTimeout(initTimerRef.current);
+    initTimerRef.current = null;
+};
+
+/** 檢查 owlCarousel 是否已經可用。 */
+const isOwlReady = ($owl: JQueryCarousel | null): $owl is JQueryCarousel =>
+{
+    return Boolean($owl && typeof $owl.owlCarousel === "function");
+};
+
+/** 解除活動資訊控制按鈕事件。 */
+const cleanupEventEvents = (jquery: JQueryFactory | null): void =>
+{
+    if (!jquery) return;
+
+    jquery("#Event_start").off("click.eventSession");
+    jquery("#Event_pause").off("click.eventSession");
+};
+
+/** 銷毀 owlCarousel，避免切頁或重掛時殘留舊 DOM。 */
+const cleanupOwlCarousel = ($owl: JQueryCarousel | null, isOwlInitedRef: ValueRef<boolean>): void =>
+{
+    if (isOwlInitedRef.current && $owl?.hasClass("owl-loaded"))
+    {
+        $owl.trigger("destroy.owl.carousel");
+    }
+
+    isOwlInitedRef.current = false;
+};
+
+/** 初始化活動資訊 owlCarousel 輪播。 */
+const initOwlCarousel = ($owl: JQueryCarousel): void =>
+{
+    $owl.owlCarousel?.({
+        items: 4,
+        loop: true,
+        dots: true,
+        nav: true,
+        margin: 30,
+        autoplayTimeout: 3000,
+        autoplayHoverPause: true,
+        responsive: { 0: { items: 1 }, 767: { items: 2 }, 991: { items: 3 }, 1200: { items: 4 } },
+    });
+};
+
+/** 綁定活動資訊播放與暫停控制。 */
+const setupEventControls = (jquery: JQueryFactory, $owl: JQueryCarousel): void =>
+{
+    jquery("#Event .owl-nav button").attr("tabindex", "7");
+
+    jquery("#Event_start").off("click.eventSession").on("click.eventSession", () =>
+    {
+        $owl.trigger("play.owl.autoplay", [6000]);
+    });
+
+    jquery("#Event_pause").off("click.eventSession").on("click.eventSession", () =>
+    {
+        $owl.trigger("stop.owl.autoplay");
+    });
 };
 // #endregion

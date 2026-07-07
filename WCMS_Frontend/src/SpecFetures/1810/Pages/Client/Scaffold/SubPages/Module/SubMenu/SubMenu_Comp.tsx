@@ -20,6 +20,38 @@ interface SideMenuProps
     activeNodeId: string;
     lang: SubMenuCompProps["lang"];
 }
+
+interface MenuItemsProps
+{
+    items: MenuItemData[];
+    activeIds: Set<string>;
+    activeParentIds: Set<string>;
+    expandedIds: Set<string>;
+    toggleExpand: (itemId: string) => void;
+    depth?: number;
+}
+
+interface MenuItemProps extends MenuItemsProps
+{
+    item: MenuItemData;
+    depth: number;
+}
+
+interface ParentMenuLinkProps
+{
+    item: MenuItemData;
+    expanded: boolean;
+    active: boolean;
+    activeParent: boolean;
+    onClick: (e: MouseEvent<HTMLAnchorElement>) => void;
+}
+
+interface LeafMenuLinkProps
+{
+    item: MenuItemData;
+    active: boolean;
+    activeParent: boolean;
+}
 // #endregion
 
 // #region Public
@@ -44,7 +76,11 @@ export const SubMenu_Comp = (props: SubMenuCompProps) =>
 const SideMenuComp = (props: SideMenuProps) =>
 {
     // 宣告變數
-    const { activeIds, expandedIdsByPath } = useMemo(() => calcActiveAndExpanded(props.items, props.pathname, props.activeNodeId), [props.items, props.pathname, props.activeNodeId]);
+    const { activeIds, activeParentIds, expandedIdsByPath } = useMemo(() =>
+    {
+        return calcActiveAndExpanded(props.items, props.pathname, props.activeNodeId);
+    }, [props.items, props.pathname, props.activeNodeId]);
+
     const { expandedIds, toggleExpand } = useExpandedMenuState(props.items, props.pathname, expandedIdsByPath);
 
     // return
@@ -58,7 +94,13 @@ const SideMenuComp = (props: SideMenuProps) =>
                 <p></p>
                 <nav className="Left-Second-navBox" aria-label={props.title}>
                     <ul id="Left-SecondMenu">
-                        <MenuItems items={props.items} activeIds={activeIds} expandedIds={expandedIds} toggleExpand={toggleExpand} />
+                        <MenuItems
+                            items={props.items}
+                            activeIds={activeIds}
+                            activeParentIds={activeParentIds}
+                            expandedIds={expandedIds}
+                            toggleExpand={toggleExpand}
+                        />
                     </ul>
                 </nav>
             </div>
@@ -66,8 +108,8 @@ const SideMenuComp = (props: SideMenuProps) =>
     );
 };
 
-/** 1810 選單項目。 */
-const MenuItems = (props: { items: MenuItemData[]; activeIds: Set<string>; expandedIds: Set<string>; toggleExpand: (itemId: string) => void; depth?: number; }) =>
+/** 1810 選單項目清單。 */
+const MenuItems = (props: MenuItemsProps) =>
 {
     // 宣告變數
     const depth = props.depth ?? 1;
@@ -79,11 +121,12 @@ const MenuItems = (props: { items: MenuItemData[]; activeIds: Set<string>; expan
                 <MenuItemComp
                     key={`${item.Id}-${idx}`}
                     item={item}
-                    index={idx}
-                    depth={depth}
+                    items={props.items}
                     activeIds={props.activeIds}
+                    activeParentIds={props.activeParentIds}
                     expandedIds={props.expandedIds}
                     toggleExpand={props.toggleExpand}
+                    depth={depth}
                 />
             ))}
         </>
@@ -91,17 +134,17 @@ const MenuItems = (props: { items: MenuItemData[]; activeIds: Set<string>; expan
 };
 
 /** 1810 單一選單項目。 */
-const MenuItemComp = (props: { item: MenuItemData; index: number; depth: number; activeIds: Set<string>; expandedIds: Set<string>; toggleExpand: (itemId: string) => void; }) =>
+const MenuItemComp = (props: MenuItemProps) =>
 {
     // 宣告變數
     const hasSub = hasSubItems(props.item);
     const expanded = hasSub && props.expandedIds.has(props.item.Id);
     const active = props.activeIds.has(props.item.Id);
-    const liClass = getSideMenuLiClass(active || expanded);
+    const activeParent = props.activeParentIds.has(props.item.Id);
+    const liClass = getSideMenuLiClass(active, activeParent, expanded, props.depth);
 
     const handleToggle = (e: MouseEvent<HTMLAnchorElement>) =>
     {
-        // 執行 function
         e.preventDefault();
         props.toggleExpand(props.item.Id);
         blurToggleLinkOnMouse(e);
@@ -111,11 +154,18 @@ const MenuItemComp = (props: { item: MenuItemData; index: number; depth: number;
     return (
         <li className={liClass}>
             {hasSub
-                ? <ParentMenuLink item={props.item} expanded={expanded} active={active} onClick={handleToggle} />
-                : <LeafMenuLink item={props.item} active={active} />}
+                ? <ParentMenuLink item={props.item} expanded={expanded} active={active} activeParent={activeParent} onClick={handleToggle} />
+                : <LeafMenuLink item={props.item} active={active} activeParent={activeParent} />}
             {hasSub && (
                 <AnimatedCollapseList expanded={expanded} className={getSideMenuChildUlClass(props.depth + 1)}>
-                    <MenuItems items={props.item.SubItem} activeIds={props.activeIds} expandedIds={props.expandedIds} toggleExpand={props.toggleExpand} depth={props.depth + 1} />
+                    <MenuItems
+                        items={props.item.SubItem}
+                        activeIds={props.activeIds}
+                        activeParentIds={props.activeParentIds}
+                        expandedIds={props.expandedIds}
+                        toggleExpand={props.toggleExpand}
+                        depth={props.depth + 1}
+                    />
                 </AnimatedCollapseList>
             )}
         </li>
@@ -123,11 +173,21 @@ const MenuItemComp = (props: { item: MenuItemData; index: number; depth: number;
 };
 
 /** 1810 父層選單連結。 */
-const ParentMenuLink = (props: { item: MenuItemData; expanded: boolean; active: boolean; onClick: (e: MouseEvent<HTMLAnchorElement>) => void; }) =>
+const ParentMenuLink = (props: ParentMenuLinkProps) =>
 {
+    // 宣告變數
+    const visualActive = props.active || props.activeParent;
+
     // return
     return (
-        <a href="#" className={clsx("a-focus", props.active && "active")} onMouseDown={preventMenuMouseFocus} onClick={props.onClick} aria-expanded={props.expanded} aria-current={props.active ? "page" : undefined}>
+        <a
+            href="#"
+            className={clsx("a-focus", visualActive && "active")}
+            onMouseDown={preventMenuMouseFocus}
+            onClick={props.onClick}
+            aria-expanded={props.expanded}
+            aria-current={props.active ? "page" : undefined}
+        >
             {props.item.SrcData}
             <i className={clsx("fa", props.expanded ? "fa-angle-down" : "fa-angle-right", "arrow")} aria-hidden="true"></i>
         </a>
@@ -135,16 +195,24 @@ const ParentMenuLink = (props: { item: MenuItemData; expanded: boolean; active: 
 };
 
 /** 1810 葉節點選單連結。 */
-const LeafMenuLink = (props: { item: MenuItemData; active: boolean; }) =>
+const LeafMenuLink = (props: LeafMenuLinkProps) =>
 {
     // 宣告變數
     const target = props.item.URL_Open;
+    const visualActive = props.active || props.activeParent;
 
     // return
     if (props.item.Url === "#")
     {
         return (
-            <a href="#" title={props.item.SrcData} className={clsx(props.active && "active", "flex-nowrap")} aria-current={props.active ? "page" : undefined} onMouseDown={preventMenuMouseFocus} onClick={preventSafeMenuLinkClick}>
+            <a
+                href="#"
+                title={props.item.SrcData}
+                className={clsx(visualActive && "active", "flex-nowrap")}
+                aria-current={props.active ? "page" : undefined}
+                onMouseDown={preventMenuMouseFocus}
+                onClick={preventSafeMenuLinkClick}
+            >
                 {props.item.SrcData}
             </a>
         );
@@ -153,7 +221,16 @@ const LeafMenuLink = (props: { item: MenuItemData; active: boolean; }) =>
     if (isExternalUrl(props.item.Url))
     {
         return (
-            <a href={props.item.Url} title={props.item.SrcData} target={target} rel={target === "_blank" ? "noopener noreferrer" : undefined} className={clsx(props.active && "active", "flex-nowrap")} aria-current={props.active ? "page" : undefined} onMouseDown={preventMenuMouseFocus} onClick={blurToggleLinkOnMouse}>
+            <a
+                href={props.item.Url}
+                title={props.item.SrcData}
+                target={target}
+                rel={target === "_blank" ? "noopener noreferrer" : undefined}
+                className={clsx(visualActive && "active", "flex-nowrap")}
+                aria-current={props.active ? "page" : undefined}
+                onMouseDown={preventMenuMouseFocus}
+                onClick={blurToggleLinkOnMouse}
+            >
                 {renderLinkIcon(props.item.Url)}
                 {props.item.SrcData}
             </a>
@@ -161,7 +238,16 @@ const LeafMenuLink = (props: { item: MenuItemData; active: boolean; }) =>
     }
 
     return (
-        <LangNavLink to={props.item.Url} title={props.item.SrcData} target={target} className={({ isActive }) => clsx((isActive || props.active) && "active")} aria-current={props.active ? "page" : undefined} onMouseDown={preventMenuMouseFocus} onClick={blurToggleLinkOnMouse}>
+        <LangNavLink
+            end
+            to={props.item.Url}
+            title={props.item.SrcData}
+            target={target}
+            className={({ isActive }) => clsx((isActive || visualActive) && "active")}
+            aria-current={props.active ? "page" : undefined}
+            onMouseDown={preventMenuMouseFocus}
+            onClick={blurToggleLinkOnMouse}
+        >
             {props.item.SrcData}
         </LangNavLink>
     );
@@ -192,12 +278,9 @@ const AnimatedCollapseList = (props: { expanded: boolean; className: string; chi
         </ul>
     );
 };
-
 // #endregion
 
 // #region Private
-
-
 /** 阻止 Preview fake node 連結導頁。 */
 const preventSafeMenuLinkClick = (e: MouseEvent<HTMLAnchorElement>): void =>
 {
@@ -304,12 +387,18 @@ const getSideMenuChildUlClass = (depth: number): string =>
     // return
     return depth === 2 ? "leftmenuBox" : "";
 };
-
 /** 1810 選單 li class。 */
-const getSideMenuLiClass = (isActive: boolean): string =>
+const getSideMenuLiClass = (isActive: boolean, isActiveParent: boolean, _isExpanded: boolean, depth: number): string =>
 {
+    // 宣告變數
+    const showParentActive = isActiveParent && depth === 1;
+
     // return
-    return clsx("m-link", isActive && "active");
+    return clsx(
+        "m-link",
+        (isActive || showParentActive) && "active",
+        isActiveParent && "active-parent",
+    );
 };
 
 /** 外部連結顯示圖示。 */
@@ -382,35 +471,67 @@ const getUrlMatchType = (currentPath: string, itemUrl?: string): UrlMatchType =>
     return null;
 };
 
-/** 計算 active 節點與展開項目。 */
+/** 判斷目前路徑是否已有精準命中的 menu item。 */
+const hasExactUrlActiveItem = (items: MenuItemData[], pathname: string): boolean =>
+{
+    // 執行 function
+    for (const item of items)
+    {
+        if (getUrlMatchType(pathname, item.Url) === "exact") return true;
+        if (hasSubItems(item) && hasExactUrlActiveItem(item.SubItem, pathname)) return true;
+    }
+
+    // return
+    return false;
+};
+
+/** 計算 active 節點、active 父層與展開項目。 */
 const calcActiveAndExpanded = (items: MenuItemData[], pathname: string, activeNodeId: string) =>
 {
     // 宣告變數
     const activeIds = new Set<string>();
+    const activeParentIds = new Set<string>();
     const expandedIdsByPath = new Set<string>();
+    const hasExactActive = hasExactUrlActiveItem(items, pathname);
 
-    const dfs = (item: MenuItemData): boolean =>
+    const dfs = (item: MenuItemData, parents: string[]): boolean =>
     {
         const matchType = getUrlMatchType(pathname, item.Url);
-        const selfActive = item.Id === activeNodeId || matchType === "exact";
-        let hasActiveInSubtree = selfActive || !!matchType;
+        const exactActive = matchType === "exact";
+        const nodeActive = !hasExactActive && item.Id === activeNodeId;
+        const selfActive = exactActive || nodeActive;
+        let hasActiveInSubtree = selfActive;
 
         item.SubItem?.forEach(child =>
         {
-            if (dfs(child)) hasActiveInSubtree = true;
+            if (dfs(child, [...parents, item.Id])) hasActiveInSubtree = true;
         });
 
-        if (selfActive) activeIds.add(item.Id);
-        if (hasSubItems(item) && hasActiveInSubtree) expandedIdsByPath.add(item.Id);
+        if (selfActive)
+        {
+            activeIds.add(item.Id);
+            addActiveParents(activeParentIds, parents);
+        }
+
+        if (hasSubItems(item) && hasActiveInSubtree)
+        {
+            expandedIdsByPath.add(item.Id);
+        }
 
         return hasActiveInSubtree;
     };
 
     // 執行 function
-    items.forEach(dfs);
+    items.forEach(item => dfs(item, []));
 
     // return
-    return { activeIds, expandedIdsByPath };
+    return { activeIds, activeParentIds, expandedIdsByPath };
+};
+/** 加入 active 父層項目。 */
+const addActiveParents = (activeParentIds: Set<string>, parents: string[]): void =>
+{
+    // 執行 function
+    parents.forEach(id => activeParentIds.add(id));
 };
 
 /** 從展開清單移除指定分支。 */

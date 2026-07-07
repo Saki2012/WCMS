@@ -8,7 +8,7 @@ using static WCMS.SysCore.Enum.SysParam;
 namespace WCMS.Features.WEB.SiteViewCount;
 
 [LibApiController(ProgKeys.WEB.Code, ProgKeys.WEB.SiteViewCount, FuncAction.Report)]
-public class SiteViewCountController : ApiBaseController<SiteViewCountSet, SiteViewCountSet_DTO>
+public class SiteViewCountController : ApiDataQueryController<SiteViewCountSet, SiteViewCountSet_DTO>
 {
     #region Public
     /// <summary>

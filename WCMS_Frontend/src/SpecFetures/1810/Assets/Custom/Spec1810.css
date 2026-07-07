@@ -262,3 +262,11 @@
     outline: 3px solid #ffbf47 !important;
     outline-offset: 2px !important;
 }
+
+.Left-Second-navBox ul li.active li:not(.active):not(.active-parent) > a.a-focus:not(.active),
+.Left-Second-navBox ul li.active li:not(.active):not(.active-parent) > a.a-focus:not(.active):focus:not(:focus-visible),
+.Left-Second-navBox ul li.active li:not(.active):not(.active-parent) > a.a-focus:not(.active):active {
+    color: var(--blackcolor) !important;
+    background-color: var(--FFFcolor) !important;
+    border-color: #dddddd !important;
+}

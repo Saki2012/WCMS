@@ -13,8 +13,8 @@ import { BreadcrumbContext, type BreadcrumbItem } from "@/Features/Pages/Client/
 import type { IFETheme } from "@/Features/Pages/Client/Theme/ITheme";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { resolveSpecComponent } from "@/SysCore/Utils/Library/SlotResolver";
-import { useState } from "react";
-import { Outlet, useLoaderData } from "react-router";
+import { useMemo, useState } from "react";
+import { Outlet, useLoaderData, useLocation } from "react-router";
 import type { ISubPageLoaderData } from "./SubPage_Loader";
 // import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey";
 import "./subpage-content.css";
@@ -45,6 +45,8 @@ let thirdMenuCompCache: typeof ThirdMenuBase | null = null;
 export const SubPage = (props: ISubPageProps) =>
 {
     const data = useLoaderData() as ISubPageLoaderData | undefined;
+    const location = useLocation();
+    const outletKey = useSubPageOutletKey(location.pathname, location.search, props.node.id);
     const [items, setItems] = useState<BreadcrumbItem[]>([]);
     const mode = resolveSubPageShellMode(props.node);
     const ThirdMenuComp = getThirdMenuComp();
@@ -58,7 +60,7 @@ export const SubPage = (props: ISubPageProps) =>
                 leftSlot={<LeftFrame lang={props.lang} site={props.site} node={props.node} />}
                 rightTopSlot={<ThirdMenuComp lang={props.lang} site={props.site} node={props.node} />}
             >
-                <Outlet context={{ lang: props.lang, site: props.site, node: props.node }} />
+                <Outlet key={outletKey} context={{ lang: props.lang, site: props.site, node: props.node }} />
             </SubPageShell>
         </BreadcrumbContext.Provider>
     );
@@ -78,6 +80,15 @@ const resolveSubPageShellMode = (node: INormNode): SubPageShellMode =>
 {
     const hasSubMenu = node.pageType === 0 && ((node.level ?? 0) > 0 || (node.children?.length ?? 0) > 0);
     return hasSubMenu ? "withMenu" : "full";
+};
+/** 建立子頁 Outlet 重掛載 key。 */
+const useSubPageOutletKey = (pathname: string, search: string, nodeId: number): string =>
+{
+    // 宣告變數
+    const key = useMemo(() => `${nodeId}|${pathname}${search}`, [nodeId, pathname, search]);
+
+    // return
+    return key;
 };
 const ContentContainer = (props: IContentContainerProps) =>
 {

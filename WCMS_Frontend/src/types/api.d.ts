@@ -8186,6 +8186,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/Service/SpecHomePageSetting/GetInitialData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["SpecHomePageInitialData_DTOApiResponse"];
+                        "application/json": components["schemas"]["SpecHomePageInitialData_DTOApiResponse"];
+                        "text/json": components["schemas"]["SpecHomePageInitialData_DTOApiResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/Service/SpecResearch/Create": {
         parameters: {
             query?: never;
@@ -12817,6 +12857,42 @@ export interface components {
         SpecCategorySet_DTOApiRequest: {
             InternalId?: string | null;
             Data?: components["schemas"]["SpecCategorySet_DTO"];
+        };
+        SpecHomePageBannerSection_DTO: {
+            Banner?: components["schemas"]["BannerSet_DTO"];
+        };
+        SpecHomePageCategoryTabsSection_DTO: {
+            AllNews?: components["schemas"]["AnnouncementSet_DTO"][] | null;
+            ProjectNews?: components["schemas"]["AnnouncementSet_DTO"][] | null;
+            LegalNews?: components["schemas"]["AnnouncementSet_DTO"][] | null;
+            EventNews?: components["schemas"]["AnnouncementSet_DTO"][] | null;
+            AwardNews?: components["schemas"]["AnnouncementSet_DTO"][] | null;
+            MediaNews?: components["schemas"]["AnnouncementSet_DTO"][] | null;
+            Categories?: components["schemas"]["CategoryDataSet_DTO"][] | null;
+            Tags?: components["schemas"]["TagSet_DTO"][] | null;
+        };
+        SpecHomePageEventSection_DTO: {
+            Announcements?: components["schemas"]["AnnouncementSet_DTO"][] | null;
+            Tags?: components["schemas"]["TagSet_DTO"][] | null;
+        };
+        SpecHomePageGallerySection_DTO: {
+            Galleries?: components["schemas"]["GallerySet_DTO"][] | null;
+            Categories?: components["schemas"]["CategoryDataSet_DTO"][] | null;
+        };
+        SpecHomePageInitialData_DTO: {
+            BannerSlider?: components["schemas"]["SpecHomePageBannerSection_DTO"];
+            CategoryTabs?: components["schemas"]["SpecHomePageCategoryTabsSection_DTO"];
+            EventSession?: components["schemas"]["SpecHomePageEventSection_DTO"];
+            GallerySession?: components["schemas"]["SpecHomePageGallerySection_DTO"];
+            VideoSession?: components["schemas"]["SpecHomePageVideoSection_DTO"];
+        };
+        SpecHomePageInitialData_DTOApiResponse: {
+            readonly IsSuccess?: boolean;
+            SysMessage?: components["schemas"]["SysMessageModel"][] | null;
+            Data?: components["schemas"]["SpecHomePageInitialData_DTO"][] | null;
+        };
+        SpecHomePageVideoSection_DTO: {
+            WebResources?: components["schemas"]["WebResourceSet_DTO"][] | null;
         };
         SpecResearchDetailModel_DTO: {
             /** @description 研究計畫 */

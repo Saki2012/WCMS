@@ -1,47 +1,23 @@
-import { CategoryAdapter } from "@/Features/Hooks/BizFunc/COMM/Category_Api";
-import { TagAdapter } from "@/Features/Hooks/BizFunc/COMM/Tag_Api";
-import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WEB/Announcement_Api";
-import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WEB/BannerSlider_Api";
-import { GalleryAdapter } from "@/Features/Hooks/BizFunc/WEB/Gallery_Api";
-import { WebResourceAdapter } from "@/Features/Hooks/BizFunc/WEB/WebResource_Api";
-import type { Lang } from "@/SysCore/i18n/lang";
-import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
-import type { components } from "@/types/api";
 import {
-    AnnouncementDetailFields,
-    AnnouncementFields,
-    BannerDetailFields,
-    BannerDetailInfoFields,
-    BannerFields,
-    CategoryDetailFields,
-    CategoryFields,
-    GalleryFields,
-    GalleryInfoFields,
-    PGID,
-    TagDataFields,
-    TagDetailFields,
-    WebResourceFields,
-    WebResourceInfoFields,
-} from "@/types/SchemaFields";
+    buildClientCategoryTextDict as buildCategoryDict,
+    buildClientTagTextDict as buildTagDict,
+} from "@/Features/Pages/Client/Index/HomePage_Helper";
+import {
+    SpecHomePage1810Adapter,
+    type HomePageInitialLoaderData,
+    type SpecHomePageInitialDataDTO,
+} from "@/SpecFetures/1810/Hooks/WEB/HomePage_Api";
+import type { Lang } from "@/SysCore/i18n/lang";
+import { api, getSsrApi } from "@/SysCore/Utils/API/APIBase";
+import type { components } from "@/types/api";
 import type { AxiosInstance } from "axios";
 import { useMemo } from "react";
 import { type LoaderFunctionArgs, redirect } from "react-router-dom";
 
-import { formatLocalIso, LibCondition, Operator } from "@/SysCore/Utils/Library/LibData";
-
-import {
-    buildClientCategoryTextDict as buildCategoryDict,
-    buildClientListInitial as toListInitial,
-    buildClientTagTextDict as buildTagDict,
-    takeTopThenFill,
-} from "@/Features/Pages/Client/Index/HomePage_Helper";
-
 // #region Property
-type QueryListParam = components["schemas"]["QueryListParam"];
+type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 
 type BannerSet = components["schemas"]["BannerSet_DTO"];
-
-type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 
 type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"];
 
@@ -51,82 +27,11 @@ type TagSet = components["schemas"]["TagSet_DTO"];
 
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
 
-const BANNER_SLIDER_FIELDS: string[] = [
-    BannerFields.InternalId,
-    BannerFields.BannerId,
-    BannerFields.BannerCategoryName,
-    `${BannerFields._BannerDetail}.${BannerDetailFields.BannerId}`,
-    `${BannerFields._BannerDetail}.${BannerDetailFields.RowId}`,
-    `${BannerFields._BannerDetail}.${BannerDetailFields.PicSrcId}`,
-    `${BannerFields._BannerDetail}.${BannerDetailFields.FontColor}`,
-    `${BannerFields._BannerDetail}.${BannerDetailFields.Validate_Start}`,
-    `${BannerFields._BannerDetail}.${BannerDetailFields.Validate_End}`,
-    `${BannerFields._BannerDetail}.${BannerDetailFields.Sort}`,
-    `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.BannerId}`,
-    `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.ParentRowId}`,
-    `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.RowId}`,
-    `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.Lang}`,
-    `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.Title}`,
-    `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.Content}`,
-    `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.URL}`,
-    `${BannerFields._BannerDetail}.${BannerDetailFields._BannerDetailInfo}.${BannerDetailInfoFields.URL_Open}`,
-];
-
-const CATEGORY_TABS_NEWS_FIELDS: string[] = [
-    AnnouncementFields.AnnouncementId,
-    AnnouncementFields.InternalId,
-    AnnouncementFields.Categories,
-    AnnouncementFields.Tags,
-    AnnouncementFields.ContentStatus,
-    AnnouncementFields.Validate_Start,
-    `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang}`,
-    `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title}`,
-];
-
-const EVENT_FIELDS: string[] = [
-    AnnouncementFields.AnnouncementId,
-    AnnouncementFields.InternalId,
-    AnnouncementFields.Tags,
-    AnnouncementFields.Validate_Start,
-    AnnouncementFields.PictureId,
-    AnnouncementFields.PicDescription,
-    AnnouncementFields.ContentStatus,
-    `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang}`,
-    `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title}`,
-];
-
-const CATEGORY_FIELDS: string[] = [
-    CategoryFields.CategoryId,
-    `${CategoryFields._CategoryDetail}.${CategoryDetailFields.Lang}`,
-    `${CategoryFields._CategoryDetail}.${CategoryDetailFields.CategoryName}`,
-];
-
-const TAG_FIELDS: string[] = [
-    TagDataFields.TagId,
-    `${TagDataFields._TagDetail}.${TagDetailFields.Lang}`,
-    `${TagDataFields._TagDetail}.${TagDetailFields.TagName}`,
-];
-
-const GALLERY_FIELDS: string[] = [
-    GalleryFields.GalleryId,
-    GalleryFields.InternalId,
-    GalleryFields.Categories,
-    GalleryFields.CoverPicSrcId,
-    GalleryFields.CreateTime,
-    GalleryFields.Validate_Start,
-    `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Lang}`,
-    `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Title}`,
-];
-
-const VIDEO_FIELDS: string[] = [
-    WebResourceFields.InternalId,
-    WebResourceFields.WebResourceId,
-    WebResourceFields.Categories,
-    `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Lang}`,
-    `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Title}`,
-    `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.ResUrl}`,
-    `${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Url_OpenType}`,
-];
+interface HomePageQueryState
+{
+    isLoading: boolean;
+    errorText: string | null;
+}
 
 export interface HomePageRawData
 {
@@ -161,34 +66,6 @@ export interface HomePageRawData
 export interface HomePageLoaderArgs
 {
     lang: Lang;
-    nowIsoLocal: string;
-
-    bannerSliderParam: QueryListParam;
-
-    categoryTabsTopAllNewsParam: QueryListParam;
-    categoryTabsTopProjectNewsParam: QueryListParam;
-    categoryTabsTopLegalNewsParam: QueryListParam;
-    categoryTabsTopEventNewsParam: QueryListParam;
-    categoryTabsTopAwardNewsParam: QueryListParam;
-    categoryTabsTopMediaNewsParam: QueryListParam;
-
-    categoryTabsAllNewsParam: QueryListParam;
-    categoryTabsProjectNewsParam: QueryListParam;
-    categoryTabsLegalNewsParam: QueryListParam;
-    categoryTabsEventNewsParam: QueryListParam;
-    categoryTabsAwardNewsParam: QueryListParam;
-    categoryTabsMediaNewsParam: QueryListParam;
-
-    categoryTabsCategoryParam: QueryListParam;
-    categoryTabsTagParam: QueryListParam;
-
-    eventListParam: QueryListParam;
-    eventTagParam: QueryListParam;
-
-    galleryListParam: QueryListParam;
-    galleryCategoryParam: QueryListParam;
-
-    videoListParam: QueryListParam;
 }
 
 export interface HomePageLoaderRes
@@ -200,6 +77,7 @@ export interface HomePageLoaderData
 {
     args: HomePageLoaderArgs;
     res: HomePageLoaderRes;
+    initial: HomePageInitialLoaderData | null;
 }
 
 export interface HomePageCategoryTabsHookResult
@@ -260,38 +138,6 @@ export interface HomePageVideoHookResult
 // #endregion
 
 // #region Public
-export const buildHomePageLoaderArgs = (lang: Lang, nowIsoLocal: string = formatLocalIso(new Date())): HomePageLoaderArgs => ({
-    lang,
-    nowIsoLocal,
-
-    bannerSliderParam: buildBannerSliderParam(),
-
-    categoryTabsTopAllNewsParam: buildCategoryTabsNewsParam(buildCategoryTabsTopCondition(nowIsoLocal)),
-    categoryTabsTopProjectNewsParam: buildCategoryTabsNewsParam(buildCategoryTabsTopCondition(nowIsoLocal, "3,4,5")),
-    categoryTabsTopLegalNewsParam: buildCategoryTabsNewsParam(buildCategoryTabsTopCondition(nowIsoLocal, "6")),
-    categoryTabsTopEventNewsParam: buildCategoryTabsNewsParam(buildCategoryTabsTopCondition(nowIsoLocal, "8,10")),
-    categoryTabsTopAwardNewsParam: buildCategoryTabsNewsParam(buildCategoryTabsTopCondition(nowIsoLocal, "45")),
-    categoryTabsTopMediaNewsParam: buildCategoryTabsNewsParam(buildCategoryTabsTopCondition(nowIsoLocal, "46")),
-
-    categoryTabsAllNewsParam: buildCategoryTabsNewsParam(buildCategoryTabsListCondition(nowIsoLocal)),
-    categoryTabsProjectNewsParam: buildCategoryTabsNewsParam(buildCategoryTabsListCondition(nowIsoLocal, "3,4,5")),
-    categoryTabsLegalNewsParam: buildCategoryTabsNewsParam(buildCategoryTabsListCondition(nowIsoLocal, "6")),
-    categoryTabsEventNewsParam: buildCategoryTabsNewsParam(buildCategoryTabsListCondition(nowIsoLocal, "8,10")),
-    categoryTabsAwardNewsParam: buildCategoryTabsNewsParam(buildCategoryTabsListCondition(nowIsoLocal, "45")),
-    categoryTabsMediaNewsParam: buildCategoryTabsNewsParam(buildCategoryTabsListCondition(nowIsoLocal, "46")),
-
-    categoryTabsCategoryParam: buildCategoryTabsCategoryParam(),
-    categoryTabsTagParam: buildAnnouncementTagParam(),
-
-    eventListParam: buildEventListParam(nowIsoLocal),
-    eventTagParam: buildAnnouncementTagParam(),
-
-    galleryListParam: buildGalleryListParam(),
-    galleryCategoryParam: buildGalleryCategoryParam(),
-
-    videoListParam: buildVideoListParam(),
-});
-
 export const HomePageLoader = (props: { lang: Lang; }) => async ({ request }: LoaderFunctionArgs): Promise<HomePageLoaderData> =>
 {
     if (shouldRedirectEnHome(request, props.lang))
@@ -299,554 +145,92 @@ export const HomePageLoader = (props: { lang: Lang; }) => async ({ request }: Lo
         throw redirect("/en/About-ORD-en/Introduction-en", 302);
     }
 
-    const ssrApi = getSsrApi(request);
-    const args = buildHomePageLoaderArgs(props.lang);
-
-    const bannerAdapter = BannerSliderAdapter(ssrApi);
-    const announcementAdapter = AnnouncementAdapter(ssrApi);
-    const categoryAdapter = CategoryAdapter(ssrApi);
-    const tagAdapter = TagAdapter(ssrApi);
-    const galleryAdapter = GalleryAdapter(ssrApi);
-    const webResourceAdapter = WebResourceAdapter(ssrApi);
-
-    const bannerSliderLoader = bannerAdapter.loader.createQueryListLoader({ getCondition: () => args.bannerSliderParam, getApiInstance: () => ssrApi });
-
-    const categoryTabsTopAllNewsLoader = announcementAdapter.loader.createQueryListLoader({
-        getCondition: () => args.categoryTabsTopAllNewsParam,
-        getApiInstance: () => ssrApi,
-    });
-    const categoryTabsTopProjectNewsLoader = announcementAdapter.loader.createQueryListLoader({
-        getCondition: () => args.categoryTabsTopProjectNewsParam,
-        getApiInstance: () => ssrApi,
-    });
-    const categoryTabsTopLegalNewsLoader = announcementAdapter.loader.createQueryListLoader({
-        getCondition: () => args.categoryTabsTopLegalNewsParam,
-        getApiInstance: () => ssrApi,
-    });
-    const categoryTabsTopEventNewsLoader = announcementAdapter.loader.createQueryListLoader({
-        getCondition: () => args.categoryTabsTopEventNewsParam,
-        getApiInstance: () => ssrApi,
-    });
-    const categoryTabsTopAwardNewsLoader = announcementAdapter.loader.createQueryListLoader({
-        getCondition: () => args.categoryTabsTopAwardNewsParam,
-        getApiInstance: () => ssrApi,
-    });
-    const categoryTabsTopMediaNewsLoader = announcementAdapter.loader.createQueryListLoader({
-        getCondition: () => args.categoryTabsTopMediaNewsParam,
-        getApiInstance: () => ssrApi,
-    });
-
-    const categoryTabsAllNewsLoader = announcementAdapter.loader.createQueryListLoader({
-        getCondition: () => args.categoryTabsAllNewsParam,
-        getApiInstance: () => ssrApi,
-    });
-    const categoryTabsProjectNewsLoader = announcementAdapter.loader.createQueryListLoader({
-        getCondition: () => args.categoryTabsProjectNewsParam,
-        getApiInstance: () => ssrApi,
-    });
-    const categoryTabsLegalNewsLoader = announcementAdapter.loader.createQueryListLoader({
-        getCondition: () => args.categoryTabsLegalNewsParam,
-        getApiInstance: () => ssrApi,
-    });
-    const categoryTabsEventNewsLoader = announcementAdapter.loader.createQueryListLoader({
-        getCondition: () => args.categoryTabsEventNewsParam,
-        getApiInstance: () => ssrApi,
-    });
-    const categoryTabsAwardNewsLoader = announcementAdapter.loader.createQueryListLoader({
-        getCondition: () => args.categoryTabsAwardNewsParam,
-        getApiInstance: () => ssrApi,
-    });
-    const categoryTabsMediaNewsLoader = announcementAdapter.loader.createQueryListLoader({
-        getCondition: () => args.categoryTabsMediaNewsParam,
-        getApiInstance: () => ssrApi,
-    });
-
-    const categoryTabsCategoryLoader = categoryAdapter.loader.createQueryListLoader({
-        getCondition: () => args.categoryTabsCategoryParam,
-        getApiInstance: () => ssrApi,
-    });
-    const categoryTabsTagLoader = tagAdapter.loader.createQueryListLoader({ getCondition: () => args.categoryTabsTagParam, getApiInstance: () => ssrApi });
-
-    const eventListLoader = announcementAdapter.loader.createQueryListLoader({ getCondition: () => args.eventListParam, getApiInstance: () => ssrApi });
-    const eventTagLoader = tagAdapter.loader.createQueryListLoader({ getCondition: () => args.eventTagParam, getApiInstance: () => ssrApi });
-
-    const galleryListLoader = galleryAdapter.loader.createQueryListLoader({ getCondition: () => args.galleryListParam, getApiInstance: () => ssrApi });
-    const galleryCategoryLoader = categoryAdapter.loader.createQueryListLoader({ getCondition: () => args.galleryCategoryParam, getApiInstance: () => ssrApi });
-
-    const videoListLoader = webResourceAdapter.loader.createQueryListLoader({ getCondition: () => args.videoListParam, getApiInstance: () => ssrApi });
-
-    const [
-        bannerSliderLoaderData,
-        categoryTabsTopAllNewsLoaderData,
-        categoryTabsTopProjectNewsLoaderData,
-        categoryTabsTopLegalNewsLoaderData,
-        categoryTabsTopEventNewsLoaderData,
-        categoryTabsTopAwardNewsLoaderData,
-        categoryTabsTopMediaNewsLoaderData,
-        categoryTabsAllNewsLoaderData,
-        categoryTabsProjectNewsLoaderData,
-        categoryTabsLegalNewsLoaderData,
-        categoryTabsEventNewsLoaderData,
-        categoryTabsAwardNewsLoaderData,
-        categoryTabsMediaNewsLoaderData,
-        categoryTabsCategoryLoaderData,
-        categoryTabsTagLoaderData,
-        eventListLoaderData,
-        eventTagLoaderData,
-        galleryListLoaderData,
-        galleryCategoryLoaderData,
-        videoListLoaderData,
-    ] = await Promise.all([
-        bannerSliderLoader({ request } as LoaderFunctionArgs),
-        categoryTabsTopAllNewsLoader({ request } as LoaderFunctionArgs),
-        categoryTabsTopProjectNewsLoader({ request } as LoaderFunctionArgs),
-        categoryTabsTopLegalNewsLoader({ request } as LoaderFunctionArgs),
-        categoryTabsTopEventNewsLoader({ request } as LoaderFunctionArgs),
-        categoryTabsTopAwardNewsLoader({ request } as LoaderFunctionArgs),
-        categoryTabsTopMediaNewsLoader({ request } as LoaderFunctionArgs),
-        categoryTabsAllNewsLoader({ request } as LoaderFunctionArgs),
-        categoryTabsProjectNewsLoader({ request } as LoaderFunctionArgs),
-        categoryTabsLegalNewsLoader({ request } as LoaderFunctionArgs),
-        categoryTabsEventNewsLoader({ request } as LoaderFunctionArgs),
-        categoryTabsAwardNewsLoader({ request } as LoaderFunctionArgs),
-        categoryTabsMediaNewsLoader({ request } as LoaderFunctionArgs),
-        categoryTabsCategoryLoader({ request } as LoaderFunctionArgs),
-        categoryTabsTagLoader({ request } as LoaderFunctionArgs),
-        eventListLoader({ request } as LoaderFunctionArgs),
-        eventTagLoader({ request } as LoaderFunctionArgs),
-        galleryListLoader({ request } as LoaderFunctionArgs),
-        galleryCategoryLoader({ request } as LoaderFunctionArgs),
-        videoListLoader({ request } as LoaderFunctionArgs),
-    ]);
+    const apiInstance = getLoaderApi(request);
+    const loader = SpecHomePage1810Adapter().loader.createInitialDataLoader({ getApiInstance: () => apiInstance });
+    const initial = await loader({ request } as LoaderFunctionArgs);
+    const rawData = toHomePageRawData(takeFirstOrNull(initial.apiRes.Data));
 
     return {
-        args,
-        res: {
-            rawData: {
-                bannerSliderBanner: takeFirstOrNull<BannerSet>(bannerSliderLoaderData.apiRes.Data),
-
-                categoryTabsTopAllNews: categoryTabsTopAllNewsLoaderData.apiRes.Data ?? [],
-                categoryTabsTopProjectNews: categoryTabsTopProjectNewsLoaderData.apiRes.Data ?? [],
-                categoryTabsTopLegalNews: categoryTabsTopLegalNewsLoaderData.apiRes.Data ?? [],
-                categoryTabsTopEventNews: categoryTabsTopEventNewsLoaderData.apiRes.Data ?? [],
-                categoryTabsTopAwardNews: categoryTabsTopAwardNewsLoaderData.apiRes.Data ?? [],
-                categoryTabsTopMediaNews: categoryTabsTopMediaNewsLoaderData.apiRes.Data ?? [],
-
-                categoryTabsAllNews: categoryTabsAllNewsLoaderData.apiRes.Data ?? [],
-                categoryTabsProjectNews: categoryTabsProjectNewsLoaderData.apiRes.Data ?? [],
-                categoryTabsLegalNews: categoryTabsLegalNewsLoaderData.apiRes.Data ?? [],
-                categoryTabsEventNews: categoryTabsEventNewsLoaderData.apiRes.Data ?? [],
-                categoryTabsAwardNews: categoryTabsAwardNewsLoaderData.apiRes.Data ?? [],
-                categoryTabsMediaNews: categoryTabsMediaNewsLoaderData.apiRes.Data ?? [],
-
-                categoryTabsCategories: categoryTabsCategoryLoaderData.apiRes.Data ?? [],
-                categoryTabsTags: categoryTabsTagLoaderData.apiRes.Data ?? [],
-
-                eventAnnouncements: eventListLoaderData.apiRes.Data ?? [],
-                eventTags: eventTagLoaderData.apiRes.Data ?? [],
-
-                galleryList: galleryListLoaderData.apiRes.Data ?? [],
-                galleryCategories: galleryCategoryLoaderData.apiRes.Data ?? [],
-
-                videoList: videoListLoaderData.apiRes.Data ?? [],
-            },
-        },
+        args: { lang: props.lang },
+        res: { rawData },
+        initial,
     };
 };
 
-export const useBannerSliderHydrationData = (opt: { bannerParam: QueryListParam; initialBanner: BannerSet | null; apiInstance?: AxiosInstance; }) =>
+export const useBannerSliderHydrationData = (opt: { initialData: HomePageRawData; queryState: HomePageQueryState; }) =>
 {
-    const adapter = useMemo(() => BannerSliderAdapter(opt.apiInstance), [opt.apiInstance]);
+    const banner = useMemo(() => opt.initialData.bannerSliderBanner, [opt.initialData.bannerSliderBanner]);
 
-    const initial = useMemo(() =>
-    {
-        if (!opt.initialBanner) return null;
-
-        return toListInitial(opt.bannerParam, [opt.initialBanner]);
-    }, [opt.bannerParam, opt.initialBanner]);
-
-    const query = adapter.hooks.useQueryList({ condition: opt.bannerParam, initial, deps: [opt.bannerParam.Condition ?? ""], apiInstance: opt.apiInstance });
-
-    const banner = useMemo(() => takeFirstOrNull<BannerSet>(query.data), [query.data]);
-
-    return { ...query, banner };
+    return { banner, isLoading: opt.queryState.isLoading, errorText: opt.queryState.errorText };
 };
 
 export const useCategoryTabsHydrationData = (
-    opt: { lang: Lang; args: HomePageLoaderArgs; initialData: HomePageRawData; apiInstance?: AxiosInstance; },
+    opt: { lang: Lang; initialData: HomePageRawData; queryState: HomePageQueryState; },
 ): HomePageCategoryTabsHookResult =>
 {
-    const announcementAdapter = useMemo(() => AnnouncementAdapter(opt.apiInstance), [opt.apiInstance]);
-    const categoryAdapter = useMemo(() => CategoryAdapter(opt.apiInstance), [opt.apiInstance]);
-    const tagAdapter = useMemo(() => TagAdapter(opt.apiInstance), [opt.apiInstance]);
-
-    const topAllInitial = useMemo(() => toListInitial(opt.args.categoryTabsTopAllNewsParam, opt.initialData.categoryTabsTopAllNews), [
-        opt.args.categoryTabsTopAllNewsParam,
-        opt.initialData.categoryTabsTopAllNews,
-    ]);
-    const topProjectInitial = useMemo(() => toListInitial(opt.args.categoryTabsTopProjectNewsParam, opt.initialData.categoryTabsTopProjectNews), [
-        opt.args.categoryTabsTopProjectNewsParam,
-        opt.initialData.categoryTabsTopProjectNews,
-    ]);
-    const topLegalInitial = useMemo(() => toListInitial(opt.args.categoryTabsTopLegalNewsParam, opt.initialData.categoryTabsTopLegalNews), [
-        opt.args.categoryTabsTopLegalNewsParam,
-        opt.initialData.categoryTabsTopLegalNews,
-    ]);
-    const topEventInitial = useMemo(() => toListInitial(opt.args.categoryTabsTopEventNewsParam, opt.initialData.categoryTabsTopEventNews), [
-        opt.args.categoryTabsTopEventNewsParam,
-        opt.initialData.categoryTabsTopEventNews,
-    ]);
-    const topAwardInitial = useMemo(() => toListInitial(opt.args.categoryTabsTopAwardNewsParam, opt.initialData.categoryTabsTopAwardNews), [
-        opt.args.categoryTabsTopAwardNewsParam,
-        opt.initialData.categoryTabsTopAwardNews,
-    ]);
-    const topMediaInitial = useMemo(() => toListInitial(opt.args.categoryTabsTopMediaNewsParam, opt.initialData.categoryTabsTopMediaNews), [
-        opt.args.categoryTabsTopMediaNewsParam,
-        opt.initialData.categoryTabsTopMediaNews,
-    ]);
-
-    const allNewsInitial = useMemo(() => toListInitial(opt.args.categoryTabsAllNewsParam, opt.initialData.categoryTabsAllNews), [
-        opt.args.categoryTabsAllNewsParam,
-        opt.initialData.categoryTabsAllNews,
-    ]);
-    const projectInitial = useMemo(() => toListInitial(opt.args.categoryTabsProjectNewsParam, opt.initialData.categoryTabsProjectNews), [
-        opt.args.categoryTabsProjectNewsParam,
-        opt.initialData.categoryTabsProjectNews,
-    ]);
-    const legalInitial = useMemo(() => toListInitial(opt.args.categoryTabsLegalNewsParam, opt.initialData.categoryTabsLegalNews), [
-        opt.args.categoryTabsLegalNewsParam,
-        opt.initialData.categoryTabsLegalNews,
-    ]);
-    const eventInitial = useMemo(() => toListInitial(opt.args.categoryTabsEventNewsParam, opt.initialData.categoryTabsEventNews), [
-        opt.args.categoryTabsEventNewsParam,
-        opt.initialData.categoryTabsEventNews,
-    ]);
-    const awardInitial = useMemo(() => toListInitial(opt.args.categoryTabsAwardNewsParam, opt.initialData.categoryTabsAwardNews), [
-        opt.args.categoryTabsAwardNewsParam,
-        opt.initialData.categoryTabsAwardNews,
-    ]);
-    const mediaInitial = useMemo(() => toListInitial(opt.args.categoryTabsMediaNewsParam, opt.initialData.categoryTabsMediaNews), [
-        opt.args.categoryTabsMediaNewsParam,
-        opt.initialData.categoryTabsMediaNews,
-    ]);
-
-    const categoryInitial = useMemo(() => toListInitial(opt.args.categoryTabsCategoryParam, opt.initialData.categoryTabsCategories), [
-        opt.args.categoryTabsCategoryParam,
-        opt.initialData.categoryTabsCategories,
-    ]);
-    const tagInitial = useMemo(() => toListInitial(opt.args.categoryTabsTagParam, opt.initialData.categoryTabsTags), [
-        opt.args.categoryTabsTagParam,
-        opt.initialData.categoryTabsTags,
-    ]);
-
-    const useTopAllNews = announcementAdapter.hooks.useQueryList({
-        condition: opt.args.categoryTabsTopAllNewsParam,
-        initial: topAllInitial,
-        deps: [opt.args.categoryTabsTopAllNewsParam.Condition ?? ""],
-        apiInstance: opt.apiInstance,
-    });
-    const useTopProjectNews = announcementAdapter.hooks.useQueryList({
-        condition: opt.args.categoryTabsTopProjectNewsParam,
-        initial: topProjectInitial,
-        deps: [opt.args.categoryTabsTopProjectNewsParam.Condition ?? ""],
-        apiInstance: opt.apiInstance,
-    });
-    const useTopLegalNews = announcementAdapter.hooks.useQueryList({
-        condition: opt.args.categoryTabsTopLegalNewsParam,
-        initial: topLegalInitial,
-        deps: [opt.args.categoryTabsTopLegalNewsParam.Condition ?? ""],
-        apiInstance: opt.apiInstance,
-    });
-    const useTopEventNews = announcementAdapter.hooks.useQueryList({
-        condition: opt.args.categoryTabsTopEventNewsParam,
-        initial: topEventInitial,
-        deps: [opt.args.categoryTabsTopEventNewsParam.Condition ?? ""],
-        apiInstance: opt.apiInstance,
-    });
-    const useTopAwardNews = announcementAdapter.hooks.useQueryList({
-        condition: opt.args.categoryTabsTopAwardNewsParam,
-        initial: topAwardInitial,
-        deps: [opt.args.categoryTabsTopAwardNewsParam.Condition ?? ""],
-        apiInstance: opt.apiInstance,
-    });
-    const useTopMediaNews = announcementAdapter.hooks.useQueryList({
-        condition: opt.args.categoryTabsTopMediaNewsParam,
-        initial: topMediaInitial,
-        deps: [opt.args.categoryTabsTopMediaNewsParam.Condition ?? ""],
-        apiInstance: opt.apiInstance,
-    });
-
-    const useAllNews = announcementAdapter.hooks.useQueryList({
-        condition: opt.args.categoryTabsAllNewsParam,
-        initial: allNewsInitial,
-        deps: [opt.args.categoryTabsAllNewsParam.Condition ?? ""],
-        apiInstance: opt.apiInstance,
-    });
-    const useProjectNews = announcementAdapter.hooks.useQueryList({
-        condition: opt.args.categoryTabsProjectNewsParam,
-        initial: projectInitial,
-        deps: [opt.args.categoryTabsProjectNewsParam.Condition ?? ""],
-        apiInstance: opt.apiInstance,
-    });
-    const useLegalNews = announcementAdapter.hooks.useQueryList({
-        condition: opt.args.categoryTabsLegalNewsParam,
-        initial: legalInitial,
-        deps: [opt.args.categoryTabsLegalNewsParam.Condition ?? ""],
-        apiInstance: opt.apiInstance,
-    });
-    const useEventNews = announcementAdapter.hooks.useQueryList({
-        condition: opt.args.categoryTabsEventNewsParam,
-        initial: eventInitial,
-        deps: [opt.args.categoryTabsEventNewsParam.Condition ?? ""],
-        apiInstance: opt.apiInstance,
-    });
-    const useAwardNews = announcementAdapter.hooks.useQueryList({
-        condition: opt.args.categoryTabsAwardNewsParam,
-        initial: awardInitial,
-        deps: [opt.args.categoryTabsAwardNewsParam.Condition ?? ""],
-        apiInstance: opt.apiInstance,
-    });
-    const useMediaNews = announcementAdapter.hooks.useQueryList({
-        condition: opt.args.categoryTabsMediaNewsParam,
-        initial: mediaInitial,
-        deps: [opt.args.categoryTabsMediaNewsParam.Condition ?? ""],
-        apiInstance: opt.apiInstance,
-    });
-
-    const useCategoryData = categoryAdapter.hooks.useQueryList({
-        condition: opt.args.categoryTabsCategoryParam,
-        initial: categoryInitial,
-        deps: [opt.args.categoryTabsCategoryParam.Condition ?? ""],
-        apiInstance: opt.apiInstance,
-    });
-    const useTagData = tagAdapter.hooks.useQueryList({
-        condition: opt.args.categoryTabsTagParam,
-        initial: tagInitial,
-        deps: [opt.args.categoryTabsTagParam.Condition ?? ""],
-        apiInstance: opt.apiInstance,
-    });
-
-    const topAllNewsData = useMemo(() => useTopAllNews.data ?? [], [useTopAllNews.data]);
-    const topProjectData = useMemo(() => useTopProjectNews.data ?? [], [useTopProjectNews.data]);
-    const topLegalData = useMemo(() => useTopLegalNews.data ?? [], [useTopLegalNews.data]);
-    const topEventData = useMemo(() => useTopEventNews.data ?? [], [useTopEventNews.data]);
-    const topAwardData = useMemo(() => useTopAwardNews.data ?? [], [useTopAwardNews.data]);
-    const topMediaData = useMemo(() => useTopMediaNews.data ?? [], [useTopMediaNews.data]);
-
-    const allNewsData = useMemo(() => useAllNews.data ?? [], [useAllNews.data]);
-    const projectData = useMemo(() => useProjectNews.data ?? [], [useProjectNews.data]);
-    const legalData = useMemo(() => useLegalNews.data ?? [], [useLegalNews.data]);
-    const eventData = useMemo(() => useEventNews.data ?? [], [useEventNews.data]);
-    const awardData = useMemo(() => useAwardNews.data ?? [], [useAwardNews.data]);
-    const mediaData = useMemo(() => useMediaNews.data ?? [], [useMediaNews.data]);
-
-    const allNewsRawData = useMemo(
-        () => takeTopThenFill(topAllNewsData, allNewsData, 6, (item) => item.Announcement?.InternalId ?? String(item.Announcement?.AnnouncementId ?? "")),
-        [topAllNewsData, allNewsData],
-    );
-    const projectRawData = useMemo(
-        () => takeTopThenFill(topProjectData, projectData, 6, (item) => item.Announcement?.InternalId ?? String(item.Announcement?.AnnouncementId ?? "")),
-        [topProjectData, projectData],
-    );
-    const legalRawData = useMemo(
-        () => takeTopThenFill(topLegalData, legalData, 6, (item) => item.Announcement?.InternalId ?? String(item.Announcement?.AnnouncementId ?? "")),
-        [topLegalData, legalData],
-    );
-    const eventRawData = useMemo(
-        () => takeTopThenFill(topEventData, eventData, 6, (item) => item.Announcement?.InternalId ?? String(item.Announcement?.AnnouncementId ?? "")),
-        [topEventData, eventData],
-    );
-    const awardRawData = useMemo(
-        () => takeTopThenFill(topAwardData, awardData, 6, (item) => item.Announcement?.InternalId ?? String(item.Announcement?.AnnouncementId ?? "")),
-        [topAwardData, awardData],
-    );
-    const mediaRawData = useMemo(
-        () => takeTopThenFill(topMediaData, mediaData, 6, (item) => item.Announcement?.InternalId ?? String(item.Announcement?.AnnouncementId ?? "")),
-        [topMediaData, mediaData],
-    );
-
-    const categoryData = useMemo(() => useCategoryData.data ?? [], [useCategoryData.data]);
-    const tagData = useMemo(() => useTagData.data ?? [], [useTagData.data]);
+    const categoryData = useMemo(() => opt.initialData.categoryTabsCategories, [opt.initialData.categoryTabsCategories]);
+    const tagData = useMemo(() => opt.initialData.categoryTabsTags, [opt.initialData.categoryTabsTags]);
     const categoryDict = useMemo(() => buildCategoryDict(categoryData, opt.lang), [categoryData, opt.lang]);
     const tagDict = useMemo(() => buildTagDict(tagData, opt.lang), [tagData, opt.lang]);
 
-    const loadingList = [
-        useTopAllNews.isLoading,
-        useTopProjectNews.isLoading,
-        useTopLegalNews.isLoading,
-        useTopEventNews.isLoading,
-        useTopAwardNews.isLoading,
-        useTopMediaNews.isLoading,
-        useAllNews.isLoading,
-        useProjectNews.isLoading,
-        useLegalNews.isLoading,
-        useEventNews.isLoading,
-        useAwardNews.isLoading,
-        useMediaNews.isLoading,
-        useCategoryData.isLoading,
-        useTagData.isLoading,
-    ];
-
-    const errorList = [
-        useTopAllNews.errorText,
-        useTopProjectNews.errorText,
-        useTopLegalNews.errorText,
-        useTopEventNews.errorText,
-        useTopAwardNews.errorText,
-        useTopMediaNews.errorText,
-        useAllNews.errorText,
-        useProjectNews.errorText,
-        useLegalNews.errorText,
-        useEventNews.errorText,
-        useAwardNews.errorText,
-        useMediaNews.errorText,
-        useCategoryData.errorText,
-        useTagData.errorText,
-    ];
-
-    return {
-        topAllNewsData,
-        topProjectData,
-        topLegalData,
-        topEventData,
-        topAwardData,
-        topMediaData,
-        allNewsData,
-        projectData,
-        legalData,
-        eventData,
-        awardData,
-        mediaData,
-        allNewsRawData,
-        projectRawData,
-        legalRawData,
-        eventRawData,
-        awardRawData,
-        mediaRawData,
-        categoryData,
-        tagData,
-        categoryDict,
-        tagDict,
-        loadingList,
-        errorList,
-    };
+    return buildCategoryTabsResult(opt.initialData, categoryData, tagData, categoryDict, tagDict, opt.queryState);
 };
 
 export const useEventHydrationData = (
-    opt: { lang: Lang; args: HomePageLoaderArgs; initialData: HomePageRawData; apiInstance?: AxiosInstance; },
+    opt: { lang: Lang; initialData: HomePageRawData; queryState: HomePageQueryState; },
 ): HomePageEventHookResult =>
 {
-    const announcementAdapter = useMemo(() => AnnouncementAdapter(opt.apiInstance), [opt.apiInstance]);
-    const tagAdapter = useMemo(() => TagAdapter(opt.apiInstance), [opt.apiInstance]);
-
-    const listInitial = useMemo(() => toListInitial(opt.args.eventListParam, opt.initialData.eventAnnouncements), [
-        opt.args.eventListParam,
-        opt.initialData.eventAnnouncements,
-    ]);
-    const tagInitial = useMemo(() => toListInitial(opt.args.eventTagParam, opt.initialData.eventTags), [opt.args.eventTagParam, opt.initialData.eventTags]);
-
-    const useEventData = announcementAdapter.hooks.useQueryList({
-        condition: opt.args.eventListParam,
-        initial: listInitial,
-        deps: [opt.args.eventListParam.Condition ?? ""],
-        apiInstance: opt.apiInstance,
-    });
-    const useTagData = tagAdapter.hooks.useQueryList({
-        condition: opt.args.eventTagParam,
-        initial: tagInitial,
-        deps: [opt.args.eventTagParam.Condition ?? ""],
-        apiInstance: opt.apiInstance,
-    });
-
-    const announcementData = useMemo(() => useEventData.data ?? [], [useEventData.data]);
-    const tagData = useMemo(() => useTagData.data ?? [], [useTagData.data]);
+    const tagData = useMemo(() => opt.initialData.eventTags, [opt.initialData.eventTags]);
     const tagDict = useMemo(() => buildTagDict(tagData, opt.lang), [tagData, opt.lang]);
 
     return {
-        announcementData,
+        announcementData: opt.initialData.eventAnnouncements,
         tagData,
         tagDict,
-        loadingList: [useEventData.isLoading, useTagData.isLoading],
-        errorList: [useEventData.errorText, useTagData.errorText],
+        loadingList: [opt.queryState.isLoading],
+        errorList: [opt.queryState.errorText],
     };
 };
 
 export const useGalleryHydrationData = (
-    opt: { lang: Lang; args: HomePageLoaderArgs; initialData: HomePageRawData; apiInstance?: AxiosInstance; },
+    opt: { lang: Lang; initialData: HomePageRawData; queryState: HomePageQueryState; },
 ): HomePageGalleryHookResult =>
 {
-    const galleryAdapter = useMemo(() => GalleryAdapter(opt.apiInstance), [opt.apiInstance]);
-    const categoryAdapter = useMemo(() => CategoryAdapter(opt.apiInstance), [opt.apiInstance]);
-
-    const listInitial = useMemo(() => toListInitial(opt.args.galleryListParam, opt.initialData.galleryList), [
-        opt.args.galleryListParam,
-        opt.initialData.galleryList,
-    ]);
-    const categoryInitial = useMemo(() => toListInitial(opt.args.galleryCategoryParam, opt.initialData.galleryCategories), [
-        opt.args.galleryCategoryParam,
-        opt.initialData.galleryCategories,
-    ]);
-
-    const useGalleryData = galleryAdapter.hooks.useQueryList({
-        condition: opt.args.galleryListParam,
-        initial: listInitial,
-        deps: [opt.args.galleryListParam.Condition ?? ""],
-        apiInstance: opt.apiInstance,
-    });
-    const useCategoryData = categoryAdapter.hooks.useQueryList({
-        condition: opt.args.galleryCategoryParam,
-        initial: categoryInitial,
-        deps: [opt.args.galleryCategoryParam.Condition ?? ""],
-        apiInstance: opt.apiInstance,
-    });
-
-    const galleryData = useMemo(() => useGalleryData.data ?? [], [useGalleryData.data]);
-    const categoryData = useMemo(() => useCategoryData.data ?? [], [useCategoryData.data]);
+    const categoryData = useMemo(() => opt.initialData.galleryCategories, [opt.initialData.galleryCategories]);
     const categoryDict = useMemo(() => buildCategoryDict(categoryData, opt.lang), [categoryData, opt.lang]);
 
     return {
-        galleryData,
+        galleryData: opt.initialData.galleryList,
         categoryData,
         categoryDict,
-        loadingList: [useGalleryData.isLoading, useCategoryData.isLoading],
-        errorList: [useGalleryData.errorText, useCategoryData.errorText],
+        loadingList: [opt.queryState.isLoading],
+        errorList: [opt.queryState.errorText],
     };
 };
 
-export const useVideoHydrationData = (opt: { args: HomePageLoaderArgs; initialData: HomePageRawData; apiInstance?: AxiosInstance; }): HomePageVideoHookResult =>
+export const useVideoHydrationData = (opt: { initialData: HomePageRawData; queryState: HomePageQueryState; }): HomePageVideoHookResult =>
 {
-    const webResourceAdapter = useMemo(() => WebResourceAdapter(opt.apiInstance), [opt.apiInstance]);
-
-    const listInitial = useMemo(() => toListInitial(opt.args.videoListParam, opt.initialData.videoList), [opt.args.videoListParam, opt.initialData.videoList]);
-
-    const useVideoData = webResourceAdapter.hooks.useQueryList({
-        condition: opt.args.videoListParam,
-        initial: listInitial,
-        deps: [opt.args.videoListParam.Condition ?? ""],
-        apiInstance: opt.apiInstance,
-    });
-
-    return { webResourceData: useVideoData.data ?? [], loadingList: [useVideoData.isLoading], errorList: [useVideoData.errorText] };
+    return {
+        webResourceData: opt.initialData.videoList,
+        loadingList: [opt.queryState.isLoading],
+        errorList: [opt.queryState.errorText],
+    };
 };
 
 export const useHomePageHydrationSource = (opt: { lang: Lang; loaderData?: HomePageLoaderData | null; apiInstance?: AxiosInstance; }) =>
 {
-    const args = useMemo(() => opt.loaderData?.args ?? buildHomePageLoaderArgs(opt.lang), [opt.lang, opt.loaderData]);
-    const initialData = useMemo(() => opt.loaderData?.res?.rawData ?? createEmptyRawData(), [opt.loaderData]);
+    const adapter = useMemo(() => SpecHomePage1810Adapter(opt.apiInstance), [opt.apiInstance]);
+    const initial = useMemo(() => opt.loaderData?.initial ?? null, [opt.loaderData]);
+    const query = adapter.hooks.useInitialData({ initial, deps: [opt.lang], apiInstance: opt.apiInstance });
+    const args = useMemo(() => opt.loaderData?.args ?? { lang: opt.lang }, [opt.lang, opt.loaderData]);
+    const initialData = useMemo(() => resolveHomePageRawData(query.initialData, opt.loaderData), [query.initialData, opt.loaderData]);
+    const queryState = useMemo<HomePageQueryState>(() => ({ isLoading: query.isLoading, errorText: query.errorText }), [query.isLoading, query.errorText]);
 
-    const bannerSlider = useBannerSliderHydrationData({
-        bannerParam: args.bannerSliderParam,
-        initialBanner: initialData.bannerSliderBanner,
-        apiInstance: opt.apiInstance,
-    });
-
-    const categoryTabs = useCategoryTabsHydrationData({ lang: opt.lang, args, initialData, apiInstance: opt.apiInstance });
-
-    const eventSession = useEventHydrationData({ lang: opt.lang, args, initialData, apiInstance: opt.apiInstance });
-
-    const gallerySession = useGalleryHydrationData({ lang: opt.lang, args, initialData, apiInstance: opt.apiInstance });
-
-    const videoSession = useVideoHydrationData({ args, initialData, apiInstance: opt.apiInstance });
+    const bannerSlider = useBannerSliderHydrationData({ initialData, queryState });
+    const categoryTabs = useCategoryTabsHydrationData({ lang: opt.lang, initialData, queryState });
+    const eventSession = useEventHydrationData({ lang: opt.lang, initialData, queryState });
+    const gallerySession = useGalleryHydrationData({ lang: opt.lang, initialData, queryState });
+    const videoSession = useVideoHydrationData({ initialData, queryState });
 
     return { args, initialData, bannerSlider, categoryTabs, eventSession, gallerySession, videoSession };
 };
@@ -865,6 +249,12 @@ const shouldRedirectEnHome = (request: Request, lang: Lang): boolean =>
     return pathname === "/en";
 };
 
+const getLoaderApi = (request: Request): AxiosInstance =>
+{
+    // return
+    return typeof window === "undefined" ? getSsrApi(request) : api;
+};
+
 const takeFirstOrNull = <T>(data: T[] | T | null | undefined): T | null =>
 {
     if (!data) return null;
@@ -872,97 +262,119 @@ const takeFirstOrNull = <T>(data: T[] | T | null | undefined): T | null =>
     return Array.isArray(data) ? data[0] ?? null : data;
 };
 
-const buildBannerSliderParam = (): QueryListParam => ({
-    Fields: BANNER_SLIDER_FIELDS,
-    Condition: `${BannerFields.BannerId} = 1`,
-    OrderBy: [{ Col: `${BannerFields._BannerDetail}.${BannerDetailFields.Sort}`, Desc: false }],
-    PageNumber: 1,
-    PageSize: 1,
-});
-
-const buildCategoryTabsTopCondition = (nowIsoLocal: string, categories?: string): string =>
+const resolveHomePageRawData = (apiData: SpecHomePageInitialDataDTO | null, loaderData?: HomePageLoaderData | null): HomePageRawData =>
 {
-    return LibCondition.joinConditions([
-        LibCondition.createCondition(AnnouncementFields.ContentStatus, Operator.BitwiseHasAny, 1),
-        LibCondition.createCondition(AnnouncementFields.Validate_Start, Operator.LessThanOrEqual, nowIsoLocal),
-        LibCondition.createCondition(AnnouncementFields.Categories, Operator.HasAny, categories),
-    ]);
+    if (apiData) return toHomePageRawData(apiData);
+    if (loaderData?.res?.rawData) return loaderData.res.rawData;
+
+    return createEmptyRawData();
 };
 
-const buildCategoryTabsListCondition = (nowIsoLocal: string, categories?: string): string =>
+const toHomePageRawData = (data: SpecHomePageInitialDataDTO | null): HomePageRawData =>
 {
-    return LibCondition.joinConditions([
-        LibCondition.createCondition(AnnouncementFields.ContentStatus, Operator.BitwiseHasNone, 4),
-        LibCondition.createCondition(AnnouncementFields.ContentStatus, Operator.BitwiseHasNone, 1),
-        LibCondition.createCondition(AnnouncementFields.Validate_Start, Operator.LessThanOrEqual, nowIsoLocal),
-        LibCondition.createCondition(AnnouncementFields.Categories, Operator.HasAny, categories),
-    ]);
+    const empty = createEmptyRawData();
+    if (!data) return empty;
+
+    return {
+        ...empty,
+        ...toBannerRawData(data),
+        ...toCategoryTabsRawData(data),
+        ...toEventRawData(data),
+        ...toGalleryRawData(data),
+        ...toVideoRawData(data),
+    };
 };
 
-const buildCategoryTabsNewsParam = (condition: string): QueryListParam => ({
-    Fields: CATEGORY_TABS_NEWS_FIELDS,
-    Condition: condition,
-    OrderBy: [{ Col: AnnouncementFields.Validate_Start, Desc: true }],
-    PageNumber: 1,
-    PageSize: 6,
-});
-
-const buildCategoryTabsCategoryParam = (): QueryListParam => ({
-    Fields: CATEGORY_FIELDS,
-    Condition: `${CategoryFields.ProgId} = Announcement`,
-    PageNumber: 0,
-    PageSize: 0,
-});
-
-const buildAnnouncementTagParam = (): QueryListParam => ({
-    Fields: TAG_FIELDS,
-    Condition: `${TagDataFields.ProgId} = ${PGID.Announcement}`,
-    PageNumber: 0,
-    PageSize: 0,
-});
-
-const buildEventListCondition = (nowIsoLocal: string): string =>
+const toBannerRawData = (data: SpecHomePageInitialDataDTO): Pick<HomePageRawData, "bannerSliderBanner"> =>
 {
-    return LibCondition.joinConditions([
-        LibCondition.createCondition(AnnouncementFields.Validate_Start, Operator.LessThanOrEqual, nowIsoLocal),
-        `(${AnnouncementFields.Validate_End} >= ${nowIsoLocal} Or ${AnnouncementFields.Validate_End} is null)`,
-        LibCondition.createCondition(AnnouncementFields.Categories, Operator.HasAny, 8),
-        LibCondition.createCondition(AnnouncementFields.ContentStatus, Operator.BitwiseHasNone, 4),
-    ]);
+    return { bannerSliderBanner: data.BannerSlider?.Banner ?? null };
 };
 
-const buildEventListParam = (nowIsoLocal: string): QueryListParam => ({
-    Fields: EVENT_FIELDS,
-    Condition: buildEventListCondition(nowIsoLocal),
-    RankGroups: [{ Condition: `${AnnouncementFields.ContentStatus} & 1` }],
-    OrderBy: [{ Col: AnnouncementFields.Validate_Start, Desc: true }],
-    PageNumber: 1,
-    PageSize: 6,
-});
+const toCategoryTabsRawData = (data: SpecHomePageInitialDataDTO): Pick<HomePageRawData,
+    "categoryTabsAllNews" | "categoryTabsProjectNews" | "categoryTabsLegalNews" | "categoryTabsEventNews" | "categoryTabsAwardNews" | "categoryTabsMediaNews" | "categoryTabsCategories" | "categoryTabsTags"> =>
+{
+    const section = data.CategoryTabs;
 
-const buildGalleryListParam = (): QueryListParam => ({
-    Fields: GALLERY_FIELDS,
-    // Condition: `${GalleryFields.Categories} In [25,26,27,28]`,
-    OrderBy: [{ Col: GalleryFields.Validate_Start, Desc: true }],
-    PageNumber: 1,
-    PageSize: 10,
-});
+    return {
+        categoryTabsAllNews: section?.AllNews ?? [],
+        categoryTabsProjectNews: section?.ProjectNews ?? [],
+        categoryTabsLegalNews: section?.LegalNews ?? [],
+        categoryTabsEventNews: section?.EventNews ?? [],
+        categoryTabsAwardNews: section?.AwardNews ?? [],
+        categoryTabsMediaNews: section?.MediaNews ?? [],
+        categoryTabsCategories: section?.Categories ?? [],
+        categoryTabsTags: section?.Tags ?? [],
+    };
+};
 
-const buildGalleryCategoryParam = (): QueryListParam => ({
-    Fields: CATEGORY_FIELDS,
-    Condition: `${CategoryFields.ProgId} = Gallery`,
-    PageNumber: 0,
-    PageSize: 0,
-});
+const toEventRawData = (data: SpecHomePageInitialDataDTO): Pick<HomePageRawData, "eventAnnouncements" | "eventTags"> =>
+{
+    const section = data.EventSession;
 
-const buildVideoListParam = (): QueryListParam => ({
-    Fields: VIDEO_FIELDS,
-    Condition: `${WebResourceFields.Categories} HasAny [29,30,31,32]`,
-    OrderBy: [{ Col: WebResourceFields.CreateTime, Desc: true }],
-    RankGroups: [{ Condition: `${WebResourceFields.ContentStatus} & 1` }],
-    PageNumber: 1,
-    PageSize: 10,
-});
+    return {
+        eventAnnouncements: section?.Announcements ?? [],
+        eventTags: section?.Tags ?? [],
+    };
+};
+
+const toGalleryRawData = (data: SpecHomePageInitialDataDTO): Pick<HomePageRawData, "galleryList" | "galleryCategories"> =>
+{
+    const section = data.GallerySession;
+
+    return {
+        galleryList: section?.Galleries ?? [],
+        galleryCategories: section?.Categories ?? [],
+    };
+};
+
+const toVideoRawData = (data: SpecHomePageInitialDataDTO): Pick<HomePageRawData, "videoList"> =>
+{
+    return { videoList: data.VideoSession?.WebResources ?? [] };
+};
+
+const buildCategoryTabsResult = (
+    data: HomePageRawData,
+    categoryData: CategoryDataSet[],
+    tagData: TagSet[],
+    categoryDict: Record<string, string>,
+    tagDict: Record<string, string>,
+    queryState: HomePageQueryState,
+): HomePageCategoryTabsHookResult =>
+{
+    return {
+        ...buildEmptyTopNewsData(),
+        allNewsData: data.categoryTabsAllNews,
+        projectData: data.categoryTabsProjectNews,
+        legalData: data.categoryTabsLegalNews,
+        eventData: data.categoryTabsEventNews,
+        awardData: data.categoryTabsAwardNews,
+        mediaData: data.categoryTabsMediaNews,
+        allNewsRawData: data.categoryTabsAllNews,
+        projectRawData: data.categoryTabsProjectNews,
+        legalRawData: data.categoryTabsLegalNews,
+        eventRawData: data.categoryTabsEventNews,
+        awardRawData: data.categoryTabsAwardNews,
+        mediaRawData: data.categoryTabsMediaNews,
+        categoryData,
+        tagData,
+        categoryDict,
+        tagDict,
+        loadingList: [queryState.isLoading],
+        errorList: [queryState.errorText],
+    };
+};
+
+const buildEmptyTopNewsData = () =>
+{
+    return {
+        topAllNewsData: [],
+        topProjectData: [],
+        topLegalData: [],
+        topEventData: [],
+        topAwardData: [],
+        topMediaData: [],
+    };
+};
 
 const createEmptyRawData = (): HomePageRawData => ({
     bannerSliderBanner: null,

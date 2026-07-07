@@ -13,7 +13,7 @@ using WCMS.SysCore.SystemFunc.Captcha;
 namespace WCMS.Features.WEB.SurveySubmission;
 
 [LibApiController(ProgKeys.WEB.Code, ProgKeys.WEB.SurveySubmission, SysEnum.FuncAction.Function)]
-public class SurveySubmissionController(ICaptchaBiz CaptchaBiz) : ApiBaseController<SurveySubmissionsSet, SurveySubmissionsSet_DTO>
+public class SurveySubmissionController(ICaptchaBiz CaptchaBiz) : ApiDataQueryController<SurveySubmissionsSet, SurveySubmissionsSet_DTO>
 {
 
     #region Public

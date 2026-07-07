@@ -6,17 +6,14 @@ type TrustedTypesRuleSet = {
     createScriptURL?: (value: string) => string;
 };
 
-
 type TrustedTypesPolicyLike = {
     createHTML?: (value: string) => unknown;
     createScriptURL?: (value: string) => unknown;
 };
 
-
 type TrustedTypesFactoryLike = {
     createPolicy: (name: string, rules: TrustedTypesRuleSet) => TrustedTypesPolicyLike;
 };
-
 
 interface WcmsTrustedTypesWindow extends Window
 {
@@ -25,14 +22,13 @@ interface WcmsTrustedTypesWindow extends Window
     __wcmsDefaultTrustedTypesPolicy?: TrustedTypesPolicyLike;
 }
 
-
 const allowedSameOriginScriptPrefixes = ["/assets/", "/tinymce/", "/tinymce-i18n/"] as const;
-
 
 const devAllowedSameOriginScriptPrefixes = [
     "/src/features/assets/",
+    "/src/specfetures/",
+    "/src/specfeatures/",
 ] as const;
-
 
 const allowedExternalScriptUrls = [
     "https://translate.google.com/translate_a/element.js",
@@ -63,15 +59,13 @@ export const ensureWcmsDefaultTrustedTypesPolicy = (): void =>
                 throw new TypeError(`Blocked untrusted script URL: ${value}`);
             },
         });
-    }
-    catch
+    } catch
     {
         // default policy 可能已由其他入口建立；保留瀏覽器既有行為即可。
     }
 
     win.__wcmsTrustedTypesReady = true;
 };
-
 
 /** 產生可安全指定給 HTMLScriptElement.src 的 URL。 */
 export const createTrustedScriptUrl = (value: string): unknown =>
@@ -81,7 +75,6 @@ export const createTrustedScriptUrl = (value: string): unknown =>
     const win = window as WcmsTrustedTypesWindow;
     return win.__wcmsDefaultTrustedTypesPolicy?.createScriptURL?.(value) ?? value;
 };
-
 
 /** 指定 script src，避免 require-trusted-types-for 'script' 擋住動態載入。 */
 export const setTrustedScriptElementSrc = (script: HTMLScriptElement, src: string): void =>
@@ -99,20 +92,18 @@ const getAllowedSameOriginScriptPrefixes = (): readonly string[] =>
     return allowedSameOriginScriptPrefixes;
 };
 
-
 /** 檢查動態 script URL 是否屬於 WCMS 允許載入的來源。 */
 const isAllowedScriptUrl = (value: string): boolean =>
 {
     const url = new URL(value, window.location.origin);
     if (url.origin === window.location.origin)
-{
-    const pathname = url.pathname.toLowerCase();
-    return getAllowedSameOriginScriptPrefixes().some(prefix => pathname.startsWith(prefix.toLowerCase()));
-}
+    {
+        const pathname = url.pathname.toLowerCase();
+        return getAllowedSameOriginScriptPrefixes().some(prefix => pathname.startsWith(prefix.toLowerCase()));
+    }
 
     return allowedExternalScriptUrls.some(allowed => url.href.startsWith(allowed));
 };
-
 
 /** 清理需要寫入 innerHTML 的內容，避免 Trusted Types 強制模式擋住 TinyMCE。 */
 const sanitizeHtml = (value: string): string =>
@@ -125,7 +116,6 @@ const sanitizeHtml = (value: string): string =>
         FORBID_TAGS: ["script"],
     }) as string;
 };
-
 
 ensureWcmsDefaultTrustedTypesPolicy();
 // #endregion

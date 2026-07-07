@@ -1,8 +1,8 @@
 import type { SiteMenuItem } from "@/Features/Pages/Server/BizFunc/WEB/SiteMenu/SiteMenu_Hook";
+import { LibCheckBox, LibDropList } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
+import { useSetJsonField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { SpecCategoryAdapter } from "@/SpecFetures/1810/Hooks/WEB/SpecCategory_Api";
-import { LibCheckBox, LibDropList } from "@/SysCore/Components/FormField/LibFormField";
-import { useSetJsonField } from "@/SysCore/Components/FormField/useSetTableField";
 import { type Lang } from "@/SysCore/i18n/lang";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import type { components } from "@/types/api";
@@ -16,13 +16,11 @@ type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"];
 
 type TagSet = components["schemas"]["TagSet_DTO"];
 
-
 interface ModuleOptionsJson
 {
     Category: string;
     Tag: string;
 }
-
 
 interface SpecModuleProps
 {
@@ -33,14 +31,12 @@ interface SpecModuleProps
     tagSets: TagSet[];
 }
 
-
 interface SpecModuleBaseProps extends SpecModuleProps
 {
     progId: PGID;
     categoryTitle: string;
     tagTitle: string;
 }
-
 
 const moduleOptionsDefaults: ModuleOptionsJson = { Category: "", Tag: "" };
 // #endregion
@@ -52,7 +48,6 @@ export const Module_SpecResearch_Comp = (prop: SpecModuleProps): React.ReactNode
     // return
     return <Module_SpecBase_Comp {...prop} progId={PGID.SpecResearch} categoryTitle="研究計畫類別" tagTitle="研究計畫標籤" />;
 };
-
 
 /** 計畫成果模型參數 */
 export const Module_SpecUSR_Comp = (prop: SpecModuleProps): React.ReactNode =>
@@ -116,7 +111,6 @@ const getModuleRowKeys = (selectedItemEdit: SiteMenuItem | null) =>
     };
 };
 
-
 /** 依 ProgId 取得 1810 SpecCategory 下拉資料 */
 const useGetSpecCategoryOptions = (progId: PGID, lang: Lang): Map<string, string> =>
 {
@@ -141,7 +135,6 @@ const useGetSpecCategoryOptions = (progId: PGID, lang: Lang): Map<string, string
     // return
     return options;
 };
-
 
 /** 依 ProgId 取得共用 Tag 勾選資料 */
 const useGetTagDict = (progId: PGID, lang: Lang, tagSets: TagSet[]): Record<string, string> =>

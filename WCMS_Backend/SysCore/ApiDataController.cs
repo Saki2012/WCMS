@@ -32,29 +32,36 @@ using static WCMS.SysCore.Library.LibData;
 namespace WCMS.SysCore
 {
     /// <summary>
-    /// API基礎入口
+    /// 資料查詢型 API 基底，提供清單查詢與模型欄位描述。
     /// </summary>
-    /// <typeparam name="TSet"></typeparam>
-    /// <typeparam name="TSet_DTO"></typeparam>
-    [Authorize] public abstract class ApiBaseController<TSet, TSet_DTO> : ControllerBase, IAsyncActionFilter where TSet : ITSet where TSet_DTO : ITSet_DTO
+    /// <typeparam name="TSet">資料集合型別。</typeparam>
+    /// <typeparam name="TSet_DTO">資料集合 DTO 型別。</typeparam>
+    public abstract class ApiDataQueryController<TSet, TSet_DTO> : ApiBaseController where TSet : ITSet where TSet_DTO : ITSet_DTO
     {
         #region Property
         private IBizService<TSet>? _service;
-        protected IErrorHelper Message => _Message ??= HttpContext.RequestServices.GetRequiredService<IErrorHelper>();
-        private IErrorHelper? _Message;
-        protected IBizService<TSet> Service => _service ??= HttpContext.RequestServices.GetRequiredService<IBizService<TSet>>();
-        private IOutputCacheStore? _cacheStore;
-        protected IOutputCacheStore CacheStore => _cacheStore ??= HttpContext.RequestServices.GetRequiredService<IOutputCacheStore>();
         private IOutputCacheFeature? _Ocf;
+        private IBizService<FileManageSet>? _fileService;
+
+        /// <summary>
+        /// 資料型 Biz 服務。
+        /// </summary>
+        protected IBizService<TSet> Service => _service ??= HttpContext.RequestServices.GetRequiredService<IBizService<TSet>>();
+
+        /// <summary>
+        /// 目前輸出快取 Feature。
+        /// </summary>
         private IOutputCacheFeature? Ocf => _Ocf ??= HttpContext.Features.Get<IOutputCacheFeature>();
-        private IBizService<FileManageSet> _fileService;
+
+        /// <summary>
+        /// 檔案管理服務。
+        /// </summary>
         protected FileManagementBiz FileService => (FileManagementBiz)(_fileService ??= HttpContext.RequestServices.GetRequiredService<IBizService<FileManageSet>>());
-        protected ModelDisplay<TSet_DTO>.ModelMetadata ModelDescription{ get { return new ModelDisplay<TSet_DTO>().Model; } }
-        protected IOperateLog OperateLog => _OperateLog ??= HttpContext.RequestServices.GetRequiredService<IOperateLog>();
-        private IOperateLog? _OperateLog;
-        private ICurrentUserAccessor _Current;
-        protected ICurrentUserAccessor Current => _Current ??= HttpContext.RequestServices.GetRequiredService<ICurrentUserAccessor>();
-        public User_DTO OperateUser { get { return Current.User; } }
+
+        /// <summary>
+        /// DTO 欄位顯示名稱。
+        /// </summary>
+        protected ModelDisplay<TSet_DTO>.ModelMetadata ModelDescription { get { return new ModelDisplay<TSet_DTO>().Model; } }
         #endregion
 
         #region Public
@@ -174,70 +181,12 @@ namespace WCMS.SysCore
         }
         #endregion
 
-        #region 權限控制
-        Task IAsyncActionFilter.OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
-        {
-            // 顯式介面實作：避免 MVC 把它當 action endpoint
-            return OnActionExecutionCoreAsync(context, next);
-        }
-        private async Task OnActionExecutionCoreAsync(ActionExecutingContext context, ActionExecutionDelegate next)
-        {
-            var ok = await EnsurePermissionAsync(context);
-            if (!ok) return;
-
-            await next();
-        }
-        private async Task<bool> EnsurePermissionAsync(ActionExecutingContext context)
-        {
-            // 1) AllowAnonymous：不檢查權限
-            if (context.Filters.Any(f => f is Microsoft.AspNetCore.Mvc.Authorization.IAllowAnonymousFilter))
-                return true;
-            // 2) 沒登入：交給 [Authorize] 處理（這裡不做 401）
-            if (!Current.IsAuthenticated) return true;
-            // 3) 取出 action 上的 RequiredAct
-            var requiredAct = GetRequiredAct(context);
-            if (requiredAct == FuncAction.None) return true; // 沒標就不管（你之後想改成強制也行）
-            // 4) 取出 controller/action 上的 permission meta（你目前用 LibPermission / LibApiController 都可以）
-            var meta = GetPermissionMeta(context);
-            if (meta == null) return true;
-            // 5) SupportMask 不支援：直接 403
-            if ((meta.SupportFuncActMask & requiredAct) != requiredAct)
-            {
-                context.Result = Forbid();
-                return false;
-            }
-            // 6) RBAC 檢查：查 user 是否有該動作
-            var checker = HttpContext.RequestServices.GetRequiredService<ILibPermissionChecker>();
-            var ok = await checker.HasPermissionAsync(Current.User.UserId, meta.ProgId, requiredAct, context.HttpContext.RequestAborted);
-            if (!ok)
-            {
-                var actionName = EnumHelper.GetEnumDisplayName(requiredAct); 
-                Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00029, actionName);
-                context.Result = new JsonResult(Message.Messages.LastOrDefault().Message) { StatusCode = StatusCodes.Status403Forbidden };
-                return false;
-            }
-            return true;
-        }
-        private static FuncAction GetRequiredAct(ActionExecutingContext context)
-        {
-            if (context.ActionDescriptor is not ControllerActionDescriptor cad) return FuncAction.None;
-            var attr = cad.MethodInfo.GetCustomAttributes(typeof(LibRequireFuncActAttribute), true).OfType<LibRequireFuncActAttribute>().FirstOrDefault();
-            return attr?.RequiredAct ?? FuncAction.None;
-        }
-        private static LibApiControllerAttribute? GetPermissionMeta(ActionExecutingContext context)
-        {
-            if (context.ActionDescriptor is not ControllerActionDescriptor cad) return null;
-            // Action 優先，其次 Controller
-            return cad.MethodInfo.GetCustomAttributes(typeof(LibApiControllerAttribute), true).OfType<LibApiControllerAttribute>().FirstOrDefault()
-                ?? cad.ControllerTypeInfo.GetCustomAttributes(typeof(LibApiControllerAttribute), true).OfType<LibApiControllerAttribute>().FirstOrDefault();
-        }
-        #endregion
     }
     /// <summary>
     /// 表單API入口
     /// </summary>
     /// <typeparam name="TSet"></typeparam>
-    public abstract class ApiDataController<TSet, TSet_DTO> : ApiBaseController<TSet, TSet_DTO>, IBaseDataController<TSet, TSet_DTO> where TSet : ITSet where TSet_DTO : ITSet_DTO
+    public abstract class ApiDataController<TSet, TSet_DTO> : ApiDataQueryController<TSet, TSet_DTO>, IBaseDataController<TSet, TSet_DTO> where TSet : ITSet where TSet_DTO : ITSet_DTO
     {
         #region Public
         /// <summary>

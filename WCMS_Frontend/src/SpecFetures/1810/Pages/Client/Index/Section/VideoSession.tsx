@@ -5,7 +5,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { LibMedia } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
-import { useEffect, useMemo, useRef } from "react";
+import { type MutableRefObject, useEffect, useMemo, useRef } from "react";
 
 // #region Property
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
@@ -22,27 +22,46 @@ interface VenoBoxInstance
     destroy?: () => void;
 }
 
+interface VenoBoxConstructor
+{
+    new(options: Record<string, unknown>): VenoBoxInstance;
+}
+
+interface VideoSessionGlobal
+{
+    $?: unknown;
+    jQuery?: unknown;
+    VenoBox?: unknown;
+}
 interface JQueryCarousel
 {
     hasClass: (className: string) => boolean;
-    owlCarousel: (options: Record<string, unknown>) => void;
-    trigger: (eventName: string, args?: unknown[]) => void;
+    owlCarousel?: (options: Record<string, unknown>) => JQueryCarousel;
+    trigger: (eventName: string, args?: unknown[]) => JQueryCarousel;
+    off: (eventName: string) => JQueryCarousel;
+    on: (eventName: string, handler: () => void) => JQueryCarousel;
+    attr: (name: string, value: string) => JQueryCarousel;
 }
+
+type JQueryFactory = (selector: Element | string) => JQueryCarousel;
+
+/** Plugin 初始化重試間隔。 */
+const PluginReadyRetryMs = 80;
+
+/** Plugin 初始化最大重試次數。 */
+const PluginReadyMaxRetry = 30;
 // #endregion
 
 // #region Public
+/** 首頁影音專區。 */
 export const VideoSession = (props: { lang: Lang; hydrationData: HomePageVideoHookResult; }) =>
 {
-    // 宣告變數：統一吃 Homepage hydration source
     const source = props.hydrationData;
-
-    // 宣告變數：保留原本資料轉換規則
     const result = useMemo(() =>
     {
         return getDataProps(props.lang, source.webResourceData ?? []);
     }, [props.lang, source.webResourceData]);
 
-    // 宣告變數：用 key 強制 remount，避免 owl 改過的 DOM 與 React 衝突
     const videoKey = useMemo(() =>
     {
         const ids = result.map((p) => p.internalId).join("|");
@@ -56,112 +75,75 @@ export const VideoSession = (props: { lang: Lang; hydrationData: HomePageVideoHo
 
     useEffect(() =>
     {
-        // 宣告變數
         const el = carouselRef.current;
         if (!el) return;
 
-        const $owl = $(el) as unknown as JQueryCarousel;
+        let retryCount = 0;
 
-        const cleanupVenobox = () =>
+        const queueInit = (handler: () => void): void =>
         {
-            // 執行 function：清掉舊的 venobox instance
-            if (venoboxInstanceRef.current?.destroy)
-            {
-                venoboxInstanceRef.current.destroy();
-            }
-
-            venoboxInstanceRef.current = null;
+            clearInitTimer(initTimerRef);
+            initTimerRef.current = window.setTimeout(handler, PluginReadyRetryMs);
         };
 
-        const cleanup = () =>
+        const cleanup = (): void =>
         {
-            // 執行 function：清掉延遲 init
-            if (initTimerRef.current !== null)
-            {
-                window.clearTimeout(initTimerRef.current);
-                initTimerRef.current = null;
-            }
+            const jquery = getWindowJQuery();
+            const $owl = jquery ? jquery(el) : null;
 
-            // 執行 function：解除事件綁定
-            $("#Video_start").off("click.videoSession");
-            $("#Video_pause").off("click.videoSession");
-
-            // 執行 function：銷毀 owl carousel
-            if (isOwlInitedRef.current && $owl.hasClass("owl-loaded"))
-            {
-                $owl.trigger("destroy.owl.carousel");
-            }
-
-            isOwlInitedRef.current = false;
-            cleanupVenobox();
+            clearInitTimer(initTimerRef);
+            cleanupVideoEvents(jquery);
+            cleanupOwlCarousel($owl, isOwlInitedRef);
+            cleanupVenobox(venoboxInstanceRef);
         };
 
-        // 執行 function：先清一輪，避免 StrictMode / 重 mount 殘留
+        const tryInit = (): void =>
+        {
+            const jquery = getWindowJQuery();
+
+            if (!jquery)
+            {
+                retryCount += 1;
+
+                if (retryCount <= PluginReadyMaxRetry)
+                {
+                    queueInit(tryInit);
+                    return;
+                }
+                return;
+            }
+
+            const $owl = jquery(el);
+
+            if (!isOwlReady($owl))
+            {
+                retryCount += 1;
+
+                if (retryCount <= PluginReadyMaxRetry)
+                {
+                    queueInit(tryInit);
+                    return;
+                }
+                return;
+            }
+
+            cleanupVideoEvents(jquery);
+            initOwlCarousel($owl);
+            isOwlInitedRef.current = true;
+            setupVideoControls(jquery, $owl);
+            setupVenobox(venoboxInstanceRef);
+        };
+
         cleanup();
 
-        // 執行 function：無資料就不初始化
-        if (result.length === 0) return;
+        if (result.length === 0) return cleanup;
 
-        initTimerRef.current = window.setTimeout(() =>
-        {
-            if (!carouselRef.current) return;
-
-            // 執行 function：初始化 owl carousel
-            $owl.owlCarousel({
-                items: 3,
-                loop: true,
-                dots: true,
-                nav: true,
-                margin: 30,
-                autoplayTimeout: 3000,
-                autoplayHoverPause: true,
-                responsive: { 0: { items: 1 }, 767: { items: 2 }, 991: { items: 2 }, 1200: { items: 2 } },
-            });
-
-            isOwlInitedRef.current = true;
-
-            // 執行 function：設定 tabindex
-            $("#Video .owl-nav button").attr("tabindex", "7");
-
-            // 執行 function：播放與暫停控制
-            $("#Video_start").off("click.videoSession").on("click.videoSession", () =>
-            {
-                $owl.trigger("play.owl.autoplay", [6000]);
-            });
-
-            $("#Video_pause").off("click.videoSession").on("click.videoSession", () =>
-            {
-                $owl.trigger("stop.owl.autoplay");
-            });
-
-            // 執行 function：初始化 venobox
-            if (typeof window !== "undefined")
-            {
-                const VenoBoxCtor = window.VenoBox;
-
-                if (VenoBoxCtor)
-                {
-                    cleanupVenobox();
-
-                    venoboxInstanceRef.current = new VenoBoxCtor({
-                        selector: "#Video .venobox",
-                        autoplay: true,
-                        maxWidth: "1200px",
-                        border: "0px",
-                        titleattr: "title",
-                        numeration: true,
-                        infinigall: true,
-                        share: true,
-                    });
-                }
-            }
-        }, 0);
+        queueInit(tryInit);
 
         return cleanup;
-    }, [videoKey]);
+    }, [videoKey, result.length]);
 
     return (
-        // <LoadingErrorHandler loadingList={isLoading} errorList={errors}>
         <section className="Video-section owl-box" style={{ backgroundImage: `url(${bgImg})` }}>
             <div className="Mask-DivBox layout_padding1">
                 <div className="customizeBox">
@@ -213,7 +195,6 @@ export const VideoSession = (props: { lang: Lang; hydrationData: HomePageVideoHo
                                                                                     }}
                                                                                 />
                                                                             )}
-
                                                                             <div
                                                                                 className="popup-video play-btn style1"
                                                                                 style={{
@@ -237,8 +218,6 @@ export const VideoSession = (props: { lang: Lang; hydrationData: HomePageVideoHo
                                             );
                                         })}
                                     </div>
-
-                                    {/*// Banner 控制 暫停 / 播放 按鈕 START // */}
                                     <div className="control-box">
                                         <a
                                             id="Video_start"
@@ -275,7 +254,6 @@ export const VideoSession = (props: { lang: Lang; hydrationData: HomePageVideoHo
                                             </div>
                                         </a>
                                     </div>
-
                                     <div className="btn_Div justify-content-end px-2">
                                         <div className="customize_btn my-3">
                                             <LangLink to="/EventHighlights/Event-video" className="Btn_s1" tabIndex={14} title="更多影音">
@@ -290,12 +268,12 @@ export const VideoSession = (props: { lang: Lang; hydrationData: HomePageVideoHo
                 </div>
             </div>
         </section>
-        // </LoadingErrorHandler >
     );
 };
 // #endregion
 
 // #region Private
+/** 轉換影音資料為畫面使用格式。 */
 const getDataProps = (lang: string, rawData: WebResourceSet[]): DataProp[] =>
 {
     const result: DataProp[] = [];
@@ -303,13 +281,13 @@ const getDataProps = (lang: string, rawData: WebResourceSet[]): DataProp[] =>
     rawData.forEach((item) =>
     {
         const detail = item.WebResourceInfo?.find((p) => p.Lang === lang);
-
         result.push({ internalId: item.WebResource?.InternalId ?? "", title: detail?.Title ?? "", ResUrl: detail?.ResUrl ?? "" });
     });
 
     return result;
 };
 
+/** 從 YouTube 短網址取得縮圖網址。 */
 const getYoutubeThumbnailFromShort = (shortUrl?: string | null): string | null =>
 {
     if (!shortUrl) return null;
@@ -320,5 +298,123 @@ const getYoutubeThumbnailFromShort = (shortUrl?: string | null): string | null =
 
     const videoId = match[1];
     return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+};
+
+/** 取得全域 jQuery，避免外部 script 尚未載入時造成頁面崩潰。 */
+const getWindowJQuery = (): JQueryFactory | null =>
+{
+    const win = window as unknown as VideoSessionGlobal;
+    const jquery = typeof win.$ === "function" ? win.$ : win.jQuery;
+
+    return typeof jquery === "function"
+        ? jquery as JQueryFactory
+        : null;
+};
+/** 取得全域 VenoBox 建構子。 */
+const getWindowVenoBox = (): VenoBoxConstructor | null =>
+{
+    const win = window as unknown as VideoSessionGlobal;
+
+    return typeof win.VenoBox === "function"
+        ? win.VenoBox as VenoBoxConstructor
+        : null;
+};
+
+/** 清除延遲初始化 timer。 */
+const clearInitTimer = (initTimerRef: MutableRefObject<number | null>): void =>
+{
+    if (initTimerRef.current === null) return;
+
+    window.clearTimeout(initTimerRef.current);
+    initTimerRef.current = null;
+};
+
+/** 檢查 owlCarousel 是否已經可用。 */
+const isOwlReady = ($owl: JQueryCarousel | null): $owl is JQueryCarousel =>
+{
+    return Boolean($owl && typeof $owl.owlCarousel === "function");
+};
+
+/** 解除影音控制按鈕事件。 */
+const cleanupVideoEvents = (jquery: JQueryFactory | null): void =>
+{
+    if (!jquery) return;
+
+    jquery("#Video_start").off("click.videoSession");
+    jquery("#Video_pause").off("click.videoSession");
+};
+
+/** 銷毀 owlCarousel，避免切頁或重掛時殘留舊 DOM。 */
+const cleanupOwlCarousel = ($owl: JQueryCarousel | null, isOwlInitedRef: MutableRefObject<boolean>): void =>
+{
+    if (isOwlInitedRef.current && $owl?.hasClass("owl-loaded"))
+    {
+        $owl.trigger("destroy.owl.carousel");
+    }
+
+    isOwlInitedRef.current = false;
+};
+
+/** 初始化 owlCarousel 輪播。 */
+const initOwlCarousel = ($owl: JQueryCarousel): void =>
+{
+    $owl.owlCarousel?.({
+        items: 3,
+        loop: true,
+        dots: true,
+        nav: true,
+        margin: 30,
+        autoplayTimeout: 3000,
+        autoplayHoverPause: true,
+        responsive: { 0: { items: 1 }, 767: { items: 2 }, 991: { items: 2 }, 1200: { items: 2 } },
+    });
+};
+
+/** 綁定影音播放與暫停控制。 */
+const setupVideoControls = (jquery: JQueryFactory, $owl: JQueryCarousel): void =>
+{
+    jquery("#Video .owl-nav button").attr("tabindex", "7");
+
+    jquery("#Video_start").off("click.videoSession").on("click.videoSession", () =>
+    {
+        $owl.trigger("play.owl.autoplay", [6000]);
+    });
+
+    jquery("#Video_pause").off("click.videoSession").on("click.videoSession", () =>
+    {
+        $owl.trigger("stop.owl.autoplay");
+    });
+};
+
+/** 清除 venobox instance。 */
+const cleanupVenobox = (venoboxInstanceRef: MutableRefObject<VenoBoxInstance | null>): void =>
+{
+    if (venoboxInstanceRef.current?.destroy)
+    {
+        venoboxInstanceRef.current.destroy();
+    }
+
+    venoboxInstanceRef.current = null;
+};
+
+/** 初始化 venobox 影片燈箱。 */
+const setupVenobox = (venoboxInstanceRef: MutableRefObject<VenoBoxInstance | null>): void =>
+{
+    const VenoBoxCtor = getWindowVenoBox();
+
+    if (!VenoBoxCtor) return;
+
+    cleanupVenobox(venoboxInstanceRef);
+
+    venoboxInstanceRef.current = new VenoBoxCtor({
+        selector: "#Video .venobox",
+        autoplay: true,
+        maxWidth: "1200px",
+        border: "0px",
+        titleattr: "title",
+        numeration: true,
+        infinigall: true,
+        share: true,
+    });
 };
 // #endregion

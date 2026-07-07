@@ -71,15 +71,13 @@ const startClientEntry = async (): Promise<void> =>
     const templateInitialState = readInitialStateFromTemplate();
     const initialState = templateInitialState ?? window.__INITIAL_STATE__;
     const bootLang = getBootLang(initialState?.lang);
+
     const routeModule: IRouteModule = new AppRouteModule();
+    if (initialState) window.__INITIAL_STATE__ = initialState;
     const router = await createClientRouter({ lang: bootLang, module: routeModule });
     const rootNode = <ClientBootstrap router={router} />;
     const shouldHydrate = canUseHydration(hasSSRMarkup, initialState);
-    if (initialState) window.__INITIAL_STATE__ = initialState;
-    logEntryStatus(container, hasSSRMarkup, initialState, bootLang);
-    subscribeRouterLog(router);
     renderApp({ container, hasSSRMarkup, initialState, rootNode, shouldHydrate });
-    log("render done", { mode: window.__WCMS_RENDER_MODE__, t: performance.now().toFixed(1) });
 };
 // #endregion
 
@@ -114,9 +112,7 @@ const initClientRuntime = (): void =>
 const loadClientRuntimeAssets = async (): Promise<void> =>
 {
     const path = window.location.pathname.toLowerCase();
-    log("start load assets", path);
     await importClientRuntimeAssets(path);
-    log("assets loaded", path);
 };
 
 /** 依 SSR 狀態執行 hydrate 或 CSR render。 */
@@ -131,14 +127,6 @@ const renderApp = (options: RenderAppOptions): void =>
     renderCsrApp(options);
 };
 
-/** 訂閱 Router 狀態並輸出除錯紀錄。 */
-const subscribeRouterLog = (router: ClientRouter): void =>
-{
-    router.subscribe((state) =>
-    {
-        log("router subscribe", { location: state.location.pathname, navigation: state.navigation.state, revalidation: state.revalidation });
-    });
-};
 // #endregion
 
 // #region Private
@@ -180,17 +168,42 @@ const isHydratableElementNode = (element: Element): boolean =>
     return element.id !== INITIAL_STATE_ELEMENT_ID;
 };
 
+/** 讀取 template 內的文字內容。 */
+const getTemplateTextContent = (element: Element | null): string =>
+{
+    // 宣告變數
+    if (!element) return "";
+
+    // 執行 function
+    if (element instanceof HTMLTemplateElement)
+    {
+        return element.content.textContent?.trim() ?? "";
+    }
+
+    // return
+    return element.textContent?.trim() ?? "";
+};
+
 /** 從 SSR template 讀取 hydration state，避免 HTML 內使用 inline script。 */
 const readInitialStateFromTemplate = (): WcmsInitialState | undefined =>
 {
-    const raw = document.getElementById(INITIAL_STATE_ELEMENT_ID)?.textContent?.trim() ?? "";
+    // 宣告變數
+    const templates = Array.from(document.querySelectorAll(`#${INITIAL_STATE_ELEMENT_ID}`));
+    const raw = templates
+        .reverse()
+        .map(getTemplateTextContent)
+        .find(text => text.length > 0) ?? "";
+
+    // 執行 function
     if (!raw) return undefined;
+
     const value = LibJson.parseJson<unknown>(raw, undefined, {
         onError: (error) => console.error("[WCMS][CSR] initial state parse failed", error),
     });
+
+    // return
     return LibType.isRecord(value) ? value as WcmsInitialState : undefined;
 };
-
 /** 取得啟動語系，避免 initialState 空值時造成 router 建立失敗。 */
 const getBootLang = (value: unknown): Lang =>
 {
@@ -208,7 +221,6 @@ const canUseHydration = (hasSSRMarkup: boolean, initialState: WcmsInitialState |
 /** 執行 hydrateRoot 並記錄模式。 */
 const hydrateApp = (container: HTMLElement, rootNode: ReactElement): void =>
 {
-    log("hydrateRoot()", { t: performance.now().toFixed(1) });
     hydrateRoot(container, rootNode, {
         onRecoverableError: (error, info) =>
         {
@@ -230,34 +242,10 @@ const renderCsrApp = (options: RenderAppOptions): void =>
 
     if (!options.container) return;
 
-    log("createRoot()", { t: performance.now().toFixed(1) });
     createRoot(options.container).render(options.rootNode);
     window.__WCMS_RENDER_MODE__ = "csr";
 };
 
-/** 輸出 Entry 啟動狀態。 */
-const logEntryStatus = (container: HTMLElement | null, hasSSRMarkup: boolean, initialState: WcmsInitialState | undefined, bootLang: Lang): void =>
-{
-    log("entry start", { path: window.location.pathname, t: performance.now().toFixed(1) });
-    log("root status", buildRootStatusLog(container, hasSSRMarkup, initialState));
-    log("before createClientRouter", { bootLang, t: performance.now().toFixed(1) });
-    log("after createClientRouter", { t: performance.now().toFixed(1) });
-};
-
-/** 建立 Root 狀態除錯資料。 */
-const buildRootStatusLog = (container: HTMLElement | null, hasSSRMarkup: boolean, initialState: WcmsInitialState | undefined): Record<string, unknown> =>
-{
-    return {
-        hasSSRMarkup,
-        childNodes: container?.childNodes?.length ?? 0,
-        firstChild: container?.firstChild?.nodeName ?? null,
-        hasInitialState: Boolean(initialState),
-        hasHydrationData: LibType.isRecord(initialState?.hydrationData),
-    };
-};
-
-/** 簡易除錯紀錄。 */
-const log = (...args: unknown[]): void => console.log("[WCMS][CSR]", ...args);
 // #endregion
 
 await startClientEntry();

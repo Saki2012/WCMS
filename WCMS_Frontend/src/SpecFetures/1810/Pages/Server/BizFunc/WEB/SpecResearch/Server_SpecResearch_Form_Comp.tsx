@@ -1,10 +1,10 @@
 import { Server_FormTemplate_Comp } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Comp";
 import type { ServerFormBinding } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
+import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
+import { LibCheckBox, LibDropList, LibTextArea, LibTextBox } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
+import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-import { LibCheckBox, LibDropList, LibTextArea, LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
-import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
@@ -14,8 +14,8 @@ import type { ReactNode } from "react";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
-    specResearchEmptyData,
     type SpecResearchDetailTabItem,
+    specResearchEmptyData,
     type SpecResearchFormRefs,
     type SpecResearchRowKeys,
     useSpecResearchDetailTabs,
@@ -268,9 +268,7 @@ const buildDetailFieldNodes = (opt: DetailFieldBuildOptions): Record<SpecResearc
     const t = opt.theme;
 
     return {
-        [SpecResearchDetailModelFields.Year]: (
-            <LibTextBox parentClass="col-md-6 col-12" Style={t.TextBox2} DefaultInputDisplay="請輸入" {...opt.setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Year, "number", opt.rowKeys)} />
-        ),
+        [SpecResearchDetailModelFields.Year]: <LibTextBox parentClass="col-md-6 col-12" Style={t.TextBox2} DefaultInputDisplay="請輸入" {...opt.setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Year, "number", opt.rowKeys)} />,
         [SpecResearchDetailModelFields.AcademicYear]: (
             <LibTextBox parentClass="col-md-6 col-12" Style={t.TextBox2} DefaultInputDisplay="請輸入" {...opt.setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.AcademicYear, "number", opt.rowKeys)} />
         ),
@@ -295,9 +293,7 @@ const buildDetailFieldNodes = (opt: DetailFieldBuildOptions): Record<SpecResearc
         [SpecResearchDetailModelFields.ProjectName]: (
             <LibTextBox parentClass="col-md-6 col-12" Style={t.TextBox2} DefaultInputDisplay="請輸入" {...opt.setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.ProjectName, "string", opt.rowKeys)} />
         ),
-        [SpecResearchDetailModelFields.PlanContent]: (
-            <LibTextArea Style={t.TextArea} DefaultInputDisplay="請輸入" {...opt.setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.PlanContent, "string", opt.rowKeys)} />
-        ),
+        [SpecResearchDetailModelFields.PlanContent]: <LibTextArea Style={t.TextArea} DefaultInputDisplay="請輸入" {...opt.setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.PlanContent, "string", opt.rowKeys)} />,
         [SpecResearchDetailModelFields.Commissioned]: (
             <LibTextBox parentClass="col-md-6 col-12" Style={t.TextBox2} DefaultInputDisplay="請輸入" {...opt.setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Commissioned, "string", opt.rowKeys)} />
         ),
@@ -328,9 +324,7 @@ const buildDetailFieldNodes = (opt: DetailFieldBuildOptions): Record<SpecResearc
         [SpecResearchDetailModelFields.Professor]: (
             <LibTextBox parentClass="col-md-6 col-12" Style={t.TextBox2} DefaultInputDisplay="請輸入" {...opt.setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Professor, "string", opt.rowKeys)} />
         ),
-        [SpecResearchDetailModelFields.Name]: (
-            <LibTextBox parentClass="col-md-6 col-12" Style={t.TextBox2} DefaultInputDisplay="請輸入" {...opt.setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Name, "string", opt.rowKeys)} />
-        ),
+        [SpecResearchDetailModelFields.Name]: <LibTextBox parentClass="col-md-6 col-12" Style={t.TextBox2} DefaultInputDisplay="請輸入" {...opt.setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Name, "string", opt.rowKeys)} />,
         [SpecResearchDetailModelFields.GraduationDegree]: (
             <LibTextBox parentClass="col-md-6 col-12" Style={t.TextBox2} DefaultInputDisplay="請輸入" {...opt.setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.GraduationDegree, "string", opt.rowKeys)} />
         ),
@@ -343,9 +337,7 @@ const buildDetailFieldNodes = (opt: DetailFieldBuildOptions): Record<SpecResearc
         [SpecResearchDetailModelFields.CooperatingUnits]: (
             <LibTextBox parentClass="col-md-6 col-12" Style={t.TextBox2} DefaultInputDisplay="請輸入" {...opt.setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.CooperatingUnits, "string", opt.rowKeys)} />
         ),
-        [SpecResearchDetailModelFields.Remark]: (
-            <LibTextArea Style={t.TextArea} DefaultInputDisplay="請輸入" {...opt.setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Remark, "string", opt.rowKeys)} />
-        ),
+        [SpecResearchDetailModelFields.Remark]: <LibTextArea Style={t.TextArea} DefaultInputDisplay="請輸入" {...opt.setField(SpecResearchSetFields.SpecResearchDetail, SpecResearchDetailModelFields.Remark, "string", opt.rowKeys)} />,
     };
 };
 // #endregion

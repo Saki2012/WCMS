@@ -54,9 +54,7 @@ export const createClientRouter = async (boot: Boot) =>
 {
     const routes = await buildRoutes(boot);
     assertNoIndexWithChildren(routes);
-
     const hydrationData = typeof window !== "undefined" ? getWindowInitialState()?.hydrationData : undefined;
-
     return hydrationData ? createBrowserRouter(routes, { hydrationData }) : createBrowserRouter(routes);
 };
 

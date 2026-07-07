@@ -30,18 +30,13 @@ namespace WCMS.SysCore
     /// Biz服務本體
     /// </summary>
     /// <typeparam name="TSet"></typeparam>
-    public class BizService<TSet> : IBizService<TSet> where TSet : class
+    public class BizService<TSet> : BizBase, IBizService<TSet> where TSet : class
     {
         #region Property
         /// <summary>
-        /// 
-        /// </summary>
-        public User_DTO OperateUser { get; set; }
-        /// <summary>
-        /// 
+        /// 資料表 Repository 字典。
         /// </summary>
         protected Dictionary<string, object> RepoDict { get; }
-        protected IRepositoryMapProvider RepoMapProvider { get; }
         /// <summary>
         /// 
         /// </summary>
@@ -85,7 +80,6 @@ namespace WCMS.SysCore
         /// 
         /// </summary>
         private ApplicationDbContext DataAccess { get; }
-        protected IErrorHelper Message { get; }
         /// <summary>
         /// //網站預設語系(暫時寫死)
         /// </summary>
@@ -97,14 +91,11 @@ namespace WCMS.SysCore
         #endregion
 
         #region Construct
-        public BizService(BizDeps bizDeps)
+        public BizService(BizDeps bizDeps) : base(bizDeps)
         {
             //SysChangeLog = new SysChangeLog(repo.DataAccess);
-            RepoMapProvider = bizDeps.repoMapProvider;
             RepoDict = bizDeps.repoMapProvider.GetRepoDict<TSet>();
             DataAccess = ((dynamic)RepoDict.FirstOrDefault().Value).DataAccess;
-            Message = bizDeps.message;
-            OperateUser = string.IsNullOrWhiteSpace(OperateUser?.UserId) ? bizDeps.currentUser.User : OperateUser;
         }
         #endregion
 

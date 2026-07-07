@@ -1200,6 +1200,63 @@ export const SpecCategorySet_DTOApiRequestFields = {
 
 export type SpecCategorySet_DTOApiRequestFieldKey = keyof typeof SpecCategorySet_DTOApiRequestFields;
 
+export const SpecHomePageBannerSectionFields = {
+  Banner: 'Banner',
+} as const;
+
+export type SpecHomePageBannerSectionFieldKey = keyof typeof SpecHomePageBannerSectionFields;
+
+export const SpecHomePageCategoryTabsSectionFields = {
+  AllNews: 'AllNews',
+  ProjectNews: 'ProjectNews',
+  LegalNews: 'LegalNews',
+  EventNews: 'EventNews',
+  AwardNews: 'AwardNews',
+  MediaNews: 'MediaNews',
+  Categories: 'Categories',
+  Tags: 'Tags',
+} as const;
+
+export type SpecHomePageCategoryTabsSectionFieldKey = keyof typeof SpecHomePageCategoryTabsSectionFields;
+
+export const SpecHomePageEventSectionFields = {
+  Announcements: 'Announcements',
+  Tags: 'Tags',
+} as const;
+
+export type SpecHomePageEventSectionFieldKey = keyof typeof SpecHomePageEventSectionFields;
+
+export const SpecHomePageGallerySectionFields = {
+  Galleries: 'Galleries',
+  Categories: 'Categories',
+} as const;
+
+export type SpecHomePageGallerySectionFieldKey = keyof typeof SpecHomePageGallerySectionFields;
+
+export const SpecHomePageInitialDataFields = {
+  BannerSlider: 'BannerSlider',
+  CategoryTabs: 'CategoryTabs',
+  EventSession: 'EventSession',
+  GallerySession: 'GallerySession',
+  VideoSession: 'VideoSession',
+} as const;
+
+export type SpecHomePageInitialDataFieldKey = keyof typeof SpecHomePageInitialDataFields;
+
+export const SpecHomePageInitialData_DTOApiResponseFields = {
+  IsSuccess: 'IsSuccess',
+  SysMessage: 'SysMessage',
+  Data: 'Data',
+} as const;
+
+export type SpecHomePageInitialData_DTOApiResponseFieldKey = keyof typeof SpecHomePageInitialData_DTOApiResponseFields;
+
+export const SpecHomePageVideoSectionFields = {
+  WebResources: 'WebResources',
+} as const;
+
+export type SpecHomePageVideoSectionFieldKey = keyof typeof SpecHomePageVideoSectionFields;
+
 export const SpecResearchDetailModelFields = {
   ResearchId: 'ResearchId',
   RowId: 'RowId',
@@ -1731,6 +1788,7 @@ export const PGID = {
     SiteMenu: "SiteMenu",
     SiteViewCount: "SiteViewCount",
     SpecCategory: "SpecCategory",
+    SpecHomePageSetting: "SpecHomePageSetting",
     SpecResearch: "SpecResearch",
     SpecUSR: "SpecUSR",
     Survey: "Survey",
