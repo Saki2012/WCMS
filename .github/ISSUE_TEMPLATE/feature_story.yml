@@ -1,6 +1,6 @@
 name: Feature Story
 description: 功能需求 / 開發測試 Story 單
-labels: ["story"]
+labels: ["Story"]
 projects: ["Saki2012/2"]
 
 body:
