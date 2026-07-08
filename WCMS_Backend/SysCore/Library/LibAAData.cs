@@ -71,6 +71,13 @@ namespace WCMS.SysCore.Library
             /// </summary>
             [LibDesc(ModelDisplayName.AACheck_FontSizePx)]
             public const string FontSizePx = "CS2140401C";
+            /// <summary>
+            /// 電子郵件連結缺少足夠脈絡title的AA檢測碼。
+            /// 可自動修正情境：不自動修正，因後端無法穩定判斷職員姓名。
+            /// 需人工處理情境：mailto連結沒有title、title只有email、title與連結文字相同，或title未包含電子郵件用途與信箱資訊。
+            /// </summary>
+            [LibDesc(ModelDisplayName.AACheck_MailtoTitle)]
+            public const string MailtoTitle = "HM1240404E";
         }
         /// <summary>
         /// 尋找CSS font-size使用px/pt固定單位的正規表示式
@@ -136,11 +143,14 @@ namespace WCMS.SysCore.Library
             isValid &= CheckAnchorNestedImageConflict(document, Message);
             isValid &= CheckIframeTitle(document, Message);
             isValid &= CheckFontSizeUnit(document, Message);
+            isValid &= CheckMailtoLinkTitle(document, Message);
             return isValid;
         }
         #endregion
 
-        #region Private Check
+        #region Private
+
+        #region Check
         /// <summary>
         /// 檢查img是否仍有需要人工處理的alt問題
         /// </summary>
@@ -224,9 +234,99 @@ namespace WCMS.SysCore.Library
             }
             return isValid;
         }
+        /// <summary>
+        /// 檢查mailto連結是否提供足夠脈絡的title
+        /// </summary>
+        private static bool CheckMailtoLinkTitle(HtmlDocument document, IErrorHelper Message)
+        {
+            var isValid = true;
+            foreach (var anchor in GetNodes(GetRootNode(document), ".//a[@href]").Where(IsMailtoAnchor))
+            {
+                if (HasValidMailtoTitle(anchor)) continue;
+                AddAAError(Message, AACode.MailtoTitle, anchor, BuildMailtoTitleReason(anchor));
+                isValid = false;
+            }
+            return isValid;
+        }
+
+        /// <summary>
+        /// 建立mailto連結title不足的錯誤原因
+        /// </summary>
+        private static string BuildMailtoTitleReason(HtmlNode anchor)
+        {
+            var mailAddress = GetMailtoAddress(anchor);
+            var sample = string.IsNullOrWhiteSpace(mailAddress)
+                ? "王小明電子郵件 example@example.com"
+                : $"王小明電子郵件 {mailAddress}";
+            return $"電子郵件連結title不足，請使用姓名加電子郵件作為title，例如：{sample}。";
+        }
+
+        /// <summary>
+        /// 判斷連結是否為mailto連結
+        /// </summary>
+        private static bool IsMailtoAnchor(HtmlNode anchor)
+        {
+            var href = GetAttr(anchor, "href");
+            return href.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase);
+        }
+        /// <summary>
+        /// 判斷mailto連結title是否包含足夠脈絡
+        /// </summary>
+        private static bool HasValidMailtoTitle(HtmlNode anchor)
+        {
+            var title = NormalizeText(GetAttr(anchor, "title"));
+            var mailAddress = GetMailtoAddress(anchor);
+            var linkText = NormalizeText(GetTextWithoutMedia(anchor));
+            if (string.IsNullOrWhiteSpace(title)) return false;
+            if (IsSameText(title, mailAddress)) return false;
+            if (IsSameText(title, linkText)) return false;
+            if (!HasMailtoPurposeText(title)) return false;
+            if (!ContainsText(title, mailAddress)) return false;
+            return true;
+        }
+        /// <summary>
+        /// 從mailto href取得電子郵件地址
+        /// </summary>
+        private static string GetMailtoAddress(HtmlNode anchor)
+        {
+            var href = GetAttr(anchor, "href");
+            if (!href.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase)) return string.Empty;
+            var address = href["mailto:".Length..];
+            var cutIndex = address.IndexOfAny(['?', '&', '#']);
+            return NormalizeText(cutIndex >= 0 ? address[..cutIndex] : address);
+        }
+        /// <summary>
+        /// 判斷mailto title是否包含電子郵件用途文字
+        /// </summary>
+        private static bool HasMailtoPurposeText(string title)
+        {
+            if (title.Contains("電子郵件")) return true;
+            if (title.Contains("電子信箱")) return true;
+            if (title.Contains("email", StringComparison.OrdinalIgnoreCase)) return true;
+            if (title.Contains("e-mail", StringComparison.OrdinalIgnoreCase)) return true;
+            return false;
+        }
+        /// <summary>
+        /// 判斷兩段文字正規化後是否相同
+        /// </summary>
+        private static bool IsSameText(string source, string target)
+        {
+            var sourceText = NormalizeText(source);
+            var targetText = NormalizeText(target);
+            return !string.IsNullOrWhiteSpace(targetText) && string.Equals(sourceText, targetText, StringComparison.OrdinalIgnoreCase);
+        }
+        /// <summary>
+        /// 判斷來源文字是否包含目標文字
+        /// </summary>
+        private static bool ContainsText(string source, string target)
+        {
+            if (string.IsNullOrWhiteSpace(source)) return false;
+            if (string.IsNullOrWhiteSpace(target)) return false;
+            return source.Contains(target, StringComparison.OrdinalIgnoreCase);
+        }
         #endregion
 
-        #region Private Format
+        #region Format
         /// <summary>
         /// 將font-size:px/pt轉成rem
         /// </summary>
@@ -237,7 +337,6 @@ namespace WCMS.SysCore.Library
             foreach (var node in GetNodes(GetRootNode(document), ".//style"))
                 node.InnerHtml = FixFontSizeText(node.InnerHtml);
         }
-
         /// <summary>
         /// 將a上錯誤使用的alt搬到title/aria-label
         /// </summary>
@@ -273,7 +372,6 @@ namespace WCMS.SysCore.Library
             foreach (var img in GetNodes(GetRootNode(document), ".//img").Where(p => HasAttr(p, "alt") && string.IsNullOrWhiteSpace(GetAttr(p, "alt"))))
                 RemoveAttr(img, "title");
         }
-
         /// <summary>
         /// iframe缺title時依來源補預設標題
         /// </summary>
@@ -282,10 +380,9 @@ namespace WCMS.SysCore.Library
             foreach (var iframe in GetNodes(GetRootNode(document), ".//iframe").Where(p => !HasAttrText(p, "title")))
                 iframe.SetAttributeValue("title", GetIframeDefaultTitle(iframe));
         }
-
         #endregion
 
-        #region Private Common
+        #region Common
         /// <summary>
         /// 建立HTML Fragment文件，避免多個平行節點不好處理
         /// </summary>
@@ -421,7 +518,7 @@ namespace WCMS.SysCore.Library
         }
         #endregion
 
-        #region Private Anchor / Image
+        #region Anchor / Image
         /// <summary>
         /// 判斷a是否有可辨識名稱
         /// </summary>
@@ -686,7 +783,7 @@ namespace WCMS.SysCore.Library
         }
         #endregion
 
-        #region Private Css / Iframe
+        #region Css / Iframe
         /// <summary>
         /// 判斷是否有font-size:px/pt固定單位
         /// </summary>
@@ -738,6 +835,8 @@ namespace WCMS.SysCore.Library
         {
             return SpaceRegex.Replace(text ?? string.Empty, " ").Trim();
         }
+        #endregion
+
         #endregion
     }
 }

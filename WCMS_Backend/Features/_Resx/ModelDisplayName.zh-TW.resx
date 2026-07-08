@@ -1023,4 +1023,7 @@
   <data name="Lang_en" xml:space="preserve">
     <value>English</value>
   </data>
+  <data name="AACheck_MailtoTitle" xml:space="preserve">
+    <value>電子郵件連結title不足，請使用姓名加電子郵件作為title</value>
+  </data>
 </root>
