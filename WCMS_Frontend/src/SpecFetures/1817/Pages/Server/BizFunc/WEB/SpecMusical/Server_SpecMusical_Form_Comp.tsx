@@ -2,16 +2,16 @@ import { Server_FormTemplate_Comp } from "@/Features/Pages/Server/Scaffold/Conte
 import type { ServerFormBinding } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
 import { EditGrid } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid";
 import type { EditGridCellRenderArgs, EditGridCellValue, IEditGridView_Style } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Data";
+import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
+import { LibDropList, LibFile, LibModal, LibPicturePreview, LibTextArea, LibTextBox } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
+import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-import { LibDropList, LibFile, LibModal, LibPicturePreview, LibTextArea, LibTextBox } from "@/SysCore/Components/FormField/LibFormField";
-import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
+import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import type { components } from "@/types/api";
 import { SpecMusicalModelFields, SpecMusicalSetFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
-import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -31,7 +31,6 @@ import {
 // #region Property
 type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"];
 
-
 interface SpecMusicalFormCompProps
 {
     /** 後台主題設定 */
@@ -40,7 +39,6 @@ interface SpecMusicalFormCompProps
     /** 目前語系 */
     lang: Lang;
 }
-
 
 interface SpecMusicalContentProps
 {
@@ -54,13 +52,11 @@ interface SpecMusicalContentProps
     refs: SpecMusicalFormRefs;
 }
 
-
 interface SpecMusicalBasicProps extends SpecMusicalContentProps
 {
     /** 類別下拉選項 */
     cateOpts: Map<string, string>;
 }
-
 
 interface SpecMusicalGridProps
 {
@@ -70,7 +66,6 @@ interface SpecMusicalGridProps
     /** Form Template 提供的主資料 binding */
     binding: ServerFormBinding<SpecMusicalSet>;
 }
-
 
 const editGridStyle: IEditGridView_Style = {
     TableStyle: "table table-striped table-bordered table-hover",
@@ -121,7 +116,6 @@ const SpecMusicalContentComp = (props: SpecMusicalContentProps) =>
     return <TabContentComp tabInfos={tabInfo} components={components} />;
 };
 
-
 /** 基本資料欄位，維持舊版欄位排列。 */
 const SpecMusicalBasicComp = (props: SpecMusicalBasicProps) =>
 {
@@ -129,7 +123,6 @@ const SpecMusicalBasicComp = (props: SpecMusicalBasicProps) =>
 
     return <>{buildSpecMusicalBasicFields(props.theme, setField, props.cateOpts)}</>;
 };
-
 
 /** 相片區塊，改由 EditGrid 處理單筆新增、上傳、封面、排序與刪除。 */
 const SpecMusicalPhotoGridComp = (props: SpecMusicalGridProps) =>
@@ -150,7 +143,6 @@ const SpecMusicalPhotoGridComp = (props: SpecMusicalGridProps) =>
     );
 };
 
-
 /** 音檔區塊，改由 EditGrid 處理單筆新增、上傳、名稱與刪除。 */
 const SpecMusicalSoundGridComp = (props: SpecMusicalGridProps) =>
 {
@@ -163,7 +155,6 @@ const SpecMusicalSoundGridComp = (props: SpecMusicalGridProps) =>
         </div>
     );
 };
-
 
 /** 批次上傳圖片，和 EditGrid 內建新增單筆按鈕分離。 */
 const SpecMusicalPhotoBatchUploadComp = (props: { theme: IBETheme; binding: ServerFormBinding<SpecMusicalSet>; }) =>
@@ -215,7 +206,6 @@ const buildSpecMusicalTabContent = (props: SpecMusicalBasicProps): Record<string
         Sound: [<SpecMusicalSoundGridComp key="sound-grid" theme={props.theme} binding={props.binding} />],
     };
 };
-
 
 /** 建立基本資料欄位。 */
 const buildSpecMusicalBasicFields = (
@@ -319,7 +309,6 @@ const SpecMusicalPhotoBatchPreview = (props: { files: File[]; }) =>
     );
 };
 
-
 /** 相片預覽元件，沒有圖片時以文字提示避免破圖。 */
 const SpecMusicalPicturePreview = (props: { value: EditGridCellValue; }) =>
 {
@@ -330,7 +319,6 @@ const SpecMusicalPicturePreview = (props: { value: EditGridCellValue; }) =>
     if (!previewUrl) return <span className="small">尚未選擇圖片</span>;
     return <img src={previewUrl} alt={alt} style={{ maxWidth: "160px", maxHeight: "120px", objectFit: "contain" }} />;
 };
-
 
 /** 封面選擇按鈕，實際資料寫回 Header 的 CoverPicId。 */
 const SpecMusicalCoverSelector = (props: { value: EditGridCellValue; selected: string | null; onSelect: (picId: string) => void; }) =>
@@ -351,7 +339,6 @@ const SpecMusicalCoverSelector = (props: { value: EditGridCellValue; selected: s
         </button>
     );
 };
-
 
 /** 音檔預覽元件，支援瀏覽器可播放格式與下載連結。 */
 const SpecMusicalSoundPreview = (props: { value: EditGridCellValue; }) =>

@@ -94,10 +94,17 @@ const PicturesComp = (props: { pics: SpecMusicalPictureList[]; }) =>
             dots: false,
             margin: 10,
             nav: true,
+            navText: [
+                "<span aria-hidden=\"true\">‹</span><span class=\"sr-only\">上一張</span>",
+                "<span aria-hidden=\"true\">›</span><span class=\"sr-only\">下一張</span>",
+            ],
             smartSpeed: 300,
             responsiveRefreshRate: 100,
             responsive: { 0: { items: 2 }, 575: { items: 3 }, 767: { items: 2 }, 991: { items: 3 }, 1199: { items: 3 } },
         });
+
+        $thumb.find(".owl-prev").attr("aria-label", "上一張").attr("title", "上一張").attr("type", "button");
+        $thumb.find(".owl-next").attr("aria-label", "下一張").attr("title", "下一張").attr("type", "button");
 
         $thumb.find(".item").each(function(this: HTMLElement, index: number)
         {

@@ -332,6 +332,20 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme; }) 
             document.body.style.overflow = "auto";
         };
 
+        /** 手機版漢堡選單失焦後自動收合，避免遮蔽主畫面內容。 */
+        const onMobileMenuFocusOut = () =>
+        {
+            requestAnimationFrame(() =>
+            {
+                const activeElement = document.activeElement as Element | null;
+                const isMenuOpen = collapse?.classList.contains("show") ?? false;
+                if (!isMobileWidth() || !isMenuOpen) return;
+                if (activeElement && collapse?.contains(activeElement)) return;
+                if (activeElement && navbarToggler?.contains(activeElement)) return;
+                closeMobileWholeMenu();
+            });
+        };
+
         // ---------- 5) 桌機 hover / focus 互斥 ----------
         let lastHoverHost: HTMLElement | null = null;
 
@@ -485,6 +499,7 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme; }) 
         root.addEventListener("focusin", onFocusIn);
         root.addEventListener("click", onRootClick);
         root.addEventListener("keydown", onRootKeyDown);
+        collapse?.addEventListener("focusout", onMobileMenuFocusOut);
         document.addEventListener("pointerdown", onDocPointerDown);
         document.addEventListener("keydown", onDocKeyDown);
         window.addEventListener("resize", onResize);
@@ -506,6 +521,7 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme; }) 
             root.removeEventListener("focusin", onFocusIn);
             root.removeEventListener("click", onRootClick);
             root.removeEventListener("keydown", onRootKeyDown);
+            collapse?.removeEventListener("focusout", onMobileMenuFocusOut);
 
             document.removeEventListener("pointerdown", onDocPointerDown);
             document.removeEventListener("keydown", onDocKeyDown);

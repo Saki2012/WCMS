@@ -20,7 +20,6 @@ type BannerDetail = NonNullable<BannerSet["BannerDetail"]>[number];
 
 type BannerDetailInfo = NonNullable<BannerSet["BannerDetailInfo"]>[number];
 
-
 interface CarouselDataProps
 {
     lang: Lang;
@@ -28,15 +27,11 @@ interface CarouselDataProps
     initialBanner: BannerSet | null;
 }
 
-
 type BootstrapCarouselConfig = { interval: number; ride: "carousel"; pause: false; };
-
 
 type BootstrapCarouselInstance = { cycle: () => void; pause: () => void; dispose?: () => void; };
 
-
 type BootstrapCarouselStatic = { getOrCreateInstance: (element: HTMLElement, config: BootstrapCarouselConfig) => BootstrapCarouselInstance; };
-
 
 type SlideEvent = Event & { to?: number; };
 // #endregion
@@ -281,13 +276,14 @@ export const CarouselData = (props: CarouselDataProps) =>
                                                     data-bs-target="#B5_default_carousel"
                                                     role="button"
                                                     tabIndex={0}
+                                                    aria-label="上一張"
                                                     title="上一張"
                                                     href="#"
                                                     onClick={preventDefault}
                                                 >
                                                     <div className="carousel-control-prev">
                                                         <span aria-hidden="true" className="carousel-control-prev-icon" />
-                                                        <span className="sr-only">Previous</span>
+                                                        <span className="sr-only">上一張</span>
                                                     </div>
                                                 </a>
                                             </div>
@@ -298,13 +294,14 @@ export const CarouselData = (props: CarouselDataProps) =>
                                                     data-bs-target="#B5_default_carousel"
                                                     role="button"
                                                     tabIndex={0}
+                                                    aria-label="下一張"
                                                     title="下一張"
                                                     href="#"
                                                     onClick={preventDefault}
                                                 >
                                                     <div className="carousel-control-next">
                                                         <span aria-hidden="true" className="carousel-control-next-icon" />
-                                                        <span className="sr-only">Next</span>
+                                                        <span className="sr-only">下一張</span>
                                                     </div>
                                                 </a>
                                             </div>
@@ -342,13 +339,11 @@ const toOkEnv = <T,>(data: T): ApiResponse<T> =>
     return { IsSuccess: true, SysMessage: [], Data: data };
 };
 
-
 const toInitial = <TArgs, TData>(args: TArgs, data: TData): ApiLoaderData<TArgs, TData> =>
 {
     // return：SSR hydration 初始資料
     return { args, apiRes: toOkEnv(data) };
 };
-
 
 const resolveIntervalMs = (banner: BannerSet | null): number =>
 {
@@ -360,7 +355,6 @@ const resolveIntervalMs = (banner: BannerSet | null): number =>
     if (!Number.isFinite(num) || num <= 0) return 5000;
     return Math.round(num * 1000);
 };
-
 
 const sortBannerDetails = (banner: BannerSet | null): BannerDetail[] =>
 {
@@ -377,7 +371,6 @@ const sortBannerDetails = (banner: BannerSet | null): BannerDetail[] =>
     });
 };
 
-
 const findBannerInfo = (banner: BannerSet | null, detail: BannerDetail | undefined, lang: Lang): BannerDetailInfo | undefined =>
 {
     // return：依當前 slide + 語系找對應資訊
@@ -389,7 +382,6 @@ const findBannerInfo = (banner: BannerSet | null, detail: BannerDetail | undefin
     });
 };
 
-
 const getSafeIndex = (index: number, total: number): number =>
 {
     // return：避免索引超界
@@ -398,7 +390,6 @@ const getSafeIndex = (index: number, total: number): number =>
     if (index >= total) return 0;
     return index;
 };
-
 
 const getPerformanceData = (banner: BannerSet | null, detail: BannerDetail | undefined, lang: Lang) =>
 {
@@ -409,7 +400,6 @@ const getPerformanceData = (banner: BannerSet | null, detail: BannerDetail | und
     return { title: info?.SpecLatestShows ?? "", subTitle: info?.SpecShowLocation ?? "", showtime: info?.SpecShowDate ?? "" };
 };
 
-
 const applyPlayState = (carousel: BootstrapCarouselInstance | null, isPlaying: boolean): void =>
 {
     // 執行 function：切換播放狀態
@@ -417,7 +407,6 @@ const applyPlayState = (carousel: BootstrapCarouselInstance | null, isPlaying: b
     if (isPlaying) carousel.cycle();
     else carousel.pause();
 };
-
 
 const initBootstrapCarousel = async (element: HTMLElement, intervalMs: number): Promise<BootstrapCarouselInstance> =>
 {
@@ -429,13 +418,11 @@ const initBootstrapCarousel = async (element: HTMLElement, intervalMs: number): 
     return CarouselClass.getOrCreateInstance(element, { interval: intervalMs, ride: "carousel", pause: false });
 };
 
-
 const preventDefault = (event: MouseEvent<HTMLElement>): void =>
 {
     // 執行 function：阻止 a 標籤預設跳轉
     event.preventDefault();
 };
-
 
 const isToggleKey = (event: KeyboardEvent<HTMLElement>): boolean =>
 {
