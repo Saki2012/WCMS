@@ -2,13 +2,12 @@ import { Server_FormTemplate_Comp } from "@/Features/Pages/Server/Scaffold/Conte
 import type { ServerFormBinding } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
 import { EditGrid } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid";
 import type { EditGridCellRenderArgs, EditGridCellValue, IEditGridView_Style } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Data";
+import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
+import { LibCheckBox, LibTextBox, LibTinyMCE } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
+import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { LibCheckBox } from "@/SysCore/Components/FormField/FieldComponets/LibCheckBox_Comp";
-import type { LibTabsProp } from "@/SysCore/Components/FormField/FieldComponets/LibTabs_Comp";
-import { LibTextBox, LibTinyMCE } from "@/SysCore/Components/FormField/LibFormField";
-import { useSetTableField } from "@/SysCore/Components/FormField/useSetTableField";
-import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import { LoadingErrorHandler } from "@/SysCore/Components/LoadingErrorHandler";
+import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import { type Lang, LangLabelMap, SUPPORTED_LANGS } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
 import {
@@ -30,7 +29,6 @@ import {
 // #region Property
 type HomePageSet = components["schemas"]["SpecHomePage1820Set_DTO"];
 
-
 const editGridStyle: IEditGridView_Style = {
     TableStyle: "table table-striped table-bordered table-hover",
     ToolbarStyle: "d-flex align-items-center justify-content-between mb-2",
@@ -38,7 +36,6 @@ const editGridStyle: IEditGridView_Style = {
     DangerButtonStyle: "btn btn-danger btn-rounded btn-sm",
     ErrorStyle: "text-danger small mt-1",
 };
-
 
 const tinyMceGridStyle = {
     Labelstyle: "sr-only visually-hidden",
@@ -80,7 +77,6 @@ const MainFormComp = (prop: { theme: IBETheme; supportLangs: Lang[]; summary: Re
     return <TabContentComp tabInfos={langTabs} components={components} />;
 };
 
-
 const LangFormTabComp = (prop: { theme: IBETheme; lang: Lang; summary: ReturnType<typeof useHomePage1820SummaryFetchData>; }) =>
 {
     // 每個語系都建立獨立的 Spec Form Template，讓儲存、toast、loading 與 toolbar 集中處理。
@@ -101,7 +97,6 @@ const LangFormTabComp = (prop: { theme: IBETheme; lang: Lang; summary: ReturnTyp
         />
     );
 };
-
 
 const LangSetTabComp = (
     prop: {
@@ -143,7 +138,6 @@ const LangSetTabComp = (
     );
 };
 
-
 const Section1Comp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; lang: string; }) =>
 {
     const setField = useSetTableField<HomePageSet>(prop.formData);
@@ -170,7 +164,6 @@ const Section1Comp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomeP
     );
 };
 
-
 const BannerMediaComp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; lang: string; }) =>
 {
     // Banner 明細改由 EditGrid 統一新增、編輯、刪除與拖曳排序
@@ -183,7 +176,6 @@ const BannerMediaComp = (prop: { theme: IBETheme; formData: ServerFormBinding<Ho
         </div>
     );
 };
-
 
 const Section2Comp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; }) =>
 {
@@ -200,7 +192,6 @@ const Section2Comp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomeP
         </>
     );
 };
-
 
 const Section3Comp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; cateOpts: Record<string, string>; }) =>
 {
@@ -233,7 +224,6 @@ const Section3Comp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomeP
     );
 };
 
-
 const Section4Comp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; lang: string; }) =>
 {
     // Section4 明細改由 EditGrid 統一新增、編輯、刪除、拖曳排序與 TinyMCE 內文編輯
@@ -254,7 +244,6 @@ const Section4Comp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomeP
     );
 };
 
-
 const Section5Comp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; lang: string; }) =>
 {
     // Section5 跑馬燈改由 EditGrid 統一新增、編輯、刪除與拖曳排序
@@ -267,7 +256,6 @@ const Section5Comp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomeP
         </div>
     );
 };
-
 
 const Section6Comp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; lang: string; }) =>
 {
@@ -289,7 +277,6 @@ const Section6Comp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomeP
         </>
     );
 };
-
 
 const ResourceComp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; lang: string; }) =>
 {
@@ -317,7 +304,6 @@ const HomePageImagePreview = (props: { value: EditGridCellValue; }) =>
     return <img src={previewUrl} alt={alt} style={{ maxWidth: "160px", maxHeight: "120px", objectFit: "contain" }} />;
 };
 
-
 const HomePageIntroPreview = (props: { value: EditGridCellValue; }) =>
 {
     // 唯讀狀態顯示 TinyMCE 內文摘要，避免表格直接露出 HTML tag。
@@ -325,7 +311,6 @@ const HomePageIntroPreview = (props: { value: EditGridCellValue; }) =>
     if (!text) return <span className="small">尚未輸入內文</span>;
     return <span>{text}</span>;
 };
-
 
 const HomePageTinyMceEditor = (props: { theme: IBETheme; args: EditGridCellRenderArgs; }) =>
 {
@@ -345,14 +330,12 @@ const HomePageTinyMceEditor = (props: { theme: IBETheme; args: EditGridCellRende
     );
 };
 
-
 const getLangDisplayName = (lang?: string) =>
 {
     // 取得語系顯示名稱
     const key = String(lang ?? "").trim().toLowerCase() as Lang;
     return LangLabelMap[key] ?? lang ?? "";
 };
-
 
 const useHomePageEditGridRenderers = (theme: IBETheme) =>
 {
@@ -363,7 +346,6 @@ const useHomePageEditGridRenderers = (theme: IBETheme) =>
 
     return { renderPicturePreview, renderIntroPreview, renderIntroEditor };
 };
-
 
 const getPlainTextFromHtml = (value: EditGridCellValue): string =>
 {

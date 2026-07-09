@@ -6,8 +6,9 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { findTextByKey } from "@/SysCore/Utils/Library/LibData";
+import { type AnchorActionEvent, useAnchorButtonAction } from "@/SysCore/Utils/UI_HookFunc/useAnchorPreventDefaultClick";
 import type { components } from "@/types/api";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router";
 import { useClientSpecProductionListFetchData } from "./Client_SpecProduction_List_Loader";
 
@@ -156,6 +157,14 @@ const ProductionTabs = (
     { lang, tagList, activeTabId, onChange }: { lang: Lang; tagList: MaterialTag[]; activeTabId: string; onChange: (id: string) => void; },
 ) =>
 {
+    /** 透過共用 Anchor Button Hook 切換目前 Tab。 */
+    const handleTabAction = useCallback((event: AnchorActionEvent) =>
+    {
+        const id = event.currentTarget.dataset.tabId ?? "";
+        onChange(id);
+    }, [onChange]);
+    const tabAction = useAnchorButtonAction(handleTabAction);
+
     return (
         <div className="Horizontal nav-tabs-list">
             <ul className="nav nav-tabs" role="tablist">
@@ -167,13 +176,15 @@ const ProductionTabs = (
                     return (
                         <li key={id} className="nav-item + me-3" role="presentation">
                             <a
+                                href="#"
                                 type="button"
                                 className={`more-link font-wt-lg ${id === activeTabId ? "active" : ""}`}
                                 role="tab"
                                 aria-selected={id === activeTabId}
                                 aria-controls={`H-navTabs-${id}`}
                                 id={`H-Tabs__${id}`}
-                                onClick={() => onChange(id)}
+                                data-tab-id={id}
+                                {...tabAction}
                             >
                                 <span className="vm">{name}</span>
                                 <span className="ms-1">〉</span>
@@ -385,11 +396,7 @@ const ProductionCarousel = (props: { lang: Lang; items: MaterialSet[]; viewMoreT
                         onTransitionEnd={handleTransitionEnd}
                     >
                         {carouselItems.map((item, idx) => (
-                            <div
-                                key={`${item.Material?.InternalId ?? "mat"}_${idx}`}
-                                className={`owl-item ${idx === trackIndex ? "active" : ""}`}
-                                style={{ flex: "0 0 100%", width: "100%" }}
-                            >
+                            <div key={`${item.Material?.InternalId ?? "mat"}_${idx}`} className={`owl-item ${idx === trackIndex ? "active" : ""}`} style={{ flex: "0 0 100%", width: "100%" }}>
                                 <div className="item">
                                     <ProductionCard lang={props.lang} item={item} viewMoreText={props.viewMoreText} />
                                 </div>
@@ -400,13 +407,13 @@ const ProductionCarousel = (props: { lang: Lang; items: MaterialSet[]; viewMoreT
 
                 {hasMany && (
                     <div className="owl-nav" aria-label="圖片輪播控制">
-                        <button type="button" role="presentation" tabIndex={0} className="owl-prev" onClick={goPrev}>
-                            <span aria-label="Previous" title="上一張">
+                        <button type="button" className="owl-prev" aria-label="上一張" title="上一張" onClick={goPrev}>
+                            <span aria-hidden="true">
                                 <span className="d-none">上一張</span>
                             </span>
                         </button>
-                        <button type="button" role="presentation" tabIndex={0} className="owl-next" onClick={goNext}>
-                            <span aria-label="Next" title="下一張">
+                        <button type="button" className="owl-next" aria-label="下一張" title="下一張" onClick={goNext}>
+                            <span aria-hidden="true">
                                 <span className="d-none">下一張</span>
                             </span>
                         </button>

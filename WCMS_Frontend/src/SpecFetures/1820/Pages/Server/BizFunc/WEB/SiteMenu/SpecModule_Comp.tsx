@@ -1,7 +1,7 @@
 import type { SiteMenuItem } from "@/Features/Pages/Server/BizFunc/WEB/SiteMenu/SiteMenu_Hook";
+import { LibCheckBox, LibDropList } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
+import { useSetJsonField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { LibCheckBox, LibDropList } from "@/SysCore/Components/FormField/LibFormField";
-import { useSetJsonField } from "@/SysCore/Components/FormField/useSetTableField";
 import { type Lang } from "@/SysCore/i18n/lang";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import type { components } from "@/types/api";
@@ -17,14 +17,12 @@ type TagSet = components["schemas"]["TagSet_DTO"];
 
 type PageSet = components["schemas"]["PageManagementSet_DTO"];
 
-
 export interface Module_SpecProduction_OptionsJson
 {
     CategoryId: string;
     TagIds: string;
     PageId: string;
 }
-
 
 const moduleOptionsDefaults: Module_SpecProduction_OptionsJson = { CategoryId: "", TagIds: "", PageId: "" };
 // #endregion
@@ -123,7 +121,6 @@ const useGetCategoryDict = (progId: PGID, lang: Lang, categorySets: CategorySet[
 
     return cateDic;
 };
-
 
 const useGetTagDict = (progId: PGID, lang: Lang, tagSets: TagSet[]) =>
 {

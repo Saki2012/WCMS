@@ -9,8 +9,9 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LibText } from "@/SysCore/Utils/Library/LibData";
 import { resolveSpecComponent } from "@/SysCore/Utils/Library/SlotResolver";
 import { useOptionalSpecAssetUrl } from "@/SysCore/Utils/UI_Hooks/useOptionalSpecAssetUrl";
+import { type AnchorActionEvent, useAnchorButtonAction } from "@/SysCore/Utils/UI_HookFunc/useAnchorPreventDefaultClick";
 import type { components } from "@/types/api";
-import { type MouseEvent, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { type IMaterialListOptions, useMaterialListData } from "./Client_Material_List_Loader";
 
@@ -237,6 +238,14 @@ const MaterialCardItem_Comp = (props: { item: MaterialCardView; }) =>
 /** 渲染物件類別 Tab */
 const ProductionTabs = (props: { tagList: MaterialTabView[]; activeTabId: string; tabPanelId: string; onChange: (id: string) => void; }) =>
 {
+    /** 透過共用 Anchor Button Hook 切換目前 Tab。 */
+    const handleTabAction = useCallback((event: AnchorActionEvent) =>
+    {
+        const id = event.currentTarget.dataset.tabId ?? "";
+        props.onChange(id);
+    }, [props.onChange]);
+    const tabAction = useAnchorButtonAction(handleTabAction);
+
     return (
         <div className="Horizontal nav-tabs-list mb-3">
             <ul className="nav nav-tabs" role="tablist">
@@ -252,7 +261,8 @@ const ProductionTabs = (props: { tagList: MaterialTabView[]; activeTabId: string
                                 aria-selected={tag.id === props.activeTabId}
                                 aria-controls={props.tabPanelId}
                                 id={`H-Tabs__${tag.id}`}
-                                onClick={(event) => handleMaterialTabClick(event, tag.id, props.onChange)}
+                                data-tab-id={tag.id}
+                                {...tabAction}
                             >
                                 <span className="vm">{tag.name}</span>
                                 <span className="ms-1">〉</span>
@@ -299,11 +309,5 @@ const buildMaterialCardView = (item: MaterialSet, lang: Lang, dirUrl: string, ca
     const picAlt = picData?.PictureName ?? title;
     const picUrl = picData?.PictureId ? FileManagementAPI.get_Public_Preview_Url(picData.PictureId, picAlt) : defaultPic;
     return { key: internalId, linkUrl: `${dirUrl}/${internalId}`, title, price, categoryName, picUrl, picAlt };
-};
-/** 處理 Material Tab 點擊，避免 href 預設跳動 */
-const handleMaterialTabClick = (event: MouseEvent<HTMLAnchorElement>, id: string, onChange: (id: string) => void): void =>
-{
-    event.preventDefault();
-    onChange(id);
 };
 // #endregion

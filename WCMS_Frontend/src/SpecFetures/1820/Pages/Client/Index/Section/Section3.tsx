@@ -27,6 +27,7 @@ export const Section3 = (props: { lang: Lang; homePage: HomePageModel; announcem
     const [outerWidth, setOuterWidth] = useState(getInitialOuterWidth);
     const [startIndex, setStartIndex] = useState(0);
     const [isPlaying, setIsPlaying] = useState(true);
+    const [isFocusPaused, setIsFocusPaused] = useState(false);
 
     /** 宣告變數：目前顯示張數 */
     const itemsPerView = useMemo(() => getItemsPerView(viewportWidth), [viewportWidth]);
@@ -57,6 +58,9 @@ export const Section3 = (props: { lang: Lang; homePage: HomePageModel; announcem
     /** 宣告變數：是否可切換 */
     const canNavigate = annDetail.length > itemsPerView;
 
+    /** 宣告變數：是否允許自動播放 */
+    const shouldAutoPlay = isPlaying && !isFocusPaused;
+
     /** 宣告變數：上一筆是否禁用 */
     const isPrevDisabled = startIndex <= 0;
 
@@ -86,7 +90,7 @@ export const Section3 = (props: { lang: Lang; homePage: HomePageModel; announcem
     /** 執行：自動播放 */
     useEffect(() =>
     {
-        if (!isPlaying) return;
+        if (!shouldAutoPlay) return;
         if (!canNavigate) return;
 
         const timer = window.setInterval(() =>
@@ -95,7 +99,7 @@ export const Section3 = (props: { lang: Lang; homePage: HomePageModel; announcem
         }, AUTOPLAY_MS);
 
         return () => window.clearInterval(timer);
-    }, [isPlaying, canNavigate, maxStartIndex]);
+    }, [shouldAutoPlay, canNavigate, maxStartIndex]);
 
     /** 執行：切到上一筆 */
     const handlePrev = () =>
@@ -130,6 +134,18 @@ export const Section3 = (props: { lang: Lang; homePage: HomePageModel; announcem
         toggleAutoplay();
     };
 
+    /** 執行：焦點進入輪播區時暫停自動播放 */
+    const handleCarouselFocusCapture = () =>
+    {
+        setIsFocusPaused(true);
+    };
+
+    /** 執行：焦點離開輪播區後恢復自動播放狀態 */
+    const handleCarouselBlurCapture = (e: React.FocusEvent<HTMLDivElement>) =>
+    {
+        if (isFocusLeavingScope(e)) setIsFocusPaused(false);
+    };
+
     return (
         <section className="LatestNews_section owl-box Layout_Padding_3_top Layout_Padding_3_bottom bg-custom">
             <div className="Mask-DivBox">
@@ -146,7 +162,11 @@ export const Section3 = (props: { lang: Lang; homePage: HomePageModel; announcem
                             </div>
 
                             <div className="col-12">
-                                <div className="content-box px-0 mb-5">
+                                <div
+                                    className="content-box px-0 mb-5"
+                                    onFocusCapture={handleCarouselFocusCapture}
+                                    onBlurCapture={handleCarouselBlurCapture}
+                                >
                                     <div className="DIV-singleBox">
                                         <div className="control-singlebox">
                                             <a
@@ -185,7 +205,8 @@ export const Section3 = (props: { lang: Lang; homePage: HomePageModel; announcem
                                                     const imageUrl = getNewsImageUrl(item);
                                                     const imageAlt = item.Announcement?.PicDescription ?? detail?.Title ?? "";
                                                     const linkUrl = getNewsLink(props.homePage.Announcement_ViewMoreLink, item);
-                                                    const activeClass = isActiveItem(index, startIndex, itemsPerView) ? " active" : "";
+                                                    const itemActive = isActiveItem(index, startIndex, itemsPerView);
+                                                    const activeClass = itemActive ? " active" : "";
 
                                                     return (
                                                         <div
@@ -195,10 +216,15 @@ export const Section3 = (props: { lang: Lang; homePage: HomePageModel; announcem
                                                                 width: `${itemWidth}px`,
                                                                 marginRight: index === annDetail.length - 1 ? "0px" : `${NEWS_MARGIN}px`,
                                                             }}
-                                                            aria-hidden={!isActiveItem(index, startIndex, itemsPerView)}
+                                                            aria-hidden={getNewsItemAriaHidden(itemActive)}
                                                         >
                                                             <div className="item">
-                                                                <LangNavLink to={linkUrl} target="_self" title={detail?.Title ?? ""}>
+                                                                <LangNavLink
+                                                                    to={linkUrl}
+                                                                    target="_self"
+                                                                    title={detail?.Title ?? ""}
+                                                                    tabIndex={getNewsLinkTabIndex(itemActive)}
+                                                                >
                                                                     <div className="news-item">
                                                                         <div className="row g-0">
                                                                             <div className="col-6 left_All">
@@ -403,10 +429,29 @@ const getNewsImageUrl = (item: AnnouncementSet) =>
     return FileManagementAPI.get_Public_Preview_Url(item.Announcement?.PictureId);
 };
 
-/** 取得圖片替代文字 */
 /** 取得卡片連結 */
 const getNewsLink = (viewMoreLink?: string | null, item?: AnnouncementSet) =>
 {
     return LibText.Merge("/", false, viewMoreLink, item?.Announcement?.InternalId);
+};
+
+/** 判斷焦點是否離開目前區塊 */
+const isFocusLeavingScope = (event: React.FocusEvent<HTMLElement>) =>
+{
+    const nextTarget = event.relatedTarget as Node | null;
+    if (!nextTarget) return true;
+    return !event.currentTarget.contains(nextTarget);
+};
+
+/** 取得最新消息項目的 aria-hidden 狀態 */
+const getNewsItemAriaHidden = (isActive: boolean) =>
+{
+    return isActive ? undefined : true;
+};
+
+/** 取得最新消息連結的鍵盤焦點狀態 */
+const getNewsLinkTabIndex = (isActive: boolean) =>
+{
+    return isActive ? undefined : -1;
 };
 // #endregion

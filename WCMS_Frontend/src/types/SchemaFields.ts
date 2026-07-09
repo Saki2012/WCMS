@@ -149,9 +149,6 @@ export const BannerDetailInfoFields = {
   URL: 'URL',
   URL_Open: 'URL_Open',
   _BannerDetail: '_BannerDetail',
-  SpecLatestShows: 'SpecLatestShows',
-  SpecShowLocation: 'SpecShowLocation',
-  SpecShowDate: 'SpecShowDate',
 } as const;
 
 export type BannerDetailInfoFieldKey = keyof typeof BannerDetailInfoFields;
@@ -1159,7 +1156,7 @@ export const SiteViewCountSet_DTOApiResponseFields = {
 
 export type SiteViewCountSet_DTOApiResponseFieldKey = keyof typeof SiteViewCountSet_DTOApiResponseFields;
 
-export const SpecMusicalModelFields = {
+export const SpecHomePage1820ModelFields = {
   CreateTime: 'CreateTime',
   CreateUserId: 'CreateUserId',
   CreateUser: 'CreateUser',
@@ -1172,63 +1169,132 @@ export const SpecMusicalModelFields = {
   InvalidUserId: 'InvalidUserId',
   InternalId: 'InternalId',
   OrgLvId: 'OrgLvId',
-  MusicalId: 'MusicalId',
-  MusicalName: 'MusicalName',
-  Category: 'Category',
-  CategoryId: 'CategoryId',
-  CoverPicId: 'CoverPicId',
-  Specification: 'Specification',
-  Headstock: 'Headstock',
-  Backboard: 'Backboard',
-  ScaleLength: 'ScaleLength',
-  Bridge: 'Bridge',
-  BodyForm: 'BodyForm',
-  Material: 'Material',
-  Info: 'Info',
-  _SpecMusicalSoundList: '_SpecMusicalSoundList',
-  _SpecMusicalPictureList: '_SpecMusicalPictureList',
+  HomePageId: 'HomePageId',
+  Lang: 'Lang',
+  Section1Title_L: 'Section1Title_L',
+  Section1Title_M: 'Section1Title_M',
+  Section1Title_R: 'Section1Title_R',
+  HeroText: 'HeroText',
+  HeroText_ViewMoreLink: 'HeroText_ViewMoreLink',
+  AnnouncementTitle: 'AnnouncementTitle',
+  AnnouncementSubTitle: 'AnnouncementSubTitle',
+  AnnouncementCategoryIds: 'AnnouncementCategoryIds',
+  Announcement_ViewMoreLink: 'Announcement_ViewMoreLink',
+  Resource_Title: 'Resource_Title',
+  Resource_SubTitle: 'Resource_SubTitle',
+  _SpecHomePage1820_BannerMedia: '_SpecHomePage1820_BannerMedia',
+  _SpecHomePage1820_Detail: '_SpecHomePage1820_Detail',
+  _SpecHomePage1820_Marquee: '_SpecHomePage1820_Marquee',
+  _SpecHomePage1820_Resource: '_SpecHomePage1820_Resource',
 } as const;
 
-export type SpecMusicalModelFieldKey = keyof typeof SpecMusicalModelFields;
+export type SpecHomePage1820ModelFieldKey = keyof typeof SpecHomePage1820ModelFields;
 
-export const SpecMusicalPictureListFields = {
-  RowState: 'RowState',
-  MusicalId: 'MusicalId',
-  RowId: 'RowId',
-  PicSrcId: 'PicSrcId',
-  Sort: 'Sort',
-  Info: 'Info',
-  _SpecMusical: '_SpecMusical',
+export const SpecHomePage1820SetFields = {
+  SpecHomePage1820: 'SpecHomePage1820',
+  SpecHomePage1820_BannerMedia: 'SpecHomePage1820_BannerMedia',
+  SpecHomePage1820_Detail: 'SpecHomePage1820_Detail',
+  SpecHomePage1820_Marquee: 'SpecHomePage1820_Marquee',
+  SpecHomePage1820_Resource: 'SpecHomePage1820_Resource',
 } as const;
 
-export type SpecMusicalPictureListFieldKey = keyof typeof SpecMusicalPictureListFields;
+export type SpecHomePage1820SetFieldKey = keyof typeof SpecHomePage1820SetFields;
 
-export const SpecMusicalSetFields = {
-  SpecMusical: 'SpecMusical',
-  SpecMusicalSoundList: 'SpecMusicalSoundList',
-  SpecMusicalPictureList: 'SpecMusicalPictureList',
-} as const;
-
-export type SpecMusicalSetFieldKey = keyof typeof SpecMusicalSetFields;
-
-export const SpecMusicalSet_DTOApiRequestFields = {
+export const SpecHomePage1820Set_DTOApiRequestFields = {
   InternalId: 'InternalId',
   Data: 'Data',
 } as const;
 
-export type SpecMusicalSet_DTOApiRequestFieldKey = keyof typeof SpecMusicalSet_DTOApiRequestFields;
+export type SpecHomePage1820Set_DTOApiRequestFieldKey = keyof typeof SpecHomePage1820Set_DTOApiRequestFields;
 
-export const SpecMusicalSoundListFields = {
+export const SpecHomePage1820_BannerMediaFields = {
   RowState: 'RowState',
-  MusicalId: 'MusicalId',
+  HomePageId: 'HomePageId',
   RowId: 'RowId',
-  SoundSrc: 'SoundSrc',
-  SoundSrcId: 'SoundSrcId',
-  Info: 'Info',
-  _SpecMusical: '_SpecMusical',
+  BannerFile: 'BannerFile',
+  BannerFileId: 'BannerFileId',
+  BannerFileDescription: 'BannerFileDescription',
+  _SpecHomePage1820: '_SpecHomePage1820',
 } as const;
 
-export type SpecMusicalSoundListFieldKey = keyof typeof SpecMusicalSoundListFields;
+export type SpecHomePage1820_BannerMediaFieldKey = keyof typeof SpecHomePage1820_BannerMediaFields;
+
+export const SpecHomePage1820_DetailFields = {
+  RowState: 'RowState',
+  HomePageId: 'HomePageId',
+  RowId: 'RowId',
+  Title: 'Title',
+  SubTitle: 'SubTitle',
+  MainPicture: 'MainPicture',
+  MainPictureId: 'MainPictureId',
+  MainPictureDescription: 'MainPictureDescription',
+  SubPicture: 'SubPicture',
+  SubPictureId: 'SubPictureId',
+  SubPictureDescription: 'SubPictureDescription',
+  Intro: 'Intro',
+  MainLinkTitle: 'MainLinkTitle',
+  MainLink: 'MainLink',
+  SubLinkTitle1: 'SubLinkTitle1',
+  SubLink1: 'SubLink1',
+  SubLinkTitle2: 'SubLinkTitle2',
+  SubLink2: 'SubLink2',
+  SubLinkTitle3: 'SubLinkTitle3',
+  SubLink3: 'SubLink3',
+  _SpecHomePage1820: '_SpecHomePage1820',
+} as const;
+
+export type SpecHomePage1820_DetailFieldKey = keyof typeof SpecHomePage1820_DetailFields;
+
+export const SpecHomePage1820_MarqueeFields = {
+  RowState: 'RowState',
+  HomePageId: 'HomePageId',
+  RowId: 'RowId',
+  Picture: 'Picture',
+  PictureId: 'PictureId',
+  PictureTitle: 'PictureTitle',
+  IsHide: 'IsHide',
+  _SpecHomePage1820: '_SpecHomePage1820',
+} as const;
+
+export type SpecHomePage1820_MarqueeFieldKey = keyof typeof SpecHomePage1820_MarqueeFields;
+
+export const SpecHomePage1820_ResourceFields = {
+  RowState: 'RowState',
+  HomePageId: 'HomePageId',
+  RowId: 'RowId',
+  PicTitle: 'PicTitle',
+  PicSubTitle: 'PicSubTitle',
+  PicFile: 'PicFile',
+  PicFileId: 'PicFileId',
+  PicFileDescription: 'PicFileDescription',
+  Link: 'Link',
+  _SpecHomePage1820: '_SpecHomePage1820',
+} as const;
+
+export type SpecHomePage1820_ResourceFieldKey = keyof typeof SpecHomePage1820_ResourceFields;
+
+export const SpecHomePageWeatherFields = {
+  CityCode: 'CityCode',
+  LocationName: 'LocationName',
+  Weather: 'Weather',
+  Temperature: 'Temperature',
+  ApparentTemperature: 'ApparentTemperature',
+  RelativeHumidity: 'RelativeHumidity',
+  ProbabilityOfPrecipitation: 'ProbabilityOfPrecipitation',
+  StartTime: 'StartTime',
+  EndTime: 'EndTime',
+  FetchTime: 'FetchTime',
+} as const;
+
+export type SpecHomePageWeatherFieldKey = keyof typeof SpecHomePageWeatherFields;
+
+export const SpecHomePageWeather_DTOApiResponseFields = {
+  IsSuccess: 'IsSuccess',
+  SysMessage: 'SysMessage',
+  Data: 'Data',
+} as const;
+
+export type SpecHomePageWeather_DTOApiResponseFieldKey = keyof typeof SpecHomePageWeather_DTOApiResponseFields;
 
 export const StringApiResponseFields = {
   IsSuccess: 'IsSuccess',
@@ -1568,7 +1634,7 @@ export const PGID = {
     RolePermission: "RolePermission",
     SiteMenu: "SiteMenu",
     SiteViewCount: "SiteViewCount",
-    SpecMusical: "SpecMusical",
+    SpecHomePageApi: "SpecHomePageApi",
     Survey: "Survey",
     SurveySubmission: "SurveySubmission",
     SystemAPI: "SystemAPI",
