@@ -14,7 +14,7 @@ import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { formatDate, LibDate, LibText } from "@/SysCore/Utils/Library/LibData";
 import { resolveSpecComponent, resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
-import { useOptionalSpecAssetUrl } from "@/SysCore/Utils/UI_HookFunc/useOptionalSpecAssetUrl";
+import { useOptionalSpecAssetUrl } from "@/SysCore/Utils/UI_Hooks/useOptionalSpecAssetUrl";
 import type { components } from "@/types/api";
 import { AnnouncementDetailFields, AnnouncementFields } from "@/types/SchemaFields";
 import { type ComponentType, useEffect, useMemo, useRef, useState } from "react";

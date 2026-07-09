@@ -17,7 +17,7 @@ import type { IListViewState } from "@/SysCore/Interface/IListViewState";
 import type { ApiGridInitial, ApiGridLoaderData, ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
-import { useResetListPageOnKeyChange } from "@/SysCore/Utils/UI_HookFunc/useResetListPageOnKeyChange";
+import { useResetListPageOnKeyChange } from "@/SysCore/Utils/UI_Hooks/useResetListPageOnKeyChange";
 import type { components } from "@/types/api";
 import { MaterialFields, MaterialLangInfoFields, MaterialPictureFields, MaterialTagsFields, PGID } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";

@@ -17,6 +17,32 @@ import { useEffect, useRef } from "react";
 import React from "react";
 import { useLocation } from "react-router-dom";
 
+// #region Property
+interface IMenuToggleA11yText
+{
+    label: string;
+    open: string;
+    close: string;
+    logoAlt: string;
+}
+interface INavBarText
+{
+    Home: string;
+    NCHU: string;
+    SiteMap: string;
+}
+const MENU_TOGGLE_A11Y_TEXT_MAP: Partial<Record<Lang, IMenuToggleA11yText>> = {
+    "zh-tw": { label: "主選單", open: "開啟主選單", close: "關閉主選單", logoAlt: "國立中興大學新化林場 LOGO" },
+    "zh-cn": { label: "主菜单", open: "开启主菜单", close: "关闭主菜单", logoAlt: "国立中兴大学新化林场 LOGO" },
+    en: { label: "Main menu", open: "Open main menu", close: "Close main menu", logoAlt: "NCHU Xinhua Forest Station LOGO" },
+};
+const NAV_BAR_TEXT_MAP: Partial<Record<Lang, INavBarText>> = {
+    "zh-tw": { Home: "回首頁", NCHU: "中興大學", SiteMap: "網站導覽" },
+    "zh-cn": { Home: "回首页", NCHU: "中兴大学", SiteMap: "网站导览" },
+    en: { Home: "Home", NCHU: "NCHU", SiteMap: "SiteMap" },
+};
+// #endregion
+
 // #region Section
 const Header_Section = (props: { lang: Lang; site: INormSite; }) =>
 {
@@ -52,8 +78,8 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme; }) 
                 <div className="menuBox">
                     <div className="container-customize0">
                         <div className="navbar navbar-expand-lg px-0 py-0" ref={menuRef}>
-                            <LogoComp />
-                            <MobileBtn />
+                            <LogoComp lang={props.lang} />
+                            <MobileBtn lang={props.lang} />
                             <MainMenu {...props} />
                             <PCBtn />
                         </div>
@@ -64,12 +90,14 @@ const Menu_Section = (props: { lang: Lang; site: INormSite; style: IFETheme; }) 
     );
 };
 
-const LogoComp = () =>
+const LogoComp = (props: { lang: Lang; }) =>
 {
+    const text = getMenuToggleA11yText(props.lang);
+
     return (
         <h1 className="logo">
-            <LangLink className="navbar-brand my-0" to="/" title="">
-                <img src={LogoImg} alt=" LOGO" />
+            <LangLink className="navbar-brand my-0" to="/" title={text.logoAlt} aria-label={text.logoAlt}>
+                <img src={LogoImg} alt={text.logoAlt} />
             </LangLink>
         </h1>
     );
@@ -114,6 +142,9 @@ const renderDropdownItems = (items: MenuItemData[], parentDepth: number): JSX.El
                     data-bs-toggle="dropdown"
                     data-bs-auto-close="outside"
                     target={item.URL_Open}
+                    title={item.SrcData}
+                    aria-label={item.SrcData}
+                    aria-expanded="false"
                 >
                     {item.SrcData}
                 </LangLink>
@@ -126,6 +157,12 @@ const renderDropdownItems = (items: MenuItemData[], parentDepth: number): JSX.El
 // #endregion
 
 // #region Private
+/** 取得手機選單按鈕與 Logo 的無障礙文字。 */
+const getMenuToggleA11yText = (lang: Lang): IMenuToggleA11yText =>
+{
+    return MENU_TOGGLE_A11Y_TEXT_MAP[lang] ?? MENU_TOGGLE_A11Y_TEXT_MAP["zh-tw"]!;
+};
+
 /** 判斷是否為首頁（支援多語系首頁） */
 const isHomePage = (pathname: string, lang: Lang) =>
 {
@@ -142,6 +179,7 @@ export const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; })
     const location = useLocation();
 
     const isHome = isHomePage(location.pathname, props.lang);
+    const menuToggleText = getMenuToggleA11yText(props.lang);
 
     useMobileMenuCollapse({
         headerRef,
@@ -152,6 +190,8 @@ export const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; })
         headerActiveClass: "active",
         lockBodyScroll: true,
         disableBootstrapAutoToggle: true,
+        togglerOpenLabel: menuToggleText.open,
+        togglerCloseLabel: menuToggleText.close,
     });
 
     useEffect(() =>
@@ -190,11 +230,7 @@ export const Header = (props: { lang: Lang; site: INormSite; style: IFETheme; })
 };
 const NavBar = (props: { lang: Lang; }) =>
 {
-    const title = props.lang === "zh-tw"
-        ? { Home: "回首頁", NCHU: "中興大學", SiteMap: "網站導覽" }
-        : props.lang === "en"
-        ? { Home: "Home", NCHU: "NCHU", SiteMap: "SiteMap" }
-        : {};
+    const title = NAV_BAR_TEXT_MAP[props.lang] ?? NAV_BAR_TEXT_MAP["zh-tw"]!;
 
     return (
         <li>
@@ -216,11 +252,13 @@ const NavBar = (props: { lang: Lang; }) =>
     );
 };
 
-const MobileBtn = () =>
+const MobileBtn = (props: { lang: Lang; }) =>
 {
+    const text = getMenuToggleA11yText(props.lang);
+
     return (
         <>
-            <div className="mobile-box ml-auto me-2">
+            <div className="mobile-box ml-auto me-2" aria-hidden="true">
                 <div className="icons">
                     <div className="All_icon_box mx-xl-2 mx-lg-2 mx-md-2 mx-sm-1 mx-0 d-inline-block d-sm-none"></div>
                 </div>
@@ -230,11 +268,15 @@ const MobileBtn = () =>
                 className="navbar-toggler collapsed"
                 type="button"
                 role="button"
+                tabIndex={0}
                 data-bs-toggle="collapse"
                 data-bs-target="#navbar-content"
+                aria-controls="navbar-content"
                 aria-expanded="false"
+                aria-label={text.open}
+                title={text.open}
             >
-                <div className="hamburger-toggle">
+                <div className="hamburger-toggle" aria-hidden="true">
                     <div className="hamburger">
                         <span></span>
                         <span></span>
@@ -251,7 +293,7 @@ const MainMenu = (props: { lang: Lang; site: INormSite; style: IFETheme; }) =>
     const menuItems = GetMenuData(props.lang, props.site);
 
     return (
-        <div id="navbar-content" className="collapse navbar-collapse overflow-scroll-Y">
+        <div id="navbar-content" className="collapse navbar-collapse overflow-scroll-Y" role="navigation" aria-label={getMenuToggleA11yText(props.lang).label}>
             <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
                 {menuItems.map((item, idx) =>
                 {
@@ -283,7 +325,7 @@ const SingleMenuItem = (props: { menuItem: MenuItemData; }) =>
     return (
         <li className="nav-item">
             <LangLink className="nav-link" to={props.menuItem.Url} role="button" title={props.menuItem.SrcData} aria-label={props.menuItem.SrcData}>
-                {/^https?:\/\//i.test(props.menuItem.Url || "") && <i className="fad fa-link me-2"></i>}
+                {/^https?:\/\//i.test(props.menuItem.Url || "") && <i className="fad fa-link me-2" aria-hidden="true"></i>}
                 {props.menuItem.SrcData}
             </LangLink>
         </li>
@@ -302,6 +344,9 @@ const DropdownMenuItem = (props: { menuItem: MenuItemData; }) =>
                 data-bs-toggle="dropdown"
                 data-bs-auto-close="outside"
                 target={props.menuItem.URL_Open}
+                title={props.menuItem.SrcData}
+                aria-label={props.menuItem.SrcData}
+                aria-expanded="false"
             >
                 {props.menuItem.SrcData}
             </LangLink>

@@ -1,5 +1,5 @@
 import { LangLink } from "@/SysCore/i18n/LangLink";
-import { useUploadFile } from "@/SysCore/Utils/UI_HookFunc/useUploadFile";
+import { useUploadFile } from "@/SysCore/Utils/UI_Hooks/useUploadFile";
 import { useCallback, useId, useMemo } from "react";
 import type { ILibUserCardProp } from "./LibUserCard_Data";
 

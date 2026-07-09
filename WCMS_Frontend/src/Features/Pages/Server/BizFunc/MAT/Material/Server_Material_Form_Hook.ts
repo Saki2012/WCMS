@@ -31,7 +31,7 @@ import { buildSupportedLangOrder, DefaultLang, type Lang, LangLabelMap, normaliz
 import type { ApiFormInitial, ServerFormActions } from "@/SysCore/Utils/API/APIAdapter";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LibAttachment, LibText } from "@/SysCore/Utils/Library/LibData";
-import { useUploadFile } from "@/SysCore/Utils/UI_HookFunc/useUploadFile";
+import { useUploadFile } from "@/SysCore/Utils/UI_Hooks/useUploadFile";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import {

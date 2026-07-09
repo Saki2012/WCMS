@@ -4,7 +4,7 @@ import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import { useAnchorPreventDefaultClick } from "@/SysCore/Utils/UI_HookFunc/useAnchorPreventDefaultClick";
+import { useAnchorPreventDefaultClick } from "@/SysCore/Utils/UI_Hooks/useAnchorPreventDefaultClick";
 import type { components } from "@/types/api";
 import clsx from "clsx";
 import { useMemo } from "react";
@@ -53,9 +53,7 @@ export const CarouselData = (props: { lang: Lang; internalId: string; initialBan
                             <div className="carousel-inner">
                                 {sortedDetails.map((p, i) =>
                                 {
-                                    const info = banner?.BannerDetailInfo?.find(x =>
-                                        x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang
-                                    );
+                                    const info = banner?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang);
                                     const alt = info?.Title ?? "";
                                     const content = info?.Content ?? "";
                                     const url = info?.URL;

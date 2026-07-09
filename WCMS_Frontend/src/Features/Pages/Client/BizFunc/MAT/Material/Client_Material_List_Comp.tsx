@@ -8,7 +8,7 @@ import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LibText } from "@/SysCore/Utils/Library/LibData";
 import { resolveSpecComponent } from "@/SysCore/Utils/Library/SlotResolver";
-import { useOptionalSpecAssetUrl } from "@/SysCore/Utils/UI_HookFunc/useOptionalSpecAssetUrl";
+import { useOptionalSpecAssetUrl } from "@/SysCore/Utils/UI_Hooks/useOptionalSpecAssetUrl";
 import type { components } from "@/types/api";
 import { type MouseEvent, useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";

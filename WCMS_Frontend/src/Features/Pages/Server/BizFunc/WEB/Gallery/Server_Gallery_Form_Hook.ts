@@ -22,9 +22,9 @@ import type {
 import {
     buildEditGridCell,
     getEditGridCellValue,
-    getSelectedEditGridFile,
     getEditGridRowId,
     getEditGridStringCellValue,
+    getSelectedEditGridFile,
     useEditGridBinding,
 } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
@@ -33,7 +33,7 @@ import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import { LibAttachment, LibText } from "@/SysCore/Utils/Library/LibData";
-import { useUploadFile } from "@/SysCore/Utils/UI_HookFunc/useUploadFile";
+import { useUploadFile } from "@/SysCore/Utils/UI_Hooks/useUploadFile";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { GalleryInfoFields, GalleryPhotosFields, GalleryPhotosInfoFields, GallerySetFields, PGID } from "@/types/SchemaFields";
@@ -518,9 +518,7 @@ const filterSupportedGalleryInfoRows = (details: GalleryInfo[], preferLang: Lang
     const detailMap = buildSupportedGalleryInfoMap(details);
     const langs = buildSupportedLangOrder(preferLang);
 
-    return langs.map((lang, index) => buildGalleryInfoTabItem(detailMap.get(lang.toLowerCase()), index)).filter((item): item is GalleryInfoTabItem =>
-        Boolean(item)
-    );
+    return langs.map((lang, index) => buildGalleryInfoTabItem(detailMap.get(lang.toLowerCase()), index)).filter((item): item is GalleryInfoTabItem => Boolean(item));
 };
 
 /** 將有效語系 Detail 建成 Map，同語系只保留第一筆。 */
