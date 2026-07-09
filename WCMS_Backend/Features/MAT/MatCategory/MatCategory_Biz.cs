@@ -1,6 +1,6 @@
 ﻿using WCMS.Features._Resx;
 using WCMS.Features.COMM.Category;
-using WCMS.SysCore;
+using WCMS.SysCore.FeatureDriver.Biz;
 using WCMS.SysCore.Library.LibAttribute;
 namespace WCMS.Features.MAT.MatCategory;
 

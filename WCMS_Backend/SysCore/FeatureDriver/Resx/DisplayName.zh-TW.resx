@@ -1026,4 +1026,7 @@
   <data name="AACheck_MailtoTitle" xml:space="preserve">
     <value>電子郵件連結title不足，請使用姓名加電子郵件作為title</value>
   </data>
+  <data name="SiteMenu_Keyword" xml:space="preserve">
+    <value>關鍵字</value>
+  </data>
 </root>

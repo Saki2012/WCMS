@@ -4,12 +4,12 @@ using System.Data;
 using System.Text.RegularExpressions;
 using WCMS.Features._Resx;
 using WCMS.Features.WEB.PageManagement;
-using WCMS.SysCore;
+using WCMS.SysCore.FeatureDriver.Biz;
+using WCMS.SysCore.FeatureDriver.Model;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.LibAttribute;
-using WCMS.SysCore.Model;
 using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.WEB.SiteMenuSetting
@@ -446,7 +446,7 @@ namespace WCMS.Features.WEB.SiteMenuSetting
         /// </summary>
         private async Task<SiteMenu_IndexModel?> QuerySiteMenuIndexAsync(string internalId, CancellationToken ct = default)
         {
-            var data = await DoQueryListAsync<SiteMenu_IndexModel>([], $"{nameof(BasicDataModel.InternalId)} = '{SqlValue(internalId)}'", default, 0, 1);
+            var data = await DoQueryListAsync<SiteMenu_IndexModel>([], $"{nameof(HeaderModel.InternalId)} = '{SqlValue(internalId)}'", default, 0, 1);
             return data.Cast<SiteMenu_IndexModel>().FirstOrDefault();
         }
 

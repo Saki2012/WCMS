@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
-using WCMS.Features._Resx;
+using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.LibAttribute;
 
@@ -12,13 +12,13 @@ public static class I18nModelHelper
 {
     public static string GetLocalizedDescription(Type type)
     {
-        var attr = type.GetCustomAttribute<LibDescAttribute>();
+        var attr = GetDisplayAttr(type);
         return DoGetLocalizedDescription(type.Name, attr);
     }
 
     public static string GetLocalizedDescription(PropertyInfo prop)
     {
-        var attr = prop.GetCustomAttribute<LibDescAttribute>();
+        var attr = GetDisplayAttr(prop);
         return DoGetLocalizedDescription(prop.Name, attr);
     }
     /// <summary>
@@ -26,16 +26,40 @@ public static class I18nModelHelper
     /// </summary>
     public static string GetLocalizedDescription(FieldInfo field)
     {
-        var attr = field.GetCustomAttribute<LibDescAttribute>();
+        var attr = GetDisplayAttr(field);
         return DoGetLocalizedDescription(field.Name, attr);
     }
 
-    private static string DoGetLocalizedDescription(string name,LibDescAttribute attr)
+    /// <summary>
+    /// 取得成員上的顯示名稱屬性。
+    /// </summary>
+    private static ILibDisplayAttr? GetDisplayAttr(MemberInfo member)
     {
-        string result = string.Empty;
-        if (attr != null&& attr.Description.IsNullOrEmpty()) attr.SetResourceKey(name);
-        result = attr?.Description;
-        return result.IsNullOrEmpty()?$"[{name}]":result;
+        var result = member.GetCustomAttributes(inherit: false).OfType<ILibDisplayAttr>().FirstOrDefault();
+        return result;
+    }
+
+    /// <summary>
+    /// 依顯示名稱屬性取得多語系文字。
+    /// </summary>
+    private static string DoGetLocalizedDescription(string name, ILibDisplayAttr? attr)
+    {
+        if (attr is LibDescAttribute descAttr && descAttr.Description.IsNullOrEmpty()) descAttr.SetResourceKey(name);
+
+        string? result = GetDescriptionText(attr);
+        return result.IsNullOrEmpty() ? $"[{name}]" : result;
+    }
+
+    /// <summary>
+    /// 取得 LibDesc 或 LibField 顯示文字。
+    /// </summary>
+    private static string? GetDescriptionText(ILibDisplayAttr? attr)
+    {
+        if (attr == null) return null;
+        if (attr is LibDescAttribute descAttr) return descAttr.Description;
+
+        var result = LibDisplayAttributeHelper.GetDescriptionText(attr);
+        return result;
     }
 
 }
@@ -48,7 +72,7 @@ public static class I18nCache
     private static string PropKey(PropertyInfo prop) => $"{CultureKey}|P:{prop.DeclaringType?.FullName}.{prop.Name}";
     private static string FieldKey(FieldInfo field) => $"{CultureKey}|F:{field.DeclaringType?.FullName}.{field.Name}";
 
-    private static readonly Type[] DomainTypes = typeof(ModelDisplayName).Assembly.GetTypes();
+    private static readonly Type[] DomainTypes = typeof(DisplayName).Assembly.GetTypes();
     #endregion
 
     #region Public

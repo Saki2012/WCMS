@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using WCMS.Features._Resx;
+using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.Library.LibAttribute;
 using static WCMS.SysCore.Enum.SysEnum;
 
@@ -34,49 +35,49 @@ namespace WCMS.SysCore.Library
             /// 可自動修正情境：圖片位於已有可辨識名稱的連結內時，可補alt=""。
             /// 需人工處理情境：一般內容圖片缺alt、圖片src為空、alt與檔名相同。
             /// </summary>
-            [LibDesc(ModelDisplayName.AACheck_ImgAlt)]
+            [LibDesc(DisplayName.AACheck_ImgAlt)]
             public const string ImgAlt = "HM1110100C";
             /// <summary>
             /// alt空白圖片不應保留title的AA檢測碼。
             /// 可自動修正情境：img alt=""且存在title時，直接移除title。
             /// 檢查訊息原則：AutoFormat後不提示，除非後續仍偵測到殘留問題。
             /// </summary>
-            [LibDesc(ModelDisplayName.AACheck_ImgEmptyAltTitle)]
+            [LibDesc(DisplayName.AACheck_ImgEmptyAltTitle)]
             public const string ImgEmptyAltTitle = "HM1110106C";
             /// <summary>
             /// 連結缺少可辨識名稱的AA檢測碼。
             /// 可自動修正情境：純圖片連結可使用img alt/title搬到a title/aria-label。
             /// 需人工處理情境：a沒有文字、title、aria-label，且內層圖片也沒有有效alt/title。
             /// </summary>
-            [LibDesc(ModelDisplayName.AACheck_AnchorName)]
+            [LibDesc(DisplayName.AACheck_AnchorName)]
             public const string AnchorName = "HM1240401C";
             /// <summary>
             /// 連結與內層圖片替代文字重複或衝突的AA檢測碼。
             /// 可自動修正情境：a已有文字、title或aria-label時，內層img改為alt=""並移除title。
             /// 檢查訊息原則：AutoFormat後不提示，除非後續仍偵測到殘留問題。
             /// </summary>
-            [LibDesc(ModelDisplayName.AACheck_AnchorImgConflict)]
+            [LibDesc(DisplayName.AACheck_AnchorImgConflict)]
             public const string AnchorImgConflict = "HM1240400C";
             /// <summary>
             /// iframe缺少title屬性的AA檢測碼。
             /// 可自動修正情境：依iframe src補上預設title，例如SoundCloud、YouTube、Google地圖或嵌入內容。
             /// 檢查訊息原則：AutoFormat後不提示，除非後續決定未知來源iframe必須人工命名。
             /// </summary>
-            [LibDesc(ModelDisplayName.AACheck_IframeTitle)]
+            [LibDesc(DisplayName.AACheck_IframeTitle)]
             public const string IframeTitle = "HM1410201C";
             /// <summary>
             /// CSS font-size使用px/pt固定單位的AA檢測碼。
             /// 可自動修正情境：inline style或style區塊中的font-size:px/pt轉為rem。
             /// 檢查訊息原則：AutoFormat後不提示，除非仍有無法轉換的px/pt font-size。
             /// </summary>
-            [LibDesc(ModelDisplayName.AACheck_FontSizePx)]
+            [LibDesc(DisplayName.AACheck_FontSizePx)]
             public const string FontSizePx = "CS2140401C";
             /// <summary>
             /// 電子郵件連結缺少足夠脈絡title的AA檢測碼。
             /// 可自動修正情境：不自動修正，因後端無法穩定判斷職員姓名。
             /// 需人工處理情境：mailto連結沒有title、title只有email、title與連結文字相同，或title未包含電子郵件用途與信箱資訊。
             /// </summary>
-            [LibDesc(ModelDisplayName.AACheck_MailtoTitle)]
+            [LibDesc(DisplayName.AACheck_MailtoTitle)]
             public const string MailtoTitle = "HM1240404E";
         }
         /// <summary>

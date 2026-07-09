@@ -5,8 +5,8 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using WCMS.Features.IAM.Auth;
+using WCMS.SysCore.FeatureDriver.Model;
 using WCMS.SysCore.Interface;
-using WCMS.SysCore.Model;
 
 namespace WCMS.SysCore
 {
@@ -25,7 +25,7 @@ namespace WCMS.SysCore
 
             var claims = new[]
             {
-                new Claim(nameof(BasicDataModel.InternalId), user.InternalId),
+                new Claim(nameof(HeaderModel.InternalId), user.InternalId),
                 new Claim(ClaimTypes.NameIdentifier, user.UserId),
                 new Claim(ClaimTypes.Name, user.UserName ?? user.UserId),
                 //new Claim(ClaimTypes.Role, user.RoleId ?? "User"),

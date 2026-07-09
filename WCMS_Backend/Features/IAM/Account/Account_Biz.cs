@@ -1,7 +1,7 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using WCMS.Features._Resx;
 using WCMS.Features.COMM.Person;
-using WCMS.SysCore;
+using WCMS.SysCore.FeatureDriver.Biz;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;

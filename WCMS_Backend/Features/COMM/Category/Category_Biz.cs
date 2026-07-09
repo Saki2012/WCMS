@@ -6,7 +6,7 @@ using WCMS.Features.WEB.Announcement;
 using WCMS.Features.WEB.FileArchive;
 using WCMS.Features.WEB.Gallery;
 using WCMS.Features.WEB.PageManagement;
-using WCMS.SysCore;
+using WCMS.SysCore.FeatureDriver.Biz;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;

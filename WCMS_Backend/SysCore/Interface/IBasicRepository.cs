@@ -1,5 +1,5 @@
 ﻿using System.Linq.Expressions;
-using static WCMS.SysCore.QueryListParam;
+using static WCMS.SysCore.FeatureDriver.Api.QueryListParam;
 
 namespace WCMS.SysCore.Interface
 {

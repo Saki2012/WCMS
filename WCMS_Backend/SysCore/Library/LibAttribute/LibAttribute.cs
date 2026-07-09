@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Net;
-using WCMS.Features._Resx;
+using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n;
 
 namespace WCMS.SysCore.Library.LibAttribute
@@ -14,28 +14,72 @@ namespace WCMS.SysCore.Library.LibAttribute
     /// (透過.resx支援多語系)
     /// </summary>
     [AttributeUsage(AttributeTargets.All, Inherited = false, AllowMultiple = false)]
-    public sealed class LibDescAttribute : DescriptionAttribute
+    public sealed class LibDescAttribute : DescriptionAttribute, ILibDisplayAttr
     {
+        #region Property
         private string? _resourceKey;
-        private readonly string CurrentSpecCode = SpecSettings.SpecCode;
-        public LibDescAttribute(string resKey = ""){if (!resKey.IsNullOrEmpty()) _resourceKey = resKey;}
-        public void SetResourceKey(string key) => _resourceKey = key;
+        private string? _aliasKey;
+        #endregion
+
+        #region Public
+        /// <summary>
+        /// 主要顯示名稱資源 Key。
+        /// </summary>
+        public string? DescKey => _resourceKey;
+
+        /// <summary>
+        /// 別名顯示名稱資源 Key。
+        /// </summary>
+        public string? AliasKey => _aliasKey;
+
+        /// <summary>
+        /// 建立欄位顯示名稱描述，第二參數會優先作為顯示名稱。
+        /// </summary>
+        public LibDescAttribute(string resKey = "", string aliasKey = "")
+        {
+            SetInitialKeys(resKey, aliasKey);
+        }
+
+        /// <summary>
+        /// 沒有指定資源 Key 時，補上欄位名稱作為預設 Key。
+        /// </summary>
+        public void SetResourceKey(string key)
+        {
+            _resourceKey = key;
+        }
+
+        /// <summary>
+        /// 取得多語系描述文字。
+        /// </summary>
         public override string Description
         {
             get
             {
-                // 1) 沒 key 就回空
-                if (string.IsNullOrWhiteSpace(_resourceKey)) return string.Empty;
-                // 2) 組 baseName（Spec 可空）
-                var coreBaseName = typeof(ModelDisplayName).FullName!;
-                var specBaseName = string.IsNullOrWhiteSpace(CurrentSpecCode) ? null : $"{nameof(WCMS)}.{SpecSettings.SpecFeatures}.{CurrentSpecCode}._Resx.SpecModelDisplayName";
-                // 3) 共用 reader：Spec -> Core
-                var asm = typeof(ModelDisplayName).Assembly;
-                var value = LibResxReader.TryGetSpecOrCore(coreBaseName, specBaseName, asm, _resourceKey, CultureInfo.CurrentUICulture);
-                // 4) 找不到就回 [key]
-                return string.IsNullOrWhiteSpace(value) ? $"[{_resourceKey}]" : value;
+                var result = GetDescriptionText();
+                return result;
             }
         }
+        #endregion
+
+        #region Private
+        /// <summary>
+        /// 初始化主要 Key 與別名 Key。
+        /// </summary>
+        private void SetInitialKeys(string resKey, string aliasKey)
+        {
+            if (!resKey.IsNullOrEmpty()) _resourceKey = resKey;
+            if (!aliasKey.IsNullOrEmpty()) _aliasKey = aliasKey;
+        }
+
+        /// <summary>
+        /// 依序取得別名、主要名稱、 fallback 名稱。
+        /// </summary>
+        private string GetDescriptionText()
+        {
+            var result = LibDisplayAttributeHelper.GetDescriptionText(this);
+            return result;
+        }
+        #endregion
     }
 
     [AttributeUsage(AttributeTargets.Method)]

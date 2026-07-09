@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
-using WCMS.SysCore;
+using WCMS.SysCore.FeatureDriver.Biz;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library.LibAttribute;
 

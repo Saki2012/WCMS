@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using WCMS.Features._Resx;
 using WCMS.Features.COMM.Category;
 using WCMS.SpecFeatures.Spec1817._Resx;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.FeatureDriver.Model;
+using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.SystemFunc.FileManagement;
@@ -30,11 +31,11 @@ public class SpecMusicalModel_DTO : DTOBasicDataModel
     /// 類別
     /// </summary>
     [ForeignKey(nameof(CategoryId))] public Category_DTO? Category { get; set; }
-    [LibDesc(ModelDisplayName.CategoryId), StringLength(SysLengthParam.ID)] public string? CategoryId { get; set; } = string.Empty;
+    [LibDesc(DisplayName.CategoryId), StringLength(SysLengthParam.ID)] public string? CategoryId { get; set; } = string.Empty;
     /// <summary>
     /// 封面圖片(來源從明細找)
     /// </summary>
-    [LibDesc(ModelDisplayName.Announcement_CoverPictureId), StringLength(SysLengthParam.InternalId)] public string? CoverPicId { get; set; }
+    [LibDesc(DisplayName.Announcement_CoverPictureId), StringLength(SysLengthParam.InternalId)] public string? CoverPicId { get; set; }
     /// <summary>
     /// 規格
     /// </summary>
@@ -72,7 +73,7 @@ public class SpecMusicalModel_DTO : DTOBasicDataModel
     [InverseProperty(nameof(SpecMusicalPictureList._SpecMusical))] public List<SpecMusicalPictureList_DTO>? _SpecMusicalPictureList { get; set; }
     #endregion
 }
-public class SpecMusicalSoundList_DTO : DetailRowModel
+public class SpecMusicalSoundList_DTO : DetailModel
 {
     /// <summary>
     /// 樂器代碼
@@ -81,12 +82,12 @@ public class SpecMusicalSoundList_DTO : DetailRowModel
     /// <summary>
     /// 行主鍵
     /// </summary>
-    [LibDesc(ModelDisplayName.Common_RowId), Key] public int? RowId { get; set; }
+    [LibDesc(DisplayName.Common_RowId), Key] public int? RowId { get; set; }
     /// <summary>
     /// 音源
     /// </summary>
     [ForeignKey(nameof(SoundSrcId))] public FileManageModel_DTO SoundSrc { get; set; }
-    [LibDesc(ModelDisplayName.Common_SoundSrcId), StringLength(SysLengthParam.InternalId)] public string? SoundSrcId { get; set; }
+    [LibDesc(DisplayName.Common_SoundSrcId), StringLength(SysLengthParam.InternalId)] public string? SoundSrcId { get; set; }
     /// <summary>
     /// 音檔說明
     /// </summary>
@@ -96,7 +97,7 @@ public class SpecMusicalSoundList_DTO : DetailRowModel
     [ForeignKey(nameof(MusicalId))] public SpecMusicalModel_DTO? _SpecMusical { get; set; }
     #endregion
 }
-public class SpecMusicalPictureList_DTO : DetailRowModel
+public class SpecMusicalPictureList_DTO : DetailModel
 {
     /// <summary>
     /// 樂器代碼
@@ -105,19 +106,19 @@ public class SpecMusicalPictureList_DTO : DetailRowModel
     /// <summary>
     /// 行主鍵
     /// </summary>
-    [LibDesc(ModelDisplayName.Common_RowId), Key] public int? RowId { get; set; }
+    [LibDesc(DisplayName.Common_RowId), Key] public int? RowId { get; set; }
     /// <summary>
     /// 圖片來源
     /// </summary>
-    [LibDesc(ModelDisplayName.Gallery_PicSrcId), StringLength(SysLengthParam.InternalId)] public string? PicSrcId { get; set; }
+    [LibDesc(DisplayName.Gallery_PicSrcId), StringLength(SysLengthParam.InternalId)] public string? PicSrcId { get; set; }
     /// <summary>
     /// 相片排序
     /// </summary>
-    [LibDesc(ModelDisplayName.Gallery_Sort)] public int? Sort { get; set; }
+    [LibDesc(DisplayName.Gallery_Sort)] public int? Sort { get; set; }
     /// <summary>
     /// 圖片說明
     /// </summary>
-    [LibDesc(ModelDisplayName.Gallery_PhotosInfo), StringLength(SysLengthParam.Info)] public string? Info { get; set; }
+    [LibDesc(DisplayName.Gallery_PhotosInfo), StringLength(SysLengthParam.Info)] public string? Info { get; set; }
 
     #region 主子表關聯
     [ForeignKey(nameof(MusicalId))] public SpecMusicalModel_DTO? _SpecMusical { get; set; }

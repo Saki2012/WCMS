@@ -1,7 +1,7 @@
 ﻿using WCMS.Features.IAM.Auth;
 using WCMS.SysCore.Interface;
 
-namespace WCMS.SysCore;
+namespace WCMS.SysCore.FeatureDriver.Biz;
 
 /// <summary>
 /// Biz 最底層基底，提供不綁定資料模型的共用服務。

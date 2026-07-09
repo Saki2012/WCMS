@@ -26,4 +26,30 @@
         /// </summary>
         Natural
     }
+
+    /// <summary>
+    /// API 欄位讀寫模式。
+    /// </summary>
+    public enum ApiFieldMode
+    {
+        /// <summary>
+        /// API 可讀可寫。
+        /// </summary>
+        ReadWrite,
+
+        /// <summary>
+        /// API 可讀不可寫。
+        /// </summary>
+        ReadOnly,
+
+        /// <summary>
+        /// API 可寫不可讀。
+        /// </summary>
+        WriteOnly,
+
+        /// <summary>
+        /// API 不可讀不可寫。
+        /// </summary>
+        Ignore
+    }
 }

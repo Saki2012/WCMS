@@ -1,308 +1,356 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using WCMS.Features.WEB.Banner;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.FeatureDriver.Model;
+using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.LibAttribute;
-using WCMS.SysCore.Model;
 using static WCMS.SysCore.Enum.SysEnum;
 
-namespace WCMS.Features.WEB.SiteMenuSetting
+namespace WCMS.Features.WEB.SiteMenuSetting;
+
+/// <summary>
+/// 
+/// </summary>
+public class SiteMenu_IndexModel: HeaderModel
 {
     /// <summary>
-    /// 
+    /// 首頁代碼
     /// </summary>
-    public class SiteMenuSet:ITSet
-    {
-        /// <summary>
-        /// 首頁
-        /// </summary>
-        public SiteMenu_IndexModel SiteMenu_Index { get; set; } = new();
-        /// <summary>
-        /// 首頁資訊
-        /// </summary>
-        public List<SiteMenu_IndexInfoModel> SiteMenu_IndexInfo { get; set; } = [];
-        /// <summary>
-        /// 連結項目
-        /// </summary>
-        public List<SiteMenu_Item> SiteMenu_Item { get; set; } = [];
-        /// <summary>
-        /// 連結標題(多國語言)
-        /// </summary>
-        public List<SiteMenu_Item_Title> SiteMenu_Item_Title { get; set; } = [];
-        /// <summary>
-        /// 超連結
-        /// </summary>
-        public List<SiteMenu_Item_Url> SiteMenu_Item_Url { get; set; } = [];
-        /// <summary>
-        /// 功能模組
-        /// </summary>
-        public List<SiteMenu_Item_Module> SiteMenu_Item_Module { get; set; } = [];
-    }
+[Key]
+[LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, DisplayName.SiteMenu_SiteIndex)]
+public string SiteIndex { get; set; } = string.Empty;
     /// <summary>
-    /// 
+    /// Goole分析碼
     /// </summary>
-    public class SiteMenu_IndexModel:MasterDataModel
-    {
-        /// <summary>
-        /// 首頁代碼
-        /// </summary>
-        [Key, StringLength(SysLengthParam.ID)] public string ? SiteIndex { get; set; }
-        /// <summary>
-        /// Goole分析碼
-        /// </summary>
-        [StringLength(SysLengthParam.Memo)] public string GoogleAnalytics { get; set; }
-        /// <summary>
-        /// 是否啟用站台
-        /// </summary>
-        public bool Enable { get; set; } = true;
-        /// <summary>
-        /// 預設語系
-        /// </summary>
-        public LangCode DefaultLang { get; set; }
-        /// <summary>
-        /// 支援語系
-        /// </summary>
-        [StringLength(SysLengthParam.Memo)] public string SupportLangs { get; set; }
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Memo, DisplayName.SiteMenu_GoogleAnalytics)]
+public string GoogleAnalytics { get; set; } = string.Empty;
+    /// <summary>
+    /// 是否啟用站台
+    /// </summary>
+[LibField(ApiFieldMode.ReadWrite, DisplayName.SiteMenu_Enable)]
+public bool Enable { get; set; }= true;
+    /// <summary>
+    /// 預設語系
+    /// </summary>
+[LibField(ApiFieldMode.ReadWrite, DisplayName.Enum_DefaultLang)]
+public LangCode DefaultLang { get; set; }
+    /// <summary>
+    /// 支援語系
+    /// </summary>
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Memo, DisplayName.Enum_SupportLang)]
+public string SupportLangs { get; set; } = string.Empty;
 
-        #region 主子表關聯
-        [InverseProperty(nameof(SiteMenu_IndexInfoModel._SiteMenu_Index))] public List<SiteMenu_IndexInfoModel> _SiteMenu_IndexInfo { get; set; }
-        [InverseProperty(nameof(SiteMenu_Item._SiteMenu_Index))] public List<SiteMenu_Item> _SiteMenu_Item { get; set; }
-        #endregion
-    }
+    #region 主子表關聯
+[InverseProperty(nameof(SiteMenu_IndexInfoModel._SiteMenu_Index))]
+[LibField(ApiFieldMode.ReadWrite)]
+public List<SiteMenu_IndexInfoModel> _SiteMenu_IndexInfo { get; set; } = [];
+[InverseProperty(nameof(SiteMenu_Item._SiteMenu_Index))]
+[LibField(ApiFieldMode.ReadWrite)]
+public List<SiteMenu_Item> _SiteMenu_Item { get; set; } = [];
+    #endregion
+}
+/// <summary>
+/// 
+/// </summary>
+public class SiteMenu_IndexInfoModel : DetailModel
+{
+    /// <summary>
+    /// 首頁代碼
+    /// </summary>
+[Key]
+[LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, DisplayName.SiteMenu_SiteIndex)]
+public string SiteIndex { get; set; } = string.Empty;
     /// <summary>
     /// 
     /// </summary>
-    public class SiteMenu_IndexInfoModel : DetailRowModel
-    {
-        /// <summary>
-        /// 首頁代碼
-        /// </summary>
-        [Key, StringLength(SysLengthParam.ID)] public string? SiteIndex { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        [Key] public int? RowId { get; set; }
-        /// <summary>
-        /// 語系
-        /// </summary>
-        public LangCode? Lang { get; set; }
-        /// <summary>
-        /// 網站標題
-        /// </summary>
-        [StringLength(SysLengthParam.Title)] public string Title { get; set; }
-        /// <summary>
-        /// 網站描述
-        /// </summary>
-        [StringLength(SysLengthParam.Memo)] public string Description { get; set; }
-        /// <summary>
-        /// 首頁Banner設定
-        /// </summary>
-        [StringLength(SysLengthParam.ID)] public string? BannerId { get; set; }
-        /// <summary>
-        /// Header
-        /// </summary>
-        public string? SiteHeader { get; set; }
-        /// <summary>
-        /// Footer
-        /// </summary>
-        public string? SiteFooter { get; set; }
-        /// <summary>
-        /// 網站關鍵字
-        /// </summary>
-        [StringLength(SysLengthParam.Memo)] public string Keyword { get; set; }
+[Key]
+[LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
+public int RowId { get; set; }
+    /// <summary>
+    /// 語系
+    /// </summary>
+[LibField(ApiFieldMode.ReadWrite, DisplayName.Common_Lang)]
+public LangCode Lang { get; set; }
+    /// <summary>
+    /// 網站標題
+    /// </summary>
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title, DisplayName.SiteMenu_SiteTitle)]
+public string Title { get; set; } = string.Empty;
+    /// <summary>
+    /// 網站描述
+    /// </summary>
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Memo, DisplayName.SiteMenu_SiteDescription)]
+public string Description { get; set; } = string.Empty;
+    /// <summary>
+    /// Header
+    /// </summary>
+[LibField(ApiFieldMode.ReadWrite, DisplayName.SiteMenu_SiteHeader)]
+public string SiteHeader { get; set; } = string.Empty;
+    /// <summary>
+    /// Footer
+    /// </summary>
+[LibField(ApiFieldMode.ReadWrite, DisplayName.SiteMenu_SiteFooter)]
+public string SiteFooter { get; set; } = string.Empty;
+    /// <summary>
+    /// 網站關鍵字
+    /// </summary>
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Memo, DisplayName.SiteMenu_Keyword)]
+public string Keyword { get; set; } = string.Empty;
 
-        #region 主子表關聯
-        [ForeignKey(nameof(SiteIndex))] public SiteMenu_IndexModel _SiteMenu_Index { get; set; }
-        #endregion
-    }
+    #region 主子表關聯
+[ForeignKey(nameof(SiteIndex))]
+[LibField(ApiFieldMode.ReadOnly)]
+public SiteMenu_IndexModel _SiteMenu_Index { get; set; }
+    #endregion
+}
+/// <summary>
+/// 
+/// </summary>
+[Index(nameof(SiteIndex), nameof(FullUrl), IsUnique = true, Name = "UX_SiteMenu_Item_NaturalKey")]
+public class SiteMenu_Item: DetailModel
+{
     /// <summary>
-    /// 
+    /// 主站Url，最主要的會是Empty，新的子站則是https://xxx.com/{SiteIndex}
     /// </summary>
-    [Index(nameof(SiteIndex), nameof(FullUrl), IsUnique = true, Name = "UX_SiteMenu_Item_NaturalKey")]
-    public class SiteMenu_Item:DetailRowModel
-    {
-        /// <summary>
-        /// 主站Url，最主要的會是Empty，新的子站則是https://xxx.com/{SiteIndex}
-        /// </summary>
-        [Key, StringLength(SysLengthParam.ID)] public string? SiteIndex { get; set; }
-        /// <summary>
-        /// url主鍵
-        /// </summary>
-        [Key]public int RowId { get; set; }
-        /// <summary>
-        /// 上層url外鍵(一定會跟著SiteIndex一起)
-        /// </summary>
-        public int? ParentRowId { get; set; }
-        /// <summary>
-        /// 當前頁面Url E.x.:AllNews
-        /// </summary>
-        [StringLength(SysLengthParam.Url)] public string? ItemSiteUrl { get; set; }
-        /// <summary>
-        /// 完整的Url，整個系統唯一值，後端賦值處理
-        /// </summary>
-        [StringLength(SysLengthParam.Url)] public string? FullUrl { get; set; }
-        /// <summary>
-        /// 層級
-        /// </summary>
-        public byte Level { get; set; }
-        /// <summary>
-        /// 順序(Key:同Parent底下做排序)
-        /// </summary>
-        public byte DisplayOrder { get; set; }
-        /// <summary>
-        /// 屬於function或是url連結?
-        /// </summary>
-        public MenuUrlType ItemType { get; set; } //Url Or Func
-        /// <summary>
-        /// 開啟分頁方式
-        /// </summary>
-        public WindowTarget WindowTarget { get; set; }
-        
-        #region 主子表關聯
-        [ForeignKey(nameof(SiteIndex))] public SiteMenu_IndexModel _SiteMenu_Index { get; set; }
-        [InverseProperty(nameof(SiteMenu_Item_Title._SiteMenu_Index))] public List<SiteMenu_Item_Title> _SiteMenu_Item_Title { get; set; }
-        [InverseProperty(nameof(SiteMenu_Item_Title._SiteMenu_Index))] public SiteMenu_Item_Url _SiteMenu_Item_Url { get; set; }
-        [InverseProperty(nameof(SiteMenu_Item_Title._SiteMenu_Index))] public SiteMenu_Item_Module _SiteMenu_Item_Module { get; set; }
-        #endregion
-    }
+[Key]
+[LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, DisplayName.SiteMenu_SiteIndex)]
+public string SiteIndex { get; set; } = string.Empty;
     /// <summary>
-    /// 
+    /// url主鍵
     /// </summary>
-    public class SiteMenu_Item_Title : DetailRowModel
-    {
-        [Key, StringLength(SysLengthParam.ID)] public string? SiteIndex { get; set; }
-        [Key] public int ItemRowId { get; set; }
-        [Key] public int RowId { get; set; }
-        public LangCode Lang { get; set; }
-        [StringLength(SysLengthParam.Title)] public string Title { get; set; }
-        public bool IsShowOnMenu { get; set; }
+[Key]
+[LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
+public int RowId { get; set; }
+    /// <summary>
+    /// 上層url外鍵(一定會跟著SiteIndex一起)
+    /// </summary>
+[LibField(ApiFieldMode.ReadWrite, DisplayName.Common_ParentRowId)]
+public int ParentRowId { get; set; }
+    /// <summary>
+    /// 當前頁面Url E.x.:AllNews
+    /// </summary>
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Url, DisplayName.SiteMenu_ItemSiteUrl)]
+public string ItemSiteUrl { get; set; } = string.Empty;
+    /// <summary>
+    /// 完整的Url，整個系統唯一值，後端賦值處理
+    /// </summary>
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Url, DisplayName.SiteMenu_FullUrl)]
+public string FullUrl { get; set; } = string.Empty;
+    /// <summary>
+    /// 層級
+    /// </summary>
+[LibField(ApiFieldMode.ReadWrite, DisplayName.SiteMenu_Level)]
+public byte Level { get; set; }
+    /// <summary>
+    /// 順序(Key:同Parent底下做排序)
+    /// </summary>
+[LibField(ApiFieldMode.ReadWrite, DisplayName.SiteMenu_DisplayOrder)]
+public byte DisplayOrder { get; set; }
+    /// <summary>
+    /// 屬於function或是url連結?
+    /// </summary>
+[LibField(ApiFieldMode.ReadWrite, DisplayName.SiteMenu_ItemType)]
+public MenuUrlType ItemType { get; set; }
+    
+    #region 主子表關聯
+[ForeignKey(nameof(SiteIndex))]
+[LibField(ApiFieldMode.ReadOnly)]
+public SiteMenu_IndexModel _SiteMenu_Index { get; set; }
+[InverseProperty(nameof(SiteMenu_Item_Title._SiteMenu_Index))]
+[LibField(ApiFieldMode.ReadWrite)]
+public List<SiteMenu_Item_Title> _SiteMenu_Item_Title { get; set; } = [];
+[InverseProperty(nameof(SiteMenu_Item_Title._SiteMenu_Index))]
+[LibField(ApiFieldMode.ReadOnly)]
+public SiteMenu_Item_Url _SiteMenu_Item_Url { get; set; }
+[InverseProperty(nameof(SiteMenu_Item_Title._SiteMenu_Index))]
+[LibField(ApiFieldMode.ReadOnly)]
+public SiteMenu_Item_Module _SiteMenu_Item_Module { get; set; }
+    #endregion
+}
+/// <summary>
+/// 
+/// </summary>
+public class SiteMenu_Item_Title : DetailModel
+{
+[Key]
+[LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, DisplayName.SiteMenu_SiteIndex)]
+public string SiteIndex { get; set; } = string.Empty;
+[Key]
+[LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
+public int ItemRowId { get; set; }
+[Key]
+[LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
+public int RowId { get; set; }
+[LibField(ApiFieldMode.ReadWrite, DisplayName.Common_Lang)]
+public LangCode Lang { get; set; }
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title, DisplayName.SiteMenu_MenuTitle)]
+public string Title { get; set; } = string.Empty;
+[LibField(ApiFieldMode.ReadWrite, DisplayName.SiteMenu_IsShowOnMenu)]
+public bool IsShowOnMenu { get; set; }
 
-        #region 主子表關聯
-        [ForeignKey($@"{nameof(SiteIndex)},{nameof(ItemRowId)}")] public SiteMenu_Item _SiteMenu_Index { get; set; }
-        #endregion
-    }
-    /// <summary>
-    /// 
-    /// </summary>
-    public class SiteMenu_Item_Url : DetailRowModel
-    {
-        [Key] public string SiteIndex { get; set; }
-        [Key] public int ItemRowId { get; set; }
-        public MenuUrlType RedirectType { get; set; } //0:無, 1:外部,2:內部模型功能(直接轉FullUrl、但是是用下拉的看Title/Url)
-        [StringLength(SysLengthParam.Url)] public string? RedirectUrl { get; set; }
+    #region 主子表關聯
+[ForeignKey($@"{nameof(SiteIndex)},{nameof(ItemRowId)}")]
+[LibField(ApiFieldMode.ReadOnly)]
+public SiteMenu_Item _SiteMenu_Index { get; set; }
+    #endregion
+}
+/// <summary>
+/// 
+/// </summary>
+public class SiteMenu_Item_Url : DetailModel
+{
+[Key]
+[LibField(ApiFieldMode.ReadOnly, DisplayName.SiteMenu_SiteIndex)]
+public string SiteIndex { get; set; } = string.Empty;
+[Key]
+[LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
+public int ItemRowId { get; set; }
+[LibField(ApiFieldMode.ReadWrite, DisplayName.SiteMenu_RedirectType)]
+public MenuUrlType RedirectType { get; set; } //待考慮，該欄位應該可以移除
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Url, DisplayName.Common_Url)]
+public string RedirectUrl { get; set; } = string.Empty;
 
-        #region 主子表關聯
-        [ForeignKey($@"{nameof(SiteIndex)},{nameof(ItemRowId)}")] public SiteMenu_Item _SiteMenu_Index { get; set; }
-        #endregion
-    }
-    /// <summary>
-    /// 
-    /// </summary>
-    public class SiteMenu_Item_Module : DetailRowModel
-    {
-        [Key, StringLength(SysLengthParam.ID)] public string SiteIndex { get; set; }
-        [Key] public int ItemRowId { get; set; }
-        [StringLength(SysLengthParam.ID)] public string? BannerId { get; set; }
-        public ModulePageType PageType { get; set; }
-        [StringLength(SysLengthParam.ProgId)] public string? ModuleProgId { get; set; } //功能代碼
-        public string? ModuleOptions { get; set; }//動態參數，存Json格式
+    #region 主子表關聯
+[ForeignKey($@"{nameof(SiteIndex)},{nameof(ItemRowId)}")]
+[LibField(ApiFieldMode.ReadOnly)]
+public SiteMenu_Item _SiteMenu_Index { get; set; }
+    #endregion
+}
+/// <summary>
+/// 
+/// </summary>
+public class SiteMenu_Item_Module : DetailModel
+{
+[Key]
+[LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, DisplayName.SiteMenu_SiteIndex)]
+public string SiteIndex { get; set; } = string.Empty;
+[Key]
+[LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
+public int ItemRowId { get; set; }
+[ForeignKey(nameof(BannerId))]
+[LibField(ApiFieldMode.ReadOnly)]
+public Banner.Banner? Banner { get; set; }
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.ID, DisplayName.BannerId)]
+public string? BannerId { get; set; }
+[LibField(ApiFieldMode.ReadWrite, DisplayName.SiteMenu_ItemType)]
+public ModulePageType PageType { get; set; }
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.ProgId, DisplayName.SiteMenu_ModuleProgId)]
+public string ModuleProgId { get; set; } = string.Empty; //功能代碼
+[LibField(ApiFieldMode.ReadWrite, DisplayName.SiteMenu_ModuleOptions)]
+public string ModuleOptions { get; set; } = string.Empty; //動態參數，存Json格式
 
-        #region 主子表關聯
-        [ForeignKey($@"{nameof(SiteIndex)},{nameof(ItemRowId)}")] public SiteMenu_Item _SiteMenu_Index { get; set; }
-        #endregion
-    }
+    #region 主子表關聯
+[ForeignKey($@"{nameof(SiteIndex)},{nameof(ItemRowId)}")]
+[LibField(ApiFieldMode.ReadOnly)]
+public SiteMenu_Item _SiteMenu_Index { get; set; }
+    #endregion
+}
+
+/// <summary>
+/// SiteMenu_Func參數
+/// </summary>
+public class ModuleOptions
+{
     /// <summary>
-    /// SiteMenu_Func參數
+    /// 檔案室參數
     /// </summary>
-    public class ModuleOptions
+    public class FileArchive
     {
         /// <summary>
-        /// 檔案室參數
+        /// 類別
         /// </summary>
-        public class FileArchive
-        {
-            /// <summary>
-            /// 類別
-            /// </summary>
-            public string Category { get; set; }
-            /// <summary>
-            /// 標籤
-            /// </summary>
-            public string Tag { get; set; }
-            /// <summary>
-            /// 樣式
-            /// </summary>
-            [AllowedEnum(ModuleDisplayStyle.List, ModuleDisplayStyle.Expand_Category, ModuleDisplayStyle.Expand_Tag)]
-            public ModuleDisplayStyle Style { get; set; }
-        }
+[LibField(ApiFieldMode.ReadWrite)]
+public string Category { get; set; } = string.Empty;
         /// <summary>
-        /// 相簿參數
+        /// 標籤
         /// </summary>
-        public class Gallery 
-        {
-            /// <summary>
-            /// 類別
-            /// </summary>
-            public string Category { get; set; }
-            /// <summary>
-            /// 標籤
-            /// </summary>
-            public string Tag { get; set; }
-            /// <summary>
-            /// 樣式
-            /// </summary>
-            [AllowedEnum(ModuleDisplayStyle.List, ModuleDisplayStyle.Waterfall)]
-            public ModuleDisplayStyle Style { get; set; }
-        }
+[LibField(ApiFieldMode.ReadWrite)]
+public string Tag { get; set; } = string.Empty;
         /// <summary>
-        /// 頁面參數
+        /// 樣式
         /// </summary>
-        public class PageManagement 
-        {
-            /// <summary>
-            /// 對應頁面功能
-            /// </summary>
-            public string PageId { get; set; }
-        }
+[AllowedEnum(ModuleDisplayStyle.List)]
+[LibField(ApiFieldMode.ReadWrite)]
+public ModuleDisplayStyle Style { get; set; }
+    }
+    /// <summary>
+    /// 相簿參數
+    /// </summary>
+    public class Gallery 
+    {
         /// <summary>
-        /// 公告參數
+        /// 類別
         /// </summary>
-        public class Announcement 
-        {
-            /// <summary>
-            /// 類別
-            /// </summary>
-            public string Category { get; set; }
-            /// <summary>
-            /// 標籤
-            /// </summary>
-            public string Tag { get; set; }
-            /// <summary>
-            /// 樣式
-            /// </summary>
-            [AllowedEnum(ModuleDisplayStyle.List, ModuleDisplayStyle.PictureList,ModuleDisplayStyle.QAList)]
-            public ModuleDisplayStyle Style { get; set; }
-        }
+[LibField(ApiFieldMode.ReadWrite)]
+public string Category { get; set; } = string.Empty;
         /// <summary>
-        /// 網路資源參數
+        /// 標籤
         /// </summary>
-        public class WebResource 
-        {
-            /// <summary>
-            /// 類別
-            /// </summary>
-            public string Category { get; set; }
-            /// <summary>
-            /// 標籤
-            /// </summary>
-            public string Tag { get; set; }
-            /// <summary>
-            /// 樣式
-            /// </summary>
-            [AllowedEnum(ModuleDisplayStyle.List, ModuleDisplayStyle.PictureList, ModuleDisplayStyle.Youtube)]
-            public ModuleDisplayStyle Style { get; set; }
-        }
+[LibField(ApiFieldMode.ReadWrite)]
+public string Tag { get; set; } = string.Empty;
+        /// <summary>
+        /// 樣式
+        /// </summary>
+[AllowedEnum(ModuleDisplayStyle.List)]
+[LibField(ApiFieldMode.ReadWrite)]
+public ModuleDisplayStyle Style { get; set; }
+    }
+    /// <summary>
+    /// 頁面參數
+    /// </summary>
+    public class PageManagement 
+    {
+        /// <summary>
+        /// 對應頁面功能
+        /// </summary>
+[LibField(ApiFieldMode.ReadWrite)]
+public string PageId { get; set; } = string.Empty;
+    }
+    /// <summary>
+    /// 公告參數
+    /// </summary>
+    public class Announcement 
+    {
+        /// <summary>
+        /// 類別
+        /// </summary>
+[LibField(ApiFieldMode.ReadWrite)]
+public string Category { get; set; } = string.Empty;
+        /// <summary>
+        /// 標籤
+        /// </summary>
+[LibField(ApiFieldMode.ReadWrite)]
+public string Tag { get; set; } = string.Empty;
+        /// <summary>
+        /// 樣式
+        /// </summary>
+[AllowedEnum(ModuleDisplayStyle.List, ModuleDisplayStyle.PictureList,ModuleDisplayStyle.QAList)]
+[LibField(ApiFieldMode.ReadWrite)]
+public ModuleDisplayStyle Style { get; set; }
+    }
+    /// <summary>
+    /// 網路資源參數
+    /// </summary>
+    public class WebResource 
+    {
+        /// <summary>
+        /// 類別
+        /// </summary>
+[LibField(ApiFieldMode.ReadWrite)]
+public string Category { get; set; } = string.Empty;
+        /// <summary>
+        /// 標籤
+        /// </summary>
+[LibField(ApiFieldMode.ReadWrite)]
+public string Tag { get; set; } = string.Empty;
+        /// <summary>
+        /// 樣式
+        /// </summary>
+[AllowedEnum(ModuleDisplayStyle.List, ModuleDisplayStyle.PictureList, ModuleDisplayStyle.Youtube)]
+[LibField(ApiFieldMode.ReadWrite)]
+public ModuleDisplayStyle Style { get; set; }
     }
 }

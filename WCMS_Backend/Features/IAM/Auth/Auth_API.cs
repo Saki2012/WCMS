@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using System.Security.Claims;
 using WCMS.SysCore;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.FeatureDriver.Model;
 using WCMS.SysCore.Interface;
 
 namespace WCMS.Features.IAM.Auth
@@ -194,7 +195,7 @@ namespace WCMS.Features.IAM.Auth
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
             var userName = User.FindFirstValue(ClaimTypes.Name) ?? userId;
             var role = User.FindFirstValue(ClaimTypes.Role) ?? "User";
-            var interanlId = User.FindFirstValue(nameof(SysCore.Model.BasicDataModel.InternalId)) ?? ""; 
+            var interanlId = User.FindFirstValue(nameof(HeaderModel.InternalId)) ?? ""; 
             // 回傳你前端需要的最小欄位；之後要接 DB 再補充
 
             var dt = new

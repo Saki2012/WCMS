@@ -3,6 +3,8 @@ using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using WCMS.SysCore.FeatureDriver.Api;
+using WCMS.SysCore.FeatureDriver.Model;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;

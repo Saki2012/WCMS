@@ -7,7 +7,7 @@
     <NameOfLastUsedPublishProfile>本機編譯</NameOfLastUsedPublishProfile>
   </PropertyGroup>
   <ItemGroup>
-    <EmbeddedResource Update="Features\_Resx\ModelDisplayName.zh-TW.resx">
+    <EmbeddedResource Update="SysCore\FeatureDriver\Resx\DisplayName.zh-TW.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Update="Features\_Resx\SysMessageCode.en.resx">

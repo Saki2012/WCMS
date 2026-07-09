@@ -7,13 +7,14 @@ using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using WCMS.Features._Resx;
 using WCMS.Features.WEB.Survey;
-using WCMS.SysCore;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.LibAttribute;
 using WCMS.Features.WEB.Survey;
 using static WCMS.SysCore.Enum.SysEnum;
+using WCMS.SysCore.FeatureDriver.Repo;
+using WCMS.SysCore.FeatureDriver.Biz;
 
 namespace WCMS.Features.WEB.SurveySubmission;
 
@@ -74,7 +75,7 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
         SurveySubmitContext context = new() { Submit = submit, RawFormDataJson = NormalizeRawFormDataJson(rawFormDataJson) };
         CheckSubmissionHeader(submit);
         if (Message.HasError) return context;
-        context.SurveySet = await GetSubmitSurveySet(submit.SurveyId?.Trim() ?? string.Empty, ct);
+        context.Survey = await GetSubmitSurveySet(submit.SurveyId?.Trim() ?? string.Empty, ct);
         CheckSurveyExists(context);
         if (Message.HasError) return context;
         context.FormData = ParseFormDataJson(context.RawFormDataJson);
@@ -121,7 +122,7 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
     /// </summary>
     private void CheckSurveyExists(SurveySubmitContext context)
     {
-        if (context.SurveySet?.Survey != null) return;
+        if (context.Survey?.Survey != null) return;
         AddCustomError($"找不到問卷資料：{context.Submit?.SurveyId}");
     }
     /// <summary>
@@ -152,7 +153,7 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
     /// </summary>
     private void CheckDynamicFields(SurveySubmitContext context)
     {
-        foreach (SurveyItem item in context.SurveySet.SurveyItem)
+        foreach (SurveyItem item in context.Survey.SurveyItem)
         {
             CheckDynamicField(context, item);
         }
@@ -434,7 +435,7 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
     {
         Dictionary<string, object?> result = new(StringComparer.OrdinalIgnoreCase);
 
-        foreach (SurveyItem item in context.SurveySet.SurveyItem)
+        foreach (SurveyItem item in context.Survey.SurveyItem)
         {
             string key = GetSurveyFieldKey(item);
             result[key] = BuildNormalizedValue(item, context.FormData);
@@ -467,7 +468,7 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
     /// </summary>
     private string BuildFieldSnapshotJson(SurveySubmitContext context)
     {
-        List<SurveyFieldSnapshot> snapshot = context.SurveySet.SurveyItem
+        List<SurveyFieldSnapshot> snapshot = context.Survey.SurveyItem
             .OrderBy(p => ToInt(p.RowId))
             .Select(p => BuildFieldSnapshot(context, p))
             .ToList();
@@ -489,7 +490,7 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
             InputType = inputType.ToString(),
             IsRequired = IsRequired(item),
             Options = GetSnapshotOptions(item),
-            Langs = BuildFieldLangSnapshots(context.SurveySet, item),
+            Langs = BuildFieldLangSnapshots(context.Survey, item),
         };
     }
 
@@ -530,7 +531,7 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
     /// </summary>
     private HashSet<string> GetValidFieldKeys(SurveySubmitContext context)
     {
-        return context.SurveySet.SurveyItem
+        return context.Survey.SurveyItem
             .Select(GetSurveyFieldKey)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
     }
@@ -677,7 +678,7 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
     private string GetFieldDisplayName(SurveySubmitContext context, SurveyItem item)
     {
         LangCode lang = GetSubmissionLang(context.Submit);
-        List<SurveyItemLang> rows = GetFieldLangRows(context.SurveySet, item);
+        List<SurveyItemLang> rows = GetFieldLangRows(context.Survey, item);
 
         SurveyItemLang? current = rows.FirstOrDefault(p => Equals(p.Lang, lang));
         SurveyItemLang? fallback = rows.FirstOrDefault(p => Equals(p.Lang, SiteDefaultLang));

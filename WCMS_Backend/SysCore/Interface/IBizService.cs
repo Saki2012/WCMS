@@ -1,5 +1,6 @@
 ﻿using WCMS.Features.IAM.Auth;
-using static WCMS.SysCore.QueryListParam;
+using WCMS.SysCore.FeatureDriver.Api;
+using static WCMS.SysCore.FeatureDriver.Api.QueryListParam;
 
 namespace WCMS.SysCore.Interface
 {

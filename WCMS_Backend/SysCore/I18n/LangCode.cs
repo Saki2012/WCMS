@@ -1,25 +1,25 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using WCMS.Features._Resx;
+using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.Library.LibAttribute;
 
 namespace WCMS.SysCore.I18n
 {
     [JsonConverter(typeof(LangCodeJsonConverter))]
-    [LibDesc(ModelDisplayName.Common_Lang)]public enum LangCode
+    [LibDesc(DisplayName.Common_Lang)]public enum LangCode
     {
         /// <summary>
         /// 繁體中文
         /// </summary>
-        [LibDesc(ModelDisplayName.Lang_zhtw)]zhtw,
+        [LibDesc(DisplayName.Lang_zhtw)]zhtw,
         /// <summary>
         /// 简体中文
         /// </summary>
-        [LibDesc(ModelDisplayName.Lang_zhcn)] zhcn,
+        [LibDesc(DisplayName.Lang_zhcn)] zhcn,
         /// <summary>
         /// 英文
         /// </summary>
-        [LibDesc(ModelDisplayName.Lang_en)] en,
+        [LibDesc(DisplayName.Lang_en)] en,
     }
     public static class LangCodeExt
     {

@@ -1,7 +1,7 @@
 ﻿using WCMS.Features._Resx;
 using WCMS.Features.WEB.Timeline;
 using WCMS.Features.WEB.WebResource;
-using WCMS.SysCore;
+using WCMS.SysCore.FeatureDriver.Biz;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;

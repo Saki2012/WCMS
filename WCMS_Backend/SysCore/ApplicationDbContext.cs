@@ -7,6 +7,7 @@ using System.Linq.Dynamic.Core;
 using System.Linq.Dynamic.Core.CustomTypeProviders;
 using System.Reflection;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.FeatureDriver.Model;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
@@ -56,7 +57,7 @@ namespace WCMS.SysCore
         private void ModelDbSetting(ModelBuilder builder)
         {
             Type[] modelTypes = [.. Assembly.GetExecutingAssembly().GetTypes()
-                .Where(p => p.BaseType == typeof(DetailRowModel) || p.BaseType == typeof(MasterDataModel) || p.BaseType == typeof(BillDataModel))
+                .Where(p => p.BaseType == typeof(DetailModel) || p.BaseType == typeof(MasterDataModel) || p.BaseType == typeof(BillDataModel))
                 .Where(IsAllowedDbModelType)];
             foreach (Type type in modelTypes)
             {

@@ -1,122 +1,150 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.FeatureDriver.Model;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library.LibAttribute;
-using WCMS.SysCore.Model;
 using static WCMS.SysCore.Enum.SysEnum;
+using WCMS.SysCore.FeatureDriver.Resx;
+namespace WCMS.Features.WEB.Banner;
 
-namespace WCMS.Features.WEB.Banner
+public partial class Banner: HeaderModel
 {
-    [LibDesc]
-    public partial class BannerSet:ITSet
-    {
-        [LibDesc] public Banner Banner { get; set; } = new Banner();
-        [LibDesc] public List<BannerDetail> BannerDetail { get; set; } = [];
-        [LibDesc] public List<BannerDetailInfo> BannerDetailInfo { get; set; } = [];
-    }
-    public partial class Banner: MasterDataModel
-    {
-        /// <summary>
-        /// 橫幅ID
-        /// </summary>
-        [LibDesc, Key, StringLength(SysLengthParam.ID)] public string BannerId { get; set; }
-        /// <summary>
-        /// 類別ID
-        /// </summary>
-        [StringLength(SysLengthParam.Name)] public string BannerCategoryName { get; set; }
-        /// <summary>
-        /// 轉換間隔
-        /// </summary>
-        public short Interval { get; set; }
-        /// <summary>
-        /// 轉換速度
-        /// </summary>
-        public short Speed { get; set; }
-        /// <summary>
-        /// 橫幅高度
-        /// </summary>
-        public short Height { get; set; }
-        /// <summary>
-        /// 橫幅寬度
-        /// </summary>
-        public short Width { get; set; }
+    /// <summary>
+    /// 橫幅ID
+    /// </summary>
+[Key]
+[LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, DisplayName.BannerId)]
+public string BannerId { get; set; } = string.Empty;
+    /// <summary>
+    /// 類別ID
+    /// </summary>
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Name, DisplayName.Banner_CategoryName)]
+public string BannerCategoryName { get; set; } = string.Empty;
+    /// <summary>
+    /// 轉換間隔
+    /// </summary>
+[LibField(ApiFieldMode.ReadWrite, DisplayName.Banner_Interval)]
+public short Interval { get; set; }
+    /// <summary>
+    /// 轉換速度
+    /// </summary>
+[LibField(ApiFieldMode.ReadWrite, DisplayName.Banner_Speed)]
+public short Speed { get; set; }
+    /// <summary>
+    /// 橫幅高度
+    /// </summary>
+[LibField(ApiFieldMode.ReadWrite, DisplayName.Banner_Height)]
+public short Height { get; set; }
+    /// <summary>
+    /// 橫幅寬度
+    /// </summary>
+[LibField(ApiFieldMode.ReadWrite, DisplayName.Banner_Width)]
+public short Width { get; set; }
 
-        #region 主子表關聯
-        [InverseProperty(nameof(BannerDetail._Banner))] public List<BannerDetail> _BannerDetail { get; set; } = [];
-        #endregion
-    }
-    public partial class BannerDetail:DetailRowModel
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        [LibDesc, Key] public string BannerId { get;set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        [LibDesc, Key] public int RowId { get; set; }
-        /// <summary>
-        /// 圖片來源取檔案關聯
-        /// </summary>
-        [LibDesc] public string PicSrcId { get; set; }
-        /// <summary>
-        /// 字體顏色
-        /// </summary>
-        [LibDesc] public string FontColor { get; set; }
-        /// <summary>
-        /// 資料有效日期-起
-        /// </summary>
-        [LibDesc] public DateTime? Validate_Start { get; set; }
-        /// <summary>
-        /// 資料有效日期-迄
-        /// </summary>
-        [LibDesc] public DateTime? Validate_End { get; set; }
-        /// <summary>
-        /// 播放順序
-        /// </summary>
-        [LibDesc] public ushort Sort { get; set; }
+    #region 主子表關聯
+[InverseProperty(nameof(BannerDetail._Banner))]
+[LibField(ApiFieldMode.ReadWrite)]
+public List<BannerDetail> _BannerDetail { get; set; }= [];
+    #endregion
+}
+[LibDesc(DisplayName.BannerDetail)]
+public partial class BannerDetail: DetailModel
+{
+    /// <summary>
+    /// 
+    /// </summary>
+[Key]
+[LibField(ApiFieldMode.ReadOnly, DisplayName.BannerId)]
+public string BannerId { get; set; } = string.Empty;
+    /// <summary>
+    /// 
+    /// </summary>
+[Key]
+[LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
+public int RowId { get; set; }
+    /// <summary>
+    /// 圖片來源取檔案關聯
+    /// </summary>
+[LibField(ApiFieldMode.ReadWrite, DisplayName.Banner_PicSrcId)]
+public string PicSrcId { get; set; } = string.Empty;
+    /// <summary>
+    /// 字體顏色
+    /// </summary>
+[LibField(ApiFieldMode.ReadWrite, DisplayName.Banner_FontColor)]
+public string FontColor { get; set; } = string.Empty;
+    /// <summary>
+    /// 資料有效日期-起
+    /// </summary>
+[LibField(ApiFieldMode.ReadWrite, DisplayName.Banner_StartDate)]
+public DateTime Validate_Start { get; set; }
+    /// <summary>
+    /// 資料有效日期-迄
+    /// </summary>
+[LibField(ApiFieldMode.ReadWrite, DisplayName.Banner_EndDate)]
+public DateTime Validate_End { get; set; }
+    /// <summary>
+    /// 播放順序
+    /// </summary>
+[LibField(ApiFieldMode.ReadWrite, DisplayName.Banner_Sort)]
+public ushort Sort { get; set; }
 
-        #region 主子表關聯
-        [ForeignKey(nameof(BannerId))] public Banner _Banner { get; set; }
-        [InverseProperty(nameof(BannerDetailInfo._BannerDetail))] public List<BannerDetailInfo> _BannerDetailInfo { get; set; }
-        #endregion
-    }
-    public partial class BannerDetailInfo : DetailRowModel
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        [LibDesc, Key, StringLength(SysLengthParam.ID)] public string BannerId { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        [LibDesc, Key] public int ParentRowId { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        [LibDesc, Key] public int RowId { get; set; }
-        /// <summary>
-        /// 語系
-        /// </summary>
-        [LibDesc] public LangCode Lang { get; set; }
-        /// <summary>
-        /// 標題
-        /// </summary>
-        [LibDesc, StringLength(SysLengthParam.Title)] public string Title { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        [LibDesc] public string Content { get; set; }
+    #region 主子表關聯
+[ForeignKey(nameof(BannerId))]
+[LibField(ApiFieldMode.ReadOnly)]
+public Banner _Banner { get; set; }
+[InverseProperty(nameof(BannerDetailInfo._BannerDetail))]
+[LibField(ApiFieldMode.ReadWrite)]
+public List<BannerDetailInfo> _BannerDetailInfo { get; set; } = [];
+    #endregion
+}
+public partial class BannerDetailInfo : DetailModel
+{
+    /// <summary>
+    /// 
+    /// </summary>
+[Key]
+[LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, DisplayName.BannerId)]
+public string BannerId { get; set; } = string.Empty;
+    /// <summary>
+    /// 
+    /// </summary>
+[Key]
+[LibField(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
+public int ParentRowId { get; set; }
+    /// <summary>
+    /// 
+    /// </summary>
+[Key]
+[LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
+public int RowId { get; set; }
+    /// <summary>
+    /// 語系
+    /// </summary>
+[LibField(ApiFieldMode.ReadWrite, DisplayName.Common_Lang)]
+public LangCode Lang { get; set; }
+    /// <summary>
+    /// 標題
+    /// </summary>
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title, DisplayName.Common_Title)]
+public string Title { get; set; } = string.Empty;
+    /// <summary>
+    /// 
+    /// </summary>
+[LibField(ApiFieldMode.ReadWrite, DisplayName.Common_Content)]
+public string Content { get; set; } = string.Empty;
 
-        [LibDesc, StringLength(SysLengthParam.Url)] public string URL { get; set; }
-        /// <summary>
-        /// 網址開啟方式
-        /// </summary>
-        [LibDesc] public WindowTarget URL_Open { get; set; }
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Url, DisplayName.Common_Url)]
+public string URL { get; set; } = string.Empty;
+    /// <summary>
+    /// 網址開啟方式
+    /// </summary>
+[LibField(ApiFieldMode.ReadWrite, DisplayName.Common_UrlOpen)]
+public WindowTarget URL_Open { get; set; }
 
-        #region 主子表關聯
-        [ForeignKey($@"{nameof(BannerId)},{nameof(ParentRowId)}")] public BannerDetail _BannerDetail { get; set; }
-        #endregion
-    }
+    #region 主子表關聯
+[ForeignKey($@"{nameof(BannerId)},{nameof(ParentRowId)}")]
+[LibField(ApiFieldMode.ReadOnly)]
+public BannerDetail _BannerDetail { get; set; }
+    #endregion
 }

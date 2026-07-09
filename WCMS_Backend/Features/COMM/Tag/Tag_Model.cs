@@ -1,54 +1,61 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using WCMS.Features._Resx;
+using System.Text.Json.Serialization;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.FeatureDriver.Model;
+using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library.LibAttribute;
-using WCMS.SysCore.Model;
+namespace WCMS.Features.COMM.Tag;
 
-namespace WCMS.Features.COMM.Tag
+[LibDesc(DisplayName.Tag_Data)] public class TagData : HeaderModel
 {
-    public class TagSet:ITSet
-    {
-        public TagData TagData { get; set; } = new TagData();
-        public List<TagDetail> TagDetail { get; set; } = [];
-    }
-    [LibDesc(ModelDisplayName.Tag_Data)] public class TagData : MasterDataModel
-    {
-        /// <summary>
-        /// 標籤ID
-        /// </summary>
-        [Key, StringLength(SysLengthParam.ID)] public string TagId { get; set; } = string.Empty;
-        /// <summary>
-        /// 對應功能模塊ID
-        /// </summary>
-        [StringLength(SysLengthParam.ProgId)] public string ProgId { get; set; } = string.Empty;
+    /// <summary>
+    /// 標籤ID
+    /// </summary>
+    [Key]
+    [LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, DisplayName.TagId)]
+    public string TagId { get; set; } = string.Empty;
+    /// <summary>
+    /// 對應功能模塊ID
+    /// </summary>
+    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.ProgId, DisplayName.Common_ProgId)]
+    public string ProgId { get; set; } = string.Empty;
 
-        #region 主子表關聯
-        [InverseProperty(nameof(TagDetail._TagData))] public List<TagDetail>? _TagDetail { get; set; }
-        #endregion
-    }
-    public class TagDetail : DetailRowModel
-    {
-        /// <summary>
-        /// 靜態客製頁面ID
-        /// </summary>
-        [Key, StringLength(SysLengthParam.ID)] public string TagId { get; set; } = string.Empty;
-        /// <summary>
-        /// 行主鍵
-        /// </summary>
-        [Key] public int RowId { get; set; }
-        /// <summary>
-        /// 語系 SysEnum.Lang
-        /// </summary>
-        public LangCode Lang { get; set; }
-        /// <summary>
-        /// 標籤名稱
-        /// </summary>
-        [StringLength(SysLengthParam.Title)] public string TagName { get; set; } = string.Empty;
+    #region 主子表關聯
+    [InverseProperty(nameof(TagDetail._TagData)), JsonIgnore]
+    [LibField(ApiFieldMode.Ignore)]
+    public List<TagDetail>? _TagDetail { get; set; }
+    #endregion
+}
+public class TagDetail : DetailModel
+{
+    /// <summary>
+    /// 靜態客製頁面ID
+    /// </summary>
+    [Key]
+    [LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, DisplayName.TagId)]
+    public string TagId { get; set; } = string.Empty;
+    /// <summary>
+    /// 行主鍵
+    /// </summary>
+    [Key]
+    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
+    public int RowId { get; set; }
+    /// <summary>
+    /// 語系 SysEnum.Lang
+    /// </summary>
+    [LibField(ApiFieldMode.ReadWrite, DisplayName.Common_Lang)]
+    public LangCode Lang { get; set; }
+    /// <summary>
+    /// 標籤名稱
+    /// </summary>
+    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title, DisplayName.Tag_TagName)]
+    public string TagName { get; set; } = string.Empty;
 
-        #region 主子表關聯
-        [ForeignKey(nameof(TagId))] public TagData _TagData { get; set; }
-        #endregion
-    }
+    #region 主子表關聯
+    [ForeignKey(nameof(TagId)), JsonIgnore]
+    [LibField(ApiFieldMode.Ignore)]
+    public TagData _TagData { get; set; }
+    #endregion
 }

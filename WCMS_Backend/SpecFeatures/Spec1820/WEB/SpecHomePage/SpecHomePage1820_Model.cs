@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.Features._Resx;
 using WCMS.SpecFeatures.Spec1820._Resx;
@@ -6,6 +6,7 @@ using WCMS.SysCore.Enum;
 using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.SystemFunc.FileManagement;
+using WCMS.SysCore.FeatureDriver.Resx;
 namespace WCMS.SpecFeatures.Spec1820.WEB.SpecHomePage;
 
 /// <summary>
@@ -13,11 +14,16 @@ namespace WCMS.SpecFeatures.Spec1820.WEB.SpecHomePage;
 /// </summary>
 public class SpecHomePage1820Set : ITSet
 {
-    [LibDesc(SpecModelDisplayName.SpecHomePage1820)] public SpecHomePage1820Model SpecHomePage1820 { get; set; }
-    [LibDesc(SpecModelDisplayName.SpecHomePage1820_BannerMedia)] public List<SpecHomePage1820_BannerMedia> SpecHomePage1820_BannerMedia { get; set; } = [];
-    [LibDesc(SpecModelDisplayName.SpecHomePage1820_Detail)] public List<SpecHomePage1820_Detail> SpecHomePage1820_Detail { get; set; } = [];
-    [LibDesc(SpecModelDisplayName.SpecHomePage1820_Marquee)] public List<SpecHomePage1820_Marquee> SpecHomePage1820_Marquee { get; set; } = [];
-    [LibDesc(SpecModelDisplayName.SpecHomePage1820_Resource)] public List<SpecHomePage1820_Resource> SpecHomePage1820_Resource { get; set; } = [];
+[LibField(ApiFieldMode.ReadWrite, SpecDisplayName.SpecHomePage1820)]
+public SpecHomePage1820Model SpecHomePage1820 { get; set; }
+[LibField(ApiFieldMode.ReadWrite, SpecDisplayName.SpecHomePage1820_BannerMedia)]
+public List<SpecHomePage1820_BannerMedia> SpecHomePage1820_BannerMedia { get; set; }= [];
+[LibField(ApiFieldMode.ReadWrite, SpecDisplayName.SpecHomePage1820_Detail)]
+public List<SpecHomePage1820_Detail> SpecHomePage1820_Detail { get; set; }= [];
+[LibField(ApiFieldMode.ReadWrite, SpecDisplayName.SpecHomePage1820_Marquee)]
+public List<SpecHomePage1820_Marquee> SpecHomePage1820_Marquee { get; set; }= [];
+[LibField(ApiFieldMode.ReadWrite, SpecDisplayName.SpecHomePage1820_Resource)]
+public List<SpecHomePage1820_Resource> SpecHomePage1820_Resource { get; set; }= [];
 }
 /// <summary>
 /// 1820首頁基礎資料
@@ -25,39 +31,60 @@ public class SpecHomePage1820Set : ITSet
 public class SpecHomePage1820Model : MasterDataModel
 {
 
-    [LibDesc(SpecModelDisplayName.HomePageId), Key, StringLength(SysLengthParam.ID)] public string HomePageId { get; set; }
-    [LibDesc(ModelDisplayName.Common_Lang), StringLength(SysLengthParam.Lang)] public string Lang { get; set; }
+[LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, SpecDisplayName.HomePageId)]
+public string HomePageId { get; set; } = string.Empty;
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Lang, DisplayName.Common_Lang)]
+public string Lang { get; set; } = string.Empty;
 
     #region Section1 欄位
-    [LibDesc(SpecModelDisplayName.Section1Title_L),StringLength(SysLengthParam.Title)] public string Section1Title_L { get; set; }
-    [LibDesc(SpecModelDisplayName.Section1Title_M), StringLength(SysLengthParam.Title)] public string Section1Title_M { get; set; }
-    [LibDesc(SpecModelDisplayName.Section1Title_R), StringLength(SysLengthParam.Title)] public string Section1Title_R { get; set; }
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title, SpecDisplayName.Section1Title_L)]
+public string Section1Title_L { get; set; } = string.Empty;
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title, SpecDisplayName.Section1Title_M)]
+public string Section1Title_M { get; set; } = string.Empty;
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title, SpecDisplayName.Section1Title_R)]
+public string Section1Title_R { get; set; } = string.Empty;
     #endregion
 
     #region Section2 欄位
-    [LibDesc(SpecModelDisplayName.HeroText)] public string HeroText { get; set; }
-    [LibDesc(SpecModelDisplayName.HeroTextUrl), StringLength(SysLengthParam.Url)] public string HeroText_ViewMoreLink { get; set; }
+[LibField(ApiFieldMode.ReadWrite, SpecDisplayName.HeroText)]
+public string HeroText { get; set; } = string.Empty;
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Url, SpecDisplayName.HeroTextUrl)]
+public string HeroText_ViewMoreLink { get; set; } = string.Empty;
     #endregion
 
     #region Section3 欄位
-    [LibDesc(SpecModelDisplayName.AnnouncementTitle), StringLength(SysLengthParam.Title)] public string AnnouncementTitle { get; set; }
-    [LibDesc(SpecModelDisplayName.AnnouncementSubTitle), StringLength(SysLengthParam.Title_en)] public string AnnouncementSubTitle { get; set; }
-    [LibDesc(SpecModelDisplayName.AnnouncementCategoryIds),StringLength(SysLengthParam.Memo)] public string AnnouncementCategoryIds { get; set; }
-    [LibDesc(SpecModelDisplayName.Announcement_ViewMoreLink), StringLength(SysLengthParam.Url)] public string Announcement_ViewMoreLink { get; set; }
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title, SpecDisplayName.AnnouncementTitle)]
+public string AnnouncementTitle { get; set; } = string.Empty;
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title_en, SpecDisplayName.AnnouncementSubTitle)]
+public string AnnouncementSubTitle { get; set; } = string.Empty;
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Memo, SpecDisplayName.AnnouncementCategoryIds)]
+public string AnnouncementCategoryIds { get; set; } = string.Empty;
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Url, SpecDisplayName.Announcement_ViewMoreLink)]
+public string Announcement_ViewMoreLink { get; set; } = string.Empty;
     #endregion
 
     // Section4、Section5因為有多筆，所以放在子表
 
     #region Section6 欄位
-    [LibDesc(SpecModelDisplayName.Resource_Title), StringLength(SysLengthParam.Title_en)] public string Resource_Title { get; set; }
-    [LibDesc(SpecModelDisplayName.Resource_SubTitle), StringLength(SysLengthParam.Title_en)] public string Resource_SubTitle { get; set; }
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title_en, SpecDisplayName.Resource_Title)]
+public string Resource_Title { get; set; } = string.Empty;
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title_en, SpecDisplayName.Resource_SubTitle)]
+public string Resource_SubTitle { get; set; } = string.Empty;
     #endregion
 
     #region 主子表關聯
-    [InverseProperty(nameof(SpecHomePage1820_BannerMedia._SpecHomePage1820))] public List<SpecHomePage1820_BannerMedia> _SpecHomePage1820_BannerMedia { get; set; }
-    [InverseProperty(nameof(SpecHomePage1820_Detail._SpecHomePage1820))] public List<SpecHomePage1820_Detail> _SpecHomePage1820_Detail { get; set; }
-    [InverseProperty(nameof(SpecHomePage1820_Marquee._SpecHomePage1820))] public List<SpecHomePage1820_Marquee> _SpecHomePage1820_Marquee { get; set; }
-    [InverseProperty(nameof(SpecHomePage1820_Resource._SpecHomePage1820))] public List<SpecHomePage1820_Resource> _SpecHomePage1820_Resource { get; set; }
+[InverseProperty(nameof(SpecHomePage1820_BannerMedia._SpecHomePage1820))]
+[LibField(ApiFieldMode.ReadWrite)]
+public List<SpecHomePage1820_BannerMedia> _SpecHomePage1820_BannerMedia { get; set; } = [];
+[InverseProperty(nameof(SpecHomePage1820_Detail._SpecHomePage1820))]
+[LibField(ApiFieldMode.ReadWrite)]
+public List<SpecHomePage1820_Detail> _SpecHomePage1820_Detail { get; set; } = [];
+[InverseProperty(nameof(SpecHomePage1820_Marquee._SpecHomePage1820))]
+[LibField(ApiFieldMode.ReadWrite)]
+public List<SpecHomePage1820_Marquee> _SpecHomePage1820_Marquee { get; set; } = [];
+[InverseProperty(nameof(SpecHomePage1820_Resource._SpecHomePage1820))]
+[LibField(ApiFieldMode.ReadWrite)]
+public List<SpecHomePage1820_Resource> _SpecHomePage1820_Resource { get; set; } = [];
     #endregion
 }
 /// <summary>
@@ -65,14 +92,22 @@ public class SpecHomePage1820Model : MasterDataModel
 /// </summary>
 public class SpecHomePage1820_BannerMedia: DetailRowModel
 {
-    [LibDesc(SpecModelDisplayName.HomePageId), Key, StringLength(SysLengthParam.ID)] public string HomePageId { get; set; }
-    [LibDesc(ModelDisplayName.Common_RowId), Key] public int RowId { get; set; }
-    [ForeignKey(nameof(BannerFileId))] public FileManageModel? BannerFile { get; set; }
-    [LibDesc(SpecModelDisplayName.BannerFileId),StringLength(SysLengthParam.InternalId)] public string BannerFileId { get; set; }
-    [LibDesc(SpecModelDisplayName.BannerFileDescription), StringLength(SysLengthParam.Title_en)] public string BannerFileDescription { get; set; }
+[LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, SpecDisplayName.HomePageId)]
+public string HomePageId { get; set; } = string.Empty;
+[LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
+public int RowId { get; set; }
+[ForeignKey(nameof(BannerFileId))]
+[LibField(ApiFieldMode.ReadOnly)]
+public FileManageModel? BannerFile { get; set; }
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.InternalId, SpecDisplayName.BannerFileId)]
+public string? BannerFileId { get; set; }
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title_en, SpecDisplayName.BannerFileDescription)]
+public string BannerFileDescription { get; set; } = string.Empty;
 
     #region 主子表關聯
-    [ForeignKey(nameof(HomePageId))] public SpecHomePage1820Model _SpecHomePage1820 { get; set; }
+[ForeignKey(nameof(HomePageId))]
+[LibField(ApiFieldMode.ReadOnly)]
+public SpecHomePage1820Model _SpecHomePage1820 { get; set; }
     #endregion
 }
 /// <summary>
@@ -80,28 +115,51 @@ public class SpecHomePage1820_BannerMedia: DetailRowModel
 /// </summary>
 public class SpecHomePage1820_Detail: DetailRowModel
 {
-    [LibDesc(SpecModelDisplayName.HomePageId), Key, StringLength(SysLengthParam.ID)] public string HomePageId { get; set; }
-    [LibDesc(ModelDisplayName.Common_RowId), Key] public int RowId { get; set; }
-    [LibDesc(ModelDisplayName.Common_Title),StringLength(SysLengthParam.Title_en)]public string Title { get; set; }
-    [LibDesc(ModelDisplayName.Common_SubTitle), StringLength(SysLengthParam.Title_en)] public string SubTitle { get; set; }
-    [ForeignKey(nameof(MainPictureId))] public FileManageModel MainPicture { get; set; }
-    [LibDesc(SpecModelDisplayName.MainPic),StringLength(SysLengthParam.InternalId)] public string MainPictureId { get; set; }
-    [LibDesc(SpecModelDisplayName.MainPicDescription), StringLength(SysLengthParam.Title_en)] public string MainPictureDescription { get; set; }
-    [ForeignKey(nameof(SubPictureId))] public FileManageModel SubPicture { get; set; }
-    [LibDesc(SpecModelDisplayName.SubPic), StringLength(SysLengthParam.InternalId)] public string SubPictureId { get; set; }
-    [LibDesc(SpecModelDisplayName.SubPicDescription), StringLength(SysLengthParam.Title_en)] public string SubPictureDescription { get; set; }
-    [LibDesc(SpecModelDisplayName.ContentInfo), StringLength(SysLengthParam.Memo)] public string Intro { get; set; }
-    [LibDesc(SpecModelDisplayName.MainLinkTitle), StringLength(SysLengthParam.Info)] public string MainLinkTitle { get; set; }
-    [LibDesc(SpecModelDisplayName.MainLinkUrl), StringLength(SysLengthParam.Url)] public string MainLink { get; set; }
-    [LibDesc(SpecModelDisplayName.SubLinkTitle1), StringLength(SysLengthParam.Info)] public string SubLinkTitle1 { get; set; }
-    [LibDesc(SpecModelDisplayName.SubLinkUrl2), StringLength(SysLengthParam.Url)] public string SubLink1 { get; set; }
-    [LibDesc(SpecModelDisplayName.SubLinkTitle2), StringLength(SysLengthParam.Info)] public string SubLinkTitle2 { get; set; }
-    [LibDesc(SpecModelDisplayName.SubLinkUrl2), StringLength(SysLengthParam.Url)] public string SubLink2 { get; set; }
-    [LibDesc(SpecModelDisplayName.SubLinkTitle3), StringLength(SysLengthParam.Info)] public string SubLinkTitle3 { get; set; }
-    [LibDesc(SpecModelDisplayName.SubLinkUrl3), StringLength(SysLengthParam.Url)] public string SubLink3 { get; set; }
+[LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, SpecDisplayName.HomePageId)]
+public string HomePageId { get; set; } = string.Empty;
+[LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
+public int RowId { get; set; }
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title_en, DisplayName.Common_Title)]
+public string Title { get; set; } = string.Empty;
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title_en, DisplayName.Common_SubTitle)]
+public string SubTitle { get; set; } = string.Empty;
+[ForeignKey(nameof(MainPictureId))]
+[LibField(ApiFieldMode.ReadOnly)]
+public FileManageModel MainPicture { get; set; }
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.InternalId, SpecDisplayName.MainPic)]
+public string? MainPictureId { get; set; }
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title_en, SpecDisplayName.MainPicDescription)]
+public string MainPictureDescription { get; set; } = string.Empty;
+[ForeignKey(nameof(SubPictureId))]
+[LibField(ApiFieldMode.ReadOnly)]
+public FileManageModel SubPicture { get; set; }
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.InternalId, SpecDisplayName.SubPic)]
+public string? SubPictureId { get; set; }
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title_en, SpecDisplayName.SubPicDescription)]
+public string SubPictureDescription { get; set; } = string.Empty;
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Memo, SpecDisplayName.ContentInfo)]
+public string Intro { get; set; } = string.Empty;
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Info, SpecDisplayName.MainLinkTitle)]
+public string MainLinkTitle { get; set; } = string.Empty;
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Url, SpecDisplayName.MainLinkUrl)]
+public string MainLink { get; set; } = string.Empty;
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Info, SpecDisplayName.SubLinkTitle1)]
+public string SubLinkTitle1 { get; set; } = string.Empty;
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Url, SpecDisplayName.SubLinkUrl2)]
+public string SubLink1 { get; set; } = string.Empty;
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Info, SpecDisplayName.SubLinkTitle2)]
+public string SubLinkTitle2 { get; set; } = string.Empty;
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Url, SpecDisplayName.SubLinkUrl2)]
+public string SubLink2 { get; set; } = string.Empty;
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Info, SpecDisplayName.SubLinkTitle3)]
+public string SubLinkTitle3 { get; set; } = string.Empty;
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Url, SpecDisplayName.SubLinkUrl3)]
+public string SubLink3 { get; set; } = string.Empty;
 
     #region 主子表關聯
-    [ForeignKey(nameof(HomePageId))] public SpecHomePage1820Model _SpecHomePage1820 { get; set; }
+[ForeignKey(nameof(HomePageId))]
+[LibField(ApiFieldMode.ReadOnly)]
+public SpecHomePage1820Model _SpecHomePage1820 { get; set; }
     #endregion
 }
 /// <summary>
@@ -109,15 +167,24 @@ public class SpecHomePage1820_Detail: DetailRowModel
 /// </summary>
 public class SpecHomePage1820_Marquee : DetailRowModel
 {
-    [LibDesc(SpecModelDisplayName.HomePageId), Key, StringLength(SysLengthParam.ID)] public string HomePageId { get; set; }
-    [LibDesc(ModelDisplayName.Common_RowId), Key] public int RowId { get; set; }
-    [ForeignKey(nameof(PictureId))] public FileManageModel Picture { get; set; }
-    [LibDesc(ModelDisplayName.Gallery_PicSrcId), StringLength(SysLengthParam.InternalId)] public string PictureId { get; set; }
-    [LibDesc(ModelDisplayName.Common_Title), StringLength(SysLengthParam.Title)] public string PictureTitle { get; set; }
-    [LibDesc(ModelDisplayName.Common_IsHide)] public bool IsHide { get; set; }
+[LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, SpecDisplayName.HomePageId)]
+public string HomePageId { get; set; } = string.Empty;
+[LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
+public int RowId { get; set; }
+[ForeignKey(nameof(PictureId))]
+[LibField(ApiFieldMode.ReadOnly)]
+public FileManageModel Picture { get; set; }
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.InternalId, DisplayName.Gallery_PicSrcId)]
+public string? PictureId { get; set; }
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title, DisplayName.Common_Title)]
+public string PictureTitle { get; set; } = string.Empty;
+[LibField(ApiFieldMode.ReadWrite, DisplayName.Common_IsHide)]
+public bool IsHide { get; set; }
 
     #region 主子表關聯
-    [ForeignKey(nameof(HomePageId))] public SpecHomePage1820Model _SpecHomePage1820 { get; set; }
+[ForeignKey(nameof(HomePageId))]
+[LibField(ApiFieldMode.ReadOnly)]
+public SpecHomePage1820Model _SpecHomePage1820 { get; set; }
     #endregion
 }
 /// <summary>
@@ -125,17 +192,28 @@ public class SpecHomePage1820_Marquee : DetailRowModel
 /// </summary>
 public class SpecHomePage1820_Resource : DetailRowModel
 {
-    [LibDesc(SpecModelDisplayName.HomePageId), Key, StringLength(SysLengthParam.ID)] public string HomePageId { get; set; }
-    [LibDesc(ModelDisplayName.Common_RowId), Key] public int RowId { get; set; }
-    [LibDesc(ModelDisplayName.Common_Title), StringLength(SysLengthParam.Title_en)] public string PicTitle { get; set; }
-    [LibDesc(ModelDisplayName.Common_SubTitle), StringLength(SysLengthParam.Title_en)] public string PicSubTitle { get; set; }
-    [ForeignKey(nameof(PicFileId))] public FileManageModel PicFile { get; set; }
-    [LibDesc(SpecModelDisplayName.ResoourcePictureId), StringLength(SysLengthParam.InternalId)]public string PicFileId { get; set; }
-    [LibDesc(SpecModelDisplayName.ResoourcePictureId), StringLength(SysLengthParam.Title_en)] public string PicFileDescription { get; set; }
+[LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, SpecDisplayName.HomePageId)]
+public string HomePageId { get; set; } = string.Empty;
+[LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
+public int RowId { get; set; }
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title_en, DisplayName.Common_Title)]
+public string PicTitle { get; set; } = string.Empty;
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title_en, DisplayName.Common_SubTitle)]
+public string PicSubTitle { get; set; } = string.Empty;
+[ForeignKey(nameof(PicFileId))]
+[LibField(ApiFieldMode.ReadOnly)]
+public FileManageModel PicFile { get; set; }
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.InternalId, SpecDisplayName.ResoourcePictureId)]
+public string? PicFileId { get; set; }
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title_en, SpecDisplayName.ResoourcePictureId)]
+public string PicFileDescription { get; set; } = string.Empty;
 
-    [LibDesc(ModelDisplayName.Common_Url), StringLength(SysLengthParam.Url)] public string Link { get; set; }
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Url, DisplayName.Common_Url)]
+public string Link { get; set; } = string.Empty;
 
     #region 主子表關聯
-    [ForeignKey(nameof(HomePageId))] public SpecHomePage1820Model _SpecHomePage1820 { get; set; }
+[ForeignKey(nameof(HomePageId))]
+[LibField(ApiFieldMode.ReadOnly)]
+public SpecHomePage1820Model _SpecHomePage1820 { get; set; }
     #endregion
 }

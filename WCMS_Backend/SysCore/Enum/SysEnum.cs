@@ -1,4 +1,4 @@
-﻿using WCMS.Features._Resx;
+﻿using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.Library.LibAttribute;
 
 namespace WCMS.SysCore.Enum
@@ -23,17 +23,17 @@ namespace WCMS.SysCore.Enum
         /// <summary>
         /// 帳戶狀態
         /// </summary>
-        [LibDesc(ModelDisplayName.Enum_AccountStatus)]
+        [LibDesc(DisplayName.Enum_AccountStatus)]
         public enum AccountStatus : byte
         {
             /// <summary>
             /// 停用
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_AccountStatus_Unable)] Unable = 0,
+            [LibDesc(DisplayName.Enum_AccountStatus_Unable)] Unable = 0,
             /// <summary>
             /// 啟用
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_AccountStatus_Enable)] Enable = 1,
+            [LibDesc(DisplayName.Enum_AccountStatus_Enable)] Enable = 1,
         }
         /// <summary>
         /// 功能權限動作
@@ -48,58 +48,58 @@ namespace WCMS.SysCore.Enum
         public enum FuncAction : int
         {
             #region Basic Actions
-            [LibDesc(ModelDisplayName.Enum_FuncAction_None)] None = 0,
+            [LibDesc(DisplayName.Enum_FuncAction_None)] None = 0,
             /// <summary>
             /// 使用
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_FuncAction_Use)] Use = 1,
+            [LibDesc(DisplayName.Enum_FuncAction_Use)] Use = 1,
             /// <summary>
             /// 查詢清單
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_FuncAction_Query)] Query = 2,
+            [LibDesc(DisplayName.Enum_FuncAction_Query)] Query = 2,
             /// <summary>
             /// 查看資料
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_FuncAction_View)] View = 4,
+            [LibDesc(DisplayName.Enum_FuncAction_View)] View = 4,
             /// <summary>
             /// 新增
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_FuncAction_Create)] Create = 8,
+            [LibDesc(DisplayName.Enum_FuncAction_Create)] Create = 8,
             /// <summary>
             /// 修改
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_FuncAction_Update)] Update = 16,
+            [LibDesc(DisplayName.Enum_FuncAction_Update)] Update = 16,
             /// <summary>
             /// 刪除
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_FuncAction_Delete)] Delete = 32,
+            [LibDesc(DisplayName.Enum_FuncAction_Delete)] Delete = 32,
             /// <summary>
             /// 作廢
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_FuncAction_Invalid)] Invalid = 64,
+            [LibDesc(DisplayName.Enum_FuncAction_Invalid)] Invalid = 64,
             #endregion
 
             #region Composite Actions
             /// <summary>
             /// 基礎資料權限
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_FuncAction_MasterData)] MasterData = Use | Query | View | Create | Update | Delete,
+            [LibDesc(DisplayName.Enum_FuncAction_MasterData)] MasterData = Use | Query | View | Create | Update | Delete,
             /// <summary>
             /// 流水單權限
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_FuncAction_BillData)] BillData = Use | Query | View | Create | Update | Delete | Invalid,
+            [LibDesc(DisplayName.Enum_FuncAction_BillData)] BillData = Use | Query | View | Create | Update | Delete | Invalid,
             /// <summary>
             /// 報表權限
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_FuncAction_Report)] Report = Use | Query | View,
+            [LibDesc(DisplayName.Enum_FuncAction_Report)] Report = Use | Query | View,
             /// <summary>
             /// 功能權限
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_FuncAction_Report)] Function = Use | Query | View,
+            [LibDesc(DisplayName.Enum_FuncAction_Report)] Function = Use | Query | View,
             /// <summary>
             /// 全部權限
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_FuncAction_All)] All = Use | Query | View | Create | Update | Delete | Invalid,
+            [LibDesc(DisplayName.Enum_FuncAction_All)] All = Use | Query | View | Create | Update | Delete | Invalid,
             #endregion
         }
         /// <summary>
@@ -356,15 +356,15 @@ namespace WCMS.SysCore.Enum
             /// <summary>
             /// 置頂
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_Top)]Top = 1 << 0,
+            [LibDesc(DisplayName.Enum_Top)]Top = 1 << 0,
             /// <summary>
             /// 熱門
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_Hot)] Hot = 1 << 1,
+            [LibDesc(DisplayName.Enum_Hot)] Hot = 1 << 1,
             /// <summary>
             /// 隱藏
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_Hidden)] Hidden = 1 << 2
+            [LibDesc(DisplayName.Enum_Hidden)] Hidden = 1 << 2
         }
         /// <summary>
         /// 連結方式
@@ -374,19 +374,19 @@ namespace WCMS.SysCore.Enum
             /// <summary>
             /// 外部連結
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_Url)] Url = 1,
+            [LibDesc(DisplayName.Enum_Url)] Url = 1,
             /// <summary>
             /// 內部連結
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_Module)] Module = 2,
+            [LibDesc(DisplayName.Enum_Module)] Module = 2,
         }
         /// <summary>
         /// 
         /// </summary>
         public enum WindowTarget : byte
         {
-            [LibDesc(ModelDisplayName.Enum_WindowTarget_Self)] Self = 0,   // _self (當前頁面)
-            [LibDesc(ModelDisplayName.Enum_WindowTarget_Blank)] Blank = 1,  // _blank (新開分頁/視窗)
+            [LibDesc(DisplayName.Enum_WindowTarget_Self)] Self = 0,   // _self (當前頁面)
+            [LibDesc(DisplayName.Enum_WindowTarget_Blank)] Blank = 1,  // _blank (新開分頁/視窗)
             //Parent = 2, // _parent (父層框架)
             //Top = 3,    // _top (最上層框架)
             //Named = 4   // 自訂視窗名稱
@@ -394,20 +394,20 @@ namespace WCMS.SysCore.Enum
         /// <summary>
         /// 性別
         /// </summary>
-        [LibDesc(ModelDisplayName.Enum_Gender)] public enum Gender : byte
+        [LibDesc(DisplayName.Enum_Gender)] public enum Gender : byte
         {
             /// <summary>
             /// 未知
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_Gender_NotKnown)] NotKnown = 0,
+            [LibDesc(DisplayName.Enum_Gender_NotKnown)] NotKnown = 0,
             /// <summary>
             /// 男性
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_Gender_Male)] Male = 1,
+            [LibDesc(DisplayName.Enum_Gender_Male)] Male = 1,
             /// <summary>
             /// 女性
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_Gender_Female)] Female = 2,
+            [LibDesc(DisplayName.Enum_Gender_Female)] Female = 2,
         }
 
         /// <summary>
@@ -418,11 +418,11 @@ namespace WCMS.SysCore.Enum
             /// <summary>
             /// 側欄選單版型
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_SidebarMenu)] SidebarMenu = 0,
+            [LibDesc(DisplayName.Enum_SidebarMenu)] SidebarMenu = 0,
             /// <summary>
             /// 滿版內容版型
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_FullContent)] FullContent = 1,
+            [LibDesc(DisplayName.Enum_FullContent)] FullContent = 1,
         }
         /// <summary>
         /// 模型功能顯示方式
@@ -432,101 +432,101 @@ namespace WCMS.SysCore.Enum
             /// <summary>
             /// 清單列表式
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_List)] List = 1,
+            [LibDesc(DisplayName.Enum_List)] List = 1,
             /// <summary>
             /// 圖文式
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_PictureList)] PictureList = 2,
+            [LibDesc(DisplayName.Enum_PictureList)] PictureList = 2,
             /// <summary>
             /// QA列表式
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_QAList)] QAList = 3,
+            [LibDesc(DisplayName.Enum_QAList)] QAList = 3,
             /// <summary>
             /// 瀑布式
             /// </summary>
-            [Obsolete, LibDesc(ModelDisplayName.Enum_Waterfall)] Waterfall = 4,
+            [Obsolete, LibDesc(DisplayName.Enum_Waterfall)] Waterfall = 4,
             /// <summary>
             /// 展開式(類別)
             /// </summary>
-            [Obsolete, LibDesc(ModelDisplayName.Enum_Expand_Category)] Expand_Category = 5,
+            [Obsolete, LibDesc(DisplayName.Enum_Expand_Category)] Expand_Category = 5,
             /// <summary>
             /// 展開式(標籤)
             /// </summary>
-            [Obsolete, LibDesc(ModelDisplayName.Enum_Expand_Tag)] Expand_Tag = 6,
+            [Obsolete, LibDesc(DisplayName.Enum_Expand_Tag)] Expand_Tag = 6,
             /// <summary>
             /// Youtube
             /// </summary>
-            [Obsolete, LibDesc(ModelDisplayName.Enum_Youtube)] Youtube = 7,
+            [Obsolete, LibDesc(DisplayName.Enum_Youtube)] Youtube = 7,
             /// <summary>
             /// 歷史時間軸
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_TimelineSlider)] TimelineSlider = 8,
+            [LibDesc(DisplayName.Enum_TimelineSlider)] TimelineSlider = 8,
         }
         /// <summary>
         /// 前台瀏覽次數統計的行為類型
         /// </summary>
-        [LibDesc(ModelDisplayName.Enum_ViewCountActionType)]
+        [LibDesc(DisplayName.Enum_ViewCountActionType)]
         public enum ViewCountActionType
         {
             /// <summary>
             /// 頁面瀏覽
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_ViewCountActionType_PageView)] PageView = 1,
+            [LibDesc(DisplayName.Enum_ViewCountActionType_PageView)] PageView = 1,
             /// <summary>
             /// 檔案預覽 (如PDF、圖片等，直接在瀏覽器開啟的檔案)
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_ViewCountActionType_FilePreview)] FilePreview = 2,
+            [LibDesc(DisplayName.Enum_ViewCountActionType_FilePreview)] FilePreview = 2,
             /// <summary>
             /// 檔案下載
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_ViewCountActionType_FileDownload)] FileDownload = 3,
+            [LibDesc(DisplayName.Enum_ViewCountActionType_FileDownload)] FileDownload = 3,
             /// <summary>
             /// 點擊連結
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_ViewCountActionType_LinkClick)] LinkClick = 4,
+            [LibDesc(DisplayName.Enum_ViewCountActionType_LinkClick)] LinkClick = 4,
         }
         /// <summary>
         /// 欄位輸入類型
         /// </summary>
-        [LibDesc(ModelDisplayName.Enum_LibInputType)]
+        [LibDesc(DisplayName.Enum_LibInputType)]
         public enum LibInputType:byte
         {
             /// <summary>
             /// 單行文字
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_LibInputType_Text)] Text = 1,
+            [LibDesc(DisplayName.Enum_LibInputType_Text)] Text = 1,
             /// <summary>
             /// 多行文字
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_LibInputType_TextArea)] TextArea = 2,
+            [LibDesc(DisplayName.Enum_LibInputType_TextArea)] TextArea = 2,
             /// <summary>
             /// Email
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_LibInputType_Email)] Email = 3,
+            [LibDesc(DisplayName.Enum_LibInputType_Email)] Email = 3,
             /// <summary>
             /// 電話
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_LibInputType_Phone)] Phone = 4,
+            [LibDesc(DisplayName.Enum_LibInputType_Phone)] Phone = 4,
             /// <summary>
             /// 數字
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_LibInputType_Number)] Number = 5,
+            [LibDesc(DisplayName.Enum_LibInputType_Number)] Number = 5,
             /// <summary>
             /// 日期
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_LibInputType_Date)] Date = 6,
+            [LibDesc(DisplayName.Enum_LibInputType_Date)] Date = 6,
             /// <summary>
             /// 單選
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_LibInputType_Radio)] Radio = 10,
+            [LibDesc(DisplayName.Enum_LibInputType_Radio)] Radio = 10,
             /// <summary>
             /// 下拉單選
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_LibInputType_Select)] Select = 11,
+            [LibDesc(DisplayName.Enum_LibInputType_Select)] Select = 11,
             /// <summary>
             /// 多選
             /// </summary>
-            [LibDesc(ModelDisplayName.Enum_LibInputType_Checkbox)] Checkbox = 20
+            [LibDesc(DisplayName.Enum_LibInputType_Checkbox)] Checkbox = 20
         }
     }
 }

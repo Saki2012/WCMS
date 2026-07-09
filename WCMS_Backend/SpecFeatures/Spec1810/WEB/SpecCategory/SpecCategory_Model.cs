@@ -1,30 +1,41 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Model;
+using WCMS.SysCore.Library.LibAttribute;
+using WCMS.SpecFeatures.Spec1810._Resx;
+using WCMS.SysCore.FeatureDriver.Resx;
 namespace WCMS.SpecFeatures.Spec1810.WEB.SpecCategory;
 
 public class SpecCategorySet:ITSet
 {
-    public SpecCategoryModel SpecCategory { get; set; } = new();
-    public List<SpecCategoryDetailModel> SpecCategoryDetail { get; set; } = [];
+    [LibField(ApiFieldMode.ReadWrite)]
+    public SpecCategoryModel SpecCategory { get; set; }= new();
+    [LibField(ApiFieldMode.ReadWrite)]
+    public List<SpecCategoryDetailModel> SpecCategoryDetail { get; set; }= [];
 }
 
 public class SpecCategoryModel : MasterDataModel
 {
-    [Key, StringLength(SysLengthParam.ID)] public string CategoryId { get; set; }
+[Key]
+[LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, SpecDisplayName.SpecCategoryId)]
+public string CategoryId { get; set; } = string.Empty;
     /// <summary>
     /// 功能Id
     /// </summary>
-    [StringLength(SysLengthParam.ProgId)] public string ProgId { get; set; }
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.ProgId, DisplayName.Common_ProgId)]
+public string ProgId { get; set; } = string.Empty;
     /// <summary>
     /// 顯示欄位
     /// </summary>
-    public string ShowColumnItems { get; set; }
+    [LibField(ApiFieldMode.ReadWrite, SpecDisplayName.SpecCategory_ShowColumn)]
+    public string ShowColumnItems { get; set; } = string.Empty;
 
     #region 主子表關聯
-    [InverseProperty(nameof(SpecCategoryDetailModel._SpecCategory))] public List<SpecCategoryDetailModel> _SpecCategoryDetail { get; set; }
+[InverseProperty(nameof(SpecCategoryDetailModel._SpecCategory))]
+[LibField(ApiFieldMode.ReadWrite)]
+public List<SpecCategoryDetailModel> _SpecCategoryDetail { get; set; } = [];
     #endregion
 }
 
@@ -33,12 +44,20 @@ public class SpecCategoryDetailModel : DetailRowModel
     /// <summary>
     /// 
     /// </summary>
-    [Key, StringLength(SysLengthParam.ID)] public string CategoryId { get;set; }
-    [Key] public int RowId { get; set; }
+[Key]
+[LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, SpecDisplayName.SpecCategoryId)]
+public string CategoryId { get; set; } = string.Empty;
+[Key]
+[LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
+public int RowId { get; set; }
+    [LibField(ApiFieldMode.ReadWrite, DisplayName.Common_Lang)]
     public LangCode Lang { get; set; }
-    [StringLength(SysLengthParam.Name)] public string CategoryName { get; set; }
+[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Name, SpecDisplayName.SpecCategory_Name)]
+public string CategoryName { get; set; } = string.Empty;
 
     #region 主子表關聯
-    [ForeignKey(nameof(CategoryId))] public SpecCategoryModel _SpecCategory { get; set; }
+[ForeignKey(nameof(CategoryId))]
+[LibField(ApiFieldMode.ReadOnly)]
+public SpecCategoryModel _SpecCategory { get; set; }
     #endregion
 }

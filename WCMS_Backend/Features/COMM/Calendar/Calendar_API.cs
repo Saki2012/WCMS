@@ -5,8 +5,9 @@ using WCMS.Features._Resx;
 using WCMS.SysCore;
 using WCMS.SysCore.Library.LibAttribute;
 using static WCMS.SysCore.Enum.SysEnum;
+using WCMS.SysCore.FeatureDriver.Api;
 
-namespace WCMS.Features.SystemSetting.Calendar
+namespace WCMS.Features.COMM.Calendar
 {
     [LibApiController(ProgKeys.COMM.Code, ProgKeys.COMM.Calendar, FuncAction.MasterData)]
     public partial class CalendarController() : ApiDataController<CalendarSet, CalendarSet_DTO>

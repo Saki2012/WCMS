@@ -19,6 +19,7 @@ using WCMS.Features.WEB.SiteMenuSetting;
 using WCMS.Features.WEB.SurveySubmission;
 using WCMS.Features.WEB.WebResource;
 using WCMS.SysCore.Enum;
+using WCMS.SysCore.FeatureDriver.Model;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
@@ -29,7 +30,7 @@ using WCMS.SysCore.SystemFunc.SystemVersion;
 using static WCMS.SysCore.Enum.SysEnum;
 using static WCMS.SysCore.Library.LibData;
 
-namespace WCMS.SysCore
+namespace WCMS.SysCore.FeatureDriver.Api
 {
     /// <summary>
     /// 資料查詢型 API 基底，提供清單查詢與模型欄位描述。
@@ -180,7 +181,6 @@ namespace WCMS.SysCore
             await CacheStore.EvictByTagAsync("set:detail", ct);
         }
         #endregion
-
     }
     /// <summary>
     /// 表單API入口
@@ -341,7 +341,6 @@ namespace WCMS.SysCore
         protected IOperateLog OperateLog => _OperateLog ??= HttpContext.RequestServices.GetRequiredService<IOperateLog>();
         private IOperateLog? _OperateLog;
         #endregion
-
         #region Public
         /// <summary>
         /// 發出/更新 XSRF Token，寫入可讀 Cookie：XSRF-TOKEN
