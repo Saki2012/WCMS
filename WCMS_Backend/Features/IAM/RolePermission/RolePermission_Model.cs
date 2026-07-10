@@ -16,24 +16,24 @@ public class RoleDataModel : HeaderModel
     /// <summary>
     /// 角色權限代號
     /// </summary>
-[Key]
-[LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, DisplayName.RolePermission_RoleId)]
-public string RoleId { get; set; } = string.Empty;
+    [Key]
+    [LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, DisplayName.RolePermission_RoleId)]
+    public string RoleId { get; set; } = string.Empty;
     /// <summary>
     /// 角色權限名稱
     /// </summary>
-[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Name, DisplayName.RolePermission_RoleName)]
-public string RoleName { get; set; } = string.Empty;
+    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Name, DisplayName.RolePermission_RoleName)]
+    public string RoleName { get; set; } = string.Empty;
     /// <summary>
     /// 是否為管理者
     /// </summary>
-[LibField(ApiFieldMode.ReadWrite, DisplayName.RolePermission_IsAdmin)]
-public bool IsAdmin { get; set; }
-    
+    [LibField(ApiFieldMode.ReadWrite, DisplayName.RolePermission_IsAdmin)]
+    public bool IsAdmin { get; set; }
+
     #region 主子表關聯
-[InverseProperty(nameof(RolePermissionModel._RoleData))]
-[LibField(ApiFieldMode.ReadWrite)]
-public List<RolePermissionModel> _RolePermission { get; set; } = [];
+    [InverseProperty(nameof(RolePermissionModel._RoleData))]
+    [LibField(ApiFieldMode.ReadWrite)]
+    public List<RolePermissionModel> _RolePermission { get; set; } = [];
     #endregion
 }
 
@@ -46,20 +46,20 @@ public class RolePermissionModel : DetailModel
     /// <summary>
     /// 角色權限代號
     /// </summary>
-[Key]
-[LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, DisplayName.RolePermission_RoleId)]
-public string RoleId { get; set; } = string.Empty;
-[Key]
-[LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
-public int RowId { get; set; }
-[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.ProgId, DisplayName.RolePermission_PermissionKey)]
-public string PermissionKey { get; set; } = string.Empty;
-[LibField(ApiFieldMode.ReadWrite, DisplayName.RolePermission_GrantMask)]
-public FuncAction GrantMask { get; set; }
+    [Key]
+    [LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, DisplayName.RolePermission_RoleId)]
+    public string RoleId { get; set; } = string.Empty;
+    [Key]
+    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
+    public int RowId { get; set; }
+    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.ProgId, DisplayName.RolePermission_PermissionKey)]
+    public string PermissionKey { get; set; } = string.Empty;
+    [LibField(ApiFieldMode.ReadWrite, DisplayName.RolePermission_GrantMask)]
+    public FuncAction GrantMask { get; set; }
 
     #region 主子表關聯
-[ForeignKey(nameof(RoleId))]
-[LibField(ApiFieldMode.ReadOnly)]
-public RoleDataModel _RoleData { get; set; }= null!;
+    [ForeignKey(nameof(RoleId))]
+    [LibField(ApiFieldMode.ReadOnly)]
+    public RoleDataModel _RoleData { get; set; } = null!;
     #endregion
 }

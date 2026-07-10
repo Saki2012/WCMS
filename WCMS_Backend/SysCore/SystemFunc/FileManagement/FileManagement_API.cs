@@ -258,7 +258,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             if (!string.IsNullOrWhiteSpace(file.FileSHA256)) Response.Headers.ETag = $"W/\"{file.FileSHA256}\"";
             if (file.ModifyTime != default)
             {
-                DateTime utc = file.ModifyTime;
+                DateTime utc = file.ModifyTime ?? DateTime.UtcNow;
                 var lastModified = new DateTimeOffset(utc).AddTicks(-(utc.Ticks % TimeSpan.TicksPerSecond));
                 if (lastModified > DateTimeOffset.UtcNow) lastModified = DateTimeOffset.UtcNow;
                 Response.Headers.LastModified = lastModified.ToString("R");

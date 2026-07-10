@@ -12,27 +12,27 @@ namespace WCMS.SysCore.Model
         /// <summary>
         /// 設定鍵。
         /// </summary>
-[Key, StringLength(100)]
-[LibField(ApiFieldMode.ReadOnly)]
-public string ProfileKey { get; set; }= string.Empty;
+        [Key, StringLength(100)]
+        [LibField(ApiFieldMode.ReadOnly)]
+        public string ProfileKey { get; set; } = string.Empty;
 
         /// <summary>
         /// 設定值。
         /// </summary>
-[StringLength(200)]
-[LibField(ApiFieldMode.ReadWrite)]
-public string ProfileValue { get; set; }= string.Empty;
+        [StringLength(200)]
+        [LibField(ApiFieldMode.ReadWrite)]
+        public string ProfileValue { get; set; } = string.Empty;
 
         /// <summary>
         /// 建立時間。
         /// </summary>
-[LibField(ApiFieldMode.ReadOnly)]
-public DateTime CreateTime { get; set; }
+        [LibField(ApiFieldMode.ReadOnly)]
+        public DateTime CreateTime { get; set; }
 
         /// <summary>
         /// 異動時間。
         /// </summary>
-[LibField(ApiFieldMode.ReadOnly)]
-public DateTime ModifyTime { get; set; }
+        [LibField(ApiFieldMode.ReadOnly)]
+        public DateTime? ModifyTime { get; set; }
     }
 }
