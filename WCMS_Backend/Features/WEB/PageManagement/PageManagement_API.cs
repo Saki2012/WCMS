@@ -7,7 +7,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.Features.WEB.PageManagement
 {
     [LibApiController(ProgKeys.WEB.Code, ProgKeys.WEB.PageManagement, FuncAction.MasterData)]
-    public class PageManagementController : ApiDataController<PageManagementSet, PageManagementSet_DTO>{
+    public class PageManagementController : ApiDataController<PageManagement>{
 
         #region
         /// <summary>

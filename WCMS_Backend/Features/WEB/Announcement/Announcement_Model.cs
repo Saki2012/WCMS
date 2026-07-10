@@ -128,9 +128,9 @@ public List<AnnouncementDetailFile> _AnnouncementDetailFile { get; set; } = [];
 [LibDesc(DisplayName.AnnouncementDetailFile)]
 public partial class AnnouncementDetailFile : DetailModel
 {
-    /// <summary>
-    /// 公告代碼
-    /// </summary>
+/// <summary>
+/// 公告代碼
+/// </summary>
 [Key]
 [LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, DisplayName.AnnouncementId)]
 public string AnnouncementId { get; set; } = string.Empty;

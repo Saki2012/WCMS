@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.OutputCaching;
 using Newtonsoft.Json;
+using System.Collections;
 using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 using WCMS.Features._Resx;
 using WCMS.Features.COMM.Category;
 using WCMS.Features.COMM.Tag;
@@ -33,85 +35,69 @@ using static WCMS.SysCore.Library.LibData;
 namespace WCMS.SysCore.FeatureDriver.Api
 {
     /// <summary>
-    /// 資料查詢型 API 基底，提供清單查詢與模型欄位描述。
+    /// 資料查詢型 API 基底，直接以 Form Model 聚合模型作為外部與 Biz 契約。
     /// </summary>
-    /// <typeparam name="TSet">資料集合型別。</typeparam>
-    /// <typeparam name="TSet_DTO">資料集合 DTO 型別。</typeparam>
-    public abstract class ApiDataQueryController<TSet, TSet_DTO> : ApiBaseController where TSet : ITSet where TSet_DTO : ITSet_DTO
+    /// <typeparam name="TFormModel">表單模型聚合根型別。</typeparam>
+    public abstract class ApiDataQueryController<TFormModel> : ApiBaseController where TFormModel : class
     {
         #region Property
-        private IBizService<TSet>? _service;
+        private IBizService<TFormModel>? _service;
         private IOutputCacheFeature? _Ocf;
-        private IBizService<FileManageSet>? _fileService;
+        private IBizService<FileManageModel>? _fileService;
 
         /// <summary>
-        /// 資料型 Biz 服務。
+        /// Form Model Biz 服務。
         /// </summary>
-        protected IBizService<TSet> Service => _service ??= HttpContext.RequestServices.GetRequiredService<IBizService<TSet>>();
-
+        protected IBizService<TFormModel> Service => _service ??= HttpContext.RequestServices.GetRequiredService<IBizService<TFormModel>>();
         /// <summary>
         /// 目前輸出快取 Feature。
         /// </summary>
         private IOutputCacheFeature? Ocf => _Ocf ??= HttpContext.Features.Get<IOutputCacheFeature>();
-
         /// <summary>
         /// 檔案管理服務。
         /// </summary>
-        protected FileManagementBiz FileService => (FileManagementBiz)(_fileService ??= HttpContext.RequestServices.GetRequiredService<IBizService<FileManageSet>>());
-
+        protected FileManagementBiz FileService => (FileManagementBiz)(_fileService ??= HttpContext.RequestServices.GetRequiredService<IBizService<FileManageModel>>());
         /// <summary>
-        /// DTO 欄位顯示名稱。
+        /// Form Model 欄位顯示名稱。
         /// </summary>
-        protected ModelDisplay<TSet_DTO>.ModelMetadata ModelDescription { get { return new ModelDisplay<TSet_DTO>().Model; } }
+        protected ModelDisplay<TFormModel>.ModelMetadata ModelDescription { get { return new ModelDisplay<TFormModel>().Model; } }
         #endregion
 
         #region Public
         /// <summary>
-        /// 查詢清單
-        /// TODO:之後一定要拆分成前台跟後台用的API，後台會需要多一層權限管控
+        /// 查詢清單。
         /// </summary>
-        /// <returns></returns>
         [HttpPost(nameof(QueryList)), OutputCache(PolicyName = SysParam.ListCache), AllowAnonymous, IgnoreAntiforgeryToken]
         public virtual async Task<IActionResult> QueryList([FromBody] QueryListParam? queryCondition, CancellationToken ct)
         {
-            if (!DTOHelper.CheckQueryParam<TSet_DTO>(queryCondition)) return BadRequest("查詢參數錯誤");
+            if (!LibApiFieldPolicyHelper.CheckQueryParam<TFormModel>(queryCondition)) return BadRequest("查詢參數錯誤");
             AddListTags();
-            SpecSetQueryParam(queryCondition,null);
-            var queryResult = await Service.BizQueryListAsync(queryCondition.Fields, queryCondition.Condition, queryCondition.OrderBy, queryCondition.RankGroups, queryCondition.PageNumber, queryCondition.PageSize, ct);
-            List<TSet_DTO> result = [];
-            foreach (var item in queryResult)
-            {
-                TSet_DTO DTOitem = DTOHelper.MapToDTO<TSet, TSet_DTO>(item);
-                SpecDoMapToDTO(item, DTOitem);
-                result.Add(DTOitem);
-            }
-            var response = new ApiResponse<TSet_DTO>() { Data = result, SysMessage = Message.Messages };
+            SpecSetQueryParam(queryCondition, null);
+            IList<TFormModel> result = await Service.BizQueryListAsync(queryCondition.Fields, queryCondition.Condition, queryCondition.OrderBy, queryCondition.RankGroups, queryCondition.PageNumber, queryCondition.PageSize, ct);
+            var response = new ApiResponse<TFormModel>() { Data = result, SysMessage = Message.Messages };
             return Ok(response);
         }
         /// <summary>
-        /// 獲取清單總頁數
+        /// 獲取清單總頁數。
         /// </summary>
-        /// <param name="queryCondition"></param>
-        /// <returns></returns>
         [HttpPost(nameof(GetTotalCounts)), OutputCache(PolicyName = SysParam.ListCache), AllowAnonymous, IgnoreAntiforgeryToken]
         public virtual async Task<IActionResult> GetTotalCounts([FromBody] QueryListParam? queryCondition, CancellationToken ct)
         {
-            if (!DTOHelper.CheckQueryParam<TSet_DTO>(queryCondition)) return BadRequest("查詢參數錯誤");
+            if (!LibApiFieldPolicyHelper.CheckQueryParam<TFormModel>(queryCondition)) return BadRequest("查詢參數錯誤");
             AddListTags();
             SpecSetQueryParam(queryCondition, null);
-            var result = await Service.BizQueryTotalCounts(queryCondition.Condition);
+            int result = await Service.BizQueryTotalCounts(queryCondition.Condition, ct);
             var response = new ApiResponse<int>() { Data = [result], SysMessage = Message.Messages };
             return Ok(response);
         }
         /// <summary>
-        /// 獲取功能的欄位顯示名稱
+        /// 獲取功能的欄位顯示名稱。
         /// </summary>
-        /// <returns></returns>
         [HttpGet(nameof(GetModelDisplayName)), OutputCache(PolicyName = SysParam.PermanentCache), AllowAnonymous, IgnoreAntiforgeryToken]
         public async Task<IActionResult> GetModelDisplayName()
         {
             var result = await Task.Run(() => ModelDescription);
-            var response = new ApiResponse<ModelDisplay<TSet_DTO>.ModelMetadata>() { Data = [result], SysMessage = Message.Messages };
+            var response = new ApiResponse<ModelDisplay<TFormModel>.ModelMetadata>() { Data = [result], SysMessage = Message.Messages };
             return Ok(response);
         }
         #endregion
@@ -119,7 +105,6 @@ namespace WCMS.SysCore.FeatureDriver.Api
         #region Protected
         /// <summary>
         /// 轉換查詢條件欄位名稱。
-        /// 用途：DTO 欄位名稱與 Model 欄位名稱不一致時，將前端傳入的 DTO 欄位轉成實際查詢欄位。
         /// </summary>
         protected virtual void SpecSetQueryParam(QueryListParam queryCondition, Dictionary<string, string>? newFieldNameDic)
         {
@@ -133,8 +118,14 @@ namespace WCMS.SysCore.FeatureDriver.Api
                 OrderBy = p.OrderBy?.Select(o => o with { Col = ReplaceQueryFieldName(o.Col, newFieldNameDic) }).ToArray()
             }).ToArray();
         }
-        protected virtual void SpecDoMapToSet(TSet set, TSet_DTO dto) { }
-        protected virtual void SpecDoMapToDTO(TSet set, TSet_DTO dto) { }
+        /// <summary>
+        /// API 寫入前的客製補值時機。
+        /// </summary>
+        protected virtual void SpecBeforeWrite(TFormModel data) { }
+        /// <summary>
+        /// API 讀出後的客製補值時機。
+        /// </summary>
+        protected virtual void SpecAfterRead(TFormModel data) { }
         #endregion
 
         #region Private
@@ -150,88 +141,74 @@ namespace WCMS.SysCore.FeatureDriver.Api
         #endregion
 
         #region Tag helpers
-        // 型別級（list/detail）tag
-        private static string ListTag => $"set:list:{typeof(TSet).Name}";
-        private static string DetailTag => $"set:detail:{typeof(TSet).Name}";
-        // 逐筆 tag：型別 + internalId
-        private static string DetailItemTag(string id) => $"set:detail:{typeof(TSet).Name}:{id}";
+        private static string ListTag => $"data:list:{typeof(TFormModel).Name}";
+        private static string DetailTag => $"data:detail:{typeof(TFormModel).Name}";
+        private static string DetailItemTag(string id) => $"data:detail:{typeof(TFormModel).Name}:{id}";
+        /// <summary>
+        /// 加入清單快取標籤。
+        /// </summary>
         protected void AddListTags()
         {
-            Ocf?.Context.Tags.Add("set:list");
+            Ocf?.Context.Tags.Add("data:list");
             Ocf?.Context.Tags.Add(ListTag);
         }
+        /// <summary>
+        /// 加入明細快取標籤。
+        /// </summary>
         protected void AddDetailTags(string id)
         {
-            Ocf?.Context.Tags.Add("set:detail");
+            Ocf?.Context.Tags.Add("data:detail");
             Ocf?.Context.Tags.Add(DetailTag);
             Ocf?.Context.Tags.Add(DetailItemTag(id));
         }
         /// <summary>
-        /// 清除快取
+        /// 清除 Form Model 快取。
         /// </summary>
-        /// <param name="ct"></param>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        protected async Task EvictForSetAsync(CancellationToken ct, string? id = null)
+        protected async Task EvictForDataAsync(CancellationToken ct, string? id = null)
         {
             await CacheStore.EvictByTagAsync(ListTag, ct);
-            await CacheStore.EvictByTagAsync("set:list", ct);
+            await CacheStore.EvictByTagAsync("data:list", ct);
             if (!string.IsNullOrWhiteSpace(id)) await CacheStore.EvictByTagAsync(DetailItemTag(id), ct);
             await CacheStore.EvictByTagAsync(DetailTag, ct);
-            await CacheStore.EvictByTagAsync("set:detail", ct);
+            await CacheStore.EvictByTagAsync("data:detail", ct);
         }
         #endregion
     }
     /// <summary>
-    /// 表單API入口
+    /// 表單 API 入口，直接使用 Form Model 聚合模型。
     /// </summary>
-    /// <typeparam name="TSet"></typeparam>
-    public abstract class ApiDataController<TSet, TSet_DTO> : ApiDataQueryController<TSet, TSet_DTO>, IBaseDataController<TSet, TSet_DTO> where TSet : ITSet where TSet_DTO : ITSet_DTO
+    /// <typeparam name="TFormModel">表單模型聚合根型別。</typeparam>
+    public abstract class ApiDataController<TFormModel> : ApiDataQueryController<TFormModel>, IBaseDataController<TFormModel> where TFormModel : class
     {
         #region Public
         /// <summary>
-        /// 新增
+        /// 新增。
         /// </summary>
-        /// <param name="set"></param>
-        /// <returns></returns>
         [HttpPost(nameof(Create)), LibRequireFuncAct(FuncAction.Create)]
-        public virtual async Task<IActionResult> Create(TSet_DTO set, CancellationToken ct)
+        public virtual async Task<IActionResult> Create(TFormModel data, CancellationToken ct)
         {
-            OperateLogModel followInfo = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(Create)}", OperateUser.UserId,  JsonConvert.SerializeObject(set),Request.Headers["HTTP_CLIENT_IP"].ToString());
-            TSet entity = DTOHelper.MapToSet<TSet, TSet_DTO>(set);
-            SpecDoMapToSet(entity, set);
-            var createResult = await Service.BizCreateSetAsync(entity, ct);
-            await EvictForSetAsync(ct);
-            TSet_DTO result = DTOHelper.MapToDTO<TSet, TSet_DTO>(createResult);
-            SpecDoMapToDTO(createResult, result);
-            var response = new ApiResponse<TSet_DTO>() { Data = [result],SysMessage = Message.Messages };
-            if (ct == CancellationToken.None) { followInfo.ExcStatus = ExcStatus.CancelExc; }
-            if (!response.IsSuccess) followInfo.ExcStatus = ExcStatus.Fail;
-            else followInfo.ExcStatus = ExcStatus.OK;
+            OperateLogModel followInfo = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(Create)}", OperateUser.UserId, JsonConvert.SerializeObject(data), Request.Headers["HTTP_CLIENT_IP"].ToString());
+            SpecBeforeWrite(data);
+            TFormModel result = await Service.BizCreateDataAsync(data, ct);
+            await EvictForDataAsync(ct);
+            SpecAfterRead(result);
+            var response = new ApiResponse<TFormModel>() { Data = [result], SysMessage = Message.Messages };
+            followInfo.ExcStatus = response.IsSuccess ? ExcStatus.OK : ExcStatus.Fail;
             return Ok(response);
         }
         /// <summary>
-        /// 初始資料建立匯入
+        /// 初始資料建立匯入。
         /// </summary>
-        /// <param name="sets"></param>
-        /// <param name="ct"></param>
-        /// <returns></returns>
         [HttpPost(nameof(InitialCreateData))]
-        public virtual async Task<IActionResult> InitialCreateData(TSet_DTO[] sets, CancellationToken ct)
+        public virtual async Task<IActionResult> InitialCreateData(TFormModel[] datas, CancellationToken ct)
         {
-            OperateLogModel followInfo = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(InitialCreateData)}", OperateUser.UserId, JsonConvert.SerializeObject(sets),Request.Headers["HTTP_CLIENT_IP"].ToString() );
-
-            bool ownsTx = false;
-            ownsTx = await Service.TryBeginTransactionAsync();
+            OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(InitialCreateData)}", OperateUser.UserId, JsonConvert.SerializeObject(datas), Request.Headers["HTTP_CLIENT_IP"].ToString());
+            bool ownsTx = await Service.TryBeginTransactionAsync();
             try
             {
-                IList<TSet>entitySets = [];
-                foreach (var set in sets)
-                {
-                    TSet entity = DTOHelper.MapToSet<TSet, TSet_DTO>(set);
-                    entitySets.Add(entity);
-                }
-                await Service.BizInitCreateSetsAsync([.. entitySets]);
+                foreach (var data in datas) SpecBeforeWrite(data);
+                await Service.BizInitCreateDatasAsync(datas, ct);
+                await Service.TryCommitAsync(ownsTx);
                 return Ok();
             }
             catch (Exception ex)
@@ -241,92 +218,69 @@ namespace WCMS.SysCore.FeatureDriver.Api
             }
         }
         /// <summary>
-        /// 修改
+        /// 修改。
         /// </summary>
-        /// <param name="pk"></param>
-        /// <param name="data"></param>
-        /// <returns></returns>
         [HttpPut(nameof(Update)), LibRequireFuncAct(FuncAction.Update)]
-        public virtual async Task<IActionResult> Update(ApiRequest<TSet_DTO> data, CancellationToken ct)
+        public virtual async Task<IActionResult> Update(ApiRequest<TFormModel> request, CancellationToken ct)
         {
-            OperateLogModel followInfo = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(Update)}", OperateUser.UserId, JsonConvert.SerializeObject(data), Request.Headers["HTTP_CLIENT_IP"].ToString());
-            TSet entity = DTOHelper.MapToSet<TSet, TSet_DTO>(data.Data);
-            SpecDoMapToSet(entity, data.Data);
-            var updateResult = await Service.BizUpdateSetAsync(data.InternalId, entity);
-            await EvictForSetAsync(ct, data.InternalId);
-            if (ct == CancellationToken.None) { followInfo.ExcStatus = ExcStatus.CancelExc; }
-            TSet_DTO result = DTOHelper.MapToDTO<TSet, TSet_DTO>(updateResult);
-            SpecDoMapToDTO(updateResult, result);
-            var response = new ApiResponse<TSet_DTO>() { Data = [result], SysMessage = Message.Messages };
-            if (!response.IsSuccess) followInfo.ExcStatus = ExcStatus.Fail;
-            else followInfo.ExcStatus = ExcStatus.OK;
+            OperateLogModel followInfo = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(Update)}", OperateUser.UserId, JsonConvert.SerializeObject(request), Request.Headers["HTTP_CLIENT_IP"].ToString());
+            if (request.Data != null) SpecBeforeWrite(request.Data);
+            TFormModel result = await Service.BizUpdateDataAsync(request.InternalId, request.Data!, ct);
+            await EvictForDataAsync(ct, request.InternalId);
+            SpecAfterRead(result);
+            var response = new ApiResponse<TFormModel>() { Data = [result], SysMessage = Message.Messages };
+            followInfo.ExcStatus = response.IsSuccess ? ExcStatus.OK : ExcStatus.Fail;
             return Ok(response);
         }
         /// <summary>
-        /// 作廢
+        /// 作廢。
         /// </summary>
-        /// <param name="pk"></param>
-        /// <param name="isInvalid"></param>
-        /// <returns></returns>
         [HttpPatch($"{nameof(Invalid)}/{{pk}}"), LibRequireFuncAct(FuncAction.Invalid)]
         public virtual async Task<IActionResult> Invalid(string internalId, bool isInvalid, CancellationToken ct)
         {
-            OperateLogModel followInfo = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(Invalid)}", OperateUser.UserId, JsonConvert.SerializeObject(internalId), Request.Headers["HTTP_CLIENT_IP"].ToString());
-            if (!Guid.TryParse(internalId, out var guid)) { return BadRequest("Invalid internalId format."); }
-            var invalidResult = await Service.BizInvalidSetAsync(internalId, isInvalid);
-            var result = DTOHelper.MapToDTO<TSet, TSet_DTO>(invalidResult);
-            await EvictForSetAsync(ct, internalId);
-            var response = new ApiResponse<TSet_DTO>() { Data = [result], SysMessage = Message.Messages };
+            OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(Invalid)}", OperateUser.UserId, JsonConvert.SerializeObject(internalId), Request.Headers["HTTP_CLIENT_IP"].ToString());
+            if (!Guid.TryParse(internalId, out _)) return BadRequest("Invalid internalId format.");
+            TFormModel result = await Service.BizInvalidDataAsync(internalId, isInvalid, ct);
+            await EvictForDataAsync(ct, internalId);
+            SpecAfterRead(result);
+            var response = new ApiResponse<TFormModel>() { Data = [result], SysMessage = Message.Messages };
             return Ok(response);
         }
         /// <summary>
-        /// 批次作廢
+        /// 批次作廢。
         /// </summary>
-        /// <param name="pks"></param>
-        /// <returns></returns>
         [HttpPatch(nameof(BatchInvalid)), LibRequireFuncAct(FuncAction.Invalid)] public virtual async Task<IActionResult> BatchInvalid(string[] internalIds, bool isInvalid, CancellationToken ct) => throw new NotImplementedException();
         /// <summary>
-        /// 刪除
+        /// 刪除。
         /// </summary>
-        /// <param name="pk"></param>
-        /// <returns></returns>
         [HttpDelete(nameof(Delete)), LibRequireFuncAct(FuncAction.Delete)]
         public virtual async Task<IActionResult> Delete(string internalId, CancellationToken ct)
         {
-            OperateLogModel followInfo = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(Delete)}", OperateUser.UserId, JsonConvert.SerializeObject(internalId), Request.Headers["HTTP_CLIENT_IP"].ToString());
-            if (!Guid.TryParse(internalId, out var guid)) { return BadRequest("Invalid internalId format."); }
-            var deleteResult = await Service.BizDeleteSetAsync(internalId);
-            var result = DTOHelper.MapToDTO<TSet, TSet_DTO>(deleteResult);
-            await EvictForSetAsync(ct, internalId);
-            var response = new ApiResponse<TSet_DTO>() { Data = [result],SysMessage = Message.Messages };
+            OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(Delete)}", OperateUser.UserId, JsonConvert.SerializeObject(internalId), Request.Headers["HTTP_CLIENT_IP"].ToString());
+            if (!Guid.TryParse(internalId, out _)) return BadRequest("Invalid internalId format.");
+            TFormModel result = await Service.BizDeleteDataAsync(internalId, ct);
+            await EvictForDataAsync(ct, internalId);
+            SpecAfterRead(result);
+            var response = new ApiResponse<TFormModel>() { Data = [result], SysMessage = Message.Messages };
             return Ok(response);
         }
         /// <summary>
-        /// 批次刪除
+        /// 批次刪除。
         /// </summary>
-        /// <param name="pks"></param>
-        /// <returns></returns>
         [HttpDelete(nameof(BatchDelete)), LibRequireFuncAct(FuncAction.Delete)] public virtual Task<IActionResult> BatchDelete(string[] internalIds, CancellationToken ct) => throw new NotImplementedException();
         /// <summary>
-        /// 查看表單
-        /// TODO:之後一定要拆分成前台跟後台用的API，後台會需要多一層權限管控
+        /// 查看表單。
         /// </summary>
-        /// <param name="pk"></param>
-        /// <returns></returns>
-        [HttpGet(nameof(QueryData)),OutputCache(PolicyName = SysParam.DetailCache), AllowAnonymous, IgnoreAntiforgeryToken]
+        [HttpGet(nameof(QueryData)), OutputCache(PolicyName = SysParam.DetailCache), AllowAnonymous, IgnoreAntiforgeryToken]
         public virtual async Task<IActionResult> QueryData([FromQuery] string internalId, CancellationToken ct)
         {
-            if (!Guid.TryParse(internalId, out var guid)) { return BadRequest("Invalid internalId format."); }
+            if (!Guid.TryParse(internalId, out _)) return BadRequest("Invalid internalId format.");
             AddDetailTags(internalId);
-            var queryResult = await Service.BizQuerySetAsync(internalId);
-            var result = DTOHelper.MapToDTO<TSet, TSet_DTO>(queryResult);
-            var response = new ApiResponse<TSet_DTO>() { Data = [result], SysMessage = Message.Messages };
+            TFormModel result = await Service.BizQueryDataAsync(internalId, ct);
+            SpecAfterRead(result);
+            var response = new ApiResponse<TFormModel>() { Data = [result], SysMessage = Message.Messages };
             return Ok(response);
         }
-        #endregion
-
-        #region Private
-
         #endregion
     }
     /// <summary>
@@ -394,7 +348,7 @@ namespace WCMS.SysCore.FeatureDriver.Api
         /// <returns></returns>
         [HttpPost(nameof(Migration)), LocalhostOnly] public async Task<IActionResult> Migration(string labelTag = "1810")
         {
-            FileManagementBiz fileManagement = HttpContext.RequestServices.GetRequiredService<IBizService<FileManageSet>>() as FileManagementBiz;
+            FileManagementBiz fileManagement = HttpContext.RequestServices.GetRequiredService<IBizService<FileManageModel>>() as FileManagementBiz;
             OperateLogModel followInfo = new OperateLogModel();
             followInfo.APIName = $"{"SystemAPI"}/{nameof(Migration)}";
             followInfo.UserId = "SysOperator";
@@ -402,45 +356,39 @@ namespace WCMS.SysCore.FeatureDriver.Api
             OperateLog.AddOperateLog(followInfo);
             await fileManagement.ImportZip(labelTag);
             QueryListParam p = new(){Fields=[nameof(FileManageModel.InternalId)], Condition = $"{nameof(FileManageModel.ImportLabel)} = {labelTag}"};
-            IList<FileManageSet> fileInternalIds = await fileManagement.BizQueryListAsync(p);
-            IList<FileManageSet> srcFiles = [];
+            IList<FileManageModel> fileInternalIds = await fileManagement.BizQueryListAsync(p);
+            IList<FileManageModel> srcFiles = [];
             foreach(var file in fileInternalIds)
             {
-                var f = await fileManagement.BizQuerySetAsync(file.FileManage.InternalId);
+                var f = await fileManagement.BizQueryDataAsync(file.InternalId);
                 if (f != null) srcFiles.Add(f);
             }
-            AnnouncementBiz announcement = HttpContext.RequestServices.GetRequiredService<IBizService<AnnouncementSet>>() as AnnouncementBiz;
+            AnnouncementBiz announcement = HttpContext.RequestServices.GetRequiredService<IBizService<Announcement>>() as AnnouncementBiz;
             await announcement.Migrate(labelTag, srcFiles);
 
-            BannerBiz banner = HttpContext.RequestServices.GetRequiredService<IBizService<BannerSet>>() as BannerBiz;
+            BannerBiz banner = HttpContext.RequestServices.GetRequiredService<IBizService<Banner>>() as BannerBiz;
             await banner.Migrate(labelTag, srcFiles);
 
-            CategoryBiz category = HttpContext.RequestServices.GetRequiredService<IBizService<CategoryDataSet>>() as CategoryBiz;
+            CategoryBiz category = HttpContext.RequestServices.GetRequiredService<IBizService<Category>>() as CategoryBiz;
             await category.Migrate();
 
-            FileArchiveBiz fileArchive = HttpContext.RequestServices.GetRequiredService<IBizService<FileArchiveSet>>() as FileArchiveBiz;
+            FileArchiveBiz fileArchive = HttpContext.RequestServices.GetRequiredService<IBizService<FileArchive>>() as FileArchiveBiz;
             await fileArchive.Migrate(labelTag,srcFiles);
 
-            GalleryBiz gallery = HttpContext.RequestServices.GetRequiredService<IBizService<GallerySet>>() as GalleryBiz;
+            GalleryBiz gallery = HttpContext.RequestServices.GetRequiredService<IBizService<Gallery>>() as GalleryBiz;
             await gallery.Migrate(labelTag, srcFiles);
 
-            PageManagementBiz pageManagement = HttpContext.RequestServices.GetRequiredService<IBizService<PageManagementSet>>() as PageManagementBiz;
+            PageManagementBiz pageManagement = HttpContext.RequestServices.GetRequiredService<IBizService<PageManagement>>() as PageManagementBiz;
             await pageManagement.Migrate(labelTag, srcFiles);
 
-            TagBiz tagBiz = HttpContext.RequestServices.GetRequiredService<IBizService<TagSet>>() as TagBiz;
+            TagBiz tagBiz = HttpContext.RequestServices.GetRequiredService<IBizService<TagData>>() as TagBiz;
             await tagBiz.Migrate();
 
-            WebResourceBiz webResourceBiz = HttpContext.RequestServices.GetRequiredService<IBizService<WebResourceSet>>() as WebResourceBiz;
+            WebResourceBiz webResourceBiz = HttpContext.RequestServices.GetRequiredService<IBizService<WebResource>>() as WebResourceBiz;
             await webResourceBiz.Migrate(labelTag, srcFiles);
 
-            SiteMenuBiz siteMenuBiz = HttpContext.RequestServices.GetRequiredService<IBizService<SiteMenuSet>>() as SiteMenuBiz;
+            SiteMenuBiz siteMenuBiz = HttpContext.RequestServices.GetRequiredService<IBizService<SiteMenu_IndexModel>>() as SiteMenuBiz;
             await siteMenuBiz.Migrate(pageManagement);
-
-            //foreach (var fileSet in srcFiles)
-            //{
-            //    var copy = System.Text.Json.JsonSerializer.Deserialize<FileManageSet>(System.Text.Json.JsonSerializer.Serialize(fileSet));
-            //    await fileManagement.BizUpdateSetAsync(fileSet.FileManage.InternalId, copy);
-            //}
 
             return Ok();
         }
@@ -465,11 +413,11 @@ namespace WCMS.SysCore.FeatureDriver.Api
     /// <summary>
     /// 
     /// </summary>
-    /// <typeparam name="TSet"></typeparam>
-    public class ApiRequest<TSet> : IApiRequest<TSet>
+    /// <typeparam name="TFormModel"></typeparam>
+    public class ApiRequest<TFormModel> : IApiRequest<TFormModel>
     {
         public string InternalId { get; set; }
-        public TSet? Data { get; set; }
+        public TFormModel? Data { get; set; }
     }
     /// <summary>
     /// 查詢條件
@@ -486,55 +434,31 @@ namespace WCMS.SysCore.FeatureDriver.Api
         public int PageSize { get; set; }
     }
     /// <summary>
-    /// 模型顯示名稱
+    /// Form Model 模型顯示名稱。
     /// </summary>
-    /// <typeparam name="TSet"></typeparam>
-    public class ModelDisplay<TSet_DTO>
+    /// <typeparam name="TFormModel">外部 API Form Model 型別。</typeparam>
+    public class ModelDisplay<TFormModel>
     {
         #region Property
+        /// <summary>
+        /// Form Model 與 Detail Graph 欄位描述。
+        /// </summary>
         public ModelMetadata Model
         {
             get
             {
                 var result = new ModelMetadata
                 {
-                    ModelId = typeof(TSet_DTO).Name,
-                    ModelDisplayName = I18nCache.GetLabel<TSet_DTO>(),
+                    ModelId = typeof(TFormModel).Name,
+                    ModelDisplayName = I18nCache.GetLabel<TFormModel>(),
                     Tables = []
                 };
-                foreach (var tbProp in PropertyAccessorCache.GetProperties(typeof(TSet_DTO)))
-                {
-                    var tb = new TableMetadata() { Columns = [] };
-                    result.Tables.Add(tb);
-                    tb.TableId = tbProp.Name;
-                    tb.TableDisplayName = I18nCache.GetLabel(tbProp);
-                    if (!tbProp.IsListPropertyType())
-                    {
-                        foreach (var colProp in PropertyAccessorCache.GetProperties(tbProp.PropertyType))
-                        {
-                            tb.Columns.Add(new ColumnMetadata()
-                            {
-                                ColumnId = colProp.Name,
-                                ColumnDisplayName = I18nCache.GetLabel(colProp),
-                            });
-                        }
-                    }
-                    else
-                    {
-                        var tbType = tbProp.PropertyType.GetGenericArguments().FirstOrDefault();
-                        foreach (var colProp in PropertyAccessorCache.GetProperties(tbType))
-                        {
-                            tb.Columns.Add(new ColumnMetadata()
-                            {
-                                ColumnId = colProp.Name,
-                                ColumnDisplayName = I18nCache.GetLabel(colProp),
-                            });
-                        }
-                    }
-                }
+                if (typeof(DbModel).IsAssignableFrom(typeof(TFormModel))) AddTable(result.Tables, typeof(TFormModel), ResolveTableId(typeof(TFormModel)));
+                else AddFormTables(result.Tables);
                 return result;
             }
         }
+
         public class ModelMetadata
         {
             public string ModelId { get; set; }
@@ -551,6 +475,95 @@ namespace WCMS.SysCore.FeatureDriver.Api
         {
             public string ColumnId { get; set; }
             public string ColumnDisplayName { get; set; }
+        }
+        #endregion
+
+        #region Private
+        /// <summary>
+        /// 加入組合式 Form Model 明確宣告的 Root 與 Graph 資料表。
+        /// </summary>
+        private static void AddFormTables(List<TableMetadata> tables)
+        {
+            foreach (PropertyInfo prop in PropertyAccessorCache.GetProperties(typeof(TFormModel)))
+            {
+                bool isRoot = prop.IsDefined(typeof(FormRootAttribute), true);
+                bool isGraph = prop.IsDefined(typeof(FormGraphPathAttribute), true);
+                if (!isRoot && !isGraph) continue;
+                Type? modelType = GetListItemType(prop.PropertyType) ?? prop.PropertyType;
+                if (typeof(DbModel).IsAssignableFrom(modelType)) AddTable(tables, modelType, ResolveTableId(prop));
+            }
+        }
+        /// <summary>
+        /// 加入目前型別的欄位表，並遞迴加入 Detail 集合表。
+        /// </summary>
+        private static void AddTable(List<TableMetadata> tables, Type modelType, string tableId)
+        {
+            if (tables.Any(p => p.TableId == tableId)) return;
+            TableMetadata table = BuildTable(modelType, tableId);
+            tables.Add(table);
+            foreach (var prop in PropertyAccessorCache.GetProperties(modelType).Where(p => IsListType(p.PropertyType) && !LibApiFieldPolicyHelper.ShouldHideFromSchema(p)))
+            {
+                Type? itemType = GetListItemType(prop.PropertyType);
+                if (itemType == null) continue;
+                AddTable(tables, itemType, ResolveTableId(prop));
+            }
+        }
+
+        /// <summary>
+        /// 建立單一資料表欄位描述。
+        /// </summary>
+        private static TableMetadata BuildTable(Type modelType, string tableId)
+        {
+            TableMetadata result = new() { TableId = tableId, TableDisplayName = I18nCache.GetLabel(modelType), Columns = [] };
+            foreach (var prop in PropertyAccessorCache.GetProperties(modelType).Where(p => !IsListType(p.PropertyType) && !LibApiFieldPolicyHelper.ShouldHideFromSchema(p)))
+            {
+                result.Columns.Add(new ColumnMetadata() { ColumnId = prop.Name, ColumnDisplayName = I18nCache.GetLabel(prop) });
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 解析 Root Header 的 TableId。
+        /// </summary>
+        private static string ResolveTableId(Type type)
+        {
+            return TrimModelSuffix(type.Name);
+        }
+
+        /// <summary>
+        /// 解析 Detail 集合的 TableId。
+        /// </summary>
+        private static string ResolveTableId(PropertyInfo prop)
+        {
+            return prop.Name.TrimStart('_');
+        }
+
+        /// <summary>
+        /// 移除常見 Model 後綴。
+        /// </summary>
+        private static string TrimModelSuffix(string name)
+        {
+            return name.EndsWith("Model", StringComparison.Ordinal) ? name[..^"Model".Length] : name;
+        }
+
+        /// <summary>
+        /// 判斷型別是否為集合。
+        /// </summary>
+        private static bool IsListType(Type type)
+        {
+            if (type == typeof(string) || type == typeof(byte[])) return false;
+            return typeof(IEnumerable).IsAssignableFrom(type);
+        }
+
+        /// <summary>
+        /// 取得集合項目型別。
+        /// </summary>
+        private static Type? GetListItemType(Type type)
+        {
+            if (type == typeof(string) || type == typeof(byte[])) return null;
+            if (type.IsArray) return type.GetElementType();
+            if (type.IsGenericType) return type.GetGenericArguments().FirstOrDefault();
+            return type.GetInterfaces().FirstOrDefault(p => p.IsGenericType && p.GetGenericTypeDefinition() == typeof(IEnumerable<>))?.GetGenericArguments().FirstOrDefault();
         }
         #endregion
     }

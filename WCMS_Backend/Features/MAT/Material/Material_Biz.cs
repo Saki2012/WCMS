@@ -6,7 +6,7 @@ using WCMS.SysCore.Library.LibAttribute;
 namespace WCMS.Features.MAT.Material;
 
 [LibBiz(ProgKeys.MAT.Code, ProgKeys.MAT.Material)]
-public class MaterialBiz(BizDeps bizDeps) : BizService<MaterialSet>(bizDeps), IBizService<MaterialSet>
+public class MaterialBiz(BizDeps bizDeps) : BizService<Material>(bizDeps), IBizService<Material>
 {
     #region Protected
 

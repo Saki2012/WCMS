@@ -11,10 +11,10 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.Features.WEB.Timeline;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.Timeline)]
-public class TimelineBiz(BizDeps bizDeps) : BizService<TimelineSet>(bizDeps), IBizService<TimelineSet>
+public class TimelineBiz(BizDeps bizDeps) : BizService<Timeline>(bizDeps), IBizService<Timeline>
 {
     #region Protected Virtual
-    protected override Task BeforeUpdate(TimelineSet set, FuncAction act, CancellationToken ct = default)
+    protected override Task BeforeUpdate(Timeline set, FuncAction act, CancellationToken ct = default)
     {
         var result = base.BeforeUpdate(set, act, ct);
         switch (act)
@@ -30,9 +30,9 @@ public class TimelineBiz(BizDeps bizDeps) : BizService<TimelineSet>(bizDeps), IB
 
     #region Protected
 
-    protected bool CheckData(TimelineSet set)
+    protected bool CheckData(Timeline set)
     {
-        if (set.Timeline.TimelineName.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Timeline_DTO>(x => x.TimelineName));
+        if (set.TimelineName.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Timeline>(x => x.TimelineName));
         return Message.HasError;
     }
     #endregion

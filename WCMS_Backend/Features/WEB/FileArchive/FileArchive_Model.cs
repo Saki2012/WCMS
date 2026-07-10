@@ -73,7 +73,7 @@ public FileArchive _FileArchive { get; set; }
 [InverseProperty(nameof(FileArchiveDetail._FileArchiveInfo))]
 [LibField(ApiFieldMode.ReadWrite)]
 public List<FileArchiveDetail> _FileArchiveDetail { get; set; } = [];
-[InverseProperty(nameof(FileArchiveDetail._FileArchiveInfo))]
+[InverseProperty(nameof(FileArchiveUrlDetail._FileArchiveInfo))]
 [LibField(ApiFieldMode.ReadWrite)]
 public List<FileArchiveUrlDetail> _FileArchiveUrlDetail { get; set; } = [];
     #endregion

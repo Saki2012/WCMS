@@ -14,7 +14,7 @@ using static WCMS.SysCore.FeatureDriver.Api.QueryListParam;
 
 namespace WCMS.SysCore.FeatureDriver.Repo;
 
-public class BasicRepository<TModel>(ApplicationDbContext dataAccess) : IBasicRepository<TModel> where TModel : class
+public class BasicRepository<TDbModel>(ApplicationDbContext dataAccess) : IBasicRepository<TDbModel> where TDbModel : DbModel
 {
     #region Property
     /// <summary>
@@ -31,11 +31,11 @@ public class BasicRepository<TModel>(ApplicationDbContext dataAccess) : IBasicRe
     /// <returns></returns>
     public async Task CreateAsync(object newData, int rowId = 1)
     {
-        if (newData is TModel single)
+        if (newData is TDbModel single)
         {
             await DataAccess.AddAsync(single);
         }
-        else if (newData is IEnumerable<TModel> list)
+        else if (newData is IEnumerable<TDbModel> list)
         {
             foreach (var p in list)
             {
@@ -58,19 +58,19 @@ public class BasicRepository<TModel>(ApplicationDbContext dataAccess) : IBasicRe
     /// <param name="key"></param>
     /// <param name="inputSet"></param>
     /// <returns></returns>
-    public async Task UpdateAsync(TModel oldData, TModel newData)
+    public async Task UpdateAsync(TDbModel oldData, TDbModel newData)
     {
-        var set = DataAccess.Set<TModel>();
+        var set = DataAccess.Set<TDbModel>();
 
         // 1) 確保 oldData 受追蹤（不要 Attach newData）
         var oldEntry = DataAccess.Entry(oldData);
         if (oldEntry.State == EntityState.Detached)
         {
-            var entityType = DataAccess.Model.FindEntityType(typeof(TModel))
-                ?? throw new InvalidOperationException($"EntityType not found: {typeof(TModel).Name}");
+            var entityType = DataAccess.Model.FindEntityType(typeof(TDbModel))
+                ?? throw new InvalidOperationException($"EntityType not found: {typeof(TDbModel).Name}");
 
             var pk = entityType.FindPrimaryKey()
-                ?? throw new InvalidOperationException($"Primary key not found: {typeof(TModel).Name}");
+                ?? throw new InvalidOperationException($"Primary key not found: {typeof(TDbModel).Name}");
 
             object[] GetKeyValues(object entity) =>
                 pk.Properties.Select(p => p.PropertyInfo!.GetValue(entity)!).ToArray();
@@ -86,7 +86,7 @@ public class BasicRepository<TModel>(ApplicationDbContext dataAccess) : IBasicRe
             else
             {
                 // ✅ 2) 再用 ChangeTracker 全域找（穩）
-                var tracked = DataAccess.ChangeTracker.Entries<TModel>()
+                var tracked = DataAccess.ChangeTracker.Entries<TDbModel>()
                     .FirstOrDefault(e => GetKeyValues(e.Entity!).SequenceEqual(targetKeys));
 
                 if (tracked != null)
@@ -117,7 +117,7 @@ public class BasicRepository<TModel>(ApplicationDbContext dataAccess) : IBasicRe
         oldEntry.State = EntityState.Unchanged;
 
         // 3) 欄位差異套用到 oldData（跳過集合/Key/NotMapped/併發欄位）
-        var ef = EfMetaCache.Get(DataAccess, typeof(TModel));
+        var ef = EfMetaCache.Get(DataAccess, typeof(TDbModel));
 
         bool IsConcurrency(PropertyInfo p) =>
             p.GetCustomAttribute<TimestampAttribute>() != null ||
@@ -125,7 +125,7 @@ public class BasicRepository<TModel>(ApplicationDbContext dataAccess) : IBasicRe
             string.Equals(p.Name, nameof(HeaderModel.DataVersion), StringComparison.OrdinalIgnoreCase) ||
             string.Equals(p.Name, nameof(DetailModel.RowState), StringComparison.OrdinalIgnoreCase);
 
-        foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TModel)))
+        foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TDbModel)))
         {
             if (!prop.CanWrite) continue;
             if (ef.IsNav(prop.Name)) continue;                 // 關聯略過
@@ -150,7 +150,7 @@ public class BasicRepository<TModel>(ApplicationDbContext dataAccess) : IBasicRe
     /// 刪除(非同步)
     /// </summary>
     /// <param name="key"></param>
-    public async Task<bool> DeleteAsync(TModel oldData)
+    public async Task<bool> DeleteAsync(TDbModel oldData)
     {
         // 1) 取得 entry
         var entry = DataAccess.Entry(oldData);
@@ -158,7 +158,7 @@ public class BasicRepository<TModel>(ApplicationDbContext dataAccess) : IBasicRe
         if (entry.State == EntityState.Detached)
         {
             // ✅ 清空 reference navigation，避免帶著 master instance 一起被追蹤
-            var et = DataAccess.Model.FindEntityType(typeof(TModel));
+            var et = DataAccess.Model.FindEntityType(typeof(TDbModel));
             if (et != null)
             {
                 foreach (var nav in et.GetNavigations().Where(n => !n.IsCollection))
@@ -181,22 +181,22 @@ public class BasicRepository<TModel>(ApplicationDbContext dataAccess) : IBasicRe
     /// </summary>
     /// <param name="key"></param>
     /// <returns></returns>
-    public async Task<TModel> QueryDataAsync(params object[] key)
+    public async Task<TDbModel> QueryDataAsync(params object[] key)
     {
-        return await DataAccess.Set<TModel>().FindAsync(key);
+        return await DataAccess.Set<TDbModel>().FindAsync(key);
     }
     /// <summary>
     /// 查看表單清單(非同步)
     /// </summary>
-    public async Task<IList<TModel>> QueryListAsync(LambdaExpression? selectExpr,LambdaExpression? whereExpr,IReadOnlyList<OrderBySpec>? orderBy = null,int pageCt = 0,int takeCt = 0,int skipCt = 0,bool asNoTracking = true)
+    public async Task<IList<TDbModel>> QueryListAsync(LambdaExpression? selectExpr,LambdaExpression? whereExpr,IReadOnlyList<OrderBySpec>? orderBy = null,int pageCt = 0,int takeCt = 0,int skipCt = 0,bool asNoTracking = true)
     {
-        IQueryable<TModel> query = DataAccess.Set<TModel>();
-        query = query.TagWith($"BasicRepository<{typeof(TModel).Name}>.QueryListAsync");
+        IQueryable<TDbModel> query = DataAccess.Set<TDbModel>();
+        query = query.TagWith($"BasicRepository<{typeof(TDbModel).Name}>.QueryListAsync");
         if (asNoTracking) query = query.AsNoTrackingWithIdentityResolution();
 
         // ✅ Where 條件
         if (!whereExpr.IsNullOrEmpty())
-            query = query.Where((Expression<Func<TModel, bool>>)whereExpr);
+            query = query.Where((Expression<Func<TDbModel, bool>>)whereExpr);
 
         // ✅ 排序
         bool hasOrderBy = orderBy != null && orderBy.Count > 0;
@@ -222,7 +222,7 @@ public class BasicRepository<TModel>(ApplicationDbContext dataAccess) : IBasicRe
         if (selectExpr == null) return await query.ToListAsync();
 
         query = query.AsSplitQuery();
-        return await query.Select((Expression<Func<TModel, TModel>>)selectExpr).ToListAsync();
+        return await query.Select((Expression<Func<TDbModel, TDbModel>>)selectExpr).ToListAsync();
     }
     /// <summary>
     /// 查看表單清單總數量(非同步)
@@ -231,10 +231,10 @@ public class BasicRepository<TModel>(ApplicationDbContext dataAccess) : IBasicRe
     public async Task<int> QueryListCountAsync(LambdaExpression? whereExpr)
     {
         // ✅ Count 永遠 NoTracking
-        IQueryable<TModel> query = DataAccess.Set<TModel>().AsNoTracking();
-        query = query.TagWith($"BasicRepository<{typeof(TModel).Name}>.QueryListCountAsync");
+        IQueryable<TDbModel> query = DataAccess.Set<TDbModel>().AsNoTracking();
+        query = query.TagWith($"BasicRepository<{typeof(TDbModel).Name}>.QueryListCountAsync");
         // ✅ Where 條件
-        if (!whereExpr.IsNullOrEmpty()) query = query.Where((Expression<Func<TModel, bool>>)whereExpr);
+        if (!whereExpr.IsNullOrEmpty()) query = query.Where((Expression<Func<TDbModel, bool>>)whereExpr);
         return await query.CountAsync();
     }
     /// <summary>
@@ -247,17 +247,17 @@ public class BasicRepository<TModel>(ApplicationDbContext dataAccess) : IBasicRe
     /// <returns></returns>
     public async Task<string> GenerateIdAsync(LambdaExpression idSelector, string prefix = "", string format = "D3")
     {
-        Expression<Func<TModel, string>> selector = idSelector as Expression<Func<TModel, string>>;
+        Expression<Func<TDbModel, string>> selector = idSelector as Expression<Func<TDbModel, string>>;
         string id = prefix + DateTime.Now.ToString("yyyyMMdd");
-        var dbSet = DataAccess.Set<TModel>();
+        var dbSet = DataAccess.Set<TDbModel>();
         var startsWithExpr = BuildStartsWithExpression(selector, id);
 
-        //var addedEntities = DataAccess.ChangeTracker.Entries<TModel>().Where(e => e.State == EntityState.Added).Select(e => e.Entity).Cast<TModel>();
+        //var addedEntities = DataAccess.ChangeTracker.Entries<TDbModel>().Where(e => e.State == EntityState.Added).Select(e => e.Entity).Cast<TDbModel>();
         //var existedEntities = await dbSet.AsNoTracking().Where(startsWithExpr).Select(selector).ToListAsync();
         //var localEntities = addedEntities.AsQueryable().Where(startsWithExpr.Compile()).Select(selector.Compile());
         //var allIds = existedEntities.Concat(localEntities).ToList();
 
-        var addedEntities = DataAccess.ChangeTracker.Entries<TModel>().Where(e => e.State == EntityState.Added).Select(e => e.Entity).Cast<TModel>().ToList();
+        var addedEntities = DataAccess.ChangeTracker.Entries<TDbModel>().Where(e => e.State == EntityState.Added).Select(e => e.Entity).Cast<TDbModel>().ToList();
         var existedEntities = await dbSet.AsNoTracking().Where(startsWithExpr).Select(selector).ToListAsync();
         var localEntities = addedEntities.AsQueryable().Where(startsWithExpr.Compile()).Select(selector.Compile());
         var allIds = existedEntities.Concat(localEntities).ToList();
@@ -275,11 +275,11 @@ public class BasicRepository<TModel>(ApplicationDbContext dataAccess) : IBasicRe
 
     #region Private
 
-    private static Expression<Func<TModel, bool>> BuildStartsWithExpression(Expression<Func<TModel, string>> selector,string prefix)
+    private static Expression<Func<TDbModel, bool>> BuildStartsWithExpression(Expression<Func<TDbModel, string>> selector,string prefix)
     {
         var param = selector.Parameters[0];
         var body = Expression.Call(selector.Body, typeof(string).GetMethod(nameof(string.StartsWith), new[] { typeof(string) })!, Expression.Constant(prefix) );
-        return Expression.Lambda<Func<TModel, bool>>(body, param);
+        return Expression.Lambda<Func<TDbModel, bool>>(body, param);
     }
 
     private static class ExpressionIncludeHelper
@@ -398,12 +398,12 @@ public class BasicRepository<TModel>(ApplicationDbContext dataAccess) : IBasicRe
     /// <summary>
     /// ✅ 統一排序套用：支援「同一個集合導航」的多欄位 group 排序（Top-1 detail key）
     /// </summary>
-    private static IQueryable<TModel> ApplyOrderBy(IQueryable<TModel> source, IReadOnlyList<OrderBySpec>? specs)
+    private static IQueryable<TDbModel> ApplyOrderBy(IQueryable<TDbModel> source, IReadOnlyList<OrderBySpec>? specs)
     {
         if (specs == null || specs.Count == 0) return source;
 
-        var param = Expression.Parameter(typeof(TModel), "x");
-        IOrderedQueryable<TModel>? ordered = null;
+        var param = Expression.Parameter(typeof(TDbModel), "x");
+        IOrderedQueryable<TDbModel>? ordered = null;
 
         var i = 0;
         while (i < specs.Count)
@@ -435,9 +435,9 @@ public class BasicRepository<TModel>(ApplicationDbContext dataAccess) : IBasicRe
     /// <summary>
     /// ✅ 套用 OrderBy/ThenBy（依是否已有 ordered 決定）
     /// </summary>
-    private static IOrderedQueryable<TModel> ApplyOrderMethod(
-        IOrderedQueryable<TModel>? ordered,
-        IQueryable<TModel> source,
+    private static IOrderedQueryable<TDbModel> ApplyOrderMethod(
+        IOrderedQueryable<TDbModel>? ordered,
+        IQueryable<TDbModel> source,
         Expression keyExpr,
         ParameterExpression param,
         bool desc)
@@ -451,10 +451,10 @@ public class BasicRepository<TModel>(ApplicationDbContext dataAccess) : IBasicRe
 
         var method = typeof(Queryable).GetMethods()
             .First(m => m.Name == methodName && m.GetParameters().Length == 2)
-            .MakeGenericMethod(typeof(TModel), keyExpr.Type);
+            .MakeGenericMethod(typeof(TDbModel), keyExpr.Type);
 
         var result = method.Invoke(null, new object[] { ordered ?? source, lambda })!;
-        return (IOrderedQueryable<TModel>)result;
+        return (IOrderedQueryable<TDbModel>)result;
     }
     private sealed record GroupKey(Expression KeyExpr, bool Desc);
 
@@ -702,7 +702,7 @@ public class BasicRepository<TModel>(ApplicationDbContext dataAccess) : IBasicRe
     /// <summary>
     /// 套用分頁或 skip/take 切段。
     /// </summary>
-    private static IQueryable<TModel> ApplyPaging(IQueryable<TModel> query,int pageCt,int takeCt,int skipCt)
+    private static IQueryable<TDbModel> ApplyPaging(IQueryable<TDbModel> query,int pageCt,int takeCt,int skipCt)
     {
         if (pageCt > 0) return query.Skip((pageCt - 1) * takeCt).Take(takeCt);
         if (skipCt > 0) return query.Skip(skipCt).Take(takeCt);
@@ -711,25 +711,25 @@ public class BasicRepository<TModel>(ApplicationDbContext dataAccess) : IBasicRe
     /// <summary>
     /// 分頁查詢沒有指定排序時，使用主鍵建立穩定排序。
     /// </summary>
-    private IQueryable<TModel> ApplyDefaultKeyOrderBy(IQueryable<TModel> query)
+    private IQueryable<TDbModel> ApplyDefaultKeyOrderBy(IQueryable<TDbModel> query)
     {
-        var keyProperties = DataAccess.Model.FindEntityType(typeof(TModel))?.FindPrimaryKey()?.Properties;
+        var keyProperties = DataAccess.Model.FindEntityType(typeof(TDbModel))?.FindPrimaryKey()?.Properties;
         if (keyProperties == null || keyProperties.Count == 0) return query;
-        IQueryable<TModel> orderedQuery = ApplyKeyOrder(query, keyProperties[0], false);
+        IQueryable<TDbModel> orderedQuery = ApplyKeyOrder(query, keyProperties[0], false);
         for (int i = 1; i < keyProperties.Count; i++) orderedQuery = ApplyKeyOrder(orderedQuery, keyProperties[i], true);
         return orderedQuery;
     }
     /// <summary>
     /// 依指定欄位建立 OrderBy 或 ThenBy 查詢。
     /// </summary>
-    private static IQueryable<TModel> ApplyKeyOrder(IQueryable<TModel> query,IProperty property,bool useThenBy)
+    private static IQueryable<TDbModel> ApplyKeyOrder(IQueryable<TDbModel> query,IProperty property,bool useThenBy)
     {
-        var parameter = Expression.Parameter(typeof(TModel), "x");
+        var parameter = Expression.Parameter(typeof(TDbModel), "x");
         var propertyAccess = Expression.Call(typeof(EF),nameof(EF.Property),[property.ClrType],parameter,Expression.Constant(property.Name));
         var keySelector = Expression.Lambda(propertyAccess, parameter);
         string methodName = useThenBy ? nameof(Queryable.ThenBy) : nameof(Queryable.OrderBy);
-        var orderedExpression = Expression.Call(typeof(Queryable),methodName,[typeof(TModel), property.ClrType],query.Expression,Expression.Quote(keySelector));
-        return query.Provider.CreateQuery<TModel>(orderedExpression);
+        var orderedExpression = Expression.Call(typeof(Queryable),methodName,[typeof(TDbModel), property.ClrType],query.Expression,Expression.Quote(keySelector));
+        return query.Provider.CreateQuery<TDbModel>(orderedExpression);
     }
     #endregion
 

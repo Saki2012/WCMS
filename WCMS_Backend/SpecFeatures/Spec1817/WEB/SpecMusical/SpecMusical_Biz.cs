@@ -4,56 +4,54 @@ using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.LibAttribute;
 using static WCMS.SysCore.Enum.SysEnum;
+
 namespace WCMS.SpecFeatures.Spec1817.WEB.SpecMusical;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.Spec.SpecMusical)]
-public class SpecMusical_Biz(BizDeps bizDeps) : BizService<SpecMusicalSet>(bizDeps), IBizService<SpecMusicalSet> 
+public class SpecMusical_Biz(BizDeps bizDeps) : BizService<SpecMusicalModel>(bizDeps), IBizService<SpecMusicalModel>
 {
-    #region Virtual Override
-    protected override async Task BeforeUpdate(SpecMusicalSet set, FuncAction act, CancellationToken ct = default)
+    #region Protected Virtual
+    /// <summary>
+    /// 儲存前整理封面圖片與相片排序。
+    /// </summary>
+    protected override async Task BeforeUpdate(SpecMusicalModel data, FuncAction act, CancellationToken ct = default)
     {
-        await base.BeforeUpdate(set, act, ct);
-        switch (act)
-        {
-            case FuncAction.Create:
-            case FuncAction.Update:
-                SetData(set);
-                break;
-        }
+        await base.BeforeUpdate(data, act, ct);
+        if (act != FuncAction.Create && act != FuncAction.Update) return;
+        SetData(data);
     }
     #endregion
 
     #region Protected
-    protected void CheckData() { }
-    protected void SetData(SpecMusicalSet set) 
+    /// <summary>
+    /// 整理樂器表單的系統欄位。
+    /// </summary>
+    protected void SetData(SpecMusicalModel data)
     {
-        SetCoverPic(set);
-        ResetPhotoSort(set.SpecMusicalPictureList);
+        SetCoverPic(data);
+        ResetPhotoSort(data._SpecMusicalPictureList);
     }
     #endregion
 
     #region Private
     /// <summary>
-    /// 如果封面圖片不存在，則取第一張圖片為封面
+    /// 封面不存在於相片清單時，改用第一張相片。
     /// </summary>
-    /// <param name="set"></param>
-    private void SetCoverPic(SpecMusicalSet set) 
+    private static void SetCoverPic(SpecMusicalModel data)
     {
-        string picId = set.SpecMusical.CoverPicId;
-        if (picId.IsNullOrEmpty() || set.SpecMusicalPictureList.Find(x => x.PicSrcId == picId) == null)
-        {
-            set.SpecMusical.CoverPicId = set.SpecMusicalPictureList.FirstOrDefault()?.PicSrcId;
-        }
+        string? coverPicId = data.CoverPicId;
+        bool coverExists = data._SpecMusicalPictureList.Any(item => item.PicSrcId == coverPicId);
+        if (!coverPicId.IsNullOrEmpty() && coverExists) return;
+        data.CoverPicId = data._SpecMusicalPictureList.FirstOrDefault()?.PicSrcId;
     }
     /// <summary>
-    /// 
+    /// 依目前排序及 RowId 重新編排相片順序。
     /// </summary>
-    /// <param name="dt"></param>
-    private static void ResetPhotoSort(List<SpecMusicalPictureList> dt)
+    private static void ResetPhotoSort(List<SpecMusicalPictureList> items)
     {
-        if (!dt.HasData()) return;
-        List<SpecMusicalPictureList> sorted = [.. dt.OrderBy(p => p.Sort).ThenByDescending(p => p.RowId)];
-        for (int i = 0; i < sorted.Count; i++) sorted[i].Sort = (ushort)(i + 1);
+        if (!items.HasData()) return;
+        List<SpecMusicalPictureList> sorted = [.. items.OrderBy(item => item.Sort).ThenByDescending(item => item.RowId)];
+        for (int index = 0; index < sorted.Count; index++) sorted[index].Sort = index + 1;
     }
     #endregion
 }

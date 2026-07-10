@@ -24,7 +24,6 @@ using WCMS.Features.COMM.Person;
 using WCMS.Features.IAM.Account;
 using WCMS.Features.IAM.Auth;
 using WCMS.Features.IAM.RolePermission;
-using WCMS.Features.COMM.Calendar;
 using WCMS.Features.WEB.SiteMenuSetting;
 using WCMS.SysCore;
 using WCMS.SysCore.AppSettingsOptions;
@@ -247,7 +246,8 @@ namespace WCMS
                     }
                 });
                 services.AddScoped(typeof(IBasicRepository<>), typeof(BasicRepository<>));
-                services.AddScoped<IRepositoryMapProvider, RepositoryMapProvider>();
+                services.AddScoped<IDbRepositoryProvider, DbRepositoryProvider>();
+                services.AddScoped<IFormGraphRepoProvider, FormGraphRepoProvider>();
                 services.AddScoped<IErrorHelper, ErrorHelper>();
                 services.AddScoped<IOperateLog, OperateLog>();
                 services.AddScoped<BizDeps>();
@@ -350,6 +350,7 @@ namespace WCMS
                     c.OperationFilter<AddAcceptLanguageHeaderOperationFilter>();
 
                     c.SwaggerDoc("v1", new OpenApiInfo { Title = "WCMS API", Version = "v1" });
+                    c.AddWcmsSchemaFilters();
 
                     // 加上這段才會有 Authorize 按鈕
                     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -452,7 +453,7 @@ namespace WCMS
                         ProfileKey = specCodeKey,
                         ProfileValue = appSpecCode,
                         CreateTime = DateTime.Now,
-                        ModifyTime = null,
+                        ModifyTime = DateTime.Now,
                     });
 
                     await db.SaveChangesAsync();
@@ -538,8 +539,18 @@ DB SpecCode 檢查未通過。App SpecCode = '{FormatSpecCode(appSpecCode)}'，D
             }
             private sealed class AccountsSeedRoot
             {
-                public Account_DTO SysOperator { get; init; } = new();
-                public Account_DTO Admin { get; init; } = new();
+                public AccountSeedSetting SysOperator { get; init; } = new();
+                public AccountSeedSetting Admin { get; init; } = new();
+            }
+            /// <summary>
+            /// 資料庫初始化帳號設定。
+            /// </summary>
+            private sealed class AccountSeedSetting
+            {
+                public string AccountId { get; init; } = string.Empty;
+                public string AccountName { get; init; } = string.Empty;
+                public string Password { get; init; } = string.Empty;
+                public string RoleId { get; init; } = string.Empty;
             }
             /// <summary>
             /// 註冊系統用戶
@@ -584,7 +595,7 @@ DB SpecCode 檢查未通過。App SpecCode = '{FormatSpecCode(appSpecCode)}'，D
             }
 
             // ---- 初始Admin/SysOperator帳號用戶 ----
-            private static async Task UpsertPersonAndAccountAsync(ApplicationDbContext db, Account_DTO user, bool canLogin)
+            private static async Task UpsertPersonAndAccountAsync(ApplicationDbContext db, AccountSeedSetting user, bool canLogin)
             {
                 // 2-1) Person：以 UserId（或 UserName）對應一個人員；如你有別的映射規則請替換
                 var person = await db.Set<PersonModel>().FirstOrDefaultAsync(p => p.PersonId == user.AccountId);
@@ -633,7 +644,8 @@ DB SpecCode 檢查未通過。App SpecCode = '{FormatSpecCode(appSpecCode)}'，D
                 var site = await db.Set<SiteMenu_IndexModel>().FirstOrDefaultAsync(p => p.SiteIndex == string.Empty);
                 if (site != null) return;
                 var section = cfg.GetSection("DbInit:Account:SysOperator");
-                var SysOperator = section.Get<Account_DTO>();
+                var sysOperator = section.Get<AccountSeedSetting>()
+                    ?? throw new InvalidOperationException("DbInit:Account:SysOperator 尚未設定。");
                 await using var tx = await db.Database.BeginTransactionAsync();
                 var now = DateTime.Now;
                 var root = new SiteMenu_IndexModel
@@ -643,15 +655,13 @@ DB SpecCode 檢查未通過。App SpecCode = '{FormatSpecCode(appSpecCode)}'，D
                     Enable = true,
                     DefaultLang = LangCode.zhtw,//初始化一律先默認中文
                     SupportLangs = LangCodeJson.ToJsonArray(LangCode.zhtw, LangCode.en),
-                    FormStatus = FormStatus.Saved,
-                    DataStatus = DataStatus.Valid,
-                    OrgLvId = string.Empty,
+          
                     InternalId = Guid.NewGuid().ToString(),
                     IsIniData = true,
                     CreateTime = now,
                     ModifyTime = now,
-                    CreateUserId = SysOperator.AccountId,
-                    ModifyUserId = SysOperator.AccountId,
+                    CreateUserId = sysOperator.AccountId,
+                    ModifyUserId = sysOperator.AccountId,
                 };
                 var rootDetail1 = new SiteMenu_IndexInfoModel
                 {
@@ -689,7 +699,7 @@ DB SpecCode 檢查未通過。App SpecCode = '{FormatSpecCode(appSpecCode)}'，D
             public static async Task RegistCalendar(IServiceProvider services)
             {
                 using var scope = services.CreateScope();
-                var svc = scope.ServiceProvider.GetRequiredService<IBizService<CalendarSet>>();
+                var svc = scope.ServiceProvider.GetRequiredService<IBizService<CalendarModel>>();
                 if (svc is CalendarBiz calendarBiz) await calendarBiz.InitCalendar(CancellationToken.None);
             }
             #endregion

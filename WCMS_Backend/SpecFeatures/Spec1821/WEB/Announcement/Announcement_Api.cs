@@ -125,7 +125,7 @@ public partial class AnnouncementController
         string contentHtml = await ReadTextAsync(archive, BuildZipPath(item.ItemFolder, article.ContentFile), ct);
         if (string.IsNullOrWhiteSpace(contentHtml)) throw new InvalidOperationException($"content_original.html 內容為空：{article.Title}");
         string replacedHtml = ReplaceArticleContentLinks(contentHtml, mappings, fileInternalIdMap, result);
-        AnnouncementSet savedSet = await SaveAnnouncementSetAsync(BuildContentAnnouncementSet(article, replacedHtml, categoryId, lang), ct);
+        Announcement savedSet = await SaveAnnouncementAsync(BuildContentAnnouncement(article, replacedHtml, categoryId, lang), ct);
         await CompleteImportedAnnouncementAsync(savedSet, siteIndex, article.ViewCount, result, ct);
     }
 
@@ -137,8 +137,8 @@ public partial class AnnouncementController
         List<LegacyAcaFileLinkMapping> mappings = await ReadFileMappingsAsync(archive, item.ItemFolder, article.FileLinkMappingFile, ct);
         if (mappings.Count == 0) throw new InvalidOperationException($"下載檔案項目缺少 file_link_mapping：{article.Title}");
         Dictionary<string, string> fileInternalIdMap = await UploadArticleFilesAsync(archive, item.ItemFolder, mappings, result, ct);
-        AnnouncementSet set = BuildDownloadAnnouncementSet(article, mappings, fileInternalIdMap, categoryId, lang);
-        AnnouncementSet savedSet = await SaveAnnouncementSetAsync(set, ct);
+        Announcement set = BuildDownloadAnnouncement(article, mappings, fileInternalIdMap, categoryId, lang);
+        Announcement savedSet = await SaveAnnouncementAsync(set, ct);
         result.AttachedFileCount = set.AnnouncementDetailFile.Count;
         await CompleteImportedAnnouncementAsync(savedSet, siteIndex, article.ViewCount, result, ct);
     }
@@ -149,7 +149,7 @@ public partial class AnnouncementController
     private async Task ImportLegacyUrlItemAsync(LegacyAcaManifestItem item, LegacyAcaArticle article, LegacyAcaItemLinkType linkType, string categoryId, string siteIndex, string lang, LegacyAcaArticleImportResult result, CancellationToken ct)
     {
         string url = ResolveLegacyUrl(item, article);
-        AnnouncementSet savedSet = await SaveAnnouncementSetAsync(BuildUrlAnnouncementSet(article, url, categoryId, lang), ct);
+        Announcement savedSet = await SaveAnnouncementAsync(BuildUrlAnnouncement(article, url, categoryId, lang), ct);
         result.LinkUrl = url;
         result.ManualReviewRequired = linkType == LegacyAcaItemLinkType.DeadLink;
         await CompleteImportedAnnouncementAsync(savedSet, siteIndex, article.ViewCount, result, ct);
@@ -158,7 +158,7 @@ public partial class AnnouncementController
     /// <summary>
     /// 完成公告保存後補點閱數與回傳資訊。
     /// </summary>
-    private async Task CompleteImportedAnnouncementAsync(AnnouncementSet savedSet, string siteIndex, int viewCount, LegacyAcaArticleImportResult result, CancellationToken ct)
+    private async Task CompleteImportedAnnouncementAsync(Announcement savedSet, string siteIndex, int viewCount, LegacyAcaArticleImportResult result, CancellationToken ct)
     {
         await UpsertSiteViewCountAsync(siteIndex, savedSet.Announcement.InternalId, viewCount, ct);
         result.InternalId = savedSet.Announcement.InternalId;
@@ -204,9 +204,9 @@ public partial class AnnouncementController
     /// <summary>
     /// 保存公告資料並回傳保存後的 Set。
     /// </summary>
-    private async Task<AnnouncementSet> SaveAnnouncementSetAsync(AnnouncementSet set, CancellationToken ct)
+    private async Task<Announcement> SaveAnnouncementAsync(Announcement set, CancellationToken ct)
     {
-        AnnouncementSet savedSet = await Service.BizCreateSetAsync(set, ct);
+        Announcement savedSet = await Service.BizCreateDataAsync(set, ct);
         if (Message.HasError) throw new InvalidOperationException(GetErrorMessageText());
         return savedSet;
     }
@@ -214,9 +214,9 @@ public partial class AnnouncementController
     /// <summary>
     /// 建立有內文公告保存模型。
     /// </summary>
-    private static AnnouncementSet BuildContentAnnouncementSet(LegacyAcaArticle article, string contentHtml, string categoryId, string lang)
+    private static Announcement BuildContentAnnouncement(LegacyAcaArticle article, string contentHtml, string categoryId, string lang)
     {
-        AnnouncementSet set = BuildAnnouncementBaseSet(article, categoryId);
+        Announcement set = BuildAnnouncementBaseSet(article, categoryId);
         set.AnnouncementDetail.Add(BuildContentAnnouncementDetail(article, contentHtml, lang));
         return set;
     }
@@ -224,9 +224,9 @@ public partial class AnnouncementController
     /// <summary>
     /// 建立直接下載檔案公告保存模型。
     /// </summary>
-    private static AnnouncementSet BuildDownloadAnnouncementSet(LegacyAcaArticle article, List<LegacyAcaFileLinkMapping> mappings, Dictionary<string, string> fileInternalIdMap, string categoryId, string lang)
+    private static Announcement BuildDownloadAnnouncement(LegacyAcaArticle article, List<LegacyAcaFileLinkMapping> mappings, Dictionary<string, string> fileInternalIdMap, string categoryId, string lang)
     {
-        AnnouncementSet set = BuildAnnouncementBaseSet(article, categoryId);
+        Announcement set = BuildAnnouncementBaseSet(article, categoryId);
         set.AnnouncementDetail.Add(BuildContentAnnouncementDetail(article, string.Empty, lang));
         set.AnnouncementDetailFile.AddRange(BuildAnnouncementDetailFiles(article, mappings, fileInternalIdMap));
         return set;
@@ -235,9 +235,9 @@ public partial class AnnouncementController
     /// <summary>
     /// 建立外部連結或 404 連結公告保存模型。
     /// </summary>
-    private static AnnouncementSet BuildUrlAnnouncementSet(LegacyAcaArticle article, string url, string categoryId, string lang)
+    private static Announcement BuildUrlAnnouncement(LegacyAcaArticle article, string url, string categoryId, string lang)
     {
-        AnnouncementSet set = BuildAnnouncementBaseSet(article, categoryId);
+        Announcement set = BuildAnnouncementBaseSet(article, categoryId);
         set.AnnouncementDetail.Add(BuildUrlAnnouncementDetail(article, url, lang));
         return set;
     }
@@ -245,9 +245,9 @@ public partial class AnnouncementController
     /// <summary>
     /// 建立公告保存基礎模型。
     /// </summary>
-    private static AnnouncementSet BuildAnnouncementBaseSet(LegacyAcaArticle article, string categoryId)
+    private static Announcement BuildAnnouncementBaseSet(LegacyAcaArticle article, string categoryId)
     {
-        AnnouncementSet set = new() { Announcement = BuildAnnouncementHeader(article, ParsePublishDate(article.PublishDate), categoryId) };
+        Announcement set = new() { Announcement = BuildAnnouncementHeader(article, ParsePublishDate(article.PublishDate), categoryId) };
         return set;
     }
 

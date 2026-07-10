@@ -53,7 +53,7 @@ public static partial class DisplayName
     /// </summary>
     public const string Common_Description = nameof(Common_Description);
 
-    
+
     /// <summary>
     /// 中：網址
     /// 英：URL
@@ -687,6 +687,22 @@ public static partial class DisplayName
     /// 英：Modified By
     /// </summary>
     public const string ModifyUserName = nameof(ModifyUserName);
+    /// <summary>
+    /// 表單狀態。
+    /// </summary>
+    public const string FormStatus = nameof(FormStatus);
+    /// <summary>
+    /// 資料狀態。
+    /// </summary>
+    public const string DataStatus = nameof(DataStatus);
+    /// <summary>
+    /// 作廢時間。
+    /// </summary>
+    public const string InvalidTime = nameof(InvalidTime);
+    /// <summary>
+    /// 作廢人員。
+    /// </summary>
+    public const string InvalidUserId = nameof(InvalidUserId);
     /// <summary>
     /// 資料版本
     /// </summary>

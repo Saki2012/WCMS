@@ -13,7 +13,7 @@ using WCMS.SysCore.SystemFunc.Captcha;
 namespace WCMS.Features.WEB.SurveySubmission;
 
 [LibApiController(ProgKeys.WEB.Code, ProgKeys.WEB.SurveySubmission, SysEnum.FuncAction.Function)]
-public class SurveySubmissionController(ICaptchaBiz CaptchaBiz) : ApiDataQueryController<SurveySubmissionsSet, SurveySubmissionsSet_DTO>
+public class SurveySubmissionController(ICaptchaBiz CaptchaBiz) : ApiDataQueryController<SurveySubmissions>
 {
 
     #region Public
@@ -38,7 +38,7 @@ public class SurveySubmissionController(ICaptchaBiz CaptchaBiz) : ApiDataQueryCo
     /// <param name="queryCondition"></param>
     /// <param name="ct"></param>
     /// <returns></returns>
-    [ProducesResponseType(typeof(ApiResponse<SurveySubmissionsSet_DTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<SurveySubmissions>), StatusCodes.Status200OK)]
     public override Task<IActionResult> QueryList([FromBody] QueryListParam? queryCondition, CancellationToken ct)
     {
         return base.QueryList(queryCondition, ct);
@@ -50,15 +50,15 @@ public class SurveySubmissionController(ICaptchaBiz CaptchaBiz) : ApiDataQueryCo
     {
         base.SpecSetQueryParam(queryCondition, new()
         {
-            [nameof(SurveySubmissions_DTO.FormDataJson)] = nameof(SurveySubmissions.FormDataZip),
-            [nameof(SurveySubmissions_DTO.FieldSnapshotJson)] = nameof(SurveySubmissions.FieldSnapshotZip)
+            [nameof(SurveySubmissions.FormDataJson)] = nameof(SurveySubmissions.FormDataZip),
+            [nameof(SurveySubmissions.FieldSnapshotJson)] = nameof(SurveySubmissions.FieldSnapshotZip)
         });
     }
-    protected override void SpecDoMapToDTO(SurveySubmissionsSet set, SurveySubmissionsSet_DTO dto)
+    protected override void SpecAfterRead(SurveySubmissions data)
     {
-        base.SpecDoMapToDTO(set, dto);
-        dto.SurveySubmissions.FormDataJson = ((SurveySubmissionBiz)Service).DecompressJsonFromStorage(set.SurveySubmissions.FormDataZip);
-        dto.SurveySubmissions.FieldSnapshotJson = ((SurveySubmissionBiz)Service).DecompressJsonFromStorage(set.SurveySubmissions.FieldSnapshotZip);
+        base.SpecAfterRead(data);
+        data.FormDataJson = ((SurveySubmissionBiz)Service).DecompressJsonFromStorage(data.FormDataZip);
+        data.FieldSnapshotJson = ((SurveySubmissionBiz)Service).DecompressJsonFromStorage(data.FieldSnapshotZip);
     }
     #endregion
 

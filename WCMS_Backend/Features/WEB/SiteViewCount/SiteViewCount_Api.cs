@@ -8,7 +8,7 @@ using static WCMS.SysCore.Enum.SysParam;
 namespace WCMS.Features.WEB.SiteViewCount;
 
 [LibApiController(ProgKeys.WEB.Code, ProgKeys.WEB.SiteViewCount, FuncAction.Report)]
-public class SiteViewCountController : ApiDataQueryController<SiteViewCountSet, SiteViewCountSet_DTO>
+public class SiteViewCountController : ApiDataQueryController<SiteViewCountHeaderModel>
 {
     #region Public
     /// <summary>
@@ -67,16 +67,16 @@ public class SiteViewCountController : ApiDataQueryController<SiteViewCountSet, 
     }
 
     /// <summary>
-    /// 取得 SiteViewCountSet DTO 結構
+    /// 取得 SiteViewCount Form Model 結構
     /// 僅供 Swagger / 前端型別產生使用
     /// </summary>
-    [HttpGet(nameof(GetSiteViewCountSetSchema)), AllowAnonymous, IgnoreAntiforgeryToken]
-    [ProducesResponseType(typeof(ApiResponse<SiteViewCountSet_DTO>), StatusCodes.Status200OK)]
-    public ActionResult<ApiResponse<SiteViewCountSet_DTO>> GetSiteViewCountSetSchema()
+    [HttpGet(nameof(GetSiteViewCountHeaderSchema)), AllowAnonymous, IgnoreAntiforgeryToken]
+    [ProducesResponseType(typeof(ApiResponse<SiteViewCountHeaderModel>), StatusCodes.Status200OK)]
+    public ActionResult<ApiResponse<SiteViewCountHeaderModel>> GetSiteViewCountHeaderSchema()
     {
-        ApiResponse<SiteViewCountSet_DTO> response = new()
+        ApiResponse<SiteViewCountHeaderModel> response = new()
         {
-            Data = [new SiteViewCountSet_DTO()],
+            Data = [new SiteViewCountHeaderModel()],
             SysMessage = [],
         };
 

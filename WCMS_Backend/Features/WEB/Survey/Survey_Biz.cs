@@ -11,13 +11,13 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.Features.WEB.Survey;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.Survey)]
-public class SurveyBiz(BizDeps bizDeps) : BizService<SurveySet>(bizDeps), IBizService<SurveySet>
+public class SurveyBiz(BizDeps bizDeps) : BizService<Survey>(bizDeps), IBizService<Survey>
 {
     #region Protected Virtual
     /// <summary>
     /// 保存前處理
     /// </summary>
-    protected override async Task BeforeUpdate(SurveySet set, FuncAction act, CancellationToken ct = default)
+    protected override async Task BeforeUpdate(Survey set, FuncAction act, CancellationToken ct = default)
     {
         await base.BeforeUpdate(set, act, ct);
         switch (act)
@@ -25,7 +25,7 @@ public class SurveyBiz(BizDeps bizDeps) : BizService<SurveySet>(bizDeps), IBizSe
             case FuncAction.Create:
             case FuncAction.Update:
                 AutoSetData(set);
-                if (!CheckData(set)) return;
+                CheckData(set);
                 break;
         }
     }
@@ -35,15 +35,15 @@ public class SurveyBiz(BizDeps bizDeps) : BizService<SurveySet>(bizDeps), IBizSe
     /// <summary>
     /// 後台保存問卷時整理欄位選項
     /// </summary>
-    protected void AutoSetData(SurveySet set)
+    protected void AutoSetData(Survey set)
     {
         if (set == null) return;
-        set.SurveyItem.ForEach(item => AutoSetOptions(item));
+        set._SurveyItem.ForEach(AutoSetOptions);
     }
-    protected bool CheckData(SurveySet set)
+    protected void CheckData(Survey set)
     {
-        if (set.Survey.SurveyName.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Survey_DTO>(x => x.SurveyName));
-        return Message.HasError;
+        if (set.SurveyName.IsNullOrEmpty())
+            Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Survey>(x => x.SurveyName));
     }
     #endregion
 

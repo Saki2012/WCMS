@@ -11,7 +11,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.SystemFunc.FileManagement
 {
-    public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> options, IWebHostEnvironment Env) : BizService<FileManageSet>(bizDeps), IBizService<FileManageSet>
+    public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> options, IWebHostEnvironment Env) : BizService<FileManageModel>(bizDeps), IBizService<FileManageModel>
     {
         #region Property
         private readonly FilePathOptions FilePath = options.Value;
@@ -40,15 +40,15 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <param name="internalIds"></param>
         public async Task<IList<FileManageModel>> ReadFileInfo(string[] internalIds, bool isPublic = true)
         {
-            if (internalIds.Length == 0) 
-            { 
+            if (internalIds.Length == 0)
+            {
                 Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00033);
-                return []; 
+                return [];
             }
             else
             {
                 var param = GetReadFileQueryParam(internalIds, isPublic);
-                var result = (await BizQueryListAsync(param)).Select(p => p.FileManage).ToList();
+                var result = (await BizQueryListAsync(param)).Select(p => p).ToList();
                 CheckFileExistInPysical(result);
                 CheckFileExistInDB(internalIds, result);
                 return result;
@@ -107,13 +107,13 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             if (CheckFileLegal(file, set))
             {
                 await DoStoreFileToSystem(file, set);
-                set.FileManage.FileStatus = FileStatus.Pending;
+                set.FileStatus = FileStatus.Pending;
             }
-            await (isNew ? BizCreateSetAsync(set) : BizUpdateSetAsync(set.FileManage.InternalId, set));
+            await (isNew ? BizCreateDataAsync(set) : BizUpdateDataAsync(set.InternalId, set));
             //更新完DB後再把Message訊息加回，避免MessageError時無法正常保存
-            var syncInfo = set.FileManage_SyncInfo.LastOrDefault();
-            if (!syncInfo.ErrorCode.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00025, syncInfo.ErrorMessage);
-            return set.FileManage.InternalId;
+            var syncInfo = set._FileManage_SyncInfo.LastOrDefault();
+            if (syncInfo != null && !syncInfo.ErrorCode.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00025, syncInfo.ErrorMessage);
+            return set.InternalId;
         }
         /// <summary>
         /// 確定保存，移至正式區
@@ -122,13 +122,13 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         public async Task MoveToPermanent(string[] internalIds)
         {
             if (internalIds.IsNullOrEmpty() || internalIds.Length == 0) return;
-            List<FileManageSet> sets = [];
+            List<FileManageModel> sets = [];
             var list = await this.DoQueryListAsync(typeof(FileManageModel),
                 [nameof(FileManageModel.InternalId), nameof(FileManageModel.FileName)],
-                $@"{nameof(FileManageModel.InternalId)} in ({LibData.Merge(",", false, internalIds)}) And 
+                $@"{nameof(FileManageModel.InternalId)} in ({LibData.Merge(",", false, internalIds)}) And
                    {nameof(FileManageModel.FileStatus)} = {FileStatus.Pending}",default, 0, 0);
 
-            foreach (var item in list) sets.Add(await DoQuerySetAsync(((FileManageModel)item).InternalId));
+            foreach (var item in list) sets.Add(await DoQueryDataAsync(((FileManageModel)item).InternalId));
             await MoveFileFromTempToFinal(sets);
         }
         /// <summary>
@@ -139,13 +139,13 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         public async Task CancelUploadFiles(string[] internalIds)
         {
             if (internalIds.IsNullOrEmpty() || internalIds.Length == 0) return;
-            List<FileManageSet> sets = [];
+            List<FileManageModel> sets = [];
             var list = await this.DoQueryListAsync(typeof(FileManageModel),
                 [nameof(FileManageModel.InternalId), nameof(FileManageModel.FileName)],
-                $@"{nameof(FileManageModel.InternalId)} in ({LibData.Merge(",", false, internalIds)}) And 
+                $@"{nameof(FileManageModel.InternalId)} in ({LibData.Merge(",", false, internalIds)}) And
                     {nameof(FileManageModel.FileStatus)} = {FileStatus.Pending}", default, 0, 0);
 
-            foreach (var item in list) sets.Add(await DoQuerySetAsync(((FileManageModel)item).InternalId));
+            foreach (var item in list) sets.Add(await DoQueryDataAsync(((FileManageModel)item).InternalId));
             await DeleteFromTemp(sets);
         }
         /// <summary>
@@ -213,7 +213,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 Message.AddMessage(MessageStatus.Warning, SysMessageCode.BECode00031, id);
             });
         }
- 
+
         /// <summary>
         /// 取得目前訪客對該檔案的 Recent 紀錄
         /// </summary>
@@ -270,7 +270,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             CancellationToken ct = default)
         {
             // 宣告變數
-            dynamic recentRepo = RepoMapProvider.EnsureRepo<FileManageSet>(typeof(FileManage_DownloadRecentModel));
+            dynamic recentRepo = DbRepositoryProvider.GetRepo(typeof(FileManage_DownloadRecentModel));
             var nextRowId = await GetNextDownloadRecentRowIdAsync(internalId, ct);
             var newRecent = new FileManage_DownloadRecentModel
             {
@@ -296,7 +296,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             CancellationToken ct = default)
         {
             // 宣告變數
-            dynamic recentRepo = RepoMapProvider.EnsureRepo<FileManageSet>(typeof(FileManage_DownloadRecentModel));
+            dynamic recentRepo = DbRepositoryProvider.GetRepo(typeof(FileManage_DownloadRecentModel));
             FileManage_DownloadRecentModel oldRecent = await recentRepo.QueryDataAsync(currentRecent.InternalId, currentRecent.RowId);
             var newRecent = oldRecent.Snapshot();
 
@@ -319,7 +319,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             // 執行 function
             ct.ThrowIfCancellationRequested();
             var list = await DoQueryListAsync<FileManage_DownloadRecentModel>(fields, condition, default, 0, 0);
-            var maxRowId = list.Cast<FileManage_DownloadRecentModel>().Select(p => p.RowId ?? 0).DefaultIfEmpty(0).Max();
+            var maxRowId = list.Cast<FileManage_DownloadRecentModel>().Select(p => p.RowId).DefaultIfEmpty(0).Max();
 
             // return
             return maxRowId + 1;
@@ -331,7 +331,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         private async Task IncreasePublicDownloadCountAsync(string internalId, CancellationToken ct = default)
         {
             // 宣告變數
-            dynamic fileRepo = RepoMapProvider.EnsureRepo<FileManageSet>(typeof(FileManageModel));
+            dynamic fileRepo = DbRepositoryProvider.GetRepo(typeof(FileManageModel));
             FileManageModel? oldFile = await fileRepo.QueryDataAsync(internalId);
             if (oldFile == null) return;
 
@@ -410,28 +410,25 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// </summary>
         /// <param name="file"></param>
         /// <returns></returns>
-        private FileManageSet CreateNewFileInfo(IFormFile file, string sha256)
+        private FileManageModel CreateNewFileInfo(IFormFile file, string sha256)
         {
             DateTime today = DateTime.UtcNow;
             string internalId = Guid.NewGuid().ToString();
             using var stream = file.OpenReadStream();
             var (Extension, MimeType) = LibData.GetUploadFileMeta(stream, file.FileName);
-            FileManageSet set = new()
+            FileManageModel set = new()
             {
-                FileManage = new()
-                {
-                    InternalId = internalId,
-                    ProgId = "",
-                    Path = LibData.Merge("/", false, FilePath.Root, FilePath.Pending, today.Year, today.Month, today.Day, ""),
-                    FileExtension = Extension,
-                    MimeType = MimeType,
-                    FileName = Path.GetFileNameWithoutExtension(file.FileName),
-                    FileDescription = file.FileName,
-                    FileStatus = FileStatus.None,
-                    FileSHA256 = sha256,
-                    FileSize = file.Length,
-                    IsPublic = true,
-                }
+                InternalId = internalId,
+                ProgId = string.Empty,
+                Path = LibData.Merge("/", false, FilePath.Root, FilePath.Pending, today.Year, today.Month, today.Day, string.Empty),
+                FileExtension = Extension,
+                MimeType = MimeType,
+                FileName = Path.GetFileNameWithoutExtension(file.FileName),
+                FileDescription = file.FileName,
+                FileStatus = FileStatus.None,
+                FileSHA256 = sha256,
+                FileSize = file.Length,
+                IsPublic = true,
             };
             return set;
         }
@@ -443,11 +440,11 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <param name="file"></param>
         /// <param name="set"></param>
         /// <returns></returns>
-        private bool CheckFileLegal(IFormFile file, FileManageSet set)
+        private bool CheckFileLegal(IFormFile file, FileManageModel set)
         {
             if (file == null || file.Length == 0) return false;
-            var filemanage = set.FileManage;
-            var syncInfo = set.FileManage_SyncInfo.LastOrDefault();
+            var filemanage = set;
+            var syncInfo = set._FileManage_SyncInfo.LastOrDefault();
             if (CheckFileExist(filemanage, syncInfo)) return false;
             if (!CheckFileExtension(filemanage, syncInfo)) return false;
             if (!CheckFileSize(filemanage, syncInfo)) return false;
@@ -597,7 +594,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <summary>
         /// 檢查 SHA256 是否存在系統中，並同步目前上傳檔案解析結果
         /// </summary>
-        private async Task<(bool isNew, FileManageSet set)> CheckSHA256Async(string sha256, IFormFile file)
+        private async Task<(bool isNew, FileManageModel set)> CheckSHA256Async(string sha256, IFormFile file)
         {
             // 宣告變數：查詢是否已有相同 SHA256
             var exist = await DoQueryListAsync(
@@ -608,10 +605,10 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
 
             // 宣告變數：不存在就建立新資料，存在就讀取 DB set
             bool isNew = exist.Count == 0;
-            FileManageSet set = isNew ? CreateNewFileInfo(file, sha256) : await DoQuerySetAsync(((FileManageModel)exist[0]).InternalId);
+            FileManageModel set = isNew ? CreateNewFileInfo(file, sha256) : await DoQueryDataAsync(((FileManageModel)exist[0]).InternalId);
 
             // 執行：既有檔案需重新同步目前解析到的副檔名 / MIME
-            if (!isNew) SyncUploadFileMeta(set.FileManage, file, sha256);
+            if (!isNew) SyncUploadFileMeta(set, file, sha256);
 
             // 執行：新增本次同步紀錄
             AddUploadSyncInfo(set, file);
@@ -738,12 +735,12 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// <summary>
         /// 新增上傳同步紀錄
         /// </summary>
-        private static void AddUploadSyncInfo(FileManageSet set, IFormFile file)
+        private static void AddUploadSyncInfo(FileManageModel set, IFormFile file)
         {
             // 執行：新增本次同步資訊
-            set.FileManage_SyncInfo.Add(new FileManage_SyncInfoModel()
+            set._FileManage_SyncInfo.Add(new FileManage_SyncInfoModel()
             {
-                InternalId = set.FileManage.InternalId,
+                InternalId = set.InternalId,
                 FileStatus = FileStatus.Pending,
                 SrcIP = "",
                 SrcNode = "Guest",
@@ -758,12 +755,12 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// </summary>
         /// <param name="file"></param>
         /// <param name="set"></param>
-        private static async Task DoStoreFileToSystem(IFormFile file, FileManageSet set)
+        private static async Task DoStoreFileToSystem(IFormFile file, FileManageModel set)
         {
             if (file == null || file.Length == 0) return;
-            if (!Directory.Exists(set.FileManage.Path)) Directory.CreateDirectory(set.FileManage.Path);
-            var fileName = $"{set.FileManage.InternalId}.{set.FileManage.FileExtension}";
-            var fullPath = Path.Combine(set.FileManage.Path, fileName);
+            if (!Directory.Exists(set.Path)) Directory.CreateDirectory(set.Path);
+            var fileName = $"{set.InternalId}.{set.FileExtension}";
+            var fullPath = Path.Combine(set.Path, fileName);
             using var stream = new FileStream(fullPath, FileMode.Create);
             await file.CopyToAsync(stream);
         }
@@ -774,17 +771,17 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// 將檔案從暫存區移至正式區
         /// </summary>
         /// <param name="sets"></param>
-        private async Task MoveFileFromTempToFinal(List<FileManageSet> sets)
+        private async Task MoveFileFromTempToFinal(List<FileManageModel> sets)
         {
             DateTime today = DateTime.UtcNow;
             string dstPath = LibData.Merge("/", false, FilePath.Root, FilePath.Permanent, today.Year, today.Month, today.Day, ProgId);
             if (!Directory.Exists(dstPath)) Directory.CreateDirectory(dstPath);
             foreach (var set in sets)
             {
-                if (set.FileManage.FileStatus != FileStatus.Pending) continue;
-                var header = set.FileManage;
-                var curSyncInfo = new FileManage_SyncInfoModel() { InternalId = set.FileManage.InternalId, FileStatus = FileStatus.Success };
-                set.FileManage_SyncInfo.Add(curSyncInfo);
+                if (set.FileStatus != FileStatus.Pending) continue;
+                var header = set;
+                var curSyncInfo = new FileManage_SyncInfoModel() { InternalId = set.InternalId, FileStatus = FileStatus.Success };
+                set._FileManage_SyncInfo.Add(curSyncInfo);
                 string srcPath = header.Path;
                 string srcFullPath = LibData.Merge("/", false, header.Path, $"{header.InternalId}.{header.FileExtension}");
                 string dstFullPath = LibData.Merge("/", false, dstPath, $"{header.InternalId}.{header.FileExtension}");
@@ -805,7 +802,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                     curSyncInfo.FileStatus = FileStatus.Failed;
                     curSyncInfo.ErrorMessage = "找不到檔案可移動。";
                 }
-                await this.BizUpdateSetAsync(header.InternalId, set);
+                await this.BizUpdateDataAsync(header.InternalId, set);
             }
         }
         #endregion
@@ -815,14 +812,14 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
         /// 將檔案從暫存區刪除
         /// </summary>
         /// <param name="sets"></param>
-        private async Task DeleteFromTemp(List<FileManageSet> sets)
+        private async Task DeleteFromTemp(List<FileManageModel> sets)
         {
             foreach (var set in sets)
             {
-                if (set.FileManage.FileStatus != FileStatus.Pending) continue;
-                var header = set.FileManage;
-                var curSyncInfo = new FileManage_SyncInfoModel() { InternalId = set.FileManage.InternalId, FileStatus = FileStatus.Canceled };
-                set.FileManage_SyncInfo.Add(curSyncInfo);
+                if (set.FileStatus != FileStatus.Pending) continue;
+                var header = set;
+                var curSyncInfo = new FileManage_SyncInfoModel() { InternalId = set.InternalId, FileStatus = FileStatus.Canceled };
+                set._FileManage_SyncInfo.Add(curSyncInfo);
                 string srcPath = header.Path;
                 string srcFullPath = LibData.Merge("/", false, header.Path, $"{header.InternalId}.{header.FileExtension}");
                 string dstFullPath = string.Empty;
@@ -843,7 +840,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                     curSyncInfo.FileStatus = FileStatus.Failed;
                     curSyncInfo.ErrorMessage = "找不到檔案可刪除。";
                 }
-                await this.BizUpdateSetAsync(header.InternalId, set);
+                await this.BizUpdateDataAsync(header.InternalId, set);
             }
         }
         #endregion
@@ -861,7 +858,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
             string rootPath = LibData.Merge("/", false, FilePath.Root, FilePath.Import);
             string extractToFolder = LibData.Merge("/", false, rootPath, label);
             using var archive = ArchiveFactory.Open(LibData.Merge("/", false, rootPath, $"{label}.zip"));
-            Dictionary<string, FileManageSet> setDic = [];//Key為Sha256
+            Dictionary<string, FileManageModel> setDic = [];//Key為Sha256
             foreach (var entry in archive.Entries.Where(e => !e.IsDirectory))
             {
                 if (Path.GetFileNameWithoutExtension(entry.Key).ToLowerInvariant().Equals("thumbs")) continue;
@@ -873,7 +870,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 memoryStream.Position = 0;
                 string fileSha256 = LibData.GetFileSHA256(memoryStream);
                 FileStatus status = FileStatus.Skipped;
-                if (!setDic.TryGetValue(fileSha256, out FileManageSet? set))
+                if (!setDic.TryGetValue(fileSha256, out FileManageModel? set))
                 {
                     string internalId = Guid.NewGuid().ToString();
                     var (Extension, MimeType) = LibData.GetUploadFileMeta(memoryStream, entry.Key);
@@ -887,39 +884,36 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                     status = FileStatus.Success;
                     var fileInfo = new FileInfo(destPath);
                     long fileSize = fileInfo.Length;
-                    set = new FileManageSet()
+                    set = new FileManageModel
                     {
-                        FileManage = new FileManageModel()
-                        {
-                            InternalId = internalId,
-                            Path = Path.GetDirectoryName(fullPath).Replace("\\", "/"),
-                            FileName = Path.GetFileNameWithoutExtension(entry.Key),
-                            FileExtension = ext,
-                            FileDescription = Path.GetFileNameWithoutExtension(entry.Key),
-                            ProgId = string.Empty,
-                            MimeType = mimeType,
-                            FileSHA256 = fileSha256,
-                            FileSize = fileSize,
-                            ImportLabel = label,
-                            FileStatus = FileStatus.Success,
-                            IsIniData = true,
-                        },
+                        InternalId = internalId,
+                        Path = Path.GetDirectoryName(fullPath).Replace("\\", "/"),
+                        FileName = Path.GetFileNameWithoutExtension(entry.Key),
+                        FileExtension = ext,
+                        FileDescription = Path.GetFileNameWithoutExtension(entry.Key),
+                        ProgId = string.Empty,
+                        MimeType = mimeType,
+                        FileSHA256 = fileSha256,
+                        FileSize = fileSize,
+                        ImportLabel = label,
+                        FileStatus = FileStatus.Success,
+                        IsIniData = true,
                     };
                     setDic.Add(fileSha256, set);
                 }
-                set.FileManage_SyncInfo.Add(new FileManage_SyncInfoModel()
+                set._FileManage_SyncInfo.Add(new FileManage_SyncInfoModel()
                 {
-                    InternalId = set.FileManage.InternalId,
+                    InternalId = set.InternalId,
                     FileStatus = status,
                     SrcIP = LibData.LocalhostIp,
                     SrcNode = Environment.MachineName,
                     SrcFullPath = entry.Key,
                     DestIP = LibData.LocalhostIp,
                     DestNode = Environment.MachineName,
-                    DestFullPath = LibData.Merge("/", false, set.FileManage.Path, $"{set.FileManage.InternalId}.{set.FileManage.FileExtension}")
+                    DestFullPath = LibData.Merge("/", false, set.Path, $"{set.InternalId}.{set.FileExtension}")
                 });
             }
-            foreach (var set in setDic.Values) await this.BizCreateSetAsync(set);
+            foreach (var set in setDic.Values) await this.BizCreateDataAsync(set);
         }
 
         #endregion

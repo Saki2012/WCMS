@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using WCMS.SysCore.FeatureDriver.Api;
 using WCMS.SysCore.FeatureDriver.Model;
@@ -7,70 +7,49 @@ using static WCMS.SysCore.FeatureDriver.Api.QueryListParam;
 namespace WCMS.SysCore.Interface
 {
     /// <summary>
-    /// 資料
+    /// Form Model 表單 API 契約。
     /// </summary>
-    public interface IBaseDataController<TSet,TSet_DTO>where TSet : ITSet where TSet_DTO : ITSet_DTO
+    public interface IBaseDataController<TFormModel> where TFormModel : class
     {
         /// <summary>
-        /// 新增
+        /// 新增 Form Model。
         /// </summary>
-        /// <param name="set"></param>
-        /// <returns></returns>
-        public Task<IActionResult> Create(TSet_DTO set, CancellationToken ct);
+        public Task<IActionResult> Create(TFormModel data, CancellationToken ct);
         /// <summary>
-        /// 修改
+        /// 修改 Form Model。
         /// </summary>
-        /// <param name="pk"></param>
-        /// <param name="set"></param>
-        /// <returns></returns>
-        public Task<IActionResult> Update(ApiRequest<TSet_DTO> set, CancellationToken ct);
+        public Task<IActionResult> Update(ApiRequest<TFormModel> request, CancellationToken ct);
         /// <summary>
-        /// 作廢
+        /// 作廢 Form Model。
         /// </summary>
-        /// <param name="pk"></param>
-        /// <param name="isInvalid"></param>
-        /// <returns></returns>
         public Task<IActionResult> Invalid(string internalId, bool isInvalid, CancellationToken ct);
         /// <summary>
-        /// 批次作廢
+        /// 批次作廢 Form Model。
         /// </summary>
-        /// <param name="pks"></param>
-        /// <returns></returns>
         public Task<IActionResult> BatchInvalid(string[] internalIds, bool isInvalid, CancellationToken ct);
         /// <summary>
-        /// 刪除
+        /// 刪除 Form Model。
         /// </summary>
-        /// <param name="pk"></param>
-        /// <returns></returns>
         public Task<IActionResult> Delete(string internalIds, CancellationToken ct);
         /// <summary>
-        /// 批次刪除
+        /// 批次刪除 Form Model。
         /// </summary>
-        /// <param name="pks"></param>
-        /// <returns></returns>
         public Task<IActionResult> BatchDelete(string[] internalIds, CancellationToken ct);
         /// <summary>
-        /// 查看表單
+        /// 查看 Form Model 表單。
         /// </summary>
-        /// <param name="pk"></param>
-        /// <returns></returns>
         public Task<IActionResult> QueryData([FromQuery]string internalId, CancellationToken ct);
         /// <summary>
-        /// 查詢清單
+        /// 查詢 Form Model 清單。
         /// </summary>
-        /// <returns></returns>
         public Task<IActionResult> QueryList([FromBody] QueryListParam queryCondition, CancellationToken ct);
         /// <summary>
-        /// 查詢清單總數
+        /// 查詢 Form Model 清單總數。
         /// </summary>
-        /// <param name="queryCondition"></param>
-        /// <param name="ct"></param>
-        /// <returns></returns>
         public Task<IActionResult> GetTotalCounts([FromBody] QueryListParam? queryCondition, CancellationToken ct);
         /// <summary>
-        /// 獲取功能的欄位模型顯示名稱
+        /// 獲取功能的欄位模型顯示名稱。
         /// </summary>
-        /// <returns></returns>
         public Task<IActionResult> GetModelDisplayName();
     }
     /// <summary>
@@ -93,11 +72,11 @@ namespace WCMS.SysCore.Interface
     /// <summary>
     /// 更新資料請求
     /// </summary>
-    /// <typeparam name="TSet"></typeparam>
-    public interface IApiRequest<TSet_DTO>
+    /// <typeparam name="TFormModel"></typeparam>
+    public interface IApiRequest<TFormModel>
     {
         public string InternalId { get; set; }
-        public TSet_DTO? Data { get; set; }
+        public TFormModel? Data { get; set; }
     }
     /// <summary>
     /// 查詢條件請求

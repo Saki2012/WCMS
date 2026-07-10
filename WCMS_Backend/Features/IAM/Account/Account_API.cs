@@ -10,7 +10,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.Features.IAM.Account
 {
     [LibApiController(ProgKeys.IAM.Code, ProgKeys.IAM.Account, FuncAction.MasterData)]
-    public class AccountController: ApiDataController<AccountSet, AccountSet_DTO> {
+    public class AccountController: ApiDataController<AccountModel> {
 
         #region Public
         public override Task<IActionResult> QueryList([FromBody] QueryListParam? queryCondition, CancellationToken ct)
@@ -27,7 +27,7 @@ namespace WCMS.Features.IAM.Account
         [HttpPut(nameof(ChangePassword)), LibRequireFuncAct(FuncAction.Use)]
         public async Task<IActionResult> ChangePassword(ChangePassword pw, CancellationToken ct)
         {
-            OperateLogModel log = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(ChangePassword)}", OperateUser.UserId,string.Empty, Request.Headers["HTTP_CLIENT_IP"].ToString());
+            WCMS.SysCore.OperateLogModel log = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(ChangePassword)}", OperateUser.UserId,string.Empty, Request.Headers["HTTP_CLIENT_IP"].ToString());
             var response = new ApiResponse<string>() { Data = [], SysMessage = Message.Messages };
             if (pw.OldPassword == pw.NewPassword)
             {
@@ -49,7 +49,7 @@ namespace WCMS.Features.IAM.Account
         [HttpPut(nameof(ResetPassword)), LibRequireFuncAct(FuncAction.Use)]
         public async Task<IActionResult> ResetPassword(ResetPassword pw, CancellationToken ct)
         {
-            OperateLogModel log = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(ResetPassword)}", OperateUser.UserId, string.Empty, Request.Headers["HTTP_CLIENT_IP"].ToString());
+            WCMS.SysCore.OperateLogModel log = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(ResetPassword)}", OperateUser.UserId, string.Empty, Request.Headers["HTTP_CLIENT_IP"].ToString());
             var response = new ApiResponse<string>() { Data = [], SysMessage = Message.Messages };
             AccountBiz.CheckPasswordLegal(pw.NewPassword, out List<SysMessageModel> message);
             Message.AddMessage(message);
@@ -60,10 +60,10 @@ namespace WCMS.Features.IAM.Account
         #endregion
 
         #region Protected
-        protected override void SpecDoMapToSet(AccountSet set, AccountSet_DTO dto)
+        protected override void SpecBeforeWrite(AccountModel data)
         {
-            base.SpecDoMapToSet(set, dto);
-            ConvertPassword(set, dto);
+            base.SpecBeforeWrite(data);
+            ConvertPassword(data);
         }
         #endregion
 
@@ -72,16 +72,16 @@ namespace WCMS.Features.IAM.Account
         /// 過濾系統使用者
         /// </summary>
         /// <param name="srcCdt"></param>
-        private static string FiltSystemUser(string srcCdt)=> LibData.Merge(" And ", false, srcCdt, $@"{nameof(Account_DTO.AccountId)} Not In {"SysOperator,Admin"}");
+        private static string FiltSystemUser(string srcCdt)=> LibData.Merge(" And ", false, srcCdt, $@"{nameof(AccountModel.AccountId)} Not In {"SysOperator,Admin"}");
         /// <summary>
         /// 轉換密碼
         /// </summary>
         /// <param name="set"></param>
         /// <param name="dto"></param>
-        private void ConvertPassword(AccountSet set, AccountSet_DTO dto)
+        private void ConvertPassword(AccountModel data)
         {
-            AccountBiz.ConvertPassword(set, dto.Account.Password);
-            dto.Account.Password = string.Empty;// 清除敏感字串（避免在錯誤日誌裡被序列化）
+            AccountBiz.ConvertPassword(data, data.Password);
+            data.Password = string.Empty;// 清除敏感字串（避免在錯誤日誌裡被序列化）
         }
         #endregion
     }

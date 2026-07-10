@@ -3,47 +3,43 @@ using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.Features.IAM.Account;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.Interface;
+namespace WCMS.SysCore;
 
-namespace WCMS.SysCore
+//資料傳輸用的物件
+public class OperateLogModel
 {
-    //資料傳輸用的物件
-    public class OperateLogModel
+    [Key]public int Id { get; set; }
+    [StringLength(SysLengthParam.Name)] public string APIName { get; set; } = string.Empty;
+    [ForeignKey(nameof(UserId))] public AccountModel? User { get; set; }
+    [StringLength(SysLengthParam.ID)] public string? UserId { get; set; }
+    public string followingDT { get; set; } = string.Empty;
+    [StringLength(SysLengthParam.Memo)]public string Browser { get; set; } = string.Empty;
+    [StringLength(SysLengthParam.IP)]public string IP { get; set; } = string.Empty;
+    public DateTime ExcuteTime { get; set; } = DateTime.UtcNow;
+    public ExcStatus ExcStatus { get; set; }
+}
+
+public enum ExcStatus : byte
+{ 
+    OK,
+    Excuting,
+    CancelExc,
+    Fail
+}
+
+//實做操作記錄的點
+public class OperateLog(ApplicationDbContext dataAccess): IOperateLog
+{
+    private readonly ApplicationDbContext DataAccess = dataAccess;
+    public IList<OperateLogModel> OperateLogs { get; set; } = [];
+    public OperateLogModel AddOperateLog(string apiName,string userId,string jsonData,string ip)
     {
-        [Key]public int Id { get; set; }
-        [StringLength(SysLengthParam.Name)] public string APIName { get; set; } = string.Empty;
-        [ForeignKey(nameof(UserId))] public AccountModel? User { get; set; }
-        [StringLength(SysLengthParam.ID)] public string? UserId { get; set; }
-        public string followingDT { get; set; } = string.Empty;
-        [StringLength(SysLengthParam.Memo)]public string Browser { get; set; } = string.Empty;
-        [StringLength(SysLengthParam.IP)]public string IP { get; set; } = string.Empty;
-        public DateTime ExcuteTime { get; set; } = DateTime.UtcNow;
-        public ExcStatus ExcStatus { get; set; }
+        return AddOperateLog(new(){APIName = apiName,UserId = userId,followingDT = jsonData,IP = ip});
     }
-
-    public enum ExcStatus : byte
-    { 
-        OK,
-        Excuting,
-        CancelExc,
-        Fail
-    }
-
-    //實做操作記錄的點
-    public class OperateLog(ApplicationDbContext dataAccess): IOperateLog
+    public OperateLogModel AddOperateLog(OperateLogModel log)
     {
-        private readonly ApplicationDbContext DataAccess = dataAccess;
-        public IList<OperateLogModel> OperateLogs { get; set; } = [];
-
-
-        public OperateLogModel AddOperateLog(string apiName,string userId,string jsonData,string ip)
-        {
-            return AddOperateLog(new(){APIName = apiName,UserId = userId,followingDT = jsonData,IP = ip});
-        }
-        public OperateLogModel AddOperateLog(OperateLogModel log)
-        {
-            DataAccess.Add(log);
-            DataAccess.SaveChanges();
-            return log;
-        }
+        DataAccess.Add(log);
+        DataAccess.SaveChanges();
+        return log;
     }
 }

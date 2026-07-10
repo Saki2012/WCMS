@@ -11,17 +11,17 @@ using static WCMS.SysCore.Library.LibData;
 namespace WCMS.Features.WEB.Gallery;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.Gallery)]
-public class GalleryBiz(BizDeps bizDeps) : BizService<GallerySet>(bizDeps), IBizService<GallerySet> 
+public class GalleryBiz(BizDeps bizDeps) : BizService<Gallery>(bizDeps), IBizService<Gallery> 
 {
     #region Migration Old Data
-    public async Task Migrate(string importFileLabel = "1810", IList<FileManageSet> srcFileSets = default)
+    public async Task Migrate(string importFileLabel = "1810", IList<FileManageModel> srcFileSets = default)
     {
-        GallerySet[] datas = ConvertToApiModel(importFileLabel, srcFileSets);
-        await BizInitCreateSetsAsync(datas);
+        Gallery[] datas = ConvertToApiModel(importFileLabel, srcFileSets);
+        await BizInitCreateDatasAsync(datas);
     }
-    private GallerySet[] ConvertToApiModel(string importFileLabel, IList<FileManageSet> srcFileSets = default)
+    private Gallery[] ConvertToApiModel(string importFileLabel, IList<FileManageModel> srcFileSets = default)
     {
-        List<GallerySet> result = [];
+        List<Gallery> result = [];
         Dictionary<string, string> sqls = new()
         {
             { "Gallery", "Select * From Gallery" },
@@ -30,36 +30,33 @@ public class GalleryBiz(BizDeps bizDeps) : BizService<GallerySet>(bizDeps), IBiz
             { "Gallery_Album_Lang", "Select * From Gallery_Album_Lang" },
         };
         DataSet ds = MigrateOldData.GetOldData(sqls);
-        var fileSrcIdDic = srcFileSets.SelectMany(s => s.FileManage_SyncInfo).GroupBy(d => d.SrcFullPath).ToDictionary(g => g.Key, g => g.First().InternalId);
-        List<FileManageSet> updateFileSets = [];
+        var fileSrcIdDic = srcFileSets.SelectMany(s => s._FileManage_SyncInfo).GroupBy(d => d.SrcFullPath).ToDictionary(g => g.Key, g => g.First().InternalId);
+        List<FileManageModel> updateFileSets = [];
 
         foreach (DataRow srcHeader in ds.Tables["Gallery"].Rows)
         {
-            GallerySet set = new()
+            Gallery set = new()
             {
-                Gallery = new Gallery()
-                {
-                    GalleryId = srcHeader["Sn"].ToString(),
-                    CoverPicSrcId="",
-                    Categories = srcHeader["Category"].ToString(),
-                    ContentStatus = GetContentStatus(srcHeader["Status"].ToString()),
-                    Tags = srcHeader["Tag"].ToString(),
-                    CreateTime = srcHeader["CreateTime"].ToString().ToDateTime(),
-                    ModifyTime = srcHeader["UpdateTime"].ToString().ToDateTime(),
-                    Validate_Start= srcHeader["StartDate"].ToString().ToDateTime(),
-                }
+                GalleryId = srcHeader["Sn"].ToString(),
+                CoverPicSrcId = string.Empty,
+                Categories = srcHeader["Category"].ToString(),
+                ContentStatus = GetContentStatus(srcHeader["Status"].ToString()),
+                Tags = srcHeader["Tag"].ToString(),
+                CreateTime = srcHeader["CreateTime"].ToString().ToDateTime(),
+                ModifyTime = srcHeader["UpdateTime"].ToString().ToDateTime(),
+                Validate_Start = srcHeader["StartDate"].ToString().ToDateTime(),
             };
             int galleryRowId = 1;
-            ds.Tables["Gallery_Lang"].AsEnumerable().Where(dr => dr["Sn"].ToString() == set.Gallery.GalleryId).ToList().ForEach(dRow =>
+            ds.Tables["Gallery_Lang"].AsEnumerable().Where(dr => dr["Sn"].ToString() == set.GalleryId).ToList().ForEach(dRow =>
             {
                 if (!dRow["Title"].IsNullOrEmpty())
                 {
                     string contentXml = HtmlInternalIdByFullPath.TransformHtml_ReplaceSrcWithDataInternalId(dRow["Content"].ToString(), fileSrcIdDic, out List<string> usedInternalIds);
-                    if (usedInternalIds.Count != 0) updateFileSets.AddRange(srcFileSets.Where(p => usedInternalIds.Contains(p.FileManage.InternalId)));
+                    if (usedInternalIds.Count != 0) updateFileSets.AddRange(srcFileSets.Where(p => usedInternalIds.Contains(p.InternalId)));
                     LangCodeExt.TryParse(dRow["Lang"].ToString(), out LangCode lang);
-                    set.GalleryInfo.Add(new GalleryInfo()
+                    set._GalleryInfo.Add(new GalleryInfo()
                     {
-                        GalleryId = set.Gallery.GalleryId,
+                        GalleryId = set.GalleryId,
                         RowId = galleryRowId,
                         Lang = lang,
                         Title = dRow["Title"].ToString(),
@@ -70,23 +67,23 @@ public class GalleryBiz(BizDeps bizDeps) : BizService<GallerySet>(bizDeps), IBiz
             });
 
             int photoRowId = 1;
-            ds.Tables["Gallery_Album"].AsEnumerable().Where(dr => dr["Sn"].ToString() == set.Gallery.GalleryId).OrderBy(dr => dr["PhotoName"].ToString()).ToList().ForEach(dRow =>
+            ds.Tables["Gallery_Album"].AsEnumerable().Where(dr => dr["Sn"].ToString() == set.GalleryId).OrderBy(dr => dr["PhotoName"].ToString()).ToList().ForEach(dRow =>
             {
 
                 var photoSet = GetSetByPicture(dRow["Sn"].ToString(),dRow["PhotoName"].ToString(), srcFileSets);
                 updateFileSets.Add(photoSet);
-                photoSet.FileManage.FileName = dRow["PhotoName"].ToString();
+                photoSet.FileName = dRow["PhotoName"].ToString();
                 var photo = new GalleryPhotos()
                 {
-                    GalleryId = set.Gallery.GalleryId,
+                    GalleryId = set.GalleryId,
                     RowId = photoRowId,
-                    PicSrcId = photoSet.FileManage.InternalId,
+                    PicSrcId = photoSet.InternalId,
                     Sort = photoRowId,
                 };
 
-                set.GalleryPhotos.Add(photo);
+                set._GalleryPhotos.Add(photo);
 
-                if (dRow["PhotoID"].ToString() == srcHeader["Cover"].ToString()) set.Gallery.CoverPicSrcId = photo.PicSrcId;
+                if (dRow["PhotoID"].ToString() == srcHeader["Cover"].ToString()) set.CoverPicSrcId = photo.PicSrcId;
 
                 int subPhotoRowId = 1;
                 ds.Tables["Gallery_Album_Lang"].AsEnumerable().Where(dr => dr["PhotoID"].ToString() == dRow["PhotoID"].ToString()).ToList().ForEach(subDRow =>
@@ -94,15 +91,15 @@ public class GalleryBiz(BizDeps bizDeps) : BizService<GallerySet>(bizDeps), IBiz
                     if (!subDRow["Title"].IsNullOrEmpty())
                     {
                         LangCodeExt.TryParse(subDRow["Lang"].ToString(), out LangCode lang);
-                        set.GalleryPhotosInfo.Add(new GalleryPhotosInfo()
+                        photo._GalleryPhotosInfo.Add(new GalleryPhotosInfo()
                         {
-                            GalleryId = set.Gallery.GalleryId,
+                            GalleryId = set.GalleryId,
                             ParentRowId = photoRowId,
                             RowId = subPhotoRowId,
                             Lang = lang,
                             Title = subDRow["Title"].ToString(),
                         });
-                        if (lang==LangCode.zhtw) photoSet.FileManage.FileDescription = subDRow["Title"].ToString();
+                        if (lang==LangCode.zhtw) photoSet.FileDescription = subDRow["Title"].ToString();
                         subPhotoRowId++;
                     }
                 });
@@ -112,7 +109,7 @@ public class GalleryBiz(BizDeps bizDeps) : BizService<GallerySet>(bizDeps), IBiz
         }
         foreach (var set in updateFileSets.Distinct())
         {
-            set.FileManage.ProgId = ProgId;
+            set.ProgId = ProgId;
         }
         return [.. result];
     }
@@ -136,23 +133,24 @@ public class GalleryBiz(BizDeps bizDeps) : BizService<GallerySet>(bizDeps), IBiz
         }
         return result;
     }
-    private static FileManageSet GetSetByPicture(string albumId,string srcPic, IList<FileManageSet> fileSets)
+    private static FileManageModel GetSetByPicture(string albumId,string srcPic, IList<FileManageModel> fileSets)
     {
-        return fileSets.Where(x => x.FileManage_SyncInfo.Any(y =>
+        return fileSets.Where(x => x._FileManage_SyncInfo.Any(y =>
                     y.SrcFullPath.Contains($"file/image/album/{albumId}/{srcPic}", StringComparison.InvariantCultureIgnoreCase) &&
                     y.SrcFullPath.Contains(srcPic, StringComparison.InvariantCultureIgnoreCase))).FirstOrDefault();
     }
     #endregion
 
     #region Protected Virtual
-    protected override async Task BeforeUpdate(GallerySet set, FuncAction act, CancellationToken ct = default)
+    protected override async Task BeforeUpdate(Gallery set, FuncAction act, CancellationToken ct = default)
     {
         await base.BeforeUpdate(set, act, ct);
         switch (act)
         {
             case FuncAction.Create:
             case FuncAction.Update:
-                if (!CheckData(set)) return;
+                CheckData(set);
+                if (Message.HasError) return;
                 SetData(set);
                 break;
         }
@@ -160,37 +158,37 @@ public class GalleryBiz(BizDeps bizDeps) : BizService<GallerySet>(bizDeps), IBiz
     #endregion
 
     #region Protected
-    protected bool CheckData(GallerySet set)
+    protected bool CheckData(Gallery set)
     {
         PreDelData(set);
         CheckIsEmpty(set);
         AACheck(set);
         return Message.HasError;
     }
-    protected void SetData(GallerySet set)
+    protected void SetData(Gallery set)
     {
-        DoRemergeData(set.Gallery);
-        ResetPhotoSort(set.GalleryPhotos);
+        DoRemergeData(set);
+        ResetPhotoSort(set._GalleryPhotos);
     }
     /// <summary>
     /// AA檢查
     /// </summary>
     /// <param name="set"></param>
-    protected void AACheck(GallerySet set)
+    protected void AACheck(Gallery set)
     {
         if (!SpecSettings.AACheck) return;
-        AA_CheckAlbumTitle(set.GalleryInfo);
-        AA_CheckPhotoTitle(set.GalleryPhotosInfo);
+        AA_CheckAlbumTitle(set._GalleryInfo);
+        AA_CheckPhotoTitle(set._GalleryPhotos.SelectMany(photo => photo._GalleryPhotosInfo).ToList());
     }
     #endregion
 
     #region Private
 
-    private void CheckIsEmpty(GallerySet set)
+    private void CheckIsEmpty(Gallery set)
     {
-        if (set.Gallery.Validate_Start == null) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Gallery_DTO>(x => x.Validate_Start));
+        if (set.Validate_Start == default) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Gallery>(x => x.Validate_Start));
 
-        if (!LibData.HasData(set.GalleryPhotos)) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00019);
+        if (!LibData.HasData(set._GalleryPhotos)) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00019);
     }
     
     /// <summary>
@@ -215,12 +213,12 @@ public class GalleryBiz(BizDeps bizDeps) : BizService<GallerySet>(bizDeps), IBiz
     /// <summary>
     /// 防呆刪除不需要的資料
     /// </summary>
-    private static void PreDelData(GallerySet set) 
+    private static void PreDelData(Gallery set) 
     { 
-        for(int i = set.GalleryPhotos.Count - 1; i >= 0; i--)
+        for(int i = set._GalleryPhotos.Count - 1; i >= 0; i--)
         {
-            var data = set.GalleryPhotos[i];
-            if (data.PicSrcId.IsNullOrEmpty()) set.GalleryPhotos.Remove(data);
+            var data = set._GalleryPhotos[i];
+            if (data.PicSrcId.IsNullOrEmpty()) set._GalleryPhotos.Remove(data);
         }
     }
     /// <summary>
@@ -230,7 +228,7 @@ public class GalleryBiz(BizDeps bizDeps) : BizService<GallerySet>(bizDeps), IBiz
     private void AA_CheckAlbumTitle(List<GalleryInfo> galleryInfo)
     {
         galleryInfo.ForEach(info => { 
-            if (info.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.AACode00001, info.Lang.ToLabel(), I18nCache.GetLabel<GalleryInfo_DTO>(x => x.Title)); 
+            if (info.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.AACode00001, info.Lang.ToLabel(), I18nCache.GetLabel<GalleryInfo>(x => x.Title));
         });
     }
     /// <summary>
@@ -240,7 +238,7 @@ public class GalleryBiz(BizDeps bizDeps) : BizService<GallerySet>(bizDeps), IBiz
     private void AA_CheckPhotoTitle(List<GalleryPhotosInfo> photoInfo)
     {
         photoInfo.ForEach(info => {
-            if(info.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.AACode00002, info.Lang.ToLabel(), I18nCache.GetLabel<GalleryPhotosInfo_DTO>(x => x.Title));
+            if(info.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.AACode00002, info.Lang.ToLabel(), I18nCache.GetLabel<GalleryPhotosInfo>(x => x.Title));
         });
     }
     #endregion

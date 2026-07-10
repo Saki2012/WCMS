@@ -8,7 +8,7 @@ using WCMS.SysCore.Library.LibAttribute;
 namespace WCMS.SpecFeatures.Spec1819.WEB.SpecJournal;
 
 [LibApiController(ProgKeys.WEB.Code, ProgKeys.Spec.SpecJournal, SysEnum.FuncAction.MasterData)]
-public class SpecJournalController : ApiDataController<SpecJournalSet, SpecJournalSet_DTO>
+public class SpecJournalController : ApiDataController<SpecJournalModel>
 {
     #region Public
     /// <summary>

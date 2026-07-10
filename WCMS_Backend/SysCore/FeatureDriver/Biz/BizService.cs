@@ -1,5 +1,6 @@
-﻿using System.Collections;
+using System.Collections;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -21,21 +22,30 @@ namespace WCMS.SysCore.FeatureDriver.Biz;
 /// <summary>
 /// Biz服務所需注入參數
 /// </summary>
-/// <param name="repoMapProvider"></param>
-/// <param name="message"></param>
-/// <param name="currentUser"></param>
-public sealed record BizDeps(IRepositoryMapProvider repoMapProvider, IErrorHelper message, ICurrentUserAccessor currentUser);
+/// <param name="dbRepositoryProvider">全 DB Model Repository 提供者。</param>
+/// <param name="formGraphRepoProvider">表單 Graph Repository Scope 提供者。</param>
+/// <param name="message">系統訊息容器。</param>
+/// <param name="currentUser">目前使用者存取器。</param>
+public sealed record BizDeps(IDbRepositoryProvider dbRepositoryProvider, IFormGraphRepoProvider formGraphRepoProvider, IErrorHelper message, ICurrentUserAccessor currentUser);
 /// <summary>
 /// Biz服務本體
 /// </summary>
-/// <typeparam name="TSet"></typeparam>
-public class BizService<TSet> : BizBase, IBizService<TSet> where TSet : class
+/// <typeparam name="TFormModel"></typeparam>
+public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFormModel : class
 {
     #region Property
     /// <summary>
     /// 資料表 Repository 字典。
     /// </summary>
     protected Dictionary<string, object> RepoDict { get; }
+    /// <summary>
+    /// 目前表單 Graph CUD 使用的 Repository Scope。
+    /// </summary>
+    protected IFormGraphRepoScope<TFormModel> GraphRepo { get; }
+    /// <summary>
+    /// 目前表單對應的 Root DbModel 型別。
+    /// </summary>
+    protected Type RootDbModelType => GraphRepo.RootDbModelType;
     /// <summary>
     /// 
     /// </summary>
@@ -93,35 +103,40 @@ public class BizService<TSet> : BizBase, IBizService<TSet> where TSet : class
     public BizService(BizDeps bizDeps) : base(bizDeps)
     {
         //SysChangeLog = new SysChangeLog(repo.DataAccess);
-        RepoDict = bizDeps.repoMapProvider.GetRepoDict<TSet>();
-        DataAccess = ((dynamic)RepoDict.FirstOrDefault().Value).DataAccess;
+        GraphRepo = bizDeps.formGraphRepoProvider.GetScope<TFormModel>();
+        RepoDict = GraphRepo.GraphRepos.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+        DataAccess = GraphRepo.DataAccess;
     }
     #endregion
 
     #region Public
-    public async Task BizInitCreateSetsAsync(TSet[] sets, CancellationToken ct = default)
+    /// <summary>
+    /// 初始化多筆 Form Model。
+    /// </summary>
+    public async Task BizInitCreateDatasAsync(TFormModel[] datas, CancellationToken ct = default)
     {
-        foreach (var set in sets)
+        foreach (var data in datas)
         {
-            PropertyInfo headerProp = PropertyAccessorCache.GetProperties<TSet>().Where(p => !p.IsListPropertyType()).FirstOrDefault();
-            var header = PropertyAccessorCache.Get(set, headerProp.Name);
-            PropertyAccessorCache.Set(header, nameof(HeaderModel.IsIniData), true);
-            await BizCreateSetAsync(set, ct);
+            if (FormModelMetadataResolver.GetRootModel(data) is HeaderModel header) header.IsIniData = true;
+            await BizCreateDataAsync(data, ct);
         }
     }
-    public async Task<TSet> BizCreateSetAsync(TSet set, CancellationToken ct = default)
+    /// <summary>
+    /// 新增 Form Model。
+    /// </summary>
+    public async Task<TFormModel> BizCreateDataAsync(TFormModel data, CancellationToken ct = default)
     {
         return await ExecTransactionAsync(
             async token =>
             {
-                GetModelType(set, out HeaderModel header, out Dictionary<string, IList> details);
+                GetModelType(data, out HeaderModel header, out Dictionary<string, IList> details);
                 SetCreateInfo(header);
                 await AutoGenerateId(header, details);
-                await BeforeUpdate(set, FuncAction.Create, token);
-                if (Message.HasError) return set;
-                await DoCreateAsync(set);
-                await AfterUpdate(default, set, FuncAction.Create, TransStatus.Increase, token);
-                return set;
+                await BeforeUpdate(data, FuncAction.Create, token);
+                if (Message.HasError) return data;
+                await DoCreateAsync(data);
+                await AfterUpdate(default, data, FuncAction.Create, TransStatus.Increase, token);
+                return data;
             },
             async (_, token) =>
             {
@@ -130,23 +145,27 @@ public class BizService<TSet> : BizBase, IBizService<TSet> where TSet : class
             },
             ct);
     }
-    public async Task<TSet> BizUpdateSetAsync(string internalId, TSet newSet, CancellationToken ct = default)
+    /// <summary>
+    /// 修改 Form Model。
+    /// </summary>
+    public async Task<TFormModel> BizUpdateDataAsync(string internalId, TFormModel newData, CancellationToken ct = default)
     {
-        TSet oldSet = default!;
-        TSet oldSetCache = default!;
+        TFormModel oldData = default!;
+        TFormModel oldDataCache = default!;
         return await ExecTransactionAsync(
             async token =>
             {
-                GetModelType(newSet, out HeaderModel header, out Dictionary<string, IList> details);
+                GetModelType(newData, out HeaderModel header, out Dictionary<string, IList> details);
                 SetModifyInfo(header);
                 await AutoGenerateId(header, details);
-                await BeforeUpdate(newSet, FuncAction.Update, token);
-                if (Message.HasError) return newSet;
-                oldSet = await DoQuerySetAsync(internalId);
-                oldSetCache = oldSet.Snapshot();
-                await DoUpdateAsync(oldSet, newSet);
-                await AfterUpdate(oldSetCache, oldSet, FuncAction.Update, TransStatus.Difference, token);
-                return Message.HasError ? newSet : oldSet;
+                await BeforeUpdate(newData, FuncAction.Update, token);
+                if (Message.HasError) return newData;
+                oldData = await DoQueryDataAsync(internalId);
+                EnsureDataExists(oldData);
+                oldDataCache = oldData.Snapshot();
+                await DoUpdateAsync(oldData, newData);
+                await AfterUpdate(oldDataCache, oldData, FuncAction.Update, TransStatus.Difference, token);
+                return Message.HasError ? newData : oldData;
             },
             async (_, token) =>
             {
@@ -155,21 +174,25 @@ public class BizService<TSet> : BizBase, IBizService<TSet> where TSet : class
             },
             ct);
     }
-    public async Task<TSet> BizDeleteSetAsync(string internalId, CancellationToken ct = default)
+    /// <summary>
+    /// 刪除 Form Model。
+    /// </summary>
+    public async Task<TFormModel> BizDeleteDataAsync(string internalId, CancellationToken ct = default)
     {
-        TSet oldSet = default!;
-        TSet oldSetCache = default!;
+        TFormModel oldData = default!;
+        TFormModel oldDataCache = default!;
         return await ExecTransactionAsync(
             async token =>
             {
                 CheckIsUsed();
-                oldSet = await DoQuerySetAsync(internalId);
-                oldSetCache = oldSet.Snapshot();
-                await BeforeUpdate(oldSet, FuncAction.Delete, token);
-                if (Message.HasError) return oldSet;
-                await DoDeleteAsync(oldSet);
-                await AfterUpdate(oldSetCache, oldSet, FuncAction.Delete, TransStatus.Difference, token);
-                return oldSet;
+                oldData = await DoQueryDataAsync(internalId);
+                EnsureDataExists(oldData);
+                oldDataCache = oldData.Snapshot();
+                await BeforeUpdate(oldData, FuncAction.Delete, token);
+                if (Message.HasError) return oldData;
+                await DoDeleteAsync(oldData);
+                await AfterUpdate(oldDataCache, oldData, FuncAction.Delete, TransStatus.Difference, token);
+                return oldData;
             },
             async (_, token) =>
             {
@@ -178,23 +201,27 @@ public class BizService<TSet> : BizBase, IBizService<TSet> where TSet : class
             },
             ct);
     }
-    public async Task<TSet> BizInvalidSetAsync(string internalId, bool status, CancellationToken ct = default)
+    /// <summary>
+    /// 作廢 Form Model。
+    /// </summary>
+    public async Task<TFormModel> BizInvalidDataAsync(string internalId, bool status, CancellationToken ct = default)
     {
-        TSet oldSet = default!;
-        TSet oldSetCache = default!;
-        TSet newSet = default!;
+        TFormModel oldData = default!;
+        TFormModel oldDataCache = default!;
+        TFormModel newData = default!;
         return await ExecTransactionAsync(
             async token =>
             {
-                oldSet = await DoQuerySetAsync(internalId);
-                oldSetCache = oldSet.Snapshot();
-                newSet = oldSet.Snapshot();
-                DoInvalidSet(newSet, status);
-                await BeforeUpdate(oldSet, FuncAction.Invalid, token);
-                if (Message.HasError) return newSet;
-                await DoUpdateAsync(oldSet, newSet);
-                await AfterUpdate(oldSetCache, oldSet, FuncAction.Invalid, TransStatus.Difference, token);
-                return Message.HasError ? newSet : oldSet;
+                oldData = await DoQueryDataAsync(internalId);
+                EnsureDataExists(oldData);
+                oldDataCache = oldData.Snapshot();
+                newData = oldData.Snapshot();
+                DoInvalidSet(newData, status);
+                await BeforeUpdate(oldData, FuncAction.Invalid, token);
+                if (Message.HasError) return newData;
+                await DoUpdateAsync(oldData, newData);
+                await AfterUpdate(oldDataCache, oldData, FuncAction.Invalid, TransStatus.Difference, token);
+                return Message.HasError ? newData : oldData;
             },
             async (_, token) =>
             {
@@ -203,265 +230,116 @@ public class BizService<TSet> : BizBase, IBizService<TSet> where TSet : class
             },
             ct);
     }
-    public async Task<TSet> BizQuerySetAsync(string internalId, CancellationToken ct = default)
+    /// <summary>
+    /// 查詢單筆 Form Model。
+    /// </summary>
+    public async Task<TFormModel> BizQueryDataAsync(string internalId, CancellationToken ct = default)
     {
-        var data = await DoQuerySetAsync(internalId);
+        var data = await DoQueryDataAsync(internalId);
         return data;
     }
-    public async Task<IList<TSet>> BizQueryListAsync(QueryListParam param, CancellationToken ct = default)
+    /// <summary>
+    /// 查詢 Form Model 清單。
+    /// </summary>
+    public async Task<IList<TFormModel>> BizQueryListAsync(QueryListParam param, CancellationToken ct = default)
     {
-        return await BizQueryListAsync(param.Fields,param.Condition, param.OrderBy, param.RankGroups, param.PageNumber, param.PageSize,ct);
-    }
-    public async Task<IList<TSet>> BizQueryListAsync(string[] selectFields, string condition, IReadOnlyList<OrderBySpec> OrderBy=null,IReadOnlyList<RankGroupsSpec> rankGroups=null, int pageNumber=0, int pageSize = 0, CancellationToken ct = default)
-    {
-        // 宣告變數
-        IList<TSet> result = [];
-        var props = PropertyAccessorCache.GetProperties<TSet>();
-        var headerProp = props.FirstOrDefault(p => !p.PropertyType.IsGenericType);
-
-        // ✅ 無 RankGroups：沿用原本流程
-        if (rankGroups == null || rankGroups.Count == 0)
-        {
-            var datas = (await DoQueryListAsync(headerProp, selectFields, condition, OrderBy, pageNumber, pageSize)).ToDynamicList();
-            foreach (var data in datas)
-            {
-                var srcData = BuildSetFromData(headerProp, data);
-                result.Add(srcData);
-            }
-            return result;
-        }
-
-        // ✅ 有 RankGroups：分段取資料（Group0、Group1...、Rest）
-        var plan = BuildRankGroupPlan(condition, rankGroups);
-        var segments = BuildRankSegments(plan, rankGroups, OrderBy);
-
-        // 不分頁：依 segments 全部拉回
-        if (pageNumber <= 0 || pageSize <= 0)
-        {
-            foreach (var seg in segments)
-            {
-                var datas = (await DoQueryListAsync(headerProp.PropertyType, selectFields, seg.Where, seg.OrderBy, 0, 0, 0, condition, rankGroups)).ToDynamicList();
-                foreach (var data in datas)
-                {
-                    var srcData = BuildSetFromData(headerProp, data);
-                    result.Add(srcData);
-                }
-            }
-            return result;
-        }
-
-        // 分頁：跨 segments 精準切頁
-        var globalSkip = (pageNumber - 1) * pageSize;
-        var remaining = pageSize;
-
-        foreach (var seg in segments)
-        {
-            if (remaining <= 0) break;
-
-            var segCount = await DoQueryListCountAsync(headerProp.PropertyType, seg.Where);
-            if (segCount <= 0) continue;
-
-            if (globalSkip >= segCount)
-            {
-                globalSkip -= segCount;
-                continue;
-            }
-
-            var take = Math.Min(remaining, segCount - globalSkip);
-            var datas = (await DoQueryListAsync(headerProp, selectFields, seg.Where, seg.OrderBy, 0, take, globalSkip, condition, rankGroups)).ToDynamicList();
-
-            foreach (var data in datas)
-            {
-                var srcData = BuildSetFromData(headerProp, data);
-                result.Add(srcData);
-            }
-
-            remaining -= take;
-            globalSkip = 0;
-        }
-
-        return result;
-    }
-    public async Task<int> BizQueryTotalCounts(string condition, CancellationToken ct = default)
-    {
-        int totalCount = 0;
-        foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TSet)))
-        {
-            if (!typeof(IEnumerable).IsAssignableFrom(prop.PropertyType) && typeof(HeaderModel).IsAssignableFrom(prop.PropertyType))
-            {
-                var count = await DoQueryListCountAsync(prop.PropertyType, condition);
-                totalCount = count;
-            }
-        }
-        return totalCount;
+        return await BizQueryListAsync(param.Fields, param.Condition, param.OrderBy, param.RankGroups, param.PageNumber, param.PageSize, ct);
     }
     /// <summary>
-    /// 啟用交易控制(非同步)
+    /// 查詢 Form Model 清單。
     /// </summary>
-    /// <returns></returns>
+    public async Task<IList<TFormModel>> BizQueryListAsync(string[] selectFields, string condition, IReadOnlyList<OrderBySpec> OrderBy = null, IReadOnlyList<RankGroupsSpec> rankGroups = null, int pageNumber = 0, int pageSize = 0, CancellationToken ct = default)
+    {
+        string[] rootFields = MapSelectFields(selectFields);
+        string rootCondition = ApplyDataScope(FormModelMetadataResolver.MapExpressionToRoot(typeof(TFormModel), condition));
+        IReadOnlyList<OrderBySpec>? rootOrderBy = MapOrderBy(OrderBy);
+        IReadOnlyList<RankGroupsSpec>? rootRankGroups = MapRankGroups(rankGroups);
+        if (rootRankGroups == null || rootRankGroups.Count == 0)
+        {
+            IList roots = await DoQueryListAsync(RootDbModelType, rootFields, rootCondition, rootOrderBy, pageNumber, pageSize);
+            return BuildFormModelList(roots);
+        }
+        RankGroupPlan plan = BuildRankGroupPlan(rootCondition, rootRankGroups);
+        IReadOnlyList<RankSegment> segments = BuildRankSegments(plan, rootRankGroups, rootOrderBy);
+        if (pageNumber <= 0 || pageSize <= 0) return await QuerySegmentsAsync(segments, rootFields, rootCondition, rootRankGroups);
+        return await QueryPagedSegmentsAsync(segments, rootFields, rootCondition, rootRankGroups, pageNumber, pageSize);
+    }
+    /// <summary>
+    /// 獲取清單總筆數。
+    /// </summary>
+    public async Task<int> BizQueryTotalCounts(string condition, CancellationToken ct = default)
+    {
+        string rootCondition = FormModelMetadataResolver.MapExpressionToRoot(typeof(TFormModel), condition);
+        return await DoQueryListCountAsync(RootDbModelType, ApplyDataScope(rootCondition));
+    }
+    /// <summary>
+    /// 啟用交易控制。
+    /// </summary>
     public async Task<bool> TryBeginTransactionAsync()
     {
-        // 已在交易中 → 交給外層負責 commit/rollback
         if (DataAccess.Database.CurrentTransaction != null) return false;
-
         await DataAccess.Database.BeginTransactionAsync();
         return true;
     }
     /// <summary>
-    /// 回滾交易控制(非同步)
+    /// 回滾交易控制。
     /// </summary>
-    /// <returns></returns>
     public async Task TryRollbackAsync(bool ownsTx)
     {
         if (!ownsTx) return;
         await DataAccess.Database.RollbackTransactionAsync();
     }
     /// <summary>
-    /// 執行更新(非同步)
+    /// 提交交易控制。
     /// </summary>
-    /// <param name="action"></param>
     public async Task TryCommitAsync(bool ownsTx)
     {
-        await DataAccess.SaveChangesAsync(); // 永遠需要寫入
-
-        if (!ownsTx) return;                // 外層交易中 → 不 commit
+        await DataAccess.SaveChangesAsync();
+        if (!ownsTx) return;
         await DataAccess.Database.CommitTransactionAsync();
     }
     #endregion
 
     #region Protected
     /// <summary>
-    /// 
+    /// 建立 Form Model 聚合根與所有 Detail / SubDetail。
     /// </summary>
-    /// <param name="set"></param>
-    /// <returns></returns>
-    protected async Task DoCreateAsync(TSet set)
+    protected async Task DoCreateAsync(TFormModel data)
     {
-        foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TSet)))
-        {
-            var value = PropertyAccessorCache.Get(set, prop.Name);
-            if (value == null) continue;
-            string repoDictPropName = string.Empty;
-            if (!typeof(IEnumerable).IsAssignableFrom(prop.PropertyType))
-                repoDictPropName = prop.PropertyType.Name;
-            else if (typeof(IEnumerable).IsAssignableFrom(prop.PropertyType) && prop.PropertyType != typeof(string))
-                repoDictPropName = prop.PropertyType.GenericTypeArguments.FirstOrDefault().Name;
-            await ((dynamic)RepoDict[repoDictPropName]).CreateAsync((dynamic)value);
-        }
+        DbModel rootModel = FormModelMetadataResolver.GetRootModel(data);
+        await ((dynamic)GraphRepo.RootRepo).CreateAsync((dynamic)rootModel);
+        foreach (object item in CollectDetailItems(data)) await ((dynamic)GetRepoByType(item.GetType())).CreateAsync((dynamic)item);
     }
     /// <summary>
-    /// 
+    /// 更新 Form Model 聚合根與所有 Detail / SubDetail。
     /// </summary>
-    /// <param name="oldSet"></param>
-    /// <param name="newSet"></param>
-    /// <returns></returns>
-    protected async Task DoUpdateAsync(TSet oldSet, TSet newSet)
+    protected async Task DoUpdateAsync(TFormModel oldData, TFormModel newData)
     {
-        foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TSet)))
-        {
-            var oldModel = PropertyAccessorCache.Get(oldSet, prop.Name);
-            var newModel = PropertyAccessorCache.Get(newSet, prop.Name);
-            string repoDictPropName = string.Empty;
-            if (!LibData.IsListPropertyType(prop))
-            {
-                repoDictPropName = prop.PropertyType.Name;
-                //TODO:此處暫時這樣寫，之後看如何調整較好
-                PropertyAccessorCache.Set(newModel, nameof(HeaderModel.CreateUserId), PropertyAccessorCache.Get(oldModel, nameof(HeaderModel.CreateUserId)));
-                PropertyAccessorCache.Set(newModel, nameof(HeaderModel.CreateTime), PropertyAccessorCache.Get(oldModel, nameof(HeaderModel.CreateTime)));
-                await ((dynamic)RepoDict[repoDictPropName]).UpdateAsync((dynamic)oldModel, (dynamic)newModel);
-            }
-            else if (typeof(IEnumerable).IsAssignableFrom(prop.PropertyType) && prop.PropertyType != typeof(string))
-            {
-                var modelProp = prop.PropertyType.GenericTypeArguments.FirstOrDefault();
-                repoDictPropName = modelProp.Name;
-                var repo = (dynamic)RepoDict[repoDictPropName];
-                var detailProp = prop.PropertyType.GetGenericArguments().FirstOrDefault();
-                var oldValue = PropertyAccessorCache.Get(oldSet, prop.Name) as IList;
-                var newValue = PropertyAccessorCache.Get(newSet, prop.Name) as IList;
-                EnsureNewDetailRowIds(oldValue, newValue);
-                var keyProps = PropertyAccessorCache.GetAttrProperties(detailProp, typeof(KeyAttribute));
-                var nonKeyProps = PropertyAccessorCache.GetProperties(detailProp).Where(p => !keyProps.Select(p => p.Name).ToHashSet().Contains(p.Name)).ToList();
-                var oldDict = oldValue.ToDynamicList().ToDictionary(item => string.Join("|", keyProps.Select(k => PropertyAccessorCache.Get(item, k.Name)?.ToString() ?? "null")));
-                var newDict = newValue.ToDynamicList().ToDictionary(item => string.Join("|", keyProps.Select(k => PropertyAccessorCache.Get(item, k.Name)?.ToString() ?? "null")));
-                // 更新（兩邊都有）
-                foreach (var key in oldDict.Keys.Intersect(newDict.Keys))
-                {
-                    if (nonKeyProps.Any(p =>
-                    {
-                        var oldVal = PropertyAccessorCache.Get(oldDict[key], p.Name);
-                        var newVal = PropertyAccessorCache.Get(newDict[key], p.Name);
-                        return !object.Equals(oldVal, newVal);
-                    }))
-                        await repo.UpdateAsync(oldDict[key], newDict[key]);
-                }
-                // 刪除（old 有，new 沒有）
-                foreach (var key in oldDict.Keys.Except(newDict.Keys))
-                {
-                    await repo.DeleteAsync(oldDict[key]);
-                }
-                //新增新行項
-                var newItems = PropertyAccessorCache.CreateInstance(prop.PropertyType) as IList;
-                newDict.Keys.Except(oldDict.Keys).ToList().ForEach(key => newItems.Add(newDict[key]));
-                if (newItems.Count > 0)
-                {
-                    //這邊要獲取RowId的最大int值，但是是為了應急處理，之後要改演算法
-                    var keysNew = new HashSet<string>(newDict.Keys, StringComparer.Ordinal);
-                    var maxRowId = oldDict.Where(kv => keysNew.Contains(kv.Key)).Select(kv => TryGetRowId(kv.Value) ?? 0).DefaultIfEmpty(0).Max() + 1;
-                    await repo.CreateAsync(newItems, maxRowId);
-                }
-            }
-        }
+        PreserveRootKeys(oldData, newData);
+        PreserveCreateInfo(oldData, newData);
+        DbModel oldRoot = FormModelMetadataResolver.GetRootModel(oldData);
+        DbModel newRoot = FormModelMetadataResolver.GetRootModel(newData);
+        await ((dynamic)GraphRepo.RootRepo).UpdateAsync((dynamic)oldRoot, (dynamic)newRoot);
+        await SyncDetailItemsAsync(oldData, newData);
     }
     /// <summary>
-    /// 
+    /// 刪除 Form Model 聚合根與所有 Detail / SubDetail。
     /// </summary>
-    /// <param name="oldSet"></param>
-    /// <returns></returns>
-    protected async Task DoDeleteAsync(TSet oldSet)
+    protected async Task DoDeleteAsync(TFormModel oldData)
     {
-        var props = PropertyAccessorCache.GetProperties(typeof(TSet));
-        for (int i = props.Length - 1; i >= 0; i--)
-        {
-            var prop = props[i];
-            dynamic oldModel = PropertyAccessorCache.Get(oldSet, prop.Name);
-            string repoDictPropName;
-            if (!typeof(IEnumerable).IsAssignableFrom(prop.PropertyType))
-            {
-                repoDictPropName = prop.PropertyType.Name;
-                await ((dynamic)RepoDict[repoDictPropName]).DeleteAsync(oldModel);
-            }
-            else
-            {
-                repoDictPropName = prop.PropertyType.GenericTypeArguments.FirstOrDefault().Name;
-                foreach (var oldDt in oldModel) await ((dynamic)RepoDict[repoDictPropName]).DeleteAsync(oldDt);
-            }
-        }
+        foreach (object item in CollectDetailItems(oldData).AsEnumerable().Reverse()) await ((dynamic)GetRepoByType(item.GetType())).DeleteAsync((dynamic)item);
+        DbModel rootModel = FormModelMetadataResolver.GetRootModel(oldData);
+        await ((dynamic)GraphRepo.RootRepo).DeleteAsync((dynamic)rootModel);
     }
     /// <summary>
-    /// 
+    /// 查詢單筆 Form Model。
     /// </summary>
-    /// <param name="key"></param>
-    /// <returns></returns>
-    protected async Task<TSet> DoQuerySetAsync(string internalId)
+    protected async Task<TFormModel> DoQueryDataAsync(string internalId)
     {
         string condition = await GetPKConditionByInternalId(internalId);
-        if (condition.IsNullOrEmpty()) return default;
-        TSet result = PropertyAccessorCache.CreateInstance(typeof(TSet)) as TSet;
-        foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TSet)))
-        {
-            if (!typeof(IEnumerable).IsAssignableFrom(prop.PropertyType) && typeof(HeaderModel).IsAssignableFrom(prop.PropertyType))
-            {
-                var data = (await DoQueryListAsync(prop, [], condition, default,0, 0)).ToDynamicList().FirstOrDefault();
-                PropertyAccessorCache.Set(result, prop.Name, data);
-            }
-            else if (typeof(IEnumerable).IsAssignableFrom(prop.PropertyType))
-            {
-                var detailType = prop.PropertyType.GetGenericArguments().First();
-                var data = (await DoQueryListAsync(detailType, [], condition,default, 0, 0));
-                PropertyAccessorCache.Set(result, prop.Name, data);
-            }
-        }
-        return result;
+        if (condition.IsNullOrEmpty()) return default!;
+        IList roots = await DoQueryListAsync(RootDbModelType, GetDefaultRootSelectFields(), condition, default, 0, 0);
+        return BuildFormModelList(roots).FirstOrDefault()!;
     }
     protected async Task<IList> DoQueryListAsync<TModel>(string[] selectFields, string queryCondition, IReadOnlyList<OrderBySpec>? orderBy, int pageCt, int takeCt, int skipCt = 0, string? detailFilterCondition = null, IReadOnlyList<RankGroupsSpec>? detailRankGroups = null)
     {
@@ -472,23 +350,17 @@ public class BizService<TSet> : BizBase, IBizService<TSet> where TSet : class
         return await DoQueryListAsync(prop.PropertyType, selectFields, queryCondition, orderBy, pageCt, takeCt, skipCt, detailFilterCondition, detailRankGroups);
     }
     /// <summary>
-    /// 查詢清單資料
-    /// queryCondition：header 查詢 / RankGroup 分組用
-    /// detailFilterCondition：detail 過濾用，只應吃原始 condition
-    /// detailRankGroups：detail 排序用
+    /// 查詢清單資料。
     /// </summary>
     protected async Task<IList> DoQueryListAsync(Type type, string[] selectFields, string queryCondition, IReadOnlyList<OrderBySpec>? orderBy, int pageCt, int takeCt, int skipCt = 0, string? detailFilterCondition = null, IReadOnlyList<RankGroupsSpec>? detailRankGroups = null)
     {
-        // 宣告變數
         var whereExpr = GetConditionExpr(type, queryCondition);
         var filterExpr = GetConditionExpr(type, detailFilterCondition ?? queryCondition);
         var detailFilterMap = ExtractDetailPredicateMap(type, filterExpr);
         var detailRankMap = BuildDetailRankMap(type, detailRankGroups);
         var selectExpr = GetSelectFieldsExpr(type, selectFields, detailFilterMap, detailRankMap);
         var repo = (dynamic)GetRepoByType(type);
-        // 執行 function
         var data = await repo.QueryListAsync(selectExpr, whereExpr, orderBy, pageCt, takeCt, skipCt);
-        // return
         return data;
     }
     protected async Task<int> DoQueryListCountAsync<TModel>(string condition)
@@ -496,14 +368,8 @@ public class BizService<TSet> : BizBase, IBizService<TSet> where TSet : class
         return await DoQueryListCountAsync(typeof(TModel), condition);
     }
     /// <summary>
-    /// 查詢清單總筆數
+    /// 查詢清單總筆數。
     /// </summary>
-    /// <param name="type"></param>
-    /// <param name="selectFields"></param>
-    /// <param name="condition"></param>
-    /// <param name="pageCt"></param>
-    /// <param name="takeCt"></param>
-    /// <returns></returns>
     protected async Task<int> DoQueryListCountAsync(Type type, string condition)
     {
         var whereExpr = GetConditionExpr(type, condition);
@@ -512,27 +378,15 @@ public class BizService<TSet> : BizBase, IBizService<TSet> where TSet : class
         return data;
     }
     /// <summary>
-    /// 
+    /// 設定作廢狀態。
     /// </summary>
-    /// <param name="key"></param>
-    /// <returns></returns>
-    protected void DoInvalidSet(TSet set, bool isInvalid)
+    protected void DoInvalidSet(TFormModel data, bool isInvalid)
     {
-        foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TSet)))
-        {
-            if (!typeof(IEnumerable).IsAssignableFrom(prop.PropertyType))
-            {
-                if (PropertyAccessorCache.Get(set, prop.Name) is HeaderModel header)
-                {
-                    header.DataStatus = isInvalid ? DataStatus.Invalid : DataStatus.Valid;
-                    header.FormStatus = isInvalid ? FormStatus.Obsoleted : FormStatus.Saved;
-                    header.InvalidTime = isInvalid ? DateTime.UtcNow : null;
-                    header.InvalidUserId = isInvalid ? OperateUser?.UserId : string.Empty;
-                }
-                break;
-            }
-        }
-        return;
+        if (FormModelMetadataResolver.GetRootModel(data) is not HeaderModel header) return;
+        header.DataStatus = isInvalid ? DataStatus.Invalid : DataStatus.Valid;
+        header.FormStatus = isInvalid ? FormStatus.Obsoleted : FormStatus.Saved;
+        header.InvalidTime = isInvalid ? DateTime.UtcNow : null;
+        header.InvalidUserId = isInvalid ? OperateUser?.UserId : string.Empty;
     }
 
     /// <summary>
@@ -580,14 +434,14 @@ public class BizService<TSet> : BizBase, IBizService<TSet> where TSet : class
     /// 保存前
     /// </summary>
     /// <param name="set"></param>
-    protected virtual Task BeforeUpdate(TSet set, FuncAction act, CancellationToken ct = default) => Task.CompletedTask;
+    protected virtual Task BeforeUpdate(TFormModel set, FuncAction act, CancellationToken ct = default) => Task.CompletedTask;
     /// <summary>
     /// 更新之後，尚未提交 (供過帳使用)
     /// </summary>
     /// <param name="oldSet"></param>
     /// <param name="newSet"></param>
     /// <param name="status"></param>
-    protected virtual Task AfterUpdate(TSet? oldSet, TSet? newSet, FuncAction act, TransStatus status, CancellationToken ct = default) => Task.CompletedTask;
+    protected virtual Task AfterUpdate(TFormModel? oldSet, TFormModel? newSet, FuncAction act, TransStatus status, CancellationToken ct = default) => Task.CompletedTask;
     /// <summary>
     /// 執行SaveChanges後
     /// </summary>
@@ -598,7 +452,11 @@ public class BizService<TSet> : BizBase, IBizService<TSet> where TSet : class
     /// </summary>
     /// <param name="set"></param>
     /// <param name="status"></param>
-    protected virtual void AfterInvalid(TSet set, bool status) { }
+    protected virtual void AfterInvalid(TFormModel set, bool status) { }
+    /// <summary>
+    /// 目前表單查詢必須套用的 Root DbModel 資料範圍。
+    /// </summary>
+    protected virtual string DataScopeCondition => string.Empty;
     #endregion
 
     #region Private
@@ -659,9 +517,6 @@ public class BizService<TSet> : BizBase, IBizService<TSet> where TSet : class
         DateTime now = DateTime.Now;
         header.ModifyUserId = OperateUser.UserId;
         header.ModifyTime = now;
-        header.FormStatus = status ? FormStatus.Obsoleted : FormStatus.Saved;
-        header.InvalidUserId = status ? OperateUser.UserId : string.Empty;
-        header.InvalidTime = status ? now : null;
     }
     /// <summary>
     /// 設定行項RowState
@@ -1656,55 +1511,291 @@ public class BizService<TSet> : BizBase, IBizService<TSet> where TSet : class
     }
 
     /// <summary>
-    /// 獲取表頭明細模型
+    /// 將外部 Form Model Select 欄位轉成 Root DbModel 欄位。
     /// </summary>
-    /// <param name="set"></param>
-    /// <returns></returns>
-    private void GetModelType(TSet set,out HeaderModel header,out Dictionary<string, IList> details)
+    private string[] MapSelectFields(string[] selectFields)
     {
-        header = null;
-        details = [];
-        foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TSet)))
+        string[] result = [.. (selectFields ?? []).Select(field => FormModelMetadataResolver.MapFieldPathToRoot(typeof(TFormModel), field)).Where(field => !string.IsNullOrWhiteSpace(field))];
+        return result.Length == 0 ? GetDefaultRootSelectFields() : result;
+    }
+    /// <summary>
+    /// 將外部 Form Model 排序欄位轉成 Root DbModel 欄位。
+    /// </summary>
+    private static IReadOnlyList<OrderBySpec>? MapOrderBy(IReadOnlyList<OrderBySpec>? orderBy)
+    {
+        if (orderBy == null) return null;
+        return [.. orderBy.Select(item => item with { Col = FormModelMetadataResolver.MapFieldPathToRoot(typeof(TFormModel), item.Col) })];
+    }
+    /// <summary>
+    /// 將外部 Form Model RankGroup 轉成 Root DbModel 查詢條件。
+    /// </summary>
+    private static IReadOnlyList<RankGroupsSpec>? MapRankGroups(IReadOnlyList<RankGroupsSpec>? rankGroups)
+    {
+        if (rankGroups == null) return null;
+        return [.. rankGroups.Select(group => group with
         {
-            if (typeof(HeaderModel).IsAssignableFrom(prop.PropertyType))
+            Condition = FormModelMetadataResolver.MapExpressionToRoot(typeof(TFormModel), group.Condition),
+            OrderBy = MapOrderBy(group.OrderBy)
+        })];
+    }
+    /// <summary>
+    /// 合併目前表單固定資料範圍。
+    /// </summary>
+    private string ApplyDataScope(string condition)
+    {
+        return LibData.Merge(" And ", false, condition, DataScopeCondition);
+    }
+    /// <summary>
+    /// 將 Root DbModel 清單組裝成 Form Model 清單。
+    /// </summary>
+    private static IList<TFormModel> BuildFormModelList(IList roots)
+    {
+        IList<TFormModel> result = [];
+        foreach (object root in roots)
+        {
+            if (root is not DbModel rootModel) continue;
+            result.Add(FormModelMetadataResolver.CreateFormModel<TFormModel>(rootModel));
+        }
+        return result;
+    }
+    /// <summary>
+    /// 建立 Root DbModel 完整 Graph 查詢欄位。
+    /// </summary>
+    private string[] GetDefaultRootSelectFields()
+    {
+        List<string> result = [];
+        AddDefaultRootSelectFields(RootDbModelType, string.Empty, result);
+        return [.. result.Distinct(StringComparer.Ordinal)];
+    }
+    /// <summary>
+    /// 遞迴加入目前 Graph 的 Root Scalar 與 InverseProperty Detail 欄位。
+    /// </summary>
+    private void AddDefaultRootSelectFields(Type modelType, string prefix, List<string> result)
+    {
+        foreach (PropertyInfo prop in PropertyAccessorCache.GetProperties(modelType))
+        {
+            if (!prop.CanWrite) continue;
+            Type? childType = GetGraphPropertyType(prop);
+            if (childType == null)
             {
-                header = PropertyAccessorCache.Get(set, prop.Name) as HeaderModel;
+                bool isScalar = prop.PropertyType == typeof(byte[]) || (!LibData.IsListPropertyType(prop) && !typeof(DbModel).IsAssignableFrom(prop.PropertyType));
+                if (isScalar && !prop.IsDefined(typeof(NotMappedAttribute), true)) result.Add(prefix + prop.Name);
+                continue;
             }
-            else
-            {
-                details.Add(prop.Name, PropertyAccessorCache.Get(set, prop.Name) as IList);
-            }
+            bool isCollection = typeof(IEnumerable).IsAssignableFrom(prop.PropertyType) && prop.PropertyType != typeof(string);
+            if (!isCollection || !prop.IsDefined(typeof(InversePropertyAttribute), true) || !GraphRepo.ContainsRepo(childType)) continue;
+            AddDefaultRootSelectFields(childType, prefix + prop.Name + ".", result);
         }
     }
     /// <summary>
-    /// 檢查資料是否被用
+    /// 取得 Property 對應的 DbModel 或集合元素型別。
+    /// </summary>
+    private static Type? GetGraphPropertyType(PropertyInfo prop)
+    {
+        Type propertyType = prop.PropertyType;
+        if (typeof(DbModel).IsAssignableFrom(propertyType)) return propertyType;
+        if (propertyType == typeof(string) || propertyType == typeof(byte[])) return null;
+        if (!typeof(IEnumerable).IsAssignableFrom(propertyType)) return null;
+        Type? itemType = propertyType.IsArray ? propertyType.GetElementType() : propertyType.GetGenericArguments().FirstOrDefault();
+        return itemType != null && typeof(DbModel).IsAssignableFrom(itemType) ? itemType : null;
+    }
+    /// <summary>
+    /// 確認更新、刪除或作廢目標存在於目前資料範圍。
+    /// </summary>
+    private static void EnsureDataExists(TFormModel? data)
+    {
+        if (data != null) return;
+        throw new BusinessException("查無資料，或資料不屬於目前功能範圍。");
+    }
+
+    /// <summary>
+    /// 查詢所有排序分段資料。
+    /// </summary>
+    private async Task<IList<TFormModel>> QuerySegmentsAsync(IReadOnlyList<RankSegment> segments, string[] selectFields, string condition, IReadOnlyList<RankGroupsSpec> rankGroups)
+    {
+        IList<TFormModel> result = [];
+        foreach (var seg in segments)
+        {
+            IList roots = await DoQueryListAsync(RootDbModelType, selectFields, seg.Where, seg.OrderBy, 0, 0, 0, condition, rankGroups);
+            foreach (TFormModel item in BuildFormModelList(roots)) result.Add(item);
+        }
+        return result;
+    }
+    /// <summary>
+    /// 查詢分頁排序分段資料。
+    /// </summary>
+    private async Task<IList<TFormModel>> QueryPagedSegmentsAsync(IReadOnlyList<RankSegment> segments, string[] selectFields, string condition, IReadOnlyList<RankGroupsSpec> rankGroups, int pageNumber, int pageSize)
+    {
+        IList<TFormModel> result = [];
+        int globalSkip = (pageNumber - 1) * pageSize;
+        int remaining = pageSize;
+        foreach (var seg in segments)
+        {
+            if (remaining <= 0) break;
+            int segCount = await DoQueryListCountAsync(RootDbModelType, seg.Where);
+            if (globalSkip >= segCount) { globalSkip -= segCount; continue; }
+            int take = Math.Min(remaining, segCount - globalSkip);
+            IList roots = await DoQueryListAsync(RootDbModelType, selectFields, seg.Where, seg.OrderBy, 0, take, globalSkip, condition, rankGroups);
+            foreach (TFormModel item in BuildFormModelList(roots)) result.Add(item);
+            remaining -= take;
+            globalSkip = 0;
+        }
+        return result;
+    }
+    /// <summary>
+    /// 獲取 Header 與所有 Detail / SubDetail 集合。
+    /// </summary>
+    private void GetModelType(TFormModel data, out HeaderModel header, out Dictionary<string, IList> details)
+    {
+        DbModel rootModel = FormModelMetadataResolver.GetRootModel(data);
+        header = rootModel as HeaderModel ?? throw new InvalidOperationException($"Root DbModel must inherit HeaderModel: {rootModel.GetType().FullName}");
+        details = [];
+        foreach ((string name, IList items) in CollectDetailLists(data)) details[name] = items;
+    }
+    /// <summary>
+    /// 檢查資料是否被用。
     /// </summary>
     private void CheckIsUsed()
     {
 
     }
     /// <summary>
-    /// 根據內部唯一標示號找到主鍵條件
+    /// 根據 InternalId 取得 Header 主鍵查詢條件。
     /// </summary>
-    /// <param name="internalId"></param>
-    /// <returns></returns>
     private async Task<string> GetPKConditionByInternalId(string internalId)
     {
-        foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TSet)))
+        string resultCondition = string.Empty;
+        PropertyInfo[] pkProps = PropertyAccessorCache.GetProperties(RootDbModelType).Where(prop => prop.IsDefined(typeof(KeyAttribute), true)).ToArray();
+        string condition = ApplyDataScope($"{nameof(HeaderModel.InternalId)} = \"{internalId}\"");
+        string[] fieldNames = pkProps.Select(prop => prop.Name).ToArray();
+        object? headerData = (await DoQueryListAsync(RootDbModelType, fieldNames, condition, default, 0, 0)).ToDynamicList().FirstOrDefault();
+        if (headerData == null) return resultCondition;
+        foreach (PropertyInfo pk in pkProps) resultCondition = LibData.Merge(" And ", false, resultCondition, $"{pk.Name} = \"{PropertyAccessorCache.Get(headerData, pk.Name)}\"");
+        return ApplyDataScope(resultCondition);
+    }
+    /// <summary>
+    /// 保留 Root 主鍵並同步回填 Graph 中同名關聯鍵。
+    /// </summary>
+    private void PreserveRootKeys(TFormModel oldData, TFormModel newData)
+    {
+        DbModel oldRoot = FormModelMetadataResolver.GetRootModel(oldData);
+        DbModel newRoot = FormModelMetadataResolver.GetRootModel(newData);
+        List<object> details = CollectDetailItems(newData);
+        foreach (PropertyInfo key in PropertyAccessorCache.GetAttrProperties(RootDbModelType, typeof(KeyAttribute)))
         {
-            if (!typeof(IEnumerable).IsAssignableFrom(prop.PropertyType) && typeof(HeaderModel).IsAssignableFrom(prop.PropertyType))
-            {
-                string resultCondition = string.Empty;
-                var pkProps = PropertyAccessorCache.GetProperties(prop.PropertyType).Where(p => p.IsDefined(typeof(KeyAttribute), inherit: true)).ToArray();
-                var condition = $"{nameof(HeaderModel.InternalId)} = \"{internalId}\"";
-                var fieldNames = pkProps.Select(p => p.Name).ToArray();
-                var headerData = (await DoQueryListAsync(prop, fieldNames, condition,default, 0, 0)).ToDynamicList().FirstOrDefault();
-                if (headerData == null) return resultCondition;
-                foreach (var pk in pkProps) resultCondition = LibData.Merge(" And ", false, resultCondition, $"{pk.Name} = \"{PropertyAccessorCache.Get(headerData, pk.Name)}\"");
-                return resultCondition;
-            }
+            object? value = PropertyAccessorCache.Get(oldRoot, key.Name);
+            PropertyAccessorCache.Set(newRoot, key.Name, value);
+            foreach (object detail in details) SetMatchingProperty(detail, key.Name, value);
         }
-        return string.Empty;
+    }
+    /// <summary>
+    /// 回填物件上存在且可寫入的同名 Property。
+    /// </summary>
+    private static void SetMatchingProperty(object target, string propertyName, object? value)
+    {
+        PropertyInfo? property = PropertyAccessorCache.GetProperty(target.GetType(), propertyName);
+        if (property?.CanWrite == true) PropertyAccessorCache.Set(target, propertyName, value);
+    }
+    /// <summary>
+    /// 保留建立資訊，避免外部覆蓋系統欄位。
+    /// </summary>
+    private static void PreserveCreateInfo(TFormModel oldData, TFormModel newData)
+    {
+        DbModel oldRoot = FormModelMetadataResolver.GetRootModel(oldData);
+        DbModel newRoot = FormModelMetadataResolver.GetRootModel(newData);
+        PropertyAccessorCache.Set(newRoot, nameof(HeaderModel.CreateUserId), PropertyAccessorCache.Get(oldRoot, nameof(HeaderModel.CreateUserId)));
+        PropertyAccessorCache.Set(newRoot, nameof(HeaderModel.CreateTime), PropertyAccessorCache.Get(oldRoot, nameof(HeaderModel.CreateTime)));
+    }
+    /// <summary>
+    /// 同步 Detail / SubDetail 新增、修改、刪除。
+    /// </summary>
+    private async Task SyncDetailItemsAsync(TFormModel oldData, TFormModel newData)
+    {
+        Dictionary<Type, List<object>> oldItems = CollectDetailItemsByType(oldData);
+        Dictionary<Type, List<object>> newItems = CollectDetailItemsByType(newData);
+        foreach (Type type in oldItems.Keys.Union(newItems.Keys)) await SyncDetailTypeAsync(type, oldItems.GetValueOrDefault(type) ?? [], newItems.GetValueOrDefault(type) ?? []);
+    }
+    /// <summary>
+    /// 同步單一 Detail 型別資料。
+    /// </summary>
+    private async Task SyncDetailTypeAsync(Type type, List<object> oldItems, List<object> newItems)
+    {
+        var repo = (dynamic)GetRepoByType(type);
+        var keyProps = PropertyAccessorCache.GetAttrProperties(type, typeof(KeyAttribute));
+        var nonKeyProps = PropertyAccessorCache.GetProperties(type).Where(p => !keyProps.Select(k => k.Name).ToHashSet().Contains(p.Name)).ToList();
+        var oldDict = oldItems.ToDictionary(item => BuildKey(item, keyProps));
+        var newDict = newItems.ToDictionary(item => BuildKey(item, keyProps));
+        foreach (var key in oldDict.Keys.Intersect(newDict.Keys)) if (HasDifferentValue(oldDict[key], newDict[key], nonKeyProps)) await repo.UpdateAsync(oldDict[key], newDict[key]);
+        foreach (var key in oldDict.Keys.Except(newDict.Keys)) await repo.DeleteAsync(oldDict[key]);
+        foreach (var key in newDict.Keys.Except(oldDict.Keys)) await repo.CreateAsync(newDict[key]);
+    }
+    /// <summary>
+    /// 收集聚合內所有 Detail / SubDetail 資料。
+    /// </summary>
+    private List<object> CollectDetailItems(object source)
+    {
+        List<object> result = [];
+        foreach ((string _, IList items) in CollectDetailLists(source)) foreach (object item in items) if (item != null) result.Add(item);
+        return result;
+    }
+    /// <summary>
+    /// 依型別收集聚合內所有 Detail / SubDetail 資料。
+    /// </summary>
+    private Dictionary<Type, List<object>> CollectDetailItemsByType(object source)
+    {
+        Dictionary<Type, List<object>> result = [];
+        foreach (object item in CollectDetailItems(source))
+        {
+            Type type = item.GetType();
+            if (!result.TryGetValue(type, out List<object>? list)) result[type] = list = [];
+            list.Add(item);
+        }
+        return result;
+    }
+    /// <summary>
+    /// 收集目前 Form Graph 內所有集合屬性。
+    /// </summary>
+    private List<(string Name, IList Items)> CollectDetailLists(object source)
+    {
+        List<(string Name, IList Items)> result = [];
+        CollectDetailListsCore(source, result, [], []);
+        return result;
+    }
+    /// <summary>
+    /// 依 Form Model 與 InverseProperty 規則遞迴收集 Graph 集合。
+    /// </summary>
+    private void CollectDetailListsCore(object source, List<(string Name, IList Items)> result, HashSet<object> visitedModels, HashSet<object> visitedLists)
+    {
+        if (source == null || !visitedModels.Add(source)) return;
+        bool isFormContainer = source.GetType() == typeof(TFormModel) && source is not DbModel;
+        foreach (PropertyInfo prop in PropertyAccessorCache.GetProperties(source.GetType()))
+        {
+            Type? childType = GetGraphPropertyType(prop);
+            if (childType == null || !GraphRepo.ContainsRepo(childType)) continue;
+            object? value = PropertyAccessorCache.Get(source, prop.Name);
+            if (value is IList list && (isFormContainer || prop.IsDefined(typeof(InversePropertyAttribute), true)))
+            {
+                if (visitedLists.Add(list)) result.Add((prop.Name, list));
+                foreach (object item in list) CollectDetailListsCore(item, result, visitedModels, visitedLists);
+                continue;
+            }
+            if (isFormContainer && value is DbModel childModel) CollectDetailListsCore(childModel, result, visitedModels, visitedLists);
+        }
+    }
+    /// <summary>
+    /// 建立 Detail 主鍵字串。
+    /// </summary>
+    private static string BuildKey(object item, IEnumerable<PropertyInfo> keyProps)
+    {
+        return string.Join("|", keyProps.Select(k => PropertyAccessorCache.Get(item, k.Name)?.ToString() ?? "null"));
+    }
+    /// <summary>
+    /// 判斷非主鍵欄位是否有變更。
+    /// </summary>
+    private static bool HasDifferentValue(object oldItem, object newItem, IEnumerable<PropertyInfo> props)
+    {
+        foreach (var prop in props) if (!object.Equals(PropertyAccessorCache.Get(oldItem, prop.Name), PropertyAccessorCache.Get(newItem, prop.Name))) return true;
+        return false;
     }
     private static LambdaExpression BuildIdSelectorLambda(Type modelType, PropertyInfo prop)
     {
@@ -1721,8 +1812,8 @@ public class BizService<TSet> : BizBase, IBizService<TSet> where TSet : class
     /// <returns></returns>
     private object GetRepoByType(Type modelType)
     {
-        if (RepoDict.TryGetValue(modelType.Name, out var repo)) return repo;
-        return RepoMapProvider.EnsureRepo<TSet>(modelType);
+        if (GraphRepo.ContainsRepo(modelType)) return GraphRepo.GetRepo(modelType);
+        return DbRepositoryProvider.GetRepo(modelType);
     }
     private static int? TryGetRowId(object? obj)
     {
@@ -1734,18 +1825,18 @@ public class BizService<TSet> : BizBase, IBizService<TSet> where TSet : class
         return null;
     }
     /// <summary>
-    /// 將搜尋的結果扁平化成TSet型
+    /// 將搜尋的結果扁平化成TFormModel型
     /// </summary>
     /// <param name="headerProp"></param>
     /// <param name="data"></param>
     /// <returns></returns>
-    private static TSet BuildSetFromData(PropertyInfo headerProp, object data)
+    private static TFormModel BuildSetFromData(PropertyInfo headerProp, object data)
     {
-        // 建 TSet 實例 + 先塞回 header（data1）
-        var set = PropertyAccessorCache.CreateInstance<TSet>();
+        // 建 TFormModel 實例 + 先塞回 header（data1）
+        var set = PropertyAccessorCache.CreateInstance<TFormModel>();
         PropertyAccessorCache.Set(set, headerProp.Name, data);
-        // 快取 TSet 的屬性字典（O(1) 查找）
-        var setProps = PropertyAccessorCache.GetProperties<TSet>();
+        // 快取 TFormModel 的屬性字典（O(1) 查找）
+        var setProps = PropertyAccessorCache.GetProperties<TFormModel>();
         var setPropDict = setProps.ToDictionary(p => p.Name, p => p, StringComparer.Ordinal);
         // 迭代 DFS：避免深層遞迴與 StackOverflow
         var visited = new HashSet<int>();
@@ -1776,7 +1867,7 @@ public class BizService<TSet> : BizBase, IBizService<TSet> where TSet : class
                         if (item != null) stack.Push(item);
                     }
 
-                    // 規則 1：用屬性名（去底線）直配 TSet
+                    // 規則 1：用屬性名（去底線）直配 TFormModel
                     var targetName = p.Name.Trim('_');
                     if (!AssignToSet(targetName, raw))
                     {
@@ -1807,7 +1898,7 @@ public class BizService<TSet> : BizBase, IBizService<TSet> where TSet : class
             var targetType = dstProp.PropertyType;
             var elemType = GetEnumerableElementType(targetType) ?? typeof(object);
 
-            // 1) 先拿現在 TSet 上的清單（若沒有就新建一個 List<T>）
+            // 1) 先拿現在 TFormModel 上的清單（若沒有就新建一個 List<T>）
             var currentObj = PropertyAccessorCache.Get(set!, dstProp.Name);
             IList targetList;
 
@@ -1831,7 +1922,7 @@ public class BizService<TSet> : BizBase, IBizService<TSet> where TSet : class
                 targetList.Add(ChangeIfNeeded(item, elemType));
             }
 
-            // 3) 若是新建的清單或原本為 null，指回 TSet
+            // 3) 若是新建的清單或原本為 null，指回 TFormModel
             if (!ReferenceEquals(targetList, currentObj))
             {
                 PropertyAccessorCache.Set(set!, dstProp.Name, targetList);

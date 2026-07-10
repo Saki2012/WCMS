@@ -8,10 +8,10 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.Features.COMM.Person;
 
 [LibBiz(ProgKeys.COMM.Code, ProgKeys.COMM.Person)]
-public class PersonBiz(BizDeps bizDeps) : BizService<PersonSet>(bizDeps), IBizService<PersonSet>
+public class PersonBiz(BizDeps bizDeps) : BizService<PersonModel>(bizDeps), IBizService<PersonModel>
 {
     #region Protected
-    protected override async Task BeforeUpdate(PersonSet set, FuncAction act, CancellationToken ct = default)
+    protected override async Task BeforeUpdate(PersonModel set, FuncAction act, CancellationToken ct = default)
     {
         await base.BeforeUpdate(set, act, ct);
         switch (act)
@@ -25,13 +25,13 @@ public class PersonBiz(BizDeps bizDeps) : BizService<PersonSet>(bizDeps), IBizSe
     #endregion
 
     #region Private
-    private void CheckData(PersonSet set)
+    private void CheckData(PersonModel set)
     {
-        CheckIsEmpty(set.Person);
+        CheckIsEmpty(set);
     }
     private void CheckIsEmpty(PersonModel header)
     {
-        if(header.PersonName.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<PersonModel_DTO>(x => x.PersonName));
+        if(header.PersonName.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<PersonModel>(x => x.PersonName));
     }
     #endregion
 }

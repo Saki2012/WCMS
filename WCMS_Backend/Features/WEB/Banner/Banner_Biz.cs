@@ -11,17 +11,18 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.Features.WEB.Banner;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.Banner)]
-public class BannerBiz(BizDeps bizDeps) : BizService<BannerSet>(bizDeps), IBizService<BannerSet> 
+public class BannerBiz(BizDeps bizDeps) : BizService<Banner>(bizDeps), IBizService<Banner> 
 {
     #region Protected Virtual
-    protected override async Task BeforeUpdate(BannerSet set, FuncAction act, CancellationToken ct = default)
+    protected override async Task BeforeUpdate(Banner set, FuncAction act, CancellationToken ct = default)
     {
         await base.BeforeUpdate(set, act, ct);
         switch (act)
         {
             case FuncAction.Create:
             case FuncAction.Update:
-                if (!CheckData(set)) return;
+                CheckData(set);
+                if (Message.HasError) return;
                 SetData(set);
                 break;
         }
@@ -30,14 +31,13 @@ public class BannerBiz(BizDeps bizDeps) : BizService<BannerSet>(bizDeps), IBizSe
     #endregion
 
     #region Protected
-    protected bool CheckData(BannerSet set)
+    protected void CheckData(Banner set)
     {
-        AACheck(set.BannerDetailInfo);
-        return Message.HasError;
+        AACheck(set._BannerDetail.SelectMany(detail => detail._BannerDetailInfo).ToList());
     }
-    protected static void SetData(BannerSet set)
+    protected static void SetData(Banner set)
     {
-        ResetBannerSort(set.BannerDetail);
+        ResetBannerSort(set._BannerDetail);
     }
     #endregion
 
@@ -52,7 +52,7 @@ public class BannerBiz(BizDeps bizDeps) : BizService<BannerSet>(bizDeps), IBizSe
         if (!SpecSettings.AACheck) return;
         infos.ForEach(dt =>
         {
-            if(dt.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.AACode00004,I18nCache.GetLabel<BannerDetail_DTO>(),dt.ParentRowId, dt.Lang.ToLabel(), I18nCache.GetLabel<BannerDetailInfo_DTO>(x => x.Title));
+            if(dt.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.AACode00004,I18nCache.GetLabel<BannerDetail>(),dt.ParentRowId, dt.Lang.ToLabel(), I18nCache.GetLabel<BannerDetailInfo>(x => x.Title));
         });
     }
 
@@ -65,15 +65,15 @@ public class BannerBiz(BizDeps bizDeps) : BizService<BannerSet>(bizDeps), IBizSe
     #endregion
 
     #region Migration Old Data
-    public async Task Migrate(string importFileLabel = "1810", IList<FileManageSet> srcFileSets = default)
+    public async Task Migrate(string importFileLabel = "1810", IList<FileManageModel> srcFileSets = default)
     {
-        BannerSet[] datas = ConvertToApiModel(importFileLabel, srcFileSets);
-        await BizInitCreateSetsAsync(datas);
+        Banner[] datas = ConvertToApiModel(importFileLabel, srcFileSets);
+        await BizInitCreateDatasAsync(datas);
         
     }
-    private BannerSet[] ConvertToApiModel(string importFileLabel, IList<FileManageSet> srcFileSets)
+    private Banner[] ConvertToApiModel(string importFileLabel, IList<FileManageModel> srcFileSets)
     {
-        List<BannerSet> result = [];
+        List<Banner> result = [];
         Dictionary<string, string> sqls = new()
         {
             { "AdBannerCategory", "Select * From AdBannerCategory" },
@@ -83,33 +83,32 @@ public class BannerBiz(BizDeps bizDeps) : BizService<BannerSet>(bizDeps), IBizSe
         DataSet ds = MigrateOldData.GetOldData(sqls);
 
 
-        var fileSrcIdDic = srcFileSets.SelectMany(s => s.FileManage_SyncInfo).GroupBy(d => d.SrcFullPath).ToDictionary(g => g.Key, g => g.First().InternalId);
-        List<FileManageSet> updateFileSets = [];
+        List<FileManageModel> updateFileSets = [];
 
         foreach (DataRow row in ds.Tables["AdBannerCategory"].Rows)
         {
-            BannerSet set = new() { };
+            Banner set = new() { };
             result.Add(set);
-            set.Banner.BannerId = row["Sn"].ToString();
-            set.Banner.BannerCategoryName = row["Category"].ToString();
-            set.Banner.Interval = Convert.ToInt16(row["Interval"]);
-            set.Banner.Speed = Convert.ToInt16(row["Speed"]);
-            set.Banner.Height = Convert.ToInt16(row["Height"]);
-            set.Banner.Width = Convert.ToInt16(row["Width"]);
+            set.BannerId = row["Sn"].ToString();
+            set.BannerCategoryName = row["Category"].ToString();
+            set.Interval = Convert.ToInt16(row["Interval"]);
+            set.Speed = Convert.ToInt16(row["Speed"]);
+            set.Height = Convert.ToInt16(row["Height"]);
+            set.Width = Convert.ToInt16(row["Width"]);
             int rowId = 1;
-            foreach (var dRow in ds.Tables["AdBanner"].AsEnumerable().Where(dr => dr["CategorySn"].ToString() == set.Banner.BannerId).ToList())
+            foreach (var dRow in ds.Tables["AdBanner"].AsEnumerable().Where(dr => dr["CategorySn"].ToString() == set.BannerId).ToList())
             {
                 string picFileName = dRow["Pic"].ToString();
                 if (!picFileName.IsNullOrEmpty())
                 {
-                    FileManageSet fileInfo = GetSetByPicture(picFileName, srcFileSets);
+                    FileManageModel fileInfo = GetSetByPicture(picFileName, srcFileSets);
                     updateFileSets.Add(fileInfo);
-                    picFileName = fileInfo.FileManage.InternalId;
+                    picFileName = fileInfo.InternalId;
                 }
                 int.TryParse(dRow["FontColor"].ToString(), out int fontcolor);
                 BannerDetail detail = new()
                 {
-                    BannerId = set.Banner.BannerId,
+                    BannerId = set.BannerId,
                     RowId = rowId,
                     PicSrcId = picFileName,
                     Validate_Start = Convert.ToDateTime(dRow["StartDate"]),
@@ -117,7 +116,7 @@ public class BannerBiz(BizDeps bizDeps) : BizService<BannerSet>(bizDeps), IBizSe
                     FontColor = fontcolor.ToString(),
                     Sort = Convert.ToUInt16(dRow["Sort"]),
                 };
-                set.BannerDetail.Add(detail);
+                set._BannerDetail.Add(detail);
                 int subRowId = 1;
                 foreach (var detailLangRow in ds.Tables["AdBanner_Lang"].AsEnumerable().Where(langRow => langRow["Sn"].ToString() == dRow["Sn"].ToString()).ToList())
                 {
@@ -126,7 +125,7 @@ public class BannerBiz(BizDeps bizDeps) : BizService<BannerSet>(bizDeps), IBizSe
                         LangCodeExt.TryParse(detailLangRow["Lang"].ToString(), out LangCode lang);
                         BannerDetailInfo detailInfo = new()
                         {
-                            BannerId = set.Banner.BannerId,
+                            BannerId = set.BannerId,
                             ParentRowId = rowId,
                             RowId = subRowId,
                             Lang = lang,
@@ -135,7 +134,7 @@ public class BannerBiz(BizDeps bizDeps) : BizService<BannerSet>(bizDeps), IBizSe
                             URL = detailLangRow["Url"].ToString(),
                             URL_Open = (WindowTarget)Convert.ToByte(detailLangRow["URL_Open"]),
                         };
-                        set.BannerDetailInfo.Add(detailInfo);
+                        detail._BannerDetailInfo.Add(detailInfo);
                         subRowId++;
                     }
                 }
@@ -144,13 +143,13 @@ public class BannerBiz(BizDeps bizDeps) : BizService<BannerSet>(bizDeps), IBizSe
         }
         foreach (var set in updateFileSets)
         {
-            set.FileManage.ProgId = ProgId;
+            set.ProgId = ProgId;
         }
         return [.. result];
     }
-    private static FileManageSet GetSetByPicture(string srcPic, IList<FileManageSet> fileSets)
+    private static FileManageModel GetSetByPicture(string srcPic, IList<FileManageModel> fileSets)
     {
-        return fileSets.Where(x => x.FileManage_SyncInfo.Any(y => y.SrcFullPath.ToLowerInvariant().Equals($@"File/Banner/{srcPic}".ToLowerInvariant()))).FirstOrDefault();
+        return fileSets.Where(x => x._FileManage_SyncInfo.Any(y => y.SrcFullPath.ToLowerInvariant().Equals($@"File/Banner/{srcPic}".ToLowerInvariant()))).FirstOrDefault();
     }
     #endregion
 }

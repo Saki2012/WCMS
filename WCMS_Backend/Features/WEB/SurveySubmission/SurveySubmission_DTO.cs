@@ -5,6 +5,7 @@ using WCMS.SysCore.Enum;
 using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library.LibAttribute;
+using SurveyFormModel = WCMS.Features.WEB.Survey.Survey;
 namespace WCMS.Features.WEB.SurveySubmission;
 
 
@@ -55,7 +56,7 @@ public class SurveySubmissionRequest_DTO
 internal sealed class SurveySubmitContext
 {
     public SurveySubmissions Submit { get; set; } = new();
-    public Survey.Survey Survey { get; set; } = new();
+    public SurveyFormModel Survey { get; set; } = new();
     public string RawFormDataJson { get; set; } = "{}";
     public Dictionary<string, JsonElement> FormData { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 }
@@ -68,7 +69,7 @@ internal sealed class SurveyFieldSnapshot
     public string FieldName { get; set; } = string.Empty;
     public string InputType { get; set; } = string.Empty;
     public bool IsRequired { get; set; }
-    public string Options { get; set; }
+    public string? Options { get; set; }
     public List<SurveyFieldLangSnapshot> Langs { get; set; } = [];
 }
 /// <summary>

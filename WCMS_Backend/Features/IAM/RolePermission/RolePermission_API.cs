@@ -11,7 +11,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.Features.IAM.RolePermission
 {
     [LibApiController(ProgKeys.IAM.Code, ProgKeys.IAM.RolePermission, FuncAction.MasterData)]
-    public class RolePermissionController : ApiDataController<RolePermissionSet, RolePermissionSet_DTO>
+    public class RolePermissionController : ApiDataController<RoleDataModel>
     {
         #region Public
         public override Task<IActionResult> QueryList([FromBody] QueryListParam? queryCondition, CancellationToken ct)

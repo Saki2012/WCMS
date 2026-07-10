@@ -4,6 +4,7 @@ using System.Data;
 using System.Text.RegularExpressions;
 using WCMS.Features._Resx;
 using WCMS.Features.WEB.PageManagement;
+using PageManagementModel = WCMS.Features.WEB.PageManagement.PageManagement;
 using WCMS.SysCore.FeatureDriver.Biz;
 using WCMS.SysCore.FeatureDriver.Model;
 using WCMS.SysCore.I18n;
@@ -15,18 +16,18 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.Features.WEB.SiteMenuSetting
 {
     [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.SiteMenu)]
-    public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenuSet>(bizDeps), IBizService<SiteMenuSet>
+    public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizDeps), IBizService<SiteMenu_IndexModel>
     {
         #region Migration Old Data
         [HttpPost(nameof(Migrate)), LocalhostOnly]
         public async Task Migrate(PageManagementBiz pageManagementService)
         {
-            SiteMenuSet set = await ConvertToApiModel(pageManagementService);
-            await BizInitCreateSetsAsync([set]);
+            SiteMenu_IndexModel set = await ConvertToApiModel(pageManagementService);
+            await BizInitCreateDatasAsync([set]);
         }
-        private async Task<SiteMenuSet> ConvertToApiModel(PageManagementBiz pageManagementService)
+        private async Task<SiteMenu_IndexModel> ConvertToApiModel(PageManagementBiz pageManagementService)
         {
-            SiteMenuSet set = new();
+            SiteMenu_IndexModel set = new();
             Dictionary<string, string> sqls = new()
             {
                 { "SiteInfo", "Select * From SiteInfo" },
@@ -37,145 +38,181 @@ namespace WCMS.Features.WEB.SiteMenuSetting
             DataSet ds = MigrateOldData.GetOldData(sqls);
             SetSiteIndex(set, ds.Tables["SiteInfo"], ds.Tables["SiteInfo_Lang"]);
             await SetSideMenu(set, ds.Tables["Menu"], ds.Tables["Menu_Lang"], pageManagementService);
-            SetParentId(set.SiteMenu_Item, ds.Tables["Menu"]);
-            SetFullUrl(set.SiteMenu_Item);
+            SetParentId(set._SiteMenu_Item, ds.Tables["Menu"]);
+            SetFullUrl(set._SiteMenu_Item);
             return set;
         }
-        private void SetSiteIndex(SiteMenuSet set, DataTable dsInfo, DataTable dsInfoLang)
+        /// <summary>
+        /// 轉換舊站站台基本資訊。
+        /// </summary>
+        private void SetSiteIndex(SiteMenu_IndexModel data, DataTable siteInfo, DataTable siteInfoLang)
         {
-            set.SiteMenu_Index = new SiteMenu_IndexModel();
-            DataRow siteinfoRow = dsInfo.Select().FirstOrDefault();
-
-            set.SiteMenu_Index.SiteIndex = siteinfoRow["SiteID"].ToString();
-
-            set.SiteMenu_Index.GoogleAnalytics = siteinfoRow["GoogleAnalysis"].ToString();
-            foreach (DataRow r in dsInfoLang.Rows)
-            {
-                LangCodeExt.TryParse(r["Lang"].ToString(), out LangCode lang);
-                var siteInfo = set.SiteMenu_IndexInfo.FirstOrDefault(p => p.Lang == lang);
-                if (siteInfo == null)
-                {
-                    siteInfo = new SiteMenu_IndexInfoModel() { Lang = lang };
-                    set.SiteMenu_IndexInfo.Add(siteInfo);
-                }
-                siteInfo.SiteIndex = set.SiteMenu_Index.SiteIndex;
-                siteInfo.Title = r["SiteTitle"].ToString();
-                siteInfo.SiteHeader = r["SiteHeader"].ToString();
-                siteInfo.SiteFooter = r["SiteFooter"].ToString();
-                siteInfo.Description = siteinfoRow["SiteDescription"].ToString();
-                siteInfo.Keyword = siteinfoRow["SiteKeyword"].ToString();
-            }
+            DataRow? row = siteInfo.Select().FirstOrDefault();
+            if (row == null) return;
+            data.SiteIndex = row["SiteID"].ToString() ?? string.Empty;
+            data.GoogleAnalytics = row["GoogleAnalysis"].ToString() ?? string.Empty;
+            int rowId = 1;
+            foreach (DataRow langRow in siteInfoLang.Rows)
+                data._SiteMenu_IndexInfo.Add(BuildSiteIndexInfo(data.SiteIndex, rowId++, row, langRow));
         }
-        private async Task SetSideMenu(SiteMenuSet set, DataTable menu, DataTable menuLang, PageManagementBiz pageManagementService)
+        /// <summary>
+        /// 建立舊站站台多語資料。
+        /// </summary>
+        private static SiteMenu_IndexInfoModel BuildSiteIndexInfo(string siteIndex, int rowId, DataRow siteInfo, DataRow langRow)
+        {
+            LangCodeExt.TryParse(langRow["Lang"].ToString(), out LangCode lang);
+            return new SiteMenu_IndexInfoModel
+            {
+                SiteIndex = siteIndex,
+                RowId = rowId,
+                Lang = lang,
+                Title = langRow["SiteTitle"].ToString() ?? string.Empty,
+                SiteHeader = langRow["SiteHeader"].ToString() ?? string.Empty,
+                SiteFooter = langRow["SiteFooter"].ToString() ?? string.Empty,
+                Description = siteInfo["SiteDescription"].ToString() ?? string.Empty,
+                Keyword = siteInfo["SiteKeyword"].ToString() ?? string.Empty,
+            };
+        }
+        /// <summary>
+        /// 轉換舊站選單資料。
+        /// </summary>
+        private async Task SetSideMenu(SiteMenu_IndexModel data, DataTable menu, DataTable menuLang, PageManagementBiz pageManagementService)
         {
             int rowId = 1;
-            foreach (DataRow r in menu.Select().Skip(1))
+            foreach (DataRow row in menu.Select().Skip(1))
             {
-                string sn = r["Sn"].ToString();
-                if (r["Type"].ToString().In("url", "module"))
-                {
-                    var item = new SiteMenu_Item();
-                    set.SiteMenu_Item.Add(item);
-                    item.SiteIndex = set.SiteMenu_Index.SiteIndex;
-                    item.RowId = rowId++;
-                    item.ItemSiteUrl = r["Menu_ID"].ToString();
-
-                    //item.ParentRowId=""☆重點處理完，Menu資料問題就解決了
-
-                    string menuLv = r["MenuLevel"].ToString();
-                    item.Level = menuLv.Split(',').Length.ToByte();
-                    item.DisplayOrder = menuLv.Split(',').LastOrDefault().ToByte();
-
-                    int titleRowId = 1;
-                    foreach (DataRow rl in menuLang.Select($"Sn={sn}"))
-                    {
-                        item.WindowTarget = rl["URL_Open"].ToByte() == 1 ? WindowTarget.Self : WindowTarget.Blank;
-                        LangCodeExt.TryParse(rl["Lang"].ToString(), out LangCode lang);
-                        set.SiteMenu_Item_Title.Add(new SiteMenu_Item_Title()
-                        {
-                            SiteIndex = set.SiteMenu_Index.SiteIndex,
-                            ItemRowId = item.RowId,
-                            RowId = titleRowId++,
-                            Lang = lang,
-                            Title = rl["Title"].ToString(),
-                            IsShowOnMenu = Convert.ToBoolean(rl["MenuDisplay"]),
-                        });
-                    }
-
-                    switch (r["Type"].ToString())
-                    {
-                        case "url":
-                            {
-                                item.ItemType = MenuUrlType.Url;
-                                var item_url = new SiteMenu_Item_Url()
-                                {
-                                    SiteIndex = set.SiteMenu_Index.SiteIndex,
-                                    ItemRowId = item.RowId,
-                                };
-                                set.SiteMenu_Item_Url.Add(item_url);
-                                foreach (DataRow rl in menuLang.Select($"Sn={sn}"))
-                                {
-                                    string url = rl["Url"].ToString();
-
-                                    if (url.StartsWith("/Front"))
-                                    {
-                                        item_url.RedirectType = MenuUrlType.Module;
-                                        var noFront = Regex.Replace(url, @"^/Front(?=/)", string.Empty, RegexOptions.IgnoreCase);
-                                        item_url.RedirectUrl = Regex.Replace(noFront, @"/[^/]*\.(?:aspx|html)(?:\?.*)?$", string.Empty, RegexOptions.IgnoreCase).TrimEnd('/');
-                                    }
-                                    else
-                                    {
-                                        item_url.RedirectType = MenuUrlType.Url;
-                                        item_url.RedirectUrl = url;
-                                    }
-                                }
-                                break;
-                            }
-                        case "module":
-                            {
-                                item.ItemType = MenuUrlType.Module;
-                                set.SiteMenu_Item_Module.Add(new SiteMenu_Item_Module()
-                                {
-                                    SiteIndex = set.SiteMenu_Index.SiteIndex,
-                                    ItemRowId = item.RowId,
-                                    BannerId = r["Banner"].ToString(),
-                                    ModuleProgId = SetProgId(r["ContentA_Module"].ToString()),
-                                    ModuleOptions = await SetModuleOptions(r["ContentA_Module"].ToString(), r, pageManagementService)
-                                });
-                                break;
-                            }
-                    }
-                }
+                string type = row["Type"].ToString() ?? string.Empty;
+                if (!type.In("url", "module")) continue;
+                SiteMenu_Item item = BuildMigrationMenuItem(data.SiteIndex, rowId++, row);
+                AddMigrationTitles(item, menuLang.Select($"Sn={row["Sn"]}"));
+                await SetMigrationMenuTargetAsync(item, type, row, menuLang, pageManagementService);
+                data._SiteMenu_Item.Add(item);
             }
         }
-        private void SetParentId(List<SiteMenu_Item> srcItems, DataTable menu)
+        /// <summary>
+        /// 建立舊站選單項目。
+        /// </summary>
+        private static SiteMenu_Item BuildMigrationMenuItem(string siteIndex, int rowId, DataRow row)
         {
-            Dictionary<string, string> dic = [];
-            foreach (DataRow r in menu.Rows) dic.Add(r["Menu_ID"].ToString(), r["MenuLevel"].ToString());
-
-            foreach (var item in srcItems)
+            string menuLevel = row["MenuLevel"].ToString() ?? string.Empty;
+            string[] levels = menuLevel.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            return new SiteMenu_Item
             {
-                string parent = null;
-                var parts = dic[item.ItemSiteUrl].Split(',');
-                if (parts.Length > 1) parent = string.Join(",", parts.Take(parts.Length - 1));
-                if (parent.IsNullOrEmpty()) continue;
-                item.ParentRowId = srcItems.Find(p => p.ItemSiteUrl == dic.FirstOrDefault(p => p.Value == parent).Key).RowId;
-            }
-
+                SiteIndex = siteIndex,
+                RowId = rowId,
+                ItemSiteUrl = row["Menu_ID"].ToString() ?? string.Empty,
+                Level = levels.Length.ToByte(),
+                DisplayOrder = levels.LastOrDefault().ToByte(),
+            };
         }
-        private void SetFullUrl(List<SiteMenu_Item> srcItems)
+        /// <summary>
+        /// 加入舊站選單多語標題。
+        /// </summary>
+        private static void AddMigrationTitles(SiteMenu_Item item, DataRow[] rows)
         {
-            var items = srcItems.OrderBy(p => p.Level).ThenBy(p => p.DisplayOrder);
-            foreach (var item in items)
+            int rowId = 1;
+            foreach (DataRow row in rows)
             {
-                if (item.ParentRowId == null)
-                    item.FullUrl = "/" + LibData.Merge("/", false, item.SiteIndex, item.ItemSiteUrl);
-                else
+                item.WindowTarget = row["URL_Open"].ToByte() == 1 ? WindowTarget.Self : WindowTarget.Blank;
+                LangCodeExt.TryParse(row["Lang"].ToString(), out LangCode lang);
+                item._SiteMenu_Item_Title.Add(new SiteMenu_Item_Title
                 {
-                    string pFullUrl = items.FirstOrDefault(p => p.SiteIndex == item.SiteIndex && p.RowId == item.ParentRowId).FullUrl;
-                    if (!pFullUrl.StartsWith('/')) pFullUrl = "/" + pFullUrl;
-                    item.FullUrl = LibData.Merge("/", false, pFullUrl, item.ItemSiteUrl);
-                }
+                    SiteIndex = item.SiteIndex,
+                    ItemRowId = item.RowId,
+                    RowId = rowId++,
+                    Lang = lang,
+                    Title = row["Title"].ToString() ?? string.Empty,
+                    IsShowOnMenu = Convert.ToBoolean(row["MenuDisplay"]),
+                });
+            }
+        }
+        /// <summary>
+        /// 建立舊站網址或模組設定。
+        /// </summary>
+        private async Task SetMigrationMenuTargetAsync(SiteMenu_Item item, string type, DataRow row, DataTable menuLang, PageManagementBiz pageManagementService)
+        {
+            if (type == "url")
+            {
+                item.ItemType = MenuUrlType.Url;
+                item._SiteMenu_Item_Url = BuildMigrationMenuUrl(item, menuLang.Select($"Sn={row["Sn"]}"));
+                return;
+            }
+            item.ItemType = MenuUrlType.Module;
+            item._SiteMenu_Item_Module = await BuildMigrationMenuModuleAsync(item, row, pageManagementService);
+        }
+        /// <summary>
+        /// 建立舊站網址設定。
+        /// </summary>
+        private static SiteMenu_Item_Url BuildMigrationMenuUrl(SiteMenu_Item item, DataRow[] rows)
+        {
+            var result = new SiteMenu_Item_Url { SiteIndex = item.SiteIndex, ItemRowId = item.RowId };
+            foreach (DataRow row in rows) ApplyMigrationUrl(result, row["Url"].ToString() ?? string.Empty);
+            return result;
+        }
+        /// <summary>
+        /// 套用舊站網址資料。
+        /// </summary>
+        private static void ApplyMigrationUrl(SiteMenu_Item_Url target, string url)
+        {
+            if (!url.StartsWith("/Front", StringComparison.OrdinalIgnoreCase))
+            {
+                target.RedirectType = MenuUrlType.Url;
+                target.RedirectUrl = url;
+                return;
+            }
+            target.RedirectType = MenuUrlType.Module;
+            string noFront = Regex.Replace(url, @"^/Front(?=/)", string.Empty, RegexOptions.IgnoreCase);
+            target.RedirectUrl = Regex.Replace(noFront, @"/[^/]*\.(?:aspx|html)(?:\?.*)?$", string.Empty, RegexOptions.IgnoreCase).TrimEnd('/');
+        }
+        /// <summary>
+        /// 建立舊站模組設定。
+        /// </summary>
+        private async Task<SiteMenu_Item_Module> BuildMigrationMenuModuleAsync(SiteMenu_Item item, DataRow row, PageManagementBiz pageManagementService)
+        {
+            string module = row["ContentA_Module"].ToString() ?? string.Empty;
+            return new SiteMenu_Item_Module
+            {
+                SiteIndex = item.SiteIndex,
+                ItemRowId = item.RowId,
+                BannerId = row["Banner"].ToString(),
+                ModuleProgId = SetProgId(module),
+                ModuleOptions = await SetModuleOptions(module, row, pageManagementService),
+            };
+        }
+        /// <summary>
+        /// 依舊站層級資料設定父選單 RowId。
+        /// </summary>
+        private static void SetParentId(List<SiteMenu_Item> items, DataTable menu)
+        {
+            Dictionary<string, string> levels = [];
+            foreach (DataRow row in menu.Rows)
+                levels[row["Menu_ID"].ToString() ?? string.Empty] = row["MenuLevel"].ToString() ?? string.Empty;
+            foreach (SiteMenu_Item item in items) SetParentId(item, items, levels);
+        }
+        /// <summary>
+        /// 設定單筆選單的父選單 RowId。
+        /// </summary>
+        private static void SetParentId(SiteMenu_Item item, List<SiteMenu_Item> items, IReadOnlyDictionary<string, string> levels)
+        {
+            if (!levels.TryGetValue(item.ItemSiteUrl, out string? level)) return;
+            string[] parts = level.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length <= 1) return;
+            string parentLevel = string.Join(",", parts.Take(parts.Length - 1));
+            string? parentUrl = levels.FirstOrDefault(x => x.Value == parentLevel).Key;
+            SiteMenu_Item? parent = items.FirstOrDefault(x => x.ItemSiteUrl == parentUrl);
+            if (parent != null) item.ParentRowId = parent.RowId;
+        }
+        /// <summary>
+        /// 依層級重算舊站選單完整網址。
+        /// </summary>
+        private static void SetFullUrl(List<SiteMenu_Item> source)
+        {
+            List<SiteMenu_Item> items = source.OrderBy(x => x.Level).ThenBy(x => x.DisplayOrder).ToList();
+            foreach (SiteMenu_Item item in items)
+            {
+                SiteMenu_Item? parent = items.FirstOrDefault(x => x.SiteIndex == item.SiteIndex && x.RowId == item.ParentRowId);
+                string parentUrl = parent?.FullUrl ?? string.Empty;
+                item.FullUrl = "/" + LibData.Merge("/", false, parentUrl.Trim('/'), item.ItemSiteUrl.Trim('/'));
             }
         }
         private static string SetProgId(string srcModule)
@@ -199,10 +236,10 @@ namespace WCMS.Features.WEB.SiteMenuSetting
                 case "page":
                     {
                         string pageId = r["ContentA_Page"].ToString();
-                        var data = await pageManagementService.BizQueryListAsync([nameof(PageManagement.PageManagement.InternalId)], $"{nameof(PageManagement.PageManagement.PageId)} = {pageId}", default, default,0, 0);
+                        var data = await pageManagementService.BizQueryListAsync([nameof(PageManagementModel.InternalId)], $"{nameof(PageManagementModel.PageId)} = '{SqlValue(pageId)}'", default, default,0, 0);
                         var option = new ModuleOptions.PageManagement()
                         {
-                            PageId = data.FirstOrDefault().PageManagement.InternalId
+                            PageId = data.FirstOrDefault()?.InternalId ?? string.Empty
                         };
                         return JsonConvert.SerializeObject(option, Formatting.None);
                     }
@@ -343,7 +380,7 @@ namespace WCMS.Features.WEB.SiteMenuSetting
                     CheckMenuStructure(newItems);
                     if (Message.HasError) return null;
 
-                    ApplyUpdateRules(BuildMenuCheckSet(newItems, newTitles));
+                    ApplyUpdateRules(BuildMenuCheckData(newItems, newTitles));
                     if (Message.HasError) return null;
 
                     await UpdateChangedMenuItemsAsync(oldItems, newItems, ct);
@@ -394,7 +431,7 @@ namespace WCMS.Features.WEB.SiteMenuSetting
         #endregion
 
         #region Protected Virtual
-        protected override async Task BeforeUpdate(SiteMenuSet set, FuncAction act, CancellationToken ct = default)
+        protected override async Task BeforeUpdate(SiteMenu_IndexModel set, FuncAction act, CancellationToken ct = default)
         {
             await base.BeforeUpdate(set, act, ct);
 
@@ -412,7 +449,7 @@ namespace WCMS.Features.WEB.SiteMenuSetting
         /// <summary>
         /// 套用完整更新與個別更新共用的檢查與賦值規則
         /// </summary>
-        protected void ApplyUpdateRules(SiteMenuSet set)
+        protected void ApplyUpdateRules(SiteMenu_IndexModel set)
         {
             CheckBasicRules(set);
             if (Message.HasError) return;
@@ -426,7 +463,7 @@ namespace WCMS.Features.WEB.SiteMenuSetting
         /// <summary>
         /// 設定選單衍生資料
         /// </summary>
-        protected void SetData(SiteMenuSet set)
+        protected void SetData(SiteMenu_IndexModel set)
         {
             SetItemFullUrl(set);
         }
@@ -521,7 +558,7 @@ namespace WCMS.Features.WEB.SiteMenuSetting
             CheckMenuStructure(newItems);
             if (Message.HasError) return new SaveMenuItemResult_DTO();
             NormalizeNewMenuItemOrder(newItems, savedRowId);
-            ApplyUpdateRules(BuildMenuCheckSet(newItems, newTitles));
+            ApplyUpdateRules(BuildMenuCheckData(newItems, newTitles));
             if (Message.HasError) return new SaveMenuItemResult_DTO();
 
             var finalItem = newItems.First(x => x.RowId == savedRowId);
@@ -587,7 +624,7 @@ namespace WCMS.Features.WEB.SiteMenuSetting
             var newTitles = oldTitles.Where(x => x.ItemRowId != oldItem.RowId).Select(x => x.Snapshot()).ToList();
             newTitles.AddRange(BuildMenuItemTitles(oldIndex.SiteIndex, oldItem.RowId, request));
 
-            ApplyUpdateRules(BuildMenuCheckSet(newItems, newTitles));
+            ApplyUpdateRules(BuildMenuCheckData(newItems, newTitles));
             if (Message.HasError) return new SaveMenuItemResult_DTO();
 
             await UpdateChangedMenuItemsAsync(oldItems, newItems, ct);
@@ -654,7 +691,7 @@ namespace WCMS.Features.WEB.SiteMenuSetting
         /// </summary>
         private int ResolveNextIndexInfoRowId(List<SiteMenu_IndexInfoModel> oldInfos)
         {
-            return oldInfos.Count == 0 ? 1 : oldInfos.Max(x => x.RowId ?? 0) + 1;
+            return oldInfos.Count == 0 ? 1 : oldInfos.Max(x => x.RowId) + 1;
         }
 
         /// <summary>
@@ -671,11 +708,13 @@ namespace WCMS.Features.WEB.SiteMenuSetting
         }
 
         /// <summary>
-        /// 建立選單檢查用 Set
+        /// 建立選單檢查用表單資料
         /// </summary>
-        private SiteMenuSet BuildMenuCheckSet(List<SiteMenu_Item> items, List<SiteMenu_Item_Title> titles)
+        private SiteMenu_IndexModel BuildMenuCheckData(List<SiteMenu_Item> items, List<SiteMenu_Item_Title> titles)
         {
-            return new SiteMenuSet() { SiteMenu_Item = items, SiteMenu_Item_Title = titles };
+            foreach (SiteMenu_Item item in items)
+                item._SiteMenu_Item_Title = titles.Where(x => x.ItemRowId == item.RowId).ToList();
+            return new SiteMenu_IndexModel { _SiteMenu_Item = items };
         }
 
         /// <summary>
@@ -802,12 +841,20 @@ namespace WCMS.Features.WEB.SiteMenuSetting
         }
 
         /// <summary>
+        /// 取得表單 Graph 內所有選單標題。
+        /// </summary>
+        private static List<SiteMenu_Item_Title> GetMenuTitles(SiteMenu_IndexModel data)
+        {
+            return data._SiteMenu_Item.SelectMany(x => x._SiteMenu_Item_Title).ToList();
+        }
+
+        /// <summary>
         /// 檢查基本欄位
         /// </summary>
-        private void CheckBasicRules(SiteMenuSet set)
+        private void CheckBasicRules(SiteMenu_IndexModel set)
         {
-            foreach (var item in set.SiteMenu_Item) CheckMenuItemBasicRules(item);
-            foreach (var title in set.SiteMenu_Item_Title) CheckMenuTitleRules(title);
+            foreach (var item in set._SiteMenu_Item) CheckMenuItemBasicRules(item);
+            foreach (var title in GetMenuTitles(set)) CheckMenuTitleRules(title);
         }
 
         /// <summary>
@@ -825,10 +872,10 @@ namespace WCMS.Features.WEB.SiteMenuSetting
         private void CheckMenuItemBasicRules(SiteMenu_Item item)
         {
             Regex menuIdRegex = new Regex(@"^[A-Za-z0-9_-]+$", RegexOptions.Compiled);
-            item.ItemSiteUrl = item.ItemSiteUrl?.Trim();
+            item.ItemSiteUrl = item.ItemSiteUrl.Trim();
 
-            if (item.ItemSiteUrl.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SiteMenu_Item_DTO>(x => x.ItemSiteUrl));
-            else if (!menuIdRegex.IsMatch(item.ItemSiteUrl)) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00016, $"{I18nCache.GetLabel<SiteMenu_Item_DTO>(x => x.ItemSiteUrl)}:{item.ItemSiteUrl}");
+            if (item.ItemSiteUrl.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SiteMenu_Item>(x => x.ItemSiteUrl));
+            else if (!menuIdRegex.IsMatch(item.ItemSiteUrl)) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00016, $"{I18nCache.GetLabel<SiteMenu_Item>(x => x.ItemSiteUrl)}:{item.ItemSiteUrl}");
         }
 
         /// <summary>
@@ -837,13 +884,13 @@ namespace WCMS.Features.WEB.SiteMenuSetting
         private void CheckMenuTitleRules(SiteMenu_Item_Title title)
         {
             if (title.IsShowOnMenu && title.Title.IsNullOrEmpty())
-                Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, title.Lang.ToLabel(), I18nCache.GetLabel<SiteMenu_Item_Title_DTO>(x => x.Title));
+                Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, title.Lang.ToLabel(), I18nCache.GetLabel<SiteMenu_Item_Title>(x => x.Title));
         }
 
         /// <summary>
         /// 檢查衍生欄位規則
         /// </summary>
-        private void CheckComputedRules(SiteMenuSet set)
+        private void CheckComputedRules(SiteMenu_IndexModel set)
         {
             CheckReservedFullUrl(set);
             CheckFullUrlDuplicate(set);
@@ -852,9 +899,9 @@ namespace WCMS.Features.WEB.SiteMenuSetting
         /// <summary>
         /// 檢查保留網址
         /// </summary>
-        private void CheckReservedFullUrl(SiteMenuSet set)
+        private void CheckReservedFullUrl(SiteMenu_IndexModel set)
         {
-            foreach (var item in set.SiteMenu_Item)
+            foreach (var item in set._SiteMenu_Item)
             {
                 var url = (item.FullUrl ?? string.Empty).Trim('/').ToLowerInvariant();
                 if (url == "service" || url.StartsWith("service/") || url == "server" || url.StartsWith("server/"))
@@ -865,12 +912,12 @@ namespace WCMS.Features.WEB.SiteMenuSetting
         /// <summary>
         /// 重算選單完整網址
         /// </summary>
-        private void SetItemFullUrl(SiteMenuSet set)
+        private void SetItemFullUrl(SiteMenu_IndexModel set)
         {
-            if (set?.SiteMenu_Item == null || set.SiteMenu_Item.Count == 0) return;
+            if (set._SiteMenu_Item.Count == 0) return;
 
-            ResetMenuLevel(set.SiteMenu_Item);
-            ResetMenuFullUrl(set.SiteMenu_Item);
+            ResetMenuLevel(set._SiteMenu_Item);
+            ResetMenuFullUrl(set._SiteMenu_Item);
         }
 
         /// <summary>
@@ -918,15 +965,15 @@ namespace WCMS.Features.WEB.SiteMenuSetting
         /// <summary>
         /// 檢查 FullUrl 是否重複
         /// </summary>
-        private void CheckFullUrlDuplicate(SiteMenuSet set)
+        private void CheckFullUrlDuplicate(SiteMenu_IndexModel set)
         {
             HashSet<string> fullUrls = new(StringComparer.OrdinalIgnoreCase);
 
-            foreach (var item in set.SiteMenu_Item.OrderBy(x => x.Level).ThenBy(x => x.DisplayOrder))
+            foreach (var item in set._SiteMenu_Item.OrderBy(x => x.Level).ThenBy(x => x.DisplayOrder))
             {
                 if (fullUrls.Add(item.FullUrl)) continue;
 
-                var title = set.SiteMenu_Item_Title.FirstOrDefault(x => x.Lang == EffectiveLang && x.ItemRowId == item.RowId)?.Title ?? item.ItemSiteUrl;
+                var title = GetMenuTitles(set).FirstOrDefault(x => x.Lang == EffectiveLang && x.ItemRowId == item.RowId)?.Title ?? item.ItemSiteUrl;
                 Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00026, title, item.ItemSiteUrl);
             }
         }
@@ -1068,13 +1115,13 @@ namespace WCMS.Features.WEB.SiteMenuSetting
         /// <summary>
         /// 依 ItemRowId 批次查詢
         /// </summary>
-        private async Task<List<TModel>> QueryRowsByItemRowIdsAsync<TModel>(string siteIndex, string rowIdName, HashSet<int> rowIds, CancellationToken ct = default)
+        private async Task<List<TDbModel>> QueryRowsByItemRowIdsAsync<TDbModel>(string siteIndex, string rowIdName, HashSet<int> rowIds, CancellationToken ct = default) where TDbModel : DbModel
         {
             if (rowIds.Count == 0) return [];
 
             var ids = string.Join(",", rowIds.Where(x => x > 0).Distinct());
-            var data = await DoQueryListAsync<TModel>([], $"{nameof(SiteMenu_Item.SiteIndex)} = '{SqlValue(siteIndex)}' AND {rowIdName} IN ({ids})", default, 0, 0);
-            return data.Cast<TModel>().ToList();
+            var data = await DoQueryListAsync<TDbModel>([], $"{nameof(SiteMenu_Item.SiteIndex)} = '{SqlValue(siteIndex)}' AND {rowIdName} IN ({ids})", default, 0, 0);
+            return data.Cast<TDbModel>().ToList();
         }
 
         /// <summary>
@@ -1115,7 +1162,7 @@ namespace WCMS.Features.WEB.SiteMenuSetting
                     ItemRowId = itemRowId,
                     RowId = rowId,
                     Lang = source.Lang ?? EffectiveLang,
-                    Title = source.Title,
+                    Title = source.Title ?? string.Empty,
                     IsShowOnMenu = source.IsShowOnMenu,
                 });
             }
@@ -1135,7 +1182,7 @@ namespace WCMS.Features.WEB.SiteMenuSetting
                 SiteIndex = siteIndex,
                 ItemRowId = itemRowId,
                 RedirectType = source.RedirectType,
-                RedirectUrl = source.RedirectUrl,
+                RedirectUrl = source.RedirectUrl ?? string.Empty,
             };
         }
 
@@ -1152,36 +1199,36 @@ namespace WCMS.Features.WEB.SiteMenuSetting
                 ItemRowId = itemRowId,
                 BannerId = source.BannerId,
                 PageType = source.PageType,
-                ModuleProgId = source.ModuleProgId,
-                ModuleOptions = source.ModuleOptions,
+                ModuleProgId = source.ModuleProgId ?? string.Empty,
+                ModuleOptions = source.ModuleOptions ?? string.Empty,
             };
         }
 
         /// <summary>
         /// 新增資料
         /// </summary>
-        private async Task CreateModelAsync<TModel>(TModel model, CancellationToken ct = default)
+        private async Task CreateModelAsync<TDbModel>(TDbModel model, CancellationToken ct = default) where TDbModel : DbModel
         {
-            var repo = (dynamic)RepoDict[typeof(TModel).Name];
-            await repo.CreateAsync((dynamic)model);
+            ct.ThrowIfCancellationRequested();
+            await GraphRepo.GetRepo<TDbModel>().CreateAsync(model);
         }
 
         /// <summary>
         /// 更新資料
         /// </summary>
-        private async Task UpdateModelAsync<TModel>(TModel oldModel, TModel newModel, CancellationToken ct = default)
+        private async Task UpdateModelAsync<TDbModel>(TDbModel oldModel, TDbModel newModel, CancellationToken ct = default) where TDbModel : DbModel
         {
-            var repo = (dynamic)RepoDict[typeof(TModel).Name];
-            await repo.UpdateAsync((dynamic)oldModel, (dynamic)newModel);
+            ct.ThrowIfCancellationRequested();
+            await GraphRepo.GetRepo<TDbModel>().UpdateAsync(oldModel, newModel);
         }
 
         /// <summary>
         /// 刪除資料
         /// </summary>
-        private async Task DeleteModelAsync<TModel>(TModel model, CancellationToken ct = default)
+        private async Task DeleteModelAsync<TDbModel>(TDbModel model, CancellationToken ct = default) where TDbModel : DbModel
         {
-            var repo = (dynamic)RepoDict[typeof(TModel).Name];
-            await repo.DeleteAsync((dynamic)model);
+            ct.ThrowIfCancellationRequested();
+            await GraphRepo.GetRepo<TDbModel>().DeleteAsync(model);
         }
 
         /// <summary>

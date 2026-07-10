@@ -6,7 +6,7 @@ using WCMS.SysCore.Library.LibAttribute;
 namespace WCMS.Features.MAT.Material;
 
 [LibApiController(ProgKeys.MAT.Code, ProgKeys.MAT.Material, SysEnum.FuncAction.BillData)]
-public class MaterialController : ApiDataController<MaterialSet,MaterialSet_DTO>
+public class MaterialController : ApiDataController<Material>
 {
   
 }

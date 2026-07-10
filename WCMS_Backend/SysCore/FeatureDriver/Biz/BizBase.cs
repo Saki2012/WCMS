@@ -10,9 +10,14 @@ public abstract class BizBase(BizDeps bizDeps)
 {
     #region Property
     /// <summary>
-    /// Repository 對映提供者。
+    /// 全 DB Model Repository 提供者。
     /// </summary>
-    protected IRepositoryMapProvider RepoMapProvider { get; } = bizDeps.repoMapProvider;
+    protected IDbRepositoryProvider DbRepositoryProvider { get; } = bizDeps.dbRepositoryProvider;
+
+    /// <summary>
+    /// 表單 Graph Repository Scope 提供者。
+    /// </summary>
+    protected IFormGraphRepoProvider FormGraphRepoProvider { get; } = bizDeps.formGraphRepoProvider;
 
     /// <summary>
     /// 系統訊息容器。

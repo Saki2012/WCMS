@@ -6,7 +6,7 @@ using WCMS.SysCore.Library.LibAttribute;
 
 namespace WCMS.Features.IAM.RolePermission
 {
-    public class RolePermissionBiz(BizDeps bizDeps, IActionDescriptorCollectionProvider adcp) : BizService<RolePermissionSet>(bizDeps), IBizService<RolePermissionSet>
+    public class RolePermissionBiz(BizDeps bizDeps, IActionDescriptorCollectionProvider adcp) : BizService<RoleDataModel>(bizDeps), IBizService<RoleDataModel>
     {
         #region Cache
         // Catalog 來源是 Attribute（很少變動），用 static cache 減少每次掃描成本

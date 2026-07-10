@@ -16,7 +16,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.SpecFeatures.Spec1819.WEB.SpecJournal;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.Spec.SpecJournal)]
-public class SpecJournal_Biz(BizDeps bizDeps, IHttpClientFactory HttpClientFactory, IMemoryCache Cache) : BizService<SpecJournalSet>(bizDeps), IBizService<SpecJournalSet>
+public class SpecJournal_Biz(BizDeps bizDeps, IHttpClientFactory HttpClientFactory, IMemoryCache Cache) : BizService<SpecJournalModel>(bizDeps), IBizService<SpecJournalModel>
 {
     #region Property
     private static readonly TimeSpan CacheTtl = TimeSpan.FromHours(24);
@@ -83,7 +83,7 @@ public class SpecJournal_Biz(BizDeps bizDeps, IHttpClientFactory HttpClientFacto
     #endregion
 
     #region Virtual Protected
-    protected override Task BeforeUpdate(SpecJournalSet set, FuncAction act, CancellationToken ct = default)
+    protected override Task BeforeUpdate(SpecJournalModel set, FuncAction act, CancellationToken ct = default)
     {
         var result = base.BeforeUpdate(set, act, ct);
         switch (act)
@@ -99,12 +99,12 @@ public class SpecJournal_Biz(BizDeps bizDeps, IHttpClientFactory HttpClientFacto
     #endregion
 
     #region Protected
-    protected void BeforeCheckData(SpecJournalSet set)
+    protected void BeforeCheckData(SpecJournalModel set)
     {
         CheckJouranlIndexIsEmpty(set.SpecJournal);
     }
 
-    protected void BeforeSetData(SpecJournalSet set)
+    protected void BeforeSetData(SpecJournalModel set)
     {
         SetFileNameEmpty(set);
     }
@@ -126,7 +126,7 @@ public class SpecJournal_Biz(BizDeps bizDeps, IHttpClientFactory HttpClientFacto
     /// 防呆:如果沒有上傳檔案(檔案來源為空)，顯示名稱就設為空白
     /// </summary>
     /// <param name="set"></param>
-    protected void SetFileNameEmpty(SpecJournalSet set)
+    protected void SetFileNameEmpty(SpecJournalModel set)
     {
         if (set.SpecJournal.InsightPointFileId == null) set.SpecJournal.InsightPointFileName = string.Empty;
         if (set.SpecJournal.JournalFileId == null) set.SpecJournal.JournalFileName = string.Empty;

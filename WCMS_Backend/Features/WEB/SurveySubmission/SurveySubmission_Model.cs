@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 using WCMS.SysCore.Enum;
@@ -6,6 +6,7 @@ using WCMS.SysCore.FeatureDriver.Model;
 using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library.LibAttribute;
+using SurveyFormModel = WCMS.Features.WEB.Survey.Survey;
 namespace WCMS.Features.WEB.SurveySubmission;
 
 /// <summary>
@@ -70,7 +71,7 @@ public byte[] FieldSnapshotZip { get; set; }= [];
     /// </summary>
 [ForeignKey(nameof(SurveyId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public Survey.Survey Survey { get; set; }
+public SurveyFormModel? Survey { get; set; }
 [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.ID, DisplayName.SurveyId)]
 public string? SurveyId { get; set; }
     /// <summary>

@@ -204,7 +204,7 @@ public static class I18nCache
         // 宣告變數
         Type? current = type;
 
-        // 執行：包含 DTOBasicDataModel / BasicDataModel 的繼承欄位
+        // 執行：包含 DTO 與 DbModel 基底類別的繼承欄位
         while (current != null)
         {
             var prop = current.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);

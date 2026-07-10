@@ -999,7 +999,7 @@
   <data name="MaterialPicture" xml:space="preserve">
     <value>物件照片</value>
   </data>
-  <data name="MatCategoryDataSet" xml:space="preserve">
+  <data name="MatCategoryFormModel" xml:space="preserve">
     <value>物件類別表單</value>
   </data>
   <data name="MatCategoryInfoField" xml:space="preserve">

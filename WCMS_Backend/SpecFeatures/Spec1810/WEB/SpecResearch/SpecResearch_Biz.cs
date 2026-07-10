@@ -10,18 +10,18 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.SpecFeatures.Spec1810.WEB.SpecResearch;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.Spec.SpecResearch)]
-public class SpecResearchBiz(BizDeps bizDeps) : BizService<SpecResearchSet>(bizDeps), IBizService<SpecResearchSet> {
+public class SpecResearchBiz(BizDeps bizDeps) : BizService<SpecResearchModel>(bizDeps), IBizService<SpecResearchModel> {
 
     #region Migration Old Data
     [HttpPost(nameof(Migrate)), LocalhostOnly]
     public async Task Migrate()
     {
-        SpecResearchSet[] datas = ConvertToApiModel();
-        await BizInitCreateSetsAsync(datas);
+        SpecResearchModel[] datas = ConvertToApiModel();
+        await BizInitCreateDatasAsync(datas);
     }
-    private static SpecResearchSet[] ConvertToApiModel()
+    private static SpecResearchModel[] ConvertToApiModel()
     {
-        List<SpecResearchSet> result = [];
+        List<SpecResearchModel> result = [];
         Dictionary<string, string> sqls = new()
         {
             { "ResearchProject", "SELECT * FROM ResearchProject" },
@@ -30,7 +30,7 @@ public class SpecResearchBiz(BizDeps bizDeps) : BizService<SpecResearchSet>(bizD
         DataSet ds = MigrateOldData.GetOldData(sqls);
         foreach (DataRow row in ds.Tables["ResearchProject"].Rows)
         {
-            SpecResearchSet set = new() { };
+            SpecResearchModel set = new() { };
             result.Add(set);
             set.SpecResearch.ResearchId = row["Sn"].ToString();
             set.SpecResearch.CategoryId = $"Res_{row["Category"]}";
@@ -107,7 +107,7 @@ public class SpecResearchBiz(BizDeps bizDeps) : BizService<SpecResearchSet>(bizD
     #endregion
 
     #region Protected
-    protected override async Task BeforeUpdate(SpecResearchSet set, FuncAction act, CancellationToken ct = default)
+    protected override async Task BeforeUpdate(SpecResearchModel set, FuncAction act, CancellationToken ct = default)
     {
         await base.BeforeUpdate(set, act, ct);
         switch (act)
@@ -122,17 +122,17 @@ public class SpecResearchBiz(BizDeps bizDeps) : BizService<SpecResearchSet>(bizD
     #endregion
 
     #region Private
-    private void CheckData(SpecResearchSet set)
+    private void CheckData(SpecResearchModel set)
     {
         CheckIsEmpty(set);
     }
-    private void SetData(SpecResearchSet set)
+    private void SetData(SpecResearchModel set)
     {
         DoRemergeData(set.SpecResearch);
     }
 
 
-    private void CheckIsEmpty(SpecResearchSet set)
+    private void CheckIsEmpty(SpecResearchModel set)
     {
         if(set.SpecResearch.CategoryId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SpecResearchModel>(x => x.CategoryId));
     }

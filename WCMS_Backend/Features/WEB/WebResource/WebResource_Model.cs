@@ -93,6 +93,11 @@ public string Content { get; set; } = string.Empty;
     /// </summary>
 [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Url, DisplayName.Common_Url)]
 public string ResUrl { get; set; } = string.Empty;
+    /// <summary>
+    /// 超連結開啟方式。
+    /// </summary>
+[LibField(ApiFieldMode.ReadWrite, DisplayName.Common_UrlOpen)]
+public WindowTarget Url_OpenType { get; set; }
 
     #region 主子表關聯
 [ForeignKey(nameof(WebResourceId))]

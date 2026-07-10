@@ -11,17 +11,17 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.SpecFeatures.Spec1810.WEB.SpecCategory;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.Spec.SpecCategory)]
-public class SpecCategoryBiz(BizDeps bizDeps) : BizService<SpecCategorySet>(bizDeps), IBizService<SpecCategorySet> 
+public class SpecCategoryBiz(BizDeps bizDeps) : BizService<SpecCategoryModel>(bizDeps), IBizService<SpecCategoryModel> 
 {
     #region Migration Old Data
     public async Task Migrate()
     {
-        List<SpecCategorySet> datas = [.. ConvertResCategoryModel(), .. ConvertUSRCategoryModel()];
-        await BizInitCreateSetsAsync([.. datas]);
+        List<SpecCategoryModel> datas = [.. ConvertResCategoryModel(), .. ConvertUSRCategoryModel()];
+        await BizInitCreateDatasAsync([.. datas]);
     }
-    private static SpecCategorySet[] ConvertResCategoryModel()
+    private static SpecCategoryModel[] ConvertResCategoryModel()
     {
-        List<SpecCategorySet> result = [];
+        List<SpecCategoryModel> result = [];
         Dictionary<string, string> sqls = new()
         {
             { "ResearchProjectCategory", "Select * From ResearchProjectCategory" },
@@ -31,7 +31,7 @@ public class SpecCategoryBiz(BizDeps bizDeps) : BizService<SpecCategorySet>(bizD
         DataSet ds = MigrateOldData.GetOldData(sqls);
         foreach (DataRow row in ds.Tables["ResearchProjectCategory"].Rows)
         {
-            SpecCategorySet set = new() { };
+            SpecCategoryModel set = new() { };
             result.Add(set);
             string id = $"Res_{row["Sn"]}";
             set.SpecCategory.CategoryId = id;
@@ -53,9 +53,9 @@ public class SpecCategoryBiz(BizDeps bizDeps) : BizService<SpecCategorySet>(bizD
         }
         return [.. result];
     }
-    private static SpecCategorySet[] ConvertUSRCategoryModel()
+    private static SpecCategoryModel[] ConvertUSRCategoryModel()
     {
-        List<SpecCategorySet> result = [];
+        List<SpecCategoryModel> result = [];
         Dictionary<string, string> sqls = new()
         {
             { "USRProjectCategory", "Select * From USRProjectCategory" },
@@ -65,7 +65,7 @@ public class SpecCategoryBiz(BizDeps bizDeps) : BizService<SpecCategorySet>(bizD
         DataSet ds = MigrateOldData.GetOldData(sqls);
         foreach (DataRow row in ds.Tables["USRProjectCategory"].Rows)
         {
-            SpecCategorySet set = new() { };
+            SpecCategoryModel set = new() { };
             result.Add(set);
             string id = $"USR_{row["Sn"]}";
             set.SpecCategory.CategoryId = id;
@@ -135,7 +135,7 @@ public class SpecCategoryBiz(BizDeps bizDeps) : BizService<SpecCategorySet>(bizD
     #endregion
 
     #region Protected
-    protected override async Task BeforeUpdate(SpecCategorySet set, FuncAction act, CancellationToken ct = default)
+    protected override async Task BeforeUpdate(SpecCategoryModel set, FuncAction act, CancellationToken ct = default)
     {
         await base.BeforeUpdate(set, act, ct);
         switch (act)
@@ -160,7 +160,7 @@ public class SpecCategoryBiz(BizDeps bizDeps) : BizService<SpecCategorySet>(bizD
     {
         header.ShowColumnItems = header.ShowColumnItems.Remerge(",");
     }
-    private async Task CheckIsUsedAsync(SpecCategorySet set)
+    private async Task CheckIsUsedAsync(SpecCategoryModel set)
     {
         string progId = set.SpecCategory.ProgId;
         string cateId = set.SpecCategory.CategoryId;

@@ -8,6 +8,7 @@ using WCMS.Features.WEB.Gallery;
 using WCMS.Features.WEB.WebResource;
 using WCMS.SysCore;
 using WCMS.SysCore.Interface;
+using WCMS.SysCore.FeatureDriver.Model;
 using WCMS.SysCore.Model;
 using static WCMS.SysCore.QueryListParam;
 
@@ -18,20 +19,20 @@ namespace WCMS.SpecFeatures.Spec1810.WEB.SpecHomePageSetting;
 /// </summary>
 public class SpecHomePageSettingBiz(
     BizDeps bizDeps,
-    IBizService<BannerSet> bannerService,
-    IBizService<AnnouncementSet> announcementService,
-    IBizService<CategoryDataSet> categoryService,
-    IBizService<TagSet> tagService,
-    IBizService<GallerySet> galleryService,
-    IBizService<WebResourceSet> webResourceService) : BizBase(bizDeps)
+    IBizService<Banner> bannerService,
+    IBizService<Announcement> announcementService,
+    IBizService<Category> categoryService,
+    IBizService<TagData> tagService,
+    IBizService<Gallery> galleryService,
+    IBizService<WebResource> webResourceService) : BizBase(bizDeps)
 {
     #region Property
-    private readonly IBizService<BannerSet> _bannerService = bannerService;
-    private readonly IBizService<AnnouncementSet> _announcementService = announcementService;
-    private readonly IBizService<CategoryDataSet> _categoryService = categoryService;
-    private readonly IBizService<TagSet> _tagService = tagService;
-    private readonly IBizService<GallerySet> _galleryService = galleryService;
-    private readonly IBizService<WebResourceSet> _webResourceService = webResourceService;
+    private readonly IBizService<Banner> _bannerService = bannerService;
+    private readonly IBizService<Announcement> _announcementService = announcementService;
+    private readonly IBizService<Category> _categoryService = categoryService;
+    private readonly IBizService<TagData> _tagService = tagService;
+    private readonly IBizService<Gallery> _galleryService = galleryService;
+    private readonly IBizService<WebResource> _webResourceService = webResourceService;
 
     private const int CategoryTabsPageSize = 6;
     private const int EventPageSize = 6;
@@ -151,7 +152,7 @@ public class SpecHomePageSettingBiz(
     /// </summary>
     private async Task<SpecHomePageBannerSection_DTO> GetBannerSliderAsync(CancellationToken ct)
     {
-        List<BannerSet_DTO> banners = await QueryListAsync<BannerSet, BannerSet_DTO>(_bannerService, BuildBannerSliderParam(), ct);
+        List<Banner_DTO> banners = await QueryListAsync<Banner, Banner_DTO>(_bannerService, BuildBannerSliderParam(), ct);
         SpecHomePageBannerSection_DTO result = new() { Banner = banners.FirstOrDefault() };
 
         return result;
@@ -171,7 +172,7 @@ public class SpecHomePageSettingBiz(
             AwardNews = await QueryCategoryTabsNewsAsync(nowIsoLocal, "45", ct),
             MediaNews = await QueryCategoryTabsNewsAsync(nowIsoLocal, "46", ct),
             Categories = await QueryCategorySetsAsync(ProgKeys.WEB.Announcement, ct),
-            Tags = await QueryTagSetsAsync(ProgKeys.WEB.Announcement, ct),
+            Tags = await QueryTagDatasAsync(ProgKeys.WEB.Announcement, ct),
         };
 
         return result;
@@ -184,8 +185,8 @@ public class SpecHomePageSettingBiz(
     {
         SpecHomePageEventSection_DTO result = new()
         {
-            Announcements = await QueryListAsync<AnnouncementSet, AnnouncementSet_DTO>(_announcementService, BuildEventListParam(nowIsoLocal), ct),
-            Tags = await QueryTagSetsAsync(ProgKeys.WEB.Announcement, ct),
+            Announcements = await QueryListAsync<Announcement, Announcement_DTO>(_announcementService, BuildEventListParam(nowIsoLocal), ct),
+            Tags = await QueryTagDatasAsync(ProgKeys.WEB.Announcement, ct),
         };
 
         return result;
@@ -198,7 +199,7 @@ public class SpecHomePageSettingBiz(
     {
         SpecHomePageGallerySection_DTO result = new()
         {
-            Galleries = await QueryListAsync<GallerySet, GallerySet_DTO>(_galleryService, BuildGalleryListParam(), ct),
+            Galleries = await QueryListAsync<Gallery, Gallery_DTO>(_galleryService, BuildGalleryListParam(), ct),
             Categories = await QueryCategorySetsAsync(ProgKeys.WEB.Gallery, ct),
         };
 
@@ -212,7 +213,7 @@ public class SpecHomePageSettingBiz(
     {
         SpecHomePageVideoSection_DTO result = new()
         {
-            WebResources = await QueryListAsync<WebResourceSet, WebResourceSet_DTO>(_webResourceService, BuildVideoListParam(), ct),
+            WebResources = await QueryListAsync<WebResource, WebResource_DTO>(_webResourceService, BuildVideoListParam(), ct),
         };
 
         return result;
@@ -221,10 +222,10 @@ public class SpecHomePageSettingBiz(
     /// <summary>
     /// 查詢最新消息分頁資料。
     /// </summary>
-    private async Task<List<AnnouncementSet_DTO>> QueryCategoryTabsNewsAsync(string nowIsoLocal, string? categories, CancellationToken ct)
+    private async Task<List<Announcement_DTO>> QueryCategoryTabsNewsAsync(string nowIsoLocal, string? categories, CancellationToken ct)
     {
         QueryListParam param = BuildCategoryTabsNewsParam(nowIsoLocal, categories);
-        List<AnnouncementSet_DTO> result = await QueryListAsync<AnnouncementSet, AnnouncementSet_DTO>(_announcementService, param, ct);
+        List<Announcement_DTO> result = await QueryListAsync<Announcement, Announcement_DTO>(_announcementService, param, ct);
 
         return result;
     }
@@ -232,10 +233,10 @@ public class SpecHomePageSettingBiz(
     /// <summary>
     /// 查詢公告或相簿分類資料。
     /// </summary>
-    private async Task<List<CategoryDataSet_DTO>> QueryCategorySetsAsync(string progId, CancellationToken ct)
+    private async Task<List<Category_DTO>> QueryCategorySetsAsync(string progId, CancellationToken ct)
     {
         QueryListParam param = BuildCategoryParam(progId);
-        List<CategoryDataSet_DTO> result = await QueryListAsync<CategoryDataSet, CategoryDataSet_DTO>(_categoryService, param, ct);
+        List<Category_DTO> result = await QueryListAsync<Category, Category_DTO>(_categoryService, param, ct);
 
         return result;
     }
@@ -243,10 +244,10 @@ public class SpecHomePageSettingBiz(
     /// <summary>
     /// 查詢公告標籤資料。
     /// </summary>
-    private async Task<List<TagSet_DTO>> QueryTagSetsAsync(string progId, CancellationToken ct)
+    private async Task<List<TagData_DTO>> QueryTagDatasAsync(string progId, CancellationToken ct)
     {
         QueryListParam param = BuildTagParam(progId);
-        List<TagSet_DTO> result = await QueryListAsync<TagSet, TagSet_DTO>(_tagService, param, ct);
+        List<TagData_DTO> result = await QueryListAsync<TagData, TagData_DTO>(_tagService, param, ct);
 
         return result;
     }
@@ -255,7 +256,7 @@ public class SpecHomePageSettingBiz(
     /// 查詢資料並轉換成 DTO 清單。
     /// </summary>
     private static async Task<List<TSet_DTO>> QueryListAsync<TSet, TSet_DTO>(IBizService<TSet> service, QueryListParam param, CancellationToken ct)
-        where TSet : ITSet
+        where TSet : DbModel, ITSet
         where TSet_DTO : ITSet_DTO
     {
         IList<TSet> queryResult = await service.BizQueryListAsync(param, ct);

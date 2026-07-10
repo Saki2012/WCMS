@@ -4,73 +4,104 @@ using WCMS.Features.IAM.Account;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.FeatureDriver.Model;
 using WCMS.SysCore.Library.LibAttribute;
+
 namespace WCMS.Features.COMM.Calendar;
 
 public class CalendarModel : HeaderModel
 {
     /// <summary>
-    /// 
+    /// 行事曆年度。
     /// </summary>
-[Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
-[LibField(ApiFieldMode.ReadOnly)]
-public int Year { get; set; }
+    [Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
+    [LibField(ApiFieldMode.ReadOnly)]
+    public int Year { get; set; }
     /// <summary>
-    /// 匯入來源
+    /// 匯入來源。
     /// </summary>
-[StringLength(SysLengthParam.ID)]
-[LibField(ApiFieldMode.ReadWrite)]
-public string ImportSrc { get; set; } = string.Empty;
+    [StringLength(SysLengthParam.ID)]
+    [LibField(ApiFieldMode.ReadWrite)]
+    public string ImportSrc { get; set; } = string.Empty;
     /// <summary>
-    /// // 最後匯入時間
+    /// 最後匯入時間。
     /// </summary>
-[LibField(ApiFieldMode.ReadWrite)]
-public DateTime LastImportTime { get; set; }
+    [LibField(ApiFieldMode.ReadWrite)]
+    public DateTime LastImportTime { get; set; }
 
     #region 主子表關聯
-[InverseProperty(nameof(CalendarDetail._Calendar))]
-[LibField(ApiFieldMode.ReadWrite)]
-public List<CalendarDetail> _CalendarDetail { get; set; } = [];
+    /// <summary>
+    /// 年度內的每日行事曆資料。
+    /// </summary>
+    [InverseProperty(nameof(CalendarDetail._Calendar))]
+    [LibField(ApiFieldMode.ReadWrite)]
+    public List<CalendarDetail> _CalendarDetail { get; set; } = [];
     #endregion
 }
 
 public partial class CalendarDetail : DetailModel
 {
-[Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
-[LibField(ApiFieldMode.ReadOnly)]
-public int Year { get; set; }
-[Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
-[LibField(ApiFieldMode.ReadOnly)]
-public DateOnly Date { get; set; }
-[LibField(ApiFieldMode.ReadWrite)]
-public DayOfWeek DayOfWeek { get; set; }
-[LibField(ApiFieldMode.ReadWrite)]
-public bool IsHoliday { get; set; }
-[StringLength(SysLengthParam.Title)]
-[LibField(ApiFieldMode.ReadWrite)]
-public string HolidayName { get; set; } = string.Empty;
-[StringLength(SysLengthParam.Title)]
-[LibField(ApiFieldMode.ReadWrite)]
-public string Description { get; set; } = string.Empty;
-[LibField(ApiFieldMode.ReadWrite)]
-public bool IsEdit { get; set; }
     /// <summary>
-    /// 修改時間
+    /// 行事曆年度。
     /// </summary>
-[LibField(ApiFieldMode.ReadOnly)]
-public DateTime ModifyTime { get; set; }
+    [Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
+    [LibField(ApiFieldMode.ReadOnly)]
+    public int Year { get; set; }
     /// <summary>
-    /// 修改人ID
+    /// 行事曆日期。
     /// </summary>
-[ForeignKey(nameof(ModifyUserId))]
-[LibField(ApiFieldMode.ReadOnly)]
-public AccountModel? ModifyUser { get; set; }
-[StringLength(SysLengthParam.ID)]
-[LibField(ApiFieldMode.ReadOnly)]
-public string? ModifyUserId { get; set; }
+    [Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
+    [LibField(ApiFieldMode.ReadOnly)]
+    public DateOnly Date { get; set; }
+    /// <summary>
+    /// 星期。
+    /// </summary>
+    [LibField(ApiFieldMode.ReadWrite)]
+    public DayOfWeek DayOfWeek { get; set; }
+    /// <summary>
+    /// 是否為假日。
+    /// </summary>
+    [LibField(ApiFieldMode.ReadWrite)]
+    public bool IsHoliday { get; set; }
+    /// <summary>
+    /// 假日名稱。
+    /// </summary>
+    [StringLength(SysLengthParam.Title)]
+    [LibField(ApiFieldMode.ReadWrite)]
+    public string HolidayName { get; set; } = string.Empty;
+    /// <summary>
+    /// 日期說明。
+    /// </summary>
+    [StringLength(SysLengthParam.Title)]
+    [LibField(ApiFieldMode.ReadWrite)]
+    public string Description { get; set; } = string.Empty;
+    /// <summary>
+    /// 是否已人工編輯。
+    /// </summary>
+    [LibField(ApiFieldMode.ReadWrite)]
+    public bool IsEdit { get; set; }
+    /// <summary>
+    /// 修改時間。
+    /// </summary>
+    [LibField(ApiFieldMode.ReadOnly)]
+    public DateTime ModifyTime { get; set; }
+    /// <summary>
+    /// 修改人。
+    /// </summary>
+    [ForeignKey(nameof(ModifyUserId))]
+    [LibField(ApiFieldMode.ReadOnly)]
+    public AccountModel? ModifyUser { get; set; }
+    /// <summary>
+    /// 修改人 ID。
+    /// </summary>
+    [StringLength(SysLengthParam.ID)]
+    [LibField(ApiFieldMode.ReadOnly)]
+    public string? ModifyUserId { get; set; }
 
     #region 主子表關聯
-[ForeignKey(nameof(Year))]
-[LibField(ApiFieldMode.ReadOnly)]
-public CalendarModel _Calendar { get; set; }
+    /// <summary>
+    /// 所屬年度行事曆。
+    /// </summary>
+    [ForeignKey(nameof(Year))]
+    [LibField(ApiFieldMode.ReadOnly)]
+    public CalendarModel? _Calendar { get; set; }
     #endregion
 }

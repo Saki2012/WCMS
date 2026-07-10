@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using StackExchange.Redis;
 using WCMS.Features._Resx;
 using WCMS.Features.COMM.Category;
 using WCMS.SysCore.Enum;
@@ -8,37 +7,70 @@ using WCMS.SysCore.FeatureDriver.Api;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.LibAttribute;
+
 namespace WCMS.Features.MAT.MatCategory;
 
+/// <summary>
+/// MAT 類別組合式表單 API。
+/// </summary>
 [LibApiController(ProgKeys.MAT.Code, ProgKeys.MAT.MatCategory, SysEnum.FuncAction.MasterData)]
-public class MatCategoryController : CategoryControllerBase<MatCategoryDataSet, MatCategoryDataSet_DTO>{
-
+public class MatCategoryController : CategoryControllerBase<MatCategoryFormModel>
+{
     #region Public
     /// <summary>
-    /// 取得物件類別的動態欄位資訊（Field Id 跟對應語系的顯示名稱）
+    /// 取得物件類別的動態欄位與指定語系顯示名稱。
     /// </summary>
     [HttpGet(nameof(GetMatCateInfoFields)), AllowAnonymous, IgnoreAntiforgeryToken]
     public async Task<IActionResult> GetMatCateInfoFields(string catId, string lang, CancellationToken ct)
     {
         LangCode langCode = LangCodeExt.Normalize(lang);
-        QueryListParam param = new()
+        QueryListParam param = BuildInfoFieldQuery(catId, langCode);
+        MatCategoryFormModel? form = (await Service.BizQueryListAsync(param, ct)).FirstOrDefault();
+        Dictionary<string, string> result = BuildInfoFieldResult(form, langCode);
+        return Ok(new ApiResponse<Dictionary<string, string>> { Data = [result], SysMessage = Message.Messages });
+    }
+    #endregion
+
+    #region Private
+    /// <summary>
+    /// 建立 MAT 類別動態欄位查詢條件。
+    /// </summary>
+    private static QueryListParam BuildInfoFieldQuery(string categoryId, LangCode lang)
+    {
+        string fieldPath = nameof(MatCategoryFormModel.MatCategoryInfoField);
+        string displayPath = $"{fieldPath}.{nameof(MatCategoryInfoField._MatCategoryInfoFieldDisplay)}";
+        return new QueryListParam
         {
             Fields = [
-                nameof(MatCategoryInfoField.CategoryId),
-                $"{nameof(Category._MatCategoryInfoField)}.{nameof(MatCategoryInfoField.Field)}",
-                $"{nameof(Category._MatCategoryInfoField)}.{nameof(MatCategoryInfoField._MatCategoryInfoFieldDisplay)}.{nameof(MatCategoryInfoFieldDisplay.Lang)}",
-                $"{nameof(Category._MatCategoryInfoField)}.{nameof(MatCategoryInfoField._MatCategoryInfoFieldDisplay)}.{nameof(MatCategoryInfoFieldDisplay.FieldDisplayName)}",
-                ],
-            Condition =  LibData.Merge(" And ",false, $"{nameof(Category.CategoryId)} = {catId}",
-            $"{nameof(Category._MatCategoryInfoField)}.{nameof(MatCategoryInfoField._MatCategoryInfoFieldDisplay)}.{nameof(MatCategoryInfoFieldDisplay.Lang)} = {langCode}"
-            )
+                $"{nameof(MatCategoryFormModel.Category)}.{nameof(Category.CategoryId)}",
+                $"{fieldPath}.{nameof(MatCategoryInfoField.Field)}",
+                $"{displayPath}.{nameof(MatCategoryInfoFieldDisplay.Lang)}",
+                $"{displayPath}.{nameof(MatCategoryInfoFieldDisplay.FieldDisplayName)}"
+            ],
+            Condition = LibData.Merge(" And ", false,
+                $"{nameof(MatCategoryFormModel.Category)}.{nameof(Category.CategoryId)} = \"{EscapeQueryValue(categoryId)}\"",
+                $"{displayPath}.{nameof(MatCategoryInfoFieldDisplay.Lang)} = {lang}")
         };
-        var queryResult = (await Service.BizQueryListAsync(param,ct)).FirstOrDefault();
-        var result = new Dictionary<string, string>();
-        queryResult.MatCategoryInfoField.ForEach(data => { result.TryAdd(data.Field, data._MatCategoryInfoFieldDisplay.Find(p => p.Lang == langCode).FieldDisplayName); });
-        // 回傳結果
-        var response = new ApiResponse<Dictionary<string, string>>() { Data = [result], SysMessage = Message.Messages };
-        return Ok(response);
+    }
+    /// <summary>
+    /// 跳脫查詢條件中的雙引號字串值。
+    /// </summary>
+    private static string EscapeQueryValue(string value)
+    {
+        return (value ?? string.Empty).Replace("\"", "\"\"");
+    }
+    /// <summary>
+    /// 將 MAT 類別動態欄位整理成 Field 與顯示名稱對照。
+    /// </summary>
+    private static Dictionary<string, string> BuildInfoFieldResult(MatCategoryFormModel? form, LangCode lang)
+    {
+        Dictionary<string, string> result = [];
+        foreach (MatCategoryInfoField field in form?.MatCategoryInfoField ?? [])
+        {
+            string? displayName = field._MatCategoryInfoFieldDisplay.FirstOrDefault(item => item.Lang == lang)?.FieldDisplayName;
+            if (!string.IsNullOrWhiteSpace(field.Field) && displayName != null) result.TryAdd(field.Field, displayName);
+        }
+        return result;
     }
     #endregion
 }

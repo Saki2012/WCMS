@@ -6,4 +6,4 @@ using WCMS.SysCore.Library.LibAttribute;
 namespace WCMS.Features.WEB.Survey;
 
 [LibApiController(ProgKeys.WEB.Code, ProgKeys.WEB.Survey, SysEnum.FuncAction.MasterData)]
-public class SurveyController : ApiDataController<SurveySet, SurveySet_DTO>{ }
+public class SurveyController : ApiDataController<Survey>{ }

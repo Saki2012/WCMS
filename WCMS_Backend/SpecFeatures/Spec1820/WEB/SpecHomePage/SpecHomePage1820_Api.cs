@@ -7,7 +7,7 @@ using WCMS.SysCore.Library.LibAttribute;
 namespace WCMS.SpecFeatures.Spec1820.WEB.SpecHomePage;
 
 [LibApiController(ProgKeys.WEB.Code, ProgKeys.WEB.HomePageSetting, SysEnum.FuncAction.MasterData)]
-public class SpecHomePageApiController : ApiDataController<SpecHomePage1820Set, SpecHomePage1820Set_DTO> {
+public class SpecHomePageApiController : ApiDataController<SpecHomePage1820Model> {
 
     #region Public
     /// <summary>

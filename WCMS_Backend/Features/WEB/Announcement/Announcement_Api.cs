@@ -10,7 +10,7 @@ using static WCMS.SysCore.Library.LibData;
 namespace WCMS.Features.WEB.Announcement;
 
 [LibApiController(ProgKeys.WEB.Code, ProgKeys.WEB.Announcement, SysEnum.FuncAction.BillData)]
-public partial class AnnouncementController : ApiDataController<AnnouncementSet,AnnouncementSet_DTO>
+public partial class AnnouncementController : ApiDataController<Announcement>
 {
     [HttpPost(nameof(QueryByValidate)), OutputCache(PolicyName = SysParam.ListCache), AllowAnonymous, IgnoreAntiforgeryToken]
     public virtual async Task<IActionResult> QueryByValidate([FromBody] QueryListParam? queryCondition, CancellationToken ct)

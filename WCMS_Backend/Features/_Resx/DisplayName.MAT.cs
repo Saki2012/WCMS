@@ -1,4 +1,4 @@
-﻿namespace WCMS.SysCore.FeatureDriver.Resx;
+namespace WCMS.SysCore.FeatureDriver.Resx;
 
 public static partial class DisplayName
 {
@@ -8,12 +8,12 @@ public static partial class DisplayName
     /// <summary>
     /// 物件類別表單
     /// </summary>
-    public const string MatCategoryDataSet = nameof(MatCategoryDataSet);
+    public const string MatCategoryFormModel = nameof(MatCategoryFormModel);
     /// <summary>
     /// 物件類別欄位明細
     /// </summary>
     public const string MatCategoryInfoField = nameof(MatCategoryInfoField);
-    
+
     /// <summary>
     /// 物件表單
     /// </summary>

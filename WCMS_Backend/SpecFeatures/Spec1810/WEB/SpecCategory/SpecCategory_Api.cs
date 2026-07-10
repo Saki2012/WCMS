@@ -8,7 +8,7 @@ using WCMS.SysCore.Library.LibAttribute;
 namespace WCMS.SpecFeatures.Spec1810.WEB.SpecCategory;
 
 [LibApiController(ProgKeys.WEB.Code, ProgKeys.Spec.SpecCategory, SysEnum.FuncAction.MasterData)]
-public class SpecCategoryController : ApiDataController<SpecCategorySet,SpecCategorySet_DTO>
+public class SpecCategoryController : ApiDataController<SpecCategoryModel>
 {
     [HttpGet(nameof(GetShowColumnItems)), OutputCache(PolicyName = SysParam.PermanentCache), AllowAnonymous, IgnoreAntiforgeryToken]
     public IActionResult GetShowColumnItems(string progId)

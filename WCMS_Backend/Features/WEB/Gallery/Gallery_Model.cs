@@ -38,6 +38,16 @@ public string Tags { get; set; } = string.Empty;
 [LibField(ApiFieldMode.ReadWrite, DisplayName.Common_ContentStatus)]
 public ContentStatus ContentStatus { get; set; }
     /// <summary>
+    /// 資料有效日期起。
+    /// </summary>
+[LibField(ApiFieldMode.ReadWrite)]
+public DateTime Validate_Start { get; set; }
+    /// <summary>
+    /// 資料有效日期迄。
+    /// </summary>
+[LibField(ApiFieldMode.ReadWrite)]
+public DateTime Validate_End { get; set; }
+    /// <summary>
     /// 封面照 (透過功能從相簿裡的PicSrcId直接取得，保存時紀錄，供之後List查看時減少效能使用)
     /// </summary>
 [ForeignKey(nameof(CoverPicSrcId))]

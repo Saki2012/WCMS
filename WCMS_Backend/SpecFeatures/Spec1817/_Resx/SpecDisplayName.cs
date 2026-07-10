@@ -1,6 +1,6 @@
 ﻿namespace WCMS.SpecFeatures.Spec1817._Resx;
 
-public static class SpecModelDisplayName
+public static class SpecDisplayName
 {
     public const string Spec_LatestShows = "Spec_LatestShows";
     public const string Spec_ShowLocation = "Spec_ShowLocation";

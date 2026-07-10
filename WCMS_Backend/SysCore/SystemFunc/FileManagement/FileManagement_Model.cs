@@ -19,7 +19,7 @@ public class FileManageModel : HeaderModel
     /// </summary>
 [Key, StringLength(SysLengthParam.InternalId)]
 [LibField(ApiFieldMode.ReadOnly)]
-public new string InternalId { get; set; }= Guid.NewGuid().ToString();
+public override string InternalId { get; set; }= Guid.NewGuid().ToString();
     /// <summary>
     /// 路徑
     /// </summary>

@@ -11,18 +11,18 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.SpecFeatures.Spec1810.WEB.SpecUSR;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.Spec.SpecUSR)]
-public class SpecUSRBiz(BizDeps bizDeps) : BizService<SpecUSRSet>(bizDeps), IBizService<SpecUSRSet> 
+public class SpecUSRBiz(BizDeps bizDeps) : BizService<SpecUSRModel>(bizDeps), IBizService<SpecUSRModel> 
 {
     #region Migration Old Data
     [HttpPost(nameof(Migrate)), LocalhostOnly]
-    public async Task Migrate(string importFileLabel = "1810", IList<FileManageSet> srcFileSets=default)
+    public async Task Migrate(string importFileLabel = "1810", IList<FileManageModel> srcFileSets=default)
     {
-        SpecUSRSet[] datas = ConvertToApiModel(importFileLabel, srcFileSets);
-        await BizInitCreateSetsAsync(datas);
+        SpecUSRModel[] datas = ConvertToApiModel(importFileLabel, srcFileSets);
+        await BizInitCreateDatasAsync(datas);
     }
-    private SpecUSRSet[] ConvertToApiModel(string importFileLabel, IList<FileManageSet> srcFileSets)
+    private SpecUSRModel[] ConvertToApiModel(string importFileLabel, IList<FileManageModel> srcFileSets)
     {
-        List<SpecUSRSet> result = [];
+        List<SpecUSRModel> result = [];
         Dictionary<string, string> sqls = new()
         {
             { "USRProject", "SELECT * FROM USRProject" },
@@ -31,11 +31,11 @@ public class SpecUSRBiz(BizDeps bizDeps) : BizService<SpecUSRSet>(bizDeps), IBiz
         DataSet ds = MigrateOldData.GetOldData(sqls);
 
         var fileSrcIdDic = srcFileSets.SelectMany(s => s.FileManage_SyncInfo).GroupBy(d => d.SrcFullPath).ToDictionary(g => g.Key, g => g.First().InternalId);
-        List<FileManageSet> updateFileSets = [];
+        List<FileManageModel> updateFileSets = [];
 
         foreach (DataRow row in ds.Tables["USRProject"].Rows)
         {
-            SpecUSRSet set = new() { };
+            SpecUSRModel set = new() { };
             result.Add(set);
             set.SpecUSR.USRId = row["Sn"].ToString();
             set.SpecUSR.CategoryId = $"USR_{row["Category"]}";
@@ -47,7 +47,7 @@ public class SpecUSRBiz(BizDeps bizDeps) : BizService<SpecUSRSet>(bizDeps), IBiz
             string picDescription = row["PicDescription"].ToString();
             if (!picFileName.IsNullOrEmpty())
             {
-                FileManageSet fileInfo = GetSetByPicture(picFileName, srcFileSets);
+                FileManageModel fileInfo = GetSetByPicture(picFileName, srcFileSets);
                 updateFileSets.Add(fileInfo);
                 fileInfo.FileManage.ProgId = ProgId;
                 fileInfo.FileManage.FileName = picFileName;
@@ -121,14 +121,14 @@ public class SpecUSRBiz(BizDeps bizDeps) : BizService<SpecUSRSet>(bizDeps), IBiz
         }
         return result;
     }
-    private static FileManageSet GetSetByPicture(string srcPic, IList<FileManageSet> fileSets)
+    private static FileManageModel GetSetByPicture(string srcPic, IList<FileManageModel> fileSets)
     {
         return fileSets.Where(x => x.FileManage_SyncInfo.Any(y => y.SrcFullPath.ToLowerInvariant().Equals($@"File/USRProject/{srcPic}".ToLowerInvariant()))).FirstOrDefault();
     }
     #endregion
 
     #region Protected
-    protected override async Task BeforeUpdate(SpecUSRSet set, FuncAction act, CancellationToken ct = default)
+    protected override async Task BeforeUpdate(SpecUSRModel set, FuncAction act, CancellationToken ct = default)
     {
         await base.BeforeUpdate(set, act, ct);
         switch (act)
@@ -143,16 +143,16 @@ public class SpecUSRBiz(BizDeps bizDeps) : BizService<SpecUSRSet>(bizDeps), IBiz
     #endregion
 
     #region Private
-    private void CheckData(SpecUSRSet set)
+    private void CheckData(SpecUSRModel set)
     {
         CheckIsEmpty(set);
     }
-    private void SetData(SpecUSRSet set)
+    private void SetData(SpecUSRModel set)
     {
         DoRemergeData(set.SpecUSR);
         SetFileEmptyToNull(set.SpecUSR);
     }
-    private void CheckIsEmpty(SpecUSRSet set)
+    private void CheckIsEmpty(SpecUSRModel set)
     {
         if (set.SpecUSR.CategoryId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SpecUSRModel>(x => x.CategoryId));
     }

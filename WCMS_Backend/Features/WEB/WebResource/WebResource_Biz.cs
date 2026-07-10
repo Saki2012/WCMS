@@ -10,60 +10,59 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.Features.WEB.WebResource;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.WebResource)]
-public class WebResourceBiz(BizDeps bizDeps) : BizService<WebResourceSet>(bizDeps), IBizService<WebResourceSet> 
+public class WebResourceBiz(BizDeps bizDeps) : BizService<WebResource>(bizDeps), IBizService<WebResource> 
 {
     #region Migration Old Data
-    public async Task Migrate(string importFileLabel = "1810", IList<FileManageSet> srcFileSets = default)
+    public async Task Migrate(string importFileLabel = "1810", IList<FileManageModel> srcFileSets = default)
     {
-        WebResourceSet[] datas = ConvertToApiModel(importFileLabel,srcFileSets);
-        await BizInitCreateSetsAsync(datas);
+        WebResource[] datas = ConvertToApiModel(importFileLabel,srcFileSets);
+        await BizInitCreateDatasAsync(datas);
     }
-    private WebResourceSet[] ConvertToApiModel(string importFileLabel, IList<FileManageSet> srcFileSets = default)
+    private WebResource[] ConvertToApiModel(string importFileLabel, IList<FileManageModel> srcFileSets = default)
     {
-        List<WebResourceSet> result = [];
+        List<WebResource> result = [];
         Dictionary<string, string> sqls = new()
         {
             { "WebResource", "Select * From WebResource" },
             { "WebResource_Lang", "Select * From WebResource_Lang" },
         };
         DataSet ds = MigrateOldData.GetOldData(sqls);
-        var fileSrcIdDic = srcFileSets.SelectMany(s => s.FileManage_SyncInfo).GroupBy(d => d.SrcFullPath).ToDictionary(g => g.Key, g => g.First().InternalId);
-        List<FileManageSet> updateFileSets = [];
+        List<FileManageModel> updateFileSets = [];
 
         foreach (DataRow row in ds.Tables["WebResource"].Rows)
         {
-            WebResourceSet set = new() { };
+            WebResource set = new() { };
             result.Add(set);
 
             string picFileName = row["Pic"].ToString();
             string picDescription = row["PicDescription"].ToString();
-            set.WebResource.PicId = picFileName;
+            set.PicId = picFileName;
             if (!picFileName.IsNullOrEmpty())
             {
-                FileManageSet fileInfo = GetSetByPicture(picFileName, srcFileSets);
+                FileManageModel fileInfo = GetSetByPicture(picFileName, srcFileSets);
                 updateFileSets.Add(fileInfo);
-                fileInfo.FileManage.FileName = picFileName;
-                if (!picDescription.IsNullOrEmpty()) fileInfo.FileManage.FileDescription = picDescription;
-                set.WebResource.PicId = fileInfo.FileManage.InternalId;
-                fileInfo.FileManage.FileDescription = picDescription;
+                fileInfo.FileName = picFileName;
+                if (!picDescription.IsNullOrEmpty()) fileInfo.FileDescription = picDescription;
+                set.PicId = fileInfo.InternalId;
+                fileInfo.FileDescription = picDescription;
             }
-            set.WebResource.PicDescription = picDescription;
-            set.WebResource.WebResourceId = row["Sn"].ToString();
-            set.WebResource.Categories = row["Category"].ToString();
-            set.WebResource.ContentStatus = GetContentStatus(row["Status"].ToString());
-            set.WebResource.Tags = row["Tag"].ToString();
-            set.WebResource.CreateTime = row["CreateTime"].ToString().ToDateTime();
-            set.WebResource.ModifyTime = row["UpdateTime"].ToString().ToDateTime();
+            set.PicDescription = picDescription;
+            set.WebResourceId = row["Sn"].ToString();
+            set.Categories = row["Category"].ToString();
+            set.ContentStatus = GetContentStatus(row["Status"].ToString());
+            set.Tags = row["Tag"].ToString();
+            set.CreateTime = row["CreateTime"].ToString().ToDateTime();
+            set.ModifyTime = row["UpdateTime"].ToString().ToDateTime();
 
             int rowId = 1;
-            foreach (var dRow in ds.Tables["WebResource_Lang"].AsEnumerable().Where(dr => dr["Sn"].ToString() == set.WebResource.WebResourceId).ToList())
+            foreach (var dRow in ds.Tables["WebResource_Lang"].AsEnumerable().Where(dr => dr["Sn"].ToString() == set.WebResourceId).ToList())
             {
                 if (!dRow["Title"].ToString().IsNullOrEmpty())
                 {
                     LangCodeExt.TryParse(dRow["Lang"].ToString(), out LangCode lang);
                     WebResourceInfo detail = new()
                     {
-                        WebResourceId = set.WebResource.WebResourceId,
+                        WebResourceId = set.WebResourceId,
                         RowId = rowId++,
                         Lang = lang,
                         Title = dRow["Title"].ToString(),
@@ -75,13 +74,13 @@ public class WebResourceBiz(BizDeps bizDeps) : BizService<WebResourceSet>(bizDep
                             _ => WindowTarget.Self,
                         },
                     };
-                    set.WebResourceInfo.Add(detail);
+                    set._WebResourceInfo.Add(detail);
                 }
             }
         }
         foreach (var set in updateFileSets.Distinct())
         {
-            set.FileManage.ProgId = ProgId;
+            set.ProgId = ProgId;
         }
         return [.. result];
     }
@@ -105,14 +104,14 @@ public class WebResourceBiz(BizDeps bizDeps) : BizService<WebResourceSet>(bizDep
         }
         return result;
     }
-    private FileManageSet GetSetByPicture(string srcPic, IList<FileManageSet> fileSets)
+    private FileManageModel GetSetByPicture(string srcPic, IList<FileManageModel> fileSets)
     {
-        return fileSets.Where(x => x.FileManage_SyncInfo.Any(y => y.SrcFullPath.ToLowerInvariant().Equals($@"File/WebResource/{srcPic}".ToLowerInvariant()))).FirstOrDefault();
+        return fileSets.Where(x => x._FileManage_SyncInfo.Any(y => y.SrcFullPath.ToLowerInvariant().Equals($@"File/WebResource/{srcPic}".ToLowerInvariant()))).FirstOrDefault();
     }
     #endregion
 
     #region Protected Virtual
-    protected override async Task BeforeUpdate(WebResourceSet set, FuncAction act, CancellationToken ct = default)
+    protected override async Task BeforeUpdate(WebResource set, FuncAction act, CancellationToken ct = default)
     {
         await base.BeforeUpdate(set, act, ct);
         switch (act)
@@ -127,14 +126,14 @@ public class WebResourceBiz(BizDeps bizDeps) : BizService<WebResourceSet>(bizDep
     #endregion
 
     #region Protected
-    protected void CheckData(WebResourceSet set)
+    protected void CheckData(WebResource set)
     {
         CheckIsEmpty(set);
     }
-    protected void CheckIsEmpty(WebResourceSet set)
+    protected void CheckIsEmpty(WebResource set)
     {
-        if (set.WebResourceInfo.FirstOrDefault(p => p.Lang == SiteDefaultLang) == null || set.WebResourceInfo.FirstOrDefault(p => p.Lang == SiteDefaultLang).Title.IsNullOrEmpty())
-            Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, SiteDefaultLang.ToLabel(), I18nCache.GetLabel<WebResourceInfo_DTO>(x => x.Title));
+        if (set._WebResourceInfo.FirstOrDefault(p => p.Lang == SiteDefaultLang) == null || set._WebResourceInfo.FirstOrDefault(p => p.Lang == SiteDefaultLang).Title.IsNullOrEmpty())
+            Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, SiteDefaultLang.ToLabel(), I18nCache.GetLabel<WebResourceInfo>(x => x.Title));
     }
     #endregion  
 
@@ -149,10 +148,10 @@ public class WebResourceBiz(BizDeps bizDeps) : BizService<WebResourceSet>(bizDep
         header.Categories = header.Categories.Remerge(",");
         header.Tags = header.Tags.Remerge(",");
     }
-    private static void SetData(WebResourceSet set)
+    private static void SetData(WebResource set)
     {
-        DoRemergeData(set.WebResource);
-        foreach (var dt in set.WebResourceInfo)
+        DoRemergeData(set);
+        foreach (var dt in set._WebResourceInfo)
         {
             SetYoutubeUrl(dt);
         }

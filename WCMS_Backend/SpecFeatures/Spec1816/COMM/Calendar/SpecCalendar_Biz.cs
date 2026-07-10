@@ -12,7 +12,7 @@ public class SpecCalendar_Biz(BizDeps bizDeps, IHttpClientFactory httpClientFact
 {
     //private readonly SpecOpenSchedule_Biz _specOS_Biz = specOS_Biz;
     #region Protected Virtual
-    protected override async Task BeforeUpdate(CalendarSet set, FuncAction act, CancellationToken ct = default)
+    protected override async Task BeforeUpdate(CalendarModel set, FuncAction act, CancellationToken ct = default)
     {
         await base.BeforeUpdate(set, act, ct);
         switch (act)
@@ -35,7 +35,7 @@ public class SpecCalendar_Biz(BizDeps bizDeps, IHttpClientFactory httpClientFact
     #endregion
 
     #region Protected
-    protected void CheckData(CalendarSet set)
+    protected void CheckData(CalendarModel set)
     {
         foreach (var detail in set.CalendarDetail)
         {
@@ -45,7 +45,7 @@ public class SpecCalendar_Biz(BizDeps bizDeps, IHttpClientFactory httpClientFact
     #endregion
 
     #region Private
-    private void PresetData(CalendarSet set)
+    private void PresetData(CalendarModel set)
     {
         set.CalendarDetail.ForEach(p=> { p.Spec_ModifyMemo ??= string.Empty; });
     }

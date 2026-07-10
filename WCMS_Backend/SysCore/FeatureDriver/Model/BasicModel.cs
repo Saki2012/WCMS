@@ -52,6 +52,32 @@ public AccountModel? ModifyUser { get; set; }
 [LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, DisplayName.Common_ModifyUserId, DisplayName.ModifyUserName)]
 public string? ModifyUserId { get; set; }
     /// <summary>
+    /// 單據狀態。
+    /// </summary>
+[LibField(ApiFieldMode.ReadOnly, DisplayName.FormStatus)]
+public FormStatus FormStatus { get; set; }
+    /// <summary>
+    /// 資料狀態。
+    /// </summary>
+[LibField(ApiFieldMode.ReadOnly, DisplayName.DataStatus)]
+public DataStatus DataStatus { get; set; }
+    /// <summary>
+    /// 作廢時間。
+    /// </summary>
+[LibField(ApiFieldMode.ReadOnly, DisplayName.InvalidTime)]
+public DateTime? InvalidTime { get; set; }
+    /// <summary>
+    /// 作廢人員。
+    /// </summary>
+[ForeignKey(nameof(InvalidUserId))]
+[LibField(ApiFieldMode.ReadOnly)]
+public AccountModel? InvalidUser { get; set; }
+    /// <summary>
+    /// 作廢人員 ID。
+    /// </summary>
+[LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, DisplayName.InvalidUserId)]
+public string? InvalidUserId { get; set; }
+    /// <summary>
     /// 資料版本-併發控制
     /// </summary>
 [Timestamp]

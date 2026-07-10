@@ -5,4 +5,4 @@ using WCMS.SysCore.Library.LibAttribute;
 namespace WCMS.SpecFeatures.Spec1816.WEB.SpecOpenScheduleRule;
 
 [LibApiController(ProgKeys.WEB.Code, ProgKeys.Spec.SpecOpenScheduleRule, SysEnum.FuncAction.BillData)]
-public class SpecOpenScheduleRuleController() : ApiDataController<SpecOpenScheduleRuleSet, SpecOpenScheduleRuleSet_DTO> {}
+public class SpecOpenScheduleRuleController() : ApiDataController<SpecOpenScheduleRuleModel> {}

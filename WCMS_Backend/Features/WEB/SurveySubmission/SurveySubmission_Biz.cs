@@ -11,15 +11,14 @@ using WCMS.SysCore.I18n;
 using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.LibAttribute;
-using WCMS.Features.WEB.Survey;
+using SurveyFormModel = WCMS.Features.WEB.Survey.Survey;
 using static WCMS.SysCore.Enum.SysEnum;
-using WCMS.SysCore.FeatureDriver.Repo;
 using WCMS.SysCore.FeatureDriver.Biz;
 
 namespace WCMS.Features.WEB.SurveySubmission;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.SurveySubmission)]
-public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissionsSet>(bizDeps), IBizService<SurveySubmissionsSet>
+public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions>(bizDeps), IBizService<SurveySubmissions>
 {
     #region Property
     private static readonly Regex SurveyIdRegex = new(@"^[A-Za-z0-9_\-]+$", RegexOptions.Compiled);
@@ -64,6 +63,18 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
             await Task.CompletedTask;
         }, ct);
     }
+    /// <summary>
+    /// 將 DB 保存 bytes 解壓成 JSON。
+    /// </summary>
+    public string DecompressJsonFromStorage(byte[]? data)
+    {
+        if (data == null || data.Length == 0) return string.Empty;
+        using MemoryStream input = new(data);
+        using BrotliStream brotli = new(input, CompressionMode.Decompress);
+        using MemoryStream output = new();
+        brotli.CopyTo(output);
+        return Encoding.UTF8.GetString(output.ToArray());
+    }
     #endregion
 
     #region Protected
@@ -75,7 +86,7 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
         SurveySubmitContext context = new() { Submit = submit, RawFormDataJson = NormalizeRawFormDataJson(rawFormDataJson) };
         CheckSubmissionHeader(submit);
         if (Message.HasError) return context;
-        context.Survey = await GetSubmitSurveySet(submit.SurveyId?.Trim() ?? string.Empty, ct);
+        context.Survey = await GetSubmitSurvey(submit.SurveyId?.Trim() ?? string.Empty, ct);
         CheckSurveyExists(context);
         if (Message.HasError) return context;
         context.FormData = ParseFormDataJson(context.RawFormDataJson);
@@ -101,8 +112,7 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
     protected virtual async Task CommitSubmission(SurveySubmissions submit, CancellationToken ct = default)
     {
         if (submit == null || Message.HasError) return;
-        BasicRepository<SurveySubmissions> repo = GetSubmissionRepo();
-        await repo.CreateAsync(submit);
+        await GraphRepo.GetRepo<SurveySubmissions>().CreateAsync(submit);
     }
     #endregion
 
@@ -119,10 +129,10 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
     }
     /// <summary>
     /// 檢查問卷是否存在
-    /// </summary>
+    ///// </summary>
     private void CheckSurveyExists(SurveySubmitContext context)
     {
-        if (context.Survey?.Survey != null) return;
+        if (!context.Survey.SurveyId.IsNullOrEmpty()) return;
         AddCustomError($"找不到問卷資料：{context.Submit?.SurveyId}");
     }
     /// <summary>
@@ -153,7 +163,7 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
     /// </summary>
     private void CheckDynamicFields(SurveySubmitContext context)
     {
-        foreach (SurveyItem item in context.Survey.SurveyItem)
+        foreach (SurveyItem item in context.Survey._SurveyItem)
         {
             CheckDynamicField(context, item);
         }
@@ -275,24 +285,26 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
     /// <summary>
     /// 依 SurveyId 讀取問卷設定
     /// </summary>
-    private async Task<SurveySet> GetSubmitSurveySet(string surveyId, CancellationToken ct = default)
+    private async Task<SurveyFormModel> GetSubmitSurvey(string surveyId, CancellationToken ct = default)
     {
         string condition = BuildSurveyIdCondition(surveyId);
-
-        return new SurveySet
-        {
-            Survey = await GetSubmitSurvey(condition, ct),
-            SurveyItem = await GetSubmitSurveyItems(condition, ct),
-            SurveyItemLang = await GetSubmitSurveyItemLangs(condition, ct),
-        };
+        SurveyFormModel survey = await GetSubmitSurveyHeader(condition, ct) ?? new();
+        if (survey.SurveyId.IsNullOrEmpty()) return survey;
+        List<SurveyItem> items = await GetSubmitSurveyItems(condition, ct);
+        List<SurveyItemLang> langs = await GetSubmitSurveyItemLangs(condition, ct);
+        BindSurveyItemLangs(items, langs);
+        survey._SurveyItem = items;
+        return survey;
     }
 
     /// <summary>
-    /// 讀取問卷主檔
+    /// 讀取問卷主檔。
     /// </summary>
-    private async Task<Survey.Survey?> GetSubmitSurvey(string condition, CancellationToken ct = default)
+    private async Task<SurveyFormModel?> GetSubmitSurveyHeader(string condition, CancellationToken ct = default)
     {
-        IList<Survey.Survey> data = (await DoQueryListAsync<Survey.Survey>([], condition, null, 0, 1)).Cast<Survey.Survey>().ToList();
+        IList<SurveyFormModel> data = (await DoQueryListAsync<SurveyFormModel>([], condition, null, 0, 1))
+            .Cast<SurveyFormModel>()
+            .ToList();
         return data.FirstOrDefault();
     }
 
@@ -312,6 +324,19 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
     {
         IList<SurveyItemLang> data = (await DoQueryListAsync<SurveyItemLang>([], condition, null, 0, 0)).Cast<SurveyItemLang>().ToList();
         return data.OrderBy(p => ToInt(p.ParentRowId)).ThenBy(p => ToInt(p.RowId)).ToList();
+    }
+    /// <summary>
+    /// 將欄位語系資料掛回對應問卷欄位。
+    /// </summary>
+    private static void BindSurveyItemLangs(List<SurveyItem> items, List<SurveyItemLang> langs)
+    {
+        foreach (SurveyItem item in items)
+        {
+            item._SurveyItemLang = langs
+                .Where(p => p.ParentRowId == item.RowId)
+                .OrderBy(p => p.RowId)
+                .ToList();
+        }
     }
     /// <summary>
     /// 整理前台送入的 FormDataJson
@@ -414,28 +439,13 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
     }
 
     /// <summary>
-    /// 將 DB 保存 bytes 解壓成 JSON
-    /// </summary>
-    public string DecompressJsonFromStorage(byte[]? data)
-    {
-        if (data == null || data.Length == 0) return string.Empty;
-
-        using MemoryStream input = new(data);
-        using BrotliStream brotli = new(input, CompressionMode.Decompress);
-        using MemoryStream output = new();
-
-        brotli.CopyTo(output);
-        return Encoding.UTF8.GetString(output.ToArray());
-    }
-
-    /// <summary>
     /// 建立正規化 FormDataJson
     /// </summary>
     private string BuildNormalizedFormDataJson(SurveySubmitContext context)
     {
         Dictionary<string, object?> result = new(StringComparer.OrdinalIgnoreCase);
 
-        foreach (SurveyItem item in context.Survey.SurveyItem)
+        foreach (SurveyItem item in context.Survey._SurveyItem)
         {
             string key = GetSurveyFieldKey(item);
             result[key] = BuildNormalizedValue(item, context.FormData);
@@ -468,7 +478,7 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
     /// </summary>
     private string BuildFieldSnapshotJson(SurveySubmitContext context)
     {
-        List<SurveyFieldSnapshot> snapshot = context.Survey.SurveyItem
+        List<SurveyFieldSnapshot> snapshot = context.Survey._SurveyItem
             .OrderBy(p => ToInt(p.RowId))
             .Select(p => BuildFieldSnapshot(context, p))
             .ToList();
@@ -490,20 +500,19 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
             InputType = inputType.ToString(),
             IsRequired = IsRequired(item),
             Options = GetSnapshotOptions(item),
-            Langs = BuildFieldLangSnapshots(context.Survey, item),
+            Langs = BuildFieldLangSnapshots(item),
         };
     }
 
     /// <summary>
     /// 建立欄位語系快照
     /// </summary>
-    private List<SurveyFieldLangSnapshot> BuildFieldLangSnapshots(SurveySet set, SurveyItem item)
+    private List<SurveyFieldLangSnapshot> BuildFieldLangSnapshots(SurveyItem item)
     {
-        return set.SurveyItemLang
-            .Where(p => Equals(p.ParentRowId, item.RowId))
+        return item._SurveyItemLang
             .Where(p => !p.FieldName.IsNullOrEmpty())
-            .OrderBy(p => ToInt(p.RowId))
-            .Select(p => new SurveyFieldLangSnapshot { Lang = p.Lang.ToString(), FieldName = p.FieldName ?? string.Empty })
+            .OrderBy(p => p.RowId)
+            .Select(p => new SurveyFieldLangSnapshot { Lang = p.Lang.ToString(), FieldName = p.FieldName })
             .ToList();
     }
 
@@ -531,7 +540,7 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
     /// </summary>
     private HashSet<string> GetValidFieldKeys(SurveySubmitContext context)
     {
-        return context.Survey.SurveyItem
+        return context.Survey._SurveyItem
             .Select(GetSurveyFieldKey)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
     }
@@ -678,7 +687,7 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
     private string GetFieldDisplayName(SurveySubmitContext context, SurveyItem item)
     {
         LangCode lang = GetSubmissionLang(context.Submit);
-        List<SurveyItemLang> rows = GetFieldLangRows(context.Survey, item);
+        List<SurveyItemLang> rows = GetFieldLangRows(item);
 
         SurveyItemLang? current = rows.FirstOrDefault(p => Equals(p.Lang, lang));
         SurveyItemLang? fallback = rows.FirstOrDefault(p => Equals(p.Lang, SiteDefaultLang));
@@ -689,12 +698,9 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
     /// <summary>
     /// 取得欄位語系列
     /// </summary>
-    private List<SurveyItemLang> GetFieldLangRows(SurveySet set, SurveyItem item)
+    private static List<SurveyItemLang> GetFieldLangRows(SurveyItem item)
     {
-        return set.SurveyItemLang
-            .Where(p => Equals(p.ParentRowId, item.RowId))
-            .OrderBy(p => ToInt(p.RowId))
-            .ToList();
+        return item._SurveyItemLang.OrderBy(p => p.RowId).ToList();
     }
 
     /// <summary>
@@ -729,16 +735,9 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
     private string BuildSurveyIdCondition(string surveyId)
     {
         string safeValue = surveyId.Replace("\\", "\\\\").Replace("\"", "\\\"");
-        return $@"{nameof(SurveySubmissions.SurveyId)} = ""{safeValue}""";
+        return $@"{nameof(SurveyFormModel.SurveyId)} = ""{safeValue}""";
     }
 
-    /// <summary>
-    /// 取得提交資料 Repository
-    /// </summary>
-    private BasicRepository<SurveySubmissions> GetSubmissionRepo()
-    {
-        return (BasicRepository<SurveySubmissions>)RepoMapProvider.EnsureRepo<SurveySubmissionsSet>(typeof(SurveySubmissions));
-    }
     /// <summary>
     /// 取得固定欄位名稱
     /// </summary>
@@ -746,9 +745,9 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
     {
         return fieldName switch
         {
-            nameof(SurveySubmissions.UserName) => I18nCache.GetLabel<SurveySubmissions_DTO>(x => x.UserName),
-            nameof(SurveySubmissions.Email) => I18nCache.GetLabel<SurveySubmissions_DTO>(x => x.Email),
-            nameof(SurveySubmissions.ContactPhone) => I18nCache.GetLabel<SurveySubmissions_DTO>(x => x.ContactPhone),
+            nameof(SurveySubmissions.UserName) => I18nCache.GetLabel<SurveySubmissions>(x => x.UserName),
+            nameof(SurveySubmissions.Email) => I18nCache.GetLabel<SurveySubmissions>(x => x.Email),
+            nameof(SurveySubmissions.ContactPhone) => I18nCache.GetLabel<SurveySubmissions>(x => x.ContactPhone),
             _ => fieldName,
         };
     }

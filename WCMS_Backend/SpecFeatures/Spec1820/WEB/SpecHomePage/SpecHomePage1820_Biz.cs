@@ -8,7 +8,7 @@ using WCMS.SysCore.Library.LibAttribute;
 namespace WCMS.SpecFeatures.Spec1820.WEB.SpecHomePage;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.HomePageSetting)]
-public class SpecHomePage1820_Biz(BizDeps bizDeps, IHttpClientFactory httpClientFactory, IMemoryCache memoryCache) : BizService<SpecHomePage1820Set>(bizDeps), IBizService<SpecHomePage1820Set>
+public class SpecHomePage1820_Biz(BizDeps bizDeps, IHttpClientFactory httpClientFactory, IMemoryCache memoryCache) : BizService<SpecHomePage1820Model>(bizDeps), IBizService<SpecHomePage1820Model>
 {
     #region Property
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;

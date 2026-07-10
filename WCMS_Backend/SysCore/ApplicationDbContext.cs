@@ -57,7 +57,7 @@ namespace WCMS.SysCore
         private void ModelDbSetting(ModelBuilder builder)
         {
             Type[] modelTypes = [.. Assembly.GetExecutingAssembly().GetTypes()
-                .Where(p => p.BaseType == typeof(DetailModel) || p.BaseType == typeof(MasterDataModel) || p.BaseType == typeof(BillDataModel))
+                .Where(type => type.IsClass && !type.IsAbstract && typeof(DbModel).IsAssignableFrom(type))
                 .Where(IsAllowedDbModelType)];
             foreach (Type type in modelTypes)
             {
@@ -85,7 +85,7 @@ namespace WCMS.SysCore
         {
             // 取得目前執行組件中的所有型別
             var asm = Assembly.GetExecutingAssembly();
-            var dtoTypes = asm.GetTypes().Where(t => t.IsClass && !t.IsAbstract && (typeof(DTOBasicDataModel).IsAssignableFrom(t)|| t.Name.EndsWith("_DTO", StringComparison.OrdinalIgnoreCase))).ToList();
+            var dtoTypes = asm.GetTypes().Where(type => type.IsClass && !type.IsAbstract && type.Name.EndsWith("_DTO", StringComparison.OrdinalIgnoreCase)).ToList();
             foreach (var t in dtoTypes) builder.Ignore(t);   // 告訴 EF：這些型別不是實體，全部忽略
         }
         /// <summary>

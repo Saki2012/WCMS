@@ -13,7 +13,7 @@ namespace WCMS.SpecFeatures.Spec1821.WEB.SpecHomePage;
 /// 1821招生首頁設定商業邏輯
 /// </summary>
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.HomePageSetting)]
-public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821Set>(bizDeps), IBizService<SpecHomePage1821Set>
+public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821Model>(bizDeps), IBizService<SpecHomePage1821Model>
 {
     #region Property
     private static readonly JsonSerializerOptions OptionsJsonSerializerOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
@@ -23,7 +23,7 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
     /// <summary>
     /// 儲存前整理首頁設定資料並執行 1821 業務檢查。
     /// </summary>
-    protected override async Task BeforeUpdate(SpecHomePage1821Set set, FuncAction act, CancellationToken ct = default)
+    protected override async Task BeforeUpdate(SpecHomePage1821Model set, FuncAction act, CancellationToken ct = default)
     {
         await base.BeforeUpdate(set, act, ct);
         switch (act)
@@ -42,7 +42,7 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
     /// <summary>
     /// 檢查首頁設定 Header、Banner、Shortcut 與 ModuleItem 資料。
     /// </summary>
-    protected void CheckData(SpecHomePage1821Set set)
+    protected void CheckData(SpecHomePage1821Model set)
     {
         CheckHeader(set.SpecHomePage1821);
         CheckBanner(set.SpecHomePage1821_Banner);
@@ -53,7 +53,7 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
     /// <summary>
     /// 整理首頁設定明細集合與 JSON 條件資料。
     /// </summary>
-    protected static void NormalizeData(SpecHomePage1821Set set)
+    protected static void NormalizeData(SpecHomePage1821Model set)
     {
         set.SpecHomePage1821_Banner ??= [];
         set.SpecHomePage1821_Shortcut ??= [];
@@ -74,7 +74,7 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
     {
         if (header == null)
         {
-            Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SpecHomePage1821Set_DTO>(x => x.SpecHomePage1821));
+            Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SpecHomePage1821Model_DTO>(x => x.SpecHomePage1821));
             return;
         }
         CheckRequired(header.Lang, I18nCache.GetLabel<SpecHomePage1821Model_DTO>(x => x.Lang));
@@ -118,7 +118,7 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
                 continue;
             }
             bool hasVisibleModuleItem = moduleItems.Any(item => item.ParentRowId == row.RowId);
-            if (!hasVisibleModuleItem) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SpecHomePage1821Set_DTO>(x => x.SpecHomePage1821_ShortcutModuleItem));
+            if (!hasVisibleModuleItem) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SpecHomePage1821Model_DTO>(x => x.SpecHomePage1821_ShortcutModuleItem));
         }
     }
     /// <summary>

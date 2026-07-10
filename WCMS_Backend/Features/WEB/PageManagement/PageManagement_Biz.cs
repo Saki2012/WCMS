@@ -12,17 +12,17 @@ using static WCMS.SysCore.Library.LibData;
 namespace WCMS.Features.WEB.PageManagement;
    
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.PageManagement)]
-public class PageManagementBiz(BizDeps bizDeps) : BizService<PageManagementSet>(bizDeps), IBizService<PageManagementSet>
+public class PageManagementBiz(BizDeps bizDeps) : BizService<PageManagement>(bizDeps), IBizService<PageManagement>
 {
     #region Migration Old Data
-    public async Task Migrate(string importFileLabel = "1810", IList<FileManageSet> srcFileSets = default)
+    public async Task Migrate(string importFileLabel = "1810", IList<FileManageModel> srcFileSets = default)
     {
-        PageManagementSet[] datas = ConvertToApiModel(importFileLabel, srcFileSets);
-        await BizInitCreateSetsAsync(datas);
+        PageManagement[] datas = ConvertToApiModel(importFileLabel, srcFileSets);
+        await BizInitCreateDatasAsync(datas);
     }
-    private PageManagementSet[] ConvertToApiModel(string importFileLabel, IList<FileManageSet> srcFileSets = default)
+    private PageManagement[] ConvertToApiModel(string importFileLabel, IList<FileManageModel> srcFileSets = default)
     {
-        List<PageManagementSet> result = [];
+        List<PageManagement> result = [];
         Dictionary<string, string> sqls = new()
         {
             { "Page", "Select * From Page" },
@@ -30,38 +30,38 @@ public class PageManagementBiz(BizDeps bizDeps) : BizService<PageManagementSet>(
         };
         DataSet ds = MigrateOldData.GetOldData(sqls);
 
-        var fileSrcIdDic = srcFileSets.SelectMany(s => s.FileManage_SyncInfo).GroupBy(d => d.SrcFullPath).ToDictionary(g => g.Key, g => g.First().InternalId);
-        List<FileManageSet> updateFileSets = [];
+        var fileSrcIdDic = srcFileSets.SelectMany(s => s._FileManage_SyncInfo).GroupBy(d => d.SrcFullPath).ToDictionary(g => g.Key, g => g.First().InternalId);
+        List<FileManageModel> updateFileSets = [];
 
         foreach (DataRow row in ds.Tables["Page"].Rows)
         {
-            PageManagementSet set = new();
+            PageManagement set = new();
             result.Add(set);
-            set.PageManagement.PageId = row["Sn"].ToString();
-            set.PageManagement.CategoryId = row["Category"].ToString();
-            set.PageManagement.CreateTime = row["CreateTime"].ToString().ToDateTime();
-            set.PageManagement.ModifyTime = row["UpdateTime"].ToString().ToDateTime();
+            set.PageId = row["Sn"].ToString();
+            set.CategoryId = row["Category"].ToString();
+            set.CreateTime = row["CreateTime"].ToString().ToDateTime();
+            set.ModifyTime = row["UpdateTime"].ToString().ToDateTime();
             int rowId = 1;
-            foreach (var dRow in ds.Tables["Page_Lang"].AsEnumerable().Where(dr => dr["Sn"].ToString() == set.PageManagement.PageId).ToList())
+            foreach (var dRow in ds.Tables["Page_Lang"].AsEnumerable().Where(dr => dr["Sn"].ToString() == set.PageId).ToList())
             {
                 if (dRow["Title"].IsNullOrEmpty()) continue;
                 string contentXml = HtmlInternalIdByFullPath.TransformHtml_ReplaceSrcWithDataInternalId(dRow["Content"].ToString(), fileSrcIdDic, out List<string> usedInternalIds);
-                updateFileSets.AddRange(srcFileSets.Where(p => usedInternalIds.Contains(p.FileManage.InternalId)));
+                updateFileSets.AddRange(srcFileSets.Where(p => usedInternalIds.Contains(p.InternalId)));
                 LangCodeExt.TryParse(dRow["Lang"].ToString(), out LangCode lang);
                 PageManagementDetail detail = new()
                 {
-                    PageId = set.PageManagement.PageId,
+                    PageId = set.PageId,
                     RowId = rowId++,
                     Lang = lang,
                     Title = dRow["Title"].ToString(),
                     Content = contentXml,
                 };
-                set.PageManagementDetail.Add(detail);
+                set._PageManagementDetail.Add(detail);
             }
         }
         foreach (var set in updateFileSets.Distinct())
         {
-            set.FileManage.ProgId = ProgId;
+            set.ProgId = ProgId;
         }
         return [.. result];
     }
@@ -89,20 +89,13 @@ public class PageManagementBiz(BizDeps bizDeps) : BizService<PageManagementSet>(
     #endregion
 
     #region Protected Virtual
-    protected override Task BeforeUpdate(PageManagementSet set, FuncAction act, CancellationToken ct = default)
+    /// <summary>
+    /// 保存前執行 AA 與功能代碼驗證。
+    /// </summary>
+    protected override async Task BeforeUpdate(PageManagement data, FuncAction act, CancellationToken ct = default)
     {
-        var @base = base.BeforeUpdate(set, act, ct);
-        switch (act)
-        {
-            case FuncAction.Create:
-            case FuncAction.Update:
-                CheckData(set);
-                break;
-            case FuncAction.Delete:
-
-                break;
-        }
-        return @base;
+        await base.BeforeUpdate(data, act, ct);
+        if (act is FuncAction.Create or FuncAction.Update) CheckData(data);
     }
     /// <summary>
     /// 給Spec功能要追加的功能模塊
@@ -112,13 +105,13 @@ public class PageManagementBiz(BizDeps bizDeps) : BizService<PageManagementSet>(
     #endregion
 
     #region Protected
-    protected void CheckData(PageManagementSet set)
+    protected void CheckData(PageManagement set)
     {
         AACheck(set);
-        CheckProgId(set.PageManagement);
+        CheckProgId(set);
     }
 
-    protected void CheckInUsed(PageManagementSet set)
+    protected void CheckInUsed(PageManagement set)
     {
         CheckIsUsedBySiteMenu();
     }
@@ -129,12 +122,12 @@ public class PageManagementBiz(BizDeps bizDeps) : BizService<PageManagementSet>(
     /// 檢查AAContent，將舊資料的AAContent轉成新的格式
     /// </summary>
     /// <param name="langDt"></param>
-    private void AACheck(PageManagementSet set)
+    private void AACheck(PageManagement set)
     {
         if (!SpecSettings.AACheck) return;
-        set.PageManagementDetail.ForEach(dt => 
+        set._PageManagementDetail.ForEach(dt =>
         {
-            if (dt.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.AACode00003, dt.Lang.ToLabel(), I18nCache.GetLabel<PageManagementDetail_DTO>(x => x.Title));
+            if (dt.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.AACode00003, dt.Lang.ToLabel(), I18nCache.GetLabel<PageManagementDetail>(x => x.Title));
             if (LibAAData.CheckAAContent(dt.Content,Message,out string newContent)) dt.Content = newContent; 
         });
     }

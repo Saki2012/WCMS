@@ -1,9 +1,10 @@
 ﻿using System.Linq.Expressions;
+using WCMS.SysCore.FeatureDriver.Model;
 using static WCMS.SysCore.FeatureDriver.Api.QueryListParam;
 
 namespace WCMS.SysCore.Interface
 {
-    public interface IBasicRepository<TModel> where TModel : class
+    public interface IBasicRepository<TDbModel> where TDbModel : DbModel
     {
         #region Property
         /// <summary>
@@ -25,23 +26,23 @@ namespace WCMS.SysCore.Interface
         /// <param name="key"></param>
         /// <param name="inputSet"></param>
         /// <returns></returns>
-        public Task UpdateAsync(TModel oldData, TModel newData);
+        public Task UpdateAsync(TDbModel oldData, TDbModel newData);
         /// <summary>
         /// 刪除(非同步)
         /// </summary>
         /// <param name="key"></param>
-        public Task<bool> DeleteAsync(TModel oldData);
+        public Task<bool> DeleteAsync(TDbModel oldData);
         /// <summary>
         /// 查看表單(非同步)
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public Task<TModel> QueryDataAsync(params object[] key);
+        public Task<TDbModel> QueryDataAsync(params object[] key);
         /// <summary>
         /// 查詢明細(非同步)
         /// </summary>
         /// <returns></returns>
-        public Task<IList<TModel>> QueryListAsync(LambdaExpression selectExpr, LambdaExpression whereExpr, IReadOnlyList<OrderBySpec>? orderBy = null, int pageCt = 1, int takeCt = 10, int skipCt = 0, bool asNoTracking = true);
+        public Task<IList<TDbModel>> QueryListAsync(LambdaExpression selectExpr, LambdaExpression whereExpr, IReadOnlyList<OrderBySpec>? orderBy = null, int pageCt = 1, int takeCt = 10, int skipCt = 0, bool asNoTracking = true);
         /// <summary>
         /// 自動產生流水號ID
         /// </summary>

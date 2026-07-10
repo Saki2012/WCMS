@@ -11,10 +11,10 @@ using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.IAM.Account
 {
-    public class AccountBiz(BizDeps bizDeps, IBizService<PersonSet>biz) : BizService<AccountSet>(bizDeps), IBizService<AccountSet>
+    public class AccountBiz(BizDeps bizDeps, IBizService<PersonModel>biz) : BizService<AccountModel>(bizDeps), IBizService<AccountModel>
     {
         #region Property
-        protected IBizService<PersonSet> personBiz = biz;
+        protected IBizService<PersonModel> personBiz = biz;
         protected override bool IsAutoGenerateId { get => false; }
         #endregion
 
@@ -34,12 +34,12 @@ namespace WCMS.Features.IAM.Account
         /// </summary>
         /// <param name="set"></param>
         /// <param name="dto"></param>
-        public static void ConvertPassword(AccountSet set, string password)
+        public static void ConvertPassword(AccountModel account, string password)
         {
             (byte[] hash, byte[] salt, int ver) = PasswordHasher.Hash(password ?? "");
-            set.Account.PasswordHash = hash;
-            set.Account.PasswordSalt = salt;
-            set.Account.PasswordAlgoVer = ver;
+            account.PasswordHash = hash;
+            account.PasswordSalt = salt;
+            account.PasswordAlgoVer = ver;
         }
         /// <summary>
         /// 執行修改密碼
@@ -52,11 +52,11 @@ namespace WCMS.Features.IAM.Account
             {
                 ownsTx = await TryBeginTransactionAsync();
                 if (Message.HasError) return ;
-                AccountSet oldSet = await DoQuerySetAsync(internalId);
-                var ok = PasswordHasher.Verify(oldPassword, oldSet.Account.PasswordHash, oldSet.Account.PasswordSalt, oldSet.Account.PasswordAlgoVer);
+                AccountModel oldSet = await DoQueryDataAsync(internalId);
+                var ok = PasswordHasher.Verify(oldPassword, oldSet.PasswordHash, oldSet.PasswordSalt, oldSet.PasswordAlgoVer);
                 if (ok) 
                 { 
-                    AccountSet newSet = oldSet.Snapshot();
+                    AccountModel newSet = oldSet.Snapshot();
                     ConvertPassword(newSet, newPassword);
                     await DoUpdateAsync(oldSet, newSet);
                     if (Message.HasError) return ;
@@ -80,8 +80,8 @@ namespace WCMS.Features.IAM.Account
             {
                 ownsTx = await TryBeginTransactionAsync();
                 if (Message.HasError) return;
-                AccountSet oldSet = await DoQuerySetAsync(internalId);
-                AccountSet newSet = oldSet.Snapshot();
+                AccountModel oldSet = await DoQueryDataAsync(internalId);
+                AccountModel newSet = oldSet.Snapshot();
                 ConvertPassword(newSet, newPassword);
                 await DoUpdateAsync(oldSet, newSet);
                 if (Message.HasError) return;
@@ -96,7 +96,7 @@ namespace WCMS.Features.IAM.Account
         #endregion
 
         #region Protected Virtual
-        protected override async Task BeforeUpdate(AccountSet set, FuncAction act, CancellationToken ct = default)
+        protected override async Task BeforeUpdate(AccountModel set, FuncAction act, CancellationToken ct = default)
         {
             await base.BeforeUpdate(set, act, ct);
             switch (act)
@@ -109,13 +109,13 @@ namespace WCMS.Features.IAM.Account
             }
         }
 
-        protected override async Task AfterUpdate(AccountSet? oldSet, AccountSet? newSet, FuncAction act, TransStatus status, CancellationToken ct = default)
+        protected override async Task AfterUpdate(AccountModel? oldSet, AccountModel? newSet, FuncAction act, TransStatus status, CancellationToken ct = default)
         {
             await base.AfterUpdate(oldSet, newSet, act, status, ct);
             switch(act)
             {
                 case FuncAction.Create:
-                    await AutoCreatePersonData(newSet.Account.PersonId, newSet.Account.AccountName, ct);
+                    await AutoCreatePersonData(newSet.PersonId, newSet.AccountName, ct);
                     break;
                 case FuncAction.Update:
                     LetPasswordNoUpdate(oldSet,newSet);
@@ -125,16 +125,16 @@ namespace WCMS.Features.IAM.Account
         #endregion
 
         #region Protected
-        protected async Task CheckData(AccountSet set, FuncAction act, CancellationToken ct=default)
+        protected async Task CheckData(AccountModel set, FuncAction act, CancellationToken ct=default)
         {
-            if (set.Account.AccountId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<AccountModel>(x => x.AccountId));
-            if(set.Account.RoleId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<AccountModel>(x => x.RoleId));
-            await CheckPersonIdIsUniqueAsync(set.Account, act, ct);
+            if (set.AccountId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<AccountModel>(x => x.AccountId));
+            if(set.RoleId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<AccountModel>(x => x.RoleId));
+            await CheckPersonIdIsUniqueAsync(set, act, ct);
         }
-        protected void SetData(AccountSet set)
+        protected void SetData(AccountModel set)
         {
-            if (set.Account.PersonId.IsNullOrEmpty()) set.Account.PersonId = set.Account.AccountId;
-            if (set.Account.AccountName.IsNullOrEmpty()) set.Account.AccountName = set.Account.Person.PersonName;
+            if (set.PersonId.IsNullOrEmpty()) set.PersonId = set.AccountId;
+            if (set.AccountName.IsNullOrEmpty()) set.AccountName = set.Person?.PersonName ?? string.Empty;
         }
         #endregion
 
@@ -144,14 +144,11 @@ namespace WCMS.Features.IAM.Account
         {
             if(await personBiz.BizQueryTotalCounts($"{nameof(PersonModel.PersonId)} = {personId}") == 0)
             {
-                await personBiz.BizCreateSetAsync(new PersonSet()
+                await personBiz.BizCreateDataAsync(new PersonModel()
                 {
-                    Person = new()
-                    {
-                        PersonId = personId, PersonName = personName,
-                        Gender = Gender.NotKnown, Email = string.Empty,
-                        MobilePhone=string.Empty, HomePhone=string.Empty,
-                    }
+                    PersonId = personId, PersonName = personName,
+                    Gender = Gender.NotKnown, Email = string.Empty,
+                    MobilePhone=string.Empty, HomePhone=string.Empty,
                 }, ct); 
             }
         }
@@ -161,11 +158,11 @@ namespace WCMS.Features.IAM.Account
         /// </summary>
         /// <param name="oldSet"></param>
         /// <param name="newSet"></param>
-        private static void LetPasswordNoUpdate(AccountSet oldSet, AccountSet newSet)
+        private static void LetPasswordNoUpdate(AccountModel oldSet, AccountModel newSet)
         {
-            newSet.Account.PasswordHash = oldSet.Account.PasswordHash;
-            newSet.Account.PasswordSalt = oldSet.Account.PasswordSalt;
-            newSet.Account.PasswordAlgoVer = oldSet.Account.PasswordAlgoVer;
+            newSet.PasswordHash = oldSet.PasswordHash;
+            newSet.PasswordSalt = oldSet.PasswordSalt;
+            newSet.PasswordAlgoVer = oldSet.PasswordAlgoVer;
         }
         /// <summary>
         /// 檢查人員編號是否已被其他帳號使用

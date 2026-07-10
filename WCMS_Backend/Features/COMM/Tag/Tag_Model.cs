@@ -23,9 +23,9 @@ namespace WCMS.Features.COMM.Tag;
     public string ProgId { get; set; } = string.Empty;
 
     #region 主子表關聯
-    [InverseProperty(nameof(TagDetail._TagData)), JsonIgnore]
-    [LibField(ApiFieldMode.Ignore)]
-    public List<TagDetail>? _TagDetail { get; set; }
+    [InverseProperty(nameof(TagDetail._TagData))]
+    [LibField(ApiFieldMode.ReadWrite)]
+    public List<TagDetail> _TagDetail { get; set; } = [];
     #endregion
 }
 public class TagDetail : DetailModel

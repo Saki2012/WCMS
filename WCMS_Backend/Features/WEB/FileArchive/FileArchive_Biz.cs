@@ -12,69 +12,65 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.Features.WEB.FileArchive;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.FileArchive)]
-public class FileArchiveBiz(BizDeps bizDeps) : BizService<FileArchiveSet>(bizDeps), IBizService<FileArchiveSet> {
+public class FileArchiveBiz(BizDeps bizDeps) : BizService<FileArchive>(bizDeps), IBizService<FileArchive> {
 
     #region Migration Old Data
-    public async Task Migrate(string importFileLabel = "1810", IList<FileManageSet> srcFileSets = default)
+    public async Task Migrate(string importFileLabel = "1810", IList<FileManageModel> srcFileSets = default)
     {
-        FileArchiveSet[] datas = ConvertToApiModel(importFileLabel,srcFileSets);
-        await BizInitCreateSetsAsync(datas);
+        FileArchive[] datas = ConvertToApiModel(importFileLabel,srcFileSets);
+        await BizInitCreateDatasAsync(datas);
     }
-    private FileArchiveSet[] ConvertToApiModel(string importFileLabel, IList<FileManageSet> srcFileSets = default)
+    private FileArchive[] ConvertToApiModel(string importFileLabel, IList<FileManageModel> srcFileSets = default)
     {
-        List<FileArchiveSet> result = [];
+        List<FileArchive> result = [];
         Dictionary<string, string> sqls = new()
         {
             { "Archive", "Select * From Archive" },
             { "Archive_Lang", "Select * From Archive_Lang" },
         };
         DataSet ds = MigrateOldData.GetOldData(sqls);
-        var fileSrcIdDic = srcFileSets.SelectMany(s => s.FileManage_SyncInfo).GroupBy(d => d.SrcFullPath).ToDictionary(g => g.Key, g => g.First().InternalId);
-        List<FileManageSet> updateFileSets = [];
+        List<FileManageModel> updateFileSets = [];
         foreach (DataRow srcHeader in ds.Tables["Archive"].Rows)
         {
-            FileArchiveSet set = new()
+            FileArchive set = new()
             {
-                FileArchive = new FileArchive()
-                {
-                    FileArchiveId = srcHeader["Sn"].ToString(),
-                    CategoriesId = srcHeader["Category"].ToString(),
-                    TagsId = srcHeader["Tag"].ToString(),
-                    ContentStatus = GetContentStatus(srcHeader["Status"].ToString()),
-                    CreateTime = srcHeader["CreateTime"].ToString().ToDateTime(),
-                    ModifyTime = srcHeader["UpdateTime"].ToString().ToDateTime(),
-                }
+                FileArchiveId = srcHeader["Sn"].ToString(),
+                CategoriesId = srcHeader["Category"].ToString(),
+                TagsId = srcHeader["Tag"].ToString(),
+                ContentStatus = GetContentStatus(srcHeader["Status"].ToString()),
+                CreateTime = srcHeader["CreateTime"].ToString().ToDateTime(),
+                ModifyTime = srcHeader["UpdateTime"].ToString().ToDateTime(),
             };
             int rowId = 1;
-            ds.Tables["Archive_Lang"].AsEnumerable().Where(dr => dr["Sn"].ToString() == set.FileArchive.FileArchiveId).ToList().ForEach(dRow =>
+            ds.Tables["Archive_Lang"].AsEnumerable().Where(dr => dr["Sn"].ToString() == set.FileArchiveId).ToList().ForEach(dRow =>
             {
                 if (!dRow["Title"].IsNullOrEmpty())
                 {
                     LangCodeExt.TryParse(dRow["Lang"].ToString(), out LangCode lang);
-                    set.FileArchiveInfo.Add(new FileArchiveInfo()
+                    FileArchiveInfo info = new()
                     {
-                        FileArchiveId = set.FileArchive.FileArchiveId,
+                        FileArchiveId = set.FileArchiveId,
                         RowId = rowId,
                         Lang = lang,
                         Title = dRow["Title"].ToString(),
-                    });
-
+                    };
+                    set._FileArchiveInfo.Add(info);
                     for (int i = 1; i < 10; i++)
                     {
                         string subFileName = dRow[$"Filename{i}"].ToString();
                         string subFileRName = dRow[$"File{i}"].ToString();
                         if (!subFileName.IsNullOrEmpty() && !subFileRName.IsNullOrEmpty())
                         {
-                            FileManageSet fileSet = GetSetByPicture(subFileRName, srcFileSets);
+                            FileManageModel fileSet = GetSetByPicture(subFileRName, srcFileSets);
                             updateFileSets.Add(fileSet);
-                            fileSet.FileManage.FileName = subFileName;
-                            fileSet.FileManage.FileDescription = subFileName;
-                            set.FileArchiveDetail.Add(new FileArchiveDetail()
+                            fileSet.FileName = subFileName;
+                            fileSet.FileDescription = subFileName;
+                            info._FileArchiveDetail.Add(new FileArchiveDetail()
                             {
-                                FileArchiveId = set.FileArchive.FileArchiveId,
+                                FileArchiveId = set.FileArchiveId,
                                 ParentRowId = rowId,
                                 RowId = i,
-                                FileSrcId = fileSet.FileManage.InternalId,
+                                FileSrcId = fileSet.InternalId,
                                 FileName = subFileName,
                             });
                         }
@@ -84,7 +80,7 @@ public class FileArchiveBiz(BizDeps bizDeps) : BizService<FileArchiveSet>(bizDep
             });
             result.Add(set);
         }
-        foreach (var set in updateFileSets.Distinct()) { set.FileManage.ProgId = ProgId; }
+        foreach (var set in updateFileSets.Distinct()) { set.ProgId = ProgId; }
         return [.. result];
     }
     private static ContentStatus GetContentStatus(string status)
@@ -107,14 +103,14 @@ public class FileArchiveBiz(BizDeps bizDeps) : BizService<FileArchiveSet>(bizDep
         }
         return result;
     }
-    private static FileManageSet GetSetByPicture(string srcPic, IList<FileManageSet> fileSets)
+    private static FileManageModel GetSetByPicture(string srcPic, IList<FileManageModel> fileSets)
     {
-        return fileSets.Where(x => x.FileManage_SyncInfo.Any(y => y.SrcFullPath.ToLowerInvariant().Equals($@"File/Archive/{srcPic}".ToLowerInvariant()))).FirstOrDefault();
+        return fileSets.Where(x => x._FileManage_SyncInfo.Any(y => y.SrcFullPath.ToLowerInvariant().Equals($@"File/Archive/{srcPic}".ToLowerInvariant()))).FirstOrDefault();
     }
     #endregion
 
     #region Protected
-    protected override async Task BeforeUpdate(FileArchiveSet set, FuncAction act, CancellationToken ct = default)
+    protected override async Task BeforeUpdate(FileArchive set, FuncAction act, CancellationToken ct = default)
     {
         await base.BeforeUpdate(set, act, ct);
         switch (act)
@@ -133,10 +129,10 @@ public class FileArchiveBiz(BizDeps bizDeps) : BizService<FileArchiveSet>(bizDep
     /// 
     /// </summary>
     /// <param name="set"></param>
-    private void CheckData(FileArchiveSet set)
+    private void CheckData(FileArchive set)
     {
         CheckDataIsEmpty(set);
-        foreach (var urlDt in set.FileArchiveUrlDetail)
+        foreach (var urlDt in set._FileArchiveInfo.SelectMany(info => info._FileArchiveUrlDetail).ToList())
         {
             CheckRegularUrl(urlDt);
             CheckUrlIsEmpty(urlDt);
@@ -146,20 +142,23 @@ public class FileArchiveBiz(BizDeps bizDeps) : BizService<FileArchiveSet>(bizDep
     /// 
     /// </summary>
     /// <param name="set"></param>
-    private static void SetData(FileArchiveSet set)
+    private static void SetData(FileArchive set)
     {
-        DoRemergeData(set.FileArchive);
-        RemoveEmptyFileSrcData(set.FileArchiveDetail);
-        RemoveEmptyUrlSrcData(set.FileArchiveUrlDetail);
+        DoRemergeData(set);
+        foreach (FileArchiveInfo info in set._FileArchiveInfo)
+        {
+            RemoveEmptyFileSrcData(info._FileArchiveDetail);
+            RemoveEmptyUrlSrcData(info._FileArchiveUrlDetail);
+        }
     }
     /// <summary>
     /// 檢查類別是否為空
     /// </summary>
     /// <param name="header"></param>
-    private void CheckDataIsEmpty(FileArchiveSet set)
+    private void CheckDataIsEmpty(FileArchive set)
     {
-        if (set.FileArchive.CategoriesId == "") Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<FileArchive_DTO>(x => x.CategoriesId));
-        if (set.FileArchiveInfo.FirstOrDefault(p => p.Lang==SiteDefaultLang) == null || set.FileArchiveInfo.FirstOrDefault(p => p.Lang == SiteDefaultLang).Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, SiteDefaultLang.ToLabel(), I18nCache.GetLabel<AnnouncementDetail_DTO>(x => x.Title));
+        if (set.CategoriesId == "") Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<FileArchive>(x => x.CategoriesId));
+        if (set._FileArchiveInfo.FirstOrDefault(p => p.Lang==SiteDefaultLang) == null || set._FileArchiveInfo.FirstOrDefault(p => p.Lang == SiteDefaultLang).Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, SiteDefaultLang.ToLabel(), I18nCache.GetLabel<FileArchiveInfo>(x => x.Title));
     }
     /// <summary>
     /// 如果沒有上傳檔案成功的項目，就移除該項目防呆
@@ -197,8 +196,8 @@ public class FileArchiveBiz(BizDeps bizDeps) : BizService<FileArchiveSet>(bizDep
 
     private void CheckUrlIsEmpty(FileArchiveUrlDetail dt)
     {
-        if (!dt.Url.IsNullOrEmpty() && dt.UrlDescription.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<FileArchiveUrlDetail_DTO>(x => x.UrlDescription));
-        if (dt.Url.IsNullOrEmpty() && !dt.UrlDescription.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<FileArchiveUrlDetail_DTO>(x => x.Url));
+        if (!dt.Url.IsNullOrEmpty() && dt.UrlDescription.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<FileArchiveUrlDetail>(x => x.UrlDescription));
+        if (dt.Url.IsNullOrEmpty() && !dt.UrlDescription.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<FileArchiveUrlDetail>(x => x.Url));
     }
     #endregion
 }
