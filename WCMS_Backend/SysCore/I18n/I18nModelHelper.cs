@@ -2,10 +2,10 @@
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
+using WCMS.SysCore.FeatureDriver.Model.MetaData;
 using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.LibAttribute;
-
 namespace WCMS.SysCore.I18n;
 
 public static class I18nModelHelper
@@ -61,8 +61,8 @@ public static class I18nModelHelper
         var result = LibDisplayAttributeHelper.GetDescriptionText(attr);
         return result;
     }
-
 }
+
 public static class I18nCache
 {
     #region Property

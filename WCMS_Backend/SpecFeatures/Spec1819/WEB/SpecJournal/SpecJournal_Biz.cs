@@ -409,7 +409,7 @@ static class OrcidConsts
     // ===== HTTP / API =====
     public const string ApiBase = "https://pub.orcid.org/v3.0";
     public const string RecordPath = "record";
-    public const string AcceptJson = "application/json";
+    public const string AcceptJson = SysParam.MediaTypes.ApplicationJson;
     public const string CacheKeyPrefix = "orcid:author:";
     // ===== JSON Path Segments =====
     public const string Person = "person";

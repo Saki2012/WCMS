@@ -1,8 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using WCMS.SysCore.Enum;
-using WCMS.SysCore.FeatureDriver.Resx;
-using WCMS.SysCore.Library.LibAttribute;
-using static WCMS.SysCore.Enum.SysEnum;
+﻿using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.Features.IAM.RolePermission;
 
 public sealed class PermissionCatalogModuleDTO

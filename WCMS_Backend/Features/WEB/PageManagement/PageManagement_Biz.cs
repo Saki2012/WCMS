@@ -2,15 +2,13 @@
 using WCMS.Features._Resx;
 using WCMS.SysCore.FeatureDriver.Biz;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.LibAttribute;
-using WCMS.SysCore.SystemFunc.FileManagement;
+using WCMS.SysCore.PlatformServices.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 using static WCMS.SysCore.Library.LibData;
-
 namespace WCMS.Features.WEB.PageManagement;
-   
+
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.PageManagement)]
 public class PageManagementBiz(BizDeps bizDeps) : BizService<PageManagement>(bizDeps), IBizService<PageManagement>
 {
@@ -101,7 +99,7 @@ public class PageManagementBiz(BizDeps bizDeps) : BizService<PageManagement>(biz
     /// 給Spec功能要追加的功能模塊
     /// </summary>
     /// <param name="dict"></param>
-    protected virtual void SpecGetSiteMenuUsedProgList(Dictionary<string,string> dict){}
+    protected virtual void SpecGetSiteMenuUsedProgList(Dictionary<string, string> dict) { }
     #endregion
 
     #region Protected
@@ -128,7 +126,7 @@ public class PageManagementBiz(BizDeps bizDeps) : BizService<PageManagement>(biz
         set._PageManagementDetail.ForEach(dt =>
         {
             if (dt.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.AACode00003, dt.Lang.ToLabel(), I18nCache.GetLabel<PageManagementDetail>(x => x.Title));
-            if (LibAAData.CheckAAContent(dt.Content,Message,out string newContent)) dt.Content = newContent; 
+            if (LibAAData.CheckAAContent(dt.Content, Message, out string newContent)) dt.Content = newContent;
         });
     }
     /// <summary>
@@ -138,7 +136,7 @@ public class PageManagementBiz(BizDeps bizDeps) : BizService<PageManagement>(biz
     private void CheckProgId(PageManagement header)
     {
         List<string> progIds = [.. GetSiteMenuUsedProgList().Keys];
-        if (!progIds.Contains(header.ProgId)) header.ProgId=ProgKeys.WEB.PageManagement;
+        if (!progIds.Contains(header.ProgId)) header.ProgId = ProgKeys.WEB.PageManagement;
     }
     /// <summary>
     /// 檢查資料是否被網站導覽給使用

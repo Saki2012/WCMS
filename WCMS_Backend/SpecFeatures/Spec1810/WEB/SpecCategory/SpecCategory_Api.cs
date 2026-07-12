@@ -10,7 +10,7 @@ namespace WCMS.SpecFeatures.Spec1810.WEB.SpecCategory;
 [LibApiController(ProgKeys.WEB.Code, ProgKeys.Spec.SpecCategory, SysEnum.FuncAction.MasterData)]
 public class SpecCategoryController : ApiDataController<SpecCategoryModel>
 {
-    [HttpGet(nameof(GetShowColumnItems)), OutputCache(PolicyName = SysParam.PermanentCache), AllowAnonymous, IgnoreAntiforgeryToken]
+    [HttpGet(nameof(GetShowColumnItems)), OutputCache(PolicyName = SysParam.OutputCachePolicies.PermanentCache), AllowAnonymous, IgnoreAntiforgeryToken]
     public IActionResult GetShowColumnItems(string progId)
     {
         AddDetailTags(progId);

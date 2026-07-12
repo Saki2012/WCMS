@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.Features.IAM.Account;
-using WCMS.SysCore.Enum;
-using WCMS.SysCore.FeatureDriver.Model;
-using WCMS.SysCore.Library.LibAttribute;
+using WCMS.SysCore.FeatureDriver.Model.Base;
+using WCMS.SysCore.FeatureDriver.Model.MetaData;
+using WCMS.SysCore.FeatureDriver.Model.Validation;
 
 namespace WCMS.Features.COMM.Calendar;
 
@@ -18,7 +18,7 @@ public class CalendarModel : HeaderModel
     /// <summary>
     /// 匯入來源。
     /// </summary>
-    [StringLength(SysLengthParam.ID)]
+    [StringLength(DbStrLen.ID)]
     [LibField(ApiFieldMode.ReadWrite)]
     public string ImportSrc { get; set; } = string.Empty;
     /// <summary>
@@ -64,13 +64,13 @@ public partial class CalendarDetail : DetailModel
     /// <summary>
     /// 假日名稱。
     /// </summary>
-    [StringLength(SysLengthParam.Title)]
+    [StringLength(DbStrLen.Title)]
     [LibField(ApiFieldMode.ReadWrite)]
     public string HolidayName { get; set; } = string.Empty;
     /// <summary>
     /// 日期說明。
     /// </summary>
-    [StringLength(SysLengthParam.Title)]
+    [StringLength(DbStrLen.Title)]
     [LibField(ApiFieldMode.ReadWrite)]
     public string Description { get; set; } = string.Empty;
     /// <summary>
@@ -92,7 +92,7 @@ public partial class CalendarDetail : DetailModel
     /// <summary>
     /// 修改人 ID。
     /// </summary>
-    [StringLength(SysLengthParam.ID)]
+    [StringLength(DbStrLen.ID)]
     [LibField(ApiFieldMode.ReadOnly)]
     public string? ModifyUserId { get; set; }
 

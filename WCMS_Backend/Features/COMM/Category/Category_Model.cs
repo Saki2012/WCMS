@@ -3,7 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using WCMS.Features.MAT.MatCategory;
 using WCMS.SysCore.Enum;
-using WCMS.SysCore.FeatureDriver.Model;
+using WCMS.SysCore.FeatureDriver.Model.Base;
+using WCMS.SysCore.FeatureDriver.Model.Validation;
 using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library.LibAttribute;
@@ -20,12 +21,12 @@ public class Category : HeaderModel
     /// 類別 ID。
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, DisplayName.CategoryId)]
+    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.CategoryId)]
     public string CategoryId { get; set; } = string.Empty;
     /// <summary>
     /// 對應功能模組 ID。
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.ProgId, DisplayName.Common_ProgId)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.ProgId, DisplayName.Common_ProgId)]
     public string ProgId { get; set; } = string.Empty;
     /// <summary>
     /// 類別多語明細。
@@ -53,7 +54,7 @@ public class CategoryDetail : DetailModel
     /// 類別 ID。
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, DisplayName.CategoryId)]
+    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.CategoryId)]
     public string CategoryId { get; set; } = string.Empty;
     /// <summary>
     /// 行主鍵。
@@ -69,7 +70,7 @@ public class CategoryDetail : DetailModel
     /// <summary>
     /// 類別名稱。
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title, DisplayName.Category_CategoryName)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Title, DisplayName.Category_CategoryName)]
     public string CategoryName { get; set; } = string.Empty;
     /// <summary>
     /// 所屬類別。

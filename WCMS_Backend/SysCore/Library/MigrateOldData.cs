@@ -1,5 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using System.Data;
+using WCMS.SysCore.Persistence;
 
 namespace WCMS.SysCore.Library
 {

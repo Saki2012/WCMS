@@ -52,8 +52,6 @@ public static partial class DisplayName
     /// 英：Description
     /// </summary>
     public const string Common_Description = nameof(Common_Description);
-
-
     /// <summary>
     /// 中：網址
     /// 英：URL

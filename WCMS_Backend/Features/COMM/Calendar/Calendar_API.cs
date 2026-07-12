@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using WCMS.Features._Resx;
 using WCMS.SysCore;
-using WCMS.SysCore.FeatureDriver.Api;
+using WCMS.SysCore.FeatureDriver.Api.Controllers;
 using WCMS.SysCore.Library.LibAttribute;
 using static WCMS.SysCore.Enum.SysEnum;
 
@@ -44,7 +44,7 @@ public partial class CalendarController() : ApiDataController<CalendarModel>
     {
         string progId = $"{Service.ProgId}/{nameof(UpdateDayInfo)}";
         string content = JsonConvert.SerializeObject(dayInfo);
-        string clientIp = Request.Headers["HTTP_CLIENT_IP"].ToString();
+        string clientIp = Request.Headers[SysParam.HttpHeaders.ClientIp].ToString();
         return OperateLog.AddOperateLog(progId, OperateUser.UserId, content, clientIp);
     }
     #endregion

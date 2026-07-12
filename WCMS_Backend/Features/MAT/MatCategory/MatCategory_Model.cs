@@ -2,12 +2,12 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.Features.COMM.Category;
 using WCMS.SysCore.Enum;
-using WCMS.SysCore.FeatureDriver.Model;
+using WCMS.SysCore.FeatureDriver.Model.Base;
+using WCMS.SysCore.FeatureDriver.Model.Form;
+using WCMS.SysCore.FeatureDriver.Model.Validation;
 using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library.LibAttribute;
-
 namespace WCMS.Features.MAT.MatCategory;
 
 /// <summary>
@@ -67,7 +67,7 @@ public class MatCategoryInfoField : DetailModel
     /// 類別 ID。
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, DisplayName.CategoryId)]
+    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.CategoryId)]
     public string CategoryId { get; set; } = string.Empty;
     /// <summary>
     /// 行主鍵。
@@ -78,7 +78,7 @@ public class MatCategoryInfoField : DetailModel
     /// <summary>
     /// 動態欄位 ID。
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.ID, DisplayName.Common_Field)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.ID, DisplayName.Common_Field)]
     public string Field { get; set; } = string.Empty;
     /// <summary>
     /// 所屬 Category。
@@ -105,7 +105,7 @@ public class MatCategoryInfoFieldDisplay : DetailModel
     /// 類別 ID。
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, DisplayName.CategoryId)]
+    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.CategoryId)]
     public string CategoryId { get; set; } = string.Empty;
     /// <summary>
     /// 父行主鍵。
@@ -126,7 +126,7 @@ public class MatCategoryInfoFieldDisplay : DetailModel
     /// <summary>
     /// 動態欄位顯示名稱。
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title, DisplayName.Common_FieldDisplayName)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Title, DisplayName.Common_FieldDisplayName)]
     public string FieldDisplayName { get; set; } = string.Empty;
     /// <summary>
     /// 所屬 MAT 類別自訂欄位。

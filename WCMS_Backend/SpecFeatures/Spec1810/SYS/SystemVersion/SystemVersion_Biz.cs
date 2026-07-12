@@ -1,5 +1,4 @@
 ﻿using WCMS.SysCore.SystemFunc.SystemVersion;
-
 namespace WCMS.SpecFeatures.Spec1810.SYS.SystemVersion;
 
 public class SpecSystemVersion_Biz: SystemVersion_Biz

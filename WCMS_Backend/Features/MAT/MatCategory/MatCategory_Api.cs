@@ -3,11 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using WCMS.Features._Resx;
 using WCMS.Features.COMM.Category;
 using WCMS.SysCore.Enum;
-using WCMS.SysCore.FeatureDriver.Api;
+using WCMS.SysCore.FeatureDriver.Api.Controllers;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.LibAttribute;
-
 namespace WCMS.Features.MAT.MatCategory;
 
 /// <summary>
@@ -47,7 +46,7 @@ public class MatCategoryController : CategoryControllerBase<MatCategoryFormModel
                 $"{displayPath}.{nameof(MatCategoryInfoFieldDisplay.Lang)}",
                 $"{displayPath}.{nameof(MatCategoryInfoFieldDisplay.FieldDisplayName)}"
             ],
-            Condition = LibData.Merge(" And ", false,
+            Condition = LibData.Merge(SysParam.QueryOperators.And, false,
                 $"{nameof(MatCategoryFormModel.Category)}.{nameof(Category.CategoryId)} = \"{EscapeQueryValue(categoryId)}\"",
                 $"{displayPath}.{nameof(MatCategoryInfoFieldDisplay.Lang)} = {lang}")
         };

@@ -3,12 +3,12 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using BannerModel = WCMS.Features.WEB.Banner.Banner;
 using WCMS.SysCore.Enum;
-using WCMS.SysCore.FeatureDriver.Model;
 using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library.LibAttribute;
 using static WCMS.SysCore.Enum.SysEnum;
-
+using WCMS.SysCore.FeatureDriver.Model.Base;
+using WCMS.SysCore.FeatureDriver.Model.Validation;
 namespace WCMS.Features.WEB.SiteMenuSetting;
 
 /// <summary>
@@ -21,12 +21,12 @@ public class SiteMenu_IndexModel : HeaderModel
     /// 站台代碼。
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, DisplayName.SiteMenu_SiteIndex)]
+    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.SiteMenu_SiteIndex)]
     public string SiteIndex { get; set; } = string.Empty;
     /// <summary>
     /// Google Analytics 設定。
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Memo, DisplayName.SiteMenu_GoogleAnalytics)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Memo, DisplayName.SiteMenu_GoogleAnalytics)]
     public string GoogleAnalytics { get; set; } = string.Empty;
     /// <summary>
     /// 是否啟用站台。
@@ -41,7 +41,7 @@ public class SiteMenu_IndexModel : HeaderModel
     /// <summary>
     /// 支援語系 JSON。
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Memo, DisplayName.Enum_SupportLang)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Memo, DisplayName.Enum_SupportLang)]
     public string SupportLangs { get; set; } = string.Empty;
     /// <summary>
     /// 站台多語資訊。
@@ -68,7 +68,7 @@ public class SiteMenu_IndexInfoModel : DetailModel
     /// 站台代碼。
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, DisplayName.SiteMenu_SiteIndex)]
+    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.SiteMenu_SiteIndex)]
     public string SiteIndex { get; set; } = string.Empty;
     /// <summary>
     /// 資料列代碼。
@@ -84,12 +84,12 @@ public class SiteMenu_IndexInfoModel : DetailModel
     /// <summary>
     /// 網站標題。
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title, DisplayName.SiteMenu_SiteTitle)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Title, DisplayName.SiteMenu_SiteTitle)]
     public string Title { get; set; } = string.Empty;
     /// <summary>
     /// 網站描述。
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Memo, DisplayName.SiteMenu_SiteDescription)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Memo, DisplayName.SiteMenu_SiteDescription)]
     public string Description { get; set; } = string.Empty;
     /// <summary>
     /// Header 內容。
@@ -104,7 +104,7 @@ public class SiteMenu_IndexInfoModel : DetailModel
     /// <summary>
     /// 網站關鍵字。
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Memo, DisplayName.SiteMenu_Keyword)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Memo, DisplayName.SiteMenu_Keyword)]
     public string Keyword { get; set; } = string.Empty;
     /// <summary>
     /// 語系頁首 Banner。
@@ -115,7 +115,7 @@ public class SiteMenu_IndexInfoModel : DetailModel
     /// <summary>
     /// 語系頁首 Banner ID。
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.ID, DisplayName.BannerId)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.ID, DisplayName.BannerId)]
     public string? BannerId { get; set; }
     /// <summary>
     /// 所屬站台。
@@ -137,7 +137,7 @@ public class SiteMenu_Item : DetailModel
     /// 站台代碼。
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, DisplayName.SiteMenu_SiteIndex)]
+    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.SiteMenu_SiteIndex)]
     public string SiteIndex { get; set; } = string.Empty;
     /// <summary>
     /// 選單項目代碼。
@@ -153,12 +153,12 @@ public class SiteMenu_Item : DetailModel
     /// <summary>
     /// 當前頁面網址代碼。
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Url, DisplayName.SiteMenu_ItemSiteUrl)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Url, DisplayName.SiteMenu_ItemSiteUrl)]
     public string ItemSiteUrl { get; set; } = string.Empty;
     /// <summary>
     /// 完整網址，由後端計算。
     /// </summary>
-    [LibStr(ApiFieldMode.ReadOnly, SysLengthParam.Url, DisplayName.SiteMenu_FullUrl)]
+    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.Url, DisplayName.SiteMenu_FullUrl)]
     public string FullUrl { get; set; } = string.Empty;
     /// <summary>
     /// 選單層級，由後端計算。
@@ -217,7 +217,7 @@ public class SiteMenu_Item_Title : DetailModel
     /// 站台代碼。
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, DisplayName.SiteMenu_SiteIndex)]
+    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.SiteMenu_SiteIndex)]
     public string SiteIndex { get; set; } = string.Empty;
     /// <summary>
     /// 所屬選單項目代碼。
@@ -239,7 +239,7 @@ public class SiteMenu_Item_Title : DetailModel
     /// <summary>
     /// 選單標題。
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title, DisplayName.SiteMenu_MenuTitle)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Title, DisplayName.SiteMenu_MenuTitle)]
     public string Title { get; set; } = string.Empty;
     /// <summary>
     /// 是否顯示於選單。
@@ -265,7 +265,7 @@ public class SiteMenu_Item_Url : DetailModel
     /// 站台代碼。
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, DisplayName.SiteMenu_SiteIndex)]
+    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.SiteMenu_SiteIndex)]
     public string SiteIndex { get; set; } = string.Empty;
     /// <summary>
     /// 所屬選單項目代碼。
@@ -281,7 +281,7 @@ public class SiteMenu_Item_Url : DetailModel
     /// <summary>
     /// 導向網址。
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Url, DisplayName.Common_Url)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Url, DisplayName.Common_Url)]
     public string RedirectUrl { get; set; } = string.Empty;
     /// <summary>
     /// 所屬選單項目。
@@ -302,7 +302,7 @@ public class SiteMenu_Item_Module : DetailModel
     /// 站台代碼。
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, DisplayName.SiteMenu_SiteIndex)]
+    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.SiteMenu_SiteIndex)]
     public string SiteIndex { get; set; } = string.Empty;
     /// <summary>
     /// 所屬選單項目代碼。
@@ -319,7 +319,7 @@ public class SiteMenu_Item_Module : DetailModel
     /// <summary>
     /// Banner ID。
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.ID, DisplayName.BannerId)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.ID, DisplayName.BannerId)]
     public string? BannerId { get; set; }
     /// <summary>
     /// 模組頁面類型。
@@ -329,7 +329,7 @@ public class SiteMenu_Item_Module : DetailModel
     /// <summary>
     /// 功能代碼。
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.ProgId, DisplayName.SiteMenu_ModuleProgId)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.ProgId, DisplayName.SiteMenu_ModuleProgId)]
     public string ModuleProgId { get; set; } = string.Empty;
     /// <summary>
     /// 模組 JSON 參數。

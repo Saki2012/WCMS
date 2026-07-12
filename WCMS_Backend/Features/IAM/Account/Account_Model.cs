@@ -5,11 +5,11 @@ using System.Text.Json.Serialization;
 using WCMS.Features.COMM.Person;
 using WCMS.Features.IAM.RolePermission;
 using WCMS.SysCore.Enum;
-using WCMS.SysCore.FeatureDriver.Model;
+using WCMS.SysCore.FeatureDriver.Model.Base;
+using WCMS.SysCore.FeatureDriver.Model.Validation;
 using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.Library.LibAttribute;
 using static WCMS.SysCore.Enum.SysEnum;
-
 namespace WCMS.Features.IAM.Account;
 
 [Index(nameof(PersonId), IsUnique = true)]
@@ -19,14 +19,14 @@ public class AccountModel : HeaderModel
     /// 帳戶Id
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, DisplayName.Account_AccountId)]
+    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.Account_AccountId)]
     public string AccountId { get; set; } = string.Empty;
     /// <summary>
     /// 帳戶名稱
     /// 注:通常與Person.PersonName相同。
     /// 平時新建時不是從Person帶過來就是手動輸入
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Name, DisplayName.Account_AccountName)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Name, DisplayName.Account_AccountName)]
     public string AccountName { get; set; } = string.Empty;
     /// <summary>
     /// 人員編號
@@ -35,7 +35,7 @@ public class AccountModel : HeaderModel
     [ForeignKey(nameof(PersonId))]
     [LibField(ApiFieldMode.ReadOnly)]
     public PersonModel? Person { get; set; }
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.ID, DisplayName.Person_PersonId)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.ID, DisplayName.Person_PersonId)]
     public string? PersonId { get; set; }
     /// <summary>
     /// 角色
@@ -43,7 +43,7 @@ public class AccountModel : HeaderModel
     [ForeignKey(nameof(RoleId))]
     [LibField(ApiFieldMode.ReadOnly)]
     public RoleDataModel? Role { get; set; }
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.ID, DisplayName.RolePermission_RoleId)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.ID, DisplayName.RolePermission_RoleId)]
     public string? RoleId { get; set; }
     /// <summary>
     /// 帳戶狀態

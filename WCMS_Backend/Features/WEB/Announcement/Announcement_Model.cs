@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.SysCore.Enum;
-using WCMS.SysCore.FeatureDriver.Model;
+using WCMS.SysCore.FeatureDriver.Model.Base;
+using WCMS.SysCore.FeatureDriver.Model.Validation;
 using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library.LibAttribute;
-using WCMS.SysCore.SystemFunc.FileManagement;
+using WCMS.SysCore.PlatformServices.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.Features.WEB.Announcement;
 
@@ -19,17 +20,17 @@ public partial class Announcement : HeaderModel
     /// 公告代碼
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, DisplayName.AnnouncementId)]
+    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.AnnouncementId)]
     public string AnnouncementId { get; set; } = string.Empty;
     /// <summary>
     /// 類別 (多個)
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title, DisplayName.Common_Category)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Title, DisplayName.Common_Category)]
     public string Categories { get; set; } = string.Empty;
     /// <summary>
     /// 標籤 (多個) 
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title, DisplayName.Common_Tag)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Title, DisplayName.Common_Tag)]
     public string Tags { get; set; } = string.Empty;
     /// <summary>
     /// 狀態 (多個)
@@ -42,12 +43,12 @@ public partial class Announcement : HeaderModel
     [ForeignKey(nameof(PictureId))]
     [LibField(ApiFieldMode.ReadOnly)]
     public FileManageModel? Picture { get; set; }
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.InternalId, DisplayName.Announcement_CoverPictureId)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.InternalId, DisplayName.Announcement_CoverPictureId)]
     public string? PictureId { get; set; } = string.Empty;
     /// <summary>
     /// 圖片描述
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Memo, DisplayName.Announcement_PicDescription)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Memo, DisplayName.Announcement_PicDescription)]
     public string PicDescription { get; set; } = string.Empty;
     /// <summary>
     /// 資料有效日期-起
@@ -75,7 +76,7 @@ public partial class AnnouncementDetail : DetailModel
     /// 公告代碼
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, DisplayName.AnnouncementId)]
+    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.AnnouncementId)]
     public string AnnouncementId { get; set; } = string.Empty;
     /// <summary>
     /// 行代碼
@@ -91,12 +92,12 @@ public partial class AnnouncementDetail : DetailModel
     /// <summary>
     /// 標題
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title, DisplayName.Common_Title)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Title, DisplayName.Common_Title)]
     public string Title { get; set; } = string.Empty;
     /// <summary>
     /// 副標題
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title, DisplayName.Common_SubTitle)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Title, DisplayName.Common_SubTitle)]
     public string SubTitle { get; set; } = string.Empty;
     /// <summary>
     /// 內文
@@ -106,12 +107,12 @@ public partial class AnnouncementDetail : DetailModel
     /// <summary>
     /// 網址
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Url, DisplayName.Common_Url)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Url, DisplayName.Common_Url)]
     public string Url { get; set; } = string.Empty;
     /// <summary>
     /// 網址描述
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Memo, DisplayName.Common_UrlDescription)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Memo, DisplayName.Common_UrlDescription)]
     public string UrlDescription { get; set; } = string.Empty;
     #region 主子表關聯
     [ForeignKey(nameof(AnnouncementId))]
@@ -132,7 +133,7 @@ public partial class AnnouncementDetailFile : DetailModel
     /// 公告代碼
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, DisplayName.AnnouncementId)]
+    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.AnnouncementId)]
     public string AnnouncementId { get; set; } = string.Empty;
     /// <summary>
     /// 父行代碼
@@ -152,12 +153,12 @@ public partial class AnnouncementDetailFile : DetailModel
     [ForeignKey(nameof(FileId))]
     [LibField(ApiFieldMode.ReadOnly)]
     public FileManageModel? File { get; set; }
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.InternalId, DisplayName.Announcement_FileId)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.InternalId, DisplayName.Announcement_FileId)]
     public string? FileId { get; set; }
     /// <summary>
     /// 檔案名稱
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title, DisplayName.Announcement_FileName)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Title, DisplayName.Announcement_FileName)]
     public string FileName { get; set; } = string.Empty;
 
     #region 主子表關聯

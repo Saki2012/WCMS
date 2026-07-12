@@ -2,10 +2,9 @@
 using Newtonsoft.Json;
 using WCMS.Features._Resx;
 using WCMS.SysCore;
-using WCMS.SysCore.FeatureDriver.Api;
+using WCMS.SysCore.FeatureDriver.Api.Controllers;
 using WCMS.SysCore.Library.LibAttribute;
 using static WCMS.SysCore.Enum.SysEnum;
-
 namespace WCMS.Features.WEB.SiteMenuSetting;
 
 [LibApiController(ProgKeys.WEB.Code, ProgKeys.WEB.SiteMenu, FuncAction.MasterData)]
@@ -61,14 +60,7 @@ public class SiteMenuController : ApiDataController<SiteMenu_IndexModel>
     private async Task SaveSiteInfoAsync(SaveSiteInfo_DTO request, CancellationToken ct)
     {
         SiteMenu_IndexModel index = request.SiteMenu_Index;
-        await ((SiteMenuBiz)Service).SaveSiteInfoAsync(
-            request.InternalId,
-            index.GoogleAnalytics,
-            index.Enable,
-            index.DefaultLang,
-            index.SupportLangs,
-            request.SiteMenu_IndexInfo,
-            ct);
+        await ((SiteMenuBiz)Service).SaveSiteInfoAsync(request.InternalId,index.GoogleAnalytics,index.Enable,index.DefaultLang,index.SupportLangs,request.SiteMenu_IndexInfo,ct);
     }
     /// <summary>
     /// 建立操作日誌。
@@ -77,7 +69,7 @@ public class SiteMenuController : ApiDataController<SiteMenu_IndexModel>
     {
         string apiName = $"{Service.ProgId}/{actionName}";
         string content = JsonConvert.SerializeObject(request);
-        string ip = Request.Headers["HTTP_CLIENT_IP"].ToString();
+        string ip = Request.Headers[SysParam.HttpHeaders.ClientIp].ToString();
         return OperateLog.AddOperateLog(apiName, OperateUser.UserId, content, ip);
     }
     /// <summary>

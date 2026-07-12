@@ -1,23 +1,21 @@
 ﻿using System.Data;
 using WCMS.Features._Resx;
-using WCMS.Features.WEB.Announcement;
 using WCMS.SysCore.FeatureDriver.Biz;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.LibAttribute;
-using WCMS.SysCore.SystemFunc.FileManagement;
+using WCMS.SysCore.PlatformServices.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
-
 namespace WCMS.Features.WEB.FileArchive;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.FileArchive)]
-public class FileArchiveBiz(BizDeps bizDeps) : BizService<FileArchive>(bizDeps), IBizService<FileArchive> {
+public class FileArchiveBiz(BizDeps bizDeps) : BizService<FileArchive>(bizDeps), IBizService<FileArchive>
+{
 
     #region Migration Old Data
     public async Task Migrate(string importFileLabel = "1810", IList<FileManageModel> srcFileSets = default)
     {
-        FileArchive[] datas = ConvertToApiModel(importFileLabel,srcFileSets);
+        FileArchive[] datas = ConvertToApiModel(importFileLabel, srcFileSets);
         await BizInitCreateDatasAsync(datas);
     }
     private FileArchive[] ConvertToApiModel(string importFileLabel, IList<FileManageModel> srcFileSets = default)
@@ -109,7 +107,7 @@ public class FileArchiveBiz(BizDeps bizDeps) : BizService<FileArchive>(bizDeps),
     }
     #endregion
 
-    #region Protected
+    #region Protected Virtual
     protected override async Task BeforeUpdate(FileArchive set, FuncAction act, CancellationToken ct = default)
     {
         await base.BeforeUpdate(set, act, ct);
@@ -124,12 +122,12 @@ public class FileArchiveBiz(BizDeps bizDeps) : BizService<FileArchive>(bizDeps),
     }
     #endregion
 
-    #region Private
+    #region Protected
     /// <summary>
     /// 
     /// </summary>
     /// <param name="set"></param>
-    private void CheckData(FileArchive set)
+    protected void CheckData(FileArchive set)
     {
         CheckDataIsEmpty(set);
         foreach (var urlDt in set._FileArchiveInfo.SelectMany(info => info._FileArchiveUrlDetail).ToList())
@@ -142,7 +140,7 @@ public class FileArchiveBiz(BizDeps bizDeps) : BizService<FileArchive>(bizDeps),
     /// 
     /// </summary>
     /// <param name="set"></param>
-    private static void SetData(FileArchive set)
+    protected static void SetData(FileArchive set)
     {
         DoRemergeData(set);
         foreach (FileArchiveInfo info in set._FileArchiveInfo)
@@ -151,6 +149,9 @@ public class FileArchiveBiz(BizDeps bizDeps) : BizService<FileArchive>(bizDeps),
             RemoveEmptyUrlSrcData(info._FileArchiveUrlDetail);
         }
     }
+    #endregion
+
+    #region Private
     /// <summary>
     /// 檢查類別是否為空
     /// </summary>
@@ -158,7 +159,7 @@ public class FileArchiveBiz(BizDeps bizDeps) : BizService<FileArchive>(bizDeps),
     private void CheckDataIsEmpty(FileArchive set)
     {
         if (set.CategoriesId == "") Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<FileArchive>(x => x.CategoriesId));
-        if (set._FileArchiveInfo.FirstOrDefault(p => p.Lang==SiteDefaultLang) == null || set._FileArchiveInfo.FirstOrDefault(p => p.Lang == SiteDefaultLang).Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, SiteDefaultLang.ToLabel(), I18nCache.GetLabel<FileArchiveInfo>(x => x.Title));
+        if (set._FileArchiveInfo.FirstOrDefault(p => p.Lang == SiteDefaultLang) == null || set._FileArchiveInfo.FirstOrDefault(p => p.Lang == SiteDefaultLang).Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, SiteDefaultLang.ToLabel(), I18nCache.GetLabel<FileArchiveInfo>(x => x.Title));
     }
     /// <summary>
     /// 如果沒有上傳檔案成功的項目，就移除該項目防呆
@@ -174,7 +175,7 @@ public class FileArchiveBiz(BizDeps bizDeps) : BizService<FileArchive>(bizDeps),
     /// <param name="fileArchiveDetail"></param>
     private static void RemoveEmptyUrlSrcData(List<FileArchiveUrlDetail> detail)
     {
-        for (int i = detail.Count - 1; i >= 0; i--) if (detail[i].Url.IsNullOrEmpty()&& detail[i].UrlDescription.IsNullOrEmpty()) detail.RemoveAt(i);
+        for (int i = detail.Count - 1; i >= 0; i--) if (detail[i].Url.IsNullOrEmpty() && detail[i].UrlDescription.IsNullOrEmpty()) detail.RemoveAt(i);
     }
     /// <summary>
     /// 重新組合多筆資料(類別、狀態、標籤)

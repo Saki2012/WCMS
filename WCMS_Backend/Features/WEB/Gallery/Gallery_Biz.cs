@@ -2,16 +2,15 @@
 using WCMS.Features._Resx;
 using WCMS.SysCore.FeatureDriver.Biz;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.LibAttribute;
-using WCMS.SysCore.SystemFunc.FileManagement;
+using WCMS.SysCore.PlatformServices.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 using static WCMS.SysCore.Library.LibData;
 namespace WCMS.Features.WEB.Gallery;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.Gallery)]
-public class GalleryBiz(BizDeps bizDeps) : BizService<Gallery>(bizDeps), IBizService<Gallery> 
+public class GalleryBiz(BizDeps bizDeps) : BizService<Gallery>(bizDeps), IBizService<Gallery>
 {
     #region Migration Old Data
     public async Task Migrate(string importFileLabel = "1810", IList<FileManageModel> srcFileSets = default)
@@ -70,7 +69,7 @@ public class GalleryBiz(BizDeps bizDeps) : BizService<Gallery>(bizDeps), IBizSer
             ds.Tables["Gallery_Album"].AsEnumerable().Where(dr => dr["Sn"].ToString() == set.GalleryId).OrderBy(dr => dr["PhotoName"].ToString()).ToList().ForEach(dRow =>
             {
 
-                var photoSet = GetSetByPicture(dRow["Sn"].ToString(),dRow["PhotoName"].ToString(), srcFileSets);
+                var photoSet = GetSetByPicture(dRow["Sn"].ToString(), dRow["PhotoName"].ToString(), srcFileSets);
                 updateFileSets.Add(photoSet);
                 photoSet.FileName = dRow["PhotoName"].ToString();
                 var photo = new GalleryPhotos()
@@ -99,7 +98,7 @@ public class GalleryBiz(BizDeps bizDeps) : BizService<Gallery>(bizDeps), IBizSer
                             Lang = lang,
                             Title = subDRow["Title"].ToString(),
                         });
-                        if (lang==LangCode.zhtw) photoSet.FileDescription = subDRow["Title"].ToString();
+                        if (lang == LangCode.zhtw) photoSet.FileDescription = subDRow["Title"].ToString();
                         subPhotoRowId++;
                     }
                 });
@@ -133,7 +132,7 @@ public class GalleryBiz(BizDeps bizDeps) : BizService<Gallery>(bizDeps), IBizSer
         }
         return result;
     }
-    private static FileManageModel GetSetByPicture(string albumId,string srcPic, IList<FileManageModel> fileSets)
+    private static FileManageModel GetSetByPicture(string albumId, string srcPic, IList<FileManageModel> fileSets)
     {
         return fileSets.Where(x => x._FileManage_SyncInfo.Any(y =>
                     y.SrcFullPath.Contains($"file/image/album/{albumId}/{srcPic}", StringComparison.InvariantCultureIgnoreCase) &&
@@ -190,7 +189,7 @@ public class GalleryBiz(BizDeps bizDeps) : BizService<Gallery>(bizDeps), IBizSer
 
         if (!LibData.HasData(set._GalleryPhotos)) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00019);
     }
-    
+
     /// <summary>
     /// 重新組合多筆資料(類別、狀態、標籤)
     /// </summary>
@@ -213,9 +212,9 @@ public class GalleryBiz(BizDeps bizDeps) : BizService<Gallery>(bizDeps), IBizSer
     /// <summary>
     /// 防呆刪除不需要的資料
     /// </summary>
-    private static void PreDelData(Gallery set) 
-    { 
-        for(int i = set._GalleryPhotos.Count - 1; i >= 0; i--)
+    private static void PreDelData(Gallery set)
+    {
+        for (int i = set._GalleryPhotos.Count - 1; i >= 0; i--)
         {
             var data = set._GalleryPhotos[i];
             if (data.PicSrcId.IsNullOrEmpty()) set._GalleryPhotos.Remove(data);
@@ -227,7 +226,8 @@ public class GalleryBiz(BizDeps bizDeps) : BizService<Gallery>(bizDeps), IBizSer
     /// <param name="galleryInfo"></param>
     private void AA_CheckAlbumTitle(List<GalleryInfo> galleryInfo)
     {
-        galleryInfo.ForEach(info => { 
+        galleryInfo.ForEach(info =>
+        {
             if (info.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.AACode00001, info.Lang.ToLabel(), I18nCache.GetLabel<GalleryInfo>(x => x.Title));
         });
     }
@@ -237,8 +237,9 @@ public class GalleryBiz(BizDeps bizDeps) : BizService<Gallery>(bizDeps), IBizSer
     /// <param name="photoInfo"></param>
     private void AA_CheckPhotoTitle(List<GalleryPhotosInfo> photoInfo)
     {
-        photoInfo.ForEach(info => {
-            if(info.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.AACode00002, info.Lang.ToLabel(), I18nCache.GetLabel<GalleryPhotosInfo>(x => x.Title));
+        photoInfo.ForEach(info =>
+        {
+            if (info.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.AACode00002, info.Lang.ToLabel(), I18nCache.GetLabel<GalleryPhotosInfo>(x => x.Title));
         });
     }
     #endregion

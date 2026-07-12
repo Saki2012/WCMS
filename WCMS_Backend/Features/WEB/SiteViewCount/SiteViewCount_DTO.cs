@@ -1,6 +1,5 @@
 ﻿namespace WCMS.Features.WEB.SiteViewCount;
 
-#region API 請求/回應 DTO
 /// <summary>
 /// 主站瀏覽次數請求
 /// </summary>
@@ -53,7 +52,6 @@ public class GetCurrentSiteOnlineCountRequest_DTO
     /// 站台代碼，主站可為空字串
     /// </summary>
     public string SiteIndex { get; set; } = string.Empty;
-
     /// <summary>
     /// 往前查詢幾分鐘，未帶預設 10
     /// </summary>
@@ -69,20 +67,16 @@ public class GetCurrentSiteOnlineCountResult_DTO
     /// 站台代碼
     /// </summary>
     public string SiteIndex { get; set; } = string.Empty;
-
     /// <summary>
     /// 實際查詢分鐘數
     /// </summary>
     public int Minutes { get; set; }
-
     /// <summary>
     /// 在線人數
     /// </summary>
     public int CurrentOnlineCount { get; set; }
-
     /// <summary>
     /// 查詢時間
     /// </summary>
     public DateTime QueryTime { get; set; }
 }
-#endregion

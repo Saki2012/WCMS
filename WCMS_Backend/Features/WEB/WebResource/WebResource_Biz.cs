@@ -2,20 +2,19 @@
 using WCMS.Features._Resx;
 using WCMS.SysCore.FeatureDriver.Biz;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.LibAttribute;
-using WCMS.SysCore.SystemFunc.FileManagement;
+using WCMS.SysCore.PlatformServices.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.Features.WEB.WebResource;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.WebResource)]
-public class WebResourceBiz(BizDeps bizDeps) : BizService<WebResource>(bizDeps), IBizService<WebResource> 
+public class WebResourceBiz(BizDeps bizDeps) : BizService<WebResource>(bizDeps), IBizService<WebResource>
 {
     #region Migration Old Data
     public async Task Migrate(string importFileLabel = "1810", IList<FileManageModel> srcFileSets = default)
     {
-        WebResource[] datas = ConvertToApiModel(importFileLabel,srcFileSets);
+        WebResource[] datas = ConvertToApiModel(importFileLabel, srcFileSets);
         await BizInitCreateDatasAsync(datas);
     }
     private WebResource[] ConvertToApiModel(string importFileLabel, IList<FileManageModel> srcFileSets = default)
@@ -162,7 +161,7 @@ public class WebResourceBiz(BizDeps bizDeps) : BizService<WebResource>(bizDeps),
     /// <param name="set"></param>
     private static void SetYoutubeUrl(WebResourceInfo dt)
     {
-        dt.ResUrl= YouTubeUrlHelper.NormalizeToShortUrlOrOriginal(dt.ResUrl);
+        dt.ResUrl = YouTubeUrlHelper.NormalizeToShortUrlOrOriginal(dt.ResUrl);
     }
     #endregion
 }

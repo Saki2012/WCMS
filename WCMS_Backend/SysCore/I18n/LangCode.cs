@@ -5,13 +5,17 @@ using WCMS.SysCore.Library.LibAttribute;
 
 namespace WCMS.SysCore.I18n
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [JsonConverter(typeof(LangCodeJsonConverter))]
-    [LibDesc(DisplayName.Common_Lang)]public enum LangCode
+    [LibDesc(DisplayName.Common_Lang)]
+    public enum LangCode
     {
         /// <summary>
         /// 繁體中文
         /// </summary>
-        [LibDesc(DisplayName.Lang_zhtw)]zhtw,
+        [LibDesc(DisplayName.Lang_zhtw)] zhtw,
         /// <summary>
         /// 简体中文
         /// </summary>
@@ -21,6 +25,9 @@ namespace WCMS.SysCore.I18n
         /// </summary>
         [LibDesc(DisplayName.Lang_en)] en,
     }
+    /// <summary>
+    /// 
+    /// </summary>
     public static class LangCodeExt
     {
         public static string ToCode(this LangCode lang) => lang switch
@@ -55,7 +62,7 @@ namespace WCMS.SysCore.I18n
                 _ => default
             };
 
-            return v is 
+            return v is
                 "zh-tw" or "zh-hant" or "zh-hk" or
                 "zh-cn" or "zh-hans" or "zh-sg" or
                 "en" or "en-us" or "en-gb" or "en-au";
@@ -64,7 +71,6 @@ namespace WCMS.SysCore.I18n
         public static LangCode Normalize(string? raw)
             => TryParse(raw, out var lang) ? lang : LangCode.zhtw;
     }
-
     /// <summary>
     /// 讓 LangCode 在 JSON 永遠以 "zh-tw"/"en" 形式輸出，且讀入也接受 alias。
     /// 同時支援 LangCode 與 LangCode?
@@ -73,14 +79,12 @@ namespace WCMS.SysCore.I18n
     {
         public override bool CanConvert(Type typeToConvert)
             => typeToConvert == typeof(LangCode) || typeToConvert == typeof(LangCode?);
-
         public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
         {
             if (typeToConvert == typeof(LangCode)) return new NonNullable();
             if (typeToConvert == typeof(LangCode?)) return new Nullable();
             throw new NotSupportedException($"LangCodeJsonConverter cannot convert {typeToConvert}.");
         }
-
         private sealed class NonNullable : JsonConverter<LangCode>
         {
             public override LangCode Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -92,7 +96,6 @@ namespace WCMS.SysCore.I18n
             public override void Write(Utf8JsonWriter writer, LangCode value, JsonSerializerOptions options)
                 => writer.WriteStringValue(value.ToCode());
         }
-
         private sealed class Nullable : JsonConverter<LangCode?>
         {
             public override LangCode? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -109,7 +112,9 @@ namespace WCMS.SysCore.I18n
             }
         }
     }
-
+    /// <summary>
+    /// 
+    /// </summary>
     public static class LangCodeJson
     {
         /// <summary>LangCode[] -> JSON array string, e.g. ["zh-tw","en"]</summary>
@@ -122,7 +127,6 @@ namespace WCMS.SysCore.I18n
 
             return JsonSerializer.Serialize(codes);
         }
-
         /// <summary>string[] (codes) -> JSON array string, normalize+dedupe</summary>
         public static string ToJsonArrayFromCodes(params string[] codes)
         {
@@ -133,7 +137,6 @@ namespace WCMS.SysCore.I18n
 
             return JsonSerializer.Serialize(list);
         }
-
         /// <summary>Parse JSON array string -> LangCode list, with fallback.</summary>
         public static List<LangCode> Parse(string? json, params LangCode[] fallback)
         {
@@ -155,5 +158,4 @@ namespace WCMS.SysCore.I18n
             }
         }
     }
-
 }

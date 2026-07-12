@@ -5,7 +5,6 @@ using WCMS.SysCore.FeatureDriver.Biz;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library.LibAttribute;
 using static WCMS.SysCore.Enum.SysEnum;
-
 namespace WCMS.Features.MAT.MatCategory;
 
 /// <summary>

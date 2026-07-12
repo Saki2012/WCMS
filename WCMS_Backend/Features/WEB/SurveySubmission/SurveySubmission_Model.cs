@@ -2,7 +2,8 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 using WCMS.SysCore.Enum;
-using WCMS.SysCore.FeatureDriver.Model;
+using WCMS.SysCore.FeatureDriver.Model.Base;
+using WCMS.SysCore.FeatureDriver.Model.Validation;
 using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library.LibAttribute;
@@ -12,30 +13,29 @@ namespace WCMS.Features.WEB.SurveySubmission;
 /// <summary>
 /// 問卷回應
 /// </summary>
-public class SurveySubmissions : DetailModel
+public class SurveySubmissions : DbModel
 {
     /// <summary>
     /// 問卷回覆 ID
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, SysLengthParam.InternalId, DisplayName.SurveySubmissionId)]
+    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.InternalId, DisplayName.SurveySubmissionId)]
     public string SurveySubmissionId { get; set; } = Guid.NewGuid().ToString();
     /// <summary>
     /// 姓名
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Name, DisplayName.Common_Name)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Name, DisplayName.Common_Name)]
     public string UserName { get; set; } = string.Empty;
     /// <summary>
     /// 聯絡電話
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Phone, DisplayName.Common_HomePhone)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Phone, DisplayName.Common_HomePhone)]
     public string ContactPhone { get; set; } = string.Empty;
     /// <summary>
     /// Email
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Email, DisplayName.Common_Email)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Email, DisplayName.Common_Email)]
     public string Email { get; set; } = string.Empty;
-
 
     #region Virtual Fields
     /// <summary>
@@ -72,7 +72,7 @@ public class SurveySubmissions : DetailModel
     [ForeignKey(nameof(SurveyId))]
     [LibField(ApiFieldMode.ReadOnly)]
     public SurveyFormModel? Survey { get; set; }
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.ID, DisplayName.SurveyId)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.ID, DisplayName.SurveyId)]
     public string? SurveyId { get; set; }
     /// <summary>
     /// 語系
@@ -94,52 +94,52 @@ public class SurveySubmissions : DetailModel
     /// <summary>
     /// 瀏覽器 UserAgent
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Memo, DisplayName.WebClient_UserAgent)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Memo, DisplayName.WebClient_UserAgent)]
     public string UserAgent { get; set; } = string.Empty;
     /// <summary>
     /// 瀏覽器偏好語系
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Info, DisplayName.WebClient_AcceptLanguage)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Info, DisplayName.WebClient_AcceptLanguage)]
     public string AcceptLanguage { get; set; } = string.Empty;
     /// <summary>
     /// 遮罩後用戶 IP
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.IP, DisplayName.WebClient_ClientIpMasked)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.IP, DisplayName.WebClient_ClientIpMasked)]
     public string ClientIpMasked { get; set; } = string.Empty;
     /// <summary>
     /// 用戶 IP 雜湊值
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.FileSHA256, DisplayName.WebClient_ClientIpHash)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.FileSHA256, DisplayName.WebClient_ClientIpHash)]
     public string ClientIpHash { get; set; } = string.Empty;
     /// <summary>
     /// 瀏覽器名稱
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Info, DisplayName.WebClient_BrowserName)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Info, DisplayName.WebClient_BrowserName)]
     public string BrowserName { get; set; } = string.Empty;
     /// <summary>
     /// 瀏覽器版本
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Info, DisplayName.WebClient_BrowserVersion)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Info, DisplayName.WebClient_BrowserVersion)]
     public string BrowserVersion { get; set; } = string.Empty;
     /// <summary>
     /// 作業系統名稱
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Info, DisplayName.WebClient_OsName)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Info, DisplayName.WebClient_OsName)]
     public string OsName { get; set; } = string.Empty;
     /// <summary>
     /// 作業系統版本
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Info, DisplayName.WebClient_OsVersion)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Info, DisplayName.WebClient_OsVersion)]
     public string OsVersion { get; set; } = string.Empty;
     /// <summary>
     /// 裝置類型
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Info, DisplayName.WebClient_DeviceType)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Info, DisplayName.WebClient_DeviceType)]
     public string DeviceType { get; set; } = string.Empty;
     /// <summary>
     /// 使用者時區
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Info, DisplayName.WebClient_TimeZone)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Info, DisplayName.WebClient_TimeZone)]
     public string TimeZone { get; set; } = string.Empty;
     #endregion
 

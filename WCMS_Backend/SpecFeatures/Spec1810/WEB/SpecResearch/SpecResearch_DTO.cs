@@ -8,7 +8,6 @@ using WCMS.SysCore.Model;
 using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.SpecFeatures.Spec1810.WEB.SpecResearch;
 
-
 public class SpecResearchSet_DTO : ITSet_DTO
 {
     public SpecResearchModel_DTO SpecResearch { get; set; } = new();

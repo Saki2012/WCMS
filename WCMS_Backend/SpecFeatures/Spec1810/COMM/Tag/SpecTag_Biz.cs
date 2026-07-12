@@ -13,7 +13,7 @@ public class SpecTag_Biz(BizDeps bizDeps) : TagBiz(bizDeps)
     #region Protected
     protected override async Task SpecCheckIsUsed(string progId, string tagId, string tagName)
     {
-        await base.SpecCheckIsUsed(progId, tagId, tagName); 
+        await base.SpecCheckIsUsed(progId, tagId, tagName);
         await CheckIsUsedAsync(progId, tagId, tagName);
     }
     #endregion

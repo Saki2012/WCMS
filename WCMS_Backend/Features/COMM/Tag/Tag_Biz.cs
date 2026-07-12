@@ -5,7 +5,6 @@ using WCMS.Features.WEB.FileArchive;
 using WCMS.Features.WEB.Gallery;
 using WCMS.SysCore.FeatureDriver.Biz;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.LibAttribute;
 using static WCMS.SysCore.Enum.SysEnum;
@@ -78,9 +77,7 @@ public class TagBiz(BizDeps bizDeps) : BizService<TagData>(bizDeps), IBizService
     /// </summary>
     private string ResolveTagName(IEnumerable<TagDetail> details)
     {
-        return details.FirstOrDefault(item => item.Lang == EffectiveLang)?.TagName
-            ?? details.FirstOrDefault()?.TagName
-            ?? string.Empty;
+        return details.FirstOrDefault(item => item.Lang == EffectiveLang)?.TagName ?? details.FirstOrDefault()?.TagName ?? string.Empty;
     }
     #endregion
 

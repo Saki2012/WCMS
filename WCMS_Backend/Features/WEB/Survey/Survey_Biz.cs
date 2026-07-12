@@ -1,13 +1,9 @@
 ﻿using WCMS.Features._Resx;
-using WCMS.Features.WEB.Timeline;
-using WCMS.Features.WEB.WebResource;
 using WCMS.SysCore.FeatureDriver.Biz;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.LibAttribute;
 using static WCMS.SysCore.Enum.SysEnum;
-
 namespace WCMS.Features.WEB.Survey;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.Survey)]

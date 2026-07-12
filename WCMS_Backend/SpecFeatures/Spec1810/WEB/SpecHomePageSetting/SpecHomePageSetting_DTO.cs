@@ -4,7 +4,6 @@ using WCMS.Features.WEB.Announcement;
 using WCMS.Features.WEB.Banner;
 using WCMS.Features.WEB.Gallery;
 using WCMS.Features.WEB.WebResource;
-
 namespace WCMS.SpecFeatures.Spec1810.WEB.SpecHomePageSetting;
 
 /// <summary>

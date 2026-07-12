@@ -7,31 +7,25 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using WCMS.Features._Resx;
-using WCMS.SysCore.Enum;
-using WCMS.SysCore.FeatureDriver.Api;
-using WCMS.SysCore.FeatureDriver.Model;
+using WCMS.SysCore.Auditing.ErrorHandling;
+using WCMS.SysCore.FeatureDriver.Biz.Metadata;
+using WCMS.SysCore.FeatureDriver.Model.Base;
+using WCMS.SysCore.FeatureDriver.Model.Contracts;
+using WCMS.SysCore.FeatureDriver.Model.Form;
+using WCMS.SysCore.FeatureDriver.Model.Validation;
+using WCMS.SysCore.FeatureDriver.Repo;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
-using WCMS.SysCore.Library.LibAttribute;
+using WCMS.SysCore.Persistence;
 using static WCMS.SysCore.Enum.SysEnum;
-using static WCMS.SysCore.FeatureDriver.Api.QueryListParam;
-
+using static WCMS.SysCore.FeatureDriver.Model.Contracts.QueryListParam;
 namespace WCMS.SysCore.FeatureDriver.Biz;
 
-/// <summary>
-/// Biz服務所需注入參數
-/// </summary>
-/// <param name="dbRepositoryProvider">全 DB Model Repository 提供者。</param>
-/// <param name="formGraphRepoProvider">表單 Graph Repository Scope 提供者。</param>
-/// <param name="message">系統訊息容器。</param>
-/// <param name="currentUser">目前使用者存取器。</param>
-public sealed record BizDeps(IDbRepositoryProvider dbRepositoryProvider, IFormGraphRepoProvider formGraphRepoProvider, IErrorHelper message, ICurrentUserAccessor currentUser);
 /// <summary>
 /// Biz服務本體
 /// </summary>
 /// <typeparam name="TFormModel"></typeparam>
-public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFormModel : class
+public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFormModel : IFormModel
 {
     #region Property
     /// <summary>
@@ -41,7 +35,7 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
     /// <summary>
     /// 目前表單 Graph CUD 使用的 Repository Scope。
     /// </summary>
-    protected IFormGraphRepoScope<TFormModel> GraphRepo { get; }
+    protected FormGraphRepoScope<TFormModel> GraphRepo { get; }
     /// <summary>
     /// 目前表單對應的 Root DbModel 型別。
     /// </summary>
@@ -63,15 +57,15 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
     /// </summary>
     public string PrefixId
     {
-        get 
+        get
         {
-            if (_Prifix == string.Empty)this.PrefixId = ProgId;
-                return  _Prifix; 
+            if (_Prifix == string.Empty) this.PrefixId = ProgId;
+            return _Prifix;
         }
         protected set
         {
-            if (!string.IsNullOrEmpty(value) && value.Length > SysLengthParam.ID - 11)
-                _Prifix = value.Substring(0, SysLengthParam.ID - 11); // 最多 xxxyyyymmdd(八位) 個字
+            if (!string.IsNullOrEmpty(value) && value.Length > DbStrLen.ID - 11)
+                _Prifix = value.Substring(0, DbStrLen.ID - 11); // 最多 xxxyyyymmdd(八位) 個字
             else
                 _Prifix = value;
         }
@@ -472,7 +466,7 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
         object id = PropertyAccessorCache.Get(header, keyProp.Name);
         if (IsAutoGenerateId && keyProp.PropertyType == typeof(string))
         {
-            id ??= string.Empty; 
+            id ??= string.Empty;
             var idSelector = BuildIdSelectorLambda(header.GetType(), keyProp);
             id = !string.IsNullOrEmpty(id.ToString()) ? id : await ((Task<string>)((dynamic)RepoDict[header.GetType().Name]).GenerateIdAsync(idSelector, PrefixId));
             PropertyAccessorCache.Set(header, keyProp.Name, id);
@@ -526,11 +520,10 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
     {
         foreach (var entity in entityList) entity.RowState = RowState.Insert;
     }
-    private sealed class ParameterReplacer : ExpressionVisitor
+    private sealed class ParameterReplacer(ParameterExpression from, Expression to) : ExpressionVisitor
     {
-        private readonly ParameterExpression _from;
-        private readonly Expression _to;
-        public ParameterReplacer(ParameterExpression from, Expression to) { _from = from; _to = to; }
+        private readonly ParameterExpression _from = from;
+        private readonly Expression _to = to;
         protected override Expression VisitParameter(ParameterExpression node) => node == _from ? _to : base.VisitParameter(node);
     }
     private LambdaExpression GetSelectFieldsExpr(Type modelType, string[] selectFields, Dictionary<string, LambdaExpression>? detailFilterMap = null, Dictionary<string, List<LambdaExpression>>? detailRankMap = null)
@@ -605,7 +598,7 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
                 if (canBeNull)
                 {
                     var nullValue = Expression.Constant(null, childType);
-                    replacedBody = Expression.Condition(Expression.Equal(nestedExpr, nullValue),nullValue,replacedBody);
+                    replacedBody = Expression.Condition(Expression.Equal(nestedExpr, nullValue), nullValue, replacedBody);
                 }
                 // return：綁回屬性
                 bindings.Add(Expression.Bind(propInfo, replacedBody));
@@ -730,7 +723,7 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
         return new Dictionary<string, DetailPredInfo>(StringComparer.Ordinal);
     }
 
-    private static Dictionary<string, DetailPredInfo> MergeByBoolean(Dictionary<string, DetailPredInfo> left,Dictionary<string, DetailPredInfo> right,ExpressionType op)
+    private static Dictionary<string, DetailPredInfo> MergeByBoolean(Dictionary<string, DetailPredInfo> left, Dictionary<string, DetailPredInfo> right, ExpressionType op)
     {
         var result = new Dictionary<string, DetailPredInfo>(StringComparer.Ordinal);
         var keys = left.Keys.Union(right.Keys).ToList();
@@ -797,7 +790,7 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
     /// 匹配：x.Nav.Any(d => ...)
     /// 支援 Enumerable.Any / Queryable.Any
     /// </summary>
-    private static bool TryMatchAnyOnRootNav(Expression node,ParameterExpression rootParam,out string navName,out ParameterExpression detailParam,out Expression detailBody)
+    private static bool TryMatchAnyOnRootNav(Expression node, ParameterExpression rootParam, out string navName, out ParameterExpression detailParam, out Expression detailBody)
     {
         navName = "";
         detailParam = null!;
@@ -828,7 +821,7 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
         var param = Expression.Parameter(modelType, "x");
         string normalized = NormalizeCondition(modelType, condition, out object[] args);
         if (string.IsNullOrWhiteSpace(normalized)) return Expression.Lambda(Expression.Constant(true), param);
-        var config = new ParsingConfig{ ResolveTypesBySimpleName = true, AllowNewToEvaluateAnyType = true, UseParameterizedNamesInDynamicQuery = true , CustomTypeProvider = new WcmsTypeProvider()};
+        var config = new ParsingConfig { ResolveTypesBySimpleName = true, AllowNewToEvaluateAnyType = true, UseParameterizedNamesInDynamicQuery = true, CustomTypeProvider = new WcmsTypeProvider() };
         var lambda = DynamicExpressionParser.ParseLambda(config, [param], typeof(bool), normalized, args);
         return lambda;
     }
@@ -1404,7 +1397,7 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
             if (string.IsNullOrEmpty(seg)) continue;
             // 只做 AND；遇到 OR 先跳過（避免行為錯）
             if (i < connectors.Count && connectors[i].Equals("or", StringComparison.OrdinalIgnoreCase)) continue;
-            var m = Regex.Match(seg, @"^(?<fullPath>[\w.]+)\s*(?<op>=|&|!&|==|!=|>=|<=|>|<|in|not in|like|is null|is not null|hasany|hasallof|hasall)\s*(?<val>.+)?$",RegexOptions.IgnoreCase);
+            var m = Regex.Match(seg, @"^(?<fullPath>[\w.]+)\s*(?<op>=|&|!&|==|!=|>=|<=|>|<|in|not in|like|is null|is not null|hasany|hasallof|hasall)\s*(?<val>.+)?$", RegexOptions.IgnoreCase);
             if (!m.Success) continue;
             var fullPath = m.Groups["fullPath"].Value;
             var op = m.Groups["op"].Value;
@@ -1418,9 +1411,9 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
             if (!isEnumerable) continue;
             // 去掉集合前綴：_Detail.PublishStatus -> PublishStatus
             var restPath = string.Join('.', parts.Skip(1));
-            var rebuilt = string.IsNullOrWhiteSpace(val)? $"{restPath} {op}": $"{restPath} {op} {val}";
+            var rebuilt = string.IsNullOrWhiteSpace(val) ? $"{restPath} {op}" : $"{restPath} {op} {val}";
             // 同集合多條件以 AND 合併
-            map[first] = map.TryGetValue(first, out var exist)? $"{exist} and {rebuilt}": rebuilt;
+            map[first] = map.TryGetValue(first, out var exist) ? $"{exist} and {rebuilt}" : rebuilt;
         }
         return map;
     }
@@ -1471,7 +1464,7 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
         return pathParts.Length > 0;
     }
     // 判斷 modelType.nav 是否為 IEnumerable（非 string），並取 elementType
-    private static bool TryGetEnumerableElementType(Type modelType,string navName,out Type elementType)
+    private static bool TryGetEnumerableElementType(Type modelType, string navName, out Type elementType)
     {
         elementType = typeof(object);
         var prop = PropertyAccessorCache.GetProperty(modelType, navName);
@@ -1495,7 +1488,7 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
     }
 
     // 合併：AnnouncementDetail.Any(Lang == @0 and Title != @1)
-    private string? BuildMergedAnyClause(Type modelType,string navName,Type elementType,List<(string[] RestPath, string Op, string? Val)> clauses,ref List<object> args)
+    private string? BuildMergedAnyClause(Type modelType, string navName, Type elementType, List<(string[] RestPath, string Op, string? Val)> clauses, ref List<object> args)
     {
         // 逐條在 elementType 上 BuildNestedClause，避免每條都各自 Any()
         var innerParts = new List<string>();
@@ -1543,7 +1536,7 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
     /// </summary>
     private string ApplyDataScope(string condition)
     {
-        return LibData.Merge(" And ", false, condition, DataScopeCondition);
+        return LibData.Merge(SysParam.QueryOperators.And, false, condition, DataScopeCondition);
     }
     /// <summary>
     /// 將 Root DbModel 清單組裝成 Form Model 清單。
@@ -1670,7 +1663,7 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
         string[] fieldNames = pkProps.Select(prop => prop.Name).ToArray();
         object? headerData = (await DoQueryListAsync(RootDbModelType, fieldNames, condition, default, 0, 0)).ToDynamicList().FirstOrDefault();
         if (headerData == null) return resultCondition;
-        foreach (PropertyInfo pk in pkProps) resultCondition = LibData.Merge(" And ", false, resultCondition, $"{pk.Name} = \"{PropertyAccessorCache.Get(headerData, pk.Name)}\"");
+        foreach (PropertyInfo pk in pkProps) resultCondition = LibData.Merge(SysParam.QueryOperators.And, false, resultCondition, $"{pk.Name} = \"{PropertyAccessorCache.Get(headerData, pk.Name)}\"");
         return ApplyDataScope(resultCondition);
     }
     /// <summary>
@@ -1979,7 +1972,7 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
         }
     }
     // 產生 RankGroups 的最終 where condition（FirstMatchWins + Rest）
-    private sealed record RankGroupPlan(IReadOnlyList<string> GroupWhereList,string RestWhere,string BaseWhere);
+    private sealed record RankGroupPlan(IReadOnlyList<string> GroupWhereList, string RestWhere, string BaseWhere);
     // 將 base condition + rankGroups 組成：
     // group0 = Base AND (G0)
     // group1 = Base AND NOT(G0) AND (G1)
@@ -2037,7 +2030,7 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
     }
     private sealed record RankSegment(string Where, IReadOnlyList<OrderBySpec>? OrderBy);
 
-    private static List<RankSegment> BuildRankSegments(RankGroupPlan plan,IReadOnlyList<RankGroupsSpec>? rankGroups,IReadOnlyList<OrderBySpec>? baseOrderBy)
+    private static List<RankSegment> BuildRankSegments(RankGroupPlan plan, IReadOnlyList<RankGroupsSpec>? rankGroups, IReadOnlyList<OrderBySpec>? baseOrderBy)
     {
         // 宣告變數
         var result = new List<RankSegment>();

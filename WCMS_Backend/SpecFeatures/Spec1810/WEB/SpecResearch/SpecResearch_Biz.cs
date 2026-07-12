@@ -10,7 +10,8 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.SpecFeatures.Spec1810.WEB.SpecResearch;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.Spec.SpecResearch)]
-public class SpecResearchBiz(BizDeps bizDeps) : BizService<SpecResearchModel>(bizDeps), IBizService<SpecResearchModel> {
+public class SpecResearchBiz(BizDeps bizDeps) : BizService<SpecResearchModel>(bizDeps), IBizService<SpecResearchModel>
+{
 
     #region Migration Old Data
     [HttpPost(nameof(Migrate)), LocalhostOnly]
@@ -41,7 +42,7 @@ public class SpecResearchBiz(BizDeps bizDeps) : BizService<SpecResearchModel>(bi
             int rowId = 1;
             ds.Tables["ResearchProject_Lang"].AsEnumerable().Where(dr => dr["Sn"].ToString() == set.SpecResearch.ResearchId).ToList().ForEach(dRow =>
             {
-                
+
                 int.TryParse(dRow["Year"].ToString(), out int year);
                 int.TryParse(dRow["AcademicYear"].ToString(), out int academicYear);
                 decimal.TryParse(dRow["PlanAmount"].ToString().Replace(",", ""), out decimal planAmount);
@@ -134,7 +135,7 @@ public class SpecResearchBiz(BizDeps bizDeps) : BizService<SpecResearchModel>(bi
 
     private void CheckIsEmpty(SpecResearchModel set)
     {
-        if(set.SpecResearch.CategoryId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SpecResearchModel>(x => x.CategoryId));
+        if (set.SpecResearch.CategoryId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SpecResearchModel>(x => x.CategoryId));
     }
     /// <summary>
     /// 重新組合多筆資料(類別、狀態、標籤)

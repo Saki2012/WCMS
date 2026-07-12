@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WCMS.Features._Resx;
-using WCMS.SysCore.FeatureDriver.Api;
+using WCMS.SysCore.FeatureDriver.Api.Controllers;
 using WCMS.SysCore.Library.LibAttribute;
 using static WCMS.SysCore.Enum.SysEnum;
 using static WCMS.SysCore.Enum.SysParam;
@@ -115,7 +115,7 @@ public class SiteViewCountController : ApiDataQueryController<SiteViewCountHeade
     {
         string? visitorKey = Request.Cookies[CookieNames.VisitorKey];
         if (!string.IsNullOrWhiteSpace(visitorKey)) return visitorKey.Trim();
-        visitorKey = Guid.NewGuid().ToString("N");
+        visitorKey = Guid.NewGuid().ToString(SysParam.Formats.GuidCompact);
         Response.Cookies.Append(CookieNames.VisitorKey, visitorKey, BuildVisitorCookieOptions());
         return visitorKey;
     }
@@ -131,7 +131,7 @@ public class SiteViewCountController : ApiDataQueryController<SiteViewCountHeade
     /// </summary>
     private CookieOptions BuildVisitorCookieOptions()
     {
-        return new CookieOptions { HttpOnly = true, IsEssential = true, SameSite = SameSiteMode.Lax, Secure = Request.IsHttps, Expires = DateTimeOffset.UtcNow.AddYears(1),};
+        return new CookieOptions { HttpOnly = true, IsEssential = true, SameSite = SameSiteMode.Lax, Secure = Request.IsHttps, Expires = DateTimeOffset.UtcNow.AddYears(1), };
     }
     #endregion
 }

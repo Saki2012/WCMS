@@ -1,17 +1,15 @@
 ﻿using System.Data;
 using WCMS.Features._Resx;
-using WCMS.Features.WEB.PageManagement;
 using WCMS.SysCore.FeatureDriver.Biz;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Library.LibAttribute;
-using WCMS.SysCore.SystemFunc.FileManagement;
+using WCMS.SysCore.PlatformServices.FileManagement;
 using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.Features.WEB.Banner;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.Banner)]
-public class BannerBiz(BizDeps bizDeps) : BizService<Banner>(bizDeps), IBizService<Banner> 
+public class BannerBiz(BizDeps bizDeps) : BizService<Banner>(bizDeps), IBizService<Banner>
 {
     #region Protected Virtual
     protected override async Task BeforeUpdate(Banner set, FuncAction act, CancellationToken ct = default)
@@ -47,12 +45,12 @@ public class BannerBiz(BizDeps bizDeps) : BizService<Banner>(bizDeps), IBizServi
     /// 檢查AAContent，將舊資料的AAContent轉成新的格式
     /// </summary>
     /// <param name="langDt"></param>
-    private void AACheck(List< BannerDetailInfo >infos)
+    private void AACheck(List<BannerDetailInfo> infos)
     {
         if (!SpecSettings.AACheck) return;
         infos.ForEach(dt =>
         {
-            if(dt.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.AACode00004,I18nCache.GetLabel<BannerDetail>(),dt.ParentRowId, dt.Lang.ToLabel(), I18nCache.GetLabel<BannerDetailInfo>(x => x.Title));
+            if (dt.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.AACode00004, I18nCache.GetLabel<BannerDetail>(), dt.ParentRowId, dt.Lang.ToLabel(), I18nCache.GetLabel<BannerDetailInfo>(x => x.Title));
         });
     }
 
@@ -69,7 +67,7 @@ public class BannerBiz(BizDeps bizDeps) : BizService<Banner>(bizDeps), IBizServi
     {
         Banner[] datas = ConvertToApiModel(importFileLabel, srcFileSets);
         await BizInitCreateDatasAsync(datas);
-        
+
     }
     private Banner[] ConvertToApiModel(string importFileLabel, IList<FileManageModel> srcFileSets)
     {

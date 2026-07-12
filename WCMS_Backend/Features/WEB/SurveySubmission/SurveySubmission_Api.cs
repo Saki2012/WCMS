@@ -5,16 +5,19 @@ using System.Security.Cryptography;
 using System.Text;
 using WCMS.Features._Resx;
 using WCMS.SysCore.Enum;
-using WCMS.SysCore.FeatureDriver.Api;
+using WCMS.SysCore.FeatureDriver.Api.Controllers;
+using WCMS.SysCore.FeatureDriver.Model.Validation;
 using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.SystemFunc.Captcha;
-
 namespace WCMS.Features.WEB.SurveySubmission;
 
 [LibApiController(ProgKeys.WEB.Code, ProgKeys.WEB.SurveySubmission, SysEnum.FuncAction.Function)]
 public class SurveySubmissionController(ICaptchaBiz CaptchaBiz) : ApiDataQueryController<SurveySubmissions>
 {
+    #region Property
+    private const string CaptchaVerifyFailed = nameof(CaptchaVerifyFailed);
+    #endregion
 
     #region Public
     /// <summary>
@@ -94,11 +97,11 @@ public class SurveySubmissionController(ICaptchaBiz CaptchaBiz) : ApiDataQueryCo
     private void AutoSetClientInfo(SurveySubmissions submit)
     {
         string clientIp = GetClientIp();
-        submit.UserAgent = CutText(GetHeaderValue("User-Agent"), SysLengthParam.Memo);
-        submit.AcceptLanguage = CutText(GetHeaderValue("Accept-Language"), SysLengthParam.Info);
-        submit.ClientIpMasked = CutText(MaskClientIp(clientIp), SysLengthParam.IP);
-        submit.ClientIpHash = CutText(HashClientIp(clientIp), SysLengthParam.FileSHA256);
-        submit.TimeZone = CutText(submit.TimeZone, SysLengthParam.Info);
+        submit.UserAgent = CutText(GetHeaderValue(SysParam.HttpHeaders.UserAgent), DbStrLen.Memo);
+        submit.AcceptLanguage = CutText(GetHeaderValue(SysParam.HttpHeaders.AcceptLanguage), DbStrLen.Info);
+        submit.ClientIpMasked = CutText(MaskClientIp(clientIp), DbStrLen.IP);
+        submit.ClientIpHash = CutText(HashClientIp(clientIp), DbStrLen.FileSHA256);
+        submit.TimeZone = CutText(submit.TimeZone, DbStrLen.Info);
     }
     /// <summary>
     /// 取得 Header 值
@@ -122,7 +125,7 @@ public class SurveySubmissionController(ICaptchaBiz CaptchaBiz) : ApiDataQueryCo
     /// </summary>
     private string GetForwardedIp()
     {
-        string value = FirstText(GetHeaderValue("X-Forwarded-For"), GetHeaderValue("X-Real-IP"), GetHeaderValue("HTTP_CLIENT_IP"));
+        string value = FirstText(GetHeaderValue(SysParam.HttpHeaders.ForwardedFor), GetHeaderValue(SysParam.HttpHeaders.RealIp), GetHeaderValue(SysParam.HttpHeaders.ClientIp));
         return value.Split(',', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()?.Trim() ?? string.Empty;
     }
     /// <summary>
@@ -200,7 +203,7 @@ public class SurveySubmissionController(ICaptchaBiz CaptchaBiz) : ApiDataQueryCo
                 new SysMessageModel
             {
                 Status = SysEnum.MessageStatus.Error,
-                MessageCode = "CaptchaVerifyFailed",
+                MessageCode = CaptchaVerifyFailed,
                 Message = result.Message
             }
             ]

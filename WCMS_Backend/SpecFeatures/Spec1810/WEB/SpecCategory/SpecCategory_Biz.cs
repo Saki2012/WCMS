@@ -11,7 +11,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.SpecFeatures.Spec1810.WEB.SpecCategory;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.Spec.SpecCategory)]
-public class SpecCategoryBiz(BizDeps bizDeps) : BizService<SpecCategoryModel>(bizDeps), IBizService<SpecCategoryModel> 
+public class SpecCategoryBiz(BizDeps bizDeps) : BizService<SpecCategoryModel>(bizDeps), IBizService<SpecCategoryModel>
 {
     #region Migration Old Data
     public async Task Migrate()
@@ -102,7 +102,7 @@ public class SpecCategoryBiz(BizDeps bizDeps) : BizService<SpecCategoryModel>(bi
     #endregion
 
     #region Public
-    public Dictionary<string,string> GetShowColumnItems(string progId)
+    public Dictionary<string, string> GetShowColumnItems(string progId)
     {
         Dictionary<string, string> result = [];
 
@@ -164,7 +164,7 @@ public class SpecCategoryBiz(BizDeps bizDeps) : BizService<SpecCategoryModel>(bi
     {
         string progId = set.SpecCategory.ProgId;
         string cateId = set.SpecCategory.CategoryId;
-        string cateName = set.SpecCategoryDetail.FirstOrDefault(p => p.Lang==EffectiveLang).CategoryName;
+        string cateName = set.SpecCategoryDetail.FirstOrDefault(p => p.Lang == EffectiveLang).CategoryName;
         int useCount = 0;
         switch (progId)
         {

@@ -76,9 +76,6 @@
 	<ItemGroup>
 		<Folder Include="Features\MAT\" />
 		<Folder Include="Features\SYS\" />
-		<Folder Include="SysCore\NLogger\DataChange\" />
-		<Folder Include="SysCore\NLogger\Operate\" />
-		<Folder Include="SysCore\NLogger\Sys\" />
 	</ItemGroup>
 	<ItemGroup>
 		<Content Update="NLog.config">
@@ -87,7 +84,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<!-- 將 UDF 腳本複製到輸出與發佈資料夾 -->
-		<None Include="SysCore\UDF\**\*.sql">
+		<None Include="SysCore\Persistence\Udf\**\*.sql">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<CopyToPublishDirectory>Always</CopyToPublishDirectory>
 		</None>
@@ -119,13 +116,17 @@
 	</ItemGroup>
 	<ItemGroup>
 		<Compile Remove="Publish\**" />
-		<Compile Remove="SysCore\SystemFunc\UserRolePermission\**" />
+		<Compile Remove="SysCore\NLogger\**" />
+		<Compile Remove="SysCore\PlatformServices\UserRolePermission\**" />
 		<Content Remove="Publish\**" />
-		<Content Remove="SysCore\SystemFunc\UserRolePermission\**" />
+		<Content Remove="SysCore\NLogger\**" />
+		<Content Remove="SysCore\PlatformServices\UserRolePermission\**" />
 		<EmbeddedResource Remove="Publish\**" />
-		<EmbeddedResource Remove="SysCore\SystemFunc\UserRolePermission\**" />
+		<EmbeddedResource Remove="SysCore\NLogger\**" />
+		<EmbeddedResource Remove="SysCore\PlatformServices\UserRolePermission\**" />
 		<None Remove="Publish\**" />
-		<None Remove="SysCore\SystemFunc\UserRolePermission\**" />
+		<None Remove="SysCore\NLogger\**" />
+		<None Remove="SysCore\PlatformServices\UserRolePermission\**" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(EnableSpecCompileFilter)' == 'true'">
 		<!-- 實際編譯時先移除所有 SpecFeatures，避免不同 Spec 的 partial / 資源互相污染 -->

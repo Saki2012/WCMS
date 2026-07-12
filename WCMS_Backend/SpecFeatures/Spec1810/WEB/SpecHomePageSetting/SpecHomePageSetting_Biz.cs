@@ -11,7 +11,6 @@ using WCMS.SysCore.Interface;
 using WCMS.SysCore.FeatureDriver.Model;
 using WCMS.SysCore.Model;
 using static WCMS.SysCore.QueryListParam;
-
 namespace WCMS.SpecFeatures.Spec1810.WEB.SpecHomePageSetting;
 
 /// <summary>
@@ -312,7 +311,7 @@ public class SpecHomePageSettingBiz(
         ];
         AddCategoryCondition(conditions, categories);
 
-        return string.Join(" And ", conditions);
+        return string.Join(SysParam.QueryOperators.And, conditions);
     }
 
     /// <summary>
@@ -346,7 +345,7 @@ public class SpecHomePageSettingBiz(
             $"{nameof(Announcement.ContentStatus)} !& 4",
         ];
 
-        return string.Join(" And ", conditions);
+        return string.Join(SysParam.QueryOperators.And, conditions);
     }
 
     /// <summary>

@@ -7,14 +7,13 @@ using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using WCMS.SysCore.FeatureDriver.Model;
-using WCMS.SysCore.Interface;
+using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.Library;
-using static WCMS.SysCore.FeatureDriver.Api.QueryListParam;
+using WCMS.SysCore.Persistence;
 
 namespace WCMS.SysCore.FeatureDriver.Repo;
 
-public class BasicRepository<TDbModel>(ApplicationDbContext dataAccess) : IBasicRepository<TDbModel> where TDbModel : DbModel
+public class BasicRepository<TDbModel>(ApplicationDbContext dataAccess) where TDbModel : DbModel
 {
     #region Property
     /// <summary>
@@ -39,10 +38,10 @@ public class BasicRepository<TDbModel>(ApplicationDbContext dataAccess) : IBasic
         {
             foreach (var p in list)
             {
-                if(p is DetailModel detailRowModel)
+                if (p is DetailModel detailRowModel)
                 {
                     var rowIdProp = PropertyAccessorCache.GetProperty(p.GetType(), "RowId");
-                    if (rowIdProp != null) 
+                    if (rowIdProp != null)
                     {
                         if (((dynamic)detailRowModel).RowId == 0 || ((dynamic)detailRowModel).RowId == null)
                             ((dynamic)detailRowModel).RowId = rowId++;
@@ -188,7 +187,7 @@ public class BasicRepository<TDbModel>(ApplicationDbContext dataAccess) : IBasic
     /// <summary>
     /// 查看表單清單(非同步)
     /// </summary>
-    public async Task<IList<TDbModel>> QueryListAsync(LambdaExpression? selectExpr,LambdaExpression? whereExpr,IReadOnlyList<OrderBySpec>? orderBy = null,int pageCt = 0,int takeCt = 0,int skipCt = 0,bool asNoTracking = true)
+    public async Task<IList<TDbModel>> QueryListAsync(LambdaExpression? selectExpr, LambdaExpression? whereExpr, IReadOnlyList<OrderBySpec>? orderBy = null, int pageCt = 0, int takeCt = 0, int skipCt = 0, bool asNoTracking = true)
     {
         IQueryable<TDbModel> query = DataAccess.Set<TDbModel>();
         query = query.TagWith($"BasicRepository<{typeof(TDbModel).Name}>.QueryListAsync");
@@ -275,10 +274,10 @@ public class BasicRepository<TDbModel>(ApplicationDbContext dataAccess) : IBasic
 
     #region Private
 
-    private static Expression<Func<TDbModel, bool>> BuildStartsWithExpression(Expression<Func<TDbModel, string>> selector,string prefix)
+    private static Expression<Func<TDbModel, bool>> BuildStartsWithExpression(Expression<Func<TDbModel, string>> selector, string prefix)
     {
         var param = selector.Parameters[0];
-        var body = Expression.Call(selector.Body, typeof(string).GetMethod(nameof(string.StartsWith), new[] { typeof(string) })!, Expression.Constant(prefix) );
+        var body = Expression.Call(selector.Body, typeof(string).GetMethod(nameof(string.StartsWith), new[] { typeof(string) })!, Expression.Constant(prefix));
         return Expression.Lambda<Func<TDbModel, bool>>(body, param);
     }
 
@@ -702,7 +701,7 @@ public class BasicRepository<TDbModel>(ApplicationDbContext dataAccess) : IBasic
     /// <summary>
     /// 套用分頁或 skip/take 切段。
     /// </summary>
-    private static IQueryable<TDbModel> ApplyPaging(IQueryable<TDbModel> query,int pageCt,int takeCt,int skipCt)
+    private static IQueryable<TDbModel> ApplyPaging(IQueryable<TDbModel> query, int pageCt, int takeCt, int skipCt)
     {
         if (pageCt > 0) return query.Skip((pageCt - 1) * takeCt).Take(takeCt);
         if (skipCt > 0) return query.Skip(skipCt).Take(takeCt);
@@ -722,13 +721,13 @@ public class BasicRepository<TDbModel>(ApplicationDbContext dataAccess) : IBasic
     /// <summary>
     /// 依指定欄位建立 OrderBy 或 ThenBy 查詢。
     /// </summary>
-    private static IQueryable<TDbModel> ApplyKeyOrder(IQueryable<TDbModel> query,IProperty property,bool useThenBy)
+    private static IQueryable<TDbModel> ApplyKeyOrder(IQueryable<TDbModel> query, IProperty property, bool useThenBy)
     {
         var parameter = Expression.Parameter(typeof(TDbModel), "x");
-        var propertyAccess = Expression.Call(typeof(EF),nameof(EF.Property),[property.ClrType],parameter,Expression.Constant(property.Name));
+        var propertyAccess = Expression.Call(typeof(EF), nameof(EF.Property), [property.ClrType], parameter, Expression.Constant(property.Name));
         var keySelector = Expression.Lambda(propertyAccess, parameter);
         string methodName = useThenBy ? nameof(Queryable.ThenBy) : nameof(Queryable.OrderBy);
-        var orderedExpression = Expression.Call(typeof(Queryable),methodName,[typeof(TDbModel), property.ClrType],query.Expression,Expression.Quote(keySelector));
+        var orderedExpression = Expression.Call(typeof(Queryable), methodName, [typeof(TDbModel), property.ClrType], query.Expression, Expression.Quote(keySelector));
         return query.Provider.CreateQuery<TDbModel>(orderedExpression);
     }
     #endregion
@@ -744,14 +743,11 @@ public class BasicRepository<TDbModel>(ApplicationDbContext dataAccess) : IBasic
             {
                 // TODO: 處置 Managed 狀態 (Managed 物件)。
             }
-
             // TODO: 釋放 Unmanaged 資源 (Unmanaged 物件) 並覆寫下方的完成項。
             // TODO: 將大型欄位設為 null。
-
             disposedValue = true;
         }
     }
-
     // TODO: 僅當上方的 Dispose(bool disposing) 具有會釋放 Unmanaged 資源的程式碼時，才覆寫完成項。
     // ~BasicRepository()
     // {
@@ -772,40 +768,27 @@ public class BasicRepository<TDbModel>(ApplicationDbContext dataAccess) : IBasic
 
 static class EfMetaCache
 {
-    public sealed class Map
+    public sealed class Map(HashSet<string> s, HashSet<string> n, HashSet<string> k, HashSet<string> c)
     {
-        public readonly HashSet<string> Scalars;
-        public readonly HashSet<string> Navs;
-        public readonly HashSet<string> SkipNavs;
-        public readonly HashSet<string> Complex;
-
-        public Map(HashSet<string> s, HashSet<string> n, HashSet<string> k, HashSet<string> c)
-        { Scalars = s; Navs = n; SkipNavs = k; Complex = c; }
-
+        public readonly HashSet<string> Scalars = s;
+        public readonly HashSet<string> Navs = n;
+        public readonly HashSet<string> SkipNavs = k;
+        public readonly HashSet<string> Complex = c;
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsNav(string name) => Navs.Contains(name) || SkipNavs.Contains(name) || Complex.Contains(name);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsScalar(string name) => Scalars.Contains(name);
     }
-
     static readonly ConcurrentDictionary<Type, Map> _cache = new();
 
-    public static Map Get(DbContext db, Type clr)
-        => _cache.GetOrAdd(clr, t =>
+    public static Map Get(DbContext db, Type clr) => _cache.GetOrAdd(clr, t =>
         {
-            var et = db.Model.FindEntityType(t)
-                     ?? throw new InvalidOperationException($"EF entity not found: {t.Name}");
-
-            var scalars = et.GetProperties().Select(p => p.Name)
-                            .ToHashSet(StringComparer.Ordinal);
-            var navs = et.GetNavigations().Select(n => n.Name)
-                            .ToHashSet(StringComparer.Ordinal);
-            var skips = et.GetSkipNavigations().Select(n => n.Name)
-                            .ToHashSet(StringComparer.Ordinal);
+            var et = db.Model.FindEntityType(t) ?? throw new InvalidOperationException($"EF entity not found: {t.Name}");
+            var scalars = et.GetProperties().Select(p => p.Name).ToHashSet(StringComparer.Ordinal);
+            var navs = et.GetNavigations().Select(n => n.Name).ToHashSet(StringComparer.Ordinal);
+            var skips = et.GetSkipNavigations().Select(n => n.Name).ToHashSet(StringComparer.Ordinal);
 #if NET8_0_OR_GREATER
-            var complex = et.GetComplexProperties().Select(c => c.Name)
-                            .ToHashSet(StringComparer.Ordinal);
+            var complex = et.GetComplexProperties().Select(c => c.Name).ToHashSet(StringComparer.Ordinal);
 #else
         var complex = new HashSet<string>();
 #endif
@@ -816,7 +799,6 @@ static class EfMetaCache
 static class DefaultIncludeHelper
 {
     private static readonly ConcurrentDictionary<Type, string[]> _cache = new();
-
     /// <summary>
     /// 取得 Entity 第一層 Reference Navigation 的 Include paths（快取）
     /// </summary>
@@ -826,17 +808,16 @@ static class DefaultIncludeHelper
         return _cache.GetOrAdd(entityType, t =>
         {
             var et = db.Model.FindEntityType(t);
-            if (et == null) return Array.Empty<string>();
+            if (et == null) return [];
             // NOTE: 只取 Reference（排除 Collection）避免爆量
             var navs = et.GetNavigations().Where(n => !n.IsCollection).Select(n => n.Name).Distinct().ToArray();
             return navs;
         });
     }
-
     /// <summary>
     /// 套用第一層 Reference Includes（只在你想要時呼叫）
     /// </summary>
-    public static IQueryable<T> ApplyFirstLevelReferenceIncludes<T>(DbContext db,IQueryable<T> query,out int includeCt)where T : class
+    public static IQueryable<T> ApplyFirstLevelReferenceIncludes<T>(DbContext db, IQueryable<T> query, out int includeCt) where T : class
     {
         includeCt = 0;
         var includes = GetFirstLevelReferenceIncludes(db, typeof(T));
