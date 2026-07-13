@@ -36,6 +36,8 @@ using WCMS.SysCore.Observability.OperateLog;
 using WCMS.SysCore.Persistence;
 using WCMS.SysCore.Persistence.Diagnostics;
 using WCMS.SysCore.PlatformServices.FileManagement;
+using WCMS.SysCore.PlatformServices.Cache;
+using WCMS.SysCore.PlatformServices.Cache.Stores;
 using WCMS.SysCore.Security.Hardening;
 using WCMS.SysCore.Security.Hardening.AccessControl;
 using WCMS.SysCore.Security.IdentityAccess;
@@ -212,6 +214,11 @@ public class Program
 
 
             services.AddMemoryCache();
+            services.Configure<CacheSettings>(cfg.GetSection(CacheSettings.SectionName));
+            services.AddSingleton<ILocalCacheStore, MemoryCacheStore>();
+            services.AddSingleton<IDistributedCacheStore, DistributedCacheStore>();
+            services.AddSingleton<ICacheRoute, CacheRoute>();
+            services.AddSingleton<CacheService>();
         }
         /// <summary>
         /// 反射註冊 BizService。
