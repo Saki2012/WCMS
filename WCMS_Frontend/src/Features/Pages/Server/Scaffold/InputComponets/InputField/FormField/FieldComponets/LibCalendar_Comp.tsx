@@ -7,7 +7,7 @@ import { format, isSameDay, isValid, parse, parseISO } from "date-fns";
 import type { ILibCalendarProp } from "./LibCalendar_Data";
 
 // #region Property
-const OUTPUT_FORMAT = "yyyy-MM-dd HH:mm:ss";
+const OUTPUT_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 
 const SUPPORTED_FORMATS = [
     // 顯示格式
@@ -150,8 +150,7 @@ export const LibCalendar = (prop: ILibCalendarProp) =>
                 : mergeDateAndTime(parsed.date, selectedDate);
 
             commitDateTime(next, raw);
-        }
-        else
+        } else
         {
             setInvalid(true);
         }
@@ -343,7 +342,7 @@ const parseDateValue = (value?: string | null): Date | null =>
     return isReasonableDate(iso) ? iso : null;
 };
 
-const parseUserDate = (raw: string): { date: Date; hasTime: boolean } | null =>
+const parseUserDate = (raw: string): { date: Date; hasTime: boolean; } | null =>
 {
     const v = (raw || "").trim();
     if (!v) return null;
@@ -382,13 +381,13 @@ const mergeDateAndTime = (datePart: Date, timeSource: Date | null | undefined): 
         timeSource?.getHours() ?? 0,
         timeSource?.getMinutes() ?? 0,
         timeSource?.getSeconds() ?? 0,
-        0
+        0,
     );
 
     return next;
 };
 
-const parseTimeValue = (value: string): { hour: number; minute: number; second: number } | null =>
+const parseTimeValue = (value: string): { hour: number; minute: number; second: number; } | null =>
 {
     const parts = value.split(":");
 
