@@ -31,6 +31,14 @@ export interface UseMobileMenuCollapseOptions
     stopHoverAutoClose?: boolean;
     /** 判斷 mobile 寬度用的 media query（預設 navbar-expand-xl） */
     mobileMediaQuery?: string;
+    /** 選單未展開時的按鈕可存取名稱。 */
+    togglerOpenLabel?: string;
+    /** 選單已展開時的按鈕可存取名稱。 */
+    togglerCloseLabel?: string;
+    /** 是否支援 ESC 關閉選單（預設 true）。 */
+    closeOnEscape?: boolean;
+    /** 是否限制選單開啟後焦點留在 Header/Menu 內（預設 true）。 */
+    trapFocus?: boolean;
 }
 export interface UseMobileMenuCollapseResult
 {
@@ -70,6 +78,19 @@ export const useMobileMenuCollapse = (opts: UseMobileMenuCollapseOptions): UseMo
         const enableDropdownToggle = opts.enableDropdownToggle ?? true;
         const stopHoverAutoClose = opts.stopHoverAutoClose ?? true;
         const mobileMediaQuery = opts.mobileMediaQuery ?? "(max-width: 1199.98px)"; // navbar-expand-xl
+        const togglerOpenLabel = opts.togglerOpenLabel ?? "開啟主選單";
+        const togglerCloseLabel = opts.togglerCloseLabel ?? "關閉主選單";
+        const closeOnEscape = opts.closeOnEscape ?? true;
+        const trapFocus = opts.trapFocus ?? true;
+        const focusableSelector = [
+            "a[href]",
+            "button:not([disabled])",
+            "input:not([disabled])",
+            "select:not([disabled])",
+            "textarea:not([disabled])",
+            "[tabindex]:not([tabindex=\"-1\"])"
+        ].join(",");
+        let triggerFocusEl: HTMLElement | null = null;
         // 宣告變數：DOM
         const header = opts.headerRef.current;
         if (!header) return;
@@ -95,9 +116,63 @@ export const useMobileMenuCollapse = (opts: UseMobileMenuCollapseOptions): UseMo
         // function：同步 hamburger/toggler aria
         const setHamburgerActive = (open: boolean) =>
         {
+            const label = open ? togglerCloseLabel : togglerOpenLabel;
             hamburgerEl?.classList.toggle("active", open);
             togglerEl.classList.toggle("collapsed", !open);
             togglerEl.setAttribute("aria-expanded", open ? "true" : "false");
+            togglerEl.setAttribute("aria-label", label);
+            togglerEl.setAttribute("title", label);
+        };
+        // function：判斷元素是否可被鍵盤聚焦
+        const isVisibleFocusable = (el: HTMLElement) =>
+        {
+            if (el.getAttribute("aria-hidden") === "true") return false;
+            if (el.hasAttribute("disabled")) return false;
+            return el === togglerEl || Boolean(el.offsetParent);
+        };
+        // function：取得選單開啟時允許循環的焦點項目
+        const getMenuFocusableEls = () =>
+        {
+            const menuEls = Array.from(collapseEl.querySelectorAll<HTMLElement>(focusableSelector));
+            return [togglerEl, ...menuEls].filter(isVisibleFocusable);
+        };
+        // function：讓焦點回到選單開關
+        const focusToggler = () =>
+        {
+            window.setTimeout(() => togglerEl.focus({ preventScroll: true }), 0);
+        };
+        // function：關閉後回到原本觸發選單的項目
+        const restoreTriggerFocus = () =>
+        {
+            const target = triggerFocusEl && document.contains(triggerFocusEl) ? triggerFocusEl : togglerEl;
+            window.setTimeout(() => target.focus({ preventScroll: true }), 0);
+            triggerFocusEl = null;
+        };
+        // function：限制 Tab 焦點留在選單範圍內
+        const trapMenuFocus = (ev: KeyboardEvent) =>
+        {
+            const focusableEls = getMenuFocusableEls();
+            if (!focusableEls.length) return;
+            const firstEl = focusableEls[0];
+            const lastEl = focusableEls[focusableEls.length - 1];
+            const activeEl = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+            if (!activeEl || !focusableEls.includes(activeEl))
+            {
+                ev.preventDefault();
+                firstEl.focus({ preventScroll: true });
+                return;
+            }
+            if (ev.shiftKey && activeEl === firstEl)
+            {
+                ev.preventDefault();
+                lastEl.focus({ preventScroll: true });
+                return;
+            }
+            if (!ev.shiftKey && activeEl === lastEl)
+            {
+                ev.preventDefault();
+                firstEl.focus({ preventScroll: true });
+            }
         };
         // function：套用 open 狀態
         const applyOpenState = (open: boolean) =>
@@ -251,7 +326,9 @@ export const useMobileMenuCollapse = (opts: UseMobileMenuCollapseOptions): UseMo
         // ---------- Menu open/close ----------
         const open = () =>
         {
+            triggerFocusEl = document.activeElement instanceof HTMLElement ? document.activeElement : togglerEl;
             applyOpenState(true);
+            focusToggler();
 
             const inst = getBootstrapCollapse();
             if (inst)
@@ -274,11 +351,13 @@ export const useMobileMenuCollapse = (opts: UseMobileMenuCollapseOptions): UseMo
             if (inst)
             {
                 inst.hide();
+                restoreTriggerFocus();
                 return;
             }
 
             // fallback：無動畫但可用
             forceCloseCollapse();
+            restoreTriggerFocus();
         };
 
         const toggle = () =>
@@ -299,10 +378,43 @@ export const useMobileMenuCollapse = (opts: UseMobileMenuCollapseOptions): UseMo
             toggle();
         };
 
+        const onTogglerKeyDown = (ev: KeyboardEvent) =>
+        {
+            if (ev.key !== " " && ev.key !== "Enter") return;
+            if (togglerEl.tagName.toLowerCase() === "button") return;
+            if (ev.key === "Enter" && togglerEl.hasAttribute("href")) return;
+            ev.preventDefault();
+            ev.stopPropagation();
+            toggle();
+        };
+
         const onOverlayClick = (ev: MouseEvent) =>
         {
             ev.preventDefault();
             close();
+        };
+
+        const onDocumentKeyDown = (ev: KeyboardEvent) =>
+        {
+            if (!isOpenRef.current) return;
+            if (closeOnEscape && ev.key === "Escape")
+            {
+                ev.preventDefault();
+                ev.stopPropagation();
+                close();
+                return;
+            }
+            if (trapFocus && ev.key === "Tab") trapMenuFocus(ev);
+        };
+
+        const onCollapseKeyDown = (ev: KeyboardEvent) =>
+        {
+            if (!enableDropdownToggle || ev.key !== " ") return;
+            const toggleEl = (ev.target as Element | null)?.closest(".dropdown-toggle") as HTMLElement | null;
+            if (!toggleEl || !collapseEl.contains(toggleEl)) return;
+            ev.preventDefault();
+            const host = (toggleEl.closest("li.dropend.submenu") as HTMLElement | null) || (toggleEl.closest("li.nav-item.dropdown") as HTMLElement | null);
+            if (host) toggleHostByClick(host);
         };
 
         const onShown = () => applyOpenState(true);
@@ -400,9 +512,12 @@ export const useMobileMenuCollapse = (opts: UseMobileMenuCollapseOptions): UseMo
 
         // 執行：掛事件
         togglerEl.addEventListener("click", onTogglerClick);
+        togglerEl.addEventListener("keydown", onTogglerKeyDown);
         overlayEl?.addEventListener("click", onOverlayClick);
 
         collapseEl.addEventListener("click", onCollapseClick);
+        collapseEl.addEventListener("keydown", onCollapseKeyDown);
+        document.addEventListener("keydown", onDocumentKeyDown, true);
         collapseEl.addEventListener("shown.bs.collapse", onShown as EventListener);
         collapseEl.addEventListener("hidden.bs.collapse", onHidden as EventListener);
 
@@ -417,9 +532,12 @@ export const useMobileMenuCollapse = (opts: UseMobileMenuCollapseOptions): UseMo
         {
             // cleanup：移除事件
             togglerEl.removeEventListener("click", onTogglerClick);
+            togglerEl.removeEventListener("keydown", onTogglerKeyDown);
             overlayEl?.removeEventListener("click", onOverlayClick);
 
             collapseEl.removeEventListener("click", onCollapseClick);
+            collapseEl.removeEventListener("keydown", onCollapseKeyDown);
+            document.removeEventListener("keydown", onDocumentKeyDown, true);
             collapseEl.removeEventListener("shown.bs.collapse", onShown as EventListener);
             collapseEl.removeEventListener("hidden.bs.collapse", onHidden as EventListener);
 

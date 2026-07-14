@@ -14,7 +14,7 @@ import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { formatDate, LibDate, LibText } from "@/SysCore/Utils/Library/LibData";
 import { resolveSpecComponent, resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
-import { useOptionalSpecAssetUrl } from "@/SysCore/Utils/UI_HookFunc/useOptionalSpecAssetUrl";
+import { useOptionalSpecAssetUrl } from "@/SysCore/Utils/UI_Hooks/useOptionalSpecAssetUrl";
 import type { components } from "@/types/api";
 import { AnnouncementDetailFields, AnnouncementFields } from "@/types/SchemaFields";
 import { type ComponentType, useEffect, useMemo, useRef, useState } from "react";
@@ -208,18 +208,23 @@ const PictureList_Row_Comp = (props: { dirUrl: string; lang: Lang; gridData: Ann
                 const linkUrl = `${props.dirUrl}/${item.Announcement?.InternalId}`;
                 const title = item.AnnouncementDetail?.find(p => p.Lang === props.lang)?.Title?.trim() ?? "";
                 const picUrl = FileManagementAPI.get_Public_Preview_Url(item.Announcement?.PictureId, item.Announcement?.PicDescription) || defaultAnnouncePic;
-                const picDesc = item.Announcement?.PicDescription?.trim() || title;
                 const validate = formatDate(item.Announcement?.Validate_Start);
                 const catName = formatCategoriesName(item.Announcement?.Categories ?? "", props.categoryData, props.lang);
                 return (
                     <div key={item.Announcement?.InternalId} className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 + Standard_ItemDiv">
                         <article className="cardbox">
                             <div className="card_content">
-                                <LangNavLink to={linkUrl} className="card_image_link venobox vbox-item" data-gall="myGallery" title={title}>
+                                <LangNavLink
+                                    to={linkUrl}
+                                    className="card_image_link venobox vbox-item"
+                                    data-gall="myGallery"
+                                    title={title}
+                                    aria-label={title}
+                                >
                                     <figure className="figure_Box">
                                         <div className="card_figure">
                                             <div className="img-wrapper">
-                                                <img className="card_image" src={picUrl} alt={picDesc} />
+                                                <img className="card_image" src={picUrl} alt="" />
                                             </div>
                                         </div>
                                     </figure>
@@ -239,14 +244,14 @@ const PictureList_Row_Comp = (props: { dirUrl: string; lang: Lang; gridData: Ann
                                     <div className="card_titleDiv + mb-md-4 mb-sm-3 mb-2">
                                         <span className="card_title">{title}</span>
                                     </div>
-                                </LangNavLink>
-                                <div className="card_StateDiv">
-                                    <div className="More customize_btn">
-                                        <LangNavLink className="Btn_s1" title={`觀看更多：${title}`} aria-label={`觀看更多：${title}`} to={linkUrl}>
-                                            VIEW ALL<span className="ml-2">+</span>
-                                        </LangNavLink>
+                                    <div className="card_StateDiv">
+                                        <div className="More customize_btn">
+                                            <span className="Btn_s1" aria-hidden="true">
+                                                VIEW ALL<span className="ml-2">+</span>
+                                            </span>
+                                        </div>
                                     </div>
-                                </div>
+                                </LangNavLink>
                             </div>
                         </article>
                     </div>

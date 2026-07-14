@@ -31,7 +31,7 @@ import type { ApiFormInitial, ServerFormActions } from "@/SysCore/Utils/API/APIA
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import { LibAttachment, LibText } from "@/SysCore/Utils/Library/LibData";
-import { useUploadFile } from "@/SysCore/Utils/UI_HookFunc/useUploadFile";
+import { useUploadFile } from "@/SysCore/Utils/UI_Hooks/useUploadFile";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { AnnouncementDetailFields, AnnouncementDetailFileFields, AnnouncementSetFields, PGID } from "@/types/SchemaFields";

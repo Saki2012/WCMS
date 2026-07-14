@@ -7699,7 +7699,47 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecMusical/Create": {
+    "/Service/SpecHomePageApi/GetWeatherData": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description i18n language (e.g. zh-TW / en) */
+                    "Accept-Language"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["SpecHomePageWeather_DTOApiResponse"];
+                        "application/json": components["schemas"]["SpecHomePageWeather_DTOApiResponse"];
+                        "text/json": components["schemas"]["SpecHomePageWeather_DTOApiResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/Service/SpecHomePageApi/Create": {
         parameters: {
             query?: never;
             header?: never;
@@ -7720,9 +7760,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["SpecMusicalSet_DTO"];
-                    "text/json": components["schemas"]["SpecMusicalSet_DTO"];
-                    "application/*+json": components["schemas"]["SpecMusicalSet_DTO"];
+                    "application/json": components["schemas"]["SpecHomePage1820Set_DTO"];
+                    "text/json": components["schemas"]["SpecHomePage1820Set_DTO"];
+                    "application/*+json": components["schemas"]["SpecHomePage1820Set_DTO"];
                 };
             };
             responses: {
@@ -7741,7 +7781,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecMusical/InitialCreateData": {
+    "/Service/SpecHomePageApi/InitialCreateData": {
         parameters: {
             query?: never;
             header?: never;
@@ -7762,9 +7802,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["SpecMusicalSet_DTO"][];
-                    "text/json": components["schemas"]["SpecMusicalSet_DTO"][];
-                    "application/*+json": components["schemas"]["SpecMusicalSet_DTO"][];
+                    "application/json": components["schemas"]["SpecHomePage1820Set_DTO"][];
+                    "text/json": components["schemas"]["SpecHomePage1820Set_DTO"][];
+                    "application/*+json": components["schemas"]["SpecHomePage1820Set_DTO"][];
                 };
             };
             responses: {
@@ -7783,7 +7823,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecMusical/Update": {
+    "/Service/SpecHomePageApi/Update": {
         parameters: {
             query?: never;
             header?: never;
@@ -7803,9 +7843,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["SpecMusicalSet_DTOApiRequest"];
-                    "text/json": components["schemas"]["SpecMusicalSet_DTOApiRequest"];
-                    "application/*+json": components["schemas"]["SpecMusicalSet_DTOApiRequest"];
+                    "application/json": components["schemas"]["SpecHomePage1820Set_DTOApiRequest"];
+                    "text/json": components["schemas"]["SpecHomePage1820Set_DTOApiRequest"];
+                    "application/*+json": components["schemas"]["SpecHomePage1820Set_DTOApiRequest"];
                 };
             };
             responses: {
@@ -7825,7 +7865,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecMusical/Invalid/{pk}": {
+    "/Service/SpecHomePageApi/Invalid/{pk}": {
         parameters: {
             query?: never;
             header?: never;
@@ -7866,7 +7906,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/Service/SpecMusical/BatchInvalid": {
+    "/Service/SpecHomePageApi/BatchInvalid": {
         parameters: {
             query?: never;
             header?: never;
@@ -7910,7 +7950,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/Service/SpecMusical/Delete": {
+    "/Service/SpecHomePageApi/Delete": {
         parameters: {
             query?: never;
             header?: never;
@@ -7948,7 +7988,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecMusical/BatchDelete": {
+    "/Service/SpecHomePageApi/BatchDelete": {
         parameters: {
             query?: never;
             header?: never;
@@ -7990,7 +8030,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecMusical/QueryData": {
+    "/Service/SpecHomePageApi/QueryData": {
         parameters: {
             query?: never;
             header?: never;
@@ -8028,7 +8068,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecMusical/QueryList": {
+    "/Service/SpecHomePageApi/QueryList": {
         parameters: {
             query?: never;
             header?: never;
@@ -8070,7 +8110,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecMusical/GetTotalCounts": {
+    "/Service/SpecHomePageApi/GetTotalCounts": {
         parameters: {
             query?: never;
             header?: never;
@@ -8112,7 +8152,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/Service/SpecMusical/GetModelDisplayName": {
+    "/Service/SpecHomePageApi/GetModelDisplayName": {
         parameters: {
             query?: never;
             header?: never;
@@ -10493,12 +10533,6 @@ export interface components {
             URL?: string | null;
             URL_Open?: components["schemas"]["WindowTarget"];
             _BannerDetail?: components["schemas"]["BannerDetail_DTO"];
-            /** @description 最新展演 */
-            SpecLatestShows?: string | null;
-            /** @description 展演地點 */
-            SpecShowLocation?: string | null;
-            /** @description 展演時間 */
-            SpecShowDate?: string | null;
         };
         BannerDetail_DTO: {
             /** @description 橫幅廣告 */
@@ -11835,7 +11869,7 @@ export interface components {
             SysMessage?: components["schemas"]["SysMessageModel"][] | null;
             Data?: components["schemas"]["SiteViewCountSet_DTO"][] | null;
         };
-        SpecMusicalModel_DTO: {
+        SpecHomePage1820Model_DTO: {
             /**
              * Format: date-time
              * @description 創建時間
@@ -11860,78 +11894,170 @@ export interface components {
             /** @description 內部唯一標示號 */
             InternalId?: string | null;
             OrgLvId?: string | null;
-            /** @description 樂器代碼 */
-            MusicalId?: string | null;
-            /** @description 樂器名稱 */
-            MusicalName?: string | null;
-            Category?: components["schemas"]["Category_DTO"];
-            /** @description 類別 */
-            CategoryId?: string | null;
-            /** @description 封面圖片 */
-            CoverPicId?: string | null;
-            /** @description 規格 */
-            Specification?: string | null;
-            /** @description 琴頭 */
-            Headstock?: string | null;
-            /** @description 背板 */
-            Backboard?: string | null;
-            /** @description 弦長 */
-            ScaleLength?: string | null;
-            /** @description 覆手長 */
-            Bridge?: string | null;
-            /** @description 形制 */
-            BodyForm?: string | null;
-            /** @description 弦材 */
-            Material?: string | null;
-            /** @description 樂器說明 */
-            Info?: string | null;
-            _SpecMusicalSoundList?: components["schemas"]["SpecMusicalSoundList_DTO"][] | null;
-            _SpecMusicalPictureList?: components["schemas"]["SpecMusicalPictureList_DTO"][] | null;
+            /** @description 首頁設定表ID */
+            HomePageId?: string | null;
+            /** @description 語系 */
+            Lang?: string | null;
+            /** @description 橫幅左側標語 */
+            Section1Title_L?: string | null;
+            /** @description 橫幅中間標語 */
+            Section1Title_M?: string | null;
+            /** @description 橫幅右側標語 */
+            Section1Title_R?: string | null;
+            /** @description 主視覺文案 */
+            HeroText?: string | null;
+            /** @description 主視覺文案查看更多連結 */
+            HeroText_ViewMoreLink?: string | null;
+            /** @description 公告區塊標題 */
+            AnnouncementTitle?: string | null;
+            /** @description 公告區塊副標題 */
+            AnnouncementSubTitle?: string | null;
+            /** @description 公告類別篩選條件 */
+            AnnouncementCategoryIds?: string | null;
+            /** @description 公告區塊查看更多連結 */
+            Announcement_ViewMoreLink?: string | null;
+            /** @description 資源區塊標題 */
+            Resource_Title?: string | null;
+            /** @description 資源區塊副標題 */
+            Resource_SubTitle?: string | null;
+            _SpecHomePage1820_BannerMedia?: components["schemas"]["SpecHomePage1820_BannerMedia_DTO"][] | null;
+            _SpecHomePage1820_Detail?: components["schemas"]["SpecHomePage1820_Detail_DTO"][] | null;
+            _SpecHomePage1820_Marquee?: components["schemas"]["SpecHomePage1820_Marquee_DTO"][] | null;
+            _SpecHomePage1820_Resource?: components["schemas"]["SpecHomePage1820_Resource_DTO"][] | null;
         };
-        SpecMusicalPictureList_DTO: {
-            RowState?: components["schemas"]["RowState"];
-            /** @description 樂器代碼 */
-            MusicalId?: string | null;
-            /**
-             * Format: int32
-             * @description 行代碼
-             */
-            RowId?: number | null;
-            /** @description 相片來源 */
-            PicSrcId?: string | null;
-            /**
-             * Format: int32
-             * @description 排序編號
-             */
-            Sort?: number | null;
-            /** @description 相片說明 */
-            Info?: string | null;
-            _SpecMusical?: components["schemas"]["SpecMusicalModel_DTO"];
+        SpecHomePage1820Set_DTO: {
+            SpecHomePage1820?: components["schemas"]["SpecHomePage1820Model_DTO"];
+            /** @description 1820首頁BannerMedia子表 */
+            SpecHomePage1820_BannerMedia?: components["schemas"]["SpecHomePage1820_BannerMedia_DTO"][] | null;
+            /** @description 1820首頁介紹清單列表 */
+            SpecHomePage1820_Detail?: components["schemas"]["SpecHomePage1820_Detail_DTO"][] | null;
+            /** @description 1820首頁跑馬燈子表 */
+            SpecHomePage1820_Marquee?: components["schemas"]["SpecHomePage1820_Marquee_DTO"][] | null;
+            /** @description 1820首頁資源連結子表 */
+            SpecHomePage1820_Resource?: components["schemas"]["SpecHomePage1820_Resource_DTO"][] | null;
         };
-        SpecMusicalSet_DTO: {
-            SpecMusical?: components["schemas"]["SpecMusicalModel_DTO"];
-            SpecMusicalSoundList?: components["schemas"]["SpecMusicalSoundList_DTO"][] | null;
-            SpecMusicalPictureList?: components["schemas"]["SpecMusicalPictureList_DTO"][] | null;
-        };
-        SpecMusicalSet_DTOApiRequest: {
+        SpecHomePage1820Set_DTOApiRequest: {
             InternalId?: string | null;
-            Data?: components["schemas"]["SpecMusicalSet_DTO"];
+            Data?: components["schemas"]["SpecHomePage1820Set_DTO"];
         };
-        SpecMusicalSoundList_DTO: {
+        SpecHomePage1820_BannerMedia_DTO: {
             RowState?: components["schemas"]["RowState"];
-            /** @description 樂器代碼 */
-            MusicalId?: string | null;
+            /** @description 首頁設定表ID */
+            HomePageId?: string | null;
             /**
              * Format: int32
              * @description 行代碼
              */
             RowId?: number | null;
-            SoundSrc?: components["schemas"]["FileManageModel_DTO"];
-            /** @description 音源 */
-            SoundSrcId?: string | null;
-            /** @description 音檔說明 */
-            Info?: string | null;
-            _SpecMusical?: components["schemas"]["SpecMusicalModel_DTO"];
+            BannerFile?: components["schemas"]["FileManageModel_DTO"];
+            /** @description 橫幅媒體來源 */
+            BannerFileId?: string | null;
+            /** @description 橫幅媒體檔案說明 */
+            BannerFileDescription?: string | null;
+            _SpecHomePage1820?: components["schemas"]["SpecHomePage1820Model_DTO"];
+        };
+        SpecHomePage1820_Detail_DTO: {
+            RowState?: components["schemas"]["RowState"];
+            /** @description 首頁設定表ID */
+            HomePageId?: string | null;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number | null;
+            /** @description 標題 */
+            Title?: string | null;
+            /** @description 副標題 */
+            SubTitle?: string | null;
+            MainPicture?: components["schemas"]["FileManageModel_DTO"];
+            /** @description 主視覺圖片來源 */
+            MainPictureId?: string | null;
+            /** @description 主視覺圖片說明 */
+            MainPictureDescription?: string | null;
+            SubPicture?: components["schemas"]["FileManageModel_DTO"];
+            /** @description 延伸視覺圖片來源 */
+            SubPictureId?: string | null;
+            /** @description 延伸視覺圖片說明 */
+            SubPictureDescription?: string | null;
+            /** @description 內文說明 */
+            Intro?: string | null;
+            /** @description 主連結標題 */
+            MainLinkTitle?: string | null;
+            /** @description 主連結URL */
+            MainLink?: string | null;
+            /** @description 子連結標題(1) */
+            SubLinkTitle1?: string | null;
+            /** @description 子連結URL(1) */
+            SubLink1?: string | null;
+            /** @description 子連結標題(2) */
+            SubLinkTitle2?: string | null;
+            /** @description 子連結URL(2) */
+            SubLink2?: string | null;
+            /** @description 子連結標題(3) */
+            SubLinkTitle3?: string | null;
+            /** @description 子連結URL(3) */
+            SubLink3?: string | null;
+            _SpecHomePage1820?: components["schemas"]["SpecHomePage1820Model_DTO"];
+        };
+        SpecHomePage1820_Marquee_DTO: {
+            RowState?: components["schemas"]["RowState"];
+            /** @description 首頁設定表ID */
+            HomePageId?: string | null;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number | null;
+            Picture?: components["schemas"]["FileManageModel_DTO"];
+            /** @description 相片來源 */
+            PictureId?: string | null;
+            /** @description 標題 */
+            PictureTitle?: string | null;
+            /** @description 是否隱藏 */
+            IsHide?: boolean | null;
+            _SpecHomePage1820?: components["schemas"]["SpecHomePage1820Model_DTO"];
+        };
+        SpecHomePage1820_Resource_DTO: {
+            RowState?: components["schemas"]["RowState"];
+            /** @description 首頁設定表ID */
+            HomePageId?: string | null;
+            /**
+             * Format: int32
+             * @description 行代碼
+             */
+            RowId?: number | null;
+            /** @description 標題 */
+            PicTitle?: string | null;
+            /** @description 副標題 */
+            PicSubTitle?: string | null;
+            PicFile?: components["schemas"]["FileManageModel_DTO"];
+            /** @description 資源圖片來源 */
+            PicFileId?: string | null;
+            /** @description [Spec_ResourcePictureDescription] */
+            PicFileDescription?: string | null;
+            /** @description 網址 */
+            Link?: string | null;
+            _SpecHomePage1820?: components["schemas"]["SpecHomePage1820Model_DTO"];
+        };
+        SpecHomePageWeather_DTO: {
+            CityCode?: string | null;
+            LocationName?: string | null;
+            Weather?: string | null;
+            Temperature?: string | null;
+            ApparentTemperature?: string | null;
+            RelativeHumidity?: string | null;
+            ProbabilityOfPrecipitation?: string | null;
+            /** Format: date-time */
+            StartTime?: string | null;
+            /** Format: date-time */
+            EndTime?: string | null;
+            /** Format: date-time */
+            FetchTime?: string;
+        };
+        SpecHomePageWeather_DTOApiResponse: {
+            readonly IsSuccess?: boolean;
+            SysMessage?: components["schemas"]["SysMessageModel"][] | null;
+            Data?: components["schemas"]["SpecHomePageWeather_DTO"][] | null;
         };
         StringApiResponse: {
             readonly IsSuccess?: boolean;

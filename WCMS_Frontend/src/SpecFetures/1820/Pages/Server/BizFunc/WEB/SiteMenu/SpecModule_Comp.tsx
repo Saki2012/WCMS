@@ -17,14 +17,12 @@ type TagSet = components["schemas"]["TagSet_DTO"];
 
 type PageSet = components["schemas"]["PageManagementSet_DTO"];
 
-
 export interface Module_SpecProduction_OptionsJson
 {
     CategoryId: string;
     TagIds: string;
     PageId: string;
 }
-
 
 const moduleOptionsDefaults: Module_SpecProduction_OptionsJson = { CategoryId: "", TagIds: "", PageId: "" };
 // #endregion
@@ -123,7 +121,6 @@ const useGetCategoryDict = (progId: PGID, lang: Lang, categorySets: CategorySet[
 
     return cateDic;
 };
-
 
 const useGetTagDict = (progId: PGID, lang: Lang, tagSets: TagSet[]) =>
 {

@@ -7,13 +7,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 // #region Property
 type HomePageModel = components["schemas"]["SpecHomePage1820Model_DTO"];
-
 type BannerModel = components["schemas"]["SpecHomePage1820_BannerMedia_DTO"];
-
 type BannerKind = "image" | "video";
-
 type BannerItem = { keyId: string; rowId: number; src: string; alt: string; kind: BannerKind; delayMs: number; };
-
 type SpecHomePageWeather = components["schemas"]["SpecHomePageWeather_DTO"];
 // #endregion
 
@@ -272,7 +268,7 @@ export const Section1 = (props: { homePage: HomePageModel; banners: BannerModel[
 
                 <div className="mv_botom mv_body">
                     <figure className="mv_botom_figure">
-                        <img src={btmImg} alt="下方裝飾風景底圖" />
+                        <img src={btmImg} alt="" />
                     </figure>
                 </div>
 
@@ -342,8 +338,6 @@ const lerp = (from: number, to: number, progress: number) =>
     return from + (to - from) * progress;
 };
 
-
-
 /** 判斷 banner 類型 */
 const getBannerKind = (item: BannerModel): BannerKind =>
 {
@@ -352,13 +346,11 @@ const getBannerKind = (item: BannerModel): BannerKind =>
     return "image";
 };
 
-
 /** 取得輪播停留秒數 */
 const getBannerDelay = (kind: BannerKind) =>
 {
     return kind === "video" ? 8000 : 5000;
 };
-
 
 /** 取得下一張索引 */
 const getNextIndex = (currentIndex: number, count: number) =>
@@ -367,14 +359,12 @@ const getNextIndex = (currentIndex: number, count: number) =>
     return (currentIndex + 1) % count;
 };
 
-
 /** 取得上一張索引 */
 const getPrevIndex = (currentIndex: number, count: number) =>
 {
     if (count <= 1) return 0;
     return (currentIndex - 1 + count) % count;
 };
-
 
 /** 暫停所有影片 */
 const pauseAllVideos = (videoRefs: Record<number, HTMLVideoElement | null>) =>
@@ -385,7 +375,6 @@ const pauseAllVideos = (videoRefs: Record<number, HTMLVideoElement | null>) =>
         video.pause();
     });
 };
-
 
 /** 重置非目前影片 */
 const resetInactiveVideos = (videoRefs: Record<number, HTMLVideoElement | null>, activeRowId: number) =>
@@ -398,7 +387,6 @@ const resetInactiveVideos = (videoRefs: Record<number, HTMLVideoElement | null>,
         video.currentTime = 0;
     });
 };
-
 
 const WeatherBox = (props: { weather: SpecHomePageWeather | null; }) =>
 {

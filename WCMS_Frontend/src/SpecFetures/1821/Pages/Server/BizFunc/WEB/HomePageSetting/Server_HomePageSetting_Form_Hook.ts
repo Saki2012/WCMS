@@ -32,7 +32,7 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { UseFetchDataResult } from "@/SysCore/Utils/API/FetchDataType";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import { LibAttachment } from "@/SysCore/Utils/Library/LibData";
-import { useUploadFile } from "@/SysCore/Utils/UI_HookFunc/useUploadFile";
+import { useUploadFile } from "@/SysCore/Utils/UI_Hooks/useUploadFile";
 import type { components } from "@/types/api";
 import {
     PGID,

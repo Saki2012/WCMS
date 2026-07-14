@@ -1291,3 +1291,37 @@ body {
 .SubPage_Standard_itemBoxs .card_content .card_titleDiv {
 	min-height: 70px;
 }
+/* Header/Menu AA：補足 200%–400% 放大時的選單焦點、鍵盤與流動排版。 */
+.menu_section .navbar-toggler:focus,
+.menu_section .navbar-toggler:focus-visible,
+.menu_section .navbar-nav .nav-link:focus,
+.menu_section .navbar-nav .nav-link:focus-visible,
+.menu_section .dropdown-menu .dropdown-item:focus,
+.menu_section .dropdown-menu .dropdown-item:focus-visible {
+    outline: 2px dashed var(--a_focusbordercolor) !important;
+    outline-offset: 2px !important;
+    box-shadow: none !important;
+    background-color: var(--a_focuscolor) !important;
+    color: var(--blackcolor) !important;
+}
+.menu_section .navbar-toggler:focus .hamburger span,
+.menu_section .navbar-toggler:focus-visible .hamburger span {
+    background-color: var(--blackcolor) !important;
+}
+@media screen and (max-width: 991px) {
+    #Site-Header.main-header.position-fixed {
+        position: sticky !important;
+    }
+    #Site-Header.main-header.active {
+        position: sticky !important;
+        top: 0;
+    }
+    #navbar-content.navbar-collapse {
+        max-height: calc(100dvh - 6rem);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+    body .main-header.active .overlayer {
+        pointer-events: auto;
+    }
+}

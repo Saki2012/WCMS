@@ -282,10 +282,10 @@ const MaterialImageGallery_Comp = (props: { title: string; pictures: Array<{ url
                         </div>
                         <div className="owl-nav disabled">
                             <button type="button" role="presentation" className="owl-prev disabled">
-                                <span aria-label="Previous">‹</span>
+                                <span aria-label="上一張">‹</span>
                             </button>
                             <button type="button" role="presentation" className="owl-next disabled">
-                                <span aria-label="Next">›</span>
+                                <span aria-label="下一張">›</span>
                             </button>
                         </div>
                         <div className="owl-dots disabled"></div>

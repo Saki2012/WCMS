@@ -2,7 +2,7 @@ import { ServerModuleRoutes } from "@/Features/Pages/Server/Scaffold/Routes/Serv
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import { AuthAPI } from "@/SysCore/Utils/API/AuthClient";
 import { resolveSpecAsset } from "@/SysCore/Utils/Library/SlotResolver";
-import { useOptionalSpecAssetUrl } from "@/SysCore/Utils/UI_HookFunc/useOptionalSpecAssetUrl";
+import { useOptionalSpecAssetUrl } from "@/SysCore/Utils/UI_Hooks/useOptionalSpecAssetUrl";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
 

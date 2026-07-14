@@ -1,6 +1,7 @@
 import { CategoryAdapter } from "@/Features/Hooks/BizFunc/COMM/Category_Api";
 import { TagAdapter } from "@/Features/Hooks/BizFunc/COMM/Tag_Api";
 import { FileArchiveAdapter } from "@/Features/Hooks/BizFunc/WEB/FileArchive_Api";
+import { buildServerSupportedLangDetailMap } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Helper";
 import type {
     ServerFormBinding,
     ServerFormDefaultRawData,
@@ -21,9 +22,9 @@ import type {
 import {
     buildEditGridCell,
     getEditGridCellValue,
-    getSelectedEditGridFile,
     getEditGridNumberCellValue,
     getEditGridStringCellValue,
+    getSelectedEditGridFile,
     toEditGridOptions,
     useEditGridBinding,
 } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
@@ -33,12 +34,11 @@ import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import { LibAttachment, LibText } from "@/SysCore/Utils/Library/LibData";
-import { useUploadFile } from "@/SysCore/Utils/UI_HookFunc/useUploadFile";
+import { useUploadFile } from "@/SysCore/Utils/UI_Hooks/useUploadFile";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { FileArchiveDetailFields, FileArchiveInfoFields, FileArchiveSetFields, FileArchiveUrlDetailFields, PGID } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
-import { buildServerSupportedLangDetailMap } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Helper";
 
 // #region Property
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];

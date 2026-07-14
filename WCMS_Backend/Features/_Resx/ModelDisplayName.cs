@@ -1542,5 +1542,9 @@ public static class ModelDisplayName
     /// AA：CSS font-size 使用 px 固定單位
     /// </summary>
     public const string AACheck_FontSizePx = nameof(AACheck_FontSizePx);
+    /// <summary>
+    /// 
+    /// </summary>
+    public const string AACheck_MailtoTitle = nameof(AACheck_MailtoTitle);
     #endregion
 }

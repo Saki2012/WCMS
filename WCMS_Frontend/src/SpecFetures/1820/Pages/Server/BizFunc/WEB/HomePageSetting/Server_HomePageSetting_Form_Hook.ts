@@ -27,10 +27,10 @@ import { SpecHomePage1820Adapter } from "@/SpecFetures/1820/Hooks/WEB/HomePage_A
 import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import type { ApiFormInitial, ServerFormActions } from "@/SysCore/Utils/API/APIAdapter";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import { LibAttachment } from "@/SysCore/Utils/Library/LibData";
 import type { UseFetchDataResult } from "@/SysCore/Utils/API/FetchDataType";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
-import { useUploadFile } from "@/SysCore/Utils/UI_HookFunc/useUploadFile";
+import { LibAttachment } from "@/SysCore/Utils/Library/LibData";
+import { useUploadFile } from "@/SysCore/Utils/UI_Hooks/useUploadFile";
 import type { components } from "@/types/api";
 import {
     PGID,
@@ -62,13 +62,11 @@ type UploadFileHandler = ReturnType<typeof useUploadFile>["handleFileChange"];
 
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-
 type HomePageImageRender = ColumnConfig["render"];
 
 type HomePageIntroRender = ColumnConfig["render"];
 
 type HomePageIntroEditRender = ColumnConfig["editRender"];
-
 
 interface HomePageEditGridBaseOptions
 {
@@ -85,7 +83,6 @@ interface HomePageEditGridBaseOptions
     renderPicturePreview?: HomePageImageRender;
 }
 
-
 interface HomePageDetailEditGridOptions extends HomePageEditGridBaseOptions
 {
     /** Section4 內文唯讀預覽 render */
@@ -95,9 +92,7 @@ interface HomePageDetailEditGridOptions extends HomePageEditGridBaseOptions
     renderIntroEditor?: HomePageIntroEditRender;
 }
 
-
 export type HomePage1820SummaryRow = { InternalId: string; HomePageId: string; Lang: string; };
-
 
 export type HomePage1820SummaryRawData = {
     supportLangs: Lang[];
@@ -112,7 +107,6 @@ export type HomePage1820FormRawData = Record<string, unknown> & ServerFormDefaul
     categoryMap: Record<string, string>;
 };
 
-
 export type HomePage1820FormAdapter = { HomePage: ReturnType<typeof SpecHomePage1820Adapter>; Category: ReturnType<typeof CategoryAdapter>; };
 
 export type HomePage1820FormActionsOpt = {
@@ -125,7 +119,6 @@ export type HomePage1820FormActionsOpt = {
     /** 儲存成功後重新整理語系摘要，讓新增後可切回 edit mode */
     onAfterSave: () => Promise<void> | void;
 };
-
 
 export type HomePage1820SummaryAdapter = { HomePage: ReturnType<typeof SpecHomePage1820Adapter>; };
 // #endregion
@@ -142,8 +135,6 @@ export const createEmptyHomePage1820Set = (lang: string): HomePageSet =>
         SpecHomePage1820_Resource: [],
     };
 };
-
-
 
 /** 外層：只撈 lang + internalId，儲存與 toast 交給內層 Server_FormTemplate。 */
 export const useHomePage1820SummaryFetchData = (opt: { supportLangs: Lang[]; }): UseFetchDataResult<HomePage1820SummaryRawData, HomePage1820SummaryAdapter> =>
@@ -199,7 +190,6 @@ export const useHomePage1820SummaryFetchData = (opt: { supportLangs: Lang[]; }):
     return { adapter, rawData, isLoading: list.isLoading, errors: [list.errorText].filter((x): x is string => Boolean(x)), refetchData, refetchRefData };
 };
 
-
 /** 內層：單一語系用 internalId 組 Spec Form Template */
 export const useHomePage1820LangFormTemplate = (
     opt: { theme: IBETheme; adapter: ReturnType<typeof SpecHomePage1820Adapter>; lang: Lang; internalId: string; onAfterSave: () => Promise<void> | void; },
@@ -239,15 +229,12 @@ export const useHomePage1820LangFormTemplate = (
     }, [actionsOpt, emptyData, opt.adapter, opt.internalId, opt.lang, opt.theme]);
 };
 
-
-
 /** 建立 Section1 Banner 的 EditGrid 綁定。 */
 export const useHomePage1820BannerMediaEditGrid = (opt: HomePageEditGridBaseOptions) =>
 {
     const uploadFile = useUploadFile({ enablePreview: false });
     const handleFileValueChange = useCallback(
-        (args: EditGridCellValueChangeArgs) =>
-            uploadHomePageFileValue(args, uploadFile.handleFileChange, SpecHomePage1820_BannerMediaFields.BannerFileDescription),
+        (args: EditGridCellValueChangeArgs) => uploadHomePageFileValue(args, uploadFile.handleFileChange, SpecHomePage1820_BannerMediaFields.BannerFileDescription),
         [uploadFile.handleFileChange],
     );
     const columns = useMemo(() => buildHomePageBannerMediaColumns(handleFileValueChange, opt.renderPicturePreview), [
@@ -268,7 +255,6 @@ export const useHomePage1820BannerMediaEditGrid = (opt: HomePageEditGridBaseOpti
         editGridProps: buildHomePageGridProps("Section1 Banner", "Banner", "server-home-page-1820-banner-grid", 760, opt.style),
     });
 };
-
 
 /** 建立 Section4 Detail 的 EditGrid 綁定。 */
 export const useHomePage1820DetailEditGrid = (opt: HomePageDetailEditGridOptions) =>
@@ -295,13 +281,11 @@ export const useHomePage1820DetailEditGrid = (opt: HomePageDetailEditGridOptions
         getItemRowId: item => item.RowId,
         sortItems: sortHomePageRows,
         createItem: ctx => buildNewDetailItem(ctx.data, ctx.nextRowId),
-        toRow: (item, index) =>
-            buildDetailGridRow(item, index, handleMainFileChange, handleSubFileChange, opt.renderPicturePreview, opt.renderIntroPreview, opt.renderIntroEditor),
+        toRow: (item, index) => buildDetailGridRow(item, index, handleMainFileChange, handleSubFileChange, opt.renderPicturePreview, opt.renderIntroPreview, opt.renderIntroEditor),
         toItem: (row, index, ctx) => toDetailDto(ctx.data, row, index),
         editGridProps: buildHomePageGridProps("Section4 內容", "內容", "server-home-page-1820-detail-grid", 1880, opt.style),
     });
 };
-
 
 /** 建立 Section5 Marquee 的 EditGrid 綁定。 */
 export const useHomePage1820MarqueeEditGrid = (opt: HomePageEditGridBaseOptions) =>
@@ -330,7 +314,6 @@ export const useHomePage1820MarqueeEditGrid = (opt: HomePageEditGridBaseOptions)
     });
 };
 
-
 /** 建立 Section6 Resource 的 EditGrid 綁定。 */
 export const useHomePage1820ResourceEditGrid = (opt: HomePageEditGridBaseOptions) =>
 {
@@ -358,7 +341,6 @@ export const useHomePage1820ResourceEditGrid = (opt: HomePageEditGridBaseOptions
     });
 };
 
-
 /** 將任意 EditGrid value 正規化成首頁檔案值。 */
 export const toHomePageFileCellValue = (value: EditGridCellValue): HomePageGridFileValue =>
 {
@@ -366,7 +348,6 @@ export const toHomePageFileCellValue = (value: EditGridCellValue): HomePageGridF
     if (typeof value === "string") return buildHomePageFileCellValue(value);
     return buildEmptyHomePageFileCellValue();
 };
-
 
 /** 取得預覽網址。 */
 export const getHomePageFilePreviewUrl = (fileId?: string | null): string | undefined =>
@@ -383,14 +364,12 @@ const normalizeLang = (lang?: string) =>
     return String(lang ?? "").trim().toLowerCase();
 };
 
-
 const resolveLangKey = (supportLangs: string[], lang?: string) =>
 {
     // 依 supportLang 找實際語系 key
     const target = normalizeLang(lang);
     return supportLangs.find(a => normalizeLang(a) === target) ?? "";
 };
-
 
 const createEmptyModel = (lang: string): HomePageModel =>
 {
@@ -412,7 +391,6 @@ const createEmptyModel = (lang: string): HomePageModel =>
     };
 };
 
-
 const normalizeSet = (lang: string, data?: HomePageSet | null): HomePageSet =>
 {
     // 正規化 set
@@ -427,13 +405,11 @@ const normalizeSet = (lang: string, data?: HomePageSet | null): HomePageSet =>
     };
 };
 
-
 const normalizeText = (value?: string | null) =>
 {
     // 統一字串空值
     return String(value ?? "").trim();
 };
-
 
 const resolveChildHomePageId = (childHomePageId?: string | null, parentHomePageId?: string | null) =>
 {
@@ -442,7 +418,6 @@ const resolveChildHomePageId = (childHomePageId?: string | null, parentHomePageI
     if (child) return child;
     return normalizeText(parentHomePageId);
 };
-
 
 const sanitizeSetBeforeSave = (lang: string, data: HomePageSet): HomePageSet =>
 {
@@ -463,13 +438,11 @@ const sanitizeSetBeforeSave = (lang: string, data: HomePageSet): HomePageSet =>
     };
 };
 
-
 const buildInitialSummaryMap = (supportLangs: string[]) =>
 {
     // 建立空摘要 map
     return Object.fromEntries(supportLangs.map(lang => [lang, { InternalId: "", HomePageId: "", Lang: lang }])) as Record<string, HomePage1820SummaryRow>;
 };
-
 
 const buildSummaryMap = (supportLangs: string[], list?: HomePageSet[] | null) =>
 {
@@ -488,7 +461,6 @@ const buildSummaryMap = (supportLangs: string[], list?: HomePageSet[] | null) =>
     return next;
 };
 
-
 const resolveNextFormData = (lang: string, prev: HomePageSet, next: SetStateAction<HomePageSet>) =>
 {
     // 處理 setFormData 的 function / object 兩種寫法
@@ -497,14 +469,11 @@ const resolveNextFormData = (lang: string, prev: HomePageSet, next: SetStateActi
     return next;
 };
 
-
-
 /** 建立 HomePage1820 Form 會使用到的 Adapter 群組 */
 const buildHomePage1820FormAdapter = (adapter: ReturnType<typeof SpecHomePage1820Adapter>): HomePage1820FormAdapter =>
 {
     return { HomePage: adapter, Category: CategoryAdapter() };
 };
-
 
 /** 建立 HomePage1820 內層語系表單標題 */
 const buildHomePage1820FormTitle = (): string =>
@@ -512,14 +481,12 @@ const buildHomePage1820FormTitle = (): string =>
     return "首頁設定";
 };
 
-
 /** 建立新增模式的 initial data，避免新增時查詢 __new__ */
 const buildHomePage1820InitialData = (ctx: { mode: "new" | "edit"; emptyData: HomePageSet; }): ApiFormInitial<HomePageSet> | undefined =>
 {
     if (ctx.mode !== "new") return undefined;
     return { data: { args: "__new__", apiRes: { IsSuccess: true, Data: ctx.emptyData, SysMessage: [] } } };
 };
-
 
 /** 取得 HomePage1820 內層語系表單參照資料 */
 const useHomePage1820ReferenceData = (ctx: { adapter: HomePage1820FormAdapter; lang: Lang; }): ServerFormReferenceResult<HomePage1820FormRefs> =>
@@ -540,7 +507,6 @@ const useHomePage1820ReferenceData = (ctx: { adapter: HomePage1820FormAdapter; l
     }, [category.errorText, category.isLoading, category.map, category.refetch]);
 };
 
-
 /** 建立 HomePage1820 儲存成功後的摘要重抓動作。 */
 const buildHomePage1820SuccessActions = (
     ctx: ServerFormReferenceContext<HomePageSet, HomePage1820FormAdapter, HomePage1820FormActionsOpt, HomePage1820FormRefs>,
@@ -548,7 +514,6 @@ const buildHomePage1820SuccessActions = (
 {
     return { create: ctx.actionsOpt.onAfterSave, update: ctx.actionsOpt.onAfterSave };
 };
-
 
 /** 覆寫 HomePage1820 儲存行為，讓 Template Toolbar 儲存前先正規化語系與子表鍵值。 */
 const buildHomePage1820Actions = (
@@ -574,7 +539,6 @@ const buildHomePage1820Actions = (
     };
 };
 
-
 /** 建立 HomePage1820 內層 rawData，並保留語系正規化 setFormData 行為 */
 const buildHomePage1820RawData = (
     ctx: { binding: UseFetchFormDataResult<HomePageSet>; refs: HomePage1820FormRefs; actions: ServerFormActions; },
@@ -592,14 +556,11 @@ const buildHomePage1820RawData = (
     return { ...baseRawData, formData, categoryMap: ctx.refs.categoryMap, actions: ctx.actions };
 };
 
-
-
 /** 建立 EditGrid 可用的表單 binding，避免 Component 直接處理 rows 同步。 */
 const buildHomePageEditGridBinding = (binding: UseFetchFormDataResult<HomePageSet>) =>
 {
     return { data: binding.data, setFormData: binding.setFormData };
 };
-
 
 /** 建立首頁子資料 Grid 的共用設定。 */
 const buildHomePageGridProps = (title: string, itemName: string, storageKey: string, minTableWidth: number, style: IEditGridView_Style) =>
@@ -623,20 +584,17 @@ const buildHomePageGridProps = (title: string, itemName: string, storageKey: str
     };
 };
 
-
 /** 依 RowId 排序首頁子資料。 */
 const sortHomePageRows = <TItem extends { RowId?: number | null; }>(items: TItem[]): TItem[] =>
 {
     return [...items].sort((a, b) => Number(a.RowId ?? 0) - Number(b.RowId ?? 0));
 };
 
-
 /** 取得主表 HomePageId，新增子資料時優先綁定主表。 */
 const getHomePageId = (data: HomePageSet): string =>
 {
     return String(data.SpecHomePage1820?.HomePageId ?? "").trim();
 };
-
 
 /** 建立 Banner 欄位設定。 */
 const buildHomePageBannerMediaColumns = (
@@ -649,7 +607,6 @@ const buildHomePageBannerMediaColumns = (
         buildFileColumn(SpecHomePage1820_BannerMediaFields.BannerFileId, "Banner 圖片", 460, onFileChange, renderPicturePreview),
     ];
 };
-
 
 /** 建立 Section4 Detail 欄位設定。 */
 const buildHomePageDetailColumns = (
@@ -679,7 +636,6 @@ const buildHomePageDetailColumns = (
     ];
 };
 
-
 /** 建立 Marquee 欄位設定。 */
 const buildHomePageMarqueeColumns = (
     onFileChange: (args: EditGridCellValueChangeArgs) => Promise<EditGridCellValueChangeResult>,
@@ -692,7 +648,6 @@ const buildHomePageMarqueeColumns = (
         { key: SpecHomePage1820_MarqueeFields.IsHide, title: "隱藏", width: 120, inputType: "checkboxSingle", editable: true },
     ];
 };
-
 
 /** 建立 Resource 欄位設定。 */
 const buildHomePageResourceColumns = (
@@ -709,20 +664,17 @@ const buildHomePageResourceColumns = (
     ];
 };
 
-
 /** 建立文字欄位設定。 */
 const buildTextColumn = (key: string, title: string, width: number, maxLength: number): ColumnConfig =>
 {
     return { key, title, width, inputType: "text", editable: true, maxLength };
 };
 
-
 /** 建立 TinyMCE 欄位設定。 */
 const buildTinyMceColumn = (key: string, title: string, width: number, render?: HomePageIntroRender, editRender?: HomePageIntroEditRender): ColumnConfig =>
 {
     return { key, title, width, inputType: "textarea", editable: true, render, editRender };
 };
-
 
 /** 建立檔案欄位設定。 */
 const buildFileColumn = (
@@ -748,13 +700,11 @@ const buildFileColumn = (
     };
 };
 
-
 /** 建立 Banner 新增資料。 */
 const buildNewBannerMediaItem = (data: HomePageSet, rowId: number): BannerMedia =>
 {
     return { HomePageId: getHomePageId(data), RowId: rowId, BannerFileId: "", BannerFileDescription: "" };
 };
-
 
 /** 建立 Detail 新增資料。 */
 const buildNewDetailItem = (data: HomePageSet, rowId: number): HomePageDetail =>
@@ -780,20 +730,17 @@ const buildNewDetailItem = (data: HomePageSet, rowId: number): HomePageDetail =>
     };
 };
 
-
 /** 建立 Marquee 新增資料。 */
 const buildNewMarqueeItem = (data: HomePageSet, rowId: number): HomePageMarquee =>
 {
     return { HomePageId: getHomePageId(data), RowId: rowId, PictureId: "", PictureTitle: "", IsHide: false };
 };
 
-
 /** 建立 Resource 新增資料。 */
 const buildNewResourceItem = (data: HomePageSet, rowId: number): HomePageResource =>
 {
     return { HomePageId: getHomePageId(data), RowId: rowId, PicTitle: "", PicSubTitle: "", PicFileId: "", PicFileDescription: "", Link: "" };
 };
-
 
 /** 將 Banner DTO 轉成 GridRow。 */
 const buildBannerMediaGridRow = (
@@ -812,7 +759,6 @@ const buildBannerMediaGridRow = (
         cells: buildBannerMediaCells(item, onFileChange, renderPicturePreview),
     };
 };
-
 
 /** 將 Detail DTO 轉成 GridRow。 */
 const buildDetailGridRow = (
@@ -835,7 +781,6 @@ const buildDetailGridRow = (
     };
 };
 
-
 /** 將 Marquee DTO 轉成 GridRow。 */
 const buildMarqueeGridRow = (
     item: HomePageMarquee,
@@ -854,7 +799,6 @@ const buildMarqueeGridRow = (
     };
 };
 
-
 /** 將 Resource DTO 轉成 GridRow。 */
 const buildResourceGridRow = (
     item: HomePageResource,
@@ -872,7 +816,6 @@ const buildResourceGridRow = (
         cells: buildResourceCells(item, onFileChange, renderPicturePreview),
     };
 };
-
 
 /** 建立 Banner cells。 */
 const buildBannerMediaCells = (
@@ -895,7 +838,6 @@ const buildBannerMediaCells = (
         ),
     ];
 };
-
 
 /** 建立 Detail cells。 */
 const buildDetailCells = (
@@ -965,7 +907,6 @@ const buildDetailCells = (
     ];
 };
 
-
 /** 建立 Marquee cells。 */
 const buildMarqueeCells = (
     item: HomePageMarquee,
@@ -984,7 +925,6 @@ const buildMarqueeCells = (
         buildEditGridCell(SpecHomePage1820_MarqueeFields.IsHide, "隱藏", Boolean(item.IsHide), { inputType: "checkboxSingle", editable: true }),
     ];
 };
-
 
 /** 建立 Resource cells。 */
 const buildResourceCells = (
@@ -1011,7 +951,6 @@ const buildResourceCells = (
     ];
 };
 
-
 /** 將 Banner GridRow 轉回 DTO。 */
 const toBannerMediaDto = (data: HomePageSet, row: GridRow, index: number): BannerMedia =>
 {
@@ -1023,7 +962,6 @@ const toBannerMediaDto = (data: HomePageSet, row: GridRow, index: number): Banne
         BannerFileDescription: getEditGridStringCellValue(row, SpecHomePage1820_BannerMediaFields.BannerFileDescription),
     };
 };
-
 
 /** 將 Detail GridRow 轉回 DTO。 */
 const toDetailDto = (data: HomePageSet, row: GridRow, index: number): HomePageDetail =>
@@ -1052,7 +990,6 @@ const toDetailDto = (data: HomePageSet, row: GridRow, index: number): HomePageDe
     };
 };
 
-
 /** 將 Marquee GridRow 轉回 DTO。 */
 const toMarqueeDto = (data: HomePageSet, row: GridRow, index: number): HomePageMarquee =>
 {
@@ -1065,7 +1002,6 @@ const toMarqueeDto = (data: HomePageSet, row: GridRow, index: number): HomePageM
         IsHide: Boolean(getEditGridCellValue(row, SpecHomePage1820_MarqueeFields.IsHide)),
     };
 };
-
 
 /** 將 Resource GridRow 轉回 DTO。 */
 const toResourceDto = (data: HomePageSet, row: GridRow, index: number): HomePageResource =>
@@ -1082,13 +1018,11 @@ const toResourceDto = (data: HomePageSet, row: GridRow, index: number): HomePage
     };
 };
 
-
 /** 建立首頁子資料 row key。 */
 const buildHomePageRowKey = (section: string, homePageId?: string | null, rowId?: number | null): string =>
 {
     return `home-page-1820-${section}-${homePageId ?? "new"}-${rowId ?? 0}`;
 };
-
 
 /** 上傳首頁圖片並回寫檔案欄位與說明欄位。 */
 const uploadHomePageFileValue = async (
@@ -1112,13 +1046,11 @@ const uploadHomePageFileValue = async (
     return buildHomePageUploadChangeResult(uploadedValue, descriptionField);
 };
 
-
 /** 建立首頁圖片上傳後的欄位更新結果。 */
 const buildHomePageUploadChangeResult = (file: HomePageGridFileValue, descriptionField: string): EditGridCellValueChangeResult =>
 {
     return { value: file, rowValues: { [descriptionField]: LibAttachment.getDisplayFileNameWithoutExtension(file.originalFileName ?? file.fileName) } };
 };
-
 
 /** 建立既有檔案的 EditGrid value。 */
 const buildHomePageFileCellValue = (internalId?: string | null, originalName?: string | null, description?: string | null): HomePageGridFileValue =>
@@ -1134,7 +1066,6 @@ const buildHomePageFileCellValue = (internalId?: string | null, originalName?: s
     };
 };
 
-
 /** 建立上傳後的 EditGrid 檔案值。 */
 const buildUploadedHomePageFileCellValue = (internalId: string, originalName?: string): HomePageGridFileValue =>
 {
@@ -1147,20 +1078,17 @@ const buildUploadedHomePageFileCellValue = (internalId: string, originalName?: s
     };
 };
 
-
 /** 建立空檔案值。 */
 const buildEmptyHomePageFileCellValue = (): HomePageGridFileValue =>
 {
     return { internalId: "", fileName: "", originalFileName: "" };
 };
 
-
 /** 判斷是否為首頁檔案值。 */
 const isHomePageFileValue = (value: EditGridCellValue): value is HomePageGridFileValue =>
 {
     return typeof value === "object" && value !== null && !Array.isArray(value) && "fileName" in value;
 };
-
 
 /** 取得剛選取的檔案。 */
 const getSelectedHomePageFile = (value: EditGridCellValue): HomePageGridFileValue | null =>
@@ -1169,13 +1097,11 @@ const getSelectedHomePageFile = (value: EditGridCellValue): HomePageGridFileValu
     return value;
 };
 
-
 /** 取得上傳前原始檔名。 */
 const getHomePageSelectedFileName = (file: HomePageGridFileValue): string =>
 {
     return String(file.file?.name || file.fileName || "").trim();
 };
-
 
 /** 取得 DTO 檔案物件中的原始檔名。 */
 const getDtoFileName = (file?: { FileName?: string | null; fileName?: string | null; } | null): string =>
@@ -1183,13 +1109,11 @@ const getDtoFileName = (file?: { FileName?: string | null; fileName?: string | n
     return String(file?.FileName ?? file?.fileName ?? "").trim();
 };
 
-
 /** 取得下載網址。 */
 const getHomePageFileDownloadUrl = (fileId?: string | null): string | undefined =>
 {
     const id = String(fileId ?? "").trim();
     return id ? `/Service/FileManagement/Server_Download/${encodeURIComponent(id)}` : undefined;
 };
-
 
 // #endregion
