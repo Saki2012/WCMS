@@ -80,7 +80,7 @@ public abstract class CategoryBizBase<TFormModel>(BizDeps bizDeps) : BizService<
     private void CheckCategoryName(IList<CategoryDetail> details, LangCode lang)
     {
         bool hasEmpty = details.Any(item => item.Lang == lang && item.CategoryName.IsNullOrEmpty());
-        if (hasEmpty) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<CategoryDetail>(item => item.CategoryName));
+        if (hasEmpty) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<CategoryDetail>(item => item.CategoryName));
     }
     /// <summary>
     /// 檢查類別是否已被其他功能資料使用。

@@ -14,8 +14,8 @@ public sealed class DistributedCacheStore : IDistributedCacheStore
     #region Property
     private readonly IDistributedCache? _cache;
     private readonly JsonSerializerOptions _jsonOptions;
-    private readonly CacheSettings _settings;
-    public bool IsEnabled => _settings.DistributedEnabled && _cache != null;
+    private readonly DistributedCacheSettings _settings;
+    public bool IsEnabled => _settings.Enabled;
     #endregion
 
     #region Public
@@ -27,7 +27,7 @@ public sealed class DistributedCacheStore : IDistributedCacheStore
         IOptions<MvcJsonOptions> jsonOptions,
         IServiceProvider services)
     {
-        _settings = settings.Value;
+        _settings = settings.Value.Distributed;
         _jsonOptions = new(jsonOptions.Value.JsonSerializerOptions);
         _cache = services.GetService<IDistributedCache>();
     }
@@ -36,7 +36,7 @@ public sealed class DistributedCacheStore : IDistributedCacheStore
     /// </summary>
     public async Task<CacheReadResult<T>> GetAsync<T>(string key, CancellationToken ct = default)
     {
-        EnsureEnabled();
+        EnsureAvailable();
         byte[]? raw = await _cache!.GetAsync(key, ct);
         if (raw == null) return CacheReadResult<T>.Miss();
         CacheEnvelope<T>? envelope = Deserialize<T>(raw);
@@ -49,7 +49,7 @@ public sealed class DistributedCacheStore : IDistributedCacheStore
     /// </summary>
     public async Task SetAsync<T>(string key, T? value, CacheOptions options, CancellationToken ct = default)
     {
-        EnsureEnabled();
+        EnsureAvailable();
         var envelope = new CacheEnvelope<T> { Value = value };
         byte[] raw = JsonSerializer.SerializeToUtf8Bytes(envelope, _jsonOptions);
         DistributedCacheEntryOptions entryOptions = BuildDistributedOptions(options);
@@ -60,18 +60,21 @@ public sealed class DistributedCacheStore : IDistributedCacheStore
     /// </summary>
     public async Task RemoveAsync(string key, CancellationToken ct = default)
     {
-        EnsureEnabled();
+        EnsureAvailable();
         await _cache!.RemoveAsync(key, ct);
     }
     #endregion
 
     #region Private
     /// <summary>
-    /// 確認 Distributed Cache 已完成啟用與 Provider 註冊。
+    /// 確認 Distributed Cache 已啟用且 Provider 可以使用。
     /// </summary>
-    private void EnsureEnabled()
+    private void EnsureAvailable()
     {
-        if (!IsEnabled) throw new InvalidOperationException("Distributed Cache 尚未啟用。");
+        if (!IsEnabled)
+            throw new InvalidOperationException("Distributed Cache 尚未啟用。");
+        if (_cache == null)
+            throw new InvalidOperationException("Distributed Cache Provider 尚未註冊。");
     }
     /// <summary>
     /// 將 WCMS Cache 時效設定轉成 IDistributedCache 設定。

@@ -43,6 +43,8 @@ public sealed class MemoryCacheStore(IMemoryCache cache) : ILocalCacheStore
     private static MemoryCacheEntryOptions BuildMemoryOptions(CacheOptions options)
     {
         var result = new MemoryCacheEntryOptions();
+        if (options.ExpirationStrategy == CacheExpirationStrategy.ProcessLifetime)
+            result.Priority = CacheItemPriority.NeverRemove;
         if (options.ExpirationStrategy == CacheExpirationStrategy.Absolute)
             result.AbsoluteExpirationRelativeToNow = options.Expiration;
         if (options.ExpirationStrategy == CacheExpirationStrategy.Sliding)

@@ -8,10 +8,11 @@ using WCMS.SysCore.I18n;
 using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.SysCore.Auditing.ErrorHandling;
 
-public class ErrorHandlingMiddleware(RequestDelegate next)
+public class ErrorHandlingMiddleware(RequestDelegate next, I18nCache i18n)
 {
     #region Property
     private readonly RequestDelegate _next = next;
+    private readonly I18nCache _i18n = i18n;
 
     // 一般 Logger（Info / Error）
     private static readonly Logger logger = LogManager.GetCurrentClassLogger();
@@ -101,13 +102,13 @@ Request: {method} {path}{query}
     /// <summary>
     /// 嘗試將 SQL FK 使用中錯誤轉成使用者可讀訊息。
     /// </summary>
-    private static bool TryAddForeignKeyUsedMessage(IErrorHelper message, Exception exception)
+    private bool TryAddForeignKeyUsedMessage(IErrorHelper message, Exception exception)
     {
         SqlException? sqlException = GetSqlException(exception);
         if (sqlException == null || sqlException.Number != 547) return false;
         if (!sqlException.Message.Contains("REFERENCE", StringComparison.OrdinalIgnoreCase)) return false;
         var info = ParseForeignKeyUsedInfo(sqlException.Message);
-        message.AddMessage(MessageStatus.Error,SysMessageCode.BECode00020, I18nCache.GetDtoFirstTypeLabel(info.TableName), I18nCache.GetDtoFirstPropertyLabel(info.TableName, info.ColumnName), info.ActionName);
+        message.AddMessage(MessageStatus.Error,SysMessageCode.BECode00020, _i18n.GetDtoFirstTypeLabel(info.TableName), _i18n.GetDtoFirstPropertyLabel(info.TableName, info.ColumnName), info.ActionName);
         return true;
     }
     /// <summary>

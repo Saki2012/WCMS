@@ -3,7 +3,6 @@ using System.Text.Json.Serialization;
 using WCMS.SysCore.FeatureDriver.Model.Contracts;
 using WCMS.SysCore.FeatureDriver.Model.Form;
 using WCMS.SysCore.FeatureDriver.Model.MetaData;
-using WCMS.SysCore.Library;
 namespace WCMS.SysCore.FeatureDriver.Api.Metadata;
 
 /// <summary>
@@ -25,10 +24,17 @@ public static class LibApiFieldPolicyHelper
     /// </summary>
     public static ApiFieldMode GetApiMode(PropertyInfo? property)
     {
-        if (property == null) return DefaultApiMode;
-
-        var attr = property.GetCustomAttributes(inherit: true).OfType<ILibFieldAttr>().FirstOrDefault();
+        var attr = GetFieldAttribute(property);
         var result = attr?.ApiMode ?? DefaultApiMode;
+        return result;
+    }
+
+    /// <summary>
+    /// 取得欄位是否具有業務必填規則。
+    /// </summary>
+    public static bool IsRequired(PropertyInfo? property)
+    {
+        var result = GetFieldAttribute(property)?.Required ?? false;
         return result;
     }
 
@@ -36,12 +42,12 @@ public static class LibApiFieldPolicyHelper
     /// <summary>
     /// 檢查 Query 欄位是否存在於 Form Model 且符合 ApiFieldMode select / sort 規則。
     /// </summary>
-    public static bool CheckQueryParam<TFormModel>(QueryListParam? param) where TFormModel : IFormModel
+    public static bool CheckQueryParam<TFormModel>(QueryListParam? param, ModelTypeMetadataCache modelMetadata) where TFormModel : IFormModel
     {
         if (param == null) return false;
-        if (!CheckFields(typeof(TFormModel), param.Fields, CanSelect)) return false;
-        if (!CheckOrderBy(typeof(TFormModel), param.OrderBy)) return false;
-        return CheckRankGroups(typeof(TFormModel), param.RankGroups);
+        if (!CheckFields(typeof(TFormModel), param.Fields, CanSelect, modelMetadata)) return false;
+        if (!CheckOrderBy(typeof(TFormModel), param.OrderBy, modelMetadata)) return false;
+        return CheckRankGroups(typeof(TFormModel), param.RankGroups, modelMetadata);
     }
 
     /// <summary>
@@ -157,37 +163,44 @@ public static class LibApiFieldPolicyHelper
     #endregion
 
     #region Private
+    /// <summary>
+    /// 取得欄位上的 LibField / LibStr 屬性。
+    /// </summary>
+    private static ILibFieldAttr? GetFieldAttribute(PropertyInfo? property)
+    {
+        return property?.GetCustomAttributes(inherit: true).OfType<ILibFieldAttr>().FirstOrDefault();
+    }
 
     /// <summary>
     /// 檢查 Select 欄位清單。
     /// </summary>
-    private static bool CheckFields(Type rootType, IEnumerable<string>? fields, Func<PropertyInfo?, bool> policy)
+    private static bool CheckFields(Type rootType, IEnumerable<string>? fields, Func<PropertyInfo?, bool> policy, ModelTypeMetadataCache modelMetadata)
     {
-        foreach (string field in fields ?? []) if (!CheckFieldPath(rootType, field, policy)) return false;
+        foreach (string field in fields ?? []) if (!CheckFieldPath(rootType, field, policy, modelMetadata)) return false;
         return true;
     }
     /// <summary>
     /// 檢查排序欄位清單。
     /// </summary>
-    private static bool CheckOrderBy(Type rootType, IReadOnlyList<QueryListParam.OrderBySpec>? orderBy)
+    private static bool CheckOrderBy(Type rootType, IReadOnlyList<QueryListParam.OrderBySpec>? orderBy, ModelTypeMetadataCache modelMetadata)
     {
         if (orderBy == null) return true;
-        foreach (var item in orderBy) if (!CheckFieldPath(rootType, item.Col, CanSort)) return false;
+        foreach (var item in orderBy) if (!CheckFieldPath(rootType, item.Col, CanSort, modelMetadata)) return false;
         return true;
     }
     /// <summary>
     /// 檢查 RankGroup 的排序欄位。
     /// </summary>
-    private static bool CheckRankGroups(Type rootType, IReadOnlyList<QueryListParam.RankGroupsSpec>? groups)
+    private static bool CheckRankGroups(Type rootType, IReadOnlyList<QueryListParam.RankGroupsSpec>? groups, ModelTypeMetadataCache modelMetadata)
     {
         if (groups == null) return true;
-        foreach (var group in groups) if (!CheckOrderBy(rootType, group.OrderBy)) return false;
+        foreach (var group in groups) if (!CheckOrderBy(rootType, group.OrderBy, modelMetadata)) return false;
         return true;
     }
     /// <summary>
     /// 檢查欄位路徑是否存在且符合欄位政策。
     /// </summary>
-    private static bool CheckFieldPath(Type rootType, string field, Func<PropertyInfo?, bool> policy)
+    private static bool CheckFieldPath(Type rootType, string field, Func<PropertyInfo?, bool> policy, ModelTypeMetadataCache modelMetadata)
     {
         if (string.IsNullOrWhiteSpace(field)) return false;
         Type currentType = rootType;
@@ -195,8 +208,8 @@ public static class LibApiFieldPolicyHelper
         int startIndex = parts.Length > 1 && IsRootSegment(rootType, parts[0]) ? 1 : 0;
         for (int index = startIndex; index < parts.Length; index++)
         {
-            PropertyInfo? property = PropertyAccessorCache.GetProperty(currentType, parts[index])
-                ?? PropertyAccessorCache.GetProperty(currentType, "_" + parts[index]);
+            PropertyInfo? property = modelMetadata.GetProperty(currentType, parts[index])
+                ?? modelMetadata.GetProperty(currentType, "_" + parts[index]);
             if (property == null || !policy(property)) return false;
             currentType = GetListItemType(property.PropertyType) ?? property.PropertyType;
         }

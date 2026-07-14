@@ -145,7 +145,7 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
     public async Task<TFormModel> BizUpdateDataAsync(string internalId, TFormModel newData, CancellationToken ct = default)
     {
         TFormModel oldData = default!;
-        TFormModel oldDataCache = default!;
+        TFormModel oldDataSnapshot = default!;
         return await ExecTransactionAsync(
             async token =>
             {
@@ -156,9 +156,9 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
                 if (Message.HasError) return newData;
                 oldData = await DoQueryDataAsync(internalId);
                 EnsureDataExists(oldData);
-                oldDataCache = oldData.Snapshot();
+                oldDataSnapshot = oldData.Snapshot();
                 await DoUpdateAsync(oldData, newData);
-                await AfterUpdate(oldDataCache, oldData, FuncAction.Update, TransStatus.Difference, token);
+                await AfterUpdate(oldDataSnapshot, oldData, FuncAction.Update, TransStatus.Difference, token);
                 return Message.HasError ? newData : oldData;
             },
             async (_, token) =>
@@ -174,18 +174,18 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
     public async Task<TFormModel> BizDeleteDataAsync(string internalId, CancellationToken ct = default)
     {
         TFormModel oldData = default!;
-        TFormModel oldDataCache = default!;
+        TFormModel oldDataSnapshot = default!;
         return await ExecTransactionAsync(
             async token =>
             {
                 CheckIsUsed();
                 oldData = await DoQueryDataAsync(internalId);
                 EnsureDataExists(oldData);
-                oldDataCache = oldData.Snapshot();
+                oldDataSnapshot = oldData.Snapshot();
                 await BeforeUpdate(oldData, FuncAction.Delete, token);
                 if (Message.HasError) return oldData;
                 await DoDeleteAsync(oldData);
-                await AfterUpdate(oldDataCache, oldData, FuncAction.Delete, TransStatus.Difference, token);
+                await AfterUpdate(oldDataSnapshot, oldData, FuncAction.Delete, TransStatus.Difference, token);
                 return oldData;
             },
             async (_, token) =>
@@ -201,20 +201,20 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
     public async Task<TFormModel> BizInvalidDataAsync(string internalId, bool status, CancellationToken ct = default)
     {
         TFormModel oldData = default!;
-        TFormModel oldDataCache = default!;
+        TFormModel oldDataSnapshot = default!;
         TFormModel newData = default!;
         return await ExecTransactionAsync(
             async token =>
             {
                 oldData = await DoQueryDataAsync(internalId);
                 EnsureDataExists(oldData);
-                oldDataCache = oldData.Snapshot();
+                oldDataSnapshot = oldData.Snapshot();
                 newData = oldData.Snapshot();
                 DoInvalidSet(newData, status);
                 await BeforeUpdate(oldData, FuncAction.Invalid, token);
                 if (Message.HasError) return newData;
                 await DoUpdateAsync(oldData, newData);
-                await AfterUpdate(oldDataCache, oldData, FuncAction.Invalid, TransStatus.Difference, token);
+                await AfterUpdate(oldDataSnapshot, oldData, FuncAction.Invalid, TransStatus.Difference, token);
                 return Message.HasError ? newData : oldData;
             },
             async (_, token) =>
@@ -245,7 +245,7 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
     public async Task<IList<TFormModel>> BizQueryListAsync(string[] selectFields, string condition, IReadOnlyList<OrderBySpec> OrderBy = null, IReadOnlyList<RankGroupsSpec> rankGroups = null, int pageNumber = 0, int pageSize = 0, CancellationToken ct = default)
     {
         string[] rootFields = MapSelectFields(selectFields);
-        string rootCondition = ApplyDataScope(FormModelMetadataResolver.MapExpressionToRoot(typeof(TFormModel), condition));
+        string rootCondition = ApplyDataScope(FormModelMetadataResolver.MapExpressionToRoot(typeof(TFormModel), condition, ModelMetadata));
         IReadOnlyList<OrderBySpec>? rootOrderBy = MapOrderBy(OrderBy);
         IReadOnlyList<RankGroupsSpec>? rootRankGroups = MapRankGroups(rankGroups);
         if (rootRankGroups == null || rootRankGroups.Count == 0)
@@ -263,7 +263,7 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
     /// </summary>
     public async Task<int> BizQueryTotalCounts(string condition, CancellationToken ct = default)
     {
-        string rootCondition = FormModelMetadataResolver.MapExpressionToRoot(typeof(TFormModel), condition);
+        string rootCondition = FormModelMetadataResolver.MapExpressionToRoot(typeof(TFormModel), condition, ModelMetadata);
         return await DoQueryListCountAsync(RootDbModelType, ApplyDataScope(rootCondition));
     }
     /// <summary>
@@ -461,21 +461,21 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
     private async Task AutoGenerateId(HeaderModel header, Dictionary<string, IList> details)
     {
         if (header == null) return;
-        var keyProp = PropertyAccessorCache.GetProperties(header.GetType()).Where(p => p.IsDefined(typeof(KeyAttribute), inherit: true)).LastOrDefault();
+        var keyProp = ModelMetadata.GetProperties(header.GetType()).Where(p => p.IsDefined(typeof(KeyAttribute), inherit: true)).LastOrDefault();
         if (keyProp == null) return;
-        object id = PropertyAccessorCache.Get(header, keyProp.Name);
+        object id = PropertyAccessor.Get(header, keyProp.Name);
         if (IsAutoGenerateId && keyProp.PropertyType == typeof(string))
         {
             id ??= string.Empty;
             var idSelector = BuildIdSelectorLambda(header.GetType(), keyProp);
             id = !string.IsNullOrEmpty(id.ToString()) ? id : await ((Task<string>)((dynamic)RepoDict[header.GetType().Name]).GenerateIdAsync(idSelector, PrefixId));
-            PropertyAccessorCache.Set(header, keyProp.Name, id);
+            PropertyAccessor.Set(header, keyProp.Name, id);
         }
         foreach (var detail in details)
         {
             var rows = detail.Value;
             if (rows == null) continue;
-            foreach (var row in rows) if (row != null) PropertyAccessorCache.Set(row, keyProp.Name, id);
+            foreach (var row in rows) if (row != null) PropertyAccessor.Set(row, keyProp.Name, id);
         }
     }
     /// <summary>
@@ -537,7 +537,7 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
         foreach (var g in groups)
         {
             var propName = g.Key;
-            var propInfo = PropertyAccessorCache.GetProperty(modelType, propName);
+            var propInfo = ModelMetadata.GetProperty(modelType, propName);
             if (propInfo == null) continue;
             // 單層屬性：直接綁定 x.Prop
             if (g.All(parts => parts.Length == 1))
@@ -1177,7 +1177,7 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
         if (index >= pathParts.Length) return null;
 
         string current = pathParts[index];
-        var prop = PropertyAccessorCache.GetProperty(type, current);
+        var prop = ModelMetadata.GetProperty(type, current);
         if (prop == null) return null;
 
         Type nextType = prop.PropertyType;
@@ -1205,7 +1205,7 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
                     {
                         // 宣告變數：取得欄位型別與實際比對型別
                         var cleaned = val?.Trim('(', ')') ?? "";
-                        var fieldProp = PropertyAccessorCache.GetProperty(type, fieldExpr).PropertyType;
+                        var fieldProp = ModelMetadata.GetProperty(type, fieldExpr).PropertyType;
                         var targetType = Nullable.GetUnderlyingType(fieldProp) ?? fieldProp;
                         var isIn = op.Equals("in", StringComparison.OrdinalIgnoreCase);
 
@@ -1321,7 +1321,7 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
                         if ((raw.StartsWith("(") && raw.EndsWith(")")) || (raw.StartsWith("[") && raw.EndsWith("]")))
                             raw = raw.Substring(1, raw.Length - 2);
 
-                        var propInfo = PropertyAccessorCache.GetProperty(type, fieldExpr);
+                        var propInfo = ModelMetadata.GetProperty(type, fieldExpr);
                         var propType = propInfo.PropertyType;
                         var isNullable = Nullable.GetUnderlyingType(propType) != null;
                         var nonNullType = Nullable.GetUnderlyingType(propType) ?? propType;
@@ -1354,7 +1354,7 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
 
                 default:
                     {
-                        var pi = PropertyAccessorCache.GetProperty(type, fieldExpr);
+                        var pi = ModelMetadata.GetProperty(type, fieldExpr);
                         var propType = pi?.PropertyType ?? typeof(string);
                         var nonNullType = Nullable.GetUnderlyingType(propType) ?? propType;
                         var dynOp = op == "=" ? "==" : op;
@@ -1386,7 +1386,7 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
     ///  ->  { "_Detail": "PublishStatus == 1 and Year >= 2024" }
     /// 限制：目前只處理頂層 AND（先不處理 OR/巢狀括號）
     /// </summary>
-    private static Dictionary<string, string> ExtractDetailConditionMap(Type modelType, string rawCondition)
+    private Dictionary<string, string> ExtractDetailConditionMap(Type modelType, string rawCondition)
     {
         var map = new Dictionary<string, string>(StringComparer.Ordinal);
         if (string.IsNullOrWhiteSpace(rawCondition)) return map;
@@ -1405,7 +1405,7 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
             var parts = fullPath.Split('.', StringSplitOptions.RemoveEmptyEntries);
             if (parts.Length < 2) continue;
             var first = parts[0];
-            var p = PropertyAccessorCache.GetProperty(modelType, first);
+            var p = ModelMetadata.GetProperty(modelType, first);
             if (p == null) continue;
             var isEnumerable = typeof(IEnumerable).IsAssignableFrom(p.PropertyType) && p.PropertyType != typeof(string);
             if (!isEnumerable) continue;
@@ -1464,10 +1464,10 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
         return pathParts.Length > 0;
     }
     // 判斷 modelType.nav 是否為 IEnumerable（非 string），並取 elementType
-    private static bool TryGetEnumerableElementType(Type modelType, string navName, out Type elementType)
+    private bool TryGetEnumerableElementType(Type modelType, string navName, out Type elementType)
     {
         elementType = typeof(object);
-        var prop = PropertyAccessorCache.GetProperty(modelType, navName);
+        var prop = ModelMetadata.GetProperty(modelType, navName);
         if (prop == null) return false;
         var t = prop.PropertyType;
         var isEnumerable = typeof(IEnumerable).IsAssignableFrom(t) && t != typeof(string);
@@ -1508,7 +1508,7 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
     /// </summary>
     private string[] MapSelectFields(string[] selectFields)
     {
-        string[] result = [.. (selectFields ?? []).Select(field => FormModelMetadataResolver.MapFieldPathToRoot(typeof(TFormModel), field)).Where(field => !string.IsNullOrWhiteSpace(field))];
+        string[] result = [.. (selectFields ?? []).Select(field => FormModelMetadataResolver.MapFieldPathToRoot(typeof(TFormModel), field, ModelMetadata)).Where(field => !string.IsNullOrWhiteSpace(field))];
         return result.Length == 0 ? GetDefaultRootSelectFields() : result;
     }
     /// <summary>
@@ -1517,7 +1517,7 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
     private static IReadOnlyList<OrderBySpec>? MapOrderBy(IReadOnlyList<OrderBySpec>? orderBy)
     {
         if (orderBy == null) return null;
-        return [.. orderBy.Select(item => item with { Col = FormModelMetadataResolver.MapFieldPathToRoot(typeof(TFormModel), item.Col) })];
+        return [.. orderBy.Select(item => item with { Col = FormModelMetadataResolver.MapFieldPathToRoot(typeof(TFormModel), item.Col, ModelMetadata) })];
     }
     /// <summary>
     /// 將外部 Form Model RankGroup 轉成 Root DbModel 查詢條件。
@@ -1527,7 +1527,7 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
         if (rankGroups == null) return null;
         return [.. rankGroups.Select(group => group with
         {
-            Condition = FormModelMetadataResolver.MapExpressionToRoot(typeof(TFormModel), group.Condition),
+            Condition = FormModelMetadataResolver.MapExpressionToRoot(typeof(TFormModel), group.Condition, ModelMetadata),
             OrderBy = MapOrderBy(group.OrderBy)
         })];
     }
@@ -1565,7 +1565,7 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
     /// </summary>
     private void AddDefaultRootSelectFields(Type modelType, string prefix, List<string> result)
     {
-        foreach (PropertyInfo prop in PropertyAccessorCache.GetProperties(modelType))
+        foreach (PropertyInfo prop in ModelMetadata.GetProperties(modelType))
         {
             if (!prop.CanWrite) continue;
             Type? childType = GetGraphPropertyType(prop);
@@ -1658,12 +1658,12 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
     private async Task<string> GetPKConditionByInternalId(string internalId)
     {
         string resultCondition = string.Empty;
-        PropertyInfo[] pkProps = PropertyAccessorCache.GetProperties(RootDbModelType).Where(prop => prop.IsDefined(typeof(KeyAttribute), true)).ToArray();
+        PropertyInfo[] pkProps = ModelMetadata.GetProperties(RootDbModelType).Where(prop => prop.IsDefined(typeof(KeyAttribute), true)).ToArray();
         string condition = ApplyDataScope($"{nameof(HeaderModel.InternalId)} = \"{internalId}\"");
         string[] fieldNames = pkProps.Select(prop => prop.Name).ToArray();
         object? headerData = (await DoQueryListAsync(RootDbModelType, fieldNames, condition, default, 0, 0)).ToDynamicList().FirstOrDefault();
         if (headerData == null) return resultCondition;
-        foreach (PropertyInfo pk in pkProps) resultCondition = LibData.Merge(SysParam.QueryOperators.And, false, resultCondition, $"{pk.Name} = \"{PropertyAccessorCache.Get(headerData, pk.Name)}\"");
+        foreach (PropertyInfo pk in pkProps) resultCondition = LibData.Merge(SysParam.QueryOperators.And, false, resultCondition, $"{pk.Name} = \"{PropertyAccessor.Get(headerData, pk.Name)}\"");
         return ApplyDataScope(resultCondition);
     }
     /// <summary>
@@ -1674,30 +1674,30 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
         DbModel oldRoot = FormModelMetadataResolver.GetRootModel(oldData);
         DbModel newRoot = FormModelMetadataResolver.GetRootModel(newData);
         List<object> details = CollectDetailItems(newData);
-        foreach (PropertyInfo key in PropertyAccessorCache.GetAttrProperties(RootDbModelType, typeof(KeyAttribute)))
+        foreach (PropertyInfo key in ModelMetadata.GetAttrProperties(RootDbModelType, typeof(KeyAttribute)))
         {
-            object? value = PropertyAccessorCache.Get(oldRoot, key.Name);
-            PropertyAccessorCache.Set(newRoot, key.Name, value);
+            object? value = PropertyAccessor.Get(oldRoot, key.Name);
+            PropertyAccessor.Set(newRoot, key.Name, value);
             foreach (object detail in details) SetMatchingProperty(detail, key.Name, value);
         }
     }
     /// <summary>
     /// 回填物件上存在且可寫入的同名 Property。
     /// </summary>
-    private static void SetMatchingProperty(object target, string propertyName, object? value)
+    private void SetMatchingProperty(object target, string propertyName, object? value)
     {
-        PropertyInfo? property = PropertyAccessorCache.GetProperty(target.GetType(), propertyName);
-        if (property?.CanWrite == true) PropertyAccessorCache.Set(target, propertyName, value);
+        PropertyInfo? property = ModelMetadata.GetProperty(target.GetType(), propertyName);
+        if (property?.CanWrite == true) PropertyAccessor.Set(target, propertyName, value);
     }
     /// <summary>
     /// 保留建立資訊，避免外部覆蓋系統欄位。
     /// </summary>
-    private static void PreserveCreateInfo(TFormModel oldData, TFormModel newData)
+    private void PreserveCreateInfo(TFormModel oldData, TFormModel newData)
     {
         DbModel oldRoot = FormModelMetadataResolver.GetRootModel(oldData);
         DbModel newRoot = FormModelMetadataResolver.GetRootModel(newData);
-        PropertyAccessorCache.Set(newRoot, nameof(HeaderModel.CreateUserId), PropertyAccessorCache.Get(oldRoot, nameof(HeaderModel.CreateUserId)));
-        PropertyAccessorCache.Set(newRoot, nameof(HeaderModel.CreateTime), PropertyAccessorCache.Get(oldRoot, nameof(HeaderModel.CreateTime)));
+        PropertyAccessor.Set(newRoot, nameof(HeaderModel.CreateUserId), PropertyAccessor.Get(oldRoot, nameof(HeaderModel.CreateUserId)));
+        PropertyAccessor.Set(newRoot, nameof(HeaderModel.CreateTime), PropertyAccessor.Get(oldRoot, nameof(HeaderModel.CreateTime)));
     }
     /// <summary>
     /// 同步 Detail / SubDetail 新增、修改、刪除。
@@ -1714,8 +1714,8 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
     private async Task SyncDetailTypeAsync(Type type, List<object> oldItems, List<object> newItems)
     {
         var repo = (dynamic)GetRepoByType(type);
-        var keyProps = PropertyAccessorCache.GetAttrProperties(type, typeof(KeyAttribute));
-        var nonKeyProps = PropertyAccessorCache.GetProperties(type).Where(p => !keyProps.Select(k => k.Name).ToHashSet().Contains(p.Name)).ToList();
+        var keyProps = ModelMetadata.GetAttrProperties(type, typeof(KeyAttribute));
+        var nonKeyProps = ModelMetadata.GetProperties(type).Where(p => !keyProps.Select(k => k.Name).ToHashSet().Contains(p.Name)).ToList();
         var oldDict = oldItems.ToDictionary(item => BuildKey(item, keyProps));
         var newDict = newItems.ToDictionary(item => BuildKey(item, keyProps));
         foreach (var key in oldDict.Keys.Intersect(newDict.Keys)) if (HasDifferentValue(oldDict[key], newDict[key], nonKeyProps)) await repo.UpdateAsync(oldDict[key], newDict[key]);
@@ -1761,11 +1761,11 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
     {
         if (source == null || !visitedModels.Add(source)) return;
         bool isFormContainer = source.GetType() == typeof(TFormModel) && source is not DbModel;
-        foreach (PropertyInfo prop in PropertyAccessorCache.GetProperties(source.GetType()))
+        foreach (PropertyInfo prop in ModelMetadata.GetProperties(source.GetType()))
         {
             Type? childType = GetGraphPropertyType(prop);
             if (childType == null || !GraphRepo.ContainsRepo(childType)) continue;
-            object? value = PropertyAccessorCache.Get(source, prop.Name);
+            object? value = PropertyAccessor.Get(source, prop.Name);
             if (value is IList list && (isFormContainer || prop.IsDefined(typeof(InversePropertyAttribute), true)))
             {
                 if (visitedLists.Add(list)) result.Add((prop.Name, list));
@@ -1778,16 +1778,16 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
     /// <summary>
     /// 建立 Detail 主鍵字串。
     /// </summary>
-    private static string BuildKey(object item, IEnumerable<PropertyInfo> keyProps)
+    private string BuildKey(object item, IEnumerable<PropertyInfo> keyProps)
     {
-        return string.Join("|", keyProps.Select(k => PropertyAccessorCache.Get(item, k.Name)?.ToString() ?? "null"));
+        return string.Join("|", keyProps.Select(k => PropertyAccessor.Get(item, k.Name)?.ToString() ?? "null"));
     }
     /// <summary>
     /// 判斷非主鍵欄位是否有變更。
     /// </summary>
-    private static bool HasDifferentValue(object oldItem, object newItem, IEnumerable<PropertyInfo> props)
+    private bool HasDifferentValue(object oldItem, object newItem, IEnumerable<PropertyInfo> props)
     {
-        foreach (var prop in props) if (!object.Equals(PropertyAccessorCache.Get(oldItem, prop.Name), PropertyAccessorCache.Get(newItem, prop.Name))) return true;
+        foreach (var prop in props) if (!object.Equals(PropertyAccessor.Get(oldItem, prop.Name), PropertyAccessor.Get(newItem, prop.Name))) return true;
         return false;
     }
     private static LambdaExpression BuildIdSelectorLambda(Type modelType, PropertyInfo prop)
@@ -1823,13 +1823,13 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
     /// <param name="headerProp"></param>
     /// <param name="data"></param>
     /// <returns></returns>
-    private static TFormModel BuildSetFromData(PropertyInfo headerProp, object data)
+    private TFormModel BuildSetFromData(PropertyInfo headerProp, object data)
     {
         // 建 TFormModel 實例 + 先塞回 header（data1）
-        var set = PropertyAccessorCache.CreateInstance<TFormModel>();
-        PropertyAccessorCache.Set(set, headerProp.Name, data);
+        var set = PropertyAccessor.CreateInstance<TFormModel>();
+        PropertyAccessor.Set(set, headerProp.Name, data);
         // 快取 TFormModel 的屬性字典（O(1) 查找）
-        var setProps = PropertyAccessorCache.GetProperties<TFormModel>();
+        var setProps = ModelMetadata.GetProperties<TFormModel>();
         var setPropDict = setProps.ToDictionary(p => p.Name, p => p, StringComparer.Ordinal);
         // 迭代 DFS：避免深層遞迴與 StackOverflow
         var visited = new HashSet<int>();
@@ -1845,13 +1845,13 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
             if (!visited.Add(id)) continue;
 
             var nodeType = node.GetType();
-            var nodeProps = PropertyAccessorCache.GetProperties(nodeType);
+            var nodeProps = ModelMetadata.GetProperties(nodeType);
 
             foreach (var p in nodeProps)
             {
                 if (IsListPropertyType(p))
                 {
-                    var raw = PropertyAccessorCache.Get(node, p.Name) as IEnumerable;
+                    var raw = PropertyAccessor.Get(node, p.Name) as IEnumerable;
                     if (raw == null) continue;
 
                     // 把清單中的子項推進 stack（讓下一層的清單也能被處理）
@@ -1877,7 +1877,7 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
                 }
                 else if (ShouldDescendInto(p))
                 {
-                    var child = PropertyAccessorCache.Get(node, p.Name);
+                    var child = PropertyAccessor.Get(node, p.Name);
                     if (child != null) stack.Push(child);
                 }
             }
@@ -1892,7 +1892,7 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
             var elemType = GetEnumerableElementType(targetType) ?? typeof(object);
 
             // 1) 先拿現在 TFormModel 上的清單（若沒有就新建一個 List<T>）
-            var currentObj = PropertyAccessorCache.Get(set!, dstProp.Name);
+            var currentObj = PropertyAccessor.Get(set!, dstProp.Name);
             IList targetList;
 
             if (currentObj is IList existingList
@@ -1918,7 +1918,7 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
             // 3) 若是新建的清單或原本為 null，指回 TFormModel
             if (!ReferenceEquals(targetList, currentObj))
             {
-                PropertyAccessorCache.Set(set!, dstProp.Name, targetList);
+                PropertyAccessor.Set(set!, dstProp.Name, targetList);
             }
 
             return true;

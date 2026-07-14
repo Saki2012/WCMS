@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -22,7 +22,10 @@ internal static class IdentityAccessSetup
     {
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUserAccessor, HttpContextCurrentUserAccessor>();
+        services.AddScoped<PermissionCache>();
         services.AddScoped<ILibPermissionChecker, LibPermissionChecker>();
+        services.AddSingleton<TokenStateCache>();
+        services.AddSingleton<LoginAttemptCache>();
         services.AddSingleton<TokenService>();
         services.AddAuthorization();
         AddJwtAuthentication(services, configuration);
@@ -96,7 +99,7 @@ internal static class IdentityAccessSetup
         var jti = context.Principal?.FindFirstValue(JwtRegisteredClaimNames.Jti);
         if (string.IsNullOrEmpty(jti)) return;
         var tokenService = context.HttpContext.RequestServices.GetRequiredService<TokenService>();
-        if (await tokenService.IsAccessBlacklistedAsync(jti)) context.Fail("Token has been revoked");
+        if (await tokenService.IsAccessBlacklistedAsync(jti, context.HttpContext.RequestAborted)) context.Fail("Token has been revoked");
     }
 
     /// <summary>

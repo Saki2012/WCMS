@@ -45,15 +45,15 @@ public class SpecOpenScheduleRuleBiz(BizDeps bizDeps, IBizService<CalendarModel>
     #region Protected
     protected void CheckData(SpecOpenScheduleRuleModel set)
     {
-        ValidTimeFor(set.SpecOpenScheduleRule, x => x.Weekday_OpenTime, x => x.Weekday_CloseTime,Message);
-        ValidTimeFor(set.SpecOpenScheduleRule, x => x.Sat_OpenTime, x => x.Sat_CloseTime, Message);
-        ValidTimeFor(set.SpecOpenScheduleRule, x => x.Sun_OpenTime, x => x.Sun_CloseTime, Message);
-        ValidTimeFor(set.SpecOpenScheduleRule, x => x.Winter_Weekday_OpenTime, x => x.Winter_Weekday_CloseTime, Message);
-        ValidTimeFor(set.SpecOpenScheduleRule, x => x.Winter_Sat_OpenTime, x => x.Winter_Sat_CloseTime, Message);
-        ValidTimeFor(set.SpecOpenScheduleRule, x => x.Winter_Sun_OpenTime, x => x.Winter_Sun_CloseTime, Message);
-        ValidTimeFor(set.SpecOpenScheduleRule, x => x.Summer_Weekday_OpenTime, x => x.Summer_Weekday_CloseTime, Message);
-        ValidTimeFor(set.SpecOpenScheduleRule, x => x.Summer_Sat_OpenTime, x => x.Summer_Sat_CloseTime, Message);
-        ValidTimeFor(set.SpecOpenScheduleRule, x => x.Summer_Sun_OpenTime, x => x.Summer_Sun_CloseTime, Message);
+        ValidTimeFor(set.SpecOpenScheduleRule, x => x.Weekday_OpenTime, x => x.Weekday_CloseTime, Message, I18n);
+        ValidTimeFor(set.SpecOpenScheduleRule, x => x.Sat_OpenTime, x => x.Sat_CloseTime, Message, I18n);
+        ValidTimeFor(set.SpecOpenScheduleRule, x => x.Sun_OpenTime, x => x.Sun_CloseTime, Message, I18n);
+        ValidTimeFor(set.SpecOpenScheduleRule, x => x.Winter_Weekday_OpenTime, x => x.Winter_Weekday_CloseTime, Message, I18n);
+        ValidTimeFor(set.SpecOpenScheduleRule, x => x.Winter_Sat_OpenTime, x => x.Winter_Sat_CloseTime, Message, I18n);
+        ValidTimeFor(set.SpecOpenScheduleRule, x => x.Winter_Sun_OpenTime, x => x.Winter_Sun_CloseTime, Message, I18n);
+        ValidTimeFor(set.SpecOpenScheduleRule, x => x.Summer_Weekday_OpenTime, x => x.Summer_Weekday_CloseTime, Message, I18n);
+        ValidTimeFor(set.SpecOpenScheduleRule, x => x.Summer_Sat_OpenTime, x => x.Summer_Sat_CloseTime, Message, I18n);
+        ValidTimeFor(set.SpecOpenScheduleRule, x => x.Summer_Sun_OpenTime, x => x.Summer_Sun_CloseTime, Message, I18n);
         ValidDateRangeFor(set.SpecOpenScheduleRule, x => x.AcademicStart, x => x.AcademicEnd);
         ValidSubRangeFor(set.SpecOpenScheduleRule, x => x.AcademicStart, x => x.AcademicEnd, x => x.WinterStart, x => x.WinterEnd);
         ValidSubRangeFor(set.SpecOpenScheduleRule, x => x.AcademicStart, x => x.AcademicEnd, x => x.SummerStart, x => x.SummerEnd);
@@ -67,12 +67,12 @@ public class SpecOpenScheduleRuleBiz(BizDeps bizDeps, IBizService<CalendarModel>
     /// <param name="start"></param>
     /// <param name="end"></param>
     /// <returns></returns>
-    public static void ValidTimeFor<TModel>(TModel model, Expression<Func<TModel, object>> startExpr, Expression<Func<TModel, object>> endExpr, IErrorHelper message)
+    public static void ValidTimeFor<TModel>(TModel model, Expression<Func<TModel, object>> startExpr, Expression<Func<TModel, object>> endExpr, IErrorHelper message, I18nCache i18n)
     {
         var start = startExpr.Compile().Invoke(model) as TimeOnly?;
         var end = endExpr.Compile().Invoke(model) as TimeOnly?;
-        var startColName = I18nCache.GetLabel(startExpr);
-        var endColName = I18nCache.GetLabel(endExpr);
+        var startColName = i18n.GetLabel(startExpr);
+        var endColName = i18n.GetLabel(endExpr);
         if (start == null && end == null) return;
         if (start == null && end != null)
         {
@@ -104,8 +104,8 @@ public class SpecOpenScheduleRuleBiz(BizDeps bizDeps, IBizService<CalendarModel>
     {
         var start = startExpr.Compile().Invoke(model) as DateOnly?;
         var end = endExpr.Compile().Invoke(model) as DateOnly?;
-        var startColName = I18nCache.GetLabel(startExpr);
-        var endColName = I18nCache.GetLabel(endExpr);
+        var startColName = I18n.GetLabel(startExpr);
+        var endColName = I18n.GetLabel(endExpr);
         if (start > end) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014, endColName, startColName);
     }
     /// <summary>
@@ -130,10 +130,10 @@ public class SpecOpenScheduleRuleBiz(BizDeps bizDeps, IBizService<CalendarModel>
         var innerEnd = innerEndExpr.Compile().Invoke(model) as DateOnly?;
 
         // 取欄位顯示名稱
-        var outerStartCol = I18nCache.GetLabel(outerStartExpr);
-        var outerEndCol = I18nCache.GetLabel(outerEndExpr);
-        var innerStartCol = I18nCache.GetLabel(innerStartExpr);
-        var innerEndCol = I18nCache.GetLabel(innerEndExpr);
+        var outerStartCol = I18n.GetLabel(outerStartExpr);
+        var outerEndCol = I18n.GetLabel(outerEndExpr);
+        var innerStartCol = I18n.GetLabel(innerStartExpr);
+        var innerEndCol = I18n.GetLabel(innerEndExpr);
 
         // 學年度本身已經是錯的（起 > 迄），就不要再做包含檢查了
         if (outerStart > outerEnd) return;

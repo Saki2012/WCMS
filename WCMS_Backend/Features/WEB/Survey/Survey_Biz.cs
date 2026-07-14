@@ -39,7 +39,7 @@ public class SurveyBiz(BizDeps bizDeps) : BizService<Survey>(bizDeps), IBizServi
     protected void CheckData(Survey set)
     {
         if (set.SurveyName.IsNullOrEmpty())
-            Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Survey>(x => x.SurveyName));
+            Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<Survey>(x => x.SurveyName));
     }
     #endregion
 

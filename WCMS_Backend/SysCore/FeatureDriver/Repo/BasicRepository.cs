@@ -1,25 +1,41 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using WCMS.SysCore.FeatureDriver.Model.Base;
+using WCMS.SysCore.FeatureDriver.Model.MetaData;
+using WCMS.SysCore.FeatureDriver.Repo.Cache;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Persistence;
 
 namespace WCMS.SysCore.FeatureDriver.Repo;
 
-public class BasicRepository<TDbModel>(ApplicationDbContext dataAccess) where TDbModel : DbModel
+public class BasicRepository<TDbModel>(
+    ApplicationDbContext dataAccess,
+    PropertyAccessorCache propertyAccessor,
+    ModelTypeMetadataCache modelMetadata,
+    EfRepositoryMetadataCache repositoryMetadata) where TDbModel : DbModel
 {
     #region Property
     /// <summary>
-    /// 
+    /// 目前 Repository 使用的資料庫存取內容。
     /// </summary>
     public ApplicationDbContext DataAccess { get; } = dataAccess;
+    /// <summary>
+    /// 動態物件存取 Cache。
+    /// </summary>
+    private PropertyAccessorCache PropertyAccessor { get; } = propertyAccessor;
+    /// <summary>
+    /// Model Reflection Metadata Cache。
+    /// </summary>
+    private ModelTypeMetadataCache ModelMetadata { get; } = modelMetadata;
+    /// <summary>
+    /// EF Repository Runtime Metadata Cache。
+    /// </summary>
+    private EfRepositoryMetadataCache RepositoryMetadata { get; } = repositoryMetadata;
     #endregion
 
     #region Public
@@ -40,7 +56,7 @@ public class BasicRepository<TDbModel>(ApplicationDbContext dataAccess) where TD
             {
                 if (p is DetailModel detailRowModel)
                 {
-                    var rowIdProp = PropertyAccessorCache.GetProperty(p.GetType(), "RowId");
+                    var rowIdProp = ModelMetadata.GetProperty(p.GetType(), "RowId");
                     if (rowIdProp != null)
                     {
                         if (((dynamic)detailRowModel).RowId == 0 || ((dynamic)detailRowModel).RowId == null)
@@ -116,7 +132,7 @@ public class BasicRepository<TDbModel>(ApplicationDbContext dataAccess) where TD
         oldEntry.State = EntityState.Unchanged;
 
         // 3) 欄位差異套用到 oldData（跳過集合/Key/NotMapped/併發欄位）
-        var ef = EfMetaCache.Get(DataAccess, typeof(TDbModel));
+        var ef = RepositoryMetadata.GetEntityMap(DataAccess, typeof(TDbModel));
 
         bool IsConcurrency(PropertyInfo p) =>
             p.GetCustomAttribute<TimestampAttribute>() != null ||
@@ -124,21 +140,21 @@ public class BasicRepository<TDbModel>(ApplicationDbContext dataAccess) where TD
             string.Equals(p.Name, nameof(HeaderModel.DataVersion), StringComparison.OrdinalIgnoreCase) ||
             string.Equals(p.Name, nameof(DetailModel.RowState), StringComparison.OrdinalIgnoreCase);
 
-        foreach (var prop in PropertyAccessorCache.GetProperties(typeof(TDbModel)))
+        foreach (var prop in ModelMetadata.GetProperties(typeof(TDbModel)))
         {
             if (!prop.CanWrite) continue;
-            if (ef.IsNav(prop.Name)) continue;                 // 關聯略過
+            if (ef.IsNavigation(prop.Name)) continue;                 // 關聯略過
             if (!ef.IsScalar(prop.Name)) continue;             // 非 scalar 略過
             if (prop.GetCustomAttribute<KeyAttribute>() != null) continue;
             if (prop.GetCustomAttribute<NotMappedAttribute>() != null) continue;
             if (IsConcurrency(prop)) continue;
 
-            var oldVal = PropertyAccessorCache.Get(oldData, prop.Name);
-            var newVal = PropertyAccessorCache.Get(newData, prop.Name);
+            var oldVal = PropertyAccessor.Get(oldData, prop.Name);
+            var newVal = PropertyAccessor.Get(newData, prop.Name);
 
             if (!Equals(oldVal, newVal))
             {
-                PropertyAccessorCache.Set(oldData, prop.Name, newVal);
+                PropertyAccessor.Set(oldData, prop.Name, newVal);
                 DataAccess.Entry(oldData).Property(prop.Name).IsModified = true;
             }
         }
@@ -157,15 +173,11 @@ public class BasicRepository<TDbModel>(ApplicationDbContext dataAccess) where TD
         if (entry.State == EntityState.Detached)
         {
             // ✅ 清空 reference navigation，避免帶著 master instance 一起被追蹤
-            var et = DataAccess.Model.FindEntityType(typeof(TDbModel));
-            if (et != null)
+            string[] navigationNames = RepositoryMetadata.GetFirstLevelReferenceIncludes(DataAccess, typeof(TDbModel));
+            foreach (string navigationName in navigationNames)
             {
-                foreach (var nav in et.GetNavigations().Where(n => !n.IsCollection))
-                {
-                    // 只清 reference nav（collection 不處理）
-                    var prop = PropertyAccessorCache.GetProperty(oldData.GetType(), nav.Name);
-                    if (prop != null && prop.CanWrite) PropertyAccessorCache.Set(oldData, nav.Name, null);
-                }
+                var prop = ModelMetadata.GetProperty(oldData.GetType(), navigationName);
+                if (prop != null && prop.CanWrite) PropertyAccessor.Set(oldData, navigationName, null);
             }
             // ✅ 直接標記 Deleted（不 Attach）
             DataAccess.Entry(oldData).State = EntityState.Deleted;
@@ -209,7 +221,8 @@ public class BasicRepository<TDbModel>(ApplicationDbContext dataAccess) where TD
         // ✅ Include：Fields 空時使用預設第一層 reference include
         if (selectExpr == null)
         {
-            query = DefaultIncludeHelper.ApplyFirstLevelReferenceIncludes(DataAccess, query, out int includeCt);
+            string[] includePaths = RepositoryMetadata.GetFirstLevelReferenceIncludes(DataAccess, typeof(TDbModel));
+            query = ApplyFirstLevelReferenceIncludes(query, includePaths, out int includeCt);
             if (includeCt > 0) query = query.AsSplitQuery();
         }
 
@@ -699,6 +712,23 @@ public class BasicRepository<TDbModel>(ApplicationDbContext dataAccess) where TD
     }
 
     /// <summary>
+    /// 套用 Entity 第一層 Reference Navigation Include 路徑。
+    /// </summary>
+    private static IQueryable<TDbModel> ApplyFirstLevelReferenceIncludes(
+        IQueryable<TDbModel> query,
+        IReadOnlyList<string> includePaths,
+        out int includeCount)
+    {
+        includeCount = 0;
+        foreach (string path in includePaths)
+        {
+            if (string.IsNullOrWhiteSpace(path) || path.Contains('.')) continue;
+            query = query.Include(path);
+            includeCount++;
+        }
+        return query;
+    }
+    /// <summary>
     /// 套用分頁或 skip/take 切段。
     /// </summary>
     private static IQueryable<TDbModel> ApplyPaging(IQueryable<TDbModel> query, int pageCt, int takeCt, int skipCt)
@@ -764,71 +794,4 @@ public class BasicRepository<TDbModel>(ApplicationDbContext dataAccess) where TD
         // GC.SuppressFinalize(this);
     }
     #endregion
-}
-
-static class EfMetaCache
-{
-    public sealed class Map(HashSet<string> s, HashSet<string> n, HashSet<string> k, HashSet<string> c)
-    {
-        public readonly HashSet<string> Scalars = s;
-        public readonly HashSet<string> Navs = n;
-        public readonly HashSet<string> SkipNavs = k;
-        public readonly HashSet<string> Complex = c;
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsNav(string name) => Navs.Contains(name) || SkipNavs.Contains(name) || Complex.Contains(name);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsScalar(string name) => Scalars.Contains(name);
-    }
-    static readonly ConcurrentDictionary<Type, Map> _cache = new();
-
-    public static Map Get(DbContext db, Type clr) => _cache.GetOrAdd(clr, t =>
-        {
-            var et = db.Model.FindEntityType(t) ?? throw new InvalidOperationException($"EF entity not found: {t.Name}");
-            var scalars = et.GetProperties().Select(p => p.Name).ToHashSet(StringComparer.Ordinal);
-            var navs = et.GetNavigations().Select(n => n.Name).ToHashSet(StringComparer.Ordinal);
-            var skips = et.GetSkipNavigations().Select(n => n.Name).ToHashSet(StringComparer.Ordinal);
-#if NET8_0_OR_GREATER
-            var complex = et.GetComplexProperties().Select(c => c.Name).ToHashSet(StringComparer.Ordinal);
-#else
-        var complex = new HashSet<string>();
-#endif
-            return new Map(scalars, navs, skips, complex);
-        });
-}
-
-static class DefaultIncludeHelper
-{
-    private static readonly ConcurrentDictionary<Type, string[]> _cache = new();
-    /// <summary>
-    /// 取得 Entity 第一層 Reference Navigation 的 Include paths（快取）
-    /// </summary>
-    public static string[] GetFirstLevelReferenceIncludes(DbContext db, Type entityType)
-    {
-        // NOTE: 使用快取避免每次掃 metadata
-        return _cache.GetOrAdd(entityType, t =>
-        {
-            var et = db.Model.FindEntityType(t);
-            if (et == null) return [];
-            // NOTE: 只取 Reference（排除 Collection）避免爆量
-            var navs = et.GetNavigations().Where(n => !n.IsCollection).Select(n => n.Name).Distinct().ToArray();
-            return navs;
-        });
-    }
-    /// <summary>
-    /// 套用第一層 Reference Includes（只在你想要時呼叫）
-    /// </summary>
-    public static IQueryable<T> ApplyFirstLevelReferenceIncludes<T>(DbContext db, IQueryable<T> query, out int includeCt) where T : class
-    {
-        includeCt = 0;
-        var includes = GetFirstLevelReferenceIncludes(db, typeof(T));
-        foreach (var path in includes)
-        {
-            if (!string.IsNullOrWhiteSpace(path) && !path.Contains('.'))
-            {
-                query = query.Include(path);
-                includeCt++;
-            }
-        }
-        return query;
-    }
 }

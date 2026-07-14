@@ -28,7 +28,7 @@ public class TimelineBiz(BizDeps bizDeps) : BizService<Timeline>(bizDeps), IBizS
 
     protected bool CheckData(Timeline set)
     {
-        if (set.TimelineName.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Timeline>(x => x.TimelineName));
+        if (set.TimelineName.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<Timeline>(x => x.TimelineName));
         return Message.HasError;
     }
     #endregion

@@ -47,14 +47,14 @@ public class CalendarBiz(BizDeps bizDeps, IHttpClientFactory httpClientFactory) 
             async token =>
             {
                 CalendarModel oldData = await GetUpdateDayInfoData(dayInfo, token);
-                CalendarModel oldCache = oldData.Snapshot();
+                CalendarModel oldSnapshot = oldData.Snapshot();
                 CalendarModel newData = oldData.Snapshot();
                 SetUpdateAuditInfo(newData);
                 ApplyDayInfoPatch(GetSingleDetail(newData), dayInfo);
                 await BeforeUpdate(newData, FuncAction.Update, token);
                 if (Message.HasError) return oldData;
                 await DoUpdateCalendarInfo(oldData, newData);
-                await AfterUpdate(oldCache, newData, FuncAction.Update, TransStatus.Difference, token);
+                await AfterUpdate(oldSnapshot, newData, FuncAction.Update, TransStatus.Difference, token);
                 return newData;
             },
             async (_, token) =>

@@ -19,6 +19,8 @@ using WCMS.SysCore.FeatureDriver.Api.Metadata;
 using WCMS.SysCore.FeatureDriver.Biz;
 using WCMS.SysCore.FeatureDriver.Model.Contracts;
 using WCMS.SysCore.FeatureDriver.Model.Form;
+using WCMS.SysCore.FeatureDriver.Model.MetaData;
+using WCMS.SysCore.I18n;
 using WCMS.SysCore.Observability.OperateLog;
 using WCMS.SysCore.PlatformServices.FileManagement;
 using WCMS.SysCore.Security.AccessControl;
@@ -37,6 +39,8 @@ public abstract class ApiDataQueryController<TFormModel> : ApiBaseController whe
     private IBizService<TFormModel>? _service;
     private IOutputCacheFeature? _Ocf;
     private IBizService<FileManageModel>? _fileService;
+    private ModelTypeMetadataCache? _modelMetadata;
+    private I18nCache? _i18n;
 
     /// <summary>
     /// Form Model Biz 服務。
@@ -51,9 +55,17 @@ public abstract class ApiDataQueryController<TFormModel> : ApiBaseController whe
     /// </summary>
     protected FileManagementBiz FileService => (FileManagementBiz)(_fileService ??= HttpContext.RequestServices.GetRequiredService<IBizService<FileManageModel>>());
     /// <summary>
+    /// Model Reflection Metadata Cache。
+    /// </summary>
+    protected ModelTypeMetadataCache ModelMetadata => _modelMetadata ??= HttpContext.RequestServices.GetRequiredService<ModelTypeMetadataCache>();
+    /// <summary>
+    /// 多語系顯示文字 Cache。
+    /// </summary>
+    protected I18nCache I18n => _i18n ??= HttpContext.RequestServices.GetRequiredService<I18nCache>();
+    /// <summary>
     /// Form Model 欄位顯示名稱。
     /// </summary>
-    protected ModelDisplay<TFormModel>.ModelMetadata ModelDescription { get { return new ModelDisplay<TFormModel>().Model; } }
+    protected ModelDisplay<TFormModel>.ModelMetadata ModelDescription { get { return new ModelDisplay<TFormModel>(ModelMetadata, I18n).Model; } }
     #endregion
 
     #region Public
@@ -63,7 +75,7 @@ public abstract class ApiDataQueryController<TFormModel> : ApiBaseController whe
     [HttpPost(nameof(QueryList)), OutputCache(PolicyName = SysParam.OutputCachePolicies.ListCache), AllowAnonymous, IgnoreAntiforgeryToken]
     public virtual async Task<IActionResult> QueryList([FromBody] QueryListParam? queryCondition, CancellationToken ct)
     {
-        if (!LibApiFieldPolicyHelper.CheckQueryParam<TFormModel>(queryCondition)) return BadRequest("查詢參數錯誤");
+        if (!LibApiFieldPolicyHelper.CheckQueryParam<TFormModel>(queryCondition, ModelMetadata)) return BadRequest("查詢參數錯誤");
         AddListTags();
         SpecSetQueryParam(queryCondition, null);
         IList<TFormModel> result = await Service.BizQueryListAsync(queryCondition.Fields, queryCondition.Condition, queryCondition.OrderBy, queryCondition.RankGroups, queryCondition.PageNumber, queryCondition.PageSize, ct);
@@ -76,7 +88,7 @@ public abstract class ApiDataQueryController<TFormModel> : ApiBaseController whe
     [HttpPost(nameof(GetTotalCounts)), OutputCache(PolicyName = SysParam.OutputCachePolicies.ListCache), AllowAnonymous, IgnoreAntiforgeryToken]
     public virtual async Task<IActionResult> GetTotalCounts([FromBody] QueryListParam? queryCondition, CancellationToken ct)
     {
-        if (!LibApiFieldPolicyHelper.CheckQueryParam<TFormModel>(queryCondition)) return BadRequest("查詢參數錯誤");
+        if (!LibApiFieldPolicyHelper.CheckQueryParam<TFormModel>(queryCondition, ModelMetadata)) return BadRequest("查詢參數錯誤");
         AddListTags();
         SpecSetQueryParam(queryCondition, null);
         int result = await Service.BizQueryTotalCounts(queryCondition.Condition, ct);
@@ -280,11 +292,12 @@ public abstract class ApiDataController<TFormModel> : ApiDataQueryController<TFo
 /// 系統功能API
 /// </summary>
 [ApiController, Route(SysParam.ApiRoutes.Service)]
-public class SystemAPIController(IAntiforgery anti, SystemVersion systemVersionBiz) : ControllerBase
+public class SystemAPIController(IAntiforgery anti, SystemVersion systemVersionBiz, I18nCache i18n) : ControllerBase
 {
     #region Property
     private readonly IAntiforgery _anti = anti;
     private readonly SystemVersion _systemVersionBiz = systemVersionBiz;
+    private readonly I18nCache _i18n = i18n;
 
     protected IOperateLog OperateLog => _OperateLog ??= HttpContext.RequestServices.GetRequiredService<IOperateLog>();
     private IOperateLog? _OperateLog;
@@ -317,7 +330,7 @@ public class SystemAPIController(IAntiforgery anti, SystemVersion systemVersionB
     {
         try
         {
-            var result = EnumHelper.GetEnumOptions(enumName);
+            List<EnumOption> result = _i18n.GetEnumOptions(enumName);
             var response = new ApiResponse<EnumOption>() { Data = result };
             return Ok(response);
         }

@@ -46,26 +46,26 @@ public static partial class FormModelMetadataResolver
     /// <summary>
     /// 將外部 Form Model 欄位路徑轉成 Root DbModel 路徑。
     /// </summary>
-    public static string MapFieldPathToRoot(Type formModelType, string fieldPath)
+    public static string MapFieldPathToRoot(Type formModelType, string fieldPath, ModelTypeMetadataCache modelMetadata)
     {
         if (string.IsNullOrWhiteSpace(fieldPath) || typeof(DbModel).IsAssignableFrom(formModelType)) return fieldPath;
         string[] parts = fieldPath.Split('.', StringSplitOptions.RemoveEmptyEntries);
         parts = TrimFormModelPrefix(formModelType, parts);
         if (parts.Length == 0) return fieldPath;
-        PropertyInfo? rootProperty = GetRootProperty(formModelType);
+        PropertyInfo? rootProperty = GetRootProperty(formModelType, modelMetadata);
         if (rootProperty != null && parts[0] == rootProperty.Name)
             return parts.Length > 1 ? string.Join('.', parts.Skip(1)) : fieldPath;
-        return MapGraphPropertyPath(formModelType, parts) ?? fieldPath;
+        return MapGraphPropertyPath(formModelType, parts, modelMetadata) ?? fieldPath;
     }
     /// <summary>
     /// 將查詢條件內的 Form Model 欄位路徑轉成 Root DbModel 路徑。
     /// </summary>
-    public static string MapExpressionToRoot(Type formModelType, string expression)
+    public static string MapExpressionToRoot(Type formModelType, string expression, ModelTypeMetadataCache modelMetadata)
     {
         if (string.IsNullOrWhiteSpace(expression) || typeof(DbModel).IsAssignableFrom(formModelType)) return expression;
         return FieldPathRegex().Replace(expression, match => IsInsideQuotedValue(expression, match.Index)
             ? match.Value
-            : MapKnownFieldPath(formModelType, match.Value));
+            : MapKnownFieldPath(formModelType, match.Value, modelMetadata));
     }
     #endregion
 
@@ -80,9 +80,9 @@ public static partial class FormModelMetadataResolver
     /// <summary>
     /// 取得標示為 Root 的公開 Property。
     /// </summary>
-    private static PropertyInfo? GetRootProperty(Type formModelType)
+    private static PropertyInfo? GetRootProperty(Type formModelType, ModelTypeMetadataCache modelMetadata)
     {
-        return PropertyAccessorCache.GetProperties(formModelType).FirstOrDefault(prop => prop.IsDefined(typeof(FormRootAttribute), true));
+        return modelMetadata.GetProperties(formModelType).FirstOrDefault(prop => prop.IsDefined(typeof(FormRootAttribute), true));
     }
     /// <summary>
     /// 移除 Form Model 型別名稱前綴。
@@ -98,9 +98,9 @@ public static partial class FormModelMetadataResolver
     /// <summary>
     /// 將 Form Model Graph Property 轉成 Root Graph Path。
     /// </summary>
-    private static string? MapGraphPropertyPath(Type formModelType, string[] parts)
+    private static string? MapGraphPropertyPath(Type formModelType, string[] parts, ModelTypeMetadataCache modelMetadata)
     {
-        PropertyInfo? property = PropertyAccessorCache.GetProperty(formModelType, parts[0]);
+        PropertyInfo? property = modelMetadata.GetProperty(formModelType, parts[0]);
         FormGraphPathAttribute? mapping = property?.GetCustomAttribute<FormGraphPathAttribute>(true);
         if (mapping == null) return null;
         string suffix = parts.Length > 1 ? "." + string.Join('.', parts.Skip(1)) : string.Empty;
@@ -109,13 +109,13 @@ public static partial class FormModelMetadataResolver
     /// <summary>
     /// 只轉換可確認屬於 Form Model 的欄位 Token。
     /// </summary>
-    private static string MapKnownFieldPath(Type formModelType, string token)
+    private static string MapKnownFieldPath(Type formModelType, string token, ModelTypeMetadataCache modelMetadata)
     {
         string[] parts = token.Split('.', StringSplitOptions.RemoveEmptyEntries);
         parts = TrimFormModelPrefix(formModelType, parts);
         if (parts.Length == 0) return token;
-        PropertyInfo? property = PropertyAccessorCache.GetProperty(formModelType, parts[0]);
-        return property == null ? token : MapFieldPathToRoot(formModelType, token);
+        PropertyInfo? property = modelMetadata.GetProperty(formModelType, parts[0]);
+        return property == null ? token : MapFieldPathToRoot(formModelType, token, modelMetadata);
     }
     /// <summary>
     /// 判斷指定位置是否位於單引號或雙引號字串內。

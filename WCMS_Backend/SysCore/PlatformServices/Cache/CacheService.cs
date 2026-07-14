@@ -14,21 +14,21 @@ public sealed class CacheService(ICacheRoute cacheRoute, IOptions<CacheSettings>
 
     #region Public
     /// <summary>
-    /// 依指定策略讀取 Cache。
+    /// 依指定模式讀取 Cache。
     /// </summary>
     public Task<CacheReadResult<T>> GetAsync<T>(string key, CacheOptions options, CancellationToken ct = default)
     {
         return _cacheRoute.GetAsync<T>(BuildKey(key), options, ct);
     }
     /// <summary>
-    /// 依指定策略寫入 Cache。
+    /// 依指定模式寫入 Cache。
     /// </summary>
     public Task SetAsync<T>(string key, T? value, CacheOptions options, CancellationToken ct = default)
     {
         return _cacheRoute.SetAsync(BuildKey(key), value, options, ct);
     }
     /// <summary>
-    /// 依指定策略移除 Cache。
+    /// 依指定模式移除 Cache。
     /// </summary>
     public Task RemoveAsync(string key, CacheOptions options, CancellationToken ct = default)
     {

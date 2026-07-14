@@ -135,7 +135,7 @@ public class SpecResearchBiz(BizDeps bizDeps) : BizService<SpecResearchModel>(bi
 
     private void CheckIsEmpty(SpecResearchModel set)
     {
-        if (set.SpecResearch.CategoryId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SpecResearchModel>(x => x.CategoryId));
+        if (set.SpecResearch.CategoryId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<SpecResearchModel>(x => x.CategoryId));
     }
     /// <summary>
     /// 重新組合多筆資料(類別、狀態、標籤)

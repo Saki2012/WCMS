@@ -19,7 +19,6 @@ public static class SysParam
         public static class ConnectionStrings
         {
             public const string SqlConnection = nameof(SqlConnection);
-            public const string RedisConnection = nameof(RedisConnection);
         }
         /// <summary>
         /// 定義一般組態節點名稱。

@@ -1,4 +1,4 @@
-﻿using Microsoft.IdentityModel.Tokens;
+using Microsoft.IdentityModel.Tokens;
 using WCMS.Features._Resx;
 using WCMS.Features.COMM.Person;
 using WCMS.SysCore.FeatureDriver.Biz;
@@ -6,14 +6,32 @@ using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Model;
 using WCMS.SysCore.Security.IdentityAccess.Authentication;
+using WCMS.SysCore.Security.IdentityAccess.Authorization;
 using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.Features.IAM.Account;
 
-public class AccountBiz(BizDeps bizDeps, IBizService<PersonModel> biz) : BizService<AccountModel>(bizDeps), IBizService<AccountModel>
+public class AccountBiz(
+    BizDeps bizDeps,
+    IBizService<PersonModel> biz,
+    PermissionCache permissionCache) : BizService<AccountModel>(bizDeps), IBizService<AccountModel>
 {
     #region Property
+    /// <summary>
+    /// 人員資料 Biz 服務。
+    /// </summary>
     protected IBizService<PersonModel> personBiz = biz;
+    /// <summary>
+    /// 帳號主鍵由使用者指定，不自動產生。
+    /// </summary>
     protected override bool IsAutoGenerateId { get => false; }
+    /// <summary>
+    /// 使用者有效權限 Cache。
+    /// </summary>
+    private PermissionCache PermissionCache { get; } = permissionCache;
+    /// <summary>
+    /// 本次交易提交後需失效權限的帳號。
+    /// </summary>
+    private HashSet<string> PendingPermissionUserIds { get; } = new(StringComparer.OrdinalIgnoreCase);
     #endregion
 
     #region Public
@@ -94,6 +112,9 @@ public class AccountBiz(BizDeps bizDeps, IBizService<PersonModel> biz) : BizServ
     #endregion
 
     #region Protected Virtual
+    /// <summary>
+    /// 帳號新增或更新前執行欄位驗證與預設值整理。
+    /// </summary>
     protected override async Task BeforeUpdate(AccountModel set, FuncAction act, CancellationToken ct = default)
     {
         await base.BeforeUpdate(set, act, ct);
@@ -106,7 +127,9 @@ public class AccountBiz(BizDeps bizDeps, IBizService<PersonModel> biz) : BizServ
                 break;
         }
     }
-
+    /// <summary>
+    /// 帳號資料異動後處理人員建立、密碼保留與權限失效登記。
+    /// </summary>
     protected override async Task AfterUpdate(AccountModel? oldSet, AccountModel? newSet, FuncAction act, TransStatus status, CancellationToken ct = default)
     {
         await base.AfterUpdate(oldSet, newSet, act, status, ct);
@@ -119,16 +142,32 @@ public class AccountBiz(BizDeps bizDeps, IBizService<PersonModel> biz) : BizServ
                 LetPasswordNoUpdate(oldSet, newSet);
                 break;
         }
+        TrackPermissionInvalidation(oldSet, newSet, act);
+    }
+    /// <summary>
+    /// 交易成功提交後失效本次異動帳號的權限 Cache。
+    /// </summary>
+    protected override async Task AfterSaveChanges(FuncAction action, CancellationToken ct = default)
+    {
+        await base.AfterSaveChanges(action, ct);
+        await PermissionCache.InvalidateUsersAsync(PendingPermissionUserIds, CancellationToken.None);
+        PendingPermissionUserIds.Clear();
     }
     #endregion
 
     #region Protected
+    /// <summary>
+    /// 驗證帳號必要欄位與人員編號唯一性。
+    /// </summary>
     protected async Task CheckData(AccountModel set, FuncAction act, CancellationToken ct = default)
     {
-        if (set.AccountId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<AccountModel>(x => x.AccountId));
-        if (set.RoleId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<AccountModel>(x => x.RoleId));
+        if (set.AccountId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<AccountModel>(x => x.AccountId));
+        if (set.RoleId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<AccountModel>(x => x.RoleId));
         await CheckPersonIdIsUniqueAsync(set, act, ct);
     }
+    /// <summary>
+    /// 補齊帳號的人員編號與顯示名稱。
+    /// </summary>
     protected void SetData(AccountModel set)
     {
         if (set.PersonId.IsNullOrEmpty()) set.PersonId = set.AccountId;
@@ -137,7 +176,20 @@ public class AccountBiz(BizDeps bizDeps, IBizService<PersonModel> biz) : BizServ
     #endregion
 
     #region Private
+    /// <summary>
+    /// 記錄本次帳號異動完成後需要失效權限的使用者。
+    /// </summary>
+    private void TrackPermissionInvalidation(AccountModel? oldSet, AccountModel? newSet, FuncAction action)
+    {
+        string? userId = action == FuncAction.Delete
+            ? oldSet?.AccountId
+            : newSet?.AccountId ?? oldSet?.AccountId;
+        if (!string.IsNullOrWhiteSpace(userId)) PendingPermissionUserIds.Add(userId);
+    }
 
+    /// <summary>
+    /// 帳號新增時自動建立尚不存在的人員資料。
+    /// </summary>
     private async Task AutoCreatePersonData(string personId, string personName, CancellationToken ct)
     {
         if (await personBiz.BizQueryTotalCounts($"{nameof(PersonModel.PersonId)} = {personId}") == 0)

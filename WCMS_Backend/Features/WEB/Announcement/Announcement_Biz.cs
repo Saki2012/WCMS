@@ -208,8 +208,8 @@ public class AnnouncementBiz(BizDeps bizDeps) : BizService<Announcement>(bizDeps
         if (!SpecSettings.AACheck) return;
         foreach (AnnouncementDetail detail in details)
         {
-            if (detail.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.AACode00003, detail.Lang.ToLabel(), I18nCache.GetLabel<AnnouncementDetail>(item => item.Title));
-            if (LibAAData.CheckAAContent(detail.Content, Message, out string content)) detail.Content = content;
+            if (detail.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.AACode00003, detail.Lang.ToLabel(), I18n.GetLabel<AnnouncementDetail>(item => item.Title));
+            if (LibAAData.CheckAAContent(detail.Content, Message, I18n, out string content)) detail.Content = content;
         }
     }
     /// <summary>
@@ -217,9 +217,9 @@ public class AnnouncementBiz(BizDeps bizDeps) : BizService<Announcement>(bizDeps
     /// </summary>
     private void CheckRequiredData(Announcement data)
     {
-        if (data.Validate_Start == default) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Announcement>(item => item.Validate_Start));
-        if (data.Validate_End != default && data.Validate_Start >= data.Validate_End) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014, I18nCache.GetLabel<Announcement>(item => item.Validate_End), I18nCache.GetLabel<Announcement>(item => item.Validate_Start));
-        if (data.Categories.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Announcement>(item => item.Categories));
+        if (data.Validate_Start == default) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<Announcement>(item => item.Validate_Start));
+        if (data.Validate_End != default && data.Validate_Start >= data.Validate_End) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014, I18n.GetLabel<Announcement>(item => item.Validate_End), I18n.GetLabel<Announcement>(item => item.Validate_Start));
+        if (data.Categories.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<Announcement>(item => item.Categories));
     }
     /// <summary>
     /// 正規化公告類別與標籤字串。

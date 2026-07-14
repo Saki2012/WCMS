@@ -1,24 +1,14 @@
 namespace WCMS.SysCore.PlatformServices.Cache;
 
 /// <summary>
-/// 定義 Cache 的 Local 與 Distributed 讀寫順序。
+/// 定義 Cache 的 Local 與 Distributed 路由模式。
 /// </summary>
-public enum CacheStrategy : byte
+public enum CacheMode : byte
 {
     LocalOnly = 0,
-    DistributedOnly = 1,
-    LocalFirst = 2,
+    LocalFirst = 1,
+    DistributedOnly = 2,
     DistributedFirst = 3,
-}
-
-/// <summary>
-/// 定義 Distributed Cache 停用或異常時的處理方式。
-/// </summary>
-public enum CacheFailureStrategy : byte
-{
-    FallbackToLocal = 0,
-    BypassCache = 1,
-    RequireDistributed = 2,
 }
 
 /// <summary>
@@ -32,19 +22,15 @@ public enum CacheExpirationStrategy : byte
 }
 
 /// <summary>
-/// 定義單次 Cache 的路由、失敗與時效設定。
+/// 定義單次 Cache 的路由模式與資料時效設定。
 /// </summary>
 public sealed class CacheOptions
 {
     #region Property
     /// <summary>
-    /// 取得或設定 Cache 的 Local 與 Distributed 讀寫順序。
+    /// 取得或設定 Cache 的 Local 與 Distributed 路由模式。
     /// </summary>
-    public CacheStrategy Strategy { get; init; } = CacheStrategy.LocalOnly;
-    /// <summary>
-    /// 取得或設定 Distributed Cache 無法使用時的處理方式。
-    /// </summary>
-    public CacheFailureStrategy FailureStrategy { get; init; } = CacheFailureStrategy.FallbackToLocal;
+    public CacheMode Mode { get; init; } = CacheMode.LocalOnly;
     /// <summary>
     /// 取得或設定 Cache 資料的失效方式。
     /// </summary>
@@ -61,12 +47,13 @@ public sealed class CacheOptions
 
     #region Public
     /// <summary>
-    /// 驗證 Cache 策略與時效設定是否可以共同使用。
+    /// 驗證 Cache 模式與時效設定是否可以共同使用。
     /// </summary>
     internal void Validate(bool distributedEnabled)
     {
         ValidateExpiration();
-        if (distributedEnabled && ExpirationStrategy == CacheExpirationStrategy.ProcessLifetime && Strategy != CacheStrategy.LocalOnly)
+        if (!distributedEnabled) return;
+        if (ExpirationStrategy == CacheExpirationStrategy.ProcessLifetime && Mode != CacheMode.LocalOnly)
             throw new InvalidOperationException("Distributed Cache 啟用時，ProcessLifetime 只能搭配 LocalOnly。");
     }
     #endregion
@@ -97,13 +84,34 @@ public sealed class CacheSettings
     /// </summary>
     public const string SectionName = "Cache";
     /// <summary>
-    /// 取得或設定 Distributed Cache 是否啟用。
+    /// 取得或設定 Distributed Cache 的啟用與連線設定。
     /// </summary>
-    public bool DistributedEnabled { get; set; }
+    public DistributedCacheSettings Distributed { get; set; } = new();
     /// <summary>
     /// 取得或設定一般資料 Cache 的 Key 前綴。
     /// </summary>
     public string DataKeyPrefix { get; set; } = "wcms:data:";
+    /// <summary>
+    /// 取得或設定 OutputCache 的 Key 前綴。
+    /// </summary>
+    public string OutputKeyPrefix { get; set; } = "wcms:output:";
+    #endregion
+}
+
+/// <summary>
+/// 定義 Distributed Cache 的啟用與 Redis 連線設定。
+/// </summary>
+public sealed class DistributedCacheSettings
+{
+    #region Property
+    /// <summary>
+    /// 取得或設定 Distributed Cache 是否正式啟用。
+    /// </summary>
+    public bool Enabled { get; set; }
+    /// <summary>
+    /// 取得或設定 Redis 連線字串。
+    /// </summary>
+    public string RedisConnection { get; set; } = string.Empty;
     #endregion
 }
 

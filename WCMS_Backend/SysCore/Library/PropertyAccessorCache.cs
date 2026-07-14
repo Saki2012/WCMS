@@ -1,136 +1,168 @@
-﻿using System.Collections;
-using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
+using WCMS.SysCore.PlatformServices.Cache;
 
-namespace WCMS.SysCore.Library
+namespace WCMS.SysCore.Library;
+
+/// <summary>
+/// 管理動態物件 Constructor、Getter 與 Setter Delegate 的 Runtime Cache。
+/// </summary>
+public sealed class PropertyAccessorCache : LibCacheBase
 {
+    #region Property
     /// <summary>
-    /// 單一快取表
+    /// Property Accessor Cache 的區域名稱。
     /// </summary>
-    public static class PropertyAccessorCache
+    private const string CacheRegionName = "property-accessor";
+    /// <summary>
+    /// Constructor Delegate 的 Cache Key 類型。
+    /// </summary>
+    private const string ConstructorKey = "constructor";
+    /// <summary>
+    /// Getter Delegate 的 Cache Key 類型。
+    /// </summary>
+    private const string GetterKey = "getter";
+    /// <summary>
+    /// Setter Delegate 的 Cache Key 類型。
+    /// </summary>
+    private const string SetterKey = "setter";
+    /// <summary>
+    /// Runtime Delegate 使用的 Local Process Lifetime 設定。
+    /// </summary>
+    private static readonly CacheOptions RuntimeOptions = new()
     {
-        #region Property
-        private static readonly ConcurrentDictionary<Type, Func<object>> _constructorCache = new();
-        private static readonly ConcurrentDictionary<Type, Dictionary<string, Func<object, object>>> _getterCache = new();
-        private static readonly ConcurrentDictionary<Type, Dictionary<string, Action<object, object>>> _setterCache = new();
-        private static readonly ConcurrentDictionary<Type, PropertyInfo[]> _propertyCache = new();
-        private static readonly ConcurrentDictionary<Type, Dictionary<string, PropertyInfo>> _propertyDictCache = new();
-        private static readonly ConcurrentDictionary<Type, Func<IEnumerable, IList>> _castCache = new();
-        private static readonly ConcurrentDictionary<(Type DeclaringType, string PropertyName, Type AttrType), Attribute?> _attributeCache = new();
-        #endregion
-        #region Public
-        public static object CreateInstance(Type type)
-        {
-            var ctor = _constructorCache.GetOrAdd(type, t =>
-            {
-                var ctorInfo = t.GetConstructor(Type.EmptyTypes);
-                var newExpr = Expression.New(ctorInfo);
-                return Expression.Lambda<Func<object>>(newExpr).Compile();
-            });
-            return ctor();
-        }
-        public static T CreateInstance<T>()
-        {
-            var ctor = _constructorCache.GetOrAdd(typeof(T), t =>
-            {
-                var ctorInfo = t.GetConstructor(Type.EmptyTypes);
-                var newExpr = Expression.New(ctorInfo);
-                return Expression.Lambda<Func<object>>(newExpr).Compile();
-            });
-            return (T)ctor();
-        }
-        public static object Get(object target, string propertyName)
-        {
-            var type = target.GetType();
-            var getters = _getterCache.GetOrAdd(type, BuildGetterMap);
-            return getters.TryGetValue(propertyName, out var getter) ? getter(target) : throw new KeyNotFoundException($"Property {propertyName} not found.");
-        }
-        public static PropertyInfo? GetProperty(Type type, string name)
-        {
-            var dict = _propertyDictCache.GetOrAdd(type, t => t.GetProperties(BindingFlags.Public | BindingFlags.Instance).ToDictionary(p => p.Name, StringComparer.OrdinalIgnoreCase));
-            return dict.TryGetValue(name, out var prop) ? prop : null;
-        }
-        public static PropertyInfo[] GetProperties(PropertyInfo prop)
-        {
-            return _propertyCache.GetOrAdd(prop.PropertyType, t => t.GetProperties());
-        }
-        public static PropertyInfo[] GetProperties(Type type)
-        {
-            return _propertyCache.GetOrAdd(type, t => t.GetProperties());
-        }
-        public static PropertyInfo[] GetProperties<T>()
-        {
-            return GetProperties(typeof(T));
-        }
-        public static PropertyInfo[] GetAttrProperties(Type type,Type attrType)
-        {
-            return [.. GetProperties(type).Where(p => Attribute.IsDefined(p, attrType, inherit: true))];
-        }
-        public static void Set(object target, string propertyName, object value)
-        {
-            var type = target.GetType();
-            var setters = _setterCache.GetOrAdd(type, BuildSetterMap);
-            if (setters.TryGetValue(propertyName, out var setter))
-            {
-                setter(target, value);
-            }
-            else
-            {
-                throw new KeyNotFoundException($"Property {propertyName} not found or not writable.");
-            }
-        }
-        /// <summary>
-        /// 嘗試取得 Property 上的指定 Attribute
-        /// </summary>
-        public static bool TryGetAttribute<TAttribute>(PropertyInfo property, out TAttribute? attribute)
-            where TAttribute : Attribute
-        {
-            if (property == null)
-            {
-                attribute = null;
-                return false;
-            }
-            var key = (property.DeclaringType!, property.Name, typeof(TAttribute));
-            var attr = (TAttribute?)_attributeCache.GetOrAdd(key, _ =>property.GetCustomAttribute<TAttribute>(inherit: true));
-            attribute = attr;
-            return attribute != null;
-        }
-        #endregion
-        #region Private
-        private static Dictionary<string, Func<object, object>> BuildGetterMap(Type type)
-        {
-            var dict = new Dictionary<string, Func<object, object>>();
-            foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
-            {
-                if (!prop.CanRead) continue;
+        Mode = CacheMode.LocalOnly,
+        ExpirationStrategy = CacheExpirationStrategy.ProcessLifetime,
+    };
+    /// <summary>
+    /// 取得 Property Accessor 使用的 Cache 區域名稱。
+    /// </summary>
+    protected override string CacheRegion => CacheRegionName;
+    #endregion
 
-                var param = Expression.Parameter(typeof(object), "target");
-                var castedTarget = Expression.Convert(param, type);
-                var propertyAccess = Expression.Property(castedTarget, prop);
-                var castResult = Expression.Convert(propertyAccess, typeof(object));
-
-                var lambda = Expression.Lambda<Func<object, object>>(castResult, param).Compile();
-                dict[prop.Name] = lambda;
-            }
-            return dict;
-        }
-        private static Dictionary<string, Action<object, object>> BuildSetterMap(Type type)
-        {
-            var dict = new Dictionary<string, Action<object, object>>();
-            foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
-            {
-                if (!prop.CanWrite) continue;
-                var targetParam = Expression.Parameter(typeof(object), "target");
-                var valueParam = Expression.Parameter(typeof(object), "value");
-                var castTarget = Expression.Convert(targetParam, type);
-                var castValue = Expression.Convert(valueParam, prop.PropertyType);
-                var propertySetter = Expression.Call(castTarget, prop.GetSetMethod(), castValue);
-                var lambda = Expression.Lambda<Action<object, object>>(propertySetter, targetParam, valueParam).Compile();
-                dict[prop.Name] = lambda;
-            }
-            return dict;
-        }
-        #endregion
+    #region Public
+    /// <summary>
+    /// 初始化 Property Accessor Cache。
+    /// </summary>
+    public PropertyAccessorCache(CacheService cacheService) : base(cacheService)
+    {
     }
+    /// <summary>
+    /// 建立指定型別的物件實例。
+    /// </summary>
+    public object CreateInstance(Type type)
+    {
+        string key = BuildCacheKey(ConstructorKey, GetTypeCacheKey(type));
+        Func<object> constructor = GetOrCreateLocal(key, RuntimeOptions, () => BuildConstructor(type))
+            ?? throw new InvalidOperationException($"Cannot build constructor cache: {type.FullName}");
+        return constructor();
+    }
+    /// <summary>
+    /// 建立指定泛型型別的物件實例。
+    /// </summary>
+    public T CreateInstance<T>()
+    {
+        return (T)CreateInstance(typeof(T));
+    }
+    /// <summary>
+    /// 取得指定物件的 Property 值。
+    /// </summary>
+    public object Get(object target, string propertyName)
+    {
+        Type type = target.GetType();
+        string key = BuildCacheKey(GetterKey, GetTypeCacheKey(type));
+        Dictionary<string, Func<object, object>> getters = GetOrCreateLocal(key, RuntimeOptions, () => BuildGetterMap(type))
+            ?? throw new InvalidOperationException($"Cannot build getter cache: {type.FullName}");
+        return getters.TryGetValue(propertyName, out Func<object, object>? getter)
+            ? getter(target)
+            : throw new KeyNotFoundException($"Property {propertyName} not found.");
+    }
+    /// <summary>
+    /// 設定指定物件的 Property 值。
+    /// </summary>
+    public void Set(object target, string propertyName, object value)
+    {
+        Type type = target.GetType();
+        string key = BuildCacheKey(SetterKey, GetTypeCacheKey(type));
+        Dictionary<string, Action<object, object>> setters = GetOrCreateLocal(key, RuntimeOptions, () => BuildSetterMap(type))
+            ?? throw new InvalidOperationException($"Cannot build setter cache: {type.FullName}");
+        if (setters.TryGetValue(propertyName, out Action<object, object>? setter))
+        {
+            setter(target, value);
+            return;
+        }
+        throw new KeyNotFoundException($"Property {propertyName} not found or not writable.");
+    }
+    #endregion
+
+    #region Private
+    /// <summary>
+    /// 建立指定型別的無參數 Constructor Delegate。
+    /// </summary>
+    private static Func<object> BuildConstructor(Type type)
+    {
+        ConstructorInfo constructor = type.GetConstructor(Type.EmptyTypes)
+            ?? throw new InvalidOperationException($"Public parameterless constructor not found: {type.FullName}");
+        NewExpression expression = Expression.New(constructor);
+        return Expression.Lambda<Func<object>>(expression).Compile();
+    }
+    /// <summary>
+    /// 建立指定型別的 Getter Delegate 對照表。
+    /// </summary>
+    private static Dictionary<string, Func<object, object>> BuildGetterMap(Type type)
+    {
+        var result = new Dictionary<string, Func<object, object>>();
+        foreach (PropertyInfo property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+        {
+            if (!property.CanRead) continue;
+            result[property.Name] = BuildGetter(type, property);
+        }
+        return result;
+    }
+    /// <summary>
+    /// 建立指定 Property 的 Getter Delegate。
+    /// </summary>
+    private static Func<object, object> BuildGetter(Type type, PropertyInfo property)
+    {
+        ParameterExpression target = Expression.Parameter(typeof(object), "target");
+        UnaryExpression castTarget = Expression.Convert(target, type);
+        MemberExpression access = Expression.Property(castTarget, property);
+        UnaryExpression castResult = Expression.Convert(access, typeof(object));
+        return Expression.Lambda<Func<object, object>>(castResult, target).Compile();
+    }
+    /// <summary>
+    /// 建立指定型別的 Setter Delegate 對照表。
+    /// </summary>
+    private static Dictionary<string, Action<object, object>> BuildSetterMap(Type type)
+    {
+        var result = new Dictionary<string, Action<object, object>>();
+        foreach (PropertyInfo property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+        {
+            if (!property.CanWrite) continue;
+            result[property.Name] = BuildSetter(type, property);
+        }
+        return result;
+    }
+    /// <summary>
+    /// 建立指定 Property 的 Setter Delegate。
+    /// </summary>
+    private static Action<object, object> BuildSetter(Type type, PropertyInfo property)
+    {
+        MethodInfo setter = property.GetSetMethod()
+            ?? throw new InvalidOperationException($"Public setter not found: {type.FullName}.{property.Name}");
+        ParameterExpression target = Expression.Parameter(typeof(object), "target");
+        ParameterExpression value = Expression.Parameter(typeof(object), "value");
+        UnaryExpression castTarget = Expression.Convert(target, type);
+        UnaryExpression castValue = Expression.Convert(value, property.PropertyType);
+        MethodCallExpression call = Expression.Call(castTarget, setter, castValue);
+        return Expression.Lambda<Action<object, object>>(call, target, value).Compile();
+    }
+    /// <summary>
+    /// 建立可跨 Assembly 區分的型別 Cache Key。
+    /// </summary>
+    private static string GetTypeCacheKey(Type type)
+    {
+        return type.AssemblyQualifiedName ?? type.FullName ?? type.Name;
+    }
+    #endregion
 }

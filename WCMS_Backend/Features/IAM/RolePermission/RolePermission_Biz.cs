@@ -1,189 +1,108 @@
-﻿using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using WCMS.SysCore.Enum;
-using WCMS.SysCore.FeatureDriver.Api.Metadata;
 using WCMS.SysCore.FeatureDriver.Biz;
-using WCMS.SysCore.Library.LibAttribute;
+using WCMS.SysCore.Security.IdentityAccess.Authorization;
+using static WCMS.SysCore.Enum.SysEnum;
+
 namespace WCMS.Features.IAM.RolePermission;
 
-public class RolePermissionBiz(BizDeps bizDeps, IActionDescriptorCollectionProvider adcp) : BizService<RoleDataModel>(bizDeps), IBizService<RoleDataModel>
+public class RolePermissionBiz(
+    BizDeps bizDeps,
+    RolePermissionCatalogCache catalogCache,
+    PermissionCache permissionCache) : BizService<RoleDataModel>(bizDeps), IBizService<RoleDataModel>
 {
-    #region Cache
-    // Catalog 來源是 Attribute（很少變動），用 static cache 減少每次掃描成本
-    private static readonly object _catalogLock = new();
-    private static IList<PermissionCatalogModuleDTO>? _catalogCache;
+    #region Property
+    private RolePermissionCatalogCache CatalogCache { get; } = catalogCache;
+    /// <summary>
+    /// 使用者有效權限 Cache。
+    /// </summary>
+    private PermissionCache PermissionCache { get; } = permissionCache;
+    /// <summary>
+    /// 本次交易提交後需失效權限的帳號。
+    /// </summary>
+    private HashSet<string> PendingPermissionUserIds { get; } = new(StringComparer.OrdinalIgnoreCase);
     #endregion
 
     #region Public
     /// <summary>
-    /// 取得「權限功能目錄」：Module → Progs（給前端 RolePermission UI 直接渲染）
+    /// 取得「權限功能目錄」：Module → Progs（給前端 RolePermission UI 直接渲染）。
     /// </summary>
     public IList<PermissionCatalogModuleDTO> GetPermissionCatalog()
     {
-        return GetOrBuildPermissionCatalog(adcp);
+        IReadOnlyList<RolePermissionCatalogModule> catalog = CatalogCache.GetCatalog();
+        return catalog.Select(BuildModuleDto).ToList();
     }
     /// <summary>
-    /// 清除 Catalog 快取（通常只有開發期才需要）
+    /// 清除 Catalog Cache，下一次呼叫會重新掃描 Controller Action。
     /// </summary>
     public void ClearPermissionCatalogCache()
     {
-        // 清空快取，下一次呼叫會重新掃描
-        lock (_catalogLock) _catalogCache = null;
+        CatalogCache.Clear();
+    }
+    #endregion
+
+    #region Protected Virtual
+    /// <summary>
+    /// 角色權限異動完成但尚未提交時，記錄所有受影響帳號。
+    /// </summary>
+    protected override async Task AfterUpdate(
+        RoleDataModel? oldSet,
+        RoleDataModel? newSet,
+        FuncAction act,
+        TransStatus status,
+        CancellationToken ct = default)
+    {
+        await base.AfterUpdate(oldSet, newSet, act, status, ct);
+        string[] roleIds = ResolveAffectedRoleIds(oldSet, newSet);
+        List<string> userIds = await PermissionCache.LoadUserIdsByRolesAsync(roleIds, ct);
+        PendingPermissionUserIds.UnionWith(userIds);
+    }
+    /// <summary>
+    /// 交易成功提交後失效受角色權限異動影響的使用者權限 Cache。
+    /// </summary>
+    protected override async Task AfterSaveChanges(FuncAction action, CancellationToken ct = default)
+    {
+        await base.AfterSaveChanges(action, ct);
+        await PermissionCache.InvalidateUsersAsync(PendingPermissionUserIds, CancellationToken.None);
+        PendingPermissionUserIds.Clear();
     }
     #endregion
 
     #region Private
     /// <summary>
-    /// 判斷此 Controller 是否允許出現在「當前 Spec 的權限目錄」
-    /// - Core(非 SpecFeatures) 一律允許
-    /// - SpecFeatures 只允許 WCMS.SpecFeatures.{SpecCode}.*
+    /// 合併角色權限異動前後可能影響的角色代號。
     /// </summary>
-    private static bool IsAllowedBySpec(ControllerActionDescriptor cad)
+    private static string[] ResolveAffectedRoleIds(RoleDataModel? oldSet, RoleDataModel? newSet)
     {
-        // 宣告變數
-        var ns = cad.ControllerTypeInfo.Namespace ?? string.Empty;
-        var specCode = SysCore.Library.SpecSettings.SpecCode ?? string.Empty;
-        // Core 區（不在 SpecFeatures）一律允許
-        if (!ns.StartsWith(SysParam.NamespacePrefixes.SpecFeatures, StringComparison.OrdinalIgnoreCase)) return true;
-        // SpecCode 沒設定：保守起見全開（你也可改成全關）
-        if (string.IsNullOrWhiteSpace(specCode)) return true;
-        // 只允許當前 Spec 的 namespace
-        return ns.StartsWith($"{SysParam.NamespacePrefixes.SpecFeatures}{specCode}.", StringComparison.OrdinalIgnoreCase);
+        return new[] { oldSet?.RoleId, newSet?.RoleId }
+            .Where(id => !string.IsNullOrWhiteSpace(id))
+            .Select(id => id!)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
     }
-
     /// <summary>
-    /// 從快取取 Catalog；若沒有就建置（thread-safe）
+    /// 將權限模組結構組成目前語系的回傳 DTO。
     /// </summary>
-    private static IList<PermissionCatalogModuleDTO> GetOrBuildPermissionCatalog(IActionDescriptorCollectionProvider adcp)
+    private PermissionCatalogModuleDTO BuildModuleDto(RolePermissionCatalogModule module)
     {
-        // 先快路徑
-        var cached = _catalogCache;
-        if (cached != null) return cached;
-        // 加鎖建置一次
-        lock (_catalogLock)
+        string moduleCode = module.ModuleCode.ToString();
+        List<PermissionCatalogProgDTO> progs = module.Progs.Select(BuildProgDto).ToList();
+        return new PermissionCatalogModuleDTO
         {
-            if (_catalogCache != null) return _catalogCache;
-            _catalogCache = BuildPermissionCatalog(adcp);
-            return _catalogCache;
-        }
+            ModuleCode = moduleCode,
+            ModuleTitle = I18n.GetResourceLabel(moduleCode),
+            Progs = progs,
+        };
     }
     /// <summary>
-    /// 掃描所有 action 的 LibApiControllerAttribute，組合成 Module → Progs
+    /// 將權限程式結構組成目前語系的回傳 DTO。
     /// </summary>
-    private static IList<PermissionCatalogModuleDTO> BuildPermissionCatalog(IActionDescriptorCollectionProvider adcp)
+    private PermissionCatalogProgDTO BuildProgDto(RolePermissionCatalogProg prog)
     {
-        // moduleCode → module DTO
-        var modules = new Dictionary<string, PermissionCatalogModuleDTO>(StringComparer.OrdinalIgnoreCase);
-        // 將 meta 合併進 modules（同 ProgId 會 OR SupportMask）
-        foreach (var meta in EnumeratePermissionMetas(adcp)) UpsertModuleProg(modules, meta);
-        // 排序輸出（先 module，再 prog）
-        return SortModules(modules.Values);
-    }
-    /// <summary>
-    /// 列舉所有 action 上/其 controller 上的 LibApiControllerAttribute（允許重複，後續會合併）
-    /// </summary>
-    private static IEnumerable<LibApiControllerAttribute> EnumeratePermissionMetas(IActionDescriptorCollectionProvider adcp)
-    {
-        foreach (var ad in adcp.ActionDescriptors.Items)
+        return new PermissionCatalogProgDTO
         {
-            if (ad is not ControllerActionDescriptor cad) continue;
-            if (!IsAllowedBySpec(cad)) continue;
-            var meta = GetPermissionMeta(cad);
-            if (meta == null) continue;
-            // 宣告變數：把 enum 轉回舊版字串
-            var moduleCode = GetModuleCodeText(meta);
-            // 執行：過濾無效資料
-            if (string.IsNullOrWhiteSpace(moduleCode)) continue;
-            if (string.IsNullOrWhiteSpace(meta.ProgId)) continue;
-            yield return meta;
-        }
-    }
-
-    /// <summary>
-    /// Action 優先，其次 Controller（跟你 ApiDataController 取 meta 的邏輯一致）
-    /// </summary>
-    private static LibApiControllerAttribute? GetPermissionMeta(ControllerActionDescriptor cad)
-    {
-        // Action 上的 meta
-        var actionMeta = cad.MethodInfo.GetCustomAttributes(typeof(LibApiControllerAttribute), true).OfType<LibApiControllerAttribute>().FirstOrDefault();
-        if (actionMeta != null) return actionMeta;
-        // Controller 上的 meta
-        var ctrlMeta = cad.ControllerTypeInfo.GetCustomAttributes(typeof(LibApiControllerAttribute), true).OfType<LibApiControllerAttribute>().FirstOrDefault();
-        return ctrlMeta;
-    }
-
-    /// <summary>
-    /// 將掃描到的 meta 合併進 Module/Prog 結構
-    /// </summary>
-    private static void UpsertModuleProg(Dictionary<string, PermissionCatalogModuleDTO> modules, LibApiControllerAttribute meta)
-    {
-        // 宣告變數：把 enum 統一轉回舊版字串
-        var moduleCode = GetModuleCodeText(meta);
-        // 取得/建立 module
-        if (!modules.TryGetValue(moduleCode, out var mod))
-        {
-            mod = new PermissionCatalogModuleDTO
-            {
-                ModuleCode = moduleCode,
-                ModuleTitle = GetModuleTitle(moduleCode), // i18n 顯示名稱（找不到就 fallback code）
-                Progs = []
-            };
-            modules.Add(moduleCode, mod);
-        }
-        // 取得/建立 prog（同 ProgId 合併 SupportMask）
-        var prog = mod.Progs.FirstOrDefault(x => x.ProgId.Equals(meta.ProgId, StringComparison.OrdinalIgnoreCase));
-        if (prog == null)
-        {
-            mod.Progs.Add(new PermissionCatalogProgDTO
-            {
-                ProgId = meta.ProgId,
-                ProgTitle = GetProgTitle(meta.ProgId), // i18n 顯示名稱（找不到就 fallback id）
-                SupportMask = meta.SupportFuncActMask
-            });
-            return;
-        }
-        prog.SupportMask |= meta.SupportFuncActMask;
-    }
-
-    /// <summary>
-    /// 將 ModuleCode enum 轉為舊版字串，避免影響既有 DTO / resx / 前端邏輯
-    /// </summary>
-    private static string GetModuleCodeText(LibApiControllerAttribute meta)
-    {
-        return meta.ModuleCode.ToString();
-    }
-
-    /// <summary>
-    /// 排序 module 與其底下 progs（先用 code 排，之後有 Sort 再補）
-    /// </summary>
-    private static IList<PermissionCatalogModuleDTO> SortModules(IEnumerable<PermissionCatalogModuleDTO> modules)
-    {
-        foreach (var m in modules) m.Progs = m.Progs.OrderBy(x => x.ProgId, StringComparer.OrdinalIgnoreCase).ToList();
-        return modules.OrderBy(x => x.ModuleCode, StringComparer.OrdinalIgnoreCase).ToList();
-    }
-    /// <summary>
-    /// 依 ModuleCode 取得顯示名稱（resx key：PermissionCatalog_Module_{ModuleCode}）
-    /// </summary>
-    private static string GetModuleTitle(string moduleCode)
-    {
-        return GetI18nTitle(moduleCode);
-    }
-    /// <summary>
-    /// 依 ProgId 取得顯示名稱（resx key：PermissionCatalog_Prog_{ProgId}）
-    /// </summary>
-    private static string GetProgTitle(string progId)
-    {
-        return GetI18nTitle(progId);
-    }
-    /// <summary>
-    /// 用 LibDescAttribute 讀 resx，若找不到就回傳 fallback（避免顯示 [key]）
-    /// </summary>
-    private static string GetI18nTitle(string resKey)
-    {
-        var title = new LibDescAttribute(resKey).Description;
-        if (string.IsNullOrWhiteSpace(title)) return $@"[{resKey}]";
-        if (title.Equals($"[{resKey}]", StringComparison.Ordinal)) return $@"[{resKey}]";
-        return title;
+            ProgId = prog.ProgId,
+            ProgTitle = I18n.GetResourceLabel(prog.ProgId),
+            SupportMask = prog.SupportMask,
+        };
     }
     #endregion
 }

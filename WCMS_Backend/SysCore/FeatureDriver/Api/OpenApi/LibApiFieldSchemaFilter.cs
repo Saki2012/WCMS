@@ -28,6 +28,7 @@ public sealed class LibApiFieldSchemaFilter(IOptions<JsonOptions>? jsonOptions =
     private const string CanQueryExtensionName = "x-wcms-can-query";
     private const string CanSelectExtensionName = "x-wcms-can-select";
     private const string CanSortExtensionName = "x-wcms-can-sort";
+    private const string RequiredExtensionName = "x-wcms-required";
     private readonly JsonSerializerOptions _jsonOptions = jsonOptions?.Value.JsonSerializerOptions ?? new JsonSerializerOptions(JsonSerializerDefaults.Web);
     #endregion
 
@@ -56,8 +57,22 @@ public sealed class LibApiFieldSchemaFilter(IOptions<JsonOptions>? jsonOptions =
             return;
         }
         var apiMode = LibApiFieldPolicyHelper.GetApiMode(property);
-        ApplyOpenApiMode(schema.Properties[schemaName], apiMode);
+        OpenApiSchema propertySchema = schema.Properties[schemaName];
+        ApplyOpenApiMode(propertySchema, apiMode);
+        ApplyInputPolicy(schema, propertySchema, schemaName, property, apiMode);
     }
+    /// <summary>
+    /// 讓 API 可寫欄位接受省略或 null，必填規則改由 WCMS Metadata 表達。
+    /// </summary>
+    private static void ApplyInputPolicy(OpenApiSchema schema, OpenApiSchema propertySchema, string schemaName, PropertyInfo property, ApiFieldMode apiMode)
+    {
+        if (!LibApiFieldPolicyHelper.CanWrite(apiMode)) return;
+        schema.Required?.Remove(schemaName);
+        propertySchema.Nullable = true;
+        propertySchema.Extensions ??= new Dictionary<string, IOpenApiExtension>();
+        propertySchema.Extensions[RequiredExtensionName] = new OpenApiBoolean(LibApiFieldPolicyHelper.IsRequired(property));
+    }
+
     /// <summary>
     /// 依 System.Text.Json 規則解析 Swagger 欄位名稱。
     /// </summary>

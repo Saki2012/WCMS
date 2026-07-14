@@ -851,8 +851,8 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
         Regex menuIdRegex = new Regex(@"^[A-Za-z0-9_-]+$", RegexOptions.Compiled);
         item.ItemSiteUrl = item.ItemSiteUrl.Trim();
 
-        if (item.ItemSiteUrl.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SiteMenu_Item>(x => x.ItemSiteUrl));
-        else if (!menuIdRegex.IsMatch(item.ItemSiteUrl)) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00016, $"{I18nCache.GetLabel<SiteMenu_Item>(x => x.ItemSiteUrl)}:{item.ItemSiteUrl}");
+        if (item.ItemSiteUrl.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<SiteMenu_Item>(x => x.ItemSiteUrl));
+        else if (!menuIdRegex.IsMatch(item.ItemSiteUrl)) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00016, $"{I18n.GetLabel<SiteMenu_Item>(x => x.ItemSiteUrl)}:{item.ItemSiteUrl}");
     }
 
     /// <summary>
@@ -861,7 +861,7 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     private void CheckMenuTitleRules(SiteMenu_Item_Title title)
     {
         if (title.IsShowOnMenu && title.Title.IsNullOrEmpty())
-            Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, title.Lang.ToLabel(), I18nCache.GetLabel<SiteMenu_Item_Title>(x => x.Title));
+            Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, title.Lang.ToLabel(), I18n.GetLabel<SiteMenu_Item_Title>(x => x.Title));
     }
 
     /// <summary>

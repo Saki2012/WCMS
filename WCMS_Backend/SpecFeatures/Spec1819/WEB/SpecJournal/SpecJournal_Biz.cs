@@ -119,8 +119,8 @@ public class SpecJournal_Biz(BizDeps bizDeps, IHttpClientFactory HttpClientFacto
     protected void CheckJouranlIndexIsEmpty(SpecJournalModel header)
     {
         if (header.JournalIndexId.IsNullOrEmpty() && header.JournalIndexRowId.IsNullOrEmpty() || !header.JournalIndexId.IsNullOrEmpty() && !header.JournalIndexRowId.IsNullOrEmpty()) return;
-        if(header.JournalIndexId.IsNullOrEmpty() ) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SpecJournalModel>(x => x.JournalIndexId));
-        if(header.JournalIndexRowId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SpecJournalModel>(x => x.JournalIndexRowId));
+        if(header.JournalIndexId.IsNullOrEmpty() ) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<SpecJournalModel>(x => x.JournalIndexId));
+        if(header.JournalIndexRowId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<SpecJournalModel>(x => x.JournalIndexRowId));
     }
     /// <summary>
     /// 防呆:如果沒有上傳檔案(檔案來源為空)，顯示名稱就設為空白

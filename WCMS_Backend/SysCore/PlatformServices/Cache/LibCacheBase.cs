@@ -8,6 +8,9 @@ namespace WCMS.SysCore.PlatformServices.Cache;
 public abstract class LibCacheBase
 {
     #region Property
+    /// <summary>
+    /// 模組 Cache 共用服務。
+    /// </summary>
     protected CacheService CacheService { get; }
     /// <summary>
     /// 取得目前模組使用的 Cache 區域名稱。
@@ -55,6 +58,13 @@ public abstract class LibCacheBase
         return CacheService.GetOrCreateLocal(key, options, sourceFactory);
     }
     /// <summary>
+    /// 依指定設定寫入模組 Cache。
+    /// </summary>
+    protected Task SetAsync<T>(string key, T? value, CacheOptions options, CancellationToken ct = default)
+    {
+        return CacheService.SetAsync(key, value, options, ct);
+    }
+    /// <summary>
     /// 依指定設定移除模組 Cache。
     /// </summary>
     protected Task RemoveAsync(string key, CacheOptions options, CancellationToken ct = default)
@@ -81,59 +91,5 @@ public abstract class LibCacheBase
             return formattable.ToString(null, CultureInfo.InvariantCulture) ?? "~";
         return value.ToString() ?? "~";
     }
-    #endregion
-}
-
-/// <summary>
-/// 提供單一 Key 與單一資料型別模組的抽象 Cache 流程。
-/// </summary>
-public abstract class LibCacheBase<TKey, TValue> : LibCacheBase
-{
-    #region Property
-    /// <summary>
-    /// 取得目前模組預設使用的 Cache 設定。
-    /// </summary>
-    protected abstract CacheOptions DefaultOptions { get; }
-    #endregion
-
-    #region Public
-    /// <summary>
-    /// 初始化單一資料型別模組的 Cache 共用服務。
-    /// </summary>
-    protected LibCacheBase(CacheService cacheService) : base(cacheService)
-    {
-    }
-    /// <summary>
-    /// 取得指定 Key 的資料，Cache 未命中時執行模組實體來源。
-    /// </summary>
-    public Task<TValue?> GetAsync(TKey key, CancellationToken ct = default)
-    {
-        string cacheKey = BuildEntityCacheKey(key);
-        return GetOrCreateAsync(cacheKey, DefaultOptions, token => GetSourceAsync(key, token), ct);
-    }
-    /// <summary>
-    /// 移除指定 Key 的模組 Cache。
-    /// </summary>
-    public Task RemoveAsync(TKey key, CancellationToken ct = default)
-    {
-        return RemoveAsync(BuildEntityCacheKey(key), DefaultOptions, ct);
-    }
-    #endregion
-
-    #region Protected Virtual
-    /// <summary>
-    /// 建立指定資料 Key 的完整模組 Cache Key。
-    /// </summary>
-    protected virtual string BuildEntityCacheKey(TKey key)
-    {
-        return BuildCacheKey(key);
-    }
-    #endregion
-
-    #region Protected
-    /// <summary>
-    /// 取得 Cache 全部未命中時的模組實體資料。
-    /// </summary>
-    protected abstract Task<TValue?> GetSourceAsync(TKey key, CancellationToken ct);
     #endregion
 }

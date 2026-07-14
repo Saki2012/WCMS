@@ -743,9 +743,9 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
     {
         return fieldName switch
         {
-            nameof(SurveySubmissions.UserName) => I18nCache.GetLabel<SurveySubmissions>(x => x.UserName),
-            nameof(SurveySubmissions.Email) => I18nCache.GetLabel<SurveySubmissions>(x => x.Email),
-            nameof(SurveySubmissions.ContactPhone) => I18nCache.GetLabel<SurveySubmissions>(x => x.ContactPhone),
+            nameof(SurveySubmissions.UserName) => I18n.GetLabel<SurveySubmissions>(x => x.UserName),
+            nameof(SurveySubmissions.Email) => I18n.GetLabel<SurveySubmissions>(x => x.Email),
+            nameof(SurveySubmissions.ContactPhone) => I18n.GetLabel<SurveySubmissions>(x => x.ContactPhone),
             _ => fieldName,
         };
     }

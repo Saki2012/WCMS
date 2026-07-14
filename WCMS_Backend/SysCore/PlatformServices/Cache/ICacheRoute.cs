@@ -1,20 +1,20 @@
 namespace WCMS.SysCore.PlatformServices.Cache;
 
 /// <summary>
-/// 定義 WCMS 所有 Cache 共同使用的 Local 與 Distributed 路由合約。
+/// 定義 WCMS 所有 Cache 共同使用的 Local 與 Distributed 模式路由合約。
 /// </summary>
 public interface ICacheRoute
 {
     /// <summary>
-    /// 依指定策略讀取 Cache。
+    /// 依指定模式讀取 Cache。
     /// </summary>
     Task<CacheReadResult<T>> GetAsync<T>(string key, CacheOptions options, CancellationToken ct = default);
     /// <summary>
-    /// 依指定策略寫入 Cache。
+    /// 依指定模式寫入 Cache。
     /// </summary>
     Task SetAsync<T>(string key, T? value, CacheOptions options, CancellationToken ct = default);
     /// <summary>
-    /// 依指定策略移除 Cache。
+    /// 依指定模式移除 Cache。
     /// </summary>
     Task RemoveAsync(string key, CacheOptions options, CancellationToken ct = default);
     /// <summary>

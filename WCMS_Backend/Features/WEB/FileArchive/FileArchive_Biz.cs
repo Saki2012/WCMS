@@ -158,8 +158,8 @@ public class FileArchiveBiz(BizDeps bizDeps) : BizService<FileArchive>(bizDeps),
     /// <param name="header"></param>
     private void CheckDataIsEmpty(FileArchive set)
     {
-        if (set.CategoriesId == "") Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<FileArchive>(x => x.CategoriesId));
-        if (set._FileArchiveInfo.FirstOrDefault(p => p.Lang == SiteDefaultLang) == null || set._FileArchiveInfo.FirstOrDefault(p => p.Lang == SiteDefaultLang).Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, SiteDefaultLang.ToLabel(), I18nCache.GetLabel<FileArchiveInfo>(x => x.Title));
+        if (set.CategoriesId == "") Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<FileArchive>(x => x.CategoriesId));
+        if (set._FileArchiveInfo.FirstOrDefault(p => p.Lang == SiteDefaultLang) == null || set._FileArchiveInfo.FirstOrDefault(p => p.Lang == SiteDefaultLang).Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, SiteDefaultLang.ToLabel(), I18n.GetLabel<FileArchiveInfo>(x => x.Title));
     }
     /// <summary>
     /// 如果沒有上傳檔案成功的項目，就移除該項目防呆
@@ -197,8 +197,8 @@ public class FileArchiveBiz(BizDeps bizDeps) : BizService<FileArchive>(bizDeps),
 
     private void CheckUrlIsEmpty(FileArchiveUrlDetail dt)
     {
-        if (!dt.Url.IsNullOrEmpty() && dt.UrlDescription.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<FileArchiveUrlDetail>(x => x.UrlDescription));
-        if (dt.Url.IsNullOrEmpty() && !dt.UrlDescription.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<FileArchiveUrlDetail>(x => x.Url));
+        if (!dt.Url.IsNullOrEmpty() && dt.UrlDescription.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<FileArchiveUrlDetail>(x => x.UrlDescription));
+        if (dt.Url.IsNullOrEmpty() && !dt.UrlDescription.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<FileArchiveUrlDetail>(x => x.Url));
     }
     #endregion
 }

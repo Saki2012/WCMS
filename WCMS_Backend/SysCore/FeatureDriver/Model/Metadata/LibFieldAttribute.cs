@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.FeatureDriver.Resx;
@@ -33,6 +34,10 @@ public interface ILibFieldAttr : ILibDisplayAttr
     /// API 欄位讀寫模式。
     /// </summary>
     ApiFieldMode ApiMode { get; }
+    /// <summary>
+    /// 欄位是否必須提供有效內容。
+    /// </summary>
+    bool Required { get; }
     #endregion
 }
 
@@ -40,7 +45,7 @@ public interface ILibFieldAttr : ILibDisplayAttr
 /// WCMS 一般欄位屬性。
 /// </summary>
 [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
-public sealed class LibFieldAttribute : Attribute, ILibFieldAttr
+public sealed class LibFieldAttribute : ValidationAttribute, ILibFieldAttr
 {
     #region Property
     /// <summary>
@@ -57,6 +62,11 @@ public sealed class LibFieldAttribute : Attribute, ILibFieldAttr
     /// API 欄位讀寫模式。
     /// </summary>
     public ApiFieldMode ApiMode { get; }
+
+    /// <summary>
+    /// 欄位是否必須提供有效內容。
+    /// </summary>
+    public bool Required { get; set; }
     #endregion
 
     #region Public
@@ -85,6 +95,16 @@ public sealed class LibFieldAttribute : Attribute, ILibFieldAttr
         AliasKey = string.IsNullOrWhiteSpace(aliasKey) ? null : aliasKey;
     }
     #endregion
+
+    #region Protected
+    /// <summary>
+    /// 依正規化後的欄位值執行必填驗證。
+    /// </summary>
+    protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
+    {
+        return LibFieldValidationHelper.ValidateRequired(Required, value);
+    }
+    #endregion
 }
 
 /// <summary>
@@ -108,6 +128,11 @@ public sealed class LibStrAttribute : StringLengthAttribute, ILibFieldAttr
     /// API 欄位讀寫模式。
     /// </summary>
     public ApiFieldMode ApiMode { get; }
+
+    /// <summary>
+    /// 欄位是否必須提供有效內容。
+    /// </summary>
+    public bool Required { get; set; }
     #endregion
 
     #region Public
@@ -128,6 +153,52 @@ public sealed class LibStrAttribute : StringLengthAttribute, ILibFieldAttr
         ApiMode = apiMode;
         DescKey = descKey;
         AliasKey = string.IsNullOrWhiteSpace(aliasKey) ? null : aliasKey;
+    }
+    #endregion
+
+    #region Protected
+    /// <summary>
+    /// 先執行必填驗證，再執行原字串長度驗證。
+    /// </summary>
+    protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
+    {
+        ValidationResult? requiredResult = LibFieldValidationHelper.ValidateRequired(Required, value);
+        if (requiredResult != null) return requiredResult;
+        if (base.IsValid(value)) return ValidationResult.Success;
+        return new ValidationResult(FormatErrorMessage(validationContext.DisplayName));
+    }
+    #endregion
+}
+
+/// <summary>
+/// LibField / LibStr 共用欄位值驗證工具。
+/// </summary>
+internal static class LibFieldValidationHelper
+{
+    #region Property
+    private const string RequiredErrorMessage = "WCMS_REQUIRED";
+    #endregion
+
+    #region Public
+    /// <summary>
+    /// 必填欄位沒有內容時回傳驗證錯誤。
+    /// </summary>
+    public static ValidationResult? ValidateRequired(bool required, object? value)
+    {
+        if (!required || !IsEmptyValue(value)) return ValidationResult.Success;
+        return new ValidationResult(RequiredErrorMessage);
+    }
+    #endregion
+
+    #region Private
+    /// <summary>
+    /// 判斷目前值是否沒有可用內容。
+    /// </summary>
+    private static bool IsEmptyValue(object? value)
+    {
+        if (value == null) return true;
+        if (value is string text) return string.IsNullOrWhiteSpace(text);
+        return value is ICollection collection && collection.Count == 0;
     }
     #endregion
 }

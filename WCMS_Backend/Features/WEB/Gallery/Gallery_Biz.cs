@@ -185,7 +185,7 @@ public class GalleryBiz(BizDeps bizDeps) : BizService<Gallery>(bizDeps), IBizSer
 
     private void CheckIsEmpty(Gallery set)
     {
-        if (set.Validate_Start == default) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<Gallery>(x => x.Validate_Start));
+        if (set.Validate_Start == default) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<Gallery>(x => x.Validate_Start));
 
         if (!LibData.HasData(set._GalleryPhotos)) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00019);
     }
@@ -228,7 +228,7 @@ public class GalleryBiz(BizDeps bizDeps) : BizService<Gallery>(bizDeps), IBizSer
     {
         galleryInfo.ForEach(info =>
         {
-            if (info.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.AACode00001, info.Lang.ToLabel(), I18nCache.GetLabel<GalleryInfo>(x => x.Title));
+            if (info.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.AACode00001, info.Lang.ToLabel(), I18n.GetLabel<GalleryInfo>(x => x.Title));
         });
     }
     /// <summary>
@@ -239,7 +239,7 @@ public class GalleryBiz(BizDeps bizDeps) : BizService<Gallery>(bizDeps), IBizSer
     {
         photoInfo.ForEach(info =>
         {
-            if (info.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.AACode00002, info.Lang.ToLabel(), I18nCache.GetLabel<GalleryPhotosInfo>(x => x.Title));
+            if (info.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.AACode00002, info.Lang.ToLabel(), I18n.GetLabel<GalleryPhotosInfo>(x => x.Title));
         });
     }
     #endregion

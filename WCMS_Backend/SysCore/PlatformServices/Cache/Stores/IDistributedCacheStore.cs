@@ -6,7 +6,7 @@ namespace WCMS.SysCore.PlatformServices.Cache.Stores;
 public interface IDistributedCacheStore
 {
     /// <summary>
-    /// 取得 Distributed Cache 是否已啟用並完成 Provider 註冊。
+    /// 取得 Distributed Cache 是否由設定正式啟用。
     /// </summary>
     bool IsEnabled { get; }
     /// <summary>

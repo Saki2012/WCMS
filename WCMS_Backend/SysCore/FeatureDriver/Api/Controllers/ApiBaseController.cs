@@ -8,6 +8,7 @@ using WCMS.Features.IAM.Auth;
 using WCMS.SysCore.Auditing.ErrorHandling;
 using WCMS.SysCore.FeatureDriver.Api.Contracts;
 using WCMS.SysCore.FeatureDriver.Api.Metadata;
+using WCMS.SysCore.I18n;
 using WCMS.SysCore.Observability.OperateLog;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
 using static WCMS.SysCore.Enum.SysEnum;
@@ -25,6 +26,7 @@ public abstract class ApiBaseController : ControllerBase, IAsyncActionFilter
     private IOutputCacheStore? _cacheStore;
     private IOperateLog? _operateLog;
     private ICurrentUserAccessor? _current;
+    private I18nCache? _i18n;
     /// <summary>
     /// 系統訊息容器。
     /// </summary>
@@ -41,6 +43,10 @@ public abstract class ApiBaseController : ControllerBase, IAsyncActionFilter
     /// 目前使用者存取器。
     /// </summary>
     protected ICurrentUserAccessor Current => _current ??= HttpContext.RequestServices.GetRequiredService<ICurrentUserAccessor>();
+    /// <summary>
+    /// 多語系顯示文字 Cache。
+    /// </summary>
+    protected I18nCache I18n => _i18n ??= HttpContext.RequestServices.GetRequiredService<I18nCache>();
     /// <summary>
     /// 目前操作使用者。
     /// </summary>
@@ -122,7 +128,7 @@ public abstract class ApiBaseController : ControllerBase, IAsyncActionFilter
         LibPermissionChecker checker = HttpContext.RequestServices.GetRequiredService<LibPermissionChecker>();
         bool ok = await checker.HasPermissionAsync(Current.User.UserId, meta.ProgId, requiredAct, context.HttpContext.RequestAborted);
         if (ok) return true;
-        string actionName = EnumHelper.GetEnumDisplayName(requiredAct);
+        string actionName = I18n.GetEnumLabel(requiredAct);
         Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00029, actionName);
         context.Result = new JsonResult(Message.Messages.LastOrDefault()?.Message) { StatusCode = StatusCodes.Status403Forbidden };
         return false;

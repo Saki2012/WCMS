@@ -74,12 +74,12 @@ public class PageManagementBiz(BizDeps bizDeps) : BizService<PageManagement>(biz
     {
         Dictionary<string, string> dict = new()
         {
-            { ProgKeys.WEB.PageManagement, I18nCache.GetFieldLabel(typeof(ProgKeys.WEB), nameof(ProgKeys.WEB.PageManagement))},
-            { ProgKeys.WEB.Announcement, I18nCache.GetFieldLabel(typeof(ProgKeys.WEB), nameof(ProgKeys.WEB.Announcement))},
-            { ProgKeys.WEB.FileArchive, I18nCache.GetFieldLabel(typeof(ProgKeys.WEB), nameof(ProgKeys.WEB.FileArchive))},
-            { ProgKeys.WEB.WebResource, I18nCache.GetFieldLabel(typeof(ProgKeys.WEB), nameof(ProgKeys.WEB.WebResource))},
-            { ProgKeys.WEB.Gallery, I18nCache.GetFieldLabel(typeof(ProgKeys.WEB), nameof(ProgKeys.WEB.Gallery))},
-            { ProgKeys.MAT.Material, I18nCache.GetFieldLabel(typeof(ProgKeys.MAT), nameof(ProgKeys.MAT.Material))},
+            { ProgKeys.WEB.PageManagement, I18n.GetFieldLabel(typeof(ProgKeys.WEB), nameof(ProgKeys.WEB.PageManagement))},
+            { ProgKeys.WEB.Announcement, I18n.GetFieldLabel(typeof(ProgKeys.WEB), nameof(ProgKeys.WEB.Announcement))},
+            { ProgKeys.WEB.FileArchive, I18n.GetFieldLabel(typeof(ProgKeys.WEB), nameof(ProgKeys.WEB.FileArchive))},
+            { ProgKeys.WEB.WebResource, I18n.GetFieldLabel(typeof(ProgKeys.WEB), nameof(ProgKeys.WEB.WebResource))},
+            { ProgKeys.WEB.Gallery, I18n.GetFieldLabel(typeof(ProgKeys.WEB), nameof(ProgKeys.WEB.Gallery))},
+            { ProgKeys.MAT.Material, I18n.GetFieldLabel(typeof(ProgKeys.MAT), nameof(ProgKeys.MAT.Material))},
         };
         SpecGetSiteMenuUsedProgList(dict);
         return dict;
@@ -125,8 +125,8 @@ public class PageManagementBiz(BizDeps bizDeps) : BizService<PageManagement>(biz
         if (!SpecSettings.AACheck) return;
         set._PageManagementDetail.ForEach(dt =>
         {
-            if (dt.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.AACode00003, dt.Lang.ToLabel(), I18nCache.GetLabel<PageManagementDetail>(x => x.Title));
-            if (LibAAData.CheckAAContent(dt.Content, Message, out string newContent)) dt.Content = newContent;
+            if (dt.Title.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.AACode00003, dt.Lang.ToLabel(), I18n.GetLabel<PageManagementDetail>(x => x.Title));
+            if (LibAAData.CheckAAContent(dt.Content, Message, I18n, out string newContent)) dt.Content = newContent;
         });
     }
     /// <summary>

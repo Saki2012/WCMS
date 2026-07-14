@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.OutputCaching;
@@ -12,18 +12,17 @@ using System.Data;
 using System.Globalization;
 using System.IO.Compression;
 using System.Reflection;
-using System.Text.Json.Serialization.Metadata;
 using System.Text.RegularExpressions;
 using WCMS.Features._Resx;
 using WCMS.Features.COMM.Calendar;
 using WCMS.Features.COMM.Person;
 using WCMS.Features.IAM.Account;
 using WCMS.Features.IAM.Auth;
-using WCMS.Features.IAM.RolePermission;
 using WCMS.Features.WEB.SiteMenuSetting;
 using WCMS.SysCore;
 using WCMS.SysCore.AppSettingsOptions;
 using WCMS.SysCore.Auditing.ErrorHandling;
+using WCMS.SysCore.Constants;
 using WCMS.SysCore.Enum;
 using WCMS.SysCore.FeatureDriver.Api.Contracts;
 using WCMS.SysCore.FeatureDriver.Api.Filter;
@@ -37,7 +36,6 @@ using WCMS.SysCore.Persistence;
 using WCMS.SysCore.Persistence.Diagnostics;
 using WCMS.SysCore.PlatformServices.FileManagement;
 using WCMS.SysCore.PlatformServices.Cache;
-using WCMS.SysCore.PlatformServices.Cache.Stores;
 using WCMS.SysCore.Security.Hardening;
 using WCMS.SysCore.Security.Hardening.AccessControl;
 using WCMS.SysCore.Security.IdentityAccess;
@@ -55,7 +53,8 @@ public class Program
         HardeningSetup.ApplyHostSecurity(builder);
         AppSetup.BasicSetting(builder);
         AppSetup.AddConnections(builder.Services, builder.Configuration);
-        AppSetup.AddCoreServices(builder.Services, builder.Configuration);
+        AppSetup.AddCoreServices(builder.Services);
+        CacheModuleSetup.AddServices(builder.Services, builder.Configuration);
         AppSetup.AddAppSettingsOptions(builder.Services, builder.Configuration);
         HardeningSetup.AddServices(builder.Services, builder.Configuration);
         IdentityAccessSetup.AddServices(builder.Services, builder.Configuration);
@@ -130,9 +129,6 @@ public class Program
         /// </summary>
         public static void AddConnections(IServiceCollection services, IConfiguration cfg)
         {
-            //暫時先不用Redis，等開始能架Docker包Linux後再來
-            //services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(cfg.GetConnectionString(SysParam.Configuration.ConnectionStrings.RedisConnection)));
-
             var cs = cfg.GetConnectionString(SysParam.Configuration.ConnectionStrings.SqlConnection);
             if (string.IsNullOrWhiteSpace(cs)) throw new InvalidOperationException("Missing ConnectionStrings:SqlConnection. 請在 appsettings.* 或使用環境變數/Secrets 設定。");
 #if DEBUG
@@ -151,10 +147,11 @@ public class Program
         /// <summary>
         /// 核心服務/DI（Controller、Biz、Repository）
         /// </summary>
-        public static void AddCoreServices(IServiceCollection services, IConfiguration cfg)
+        public static void AddCoreServices(IServiceCollection services)
         {
             services.AddControllers(options =>
             {
+                options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
                 options.Filters.Add<SpecApiAccessFilter>();
             }).AddJsonOptions(opt =>
             {
@@ -162,14 +159,6 @@ public class Program
                 opt.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
                 opt.JsonSerializerOptions.WriteIndented = false;
                 opt.JsonSerializerOptions.UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow;
-            });
-            services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(o =>
-            {
-                if (o.SerializerOptions.TypeInfoResolver == null &&
-                    o.SerializerOptions.TypeInfoResolverChain.Count == 0)
-                {
-                    o.SerializerOptions.TypeInfoResolverChain.Add(new DefaultJsonTypeInfoResolver());
-                }
             });
             services.AddScoped(typeof(BasicRepository<>), typeof(BasicRepository<>));
             services.AddScoped<DbRepositoryProvider>();
@@ -181,44 +170,6 @@ public class Program
             services.AddScoped<ICaptchaBiz, Captcha_BIZ>();
             RegisterBizServices(services);
             RegisterSystemVersionBiz(services);
-            // 暫時先不用Redis，等開始能架Docker包Linux後再來
-            //services.AddStackExchangeRedisOutputCache(o =>
-            //{
-            //    // 用你的連線字串；這會由擴充方法內部建立連線
-            //    o.Configuration = cfg.GetConnectionString(SysParam.Configuration.ConnectionStrings.RedisConnection);
-            //    o.InstanceName = "oc:";   // Redis key 前綴，避免與其他功能衝突
-            //});
-
-            services.AddOutputCache(options =>
-            {
-                // 清單快取
-                options.AddPolicy(SysParam.OutputCachePolicies.ListCache, b => b
-                    .Expire(TimeSpan.FromSeconds(60))
-                    .SetVaryByQuery(SysParam.Wildcards.All)                    // 條件、分頁都影響快取
-                    .SetVaryByHeader(SysParam.HttpHeaders.AcceptLanguage)
-                    .Tag(SysParam.OutputCacheTags.List)                        // 共用 Tag
-                );
-                // 明細快取
-                options.AddPolicy(SysParam.OutputCachePolicies.DetailCache, b => b
-                    .Expire(TimeSpan.FromSeconds(60))
-                    .SetVaryByQuery(SysParam.ApiQuery.InternalId)           // 按 QueryString 分片
-                    .SetVaryByHeader(SysParam.HttpHeaders.AcceptLanguage)
-                    .Tag(SysParam.OutputCacheTags.Detail)                      // 共用 Tag
-                );
-                // 永久參數
-                options.AddPolicy(SysParam.OutputCachePolicies.PermanentCache, b => b
-                    .Expire(TimeSpan.FromDays(365))
-                    .SetVaryByHeader(SysParam.HttpHeaders.AcceptLanguage)
-                    .Tag(SysParam.OutputCacheTags.Permanent));
-            });
-
-
-            services.AddMemoryCache();
-            services.Configure<CacheSettings>(cfg.GetSection(CacheSettings.SectionName));
-            services.AddSingleton<ILocalCacheStore, MemoryCacheStore>();
-            services.AddSingleton<IDistributedCacheStore, DistributedCacheStore>();
-            services.AddSingleton<ICacheRoute, CacheRoute>();
-            services.AddSingleton<CacheService>();
         }
         /// <summary>
         /// 反射註冊 BizService。
@@ -305,7 +256,8 @@ public class Program
                 opt.InvalidModelStateResponseFactory = context =>
                 {
                     // 宣告變數
-                    var response = BuildInvalidModelResponse(context);
+                    var i18n = context.HttpContext.RequestServices.GetRequiredService<I18nCache>();
+                    var response = BuildInvalidModelResponse(context, i18n);
 
                     // return
                     return new BadRequestObjectResult(response);
@@ -531,14 +483,14 @@ public class Program
     /// <summary>
     /// 建立自訂的 400 驗證回應
     /// </summary>
-    private static ApiResponse<string> BuildInvalidModelResponse(ActionContext context)
+    private static ApiResponse<string> BuildInvalidModelResponse(ActionContext context, I18nCache i18n)
     {
         // 宣告變數
         ErrorHelper message = new();
 
         // 執行 function
         foreach (var item in context.ModelState.Where(x => x.Value?.Errors.Count > 0))
-            AddInvalidModelMessage(context, message, item.Key);
+            AddInvalidModelMessage(context, message, item.Key, i18n);
 
         if (!message.Messages.Any())
             message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00035, "資料");
@@ -550,10 +502,10 @@ public class Program
     /// <summary>
     /// 依欄位驗證結果加入訊息
     /// </summary>
-    private static void AddInvalidModelMessage(ActionContext context, ErrorHelper message, string key)
+    private static void AddInvalidModelMessage(ActionContext context, ErrorHelper message, string key, I18nCache i18n)
     {
         var prop = FindModelProperty(context, key);
-        var displayName = prop == null ? GetFieldName(key) : $"{I18nCache.GetLabel(prop)}";
+        var displayName = prop == null ? GetFieldName(key) : i18n.GetLabel(prop);
         var errorText = context.ModelState[key]?.Errors.FirstOrDefault()?.ErrorMessage ?? string.Empty;
         var maxLength = GetMaxLength(prop);
         if (maxLength.HasValue && !IsRequiredError(errorText)) message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00034, displayName, maxLength.Value);

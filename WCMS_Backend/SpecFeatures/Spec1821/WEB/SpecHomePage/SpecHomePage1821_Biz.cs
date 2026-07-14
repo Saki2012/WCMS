@@ -74,21 +74,21 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
     {
         if (header == null)
         {
-            Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SpecHomePage1821Model_DTO>(x => x.SpecHomePage1821));
+            Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<SpecHomePage1821Model_DTO>(x => x.SpecHomePage1821));
             return;
         }
-        CheckRequired(header.Lang, I18nCache.GetLabel<SpecHomePage1821Model_DTO>(x => x.Lang));
-        CheckRequired(header.Card1Title, I18nCache.GetLabel<SpecHomePage1821Model_DTO>(x => x.Card1Title));
-        CheckRequired(header.Card1PicId, I18nCache.GetLabel<SpecHomePage1821Model_DTO>(x => x.Card1PicId));
-        CheckRequired(header.Card2Title, I18nCache.GetLabel<SpecHomePage1821Model_DTO>(x => x.Card2Title));
-        CheckRequired(header.Card2PicId, I18nCache.GetLabel<SpecHomePage1821Model_DTO>(x => x.Card2PicId));
-        CheckRequired(header.Section4Title, I18nCache.GetLabel<SpecHomePage1821Model_DTO>(x => x.Section4Title));
-        CheckRequired(header.Section4SubTitle, I18nCache.GetLabel<SpecHomePage1821Model_DTO>(x => x.Section4SubTitle));
-        CheckRequired(header.LinkViewMore, I18nCache.GetLabel<SpecHomePage1821Model_DTO>(x => x.LinkViewMore));
+        CheckRequired(header.Lang, I18n.GetLabel<SpecHomePage1821Model_DTO>(x => x.Lang));
+        CheckRequired(header.Card1Title, I18n.GetLabel<SpecHomePage1821Model_DTO>(x => x.Card1Title));
+        CheckRequired(header.Card1PicId, I18n.GetLabel<SpecHomePage1821Model_DTO>(x => x.Card1PicId));
+        CheckRequired(header.Card2Title, I18n.GetLabel<SpecHomePage1821Model_DTO>(x => x.Card2Title));
+        CheckRequired(header.Card2PicId, I18n.GetLabel<SpecHomePage1821Model_DTO>(x => x.Card2PicId));
+        CheckRequired(header.Section4Title, I18n.GetLabel<SpecHomePage1821Model_DTO>(x => x.Section4Title));
+        CheckRequired(header.Section4SubTitle, I18n.GetLabel<SpecHomePage1821Model_DTO>(x => x.Section4SubTitle));
+        CheckRequired(header.LinkViewMore, I18n.GetLabel<SpecHomePage1821Model_DTO>(x => x.LinkViewMore));
         CheckUrl(header.Card1Link);
         CheckUrl(header.Card2Link);
         CheckUrl(header.LinkViewMore);
-        CheckOptionsJson(header.LinkOptions, I18nCache.GetLabel<SpecHomePage1821Model_DTO>(x => x.LinkOptions));
+        CheckOptionsJson(header.LinkOptions, I18n.GetLabel<SpecHomePage1821Model_DTO>(x => x.LinkOptions));
     }
     /// <summary>
     /// 檢查 Banner 圖片與連結格式。
@@ -97,7 +97,7 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
     {
         foreach (var row in rows)
         {
-            CheckRequired(row.BannerFileId, I18nCache.GetLabel<SpecHomePage1821_Banner_DTO>(x => x.BannerFileId));
+            CheckRequired(row.BannerFileId, I18n.GetLabel<SpecHomePage1821_Banner_DTO>(x => x.BannerFileId));
             CheckUrl(row.Link);
         }
     }
@@ -108,17 +108,17 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
     {
         foreach (var row in rows)
         {
-            CheckRequired(row.IconFileId, I18nCache.GetLabel<SpecHomePage1821_Shortcut_DTO>(x => x.IconFileId));
-            CheckRequired(row.Title, I18nCache.GetLabel<SpecHomePage1821_Shortcut_DTO>(x => x.Title));
+            CheckRequired(row.IconFileId, I18n.GetLabel<SpecHomePage1821_Shortcut_DTO>(x => x.IconFileId));
+            CheckRequired(row.Title, I18n.GetLabel<SpecHomePage1821_Shortcut_DTO>(x => x.Title));
             if (row.IsLink)
             {
-                CheckRequired(row.Link, I18nCache.GetLabel<SpecHomePage1821_Shortcut_DTO>(x => x.Link));
-                CheckRequired(row.LinkPicId, I18nCache.GetLabel<SpecHomePage1821_Shortcut_DTO>(x => x.LinkPicId));
+                CheckRequired(row.Link, I18n.GetLabel<SpecHomePage1821_Shortcut_DTO>(x => x.Link));
+                CheckRequired(row.LinkPicId, I18n.GetLabel<SpecHomePage1821_Shortcut_DTO>(x => x.LinkPicId));
                 CheckUrl(row.Link);
                 continue;
             }
             bool hasVisibleModuleItem = moduleItems.Any(item => item.ParentRowId == row.RowId);
-            if (!hasVisibleModuleItem) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SpecHomePage1821Model_DTO>(x => x.SpecHomePage1821_ShortcutModuleItem));
+            if (!hasVisibleModuleItem) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<SpecHomePage1821Model_DTO>(x => x.SpecHomePage1821_ShortcutModuleItem));
         }
     }
     /// <summary>
@@ -128,11 +128,11 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
     {
         foreach (var row in rows)
         {
-            CheckRequired(row.Title, I18nCache.GetLabel<SpecHomePage1821_ShortcutModuleItem_DTO>(x => x.Title));
-            CheckRequired(row.ModuleOptions, I18nCache.GetLabel<SpecHomePage1821_ShortcutModuleItem_DTO>(x => x.ModuleOptions));
-            CheckRequired(row.MoreViewLink, I18nCache.GetLabel<SpecHomePage1821_ShortcutModuleItem_DTO>(x => x.MoreViewLink));
+            CheckRequired(row.Title, I18n.GetLabel<SpecHomePage1821_ShortcutModuleItem_DTO>(x => x.Title));
+            CheckRequired(row.ModuleOptions, I18n.GetLabel<SpecHomePage1821_ShortcutModuleItem_DTO>(x => x.ModuleOptions));
+            CheckRequired(row.MoreViewLink, I18n.GetLabel<SpecHomePage1821_ShortcutModuleItem_DTO>(x => x.MoreViewLink));
             CheckModuleType(row.ModuleType);
-            CheckOptionsJson(row.ModuleOptions, I18nCache.GetLabel<SpecHomePage1821_ShortcutModuleItem_DTO>(x => x.ModuleOptions));
+            CheckOptionsJson(row.ModuleOptions, I18n.GetLabel<SpecHomePage1821_ShortcutModuleItem_DTO>(x => x.ModuleOptions));
             CheckUrl(row.MoreViewLink);
         }
     }
@@ -212,7 +212,7 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
     private void CheckModuleType(SpecHomePageModuleType moduleType)
     {
         if (moduleType is SpecHomePageModuleType.Announcement or SpecHomePageModuleType.FileArchive) return;
-        Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00000, $"{I18nCache.GetLabel<SpecHomePage1821_ShortcutModuleItem_DTO>(x => x.ModuleType)}只允許公告或檔案室。");
+        Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00000, $"{I18n.GetLabel<SpecHomePage1821_ShortcutModuleItem_DTO>(x => x.ModuleType)}只允許公告或檔案室。");
     }
     /// <summary>
     /// 檢查查詢條件 JSON 是否可被解析。

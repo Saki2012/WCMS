@@ -154,7 +154,7 @@ public class SpecUSRBiz(BizDeps bizDeps) : BizService<SpecUSRModel>(bizDeps), IB
     }
     private void CheckIsEmpty(SpecUSRModel set)
     {
-        if (set.SpecUSR.CategoryId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<SpecUSRModel>(x => x.CategoryId));
+        if (set.SpecUSR.CategoryId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<SpecUSRModel>(x => x.CategoryId));
     }
     /// <summary>
     /// 重新組合多筆資料(類別、狀態、標籤)

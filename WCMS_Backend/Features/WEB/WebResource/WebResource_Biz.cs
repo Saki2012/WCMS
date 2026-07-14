@@ -132,7 +132,7 @@ public class WebResourceBiz(BizDeps bizDeps) : BizService<WebResource>(bizDeps),
     protected void CheckIsEmpty(WebResource set)
     {
         if (set._WebResourceInfo.FirstOrDefault(p => p.Lang == SiteDefaultLang) == null || set._WebResourceInfo.FirstOrDefault(p => p.Lang == SiteDefaultLang).Title.IsNullOrEmpty())
-            Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, SiteDefaultLang.ToLabel(), I18nCache.GetLabel<WebResourceInfo>(x => x.Title));
+            Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, SiteDefaultLang.ToLabel(), I18n.GetLabel<WebResourceInfo>(x => x.Title));
     }
     #endregion  
 

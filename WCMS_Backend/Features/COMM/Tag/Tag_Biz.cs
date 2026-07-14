@@ -40,7 +40,7 @@ public class TagBiz(BizDeps bizDeps) : BizService<TagData>(bizDeps), IBizService
     private void CheckData(TagData data)
     {
         bool isEmpty = data._TagDetail.Any(item => item.Lang == LangCode.zhtw && item.TagName.IsNullOrEmpty());
-        if (isEmpty) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, LangCode.zhtw.ToLabel(), I18nCache.GetLabel<TagDetail>(item => item.TagName));
+        if (isEmpty) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, LangCode.zhtw.ToLabel(), I18n.GetLabel<TagDetail>(item => item.TagName));
     }
     /// <summary>
     /// 檢查標籤是否已被對應功能資料使用。

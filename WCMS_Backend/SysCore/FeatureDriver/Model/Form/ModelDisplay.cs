@@ -4,16 +4,23 @@ using WCMS.SysCore.FeatureDriver.Api.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.FeatureDriver.Model.MetaData;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Library;
 namespace WCMS.SysCore.FeatureDriver.Model.Form;
 
 /// <summary>
 /// Form Model 模型顯示名稱。
 /// </summary>
 /// <typeparam name="TFormModel">外部 API Form Model 型別。</typeparam>
-public class ModelDisplay<TFormModel> where TFormModel : IFormModel
+public class ModelDisplay<TFormModel>(ModelTypeMetadataCache modelMetadata, I18nCache i18n) where TFormModel : IFormModel
 {
     #region Property
+    /// <summary>
+    /// Model Reflection Metadata Cache。
+    /// </summary>
+    private ModelTypeMetadataCache Metadata { get; } = modelMetadata;
+    /// <summary>
+    /// 多語系顯示文字 Cache。
+    /// </summary>
+    private I18nCache I18n { get; } = i18n;
     /// <summary>
     /// Form Model 與 Detail Graph 欄位描述。
     /// </summary>
@@ -24,7 +31,7 @@ public class ModelDisplay<TFormModel> where TFormModel : IFormModel
             var result = new ModelMetadata
             {
                 ModelId = typeof(TFormModel).Name,
-                ModelDisplayName = I18nCache.GetLabel<TFormModel>(),
+                ModelDisplayName = I18n.GetLabel<TFormModel>(),
                 Tables = []
             };
             if (typeof(DbModel).IsAssignableFrom(typeof(TFormModel))) AddTable(result.Tables, typeof(TFormModel), ResolveTableId(typeof(TFormModel)));
@@ -56,9 +63,9 @@ public class ModelDisplay<TFormModel> where TFormModel : IFormModel
     /// <summary>
     /// 加入組合式 Form Model 明確宣告的 Root 與 Graph 資料表。
     /// </summary>
-    private static void AddFormTables(List<TableMetadata> tables)
+    private void AddFormTables(List<TableMetadata> tables)
     {
-        foreach (PropertyInfo prop in PropertyAccessorCache.GetProperties(typeof(TFormModel)))
+        foreach (PropertyInfo prop in Metadata.GetProperties(typeof(TFormModel)))
         {
             bool isRoot = prop.IsDefined(typeof(FormRootAttribute), true);
             bool isGraph = prop.IsDefined(typeof(FormGraphPathAttribute), true);
@@ -70,12 +77,12 @@ public class ModelDisplay<TFormModel> where TFormModel : IFormModel
     /// <summary>
     /// 加入目前型別的欄位表，並遞迴加入 Detail 集合表。
     /// </summary>
-    private static void AddTable(List<TableMetadata> tables, Type modelType, string tableId)
+    private void AddTable(List<TableMetadata> tables, Type modelType, string tableId)
     {
         if (tables.Any(p => p.TableId == tableId)) return;
         TableMetadata table = BuildTable(modelType, tableId);
         tables.Add(table);
-        foreach (var prop in PropertyAccessorCache.GetProperties(modelType).Where(p => IsListType(p.PropertyType) && !LibApiFieldPolicyHelper.ShouldHideFromSchema(p)))
+        foreach (var prop in Metadata.GetProperties(modelType).Where(p => IsListType(p.PropertyType) && !LibApiFieldPolicyHelper.ShouldHideFromSchema(p)))
         {
             Type? itemType = GetListItemType(prop.PropertyType);
             if (itemType == null) continue;
@@ -86,12 +93,12 @@ public class ModelDisplay<TFormModel> where TFormModel : IFormModel
     /// <summary>
     /// 建立單一資料表欄位描述。
     /// </summary>
-    private static TableMetadata BuildTable(Type modelType, string tableId)
+    private TableMetadata BuildTable(Type modelType, string tableId)
     {
-        TableMetadata result = new() { TableId = tableId, TableDisplayName = I18nCache.GetLabel(modelType), Columns = [] };
-        foreach (var prop in PropertyAccessorCache.GetProperties(modelType).Where(p => !IsListType(p.PropertyType) && !LibApiFieldPolicyHelper.ShouldHideFromSchema(p)))
+        TableMetadata result = new() { TableId = tableId, TableDisplayName = I18n.GetLabel(modelType), Columns = [] };
+        foreach (var prop in Metadata.GetProperties(modelType).Where(p => !IsListType(p.PropertyType) && !LibApiFieldPolicyHelper.ShouldHideFromSchema(p)))
         {
-            result.Columns.Add(new ColumnMetadata() { ColumnId = prop.Name, ColumnDisplayName = I18nCache.GetLabel(prop) });
+            result.Columns.Add(new ColumnMetadata() { ColumnId = prop.Name, ColumnDisplayName = I18n.GetLabel(prop) });
         }
         return result;
     }

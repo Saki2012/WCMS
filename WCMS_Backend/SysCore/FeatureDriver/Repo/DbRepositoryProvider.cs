@@ -5,13 +5,13 @@ using WCMS.SysCore.Interface;
 namespace WCMS.SysCore.FeatureDriver.Repo;
 
 /// <summary>
-/// 依 DB Model 型別動態解析並快取 Repository。
+/// 在目前 DI Scope 內依 DB Model 型別解析並保存 Repository 實例。
 /// </summary>
 public class DbRepositoryProvider(IServiceProvider provider) 
 {
     #region Property
-    private readonly IServiceProvider _provider = provider;
-    private readonly ConcurrentDictionary<Type, object> _cache = new();
+    private readonly IServiceProvider _serviceProvider = provider;
+    private readonly ConcurrentDictionary<Type, object> _repositories = new();
     #endregion
 
     #region Public
@@ -28,7 +28,7 @@ public class DbRepositoryProvider(IServiceProvider provider)
     public object GetRepo(Type dbModelType)
     {
         ValidateDbModelType(dbModelType);
-        return _cache.GetOrAdd(dbModelType, ResolveRepo);
+        return _repositories.GetOrAdd(dbModelType, ResolveRepo);
     }
     #endregion
 
@@ -47,7 +47,7 @@ public class DbRepositoryProvider(IServiceProvider provider)
     private object ResolveRepo(Type dbModelType)
     {
         Type repoType = typeof(BasicRepository<>).MakeGenericType(dbModelType);
-        return _provider.GetRequiredService(repoType);
+        return _serviceProvider.GetRequiredService(repoType);
     }
     #endregion
 }

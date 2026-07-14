@@ -39,7 +39,7 @@ public class SpecCalendar_Biz(BizDeps bizDeps, IHttpClientFactory httpClientFact
     {
         foreach (var detail in set.CalendarDetail)
         {
-            SpecOpenScheduleRuleBiz.ValidTimeFor(detail, x => x.Spec_OpenTime, x => x.Spec_CloseTime, Message);
+            SpecOpenScheduleRuleBiz.ValidTimeFor(detail, x => x.Spec_OpenTime, x => x.Spec_CloseTime, Message, I18n);
         }
     }
     #endregion

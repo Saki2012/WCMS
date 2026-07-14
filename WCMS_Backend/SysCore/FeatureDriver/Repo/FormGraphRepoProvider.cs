@@ -4,13 +4,13 @@ using WCMS.SysCore.Interface;
 namespace WCMS.SysCore.FeatureDriver.Repo;
 
 /// <summary>
-/// 建立並快取 Form Model 對應的 Graph Repository Scope。
+/// 在目前 DI Scope 內建立並保存 Form Model 對應的 Graph Repository Scope。
 /// </summary>
 public class FormGraphRepoProvider(DbRepositoryProvider dbRepositoryProvider) 
 {
     #region Property
     private readonly DbRepositoryProvider _dbRepositoryProvider = dbRepositoryProvider;
-    private readonly ConcurrentDictionary<Type, object> _cache = new();
+    private readonly ConcurrentDictionary<Type, object> _scopes = new();
     #endregion
 
     #region Public
@@ -19,7 +19,7 @@ public class FormGraphRepoProvider(DbRepositoryProvider dbRepositoryProvider)
     /// </summary>
     public IFormGraphRepoScope<TFormModel> GetScope<TFormModel>() where TFormModel : class
     {
-        object scope = _cache.GetOrAdd(typeof(TFormModel), _ => new FormGraphRepoScope<TFormModel>(_dbRepositoryProvider));
+        object scope = _scopes.GetOrAdd(typeof(TFormModel), _ => new FormGraphRepoScope<TFormModel>(_dbRepositoryProvider));
         return (IFormGraphRepoScope<TFormModel>)scope;
     }
     #endregion

@@ -30,7 +30,7 @@ public class PersonBiz(BizDeps bizDeps) : BizService<PersonModel>(bizDeps), IBiz
     }
     private void CheckIsEmpty(PersonModel header)
     {
-        if(header.PersonName.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<PersonModel>(x => x.PersonName));
+        if(header.PersonName.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<PersonModel>(x => x.PersonName));
     }
     #endregion
 }

@@ -74,8 +74,8 @@ public class MatCategoryBiz(BizDeps bizDeps) : CategoryBizBase<MatCategoryFormMo
     {
         bool hasEmptyField = fields.Any(item => string.IsNullOrWhiteSpace(item.Field));
         bool hasEmptyDisplay = fields.Any(item => !item._MatCategoryInfoFieldDisplay.Any(display => display.Lang == SiteDefaultLang && !string.IsNullOrWhiteSpace(display.FieldDisplayName)));
-        if (hasEmptyField) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18nCache.GetLabel<MatCategoryInfoField>(item => item.Field));
-        if (hasEmptyDisplay) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, SiteDefaultLang.ToLabel(), I18nCache.GetLabel<MatCategoryInfoFieldDisplay>(item => item.FieldDisplayName));
+        if (hasEmptyField) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<MatCategoryInfoField>(item => item.Field));
+        if (hasEmptyDisplay) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00015, SiteDefaultLang.ToLabel(), I18n.GetLabel<MatCategoryInfoFieldDisplay>(item => item.FieldDisplayName));
     }
     #endregion
 }

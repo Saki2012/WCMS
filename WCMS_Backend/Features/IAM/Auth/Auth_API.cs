@@ -1,6 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using System.Security.Claims;
 using WCMS.SysCore.Enum;
@@ -11,14 +10,13 @@ using WCMS.SysCore.Security.IdentityAccess.Authentication.CurrentUser;
 namespace WCMS.Features.IAM.Auth;
 
 [ApiController, Route(SysParam.ApiRoutes.Service)]
-public class AuthController(IMemoryCache cache, TokenService tokenSvc, IConfiguration cfg, IAuthService authBiz) : ControllerBase
+public class AuthController(LoginAttemptCache loginAttemptCache, TokenService tokenSvc, IConfiguration cfg, IAuthService authBiz) : ControllerBase
 {
     #region Property
-    private const string LoginAttemptCachePrefix = "login_attempts:";
     private readonly TokenService _tokenSvc = tokenSvc;
     private readonly IConfiguration _cfg = cfg;
     private readonly IAuthService _authBiz = authBiz;
-    private readonly IMemoryCache _cache = cache;
+    private readonly LoginAttemptCache _loginAttemptCache = loginAttemptCache;
     protected IOperateLog OperateLog => _OperateLog ??= HttpContext.RequestServices.GetRequiredService<IOperateLog>();
     private IOperateLog? _OperateLog;
     private ICurrentUserAccessor _Current;
@@ -37,21 +35,21 @@ public class AuthController(IMemoryCache cache, TokenService tokenSvc, IConfigur
     {
         OperateLog.AddOperateLog(nameof(Login), req.Account, JsonConvert.SerializeObject(req.Account), Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
         const string GENERIC_LOGIN_ERROR = "帳號或密碼錯誤";
-        var key = $"{LoginAttemptCachePrefix}{req.Account}";
-        var attempts = _cache.Get<int>(key);
+        CancellationToken ct = HttpContext.RequestAborted;
+        int attempts = await _loginAttemptCache.GetAttemptsAsync(req.Account, ct);
         if (attempts >= 3) return StatusCode(StatusCodes.Status429TooManyRequests, new { message = "登入嘗試過多，請稍後再試。" });
         var (ok, userInfo) = await _authBiz.CheckLoginValid(req.Account, req.Password);
         if (!ok)
         {
-            _cache.Set(key, attempts + 1, TimeSpan.FromMinutes(5)); // 五分鐘封鎖
+            await _loginAttemptCache.SetAttemptsAsync(req.Account, attempts + 1, ct);
             return Unauthorized(GENERIC_LOGIN_ERROR);
         }
-        _cache.Remove(key); // 成功登入就清除計數
+        await _loginAttemptCache.ClearAsync(req.Account, ct);
         // 2) 簽發 AccessToken
-        var (accessToken, jti, accessExp) = _tokenSvc.IssueAccessToken(userInfo);
+        var (accessToken, _, accessExp) = _tokenSvc.IssueAccessToken(userInfo);
         // 3) 產生 Refresh 資料並寫入 HttpOnly Cookie（同源 HTTPS）
-        var (refreshToken, tokenId, refreshExp) = _tokenSvc.IssueRefreshToken(userInfo);
-        await _tokenSvc.StoreRefreshAsync(userInfo.UserId, tokenId, refreshExp);
+        var (tokenId, refreshExp) = _tokenSvc.IssueRefreshToken();
+        await _tokenSvc.StoreRefreshAsync(userInfo.UserId, tokenId, refreshExp, ct);
         // ✅ 同源 HTTPS（正式上線）：Secure=true；同源可用 Lax
         var baseOpt = new CookieOptions
         {
@@ -96,6 +94,7 @@ public class AuthController(IMemoryCache cache, TokenService tokenSvc, IConfigur
     [HttpPost(nameof(Refresh)), AllowAnonymous]
     public async Task<IActionResult> Refresh([FromHeader(Name = SysParam.HttpHeaders.XsrfToken)] string? xsrfHeader)
     {
+        CancellationToken ct = HttpContext.RequestAborted;
         // 1) 取 Cookie + 驗 XSRF
         if (!Request.Cookies.TryGetValue(SysParam.CookieNames.RefreshTokenId, out var oldRtid))
             return Unauthorized("No refresh token id.");
@@ -105,25 +104,20 @@ public class AuthController(IMemoryCache cache, TokenService tokenSvc, IConfigur
             return Unauthorized("Invalid XSRF.");
 
         // 2) 用 rtid 找回 userId
-        var userId = await _tokenSvc.GetUserIdByRefreshIdAsync(oldRtid);
+        var userId = await _tokenSvc.GetUserIdByRefreshIdAsync(oldRtid, ct);
         if (string.IsNullOrEmpty(userId)) return Unauthorized("Refresh not found.");
 
         // 3) 從 DB 載入使用者與角色
         var user = await _authBiz.FindByAccountAsync(userId);
         if (user is null) return Unauthorized("User disabled.");
 
-        //var roleIds = await rolesBiz.GetRolesByUserIdAsync(u.Id);
-        //var user = new UserModel { UserId = u.Id, UserName = u.UserName, RoleId = roleIds.FirstOrDefault() ?? "User" };
-
         // 4) 簽新 token、旋轉 refresh
-        var (access, jti, accessExp) = _tokenSvc.IssueAccessToken(user);
-        var (_, newRtid, refreshExp) = _tokenSvc.IssueRefreshToken(user);
-        await _tokenSvc.StoreRefreshAsync(user.UserId, newRtid, refreshExp);
-        await _tokenSvc.RevokeRefreshAsync(user.UserId, oldRtid);
+        var (access, _, accessExp) = _tokenSvc.IssueAccessToken(user);
+        var (newRtid, refreshExp) = _tokenSvc.IssueRefreshToken();
+        await _tokenSvc.StoreRefreshAsync(user.UserId, newRtid, refreshExp, ct);
+        await _tokenSvc.RevokeRefreshAsync(oldRtid, ct);
 
         // 5) 寫回 cookies（同源 HTTPS）
-        var baseOpt = new CookieOptions { Path = SysParam.CookiePaths.Root, Secure = true, SameSite = SameSiteMode.Lax };
-
         Response.Cookies.Append(SysParam.CookieNames.RefreshTokenId, newRtid, new CookieOptions
         {
             HttpOnly = true,
@@ -161,15 +155,16 @@ public class AuthController(IMemoryCache cache, TokenService tokenSvc, IConfigur
     [HttpPost(nameof(Logout)), Authorize]
     public async Task<IActionResult> Logout()
     {
+        CancellationToken ct = HttpContext.RequestAborted;
         // Access 黑名單
         var jti = User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Jti)?.Value;
         var ttl = TimeSpan.FromMinutes(int.Parse(_cfg[SysParam.Configuration.Jwt.AccessTokenMinutesPath] ?? "15"));
-        if (!string.IsNullOrEmpty(jti)) await _tokenSvc.BlacklistAccessAsync(jti, ttl);
+        if (!string.IsNullOrEmpty(jti)) await _tokenSvc.BlacklistAccessAsync(jti, ttl, ct);
 
         // 撤銷目前裝置的 refresh
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
         if (Request.Cookies.TryGetValue(SysParam.CookieNames.RefreshTokenId, out var rtid) && !string.IsNullOrEmpty(userId))
-            await _tokenSvc.RevokeRefreshAsync(userId, rtid);
+            await _tokenSvc.RevokeRefreshAsync(rtid, ct);
         // 清 cookie
         var delOpt = new CookieOptions { Path = SysParam.CookiePaths.Root, Secure = true, SameSite = SameSiteMode.Lax };
         OperateLogModel followInfo = new OperateLogModel();

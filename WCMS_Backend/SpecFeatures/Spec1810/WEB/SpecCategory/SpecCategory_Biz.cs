@@ -111,10 +111,10 @@ public class SpecCategoryBiz(BizDeps bizDeps) : BizService<SpecCategoryModel>(bi
             case "SpecResearch":
                 {
                     string[] notmapFields = [nameof(SpecResearchDetailModel_DTO.ResearchId), nameof(SpecResearchDetailModel_DTO.RowId), nameof(SpecResearchDetailModel_DTO.Lang)];
-                    foreach (var prop in PropertyAccessorCache.GetProperties<SpecResearchDetailModel_DTO>())
+                    foreach (var prop in ModelMetadata.GetProperties<SpecResearchDetailModel_DTO>())
                     {
                         if (notmapFields.Contains(prop.Name)) continue;
-                        result.Add(prop.Name, I18nCache.GetLabel(prop));
+                        result.Add(prop.Name, I18n.GetLabel(prop));
                     }
                     break;
                 }
@@ -122,10 +122,10 @@ public class SpecCategoryBiz(BizDeps bizDeps) : BizService<SpecCategoryModel>(bi
                 {
                     string[] notmapFields = [nameof(SpecUSRDetail_DTO.USRId), nameof(SpecUSRDetail_DTO.RowId), nameof(SpecUSRDetail_DTO.Lang)
                         , nameof(SpecUSRDetail_DTO.Url), nameof(SpecUSRDetail_DTO.UrlDescription)];
-                    foreach (var prop in PropertyAccessorCache.GetProperties<SpecUSRDetail_DTO>())
+                    foreach (var prop in ModelMetadata.GetProperties<SpecUSRDetail_DTO>())
                     {
                         if (notmapFields.Contains(prop.Name)) continue;
-                        result.Add(prop.Name, I18nCache.GetLabel(prop));
+                        result.Add(prop.Name, I18n.GetLabel(prop));
                     }
                     break;
                 }
