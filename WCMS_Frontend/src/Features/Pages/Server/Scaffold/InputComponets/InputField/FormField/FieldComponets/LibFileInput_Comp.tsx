@@ -1,3 +1,4 @@
+// 原 input 改以使用 "AAInputFieldItem" 20260701
 import {
     AAInputFieldItem,
     buildAdapterBaseId,

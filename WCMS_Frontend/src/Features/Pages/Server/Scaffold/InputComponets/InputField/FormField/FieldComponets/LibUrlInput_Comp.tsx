@@ -3,7 +3,7 @@ import { useCallback, useId, useMemo } from "react";
 import {
     AAInputFieldItem,
     buildAdapterBaseId,
-    buildFieldId,
+    type AAInputOption,
     type AAInputValue,
 } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/AAInputField__Atoms";
 
@@ -145,19 +145,33 @@ const LibUrlInputRow = <T extends Record<string, any>>(props: LibUrlInputRowProp
     const titleKey = String(fields.title);
     const urlKey = String(fields.url);
     const targetKey = fields.target ? String(fields.target) : "target";
-    const idTarget = buildFieldId(baseId, targetKey);
+    const targetOptions = useMemo(() => normalizeTargetOptions(targets), [targets]);
+
+    /** 更新單列指定欄位值。 */
     const setField = <K extends KeyOf<T>>(k: K, v: any) =>
     {
         onChange({ ...value, [k]: v } as T);
     };
+
+    /** 更新網址說明欄位。 */
     const handleTitleChange = (_fieldKey: string, nextValue: AAInputValue) =>
     {
         setField(fields.title, String(nextValue ?? ""));
     };
+
+    /** 更新網址連結欄位。 */
     const handleUrlChange = (_fieldKey: string, nextValue: AAInputValue) =>
     {
         setField(fields.url, String(nextValue ?? ""));
     };
+
+    /** 更新網址開啟方式欄位。 */
+    const handleTargetChange = (_fieldKey: string, nextValue: AAInputValue) =>
+    {
+        const valueText = String(nextValue ?? "");
+        setField(fields.target!, valueText === "" ? "" : Number(valueText));
+    };
+
     return (
         <div className="flex flex-col gap-2 mb-3" role="group" aria-label="URL row">
             <div className="input-group">
@@ -207,21 +221,28 @@ const LibUrlInputRow = <T extends Record<string, any>>(props: LibUrlInputRowProp
                     onChange={handleUrlChange}
                 />
                 {fields.target && targets && (
-                    <>
-                        <label htmlFor={idTarget} className="sr-only">開啟方式</label>
-                        <select
-                            id={idTarget}
-                            className="form-select"
-                            value={String(value[fields.target] ?? "")}
-                            onChange={e => setField(fields.target!, Number(e.target.value))}
-                            aria-label="開啟方式"
-                        >
-                            {Object.entries(targets).map(([val, text]) => <option key={val} value={val}>{text}</option>)}
-                        </select>
-                    </>
+                    <AAInputFieldItem
+                        baseId={baseId}
+                        variant="gridCell"
+                        field={{
+                            key: targetKey,
+                            type: "selectSingle",
+                            label: "開啟方式",
+                            aaLabel: "請選擇開啟方式",
+                            value: String(value[fields.target] ?? ""),
+                            options: targetOptions,
+                            searchable: false,
+                            helpText: "開啟方式欄位",
+                        }}
+                        onChange={handleTargetChange}
+                    />
                 )}
             </div>
         </div>
     );
 };
-// #endregion
+/** 將網址開啟方式選項轉成 AAInputFieldItem 使用的 options。 */
+const normalizeTargetOptions = (targets?: Record<number, string>): AAInputOption[] =>
+{
+    return Object.entries(targets ?? {}).map(([value, label]) => ({ value, label }));
+};

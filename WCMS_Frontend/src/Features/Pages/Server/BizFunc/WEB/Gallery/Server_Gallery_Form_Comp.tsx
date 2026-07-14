@@ -108,6 +108,27 @@ interface PhotoInfoSubDetailProps extends PhotoGridProps
     onEditingStateChange: (args: EditGridEditingStateArgs) => void;
 }
 
+interface GalleryBatchPreviewProps
+{
+    /** 批次上傳前選取的檔案 */
+    files: File[];
+
+    /** 移除指定預覽檔案 */
+    onRemove: (index: number) => void;
+}
+
+interface GalleryPicturePreviewProps
+{
+    /** EditGrid 圖片欄位值 */
+    value: EditGridCellValue;
+
+    /** 清除相片與封面連動資料 */
+    onRemove: () => void;
+
+    /** 控制預覽刪除按鈕是否停用 */
+    removeDisabled?: boolean;
+}
+
 interface GalleryHeaderTabContentOptions extends GalleryHeaderProps
 {
     /** 欄位 binding helper */
@@ -195,7 +216,13 @@ const PhotoGridComp = (props: PhotoGridProps) =>
     const subDetailState = useEditGridSubDetailState();
     const subDetailExpandedRowKeyRef = useRef<string | null>(subDetailState.expandedRowKey);
     const subDetailEditingRef = useRef<boolean>(subDetailState.isSubDetailEditing);
-    const renderPicturePreview = useCallback((args: EditGridCellRenderArgs) => <GalleryPicturePreview value={args.value} />, []);
+    const renderPicturePreview = useCallback((args: EditGridCellRenderArgs) => (
+        <GalleryPicturePreview
+            value={args.value}
+            onRemove={() => clearGalleryPhotoCell(args, coverSelectedRef.current, cover.select)}
+            removeDisabled={true}
+        />
+    ), [cover.select]);
 
     coverSelectedRef.current = cover.selected;
     subDetailExpandedRowKeyRef.current = subDetailState.expandedRowKey;
@@ -275,6 +302,12 @@ const PhotoInfoSubDetailGridComp = (props: PhotoInfoSubDetailProps) =>
 const GalleryBatchUploadComp = (props: { theme: IBETheme; binding: ServerFormBinding<GallerySet>; }) =>
 {
     const batch = useGalleryBatchPhotoUpload({ binding: props.binding });
+    /** 移除批次上傳前的單張預覽圖片。 */
+    const handleRemoveSelectedFile = useCallback((removeIndex: number) =>
+    {
+        const nextFiles = batch.selectedFiles.filter((_file, index) => index !== removeIndex);
+        batch.setSelectedFiles(nextFiles);
+    }, [batch.selectedFiles, batch.setSelectedFiles]);
 
     return (
         <div className="mb-3">
@@ -302,7 +335,7 @@ const GalleryBatchUploadComp = (props: { theme: IBETheme; binding: ServerFormBin
                         </div>
                         {batch.error && <div className="col-12 alert alert-danger mt-2">{batch.error}</div>}
                     </div>
-                    <GalleryBatchPreview files={batch.selectedFiles} />
+                    <GalleryBatchPreview files={batch.selectedFiles} onRemove={handleRemoveSelectedFile} />
                 </div>
             </LibModal>
         </div>
@@ -311,6 +344,15 @@ const GalleryBatchUploadComp = (props: { theme: IBETheme; binding: ServerFormBin
 // #endregion
 
 // #region Protected
+/** 清除相片圖片欄位，若目前圖片為封面則同步清空封面設定。 */
+const clearGalleryPhotoCell = (args: EditGridCellRenderArgs, selectedCover: string | null, onCoverClear: (picId: string) => void): void =>
+{
+    const photo = toGalleryPhotoCellValue(args.value);
+    const picId = String(photo.internalId ?? "").trim();
+    args.updateValues({ [GalleryPhotosFields.PicSrcId]: "" });
+    if (picId && selectedCover === picId) onCoverClear("");
+};
+
 /** 建立相簿主分頁內容。 */
 const buildGalleryMainTabContent = (props: GalleryContentProps): Record<string, ReactNode[]> =>
 {
@@ -385,7 +427,7 @@ const buildGalleryInfoFields = (theme: IBETheme, setField: ReturnType<typeof use
 
 // #region Private
 /** 批次上傳前預覽圖片。 */
-const GalleryBatchPreview = (props: { files: File[]; }) =>
+const GalleryBatchPreview = (props: GalleryBatchPreviewProps) =>
 {
     if (props.files.length === 0) return null;
 
@@ -399,7 +441,12 @@ const GalleryBatchPreview = (props: { files: File[]; }) =>
                     return (
                         <div key={`${file.name}-${index}`} className="col-12 border-bottom">
                             <div className="d-flex align-items-center">
-                                <LibPicturePreview ColumnDisplayName={file.name} PicSrc={url} PicDescription={`選中的圖片 ${file.name}`} />
+                                <LibPicturePreview
+                                    ColumnDisplayName={file.name}
+                                    PicSrc={url}
+                                    PicDescription={`選中的圖片 ${file.name}`}
+                                    onRemove={() => props.onRemove(index)}
+                                />
                             </div>
                         </div>
                     );
@@ -410,14 +457,22 @@ const GalleryBatchPreview = (props: { files: File[]; }) =>
 };
 
 /** 相片預覽元件，沒有圖片時以文字提示避免破圖。 */
-const GalleryPicturePreview = (props: { value: EditGridCellValue; }) =>
+const GalleryPicturePreview = (props: GalleryPicturePreviewProps) =>
 {
     const photo = toGalleryPhotoCellValue(props.value);
     const previewUrl = photo.url ?? getGalleryPhotoPreviewUrl(photo.internalId);
     const alt = photo.originalFileName || photo.fileName || "相片預覽";
 
     if (!previewUrl) return <span className="small">尚未選擇圖片</span>;
-    return <img src={previewUrl} alt={alt} style={{ maxWidth: "160px", maxHeight: "120px", objectFit: "contain" }} />;
+    return (
+        <LibPicturePreview
+            ColumnDisplayName={alt}
+            PicSrc={previewUrl}
+            PicDescription={alt}
+            onRemove={props.onRemove}
+            removeDisabled={props.removeDisabled}
+        />
+    );
 };
 
 /** 封面選擇按鈕，實際資料寫回 Header 的 CoverPicSrcId。 */

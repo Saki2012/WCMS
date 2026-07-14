@@ -14,7 +14,7 @@ import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import type { components } from "@/types/api";
 import { WebResourceFields, WebResourceInfoFields, WebResourceSetFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
     useWebResourceDetailTabs,
@@ -79,6 +79,12 @@ interface HeaderTabContentOptions extends HeaderSectionProps
 
     /** 圖片上傳 helper，維持 Hook 在 Component 階段呼叫 */
     uploadPic: ReturnType<typeof useUploadPicture>;
+
+    /** 圖片 input 重掛 key，只在刪除預覽圖時更新 */
+    pictureInputResetKey: number;
+
+    /** 清除圖片預覽、圖片欄位與 input 選取檔案 */
+    onPictureRemove: () => void;
 }
 
 interface DetailTabContentOptions
@@ -160,8 +166,14 @@ const HeaderComp = (props: HeaderSectionProps) =>
 {
     const setField = useSetTableField<WebResourceSet>(props.binding);
     const uploadPic = useUploadPicture();
+    const [pictureInputResetKey, setPictureInputResetKey] = useState(0);
+    const handlePictureRemove = useCallback(() =>
+    {
+        handleHeaderPictureChange([], props.binding, uploadPic.handleFileChange);
+        setPictureInputResetKey(prev => prev + 1);
+    }, [props.binding, uploadPic.handleFileChange]);
     const tabInfo: LibTabsProp = { Style: props.theme.Tabs, item: { Basic: "基本", Status: "狀態", Tags: "標籤", Img: "圖片", System: "系統資訊" } };
-    const tabContent = buildHeaderTabContent({ ...props, setField, uploadPic });
+    const tabContent = buildHeaderTabContent({ ...props, setField, uploadPic, pictureInputResetKey, onPictureRemove: handlePictureRemove });
 
     return (
         <TabContentComp
@@ -252,10 +264,13 @@ const buildTagFields = (opt: HeaderTabContentOptions): ReactNode[] =>
 /** 建立圖片上傳與圖片說明欄位。 */
 const buildImageFields = (opt: HeaderTabContentOptions): ReactNode[] =>
 {
-    const previewSrc = buildPicturePreviewSrc(opt.uploadPic.result.previewUrl, opt.binding.data?.WebResource?.PicId);
+    const picId = opt.binding.data?.WebResource?.PicId;
+    const previewSrc = buildPicturePreviewSrc(opt.uploadPic.result.previewUrl, picId);
+    const hasPicture = hasHeaderPicture(opt.uploadPic.result.previewUrl, picId);
 
     return [
         <LibFile
+            key={`WebResourcePictureInput_${opt.pictureInputResetKey}`}
             Style={opt.theme.File}
             ColumnDisplayName="選擇圖片"
             Multiple={WebResourceImageUploadLimit.multiple}
@@ -271,6 +286,8 @@ const buildImageFields = (opt: HeaderTabContentOptions): ReactNode[] =>
                 ColumnDisplayName={opt.uploadPic.result.previewUrl ?? ""}
                 PicSrc={previewSrc}
                 PicDescription="選中的圖片"
+                onRemove={opt.onPictureRemove}
+                removeDisabled={!hasPicture}
             />
         </LibFile>,
         <LibTextBox
@@ -324,6 +341,12 @@ const buildDetailFields = (opt: DetailFieldsOptions): ReactNode[] =>
 const buildPicturePreviewSrc = (previewUrl: string, picId?: string | null): string =>
 {
     return previewUrl || FileManagementAPI.get_Server_Preview_Url(picId) || "https://dummyimage.com/1920x550/555/fff.png";
+};
+
+/** 判斷目前是否有真實圖片，預設圖不開放刪除。 */
+const hasHeaderPicture = (previewUrl: string, picId?: string | null): boolean =>
+{
+    return Boolean(previewUrl || String(picId ?? "").trim());
 };
 
 /** 將 WindowTarget object 轉成 LibDropList 使用的 Map。 */

@@ -122,6 +122,30 @@ const SPEC_JOURNAL_DOCUMENT_TYPES: readonly SpecJournalDocumentType[] = [0, 1, 2
 // #endregion
 
 // #region Public
+/** 開放觀點 PDF 檔案上傳限制。 */
+export const SpecJournalOpenPointFileUploadLimit = {
+    accept: "application/pdf",
+    multiple: false,
+    maxFileCount: 1,
+    maxFileSizeMB: 10,
+} as const;
+
+/** 相關檔案 PDF 上傳限制。 */
+export const SpecJournalRefFileUploadLimit = {
+    accept: "application/pdf",
+    multiple: false,
+    maxFileCount: 1,
+    maxFileSizeMB: 10,
+} as const;
+
+/** 說明文件來源上傳限制，格式不限制。 */
+export const SpecJournalDocumentFileUploadLimit = {
+    accept: ".pdf,application/pdf,.doc,.docx,.xls,.xlsx",
+    multiple: false,
+    maxFileCount: 1,
+    maxFileSizeMB: 10,
+} as const;
+
 /** 建立 SpecJournal Spec Form Template，統一交給 Server_FormTemplate 處理資料流程 */
 export const useSpecJournalFormTemplate = (
     opt: { lang: Lang; theme: IBETheme; internalId: string; emptyData: SpecJournalSet; actionsOpt: SpecJournalFormActionsOpt; },
@@ -504,7 +528,7 @@ const buildSpecJournalOpenPointColumns = (onFileChange: (args: EditGridCellValue
         width: 520,
         inputType: "file",
         editable: true,
-        accept: "application/pdf",
+        ...SpecJournalOpenPointFileUploadLimit,
         onValueChange: onFileChange,
     }];
 };
@@ -518,7 +542,7 @@ const buildSpecJournalRefFileColumns = (onFileChange: (args: EditGridCellValueCh
         width: 520,
         inputType: "file",
         editable: true,
-        accept: "application/pdf",
+        ...SpecJournalRefFileUploadLimit,
         onValueChange: onFileChange,
     }];
 };
@@ -537,10 +561,18 @@ const buildSpecJournalDocumentColumns = (
             inputType: "selectSingle",
             editable: true,
             options: documentTypeOptions,
-            searchable: true,
+            searchable: false,
         },
         { key: SpecJournalDocumentFields.DocumentName, title: "說明檔案名稱", width: 260, inputType: "text", editable: true, maxLength: 200 },
-        { key: SpecJournalDocumentFields.DocumentId, title: "說明檔案來源", width: 520, inputType: "file", editable: true, onValueChange: onFileChange },
+        {
+            key: SpecJournalDocumentFields.DocumentId,
+            title: "說明檔案來源",
+            width: 520,
+            inputType: "file",
+            editable: true,
+            ...SpecJournalDocumentFileUploadLimit,
+            onValueChange: onFileChange,
+        },
     ];
 };
 
@@ -566,7 +598,7 @@ const buildSpecJournalOpenPointRow = (
                 SpecJournalOpenPointFilesFields.OpenPointFileId,
                 "開放觀點檔案",
                 buildSpecJournalFileCellValue(item.OpenPointFileId, getSpecJournalDtoFileName(item.OpenPointFile), item.OpenPointFileName),
-                { inputType: "file", editable: true, accept: "application/pdf", onValueChange: onFileChange },
+                { inputType: "file", editable: true, ...SpecJournalOpenPointFileUploadLimit, onValueChange: onFileChange },
             ),
         ],
     };
@@ -594,7 +626,7 @@ const buildSpecJournalRefFileRow = (
                 SpecJournalRefFilesFields.RefFileId,
                 "相關檔案",
                 buildSpecJournalFileCellValue(item.RefFileId, getSpecJournalDtoFileName(item.RefFile), item.RefFileName),
-                { inputType: "file", editable: true, accept: "application/pdf", onValueChange: onFileChange },
+                { inputType: "file", editable: true, ...SpecJournalRefFileUploadLimit, onValueChange: onFileChange },
             ),
         ],
     };
@@ -618,7 +650,7 @@ const buildSpecJournalDocumentRow = (
                 inputType: "selectSingle",
                 editable: true,
                 options: documentTypeOptions,
-                searchable: true,
+                searchable: false,
             }),
             buildEditGridCell(SpecJournalDocumentFields.DocumentName, "說明檔案名稱", item.DocumentName ?? "", {
                 inputType: "text",
@@ -629,7 +661,7 @@ const buildSpecJournalDocumentRow = (
                 SpecJournalDocumentFields.DocumentId,
                 "說明檔案來源",
                 buildSpecJournalFileCellValue(item.DocumentId, getSpecJournalDtoFileName(item.Document), item.DocumentName),
-                { inputType: "file", editable: true, onValueChange: onFileChange },
+                { inputType: "file", editable: true, ...SpecJournalDocumentFileUploadLimit, onValueChange: onFileChange },
             ),
         ],
     };
@@ -693,7 +725,7 @@ const sortSpecJournalRows = <T extends { RowId?: number | null; }>(items: T[]): 
     return [...items].sort((a, b) => Number(a.RowId ?? 0) - Number(b.RowId ?? 0));
 };
 
-/** 上傳期刊檔案並回寫 EditGrid file value。 */
+/** 上傳或清除期刊檔案，並同步同列檔案名稱欄位。 */
 const uploadSpecJournalFileValue = async (
     args: EditGridCellValueChangeArgs,
     handleFileChange: UploadFileHandler,
@@ -701,7 +733,11 @@ const uploadSpecJournalFileValue = async (
 ): Promise<EditGridCellValueChangeResult> =>
 {
     const selectedFile = getSelectedSpecJournalFile(args.nextValue);
-    if (!selectedFile?.file) return { value: buildEmptySpecJournalFileCellValue() };
+
+    if (!selectedFile?.file)
+    {
+        return { value: buildEmptySpecJournalFileCellValue(), rowValues: { [fileNameField]: "" } };
+    }
 
     let uploadedValue = toSpecJournalFileCellValue(args.value);
     const originalName = getSpecJournalSelectedFileName(selectedFile);

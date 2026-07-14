@@ -29,7 +29,7 @@ import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import type { components } from "@/types/api";
-import { MaterialFields, MaterialLangInfoFields, MaterialSetFields, PGID } from "@/types/SchemaFields";
+import { MaterialFields, MaterialLangInfoFields, MaterialPictureFields, MaterialSetFields, PGID } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -131,6 +131,24 @@ interface MaterialPictureProps
 
 interface MaterialBatchUploadProps extends MaterialPictureProps
 {}
+
+interface MaterialBatchPreviewProps
+{
+    /** 批次上傳前選取的檔案 */
+    files: File[];
+
+    /** 移除指定預覽檔案 */
+    onRemove: (index: number) => void;
+}
+
+interface MaterialPicturePreviewProps
+{
+    /** EditGrid 圖片欄位值 */
+    value: unknown;
+
+    /** 清除圖片與連動圖片名稱 */
+    onRemove: () => void;
+}
 
 interface MaterialBasicRenderOptions extends MaterialBasicProps
 {
@@ -243,7 +261,9 @@ const MaterialLangComp = (props: MaterialLangProps) =>
 /** 物件相片區塊，批次上傳按鈕與 EditGrid 單筆新增按鈕分離。 */
 const MaterialPictureGridComp = (props: MaterialPictureProps) =>
 {
-    const renderPicturePreview = useCallback((args: EditGridCellRenderArgs) => <MaterialPicturePreview value={args.value} />, []);
+    const renderPicturePreview = useCallback((args: EditGridCellRenderArgs) => (
+        <MaterialPicturePreview value={args.value} onRemove={() => clearMaterialPictureCell(args)} />
+    ), []);
     const pictureGrid = useMaterialPictureEditGrid({ binding: props.binding, style: editGridStyle, renderPicturePreview });
 
     return (
@@ -318,6 +338,12 @@ const MaterialInfoJsonEditorComp = (props: MaterialInfoJsonEditorProps) =>
 const MaterialBatchUploadComp = (props: MaterialBatchUploadProps) =>
 {
     const batchUpload = useMaterialBatchPictureUpload({ binding: props.binding });
+    /** 移除批次上傳前的單張預覽圖片。 */
+    const handleRemoveSelectedFile = useCallback((removeIndex: number) =>
+    {
+        const nextFiles = batchUpload.selectedFiles.filter((_file, index) => index !== removeIndex);
+        batchUpload.setSelectedFiles(nextFiles);
+    }, [batchUpload.selectedFiles, batchUpload.setSelectedFiles]);
 
     return (
         <LibModal
@@ -344,14 +370,14 @@ const MaterialBatchUploadComp = (props: MaterialBatchUploadProps) =>
                     </div>
                     {batchUpload.error && <div className="col-12 alert alert-danger mt-2">{batchUpload.error}</div>}
                 </div>
-                <MaterialBatchPreviewComp files={batchUpload.selectedFiles} />
+                <MaterialBatchPreviewComp files={batchUpload.selectedFiles} onRemove={handleRemoveSelectedFile} />
             </div>
         </LibModal>
     );
 };
 
 /** 批次上傳前的圖片預覽清單。 */
-const MaterialBatchPreviewComp = (props: { files: File[]; }) =>
+const MaterialBatchPreviewComp = (props: MaterialBatchPreviewProps) =>
 {
     if (props.files.length === 0) return null;
 
@@ -366,7 +392,12 @@ const MaterialBatchPreviewComp = (props: { files: File[]; }) =>
                     return (
                         <div key={`${file.name}_${index}`} className="col-12 border-bottom">
                             <div className="d-flex align-items-center">
-                                <LibPicturePreview ColumnDisplayName={file.name} PicSrc={url} PicDescription={`選中的圖片 ${file.name}`} />
+                                <LibPicturePreview
+                                    ColumnDisplayName={file.name}
+                                    PicSrc={url}
+                                    PicDescription={`選中的圖片 ${file.name}`}
+                                    onRemove={() => props.onRemove(index)}
+                                />
                             </div>
                         </div>
                     );
@@ -382,6 +413,15 @@ const MaterialBatchPreviewComp = (props: { files: File[]; }) =>
 // #endregion
 
 // #region Protected
+/** 清除 EditGrid 圖片欄位與連動圖片名稱。 */
+const clearMaterialPictureCell = (args: EditGridCellRenderArgs): void =>
+{
+    args.updateValues({
+        [MaterialPictureFields.PictureId]: "",
+        [MaterialPictureFields.PictureName]: "",
+    });
+};
+
 /** 建立物件主分頁內容。 */
 const buildMaterialMainTabContent = (props: MaterialContentProps): Record<string, ReactNode[]> =>
 {
@@ -438,7 +478,7 @@ const buildMaterialInfoField = (
 
 // #region Private
 /** EditGrid 圖片預覽欄位。 */
-const MaterialPicturePreview = (props: { value: unknown; }) =>
+const MaterialPicturePreview = (props: MaterialPicturePreviewProps) =>
 {
     const picValue = toMaterialPictureCellValue(props.value as never);
     const picSrc = picValue.url || getMaterialPicturePreviewUrl(picValue.internalId);
@@ -446,6 +486,6 @@ const MaterialPicturePreview = (props: { value: unknown; }) =>
 
     if (!picSrc) return <span className="text-muted">尚未選擇圖片</span>;
 
-    return <LibPicturePreview ColumnDisplayName={label} PicSrc={picSrc} PicDescription={label} />;
+    return <LibPicturePreview ColumnDisplayName={label} PicSrc={picSrc} PicDescription={label} onRemove={props.onRemove} removeDisabled={true} />;
 };
 // #endregion

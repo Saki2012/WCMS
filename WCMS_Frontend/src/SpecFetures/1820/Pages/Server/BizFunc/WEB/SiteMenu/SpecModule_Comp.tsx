@@ -1,7 +1,7 @@
 import type { SiteMenuItem } from "@/Features/Pages/Server/BizFunc/WEB/SiteMenu/SiteMenu_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { LibCheckBox, LibDropList } from "@/SysCore/Components/FormField/LibFormField";
-import { useSetJsonField } from "@/SysCore/Components/FormField/useSetTableField";
+import { LibCheckBox, LibDropList } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
+import { useSetJsonField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { type Lang } from "@/SysCore/i18n/lang";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import type { components } from "@/types/api";

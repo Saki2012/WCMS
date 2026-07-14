@@ -10,7 +10,7 @@ import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import type { components } from "@/types/api";
-import { SpecMusicalModelFields, SpecMusicalSetFields } from "@/types/SchemaFields";
+import { SpecMusicalModelFields, SpecMusicalPictureListFields, SpecMusicalSetFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -30,6 +30,15 @@ import {
 
 // #region Property
 type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"];
+
+/** 琵琶介紹批次圖片上傳限制。 */
+export const SpecMusicalBatchPhotoUploadLimit = {
+    accept: "image/*",
+    multiple: true,
+    maxFileCount: 20,
+    maxFileSizeMB: 10,
+} as const;
+
 
 interface SpecMusicalFormCompProps
 {
@@ -65,6 +74,27 @@ interface SpecMusicalGridProps
 
     /** Form Template 提供的主資料 binding */
     binding: ServerFormBinding<SpecMusicalSet>;
+}
+
+interface SpecMusicalPhotoBatchPreviewProps
+{
+    /** 批次上傳前選取的檔案 */
+    files: File[];
+
+    /** 移除指定預覽檔案 */
+    onRemove: (index: number) => void;
+}
+
+interface SpecMusicalPicturePreviewProps
+{
+    /** EditGrid 圖片欄位值 */
+    value: EditGridCellValue;
+
+    /** 清除圖片與連動圖片說明 */
+    onRemove: () => void;
+
+    /** 控制 EditGrid 內刪除按鈕是否停用。 */
+    removeDisabled?: boolean;
 }
 
 const editGridStyle: IEditGridView_Style = {
@@ -128,7 +158,9 @@ const SpecMusicalBasicComp = (props: SpecMusicalBasicProps) =>
 const SpecMusicalPhotoGridComp = (props: SpecMusicalGridProps) =>
 {
     const cover = useSpecMusicalCoverSelector(props.binding);
-    const renderPicturePreview = useCallback((args: EditGridCellRenderArgs) => <SpecMusicalPicturePreview value={args.value} />, []);
+    const renderPicturePreview = useCallback((args: EditGridCellRenderArgs) => (
+        <SpecMusicalPicturePreview value={args.value} onRemove={() => clearSpecMusicalPictureCell(args, props.binding)} removeDisabled={true} />
+    ), [props.binding]);
     const renderCoverSelector = useCallback(
         (args: EditGridCellRenderArgs) => <SpecMusicalCoverSelector value={args.value} selected={cover.selected} onSelect={cover.select} />,
         [cover.select, cover.selected],
@@ -160,6 +192,12 @@ const SpecMusicalSoundGridComp = (props: SpecMusicalGridProps) =>
 const SpecMusicalPhotoBatchUploadComp = (props: { theme: IBETheme; binding: ServerFormBinding<SpecMusicalSet>; }) =>
 {
     const batch = useSpecMusicalBatchPhotoUpload({ binding: props.binding });
+    /** 移除批次上傳前的單張預覽圖片。 */
+    const handleRemoveSelectedFile = useCallback((removeIndex: number) =>
+    {
+        const nextFiles = batch.selectedFiles.filter((_file, index) => index !== removeIndex);
+        batch.setSelectedFiles(nextFiles);
+    }, [batch.selectedFiles, batch.setSelectedFiles]);
 
     return (
         <div className="mb-3">
@@ -177,14 +215,17 @@ const SpecMusicalPhotoBatchUploadComp = (props: { theme: IBETheme; binding: Serv
                             <LibFile
                                 Style={props.theme.File}
                                 ColumnDisplayName="選擇圖片(多選)"
-                                Multiple={true}
+                                accept={SpecMusicalBatchPhotoUploadLimit.accept}
+                                Multiple={SpecMusicalBatchPhotoUploadLimit.multiple}
+                                maxFileCount={SpecMusicalBatchPhotoUploadLimit.maxFileCount}
+                                maxFileSizeMB={SpecMusicalBatchPhotoUploadLimit.maxFileSizeMB}
                                 onChange={batch.setSelectedFiles}
                                 InputValue=""
                             />
                         </div>
                         {batch.error && <div className="col-12 alert alert-danger mt-2">{batch.error}</div>}
                     </div>
-                    <SpecMusicalPhotoBatchPreview files={batch.selectedFiles} />
+                    <SpecMusicalPhotoBatchPreview files={batch.selectedFiles} onRemove={handleRemoveSelectedFile} />
                 </div>
             </LibModal>
         </div>
@@ -197,6 +238,30 @@ const SpecMusicalPhotoBatchUploadComp = (props: { theme: IBETheme; binding: Serv
 // #endregion
 
 // #region Protected
+/** 清除 EditGrid 相片欄位與連動圖片說明。 */
+const clearSpecMusicalPictureCell = (args: EditGridCellRenderArgs, binding: ServerFormBinding<SpecMusicalSet>): void =>
+{
+    const picture = toSpecMusicalPictureCellValue(args.value);
+    args.updateValues({
+        [SpecMusicalPictureListFields.PicSrcId]: "",
+        [SpecMusicalPictureListFields.Info]: "",
+    });
+    clearSpecMusicalCoverIfSame(binding, picture.internalId);
+};
+
+/** 若被清除圖片為目前封面，則同步清空封面。 */
+const clearSpecMusicalCoverIfSame = (binding: ServerFormBinding<SpecMusicalSet>, picId?: string | null): void =>
+{
+    const targetPicId = String(picId ?? "").trim();
+    if (!targetPicId) return;
+    binding.setFormData(prev =>
+    {
+        const data = prev ?? specMusicalEmptyData;
+        if (data.SpecMusical?.CoverPicId !== targetPicId) return data;
+        return { ...data, SpecMusical: { ...data.SpecMusical, CoverPicId: null } };
+    });
+};
+
 /** 建立主分頁內容。 */
 const buildSpecMusicalTabContent = (props: SpecMusicalBasicProps): Record<string, ReactNode[]> =>
 {
@@ -285,7 +350,7 @@ const buildSpecMusicalBasicFields = (
 
 // #region Private
 /** 批次上傳前預覽圖片。 */
-const SpecMusicalPhotoBatchPreview = (props: { files: File[]; }) =>
+const SpecMusicalPhotoBatchPreview = (props: SpecMusicalPhotoBatchPreviewProps) =>
 {
     if (props.files.length === 0) return null;
 
@@ -299,7 +364,7 @@ const SpecMusicalPhotoBatchPreview = (props: { files: File[]; }) =>
                     return (
                         <div key={`${file.name}-${index}`} className="col-12 border-bottom">
                             <div className="d-flex align-items-center">
-                                <LibPicturePreview ColumnDisplayName={file.name} PicSrc={url} PicDescription={`選中的圖片 ${file.name}`} />
+                                <LibPicturePreview ColumnDisplayName={file.name} PicSrc={url} PicDescription={`選中的圖片 ${file.name}`} onRemove={() => props.onRemove(index)} />
                             </div>
                         </div>
                     );
@@ -310,14 +375,14 @@ const SpecMusicalPhotoBatchPreview = (props: { files: File[]; }) =>
 };
 
 /** 相片預覽元件，沒有圖片時以文字提示避免破圖。 */
-const SpecMusicalPicturePreview = (props: { value: EditGridCellValue; }) =>
+const SpecMusicalPicturePreview = (props: SpecMusicalPicturePreviewProps) =>
 {
     const picture = toSpecMusicalPictureCellValue(props.value);
     const previewUrl = picture.url ?? getSpecMusicalPicturePreviewUrl(picture.internalId);
     const alt = picture.originalFileName || picture.fileName || "相片預覽";
 
     if (!previewUrl) return <span className="small">尚未選擇圖片</span>;
-    return <img src={previewUrl} alt={alt} style={{ maxWidth: "160px", maxHeight: "120px", objectFit: "contain" }} />;
+    return <LibPicturePreview ColumnDisplayName={alt} PicSrc={previewUrl} PicDescription={alt} onRemove={props.onRemove} removeDisabled={props.removeDisabled} />;
 };
 
 /** 封面選擇按鈕，實際資料寫回 Header 的 CoverPicId。 */

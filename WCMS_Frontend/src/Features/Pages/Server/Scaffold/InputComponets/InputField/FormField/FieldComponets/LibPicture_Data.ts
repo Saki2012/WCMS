@@ -8,7 +8,6 @@ export interface ILibPictureStyle
     InputStyle: string;
 }
 
-
 export interface ILibPictureProp
 {
     // Style:ILibPictureStyle,
@@ -16,5 +15,9 @@ export interface ILibPictureProp
     PicSrc: string;
     PicDescription?: string;
     children?: ReactNode;
+    /** 刪除圖片與其連動資料。 */
+    onRemove?: () => void;
+    /** 控制刪除圖片按鈕是否停用。 */
+    removeDisabled?: boolean;
 }
 // #endregion
