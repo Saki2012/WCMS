@@ -9,7 +9,7 @@ using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.SpecFeatures.Spec1810.WEB.SpecResearch;
 
 
-public class SpecResearchSet_DTO : ITSet_DTO
+[LibDesc(SpecModelDisplayName.SpecResearchSet_DTO)]public class SpecResearchSet_DTO : ITSet_DTO
 {
     public SpecResearchModel_DTO SpecResearch { get; set; } = new();
     public List<SpecResearchDetailModel_DTO> SpecResearchDetail { get; set; } = [];
