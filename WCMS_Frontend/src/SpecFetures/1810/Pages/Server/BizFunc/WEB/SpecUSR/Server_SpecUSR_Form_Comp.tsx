@@ -13,23 +13,40 @@ import { DividerComp } from "@/SysCore/Components/Divider/Divider_Comp";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import { type Lang, LangLabelMap } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
-import { LibText } from "@/SysCore/Utils/Library/LibData";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import type { components } from "@/types/api";
 import { PGID, SpecUSRDetailFields, SpecUSRFileFields, SpecUSRModelFields, SpecUSRPhotoFields, SpecUSRPhotoInfoFields, SpecUSRSetFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
 import { useCallback, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { specUSREmptyData, type SpecUSRPreviewPayload, useSpecUSRFormTemplate } from "./Server_SpecUSR_Form_Hook";
+import {
+    SpecUSRAttachmentUploadLimit,
+    SpecUSRPhotoBatchUploadLimit,
+    SpecUSRPictureUploadLimit,
+    specUSREmptyData,
+    useSpecUSRFormTemplate,
+} from "./Server_SpecUSR_Form_Hook";
+import { LibAttachment, LibText } from "@/SysCore/Utils/Library/LibData";
 
 // #region Property
 type SpecUSRSet = components["schemas"]["SpecUSRSet_DTO"];
+
+type SpecUSRPreviewPayload = {
+    type: "wcms:preview";
+    module: "specUSR";
+    payload: {
+        kind: "dto";
+        dto: SpecUSRSet;
+    };
+};
 
 type SpecUSRFile = components["schemas"]["SpecUSRFile_DTO"];
 
 type SpecUSRUrl = components["schemas"]["SpecUSRUrl_DTO"];
 
 type SpecUSRFormBinding = ServerFormBinding<SpecUSRSet>;
+
+type UploadPictureHandler = ReturnType<typeof useUploadPicture>["handleFileChange"];
 // #endregion
 
 // #region Public
@@ -89,9 +106,14 @@ const HeaderComp = (
 {
     const setField = useSetTableField<SpecUSRSet>(prop.formData);
     const useUploadPic = useUploadPicture();
+    const [pictureInputResetKey, setPictureInputResetKey] = useState(0);
     const initialPicId = prop.formData.data?.SpecUSR?.PictureId;
-    const previewSrc = useUploadPic.result.previewUrl
-        || (FileManagementAPI.get_Server_Preview_Url(initialPicId) ?? "https://dummyimage.com/1920x550/555/fff.png");
+    const hasPicture = hasSpecUSRPicture(useUploadPic.result.previewUrl, initialPicId);
+    const previewSrc = buildSpecUSRPicturePreviewSrc(useUploadPic.result.previewUrl, initialPicId);
+    const handleRemovePicture = useCallback(() =>
+    {
+        handleSpecUSRPictureRemove(prop.formData, useUploadPic.handleFileChange, () => setPictureInputResetKey(prev => prev + 1));
+    }, [prop.formData, useUploadPic.handleFileChange]);
     const LibTabsPropA: LibTabsProp = {
         Style: prop.theme.Tabs,
         item: { Basic: "基本", Status: "狀態", Tags: "標籤", Img: "成果照片", Photo: "相片", System: "系統資訊" },
@@ -123,19 +145,25 @@ const HeaderComp = (
         ],
         Img: [
             <LibFile
+                key={`SpecUSRPictureInput_${pictureInputResetKey}`}
                 Style={prop.theme.File}
                 ColumnDisplayName={`選擇圖片`}
-                Multiple={false}
+                Multiple={SpecUSRPictureUploadLimit.multiple}
                 InputValue={""}
-                accept="image/*"
+                accept={SpecUSRPictureUploadLimit.accept}
+                maxFileCount={SpecUSRPictureUploadLimit.maxFileCount}
+                maxFileSizeMB={SpecUSRPictureUploadLimit.maxFileSizeMB}
                 parentClass="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12"
-                onChange={(files) =>
-                    useUploadPic.handleFileChange(files, (internalId) =>
-                    {
-                        prop.formData.setFormData((prev) => ({ ...prev, SpecUSR: { ...prev?.SpecUSR, PictureId: internalId } }));
-                    })}
+                onChange={(files) => handleSpecUSRPictureChange(files, prop.formData, useUploadPic.handleFileChange)}
             >
-                <LibPicture key="preview" ColumnDisplayName={useUploadPic?.result.previewUrl ?? ""} PicSrc={previewSrc} PicDescription={`選中的圖片`} />
+                <LibPicture
+                    key="preview"
+                    ColumnDisplayName={useUploadPic.result.previewUrl ?? ""}
+                    PicSrc={previewSrc}
+                    PicDescription="選中的圖片"
+                    onRemove={handleRemovePicture}
+                    removeDisabled={!hasPicture}
+                />
             </LibFile>,
             <LibTextBox
                 Style={prop.theme.TextBox}
@@ -429,10 +457,13 @@ const SubFilesComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; par
                         <div key={`${f.ParentRowId}-${f.RowId}`} className="flex items-center gap-2 mb-2">
                             <LibFileInput
                                 DefaultInputDisplay="請輸入附件說明"
-                                Accept="*/*"
+                                Accept={SpecUSRAttachmentUploadLimit.accept}
+                                maxFileCount={SpecUSRAttachmentUploadLimit.maxFileCount}
+                                maxFileSizeMB={SpecUSRAttachmentUploadLimit.maxFileSizeMB}
                                 onDelete={() => removeFileAt(i)}
                                 {...setFileField(SpecUSRSetFields.SpecUSRFile, SpecUSRFileFields.FileSrcId, SpecUSRFileFields.FileName, rowKeys, {
                                     fileName: f.FileSrc?.FileName ?? "",
+                                    onlyFillNameIfEmpty: false,
                                 })}
                             />
                         </div>
@@ -489,6 +520,11 @@ const UploadPicComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; })
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
     const [isUploading, setIsUploading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    /** 移除批次上傳前的單張預覽圖片。 */
+    const handleRemoveSelectedFile = useCallback((removeIndex: number) =>
+    {
+        setSelectedFiles(prev => prev.filter((_file, index) => index !== removeIndex));
+    }, []);
 
     // 逐張打 UploadTemp，回傳 InternalId 陣列
     const uploadAll = async (): Promise<string[]> =>
@@ -616,7 +652,10 @@ const UploadPicComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; })
                         <LibFile
                             Style={prop.theme.File}
                             ColumnDisplayName="選擇圖片(多選)"
-                            Multiple={true}
+                            Multiple={SpecUSRPhotoBatchUploadLimit.multiple}
+                            accept={SpecUSRPhotoBatchUploadLimit.accept}
+                            maxFileCount={SpecUSRPhotoBatchUploadLimit.maxFileCount}
+                            maxFileSizeMB={SpecUSRPhotoBatchUploadLimit.maxFileSizeMB}
                             onChange={(files) => setSelectedFiles(files)}
                             InputValue={""}
                         />
@@ -634,7 +673,12 @@ const UploadPicComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; })
                                 return (
                                     <div key={index} className="col-12 border-bottom">
                                         <div className="d-flex align-items-center">
-                                            <LibPicturePreview ColumnDisplayName={file.name} PicSrc={url} PicDescription={`選中的圖片 ${file.name}`} />
+                                            <LibPicturePreview
+                                                ColumnDisplayName={file.name}
+                                                PicSrc={url}
+                                                PicDescription={`選中的圖片 ${file.name}`}
+                                                onRemove={() => handleRemoveSelectedFile(index)}
+                                            />
                                         </div>
                                     </div>
                                 );
@@ -742,6 +786,70 @@ const PhotoInfoComp = (prop: { theme: IBETheme; formData: SpecUSRFormBinding; pa
 // #endregion
 
 // #region Private
+/** 建立計畫成果主圖預覽來源，沒有圖片時顯示預設圖。 */
+const buildSpecUSRPicturePreviewSrc = (previewUrl: string, pictureId?: string | null): string =>
+{
+    return previewUrl || FileManagementAPI.get_Server_Preview_Url(pictureId) || ".png";
+};
+
+/** 判斷目前是否有真實圖片，預設圖不視為可刪除圖片。 */
+const hasSpecUSRPicture = (previewUrl: string, pictureId?: string | null): boolean =>
+{
+    return Boolean(previewUrl || pictureId);
+};
+
+/** 清除計畫成果主圖，並重掛檔案輸入元件以同步清除 input 內部檔案。 */
+const handleSpecUSRPictureRemove = (binding: SpecUSRFormBinding, handleFileChange: UploadPictureHandler, resetInput: () => void): void =>
+{
+    clearSpecUSRPictureInfo(binding);
+    void handleFileChange([]);
+    resetInput();
+};
+
+/** 上傳或清除計畫成果主圖，並同步圖片 ID 與圖片說明。 */
+const handleSpecUSRPictureChange = (files: File[], binding: SpecUSRFormBinding, handleFileChange: UploadPictureHandler): void =>
+{
+    if (files.length === 0)
+    {
+        clearSpecUSRPictureInfo(binding);
+        void handleFileChange([]);
+        return;
+    }
+
+    const pictureDescription = buildSpecUSRPictureDescription(files[0]);
+    void handleFileChange(files, internalId => updateSpecUSRPictureInfo(binding, internalId, pictureDescription));
+};
+
+/** 清除計畫成果主圖 internalId 與圖片說明。 */
+const clearSpecUSRPictureInfo = (binding: SpecUSRFormBinding): void =>
+{
+    binding.setFormData(prev => buildSpecUSRPictureClearData(prev ?? specUSREmptyData));
+};
+
+/** 回寫計畫成果主圖 internalId，並同步覆蓋圖片說明。 */
+const updateSpecUSRPictureInfo = (binding: SpecUSRFormBinding, internalId: string, pictureDescription: string): void =>
+{
+    binding.setFormData(prev => buildSpecUSRPictureData(prev ?? specUSREmptyData, internalId, pictureDescription));
+};
+
+/** 建立計畫成果主圖清除後資料，避免保留舊圖片與舊圖片說明。 */
+const buildSpecUSRPictureClearData = (source: SpecUSRSet): SpecUSRSet =>
+{
+    return { ...source, SpecUSR: { ...source.SpecUSR, PictureId: "", PicDescription: "" } };
+};
+
+/** 建立計畫成果主圖更新後資料，圖片說明跟著新檔案同步更新。 */
+const buildSpecUSRPictureData = (source: SpecUSRSet, internalId: string, pictureDescription: string): SpecUSRSet =>
+{
+    return { ...source, SpecUSR: { ...source.SpecUSR, PictureId: internalId, PicDescription: pictureDescription } };
+};
+
+/** 從圖片檔案建立預設圖片說明，去除副檔名。 */
+const buildSpecUSRPictureDescription = (file?: File): string =>
+{
+    return String(LibAttachment.getDisplayFileNameWithoutExtension(file) ?? "").trim();
+};
+
 /** 依目前選取類別取得 Detail 欄位顯示集合。 */
 const getVisibleCols = (formData: SpecUSRFormBinding, categoryCols: Record<string, string[]>): Set<string> =>
 {

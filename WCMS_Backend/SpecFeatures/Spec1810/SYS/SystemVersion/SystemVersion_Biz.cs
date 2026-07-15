@@ -9,7 +9,7 @@ public class SpecSystemVersion_Biz: SystemVersion_Biz
         base.SetSpecVersion(data);
         data.SpecCode = "1810";
         data.SpecTitle = "國立臺灣藝術大學研究發展處";
-        data.SpecFeatVersion = 1;
+        data.SpecFeatVersion = 2;
         data.SpecModelVersion = 0;
     }
     #endregion

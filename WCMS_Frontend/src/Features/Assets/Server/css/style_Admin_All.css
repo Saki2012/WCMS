@@ -598,7 +598,7 @@ h6, .h6, h5, .h5, h4, .h4, h3, .h3, h2, .h2, h1, .h1 {
 .pc-container .page-header .breadcrumb .breadcrumb-item a.active,
 .pc-container .page-header .breadcrumb .breadcrumb-item a:hover {
     opacity: 1;
-    color: var(--Customize_ACcolor);
+    color: var(--bs-gray-700);
 }
 .pc-container .page-header .breadcrumb .breadcrumb-item+.breadcrumb-item::before {
     position: relative;

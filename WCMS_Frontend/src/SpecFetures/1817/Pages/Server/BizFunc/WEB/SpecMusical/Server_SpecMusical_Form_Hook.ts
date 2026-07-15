@@ -629,13 +629,14 @@ const syncSpecMusicalSoundCommit = (_data: SpecMusicalSet, nextItems: SpecMusica
     return nextItems.map((item, index) => ({ ...item, RowId: item.RowId ?? index + 1 }));
 };
 
-/** 使用 EditGrid 內建 file 欄位選圖後，上傳並回寫相片 internalId。 */
+
+/** 使用 EditGrid 內建 file 欄位選圖後，上傳並同步相片說明。 */
 const uploadSpecMusicalPictureValue = async (args: EditGridCellValueChangeArgs, handleFileChange: UploadFileHandler): Promise<EditGridCellValueChangeResult> =>
 {
     const current = toSpecMusicalPictureCellValue(args.value);
     const selectedFile = getSelectedEditGridFile(args.nextValue);
 
-    if (!selectedFile?.file) return { value: buildEmptySpecMusicalPictureCellValue() };
+    if (!selectedFile?.file) return { value: buildEmptySpecMusicalPictureCellValue(), rowValues: { [SpecMusicalPictureListFields.Info]: "" } };
 
     let uploadedValue: SpecMusicalPictureCellValue = current;
     const selectedOriginalName = getSelectedFileName(selectedFile);
@@ -645,7 +646,8 @@ const uploadSpecMusicalPictureValue = async (args: EditGridCellValueChangeArgs, 
         uploadedValue = buildUploadedSpecMusicalPictureCellValue(internalId, originalName || selectedOriginalName);
     });
 
-    return { value: uploadedValue };
+    const fileTitle = LibAttachment.getDisplayFileNameWithoutExtension(uploadedValue.originalFileName || uploadedValue.fileName);
+    return { value: uploadedValue, rowValues: { [SpecMusicalPictureListFields.Info]: fileTitle } };
 };
 
 /** 批次上傳所有選取相片，成功後一次寫入 Form data。 */

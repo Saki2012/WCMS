@@ -1,12 +1,13 @@
+import type { FooterRuntimeInfo } from "@/Features/Pages/Client/Scaffold/MainFrame/Footer/Footer";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { SysCurrentDate } from "@/SysCore/Utils/SystemInfo/GetServerInfo";
 import { buildSystemVersionText } from "@/SysCore/Utils/SystemInfo/SystemVersionText";
 
 // #region Section
-export const FooterComp = () =>
+export const FooterComp = (runtimeInfo: FooterRuntimeInfo | undefined) =>
 {
     const date = SysCurrentDate();
-    const systemVersionText = buildSystemVersionText();
+    const systemVersionText = buildSystemVersionText({ feVersion: runtimeInfo?.feVersion, beVersion: runtimeInfo?.beVersion });
     return (
         <footer className="pc-footer">
             <div className="footer-wrapper container-fluid">

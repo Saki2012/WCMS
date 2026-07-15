@@ -11,6 +11,7 @@ public static class SpecModelDisplayName
     public const string SpecCategory_DetailModule = "SpecCategory_DetailModule";
     #endregion
     #region SpecResearch
+    public const string SpecResearchSet_DTO = nameof(SpecResearchSet_DTO);
     public const string SpecResearchId = "SpecResearchId";
     public const string SpecResearch_Detail = "SpecResearch_Detail";
     public const string SpecResearch_Categories = "SpecResearch_Categories";
@@ -47,6 +48,7 @@ public static class SpecModelDisplayName
     public const string SpecResearch_Professor = "SpecResearch_Professor";
     #endregion
     #region SpecUSR
+    public const string SpecUSRSet_DTO = nameof(SpecUSRSet_DTO);
     public const string SpecUSRId = "SpecUSRId";
     public const string SpecUSR_Detail = "SpecUSR_Detail";
     public const string SpecUSR_Categories = "SpecUSR_Categories";

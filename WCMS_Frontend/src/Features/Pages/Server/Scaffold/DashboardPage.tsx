@@ -1,3 +1,4 @@
+import { GoTop } from "@/Features/Pages/Client/Scaffold/MainFrame/GoTop/GoTop";
 import { FooterComp } from "@/Features/Pages/Server/Scaffold/Footer/Footer_Comp";
 import { BreadCrumb } from "@/Features/Pages/Server/Scaffold/Menu/BreadCrumb/BreadCrumb_Comp";
 import { NavibarMenu } from "@/Features/Pages/Server/Scaffold/Menu/NaviBar/NaviBar_Comp";
@@ -6,7 +7,7 @@ import { type RouteHandleMeta } from "@/Features/Pages/Server/Scaffold/Routes/Se
 import { ToastViewport_Comp } from "@/Features/Pages/Server/Scaffold/Toast/ToastViewport_Comp";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { Outlet, useMatches } from "react-router-dom";
-import { GoTop } from "@/Features/Pages/Client/Scaffold/MainFrame/GoTop/GoTop";
+import { useSiteFooterRuntime } from "../../Client/Route/ClientRouter_Loader";
 
 // #region Public
 export const DashboardPage = ({ theme }: { theme: IBETheme; }) =>
@@ -16,7 +17,7 @@ export const DashboardPage = ({ theme }: { theme: IBETheme; }) =>
     const pageTitle = lastHandle?.title;
     const lastModule = [...matches].reverse().find(m => (m.handle as RouteHandleMeta | undefined)?.moduleCode);
     const moduleCode = (lastModule?.handle as RouteHandleMeta | undefined)?.moduleCode ?? "WebManagement"; // 你的預設
-
+    const footerVm = useSiteFooterRuntime("");
     return (
         <>
             <SidebarMenu moduleCode={moduleCode} />
@@ -39,7 +40,7 @@ export const DashboardPage = ({ theme }: { theme: IBETheme; }) =>
                     </div>
                     <Outlet /> {/* 中間會注入功能頁內容 */}
                 </div>
-                <FooterComp />
+                <FooterComp {...footerVm.runtimeInfo} />
                 <ToastViewport_Comp />
                 <GoTop />
             </div>

@@ -1,3 +1,4 @@
+// bug#17已處理完
 import {
     type AnnouncementDetailRowKeys,
     type AnnouncementDetailTabItem,
@@ -32,7 +33,7 @@ import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import type { components } from "@/types/api";
 import { AnnouncementDetailFields, AnnouncementFields, AnnouncementSetFields, PGID } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 // #region Property
@@ -88,6 +89,12 @@ export interface HeaderTabContentOptions extends HeaderSectionProps
 
     /** 圖片預覽來源 */
     previewSrc: string;
+
+    /** 圖片 input 重掛 key，只在手動清除預覽圖時更新。 */
+    pictureInputResetKey: number;
+
+    /** 重掛圖片 input，清除瀏覽器內部已選檔案。 */
+    onResetPictureInput: () => void;
 }
 /** Announcement Header 可擴充的 Form 區塊名稱。 */
 export const AnnouncementFormSlotNames = {
@@ -264,9 +271,14 @@ const HeaderComp = (props: HeaderSectionProps) =>
 {
     const setField = useSetTableField<AnnouncementSet>(props.binding);
     const uploadPic = useUploadPicture();
+    const [pictureInputResetKey, setPictureInputResetKey] = useState(0);
     const previewSrc = buildPicturePreviewSrc(props.binding, uploadPic);
+    const onResetPictureInput = useCallback(() =>
+    {
+        setPictureInputResetKey(prev => prev + 1);
+    }, []);
     const tabInfo: LibTabsProp = { Style: props.theme.Tabs, item: { Basic: "基本", Status: "狀態", Tags: "標籤", Pic: "圖片", System: "系統資訊" } };
-    const tabContent = buildHeaderTabContent({ ...props, setField, uploadPic, previewSrc });
+    const tabContent = buildHeaderTabContent({ ...props, setField, uploadPic, previewSrc, pictureInputResetKey, onResetPictureInput });
 
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
@@ -412,8 +424,11 @@ const buildSystemFieldData = (opt: HeaderTabContentOptions): AnnouncementFormSlo
 /** 建立圖片上傳與預覽欄位。 */
 const buildPictureField = (opt: HeaderTabContentOptions): ReactNode =>
 {
+    const hasPicture = hasAnnouncementPicture(opt.binding, opt.uploadPic);
+
     return (
         <LibFile
+            key={`AnnouncementPictureInput_${opt.pictureInputResetKey}`}
             Style={opt.theme.File}
             ColumnDisplayName="選擇圖片"
             Multiple={AnnouncementPictureUploadLimit.maxFileCount > 1}
@@ -426,7 +441,14 @@ const buildPictureField = (opt: HeaderTabContentOptions): ReactNode =>
             parentClass="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12"
             onChange={(files) => handleAnnouncementPictureChange(files, opt.binding, opt.uploadPic.handleFileChange)}
         >
-            <LibPicture key="preview" ColumnDisplayName={opt.uploadPic.result.previewUrl ?? ""} PicSrc={opt.previewSrc} PicDescription="選中的圖片" />
+            <LibPicture
+                key="preview"
+                ColumnDisplayName={opt.uploadPic.result.previewUrl ?? ""}
+                PicSrc={opt.previewSrc}
+                PicDescription="選中的圖片"
+                onRemove={() => handleAnnouncementPictureRemove(opt)}
+                removeDisabled={!hasPicture}
+            />
         </LibFile>
     );
 };
@@ -484,6 +506,20 @@ const buildPicturePreviewSrc = (binding: ServerFormBinding<AnnouncementSet>, upl
 {
     const initialPicId = binding.data?.Announcement?.PictureId;
     return uploadPic.result.previewUrl || (FileManagementAPI.get_Server_Preview_Url(initialPicId) ?? "https://dummyimage.com/1920x550/555/fff.png");
+};
+
+/** 判斷公告主圖是否已有真實圖片來源。 */
+const hasAnnouncementPicture = (binding: ServerFormBinding<AnnouncementSet>, uploadPic: ReturnType<typeof useUploadPicture>): boolean =>
+{
+    const pictureId = LibText.safeTrim(binding.data?.Announcement?.PictureId);
+    return Boolean(uploadPic.result.previewUrl || pictureId);
+};
+
+/** 手動移除公告主圖，並重掛圖片 input 清除瀏覽器已選檔案。 */
+const handleAnnouncementPictureRemove = (opt: HeaderTabContentOptions): void =>
+{
+    handleAnnouncementPictureChange([], opt.binding, opt.uploadPic.handleFileChange);
+    opt.onResetPictureInput();
 };
 // #endregion
 

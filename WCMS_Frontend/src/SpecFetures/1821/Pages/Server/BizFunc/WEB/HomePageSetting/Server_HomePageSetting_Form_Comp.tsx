@@ -13,7 +13,7 @@ import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import { type Lang, LangLabelMap, SUPPORTED_LANGS } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
 import { SpecHomePage1821ModelFields, SpecHomePage1821SetFields } from "@/types/SchemaFields";
-import { type ReactNode, useCallback, useMemo } from "react";
+import { type ReactNode, useCallback, useMemo, useState } from "react";
 import {
     createEmptyHomePage1821Set,
     getHomePageFilePreviewUrl,
@@ -29,6 +29,8 @@ import {
 // #region Property
 type HomePageSet = components["schemas"]["SpecHomePage1821Set_DTO"];
 
+type UploadPictureHandler = ReturnType<typeof useUploadPicture>["handleFileChange"];
+
 const editGridStyle: IEditGridView_Style = {
     TableStyle: "table table-striped table-bordered table-hover",
     ToolbarStyle: "d-flex align-items-center justify-content-between mb-2",
@@ -36,6 +38,14 @@ const editGridStyle: IEditGridView_Style = {
     DangerButtonStyle: "btn btn-danger btn-rounded btn-sm",
     ErrorStyle: "text-danger small mt-1",
 };
+
+/** 首頁 1821 卡片圖片上傳限制。 */
+export const HomePage1821CardPictureUploadLimit = {
+    accept: "image/*",
+    multiple: false,
+    maxFileCount: 1,
+    maxFileSizeMB: 10,
+} as const;
 
 interface HeaderPictureFieldProps
 {
@@ -319,20 +329,37 @@ const LinksSectionComp = (prop: { theme: IBETheme; formData: ServerFormBinding<H
 const HeaderPictureField = (props: HeaderPictureFieldProps) =>
 {
     const uploadPic = useUploadPicture();
+    const [pictureInputResetKey, setPictureInputResetKey] = useState(0);
     const currentPicId = getHeaderFieldValue(props.formData.data, props.fieldName);
+    const hasPicture = Boolean(uploadPic.result.previewUrl || currentPicId);
     const previewSrc = uploadPic.result.previewUrl || getHomePageFilePreviewUrl(currentPicId) || "https://dummyimage.com/640x360/555/fff.png";
+    const handleRemovePicture = useCallback(() =>
+    {
+        handleHeaderPictureChange([], props.formData, props.lang, props.fieldName, uploadPic.handleFileChange);
+        setPictureInputResetKey(prev => prev + 1);
+    }, [props.fieldName, props.formData, props.lang, uploadPic.handleFileChange]);
 
     return (
         <LibFile
+            key={`${props.lang}_${props.fieldName}_${pictureInputResetKey}`}
             Style={props.theme.File}
             ColumnDisplayName={props.label}
-            Multiple={false}
+            Multiple={HomePage1821CardPictureUploadLimit.multiple}
             InputValue=""
-            accept="image/*"
+            accept={HomePage1821CardPictureUploadLimit.accept}
+            maxFileCount={HomePage1821CardPictureUploadLimit.maxFileCount}
+            maxFileSizeMB={HomePage1821CardPictureUploadLimit.maxFileSizeMB}
             parentClass="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12"
-            onChange={(files) => uploadPic.handleFileChange(files, internalId => updateHeaderPictureId(props.formData, props.lang, props.fieldName, internalId))}
+            onChange={(files) => handleHeaderPictureChange(files, props.formData, props.lang, props.fieldName, uploadPic.handleFileChange)}
         >
-            <LibPicture key="preview" ColumnDisplayName={props.label} PicSrc={previewSrc} PicDescription={props.label} />
+            <LibPicture
+                key="preview"
+                ColumnDisplayName={props.label}
+                PicSrc={previewSrc}
+                PicDescription={props.label}
+                onRemove={handleRemovePicture}
+                removeDisabled={!hasPicture}
+            />
         </LibFile>
     );
 };
@@ -448,6 +475,25 @@ const useHomePageEditGridRenderers = () =>
 const getHeaderFieldValue = (data: HomePageSet | undefined, fieldName: HeaderPictureFieldProps["fieldName"]): string =>
 {
     return String(data?.SpecHomePage1821?.[fieldName] ?? "");
+};
+
+/** 上傳或清除卡片圖片，並同步圖片欄位資料。 */
+const handleHeaderPictureChange = (
+    files: File[],
+    binding: ServerFormBinding<HomePageSet>,
+    lang: Lang,
+    fieldName: HeaderPictureFieldProps["fieldName"],
+    handleFileChange: UploadPictureHandler,
+): void =>
+{
+    if (files.length === 0)
+    {
+        updateHeaderPictureId(binding, lang, fieldName, "");
+        void handleFileChange([]);
+        return;
+    }
+
+    void handleFileChange(files, internalId => updateHeaderPictureId(binding, lang, fieldName, internalId));
 };
 
 const updateHeaderPictureId = (

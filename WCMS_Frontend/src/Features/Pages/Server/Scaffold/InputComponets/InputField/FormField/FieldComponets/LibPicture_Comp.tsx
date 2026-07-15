@@ -6,9 +6,8 @@ import type { ILibPictureProp } from "./LibPicture_Data";
 // #region Property
 interface LibPictureWithParentClassProp extends ILibPictureProp
 {
-    parentClass?: string; // 新增
+    parentClass?: string;
 }
-
 
 interface UploadResult
 {
@@ -17,6 +16,13 @@ interface UploadResult
     uploading: boolean;
     error: string | null;
 }
+
+interface PictureRemoveButtonProp
+{
+    title: string;
+    disabled?: boolean;
+    onRemove: () => void;
+}
 // #endregion
 
 // #region Public
@@ -24,7 +30,9 @@ export const useUploadPicture = () =>
 {
     const uploadUrl: string = FileManagementAPI.Server_UploadTemp;
     const [result, setResult] = useState<UploadResult>({ internalId: null, previewUrl: "", uploading: false, error: null });
-    const { publish } = useToast(); // ✅ 單一來源
+    const { publish } = useToast();
+
+    /** 上傳圖片並回寫暫存 internalId。 */
     const handleFileChange = async (files: File[], onUploaded?: (internalId: string) => void) =>
     {
         if (!files || files.length === 0)
@@ -59,9 +67,7 @@ export const useUploadPicture = () =>
 
     return { result, handleFileChange };
 };
-// #endregion
 
-// #region Private
 export const LibPicture = ({ children, ...prop }: LibPictureWithParentClassProp) =>
 {
     return (
@@ -69,14 +75,37 @@ export const LibPicture = ({ children, ...prop }: LibPictureWithParentClassProp)
             <div className="panel align-items-center">
                 <div className="panel-body w-100">
                     <div className="col-12 float-md-left float-sm-none py-1 d-flex justify-content-center">
-                        <picture className="imgALL_box">
-                            <img src={prop.PicSrc} className="d-block w-100 h-100 object-fit-contain card_image" alt={prop.PicDescription} />
-                        </picture>
+                        <div className="position-relative w-100">
+                            <picture className="imgALL_box">
+                                <img src={prop.PicSrc} className="d-block w-100 h-100 object-fit-contain card_image" alt={prop.PicDescription ?? ""} />
+                            </picture>
+                            {prop.onRemove && <PictureRemoveButton title={prop.PicDescription ?? "圖片"} disabled={prop.removeDisabled} onRemove={prop.onRemove} />}
+                        </div>
                     </div>
                     {children}
                 </div>
             </div>
         </div>
+    );
+};
+// #endregion
+
+// #region Section
+/** 圖片右上角刪除按鈕。 */
+const PictureRemoveButton = (prop: PictureRemoveButtonProp) =>
+{
+    return (
+        <button
+            type="button"
+            className="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 rounded-circle"
+            title={`刪除${prop.title}`}
+            aria-label={`刪除${prop.title}`}
+            disabled={prop.disabled}
+            onClick={prop.onRemove}
+            style={{width: "30px", height: "30px"}}
+        >
+            <i className="fas fa-times" aria-hidden="true"></i>
+        </button>
     );
 };
 // #endregion

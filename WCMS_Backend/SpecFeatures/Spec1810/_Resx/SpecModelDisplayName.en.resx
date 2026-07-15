@@ -342,4 +342,10 @@
   <data name="SpecUSR" xml:space="preserve">
     <value>計畫成果版型</value>
   </data>
+  <data name="SpecUSRSet_DTO" xml:space="preserve">
+    <value>計畫成果</value>
+  </data>
+  <data name="SpecResearchSet_DTO" xml:space="preserve">
+    <value>研究計畫</value>
+  </data>
 </root>

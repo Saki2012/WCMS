@@ -9,7 +9,7 @@ namespace WCMS.SpecFeatures.Spec1810.WEB.SpecUSR;
 /// <summary>
 /// 
 /// </summary>
-public class SpecUSRSet_DTO : ITSet_DTO
+[LibDesc(SpecModelDisplayName.SpecUSRSet_DTO)]public class SpecUSRSet_DTO : ITSet_DTO
 {
     public SpecUSRModel_DTO SpecUSR { get; set; } = new();
     public List<SpecUSRDetail_DTO> SpecUSRDetail { get; set; } = [];
