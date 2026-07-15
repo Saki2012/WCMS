@@ -61,7 +61,7 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     /// </summary>
     private static SiteMenu_IndexInfoModel BuildSiteIndexInfo(string siteIndex, int rowId, DataRow siteInfo, DataRow langRow)
     {
-        LangCodeExt.TryParse(langRow["Lang"].ToString(), out LangCode lang);
+        _ = LangCodeExt.TryParse(langRow["Lang"].ToString(), out LangCode lang);
         return new SiteMenu_IndexInfoModel
         {
             SiteIndex = siteIndex,
@@ -115,7 +115,7 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
         foreach (DataRow row in rows)
         {
             item.WindowTarget = row["URL_Open"].ToByte() == 1 ? WindowTarget.Self : WindowTarget.Blank;
-            LangCodeExt.TryParse(row["Lang"].ToString(), out LangCode lang);
+            _ = LangCodeExt.TryParse(row["Lang"].ToString(), out LangCode lang);
             item._SiteMenu_Item_Title.Add(new SiteMenu_Item_Title
             {
                 SiteIndex = item.SiteIndex,
@@ -532,23 +532,18 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
         var newItem = BuildMenuItem(oldIndex.SiteIndex, savedRowId, request, null);
         var newItems = oldItems.Select(x => x.Snapshot()).Append(newItem).ToList();
         var newTitles = oldTitles.Select(x => x.Snapshot()).ToList();
-
         newTitles.AddRange(BuildMenuItemTitles(oldIndex.SiteIndex, savedRowId, request));
-
         CheckMenuStructure(newItems);
         if (Message.HasError) return new SaveMenuItemResult_DTO();
         NormalizeNewMenuItemOrder(newItems, savedRowId);
         ApplyUpdateRules(BuildMenuCheckData(newItems, newTitles));
         if (Message.HasError) return new SaveMenuItemResult_DTO();
-
         var finalItem = newItems.First(x => x.RowId == savedRowId);
-
         await UpdateChangedMenuItemsAsync(oldItems, newItems, ct);
         await CreateModelAsync(finalItem, ct);
         await SaveMenuItemTitlesAsync(oldIndex.SiteIndex, savedRowId, BuildMenuItemTitles(oldIndex.SiteIndex, savedRowId, request), ct);
         await SaveMenuItemUrlAsync(oldIndex.SiteIndex, savedRowId, BuildMenuItemUrl(oldIndex.SiteIndex, savedRowId, request.Url), ct);
         await SaveMenuItemModuleAsync(oldIndex.SiteIndex, savedRowId, BuildMenuItemModule(oldIndex.SiteIndex, savedRowId, request.Module), ct);
-
         return new SaveMenuItemResult_DTO() { RowId = savedRowId, FullUrl = finalItem.FullUrl, IsNewItem = true };
     }
 
@@ -559,11 +554,8 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     {
         var oldItem = await QuerySiteMenuItemAsync(oldIndex.SiteIndex, request.RowId!.Value, ct);
         if (oldItem == null) return new SaveMenuItemResult_DTO();
-
         var itemSiteUrlChanged = IsItemSiteUrlChanged(oldItem, request);
-
         if (itemSiteUrlChanged) return await SaveExistingMenuItemWithUrlChangedAsync(oldIndex, oldItem, request, ct);
-
         return await SaveExistingMenuItemWithoutStructureAsync(oldIndex, oldItem, request, ct);
     }
 
@@ -574,17 +566,13 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     {
         var newItem = oldItem.Snapshot();
         ApplyMenuItemContent(newItem, request);
-
         var titles = BuildMenuItemTitles(oldIndex.SiteIndex, oldItem.RowId, request);
         CheckSingleItemRules(newItem, titles);
         if (Message.HasError) return new SaveMenuItemResult_DTO();
-
         if (IsMenuContentChanged(oldItem, newItem)) await UpdateModelAsync(oldItem, newItem, ct);
-
         await SaveMenuItemTitlesAsync(oldIndex.SiteIndex, oldItem.RowId, titles, ct);
         await SaveMenuItemUrlAsync(oldIndex.SiteIndex, oldItem.RowId, BuildMenuItemUrl(oldIndex.SiteIndex, oldItem.RowId, request.Url), ct);
         await SaveMenuItemModuleAsync(oldIndex.SiteIndex, oldItem.RowId, BuildMenuItemModule(oldIndex.SiteIndex, oldItem.RowId, request.Module), ct);
-
         return new SaveMenuItemResult_DTO() { RowId = oldItem.RowId, FullUrl = oldItem.FullUrl, IsNewItem = false };
     }
 
@@ -597,21 +585,16 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
         var oldTitles = await QuerySiteMenuItemTitlesAsync(oldIndex.SiteIndex, null, ct);
         var newItems = oldItems.Select(x => x.Snapshot()).ToList();
         var target = newItems.FirstOrDefault(x => x.RowId == oldItem.RowId);
-
         if (target == null) return new SaveMenuItemResult_DTO();
-
         ApplyMenuItemContent(target, request);
         var newTitles = oldTitles.Where(x => x.ItemRowId != oldItem.RowId).Select(x => x.Snapshot()).ToList();
         newTitles.AddRange(BuildMenuItemTitles(oldIndex.SiteIndex, oldItem.RowId, request));
-
         ApplyUpdateRules(BuildMenuCheckData(newItems, newTitles));
         if (Message.HasError) return new SaveMenuItemResult_DTO();
-
         await UpdateChangedMenuItemsAsync(oldItems, newItems, ct);
         await SaveMenuItemTitlesAsync(oldIndex.SiteIndex, oldItem.RowId, BuildMenuItemTitles(oldIndex.SiteIndex, oldItem.RowId, request), ct);
         await SaveMenuItemUrlAsync(oldIndex.SiteIndex, oldItem.RowId, BuildMenuItemUrl(oldIndex.SiteIndex, oldItem.RowId, request.Url), ct);
         await SaveMenuItemModuleAsync(oldIndex.SiteIndex, oldItem.RowId, BuildMenuItemModule(oldIndex.SiteIndex, oldItem.RowId, request.Module), ct);
-
         var finalItem = newItems.First(x => x.RowId == oldItem.RowId);
         return new SaveMenuItemResult_DTO() { RowId = oldItem.RowId, FullUrl = finalItem.FullUrl, IsNewItem = false };
     }
@@ -660,7 +643,6 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
             await CreateModelAsync(source, ct);
             return;
         }
-
         var newInfo = oldInfo.Snapshot();
         ApplySiteMenuIndexInfo(newInfo, source);
         await UpdateModelAsync(oldInfo, newInfo, ct);
@@ -692,8 +674,7 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     /// </summary>
     private SiteMenu_IndexModel BuildMenuCheckData(List<SiteMenu_Item> items, List<SiteMenu_Item_Title> titles)
     {
-        foreach (SiteMenu_Item item in items)
-            item._SiteMenu_Item_Title = titles.Where(x => x.ItemRowId == item.RowId).ToList();
+        foreach (SiteMenu_Item item in items) item._SiteMenu_Item_Title = titles.Where(x => x.ItemRowId == item.RowId).ToList();
         return new SiteMenu_IndexModel { _SiteMenu_Item = items };
     }
 
@@ -704,14 +685,12 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     {
         var map = items.ToDictionary(x => x.RowId);
         var newItems = oldItems.Where(x => !deleteIds.Contains(x.RowId)).Select(x => x.Snapshot()).ToList();
-
         foreach (var item in newItems)
         {
             if (!map.TryGetValue(item.RowId, out var source)) continue;
             item.ParentRowId = source.ParentRowId;
             item.DisplayOrder = source.DisplayOrder;
         }
-
         return newItems;
     }
 
@@ -721,13 +700,11 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     private SiteMenu_Item BuildMenuItem(string siteIndex, int rowId, SaveMenuItem_DTO request, SiteMenu_Item? oldItem)
     {
         var item = oldItem?.Snapshot() ?? new SiteMenu_Item() { SiteIndex = siteIndex, RowId = rowId };
-
         if (oldItem == null)
         {
             item.ParentRowId = request.ParentRowId;
             item.DisplayOrder = request.DisplayOrder;
         }
-
         ApplyMenuItemContent(item, request);
         return item;
     }
@@ -766,9 +743,7 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     private void CollectDeleteRowIds(List<SiteMenu_Item> items, int rowId, HashSet<int> result)
     {
         if (!result.Add(rowId)) return;
-
-        foreach (var child in items.Where(x => x.ParentRowId == rowId))
-            CollectDeleteRowIds(items, child.RowId, result);
+        foreach (var child in items.Where(x => x.ParentRowId == rowId)) CollectDeleteRowIds(items, child.RowId, result);
     }
 
     /// <summary>
@@ -786,7 +761,6 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     private void CheckMenuParentExists(List<SiteMenu_Item> items)
     {
         var ids = items.Select(x => x.RowId).ToHashSet();
-
         foreach (var item in items)
             if (item.ParentRowId != null && !ids.Contains(item.ParentRowId.Value))
                 Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00001);
@@ -809,14 +783,12 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     {
         HashSet<int> visited = [];
         int? parentId = item.ParentRowId;
-
         while (parentId != null)
         {
             if (!visited.Add(parentId.Value)) return true;
             if (parentId == item.RowId) return true;
             parentId = items.FirstOrDefault(x => x.RowId == parentId.Value)?.ParentRowId;
         }
-
         return false;
     }
 
@@ -851,9 +823,8 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     /// </summary>
     private void CheckMenuItemBasicRules(SiteMenu_Item item)
     {
-        Regex menuIdRegex = new Regex(@"^[A-Za-z0-9_-]+$", RegexOptions.Compiled);
+        Regex menuIdRegex = new(@"^[A-Za-z0-9_-]+$", RegexOptions.Compiled);
         item.ItemSiteUrl = item.ItemSiteUrl.Trim();
-
         if (item.ItemSiteUrl.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<SiteMenu_Item>(x => x.ItemSiteUrl));
         else if (!menuIdRegex.IsMatch(item.ItemSiteUrl)) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00016, $"{I18n.GetLabel<SiteMenu_Item>(x => x.ItemSiteUrl)}:{item.ItemSiteUrl}");
     }
@@ -895,7 +866,6 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     private void SetItemFullUrl(SiteMenu_IndexModel set)
     {
         if (set._SiteMenu_Item.Count == 0) return;
-
         ResetMenuLevel(set._SiteMenu_Item);
         ResetMenuFullUrl(set._SiteMenu_Item);
     }
@@ -905,8 +875,7 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     /// </summary>
     private void ResetMenuLevel(List<SiteMenu_Item> items)
     {
-        foreach (var root in items.Where(x => x.ParentRowId == null).OrderBy(x => x.DisplayOrder))
-            ResetMenuLevelChildren(items, root, 1);
+        foreach (var root in items.Where(x => x.ParentRowId == null).OrderBy(x => x.DisplayOrder)) ResetMenuLevelChildren(items, root, 1);
     }
 
     /// <summary>
@@ -915,9 +884,7 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     private void ResetMenuLevelChildren(List<SiteMenu_Item> items, SiteMenu_Item item, byte level)
     {
         item.Level = level;
-
-        foreach (var child in items.Where(x => x.ParentRowId == item.RowId).OrderBy(x => x.DisplayOrder))
-            ResetMenuLevelChildren(items, child, (byte)(level + 1));
+        foreach (var child in items.Where(x => x.ParentRowId == item.RowId).OrderBy(x => x.DisplayOrder)) ResetMenuLevelChildren(items, child, (byte)(level + 1));
     }
 
     /// <summary>
@@ -925,8 +892,7 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     /// </summary>
     private void ResetMenuFullUrl(List<SiteMenu_Item> items)
     {
-        foreach (var item in items.OrderBy(x => x.Level).ThenBy(x => x.DisplayOrder))
-            item.FullUrl = BuildMenuFullUrl(items, item);
+        foreach (var item in items.OrderBy(x => x.Level).ThenBy(x => x.DisplayOrder)) item.FullUrl = BuildMenuFullUrl(items, item);
     }
 
     /// <summary>
@@ -936,7 +902,6 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     {
         var seg = (item.ItemSiteUrl ?? string.Empty).Trim('/');
         if (item.ParentRowId == null) return "/" + seg;
-
         var parent = items.FirstOrDefault(x => x.RowId == item.ParentRowId.Value);
         var parentUrl = (parent?.FullUrl ?? string.Empty).Trim('/');
         return "/" + LibData.Merge("/", false, parentUrl, seg);
@@ -948,11 +913,9 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     private void CheckFullUrlDuplicate(SiteMenu_IndexModel set)
     {
         HashSet<string> fullUrls = new(StringComparer.OrdinalIgnoreCase);
-
         foreach (var item in set._SiteMenu_Item.OrderBy(x => x.Level).ThenBy(x => x.DisplayOrder))
         {
             if (fullUrls.Add(item.FullUrl)) continue;
-
             var title = GetMenuTitles(set).FirstOrDefault(x => x.Lang == EffectiveLang && x.ItemRowId == item.RowId)?.Title ?? item.ItemSiteUrl;
             Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00026, title, item.ItemSiteUrl);
         }
@@ -964,7 +927,6 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     private async Task UpdateChangedMenuItemsAsync(List<SiteMenu_Item> oldItems, List<SiteMenu_Item> newItems, CancellationToken ct = default)
     {
         var newMap = newItems.ToDictionary(x => x.RowId);
-
         foreach (var oldItem in oldItems)
         {
             if (!newMap.TryGetValue(oldItem.RowId, out var newItem)) continue;
@@ -1003,7 +965,6 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     private async Task SaveMenuItemTitlesAsync(string siteIndex, int itemRowId, List<SiteMenu_Item_Title> titles, CancellationToken ct = default)
     {
         var oldTitles = await QuerySiteMenuItemTitlesAsync(siteIndex, itemRowId, ct);
-
         foreach (var oldTitle in oldTitles) await DeleteModelAsync(oldTitle, ct);
         foreach (var title in titles ?? [])
         {
@@ -1019,10 +980,8 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     private async Task SaveMenuItemUrlAsync(string siteIndex, int itemRowId, SiteMenu_Item_Url? url, CancellationToken ct = default)
     {
         var oldUrls = await QuerySiteMenuItemUrlsAsync(siteIndex, itemRowId, ct);
-
         foreach (var oldUrl in oldUrls) await DeleteModelAsync(oldUrl, ct);
         if (url == null) return;
-
         url.SiteIndex = siteIndex;
         url.ItemRowId = itemRowId;
         await CreateModelAsync(url, ct);
@@ -1034,10 +993,8 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     private async Task SaveMenuItemModuleAsync(string siteIndex, int itemRowId, SiteMenu_Item_Module? module, CancellationToken ct = default)
     {
         var oldModules = await QuerySiteMenuItemModulesAsync(siteIndex, itemRowId, ct);
-
         foreach (var oldModule in oldModules) await DeleteModelAsync(oldModule, ct);
         if (module == null) return;
-
         module.SiteIndex = siteIndex;
         module.ItemRowId = itemRowId;
         await CreateModelAsync(module, ct);
@@ -1049,7 +1006,6 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     private async Task DeleteMenuItemsAsync(string siteIndex, HashSet<int> deleteIds, CancellationToken ct = default)
     {
         if (deleteIds.Count == 0) return;
-
         await DeleteMenuItemTitlesAsync(siteIndex, deleteIds, ct);
         await DeleteMenuItemUrlsAsync(siteIndex, deleteIds, ct);
         await DeleteMenuItemModulesAsync(siteIndex, deleteIds, ct);
@@ -1130,7 +1086,6 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     {
         int nextRowId = 1;
         List<SiteMenu_Item_Title> result = [];
-
         foreach (var source in request.Titles ?? [])
         {
             var rowId = source.RowId != null && source.RowId > 0 ? source.RowId.Value : nextRowId;
@@ -1146,7 +1101,6 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
                 IsShowOnMenu = source.IsShowOnMenu,
             });
         }
-
         return result;
     }
 
@@ -1165,14 +1119,12 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
             RedirectUrl = source.RedirectUrl ?? string.Empty,
         };
     }
-
     /// <summary>
     /// 建立選單模組設定資料
     /// </summary>
     private SiteMenu_Item_Module? BuildMenuItemModule(string siteIndex, int itemRowId, SaveMenuItemModule_DTO? source)
     {
         if (source == null) return null;
-
         return new SiteMenu_Item_Module()
         {
             SiteIndex = siteIndex,
@@ -1183,7 +1135,6 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
             ModuleOptions = source.ModuleOptions ?? string.Empty,
         };
     }
-
     /// <summary>
     /// 新增資料
     /// </summary>
@@ -1192,7 +1143,6 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
         ct.ThrowIfCancellationRequested();
         await GraphRepo.GetRepo<TDbModel>().CreateAsync(model);
     }
-
     /// <summary>
     /// 更新資料
     /// </summary>
@@ -1201,7 +1151,6 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
         ct.ThrowIfCancellationRequested();
         await GraphRepo.GetRepo<TDbModel>().UpdateAsync(oldModel, newModel);
     }
-
     /// <summary>
     /// 刪除資料
     /// </summary>
@@ -1210,7 +1159,6 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
         ct.ThrowIfCancellationRequested();
         await GraphRepo.GetRepo<TDbModel>().DeleteAsync(model);
     }
-
     /// <summary>
     /// SQL 字串值防呆
     /// </summary>
@@ -1225,14 +1173,9 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     {
         var target = items.FirstOrDefault(x => x.RowId == newRowId);
         if (target == null) return;
-
         var insertOrder = Math.Max((byte)1, target.DisplayOrder);
-        var siblings = items
-            .Where(x => x.RowId != newRowId && x.ParentRowId == target.ParentRowId)
-            .OrderBy(x => x.DisplayOrder).ThenBy(x => x.RowId).ToList();
-
+        var siblings = items.Where(x => x.RowId != newRowId && x.ParentRowId == target.ParentRowId).OrderBy(x => x.DisplayOrder).ThenBy(x => x.RowId).ToList();
         target.DisplayOrder = insertOrder.ToByte();
-
         int order = 1;
         foreach (var item in siblings)
         {

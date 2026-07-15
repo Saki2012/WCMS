@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Options;
-
 namespace WCMS.SysCore.PlatformServices.Cache;
 
 /// <summary>

@@ -2,7 +2,6 @@
 using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.I18n.Metadata;
 using WCMS.SysCore.Library;
-
 namespace WCMS.SysCore.I18n;
 
 /// <summary>

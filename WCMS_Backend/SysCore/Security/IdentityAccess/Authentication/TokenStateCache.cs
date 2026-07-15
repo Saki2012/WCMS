@@ -1,5 +1,4 @@
 using WCMS.SysCore.PlatformServices.Cache;
-
 namespace WCMS.SysCore.Security.IdentityAccess.Authentication;
 
 /// <summary>

@@ -3,11 +3,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using WCMS.Features.MAT.MatCategory;
 using WCMS.SysCore.FeatureDriver.Model.Base;
+using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
 using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.FeatureDriver.Model.Metadata;
-
 namespace WCMS.Features.COMM.Category;
 
 /// <summary>

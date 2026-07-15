@@ -1,8 +1,6 @@
 ﻿using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n.Metadata;
-
 namespace WCMS.SysCore.Security.IdentityAccess.Authorization;
-
 
 /// <summary>
 /// 功能權限動作

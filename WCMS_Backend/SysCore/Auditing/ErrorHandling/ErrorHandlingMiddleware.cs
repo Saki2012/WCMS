@@ -3,10 +3,10 @@ using NLog;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using WCMS.Features._Resx;
-using WCMS.SysCore.FeatureDriver.Api.Contracts;
-using WCMS.SysCore.I18n;
 using WCMS.SysCore.Constants;
+using WCMS.SysCore.FeatureDriver.Api.Contracts;
 using WCMS.SysCore.FeatureDriver.Model.Contracts;
+using WCMS.SysCore.I18n;
 namespace WCMS.SysCore.Auditing.ErrorHandling;
 
 public class ErrorHandlingMiddleware(RequestDelegate next, I18nCache i18n)
@@ -14,7 +14,6 @@ public class ErrorHandlingMiddleware(RequestDelegate next, I18nCache i18n)
     #region Property
     private readonly RequestDelegate _next = next;
     private readonly I18nCache _i18n = i18n;
-
     // 一般 Logger（Info / Error）
     private static readonly Logger logger = LogManager.GetCurrentClassLogger();
     #endregion

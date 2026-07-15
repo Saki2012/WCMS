@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.RateLimiting;
 using System.Net;
 using System.Threading.RateLimiting;
 using WCMS.SysCore.Constants;
-
 namespace WCMS.SysCore.Security.Hardening;
 
 /// <summary>

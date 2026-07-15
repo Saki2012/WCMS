@@ -1,6 +1,5 @@
 ﻿using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n.Metadata;
-
 namespace WCMS.Features.COMM.Person;
 
 /// <summary>

@@ -1,12 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using WCMS.SysCore.PlatformServices.Cache;
-
 namespace WCMS.SysCore.FeatureDriver.Repo.Cache;
 
 /// <summary>
 /// 管理 Repository 使用的 EF Runtime Metadata Cache。
 /// </summary>
-public sealed class EfRepositoryMetadataCache : LibCacheBase
+/// <remarks>
+/// 初始化 Repository EF Metadata Cache。
+/// </remarks>
+public sealed class EfRepositoryMetadataCache(CacheService cacheService) : LibCacheBase(cacheService)
 {
     #region Property
     private const string CacheRegionName = "ef-repository-metadata";
@@ -18,15 +20,7 @@ public sealed class EfRepositoryMetadataCache : LibCacheBase
         ExpirationStrategy = CacheExpirationStrategy.ProcessLifetime,
     };
     protected override string CacheRegion => CacheRegionName;
-    #endregion
 
-    #region Public
-    /// <summary>
-    /// 初始化 Repository EF Metadata Cache。
-    /// </summary>
-    public EfRepositoryMetadataCache(CacheService cacheService) : base(cacheService)
-    {
-    }
     #endregion
 
     #region Internal
@@ -77,11 +71,7 @@ public sealed class EfRepositoryMetadataCache : LibCacheBase
     {
         var metadata = db.Model.FindEntityType(entityType);
         if (metadata == null) return [];
-        return metadata.GetNavigations()
-            .Where(item => !item.IsCollection)
-            .Select(item => item.Name)
-            .Distinct(StringComparer.Ordinal)
-            .ToArray();
+        return [.. metadata.GetNavigations().Where(item => !item.IsCollection).Select(item => item.Name).Distinct(StringComparer.Ordinal)];
     }
     /// <summary>
     /// 建立可跨 Assembly 區分的型別 Cache Key。
@@ -95,11 +85,7 @@ public sealed class EfRepositoryMetadataCache : LibCacheBase
     /// <summary>
     /// 保存 Entity Scalar 與 Navigation 的名稱索引。
     /// </summary>
-    internal sealed class EntityMap(
-        HashSet<string> scalars,
-        HashSet<string> navigations,
-        HashSet<string> skipNavigations,
-        HashSet<string> complexProperties)
+    internal sealed class EntityMap(HashSet<string> scalars, HashSet<string> navigations, HashSet<string> skipNavigations, HashSet<string> complexProperties)
     {
         #region Property
         private readonly HashSet<string> _scalars = scalars;

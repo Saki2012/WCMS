@@ -1,9 +1,7 @@
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using MvcJsonOptions = Microsoft.AspNetCore.Mvc.JsonOptions;
 using System.Text.Json;
-
+using MvcJsonOptions = Microsoft.AspNetCore.Mvc.JsonOptions;
 namespace WCMS.SysCore.PlatformServices.Cache.Stores;
 
 /// <summary>

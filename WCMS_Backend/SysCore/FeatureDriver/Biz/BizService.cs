@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using WCMS.Features._Resx;
 using WCMS.SysCore.Auditing.ErrorHandling;
+using WCMS.SysCore.Constants;
 using WCMS.SysCore.FeatureDriver.Biz.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.FeatureDriver.Model.Contracts;
@@ -17,7 +18,6 @@ using WCMS.SysCore.FeatureDriver.Repo;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Persistence;
-using WCMS.SysCore.Constants;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
 using static WCMS.SysCore.FeatureDriver.Model.Contracts.QueryListParam;
 namespace WCMS.SysCore.FeatureDriver.Biz;
@@ -767,11 +767,10 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
         return result;
     }
     private static Expression ReplaceParam(Expression body, ParameterExpression from, ParameterExpression to) => new ParamSwapVisitor(from, to).Visit(body)!;
-    private sealed class ParamSwapVisitor : ExpressionVisitor
+    private sealed class ParamSwapVisitor(ParameterExpression from, ParameterExpression to) : ExpressionVisitor
     {
-        private readonly ParameterExpression _from;
-        private readonly ParameterExpression _to;
-        public ParamSwapVisitor(ParameterExpression from, ParameterExpression to) { _from = from; _to = to; }
+        private readonly ParameterExpression _from = from;
+        private readonly ParameterExpression _to = to;
         protected override Expression VisitParameter(ParameterExpression node) => node == _from ? _to : base.VisitParameter(node);
     }
     private static Expression StripQuotesAndConverts(Expression e)

@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WCMS.SysCore.FeatureDriver.Api.Controllers;
 using WCMS.SysCore.Constants;
 using WCMS.SysCore.FeatureDriver.Api.Contracts;
-
 namespace WCMS.SysCore.PlatformServices.Captcha;
 
 /*
@@ -232,10 +230,10 @@ namespace WCMS.SysCore.PlatformServices.Captcha;
 /// 實際 token 驗證流程應由各匿名提交 API 在寫入資料前呼叫 Captcha_BIZ.VerifyAsync。
 /// </remarks>
 [ApiController, Route(SysParam.ApiRoutes.Service)]
-public class CaptchaController(ICaptchaBiz captchaBiz) : ControllerBase
+public class CaptchaController(Captcha_BIZ captchaBiz) : ControllerBase
 {
     #region Property
-    private readonly ICaptchaBiz CaptchaBiz = captchaBiz;
+    private readonly Captcha_BIZ CaptchaBiz = captchaBiz;
     #endregion
 
     #region Public

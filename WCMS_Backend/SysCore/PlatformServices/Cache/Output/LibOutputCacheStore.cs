@@ -9,9 +9,7 @@ namespace WCMS.SysCore.PlatformServices.Cache.Output;
 /// <summary>
 /// 將 ASP.NET Core OutputCache 統一導向 WCMS DistributedOnly Cache 路由。
 /// </summary>
-public sealed class LibOutputCacheStore(
-    ICacheRoute cacheRoute,
-    IOptions<CacheSettings> settings) : IOutputCacheStore
+public sealed class LibOutputCacheStore(ICacheRoute cacheRoute, IOptions<CacheSettings> settings) : IOutputCacheStore
 {
     #region Property
     private static readonly CacheOptions ReadOptions = BuildCacheOptions(TimeSpan.FromMinutes(1));

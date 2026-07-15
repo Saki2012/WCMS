@@ -1,5 +1,4 @@
 ﻿using System.Security.Claims;
-using WCMS.Features.IAM.Auth;
 namespace WCMS.SysCore.Security.IdentityAccess.Authentication.CurrentUser;
 
 public interface ICurrentUserAccessor

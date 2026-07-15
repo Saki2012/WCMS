@@ -12,14 +12,9 @@ using WCMS.SysCore.FeatureDriver.Runtime;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Persistence;
 using static WCMS.SysCore.FeatureDriver.Model.Contracts.QueryListParam;
-
 namespace WCMS.SysCore.FeatureDriver.Repo;
 
-public class BasicRepository<TDbModel>(
-    ApplicationDbContext dataAccess,
-    PropertyAccessorCache propertyAccessor,
-    ModelTypeMetadataCache modelMetadata,
-    EfRepositoryMetadataCache repositoryMetadata) where TDbModel : DbModel
+public class BasicRepository<TDbModel>(ApplicationDbContext dataAccess, PropertyAccessorCache propertyAccessor, ModelTypeMetadataCache modelMetadata, EfRepositoryMetadataCache repositoryMetadata) where TDbModel : DbModel
 {
     #region Property
     /// <summary>
@@ -477,14 +472,9 @@ public class BasicRepository<TDbModel>(
     /// - 先對集合元素套用 group 的 OrderBy/ThenBy（用 group 各 spec 的 Desc）
     /// - 再對每個 spec：Select(prop).FirstOrDefault() 當外層排序 key
     /// </summary>
-    private static bool TryBuildGroupedCollectionKeys(
-        ParameterExpression root,
-        IReadOnlyList<OrderBySpec> specs,
-        int startIndex,
-        out List<GroupKey> keys,
-        out int consumed)
+    private static bool TryBuildGroupedCollectionKeys(ParameterExpression root, IReadOnlyList<OrderBySpec> specs, int startIndex, out List<GroupKey> keys, out int consumed)
     {
-        keys = new();
+        keys = [];
         consumed = 0;
 
         // ✅ 至少要有 2 個排序欄位才值得打包（避免改變既有單欄位行為）
@@ -546,12 +536,7 @@ public class BasicRepository<TDbModel>(
             ?? throw new InvalidOperationException($"排序集合 '{string.Join(".", prefix)}' 無法推斷元素型別。");
 
         // AsQueryable(nav)
-        var asQ = Expression.Call(
-            typeof(Queryable),
-            nameof(Queryable.AsQueryable),
-            new[] { elemType },
-            nav
-        );
+        var asQ = Expression.Call(typeof(Queryable), nameof(Queryable.AsQueryable), [elemType], nav);
 
         // ✅ 元素排序：依 group spec 的 remaining path 建立 key
         var ep = Expression.Parameter(elemType, "e");

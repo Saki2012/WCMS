@@ -1,9 +1,8 @@
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.Features.WEB.SiteMenuSetting;
+using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
 using WCMS.SysCore.FeatureDriver.Resx;
-using WCMS.SysCore.FeatureDriver.Model.Metadata;
 namespace WCMS.SysCore.FeatureDriver.Model.Base;
 
 /// <summary>
@@ -17,7 +16,6 @@ public abstract class WEBModel : HeaderModel
     [ForeignKey(nameof(SiteIndexId))]
     [LibField(ApiFieldMode.ReadOnly)]
     public SiteMenu_IndexModel? SiteIndex { get; set; }
-
     [LibStr(ApiFieldMode.ReadWrite, DbStrLen.ID, DisplayName.SiteIndexId, DisplayName.SiteIndexName)]
     public string? SiteIndexId { get; set; }
 }

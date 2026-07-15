@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using WCMS.Features._Resx;
-using WCMS.SysCore.FeatureDriver.Api.Controllers;
-using WCMS.SysCore.Library;
 using WCMS.SysCore.Constants;
 using WCMS.SysCore.FeatureDriver.Api.Contracts;
-using WCMS.SysCore.FeatureDriver.Model.Contracts;
-using WCMS.SysCore.Security.IdentityAccess.Authorization;
+using WCMS.SysCore.FeatureDriver.Api.Controllers;
 using WCMS.SysCore.FeatureDriver.Api.Metadata;
+using WCMS.SysCore.FeatureDriver.Model.Contracts;
+using WCMS.SysCore.Library;
+using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.Features.IAM.RolePermission;
 
 [LibApiController(ProgKeys.IAM.Code, ProgKeys.IAM.RolePermission, FuncAction.MasterData)]
@@ -41,5 +41,4 @@ public class RolePermissionController : ApiDataController<RoleDataModel>
     /// <param name="srcCdt"></param>
     private static string FiltSystemRoler(string srcCdt) => LibData.Merge(SysParam.QueryOperators.And, false, srcCdt, $@"{nameof(RoleDataModel.RoleId)} Not In {Admin}");
     #endregion
-
 }

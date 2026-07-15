@@ -6,13 +6,15 @@ using WCMS.SysCore.Constants;
 using WCMS.SysCore.FeatureDriver.Api.Metadata;
 using WCMS.SysCore.PlatformServices.Cache;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
-
 namespace WCMS.Features.IAM.RolePermission;
 
 /// <summary>
 /// 快取目前 Spec 可使用的角色權限功能目錄結構。
 /// </summary>
-public sealed class RolePermissionCatalogCache : LibCacheBase
+/// <remarks>
+/// 初始化角色權限功能目錄 Cache。
+/// </remarks>
+public sealed class RolePermissionCatalogCache(CacheService cacheService, IActionDescriptorCollectionProvider actionDescriptors) : LibCacheBase(cacheService)
 {
     #region Property
     private const string CacheRegionName = "role-permission-catalog";
@@ -23,20 +25,9 @@ public sealed class RolePermissionCatalogCache : LibCacheBase
         ExpirationStrategy = CacheExpirationStrategy.ProcessLifetime,
     };
     private readonly object _catalogLock = new();
-    private readonly IActionDescriptorCollectionProvider _actionDescriptors;
+    private readonly IActionDescriptorCollectionProvider _actionDescriptors = actionDescriptors;
     protected override string CacheRegion => CacheRegionName;
-    #endregion
 
-    #region Public
-    /// <summary>
-    /// 初始化角色權限功能目錄 Cache。
-    /// </summary>
-    public RolePermissionCatalogCache(
-        CacheService cacheService,
-        IActionDescriptorCollectionProvider actionDescriptors) : base(cacheService)
-    {
-        _actionDescriptors = actionDescriptors;
-    }
     #endregion
 
     #region Internal
@@ -82,10 +73,7 @@ public sealed class RolePermissionCatalogCache : LibCacheBase
     {
         var modules = new Dictionary<ModuleCodeEnum, Dictionary<string, FuncAction>>();
         foreach (LibApiControllerAttribute meta in EnumeratePermissionMetas()) UpsertModuleProg(modules, meta);
-        return modules
-            .OrderBy(item => item.Key)
-            .Select(BuildModule)
-            .ToArray();
+        return [.. modules.OrderBy(item => item.Key).Select(BuildModule)];
     }
     /// <summary>
     /// 列舉目前 Spec 可使用的權限 Metadata。
@@ -117,22 +105,14 @@ public sealed class RolePermissionCatalogCache : LibCacheBase
     /// </summary>
     private static LibApiControllerAttribute? GetPermissionMeta(ControllerActionDescriptor action)
     {
-        LibApiControllerAttribute? actionMeta = action.MethodInfo
-            .GetCustomAttributes(typeof(LibApiControllerAttribute), true)
-            .OfType<LibApiControllerAttribute>()
-            .FirstOrDefault();
+        LibApiControllerAttribute? actionMeta = action.MethodInfo.GetCustomAttributes(typeof(LibApiControllerAttribute), true).OfType<LibApiControllerAttribute>().FirstOrDefault();
         if (actionMeta != null) return actionMeta;
-        return action.ControllerTypeInfo
-            .GetCustomAttributes(typeof(LibApiControllerAttribute), true)
-            .OfType<LibApiControllerAttribute>()
-            .FirstOrDefault();
+        return action.ControllerTypeInfo.GetCustomAttributes(typeof(LibApiControllerAttribute), true).OfType<LibApiControllerAttribute>().FirstOrDefault();
     }
     /// <summary>
     /// 合併相同 Module 與 Prog 的支援權限遮罩。
     /// </summary>
-    private static void UpsertModuleProg(
-        Dictionary<ModuleCodeEnum, Dictionary<string, FuncAction>> modules,
-        LibApiControllerAttribute meta)
+    private static void UpsertModuleProg(Dictionary<ModuleCodeEnum, Dictionary<string, FuncAction>> modules, LibApiControllerAttribute meta)
     {
         if (!modules.TryGetValue(meta.ModuleCode, out var progs))
         {
@@ -145,13 +125,9 @@ public sealed class RolePermissionCatalogCache : LibCacheBase
     /// <summary>
     /// 將 Module Dictionary 轉為排序後的唯讀結構。
     /// </summary>
-    private static RolePermissionCatalogModule BuildModule(
-        KeyValuePair<ModuleCodeEnum, Dictionary<string, FuncAction>> module)
+    private static RolePermissionCatalogModule BuildModule(KeyValuePair<ModuleCodeEnum, Dictionary<string, FuncAction>> module)
     {
-        RolePermissionCatalogProg[] progs = module.Value
-            .OrderBy(item => item.Key, StringComparer.OrdinalIgnoreCase)
-            .Select(item => new RolePermissionCatalogProg(item.Key, item.Value))
-            .ToArray();
+        RolePermissionCatalogProg[] progs = [.. module.Value.OrderBy(item => item.Key, StringComparer.OrdinalIgnoreCase).Select(item => new RolePermissionCatalogProg(item.Key, item.Value))];
         return new RolePermissionCatalogModule(module.Key, progs);
     }
     #endregion
@@ -160,13 +136,9 @@ public sealed class RolePermissionCatalogCache : LibCacheBase
 /// <summary>
 /// 保存不受語系影響的權限模組結構。
 /// </summary>
-internal sealed record RolePermissionCatalogModule(
-    ModuleCodeEnum ModuleCode,
-    IReadOnlyList<RolePermissionCatalogProg> Progs);
+internal sealed record RolePermissionCatalogModule(ModuleCodeEnum ModuleCode, IReadOnlyList<RolePermissionCatalogProg> Progs);
 
 /// <summary>
 /// 保存不受語系影響的權限程式結構。
 /// </summary>
-internal sealed record RolePermissionCatalogProg(
-    string ProgId,
-    FuncAction SupportMask);
+internal sealed record RolePermissionCatalogProg(string ProgId, FuncAction SupportMask);

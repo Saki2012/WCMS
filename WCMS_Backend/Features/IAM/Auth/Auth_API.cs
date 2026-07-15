@@ -2,20 +2,20 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Security.Claims;
-using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.Auditing.OperateLog;
+using WCMS.SysCore.Constants;
+using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.Security.IdentityAccess.Authentication;
 using WCMS.SysCore.Security.IdentityAccess.Authentication.CurrentUser;
-using WCMS.SysCore.Constants;
 namespace WCMS.Features.IAM.Auth;
 
 [ApiController, Route(SysParam.ApiRoutes.Service)]
-public class AuthController(LoginAttemptCache loginAttemptCache, TokenService tokenSvc, IConfiguration cfg, IAuthService authBiz) : ControllerBase
+public class AuthController(LoginAttemptCache loginAttemptCache, TokenService tokenSvc, IConfiguration cfg, AuthBiz authBiz) : ControllerBase
 {
     #region Property
     private readonly TokenService _tokenSvc = tokenSvc;
     private readonly IConfiguration _cfg = cfg;
-    private readonly IAuthService _authBiz = authBiz;
+    private readonly AuthBiz _authBiz = authBiz;
     private readonly LoginAttemptCache _loginAttemptCache = loginAttemptCache;
     protected IOperateLog OperateLog => _OperateLog ??= HttpContext.RequestServices.GetRequiredService<IOperateLog>();
     private IOperateLog? _OperateLog;
@@ -51,12 +51,7 @@ public class AuthController(LoginAttemptCache loginAttemptCache, TokenService to
         var (tokenId, refreshExp) = _tokenSvc.IssueRefreshToken();
         await _tokenSvc.StoreRefreshAsync(userInfo.UserId, tokenId, refreshExp, ct);
         // ✅ 同源 HTTPS（正式上線）：Secure=true；同源可用 Lax
-        var baseOpt = new CookieOptions
-        {
-            Path = SysParam.CookiePaths.Root,
-            Secure = true,
-            SameSite = SameSiteMode.Lax
-        };
+        var baseOpt = new CookieOptions { Path = SysParam.CookiePaths.Root, Secure = true, SameSite = SameSiteMode.Lax };
         // ⬅ Refresh Id（HttpOnly）：名稱統一用 rtid
         Response.Cookies.Append(SysParam.CookieNames.RefreshTokenId, tokenId, new CookieOptions
         {

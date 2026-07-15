@@ -4,19 +4,19 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using WCMS.Features._Resx;
+using WCMS.SysCore.Constants;
+using WCMS.SysCore.FeatureDriver.Api.Contracts;
 using WCMS.SysCore.FeatureDriver.Api.Controllers;
+using WCMS.SysCore.FeatureDriver.Api.Metadata;
+using WCMS.SysCore.FeatureDriver.Model.Contracts;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.PlatformServices.Captcha;
-using WCMS.SysCore.Constants;
-using WCMS.SysCore.FeatureDriver.Api.Contracts;
-using WCMS.SysCore.FeatureDriver.Model.Contracts;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
-using WCMS.SysCore.FeatureDriver.Api.Metadata;
 namespace WCMS.Features.WEB.SurveySubmission;
 
 [LibApiController(ProgKeys.WEB.Code, ProgKeys.WEB.SurveySubmission, FuncAction.Function)]
-public class SurveySubmissionController(ICaptchaBiz CaptchaBiz) : ApiDataQueryController<SurveySubmissions>
+public class SurveySubmissionController(Captcha_BIZ CaptchaBiz) : ApiDataQueryController<SurveySubmissions>
 {
     #region Property
     private const string CaptchaVerifyFailed = nameof(CaptchaVerifyFailed);

@@ -8,7 +8,6 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using WCMS.SysCore.FeatureDriver.Api.Metadata;
-using WCMS.SysCore.Library;
 using WCMS.SysCore.FeatureDriver.Model.Metadata;
 namespace WCMS.SysCore.FeatureDriver.Api.OpenApi;
 
@@ -89,10 +88,8 @@ public sealed class LibApiFieldSchemaFilter(IOptions<JsonOptions>? jsonOptions =
     {
         var jsonName = property.GetCustomAttribute<JsonPropertyNameAttribute>(inherit: true)?.Name;
         if (!string.IsNullOrWhiteSpace(jsonName)) yield return jsonName;
-
         var policyName = _jsonOptions.PropertyNamingPolicy?.ConvertName(property.Name);
         if (!string.IsNullOrWhiteSpace(policyName)) yield return policyName;
-
         yield return JsonNamingPolicy.CamelCase.ConvertName(property.Name);
         yield return property.Name;
     }

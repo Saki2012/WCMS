@@ -1,9 +1,7 @@
 ﻿using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n.Metadata;
-/// <summary>
-/// 定義 WEB 內容共用的呈現狀態。
-/// </summary>
 namespace WCMS.Features.WEB.Content;
+
 /// 內文項目狀態
 /// 目前提供至 公告/檔案室/網路資源/相簿 功能用到
 /// </summary>

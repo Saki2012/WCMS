@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using WCMS.Features.IAM.RolePermission;
+using WCMS.SysCore.Configuration.Startup;
 using WCMS.SysCore.Constants;
 using WCMS.SysCore.FeatureDriver.Api.Serialization;
 using WCMS.SysCore.FeatureDriver.Model.Metadata;
@@ -9,7 +9,6 @@ using WCMS.SysCore.FeatureDriver.Runtime;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.PlatformServices.Cache.Output;
 using WCMS.SysCore.PlatformServices.Cache.Stores;
-
 namespace WCMS.SysCore.PlatformServices.Cache;
 
 /// <summary>
@@ -27,6 +26,7 @@ internal static class CacheModuleSetup
         AddCacheRouteServices(services);
         AddRuntimeCaches(services);
         AddOutputCache(services);
+        services.AddScoped<IApplicationStartupTask, PermanentOutputCacheStartupTask>();
     }
     #endregion
 
@@ -63,7 +63,6 @@ internal static class CacheModuleSetup
         services.AddSingleton<ModelTypeMetadataCache>();
         services.AddSingleton<I18nCache>();
         services.AddSingleton<EfRepositoryMetadataCache>();
-        services.AddSingleton<RolePermissionCatalogCache>();
     }
     /// <summary>
     /// 註冊 JSON Runtime Cache 與 MVC、HTTP JSON Resolver。
@@ -122,6 +121,29 @@ internal static class CacheModuleSetup
             .Expire(TimeSpan.FromDays(365))
             .SetVaryByHeader(SysParam.HttpHeaders.AcceptLanguage)
             .Tag(SysParam.OutputCacheTags.Permanent));
+    }
+    #endregion
+}
+
+/// <summary>
+/// 啟動後清除長效 OutputCache，避免沿用前次程序的舊資料。
+/// </summary>
+internal sealed class PermanentOutputCacheStartupTask(IOutputCacheStore cacheStore) : IApplicationStartupTask
+{
+    #region Property
+    /// <summary>
+    /// 取得 Cache 初始化順序。
+    /// </summary>
+    public int Order => ApplicationStartupOrder.Cache;
+    #endregion
+
+    #region Public
+    /// <summary>
+    /// 以非同步方式清除永久 Cache Tag。
+    /// </summary>
+    public async Task InitializeAsync(CancellationToken ct)
+    {
+        await cacheStore.EvictByTagAsync(SysParam.OutputCacheTags.Permanent, ct);
     }
     #endregion
 }

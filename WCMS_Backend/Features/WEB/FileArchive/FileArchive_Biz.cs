@@ -13,7 +13,6 @@ namespace WCMS.Features.WEB.FileArchive;
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.FileArchive)]
 public class FileArchiveBiz(BizDeps bizDeps) : BizService<FileArchive>(bizDeps), IBizService<FileArchive>
 {
-
     #region Migration Old Data
     public async Task Migrate(string importFileLabel = "1810", IList<FileManageModel> srcFileSets = default)
     {

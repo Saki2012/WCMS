@@ -1,8 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using WCMS.SysCore.FeatureDriver.Resx;
+﻿using WCMS.Features.WEB.Content;
 using WCMS.SysCore.I18n;
-using WCMS.Features.WEB.Content;
 
 namespace WCMS.Features.WEB.SiteMenuSetting;
 

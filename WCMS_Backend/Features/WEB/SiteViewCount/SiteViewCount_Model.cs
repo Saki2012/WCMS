@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.Features.WEB.SiteMenuSetting;
 using WCMS.SysCore.FeatureDriver.Model.Base;
-using WCMS.SysCore.FeatureDriver.Model.Validation;
 using WCMS.SysCore.FeatureDriver.Model.Metadata;
+using WCMS.SysCore.FeatureDriver.Model.Validation;
 namespace WCMS.Features.WEB.SiteViewCount;
 
 /// 站台瀏覽次數

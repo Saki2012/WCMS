@@ -2,23 +2,12 @@
 namespace WCMS.SysCore.Security.IdentityAccess.Authorization;
 
 /// <summary>
-/// 定義使用者程式權限檢查服務。
-/// </summary>
-public interface ILibPermissionChecker
-{
-    /// <summary>
-    /// 檢查使用者是否具備指定程式動作權限。
-    /// </summary>
-    Task<bool> HasPermissionAsync(string userId, string progId, FuncAction requiredAct, CancellationToken ct);
-}
-
-/// <summary>
 /// 透過 PermissionCache 檢查使用者的有效程式權限。
 /// </summary>
-public sealed class LibPermissionChecker(PermissionCache permissionCache) : ILibPermissionChecker
+public sealed class LibPermissionChecker(IPermissionCache permissionCache)
 {
     #region Property
-    private PermissionCache PermissionCache { get; } = permissionCache;
+    private IPermissionCache PermissionCache { get; } = permissionCache;
     #endregion
 
     #region Public

@@ -6,14 +6,14 @@ namespace WCMS.Features.IAM.RolePermission;
 public class RolePermissionBiz(
     BizDeps bizDeps,
     RolePermissionCatalogCache catalogCache,
-    PermissionCache permissionCache) : BizService<RoleDataModel>(bizDeps), IBizService<RoleDataModel>
+    IPermissionCache permissionCache) : BizService<RoleDataModel>(bizDeps), IBizService<RoleDataModel>
 {
     #region Property
     private RolePermissionCatalogCache CatalogCache { get; } = catalogCache;
     /// <summary>
     /// 使用者有效權限 Cache。
     /// </summary>
-    private PermissionCache PermissionCache { get; } = permissionCache;
+    private IPermissionCache PermissionCache { get; } = permissionCache;
     /// <summary>
     /// 本次交易提交後需失效權限的帳號。
     /// </summary>
@@ -27,7 +27,7 @@ public class RolePermissionBiz(
     public IList<PermissionCatalogModuleDTO> GetPermissionCatalog()
     {
         IReadOnlyList<RolePermissionCatalogModule> catalog = CatalogCache.GetCatalog();
-        return catalog.Select(BuildModuleDto).ToList();
+        return [.. catalog.Select(BuildModuleDto)];
     }
     /// <summary>
     /// 清除 Catalog Cache，下一次呼叫會重新掃描 Controller Action。
@@ -42,12 +42,7 @@ public class RolePermissionBiz(
     /// <summary>
     /// 角色權限異動完成但尚未提交時，記錄所有受影響帳號。
     /// </summary>
-    protected override async Task AfterUpdate(
-        RoleDataModel? oldSet,
-        RoleDataModel? newSet,
-        FuncAction act,
-        TransStatus status,
-        CancellationToken ct = default)
+    protected override async Task AfterUpdate(RoleDataModel? oldSet, RoleDataModel? newSet, FuncAction act, TransStatus status, CancellationToken ct = default)
     {
         await base.AfterUpdate(oldSet, newSet, act, status, ct);
         string[] roleIds = ResolveAffectedRoleIds(oldSet, newSet);
@@ -71,11 +66,7 @@ public class RolePermissionBiz(
     /// </summary>
     private static string[] ResolveAffectedRoleIds(RoleDataModel? oldSet, RoleDataModel? newSet)
     {
-        return new[] { oldSet?.RoleId, newSet?.RoleId }
-            .Where(id => !string.IsNullOrWhiteSpace(id))
-            .Select(id => id!)
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToArray();
+        return [.. new[] { oldSet?.RoleId, newSet?.RoleId }.Where(id => !string.IsNullOrWhiteSpace(id)).Select(id => id!).Distinct(StringComparer.OrdinalIgnoreCase)];
     }
     /// <summary>
     /// 將權限模組結構組成目前語系的回傳 DTO。

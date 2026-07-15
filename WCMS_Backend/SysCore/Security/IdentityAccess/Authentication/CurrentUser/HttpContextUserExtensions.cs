@@ -1,5 +1,4 @@
 ﻿using System.Security.Claims;
-using WCMS.Features.IAM.Auth;
 using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.Constants;
 namespace WCMS.SysCore.Security.IdentityAccess.Authentication.CurrentUser;

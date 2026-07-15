@@ -1,12 +1,14 @@
 using System.Reflection;
 using WCMS.SysCore.PlatformServices.Cache;
-
 namespace WCMS.SysCore.FeatureDriver.Model.Metadata;
 
 /// <summary>
 /// 管理 Model Property 與 Attribute 查詢所需的 Reflection Metadata Cache。
 /// </summary>
-public sealed class ModelTypeMetadataCache : LibCacheBase
+/// <remarks>
+/// 初始化 Model Metadata Cache。
+/// </remarks>
+public sealed class ModelTypeMetadataCache(CacheService cacheService) : LibCacheBase(cacheService)
 {
     #region Property
     /// <summary>
@@ -33,15 +35,9 @@ public sealed class ModelTypeMetadataCache : LibCacheBase
     /// 取得 Model Metadata 使用的 Cache 區域名稱。
     /// </summary>
     protected override string CacheRegion => CacheRegionName;
-    #endregion
 
+    #endregion
     #region Public
-    /// <summary>
-    /// 初始化 Model Metadata Cache。
-    /// </summary>
-    public ModelTypeMetadataCache(CacheService cacheService) : base(cacheService)
-    {
-    }
     /// <summary>
     /// 取得指定型別的公開 Instance Property。
     /// </summary>
@@ -83,8 +79,7 @@ public sealed class ModelTypeMetadataCache : LibCacheBase
     /// </summary>
     private static Dictionary<string, PropertyInfo> BuildPropertyDictionary(Type type)
     {
-        return type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-            .ToDictionary(property => property.Name, StringComparer.OrdinalIgnoreCase);
+        return type.GetProperties(BindingFlags.Public | BindingFlags.Instance).ToDictionary(property => property.Name, StringComparer.OrdinalIgnoreCase);
     }
     /// <summary>
     /// 建立可跨 Assembly 區分的型別 Cache Key。

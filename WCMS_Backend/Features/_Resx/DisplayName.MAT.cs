@@ -1,5 +1,3 @@
-using WCMS.Features.MAT.MatCategory;
-using WCMS.Features.MAT.Material;
 namespace WCMS.SysCore.FeatureDriver.Resx;
 
 public static partial class DisplayName

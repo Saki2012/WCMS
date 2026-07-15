@@ -2,10 +2,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using WCMS.Features.IAM.Auth;
+using WCMS.SysCore.Security.IdentityAccess.Authentication.CurrentUser;
 using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.Constants;
-
 namespace WCMS.SysCore.Security.IdentityAccess.Authentication;
 
 /// <summary>

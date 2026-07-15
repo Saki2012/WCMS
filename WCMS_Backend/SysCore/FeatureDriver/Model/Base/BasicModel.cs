@@ -2,9 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.Features.IAM.Account;
+using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
 using WCMS.SysCore.FeatureDriver.Resx;
-using WCMS.SysCore.FeatureDriver.Model.Metadata;
 namespace WCMS.SysCore.FeatureDriver.Model.Base;
 
 /// <summary>

@@ -7,7 +7,6 @@ using WCMS.SysCore.Security.IdentityAccess.Authentication;
 using WCMS.SysCore.Security.IdentityAccess.Authentication.CurrentUser;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
 using WCMS.SysCore.Constants;
-
 namespace WCMS.SysCore.Security.IdentityAccess;
 
 /// <summary>
@@ -23,8 +22,7 @@ internal static class IdentityAccessSetup
     {
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUserAccessor, HttpContextCurrentUserAccessor>();
-        services.AddScoped<PermissionCache>();
-        services.AddScoped<ILibPermissionChecker, LibPermissionChecker>();
+        services.AddScoped<LibPermissionChecker>();
         services.AddSingleton<TokenStateCache>();
         services.AddSingleton<LoginAttemptCache>();
         services.AddSingleton<TokenService>();

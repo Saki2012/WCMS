@@ -10,9 +10,7 @@ internal static class LibJsonNullDefaultSetup
     /// <summary>
     /// 加入 WCMS 非 Nullable 欄位的 null 預設值解析器。
     /// </summary>
-    public static void AddLibJsonNullDefaultHandling(
-        this JsonSerializerOptions options,
-        JsonSerializationRuntimeCache runtimeCache)
+    public static void AddLibJsonNullDefaultHandling(this JsonSerializerOptions options, JsonSerializationRuntimeCache runtimeCache)
     {
         bool exists = options.TypeInfoResolverChain.OfType<LibJsonNullDefaultResolver>().Any();
         if (exists) return;

@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-
 namespace WCMS.SysCore.FeatureDriver.Repo;
 
 /// <summary>

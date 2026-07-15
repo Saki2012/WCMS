@@ -1,21 +1,10 @@
 ﻿using Microsoft.Extensions.Options;
-using System.Net.Http.Json;
-
 namespace WCMS.SysCore.PlatformServices.Captcha;
-
-/// <summary>
-/// 驗證碼服務介面
-/// </summary>
-public interface ICaptchaBiz
-{
-    CaptchaPublicConfig_DTO GetPublicConfig();
-    Task<CaptchaVerifyResult_DTO> VerifyAsync(CaptchaVerifyRequest_DTO request, CancellationToken ct = default);
-}
 
 /// <summary>
 /// 驗證碼服務
 /// </summary>
-public class Captcha_BIZ(IOptions<CaptchaOptions> options, IHttpClientFactory httpClientFactory) : ICaptchaBiz
+public class Captcha_BIZ(IOptions<CaptchaOptions> options, IHttpClientFactory httpClientFactory)
 {
     #region Property
     private const string TurnstileProvider = "Turnstile";

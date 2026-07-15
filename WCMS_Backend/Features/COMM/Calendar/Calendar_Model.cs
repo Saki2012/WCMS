@@ -4,7 +4,6 @@ using WCMS.Features.IAM.Account;
 using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
-
 namespace WCMS.Features.COMM.Calendar;
 
 public class CalendarModel : HeaderModel

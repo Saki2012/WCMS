@@ -1,19 +1,15 @@
 using Microsoft.IdentityModel.Tokens;
 using WCMS.Features._Resx;
 using WCMS.Features.COMM.Person;
+using WCMS.SysCore.Constants;
 using WCMS.SysCore.FeatureDriver.Biz;
-using WCMS.SysCore.I18n;
+using WCMS.SysCore.FeatureDriver.Model.Contracts;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Security.IdentityAccess.Authentication;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
-using WCMS.SysCore.Constants;
-using WCMS.SysCore.FeatureDriver.Model.Contracts;
 namespace WCMS.Features.IAM.Account;
 
-public class AccountBiz(
-    BizDeps bizDeps,
-    IBizService<PersonModel> biz,
-    PermissionCache permissionCache) : BizService<AccountModel>(bizDeps), IBizService<AccountModel>
+public class AccountBiz(BizDeps bizDeps, IBizService<PersonModel> biz, IPermissionCache permissionCache) : BizService<AccountModel>(bizDeps), IBizService<AccountModel>
 {
     #region Property
     /// <summary>
@@ -27,7 +23,7 @@ public class AccountBiz(
     /// <summary>
     /// 使用者有效權限 Cache。
     /// </summary>
-    private PermissionCache PermissionCache { get; } = permissionCache;
+    private IPermissionCache PermissionCache { get; } = permissionCache;
     /// <summary>
     /// 本次交易提交後需失效權限的帳號。
     /// </summary>
@@ -181,9 +177,7 @@ public class AccountBiz(
     /// </summary>
     private void TrackPermissionInvalidation(AccountModel? oldSet, AccountModel? newSet, FuncAction action)
     {
-        string? userId = action == FuncAction.Delete
-            ? oldSet?.AccountId
-            : newSet?.AccountId ?? oldSet?.AccountId;
+        string? userId = action == FuncAction.Delete ? oldSet?.AccountId : newSet?.AccountId ?? oldSet?.AccountId;
         if (!string.IsNullOrWhiteSpace(userId)) PendingPermissionUserIds.Add(userId);
     }
 
@@ -192,17 +186,9 @@ public class AccountBiz(
     /// </summary>
     private async Task AutoCreatePersonData(string personId, string personName, CancellationToken ct)
     {
-        if (await personBiz.BizQueryTotalCounts($"{nameof(PersonModel.PersonId)} = {personId}") == 0)
+        if (await personBiz.BizQueryTotalCounts($"{nameof(PersonModel.PersonId)} = {personId}", ct) == 0)
         {
-            await personBiz.BizCreateDataAsync(new PersonModel()
-            {
-                PersonId = personId,
-                PersonName = personName,
-                Gender = Gender.NotKnown,
-                Email = string.Empty,
-                MobilePhone = string.Empty,
-                HomePhone = string.Empty,
-            }, ct);
+            await personBiz.BizCreateDataAsync(new PersonModel() { PersonId = personId, PersonName = personName, Gender = Gender.NotKnown, Email = string.Empty, MobilePhone = string.Empty, HomePhone = string.Empty, }, ct);
         }
     }
     /// <summary>
@@ -228,7 +214,7 @@ public class AccountBiz(
         // 執行：空值不檢查
         if (personId.IsNullOrEmpty()) return;
         // 執行：查詢是否已有其他帳號使用此人員編號
-        int count = await BizQueryTotalCounts(condition);
+        int count = await BizQueryTotalCounts(condition, ct);
         // 執行：重複時提示錯誤
         if (count > 0) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00036, personId);
     }
@@ -249,6 +235,5 @@ public class AccountBiz(
             condition = LibData.Merge(SysParam.QueryOperators.And, false, condition, $"{nameof(AccountModel.AccountId)} != '{accountId}'");
         return condition;
     }
-
     #endregion
 }

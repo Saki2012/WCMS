@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
-
 namespace WCMS.SysCore.PlatformServices.SystemMonitor;
 
 /// <summary>

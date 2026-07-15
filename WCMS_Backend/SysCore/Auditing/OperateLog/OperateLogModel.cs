@@ -1,6 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using WCMS.Features.IAM.Account;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.SysCore.Auditing.OperateLog;
@@ -11,7 +9,6 @@ public class OperateLogModel
 {
     [Key] public int Id { get; set; }
     [StringLength(DbStrLen.Name)] public string APIName { get; set; } = string.Empty;
-    [ForeignKey(nameof(UserId))] public AccountModel? User { get; set; }
     [StringLength(DbStrLen.ID)] public string? UserId { get; set; }
     public string followingDT { get; set; } = string.Empty;
     [StringLength(DbStrLen.Memo)] public string Browser { get; set; } = string.Empty;

@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
 using WCMS.Features._Resx;
-using WCMS.SysCore.Security.IdentityAccess.Authorization;
 using WCMS.SysCore.Constants;
+using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.SysCore.FeatureDriver.Api.Metadata;
 
 /// <summary>
@@ -12,8 +12,7 @@ namespace WCMS.SysCore.FeatureDriver.Api.Metadata;
 /// - 權限 Metadata：ModuleCode/ProgId/TitleCode/SupportMask...
 /// </summary>
 [AttributeUsage(AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
-public sealed class LibApiControllerAttribute(ModuleCodeEnum moduleCode, string progId, FuncAction supportFuncActMask, string? routeTemplate = null)
-    : Attribute, IApiBehaviorMetadata, IRouteTemplateProvider
+public sealed class LibApiControllerAttribute(ModuleCodeEnum moduleCode, string progId, FuncAction supportFuncActMask, string? routeTemplate = null) : Attribute, IApiBehaviorMetadata, IRouteTemplateProvider
 {
     #region Route (等同 ApiController + Route)
     public string Template { get; } = (routeTemplate ?? SysParam.ApiRoutes.Service).Trim();

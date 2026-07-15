@@ -1,5 +1,4 @@
 using System.Globalization;
-
 namespace WCMS.SysCore.PlatformServices.Cache;
 
 /// <summary>

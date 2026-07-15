@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-
 namespace WCMS.SysCore.PlatformServices.Captcha;
 
 /// <summary>

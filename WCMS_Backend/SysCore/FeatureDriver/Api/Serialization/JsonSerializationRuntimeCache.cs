@@ -7,7 +7,10 @@ namespace WCMS.SysCore.FeatureDriver.Api.Serialization;
 /// <summary>
 /// 管理 API JSON 反序列化使用的 Nullable Metadata 與 Converter Runtime Cache。
 /// </summary>
-internal sealed class JsonSerializationRuntimeCache : LibCacheBase
+/// <remarks>
+/// 初始化 JSON Serialization Runtime Cache。
+/// </remarks>
+internal sealed class JsonSerializationRuntimeCache(CacheService cacheService) : LibCacheBase(cacheService)
 {
     #region Property
     private const string CacheRegionName = "json-serialization-runtime";
@@ -19,15 +22,9 @@ internal sealed class JsonSerializationRuntimeCache : LibCacheBase
         ExpirationStrategy = CacheExpirationStrategy.ProcessLifetime,
     };
     protected override string CacheRegion => CacheRegionName;
-    #endregion
 
+    #endregion
     #region Public
-    /// <summary>
-    /// 初始化 JSON Serialization Runtime Cache。
-    /// </summary>
-    public JsonSerializationRuntimeCache(CacheService cacheService) : base(cacheService)
-    {
-    }
     /// <summary>
     /// 判斷指定 Property 是否允許寫入 null。
     /// </summary>

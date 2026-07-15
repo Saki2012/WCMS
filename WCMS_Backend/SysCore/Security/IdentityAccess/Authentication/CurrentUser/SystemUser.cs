@@ -1,6 +1,4 @@
-﻿using WCMS.Features.IAM.Auth;
-
-namespace WCMS.SysCore.Security.IdentityAccess.Authentication.CurrentUser;
+﻿namespace WCMS.SysCore.Security.IdentityAccess.Authentication.CurrentUser;
 
 /// <summary>
 /// 定義非登入流程使用的系統操作帳號。

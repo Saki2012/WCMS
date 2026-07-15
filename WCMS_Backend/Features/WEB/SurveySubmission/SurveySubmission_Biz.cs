@@ -286,9 +286,7 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
     /// </summary>
     private async Task<SurveyFormModel?> GetSubmitSurveyHeader(string condition, CancellationToken ct = default)
     {
-        IList<SurveyFormModel> data = (await DoQueryListAsync<SurveyFormModel>([], condition, null, 0, 1))
-            .Cast<SurveyFormModel>()
-            .ToList();
+        IList<SurveyFormModel> data = [.. (await DoQueryListAsync<SurveyFormModel>([], condition, null, 0, 1)).Cast<SurveyFormModel>()];
         return data.FirstOrDefault();
     }
 
@@ -444,21 +442,15 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
     /// </summary>
     private string BuildFieldSnapshotJson(SurveySubmitContext context)
     {
-        List<SurveyFieldSnapshot> snapshot = context.Survey._SurveyItem
-            .OrderBy(p => ToInt(p.RowId))
-            .Select(p => BuildFieldSnapshot(context, p))
-            .ToList();
-
+        List<SurveyFieldSnapshot> snapshot = [.. context.Survey._SurveyItem.OrderBy(p => ToInt(p.RowId)).Select(p => BuildFieldSnapshot(context, p))];
         return JsonSerializer.Serialize(snapshot, SubmitJsonOptions);
     }
-
     /// <summary>
     /// 建立單一欄位快照
     /// </summary>
     private SurveyFieldSnapshot BuildFieldSnapshot(SurveySubmitContext context, SurveyItem item)
     {
         LibInputType inputType = GetInputType(item);
-
         return new SurveyFieldSnapshot
         {
             FieldId = GetSurveyFieldKey(item),
@@ -469,30 +461,22 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
             Langs = BuildFieldLangSnapshots(item),
         };
     }
-
     /// <summary>
     /// 建立欄位語系快照
     /// </summary>
     private List<SurveyFieldLangSnapshot> BuildFieldLangSnapshots(SurveyItem item)
     {
-        return item._SurveyItemLang
-            .Where(p => !p.FieldName.IsNullOrEmpty())
-            .OrderBy(p => p.RowId)
-            .Select(p => new SurveyFieldLangSnapshot { Lang = p.Lang.ToString(), FieldName = p.FieldName })
-            .ToList();
+        return [.. item._SurveyItemLang.Where(p => !p.FieldName.IsNullOrEmpty()).OrderBy(p => p.RowId).Select(p => new SurveyFieldLangSnapshot { Lang = p.Lang.ToString(), FieldName = p.FieldName })];
     }
-
     /// <summary>
     /// 取得快照選項文字
     /// </summary>
     private string? GetSnapshotOptions(SurveyItem item)
     {
         if (!IsOptionInputType(item)) return null;
-
         string optionText = NormalizeOptionText(item.Options);
         return optionText.IsNullOrEmpty() ? null : optionText;
     }
-
     /// <summary>
     /// 判斷是否為選項型欄位
     /// </summary>
@@ -500,17 +484,13 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
     {
         return GetInputType(item).In(LibInputType.Radio, LibInputType.Select, LibInputType.Checkbox);
     }
-
     /// <summary>
     /// 取得有效欄位 key
     /// </summary>
     private HashSet<string> GetValidFieldKeys(SurveySubmitContext context)
     {
-        return context.Survey._SurveyItem
-            .Select(GetSurveyFieldKey)
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        return context.Survey._SurveyItem.Select(GetSurveyFieldKey).ToHashSet(StringComparer.OrdinalIgnoreCase);
     }
-
     /// <summary>
     /// 判斷欄位是否有值
     /// </summary>
@@ -519,7 +499,6 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
         string key = GetSurveyFieldKey(item);
         return formData.TryGetValue(key, out JsonElement value) && HasJsonValue(value);
     }
-
     /// <summary>
     /// 判斷 Json 是否有值
     /// </summary>
@@ -528,7 +507,6 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
         if (value.ValueKind == JsonValueKind.Array) return GetArrayValues(value).Length > 0;
         return !GetScalarValue(value).IsNullOrEmpty();
     }
-
     /// <summary>
     /// 取得欄位單值
     /// </summary>
@@ -543,7 +521,6 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
             _ => string.Empty,
         };
     }
-
     /// <summary>
     /// 取得欄位陣列值
     /// </summary>
@@ -554,10 +531,8 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
             string scalar = GetScalarValue(value);
             return scalar.IsNullOrEmpty() ? [] : [scalar];
         }
-
         return value.EnumerateArray().Select(GetScalarValue).Where(p => !p.IsNullOrEmpty()).ToArray();
     }
-
     /// <summary>
     /// 取得欄位選項集合
     /// </summary>
@@ -570,13 +545,7 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
     /// </summary>
     private List<string> ParseOptionValues(string? optionText)
     {
-        return (optionText ?? string.Empty)
-            .Replace("\t", " ")
-            .Split(["\r\n", "\n", "\r"], StringSplitOptions.None)
-            .Select(p => p.Trim())
-            .Where(p => !p.IsNullOrEmpty())
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
+        return [.. (optionText ?? string.Empty).Replace("\t", " ").Split(["\r\n", "\n", "\r"], StringSplitOptions.None).Select(p => p.Trim()).Where(p => !p.IsNullOrEmpty()).Distinct(StringComparer.OrdinalIgnoreCase)];
     }
     /// <summary>
     /// 收集選項值
@@ -587,7 +556,6 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
         if (element.ValueKind == JsonValueKind.Object) return GetOptionValuesFromObject(element);
         return [GetScalarValue(element)];
     }
-
     /// <summary>
     /// 從物件收集選項值
     /// </summary>
@@ -598,46 +566,34 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
 
         return element.EnumerateObject().Select(p => p.Name).Where(p => !p.IsNullOrEmpty());
     }
-
     /// <summary>
     /// 取得單一選項值
     /// </summary>
     private string GetOptionValue(JsonElement element)
     {
         if (element.ValueKind != JsonValueKind.Object) return GetScalarValue(element);
-
         string value = GetFirstJsonText(element, OptionValueNames);
         if (!value.IsNullOrEmpty()) return value;
-
         return GetFirstJsonText(element, OptionLabelNames);
     }
-
     /// <summary>
     /// 取得包裝選項陣列
     /// </summary>
     private JsonElement? TryGetWrappedOptionArray(JsonElement element)
     {
         foreach (string name in OptionArrayNames)
-        {
             if (element.TryGetProperty(name, out JsonElement value) && value.ValueKind == JsonValueKind.Array) return value;
-        }
-
         return null;
     }
-
     /// <summary>
     /// 取得第一個 JSON 文字
     /// </summary>
     private string GetFirstJsonText(JsonElement element, string[] names)
     {
         foreach (string name in names)
-        {
             if (element.TryGetProperty(name, out JsonElement value) && !GetScalarValue(value).IsNullOrEmpty()) return GetScalarValue(value);
-        }
-
         return string.Empty;
     }
-
     /// <summary>
     /// 取得欄位 key
     /// </summary>
@@ -646,7 +602,6 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
         if (!item.FieldId.IsNullOrEmpty()) return item.FieldId?.Trim() ?? string.Empty;
         return $"RowId_{ToInt(item.RowId)}";
     }
-
     /// <summary>
     /// 取得欄位顯示名稱
     /// </summary>
@@ -654,13 +609,10 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
     {
         LangCode lang = GetSubmissionLang(context.Submit);
         List<SurveyItemLang> rows = GetFieldLangRows(item);
-
         SurveyItemLang? current = rows.FirstOrDefault(p => Equals(p.Lang, lang));
         SurveyItemLang? fallback = rows.FirstOrDefault(p => Equals(p.Lang, SiteDefaultLang));
-
         return FirstText(current?.FieldName, fallback?.FieldName, item.FieldId, $"RowId_{ToInt(item.RowId)}");
     }
-
     /// <summary>
     /// 取得欄位語系列
     /// </summary>
@@ -668,7 +620,6 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
     {
         return item._SurveyItemLang.OrderBy(p => p.RowId).ToList();
     }
-
     /// <summary>
     /// 取得提交語系
     /// </summary>
@@ -677,7 +628,6 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
         object? raw = submit.Lang;
         return raw == null ? SiteDefaultLang : (LangCode)raw;
     }
-
     /// <summary>
     /// 取得欄位類型
     /// </summary>
@@ -686,7 +636,6 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
         byte value = Convert.ToByte((object?)item.InputType ?? 0);
         return Enum.IsDefined(typeof(LibInputType), value) ? (LibInputType)value : LibInputType.Text;
     }
-
     /// <summary>
     /// 是否為必填
     /// </summary>
@@ -694,7 +643,6 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
     {
         return item.IsRequired == true;
     }
-
     /// <summary>
     /// 建立 SurveyId 查詢條件
     /// </summary>
@@ -703,7 +651,6 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
         string safeValue = surveyId.Replace("\\", "\\\\").Replace("\"", "\\\"");
         return $@"{nameof(SurveyFormModel.SurveyId)} = ""{safeValue}""";
     }
-
     /// <summary>
     /// 取得固定欄位名稱
     /// </summary>
@@ -739,7 +686,6 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
     {
         return value?.Trim() ?? string.Empty;
     }
-
     /// <summary>
     /// 加入必填錯誤
     /// </summary>
@@ -747,7 +693,6 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
     {
         Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, fieldName);
     }
-
     /// <summary>
     /// 加入格式錯誤
     /// </summary>
@@ -755,7 +700,6 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
     {
         Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00035, fieldName);
     }
-
     /// <summary>
     /// 加入自訂錯誤
     /// </summary>

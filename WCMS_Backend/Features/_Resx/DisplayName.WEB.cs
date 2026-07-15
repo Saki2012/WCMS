@@ -1,8 +1,4 @@
-﻿using WCMS.Features.WEB.Announcement;
-using WCMS.Features.WEB.Banner;
-using WCMS.Features.WEB.FileArchive;
-using WCMS.Features.WEB.Timeline;
-namespace WCMS.SysCore.FeatureDriver.Resx;
+﻿namespace WCMS.SysCore.FeatureDriver.Resx;
 
 public static partial class DisplayName
 {

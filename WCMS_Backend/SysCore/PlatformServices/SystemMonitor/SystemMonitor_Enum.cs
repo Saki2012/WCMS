@@ -1,5 +1,4 @@
 ﻿using WCMS.SysCore.I18n.Metadata;
-
 namespace WCMS.SysCore.PlatformServices.SystemMonitor;
 
 /// <summary>

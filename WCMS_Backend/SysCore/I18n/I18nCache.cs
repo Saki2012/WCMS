@@ -5,13 +5,15 @@ using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n.Metadata;
 using WCMS.SysCore.PlatformServices.Cache;
-
 namespace WCMS.SysCore.I18n;
 
 /// <summary>
 /// 管理 Type、Property、Field、Const、Enum 與 DTO fallback 顯示文字的多語系 Runtime Cache。
 /// </summary>
-public sealed class I18nCache : LibCacheBase
+/// <remarks>
+/// 初始化多語系顯示文字 Cache。
+/// </remarks>
+public sealed class I18nCache(CacheService cacheService, ModelTypeMetadataCache modelMetadata) : LibCacheBase(cacheService)
 {
     #region Property
     private const string CacheRegionName = "i18n";
@@ -27,18 +29,11 @@ public sealed class I18nCache : LibCacheBase
         Mode = CacheMode.LocalOnly,
         ExpirationStrategy = CacheExpirationStrategy.ProcessLifetime,
     };
-    private readonly ModelTypeMetadataCache _modelMetadata;
+    private readonly ModelTypeMetadataCache _modelMetadata = modelMetadata;
     protected override string CacheRegion => CacheRegionName;
-    #endregion
 
+    #endregion
     #region Public
-    /// <summary>
-    /// 初始化多語系顯示文字 Cache。
-    /// </summary>
-    public I18nCache(CacheService cacheService, ModelTypeMetadataCache modelMetadata) : base(cacheService)
-    {
-        _modelMetadata = modelMetadata;
-    }
     /// <summary>
     /// 取得指定泛型型別的多語系顯示文字。
     /// </summary>
@@ -214,8 +209,8 @@ public sealed class I18nCache : LibCacheBase
     /// </summary>
     private List<EnumOption> BuildEnumOptions(Type enumType)
     {
-        return [.. System.Enum.GetValues(enumType)
-            .Cast<System.Enum>()
+        return [.. Enum.GetValues(enumType)
+            .Cast<Enum>()
             .Select(value => new EnumOption
             {
                 Key = Convert.ToInt32(value),

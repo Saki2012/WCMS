@@ -4,7 +4,6 @@ using System.Security.Cryptography;
 using System.Text;
 using WCMS.SysCore.PlatformServices.FileManagement;
 using static MimeDetective.Definitions.DefaultDefinitions;
-
 namespace WCMS.SysCore.Library;
 
 /// <summary>

@@ -207,8 +207,7 @@ public static class LibApiFieldPolicyHelper
         int startIndex = parts.Length > 1 && IsRootSegment(rootType, parts[0]) ? 1 : 0;
         for (int index = startIndex; index < parts.Length; index++)
         {
-            PropertyInfo? property = modelMetadata.GetProperty(currentType, parts[index])
-                ?? modelMetadata.GetProperty(currentType, "_" + parts[index]);
+            PropertyInfo? property = modelMetadata.GetProperty(currentType, parts[index]) ?? modelMetadata.GetProperty(currentType, "_" + parts[index]);
             if (property == null || !policy(property)) return false;
             currentType = GetListItemType(property.PropertyType) ?? property.PropertyType;
         }

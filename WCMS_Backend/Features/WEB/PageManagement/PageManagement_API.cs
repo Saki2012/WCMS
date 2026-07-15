@@ -9,7 +9,7 @@ namespace WCMS.Features.WEB.PageManagement;
 [LibApiController(ProgKeys.WEB.Code, ProgKeys.WEB.PageManagement, FuncAction.MasterData)]
 public class PageManagementController : ApiDataController<PageManagement>
 {
-    #region
+    #region Public
     /// <summary>
     /// 獲取可被SiteMenu設定的功能模塊列表
     /// </summary>

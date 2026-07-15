@@ -3,12 +3,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.Features.COMM.Category;
 using WCMS.Features.COMM.Tag;
 using WCMS.SysCore.FeatureDriver.Model.Base;
+using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
 using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.PlatformServices.FileManagement;
-using WCMS.SysCore.FeatureDriver.Model.Metadata;
-
 namespace WCMS.Features.MAT.Material;
 
 /// <summary>

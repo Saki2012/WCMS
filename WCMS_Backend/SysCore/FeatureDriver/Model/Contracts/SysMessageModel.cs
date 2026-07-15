@@ -1,6 +1,5 @@
 ﻿
 using WCMS.SysCore.FeatureDriver.Model.Metadata;
-
 namespace WCMS.SysCore.FeatureDriver.Model.Contracts;
 
 /// <summary>

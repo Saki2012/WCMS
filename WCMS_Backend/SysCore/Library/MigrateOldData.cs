@@ -23,7 +23,6 @@ namespace WCMS.SysCore.Library
             }
             return ds;
         }
-
         public static string ChangeProgId(string module)
         {
             return module switch

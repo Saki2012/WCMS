@@ -1,27 +1,14 @@
 ﻿using WCMS.Features.IAM.Account;
 using WCMS.SysCore.FeatureDriver.Biz;
+using WCMS.SysCore.Security.IdentityAccess;
 using WCMS.SysCore.Security.IdentityAccess.Authentication;
+using WCMS.SysCore.Security.IdentityAccess.Authentication.CurrentUser;
 namespace WCMS.Features.IAM.Auth;
-
-/// <summary>
-/// 登入驗證服務契約。
-/// </summary>
-public interface IAuthService
-{
-    /// <summary>
-    /// 依帳號取得登入使用者資訊。
-    /// </summary>
-    Task<User_DTO?> FindByAccountAsync(string account);
-    /// <summary>
-    /// 驗證帳號與密碼是否可登入。
-    /// </summary>
-    Task<(bool ok, User_DTO userInfo)> CheckLoginValid(string account, string password);
-}
 
 /// <summary>
 /// 處理帳號查詢與密碼驗證。
 /// </summary>
-public class AuthBiz(IBizService<AccountModel> accountBiz) : IAuthService
+public class AuthBiz(IBizService<AccountModel> accountBiz)
 {
     #region Property
     private readonly IBizService<AccountModel> AccountBiz = accountBiz;

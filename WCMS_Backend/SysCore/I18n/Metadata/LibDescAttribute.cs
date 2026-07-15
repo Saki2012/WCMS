@@ -3,7 +3,6 @@ using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.Library;
 namespace WCMS.SysCore.I18n.Metadata;
 
-
 /// <summary>
 /// 欄位/Function名稱描述 
 /// (透過.resx支援多語系)

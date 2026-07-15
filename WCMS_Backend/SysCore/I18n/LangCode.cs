@@ -142,7 +142,7 @@ namespace WCMS.SysCore.I18n
         {
             var fb = (fallback?.Length ?? 0) > 0
                 ? fallback.Distinct().ToList()
-                : new List<LangCode> { LangCode.zhtw, LangCode.en };
+                : [LangCode.zhtw, LangCode.en];
 
             if (string.IsNullOrWhiteSpace(json)) return fb;
 

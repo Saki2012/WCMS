@@ -1,14 +1,10 @@
 using WCMS.SysCore.PlatformServices.Cache.Stores;
-
 namespace WCMS.SysCore.PlatformServices.Cache;
 
 /// <summary>
 /// 統一處理 WCMS Cache 的 Local 與 Distributed 路由模式。
 /// </summary>
-public sealed class CacheRoute(
-    ILocalCacheStore localStore,
-    IDistributedCacheStore distributedStore,
-    ILogger<CacheRoute> logger) : ICacheRoute
+public sealed class CacheRoute(ILocalCacheStore localStore, IDistributedCacheStore distributedStore, ILogger<CacheRoute> logger) : ICacheRoute
 {
     #region Property
     private readonly ILocalCacheStore _localStore = localStore;

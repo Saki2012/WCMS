@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.I18n.Metadata;
-using WCMS.SysCore.FeatureDriver.Model.Base;
 namespace WCMS.SysCore.Auditing.DataChangeLog;
 
 /// <summary>

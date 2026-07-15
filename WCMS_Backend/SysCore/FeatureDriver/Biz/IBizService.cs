@@ -1,5 +1,5 @@
-using WCMS.Features.IAM.Auth;
 using WCMS.SysCore.FeatureDriver.Model.Contracts;
+using WCMS.SysCore.Security.IdentityAccess.Authentication.CurrentUser;
 using static WCMS.SysCore.FeatureDriver.Model.Contracts.QueryListParam;
 namespace WCMS.SysCore.FeatureDriver.Biz;
 

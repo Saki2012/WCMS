@@ -1,13 +1,15 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using WCMS.SysCore.PlatformServices.Cache;
-
 namespace WCMS.SysCore.FeatureDriver.Runtime;
 
 /// <summary>
 /// 管理動態物件 Constructor、Getter 與 Setter Delegate 的 Runtime Cache。
 /// </summary>
-public sealed class PropertyAccessorCache : LibCacheBase
+/// <remarks>
+/// 初始化 Property Accessor Cache。
+/// </remarks>
+public sealed class PropertyAccessorCache(CacheService cacheService) : LibCacheBase(cacheService)
 {
     #region Property
     /// <summary>
@@ -38,15 +40,9 @@ public sealed class PropertyAccessorCache : LibCacheBase
     /// 取得 Property Accessor 使用的 Cache 區域名稱。
     /// </summary>
     protected override string CacheRegion => CacheRegionName;
-    #endregion
 
+    #endregion
     #region Public
-    /// <summary>
-    /// 初始化 Property Accessor Cache。
-    /// </summary>
-    public PropertyAccessorCache(CacheService cacheService) : base(cacheService)
-    {
-    }
     /// <summary>
     /// 建立指定型別的物件實例。
     /// </summary>

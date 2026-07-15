@@ -1,6 +1,5 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-
 namespace WCMS.SysCore.Library;
 
 /// <summary>
@@ -63,11 +62,11 @@ public static partial class LibData
     /// </summary>
     public static object[] ConvertJsonElement(object[] key)
     {
-        return key.Select(x =>
+        return [.. key.Select(x =>
         {
             if (x is JsonElement jsonElement) return ConvertJsonElement(jsonElement);
             return x;
-        }).ToArray();
+        })];
     }
     #endregion
 }

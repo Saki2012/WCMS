@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Caching.Memory;
-
 namespace WCMS.SysCore.PlatformServices.Cache.Stores;
 
 /// <summary>

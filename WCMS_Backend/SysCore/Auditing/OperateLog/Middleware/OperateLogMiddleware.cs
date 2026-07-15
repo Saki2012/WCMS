@@ -1,39 +1,27 @@
 ﻿using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Security.Claims;
-using WCMS.SysCore.Auditing.OperateLog;
 using WCMS.SysCore.Auditing.OperateLog.Metadata;
 using WCMS.SysCore.Constants;
 namespace WCMS.SysCore.Auditing.OperateLog.Middleware;
 
-
-public sealed class OperateLogMiddleware
+public sealed class OperateLogMiddleware(RequestDelegate next)
 {
-    private readonly RequestDelegate _next;
-
-    public OperateLogMiddleware(RequestDelegate next)
-    {
-        // 儲存 next pipeline
-        _next = next;
-    }
-
     public async Task InvokeAsync(HttpContext context, IOperateLog operateLog)
     {
         // 判斷是否需要記錄（例如 /Public 或 SkipOperateLog）
         if (ShouldSkip(context))
         {
-            await _next(context);
+            await next(context);
             return;
         }
-
         // 建立 log（開始）
         var follow = BuildStartLog(context, operateLog);
         var sw = Stopwatch.StartNew();
-
         try
         {
             // 執行後續 pipeline
-            await _next(context);
+            await next(context);
 
             // 完成後寫入狀態
             ApplyEndStatus(context, follow, sw);
@@ -55,14 +43,10 @@ public sealed class OperateLogMiddleware
     private static bool ShouldSkip(HttpContext context)
     {
         // 1) 路由規則排除（你說的「前台查詢 api」：建議統一放 /Public）
-        if (context.Request.Path.StartsWithSegments("/Public", StringComparison.OrdinalIgnoreCase))
-            return true;
-
+        if (context.Request.Path.StartsWithSegments("/Public", StringComparison.OrdinalIgnoreCase)) return true;
         // 2) attribute 排除（controller/action 上標 SkipOperateLog）
         var endpoint = context.GetEndpoint();
-        if (endpoint?.Metadata?.GetMetadata<SkipOperateLogAttribute>() != null)
-            return true;
-
+        if (endpoint?.Metadata?.GetMetadata<SkipOperateLogAttribute>() != null) return true;
         return false;
     }
 
@@ -70,21 +54,12 @@ public sealed class OperateLogMiddleware
     {
         // 組 API 名稱（用 route + method，避免依賴 controller 才能跑）
         var apiName = BuildApiName(context);
-
         // 取得 userId（已通過 auth 的話會有 Claims）
-        var userId = context.User?.FindFirstValue(ClaimTypes.NameIdentifier)
-                     ?? context.User?.FindFirstValue("UserId")
-                     ?? "Anonymous";
-
+        var userId = context.User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? context.User?.FindFirstValue("UserId") ?? "Anonymous";
         // 取 ip（你現在用 HTTP_CLIENT_IP header，我這裡仍保留）
         var ip = context.Request.Headers[SysParam.HttpHeaders.ClientIp].ToString();
-
         // body 內容通常不建議在 middleware 讀（會影響效能/需 EnableBuffering），先留空或只記 query
-        var payload = JsonConvert.SerializeObject(new
-        {
-            context.Request.QueryString.Value
-        });
-
+        var payload = JsonConvert.SerializeObject(new { context.Request.QueryString.Value });
         // 建立 log model
         return operateLog.AddOperateLog(apiName, userId, payload, ip);
     }

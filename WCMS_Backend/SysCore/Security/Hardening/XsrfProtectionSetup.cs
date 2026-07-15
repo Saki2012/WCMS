@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Antiforgery;
 using WCMS.SysCore.Constants;
-
 namespace WCMS.SysCore.Security.Hardening;
 
 /// <summary>

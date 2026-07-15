@@ -22,7 +22,6 @@ public interface ILibDisplayAttr
     string? AliasKey { get; }
     #endregion
 }
-
 /// <summary>
 /// WCMS API 欄位屬性共用介面。
 /// </summary>
@@ -39,7 +38,6 @@ public interface ILibFieldAttr : ILibDisplayAttr
     bool Required { get; }
     #endregion
 }
-
 /// <summary>
 /// WCMS 一般欄位屬性。
 /// </summary>
@@ -105,28 +103,30 @@ public sealed class LibFieldAttribute : ValidationAttribute, ILibFieldAttr
     }
     #endregion
 }
-
 /// <summary>
 /// WCMS 字串欄位屬性。
 /// </summary>
+/// <remarks>
+/// 建立含 API 權限、長度、主要顯示名稱與別名顯示名稱的字串欄位屬性。
+/// </remarks>
 [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
-public sealed class LibStrAttribute : StringLengthAttribute, ILibFieldAttr
+public sealed class LibStrAttribute(ApiFieldMode apiMode, int maximumLength, string descKey, string aliasKey) : StringLengthAttribute(maximumLength), ILibFieldAttr
 {
     #region Property
     /// <summary>
     /// 主要顯示名稱資源 Key。
     /// </summary>
-    public string? DescKey { get; }
+    public string? DescKey { get; } = descKey;
 
     /// <summary>
     /// 別名顯示名稱資源 Key。
     /// </summary>
-    public string? AliasKey { get; set; }
+    public string? AliasKey { get; set; } = string.IsNullOrWhiteSpace(aliasKey) ? null : aliasKey;
 
     /// <summary>
     /// API 欄位讀寫模式。
     /// </summary>
-    public ApiFieldMode ApiMode { get; }
+    public ApiFieldMode ApiMode { get; } = apiMode;
 
     /// <summary>
     /// 欄位是否必須提供有效內容。
@@ -138,21 +138,7 @@ public sealed class LibStrAttribute : StringLengthAttribute, ILibFieldAttr
     /// <summary>
     /// 建立含 API 權限、長度與顯示名稱的字串欄位屬性。
     /// </summary>
-    public LibStrAttribute(ApiFieldMode apiMode, int maximumLength, string descKey)
-        : this(apiMode, maximumLength, descKey, string.Empty)
-    {
-    }
-
-    /// <summary>
-    /// 建立含 API 權限、長度、主要顯示名稱與別名顯示名稱的字串欄位屬性。
-    /// </summary>
-    public LibStrAttribute(ApiFieldMode apiMode, int maximumLength, string descKey, string aliasKey)
-        : base(maximumLength)
-    {
-        ApiMode = apiMode;
-        DescKey = descKey;
-        AliasKey = string.IsNullOrWhiteSpace(aliasKey) ? null : aliasKey;
-    }
+    public LibStrAttribute(ApiFieldMode apiMode, int maximumLength, string descKey) : this(apiMode, maximumLength, descKey, string.Empty) { }
     #endregion
 
     #region Protected
@@ -168,7 +154,6 @@ public sealed class LibStrAttribute : StringLengthAttribute, ILibFieldAttr
     }
     #endregion
 }
-
 /// <summary>
 /// LibField / LibStr 共用欄位值驗證工具。
 /// </summary>
@@ -201,7 +186,6 @@ internal static class LibFieldValidationHelper
     }
     #endregion
 }
-
 /// <summary>
 /// WCMS 顯示名稱屬性解析工具。
 /// </summary>
@@ -215,10 +199,8 @@ internal static class LibDisplayAttributeHelper
     {
         var aliasValue = GetResourceValue(attr.AliasKey);
         if (!string.IsNullOrWhiteSpace(aliasValue)) return aliasValue;
-
         var descValue = GetResourceValue(attr.DescKey);
         if (!string.IsNullOrWhiteSpace(descValue)) return descValue;
-
         return GetFallbackText(attr);
     }
     #endregion
@@ -230,7 +212,6 @@ internal static class LibDisplayAttributeHelper
     private static string? GetResourceValue(string? resourceKey)
     {
         if (string.IsNullOrWhiteSpace(resourceKey)) return null;
-
         var result = ReadResourceValue(resourceKey);
         return string.IsNullOrWhiteSpace(result) ? null : result;
     }
@@ -244,7 +225,6 @@ internal static class LibDisplayAttributeHelper
         var specBaseName = GetSpecBaseName();
         var asm = typeof(DisplayName).Assembly;
         var result = LibResxReader.TryGetSpecOrCore(coreBaseName, specBaseName, asm, resourceKey, CultureInfo.CurrentUICulture);
-
         return result;
     }
 
@@ -254,7 +234,6 @@ internal static class LibDisplayAttributeHelper
     private static string? GetSpecBaseName()
     {
         if (string.IsNullOrWhiteSpace(SpecSettings.SpecCode)) return null;
-
         var result = $"{nameof(WCMS)}.{SpecSettings.SpecFeatures}.{SpecSettings.SpecCode}._Resx.SpecModelDisplayName";
         return result;
     }
@@ -266,14 +245,11 @@ internal static class LibDisplayAttributeHelper
     {
         var fallbackKey = attr.AliasKey ?? attr.DescKey;
         if (string.IsNullOrWhiteSpace(fallbackKey)) return string.Empty;
-
         var result = $"[{fallbackKey}]";
         return result;
     }
     #endregion
 }
-
-
 /// <summary>
 /// API 欄位讀寫模式。
 /// </summary>
