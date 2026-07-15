@@ -839,8 +839,15 @@
 /* =====  共用 標準 自定義 th / td 對齊 CSS ( 以上 )  ======= */
 /* ====================================================== */
 
-
-
+/* 表格隔線 0(bv5版本預設) 改為 inherit */
+.All_Standard_Content_CSS thead,
+.All_Standard_Content_CSS tbody,
+.All_Standard_Content_CSS tfoot,
+.All_Standard_Content_CSS tr,
+.All_Standard_Content_CSS td,
+.All_Standard_Content_CSS th{
+	border-width: inherit;
+}
 
 
 

@@ -751,6 +751,7 @@ a:focus:not(:focus-visible):not(:active) {
 /* ====================================================== */
 
 /* 補上修改的CSS 20260507 cara */
+
 .header_section .navbar-brand img, .menu_section .navbar-brand img {
     max-width: 330px;
     max-width: max(20.5vw, 190px);
@@ -758,9 +759,26 @@ a:focus:not(:focus-visible):not(:active) {
 }
 
 .subpage_banner_wrapper .Big-title{
-  text-shadow: rgba(255, 255, 255, 0.35) 2px 3px;;
+  text-shadow: rgba(255, 255, 255, 0.35) 2px 3px;
+  display: -webkit-box;
+	/* 第一步：設定 display 為 -webkit-box 元素。 */
+	-webkit-box-orient: vertical;
+	/* 第二步：設定 box 的子元素，是由上往下垂直排列。*/
+	-webkit-line-clamp: 2;
+	/* 第三步：設定欲顯示的行數，超出則顯示省略符號(...)。 */
+	overflow: hidden;
 }
-
+@media screen and (max-width: 1550px) {
+    .subpage_banner_wrapper .banner-content {
+      min-height: 230px;
+    }
+}
+@media screen and (max-width: 575px) {
+    .subpage_banner_wrapper .Big-title {
+        font-size: 262.5%;
+        line-height: 50px;
+    }
+}
 
 /* ============================================= */
 /* ------  新增左右邊 顏色條 區 ------------------- */
