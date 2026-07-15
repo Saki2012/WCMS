@@ -4,7 +4,8 @@
 param(
     [string]$ProjectDir = ".",
     [string]$PublishDir = "Publish",
-    [string]$FallbackSpecCode = "default"
+    [Parameter(Mandatory = $true)]
+    [string]$CompileSpecCode
 )
 
 $ErrorActionPreference = "Stop"
@@ -62,55 +63,81 @@ function Get-SafeToken {
     return $safe
 }
 
-function Get-JsonSpecCode {
-    param([string]$JsonPath)
-
-    # 從 json 讀取 SpecCode
-    if (-not [System.IO.File]::Exists($JsonPath)) {
-        return ""
-    }
-
-    try {
-        $jsonText = Get-Content -Path $JsonPath -Raw -Encoding UTF8
-        $json = $jsonText | ConvertFrom-Json
-
-        if ($json.SpecCode) {
-            return Get-SafeToken $json.SpecCode
-        }
-
-        return ""
-    }
-    catch {
-        return ""
-    }
-}
-
-function Get-SpecCode {
-    param([string]$ProjectRoot, [string]$PublishRoot, [string]$Fallback)
-
-    # 優先從發布後的 appsettings.production.json 讀取 SpecCode
-    $paths = @(
-        (Join-Path $PublishRoot "appsettings.production.json"),
-        (Join-Path $PublishRoot "appsettings.Production.json"),
-        (Join-Path $ProjectRoot "appsettings.production.json"),
-        (Join-Path $ProjectRoot "appsettings.Production.json"),
-        (Join-Path $ProjectRoot "appsettings.json")
+function Get-RequiredRegexValue {
+    param(
+        [string]$Text,
+        [string]$Pattern,
+        [string]$FieldName
     )
 
-    foreach ($path in $paths) {
-        $specCode = Get-JsonSpecCode $path
+    # 從版本原始碼取得必要欄位
+    $matched = [regex]::Match($Text, $Pattern)
 
-        if (-not [string]::IsNullOrWhiteSpace($specCode)) {
-            return $specCode
-        }
+    if (-not $matched.Success) {
+        throw "[Zip-PublishedBackend] Cannot resolve $FieldName."
     }
 
-    return Get-SafeToken $Fallback
+    return $matched.Groups["value"].Value
 }
 
-function Get-DateToken {
-    # 產生 yyyy-mm-dd hh.mm
-    return (Get-Date).ToString("yyyy-MM-dd HH.mm")
+function Get-BackendVersionInfo {
+    param(
+        [string]$ProjectRoot,
+        [string]$CurrentSpecCode
+    )
+
+    # 讀取公版與目前 Spec 的版本來源
+    $basePath = Join-Path $ProjectRoot "SysCore\SystemFunc\SystemVersion\SystemVersion_Biz.cs"
+    $specPath = Join-Path $ProjectRoot "SpecFeatures\$CurrentSpecCode\SYS\SystemVersion\SystemVersion_Biz.cs"
+
+    if (-not [System.IO.File]::Exists($basePath)) {
+        throw "[Zip-PublishedBackend] Base version file not found: $basePath"
+    }
+
+    if (-not [System.IO.File]::Exists($specPath)) {
+        throw "[Zip-PublishedBackend] Spec version file not found: $specPath"
+    }
+
+    $baseText = Get-Content -Path $basePath -Raw -Encoding UTF8
+    $specText = Get-Content -Path $specPath -Raw -Encoding UTF8
+
+    return New-BackendVersionInfo $baseText $specText
+}
+
+function New-BackendVersionInfo {
+    param(
+        [string]$BaseText,
+        [string]$SpecText
+    )
+
+    # 將版本原始碼轉成 ZIP 命名資料
+    return [PSCustomObject]@{
+        Major = Get-RequiredRegexValue $BaseText 'version\s*=\s*\$@?"(?<value>\d+)\.' "Major"
+        Feat = Get-RequiredRegexValue $BaseText 'FeatVersion\s*=\s*(?<value>\d+)' "FeatVersion"
+        Model = Get-RequiredRegexValue $BaseText 'ModelVersion\s*=\s*(?<value>\d+)' "ModelVersion"
+        Patch = Get-RequiredRegexValue $BaseText 'Patch\s*=\s*(?<value>\d+)' "Patch"
+        SpecCode = Get-RequiredRegexValue $SpecText 'SpecCode\s*=\s*"(?<value>[^"]+)"' "SpecCode"
+        SpecFeat = Get-RequiredRegexValue $SpecText 'SpecFeatVersion\s*=\s*(?<value>\d+)' "SpecFeatVersion"
+        SpecModel = Get-RequiredRegexValue $SpecText 'SpecModelVersion\s*=\s*(?<value>\d+)' "SpecModelVersion"
+    }
+}
+
+function Get-BackendZipFileName {
+    param([object]$VersionInfo)
+
+    # 依公版與 Spec 版本建立部署 ZIP 名稱
+    $specCode = Get-SpecDisplayCode $VersionInfo.SpecCode
+    $baseVersion = "$($VersionInfo.Major).$($VersionInfo.Feat).$($VersionInfo.Model).$($VersionInfo.Patch)"
+    $specVersion = "R$($VersionInfo.SpecFeat).$($VersionInfo.SpecModel)"
+
+    return "(Spec$specCode) BE_$baseVersion-$specVersion.zip"
+}
+
+function Get-SpecDisplayCode {
+    param([string]$SpecCode)
+
+    # 移除既有 Spec 前綴，統一由 ZIP 格式補上
+    return ($SpecCode.Trim() -replace '^(?i)Spec', '')
 }
 
 function Get-SevenZipPath {
@@ -138,9 +165,9 @@ function Get-SevenZipPath {
 function Remove-OldZipFiles {
     param([string]$PublishRoot)
 
-    # 刪除舊的自動打包 zip，避免包入舊 zip
+    # 刪除舊的後端自動部署 ZIP
     Get-ChildItem -Path $PublishRoot -Filter "*.zip" -File -ErrorAction SilentlyContinue |
-        Where-Object { $_.Name -match '^[a-zA-Z0-9_-]+backend-\d{4}-\d{2}-\d{2} \d{2}\.\d{2}\.zip$' } |
+        Where-Object { $_.Name -match '^\(Spec[^)]+\) BE_.+\.zip$' } |
         Remove-Item -Force
 }
 
@@ -245,11 +272,12 @@ function Invoke-Main {
             throw "[Zip-PublishedBackend] PublishDir not found: $publishRoot"
         }
 
-        $specCode = Get-SpecCode $projectRoot $publishRoot $FallbackSpecCode
-        $dateToken = Get-DateToken
-        $zipFileName = "$($specCode) Publish-$($dateToken).zip"
+        $versionInfo = Get-BackendVersionInfo $projectRoot $CompileSpecCode
+		$zipFileName = Get-BackendZipFileName $versionInfo
 
-        Write-Host "[Zip-PublishedBackend] ZipFileName: $zipFileName"
+        Write-Host "[Zip-PublishedBackend] CompileSpecCode: $CompileSpecCode"
+		Write-Host "[Zip-PublishedBackend] VersionSpecCode: $($versionInfo.SpecCode)"
+		Write-Host "[Zip-PublishedBackend] ZipFileName: $zipFileName"
 
         New-PublishZip $projectRoot $publishRoot $zipFileName
     }

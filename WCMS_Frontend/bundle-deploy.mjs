@@ -25,6 +25,40 @@ const DEPLOY_WINSW_EXE_NAME = "WinSW-x64.exe";
 const DEPLOY_CREATE_DIST_ZIP = true;
 const DEPLOY_ZIP_TEMP_DIR_NAME = ".__dist_zip_temp";
 
+/** 讀取前端基本版本。 */
+const getFrontendVersion = async (root) =>
+{
+  const packagePath = path.resolve(root, "package.json");
+  const packageText = await fs.readFile(packagePath, "utf-8");
+  const packageInfo = JSON.parse(packageText);
+
+  if (!packageInfo.version) throw new Error("[bundle-deploy] package.json version is missing.");
+  return String(packageInfo.version).trim();
+};
+
+/** 從 SpecManifest 文字取得指定欄位。 */
+const getSpecManifestValue = (manifestText, fieldName) =>
+{
+  const pattern = new RegExp(`${fieldName}\\s*:\\s*["']([^"']+)["']`);
+  const matched = manifestText.match(pattern);
+
+  if (!matched?.[1]) throw new Error(`[bundle-deploy] SpecManifest ${fieldName} is missing.`);
+  return matched[1].trim();
+};
+
+/** 讀取目前 Spec 的版本資訊。 */
+const getSpecManifestInfo = async (root) =>
+{
+  const envSpecCode = await getSpecCodeFromProdEnv(root);
+  const manifestPath = path.resolve(root, "src", "SpecFetures", envSpecCode, "SpecManifest.ts");
+  const manifestText = await fs.readFile(manifestPath, "utf-8");
+
+  return {
+    specCode: getSpecManifestValue(manifestText, "specCode"),
+    specVersion: getSpecManifestValue(manifestText, "specVersion"),
+  };
+};
+
 const getServerEntryFileName = () =>
 {
   // 取得 SSR 啟動檔名
@@ -570,13 +604,13 @@ const formatZipDateToken = (date) =>
   return `${yyyy}-${mm}-${dd} ${hh}.${mi}`;
 };
 
+/** 產生前端部署 ZIP 檔名。 */
 const buildDistZipFileName = async (root) =>
 {
-  // 產生 dist zip 檔名
-  const specCode = await getSpecCodeFromProdEnv(root);
-  const timeToken = formatZipDateToken(new Date());
+  const frontendVersion = await getFrontendVersion(root);
+  const specInfo = await getSpecManifestInfo(root);
 
-  return `(${specCode}) dist-${timeToken}.zip`;
+  return `(Spec${specInfo.specCode}) FE_${frontendVersion}-${specInfo.specVersion}.zip`;
 };
 
 const findPathCommand = (commandName) =>
@@ -695,10 +729,10 @@ const createZipArchive = async (distDir, zipPath) =>
   zipByNativeZip(distDir, zipPath);
 };
 
+/** 判斷是否為前端自動部署 ZIP。 */
 const isGeneratedDistZipName = (fileName) =>
 {
-  // 判斷是否為本腳本產出的 dist zip
-  return /^[a-zA-Z0-9_-]+dist-\d{4}-\d{2}-\d{2} \d{2}\.\d{2}\.zip$/.test(fileName);
+  return /^\(Spec[^)]+\) FE_.+\.zip$/.test(fileName);
 };
 
 const deleteOldDistZipFiles = async (distDir) =>
