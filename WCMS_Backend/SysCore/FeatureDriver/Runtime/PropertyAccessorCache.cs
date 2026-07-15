@@ -2,7 +2,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using WCMS.SysCore.PlatformServices.Cache;
 
-namespace WCMS.SysCore.Library;
+namespace WCMS.SysCore.FeatureDriver.Runtime;
 
 /// <summary>
 /// 管理動態物件 Constructor、Getter 與 Setter Delegate 的 Runtime Cache。

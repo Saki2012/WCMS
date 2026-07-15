@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using WCMS.SysCore.FeatureDriver.Resx;
-using WCMS.SysCore.Library.LibAttribute;
-using static WCMS.SysCore.Enum.SysEnum;
+using WCMS.Features.IAM.Account;
+using WCMS.SysCore.I18n.Metadata;
 namespace WCMS.Features.IAM.Auth;
 
 public sealed class LoginDto

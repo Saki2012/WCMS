@@ -1,10 +1,11 @@
 using WCMS.Features._Resx;
 using WCMS.Features.COMM.Category;
-using MaterialModel = WCMS.Features.MAT.Material.Material;
 using WCMS.SysCore.FeatureDriver.Biz;
+using WCMS.SysCore.FeatureDriver.Biz.Metadata;
+using WCMS.SysCore.FeatureDriver.Model.Contracts;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Library.LibAttribute;
-using static WCMS.SysCore.Enum.SysEnum;
+using WCMS.SysCore.Security.IdentityAccess.Authorization;
+using MaterialModel = WCMS.Features.MAT.Material.Material;
 namespace WCMS.Features.MAT.MatCategory;
 
 /// <summary>

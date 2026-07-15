@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using WCMS.SysCore.Library;
-namespace WCMS.SysCore.FeatureDriver.Api.Filter;
+using WCMS.SysCore.Configuration;
+
+namespace WCMS.SysCore.FeatureDriver.Api.Filters;
 
 /// <summary>
 /// 限制非目前 SpecCode 的 API 不允許被執行。

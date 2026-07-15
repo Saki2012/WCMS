@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
-using WCMS.SysCore.FeatureDriver.Model.MetaData;
+using WCMS.SysCore.FeatureDriver.Model.Metadata;
+using WCMS.SysCore.Library;
 namespace WCMS.SysCore.I18n.Metadata;
 
 

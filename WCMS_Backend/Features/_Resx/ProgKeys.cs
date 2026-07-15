@@ -1,5 +1,15 @@
 ﻿using WCMS.SysCore.FeatureDriver.Resx;
-using WCMS.SysCore.Library.LibAttribute;
+using WCMS.Features.COMM.Category;
+using WCMS.Features.MAT.Material;
+using WCMS.Features.WEB.Announcement;
+using WCMS.Features.WEB.Banner;
+using WCMS.Features.WEB.FileArchive;
+using WCMS.Features.WEB.Gallery;
+using WCMS.Features.WEB.PageManagement;
+using WCMS.Features.WEB.Survey;
+using WCMS.Features.WEB.Timeline;
+using WCMS.Features.WEB.WebResource;
+using WCMS.SysCore.I18n.Metadata;
 
 namespace WCMS.Features._Resx;
 

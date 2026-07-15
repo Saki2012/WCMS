@@ -1,11 +1,10 @@
 ﻿using System.Collections;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
-using WCMS.SysCore.Enum;
+using WCMS.SysCore.Configuration;
 using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Library;
-namespace WCMS.SysCore.FeatureDriver.Model.MetaData;
+namespace WCMS.SysCore.FeatureDriver.Model.Metadata;
 
 /// <summary>
 /// WCMS 顯示名稱屬性共用介面。

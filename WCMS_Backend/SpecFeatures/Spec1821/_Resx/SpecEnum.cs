@@ -1,4 +1,5 @@
-using WCMS.SysCore.Library.LibAttribute;
+using WCMS.Features.WEB.Announcement;
+using WCMS.Features.WEB.FileArchive;
 
 namespace WCMS.SpecFeatures.Spec1821._Resx;
 

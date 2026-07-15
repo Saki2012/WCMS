@@ -2,12 +2,11 @@
 using WCMS.Features._Resx;
 using WCMS.SpecFeatures.Spec1810.WEB.SpecResearch;
 using WCMS.SpecFeatures.Spec1810.WEB.SpecUSR;
-using WCMS.SysCore;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
-using WCMS.SysCore.Library.LibAttribute;
-using static WCMS.SysCore.Enum.SysEnum;
+using WCMS.SysCore.FeatureDriver.Biz;
+using WCMS.SysCore.FeatureDriver.Model.Contracts;
+using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.SpecFeatures.Spec1810.WEB.SpecCategory;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.Spec.SpecCategory)]

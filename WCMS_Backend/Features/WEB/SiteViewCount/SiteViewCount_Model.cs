@@ -2,11 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.Features.WEB.SiteMenuSetting;
-using WCMS.SysCore.Enum;
-using static WCMS.SysCore.Enum.SysEnum;
-using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
+using WCMS.SysCore.FeatureDriver.Model.Metadata;
 namespace WCMS.Features.WEB.SiteViewCount;
 
 /// 站台瀏覽次數

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace WCMS.SysCore.SystemFunc.Captcha;
+namespace WCMS.SysCore.PlatformServices.Captcha;
 
 /// <summary>
 /// 驗證碼設定

@@ -2,15 +2,17 @@
 using Microsoft.IdentityModel.Tokens;
 using SharpCompress.Archives;
 using WCMS.Features._Resx;
-using WCMS.SysCore.AppSettingsOptions;
 using WCMS.SysCore.Auditing.ErrorHandling;
 using WCMS.SysCore.FeatureDriver.Api.Controllers;
 using WCMS.SysCore.FeatureDriver.Biz;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.PlatformServices.FileManagement;
-using static WCMS.SysCore.Enum.SysEnum;
+using WCMS.SysCore.PlatformServices.SystemMonitor;
+using WCMS.SysCore.Constants;
+using WCMS.SysCore.FeatureDriver.Model.Contracts;
+using WCMS.SysCore.FeatureDriver.Repo;
 
-namespace WCMS.SysCore.SystemFunc.FileManagement
+namespace WCMS.SysCore.PlatformServices.FileManagement
 {
     public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> options, IWebHostEnvironment Env) : BizService<FileManageModel>(bizDeps), IBizService<FileManageModel>
     {
@@ -746,7 +748,7 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 SrcIP = "",
                 SrcNode = "Guest",
                 SrcFullPath = file.FileName,
-                DestIP = LibData.LocalhostIp,
+                DestIP = HostNetworkInfo.LocalIPv4,
                 DestNode = Environment.MachineName,
                 DestFullPath = "",
             });
@@ -791,9 +793,9 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 curSyncInfo.SrcFullPath = srcFullPath;
                 curSyncInfo.DestFullPath = dstFullPath;
                 curSyncInfo.FileStatus = FileStatus.Success;
-                curSyncInfo.SrcIP = LibData.LocalhostIp;
+                curSyncInfo.SrcIP = HostNetworkInfo.LocalIPv4;
                 curSyncInfo.SrcNode = Environment.MachineName;
-                curSyncInfo.DestIP = LibData.LocalhostIp;
+                curSyncInfo.DestIP = HostNetworkInfo.LocalIPv4;
                 curSyncInfo.DestNode = Environment.MachineName;
                 if (File.Exists(srcFullPath)) File.Move(srcFullPath, dstFullPath);
                 else
@@ -829,9 +831,9 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 curSyncInfo.SrcFullPath = srcFullPath;
                 curSyncInfo.DestFullPath = dstFullPath;
                 curSyncInfo.FileStatus = FileStatus.Success;
-                curSyncInfo.SrcIP = LibData.LocalhostIp;
+                curSyncInfo.SrcIP = HostNetworkInfo.LocalIPv4;
                 curSyncInfo.SrcNode = Environment.MachineName;
-                curSyncInfo.DestIP = LibData.LocalhostIp;
+                curSyncInfo.DestIP = HostNetworkInfo.LocalIPv4;
                 curSyncInfo.DestNode = Environment.MachineName;
                 if (File.Exists(srcFullPath)) File.Delete(srcFullPath);
                 else
@@ -906,10 +908,10 @@ namespace WCMS.SysCore.SystemFunc.FileManagement
                 {
                     InternalId = set.InternalId,
                     FileStatus = status,
-                    SrcIP = LibData.LocalhostIp,
+                    SrcIP = HostNetworkInfo.LocalIPv4,
                     SrcNode = Environment.MachineName,
                     SrcFullPath = entry.Key,
-                    DestIP = LibData.LocalhostIp,
+                    DestIP = HostNetworkInfo.LocalIPv4,
                     DestNode = Environment.MachineName,
                     DestFullPath = LibData.Merge("/", false, set.Path, $"{set.InternalId}.{set.FileExtension}")
                 });

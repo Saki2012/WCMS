@@ -2,12 +2,14 @@
 using System.Linq.Expressions;
 using WCMS.Features._Resx;
 using WCMS.Features.SystemSetting.Calendar;
-using WCMS.SysCore;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
-using WCMS.SysCore.Library.LibAttribute;
-using static WCMS.SysCore.Enum.SysEnum;
+using WCMS.Features.COMM.Calendar;
+using WCMS.SysCore.Auditing.ErrorHandling;
+using WCMS.SysCore.FeatureDriver.Biz;
+using WCMS.SysCore.FeatureDriver.Model.Contracts;
+using WCMS.SysCore.Library.Data;
+using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.SpecFeatures.Spec1816.WEB.SpecOpenScheduleRule;
 
 [LibBiz(ProgKeys.Spec.Code, ProgKeys.Spec.SpecOpenScheduleRule)]

@@ -1,7 +1,5 @@
 ﻿using WCMS.Features._Resx;
-using WCMS.SysCore;
-using WCMS.SysCore.Interface;
-using WCMS.SysCore.Library.LibAttribute;
+using WCMS.SysCore.FeatureDriver.Biz;
 namespace WCMS.SpecFeatures.Spec1819.WEB.SpecJournalIndex;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.Spec.SpecJournalIndex)]

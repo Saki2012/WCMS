@@ -1,12 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using WCMS.Features._Resx;
 using WCMS.SpecFeatures.Spec1810._Resx;
-using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Library.LibAttribute;
-using WCMS.SysCore.Model;
-using WCMS.SysCore.SystemFunc.FileManagement;
-using static WCMS.SysCore.Enum.SysEnum;
+using WCMS.SysCore.PlatformServices.FileManagement;
+using WCMS.Features.WEB.Content;
 namespace WCMS.SpecFeatures.Spec1810.WEB.SpecUSR;
 
 /// <summary>
@@ -137,7 +134,7 @@ public class SpecUSRPhotoInfo_DTO
     /// </summary>
     [LibDesc(ModelDisplayName.Common_RowId), Key] public int? RowId { get; set; }
     /// <summary>
-    /// 語系 SysEnum.Lang
+    /// 語系 LangCode
     /// </summary>
     [LibDesc(ModelDisplayName.Common_Lang)] public LangCode? Lang { get; set; }
     /// <summary>
@@ -172,7 +169,7 @@ public class SpecUSRFile_DTO
     public FileManageModel_DTO? FileSrc { get; set; }
     [LibDesc(ModelDisplayName.FileArchive_FileSrcId), StringLength(SysLengthParam.InternalId)] public string? FileSrcId { get; set; }
     /// <summary>
-    /// 語系 SysEnum.Lang
+    /// 語系 LangCode
     /// </summary>
     [LibDesc(ModelDisplayName.FileArchive_FileName), StringLength(SysLengthParam.FileName)] public string? FileName { get; set; }
 

@@ -1,12 +1,14 @@
 using System.Text.Json;
 using WCMS.Features._Resx;
 using WCMS.SpecFeatures.Spec1821._Resx;
-using WCMS.SysCore;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
-using WCMS.SysCore.Library.LibAttribute;
-using static WCMS.SysCore.Enum.SysEnum;
+using WCMS.Features.WEB.Announcement;
+using WCMS.Features.WEB.FileArchive;
+using WCMS.Features.WEB.SiteMenuSetting;
+using WCMS.SysCore.FeatureDriver.Biz;
+using WCMS.SysCore.FeatureDriver.Model.Contracts;
+using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.SpecFeatures.Spec1821.WEB.SpecHomePage;
 
 /// <summary>

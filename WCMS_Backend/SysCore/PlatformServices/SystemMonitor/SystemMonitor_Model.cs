@@ -1,8 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
-using WCMS.SysCore.FeatureDriver.Model.MetaData;
+using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
-using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.PlatformServices.SystemMonitor;
 

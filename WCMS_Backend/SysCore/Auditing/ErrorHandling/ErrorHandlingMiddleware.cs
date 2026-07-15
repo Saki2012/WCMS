@@ -5,7 +5,8 @@ using System.Text.RegularExpressions;
 using WCMS.Features._Resx;
 using WCMS.SysCore.FeatureDriver.Api.Contracts;
 using WCMS.SysCore.I18n;
-using static WCMS.SysCore.Enum.SysEnum;
+using WCMS.SysCore.Constants;
+using WCMS.SysCore.FeatureDriver.Model.Contracts;
 namespace WCMS.SysCore.Auditing.ErrorHandling;
 
 public class ErrorHandlingMiddleware(RequestDelegate next, I18nCache i18n)

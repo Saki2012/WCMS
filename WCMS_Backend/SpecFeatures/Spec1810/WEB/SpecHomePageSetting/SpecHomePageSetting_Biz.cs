@@ -6,11 +6,12 @@ using WCMS.Features.WEB.Announcement;
 using WCMS.Features.WEB.Banner;
 using WCMS.Features.WEB.Gallery;
 using WCMS.Features.WEB.WebResource;
-using WCMS.SysCore;
-using WCMS.SysCore.Interface;
-using WCMS.SysCore.FeatureDriver.Model;
-using WCMS.SysCore.Model;
-using static WCMS.SysCore.QueryListParam;
+using WCMS.Features.WEB.Content;
+using WCMS.SysCore.Constants;
+using WCMS.SysCore.FeatureDriver.Biz;
+using WCMS.SysCore.FeatureDriver.Model.Base;
+using WCMS.SysCore.FeatureDriver.Model.Contracts;
+using static WCMS.SysCore.FeatureDriver.Model.Contracts.QueryListParam;
 namespace WCMS.SpecFeatures.Spec1810.WEB.SpecHomePageSetting;
 
 /// <summary>

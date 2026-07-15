@@ -1,7 +1,7 @@
 using System.Reflection;
 using WCMS.SysCore.PlatformServices.Cache;
 
-namespace WCMS.SysCore.FeatureDriver.Model.MetaData;
+namespace WCMS.SysCore.FeatureDriver.Model.Metadata;
 
 /// <summary>
 /// 管理 Model Property 與 Attribute 查詢所需的 Reflection Metadata Cache。

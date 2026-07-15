@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WCMS.SysCore.Enum;
 using WCMS.SysCore.FeatureDriver.Api.Controllers;
+using WCMS.SysCore.Constants;
+using WCMS.SysCore.FeatureDriver.Api.Contracts;
 
-namespace WCMS.SysCore.SystemFunc.Captcha;
+namespace WCMS.SysCore.PlatformServices.Captcha;
 
 /*
  * ============================================================

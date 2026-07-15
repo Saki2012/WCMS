@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.Features.IAM.Account;
 using WCMS.SysCore.FeatureDriver.Model.Base;
-using WCMS.SysCore.FeatureDriver.Model.MetaData;
+using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
 
 namespace WCMS.Features.COMM.Calendar;

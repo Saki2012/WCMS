@@ -1,11 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using WCMS.SysCore.Enum;
 using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Library.LibAttribute;
-using WCMS.SysCore.Model;
-using static WCMS.SysCore.Enum.SysEnum;
+using WCMS.Features.WEB.Content;
 
 namespace WCMS.Features.WEB.SiteMenuSetting;
 

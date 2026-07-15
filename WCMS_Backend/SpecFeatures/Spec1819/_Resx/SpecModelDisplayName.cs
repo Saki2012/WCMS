@@ -1,4 +1,6 @@
-﻿namespace WCMS.SpecFeatures.Spec1819._Resx;
+﻿using WCMS.SpecFeatures.Spec1819.WEB.SpecJournal;
+using WCMS.SpecFeatures.Spec1819.WEB.SpecJournalIndex;
+namespace WCMS.SpecFeatures.Spec1819._Resx;
 
 public static class SpecModelDisplayName
 {

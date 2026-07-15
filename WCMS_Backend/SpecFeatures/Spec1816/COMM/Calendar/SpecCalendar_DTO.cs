@@ -3,8 +3,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.Features._Resx;
 using WCMS.SpecFeatures.Spec1816._Resx;
 using WCMS.SpecFeatures.Spec1816.WEB.SpecOpenScheduleRule;
-using WCMS.SysCore.Enum;
-using WCMS.SysCore.Library.LibAttribute;
 namespace WCMS.Features.SystemSetting.Calendar;
 
 public partial class CalendarDetail_DTO

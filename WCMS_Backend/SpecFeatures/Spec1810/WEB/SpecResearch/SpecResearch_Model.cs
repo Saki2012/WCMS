@@ -1,12 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Model;
-using static WCMS.SysCore.Enum.SysEnum;
-using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SpecFeatures.Spec1810._Resx;
 using WCMS.SysCore.FeatureDriver.Resx;
+using WCMS.Features.WEB.Content;
+using WCMS.SpecFeatures.Spec1817._Resx;
+using WCMS.SysCore.FeatureDriver.Model.Metadata;
 namespace WCMS.SpecFeatures.Spec1810.WEB.SpecResearch;
 
 public class SpecResearchSet:ITSet

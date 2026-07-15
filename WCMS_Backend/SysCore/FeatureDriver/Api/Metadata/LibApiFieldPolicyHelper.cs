@@ -1,8 +1,7 @@
 using System.Reflection;
 using System.Text.Json.Serialization;
 using WCMS.SysCore.FeatureDriver.Model.Contracts;
-using WCMS.SysCore.FeatureDriver.Model.Form;
-using WCMS.SysCore.FeatureDriver.Model.MetaData;
+using WCMS.SysCore.FeatureDriver.Model.Metadata;
 namespace WCMS.SysCore.FeatureDriver.Api.Metadata;
 
 /// <summary>
@@ -42,7 +41,7 @@ public static class LibApiFieldPolicyHelper
     /// <summary>
     /// 檢查 Query 欄位是否存在於 Form Model 且符合 ApiFieldMode select / sort 規則。
     /// </summary>
-    public static bool CheckQueryParam<TFormModel>(QueryListParam? param, ModelTypeMetadataCache modelMetadata) where TFormModel : IFormModel
+    public static bool CheckQueryParam<TFormModel>(QueryListParam? param, ModelTypeMetadataCache modelMetadata) where TFormModel : class
     {
         if (param == null) return false;
         if (!CheckFields(typeof(TFormModel), param.Fields, CanSelect, modelMetadata)) return false;

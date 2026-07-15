@@ -2,9 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using WCMS.Features._Resx;
 using WCMS.SysCore.FeatureDriver.Api.Controllers;
-using WCMS.SysCore.Library.LibAttribute;
-using static WCMS.SysCore.Enum.SysEnum;
-using static WCMS.SysCore.Enum.SysParam;
+using WCMS.SysCore.Constants;
+using WCMS.SysCore.FeatureDriver.Api.Contracts;
+using WCMS.SysCore.Security.IdentityAccess.Authorization;
+using static WCMS.SysCore.Constants.SysParam;
+using WCMS.SysCore.FeatureDriver.Api.Metadata;
 namespace WCMS.Features.WEB.SiteViewCount;
 
 [LibApiController(ProgKeys.WEB.Code, ProgKeys.WEB.SiteViewCount, FuncAction.Report)]

@@ -2,9 +2,8 @@
 using WCMS.Features._Resx;
 using WCMS.SpecFeatures.Spec1810.WEB.SpecResearch;
 using WCMS.SpecFeatures.Spec1810.WEB.SpecUSR;
-using WCMS.SysCore;
-using WCMS.SysCore.Library.LibAttribute;
-using static WCMS.SysCore.Enum.SysEnum;
+using WCMS.SysCore.FeatureDriver.Biz;
+using WCMS.SysCore.FeatureDriver.Model.Contracts;
 namespace WCMS.SpecFeatures.Spec1810.COMM.Tag;
 
 [LibBiz(ProgKeys.COMM.Code, ProgKeys.COMM.Tag)]

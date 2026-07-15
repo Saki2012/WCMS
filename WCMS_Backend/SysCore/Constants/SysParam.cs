@@ -1,4 +1,4 @@
-﻿using WCMS.SysCore.Library;
+﻿using WCMS.SysCore.Configuration;
 
 namespace WCMS.SysCore.Constants;
 

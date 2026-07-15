@@ -5,13 +5,12 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using WCMS.Features._Resx;
 using WCMS.SpecFeatures.Spec1819._Resx;
-using WCMS.SysCore;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
-using WCMS.SysCore.Library.LibAttribute;
-using WCMS.SysCore.Model;
-using static WCMS.SysCore.Enum.SysEnum;
+using WCMS.SysCore.Constants;
+using WCMS.SysCore.FeatureDriver.Biz;
+using WCMS.SysCore.FeatureDriver.Model.Contracts;
+using WCMS.SysCore.Security.IdentityAccess.Authorization;
 
 namespace WCMS.SpecFeatures.Spec1819.WEB.SpecJournal;
 

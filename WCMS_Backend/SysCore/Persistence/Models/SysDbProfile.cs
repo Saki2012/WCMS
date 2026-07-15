@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using WCMS.SysCore.Enum;
-using WCMS.SysCore.FeatureDriver.Model.MetaData;
+using WCMS.SysCore.FeatureDriver.Model.Metadata;
 
 namespace WCMS.SysCore.Persistence.Models
 {

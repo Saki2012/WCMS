@@ -1,6 +1,5 @@
 using WCMS.Features.IAM.Auth;
 using WCMS.SysCore.FeatureDriver.Model.Contracts;
-using WCMS.SysCore.FeatureDriver.Model.Form;
 using static WCMS.SysCore.FeatureDriver.Model.Contracts.QueryListParam;
 namespace WCMS.SysCore.FeatureDriver.Biz;
 
@@ -8,7 +7,7 @@ namespace WCMS.SysCore.FeatureDriver.Biz;
 /// Form Model 聚合模型的 Biz 服務契約。
 /// </summary>
 /// <typeparam name="TFormModel">表單模型聚合根型別。</typeparam>
-public interface IBizService<TFormModel> where TFormModel : IFormModel
+public interface IBizService<TFormModel> where TFormModel : class
 {
     #region Property
     /// <summary>

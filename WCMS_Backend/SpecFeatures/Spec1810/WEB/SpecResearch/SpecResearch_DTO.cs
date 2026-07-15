@@ -1,11 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using WCMS.Features._Resx;
 using WCMS.SpecFeatures.Spec1810._Resx;
-using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Library.LibAttribute;
-using WCMS.SysCore.Model;
-using static WCMS.SysCore.Enum.SysEnum;
+using WCMS.Features.WEB.Content;
 namespace WCMS.SpecFeatures.Spec1810.WEB.SpecResearch;
 
 public class SpecResearchSet_DTO : ITSet_DTO

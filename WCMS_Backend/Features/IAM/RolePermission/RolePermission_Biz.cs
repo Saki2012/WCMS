@@ -1,6 +1,5 @@
 using WCMS.SysCore.FeatureDriver.Biz;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
-using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.Features.IAM.RolePermission;
 

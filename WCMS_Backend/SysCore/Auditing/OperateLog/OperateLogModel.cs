@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.Features.IAM.Account;
-using WCMS.SysCore.Enum;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
-namespace WCMS.SysCore.Observability.OperateLog;
+using WCMS.SysCore.Security.IdentityAccess.Authorization;
+namespace WCMS.SysCore.Auditing.OperateLog;
 
 
 //資料傳輸用的物件
@@ -39,7 +39,7 @@ public class OperateLogModel
     /// <summary>
     /// 對應 WCMS 標準功能動作；特殊操作可為空。
     /// </summary>
-    public SysEnum.FuncAction? ActionType { get; set; }
+    public FuncAction? ActionType { get; set; }
     /// <summary>
     /// 此次操作所影響的主要資料 InternalId。
     /// </summary>

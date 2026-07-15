@@ -1,4 +1,4 @@
-﻿namespace WCMS.SysCore.Library
+﻿namespace WCMS.SysCore.Library.Data
 {
     public enum RecordCompareType
     {

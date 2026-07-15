@@ -1,4 +1,5 @@
-﻿namespace WCMS.SysCore.FeatureDriver.Resx;
+﻿using WCMS.SysCore.FeatureDriver.Model.Base;
+namespace WCMS.SysCore.FeatureDriver.Resx;
 
 public static partial class DisplayName
 {

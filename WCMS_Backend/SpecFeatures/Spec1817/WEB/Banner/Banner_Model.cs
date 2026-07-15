@@ -1,8 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using WCMS.SysCore.Enum;
-using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SpecFeatures.Spec1817._Resx;
 using WCMS.SysCore.FeatureDriver.Resx;
+using WCMS.SysCore.FeatureDriver.Model.Metadata;
 
 namespace WCMS.Features.WEB.Banner;
 

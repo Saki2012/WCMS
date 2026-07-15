@@ -2,11 +2,11 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.Features.COMM.Category;
 using WCMS.SpecFeatures.Spec1817._Resx;
-using WCMS.SysCore.Enum;
-using WCMS.SysCore.FeatureDriver.Model;
 using WCMS.SysCore.FeatureDriver.Resx;
-using WCMS.SysCore.Library.LibAttribute;
-using WCMS.SysCore.SystemFunc.FileManagement;
+using WCMS.SysCore.PlatformServices.FileManagement;
+using WCMS.Features.MAT.Material;
+using WCMS.SysCore.FeatureDriver.Model.Base;
+using WCMS.SysCore.FeatureDriver.Model.Metadata;
 
 namespace WCMS.SpecFeatures.Spec1817.WEB.SpecMusical;
 

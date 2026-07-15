@@ -1,13 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Model;
-using WCMS.SysCore.SystemFunc.FileManagement;
-using static WCMS.SysCore.Enum.SysEnum;
-using WCMS.SysCore.Library.LibAttribute;
+using WCMS.SysCore.PlatformServices.FileManagement;
 using WCMS.SpecFeatures.Spec1810._Resx;
 using WCMS.SysCore.FeatureDriver.Resx;
+using WCMS.Features.WEB.Content;
+using WCMS.SpecFeatures.Spec1817._Resx;
+using WCMS.SysCore.FeatureDriver.Model.Metadata;
 namespace WCMS.SpecFeatures.Spec1810.WEB.SpecUSR;
 
 /// <summary>
@@ -218,7 +217,7 @@ public int ParentRowId { get; set; }
 [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
 public int RowId { get; set; }
     /// <summary>
-    /// 語系 SysEnum.Lang
+    /// 語系 LangCode
     /// </summary>
     [LibField(ApiFieldMode.ReadWrite, DisplayName.Common_Lang)]
     public LangCode Lang { get; set; }
@@ -266,7 +265,7 @@ public string? FileSrcId { get; set; }
 [LibField(ApiFieldMode.ReadOnly)]
 public FileManageModel? FileSrc { get; set; }
     /// <summary>
-    /// 語系 SysEnum.Lang
+    /// 語系 LangCode
     /// </summary>
 [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.FileName, DisplayName.FileArchive_FileName)]
 public string FileName { get; set; } = string.Empty;

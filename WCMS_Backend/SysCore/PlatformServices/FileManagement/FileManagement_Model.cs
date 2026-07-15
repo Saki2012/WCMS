@@ -1,12 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using WCMS.SysCore.Enum;
 using WCMS.SysCore.FeatureDriver.Model.Base;
-using WCMS.SysCore.FeatureDriver.Model.MetaData;
+using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
 using WCMS.SysCore.FeatureDriver.Resx;
-using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.SysCore.PlatformServices.FileManagement;
 
 /// <summary>

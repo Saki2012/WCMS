@@ -1,5 +1,4 @@
 ﻿using WCMS.Features._Resx;
-using WCMS.SysCore.Library.LibAttribute;
 namespace WCMS.SpecFeatures.Spec1819._Resx;
 
 /// <summary>

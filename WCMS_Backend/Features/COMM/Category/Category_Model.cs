@@ -2,12 +2,11 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using WCMS.Features.MAT.MatCategory;
-using WCMS.SysCore.Enum;
 using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
 using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Library.LibAttribute;
+using WCMS.SysCore.FeatureDriver.Model.Metadata;
 
 namespace WCMS.Features.COMM.Category;
 

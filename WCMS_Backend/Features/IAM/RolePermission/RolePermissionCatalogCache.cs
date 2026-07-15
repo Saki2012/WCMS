@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using WCMS.Features._Resx;
+using WCMS.SysCore.Configuration;
 using WCMS.SysCore.Constants;
 using WCMS.SysCore.FeatureDriver.Api.Metadata;
-using WCMS.SysCore.Library;
 using WCMS.SysCore.PlatformServices.Cache;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
 

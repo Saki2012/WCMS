@@ -4,11 +4,8 @@ using WCMS.Features._Resx;
 using WCMS.Features.COMM.Tag;
 using WCMS.SpecFeatures.Spec1819._Resx;
 using WCMS.SpecFeatures.Spec1819.WEB.SpecJournalIndex;
-using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Library.LibAttribute;
-using WCMS.SysCore.Model;
-using WCMS.SysCore.SystemFunc.FileManagement;
+using WCMS.SysCore.PlatformServices.FileManagement;
 namespace WCMS.SpecFeatures.Spec1819.WEB.SpecJournal;
 
 /// <summary>

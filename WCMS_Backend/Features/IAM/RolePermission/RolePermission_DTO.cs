@@ -1,4 +1,4 @@
-﻿using static WCMS.SysCore.Enum.SysEnum;
+﻿using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.Features.IAM.RolePermission;
 
 public sealed class PermissionCatalogModuleDTO

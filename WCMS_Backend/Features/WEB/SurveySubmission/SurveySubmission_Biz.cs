@@ -1,18 +1,16 @@
 ﻿using System.Globalization;
-using System.IO.Compression;
-using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using WCMS.Features._Resx;
 using WCMS.Features.WEB.Survey;
+using WCMS.SysCore.FeatureDriver.Biz;
+using WCMS.SysCore.FeatureDriver.Biz.Metadata;
+using WCMS.SysCore.FeatureDriver.Model.Contracts;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library;
-using WCMS.SysCore.Library.LibAttribute;
 using SurveyFormModel = WCMS.Features.WEB.Survey.Survey;
-using static WCMS.SysCore.Enum.SysEnum;
-using WCMS.SysCore.FeatureDriver.Biz;
 namespace WCMS.Features.WEB.SurveySubmission;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.SurveySubmission)]
@@ -60,18 +58,6 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
             Message.AddMessage(MessageStatus.Green, SysMessageCode.BECode00002);
             await Task.CompletedTask;
         }, ct);
-    }
-    /// <summary>
-    /// 將 DB 保存 bytes 解壓成 JSON。
-    /// </summary>
-    public string DecompressJsonFromStorage(byte[]? data)
-    {
-        if (data == null || data.Length == 0) return string.Empty;
-        using MemoryStream input = new(data);
-        using BrotliStream brotli = new(input, CompressionMode.Decompress);
-        using MemoryStream output = new();
-        brotli.CopyTo(output);
-        return Encoding.UTF8.GetString(output.ToArray());
     }
     #endregion
 
@@ -414,26 +400,8 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
         string formDataJson = BuildNormalizedFormDataJson(context);
         string fieldSnapshotJson = BuildFieldSnapshotJson(context);
 
-        submit.FormDataZip = CompressJsonForStorage(formDataJson);
-        submit.FieldSnapshotZip = CompressJsonForStorage(fieldSnapshotJson);
-    }
-
-    /// <summary>
-    /// 將 JSON 壓縮成 DB 保存 bytes
-    /// </summary>
-    private byte[] CompressJsonForStorage(string json)
-    {
-        if (json.IsNullOrEmpty()) return [];
-
-        byte[] sourceBytes = Encoding.UTF8.GetBytes(json);
-        using MemoryStream output = new();
-
-        using (BrotliStream brotli = new(output, CompressionLevel.SmallestSize, leaveOpen: true))
-        {
-            brotli.Write(sourceBytes, 0, sourceBytes.Length);
-        }
-
-        return output.ToArray();
+        submit.FormDataZip = LibCompress.BrotliCompressString(formDataJson);
+        submit.FieldSnapshotZip = LibCompress.BrotliCompressString(fieldSnapshotJson);
     }
 
     /// <summary>

@@ -17,7 +17,8 @@ using WCMS.SysCore.FeatureDriver.Repo;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Persistence;
-using static WCMS.SysCore.Enum.SysEnum;
+using WCMS.SysCore.Constants;
+using WCMS.SysCore.Security.IdentityAccess.Authorization;
 using static WCMS.SysCore.FeatureDriver.Model.Contracts.QueryListParam;
 namespace WCMS.SysCore.FeatureDriver.Biz;
 
@@ -25,7 +26,7 @@ namespace WCMS.SysCore.FeatureDriver.Biz;
 /// Biz服務本體
 /// </summary>
 /// <typeparam name="TFormModel"></typeparam>
-public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFormModel : IFormModel
+public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFormModel : class
 {
     #region Property
     /// <summary>
@@ -1514,7 +1515,7 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
     /// <summary>
     /// 將外部 Form Model 排序欄位轉成 Root DbModel 欄位。
     /// </summary>
-    private static IReadOnlyList<OrderBySpec>? MapOrderBy(IReadOnlyList<OrderBySpec>? orderBy)
+    private IReadOnlyList<OrderBySpec>? MapOrderBy(IReadOnlyList<OrderBySpec>? orderBy)
     {
         if (orderBy == null) return null;
         return [.. orderBy.Select(item => item with { Col = FormModelMetadataResolver.MapFieldPathToRoot(typeof(TFormModel), item.Col, ModelMetadata) })];
@@ -1522,7 +1523,7 @@ public class BizService<TFormModel> : BizBase, IBizService<TFormModel> where TFo
     /// <summary>
     /// 將外部 Form Model RankGroup 轉成 Root DbModel 查詢條件。
     /// </summary>
-    private static IReadOnlyList<RankGroupsSpec>? MapRankGroups(IReadOnlyList<RankGroupsSpec>? rankGroups)
+    private IReadOnlyList<RankGroupsSpec>? MapRankGroups(IReadOnlyList<RankGroupsSpec>? rankGroups)
     {
         if (rankGroups == null) return null;
         return [.. rankGroups.Select(group => group with

@@ -2,19 +2,18 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using PdfSharp.Pdf.IO;
-using System.IO.Compression;
-using System.Reflection.PortableExecutable;
 using System.Text.RegularExpressions;
 using WCMS.Features._Resx;
-using WCMS.SysCore.Enum;
+using WCMS.SysCore.Auditing.OperateLog;
+using WCMS.SysCore.Constants;
+using WCMS.SysCore.FeatureDriver.Api.Contracts;
 using WCMS.SysCore.FeatureDriver.Api.Controllers;
-using WCMS.SysCore.PlatformServices.FileManagement;
-using static WCMS.SysCore.Enum.SysEnum;
-using static WCMS.SysCore.Enum.SysParam;
+using WCMS.SysCore.FeatureDriver.Model.Contracts;
+using static WCMS.SysCore.Constants.SysParam;
 
-namespace WCMS.SysCore.SystemFunc.FileManagement
+namespace WCMS.SysCore.PlatformServices.FileManagement
 {
-    [ApiController, Route(ServiceRoute)]
+    [ApiController, Route(SysParam.ApiRoutes.Service)]
     public class FileManagementController(IWebHostEnvironment Env) : ApiDataController<FileManageModel>
     {
         #region Public

@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.Extensions.Options;
-using System.Buffers;
 using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using System.Text;
@@ -36,8 +35,8 @@ public sealed class LibOutputCacheStore(
     /// </summary>
     public async ValueTask SetAsync(
         string key,
-        ReadOnlySequence<byte> value,
-        string[] tags,
+        byte[] value,
+        string[]? tags,
         TimeSpan validFor,
         CancellationToken cancellationToken)
     {
@@ -67,12 +66,12 @@ public sealed class LibOutputCacheStore(
     /// <summary>
     /// 建立保存 Response 與 Tag 資訊的 OutputCache Entry。
     /// </summary>
-    private static OutputCacheEntryData BuildEntry(ReadOnlySequence<byte> value, string[] tags, TimeSpan validFor)
+    private static OutputCacheEntryData BuildEntry(byte[] value, string[]? tags, TimeSpan validFor)
     {
         return new OutputCacheEntryData
         {
             EntryId = Guid.NewGuid(),
-            Payload = value.ToArray(),
+            Payload = [.. value],
             Tags = NormalizeTags(tags),
             ExpiresAtUtc = DateTimeOffset.UtcNow.Add(validFor),
         };

@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
-using WCMS.SysCore.FeatureDriver.Model.MetaData;
+using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n.Metadata;
 using WCMS.SysCore.PlatformServices.Cache;

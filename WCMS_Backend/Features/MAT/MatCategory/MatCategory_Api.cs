@@ -2,17 +2,20 @@
 using Microsoft.AspNetCore.Mvc;
 using WCMS.Features._Resx;
 using WCMS.Features.COMM.Category;
-using WCMS.SysCore.Enum;
 using WCMS.SysCore.FeatureDriver.Api.Controllers;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library;
-using WCMS.SysCore.Library.LibAttribute;
+using WCMS.SysCore.Constants;
+using WCMS.SysCore.FeatureDriver.Api.Contracts;
+using WCMS.SysCore.FeatureDriver.Model.Contracts;
+using WCMS.SysCore.Security.IdentityAccess.Authorization;
+using WCMS.SysCore.FeatureDriver.Api.Metadata;
 namespace WCMS.Features.MAT.MatCategory;
 
 /// <summary>
 /// MAT 類別組合式表單 API。
 /// </summary>
-[LibApiController(ProgKeys.MAT.Code, ProgKeys.MAT.MatCategory, SysEnum.FuncAction.MasterData)]
+[LibApiController(ProgKeys.MAT.Code, ProgKeys.MAT.MatCategory, FuncAction.MasterData)]
 public class MatCategoryController : CategoryControllerBase<MatCategoryFormModel>
 {
     #region Public

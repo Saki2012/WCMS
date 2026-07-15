@@ -1,20 +1,22 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using WCMS.Features._Resx;
-using WCMS.SysCore;
-using WCMS.SysCore.Enum;
-using WCMS.SysCore.Library.LibAttribute;
+using WCMS.SysCore.Auditing.OperateLog;
+using WCMS.SysCore.Constants;
+using WCMS.SysCore.FeatureDriver.Api.Contracts;
+using WCMS.SysCore.FeatureDriver.Api.Controllers;
+using WCMS.SysCore.Security.IdentityAccess.Authorization;
 
 namespace WCMS.SpecFeatures.Spec1819.WEB.SpecJournal;
 
-[LibApiController(ProgKeys.WEB.Code, ProgKeys.Spec.SpecJournal, SysEnum.FuncAction.MasterData)]
+[LibApiController(ProgKeys.WEB.Code, ProgKeys.Spec.SpecJournal, FuncAction.MasterData)]
 public class SpecJournalController : ApiDataController<SpecJournalModel>
 {
     #region Public
     /// <summary>
     /// 依 ORCID iD 查詢作者資訊（公開資訊）
     /// </summary>
-    [HttpGet(nameof(GetAuthorByOrcid)), LibRequireFuncAct(SysEnum.FuncAction.Use)]
+    [HttpGet(nameof(GetAuthorByOrcid)), LibRequireFuncAct(FuncAction.Use)]
     public async Task<ApiResponse<ORCIDData>> GetAuthorByOrcid([FromQuery] string orcid, CancellationToken ct)
     {
         ORCIDData dto = await ((SpecJournal_Biz)Service).GetOrcIdAuthorAsync(orcid, ct);
@@ -27,7 +29,7 @@ public class SpecJournalController : ApiDataController<SpecJournalModel>
     /// <param name="req"></param>
     /// <param name="ct"></param>
     /// <returns></returns>
-    [HttpPut(nameof(PublishJournal)), LibRequireFuncAct(SysEnum.FuncAction.Use)]
+    [HttpPut(nameof(PublishJournal)), LibRequireFuncAct(FuncAction.Use)]
     public async Task<IActionResult> PublishJournal([FromBody] PublishReq data, CancellationToken ct) 
     {
         OperateLogModel opLog = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(PublishJournal)}", OperateUser.UserId, JsonConvert.SerializeObject(data), Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
@@ -45,7 +47,7 @@ public class SpecJournalController : ApiDataController<SpecJournalModel>
     /// <param name="req"></param>
     /// <param name="ct"></param>
     /// <returns></returns>
-    [HttpPut(nameof(UnpublishJournal)), LibRequireFuncAct(SysEnum.FuncAction.Use)]
+    [HttpPut(nameof(UnpublishJournal)), LibRequireFuncAct(FuncAction.Use)]
     public async Task<IActionResult> UnpublishJournal([FromBody] string internalId, CancellationToken ct) 
     {
         OperateLogModel opLog = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(UnpublishJournal)}", OperateUser.UserId, JsonConvert.SerializeObject(internalId), Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());

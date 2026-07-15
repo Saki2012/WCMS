@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using WCMS.SysCore.Library;
+using WCMS.SysCore.Configuration;
+using WCMS.SysCore.Constants;
 
 namespace WCMS.SysCore.Persistence
 {

@@ -1,12 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.Features._Resx;
-using WCMS.SysCore.Enum;
 using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
 using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Library.LibAttribute;
+using WCMS.SysCore.FeatureDriver.Model.Metadata;
 namespace WCMS.Features.WEB.PageManagement;
 
 public class PageManagement : WEBModel
@@ -49,7 +48,7 @@ public class PageManagementDetail : DetailModel
     [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
     public int RowId { get; set; }
     /// <summary>
-    /// 語系 SysEnum.Lang
+    /// 語系 LangCode
     /// </summary>
     [LibField(ApiFieldMode.ReadWrite, DisplayName.Common_Lang)]
     public LangCode Lang { get; set; }

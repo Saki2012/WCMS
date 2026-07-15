@@ -1,9 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using WCMS.SysCore.Enum;
-using WCMS.SysCore.FeatureDriver.Model.MetaData;
+using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.I18n.Metadata;
-using static WCMS.SysCore.Enum.SysEnum;
+using WCMS.SysCore.FeatureDriver.Model.Base;
 namespace WCMS.SysCore.Auditing.DataChangeLog;
 
 /// <summary>

@@ -1,4 +1,4 @@
-﻿using WCMS.SysCore.SystemFunc.SystemVersion;
+﻿using WCMS.SysCore.Configuration;
 
 namespace WCMS.SpecFeatures.Spec1820.SYS.SystemVersion;
 

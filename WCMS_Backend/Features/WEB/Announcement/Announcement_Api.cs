@@ -2,13 +2,15 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using WCMS.Features._Resx;
-using WCMS.SysCore.Enum;
+using WCMS.SysCore.Constants;
 using WCMS.SysCore.FeatureDriver.Api.Controllers;
-using WCMS.SysCore.Library.LibAttribute;
+using WCMS.SysCore.FeatureDriver.Api.Metadata;
+using WCMS.SysCore.FeatureDriver.Model.Contracts;
+using WCMS.SysCore.Security.IdentityAccess.Authorization;
 using static WCMS.SysCore.Library.LibData;
 namespace WCMS.Features.WEB.Announcement;
 
-[LibApiController(ProgKeys.WEB.Code, ProgKeys.WEB.Announcement, SysEnum.FuncAction.BillData)]
+[LibApiController(ProgKeys.WEB.Code, ProgKeys.WEB.Announcement, FuncAction.BillData)]
 public partial class AnnouncementController : ApiDataController<Announcement>
 {
     [HttpPost(nameof(QueryByValidate)), OutputCache(PolicyName = SysParam.OutputCachePolicies.ListCache), AllowAnonymous, IgnoreAntiforgeryToken]

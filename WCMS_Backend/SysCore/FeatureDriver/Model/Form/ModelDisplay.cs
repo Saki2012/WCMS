@@ -2,7 +2,7 @@
 using System.Reflection;
 using WCMS.SysCore.FeatureDriver.Api.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Base;
-using WCMS.SysCore.FeatureDriver.Model.MetaData;
+using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.I18n;
 namespace WCMS.SysCore.FeatureDriver.Model.Form;
 
@@ -10,7 +10,7 @@ namespace WCMS.SysCore.FeatureDriver.Model.Form;
 /// Form Model 模型顯示名稱。
 /// </summary>
 /// <typeparam name="TFormModel">外部 API Form Model 型別。</typeparam>
-public class ModelDisplay<TFormModel>(ModelTypeMetadataCache modelMetadata, I18nCache i18n) where TFormModel : IFormModel
+public class ModelDisplay<TFormModel>(ModelTypeMetadataCache modelMetadata, I18nCache i18n) where TFormModel : class
 {
     #region Property
     /// <summary>

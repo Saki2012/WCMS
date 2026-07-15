@@ -1,4 +1,3 @@
-using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.Security.IdentityAccess.Authorization;
 

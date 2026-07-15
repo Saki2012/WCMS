@@ -1,10 +1,9 @@
 using System.Reflection;
 using System.Text.RegularExpressions;
 using WCMS.SysCore.FeatureDriver.Model.Base;
-using WCMS.SysCore.FeatureDriver.Model.Form;
-using WCMS.SysCore.FeatureDriver.Model.MetaData;
+using WCMS.SysCore.FeatureDriver.Model.Metadata;
 
-namespace WCMS.SysCore.Library;
+namespace WCMS.SysCore.FeatureDriver.Model.Form;
 
 /// <summary>
 /// 解析一般 DbModel 與組合式 Form Model 的 Root、組裝與查詢路徑。

@@ -4,9 +4,8 @@ using WCMS.SysCore.Constants;
 using WCMS.SysCore.FeatureDriver.Api.Controllers;
 using WCMS.SysCore.FeatureDriver.Api.Metadata;
 using WCMS.SysCore.Library;
-using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
-using static WCMS.SysCore.Enum.SysEnum;
+using WCMS.SysCore.FeatureDriver.Model.Contracts;
 
 namespace WCMS.Features.COMM.Person;
 

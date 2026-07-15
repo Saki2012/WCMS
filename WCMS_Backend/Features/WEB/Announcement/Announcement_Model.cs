@@ -1,13 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using WCMS.SysCore.Enum;
+using WCMS.Features.WEB.Content;
 using WCMS.SysCore.FeatureDriver.Model.Base;
+using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
 using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Library.LibAttribute;
+using WCMS.SysCore.I18n.Metadata;
 using WCMS.SysCore.PlatformServices.FileManagement;
-using static WCMS.SysCore.Enum.SysEnum;
 namespace WCMS.Features.WEB.Announcement;
 
 /// <summary>

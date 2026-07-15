@@ -2,9 +2,8 @@
 using WCMS.Features._Resx;
 using WCMS.Features.SystemSetting.Calendar;
 using WCMS.SpecFeatures.Spec1816.WEB.SpecOpenScheduleRule;
-using WCMS.SysCore;
-using WCMS.SysCore.Library.LibAttribute;
-using static WCMS.SysCore.Enum.SysEnum;
+using WCMS.SysCore.FeatureDriver.Biz;
+using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.SpecFeatures.Spec1816.COMM.Calendar;
 
 [LibBiz(ProgKeys.COMM.Code,ProgKeys.COMM.Calendar)]

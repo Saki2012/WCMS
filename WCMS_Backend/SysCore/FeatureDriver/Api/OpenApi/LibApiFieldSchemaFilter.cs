@@ -7,9 +7,9 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using WCMS.SysCore.Enum;
 using WCMS.SysCore.FeatureDriver.Api.Metadata;
 using WCMS.SysCore.Library;
+using WCMS.SysCore.FeatureDriver.Model.Metadata;
 namespace WCMS.SysCore.FeatureDriver.Api.OpenApi;
 
 /// <summary>

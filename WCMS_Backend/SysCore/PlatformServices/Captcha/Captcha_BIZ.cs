@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
 
-namespace WCMS.SysCore.SystemFunc.Captcha;
+namespace WCMS.SysCore.PlatformServices.Captcha;
 
 /// <summary>
 /// 驗證碼服務介面

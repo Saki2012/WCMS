@@ -1,6 +1,5 @@
-﻿using WCMS.SysCore.Enum;
-
-namespace WCMS.SysCore.Library
+﻿
+namespace WCMS.SysCore.Configuration
 {
 
     /// <summary>

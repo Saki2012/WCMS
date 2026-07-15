@@ -1,5 +1,5 @@
 ﻿using WCMS.SysCore.Library;
-namespace WCMS.SysCore;
+namespace WCMS.SysCore.Configuration;
 
 public class SystemVersion_DTO
 {

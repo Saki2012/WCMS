@@ -1,4 +1,5 @@
-﻿namespace WCMS.SysCore.Security.Hardening;
+﻿using WCMS.SysCore.Constants;
+namespace WCMS.SysCore.Security.Hardening;
 
 /// <summary>
 /// 套用後端 Host 白名單、安全標頭、CSP 與正式環境快取限制。

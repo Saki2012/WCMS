@@ -1,12 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Library.LibAttribute;
-using static WCMS.SysCore.Enum.SysEnum;
 using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
+using WCMS.Features.WEB.Content;
+using WCMS.SysCore.FeatureDriver.Model.Metadata;
+using WCMS.SysCore.I18n.Metadata;
 namespace WCMS.Features.WEB.Banner;
 
 public partial class Banner : HeaderModel

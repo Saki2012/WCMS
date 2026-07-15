@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using WCMS.SysCore.Interface;
 
 namespace WCMS.SysCore.FeatureDriver.Repo;
 
@@ -17,10 +16,10 @@ public class FormGraphRepoProvider(DbRepositoryProvider dbRepositoryProvider)
     /// <summary>
     /// 取得指定 Form Model 的 Graph Repository Scope。
     /// </summary>
-    public IFormGraphRepoScope<TFormModel> GetScope<TFormModel>() where TFormModel : class
+    public FormGraphRepoScope<TFormModel> GetScope<TFormModel>() where TFormModel : class
     {
         object scope = _scopes.GetOrAdd(typeof(TFormModel), _ => new FormGraphRepoScope<TFormModel>(_dbRepositoryProvider));
-        return (IFormGraphRepoScope<TFormModel>)scope;
+        return (FormGraphRepoScope<TFormModel>)scope;
     }
     #endregion
 }

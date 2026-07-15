@@ -2,13 +2,19 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using BannerModel = WCMS.Features.WEB.Banner.Banner;
-using WCMS.SysCore.Enum;
 using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Library.LibAttribute;
-using static WCMS.SysCore.Enum.SysEnum;
 using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
+using WCMS.Features.COMM.Category;
+using WCMS.Features.WEB.Announcement;
+using WCMS.Features.WEB.Banner;
+using WCMS.Features.WEB.Content;
+using WCMS.Features.WEB.FileArchive;
+using WCMS.Features.WEB.Gallery;
+using WCMS.Features.WEB.PageManagement;
+using WCMS.Features.WEB.WebResource;
+using WCMS.SysCore.FeatureDriver.Model.Metadata;
 namespace WCMS.Features.WEB.SiteMenuSetting;
 
 /// <summary>

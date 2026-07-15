@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WCMS.Features._Resx;
-using WCMS.SysCore;
-using WCMS.SysCore.Enum;
-using WCMS.SysCore.Library.LibAttribute;
+using WCMS.SysCore.FeatureDriver.Api.Contracts;
+using WCMS.SysCore.FeatureDriver.Api.Controllers;
+using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.SpecFeatures.Spec1820.WEB.SpecHomePage;
 
-[LibApiController(ProgKeys.WEB.Code, ProgKeys.WEB.HomePageSetting, SysEnum.FuncAction.MasterData)]
+[LibApiController(ProgKeys.WEB.Code, ProgKeys.WEB.HomePageSetting, FuncAction.MasterData)]
 public class SpecHomePageApiController : ApiDataController<SpecHomePage1820Model> {
 
     #region Public

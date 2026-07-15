@@ -5,6 +5,9 @@ using WCMS.SysCore.FeatureDriver.Api.Controllers;
 using WCMS.SysCore.FeatureDriver.Api.Metadata;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
+using WCMS.SysCore.Auditing.OperateLog;
+using WCMS.SysCore.FeatureDriver.Api.Contracts;
+using WCMS.SysCore.FeatureDriver.Model.Contracts;
 namespace WCMS.Features.IAM.Account;
 
 [LibApiController(ProgKeys.IAM.Code, ProgKeys.IAM.Account, FuncAction.MasterData)]
@@ -30,7 +33,7 @@ public class AccountController : ApiDataController<AccountModel>
     [HttpPut(nameof(ChangePassword)), LibRequireFuncAct(FuncAction.Use)]
     public async Task<IActionResult> ChangePassword(ChangePassword pw, CancellationToken ct)
     {
-        WCMS.SysCore.OperateLogModel log = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(ChangePassword)}", OperateUser.UserId, string.Empty, Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
+        OperateLogModel log = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(ChangePassword)}", OperateUser.UserId, string.Empty, Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
         var response = new ApiResponse<string>() { Data = [], SysMessage = Message.Messages };
         if (pw.OldPassword == pw.NewPassword)
         {
@@ -52,7 +55,7 @@ public class AccountController : ApiDataController<AccountModel>
     [HttpPut(nameof(ResetPassword)), LibRequireFuncAct(FuncAction.Use)]
     public async Task<IActionResult> ResetPassword(ResetPassword pw, CancellationToken ct)
     {
-        WCMS.SysCore.OperateLogModel log = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(ResetPassword)}", OperateUser.UserId, string.Empty, Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
+        OperateLogModel log = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(ResetPassword)}", OperateUser.UserId, string.Empty, Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
         var response = new ApiResponse<string>() { Data = [], SysMessage = Message.Messages };
         AccountBiz.CheckPasswordLegal(pw.NewPassword, out List<SysMessageModel> message);
         Message.AddMessage(message);

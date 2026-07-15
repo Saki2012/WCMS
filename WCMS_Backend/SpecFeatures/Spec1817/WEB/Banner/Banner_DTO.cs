@@ -1,7 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using WCMS.SpecFeatures.Spec1817._Resx;
-using WCMS.SysCore.Enum;
-using WCMS.SysCore.Library.LibAttribute;
 namespace WCMS.Features.WEB.Banner;
 
 public partial class BannerDetailInfo_DTO

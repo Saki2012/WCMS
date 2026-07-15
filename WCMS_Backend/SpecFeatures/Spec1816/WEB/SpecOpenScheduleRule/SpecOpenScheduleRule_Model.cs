@@ -1,10 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using WCMS.Features._Resx;
 using WCMS.SpecFeatures.Spec1816._Resx;
-using WCMS.SysCore.Enum;
-using WCMS.SysCore.Library.LibAttribute;
-using WCMS.SysCore.Model;
 using WCMS.SysCore.FeatureDriver.Resx;
+using WCMS.SpecFeatures.Spec1817._Resx;
+using WCMS.SysCore.FeatureDriver.Model.Metadata;
 namespace WCMS.SpecFeatures.Spec1816.WEB.SpecOpenScheduleRule;
 
 public class SpecOpenScheduleRuleSet :ITSet

@@ -1,12 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using WCMS.SysCore.Enum;
-using static WCMS.SysCore.Enum.SysEnum;
-using WCMS.SysCore.FeatureDriver.Resx;
-using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.FeatureDriver.Model.Base;
-using WCMS.SysCore.PlatformServices.FileManagement;
+using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
+using WCMS.SysCore.FeatureDriver.Resx;
+using WCMS.SysCore.I18n.Metadata;
+using WCMS.SysCore.PlatformServices.FileManagement;
 namespace WCMS.Features.COMM.Person;
 
 [LibDesc(DisplayName.Person_PersonModel)]

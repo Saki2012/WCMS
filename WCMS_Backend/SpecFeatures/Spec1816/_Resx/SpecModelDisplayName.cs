@@ -1,4 +1,5 @@
-﻿namespace WCMS.SpecFeatures.Spec1816._Resx;
+﻿using WCMS.SpecFeatures.Spec1816.WEB.SpecOpenScheduleRule;
+namespace WCMS.SpecFeatures.Spec1816._Resx;
 
 public static class SpecModelDisplayName
 {

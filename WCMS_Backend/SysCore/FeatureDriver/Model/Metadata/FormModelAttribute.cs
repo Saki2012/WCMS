@@ -1,4 +1,4 @@
-namespace WCMS.SysCore.FeatureDriver.Model.MetaData;
+namespace WCMS.SysCore.FeatureDriver.Model.Metadata;
 
 /// <summary>
 /// 標示組合式 Form Model 的 Root Property。

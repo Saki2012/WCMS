@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using WCMS.Features._Resx;
-using WCMS.SysCore.Enum;
 using WCMS.SysCore.FeatureDriver.Api.Controllers;
 using WCMS.SysCore.Library;
-using WCMS.SysCore.Library.LibAttribute;
-using static WCMS.SysCore.Enum.SysEnum;
+using WCMS.SysCore.Constants;
+using WCMS.SysCore.FeatureDriver.Api.Contracts;
+using WCMS.SysCore.FeatureDriver.Model.Contracts;
+using WCMS.SysCore.Security.IdentityAccess.Authorization;
+using WCMS.SysCore.FeatureDriver.Api.Metadata;
 namespace WCMS.Features.IAM.RolePermission;
 
 [LibApiController(ProgKeys.IAM.Code, ProgKeys.IAM.RolePermission, FuncAction.MasterData)]

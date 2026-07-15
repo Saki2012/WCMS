@@ -1,9 +1,7 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using System.Text.Json;
 using WCMS.Features._Resx;
-using WCMS.SysCore;
-using WCMS.SysCore.Interface;
-using WCMS.SysCore.Library.LibAttribute;
+using WCMS.SysCore.FeatureDriver.Biz;
 
 namespace WCMS.SpecFeatures.Spec1820.WEB.SpecHomePage;
 

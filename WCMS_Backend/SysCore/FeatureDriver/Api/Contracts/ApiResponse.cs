@@ -1,5 +1,4 @@
 ﻿using WCMS.SysCore.FeatureDriver.Model.Contracts;
-using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.FeatureDriver.Api.Contracts;
 

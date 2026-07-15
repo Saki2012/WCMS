@@ -1,6 +1,6 @@
 ﻿using WCMS.Features._Resx;
 using WCMS.SysCore.FeatureDriver.Biz;
-using WCMS.SysCore.Library.LibAttribute;
+using WCMS.SysCore.FeatureDriver.Biz.Metadata;
 namespace WCMS.Features.MAT.Material;
 
 [LibBiz(ProgKeys.MAT.Code, ProgKeys.MAT.Material)]

@@ -1,10 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using WCMS.Features._Resx;
 using WCMS.SpecFeatures.Spec1810._Resx;
-using WCMS.SysCore.Enum;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Library.LibAttribute;
-using WCMS.SysCore.Model;
 namespace WCMS.SpecFeatures.Spec1810.WEB.SpecCategory;
 
 public class SpecCategorySet_DTO : ITSet_DTO

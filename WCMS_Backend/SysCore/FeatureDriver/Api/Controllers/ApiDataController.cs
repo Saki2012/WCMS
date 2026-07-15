@@ -13,27 +13,26 @@ using WCMS.Features.WEB.Gallery;
 using WCMS.Features.WEB.PageManagement;
 using WCMS.Features.WEB.SiteMenuSetting;
 using WCMS.Features.WEB.WebResource;
-using WCMS.SysCore.Enum;
+using WCMS.SysCore.Auditing.OperateLog;
+using WCMS.SysCore.Configuration;
+using WCMS.SysCore.Constants;
 using WCMS.SysCore.FeatureDriver.Api.Contracts;
 using WCMS.SysCore.FeatureDriver.Api.Metadata;
 using WCMS.SysCore.FeatureDriver.Biz;
 using WCMS.SysCore.FeatureDriver.Model.Contracts;
 using WCMS.SysCore.FeatureDriver.Model.Form;
-using WCMS.SysCore.FeatureDriver.Model.MetaData;
+using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Observability.OperateLog;
 using WCMS.SysCore.PlatformServices.FileManagement;
-using WCMS.SysCore.Security.AccessControl;
-using WCMS.SysCore.SystemFunc.FileManagement;
-using static WCMS.SysCore.Enum.SysEnum;
-using static WCMS.SysCore.Library.LibData;
+using WCMS.SysCore.Security.Hardening.AccessControl;
+using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.SysCore.FeatureDriver.Api.Controllers;
 
 /// <summary>
 /// 資料查詢型 API 基底，直接以 Form Model 聚合模型作為外部與 Biz 契約。
 /// </summary>
 /// <typeparam name="TFormModel">表單模型聚合根型別。</typeparam>
-public abstract class ApiDataQueryController<TFormModel> : ApiBaseController where TFormModel : IFormModel
+public abstract class ApiDataQueryController<TFormModel> : ApiBaseController where TFormModel : class
 {
     #region Property
     private IBizService<TFormModel>? _service;
@@ -183,7 +182,7 @@ public abstract class ApiDataQueryController<TFormModel> : ApiBaseController whe
 /// 表單 API 入口，直接使用 Form Model 聚合模型。
 /// </summary>
 /// <typeparam name="TFormModel">表單模型聚合根型別。</typeparam>
-public abstract class ApiDataController<TFormModel> : ApiDataQueryController<TFormModel>, IBaseDataController<TFormModel> where TFormModel : class
+public abstract class ApiDataController<TFormModel> : ApiDataQueryController<TFormModel> where TFormModel : class
 {
     #region Public
     /// <summary>

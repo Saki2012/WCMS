@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using WCMS.SysCore.FeatureDriver.Resx;
-using WCMS.SysCore.Library.LibAttribute;
+using WCMS.SysCore.I18n.Metadata;
 
 namespace WCMS.SysCore.I18n
 {

@@ -2,10 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.Features._Resx;
 using WCMS.SpecFeatures.Spec1820._Resx;
-using WCMS.SysCore.Enum;
-using WCMS.SysCore.Library.LibAttribute;
-using WCMS.SysCore.Model;
-using WCMS.SysCore.SystemFunc.FileManagement;
+using WCMS.SysCore.PlatformServices.FileManagement;
 namespace WCMS.SpecFeatures.Spec1820.WEB.SpecHomePage;
 
 

@@ -1,5 +1,4 @@
 ﻿using WCMS.Features.IAM.Account;
-using WCMS.SysCore.Enum;
 using WCMS.SysCore.FeatureDriver.Biz;
 using WCMS.SysCore.Security.IdentityAccess.Authentication;
 namespace WCMS.Features.IAM.Auth;
@@ -69,7 +68,7 @@ public class AuthBiz(IBizService<AccountModel> accountBiz) : IAuthService
         IList<AccountModel> users = await AccountBiz.BizQueryListAsync(fields, $"{nameof(AccountModel.AccountId)} = {account}", default, default, 0, 0);
         AccountModel? user = users.FirstOrDefault();
         if (user == null || !PasswordHasher.Verify(password, user.PasswordHash, user.PasswordSalt, user.PasswordAlgoVer)) return (false, default!);
-        if (user.AccountStatus != SysEnum.AccountStatus.Enable) return (false, default!);
+        if (user.AccountStatus != AccountStatus.Enable) return (false, default!);
         return (true, BuildUserInfo(user));
     }
     /// <summary>

@@ -1,12 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
-using WCMS.SysCore.Enum;
 using WCMS.SysCore.FeatureDriver.Model.Base;
+using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
 using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Library.LibAttribute;
+using WCMS.SysCore.I18n.Metadata;
 namespace WCMS.Features.COMM.Tag;
 
 [LibDesc(DisplayName.Tag_Data)]
@@ -45,7 +45,7 @@ public class TagDetail : DetailModel
     [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
     public int RowId { get; set; }
     /// <summary>
-    /// 語系 SysEnum.Lang
+    /// 語系 LangCode
     /// </summary>
     [LibField(ApiFieldMode.ReadWrite, DisplayName.Common_Lang)]
     public LangCode Lang { get; set; }

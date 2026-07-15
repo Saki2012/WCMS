@@ -2,9 +2,9 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.SpecFeatures.Spec1816._Resx;
 using WCMS.SpecFeatures.Spec1816.WEB.SpecOpenScheduleRule;
-using WCMS.SysCore.Enum;
-using WCMS.SysCore.Library.LibAttribute;
 using WCMS.SysCore.FeatureDriver.Resx;
+using WCMS.SpecFeatures.Spec1817._Resx;
+using WCMS.SysCore.FeatureDriver.Model.Metadata;
 namespace WCMS.Features.SystemSetting.Calendar;
 
 public partial class CalendarDetail 

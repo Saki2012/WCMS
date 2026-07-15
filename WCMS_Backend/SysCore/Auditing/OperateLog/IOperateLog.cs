@@ -1,4 +1,4 @@
-﻿namespace WCMS.SysCore.Observability.OperateLog;
+﻿namespace WCMS.SysCore.Auditing.OperateLog;
 
 public interface IOperateLog
 {

@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using WCMS.Features._Resx;
-using WCMS.SysCore;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Interface;
 using WCMS.SysCore.Library;
-using WCMS.SysCore.Library.LibAttribute;
-using static WCMS.SysCore.Enum.SysEnum;
+using WCMS.Features.WEB.Content;
+using WCMS.SysCore.FeatureDriver.Biz;
+using WCMS.SysCore.FeatureDriver.Model.Contracts;
+using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.SpecFeatures.Spec1810.WEB.SpecResearch;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.Spec.SpecResearch)]
