@@ -1,113 +1,15 @@
-﻿using System.Data;
 using WCMS.Features._Resx;
-using WCMS.Features.WEB.Content;
 using WCMS.SysCore.FeatureDriver.Biz;
 using WCMS.SysCore.FeatureDriver.Biz.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Contracts;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library;
-using WCMS.SysCore.PlatformServices.FileManagement;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.Features.WEB.FileArchive;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.FileArchive)]
 public class FileArchiveBiz(BizDeps bizDeps) : BizService<FileArchive>(bizDeps), IBizService<FileArchive>
 {
-    #region Migration Old Data
-    public async Task Migrate(string importFileLabel = "1810", IList<FileManageModel> srcFileSets = default)
-    {
-        FileArchive[] datas = ConvertToApiModel(importFileLabel, srcFileSets);
-        await BizInitCreateDatasAsync(datas);
-    }
-    private FileArchive[] ConvertToApiModel(string importFileLabel, IList<FileManageModel> srcFileSets = default)
-    {
-        List<FileArchive> result = [];
-        Dictionary<string, string> sqls = new()
-        {
-            { "Archive", "Select * From Archive" },
-            { "Archive_Lang", "Select * From Archive_Lang" },
-        };
-        DataSet ds = MigrateOldData.GetOldData(sqls);
-        List<FileManageModel> updateFileSets = [];
-        foreach (DataRow srcHeader in ds.Tables["Archive"].Rows)
-        {
-            FileArchive set = new()
-            {
-                FileArchiveId = srcHeader["Sn"].ToString(),
-                CategoriesId = srcHeader["Category"].ToString(),
-                TagsId = srcHeader["Tag"].ToString(),
-                ContentStatus = GetContentStatus(srcHeader["Status"].ToString()),
-                CreateTime = srcHeader["CreateTime"].ToString().ToDateTime(),
-                ModifyTime = srcHeader["UpdateTime"].ToString().ToDateTime(),
-            };
-            int rowId = 1;
-            ds.Tables["Archive_Lang"].AsEnumerable().Where(dr => dr["Sn"].ToString() == set.FileArchiveId).ToList().ForEach(dRow =>
-            {
-                if (!dRow["Title"].IsNullOrEmpty())
-                {
-                    LangCodeExt.TryParse(dRow["Lang"].ToString(), out LangCode lang);
-                    FileArchiveInfo info = new()
-                    {
-                        FileArchiveId = set.FileArchiveId,
-                        RowId = rowId,
-                        Lang = lang,
-                        Title = dRow["Title"].ToString(),
-                    };
-                    set._FileArchiveInfo.Add(info);
-                    for (int i = 1; i < 10; i++)
-                    {
-                        string subFileName = dRow[$"Filename{i}"].ToString();
-                        string subFileRName = dRow[$"File{i}"].ToString();
-                        if (!subFileName.IsNullOrEmpty() && !subFileRName.IsNullOrEmpty())
-                        {
-                            FileManageModel fileSet = GetSetByPicture(subFileRName, srcFileSets);
-                            updateFileSets.Add(fileSet);
-                            fileSet.FileName = subFileName;
-                            fileSet.FileDescription = subFileName;
-                            info._FileArchiveDetail.Add(new FileArchiveDetail()
-                            {
-                                FileArchiveId = set.FileArchiveId,
-                                ParentRowId = rowId,
-                                RowId = i,
-                                FileSrcId = fileSet.InternalId,
-                                FileName = subFileName,
-                            });
-                        }
-                    }
-                    rowId++;
-                }
-            });
-            result.Add(set);
-        }
-        foreach (var set in updateFileSets.Distinct()) { set.ProgId = ProgId; }
-        return [.. result];
-    }
-    private static ContentStatus GetContentStatus(string status)
-    {
-        ContentStatus result = ContentStatus.None;
-        foreach (string s in status.Split(','))
-        {
-            switch (s.Trim().ToLower())
-            {
-                case "hide":
-                    result |= ContentStatus.Hidden;
-                    break;
-                case "hot":
-                    result |= ContentStatus.Hot;
-                    break;
-                case "top":
-                    result |= ContentStatus.Top;
-                    break;
-            }
-        }
-        return result;
-    }
-    private static FileManageModel GetSetByPicture(string srcPic, IList<FileManageModel> fileSets)
-    {
-        return fileSets.Where(x => x._FileManage_SyncInfo.Any(y => y.SrcFullPath.ToLowerInvariant().Equals($@"File/Archive/{srcPic}".ToLowerInvariant()))).FirstOrDefault();
-    }
-    #endregion
-
     #region Protected Virtual
     protected override async Task BeforeUpdate(FileArchive set, FuncAction act, CancellationToken ct = default)
     {

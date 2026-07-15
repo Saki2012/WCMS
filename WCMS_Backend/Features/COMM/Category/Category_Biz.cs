@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using System.Data;
 using WCMS.Features._Resx;
 using WCMS.Features.WEB.Announcement;
 using WCMS.Features.WEB.FileArchive;
@@ -11,8 +9,6 @@ using WCMS.SysCore.FeatureDriver.Biz.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Contracts;
 using WCMS.SysCore.FeatureDriver.Model.Form;
 using WCMS.SysCore.I18n;
-using WCMS.SysCore.Library;
-using WCMS.SysCore.Security.Hardening.AccessControl;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.Features.COMM.Category;
 
@@ -116,65 +112,4 @@ public abstract class CategoryBizBase<TFormModel>(BizDeps bizDeps) : BizService<
 [LibBiz(ProgKeys.COMM.Code, ProgKeys.COMM.Category)]
 public class CategoryBiz(BizDeps bizDeps) : CategoryBizBase<Category>(bizDeps)
 {
-    #region Public
-    /// <summary>
-    /// 匯入舊版 Category 資料。
-    /// </summary>
-    [HttpPost(nameof(Migrate)), LocalhostOnly]
-    public async Task Migrate()
-    {
-        Category[] datas = ConvertToApiModel();
-        await BizInitCreateDatasAsync(datas);
-    }
-    #endregion
-
-    #region Private
-    /// <summary>
-    /// 將舊版 Category 資料轉成 Root DbModel Graph。
-    /// </summary>
-    private static Category[] ConvertToApiModel()
-    {
-        List<Category> result = [];
-        DataSet dataSet = GetMigrationData();
-        foreach (DataRow row in dataSet.Tables["Category"].Rows) result.Add(BuildMigrationCategory(row, dataSet.Tables["Category_Lang"]));
-        return [.. result];
-    }
-    /// <summary>
-    /// 取得舊版 Category 主表與多語明細。
-    /// </summary>
-    private static DataSet GetMigrationData()
-    {
-        Dictionary<string, string> sqls = new()
-        {
-            { "Category", "Select * From Category" },
-            { "Category_Lang", "Select * From Category_Lang" },
-        };
-        return MigrateOldData.GetOldData(sqls);
-    }
-    /// <summary>
-    /// 建立單筆舊版 Category Graph。
-    /// </summary>
-    private static Category BuildMigrationCategory(DataRow row, DataTable detailTable)
-    {
-        Category category = new()
-        {
-            CategoryId = row["Sn"].ToString(),
-            ProgId = MigrateOldData.ChangeProgId(row["Module"].ToString())
-        };
-        AddMigrationDetails(category, detailTable);
-        return category;
-    }
-    /// <summary>
-    /// 加入舊版 Category 多語明細。
-    /// </summary>
-    private static void AddMigrationDetails(Category category, DataTable detailTable)
-    {
-        int rowId = 1;
-        foreach (DataRow row in detailTable.AsEnumerable().Where(item => item["Sn"].ToString() == category.CategoryId))
-        {
-            _ = LangCodeExt.TryParse(row["Lang"].ToString(), out LangCode lang);
-            category._CategoryDetail.Add(new CategoryDetail { CategoryId = category.CategoryId, RowId = rowId++, Lang = lang, CategoryName = row["CategoryName"].ToString() });
-        }
-    }
-    #endregion
 }

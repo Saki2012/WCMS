@@ -4,15 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
-using WCMS.Features.COMM.Category;
-using WCMS.Features.COMM.Tag;
-using WCMS.Features.WEB.Announcement;
-using WCMS.Features.WEB.Banner;
-using WCMS.Features.WEB.FileArchive;
-using WCMS.Features.WEB.Gallery;
-using WCMS.Features.WEB.PageManagement;
-using WCMS.Features.WEB.SiteMenuSetting;
-using WCMS.Features.WEB.WebResource;
 using WCMS.SysCore.Auditing.OperateLog;
 using WCMS.SysCore.Configuration;
 using WCMS.SysCore.Constants;
@@ -24,7 +15,6 @@ using WCMS.SysCore.FeatureDriver.Model.Form;
 using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.PlatformServices.FileManagement;
-using WCMS.SysCore.Security.Hardening.AccessControl;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.SysCore.FeatureDriver.Api.Controllers;
 
@@ -298,8 +288,6 @@ public class SystemAPIController(IAntiforgery anti, SystemVersion systemVersionB
     private readonly SystemVersion _systemVersionBiz = systemVersionBiz;
     private readonly I18nCache _i18n = i18n;
 
-    protected IOperateLog OperateLog => _OperateLog ??= HttpContext.RequestServices.GetRequiredService<IOperateLog>();
-    private IOperateLog? _OperateLog;
     #endregion
 
     #region Public
@@ -348,61 +336,6 @@ public class SystemAPIController(IAntiforgery anti, SystemVersion systemVersionB
         var response = new ApiResponse<string>() { Data = [result] };
         return Ok(response);
     }
-    /// <summary>
-    /// 轉移舊資料
-    /// </summary>
-    /// <param name="labelTag"></param>
-    /// <returns></returns>
-    [HttpPost(nameof(Migration)), LocalhostOnly]
-    public async Task<IActionResult> Migration(string labelTag = "1810")
-    {
-        FileManagementBiz fileManagement = HttpContext.RequestServices.GetRequiredService<IBizService<FileManageModel>>() as FileManagementBiz;
-        OperateLogModel followInfo = new OperateLogModel();
-        followInfo.APIName = $"{"SystemAPI"}/{nameof(Migration)}";
-        followInfo.UserId = "SysOperator";
-        followInfo.IP = Request.Headers[SysParam.HttpHeaders.ClientIp].ToString();
-        OperateLog.AddOperateLog(followInfo);
-        await fileManagement.ImportZip(labelTag);
-        QueryListParam p = new() { Fields = [nameof(FileManageModel.InternalId)], Condition = $"{nameof(FileManageModel.ImportLabel)} = {labelTag}" };
-        IList<FileManageModel> fileInternalIds = await fileManagement.BizQueryListAsync(p);
-        IList<FileManageModel> srcFiles = [];
-        foreach (var file in fileInternalIds)
-        {
-            var f = await fileManagement.BizQueryDataAsync(file.InternalId);
-            if (f != null) srcFiles.Add(f);
-        }
-        AnnouncementBiz announcement = HttpContext.RequestServices.GetRequiredService<IBizService<Announcement>>() as AnnouncementBiz;
-        await announcement.Migrate(labelTag, srcFiles);
-
-        BannerBiz banner = HttpContext.RequestServices.GetRequiredService<IBizService<Banner>>() as BannerBiz;
-        await banner.Migrate(labelTag, srcFiles);
-
-        CategoryBiz category = HttpContext.RequestServices.GetRequiredService<IBizService<Category>>() as CategoryBiz;
-        await category.Migrate();
-
-        FileArchiveBiz fileArchive = HttpContext.RequestServices.GetRequiredService<IBizService<FileArchive>>() as FileArchiveBiz;
-        await fileArchive.Migrate(labelTag, srcFiles);
-
-        GalleryBiz gallery = HttpContext.RequestServices.GetRequiredService<IBizService<Gallery>>() as GalleryBiz;
-        await gallery.Migrate(labelTag, srcFiles);
-
-        PageManagementBiz pageManagement = HttpContext.RequestServices.GetRequiredService<IBizService<PageManagement>>() as PageManagementBiz;
-        await pageManagement.Migrate(labelTag, srcFiles);
-
-        TagBiz tagBiz = HttpContext.RequestServices.GetRequiredService<IBizService<TagData>>() as TagBiz;
-        await tagBiz.Migrate();
-
-        WebResourceBiz webResourceBiz = HttpContext.RequestServices.GetRequiredService<IBizService<WebResource>>() as WebResourceBiz;
-        await webResourceBiz.Migrate(labelTag, srcFiles);
-
-        SiteMenuBiz siteMenuBiz = HttpContext.RequestServices.GetRequiredService<IBizService<SiteMenu_IndexModel>>() as SiteMenuBiz;
-        await siteMenuBiz.Migrate(pageManagement);
-
-        return Ok();
-    }
-    #endregion
-    #region Private
-
     #endregion
 }
 

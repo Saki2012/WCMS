@@ -1,4 +1,4 @@
-﻿using WCMS.SysCore.Configuration;
+using WCMS.SysCore.Configuration;
 
 namespace WCMS.SysCore.Constants;
 
@@ -19,6 +19,10 @@ public static class SysParam
         public static class ConnectionStrings
         {
             public const string SqlConnection = nameof(SqlConnection);
+            /// <summary>
+            /// 舊資料匯入使用的資料庫連線名稱。
+            /// </summary>
+            public const string OldSqlConnection = "OldDb";
         }
         /// <summary>
         /// 定義一般組態節點名稱。
@@ -95,6 +99,10 @@ public static class SysParam
     {
         public const string Service = "Service/[controller]";
         public const string ServiceReport = "Service/[controller]Rpt";
+        /// <summary>
+        /// 保留既有 SystemAPI 路徑的明確 Route。
+        /// </summary>
+        public const string SystemService = "Service/SystemAPI";
     }
     /// <summary>
     /// 定義 Output Cache Policy 名稱。

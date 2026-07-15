@@ -1,4 +1,3 @@
-﻿using System.Data;
 using WCMS.Features._Resx;
 using WCMS.SysCore.Configuration;
 using WCMS.SysCore.FeatureDriver.Biz;
@@ -7,67 +6,12 @@ using WCMS.SysCore.FeatureDriver.Model.Contracts;
 using WCMS.SysCore.FeatureDriver.Runtime;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library;
-using WCMS.SysCore.PlatformServices.FileManagement;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
-using static WCMS.SysCore.Library.LibData;
 namespace WCMS.Features.WEB.PageManagement;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.PageManagement)]
 public class PageManagementBiz(BizDeps bizDeps) : BizService<PageManagement>(bizDeps), IBizService<PageManagement>
 {
-    #region Migration Old Data
-    public async Task Migrate(string importFileLabel = "1810", IList<FileManageModel> srcFileSets = default)
-    {
-        PageManagement[] datas = ConvertToApiModel(importFileLabel, srcFileSets);
-        await BizInitCreateDatasAsync(datas);
-    }
-    private PageManagement[] ConvertToApiModel(string importFileLabel, IList<FileManageModel> srcFileSets = default)
-    {
-        List<PageManagement> result = [];
-        Dictionary<string, string> sqls = new()
-        {
-            { "Page", "Select * From Page" },
-            { "Page_Lang", "Select * From Page_Lang" },
-        };
-        DataSet ds = MigrateOldData.GetOldData(sqls);
-
-        var fileSrcIdDic = srcFileSets.SelectMany(s => s._FileManage_SyncInfo).GroupBy(d => d.SrcFullPath).ToDictionary(g => g.Key, g => g.First().InternalId);
-        List<FileManageModel> updateFileSets = [];
-
-        foreach (DataRow row in ds.Tables["Page"].Rows)
-        {
-            PageManagement set = new();
-            result.Add(set);
-            set.PageId = row["Sn"].ToString();
-            set.CategoryId = row["Category"].ToString();
-            set.CreateTime = row["CreateTime"].ToString().ToDateTime();
-            set.ModifyTime = row["UpdateTime"].ToString().ToDateTime();
-            int rowId = 1;
-            foreach (var dRow in ds.Tables["Page_Lang"].AsEnumerable().Where(dr => dr["Sn"].ToString() == set.PageId).ToList())
-            {
-                if (dRow["Title"].IsNullOrEmpty()) continue;
-                string contentXml = HtmlInternalIdByFullPath.TransformHtml_ReplaceSrcWithDataInternalId(dRow["Content"].ToString(), fileSrcIdDic, out List<string> usedInternalIds);
-                updateFileSets.AddRange(srcFileSets.Where(p => usedInternalIds.Contains(p.InternalId)));
-                LangCodeExt.TryParse(dRow["Lang"].ToString(), out LangCode lang);
-                PageManagementDetail detail = new()
-                {
-                    PageId = set.PageId,
-                    RowId = rowId++,
-                    Lang = lang,
-                    Title = dRow["Title"].ToString(),
-                    Content = contentXml,
-                };
-                set._PageManagementDetail.Add(detail);
-            }
-        }
-        foreach (var set in updateFileSets.Distinct())
-        {
-            set.ProgId = ProgId;
-        }
-        return [.. result];
-    }
-    #endregion
-
     #region Public
     /// <summary>
     /// 獲取可被SiteMenu設定的功能模塊列表

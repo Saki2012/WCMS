@@ -1,7 +1,8 @@
-﻿using WCMS.Features.COMM.Setup;
+using WCMS.Features.COMM.Setup;
 using WCMS.Features.IAM.Auth;
 using WCMS.Features.IAM.RolePermission;
 using WCMS.Features.IAM.Setup;
+using WCMS.Features.Setup.Migration;
 using WCMS.Features.WEB.Setup;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.Features.Setup;
@@ -23,6 +24,7 @@ internal static class FeaturesModuleSetup
         IamModuleSetup.AddServices(services);
         WebModuleSetup.AddServices(services);
         CommonModuleSetup.AddServices(services);
+        OldDataMigrationSetup.AddServices(services);
     }
     #endregion
 }

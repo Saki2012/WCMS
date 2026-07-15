@@ -1,148 +1,16 @@
-﻿using System.Data;
 using WCMS.Features._Resx;
-using WCMS.Features.WEB.Content;
 using WCMS.SysCore.Configuration;
 using WCMS.SysCore.FeatureDriver.Biz;
 using WCMS.SysCore.FeatureDriver.Biz.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Contracts;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library;
-using WCMS.SysCore.PlatformServices.FileManagement;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
-using static WCMS.SysCore.Library.LibData;
 namespace WCMS.Features.WEB.Gallery;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.Gallery)]
 public class GalleryBiz(BizDeps bizDeps) : BizService<Gallery>(bizDeps), IBizService<Gallery>
 {
-    #region Migration Old Data
-    public async Task Migrate(string importFileLabel = "1810", IList<FileManageModel> srcFileSets = default)
-    {
-        Gallery[] datas = ConvertToApiModel(importFileLabel, srcFileSets);
-        await BizInitCreateDatasAsync(datas);
-    }
-    private Gallery[] ConvertToApiModel(string importFileLabel, IList<FileManageModel> srcFileSets = default)
-    {
-        List<Gallery> result = [];
-        Dictionary<string, string> sqls = new()
-        {
-            { "Gallery", "Select * From Gallery" },
-            { "Gallery_Lang", "Select * From Gallery_Lang" },
-            { "Gallery_Album", "Select * From Gallery_Album" },
-            { "Gallery_Album_Lang", "Select * From Gallery_Album_Lang" },
-        };
-        DataSet ds = MigrateOldData.GetOldData(sqls);
-        var fileSrcIdDic = srcFileSets.SelectMany(s => s._FileManage_SyncInfo).GroupBy(d => d.SrcFullPath).ToDictionary(g => g.Key, g => g.First().InternalId);
-        List<FileManageModel> updateFileSets = [];
-
-        foreach (DataRow srcHeader in ds.Tables["Gallery"].Rows)
-        {
-            Gallery set = new()
-            {
-                GalleryId = srcHeader["Sn"].ToString(),
-                CoverPicSrcId = string.Empty,
-                Categories = srcHeader["Category"].ToString(),
-                ContentStatus = GetContentStatus(srcHeader["Status"].ToString()),
-                Tags = srcHeader["Tag"].ToString(),
-                CreateTime = srcHeader["CreateTime"].ToString().ToDateTime(),
-                ModifyTime = srcHeader["UpdateTime"].ToString().ToDateTime(),
-                Validate_Start = srcHeader["StartDate"].ToString().ToDateTime(),
-            };
-            int galleryRowId = 1;
-            ds.Tables["Gallery_Lang"].AsEnumerable().Where(dr => dr["Sn"].ToString() == set.GalleryId).ToList().ForEach(dRow =>
-            {
-                if (!dRow["Title"].IsNullOrEmpty())
-                {
-                    string contentXml = HtmlInternalIdByFullPath.TransformHtml_ReplaceSrcWithDataInternalId(dRow["Content"].ToString(), fileSrcIdDic, out List<string> usedInternalIds);
-                    if (usedInternalIds.Count != 0) updateFileSets.AddRange(srcFileSets.Where(p => usedInternalIds.Contains(p.InternalId)));
-                    LangCodeExt.TryParse(dRow["Lang"].ToString(), out LangCode lang);
-                    set._GalleryInfo.Add(new GalleryInfo()
-                    {
-                        GalleryId = set.GalleryId,
-                        RowId = galleryRowId,
-                        Lang = lang,
-                        Title = dRow["Title"].ToString(),
-                        Content = contentXml,
-                    });
-                    galleryRowId++;
-                }
-            });
-
-            int photoRowId = 1;
-            ds.Tables["Gallery_Album"].AsEnumerable().Where(dr => dr["Sn"].ToString() == set.GalleryId).OrderBy(dr => dr["PhotoName"].ToString()).ToList().ForEach(dRow =>
-            {
-
-                var photoSet = GetSetByPicture(dRow["Sn"].ToString(), dRow["PhotoName"].ToString(), srcFileSets);
-                updateFileSets.Add(photoSet);
-                photoSet.FileName = dRow["PhotoName"].ToString();
-                var photo = new GalleryPhotos()
-                {
-                    GalleryId = set.GalleryId,
-                    RowId = photoRowId,
-                    PicSrcId = photoSet.InternalId,
-                    Sort = photoRowId,
-                };
-
-                set._GalleryPhotos.Add(photo);
-
-                if (dRow["PhotoID"].ToString() == srcHeader["Cover"].ToString()) set.CoverPicSrcId = photo.PicSrcId;
-
-                int subPhotoRowId = 1;
-                ds.Tables["Gallery_Album_Lang"].AsEnumerable().Where(dr => dr["PhotoID"].ToString() == dRow["PhotoID"].ToString()).ToList().ForEach(subDRow =>
-                {
-                    if (!subDRow["Title"].IsNullOrEmpty())
-                    {
-                        LangCodeExt.TryParse(subDRow["Lang"].ToString(), out LangCode lang);
-                        photo._GalleryPhotosInfo.Add(new GalleryPhotosInfo()
-                        {
-                            GalleryId = set.GalleryId,
-                            ParentRowId = photoRowId,
-                            RowId = subPhotoRowId,
-                            Lang = lang,
-                            Title = subDRow["Title"].ToString(),
-                        });
-                        if (lang == LangCode.zhtw) photoSet.FileDescription = subDRow["Title"].ToString();
-                        subPhotoRowId++;
-                    }
-                });
-                photoRowId++;
-            });
-            result.Add(set);
-        }
-        foreach (var set in updateFileSets.Distinct())
-        {
-            set.ProgId = ProgId;
-        }
-        return [.. result];
-    }
-    private static ContentStatus GetContentStatus(string status)
-    {
-        ContentStatus result = ContentStatus.None;
-        foreach (string s in status.Split(','))
-        {
-            switch (s.Trim().ToLower())
-            {
-                case "hide":
-                    result |= ContentStatus.Hidden;
-                    break;
-                case "hot":
-                    result |= ContentStatus.Hot;
-                    break;
-                case "top":
-                    result |= ContentStatus.Top;
-                    break;
-            }
-        }
-        return result;
-    }
-    private static FileManageModel GetSetByPicture(string albumId, string srcPic, IList<FileManageModel> fileSets)
-    {
-        return fileSets.Where(x => x._FileManage_SyncInfo.Any(y =>
-                    y.SrcFullPath.Contains($"file/image/album/{albumId}/{srcPic}", StringComparison.InvariantCultureIgnoreCase) &&
-                    y.SrcFullPath.Contains(srcPic, StringComparison.InvariantCultureIgnoreCase))).FirstOrDefault();
-    }
-    #endregion
-
     #region Protected Virtual
     protected override async Task BeforeUpdate(Gallery set, FuncAction act, CancellationToken ct = default)
     {

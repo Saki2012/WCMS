@@ -1,4 +1,3 @@
-﻿using System.Data;
 using WCMS.Features._Resx;
 using WCMS.SpecFeatures.Spec1810.WEB.SpecResearch;
 using WCMS.SpecFeatures.Spec1810.WEB.SpecUSR;
@@ -12,94 +11,6 @@ namespace WCMS.SpecFeatures.Spec1810.WEB.SpecCategory;
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.Spec.SpecCategory)]
 public class SpecCategoryBiz(BizDeps bizDeps) : BizService<SpecCategoryModel>(bizDeps), IBizService<SpecCategoryModel>
 {
-    #region Migration Old Data
-    public async Task Migrate()
-    {
-        List<SpecCategoryModel> datas = [.. ConvertResCategoryModel(), .. ConvertUSRCategoryModel()];
-        await BizInitCreateDatasAsync([.. datas]);
-    }
-    private static SpecCategoryModel[] ConvertResCategoryModel()
-    {
-        List<SpecCategoryModel> result = [];
-        Dictionary<string, string> sqls = new()
-        {
-            { "ResearchProjectCategory", "Select * From ResearchProjectCategory" },
-            { "ResearchProjectCategory_Lang", "Select * From ResearchProjectCategory_Lang" },
-            { "ResearchProjectItem", "Select * From ResearchProjectItem" },
-        };
-        DataSet ds = MigrateOldData.GetOldData(sqls);
-        foreach (DataRow row in ds.Tables["ResearchProjectCategory"].Rows)
-        {
-            SpecCategoryModel set = new() { };
-            result.Add(set);
-            string id = $"Res_{row["Sn"]}";
-            set.SpecCategory.CategoryId = id;
-            set.SpecCategory.ProgId = "SpecResearch";
-            set.SpecCategory.ShowColumnItems = GetShowColumnItems(row["ShowItems"].ToString(), ds.Tables["ResearchProjectItem"]);
-            int rowId = 1;
-            foreach (var dRow in ds.Tables["ResearchProjectCategory_Lang"].AsEnumerable().Where(dr => dr["Sn"].ToString() == row["Sn"].ToString()).ToList())
-            {
-                LangCodeExt.TryParse(dRow["Lang"].ToString(), out LangCode lang);
-                SpecCategoryDetailModel detail = new()
-                {
-                    CategoryId = id,
-                    RowId = rowId++,
-                    Lang = lang,
-                    CategoryName = dRow["CategoryName"].ToString(),
-                };
-                set.SpecCategoryDetail.Add(detail);
-            }
-        }
-        return [.. result];
-    }
-    private static SpecCategoryModel[] ConvertUSRCategoryModel()
-    {
-        List<SpecCategoryModel> result = [];
-        Dictionary<string, string> sqls = new()
-        {
-            { "USRProjectCategory", "Select * From USRProjectCategory" },
-            { "USRProjectCategory_Lang", "Select * From USRProjectCategory_Lang" },
-            { "USRProjectItem", "Select * From USRProjectItem" },
-        };
-        DataSet ds = MigrateOldData.GetOldData(sqls);
-        foreach (DataRow row in ds.Tables["USRProjectCategory"].Rows)
-        {
-            SpecCategoryModel set = new() { };
-            result.Add(set);
-            string id = $"USR_{row["Sn"]}";
-            set.SpecCategory.CategoryId = id;
-            set.SpecCategory.ProgId = "SpecUSR";
-            set.SpecCategory.ShowColumnItems = GetShowColumnItems(row["ShowItems"].ToString(), ds.Tables["USRProjectItem"]);
-            int rowId = 1;
-            foreach (var dRow in ds.Tables["USRProjectCategory_Lang"].AsEnumerable().Where(dr => dr["Sn"].ToString() == row["Sn"].ToString()).ToList())
-            {
-                LangCodeExt.TryParse(dRow["Lang"].ToString(), out LangCode lang);
-                SpecCategoryDetailModel detail = new()
-                {
-                    CategoryId = id,
-                    RowId = rowId++,
-                    Lang = lang,
-                    CategoryName = dRow["CategoryName"].ToString(),
-                };
-                set.SpecCategoryDetail.Add(detail);
-            }
-        }
-        return [.. result];
-    }
-    private static string GetShowColumnItems(string showItems, DataTable itemDt)
-    {
-        Dictionary<string, string> items = [];
-        foreach (DataRow row in itemDt.Rows) items.Add(row["Sn"].ToString(), row["Name"].ToString());
-        var i = showItems.Split(',');
-        string result = string.Empty;
-        foreach (var x in i)
-        {
-            if (items.TryGetValue(x, out string value)) result = LibData.Merge(",", false, result, value);
-        }
-        return result.Remerge(",");
-    }
-    #endregion
-
     #region Public
     public Dictionary<string, string> GetShowColumnItems(string progId)
     {

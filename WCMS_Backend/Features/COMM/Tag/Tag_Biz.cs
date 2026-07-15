@@ -1,4 +1,3 @@
-﻿using System.Data;
 using WCMS.Features._Resx;
 using WCMS.Features.WEB.Announcement;
 using WCMS.Features.WEB.FileArchive;
@@ -12,7 +11,7 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.Features.COMM.Tag;
 
 /// <summary>
-/// 標籤資料驗證、使用檢查與舊資料匯入。
+/// 標籤資料驗證與使用狀況檢查。
 /// </summary>
 [LibBiz(ProgKeys.COMM.Code, ProgKeys.COMM.Calendar)]
 public class TagBiz(BizDeps bizDeps) : BizService<TagData>(bizDeps), IBizService<TagData>
@@ -81,55 +80,4 @@ public class TagBiz(BizDeps bizDeps) : BizService<TagData>(bizDeps), IBizService
     }
     #endregion
 
-    #region Migration Old Data
-    /// <summary>
-    /// 匯入舊站標籤資料。
-    /// </summary>
-    public async Task Migrate()
-    {
-        TagData[] data = ConvertToApiModel();
-        await BizInitCreateDatasAsync(data);
-    }
-    /// <summary>
-    /// 將舊站標籤資料轉為目前 API Model。
-    /// </summary>
-    private static TagData[] ConvertToApiModel()
-    {
-        DataSet dataSet = GetMigrationData();
-        List<TagData> result = [];
-        foreach (DataRow row in dataSet.Tables["Tag"].Rows) result.Add(BuildTag(row, dataSet));
-        return [.. result];
-    }
-    /// <summary>
-    /// 讀取舊站標籤主檔與多語明細。
-    /// </summary>
-    private static DataSet GetMigrationData()
-    {
-        Dictionary<string, string> sqls = new()
-        {
-            { "Tag", "SELECT * FROM Tag" },
-            { "Tag_Lang", "SELECT * FROM Tag_Lang" },
-        };
-        return MigrateOldData.GetOldData(sqls);
-    }
-    /// <summary>
-    /// 建立單筆標籤與多語明細 Graph。
-    /// </summary>
-    private static TagData BuildTag(DataRow row, DataSet dataSet)
-    {
-        TagData data = new() { TagId = row["Sn"].ToString(), ProgId = MigrateOldData.ChangeProgId(row["Module"].ToString()) };
-        IEnumerable<DataRow> rows = dataSet.Tables["Tag_Lang"].AsEnumerable().Where(item => item["Sn"].ToString() == data.TagId);
-        int rowId = 1;
-        foreach (DataRow detailRow in rows) data._TagDetail.Add(BuildTagDetail(data.TagId, rowId++, detailRow));
-        return data;
-    }
-    /// <summary>
-    /// 建立單筆標籤多語明細。
-    /// </summary>
-    private static TagDetail BuildTagDetail(string tagId, int rowId, DataRow row)
-    {
-        LangCodeExt.TryParse(row["Lang"].ToString(), out LangCode lang);
-        return new TagDetail { TagId = tagId, RowId = rowId, Lang = lang, TagName = row["TagName"].ToString() };
-    }
-    #endregion
 }
