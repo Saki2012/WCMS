@@ -14,14 +14,14 @@ namespace WCMS.SpecFeatures.Spec1819.WEB.SpecJournalIndex;
 public class SpecJournalIndexSet : ITSet
 {
 [LibField(ApiFieldMode.ReadWrite, SpecDisplayName.SpecJournalIndex)]
-public SpecJournalIndexModel SpecJournalIndex { get; set; }
+public SpecJournalIndex SpecJournalIndex { get; set; }
 [LibField(ApiFieldMode.ReadWrite, SpecDisplayName.SpecJournalIndexDetail)]
 public List<SpecJournalIndexDetail> SpecJournalIndexDetail { get; set; } = [];
 }
 /// <summary>
 /// 期刊目次
 /// </summary>
-public class SpecJournalIndexModel : MasterDataModel
+public class SpecJournalIndex : MasterDataModel
 {
     /// <summary>
     /// 期刊目次代號
@@ -84,7 +84,7 @@ public string SeasonNo { get; set; }= string.Empty;
     /// </summary>
 [ForeignKey(nameof(SummaryFileId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public FileManageModel? SummaryFile { get; set; }
+public FileManage? SummaryFile { get; set; }
 [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.InternalId, SpecDisplayName.Spec_SummaryFileId)]
 public string? SummaryFileId { get; set; }
     /// <summary>
@@ -96,6 +96,6 @@ public string SummaryFileName { get; set; }= string.Empty;
     #region 主子表關聯
 [ForeignKey(nameof(IndexId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public SpecJournalIndexModel _SpecJournalIndex { get; set; }
+public SpecJournalIndex _SpecJournalIndex { get; set; }
     #endregion
 }

@@ -6,8 +6,8 @@ namespace WCMS.Features.WEB.SiteMenuSetting;
 public class SaveSiteInfo_DTO
 {
     public string InternalId { get; set; } = "";
-    public SiteMenu_IndexModel SiteMenu_Index { get; set; } = new();
-    public List<SiteMenu_IndexInfoModel> SiteMenu_IndexInfo { get; set; } = [];
+    public SiteMenu_Index SiteMenu_Index { get; set; } = new();
+    public List<SiteMenu_IndexInfo> SiteMenu_IndexInfo { get; set; } = [];
 }
 
 public class SaveMenuStructure_DTO

@@ -12,7 +12,7 @@ namespace WCMS.SpecFeatures.Spec1820.WEB.SpecHomePage;
 /// </summary>
 public class SpecHomePage1820Set_DTO : ITSet_DTO
 {
-    [LibDesc(SpecModelDisplayName.SpecHomePage1820)] public SpecHomePage1820Model_DTO? SpecHomePage1820 { get; set; }
+    [LibDesc(SpecModelDisplayName.SpecHomePage1820)] public SpecHomePage1820_DTO? SpecHomePage1820 { get; set; }
     [LibDesc(SpecModelDisplayName.SpecHomePage1820_BannerMedia)] public List<SpecHomePage1820_BannerMedia_DTO>? SpecHomePage1820_BannerMedia { get; set; } = [];
     [LibDesc(SpecModelDisplayName.SpecHomePage1820_Detail)] public List<SpecHomePage1820_Detail_DTO>? SpecHomePage1820_Detail { get; set; } = [];
     [LibDesc(SpecModelDisplayName.SpecHomePage1820_Marquee)] public List<SpecHomePage1820_Marquee_DTO>? SpecHomePage1820_Marquee { get; set; } = [];
@@ -21,7 +21,7 @@ public class SpecHomePage1820Set_DTO : ITSet_DTO
 /// <summary>
 /// 1820首頁基礎資料
 /// </summary>
-public class SpecHomePage1820Model_DTO : DTOBasicDataModel
+public class SpecHomePage1820_DTO : DTOBasicDataModel
 {
 
     [LibDesc(SpecModelDisplayName.HomePageId), Key, StringLength(SysLengthParam.ID)] public string? HomePageId { get; set; }
@@ -66,12 +66,12 @@ public class SpecHomePage1820_BannerMedia_DTO : DetailRowModel
 {
     [LibDesc(SpecModelDisplayName.HomePageId), Key, StringLength(SysLengthParam.ID)] public string? HomePageId { get; set; }
     [LibDesc(ModelDisplayName.Common_RowId), Key] public int? RowId { get; set; }
-    [ForeignKey(nameof(BannerFileId))] public FileManageModel_DTO? BannerFile { get; set; }
+    [ForeignKey(nameof(BannerFileId))] public FileManage_DTO? BannerFile { get; set; }
     [LibDesc(SpecModelDisplayName.BannerFileId), StringLength(SysLengthParam.InternalId)] public string? BannerFileId { get; set; }
     [LibDesc(SpecModelDisplayName.BannerFileDescription), StringLength(SysLengthParam.Title_en)] public string? BannerFileDescription { get; set; }
 
     #region 主子表關聯
-    [ForeignKey(nameof(HomePageId))] public SpecHomePage1820Model_DTO? _SpecHomePage1820 { get; set; }
+    [ForeignKey(nameof(HomePageId))] public SpecHomePage1820_DTO? _SpecHomePage1820 { get; set; }
     #endregion
 }
 /// <summary>
@@ -83,10 +83,10 @@ public class SpecHomePage1820_Detail_DTO : DetailRowModel
     [LibDesc(ModelDisplayName.Common_RowId), Key] public int? RowId { get; set; }
     [LibDesc(ModelDisplayName.Common_Title), StringLength(SysLengthParam.Title_en)] public string? Title { get; set; }
     [LibDesc(ModelDisplayName.Common_SubTitle), StringLength(SysLengthParam.Title_en)] public string? SubTitle { get; set; }
-    [ForeignKey(nameof(MainPictureId))] public FileManageModel_DTO? MainPicture { get; set; }
+    [ForeignKey(nameof(MainPictureId))] public FileManage_DTO? MainPicture { get; set; }
     [LibDesc(SpecModelDisplayName.MainPic), StringLength(SysLengthParam.InternalId)] public string? MainPictureId { get; set; }
     [LibDesc(SpecModelDisplayName.MainPicDescription), StringLength(SysLengthParam.Title_en)] public string? MainPictureDescription { get; set; }
-    [ForeignKey(nameof(SubPictureId))] public FileManageModel_DTO? SubPicture { get; set; }
+    [ForeignKey(nameof(SubPictureId))] public FileManage_DTO? SubPicture { get; set; }
     [LibDesc(SpecModelDisplayName.SubPic), StringLength(SysLengthParam.InternalId)] public string? SubPictureId { get; set; }
     [LibDesc(SpecModelDisplayName.SubPicDescription), StringLength(SysLengthParam.Title_en)] public string? SubPictureDescription { get; set; }
     [LibDesc(SpecModelDisplayName.ContentInfo), StringLength(SysLengthParam.Memo)] public string? Intro { get; set; }
@@ -100,7 +100,7 @@ public class SpecHomePage1820_Detail_DTO : DetailRowModel
     [LibDesc(SpecModelDisplayName.SubLinkUrl3), StringLength(SysLengthParam.Url)] public string? SubLink3 { get; set; }
 
     #region 主子表關聯
-    [ForeignKey(nameof(HomePageId))] public SpecHomePage1820Model_DTO? _SpecHomePage1820 { get; set; }
+    [ForeignKey(nameof(HomePageId))] public SpecHomePage1820_DTO? _SpecHomePage1820 { get; set; }
     #endregion
 }
 /// <summary>
@@ -110,13 +110,13 @@ public class SpecHomePage1820_Marquee_DTO : DetailRowModel
 {
     [LibDesc(SpecModelDisplayName.HomePageId), Key, StringLength(SysLengthParam.ID)] public string? HomePageId { get; set; }
     [LibDesc(ModelDisplayName.Common_RowId), Key] public int? RowId { get; set; }
-    [ForeignKey(nameof(PictureId))] public FileManageModel_DTO? Picture { get; set; }
+    [ForeignKey(nameof(PictureId))] public FileManage_DTO? Picture { get; set; }
     [LibDesc(ModelDisplayName.Gallery_PicSrcId), StringLength(SysLengthParam.InternalId)] public string? PictureId { get; set; }
     [LibDesc(ModelDisplayName.Common_Title), StringLength(SysLengthParam.Title)] public string? PictureTitle { get; set; }
     [LibDesc(ModelDisplayName.Common_IsHide)] public bool? IsHide { get; set; }
 
     #region 主子表關聯
-    [ForeignKey(nameof(HomePageId))] public SpecHomePage1820Model_DTO? _SpecHomePage1820 { get; set; }
+    [ForeignKey(nameof(HomePageId))] public SpecHomePage1820_DTO? _SpecHomePage1820 { get; set; }
     #endregion
 }
 /// <summary>
@@ -128,13 +128,13 @@ public class SpecHomePage1820_Resource_DTO : DetailRowModel
     [LibDesc(ModelDisplayName.Common_RowId), Key] public int? RowId { get; set; }
     [LibDesc(ModelDisplayName.Common_Title), StringLength(SysLengthParam.Title_en)] public string? PicTitle { get; set; }
     [LibDesc(ModelDisplayName.Common_SubTitle), StringLength(SysLengthParam.Title_en)] public string? PicSubTitle { get; set; }
-    [ForeignKey(nameof(PicFileId))] public FileManageModel_DTO? PicFile { get; set; }
+    [ForeignKey(nameof(PicFileId))] public FileManage_DTO? PicFile { get; set; }
     [LibDesc(SpecModelDisplayName.ResoourcePictureId), StringLength(SysLengthParam.InternalId)] public string? PicFileId { get; set; }
     [LibDesc(SpecModelDisplayName.Spec_ResourcePictureDescription), StringLength(SysLengthParam.Title_en)] public string? PicFileDescription { get; set; }
     [LibDesc(ModelDisplayName.Common_Url), StringLength(SysLengthParam.Url)] public string? Link { get; set; }
 
     #region 主子表關聯
-    [ForeignKey(nameof(HomePageId))] public SpecHomePage1820Model_DTO? _SpecHomePage1820 { get; set; }
+    [ForeignKey(nameof(HomePageId))] public SpecHomePage1820_DTO? _SpecHomePage1820 { get; set; }
     #endregion
 }
 

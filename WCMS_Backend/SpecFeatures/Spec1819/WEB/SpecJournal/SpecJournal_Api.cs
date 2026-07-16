@@ -10,7 +10,7 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.SpecFeatures.Spec1819.WEB.SpecJournal;
 
 [LibApiController(ProgKeys.WEB.Code, ProgKeys.Spec.SpecJournal, FuncAction.MasterData)]
-public class SpecJournalController : ApiDataController<SpecJournalModel>
+public class SpecJournalController : ApiDataController<SpecJournal>
 {
     #region Public
     /// <summary>
@@ -32,7 +32,7 @@ public class SpecJournalController : ApiDataController<SpecJournalModel>
     [HttpPut(nameof(PublishJournal)), LibRequireFuncAct(FuncAction.Use)]
     public async Task<IActionResult> PublishJournal([FromBody] PublishReq data, CancellationToken ct) 
     {
-        OperateLogModel opLog = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(PublishJournal)}", OperateUser.UserId, JsonConvert.SerializeObject(data), Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
+        OperateLog opLog = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(PublishJournal)}", OperateUser.UserId, JsonConvert.SerializeObject(data), Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
         await ((SpecJournal_Biz)Service).UpdatePublishedStatusAsync(data.InternalId,data.JournalIndexId, data.JournalIndexRowId, ct);
         await EvictForSetAsync(ct, data.InternalId);
         if (ct == CancellationToken.None) { opLog.ExcStatus = ExcStatus.CancelExc; }
@@ -50,7 +50,7 @@ public class SpecJournalController : ApiDataController<SpecJournalModel>
     [HttpPut(nameof(UnpublishJournal)), LibRequireFuncAct(FuncAction.Use)]
     public async Task<IActionResult> UnpublishJournal([FromBody] string internalId, CancellationToken ct) 
     {
-        OperateLogModel opLog = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(UnpublishJournal)}", OperateUser.UserId, JsonConvert.SerializeObject(internalId), Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
+        OperateLog opLog = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(UnpublishJournal)}", OperateUser.UserId, JsonConvert.SerializeObject(internalId), Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
         await ((SpecJournal_Biz)Service).UpdatePublishedStatusAsync(internalId,ct:ct);
         await EvictForSetAsync(ct, internalId);
         if (ct == CancellationToken.None) { opLog.ExcStatus = ExcStatus.CancelExc; }

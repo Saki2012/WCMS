@@ -13,14 +13,14 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.SpecFeatures.Spec1816.WEB.SpecOpenScheduleRule;
 
 [LibBiz(ProgKeys.Spec.Code, ProgKeys.Spec.SpecOpenScheduleRule)]
-public class SpecOpenScheduleRuleBiz(BizDeps bizDeps, IBizService<CalendarModel> calenderBiz) : BizService<SpecOpenScheduleRuleModel>(bizDeps), IBizService<SpecOpenScheduleRuleModel>
+public class SpecOpenScheduleRuleBiz(BizDeps bizDeps, IBizService<Calendar> calenderBiz) : BizService<SpecOpenScheduleRule>(bizDeps), IBizService<SpecOpenScheduleRule>
 {
     #region Property                                                               
     protected override bool IsAutoGenerateId { get; set; } = false;
     #endregion
 
     #region Protected Virtual
-    protected override async Task BeforeUpdate(SpecOpenScheduleRuleModel set, FuncAction act, CancellationToken ct = default)
+    protected override async Task BeforeUpdate(SpecOpenScheduleRule set, FuncAction act, CancellationToken ct = default)
     {
         await base.BeforeUpdate(set, act, ct);
         switch (act)
@@ -31,7 +31,7 @@ public class SpecOpenScheduleRuleBiz(BizDeps bizDeps, IBizService<CalendarModel>
                 break;
         }
     }
-    protected override async Task AfterUpdate(SpecOpenScheduleRuleModel? oldSet, SpecOpenScheduleRuleModel? newSet, FuncAction act, TransStatus status, CancellationToken ct = default)
+    protected override async Task AfterUpdate(SpecOpenScheduleRule? oldSet, SpecOpenScheduleRule? newSet, FuncAction act, TransStatus status, CancellationToken ct = default)
     {
         await base.AfterUpdate(oldSet, newSet, act, status, ct);
         switch (act)
@@ -45,7 +45,7 @@ public class SpecOpenScheduleRuleBiz(BizDeps bizDeps, IBizService<CalendarModel>
     #endregion
 
     #region Protected
-    protected void CheckData(SpecOpenScheduleRuleModel set)
+    protected void CheckData(SpecOpenScheduleRule set)
     {
         ValidTimeFor(set.SpecOpenScheduleRule, x => x.Weekday_OpenTime, x => x.Weekday_CloseTime, Message, I18n);
         ValidTimeFor(set.SpecOpenScheduleRule, x => x.Sat_OpenTime, x => x.Sat_CloseTime, Message, I18n);
@@ -151,9 +151,9 @@ public class SpecOpenScheduleRuleBiz(BizDeps bizDeps, IBizService<CalendarModel>
     /// 更新圖書館開/閉館時間
     /// </summary>
     /// <param name="header"></param>
-    private async Task UpdateCalandarSetOpenScheduleRule(SpecOpenScheduleRuleModel header)
+    private async Task UpdateCalandarSetOpenScheduleRule(SpecOpenScheduleRule header)
     {
-        List<CalendarModel> sets = await GetUpdateCalendarModel(header.AcademicStart.Year, header.AcademicEnd.Year);
+        List<Calendar> sets = await GetUpdateCalendarModel(header.AcademicStart.Year, header.AcademicEnd.Year);
         foreach (var set in sets)
         {
             for (int idx = 0; idx < set.CalendarDetail.Count; idx++)
@@ -174,12 +174,12 @@ public class SpecOpenScheduleRuleBiz(BizDeps bizDeps, IBizService<CalendarModel>
     /// <param name="startYear"></param>
     /// <param name="endYear"></param>
     /// <returns></returns>
-    private async Task<List<CalendarModel>> GetUpdateCalendarModel(int startYear, int endYear)
+    private async Task<List<Calendar>> GetUpdateCalendarModel(int startYear, int endYear)
     {
-        var calHeader = await (await DoQueryListAsync<CalendarModel>([], $@"{nameof(CalendarModel.Year)} >= {startYear} And {nameof(CalendarModel.Year)} <= {endYear}", null, 0, 0)).ToDynamicListAsync<CalendarModel>();
-        var calDetail = await (await DoQueryListAsync<CalendarDetail>([], $@"{nameof(CalendarModel.Year)} >= {startYear} And {nameof(CalendarModel.Year)} <= {endYear}", null, 0, 0)).ToDynamicListAsync<CalendarDetail>();
+        var calHeader = await (await DoQueryListAsync<Calendar>([], $@"{nameof(Calendar.Year)} >= {startYear} And {nameof(Calendar.Year)} <= {endYear}", null, 0, 0)).ToDynamicListAsync<Calendar>();
+        var calDetail = await (await DoQueryListAsync<CalendarDetail>([], $@"{nameof(Calendar.Year)} >= {startYear} And {nameof(Calendar.Year)} <= {endYear}", null, 0, 0)).ToDynamicListAsync<CalendarDetail>();
         var record = RecordComparison.CompareByKey(calHeader, calDetail, left => left.Year, right => right.Year);
-        List<CalendarModel> result = [];
+        List<Calendar> result = [];
         foreach (var item in record)
         {
             switch (item.Type)
@@ -187,7 +187,7 @@ public class SpecOpenScheduleRuleBiz(BizDeps bizDeps, IBizService<CalendarModel>
                 case RecordCompareType.BothExist:
                     var header = item.LeftItems.FirstOrDefault();
                     var detail = item.RightItems;
-                    CalendarModel set = new() { Calendar = header, CalendarDetail = [.. detail], };
+                    Calendar set = new() { Calendar = header, CalendarDetail = [.. detail], };
                     result.Add(set);
                     break;
             }
@@ -198,7 +198,7 @@ public class SpecOpenScheduleRuleBiz(BizDeps bizDeps, IBizService<CalendarModel>
     /// 依日期判斷：一般學期間 / 寒假 / 暑假，回傳一組時間設定
     /// </summary>
     private static (TimeOnly? dayOpen, TimeOnly? dayClose, TimeOnly? satOpen, TimeOnly? satClose,TimeOnly? sunOpen, TimeOnly? sunClose) 
-        ResolveScheduleByDate(SpecOpenScheduleRuleModel header, DateOnly date)
+        ResolveScheduleByDate(SpecOpenScheduleRule header, DateOnly date)
     {
         TimeOnly? dayOpen;
         TimeOnly? dayClose;
@@ -264,7 +264,7 @@ public class SpecOpenScheduleRuleBiz(BizDeps bizDeps, IBizService<CalendarModel>
     /// <summary>
     /// 套用「平日國定/校訂假日一律不開館」以及「連假週末不開館」的規則
     /// </summary>
-    private void ApplyHolidayAndLongWeekendRule(CalendarModel set, int index)
+    private void ApplyHolidayAndLongWeekendRule(Calendar set, int index)
     {
         var dt = set.CalendarDetail[index];
         bool isWeekday = dt.DayOfWeek >= DayOfWeek.Monday && dt.DayOfWeek <= DayOfWeek.Friday;
@@ -289,7 +289,7 @@ public class SpecOpenScheduleRuleBiz(BizDeps bizDeps, IBizService<CalendarModel>
     /// 2. 當天為 IsHoliday
     /// 3. 往前往後連續的 IsHoliday >= 3 天，且中間至少有一個平日（Mon~Fri）
     /// </summary>
-    private static bool IsConsecutiveHolidayWeekend(CalendarModel set, int index)
+    private static bool IsConsecutiveHolidayWeekend(Calendar set, int index)
     {
         var cur = set.CalendarDetail[index];
         // 只處理週六 / 週日

@@ -115,7 +115,7 @@ public class MaterialPicture : DetailModel
     /// </summary>
     [ForeignKey(nameof(PictureId))]
     [LibField(ApiFieldMode.ReadOnly)]
-    public FileManageModel? Picture { get; set; }
+    public FileManage? Picture { get; set; }
     [LibStr(ApiFieldMode.ReadWrite, DbStrLen.InternalId, DisplayName.Common_Picture)]
     public string? PictureId { get; set; }
     /// <summary>

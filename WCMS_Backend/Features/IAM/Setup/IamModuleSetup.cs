@@ -1,12 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WCMS.Features.COMM.Person;
-using WCMS.Features.IAM.Account;
 using WCMS.Features.IAM.RolePermission;
 using WCMS.SysCore.Configuration.Startup;
 using WCMS.SysCore.Constants;
 using WCMS.SysCore.Persistence;
 using WCMS.SysCore.Security.IdentityAccess;
 using WCMS.SysCore.Security.IdentityAccess.Authentication;
+using AccountData = WCMS.Features.IAM.Account.Account;
 namespace WCMS.Features.IAM.Setup;
 
 /// <summary>
@@ -69,38 +69,38 @@ internal sealed class IamStartupInitializer(ApplicationDbContext db, IConfigurat
     /// </summary>
     private async Task EnsureAdminRoleAsync(CancellationToken ct)
     {
-        RoleDataModel? role = await db.Set<RoleDataModel>().FirstOrDefaultAsync(item => item.RoleId == AdminRoleId, ct);
+        RoleData? role = await db.Set<RoleData>().FirstOrDefaultAsync(item => item.RoleId == AdminRoleId, ct);
         if (role != null) return;
-        await db.Set<RoleDataModel>().AddAsync(new RoleDataModel { RoleId = AdminRoleId, RoleName = "系統管理員", IsAdmin = true, InternalId = Guid.NewGuid().ToString(), }, ct);
+        await db.Set<RoleData>().AddAsync(new RoleData { RoleId = AdminRoleId, RoleName = "系統管理員", IsAdmin = true, InternalId = Guid.NewGuid().ToString(), }, ct);
     }
     /// <summary>
     /// 確保指定設定的人員與帳號存在。
     /// </summary>
     private async Task EnsurePersonAndAccountAsync(AccountSeedSetting setting, bool canLogin, CancellationToken ct)
     {
-        PersonModel person = await EnsurePersonAsync(setting, ct);
-        AccountModel? account = await db.Set<AccountModel>().FirstOrDefaultAsync(item => item.AccountId == setting.AccountId, ct);
+        Person person = await EnsurePersonAsync(setting, ct);
+        AccountData? account = await db.Set<AccountData>().FirstOrDefaultAsync(item => item.AccountId == setting.AccountId, ct);
         if (account != null) return;
-        await db.Set<AccountModel>().AddAsync(BuildAccount(setting, person.PersonId, canLogin), ct);
+        await db.Set<AccountData>().AddAsync(BuildAccount(setting, person.PersonId, canLogin), ct);
     }
     /// <summary>
     /// 確保帳號對應的人員資料存在。
     /// </summary>
-    private async Task<PersonModel> EnsurePersonAsync(AccountSeedSetting setting, CancellationToken ct)
+    private async Task<Person> EnsurePersonAsync(AccountSeedSetting setting, CancellationToken ct)
     {
-        PersonModel? person = await db.Set<PersonModel>().FirstOrDefaultAsync(item => item.PersonId == setting.AccountId, ct);
+        Person? person = await db.Set<Person>().FirstOrDefaultAsync(item => item.PersonId == setting.AccountId, ct);
         if (person != null) return person;
         person = BuildPerson(setting);
-        await db.Set<PersonModel>().AddAsync(person, ct);
+        await db.Set<Person>().AddAsync(person, ct);
         await db.SaveChangesAsync(ct);
         return person;
     }
     /// <summary>
     /// 建立初始化用人員資料。
     /// </summary>
-    private static PersonModel BuildPerson(AccountSeedSetting setting)
+    private static Person BuildPerson(AccountSeedSetting setting)
     {
-        return new PersonModel
+        return new Person
         {
             PersonId = setting.AccountId,
             PersonName = string.IsNullOrWhiteSpace(setting.AccountName) ? setting.AccountId : setting.AccountName,
@@ -113,10 +113,10 @@ internal sealed class IamStartupInitializer(ApplicationDbContext db, IConfigurat
     /// <summary>
     /// 建立初始化用帳號資料與登入憑證。
     /// </summary>
-    private static AccountModel BuildAccount(AccountSeedSetting setting, string personId, bool canLogin)
+    private static AccountData BuildAccount(AccountSeedSetting setting, string personId, bool canLogin)
     {
         (byte[] hash, byte[] salt, int version) = canLogin ? PasswordHasher.Hash(setting.Password) : (Array.Empty<byte>(), Array.Empty<byte>(), 0);
-        return new AccountModel
+        return new AccountData
         {
             AccountId = setting.AccountId,
             AccountName = setting.AccountName,

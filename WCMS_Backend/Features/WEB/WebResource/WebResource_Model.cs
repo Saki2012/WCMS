@@ -40,7 +40,7 @@ public class WebResource : HeaderModel
     /// </summary>
     [ForeignKey(nameof(PicId))]
     [LibField(ApiFieldMode.ReadOnly)]
-    public FileManageModel? Pic { get; set; }
+    public FileManage? Pic { get; set; }
     [LibStr(ApiFieldMode.ReadWrite, DbStrLen.InternalId, DisplayName.WebResource_PicId)]
     public string? PicId { get; set; }
     /// <summary>

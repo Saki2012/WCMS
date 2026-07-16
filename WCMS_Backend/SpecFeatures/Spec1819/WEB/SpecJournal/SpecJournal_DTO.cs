@@ -13,7 +13,7 @@ namespace WCMS.SpecFeatures.Spec1819.WEB.SpecJournal;
 /// </summary>
 public class SpecJournalSet_DTO : ITSet_DTO
 {
-    [LibDesc(SpecModelDisplayName.SpecJournal)] public SpecJournalModel_DTO SpecJournal { get; set; } = new ();
+    [LibDesc(SpecModelDisplayName.SpecJournal)] public SpecJournal_DTO SpecJournal { get; set; } = new ();
     [LibDesc(SpecModelDisplayName.SpecJournalAuthor)] public List<SpecJournalAuthor_DTO>? SpecJournalAuthor { get; set; } = [];
     [LibDesc(SpecModelDisplayName.SpecJournalRefFormat)] public List<SpecJournalRefFormat_DTO>? SpecJournalRefFormat { get; set; } = [];
     [LibDesc(SpecModelDisplayName.SpecJournalOpenPointFiles)] public List<SpecJournalOpenPointFiles_DTO>? SpecJournalOpenPointFiles { get; set; } = [];
@@ -25,7 +25,7 @@ public class SpecJournalSet_DTO : ITSet_DTO
 /// <summary>
 /// 期刊
 /// </summary>
-public class SpecJournalModel_DTO : DTOBasicDataModel
+public class SpecJournal_DTO : DTOBasicDataModel
 {
     /// <summary>
     /// 期刊代號
@@ -34,7 +34,7 @@ public class SpecJournalModel_DTO : DTOBasicDataModel
     /// <summary>
     /// 期刊目次代號
     /// </summary>
-    [ForeignKey(nameof(JournalIndexId))] public SpecJournalIndexModel_DTO? _JournalIndex { get; set; } = null!;
+    [ForeignKey(nameof(JournalIndexId))] public SpecJournalIndex_DTO? _JournalIndex { get; set; } = null!;
     [LibDesc(SpecModelDisplayName.Spec_JournalIndexId), StringLength(SysLengthParam.ID)] public string? JournalIndexId { get; set; }
     /// <summary>
     /// 期刊目次明細行主鍵
@@ -65,7 +65,7 @@ public class SpecJournalModel_DTO : DTOBasicDataModel
     /// <summary>
     /// 期刊檔案
     /// </summary>
-    [ForeignKey(nameof(JournalFileId))] public FileManageModel_DTO? JournalFile { get; set; }
+    [ForeignKey(nameof(JournalFileId))] public FileManage_DTO? JournalFile { get; set; }
     [LibDesc(SpecModelDisplayName.Spec_JournalFieldId), StringLength(SysLengthParam.InternalId)] public string? JournalFileId { get; set; }
     /// <summary>
     /// 期刊檔案名稱
@@ -74,7 +74,7 @@ public class SpecJournalModel_DTO : DTOBasicDataModel
     /// <summary>
     /// 捷點InSight Point 檔案
     /// </summary>
-    [ForeignKey(nameof(InsightPointFileId))] public FileManageModel_DTO? InsightPointFile { get; set; }
+    [ForeignKey(nameof(InsightPointFileId))] public FileManage_DTO? InsightPointFile { get; set; }
     [LibDesc(SpecModelDisplayName.Spec_InsightPointFileId), StringLength(SysLengthParam.InternalId)] public string? InsightPointFileId { get; set; }
     /// <summary>
     /// 捷點InSight Point 檔案名稱
@@ -164,7 +164,7 @@ public class SpecJournalAuthor_DTO : DetailRowModel
     [LibDesc(ModelDisplayName.Common_Country), StringLength(SysLengthParam.Info)] public string? Country { get; set; }
 
     #region 主子表關聯
-    [ForeignKey(nameof(JournalId))] public SpecJournalModel_DTO? _SpecJournal { get; set; }
+    [ForeignKey(nameof(JournalId))] public SpecJournal_DTO? _SpecJournal { get; set; }
     #endregion
 }
 /// <summary>
@@ -191,7 +191,7 @@ public class SpecJournalRefFormat_DTO : DetailRowModel
     [LibDesc(SpecModelDisplayName.Spec_RefFormatContent)] public string? Content { get; set; }
 
     #region 主子表關聯
-    [ForeignKey(nameof(JournalId))] public SpecJournalModel_DTO? _SpecJournal { get; set; }
+    [ForeignKey(nameof(JournalId))] public SpecJournal_DTO? _SpecJournal { get; set; }
     #endregion
 }
 /// <summary>
@@ -214,11 +214,11 @@ public class SpecJournalOpenPointFiles_DTO : DetailRowModel
     /// <summary>
     /// 開放觀點檔案來源
     /// </summary>
-    [ForeignKey(nameof(OpenPointFileId))] public FileManageModel_DTO? OpenPointFile { get; set; }
+    [ForeignKey(nameof(OpenPointFileId))] public FileManage_DTO? OpenPointFile { get; set; }
     [LibDesc(SpecModelDisplayName.Spec_OpenPointFileId), StringLength(SysLengthParam.InternalId)] public string? OpenPointFileId { get; set; }
 
     #region 主子表關聯
-    [ForeignKey(nameof(JournalId))] public SpecJournalModel_DTO? _SpecJournal { get; set; }
+    [ForeignKey(nameof(JournalId))] public SpecJournal_DTO? _SpecJournal { get; set; }
     #endregion
 }
 /// <summary>
@@ -241,11 +241,11 @@ public class SpecJournalRefFiles_DTO : DetailRowModel
     /// <summary>
     /// 相關檔案來源
     /// </summary>
-    [ForeignKey(nameof(RefFileId))] public FileManageModel_DTO? RefFile { get; set; }
+    [ForeignKey(nameof(RefFileId))] public FileManage_DTO? RefFile { get; set; }
     [LibDesc(SpecModelDisplayName.Spec_RefFileId), StringLength(SysLengthParam.InternalId)] public string? RefFileId { get; set; }
 
     #region 主子表關聯
-    [ForeignKey(nameof(JournalId))] public SpecJournalModel_DTO? _SpecJournal { get; set; }
+    [ForeignKey(nameof(JournalId))] public SpecJournal_DTO? _SpecJournal { get; set; }
     #endregion
 }
 /// <summary>
@@ -272,11 +272,11 @@ public class SpecJournalDocument_DTO : DetailRowModel
     /// <summary>
     /// 說明檔案來源
     /// </summary>
-    [ForeignKey(nameof(DocumentId))] public FileManageModel_DTO? Document { get; set; }
+    [ForeignKey(nameof(DocumentId))] public FileManage_DTO? Document { get; set; }
     [LibDesc(SpecModelDisplayName.Spec_DocumentId), StringLength(SysLengthParam.InternalId)] public string? DocumentId { get; set; }
 
     #region 主子表關聯
-    [ForeignKey(nameof(JournalId))] public SpecJournalModel_DTO? _SpecJournal { get; set; }
+    [ForeignKey(nameof(JournalId))] public SpecJournal_DTO? _SpecJournal { get; set; }
     #endregion
 }
 /// <summary>
@@ -300,7 +300,7 @@ public class SpecJournalTypes_DTO : DetailRowModel
     [LibDesc(SpecModelDisplayName.Spec_TagId), StringLength(SysLengthParam.ID)] public string? TagId { get; set; }
 
     #region 主子表關聯
-    [ForeignKey(nameof(JournalId))] public SpecJournalModel_DTO? _SpecJournal { get; set; }
+    [ForeignKey(nameof(JournalId))] public SpecJournal_DTO? _SpecJournal { get; set; }
     #endregion
 }
 /// <summary>
@@ -326,7 +326,7 @@ public class SpecJournalKeywords_DTO : DetailRowModel
     [LibDesc(SpecModelDisplayName.Spec_Keyword), StringLength(SysLengthParam.Title)] public string? Keyword { get; set; }
 
     #region 主子表關聯
-    [ForeignKey(nameof(JournalId))] public SpecJournalModel_DTO? _SpecJournal { get; set; }
+    [ForeignKey(nameof(JournalId))] public SpecJournal_DTO? _SpecJournal { get; set; }
     #endregion
 }
 

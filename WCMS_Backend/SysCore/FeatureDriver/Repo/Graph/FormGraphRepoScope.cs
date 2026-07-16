@@ -6,7 +6,8 @@ using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.FeatureDriver.Model.Form;
 using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.Persistence;
-namespace WCMS.SysCore.FeatureDriver.Repo;
+using WCMS.SysCore.FeatureDriver.Repo;
+namespace WCMS.SysCore.FeatureDriver.Repo.Graph;
 
 /// <summary>
 /// 表單 Graph Root / Detail / SubDetail Repository Scope。

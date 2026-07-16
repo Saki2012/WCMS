@@ -1,9 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using WCMS.Features.IAM.Account;
 using WCMS.SysCore.Persistence;
 using WCMS.SysCore.PlatformServices.Cache;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
-
+using AccountData = WCMS.Features.IAM.Account.Account;
 namespace WCMS.Features.IAM.RolePermission;
 
 /// <summary>
@@ -56,7 +55,7 @@ internal sealed class PermissionCache(ApplicationDbContext db, CacheService cach
     {
         string[] ids = NormalizeIds(roleIds);
         if (ids.Length == 0) return Task.FromResult(new List<string>());
-        return Db.Set<AccountModel>().AsNoTracking().Where(item => item.RoleId != null && ids.Contains(item.RoleId)).Select(item => item.AccountId).Distinct().ToListAsync(ct);
+        return Db.Set<AccountData>().AsNoTracking().Where(item => item.RoleId != null && ids.Contains(item.RoleId)).Select(item => item.AccountId).Distinct().ToListAsync(ct);
     }
     /// <summary>
     /// 更新指定使用者的權限版本，使既有程式權限 Key 立即失效。
@@ -122,21 +121,21 @@ internal sealed class PermissionCache(ApplicationDbContext db, CacheService cach
     /// </summary>
     private Task<List<string>> LoadRoleIdsAsync(string userId, CancellationToken ct)
     {
-        return Db.Set<AccountModel>().AsNoTracking().Where(item => item.AccountId == userId && item.RoleId != null).Select(item => item.RoleId!).Distinct().ToListAsync(ct);
+        return Db.Set<AccountData>().AsNoTracking().Where(item => item.AccountId == userId && item.RoleId != null).Select(item => item.RoleId!).Distinct().ToListAsync(ct);
     }
     /// <summary>
     /// 判斷角色集合是否包含管理者角色。
     /// </summary>
     private Task<bool> HasAdminRoleAsync(IReadOnlyCollection<string> roleIds, CancellationToken ct)
     {
-        return Db.Set<RoleDataModel>().AsNoTracking().AnyAsync(item => roleIds.Contains(item.RoleId) && item.IsAdmin, ct);
+        return Db.Set<RoleData>().AsNoTracking().AnyAsync(item => roleIds.Contains(item.RoleId) && item.IsAdmin, ct);
     }
     /// <summary>
     /// 取得角色集合對指定程式授予的權限遮罩。
     /// </summary>
     private Task<List<FuncAction>> LoadGrantMasksAsync(IReadOnlyCollection<string> roleIds, string progId, CancellationToken ct)
     {
-        return Db.Set<RolePermissionModel>().AsNoTracking().Where(item => roleIds.Contains(item.RoleId) && item.PermissionKey == progId).Select(item => item.GrantMask).ToListAsync(ct);
+        return Db.Set<RolePermission>().AsNoTracking().Where(item => roleIds.Contains(item.RoleId) && item.PermissionKey == progId).Select(item => item.GrantMask).ToListAsync(ct);
     }
     /// <summary>
     /// OR 合併角色授予的多筆權限遮罩。

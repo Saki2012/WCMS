@@ -1,17 +1,17 @@
-﻿using WCMS.Features.IAM.Account;
-using WCMS.SysCore.FeatureDriver.Biz;
+﻿using WCMS.SysCore.FeatureDriver.Biz;
 using WCMS.SysCore.Security.IdentityAccess;
 using WCMS.SysCore.Security.IdentityAccess.Authentication;
 using WCMS.SysCore.Security.IdentityAccess.Authentication.CurrentUser;
+using AccountData = WCMS.Features.IAM.Account.Account;
 namespace WCMS.Features.IAM.Auth;
 
 /// <summary>
 /// 處理帳號查詢與密碼驗證。
 /// </summary>
-public class AuthBiz(IBizService<AccountModel> accountBiz)
+public class AuthBiz(IBizService<AccountData> accountBiz)
 {
     #region Property
-    private readonly IBizService<AccountModel> AccountBiz = accountBiz;
+    private readonly IBizService<AccountData> AccountBiz = accountBiz;
     #endregion
 
     #region Public
@@ -21,8 +21,8 @@ public class AuthBiz(IBizService<AccountModel> accountBiz)
     public async Task<User_DTO?> FindByAccountAsync(string account)
     {
         string[] fields = GetLoginFields();
-        IList<AccountModel> users = await AccountBiz.BizQueryListAsync(fields, $"{nameof(AccountModel.AccountId)} = {account}", default, default, 0, 0);
-        AccountModel? user = users.FirstOrDefault();
+        IList<AccountData> users = await AccountBiz.BizQueryListAsync(fields, $"{nameof(AccountData.AccountId)} = {account}", default, default, 0, 0);
+        AccountData? user = users.FirstOrDefault();
         return user == null ? null : BuildUserInfo(user);
     }
     /// <summary>
@@ -52,8 +52,8 @@ public class AuthBiz(IBizService<AccountModel> accountBiz)
     private async Task<(bool ok, User_DTO userInfo)> SignInAsync(string account, string password)
     {
         string[] fields = GetLoginFields();
-        IList<AccountModel> users = await AccountBiz.BizQueryListAsync(fields, $"{nameof(AccountModel.AccountId)} = {account}", default, default, 0, 0);
-        AccountModel? user = users.FirstOrDefault();
+        IList<AccountData> users = await AccountBiz.BizQueryListAsync(fields, $"{nameof(AccountData.AccountId)} = {account}", default, default, 0, 0);
+        AccountData? user = users.FirstOrDefault();
         if (user == null || !PasswordHasher.Verify(password, user.PasswordHash, user.PasswordSalt, user.PasswordAlgoVer)) return (false, default!);
         if (user.AccountStatus != AccountStatus.Enable) return (false, default!);
         return (true, BuildUserInfo(user));
@@ -63,12 +63,12 @@ public class AuthBiz(IBizService<AccountModel> accountBiz)
     /// </summary>
     private static string[] GetLoginFields()
     {
-        return [nameof(AccountModel.InternalId), nameof(AccountModel.AccountId), nameof(AccountModel.AccountName), nameof(AccountModel.PasswordHash), nameof(AccountModel.PasswordSalt), nameof(AccountModel.PasswordAlgoVer), nameof(AccountModel.AccountStatus)];
+        return [nameof(AccountData.InternalId), nameof(AccountData.AccountId), nameof(AccountData.AccountName), nameof(AccountData.PasswordHash), nameof(AccountData.PasswordSalt), nameof(AccountData.PasswordAlgoVer), nameof(AccountData.AccountStatus)];
     }
     /// <summary>
     /// 將帳號模型轉為登入使用者資訊。
     /// </summary>
-    private static User_DTO BuildUserInfo(AccountModel user)
+    private static User_DTO BuildUserInfo(AccountData user)
     {
         return new User_DTO { UserId = user.AccountId, UserName = user.AccountName, AccountStatus = user.AccountStatus, InternalId = user.InternalId };
     }

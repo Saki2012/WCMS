@@ -9,10 +9,10 @@ namespace WCMS.SpecFeatures.Spec1816.WEB.SpecOpenScheduleRule;
 public class SpecOpenScheduleRuleSet :ITSet
 {
     [LibField(ApiFieldMode.ReadWrite, SpecDisplayName.SpecOpenScheduleRuleSet_DTO)]
-    public SpecOpenScheduleRuleModel SpecOpenScheduleRule { get; set; }= new();
+    public SpecOpenScheduleRule SpecOpenScheduleRule { get; set; }= new();
 }
 
-public class SpecOpenScheduleRuleModel: MasterDataModel
+public class SpecOpenScheduleRule: MasterDataModel
 {
     /// <summary>
     /// 學年度(Id)

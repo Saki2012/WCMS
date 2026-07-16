@@ -3,7 +3,7 @@ using WCMS.SysCore.FeatureDriver.Biz;
 namespace WCMS.SpecFeatures.Spec1819.WEB.SpecJournalIndex;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.Spec.SpecJournalIndex)]
-public class SpecJournalIndex_Biz(BizDeps bizDeps) : BizService<SpecJournalIndexModel>(bizDeps), IBizService<SpecJournalIndexModel>
+public class SpecJournalIndex_Biz(BizDeps bizDeps) : BizService<SpecJournalIndex>(bizDeps), IBizService<SpecJournalIndex>
 {
 
 }

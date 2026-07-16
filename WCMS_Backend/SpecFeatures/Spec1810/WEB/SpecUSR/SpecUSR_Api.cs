@@ -4,4 +4,4 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.SpecFeatures.Spec1810.WEB.SpecUSR;
 
 [LibApiController(ProgKeys.WEB.Code, ProgKeys.Spec.SpecUSR, FuncAction.BillData)]
-public class SpecUSRController : ApiDataController<SpecUSRModel>{}
+public class SpecUSRController : ApiDataController<SpecUSR>{}

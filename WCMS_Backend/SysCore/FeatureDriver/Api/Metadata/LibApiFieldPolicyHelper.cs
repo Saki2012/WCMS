@@ -218,9 +218,7 @@ public static class LibApiFieldPolicyHelper
     /// </summary>
     private static bool IsRootSegment(Type rootType, string part)
     {
-        string rootName = rootType.Name;
-        string trimName = rootName.EndsWith("Model", StringComparison.Ordinal) ? rootName[..^"Model".Length] : rootName;
-        return string.Equals(part, rootName, StringComparison.OrdinalIgnoreCase) || string.Equals(part, trimName, StringComparison.OrdinalIgnoreCase);
+        return string.Equals(part, rootType.Name, StringComparison.OrdinalIgnoreCase);
     }
     /// <summary>
     /// 取得集合項目型別。

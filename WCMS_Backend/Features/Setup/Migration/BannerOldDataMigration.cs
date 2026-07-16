@@ -16,9 +16,9 @@ internal static class BannerOldDataMigration
     /// <summary>
     /// 轉換並建立舊站 Banner 資料。
     /// </summary>
-    public static async Task MigrateAsync(IBizService<Banner> service, IList<FileManageModel> sourceFiles, CancellationToken ct)
+    public static async Task MigrateAsync(IBizService<Banner> service, IList<FileManage> sourceFiles, CancellationToken ct)
     {
-        List<FileManageModel> usedFiles = [];
+        List<FileManage> usedFiles = [];
         Banner[] data = ConvertToModels(sourceFiles, usedFiles);
         OldDataMigrationSource.MarkFiles(usedFiles, service.ProgId);
         await service.BizInitCreateDatasAsync(data, ct);
@@ -29,7 +29,7 @@ internal static class BannerOldDataMigration
     /// <summary>
     /// 將舊站 Banner 資料轉為目前資料模型。
     /// </summary>
-    private static Banner[] ConvertToModels(IList<FileManageModel> sourceFiles, List<FileManageModel> usedFiles)
+    private static Banner[] ConvertToModels(IList<FileManage> sourceFiles, List<FileManage> usedFiles)
     {
         DataSet dataSet = GetMigrationData();
         List<Banner> result = [];
@@ -53,7 +53,7 @@ internal static class BannerOldDataMigration
     /// <summary>
     /// 建立單筆 Banner Graph。
     /// </summary>
-    private static Banner BuildBanner(DataRow row, DataSet dataSet, IList<FileManageModel> sourceFiles, List<FileManageModel> usedFiles)
+    private static Banner BuildBanner(DataRow row, DataSet dataSet, IList<FileManage> sourceFiles, List<FileManage> usedFiles)
     {
         Banner result = new()
         {
@@ -70,7 +70,7 @@ internal static class BannerOldDataMigration
     /// <summary>
     /// 加入 Banner 圖片與多語明細。
     /// </summary>
-    private static void AddBannerDetails(Banner banner, DataSet dataSet, IList<FileManageModel> sourceFiles, List<FileManageModel> usedFiles)
+    private static void AddBannerDetails(Banner banner, DataSet dataSet, IList<FileManage> sourceFiles, List<FileManage> usedFiles)
     {
         IEnumerable<DataRow> rows = dataSet.Tables["AdBanner"]!.AsEnumerable().Where(row => row["CategorySn"].ToString() == banner.BannerId);
         int rowId = 1;
@@ -84,7 +84,7 @@ internal static class BannerOldDataMigration
     /// <summary>
     /// 建立單筆 Banner 圖片明細。
     /// </summary>
-    private static BannerDetail BuildBannerDetail(string bannerId, int rowId, DataRow row, IList<FileManageModel> sourceFiles, List<FileManageModel> usedFiles)
+    private static BannerDetail BuildBannerDetail(string bannerId, int rowId, DataRow row, IList<FileManage> sourceFiles, List<FileManage> usedFiles)
     {
         string pictureId = ResolvePictureId(row["Pic"].ToString(), sourceFiles, usedFiles);
         _ = int.TryParse(row["FontColor"].ToString(), out int fontColor);
@@ -102,10 +102,10 @@ internal static class BannerOldDataMigration
     /// <summary>
     /// 取得 Banner 匯入圖片 InternalId。
     /// </summary>
-    private static string ResolvePictureId(string fileName, IList<FileManageModel> sourceFiles, List<FileManageModel> usedFiles)
+    private static string ResolvePictureId(string fileName, IList<FileManage> sourceFiles, List<FileManage> usedFiles)
     {
         if (fileName.IsNullOrEmpty()) return string.Empty;
-        FileManageModel? file = OldDataMigrationSource.FindImportedFile(sourceFiles, $"File/Banner/{fileName}");
+        FileManage? file = OldDataMigrationSource.FindImportedFile(sourceFiles, $"File/Banner/{fileName}");
         if (file == null) return string.Empty;
         usedFiles.Add(file);
         return file.InternalId;

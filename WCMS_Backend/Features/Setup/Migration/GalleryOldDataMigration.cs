@@ -17,9 +17,9 @@ internal static class GalleryOldDataMigration
     /// <summary>
     /// 轉換並建立舊站相簿資料。
     /// </summary>
-    public static async Task MigrateAsync(IBizService<Gallery> service, IList<FileManageModel> sourceFiles, CancellationToken ct)
+    public static async Task MigrateAsync(IBizService<Gallery> service, IList<FileManage> sourceFiles, CancellationToken ct)
     {
-        List<FileManageModel> usedFiles = [];
+        List<FileManage> usedFiles = [];
         Gallery[] data = ConvertToModels(sourceFiles, usedFiles);
         OldDataMigrationSource.MarkFiles(usedFiles, service.ProgId);
         await service.BizInitCreateDatasAsync(data, ct);
@@ -30,7 +30,7 @@ internal static class GalleryOldDataMigration
     /// <summary>
     /// 將舊站相簿資料轉為目前資料模型。
     /// </summary>
-    private static Gallery[] ConvertToModels(IList<FileManageModel> sourceFiles, List<FileManageModel> usedFiles)
+    private static Gallery[] ConvertToModels(IList<FileManage> sourceFiles, List<FileManage> usedFiles)
     {
         DataSet dataSet = GetMigrationData();
         Dictionary<string, string> fileMap = OldDataMigrationSource.BuildFilePathMap(sourceFiles);
@@ -56,7 +56,7 @@ internal static class GalleryOldDataMigration
     /// <summary>
     /// 建立單筆相簿 Graph。
     /// </summary>
-    private static Gallery BuildGallery(DataRow row, DataSet dataSet, IList<FileManageModel> sourceFiles, Dictionary<string, string> fileMap, List<FileManageModel> usedFiles)
+    private static Gallery BuildGallery(DataRow row, DataSet dataSet, IList<FileManage> sourceFiles, Dictionary<string, string> fileMap, List<FileManage> usedFiles)
     {
         Gallery result = CreateGalleryHeader(row);
         AddGalleryInfo(result, dataSet.Tables["Gallery_Lang"]!, sourceFiles, fileMap, usedFiles);
@@ -83,7 +83,7 @@ internal static class GalleryOldDataMigration
     /// <summary>
     /// 加入相簿多語資訊並記錄內文使用檔案。
     /// </summary>
-    private static void AddGalleryInfo(Gallery data, DataTable languageTable, IList<FileManageModel> sourceFiles, Dictionary<string, string> fileMap, List<FileManageModel> usedFiles)
+    private static void AddGalleryInfo(Gallery data, DataTable languageTable, IList<FileManage> sourceFiles, Dictionary<string, string> fileMap, List<FileManage> usedFiles)
     {
         IEnumerable<DataRow> rows = languageTable.AsEnumerable().Where(row => row["Sn"].ToString() == data.GalleryId);
         int rowId = 1;
@@ -96,7 +96,7 @@ internal static class GalleryOldDataMigration
     /// <summary>
     /// 建立單筆相簿多語資訊。
     /// </summary>
-    private static GalleryInfo? BuildGalleryInfo(string galleryId, int rowId, DataRow row, IList<FileManageModel> sourceFiles, Dictionary<string, string> fileMap, List<FileManageModel> usedFiles)
+    private static GalleryInfo? BuildGalleryInfo(string galleryId, int rowId, DataRow row, IList<FileManage> sourceFiles, Dictionary<string, string> fileMap, List<FileManage> usedFiles)
     {
         if (row["Title"].IsNullOrEmpty()) return null;
         string content = HtmlInternalIdByFullPath.TransformHtml_ReplaceSrcWithDataInternalId(row["Content"].ToString(), fileMap, out List<string> usedIds);
@@ -107,7 +107,7 @@ internal static class GalleryOldDataMigration
     /// <summary>
     /// 加入相簿相片與相片多語資訊。
     /// </summary>
-    private static void AddPhotos(Gallery data, DataRow header, DataSet dataSet, IList<FileManageModel> sourceFiles, List<FileManageModel> usedFiles)
+    private static void AddPhotos(Gallery data, DataRow header, DataSet dataSet, IList<FileManage> sourceFiles, List<FileManage> usedFiles)
     {
         IEnumerable<DataRow> rows = dataSet.Tables["Gallery_Album"]!.AsEnumerable()
             .Where(row => row["Sn"].ToString() == data.GalleryId)
@@ -118,9 +118,9 @@ internal static class GalleryOldDataMigration
     /// <summary>
     /// 建立並加入單筆相簿相片。
     /// </summary>
-    private static void AddPhoto(Gallery data, DataRow header, int rowId, DataRow row, DataTable languageTable, IList<FileManageModel> sourceFiles, List<FileManageModel> usedFiles)
+    private static void AddPhoto(Gallery data, DataRow header, int rowId, DataRow row, DataTable languageTable, IList<FileManage> sourceFiles, List<FileManage> usedFiles)
     {
-        FileManageModel? file = FindPhoto(row["Sn"].ToString(), row["PhotoName"].ToString(), sourceFiles);
+        FileManage? file = FindPhoto(row["Sn"].ToString(), row["PhotoName"].ToString(), sourceFiles);
         if (file == null) return;
         file.FileName = row["PhotoName"].ToString();
         usedFiles.Add(file);
@@ -132,7 +132,7 @@ internal static class GalleryOldDataMigration
     /// <summary>
     /// 加入相簿相片多語標題。
     /// </summary>
-    private static void AddPhotoInfo(GalleryPhotos photo, DataRow sourceRow, DataTable languageTable, FileManageModel file)
+    private static void AddPhotoInfo(GalleryPhotos photo, DataRow sourceRow, DataTable languageTable, FileManage file)
     {
         IEnumerable<DataRow> rows = languageTable.AsEnumerable().Where(row => row["PhotoID"].ToString() == sourceRow["PhotoID"].ToString());
         int rowId = 1;
@@ -145,7 +145,7 @@ internal static class GalleryOldDataMigration
     /// <summary>
     /// 建立單筆相片多語標題。
     /// </summary>
-    private static GalleryPhotosInfo? BuildPhotoInfo(GalleryPhotos photo, int rowId, DataRow row, FileManageModel file)
+    private static GalleryPhotosInfo? BuildPhotoInfo(GalleryPhotos photo, int rowId, DataRow row, FileManage file)
     {
         if (row["Title"].IsNullOrEmpty()) return null;
         _ = LangCodeExt.TryParse(row["Lang"].ToString(), out LangCode lang);
@@ -155,7 +155,7 @@ internal static class GalleryOldDataMigration
     /// <summary>
     /// 依舊站相簿路徑取得已匯入相片。
     /// </summary>
-    private static FileManageModel? FindPhoto(string albumId, string fileName, IEnumerable<FileManageModel> sourceFiles)
+    private static FileManage? FindPhoto(string albumId, string fileName, IEnumerable<FileManage> sourceFiles)
     {
         string sourcePath = $"file/image/album/{albumId}/{fileName}";
         return sourceFiles.FirstOrDefault(file => file._FileManage_SyncInfo.Any(info => info.SrcFullPath.Contains(sourcePath, StringComparison.OrdinalIgnoreCase)));

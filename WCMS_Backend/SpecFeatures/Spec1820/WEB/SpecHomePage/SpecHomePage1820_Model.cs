@@ -14,7 +14,7 @@ namespace WCMS.SpecFeatures.Spec1820.WEB.SpecHomePage;
 public class SpecHomePage1820Set : ITSet
 {
 [LibField(ApiFieldMode.ReadWrite, SpecDisplayName.SpecHomePage1820)]
-public SpecHomePage1820Model SpecHomePage1820 { get; set; }
+public SpecHomePage1820 SpecHomePage1820 { get; set; }
 [LibField(ApiFieldMode.ReadWrite, SpecDisplayName.SpecHomePage1820_BannerMedia)]
 public List<SpecHomePage1820_BannerMedia> SpecHomePage1820_BannerMedia { get; set; }= [];
 [LibField(ApiFieldMode.ReadWrite, SpecDisplayName.SpecHomePage1820_Detail)]
@@ -27,7 +27,7 @@ public List<SpecHomePage1820_Resource> SpecHomePage1820_Resource { get; set; }= 
 /// <summary>
 /// 1820首頁基礎資料
 /// </summary>
-public class SpecHomePage1820Model : MasterDataModel
+public class SpecHomePage1820 : MasterDataModel
 {
 
 [LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, SpecDisplayName.HomePageId)]
@@ -97,7 +97,7 @@ public string HomePageId { get; set; } = string.Empty;
 public int RowId { get; set; }
 [ForeignKey(nameof(BannerFileId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public FileManageModel? BannerFile { get; set; }
+public FileManage? BannerFile { get; set; }
 [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.InternalId, SpecDisplayName.BannerFileId)]
 public string? BannerFileId { get; set; }
 [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title_en, SpecDisplayName.BannerFileDescription)]
@@ -106,7 +106,7 @@ public string BannerFileDescription { get; set; } = string.Empty;
     #region 主子表關聯
 [ForeignKey(nameof(HomePageId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public SpecHomePage1820Model _SpecHomePage1820 { get; set; }
+public SpecHomePage1820 _SpecHomePage1820 { get; set; }
     #endregion
 }
 /// <summary>
@@ -124,14 +124,14 @@ public string Title { get; set; } = string.Empty;
 public string SubTitle { get; set; } = string.Empty;
 [ForeignKey(nameof(MainPictureId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public FileManageModel MainPicture { get; set; }
+public FileManage MainPicture { get; set; }
 [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.InternalId, SpecDisplayName.MainPic)]
 public string? MainPictureId { get; set; }
 [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title_en, SpecDisplayName.MainPicDescription)]
 public string MainPictureDescription { get; set; } = string.Empty;
 [ForeignKey(nameof(SubPictureId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public FileManageModel SubPicture { get; set; }
+public FileManage SubPicture { get; set; }
 [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.InternalId, SpecDisplayName.SubPic)]
 public string? SubPictureId { get; set; }
 [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title_en, SpecDisplayName.SubPicDescription)]
@@ -158,7 +158,7 @@ public string SubLink3 { get; set; } = string.Empty;
     #region 主子表關聯
 [ForeignKey(nameof(HomePageId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public SpecHomePage1820Model _SpecHomePage1820 { get; set; }
+public SpecHomePage1820 _SpecHomePage1820 { get; set; }
     #endregion
 }
 /// <summary>
@@ -172,7 +172,7 @@ public string HomePageId { get; set; } = string.Empty;
 public int RowId { get; set; }
 [ForeignKey(nameof(PictureId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public FileManageModel Picture { get; set; }
+public FileManage Picture { get; set; }
 [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.InternalId, DisplayName.Gallery_PicSrcId)]
 public string? PictureId { get; set; }
 [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title, DisplayName.Common_Title)]
@@ -183,7 +183,7 @@ public bool IsHide { get; set; }
     #region 主子表關聯
 [ForeignKey(nameof(HomePageId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public SpecHomePage1820Model _SpecHomePage1820 { get; set; }
+public SpecHomePage1820 _SpecHomePage1820 { get; set; }
     #endregion
 }
 /// <summary>
@@ -201,7 +201,7 @@ public string PicTitle { get; set; } = string.Empty;
 public string PicSubTitle { get; set; } = string.Empty;
 [ForeignKey(nameof(PicFileId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public FileManageModel PicFile { get; set; }
+public FileManage PicFile { get; set; }
 [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.InternalId, SpecDisplayName.ResoourcePictureId)]
 public string? PicFileId { get; set; }
 [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title_en, SpecDisplayName.ResoourcePictureId)]
@@ -213,6 +213,6 @@ public string Link { get; set; } = string.Empty;
     #region 主子表關聯
 [ForeignKey(nameof(HomePageId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public SpecHomePage1820Model _SpecHomePage1820 { get; set; }
+public SpecHomePage1820 _SpecHomePage1820 { get; set; }
     #endregion
 }

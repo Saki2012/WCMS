@@ -108,7 +108,7 @@ public class ModelDisplay<TFormModel>(ModelTypeMetadataCache modelMetadata, I18n
     /// </summary>
     private static string ResolveTableId(Type type)
     {
-        return TrimModelSuffix(type.Name);
+        return type.Name;
     }
 
     /// <summary>
@@ -119,13 +119,6 @@ public class ModelDisplay<TFormModel>(ModelTypeMetadataCache modelMetadata, I18n
         return prop.Name.TrimStart('_');
     }
 
-    /// <summary>
-    /// 移除常見 Model 後綴。
-    /// </summary>
-    private static string TrimModelSuffix(string name)
-    {
-        return name.EndsWith("Model", StringComparison.Ordinal) ? name[..^"Model".Length] : name;
-    }
 
     /// <summary>
     /// 判斷型別是否為集合。

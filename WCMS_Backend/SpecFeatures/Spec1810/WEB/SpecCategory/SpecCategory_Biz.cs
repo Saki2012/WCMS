@@ -9,7 +9,7 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.SpecFeatures.Spec1810.WEB.SpecCategory;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.Spec.SpecCategory)]
-public class SpecCategoryBiz(BizDeps bizDeps) : BizService<SpecCategoryModel>(bizDeps), IBizService<SpecCategoryModel>
+public class SpecCategoryBiz(BizDeps bizDeps) : BizService<SpecCategory>(bizDeps), IBizService<SpecCategory>
 {
     #region Public
     public Dictionary<string, string> GetShowColumnItems(string progId)
@@ -20,8 +20,8 @@ public class SpecCategoryBiz(BizDeps bizDeps) : BizService<SpecCategoryModel>(bi
         {
             case "SpecResearch":
                 {
-                    string[] notmapFields = [nameof(SpecResearchDetailModel_DTO.ResearchId), nameof(SpecResearchDetailModel_DTO.RowId), nameof(SpecResearchDetailModel_DTO.Lang)];
-                    foreach (var prop in ModelMetadata.GetProperties<SpecResearchDetailModel_DTO>())
+                    string[] notmapFields = [nameof(SpecResearchDetail_DTO.ResearchId), nameof(SpecResearchDetail_DTO.RowId), nameof(SpecResearchDetail_DTO.Lang)];
+                    foreach (var prop in ModelMetadata.GetProperties<SpecResearchDetail_DTO>())
                     {
                         if (notmapFields.Contains(prop.Name)) continue;
                         result.Add(prop.Name, I18n.GetLabel(prop));
@@ -45,7 +45,7 @@ public class SpecCategoryBiz(BizDeps bizDeps) : BizService<SpecCategoryModel>(bi
     #endregion
 
     #region Protected
-    protected override async Task BeforeUpdate(SpecCategoryModel set, FuncAction act, CancellationToken ct = default)
+    protected override async Task BeforeUpdate(SpecCategory set, FuncAction act, CancellationToken ct = default)
     {
         await base.BeforeUpdate(set, act, ct);
         switch (act)
@@ -66,11 +66,11 @@ public class SpecCategoryBiz(BizDeps bizDeps) : BizService<SpecCategoryModel>(bi
     /// 重新組合多筆資料(類別、狀態、標籤)
     /// </summary>
     /// <param name="header"></param>
-    private static void DoRemergeData(SpecCategoryModel header)
+    private static void DoRemergeData(SpecCategory header)
     {
         header.ShowColumnItems = header.ShowColumnItems.Remerge(",");
     }
-    private async Task CheckIsUsedAsync(SpecCategoryModel set)
+    private async Task CheckIsUsedAsync(SpecCategory set)
     {
         string progId = set.SpecCategory.ProgId;
         string cateId = set.SpecCategory.CategoryId;
@@ -79,10 +79,10 @@ public class SpecCategoryBiz(BizDeps bizDeps) : BizService<SpecCategoryModel>(bi
         switch (progId)
         {
             case "SpecUSR":
-                useCount = await DoQueryListCountAsync<SpecUSRModel>($@"{nameof(SpecUSRModel.CategoryId)} = {cateId}");
+                useCount = await DoQueryListCountAsync<SpecUSR>($@"{nameof(SpecUSR.CategoryId)} = {cateId}");
                 break;
             case "SpecResearch":
-                useCount = await DoQueryListCountAsync<SpecResearchModel>($@"{nameof(SpecResearchModel.CategoryId)} = {cateId}");
+                useCount = await DoQueryListCountAsync<SpecResearch>($@"{nameof(SpecResearch.CategoryId)} = {cateId}");
                 break;
         }
         if (useCount > 0) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00018, cateName);

@@ -13,7 +13,7 @@ namespace WCMS.SpecFeatures.Spec1817.WEB.SpecMusical;
 /// <summary>
 /// 樂器表單主資料。
 /// </summary>
-public class SpecMusicalModel : HeaderModel
+public class SpecMusical : HeaderModel
 {
     #region Property
     /// <summary>
@@ -121,7 +121,7 @@ public class SpecMusicalSoundList : DetailModel
     /// </summary>
     [ForeignKey(nameof(SoundSrcId))]
     [LibField(ApiFieldMode.ReadOnly)]
-    public FileManageModel? SoundSrc { get; set; }
+    public FileManage? SoundSrc { get; set; }
     /// <summary>
     /// 音源檔案代碼。
     /// </summary>
@@ -137,7 +137,7 @@ public class SpecMusicalSoundList : DetailModel
     /// </summary>
     [ForeignKey(nameof(MusicalId))]
     [LibField(ApiFieldMode.ReadOnly)]
-    public SpecMusicalModel? _SpecMusical { get; set; }
+    public SpecMusical? _SpecMusical { get; set; }
     #endregion
 }
 
@@ -164,7 +164,7 @@ public class SpecMusicalPictureList : DetailModel
     /// </summary>
     [ForeignKey(nameof(PicSrcId))]
     [LibField(ApiFieldMode.ReadOnly)]
-    public FileManageModel? PicSrc { get; set; }
+    public FileManage? PicSrc { get; set; }
     /// <summary>
     /// 圖片檔案代碼。
     /// </summary>
@@ -185,6 +185,6 @@ public class SpecMusicalPictureList : DetailModel
     /// </summary>
     [ForeignKey(nameof(MusicalId))]
     [LibField(ApiFieldMode.ReadOnly)]
-    public SpecMusicalModel? _SpecMusical { get; set; }
+    public SpecMusical? _SpecMusical { get; set; }
     #endregion
 }

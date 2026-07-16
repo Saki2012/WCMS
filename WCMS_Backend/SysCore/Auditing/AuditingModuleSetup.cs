@@ -15,7 +15,7 @@ internal static class AuditingModuleSetup
     public static void AddServices(IServiceCollection services)
     {
         services.AddScoped<IErrorHelper, ErrorHelper>();
-        services.AddScoped<IOperateLog, OperateLog.OperateLog>();
+        services.AddScoped<IOperateLog, OperateLog.OperateLogService>();
     }
     #endregion
 }

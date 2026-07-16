@@ -6,7 +6,7 @@ using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Validation;
 namespace WCMS.Features.COMM.Calendar;
 
-public class CalendarModel : HeaderModel
+public class Calendar : HeaderModel
 {
     /// <summary>
     /// 行事曆年度。
@@ -87,7 +87,7 @@ public partial class CalendarDetail : DetailModel
     /// </summary>
     [ForeignKey(nameof(ModifyUserId))]
     [LibField(ApiFieldMode.ReadOnly)]
-    public AccountModel? ModifyUser { get; set; }
+    public Account? ModifyUser { get; set; }
     /// <summary>
     /// 修改人 ID。
     /// </summary>
@@ -101,6 +101,6 @@ public partial class CalendarDetail : DetailModel
     /// </summary>
     [ForeignKey(nameof(Year))]
     [LibField(ApiFieldMode.ReadOnly)]
-    public CalendarModel? _Calendar { get; set; }
+    public Calendar? _Calendar { get; set; }
     #endregion
 }

@@ -11,7 +11,7 @@ namespace WCMS.Features.IAM.RolePermission;
 /// <summary>
 /// 角色資料
 /// </summary>
-public class RoleDataModel : HeaderModel
+public class RoleData : HeaderModel
 {
     /// <summary>
     /// 角色權限代號
@@ -31,9 +31,9 @@ public class RoleDataModel : HeaderModel
     public bool IsAdmin { get; set; }
 
     #region 主子表關聯
-    [InverseProperty(nameof(RolePermissionModel._RoleData))]
+    [InverseProperty(nameof(RolePermission._RoleData))]
     [LibField(ApiFieldMode.ReadWrite)]
-    public List<RolePermissionModel> _RolePermission { get; set; } = [];
+    public List<RolePermission> _RolePermission { get; set; } = [];
     #endregion
 }
 
@@ -41,7 +41,7 @@ public class RoleDataModel : HeaderModel
 /// 角色權限資料
 /// </summary>
 [Index(nameof(RoleId), nameof(PermissionKey), IsUnique = true, Name = "UX_PermissionKey_NaturalKey")]
-public class RolePermissionModel : DetailModel
+public class RolePermission : DetailModel
 {
     /// <summary>
     /// 角色權限代號
@@ -60,6 +60,6 @@ public class RolePermissionModel : DetailModel
     #region 主子表關聯
     [ForeignKey(nameof(RoleId))]
     [LibField(ApiFieldMode.ReadOnly)]
-    public RoleDataModel _RoleData { get; set; } = null!;
+    public RoleData _RoleData { get; set; } = null!;
     #endregion
 }

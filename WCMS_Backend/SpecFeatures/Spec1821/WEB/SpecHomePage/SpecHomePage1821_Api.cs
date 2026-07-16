@@ -7,6 +7,6 @@ namespace WCMS.SpecFeatures.Spec1821.WEB.SpecHomePage;
 /// 1821招生首頁設定 API
 /// </summary>
 [LibApiController(ProgKeys.WEB.Code, ProgKeys.WEB.HomePageSetting, FuncAction.MasterData)]
-public class SpecHomePageApiController : ApiDataController<SpecHomePage1821Model>
+public class SpecHomePageApiController : ApiDataController<SpecHomePage1821>
 {
 }

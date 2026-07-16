@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
-namespace WCMS.SysCore.FeatureDriver.Repo;
+using WCMS.SysCore.FeatureDriver.Repo;
+namespace WCMS.SysCore.FeatureDriver.Repo.Graph;
 
 /// <summary>
 /// 在目前 DI Scope 內建立並保存 Form Model 對應的 Graph Repository Scope。

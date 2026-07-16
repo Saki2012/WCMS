@@ -18,9 +18,9 @@ internal static class SiteMenuOldDataMigration
     /// <summary>
     /// 轉換並建立舊站站台與選單資料。
     /// </summary>
-    public static async Task MigrateAsync(IBizService<SiteMenu_IndexModel> service, IBizService<PageManagementModel> pageService, CancellationToken ct)
+    public static async Task MigrateAsync(IBizService<SiteMenu_Index> service, IBizService<PageManagementModel> pageService, CancellationToken ct)
     {
-        SiteMenu_IndexModel data = await ConvertToModelAsync(pageService, ct);
+        SiteMenu_Index data = await ConvertToModelAsync(pageService, ct);
         await service.BizInitCreateDatasAsync([data], ct);
     }
     #endregion
@@ -29,10 +29,10 @@ internal static class SiteMenuOldDataMigration
     /// <summary>
     /// 將舊站站台與選單資料轉為目前資料模型。
     /// </summary>
-    private static async Task<SiteMenu_IndexModel> ConvertToModelAsync(IBizService<PageManagementModel> pageService, CancellationToken ct)
+    private static async Task<SiteMenu_Index> ConvertToModelAsync(IBizService<PageManagementModel> pageService, CancellationToken ct)
     {
         DataSet dataSet = GetMigrationData();
-        SiteMenu_IndexModel result = new();
+        SiteMenu_Index result = new();
         SetSiteIndex(result, dataSet.Tables["SiteInfo"]!, dataSet.Tables["SiteInfo_Lang"]!);
         await SetSideMenuAsync(result, dataSet.Tables["Menu"]!, dataSet.Tables["Menu_Lang"]!, pageService, ct);
         SetParentId(result._SiteMenu_Item, dataSet.Tables["Menu"]!);
@@ -56,7 +56,7 @@ internal static class SiteMenuOldDataMigration
     /// <summary>
     /// 轉換舊站站台基本資訊。
     /// </summary>
-    private static void SetSiteIndex(SiteMenu_IndexModel data, DataTable siteInfo, DataTable siteInfoLang)
+    private static void SetSiteIndex(SiteMenu_Index data, DataTable siteInfo, DataTable siteInfoLang)
     {
         DataRow? row = siteInfo.Select().FirstOrDefault();
         if (row == null) return;
@@ -69,10 +69,10 @@ internal static class SiteMenuOldDataMigration
     /// <summary>
     /// 建立舊站站台多語資料。
     /// </summary>
-    private static SiteMenu_IndexInfoModel BuildSiteIndexInfo(string siteIndex, int rowId, DataRow siteInfo, DataRow langRow)
+    private static SiteMenu_IndexInfo BuildSiteIndexInfo(string siteIndex, int rowId, DataRow siteInfo, DataRow langRow)
     {
         _ = LangCodeExt.TryParse(langRow["Lang"].ToString(), out LangCode lang);
-        return new SiteMenu_IndexInfoModel
+        return new SiteMenu_IndexInfo
         {
             SiteIndex = siteIndex,
             RowId = rowId,
@@ -87,7 +87,7 @@ internal static class SiteMenuOldDataMigration
     /// <summary>
     /// 轉換舊站選單資料。
     /// </summary>
-    private static async Task SetSideMenuAsync(SiteMenu_IndexModel data, DataTable menu, DataTable menuLang, IBizService<PageManagementModel> pageService, CancellationToken ct)
+    private static async Task SetSideMenuAsync(SiteMenu_Index data, DataTable menu, DataTable menuLang, IBizService<PageManagementModel> pageService, CancellationToken ct)
     {
         int rowId = 1;
         foreach (DataRow row in menu.Select().Skip(1))

@@ -74,7 +74,7 @@ internal static class OldDataMigrationSource
     /// <summary>
     /// 建立來源實體路徑與檔案 InternalId 對照。
     /// </summary>
-    public static Dictionary<string, string> BuildFilePathMap(IEnumerable<FileManageModel> files)
+    public static Dictionary<string, string> BuildFilePathMap(IEnumerable<FileManage> files)
     {
         return files.SelectMany(file => file._FileManage_SyncInfo)
             .GroupBy(info => info.SrcFullPath, StringComparer.OrdinalIgnoreCase)
@@ -83,16 +83,16 @@ internal static class OldDataMigrationSource
     /// <summary>
     /// 依舊站來源完整路徑取得已匯入檔案。
     /// </summary>
-    public static FileManageModel? FindImportedFile(IEnumerable<FileManageModel> files, string sourcePath)
+    public static FileManage? FindImportedFile(IEnumerable<FileManage> files, string sourcePath)
     {
         return files.FirstOrDefault(file => file._FileManage_SyncInfo.Any(info => info.SrcFullPath.Equals(sourcePath, StringComparison.OrdinalIgnoreCase)));
     }
     /// <summary>
     /// 將實際使用的匯入檔案標記為指定功能。
     /// </summary>
-    public static void MarkFiles(IEnumerable<FileManageModel> files, string progId)
+    public static void MarkFiles(IEnumerable<FileManage> files, string progId)
     {
-        foreach (FileManageModel file in files.Distinct()) file.ProgId = progId;
+        foreach (FileManage file in files.Distinct()) file.ProgId = progId;
     }
     #endregion
 

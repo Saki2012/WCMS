@@ -15,7 +15,7 @@ public abstract class WEBModel : HeaderModel
     /// </summary>
     [ForeignKey(nameof(SiteIndexId))]
     [LibField(ApiFieldMode.ReadOnly)]
-    public SiteMenu_IndexModel? SiteIndex { get; set; }
+    public SiteMenu_Index? SiteIndex { get; set; }
     [LibStr(ApiFieldMode.ReadWrite, DbStrLen.ID, DisplayName.SiteIndexId, DisplayName.SiteIndexName)]
     public string? SiteIndexId { get; set; }
 }

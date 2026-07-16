@@ -21,7 +21,6 @@ namespace WCMS.SysCore.Persistence;
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {
     #region Property
-    private const string ModelSuffix = "Model";
     public DbSet<SysDbProfile> SysDbProfile => Set<SysDbProfile>();
     #region DB UDF用
     /// <summary>
@@ -44,7 +43,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         IgnoreDtoTypes(builder);
         AutoBindRelationships(builder);
         ApplyCascadeDeleteRules(builder);
-        builder.Entity<OperateLogModel>().ToTable("OperateLog");
+        builder.Entity<OperateLog>().ToTable(nameof(OperateLog));
         //builder.BuildIndexesFromAnnotations();//設置Index套件
         BindInverseNavigations(builder);
         ApplyGlobalDeleteBehavior(builder);
@@ -64,7 +63,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         foreach (Type type in modelTypes)
         {
             string tableName = type.Name;
-            if (tableName.EndsWith(ModelSuffix, StringComparison.Ordinal)) tableName = tableName[..^ModelSuffix.Length];
             string[] keyPropName = type.GetProperties().Where(p => p.IsDefined(typeof(KeyAttribute))).Select(p => p.Name).ToArray();
             if (keyPropName.Length != 0) builder.Entity(type).ToTable(tableName).HasKey(keyPropName);
             else builder.Entity(type).ToTable(tableName);

@@ -5,10 +5,10 @@ namespace WCMS.SpecFeatures.Spec1816.WEB.SpecOpenScheduleRule;
 
 [LibDesc(SpecModelDisplayName.SpecOpenScheduleRuleSet_DTO)]public class SpecOpenScheduleRuleSet_DTO:ITSet_DTO 
 {
-    public SpecOpenScheduleRuleModel_DTO SpecOpenScheduleRule { get; set; } = new();
+    public SpecOpenScheduleRule_DTO SpecOpenScheduleRule { get; set; } = new();
 }
 
-public class SpecOpenScheduleRuleModel_DTO: DTOBasicDataModel
+public class SpecOpenScheduleRule_DTO: DTOBasicDataModel
 {
     /// <summary>
     /// 學年度(Id)

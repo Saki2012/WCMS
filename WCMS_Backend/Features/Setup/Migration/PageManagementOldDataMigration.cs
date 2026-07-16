@@ -16,9 +16,9 @@ internal static class PageManagementOldDataMigration
     /// <summary>
     /// 轉換並建立舊站頁面資料。
     /// </summary>
-    public static async Task MigrateAsync(IBizService<PageManagement> service, IList<FileManageModel> sourceFiles, CancellationToken ct)
+    public static async Task MigrateAsync(IBizService<PageManagement> service, IList<FileManage> sourceFiles, CancellationToken ct)
     {
-        List<FileManageModel> usedFiles = [];
+        List<FileManage> usedFiles = [];
         PageManagement[] data = ConvertToModels(sourceFiles, usedFiles);
         OldDataMigrationSource.MarkFiles(usedFiles, service.ProgId);
         await service.BizInitCreateDatasAsync(data, ct);
@@ -29,7 +29,7 @@ internal static class PageManagementOldDataMigration
     /// <summary>
     /// 將舊站頁面資料轉為目前資料模型。
     /// </summary>
-    private static PageManagement[] ConvertToModels(IList<FileManageModel> sourceFiles, List<FileManageModel> usedFiles)
+    private static PageManagement[] ConvertToModels(IList<FileManage> sourceFiles, List<FileManage> usedFiles)
     {
         DataSet dataSet = GetMigrationData();
         Dictionary<string, string> fileMap = OldDataMigrationSource.BuildFilePathMap(sourceFiles);
@@ -53,7 +53,7 @@ internal static class PageManagementOldDataMigration
     /// <summary>
     /// 建立單筆頁面 Graph。
     /// </summary>
-    private static PageManagement BuildPage(DataRow row, DataTable languageTable, IList<FileManageModel> sourceFiles, Dictionary<string, string> fileMap, List<FileManageModel> usedFiles)
+    private static PageManagement BuildPage(DataRow row, DataTable languageTable, IList<FileManage> sourceFiles, Dictionary<string, string> fileMap, List<FileManage> usedFiles)
     {
         PageManagement result = new()
         {
@@ -68,7 +68,7 @@ internal static class PageManagementOldDataMigration
     /// <summary>
     /// 加入頁面多語明細並記錄內文使用檔案。
     /// </summary>
-    private static void AddLanguageDetails(PageManagement data, DataTable languageTable, IList<FileManageModel> sourceFiles, Dictionary<string, string> fileMap, List<FileManageModel> usedFiles)
+    private static void AddLanguageDetails(PageManagement data, DataTable languageTable, IList<FileManage> sourceFiles, Dictionary<string, string> fileMap, List<FileManage> usedFiles)
     {
         IEnumerable<DataRow> rows = languageTable.AsEnumerable().Where(row => row["Sn"].ToString() == data.PageId);
         int rowId = 1;
@@ -81,7 +81,7 @@ internal static class PageManagementOldDataMigration
     /// <summary>
     /// 建立單筆頁面多語明細。
     /// </summary>
-    private static PageManagementDetail? BuildLanguageDetail(string pageId, int rowId, DataRow row, IList<FileManageModel> sourceFiles, Dictionary<string, string> fileMap, List<FileManageModel> usedFiles)
+    private static PageManagementDetail? BuildLanguageDetail(string pageId, int rowId, DataRow row, IList<FileManage> sourceFiles, Dictionary<string, string> fileMap, List<FileManage> usedFiles)
     {
         if (row["Title"].IsNullOrEmpty()) return null;
         string content = HtmlInternalIdByFullPath.TransformHtml_ReplaceSrcWithDataInternalId(row["Content"].ToString(), fileMap, out List<string> usedIds);

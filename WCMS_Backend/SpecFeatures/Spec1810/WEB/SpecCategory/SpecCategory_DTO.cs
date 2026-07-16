@@ -6,11 +6,11 @@ namespace WCMS.SpecFeatures.Spec1810.WEB.SpecCategory;
 
 public class SpecCategorySet_DTO : ITSet_DTO
 {
-    public SpecCategoryModel_DTO SpecCategory { get; set; } = new();
-    public List<SpecCategoryDetailModel_DTO> SpecCategoryDetail { get; set; } = [];
+    public SpecCategory_DTO SpecCategory { get; set; } = new();
+    public List<SpecCategoryDetail_DTO> SpecCategoryDetail { get; set; } = [];
 }
 
-public class SpecCategoryModel_DTO : DTOBasicDataModel
+public class SpecCategory_DTO : DTOBasicDataModel
 {
     [LibDesc(SpecModelDisplayName.SpecCategoryId), StringLength(SysLengthParam.ID)] public string CategoryId { get; set; }
     /// <summary>
@@ -21,10 +21,10 @@ public class SpecCategoryModel_DTO : DTOBasicDataModel
     /// 顯示欄位
     /// </summary>
     [LibDesc(SpecModelDisplayName.SpecCategory_ShowColumn)] public string ShowColumnItems { get; set; }
-    public List<SpecCategoryDetailModel_DTO>? _SpecCategoryDetail { get; set; } = [];
+    public List<SpecCategoryDetail_DTO>? _SpecCategoryDetail { get; set; } = [];
 }
 
-public class SpecCategoryDetailModel_DTO
+public class SpecCategoryDetail_DTO
 {
     /// <summary>
     /// 

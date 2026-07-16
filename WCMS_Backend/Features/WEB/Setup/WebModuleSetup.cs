@@ -41,13 +41,13 @@ internal sealed class WebStartupInitializer(ApplicationDbContext db, IConfigurat
     public async Task InitializeAsync(CancellationToken ct)
     {
         if (!IsEnabled()) return;
-        bool exists = await db.Set<SiteMenu_IndexModel>().AnyAsync(item => item.SiteIndex == string.Empty, ct);
+        bool exists = await db.Set<SiteMenu_Index>().AnyAsync(item => item.SiteIndex == string.Empty, ct);
         if (exists) return;
         AccountSeedSetting systemOperator = GetSystemOperator();
         await using var transaction = await db.Database.BeginTransactionAsync(ct);
-        SiteMenu_IndexModel root = BuildRoot(systemOperator.AccountId);
-        await db.Set<SiteMenu_IndexModel>().AddAsync(root, ct);
-        await db.Set<SiteMenu_IndexInfoModel>().AddRangeAsync(BuildRootInfos(root.SiteIndex), ct);
+        SiteMenu_Index root = BuildRoot(systemOperator.AccountId);
+        await db.Set<SiteMenu_Index>().AddAsync(root, ct);
+        await db.Set<SiteMenu_IndexInfo>().AddRangeAsync(BuildRootInfos(root.SiteIndex), ct);
         await db.SaveChangesAsync(ct);
         await transaction.CommitAsync(ct);
     }
@@ -72,10 +72,10 @@ internal sealed class WebStartupInitializer(ApplicationDbContext db, IConfigurat
     /// <summary>
     /// 建立站台根設定資料。
     /// </summary>
-    private static SiteMenu_IndexModel BuildRoot(string operatorId)
+    private static SiteMenu_Index BuildRoot(string operatorId)
     {
         DateTime now = DateTime.Now;
-        return new SiteMenu_IndexModel
+        return new SiteMenu_Index
         {
             SiteIndex = string.Empty,
             GoogleAnalytics = string.Empty,
@@ -93,7 +93,7 @@ internal sealed class WebStartupInitializer(ApplicationDbContext db, IConfigurat
     /// <summary>
     /// 建立站台根設定的中英文語系資料。
     /// </summary>
-    private static SiteMenu_IndexInfoModel[] BuildRootInfos(string siteIndex)
+    private static SiteMenu_IndexInfo[] BuildRootInfos(string siteIndex)
     {
         return
         [
@@ -104,9 +104,9 @@ internal sealed class WebStartupInitializer(ApplicationDbContext db, IConfigurat
     /// <summary>
     /// 建立單一語系的站台根資訊。
     /// </summary>
-    private static SiteMenu_IndexInfoModel BuildRootInfo(string siteIndex, int rowId, LangCode lang)
+    private static SiteMenu_IndexInfo BuildRootInfo(string siteIndex, int rowId, LangCode lang)
     {
-        return new SiteMenu_IndexInfoModel
+        return new SiteMenu_IndexInfo
         {
             SiteIndex = siteIndex,
             RowId = rowId,

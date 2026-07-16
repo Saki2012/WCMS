@@ -10,7 +10,7 @@ using static WCMS.SysCore.Constants.SysParam;
 namespace WCMS.Features.WEB.SiteViewCount;
 
 [LibApiController(ProgKeys.WEB.Code, ProgKeys.WEB.SiteViewCount, FuncAction.Report)]
-public class SiteViewCountController : ApiDataQueryController<SiteViewCountHeaderModel>
+public class SiteViewCountController : ApiDataQueryController<SiteViewCountHeader>
 {
     #region Public
     /// <summary>
@@ -73,12 +73,12 @@ public class SiteViewCountController : ApiDataQueryController<SiteViewCountHeade
     /// 僅供 Swagger / 前端型別產生使用
     /// </summary>
     [HttpGet(nameof(GetSiteViewCountHeaderSchema)), AllowAnonymous, IgnoreAntiforgeryToken]
-    [ProducesResponseType(typeof(ApiResponse<SiteViewCountHeaderModel>), StatusCodes.Status200OK)]
-    public ActionResult<ApiResponse<SiteViewCountHeaderModel>> GetSiteViewCountHeaderSchema()
+    [ProducesResponseType(typeof(ApiResponse<SiteViewCountHeader>), StatusCodes.Status200OK)]
+    public ActionResult<ApiResponse<SiteViewCountHeader>> GetSiteViewCountHeaderSchema()
     {
-        ApiResponse<SiteViewCountHeaderModel> response = new()
+        ApiResponse<SiteViewCountHeader> response = new()
         {
-            Data = [new SiteViewCountHeaderModel()],
+            Data = [new SiteViewCountHeader()],
             SysMessage = [],
         };
 

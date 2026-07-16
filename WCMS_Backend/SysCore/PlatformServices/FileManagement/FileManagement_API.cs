@@ -13,7 +13,7 @@ using static WCMS.SysCore.Constants.SysParam;
 namespace WCMS.SysCore.PlatformServices.FileManagement;
 
 [ApiController, Route(SysParam.ApiRoutes.Service)]
-public class FileManagementController(IWebHostEnvironment Env) : ApiDataController<FileManageModel>
+public class FileManagementController(IWebHostEnvironment Env) : ApiDataController<FileManage>
 {
     #region Public
 
@@ -89,7 +89,7 @@ public class FileManagementController(IWebHostEnvironment Env) : ApiDataControll
     public async Task<IActionResult> Server_Download(string internalId, CancellationToken ct, [FromQuery] string? fileName = null)
     {
         // 宣告變數：紀錄操作
-        OperateLogModel followInfo = OperateLog.AddOperateLog(
+        OperateLog followInfo = OperateLog.AddOperateLog(
             $"{Service.ProgId}/{nameof(Server_Download)}",
             OperateUser.UserId,
             JsonConvert.SerializeObject(internalId),
@@ -110,7 +110,7 @@ public class FileManagementController(IWebHostEnvironment Env) : ApiDataControll
     [HttpPost(nameof(Server_UploadTemp)), AllowAnonymous, IgnoreAntiforgeryToken, RequestSizeLimit(200L * 1024 * 1024)]// 200 MB限制
     public async Task<IActionResult> Server_UploadTemp(IFormFile file)
     {
-        OperateLogModel followInfo = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(Server_UploadTemp)}", OperateUser.UserId, JsonConvert.SerializeObject(file), Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
+        OperateLog followInfo = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(Server_UploadTemp)}", OperateUser.UserId, JsonConvert.SerializeObject(file), Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
         var internalId = await ((FileManagementBiz)Service).UploadTemp(file);
         var response = new ApiResponse<string>() { Data = [internalId], SysMessage = Message.Messages };
         return Ok(response);
@@ -123,7 +123,7 @@ public class FileManagementController(IWebHostEnvironment Env) : ApiDataControll
     [HttpPost(nameof(Server_MoveToPermanent)), AllowAnonymous, IgnoreAntiforgeryToken]
     public async Task<IActionResult> Server_MoveToPermanent(string[] internalIds)
     {
-        OperateLogModel followInfo = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(Server_MoveToPermanent)}", OperateUser.UserId, JsonConvert.SerializeObject(internalIds), Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
+        OperateLog followInfo = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(Server_MoveToPermanent)}", OperateUser.UserId, JsonConvert.SerializeObject(internalIds), Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
         await ((FileManagementBiz)Service).MoveToPermanent(internalIds);
         var response = new ApiResponse<string>() { Data = internalIds, SysMessage = Message.Messages };
         return Ok(response);
@@ -136,7 +136,7 @@ public class FileManagementController(IWebHostEnvironment Env) : ApiDataControll
     [HttpPost(nameof(Server_CancelUploadFiles)), AllowAnonymous, IgnoreAntiforgeryToken]
     public async Task<IActionResult> Server_CancelUploadFiles(string[] internalIds)
     {
-        OperateLogModel followInfo = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(Server_CancelUploadFiles)}", OperateUser.UserId, JsonConvert.SerializeObject(internalIds), Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
+        OperateLog followInfo = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(Server_CancelUploadFiles)}", OperateUser.UserId, JsonConvert.SerializeObject(internalIds), Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
         await ((FileManagementBiz)Service).CancelUploadFiles(internalIds);
         var response = new ApiResponse<string>() { Data = internalIds, SysMessage = Message.Messages };
         return Ok(response);
@@ -173,7 +173,7 @@ public class FileManagementController(IWebHostEnvironment Env) : ApiDataControll
     /// <summary>
     /// 讀取單筆檔案，並統一處理錯誤回傳
     /// </summary>
-    private async Task<(IActionResult? errorResult, FileManageModel? file)> ReadSingleFileAsync(string internalId, bool onlyPublic)
+    private async Task<(IActionResult? errorResult, FileManage? file)> ReadSingleFileAsync(string internalId, bool onlyPublic)
     {
         // 宣告變數：讀取檔案資訊
         var result = await GetFileBiz().ReadFileInfo([internalId], onlyPublic);
@@ -187,7 +187,7 @@ public class FileManagementController(IWebHostEnvironment Env) : ApiDataControll
     /// <summary>
     /// 確認檔案是否可預覽
     /// </summary>
-    private IActionResult? EnsureCanPreview(FileManageModel file, out bool isPdf)
+    private IActionResult? EnsureCanPreview(FileManage file, out bool isPdf)
     {
         // 宣告變數：檢查是否可預覽
         var canPreview = GetFileBiz().CheckFileCanPreview(file, out isPdf);
@@ -216,7 +216,7 @@ public class FileManagementController(IWebHostEnvironment Env) : ApiDataControll
     /// <summary>
     /// 建立實體檔案路徑
     /// </summary>
-    private string BuildPhysicalPath(FileManageModel file)
+    private string BuildPhysicalPath(FileManage file)
     {
         var ext = (file.FileExtension ?? string.Empty).Trim().TrimStart('.');
         return Path.Combine(Env.ContentRootPath, file.Path ?? string.Empty, $"{file.InternalId}.{ext}");
@@ -224,7 +224,7 @@ public class FileManagementController(IWebHostEnvironment Env) : ApiDataControll
     /// <summary>
     /// 建立回傳給瀏覽器的檔名
     /// </summary>
-    private string BuildFileName(FileManageModel file, string? fileName)
+    private string BuildFileName(FileManage file, string? fileName)
     {
         var ext = (file.FileExtension ?? string.Empty).Trim().TrimStart('.');
         var baseName = string.IsNullOrWhiteSpace(file.FileName) ? file.InternalId : file.FileName.Trim();
@@ -235,7 +235,7 @@ public class FileManagementController(IWebHostEnvironment Env) : ApiDataControll
     /// <summary>
     /// 補正 Content-Type
     /// </summary>
-    private string ResolveContentType(FileManageModel file, string safeFileName)
+    private string ResolveContentType(FileManage file, string safeFileName)
     {
         // 宣告變數：先取既有 MimeType
         var contentType = file.MimeType;
@@ -251,7 +251,7 @@ public class FileManagementController(IWebHostEnvironment Env) : ApiDataControll
     /// <summary>
     /// 設定預覽 Header
     /// </summary>
-    private void ApplyPreviewHeaders(FileManageModel file, string safeFileName, bool isPublic)
+    private void ApplyPreviewHeaders(FileManage file, string safeFileName, bool isPublic)
     {
         // 執行 function：設定快取 Header
         if (!string.IsNullOrWhiteSpace(file.FileSHA256)) Response.Headers.ETag = $"W/\"{file.FileSHA256}\"";
@@ -271,7 +271,7 @@ public class FileManagementController(IWebHostEnvironment Env) : ApiDataControll
     /// <summary>
     /// 建立下載回應
     /// </summary>
-    private IActionResult BuildDownloadResult(FileManageModel file, string? fileName)
+    private IActionResult BuildDownloadResult(FileManage file, string? fileName)
     {
         var physicalPath = BuildPhysicalPath(file);
         var downloadFileName = BuildFileName(file, fileName);
@@ -281,7 +281,7 @@ public class FileManagementController(IWebHostEnvironment Env) : ApiDataControll
     /// <summary>
     /// 建立預覽回應
     /// </summary>
-    private IActionResult BuildPreviewResult(FileManageModel file, string? fileName, bool isPublic)
+    private IActionResult BuildPreviewResult(FileManage file, string? fileName, bool isPublic)
     {
         // 宣告變數：建立回應內容
         var physicalPath = BuildPhysicalPath(file);
@@ -300,7 +300,7 @@ public class FileManagementController(IWebHostEnvironment Env) : ApiDataControll
     /// <summary>
     /// 判斷是否為 PDF 檔案
     /// </summary>
-    private bool IsPdfFile(FileManageModel file)
+    private bool IsPdfFile(FileManage file)
     {
         // 宣告變數：整理副檔名
         var ext = (file.FileExtension ?? string.Empty).Trim().TrimStart('.');

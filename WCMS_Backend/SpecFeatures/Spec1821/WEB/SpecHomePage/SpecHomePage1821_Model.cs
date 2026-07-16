@@ -12,7 +12,7 @@ namespace WCMS.SpecFeatures.Spec1821.WEB.SpecHomePage;
 /// <summary>
 /// 1821 招生首頁基礎設定
 /// </summary>
-public class SpecHomePage1821Model : MasterDataModel
+public class SpecHomePage1821 : MasterDataModel
 {
 [LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, SpecDisplayName.HomePageId)]
 public string HomePageId { get; set; } = string.Empty;
@@ -29,7 +29,7 @@ public string Card1Title { get; set; } = string.Empty;
 public string Card1Link { get; set; } = string.Empty;
 [ForeignKey(nameof(Card1PicId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public FileManageModel? Card1Pic { get; set; }
+public FileManage? Card1Pic { get; set; }
 [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.InternalId, SpecDisplayName.Card1PicId)]
 public string? Card1PicId { get; set; }
 
@@ -39,7 +39,7 @@ public string Card2Title { get; set; } = string.Empty;
 public string Card2Link { get; set; } = string.Empty;
 [ForeignKey(nameof(Card2PicId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public FileManageModel? Card2Pic { get; set; }
+public FileManage? Card2Pic { get; set; }
 [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.InternalId, SpecDisplayName.Card2PicId)]
 public string? Card2PicId { get; set; }
 
@@ -79,7 +79,7 @@ public string Title { get; set; } = string.Empty;
 public string SubTitle { get; set; } = string.Empty;
 [ForeignKey(nameof(BannerFileId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public FileManageModel? BannerFile { get; set; }
+public FileManage? BannerFile { get; set; }
 [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.InternalId, SpecDisplayName.BannerFileId)]
 public string? BannerFileId { get; set; }
 [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title_en, SpecDisplayName.BannerFileDescription)]
@@ -90,7 +90,7 @@ public string Link { get; set; } = string.Empty;
     #region 主子表關聯
 [ForeignKey(nameof(HomePageId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public SpecHomePage1821Model _SpecHomePage1821 { get; set; }
+public SpecHomePage1821 _SpecHomePage1821 { get; set; }
     #endregion
 }
 
@@ -113,7 +113,7 @@ public string Title { get; set; } = string.Empty;
 public string SubTitle { get; set; } = string.Empty;
 [ForeignKey(nameof(IconFileId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public FileManageModel? IconFile { get; set; }
+public FileManage? IconFile { get; set; }
 [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.InternalId, SpecDisplayName.IconFileId)]
 public string? IconFileId { get; set; }
 [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title_en, SpecDisplayName.IconFileDescription)]
@@ -128,14 +128,14 @@ public bool IsLink { get; set; }
 public string Link { get; set; } = string.Empty;
 [ForeignKey(nameof(LinkPicId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public FileManageModel? LinkPic { get; set; }
+public FileManage? LinkPic { get; set; }
 [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.InternalId, SpecDisplayName.LinkPicId)]
 public string? LinkPicId { get; set; }
 
     #region 主子表關聯
 [ForeignKey(nameof(HomePageId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public SpecHomePage1821Model _SpecHomePage1821 { get; set; }
+public SpecHomePage1821 _SpecHomePage1821 { get; set; }
 [InverseProperty(nameof(SpecHomePage1821_ShortcutModuleItem._SpecHomePage1821_Shortcut))]
 [LibField(ApiFieldMode.ReadWrite)]
 public List<SpecHomePage1821_ShortcutModuleItem> _SpecHomePage1821_ShortcutModuleItem { get; set; } = [];

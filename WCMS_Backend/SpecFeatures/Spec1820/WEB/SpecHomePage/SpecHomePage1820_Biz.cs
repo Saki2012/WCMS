@@ -6,7 +6,7 @@ using WCMS.SysCore.FeatureDriver.Biz;
 namespace WCMS.SpecFeatures.Spec1820.WEB.SpecHomePage;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.HomePageSetting)]
-public class SpecHomePage1820_Biz(BizDeps bizDeps, IHttpClientFactory httpClientFactory, IMemoryCache memoryCache) : BizService<SpecHomePage1820Model>(bizDeps), IBizService<SpecHomePage1820Model>
+public class SpecHomePage1820_Biz(BizDeps bizDeps, IHttpClientFactory httpClientFactory, IMemoryCache memoryCache) : BizService<SpecHomePage1820>(bizDeps), IBizService<SpecHomePage1820>
 {
     #region Property
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;

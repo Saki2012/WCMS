@@ -10,7 +10,7 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.Features.WEB.SiteMenuSetting;
 
 [LibApiController(ProgKeys.WEB.Code, ProgKeys.WEB.SiteMenu, FuncAction.MasterData)]
-public class SiteMenuController : ApiDataController<SiteMenu_IndexModel>
+public class SiteMenuController : ApiDataController<SiteMenu_Index>
 {
     #region Public
     /// <summary>
@@ -21,7 +21,7 @@ public class SiteMenuController : ApiDataController<SiteMenu_IndexModel>
     {
         SaveMenuStructure_DTO? request = data.Data;
         if (request == null) return BadRequest("Request data is required.");
-        OperateLogModel operateLog = CreateOperateLog(nameof(SaveMenuStructure), request);
+        OperateLog operateLog = CreateOperateLog(nameof(SaveMenuStructure), request);
         SaveMenuStructure_DTO result = await ((SiteMenuBiz)Service).SaveMenuStructureAsync(request, ct);
         await EvictForDataAsync(ct, request.InternalId);
         return BuildResponse(result, operateLog, ct);
@@ -35,7 +35,7 @@ public class SiteMenuController : ApiDataController<SiteMenu_IndexModel>
     {
         SaveMenuItem_DTO? request = data.Data;
         if (request == null) return BadRequest("Request data is required.");
-        OperateLogModel operateLog = CreateOperateLog(nameof(SaveMenuItem), request);
+        OperateLog operateLog = CreateOperateLog(nameof(SaveMenuItem), request);
         SaveMenuItemResult_DTO result = await ((SiteMenuBiz)Service).SaveMenuItemAsync(request, ct);
         await EvictForDataAsync(ct, request.InternalId);
         return BuildResponse(result, operateLog, ct);
@@ -48,7 +48,7 @@ public class SiteMenuController : ApiDataController<SiteMenu_IndexModel>
     {
         SaveSiteInfo_DTO? request = data.Data;
         if (request == null) return BadRequest("Request data is required.");
-        OperateLogModel operateLog = CreateOperateLog(nameof(SaveSiteInfo), request);
+        OperateLog operateLog = CreateOperateLog(nameof(SaveSiteInfo), request);
         await SaveSiteInfoAsync(request, ct);
         await EvictForDataAsync(ct, request.InternalId);
         return BuildResponse(request, operateLog, ct);
@@ -61,13 +61,13 @@ public class SiteMenuController : ApiDataController<SiteMenu_IndexModel>
     /// </summary>
     private async Task SaveSiteInfoAsync(SaveSiteInfo_DTO request, CancellationToken ct)
     {
-        SiteMenu_IndexModel index = request.SiteMenu_Index;
+        SiteMenu_Index index = request.SiteMenu_Index;
         await ((SiteMenuBiz)Service).SaveSiteInfoAsync(request.InternalId,index.GoogleAnalytics,index.Enable,index.DefaultLang,index.SupportLangs,request.SiteMenu_IndexInfo,ct);
     }
     /// <summary>
     /// 建立操作日誌。
     /// </summary>
-    private OperateLogModel CreateOperateLog(string actionName, object request)
+    private OperateLog CreateOperateLog(string actionName, object request)
     {
         string apiName = $"{Service.ProgId}/{actionName}";
         string content = JsonConvert.SerializeObject(request);
@@ -77,7 +77,7 @@ public class SiteMenuController : ApiDataController<SiteMenu_IndexModel>
     /// <summary>
     /// 建立 API 回應並更新操作結果。
     /// </summary>
-    private IActionResult BuildResponse<T>(T result, OperateLogModel operateLog, CancellationToken ct)
+    private IActionResult BuildResponse<T>(T result, OperateLog operateLog, CancellationToken ct)
     {
         if (ct == CancellationToken.None) operateLog.ExcStatus = ExcStatus.CancelExc;
         var response = new ApiResponse<T> { Data = [result], SysMessage = Message.Messages };

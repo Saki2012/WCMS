@@ -6,7 +6,7 @@ namespace WCMS.Features.IAM.RolePermission;
 public class RolePermissionBiz(
     BizDeps bizDeps,
     RolePermissionCatalogCache catalogCache,
-    IPermissionCache permissionCache) : BizService<RoleDataModel>(bizDeps), IBizService<RoleDataModel>
+    IPermissionCache permissionCache) : BizService<RoleData>(bizDeps), IBizService<RoleData>
 {
     #region Property
     private RolePermissionCatalogCache CatalogCache { get; } = catalogCache;
@@ -42,7 +42,7 @@ public class RolePermissionBiz(
     /// <summary>
     /// 角色權限異動完成但尚未提交時，記錄所有受影響帳號。
     /// </summary>
-    protected override async Task AfterUpdate(RoleDataModel? oldSet, RoleDataModel? newSet, FuncAction act, TransStatus status, CancellationToken ct = default)
+    protected override async Task AfterUpdate(RoleData? oldSet, RoleData? newSet, FuncAction act, TransStatus status, CancellationToken ct = default)
     {
         await base.AfterUpdate(oldSet, newSet, act, status, ct);
         string[] roleIds = ResolveAffectedRoleIds(oldSet, newSet);
@@ -64,7 +64,7 @@ public class RolePermissionBiz(
     /// <summary>
     /// 合併角色權限異動前後可能影響的角色代號。
     /// </summary>
-    private static string[] ResolveAffectedRoleIds(RoleDataModel? oldSet, RoleDataModel? newSet)
+    private static string[] ResolveAffectedRoleIds(RoleData? oldSet, RoleData? newSet)
     {
         return [.. new[] { oldSet?.RoleId, newSet?.RoleId }.Where(id => !string.IsNullOrWhiteSpace(id)).Select(id => id!).Distinct(StringComparer.OrdinalIgnoreCase)];
     }

@@ -11,7 +11,7 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.Features.WEB.SiteMenuSetting;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.SiteMenu)]
-public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizDeps), IBizService<SiteMenu_IndexModel>
+public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_Index>(bizDeps), IBizService<SiteMenu_Index>
 {
     #region Property
     protected override bool IsAutoGenerateId { get; set; } = false;
@@ -21,7 +21,7 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     /// <summary>
     /// 保存更新網站基本資訊
     /// </summary>
-    public async Task SaveSiteInfoAsync(string internalId, string? googleAnalytics, bool enable, LangCode? defaultLang, string? supportLangs, List<SiteMenu_IndexInfoModel> infos, CancellationToken ct = default)
+    public async Task SaveSiteInfoAsync(string internalId, string? googleAnalytics, bool enable, LangCode? defaultLang, string? supportLangs, List<SiteMenu_IndexInfo> infos, CancellationToken ct = default)
     {
         await ExecTransactionAsync<object>(
             async _ =>
@@ -103,7 +103,7 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     #endregion
 
     #region Protected Virtual
-    protected override async Task BeforeUpdate(SiteMenu_IndexModel set, FuncAction act, CancellationToken ct = default)
+    protected override async Task BeforeUpdate(SiteMenu_Index set, FuncAction act, CancellationToken ct = default)
     {
         await base.BeforeUpdate(set, act, ct);
         switch (act)
@@ -120,7 +120,7 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     /// <summary>
     /// 套用完整更新與個別更新共用的檢查與賦值規則
     /// </summary>
-    protected void ApplyUpdateRules(SiteMenu_IndexModel set)
+    protected void ApplyUpdateRules(SiteMenu_Index set)
     {
         CheckBasicRules(set);
         if (Message.HasError) return;
@@ -132,7 +132,7 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     /// <summary>
     /// 設定選單衍生資料
     /// </summary>
-    protected void SetData(SiteMenu_IndexModel set)
+    protected void SetData(SiteMenu_Index set)
     {
         SetItemFullUrl(set);
     }
@@ -149,10 +149,10 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     /// <summary>
     /// 查詢站台主資料
     /// </summary>
-    private async Task<SiteMenu_IndexModel?> QuerySiteMenuIndexAsync(string internalId, CancellationToken ct = default)
+    private async Task<SiteMenu_Index?> QuerySiteMenuIndexAsync(string internalId, CancellationToken ct = default)
     {
-        var data = await DoQueryListAsync<SiteMenu_IndexModel>([], $"{nameof(HeaderModel.InternalId)} = '{SqlValue(internalId)}'", default, 0, 1);
-        return data.Cast<SiteMenu_IndexModel>().FirstOrDefault();
+        var data = await DoQueryListAsync<SiteMenu_Index>([], $"{nameof(HeaderModel.InternalId)} = '{SqlValue(internalId)}'", default, 0, 1);
+        return data.Cast<SiteMenu_Index>().FirstOrDefault();
     }
     /// <summary>
     /// 查詢站台所有選單項目
@@ -205,7 +205,7 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     /// <summary>
     /// 保存新增選單項目
     /// </summary>
-    private async Task<SaveMenuItemResult_DTO> SaveNewMenuItemAsync(SiteMenu_IndexModel oldIndex, SaveMenuItem_DTO request, CancellationToken ct = default)
+    private async Task<SaveMenuItemResult_DTO> SaveNewMenuItemAsync(SiteMenu_Index oldIndex, SaveMenuItem_DTO request, CancellationToken ct = default)
     {
         var oldItems = await QuerySiteMenuItemsAsync(oldIndex.SiteIndex, ct);
         var oldTitles = await QuerySiteMenuItemTitlesAsync(oldIndex.SiteIndex, null, ct);
@@ -231,7 +231,7 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     /// <summary>
     /// 保存既有選單項目
     /// </summary>
-    private async Task<SaveMenuItemResult_DTO> SaveExistingMenuItemAsync(SiteMenu_IndexModel oldIndex, SaveMenuItem_DTO request, CancellationToken ct = default)
+    private async Task<SaveMenuItemResult_DTO> SaveExistingMenuItemAsync(SiteMenu_Index oldIndex, SaveMenuItem_DTO request, CancellationToken ct = default)
     {
         var oldItem = await QuerySiteMenuItemAsync(oldIndex.SiteIndex, request.RowId!.Value, ct);
         if (oldItem == null) return new SaveMenuItemResult_DTO();
@@ -243,7 +243,7 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     /// <summary>
     /// 保存既有選單項目，不重算結構
     /// </summary>
-    private async Task<SaveMenuItemResult_DTO> SaveExistingMenuItemWithoutStructureAsync(SiteMenu_IndexModel oldIndex, SiteMenu_Item oldItem, SaveMenuItem_DTO request, CancellationToken ct = default)
+    private async Task<SaveMenuItemResult_DTO> SaveExistingMenuItemWithoutStructureAsync(SiteMenu_Index oldIndex, SiteMenu_Item oldItem, SaveMenuItem_DTO request, CancellationToken ct = default)
     {
         var newItem = oldItem.Snapshot();
         ApplyMenuItemContent(newItem, request);
@@ -260,7 +260,7 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     /// <summary>
     /// 保存既有選單項目，重算自身與子層完整網址
     /// </summary>
-    private async Task<SaveMenuItemResult_DTO> SaveExistingMenuItemWithUrlChangedAsync(SiteMenu_IndexModel oldIndex, SiteMenu_Item oldItem, SaveMenuItem_DTO request, CancellationToken ct = default)
+    private async Task<SaveMenuItemResult_DTO> SaveExistingMenuItemWithUrlChangedAsync(SiteMenu_Index oldIndex, SiteMenu_Item oldItem, SaveMenuItem_DTO request, CancellationToken ct = default)
     {
         var oldItems = await QuerySiteMenuItemsAsync(oldIndex.SiteIndex, ct);
         var oldTitles = await QuerySiteMenuItemTitlesAsync(oldIndex.SiteIndex, null, ct);
@@ -283,7 +283,7 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     /// <summary>
     /// 套用站台主表欄位
     /// </summary>
-    private void ApplySiteInfoIndex(SiteMenu_IndexModel target, string? googleAnalytics, bool enable, LangCode? defaultLang, string? supportLangs)
+    private void ApplySiteInfoIndex(SiteMenu_Index target, string? googleAnalytics, bool enable, LangCode? defaultLang, string? supportLangs)
     {
         target.GoogleAnalytics = googleAnalytics ?? "";
         target.Enable = enable;
@@ -295,7 +295,7 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     /// <summary>
     /// 更新 SiteMenu_IndexInfo 多語系資料
     /// </summary>
-    private async Task SaveSiteMenuIndexInfoAsync(string siteIndex, List<SiteMenu_IndexInfoModel> infos, CancellationToken ct = default)
+    private async Task SaveSiteMenuIndexInfoAsync(string siteIndex, List<SiteMenu_IndexInfo> infos, CancellationToken ct = default)
     {
         var oldInfos = await QuerySiteMenuIndexInfosAsync(siteIndex, ct);
         foreach (var source in infos ?? []) await UpsertSiteMenuIndexInfoAsync(siteIndex, oldInfos, source, ct);
@@ -304,16 +304,16 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     /// <summary>
     /// 查詢站台多語系資料
     /// </summary>
-    private async Task<List<SiteMenu_IndexInfoModel>> QuerySiteMenuIndexInfosAsync(string siteIndex, CancellationToken ct = default)
+    private async Task<List<SiteMenu_IndexInfo>> QuerySiteMenuIndexInfosAsync(string siteIndex, CancellationToken ct = default)
     {
-        var data = await DoQueryListAsync<SiteMenu_IndexInfoModel>([], $"{nameof(SiteMenu_IndexInfoModel.SiteIndex)} = '{SqlValue(siteIndex)}'", default, 0, 0);
-        return data.Cast<SiteMenu_IndexInfoModel>().ToList();
+        var data = await DoQueryListAsync<SiteMenu_IndexInfo>([], $"{nameof(SiteMenu_IndexInfo.SiteIndex)} = '{SqlValue(siteIndex)}'", default, 0, 0);
+        return data.Cast<SiteMenu_IndexInfo>().ToList();
     }
 
     /// <summary>
     /// 新增或更新單筆站台多語系資料
     /// </summary>
-    private async Task UpsertSiteMenuIndexInfoAsync(string siteIndex, List<SiteMenu_IndexInfoModel> oldInfos, SiteMenu_IndexInfoModel source, CancellationToken ct = default)
+    private async Task UpsertSiteMenuIndexInfoAsync(string siteIndex, List<SiteMenu_IndexInfo> oldInfos, SiteMenu_IndexInfo source, CancellationToken ct = default)
     {
         source.SiteIndex = siteIndex;
 
@@ -332,7 +332,7 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     /// <summary>
     /// 取得站台多語下一個 RowId
     /// </summary>
-    private int ResolveNextIndexInfoRowId(List<SiteMenu_IndexInfoModel> oldInfos)
+    private int ResolveNextIndexInfoRowId(List<SiteMenu_IndexInfo> oldInfos)
     {
         return oldInfos.Count == 0 ? 1 : oldInfos.Max(x => x.RowId) + 1;
     }
@@ -340,7 +340,7 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     /// <summary>
     /// 套用站台多語系欄位
     /// </summary>
-    private void ApplySiteMenuIndexInfo(SiteMenu_IndexInfoModel target, SiteMenu_IndexInfoModel source)
+    private void ApplySiteMenuIndexInfo(SiteMenu_IndexInfo target, SiteMenu_IndexInfo source)
     {
         target.Title = source.Title;
         target.SiteHeader = source.SiteHeader;
@@ -353,10 +353,10 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     /// <summary>
     /// 建立選單檢查用表單資料
     /// </summary>
-    private SiteMenu_IndexModel BuildMenuCheckData(List<SiteMenu_Item> items, List<SiteMenu_Item_Title> titles)
+    private SiteMenu_Index BuildMenuCheckData(List<SiteMenu_Item> items, List<SiteMenu_Item_Title> titles)
     {
         foreach (SiteMenu_Item item in items) item._SiteMenu_Item_Title = titles.Where(x => x.ItemRowId == item.RowId).ToList();
-        return new SiteMenu_IndexModel { _SiteMenu_Item = items };
+        return new SiteMenu_Index { _SiteMenu_Item = items };
     }
 
     /// <summary>
@@ -476,7 +476,7 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     /// <summary>
     /// 取得表單 Graph 內所有選單標題。
     /// </summary>
-    private static List<SiteMenu_Item_Title> GetMenuTitles(SiteMenu_IndexModel data)
+    private static List<SiteMenu_Item_Title> GetMenuTitles(SiteMenu_Index data)
     {
         return data._SiteMenu_Item.SelectMany(x => x._SiteMenu_Item_Title).ToList();
     }
@@ -484,7 +484,7 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     /// <summary>
     /// 檢查基本欄位
     /// </summary>
-    private void CheckBasicRules(SiteMenu_IndexModel set)
+    private void CheckBasicRules(SiteMenu_Index set)
     {
         foreach (var item in set._SiteMenu_Item) CheckMenuItemBasicRules(item);
         foreach (var title in GetMenuTitles(set)) CheckMenuTitleRules(title);
@@ -522,7 +522,7 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     /// <summary>
     /// 檢查衍生欄位規則
     /// </summary>
-    private void CheckComputedRules(SiteMenu_IndexModel set)
+    private void CheckComputedRules(SiteMenu_Index set)
     {
         CheckReservedFullUrl(set);
         CheckFullUrlDuplicate(set);
@@ -531,7 +531,7 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     /// <summary>
     /// 檢查保留網址
     /// </summary>
-    private void CheckReservedFullUrl(SiteMenu_IndexModel set)
+    private void CheckReservedFullUrl(SiteMenu_Index set)
     {
         foreach (var item in set._SiteMenu_Item)
         {
@@ -544,7 +544,7 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     /// <summary>
     /// 重算選單完整網址
     /// </summary>
-    private void SetItemFullUrl(SiteMenu_IndexModel set)
+    private void SetItemFullUrl(SiteMenu_Index set)
     {
         if (set._SiteMenu_Item.Count == 0) return;
         ResetMenuLevel(set._SiteMenu_Item);
@@ -591,7 +591,7 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     /// <summary>
     /// 檢查 FullUrl 是否重複
     /// </summary>
-    private void CheckFullUrlDuplicate(SiteMenu_IndexModel set)
+    private void CheckFullUrlDuplicate(SiteMenu_Index set)
     {
         HashSet<string> fullUrls = new(StringComparer.OrdinalIgnoreCase);
         foreach (var item in set._SiteMenu_Item.OrderBy(x => x.Level).ThenBy(x => x.DisplayOrder))
@@ -744,7 +744,7 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     /// <summary>
     /// 更新站台修改資訊
     /// </summary>
-    private async Task TouchSiteMenuIndexAsync(SiteMenu_IndexModel oldIndex, CancellationToken ct = default)
+    private async Task TouchSiteMenuIndexAsync(SiteMenu_Index oldIndex, CancellationToken ct = default)
     {
         var newIndex = oldIndex.Snapshot();
         SetModifyInfo(newIndex);
@@ -822,7 +822,7 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     private async Task CreateModelAsync<TDbModel>(TDbModel model, CancellationToken ct = default) where TDbModel : DbModel
     {
         ct.ThrowIfCancellationRequested();
-        await GraphRepo.GetRepo<TDbModel>().CreateAsync(model);
+        await GraphRepo.GetRepo<TDbModel>().CreateAsync(model, ct);
     }
     /// <summary>
     /// 更新資料
@@ -830,7 +830,7 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     private async Task UpdateModelAsync<TDbModel>(TDbModel oldModel, TDbModel newModel, CancellationToken ct = default) where TDbModel : DbModel
     {
         ct.ThrowIfCancellationRequested();
-        await GraphRepo.GetRepo<TDbModel>().UpdateAsync(oldModel, newModel);
+        await GraphRepo.GetRepo<TDbModel>().UpdateAsync(oldModel, newModel, ct);
     }
     /// <summary>
     /// 刪除資料
@@ -838,7 +838,7 @@ public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_IndexModel>(bizD
     private async Task DeleteModelAsync<TDbModel>(TDbModel model, CancellationToken ct = default) where TDbModel : DbModel
     {
         ct.ThrowIfCancellationRequested();
-        await GraphRepo.GetRepo<TDbModel>().DeleteAsync(model);
+        await GraphRepo.GetRepo<TDbModel>().DeleteAsync(model, ct);
     }
     /// <summary>
     /// SQL 字串值防呆

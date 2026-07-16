@@ -9,7 +9,7 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.Features.COMM.Person;
 
 [LibApiController(ProgKeys.COMM.Code, ProgKeys.COMM.Person, FuncAction.MasterData)]
-public class PersonController : ApiDataController<PersonModel>
+public class PersonController : ApiDataController<Person>
 {
     #region Property
     private const string SysOperator = nameof(SysOperator);
@@ -29,6 +29,6 @@ public class PersonController : ApiDataController<PersonModel>
     /// 過濾系統使用者
     /// </summary>
     /// <param name="srcCdt"></param>
-    private static string FiltSystemUser(string srcCdt) => LibData.Merge(SysParam.QueryOperators.And, false, srcCdt, $@"{nameof(PersonModel.PersonId)} Not In {SysOperator},{Admin}");
+    private static string FiltSystemUser(string srcCdt) => LibData.Merge(SysParam.QueryOperators.And, false, srcCdt, $@"{nameof(Person.PersonId)} Not In {SysOperator},{Admin}");
     #endregion
 }

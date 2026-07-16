@@ -9,14 +9,14 @@ namespace WCMS.Features.WEB.SiteViewCount;
 
 /// 站台瀏覽次數
 /// </summary>
-public class SiteViewCountHeaderModel : HeaderModel
+public class SiteViewCountHeader : HeaderModel
 {
     /// <summary>
     /// 站台代碼(主站可為空字串)
     /// </summary>
     [ForeignKey(nameof(SiteIndex))]
     [LibField(ApiFieldMode.ReadOnly)]
-    public SiteMenu_IndexModel? SiteMenu_Index { get; set; }
+    public SiteMenu_Index? SiteMenu_Index { get; set; }
     [Key, StringLength(DbStrLen.ID)]
     [LibField(ApiFieldMode.ReadOnly)]
     public string SiteIndex { get; set; } = string.Empty;
@@ -30,22 +30,19 @@ public class SiteViewCountHeaderModel : HeaderModel
     /// <summary>
     /// 該站台底下所有 Detail 統計資料
     /// </summary>
-    [InverseProperty(nameof(SiteViewCountDetailModel._SiteViewCountHeader))]
+    [InverseProperty(nameof(SiteViewCountDetail._SiteViewCountHeader))]
     [LibField(ApiFieldMode.ReadWrite)]
-    public List<SiteViewCountDetailModel> _SiteViewCountDetail { get; set; } = [];
+    public List<SiteViewCountDetail> _SiteViewCountDetail { get; set; } = [];
     #endregion
 }
 /// <summary>
 /// 頁面/公告/功能內容瀏覽次數
 /// </summary>
-public class SiteViewCountDetailModel : DetailModel
+public class SiteViewCountDetail : DetailModel
 {
     /// <summary>
     /// 站台代碼(主站可為空字串)
     /// </summary>
-    [ForeignKey(nameof(SiteIndex))]
-    [LibField(ApiFieldMode.ReadOnly)]
-    public SiteMenu_IndexModel? SiteMenu_Index { get; set; }
     [Key, Required, StringLength(DbStrLen.ID)]
     [LibField(ApiFieldMode.ReadOnly)]
     public string SiteIndex { get; set; } = string.Empty;
@@ -88,7 +85,7 @@ public class SiteViewCountDetailModel : DetailModel
     /// </summary>
     [ForeignKey(nameof(SiteIndex))]
     [LibField(ApiFieldMode.ReadOnly)]
-    public SiteViewCountHeaderModel _SiteViewCountHeader { get; set; } = null!;
+    public SiteViewCountHeader _SiteViewCountHeader { get; set; } = null!;
     #endregion
 }
 /// <summary>
@@ -97,14 +94,14 @@ public class SiteViewCountDetailModel : DetailModel
 /// 直接獨立一張表來記錄最近的計次紀錄，定期清理過期紀錄即可
 /// </summary>
 [Index(nameof(LastViewTime), Name = "IX_ViewCountRecently_LastViewTime")]
-public class SiteViewCountRecentlyModel : DetailModel
+public class SiteViewCountRecently : DetailModel
 {
     /// <summary>
     /// 站台代碼(主站可為空字串)
     /// </summary>
     [ForeignKey(nameof(SiteIndex))]
     [LibField(ApiFieldMode.ReadOnly)]
-    public SiteMenu_IndexModel? SiteMenu_Index { get; set; }
+    public SiteMenu_Index? SiteMenu_Index { get; set; }
     [Key, Required, StringLength(DbStrLen.ID)]
     [LibField(ApiFieldMode.ReadOnly)]
     public string SiteIndex { get; set; } = string.Empty;

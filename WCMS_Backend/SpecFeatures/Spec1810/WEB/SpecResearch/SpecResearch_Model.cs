@@ -11,11 +11,11 @@ namespace WCMS.SpecFeatures.Spec1810.WEB.SpecResearch;
 public class SpecResearchSet:ITSet
 {
     [LibField(ApiFieldMode.ReadWrite)]
-    public SpecResearchModel SpecResearch { get; set; }= new();
+    public SpecResearch SpecResearch { get; set; }= new();
     [LibField(ApiFieldMode.ReadWrite)]
-    public List<SpecResearchDetailModel> SpecResearchDetail { get; set; }= [];
+    public List<SpecResearchDetail> SpecResearchDetail { get; set; }= [];
 }
-public class SpecResearchModel : MasterDataModel
+public class SpecResearch : MasterDataModel
 {
     /// <summary>
     /// 橫幅ID
@@ -40,12 +40,12 @@ public string CategoryId { get; set; } = string.Empty;
 public string Tags { get; set; }= string.Empty;
 
     #region 主子表關聯
-[InverseProperty(nameof(SpecResearchDetailModel._SpecResearch))]
+[InverseProperty(nameof(SpecResearchDetail._SpecResearch))]
 [LibField(ApiFieldMode.ReadWrite)]
-public List<SpecResearchDetailModel> _SpecResearchDetail { get; set; } = [];
+public List<SpecResearchDetail> _SpecResearchDetail { get; set; } = [];
     #endregion
 }
-public class SpecResearchDetailModel : DetailRowModel
+public class SpecResearchDetail : DetailRowModel
 {
 [Key]
 [LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, SpecDisplayName.SpecResearchId)]
@@ -111,6 +111,6 @@ public string Professor { get; set; } = string.Empty;
     #region 主子表關聯
 [ForeignKey(nameof(ResearchId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public SpecResearchModel _SpecResearch { get; set; }
+public SpecResearch _SpecResearch { get; set; }
     #endregion
 }

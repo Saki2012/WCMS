@@ -24,7 +24,7 @@ public sealed class OldDataMigrationController(OldDataMigrationService migration
     [HttpPost(nameof(Migration)), LocalhostOnly]
     public async Task<IActionResult> Migration(string labelTag = OldDataMigrationSource.DefaultImportLabel, CancellationToken ct = default)
     {
-        OperateLogModel followInfo = new()
+        OperateLog followInfo = new()
         {
             APIName = $"{SystemApiName}/{nameof(Migration)}",
             UserId = "SysOperator",

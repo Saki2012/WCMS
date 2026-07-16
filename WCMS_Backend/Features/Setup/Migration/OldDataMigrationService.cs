@@ -16,7 +16,7 @@ namespace WCMS.Features.Setup.Migration;
 /// 協調標準 Feature 舊資料與實體檔案的匯入順序。
 /// </summary>
 public sealed class OldDataMigrationService(
-    IBizService<FileManageModel> fileService,
+    IBizService<FileManage> fileService,
     IBizService<Announcement> announcementService,
     IBizService<Banner> bannerService,
     IBizService<Category> categoryService,
@@ -25,14 +25,14 @@ public sealed class OldDataMigrationService(
     IBizService<PageManagement> pageService,
     IBizService<TagData> tagService,
     IBizService<WebResource> webResourceService,
-    IBizService<SiteMenu_IndexModel> siteMenuService)
+    IBizService<SiteMenu_Index> siteMenuService)
 {
     #region Property
     /// <summary>
     /// 提供舊檔案壓縮包匯入能力的實體服務。
     /// </summary>
     private FileManagementBiz FileService => fileService as FileManagementBiz
-        ?? throw new InvalidOperationException($"{nameof(IBizService<FileManageModel>)} 必須由 {nameof(FileManagementBiz)} 實作。");
+        ?? throw new InvalidOperationException($"{nameof(IBizService<FileManage>)} 必須由 {nameof(FileManagementBiz)} 實作。");
     #endregion
 
     #region Public
@@ -41,7 +41,7 @@ public sealed class OldDataMigrationService(
     /// </summary>
     public async Task MigrateAsync(string importLabel, CancellationToken ct = default)
     {
-        IList<FileManageModel> sourceFiles = await ImportFilesAsync(importLabel, ct);
+        IList<FileManage> sourceFiles = await ImportFilesAsync(importLabel, ct);
         await MigrateFeatureDataAsync(sourceFiles, ct);
     }
     #endregion
@@ -50,26 +50,26 @@ public sealed class OldDataMigrationService(
     /// <summary>
     /// 匯入壓縮檔並讀取該批次的完整檔案資料。
     /// </summary>
-    private async Task<IList<FileManageModel>> ImportFilesAsync(string importLabel, CancellationToken ct)
+    private async Task<IList<FileManage>> ImportFilesAsync(string importLabel, CancellationToken ct)
     {
         await FileService.ImportZip(importLabel);
         QueryListParam param = new()
         {
-            Fields = [nameof(FileManageModel.InternalId)],
-            Condition = $"{nameof(FileManageModel.ImportLabel)} = {importLabel}",
+            Fields = [nameof(FileManage.InternalId)],
+            Condition = $"{nameof(FileManage.ImportLabel)} = {importLabel}",
         };
-        IList<FileManageModel> fileIds = await fileService.BizQueryListAsync(param, ct);
+        IList<FileManage> fileIds = await fileService.BizQueryListAsync(param, ct);
         return await LoadFilesAsync(fileIds, ct);
     }
     /// <summary>
     /// 依檔案 InternalId 讀取完整檔案 Graph。
     /// </summary>
-    private async Task<IList<FileManageModel>> LoadFilesAsync(IEnumerable<FileManageModel> fileIds, CancellationToken ct)
+    private async Task<IList<FileManage>> LoadFilesAsync(IEnumerable<FileManage> fileIds, CancellationToken ct)
     {
-        List<FileManageModel> result = [];
-        foreach (FileManageModel file in fileIds)
+        List<FileManage> result = [];
+        foreach (FileManage file in fileIds)
         {
-            FileManageModel data = await fileService.BizQueryDataAsync(file.InternalId, ct);
+            FileManage data = await fileService.BizQueryDataAsync(file.InternalId, ct);
             if (data != null) result.Add(data);
         }
         return result;
@@ -77,7 +77,7 @@ public sealed class OldDataMigrationService(
     /// <summary>
     /// 依既有順序匯入標準 Feature 資料。
     /// </summary>
-    private async Task MigrateFeatureDataAsync(IList<FileManageModel> sourceFiles, CancellationToken ct)
+    private async Task MigrateFeatureDataAsync(IList<FileManage> sourceFiles, CancellationToken ct)
     {
         await AnnouncementOldDataMigration.MigrateAsync(announcementService, sourceFiles, ct);
         await BannerOldDataMigration.MigrateAsync(bannerService, sourceFiles, ct);

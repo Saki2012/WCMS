@@ -19,9 +19,9 @@ public class SystemVersion
     {
         SystemVersion_DTO data = new()
         {
-            FeatVersion = 0,
-            ModelVersion = 0,
-            Patch = 6,
+            FeatVersion = 1,
+            ModelVersion = 1,
+            Patch = 0,
         };
         SetSpecVersion(data);
         string version = $@"1.{data.FeatVersion}.{data.ModelVersion}.{data.Patch}";

@@ -60,14 +60,14 @@ public interface IBizService<TFormModel> where TFormModel : class
     /// <summary>
     /// 啟用交易控制。
     /// </summary>
-    public Task<bool> TryBeginTransactionAsync();
+    public Task<bool> TryBeginTransactionAsync(CancellationToken ct = default);
     /// <summary>
     /// 回滾交易控制。
     /// </summary>
-    public Task TryRollbackAsync(bool ownsTx);
+    public Task TryRollbackAsync(bool ownsTx, CancellationToken ct = default);
     /// <summary>
     /// 提交交易控制。
     /// </summary>
-    public Task TryCommitAsync(bool ownsTx);
+    public Task TryCommitAsync(bool ownsTx, CancellationToken ct = default);
     #endregion
 }

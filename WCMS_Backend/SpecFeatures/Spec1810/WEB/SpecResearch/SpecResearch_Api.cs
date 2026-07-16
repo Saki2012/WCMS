@@ -4,4 +4,4 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.SpecFeatures.Spec1810.WEB.SpecResearch;
 
 [LibApiController(ProgKeys.WEB.Code, ProgKeys.Spec.SpecResearch, FuncAction.BillData)]
-public class SpecResearchController : ApiDataController<SpecResearchModel> { }
+public class SpecResearchController : ApiDataController<SpecResearch> { }

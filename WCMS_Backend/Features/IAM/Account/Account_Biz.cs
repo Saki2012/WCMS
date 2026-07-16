@@ -9,13 +9,13 @@ using WCMS.SysCore.Security.IdentityAccess.Authentication;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.Features.IAM.Account;
 
-public class AccountBiz(BizDeps bizDeps, IBizService<PersonModel> biz, IPermissionCache permissionCache) : BizService<AccountModel>(bizDeps), IBizService<AccountModel>
+public class AccountBiz(BizDeps bizDeps, IBizService<Person> biz, IPermissionCache permissionCache) : BizService<Account>(bizDeps), IBizService<Account>
 {
     #region Property
     /// <summary>
     /// 人員資料 Biz 服務。
     /// </summary>
-    protected IBizService<PersonModel> personBiz = biz;
+    protected IBizService<Person> personBiz = biz;
     /// <summary>
     /// 帳號主鍵由使用者指定，不自動產生。
     /// </summary>
@@ -46,7 +46,7 @@ public class AccountBiz(BizDeps bizDeps, IBizService<PersonModel> biz, IPermissi
     /// </summary>
     /// <param name="set"></param>
     /// <param name="dto"></param>
-    public static void ConvertPassword(AccountModel account, string password)
+    public static void ConvertPassword(Account account, string password)
     {
         (byte[] hash, byte[] salt, int ver) = PasswordHasher.Hash(password ?? "");
         account.PasswordHash = hash;
@@ -62,22 +62,22 @@ public class AccountBiz(BizDeps bizDeps, IBizService<PersonModel> biz, IPermissi
         bool ownsTx = false;
         try
         {
-            ownsTx = await TryBeginTransactionAsync();
+            ownsTx = await TryBeginTransactionAsync(ct);
             if (Message.HasError) return;
-            AccountModel oldSet = await DoQueryDataAsync(internalId);
+            Account oldSet = await DoQueryDataAsync(internalId, ct);
             var ok = PasswordHasher.Verify(oldPassword, oldSet.PasswordHash, oldSet.PasswordSalt, oldSet.PasswordAlgoVer);
             if (ok)
             {
-                AccountModel newSet = oldSet.Snapshot();
+                Account newSet = oldSet.Snapshot();
                 ConvertPassword(newSet, newPassword);
-                await DoUpdateAsync(oldSet, newSet);
+                await DoUpdateAsync(oldSet, newSet, ct);
                 if (Message.HasError) return;
             }
-            await TryCommitAsync(ownsTx);
+            await TryCommitAsync(ownsTx, ct);
         }
         catch
         {
-            await TryRollbackAsync(ownsTx);
+            await TryRollbackAsync(ownsTx, CancellationToken.None);
             throw;
         }
     }
@@ -90,18 +90,18 @@ public class AccountBiz(BizDeps bizDeps, IBizService<PersonModel> biz, IPermissi
         bool ownsTx = false;
         try
         {
-            ownsTx = await TryBeginTransactionAsync();
+            ownsTx = await TryBeginTransactionAsync(ct);
             if (Message.HasError) return;
-            AccountModel oldSet = await DoQueryDataAsync(internalId);
-            AccountModel newSet = oldSet.Snapshot();
+            Account oldSet = await DoQueryDataAsync(internalId, ct);
+            Account newSet = oldSet.Snapshot();
             ConvertPassword(newSet, newPassword);
-            await DoUpdateAsync(oldSet, newSet);
+            await DoUpdateAsync(oldSet, newSet, ct);
             if (Message.HasError) return;
-            await TryCommitAsync(ownsTx);
+            await TryCommitAsync(ownsTx, ct);
         }
         catch
         {
-            await TryRollbackAsync(ownsTx);
+            await TryRollbackAsync(ownsTx, CancellationToken.None);
             throw;
         }
     }
@@ -111,7 +111,7 @@ public class AccountBiz(BizDeps bizDeps, IBizService<PersonModel> biz, IPermissi
     /// <summary>
     /// 帳號新增或更新前執行欄位驗證與預設值整理。
     /// </summary>
-    protected override async Task BeforeUpdate(AccountModel set, FuncAction act, CancellationToken ct = default)
+    protected override async Task BeforeUpdate(Account set, FuncAction act, CancellationToken ct = default)
     {
         await base.BeforeUpdate(set, act, ct);
         switch (act)
@@ -126,7 +126,7 @@ public class AccountBiz(BizDeps bizDeps, IBizService<PersonModel> biz, IPermissi
     /// <summary>
     /// 帳號資料異動後處理人員建立、密碼保留與權限失效登記。
     /// </summary>
-    protected override async Task AfterUpdate(AccountModel? oldSet, AccountModel? newSet, FuncAction act, TransStatus status, CancellationToken ct = default)
+    protected override async Task AfterUpdate(Account? oldSet, Account? newSet, FuncAction act, TransStatus status, CancellationToken ct = default)
     {
         await base.AfterUpdate(oldSet, newSet, act, status, ct);
         switch (act)
@@ -155,16 +155,16 @@ public class AccountBiz(BizDeps bizDeps, IBizService<PersonModel> biz, IPermissi
     /// <summary>
     /// 驗證帳號必要欄位與人員編號唯一性。
     /// </summary>
-    protected async Task CheckData(AccountModel set, FuncAction act, CancellationToken ct = default)
+    protected async Task CheckData(Account set, FuncAction act, CancellationToken ct = default)
     {
-        if (set.AccountId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<AccountModel>(x => x.AccountId));
-        if (set.RoleId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<AccountModel>(x => x.RoleId));
+        if (set.AccountId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<Account>(x => x.AccountId));
+        if (set.RoleId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<Account>(x => x.RoleId));
         await CheckPersonIdIsUniqueAsync(set, act, ct);
     }
     /// <summary>
     /// 補齊帳號的人員編號與顯示名稱。
     /// </summary>
-    protected void SetData(AccountModel set)
+    protected void SetData(Account set)
     {
         if (set.PersonId.IsNullOrEmpty()) set.PersonId = set.AccountId;
         if (set.AccountName.IsNullOrEmpty()) set.AccountName = set.Person?.PersonName ?? string.Empty;
@@ -175,7 +175,7 @@ public class AccountBiz(BizDeps bizDeps, IBizService<PersonModel> biz, IPermissi
     /// <summary>
     /// 記錄本次帳號異動完成後需要失效權限的使用者。
     /// </summary>
-    private void TrackPermissionInvalidation(AccountModel? oldSet, AccountModel? newSet, FuncAction action)
+    private void TrackPermissionInvalidation(Account? oldSet, Account? newSet, FuncAction action)
     {
         string? userId = action == FuncAction.Delete ? oldSet?.AccountId : newSet?.AccountId ?? oldSet?.AccountId;
         if (!string.IsNullOrWhiteSpace(userId)) PendingPermissionUserIds.Add(userId);
@@ -186,9 +186,9 @@ public class AccountBiz(BizDeps bizDeps, IBizService<PersonModel> biz, IPermissi
     /// </summary>
     private async Task AutoCreatePersonData(string personId, string personName, CancellationToken ct)
     {
-        if (await personBiz.BizQueryTotalCounts($"{nameof(PersonModel.PersonId)} = {personId}", ct) == 0)
+        if (await personBiz.BizQueryTotalCounts($"{nameof(Person.PersonId)} = {personId}", ct) == 0)
         {
-            await personBiz.BizCreateDataAsync(new PersonModel() { PersonId = personId, PersonName = personName, Gender = Gender.NotKnown, Email = string.Empty, MobilePhone = string.Empty, HomePhone = string.Empty, }, ct);
+            await personBiz.BizCreateDataAsync(new Person() { PersonId = personId, PersonName = personName, Gender = Gender.NotKnown, Email = string.Empty, MobilePhone = string.Empty, HomePhone = string.Empty, }, ct);
         }
     }
     /// <summary>
@@ -197,7 +197,7 @@ public class AccountBiz(BizDeps bizDeps, IBizService<PersonModel> biz, IPermissi
     /// </summary>
     /// <param name="oldSet"></param>
     /// <param name="newSet"></param>
-    private static void LetPasswordNoUpdate(AccountModel oldSet, AccountModel newSet)
+    private static void LetPasswordNoUpdate(Account oldSet, Account newSet)
     {
         newSet.PasswordHash = oldSet.PasswordHash;
         newSet.PasswordSalt = oldSet.PasswordSalt;
@@ -206,7 +206,7 @@ public class AccountBiz(BizDeps bizDeps, IBizService<PersonModel> biz, IPermissi
     /// <summary>
     /// 檢查人員編號是否已被其他帳號使用
     /// </summary>
-    protected async Task CheckPersonIdIsUniqueAsync(AccountModel account, FuncAction act, CancellationToken ct = default)
+    protected async Task CheckPersonIdIsUniqueAsync(Account account, FuncAction act, CancellationToken ct = default)
     {
         // 宣告變數
         string personId = account.PersonId?.Trim() ?? string.Empty;
@@ -221,18 +221,18 @@ public class AccountBiz(BizDeps bizDeps, IBizService<PersonModel> biz, IPermissi
     /// <summary>
     /// 建立人員編號唯一檢查條件
     /// </summary>
-    private static string BuildPersonIdUniqueCondition(AccountModel account, FuncAction act)
+    private static string BuildPersonIdUniqueCondition(Account account, FuncAction act)
     {
         // 宣告變數
         string personId = account.PersonId?.Trim();
         string internalId = account.InternalId?.Trim();
         string accountId = account.AccountId?.Trim();
         // 宣告變數：基本查詢條件
-        string condition = $"{nameof(AccountModel.PersonId)} = '{personId}'";
+        string condition = $"{nameof(Account.PersonId)} = '{personId}'";
         if (act == FuncAction.Update && !internalId.IsNullOrEmpty())
-            condition = LibData.Merge(SysParam.QueryOperators.And, false, condition, $"{nameof(AccountModel.InternalId)} != '{internalId}'");
+            condition = LibData.Merge(SysParam.QueryOperators.And, false, condition, $"{nameof(Account.InternalId)} != '{internalId}'");
         else if (act == FuncAction.Update && !accountId.IsNullOrEmpty())
-            condition = LibData.Merge(SysParam.QueryOperators.And, false, condition, $"{nameof(AccountModel.AccountId)} != '{accountId}'");
+            condition = LibData.Merge(SysParam.QueryOperators.And, false, condition, $"{nameof(Account.AccountId)} != '{accountId}'");
         return condition;
     }
     #endregion

@@ -24,10 +24,10 @@ public class SpecTag_Biz(BizDeps bizDeps) : TagBiz(bizDeps)
         switch (progId)
         {
             case "SpecUSR":
-                useCount = await DoQueryListCountAsync<SpecUSRModel>($@"{nameof(SpecUSRModel.Tags)} HasAny {tagId}");
+                useCount = await DoQueryListCountAsync<SpecUSR>($@"{nameof(SpecUSR.Tags)} HasAny {tagId}");
                 break;
             case "SpecResearch":
-                useCount = await DoQueryListCountAsync<SpecResearchModel>($@"{nameof(SpecResearchModel.Tags)} HasAny {tagId}");
+                useCount = await DoQueryListCountAsync<SpecResearch>($@"{nameof(SpecResearch.Tags)} HasAny {tagId}");
                 break;
         }
         if (useCount > 0) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00017, tagName);

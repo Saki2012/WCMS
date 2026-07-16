@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using WCMS.Features._Resx;
 using WCMS.SysCore.FeatureDriver.Biz;
 using WCMS.SysCore.FeatureDriver.Biz.Metadata;
@@ -9,7 +9,7 @@ using WCMS.SysCore.Library;
 namespace WCMS.Features.WEB.SiteViewCount;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.SiteViewCount)]
-public class SiteViewCountFunc_Biz(BizDeps bizDeps) : BizService<SiteViewCountHeaderModel>(bizDeps), IBizService<SiteViewCountHeaderModel>
+public class SiteViewCountFunc_Biz(BizDeps bizDeps) : BizService<SiteViewCountHeader>(bizDeps), IBizService<SiteViewCountHeader>
 {
     #region Property
     /// <summary>
@@ -76,13 +76,13 @@ public class SiteViewCountFunc_Biz(BizDeps bizDeps) : BizService<SiteViewCountHe
                 return result;
             }
             // 執行 function：開始交易
-            ownsTx = await TryBeginTransactionAsync();
+            ownsTx = await TryBeginTransactionAsync(ct);
             // 執行 function：先檢查去重
             var recent = await GetRecentlyInfoAsync(siteIndex, string.Empty, string.Empty, CountTargetType.Header, ViewCountActionType.PageView, visitorKey, ct);
             if (recent != null && !ShouldCount(recent.LastViewTime, now))
             {
                 result.CurrentCount = await GetSiteViewCountAsync(siteIndex, ct);
-                await TryCommitAsync(ownsTx);
+                await TryCommitAsync(ownsTx, ct);
                 return result;
             }
             // 執行 function：更新 recent + count
@@ -90,13 +90,13 @@ public class SiteViewCountFunc_Biz(BizDeps bizDeps) : BizService<SiteViewCountHe
             result.CurrentCount = await IncreaseSiteViewCountAsync(siteIndex, ct);
             result.IsCounted = true;
             // 執行 function：提交
-            await TryCommitAsync(ownsTx);
+            await TryCommitAsync(ownsTx, ct);
             // return
             return result;
         }
         catch
         {
-            await TryRollbackAsync(ownsTx);
+            await TryRollbackAsync(ownsTx, CancellationToken.None);
             throw;
         }
     }
@@ -118,13 +118,13 @@ public class SiteViewCountFunc_Biz(BizDeps bizDeps) : BizService<SiteViewCountHe
             if (string.IsNullOrWhiteSpace(internalId)) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, nameof(internalId));
             if (Message.HasError) return result;
             // 執行 function：開始交易
-            ownsTx = await TryBeginTransactionAsync();
+            ownsTx = await TryBeginTransactionAsync(ct);
             // 執行 function：先檢查去重
             var recent = await GetRecentlyInfoAsync(siteIndex, progId, internalId, CountTargetType.Detail, actionType, visitorKey, ct);
             if (recent != null && !ShouldCount(recent.LastViewTime, now))
             {
                 result.CurrentCount = await GetDetailViewCountAsync(siteIndex, progId, internalId, actionType, ct);
-                await TryCommitAsync(ownsTx);
+                await TryCommitAsync(ownsTx, ct);
                 return result;
             }
             // 執行 function：更新 recent + count
@@ -132,13 +132,13 @@ public class SiteViewCountFunc_Biz(BizDeps bizDeps) : BizService<SiteViewCountHe
             result.CurrentCount = await IncreaseDetailViewCountAsync(siteIndex, progId, internalId, actionType, ct);
             result.IsCounted = true;
             // 執行 function：提交
-            await TryCommitAsync(ownsTx);
+            await TryCommitAsync(ownsTx, ct);
             // return
             return result;
         }
         catch
         {
-            await TryRollbackAsync(ownsTx);
+            await TryRollbackAsync(ownsTx, CancellationToken.None);
             throw;
         }
     }
@@ -146,14 +146,14 @@ public class SiteViewCountFunc_Biz(BizDeps bizDeps) : BizService<SiteViewCountHe
     /// <summary>
     /// 取得最近一次成功計次紀錄
     /// </summary>
-    private async Task<SiteViewCountRecentlyModel?> GetRecentlyInfoAsync(string siteIndex, string progId, string targetInternalId, string targetType, ViewCountActionType actionType, string visitorKey, CancellationToken ct = default)
+    private async Task<SiteViewCountRecently?> GetRecentlyInfoAsync(string siteIndex, string progId, string targetInternalId, string targetType, ViewCountActionType actionType, string visitorKey, CancellationToken ct = default)
     {
         // 宣告變數
-        dynamic recentRepo = DbRepositoryProvider.GetRepo(typeof(SiteViewCountRecentlyModel));
+        dynamic recentRepo = DbRepositoryProvider.GetRepo(typeof(SiteViewCountRecently));
         // 執行 function
         ct.ThrowIfCancellationRequested();
         // return
-        return await recentRepo.QueryDataAsync(siteIndex, progId, targetInternalId, targetType, actionType, visitorKey);
+        return await recentRepo.FindByKeyAsync(ct, siteIndex, progId, targetInternalId, targetType, actionType, visitorKey);
     }
     /// <summary>
     /// 判斷是否應正式計次
@@ -166,7 +166,7 @@ public class SiteViewCountFunc_Biz(BizDeps bizDeps) : BizService<SiteViewCountHe
     /// <summary>
     /// 新增或更新 Recently 紀錄
     /// </summary>
-    private async Task SaveRecentlyInfoAsync(SiteViewCountRecentlyModel? currentRecent, string siteIndex, string progId, string targetInternalId, string targetType, ViewCountActionType actionType, string visitorKey, string refererUrl, DateTime now, CancellationToken ct = default)
+    private async Task SaveRecentlyInfoAsync(SiteViewCountRecently? currentRecent, string siteIndex, string progId, string targetInternalId, string targetType, ViewCountActionType actionType, string visitorKey, string refererUrl, DateTime now, CancellationToken ct = default)
     {
         ct.ThrowIfCancellationRequested();
         if (currentRecent == null)
@@ -182,8 +182,8 @@ public class SiteViewCountFunc_Biz(BizDeps bizDeps) : BizService<SiteViewCountHe
     /// </summary>
     private async Task CreateRecentlyInfoAsync(string siteIndex, string progId, string targetInternalId, string targetType, ViewCountActionType actionType, string visitorKey, string refererUrl, DateTime now, CancellationToken ct = default)
     {
-        dynamic recentRepo = DbRepositoryProvider.GetRepo(typeof(SiteViewCountRecentlyModel));
-        SiteViewCountRecentlyModel newRecent = new()
+        dynamic recentRepo = DbRepositoryProvider.GetRepo(typeof(SiteViewCountRecently));
+        SiteViewCountRecently newRecent = new()
         {
             SiteIndex = siteIndex,
             ProgId = progId,
@@ -195,29 +195,29 @@ public class SiteViewCountFunc_Biz(BizDeps bizDeps) : BizService<SiteViewCountHe
             RefererUrl = refererUrl,
         };
         ct.ThrowIfCancellationRequested();
-        await recentRepo.CreateAsync(newRecent);
+        await recentRepo.CreateAsync(newRecent, ct);
     }
 
     /// <summary>
     /// 更新 Recently 紀錄
     /// </summary>
-    private async Task UpdateRecentlyInfoAsync(SiteViewCountRecentlyModel currentRecent, string refererUrl, DateTime now, CancellationToken ct = default)
+    private async Task UpdateRecentlyInfoAsync(SiteViewCountRecently currentRecent, string refererUrl, DateTime now, CancellationToken ct = default)
     {
-        dynamic recentRepo = DbRepositoryProvider.GetRepo(typeof(SiteViewCountRecentlyModel));
-        SiteViewCountRecentlyModel newRecent = currentRecent.Snapshot();
+        dynamic recentRepo = DbRepositoryProvider.GetRepo(typeof(SiteViewCountRecently));
+        SiteViewCountRecently newRecent = currentRecent.Snapshot();
         ct.ThrowIfCancellationRequested();
         newRecent.RefererUrl = refererUrl;
         newRecent.LastViewTime = now;
-        await recentRepo.UpdateAsync(currentRecent, newRecent);
+        await recentRepo.UpdateAsync(currentRecent, newRecent, ct);
     }
     /// <summary>
     /// 取得主站目前瀏覽次數
     /// </summary>
     private async Task<int> GetSiteViewCountAsync(string siteIndex, CancellationToken ct = default)
     {
-        dynamic headerRepo = DbRepositoryProvider.GetRepo(typeof(SiteViewCountHeaderModel));
+        dynamic headerRepo = DbRepositoryProvider.GetRepo(typeof(SiteViewCountHeader));
         ct.ThrowIfCancellationRequested();
-        SiteViewCountHeaderModel? data = await headerRepo.QueryDataAsync(siteIndex);
+        SiteViewCountHeader? data = await headerRepo.FindByKeyAsync(ct, siteIndex);
         return data?.PublicViewCount ?? 0;
     }
     /// <summary>
@@ -225,21 +225,21 @@ public class SiteViewCountFunc_Biz(BizDeps bizDeps) : BizService<SiteViewCountHe
     /// </summary>
     private async Task<int> IncreaseSiteViewCountAsync(string siteIndex, CancellationToken ct = default)
     {
-        dynamic headerRepo = DbRepositoryProvider.GetRepo(typeof(SiteViewCountHeaderModel));
-        SiteViewCountHeaderModel? oldHeader = await headerRepo.QueryDataAsync(siteIndex);
+        dynamic headerRepo = DbRepositoryProvider.GetRepo(typeof(SiteViewCountHeader));
+        SiteViewCountHeader? oldHeader = await headerRepo.FindByKeyAsync(ct, siteIndex);
         ct.ThrowIfCancellationRequested();
         if (oldHeader == null)
         {
-            SiteViewCountHeaderModel newHeader = CreateHeader(siteIndex);
+            SiteViewCountHeader newHeader = CreateHeader(siteIndex);
             newHeader.PublicViewCount = 1;
-            await headerRepo.CreateAsync(newHeader);
+            await headerRepo.CreateAsync(newHeader, ct);
             return newHeader.PublicViewCount;
         }
-        SiteViewCountHeaderModel updateHeader = oldHeader.Snapshot();
+        SiteViewCountHeader updateHeader = oldHeader.Snapshot();
         updateHeader.PublicViewCount += 1;
         updateHeader.ModifyTime = DateTime.Now;
         updateHeader.ModifyUserId = OperateUser?.UserId ?? string.Empty;
-        await headerRepo.UpdateAsync(oldHeader, updateHeader);
+        await headerRepo.UpdateAsync(oldHeader, updateHeader, ct);
         return updateHeader.PublicViewCount;
     }
     /// <summary>
@@ -247,9 +247,9 @@ public class SiteViewCountFunc_Biz(BizDeps bizDeps) : BizService<SiteViewCountHe
     /// </summary>
     private async Task<int> GetDetailViewCountAsync(string siteIndex, string progId, string internalId, ViewCountActionType actionType, CancellationToken ct = default)
     {
-        dynamic detailRepo = DbRepositoryProvider.GetRepo(typeof(SiteViewCountDetailModel));
+        dynamic detailRepo = DbRepositoryProvider.GetRepo(typeof(SiteViewCountDetail));
         ct.ThrowIfCancellationRequested();
-        SiteViewCountDetailModel? data = await detailRepo.QueryDataAsync(siteIndex, progId, internalId);
+        SiteViewCountDetail? data = await detailRepo.FindByKeyAsync(ct, siteIndex, progId, internalId);
         return data == null ? 0 : GetDetailCount(data, actionType);
     }
     /// <summary>
@@ -257,29 +257,29 @@ public class SiteViewCountFunc_Biz(BizDeps bizDeps) : BizService<SiteViewCountHe
     /// </summary>
     private async Task<int> IncreaseDetailViewCountAsync(string siteIndex, string progId, string internalId, ViewCountActionType actionType, CancellationToken ct = default)
     {
-        dynamic detailRepo = DbRepositoryProvider.GetRepo(typeof(SiteViewCountDetailModel));
-        SiteViewCountDetailModel? oldDetail = await detailRepo.QueryDataAsync(siteIndex, progId, internalId);
+        dynamic detailRepo = DbRepositoryProvider.GetRepo(typeof(SiteViewCountDetail));
+        SiteViewCountDetail? oldDetail = await detailRepo.FindByKeyAsync(ct, siteIndex, progId, internalId);
         ct.ThrowIfCancellationRequested();
         if (oldDetail == null)
         {
-            SiteViewCountDetailModel newDetail = CreateDetail(siteIndex, progId, internalId);
+            SiteViewCountDetail newDetail = CreateDetail(siteIndex, progId, internalId);
             IncreaseDetailCount(newDetail, actionType);
-            await detailRepo.CreateAsync(newDetail);
+            await detailRepo.CreateAsync(newDetail, ct);
             return GetDetailCount(newDetail, actionType);
         }
-        SiteViewCountDetailModel updateDetail = oldDetail.Snapshot();
+        SiteViewCountDetail updateDetail = oldDetail.Snapshot();
         IncreaseDetailCount(updateDetail, actionType);
-        await detailRepo.UpdateAsync(oldDetail, updateDetail);
+        await detailRepo.UpdateAsync(oldDetail, updateDetail, ct);
         return GetDetailCount(updateDetail, actionType);
     }
     /// <summary>
     /// 建立 Header 初始資料
     /// </summary>
-    private SiteViewCountHeaderModel CreateHeader(string siteIndex)
+    private SiteViewCountHeader CreateHeader(string siteIndex)
     {
         DateTime now = DateTime.Now;
         string userId = OperateUser?.UserId ?? string.Empty;
-        return new SiteViewCountHeaderModel
+        return new SiteViewCountHeader
         {
             SiteIndex = siteIndex,
             InternalId = Guid.NewGuid().ToString(),
@@ -295,9 +295,9 @@ public class SiteViewCountFunc_Biz(BizDeps bizDeps) : BizService<SiteViewCountHe
     /// <summary>
     /// 建立 Detail 初始資料
     /// </summary>
-    private SiteViewCountDetailModel CreateDetail(string siteIndex, string progId, string internalId)
+    private SiteViewCountDetail CreateDetail(string siteIndex, string progId, string internalId)
     {
-        return new SiteViewCountDetailModel
+        return new SiteViewCountDetail
         {
             SiteIndex = siteIndex,
             ProgId = progId,
@@ -311,7 +311,7 @@ public class SiteViewCountFunc_Biz(BizDeps bizDeps) : BizService<SiteViewCountHe
     /// <summary>
     /// 累加對應 Detail 欄位
     /// </summary>
-    private void IncreaseDetailCount(SiteViewCountDetailModel detail, ViewCountActionType actionType)
+    private void IncreaseDetailCount(SiteViewCountDetail detail, ViewCountActionType actionType)
     {
         switch (actionType)
         {
@@ -332,7 +332,7 @@ public class SiteViewCountFunc_Biz(BizDeps bizDeps) : BizService<SiteViewCountHe
     /// <summary>
     /// 取得對應 Detail 欄位目前值
     /// </summary>
-    private int GetDetailCount(SiteViewCountDetailModel detail, ViewCountActionType actionType)
+    private int GetDetailCount(SiteViewCountDetail detail, ViewCountActionType actionType)
     {
         return actionType switch
         {
@@ -348,9 +348,9 @@ public class SiteViewCountFunc_Biz(BizDeps bizDeps) : BizService<SiteViewCountHe
     /// </summary>
     private async Task<int> GetRecentlySiteViewCountAsync(string siteIndex, DateTime queryTime, CancellationToken ct = default)
     {
-        dynamic recentRepo = DbRepositoryProvider.GetRepo(typeof(SiteViewCountRecentlyModel));
+        dynamic recentRepo = DbRepositoryProvider.GetRepo(typeof(SiteViewCountRecently));
         DateTime thresholdTime = queryTime.AddMinutes(-RecentlySiteViewMinutes);
-        Expression<Func<SiteViewCountRecentlyModel, bool>> whereExpr = p =>
+        Expression<Func<SiteViewCountRecently, bool>> whereExpr = p =>
             p.SiteIndex == siteIndex &&
             p.ProgId == string.Empty &&
             p.TargetInternalId == string.Empty &&
@@ -358,7 +358,7 @@ public class SiteViewCountFunc_Biz(BizDeps bizDeps) : BizService<SiteViewCountHe
             p.ActionType == ViewCountActionType.PageView &&
             p.LastViewTime >= thresholdTime;
         ct.ThrowIfCancellationRequested();
-        return await recentRepo.QueryListCountAsync(whereExpr);
+        return await recentRepo.QueryListCountAsync(whereExpr, ct);
     }
     #endregion
 }

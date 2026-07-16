@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using WCMS.Features._Resx;
 using WCMS.SysCore.Auditing.ErrorHandling;
@@ -10,7 +10,7 @@ using WCMS.SysCore.Library;
 using WCMS.SysCore.PlatformServices.SystemMonitor;
 namespace WCMS.SysCore.PlatformServices.FileManagement;
 
-public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> options, IWebHostEnvironment Env) : BizService<FileManageModel>(bizDeps), IBizService<FileManageModel>
+public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> options, IWebHostEnvironment Env) : BizService<FileManage>(bizDeps), IBizService<FileManage>
 {
     #region Property
     private readonly FilePathOptions FilePath = options.Value;
@@ -49,7 +49,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// 讀取檔案
     /// </summary>
     /// <param name="internalIds"></param>
-    public async Task<IList<FileManageModel>> ReadFileInfo(string[] internalIds, bool isPublic = true)
+    public async Task<IList<FileManage>> ReadFileInfo(string[] internalIds, bool isPublic = true)
     {
         if (internalIds.Length == 0)
         {
@@ -77,20 +77,20 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
         {
             ct.ThrowIfCancellationRequested();
             if (string.IsNullOrWhiteSpace(internalId) || string.IsNullOrWhiteSpace(visitorKey)) return;
-            ownsTx = await TryBeginTransactionAsync();
+            ownsTx = await TryBeginTransactionAsync(ct);
             var recent = await GetDownloadRecentAsync(internalId, visitorKey, ct);
             if (recent != null && !ShouldCountPublicDownload(recent.LastCountTime, now))
             {
-                await TryCommitAsync(ownsTx);
+                await TryCommitAsync(ownsTx, ct);
                 return;
             }
             await SaveDownloadRecentAsync(recent, internalId, visitorKey, safeRefererUrl, now, ct);
             await IncreasePublicDownloadCountAsync(internalId, ct);
-            await TryCommitAsync(ownsTx);
+            await TryCommitAsync(ownsTx, ct);
         }
         catch
         {
-            await TryRollbackAsync(ownsTx);
+            await TryRollbackAsync(ownsTx, CancellationToken.None);
             throw;
         }
     }
@@ -99,7 +99,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// </summary>
     /// <param name="fileManage"></param>
     /// <returns></returns>
-    public bool CheckFileCanPreview(FileManageModel fileManage, out bool isPdf)
+    public bool CheckFileCanPreview(FileManage fileManage, out bool isPdf)
     {
         // return
         var fileType = GetPreviewType(fileManage);
@@ -133,13 +133,13 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     public async Task MoveToPermanent(string[] internalIds)
     {
         if (internalIds.IsNullOrEmpty() || internalIds.Length == 0) return;
-        List<FileManageModel> sets = [];
-        var list = await this.DoQueryListAsync(typeof(FileManageModel),
-            [nameof(FileManageModel.InternalId), nameof(FileManageModel.FileName)],
-            $@"{nameof(FileManageModel.InternalId)} in ({LibData.Merge(",", false, internalIds)}) And
-                   {nameof(FileManageModel.FileStatus)} = {FileStatus.Pending}", default, 0, 0);
+        List<FileManage> sets = [];
+        var list = await this.DoQueryListAsync(typeof(FileManage),
+            [nameof(FileManage.InternalId), nameof(FileManage.FileName)],
+            $@"{nameof(FileManage.InternalId)} in ({LibData.Merge(",", false, internalIds)}) And
+                   {nameof(FileManage.FileStatus)} = {FileStatus.Pending}", default, 0, 0);
 
-        foreach (var item in list) sets.Add(await DoQueryDataAsync(((FileManageModel)item).InternalId));
+        foreach (var item in list) sets.Add(await DoQueryDataAsync(((FileManage)item).InternalId));
         await MoveFileFromTempToFinal(sets);
     }
     /// <summary>
@@ -150,13 +150,13 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     public async Task CancelUploadFiles(string[] internalIds)
     {
         if (internalIds.IsNullOrEmpty() || internalIds.Length == 0) return;
-        List<FileManageModel> sets = [];
-        var list = await this.DoQueryListAsync(typeof(FileManageModel),
-            [nameof(FileManageModel.InternalId), nameof(FileManageModel.FileName)],
-            $@"{nameof(FileManageModel.InternalId)} in ({LibData.Merge(",", false, internalIds)}) And
-                    {nameof(FileManageModel.FileStatus)} = {FileStatus.Pending}", default, 0, 0);
+        List<FileManage> sets = [];
+        var list = await this.DoQueryListAsync(typeof(FileManage),
+            [nameof(FileManage.InternalId), nameof(FileManage.FileName)],
+            $@"{nameof(FileManage.InternalId)} in ({LibData.Merge(",", false, internalIds)}) And
+                    {nameof(FileManage.FileStatus)} = {FileStatus.Pending}", default, 0, 0);
 
-        foreach (var item in list) sets.Add(await DoQueryDataAsync(((FileManageModel)item).InternalId));
+        foreach (var item in list) sets.Add(await DoQueryDataAsync(((FileManage)item).InternalId));
         await DeleteFromTemp(sets);
     }
     /// <summary>
@@ -188,18 +188,18 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// <returns></returns>
     private QueryListParam GetReadFileQueryParam(string[] internalIds, bool isPublic = true)
     {
-        string[] selectFields = [nameof(FileManageModel.InternalId), nameof(FileManageModel.Path), nameof(FileManageModel.FileExtension), nameof(FileManageModel.FileName), nameof(FileManageModel.MimeType), nameof(FileManageModel.FileSHA256), nameof(FileManageModel.ModifyTime)];
+        string[] selectFields = [nameof(FileManage.InternalId), nameof(FileManage.Path), nameof(FileManage.FileExtension), nameof(FileManage.FileName), nameof(FileManage.MimeType), nameof(FileManage.FileSHA256), nameof(FileManage.ModifyTime)];
         string condition;
-        if (internalIds.Length == 1) condition = $"{nameof(FileManageModel.InternalId)} = {internalIds[0]}";
-        else condition = $"{nameof(FileManageModel.InternalId)} In {LibData.Merge(',', false, internalIds)}";
-        if (isPublic) condition = LibData.Merge(SysParam.QueryOperators.And, false, condition, $"{nameof(FileManageModel.IsPublic)} = {isPublic}");
+        if (internalIds.Length == 1) condition = $"{nameof(FileManage.InternalId)} = {internalIds[0]}";
+        else condition = $"{nameof(FileManage.InternalId)} In {LibData.Merge(',', false, internalIds)}";
+        if (isPublic) condition = LibData.Merge(SysParam.QueryOperators.And, false, condition, $"{nameof(FileManage.IsPublic)} = {isPublic}");
         return new QueryListParam() { Fields = selectFields, Condition = condition, };
     }
     /// <summary>
     /// 檢查檔案是否存在於實體路徑中，若不存在則回傳警告訊息
     /// </summary>
     /// <param name="filemanage"></param>
-    private void CheckFileExistInPysical(List<FileManageModel> filemanages)
+    private void CheckFileExistInPysical(List<FileManage> filemanages)
     {
         for (int i = filemanages.Count - 1; i >= 0; i--)
         {
@@ -217,7 +217,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// </summary>
     /// <param name="internalIds"></param>
     /// <param name="filemanage"></param>
-    private void CheckFileExistInDB(string[] internalIds, List<FileManageModel> filemanage)
+    private void CheckFileExistInDB(string[] internalIds, List<FileManage> filemanage)
     {
         internalIds.Except(filemanage.Select(p => p.InternalId)).ToList().ForEach(id =>
         {
@@ -228,17 +228,17 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// <summary>
     /// 取得目前訪客對該檔案的 Recent 紀錄
     /// </summary>
-    private async Task<FileManage_DownloadRecentModel?> GetDownloadRecentAsync(string internalId, string visitorKey, CancellationToken ct = default)
+    private async Task<FileManage_DownloadRecent?> GetDownloadRecentAsync(string internalId, string visitorKey, CancellationToken ct = default)
     {
         // 宣告變數
-        string[] fields = [nameof(FileManage_DownloadRecentModel.InternalId), nameof(FileManage_DownloadRecentModel.RowId), nameof(FileManage_DownloadRecentModel.VisitorKey),
-            nameof(FileManage_DownloadRecentModel.RefererURL), nameof(FileManage_DownloadRecentModel.LastCountTime),];
-        string condition = LibData.Merge(SysParam.QueryOperators.And, false, $@"{nameof(FileManage_DownloadRecentModel.InternalId)} = {internalId}", $@"{nameof(FileManage_DownloadRecentModel.VisitorKey)} = {visitorKey}");
+        string[] fields = [nameof(FileManage_DownloadRecent.InternalId), nameof(FileManage_DownloadRecent.RowId), nameof(FileManage_DownloadRecent.VisitorKey),
+            nameof(FileManage_DownloadRecent.RefererURL), nameof(FileManage_DownloadRecent.LastCountTime),];
+        string condition = LibData.Merge(SysParam.QueryOperators.And, false, $@"{nameof(FileManage_DownloadRecent.InternalId)} = {internalId}", $@"{nameof(FileManage_DownloadRecent.VisitorKey)} = {visitorKey}");
         // 執行 function
         ct.ThrowIfCancellationRequested();
-        var list = await DoQueryListAsync<FileManage_DownloadRecentModel>(fields, condition, default, 0, 1);
+        var list = await DoQueryListAsync<FileManage_DownloadRecent>(fields, condition, default, 0, 1, ct: ct);
         // return
-        return list.Cast<FileManage_DownloadRecentModel>().FirstOrDefault();
+        return list.Cast<FileManage_DownloadRecent>().FirstOrDefault();
     }
     /// <summary>
     /// 判斷本次是否應正式累加下載次數
@@ -251,7 +251,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// 新增或更新 DownloadRecent
     /// </summary>
     private async Task SaveDownloadRecentAsync(
-        FileManage_DownloadRecentModel? currentRecent,
+        FileManage_DownloadRecent? currentRecent,
         string internalId,
         string visitorKey,
         string refererUrl,
@@ -281,9 +281,9 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
         CancellationToken ct = default)
     {
         // 宣告變數
-        dynamic recentRepo = DbRepositoryProvider.GetRepo(typeof(FileManage_DownloadRecentModel));
+        dynamic recentRepo = DbRepositoryProvider.GetRepo(typeof(FileManage_DownloadRecent));
         var nextRowId = await GetNextDownloadRecentRowIdAsync(internalId, ct);
-        var newRecent = new FileManage_DownloadRecentModel
+        var newRecent = new FileManage_DownloadRecent
         {
             InternalId = internalId,
             RowId = nextRowId,
@@ -294,28 +294,28 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
 
         // 執行 function
         ct.ThrowIfCancellationRequested();
-        await recentRepo.CreateAsync(newRecent);
+        await recentRepo.CreateAsync(newRecent, ct);
     }
 
     /// <summary>
     /// 更新 DownloadRecent
     /// </summary>
     private async Task UpdateDownloadRecentAsync(
-        FileManage_DownloadRecentModel currentRecent,
+        FileManage_DownloadRecent currentRecent,
         string refererUrl,
         DateTime now,
         CancellationToken ct = default)
     {
         // 宣告變數
-        dynamic recentRepo = DbRepositoryProvider.GetRepo(typeof(FileManage_DownloadRecentModel));
-        FileManage_DownloadRecentModel oldRecent = await recentRepo.QueryDataAsync(currentRecent.InternalId, currentRecent.RowId);
+        dynamic recentRepo = DbRepositoryProvider.GetRepo(typeof(FileManage_DownloadRecent));
+        FileManage_DownloadRecent oldRecent = await recentRepo.FindByKeyAsync(ct, currentRecent.InternalId, currentRecent.RowId);
         var newRecent = oldRecent.Snapshot();
 
         // 執行 function
         ct.ThrowIfCancellationRequested();
         newRecent.RefererURL = refererUrl;
         newRecent.LastCountTime = now;
-        await recentRepo.UpdateAsync(oldRecent, newRecent);
+        await recentRepo.UpdateAsync(oldRecent, newRecent, ct);
     }
 
     /// <summary>
@@ -324,13 +324,13 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     private async Task<int> GetNextDownloadRecentRowIdAsync(string internalId, CancellationToken ct = default)
     {
         // 宣告變數
-        string[] fields = [nameof(FileManage_DownloadRecentModel.RowId)];
-        string condition = $"{nameof(FileManage_DownloadRecentModel.InternalId)} = {internalId}";
+        string[] fields = [nameof(FileManage_DownloadRecent.RowId)];
+        string condition = $"{nameof(FileManage_DownloadRecent.InternalId)} = {internalId}";
 
         // 執行 function
         ct.ThrowIfCancellationRequested();
-        var list = await DoQueryListAsync<FileManage_DownloadRecentModel>(fields, condition, default, 0, 0);
-        var maxRowId = list.Cast<FileManage_DownloadRecentModel>().Select(p => p.RowId).DefaultIfEmpty(0).Max();
+        var list = await DoQueryListAsync<FileManage_DownloadRecent>(fields, condition, default, 0, 0, ct: ct);
+        var maxRowId = list.Cast<FileManage_DownloadRecent>().Select(p => p.RowId).DefaultIfEmpty(0).Max();
 
         // return
         return maxRowId + 1;
@@ -342,8 +342,8 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     private async Task IncreasePublicDownloadCountAsync(string internalId, CancellationToken ct = default)
     {
         // 宣告變數
-        dynamic fileRepo = DbRepositoryProvider.GetRepo(typeof(FileManageModel));
-        FileManageModel? oldFile = await fileRepo.QueryDataAsync(internalId);
+        dynamic fileRepo = DbRepositoryProvider.GetRepo(typeof(FileManage));
+        FileManage? oldFile = await fileRepo.FindByKeyAsync(ct, internalId);
         if (oldFile == null) return;
 
         var newFile = oldFile.Snapshot();
@@ -351,7 +351,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
         // 執行 function
         ct.ThrowIfCancellationRequested();
         newFile.PublicDownloadCount += 1;
-        await fileRepo.UpdateAsync(oldFile, newFile);
+        await fileRepo.UpdateAsync(oldFile, newFile, ct);
     }
 
 
@@ -360,7 +360,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// </summary>
     /// <param name="fileManage"></param>
     /// <returns></returns>
-    private string GetPreviewType(FileManageModel fileManage)
+    private string GetPreviewType(FileManage fileManage)
     {
         // 宣告變數
         string mimeType = (fileManage.MimeType ?? string.Empty).Trim().ToLowerInvariant();
@@ -421,13 +421,13 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// </summary>
     /// <param name="file"></param>
     /// <returns></returns>
-    private FileManageModel CreateNewFileInfo(IFormFile file, string sha256)
+    private FileManage CreateNewFileInfo(IFormFile file, string sha256)
     {
         DateTime today = DateTime.UtcNow;
         string internalId = Guid.NewGuid().ToString();
         using var stream = file.OpenReadStream();
         var (Extension, MimeType) = LibData.GetUploadFileMeta(stream, file.FileName);
-        FileManageModel set = new()
+        FileManage set = new()
         {
             InternalId = internalId,
             ProgId = string.Empty,
@@ -451,7 +451,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// <param name="file"></param>
     /// <param name="set"></param>
     /// <returns></returns>
-    private bool CheckFileLegal(IFormFile file, FileManageModel set)
+    private bool CheckFileLegal(IFormFile file, FileManage set)
     {
         if (file == null || file.Length == 0) return false;
         var filemanage = set;
@@ -467,7 +467,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// <param name="file"></param>
     /// <param name="set"></param>
     /// <returns></returns>
-    private bool CheckFileExtension(FileManageModel filemanage, FileManage_SyncInfoModel syncInfo)
+    private bool CheckFileExtension(FileManage filemanage, FileManage_SyncInfo syncInfo)
     {
         if (!CheckExtension(filemanage.FileExtension))
         {
@@ -493,7 +493,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// <param name="file"></param>
     /// <param name="set"></param>
     /// <returns></returns>
-    private bool CheckFileSize(FileManageModel filemanage, FileManage_SyncInfoModel syncInfo)
+    private bool CheckFileSize(FileManage filemanage, FileManage_SyncInfo syncInfo)
     {
         const int mb = 200;
         const long maxFileSize = mb * 1024 * 1024;
@@ -510,7 +510,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// </summary>
     /// <param name="set"></param>
     /// <returns></returns>
-    private bool CheckFileExist(FileManageModel filemanage, FileManage_SyncInfoModel syncInfo)
+    private bool CheckFileExist(FileManage filemanage, FileManage_SyncInfo syncInfo)
     {
         string fullPath = Path.Combine(filemanage.Path, $"{filemanage.InternalId}.{filemanage.FileExtension}");
         if (filemanage.FileStatus.In(FileStatus.Pending, FileStatus.Success) || File.Exists(fullPath))
@@ -605,18 +605,18 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// <summary>
     /// 檢查 SHA256 是否存在系統中，並同步目前上傳檔案解析結果
     /// </summary>
-    private async Task<(bool isNew, FileManageModel set)> CheckSHA256Async(string sha256, IFormFile file)
+    private async Task<(bool isNew, FileManage set)> CheckSHA256Async(string sha256, IFormFile file)
     {
         // 宣告變數：查詢是否已有相同 SHA256
         var exist = await DoQueryListAsync(
-            typeof(FileManageModel),
-            [nameof(FileManageModel.InternalId), nameof(FileManageModel.FileSHA256)],
-            @$"{nameof(FileManageModel.FileSHA256)} = {sha256}", default, 0, 0
+            typeof(FileManage),
+            [nameof(FileManage.InternalId), nameof(FileManage.FileSHA256)],
+            @$"{nameof(FileManage.FileSHA256)} = {sha256}", default, 0, 0
         );
 
         // 宣告變數：不存在就建立新資料，存在就讀取 DB set
         bool isNew = exist.Count == 0;
-        FileManageModel set = isNew ? CreateNewFileInfo(file, sha256) : await DoQueryDataAsync(((FileManageModel)exist[0]).InternalId);
+        FileManage set = isNew ? CreateNewFileInfo(file, sha256) : await DoQueryDataAsync(((FileManage)exist[0]).InternalId);
 
         // 執行：既有檔案需重新同步目前解析到的副檔名 / MIME
         if (!isNew) SyncUploadFileMeta(set, file, sha256);
@@ -630,7 +630,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// <summary>
     /// 同步目前上傳檔案解析出的格式資訊
     /// </summary>
-    private static void SyncUploadFileMeta(FileManageModel filemanage, IFormFile file, string sha256)
+    private static void SyncUploadFileMeta(FileManage filemanage, IFormFile file, string sha256)
     {
         // 宣告變數：重新解析目前上傳檔案
         using var stream = file.OpenReadStream();
@@ -651,7 +651,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// <summary>
     /// 同步副檔名
     /// </summary>
-    private static bool SyncFileExtension(FileManageModel filemanage, string extension)
+    private static bool SyncFileExtension(FileManage filemanage, string extension)
     {
         // 執行：空值不覆蓋既有正確資料
         if (string.IsNullOrWhiteSpace(extension)) return false;
@@ -667,7 +667,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// <summary>
     /// 同步 MIME Type
     /// </summary>
-    private static bool SyncMimeType(FileManageModel filemanage, string mimeType)
+    private static bool SyncMimeType(FileManage filemanage, string mimeType)
     {
         // 執行：空值不覆蓋既有正確資料
         if (string.IsNullOrWhiteSpace(mimeType)) return false;
@@ -683,7 +683,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// <summary>
     /// 同步檔案大小
     /// </summary>
-    private static bool SyncFileSize(FileManageModel filemanage, long fileSize)
+    private static bool SyncFileSize(FileManage filemanage, long fileSize)
     {
         // 執行：相同大小不處理
         if (filemanage.FileSize == fileSize) return false;
@@ -698,7 +698,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// <summary>
     /// 同步 SHA256
     /// </summary>
-    private static bool SyncFileSHA256(FileManageModel filemanage, string sha256)
+    private static bool SyncFileSHA256(FileManage filemanage, string sha256)
     {
         // 執行：空值不覆蓋
         if (string.IsNullOrWhiteSpace(sha256)) return false;
@@ -714,7 +714,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// <summary>
     /// DB 檔名為空時，補上目前上傳檔名
     /// </summary>
-    private static bool SyncEmptyFileName(FileManageModel filemanage, string fileName)
+    private static bool SyncEmptyFileName(FileManage filemanage, string fileName)
     {
         // 宣告變數
         string safeFileName = Path.GetFileNameWithoutExtension(fileName);
@@ -731,7 +731,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// <summary>
     /// 判斷是否需要重置 Failed 狀態
     /// </summary>
-    private static bool ShouldResetFailedFileStatus(FileManageModel filemanage, bool metaChanged)
+    private static bool ShouldResetFailedFileStatus(FileManage filemanage, bool metaChanged)
     {
         // 執行：沒有異動不用重置
         if (!metaChanged) return false;
@@ -746,10 +746,10 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// <summary>
     /// 新增上傳同步紀錄
     /// </summary>
-    private static void AddUploadSyncInfo(FileManageModel set, IFormFile file)
+    private static void AddUploadSyncInfo(FileManage set, IFormFile file)
     {
         // 執行：新增本次同步資訊
-        set._FileManage_SyncInfo.Add(new FileManage_SyncInfoModel()
+        set._FileManage_SyncInfo.Add(new FileManage_SyncInfo()
         {
             InternalId = set.InternalId,
             FileStatus = FileStatus.Pending,
@@ -766,7 +766,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// </summary>
     /// <param name="file"></param>
     /// <param name="set"></param>
-    private static async Task DoStoreFileToSystem(IFormFile file, FileManageModel set)
+    private static async Task DoStoreFileToSystem(IFormFile file, FileManage set)
     {
         if (file == null || file.Length == 0) return;
         if (!Directory.Exists(set.Path)) Directory.CreateDirectory(set.Path);
@@ -782,7 +782,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// 將檔案從暫存區移至正式區
     /// </summary>
     /// <param name="sets"></param>
-    private async Task MoveFileFromTempToFinal(List<FileManageModel> sets)
+    private async Task MoveFileFromTempToFinal(List<FileManage> sets)
     {
         DateTime today = DateTime.UtcNow;
         string dstPath = LibData.Merge("/", false, FilePath.Root, FilePath.Permanent, today.Year, today.Month, today.Day, ProgId);
@@ -791,7 +791,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
         {
             if (set.FileStatus != FileStatus.Pending) continue;
             var header = set;
-            var curSyncInfo = new FileManage_SyncInfoModel() { InternalId = set.InternalId, FileStatus = FileStatus.Success };
+            var curSyncInfo = new FileManage_SyncInfo() { InternalId = set.InternalId, FileStatus = FileStatus.Success };
             set._FileManage_SyncInfo.Add(curSyncInfo);
             string srcPath = header.Path;
             string srcFullPath = LibData.Merge("/", false, header.Path, $"{header.InternalId}.{header.FileExtension}");
@@ -823,13 +823,13 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// 將檔案從暫存區刪除
     /// </summary>
     /// <param name="sets"></param>
-    private async Task DeleteFromTemp(List<FileManageModel> sets)
+    private async Task DeleteFromTemp(List<FileManage> sets)
     {
         foreach (var set in sets)
         {
             if (set.FileStatus != FileStatus.Pending) continue;
             var header = set;
-            var curSyncInfo = new FileManage_SyncInfoModel() { InternalId = set.InternalId, FileStatus = FileStatus.Canceled };
+            var curSyncInfo = new FileManage_SyncInfo() { InternalId = set.InternalId, FileStatus = FileStatus.Canceled };
             set._FileManage_SyncInfo.Add(curSyncInfo);
             string srcPath = header.Path;
             string srcFullPath = LibData.Merge("/", false, header.Path, $"{header.InternalId}.{header.FileExtension}");
@@ -899,10 +899,10 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
         string destinationPath,
         string label)
     {
-        Dictionary<string, FileManageModel> filesByHash = [];
+        Dictionary<string, FileManage> filesByHash = [];
         foreach (ZipExtractedFile file in files)
             RegisterImportedFile(file, destinationPath, label, filesByHash);
-        foreach (FileManageModel file in filesByHash.Values)
+        foreach (FileManage file in filesByHash.Values)
             await BizCreateDataAsync(file);
     }
     /// <summary>
@@ -912,11 +912,11 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
         ZipExtractedFile file,
         string destinationPath,
         string label,
-        Dictionary<string, FileManageModel> filesByHash)
+        Dictionary<string, FileManage> filesByHash)
     {
         string hash = LibData.GetFileSHA256(file.FullPath);
         FileStatus status = FileStatus.Skipped;
-        if (!filesByHash.TryGetValue(hash, out FileManageModel? set))
+        if (!filesByHash.TryGetValue(hash, out FileManage? set))
         {
             set = CreateImportedFile(file, destinationPath, label, hash);
             filesByHash.Add(hash, set);
@@ -927,7 +927,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// <summary>
     /// 將解壓檔案移至正式匯入路徑並建立主檔資料。
     /// </summary>
-    private static FileManageModel CreateImportedFile(
+    private static FileManage CreateImportedFile(
         ZipExtractedFile file,
         string destinationPath,
         string label,
@@ -991,7 +991,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// <summary>
     /// 建立匯入檔案主檔資料。
     /// </summary>
-    private static FileManageModel BuildImportedFile(
+    private static FileManage BuildImportedFile(
         string internalId,
         string entryName,
         string directory,
@@ -1002,7 +1002,7 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
         string label)
     {
         string fileName = Path.GetFileNameWithoutExtension(entryName);
-        return new FileManageModel
+        return new FileManage
         {
             InternalId = internalId,
             Path = directory.Replace("\\", "/"),
@@ -1021,9 +1021,9 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// <summary>
     /// 建立匯入來源與實體目的地的同步紀錄。
     /// </summary>
-    private static FileManage_SyncInfoModel BuildImportSyncInfo(FileManageModel file, string entryName, FileStatus status)
+    private static FileManage_SyncInfo BuildImportSyncInfo(FileManage file, string entryName, FileStatus status)
     {
-        return new FileManage_SyncInfoModel
+        return new FileManage_SyncInfo
         {
             InternalId = file.InternalId,
             FileStatus = status,

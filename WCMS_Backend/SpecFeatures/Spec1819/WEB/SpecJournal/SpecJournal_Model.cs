@@ -18,7 +18,7 @@ namespace WCMS.SpecFeatures.Spec1819.WEB.SpecJournal;
 public class SpecJournalSet : ITSet
 {
 [LibField(ApiFieldMode.ReadWrite, SpecDisplayName.SpecJournal)]
-public SpecJournalModel SpecJournal { get; set; }= new ();
+public SpecJournal SpecJournal { get; set; }= new ();
 [LibField(ApiFieldMode.ReadWrite, SpecDisplayName.SpecJournalAuthor)]
 public List<SpecJournalAuthor> SpecJournalAuthor { get; set; }= [];
 [LibField(ApiFieldMode.ReadWrite, SpecDisplayName.SpecJournalRefFormat)]
@@ -37,7 +37,7 @@ public List<SpecJournalKeywords> SpecJournalKeywords { get; set; }= [];
 /// <summary>
 /// 期刊
 /// </summary>
-public class SpecJournalModel : MasterDataModel
+public class SpecJournal : MasterDataModel
 {
     /// <summary>
     /// 期刊代號
@@ -50,7 +50,7 @@ public string JournalId { get; set; } = string.Empty;
     /// </summary>
 [ForeignKey(nameof(JournalIndexId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public SpecJournalIndexModel? _JournalIndex { get; set; }
+public SpecJournalIndex? _JournalIndex { get; set; }
 [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.ID, SpecDisplayName.Spec_JournalIndexId)]
 public string? JournalIndexId { get; set; }
     /// <summary>
@@ -93,7 +93,7 @@ public string DOIUrl { get; set; }= string.Empty;
     /// </summary>
 [ForeignKey(nameof(JournalFileId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public FileManageModel? JournalFile { get; set; }
+public FileManage? JournalFile { get; set; }
 [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.InternalId, SpecDisplayName.Spec_JournalFieldId)]
 public string? JournalFileId { get; set; }
     /// <summary>
@@ -106,7 +106,7 @@ public string JournalFileName { get; set; }= string.Empty;
     /// </summary>
 [ForeignKey(nameof(InsightPointFileId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public FileManageModel? InsightPointFile { get; set; }
+public FileManage? InsightPointFile { get; set; }
 [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.InternalId, SpecDisplayName.Spec_InsightPointFileId)]
 public string? InsightPointFileId { get; set; }
     /// <summary>
@@ -229,7 +229,7 @@ public string Country { get; set; }= string.Empty;
     #region 主子表關聯
 [ForeignKey(nameof(JournalId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public SpecJournalModel _SpecJournal { get; set; }
+public SpecJournal _SpecJournal { get; set; }
     #endregion
 }
 /// <summary>
@@ -262,7 +262,7 @@ public string Content { get; set; }= string.Empty;
     #region 主子表關聯
 [ForeignKey(nameof(JournalId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public SpecJournalModel _SpecJournal { get; set; }
+public SpecJournal _SpecJournal { get; set; }
     #endregion
 }
 /// <summary>
@@ -290,14 +290,14 @@ public string OpenPointFileName { get; set; }= string.Empty;
     /// </summary>
 [ForeignKey(nameof(OpenPointFileId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public FileManageModel? OpenPointFile { get; set; }
+public FileManage? OpenPointFile { get; set; }
 [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.InternalId, SpecDisplayName.Spec_OpenPointFileId)]
 public string? OpenPointFileId { get; set; }
 
     #region 主子表關聯
 [ForeignKey(nameof(JournalId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public SpecJournalModel _SpecJournal { get; set; }
+public SpecJournal _SpecJournal { get; set; }
     #endregion
 }
 /// <summary>
@@ -325,14 +325,14 @@ public string RefFileName { get; set; }= string.Empty;
     /// </summary>
 [ForeignKey(nameof(RefFileId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public FileManageModel? RefFile { get; set; }
+public FileManage? RefFile { get; set; }
 [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.InternalId, SpecDisplayName.Spec_RefFileId)]
 public string? RefFileId { get; set; }
 
     #region 主子表關聯
 [ForeignKey(nameof(JournalId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public SpecJournalModel _SpecJournal { get; set; }
+public SpecJournal _SpecJournal { get; set; }
     #endregion
 }
 
@@ -368,14 +368,14 @@ public string DocumentName { get; set; }= string.Empty;
     /// </summary>
 [ForeignKey(nameof(DocumentId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public FileManageModel? Document { get; set; }
+public FileManage? Document { get; set; }
 [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.InternalId, SpecDisplayName.Spec_DocumentId)]
 public string? DocumentId { get; set; }
 
     #region 主子表關聯
 [ForeignKey(nameof(JournalId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public SpecJournalModel _SpecJournal { get; set; }
+public SpecJournal _SpecJournal { get; set; }
     #endregion
 }
 
@@ -407,7 +407,7 @@ public string? TagId { get; set; }
     #region 主子表關聯
 [ForeignKey(nameof(JournalId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public SpecJournalModel _SpecJournal { get; set; }
+public SpecJournal _SpecJournal { get; set; }
     #endregion
 }
 /// <summary>
@@ -439,6 +439,6 @@ public string Keyword { get; set; }= string.Empty;
     #region 主子表關聯
 [ForeignKey(nameof(JournalId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public SpecJournalModel _SpecJournal { get; set; }
+public SpecJournal _SpecJournal { get; set; }
     #endregion
 }

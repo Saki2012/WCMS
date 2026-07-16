@@ -22,7 +22,7 @@ public class FilePathOptions
 /// 檔案管理
 /// </summary>
 [Index(nameof(FileSHA256))]
-public class FileManageModel : HeaderModel
+public class FileManage : HeaderModel
 {
     /// <summary>
     /// 檔案識別碼
@@ -104,12 +104,12 @@ public class FileManageModel : HeaderModel
     public bool IsPublic { get; set; } = true;
 
     #region 主子表關聯
-    [InverseProperty(nameof(FileManage_SyncInfoModel._FileManage))]
+    [InverseProperty(nameof(FileManage_SyncInfo._FileManage))]
     [LibField(ApiFieldMode.ReadWrite)]
-    public List<FileManage_SyncInfoModel> _FileManage_SyncInfo { get; set; } = [];
-    [InverseProperty(nameof(FileManage_DownloadRecentModel._FileManage))]
+    public List<FileManage_SyncInfo> _FileManage_SyncInfo { get; set; } = [];
+    [InverseProperty(nameof(FileManage_DownloadRecent._FileManage))]
     [LibField(ApiFieldMode.ReadWrite)]
-    public List<FileManage_DownloadRecentModel> _FileManage_DownloadRecent { get; set; } = [];
+    public List<FileManage_DownloadRecent> _FileManage_DownloadRecent { get; set; } = [];
     #endregion
 }
 /// <summary>
@@ -117,7 +117,7 @@ public class FileManageModel : HeaderModel
 /// </summary>
 /// 
 [Index(nameof(InternalId), nameof(VisitorKey), IsUnique = true), Index(nameof(LastCountTime))]
-public class FileManage_DownloadRecentModel : DetailModel
+public class FileManage_DownloadRecent : DetailModel
 {
     /// <summary>
     /// 檔案識別碼
@@ -151,13 +151,13 @@ public class FileManage_DownloadRecentModel : DetailModel
     #region 主子表關聯
     [ForeignKey(nameof(InternalId))]
     [LibField(ApiFieldMode.ReadOnly)]
-    public FileManageModel _FileManage { get; set; } = null!;
+    public FileManage _FileManage { get; set; } = null!;
     #endregion
 }
 /// <summary>
 /// 檔案同步資訊
 /// </summary>
-public class FileManage_SyncInfoModel : DetailModel
+public class FileManage_SyncInfo : DetailModel
 {
     /// <summary>
     /// 檔案識別碼
@@ -233,7 +233,7 @@ public class FileManage_SyncInfoModel : DetailModel
     #region 主子表關聯
     [ForeignKey(nameof(InternalId))]
     [LibField(ApiFieldMode.ReadOnly)]
-    public FileManageModel _FileManage { get; set; } = null!;
+    public FileManage _FileManage { get; set; } = null!;
     #endregion
 }
 /// <summary>
@@ -275,6 +275,6 @@ public class FileManage_UsedModel
     #region 主子表關聯
     [ForeignKey(nameof(InternalId))]
     [LibField(ApiFieldMode.ReadOnly)]
-    public FileManageModel _FileManage { get; set; } = null!;
+    public FileManage _FileManage { get; set; } = null!;
     #endregion
 }

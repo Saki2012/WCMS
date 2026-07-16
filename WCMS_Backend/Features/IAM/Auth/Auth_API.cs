@@ -162,7 +162,7 @@ public class AuthController(LoginAttemptCache loginAttemptCache, TokenService to
             await _tokenSvc.RevokeRefreshAsync(rtid, ct);
         // 清 cookie
         var delOpt = new CookieOptions { Path = SysParam.CookiePaths.Root, Secure = true, SameSite = SameSiteMode.Lax };
-        OperateLogModel followInfo = new OperateLogModel();
+        OperateLog followInfo = new OperateLog();
         followInfo.APIName = nameof(Logout);
         followInfo.UserId = OperateUser.UserId;
         followInfo.followingDT = JsonConvert.SerializeObject(delOpt);

@@ -42,7 +42,7 @@ public partial class Announcement : HeaderModel
     /// </summary>
     [ForeignKey(nameof(PictureId))]
     [LibField(ApiFieldMode.ReadOnly)]
-    public FileManageModel? Picture { get; set; }
+    public FileManage? Picture { get; set; }
     [LibStr(ApiFieldMode.ReadWrite, DbStrLen.InternalId, DisplayName.Announcement_CoverPictureId)]
     public string? PictureId { get; set; } = string.Empty;
     /// <summary>
@@ -152,7 +152,7 @@ public partial class AnnouncementDetailFile : DetailModel
     /// </summary>
     [ForeignKey(nameof(FileId))]
     [LibField(ApiFieldMode.ReadOnly)]
-    public FileManageModel? File { get; set; }
+    public FileManage? File { get; set; }
     [LibStr(ApiFieldMode.ReadWrite, DbStrLen.InternalId, DisplayName.Announcement_FileId)]
     public string? FileId { get; set; }
     /// <summary>

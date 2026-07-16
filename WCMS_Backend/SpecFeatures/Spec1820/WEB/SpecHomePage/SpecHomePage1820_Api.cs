@@ -7,7 +7,7 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.SpecFeatures.Spec1820.WEB.SpecHomePage;
 
 [LibApiController(ProgKeys.WEB.Code, ProgKeys.WEB.HomePageSetting, FuncAction.MasterData)]
-public class SpecHomePageApiController : ApiDataController<SpecHomePage1820Model> {
+public class SpecHomePageApiController : ApiDataController<SpecHomePage1820> {
 
     #region Public
     /// <summary>

@@ -15,13 +15,13 @@ public partial class CalendarController
        var queryCondition = new QueryListParam()
         {
             Fields = [
-            $"{nameof(CalendarModel._CalendarDetail)}.{nameof(CalendarDetail.Date)}",
-            $"{nameof(CalendarModel._CalendarDetail)}.{nameof(CalendarDetail.DayOfWeek)}",
-            $"{nameof(CalendarModel._CalendarDetail)}.{nameof(CalendarDetail.HolidayName)}",
-            $"{nameof(CalendarModel._CalendarDetail)}.{nameof(CalendarDetail.Spec_OpenTime)}",
-            $"{nameof(CalendarModel._CalendarDetail)}.{nameof(CalendarDetail.Spec_CloseTime)}"
+            $"{nameof(Calendar._CalendarDetail)}.{nameof(CalendarDetail.Date)}",
+            $"{nameof(Calendar._CalendarDetail)}.{nameof(CalendarDetail.DayOfWeek)}",
+            $"{nameof(Calendar._CalendarDetail)}.{nameof(CalendarDetail.HolidayName)}",
+            $"{nameof(Calendar._CalendarDetail)}.{nameof(CalendarDetail.Spec_OpenTime)}",
+            $"{nameof(Calendar._CalendarDetail)}.{nameof(CalendarDetail.Spec_CloseTime)}"
             ],
-            Condition = $"{nameof(CalendarModel._CalendarDetail)}.{nameof(CalendarDetail.Date)} = '{today}'", OrderBy = null, PageNumber = 1,PageSize = 1
+            Condition = $"{nameof(Calendar._CalendarDetail)}.{nameof(CalendarDetail.Date)} = '{today}'", OrderBy = null, PageNumber = 1,PageSize = 1
         };
         CalendarDetail data = (await Service.BizQueryListAsync(queryCondition)).FirstOrDefault().CalendarDetail.FirstOrDefault(p=>p.Date==today);
         List<SpecCurrentOpenTime_DTO> result = [new SpecCurrentOpenTime_DTO() {Date=data.Date,DayOfWeek=data.DayOfWeek,HolidayName=data.HolidayName,Spec_OpenTime=data.Spec_OpenTime,Spec_CloseTime=data.Spec_CloseTime }];

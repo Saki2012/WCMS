@@ -9,13 +9,13 @@ namespace WCMS.SpecFeatures.Spec1819.WEB.SpecJournalIndex;
 /// </summary>
 [LibDesc(SpecModelDisplayName.SpecJournalIndexSet)]public class SpecJournalIndexSet_DTO : ITSet_DTO
 {
-    [LibDesc(SpecModelDisplayName.SpecJournalIndex)] public SpecJournalIndexModel_DTO SpecJournalIndex { get; set; }
+    [LibDesc(SpecModelDisplayName.SpecJournalIndex)] public SpecJournalIndex_DTO SpecJournalIndex { get; set; }
     [LibDesc(SpecModelDisplayName.SpecJournalIndexDetail)] public List<SpecJournalIndexDetail_DTO>? SpecJournalIndexDetail { get; set; }
 }
 /// <summary>
 /// 期刊目次
 /// </summary>
-public class SpecJournalIndexModel_DTO : DTOBasicDataModel
+public class SpecJournalIndex_DTO : DTOBasicDataModel
 {
     /// <summary>
     /// 期刊目次代號
@@ -65,7 +65,7 @@ public class SpecJournalIndexDetail_DTO : DetailRowModel
     /// <summary>
     /// 期刊檔案(整本)
     /// </summary>
-    public FileManageModel_DTO? SummaryFile { get; set; }
+    public FileManage_DTO? SummaryFile { get; set; }
     [LibDesc(SpecModelDisplayName.Spec_SummaryFileId), StringLength(SysLengthParam.InternalId)] public string? SummaryFileId { get; set; }
     /// <summary>
     /// 期刊檔案名稱
@@ -73,6 +73,6 @@ public class SpecJournalIndexDetail_DTO : DetailRowModel
     [LibDesc(SpecModelDisplayName.Spec_SummaryFileName), StringLength(SysLengthParam.FileName)] public string? SummaryFileName { get; set; }
 
     #region 主子表關聯
-    public SpecJournalIndexModel_DTO? _SpecJournalIndex { get; set; }
+    public SpecJournalIndex_DTO? _SpecJournalIndex { get; set; }
     #endregion
 }

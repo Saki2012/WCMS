@@ -16,9 +16,9 @@ internal static class WebResourceOldDataMigration
     /// <summary>
     /// 轉換並建立舊站網路資源資料。
     /// </summary>
-    public static async Task MigrateAsync(IBizService<WebResource> service, IList<FileManageModel> sourceFiles, CancellationToken ct)
+    public static async Task MigrateAsync(IBizService<WebResource> service, IList<FileManage> sourceFiles, CancellationToken ct)
     {
-        List<FileManageModel> usedFiles = [];
+        List<FileManage> usedFiles = [];
         WebResource[] data = ConvertToModels(sourceFiles, usedFiles);
         OldDataMigrationSource.MarkFiles(usedFiles, service.ProgId);
         await service.BizInitCreateDatasAsync(data, ct);
@@ -29,7 +29,7 @@ internal static class WebResourceOldDataMigration
     /// <summary>
     /// 將舊站網路資源資料轉為目前資料模型。
     /// </summary>
-    private static WebResource[] ConvertToModels(IList<FileManageModel> sourceFiles, List<FileManageModel> usedFiles)
+    private static WebResource[] ConvertToModels(IList<FileManage> sourceFiles, List<FileManage> usedFiles)
     {
         DataSet dataSet = GetMigrationData();
         List<WebResource> result = [];
@@ -52,7 +52,7 @@ internal static class WebResourceOldDataMigration
     /// <summary>
     /// 建立單筆網路資源 Graph。
     /// </summary>
-    private static WebResource BuildWebResource(DataRow row, DataTable languageTable, IList<FileManageModel> sourceFiles, List<FileManageModel> usedFiles)
+    private static WebResource BuildWebResource(DataRow row, DataTable languageTable, IList<FileManage> sourceFiles, List<FileManage> usedFiles)
     {
         string pictureId = ResolvePicture(row, sourceFiles, usedFiles);
         WebResource result = new()
@@ -72,11 +72,11 @@ internal static class WebResourceOldDataMigration
     /// <summary>
     /// 取得網路資源代表圖片 InternalId。
     /// </summary>
-    private static string ResolvePicture(DataRow row, IList<FileManageModel> sourceFiles, List<FileManageModel> usedFiles)
+    private static string ResolvePicture(DataRow row, IList<FileManage> sourceFiles, List<FileManage> usedFiles)
     {
         string fileName = row["Pic"].ToString();
         if (fileName.IsNullOrEmpty()) return string.Empty;
-        FileManageModel? file = OldDataMigrationSource.FindImportedFile(sourceFiles, $"File/WebResource/{fileName}");
+        FileManage? file = OldDataMigrationSource.FindImportedFile(sourceFiles, $"File/WebResource/{fileName}");
         if (file == null) return string.Empty;
         string description = row["PicDescription"].ToString();
         file.FileName = fileName;

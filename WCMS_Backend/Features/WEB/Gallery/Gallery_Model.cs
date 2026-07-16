@@ -53,7 +53,7 @@ public class Gallery : HeaderModel
     /// </summary>
     [ForeignKey(nameof(CoverPicSrcId))]
     [LibField(ApiFieldMode.ReadOnly)]
-    public FileManageModel? CoverPicSrc { get; set; }
+    public FileManage? CoverPicSrc { get; set; }
     [LibStr(ApiFieldMode.ReadWrite, DbStrLen.InternalId, DisplayName.Gallery_CoverPicSrcId)]
     public string? CoverPicSrcId { get; set; }
 
@@ -128,7 +128,7 @@ public class GalleryPhotos : DetailModel
     /// </summary>
     [ForeignKey(nameof(PicSrcId))]
     [LibField(ApiFieldMode.ReadOnly)]
-    public FileManageModel? PicSrc { get; set; }
+    public FileManage? PicSrc { get; set; }
     [LibStr(ApiFieldMode.ReadWrite, DbStrLen.InternalId, DisplayName.Gallery_PicSrcId)]
     public string? PicSrcId { get; set; }
     /// <summary>

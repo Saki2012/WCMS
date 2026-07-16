@@ -50,7 +50,7 @@ public sealed class OperateLogMiddleware(RequestDelegate next)
         return false;
     }
 
-    private static OperateLogModel BuildStartLog(HttpContext context, IOperateLog operateLog)
+    private static OperateLog BuildStartLog(HttpContext context, IOperateLog operateLog)
     {
         // 組 API 名稱（用 route + method，避免依賴 controller 才能跑）
         var apiName = BuildApiName(context);
@@ -70,7 +70,7 @@ public sealed class OperateLogMiddleware(RequestDelegate next)
         return $"{context.Request.Method} {context.Request.Path}";
     }
 
-    private static void ApplyEndStatus(HttpContext context, OperateLogModel follow, Stopwatch sw)
+    private static void ApplyEndStatus(HttpContext context, OperateLog follow, Stopwatch sw)
     {
         // 取消判斷：用 RequestAborted 最準（等同 action 的 ct）
         if (context.RequestAborted.IsCancellationRequested)
@@ -84,21 +84,21 @@ public sealed class OperateLogMiddleware(RequestDelegate next)
         else ApplyOkStatus(follow, sw);
     }
 
-    private static void ApplyOkStatus(OperateLogModel follow, Stopwatch sw)
+    private static void ApplyOkStatus(OperateLog follow, Stopwatch sw)
     {
         // 設成功狀態（你目前用 ExcStatus.OK）
         follow.ExcStatus = ExcStatus.OK;
         // TODO: 若 follow 有耗時欄位，可在這裡寫 follow.ElapsedMs = sw.ElapsedMilliseconds;
     }
 
-    private static void ApplyFailStatus(OperateLogModel follow, Stopwatch sw)
+    private static void ApplyFailStatus(OperateLog follow, Stopwatch sw)
     {
         // 設失敗狀態
         follow.ExcStatus = ExcStatus.Fail;
         // TODO: elapsed
     }
 
-    private static void ApplyCancelStatus(OperateLogModel follow, Stopwatch sw)
+    private static void ApplyCancelStatus(OperateLog follow, Stopwatch sw)
     {
         // 設取消狀態
         follow.ExcStatus = ExcStatus.CancelExc;

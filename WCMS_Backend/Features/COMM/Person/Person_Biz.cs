@@ -7,10 +7,10 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.Features.COMM.Person;
 
 [LibBiz(ProgKeys.COMM.Code, ProgKeys.COMM.Person)]
-public class PersonBiz(BizDeps bizDeps) : BizService<PersonModel>(bizDeps), IBizService<PersonModel>
+public class PersonBiz(BizDeps bizDeps) : BizService<Person>(bizDeps), IBizService<Person>
 {
     #region Protected
-    protected override async Task BeforeUpdate(PersonModel set, FuncAction act, CancellationToken ct = default)
+    protected override async Task BeforeUpdate(Person set, FuncAction act, CancellationToken ct = default)
     {
         await base.BeforeUpdate(set, act, ct);
         switch (act)
@@ -24,13 +24,13 @@ public class PersonBiz(BizDeps bizDeps) : BizService<PersonModel>(bizDeps), IBiz
     #endregion
 
     #region Private
-    private void CheckData(PersonModel set)
+    private void CheckData(Person set)
     {
         CheckIsEmpty(set);
     }
-    private void CheckIsEmpty(PersonModel header)
+    private void CheckIsEmpty(Person header)
     {
-        if(header.PersonName.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<PersonModel>(x => x.PersonName));
+        if(header.PersonName.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<Person>(x => x.PersonName));
     }
     #endregion
 }

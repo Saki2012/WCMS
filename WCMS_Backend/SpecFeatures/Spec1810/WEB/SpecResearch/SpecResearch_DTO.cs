@@ -8,10 +8,10 @@ namespace WCMS.SpecFeatures.Spec1810.WEB.SpecResearch;
 
 [LibDesc(SpecModelDisplayName.SpecResearchSet_DTO)]public class SpecResearchSet_DTO : ITSet_DTO
 {
-    public SpecResearchModel_DTO SpecResearch { get; set; } = new();
-    public List<SpecResearchDetailModel_DTO> SpecResearchDetail { get; set; } = [];
+    public SpecResearch_DTO SpecResearch { get; set; } = new();
+    public List<SpecResearchDetail_DTO> SpecResearchDetail { get; set; } = [];
 }
-public class SpecResearchModel_DTO : DTOBasicDataModel
+public class SpecResearch_DTO : DTOBasicDataModel
 {
     /// <summary>
     /// 橫幅ID
@@ -30,9 +30,9 @@ public class SpecResearchModel_DTO : DTOBasicDataModel
     /// </summary>
     [LibDesc(SpecModelDisplayName.SpecResearch_Tags), StringLength(SysLengthParam.Title)] public string? Tags { get; set; } = string.Empty;
 
-    public List<SpecResearchDetailModel_DTO>? _SpecResearchDetail { get; set; } = [];
+    public List<SpecResearchDetail_DTO>? _SpecResearchDetail { get; set; } = [];
 }
-public class SpecResearchDetailModel_DTO
+public class SpecResearchDetail_DTO
 {
     [LibDesc(SpecModelDisplayName.SpecResearchId), Key, StringLength(SysLengthParam.ID)] public string? ResearchId { get; set; }
     [LibDesc(ModelDisplayName.Common_RowId), Key] public int RowId { get; set; }

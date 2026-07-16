@@ -9,7 +9,7 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.SpecFeatures.Spec1810.WEB.SpecCategory;
 
 [LibApiController(ProgKeys.WEB.Code, ProgKeys.Spec.SpecCategory, FuncAction.MasterData)]
-public class SpecCategoryController : ApiDataController<SpecCategoryModel>
+public class SpecCategoryController : ApiDataController<SpecCategory>
 {
     [HttpGet(nameof(GetShowColumnItems)), OutputCache(PolicyName = SysParam.OutputCachePolicies.PermanentCache), AllowAnonymous, IgnoreAntiforgeryToken]
     public IActionResult GetShowColumnItems(string progId)

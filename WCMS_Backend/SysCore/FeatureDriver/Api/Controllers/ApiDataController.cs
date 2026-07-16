@@ -27,7 +27,7 @@ public abstract class ApiDataQueryController<TFormModel> : ApiBaseController whe
     #region Property
     private IBizService<TFormModel>? _service;
     private IOutputCacheFeature? _Ocf;
-    private IBizService<FileManageModel>? _fileService;
+    private IBizService<FileManage>? _fileService;
     private ModelTypeMetadataCache? _modelMetadata;
     private I18nCache? _i18n;
 
@@ -42,7 +42,7 @@ public abstract class ApiDataQueryController<TFormModel> : ApiBaseController whe
     /// <summary>
     /// 檔案管理服務。
     /// </summary>
-    protected FileManagementBiz FileService => (FileManagementBiz)(_fileService ??= HttpContext.RequestServices.GetRequiredService<IBizService<FileManageModel>>());
+    protected FileManagementBiz FileService => (FileManagementBiz)(_fileService ??= HttpContext.RequestServices.GetRequiredService<IBizService<FileManage>>());
     /// <summary>
     /// Model Reflection Metadata Cache。
     /// </summary>
@@ -181,7 +181,7 @@ public abstract class ApiDataController<TFormModel> : ApiDataQueryController<TFo
     [HttpPost(nameof(Create)), LibRequireFuncAct(FuncAction.Create)]
     public virtual async Task<IActionResult> Create(TFormModel data, CancellationToken ct)
     {
-        OperateLogModel followInfo = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(Create)}", OperateUser.UserId, JsonConvert.SerializeObject(data), Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
+        OperateLog followInfo = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(Create)}", OperateUser.UserId, JsonConvert.SerializeObject(data), Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
         SpecBeforeWrite(data);
         TFormModel result = await Service.BizCreateDataAsync(data, ct);
         await EvictForDataAsync(ct);
@@ -197,17 +197,17 @@ public abstract class ApiDataController<TFormModel> : ApiDataQueryController<TFo
     public virtual async Task<IActionResult> InitialCreateData(TFormModel[] datas, CancellationToken ct)
     {
         OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(InitialCreateData)}", OperateUser.UserId, JsonConvert.SerializeObject(datas), Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
-        bool ownsTx = await Service.TryBeginTransactionAsync();
+        bool ownsTx = await Service.TryBeginTransactionAsync(ct);
         try
         {
             foreach (var data in datas) SpecBeforeWrite(data);
             await Service.BizInitCreateDatasAsync(datas, ct);
-            await Service.TryCommitAsync(ownsTx);
+            await Service.TryCommitAsync(ownsTx, ct);
             return Ok();
         }
         catch (Exception ex)
         {
-            await Service.TryRollbackAsync(ownsTx);
+            await Service.TryRollbackAsync(ownsTx, CancellationToken.None);
             return BadRequest($"初始化失敗：{ex.Message}");
         }
     }
@@ -217,7 +217,7 @@ public abstract class ApiDataController<TFormModel> : ApiDataQueryController<TFo
     [HttpPut(nameof(Update)), LibRequireFuncAct(FuncAction.Update)]
     public virtual async Task<IActionResult> Update(ApiRequest<TFormModel> request, CancellationToken ct)
     {
-        OperateLogModel followInfo = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(Update)}", OperateUser.UserId, JsonConvert.SerializeObject(request), Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
+        OperateLog followInfo = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(Update)}", OperateUser.UserId, JsonConvert.SerializeObject(request), Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
         if (request.Data != null) SpecBeforeWrite(request.Data);
         TFormModel result = await Service.BizUpdateDataAsync(request.InternalId, request.Data!, ct);
         await EvictForDataAsync(ct, request.InternalId);

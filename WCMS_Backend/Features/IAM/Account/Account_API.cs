@@ -11,7 +11,7 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.Features.IAM.Account;
 
 [LibApiController(ProgKeys.IAM.Code, ProgKeys.IAM.Account, FuncAction.MasterData)]
-public class AccountController : ApiDataController<AccountModel>
+public class AccountController : ApiDataController<Account>
 {
     #region Property
     private const string SysOperator = nameof(SysOperator);
@@ -33,7 +33,7 @@ public class AccountController : ApiDataController<AccountModel>
     [HttpPut(nameof(ChangePassword)), LibRequireFuncAct(FuncAction.Use)]
     public async Task<IActionResult> ChangePassword(ChangePassword pw, CancellationToken ct)
     {
-        OperateLogModel log = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(ChangePassword)}", OperateUser.UserId, string.Empty, Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
+        OperateLog log = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(ChangePassword)}", OperateUser.UserId, string.Empty, Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
         var response = new ApiResponse<string>() { Data = [], SysMessage = Message.Messages };
         if (pw.OldPassword == pw.NewPassword)
         {
@@ -55,7 +55,7 @@ public class AccountController : ApiDataController<AccountModel>
     [HttpPut(nameof(ResetPassword)), LibRequireFuncAct(FuncAction.Use)]
     public async Task<IActionResult> ResetPassword(ResetPassword pw, CancellationToken ct)
     {
-        OperateLogModel log = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(ResetPassword)}", OperateUser.UserId, string.Empty, Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
+        OperateLog log = OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(ResetPassword)}", OperateUser.UserId, string.Empty, Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
         var response = new ApiResponse<string>() { Data = [], SysMessage = Message.Messages };
         AccountBiz.CheckPasswordLegal(pw.NewPassword, out List<SysMessageModel> message);
         Message.AddMessage(message);
@@ -66,7 +66,7 @@ public class AccountController : ApiDataController<AccountModel>
     #endregion
 
     #region Protected
-    protected override void SpecBeforeWrite(AccountModel data)
+    protected override void SpecBeforeWrite(Account data)
     {
         base.SpecBeforeWrite(data);
         ConvertPassword(data);
@@ -78,13 +78,13 @@ public class AccountController : ApiDataController<AccountModel>
     /// 過濾系統使用者
     /// </summary>
     /// <param name="srcCdt"></param>
-    private static string FiltSystemUser(string srcCdt) => LibData.Merge(SysParam.QueryOperators.And, false, srcCdt, $@"{nameof(AccountModel.AccountId)} Not In {SysOperator},{Admin}");
+    private static string FiltSystemUser(string srcCdt) => LibData.Merge(SysParam.QueryOperators.And, false, srcCdt, $@"{nameof(Account.AccountId)} Not In {SysOperator},{Admin}");
     /// <summary>
     /// 轉換密碼
     /// </summary>
     /// <param name="set"></param>
     /// <param name="dto"></param>
-    private void ConvertPassword(AccountModel data)
+    private void ConvertPassword(Account data)
     {
         AccountBiz.ConvertPassword(data, data.Password);
         data.Password = string.Empty;// 清除敏感字串（避免在錯誤日誌裡被序列化）

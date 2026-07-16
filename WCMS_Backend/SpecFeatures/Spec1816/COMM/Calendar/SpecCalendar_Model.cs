@@ -14,7 +14,7 @@ public partial class CalendarDetail
     /// </summary>
 [ForeignKey(nameof(Spec_AcademicYearId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public SpecOpenScheduleRuleModel? Spec_AcademicYear { get; set; }
+public SpecOpenScheduleRule? Spec_AcademicYear { get; set; }
 [StringLength(SysLengthParam.ID)]
 [LibField(ApiFieldMode.ReadWrite)]
 public string? Spec_AcademicYearId { get; set; }

@@ -6,13 +6,13 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.SpecFeatures.Spec1817.WEB.SpecMusical;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.Spec.SpecMusical)]
-public class SpecMusical_Biz(BizDeps bizDeps) : BizService<SpecMusicalModel>(bizDeps), IBizService<SpecMusicalModel>
+public class SpecMusical_Biz(BizDeps bizDeps) : BizService<SpecMusical>(bizDeps), IBizService<SpecMusical>
 {
     #region Protected Virtual
     /// <summary>
     /// 儲存前整理封面圖片與相片排序。
     /// </summary>
-    protected override async Task BeforeUpdate(SpecMusicalModel data, FuncAction act, CancellationToken ct = default)
+    protected override async Task BeforeUpdate(SpecMusical data, FuncAction act, CancellationToken ct = default)
     {
         await base.BeforeUpdate(data, act, ct);
         if (act != FuncAction.Create && act != FuncAction.Update) return;
@@ -24,7 +24,7 @@ public class SpecMusical_Biz(BizDeps bizDeps) : BizService<SpecMusicalModel>(biz
     /// <summary>
     /// 整理樂器表單的系統欄位。
     /// </summary>
-    protected void SetData(SpecMusicalModel data)
+    protected void SetData(SpecMusical data)
     {
         SetCoverPic(data);
         ResetPhotoSort(data._SpecMusicalPictureList);
@@ -35,7 +35,7 @@ public class SpecMusical_Biz(BizDeps bizDeps) : BizService<SpecMusicalModel>(biz
     /// <summary>
     /// 封面不存在於相片清單時，改用第一張相片。
     /// </summary>
-    private static void SetCoverPic(SpecMusicalModel data)
+    private static void SetCoverPic(SpecMusical data)
     {
         string? coverPicId = data.CoverPicId;
         bool coverExists = data._SpecMusicalPictureList.Any(item => item.PicSrcId == coverPicId);

@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -96,7 +96,7 @@ public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions
     protected virtual async Task CommitSubmission(SurveySubmissions submit, CancellationToken ct = default)
     {
         if (submit == null || Message.HasError) return;
-        await GraphRepo.GetRepo<SurveySubmissions>().CreateAsync(submit);
+        await GraphRepo.GetRepo<SurveySubmissions>().CreateAsync(submit, ct);
     }
     #endregion
 

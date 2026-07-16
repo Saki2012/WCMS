@@ -230,17 +230,8 @@ public sealed class I18nCache(CacheService cacheService, ModelTypeMetadataCache 
     /// </summary>
     private Type? FindDtoType(string modelName)
     {
-        List<string> candidates = BuildDtoTypeNameCandidates(modelName);
-        return GetDomainTypes().FirstOrDefault(type => candidates.Contains(type.Name));
-    }
-    /// <summary>
-    /// 建立 DTO 命名候選清單。
-    /// </summary>
-    private static List<string> BuildDtoTypeNameCandidates(string modelName)
-    {
-        var result = new List<string> { $"{modelName}_DTO" };
-        if (modelName.EndsWith("Model", StringComparison.Ordinal)) result.Add($"{modelName[..^5]}_DTO");
-        return result;
+        string dtoTypeName = $"{modelName}_DTO";
+        return GetDomainTypes().FirstOrDefault(type => type.Name == dtoTypeName);
     }
     /// <summary>
     /// 取得 Type 顯示文字，fallback 格式視為找不到。

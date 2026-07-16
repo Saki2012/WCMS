@@ -9,7 +9,7 @@ using WCMS.SysCore.PlatformServices.FileManagement;
 namespace WCMS.Features.COMM.Person;
 
 [LibDesc(DisplayName.Person_PersonModel)]
-public class PersonModel : HeaderModel
+public class Person : HeaderModel
 {
     /// <summary>
     /// 人員ID
@@ -27,7 +27,7 @@ public class PersonModel : HeaderModel
     /// </summary>
     [ForeignKey(nameof(PersonImgId))]
     [LibField(ApiFieldMode.ReadOnly)]
-    public FileManageModel? PersonImg { get; set; }
+    public FileManage? PersonImg { get; set; }
     [LibStr(ApiFieldMode.ReadWrite, DbStrLen.InternalId, DisplayName.Person_PersonImgId)]
     public string? PersonImgId { get; set; }
     /// <summary>

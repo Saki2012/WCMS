@@ -15,7 +15,7 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.SpecFeatures.Spec1819.WEB.SpecJournal;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.Spec.SpecJournal)]
-public class SpecJournal_Biz(BizDeps bizDeps, IHttpClientFactory HttpClientFactory, IMemoryCache Cache) : BizService<SpecJournalModel>(bizDeps), IBizService<SpecJournalModel>
+public class SpecJournal_Biz(BizDeps bizDeps, IHttpClientFactory HttpClientFactory, IMemoryCache Cache) : BizService<SpecJournal>(bizDeps), IBizService<SpecJournal>
 {
     #region Property
     private static readonly TimeSpan CacheTtl = TimeSpan.FromHours(24);
@@ -62,14 +62,14 @@ public class SpecJournal_Biz(BizDeps bizDeps, IHttpClientFactory HttpClientFacto
     {
         bool isPublishing = !string.IsNullOrWhiteSpace(JournalIndexId) && JournalIndexRowId != null;
         await ExecTransactionAsync<object>(
-            async _ =>
+            async token =>
             {
-                var oldHeader = await QueryHeaderByInternalIdAsync(internalId);
+                var oldHeader = await QueryHeaderByInternalIdAsync(internalId, token);
                 if (oldHeader == null) return null;
                 var newHeader = oldHeader.Snapshot();
                 ApplyPublishedStatus(newHeader, JournalIndexId, JournalIndexRowId);
-                var repo = (dynamic)RepoDict[nameof(SpecJournalModel)];
-                await repo.UpdateAsync((dynamic)oldHeader, (dynamic)newHeader);
+                var repo = (dynamic)RepoDict[nameof(SpecJournal)];
+                await repo.UpdateAsync((dynamic)oldHeader, (dynamic)newHeader, token);
                 return null;
             },
             async (_, _) =>
@@ -82,7 +82,7 @@ public class SpecJournal_Biz(BizDeps bizDeps, IHttpClientFactory HttpClientFacto
     #endregion
 
     #region Virtual Protected
-    protected override Task BeforeUpdate(SpecJournalModel set, FuncAction act, CancellationToken ct = default)
+    protected override Task BeforeUpdate(SpecJournal set, FuncAction act, CancellationToken ct = default)
     {
         var result = base.BeforeUpdate(set, act, ct);
         switch (act)
@@ -98,12 +98,12 @@ public class SpecJournal_Biz(BizDeps bizDeps, IHttpClientFactory HttpClientFacto
     #endregion
 
     #region Protected
-    protected void BeforeCheckData(SpecJournalModel set)
+    protected void BeforeCheckData(SpecJournal set)
     {
         CheckJouranlIndexIsEmpty(set.SpecJournal);
     }
 
-    protected void BeforeSetData(SpecJournalModel set)
+    protected void BeforeSetData(SpecJournal set)
     {
         SetFileNameEmpty(set);
     }
@@ -115,17 +115,17 @@ public class SpecJournal_Biz(BizDeps bizDeps, IHttpClientFactory HttpClientFacto
     /// 檢查期刊目次代號、卷期代號是否都有填，或是全空(預刊本)
     /// </summary>
     /// <param name="header"></param>
-    protected void CheckJouranlIndexIsEmpty(SpecJournalModel header)
+    protected void CheckJouranlIndexIsEmpty(SpecJournal header)
     {
         if (header.JournalIndexId.IsNullOrEmpty() && header.JournalIndexRowId.IsNullOrEmpty() || !header.JournalIndexId.IsNullOrEmpty() && !header.JournalIndexRowId.IsNullOrEmpty()) return;
-        if(header.JournalIndexId.IsNullOrEmpty() ) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<SpecJournalModel>(x => x.JournalIndexId));
-        if(header.JournalIndexRowId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<SpecJournalModel>(x => x.JournalIndexRowId));
+        if(header.JournalIndexId.IsNullOrEmpty() ) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<SpecJournal>(x => x.JournalIndexId));
+        if(header.JournalIndexRowId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<SpecJournal>(x => x.JournalIndexRowId));
     }
     /// <summary>
     /// 防呆:如果沒有上傳檔案(檔案來源為空)，顯示名稱就設為空白
     /// </summary>
     /// <param name="set"></param>
-    protected void SetFileNameEmpty(SpecJournalModel set)
+    protected void SetFileNameEmpty(SpecJournal set)
     {
         if (set.SpecJournal.InsightPointFileId == null) set.SpecJournal.InsightPointFileName = string.Empty;
         if (set.SpecJournal.JournalFileId == null) set.SpecJournal.JournalFileName = string.Empty;
@@ -379,11 +379,13 @@ public class SpecJournal_Biz(BizDeps bizDeps, IHttpClientFactory HttpClientFacto
     /// </summary>
     /// <param name="internalId">資料 InternalId</param>
     /// <returns>表頭資料</returns>
-    private async Task<SpecJournalModel> QueryHeaderByInternalIdAsync(string internalId)
+    private async Task<SpecJournal> QueryHeaderByInternalIdAsync(
+        string internalId,
+        CancellationToken ct)
     {
         var condition = $"{nameof(BasicDataModel.InternalId)} = \"{internalId}\"";
-        var datas = await DoQueryListAsync<SpecJournalModel>([], condition, default, 0, 1);
-        return datas.Cast<SpecJournalModel>().FirstOrDefault();
+        var datas = await DoQueryListAsync<SpecJournal>([], condition, default, 0, 1, ct: ct);
+        return datas.Cast<SpecJournal>().FirstOrDefault();
     }
     /// <summary>
     /// 套用出刊狀態與修改資訊
@@ -391,7 +393,7 @@ public class SpecJournal_Biz(BizDeps bizDeps, IHttpClientFactory HttpClientFacto
     /// <param name="header">表頭資料</param>
     /// <param name="journalIndexId">期刊目次代號</param>
     /// <param name="journalIndexRowId">卷期代號</param>
-    private void ApplyPublishedStatus(SpecJournalModel header, string journalIndexId, int? journalIndexRowId)
+    private void ApplyPublishedStatus(SpecJournal header, string journalIndexId, int? journalIndexRowId)
     {
         header.JournalIndexId = string.IsNullOrWhiteSpace(journalIndexId) ? null : journalIndexId;
         header.JournalIndexRowId = journalIndexRowId;

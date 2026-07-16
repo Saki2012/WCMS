@@ -48,7 +48,7 @@ public static partial class FormModelMetadataResolver
     {
         if (string.IsNullOrWhiteSpace(fieldPath) || typeof(DbModel).IsAssignableFrom(formModelType)) return fieldPath;
         string[] parts = fieldPath.Split('.', StringSplitOptions.RemoveEmptyEntries);
-        parts = TrimFormModelPrefix(formModelType, parts);
+        parts = TrimFormTypePrefix(formModelType, parts);
         if (parts.Length == 0) return fieldPath;
         PropertyInfo? rootProperty = GetRootProperty(formModelType, modelMetadata);
         if (rootProperty != null && parts[0] == rootProperty.Name)
@@ -83,14 +83,12 @@ public static partial class FormModelMetadataResolver
         return modelMetadata.GetProperties(formModelType).FirstOrDefault(prop => prop.IsDefined(typeof(FormRootAttribute), true));
     }
     /// <summary>
-    /// 移除 Form Model 型別名稱前綴。
+    /// 欄位路徑以完整 Form 型別名稱開頭時移除該前綴。
     /// </summary>
-    private static string[] TrimFormModelPrefix(Type formModelType, string[] parts)
+    private static string[] TrimFormTypePrefix(Type formModelType, string[] parts)
     {
         if (parts.Length < 2) return parts;
-        string modelName = formModelType.Name;
-        string trimName = modelName.EndsWith("Model", StringComparison.Ordinal) ? modelName[..^"Model".Length] : modelName;
-        bool isPrefix = parts[0].Equals(modelName, StringComparison.OrdinalIgnoreCase) || parts[0].Equals(trimName, StringComparison.OrdinalIgnoreCase);
+        bool isPrefix = parts[0].Equals(formModelType.Name, StringComparison.OrdinalIgnoreCase);
         return isPrefix ? parts[1..] : parts;
     }
     /// <summary>
@@ -110,7 +108,7 @@ public static partial class FormModelMetadataResolver
     private static string MapKnownFieldPath(Type formModelType, string token, ModelTypeMetadataCache modelMetadata)
     {
         string[] parts = token.Split('.', StringSplitOptions.RemoveEmptyEntries);
-        parts = TrimFormModelPrefix(formModelType, parts);
+        parts = TrimFormTypePrefix(formModelType, parts);
         if (parts.Length == 0) return token;
         PropertyInfo? property = modelMetadata.GetProperty(formModelType, parts[0]);
         return property == null ? token : MapFieldPathToRoot(formModelType, token, modelMetadata);

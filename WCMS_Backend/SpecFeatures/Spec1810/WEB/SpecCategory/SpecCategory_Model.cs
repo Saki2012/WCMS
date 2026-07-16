@@ -10,12 +10,12 @@ namespace WCMS.SpecFeatures.Spec1810.WEB.SpecCategory;
 public class SpecCategorySet : ITSet
 {
     [LibField(ApiFieldMode.ReadWrite)]
-    public SpecCategoryModel SpecCategory { get; set; } = new();
+    public SpecCategory SpecCategory { get; set; } = new();
     [LibField(ApiFieldMode.ReadWrite)]
-    public List<SpecCategoryDetailModel> SpecCategoryDetail { get; set; } = [];
+    public List<SpecCategoryDetail> SpecCategoryDetail { get; set; } = [];
 }
 
-public class SpecCategoryModel : MasterDataModel
+public class SpecCategory : MasterDataModel
 {
     [Key]
     [LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, SpecDisplayName.SpecCategoryId)]
@@ -32,13 +32,13 @@ public class SpecCategoryModel : MasterDataModel
     public string ShowColumnItems { get; set; } = string.Empty;
 
     #region 主子表關聯
-    [InverseProperty(nameof(SpecCategoryDetailModel._SpecCategory))]
+    [InverseProperty(nameof(SpecCategoryDetail._SpecCategory))]
     [LibField(ApiFieldMode.ReadWrite)]
-    public List<SpecCategoryDetailModel> _SpecCategoryDetail { get; set; } = [];
+    public List<SpecCategoryDetail> _SpecCategoryDetail { get; set; } = [];
     #endregion
 }
 
-public class SpecCategoryDetailModel : DetailRowModel
+public class SpecCategoryDetail : DetailRowModel
 {
     /// <summary>
     /// 
@@ -57,6 +57,6 @@ public class SpecCategoryDetailModel : DetailRowModel
     #region 主子表關聯
     [ForeignKey(nameof(CategoryId))]
     [LibField(ApiFieldMode.ReadOnly)]
-    public SpecCategoryModel _SpecCategory { get; set; }
+    public SpecCategory _SpecCategory { get; set; }
     #endregion
 }

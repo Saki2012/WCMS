@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Globalization;
 using WCMS.Features._Resx;
 using WCMS.SysCore.FeatureDriver.Biz;
@@ -9,7 +9,7 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.Features.COMM.Calendar;
 
 [LibBiz(ProgKeys.COMM.Code, ProgKeys.COMM.Calendar)]
-public class CalendarBiz(BizDeps bizDeps, IHttpClientFactory httpClientFactory) : BizService<CalendarModel>(bizDeps), IBizService<CalendarModel>
+public class CalendarBiz(BizDeps bizDeps, IHttpClientFactory httpClientFactory) : BizService<Calendar>(bizDeps), IBizService<Calendar>
 {
     #region Property
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
@@ -24,36 +24,36 @@ public class CalendarBiz(BizDeps bizDeps, IHttpClientFactory httpClientFactory) 
     {
         List<NtpcCalendar> items = await CallNtpcAPIAsync(year, ct);
         List<CalendarDetail> details = ConvertNtpcToModel(items);
-        List<CalendarModel> result = FillMissingDate(details, NtpcCalendar.Code);
-        foreach (CalendarModel item in result) await BizCreateDataAsync(item, ct);
+        List<Calendar> result = FillMissingDate(details, NtpcCalendar.Code);
+        foreach (Calendar item in result) await BizCreateDataAsync(item, ct);
     }
     /// <summary>
     /// 初始化匯入全部年度行事曆。
     /// </summary>
     public async Task InitCalendar(CancellationToken ct = default)
     {
-        if (await BizQueryTotalCounts(string.Empty) != 0) return;
+        if (await BizQueryTotalCounts(string.Empty, ct) != 0) return;
         List<NtpcCalendar> items = await CallNtpcAPIAsync(null, ct);
         List<CalendarDetail> details = ConvertNtpcToModel(items);
-        List<CalendarModel> result = FillMissingDate(details, NtpcCalendar.Code);
-        await BizInitCreateDatasAsync([.. result]);
+        List<Calendar> result = FillMissingDate(details, NtpcCalendar.Code);
+        await BizInitCreateDatasAsync([.. result], ct);
     }
     /// <summary>
     /// 更新單日行事曆資訊。
     /// </summary>
     public async Task<CalendarDetail> BizUpdateDayInfo(CalendarDetail dayInfo, CancellationToken ct = default)
     {
-        CalendarModel result = await ExecTransactionAsync(
+        Calendar result = await ExecTransactionAsync(
             async token =>
             {
-                CalendarModel oldData = await GetUpdateDayInfoData(dayInfo, token);
-                CalendarModel oldSnapshot = oldData.Snapshot();
-                CalendarModel newData = oldData.Snapshot();
+                Calendar oldData = await GetUpdateDayInfoData(dayInfo, token);
+                Calendar oldSnapshot = oldData.Snapshot();
+                Calendar newData = oldData.Snapshot();
                 SetUpdateAuditInfo(newData);
                 ApplyDayInfoPatch(GetSingleDetail(newData), dayInfo);
                 await BeforeUpdate(newData, FuncAction.Update, token);
                 if (Message.HasError) return oldData;
-                await DoUpdateCalendarInfo(oldData, newData);
+                await DoUpdateCalendarInfo(oldData, newData, token);
                 await AfterUpdate(oldSnapshot, newData, FuncAction.Update, TransStatus.Difference, token);
                 return newData;
             },
@@ -138,14 +138,14 @@ public class CalendarBiz(BizDeps bizDeps, IHttpClientFactory httpClientFactory) 
     /// <summary>
     /// 依年度補齊每日資料並建立表單模型。
     /// </summary>
-    private static List<CalendarModel> FillMissingDate(List<CalendarDetail> data, string importSrc)
+    private static List<Calendar> FillMissingDate(List<CalendarDetail> data, string importSrc)
     {
         if (data.Count == 0) return [];
         List<CalendarDetail> normalized = NormalizeCalendarDetails(data);
         Dictionary<DateOnly, CalendarDetail> byDate = normalized.GroupBy(p => p.Date).ToDictionary(p => p.Key, p => p.Last());
         int minYear = normalized.Min(p => p.Year);
         int maxYear = normalized.Max(p => p.Year);
-        List<CalendarModel> result = [];
+        List<Calendar> result = [];
         for (int year = minYear; year <= maxYear; year++) result.Add(BuildCalendarModel(year, importSrc, byDate));
         return result;
     }
@@ -166,9 +166,9 @@ public class CalendarBiz(BizDeps bizDeps, IHttpClientFactory httpClientFactory) 
     /// <summary>
     /// 建立單一年度表單模型。
     /// </summary>
-    private static CalendarModel BuildCalendarModel(int year, string importSrc, IReadOnlyDictionary<DateOnly, CalendarDetail> byDate)
+    private static Calendar BuildCalendarModel(int year, string importSrc, IReadOnlyDictionary<DateOnly, CalendarDetail> byDate)
     {
-        var model = new CalendarModel
+        var model = new Calendar
         {
             Year = year,
             ImportSrc = importSrc,
@@ -209,13 +209,13 @@ public class CalendarBiz(BizDeps bizDeps, IHttpClientFactory httpClientFactory) 
     /// <summary>
     /// 取得單日更新所需的表單模型。
     /// </summary>
-    private async Task<CalendarModel> GetUpdateDayInfoData(CalendarDetail dayInfo, CancellationToken ct = default)
+    private async Task<Calendar> GetUpdateDayInfoData(CalendarDetail dayInfo, CancellationToken ct = default)
     {
-        string headerCondition = $"{nameof(CalendarModel.Year)} = {dayInfo.Year}";
+        string headerCondition = $"{nameof(Calendar.Year)} = {dayInfo.Year}";
         string detailCondition = $"{nameof(CalendarDetail.Year)} = {dayInfo.Year} And {nameof(CalendarDetail.Date)} = '{dayInfo.Date:yyyy-MM-dd}'";
-        IList headerData = await DoQueryListAsync<CalendarModel>([], headerCondition, null, 0, 0);
+        IList headerData = await DoQueryListAsync<Calendar>([], headerCondition, null, 0, 0);
         IList detailData = await DoQueryListAsync<CalendarDetail>([], detailCondition, null, 0, 0);
-        CalendarModel header = headerData.Cast<CalendarModel>().FirstOrDefault() ?? throw new InvalidOperationException("Calendar header not found.");
+        Calendar header = headerData.Cast<Calendar>().FirstOrDefault() ?? throw new InvalidOperationException("Calendar header not found.");
         CalendarDetail detail = detailData.Cast<CalendarDetail>().FirstOrDefault() ?? throw new InvalidOperationException("Calendar detail not found.");
         header._CalendarDetail = [detail];
         return header;
@@ -223,7 +223,7 @@ public class CalendarBiz(BizDeps bizDeps, IHttpClientFactory httpClientFactory) 
     /// <summary>
     /// 設定表單與每日資料的修改資訊。
     /// </summary>
-    private void SetUpdateAuditInfo(CalendarModel data)
+    private void SetUpdateAuditInfo(Calendar data)
     {
         DateTime now = DateTime.Now;
         SetModifyInfo(data);
@@ -236,12 +236,15 @@ public class CalendarBiz(BizDeps bizDeps, IHttpClientFactory httpClientFactory) 
     /// <summary>
     /// 更新年度表頭與指定日期資料。
     /// </summary>
-    private async Task DoUpdateCalendarInfo(CalendarModel oldData, CalendarModel newData)
+    private async Task DoUpdateCalendarInfo(
+        Calendar oldData,
+        Calendar newData,
+        CancellationToken ct)
     {
         CalendarDetail oldDetail = GetSingleDetail(oldData);
         CalendarDetail newDetail = GetSingleDetail(newData);
-        await GraphRepo.GetRepo<CalendarModel>().UpdateAsync(oldData, newData);
-        await GraphRepo.GetRepo<CalendarDetail>().UpdateAsync(oldDetail, newDetail);
+        await GraphRepo.GetRepo<Calendar>().UpdateAsync(oldData, newData, ct);
+        await GraphRepo.GetRepo<CalendarDetail>().UpdateAsync(oldDetail, newDetail, ct);
     }
     /// <summary>
     /// 套用單日可修改欄位。
@@ -257,7 +260,7 @@ public class CalendarBiz(BizDeps bizDeps, IHttpClientFactory httpClientFactory) 
     /// <summary>
     /// 取得單日表單中的唯一明細。
     /// </summary>
-    private static CalendarDetail GetSingleDetail(CalendarModel data)
+    private static CalendarDetail GetSingleDetail(Calendar data)
     {
         return data._CalendarDetail.SingleOrDefault()
             ?? throw new InvalidOperationException("Calendar detail is required.");

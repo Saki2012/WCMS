@@ -13,7 +13,7 @@ namespace WCMS.Features.WEB.SiteMenuSetting;
 /// <summary>
 /// 網站選單與站台資訊表單模型。
 /// </summary>
-public class SiteMenu_IndexModel : HeaderModel
+public class SiteMenu_Index : HeaderModel
 {
     #region Property
     /// <summary>
@@ -45,9 +45,9 @@ public class SiteMenu_IndexModel : HeaderModel
     /// <summary>
     /// 站台多語資訊。
     /// </summary>
-    [InverseProperty(nameof(SiteMenu_IndexInfoModel._SiteMenu_Index))]
+    [InverseProperty(nameof(SiteMenu_IndexInfo._SiteMenu_Index))]
     [LibField(ApiFieldMode.ReadWrite)]
-    public List<SiteMenu_IndexInfoModel> _SiteMenu_IndexInfo { get; set; } = [];
+    public List<SiteMenu_IndexInfo> _SiteMenu_IndexInfo { get; set; } = [];
     /// <summary>
     /// 站台選單項目。
     /// </summary>
@@ -60,7 +60,7 @@ public class SiteMenu_IndexModel : HeaderModel
 /// <summary>
 /// 站台多語資訊。
 /// </summary>
-public class SiteMenu_IndexInfoModel : DetailModel
+public class SiteMenu_IndexInfo : DetailModel
 {
     #region Property
     /// <summary>
@@ -121,7 +121,7 @@ public class SiteMenu_IndexInfoModel : DetailModel
     /// </summary>
     [ForeignKey(nameof(SiteIndex))]
     [LibField(ApiFieldMode.ReadOnly)]
-    public SiteMenu_IndexModel? _SiteMenu_Index { get; set; }
+    public SiteMenu_Index? _SiteMenu_Index { get; set; }
     #endregion
 }
 
@@ -184,7 +184,7 @@ public class SiteMenu_Item : DetailModel
     /// </summary>
     [ForeignKey(nameof(SiteIndex))]
     [LibField(ApiFieldMode.ReadOnly)]
-    public SiteMenu_IndexModel? _SiteMenu_Index { get; set; }
+    public SiteMenu_Index? _SiteMenu_Index { get; set; }
     /// <summary>
     /// 選單多語標題。
     /// </summary>

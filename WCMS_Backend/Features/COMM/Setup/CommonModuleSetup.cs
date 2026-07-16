@@ -1,7 +1,10 @@
-﻿using WCMS.Features.COMM.Calendar;
+﻿using System.Globalization;
+
+using CalendarData = WCMS.Features.COMM.Calendar.Calendar;
 using WCMS.SysCore.Configuration.Startup;
 using WCMS.SysCore.Constants;
 using WCMS.SysCore.FeatureDriver.Biz;
+using WCMS.Features.COMM.Calendar;
 namespace WCMS.Features.COMM.Setup;
 
 /// <summary>
@@ -23,7 +26,7 @@ internal static class CommonModuleSetup
 /// <summary>
 /// 初始化尚未建立的 WCMS 萬年曆資料。
 /// </summary>
-internal sealed class CalendarStartupInitializer(IBizService<CalendarModel> calendarService, IConfiguration configuration) : IApplicationStartupTask
+internal sealed class CalendarStartupInitializer(IBizService<CalendarData> calendarService, IConfiguration configuration) : IApplicationStartupTask
 {
     #region Property
     /// <summary>

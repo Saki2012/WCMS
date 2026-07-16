@@ -10,7 +10,7 @@ public partial class CalendarDetail_DTO
     /// <summary>
     /// 學年度(關聯SpecOpenScheduleRule)
     /// </summary>
-    [ForeignKey(nameof(Spec_AcademicYearId))] public SpecOpenScheduleRuleModel? Spec_AcademicYear { get; set; }
+    [ForeignKey(nameof(Spec_AcademicYearId))] public SpecOpenScheduleRule? Spec_AcademicYear { get; set; }
     [StringLength(SysLengthParam.ID)] public string? Spec_AcademicYearId { get; set; }
     /// <summary>
     /// 開館時間

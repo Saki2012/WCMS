@@ -15,9 +15,9 @@ internal static class FileArchiveOldDataMigration
     /// <summary>
     /// 轉換並建立舊站檔案室資料。
     /// </summary>
-    public static async Task MigrateAsync(IBizService<FileArchive> service, IList<FileManageModel> sourceFiles, CancellationToken ct)
+    public static async Task MigrateAsync(IBizService<FileArchive> service, IList<FileManage> sourceFiles, CancellationToken ct)
     {
-        List<FileManageModel> usedFiles = [];
+        List<FileManage> usedFiles = [];
         FileArchive[] data = ConvertToModels(sourceFiles, usedFiles);
         OldDataMigrationSource.MarkFiles(usedFiles, service.ProgId);
         await service.BizInitCreateDatasAsync(data, ct);
@@ -28,7 +28,7 @@ internal static class FileArchiveOldDataMigration
     /// <summary>
     /// 將舊站檔案室資料轉為目前資料模型。
     /// </summary>
-    private static FileArchive[] ConvertToModels(IList<FileManageModel> sourceFiles, List<FileManageModel> usedFiles)
+    private static FileArchive[] ConvertToModels(IList<FileManage> sourceFiles, List<FileManage> usedFiles)
     {
         DataSet dataSet = GetMigrationData();
         List<FileArchive> result = [];
@@ -51,7 +51,7 @@ internal static class FileArchiveOldDataMigration
     /// <summary>
     /// 建立單筆檔案室 Graph。
     /// </summary>
-    private static FileArchive BuildFileArchive(DataRow row, DataTable languageTable, IList<FileManageModel> sourceFiles, List<FileManageModel> usedFiles)
+    private static FileArchive BuildFileArchive(DataRow row, DataTable languageTable, IList<FileManage> sourceFiles, List<FileManage> usedFiles)
     {
         FileArchive result = new()
         {
@@ -68,7 +68,7 @@ internal static class FileArchiveOldDataMigration
     /// <summary>
     /// 加入檔案室多語明細與附件。
     /// </summary>
-    private static void AddLanguageDetails(FileArchive data, DataTable languageTable, IList<FileManageModel> sourceFiles, List<FileManageModel> usedFiles)
+    private static void AddLanguageDetails(FileArchive data, DataTable languageTable, IList<FileManage> sourceFiles, List<FileManage> usedFiles)
     {
         IEnumerable<DataRow> rows = languageTable.AsEnumerable().Where(row => row["Sn"].ToString() == data.FileArchiveId);
         int rowId = 1;
@@ -81,7 +81,7 @@ internal static class FileArchiveOldDataMigration
     /// <summary>
     /// 建立單筆檔案室多語明細。
     /// </summary>
-    private static FileArchiveInfo? BuildLanguageDetail(string fileArchiveId, int rowId, DataRow row, IList<FileManageModel> sourceFiles, List<FileManageModel> usedFiles)
+    private static FileArchiveInfo? BuildLanguageDetail(string fileArchiveId, int rowId, DataRow row, IList<FileManage> sourceFiles, List<FileManage> usedFiles)
     {
         if (row["Title"].IsNullOrEmpty()) return null;
         _ = LangCodeExt.TryParse(row["Lang"].ToString(), out LangCode lang);
@@ -92,7 +92,7 @@ internal static class FileArchiveOldDataMigration
     /// <summary>
     /// 建立檔案室附件集合。
     /// </summary>
-    private static List<FileArchiveDetail> BuildFiles(string fileArchiveId, int parentRowId, DataRow row, IList<FileManageModel> sourceFiles, List<FileManageModel> usedFiles)
+    private static List<FileArchiveDetail> BuildFiles(string fileArchiveId, int parentRowId, DataRow row, IList<FileManage> sourceFiles, List<FileManage> usedFiles)
     {
         List<FileArchiveDetail> result = [];
         for (int rowId = 1; rowId < 10; rowId++)
@@ -105,12 +105,12 @@ internal static class FileArchiveOldDataMigration
     /// <summary>
     /// 建立單筆檔案室附件。
     /// </summary>
-    private static FileArchiveDetail? BuildFile(string fileArchiveId, int parentRowId, int rowId, DataRow row, IList<FileManageModel> sourceFiles, List<FileManageModel> usedFiles)
+    private static FileArchiveDetail? BuildFile(string fileArchiveId, int parentRowId, int rowId, DataRow row, IList<FileManage> sourceFiles, List<FileManage> usedFiles)
     {
         string fileName = row[$"Filename{rowId}"].ToString();
         string sourceName = row[$"File{rowId}"].ToString();
         if (fileName.IsNullOrEmpty() || sourceName.IsNullOrEmpty()) return null;
-        FileManageModel? file = OldDataMigrationSource.FindImportedFile(sourceFiles, $"File/Archive/{sourceName}");
+        FileManage? file = OldDataMigrationSource.FindImportedFile(sourceFiles, $"File/Archive/{sourceName}");
         if (file == null) return null;
         file.FileName = fileName;
         file.FileDescription = fileName;

@@ -1,8 +1,11 @@
-﻿using WCMS.SysCore.Configuration;
+using WCMS.SysCore.Configuration;
 using WCMS.SysCore.Constants;
 using WCMS.SysCore.FeatureDriver.Api.Setup;
 using WCMS.SysCore.FeatureDriver.Biz;
 using WCMS.SysCore.FeatureDriver.Repo;
+using WCMS.SysCore.FeatureDriver.Repo.Graph;
+using WCMS.SysCore.FeatureDriver.Repo.Operations.Query;
+using WCMS.SysCore.FeatureDriver.Repo.Operations.Write;
 namespace WCMS.SysCore.FeatureDriver.Setup;
 
 /// <summary>
@@ -17,6 +20,10 @@ internal static class FeatureDriverModuleSetup
     public static void AddServices(IServiceCollection services)
     {
         FeatureDriverApiSetup.AddServices(services);
+        services.AddScoped(typeof(RepositoryQueryOperations<>), typeof(RepositoryQueryOperations<>));
+        services.AddScoped(typeof(TrackedEntityResolver<>), typeof(TrackedEntityResolver<>));
+        services.AddScoped(typeof(EntityChangeApplier<>), typeof(EntityChangeApplier<>));
+        services.AddScoped(typeof(RepositoryWriteOperations<>), typeof(RepositoryWriteOperations<>));
         services.AddScoped(typeof(BasicRepository<>), typeof(BasicRepository<>));
         services.AddScoped<DbRepositoryProvider>();
         services.AddScoped<FormGraphRepoProvider>();

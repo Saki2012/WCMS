@@ -107,7 +107,7 @@ public class FileArchiveDetail : DetailModel
     public string? FileSrcId { get; set; }
     [ForeignKey(nameof(FileSrcId))]
     [LibField(ApiFieldMode.ReadOnly)]
-    public FileManageModel FileSrc { get; set; }
+    public FileManage FileSrc { get; set; }
     /// <summary>
     /// 語系 LangCode
     /// </summary>

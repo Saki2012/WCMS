@@ -15,7 +15,7 @@ namespace WCMS.SpecFeatures.Spec1810.WEB.SpecUSR;
 public class SpecUSRSet: ITSet
 {
     [LibField(ApiFieldMode.ReadWrite)]
-    public SpecUSRModel SpecUSR { get; set; }= new();
+    public SpecUSR SpecUSR { get; set; }= new();
     [LibField(ApiFieldMode.ReadWrite)]
     public List<SpecUSRDetail> SpecUSRDetail { get; set; }= [];
     [LibField(ApiFieldMode.ReadWrite)]
@@ -30,7 +30,7 @@ public class SpecUSRSet: ITSet
 /// <summary>
 /// 
 /// </summary>
-public class SpecUSRModel: MasterDataModel
+public class SpecUSR: MasterDataModel
 {
     /// <summary>
     /// USR Id
@@ -59,7 +59,7 @@ public string Tags { get; set; }= string.Empty;
     /// </summary>
 [ForeignKey(nameof(PictureId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public FileManageModel? Picture { get; set; }
+public FileManage? Picture { get; set; }
 [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.InternalId, SpecDisplayName.SpecUSR_PictureId)]
 public string? PictureId { get; set; }= string.Empty;
     /// <summary>
@@ -143,7 +143,7 @@ public string UrlDescription { get; set; } = string.Empty;
     #region 主子表關聯
 [ForeignKey(nameof(USRId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public SpecUSRModel _SpecUSR { get; set; }
+public SpecUSR _SpecUSR { get; set; }
 [InverseProperty(nameof(SpecUSRFile._SpecUSRDetail))]
 [LibField(ApiFieldMode.ReadWrite)]
 public List<SpecUSRFile> _SpecUSRFile { get; set; } = [];
@@ -174,7 +174,7 @@ public int RowId { get; set; }
     /// </summary>
 [ForeignKey(nameof(PicSrcId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public FileManageModel? PicSrc { get; set; }
+public FileManage? PicSrc { get; set; }
 [StringLength(SysLengthParam.InternalId)]
 [LibField(ApiFieldMode.ReadWrite)]
 public string? PicSrcId { get; set; }
@@ -187,7 +187,7 @@ public string? PicSrcId { get; set; }
     #region 主子表關聯
 [ForeignKey(nameof(USRId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public SpecUSRModel _SpecUSR { get; set; }
+public SpecUSR _SpecUSR { get; set; }
 [InverseProperty(nameof(SpecUSRPhotoInfo._SpecUSRPhoto))]
 [LibField(ApiFieldMode.ReadWrite)]
 public List<SpecUSRPhotoInfo> _SpecUSRPhotoInfo { get; set; } = [];
@@ -263,7 +263,7 @@ public int RowId { get; set; }
 public string? FileSrcId { get; set; }
 [ForeignKey(nameof(FileSrcId))]
 [LibField(ApiFieldMode.ReadOnly)]
-public FileManageModel? FileSrc { get; set; }
+public FileManage? FileSrc { get; set; }
     /// <summary>
     /// 語系 LangCode
     /// </summary>

@@ -17,9 +17,9 @@ internal static class AnnouncementOldDataMigration
     /// <summary>
     /// 轉換並建立舊站公告資料。
     /// </summary>
-    public static async Task MigrateAsync(IBizService<Announcement> service, IList<FileManageModel> sourceFiles, CancellationToken ct)
+    public static async Task MigrateAsync(IBizService<Announcement> service, IList<FileManage> sourceFiles, CancellationToken ct)
     {
-        List<FileManageModel> usedFiles = [];
+        List<FileManage> usedFiles = [];
         Announcement[] data = ConvertToModels(sourceFiles, usedFiles);
         OldDataMigrationSource.MarkFiles(usedFiles, service.ProgId);
         await service.BizInitCreateDatasAsync(data, ct);
@@ -30,7 +30,7 @@ internal static class AnnouncementOldDataMigration
     /// <summary>
     /// 將舊站公告資料轉為目前資料模型。
     /// </summary>
-    private static Announcement[] ConvertToModels(IList<FileManageModel> sourceFiles, List<FileManageModel> usedFiles)
+    private static Announcement[] ConvertToModels(IList<FileManage> sourceFiles, List<FileManage> usedFiles)
     {
         DataSet dataSet = GetMigrationData();
         Dictionary<string, string> fileMap = OldDataMigrationSource.BuildFilePathMap(sourceFiles);
@@ -54,7 +54,7 @@ internal static class AnnouncementOldDataMigration
     /// <summary>
     /// 建立單筆舊站公告與所屬明細。
     /// </summary>
-    private static Announcement BuildAnnouncement(DataRow row, DataSet dataSet, IList<FileManageModel> sourceFiles, Dictionary<string, string> fileMap, List<FileManageModel> usedFiles)
+    private static Announcement BuildAnnouncement(DataRow row, DataSet dataSet, IList<FileManage> sourceFiles, Dictionary<string, string> fileMap, List<FileManage> usedFiles)
     {
         Announcement data = CreateAnnouncementHeader(row);
         ApplyPicture(data, row, sourceFiles, usedFiles);
@@ -82,11 +82,11 @@ internal static class AnnouncementOldDataMigration
     /// <summary>
     /// 綁定公告代表圖片與描述。
     /// </summary>
-    private static void ApplyPicture(Announcement data, DataRow row, IList<FileManageModel> sourceFiles, List<FileManageModel> usedFiles)
+    private static void ApplyPicture(Announcement data, DataRow row, IList<FileManage> sourceFiles, List<FileManage> usedFiles)
     {
         string fileName = row["Pic"].ToString();
         if (fileName.IsNullOrEmpty()) return;
-        FileManageModel? file = OldDataMigrationSource.FindImportedFile(sourceFiles, $"File/News/{fileName}");
+        FileManage? file = OldDataMigrationSource.FindImportedFile(sourceFiles, $"File/News/{fileName}");
         if (file == null) return;
         file.FileName = fileName;
         if (!data.PicDescription.IsNullOrEmpty()) file.FileDescription = data.PicDescription;
@@ -96,7 +96,7 @@ internal static class AnnouncementOldDataMigration
     /// <summary>
     /// 建立公告多語明細與附件。
     /// </summary>
-    private static List<AnnouncementDetail> BuildDetails(string announcementId, DataSet dataSet, IList<FileManageModel> sourceFiles, Dictionary<string, string> fileMap, List<FileManageModel> usedFiles)
+    private static List<AnnouncementDetail> BuildDetails(string announcementId, DataSet dataSet, IList<FileManage> sourceFiles, Dictionary<string, string> fileMap, List<FileManage> usedFiles)
     {
         List<AnnouncementDetail> result = [];
         IEnumerable<DataRow> rows = dataSet.Tables["AnnouncementDetail"]!.AsEnumerable().Where(row => row["Sn"].ToString() == announcementId);
@@ -110,7 +110,7 @@ internal static class AnnouncementOldDataMigration
     /// <summary>
     /// 建立單一公告語系明細。
     /// </summary>
-    private static AnnouncementDetail? BuildDetail(string announcementId, int rowId, DataRow row, IList<FileManageModel> sourceFiles, Dictionary<string, string> fileMap, List<FileManageModel> usedFiles)
+    private static AnnouncementDetail? BuildDetail(string announcementId, int rowId, DataRow row, IList<FileManage> sourceFiles, Dictionary<string, string> fileMap, List<FileManage> usedFiles)
     {
         if (row["Title"].IsNullOrEmpty() || row["Content"].IsNullOrEmpty()) return null;
         string content = HtmlInternalIdByFullPath.TransformHtml_ReplaceSrcWithDataInternalId(row["Content"].ToString(), fileMap, out List<string> usedIds);
@@ -123,7 +123,7 @@ internal static class AnnouncementOldDataMigration
     /// <summary>
     /// 建立單一公告明細的附件集合。
     /// </summary>
-    private static List<AnnouncementDetailFile> BuildDetailFiles(string announcementId, int parentRowId, DataRow row, IList<FileManageModel> sourceFiles, List<FileManageModel> usedFiles)
+    private static List<AnnouncementDetailFile> BuildDetailFiles(string announcementId, int parentRowId, DataRow row, IList<FileManage> sourceFiles, List<FileManage> usedFiles)
     {
         List<AnnouncementDetailFile> result = [];
         for (int rowId = 1; rowId < 10; rowId++)
@@ -136,12 +136,12 @@ internal static class AnnouncementOldDataMigration
     /// <summary>
     /// 建立單一公告附件資料。
     /// </summary>
-    private static AnnouncementDetailFile? BuildDetailFile(string announcementId, int parentRowId, int rowId, DataRow row, IList<FileManageModel> sourceFiles, List<FileManageModel> usedFiles)
+    private static AnnouncementDetailFile? BuildDetailFile(string announcementId, int parentRowId, int rowId, DataRow row, IList<FileManage> sourceFiles, List<FileManage> usedFiles)
     {
         string fileName = row[$"Filename{rowId}"].ToString();
         string sourceName = row[$"File{rowId}"].ToString();
         if (fileName.IsNullOrEmpty() || sourceName.IsNullOrEmpty()) return null;
-        FileManageModel? file = OldDataMigrationSource.FindImportedFile(sourceFiles, $"File/News/{sourceName}");
+        FileManage? file = OldDataMigrationSource.FindImportedFile(sourceFiles, $"File/News/{sourceName}");
         if (file == null) return null;
         file.FileName = fileName;
         file.FileDescription = fileName;

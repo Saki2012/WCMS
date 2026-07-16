@@ -345,8 +345,8 @@ public partial class AnnouncementController
         if (viewCount <= 0 || string.IsNullOrWhiteSpace(internalId)) return;
         ApplicationDbContext db = HttpContext.RequestServices.GetRequiredService<ApplicationDbContext>();
         await EnsureSiteViewCountHeaderAsync(db, siteIndex, ct);
-        SiteViewCountDetailModel? detail = await db.Set<SiteViewCountDetailModel>().FindAsync([siteIndex, Service.ProgId, internalId], ct);
-        if (detail == null) db.Set<SiteViewCountDetailModel>().Add(CreateSiteViewCountDetail(siteIndex, Service.ProgId, internalId, viewCount));
+        SiteViewCountDetail? detail = await db.Set<SiteViewCountDetail>().FindAsync([siteIndex, Service.ProgId, internalId], ct);
+        if (detail == null) db.Set<SiteViewCountDetail>().Add(CreateSiteViewCountDetail(siteIndex, Service.ProgId, internalId, viewCount));
         else detail.PageViewCount = viewCount;
         await db.SaveChangesAsync(ct);
     }
@@ -356,19 +356,19 @@ public partial class AnnouncementController
     /// </summary>
     private async Task EnsureSiteViewCountHeaderAsync(ApplicationDbContext db, string siteIndex, CancellationToken ct)
     {
-        SiteViewCountHeaderModel? header = await db.Set<SiteViewCountHeaderModel>().FindAsync([siteIndex], ct);
+        SiteViewCountHeader? header = await db.Set<SiteViewCountHeader>().FindAsync([siteIndex], ct);
         if (header != null) return;
-        db.Set<SiteViewCountHeaderModel>().Add(CreateSiteViewCountHeader(siteIndex));
+        db.Set<SiteViewCountHeader>().Add(CreateSiteViewCountHeader(siteIndex));
         await db.SaveChangesAsync(ct);
     }
 
     /// <summary>
     /// 建立 SiteViewCount 主表。
     /// </summary>
-    private SiteViewCountHeaderModel CreateSiteViewCountHeader(string siteIndex)
+    private SiteViewCountHeader CreateSiteViewCountHeader(string siteIndex)
     {
         DateTime now = DateTime.Now;
-        return new SiteViewCountHeaderModel
+        return new SiteViewCountHeader
         {
             SiteIndex = siteIndex,
             InternalId = Guid.NewGuid().ToString(),
@@ -385,9 +385,9 @@ public partial class AnnouncementController
     /// <summary>
     /// 建立 SiteViewCount 明細。
     /// </summary>
-    private static SiteViewCountDetailModel CreateSiteViewCountDetail(string siteIndex, string progId, string internalId, int viewCount)
+    private static SiteViewCountDetail CreateSiteViewCountDetail(string siteIndex, string progId, string internalId, int viewCount)
     {
-        return new SiteViewCountDetailModel
+        return new SiteViewCountDetail
         {
             SiteIndex = siteIndex,
             ProgId = progId,

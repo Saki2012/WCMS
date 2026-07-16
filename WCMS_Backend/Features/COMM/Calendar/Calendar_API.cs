@@ -10,7 +10,7 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.Features.COMM.Calendar;
 
 [LibApiController(ProgKeys.COMM.Code, ProgKeys.COMM.Calendar, FuncAction.MasterData)]
-public partial class CalendarController() : ApiDataController<CalendarModel>
+public partial class CalendarController() : ApiDataController<Calendar>
 {
     #region Public
     /// <summary>
@@ -29,7 +29,7 @@ public partial class CalendarController() : ApiDataController<CalendarModel>
     [HttpPut(nameof(UpdateDayInfo)), LibRequireFuncAct(FuncAction.Update)]
     public async Task<IActionResult> UpdateDayInfo([FromBody] CalendarDetail dayInfo, CancellationToken ct)
     {
-        OperateLogModel followInfo = CreateUpdateDayLog(dayInfo);
+        OperateLog followInfo = CreateUpdateDayLog(dayInfo);
         CalendarDetail result = await ((CalendarBiz)Service).BizUpdateDayInfo(dayInfo, ct);
         var response = new ApiResponse<CalendarDetail> { Data = [result], SysMessage = Message.Messages };
         followInfo.ExcStatus = response.IsSuccess ? ExcStatus.OK : ExcStatus.Fail;
@@ -41,7 +41,7 @@ public partial class CalendarController() : ApiDataController<CalendarModel>
     /// <summary>
     /// 建立單日行事曆更新操作紀錄。
     /// </summary>
-    private OperateLogModel CreateUpdateDayLog(CalendarDetail dayInfo)
+    private OperateLog CreateUpdateDayLog(CalendarDetail dayInfo)
     {
         string progId = $"{Service.ProgId}/{nameof(UpdateDayInfo)}";
         string content = JsonConvert.SerializeObject(dayInfo);

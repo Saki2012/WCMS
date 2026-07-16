@@ -11,7 +11,7 @@ namespace WCMS.SpecFeatures.Spec1810.WEB.SpecUSR;
 /// </summary>
 [LibDesc(SpecModelDisplayName.SpecUSRSet_DTO)]public class SpecUSRSet_DTO : ITSet_DTO
 {
-    public SpecUSRModel_DTO SpecUSR { get; set; } = new();
+    public SpecUSR_DTO SpecUSR { get; set; } = new();
     public List<SpecUSRDetail_DTO> SpecUSRDetail { get; set; } = [];
     public List<SpecUSRPhoto_DTO> SpecUSRPhoto { get; set; } = [];
     public List<SpecUSRPhotoInfo_DTO> SpecUSRPhotoInfo { get; set; } = [];
@@ -21,7 +21,7 @@ namespace WCMS.SpecFeatures.Spec1810.WEB.SpecUSR;
 /// <summary>
 /// 
 /// </summary>
-public class SpecUSRModel_DTO : DTOBasicDataModel
+public class SpecUSR_DTO : DTOBasicDataModel
 {
     /// <summary>
     /// USR Id
@@ -43,7 +43,7 @@ public class SpecUSRModel_DTO : DTOBasicDataModel
     /// 圖片 (關聯檔案資料)
     /// 注:後續應改關聯SpecUSRPhoto的RowId去指向對應的相片，以及SpecUSRPhotoInfo的Title
     /// </summary>
-    public FileManageModel_DTO? Picture { get; set; }
+    public FileManage_DTO? Picture { get; set; }
     [LibDesc(SpecModelDisplayName.SpecUSR_PictureId), StringLength(SysLengthParam.InternalId)] public string? PictureId { get; set; } = string.Empty;
     /// <summary>
     /// 圖片描述
@@ -104,7 +104,7 @@ public class SpecUSRPhoto_DTO
     /// <summary>
     /// 圖片來源
     /// </summary>
-    public FileManageModel_DTO? PicSrc { get; set; }
+    public FileManage_DTO? PicSrc { get; set; }
     [StringLength(SysLengthParam.InternalId)] public string? PicSrcId { get; set; }
     /// <summary>
     /// 相片排序
@@ -112,7 +112,7 @@ public class SpecUSRPhoto_DTO
     [LibDesc(ModelDisplayName.Gallery_Sort)] public int Sort { get; set; }
 
     #region 主子表關聯
-    public SpecUSRModel_DTO? _SpecUSR { get; set; }
+    public SpecUSR_DTO? _SpecUSR { get; set; }
     public List<SpecUSRPhotoInfo_DTO>? _SpecUSRPhotoInfo { get; set; }
     #endregion
 }
@@ -166,7 +166,7 @@ public class SpecUSRFile_DTO
     /// <summary>
     /// 檔案來源
     /// </summary>
-    public FileManageModel_DTO? FileSrc { get; set; }
+    public FileManage_DTO? FileSrc { get; set; }
     [LibDesc(ModelDisplayName.FileArchive_FileSrcId), StringLength(SysLengthParam.InternalId)] public string? FileSrcId { get; set; }
     /// <summary>
     /// 語系 LangCode

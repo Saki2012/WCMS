@@ -33,7 +33,7 @@ public abstract class HeaderModel : DbModel
     /// </summary>
     [ForeignKey(nameof(CreateUserId))]
     [LibField(ApiFieldMode.ReadOnly)]
-    public AccountModel? CreateUser { get; set; }
+    public Account? CreateUser { get; set; }
     [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.Common_CreateUserId, DisplayName.CreateUserName)]
     public string? CreateUserId { get; set; }
     /// <summary>
@@ -46,7 +46,7 @@ public abstract class HeaderModel : DbModel
     /// </summary>
     [ForeignKey(nameof(ModifyUserId))]
     [LibField(ApiFieldMode.ReadOnly)]
-    public AccountModel? ModifyUser { get; set; }
+    public Account? ModifyUser { get; set; }
     [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.Common_ModifyUserId, DisplayName.ModifyUserName)]
     public string? ModifyUserId { get; set; }
     /// <summary>
@@ -69,7 +69,7 @@ public abstract class HeaderModel : DbModel
     /// </summary>
     [ForeignKey(nameof(InvalidUserId))]
     [LibField(ApiFieldMode.ReadOnly)]
-    public AccountModel? InvalidUser { get; set; }
+    public Account? InvalidUser { get; set; }
     /// <summary>
     /// 作廢人員 ID。
     /// </summary>

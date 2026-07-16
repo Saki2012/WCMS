@@ -15,7 +15,7 @@ namespace WCMS.SpecFeatures.Spec1821.WEB.SpecHomePage;
 /// 1821招生首頁設定商業邏輯
 /// </summary>
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.HomePageSetting)]
-public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821Model>(bizDeps), IBizService<SpecHomePage1821Model>
+public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821>(bizDeps), IBizService<SpecHomePage1821>
 {
     #region Property
     private static readonly JsonSerializerOptions OptionsJsonSerializerOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
@@ -25,7 +25,7 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
     /// <summary>
     /// 儲存前整理首頁設定資料並執行 1821 業務檢查。
     /// </summary>
-    protected override async Task BeforeUpdate(SpecHomePage1821Model set, FuncAction act, CancellationToken ct = default)
+    protected override async Task BeforeUpdate(SpecHomePage1821 set, FuncAction act, CancellationToken ct = default)
     {
         await base.BeforeUpdate(set, act, ct);
         switch (act)
@@ -44,7 +44,7 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
     /// <summary>
     /// 檢查首頁設定 Header、Banner、Shortcut 與 ModuleItem 資料。
     /// </summary>
-    protected void CheckData(SpecHomePage1821Model set)
+    protected void CheckData(SpecHomePage1821 set)
     {
         CheckHeader(set.SpecHomePage1821);
         CheckBanner(set.SpecHomePage1821_Banner);
@@ -55,7 +55,7 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
     /// <summary>
     /// 整理首頁設定明細集合與 JSON 條件資料。
     /// </summary>
-    protected static void NormalizeData(SpecHomePage1821Model set)
+    protected static void NormalizeData(SpecHomePage1821 set)
     {
         set.SpecHomePage1821_Banner ??= [];
         set.SpecHomePage1821_Shortcut ??= [];
@@ -72,25 +72,25 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
     /// <summary>
     /// 檢查首頁設定 Header 必填欄位、連結格式與相關連結條件。
     /// </summary>
-    private void CheckHeader(SpecHomePage1821Model header)
+    private void CheckHeader(SpecHomePage1821 header)
     {
         if (header == null)
         {
-            Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<SpecHomePage1821Model_DTO>(x => x.SpecHomePage1821));
+            Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<SpecHomePage1821_DTO>(x => x.SpecHomePage1821));
             return;
         }
-        CheckRequired(header.Lang, I18n.GetLabel<SpecHomePage1821Model_DTO>(x => x.Lang));
-        CheckRequired(header.Card1Title, I18n.GetLabel<SpecHomePage1821Model_DTO>(x => x.Card1Title));
-        CheckRequired(header.Card1PicId, I18n.GetLabel<SpecHomePage1821Model_DTO>(x => x.Card1PicId));
-        CheckRequired(header.Card2Title, I18n.GetLabel<SpecHomePage1821Model_DTO>(x => x.Card2Title));
-        CheckRequired(header.Card2PicId, I18n.GetLabel<SpecHomePage1821Model_DTO>(x => x.Card2PicId));
-        CheckRequired(header.Section4Title, I18n.GetLabel<SpecHomePage1821Model_DTO>(x => x.Section4Title));
-        CheckRequired(header.Section4SubTitle, I18n.GetLabel<SpecHomePage1821Model_DTO>(x => x.Section4SubTitle));
-        CheckRequired(header.LinkViewMore, I18n.GetLabel<SpecHomePage1821Model_DTO>(x => x.LinkViewMore));
+        CheckRequired(header.Lang, I18n.GetLabel<SpecHomePage1821_DTO>(x => x.Lang));
+        CheckRequired(header.Card1Title, I18n.GetLabel<SpecHomePage1821_DTO>(x => x.Card1Title));
+        CheckRequired(header.Card1PicId, I18n.GetLabel<SpecHomePage1821_DTO>(x => x.Card1PicId));
+        CheckRequired(header.Card2Title, I18n.GetLabel<SpecHomePage1821_DTO>(x => x.Card2Title));
+        CheckRequired(header.Card2PicId, I18n.GetLabel<SpecHomePage1821_DTO>(x => x.Card2PicId));
+        CheckRequired(header.Section4Title, I18n.GetLabel<SpecHomePage1821_DTO>(x => x.Section4Title));
+        CheckRequired(header.Section4SubTitle, I18n.GetLabel<SpecHomePage1821_DTO>(x => x.Section4SubTitle));
+        CheckRequired(header.LinkViewMore, I18n.GetLabel<SpecHomePage1821_DTO>(x => x.LinkViewMore));
         CheckUrl(header.Card1Link);
         CheckUrl(header.Card2Link);
         CheckUrl(header.LinkViewMore);
-        CheckOptionsJson(header.LinkOptions, I18n.GetLabel<SpecHomePage1821Model_DTO>(x => x.LinkOptions));
+        CheckOptionsJson(header.LinkOptions, I18n.GetLabel<SpecHomePage1821_DTO>(x => x.LinkOptions));
     }
     /// <summary>
     /// 檢查 Banner 圖片與連結格式。
@@ -120,7 +120,7 @@ public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821
                 continue;
             }
             bool hasVisibleModuleItem = moduleItems.Any(item => item.ParentRowId == row.RowId);
-            if (!hasVisibleModuleItem) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<SpecHomePage1821Model_DTO>(x => x.SpecHomePage1821_ShortcutModuleItem));
+            if (!hasVisibleModuleItem) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<SpecHomePage1821_DTO>(x => x.SpecHomePage1821_ShortcutModuleItem));
         }
     }
     /// <summary>

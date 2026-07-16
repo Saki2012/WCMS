@@ -12,7 +12,7 @@ using WCMS.SysCore.Security.IdentityAccess;
 namespace WCMS.Features.IAM.Account;
 
 [Index(nameof(PersonId), IsUnique = true)]
-public class AccountModel : HeaderModel
+public class Account : HeaderModel
 {
     /// <summary>
     /// 帳戶Id
@@ -33,7 +33,7 @@ public class AccountModel : HeaderModel
     /// </summary>
     [ForeignKey(nameof(PersonId))]
     [LibField(ApiFieldMode.ReadOnly)]
-    public PersonModel? Person { get; set; }
+    public Person? Person { get; set; }
     [LibStr(ApiFieldMode.ReadWrite, DbStrLen.ID, DisplayName.Person_PersonId)]
     public string? PersonId { get; set; }
     /// <summary>
@@ -41,7 +41,7 @@ public class AccountModel : HeaderModel
     /// </summary>
     [ForeignKey(nameof(RoleId))]
     [LibField(ApiFieldMode.ReadOnly)]
-    public RoleDataModel? Role { get; set; }
+    public RoleData? Role { get; set; }
     [LibStr(ApiFieldMode.ReadWrite, DbStrLen.ID, DisplayName.RolePermission_RoleId)]
     public string? RoleId { get; set; }
     /// <summary>
@@ -84,5 +84,4 @@ public class AccountModel : HeaderModel
     [LibField(ApiFieldMode.Ignore)]
     public int PasswordAlgoVer { get; set; } = 1;
     #endregion
-
 }

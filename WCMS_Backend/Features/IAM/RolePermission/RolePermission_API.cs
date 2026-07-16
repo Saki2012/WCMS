@@ -11,7 +11,7 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.Features.IAM.RolePermission;
 
 [LibApiController(ProgKeys.IAM.Code, ProgKeys.IAM.RolePermission, FuncAction.MasterData)]
-public class RolePermissionController : ApiDataController<RoleDataModel>
+public class RolePermissionController : ApiDataController<RoleData>
 {
     #region Property
     private const string Admin = nameof(Admin);
@@ -39,6 +39,6 @@ public class RolePermissionController : ApiDataController<RoleDataModel>
     /// 過濾系統使用者
     /// </summary>
     /// <param name="srcCdt"></param>
-    private static string FiltSystemRoler(string srcCdt) => LibData.Merge(SysParam.QueryOperators.And, false, srcCdt, $@"{nameof(RoleDataModel.RoleId)} Not In {Admin}");
+    private static string FiltSystemRoler(string srcCdt) => LibData.Merge(SysParam.QueryOperators.And, false, srcCdt, $@"{nameof(RoleData.RoleId)} Not In {Admin}");
     #endregion
 }
