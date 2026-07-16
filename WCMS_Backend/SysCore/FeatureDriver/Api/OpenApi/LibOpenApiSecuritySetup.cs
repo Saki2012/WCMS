@@ -1,4 +1,4 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using WCMS.SysCore.Constants;
 namespace WCMS.SysCore.FeatureDriver.Api.OpenApi;
@@ -29,10 +29,9 @@ public static class LibOpenApiSecuritySetup
     /// </summary>
     public static void AddWcmsBearerSecurity(this SwaggerGenOptions options)
     {
-        var securityScheme = BuildBearerSecurityScheme();
-        var securityRequirement = BuildBearerSecurityRequirement();
+        OpenApiSecurityScheme securityScheme = BuildBearerSecurityScheme();
         options.AddSecurityDefinition(BearerSchemeId, securityScheme);
-        options.AddSecurityRequirement(securityRequirement);
+        options.AddSecurityRequirement(BuildBearerSecurityRequirement);
     }
     #endregion
 
@@ -52,23 +51,15 @@ public static class LibOpenApiSecuritySetup
             Description = BearerDescription
         };
     }
-
     /// <summary>
     /// 建立套用 Bearer Token 驗證方案的 OpenAPI 安全需求。
     /// </summary>
-    private static OpenApiSecurityRequirement BuildBearerSecurityRequirement()
+    private static OpenApiSecurityRequirement BuildBearerSecurityRequirement(OpenApiDocument document)
     {
-        var securityScheme = new OpenApiSecurityScheme
-        {
-            Reference = new OpenApiReference
-            {
-                Type = ReferenceType.SecurityScheme,
-                Id = BearerSchemeId
-            }
-        };
+        var securityScheme = new OpenApiSecuritySchemeReference(BearerSchemeId, document);
         return new OpenApiSecurityRequirement
         {
-            { securityScheme, Array.Empty<string>() }
+            [securityScheme] = []
         };
     }
     #endregion

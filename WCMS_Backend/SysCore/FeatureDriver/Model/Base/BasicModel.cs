@@ -80,7 +80,7 @@ public abstract class HeaderModel : DbModel
     /// </summary>
     [Timestamp]
     [LibField(ApiFieldMode.ReadOnly, DisplayName.DataVersion)]
-    public byte[] DataVersion { get; set; } = default!;
+    public byte[]? DataVersion { get; set; } = default!;
     /// <summary>
     /// // 是否為初始化資料
     /// </summary>

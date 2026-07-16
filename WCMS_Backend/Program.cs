@@ -1,6 +1,6 @@
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
+﻿using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Text.Json.Nodes;
 using WCMS.Features.IAM.Auth;
 using WCMS.Features.Setup;
 using WCMS.SysCore.Auditing;
@@ -87,13 +87,14 @@ public class Program
         /// <summary>
         /// 僅替登入 DTO 設定 Swagger Request 範例。
         /// </summary>
-        public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+        public void Apply(IOpenApiSchema schema, SchemaFilterContext context)
         {
             if (context.Type != typeof(LoginDto)) return;
-            schema.Example = new OpenApiObject
+            if (schema is not OpenApiSchema mutableSchema) return;
+            mutableSchema.Example = new JsonObject
             {
-                ["Account"] = new OpenApiString("Admin"),
-                ["Password"] = new OpenApiString("Z7](oRuh98Z3x1$")
+                [nameof(LoginDto.Account)] = JsonValue.Create("Admin"),
+                [nameof(LoginDto.Password)] = JsonValue.Create("Z7](oRuh98Z3x1$")
             };
         }
     }

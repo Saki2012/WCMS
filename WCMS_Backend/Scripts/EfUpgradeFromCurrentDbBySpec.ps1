@@ -1,4 +1,4 @@
-param(
+﻿param(
     [string]$Configuration = "Debug",
     [string]$BaselineName = "Baseline",
     [string]$TempSnapName = "TempSnap_1_1",
@@ -239,6 +239,29 @@ function Get-CSharpNamespace {
     return "WCMS.Migrations"
 }
 
+function Get-CSharpUsingDirectives {
+    param([string]$Text)
+
+    $requiredUsings = @(
+        "using Microsoft.EntityFrameworkCore;",
+        "using Microsoft.EntityFrameworkCore.Infrastructure;",
+        "using Microsoft.EntityFrameworkCore.Metadata;",
+        "using Microsoft.EntityFrameworkCore.Storage.ValueConversion;"
+    )
+
+    $designerUsings = [regex]::Matches(
+        $Text,
+        "(?m)^\s*using\s+[^;]+;\s*$"
+    ) | ForEach-Object {
+        $_.Value.Trim()
+    }
+
+    $usingDirectives = @($requiredUsings + $designerUsings) |
+        Select-Object -Unique
+
+    return ($usingDirectives -join "`r`n")
+}
+
 function Create-ApplicationSnapshotFromDesigner {
     param(
         [string]$DesignerPath,
@@ -247,15 +270,12 @@ function Create-ApplicationSnapshotFromDesigner {
 
     $designerText = Get-Content $DesignerPath -Raw -Encoding UTF8
     $designerNamespace = Get-CSharpNamespace -Text $designerText
+    $usingDirectives = Get-CSharpUsingDirectives -Text $designerText
     $target = Get-CSharpMethodBody -Text $designerText -MethodName "BuildTargetModel"
     $targetBody = $target.Body.Trim("`r", "`n")
 
     $snapshotText = @"
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using WCMS.SysCore;
+$usingDirectives
 
 #nullable disable
 

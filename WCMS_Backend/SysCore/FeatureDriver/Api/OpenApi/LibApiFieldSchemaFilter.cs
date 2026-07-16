@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Interfaces;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using WCMS.SysCore.FeatureDriver.Api.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Metadata;
@@ -35,10 +34,12 @@ public sealed class LibApiFieldSchemaFilter(IOptions<JsonOptions>? jsonOptions =
     /// <summary>
     /// 套用 ApiFieldMode 到目前 Schema。
     /// </summary>
-    public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+    public void Apply(IOpenApiSchema schema, SchemaFilterContext context)
     {
-        if (schema.Properties == null || schema.Properties.Count == 0) return;
-        foreach (var property in context.Type.GetProperties(BindingFlags.Public | BindingFlags.Instance)) ApplyPropertyPolicy(schema, property);
+        if (schema is not OpenApiSchema mutableSchema) return;
+        if (mutableSchema.Properties == null || mutableSchema.Properties.Count == 0) return;
+        foreach (PropertyInfo property in context.Type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            ApplyPropertyPolicy(mutableSchema, property);
     }
     #endregion
 
@@ -48,15 +49,15 @@ public sealed class LibApiFieldSchemaFilter(IOptions<JsonOptions>? jsonOptions =
     /// </summary>
     private void ApplyPropertyPolicy(OpenApiSchema schema, PropertyInfo property)
     {
-        var schemaName = ResolveSchemaPropertyName(schema, property);
+        string? schemaName = ResolveSchemaPropertyName(schema, property);
         if (string.IsNullOrWhiteSpace(schemaName)) return;
         if (LibApiFieldPolicyHelper.ShouldHideFromSchema(property))
         {
-            schema.Properties.Remove(schemaName);
+            schema.Properties?.Remove(schemaName);
             return;
         }
-        var apiMode = LibApiFieldPolicyHelper.GetApiMode(property);
-        OpenApiSchema propertySchema = schema.Properties[schemaName];
+        if (schema.Properties?[schemaName] is not OpenApiSchema propertySchema) return;
+        ApiFieldMode apiMode = LibApiFieldPolicyHelper.GetApiMode(property);
         ApplyOpenApiMode(propertySchema, apiMode);
         ApplyInputPolicy(schema, propertySchema, schemaName, property, apiMode);
     }
@@ -67,28 +68,29 @@ public sealed class LibApiFieldSchemaFilter(IOptions<JsonOptions>? jsonOptions =
     {
         if (!LibApiFieldPolicyHelper.CanWrite(apiMode)) return;
         schema.Required?.Remove(schemaName);
-        propertySchema.Nullable = true;
+        propertySchema.Type |= JsonSchemaType.Null;
         propertySchema.Extensions ??= new Dictionary<string, IOpenApiExtension>();
-        propertySchema.Extensions[RequiredExtensionName] = new OpenApiBoolean(LibApiFieldPolicyHelper.IsRequired(property));
+        propertySchema.Extensions[RequiredExtensionName] = CreateExtension(LibApiFieldPolicyHelper.IsRequired(property));
     }
-
     /// <summary>
     /// 依 System.Text.Json 規則解析 Swagger 欄位名稱。
     /// </summary>
     private string? ResolveSchemaPropertyName(OpenApiSchema schema, PropertyInfo property)
     {
-        foreach (var name in GetJsonPropertyNameCandidates(property)) if (schema.Properties.ContainsKey(name)) return name;
-        var result = schema.Properties.Keys.FirstOrDefault(p => string.Equals(p, property.Name, StringComparison.OrdinalIgnoreCase));
-        return result;
+        if (schema.Properties == null) return null;
+        foreach (string name in GetJsonPropertyNameCandidates(property))
+            if (schema.Properties.ContainsKey(name)) return name;
+        return schema.Properties.Keys.FirstOrDefault(name =>
+            string.Equals(name, property.Name, StringComparison.OrdinalIgnoreCase));
     }
     /// <summary>
     /// 取得可能的 JSON 欄位名稱候選。
     /// </summary>
     private IEnumerable<string> GetJsonPropertyNameCandidates(PropertyInfo property)
     {
-        var jsonName = property.GetCustomAttribute<JsonPropertyNameAttribute>(inherit: true)?.Name;
+        string? jsonName = property.GetCustomAttribute<JsonPropertyNameAttribute>(inherit: true)?.Name;
         if (!string.IsNullOrWhiteSpace(jsonName)) yield return jsonName;
-        var policyName = _jsonOptions.PropertyNamingPolicy?.ConvertName(property.Name);
+        string? policyName = _jsonOptions.PropertyNamingPolicy?.ConvertName(property.Name);
         if (!string.IsNullOrWhiteSpace(policyName)) yield return policyName;
         yield return JsonNamingPolicy.CamelCase.ConvertName(property.Name);
         yield return property.Name;
@@ -101,12 +103,26 @@ public sealed class LibApiFieldSchemaFilter(IOptions<JsonOptions>? jsonOptions =
         propertySchema.ReadOnly = apiMode == ApiFieldMode.ReadOnly;
         propertySchema.WriteOnly = apiMode == ApiFieldMode.WriteOnly;
         propertySchema.Extensions ??= new Dictionary<string, IOpenApiExtension>();
-        propertySchema.Extensions[ApiModeExtensionName] = new OpenApiString(apiMode.ToString());
-        propertySchema.Extensions[CanReadExtensionName] = new OpenApiBoolean(LibApiFieldPolicyHelper.CanRead(apiMode));
-        propertySchema.Extensions[CanWriteExtensionName] = new OpenApiBoolean(LibApiFieldPolicyHelper.CanWrite(apiMode));
-        propertySchema.Extensions[CanQueryExtensionName] = new OpenApiBoolean(LibApiFieldPolicyHelper.CanQuery(apiMode));
-        propertySchema.Extensions[CanSelectExtensionName] = new OpenApiBoolean(LibApiFieldPolicyHelper.CanSelect(apiMode));
-        propertySchema.Extensions[CanSortExtensionName] = new OpenApiBoolean(LibApiFieldPolicyHelper.CanSort(apiMode));
+        propertySchema.Extensions[ApiModeExtensionName] = CreateExtension(apiMode.ToString());
+        propertySchema.Extensions[CanReadExtensionName] = CreateExtension(LibApiFieldPolicyHelper.CanRead(apiMode));
+        propertySchema.Extensions[CanWriteExtensionName] = CreateExtension(LibApiFieldPolicyHelper.CanWrite(apiMode));
+        propertySchema.Extensions[CanQueryExtensionName] = CreateExtension(LibApiFieldPolicyHelper.CanQuery(apiMode));
+        propertySchema.Extensions[CanSelectExtensionName] = CreateExtension(LibApiFieldPolicyHelper.CanSelect(apiMode));
+        propertySchema.Extensions[CanSortExtensionName] = CreateExtension(LibApiFieldPolicyHelper.CanSort(apiMode));
+    }
+    /// <summary>
+    /// 將字串值包裝為 OpenAPI Extension。
+    /// </summary>
+    private static JsonNodeExtension CreateExtension(string value)
+    {
+        return new JsonNodeExtension(JsonValue.Create(value)!);
+    }
+    /// <summary>
+    /// 將布林值包裝為 OpenAPI Extension。
+    /// </summary>
+    private static JsonNodeExtension CreateExtension(bool value)
+    {
+        return new JsonNodeExtension(JsonValue.Create(value)!);
     }
     #endregion
 }

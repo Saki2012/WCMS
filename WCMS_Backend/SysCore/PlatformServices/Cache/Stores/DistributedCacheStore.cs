@@ -1,34 +1,25 @@
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
-using MvcJsonOptions = Microsoft.AspNetCore.Mvc.JsonOptions;
+using System.Text.Json.Serialization;
+
 namespace WCMS.SysCore.PlatformServices.Cache.Stores;
 
 /// <summary>
 /// 使用 IDistributedCache 實作可序列化資料的 Distributed Cache Store。
 /// </summary>
-public sealed class DistributedCacheStore : IDistributedCacheStore
+/// <remarks>
+/// 建立 Distributed Cache Store；停用期間允許尚未註冊 Provider。
+/// </remarks>
+public sealed class DistributedCacheStore(IOptions<CacheSettings> settings, IServiceProvider services) : IDistributedCacheStore
 {
     #region Property
-    private readonly IDistributedCache? _cache;
-    private readonly JsonSerializerOptions _jsonOptions;
-    private readonly DistributedCacheSettings _settings;
+    private readonly IDistributedCache? _cache = services.GetService<IDistributedCache>();
+    private readonly JsonSerializerOptions _jsonOptions = CreateJsonOptions();
+    private readonly DistributedCacheSettings _settings = settings.Value.Distributed;
     public bool IsEnabled => _settings.Enabled;
     #endregion
-
     #region Public
-    /// <summary>
-    /// 建立 Distributed Cache Store；停用期間允許尚未註冊 Provider。
-    /// </summary>
-    public DistributedCacheStore(
-        IOptions<CacheSettings> settings,
-        IOptions<MvcJsonOptions> jsonOptions,
-        IServiceProvider services)
-    {
-        _settings = settings.Value.Distributed;
-        _jsonOptions = new(jsonOptions.Value.JsonSerializerOptions);
-        _cache = services.GetService<IDistributedCache>();
-    }
     /// <summary>
     /// 讀取並反序列化指定 Distributed Cache。
     /// </summary>
@@ -42,6 +33,7 @@ public sealed class DistributedCacheStore : IDistributedCacheStore
         await _cache.RemoveAsync(key, ct);
         return CacheReadResult<T>.Miss();
     }
+
     /// <summary>
     /// 序列化並寫入指定 Distributed Cache。
     /// </summary>
@@ -53,6 +45,7 @@ public sealed class DistributedCacheStore : IDistributedCacheStore
         DistributedCacheEntryOptions entryOptions = BuildDistributedOptions(options);
         await _cache!.SetAsync(key, raw, entryOptions, ct);
     }
+
     /// <summary>
     /// 移除指定 Distributed Cache。
     /// </summary>
@@ -65,27 +58,41 @@ public sealed class DistributedCacheStore : IDistributedCacheStore
 
     #region Private
     /// <summary>
+    /// 建立 Distributed Cache 專用 JSON 設定，避免依賴 MVC JsonOptions。
+    /// </summary>
+    private static JsonSerializerOptions CreateJsonOptions()
+    {
+        var result = new JsonSerializerOptions(JsonSerializerDefaults.Web)
+        {
+            PropertyNamingPolicy = null,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            WriteIndented = false,
+            UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
+        };
+
+        return result;
+    }
+
+    /// <summary>
     /// 確認 Distributed Cache 已啟用且 Provider 可以使用。
     /// </summary>
     private void EnsureAvailable()
     {
-        if (!IsEnabled)
-            throw new InvalidOperationException("Distributed Cache 尚未啟用。");
-        if (_cache == null)
-            throw new InvalidOperationException("Distributed Cache Provider 尚未註冊。");
+        if (!IsEnabled) throw new InvalidOperationException("Distributed Cache 尚未啟用。");
+        if (_cache == null) throw new InvalidOperationException("Distributed Cache Provider 尚未註冊。");
     }
+
     /// <summary>
     /// 將 WCMS Cache 時效設定轉成 IDistributedCache 設定。
     /// </summary>
     private static DistributedCacheEntryOptions BuildDistributedOptions(CacheOptions options)
     {
         var result = new DistributedCacheEntryOptions();
-        if (options.ExpirationStrategy == CacheExpirationStrategy.Absolute)
-            result.AbsoluteExpirationRelativeToNow = options.Expiration;
-        if (options.ExpirationStrategy == CacheExpirationStrategy.Sliding)
-            result.SlidingExpiration = options.Expiration;
+        if (options.ExpirationStrategy == CacheExpirationStrategy.Absolute) result.AbsoluteExpirationRelativeToNow = options.Expiration;
+        if (options.ExpirationStrategy == CacheExpirationStrategy.Sliding) result.SlidingExpiration = options.Expiration;
         return result;
     }
+
     /// <summary>
     /// 嘗試將 Distributed Payload 反序列化。
     /// </summary>
@@ -93,13 +100,16 @@ public sealed class DistributedCacheStore : IDistributedCacheStore
     {
         try
         {
-            return JsonSerializer.Deserialize<CacheEnvelope<T>>(raw, _jsonOptions);
+            return JsonSerializer.Deserialize<CacheEnvelope<T>>(
+                raw,
+                _jsonOptions);
         }
         catch (JsonException)
         {
             return null;
         }
     }
+
     /// <summary>
     /// 保存 Distributed Cache 的資料內容。
     /// </summary>

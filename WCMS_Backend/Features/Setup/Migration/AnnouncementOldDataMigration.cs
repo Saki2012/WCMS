@@ -5,6 +5,7 @@ using WCMS.SysCore.FeatureDriver.Runtime;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.Library;
 using WCMS.SysCore.PlatformServices.FileManagement;
+using static WCMS.SysCore.Library.LibData;
 namespace WCMS.Features.Setup.Migration;
 
 /// <summary>

@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
+		<TargetFramework>net10.0</TargetFramework>
 		<AspNetCoreHostingModel>OutOfProcess</AspNetCoreHostingModel>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
@@ -44,30 +44,20 @@
 		<Compile Remove="SysCore\Library\RecComparison.cs" />
 	</ItemGroup>
 	<ItemGroup>
-		<None Remove="C:\Users\it-016\.nuget\packages\nlog.config\4.7.15\contentFiles\any\any\NLog.config" />
-	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="HtmlAgilityPack" Version="1.12.2" />
-		<PackageReference Include="JWT" Version="11.0.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.19" />
-		<PackageReference Include="Microsoft.AspNetCore.OutputCaching.StackExchangeRedis" Version="8.0.19" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.8" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.8">
+		<PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.10" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.10" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.10">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.8" />
-		<PackageReference Include="Microsoft.Playwright" Version="1.57.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.10" />
 		<PackageReference Include="Mime-Detective" Version="25.8.1" />
-		<PackageReference Include="Mime-Detective.Definitions.Condensed" Version="25.8.1" />
-		<PackageReference Include="Mime-Detective.Definitions.Exhaustive" Version="25.8.1" />
-		<PackageReference Include="NLog" Version="6.0.3" />
-		<PackageReference Include="NLog.Schema" Version="6.0.3" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="NLog" Version="6.1.4" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 		<PackageReference Include="PDFsharp" Version="6.2.4" />
-		<PackageReference Include="StackExchange.Redis" Version="2.8.58" />
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.3" />
-		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.6.7" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
+		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.3" />
 	</ItemGroup>
 	<ItemGroup>
 		<Folder Include="Features\MAT\" />
