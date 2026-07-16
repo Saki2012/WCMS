@@ -100,7 +100,8 @@ export const TinyMCE_Comp = ({ args }: Props) =>
             extended_valid_elements: [
                 safeInit?.extended_valid_elements || "",
                 // ⬇️ 多了 sandbox
-                "iframe[src|title|width|height|style|allow|loading|referrerpolicy|frameborder|allowfullscreen]",
+                "iframe[src|title|width|height|style|allow|loading|referrerpolicy|frameborder|allowfullscreen|data-internalid|data-wcms-viewer]",
+                "span[data-wcms-editor-pdf-placeholder|data-wcms-editor-pdf-source|contenteditable|role|aria-label|title]",
             ].filter(Boolean).join(","),
             contextmenu: mergedContextMenu,
             setup: (editor: TinyMCEEditor) =>
