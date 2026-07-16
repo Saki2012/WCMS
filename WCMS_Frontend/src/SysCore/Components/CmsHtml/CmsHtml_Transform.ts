@@ -4,6 +4,7 @@ import type { Element } from "domhandler";
 import { DomUtils, parseDocument } from "htmlparser2";
 import { INTERNAL_ATTR } from "../TinyMCE/Core/tinyMceConstants";
 import { CMS_HTML_VIEWER_ATTR, CMS_HTML_VIEWER_PDF, type CmsHtmlFileMeta, type CmsHtmlTransformOptions } from "./CmsHtml_Types";
+import { isYoutubeIframeUrl, mergeYoutubeIframeAllow, normalizeYoutubeEmbedUrl } from "./CmsIframeUtils";
 
 // #region Property
 const UNSAFE_ELEMENT_NAMES = new Set(["script", "object", "embed", "base"]);
@@ -170,7 +171,21 @@ const normalizeIframe = (el: Element, options?: CmsHtmlTransformOptions): void =
     const internalId = getInternalId(el);
     const meta = internalId ? options?.fileMetaMap?.[internalId] : undefined;
     normalizeIframeAttributes(el, meta);
+    normalizeYoutubeIframe(el);
     markPdfViewer(el, meta, internalId);
+};
+
+
+/** 正規化 YouTube iframe 的嵌入網址與功能權限。 */
+const normalizeYoutubeIframe = (el: Element): void =>
+{
+    const src = `${el.attribs.src ?? ""}`.trim();
+    if (!isYoutubeIframeUrl(src)) return;
+
+    el.attribs.src = normalizeYoutubeEmbedUrl(src);
+    el.attribs.allow = mergeYoutubeIframeAllow(el.attribs.allow);
+    el.attribs.allowfullscreen = "";
+    el.attribs.referrerpolicy = "strict-origin-when-cross-origin";
 };
 
 

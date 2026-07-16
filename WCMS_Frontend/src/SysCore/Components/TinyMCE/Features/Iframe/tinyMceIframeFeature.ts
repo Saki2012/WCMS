@@ -1,3 +1,4 @@
+import { isYoutubeIframeUrl, mergeYoutubeIframeAllow, normalizeYoutubeEmbedUrl } from "@/SysCore/Components/CmsHtml/CmsIframeUtils";
 import type { TinyMCEEditor, TinySetup } from "../../Core/tinyMceTypes";
 import {
     getIframeReferrerPolicy,
@@ -34,8 +35,8 @@ export const openInsertIframeDialog = (ed: TinyMCEEditor) =>
             const width = normalizeIframeWidth(data.width);
             const height = normalizeIframeHeight(data.height);
             const title = (data.title || "").trim();
-            const { url, warning } = validateIframeSrc(data.url);
-            if (!url)
+            const { url: validatedUrl, warning } = validateIframeSrc(data.url);
+            if (!validatedUrl)
             {
                 ed.windowManager.alert("請輸入 URL");
                 return;
@@ -45,9 +46,12 @@ export const openInsertIframeDialog = (ed: TinyMCEEditor) =>
                 ed.windowManager.alert(warning);
                 return;
             }
+            const url = normalizeYoutubeEmbedUrl(validatedUrl);
+            const isYoutube = isYoutubeIframeUrl(url);
             const referrerPolicy = getIframeReferrerPolicy(url);
             const widthAttr = toIframeDimensionAttribute(width);
             const heightAttr = toIframeDimensionAttribute(height);
+            const allowAttr = isYoutube ? `allow="${ed.dom.encode(mergeYoutubeIframeAllow())}"` : "";
             const style = ["display:block", `width:${toIframeCssDimension(width)}`, `height:${toIframeCssDimension(height)}`, "max-width:100%", "border:0"]
                 .join(";");
 
@@ -57,6 +61,7 @@ export const openInsertIframeDialog = (ed: TinyMCEEditor) =>
                     ${heightAttr ? `height="${ed.dom.encode(heightAttr)}"` : ""}
                     loading="lazy"
                     referrerpolicy="${ed.dom.encode(referrerPolicy)}"
+                    ${allowAttr}
                     allowfullscreen
                     style="${ed.dom.encode(style)}"></iframe>`;
             ed.insertContent(html);
@@ -122,13 +127,15 @@ export const useTinyMceIframeEdit = (): TinySetup =>
                     return;
                 }
 
-                const { url, warning } = validateIframeSrc(v.src);
+                const { url: validatedUrl, warning } = validateIframeSrc(v.src);
                 if (warning)
                 {
                     editor.windowManager.alert(warning);
                     return;
                 }
 
+                const url = normalizeYoutubeEmbedUrl(validatedUrl);
+                const isYoutube = isYoutubeIframeUrl(url);
                 const nw = normalizeIframeWidth(v.width);
                 const nh = normalizeIframeHeight(v.height);
                 const referrerPolicy = getIframeReferrerPolicy(url);
@@ -136,6 +143,7 @@ export const useTinyMceIframeEdit = (): TinySetup =>
                 const heightAttr = toIframeDimensionAttribute(nh);
                 const cssWidth = toIframeCssDimension(nw);
                 const cssHeight = toIframeCssDimension(nh);
+                const allow = isYoutube ? mergeYoutubeIframeAllow(ifr.getAttribute("allow")) : ifr.getAttribute("allow");
 
                 editor.undoManager.transact(() =>
                 {
@@ -147,6 +155,7 @@ export const useTinyMceIframeEdit = (): TinySetup =>
                     dom.setAttrib(ifr, "height", heightAttr);
                     dom.setAttrib(ifr, "loading", "lazy");
                     dom.setAttrib(ifr, "referrerpolicy", referrerPolicy);
+                    dom.setAttrib(ifr, "allow", allow);
                     dom.setAttrib(ifr, "allowfullscreen", "");
 
                     dom.setStyle(ifr, "display", "block");
@@ -176,6 +185,7 @@ export const useTinyMceIframeEdit = (): TinySetup =>
                             "data-mce-p-height": heightAttr,
                             "data-mce-p-loading": "lazy",
                             "data-mce-p-referrerpolicy": referrerPolicy,
+                            "data-mce-p-allow": allow,
                             "data-mce-p-allowfullscreen": "",
                         };
                         Object.entries(cacheAttrs).forEach(([k, val]) =>
