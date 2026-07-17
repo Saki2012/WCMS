@@ -117,7 +117,7 @@ public class FileManage : HeaderModel
 /// </summary>
 /// 
 [Index(nameof(InternalId), nameof(VisitorKey), IsUnique = true), Index(nameof(LastCountTime))]
-public class FileManage_DownloadRecent : DetailModel
+public class FileManage_DownloadRecent : FormDetailModel
 {
     /// <summary>
     /// 檔案識別碼
@@ -125,12 +125,6 @@ public class FileManage_DownloadRecent : DetailModel
     [Key, StringLength(DbStrLen.InternalId)]
     [LibField(ApiFieldMode.ReadOnly)]
     public string InternalId { get; set; } = string.Empty;
-    /// <summary>
-    /// 行代碼
-    /// </summary>
-    [Key]
-    [LibField(ApiFieldMode.ReadOnly)]
-    public int RowId { get; set; }
     /// <summary>
     /// 匿名訪客識別碼
     /// </summary>
@@ -157,7 +151,7 @@ public class FileManage_DownloadRecent : DetailModel
 /// <summary>
 /// 檔案同步資訊
 /// </summary>
-public class FileManage_SyncInfo : DetailModel
+public class FileManage_SyncInfo : FormDetailModel
 {
     /// <summary>
     /// 檔案識別碼
@@ -165,12 +159,6 @@ public class FileManage_SyncInfo : DetailModel
     [Key, StringLength(DbStrLen.InternalId)]
     [LibField(ApiFieldMode.ReadOnly)]
     public string InternalId { get; set; } = string.Empty;
-    /// <summary>
-    /// 行代碼
-    /// </summary>
-    [Key]
-    [LibField(ApiFieldMode.ReadOnly)]
-    public int RowId { get; set; }
     /// <summary>
     /// 同步狀態
     /// </summary>

@@ -69,7 +69,7 @@ public class Gallery : HeaderModel
 /// <summary>
 /// 相簿資訊
 /// </summary>
-public class GalleryInfo : DetailModel
+public class GalleryInfo : FormDetailModel
 {
     /// <summary>
     /// 檔案分類ID
@@ -77,12 +77,6 @@ public class GalleryInfo : DetailModel
     [Required, Key]
     [LibField(ApiFieldMode.ReadOnly, DisplayName.GalleryId)]
     public string GalleryId { get; set; } = string.Empty;
-    /// <summary>
-    /// 行主鍵
-    /// </summary>
-    [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
-    public int RowId { get; set; }
     /// <summary>
     /// 語系 LangCode
     /// </summary>
@@ -109,7 +103,7 @@ public class GalleryInfo : DetailModel
 /// 相簿裡的相片
 /// </summary>
 [LibDesc(DisplayName.Gallery_Photos)]
-public class GalleryPhotos : DetailModel
+public class GalleryPhotos : FormDetailModel
 {
     /// <summary>
     /// 檔案分類ID
@@ -117,12 +111,6 @@ public class GalleryPhotos : DetailModel
     [Required, Key]
     [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.GalleryId)]
     public string GalleryId { get; set; } = string.Empty;
-    /// <summary>
-    /// 行主鍵
-    /// </summary>
-    [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
-    public int RowId { get; set; }
     /// <summary>
     /// 圖片來源
     /// </summary>
@@ -149,7 +137,7 @@ public class GalleryPhotos : DetailModel
 /// <summary>
 /// 相簿裡的相片資訊
 /// </summary>
-public class GalleryPhotosInfo : DetailModel
+public class GalleryPhotosInfo : FormDetailModel
 {
     /// <summary>
     /// 檔案分類ID
@@ -163,12 +151,6 @@ public class GalleryPhotosInfo : DetailModel
     [Key]
     [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
     public int ParentRowId { get; set; }
-    /// <summary>
-    /// 行主鍵
-    /// </summary>
-    [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
-    public int RowId { get; set; }
     /// <summary>
     /// 語系 LangCode
     /// </summary>

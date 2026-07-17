@@ -60,7 +60,7 @@ public class MatCategoryFormModel : IFormModel<Category>
 /// <summary>
 /// MAT 類別自訂欄位。
 /// </summary>
-public class MatCategoryInfoField : DetailModel
+public class MatCategoryInfoField : FormDetailModel
 {
     #region Property
     /// <summary>
@@ -69,12 +69,6 @@ public class MatCategoryInfoField : DetailModel
     [Key]
     [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.CategoryId)]
     public string CategoryId { get; set; } = string.Empty;
-    /// <summary>
-    /// 行主鍵。
-    /// </summary>
-    [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
-    public int RowId { get; set; }
     /// <summary>
     /// 動態欄位 ID。
     /// </summary>
@@ -98,7 +92,7 @@ public class MatCategoryInfoField : DetailModel
 /// <summary>
 /// MAT 類別自訂欄位多語顯示名稱。
 /// </summary>
-public class MatCategoryInfoFieldDisplay : DetailModel
+public class MatCategoryInfoFieldDisplay : FormDetailModel
 {
     #region Property
     /// <summary>
@@ -112,12 +106,6 @@ public class MatCategoryInfoFieldDisplay : DetailModel
     /// </summary>
     [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
     public int ParentRowId { get; set; }
-    /// <summary>
-    /// 行主鍵。
-    /// </summary>
-    [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
-    public int RowId { get; set; }
     /// <summary>
     /// 語系。
     /// </summary>

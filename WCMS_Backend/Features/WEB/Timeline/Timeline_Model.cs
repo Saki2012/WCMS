@@ -33,7 +33,7 @@ public class Timeline : HeaderModel
 /// <summary>
 /// 紀事發生日
 /// </summary>
-public class TimelineItem : DetailModel
+public class TimelineItem : FormDetailModel
 {
     /// <summary>
     /// 紀事代碼
@@ -41,12 +41,6 @@ public class TimelineItem : DetailModel
     [Key]
     [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.TimelineId)]
     public string TimelineId { get; set; } = string.Empty;
-    /// <summary>
-    /// 行代碼
-    /// </summary>
-    [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
-    public int RowId { get; set; }
     /// <summary>
     /// 日期
     /// </summary>
@@ -65,7 +59,7 @@ public class TimelineItem : DetailModel
 /// <summary>
 /// 紀事說明
 /// </summary>
-public class TimelineLangDetail : DetailModel
+public class TimelineLangDetail : FormDetailModel
 {
     /// <summary>
     /// 紀事代碼
@@ -79,12 +73,6 @@ public class TimelineLangDetail : DetailModel
     [Key]
     [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
     public int ParentRowId { get; set; }
-    /// <summary>
-    /// 行代碼
-    /// </summary>
-    [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
-    public int RowId { get; set; }
     /// <summary>
     /// 語系
     /// </summary>

@@ -88,14 +88,37 @@ public abstract class HeaderModel : DbModel
     public bool IsIniData { get; set; } = false;
 }
 
+
+
 /// <summary>
-/// 具備建立與修改紀錄的資料模型。
+/// 提供 Aggregate 子資料共用的執行階段狀態。
 /// </summary>
 public abstract class DetailModel : DbModel
 {
+    /// <summary>
+    /// 前端送入的明細異動狀態，不寫入資料庫。
+    /// </summary>
     [NotMapped]
     [LibField(ApiFieldMode.ReadWrite, DisplayName.RowState)]
     public RowState RowState { get; set; }
+}
+
+/// <summary>
+/// 提供標準表單明細所需的 RowId 與 RowNo。
+/// </summary>
+public abstract class FormDetailModel : DetailModel
+{
+    /// <summary>
+    /// 由後端配置的明細主鍵。
+    /// </summary>
+    [Key]
+    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
+    public int RowId { get; set; }
+
+    /// <summary>
+    /// 由前端排序或後端補齊的明細序號。
+    /// </summary>
     [LibField(ApiFieldMode.ReadWrite, DisplayName.RowNo)]
     public int RowNo { get; set; }
 }
+

@@ -42,7 +42,7 @@ public class FileArchive : HeaderModel
     public List<FileArchiveInfo> _FileArchiveInfo { get; set; } = [];
     #endregion
 }
-public class FileArchiveInfo : DetailModel
+public class FileArchiveInfo : FormDetailModel
 {
     /// <summary>
     /// 檔案分類ID
@@ -50,12 +50,6 @@ public class FileArchiveInfo : DetailModel
     [Required, Key]
     [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.FileArchiveId)]
     public string FileArchiveId { get; set; } = string.Empty;
-    /// <summary>
-    /// 行主鍵
-    /// </summary>
-    [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
-    public int RowId { get; set; }
     /// <summary>
     /// 語系 LangCode
     /// </summary>
@@ -80,7 +74,7 @@ public class FileArchiveInfo : DetailModel
     #endregion
 }
 [LibDesc(DisplayName.FileArchiveDetail)]
-public class FileArchiveDetail : DetailModel
+public class FileArchiveDetail : FormDetailModel
 {
     /// <summary>
     /// 靜態客製頁面ID
@@ -94,12 +88,6 @@ public class FileArchiveDetail : DetailModel
     [Key]
     [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
     public int ParentRowId { get; set; }
-    /// <summary>
-    /// 行主鍵
-    /// </summary>
-    [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
-    public int RowId { get; set; }
     /// <summary>
     /// 檔案來源
     /// </summary>
@@ -121,7 +109,7 @@ public class FileArchiveDetail : DetailModel
     #endregion
 }
 [LibDesc(DisplayName.FileArchiveUrlDetail)]
-public class FileArchiveUrlDetail : DetailModel
+public class FileArchiveUrlDetail : FormDetailModel
 {
     /// <summary>
     /// 靜態客製頁面ID
@@ -135,12 +123,6 @@ public class FileArchiveUrlDetail : DetailModel
     [Key]
     [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_ParentRowId)]
     public int ParentRowId { get; set; }
-    /// <summary>
-    /// 行主鍵
-    /// </summary>
-    [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
-    public int RowId { get; set; }
     /// <summary>
     /// 檔案來源
     /// </summary>

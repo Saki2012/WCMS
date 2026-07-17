@@ -41,7 +41,7 @@ public class RoleData : HeaderModel
 /// 角色權限資料
 /// </summary>
 [Index(nameof(RoleId), nameof(PermissionKey), IsUnique = true, Name = "UX_PermissionKey_NaturalKey")]
-public class RolePermission : DetailModel
+public class RolePermission : FormDetailModel
 {
     /// <summary>
     /// 角色權限代號
@@ -49,9 +49,6 @@ public class RolePermission : DetailModel
     [Key]
     [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.RolePermission_RoleId)]
     public string RoleId { get; set; } = string.Empty;
-    [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
-    public int RowId { get; set; }
     [LibStr(ApiFieldMode.ReadWrite, DbStrLen.ProgId, DisplayName.RolePermission_PermissionKey)]
     public string PermissionKey { get; set; } = string.Empty;
     [LibField(ApiFieldMode.ReadWrite, DisplayName.RolePermission_GrantMask)]

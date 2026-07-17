@@ -1,103 +1,88 @@
 using System.Collections;
-using System.Reflection;
-using WCMS.SysCore.FeatureDriver.Model.Metadata;
-using WCMS.SysCore.FeatureDriver.Runtime;
+using WCMS.SysCore.FeatureDriver.Model.Base;
 
 namespace WCMS.SysCore.FeatureDriver.Biz.Operations.Write.Keys;
 
 /// <summary>
-/// 分配 Form Aggregate 內 Detail / SubDetail 的 RowId。
+/// 分配 Form Aggregate 內標準 Detail / SubDetail 的 RowId。
 /// </summary>
 internal static class FormDetailKeyAllocator
 {
-    #region Property
-    private const string RowIdPropertyName = "RowId";
-    #endregion
-
     #region Internal
     /// <summary>
-    /// 逐一處理 Form Graph 內缺少 RowId 的 Detail 集合。
+    /// 依既有與送入資料的最大 RowId，補齊尚未設定的明細主鍵。
     /// </summary>
     internal static void AllocateMissingRowIds(
         IEnumerable<IList> detailLists,
-        ModelTypeMetadataCache modelMetadata,
-        PropertyAccessorCache propertyAccessor)
+        IEnumerable<IList>? existingDetailLists = null)
     {
-        foreach (IList rows in detailLists)
-            AllocateList(rows, modelMetadata, propertyAccessor);
+        List<IList> lists = [.. detailLists];
+        Dictionary<Type, int> nextRowIds = BuildNextRowIds(
+            lists,
+            existingDetailLists ?? Array.Empty<IList>());
+        foreach (IList rows in lists)
+            AllocateList(rows, nextRowIds);
     }
     #endregion
 
     #region Private
     /// <summary>
-    /// 分配單一 Detail 集合內尚未設定的 RowId。
+    /// 依明細實際型別建立下一個可使用的 RowId。
+    /// </summary>
+    private static Dictionary<Type, int> BuildNextRowIds(
+        IEnumerable<IList> newLists,
+        IEnumerable<IList> existingLists)
+    {
+        Dictionary<Type, int> result = [];
+        foreach (FormDetailModel row in EnumerateRows(existingLists))
+            RegisterRowId(result, row);
+        foreach (FormDetailModel row in EnumerateRows(newLists))
+            RegisterRowId(result, row);
+        return result;
+    }
+
+    /// <summary>
+    /// 將單筆既有 RowId 納入型別最大值計算。
+    /// </summary>
+    private static void RegisterRowId(
+        Dictionary<Type, int> nextRowIds,
+        FormDetailModel row)
+    {
+        if (row.RowId <= 0) return;
+        Type rowType = row.GetType();
+        int nextRowId = row.RowId + 1;
+        if (!nextRowIds.TryGetValue(rowType, out int current)
+            || nextRowId > current)
+            nextRowIds[rowType] = nextRowId;
+    }
+
+    /// <summary>
+    /// 依集合順序配置缺少的 RowId，並維持同型別單調遞增。
     /// </summary>
     private static void AllocateList(
         IList rows,
-        ModelTypeMetadataCache modelMetadata,
-        PropertyAccessorCache propertyAccessor)
+        Dictionary<Type, int> nextRowIds)
     {
-        PropertyInfo? rowIdProperty = FindRowIdProperty(rows, modelMetadata);
-        if (rowIdProperty == null) return;
-        HashSet<int> usedIds = CollectUsedIds(rows, propertyAccessor);
-        int nextRowId = 1;
-        foreach (object? row in rows)
+        foreach (object? item in rows)
         {
-            if (row == null || ReadRowId(row, propertyAccessor) > 0) continue;
-            nextRowId = FindNextAvailableId(usedIds, nextRowId);
-            propertyAccessor.Set(row, rowIdProperty.Name, nextRowId);
-            usedIds.Add(nextRowId++);
+            if (item is not FormDetailModel row || row.RowId > 0) continue;
+            Type rowType = row.GetType();
+            int nextRowId = nextRowIds.GetValueOrDefault(rowType, 1);
+            row.RowId = nextRowId;
+            nextRowIds[rowType] = nextRowId + 1;
         }
     }
+
     /// <summary>
-    /// 取得集合元素上可自動分配的 RowId 主鍵欄位。
+    /// 從多個 Graph 集合展開所有標準表單明細。
     /// </summary>
-    private static PropertyInfo? FindRowIdProperty(
-        IList rows,
-        ModelTypeMetadataCache modelMetadata)
+    private static IEnumerable<FormDetailModel> EnumerateRows(
+        IEnumerable<IList> detailLists)
     {
-        object? row = rows.Cast<object?>().FirstOrDefault(item => item != null);
-        if (row == null) return null;
-        PropertyInfo? property = modelMetadata.GetProperty(row.GetType(), RowIdPropertyName);
-        bool isValid = property?.CanRead == true
-            && property.CanWrite
-            && property.PropertyType == typeof(int);
-        return isValid ? property : null;
-    }
-    /// <summary>
-    /// 收集集合內已使用的正整數 RowId。
-    /// </summary>
-    private static HashSet<int> CollectUsedIds(
-        IList rows,
-        PropertyAccessorCache propertyAccessor)
-    {
-        HashSet<int> result = [];
-        foreach (object? row in rows)
-        {
-            int rowId = ReadRowId(row, propertyAccessor);
-            if (rowId > 0) result.Add(rowId);
-        }
-        return result;
-    }
-    /// <summary>
-    /// 讀取 Detail 目前的 RowId；不存在時視為零。
-    /// </summary>
-    private static int ReadRowId(
-        object? row,
-        PropertyAccessorCache propertyAccessor)
-    {
-        if (row == null) return 0;
-        object? value = propertyAccessor.Get(row, RowIdPropertyName);
-        return value is int rowId ? rowId : 0;
-    }
-    /// <summary>
-    /// 尋找尚未被使用的下一個 RowId。
-    /// </summary>
-    private static int FindNextAvailableId(HashSet<int> usedIds, int start)
-    {
-        int result = start;
-        while (usedIds.Contains(result)) result++;
-        return result;
+        foreach (IList rows in detailLists)
+            foreach (object? item in rows)
+                if (item is FormDetailModel row)
+                    yield return row;
     }
     #endregion
 }

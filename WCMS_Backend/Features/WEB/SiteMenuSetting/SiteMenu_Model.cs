@@ -60,7 +60,7 @@ public class SiteMenu_Index : HeaderModel
 /// <summary>
 /// 站台多語資訊。
 /// </summary>
-public class SiteMenu_IndexInfo : DetailModel
+public class SiteMenu_IndexInfo : FormDetailModel
 {
     #region Property
     /// <summary>
@@ -69,12 +69,6 @@ public class SiteMenu_IndexInfo : DetailModel
     [Key]
     [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.SiteMenu_SiteIndex)]
     public string SiteIndex { get; set; } = string.Empty;
-    /// <summary>
-    /// 資料列代碼。
-    /// </summary>
-    [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
-    public int RowId { get; set; }
     /// <summary>
     /// 語系。
     /// </summary>
@@ -129,7 +123,7 @@ public class SiteMenu_IndexInfo : DetailModel
 /// 站台選單項目。
 /// </summary>
 [Index(nameof(SiteIndex), nameof(FullUrl), IsUnique = true, Name = "UX_SiteMenu_Item_NaturalKey")]
-public class SiteMenu_Item : DetailModel
+public class SiteMenu_Item : FormDetailModel
 {
     #region Property
     /// <summary>
@@ -138,12 +132,6 @@ public class SiteMenu_Item : DetailModel
     [Key]
     [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.SiteMenu_SiteIndex)]
     public string SiteIndex { get; set; } = string.Empty;
-    /// <summary>
-    /// 選單項目代碼。
-    /// </summary>
-    [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
-    public int RowId { get; set; }
     /// <summary>
     /// 上層選單項目代碼；根節點為 null。
     /// </summary>
@@ -209,7 +197,7 @@ public class SiteMenu_Item : DetailModel
 /// <summary>
 /// 選單多語標題。
 /// </summary>
-public class SiteMenu_Item_Title : DetailModel
+public class SiteMenu_Item_Title : FormDetailModel
 {
     #region Property
     /// <summary>
@@ -224,12 +212,6 @@ public class SiteMenu_Item_Title : DetailModel
     [Key]
     [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
     public int ItemRowId { get; set; }
-    /// <summary>
-    /// 標題資料列代碼。
-    /// </summary>
-    [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
-    public int RowId { get; set; }
     /// <summary>
     /// 語系。
     /// </summary>

@@ -30,7 +30,7 @@ public class TagData : HeaderModel
     public List<TagDetail> _TagDetail { get; set; } = [];
     #endregion
 }
-public class TagDetail : DetailModel
+public class TagDetail : FormDetailModel
 {
     /// <summary>
     /// 靜態客製頁面ID
@@ -38,12 +38,6 @@ public class TagDetail : DetailModel
     [Key]
     [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.TagId)]
     public string TagId { get; set; } = string.Empty;
-    /// <summary>
-    /// 行主鍵
-    /// </summary>
-    [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
-    public int RowId { get; set; }
     /// <summary>
     /// 語系 LangCode
     /// </summary>

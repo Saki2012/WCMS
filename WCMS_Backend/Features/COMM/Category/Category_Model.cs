@@ -45,7 +45,7 @@ public class Category : HeaderModel
 /// <summary>
 /// 共用類別多語明細。
 /// </summary>
-public class CategoryDetail : DetailModel
+public class CategoryDetail : FormDetailModel
 {
     #region Property
     /// <summary>
@@ -54,12 +54,6 @@ public class CategoryDetail : DetailModel
     [Key]
     [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.CategoryId)]
     public string CategoryId { get; set; } = string.Empty;
-    /// <summary>
-    /// 行主鍵。
-    /// </summary>
-    [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
-    public int RowId { get; set; }
     /// <summary>
     /// 語系。
     /// </summary>

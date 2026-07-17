@@ -35,18 +35,30 @@ internal sealed class FormAggregateKeyCoordinator<TFormModel>(
 
     #region Internal
     /// <summary>
-    /// 準備 Header 業務編號並補齊 Detail / SubDetail RowId。
+    /// 建立時準備 Header 業務編號、RowId 與 RowNo。
     /// </summary>
     internal async Task PrepareAsync(
         HeaderModel header,
         IReadOnlyList<IList> detailLists,
         CancellationToken ct)
     {
+        await PrepareAsync(header, detailLists, Array.Empty<IList>(), ct);
+    }
+
+    /// <summary>
+    /// 更新時依既有明細保留 RowId 單調遞增，並補齊 RowNo。
+    /// </summary>
+    internal async Task PrepareAsync(
+        HeaderModel header,
+        IReadOnlyList<IList> detailLists,
+        IReadOnlyList<IList> existingDetailLists,
+        CancellationToken ct)
+    {
         await EnsureBusinessIdAsync(header, detailLists, ct);
         FormDetailKeyAllocator.AllocateMissingRowIds(
             detailLists,
-            ModelMetadata,
-            PropertyAccessor);
+            existingDetailLists);
+        FormDetailRowNoAllocator.AllocateMissingRowNos(detailLists);
     }
     /// <summary>
     /// 保留既有 Root Key，並同步回填新 Graph 的同名關聯鍵。

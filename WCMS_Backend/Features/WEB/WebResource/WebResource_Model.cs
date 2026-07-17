@@ -58,7 +58,7 @@ public class WebResource : HeaderModel
 /// <summary>
 /// 網路資源資訊
 /// </summary>
-public class WebResourceInfo : DetailModel
+public class WebResourceInfo : FormDetailModel
 {
     /// <summary>
     /// 檔案分類ID
@@ -66,12 +66,6 @@ public class WebResourceInfo : DetailModel
     [Required, Key]
     [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.WebResourceId)]
     public string WebResourceId { get; set; } = string.Empty;
-    /// <summary>
-    /// 行主鍵
-    /// </summary>
-    [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
-    public int RowId { get; set; }
     /// <summary>
     /// 語系 LangCode
     /// </summary>

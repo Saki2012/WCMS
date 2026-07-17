@@ -101,7 +101,7 @@ public class SpecMusical : HeaderModel
 /// <summary>
 /// 樂器音檔明細。
 /// </summary>
-public class SpecMusicalSoundList : DetailModel
+public class SpecMusicalSoundList : FormDetailModel
 {
     #region Property
     /// <summary>
@@ -110,12 +110,6 @@ public class SpecMusicalSoundList : DetailModel
     [Key]
     [LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, SpecDisplayName.Spec_MusicalId)]
     public string MusicalId { get; set; } = string.Empty;
-    /// <summary>
-    /// 行主鍵。
-    /// </summary>
-    [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
-    public int RowId { get; set; }
     /// <summary>
     /// 音源關聯資料。
     /// </summary>
@@ -144,7 +138,7 @@ public class SpecMusicalSoundList : DetailModel
 /// <summary>
 /// 樂器相片明細。
 /// </summary>
-public class SpecMusicalPictureList : DetailModel
+public class SpecMusicalPictureList : FormDetailModel
 {
     #region Property
     /// <summary>
@@ -153,12 +147,6 @@ public class SpecMusicalPictureList : DetailModel
     [Key]
     [LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, SpecDisplayName.Spec_MusicalId)]
     public string MusicalId { get; set; } = string.Empty;
-    /// <summary>
-    /// 行主鍵。
-    /// </summary>
-    [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
-    public int RowId { get; set; }
     /// <summary>
     /// 圖片關聯資料。
     /// </summary>

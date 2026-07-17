@@ -33,6 +33,7 @@ public sealed class RepositoryWriteOperations<TDbModel>(
     /// </summary>
     internal async Task CreateAsync(TDbModel newData, CancellationToken ct)
     {
+        EnsureFormDetailIdentity(newData);
         await DataAccess.AddAsync(newData, ct);
     }
     /// <summary>
@@ -43,6 +44,7 @@ public sealed class RepositoryWriteOperations<TDbModel>(
         TDbModel newData,
         CancellationToken ct)
     {
+        EnsureFormDetailIdentity(newData);
         TDbModel trackedData = await TrackedEntityResolver.ResolveAsync(oldData, ct);
         DataAccess.Entry(trackedData).State = EntityState.Unchanged;
         EntityChangeApplier.Apply(trackedData, newData);
@@ -62,6 +64,18 @@ public sealed class RepositoryWriteOperations<TDbModel>(
     #endregion
 
     #region Private
+    /// <summary>
+    /// 確保標準明細具備有效 RowId，並在缺少 RowNo 時以 RowId 補齊。
+    /// </summary>
+    private static void EnsureFormDetailIdentity(TDbModel data)
+    {
+        if (data is not FormDetailModel detail) return;
+        if (detail.RowId <= 0)
+            throw new InvalidOperationException(
+                $"{data.GetType().Name}.RowId must be greater than zero.");
+        if (detail.RowNo <= 0) detail.RowNo = detail.RowId;
+    }
+
     /// <summary>
     /// 清除第一層 Reference Navigation 後直接標記 Detached Entity 為 Deleted。
     /// </summary>

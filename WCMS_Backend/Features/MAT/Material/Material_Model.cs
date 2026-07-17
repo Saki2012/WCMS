@@ -52,7 +52,7 @@ public class Material : HeaderModel
 /// <summary>
 /// 物件資訊
 /// </summary>
-public class MaterialLangInfo : DetailModel
+public class MaterialLangInfo : FormDetailModel
 {
     /// <summary>
     /// 物件代碼
@@ -60,12 +60,6 @@ public class MaterialLangInfo : DetailModel
     [Key]
     [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.MaterialId)]
     public string MaterialId { get; set; } = string.Empty;
-    /// <summary>
-    /// 行代碼
-    /// </summary>
-    [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
-    public int RowId { get; set; }
     /// <summary>
     /// 語系
     /// </summary>
@@ -96,7 +90,7 @@ public class MaterialLangInfo : DetailModel
 /// <summary>
 /// 物件照片
 /// </summary>
-public class MaterialPicture : DetailModel
+public class MaterialPicture : FormDetailModel
 {
     /// <summary>
     /// 物件代碼
@@ -104,12 +98,6 @@ public class MaterialPicture : DetailModel
     [Key]
     [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.MaterialId)]
     public string MaterialId { get; set; } = string.Empty;
-    /// <summary>
-    /// 行代碼
-    /// </summary>
-    [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
-    public int RowId { get; set; }
     /// <summary>
     /// 照片來源
     /// </summary>
@@ -133,7 +121,7 @@ public class MaterialPicture : DetailModel
 /// <summary>
 /// 物件標籤
 /// </summary>
-public class MaterialTags : DetailModel
+public class MaterialTags : FormDetailModel
 {
     /// <summary>
     /// 物件代碼
@@ -141,12 +129,6 @@ public class MaterialTags : DetailModel
     [Key]
     [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.MaterialId)]
     public string MaterialId { get; set; } = string.Empty;
-    /// <summary>
-    /// 行代碼
-    /// </summary>
-    [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
-    public int RowId { get; set; }
     /// <summary>
     /// 標籤
     /// </summary>

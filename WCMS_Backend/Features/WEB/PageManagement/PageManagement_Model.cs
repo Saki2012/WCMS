@@ -33,7 +33,7 @@ public class PageManagement : WEBModel
     public List<PageManagementDetail> _PageManagementDetail { get; set; } = [];
     #endregion
 }
-public class PageManagementDetail : DetailModel
+public class PageManagementDetail : FormDetailModel
 {
     /// <summary>
     /// 靜態客製頁面ID
@@ -41,12 +41,6 @@ public class PageManagementDetail : DetailModel
     [Key]
     [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, DisplayName.PageId)]
     public string PageId { get; set; } = string.Empty;
-    /// <summary>
-    /// 行主鍵
-    /// </summary>
-    [Key]
-    [LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
-    public int RowId { get; set; }
     /// <summary>
     /// 語系 LangCode
     /// </summary>

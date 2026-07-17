@@ -511,15 +511,21 @@ public class BizService<TFormModel> : BizBase
         TFormModel newData,
         CancellationToken ct)
     {
-        HeaderModel header = GraphCollector.GetHeader(newData);
-        IReadOnlyList<IList> detailLists =
-            GraphCollector.CollectDetailCollections(newData);
-        SetModifyInfo(header);
-        await KeyCoordinator.PrepareAsync(header, detailLists, ct);
-        await BeforeUpdate(newData, FuncAction.Update, ct);
-        if (Message.HasError) return newData;
         TFormModel oldData = await DoQueryDataAsync(internalId, ct);
         EnsureDataExists(oldData);
+        HeaderModel header = GraphCollector.GetHeader(newData);
+        IReadOnlyList<IList> newDetailLists =
+            GraphCollector.CollectDetailCollections(newData);
+        IReadOnlyList<IList> oldDetailLists =
+            GraphCollector.CollectDetailCollections(oldData);
+        SetModifyInfo(header);
+        await KeyCoordinator.PrepareAsync(
+            header,
+            newDetailLists,
+            oldDetailLists,
+            ct);
+        await BeforeUpdate(newData, FuncAction.Update, ct);
+        if (Message.HasError) return newData;
         TFormModel snapshot = oldData.Snapshot();
         await DoUpdateAsync(oldData, newData, ct);
         await AfterUpdate(
