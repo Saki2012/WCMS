@@ -18,7 +18,7 @@ internal static class SiteMenuOldDataMigration
     /// <summary>
     /// 轉換並建立舊站站台與選單資料。
     /// </summary>
-    public static async Task MigrateAsync(IBizService<SiteMenu_Index> service, IBizService<PageManagementModel> pageService, CancellationToken ct)
+    public static async Task MigrateAsync(BizService<SiteMenu_Index> service, BizService<PageManagementModel> pageService, CancellationToken ct)
     {
         SiteMenu_Index data = await ConvertToModelAsync(pageService, ct);
         await service.BizInitCreateDatasAsync([data], ct);
@@ -29,7 +29,7 @@ internal static class SiteMenuOldDataMigration
     /// <summary>
     /// 將舊站站台與選單資料轉為目前資料模型。
     /// </summary>
-    private static async Task<SiteMenu_Index> ConvertToModelAsync(IBizService<PageManagementModel> pageService, CancellationToken ct)
+    private static async Task<SiteMenu_Index> ConvertToModelAsync(BizService<PageManagementModel> pageService, CancellationToken ct)
     {
         DataSet dataSet = GetMigrationData();
         SiteMenu_Index result = new();
@@ -87,7 +87,7 @@ internal static class SiteMenuOldDataMigration
     /// <summary>
     /// 轉換舊站選單資料。
     /// </summary>
-    private static async Task SetSideMenuAsync(SiteMenu_Index data, DataTable menu, DataTable menuLang, IBizService<PageManagementModel> pageService, CancellationToken ct)
+    private static async Task SetSideMenuAsync(SiteMenu_Index data, DataTable menu, DataTable menuLang, BizService<PageManagementModel> pageService, CancellationToken ct)
     {
         int rowId = 1;
         foreach (DataRow row in menu.Select().Skip(1))
@@ -153,7 +153,7 @@ internal static class SiteMenuOldDataMigration
     /// <summary>
     /// 建立舊站網址或模組設定。
     /// </summary>
-    private static async Task SetMenuTargetAsync(SiteMenu_Item item, string type, DataRow row, DataTable menuLang, IBizService<PageManagementModel> pageService, CancellationToken ct)
+    private static async Task SetMenuTargetAsync(SiteMenu_Item item, string type, DataRow row, DataTable menuLang, BizService<PageManagementModel> pageService, CancellationToken ct)
     {
         if (type == "url")
         {
@@ -191,7 +191,7 @@ internal static class SiteMenuOldDataMigration
     /// <summary>
     /// 建立舊站模組設定。
     /// </summary>
-    private static async Task<SiteMenu_Item_Module> BuildMenuModuleAsync(SiteMenu_Item item, DataRow row, IBizService<PageManagementModel> pageService, CancellationToken ct)
+    private static async Task<SiteMenu_Item_Module> BuildMenuModuleAsync(SiteMenu_Item item, DataRow row, BizService<PageManagementModel> pageService, CancellationToken ct)
     {
         string module = row["ContentA_Module"].ToString() ?? string.Empty;
         return new SiteMenu_Item_Module
@@ -256,7 +256,7 @@ internal static class SiteMenuOldDataMigration
     /// <summary>
     /// 建立舊站模組選項 JSON。
     /// </summary>
-    private static async Task<string> BuildModuleOptionsAsync(string module, DataRow row, IBizService<PageManagementModel> pageService, CancellationToken ct)
+    private static async Task<string> BuildModuleOptionsAsync(string module, DataRow row, BizService<PageManagementModel> pageService, CancellationToken ct)
     {
         return module switch
         {
@@ -271,7 +271,7 @@ internal static class SiteMenuOldDataMigration
     /// <summary>
     /// 建立頁面維護模組選項。
     /// </summary>
-    private static async Task<string> BuildPageOptionsAsync(DataRow row, IBizService<PageManagementModel> pageService, CancellationToken ct)
+    private static async Task<string> BuildPageOptionsAsync(DataRow row, BizService<PageManagementModel> pageService, CancellationToken ct)
     {
         string pageId = row["ContentA_Page"].ToString();
         IList<PageManagementModel> data = await pageService.BizQueryListAsync(

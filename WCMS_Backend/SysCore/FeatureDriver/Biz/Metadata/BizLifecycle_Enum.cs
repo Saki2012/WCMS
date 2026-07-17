@@ -1,11 +1,11 @@
 ﻿using WCMS.SysCore.I18n.Metadata;
-
-namespace WCMS.SysCore.FeatureDriver.Biz;
+namespace WCMS.SysCore.FeatureDriver.Biz.Metadata;
 
 /// <summary>
 /// 過帳狀態
 /// </summary>
-[LibDesc] public enum TransStatus : byte
+[LibDesc]
+public enum TransStatus : byte
 {
     /// <summary>
     /// 無

@@ -9,7 +9,7 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.Features.WEB.Gallery;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.Gallery)]
-public class GalleryBiz(BizDeps bizDeps) : BizService<Gallery>(bizDeps), IBizService<Gallery>
+public class GalleryBiz(BizDeps bizDeps) : BizService<Gallery>(bizDeps)
 {
     #region Protected Virtual
     protected override async Task BeforeUpdate(Gallery set, FuncAction act, CancellationToken ct = default)

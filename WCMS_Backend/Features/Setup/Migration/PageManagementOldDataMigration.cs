@@ -16,7 +16,7 @@ internal static class PageManagementOldDataMigration
     /// <summary>
     /// 轉換並建立舊站頁面資料。
     /// </summary>
-    public static async Task MigrateAsync(IBizService<PageManagement> service, IList<FileManage> sourceFiles, CancellationToken ct)
+    public static async Task MigrateAsync(BizService<PageManagement> service, IList<FileManage> sourceFiles, CancellationToken ct)
     {
         List<FileManage> usedFiles = [];
         PageManagement[] data = ConvertToModels(sourceFiles, usedFiles);

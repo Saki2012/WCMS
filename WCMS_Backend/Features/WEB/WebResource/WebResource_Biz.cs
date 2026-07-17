@@ -8,7 +8,7 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.Features.WEB.WebResource;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.WebResource)]
-public class WebResourceBiz(BizDeps bizDeps) : BizService<WebResource>(bizDeps), IBizService<WebResource>
+public class WebResourceBiz(BizDeps bizDeps) : BizService<WebResource>(bizDeps)
 {
     #region Protected Virtual
     protected override async Task BeforeUpdate(WebResource set, FuncAction act, CancellationToken ct = default)

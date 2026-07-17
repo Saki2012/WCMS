@@ -8,7 +8,7 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.Features.WEB.FileArchive;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.FileArchive)]
-public class FileArchiveBiz(BizDeps bizDeps) : BizService<FileArchive>(bizDeps), IBizService<FileArchive>
+public class FileArchiveBiz(BizDeps bizDeps) : BizService<FileArchive>(bizDeps)
 {
     #region Protected Virtual
     protected override async Task BeforeUpdate(FileArchive set, FuncAction act, CancellationToken ct = default)

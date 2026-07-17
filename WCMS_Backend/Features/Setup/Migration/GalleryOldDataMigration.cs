@@ -17,7 +17,7 @@ internal static class GalleryOldDataMigration
     /// <summary>
     /// 轉換並建立舊站相簿資料。
     /// </summary>
-    public static async Task MigrateAsync(IBizService<Gallery> service, IList<FileManage> sourceFiles, CancellationToken ct)
+    public static async Task MigrateAsync(BizService<Gallery> service, IList<FileManage> sourceFiles, CancellationToken ct)
     {
         List<FileManage> usedFiles = [];
         Gallery[] data = ConvertToModels(sourceFiles, usedFiles);

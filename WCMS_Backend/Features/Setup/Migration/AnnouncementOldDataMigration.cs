@@ -17,7 +17,7 @@ internal static class AnnouncementOldDataMigration
     /// <summary>
     /// 轉換並建立舊站公告資料。
     /// </summary>
-    public static async Task MigrateAsync(IBizService<Announcement> service, IList<FileManage> sourceFiles, CancellationToken ct)
+    public static async Task MigrateAsync(BizService<Announcement> service, IList<FileManage> sourceFiles, CancellationToken ct)
     {
         List<FileManage> usedFiles = [];
         Announcement[] data = ConvertToModels(sourceFiles, usedFiles);

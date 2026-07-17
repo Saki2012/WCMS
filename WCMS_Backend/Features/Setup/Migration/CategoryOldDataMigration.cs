@@ -13,7 +13,7 @@ internal static class CategoryOldDataMigration
     /// <summary>
     /// 轉換並建立舊站類別資料。
     /// </summary>
-    public static async Task MigrateAsync(IBizService<Category> service, CancellationToken ct)
+    public static async Task MigrateAsync(BizService<Category> service, CancellationToken ct)
     {
         Category[] data = ConvertToModels();
         await service.BizInitCreateDatasAsync(data, ct);

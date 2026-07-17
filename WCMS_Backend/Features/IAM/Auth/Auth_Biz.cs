@@ -8,10 +8,10 @@ namespace WCMS.Features.IAM.Auth;
 /// <summary>
 /// 處理帳號查詢與密碼驗證。
 /// </summary>
-public class AuthBiz(IBizService<AccountData> accountBiz)
+public class AuthBiz(BizService<AccountData> accountBiz)
 {
     #region Property
-    private readonly IBizService<AccountData> AccountBiz = accountBiz;
+    private readonly BizService<AccountData> AccountBiz = accountBiz;
     #endregion
 
     #region Public

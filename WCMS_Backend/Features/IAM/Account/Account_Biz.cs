@@ -9,13 +9,13 @@ using WCMS.SysCore.Security.IdentityAccess.Authentication;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.Features.IAM.Account;
 
-public class AccountBiz(BizDeps bizDeps, IBizService<Person> biz, IPermissionCache permissionCache) : BizService<Account>(bizDeps), IBizService<Account>
+public class AccountBiz(BizDeps bizDeps, BizService<Person> biz, IPermissionCache permissionCache) : BizService<Account>(bizDeps)
 {
     #region Property
     /// <summary>
     /// 人員資料 Biz 服務。
     /// </summary>
-    protected IBizService<Person> personBiz = biz;
+    protected BizService<Person> personBiz = biz;
     /// <summary>
     /// 帳號主鍵由使用者指定，不自動產生。
     /// </summary>
@@ -57,53 +57,48 @@ public class AccountBiz(BizDeps bizDeps, IBizService<Person> biz, IPermissionCac
     /// 執行修改密碼
     /// </summary>
     /// <returns></returns>
-    public async Task ChangePassword(string internalId, string oldPassword, string newPassword, CancellationToken ct = default)
+    public async Task ChangePassword(
+        string internalId,
+        string oldPassword,
+        string newPassword,
+        CancellationToken ct = default)
     {
-        bool ownsTx = false;
-        try
-        {
-            ownsTx = await TryBeginTransactionAsync(ct);
-            if (Message.HasError) return;
-            Account oldSet = await DoQueryDataAsync(internalId, ct);
-            var ok = PasswordHasher.Verify(oldPassword, oldSet.PasswordHash, oldSet.PasswordSalt, oldSet.PasswordAlgoVer);
-            if (ok)
+        await ExecTransactionAsync(
+            async token =>
             {
+                if (Message.HasError) return;
+                Account oldSet = await DoQueryDataAsync(internalId, token);
+                bool isValid = PasswordHasher.Verify(
+                    oldPassword,
+                    oldSet.PasswordHash,
+                    oldSet.PasswordSalt,
+                    oldSet.PasswordAlgoVer);
+                if (!isValid) return;
                 Account newSet = oldSet.Snapshot();
                 ConvertPassword(newSet, newPassword);
-                await DoUpdateAsync(oldSet, newSet, ct);
-                if (Message.HasError) return;
-            }
-            await TryCommitAsync(ownsTx, ct);
-        }
-        catch
-        {
-            await TryRollbackAsync(ownsTx, CancellationToken.None);
-            throw;
-        }
+                await DoUpdateAsync(oldSet, newSet, token);
+            },
+            ct: ct);
     }
     /// <summary>
     /// 執行重置密碼
     /// </summary>
     /// <returns></returns>
-    public async Task ResetPassword(string internalId, string newPassword, CancellationToken ct = default)
+    public async Task ResetPassword(
+        string internalId,
+        string newPassword,
+        CancellationToken ct = default)
     {
-        bool ownsTx = false;
-        try
-        {
-            ownsTx = await TryBeginTransactionAsync(ct);
-            if (Message.HasError) return;
-            Account oldSet = await DoQueryDataAsync(internalId, ct);
-            Account newSet = oldSet.Snapshot();
-            ConvertPassword(newSet, newPassword);
-            await DoUpdateAsync(oldSet, newSet, ct);
-            if (Message.HasError) return;
-            await TryCommitAsync(ownsTx, ct);
-        }
-        catch
-        {
-            await TryRollbackAsync(ownsTx, CancellationToken.None);
-            throw;
-        }
+        await ExecTransactionAsync(
+            async token =>
+            {
+                if (Message.HasError) return;
+                Account oldSet = await DoQueryDataAsync(internalId, token);
+                Account newSet = oldSet.Snapshot();
+                ConvertPassword(newSet, newPassword);
+                await DoUpdateAsync(oldSet, newSet, token);
+            },
+            ct: ct);
     }
     #endregion
 

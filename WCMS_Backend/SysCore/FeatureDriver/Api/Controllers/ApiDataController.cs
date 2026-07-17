@@ -25,16 +25,16 @@ namespace WCMS.SysCore.FeatureDriver.Api.Controllers;
 public abstract class ApiDataQueryController<TFormModel> : ApiBaseController where TFormModel : class
 {
     #region Property
-    private IBizService<TFormModel>? _service;
+    private BizService<TFormModel>? _service;
     private IOutputCacheFeature? _Ocf;
-    private IBizService<FileManage>? _fileService;
+    private BizService<FileManage>? _fileService;
     private ModelTypeMetadataCache? _modelMetadata;
     private I18nCache? _i18n;
 
     /// <summary>
     /// Form Model Biz 服務。
     /// </summary>
-    protected IBizService<TFormModel> Service => _service ??= HttpContext.RequestServices.GetRequiredService<IBizService<TFormModel>>();
+    protected BizService<TFormModel> Service => _service ??= HttpContext.RequestServices.GetRequiredService<BizService<TFormModel>>();
     /// <summary>
     /// 目前輸出快取 Feature。
     /// </summary>
@@ -42,7 +42,7 @@ public abstract class ApiDataQueryController<TFormModel> : ApiBaseController whe
     /// <summary>
     /// 檔案管理服務。
     /// </summary>
-    protected FileManagementBiz FileService => (FileManagementBiz)(_fileService ??= HttpContext.RequestServices.GetRequiredService<IBizService<FileManage>>());
+    protected FileManagementBiz FileService => (FileManagementBiz)(_fileService ??= HttpContext.RequestServices.GetRequiredService<BizService<FileManage>>());
     /// <summary>
     /// Model Reflection Metadata Cache。
     /// </summary>
@@ -194,20 +194,23 @@ public abstract class ApiDataController<TFormModel> : ApiDataQueryController<TFo
     /// 初始資料建立匯入。
     /// </summary>
     [HttpPost(nameof(InitialCreateData))]
-    public virtual async Task<IActionResult> InitialCreateData(TFormModel[] datas, CancellationToken ct)
+    public virtual async Task<IActionResult> InitialCreateData(
+        TFormModel[] datas,
+        CancellationToken ct)
     {
-        OperateLog.AddOperateLog($"{Service.ProgId}/{nameof(InitialCreateData)}", OperateUser.UserId, JsonConvert.SerializeObject(datas), Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
-        bool ownsTx = await Service.TryBeginTransactionAsync(ct);
+        OperateLog.AddOperateLog(
+            $"{Service.ProgId}/{nameof(InitialCreateData)}",
+            OperateUser.UserId,
+            JsonConvert.SerializeObject(datas),
+            Request.Headers[SysParam.HttpHeaders.ClientIp].ToString());
         try
         {
-            foreach (var data in datas) SpecBeforeWrite(data);
+            foreach (TFormModel data in datas) SpecBeforeWrite(data);
             await Service.BizInitCreateDatasAsync(datas, ct);
-            await Service.TryCommitAsync(ownsTx, ct);
             return Ok();
         }
         catch (Exception ex)
         {
-            await Service.TryRollbackAsync(ownsTx, CancellationToken.None);
             return BadRequest($"初始化失敗：{ex.Message}");
         }
     }

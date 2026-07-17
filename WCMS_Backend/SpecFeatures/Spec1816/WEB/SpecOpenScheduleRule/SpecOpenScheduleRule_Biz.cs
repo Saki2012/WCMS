@@ -13,7 +13,7 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.SpecFeatures.Spec1816.WEB.SpecOpenScheduleRule;
 
 [LibBiz(ProgKeys.Spec.Code, ProgKeys.Spec.SpecOpenScheduleRule)]
-public class SpecOpenScheduleRuleBiz(BizDeps bizDeps, IBizService<Calendar> calenderBiz) : BizService<SpecOpenScheduleRule>(bizDeps), IBizService<SpecOpenScheduleRule>
+public class SpecOpenScheduleRuleBiz(BizDeps bizDeps, BizService<Calendar> calenderBiz) : BizService<SpecOpenScheduleRule>(bizDeps)
 {
     #region Property                                                               
     protected override bool IsAutoGenerateId { get; set; } = false;

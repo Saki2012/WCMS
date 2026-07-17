@@ -11,7 +11,7 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.Features.WEB.SiteMenuSetting;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.SiteMenu)]
-public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_Index>(bizDeps), IBizService<SiteMenu_Index>
+public class SiteMenuBiz(BizDeps bizDeps) : BizService<SiteMenu_Index>(bizDeps)
 {
     #region Property
     protected override bool IsAutoGenerateId { get; set; } = false;

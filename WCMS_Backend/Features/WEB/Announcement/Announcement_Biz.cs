@@ -13,7 +13,7 @@ namespace WCMS.Features.WEB.Announcement;
 /// 公告資料維護與內容驗證。
 /// </summary>
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.Announcement)]
-public class AnnouncementBiz(BizDeps bizDeps) : BizService<Announcement>(bizDeps), IBizService<Announcement>
+public class AnnouncementBiz(BizDeps bizDeps) : BizService<Announcement>(bizDeps)
 {
     #region Protected Virtual
     /// <summary>

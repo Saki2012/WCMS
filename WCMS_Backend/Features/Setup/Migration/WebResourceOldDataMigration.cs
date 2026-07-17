@@ -16,7 +16,7 @@ internal static class WebResourceOldDataMigration
     /// <summary>
     /// 轉換並建立舊站網路資源資料。
     /// </summary>
-    public static async Task MigrateAsync(IBizService<WebResource> service, IList<FileManage> sourceFiles, CancellationToken ct)
+    public static async Task MigrateAsync(BizService<WebResource> service, IList<FileManage> sourceFiles, CancellationToken ct)
     {
         List<FileManage> usedFiles = [];
         WebResource[] data = ConvertToModels(sourceFiles, usedFiles);

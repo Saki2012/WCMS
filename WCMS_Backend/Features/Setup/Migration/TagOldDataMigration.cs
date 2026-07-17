@@ -13,7 +13,7 @@ internal static class TagOldDataMigration
     /// <summary>
     /// 轉換並建立舊站標籤資料。
     /// </summary>
-    public static async Task MigrateAsync(IBizService<TagData> service, CancellationToken ct)
+    public static async Task MigrateAsync(BizService<TagData> service, CancellationToken ct)
     {
         TagData[] data = ConvertToModels();
         await service.BizInitCreateDatasAsync(data, ct);

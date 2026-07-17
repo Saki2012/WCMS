@@ -10,7 +10,7 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.Features.WEB.PageManagement;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.PageManagement)]
-public class PageManagementBiz(BizDeps bizDeps) : BizService<PageManagement>(bizDeps), IBizService<PageManagement>
+public class PageManagementBiz(BizDeps bizDeps) : BizService<PageManagement>(bizDeps)
 {
     #region Public
     /// <summary>

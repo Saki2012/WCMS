@@ -16,7 +16,7 @@ internal static class BannerOldDataMigration
     /// <summary>
     /// 轉換並建立舊站 Banner 資料。
     /// </summary>
-    public static async Task MigrateAsync(IBizService<Banner> service, IList<FileManage> sourceFiles, CancellationToken ct)
+    public static async Task MigrateAsync(BizService<Banner> service, IList<FileManage> sourceFiles, CancellationToken ct)
     {
         List<FileManage> usedFiles = [];
         Banner[] data = ConvertToModels(sourceFiles, usedFiles);

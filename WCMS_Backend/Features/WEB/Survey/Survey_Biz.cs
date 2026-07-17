@@ -7,7 +7,7 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.Features.WEB.Survey;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.Survey)]
-public class SurveyBiz(BizDeps bizDeps) : BizService<Survey>(bizDeps), IBizService<Survey>
+public class SurveyBiz(BizDeps bizDeps) : BizService<Survey>(bizDeps)
 {
     #region Protected Virtual
     /// <summary>

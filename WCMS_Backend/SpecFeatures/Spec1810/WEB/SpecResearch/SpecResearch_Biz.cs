@@ -7,7 +7,7 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.SpecFeatures.Spec1810.WEB.SpecResearch;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.Spec.SpecResearch)]
-public class SpecResearchBiz(BizDeps bizDeps) : BizService<SpecResearch>(bizDeps), IBizService<SpecResearch>
+public class SpecResearchBiz(BizDeps bizDeps) : BizService<SpecResearch>(bizDeps)
 {
     #region Protected
     protected override async Task BeforeUpdate(SpecResearch set, FuncAction act, CancellationToken ct = default)

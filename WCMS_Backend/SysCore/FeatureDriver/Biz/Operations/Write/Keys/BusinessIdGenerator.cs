@@ -1,4 +1,4 @@
-namespace WCMS.SysCore.FeatureDriver.Biz.Identity;
+namespace WCMS.SysCore.FeatureDriver.Biz.Operations.Write.Keys;
 
 /// <summary>
 /// 建立 WCMS 每日業務流水編號。

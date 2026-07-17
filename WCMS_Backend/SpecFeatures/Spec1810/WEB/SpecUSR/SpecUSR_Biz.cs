@@ -7,7 +7,7 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.SpecFeatures.Spec1810.WEB.SpecUSR;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.Spec.SpecUSR)]
-public class SpecUSRBiz(BizDeps bizDeps) : BizService<SpecUSR>(bizDeps), IBizService<SpecUSR> 
+public class SpecUSRBiz(BizDeps bizDeps) : BizService<SpecUSR>(bizDeps) 
 {
     #region Protected
     protected override async Task BeforeUpdate(SpecUSR set, FuncAction act, CancellationToken ct = default)

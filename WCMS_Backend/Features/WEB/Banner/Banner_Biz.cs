@@ -9,7 +9,7 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.Features.WEB.Banner;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.Banner)]
-public class BannerBiz(BizDeps bizDeps) : BizService<Banner>(bizDeps), IBizService<Banner>
+public class BannerBiz(BizDeps bizDeps) : BizService<Banner>(bizDeps)
 {
     #region Protected Virtual
     protected override async Task BeforeUpdate(Banner set, FuncAction act, CancellationToken ct = default)

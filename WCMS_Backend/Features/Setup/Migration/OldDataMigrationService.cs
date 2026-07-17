@@ -16,23 +16,23 @@ namespace WCMS.Features.Setup.Migration;
 /// 協調標準 Feature 舊資料與實體檔案的匯入順序。
 /// </summary>
 public sealed class OldDataMigrationService(
-    IBizService<FileManage> fileService,
-    IBizService<Announcement> announcementService,
-    IBizService<Banner> bannerService,
-    IBizService<Category> categoryService,
-    IBizService<FileArchive> fileArchiveService,
-    IBizService<Gallery> galleryService,
-    IBizService<PageManagement> pageService,
-    IBizService<TagData> tagService,
-    IBizService<WebResource> webResourceService,
-    IBizService<SiteMenu_Index> siteMenuService)
+    BizService<FileManage> fileService,
+    BizService<Announcement> announcementService,
+    BizService<Banner> bannerService,
+    BizService<Category> categoryService,
+    BizService<FileArchive> fileArchiveService,
+    BizService<Gallery> galleryService,
+    BizService<PageManagement> pageService,
+    BizService<TagData> tagService,
+    BizService<WebResource> webResourceService,
+    BizService<SiteMenu_Index> siteMenuService)
 {
     #region Property
     /// <summary>
     /// 提供舊檔案壓縮包匯入能力的實體服務。
     /// </summary>
     private FileManagementBiz FileService => fileService as FileManagementBiz
-        ?? throw new InvalidOperationException($"{nameof(IBizService<FileManage>)} 必須由 {nameof(FileManagementBiz)} 實作。");
+        ?? throw new InvalidOperationException($"{nameof(BizService<FileManage>)} 必須由 {nameof(FileManagementBiz)} 實作。");
     #endregion
 
     #region Public

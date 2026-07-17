@@ -9,7 +9,7 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.SpecFeatures.Spec1810.WEB.SpecCategory;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.Spec.SpecCategory)]
-public class SpecCategoryBiz(BizDeps bizDeps) : BizService<SpecCategory>(bizDeps), IBizService<SpecCategory>
+public class SpecCategoryBiz(BizDeps bizDeps) : BizService<SpecCategory>(bizDeps)
 {
     #region Public
     public Dictionary<string, string> GetShowColumnItems(string progId)

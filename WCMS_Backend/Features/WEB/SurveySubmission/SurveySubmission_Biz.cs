@@ -14,7 +14,7 @@ using SurveyFormModel = WCMS.Features.WEB.Survey.Survey;
 namespace WCMS.Features.WEB.SurveySubmission;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.SurveySubmission)]
-public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions>(bizDeps), IBizService<SurveySubmissions>
+public class SurveySubmissionBiz(BizDeps bizDeps) : BizService<SurveySubmissions>(bizDeps)
 {
     #region Property
     private static readonly Regex SurveyIdRegex = new(@"^[A-Za-z0-9_\-]+$", RegexOptions.Compiled);

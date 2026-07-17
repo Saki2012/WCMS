@@ -15,7 +15,7 @@ namespace WCMS.Features.COMM.Category;
 /// <summary>
 /// Category 家族共用 Biz 基底。
 /// </summary>
-public abstract class CategoryBizBase<TFormModel>(BizDeps bizDeps) : BizService<TFormModel>(bizDeps), IBizService<TFormModel> where TFormModel : class
+public abstract class CategoryBizBase<TFormModel>(BizDeps bizDeps) : BizService<TFormModel>(bizDeps) where TFormModel : class
 {
     #region Protected Virtual
     /// <summary>

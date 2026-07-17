@@ -9,7 +9,7 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.Features.COMM.Calendar;
 
 [LibBiz(ProgKeys.COMM.Code, ProgKeys.COMM.Calendar)]
-public class CalendarBiz(BizDeps bizDeps, IHttpClientFactory httpClientFactory) : BizService<Calendar>(bizDeps), IBizService<Calendar>
+public class CalendarBiz(BizDeps bizDeps, IHttpClientFactory httpClientFactory) : BizService<Calendar>(bizDeps)
 {
     #region Property
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;

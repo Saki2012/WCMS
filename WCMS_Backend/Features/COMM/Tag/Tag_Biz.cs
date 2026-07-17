@@ -14,7 +14,7 @@ namespace WCMS.Features.COMM.Tag;
 /// 標籤資料驗證與使用狀況檢查。
 /// </summary>
 [LibBiz(ProgKeys.COMM.Code, ProgKeys.COMM.Calendar)]
-public class TagBiz(BizDeps bizDeps) : BizService<TagData>(bizDeps), IBizService<TagData>
+public class TagBiz(BizDeps bizDeps) : BizService<TagData>(bizDeps)
 {
     #region Protected Virtual
     /// <summary>

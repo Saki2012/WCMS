@@ -15,7 +15,7 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.SpecFeatures.Spec1819.WEB.SpecJournal;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.Spec.SpecJournal)]
-public class SpecJournal_Biz(BizDeps bizDeps, IHttpClientFactory HttpClientFactory, IMemoryCache Cache) : BizService<SpecJournal>(bizDeps), IBizService<SpecJournal>
+public class SpecJournal_Biz(BizDeps bizDeps, IHttpClientFactory HttpClientFactory, IMemoryCache Cache) : BizService<SpecJournal>(bizDeps)
 {
     #region Property
     private static readonly TimeSpan CacheTtl = TimeSpan.FromHours(24);

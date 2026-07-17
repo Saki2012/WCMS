@@ -6,7 +6,7 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.SpecFeatures.Spec1817.WEB.SpecMusical;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.Spec.SpecMusical)]
-public class SpecMusical_Biz(BizDeps bizDeps) : BizService<SpecMusical>(bizDeps), IBizService<SpecMusical>
+public class SpecMusical_Biz(BizDeps bizDeps) : BizService<SpecMusical>(bizDeps)
 {
     #region Protected Virtual
     /// <summary>

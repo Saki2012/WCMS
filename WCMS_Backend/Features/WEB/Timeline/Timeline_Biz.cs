@@ -7,7 +7,7 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.Features.WEB.Timeline;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.Timeline)]
-public class TimelineBiz(BizDeps bizDeps) : BizService<Timeline>(bizDeps), IBizService<Timeline>
+public class TimelineBiz(BizDeps bizDeps) : BizService<Timeline>(bizDeps)
 {
     #region Protected Virtual
     protected override Task BeforeUpdate(Timeline set, FuncAction act, CancellationToken ct = default)

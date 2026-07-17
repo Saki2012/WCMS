@@ -7,7 +7,7 @@ using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.Features.COMM.Person;
 
 [LibBiz(ProgKeys.COMM.Code, ProgKeys.COMM.Person)]
-public class PersonBiz(BizDeps bizDeps) : BizService<Person>(bizDeps), IBizService<Person>
+public class PersonBiz(BizDeps bizDeps) : BizService<Person>(bizDeps)
 {
     #region Protected
     protected override async Task BeforeUpdate(Person set, FuncAction act, CancellationToken ct = default)

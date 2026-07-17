@@ -15,7 +15,7 @@ namespace WCMS.SpecFeatures.Spec1821.WEB.SpecHomePage;
 /// 1821招生首頁設定商業邏輯
 /// </summary>
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.HomePageSetting)]
-public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821>(bizDeps), IBizService<SpecHomePage1821>
+public class SpecHomePage1821_Biz(BizDeps bizDeps) : BizService<SpecHomePage1821>(bizDeps)
 {
     #region Property
     private static readonly JsonSerializerOptions OptionsJsonSerializerOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };

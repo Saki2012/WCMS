@@ -15,7 +15,7 @@ internal static class FileArchiveOldDataMigration
     /// <summary>
     /// 轉換並建立舊站檔案室資料。
     /// </summary>
-    public static async Task MigrateAsync(IBizService<FileArchive> service, IList<FileManage> sourceFiles, CancellationToken ct)
+    public static async Task MigrateAsync(BizService<FileArchive> service, IList<FileManage> sourceFiles, CancellationToken ct)
     {
         List<FileManage> usedFiles = [];
         FileArchive[] data = ConvertToModels(sourceFiles, usedFiles);

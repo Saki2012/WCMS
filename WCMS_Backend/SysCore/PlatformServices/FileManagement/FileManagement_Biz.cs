@@ -10,7 +10,7 @@ using WCMS.SysCore.Library;
 using WCMS.SysCore.PlatformServices.SystemMonitor;
 namespace WCMS.SysCore.PlatformServices.FileManagement;
 
-public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> options, IWebHostEnvironment Env) : BizService<FileManage>(bizDeps), IBizService<FileManage>
+public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> options, IWebHostEnvironment Env) : BizService<FileManage>(bizDeps)
 {
     #region Property
     private readonly FilePathOptions FilePath = options.Value;
@@ -68,31 +68,25 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
     /// <summary>
     /// 嘗試累加前台公開下載次數（含 Recent 去重）
     /// </summary>
-    public async Task TryCountPublicDownload(string internalId, string visitorKey, string refererUrl, CancellationToken ct = default)
+    public async Task TryCountPublicDownload(
+        string internalId,
+        string visitorKey,
+        string refererUrl,
+        CancellationToken ct = default)
     {
-        bool ownsTx = false;
-        var now = DateTime.UtcNow;
-        var safeRefererUrl = refererUrl?.Trim() ?? string.Empty;
-        try
-        {
-            ct.ThrowIfCancellationRequested();
-            if (string.IsNullOrWhiteSpace(internalId) || string.IsNullOrWhiteSpace(visitorKey)) return;
-            ownsTx = await TryBeginTransactionAsync(ct);
-            var recent = await GetDownloadRecentAsync(internalId, visitorKey, ct);
-            if (recent != null && !ShouldCountPublicDownload(recent.LastCountTime, now))
-            {
-                await TryCommitAsync(ownsTx, ct);
-                return;
-            }
-            await SaveDownloadRecentAsync(recent, internalId, visitorKey, safeRefererUrl, now, ct);
-            await IncreasePublicDownloadCountAsync(internalId, ct);
-            await TryCommitAsync(ownsTx, ct);
-        }
-        catch
-        {
-            await TryRollbackAsync(ownsTx, CancellationToken.None);
-            throw;
-        }
+        ct.ThrowIfCancellationRequested();
+        if (string.IsNullOrWhiteSpace(internalId)
+            || string.IsNullOrWhiteSpace(visitorKey)) return;
+        DateTime now = DateTime.UtcNow;
+        string safeRefererUrl = refererUrl?.Trim() ?? string.Empty;
+        await ExecTransactionAsync(
+            token => CountPublicDownloadInTransactionAsync(
+                internalId,
+                visitorKey,
+                safeRefererUrl,
+                now,
+                token),
+            ct: ct);
     }
     /// <summary>
     /// 確認檔案是否可以預覽
@@ -225,6 +219,31 @@ public class FileManagementBiz(BizDeps bizDeps, IOptions<FilePathOptions> option
         });
     }
 
+    /// <summary>
+    /// 在交易內完成公開下載去重與次數累加。
+    /// </summary>
+    private async Task CountPublicDownloadInTransactionAsync(
+        string internalId,
+        string visitorKey,
+        string refererUrl,
+        DateTime now,
+        CancellationToken ct)
+    {
+        FileManage_DownloadRecent? recent = await GetDownloadRecentAsync(
+            internalId,
+            visitorKey,
+            ct);
+        if (recent != null
+            && !ShouldCountPublicDownload(recent.LastCountTime, now)) return;
+        await SaveDownloadRecentAsync(
+            recent,
+            internalId,
+            visitorKey,
+            refererUrl,
+            now,
+            ct);
+        await IncreasePublicDownloadCountAsync(internalId, ct);
+    }
     /// <summary>
     /// 取得目前訪客對該檔案的 Recent 紀錄
     /// </summary>

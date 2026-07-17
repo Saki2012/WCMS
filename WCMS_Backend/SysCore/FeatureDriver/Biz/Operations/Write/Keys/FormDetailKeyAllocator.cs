@@ -3,7 +3,7 @@ using System.Reflection;
 using WCMS.SysCore.FeatureDriver.Model.Metadata;
 using WCMS.SysCore.FeatureDriver.Runtime;
 
-namespace WCMS.SysCore.FeatureDriver.Biz.Mutation;
+namespace WCMS.SysCore.FeatureDriver.Biz.Operations.Write.Keys;
 
 /// <summary>
 /// 分配 Form Aggregate 內 Detail / SubDetail 的 RowId。

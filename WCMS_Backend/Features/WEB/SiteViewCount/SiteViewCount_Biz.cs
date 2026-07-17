@@ -9,7 +9,7 @@ using WCMS.SysCore.Library;
 namespace WCMS.Features.WEB.SiteViewCount;
 
 [LibBiz(ProgKeys.WEB.Code, ProgKeys.WEB.SiteViewCount)]
-public class SiteViewCountFunc_Biz(BizDeps bizDeps) : BizService<SiteViewCountHeader>(bizDeps), IBizService<SiteViewCountHeader>
+public class SiteViewCountFunc_Biz(BizDeps bizDeps) : BizService<SiteViewCountHeader>(bizDeps)
 {
     #region Property
     /// <summary>
@@ -59,88 +59,184 @@ public class SiteViewCountFunc_Biz(BizDeps bizDeps) : BizService<SiteViewCountHe
 
     #region Private
     /// <summary>
-    /// 執行主站瀏覽計數
+    /// 執行主站瀏覽計數。
     /// </summary>
-    private async Task<TryCountResult_DTO> TryCountSiteViewAsync(string siteIndex, string visitorKey, string refererUrl, CancellationToken ct = default)
+    private async Task<TryCountResult_DTO> TryCountSiteViewAsync(
+        string siteIndex,
+        string visitorKey,
+        string refererUrl,
+        CancellationToken ct = default)
     {
-        bool ownsTx = false;
-        DateTime now = DateTime.Now;
         TryCountResult_DTO result = new();
-        try
-        {
-            // 執行 function：基本檢查
-            ct.ThrowIfCancellationRequested();
-            if (string.IsNullOrWhiteSpace(visitorKey))
-            {
-                Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, nameof(visitorKey));
-                return result;
-            }
-            // 執行 function：開始交易
-            ownsTx = await TryBeginTransactionAsync(ct);
-            // 執行 function：先檢查去重
-            var recent = await GetRecentlyInfoAsync(siteIndex, string.Empty, string.Empty, CountTargetType.Header, ViewCountActionType.PageView, visitorKey, ct);
-            if (recent != null && !ShouldCount(recent.LastViewTime, now))
-            {
-                result.CurrentCount = await GetSiteViewCountAsync(siteIndex, ct);
-                await TryCommitAsync(ownsTx, ct);
-                return result;
-            }
-            // 執行 function：更新 recent + count
-            await SaveRecentlyInfoAsync(recent, siteIndex, string.Empty, string.Empty, CountTargetType.Header, ViewCountActionType.PageView, visitorKey, refererUrl, now, ct);
-            result.CurrentCount = await IncreaseSiteViewCountAsync(siteIndex, ct);
-            result.IsCounted = true;
-            // 執行 function：提交
-            await TryCommitAsync(ownsTx, ct);
-            // return
-            return result;
-        }
-        catch
-        {
-            await TryRollbackAsync(ownsTx, CancellationToken.None);
-            throw;
-        }
+        ct.ThrowIfCancellationRequested();
+        if (!ValidateSiteCountInput(visitorKey)) return result;
+        DateTime now = DateTime.Now;
+        return await ExecTransactionAsync(
+            token => CountSiteViewInTransactionAsync(
+                siteIndex,
+                visitorKey,
+                refererUrl,
+                now,
+                result,
+                token),
+            ct: ct);
     }
-
     /// <summary>
-    /// 執行功能/頁面個別計數
+    /// 在交易內完成主站去重與累加。
     /// </summary>
-    private async Task<TryCountResult_DTO> TryCountDetailViewAsync(string siteIndex, string progId, string internalId, ViewCountActionType actionType, string visitorKey, string refererUrl, CancellationToken ct = default)
+    private async Task<TryCountResult_DTO> CountSiteViewInTransactionAsync(
+        string siteIndex,
+        string visitorKey,
+        string refererUrl,
+        DateTime now,
+        TryCountResult_DTO result,
+        CancellationToken ct)
     {
-        bool ownsTx = false;
-        DateTime now = DateTime.Now;
-        TryCountResult_DTO result = new();
-        try
+        SiteViewCountRecently? recent = await GetRecentlyInfoAsync(
+            siteIndex,
+            string.Empty,
+            string.Empty,
+            CountTargetType.Header,
+            ViewCountActionType.PageView,
+            visitorKey,
+            ct);
+        if (recent != null && !ShouldCount(recent.LastViewTime, now))
         {
-            // 執行 function：基本檢查
-            ct.ThrowIfCancellationRequested();
-            if (string.IsNullOrWhiteSpace(visitorKey)) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, nameof(visitorKey));
-            if (string.IsNullOrWhiteSpace(progId)) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, nameof(progId));
-            if (string.IsNullOrWhiteSpace(internalId)) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, nameof(internalId));
-            if (Message.HasError) return result;
-            // 執行 function：開始交易
-            ownsTx = await TryBeginTransactionAsync(ct);
-            // 執行 function：先檢查去重
-            var recent = await GetRecentlyInfoAsync(siteIndex, progId, internalId, CountTargetType.Detail, actionType, visitorKey, ct);
-            if (recent != null && !ShouldCount(recent.LastViewTime, now))
-            {
-                result.CurrentCount = await GetDetailViewCountAsync(siteIndex, progId, internalId, actionType, ct);
-                await TryCommitAsync(ownsTx, ct);
-                return result;
-            }
-            // 執行 function：更新 recent + count
-            await SaveRecentlyInfoAsync(recent, siteIndex, progId, internalId, CountTargetType.Detail, actionType, visitorKey, refererUrl, now, ct);
-            result.CurrentCount = await IncreaseDetailViewCountAsync(siteIndex, progId, internalId, actionType, ct);
-            result.IsCounted = true;
-            // 執行 function：提交
-            await TryCommitAsync(ownsTx, ct);
-            // return
+            result.CurrentCount = await GetSiteViewCountAsync(siteIndex, ct);
             return result;
         }
-        catch
+        await SaveRecentlyInfoAsync(
+            recent,
+            siteIndex,
+            string.Empty,
+            string.Empty,
+            CountTargetType.Header,
+            ViewCountActionType.PageView,
+            visitorKey,
+            refererUrl,
+            now,
+            ct);
+        result.CurrentCount = await IncreaseSiteViewCountAsync(siteIndex, ct);
+        result.IsCounted = true;
+        return result;
+    }
+    /// <summary>
+    /// 執行功能或頁面個別計數。
+    /// </summary>
+    private async Task<TryCountResult_DTO> TryCountDetailViewAsync(
+        string siteIndex,
+        string progId,
+        string internalId,
+        ViewCountActionType actionType,
+        string visitorKey,
+        string refererUrl,
+        CancellationToken ct = default)
+    {
+        TryCountResult_DTO result = new();
+        ct.ThrowIfCancellationRequested();
+        ValidateDetailCountInput(progId, internalId, visitorKey);
+        if (Message.HasError) return result;
+        DateTime now = DateTime.Now;
+        return await ExecTransactionAsync(
+            token => CountDetailViewInTransactionAsync(
+                siteIndex,
+                progId,
+                internalId,
+                actionType,
+                visitorKey,
+                refererUrl,
+                now,
+                result,
+                token),
+            ct: ct);
+    }
+    /// <summary>
+    /// 在交易內完成功能頁面去重與累加。
+    /// </summary>
+    private async Task<TryCountResult_DTO> CountDetailViewInTransactionAsync(
+        string siteIndex,
+        string progId,
+        string internalId,
+        ViewCountActionType actionType,
+        string visitorKey,
+        string refererUrl,
+        DateTime now,
+        TryCountResult_DTO result,
+        CancellationToken ct)
+    {
+        SiteViewCountRecently? recent = await GetRecentlyInfoAsync(
+            siteIndex,
+            progId,
+            internalId,
+            CountTargetType.Detail,
+            actionType,
+            visitorKey,
+            ct);
+        if (recent != null && !ShouldCount(recent.LastViewTime, now))
         {
-            await TryRollbackAsync(ownsTx, CancellationToken.None);
-            throw;
+            result.CurrentCount = await GetDetailViewCountAsync(
+                siteIndex,
+                progId,
+                internalId,
+                actionType,
+                ct);
+            return result;
         }
+        await SaveRecentlyInfoAsync(
+            recent,
+            siteIndex,
+            progId,
+            internalId,
+            CountTargetType.Detail,
+            actionType,
+            visitorKey,
+            refererUrl,
+            now,
+            ct);
+        result.CurrentCount = await IncreaseDetailViewCountAsync(
+            siteIndex,
+            progId,
+            internalId,
+            actionType,
+            ct);
+        result.IsCounted = true;
+        return result;
+    }
+    /// <summary>
+    /// 驗證主站計次必要參數。
+    /// </summary>
+    private bool ValidateSiteCountInput(string visitorKey)
+    {
+        if (!string.IsNullOrWhiteSpace(visitorKey)) return true;
+        Message.AddMessage(
+            MessageStatus.Error,
+            SysMessageCode.BECode00012,
+            nameof(visitorKey));
+        return false;
+    }
+    /// <summary>
+    /// 驗證功能頁面計次必要參數。
+    /// </summary>
+    private void ValidateDetailCountInput(
+        string progId,
+        string internalId,
+        string visitorKey)
+    {
+        if (string.IsNullOrWhiteSpace(visitorKey))
+            Message.AddMessage(
+                MessageStatus.Error,
+                SysMessageCode.BECode00012,
+                nameof(visitorKey));
+        if (string.IsNullOrWhiteSpace(progId))
+            Message.AddMessage(
+                MessageStatus.Error,
+                SysMessageCode.BECode00012,
+                nameof(progId));
+        if (string.IsNullOrWhiteSpace(internalId))
+            Message.AddMessage(
+                MessageStatus.Error,
+                SysMessageCode.BECode00012,
+                nameof(internalId));
     }
 
     /// <summary>

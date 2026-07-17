@@ -19,20 +19,20 @@ namespace WCMS.SpecFeatures.Spec1810.WEB.SpecHomePageSetting;
 /// </summary>
 public class SpecHomePageSettingBiz(
     BizDeps bizDeps,
-    IBizService<Banner> bannerService,
-    IBizService<Announcement> announcementService,
-    IBizService<Category> categoryService,
-    IBizService<TagData> tagService,
-    IBizService<Gallery> galleryService,
-    IBizService<WebResource> webResourceService) : BizBase(bizDeps)
+    BizService<Banner> bannerService,
+    BizService<Announcement> announcementService,
+    BizService<Category> categoryService,
+    BizService<TagData> tagService,
+    BizService<Gallery> galleryService,
+    BizService<WebResource> webResourceService) : BizBase(bizDeps)
 {
     #region Property
-    private readonly IBizService<Banner> _bannerService = bannerService;
-    private readonly IBizService<Announcement> _announcementService = announcementService;
-    private readonly IBizService<Category> _categoryService = categoryService;
-    private readonly IBizService<TagData> _tagService = tagService;
-    private readonly IBizService<Gallery> _galleryService = galleryService;
-    private readonly IBizService<WebResource> _webResourceService = webResourceService;
+    private readonly BizService<Banner> _bannerService = bannerService;
+    private readonly BizService<Announcement> _announcementService = announcementService;
+    private readonly BizService<Category> _categoryService = categoryService;
+    private readonly BizService<TagData> _tagService = tagService;
+    private readonly BizService<Gallery> _galleryService = galleryService;
+    private readonly BizService<WebResource> _webResourceService = webResourceService;
 
     private const int CategoryTabsPageSize = 6;
     private const int EventPageSize = 6;
@@ -255,7 +255,7 @@ public class SpecHomePageSettingBiz(
     /// <summary>
     /// 查詢資料並轉換成 DTO 清單。
     /// </summary>
-    private static async Task<List<TSet_DTO>> QueryListAsync<TSet, TSet_DTO>(IBizService<TSet> service, QueryListParam param, CancellationToken ct)
+    private static async Task<List<TSet_DTO>> QueryListAsync<TSet, TSet_DTO>(BizService<TSet> service, QueryListParam param, CancellationToken ct)
         where TSet : DbModel, ITSet
         where TSet_DTO : ITSet_DTO
     {

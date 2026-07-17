@@ -26,7 +26,7 @@ internal static class CommonModuleSetup
 /// <summary>
 /// 初始化尚未建立的 WCMS 萬年曆資料。
 /// </summary>
-internal sealed class CalendarStartupInitializer(IBizService<CalendarData> calendarService, IConfiguration configuration) : IApplicationStartupTask
+internal sealed class CalendarStartupInitializer(BizService<CalendarData> calendarService, IConfiguration configuration) : IApplicationStartupTask
 {
     #region Property
     /// <summary>
