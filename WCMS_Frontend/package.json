@@ -8,6 +8,11 @@
     "npm": "10.9.x"
   },
   "scripts": {
+    "sync:cms-content-css": "node scripts/sync-cms-content-format.mjs",
+    "predev": "npm run sync:cms-content-css",
+    "predev:csr": "npm run sync:cms-content-css",
+    "predev:ssr": "npm run sync:cms-content-css",
+    "prebuild": "npm run sync:cms-content-css",
     "dev:csr": "vite",
     "dev:ssr": "cross-env NODE_ENV=development tsx src/SSR/SSR-Server.ts",
     "dev": "vite-node src/SSR/SSR-Server.ts",

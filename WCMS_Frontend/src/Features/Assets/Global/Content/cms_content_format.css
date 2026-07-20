@@ -1,0 +1,93 @@
+/**
+ * WCMS 前後台共用 Content 格式。
+ * 本檔案是唯一維護來源，dev/build 前會同步至 public/tinymce，
+ * 讓 TinyMCE iframe 與前台內容使用相同格式規則。
+ */
+
+/** 圖片保持響應式尺寸。 */
+img.rwd-img
+{
+    max-width: 100%;
+    height: auto;
+}
+
+/** WCMS 固定兩字元首行縮排格式。 */
+.wcms-first-line-indent
+{
+    text-indent: 2em;
+}
+
+/** WCMS 固定兩字元凸排格式。 */
+.wcms-hanging-indent
+{
+    padding-inline-start: 2em;
+    text-indent: -2em;
+}
+
+/**
+ * 以下規則只在 TinyMCE iframe 的編輯內容中生效，
+ * 避免載入全域 CSS 後影響前台 iframe、表格與分隔線互動。
+ */
+body.mce-content-body iframe
+{
+    pointer-events: none;
+    display: block;
+    max-width: 100%;
+}
+body.mce-content-body table
+{
+    border-collapse: collapse;
+    table-layout: fixed;
+    max-width: 100%;
+}
+body.mce-content-body td,
+body.mce-content-body th
+{
+    border: 1px solid #C9CDD4;
+    padding: 6px;
+    vertical-align: top;
+}
+body.mce-content-body hr
+{
+    border: 0;
+    border-top: 1px solid #C9CDD4;
+    margin: 1rem 0;
+}
+body.wcms-show-p p
+{
+    outline: 1px dashed rgba(60, 120, 255, .55);
+    position: relative;
+}
+body.wcms-show-p p::before
+{
+    content: "p";
+    position: absolute;
+    top: -9px;
+    left: 0;
+    font-size: 11px;
+    line-height: 1;
+    background: rgba(17, 24, 39, .9);
+    color: #fff;
+    padding: 0 3px;
+    border-radius: 2px;
+    pointer-events: none;
+}
+body.wcms-show-div div
+{
+    outline: 1px dashed rgba(16, 185, 129, .55);
+    position: relative;
+}
+body.wcms-show-div div::before
+{
+    content: "div";
+    position: absolute;
+    top: -9px;
+    left: 0;
+    font-size: 11px;
+    line-height: 1;
+    background: rgba(17, 24, 39, .9);
+    color: #fff;
+    padding: 0 3px;
+    border-radius: 2px;
+    pointer-events: none;
+}

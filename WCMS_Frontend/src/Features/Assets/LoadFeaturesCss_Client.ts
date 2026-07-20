@@ -1,4 +1,5 @@
 /** 請用相對路徑，不要用@/，會解析失敗 */
+import "./Global/Content/cms_content_format.css";
 import "./Client/Content/bootstrap-5.3.3/css/bootstrap.min.css";
 import "./Client/Content/Style.css";
 import "../Pages/Client/Scaffold/MainFrame/Accesskey/Accesskey.css";
