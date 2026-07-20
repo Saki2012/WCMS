@@ -1,4 +1,5 @@
 import ScholarOneLogo from "@/SpecFetures/1819/Assets/Client/images/logo/Scholar-One_184x20.svg";
+import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import { LangLink } from "@/SysCore/i18n/LangLink";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -7,6 +8,8 @@ const STORAGE_KEY = "wcms.srs.dismissed";
 
 
 type SubmissionReviewSystemProps = {
+    /** 目前頁面語系。 */
+    lang: Lang;
     /** 連結（預設 ScholarOne） */
     href?: string;
     /** Menu 顯示文字（預設：投審稿系統） */
@@ -25,8 +28,9 @@ type SubmissionReviewSystemProps = {
  */
 export const SubmissionReviewSystem: React.FC<SubmissionReviewSystemProps> = (props) =>
 {
+    const text = getSubmissionReviewSystemLangText(props.lang);
     const href = props.href ?? "https://mc.manuscriptcentral.com/joemls";
-    const label = props.label ?? "投審稿系統";
+    const label = props.label ?? text.label;
 
     const isMobile = useIsMobile();
     const { dismissed, dismiss, restore } = useDismissedState();
@@ -45,7 +49,7 @@ export const SubmissionReviewSystem: React.FC<SubmissionReviewSystemProps> = (pr
 
     return (
         <>
-            {showFloating && <FloatingWidget href={href} label={label} onClose={dismiss} />}
+            {showFloating && <FloatingWidget href={href} label={label} closeLabel={text.closeLabel} onClose={dismiss} />}
 
             {/* Menu 入口：你要放到 Header 的 Menu 區塊時，就 render 這段 */}
             {showMenuEntry && <MenuEntry href={href} label={label} onRestore={restore} isMobile={isMobile} />}
@@ -127,7 +131,7 @@ const useDismissedState = () =>
 
 
 /** 右側浮動：投審稿系統（Prototype: #Fixed_Right_Div.Circle_Div） */
-const FloatingWidget = (props: { href: string; label: string; onClose: () => void; }) =>
+const FloatingWidget = (props: { href: string; label: string; closeLabel: string; onClose: () => void; }) =>
 {
     return (
         <div id="Fixed_Right_Div" className="Circle_Div">
@@ -135,8 +139,8 @@ const FloatingWidget = (props: { href: string; label: string; onClose: () => voi
                 href="#"
                 className="Fixedbtn-close"
                 role="button"
-                aria-label={`關閉${props.label}`}
-                title={`關閉${props.label}`}
+                aria-label={`${props.closeLabel}${props.label}`}
+                title={`${props.closeLabel}${props.label}`}
                 onClick={(e) =>
                 {
                     e.preventDefault();
@@ -186,5 +190,28 @@ const MenuEntry = (props: { href: string; label: string; onRestore: () => void; 
             </LangLink>
         </li>
     );
+};
+// #endregion
+
+// #region LangText
+interface SubmissionReviewSystemLangText
+{
+    closeLabel: string;
+    label: string;
+}
+const SUBMISSION_REVIEW_SYSTEM_LANG_TEXT_MAP: Record<string, SubmissionReviewSystemLangText> = {
+    "zh-tw": {
+        closeLabel: "關閉",
+        label: "投審稿系統",
+    },
+    en: {
+        closeLabel: "Close ",
+        label: "Online Submission",
+    },
+};
+/** 取得投審稿系統文字設定。 */
+const getSubmissionReviewSystemLangText = (lang: Lang): SubmissionReviewSystemLangText =>
+{
+    return SUBMISSION_REVIEW_SYSTEM_LANG_TEXT_MAP[lang] ?? SUBMISSION_REVIEW_SYSTEM_LANG_TEXT_MAP[DefaultLang];
 };
 // #endregion

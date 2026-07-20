@@ -189,7 +189,7 @@ const SpecJournalListContent = (
                             </div>
                         </div>
                     )}
-                    <SpecJournalKeywordSearch_Comp basePath="." />
+                    <SpecJournalKeywordSearch_Comp basePath="." lang={props.lang} />
                 </div>
 
                 <div className="col row-group">

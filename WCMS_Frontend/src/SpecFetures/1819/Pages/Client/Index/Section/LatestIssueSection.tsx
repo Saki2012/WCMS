@@ -45,7 +45,7 @@ export const LatestIssueSection = (props: LatestIssueSectionProps) =>
                                             <div className="TS_wrapper">
                                                 <LastIssueComp data={latestPublished} />
                                                 <PreprintComp />
-                                                <SpecJournalKeywordSearch_Comp basePath="/Issues/List" />
+                                                <SpecJournalKeywordSearch_Comp basePath="/Issues/List" lang={props.lang} />
                                             </div>
                                         </div>
                                     </div>
