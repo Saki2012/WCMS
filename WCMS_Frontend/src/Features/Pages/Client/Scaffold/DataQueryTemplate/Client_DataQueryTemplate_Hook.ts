@@ -34,6 +34,8 @@ interface ClientDataQuerySearchBarConfig
     searchButtonText?: string;
     /** 重置按鈕文字 */
     resetButtonText?: string;
+    /** 下拉選單空值項目文字 */
+    allOptionText?: string;
     /** 一列最多幾個欄位 */
     columnCount?: 1 | 2 | 3;
 }

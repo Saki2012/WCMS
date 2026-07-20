@@ -14,6 +14,7 @@ import {
     isSameClientDataQueryParam,
     useClientDataQueryTemplate,
 } from "@/Features/Pages/Client/Scaffold/DataQueryTemplate/Client_DataQueryTemplate_Hook";
+import { getClientSearchBarText } from "@/Features/Pages/Client/Scaffold/SubPages/Module/SearchBar/Client_SearchBar_I18n";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
@@ -405,14 +406,15 @@ const buildViewCountQuery = (internalIds: string[]): QueryListParam =>
     };
 };
 /** 建立 Announcement 前台搜尋欄位 */
-const buildAnnouncementSearchFields = (): SearchFieldConfig[] =>
+const buildAnnouncementSearchFields = (lang: Lang): SearchFieldConfig[] =>
 {
+    const isEnglish = lang === "en";
     return [{
         key: SEARCH_KEYWORD_KEY,
-        title: "關鍵字",
-        label: "關鍵字",
+        title: isEnglish ? "Keyword" : "關鍵字",
+        label: isEnglish ? "Keyword" : "關鍵字",
         type: "text",
-        placeholder: "請輸入公告標題",
+        placeholder: isEnglish ? "Enter an announcement title" : "請輸入公告標題",
         maxLength: 100,
     }] as unknown as SearchFieldConfig[];
 };
@@ -491,16 +493,17 @@ const createAnnouncementDataQueryTemplate = (
     const pagination = p.opts?.Style === 8
         ? null
         : { defaultPageNumber: initialViewState.pageNumber, defaultPageSize: initialViewState.pageSize, resetPageOnSearch: true };
+    const searchBarText = getClientSearchBarText(p.lang);
     return {
         featureKey: "AnnouncementList",
         dataMode: "multiple",
         initialSearchValues,
         initialViewState,
         pagination,
-        searchBar: { title: "搜尋條件", actionAlign: "right", columnCount: 3 },
+        searchBar: { ...searchBarText, actionAlign: "right", columnCount: 3 },
         spec: getResolvedAnnouncementListDataQuerySpec(),
         feature: {
-            searchFields: buildAnnouncementSearchFields(),
+            searchFields: buildAnnouncementSearchFields(p.lang),
             toSearchParams: (values, viewState) => buildAnnouncementSearchParams({ ...p, values, viewState }),
             buildSearchConditions: (ctx) => [buildAnnouncementCondition(ctx.searchParams)],
             buildQueryParam: (ctx) => buildAnnouncementQueryArgs({ ...ctx.searchParams, condition: ctx.searchCondition }),
