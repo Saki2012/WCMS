@@ -61,6 +61,14 @@ const BaseTextInputField = (props: { field: AAInputField; context: FieldRenderCo
         props.context.onKeyDown?.(props.field.key, event);
     };
 
+    /** 更新文字值，原生日期時間選取完成後同步關閉選擇器。 */
+    const handleChange = (event: ChangeEvent<HTMLInputElement>) =>
+    {
+        const nextValue = normalizeTextValue(event.currentTarget.value, props.field.maxLength);
+        props.context.onChange(props.field.key, nextValue);
+        if (props.inputType === "datetime-local" && nextValue) event.currentTarget.blur();
+    };
+
     return (
         <FieldControlShell field={props.field} fieldId={props.context.fieldId} hintId={props.context.hintId} errorId={props.context.errorId}>
             <input
@@ -85,7 +93,7 @@ const BaseTextInputField = (props: { field: AAInputField; context: FieldRenderCo
                 onFocus={applyAAFocusStyle}
                 onBlur={handleBlur}
                 onKeyDown={handleKeyDown}
-                onChange={(event: ChangeEvent<HTMLInputElement>) => props.context.onChange(props.field.key, normalizeTextValue(event.target.value, props.field.maxLength))}
+                onChange={handleChange}
             />
         </FieldControlShell>
     );
