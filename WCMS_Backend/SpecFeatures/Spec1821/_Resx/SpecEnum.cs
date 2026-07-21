@@ -1,5 +1,6 @@
 using WCMS.Features.WEB.Announcement;
 using WCMS.Features.WEB.FileArchive;
+using WCMS.SysCore.I18n.Metadata;
 
 namespace WCMS.SpecFeatures.Spec1821._Resx;
 

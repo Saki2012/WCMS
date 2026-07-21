@@ -35,6 +35,12 @@ public class FileArchive : HeaderModel
     [Required]
     [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Title, DisplayName.Common_Tag)]
     public string TagsId { get; set; } = string.Empty;
+    /// <summary>
+    /// 資料有效日期起 (該欄位未來會淘汰掉，把檔案室變成真正的一個表單與檔案清單設置，去對接Menu模組)
+    /// </summary>
+    [Obsolete]
+    [LibField(ApiFieldMode.ReadWrite, DisplayName.Announcement_StartDate)]
+    public DateTime Validate_Start { get; set; }
 
     #region 主子表關聯
     [InverseProperty(nameof(FileArchiveInfo._FileArchive))]

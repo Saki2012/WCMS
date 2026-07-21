@@ -1,8 +1,8 @@
-﻿using WCMS.SysCore.Configuration;
-
+using WCMS.SysCore.Configuration;
+using SystemVersionBase = WCMS.SysCore.Configuration;
 namespace WCMS.SpecFeatures.Spec1821.SYS.SystemVersion;
 
-public class SpecSystemVersion_Biz: SystemVersion_Biz
+public class SpecSystemVersion_Biz : SystemVersionBase.SystemVersion
 {
     #region Protected Virtual
     protected override void SetSpecVersion(SystemVersion_DTO data)
