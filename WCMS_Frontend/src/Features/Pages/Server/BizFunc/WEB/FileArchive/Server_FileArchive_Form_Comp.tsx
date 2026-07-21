@@ -2,19 +2,19 @@ import { Server_FormTemplate_Comp } from "@/Features/Pages/Server/Scaffold/Conte
 import type { ServerFormBinding } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
 import { EditGrid } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid";
 import type { IEditGridView_Style } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Data";
+import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
+import { LibCalendar, LibCheckBox, LibTextBox } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
+import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { DividerComp } from "@/SysCore/Components/Divider/Divider_Comp";
-import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
-import { LibCheckBox, LibTextBox } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
-import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
+import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
+import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import type { components } from "@/types/api";
 import { FileArchiveFields, FileArchiveInfoFields, FileArchiveSetFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
-import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
-import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -31,7 +31,6 @@ import {
 // #region Property
 type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];
 
-
 interface FileArchiveFormCompProps
 {
     /** 後台主題設定 */
@@ -40,7 +39,6 @@ interface FileArchiveFormCompProps
     /** 目前語系 */
     lang: Lang;
 }
-
 
 interface HeaderSectionProps
 {
@@ -53,7 +51,6 @@ interface HeaderSectionProps
     /** FileArchive Hook 整理後的參照資料 */
     refs: FileArchiveFormRefs;
 }
-
 
 interface DetailSectionProps
 {
@@ -70,7 +67,6 @@ interface DetailSectionProps
     refs: FileArchiveFormRefs;
 }
 
-
 interface SubDetailSectionProps
 {
     /** Form Template 提供的主資料 binding */
@@ -80,20 +76,17 @@ interface SubDetailSectionProps
     parentRowId: number;
 }
 
-
 interface UrlSubDetailSectionProps extends SubDetailSectionProps
 {
     /** WindowTarget 下拉選項 */
     windowTargetOpts: Record<string, string>;
 }
 
-
 interface HeaderTabContentOptions extends HeaderSectionProps
 {
     /** 欄位 binding helper */
     setField: ReturnType<typeof useSetTableField<FileArchiveSet>>;
 }
-
 
 interface DetailTabContentOptions
 {
@@ -112,7 +105,6 @@ interface DetailTabContentOptions
     /** FileArchive Hook 整理後的參照資料 */
     refs: FileArchiveFormRefs;
 }
-
 
 interface DetailFieldsOptions
 {
@@ -134,7 +126,6 @@ interface DetailFieldsOptions
     /** WindowTarget 下拉選項 */
     windowTargetOpts: Record<string, string>;
 }
-
 
 const editGridStyle: IEditGridView_Style = {
     TableStyle: "table table-striped table-bordered table-hover",
@@ -198,7 +189,6 @@ const HeaderComp = (props: HeaderSectionProps) =>
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
 
-
 /** 檔案室多語 Detail 區塊，語系資料由 Hook 統一整理。 */
 const DetailComp = (props: DetailSectionProps) =>
 {
@@ -209,7 +199,6 @@ const DetailComp = (props: DetailSectionProps) =>
 
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
-
 
 /** 檔案室檔案 SubDetail 區塊，直接掛載 Hook 產生的 EditGrid props。 */
 const FileSubDetailComp = (props: SubDetailSectionProps) =>
@@ -222,7 +211,6 @@ const FileSubDetailComp = (props: SubDetailSectionProps) =>
         </div>
     );
 };
-
 
 /** 檔案室外部連結 SubDetail 區塊，直接掛載 Hook 產生的 EditGrid props。 */
 const UrlSubDetailComp = (props: UrlSubDetailSectionProps) =>
@@ -254,7 +242,6 @@ const buildHeaderTabContent = (opt: HeaderTabContentOptions): Record<string, Rea
     };
 };
 
-
 /** 建立基本資料欄位。 */
 const buildBasicFields = (opt: HeaderTabContentOptions): ReactNode[] =>
 {
@@ -264,9 +251,9 @@ const buildBasicFields = (opt: HeaderTabContentOptions): ReactNode[] =>
             options={opt.refs.categoryMap}
             {...opt.setField(FileArchiveSetFields.FileArchive, FileArchiveFields.CategoriesId, "string", undefined, "csv")}
         />,
+        <LibCalendar {...opt.setField(FileArchiveSetFields.FileArchive, FileArchiveFields.Validate_Start, "datetime")} />,
     ];
 };
-
 
 /** 建立狀態欄位。 */
 const buildStatusFields = (opt: HeaderTabContentOptions): ReactNode[] =>
@@ -283,7 +270,6 @@ const buildStatusFields = (opt: HeaderTabContentOptions): ReactNode[] =>
     ];
 };
 
-
 /** 建立標籤欄位。 */
 const buildTagFields = (opt: HeaderTabContentOptions): ReactNode[] =>
 {
@@ -295,7 +281,6 @@ const buildTagFields = (opt: HeaderTabContentOptions): ReactNode[] =>
         />,
     ];
 };
-
 
 /** 建立 Detail 語系分頁內容，畫面只依 Hook 整理後的 Tab 項目渲染。 */
 const buildDetailTabContent = (opt: DetailTabContentOptions): Record<string, ReactNode[]> =>
@@ -313,7 +298,6 @@ const buildDetailTabContent = (opt: DetailTabContentOptions): Record<string, Rea
         return compMap;
     }, {});
 };
-
 
 /** 建立單一語系 Detail 欄位與 SubDetail Grid。 */
 const buildDetailFields = (opt: DetailFieldsOptions): ReactNode[] =>

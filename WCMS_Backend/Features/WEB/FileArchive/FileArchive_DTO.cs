@@ -36,6 +36,10 @@ namespace WCMS.Features.WEB.FileArchive
         /// 標籤ID(多個)
         /// </summary>
         [LibDesc(ModelDisplayName.Common_Tag), StringLength(SysLengthParam.Title)] public string? TagsId { get; set; }
+        /// <summary>
+        /// 資料有效日期-起
+        /// </summary>
+        [LibDesc(ModelDisplayName.Announcement_StartDate)] public DateTime? Validate_Start { get; set; }
 
         #region 主子表關聯
         public List<FileArchiveInfo_DTO>? _FileArchiveInfo { get; set; } = [];
