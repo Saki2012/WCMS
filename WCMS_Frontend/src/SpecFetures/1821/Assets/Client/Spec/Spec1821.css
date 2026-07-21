@@ -127,10 +127,21 @@
     color: var(--FFFcolor);
   }
 }
+
 @media screen and (min-width: 992px) {
   #navbar-content ul .dropdown-toggle::after {
     color: var(--FFFcolor);
   }
+}
+
+/* 第二層有submenu 箭頭顯示成灰色 */
+@media screen and (min-width: 992px) {
+	#navbar-content .navbar-nav .dropend .dropdown-toggle::after{
+		color: var(--bs-gray-500);
+	}
+	#navbar-content .navbar-nav .dropend .dropdown-toggle:hover::after{
+		color: var(--FFFcolor);
+	}
 }
 
 @media screen and (min-width: 992px) {
