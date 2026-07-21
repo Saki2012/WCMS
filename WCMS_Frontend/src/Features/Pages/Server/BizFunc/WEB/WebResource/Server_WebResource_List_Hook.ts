@@ -20,6 +20,7 @@ import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Compon
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
+import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { findTextByKey, formatDateTime, LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
@@ -39,6 +40,15 @@ type WebResourceApiAdapter = ReturnType<typeof WebResourceAdapter>;
 type CategoryApiAdapter = ReturnType<typeof CategoryAdapter>;
 
 type WebResourceCudActions = ReturnType<WebResourceApiAdapter["hooks"]["useCudActions"]>;
+
+export interface WebResourceListPageState
+{
+    /** SearchBar 已送出的搜尋值。 */
+    searchValues: SearchValues;
+
+    /** Grid 目前頁碼。 */
+    pageNumber: number;
+}
 
 export interface WebResourceSearchParams
 {
@@ -97,7 +107,7 @@ export interface WebResourceListAdapter
     dirUrl: string;
 }
 
-export type WebResourceListGridTemplate = ServerListGridTemplate<WebResourceSearchParams, WebResourceListRawData, WebResourceListAdapter, QueryListParam>;
+export type WebResourceListGridTemplate = ServerListGridTemplate<WebResourceSearchParams, WebResourceListRawData, WebResourceListAdapter, QueryListParam, WebResourceListPageState>;
 
 type CrudDeps = {
     /** React Router 導頁方法 */
@@ -119,13 +129,34 @@ export const WEB_RESOURCE_TITLE_SEARCH_KEY = "title";
 
 export const WEB_RESOURCE_CATEGORY_SEARCH_KEY = "categoryId";
 
+
+const WEB_RESOURCE_LIST_STATE_KEY = "server-web-resource-list";
+
+const DEFAULT_WEB_RESOURCE_LIST_PAGE_STATE: WebResourceListPageState = {
+    searchValues: {},
+    pageNumber: 1,
+};
+
 /** 建立網路資源後台 ListGridTemplate 設定 */
 export const useWebResourceListGridTemplate = (opt: { lang: Lang; }): WebResourceListGridTemplate =>
 {
+    const pageState = usePageStateMemory<WebResourceListPageState>({
+        stateKey: WEB_RESOURCE_LIST_STATE_KEY,
+        defaultState: DEFAULT_WEB_RESOURCE_LIST_PAGE_STATE,
+        scopeKeys: [opt.lang],
+    });
     return useMemo<WebResourceListGridTemplate>(() =>
     {
         return {
             featureKey: PGID.WebResource,
+            pageStateMemory: {
+                controller: pageState,
+                getSearchValues: (state) => state.searchValues,
+                getPageNumber: (state) => state.pageNumber,
+                updateSearchValues: updateWebResourceSearchValues,
+                updatePageNumber: updateWebResourcePageNumber,
+                getPagination: getWebResourcePagination,
+            },
             feature: {
                 buildSearchFields: ({ rawData }) => buildWebResourceSearchFields(rawData),
                 toSearchParams: (values) => toWebResourceSearchParams(values, opt.lang),
@@ -135,11 +166,29 @@ export const useWebResourceListGridTemplate = (opt: { lang: Lang; }): WebResourc
                 buildGridProps: (ctx) => buildWebResourceGridProps({ raw: ctx.rawData, lang: ctx.searchParams.lang, adapter: ctx.adapter, refetchData: ctx.refetchData }),
             },
         };
-    }, [opt.lang]);
+    }, [opt.lang, pageState]);
 };
 // #endregion
 
 // #region Private
+/** 搜尋送出時更新WebResource記憶狀態，並固定回到第一頁。 */
+const updateWebResourceSearchValues = (state: WebResourceListPageState, searchValues: SearchValues): WebResourceListPageState =>
+{
+    return { ...state, searchValues, pageNumber: 1 };
+};
+
+/** 更新WebResource列表記憶頁碼。 */
+const updateWebResourcePageNumber = (state: WebResourceListPageState, pageNumber: number): WebResourceListPageState =>
+{
+    return { ...state, pageNumber };
+};
+
+/** 提供 Template 校正頁碼所需的WebResource分頁資訊。 */
+const getWebResourcePagination = (rawData: WebResourceListRawData): { count: number; totalPages: number; } =>
+{
+    return { count: rawData.count, totalPages: rawData.totalPages };
+};
+
 /** 執行網路資源列表資料來源 Hook */
 const useWebResourceListGridDataSource = (
     ctx: ServerListGridDataSourceContext<WebResourceSearchParams, QueryListParam>,
@@ -242,14 +291,14 @@ const buildWebResourceSearchConditions = (ctx: { searchParams: WebResourceSearch
 };
 
 /** 建立網路資源列表完整 QueryParam */
-const buildWebResourceQueryParam = (ctx: { searchParams: WebResourceSearchParams; searchCondition: string; }): QueryListParam =>
+const buildWebResourceQueryParam = (ctx: { pageNumber: number; searchParams: WebResourceSearchParams; searchCondition: string; }): QueryListParam =>
 {
     return {
         Fields: buildWebResourceQueryFields(),
         Condition: LibCondition.joinConditions([LibCondition.createCondition(`${WebResourceFields._WebResourceInfo}.${WebResourceInfoFields.Lang}`, Operator.Equal, ctx.searchParams.lang), ctx.searchCondition]),
         RankGroups: [{ Condition: `${WebResourceFields.ContentStatus} & 1` }],
         OrderBy: [{ Col: WebResourceFields.CreateTime, Desc: true }],
-        PageNumber: 1,
+        PageNumber: ctx.pageNumber,
         PageSize: 10,
     };
 };

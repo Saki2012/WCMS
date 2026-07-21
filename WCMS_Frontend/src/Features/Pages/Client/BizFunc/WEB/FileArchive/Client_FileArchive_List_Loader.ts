@@ -3,9 +3,9 @@ import { TagAdapter, type TagMapLoaderData } from "@/Features/Hooks/BizFunc/COMM
 import { FileArchiveAdapter } from "@/Features/Hooks/BizFunc/WEB/FileArchive_Api";
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import {
-    buildClientDataQueryKey,
     buildClientDataQueryState,
     type ClientDataQueryDataSourceResult,
+    type ClientDataQueryMemoryState,
     type ClientDataQueryPaginatorModel,
     type ClientDataQuerySearchBarModel,
     type ClientDataQueryTemplate,
@@ -21,6 +21,7 @@ import { type ApiAdapterError, type ApiGridInitial, type ApiGridLoaderData } fro
 import { getSsrApi, MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
 import { resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
+import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import {
@@ -31,7 +32,7 @@ import {
     FileManageModelFields,
     PGID,
 } from "@/types/SchemaFields";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useMemo } from "react";
 import { type LoaderFunctionArgs, useLoaderData } from "react-router-dom";
 import type { IFileArchiveOptions } from "./Client_FileArchive_List_Comp";
 
@@ -90,7 +91,7 @@ interface UseFileArchiveListDataResult extends FileArchiveListRawData
 }
 type FileArchiveSearchParams = { lang: Lang; opts: IFileArchiveOptions; pageSize: number; pageNumber: number; title?: string; categoryIds: string; tagIds: string; };
 type FileArchiveQueryParam = FileArchiveListLoaderArgs;
-type FileArchiveDataQueryTemplate = ClientDataQueryTemplate<FileArchiveSearchParams, FileArchiveListRawData, FileArchiveListRawData, FileArchiveListAdapter, FileArchiveQueryParam, FileArchiveListLoaderData>;
+type FileArchiveDataQueryTemplate = ClientDataQueryTemplate<FileArchiveSearchParams, FileArchiveListRawData, FileArchiveListRawData, FileArchiveListAdapter, FileArchiveQueryParam, FileArchiveListLoaderData, ClientDataQueryMemoryState>;
 export type FileArchiveListDataQuerySpecSlot = NonNullable<FileArchiveDataQueryTemplate["spec"]>;
 let _resolvedFileArchiveListDataQuerySpec: FileArchiveListDataQuerySpecSlot | null = null;
 // #endregion
@@ -116,12 +117,18 @@ export const Client_FileArchiveList_Loader = (p: { lang: Lang; opts: IFileArchiv
 export const useFileArchiveListData = (p: { lang: Lang; opts: IFileArchiveOptions; title?: string; }): UseFileArchiveListDataResult =>
 {
     const initial = useLoaderData() as FileArchiveListLoaderData;
+    const defaultPageState = useMemo<ClientDataQueryMemoryState>(
+        () => ({ searchValues: buildFileArchiveSearchValues({ title: p.title, tagIds: initial.args.tagIds }), viewState: buildFileArchiveInitialViewState({ pageNumber: initial.args.pageNumber, pageSize: initial.args.pageSize }) }),
+        [p.lang, initial.args.pageNumber, initial.args.pageSize],
+    );
+    const pageState = usePageStateMemory<ClientDataQueryMemoryState>({ stateKey: "Client.FileArchiveList", scopeKeys: [p.lang], defaultState: defaultPageState });
     const template = useMemo(() =>
         createFileArchiveDataQueryTemplate({
+            pageState,
             lang: p.lang,
             opts: p.opts,
             overrides: { pageNumber: initial.args.pageNumber, pageSize: initial.args.pageSize, title: p.title, categoryIds: initial.args.categoryIds, tagIds: initial.args.tagIds },
-        }), [p.lang, p.opts, p.title, initial.args.pageNumber, initial.args.pageSize, initial.args.categoryIds, initial.args.tagIds]);
+        }), [p.lang, p.opts, p.title, initial.args.pageNumber, initial.args.pageSize, initial.args.categoryIds, initial.args.tagIds, pageState]);
     const templateVm = useClientDataQueryTemplate(template);
     return { ...templateVm.viewModel, paginatorProps: templateVm.paginatorProps, searchBar: templateVm.searchBar, isLoading: templateVm.isLoading, errorList: templateVm.errorList, refetchData: templateVm.refetchData };
 };
@@ -204,7 +211,7 @@ const buildFileArchiveQuery = (p: { condition: string; pageNumber: number; pageS
         ],
         Condition: p.condition,
         RankGroups: [{ Condition: LibCondition.joinConditions([LibCondition.createCondition(FileArchiveFields.ContentStatus, Operator.BitwiseHasAny, 1)]) }],
-        OrderBy: [{ Col: FileArchiveFields.CreateTime, Desc: true }],
+        OrderBy: [{ Col: FileArchiveFields.Validate_Start, Desc: true }, { Col: FileArchiveFields.CreateTime, Desc: true }],
         PageNumber: p.pageNumber,
         PageSize: p.pageSize,
     };
@@ -227,13 +234,27 @@ const buildFileArchiveQueryArgs = (p: FileArchiveSearchParams & { condition: str
 };
 
 /** 建立 FileArchive DataQueryTemplate */
-const createFileArchiveDataQueryTemplate = (p: { lang: Lang; opts: IFileArchiveOptions; overrides?: Partial<{ pageNumber: number; pageSize: number; title: string; categoryIds: string; tagIds: string; }>; }): FileArchiveDataQueryTemplate =>
+const createFileArchiveDataQueryTemplate = (
+    p: { pageState?: ReturnType<typeof usePageStateMemory<ClientDataQueryMemoryState>>; lang: Lang; opts: IFileArchiveOptions; overrides?: Partial<{ pageNumber: number; pageSize: number; title: string; categoryIds: string; tagIds: string; }>; },
+): FileArchiveDataQueryTemplate =>
 {
     const initialViewState = buildFileArchiveInitialViewState(p.overrides);
     const initialSearchValues = buildFileArchiveSearchValues({ title: p.overrides?.title, tagIds: p.overrides?.tagIds });
     return {
         featureKey: "FileArchiveList",
         dataMode: "multiple",
+        ...(p.pageState
+            ? {
+                pageStateMemory: {
+                    controller: p.pageState,
+                    getSearchValues: state => state.searchValues,
+                    getViewState: state => state.viewState,
+                    updateSearchValues: (state, values, pageNumber) => ({ ...state, searchValues: values, viewState: { ...state.viewState, pageNumber } }),
+                    updateViewState: (state, nextViewState) => ({ ...state, viewState: nextViewState }),
+                    getPagination: raw => ({ count: raw.count, totalPages: raw.totalPages }),
+                },
+            }
+            : {}),
         initialSearchValues,
         initialViewState,
         pagination: { defaultPageNumber: initialViewState.pageNumber, defaultPageSize: initialViewState.pageSize, resetPageOnSearch: true },
@@ -247,7 +268,7 @@ const createFileArchiveDataQueryTemplate = (p: { lang: Lang; opts: IFileArchiveO
             useDataSource: (ctx) => useFileArchiveDataSource({ queryParam: ctx.queryParam, loaderData: ctx.loaderData }),
             buildViewModel: (ctx) => ctx.rawData,
         },
-    };
+    } as FileArchiveDataQueryTemplate;
 };
 /** 組 loader / hook 共用參數 */
 const buildLoaderArgs = (p: { lang: Lang; opts: IFileArchiveOptions; overrides?: Partial<{ pageNumber: number; pageSize: number; title: string; categoryIds: string; tagIds: string; }>; }): FileArchiveQueryParam =>
@@ -317,24 +338,6 @@ const useFileArchiveDataSource = (p: { queryParam: FileArchiveQueryParam; loader
         initial: categoryInitial,
     });
     const tag = adapter.Tag.hooks.useMapByProgId({ progId: PGID.FileArchive, lang: currentArgs.lang, deps: [currentArgs.lang], initial: tagInitial });
-    const resetKey = useMemo(
-        () =>
-            buildClientDataQueryKey({
-                lang: currentArgs.lang,
-                pageSize: currentArgs.pageSize,
-                title: currentArgs.title ?? "",
-                categoryIds: currentArgs.categoryIds,
-                tagIds: currentArgs.tagIds,
-            }),
-        [currentArgs.lang, currentArgs.pageSize, currentArgs.title, currentArgs.categoryIds, currentArgs.tagIds],
-    );
-    const prevResetKeyRef = useRef<string>(resetKey);
-    useEffect(() =>
-    {
-        if (prevResetKeyRef.current === resetKey) return;
-        prevResetKeyRef.current = resetKey;
-        grid.onPageChange(1);
-    }, [resetKey, grid.onPageChange]);
     const paginator = useMemo<ClientDataQueryPaginatorModel>(() => ({
         currentPage: grid.pageNumber ?? 1,
         pageSize: currentArgs.pageSize,

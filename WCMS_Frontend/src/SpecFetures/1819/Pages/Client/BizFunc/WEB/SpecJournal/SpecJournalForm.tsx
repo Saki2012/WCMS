@@ -831,7 +831,7 @@ const Accordion_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
         const html = sec?.Content ?? "";
         if (!html.trim()) return;
 
-        sections.push({ id: `journal-ref-format-${sec.RowId}`, title: sec.Title ?? "", content: <CmsHtml_Comp html={html} lang={props.lang} /> });
+        sections.push({ id: `journal-ref-format-${sec.RowId}`, title: resolveRefFormatTitle(sec.Title, props.lang), content: <CmsHtml_Comp html={html} lang={props.lang} /> });
     });
 
     if (sections.length === 0) return null;
@@ -976,7 +976,7 @@ const SpecJournalFormContent = (props: { lang: Lang; data?: SpecJournalSet; page
         <div className="Journal_List_content">
             <div className="row">
                 <div className="CategoryBar w-100">
-                    <SpecJournalKeywordSearch_Comp basePath="../List" />
+                    <SpecJournalKeywordSearch_Comp basePath="../List" lang={props.lang} />
                 </div>
                 <div className="col row-group">
                     <hr className="hr-my-4" />
@@ -1038,6 +1038,25 @@ const preventHashOrVoidNav = (e: React.MouseEvent<HTMLAnchorElement>) =>
     const isFake = href === "" || href === "#" || href.startsWith("#");
     // 執行 function
     if (isFake) e.preventDefault();
+};
+
+/**
+ * Mantis 517單號
+ * 緊急處理既有引文格式標題的前台語系顯示。
+ * 目前資料表只有單一 Title 欄位，因此暫時針對既有 APA／芝加哥格式寫死英文名稱。
+ * 未來若新增其他引文格式或支援更多語系，必須將引文格式標題改為正式多語系資料，不可持續擴充此對照。
+ */
+const resolveRefFormatTitle = (title: string | null | undefined, lang: Lang): string =>
+{
+    const sourceTitle = (title ?? "").trim();
+    if (lang === "zh-tw") return sourceTitle;
+
+    const emergencyTitleMap: Record<string, string> = {
+        "APA 引文格式": "APA Style",
+        "芝加哥 引文格式": "Chicago Style",
+    };
+
+    return emergencyTitleMap[sourceTitle] ?? sourceTitle;
 };
 
 /** 取得文件分類 key */

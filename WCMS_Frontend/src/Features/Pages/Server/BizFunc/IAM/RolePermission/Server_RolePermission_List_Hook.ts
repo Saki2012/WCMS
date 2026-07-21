@@ -15,6 +15,7 @@ import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Compon
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
+import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { formatDateTime, LibCondition, LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
@@ -31,6 +32,15 @@ type RolePermissionSet = components["schemas"]["RolePermissionSet_DTO"];
 type RolePermissionApiAdapter = ReturnType<typeof RolePermissionAdapter>;
 
 type RolePermissionCudActions = ReturnType<RolePermissionApiAdapter["hooks"]["useCudActions"]>;
+
+export interface RolePermissionListPageState
+{
+    /** SearchBar 已送出的搜尋值。 */
+    searchValues: SearchValues;
+
+    /** Grid 目前頁碼。 */
+    pageNumber: number;
+}
 
 export interface RolePermissionSearchParams
 {
@@ -80,7 +90,7 @@ export interface RolePermissionListAdapter
     dirUrl: string;
 }
 
-export type RolePermissionListGridTemplate = ServerListGridTemplate<RolePermissionSearchParams, RolePermissionListRawData, RolePermissionListAdapter, QueryListParam>;
+export type RolePermissionListGridTemplate = ServerListGridTemplate<RolePermissionSearchParams, RolePermissionListRawData, RolePermissionListAdapter, QueryListParam, RolePermissionListPageState>;
 
 type CrudDeps = {
     /** React Router 導頁方法 */
@@ -114,13 +124,34 @@ type RolePermissionVisibleColumn = {
 // #region Public
 export const ROLE_PERMISSION_ROLE_NAME_SEARCH_KEY = "roleName";
 
+
+const ROLE_PERMISSION_LIST_STATE_KEY = "server-role-permission-list";
+
+const DEFAULT_ROLE_PERMISSION_LIST_PAGE_STATE: RolePermissionListPageState = {
+    searchValues: {},
+    pageNumber: 1,
+};
+
 /** 建立角色權限後台 ListGridTemplate 設定 */
 export const useRolePermissionListGridTemplate = (opt: { lang: Lang; }): RolePermissionListGridTemplate =>
 {
+    const pageState = usePageStateMemory<RolePermissionListPageState>({
+        stateKey: ROLE_PERMISSION_LIST_STATE_KEY,
+        defaultState: DEFAULT_ROLE_PERMISSION_LIST_PAGE_STATE,
+        scopeKeys: [opt.lang],
+    });
     return useMemo<RolePermissionListGridTemplate>(() =>
     {
         return {
             featureKey: PGID.RolePermission,
+            pageStateMemory: {
+                controller: pageState,
+                getSearchValues: (state) => state.searchValues,
+                getPageNumber: (state) => state.pageNumber,
+                updateSearchValues: updateRolePermissionSearchValues,
+                updatePageNumber: updateRolePermissionPageNumber,
+                getPagination: getRolePermissionPagination,
+            },
             feature: {
                 buildSearchFields: ({ rawData }) => buildRolePermissionSearchFields(rawData),
                 toSearchParams: (values) => toRolePermissionSearchParams(values, opt.lang),
@@ -130,11 +161,29 @@ export const useRolePermissionListGridTemplate = (opt: { lang: Lang; }): RolePer
                 buildGridProps: (ctx) => buildRolePermissionGridProps({ raw: ctx.rawData, lang: ctx.searchParams.lang, adapter: ctx.adapter, refetchData: ctx.refetchData }),
             },
         };
-    }, [opt.lang]);
+    }, [opt.lang, pageState]);
 };
 // #endregion
 
 // #region Private
+/** 搜尋送出時更新RolePermission記憶狀態，並固定回到第一頁。 */
+const updateRolePermissionSearchValues = (state: RolePermissionListPageState, searchValues: SearchValues): RolePermissionListPageState =>
+{
+    return { ...state, searchValues, pageNumber: 1 };
+};
+
+/** 更新RolePermission列表記憶頁碼。 */
+const updateRolePermissionPageNumber = (state: RolePermissionListPageState, pageNumber: number): RolePermissionListPageState =>
+{
+    return { ...state, pageNumber };
+};
+
+/** 提供 Template 校正頁碼所需的RolePermission分頁資訊。 */
+const getRolePermissionPagination = (rawData: RolePermissionListRawData): { count: number; totalPages: number; } =>
+{
+    return { count: rawData.count, totalPages: rawData.totalPages };
+};
+
 /** 執行角色權限列表資料來源 Hook */
 const useRolePermissionListGridDataSource = (
     ctx: ServerListGridDataSourceContext<RolePermissionSearchParams, QueryListParam>,
@@ -211,11 +260,11 @@ const buildRolePermissionSearchConditions = (ctx: { searchParams: RolePermission
 };
 
 /** 建立角色權限列表完整 QueryParam */
-const buildRolePermissionQueryParam = (ctx: { searchParams: RolePermissionSearchParams; searchCondition: string; }): QueryListParam =>
+const buildRolePermissionQueryParam = (ctx: { pageNumber: number; searchParams: RolePermissionSearchParams; searchCondition: string; }): QueryListParam =>
 {
     const fields = buildRolePermissionQueryFields();
     const condition = LibCondition.joinConditions([ctx.searchCondition]);
-    return { Fields: fields, Condition: condition, OrderBy: [{ Col: RoleDataModelFields.CreateTime, Desc: true }], PageNumber: 1, PageSize: 10 };
+    return { Fields: fields, Condition: condition, OrderBy: [{ Col: RoleDataModelFields.CreateTime, Desc: true }], PageNumber: ctx.pageNumber, PageSize: 10 };
 };
 
 /** 建立角色權限列表查詢欄位 */

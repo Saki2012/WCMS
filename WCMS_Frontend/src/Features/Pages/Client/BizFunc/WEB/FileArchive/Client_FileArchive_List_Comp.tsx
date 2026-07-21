@@ -106,7 +106,6 @@ const GridList_Comp = (props: { lang: Lang; title: string; gridData: GridProps; 
         const nextColumns = Object.keys(widths).length > 0
             ? applyGridColumnWidths(props.gridData.columns, widths)
             : props.gridData.columns;
-
         setColumns(nextColumns);
     }, [props.gridData.columns]);
 

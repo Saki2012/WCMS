@@ -6,6 +6,7 @@ import {
     buildClientDataQueryState,
     type ClientDataQueryDataSourceResult,
     type ClientDataQueryPaginatorModel,
+    type ClientDataQueryMemoryState,
     type ClientDataQueryTemplate,
     isSameClientDataQueryParam,
     useClientDataQueryTemplate,
@@ -14,10 +15,10 @@ import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Da
 import type { SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { IListViewState } from "@/SysCore/Interface/IListViewState";
+import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import type { ApiGridInitial, ApiGridLoaderData, ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
-import { useResetListPageOnKeyChange } from "@/SysCore/Utils/UI_Hooks/useResetListPageOnKeyChange";
 import type { components } from "@/types/api";
 import { MaterialFields, MaterialLangInfoFields, MaterialPictureFields, MaterialTagsFields, PGID } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
@@ -97,7 +98,8 @@ type MaterialListDataQueryTemplate = ClientDataQueryTemplate<
     MaterialListRawData,
     MaterialListAdapter,
     MaterialListLoaderArgs,
-    MaterialListLoaderData
+    MaterialListLoaderData,
+    ClientDataQueryMemoryState
 >;
 const DEFAULT_PAGE_SIZE = 12;
 const emptyPageData: PageManagementSet = { PageManagement: {}, PageManagementDetail: [] };
@@ -132,14 +134,17 @@ export const useMaterialListData = (props: QueryParam): UseMaterialListDataResul
     const initial = useLoaderData() as MaterialListLoaderData | null;
     const fallbackArgs = useMemo(() => buildLoaderArgs(props), [props.lang, props.opts.PageId, props.opts.CategoryId, props.opts.TagIds]);
     const initialArgs = initial?.args ?? fallbackArgs;
+    const defaultPageState = useMemo<ClientDataQueryMemoryState>(() => ({ searchValues: {} as SearchValues, viewState: buildMaterialListInitialViewState({ pageNumber: initialArgs.pageNumber, pageSize: initialArgs.pageSize }) }), [props.lang, initialArgs.pageNumber, initialArgs.pageSize]);
+    const pageState = usePageStateMemory<ClientDataQueryMemoryState>({ stateKey: "Client.MaterialList", scopeKeys: [props.lang], defaultState: defaultPageState });
     const template = useMemo(
         () =>
             createMaterialListDataQueryTemplate({
+                pageState,
                 lang: props.lang,
                 opts: props.opts,
                 overrides: { pageNumber: initialArgs.pageNumber, pageSize: initialArgs.pageSize },
             }),
-        [props.lang, props.opts, initialArgs.pageNumber, initialArgs.pageSize],
+        [props.lang, props.opts, initialArgs.pageNumber, initialArgs.pageSize, pageState],
     );
     const templateVm = useClientDataQueryTemplate(template);
     const rawData = templateVm.viewModel;
@@ -219,13 +224,21 @@ const buildMaterialListQueryArgs = (p: MaterialListSearchParams & { condition: s
 };
 /** 建立 Material List DataQueryTemplate；清單保留分頁，但不顯示搜尋列 */
 const createMaterialListDataQueryTemplate = (
-    p: { lang: Lang; opts: IMaterialListOptions; overrides?: Partial<{ pageNumber: number; pageSize: number; }>; },
+    p: { pageState?: ReturnType<typeof usePageStateMemory<ClientDataQueryMemoryState>>; lang: Lang; opts: IMaterialListOptions; overrides?: Partial<{ pageNumber: number; pageSize: number; }>; },
 ): MaterialListDataQueryTemplate =>
 {
     const initialViewState = buildMaterialListInitialViewState(p.overrides);
     return {
         featureKey: "MaterialList",
         dataMode: "multiple",
+        ...(p.pageState ? { pageStateMemory: {
+            controller: p.pageState,
+            getSearchValues: state => state.searchValues,
+            getViewState: state => state.viewState,
+            updateSearchValues: (state, values, pageNumber) => ({ ...state, searchValues: values, viewState: { ...state.viewState, pageNumber } }),
+            updateViewState: (state, nextViewState) => ({ ...state, viewState: nextViewState }),
+            getPagination: raw => ({ count: raw.totalCount, totalPages: raw.totalPages }),
+        } } : {}),
         initialSearchValues: {},
         initialViewState,
         pagination: { defaultPageNumber: initialViewState.pageNumber, defaultPageSize: initialViewState.pageSize, resetPageOnSearch: true },
@@ -237,7 +250,7 @@ const createMaterialListDataQueryTemplate = (
             useDataSource: (ctx) => useMaterialListDataSource({ queryParam: ctx.queryParam, loaderData: ctx.loaderData }),
             buildViewModel: (ctx) => ctx.rawData,
         },
-    };
+    } as MaterialListDataQueryTemplate;
 };
 /** 組 loader / hook 共用參數 */
 const buildLoaderArgs = (
@@ -316,8 +329,6 @@ const useMaterialListDataSource = (
         initial: p.loaderData?.res.tagRes ?? null,
         deps: [currentArgs.lang],
     });
-    const resetKey = useMemo(() => buildResetKey(currentArgs), [currentArgs]);
-    useResetListPageOnKeyChange(resetKey, grid.onPageChange);
     const pageSet = useMemo(() => pageData.data ?? emptyPageData, [pageData.data]);
     const pageDetail = useMemo(() => findPageDetail(pageSet, currentArgs.lang), [pageSet, currentArgs.lang]);
     const paginator = useMemo<ClientDataQueryPaginatorModel>(() =>

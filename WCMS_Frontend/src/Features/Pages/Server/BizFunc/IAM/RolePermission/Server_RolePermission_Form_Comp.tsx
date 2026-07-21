@@ -7,6 +7,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
 import { RoleDataModelFields, RolePermissionSetFields } from "@/types/SchemaFields";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
+import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -131,7 +132,9 @@ export const Server_RolePermission_Form_Comp = (props: RolePermissionFormCompPro
 
     const onBackToList = useCallback(() =>
     {
-        navigate(LibRoutePath.buildServerBackToListPath(pathname));
+        const listPath = LibRoutePath.buildServerBackToListPath(pathname);
+        markPageStateMemoryEntry(listPath, "normalize");
+        navigate(listPath, { replace: true });
     }, [navigate, pathname]);
 
     const actionsOpt = useMemo(() => ({ onBackToList }), [onBackToList]);

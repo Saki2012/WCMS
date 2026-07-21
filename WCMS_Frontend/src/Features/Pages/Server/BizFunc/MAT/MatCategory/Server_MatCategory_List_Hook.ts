@@ -15,6 +15,7 @@ import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Compon
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
+import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { findTextByKey, formatDateTime, LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
@@ -43,6 +44,15 @@ export interface MatCategoryListRenderers
 {
     /** 渲染自定義欄位資訊，JSX 請留在 Comp 實作 */
     buildInfoFieldContentNode: (set: MatCategorySet, lang: Lang) => RowCell["content"];
+}
+
+export interface MatCategoryListPageState
+{
+    /** SearchBar 已送出的搜尋值。 */
+    searchValues: SearchValues;
+
+    /** Grid 目前頁碼。 */
+    pageNumber: number;
 }
 
 export interface MatCategorySearchParams
@@ -93,7 +103,7 @@ export interface MatCategoryListAdapter
     dirUrl: string;
 }
 
-export type MatCategoryListGridTemplate = ServerListGridTemplate<MatCategorySearchParams, MatCategoryListRawData, MatCategoryListAdapter, QueryListParam>;
+export type MatCategoryListGridTemplate = ServerListGridTemplate<MatCategorySearchParams, MatCategoryListRawData, MatCategoryListAdapter, QueryListParam, MatCategoryListPageState>;
 
 type CrudDeps = {
     /** React Router 導頁方法 */
@@ -113,13 +123,34 @@ type CrudDeps = {
 // #region Public
 export const MAT_CATEGORY_NAME_SEARCH_KEY = "categoryName";
 
+
+const MAT_CATEGORY_LIST_STATE_KEY = "server-mat-category-list";
+
+const DEFAULT_MAT_CATEGORY_LIST_PAGE_STATE: MatCategoryListPageState = {
+    searchValues: {},
+    pageNumber: 1,
+};
+
 /** 建立物件類別後台 Feature ListGridTemplate 設定 */
 export const useMatCategoryListGridTemplate = (opt: { lang: Lang; renderers: MatCategoryListRenderers; }): MatCategoryListGridTemplate =>
 {
+    const pageState = usePageStateMemory<MatCategoryListPageState>({
+        stateKey: MAT_CATEGORY_LIST_STATE_KEY,
+        defaultState: DEFAULT_MAT_CATEGORY_LIST_PAGE_STATE,
+        scopeKeys: [opt.lang],
+    });
     return useMemo<MatCategoryListGridTemplate>(() =>
     {
         return {
             featureKey: PGID.MatCategory,
+            pageStateMemory: {
+                controller: pageState,
+                getSearchValues: (state) => state.searchValues,
+                getPageNumber: (state) => state.pageNumber,
+                updateSearchValues: updateMatCategorySearchValues,
+                updatePageNumber: updateMatCategoryPageNumber,
+                getPagination: getMatCategoryPagination,
+            },
             feature: {
                 buildSearchFields: ({ rawData }) => buildMatCategorySearchFields(rawData),
                 toSearchParams: (values) => toMatCategorySearchParams(values, opt.lang),
@@ -136,11 +167,29 @@ export const useMatCategoryListGridTemplate = (opt: { lang: Lang; renderers: Mat
                     }),
             },
         };
-    }, [opt.lang, opt.renderers]);
+    }, [opt.lang, opt.renderers, pageState]);
 };
 // #endregion
 
 // #region Private
+/** 搜尋送出時更新MatCategory記憶狀態，並固定回到第一頁。 */
+const updateMatCategorySearchValues = (state: MatCategoryListPageState, searchValues: SearchValues): MatCategoryListPageState =>
+{
+    return { ...state, searchValues, pageNumber: 1 };
+};
+
+/** 更新MatCategory列表記憶頁碼。 */
+const updateMatCategoryPageNumber = (state: MatCategoryListPageState, pageNumber: number): MatCategoryListPageState =>
+{
+    return { ...state, pageNumber };
+};
+
+/** 提供 Template 校正頁碼所需的MatCategory分頁資訊。 */
+const getMatCategoryPagination = (rawData: MatCategoryListRawData): { count: number; totalPages: number; } =>
+{
+    return { count: rawData.count, totalPages: rawData.totalPages };
+};
+
 /** 執行物件類別列表資料來源 Hook */
 const useMatCategoryListGridDataSource = (
     ctx: ServerListGridDataSourceContext<MatCategorySearchParams, QueryListParam>,
@@ -217,7 +266,7 @@ const buildMatCategorySearchConditions = (ctx: { searchParams: MatCategorySearch
 };
 
 /** 建立物件類別列表完整 QueryParam */
-const buildMatCategoryQueryParam = (ctx: { searchParams: MatCategorySearchParams; searchCondition: string; }): QueryListParam =>
+const buildMatCategoryQueryParam = (ctx: { pageNumber: number; searchParams: MatCategorySearchParams; searchCondition: string; }): QueryListParam =>
 {
     return {
         Fields: buildMatCategoryQueryFields(),
@@ -227,7 +276,7 @@ const buildMatCategoryQueryParam = (ctx: { searchParams: MatCategorySearchParams
             ctx.searchCondition,
         ]),
         OrderBy: [{ Col: CategoryFields.ModifyTime, Desc: true }],
-        PageNumber: 1,
+        PageNumber: ctx.pageNumber,
         PageSize: 10,
     };
 };

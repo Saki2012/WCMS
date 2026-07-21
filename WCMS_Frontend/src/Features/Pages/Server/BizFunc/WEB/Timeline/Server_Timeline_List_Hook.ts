@@ -15,6 +15,7 @@ import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Compon
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
+import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { formatDate, formatDateTime, LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
@@ -31,6 +32,15 @@ type TimelineSet = components["schemas"]["TimelineSet_DTO"];
 type TimelineApiAdapter = ReturnType<typeof TimelineAdapter>;
 
 type TimelineCudActions = ReturnType<TimelineApiAdapter["hooks"]["useCudActions"]>;
+
+export interface TimelineListPageState
+{
+    /** SearchBar 已送出的搜尋值。 */
+    searchValues: SearchValues;
+
+    /** Grid 目前頁碼。 */
+    pageNumber: number;
+}
 
 export interface TimelineSearchParams
 {
@@ -80,7 +90,7 @@ export interface TimelineListAdapter
     dirUrl: string;
 }
 
-export type TimelineListGridTemplate = ServerListGridTemplate<TimelineSearchParams, TimelineListRawData, TimelineListAdapter, QueryListParam>;
+export type TimelineListGridTemplate = ServerListGridTemplate<TimelineSearchParams, TimelineListRawData, TimelineListAdapter, QueryListParam, TimelineListPageState>;
 
 type CrudDeps = {
     /** React Router 導頁方法 */
@@ -100,13 +110,34 @@ type CrudDeps = {
 // #region Public
 export const TIMELINE_NAME_SEARCH_KEY = "title";
 
+
+const TIMELINE_LIST_STATE_KEY = "server-timeline-list";
+
+const DEFAULT_TIMELINE_LIST_PAGE_STATE: TimelineListPageState = {
+    searchValues: {},
+    pageNumber: 1,
+};
+
 /** 建立紀事表後台 ListGridTemplate 設定 */
 export const useTimelineListGridTemplate = (opt: { lang: Lang; }): TimelineListGridTemplate =>
 {
+    const pageState = usePageStateMemory<TimelineListPageState>({
+        stateKey: TIMELINE_LIST_STATE_KEY,
+        defaultState: DEFAULT_TIMELINE_LIST_PAGE_STATE,
+        scopeKeys: [opt.lang],
+    });
     return useMemo<TimelineListGridTemplate>(() =>
     {
         return {
             featureKey: PGID.Timeline,
+            pageStateMemory: {
+                controller: pageState,
+                getSearchValues: (state) => state.searchValues,
+                getPageNumber: (state) => state.pageNumber,
+                updateSearchValues: updateTimelineSearchValues,
+                updatePageNumber: updateTimelinePageNumber,
+                getPagination: getTimelinePagination,
+            },
             feature: {
                 buildSearchFields: ({ rawData }) => buildTimelineSearchFields(rawData),
                 toSearchParams: (values) => toTimelineSearchParams(values, opt.lang),
@@ -116,11 +147,29 @@ export const useTimelineListGridTemplate = (opt: { lang: Lang; }): TimelineListG
                 buildGridProps: (ctx) => buildTimelineGridProps({ raw: ctx.rawData, lang: ctx.searchParams.lang, adapter: ctx.adapter, refetchData: ctx.refetchData }),
             },
         };
-    }, [opt.lang]);
+    }, [opt.lang, pageState]);
 };
 // #endregion
 
 // #region Private
+/** 搜尋送出時更新Timeline記憶狀態，並固定回到第一頁。 */
+const updateTimelineSearchValues = (state: TimelineListPageState, searchValues: SearchValues): TimelineListPageState =>
+{
+    return { ...state, searchValues, pageNumber: 1 };
+};
+
+/** 更新Timeline列表記憶頁碼。 */
+const updateTimelinePageNumber = (state: TimelineListPageState, pageNumber: number): TimelineListPageState =>
+{
+    return { ...state, pageNumber };
+};
+
+/** 提供 Template 校正頁碼所需的Timeline分頁資訊。 */
+const getTimelinePagination = (rawData: TimelineListRawData): { count: number; totalPages: number; } =>
+{
+    return { count: rawData.count, totalPages: rawData.totalPages };
+};
+
 /** 執行紀事表列表資料來源 Hook */
 const useTimelineListGridDataSource = (
     ctx: ServerListGridDataSourceContext<TimelineSearchParams, QueryListParam>,
@@ -195,13 +244,13 @@ const buildTimelineSearchConditions = (ctx: { searchParams: TimelineSearchParams
 };
 
 /** 建立紀事表列表完整 QueryParam */
-const buildTimelineQueryParam = (ctx: { searchParams: TimelineSearchParams; searchCondition: string; }): QueryListParam =>
+const buildTimelineQueryParam = (ctx: { pageNumber: number; searchParams: TimelineSearchParams; searchCondition: string; }): QueryListParam =>
 {
     return {
         Fields: buildTimelineQueryFields(),
         Condition: LibCondition.joinConditions([LibCondition.createCondition(`${TimelineFields._TimelineItem}.${TimelineItemFields._TimelineLangDetail}.${TimelineLangDetailFields.Lang}`, Operator.Equal, ctx.searchParams.lang), ctx.searchCondition]),
         OrderBy: [{ Col: TimelineFields.CreateTime, Desc: true }],
-        PageNumber: 1,
+        PageNumber: ctx.pageNumber,
         PageSize: 10,
     };
 };

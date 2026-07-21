@@ -1,6 +1,7 @@
 import { type IActionMeta, type IModuleMeta, ServerModuleRoutes } from "@/Features/Pages/Server/Scaffold/Routes/ServerModuleRoutesData";
 import { LangNavLink } from "@/SysCore/i18n/LangLink";
 import { resolveSpecAsset } from "@/SysCore/Utils/Library/SlotResolver";
+import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
 import { useEffect, useMemo, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
@@ -157,7 +158,7 @@ export const SidebarMenu = (prop: { moduleCode: IModuleMeta["ModuleCode"]; }) =>
                                 <ul className="pc-submenu">
                                     {prog.Actions.filter(p => p.ShowInMenu !== false).map((act) => (
                                         <li key={act.ActionCode} className="pc-item">
-                                            <LangNavLink className="pc-link" to={buildActionPath(prop.moduleCode, prog.ProgId, act)}>{act.Title}</LangNavLink>
+                                            <LangNavLink className="pc-link" to={buildActionPath(prop.moduleCode, prog.ProgId, act)} onClick={handleMenuActionClick}>{act.Title}</LangNavLink>
                                         </li>
                                     ))}
                                 </ul>
@@ -172,6 +173,18 @@ export const SidebarMenu = (prop: { moduleCode: IModuleMeta["ModuleCode"]; }) =>
 // #endregion
 
 // #region Protected
+
+/** Menu Action 導頁時重設目標頁面的 PageStateMemory；目前頁面不重複導頁。 */
+const handleMenuActionClick = (event: React.MouseEvent<HTMLAnchorElement>): void =>
+{
+    const targetPath = event.currentTarget.pathname;
+    if (normalizePath(targetPath) === normalizePath(window.location.pathname))
+    {
+        event.preventDefault();
+        return;
+    }
+    markPageStateMemoryEntry(targetPath, "reset");
+};
 /** 建立後台 action 連結 */
 const buildActionPath = (moduleCode: string, progId: string, act: IActionMeta): string =>
 {

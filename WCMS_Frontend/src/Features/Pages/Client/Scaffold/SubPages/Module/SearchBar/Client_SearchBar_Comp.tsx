@@ -5,7 +5,7 @@ import { type ClientSearchFieldViewModel, useClientSearchBar } from "./Client_Se
 // #region Public
 /** 前台共用搜尋列 */
 export const Client_SearchBar_Comp = (
-    { title = "搜尋條件", fields, values, actionAlign = "right", searchButtonText = "搜尋", resetButtonText = "重置", columnCount = 3, onSearch, onReset }: ClientDataQuerySearchBarModel,
+    { title = "搜尋條件", fields, values, actionAlign = "right", searchButtonText = "搜尋", resetButtonText = "重置", allOptionText = "全部", columnCount = 3, onSearch, onReset }: ClientDataQuerySearchBarModel,
 ) =>
 {
     const { values: draftValues, fieldRows, getFieldId, handleFieldChange, handleSearch, handleReset } = useClientSearchBar({
@@ -61,7 +61,7 @@ export const Client_SearchBar_Comp = (
                 className="client-searchbar__select"
                 onChange={(event) => handleFieldChange(field.key, event)}
             >
-                <option value="">全部</option>
+                <option value="">{allOptionText}</option>
 
                 {field.options?.map((option) => <option key={`${field.key}-${option.value}`} value={option.value} disabled={option.disabled}>{option.label}</option>)}
             </select>

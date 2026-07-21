@@ -8,6 +8,7 @@ import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
+import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
 import type { components } from "@/types/api";
 import { SpecResearchDetailModelFields, SpecResearchModelFields, SpecResearchSetFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
@@ -132,7 +133,9 @@ export const Server_ResearchProjFormComp = (props: SpecResearchFormCompProps) =>
     const pathname = useLocation().pathname;
     const onBackToList = useCallback(() =>
     {
-        navigate(LibRoutePath.buildServerBackToListPath(pathname));
+        const listPath = LibRoutePath.buildServerBackToListPath(pathname);
+        markPageStateMemoryEntry(listPath, "normalize");
+        navigate(listPath, { replace: true });
     }, [navigate, pathname]);
     const actionsOpt = useMemo(() =>
     {

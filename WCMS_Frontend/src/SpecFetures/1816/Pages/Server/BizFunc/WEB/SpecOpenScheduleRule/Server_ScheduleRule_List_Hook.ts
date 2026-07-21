@@ -15,6 +15,7 @@ import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Compon
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import { DefaultLang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
+import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { formatDate, formatDateTime, LibCondition } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
@@ -31,6 +32,15 @@ type SpecOpenScheduleRuleSet = components["schemas"]["SpecOpenScheduleRuleSet_DT
 type ScheduleRuleApiAdapter = ReturnType<typeof SpecOpenScheduleRuleAdapter>;
 
 type ScheduleRuleCudActions = ReturnType<ScheduleRuleApiAdapter["hooks"]["useCudActions"]>;
+
+export interface ScheduleRuleListPageState
+{
+    /** SearchBar 已送出的搜尋值。 */
+    searchValues: SearchValues;
+
+    /** Grid 目前頁碼。 */
+    pageNumber: number;
+}
 
 export interface ScheduleRuleSearchParams
 {
@@ -77,7 +87,7 @@ export interface ScheduleRuleListAdapter
     dirUrl: string;
 }
 
-export type ScheduleRuleListGridTemplate = ServerListGridTemplate<ScheduleRuleSearchParams, ScheduleRuleListRawData, ScheduleRuleListAdapter, QueryListParam>;
+export type ScheduleRuleListGridTemplate = ServerListGridTemplate<ScheduleRuleSearchParams, ScheduleRuleListRawData, ScheduleRuleListAdapter, QueryListParam, ScheduleRuleListPageState>;
 
 type CrudDeps = {
     /** React Router 導頁方法 */
@@ -111,13 +121,32 @@ type ScheduleRuleVisibleColumn = {
 // #region Public
 export const SCHEDULE_RULE_ACADEMIC_YEAR_SEARCH_KEY = "academicYearId";
 
+const SCHEDULE_RULE_LIST_STATE_KEY = "server-schedule-rule-list";
+
+const DEFAULT_SCHEDULE_RULE_LIST_PAGE_STATE: ScheduleRuleListPageState = {
+    searchValues: {},
+    pageNumber: 1,
+};
+
 /** 建立學年度開放規則純 Spec ListGridTemplate 設定 */
 export const useScheduleRuleListGridTemplate = (): ScheduleRuleListGridTemplate =>
 {
-    return useMemo<ScheduleRuleListGridTemplate>(() =>
+        const pageState = usePageStateMemory<ScheduleRuleListPageState>({
+        stateKey: SCHEDULE_RULE_LIST_STATE_KEY,
+        defaultState: DEFAULT_SCHEDULE_RULE_LIST_PAGE_STATE,
+    });
+return useMemo<ScheduleRuleListGridTemplate>(() =>
     {
         return {
             featureKey: PGID.SpecOpenScheduleRule,
+            pageStateMemory: {
+                controller: pageState,
+                getSearchValues: (state) => state.searchValues,
+                getPageNumber: (state) => state.pageNumber,
+                updateSearchValues: updateScheduleRuleSearchValues,
+                updatePageNumber: updateScheduleRulePageNumber,
+                getPagination: getScheduleRulePagination,
+            },
             spec: {
                 buildSearchFields: ({ rawData }) => buildScheduleRuleSearchFields(rawData),
                 toSearchParams: toScheduleRuleSearchParams,
@@ -127,11 +156,29 @@ export const useScheduleRuleListGridTemplate = (): ScheduleRuleListGridTemplate 
                 buildGridProps: (ctx) => buildScheduleRuleGridProps({ raw: ctx.rawData, adapter: ctx.adapter, refetchData: ctx.refetchData }),
             },
         };
-    }, []);
+    }, [pageState]);
 };
 // #endregion
 
 // #region Private
+/** 搜尋送出時更新ScheduleRule記憶狀態，並固定回到第一頁。 */
+const updateScheduleRuleSearchValues = (state: ScheduleRuleListPageState, searchValues: SearchValues): ScheduleRuleListPageState =>
+{
+    return { ...state, searchValues, pageNumber: 1 };
+};
+
+/** 更新ScheduleRule列表記憶頁碼。 */
+const updateScheduleRulePageNumber = (state: ScheduleRuleListPageState, pageNumber: number): ScheduleRuleListPageState =>
+{
+    return { ...state, pageNumber };
+};
+
+/** 提供 Template 校正頁碼所需的ScheduleRule分頁資訊。 */
+const getScheduleRulePagination = (rawData: ScheduleRuleListRawData): { count: number; totalPages: number; } =>
+{
+    return { count: rawData.count, totalPages: rawData.totalPages };
+};
+
 /** 執行學年度開放規則列表資料來源 Hook */
 const useScheduleRuleListGridDataSource = (
     ctx: ServerListGridDataSourceContext<ScheduleRuleSearchParams, QueryListParam>,
@@ -217,7 +264,7 @@ const buildScheduleRuleQueryParam = (ctx: { searchCondition: string; }): QueryLi
         Fields: buildScheduleRuleQueryFields(),
         Condition: LibCondition.joinConditions([ctx.searchCondition]),
         OrderBy: [{ Col: SpecOpenScheduleRuleModelFields.CreateTime, Desc: true }],
-        PageNumber: 1,
+        PageNumber: ctx.pageNumber,
         PageSize: 10,
     };
 };

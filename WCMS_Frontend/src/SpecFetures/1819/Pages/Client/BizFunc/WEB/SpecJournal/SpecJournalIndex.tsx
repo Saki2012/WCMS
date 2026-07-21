@@ -234,7 +234,7 @@ const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalInde
         <div className="Journal_List_content">
             <div className="row">
                 <div className="CategoryBar w-100">
-                    <SpecJournalKeywordSearch_Comp basePath="../List" />
+                    <SpecJournalKeywordSearch_Comp basePath="../List" lang={props.lang} />
                 </div>
 
                 <div className="col row-group">

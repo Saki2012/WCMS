@@ -5,6 +5,7 @@ import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import { GetDataStatusContent } from "@/Features/Pages/Server/Scaffold/CommUnitComp/CommonComp";
 import { createGridCrudActions, enhanceGridWithAdjustCell, type GridConfirmFn } from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
 import type {
+    ServerListGridBuildGridContext,
     ServerListGridDataSourceContext,
     ServerListGridDataSourceResult,
     ServerListGridSpecTiming,
@@ -14,6 +15,7 @@ import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Compon
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
+import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { formatDate, formatDateTime, LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
 import { resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
@@ -35,7 +37,17 @@ type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 type AnnouncementApiAdapter = ReturnType<typeof AnnouncementAdapter>;
 type CategoryApiAdapter = ReturnType<typeof CategoryAdapter>;
 type TagApiAdapter = ReturnType<typeof TagAdapter>;
+type ServerListGridBuildQueryContext = { pageNumber: number; searchParams: AnnouncementSearchParams; searchCondition: string; };
 type AnnouncementCudActions = ReturnType<AnnouncementApiAdapter["hooks"]["useCudActions"]>;
+export interface AnnouncementListPageState
+{
+    /** SearchBar 已送出的搜尋值。 */
+    searchValues: SearchValues;
+
+    /** Grid 目前頁碼。 */
+    pageNumber: number;
+}
+
 export interface AnnouncementSearchParams
 {
     /** 目前列表語系 */
@@ -99,7 +111,7 @@ export interface AnnouncementListAdapter
     dirUrl: string;
 }
 
-export type AnnouncementListGridTemplate = ServerListGridTemplate<AnnouncementSearchParams, AnnouncementListRawData, AnnouncementListAdapter, QueryListParam>;
+export type AnnouncementListGridTemplate = ServerListGridTemplate<AnnouncementSearchParams, AnnouncementListRawData, AnnouncementListAdapter, QueryListParam, AnnouncementListPageState>;
 export type AnnouncementListSpecTiming = ServerListGridSpecTiming<AnnouncementSearchParams, AnnouncementListRawData, AnnouncementListAdapter, QueryListParam>;
 
 type CrudDeps = {
@@ -132,29 +144,66 @@ export const ANNOUNCEMENT_TITLE_SEARCH_KEY = "title";
 
 export const ANNOUNCEMENT_CATEGORY_SEARCH_KEY = "categoryId";
 
+const ANNOUNCEMENT_LIST_STATE_KEY = "server-announcement-list";
+
+const DEFAULT_ANNOUNCEMENT_LIST_PAGE_STATE: AnnouncementListPageState = {
+    searchValues: {},
+    pageNumber: 1,
+};
+
 /** 建立公告後台 ListGridTemplate 設定 */
 export const useAnnouncementListGridTemplate = (opt: { lang: Lang; }): AnnouncementListGridTemplate =>
 {
+    const pageState = usePageStateMemory<AnnouncementListPageState>({
+        stateKey: ANNOUNCEMENT_LIST_STATE_KEY,
+        defaultState: DEFAULT_ANNOUNCEMENT_LIST_PAGE_STATE,
+        scopeKeys: [opt.lang],
+    });
     return useMemo<AnnouncementListGridTemplate>(() =>
     {
         return {
             featureKey: PGID.Announcement,
+            pageStateMemory: {
+                controller: pageState,
+                getSearchValues: (state) => state.searchValues,
+                getPageNumber: (state) => state.pageNumber,
+                updateSearchValues: updateAnnouncementSearchValues,
+                updatePageNumber: updateAnnouncementPageNumber,
+                getPagination: getAnnouncementPagination,
+            },
             feature: {
                 buildSearchFields: ({ rawData }) => buildAnnouncementSearchFields(rawData),
                 toSearchParams: (values) => toAnnouncementSearchParams(values, opt.lang),
                 buildSearchConditions: buildAnnouncementSearchConditions,
                 buildQueryParam: buildAnnouncementQueryParam,
                 useDataSource: useAnnouncementListGridDataSource,
-                buildGridProps: (ctx) =>
-                    buildAnnouncementGridProps({ raw: ctx.rawData, lang: ctx.searchParams.lang, adapter: ctx.adapter, refetchData: ctx.refetchData }),
+                buildGridProps: (ctx) => buildAnnouncementGridProps({ raw: ctx.rawData, lang: ctx.searchParams.lang, adapter: ctx.adapter, refetchData: ctx.refetchData }),
             },
             spec: getResolvedAnnouncementListSpecTiming(),
         };
-    }, [opt.lang]);
+    }, [opt.lang, pageState]);
 };
 // #endregion
 
 // #region Private
+/** 搜尋送出時更新公告記憶狀態，並固定回到第一頁。 */
+const updateAnnouncementSearchValues = (state: AnnouncementListPageState, searchValues: SearchValues): AnnouncementListPageState =>
+{
+    return { ...state, searchValues, pageNumber: 1 };
+};
+
+/** 更新公告列表記憶頁碼。 */
+const updateAnnouncementPageNumber = (state: AnnouncementListPageState, pageNumber: number): AnnouncementListPageState =>
+{
+    return { ...state, pageNumber };
+};
+
+/** 提供 Template 校正頁碼所需的公告分頁資訊。 */
+const getAnnouncementPagination = (rawData: AnnouncementListRawData): { count: number; totalPages: number; } =>
+{
+    return { count: rawData.count, totalPages: rawData.totalPages };
+};
+
 /** 執行公告列表資料來源 Hook */
 const useAnnouncementListGridDataSource = (
     ctx: ServerListGridDataSourceContext<AnnouncementSearchParams, QueryListParam>,
@@ -259,7 +308,7 @@ const buildAnnouncementSearchConditions = (ctx: { searchParams: AnnouncementSear
 };
 
 /** 建立公告列表完整 QueryParam */
-const buildAnnouncementQueryParam = (ctx: { searchParams: AnnouncementSearchParams; searchCondition: string; }): QueryListParam =>
+const buildAnnouncementQueryParam = (ctx: ServerListGridBuildQueryContext): QueryListParam =>
 {
     return {
         Fields: [
@@ -283,7 +332,7 @@ const buildAnnouncementQueryParam = (ctx: { searchParams: AnnouncementSearchPara
         ]),
         RankGroups: [{ Condition: `${AnnouncementFields.ContentStatus} & 1` }],
         OrderBy: [{ Col: AnnouncementFields.CreateTime, Desc: true }],
-        PageNumber: 1,
+        PageNumber: ctx.pageNumber,
         PageSize: 10,
     };
 };

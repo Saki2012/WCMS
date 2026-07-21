@@ -15,6 +15,7 @@ import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Compon
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
+import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { formatDateTime, LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
@@ -32,6 +33,15 @@ type BannerSet = components["schemas"]["BannerSet_DTO"];
 type BannerSliderApiAdapter = ReturnType<typeof BannerSliderAdapter>;
 
 type BannerSliderCudActions = ReturnType<BannerSliderApiAdapter["hooks"]["useCudActions"]>;
+
+export interface BannerSliderListPageState
+{
+    /** SearchBar 已送出的搜尋值。 */
+    searchValues: SearchValues;
+
+    /** Grid 目前頁碼。 */
+    pageNumber: number;
+}
 
 export interface BannerSliderSearchParams
 {
@@ -81,7 +91,7 @@ export interface BannerSliderListAdapter
     dirUrl: string;
 }
 
-export type BannerSliderListGridTemplate = ServerListGridTemplate<BannerSliderSearchParams, BannerSliderListRawData, BannerSliderListAdapter, QueryListParam>;
+export type BannerSliderListGridTemplate = ServerListGridTemplate<BannerSliderSearchParams, BannerSliderListRawData, BannerSliderListAdapter, QueryListParam, BannerSliderListPageState>;
 
 type CrudDeps = {
     /** React Router 導頁方法 */
@@ -101,13 +111,34 @@ type CrudDeps = {
 // #region Public
 export const BANNER_SLIDER_TITLE_SEARCH_KEY = "title";
 
+
+const BANNER_SLIDER_LIST_STATE_KEY = "server-banner-slider-list";
+
+const DEFAULT_BANNER_SLIDER_LIST_PAGE_STATE: BannerSliderListPageState = {
+    searchValues: {},
+    pageNumber: 1,
+};
+
 /** 建立廣告輪播後台 ListGridTemplate 設定 */
 export const useBannerSliderListGridTemplate = (opt: { lang: Lang; }): BannerSliderListGridTemplate =>
 {
+    const pageState = usePageStateMemory<BannerSliderListPageState>({
+        stateKey: BANNER_SLIDER_LIST_STATE_KEY,
+        defaultState: DEFAULT_BANNER_SLIDER_LIST_PAGE_STATE,
+        scopeKeys: [opt.lang],
+    });
     return useMemo<BannerSliderListGridTemplate>(() =>
     {
         return {
             featureKey: PGID.Banner,
+            pageStateMemory: {
+                controller: pageState,
+                getSearchValues: (state) => state.searchValues,
+                getPageNumber: (state) => state.pageNumber,
+                updateSearchValues: updateBannerSliderSearchValues,
+                updatePageNumber: updateBannerSliderPageNumber,
+                getPagination: getBannerSliderPagination,
+            },
             feature: {
                 buildSearchFields: ({ rawData }) => buildBannerSliderSearchFields(rawData),
                 toSearchParams: (values) => toBannerSliderSearchParams(values, opt.lang),
@@ -117,11 +148,29 @@ export const useBannerSliderListGridTemplate = (opt: { lang: Lang; }): BannerSli
                 buildGridProps: (ctx) => buildBannerSliderGridProps({ raw: ctx.rawData, lang: ctx.searchParams.lang, adapter: ctx.adapter, refetchData: ctx.refetchData }),
             },
         };
-    }, [opt.lang]);
+    }, [opt.lang, pageState]);
 };
 // #endregion
 
 // #region Private
+/** 搜尋送出時更新BannerSlider記憶狀態，並固定回到第一頁。 */
+const updateBannerSliderSearchValues = (state: BannerSliderListPageState, searchValues: SearchValues): BannerSliderListPageState =>
+{
+    return { ...state, searchValues, pageNumber: 1 };
+};
+
+/** 更新BannerSlider列表記憶頁碼。 */
+const updateBannerSliderPageNumber = (state: BannerSliderListPageState, pageNumber: number): BannerSliderListPageState =>
+{
+    return { ...state, pageNumber };
+};
+
+/** 提供 Template 校正頁碼所需的BannerSlider分頁資訊。 */
+const getBannerSliderPagination = (rawData: BannerSliderListRawData): { count: number; totalPages: number; } =>
+{
+    return { count: rawData.count, totalPages: rawData.totalPages };
+};
+
 /** 執行廣告輪播列表資料來源 Hook */
 const useBannerSliderListGridDataSource = (
     ctx: ServerListGridDataSourceContext<BannerSliderSearchParams, QueryListParam>,
@@ -196,7 +245,7 @@ const buildBannerSliderSearchConditions = (ctx: { searchParams: BannerSliderSear
 };
 
 /** 建立廣告輪播列表完整 QueryParam */
-const buildBannerSliderQueryParam = (ctx: { searchParams: BannerSliderSearchParams; searchCondition: string; }): QueryListParam =>
+const buildBannerSliderQueryParam = (ctx: { pageNumber: number; searchParams: BannerSliderSearchParams; searchCondition: string; }): QueryListParam =>
 {
     return {
         Fields: buildBannerSliderQueryFields(),
@@ -205,7 +254,7 @@ const buildBannerSliderQueryParam = (ctx: { searchParams: BannerSliderSearchPara
             ctx.searchCondition,
         ]),
         OrderBy: [{ Col: BannerFields.CreateTime, Desc: true }],
-        PageNumber: 1,
+        PageNumber: ctx.pageNumber,
         PageSize: 10,
     };
 };

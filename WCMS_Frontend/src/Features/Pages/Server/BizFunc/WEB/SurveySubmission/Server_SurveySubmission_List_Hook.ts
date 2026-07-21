@@ -15,6 +15,7 @@ import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Compon
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
+import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { formatDateTime, LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
@@ -29,6 +30,15 @@ type QueryListParam = components["schemas"]["QueryListParam"];
 type SurveySubmissionSet = components["schemas"]["SurveySubmissionsSet_DTO"];
 
 type SurveySubmissionApiAdapter = ReturnType<typeof SurveySubmissionAdapter>;
+
+export interface SurveySubmissionListPageState
+{
+    /** SearchBar 已送出的搜尋值。 */
+    searchValues: SearchValues;
+
+    /** Grid 目前頁碼。 */
+    pageNumber: number;
+}
 
 export interface SurveySubmissionSearchParams
 {
@@ -81,7 +91,7 @@ export interface SurveySubmissionListAdapter
     viewUrl: string;
 }
 
-export type SurveySubmissionListGridTemplate = ServerListGridTemplate<SurveySubmissionSearchParams, SurveySubmissionListRawData, SurveySubmissionListAdapter, QueryListParam>;
+export type SurveySubmissionListGridTemplate = ServerListGridTemplate<SurveySubmissionSearchParams, SurveySubmissionListRawData, SurveySubmissionListAdapter, QueryListParam, SurveySubmissionListPageState>;
 // #endregion
 
 // #region Public
@@ -91,13 +101,34 @@ export const SURVEY_SUBMISSION_USER_NAME_SEARCH_KEY = "userName";
 
 export const SURVEY_SUBMISSION_EMAIL_SEARCH_KEY = "email";
 
+
+const SURVEY_SUBMISSION_LIST_STATE_KEY = "server-survey-submission-list";
+
+const DEFAULT_SURVEY_SUBMISSION_LIST_PAGE_STATE: SurveySubmissionListPageState = {
+    searchValues: {},
+    pageNumber: 1,
+};
+
 /** 建立問卷回應後台 ListGridTemplate 設定 */
 export const useSurveySubmissionListGridTemplate = (opt: { lang: Lang; }): SurveySubmissionListGridTemplate =>
 {
+    const pageState = usePageStateMemory<SurveySubmissionListPageState>({
+        stateKey: SURVEY_SUBMISSION_LIST_STATE_KEY,
+        defaultState: DEFAULT_SURVEY_SUBMISSION_LIST_PAGE_STATE,
+        scopeKeys: [opt.lang],
+    });
     return useMemo<SurveySubmissionListGridTemplate>(() =>
     {
         return {
             featureKey: PGID.SurveySubmission,
+            pageStateMemory: {
+                controller: pageState,
+                getSearchValues: (state) => state.searchValues,
+                getPageNumber: (state) => state.pageNumber,
+                updateSearchValues: updateSurveySubmissionSearchValues,
+                updatePageNumber: updateSurveySubmissionPageNumber,
+                getPagination: getSurveySubmissionPagination,
+            },
             feature: {
                 buildSearchFields: ({ rawData }) => buildSurveySubmissionSearchFields(rawData),
                 toSearchParams: (values) => toSurveySubmissionSearchParams(values, opt.lang),
@@ -107,11 +138,29 @@ export const useSurveySubmissionListGridTemplate = (opt: { lang: Lang; }): Surve
                 buildGridProps: (ctx) => buildSurveySubmissionGridProps({ raw: ctx.rawData, lang: ctx.searchParams.lang, adapter: ctx.adapter }),
             },
         };
-    }, [opt.lang]);
+    }, [opt.lang, pageState]);
 };
 // #endregion
 
 // #region Private
+/** 搜尋送出時更新SurveySubmission記憶狀態，並固定回到第一頁。 */
+const updateSurveySubmissionSearchValues = (state: SurveySubmissionListPageState, searchValues: SearchValues): SurveySubmissionListPageState =>
+{
+    return { ...state, searchValues, pageNumber: 1 };
+};
+
+/** 更新SurveySubmission列表記憶頁碼。 */
+const updateSurveySubmissionPageNumber = (state: SurveySubmissionListPageState, pageNumber: number): SurveySubmissionListPageState =>
+{
+    return { ...state, pageNumber };
+};
+
+/** 提供 Template 校正頁碼所需的SurveySubmission分頁資訊。 */
+const getSurveySubmissionPagination = (rawData: SurveySubmissionListRawData): { count: number; totalPages: number; } =>
+{
+    return { count: rawData.count, totalPages: rawData.totalPages };
+};
+
 /** 執行問卷回應列表資料來源 Hook */
 const useSurveySubmissionListGridDataSource = (
     ctx: ServerListGridDataSourceContext<SurveySubmissionSearchParams, QueryListParam>,
@@ -211,13 +260,13 @@ const buildSurveySubmissionSearchConditions = (ctx: { searchParams: SurveySubmis
 };
 
 /** 建立問卷回應列表完整 QueryParam */
-const buildSurveySubmissionQueryParam = (ctx: { searchParams: SurveySubmissionSearchParams; searchCondition: string; }): QueryListParam =>
+const buildSurveySubmissionQueryParam = (ctx: { pageNumber: number; searchParams: SurveySubmissionSearchParams; searchCondition: string; }): QueryListParam =>
 {
     return {
         Fields: buildSurveySubmissionQueryFields(),
         Condition: LibCondition.joinConditions([LibCondition.createCondition(SurveySubmissionsFields.Lang, Operator.Equal, ctx.searchParams.lang), ctx.searchCondition]),
         OrderBy: [{ Col: SurveySubmissionsFields.SubmitTime, Desc: true }],
-        PageNumber: 1,
+        PageNumber: ctx.pageNumber,
         PageSize: 10,
     };
 };

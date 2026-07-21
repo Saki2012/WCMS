@@ -10,6 +10,7 @@ import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponet
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
+import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
 import type { components } from "@/types/api";
 import { AccountFields, AccountSetFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
@@ -79,7 +80,9 @@ export const Server_Account_Form_Comp = (props: AccountFormCompProps) =>
 
     const onBackToList = useCallback(() =>
     {
-        navigate(LibRoutePath.buildServerBackToListPath(pathname));
+        const listPath = LibRoutePath.buildServerBackToListPath(pathname);
+        markPageStateMemoryEntry(listPath, "normalize");
+        navigate(listPath, { replace: true });
     }, [navigate, pathname]);
 
     const actionsOpt = useMemo(() =>

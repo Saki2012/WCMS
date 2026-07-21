@@ -73,7 +73,7 @@ const getHomeTitle = (lang: Lang): string =>
 const getBackTitle = (lang: Lang): string =>
 {
     // return
-    return lang === "en" ? "Return" : "返回上一層";
+    return lang === "en" ? "Return" : "返回上一頁";
 };
 
 /** 組合 1810 子頁 Breadcrumb 資料。 */

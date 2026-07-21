@@ -9,6 +9,7 @@ import type { TinyMCEEditor } from "./Core/tinyMceTypes";
 import { useContentTransform } from "./Core/useContentTransform";
 import { applyFileLinkToSelection, pickLocalFile } from "./Features/File/tinyMceFileFeature";
 import { registerTinyMceFormatControls } from "./Features/Format/tinyMceFormatFeature";
+import { registerTinyMceParagraphIndentFeature } from "./Features/Format/tinyMceParagraphIndentFeature";
 import { openInsertIframeDialog } from "./Features/Iframe/tinyMceIframeFeature";
 import { WCMS_TINYMCE_IFRAME_SANDBOX_EXCLUSIONS } from "./Features/Iframe/tinyMceIframeUtils";
 import { registerInternalImageSync } from "./Features/Image/tinyMceImageFeature";
@@ -107,7 +108,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                 "bullist numlist outdent indent |",
                 "link unlink | image filepicker |",
                 "table |",
-                "copyformat applyformat removeformat | insertiframe insertpdfiframe | wcmsHr |",
+                "copyformat applyformat removeformat firstlineindent hangingindent | insertiframe insertpdfiframe | wcmsHr |",
                 "togglePBlocks toggleDivBlocks |",
                 "fullscreen code",
             ].join(" "),
@@ -128,7 +129,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
         新細明體=新細明體,PMingLiU,serif;
         標楷體=標楷體,DFKai-SB,serif;`,
 
-            // AA：編輯器內容樣式改由 public/tinymce/wcms-content.css 載入，避免正式 CSP 擋 inline style。
+            // 編輯器內容格式由 Global 唯一來源同步至 public/tinymce，避免前後台樣式不一致。
             valid_styles: {
                 table: "border-color,border-top-color,border-right-color,border-bottom-color,border-left-color",
                 td: "background-color,border-color,border-top-color,border-right-color,border-bottom-color,border-left-color",
@@ -143,7 +144,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                 + "tableinsertcolbefore tableinsertcolafter tabledeletecol | mergecells",
             // i18n / skin
             skin_url: `${baseUrl}/skins/ui/oxide`,
-            content_css: [`${baseUrl}/skins/content/default/content.css`, `${baseUrl}/wcms-content.css`],
+            content_css: [`${baseUrl}/skins/content/default/content.css`, `${baseUrl}/cms_content_format.css`],
             icons_url: `${baseUrl}/icons/default/icons.js`,
             language: p.language ?? "zh_TW",
             language_url: p.languageUrl ?? "/tinymce-i18n/langs5/zh_TW.js",
@@ -218,6 +219,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
 
                 registerTinyMceTableFeature(editor);
                 registerTinyMceFormatControls(editor);
+                registerTinyMceParagraphIndentFeature(editor);
                 registerInternalImageSync(editor, (internalId) => toUrl(internalId, "image"));
 
                 // insertiframe 按鈕

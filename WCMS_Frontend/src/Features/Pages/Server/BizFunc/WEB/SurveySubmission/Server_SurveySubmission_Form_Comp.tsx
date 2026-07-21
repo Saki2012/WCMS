@@ -9,6 +9,7 @@ import type { components } from "@/types/api";
 import { SurveyFields, SurveySubmissionsFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
+import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -118,7 +119,9 @@ export const Server_SurveySubmission_Form_Comp = (
 
     const onBackToList = useCallback(() =>
     {
-        navigate(LibRoutePath.buildServerBackToListPath(pathname));
+        const listPath = LibRoutePath.buildServerBackToListPath(pathname);
+        markPageStateMemoryEntry(listPath, "normalize");
+        navigate(listPath, { replace: true });
     }, [navigate, pathname]);
 
     const actionsOpt = useMemo(() =>

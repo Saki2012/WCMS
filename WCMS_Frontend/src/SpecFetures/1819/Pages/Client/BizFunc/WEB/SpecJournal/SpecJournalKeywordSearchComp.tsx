@@ -1,3 +1,4 @@
+import { DefaultLang, type Lang } from "@/SysCore/i18n/lang";
 import React, { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
@@ -8,10 +9,9 @@ export type SearchPatch = { q?: string; articleLang?: string; tagId?: string; ta
 type SearchActions = { setQuery: (patch: SearchPatch) => void; clearQuery: () => void; };
 
 
-type Props = { basePath: string; placeholder?: string; onBind?: (actions: SearchActions) => void; };
+type Props = { basePath: string; lang: Lang; placeholder?: string; onBind?: (actions: SearchActions) => void; };
 
 
-const DEFAULT_PLACEHOLDER = "請輸入關鍵字進行搜尋...";
 
 const INCLUDE_REF_QS_KEY = "includeRef";
 // #endregion
@@ -20,6 +20,7 @@ const INCLUDE_REF_QS_KEY = "includeRef";
 export const SpecJournalKeywordSearch_Comp: React.FC<Props> = (props) =>
 {
     // 宣告變數
+    const text = getSpecJournalKeywordSearchLangText(props.lang);
     const inputId = useId();
     const includeRefId = useId();
     const nav = useNavigate();
@@ -118,7 +119,7 @@ export const SpecJournalKeywordSearch_Comp: React.FC<Props> = (props) =>
     return (
         <>
             <div className="select-wrap" />
-            <form className="Spec1819-JournalSearch search-wrap my-2" onSubmit={onSubmit} role="search" aria-label="期刊關鍵字搜尋">
+            <form className="Spec1819-JournalSearch search-wrap my-2" onSubmit={onSubmit} role="search" aria-label={text.formAriaLabel}>
                 <div className="Spec1819-JournalSearch__row">
                     <div className="Spec1819-JournalSearch__field">
                         <div className="searchDIV">
@@ -127,12 +128,12 @@ export const SpecJournalKeywordSearch_Comp: React.FC<Props> = (props) =>
                                 className="form-control"
                                 type="search"
                                 value={keyword}
-                                placeholder={props.placeholder ?? DEFAULT_PLACEHOLDER}
+                                placeholder={props.placeholder ?? text.placeholder}
                                 onChange={(e) => setKeyword(e.target.value)}
                             />
-                            <button className="btn-CCsearch" type="submit" title="搜尋" aria-label="搜尋">
+                            <button className="btn-CCsearch" type="submit" title={text.searchLabel} aria-label={text.searchLabel}>
                                 <i className="far fa-search" aria-hidden="true"></i>
-                                <span className="d-none">搜尋</span>
+                                <span className="d-none">{text.searchLabel}</span>
                             </button>
                         </div>
                     </div>
@@ -141,7 +142,7 @@ export const SpecJournalKeywordSearch_Comp: React.FC<Props> = (props) =>
                 <div className="Spec1819-JournalSearch__checkRow">
                     <div className="form-check">
                         <input id={includeRefId} className="form-check-input" type="checkbox" checked={includeRef} onChange={onToggleIncludeRef} />
-                        <label className="form-check-label" htmlFor={includeRefId}>包含參考文獻</label>
+                        <label className="form-check-label" htmlFor={includeRefId}>{text.includeReferencesLabel}</label>
                     </div>
                 </div>
             </form>
@@ -180,5 +181,34 @@ const resolveTargetPathname = (basePath: string, currentPathname: string): strin
     // return
     if (!path || path === ".") return currentPathname;
     return path;
+};
+// #endregion
+
+// #region LangText
+interface SpecJournalKeywordSearchLangText
+{
+    formAriaLabel: string;
+    includeReferencesLabel: string;
+    placeholder: string;
+    searchLabel: string;
+}
+const SPEC_JOURNAL_KEYWORD_SEARCH_LANG_TEXT_MAP: Record<string, SpecJournalKeywordSearchLangText> = {
+    "zh-tw": {
+        formAriaLabel: "期刊關鍵字搜尋",
+        includeReferencesLabel: "包含參考文獻",
+        placeholder: "請輸入關鍵字進行搜尋...",
+        searchLabel: "搜尋",
+    },
+    en: {
+        formAriaLabel: "Journal keyword search",
+        includeReferencesLabel: "Includes References",
+        placeholder: "Enter keywords to search...",
+        searchLabel: "Search",
+    },
+};
+/** 取得期刊關鍵字搜尋文字設定。 */
+const getSpecJournalKeywordSearchLangText = (lang: Lang): SpecJournalKeywordSearchLangText =>
+{
+    return SPEC_JOURNAL_KEYWORD_SEARCH_LANG_TEXT_MAP[lang] ?? SPEC_JOURNAL_KEYWORD_SEARCH_LANG_TEXT_MAP[DefaultLang];
 };
 // #endregion

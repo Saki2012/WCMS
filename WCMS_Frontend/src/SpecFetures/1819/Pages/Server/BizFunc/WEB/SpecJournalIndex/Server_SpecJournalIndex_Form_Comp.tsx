@@ -12,6 +12,7 @@ import { LibTextBox } from "@/Features/Pages/Server/Scaffold/InputComponets/Inpu
 import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import { type Lang } from "@/SysCore/i18n/lang";
+import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
 import type { components } from "@/types/api";
 import { SpecJournalIndexModelFields, SpecJournalIndexSetFields } from "@/types/SchemaFields";
 import { useSpecJournalIndexDetailEditGrid, useSpecJournalIndexFormTemplate } from "./Server_SpecJournalIndex_Form_Hook";
@@ -42,7 +43,9 @@ export const Server_SpecJournalIndex_Form_Comp = (prop: { theme: IBETheme; lang:
 
     const onBackToList = useCallback(() =>
     {
-        navigate(pathname.replace(/\/Form(\/[^\/]*)?$/, "/List"));
+        const listPath = pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
+        markPageStateMemoryEntry(listPath, "normalize");
+        navigate(listPath, { replace: true });
     }, [navigate, pathname]);
 
     const actionsOpt = useMemo(() =>

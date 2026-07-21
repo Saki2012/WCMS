@@ -3,9 +3,10 @@ import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/Searc
 import type { IListViewState } from "@/SysCore/Interface/IListViewState";
 import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
+import type { PageStateMemoryController } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Data";
 import { LibCondition, LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLoaderData } from "react-router-dom";
 
 // #region Property
@@ -34,6 +35,8 @@ interface ClientDataQuerySearchBarConfig
     searchButtonText?: string;
     /** 重置按鈕文字 */
     resetButtonText?: string;
+    /** 下拉選單空值項目文字 */
+    allOptionText?: string;
     /** 一列最多幾個欄位 */
     columnCount?: 1 | 2 | 3;
 }
@@ -185,14 +188,44 @@ interface ClientDataQuerySpecTiming<TSearchParams, TRawData, TViewModel, TAdapte
     /** 建立或覆寫畫面資料，Feature 存在時可包裝 Feature ViewModel */
     buildViewModel?: (ctx: ClientDataQueryViewModelContext<TSearchParams, TRawData, TAdapter, TQueryParam, TLoaderData>, featureViewModel?: TViewModel) => TViewModel;
 }
-/** 前台資料查詢 Template，feature / spec 皆為可選入口，但至少需提供其中一個 */
-export interface ClientDataQueryTemplate<TSearchParams, TRawData, TViewModel, TAdapter = unknown, TQueryParam = QueryListParam, TLoaderData = unknown> extends ClientDataQueryTemplateBase
+/** 前台標準清單記憶狀態。 */
+export interface ClientDataQueryMemoryState
+{
+    /** 已送出的搜尋值。 */
+    searchValues: SearchValues;
+    /** 目前頁碼、筆數與排序。 */
+    viewState: IListViewState;
+}
+/** 前台 PageStateMemory 與 Template 的固定映射。 */
+export interface ClientDataQueryPageStateMemory<TState, TRawData>
+{
+    /** SysCore PageStateMemory 控制器。 */
+    controller: PageStateMemoryController<TState>;
+    /** 從 Module State 取得已送出的搜尋值。 */
+    getSearchValues: (state: TState) => SearchValues;
+    /** 從 Module State 取得目前 ViewState。 */
+    getViewState: (state: TState) => IListViewState;
+    /** 將搜尋值與重設後頁碼寫回 Module State。 */
+    updateSearchValues: (state: TState, values: SearchValues, pageNumber: number) => TState;
+    /** 將 ViewState 寫回 Module State。 */
+    updateViewState: (state: TState, viewState: IListViewState) => TState;
+    /** 從查詢結果取得最新總筆數與總頁數。 */
+    getPagination: (rawData: TRawData) => { count: number; totalPages: number; };
+}
+/** 前台資料查詢 Template 基礎型別。 */
+interface ClientDataQueryTemplateCore<TSearchParams, TRawData, TViewModel, TAdapter = unknown, TQueryParam = QueryListParam, TLoaderData = unknown> extends ClientDataQueryTemplateBase
 {
     /** Feature 基礎資料查詢流程，可選 */
     feature?: ClientDataQueryFeatureTiming<TSearchParams, TRawData, TViewModel, TAdapter, TQueryParam, TLoaderData>;
     /** Spec 客製資料查詢流程，可選 */
     spec?: ClientDataQuerySpecTiming<TSearchParams, TRawData, TViewModel, TAdapter, TQueryParam, TLoaderData>;
 }
+/** 前台資料查詢 Template；指定 TPageState 後必須提供 PageStateMemory 映射。 */
+export type ClientDataQueryTemplate<TSearchParams, TRawData, TViewModel, TAdapter = unknown, TQueryParam = QueryListParam, TLoaderData = unknown, TPageState = never> =
+    ClientDataQueryTemplateCore<TSearchParams, TRawData, TViewModel, TAdapter, TQueryParam, TLoaderData>
+    & ([TPageState] extends [never]
+        ? Record<never, never>
+        : { pageStateMemory: ClientDataQueryPageStateMemory<TPageState, TRawData>; });
 /** QueryParam 建立結果，Loader 與 Hook 都應使用這個結果 */
 export interface ClientDataQueryBuiltState<TSearchParams, TQueryParam>
 {
@@ -282,13 +315,16 @@ export const isSameClientDataQueryParam = (left?: unknown, right?: unknown): boo
     return buildClientDataQueryKey(left) === buildClientDataQueryKey(right);
 };
 /** 前台資料查詢共用流程：統一處理 search、viewState、queryParam、loaderData 與 viewModel */
-export const useClientDataQueryTemplate = <TSearchParams, TRawData, TViewModel, TAdapter = unknown, TQueryParam = QueryListParam, TLoaderData = unknown>(
-    template: ClientDataQueryTemplate<TSearchParams, TRawData, TViewModel, TAdapter, TQueryParam, TLoaderData>,
+export const useClientDataQueryTemplate = <TSearchParams, TRawData, TViewModel, TAdapter = unknown, TQueryParam = QueryListParam, TLoaderData = unknown, TPageState = never>(
+    template: ClientDataQueryTemplate<TSearchParams, TRawData, TViewModel, TAdapter, TQueryParam, TLoaderData, TPageState>,
 ): ClientDataQueryTemplateResult<TSearchParams, TRawData, TViewModel, TAdapter, TQueryParam, TLoaderData> =>
 {
     const routeLoaderData = useLoaderData() as TLoaderData | null;
-    const [submittedValues, setSubmittedValues] = useState<SearchValues>(template.initialSearchValues ?? {});
-    const [viewState, setViewState] = useState<IListViewState>(() => buildInitialViewState(template));
+    const memory = getClientPageStateMemory<TPageState, TRawData>(template);
+    const [internalSubmittedValues, setInternalSubmittedValues] = useState<SearchValues>(template.initialSearchValues ?? {});
+    const [internalViewState, setInternalViewState] = useState<IListViewState>(() => buildInitialViewState(template));
+    const submittedValues = memory ? memory.getSearchValues(memory.controller.state) : internalSubmittedValues;
+    const viewState = memory ? memory.getViewState(memory.controller.state) : internalViewState;
     const builtState = useMemo(() => buildClientDataQueryState(template, submittedValues, viewState), [template, submittedValues, viewState]);
     const dataSourceContext: ClientDataQueryDataSourceContext<TSearchParams, TQueryParam, TLoaderData> = {
         searchValues: submittedValues,
@@ -303,28 +339,26 @@ export const useClientDataQueryTemplate = <TSearchParams, TRawData, TViewModel, 
     const dataSource = useTemplateDataSource(template, dataSourceContext);
     const updateViewState = useCallback((nextState: Partial<IListViewState> | ((prev: IListViewState) => Partial<IListViewState>)): void =>
     {
-        setViewState((prev) =>
-        {
-            const next = typeof nextState === "function" ? nextState(prev) : nextState;
-            return { ...prev, ...next };
-        });
-    }, []);
-    const resetPageNumber = useCallback((): void =>
-    {
-        if (!shouldResetPageOnSearch(template)) return;
-        const pageNumber = template.pagination?.defaultPageNumber ?? template.initialViewState?.pageNumber ?? 1;
-        updateViewState({ pageNumber });
-    }, [template, updateViewState]);
+        const next = typeof nextState === "function" ? nextState(viewState) : nextState;
+        const merged = { ...viewState, ...next };
+        if (memory) memory.controller.setState(prev => memory.updateViewState(prev, merged));
+        else setInternalViewState(merged);
+    }, [memory, viewState]);
     const submitSearch = useCallback((values: SearchValues): void =>
     {
-        setSubmittedValues(values);
-        resetPageNumber();
-    }, [resetPageNumber]);
+        const pageNumber = shouldResetPageOnSearch(template)
+            ? template.pagination?.defaultPageNumber ?? template.initialViewState?.pageNumber ?? 1
+            : viewState.pageNumber;
+        if (memory) memory.controller.setState(prev => memory.updateSearchValues(prev, values, pageNumber));
+        else { setInternalSubmittedValues(values); updateViewState({ pageNumber }); }
+    }, [template, memory, viewState.pageNumber, updateViewState]);
     const resetSearch = useCallback((): void =>
     {
-        setSubmittedValues(template.initialSearchValues ?? {});
-        resetPageNumber();
-    }, [template, resetPageNumber]);
+        const values = template.initialSearchValues ?? {};
+        const pageNumber = template.pagination?.defaultPageNumber ?? template.initialViewState?.pageNumber ?? 1;
+        if (memory) memory.controller.setState(prev => memory.updateSearchValues(prev, values, pageNumber));
+        else { setInternalSubmittedValues(values); updateViewState({ pageNumber }); }
+    }, [template, memory, updateViewState]);
     const setPageNumber = useCallback((pageNumber: number): void =>
     {
         updateViewState({ pageNumber });
@@ -364,7 +398,16 @@ export const useClientDataQueryTemplate = <TSearchParams, TRawData, TViewModel, 
         });
     }, [template.searchBar, searchFields, submittedValues, submitSearch, resetSearch]);
 
-    const paginator = dataSource.paginator ?? null;
+    const paginator = useMemo<ClientDataQueryPaginatorModel | null>(() =>
+    {
+        if (!dataSource.paginator) return null;
+        return {
+            ...dataSource.paginator,
+            currentPage: viewState.pageNumber,
+            onPageChange: setPageNumber,
+        };
+    }, [dataSource.paginator, viewState.pageNumber, setPageNumber]);
+    useNormalizeClientPageStateMemory(memory, dataSource.rawData, dataSource.isLoading);
 
     const paginatorProps = useMemo<PaginatorProps | null>(() =>
     {
@@ -455,6 +498,26 @@ export const buildClientLoaderInitial = <TArgs, TData>(args: TArgs, data: TData)
 // #endregion
 
 // #region Private
+/** 取得 Template 頂層 PageStateMemory 設定。 */
+const getClientPageStateMemory = <TState, TRawData>(template: unknown): ClientDataQueryPageStateMemory<TState, TRawData> | undefined =>
+{
+    if (!("pageStateMemory" in (template as object))) return undefined;
+    return (template as { pageStateMemory: ClientDataQueryPageStateMemory<TState, TRawData>; }).pageStateMemory;
+};
+/** 返回清單後依最新總頁數逐頁往前校正。 */
+const useNormalizeClientPageStateMemory = <TState, TRawData>(memory: ClientDataQueryPageStateMemory<TState, TRawData> | undefined, rawData: TRawData, isLoading: boolean): void =>
+{
+    useEffect(() =>
+    {
+        if (!memory || !memory.controller.isReady || isLoading || memory.controller.entryMode !== "normalize") return;
+        const pagination = memory.getPagination(rawData);
+        const currentPage = memory.getViewState(memory.controller.state).pageNumber;
+        const validPage = pagination.count <= 0 ? 1 : Math.max(1, pagination.totalPages);
+        if (currentPage <= validPage) return;
+        const nextViewState = { ...memory.getViewState(memory.controller.state), pageNumber: Math.max(1, currentPage - 1) };
+        memory.controller.setState(prev => memory.updateViewState(prev, nextViewState));
+    }, [memory, rawData, isLoading]);
+};
 /** 判斷目前是否有 Feature timing */
 const hasFeatureTiming = <TSearchParams, TRawData, TViewModel, TAdapter, TQueryParam, TLoaderData>(
     template: ClientDataQueryTemplate<TSearchParams, TRawData, TViewModel, TAdapter, TQueryParam, TLoaderData>,

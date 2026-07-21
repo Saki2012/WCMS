@@ -1,3 +1,4 @@
+import "./Global/Content/cms_content_format.css";
 import "./Server/ContentBack/bootstrap-5.1.1/css/bootstrap.min.css";
 import "./Server/ContentBack/bootstrap-5.1.1/css/docs.css";
 import "./Server/fonts/tabler/tabler-icons.min.css";

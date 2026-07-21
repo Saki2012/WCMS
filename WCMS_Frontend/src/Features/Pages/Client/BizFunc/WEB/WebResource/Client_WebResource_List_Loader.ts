@@ -1,11 +1,11 @@
 import { CategoryAdapter, type CategoryMapLoaderData } from "@/Features/Hooks/BizFunc/COMM/Category_Api";
 import { WebResourceAdapter } from "@/Features/Hooks/BizFunc/WEB/WebResource_Api";
 import {
-    buildClientDataQueryKey,
     buildClientDataQueryState,
     type ClientDataQueryDataSourceResult,
     type ClientDataQueryPaginatorModel,
     type ClientDataQuerySearchBarModel,
+    type ClientDataQueryMemoryState,
     type ClientDataQueryTemplate,
     getClientSearchStringValue,
     isSameClientDataQueryParam,
@@ -16,12 +16,13 @@ import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Da
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { IListViewState } from "@/SysCore/Interface/IListViewState";
+import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import type { ApiGridInitial, ApiGridLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { type ApiResponse, getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { PGID, WebResourceFields, WebResourceInfoFields } from "@/types/SchemaFields";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useMemo } from "react";
 import { type LoaderFunctionArgs, useLoaderData } from "react-router-dom";
 import type { IWebResourceListOptions } from "./Client_WebResource_List_Comp";
 
@@ -77,7 +78,7 @@ interface UseWebResourceListDataResult extends WebResourceListRawData
 type WebResourceListAdapter = { WebResource: ReturnType<typeof WebResourceAdapter>; Category: ReturnType<typeof CategoryAdapter>; };
 type WebResourceSearchParams = { lang: Lang; pageSize: number; pageNumber: number; title?: string; categoryIds: string; tagIds: string; style: number; };
 type WebResourceQueryParam = WebResourceListLoaderArgs;
-type WebResourceDataQueryTemplate = ClientDataQueryTemplate<WebResourceSearchParams, WebResourceListRawData, WebResourceListRawData, WebResourceListAdapter, WebResourceQueryParam, WebResourceListLoaderData>;
+type WebResourceDataQueryTemplate = ClientDataQueryTemplate<WebResourceSearchParams, WebResourceListRawData, WebResourceListRawData, WebResourceListAdapter, WebResourceQueryParam, WebResourceListLoaderData, ClientDataQueryMemoryState>;
 // #endregion
 
 // #region Public
@@ -97,13 +98,16 @@ export const Client_WebResourceList_Loader = (p: { lang: Lang; opts: IWebResourc
 export const useWebResourceListData = (p: { lang: Lang; opts?: IWebResourceListOptions; title?: string; }): UseWebResourceListDataResult =>
 {
     const initial = useLoaderData() as WebResourceListLoaderData | null;
+    const defaultPageState = useMemo<ClientDataQueryMemoryState>(() => ({ searchValues: buildWebResourceSearchValues(p.title), viewState: buildWebResourceInitialViewState({ pageNumber: initial?.args.pageNumber, pageSize: initial?.args.pageSize }) }), [p.lang, initial?.args.pageNumber ?? 1, initial?.args.pageSize ?? 10]);
+    const pageState = usePageStateMemory<ClientDataQueryMemoryState>({ stateKey: "Client.WebResourceList", scopeKeys: [p.lang], defaultState: defaultPageState });
     const template = useMemo(() => (
         createWebResourceDataQueryTemplate({
+                pageState,
             lang: p.lang,
             opts: p.opts,
             overrides: { pageNumber: initial?.args.pageNumber, pageSize: initial?.args.pageSize, title: p.title, categoryIds: initial?.args.categoryIds, tagIds: initial?.args.tagIds, style: initial?.args.style },
         })
-    ), [p.lang, p.opts, p.title, initial?.args.pageNumber, initial?.args.pageSize, initial?.args.categoryIds, initial?.args.tagIds, initial?.args.style]);
+    ), [p.lang, p.opts, p.title, initial?.args.pageNumber, initial?.args.pageSize, initial?.args.categoryIds, initial?.args.tagIds, initial?.args.style, pageState]);
     const templateVm = useClientDataQueryTemplate(template);
     return { ...templateVm.viewModel, paginatorProps: templateVm.paginatorProps, searchBar: templateVm.searchBar, isLoading: templateVm.isLoading, errorList: templateVm.errorList, refetchData: templateVm.refetchData };
 };
@@ -216,13 +220,21 @@ const buildGridProps = (p: { lang: Lang; listData: WebResourceSet[]; pageNumber:
     return { columns, rows, CurrentPage: p.pageNumber, TotalPage: p.totalPages, onPageChange: p.onPageChange };
 };
 /** 建立 WebResource DataQueryTemplate */
-const createWebResourceDataQueryTemplate = (p: { lang: Lang; opts?: IWebResourceListOptions; overrides?: Partial<{ pageNumber: number; pageSize: number; title: string; categoryIds: string; tagIds: string; style: number; }>; }): WebResourceDataQueryTemplate =>
+const createWebResourceDataQueryTemplate = (p: { pageState?: ReturnType<typeof usePageStateMemory<ClientDataQueryMemoryState>>; lang: Lang; opts?: IWebResourceListOptions; overrides?: Partial<{ pageNumber: number; pageSize: number; title: string; categoryIds: string; tagIds: string; style: number; }>; }): WebResourceDataQueryTemplate =>
 {
     const initialViewState = buildWebResourceInitialViewState(p.overrides);
     const initialSearchValues = buildWebResourceSearchValues(p.overrides?.title);
     return {
         featureKey: "WebResourceList",
         dataMode: "multiple",
+        ...(p.pageState ? { pageStateMemory: {
+            controller: p.pageState,
+            getSearchValues: state => state.searchValues,
+            getViewState: state => state.viewState,
+            updateSearchValues: (state, values, pageNumber) => ({ ...state, searchValues: values, viewState: { ...state.viewState, pageNumber } }),
+            updateViewState: (state, nextViewState) => ({ ...state, viewState: nextViewState }),
+            getPagination: raw => ({ count: raw.count, totalPages: raw.totalPages }),
+        } } : {}),
         initialSearchValues,
         initialViewState,
         pagination: { defaultPageNumber: initialViewState.pageNumber, defaultPageSize: initialViewState.pageSize, resetPageOnSearch: true },
@@ -235,7 +247,7 @@ const createWebResourceDataQueryTemplate = (p: { lang: Lang; opts?: IWebResource
             useDataSource: (ctx) => useWebResourceDataSource({ queryParam: ctx.queryParam, loaderData: ctx.loaderData }),
             buildViewModel: (ctx) => ctx.rawData,
         },
-    };
+    } as WebResourceDataQueryTemplate;
 };
 /** 組 loader / hook 共用參數 */
 const buildLoaderArgs = (p: { lang: Lang; opts?: IWebResourceListOptions; overrides?: Partial<{ pageNumber: number; pageSize: number; title: string; categoryIds: string; tagIds: string; style: number; }>; }): WebResourceQueryParam =>
@@ -270,14 +282,6 @@ const useWebResourceDataSource = (p: { queryParam: WebResourceQueryParam; loader
     const categoryInitial = useMemo(() => buildCategoryInitial({ loaderData: p.loaderData, args: currentArgs }), [p.loaderData, currentArgs]);
     const grid = adapter.WebResource.hooks.useQueryGridData({ baseParam: currentArgs.listParam, deps: [currentArgs.condition, currentArgs.pageSize], modelDeps: [currentArgs.lang], initial: gridInitial });
     const category = adapter.Category.hooks.useMapByProgId({ progId: currentArgs.progId, lang: currentArgs.lang, initial: categoryInitial, deps: [currentArgs.progId, currentArgs.lang] });
-    const resetKey = useMemo(() => buildClientDataQueryKey({ lang: currentArgs.lang, pageSize: currentArgs.pageSize, title: currentArgs.title ?? "", categoryIds: currentArgs.categoryIds, tagIds: currentArgs.tagIds, style: currentArgs.style }), [currentArgs]);
-    const prevResetKeyRef = useRef<string>(resetKey);
-    useEffect(() =>
-    {
-        if (prevResetKeyRef.current === resetKey) return;
-        prevResetKeyRef.current = resetKey;
-        grid.onPageChange(1);
-    }, [resetKey, grid.onPageChange]);
     const paginator = useMemo<ClientDataQueryPaginatorModel | null>(() =>
     {
         if (currentArgs.style === 8) return null;

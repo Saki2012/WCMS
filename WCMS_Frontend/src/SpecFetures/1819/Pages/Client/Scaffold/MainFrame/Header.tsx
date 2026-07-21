@@ -267,7 +267,7 @@ const Header_Section = (props: { lang: Lang; site: INormSite; }) =>
                                     <LangSwitchBtn site={props.site} />
                                 </ul>
                             </li>
-                            <SubmissionReviewSystem />
+                            <SubmissionReviewSystem lang={props.lang} />
                         </ul>
                     </div>
                 </div>

@@ -9,6 +9,7 @@ import { LibTextBox } from "@/Features/Pages/Server/Scaffold/InputComponets/Inpu
 import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
+import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
 import type { components } from "@/types/api";
 import { BannerFields, BannerSetFields } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
@@ -69,7 +70,9 @@ export const BannerSliderFormComp = (props: BannerSliderFormCompProps) =>
     const pathname = useLocation().pathname;
     const onBackToList = useCallback(() =>
     {
-        navigate(LibRoutePath.buildServerBackToListPath(pathname));
+        const listPath = LibRoutePath.buildServerBackToListPath(pathname);
+        markPageStateMemoryEntry(listPath, "normalize");
+        navigate(listPath, { replace: true });
     }, [navigate, pathname]);
     const actionsOpt = useMemo(() =>
     {

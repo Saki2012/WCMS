@@ -19,6 +19,7 @@ import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Compon
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
+import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { findTextByKey, formatDateTime, LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
@@ -37,6 +38,15 @@ type MaterialApiAdapter = ReturnType<typeof MaterialAdapter>;
 type CategoryApiAdapter = ReturnType<typeof CategoryAdapter>;
 
 type MaterialCudActions = ReturnType<MaterialApiAdapter["hooks"]["useCudActions"]>;
+
+export interface MaterialListPageState
+{
+    /** SearchBar 已送出的搜尋值。 */
+    searchValues: SearchValues;
+
+    /** Grid 目前頁碼。 */
+    pageNumber: number;
+}
 
 export interface MaterialSearchParams
 {
@@ -95,7 +105,7 @@ export interface MaterialListAdapter
     dirUrl: string;
 }
 
-export type MaterialListGridTemplate = ServerListGridTemplate<MaterialSearchParams, MaterialListRawData, MaterialListAdapter, QueryListParam>;
+export type MaterialListGridTemplate = ServerListGridTemplate<MaterialSearchParams, MaterialListRawData, MaterialListAdapter, QueryListParam, MaterialListPageState>;
 
 type CrudDeps = {
     /** React Router 導頁方法 */
@@ -117,13 +127,34 @@ export const MATERIAL_NAME_SEARCH_KEY = "materialName";
 
 export const MATERIAL_CATEGORY_SEARCH_KEY = "categoryId";
 
+
+const MATERIAL_LIST_STATE_KEY = "server-material-list";
+
+const DEFAULT_MATERIAL_LIST_PAGE_STATE: MaterialListPageState = {
+    searchValues: {},
+    pageNumber: 1,
+};
+
 /** 建立物件後台 ListGridTemplate 設定 */
 export const useMaterialListGridTemplate = (opt: { lang: Lang; }): MaterialListGridTemplate =>
 {
+    const pageState = usePageStateMemory<MaterialListPageState>({
+        stateKey: MATERIAL_LIST_STATE_KEY,
+        defaultState: DEFAULT_MATERIAL_LIST_PAGE_STATE,
+        scopeKeys: [opt.lang],
+    });
     return useMemo<MaterialListGridTemplate>(() =>
     {
         return {
             featureKey: PGID.Material,
+            pageStateMemory: {
+                controller: pageState,
+                getSearchValues: (state) => state.searchValues,
+                getPageNumber: (state) => state.pageNumber,
+                updateSearchValues: updateMaterialSearchValues,
+                updatePageNumber: updateMaterialPageNumber,
+                getPagination: getMaterialPagination,
+            },
             feature: {
                 buildSearchFields: ({ rawData }) => buildMaterialSearchFields(rawData),
                 toSearchParams: (values) => toMaterialSearchParams(values, opt.lang),
@@ -133,11 +164,29 @@ export const useMaterialListGridTemplate = (opt: { lang: Lang; }): MaterialListG
                 buildGridProps: (ctx) => buildMaterialGridProps({ raw: ctx.rawData, lang: ctx.searchParams.lang, adapter: ctx.adapter, refetchData: ctx.refetchData }),
             },
         };
-    }, [opt.lang]);
+    }, [opt.lang, pageState]);
 };
 // #endregion
 
 // #region Private
+/** 搜尋送出時更新Material記憶狀態，並固定回到第一頁。 */
+const updateMaterialSearchValues = (state: MaterialListPageState, searchValues: SearchValues): MaterialListPageState =>
+{
+    return { ...state, searchValues, pageNumber: 1 };
+};
+
+/** 更新Material列表記憶頁碼。 */
+const updateMaterialPageNumber = (state: MaterialListPageState, pageNumber: number): MaterialListPageState =>
+{
+    return { ...state, pageNumber };
+};
+
+/** 提供 Template 校正頁碼所需的Material分頁資訊。 */
+const getMaterialPagination = (rawData: MaterialListRawData): { count: number; totalPages: number; } =>
+{
+    return { count: rawData.count, totalPages: rawData.totalPages };
+};
+
 /** 執行物件列表資料來源 Hook */
 const useMaterialListGridDataSource = (
     ctx: ServerListGridDataSourceContext<MaterialSearchParams, QueryListParam>,
@@ -238,7 +287,7 @@ const buildMaterialSearchConditions = (ctx: { searchParams: MaterialSearchParams
 };
 
 /** 建立物件列表完整 QueryParam */
-const buildMaterialQueryParam = (ctx: { searchParams: MaterialSearchParams; searchCondition: string; }): QueryListParam =>
+const buildMaterialQueryParam = (ctx: { pageNumber: number; searchParams: MaterialSearchParams; searchCondition: string; }): QueryListParam =>
 {
     return {
         Fields: buildMaterialQueryFields(),
@@ -249,7 +298,7 @@ const buildMaterialQueryParam = (ctx: { searchParams: MaterialSearchParams; sear
             ],
         ),
         OrderBy: [{ Col: MaterialFields.ModifyTime, Desc: true }],
-        PageNumber: 1,
+        PageNumber: ctx.pageNumber,
         PageSize: 10,
     };
 };

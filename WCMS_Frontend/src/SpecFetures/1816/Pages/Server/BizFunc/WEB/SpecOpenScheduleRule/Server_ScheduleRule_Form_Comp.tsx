@@ -6,6 +6,7 @@ import { LibDatetimeRange } from "@/Features/Pages/Server/Scaffold/InputComponet
 import { LibTextBox } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
 import { useSetDateRangeField, useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import type { Lang } from "@/SysCore/i18n/lang";
+import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
 import type { components } from "@/types/api";
 import { SpecOpenScheduleRuleModelFields, SpecOpenScheduleRuleSetFields } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
@@ -59,7 +60,9 @@ export const Server_ScheduleRule_Form_Comp = (prop: { theme: IBETheme; lang: Lan
     // 執行 function：回列表（對標 Announcement Form）
     const onBackToList = useCallback(() =>
     {
-        navigate(pathname.replace(/\/Form(\/[^\/]*)?$/, "/List"));
+        const listPath = pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
+        markPageStateMemoryEntry(listPath, "normalize");
+        navigate(listPath, { replace: true });
     }, [navigate, pathname]);
 
     // 宣告變數：提供 Template 使用的動作設定
