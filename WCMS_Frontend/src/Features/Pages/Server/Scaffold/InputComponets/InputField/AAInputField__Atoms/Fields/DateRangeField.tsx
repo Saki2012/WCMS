@@ -53,12 +53,20 @@ export const DateRangeField = (props: { field: AAInputField; context: FieldRende
         setIsOpen(false);
     };
 
-    /** 選取日期並回填 [startDate, endDate]，選完後由完成按鈕關閉。 */
+    /** 選取日期並回填區間，完成結束日後自動關閉選單。 */
     const selectDate = (date: string) =>
     {
         const nextRange = getNextDateRangeValue(range, date);
         props.context.onChange(props.field.key, [nextRange.startDate, nextRange.endDate]);
         setAnnounceText(buildDateRangeAnnounceText(nextRange));
+        if (nextRange.endDate) closeDateRangeAndFocus();
+    };
+
+    /** 關閉日期區間選單並將焦點返回觸發欄位。 */
+    const closeDateRangeAndFocus = () =>
+    {
+        closeDateRange();
+        focusPortalAnchor(wrapperRef.current);
     };
 
     /** 清除已選日期區間。 */

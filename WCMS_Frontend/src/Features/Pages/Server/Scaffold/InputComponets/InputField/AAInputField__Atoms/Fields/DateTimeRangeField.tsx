@@ -86,12 +86,20 @@ export const DateTimeRangeField = (props: { field: AAInputField; context: FieldR
         setAnnounceText(buildDateTimeRangeAnnounceText(nextRange));
     };
 
-    /** 更新結束時間。 */
+    /** 更新結束時間，完整選取後自動關閉選單。 */
     const changeEndTime = (value: string) =>
     {
         const nextRange = { ...range, endTime: normalizeTimeText(value, "23:59") };
         commitDateTimeRangeValue(props.field, nextRange, props.context.onChange);
         setAnnounceText(buildDateTimeRangeAnnounceText(nextRange));
+        if (nextRange.startDate && nextRange.endDate && value) closeDateTimeRangeAndFocus();
+    };
+
+    /** 關閉日期時間區間選單並將焦點返回觸發欄位。 */
+    const closeDateTimeRangeAndFocus = () =>
+    {
+        closeDateTimeRange();
+        focusPortalAnchor(wrapperRef.current);
     };
 
     /** 清除已選日期時間區間。 */
