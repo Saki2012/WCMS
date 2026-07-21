@@ -15,7 +15,7 @@ export const BreadCrumb_Comp = (props: BreadCrumbCompProps) =>
 {
     const isZh = props.lang === "zh-tw";
     const homepageTitle = isZh ? "首頁" : "Home";
-    const gobackTitle = isZh ? "返回上一層" : "Back";
+    const gobackTitle = isZh ? "返回上一頁" : "Back";
     const printTitle = isZh ? "友善列印" : "Print";
     const shareTitle = isZh ? "分享" : "Share";
     const ctx = useContext(BreadcrumbContext);
