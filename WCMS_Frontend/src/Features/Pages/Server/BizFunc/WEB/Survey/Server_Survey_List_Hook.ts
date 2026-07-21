@@ -10,6 +10,7 @@ import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Compon
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
+import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { formatDateTime } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
@@ -32,6 +33,15 @@ type SurveyApiAdapter = ReturnType<typeof SurveyAdapter>;
 
 type SurveyCudActions = ReturnType<SurveyApiAdapter["hooks"]["useCudActions"]>;
 
+
+export interface SurveyListPageState
+{
+    /** SearchBar 已送出的搜尋值。 */
+    searchValues: SearchValues;
+
+    /** Grid 目前頁碼。 */
+    pageNumber: number;
+}
 
 export interface SurveySearchParams
 {
@@ -84,7 +94,7 @@ export interface SurveyListAdapter
 }
 
 
-export type SurveyListGridTemplate = ServerListGridTemplate<SurveySearchParams, SurveyListRawData, SurveyListAdapter, QueryListParam>;
+export type SurveyListGridTemplate = ServerListGridTemplate<SurveySearchParams, SurveyListRawData, SurveyListAdapter, QueryListParam, SurveyListPageState>;
 
 
 type CrudDeps = {
@@ -106,13 +116,34 @@ type CrudDeps = {
 export const SURVEY_NAME_SEARCH_KEY = "title";
 
 
+
+const SURVEY_LIST_STATE_KEY = "server-survey-list";
+
+const DEFAULT_SURVEY_LIST_PAGE_STATE: SurveyListPageState = {
+    searchValues: {},
+    pageNumber: 1,
+};
+
 /** 建立問卷後台 ListGridTemplate 設定 */
 export const useSurveyListGridTemplate = (opt: { lang: Lang; }): SurveyListGridTemplate =>
 {
+    const pageState = usePageStateMemory<SurveyListPageState>({
+        stateKey: SURVEY_LIST_STATE_KEY,
+        defaultState: DEFAULT_SURVEY_LIST_PAGE_STATE,
+        scopeKeys: [opt.lang],
+    });
     return useMemo<SurveyListGridTemplate>(() =>
     {
         return {
             featureKey: PGID.Survey,
+            pageStateMemory: {
+                controller: pageState,
+                getSearchValues: (state) => state.searchValues,
+                getPageNumber: (state) => state.pageNumber,
+                updateSearchValues: updateSurveySearchValues,
+                updatePageNumber: updateSurveyPageNumber,
+                getPagination: getSurveyPagination,
+            },
             feature: {
                 buildSearchFields: ({ rawData }) => buildSurveySearchFields(rawData),
                 toSearchParams: (values) => toSurveySearchParams(values, opt.lang),
@@ -122,11 +153,29 @@ export const useSurveyListGridTemplate = (opt: { lang: Lang; }): SurveyListGridT
                 buildGridProps: (ctx) => buildSurveyGridProps({ raw: ctx.rawData, lang: ctx.searchParams.lang, adapter: ctx.adapter, refetchData: ctx.refetchData }),
             },
         };
-    }, [opt.lang]);
+    }, [opt.lang, pageState]);
 };
 // #endregion
 
 // #region Private
+/** 搜尋送出時更新Survey記憶狀態，並固定回到第一頁。 */
+const updateSurveySearchValues = (state: SurveyListPageState, searchValues: SearchValues): SurveyListPageState =>
+{
+    return { ...state, searchValues, pageNumber: 1 };
+};
+
+/** 更新Survey列表記憶頁碼。 */
+const updateSurveyPageNumber = (state: SurveyListPageState, pageNumber: number): SurveyListPageState =>
+{
+    return { ...state, pageNumber };
+};
+
+/** 提供 Template 校正頁碼所需的Survey分頁資訊。 */
+const getSurveyPagination = (rawData: SurveyListRawData): { count: number; totalPages: number; } =>
+{
+    return { count: rawData.count, totalPages: rawData.totalPages };
+};
+
 /** 執行問卷列表資料來源 Hook */
 const useSurveyListGridDataSource = (
     ctx: ServerListGridDataSourceContext<SurveySearchParams, QueryListParam>,
@@ -205,9 +254,9 @@ const buildSurveySearchConditions = (ctx: { searchParams: SurveySearchParams; })
 
 
 /** 建立問卷列表完整 QueryParam */
-const buildSurveyQueryParam = (ctx: { searchCondition: string; }): QueryListParam =>
+const buildSurveyQueryParam = (ctx: { pageNumber: number; searchCondition: string; }): QueryListParam =>
 {
-    return { Fields: buildSurveyQueryFields(), Condition: ctx.searchCondition, OrderBy: [{ Col: SurveyFields.CreateTime, Desc: true }], PageNumber: 1, PageSize: 10 };
+    return { Fields: buildSurveyQueryFields(), Condition: ctx.searchCondition, OrderBy: [{ Col: SurveyFields.CreateTime, Desc: true }], PageNumber: ctx.pageNumber, PageSize: 10 };
 };
 
 

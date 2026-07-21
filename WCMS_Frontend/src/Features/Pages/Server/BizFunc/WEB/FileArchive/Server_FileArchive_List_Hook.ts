@@ -22,6 +22,7 @@ import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Compon
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
+import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { findTextByKey, formatDateTime, LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
@@ -42,6 +43,15 @@ type CategoryApiAdapter = ReturnType<typeof CategoryAdapter>;
 type TagApiAdapter = ReturnType<typeof TagAdapter>;
 
 type FileArchiveCudActions = ReturnType<FileArchiveApiAdapter["hooks"]["useCudActions"]>;
+
+export interface FileArchiveListPageState
+{
+    /** SearchBar 已送出的搜尋值。 */
+    searchValues: SearchValues;
+
+    /** Grid 目前頁碼。 */
+    pageNumber: number;
+}
 
 export interface FileArchiveSearchParams
 {
@@ -106,7 +116,7 @@ export interface FileArchiveListAdapter
     dirUrl: string;
 }
 
-export type FileArchiveListGridTemplate = ServerListGridTemplate<FileArchiveSearchParams, FileArchiveListRawData, FileArchiveListAdapter, QueryListParam>;
+export type FileArchiveListGridTemplate = ServerListGridTemplate<FileArchiveSearchParams, FileArchiveListRawData, FileArchiveListAdapter, QueryListParam, FileArchiveListPageState>;
 
 type CrudDeps = {
     /** React Router 導頁方法 */
@@ -128,13 +138,34 @@ export const FILE_ARCHIVE_TITLE_SEARCH_KEY = "title";
 
 export const FILE_ARCHIVE_CATEGORY_SEARCH_KEY = "categoryId";
 
+
+const FILE_ARCHIVE_LIST_STATE_KEY = "server-file-archive-list";
+
+const DEFAULT_FILE_ARCHIVE_LIST_PAGE_STATE: FileArchiveListPageState = {
+    searchValues: {},
+    pageNumber: 1,
+};
+
 /** 建立檔案室後台 ListGridTemplate 設定 */
 export const useFileArchiveListGridTemplate = (opt: { lang: Lang; }): FileArchiveListGridTemplate =>
 {
+    const pageState = usePageStateMemory<FileArchiveListPageState>({
+        stateKey: FILE_ARCHIVE_LIST_STATE_KEY,
+        defaultState: DEFAULT_FILE_ARCHIVE_LIST_PAGE_STATE,
+        scopeKeys: [opt.lang],
+    });
     return useMemo<FileArchiveListGridTemplate>(() =>
     {
         return {
             featureKey: PGID.FileArchive,
+            pageStateMemory: {
+                controller: pageState,
+                getSearchValues: (state) => state.searchValues,
+                getPageNumber: (state) => state.pageNumber,
+                updateSearchValues: updateFileArchiveSearchValues,
+                updatePageNumber: updateFileArchivePageNumber,
+                getPagination: getFileArchivePagination,
+            },
             feature: {
                 buildSearchFields: ({ rawData }) => buildFileArchiveSearchFields(rawData),
                 toSearchParams: (values) => toFileArchiveSearchParams(values, opt.lang),
@@ -144,11 +175,29 @@ export const useFileArchiveListGridTemplate = (opt: { lang: Lang; }): FileArchiv
                 buildGridProps: (ctx) => buildFileArchiveGridProps({ raw: ctx.rawData, lang: ctx.searchParams.lang, adapter: ctx.adapter, refetchData: ctx.refetchData }),
             },
         };
-    }, [opt.lang]);
+    }, [opt.lang, pageState]);
 };
 // #endregion
 
 // #region Private
+/** 搜尋送出時更新FileArchive記憶狀態，並固定回到第一頁。 */
+const updateFileArchiveSearchValues = (state: FileArchiveListPageState, searchValues: SearchValues): FileArchiveListPageState =>
+{
+    return { ...state, searchValues, pageNumber: 1 };
+};
+
+/** 更新FileArchive列表記憶頁碼。 */
+const updateFileArchivePageNumber = (state: FileArchiveListPageState, pageNumber: number): FileArchiveListPageState =>
+{
+    return { ...state, pageNumber };
+};
+
+/** 提供 Template 校正頁碼所需的FileArchive分頁資訊。 */
+const getFileArchivePagination = (rawData: FileArchiveListRawData): { count: number; totalPages: number; } =>
+{
+    return { count: rawData.count, totalPages: rawData.totalPages };
+};
+
 /** 執行檔案室列表資料來源 Hook */
 const useFileArchiveListGridDataSource = (
     ctx: ServerListGridDataSourceContext<FileArchiveSearchParams, QueryListParam>,
@@ -258,14 +307,14 @@ const buildFileArchiveSearchConditions = (ctx: { searchParams: FileArchiveSearch
 };
 
 /** 建立檔案室列表完整 QueryParam */
-const buildFileArchiveQueryParam = (ctx: { searchParams: FileArchiveSearchParams; searchCondition: string; }): QueryListParam =>
+const buildFileArchiveQueryParam = (ctx: { pageNumber: number; searchParams: FileArchiveSearchParams; searchCondition: string; }): QueryListParam =>
 {
     return {
         Fields: buildFileArchiveQueryFields(),
         Condition: LibCondition.joinConditions([LibCondition.createCondition(`${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.Lang}`, Operator.Equal, ctx.searchParams.lang), ctx.searchCondition]),
         RankGroups: [{ Condition: `${FileArchiveFields.ContentStatus} & 1` }],
         OrderBy: [{ Col: FileArchiveFields.CreateTime, Desc: true }],
-        PageNumber: 1,
+        PageNumber: ctx.pageNumber,
         PageSize: 10,
     };
 };

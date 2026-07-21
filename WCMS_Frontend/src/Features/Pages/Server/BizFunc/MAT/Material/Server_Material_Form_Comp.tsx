@@ -28,6 +28,7 @@ import { useSetJsonField, useSetTableField } from "@/Features/Pages/Server/Scaff
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
+import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
 import type { components } from "@/types/api";
 import { MaterialFields, MaterialLangInfoFields, MaterialPictureFields, MaterialSetFields, PGID } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
@@ -175,7 +176,9 @@ export const Server_Material_Form_Comp = (props: MaterialFormCompProps) =>
     const preview = useServerPreviewFrame<MaterialPreviewPayload>({ ProgId: PGID.Material });
     const onBackToList = useCallback(() =>
     {
-        navigate(LibRoutePath.buildServerBackToListPath(pathname));
+        const listPath = LibRoutePath.buildServerBackToListPath(pathname);
+        markPageStateMemoryEntry(listPath, "normalize");
+        navigate(listPath, { replace: true });
     }, [navigate, pathname]);
 
     const actionsOpt = useMemo(() =>

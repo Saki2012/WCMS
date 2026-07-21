@@ -19,6 +19,7 @@ import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Compon
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
+import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { findTextByKey, formatDateTime, LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
@@ -37,6 +38,15 @@ type PageManagementApiAdapter = ReturnType<typeof PageManagementAdapter>;
 type CategoryApiAdapter = ReturnType<typeof CategoryAdapter>;
 
 type PageManagementCudActions = ReturnType<PageManagementApiAdapter["hooks"]["useCudActions"]>;
+
+export interface PageManagementListPageState
+{
+    /** SearchBar 已送出的搜尋值。 */
+    searchValues: SearchValues;
+
+    /** Grid 目前頁碼。 */
+    pageNumber: number;
+}
 
 export interface PageManagementSearchParams
 {
@@ -95,7 +105,7 @@ export interface PageManagementListAdapter
     dirUrl: string;
 }
 
-export type PageManagementListGridTemplate = ServerListGridTemplate<PageManagementSearchParams, PageManagementListRawData, PageManagementListAdapter, QueryListParam>;
+export type PageManagementListGridTemplate = ServerListGridTemplate<PageManagementSearchParams, PageManagementListRawData, PageManagementListAdapter, QueryListParam, PageManagementListPageState>;
 
 type CrudDeps = {
     /** React Router 導頁方法 */
@@ -117,13 +127,34 @@ export const PAGE_MANAGEMENT_TITLE_SEARCH_KEY = "title";
 
 export const PAGE_MANAGEMENT_CATEGORY_SEARCH_KEY = "categoryId";
 
+
+const PAGE_MANAGEMENT_LIST_STATE_KEY = "server-page-management-list";
+
+const DEFAULT_PAGE_MANAGEMENT_LIST_PAGE_STATE: PageManagementListPageState = {
+    searchValues: {},
+    pageNumber: 1,
+};
+
 /** 建立頁面管理後台 ListGridTemplate 設定 */
 export const usePageManagementListGridTemplate = (opt: { lang: Lang; }): PageManagementListGridTemplate =>
 {
+    const pageState = usePageStateMemory<PageManagementListPageState>({
+        stateKey: PAGE_MANAGEMENT_LIST_STATE_KEY,
+        defaultState: DEFAULT_PAGE_MANAGEMENT_LIST_PAGE_STATE,
+        scopeKeys: [opt.lang],
+    });
     return useMemo<PageManagementListGridTemplate>(() =>
     {
         return {
             featureKey: PGID.PageManagement,
+            pageStateMemory: {
+                controller: pageState,
+                getSearchValues: (state) => state.searchValues,
+                getPageNumber: (state) => state.pageNumber,
+                updateSearchValues: updatePageManagementSearchValues,
+                updatePageNumber: updatePageManagementPageNumber,
+                getPagination: getPageManagementPagination,
+            },
             feature: {
                 buildSearchFields: ({ rawData }) => buildPageManagementSearchFields(rawData),
                 toSearchParams: (values) => toPageManagementSearchParams(values, opt.lang),
@@ -133,11 +164,29 @@ export const usePageManagementListGridTemplate = (opt: { lang: Lang; }): PageMan
                 buildGridProps: (ctx) => buildPageManagementGridProps({ raw: ctx.rawData, lang: ctx.searchParams.lang, adapter: ctx.adapter, refetchData: ctx.refetchData }),
             },
         };
-    }, [opt.lang]);
+    }, [opt.lang, pageState]);
 };
 // #endregion
 
 // #region Private
+/** 搜尋送出時更新PageManagement記憶狀態，並固定回到第一頁。 */
+const updatePageManagementSearchValues = (state: PageManagementListPageState, searchValues: SearchValues): PageManagementListPageState =>
+{
+    return { ...state, searchValues, pageNumber: 1 };
+};
+
+/** 更新PageManagement列表記憶頁碼。 */
+const updatePageManagementPageNumber = (state: PageManagementListPageState, pageNumber: number): PageManagementListPageState =>
+{
+    return { ...state, pageNumber };
+};
+
+/** 提供 Template 校正頁碼所需的PageManagement分頁資訊。 */
+const getPageManagementPagination = (rawData: PageManagementListRawData): { count: number; totalPages: number; } =>
+{
+    return { count: rawData.count, totalPages: rawData.totalPages };
+};
+
 /** 執行頁面管理列表資料來源 Hook */
 const usePageManagementListGridDataSource = (
     ctx: ServerListGridDataSourceContext<PageManagementSearchParams, QueryListParam>,
@@ -238,13 +287,13 @@ const buildPageManagementSearchConditions = (ctx: { searchParams: PageManagement
 };
 
 /** 建立頁面管理列表完整 QueryParam */
-const buildPageManagementQueryParam = (ctx: { searchParams: PageManagementSearchParams; searchCondition: string; }): QueryListParam =>
+const buildPageManagementQueryParam = (ctx: { pageNumber: number; searchParams: PageManagementSearchParams; searchCondition: string; }): QueryListParam =>
 {
     return {
         Fields: buildPageManagementQueryFields(),
         Condition: LibCondition.joinConditions([LibCondition.createCondition(`${PageManagementFields._PageManagementDetail}.${PageManagementDetailFields.Lang}`, Operator.Equal, ctx.searchParams.lang), ctx.searchCondition]),
         OrderBy: [{ Col: PageManagementFields.CreateTime, Desc: true }],
-        PageNumber: 1,
+        PageNumber: ctx.pageNumber,
         PageSize: 10,
     };
 };

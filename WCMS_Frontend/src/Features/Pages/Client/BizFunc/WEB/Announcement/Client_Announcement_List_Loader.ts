@@ -4,11 +4,11 @@ import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WEB/Announcement_A
 import { SiteViewCountAdapter } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
 
 import {
-    buildClientDataQueryKey,
     buildClientDataQueryState,
     type ClientDataQueryDataSourceResult,
     type ClientDataQueryPaginatorModel,
     type ClientDataQuerySearchBarModel,
+    type ClientDataQueryMemoryState,
     type ClientDataQueryTemplate,
     getClientSearchStringValue,
     isSameClientDataQueryParam,
@@ -20,6 +20,7 @@ import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Da
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { IListViewState } from "@/SysCore/Interface/IListViewState";
+import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import type { ApiGridInitial, ApiGridLoaderData, ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { formatDate, getTodayRange, LibCondition, LibText } from "@/SysCore/Utils/Library/LibData";
@@ -37,7 +38,7 @@ import {
     TagDetailFields,
 } from "@/types/SchemaFields";
 import type { AxiosInstance } from "axios";
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router-dom";
 import { useLoaderData } from "react-router-dom";
 import { getClientSlotPath } from "../../../Scaffold/Slot/Client_SlotPath";
@@ -136,7 +137,7 @@ type AnnouncementSearchParams = {
 };
 type AnnouncementQueryParam = Omit<AnnouncementListLoaderArgs, "viewCountParam">;
 type AnnouncementListViewModel = Omit<UseAnnouncementListDataResult, "isLoading" | "errorList" | "searchBar">;
-type AnnouncementDataQueryTemplate = ClientDataQueryTemplate<AnnouncementSearchParams, AnnouncementListViewModel, AnnouncementListViewModel, unknown, AnnouncementQueryParam, AnnouncementListLoaderData>;
+type AnnouncementDataQueryTemplate = ClientDataQueryTemplate<AnnouncementSearchParams, AnnouncementListViewModel, AnnouncementListViewModel, unknown, AnnouncementQueryParam, AnnouncementListLoaderData, ClientDataQueryMemoryState>;
 export type AnnouncementListDataQuerySpecSlot = NonNullable<AnnouncementDataQueryTemplate["spec"]>;
 let _resolvedAnnouncementListDataQuerySpec: AnnouncementListDataQuerySpecSlot | null = null;
 let _resolvedAnnouncementListLoaderSpec: AnnouncementListLoaderSpecSlot | null = null;
@@ -207,9 +208,12 @@ async ({ request }: LoaderFunctionArgs): Promise<AnnouncementListLoaderData> =>
 export const useAnnouncementListData = (p: { lang: Lang; opts?: IAnnouncementListOptions; kw?: string; }): UseAnnouncementListDataResult =>
 {
     const initial = useLoaderData() as AnnouncementListLoaderData;
+    const defaultPageState = useMemo<ClientDataQueryMemoryState>(() => ({ searchValues: buildAnnouncementSearchValues(p.kw), viewState: buildAnnouncementInitialViewState({ opts: p.opts, overrides: { pageNumber: initial.args.pageNumber, pageSize: initial.args.pageSize } }) }), [p.lang, initial.args.pageNumber, initial.args.pageSize]);
+    const pageState = usePageStateMemory<ClientDataQueryMemoryState>({ stateKey: "Client.AnnouncementList", scopeKeys: [p.lang], defaultState: defaultPageState });
     const template = useMemo(
         () =>
             createAnnouncementDataQueryTemplate({
+                pageState,
                 lang: p.lang,
                 opts: p.opts,
                 dayStart: initial.args.dayStart,
@@ -231,8 +235,7 @@ export const useAnnouncementListData = (p: { lang: Lang; opts?: IAnnouncementLis
             initial.args.pageNumber,
             initial.args.pageSize,
             initial.args.categoryIds,
-            initial.args.tagIds,
-        ],
+            initial.args.tagIds, pageState],
     );
     const templateVm = useClientDataQueryTemplate(template);
     return {
@@ -497,6 +500,14 @@ const createAnnouncementDataQueryTemplate = (
     return {
         featureKey: "AnnouncementList",
         dataMode: "multiple",
+        ...(p.pageState ? { pageStateMemory: {
+            controller: p.pageState,
+            getSearchValues: state => state.searchValues,
+            getViewState: state => state.viewState,
+            updateSearchValues: (state, values, pageNumber) => ({ ...state, searchValues: values, viewState: { ...state.viewState, pageNumber } }),
+            updateViewState: (state, nextViewState) => ({ ...state, viewState: nextViewState }),
+            getPagination: raw => ({ count: raw.totalCount, totalPages: raw.totalPages }),
+        } } : {}),
         initialSearchValues,
         initialViewState,
         pagination,
@@ -510,7 +521,7 @@ const createAnnouncementDataQueryTemplate = (
             useDataSource: (ctx) => useAnnouncementDataSource({ queryParam: ctx.queryParam, loaderData: ctx.loaderData }),
             buildViewModel: (ctx) => ctx.rawData,
         },
-    };
+    } as AnnouncementDataQueryTemplate;
 };
 /** 組 loader / hook 共用參數 */
 const buildLoaderArgs = (
@@ -585,7 +596,7 @@ const buildGridPropsFromList = (
     return { columns, rows, CurrentPage: p.pageNumber, TotalPage: p.totalPages, onPageChange: p.onPageChange };
 };
 /** 處理 grid cell 顯示內容 */
-const resolveGridCellContent = (p: { colKey: string; item: AnnouncementSet; detailTitle: string; finalCount: number; }): string =>
+const resolveGridCellContent = (p: { pageState?: ReturnType<typeof usePageStateMemory<ClientDataQueryMemoryState>>; colKey: string; item: AnnouncementSet; detailTitle: string; finalCount: number; }): string =>
 {
     switch (p.colKey)
     {
@@ -623,26 +634,6 @@ const useAnnouncementDataSource = (
         deps: [currentArgs.condition, currentArgs.pageSize],
         initial: gridInitial,
     });
-    const resetKey = useMemo(
-        () =>
-            buildClientDataQueryKey({
-                lang: currentArgs.lang,
-                dayStart: currentArgs.dayStart,
-                dayEnd: currentArgs.dayEnd,
-                pageSize: currentArgs.pageSize,
-                categoryIds: currentArgs.categoryIds,
-                tagIds: currentArgs.tagIds,
-                keyword: currentArgs.keyword ?? "",
-            }),
-        [currentArgs],
-    );
-    const prevResetKeyRef = useRef<string>(resetKey);
-    useEffect(() =>
-    {
-        if (prevResetKeyRef.current === resetKey) return;
-        prevResetKeyRef.current = resetKey;
-        grid.onPageChange(1);
-    }, [resetKey, grid.onPageChange]);
     const viewCountParam = useMemo(() => buildViewCountQuery(getAnnouncementInternalIds(grid.list ?? [])), [grid.list]);
     const viewCountInitial = useMemo(() =>
     {

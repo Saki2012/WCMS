@@ -15,6 +15,7 @@ import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Compon
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
+import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { formatDateTime, LibCondition, LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
@@ -36,6 +37,15 @@ export interface SpecJournalIndexListRenderers
 {
     /** 渲染卷期欄位內容，JSX 請留在 Comp 實作 */
     buildVolumeIssueContentNode: (set: SpecJournalIndexSet) => RowCell["content"];
+}
+
+export interface SpecJournalIndexListPageState
+{
+    /** SearchBar 已送出的搜尋值。 */
+    searchValues: SearchValues;
+
+    /** Grid 目前頁碼。 */
+    pageNumber: number;
 }
 
 export interface SpecJournalIndexSearchParams
@@ -86,7 +96,7 @@ export interface SpecJournalIndexListAdapter
     dirUrl: string;
 }
 
-export type SpecJournalIndexListGridTemplate = ServerListGridTemplate<SpecJournalIndexSearchParams, SpecJournalIndexListRawData, SpecJournalIndexListAdapter, QueryListParam>;
+export type SpecJournalIndexListGridTemplate = ServerListGridTemplate<SpecJournalIndexSearchParams, SpecJournalIndexListRawData, SpecJournalIndexListAdapter, QueryListParam, SpecJournalIndexListPageState>;
 
 type CrudDeps = {
     /** React Router 導頁方法 */
@@ -120,13 +130,33 @@ type SpecJournalIndexVisibleColumn = {
 // #region Public
 export const SPEC_JOURNAL_INDEX_NAME_SEARCH_KEY = "indexName";
 
+const SPEC_JOURNAL_INDEX_LIST_STATE_KEY = "server-spec-journal-index-list";
+
+const DEFAULT_SPEC_JOURNAL_INDEX_LIST_PAGE_STATE: SpecJournalIndexListPageState = {
+    searchValues: {},
+    pageNumber: 1,
+};
+
 /** 建立期刊目次後台純 Spec ListGridTemplate 設定 */
 export const useSpecJournalIndexListGridTemplate = (opt: { lang: Lang; renderers: SpecJournalIndexListRenderers; }): SpecJournalIndexListGridTemplate =>
 {
-    return useMemo<SpecJournalIndexListGridTemplate>(() =>
+        const pageState = usePageStateMemory<SpecJournalIndexListPageState>({
+        stateKey: SPEC_JOURNAL_INDEX_LIST_STATE_KEY,
+        defaultState: DEFAULT_SPEC_JOURNAL_INDEX_LIST_PAGE_STATE,
+        scopeKeys: [opt.lang],
+    });
+return useMemo<SpecJournalIndexListGridTemplate>(() =>
     {
         return {
             featureKey: PGID.SpecJournalIndex,
+            pageStateMemory: {
+                controller: pageState,
+                getSearchValues: (state) => state.searchValues,
+                getPageNumber: (state) => state.pageNumber,
+                updateSearchValues: updateSpecJournalIndexSearchValues,
+                updatePageNumber: updateSpecJournalIndexPageNumber,
+                getPagination: getSpecJournalIndexPagination,
+            },
             spec: {
                 buildSearchFields: ({ rawData }) => buildSpecJournalIndexSearchFields(rawData),
                 toSearchParams: (values) => toSpecJournalIndexSearchParams(values, opt.lang),
@@ -143,11 +173,29 @@ export const useSpecJournalIndexListGridTemplate = (opt: { lang: Lang; renderers
                     }),
             },
         };
-    }, [opt.lang, opt.renderers]);
+    }, [opt.lang, opt.renderers, pageState]);
 };
 // #endregion
 
 // #region Private
+/** 搜尋送出時更新SpecJournalIndex記憶狀態，並固定回到第一頁。 */
+const updateSpecJournalIndexSearchValues = (state: SpecJournalIndexListPageState, searchValues: SearchValues): SpecJournalIndexListPageState =>
+{
+    return { ...state, searchValues, pageNumber: 1 };
+};
+
+/** 更新SpecJournalIndex列表記憶頁碼。 */
+const updateSpecJournalIndexPageNumber = (state: SpecJournalIndexListPageState, pageNumber: number): SpecJournalIndexListPageState =>
+{
+    return { ...state, pageNumber };
+};
+
+/** 提供 Template 校正頁碼所需的SpecJournalIndex分頁資訊。 */
+const getSpecJournalIndexPagination = (rawData: SpecJournalIndexListRawData): { count: number; totalPages: number; } =>
+{
+    return { count: rawData.count, totalPages: rawData.totalPages };
+};
+
 /** 執行期刊目次列表資料來源 Hook */
 const useSpecJournalIndexListGridDataSource = (
     ctx: ServerListGridDataSourceContext<SpecJournalIndexSearchParams, QueryListParam>,
@@ -230,7 +278,7 @@ const buildSpecJournalIndexQueryParam = (ctx: { searchCondition: string; }): Que
         Fields: buildSpecJournalIndexQueryFields(),
         Condition: LibCondition.joinConditions([ctx.searchCondition]),
         OrderBy: [{ Col: SpecJournalIndexModelFields.CreateTime, Desc: true }],
-        PageNumber: 1,
+        PageNumber: ctx.pageNumber,
         PageSize: 10,
     };
 };

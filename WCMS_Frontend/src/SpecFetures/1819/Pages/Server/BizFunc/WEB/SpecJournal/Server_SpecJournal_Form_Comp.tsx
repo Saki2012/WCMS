@@ -9,6 +9,7 @@ import { LibCheckBox, LibDropList, LibFileInput, LibTextBox, LibTinyMCE } from "
 import { useSetTableField, useSetTableFileField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import { DefaultLang, type Lang, LangLabelMap, SUPPORTED_LANGS } from "@/SysCore/i18n/lang";
+import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
 import type { components } from "@/types/api";
 import {
     SpecJournalAuthorFields,
@@ -75,7 +76,9 @@ export const Server_SpecJournal_Form_Comp = (prop: { theme: IBETheme; lang: Lang
     const pathname = useLocation().pathname;
     const onBackToList = useCallback(() =>
     {
-        navigate(pathname.replace(/\/Form(\/[^\/]*)?$/, "/List"));
+        const listPath = pathname.replace(/\/Form(\/[^\/]*)?$/, "/List");
+        markPageStateMemoryEntry(listPath, "normalize");
+        navigate(listPath, { replace: true });
     }, [navigate, pathname]);
     const actionsOpt = useMemo<SpecJournalFormActionsOpt>(() =>
     {

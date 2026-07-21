@@ -6,6 +6,7 @@ import { LibCheckBox, LibTextBox, LibUserCard } from "@/Features/Pages/Server/Sc
 import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
+import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
 import type { components } from "@/types/api";
 import { PersonModelFields, PersonSetFields } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
@@ -63,7 +64,9 @@ export const Server_Person_Form_Comp = (props: PersonFormCompProps) =>
 
     const onBackToList = useCallback(() =>
     {
-        navigate(LibRoutePath.buildServerBackToListPath(pathname));
+        const listPath = LibRoutePath.buildServerBackToListPath(pathname);
+        markPageStateMemoryEntry(listPath, "normalize");
+        navigate(listPath, { replace: true });
     }, [navigate, pathname]);
 
     const actionsOpt = useMemo(() =>

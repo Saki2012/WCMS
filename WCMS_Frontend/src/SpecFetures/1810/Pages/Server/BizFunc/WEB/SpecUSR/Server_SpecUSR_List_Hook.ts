@@ -18,6 +18,7 @@ import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Compon
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
+import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { formatDateTime, LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
@@ -40,6 +41,15 @@ type SpecCategoryApiAdapter = ReturnType<typeof SpecCategoryAdapter>;
 type TagApiAdapter = ReturnType<typeof TagAdapter>;
 
 type SpecUSRCudActions = ReturnType<SpecUSRApiAdapter["hooks"]["useCudActions"]>;
+
+export interface SpecUSRListPageState
+{
+    /** SearchBar 已送出的搜尋值。 */
+    searchValues: SearchValues;
+
+    /** Grid 目前頁碼。 */
+    pageNumber: number;
+}
 
 export interface SpecUSRSearchParams
 {
@@ -116,7 +126,7 @@ export interface SpecUSRListRenderers
     buildTagContentNode: (ids: string | null | undefined, map: Record<string, string>) => RowCell["content"];
 }
 
-export type SpecUSRListGridTemplate = ServerListGridTemplate<SpecUSRSearchParams, SpecUSRListRawData, SpecUSRListAdapter, QueryListParam>;
+export type SpecUSRListGridTemplate = ServerListGridTemplate<SpecUSRSearchParams, SpecUSRListRawData, SpecUSRListAdapter, QueryListParam, SpecUSRListPageState>;
 
 type CrudDeps = {
     /** React Router 導頁方法 */
@@ -154,13 +164,33 @@ export const SPEC_USR_CATEGORY_SEARCH_KEY = "categoryId";
 
 export const SPEC_USR_TAG_SEARCH_KEY = "tagId";
 
+const SPEC_USR_LIST_STATE_KEY = "server-spec-usr-list";
+
+const DEFAULT_SPEC_USR_LIST_PAGE_STATE: SpecUSRListPageState = {
+    searchValues: {},
+    pageNumber: 1,
+};
+
 /** 建立計畫成果純 Spec ListGridTemplate 設定 */
 export const useSpecUSRListGridTemplate = (opt: { lang: Lang; renderers: SpecUSRListRenderers; }): SpecUSRListGridTemplate =>
 {
-    return useMemo<SpecUSRListGridTemplate>(() =>
+        const pageState = usePageStateMemory<SpecUSRListPageState>({
+        stateKey: SPEC_USR_LIST_STATE_KEY,
+        defaultState: DEFAULT_SPEC_USR_LIST_PAGE_STATE,
+        scopeKeys: [opt.lang],
+    });
+return useMemo<SpecUSRListGridTemplate>(() =>
     {
         return {
             featureKey: PGID.SpecUSR,
+            pageStateMemory: {
+                controller: pageState,
+                getSearchValues: (state) => state.searchValues,
+                getPageNumber: (state) => state.pageNumber,
+                updateSearchValues: updateSpecUSRSearchValues,
+                updatePageNumber: updateSpecUSRPageNumber,
+                getPagination: getSpecUSRPagination,
+            },
             spec: {
                 buildSearchFields: ({ rawData }) => buildSpecUSRSearchFields(rawData),
                 toSearchParams: (values) => toSpecUSRSearchParams(values, opt.lang),
@@ -177,11 +207,29 @@ export const useSpecUSRListGridTemplate = (opt: { lang: Lang; renderers: SpecUSR
                     }),
             },
         };
-    }, [opt.lang, opt.renderers]);
+    }, [opt.lang, opt.renderers, pageState]);
 };
 // #endregion
 
 // #region Private
+/** 搜尋送出時更新SpecUSR記憶狀態，並固定回到第一頁。 */
+const updateSpecUSRSearchValues = (state: SpecUSRListPageState, searchValues: SearchValues): SpecUSRListPageState =>
+{
+    return { ...state, searchValues, pageNumber: 1 };
+};
+
+/** 更新SpecUSR列表記憶頁碼。 */
+const updateSpecUSRPageNumber = (state: SpecUSRListPageState, pageNumber: number): SpecUSRListPageState =>
+{
+    return { ...state, pageNumber };
+};
+
+/** 提供 Template 校正頁碼所需的SpecUSR分頁資訊。 */
+const getSpecUSRPagination = (rawData: SpecUSRListRawData): { count: number; totalPages: number; } =>
+{
+    return { count: rawData.count, totalPages: rawData.totalPages };
+};
+
 /** 執行計畫成果列表資料來源 Hook */
 const useSpecUSRListGridDataSource = (
     ctx: ServerListGridDataSourceContext<SpecUSRSearchParams, QueryListParam>,
@@ -305,7 +353,7 @@ const buildSpecUSRQueryParam = (ctx: { searchParams: SpecUSRSearchParams; search
         Condition: LibCondition.joinConditions([LibCondition.createCondition(`${SpecUSRModelFields._SpecUSRDetail}.${SpecUSRDetailFields.Lang}`, Operator.Equal, ctx.searchParams.lang), ctx.searchCondition]),
         RankGroups: [{ Condition: `${SpecUSRModelFields.ContentStatus} & 1` }],
         OrderBy: [{ Col: SpecUSRModelFields.CreateTime, Desc: true }],
-        PageNumber: 1,
+        PageNumber: ctx.pageNumber,
         PageSize: 10,
     };
 };

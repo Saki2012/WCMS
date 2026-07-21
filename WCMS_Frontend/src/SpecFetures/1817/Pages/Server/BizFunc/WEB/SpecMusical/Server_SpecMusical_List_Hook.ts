@@ -15,6 +15,7 @@ import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Compon
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
+import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { formatDateTime, LibCondition, LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
@@ -36,6 +37,15 @@ export interface SpecMusicalListRenderers
 {
     /** 渲染封面圖欄位內容，JSX 請留在 Comp 實作 */
     buildCoverContentNode: (set: SpecMusicalSet) => RowCell["content"];
+}
+
+export interface SpecMusicalListPageState
+{
+    /** SearchBar 已送出的搜尋值。 */
+    searchValues: SearchValues;
+
+    /** Grid 目前頁碼。 */
+    pageNumber: number;
 }
 
 export interface SpecMusicalSearchParams
@@ -86,7 +96,7 @@ export interface SpecMusicalListAdapter
     dirUrl: string;
 }
 
-export type SpecMusicalListGridTemplate = ServerListGridTemplate<SpecMusicalSearchParams, SpecMusicalListRawData, SpecMusicalListAdapter, QueryListParam>;
+export type SpecMusicalListGridTemplate = ServerListGridTemplate<SpecMusicalSearchParams, SpecMusicalListRawData, SpecMusicalListAdapter, QueryListParam, SpecMusicalListPageState>;
 
 type CrudDeps = {
     /** React Router 導頁方法 */
@@ -120,13 +130,33 @@ type SpecMusicalVisibleColumn = {
 // #region Public
 export const SPEC_MUSICAL_NAME_SEARCH_KEY = "musicalName";
 
+const SPEC_MUSICAL_LIST_STATE_KEY = "server-spec-musical-list";
+
+const DEFAULT_SPEC_MUSICAL_LIST_PAGE_STATE: SpecMusicalListPageState = {
+    searchValues: {},
+    pageNumber: 1,
+};
+
 /** 建立樂器後台純 Spec ListGridTemplate 設定 */
 export const useSpecMusicalListGridTemplate = (opt: { lang: Lang; renderers: SpecMusicalListRenderers; }): SpecMusicalListGridTemplate =>
 {
-    return useMemo<SpecMusicalListGridTemplate>(() =>
+        const pageState = usePageStateMemory<SpecMusicalListPageState>({
+        stateKey: SPEC_MUSICAL_LIST_STATE_KEY,
+        defaultState: DEFAULT_SPEC_MUSICAL_LIST_PAGE_STATE,
+        scopeKeys: [opt.lang],
+    });
+return useMemo<SpecMusicalListGridTemplate>(() =>
     {
         return {
             featureKey: PGID.SpecMusical,
+            pageStateMemory: {
+                controller: pageState,
+                getSearchValues: (state) => state.searchValues,
+                getPageNumber: (state) => state.pageNumber,
+                updateSearchValues: updateSpecMusicalSearchValues,
+                updatePageNumber: updateSpecMusicalPageNumber,
+                getPagination: getSpecMusicalPagination,
+            },
             spec: {
                 buildSearchFields: ({ rawData }) => buildSpecMusicalSearchFields(rawData),
                 toSearchParams: (values) => toSpecMusicalSearchParams(values, opt.lang),
@@ -143,11 +173,29 @@ export const useSpecMusicalListGridTemplate = (opt: { lang: Lang; renderers: Spe
                     }),
             },
         };
-    }, [opt.lang, opt.renderers]);
+    }, [opt.lang, opt.renderers, pageState]);
 };
 // #endregion
 
 // #region Private
+/** 搜尋送出時更新SpecMusical記憶狀態，並固定回到第一頁。 */
+const updateSpecMusicalSearchValues = (state: SpecMusicalListPageState, searchValues: SearchValues): SpecMusicalListPageState =>
+{
+    return { ...state, searchValues, pageNumber: 1 };
+};
+
+/** 更新SpecMusical列表記憶頁碼。 */
+const updateSpecMusicalPageNumber = (state: SpecMusicalListPageState, pageNumber: number): SpecMusicalListPageState =>
+{
+    return { ...state, pageNumber };
+};
+
+/** 提供 Template 校正頁碼所需的SpecMusical分頁資訊。 */
+const getSpecMusicalPagination = (rawData: SpecMusicalListRawData): { count: number; totalPages: number; } =>
+{
+    return { count: rawData.count, totalPages: rawData.totalPages };
+};
+
 /** 執行樂器列表資料來源 Hook */
 const useSpecMusicalListGridDataSource = (
     ctx: ServerListGridDataSourceContext<SpecMusicalSearchParams, QueryListParam>,
@@ -230,7 +278,7 @@ const buildSpecMusicalQueryParam = (ctx: { searchCondition: string; }): QueryLis
         Fields: buildSpecMusicalQueryFields(),
         Condition: LibCondition.joinConditions([ctx.searchCondition]),
         OrderBy: [{ Col: SpecMusicalModelFields.CreateTime, Desc: true }],
-        PageNumber: 1,
+        PageNumber: ctx.pageNumber,
         PageSize: 10,
     };
 };

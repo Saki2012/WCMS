@@ -4,6 +4,7 @@ import { Accesskey } from "@/Features/Pages/Client/Scaffold/MainFrame/Accesskey/
 import type { MenuItemData } from "@/SysCore/Components/MenuList/MenuList_Data";
 import { isSupportedLang, type Lang } from "@/SysCore/i18n/lang";
 import { LangLink, LangNavLink } from "@/SysCore/i18n/LangLink";
+import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import clsx from "clsx";
 import { type CSSProperties, type MouseEvent, type ReactNode, type TransitionEvent, useEffect, useMemo, useRef, useState } from "react";
@@ -149,6 +150,7 @@ const LeafMenuItem = (props: { item: MenuItemData; active: boolean; }) =>
             title={props.item.SrcData}
             className={({ isActive }) => clsx("list-group-item", (isActive || props.active) && "active")}
             aria-current={props.active ? "page" : undefined}
+            onClick={handleInternalMenuLinkClick}
         >
             {icon}
             {props.item.SrcData}
@@ -156,6 +158,21 @@ const LeafMenuItem = (props: { item: MenuItemData; active: boolean; }) =>
     );
 };
 
+
+/** 站內 Menu 導頁時重設目標清單狀態；目前頁面不重複導頁。 */
+const handleInternalMenuLinkClick = (e: MouseEvent<HTMLAnchorElement>): void =>
+{
+    const targetPath = normalizePath(e.currentTarget.pathname);
+    const currentPath = normalizePath(window.location.pathname);
+
+    if (targetPath === currentPath)
+    {
+        e.preventDefault();
+        return;
+    }
+
+    markPageStateMemoryEntry(targetPath, "reset");
+};
 
 /** 阻止 Preview fake node 連結導頁。 */
 const preventSafeMenuLinkClick = (e: MouseEvent<HTMLAnchorElement>): void =>

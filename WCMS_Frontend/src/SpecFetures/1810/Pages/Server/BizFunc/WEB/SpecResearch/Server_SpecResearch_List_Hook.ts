@@ -18,6 +18,7 @@ import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Compon
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
+import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { formatDateTime, LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
@@ -40,6 +41,15 @@ type SpecCategoryApiAdapter = ReturnType<typeof SpecCategoryAdapter>;
 type TagApiAdapter = ReturnType<typeof TagAdapter>;
 
 type SpecResearchCudActions = ReturnType<SpecResearchApiAdapter["hooks"]["useCudActions"]>;
+
+export interface SpecResearchListPageState
+{
+    /** SearchBar 已送出的搜尋值。 */
+    searchValues: SearchValues;
+
+    /** Grid 目前頁碼。 */
+    pageNumber: number;
+}
 
 export interface SpecResearchSearchParams
 {
@@ -116,7 +126,7 @@ export interface SpecResearchListRenderers
     buildTagContentNode: (ids: string | null | undefined, map: Record<string, string>) => RowCell["content"];
 }
 
-export type SpecResearchListGridTemplate = ServerListGridTemplate<SpecResearchSearchParams, SpecResearchListRawData, SpecResearchListAdapter, QueryListParam>;
+export type SpecResearchListGridTemplate = ServerListGridTemplate<SpecResearchSearchParams, SpecResearchListRawData, SpecResearchListAdapter, QueryListParam, SpecResearchListPageState>;
 
 type CrudDeps = {
     /** React Router 導頁方法 */
@@ -154,13 +164,33 @@ export const SPEC_RESEARCH_CATEGORY_SEARCH_KEY = "categoryId";
 
 export const SPEC_RESEARCH_TAG_SEARCH_KEY = "tagId";
 
+const SPEC_RESEARCH_LIST_STATE_KEY = "server-spec-research-list";
+
+const DEFAULT_SPEC_RESEARCH_LIST_PAGE_STATE: SpecResearchListPageState = {
+    searchValues: {},
+    pageNumber: 1,
+};
+
 /** 建立研究計畫純 Spec ListGridTemplate 設定 */
 export const useSpecResearchListGridTemplate = (opt: { lang: Lang; renderers: SpecResearchListRenderers; }): SpecResearchListGridTemplate =>
 {
-    return useMemo<SpecResearchListGridTemplate>(() =>
+        const pageState = usePageStateMemory<SpecResearchListPageState>({
+        stateKey: SPEC_RESEARCH_LIST_STATE_KEY,
+        defaultState: DEFAULT_SPEC_RESEARCH_LIST_PAGE_STATE,
+        scopeKeys: [opt.lang],
+    });
+return useMemo<SpecResearchListGridTemplate>(() =>
     {
         return {
             featureKey: PGID.SpecResearch,
+            pageStateMemory: {
+                controller: pageState,
+                getSearchValues: (state) => state.searchValues,
+                getPageNumber: (state) => state.pageNumber,
+                updateSearchValues: updateSpecResearchSearchValues,
+                updatePageNumber: updateSpecResearchPageNumber,
+                getPagination: getSpecResearchPagination,
+            },
             spec: {
                 buildSearchFields: ({ rawData }) => buildSpecResearchSearchFields(rawData),
                 toSearchParams: (values) => toSpecResearchSearchParams(values, opt.lang),
@@ -177,11 +207,29 @@ export const useSpecResearchListGridTemplate = (opt: { lang: Lang; renderers: Sp
                     }),
             },
         };
-    }, [opt.lang, opt.renderers]);
+    }, [opt.lang, opt.renderers, pageState]);
 };
 // #endregion
 
 // #region Private
+/** 搜尋送出時更新SpecResearch記憶狀態，並固定回到第一頁。 */
+const updateSpecResearchSearchValues = (state: SpecResearchListPageState, searchValues: SearchValues): SpecResearchListPageState =>
+{
+    return { ...state, searchValues, pageNumber: 1 };
+};
+
+/** 更新SpecResearch列表記憶頁碼。 */
+const updateSpecResearchPageNumber = (state: SpecResearchListPageState, pageNumber: number): SpecResearchListPageState =>
+{
+    return { ...state, pageNumber };
+};
+
+/** 提供 Template 校正頁碼所需的SpecResearch分頁資訊。 */
+const getSpecResearchPagination = (rawData: SpecResearchListRawData): { count: number; totalPages: number; } =>
+{
+    return { count: rawData.count, totalPages: rawData.totalPages };
+};
+
 /** 執行研究計畫列表資料來源 Hook */
 const useSpecResearchListGridDataSource = (
     ctx: ServerListGridDataSourceContext<SpecResearchSearchParams, QueryListParam>,
@@ -307,7 +355,7 @@ const buildSpecResearchQueryParam = (ctx: { searchParams: SpecResearchSearchPara
         ]),
         RankGroups: [{ Condition: `${SpecResearchModelFields.ContentStatus} & 1` }],
         OrderBy: [{ Col: SpecResearchModelFields.CreateTime, Desc: true }],
-        PageNumber: 1,
+        PageNumber: ctx.pageNumber,
         PageSize: 10,
     };
 };

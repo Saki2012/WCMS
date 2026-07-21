@@ -16,6 +16,7 @@ import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Compon
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
+import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { formatDateTime, LibCondition, LibText } from "@/SysCore/Utils/Library/LibData";
@@ -37,6 +38,15 @@ type AccountApiAdapter = ReturnType<typeof AccountAdapter>;
 type RolePermissionApiAdapter = ReturnType<typeof RolePermissionAdapter>;
 
 type AccountCudActions = ReturnType<AccountApiAdapter["hooks"]["useCudActions"]>;
+
+export interface AccountListPageState
+{
+    /** SearchBar 已送出的搜尋值。 */
+    searchValues: SearchValues;
+
+    /** Grid 目前頁碼。 */
+    pageNumber: number;
+}
 
 export interface AccountSearchParams
 {
@@ -95,7 +105,7 @@ export interface AccountListAdapter
     dirUrl: string;
 }
 
-export type AccountListGridTemplate = ServerListGridTemplate<AccountSearchParams, AccountListRawData, AccountListAdapter, QueryListParam>;
+export type AccountListGridTemplate = ServerListGridTemplate<AccountSearchParams, AccountListRawData, AccountListAdapter, QueryListParam, AccountListPageState>;
 
 type CrudDeps = {
     /** React Router 導頁方法 */
@@ -117,13 +127,34 @@ export const ACCOUNT_USER_NAME_SEARCH_KEY = "userName";
 
 export const ACCOUNT_ROLE_ID_SEARCH_KEY = "roleId";
 
+
+const ACCOUNT_LIST_STATE_KEY = "server-account-list";
+
+const DEFAULT_ACCOUNT_LIST_PAGE_STATE: AccountListPageState = {
+    searchValues: {},
+    pageNumber: 1,
+};
+
 /** 建立帳號後台 ListGridTemplate 設定 */
 export const useAccountListGridTemplate = (opt: { lang: Lang; }): AccountListGridTemplate =>
 {
+    const pageState = usePageStateMemory<AccountListPageState>({
+        stateKey: ACCOUNT_LIST_STATE_KEY,
+        defaultState: DEFAULT_ACCOUNT_LIST_PAGE_STATE,
+        scopeKeys: [opt.lang],
+    });
     return useMemo<AccountListGridTemplate>(() =>
     {
         return {
             featureKey: PGID.Account,
+            pageStateMemory: {
+                controller: pageState,
+                getSearchValues: (state) => state.searchValues,
+                getPageNumber: (state) => state.pageNumber,
+                updateSearchValues: updateAccountSearchValues,
+                updatePageNumber: updateAccountPageNumber,
+                getPagination: getAccountPagination,
+            },
             feature: {
                 buildSearchFields: ({ rawData }) => buildAccountSearchFields(rawData),
                 toSearchParams: (values) => toAccountSearchParams(values, opt.lang),
@@ -133,11 +164,29 @@ export const useAccountListGridTemplate = (opt: { lang: Lang; }): AccountListGri
                 buildGridProps: (ctx) => buildAccountGridProps({ raw: ctx.rawData, lang: ctx.searchParams.lang, adapter: ctx.adapter, refetchData: ctx.refetchData }),
             },
         };
-    }, [opt.lang]);
+    }, [opt.lang, pageState]);
 };
 // #endregion
 
 // #region Private
+/** 搜尋送出時更新Account記憶狀態，並固定回到第一頁。 */
+const updateAccountSearchValues = (state: AccountListPageState, searchValues: SearchValues): AccountListPageState =>
+{
+    return { ...state, searchValues, pageNumber: 1 };
+};
+
+/** 更新Account列表記憶頁碼。 */
+const updateAccountPageNumber = (state: AccountListPageState, pageNumber: number): AccountListPageState =>
+{
+    return { ...state, pageNumber };
+};
+
+/** 提供 Template 校正頁碼所需的Account分頁資訊。 */
+const getAccountPagination = (rawData: AccountListRawData): { count: number; totalPages: number; } =>
+{
+    return { count: rawData.count, totalPages: rawData.totalPages };
+};
+
 /** 執行帳號列表資料來源 Hook */
 const useAccountListGridDataSource = (
     ctx: ServerListGridDataSourceContext<AccountSearchParams, QueryListParam>,
@@ -235,11 +284,11 @@ const buildAccountSearchConditions = (ctx: { searchParams: AccountSearchParams; 
 };
 
 /** 建立帳號列表完整 QueryParam */
-const buildAccountQueryParam = (ctx: { searchParams: AccountSearchParams; searchCondition: string; }): QueryListParam =>
+const buildAccountQueryParam = (ctx: { pageNumber: number; searchParams: AccountSearchParams; searchCondition: string; }): QueryListParam =>
 {
     const fields = buildAccountQueryFields();
     const condition = LibCondition.joinConditions([ctx.searchCondition]);
-    return { Fields: fields, Condition: condition, OrderBy: [{ Col: AccountFields.CreateTime, Desc: true }], PageNumber: 1, PageSize: 10 };
+    return { Fields: fields, Condition: condition, OrderBy: [{ Col: AccountFields.CreateTime, Desc: true }], PageNumber: ctx.pageNumber, PageSize: 10 };
 };
 
 /** 建立帳號列表查詢欄位 */
@@ -263,7 +312,7 @@ const buildRoleQueryParam = (): QueryListParam =>
     return {
         Fields: [RoleDataModelFields.RoleId, RoleDataModelFields.RoleName],
         OrderBy: [{ Col: RoleDataModelFields.RoleId, Desc: false }],
-        PageNumber: 1,
+        PageNumber: ctx.pageNumber,
         PageSize: 0,
     };
 };

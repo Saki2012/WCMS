@@ -20,6 +20,7 @@ import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Compon
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
+import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { findTextByKey, formatDateTime, LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
@@ -41,6 +42,15 @@ type CategoryApiAdapter = ReturnType<typeof CategoryAdapter>;
 type TagApiAdapter = ReturnType<typeof TagAdapter>;
 
 type GalleryCudActions = ReturnType<GalleryApiAdapter["hooks"]["useCudActions"]>;
+
+export interface GalleryListPageState
+{
+    /** SearchBar 已送出的搜尋值。 */
+    searchValues: SearchValues;
+
+    /** Grid 目前頁碼。 */
+    pageNumber: number;
+}
 
 export interface GallerySearchParams
 {
@@ -102,7 +112,7 @@ export interface GalleryListAdapter
     dirUrl: string;
 }
 
-export type GalleryListGridTemplate = ServerListGridTemplate<GallerySearchParams, GalleryListRawData, GalleryListAdapter, QueryListParam>;
+export type GalleryListGridTemplate = ServerListGridTemplate<GallerySearchParams, GalleryListRawData, GalleryListAdapter, QueryListParam, GalleryListPageState>;
 
 type CrudDeps = {
     /** React Router 導頁方法 */
@@ -122,13 +132,34 @@ type CrudDeps = {
 // #region Public
 export const GALLERY_TITLE_SEARCH_KEY = "title";
 
+
+const GALLERY_LIST_STATE_KEY = "server-gallery-list";
+
+const DEFAULT_GALLERY_LIST_PAGE_STATE: GalleryListPageState = {
+    searchValues: {},
+    pageNumber: 1,
+};
+
 /** 建立相簿後台 ListGridTemplate 設定 */
 export const useGalleryListGridTemplate = (opt: { lang: Lang; }): GalleryListGridTemplate =>
 {
+    const pageState = usePageStateMemory<GalleryListPageState>({
+        stateKey: GALLERY_LIST_STATE_KEY,
+        defaultState: DEFAULT_GALLERY_LIST_PAGE_STATE,
+        scopeKeys: [opt.lang],
+    });
     return useMemo<GalleryListGridTemplate>(() =>
     {
         return {
             featureKey: PGID.Gallery,
+            pageStateMemory: {
+                controller: pageState,
+                getSearchValues: (state) => state.searchValues,
+                getPageNumber: (state) => state.pageNumber,
+                updateSearchValues: updateGallerySearchValues,
+                updatePageNumber: updateGalleryPageNumber,
+                getPagination: getGalleryPagination,
+            },
             feature: {
                 buildSearchFields: ({ rawData }) => buildGallerySearchFields(rawData),
                 toSearchParams: (values) => toGallerySearchParams(values, opt.lang),
@@ -138,11 +169,29 @@ export const useGalleryListGridTemplate = (opt: { lang: Lang; }): GalleryListGri
                 buildGridProps: (ctx) => buildGalleryGridProps({ raw: ctx.rawData, lang: ctx.searchParams.lang, adapter: ctx.adapter, refetchData: ctx.refetchData }),
             },
         };
-    }, [opt.lang]);
+    }, [opt.lang, pageState]);
 };
 // #endregion
 
 // #region Private
+/** 搜尋送出時更新Gallery記憶狀態，並固定回到第一頁。 */
+const updateGallerySearchValues = (state: GalleryListPageState, searchValues: SearchValues): GalleryListPageState =>
+{
+    return { ...state, searchValues, pageNumber: 1 };
+};
+
+/** 更新Gallery列表記憶頁碼。 */
+const updateGalleryPageNumber = (state: GalleryListPageState, pageNumber: number): GalleryListPageState =>
+{
+    return { ...state, pageNumber };
+};
+
+/** 提供 Template 校正頁碼所需的Gallery分頁資訊。 */
+const getGalleryPagination = (rawData: GalleryListRawData): { count: number; totalPages: number; } =>
+{
+    return { count: rawData.count, totalPages: rawData.totalPages };
+};
+
 /** 執行相簿列表資料來源 Hook */
 const useGalleryListGridDataSource = (
     ctx: ServerListGridDataSourceContext<GallerySearchParams, QueryListParam>,
@@ -228,14 +277,14 @@ const buildGallerySearchConditions = (ctx: { searchParams: GallerySearchParams; 
 };
 
 /** 建立相簿列表完整 QueryParam */
-const buildGalleryQueryParam = (ctx: { searchParams: GallerySearchParams; searchCondition: string; }): QueryListParam =>
+const buildGalleryQueryParam = (ctx: { pageNumber: number; searchParams: GallerySearchParams; searchCondition: string; }): QueryListParam =>
 {
     return {
         Fields: buildGalleryQueryFields(),
         Condition: LibCondition.joinConditions([LibCondition.createCondition(`${GalleryFields._GalleryInfo}.${GalleryInfoFields.Lang}`, Operator.Equal, ctx.searchParams.lang), ctx.searchCondition]),
         RankGroups: [{ Condition: `${GalleryFields.ContentStatus} & 1` }],
         OrderBy: [{ Col: GalleryFields.CreateTime, Desc: true }],
-        PageNumber: 1,
+        PageNumber: ctx.pageNumber,
         PageSize: 10,
     };
 };

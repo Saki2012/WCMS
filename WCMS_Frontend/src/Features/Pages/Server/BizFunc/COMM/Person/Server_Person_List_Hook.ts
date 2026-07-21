@@ -15,6 +15,7 @@ import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Compon
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
+import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { formatDateTime, LibCondition, LibText } from "@/SysCore/Utils/Library/LibData";
@@ -32,6 +33,15 @@ type PersonSet = components["schemas"]["PersonSet_DTO"];
 type PersonApiAdapter = ReturnType<typeof PersonAdapter>;
 
 type PersonCudActions = ReturnType<PersonApiAdapter["hooks"]["useCudActions"]>;
+
+export interface PersonListPageState
+{
+    /** SearchBar 已送出的搜尋值。 */
+    searchValues: SearchValues;
+
+    /** Grid 目前頁碼。 */
+    pageNumber: number;
+}
 
 export interface PersonSearchParams
 {
@@ -84,7 +94,7 @@ export interface PersonListAdapter
     dirUrl: string;
 }
 
-export type PersonListGridTemplate = ServerListGridTemplate<PersonSearchParams, PersonListRawData, PersonListAdapter, QueryListParam>;
+export type PersonListGridTemplate = ServerListGridTemplate<PersonSearchParams, PersonListRawData, PersonListAdapter, QueryListParam, PersonListPageState>;
 
 type CrudDeps = {
     /** React Router 導頁方法 */
@@ -106,13 +116,34 @@ export const PERSON_NAME_SEARCH_KEY = "personName";
 
 export const PERSON_EMAIL_SEARCH_KEY = "email";
 
+
+const PERSON_LIST_STATE_KEY = "server-person-list";
+
+const DEFAULT_PERSON_LIST_PAGE_STATE: PersonListPageState = {
+    searchValues: {},
+    pageNumber: 1,
+};
+
 /** 建立人員後台 ListGridTemplate 設定 */
 export const usePersonListGridTemplate = (opt: { lang: Lang; }): PersonListGridTemplate =>
 {
+    const pageState = usePageStateMemory<PersonListPageState>({
+        stateKey: PERSON_LIST_STATE_KEY,
+        defaultState: DEFAULT_PERSON_LIST_PAGE_STATE,
+        scopeKeys: [opt.lang],
+    });
     return useMemo<PersonListGridTemplate>(() =>
     {
         return {
             featureKey: PGID.Person,
+            pageStateMemory: {
+                controller: pageState,
+                getSearchValues: (state) => state.searchValues,
+                getPageNumber: (state) => state.pageNumber,
+                updateSearchValues: updatePersonSearchValues,
+                updatePageNumber: updatePersonPageNumber,
+                getPagination: getPersonPagination,
+            },
             feature: {
                 buildSearchFields: ({ rawData }) => buildPersonSearchFields(rawData),
                 toSearchParams: (values) => toPersonSearchParams(values, opt.lang),
@@ -122,11 +153,29 @@ export const usePersonListGridTemplate = (opt: { lang: Lang; }): PersonListGridT
                 buildGridProps: (ctx) => buildPersonGridProps({ raw: ctx.rawData, lang: ctx.searchParams.lang, adapter: ctx.adapter, refetchData: ctx.refetchData }),
             },
         };
-    }, [opt.lang]);
+    }, [opt.lang, pageState]);
 };
 // #endregion
 
 // #region Private
+/** 搜尋送出時更新Person記憶狀態，並固定回到第一頁。 */
+const updatePersonSearchValues = (state: PersonListPageState, searchValues: SearchValues): PersonListPageState =>
+{
+    return { ...state, searchValues, pageNumber: 1 };
+};
+
+/** 更新Person列表記憶頁碼。 */
+const updatePersonPageNumber = (state: PersonListPageState, pageNumber: number): PersonListPageState =>
+{
+    return { ...state, pageNumber };
+};
+
+/** 提供 Template 校正頁碼所需的Person分頁資訊。 */
+const getPersonPagination = (rawData: PersonListRawData): { count: number; totalPages: number; } =>
+{
+    return { count: rawData.count, totalPages: rawData.totalPages };
+};
+
 /** 執行人員列表資料來源 Hook */
 const usePersonListGridDataSource = (
     ctx: ServerListGridDataSourceContext<PersonSearchParams, QueryListParam>,
@@ -213,11 +262,11 @@ const buildPersonSearchConditions = (ctx: { searchParams: PersonSearchParams; })
 };
 
 /** 建立人員列表完整 QueryParam */
-const buildPersonQueryParam = (ctx: { searchParams: PersonSearchParams; searchCondition: string; }): QueryListParam =>
+const buildPersonQueryParam = (ctx: { pageNumber: number; searchParams: PersonSearchParams; searchCondition: string; }): QueryListParam =>
 {
     const fields = buildPersonQueryFields();
     const condition = LibCondition.joinConditions([ctx.searchCondition]);
-    return { Fields: fields, Condition: condition, OrderBy: [{ Col: PersonModelFields.CreateTime, Desc: true }], PageNumber: 1, PageSize: 10 };
+    return { Fields: fields, Condition: condition, OrderBy: [{ Col: PersonModelFields.CreateTime, Desc: true }], PageNumber: ctx.pageNumber, PageSize: 10 };
 };
 
 /** 建立人員列表查詢欄位 */

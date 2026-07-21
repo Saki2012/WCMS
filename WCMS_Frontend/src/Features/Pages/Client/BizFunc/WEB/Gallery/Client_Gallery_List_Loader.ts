@@ -5,6 +5,7 @@ import {
     type ClientDataQueryDataSourceResult,
     type ClientDataQueryPaginatorModel,
     type ClientDataQuerySearchBarModel,
+    type ClientDataQueryMemoryState,
     type ClientDataQueryTemplate,
     getClientSearchStringValue,
     isSameClientDataQueryParam,
@@ -14,12 +15,13 @@ import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Da
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { IListViewState } from "@/SysCore/Interface/IListViewState";
+import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import type { ApiGridInitial, ApiGridLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { type ApiResponse, getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import { GalleryFields, GalleryInfoFields, GalleryPhotosFields, GalleryPhotosInfoFields, PGID } from "@/types/SchemaFields";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useMemo } from "react";
 import { type LoaderFunctionArgs, useLoaderData } from "react-router-dom";
 
 // #region Property
@@ -85,7 +87,7 @@ type GallerySearchParams = {
     tagIds: string;
 };
 type GalleryQueryParam = GalleryListLoaderArgs;
-type GalleryDataQueryTemplate = ClientDataQueryTemplate<GallerySearchParams, GalleryListRawData, GalleryListRawData, GalleryListAdapter, GalleryQueryParam, GalleryListLoaderData>;
+type GalleryDataQueryTemplate = ClientDataQueryTemplate<GallerySearchParams, GalleryListRawData, GalleryListRawData, GalleryListAdapter, GalleryQueryParam, GalleryListLoaderData, ClientDataQueryMemoryState>;
 // #endregion
 
 // #region Public
@@ -105,9 +107,12 @@ export const GalleryList_Loader = (p: { lang: Lang; opts: IGalleryListOptions; }
 export const useGalleryListData = (p: { lang: Lang; opts?: IGalleryListOptions; title?: string; }): UseGalleryListDataResult =>
 {
     const initial = useLoaderData() as GalleryListLoaderData | null;
+    const defaultPageState = useMemo<ClientDataQueryMemoryState>(() => ({ searchValues: buildGallerySearchValues(p.title), viewState: buildGalleryInitialViewState({ pageNumber: initial?.args.pageNumber, pageSize: initial?.args.pageSize }) }), [p.lang, initial?.args.pageNumber ?? 1, initial?.args.pageSize ?? 10]);
+    const pageState = usePageStateMemory<ClientDataQueryMemoryState>({ stateKey: "Client.GalleryList", scopeKeys: [p.lang], defaultState: defaultPageState });
     const template = useMemo(() =>
     {
         return createGalleryDataQueryTemplate({
+                pageState,
             lang: p.lang,
             opts: p.opts,
             overrides: { pageNumber: initial?.args.pageNumber, pageSize: initial?.args.pageSize, title: p.title, categoryIds: initial?.args.categoryIds, tagIds: initial?.args.tagIds },
@@ -189,13 +194,21 @@ const buildGalleryQueryArgs = (p: GallerySearchParams & { condition: string; }):
     return { lang: p.lang, pageSize: p.pageSize, pageNumber: p.pageNumber, title: p.title, categoryIds: p.categoryIds, tagIds: p.tagIds, condition: p.condition, listParam, progId: PGID.Gallery };
 };
 /** 建立 Gallery DataQueryTemplate */
-const createGalleryDataQueryTemplate = (p: { lang: Lang; opts?: IGalleryListOptions; overrides?: Partial<{ pageNumber: number; pageSize: number; title: string; categoryIds: string; tagIds: string; }>; }): GalleryDataQueryTemplate =>
+const createGalleryDataQueryTemplate = (p: { pageState?: ReturnType<typeof usePageStateMemory<ClientDataQueryMemoryState>>; lang: Lang; opts?: IGalleryListOptions; overrides?: Partial<{ pageNumber: number; pageSize: number; title: string; categoryIds: string; tagIds: string; }>; }): GalleryDataQueryTemplate =>
 {
     const initialViewState = buildGalleryInitialViewState(p.overrides);
     const initialSearchValues = buildGallerySearchValues(p.overrides?.title ?? p.opts?.Title);
     return {
         featureKey: "GalleryList",
         dataMode: "multiple",
+        ...(p.pageState ? { pageStateMemory: {
+            controller: p.pageState,
+            getSearchValues: state => state.searchValues,
+            getViewState: state => state.viewState,
+            updateSearchValues: (state, values, pageNumber) => ({ ...state, searchValues: values, viewState: { ...state.viewState, pageNumber } }),
+            updateViewState: (state, nextViewState) => ({ ...state, viewState: nextViewState }),
+            getPagination: raw => ({ count: raw.count, totalPages: raw.totalPages }),
+        } } : {}),
         initialSearchValues,
         initialViewState,
         pagination: { defaultPageNumber: initialViewState.pageNumber, defaultPageSize: initialViewState.pageSize, resetPageOnSearch: true },
@@ -208,7 +221,7 @@ const createGalleryDataQueryTemplate = (p: { lang: Lang; opts?: IGalleryListOpti
             useDataSource: (ctx) => useGalleryDataSource({ queryParam: ctx.queryParam, loaderData: ctx.loaderData }),
             buildViewModel: (ctx) => ctx.rawData,
         },
-    };
+    } as GalleryDataQueryTemplate;
 };
 /** 組 loader / hook 共用參數 */
 const buildLoaderArgs = (p: { lang: Lang; opts?: IGalleryListOptions; overrides?: Partial<{ pageNumber: number; pageSize: number; title: string; categoryIds: string; tagIds: string; }>; }): GalleryQueryParam =>
@@ -234,11 +247,6 @@ const buildGridInitial = (p: { queryParam: GalleryQueryParam; loaderData: Galler
     if (!initial) return undefined;
     return { model: initial.model ?? null, count: matched ? (initial.count ?? null) : null, list: matched ? (initial.list ?? null) : null };
 };
-/** 建立資料重置 key，搜尋條件或每頁筆數改變時回到第一頁 */
-const buildResetKey = (args: Pick<GalleryQueryParam, "lang" | "pageSize" | "title" | "categoryIds" | "tagIds">): string =>
-{
-    return JSON.stringify({ lang: args.lang, pageSize: args.pageSize, title: args.title ?? "", categoryIds: args.categoryIds, tagIds: args.tagIds });
-};
 /** Gallery DataSource：統一處理 CSR 查詢與 SSR initial 沿用 */
 const useGalleryDataSource = (p: { queryParam: GalleryQueryParam; loaderData: GalleryListLoaderData | null; }): ClientDataQueryDataSourceResult<GalleryListRawData, GalleryListAdapter> =>
 {
@@ -248,14 +256,6 @@ const useGalleryDataSource = (p: { queryParam: GalleryQueryParam; loaderData: Ga
     const categoryInitial = useMemo(() => buildCategoryInitial({ loaderData: p.loaderData, args: currentArgs }), [p.loaderData, currentArgs]);
     const grid = adapter.Gallery.hooks.useQueryGridData({ baseParam: currentArgs.listParam, deps: [currentArgs.condition, currentArgs.pageSize], modelDeps: [currentArgs.lang], initial: gridInitial });
     const category = adapter.Category.hooks.useMapByProgId({ progId: currentArgs.progId, lang: currentArgs.lang, initial: categoryInitial, deps: [currentArgs.progId, currentArgs.lang] });
-    const resetKey = useMemo(() => buildResetKey(currentArgs), [currentArgs]);
-    const prevResetKeyRef = useRef<string>(resetKey);
-    useEffect(() =>
-    {
-        if (prevResetKeyRef.current === resetKey) return;
-        prevResetKeyRef.current = resetKey;
-        grid.onPageChange(1);
-    }, [resetKey, grid.onPageChange]);
     const paginator = useMemo<ClientDataQueryPaginatorModel>(() => ({ currentPage: grid.pageNumber ?? 1, pageSize: currentArgs.pageSize, totalPages: grid.totalPages ?? 1, totalCount: grid.count ?? 0, onPageChange: grid.onPageChange }), [
         grid.pageNumber,
         grid.totalPages,

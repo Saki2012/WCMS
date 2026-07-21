@@ -14,6 +14,7 @@ import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Compon
 import type { SearchFieldConfig, SearchValue, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
+import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { formatDateTime, LibCondition, LibText, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
@@ -39,6 +40,15 @@ export interface SpecJournalListRenderers
 
     /** 渲染期刊作者欄位內容，JSX 請留在 Comp 實作 */
     buildAuthorContentNode: (set: SpecJournalSet) => RowCell["content"];
+}
+
+export interface SpecJournalListPageState
+{
+    /** SearchBar 已送出的搜尋值。 */
+    searchValues: SearchValues;
+
+    /** Grid 目前頁碼。 */
+    pageNumber: number;
 }
 
 export interface SpecJournalSearchParams
@@ -98,7 +108,7 @@ export interface SpecJournalListAdapter
     dirUrl: string;
 }
 
-export type SpecJournalListGridTemplate = ServerListGridTemplate<SpecJournalSearchParams, SpecJournalListRawData, SpecJournalListAdapter, QueryListParam>;
+export type SpecJournalListGridTemplate = ServerListGridTemplate<SpecJournalSearchParams, SpecJournalListRawData, SpecJournalListAdapter, QueryListParam, SpecJournalListPageState>;
 
 type CrudDeps = {
     /** React Router 導頁方法 */
@@ -122,13 +132,33 @@ export const SPEC_JOURNAL_VOLUME_SEARCH_KEY = "volume";
 
 export const SPEC_JOURNAL_AUTHOR_SEARCH_KEY = "author";
 
+const SPEC_JOURNAL_LIST_STATE_KEY = "server-spec-journal-list";
+
+const DEFAULT_SPEC_JOURNAL_LIST_PAGE_STATE: SpecJournalListPageState = {
+    searchValues: {},
+    pageNumber: 1,
+};
+
 /** 建立期刊後台純 Spec ListGridTemplate 設定 */
 export const useSpecJournalListGridTemplate = (opt: { lang: Lang; mode: SpecJournalMode; renderers: SpecJournalListRenderers; }): SpecJournalListGridTemplate =>
 {
-    return useMemo<SpecJournalListGridTemplate>(() =>
+        const pageState = usePageStateMemory<SpecJournalListPageState>({
+        stateKey: SPEC_JOURNAL_LIST_STATE_KEY,
+        defaultState: DEFAULT_SPEC_JOURNAL_LIST_PAGE_STATE,
+        scopeKeys: [opt.lang],
+    });
+return useMemo<SpecJournalListGridTemplate>(() =>
     {
         return {
             featureKey: PGID.SpecJournal,
+            pageStateMemory: {
+                controller: pageState,
+                getSearchValues: (state) => state.searchValues,
+                getPageNumber: (state) => state.pageNumber,
+                updateSearchValues: updateSpecJournalSearchValues,
+                updatePageNumber: updateSpecJournalPageNumber,
+                getPagination: getSpecJournalPagination,
+            },
             spec: {
                 buildSearchFields: ({ rawData }) => buildSpecJournalSearchFields(rawData, opt.mode),
                 toSearchParams: (values) => toSpecJournalSearchParams(values, opt.lang, opt.mode),
@@ -146,11 +176,29 @@ export const useSpecJournalListGridTemplate = (opt: { lang: Lang; mode: SpecJour
                     }),
             },
         };
-    }, [opt.lang, opt.mode, opt.renderers]);
+    }, [opt.lang, opt.mode, opt.renderers, pageState]);
 };
 // #endregion
 
 // #region Private
+/** 搜尋送出時更新SpecJournal記憶狀態，並固定回到第一頁。 */
+const updateSpecJournalSearchValues = (state: SpecJournalListPageState, searchValues: SearchValues): SpecJournalListPageState =>
+{
+    return { ...state, searchValues, pageNumber: 1 };
+};
+
+/** 更新SpecJournal列表記憶頁碼。 */
+const updateSpecJournalPageNumber = (state: SpecJournalListPageState, pageNumber: number): SpecJournalListPageState =>
+{
+    return { ...state, pageNumber };
+};
+
+/** 提供 Template 校正頁碼所需的SpecJournal分頁資訊。 */
+const getSpecJournalPagination = (rawData: SpecJournalListRawData): { count: number; totalPages: number; } =>
+{
+    return { count: rawData.count, totalPages: rawData.totalPages };
+};
+
 /** 執行期刊列表資料來源 Hook */
 const useSpecJournalListGridDataSource = (
     ctx: ServerListGridDataSourceContext<SpecJournalSearchParams, QueryListParam>,
@@ -288,7 +336,7 @@ const buildSpecJournalQueryParam = (ctx: { searchParams: SpecJournalSearchParams
         Fields: buildSpecJournalQueryFields(),
         Condition: LibCondition.joinConditions([ctx.searchCondition]),
         OrderBy: buildSpecJournalOrderBy(ctx.searchParams.mode),
-        PageNumber: 1,
+        PageNumber: ctx.pageNumber,
         PageSize: 10,
     };
 };
