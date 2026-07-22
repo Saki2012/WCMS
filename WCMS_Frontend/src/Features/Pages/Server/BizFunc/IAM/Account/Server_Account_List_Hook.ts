@@ -16,10 +16,10 @@ import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Compon
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
-import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { formatDateTime, LibCondition, LibText } from "@/SysCore/Utils/Library/LibData";
+import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { AccountFields, PersonModelFields, PGID, RoleDataModelFields } from "@/types/SchemaFields";
@@ -126,7 +126,6 @@ type CrudDeps = {
 export const ACCOUNT_USER_NAME_SEARCH_KEY = "userName";
 
 export const ACCOUNT_ROLE_ID_SEARCH_KEY = "roleId";
-
 
 const ACCOUNT_LIST_STATE_KEY = "server-account-list";
 
@@ -312,7 +311,7 @@ const buildRoleQueryParam = (): QueryListParam =>
     return {
         Fields: [RoleDataModelFields.RoleId, RoleDataModelFields.RoleName],
         OrderBy: [{ Col: RoleDataModelFields.RoleId, Desc: false }],
-        PageNumber: ctx.pageNumber,
+        PageNumber: 1,
         PageSize: 0,
     };
 };
