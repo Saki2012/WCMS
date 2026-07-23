@@ -39,6 +39,8 @@ const defaultReferrerPolicy = "strict-origin-when-cross-origin";
 
 const defaultPermissionsPolicy = "geolocation=(), microphone=(), camera=(), fullscreen=(self)";
 
+const htmlPermissionsPolicy = "geolocation=(), microphone=(), camera=(), fullscreen=(self \"https://www.youtube.com\" \"https://www.youtube-nocookie.com\")";
+
 type ViteManifestEntry = Readonly<{ file: string; css?: string[]; imports?: string[]; isEntry?: boolean; }>;
 
 type ViteManifest = Record<string, ViteManifestEntry>;
@@ -191,6 +193,7 @@ const setBaseSecurityHeaders = (res: Response, cfg: SsrConfig): void =>
 const setHtmlSecurityHeaders = (req: Request, res: Response, cfg: SsrConfig, nonce: string): void =>
 {
     setBaseSecurityHeaders(res, cfg);
+    res.setHeader("Permissions-Policy", htmlPermissionsPolicy);
     if (!cfg.isProd) return;
 
     res.setHeader("Content-Security-Policy", buildProdCsp(nonce, getHtmlCspOptions(req)));
@@ -798,6 +801,7 @@ const setupDevSSR = async (app: express.Express, cfg: SsrConfig) =>
 
         // 執行 function
         if (!shouldSSR(req)) return next();
+        setHtmlSecurityHeaders(req, res, cfg, nonce);
 
         try
         {

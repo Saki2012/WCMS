@@ -3,6 +3,7 @@ import type { ChildNode, Element } from "domhandler";
 import { parseDocument } from "htmlparser2";
 import { type AnchorHTMLAttributes, createElement, type CSSProperties, Fragment, type IframeHTMLAttributes, type ReactElement, type ReactNode } from "react";
 import { CMS_HTML_VIEWER_ATTR, CMS_HTML_VIEWER_PDF, type CmsHtmlParseOptions } from "./CmsHtml_Types";
+import { isYoutubeIframeUrl, mergeYoutubeIframeAllow, normalizeYoutubeEmbedUrl } from "./CmsIframeUtils";
 import { CmsPdfViewerFrame } from "./CmsPdfViewerFrame";
 
 // #region Property
@@ -51,6 +52,7 @@ const REACT_PROP_NAME_MAP: Record<string, string> = {
     srcset: "srcSet",
     crossorigin: "crossOrigin",
     referrerpolicy: "referrerPolicy",
+    frameborder: "frameBorder",
     allowfullscreen: "allowFullScreen",
     autoplay: "autoPlay",
     playsinline: "playsInline",
@@ -146,8 +148,28 @@ const renderIframe = (node: Element, key: string, options: CmsHtmlParseOptions):
     {
         return <CmsPdfViewerFrame key={key} fileUrl={src} title={title} lang={options.lang} />;
     }
+    if (isYoutubeIframeUrl(src)) return renderYoutubeIframe(props, key, src);
 
     return createElement("iframe", props);
+};
+
+/** 以既有 Bootstrap ratio utilities 呈現響應式 YouTube iframe。 */
+const renderYoutubeIframe = (sourceProps: IframeHTMLAttributes<HTMLIFrameElement> & { key?: string; }, key: string, src: string): ReactElement =>
+{
+    const props = { ...sourceProps };
+    const style = removeYoutubeLayoutStyles(props.style);
+
+    delete props.key;
+    delete props.width;
+    delete props.height;
+    if (style) props.style = style;
+    else delete props.style;
+
+    props.src = normalizeYoutubeEmbedUrl(src);
+    props.allow = mergeYoutubeIframeAllow(props.allow);
+    props.allowFullScreen = true;
+
+    return createElement("span", { key, className: "ratio ratio-16x9 d-block" }, createElement("iframe", props));
 };
 
 /** 將 HTML attributes 轉成 React props。 */
@@ -223,6 +245,31 @@ const parseStyleAttribute = (styleText: string): CSSProperties =>
     });
 
     return result as CSSProperties;
+};
+
+/** 移除會覆蓋 Bootstrap ratio 尺寸與定位的既有 inline style。 */
+const removeYoutubeLayoutStyles = (style?: CSSProperties): CSSProperties | undefined =>
+{
+    if (!style) return undefined;
+
+    const blockedNames = new Set([
+        "aspectRatio",
+        "bottom",
+        "display",
+        "height",
+        "inset",
+        "left",
+        "maxHeight",
+        "maxWidth",
+        "minHeight",
+        "minWidth",
+        "position",
+        "right",
+        "top",
+        "width",
+    ]);
+    const entries = Object.entries(style).filter(([name]) => !blockedNames.has(name));
+    return entries.length > 0 ? Object.fromEntries(entries) as CSSProperties : undefined;
 };
 
 /** 將 CSS kebab-case 轉 camelCase。 */

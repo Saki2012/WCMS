@@ -1,5 +1,7 @@
 // src/hooks/TinyMCE_Hook.ts
+import pdfIconUrl from "@/Features/Assets/Server/fonts/fontawesome-5.15.4/svgs/regular/file-pdf.svg?url";
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
+import { CMS_HTML_VIEWER_ATTR, CMS_HTML_VIEWER_PDF } from "@/SysCore/Components/CmsHtml/CmsHtml_Types";
 import { MessageStatus, type SysMessageModel } from "@/SysCore/Utils/API/APIBase";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { PGID } from "@/types/SchemaFields";
@@ -7,13 +9,14 @@ import { useCallback, useMemo, useRef } from "react";
 import { INTERNAL_ATTR } from "./Core/tinyMceConstants";
 import type { TinyMCEEditor } from "./Core/tinyMceTypes";
 import { useContentTransform } from "./Core/useContentTransform";
-import { applyFileLinkToSelection, pickLocalFile } from "./Features/File/tinyMceFileFeature";
+import { applyFileLinkToSelection, pickLocalFile, registerDownloadLinkTargetFieldBehavior } from "./Features/File/tinyMceFileFeature";
 import { registerTinyMceFormatControls } from "./Features/Format/tinyMceFormatFeature";
 import { registerTinyMceParagraphIndentFeature } from "./Features/Format/tinyMceParagraphIndentFeature";
 import { openInsertIframeDialog } from "./Features/Iframe/tinyMceIframeFeature";
 import { WCMS_TINYMCE_IFRAME_SANDBOX_EXCLUSIONS } from "./Features/Iframe/tinyMceIframeUtils";
 import { registerInternalImageSync } from "./Features/Image/tinyMceImageFeature";
 import { normalizeListHtmlBeforeSave } from "./Features/List/tinyMceListNormalize";
+import { fromTinyMcePdfEditorHtml, toTinyMcePdfEditorHtml } from "./Features/Pdf/tinyMcePdfFeature";
 import { openFormattedSourceCodeDialog } from "./Features/Source/tinyMceSourceFeature";
 import { registerTinyMceTableFeature } from "./Features/Table/tinyMceTableFeature";
 import { normalizePastedTableElement, normalizeTableHtmlBeforeSave, normalizeTableHtmlForEditor } from "./Features/Table/tinyMceTableUtils";
@@ -113,6 +116,11 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                 "fullscreen code",
             ].join(" "),
             contextmenu: "link image table",
+            link_target_list: [
+                { text: "Default", value: "" },
+                { text: "Current window", value: "_self" },
+                { text: "New window", value: "_blank" },
+            ],
             visualblocks_default_state: true,
             toolbar_mode: "wrap",
 
@@ -206,20 +214,22 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                 // DB → 編輯器：BeforeSetContent 時把 data-internalid 改回 src
                 editor.on("BeforeSetContent", (e: TinyMceContentEvent) =>
                 {
-                    if (typeof e.content === "string") e.content = normalizeTableHtmlForEditor(toEditor(e.content));
+                    if (typeof e.content === "string") e.content = toTinyMcePdfEditorHtml(normalizeTableHtmlForEditor(toEditor(e.content)), pdfIconUrl);
                 });
                 // 編輯器 → DB：GetContent 時把 src 改回 data-internalid（僅程式取用）
                 editor.on("GetContent", (e: TinyMceContentEvent) =>
                 {
                     if (typeof e.content === "string")
                     {
-                        e.content = toDb(normalizeListHtmlBeforeSave(normalizeTableHtmlBeforeSave(e.content)));
+                        const canonicalHtml = fromTinyMcePdfEditorHtml(e.content);
+                        e.content = toDb(normalizeListHtmlBeforeSave(normalizeTableHtmlBeforeSave(canonicalHtml)));
                     }
                 });
 
                 registerTinyMceTableFeature(editor);
                 registerTinyMceFormatControls(editor);
                 registerTinyMceParagraphIndentFeature(editor);
+                registerDownloadLinkTargetFieldBehavior(editor);
                 registerInternalImageSync(editor, (internalId) => toUrl(internalId, "image"));
 
                 // insertiframe 按鈕
@@ -263,13 +273,14 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                                     + ` referrerpolicy="strict-origin-when-cross-origin"`
                                     + ` frameborder="0"`
                                     + ` allowfullscreen`
+                                    + ` ${CMS_HTML_VIEWER_ATTR}="${CMS_HTML_VIEWER_PDF}"`
                                     // + ` sandbox="allow-same-origin"`
-                                    + ` src="${src}"`
-                                    + ` ${attrName}="${internalId}"` // 🔴 關鍵：把 internalId 寫進 data-internalid
+                                    + ` src="${editor.dom.encode(src)}"`
+                                    + ` ${attrName}="${editor.dom.encode(internalId)}"` // 🔴 關鍵：把 internalId 寫進 data-internalid
                                     + `></iframe>`
                                     + `</p>`;
 
-                                editor.insertContent(html);
+                                editor.insertContent(toTinyMcePdfEditorHtml(html, pdfIconUrl));
                                 editor.nodeChanged();
                             } catch
                             {
