@@ -8,9 +8,9 @@ import { SpecJournalKeywordSearch_Comp } from "../../BizFunc/WEB/SpecJournal/Spe
 import type { HomePageRawData } from "../HomePage_Loader";
 
 // #region Property
-type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
+type SpecJournalIndexFormModel = components["schemas"]["SpecJournalIndex"];
 
-type SpecJournalIndexDetail = components["schemas"]["SpecJournalIndexDetail_DTO"];
+type SpecJournalIndexDetail = components["schemas"]["SpecJournalIndexDetail"];
 
 type BannerFormModel = components["schemas"]["Banner"];
 
@@ -77,14 +77,14 @@ export const LatestIssueSection = (props: LatestIssueSectionProps) =>
 
 // #region Section
 /** 最新期刊 */
-const LastIssueComp = (props: { data: SpecJournalIndexSet | null; lang: Lang; }) =>
+const LastIssueComp = (props: { data: SpecJournalIndexFormModel | null; lang: Lang; }) =>
 {
     // 宣告變數
     const getPublishDateTime = (publishDate?: string | null): number =>
     {
         return publishDate ? new Date(publishDate).getTime() : 0;
     };
-    const detailData = [...(props.data?.SpecJournalIndexDetail ?? [])].sort((a, b) => getPublishDateTime(b.PublishDate) - getPublishDateTime(a.PublishDate))[0]
+    const detailData = [...(props.data?._SpecJournalIndexDetail ?? [])].sort((a, b) => getPublishDateTime(b.PublishDate) - getPublishDateTime(a.PublishDate))[0]
         ?? null;
     const title = buildIssueTitle(detailData, props.lang);
     const issueTo = buildIssueTo(detailData);
@@ -205,7 +205,7 @@ const getBannerImageUrl = (banner: BannerFormModel | null): string =>
 };
 
 /** 取第一筆卷期資料 */
-const getFirstIssue = (list: SpecJournalIndexSet[] | undefined): SpecJournalIndexSet | null =>
+const getFirstIssue = (list: SpecJournalIndexFormModel[] | undefined): SpecJournalIndexFormModel | null =>
 {
     return list?.[0] ?? null;
 };

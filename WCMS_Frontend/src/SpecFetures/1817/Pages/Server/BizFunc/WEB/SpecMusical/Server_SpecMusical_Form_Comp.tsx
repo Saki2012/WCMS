@@ -4,14 +4,14 @@ import { EditGrid } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGr
 import type { EditGridCellRenderArgs, EditGridCellValue, IEditGridView_Style } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Data";
 import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
 import { LibDropList, LibFile, LibModal, LibPicturePreview, LibTextArea, LibTextBox } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
-import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
+import { useFormModelField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
 import type { components } from "@/types/api";
-import { SpecMusicalModelFields, SpecMusicalPictureListFields, SpecMusicalSetFields } from "@/types/SchemaFields";
+import { SpecMusicalFields, SpecMusicalPictureListFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -30,7 +30,7 @@ import {
 } from "./Server_SpecMusical_Form_Hook";
 
 // #region Property
-type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"];
+type SpecMusicalFormModel = components["schemas"]["SpecMusical"];
 
 /** 琵琶介紹批次圖片上傳限制。 */
 export const SpecMusicalBatchPhotoUploadLimit = {
@@ -56,7 +56,7 @@ interface SpecMusicalContentProps
     theme: IBETheme;
 
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<SpecMusicalSet>;
+    binding: ServerFormBinding<SpecMusicalFormModel>;
 
     /** SpecMusical Hook 整理後的參照資料 */
     refs: SpecMusicalFormRefs;
@@ -74,7 +74,7 @@ interface SpecMusicalGridProps
     theme: IBETheme;
 
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<SpecMusicalSet>;
+    binding: ServerFormBinding<SpecMusicalFormModel>;
 }
 
 interface SpecMusicalPhotoBatchPreviewProps
@@ -152,7 +152,7 @@ const SpecMusicalContentComp = (props: SpecMusicalContentProps) =>
 /** 基本資料欄位，維持舊版欄位排列。 */
 const SpecMusicalBasicComp = (props: SpecMusicalBasicProps) =>
 {
-    const setField = useSetTableField<SpecMusicalSet>(props.binding);
+    const setField = useFormModelField<SpecMusicalFormModel>(props.binding);
 
     return <>{buildSpecMusicalBasicFields(props.theme, setField, props.cateOpts)}</>;
 };
@@ -192,7 +192,7 @@ const SpecMusicalSoundGridComp = (props: SpecMusicalGridProps) =>
 };
 
 /** 批次上傳圖片，和 EditGrid 內建新增單筆按鈕分離。 */
-const SpecMusicalPhotoBatchUploadComp = (props: { theme: IBETheme; binding: ServerFormBinding<SpecMusicalSet>; }) =>
+const SpecMusicalPhotoBatchUploadComp = (props: { theme: IBETheme; binding: ServerFormBinding<SpecMusicalFormModel>; }) =>
 {
     const batch = useSpecMusicalBatchPhotoUpload({ binding: props.binding });
     /** 移除批次上傳前的單張預覽圖片。 */
@@ -236,13 +236,9 @@ const SpecMusicalPhotoBatchUploadComp = (props: { theme: IBETheme; binding: Serv
 };
 // #endregion
 
-// #region EntityComp
-/** 建立返回 List 的路徑。 */
-// #endregion
-
 // #region Protected
 /** 清除 EditGrid 相片欄位與連動圖片說明。 */
-const clearSpecMusicalPictureCell = (args: EditGridCellRenderArgs, binding: ServerFormBinding<SpecMusicalSet>): void =>
+const clearSpecMusicalPictureCell = (args: EditGridCellRenderArgs, binding: ServerFormBinding<SpecMusicalFormModel>): void =>
 {
     const picture = toSpecMusicalPictureCellValue(args.value);
     args.updateValues({
@@ -253,15 +249,15 @@ const clearSpecMusicalPictureCell = (args: EditGridCellRenderArgs, binding: Serv
 };
 
 /** 若被清除圖片為目前封面，則同步清空封面。 */
-const clearSpecMusicalCoverIfSame = (binding: ServerFormBinding<SpecMusicalSet>, picId?: string | null): void =>
+const clearSpecMusicalCoverIfSame = (binding: ServerFormBinding<SpecMusicalFormModel>, picId?: string | null): void =>
 {
     const targetPicId = String(picId ?? "").trim();
     if (!targetPicId) return;
     binding.setFormData(prev =>
     {
         const data = prev ?? specMusicalEmptyData;
-        if (data.SpecMusical?.CoverPicId !== targetPicId) return data;
-        return { ...data, SpecMusical: { ...data.SpecMusical, CoverPicId: null } };
+        if (data.CoverPicId !== targetPicId) return data;
+        return { ...data, CoverPicId: null };
     });
 };
 
@@ -278,7 +274,7 @@ const buildSpecMusicalTabContent = (props: SpecMusicalBasicProps): Record<string
 /** 建立基本資料欄位。 */
 const buildSpecMusicalBasicFields = (
     theme: IBETheme,
-    setField: ReturnType<typeof useSetTableField<SpecMusicalSet>>,
+    setField: ReturnType<typeof useFormModelField<SpecMusicalFormModel>>,
     cateOpts: Map<string, string>,
 ): ReactNode[] =>
 {
@@ -287,64 +283,64 @@ const buildSpecMusicalBasicFields = (
             <LibDropList
                 Style={theme.DropList}
                 Options={cateOpts}
-                {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.CategoryId, "string")}
+                {...setField(SpecMusicalFields.CategoryId, "string")}
             />
         </div>,
         <div key="name" className="col-12 form-group">
             <LibTextBox
                 Style={theme.TextBox}
                 DefaultInputDisplay="請輸入"
-                {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.MusicalName, "string")}
+                {...setField(SpecMusicalFields.MusicalName, "string")}
             />
         </div>,
         <div key="spec-row-1" className="col-12 form-group">
             <LibTextBox
                 Style={theme.TextBox3}
                 DefaultInputDisplay="請輸入"
-                {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.Specification, "string")}
+                {...setField(SpecMusicalFields.Specification, "string")}
             />
             <LibTextBox
                 Style={theme.TextBox3}
                 DefaultInputDisplay="請輸入"
-                {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.Headstock, "string")}
+                {...setField(SpecMusicalFields.Headstock, "string")}
             />
         </div>,
         <div key="spec-row-2" className="col-12 form-group">
             <LibTextBox
                 Style={theme.TextBox3}
                 DefaultInputDisplay="請輸入"
-                {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.Backboard, "string")}
+                {...setField(SpecMusicalFields.Backboard, "string")}
             />
             <LibTextBox
                 Style={theme.TextBox3}
                 DefaultInputDisplay="請輸入"
-                {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.ScaleLength, "string")}
+                {...setField(SpecMusicalFields.ScaleLength, "string")}
             />
         </div>,
         <div key="spec-row-3" className="col-12 form-group">
             <LibTextBox
                 Style={theme.TextBox3}
                 DefaultInputDisplay="請輸入"
-                {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.Bridge, "string")}
+                {...setField(SpecMusicalFields.Bridge, "string")}
             />
             <LibTextBox
                 Style={theme.TextBox3}
                 DefaultInputDisplay="請輸入"
-                {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.BodyForm, "string")}
+                {...setField(SpecMusicalFields.BodyForm, "string")}
             />
         </div>,
         <div key="material" className="col-12 form-group">
             <LibTextBox
                 Style={theme.TextBox3}
                 DefaultInputDisplay="請輸入"
-                {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.Material, "string")}
+                {...setField(SpecMusicalFields.Material, "string")}
             />
         </div>,
         <div key="info" className="col-12 form-group">
             <LibTextArea
                 Style={theme.TextArea}
                 DefaultInputDisplay="請輸入"
-                {...setField(SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.Info, "string")}
+                {...setField(SpecMusicalFields.Info, "string")}
             />
         </div>,
     ];

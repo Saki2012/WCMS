@@ -21,7 +21,7 @@ import { useSpecJournalFormData } from "./SpecJournalForm_Loader";
 import { useSpecJournalSearchNav } from "./SpecJournalSearchUtils";
 
 // #region Property
-type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
+type SpecJournalFormModel = components["schemas"]["SpecJournal"];
 
 interface PreviewSectionItem
 {
@@ -34,7 +34,7 @@ const PREVIEW_LINE_COUNT = 10;
 
 const PREVIEW_FALLBACK_LINE_PX = 28;
 
-type SpecJournalDocumentItem = NonNullable<SpecJournalSet["SpecJournalDocument"]>[number];
+type SpecJournalDocumentItem = NonNullable<SpecJournalFormModel["_SpecJournalDocument"]>[number];
 
 interface DocumentGroup
 {
@@ -57,9 +57,9 @@ export const SpecJournalForm_Comp = (props: { site: INormSite; node: INormNode; 
     const errors = useDetail.errorList;
     const title = useMemo(() =>
     {
-        const d = data?.SpecJournal?._JournalIndexDetail;
+        const d = data?._JournalIndexDetail;
         return d ? buildIssueText(props.lang, d.Volume, d.Issue) : "";
-    }, [props.lang, data?.SpecJournal?._JournalIndexDetail?.Volume, data?.SpecJournal?._JournalIndexDetail?.Issue]);
+    }, [props.lang, data?._JournalIndexDetail?.Volume, data?._JournalIndexDetail?.Issue]);
 
     const moduleBase = useMemo(() =>
     {
@@ -78,7 +78,7 @@ export const SpecJournalForm_Comp = (props: { site: INormSite; node: INormNode; 
     {
         const issueLabel = title;
         const issueTo = issueLabel && indexId && rowId ? joinPath(moduleBase, `List/${indexId}/${rowId}`) : undefined;
-        const articleLabel = data?.SpecJournal?.Title ?? data?.SpecJournal?.Title_en ?? getSpecJournalLangText(props.lang).article;
+        const articleLabel = data?.Title ?? data?.Title_en ?? getSpecJournalLangText(props.lang).article;
         const next: Array<{ label: string; to?: string; }> = [];
 
         if (issueLabel) next.push({ label: issueLabel, to: issueTo });
@@ -87,18 +87,18 @@ export const SpecJournalForm_Comp = (props: { site: INormSite; node: INormNode; 
         setItems(next);
 
         return () => setItems([]);
-    }, [title, data?.SpecJournal?.Title, data?.SpecJournal?.Title_en, indexId, rowId, props.lang, moduleBase, setItems]);
+    }, [title, data?.Title, data?.Title_en, indexId, rowId, props.lang, moduleBase, setItems]);
 
     const viewCountConfig = useMemo<ModuleViewCountConfig>(() =>
     {
         const request: TryCountDetailViewRequest = {
             SiteIndex: props.site.siteIndex,
             ProgId: PGID.SpecJournal,
-            InternalId: data?.SpecJournal?.InternalId ?? "",
+            InternalId: data?.InternalId ?? "",
         };
 
-        return { mode: "form", contentKey: data?.SpecJournal?.InternalId ?? "", request };
-    }, [props.site.siteIndex, data?.SpecJournal?.InternalId]);
+        return { mode: "form", contentKey: data?.InternalId ?? "", request };
+    }, [props.site.siteIndex, data?.InternalId]);
 
     return (
         <ModuleContent nodeTitle={title} title={title} isLoading={useDetail.isLoading} errorList={errors} viewCountConfig={viewCountConfig}>
@@ -110,7 +110,7 @@ export const SpecJournalForm_Comp = (props: { site: INormSite; node: INormNode; 
 
 // #region Section
 /** 期刊標題 */
-const JournalTitle_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
+const JournalTitle_Comp = (props: { lang: Lang; data?: SpecJournalFormModel; }) =>
 {
     const { goExclusive } = useSpecJournalSearchNav("../List");
 
@@ -126,7 +126,7 @@ const JournalTitle_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
         goExclusive({ tagId, tagName });
     };
 
-    const langCode = props.data?.SpecJournal?.ArticleLang ?? "";
+    const langCode = props.data?.ArticleLang ?? "";
     const langLabel = getLangLabel(langCode);
     const text = getSpecJournalLangText(props.lang);
 
@@ -158,7 +158,7 @@ const JournalTitle_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
                                     </div>
                                 </div>
 
-                                {props.data?.SpecJournalTypes?.map((t) =>
+                                {props.data?._SpecJournalTypes?.map((t) =>
                                 {
                                     const tagName = t.Tag?._TagDetail?.find((p) => p.Lang === props.lang)?.TagName;
                                     return (
@@ -187,8 +187,8 @@ const JournalTitle_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
                         </div>
 
                         <div className="card_titleDiv">
-                            <div className="card_title">{props.data?.SpecJournal?.Title}</div>
-                            {!!props.data?.SpecJournal?.Title_en && <div className="card_title_en">{props.data?.SpecJournal?.Title_en}</div>}
+                            <div className="card_title">{props.data?.Title}</div>
+                            {!!props.data?.Title_en && <div className="card_title_en">{props.data?.Title_en}</div>}
                         </div>
                     </div>
                 </div>
@@ -226,7 +226,7 @@ const BrowseCount_Comp = (props: { lang: Lang; pageViewCount: number; }) =>
 };
 
 /** 作者列表 */
-const Authors_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
+const Authors_Comp = (props: { lang: Lang; data?: SpecJournalFormModel; }) =>
 {
     const { goExclusive } = useSpecJournalSearchNav("../List");
     const text = getSpecJournalLangText(props.lang);
@@ -237,14 +237,14 @@ const Authors_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
         if (!v) return;
         goExclusive({ author: v });
     };
-    if (!props.data?.SpecJournalAuthor || props.data.SpecJournalAuthor.length === 0) return null;
+    if (!props.data?._SpecJournalAuthor || props.data._SpecJournalAuthor.length === 0) return null;
     return (
         <>
             <div className="JJ_main_contentDIV">
                 <div className="col row_item_group">
                     <div className="Uncat">
                         <ul className="AuthorCardGrid" aria-label={text.authorListAriaLabel}>
-                            {props.data?.SpecJournalAuthor?.map((a, idx) =>
+                            {props.data?._SpecJournalAuthor?.map((a, idx) =>
                             {
                                 return (
                                     <li key={`${a.ORCID ?? a.Email ?? "author"}-${idx}`} className="AuthorCardGrid__item">
@@ -369,9 +369,9 @@ const Authors_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
 };
 
 /** DOI */
-const DOI_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
+const DOI_Comp = (props: { lang: Lang; data?: SpecJournalFormModel; }) =>
 {
-    const url = props.data?.SpecJournal?.DOIUrl ?? "";
+    const url = props.data?.DOIUrl ?? "";
     const text = getSpecJournalLangText(props.lang);
     if (!url) return null;
     return (
@@ -387,8 +387,8 @@ const DOI_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
                         </div>
                     </div>
                     <div className="doiQr">
-                        {props.data?.SpecJournal?.DOIUrl
-                            ? <QrCodeWithLogo_Comp value={props.data?.SpecJournal?.DOIUrl ?? ""} logoSrc={QRCodeLogoImg} size={200} ariaLabel="DOI QR Code" />
+                        {props.data?.DOIUrl
+                            ? <QrCodeWithLogo_Comp value={props.data?.DOIUrl ?? ""} logoSrc={QRCodeLogoImg} size={200} ariaLabel="DOI QR Code" />
                             : null}
                     </div>
                 </div>
@@ -401,7 +401,7 @@ const DOI_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
 };
 
 /** 期刊資訊 */
-const JournalInfo_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
+const JournalInfo_Comp = (props: { lang: Lang; data?: SpecJournalFormModel; }) =>
 {
     const { goExclusive } = useSpecJournalSearchNav("../List");
     const text = getSpecJournalLangText(props.lang);
@@ -412,7 +412,7 @@ const JournalInfo_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
         if (!v) return;
         goExclusive({ keyword: v });
     };
-    const publishDate = (props.data?.SpecJournal?._JournalIndexDetail?.PublishDate ?? "").toString();
+    const publishDate = (props.data?._JournalIndexDetail?.PublishDate ?? "").toString();
     const publishLabel = publishDate.trim() ? publishDate.slice(0, 7) : "";
     return (
         <>
@@ -429,17 +429,17 @@ const JournalInfo_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
                                         </>
                                     )}
                                     <span>
-                                        {buildIssueText(props.lang, props.data?.SpecJournal?._JournalIndexDetail?.Volume, props.data?.SpecJournal?._JournalIndexDetail?.Issue)}
+                                        {buildIssueText(props.lang, props.data?._JournalIndexDetail?.Volume, props.data?._JournalIndexDetail?.Issue)}
                                     </span>
                                     <span className="G_Vline">│</span>
-                                    <span>{buildPageText(props.lang, props.data?.SpecJournal?.PageStart, props.data?.SpecJournal?.PageEnd)}</span>
+                                    <span>{buildPageText(props.lang, props.data?.PageStart, props.data?.PageEnd)}</span>
                                 </div>
                             </li>
 
                             <li>
                                 <div className="Div_All_Ttext mb-1 d-flex flex-wrap">
                                     <span>{text.zhKeywordLabel}</span>
-                                    {props.data?.SpecJournalKeywords?.filter((p) => p.LangCode === "zh-tw").map((kw) =>
+                                    {props.data?._SpecJournalKeywords?.filter((p) => p.LangCode === "zh-tw").map((kw) =>
                                     {
                                         return (
                                             <span key={`zh-${kw.RowId}`} className="ms-2">
@@ -464,7 +464,7 @@ const JournalInfo_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
                             <li>
                                 <div className="Div_All_Ttext mb-1 d-flex flex-wrap">
                                     <span>{text.enKeywordLabel}</span>
-                                    {props.data?.SpecJournalKeywords?.filter((p) => p.LangCode === "en").map((kw) =>
+                                    {props.data?._SpecJournalKeywords?.filter((p) => p.LangCode === "en").map((kw) =>
                                     {
                                         return (
                                             <span key={`en-${kw.RowId}`} className="ms-2">
@@ -498,24 +498,24 @@ const JournalInfo_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
 };
 
 /** 檔案下載區 */
-const FileDownload_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
+const FileDownload_Comp = (props: { lang: Lang; data?: SpecJournalFormModel; }) =>
 {
     const text = getSpecJournalLangText(props.lang);
-    const hasJournalFile = props.data?.SpecJournal?.JournalFileId;
-    const hasInsightPointFile = props.data?.SpecJournal?.InsightPointFileId;
+    const hasJournalFile = props.data?.JournalFileId;
+    const hasInsightPointFile = props.data?.InsightPointFileId;
     if (!hasJournalFile && !hasInsightPointFile) return null;
-    const journalFileIsPdf = props.data?.SpecJournal?.JournalFile?.FileExtension?.toLowerCase() === "pdf";
-    const journalFileName = props.data?.SpecJournal?.JournalFileName ?? "";
+    const journalFileIsPdf = props.data?.JournalFile?.FileExtension?.toLowerCase() === "pdf";
+    const journalFileName = props.data?.JournalFileName ?? "";
     const journalFileUrl = journalFileIsPdf
-        ? FileManagementAPI.get_Public_Preview_Url(props.data?.SpecJournal?.JournalFileId, journalFileName)
-        : FileManagementAPI.get_Public_Download_Url(props.data?.SpecJournal?.JournalFileId, journalFileName);
-    const journalDownloadCount = props.data?.SpecJournal?.JournalFile?.PublicDownloadCount ?? 0;
-    const insightPointFileIsPdf = props.data?.SpecJournal?.InsightPointFile?.FileExtension?.toLowerCase() === "pdf";
-    const insightPointFileName = props.data?.SpecJournal?.InsightPointFileName ?? "";
+        ? FileManagementAPI.get_Public_Preview_Url(props.data?.JournalFileId, journalFileName)
+        : FileManagementAPI.get_Public_Download_Url(props.data?.JournalFileId, journalFileName);
+    const journalDownloadCount = props.data?.JournalFile?.PublicDownloadCount ?? 0;
+    const insightPointFileIsPdf = props.data?.InsightPointFile?.FileExtension?.toLowerCase() === "pdf";
+    const insightPointFileName = props.data?.InsightPointFileName ?? "";
     const insightPointFileUrl = insightPointFileIsPdf
-        ? FileManagementAPI.get_Public_Preview_Url(props.data?.SpecJournal?.InsightPointFileId, insightPointFileName)
-        : FileManagementAPI.get_Public_Download_Url(props.data?.SpecJournal?.InsightPointFileId, insightPointFileName);
-    const insightPointDownloadCount = props.data?.SpecJournal?.InsightPointFile?.PublicDownloadCount ?? 0;
+        ? FileManagementAPI.get_Public_Preview_Url(props.data?.InsightPointFileId, insightPointFileName)
+        : FileManagementAPI.get_Public_Download_Url(props.data?.InsightPointFileId, insightPointFileName);
+    const insightPointDownloadCount = props.data?.InsightPointFile?.PublicDownloadCount ?? 0;
     return (
         <>
             <div className="JJ_main_contentDIV">
@@ -586,9 +586,9 @@ const FileDownload_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
 };
 
 /** 開放觀點 */
-const OpenPoint_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
+const OpenPoint_Comp = (props: { lang: Lang; data?: SpecJournalFormModel; }) =>
 {
-    if (!props.data?.SpecJournalOpenPointFiles || props.data?.SpecJournalOpenPointFiles.length === 0) return null;
+    if (!props.data?._SpecJournalOpenPointFiles || props.data?._SpecJournalOpenPointFiles.length === 0) return null;
 
     const text = getSpecJournalLangText(props.lang);
 
@@ -611,7 +611,7 @@ const OpenPoint_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
                 <div className="row">
                     <div className="col-12">
                         <ul className="openlist-group">
-                            {props.data?.SpecJournalOpenPointFiles?.map((d, idx) =>
+                            {props.data?._SpecJournalOpenPointFiles?.map((d, idx) =>
                             {
                                 const isPdf = d.OpenPointFile?.FileExtension?.toLowerCase() === "pdf";
                                 const openPointFileName = d.OpenPointFileName ?? "";
@@ -652,9 +652,9 @@ const OpenPoint_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
 };
 
 /** 相關檔案 */
-const RefFile_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
+const RefFile_Comp = (props: { lang: Lang; data?: SpecJournalFormModel; }) =>
 {
-    if (!props.data?.SpecJournalRefFiles || props.data?.SpecJournalRefFiles.length === 0) return null;
+    if (!props.data?._SpecJournalRefFiles || props.data?._SpecJournalRefFiles.length === 0) return null;
 
     const text = getSpecJournalLangText(props.lang);
 
@@ -675,7 +675,7 @@ const RefFile_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
                 <div className="row">
                     <div className="col-12">
                         <ul className="filelist-group">
-                            {props.data?.SpecJournalRefFiles?.map((d, idx) =>
+                            {props.data?._SpecJournalRefFiles?.map((d, idx) =>
                             {
                                 const isPdf = d.RefFile?.FileExtension?.toLowerCase() === "pdf";
                                 const refFileName = d.RefFileName ?? "";
@@ -802,14 +802,14 @@ const PreviewSectionCard_Comp = (props: { lang: Lang; item: PreviewSectionItem; 
 };
 
 /** 摘要 + 參考文獻 + 引文格式 */
-const Accordion_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
+const Accordion_Comp = (props: { lang: Lang; data?: SpecJournalFormModel; }) =>
 {
     const [expandedId, setExpandedId] = useState<string | null>(null);
     const text = getSpecJournalLangText(props.lang);
 
-    const memoHtml = props.data?.SpecJournal?.Memo ?? "";
-    const memoEnHtml = props.data?.SpecJournal?.Memo_en ?? "";
-    const bibliographyHtml = props.data?.SpecJournal?.Bibliography ?? "";
+    const memoHtml = props.data?.Memo ?? "";
+    const memoEnHtml = props.data?.Memo_en ?? "";
+    const bibliographyHtml = props.data?.Bibliography ?? "";
     const memoContent = memoHtml ? <CmsHtml_Comp html={memoHtml} lang={props.lang} /> : null;
     const memoEnContent = memoEnHtml ? <CmsHtml_Comp html={memoEnHtml} lang={props.lang} /> : null;
     const bibliographyContent = bibliographyHtml ? <CmsHtml_Comp html={bibliographyHtml} lang={props.lang} /> : null;
@@ -826,7 +826,7 @@ const Accordion_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
         sections.push({ id: "journal-bibliography", title: text.bibliographyTitle, content: bibliographyContent });
     }
 
-    props.data?.SpecJournalRefFormat?.forEach((sec) =>
+    props.data?._SpecJournalRefFormat?.forEach((sec) =>
     {
         const html = sec?.Content ?? "";
         if (!html.trim()) return;
@@ -871,9 +871,9 @@ const Accordion_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
 };
 
 /** 說明檔案區塊 */
-const Documents_Comp = (props: { lang: Lang; data?: SpecJournalSet; }) =>
+const Documents_Comp = (props: { lang: Lang; data?: SpecJournalFormModel; }) =>
 {
-    const documentGroups = useMemo(() => buildDocumentGroups(props.data?.SpecJournalDocument, props.lang), [props.data?.SpecJournalDocument, props.lang]);
+    const documentGroups = useMemo(() => buildDocumentGroups(props.data?._SpecJournalDocument, props.lang), [props.data?._SpecJournalDocument, props.lang]);
     const text = getSpecJournalLangText(props.lang);
     if (documentGroups.length === 0) return null;
     return (
@@ -970,7 +970,7 @@ const joinPath = (base: string, path: string) =>
     return `${b}/${p}`;
 };
 
-const SpecJournalFormContent = (props: { lang: Lang; data?: SpecJournalSet; pageViewCount: number; }) =>
+const SpecJournalFormContent = (props: { lang: Lang; data?: SpecJournalFormModel; pageViewCount: number; }) =>
 {
     return (
         <div className="Journal_List_content">

@@ -35,7 +35,7 @@ import type { LoaderFunctionArgs } from "react-router-dom";
 import { useLoaderData } from "react-router-dom";
 
 // #region Property
-type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
+type SpecJournalFormModel = components["schemas"]["SpecJournal"];
 
 type QueryListParam = components["schemas"]["QueryListParam"];
 
@@ -64,7 +64,7 @@ export interface SpecJournalFormLoaderArgs
 export interface SpecJournalFormLoaderRes
 {
     countRes: number;
-    listRes: SpecJournalSet[];
+    listRes: SpecJournalFormModel[];
     viewCountRes: SiteViewCountSet[];
 }
 
@@ -84,8 +84,8 @@ export interface SpecJournalViewCountData
 
 export interface UseSpecJournalFormDataResult
 {
-    rawData: SpecJournalSet[];
-    data?: SpecJournalSet;
+    rawData: SpecJournalFormModel[];
+    data?: SpecJournalFormModel;
     pageViewCount: number;
     filePreviewCount: number;
     fileDownloadCount: number;
@@ -262,10 +262,10 @@ const buildBaseParam = (journalId: string): QueryListParam =>
 };
 
 /** 取得 detail 頁文章 internalId */
-const getSpecJournalInternalId = (rows: SpecJournalSet[]): string =>
+const getSpecJournalInternalId = (rows: SpecJournalFormModel[]): string =>
 {
     // return
-    return rows[0]?.SpecJournal?.InternalId ?? "";
+    return rows[0]?.InternalId ?? "";
 };
 
 /** 建立 site view count 查詢條件 */

@@ -15,7 +15,7 @@ import { LibText } from "@/SysCore/Utils/Library/LibData";
 import { resolveSpecComponent, resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { FileArchiveFields, FileArchiveInfoFields, FileManageModelFields } from "@/types/SchemaFields";
+import { FileArchiveFields, FileArchiveInfoFields, FileManageFields } from "@/types/SchemaFields";
 import { useEffect, useMemo, useState } from "react";
 import { useFileArchiveListData } from "./Client_FileArchive_List_Loader";
 
@@ -152,23 +152,28 @@ const GridList_Comp = (props: { lang: Lang; title: string; gridData: GridProps; 
 // #endregion
 
 // #region Protected
-/** 建立基礎 GridProps */
-const buildGridProps = (lang: Lang, datas: FileArchiveFormModel[], pageNumber: number, totalPage: number, onPageChange: (page: number) => void): GridProps =>
+/** 建立基礎 GridProps。 */
+const buildGridProps = (
+    lang: Lang,
+    model: ModelDisplaySchema | null,
+    datas: FileArchiveFormModel[],
+    pageNumber: number,
+    totalPage: number,
+    onPageChange: (page: number) => void,
+): GridProps =>
 {
-    const columns: ColumnConfig[] = [{ key: FileArchiveInfoFields.Title, title: "標題" }];
-    const rows = datas.map(item =>
-    {
-        const cells = columns.map(col => ({ col, content: getBaseCellContent(lang, item, col.key) }));
-        return { keyId: item?.InternalId ?? "", cells };
-    });
+    const fallbackTitle = lang === "en" ? "Title" : "標題";
+    const title = getModelColumnDisplayName(model, ["FileArchiveInfo_DTO", "FileArchiveInfo"], FileArchiveInfoFields.Title, fallbackTitle);
+    const columns: ColumnConfig[] = [{ key: FileArchiveInfoFields.Title, title }];
+    const rows = datas.map(item => buildBaseGridRow(lang, item, columns));
     return { columns, rows, CurrentPage: pageNumber, TotalPage: totalPage, onPageChange } as GridProps;
 };
 
 /** 建立一筆基礎 GridRow。 */
-const buildBaseGridRow = (lang: Lang, item: FileArchiveSet, columns: ColumnConfig[]): GridRow =>
+const buildBaseGridRow = (lang: Lang, item: FileArchiveFormModel, columns: ColumnConfig[]): GridRow =>
 {
     const cells = columns.map(col => ({ col, content: getBaseCellContent(lang, item, col.key) }));
-    return { keyId: item.FileArchive?.InternalId ?? "", cells };
+    return { keyId: item.InternalId ?? "", cells };
 };
 
 /** 建立前端虛擬下載欄位與後端下載次數欄位。 */
@@ -178,7 +183,7 @@ const buildExtraColumns = (lang: Lang, model: ModelDisplaySchema | null): FileAr
     const download: ColumnConfig = { key: downloadColName, title: isEnglish ? "Download" : "下載" };
     const downloadCount: ColumnConfig = {
         key: publicDownloadCountColName,
-        title: getModelColumnDisplayName(model, ["FileManageModel_DTO", "FileManageModel"], FileManageModelFields.PublicDownloadCount, isEnglish ? "Download Count" : "下載次數"),
+        title: getModelColumnDisplayName(model, ["FileManageModel_DTO", "FileManageModel"], FileManageFields.PublicDownloadCount, isEnglish ? "Download Count" : "下載次數"),
     };
     return { download, downloadCount };
 };
@@ -193,7 +198,7 @@ const buildAdjustedColumns = (columns: ColumnConfig[], extra: FileArchiveExtraCo
 const buildAdjustedRows = (p: {
     lang: Lang;
     gridProps: GridProps;
-    rawData: FileArchiveSet[];
+    rawData: FileArchiveFormModel[];
     tagMap: Record<string, string>;
     extra: FileArchiveExtraColumns;
 }): GridRow[] =>
@@ -206,7 +211,7 @@ const buildAdjustedRow = (p: {
     lang: Lang;
     row: GridRow;
     index: number;
-    rawData: FileArchiveSet[];
+    rawData: FileArchiveFormModel[];
     tagMap: Record<string, string>;
     extra: FileArchiveExtraColumns;
 }): GridRow =>
@@ -297,7 +302,13 @@ const getBaseCellContent = (lang: Lang, item: FileArchiveFormModel, key: string)
     return "";
 };
 /** 套用下載欄位與 Spec 擴充 */
-const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: FileArchiveFormModel[], tagMap: Record<string, string>): GridProps =>
+const SetAdjustFunction = (
+    lang: Lang,
+    modelDisplayName: ModelDisplaySchema | null,
+    gridProps: GridProps,
+    rawData: FileArchiveFormModel[],
+    tagMap: Record<string, string>,
+): GridProps =>
 {
     if (gridProps.columns.some(col => col.key === downloadColName || col.key === publicDownloadCountColName)) return gridProps;
     const extra = buildExtraColumns(lang, modelDisplayName);

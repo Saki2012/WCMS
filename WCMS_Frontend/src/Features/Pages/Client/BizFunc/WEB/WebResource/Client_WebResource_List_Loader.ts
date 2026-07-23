@@ -263,7 +263,7 @@ const buildCellContent = (p: { item: WebResourceFormModel; colKey: string; lang:
         case WebResourceInfoFields.ResUrl:
             return detail?.ResUrl ?? "";
         case WebResourceFields.Categories:
-            return p.item.WebResource?.Categories ?? "";
+            return p.item?.Categories ?? "";
         default:
             return "";
     }

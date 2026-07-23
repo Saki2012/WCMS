@@ -8,7 +8,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import type { ReactNode } from "react";
 import {
     type SpecJournalIndexListRenderers,
-    type SpecJournalIndexSet,
+    type SpecJournalIndexFormModel,
     useSpecJournalIndexListGridTemplate,
 } from "./Server_SpecJournalIndex_List_Hook";
 
@@ -44,11 +44,11 @@ const SpecJournalIndexSearchBarSection = (props: ServerListGridSearchRenderProps
 
 // #region Protected
 /** 渲染卷期欄位內容 */
-const buildSpecJournalIndexVolumeIssueContentNode = (set: SpecJournalIndexSet): ReactNode =>
+const buildSpecJournalIndexVolumeIssueContentNode = (set: SpecJournalIndexFormModel): ReactNode =>
 {
     return (
         <ul className="m-0 p-0" style={volumeIssueListStyle}>
-            {(set.SpecJournalIndexDetail ?? []).map((item, index) =>
+            {(set._SpecJournalIndexDetail ?? []).map((item, index) =>
             {
                 return <li key={buildSpecJournalIndexDetailKey(item, index)} className="m-0 p-0">{formatSpecJournalIndexDetail(item)}</li>;
             })}
@@ -58,7 +58,7 @@ const buildSpecJournalIndexVolumeIssueContentNode = (set: SpecJournalIndexSet): 
 
 
 /** 建立卷期列表 key */
-const buildSpecJournalIndexDetailKey = (detail: NonNullable<SpecJournalIndexSet["SpecJournalIndexDetail"]>[number], index: number): string =>
+const buildSpecJournalIndexDetailKey = (detail: NonNullable<SpecJournalIndexFormModel["_SpecJournalIndexDetail"]>[number], index: number): string =>
 {
     return `${detail.IndexId ?? ""}-${detail.RowId ?? ""}-${index}`;
 };
@@ -66,7 +66,7 @@ const buildSpecJournalIndexDetailKey = (detail: NonNullable<SpecJournalIndexSet[
 
 // #region Private
 /** 格式化卷期顯示文字 */
-const formatSpecJournalIndexDetail = (detail: NonNullable<SpecJournalIndexSet["SpecJournalIndexDetail"]>[number]): string =>
+const formatSpecJournalIndexDetail = (detail: NonNullable<SpecJournalIndexFormModel["_SpecJournalIndexDetail"]>[number]): string =>
 {
     const volume = detail.Volume ?? "";
     const issue = detail.Issue ?? "";

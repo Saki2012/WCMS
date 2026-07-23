@@ -7,41 +7,56 @@ import { SpecOpenScheduleRuleAdapter } from "@/SpecFetures/1816/Hooks/BizFunc/Ca
 import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
+import { PGID } from "@/types/SchemaFields";
 import { useMemo } from "react";
 
 // #region Property
-type SpecOpenScheduleRuleSet = components["schemas"]["SpecOpenScheduleRuleSet_DTO"];
+type SpecOpenScheduleRuleFormModel = components["schemas"]["SpecOpenScheduleRule"];
 
+type ScheduleRuleFormRefs = Record<string, never>;
 
-export type ScheduleRuleFormRefs = Record<string, never>;
+type ScheduleRuleFormRawData = ServerFormDefaultRawData<SpecOpenScheduleRuleFormModel, ScheduleRuleFormRefs>;
 
-export type ScheduleRuleFormRawData = ServerFormDefaultRawData<SpecOpenScheduleRuleSet, ScheduleRuleFormRefs>;
+type ScheduleRuleFormAdapter = ReturnType<typeof SpecOpenScheduleRuleAdapter>;
 
-export type ScheduleRuleFormAdapter = { ScheduleRule: ReturnType<typeof SpecOpenScheduleRuleAdapter>; };
-
-export type ScheduleRuleFormActionsOpt = {
-    /** 儲存成功後回列表 */
+interface ScheduleRuleFormActionsOpt
+{
+    /** 儲存成功後返回列表。 */
     onBackToList: () => void;
-};
+}
+
+interface UseScheduleRuleFormTemplateOptions
+{
+    /** 後台主題設定。 */
+    theme: IBETheme;
+
+    /** 資料 internalId，空值代表新增。 */
+    internalId: string;
+
+    /** 新增模式預設 FormModel。 */
+    emptyData: SpecOpenScheduleRuleFormModel;
+
+    /** Form Template 標準動作設定。 */
+    actionsOpt: ScheduleRuleFormActionsOpt;
+}
 // #endregion
 
 // #region Public
-/** 建立 ScheduleRule Spec Form Template，統一交給 Server_FormTemplate 處理資料流程 */
+/** 建立 ScheduleRule Spec Form Template，統一使用 FormModel 資料流程。 */
 export const useScheduleRuleFormTemplate = (
-    opt: { theme: IBETheme; internalId: string; emptyData: SpecOpenScheduleRuleSet; actionsOpt: ScheduleRuleFormActionsOpt; },
-): ServerFormTemplate<SpecOpenScheduleRuleSet, ScheduleRuleFormAdapter, ScheduleRuleFormRefs, ScheduleRuleFormRawData, ScheduleRuleFormActionsOpt> =>
+    opt: UseScheduleRuleFormTemplateOptions,
+): ServerFormTemplate<SpecOpenScheduleRuleFormModel, ScheduleRuleFormAdapter, ScheduleRuleFormRefs, ScheduleRuleFormRawData, ScheduleRuleFormActionsOpt> =>
 {
     return useMemo(() =>
     {
         return {
-            featureKey: "SpecOpenScheduleRule",
+            featureKey: PGID.SpecOpenScheduleRule,
             theme: opt.theme,
             internalId: opt.internalId,
             emptyData: opt.emptyData,
             actionsOpt: opt.actionsOpt,
             spec: {
                 buildAdapter: buildScheduleRuleFormAdapter,
-                selectDataAdapter: adapter => adapter.ScheduleRule,
                 buildTitle: buildScheduleRuleFormTitle,
                 buildInitialData: buildScheduleRuleInitialData,
             },
@@ -51,25 +66,23 @@ export const useScheduleRuleFormTemplate = (
 // #endregion
 
 // #region Private
-/** 建立 ScheduleRule 使用的 Spec Adapter */
+/** 建立 ScheduleRule FormModel Adapter。 */
 const buildScheduleRuleFormAdapter = (): ScheduleRuleFormAdapter =>
 {
-    return { ScheduleRule: SpecOpenScheduleRuleAdapter() };
+    return SpecOpenScheduleRuleAdapter();
 };
 
-
-/** 建立 ScheduleRule Form 標題，ModelDisplayName 無資料時使用固定名稱 */
+/** 建立 ScheduleRule Form 標題，ModelDisplayName 無資料時使用固定名稱。 */
 const buildScheduleRuleFormTitle = (ctx: { mode: "new" | "edit"; displayName: ModelDisplaySchema; }): string =>
 {
     const title = ctx.displayName.ModelDisplayName || "開館時間設定";
     return ctx.mode === "edit" ? `修改${title}` : title;
 };
 
-
-/** 建立新增模式的 initial data，避免新增時查詢 __new__ */
+/** 建立新增模式 initial data，避免新增時查詢 __new__。 */
 const buildScheduleRuleInitialData = (
-    ctx: { mode: "new" | "edit"; emptyData: SpecOpenScheduleRuleSet; },
-): ApiFormInitial<SpecOpenScheduleRuleSet> | undefined =>
+    ctx: { mode: "new" | "edit"; emptyData: SpecOpenScheduleRuleFormModel; },
+): ApiFormInitial<SpecOpenScheduleRuleFormModel> | undefined =>
 {
     if (ctx.mode !== "new") return undefined;
     return { data: { args: "__new__", apiRes: { IsSuccess: true, Data: ctx.emptyData, SysMessage: [] } } };

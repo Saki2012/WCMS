@@ -13,7 +13,7 @@ import { type SpecJournalListLoaderData, useSpecJournalListData } from "./SpecJo
 import { useSpecJournalSearchNav } from "./SpecJournalSearchUtils";
 
 // #region Property
-type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
+type SpecJournalFormModel = components["schemas"]["SpecJournal"];
 
 type SpecJournalFilters = { q: string; articleLang: string; tagId: string; tagName: string; author: string; keyword: string; includeRef: string; };
 
@@ -54,7 +54,7 @@ export const SpecJournalList = (props: { site: INormSite; node: INormNode; lang:
         if (!routeIndexId || !routeRowId) return pageTitle;
 
         // 執行 function：有卷期就優先顯示 Vol / No
-        const detail = useVolume.rawData?.[0]?.SpecJournal?._JournalIndexDetail;
+        const detail = useVolume.rawData?.[0]?._JournalIndexDetail;
         if (!detail) return pageTitle;
 
         // return
@@ -67,7 +67,7 @@ export const SpecJournalList = (props: { site: INormSite; node: INormNode; lang:
         if (isSearchMode) return { fileId: "", fileName: "" };
 
         // 執行 function：一般卷期模式才抓摘要
-        const detail = useVolume.rawData?.[0]?.SpecJournal?._JournalIndexDetail;
+        const detail = useVolume.rawData?.[0]?._JournalIndexDetail;
         return {
             fileId: detail?.SummaryFileId ?? "",
             fileName: detail?.SummaryFileName ?? "",
@@ -117,10 +117,10 @@ export const SpecJournalList = (props: { site: INormSite; node: INormNode; lang:
 // #endregion
 
 // #region Protected
-const buildDocuments = (data: SpecJournalSet): Document[] =>
+const buildDocuments = (data: SpecJournalFormModel): Document[] =>
 {
     const files: Document[] = [];
-    data?.SpecJournalDocument?.slice().sort((a, b) => (a.DocumentType ?? 0) - (b.DocumentType ?? 0)).forEach((item, idx) =>
+    data?._SpecJournalDocument?.slice().sort((a, b) => (a.DocumentType ?? 0) - (b.DocumentType ?? 0)).forEach((item, idx) =>
     {
         files.push({ key: `document-${idx}`, fileId: item.DocumentId ?? "", fileName: item.DocumentName || item.DocumentId || "" });
     });
@@ -135,7 +135,7 @@ const buildDocuments = (data: SpecJournalSet): Document[] =>
 const SpecJournalListContent = (
     props: {
         lang: Lang;
-        rawData: SpecJournalSet[];
+        rawData: SpecJournalFormModel[];
         totalCount: number;
         issueSummary: { fileId?: string; fileName?: string; downloadCount?: number; isPdf?: boolean; };
         queryFilters: { q?: string; articleLang?: string; tagId?: string; tagName?: string; author?: string; keyword?: string; includeRef?: string; };
@@ -201,13 +201,13 @@ const SpecJournalListContent = (
                 <div className="JJ_main_contentDIV">
                     <ul className="ListInfo">
                         {props.rawData.map((it) => (
-                            <li key={it.SpecJournal?.JournalId} className="JInfo_item">
+                            <li key={it.JournalId} className="JInfo_item">
                                 <div className="row__group">
                                     <LangLink
                                         className="Jitem-inner"
-                                        to={`../Form/${it.SpecJournal?._JournalIndexDetail?.IndexId}/${it.SpecJournal?._JournalIndexDetail?.RowId}/${it.SpecJournal?.JournalId ?? ""}`}
+                                        to={`../Form/${it._JournalIndexDetail?.IndexId}/${it._JournalIndexDetail?.RowId}/${it.JournalId ?? ""}`}
                                         target="_self"
-                                        title={it.SpecJournal?.Title ?? ""}
+                                        title={it.Title ?? ""}
                                     >
                                         <JournalCard item={it} lang={props.lang} onPickArticleLang={handlePickArticleLang} onPickTypeTag={handlePickTypeTag} />
                                     </LangLink>
@@ -217,12 +217,12 @@ const SpecJournalListContent = (
                                             <span className="me-3">{text.authorLabel}</span>
                                             <div className="authorName" aria-label="authorName">
                                                 <ul className="authorName_list">
-                                                    {it.SpecJournalAuthor?.map((au) =>
+                                                    {it._SpecJournalAuthor?.map((au) =>
                                                     {
                                                         return (
-                                                            <li key={`${it.SpecJournal?.JournalId}-au-${au.RowId}`} className="authorlist-item">
+                                                            <li key={`${it.JournalId}-au-${au.RowId}`} className="authorlist-item">
                                                                 <LangLink
-                                                                    to={`../Form/${it.SpecJournal?._JournalIndexDetail?.IndexId}/${it.SpecJournal?._JournalIndexDetail?.RowId}/${it.SpecJournal?.JournalId ?? ""}`}
+                                                                    to={`../Form/${it._JournalIndexDetail?.IndexId}/${it._JournalIndexDetail?.RowId}/${it.JournalId ?? ""}`}
                                                                 >
                                                                     {(() =>
                                                                     {
@@ -303,11 +303,11 @@ const SpecJournalListContent = (
 /** JournalCard：拆小塊，保持 function 不要太長 */
 
 const JournalCard = (
-    props: { item: SpecJournalSet; lang: Lang; onPickArticleLang: (langCode: string) => void; onPickTypeTag: (tagId: string, tagName?: string) => void; },
+    props: { item: SpecJournalFormModel; lang: Lang; onPickArticleLang: (langCode: string) => void; onPickTypeTag: (tagId: string, tagName?: string) => void; },
 ) =>
 {
     // 宣告變數
-    const langCode = props.item.SpecJournal?.ArticleLang ?? "";
+    const langCode = props.item.ArticleLang ?? "";
     const langLabel = getLangLabel(langCode);
     const text = getSpecJournalListLangText(props.lang);
     // return
@@ -334,12 +334,12 @@ const JournalCard = (
                         </div>
                     </div>
 
-                    {props.item.SpecJournalTypes?.map((type) =>
+                    {props.item._SpecJournalTypes?.map((type) =>
                     {
                         const tagName = type.Tag?._TagDetail?.find((p) => p.Lang === props.lang)?.TagName;
 
                         return (
-                            <div key={`${props.item.SpecJournal?.JournalId}-type-${type.RowId ?? type.TagId ?? ""}`} className="card_cat_item">
+                            <div key={`${props.item.JournalId}-type-${type.RowId ?? type.TagId ?? ""}`} className="card_cat_item">
                                 <div className="card_cat_TxT">
                                     <a
                                         href="#"
@@ -364,10 +364,10 @@ const JournalCard = (
 
             <div className="card_titleDiv">
                 <div className="card_title">
-                    {props.item.SpecJournal?.ArticleLang === "zh-tw" ? props.item.SpecJournal?.Title : props.item.SpecJournal?.Title_en}
+                    {props.item.ArticleLang === "zh-tw" ? props.item.Title : props.item.Title_en}
                 </div>
                 <div className="card_title_en">
-                    {props.item.SpecJournal?.ArticleLang === "en" ? props.item.SpecJournal?.Title : props.item.SpecJournal?.Title_en}
+                    {props.item.ArticleLang === "en" ? props.item.Title : props.item.Title_en}
                 </div>
             </div>
 
@@ -409,7 +409,7 @@ const IssueSummaryDownload = (props: { lang: Lang; fileId?: string; fileName?: s
     );
 };
 
-const DocumentList = (props: { lang: Lang; data: SpecJournalSet; }) =>
+const DocumentList = (props: { lang: Lang; data: SpecJournalFormModel; }) =>
 {
     // 宣告變數
     const MAX_PREVIEW_FILES = 4;

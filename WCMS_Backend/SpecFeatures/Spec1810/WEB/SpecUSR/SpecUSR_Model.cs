@@ -1,47 +1,31 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using WCMS.SysCore.FeatureDriver.Model.Base;
+using WCMS.SysCore.FeatureDriver.Model.Validation;
+using WCMS.SysCore.I18n.Metadata;
 using WCMS.SysCore.I18n;
 using WCMS.SysCore.PlatformServices.FileManagement;
 using WCMS.SpecFeatures.Spec1810._Resx;
 using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.Features.WEB.Content;
-using WCMS.SpecFeatures.Spec1817._Resx;
 using WCMS.SysCore.FeatureDriver.Model.Metadata;
 namespace WCMS.SpecFeatures.Spec1810.WEB.SpecUSR;
 
 /// <summary>
 /// 
 /// </summary>
-public class SpecUSRSet: ITSet
-{
-    [LibField(ApiFieldMode.ReadWrite)]
-    public SpecUSR SpecUSR { get; set; }= new();
-    [LibField(ApiFieldMode.ReadWrite)]
-    public List<SpecUSRDetail> SpecUSRDetail { get; set; }= [];
-    [LibField(ApiFieldMode.ReadWrite)]
-    public List<SpecUSRPhoto> SpecUSRPhoto { get; set; }= [];
-    [LibField(ApiFieldMode.ReadWrite)]
-    public List<SpecUSRPhotoInfo> SpecUSRPhotoInfo { get; set; }= [];
-    [LibField(ApiFieldMode.ReadWrite)]
-    public List<SpecUSRFile> SpecUSRFile { get; set; }= [];
-    [LibField(ApiFieldMode.ReadWrite)]
-    public List<SpecUSRUrl> SpecUSRUrl { get; set; }= [];
-}
-/// <summary>
-/// 
-/// </summary>
-public class SpecUSR: MasterDataModel
+public class SpecUSR: HeaderModel
 {
     /// <summary>
     /// USR Id
     /// </summary>
 [Key]
-[LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, SpecDisplayName.SpecUSRId)]
+[LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, SpecModelDisplayName.SpecUSRId)]
 public string USRId { get; set; } = string.Empty;
     /// <summary>
     /// 類別ID
     /// </summary>
-[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.ID, SpecDisplayName.SpecResearch_Categories)]
+[LibStr(ApiFieldMode.ReadWrite, DbStrLen.ID, SpecModelDisplayName.SpecResearch_Categories)]
 public string CategoryId { get; set; } = string.Empty;
     /// <summary>
     /// 狀態 (多個)
@@ -51,7 +35,7 @@ public string CategoryId { get; set; } = string.Empty;
     /// <summary>
     /// 標籤 (多個) 
     /// </summary>
-[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title, SpecDisplayName.SpecResearch_Tags)]
+[LibStr(ApiFieldMode.ReadWrite, DbStrLen.Title, SpecModelDisplayName.SpecResearch_Tags)]
 public string Tags { get; set; }= string.Empty;
     /// <summary>
     /// 圖片 (關聯檔案資料)
@@ -60,12 +44,12 @@ public string Tags { get; set; }= string.Empty;
 [ForeignKey(nameof(PictureId))]
 [LibField(ApiFieldMode.ReadOnly)]
 public FileManage? Picture { get; set; }
-[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.InternalId, SpecDisplayName.SpecUSR_PictureId)]
+[LibStr(ApiFieldMode.ReadWrite, DbStrLen.InternalId, SpecModelDisplayName.SpecUSR_PictureId)]
 public string? PictureId { get; set; }= string.Empty;
     /// <summary>
     /// 圖片描述
     /// </summary>
-[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Memo, SpecDisplayName.SpecUSR_PicDescription)]
+[LibStr(ApiFieldMode.ReadWrite, DbStrLen.Memo, SpecModelDisplayName.SpecUSR_PicDescription)]
 public string PicDescription { get; set; }= string.Empty;
 
     #region 主子表關聯
@@ -80,63 +64,60 @@ public List<SpecUSRPhoto> _SpecUSRPhoto { get; set; } = [];
 /// <summary>
 /// 
 /// </summary>
-public class SpecUSRDetail:DetailRowModel
+public class SpecUSRDetail:FormDetailModel
 {
 [Key]
-[LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, SpecDisplayName.SpecUSRId)]
+[LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, SpecModelDisplayName.SpecUSRId)]
 public string USRId { get; set; } = string.Empty;
-[Key]
-[LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
-public int RowId { get; set; }
 [Required]
 [LibField(ApiFieldMode.ReadWrite, DisplayName.Common_Lang)]
 public LangCode Lang { get; set; }= default!;
-[LibStr(ApiFieldMode.ReadWrite, 10, SpecDisplayName.SpecUSR_Year)]
+[LibStr(ApiFieldMode.ReadWrite, 10, SpecModelDisplayName.SpecUSR_Year)]
 public string Year { get; set; } = string.Empty;
-    [LibField(ApiFieldMode.ReadWrite, SpecDisplayName.SpecUSR_AcademicYear)]
+    [LibField(ApiFieldMode.ReadWrite, SpecModelDisplayName.SpecUSR_AcademicYear)]
     public int AcademicYear { get; set; }
-[LibStr(ApiFieldMode.ReadWrite, 1000, SpecDisplayName.SpecUSR_Courses)]
+[LibStr(ApiFieldMode.ReadWrite, 1000, SpecModelDisplayName.SpecUSR_Courses)]
 public string Courses { get; set; } = string.Empty;
-[LibStr(ApiFieldMode.ReadWrite, 1000, SpecDisplayName.SpecUSR_PracticeField)]
+[LibStr(ApiFieldMode.ReadWrite, 1000, SpecModelDisplayName.SpecUSR_PracticeField)]
 public string PracticeField { get; set; } = string.Empty;
-[LibStr(ApiFieldMode.ReadWrite, 1000, SpecDisplayName.SpecUSR_ProjectName)]
+[LibStr(ApiFieldMode.ReadWrite, 1000, SpecModelDisplayName.SpecUSR_ProjectName)]
 public string ProjectName { get; set; } = string.Empty;
-[LibStr(ApiFieldMode.ReadWrite, 1000, SpecDisplayName.SpecUSR_ExternalCoUnits)]
+[LibStr(ApiFieldMode.ReadWrite, 1000, SpecModelDisplayName.SpecUSR_ExternalCoUnits)]
 public string ExternalCooperationUnit { get; set; } = string.Empty;
-[LibStr(ApiFieldMode.ReadWrite, 1000, SpecDisplayName.SpecUSR_Department)]
+[LibStr(ApiFieldMode.ReadWrite, 1000, SpecModelDisplayName.SpecUSR_Department)]
 public string Department { get; set; } = string.Empty;
-[LibStr(ApiFieldMode.ReadWrite, 1000, SpecDisplayName.SpecUSR_DuringExecution)]
+[LibStr(ApiFieldMode.ReadWrite, 1000, SpecModelDisplayName.SpecUSR_DuringExecution)]
 public string DuringExecution { get; set; } = string.Empty;
-    [LibField(ApiFieldMode.ReadWrite, SpecDisplayName.SpecUSR_PlanAmount)]
+    [LibField(ApiFieldMode.ReadWrite, SpecModelDisplayName.SpecUSR_PlanAmount)]
     public decimal PlanAmount { get; set; }
-[LibStr(ApiFieldMode.ReadWrite, 1000, SpecDisplayName.SpecUSR_ExecutionStrategy)]
+[LibStr(ApiFieldMode.ReadWrite, 1000, SpecModelDisplayName.SpecUSR_ExecutionStrategy)]
 public string ExecutionStrategy { get; set; } = string.Empty;
-    [LibField(ApiFieldMode.ReadWrite, SpecDisplayName.SpecUSR_ContentIntro)]
+    [LibField(ApiFieldMode.ReadWrite, SpecModelDisplayName.SpecUSR_ContentIntro)]
     public string ContentIntroduction { get; set; } = string.Empty;
-[LibStr(ApiFieldMode.ReadWrite, 1000, SpecDisplayName.SpecUSR_ProjectConcept)]
+[LibStr(ApiFieldMode.ReadWrite, 1000, SpecModelDisplayName.SpecUSR_ProjectConcept)]
 public string ProjectConcept { get; set; } = string.Empty;
-[LibStr(ApiFieldMode.ReadWrite, 4000, SpecDisplayName.SpecUSR_KeyHighlights)]
+[LibStr(ApiFieldMode.ReadWrite, 4000, SpecModelDisplayName.SpecUSR_KeyHighlights)]
 public string ProjectHighlights { get; set; } = string.Empty;
-[LibStr(ApiFieldMode.ReadWrite, 1000, SpecDisplayName.SpecUSR_ProjectLeader)]
+[LibStr(ApiFieldMode.ReadWrite, 1000, SpecModelDisplayName.SpecUSR_ProjectLeader)]
 public string ProjectLeader { get; set; } = string.Empty;
-[LibStr(ApiFieldMode.ReadWrite, 1000, SpecDisplayName.SpecUSR_ProjectSubLeader)]
+[LibStr(ApiFieldMode.ReadWrite, 1000, SpecModelDisplayName.SpecUSR_ProjectSubLeader)]
 public string ProjectSubLeader { get; set; } = string.Empty;
-[LibStr(ApiFieldMode.ReadWrite, 1000, SpecDisplayName.SpecUSR_AttendTeam)]
+[LibStr(ApiFieldMode.ReadWrite, 1000, SpecModelDisplayName.SpecUSR_AttendTeam)]
 public string AttendTeam { get; set; } = string.Empty;
-[LibStr(ApiFieldMode.ReadWrite, 1000, SpecDisplayName.SpecUSR_Cohost1)]
+[LibStr(ApiFieldMode.ReadWrite, 1000, SpecModelDisplayName.SpecUSR_Cohost1)]
 public string Cohost1 { get; set; } = string.Empty;
-[LibStr(ApiFieldMode.ReadWrite, 1000, SpecDisplayName.SpecUSR_Cohost2)]
+[LibStr(ApiFieldMode.ReadWrite, 1000, SpecModelDisplayName.SpecUSR_Cohost2)]
 public string Cohost2 { get; set; } = string.Empty;
-[LibStr(ApiFieldMode.ReadWrite, 1000, SpecDisplayName.SpecUSR_Commissioned)]
+[LibStr(ApiFieldMode.ReadWrite, 1000, SpecModelDisplayName.SpecUSR_Commissioned)]
 public string Commissioned { get; set; } = string.Empty;
-[LibStr(ApiFieldMode.ReadWrite, 500, SpecDisplayName.SpecUSR_Remark)]
+[LibStr(ApiFieldMode.ReadWrite, 500, SpecModelDisplayName.SpecUSR_Remark)]
 public string Remark { get; set; } = string.Empty;
-[LibStr(ApiFieldMode.ReadWrite, 500, SpecDisplayName.SpecUSR_ProjectItem)]
+[LibStr(ApiFieldMode.ReadWrite, 500, SpecModelDisplayName.SpecUSR_ProjectItem)]
 public string ProjectItem { get; set; } = string.Empty;
-[Obsolete, StringLength(SysLengthParam.Url)]
+[Obsolete, StringLength(DbStrLen.Url)]
 [LibField(ApiFieldMode.ReadWrite)]
 public string Url { get; set; } = string.Empty;
-[Obsolete, StringLength(SysLengthParam.Url)]
+[Obsolete, StringLength(DbStrLen.Url)]
 [LibField(ApiFieldMode.ReadWrite)]
 public string UrlDescription { get; set; } = string.Empty;
 
@@ -155,27 +136,24 @@ public List<SpecUSRUrl> _SpecUSRUrl { get; set; } = [];
 /// <summary>
 ///USR相簿裡的相片
 /// </summary>
-public class SpecUSRPhoto : DetailRowModel
+public class SpecUSRPhoto : FormDetailModel
 {
     /// <summary>
     /// 檔案分類ID
     /// </summary>
 [Required, Key]
-[LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, SpecDisplayName.SpecUSRId)]
+[LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, SpecModelDisplayName.SpecUSRId)]
 public string USRId { get; set; } = string.Empty;
     /// <summary>
     /// 行主鍵
     /// </summary>
-[Key]
-[LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
-public int RowId { get; set; }
-    /// <summary>
+/// <summary>
     /// 圖片來源
     /// </summary>
 [ForeignKey(nameof(PicSrcId))]
 [LibField(ApiFieldMode.ReadOnly)]
 public FileManage? PicSrc { get; set; }
-[StringLength(SysLengthParam.InternalId)]
+[StringLength(DbStrLen.InternalId)]
 [LibField(ApiFieldMode.ReadWrite)]
 public string? PicSrcId { get; set; }
     /// <summary>
@@ -196,13 +174,13 @@ public List<SpecUSRPhotoInfo> _SpecUSRPhotoInfo { get; set; } = [];
 /// <summary>
 /// USR相簿裡的相片資訊
 /// </summary>
-public class SpecUSRPhotoInfo : DetailRowModel
+public class SpecUSRPhotoInfo : FormDetailModel
 {
     /// <summary>
     /// 
     /// </summary>
 [Required, Key]
-[LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, SpecDisplayName.SpecUSRId)]
+[LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, SpecModelDisplayName.SpecUSRId)]
 public string USRId { get; set; } = string.Empty;
     /// <summary>
     /// 父行主鍵
@@ -213,10 +191,7 @@ public int ParentRowId { get; set; }
     /// <summary>
     /// 行主鍵
     /// </summary>
-[Key]
-[LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
-public int RowId { get; set; }
-    /// <summary>
+/// <summary>
     /// 語系 LangCode
     /// </summary>
     [LibField(ApiFieldMode.ReadWrite, DisplayName.Common_Lang)]
@@ -224,7 +199,7 @@ public int RowId { get; set; }
     /// <summary>
     /// 標題
     /// </summary>
-[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Memo, DisplayName.Common_Title)]
+[LibStr(ApiFieldMode.ReadWrite, DbStrLen.Memo, DisplayName.Common_Title)]
 public string Title { get; set; } = string.Empty;
 
     #region 主子表關聯
@@ -236,13 +211,13 @@ public SpecUSRPhoto _SpecUSRPhoto { get; set; }
 /// <summary>
 /// USR檔案
 /// </summary>
-public class SpecUSRFile : DetailRowModel
+public class SpecUSRFile : FormDetailModel
 {
     /// <summary>
     /// 
     /// </summary>
 [Required, Key]
-[LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, SpecDisplayName.SpecUSRId)]
+[LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, SpecModelDisplayName.SpecUSRId)]
 public string USRId { get; set; } = string.Empty;
     /// <summary>
     /// 父行主鍵
@@ -253,13 +228,10 @@ public int ParentRowId { get; set; }
     /// <summary>
     /// 行主鍵
     /// </summary>
-[Key]
-[LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
-public int RowId { get; set; }
-    /// <summary>
+/// <summary>
     /// 檔案來源
     /// </summary>
-[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.InternalId, DisplayName.FileArchive_FileSrcId)]
+[LibStr(ApiFieldMode.ReadWrite, DbStrLen.InternalId, DisplayName.FileArchive_FileSrcId)]
 public string? FileSrcId { get; set; }
 [ForeignKey(nameof(FileSrcId))]
 [LibField(ApiFieldMode.ReadOnly)]
@@ -267,7 +239,7 @@ public FileManage? FileSrc { get; set; }
     /// <summary>
     /// 語系 LangCode
     /// </summary>
-[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.FileName, DisplayName.FileArchive_FileName)]
+[LibStr(ApiFieldMode.ReadWrite, DbStrLen.FileName, DisplayName.FileArchive_FileName)]
 public string FileName { get; set; } = string.Empty;
 
     #region 主子表關聯
@@ -279,13 +251,13 @@ public SpecUSRDetail _SpecUSRDetail { get; set; }
 /// <summary>
 /// USR外部網址設定
 /// </summary>
-public class SpecUSRUrl : DetailRowModel
+public class SpecUSRUrl : FormDetailModel
 {
     /// <summary>
     /// 靜態客製頁面ID
     /// </summary>
 [Required, Key]
-[LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, SpecDisplayName.SpecUSRId)]
+[LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, SpecModelDisplayName.SpecUSRId)]
 public string USRId { get; set; } = string.Empty;
     /// <summary>
     /// 父行主鍵
@@ -296,18 +268,15 @@ public int ParentRowId { get; set; }
     /// <summary>
     /// 行主鍵
     /// </summary>
-[Key]
-[LibField(ApiFieldMode.ReadOnly, DisplayName.Common_RowId)]
-public int RowId { get; set; }
-    /// <summary>
+/// <summary>
     /// 檔案來源
     /// </summary>
-[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Url, DisplayName.Common_Url)]
+[LibStr(ApiFieldMode.ReadWrite, DbStrLen.Url, DisplayName.Common_Url)]
 public string Url { get; set; } = string.Empty;
     /// <summary>
     /// 網址描述
     /// </summary>
-[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Title, DisplayName.Common_UrlDescription)]
+[LibStr(ApiFieldMode.ReadWrite, DbStrLen.Title, DisplayName.Common_UrlDescription)]
 public string UrlDescription { get; set; } = string.Empty;
     /// <summary>
     /// 開啟連結方式

@@ -1,17 +1,15 @@
-﻿
 namespace WCMS.Features._Resx;
 
 public static partial class ProgKeys
 {
     /// <summary>
-    /// 客製功能模塊
+    /// Spec1816 客製功能模組。
     /// </summary>
     public static partial class Spec
     {
         /// <summary>
-        /// 模塊代碼
+        /// 學年度開館規則功能代碼。
         /// </summary>
         public const string SpecOpenScheduleRule = nameof(SpecOpenScheduleRule);
-
     }
 }

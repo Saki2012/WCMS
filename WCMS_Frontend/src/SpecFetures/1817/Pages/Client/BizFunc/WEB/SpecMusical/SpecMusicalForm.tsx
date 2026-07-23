@@ -3,7 +3,7 @@ import { ModuleContent, type ModuleViewCountConfig } from "@/Features/Pages/Clie
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { PGID, SpecMusicalModelFields, SpecMusicalSetFields } from "@/types/SchemaFields";
+import { PGID, SpecMusicalFields } from "@/types/SchemaFields";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router";
 
@@ -11,13 +11,11 @@ import type { TryCountDetailViewRequest } from "@/Features/Hooks/BizFunc/WEB/Sit
 import { useSpecMusicalFormData } from "./SpecMusicalForm_Loader";
 
 // #region Property
-type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"];
+type SpecMusicalFormModel = components["schemas"]["SpecMusical"];
 
-type SpecMusicalModel = components["schemas"]["SpecMusicalModel_DTO"];
+type SpecMusicalPictureList = components["schemas"]["SpecMusicalPictureList"];
 
-type SpecMusicalPictureList = components["schemas"]["SpecMusicalPictureList_DTO"];
-
-type SpecMusicalSoundList = components["schemas"]["SpecMusicalSoundList_DTO"];
+type SpecMusicalSoundList = components["schemas"]["SpecMusicalSoundList"];
 
 let globalCurrentAudio: HTMLAudioElement | null = null;
 
@@ -241,23 +239,23 @@ const PicturesComp = (props: { pics: SpecMusicalPictureList[]; }) =>
     );
 };
 
-const InfoComp = (props: { info: SpecMusicalModel; displayName: ModelDisplaySchema | null; }) =>
+const InfoComp = (props: { info: SpecMusicalFormModel; displayName: ModelDisplaySchema | null; }) =>
 {
-    const columns = props.displayName?.Tables?.find(p => p.TableId === SpecMusicalSetFields.SpecMusical)?.Columns ?? [];
+    const columns = props.displayName?.Tables?.find(p => p.TableId === PGID.SpecMusical)?.Columns ?? [];
     const displayCol = [
-        SpecMusicalModelFields.Specification,
-        SpecMusicalModelFields.Headstock,
-        SpecMusicalModelFields.Backboard,
-        SpecMusicalModelFields.ScaleLength,
-        SpecMusicalModelFields.Bridge,
-        SpecMusicalModelFields.BodyForm,
-        SpecMusicalModelFields.Material,
+        SpecMusicalFields.Specification,
+        SpecMusicalFields.Headstock,
+        SpecMusicalFields.Backboard,
+        SpecMusicalFields.ScaleLength,
+        SpecMusicalFields.Bridge,
+        SpecMusicalFields.BodyForm,
+        SpecMusicalFields.Material,
     ];
 
     const specifications = displayCol.map((colId) =>
     {
         const colMeta = columns.find(c => c.ColumnId === colId);
-        const fieldKey = colId as keyof SpecMusicalModel;
+        const fieldKey = colId as keyof SpecMusicalFormModel;
         const rawValue = props.info[fieldKey];
         return { label: colMeta?.ColumnDisplayName ?? colId, value: rawValue == null ? "" : String(rawValue) };
     });
@@ -377,7 +375,7 @@ export const SpecMusicalForm = (props: ISpecMusicalFormProps) =>
         </ModuleContent>
     );
 };
-const MainContent = (props: { data?: SpecMusicalSet; displayName: ModelDisplaySchema | null; }) =>
+const MainContent = (props: { data?: SpecMusicalFormModel; displayName: ModelDisplaySchema | null; }) =>
 {
     if (!props.data) return null;
 
@@ -385,13 +383,13 @@ const MainContent = (props: { data?: SpecMusicalSet; displayName: ModelDisplaySc
         <>
             <div className="commodity_details_content + Layout_Padding_2_bottom">
                 <div className="row">
-                    <PicturesComp pics={props.data?.SpecMusicalPictureList ?? []} />
-                    <InfoComp info={props.data?.SpecMusical ?? {}} displayName={props.displayName} />
+                    <PicturesComp pics={props.data._SpecMusicalPictureList ?? []} />
+                    <InfoComp info={props.data} displayName={props.displayName} />
                 </div>
             </div>
             <div className="commodity_details_content + Layout_Padding_2_top">
                 <div id="commodity_Horizontal" className="H-commodity-nav-tabs-content-box">
-                    <SoundComp sounds={props.data?.SpecMusicalSoundList ?? []} />
+                    <SoundComp sounds={props.data._SpecMusicalSoundList ?? []} />
                 </div>
             </div>
         </>

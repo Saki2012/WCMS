@@ -36,18 +36,16 @@ import { LibAttachment } from "@/SysCore/Utils/Library/LibData";
 import { useUploadFile } from "@/SysCore/Utils/UI_Hooks/useUploadFile";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { PGID, SpecMusicalModelFields, SpecMusicalPictureListFields, SpecMusicalSetFields, SpecMusicalSoundListFields } from "@/types/SchemaFields";
+import { PGID, SpecMusicalFields, SpecMusicalPictureListFields, SpecMusicalSoundListFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
 import { useCallback, useMemo, useState } from "react";
 
 // #region Property
-type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"];
+type SpecMusicalFormModel = components["schemas"]["SpecMusical"];
 
-type SpecMusicalModel = NonNullable<SpecMusicalSet["SpecMusical"]>;
+type SpecMusicalPictureList = components["schemas"]["SpecMusicalPictureList"];
 
-type SpecMusicalPictureList = components["schemas"]["SpecMusicalPictureList_DTO"];
-
-type SpecMusicalSoundList = components["schemas"]["SpecMusicalSoundList_DTO"];
+type SpecMusicalSoundList = components["schemas"]["SpecMusicalSoundList"];
 
 type UploadFileHandler = ReturnType<typeof useUploadFile>["handleFileChange"];
 
@@ -64,7 +62,7 @@ export type SpecMusicalFormRefs = {
     categoryMap: Record<string, string>;
 };
 
-export type SpecMusicalFormRawData = ServerFormDefaultRawData<SpecMusicalSet, SpecMusicalFormRefs>;
+export type SpecMusicalFormRawData = ServerFormDefaultRawData<SpecMusicalFormModel, SpecMusicalFormRefs>;
 
 export type SpecMusicalFormActionsOpt = {
     /** 儲存成功後回列表 */
@@ -88,7 +86,7 @@ export interface UseSpecMusicalFormTemplateOptions
     internalId: string;
 
     /** 新增模式預設資料 */
-    emptyData: SpecMusicalSet;
+    emptyData: SpecMusicalFormModel;
 
     /** Form Template 標準動作設定 */
     actionsOpt: SpecMusicalFormActionsOpt;
@@ -97,7 +95,7 @@ export interface UseSpecMusicalFormTemplateOptions
 export interface UseSpecMusicalPhotoEditGridOptions
 {
     /** 新版 Form Template 提供的資料 binding */
-    binding: ServerFormBinding<SpecMusicalSet>;
+    binding: ServerFormBinding<SpecMusicalFormModel>;
 
     /** EditGrid UI 樣式，仍由 Comp 決定 */
     style: IEditGridView_Style;
@@ -112,7 +110,7 @@ export interface UseSpecMusicalPhotoEditGridOptions
 export interface UseSpecMusicalSoundEditGridOptions
 {
     /** 新版 Form Template 提供的資料 binding */
-    binding: ServerFormBinding<SpecMusicalSet>;
+    binding: ServerFormBinding<SpecMusicalFormModel>;
 
     /** EditGrid UI 樣式，仍由 Comp 決定 */
     style: IEditGridView_Style;
@@ -133,7 +131,7 @@ export interface SpecMusicalCoverSelectorResult
 export interface UseSpecMusicalBatchPhotoUploadOptions
 {
     /** 新版 Form Template 提供的資料 binding */
-    binding: ServerFormBinding<SpecMusicalSet>;
+    binding: ServerFormBinding<SpecMusicalFormModel>;
 }
 
 export interface SpecMusicalUploadedPhoto
@@ -168,17 +166,21 @@ export interface SpecMusicalBatchPhotoUploadResult
     /** 上傳並新增相片資料 */
     uploadSelectedFiles: () => Promise<void>;
 }
+
+const SpecMusicalPictureTableId = SpecMusicalFields._SpecMusicalPictureList.replace(/^_/, "");
+
+const SpecMusicalSoundTableId = SpecMusicalFields._SpecMusicalSoundList.replace(/^_/, "");
 // #endregion
 
 // #region Public
-export const specMusicalEmptyData: SpecMusicalSet = { SpecMusical: {}, SpecMusicalPictureList: [], SpecMusicalSoundList: [] };
+export const specMusicalEmptyData: SpecMusicalFormModel = { MusicalId: "", MusicalName: "", _SpecMusicalPictureList: [], _SpecMusicalSoundList: [] };
 
 export const SpecMusicalCoverColumnKey = "__SpecMusicalCover";
 
 /** 建立 SpecMusical Spec Form Template，統一交給 Server_FormTemplate 處理資料流程。 */
 export const useSpecMusicalFormTemplate = (
     opt: UseSpecMusicalFormTemplateOptions,
-): ServerFormTemplate<SpecMusicalSet, SpecMusicalFormAdapter, SpecMusicalFormRefs, SpecMusicalFormRawData, SpecMusicalFormActionsOpt> =>
+): ServerFormTemplate<SpecMusicalFormModel, SpecMusicalFormAdapter, SpecMusicalFormRefs, SpecMusicalFormRawData, SpecMusicalFormActionsOpt> =>
 {
     return useMemo(() =>
     {
@@ -210,16 +212,16 @@ export const useSpecMusicalPhotoEditGrid = (opt: UseSpecMusicalPhotoEditGridOpti
         uploadFile.handleFileChange,
     ]);
 
-    return useEditGridBinding<SpecMusicalSet, SpecMusicalPictureList, SpecMusicalPictureGridRow>({
+    return useEditGridBinding<SpecMusicalFormModel, SpecMusicalPictureList, SpecMusicalPictureGridRow>({
         binding: opt.binding,
         emptyData: specMusicalEmptyData,
-        collectionName: SpecMusicalSetFields.SpecMusicalPictureList,
+        collectionName: SpecMusicalFields._SpecMusicalPictureList,
         columns,
         getItemRowId: item => item.RowId,
         sortItems: sortSpecMusicalPictureList,
         createItem: ctx => buildNewSpecMusicalPictureItem(ctx.data, ctx.nextRowId),
         toRow: (item, index) => buildSpecMusicalPictureGridRow(item, index, opt, handlePictureValueChange, displayName),
-        toItem: (row, index, ctx) => toSpecMusicalPictureDto(ctx.data, row, index),
+        toItem: (row, index, ctx) => toSpecMusicalPictureModel(ctx.data, row, index),
         beforeCommit: ctx => syncSpecMusicalPictureCommit(ctx.data, ctx.nextVisibleItems),
         onDeleteRow: ctx => syncSpecMusicalCoverAfterDelete(opt.binding, ctx.row),
         editGridProps: buildSpecMusicalPhotoGridProps(opt.style, displayName),
@@ -236,32 +238,32 @@ export const useSpecMusicalSoundEditGrid = (opt: UseSpecMusicalSoundEditGridOpti
         uploadFile.handleFileChange,
     ]);
 
-    return useEditGridBinding<SpecMusicalSet, SpecMusicalSoundList, SpecMusicalSoundGridRow>({
+    return useEditGridBinding<SpecMusicalFormModel, SpecMusicalSoundList, SpecMusicalSoundGridRow>({
         binding: opt.binding,
         emptyData: specMusicalEmptyData,
-        collectionName: SpecMusicalSetFields.SpecMusicalSoundList,
+        collectionName: SpecMusicalFields._SpecMusicalSoundList,
         columns,
         getItemRowId: item => item.RowId,
         sortItems: sortSpecMusicalSoundList,
         createItem: ctx => buildNewSpecMusicalSoundItem(ctx.data, ctx.nextRowId),
         toRow: (item, index) => buildSpecMusicalSoundGridRow(item, index, opt, handleSoundValueChange, displayName),
-        toItem: (row, index, ctx) => toSpecMusicalSoundDto(ctx.data, row, index),
+        toItem: (row, index, ctx) => toSpecMusicalSoundModel(ctx.data, row, index),
         beforeCommit: ctx => syncSpecMusicalSoundCommit(ctx.data, ctx.nextVisibleItems),
         editGridProps: buildSpecMusicalSoundGridProps(opt.style, displayName),
     });
 };
 
-/** 管理樂器封面圖片，避免 Comp 直接操作 DTO。 */
-export const useSpecMusicalCoverSelector = (binding: ServerFormBinding<SpecMusicalSet>): SpecMusicalCoverSelectorResult =>
+/** 管理樂器封面圖片，避免 Comp 直接操作 FormModel。 */
+export const useSpecMusicalCoverSelector = (binding: ServerFormBinding<SpecMusicalFormModel>): SpecMusicalCoverSelectorResult =>
 {
-    const selected = binding.data?.SpecMusical?.CoverPicId ?? null;
+    const selected = binding.data?.CoverPicId ?? null;
 
     const select = useCallback((picId: string) =>
     {
         binding.setFormData(prev =>
         {
             const data = prev ?? specMusicalEmptyData;
-            return { ...data, SpecMusical: { ...data.SpecMusical, CoverPicId: picId } };
+            return { ...data, CoverPicId: picId };
         });
     }, [binding]);
 
@@ -325,7 +327,7 @@ export const getSpecMusicalSoundPreviewUrl = (soundId?: string | null): string |
 /** 讀取 Header 欄位顯示名稱，保留後續擴充位置。 */
 export const getSpecMusicalHeaderColumnTitle = (displayName: ModelDisplaySchema, columnId: string, fallback: string): string =>
 {
-    return getSpecMusicalColumnTitle(displayName, SpecMusicalSetFields.SpecMusical, columnId, fallback);
+    return getSpecMusicalColumnTitle(displayName, PGID.SpecMusical, columnId, fallback);
 };
 
 /** 取得音檔唯讀檔名。 */
@@ -337,16 +339,16 @@ export const getSpecMusicalSoundDisplayName = (value: EditGridCellValue): string
 
 /** 保留欄位名稱常數給外部 Comp 避免直接引用 SchemaFields。 */
 export const SpecMusicalDisplayFields = {
-    CategoryId: SpecMusicalModelFields.CategoryId,
-    MusicalName: SpecMusicalModelFields.MusicalName,
-    Specification: SpecMusicalModelFields.Specification,
-    Headstock: SpecMusicalModelFields.Headstock,
-    Backboard: SpecMusicalModelFields.Backboard,
-    ScaleLength: SpecMusicalModelFields.ScaleLength,
-    Bridge: SpecMusicalModelFields.Bridge,
-    BodyForm: SpecMusicalModelFields.BodyForm,
-    Material: SpecMusicalModelFields.Material,
-    Info: SpecMusicalModelFields.Info,
+    CategoryId: SpecMusicalFields.CategoryId,
+    MusicalName: SpecMusicalFields.MusicalName,
+    Specification: SpecMusicalFields.Specification,
+    Headstock: SpecMusicalFields.Headstock,
+    Backboard: SpecMusicalFields.Backboard,
+    ScaleLength: SpecMusicalFields.ScaleLength,
+    Bridge: SpecMusicalFields.Bridge,
+    BodyForm: SpecMusicalFields.BodyForm,
+    Material: SpecMusicalFields.Material,
+    Info: SpecMusicalFields.Info,
 } as const;
 // #endregion
 
@@ -365,7 +367,7 @@ const buildSpecMusicalFormTitle = (ctx: { mode: "new" | "edit"; displayName: Mod
 };
 
 /** 建立新增模式的 initial data，避免新增時查詢 __new__。 */
-const buildSpecMusicalInitialData = (ctx: { mode: "new" | "edit"; emptyData: SpecMusicalSet; }): ApiFormInitial<SpecMusicalSet> | undefined =>
+const buildSpecMusicalInitialData = (ctx: { mode: "new" | "edit"; emptyData: SpecMusicalFormModel; }): ApiFormInitial<SpecMusicalFormModel> | undefined =>
 {
     if (ctx.mode !== "new") return undefined;
     return { data: { args: "__new__", apiRes: { IsSuccess: true, Data: ctx.emptyData, SysMessage: [] } } };
@@ -395,7 +397,7 @@ const useSpecMusicalReferenceData = (
 /** 建立相片 EditGrid 固定設定。 */
 const buildSpecMusicalPhotoGridProps = (style: IEditGridView_Style, displayName: ModelDisplaySchema) =>
 {
-    const gridTitle = getSpecMusicalTableTitle(displayName, SpecMusicalSetFields.SpecMusicalPictureList, "相片");
+    const gridTitle = getSpecMusicalTableTitle(displayName, SpecMusicalPictureTableId, "相片");
 
     return {
         title: gridTitle,
@@ -419,7 +421,7 @@ const buildSpecMusicalPhotoGridProps = (style: IEditGridView_Style, displayName:
 /** 建立音檔 EditGrid 固定設定。 */
 const buildSpecMusicalSoundGridProps = (style: IEditGridView_Style, displayName: ModelDisplaySchema) =>
 {
-    const gridTitle = getSpecMusicalTableTitle(displayName, SpecMusicalSetFields.SpecMusicalSoundList, "音檔");
+    const gridTitle = getSpecMusicalTableTitle(displayName, SpecMusicalSoundTableId, "音檔");
 
     return {
         title: gridTitle,
@@ -443,9 +445,9 @@ const buildSpecMusicalSoundGridProps = (style: IEditGridView_Style, displayName:
 /** 建立相片 Grid 欄位設定。 */
 const buildSpecMusicalPhotoColumns = (displayName: ModelDisplaySchema): ColumnConfig[] =>
 {
-    const picTitle = getSpecMusicalColumnTitle(displayName, SpecMusicalSetFields.SpecMusicalPictureList, SpecMusicalPictureListFields.PicSrcId, "相片");
-    const sortTitle = getSpecMusicalColumnTitle(displayName, SpecMusicalSetFields.SpecMusicalPictureList, SpecMusicalPictureListFields.Sort, "排序");
-    const infoTitle = getSpecMusicalColumnTitle(displayName, SpecMusicalSetFields.SpecMusicalPictureList, SpecMusicalPictureListFields.Info, "相片說明");
+    const picTitle = getSpecMusicalColumnTitle(displayName, SpecMusicalPictureTableId, SpecMusicalPictureListFields.PicSrcId, "相片");
+    const sortTitle = getSpecMusicalColumnTitle(displayName, SpecMusicalPictureTableId, SpecMusicalPictureListFields.Sort, "排序");
+    const infoTitle = getSpecMusicalColumnTitle(displayName, SpecMusicalPictureTableId, SpecMusicalPictureListFields.Info, "相片說明");
 
     return [
         { key: SpecMusicalPictureListFields.PicSrcId, title: picTitle, width: 300, inputType: "file", editable: true, accept: "image/*", maxFileCount: 1, maxFileSizeMB: 10 },
@@ -458,8 +460,8 @@ const buildSpecMusicalPhotoColumns = (displayName: ModelDisplaySchema): ColumnCo
 /** 建立音檔 Grid 欄位設定。 */
 const buildSpecMusicalSoundColumns = (displayName: ModelDisplaySchema): ColumnConfig[] =>
 {
-    const soundTitle = getSpecMusicalColumnTitle(displayName, SpecMusicalSetFields.SpecMusicalSoundList, SpecMusicalSoundListFields.SoundSrcId, "音檔");
-    const infoTitle = getSpecMusicalColumnTitle(displayName, SpecMusicalSetFields.SpecMusicalSoundList, SpecMusicalSoundListFields.Info, "音檔名稱 / 說明");
+    const soundTitle = getSpecMusicalColumnTitle(displayName, SpecMusicalSoundTableId, SpecMusicalSoundListFields.SoundSrcId, "音檔");
+    const infoTitle = getSpecMusicalColumnTitle(displayName, SpecMusicalSoundTableId, SpecMusicalSoundListFields.Info, "音檔名稱 / 說明");
 
     return [
         {
@@ -476,7 +478,7 @@ const buildSpecMusicalSoundColumns = (displayName: ModelDisplaySchema): ColumnCo
     ];
 };
 
-/** 將相片 DTO 轉成 EditGrid Row。 */
+/** 將相片明細 Model 轉成 EditGrid Row。 */
 const buildSpecMusicalPictureGridRow = (
     item: SpecMusicalPictureList,
     index: number,
@@ -498,7 +500,7 @@ const buildSpecMusicalPictureGridRow = (
     };
 };
 
-/** 將音檔 DTO 轉成 EditGrid Row。 */
+/** 將音檔明細 Model 轉成 EditGrid Row。 */
 const buildSpecMusicalSoundGridRow = (
     item: SpecMusicalSoundList,
     index: number,
@@ -528,9 +530,9 @@ const buildSpecMusicalPictureCells = (
     displayName: ModelDisplaySchema,
 ): RowCell[] =>
 {
-    const picTitle = getSpecMusicalColumnTitle(displayName, SpecMusicalSetFields.SpecMusicalPictureList, SpecMusicalPictureListFields.PicSrcId, "相片");
-    const sortTitle = getSpecMusicalColumnTitle(displayName, SpecMusicalSetFields.SpecMusicalPictureList, SpecMusicalPictureListFields.Sort, "排序");
-    const infoTitle = getSpecMusicalColumnTitle(displayName, SpecMusicalSetFields.SpecMusicalPictureList, SpecMusicalPictureListFields.Info, "相片說明");
+    const picTitle = getSpecMusicalColumnTitle(displayName, SpecMusicalPictureTableId, SpecMusicalPictureListFields.PicSrcId, "相片");
+    const sortTitle = getSpecMusicalColumnTitle(displayName, SpecMusicalPictureTableId, SpecMusicalPictureListFields.Sort, "排序");
+    const infoTitle = getSpecMusicalColumnTitle(displayName, SpecMusicalPictureTableId, SpecMusicalPictureListFields.Info, "相片說明");
     const pictureValue = buildSpecMusicalPictureCellValue(item);
 
     return [
@@ -557,8 +559,8 @@ const buildSpecMusicalSoundCells = (
     displayName: ModelDisplaySchema,
 ): RowCell[] =>
 {
-    const soundTitle = getSpecMusicalColumnTitle(displayName, SpecMusicalSetFields.SpecMusicalSoundList, SpecMusicalSoundListFields.SoundSrcId, "音檔");
-    const infoTitle = getSpecMusicalColumnTitle(displayName, SpecMusicalSetFields.SpecMusicalSoundList, SpecMusicalSoundListFields.Info, "音檔名稱 / 說明");
+    const soundTitle = getSpecMusicalColumnTitle(displayName, SpecMusicalSoundTableId, SpecMusicalSoundListFields.SoundSrcId, "音檔");
+    const infoTitle = getSpecMusicalColumnTitle(displayName, SpecMusicalSoundTableId, SpecMusicalSoundListFields.Info, "音檔名稱 / 說明");
 
     return [
         buildEditGridCell(SpecMusicalSoundListFields.SoundSrcId, soundTitle, buildSpecMusicalSoundCellValue(item), {
@@ -574,26 +576,26 @@ const buildSpecMusicalSoundCells = (
     ];
 };
 
-/** 建立新相片 DTO。 */
-const buildNewSpecMusicalPictureItem = (data: SpecMusicalSet, rowId: number): SpecMusicalPictureList =>
+/** 建立新相片明細。 */
+const buildNewSpecMusicalPictureItem = (data: SpecMusicalFormModel, rowId: number): SpecMusicalPictureList =>
 {
-    return { MusicalId: data.SpecMusical?.MusicalId, RowId: rowId, PicSrcId: "", Sort: rowId, Info: "" };
+    return { MusicalId: data.MusicalId, RowId: rowId, PicSrcId: "", Sort: rowId, Info: "" };
 };
 
-/** 建立新音檔 DTO。 */
-const buildNewSpecMusicalSoundItem = (data: SpecMusicalSet, rowId: number): SpecMusicalSoundList =>
+/** 建立新音檔明細。 */
+const buildNewSpecMusicalSoundItem = (data: SpecMusicalFormModel, rowId: number): SpecMusicalSoundList =>
 {
-    return { MusicalId: data.SpecMusical?.MusicalId, RowId: rowId, SoundSrcId: "", Info: "" };
+    return { MusicalId: data.MusicalId, RowId: rowId, SoundSrcId: "", Info: "" };
 };
 
-/** 將相片 Grid Row 轉回 DTO。 */
-const toSpecMusicalPictureDto = (source: SpecMusicalSet, row: GridRow, index: number): SpecMusicalPictureList =>
+/** 將相片 Grid Row 轉回明細 Model。 */
+const toSpecMusicalPictureModel = (source: SpecMusicalFormModel, row: GridRow, index: number): SpecMusicalPictureList =>
 {
     const pictureValue = toSpecMusicalPictureCellValue(getEditGridCellValue(row, SpecMusicalPictureListFields.PicSrcId));
     const rowId = getEditGridRowId(row, index);
 
     return {
-        MusicalId: source.SpecMusical?.MusicalId ?? (row as SpecMusicalPictureGridRow).MusicalId,
+        MusicalId: source.MusicalId ?? (row as SpecMusicalPictureGridRow).MusicalId,
         RowId: rowId,
         PicSrcId: pictureValue.internalId ?? "",
         Sort: getEditGridNumberCellValue(row, SpecMusicalPictureListFields.Sort, index + 1),
@@ -601,13 +603,13 @@ const toSpecMusicalPictureDto = (source: SpecMusicalSet, row: GridRow, index: nu
     };
 };
 
-/** 將音檔 Grid Row 轉回 DTO。 */
-const toSpecMusicalSoundDto = (source: SpecMusicalSet, row: GridRow, index: number): SpecMusicalSoundList =>
+/** 將音檔 Grid Row 轉回明細 Model。 */
+const toSpecMusicalSoundModel = (source: SpecMusicalFormModel, row: GridRow, index: number): SpecMusicalSoundList =>
 {
     const soundValue = toSpecMusicalSoundCellValue(getEditGridCellValue(row, SpecMusicalSoundListFields.SoundSrcId));
 
     return {
-        MusicalId: source.SpecMusical?.MusicalId ?? (row as SpecMusicalSoundGridRow).MusicalId,
+        MusicalId: source.MusicalId ?? (row as SpecMusicalSoundGridRow).MusicalId,
         RowId: getEditGridRowId(row, index),
         SoundSrcId: soundValue.internalId ?? "",
         Info: getEditGridNullableStringCellValue(row, SpecMusicalSoundListFields.Info),
@@ -615,16 +617,16 @@ const toSpecMusicalSoundDto = (source: SpecMusicalSet, row: GridRow, index: numb
 };
 
 /** 相片 Commit 前同步排序與封面。 */
-const syncSpecMusicalPictureCommit = (data: SpecMusicalSet, nextItems: SpecMusicalPictureList[]): SpecMusicalPictureList[] =>
+const syncSpecMusicalPictureCommit = (data: SpecMusicalFormModel, nextItems: SpecMusicalPictureList[]): SpecMusicalPictureList[] =>
 {
     const sortedItems = nextItems.map((item, index) => ({ ...item, Sort: index + 1 }));
-    (data as SpecMusicalSet).SpecMusical = syncSpecMusicalCoverFromPictures(data.SpecMusical ?? {}, sortedItems);
+    data.CoverPicId = syncSpecMusicalCoverFromPictures(data, sortedItems).CoverPicId;
 
     return sortedItems;
 };
 
 /** 音檔 Commit 前同步 RowId，保留畫面排序。 */
-const syncSpecMusicalSoundCommit = (_data: SpecMusicalSet, nextItems: SpecMusicalSoundList[]): SpecMusicalSoundList[] =>
+const syncSpecMusicalSoundCommit = (_data: SpecMusicalFormModel, nextItems: SpecMusicalSoundList[]): SpecMusicalSoundList[] =>
 {
     return nextItems.map((item, index) => ({ ...item, RowId: item.RowId ?? index + 1 }));
 };
@@ -653,7 +655,7 @@ const uploadSpecMusicalPictureValue = async (args: EditGridCellValueChangeArgs, 
 /** 批次上傳所有選取相片，成功後一次寫入 Form data。 */
 const uploadSpecMusicalBatchPhotoFiles = async (
     opt: {
-        binding: ServerFormBinding<SpecMusicalSet>;
+        binding: ServerFormBinding<SpecMusicalFormModel>;
         files: File[];
         uploadFile: UploadFileHandler;
         setError: (error: string | null) => void;
@@ -712,30 +714,28 @@ const uploadSingleSpecMusicalPhotoFile = async (file: File, uploadFile: UploadFi
 };
 
 /** 將批次上傳結果追加成 SpecMusicalPictureList。 */
-const appendSpecMusicalUploadedPhotos = (binding: ServerFormBinding<SpecMusicalSet>, uploaded: SpecMusicalUploadedPhoto[]): void =>
+const appendSpecMusicalUploadedPhotos = (binding: ServerFormBinding<SpecMusicalFormModel>, uploaded: SpecMusicalUploadedPhoto[]): void =>
 {
     binding.setFormData(prev => appendSpecMusicalUploadedPhotosToData(prev ?? specMusicalEmptyData, uploaded));
 };
 
 /** 將批次相片寫入資料，若尚無封面則使用第一張圖。 */
-const appendSpecMusicalUploadedPhotosToData = (data: SpecMusicalSet, uploaded: SpecMusicalUploadedPhoto[]): SpecMusicalSet =>
+const appendSpecMusicalUploadedPhotosToData = (data: SpecMusicalFormModel, uploaded: SpecMusicalUploadedPhoto[]): SpecMusicalFormModel =>
 {
-    const header = data.SpecMusical ?? {};
-    const list = data.SpecMusicalPictureList ?? [];
+    const list = data._SpecMusicalPictureList ?? [];
     const startRowId = getNextSpecMusicalPictureRowId(list);
-    const newItems = uploaded.map((item, index) => buildUploadedSpecMusicalPictureDto(header.MusicalId, startRowId + index, item));
-    const nextCoverPicId = header.CoverPicId ?? uploaded[0]?.internalId ?? null;
+    const newItems = uploaded.map((item, index) => buildUploadedSpecMusicalPictureModel(data.MusicalId, startRowId + index, item));
 
     return {
         ...data,
-        SpecMusical: { ...header, CoverPicId: nextCoverPicId },
-        SpecMusicalPictureList: [...list, ...newItems],
-        SpecMusicalSoundList: data.SpecMusicalSoundList ?? [],
+        CoverPicId: data.CoverPicId ?? uploaded[0]?.internalId ?? null,
+        _SpecMusicalPictureList: [...list, ...newItems],
+        _SpecMusicalSoundList: data._SpecMusicalSoundList ?? [],
     };
 };
 
-/** 建立批次上傳後的相片 DTO。 */
-const buildUploadedSpecMusicalPictureDto = (musicalId: string | null | undefined, rowId: number, item: SpecMusicalUploadedPhoto): SpecMusicalPictureList =>
+/** 建立批次上傳後的相片明細 Model。 */
+const buildUploadedSpecMusicalPictureModel = (musicalId: string | null | undefined, rowId: number, item: SpecMusicalUploadedPhoto): SpecMusicalPictureList =>
 {
     return { MusicalId: musicalId, RowId: rowId, PicSrcId: item.internalId, Sort: rowId, Info: item.info };
 };
@@ -881,7 +881,7 @@ const sortSpecMusicalSoundList = (items: SpecMusicalSoundList[]): SpecMusicalSou
 };
 
 /** 若封面空白或指向不存在相片，改指向目前第一張相片。 */
-const syncSpecMusicalCoverFromPictures = (header: SpecMusicalModel, pictures: SpecMusicalPictureList[]): SpecMusicalModel =>
+const syncSpecMusicalCoverFromPictures = (header: SpecMusicalFormModel, pictures: SpecMusicalPictureList[]): SpecMusicalFormModel =>
 {
     const currentCover = String(header.CoverPicId ?? "").trim();
     const hasCurrentCover = pictures.some(item => String(item.PicSrcId ?? "") === currentCover);
@@ -891,7 +891,7 @@ const syncSpecMusicalCoverFromPictures = (header: SpecMusicalModel, pictures: Sp
 };
 
 /** 刪除相片時同步封面 fallback。 */
-const syncSpecMusicalCoverAfterDelete = (binding: ServerFormBinding<SpecMusicalSet>, row: GridRow): void =>
+const syncSpecMusicalCoverAfterDelete = (binding: ServerFormBinding<SpecMusicalFormModel>, row: GridRow): void =>
 {
     const picId = toSpecMusicalPictureCellValue(getEditGridCellValue(row, SpecMusicalPictureListFields.PicSrcId)).internalId;
     if (!picId) return;
@@ -900,13 +900,12 @@ const syncSpecMusicalCoverAfterDelete = (binding: ServerFormBinding<SpecMusicalS
 };
 
 /** 從資料中移除被刪封面後的指向。 */
-const syncSpecMusicalCoverAfterDeleteFromData = (data: SpecMusicalSet, picId: string): SpecMusicalSet =>
+const syncSpecMusicalCoverAfterDeleteFromData = (data: SpecMusicalFormModel, picId: string): SpecMusicalFormModel =>
 {
-    const header = data.SpecMusical ?? {};
-    if (header.CoverPicId !== picId) return data;
+    if (data.CoverPicId !== picId) return data;
 
-    const nextCover = (data.SpecMusicalPictureList ?? []).find(item => item.PicSrcId && item.PicSrcId !== picId)?.PicSrcId ?? null;
-    return { ...data, SpecMusical: { ...header, CoverPicId: nextCover } };
+    const nextCover = (data._SpecMusicalPictureList ?? []).find(item => item.PicSrcId && item.PicSrcId !== picId)?.PicSrcId ?? null;
+    return { ...data, CoverPicId: nextCover };
 };
 
 /** 建立相片 Row key。 */

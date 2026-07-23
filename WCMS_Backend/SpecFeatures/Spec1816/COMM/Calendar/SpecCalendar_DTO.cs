@@ -1,59 +1,30 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using WCMS.Features._Resx;
-using WCMS.SpecFeatures.Spec1816._Resx;
-using WCMS.SpecFeatures.Spec1816.WEB.SpecOpenScheduleRule;
-namespace WCMS.Features.SystemSetting.Calendar;
+namespace WCMS.Features.COMM.Calendar;
 
-public partial class CalendarDetail_DTO
-{
-    /// <summary>
-    /// 學年度(關聯SpecOpenScheduleRule)
-    /// </summary>
-    [ForeignKey(nameof(Spec_AcademicYearId))] public SpecOpenScheduleRule? Spec_AcademicYear { get; set; }
-    [StringLength(SysLengthParam.ID)] public string? Spec_AcademicYearId { get; set; }
-    /// <summary>
-    /// 開館時間
-    /// (為null時代表閉館)
-    /// </summary>
-    [LibDesc(SpecModelDisplayName.Spec_OpenTime)]public TimeOnly? Spec_OpenTime { get; set; }
-    /// <summary>
-    /// 閉館時間
-    /// (為null時代表閉館)
-    /// </summary>
-    [LibDesc(SpecModelDisplayName.Spec_CloseTime)] public TimeOnly? Spec_CloseTime { get; set; }
-    /// <summary>
-    /// 修改備註
-    /// 注:大備註，每一次輸入完都會記錄成
-    /// 時間:使用者:備註內容
-    /// 每次紀錄就往下追加一行
-    /// </summary>
-    [LibDesc(ModelDisplayName.Common_Memo), StringLength(SysLengthParam.Memo)] public string? Spec_ModifyMemo { get; set; } = string.Empty;
-}
 /// <summary>
-/// 顯示首頁開館時間資訊
+/// 首頁當日開館時間資訊。
 /// </summary>
 public sealed class SpecCurrentOpenTime_DTO
 {
+    #region Property
     /// <summary>
-    /// 日期
+    /// 日期。
     /// </summary>
     public DateOnly Date { get; set; }
     /// <summary>
-    /// 星期
+    /// 星期。
     /// </summary>
     public DayOfWeek DayOfWeek { get; set; }
     /// <summary>
-    /// 節日名
+    /// 假日名稱。
     /// </summary>
-    public string HolidayName { get; set; }
+    public string HolidayName { get; set; } = string.Empty;
     /// <summary>
-    /// 開館時間
+    /// 開館時間；空值代表閉館。
     /// </summary>
     public TimeOnly? Spec_OpenTime { get; set; }
     /// <summary>
-    /// 閉館時間
+    /// 閉館時間；空值代表閉館。
     /// </summary>
     public TimeOnly? Spec_CloseTime { get; set; }
-
+    #endregion
 }

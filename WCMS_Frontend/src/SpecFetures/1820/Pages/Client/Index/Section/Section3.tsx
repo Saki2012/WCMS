@@ -6,9 +6,9 @@ import type { components } from "@/types/api";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 // #region Property
-type HomePageModel = components["schemas"]["SpecHomePage1820Model_DTO"];
+type HomePageFormModel = components["schemas"]["SpecHomePage1820"];
 
-type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
+type AnnouncementFormModel = components["schemas"]["Announcement"];
 
 type NewsDateParts = { year: string; monthDay: string; fullDate: string; };
 
@@ -19,7 +19,7 @@ const AUTOPLAY_MS = 5000;
 
 // #region Public
 /** 最新消息輪播 */
-export const Section3 = (props: { lang: Lang; homePage: HomePageModel; announcements: AnnouncementSet[]; announcementCategoryMap: Record<string, string>; }) =>
+export const Section3 = (props: { lang: Lang; homePage: HomePageFormModel; announcements: AnnouncementFormModel[]; announcementCategoryMap: Record<string, string>; }) =>
 {
     const outerRef = useRef<HTMLDivElement | null>(null);
     const annDetail = props.announcements ?? [];
@@ -199,18 +199,18 @@ export const Section3 = (props: { lang: Lang; homePage: HomePageModel; announcem
                                             >
                                                 {annDetail.map((item, index) =>
                                                 {
-                                                    const detail = item.AnnouncementDetail?.find(p => p.Lang === props.lang);
-                                                    const categoryText = formatCategoryNames(item.Announcement?.Categories, props.announcementCategoryMap);
-                                                    const dateInfo = formatNewsDate(item.Announcement?.Validate_Start);
+                                                    const detail = item._AnnouncementDetail?.find(p => p.Lang === props.lang);
+                                                    const categoryText = formatCategoryNames(item.Categories, props.announcementCategoryMap);
+                                                    const dateInfo = formatNewsDate(item.Validate_Start);
                                                     const imageUrl = getNewsImageUrl(item);
-                                                    const imageAlt = item.Announcement?.PicDescription ?? detail?.Title ?? "";
+                                                    const imageAlt = item.PicDescription ?? detail?.Title ?? "";
                                                     const linkUrl = getNewsLink(props.homePage.Announcement_ViewMoreLink, item);
                                                     const itemActive = isActiveItem(index, startIndex, itemsPerView);
                                                     const activeClass = itemActive ? " active" : "";
 
                                                     return (
                                                         <div
-                                                            key={item.Announcement?.InternalId ?? `news-${index}`}
+                                                            key={item.InternalId ?? `news-${index}`}
                                                             className={`owl-item${activeClass}`}
                                                             style={{
                                                                 width: `${itemWidth}px`,
@@ -424,15 +424,15 @@ const formatNewsDate = (value?: string | null): NewsDateParts =>
 };
 
 /** 取得圖片預覽網址 */
-const getNewsImageUrl = (item: AnnouncementSet) =>
+const getNewsImageUrl = (item: AnnouncementFormModel) =>
 {
-    return FileManagementAPI.get_Public_Preview_Url(item.Announcement?.PictureId);
+    return FileManagementAPI.get_Public_Preview_Url(item.PictureId);
 };
 
 /** 取得卡片連結 */
-const getNewsLink = (viewMoreLink?: string | null, item?: AnnouncementSet) =>
+const getNewsLink = (viewMoreLink?: string | null, item?: AnnouncementFormModel) =>
 {
-    return LibText.Merge("/", false, viewMoreLink, item?.Announcement?.InternalId);
+    return LibText.Merge("/", false, viewMoreLink, item?.InternalId);
 };
 
 /** 判斷焦點是否離開目前區塊 */

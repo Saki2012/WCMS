@@ -1,325 +1,311 @@
-﻿using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using WCMS.Features._Resx;
-using WCMS.Features.SystemSetting.Calendar;
-using WCMS.SysCore.I18n;
-using WCMS.SysCore.Library;
 using WCMS.Features.COMM.Calendar;
 using WCMS.SysCore.Auditing.ErrorHandling;
 using WCMS.SysCore.FeatureDriver.Biz;
+using WCMS.SysCore.FeatureDriver.Biz.Metadata;
 using WCMS.SysCore.FeatureDriver.Model.Contracts;
-using WCMS.SysCore.Library.Data;
+using WCMS.SysCore.I18n;
 using WCMS.SysCore.Security.IdentityAccess.Authorization;
 namespace WCMS.SpecFeatures.Spec1816.WEB.SpecOpenScheduleRule;
 
+/// <summary>
+/// 管理學年度開館規則，並同步更新共用行事曆每日開館時間。
+/// </summary>
 [LibBiz(ProgKeys.Spec.Code, ProgKeys.Spec.SpecOpenScheduleRule)]
-public class SpecOpenScheduleRuleBiz(BizDeps bizDeps, BizService<Calendar> calenderBiz) : BizService<SpecOpenScheduleRule>(bizDeps)
+public class SpecOpenScheduleRuleBiz(BizDeps bizDeps, BizService<Calendar> calendarBiz) : BizService<SpecOpenScheduleRule>(bizDeps)
 {
-    #region Property                                                               
+    #region Property
     protected override bool IsAutoGenerateId { get; set; } = false;
     #endregion
 
     #region Protected Virtual
+    /// <summary>
+    /// 儲存前驗證日期區間與各時段開閉館時間。
+    /// </summary>
     protected override async Task BeforeUpdate(SpecOpenScheduleRule set, FuncAction act, CancellationToken ct = default)
     {
         await base.BeforeUpdate(set, act, ct);
-        switch (act)
-        {
-            case FuncAction.Create:
-            case FuncAction.Update:
-                CheckData(set);
-                break;
-        }
+        if (!IsWriteAction(act)) return;
+        ValidateScheduleRule(set);
     }
+    /// <summary>
+    /// 規則寫入後同步更新對應年度行事曆。
+    /// </summary>
     protected override async Task AfterUpdate(SpecOpenScheduleRule? oldSet, SpecOpenScheduleRule? newSet, FuncAction act, TransStatus status, CancellationToken ct = default)
     {
         await base.AfterUpdate(oldSet, newSet, act, status, ct);
-        switch (act)
-        {
-            case FuncAction.Create:
-            case FuncAction.Update:
-                await UpdateCalandarSetOpenScheduleRule(newSet.SpecOpenScheduleRule);
-                break;
-        }
+        if (newSet == null || !IsWriteAction(act)) return;
+        await UpdateCalendarOpenScheduleAsync(newSet, ct);
     }
     #endregion
 
     #region Protected
-    protected void CheckData(SpecOpenScheduleRule set)
+    /// <summary>
+    /// 檢查開館與閉館時間是否成對且順序正確。
+    /// </summary>
+    internal static void ValidTimeFor<TModel>(
+        TModel model,
+        Expression<Func<TModel, object>> startExpr,
+        Expression<Func<TModel, object>> endExpr,
+        IErrorHelper message,
+        I18nCache i18n)
     {
-        ValidTimeFor(set.SpecOpenScheduleRule, x => x.Weekday_OpenTime, x => x.Weekday_CloseTime, Message, I18n);
-        ValidTimeFor(set.SpecOpenScheduleRule, x => x.Sat_OpenTime, x => x.Sat_CloseTime, Message, I18n);
-        ValidTimeFor(set.SpecOpenScheduleRule, x => x.Sun_OpenTime, x => x.Sun_CloseTime, Message, I18n);
-        ValidTimeFor(set.SpecOpenScheduleRule, x => x.Winter_Weekday_OpenTime, x => x.Winter_Weekday_CloseTime, Message, I18n);
-        ValidTimeFor(set.SpecOpenScheduleRule, x => x.Winter_Sat_OpenTime, x => x.Winter_Sat_CloseTime, Message, I18n);
-        ValidTimeFor(set.SpecOpenScheduleRule, x => x.Winter_Sun_OpenTime, x => x.Winter_Sun_CloseTime, Message, I18n);
-        ValidTimeFor(set.SpecOpenScheduleRule, x => x.Summer_Weekday_OpenTime, x => x.Summer_Weekday_CloseTime, Message, I18n);
-        ValidTimeFor(set.SpecOpenScheduleRule, x => x.Summer_Sat_OpenTime, x => x.Summer_Sat_CloseTime, Message, I18n);
-        ValidTimeFor(set.SpecOpenScheduleRule, x => x.Summer_Sun_OpenTime, x => x.Summer_Sun_CloseTime, Message, I18n);
-        ValidDateRangeFor(set.SpecOpenScheduleRule, x => x.AcademicStart, x => x.AcademicEnd);
-        ValidSubRangeFor(set.SpecOpenScheduleRule, x => x.AcademicStart, x => x.AcademicEnd, x => x.WinterStart, x => x.WinterEnd);
-        ValidSubRangeFor(set.SpecOpenScheduleRule, x => x.AcademicStart, x => x.AcademicEnd, x => x.SummerStart, x => x.SummerEnd);
+        TimeOnly? start = startExpr.Compile().Invoke(model) as TimeOnly?;
+        TimeOnly? end = endExpr.Compile().Invoke(model) as TimeOnly?;
+        if (start == null && end == null) return;
+        string startName = i18n.GetLabel(startExpr);
+        string endName = i18n.GetLabel(endExpr);
+        if (start == null) message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, startName);
+        else if (end == null) message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, endName);
+        else if (start > end) message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014, endName, startName);
     }
     #endregion
 
     #region Private
     /// <summary>
-    /// 檢查開館/閉館有效時間
+    /// 判斷是否為需要執行驗證與同步的寫入動作。
     /// </summary>
-    /// <param name="start"></param>
-    /// <param name="end"></param>
-    /// <returns></returns>
-    public static void ValidTimeFor<TModel>(TModel model, Expression<Func<TModel, object>> startExpr, Expression<Func<TModel, object>> endExpr, IErrorHelper message, I18nCache i18n)
+    private static bool IsWriteAction(FuncAction act)
     {
-        var start = startExpr.Compile().Invoke(model) as TimeOnly?;
-        var end = endExpr.Compile().Invoke(model) as TimeOnly?;
-        var startColName = i18n.GetLabel(startExpr);
-        var endColName = i18n.GetLabel(endExpr);
-        if (start == null && end == null) return;
-        if (start == null && end != null)
-        {
-            message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, startColName);
-            return;
-        }
-        if (start != null && end == null)
-        {
-            message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, endColName);
-            return;
-        }
-        if (start > end)
-        {
-            message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014, endColName, startColName);
-            return;
-        }
+        return act is FuncAction.Create or FuncAction.Update;
     }
     /// <summary>
-    /// 檢查日期區間，是否超出學年度日期或是卡在寒暑假區間內
+    /// 驗證整份學年度開館規則。
     /// </summary>
-    /// <param name="rangeStart"></param>
-    /// <param name="rangeEnd"></param>
-    /// <returns></returns>
+    private void ValidateScheduleRule(SpecOpenScheduleRule set)
+    {
+        ValidateRegularSchedule(set);
+        ValidateWinterSchedule(set);
+        ValidateSummerSchedule(set);
+        ValidateDateRanges(set);
+    }
     /// <summary>
-    /// 檢查某一組 DateOnly 起訖欄位是否有效（起日不得大於迄日）
-    /// 會自動帶入欄位名稱做錯誤訊息
+    /// 驗證一般學期間的開閉館時間。
+    /// </summary>
+    private void ValidateRegularSchedule(SpecOpenScheduleRule set)
+    {
+        ValidTimeFor(set, item => item.Weekday_OpenTime, item => item.Weekday_CloseTime, Message, I18n);
+        ValidTimeFor(set, item => item.Sat_OpenTime, item => item.Sat_CloseTime, Message, I18n);
+        ValidTimeFor(set, item => item.Sun_OpenTime, item => item.Sun_CloseTime, Message, I18n);
+    }
+    /// <summary>
+    /// 驗證寒假期間的開閉館時間。
+    /// </summary>
+    private void ValidateWinterSchedule(SpecOpenScheduleRule set)
+    {
+        ValidTimeFor(set, item => item.Winter_Weekday_OpenTime, item => item.Winter_Weekday_CloseTime, Message, I18n);
+        ValidTimeFor(set, item => item.Winter_Sat_OpenTime, item => item.Winter_Sat_CloseTime, Message, I18n);
+        ValidTimeFor(set, item => item.Winter_Sun_OpenTime, item => item.Winter_Sun_CloseTime, Message, I18n);
+    }
+    /// <summary>
+    /// 驗證暑假期間的開閉館時間。
+    /// </summary>
+    private void ValidateSummerSchedule(SpecOpenScheduleRule set)
+    {
+        ValidTimeFor(set, item => item.Summer_Weekday_OpenTime, item => item.Summer_Weekday_CloseTime, Message, I18n);
+        ValidTimeFor(set, item => item.Summer_Sat_OpenTime, item => item.Summer_Sat_CloseTime, Message, I18n);
+        ValidTimeFor(set, item => item.Summer_Sun_OpenTime, item => item.Summer_Sun_CloseTime, Message, I18n);
+    }
+    /// <summary>
+    /// 驗證學年度、寒假與暑假的日期區間。
+    /// </summary>
+    private void ValidateDateRanges(SpecOpenScheduleRule set)
+    {
+        ValidDateRangeFor(set, item => item.AcademicStart, item => item.AcademicEnd);
+        ValidSubRangeFor(set, item => item.AcademicStart, item => item.AcademicEnd, item => item.WinterStart, item => item.WinterEnd);
+        ValidSubRangeFor(set, item => item.AcademicStart, item => item.AcademicEnd, item => item.SummerStart, item => item.SummerEnd);
+    }
+    /// <summary>
+    /// 檢查單一日期區間的起日不得晚於迄日。
     /// </summary>
     private void ValidDateRangeFor<TModel>(TModel model, Expression<Func<TModel, object>> startExpr, Expression<Func<TModel, object>> endExpr)
     {
-        var start = startExpr.Compile().Invoke(model) as DateOnly?;
-        var end = endExpr.Compile().Invoke(model) as DateOnly?;
-        var startColName = I18n.GetLabel(startExpr);
-        var endColName = I18n.GetLabel(endExpr);
-        if (start > end) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014, endColName, startColName);
+        DateOnly? start = startExpr.Compile().Invoke(model) as DateOnly?;
+        DateOnly? end = endExpr.Compile().Invoke(model) as DateOnly?;
+        if (start <= end) return;
+        string startName = I18n.GetLabel(startExpr);
+        string endName = I18n.GetLabel(endExpr);
+        Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014, endName, startName);
     }
     /// <summary>
-    /// 檢查子區間（例如寒假/暑假）是否完全落在學年度區間內
-    /// 會同時檢查：
-    /// 1. 學年度起訖是否合法
-    /// 2. 子區間起訖是否合法
-    /// 3. 子區間是否完全被學年度包住
+    /// 檢查寒暑假子區間是否完整落在學年度內。
     /// </summary>
-    private void ValidSubRangeFor<TModel>(TModel model,
-        Expression<Func<TModel, object>> outerStartExpr, Expression<Func<TModel, object>> outerEndExpr,
-        Expression<Func<TModel, object>> innerStartExpr, Expression<Func<TModel, object>> innerEndExpr)
+    private void ValidSubRangeFor<TModel>(
+        TModel model,
+        Expression<Func<TModel, object>> outerStartExpr,
+        Expression<Func<TModel, object>> outerEndExpr,
+        Expression<Func<TModel, object>> innerStartExpr,
+        Expression<Func<TModel, object>> innerEndExpr)
     {
-        // 先用共用的區間檢查，把「起 > 迄」的狀況先擋掉
-        ValidDateRangeFor(model, outerStartExpr, outerEndExpr);
         ValidDateRangeFor(model, innerStartExpr, innerEndExpr);
-
-        // 取值
-        var outerStart = outerStartExpr.Compile().Invoke(model) as DateOnly?;
-        var outerEnd = outerEndExpr.Compile().Invoke(model) as DateOnly?;
-        var innerStart = innerStartExpr.Compile().Invoke(model) as DateOnly?;
-        var innerEnd = innerEndExpr.Compile().Invoke(model) as DateOnly?;
-
-        // 取欄位顯示名稱
-        var outerStartCol = I18n.GetLabel(outerStartExpr);
-        var outerEndCol = I18n.GetLabel(outerEndExpr);
-        var innerStartCol = I18n.GetLabel(innerStartExpr);
-        var innerEndCol = I18n.GetLabel(innerEndExpr);
-
-        // 學年度本身已經是錯的（起 > 迄），就不要再做包含檢查了
-        if (outerStart > outerEnd) return;
-        if (innerStart > innerEnd) return;
-
-        // 子區間起點 < 學年度起 → 錯誤（超出前面）
-        if (innerStart < outerStart) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014, innerStartCol, outerStartCol);
-
-        // 子區間終點 > 學年度終點 → 錯誤（超出後面）
-        if (innerEnd > outerEnd) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014, innerEndCol, outerEndCol);
+        DateOnly? outerStart = outerStartExpr.Compile().Invoke(model) as DateOnly?;
+        DateOnly? outerEnd = outerEndExpr.Compile().Invoke(model) as DateOnly?;
+        DateOnly? innerStart = innerStartExpr.Compile().Invoke(model) as DateOnly?;
+        DateOnly? innerEnd = innerEndExpr.Compile().Invoke(model) as DateOnly?;
+        if (outerStart > outerEnd || innerStart > innerEnd) return;
+        AddSubRangeBoundaryErrors(outerStart, outerEnd, innerStart, innerEnd, outerStartExpr, outerEndExpr, innerStartExpr, innerEndExpr);
     }
     /// <summary>
-    /// 更新圖書館開/閉館時間
+    /// 加入子區間超出學年度前後邊界的錯誤訊息。
     /// </summary>
-    /// <param name="header"></param>
-    private async Task UpdateCalandarSetOpenScheduleRule(SpecOpenScheduleRule header)
+    private void AddSubRangeBoundaryErrors<TModel>(
+        DateOnly? outerStart,
+        DateOnly? outerEnd,
+        DateOnly? innerStart,
+        DateOnly? innerEnd,
+        Expression<Func<TModel, object>> outerStartExpr,
+        Expression<Func<TModel, object>> outerEndExpr,
+        Expression<Func<TModel, object>> innerStartExpr,
+        Expression<Func<TModel, object>> innerEndExpr)
     {
-        List<Calendar> sets = await GetUpdateCalendarModel(header.AcademicStart.Year, header.AcademicEnd.Year);
-        foreach (var set in sets)
-        {
-            for (int idx = 0; idx < set.CalendarDetail.Count; idx++)
-            {
-                var dt = set.CalendarDetail[idx];
-                if (dt.IsEdit) continue;
-                dt.Spec_AcademicYearId = header.AcademicYearId;
-                var schedule = ResolveScheduleByDate(header, dt.Date);
-                ApplyBaseScheduleByWeekday(dt, schedule);
-                ApplyHolidayAndLongWeekendRule(set, idx);
-            }
-            await calenderBiz.BizUpdateDataAsync(set.Calendar.InternalId, set);
-        }
+        if (innerStart < outerStart)
+            AddRangeError(innerStartExpr, outerStartExpr);
+        if (innerEnd > outerEnd)
+            AddRangeError(innerEndExpr, outerEndExpr);
     }
     /// <summary>
-    /// 獲取要更新的行事曆
+    /// 加入日期欄位超出邊界的錯誤訊息。
     /// </summary>
-    /// <param name="startYear"></param>
-    /// <param name="endYear"></param>
-    /// <returns></returns>
-    private async Task<List<Calendar>> GetUpdateCalendarModel(int startYear, int endYear)
+    private void AddRangeError<TModel>(Expression<Func<TModel, object>> valueExpr, Expression<Func<TModel, object>> boundaryExpr)
     {
-        var calHeader = await (await DoQueryListAsync<Calendar>([], $@"{nameof(Calendar.Year)} >= {startYear} And {nameof(Calendar.Year)} <= {endYear}", null, 0, 0)).ToDynamicListAsync<Calendar>();
-        var calDetail = await (await DoQueryListAsync<CalendarDetail>([], $@"{nameof(Calendar.Year)} >= {startYear} And {nameof(Calendar.Year)} <= {endYear}", null, 0, 0)).ToDynamicListAsync<CalendarDetail>();
-        var record = RecordComparison.CompareByKey(calHeader, calDetail, left => left.Year, right => right.Year);
-        List<Calendar> result = [];
-        foreach (var item in record)
-        {
-            switch (item.Type)
-            {
-                case RecordCompareType.BothExist:
-                    var header = item.LeftItems.FirstOrDefault();
-                    var detail = item.RightItems;
-                    Calendar set = new() { Calendar = header, CalendarDetail = [.. detail], };
-                    result.Add(set);
-                    break;
-            }
-        }
-        return result;
+        string valueName = I18n.GetLabel(valueExpr);
+        string boundaryName = I18n.GetLabel(boundaryExpr);
+        Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00014, valueName, boundaryName);
     }
     /// <summary>
-    /// 依日期判斷：一般學期間 / 寒假 / 暑假，回傳一組時間設定
+    /// 依學年度規則更新涵蓋年度的行事曆。
     /// </summary>
-    private static (TimeOnly? dayOpen, TimeOnly? dayClose, TimeOnly? satOpen, TimeOnly? satClose,TimeOnly? sunOpen, TimeOnly? sunClose) 
-        ResolveScheduleByDate(SpecOpenScheduleRule header, DateOnly date)
+    private async Task UpdateCalendarOpenScheduleAsync(SpecOpenScheduleRule rule, CancellationToken ct)
     {
-        TimeOnly? dayOpen;
-        TimeOnly? dayClose;
-        TimeOnly? satOpen;
-        TimeOnly? satClose;
-        TimeOnly? sunOpen;
-        TimeOnly? sunClose;
-        if (date >= header.WinterStart && date <= header.WinterEnd)
+        List<Calendar> calendars = await GetUpdateCalendarsAsync(rule, ct);
+        foreach (Calendar calendar in calendars)
         {
-            // 寒假
-            dayOpen = header.Winter_Weekday_OpenTime;
-            dayClose = header.Winter_Weekday_CloseTime;
-            satOpen = header.Winter_Sat_OpenTime;
-            satClose = header.Winter_Sat_CloseTime;
-            sunOpen = header.Winter_Sun_OpenTime;
-            sunClose = header.Winter_Sun_CloseTime;
-        }
-        else if (date >= header.SummerStart && date <= header.SummerEnd)
-        {
-            // 暑假
-            dayOpen = header.Summer_Weekday_OpenTime;
-            dayClose = header.Summer_Weekday_CloseTime;
-            satOpen = header.Summer_Sat_OpenTime;
-            satClose = header.Summer_Sat_CloseTime;
-            sunOpen = header.Summer_Sun_OpenTime;
-            sunClose = header.Summer_Sun_CloseTime;
-        }
-        else
-        {
-            // 一般學期間
-            dayOpen = header.Weekday_OpenTime;
-            dayClose = header.Weekday_CloseTime;
-            satOpen = header.Sat_OpenTime;
-            satClose = header.Sat_CloseTime;
-            sunOpen = header.Sun_OpenTime;
-            sunClose = header.Sun_CloseTime;
-        }
-        return (dayOpen, dayClose, satOpen, satClose, sunOpen, sunClose);
-    }
-    /// <summary>
-    /// 依星期幾套用剛剛算出的「理論」開館時間
-    /// </summary>
-    private static void ApplyBaseScheduleByWeekday(CalendarDetail dt,(TimeOnly? dayOpen, TimeOnly? dayClose,TimeOnly? satOpen, TimeOnly? satClose,TimeOnly? sunOpen, TimeOnly? sunClose) schedule)
-    {
-        switch (dt.DayOfWeek)
-        {
-            case DayOfWeek.Saturday:
-                dt.Spec_OpenTime = schedule.satOpen;
-                dt.Spec_CloseTime = schedule.satClose;
-                break;
-
-            case DayOfWeek.Sunday:
-                dt.Spec_OpenTime = schedule.sunOpen;
-                dt.Spec_CloseTime = schedule.sunClose;
-                break;
-
-            default: // 週一～週五
-                dt.Spec_OpenTime = schedule.dayOpen;
-                dt.Spec_CloseTime = schedule.dayClose;
-                break;
+            ApplyScheduleRule(calendar, rule);
+            await calendarBiz.BizUpdateDataAsync(calendar.InternalId, calendar, ct);
         }
     }
     /// <summary>
-    /// 套用「平日國定/校訂假日一律不開館」以及「連假週末不開館」的規則
+    /// 查詢學年度涵蓋的完整行事曆聚合模型。
     /// </summary>
-    private void ApplyHolidayAndLongWeekendRule(Calendar set, int index)
+    private async Task<List<Calendar>> GetUpdateCalendarsAsync(SpecOpenScheduleRule rule, CancellationToken ct)
     {
-        var dt = set.CalendarDetail[index];
-        bool isWeekday = dt.DayOfWeek >= DayOfWeek.Monday && dt.DayOfWeek <= DayOfWeek.Friday;
-        // 1) 國定 / 校訂假日（平日）一律不開館
-        if (dt.IsHoliday && isWeekday)
+        var query = new QueryListParam
         {
-            dt.Spec_OpenTime = null;
-            dt.Spec_CloseTime = null;
-            return;
-        }
-        // 2) 週末遇連續假期（連假區間≥3天，且含平日） → 不開館
-        if (IsConsecutiveHolidayWeekend(set, index))
+            Condition = $"{nameof(Calendar.Year)} >= {rule.AcademicStart.Year} And {nameof(Calendar.Year)} <= {rule.AcademicEnd.Year}"
+        };
+        IList<Calendar> result = await calendarBiz.BizQueryListAsync(query, ct);
+        return [.. result];
+    }
+    /// <summary>
+    /// 將規則套用至單一年度行事曆的非人工編輯日期。
+    /// </summary>
+    private static void ApplyScheduleRule(Calendar calendar, SpecOpenScheduleRule rule)
+    {
+        calendar._CalendarDetail.Sort((left, right) => left.Date.CompareTo(right.Date));
+        for (int index = 0; index < calendar._CalendarDetail.Count; index++)
         {
-            dt.Spec_OpenTime = null;
-            dt.Spec_CloseTime = null;
+            CalendarDetail detail = calendar._CalendarDetail[index];
+            if (detail.IsEdit) continue;
+            detail.Spec_AcademicYearId = rule.AcademicYearId;
+            ApplyBaseScheduleByWeekday(detail, ResolveScheduleByDate(rule, detail.Date));
+            ApplyHolidayAndLongWeekendRule(calendar, index);
         }
     }
     /// <summary>
-    /// 判斷「該筆日期是否為連假週末」
-    /// 條件：
-    /// 1. 當天是週六或週日
-    /// 2. 當天為 IsHoliday
-    /// 3. 往前往後連續的 IsHoliday >= 3 天，且中間至少有一個平日（Mon~Fri）
+    /// 依日期取得一般學期、寒假或暑假的時間設定。
     /// </summary>
-    private static bool IsConsecutiveHolidayWeekend(Calendar set, int index)
+    private static OpenSchedule ResolveScheduleByDate(SpecOpenScheduleRule rule, DateOnly date)
     {
-        var cur = set.CalendarDetail[index];
-        // 只處理週六 / 週日
-        if (cur.DayOfWeek != DayOfWeek.Saturday && cur.DayOfWeek != DayOfWeek.Sunday) return false;
-        // 本身要是 isHoliday
-        if (!cur.IsHoliday) return false;
-        int length = 1;              // 這段連假長度
-        bool hasWeekday = false;     // 這段連假裡是否有平日（Mon~Fri）
-        // 往前找連續的 isHoliday（日期要連著）
-        DateOnly prevDate = cur.Date.AddDays(-1);
-        for (int i = index - 1; i >= 0; i--)
-        {
-            var d = set.CalendarDetail[i];
-            if (!d.IsHoliday || d.Date != prevDate) break;
-            length++;
-            if (d.DayOfWeek >= DayOfWeek.Monday && d.DayOfWeek <= DayOfWeek.Friday) hasWeekday = true;
-            prevDate = prevDate.AddDays(-1);
-        }
-        // 往後找連續的 isHoliday（日期要連著）
-        DateOnly nextDate = cur.Date.AddDays(1);
-        for (int i = index + 1; i < set.CalendarDetail.Count; i++)
-        {
-            var d = set.CalendarDetail[i];
-            if (!d.IsHoliday || d.Date != nextDate) break;
-            length++;
-            if (d.DayOfWeek >= DayOfWeek.Monday && d.DayOfWeek <= DayOfWeek.Friday) hasWeekday = true;
-            nextDate = nextDate.AddDays(1);
-        }
-        // 至少 3 天連假，且有平日存在 → 視為連假週末
-        return length >= 3 && hasWeekday;
+        if (date >= rule.WinterStart && date <= rule.WinterEnd)
+            return new OpenSchedule(rule.Winter_Weekday_OpenTime, rule.Winter_Weekday_CloseTime, rule.Winter_Sat_OpenTime, rule.Winter_Sat_CloseTime, rule.Winter_Sun_OpenTime, rule.Winter_Sun_CloseTime);
+        if (date >= rule.SummerStart && date <= rule.SummerEnd)
+            return new OpenSchedule(rule.Summer_Weekday_OpenTime, rule.Summer_Weekday_CloseTime, rule.Summer_Sat_OpenTime, rule.Summer_Sat_CloseTime, rule.Summer_Sun_OpenTime, rule.Summer_Sun_CloseTime);
+        return new OpenSchedule(rule.Weekday_OpenTime, rule.Weekday_CloseTime, rule.Sat_OpenTime, rule.Sat_CloseTime, rule.Sun_OpenTime, rule.Sun_CloseTime);
     }
+    /// <summary>
+    /// 依星期套用理論開閉館時間。
+    /// </summary>
+    private static void ApplyBaseScheduleByWeekday(CalendarDetail detail, OpenSchedule schedule)
+    {
+        (detail.Spec_OpenTime, detail.Spec_CloseTime) = detail.DayOfWeek switch
+        {
+            DayOfWeek.Saturday => (schedule.SaturdayOpen, schedule.SaturdayClose),
+            DayOfWeek.Sunday => (schedule.SundayOpen, schedule.SundayClose),
+            _ => (schedule.WeekdayOpen, schedule.WeekdayClose)
+        };
+    }
+    /// <summary>
+    /// 套用平日假日與連假週末閉館規則。
+    /// </summary>
+    private static void ApplyHolidayAndLongWeekendRule(Calendar calendar, int index)
+    {
+        CalendarDetail detail = calendar._CalendarDetail[index];
+        bool isWeekdayHoliday = detail.IsHoliday && IsWeekday(detail.DayOfWeek);
+        if (!isWeekdayHoliday && !IsConsecutiveHolidayWeekend(calendar, index)) return;
+        detail.Spec_OpenTime = null;
+        detail.Spec_CloseTime = null;
+    }
+    /// <summary>
+    /// 判斷指定日期是否為至少三天且包含平日的連假週末。
+    /// </summary>
+    private static bool IsConsecutiveHolidayWeekend(Calendar calendar, int index)
+    {
+        CalendarDetail current = calendar._CalendarDetail[index];
+        if (!IsWeekend(current.DayOfWeek) || !current.IsHoliday) return false;
+        HolidayRangeState state = CountHolidayRange(calendar._CalendarDetail, index);
+        return state.Length >= 3 && state.HasWeekday;
+    }
+    /// <summary>
+    /// 向前後計算連續假日長度與是否包含平日。
+    /// </summary>
+    private static HolidayRangeState CountHolidayRange(IReadOnlyList<CalendarDetail> details, int index)
+    {
+        HolidayRangeState state = new(1, false);
+        state = ScanHolidayRange(details, index - 1, -1, details[index].Date.AddDays(-1), state);
+        return ScanHolidayRange(details, index + 1, 1, details[index].Date.AddDays(1), state);
+    }
+    /// <summary>
+    /// 依指定方向累計日期連續的假日資料。
+    /// </summary>
+    private static HolidayRangeState ScanHolidayRange(IReadOnlyList<CalendarDetail> details, int index, int step, DateOnly expectedDate, HolidayRangeState state)
+    {
+        for (int currentIndex = index; currentIndex >= 0 && currentIndex < details.Count; currentIndex += step)
+        {
+            CalendarDetail detail = details[currentIndex];
+            if (!detail.IsHoliday || detail.Date != expectedDate) break;
+            state = new HolidayRangeState(state.Length + 1, state.HasWeekday || IsWeekday(detail.DayOfWeek));
+            expectedDate = expectedDate.AddDays(step);
+        }
+        return state;
+    }
+    /// <summary>
+    /// 判斷星期是否為平日。
+    /// </summary>
+    private static bool IsWeekday(DayOfWeek dayOfWeek)
+    {
+        return dayOfWeek is >= DayOfWeek.Monday and <= DayOfWeek.Friday;
+    }
+    /// <summary>
+    /// 判斷星期是否為週末。
+    /// </summary>
+    private static bool IsWeekend(DayOfWeek dayOfWeek)
+    {
+        return dayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday;
+    }
+    /// <summary>
+    /// 一組平日、週六與週日的開閉館時間。
+    /// </summary>
+    private readonly record struct OpenSchedule(
+        TimeOnly? WeekdayOpen,
+        TimeOnly? WeekdayClose,
+        TimeOnly? SaturdayOpen,
+        TimeOnly? SaturdayClose,
+        TimeOnly? SundayOpen,
+        TimeOnly? SundayClose);
+    /// <summary>
+    /// 連續假日掃描結果。
+    /// </summary>
+    private readonly record struct HolidayRangeState(int Length, bool HasWeekday);
     #endregion
 }

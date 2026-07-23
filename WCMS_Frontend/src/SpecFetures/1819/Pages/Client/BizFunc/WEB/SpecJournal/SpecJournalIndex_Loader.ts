@@ -18,7 +18,7 @@ import { useMemo } from "react";
 import { type LoaderFunctionArgs, useLoaderData } from "react-router-dom";
 
 // #region Property
-type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
+type SpecJournalIndexFormModel = components["schemas"]["SpecJournalIndex"];
 
 type QueryListParam = components["schemas"]["QueryListParam"];
 
@@ -31,7 +31,7 @@ export interface SpecJournalIndexLoaderArgs
 export interface SpecJournalIndexLoaderRes
 {
     countRes: number;
-    listRes: SpecJournalIndexSet[];
+    listRes: SpecJournalIndexFormModel[];
 }
 
 export interface SpecJournalIndexLoaderData
@@ -42,7 +42,7 @@ export interface SpecJournalIndexLoaderData
 
 export interface UseSpecJournalIndexDataResult
 {
-    rawData: SpecJournalIndexSet[];
+    rawData: SpecJournalIndexFormModel[];
     isLoading: boolean;
     errorList: string[];
     pageNumber: number;
@@ -54,8 +54,8 @@ type SpecJournalIndexAdapterType = ReturnType<typeof SpecJournalIndexAdapter>;
 
 type SpecJournalIndexTemplate = ClientDataQueryTemplate<
     { pageSize: number; },
-    SpecJournalIndexSet[],
-    SpecJournalIndexSet[],
+    SpecJournalIndexFormModel[],
+    SpecJournalIndexFormModel[],
     SpecJournalIndexAdapterType,
     QueryListParam,
     SpecJournalIndexLoaderData
@@ -176,7 +176,7 @@ const createSpecJournalIndexDataQueryTemplate = (p: { pageSize: number; }): Spec
 /** DataSource：用 Template 統一接 SSR initial、count、list 與 paginator */
 const useSpecJournalIndexDataSource = (
     ctx: SpecJournalIndexDataSourceContext,
-): ClientDataQueryDataSourceResult<SpecJournalIndexSet[], SpecJournalIndexAdapterType> =>
+): ClientDataQueryDataSourceResult<SpecJournalIndexFormModel[], SpecJournalIndexAdapterType> =>
 {
     // 宣告變數
     const adapter = useMemo(() => SpecJournalIndexAdapter(), []);

@@ -6,16 +6,20 @@ import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/Sy
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
 import { LibCheckBox, LibDropList, LibFileInput, LibTextBox, LibTinyMCE } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
-import { useSetTableField, useSetTableFileField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
+import {
+    type FileFieldBindProps,
+    useFormModelField,
+    useSetTableField,
+} from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import { DefaultLang, type Lang, LangLabelMap, SUPPORTED_LANGS } from "@/SysCore/i18n/lang";
+import { LibAttachment } from "@/SysCore/Utils/Library/LibData";
 import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
 import type { components } from "@/types/api";
 import {
     SpecJournalAuthorFields,
     SpecJournalModelFields,
     SpecJournalRefFormatFields,
-    SpecJournalSetFields,
 } from "@/types/SchemaFields";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -33,27 +37,26 @@ import {
 } from "./Server_SpecJournal_Form_Hook";
 
 // #region Property
-type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
+type SpecJournalFormModel = components["schemas"]["SpecJournal"];
 
-type SpecJournalAuthor = components["schemas"]["SpecJournalAuthor_DTO"];
+type SpecJournalAuthor = components["schemas"]["SpecJournalAuthor"];
 
-type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
+type SpecJournalIndexFormModel = components["schemas"]["SpecJournalIndex"];
 
-type SpecJournalIndexDetailSet = components["schemas"]["SpecJournalIndexDetail_DTO"];
+type SpecJournalIndexDetail = components["schemas"]["SpecJournalIndexDetail"];
 
 type AuthorType = 0 | 1;
 
 type SpecJournalAdapterType = SpecJournalFormAdapter["SpecJournal"];
 
-const emptyData: SpecJournalSet = {
-    SpecJournal: {},
-    SpecJournalAuthor: [],
-    SpecJournalRefFormat: [],
-    SpecJournalOpenPointFiles: [],
-    SpecJournalRefFiles: [],
-    SpecJournalKeywords: [],
-    SpecJournalDocument: [],
-    SpecJournalTypes: [],
+const emptyData: SpecJournalFormModel = {
+    _SpecJournalAuthor: [],
+    _SpecJournalRefFormat: [],
+    _SpecJournalOpenPointFiles: [],
+    _SpecJournalRefFiles: [],
+    _SpecJournalKeywords: [],
+    _SpecJournalDocument: [],
+    _SpecJournalTypes: [],
 };
 
 const editGridStyle: IEditGridView_Style = {
@@ -127,16 +130,16 @@ const MainFormComp = (
         theme: IBETheme;
         mode: SpecJournalMode;
         adapter: SpecJournalAdapterType;
-        formData: ServerFormBinding<SpecJournalSet>;
-        indexRawData: SpecJournalIndexSet[];
+        formData: ServerFormBinding<SpecJournalFormModel>;
+        indexRawData: SpecJournalIndexFormModel[];
         tagOptionsRaw: Record<string, string>;
         specDocumentTypeOptionsRaw: Map<string, string>;
         specAuthorTypeOptionsRaw: Map<string, string>;
-        keywords: SpecJournalSet[];
+        keywords: SpecJournalFormModel[];
     },
 ) =>
 {
-    const setField = useSetTableField<SpecJournalSet>(props.formData);
+    const setField = useFormModelField<SpecJournalFormModel>(props.formData);
     const tabInfo: LibTabsProp = {
         Style: props.theme.Tabs,
         item: {
@@ -174,7 +177,7 @@ const MainFormComp = (
             <LibTinyMCE
                 key="bibliography"
                 Style={props.theme.TinyMCE}
-                {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.Bibliography, "string")}
+                {...setField(SpecJournalModelFields.Bibliography, "string")}
                 ColumnDisplayName={""}
             />,
         ],
@@ -184,7 +187,7 @@ const MainFormComp = (
         Documents: [
             <DocumentsComp key="documents" theme={props.theme} formData={props.formData} specDocumentTypeOptionsRaw={props.specDocumentTypeOptionsRaw} />,
         ],
-        System: [<SystemInfoTabComp key="system" theme={props.theme} formData={props.formData} setKey={SpecJournalSetFields.SpecJournal} />],
+        System: [<SystemInfoTabComp key="system" theme={props.theme} formData={props.formData} />],
     };
     return <TabContentComp tabInfos={tabInfo} components={components}></TabContentComp>;
 };
@@ -193,14 +196,25 @@ const BasicComp = (
     props: {
         theme: IBETheme;
         mode: SpecJournalMode;
-        formData: ServerFormBinding<SpecJournalSet>;
-        indexRawData: SpecJournalIndexSet[];
+        formData: ServerFormBinding<SpecJournalFormModel>;
+        indexRawData: SpecJournalIndexFormModel[];
         tagOptionsRaw: Record<string, string>;
     },
 ) =>
 {
-    const setField = useSetTableField<SpecJournalSet>(props.formData);
-    const setFileField = useSetTableFileField<SpecJournalSet>(props.formData);
+    const setField = useFormModelField<SpecJournalFormModel>(props.formData);
+    const journalFileField = useSpecJournalFileFieldBinding(
+        props.formData,
+        SpecJournalModelFields.JournalFileId,
+        SpecJournalModelFields.JournalFileName,
+        props.formData.data?.JournalFile?.FileName,
+    );
+    const insightPointFileField = useSpecJournalFileFieldBinding(
+        props.formData,
+        SpecJournalModelFields.InsightPointFileId,
+        SpecJournalModelFields.InsightPointFileName,
+        props.formData.data?.InsightPointFile?.FileName,
+    );
     const indexOptions = useMemo(() =>
     {
         return buildIndexHeaderOptions(props.indexRawData);
@@ -213,7 +227,7 @@ const BasicComp = (
     {
         return buildArticleLangOptions();
     }, []);
-    const selectedIndexId = String(props.formData.data?.SpecJournal?.JournalIndexId ?? "");
+    const selectedIndexId = String(props.formData.data?.JournalIndexId ?? "");
     const indexRowOptions = useMemo(() =>
     {
         return indexRowOptionsByIndexId[selectedIndexId] ?? new Map<string, string>();
@@ -221,20 +235,19 @@ const BasicComp = (
     const prevIndexIdRef = useRef<string | null>(null);
     /** 記錄：是否已完成編輯資料首次同步 */
     const hasInitJournalIndexRef = useRef<boolean>(false);
-    const types = props.formData.data.SpecJournalTypes ?? [];
+    const types = props.formData.data._SpecJournalTypes ?? [];
     const typeOptions = useMemo(() =>
     {
         const dict = props.tagOptionsRaw ?? {};
         return Object.entries(dict).map(([tagId, label]) => ({ tagId, label }));
     }, [props.tagOptionsRaw]);
     /** 清空主表單上的單一檔案欄位 */
-    const clearMainFileField = useCallback((fileIdField: string, fileNameField: string): void =>
+    const clearMainFileField = useCallback((fileIdField: keyof SpecJournalFormModel, fileNameField: keyof SpecJournalFormModel): void =>
     {
         props.formData.setFormData(prev =>
         {
             if (!prev) return prev;
-            const nextSpecJournal = { ...(prev.SpecJournal ?? {}), [fileIdField]: null, [fileNameField]: "" };
-            return { ...prev, SpecJournal: nextSpecJournal };
+            return { ...prev, [fileIdField]: null, [fileNameField]: "" };
         });
     }, [props.formData]);
 
@@ -250,17 +263,17 @@ const BasicComp = (
         props.formData.setFormData(prev =>
         {
             const p = prev ?? {};
-            const cur = (p as any).SpecJournalTypes ?? [];
+            const cur = (p as any)._SpecJournalTypes ?? [];
             if (checked)
             {
                 if (cur.some((x: any) => String(x?.TagId ?? "") === tagId)) return p;
 
                 const nextRowId = getNextRowId(cur);
                 const next = [...cur, { RowId: nextRowId, TagId: tagId }];
-                return { ...(p as any), SpecJournalTypes: next };
+                return { ...(p as any), _SpecJournalTypes: next };
             }
             const next = cur.filter((x: any) => String(x?.TagId ?? "") !== tagId);
-            return { ...(p as any), SpecJournalTypes: next };
+            return { ...(p as any), _SpecJournalTypes: next };
         });
     }, [props.formData]);
 
@@ -268,7 +281,7 @@ const BasicComp = (
     {
         if (props.mode !== "preprint") return;
 
-        const journal = props.formData.data?.SpecJournal ?? {};
+        const journal = props.formData.data ?? {};
         const hasIndexId = journal?.JournalIndexId != null;
         const hasIndexRowId = journal?.JournalIndexRowId != null;
         if (!hasIndexId && !hasIndexRowId) return;
@@ -276,14 +289,13 @@ const BasicComp = (
         props.formData.setFormData(prev =>
         {
             if (!prev) return prev;
-            const nextJournal = {
-                ...(prev.SpecJournal ?? {}),
+            return {
+                ...prev,
                 [SpecJournalModelFields.JournalIndexId]: null,
                 [SpecJournalModelFields.JournalIndexRowId]: null,
             };
-            return { ...prev, SpecJournal: nextJournal };
         });
-    }, [props.mode, props.formData, props.formData.data?.SpecJournal?.JournalIndexId, props.formData.data?.SpecJournal?.JournalIndexRowId]);
+    }, [props.mode, props.formData, props.formData.data?.JournalIndexId, props.formData.data?.JournalIndexRowId]);
 
     useEffect(() =>
     {
@@ -291,7 +303,7 @@ const BasicComp = (
         if (props.mode !== "journal") return;
 
         // 宣告變數：目前期刊目次代號
-        const currentIndexId = String(props.formData.data?.SpecJournal?.JournalIndexId ?? "");
+        const currentIndexId = String(props.formData.data?.JournalIndexId ?? "");
 
         // 首次載入既有資料時，只記錄，不清空卷期代號
         if (!hasInitJournalIndexRef.current)
@@ -315,29 +327,21 @@ const BasicComp = (
         {
             if (!prevData) return prevData;
 
-            const next = { ...(prevData as SpecJournalSet) };
-            const nextJournal = { ...(next.SpecJournal ?? {}) };
-            nextJournal[SpecJournalModelFields.JournalIndexRowId] = null;
-            next.SpecJournal = nextJournal;
-            return next;
+            return { ...prevData, [SpecJournalModelFields.JournalIndexRowId]: null };
         });
-    }, [props.mode, props.formData, props.formData.data?.SpecJournal?.JournalIndexId]);
+    }, [props.mode, props.formData, props.formData.data?.JournalIndexId]);
 
     useEffect(() =>
     {
         // 表單載入後：若 ArticleLang 為空，預設寫入 zh-tw
         if (!props.formData.data) return;
-        const current = String(props.formData.data?.SpecJournal?.ArticleLang ?? "");
+        const current = String(props.formData.data?.ArticleLang ?? "");
         if (current) return;
 
         props.formData.setFormData(prev =>
         {
             if (!prev) return prev;
-            const next = { ...(prev as SpecJournalSet) };
-            const j = { ...(next.SpecJournal ?? {}) };
-            j[SpecJournalModelFields.ArticleLang] = DefaultLang;
-            next.SpecJournal = j;
-            return next;
+            return { ...prev, [SpecJournalModelFields.ArticleLang]: DefaultLang };
         });
     }, [props.formData.data, props.formData]);
 
@@ -349,13 +353,13 @@ const BasicComp = (
                         Style={props.theme.DropList2}
                         Options={indexOptions}
                         AutoDefaultFirst={false}
-                        {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.JournalIndexId, "string")}
+                        {...setField(SpecJournalModelFields.JournalIndexId, "string")}
                     />
                     <LibDropList
                         Style={props.theme.DropList2}
                         Options={indexRowOptions}
                         AutoDefaultFirst={false}
-                        {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.JournalIndexRowId, "string")}
+                        {...setField(SpecJournalModelFields.JournalIndexRowId, "number")}
                     />
                 </div>
             )}
@@ -363,7 +367,7 @@ const BasicComp = (
                 <LibTextBox
                     Style={props.theme.TextBox}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.Title, "string")}
+                    {...setField(SpecJournalModelFields.Title, "string")}
                 />
             </div>
 
@@ -371,7 +375,7 @@ const BasicComp = (
                 <LibTextBox
                     Style={props.theme.TextBox}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.Title_en, "string")}
+                    {...setField(SpecJournalModelFields.Title_en, "string")}
                 />
             </div>
 
@@ -379,12 +383,12 @@ const BasicComp = (
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.PageStart, "number")}
+                    {...setField(SpecJournalModelFields.PageStart, "number")}
                 />
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.PageEnd, "number")}
+                    {...setField(SpecJournalModelFields.PageEnd, "number")}
                 />
             </div>
 
@@ -392,7 +396,7 @@ const BasicComp = (
                 <LibTextBox
                     Style={props.theme.TextBox}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.DOIUrl, "string")}
+                    {...setField(SpecJournalModelFields.DOIUrl, "string")}
                 />
             </div>
 
@@ -402,10 +406,7 @@ const BasicComp = (
                         <LibFileInput
                             LabelColClassName="col-sm-4"
                             InputColClassName="col-sm-8"
-                            {...setFileField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.JournalFileId, SpecJournalModelFields.JournalFileName, {
-                                defaultNameFromOriginal: "basename",
-                                fileName: props.formData.data.SpecJournal?.JournalFile?.FileName ?? "",
-                            })}
+                            {...journalFileField}
                             Accept="application/pdf"
                             onDelete={() => clearMainFileField(SpecJournalModelFields.JournalFileId, SpecJournalModelFields.JournalFileName)}
                         />
@@ -414,12 +415,7 @@ const BasicComp = (
                         <LibFileInput
                             LabelColClassName="col-sm-4"
                             InputColClassName="col-sm-8"
-                            {...setFileField(
-                                SpecJournalSetFields.SpecJournal,
-                                SpecJournalModelFields.InsightPointFileId,
-                                SpecJournalModelFields.InsightPointFileName,
-                                { defaultNameFromOriginal: "basename", fileName: props.formData.data.SpecJournal?.InsightPointFile?.FileName ?? "" },
-                            )}
+                            {...insightPointFileField}
                             Accept="application/pdf"
                             onDelete={() => clearMainFileField(SpecJournalModelFields.InsightPointFileId, SpecJournalModelFields.InsightPointFileName)}
                         />
@@ -431,7 +427,7 @@ const BasicComp = (
                 <LibDropList
                     Style={props.theme.DropList2}
                     Options={articleLangOptions}
-                    {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.ArticleLang, "string")}
+                    {...setField(SpecJournalModelFields.ArticleLang, "string")}
                 />
             </div>
 
@@ -454,11 +450,11 @@ const BasicComp = (
             </div>
 
             <div className="col-12 form-group">
-                <LibTinyMCE Style={props.theme.TinyMCE} {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.Memo, "string")} />
+                <LibTinyMCE Style={props.theme.TinyMCE} {...setField(SpecJournalModelFields.Memo, "string")} />
             </div>
 
             <div className="col-12 form-group">
-                <LibTinyMCE Style={props.theme.TinyMCE} {...setField(SpecJournalSetFields.SpecJournal, SpecJournalModelFields.Memo_en, "string")} />
+                <LibTinyMCE Style={props.theme.TinyMCE} {...setField(SpecJournalModelFields.Memo_en, "string")} />
             </div>
         </>
     );
@@ -468,14 +464,14 @@ const AuthorComp = (
     props: {
         theme: IBETheme;
         adapter: SpecJournalAdapterType;
-        formData: ServerFormBinding<SpecJournalSet>;
+        formData: ServerFormBinding<SpecJournalFormModel>;
         specAuthorTypeOptionsRaw: Map<string, string>;
     },
 ) =>
 {
     const { handleOrcidBlur } = useSpecJournalAuthorOrcid({ adapter: props.adapter, binding: props.formData });
-    const setField = useSetTableField<SpecJournalSet>(props.formData);
-    const allAuthors = props.formData.data?.SpecJournalAuthor ?? [];
+    const setField = useSetTableField<SpecJournalFormModel>(props.formData);
+    const allAuthors = props.formData.data?._SpecJournalAuthor ?? [];
     const authors = useMemo(() => allAuthors, [allAuthors]);
     const defaultAuthorType = useMemo(() =>
     {
@@ -568,13 +564,13 @@ const AuthorComp = (
         if (!props.formData.data) return;
 
         const nextRowId = getNextRowId();
-        const parentJournalId = props.formData.data.SpecJournal?.JournalId ?? allAuthors[0]?.JournalId;
+        const parentJournalId = props.formData.data.JournalId ?? allAuthors[0]?.JournalId;
         const newItem: SpecJournalAuthor = { JournalId: parentJournalId, RowId: nextRowId, AuthorType: defaultAuthorType };
 
         pendingActiveTabKeyRef.current = String(nextRowId);
         activeTabKeyRef.current = String(nextRowId);
 
-        props.formData.setFormData({ ...props.formData.data, SpecJournalAuthor: [...allAuthors, newItem] });
+        props.formData.setFormData({ ...props.formData.data, _SpecJournalAuthor: [...allAuthors, newItem] });
     };
 
     const removeOne = (rowKey: number | string): void =>
@@ -586,7 +582,7 @@ const AuthorComp = (
         {
             if (!prev) return prev;
 
-            const list = prev.SpecJournalAuthor ?? [];
+            const list = prev._SpecJournalAuthor ?? [];
             const target = list.find((a: any, i: number) => String(a?.RowId ?? i) === keyStr);
             if (!target) return prev;
 
@@ -597,7 +593,7 @@ const AuthorComp = (
                 return !(sameJournalId && sameRowId);
             });
 
-            return { ...prev, SpecJournalAuthor: nextList };
+            return { ...prev, _SpecJournalAuthor: nextList };
         });
     };
 
@@ -621,7 +617,7 @@ const AuthorComp = (
                 <LibCheckBox
                     Style={props.theme.RadioBox}
                     options={specAuthorTypeOptions}
-                    {...setField(SpecJournalSetFields.SpecJournalAuthor, SpecJournalAuthorFields.AuthorType, "number", rowKeys, {
+                    {...setField(SpecJournalModelFields._SpecJournalAuthor, SpecJournalAuthorFields.AuthorType, "number", rowKeys, {
                         defaultValue: defaultAuthorType,
                         defaultWhen: "nullish",
                     })}
@@ -631,7 +627,7 @@ const AuthorComp = (
                 <LibTextBox
                     Style={props.theme.TextBox}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalSetFields.SpecJournalAuthor, SpecJournalAuthorFields.ORCID, "string", rowKeys)}
+                    {...setField(SpecJournalModelFields._SpecJournalAuthor, SpecJournalAuthorFields.ORCID, "string", rowKeys)}
                     onBlur={(v) => void handleOrcidBlur(rowKeys, v)}
                 />
             </div>,
@@ -639,43 +635,43 @@ const AuthorComp = (
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalSetFields.SpecJournalAuthor, SpecJournalAuthorFields.AuthorName, "string", rowKeys)}
+                    {...setField(SpecJournalModelFields._SpecJournalAuthor, SpecJournalAuthorFields.AuthorName, "string", rowKeys)}
                 />
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalSetFields.SpecJournalAuthor, SpecJournalAuthorFields.AuthorName_en, "string", rowKeys)}
+                    {...setField(SpecJournalModelFields._SpecJournalAuthor, SpecJournalAuthorFields.AuthorName_en, "string", rowKeys)}
                 />
             </div>,
             <div className="col-12 form-group" key="jobCountry">
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalSetFields.SpecJournalAuthor, SpecJournalAuthorFields.JobTitle, "string", rowKeys)}
+                    {...setField(SpecJournalModelFields._SpecJournalAuthor, SpecJournalAuthorFields.JobTitle, "string", rowKeys)}
                 />
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalSetFields.SpecJournalAuthor, SpecJournalAuthorFields.Country, "string", rowKeys)}
+                    {...setField(SpecJournalModelFields._SpecJournalAuthor, SpecJournalAuthorFields.Country, "string", rowKeys)}
                 />
             </div>,
             <div className="col-12 form-group" key="unit">
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalSetFields.SpecJournalAuthor, SpecJournalAuthorFields.Unit, "string", rowKeys)}
+                    {...setField(SpecJournalModelFields._SpecJournalAuthor, SpecJournalAuthorFields.Unit, "string", rowKeys)}
                 />
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalSetFields.SpecJournalAuthor, SpecJournalAuthorFields.Unit_en, "string", rowKeys)}
+                    {...setField(SpecJournalModelFields._SpecJournalAuthor, SpecJournalAuthorFields.Unit_en, "string", rowKeys)}
                 />
             </div>,
             <div className="col-12 form-group" key="email">
                 <LibTextBox
                     Style={props.theme.TextBox}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalSetFields.SpecJournalAuthor, SpecJournalAuthorFields.Email, "string", rowKeys)}
+                    {...setField(SpecJournalModelFields._SpecJournalAuthor, SpecJournalAuthorFields.Email, "string", rowKeys)}
                 />
             </div>,
         ];
@@ -686,10 +682,10 @@ const AuthorComp = (
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
 
-const RefFormatComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalSet>; }) =>
+const RefFormatComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalFormModel>; }) =>
 {
-    const setField = useSetTableField<SpecJournalSet>(props.formData);
-    const formats = props.formData.data?.SpecJournalRefFormat ?? [];
+    const setField = useSetTableField<SpecJournalFormModel>(props.formData);
+    const formats = props.formData.data?._SpecJournalRefFormat ?? [];
 
     // ✅ UIUX：新增後要跳到新增的 tab
     const pendingActiveTabKeyRef = useRef<string | null>(null);
@@ -784,14 +780,14 @@ const RefFormatComp = (props: { theme: IBETheme; formData: ServerFormBinding<Spe
         if (!props.formData.data) return;
 
         const nextRowId = getNextRowId();
-        const parentJournalId = props.formData.data.SpecJournal?.JournalId ?? formats[0]?.JournalId;
+        const parentJournalId = props.formData.data.JournalId ?? formats[0]?.JournalId;
 
         const newItem: any = { JournalId: parentJournalId, RowId: nextRowId };
 
         pendingActiveTabKeyRef.current = String(nextRowId);
         activeTabKeyRef.current = String(nextRowId);
 
-        props.formData.setFormData({ ...props.formData.data, SpecJournalRefFormat: [...(props.formData.data.SpecJournalRefFormat ?? []), newItem] });
+        props.formData.setFormData({ ...props.formData.data, _SpecJournalRefFormat: [...(props.formData.data._SpecJournalRefFormat ?? []), newItem] });
     };
 
     const removeOne = (rowKey: number | string): void =>
@@ -808,7 +804,7 @@ const RefFormatComp = (props: { theme: IBETheme; formData: ServerFormBinding<Spe
         {
             if (!prev) return prev;
 
-            const list = prev.SpecJournalRefFormat ?? [];
+            const list = prev._SpecJournalRefFormat ?? [];
             const hitIdx = list.findIndex((f: any, i: number) => String(f?.RowId ?? i) === keyStr);
             if (hitIdx < 0) return prev;
 
@@ -823,7 +819,7 @@ const RefFormatComp = (props: { theme: IBETheme; formData: ServerFormBinding<Spe
                 nextList = list.filter((_, i) => i !== hitIdx);
             }
 
-            return { ...prev, SpecJournalRefFormat: nextList };
+            return { ...prev, _SpecJournalRefFormat: nextList };
         });
     };
 
@@ -858,11 +854,11 @@ const RefFormatComp = (props: { theme: IBETheme; formData: ServerFormBinding<Spe
                 <LibTextBox
                     Style={props.theme.TextBox}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalSetFields.SpecJournalRefFormat, SpecJournalRefFormatFields.Title, "string", rowKeys)}
+                    {...setField(SpecJournalModelFields._SpecJournalRefFormat, SpecJournalRefFormatFields.Title, "string", rowKeys)}
                 />
                 <LibTinyMCE
                     Style={props.theme.TinyMCE}
-                    {...setField(SpecJournalSetFields.SpecJournalRefFormat, SpecJournalRefFormatFields.Content, "string", rowKeys)}
+                    {...setField(SpecJournalModelFields._SpecJournalRefFormat, SpecJournalRefFormatFields.Content, "string", rowKeys)}
                 />
             </div>,
         ];
@@ -873,7 +869,7 @@ const RefFormatComp = (props: { theme: IBETheme; formData: ServerFormBinding<Spe
     return <TabContentComp tabInfos={tabInfo} components={tabContent}></TabContentComp>;
 };
 
-const FilesComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalSet>; }) =>
+const FilesComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalFormModel>; }) =>
 {
     return (
         <>
@@ -894,24 +890,24 @@ const FilesComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJou
     );
 };
 
-const OpenPointComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalSet>; }) =>
+const OpenPointComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalFormModel>; }) =>
 {
     const openPointGrid = useSpecJournalOpenPointFileEditGrid({ binding: props.formData, style: editGridStyle });
 
     return <EditGrid {...openPointGrid.editGridProps} />;
 };
 
-const RefFilesComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalSet>; }) =>
+const RefFilesComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalFormModel>; }) =>
 {
     const refFileGrid = useSpecJournalRefFileEditGrid({ binding: props.formData, style: editGridStyle });
 
     return <EditGrid {...refFileGrid.editGridProps} />;
 };
 
-const KeywordComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalSet>; keywords: SpecJournalSet[]; }) =>
+const KeywordComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalFormModel>; keywords: SpecJournalFormModel[]; }) =>
 {
     const data = props.formData.data ?? {};
-    const tags = data.SpecJournalKeywords ?? [];
+    const tags = data._SpecJournalKeywords ?? [];
     const [zhInput, setZhInput] = useState<string>("");
     const [enInput, setEnInput] = useState<string>("");
     const zhDebounced = useDebouncedValue(zhInput, 200);
@@ -927,7 +923,7 @@ const KeywordComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJ
 
         (props.keywords ?? []).forEach(s =>
         {
-            (s as any)?.SpecJournalKeywords?.forEach((k: any) =>
+            (s as any)?._SpecJournalKeywords?.forEach((k: any) =>
             {
                 const lang = String(k?.LangCode ?? "").toLowerCase();
                 const kw = String(k?.Keyword ?? "").trim();
@@ -972,13 +968,13 @@ const KeywordComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJ
         props.formData.setFormData(prev =>
         {
             const p = prev ?? {};
-            const cur = (p as any).SpecJournalKeywords ?? [];
+            const cur = (p as any)._SpecJournalKeywords ?? [];
             const exists = cur.some((x: any) => String(x?.LangCode ?? "") === lang && String(x?.Keyword ?? "").trim().toLowerCase() === value.toLowerCase());
             if (exists) return p;
 
             const nextRowId = getNextRowId(cur);
             const next = [...cur, { RowId: nextRowId, LangCode: lang, Keyword: value }];
-            return { ...(p as any), SpecJournalKeywords: next };
+            return { ...(p as any), _SpecJournalKeywords: next };
         });
 
         if (lang === "zh-tw") setZhInput("");
@@ -990,9 +986,9 @@ const KeywordComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJ
         props.formData.setFormData(prev =>
         {
             const p = prev ?? {};
-            const cur = (p as any).SpecJournalKeywords ?? [];
+            const cur = (p as any)._SpecJournalKeywords ?? [];
             const next = cur.filter((x: any) => Number(x?.RowId ?? 0) !== rowId);
-            return { ...(p as any), SpecJournalKeywords: next };
+            return { ...(p as any), _SpecJournalKeywords: next };
         });
     }, [props.formData]);
 
@@ -1093,7 +1089,7 @@ const KeywordComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJ
     );
 };
 
-const DocumentsComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalSet>; specDocumentTypeOptionsRaw: Map<string, string>; }) =>
+const DocumentsComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalFormModel>; specDocumentTypeOptionsRaw: Map<string, string>; }) =>
 {
     const documentGrid = useSpecJournalDocumentEditGrid({
         binding: props.formData,
@@ -1112,8 +1108,8 @@ const ModeActionBarComp = (
         isEdit: boolean;
         internalId: string;
         adapter: SpecJournalAdapterType;
-        indexRawData: SpecJournalIndexSet[];
-        formData: ServerFormBinding<SpecJournalSet>;
+        indexRawData: SpecJournalIndexFormModel[];
+        formData: ServerFormBinding<SpecJournalFormModel>;
         onBackToList: () => void;
     },
 ) =>
@@ -1133,15 +1129,15 @@ const ModeActionBarComp = (
 
     const currentIndexId = useMemo<string | null>(() =>
     {
-        const value = props.formData.data?.SpecJournal?.JournalIndexId;
+        const value = props.formData.data?.JournalIndexId;
         return value == null ? null : String(value);
-    }, [props.formData.data?.SpecJournal?.JournalIndexId]);
+    }, [props.formData.data?.JournalIndexId]);
 
     const currentIndexRowId = useMemo<number | null>(() =>
     {
-        const value = props.formData.data?.SpecJournal?.JournalIndexRowId;
+        const value = props.formData.data?.JournalIndexRowId;
         return value == null ? null : value;
-    }, [props.formData.data?.SpecJournal?.JournalIndexRowId]);
+    }, [props.formData.data?.JournalIndexRowId]);
 
     const title = useMemo(() =>
     {
@@ -1201,13 +1197,45 @@ const ModeActionBarComp = (
 // #endregion
 
 // #region Protected
+/** 建立 FormModel 根層檔案欄位綁定，維持 LibFileInput 的上傳與檔名回寫流程。 */
+const useSpecJournalFileFieldBinding = (
+    binding: ServerFormBinding<SpecJournalFormModel>,
+    fileIdField: keyof SpecJournalFormModel,
+    fileNameField: keyof SpecJournalFormModel,
+    physicalFileName?: string | null,
+): FileFieldBindProps =>
+{
+    const setField = useFormModelField<SpecJournalFormModel>(binding);
+    const fileId = setField(fileIdField, "string");
+    const fileName = setField(fileNameField, "string");
+    const onFileUploaded = useCallback((internalId: string, originalName?: string): void =>
+    {
+        fileId.OnChange(internalId);
+        const currentName = String(binding.data?.[fileNameField] ?? "").trim();
+        if (currentName || !originalName) return;
+        fileName.OnChange(LibAttachment.getDisplayFileNameWithoutExtension(originalName));
+    }, [binding.data, fileId, fileName, fileNameField]);
+    const onNameChange = useCallback((name: string): void =>
+    {
+        fileName.OnChange(name);
+    }, [fileName]);
+    return {
+        ColumnDisplayName: fileId.ColumnDisplayName,
+        InputValue: String(fileName.InputValue ?? ""),
+        FileInternalId: String(fileId.InputValue ?? ""),
+        FileName: String(physicalFileName ?? ""),
+        onFileUploaded,
+        onNameChange,
+    };
+};
+
 /** ✅ Header 下拉：IndexId -> IndexName */
-const buildIndexHeaderOptions = (rawData: SpecJournalIndexSet[] = []): Map<string, string> =>
+const buildIndexHeaderOptions = (rawData: SpecJournalIndexFormModel[] = []): Map<string, string> =>
 {
     return rawData.reduce<Map<string, string>>((acc, x) =>
     {
-        const id = String(x?.SpecJournalIndex?.IndexId ?? "");
-        const name = String(x?.SpecJournalIndex?.IndexName ?? "");
+        const id = String(x?.IndexId ?? "");
+        const name = String(x?.IndexName ?? "");
         if (!id) return acc;
         acc.set(id, name || id);
         return acc;
@@ -1215,14 +1243,14 @@ const buildIndexHeaderOptions = (rawData: SpecJournalIndexSet[] = []): Map<strin
 };
 
 /** ✅ Detail 下拉：IndexId -> (RowId -> "X卷Y期") */
-const buildIndexDetailOptionsByIndexId = (rawData: SpecJournalIndexSet[] = []): Record<string, Map<string, string>> =>
+const buildIndexDetailOptionsByIndexId = (rawData: SpecJournalIndexFormModel[] = []): Record<string, Map<string, string>> =>
 {
     return rawData.reduce<Record<string, Map<string, string>>>((acc, x) =>
     {
-        const indexId = String(x?.SpecJournalIndex?.IndexId ?? "");
+        const indexId = String(x?.IndexId ?? "");
         if (!indexId) return acc;
 
-        const details = ((x?.SpecJournalIndexDetail ?? []) as SpecJournalIndexDetailSet[]).slice().sort((a, b) =>
+        const details = ((x?._SpecJournalIndexDetail ?? []) as SpecJournalIndexDetail[]).slice().sort((a, b) =>
         {
             const volumeA = Number(a?.Volume ?? 0);
             const volumeB = Number(b?.Volume ?? 0);

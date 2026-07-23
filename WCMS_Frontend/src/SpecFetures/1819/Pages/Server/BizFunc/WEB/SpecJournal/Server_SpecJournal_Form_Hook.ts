@@ -42,22 +42,21 @@ import {
     SpecJournalModelFields,
     SpecJournalOpenPointFilesFields,
     SpecJournalRefFilesFields,
-    SpecJournalSetFields,
 } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
 
 // #region Property
-type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
+type SpecJournalFormModel = components["schemas"]["SpecJournal"];
 
-type SpecJournalAuthor = components["schemas"]["SpecJournalAuthor_DTO"];
+type SpecJournalAuthor = components["schemas"]["SpecJournalAuthor"];
 
-type SpecJournalDocument = components["schemas"]["SpecJournalDocument_DTO"];
+type SpecJournalDocument = components["schemas"]["SpecJournalDocument"];
 
-type SpecJournalOpenPointFiles = components["schemas"]["SpecJournalOpenPointFiles_DTO"];
+type SpecJournalOpenPointFiles = components["schemas"]["SpecJournalOpenPointFiles"];
 
-type SpecJournalRefFiles = components["schemas"]["SpecJournalRefFiles_DTO"];
+type SpecJournalRefFiles = components["schemas"]["SpecJournalRefFiles"];
 
-type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
+type SpecJournalIndexFormModel = components["schemas"]["SpecJournalIndex"];
 
 type ORCIDData = components["schemas"]["ORCIDData"];
 
@@ -70,14 +69,14 @@ export type SpecJournalGridFileValue = EditGridFileValue & { internalId?: string
 type UploadFileHandler = ReturnType<typeof useUploadFile>["handleFileChange"];
 
 export type SpecJournalFormRefs = {
-    indexRawData: SpecJournalIndexSet[];
+    indexRawData: SpecJournalIndexFormModel[];
     tagOptionsRaw: Record<string, string>;
     specDocumentTypeOptionsRaw: Map<string, string>;
     specAuthorTypeOptionsRaw: Map<string, string>;
-    keywords: SpecJournalSet[];
+    keywords: SpecJournalFormModel[];
 };
 
-export type SpecJournalFormRawData = ServerFormDefaultRawData<SpecJournalSet, SpecJournalFormRefs>;
+export type SpecJournalFormRawData = ServerFormDefaultRawData<SpecJournalFormModel, SpecJournalFormRefs>;
 
 export type SpecJournalFormActionsOpt = {
     /** 儲存成功後回到列表 */
@@ -99,13 +98,13 @@ export interface UseSpecJournalAuthorOrcidOptions
     adapter: ReturnType<typeof SpecJournalAdapter>;
 
     /** Form Template 提供的資料 binding */
-    binding: ServerFormBinding<SpecJournalSet>;
+    binding: ServerFormBinding<SpecJournalFormModel>;
 }
 
 export interface UseSpecJournalFileEditGridOptions
 {
     /** Form Template 提供的資料 binding */
-    binding: ServerFormBinding<SpecJournalSet>;
+    binding: ServerFormBinding<SpecJournalFormModel>;
 
     /** EditGrid UI 樣式 */
     style: IEditGridView_Style;
@@ -148,8 +147,8 @@ export const SpecJournalDocumentFileUploadLimit = {
 
 /** 建立 SpecJournal Spec Form Template，統一交給 Server_FormTemplate 處理資料流程 */
 export const useSpecJournalFormTemplate = (
-    opt: { lang: Lang; theme: IBETheme; internalId: string; emptyData: SpecJournalSet; actionsOpt: SpecJournalFormActionsOpt; },
-): ServerFormTemplate<SpecJournalSet, SpecJournalFormAdapter, SpecJournalFormRefs, SpecJournalFormRawData, SpecJournalFormActionsOpt> =>
+    opt: { lang: Lang; theme: IBETheme; internalId: string; emptyData: SpecJournalFormModel; actionsOpt: SpecJournalFormActionsOpt; },
+): ServerFormTemplate<SpecJournalFormModel, SpecJournalFormAdapter, SpecJournalFormRefs, SpecJournalFormRawData, SpecJournalFormActionsOpt> =>
 {
     return useMemo(() =>
     {
@@ -218,14 +217,14 @@ export const useSpecJournalOpenPointFileEditGrid = (opt: UseSpecJournalFileEditG
     );
     const columns = useMemo(() => buildSpecJournalOpenPointColumns(handleFileChange), [handleFileChange]);
 
-    return useEditGridBinding<SpecJournalSet, SpecJournalOpenPointFiles>({
+    return useEditGridBinding<SpecJournalFormModel, SpecJournalOpenPointFiles>({
         binding: opt.binding,
-        emptyData: buildEmptySpecJournalSet(),
-        collectionName: SpecJournalSetFields.SpecJournalOpenPointFiles,
+        emptyData: buildEmptySpecJournalFormModel(),
+        collectionName: SpecJournalModelFields._SpecJournalOpenPointFiles,
         columns,
         getItemRowId: item => item.RowId,
         sortItems: sortSpecJournalRows,
-        createItem: ctx => ({ JournalId: ctx.data.SpecJournal?.JournalId, RowId: ctx.nextRowId, OpenPointFileId: null, OpenPointFileName: "" }),
+        createItem: ctx => ({ JournalId: ctx.data.JournalId, RowId: ctx.nextRowId, OpenPointFileId: null, OpenPointFileName: "" }),
         toRow: (item, index) => buildSpecJournalOpenPointRow(item, index, handleFileChange),
         toItem: (row, index, ctx) => buildSpecJournalOpenPointItem(row, index, ctx.data),
         editGridProps: buildSpecJournalFileGridProps("開放觀點", "SpecJournal_OpenPointFiles_EditGrid", opt.style),
@@ -242,14 +241,14 @@ export const useSpecJournalRefFileEditGrid = (opt: UseSpecJournalFileEditGridOpt
     );
     const columns = useMemo(() => buildSpecJournalRefFileColumns(handleFileChange), [handleFileChange]);
 
-    return useEditGridBinding<SpecJournalSet, SpecJournalRefFiles>({
+    return useEditGridBinding<SpecJournalFormModel, SpecJournalRefFiles>({
         binding: opt.binding,
-        emptyData: buildEmptySpecJournalSet(),
-        collectionName: SpecJournalSetFields.SpecJournalRefFiles,
+        emptyData: buildEmptySpecJournalFormModel(),
+        collectionName: SpecJournalModelFields._SpecJournalRefFiles,
         columns,
         getItemRowId: item => item.RowId,
         sortItems: sortSpecJournalRows,
-        createItem: ctx => ({ JournalId: ctx.data.SpecJournal?.JournalId, RowId: ctx.nextRowId, RefFileId: null, RefFileName: "" }),
+        createItem: ctx => ({ JournalId: ctx.data.JournalId, RowId: ctx.nextRowId, RefFileId: null, RefFileName: "" }),
         toRow: (item, index) => buildSpecJournalRefFileRow(item, index, handleFileChange),
         toItem: (row, index, ctx) => buildSpecJournalRefFileItem(row, index, ctx.data),
         editGridProps: buildSpecJournalFileGridProps("相關檔案", "SpecJournal_RefFiles_EditGrid", opt.style),
@@ -267,14 +266,14 @@ export const useSpecJournalDocumentEditGrid = (opt: UseSpecJournalDocumentEditGr
     const documentTypeOptions = useMemo(() => toEditGridOptions(Object.fromEntries(opt.documentTypeOptions.entries())), [opt.documentTypeOptions]);
     const columns = useMemo(() => buildSpecJournalDocumentColumns(documentTypeOptions, handleFileChange), [documentTypeOptions, handleFileChange]);
 
-    return useEditGridBinding<SpecJournalSet, SpecJournalDocument>({
+    return useEditGridBinding<SpecJournalFormModel, SpecJournalDocument>({
         binding: opt.binding,
-        emptyData: buildEmptySpecJournalSet(),
-        collectionName: SpecJournalSetFields.SpecJournalDocument,
+        emptyData: buildEmptySpecJournalFormModel(),
+        collectionName: SpecJournalModelFields._SpecJournalDocument,
         columns,
         getItemRowId: item => item.RowId,
         sortItems: sortSpecJournalRows,
-        createItem: ctx => ({ JournalId: ctx.data.SpecJournal?.JournalId, RowId: ctx.nextRowId, DocumentId: null, DocumentName: "" }),
+        createItem: ctx => ({ JournalId: ctx.data.JournalId, RowId: ctx.nextRowId, DocumentId: null, DocumentName: "" }),
         toRow: (item, index) => buildSpecJournalDocumentRow(item, index, documentTypeOptions, handleFileChange),
         toItem: (row, index, ctx) => buildSpecJournalDocumentItem(row, index, ctx.data),
         editGridProps: buildSpecJournalFileGridProps("說明文件", "SpecJournal_Document_EditGrid", opt.style),
@@ -297,7 +296,7 @@ const buildSpecJournalFormTitle = (ctx: { mode: "new" | "edit"; actionsOpt: Spec
 };
 
 /** 建立新增模式的 initial data，避免新增時查詢 __new__ */
-const buildSpecJournalInitialData = (ctx: { mode: "new" | "edit"; emptyData: SpecJournalSet; }): ApiFormInitial<SpecJournalSet> | undefined =>
+const buildSpecJournalInitialData = (ctx: { mode: "new" | "edit"; emptyData: SpecJournalFormModel; }): ApiFormInitial<SpecJournalFormModel> | undefined =>
 {
     if (ctx.mode !== "new") return undefined;
     return { data: { args: "__new__", apiRes: { IsSuccess: true, Data: ctx.emptyData, SysMessage: [] } } };
@@ -354,7 +353,7 @@ const useSpecJournalReferenceData = (ctx: { adapter: SpecJournalFormAdapter; lan
 /** Index 下拉資料 */
 const useSpecJournalIndexListByAdapter = (
     adapter: ReturnType<typeof SpecJournalIndexAdapter>,
-): { rawData: SpecJournalIndexSet[]; isLoading: boolean; error: string | null; refetch: () => Promise<void>; } =>
+): { rawData: SpecJournalIndexFormModel[]; isLoading: boolean; error: string | null; refetch: () => Promise<void>; } =>
 {
     const q = adapter.hooks.useQueryList({
         condition: {
@@ -384,7 +383,7 @@ const useSpecJournalIndexListByAdapter = (
 /** 關鍵字建議來源資料 */
 const useSpecJournalKeywordsByAdapter = (
     adapter: ReturnType<typeof SpecJournalAdapter>,
-): { rawData: SpecJournalSet[]; isLoading: boolean; error: string | null; refetch: () => Promise<void>; } =>
+): { rawData: SpecJournalFormModel[]; isLoading: boolean; error: string | null; refetch: () => Promise<void>; } =>
 {
     const q = adapter.hooks.useQueryList({
         condition: {
@@ -442,7 +441,7 @@ const findSpecJournalAuthorIndex = (list: SpecJournalAuthor[], rowKeys: SpecJour
 
 /** 回寫指定作者列，集中處理 setFormData 的 immutable 更新。 */
 const updateSpecJournalAuthor = (
-    binding: ServerFormBinding<SpecJournalSet>,
+    binding: ServerFormBinding<SpecJournalFormModel>,
     rowKeys: SpecJournalAuthorRowKeys,
     buildNext: (cur: SpecJournalAuthor) => SpecJournalAuthor,
 ): void =>
@@ -451,13 +450,13 @@ const updateSpecJournalAuthor = (
     {
         if (!prev) return prev;
 
-        const list = prev.SpecJournalAuthor ?? [];
+        const list = prev._SpecJournalAuthor ?? [];
         const hitIdx = findSpecJournalAuthorIndex(list, rowKeys);
         if (hitIdx < 0) return prev;
 
         const nextList = [...list];
         nextList[hitIdx] = buildNext({ ...(nextList[hitIdx] ?? {}) });
-        return { ...prev, SpecJournalAuthor: nextList };
+        return { ...prev, _SpecJournalAuthor: nextList };
     });
 };
 
@@ -477,18 +476,17 @@ const buildAuthorFromOrcid = (cur: SpecJournalAuthor, dto: ORCIDData): SpecJourn
     };
 };
 
-/** 建立空的期刊 Set，供 EditGrid 新增模式安全寫回 collection。 */
-const buildEmptySpecJournalSet = (): SpecJournalSet =>
+/** 建立空的期刊 FormModel，供 EditGrid 新增模式安全寫回 collection。 */
+const buildEmptySpecJournalFormModel = (): SpecJournalFormModel =>
 {
     return {
-        SpecJournal: {},
-        SpecJournalAuthor: [],
-        SpecJournalRefFormat: [],
-        SpecJournalOpenPointFiles: [],
-        SpecJournalRefFiles: [],
-        SpecJournalKeywords: [],
-        SpecJournalDocument: [],
-        SpecJournalTypes: [],
+        _SpecJournalAuthor: [],
+        _SpecJournalRefFormat: [],
+        _SpecJournalOpenPointFiles: [],
+        _SpecJournalRefFiles: [],
+        _SpecJournalKeywords: [],
+        _SpecJournalDocument: [],
+        _SpecJournalTypes: [],
     };
 };
 
@@ -576,7 +574,7 @@ const buildSpecJournalDocumentColumns = (
     ];
 };
 
-/** 將開放觀點 DTO 轉成 EditGrid Row。 */
+/** 將開放觀點 Model 轉成 EditGrid Row。 */
 const buildSpecJournalOpenPointRow = (
     item: SpecJournalOpenPointFiles,
     index: number,
@@ -597,14 +595,14 @@ const buildSpecJournalOpenPointRow = (
             buildEditGridCell(
                 SpecJournalOpenPointFilesFields.OpenPointFileId,
                 "開放觀點檔案",
-                buildSpecJournalFileCellValue(item.OpenPointFileId, getSpecJournalDtoFileName(item.OpenPointFile), item.OpenPointFileName),
+                buildSpecJournalFileCellValue(item.OpenPointFileId, getSpecJournalModelFileName(item.OpenPointFile), item.OpenPointFileName),
                 { inputType: "file", editable: true, ...SpecJournalOpenPointFileUploadLimit, onValueChange: onFileChange },
             ),
         ],
     };
 };
 
-/** 將相關檔案 DTO 轉成 EditGrid Row。 */
+/** 將相關檔案 Model 轉成 EditGrid Row。 */
 const buildSpecJournalRefFileRow = (
     item: SpecJournalRefFiles,
     index: number,
@@ -625,14 +623,14 @@ const buildSpecJournalRefFileRow = (
             buildEditGridCell(
                 SpecJournalRefFilesFields.RefFileId,
                 "相關檔案",
-                buildSpecJournalFileCellValue(item.RefFileId, getSpecJournalDtoFileName(item.RefFile), item.RefFileName),
+                buildSpecJournalFileCellValue(item.RefFileId, getSpecJournalModelFileName(item.RefFile), item.RefFileName),
                 { inputType: "file", editable: true, ...SpecJournalRefFileUploadLimit, onValueChange: onFileChange },
             ),
         ],
     };
 };
 
-/** 將說明文件 DTO 轉成 EditGrid Row。 */
+/** 將說明文件 Model 轉成 EditGrid Row。 */
 const buildSpecJournalDocumentRow = (
     item: SpecJournalDocument,
     index: number,
@@ -660,31 +658,31 @@ const buildSpecJournalDocumentRow = (
             buildEditGridCell(
                 SpecJournalDocumentFields.DocumentId,
                 "說明檔案來源",
-                buildSpecJournalFileCellValue(item.DocumentId, getSpecJournalDtoFileName(item.Document), item.DocumentName),
+                buildSpecJournalFileCellValue(item.DocumentId, getSpecJournalModelFileName(item.Document), item.DocumentName),
                 { inputType: "file", editable: true, ...SpecJournalDocumentFileUploadLimit, onValueChange: onFileChange },
             ),
         ],
     };
 };
 
-/** 將 EditGrid Row 轉回開放觀點 DTO。 */
-const buildSpecJournalOpenPointItem = (row: GridRow, index: number, data: SpecJournalSet): SpecJournalOpenPointFiles =>
+/** 將 EditGrid Row 轉回開放觀點 Model。 */
+const buildSpecJournalOpenPointItem = (row: GridRow, index: number, data: SpecJournalFormModel): SpecJournalOpenPointFiles =>
 {
     const file = toSpecJournalFileCellValue(getEditGridCellValue(row, SpecJournalOpenPointFilesFields.OpenPointFileId));
     return {
-        JournalId: data.SpecJournal?.JournalId,
+        JournalId: data.JournalId,
         RowId: index + 1,
         OpenPointFileId: file.internalId || null,
         OpenPointFileName: getSpecJournalEditGridFileName(row, SpecJournalOpenPointFilesFields.OpenPointFileName, file),
     };
 };
 
-/** 將 EditGrid Row 轉回相關檔案 DTO。 */
-const buildSpecJournalRefFileItem = (row: GridRow, index: number, data: SpecJournalSet): SpecJournalRefFiles =>
+/** 將 EditGrid Row 轉回相關檔案 Model。 */
+const buildSpecJournalRefFileItem = (row: GridRow, index: number, data: SpecJournalFormModel): SpecJournalRefFiles =>
 {
     const file = toSpecJournalFileCellValue(getEditGridCellValue(row, SpecJournalRefFilesFields.RefFileId));
     return {
-        JournalId: data.SpecJournal?.JournalId,
+        JournalId: data.JournalId,
         RowId: index + 1,
         RefFileId: file.internalId || null,
         RefFileName: getSpecJournalEditGridFileName(row, SpecJournalRefFilesFields.RefFileName, file),
@@ -706,12 +704,12 @@ const toSpecJournalDocumentType = (value: EditGridCellValue): SpecJournalDocumen
 
     return DEFAULT_SPEC_JOURNAL_DOCUMENT_TYPE;
 };
-/** 將 EditGrid Row 轉回說明文件 DTO。 */
-const buildSpecJournalDocumentItem = (row: GridRow, index: number, data: SpecJournalSet): SpecJournalDocument =>
+/** 將 EditGrid Row 轉回說明文件 Model。 */
+const buildSpecJournalDocumentItem = (row: GridRow, index: number, data: SpecJournalFormModel): SpecJournalDocument =>
 {
     const file = toSpecJournalFileCellValue(getEditGridCellValue(row, SpecJournalDocumentFields.DocumentId));
     return {
-        JournalId: data.SpecJournal?.JournalId,
+        JournalId: data.JournalId,
         RowId: index + 1,
         DocumentType: toSpecJournalDocumentType(getEditGridCellValue(row, SpecJournalDocumentFields.DocumentType)),
         DocumentId: file.internalId || null,
@@ -810,8 +808,8 @@ const getSpecJournalSelectedFileName = (file: SpecJournalGridFileValue): string 
     return String(file.file?.name || file.fileName || "").trim();
 };
 
-/** 取得 DTO 檔案物件中的原始檔名。 */
-const getSpecJournalDtoFileName = (file?: { FileName?: string | null; fileName?: string | null; } | null): string =>
+/** 取得 Model 檔案物件中的原始檔名。 */
+const getSpecJournalModelFileName = (file?: { FileName?: string | null; fileName?: string | null; } | null): string =>
 {
     return String(file?.FileName ?? file?.fileName ?? "").trim();
 };

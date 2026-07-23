@@ -100,7 +100,7 @@ public class SpecJournal_Biz(BizDeps bizDeps, IHttpClientFactory HttpClientFacto
     #region Protected
     protected void BeforeCheckData(SpecJournal set)
     {
-        CheckJouranlIndexIsEmpty(set.SpecJournal);
+        CheckJouranlIndexIsEmpty(set);
     }
 
     protected void BeforeSetData(SpecJournal set)
@@ -127,22 +127,22 @@ public class SpecJournal_Biz(BizDeps bizDeps, IHttpClientFactory HttpClientFacto
     /// <param name="set"></param>
     protected void SetFileNameEmpty(SpecJournal set)
     {
-        if (set.SpecJournal.InsightPointFileId == null) set.SpecJournal.InsightPointFileName = string.Empty;
-        if (set.SpecJournal.JournalFileId == null) set.SpecJournal.JournalFileName = string.Empty;
-        for (int i = set.SpecJournalRefFiles.Count - 1; i >= 0; i--)
+        if (set.InsightPointFileId == null) set.InsightPointFileName = string.Empty;
+        if (set.JournalFileId == null) set.JournalFileName = string.Empty;
+        for (int i = set._SpecJournalRefFiles.Count - 1; i >= 0; i--)
         {
-            var refFiles = set.SpecJournalRefFiles[i];
-            if (refFiles.RefFileId == null) set.SpecJournalRefFiles.Remove(refFiles);
+            var refFiles = set._SpecJournalRefFiles[i];
+            if (refFiles.RefFileId == null) set._SpecJournalRefFiles.Remove(refFiles);
         }
-        for (int i = set.SpecJournalOpenPointFiles.Count - 1; i >= 0; i--)
+        for (int i = set._SpecJournalOpenPointFiles.Count - 1; i >= 0; i--)
         {
-            var openPointFile = set.SpecJournalOpenPointFiles[i];
-            if (openPointFile.OpenPointFileId == null) set.SpecJournalOpenPointFiles.Remove(openPointFile);
+            var openPointFile = set._SpecJournalOpenPointFiles[i];
+            if (openPointFile.OpenPointFileId == null) set._SpecJournalOpenPointFiles.Remove(openPointFile);
         }
-        for (int i = set.SpecJournalDocument.Count - 1; i >= 0; i--)
+        for (int i = set._SpecJournalDocument.Count - 1; i >= 0; i--)
         {
-            var document = set.SpecJournalDocument[i];
-            if (document.DocumentId == null) set.SpecJournalDocument.Remove(document);
+            var document = set._SpecJournalDocument[i];
+            if (document.DocumentId == null) set._SpecJournalDocument.Remove(document);
         }
     }
     /// <summary>

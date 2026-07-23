@@ -15,7 +15,7 @@ import { useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router-dom";
 
 // #region Property
-type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"];
+type SpecMusicalFormModel = components["schemas"]["SpecMusical"];
 
 type SpecMusicalAdapterType = ReturnType<typeof SpecMusicalAdapter>;
 
@@ -30,7 +30,7 @@ export interface SpecMusicalFormLoaderArgs
 /** loader res */
 export interface SpecMusicalFormLoaderRes
 {
-    dataRes: SpecMusicalSet | null;
+    dataRes: SpecMusicalFormModel | null;
     displayNameRes: ModelDisplaySchema[] | null;
 }
 
@@ -44,14 +44,14 @@ export interface SpecMusicalFormLoaderData
 
 export interface SpecMusicalFormRawData
 {
-    data: SpecMusicalSet | null;
+    data: SpecMusicalFormModel | null;
     displaySchema: ModelDisplaySchema | null;
 }
 
 
 export interface UseSpecMusicalFormDataResult
 {
-    data: SpecMusicalSet | null;
+    data: SpecMusicalFormModel | null;
     displaySchema: ModelDisplaySchema | null;
     title: string;
     isLoading: boolean;
@@ -168,7 +168,7 @@ const createSpecMusicalFormDataQueryTemplate = (p: { internalId: string; }): Spe
             buildViewModel: ({ rawData }) => ({
                 data: rawData.data,
                 displaySchema: rawData.displaySchema,
-                title: rawData.data?.SpecMusical?.MusicalName ?? "",
+                title: rawData.data?.MusicalName ?? "",
                 isLoading: false,
                 errorList: [],
             }),
@@ -189,7 +189,7 @@ const useSpecMusicalFormDataSource = (
 
     const dataInitial = useMemo(() =>
     {
-        return buildInitial({ loaderData, internalId, data: loaderData?.res.dataRes ?? ({} as SpecMusicalSet), args: internalId });
+        return buildInitial({ loaderData, internalId, data: loaderData?.res.dataRes ?? ({} as SpecMusicalFormModel), args: internalId });
     }, [loaderData, internalId]);
 
     const displayNameInitial = useMemo(() =>
@@ -198,7 +198,7 @@ const useSpecMusicalFormDataSource = (
     }, [loaderData, internalId]);
 
     // 執行 function
-    const useData = adapter.hooks.useQueryData({ internalId, initial: dataInitial as ApiLoaderData<string, SpecMusicalSet> | null, deps: [internalId] });
+    const useData = adapter.hooks.useQueryData({ internalId, initial: dataInitial as ApiLoaderData<string, SpecMusicalFormModel> | null, deps: [internalId] });
     const useDisplayName = adapter.hooks.useModelDisplayName({ initial: displayNameInitial as ApiLoaderData<null, ModelDisplaySchema[]> | null, deps: [] });
 
     const displaySchema = useMemo<ModelDisplaySchema | null>(() =>

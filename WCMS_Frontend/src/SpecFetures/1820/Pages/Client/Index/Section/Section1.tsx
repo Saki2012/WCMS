@@ -6,8 +6,8 @@ import { useMotionValueEvent, useReducedMotion, useScroll, useSpring } from "fra
 import { useEffect, useMemo, useRef, useState } from "react";
 
 // #region Property
-type HomePageModel = components["schemas"]["SpecHomePage1820Model_DTO"];
-type BannerModel = components["schemas"]["SpecHomePage1820_BannerMedia_DTO"];
+type HomePageFormModel = components["schemas"]["SpecHomePage1820"];
+type BannerModel = components["schemas"]["SpecHomePage1820_BannerMedia"];
 type BannerKind = "image" | "video";
 type BannerItem = { keyId: string; rowId: number; src: string; alt: string; kind: BannerKind; delayMs: number; };
 type SpecHomePageWeather = components["schemas"]["SpecHomePageWeather_DTO"];
@@ -15,7 +15,7 @@ type SpecHomePageWeather = components["schemas"]["SpecHomePageWeather_DTO"];
 
 // #region Public
 /** Section1 */
-export const Section1 = (props: { homePage: HomePageModel; banners: BannerModel[]; weather: SpecHomePageWeather | null; }) =>
+export const Section1 = (props: { homePage: HomePageFormModel; banners: BannerModel[]; weather: SpecHomePageWeather | null; }) =>
 {
     const sectionRef = useRef<HTMLElement | null>(null);
     const videoRefs = useRef<Record<number, HTMLVideoElement | null>>({});

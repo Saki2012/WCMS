@@ -4,16 +4,13 @@ import { EditGrid } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGr
 import type { EditGridCellRenderArgs, EditGridCellValue, IEditGridView_Style } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Data";
 import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
 import { LibCheckBox, LibTextBox, LibTinyMCE } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
-import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
+import { useFormModelField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { LoadingErrorHandler } from "@/SysCore/Components/LoadingErrorHandler";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import { type Lang, LangLabelMap, SUPPORTED_LANGS } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
-import {
-    SpecHomePage1820ModelFields,
-    SpecHomePage1820SetFields,
-} from "@/types/SchemaFields";
+import { SpecHomePage1820Fields } from "@/types/SchemaFields";
 import { type ReactNode, useCallback, useMemo } from "react";
 import {
     getHomePageFilePreviewUrl,
@@ -27,7 +24,7 @@ import {
 } from "./Server_HomePageSetting_Form_Hook";
 
 // #region Property
-type HomePageSet = components["schemas"]["SpecHomePage1820Set_DTO"];
+type HomePageFormModel = components["schemas"]["SpecHomePage1820"];
 
 const editGridStyle: IEditGridView_Style = {
     TableStyle: "table table-striped table-bordered table-hover",
@@ -93,16 +90,16 @@ const LangFormTabComp = (prop: { theme: IBETheme; lang: Lang; summary: ReturnTyp
         <Server_FormTemplate_Comp
             key={`${prop.lang}_${internalId || "new"}`}
             template={template}
-            renderContent={({ vm }) => <LangSetTabComp theme={prop.theme} lang={prop.lang} binding={vm.binding} cateOpts={vm.refs.categoryMap} />}
+            renderContent={({ vm }) => <LangFormModelTabComp theme={prop.theme} lang={prop.lang} binding={vm.rawData.formData} cateOpts={vm.refs.categoryMap} />}
         />
     );
 };
 
-const LangSetTabComp = (
+const LangFormModelTabComp = (
     prop: {
         theme: IBETheme;
         lang: string;
-        binding: ServerFormBinding<HomePageSet>;
+        binding: ServerFormBinding<HomePageFormModel>;
         cateOpts: Record<string, string>;
     },
 ) =>
@@ -138,33 +135,33 @@ const LangSetTabComp = (
     );
 };
 
-const Section1Comp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; lang: string; }) =>
+const Section1Comp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageFormModel>; lang: string; }) =>
 {
-    const setField = useSetTableField<HomePageSet>(prop.formData);
+    const formField = useFormModelField<HomePageFormModel>(prop.formData);
 
     return (
         <>
             <LibTextBox
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入"
-                {...setField(SpecHomePage1820SetFields.SpecHomePage1820, SpecHomePage1820ModelFields.Section1Title_L, "string")}
+                {...formField(SpecHomePage1820Fields.Section1Title_L, "string")}
             />
             <LibTextBox
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入"
-                {...setField(SpecHomePage1820SetFields.SpecHomePage1820, SpecHomePage1820ModelFields.Section1Title_M, "string")}
+                {...formField(SpecHomePage1820Fields.Section1Title_M, "string")}
             />
             <LibTextBox
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入"
-                {...setField(SpecHomePage1820SetFields.SpecHomePage1820, SpecHomePage1820ModelFields.Section1Title_R, "string")}
+                {...formField(SpecHomePage1820Fields.Section1Title_R, "string")}
             />
             <BannerMediaComp theme={prop.theme} formData={prop.formData} lang={prop.lang} />
         </>
     );
 };
 
-const BannerMediaComp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; lang: string; }) =>
+const BannerMediaComp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageFormModel>; lang: string; }) =>
 {
     // Banner 明細改由 EditGrid 統一新增、編輯、刪除與拖曳排序
     const { renderPicturePreview } = useHomePageEditGridRenderers(prop.theme);
@@ -177,54 +174,54 @@ const BannerMediaComp = (prop: { theme: IBETheme; formData: ServerFormBinding<Ho
     );
 };
 
-const Section2Comp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; }) =>
+const Section2Comp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageFormModel>; }) =>
 {
-    const setField = useSetTableField<HomePageSet>(prop.formData);
+    const formField = useFormModelField<HomePageFormModel>(prop.formData);
 
     return (
         <>
-            <LibTinyMCE Style={prop.theme.TinyMCE} {...setField(SpecHomePage1820SetFields.SpecHomePage1820, SpecHomePage1820ModelFields.HeroText, "string")} />
+            <LibTinyMCE Style={prop.theme.TinyMCE} {...formField(SpecHomePage1820Fields.HeroText, "string")} />
             <LibTextBox
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入連結"
-                {...setField(SpecHomePage1820SetFields.SpecHomePage1820, SpecHomePage1820ModelFields.HeroText_ViewMoreLink, "string")}
+                {...formField(SpecHomePage1820Fields.HeroText_ViewMoreLink, "string")}
             />
         </>
     );
 };
 
-const Section3Comp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; cateOpts: Record<string, string>; }) =>
+const Section3Comp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageFormModel>; cateOpts: Record<string, string>; }) =>
 {
-    const setField = useSetTableField<HomePageSet>(prop.formData);
+    const formField = useFormModelField<HomePageFormModel>(prop.formData);
 
     return (
         <>
             <LibTextBox
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入"
-                {...setField(SpecHomePage1820SetFields.SpecHomePage1820, SpecHomePage1820ModelFields.AnnouncementTitle, "string")}
+                {...formField(SpecHomePage1820Fields.AnnouncementTitle, "string")}
             />
             <LibTextBox
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入"
-                {...setField(SpecHomePage1820SetFields.SpecHomePage1820, SpecHomePage1820ModelFields.AnnouncementSubTitle, "string")}
+                {...formField(SpecHomePage1820Fields.AnnouncementSubTitle, "string")}
             />
 
             <LibCheckBox
                 Style={prop.theme.CheckBox}
                 options={prop.cateOpts}
-                {...setField(SpecHomePage1820SetFields.SpecHomePage1820, SpecHomePage1820ModelFields.AnnouncementCategoryIds, "string", undefined, "csv")}
+                {...formField(SpecHomePage1820Fields.AnnouncementCategoryIds, "string", "csv")}
             />
             <LibTextBox
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入連結"
-                {...setField(SpecHomePage1820SetFields.SpecHomePage1820, SpecHomePage1820ModelFields.Announcement_ViewMoreLink, "string")}
+                {...formField(SpecHomePage1820Fields.Announcement_ViewMoreLink, "string")}
             />
         </>
     );
 };
 
-const Section4Comp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; lang: string; }) =>
+const Section4Comp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageFormModel>; lang: string; }) =>
 {
     // Section4 明細改由 EditGrid 統一新增、編輯、刪除、拖曳排序與 TinyMCE 內文編輯
     const { renderPicturePreview, renderIntroPreview, renderIntroEditor } = useHomePageEditGridRenderers(prop.theme);
@@ -244,7 +241,7 @@ const Section4Comp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomeP
     );
 };
 
-const Section5Comp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; lang: string; }) =>
+const Section5Comp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageFormModel>; lang: string; }) =>
 {
     // Section5 跑馬燈改由 EditGrid 統一新增、編輯、刪除與拖曳排序
     const { renderPicturePreview } = useHomePageEditGridRenderers(prop.theme);
@@ -257,28 +254,28 @@ const Section5Comp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomeP
     );
 };
 
-const Section6Comp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; lang: string; }) =>
+const Section6Comp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageFormModel>; lang: string; }) =>
 {
-    const setField = useSetTableField<HomePageSet>(prop.formData);
+    const formField = useFormModelField<HomePageFormModel>(prop.formData);
 
     return (
         <>
             <LibTextBox
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入"
-                {...setField(SpecHomePage1820SetFields.SpecHomePage1820, SpecHomePage1820ModelFields.Resource_Title, "string")}
+                {...formField(SpecHomePage1820Fields.Resource_Title, "string")}
             />
             <LibTextBox
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入"
-                {...setField(SpecHomePage1820SetFields.SpecHomePage1820, SpecHomePage1820ModelFields.Resource_SubTitle, "string")}
+                {...formField(SpecHomePage1820Fields.Resource_SubTitle, "string")}
             />
             <ResourceComp theme={prop.theme} formData={prop.formData} lang={prop.lang} />
         </>
     );
 };
 
-const ResourceComp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; lang: string; }) =>
+const ResourceComp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageFormModel>; lang: string; }) =>
 {
     // Section6 資源連結改由 EditGrid 統一新增、編輯、刪除與拖曳排序
     const { renderPicturePreview } = useHomePageEditGridRenderers(prop.theme);

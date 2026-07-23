@@ -5,7 +5,7 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 
 // #region Property
-type HomePageIntro = components["schemas"]["SpecHomePage1820_Detail_DTO"];
+type HomePageIntro = components["schemas"]["SpecHomePage1820_Detail"];
 // #endregion
 
 // #region Public

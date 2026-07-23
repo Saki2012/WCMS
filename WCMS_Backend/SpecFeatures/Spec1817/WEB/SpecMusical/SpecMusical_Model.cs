@@ -4,9 +4,9 @@ using WCMS.Features.COMM.Category;
 using WCMS.SpecFeatures.Spec1817._Resx;
 using WCMS.SysCore.FeatureDriver.Resx;
 using WCMS.SysCore.PlatformServices.FileManagement;
-using WCMS.Features.MAT.Material;
 using WCMS.SysCore.FeatureDriver.Model.Base;
 using WCMS.SysCore.FeatureDriver.Model.Metadata;
+using WCMS.SysCore.FeatureDriver.Model.Validation;
 
 namespace WCMS.SpecFeatures.Spec1817.WEB.SpecMusical;
 
@@ -20,12 +20,12 @@ public class SpecMusical : HeaderModel
     /// 樂器代碼。
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, SpecDisplayName.Spec_MusicalId)]
+    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, SpecDisplayName.Spec_MusicalId)]
     public string MusicalId { get; set; } = string.Empty;
     /// <summary>
     /// 樂器名稱。
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Name, SpecDisplayName.Spec_MusicalName)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Name, SpecDisplayName.Spec_MusicalName)]
     public string MusicalName { get; set; } = string.Empty;
     /// <summary>
     /// 類別關聯資料。
@@ -36,52 +36,52 @@ public class SpecMusical : HeaderModel
     /// <summary>
     /// 類別代碼。
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.ID, DisplayName.CategoryId)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.ID, DisplayName.CategoryId)]
     public string? CategoryId { get; set; }
     /// <summary>
     /// 封面圖片代碼，來源為相片明細。
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.InternalId, DisplayName.Announcement_CoverPictureId)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.InternalId, DisplayName.Announcement_CoverPictureId)]
     public string? CoverPicId { get; set; }
     /// <summary>
     /// 規格。
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Info, SpecDisplayName.Spec_Specification)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Info, SpecDisplayName.Spec_Specification)]
     public string Specification { get; set; } = string.Empty;
     /// <summary>
     /// 琴頭。
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Info, SpecDisplayName.Spec_Headstock)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Info, SpecDisplayName.Spec_Headstock)]
     public string Headstock { get; set; } = string.Empty;
     /// <summary>
     /// 背板。
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Info, SpecDisplayName.Spec_Backboard)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Info, SpecDisplayName.Spec_Backboard)]
     public string Backboard { get; set; } = string.Empty;
     /// <summary>
     /// 弦長。
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Info, SpecDisplayName.Spec_ScaleLength)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Info, SpecDisplayName.Spec_ScaleLength)]
     public string ScaleLength { get; set; } = string.Empty;
     /// <summary>
     /// 覆手。
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Info, SpecDisplayName.Spec_Bridge)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Info, SpecDisplayName.Spec_Bridge)]
     public string Bridge { get; set; } = string.Empty;
     /// <summary>
     /// 形制。
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Info, SpecDisplayName.Spec_BodyForm)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Info, SpecDisplayName.Spec_BodyForm)]
     public string BodyForm { get; set; } = string.Empty;
     /// <summary>
     /// 弦材。
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Info, SpecDisplayName.Spec_Material)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Info, SpecDisplayName.Spec_Material)]
     public string Material { get; set; } = string.Empty;
     /// <summary>
     /// 樂器說明。
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Memo, SpecDisplayName.Spec_MusicalInfo)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Memo, SpecDisplayName.Spec_MusicalInfo)]
     public string Info { get; set; } = string.Empty;
     /// <summary>
     /// 音檔明細。
@@ -108,7 +108,7 @@ public class SpecMusicalSoundList : FormDetailModel
     /// 樂器代碼。
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, SpecDisplayName.Spec_MusicalId)]
+    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, SpecDisplayName.Spec_MusicalId)]
     public string MusicalId { get; set; } = string.Empty;
     /// <summary>
     /// 音源關聯資料。
@@ -119,12 +119,12 @@ public class SpecMusicalSoundList : FormDetailModel
     /// <summary>
     /// 音源檔案代碼。
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.InternalId, DisplayName.Common_SoundSrcId)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.InternalId, DisplayName.Common_SoundSrcId)]
     public string? SoundSrcId { get; set; }
     /// <summary>
     /// 音檔說明。
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Info, SpecDisplayName.Spec_SoundSrcInfo)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Info, SpecDisplayName.Spec_SoundSrcInfo)]
     public string Info { get; set; } = string.Empty;
     /// <summary>
     /// 所屬樂器。
@@ -145,7 +145,7 @@ public class SpecMusicalPictureList : FormDetailModel
     /// 樂器代碼。
     /// </summary>
     [Key]
-    [LibStr(ApiFieldMode.ReadOnly, SysLengthParam.ID, SpecDisplayName.Spec_MusicalId)]
+    [LibStr(ApiFieldMode.ReadOnly, DbStrLen.ID, SpecDisplayName.Spec_MusicalId)]
     public string MusicalId { get; set; } = string.Empty;
     /// <summary>
     /// 圖片關聯資料。
@@ -156,7 +156,7 @@ public class SpecMusicalPictureList : FormDetailModel
     /// <summary>
     /// 圖片檔案代碼。
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.InternalId, DisplayName.Gallery_PicSrcId)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.InternalId, DisplayName.Gallery_PicSrcId)]
     public string? PicSrcId { get; set; }
     /// <summary>
     /// 相片排序。
@@ -166,7 +166,7 @@ public class SpecMusicalPictureList : FormDetailModel
     /// <summary>
     /// 圖片說明。
     /// </summary>
-    [LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Info, DisplayName.Gallery_PhotosInfo)]
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Info, DisplayName.Gallery_PhotosInfo)]
     public string Info { get; set; } = string.Empty;
     /// <summary>
     /// 所屬樂器。

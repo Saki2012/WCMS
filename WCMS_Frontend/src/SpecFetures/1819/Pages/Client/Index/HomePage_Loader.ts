@@ -33,7 +33,7 @@ type BannerFormModel = components["schemas"]["Banner"];
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 
-type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
+type SpecJournalIndexFormModel = components["schemas"]["SpecJournalIndex"];
 
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
 
@@ -43,8 +43,8 @@ export interface HomePageRawData
 {
     latestIssueBgBanner: BannerFormModel | null;
     latestIssueCoverBanner: BannerFormModel | null;
-    latestIssuePublishedList: SpecJournalIndexSet[];
-    latestIssueUnpublishedList: SpecJournalIndexSet[];
+    latestIssuePublishedList: SpecJournalIndexFormModel[];
+    latestIssueUnpublishedList: SpecJournalIndexFormModel[];
     indexedBanner: BannerFormModel | null;
     newsTopList: AnnouncementSet[];
     newsList: AnnouncementSet[];

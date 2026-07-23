@@ -30,13 +30,13 @@ import { LibAttachment } from "@/SysCore/Utils/Library/LibData";
 import { useUploadFile } from "@/SysCore/Utils/UI_Hooks/useUploadFile";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { PGID, SpecJournalIndexDetailFields, SpecJournalIndexSetFields } from "@/types/SchemaFields";
+import { PGID, SpecJournalIndexDetailFields, SpecJournalIndexModelFields } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
 
 // #region Property
-type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
+type SpecJournalIndexFormModel = components["schemas"]["SpecJournalIndex"];
 
-type SpecJournalIndexDetail = components["schemas"]["SpecJournalIndexDetail_DTO"];
+type SpecJournalIndexDetail = components["schemas"]["SpecJournalIndexDetail"];
 
 export type SpecJournalIndexGridFileValue = EditGridFileValue & { internalId?: string; originalFileName?: string; };
 
@@ -44,7 +44,7 @@ type UploadFileHandler = ReturnType<typeof useUploadFile>["handleFileChange"];
 
 export type SpecJournalIndexFormRefs = { categoryMap: Record<string, string>; };
 
-export type SpecJournalIndexFormRawData = ServerFormDefaultRawData<SpecJournalIndexSet, SpecJournalIndexFormRefs>;
+export type SpecJournalIndexFormRawData = ServerFormDefaultRawData<SpecJournalIndexFormModel, SpecJournalIndexFormRefs>;
 
 export type SpecJournalIndexFormAdapter = { SpecJournalIndex: ReturnType<typeof SpecJournalIndexAdapter>; Category: ReturnType<typeof CategoryAdapter>; };
 
@@ -56,7 +56,7 @@ export type SpecJournalIndexFormActionsOpt = {
 export interface UseSpecJournalIndexDetailEditGridOptions
 {
     /** Form Template 提供的資料 binding */
-    binding: ServerFormBinding<SpecJournalIndexSet>;
+    binding: ServerFormBinding<SpecJournalIndexFormModel>;
 
     /** EditGrid UI 樣式 */
     style: IEditGridView_Style;
@@ -66,9 +66,9 @@ export interface UseSpecJournalIndexDetailEditGridOptions
 // #region Public
 /** 建立 SpecJournalIndex Spec Form Template，統一交給 Server_FormTemplate 處理資料流程 */
 export const useSpecJournalIndexFormTemplate = (
-    opt: { lang: Lang; theme: IBETheme; internalId: string; emptyData: SpecJournalIndexSet; actionsOpt: SpecJournalIndexFormActionsOpt; },
+    opt: { lang: Lang; theme: IBETheme; internalId: string; emptyData: SpecJournalIndexFormModel; actionsOpt: SpecJournalIndexFormActionsOpt; },
 ): ServerFormTemplate<
-    SpecJournalIndexSet,
+    SpecJournalIndexFormModel,
     SpecJournalIndexFormAdapter,
     SpecJournalIndexFormRefs,
     SpecJournalIndexFormRawData,
@@ -104,10 +104,10 @@ export const useSpecJournalIndexDetailEditGrid = (opt: UseSpecJournalIndexDetail
     ]);
     const columns = useMemo(() => buildSpecJournalIndexDetailColumns(handleSummaryFileChange), [handleSummaryFileChange]);
 
-    return useEditGridBinding<SpecJournalIndexSet, SpecJournalIndexDetail>({
+    return useEditGridBinding<SpecJournalIndexFormModel, SpecJournalIndexDetail>({
         binding: opt.binding,
-        emptyData: { SpecJournalIndex: {}, SpecJournalIndexDetail: [] },
-        collectionName: SpecJournalIndexSetFields.SpecJournalIndexDetail,
+        emptyData: { _SpecJournalIndexDetail: [] },
+        collectionName: SpecJournalIndexModelFields._SpecJournalIndexDetail,
         columns,
         getItemRowId: item => item.RowId,
         sortItems: items => [...items].sort((a, b) => Number(a.RowId ?? 0) - Number(b.RowId ?? 0)),
@@ -133,7 +133,7 @@ const buildSpecJournalIndexFormTitle = (ctx: { displayName: ModelDisplaySchema; 
 };
 
 /** 建立新增模式的 initial data，避免新增時查詢 __new__ */
-const buildSpecJournalIndexInitialData = (ctx: { mode: "new" | "edit"; emptyData: SpecJournalIndexSet; }): ApiFormInitial<SpecJournalIndexSet> | undefined =>
+const buildSpecJournalIndexInitialData = (ctx: { mode: "new" | "edit"; emptyData: SpecJournalIndexFormModel; }): ApiFormInitial<SpecJournalIndexFormModel> | undefined =>
 {
     if (ctx.mode !== "new") return undefined;
     return { data: { args: "__new__", apiRes: { IsSuccess: true, Data: ctx.emptyData, SysMessage: [] } } };
@@ -202,20 +202,20 @@ const buildSpecJournalIndexDetailGridProps = (style: IEditGridView_Style) =>
     };
 };
 
-/** 建立新增的期刊目次明細 DTO。 */
-const buildSpecJournalIndexDetailCreateItem = (data: SpecJournalIndexSet, rowId: number): SpecJournalIndexDetail =>
+/** 建立新增的期刊目次明細 Model。 */
+const buildSpecJournalIndexDetailCreateItem = (data: SpecJournalIndexFormModel, rowId: number): SpecJournalIndexDetail =>
 {
-    const base = data.SpecJournalIndexDetail ?? [];
+    const base = data._SpecJournalIndexDetail ?? [];
     const firstVolume = base[0]?.Volume;
     return {
-        IndexId: data.SpecJournalIndex?.IndexId,
+        IndexId: data.IndexId,
         RowId: rowId,
         Volume: typeof firstVolume === "number" ? firstVolume : 1,
         Issue: String(getNextSpecJournalIndexIssue(base, firstVolume)),
     };
 };
 
-/** 將期刊目次明細 DTO 轉成 EditGrid Row。 */
+/** 將期刊目次明細 Model 轉成 EditGrid Row。 */
 const buildSpecJournalIndexDetailGridRow = (
     item: SpecJournalIndexDetail,
     index: number,
@@ -242,20 +242,20 @@ const buildSpecJournalIndexDetailGridRow = (
             buildEditGridCell(
                 SpecJournalIndexDetailFields.SummaryFileId,
                 "期刊檔案",
-                buildSpecJournalIndexFileCellValue(item.SummaryFileId, getSpecJournalIndexDtoFileName(item.SummaryFile), item.SummaryFileName),
+                buildSpecJournalIndexFileCellValue(item.SummaryFileId, getSpecJournalIndexModelFileName(item.SummaryFile), item.SummaryFileName),
                 { inputType: "file", editable: true, accept: "application/pdf", onValueChange: onSummaryFileChange },
             ),
         ],
     };
 };
 
-/** 將 EditGrid Row 轉回期刊目次明細 DTO。 */
-const buildSpecJournalIndexDetailItem = (row: GridRow, index: number, data: SpecJournalIndexSet): SpecJournalIndexDetail =>
+/** 將 EditGrid Row 轉回期刊目次明細 Model。 */
+const buildSpecJournalIndexDetailItem = (row: GridRow, index: number, data: SpecJournalIndexFormModel): SpecJournalIndexDetail =>
 {
     const file = toSpecJournalIndexFileCellValue(getEditGridCellValue(row, SpecJournalIndexDetailFields.SummaryFileId));
     const rowId = getEditGridRowId(row, index);
     return {
-        IndexId: data.SpecJournalIndex?.IndexId,
+        IndexId: data.IndexId,
         RowId: rowId,
         Volume: Number(getEditGridCellValue(row, SpecJournalIndexDetailFields.Volume) ?? 0),
         Issue: getEditGridStringCellValue(row, SpecJournalIndexDetailFields.Issue),
@@ -357,8 +357,8 @@ const getSpecJournalIndexSelectedFileName = (file: SpecJournalIndexGridFileValue
     return String(file.file?.name || file.fileName || "").trim();
 };
 
-/** 取得 DTO 檔案物件中的原始檔名。 */
-const getSpecJournalIndexDtoFileName = (file?: { FileName?: string | null; fileName?: string | null; } | null): string =>
+/** 取得 Model 檔案物件中的原始檔名。 */
+const getSpecJournalIndexModelFileName = (file?: { FileName?: string | null; fileName?: string | null; } | null): string =>
 {
     return String(file?.FileName ?? file?.fileName ?? "").trim();
 };

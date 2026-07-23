@@ -5,11 +5,11 @@ import { PGID } from "@/types/SchemaFields";
 import type { AxiosInstance } from "axios";
 
 // #region Property
-type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
+type SpecJournalIndexFormModel = components["schemas"]["SpecJournalIndex"];
 // #endregion
 
 // #region Public
-export class SpecJournalIndexService extends ApiDataService<SpecJournalIndexSet>
+export class SpecJournalIndexService extends ApiDataService<SpecJournalIndexFormModel>
 {
     // #region Public
     constructor(apiInstance?: AxiosInstance)
@@ -20,5 +20,5 @@ export class SpecJournalIndexService extends ApiDataService<SpecJournalIndexSet>
 }
 
 export const SpecJournalIndexAdapter = (apiInstance?: AxiosInstance) =>
-    new ApiDataAdapter<SpecJournalIndexSet, SpecJournalIndexService>((api?: AxiosInstance) => new SpecJournalIndexService(api ?? apiInstance));
+    new ApiDataAdapter<SpecJournalIndexFormModel, SpecJournalIndexService>((api?: AxiosInstance) => new SpecJournalIndexService(api ?? apiInstance));
 // #endregion

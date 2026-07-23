@@ -31,12 +31,12 @@ public class SpecUSRBiz(BizDeps bizDeps) : BizService<SpecUSR>(bizDeps)
     }
     private void SetData(SpecUSR set)
     {
-        DoRemergeData(set.SpecUSR);
-        SetFileEmptyToNull(set.SpecUSR);
+        DoRemergeData(set);
+        SetFileEmptyToNull(set);
     }
     private void CheckIsEmpty(SpecUSR set)
     {
-        if (set.SpecUSR.CategoryId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<SpecUSR>(x => x.CategoryId));
+        if (set.CategoryId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<SpecUSR>(x => x.CategoryId));
     }
     /// <summary>
     /// 重新組合多筆資料(類別、狀態、標籤)

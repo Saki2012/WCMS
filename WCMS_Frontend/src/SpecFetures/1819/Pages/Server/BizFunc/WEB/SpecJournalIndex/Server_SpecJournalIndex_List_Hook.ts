@@ -2,12 +2,13 @@ import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import { createGridCrudActions, enhanceGridWithAdjustCell, type GridConfirmFn } from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
 import {
     buildServerListColumns,
+    getServerColumnTitle as getColumnTitle,
     getServerSearchStringValue as getSearchStringValue,
-    getServerTableColumnTitle as getColumnTitle,
 } from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Helper";
 import type {
     ServerListGridDataSourceContext,
     ServerListGridDataSourceResult,
+    ServerListGridQueryContext,
     ServerListGridTemplate,
 } from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Hook";
 import { SpecJournalIndexAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/WEB/SpecJournalIndex_Api";
@@ -20,14 +21,14 @@ import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { formatDateTime, LibCondition, LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { AccountFields, PGID, SpecJournalIndexDetailFields, SpecJournalIndexModelFields, SpecJournalIndexSetFields } from "@/types/SchemaFields";
+import { AccountFields, PGID, SpecJournalIndexDetailFields, SpecJournalIndexModelFields } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
 import { type NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-export type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
+export type SpecJournalIndexFormModel = components["schemas"]["SpecJournalIndex"];
 
 type SpecJournalIndexApiAdapter = ReturnType<typeof SpecJournalIndexAdapter>;
 
@@ -36,7 +37,7 @@ type SpecJournalIndexCudActions = ReturnType<SpecJournalIndexApiAdapter["hooks"]
 export interface SpecJournalIndexListRenderers
 {
     /** 渲染卷期欄位內容，JSX 請留在 Comp 實作 */
-    buildVolumeIssueContentNode: (set: SpecJournalIndexSet) => RowCell["content"];
+    buildVolumeIssueContentNode: (set: SpecJournalIndexFormModel) => RowCell["content"];
 }
 
 export interface SpecJournalIndexListPageState
@@ -66,7 +67,7 @@ export interface SpecJournalIndexListRawData
     count: number;
 
     /** 期刊目次列表資料 */
-    list: SpecJournalIndexSet[];
+    list: SpecJournalIndexFormModel[];
 
     /** 目前頁碼 */
     pageNumber: number;
@@ -117,7 +118,7 @@ type SpecJournalIndexVisibleColumn = {
     key: string;
 
     /** ModelDisplayName 對應表格代號 */
-    tableId: string;
+    tableId?: string;
 
     /** ModelDisplayName 對應欄位代號 */
     columnId: string;
@@ -140,12 +141,12 @@ const DEFAULT_SPEC_JOURNAL_INDEX_LIST_PAGE_STATE: SpecJournalIndexListPageState 
 /** 建立期刊目次後台純 Spec ListGridTemplate 設定 */
 export const useSpecJournalIndexListGridTemplate = (opt: { lang: Lang; renderers: SpecJournalIndexListRenderers; }): SpecJournalIndexListGridTemplate =>
 {
-        const pageState = usePageStateMemory<SpecJournalIndexListPageState>({
+    const pageState = usePageStateMemory<SpecJournalIndexListPageState>({
         stateKey: SPEC_JOURNAL_INDEX_LIST_STATE_KEY,
         defaultState: DEFAULT_SPEC_JOURNAL_INDEX_LIST_PAGE_STATE,
         scopeKeys: [opt.lang],
     });
-return useMemo<SpecJournalIndexListGridTemplate>(() =>
+    return useMemo<SpecJournalIndexListGridTemplate>(() =>
     {
         return {
             featureKey: PGID.SpecJournalIndex,
@@ -244,7 +245,7 @@ const useSpecJournalIndexListGridDataSource = (
 /** 建立期刊目次搜尋欄位設定 */
 const buildSpecJournalIndexSearchFields = (rawData: SpecJournalIndexListRawData): SearchFieldConfig[] =>
 {
-    const indexNameTitle = getColumnTitle(rawData.modelDisplayName, SpecJournalIndexSetFields.SpecJournalIndex, SpecJournalIndexModelFields.IndexName, "期刊目次名稱");
+    const indexNameTitle = getColumnTitle(rawData.modelDisplayName, SpecJournalIndexModelFields.IndexName, "期刊目次名稱");
 
     return [{ key: SPEC_JOURNAL_INDEX_NAME_SEARCH_KEY, title: indexNameTitle, type: "text", placeholder: `請輸入${indexNameTitle}` }];
 };
@@ -272,7 +273,7 @@ const buildSpecJournalIndexSearchConditions = (ctx: { searchParams: SpecJournalI
 };
 
 /** 建立期刊目次列表完整 QueryParam */
-const buildSpecJournalIndexQueryParam = (ctx: { searchCondition: string; }): QueryListParam =>
+const buildSpecJournalIndexQueryParam = (ctx: ServerListGridQueryContext<SpecJournalIndexSearchParams>): QueryListParam =>
 {
     return {
         Fields: buildSpecJournalIndexQueryFields(),
@@ -344,7 +345,7 @@ const enhanceSpecJournalIndexGrid = (
     },
 ): GridProps =>
 {
-    const actions = createGridCrudActions<SpecJournalIndexSet>({
+    const actions = createGridCrudActions<SpecJournalIndexFormModel>({
         onEdit: (internalId) => opt.crud.navigate(`${opt.crud.dirUrl}/${internalId}`),
         deleteAsync: opt.crud.deleteAsync,
         afterDelete: opt.crud.afterDelete,
@@ -357,7 +358,7 @@ const enhanceSpecJournalIndexGrid = (
         can: opt.can,
         notifyNoPermission: opt.notifyNoPermission,
         confirm: opt.confirm,
-        getInternalId: (set) => set.SpecJournalIndex?.InternalId ?? "",
+        getInternalId: (set) => set.InternalId ?? "",
     });
 };
 
@@ -367,31 +368,27 @@ const buildSpecJournalIndexVisibleColumns = (): SpecJournalIndexVisibleColumn[] 
     return [
         {
             key: SpecJournalIndexModelFields.IndexName,
-            tableId: SpecJournalIndexSetFields.SpecJournalIndex,
             columnId: SpecJournalIndexModelFields.IndexName,
             fallback: "期刊目次名稱",
         },
         {
             key: "__volIssue__",
-            tableId: SpecJournalIndexSetFields.SpecJournalIndexDetail,
+            tableId: SpecJournalIndexModelFields._SpecJournalIndexDetail,
             columnId: SpecJournalIndexDetailFields.Volume,
             fallback: "卷期",
         },
         {
             key: SpecJournalIndexModelFields.CreateTime,
-            tableId: SpecJournalIndexSetFields.SpecJournalIndex,
             columnId: SpecJournalIndexModelFields.CreateTime,
             fallback: "建立時間",
         },
         {
             key: SpecJournalIndexModelFields.ModifyUserId,
-            tableId: SpecJournalIndexSetFields.SpecJournalIndex,
             columnId: SpecJournalIndexModelFields.ModifyUserId,
             fallback: "修改者",
         },
         {
             key: SpecJournalIndexModelFields.ModifyTime,
-            tableId: SpecJournalIndexSetFields.SpecJournalIndex,
             columnId: SpecJournalIndexModelFields.ModifyTime,
             fallback: "修改時間",
         },
@@ -405,25 +402,25 @@ const buildSpecJournalIndexRows = (raw: SpecJournalIndexListRawData, columns: Co
 };
 
 /** 建立單筆期刊目次 Row */
-const buildSpecJournalIndexRow = (set: SpecJournalIndexSet, columns: ColumnConfig[], renderers: SpecJournalIndexListRenderers): GridRow =>
+const buildSpecJournalIndexRow = (set: SpecJournalIndexFormModel, columns: ColumnConfig[], renderers: SpecJournalIndexListRenderers): GridRow =>
 {
-    const keyId = LibText.Merge("|", false, set.SpecJournalIndex?.IndexId, set.SpecJournalIndex?.InternalId);
+    const keyId = LibText.Merge("|", false, set.IndexId, set.InternalId);
     const cells = columns.map((col) => buildSpecJournalIndexCell(set, col, renderers));
 
     return { keyId, cells };
 };
 
 /** 建立期刊目次欄位內容 */
-const buildSpecJournalIndexCell = (set: SpecJournalIndexSet, col: ColumnConfig, renderers: SpecJournalIndexListRenderers): RowCell =>
+const buildSpecJournalIndexCell = (set: SpecJournalIndexFormModel, col: ColumnConfig, renderers: SpecJournalIndexListRenderers): RowCell =>
 {
     const content = resolveSpecJournalIndexCellContent(set, col.key, renderers);
     return { col, content };
 };
 
 /** 解析期刊目次欄位內容 */
-const resolveSpecJournalIndexCellContent = (set: SpecJournalIndexSet, key: string, renderers: SpecJournalIndexListRenderers): RowCell["content"] =>
+const resolveSpecJournalIndexCellContent = (set: SpecJournalIndexFormModel, key: string, renderers: SpecJournalIndexListRenderers): RowCell["content"] =>
 {
-    const data = set.SpecJournalIndex ?? {};
+    const data = set;
 
     switch (key)
     {
@@ -433,7 +430,7 @@ const resolveSpecJournalIndexCellContent = (set: SpecJournalIndexSet, key: strin
         case SpecJournalIndexModelFields.ModifyTime:
             return formatDateTime(String((data as Record<string, unknown>)[key] ?? ""));
         case SpecJournalIndexModelFields.ModifyUserId:
-            return set.SpecJournalIndex?.ModifyUser?.AccountName ?? "";
+            return set.ModifyUser?.AccountName ?? "";
         default:
             return String((data as Record<string, unknown>)[key] ?? "");
     }

@@ -31,7 +31,7 @@ import { useMemo } from "react";
 import { type LoaderFunctionArgs, useLoaderData } from "react-router-dom";
 
 // #region Property
-type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
+type SpecJournalFormModel = components["schemas"]["SpecJournal"];
 
 type QueryListParam = components["schemas"]["QueryListParam"];
 
@@ -69,7 +69,7 @@ export interface SpecJournalListLoaderArgs
 export interface SpecJournalListLoaderRes
 {
     countRes: number;
-    listRes: SpecJournalSet[];
+    listRes: SpecJournalFormModel[];
 }
 
 export interface SpecJournalListLoaderData
@@ -80,7 +80,7 @@ export interface SpecJournalListLoaderData
 
 export interface UseSpecJournalListDataResult
 {
-    rawData: SpecJournalSet[];
+    rawData: SpecJournalFormModel[];
     totalCount: number;
     isLoading: boolean;
     errorList: string[];
@@ -93,8 +93,8 @@ type SpecJournalListAdapter = ReturnType<typeof SpecJournalAdapter>;
 
 type SpecJournalListTemplate = ClientDataQueryTemplate<
     SpecJournalListLoaderArgs,
-    { list: SpecJournalSet[]; totalCount: number; },
-    { list: SpecJournalSet[]; totalCount: number; },
+    { list: SpecJournalFormModel[]; totalCount: number; },
+    { list: SpecJournalFormModel[]; totalCount: number; },
     SpecJournalListAdapter,
     QueryListParam,
     SpecJournalListLoaderData
@@ -356,7 +356,8 @@ const buildScopeCondition = (p: BuildConditionArgs): string =>
 {
     // 宣告變數
     const indexId = escapeSqlValue((p.indexId ?? "").trim());
-    const rowId = escapeSqlValue((p.rowId ?? "").trim());
+    const rowId = Number.parseInt((p.rowId ?? "").trim(), 10);
+    const hasValidRowId = Number.isInteger(rowId) && rowId > 0;
 
     // 執行 function：預刊本
     if (p.isPreprint)
@@ -365,10 +366,10 @@ const buildScopeCondition = (p: BuildConditionArgs): string =>
     }
 
     // 執行 function：正式卷期
-    if (!indexId || !rowId) return "";
+    if (!indexId || !hasValidRowId) return "";
 
     // return
-    return LibText.Merge(" And ", false, `${SpecJournalModelFields.JournalIndexId} = '${indexId}'`, `${SpecJournalModelFields.JournalIndexRowId} = '${rowId}'`);
+    return LibText.Merge(" And ", false, `${SpecJournalModelFields.JournalIndexId} = '${indexId}'`, `${SpecJournalModelFields.JournalIndexRowId} = ${rowId}`);
 };
 
 const hasSearchFilters = (f: SpecJournalListFilters): boolean =>
@@ -424,7 +425,7 @@ const createSpecJournalListDataQueryTemplate = (args: SpecJournalListLoaderArgs)
 /** DataSource：用 Template 統一接 SSR initial、count、list 與 paginator */
 const useSpecJournalListDataSource = (
     ctx: SpecJournalListDataSourceContext,
-): ClientDataQueryDataSourceResult<{ list: SpecJournalSet[]; totalCount: number; }, SpecJournalListAdapter> =>
+): ClientDataQueryDataSourceResult<{ list: SpecJournalFormModel[]; totalCount: number; }, SpecJournalListAdapter> =>
 {
     // 宣告變數
     const adapter = useMemo(() => SpecJournalAdapter(), []);

@@ -20,8 +20,8 @@ public class SpecCategoryBiz(BizDeps bizDeps) : BizService<SpecCategory>(bizDeps
         {
             case "SpecResearch":
                 {
-                    string[] notmapFields = [nameof(SpecResearchDetail_DTO.ResearchId), nameof(SpecResearchDetail_DTO.RowId), nameof(SpecResearchDetail_DTO.Lang)];
-                    foreach (var prop in ModelMetadata.GetProperties<SpecResearchDetail_DTO>())
+                    string[] notmapFields = [nameof(SpecResearchDetail.ResearchId), nameof(SpecResearchDetail.RowId), nameof(SpecResearchDetail.Lang)];
+                    foreach (var prop in ModelMetadata.GetProperties<SpecResearchDetail>())
                     {
                         if (notmapFields.Contains(prop.Name)) continue;
                         result.Add(prop.Name, I18n.GetLabel(prop));
@@ -30,9 +30,9 @@ public class SpecCategoryBiz(BizDeps bizDeps) : BizService<SpecCategory>(bizDeps
                 }
             case "SpecUSR":
                 {
-                    string[] notmapFields = [nameof(SpecUSRDetail_DTO.USRId), nameof(SpecUSRDetail_DTO.RowId), nameof(SpecUSRDetail_DTO.Lang)
-                        , nameof(SpecUSRDetail_DTO.Url), nameof(SpecUSRDetail_DTO.UrlDescription)];
-                    foreach (var prop in ModelMetadata.GetProperties<SpecUSRDetail_DTO>())
+                    string[] notmapFields = [nameof(SpecUSRDetail.USRId), nameof(SpecUSRDetail.RowId), nameof(SpecUSRDetail.Lang)
+                        , nameof(SpecUSRDetail.Url), nameof(SpecUSRDetail.UrlDescription)];
+                    foreach (var prop in ModelMetadata.GetProperties<SpecUSRDetail>())
                     {
                         if (notmapFields.Contains(prop.Name)) continue;
                         result.Add(prop.Name, I18n.GetLabel(prop));
@@ -52,7 +52,7 @@ public class SpecCategoryBiz(BizDeps bizDeps) : BizService<SpecCategory>(bizDeps
         {
             case FuncAction.Create:
             case FuncAction.Update:
-                DoRemergeData(set.SpecCategory);
+                DoRemergeData(set);
                 break;
             case FuncAction.Delete:
                 await CheckIsUsedAsync(set);
@@ -72,9 +72,9 @@ public class SpecCategoryBiz(BizDeps bizDeps) : BizService<SpecCategory>(bizDeps
     }
     private async Task CheckIsUsedAsync(SpecCategory set)
     {
-        string progId = set.SpecCategory.ProgId;
-        string cateId = set.SpecCategory.CategoryId;
-        string cateName = set.SpecCategoryDetail.FirstOrDefault(p => p.Lang == EffectiveLang).CategoryName;
+        string progId = set.ProgId;
+        string cateId = set.CategoryId;
+        string cateName = set._SpecCategoryDetail.FirstOrDefault(p => p.Lang == EffectiveLang)?.CategoryName ?? cateId;
         int useCount = 0;
         switch (progId)
         {

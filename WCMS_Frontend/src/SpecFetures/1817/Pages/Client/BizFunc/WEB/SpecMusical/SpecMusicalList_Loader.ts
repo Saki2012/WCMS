@@ -14,14 +14,14 @@ import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { LibCondition, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
-import { SpecMusicalModelFields } from "@/types/SchemaFields";
+import { SpecMusicalFields } from "@/types/SchemaFields";
 import { useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router-dom";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"];
+type SpecMusicalFormModel = components["schemas"]["SpecMusical"];
 
 type SpecMusicalListAdapter = ReturnType<typeof SpecMusicalAdapter>;
 
@@ -35,7 +35,7 @@ export interface SpecMusicalListLoaderArgs
 export interface SpecMusicalListLoaderRes
 {
     countRes: number;
-    listRes: SpecMusicalSet[];
+    listRes: SpecMusicalFormModel[];
 }
 
 export interface SpecMusicalListLoaderData
@@ -51,7 +51,7 @@ export interface SpecMusicalListSearchParams
 
 export interface UseSpecMusicalListDataResult
 {
-    rawData: SpecMusicalSet[];
+    rawData: SpecMusicalFormModel[];
     isLoading: boolean;
     errorList: string[];
     pageNumber: number;
@@ -61,8 +61,8 @@ export interface UseSpecMusicalListDataResult
 
 type SpecMusicalListTemplate = ClientDataQueryTemplate<
     SpecMusicalListSearchParams,
-    SpecMusicalSet[],
-    SpecMusicalSet[],
+    SpecMusicalFormModel[],
+    SpecMusicalFormModel[],
     SpecMusicalListAdapter,
     QueryListParam,
     SpecMusicalListLoaderData
@@ -121,7 +121,7 @@ export const useSpecMusicalListData = (p: { categoryIds: string; pageSize?: numb
 /** 建立分類查詢條件 */
 const buildCondition = (categoryIds: string): string =>
 {
-    return LibCondition.joinConditions([LibCondition.createCondition(SpecMusicalModelFields.CategoryId, Operator.HasAny, categoryIds)]);
+    return LibCondition.joinConditions([LibCondition.createCondition(SpecMusicalFields.CategoryId, Operator.HasAny, categoryIds)]);
 };
 
 /** 建立樂器清單查詢參數 */
@@ -132,9 +132,9 @@ const buildBaseParam = (categoryIds: string, pageSize: number, pageNumber = 1): 
 
     // return
     return {
-        Fields: [SpecMusicalModelFields.MusicalName, SpecMusicalModelFields.CoverPicId, SpecMusicalModelFields.InternalId],
+        Fields: [SpecMusicalFields.MusicalName, SpecMusicalFields.CoverPicId, SpecMusicalFields.InternalId],
         Condition: condition,
-        OrderBy: [{ Col: SpecMusicalModelFields.CreateTime, Desc: true }],
+        OrderBy: [{ Col: SpecMusicalFields.CreateTime, Desc: true }],
         PageNumber: pageNumber,
         PageSize: pageSize,
     };
@@ -187,7 +187,7 @@ const createSpecMusicalListDataQueryTemplate = (p: { categoryIds: string; pageSi
 /** DataSource：用 Template 統一接 SSR initial、count、list 與 paginator */
 const useSpecMusicalListDataSource = (
     ctx: SpecMusicalListDataSourceContext,
-): ClientDataQueryDataSourceResult<SpecMusicalSet[], SpecMusicalListAdapter> =>
+): ClientDataQueryDataSourceResult<SpecMusicalFormModel[], SpecMusicalListAdapter> =>
 {
     // 宣告變數
     const adapter = useMemo(() => SpecMusicalAdapter(), []);

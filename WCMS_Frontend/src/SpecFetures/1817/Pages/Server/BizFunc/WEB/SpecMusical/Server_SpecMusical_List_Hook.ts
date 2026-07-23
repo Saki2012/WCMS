@@ -20,14 +20,14 @@ import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { formatDateTime, LibCondition, LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { AccountFields, PGID, SpecMusicalModelFields, SpecMusicalSetFields } from "@/types/SchemaFields";
+import { AccountFields, PGID, SpecMusicalFields } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
 import { type NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-export type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"];
+export type SpecMusicalFormModel = components["schemas"]["SpecMusical"];
 
 type SpecMusicalApiAdapter = ReturnType<typeof SpecMusicalAdapter>;
 
@@ -36,7 +36,7 @@ type SpecMusicalCudActions = ReturnType<SpecMusicalApiAdapter["hooks"]["useCudAc
 export interface SpecMusicalListRenderers
 {
     /** 渲染封面圖欄位內容，JSX 請留在 Comp 實作 */
-    buildCoverContentNode: (set: SpecMusicalSet) => RowCell["content"];
+    buildCoverContentNode: (set: SpecMusicalFormModel) => RowCell["content"];
 }
 
 export interface SpecMusicalListPageState
@@ -66,7 +66,7 @@ export interface SpecMusicalListRawData
     count: number;
 
     /** 樂器列表資料 */
-    list: SpecMusicalSet[];
+    list: SpecMusicalFormModel[];
 
     /** 目前頁碼 */
     pageNumber: number;
@@ -244,7 +244,7 @@ const useSpecMusicalListGridDataSource = (
 /** 建立樂器搜尋欄位設定 */
 const buildSpecMusicalSearchFields = (rawData: SpecMusicalListRawData): SearchFieldConfig[] =>
 {
-    const musicalNameTitle = getColumnTitle(rawData.modelDisplayName, SpecMusicalSetFields.SpecMusical, SpecMusicalModelFields.MusicalName, "樂器名稱");
+    const musicalNameTitle = getColumnTitle(rawData.modelDisplayName, PGID.SpecMusical, SpecMusicalFields.MusicalName, "樂器名稱");
 
     return [{ key: SPEC_MUSICAL_NAME_SEARCH_KEY, title: musicalNameTitle, type: "text", placeholder: `請輸入${musicalNameTitle}` }];
 };
@@ -265,7 +265,7 @@ const buildSpecMusicalSearchConditions = (ctx: { searchParams: SpecMusicalSearch
 
     if (ctx.searchParams.musicalName)
     {
-        conditions.push(`${SpecMusicalModelFields.MusicalName} Like ${ctx.searchParams.musicalName}`);
+        conditions.push(`${SpecMusicalFields.MusicalName} Like ${ctx.searchParams.musicalName}`);
     }
 
     return conditions;
@@ -277,7 +277,7 @@ const buildSpecMusicalQueryParam = (ctx: { searchCondition: string; }): QueryLis
     return {
         Fields: buildSpecMusicalQueryFields(),
         Condition: LibCondition.joinConditions([ctx.searchCondition]),
-        OrderBy: [{ Col: SpecMusicalModelFields.CreateTime, Desc: true }],
+        OrderBy: [{ Col: SpecMusicalFields.CreateTime, Desc: true }],
         PageNumber: ctx.pageNumber,
         PageSize: 10,
     };
@@ -287,15 +287,15 @@ const buildSpecMusicalQueryParam = (ctx: { searchCondition: string; }): QueryLis
 const buildSpecMusicalQueryFields = (): string[] =>
 {
     return [
-        SpecMusicalModelFields.MusicalId,
-        SpecMusicalModelFields.MusicalName,
-        SpecMusicalModelFields.CoverPicId,
-        SpecMusicalModelFields.Specification,
-        SpecMusicalModelFields.ModifyUserId,
-        `${SpecMusicalModelFields.ModifyUser}.${AccountFields.AccountName}`,
-        SpecMusicalModelFields.CreateTime,
-        SpecMusicalModelFields.ModifyTime,
-        SpecMusicalModelFields.InternalId,
+        SpecMusicalFields.MusicalId,
+        SpecMusicalFields.MusicalName,
+        SpecMusicalFields.CoverPicId,
+        SpecMusicalFields.Specification,
+        SpecMusicalFields.ModifyUserId,
+        `${SpecMusicalFields.ModifyUser}.${AccountFields.AccountName}`,
+        SpecMusicalFields.CreateTime,
+        SpecMusicalFields.ModifyTime,
+        SpecMusicalFields.InternalId,
     ];
 };
 
@@ -344,7 +344,7 @@ const enhanceSpecMusicalGrid = (
     },
 ): GridProps =>
 {
-    const actions = createGridCrudActions<SpecMusicalSet>({
+    const actions = createGridCrudActions<SpecMusicalFormModel>({
         onEdit: (internalId) => opt.crud.navigate(`${opt.crud.dirUrl}/${internalId}`),
         deleteAsync: opt.crud.deleteAsync,
         afterDelete: opt.crud.afterDelete,
@@ -357,7 +357,7 @@ const enhanceSpecMusicalGrid = (
         can: opt.can,
         notifyNoPermission: opt.notifyNoPermission,
         confirm: opt.confirm,
-        getInternalId: (set) => set.SpecMusical?.InternalId ?? "",
+        getInternalId: (formModel) => formModel.InternalId ?? "",
     });
 };
 
@@ -366,33 +366,33 @@ const buildSpecMusicalVisibleColumns = (): SpecMusicalVisibleColumn[] =>
 {
     return [
         {
-            key: SpecMusicalModelFields.CoverPicId,
-            tableId: SpecMusicalSetFields.SpecMusical,
-            columnId: SpecMusicalModelFields.CoverPicId,
+            key: SpecMusicalFields.CoverPicId,
+            tableId: PGID.SpecMusical,
+            columnId: SpecMusicalFields.CoverPicId,
             fallback: "封面圖",
         },
         {
-            key: SpecMusicalModelFields.MusicalName,
-            tableId: SpecMusicalSetFields.SpecMusical,
-            columnId: SpecMusicalModelFields.MusicalName,
+            key: SpecMusicalFields.MusicalName,
+            tableId: PGID.SpecMusical,
+            columnId: SpecMusicalFields.MusicalName,
             fallback: "樂器名稱",
         },
         {
-            key: SpecMusicalModelFields.CreateTime,
-            tableId: SpecMusicalSetFields.SpecMusical,
-            columnId: SpecMusicalModelFields.CreateTime,
+            key: SpecMusicalFields.CreateTime,
+            tableId: PGID.SpecMusical,
+            columnId: SpecMusicalFields.CreateTime,
             fallback: "建立時間",
         },
         {
-            key: SpecMusicalModelFields.ModifyUserId,
-            tableId: SpecMusicalSetFields.SpecMusical,
-            columnId: SpecMusicalModelFields.ModifyUserId,
+            key: SpecMusicalFields.ModifyUserId,
+            tableId: PGID.SpecMusical,
+            columnId: SpecMusicalFields.ModifyUserId,
             fallback: "修改者",
         },
         {
-            key: SpecMusicalModelFields.ModifyTime,
-            tableId: SpecMusicalSetFields.SpecMusical,
-            columnId: SpecMusicalModelFields.ModifyTime,
+            key: SpecMusicalFields.ModifyTime,
+            tableId: PGID.SpecMusical,
+            columnId: SpecMusicalFields.ModifyTime,
             fallback: "修改時間",
         },
     ];
@@ -405,36 +405,36 @@ const buildSpecMusicalRows = (raw: SpecMusicalListRawData, columns: ColumnConfig
 };
 
 /** 建立單筆樂器 Row */
-const buildSpecMusicalRow = (set: SpecMusicalSet, columns: ColumnConfig[], renderers: SpecMusicalListRenderers): GridRow =>
+const buildSpecMusicalRow = (set: SpecMusicalFormModel, columns: ColumnConfig[], renderers: SpecMusicalListRenderers): GridRow =>
 {
-    const keyId = LibText.Merge("|", false, set.SpecMusical?.MusicalId, set.SpecMusical?.InternalId);
+    const keyId = LibText.Merge("|", false, set.MusicalId, set.InternalId);
     const cells = columns.map((col) => buildSpecMusicalCell(set, col, renderers));
 
     return { keyId, cells };
 };
 
 /** 建立樂器欄位內容 */
-const buildSpecMusicalCell = (set: SpecMusicalSet, col: ColumnConfig, renderers: SpecMusicalListRenderers): RowCell =>
+const buildSpecMusicalCell = (set: SpecMusicalFormModel, col: ColumnConfig, renderers: SpecMusicalListRenderers): RowCell =>
 {
     const content = resolveSpecMusicalCellContent(set, col.key, renderers);
     return { col, content };
 };
 
 /** 解析樂器欄位內容 */
-const resolveSpecMusicalCellContent = (set: SpecMusicalSet, key: string, renderers: SpecMusicalListRenderers): RowCell["content"] =>
+const resolveSpecMusicalCellContent = (set: SpecMusicalFormModel, key: string, renderers: SpecMusicalListRenderers): RowCell["content"] =>
 {
-    const data = set.SpecMusical;
-    const dataRecord = (data ?? {}) as Record<string, unknown>;
+    const data = set;
+    const dataRecord = data as Record<string, unknown>;
 
     switch (key)
     {
-        case SpecMusicalModelFields.CoverPicId:
+        case SpecMusicalFields.CoverPicId:
             return renderers.buildCoverContentNode(set);
-        case SpecMusicalModelFields.CreateTime:
-        case SpecMusicalModelFields.ModifyTime:
+        case SpecMusicalFields.CreateTime:
+        case SpecMusicalFields.ModifyTime:
             return formatDateTime(String(dataRecord[key] ?? ""));
-        case SpecMusicalModelFields.ModifyUserId:
-            return data?.ModifyUser?.AccountName ?? "";
+        case SpecMusicalFields.ModifyUserId:
+            return data.ModifyUser?.AccountName ?? "";
         default:
             return String(dataRecord[key] ?? "");
     }

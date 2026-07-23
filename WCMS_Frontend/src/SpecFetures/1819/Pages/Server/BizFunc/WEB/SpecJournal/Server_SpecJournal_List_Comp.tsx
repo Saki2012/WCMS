@@ -7,7 +7,7 @@ import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ReactNode } from "react";
 import type { SpecJournalMode } from "./Server_SpecJournal_Form_Hook";
-import { type SpecJournalListRenderers, type SpecJournalSet, useSpecJournalListGridTemplate } from "./Server_SpecJournal_List_Hooks";
+import { type SpecJournalListRenderers, type SpecJournalFormModel, useSpecJournalListGridTemplate } from "./Server_SpecJournal_List_Hooks";
 
 // #region Property
 const authorListStyle = { listStylePosition: "inside" } as const;
@@ -41,10 +41,10 @@ const SpecJournalSearchBarSection = (props: ServerListGridSearchRenderProps) =>
 
 // #region Protected
 /** 渲染中英文標題欄位內容 */
-const buildSpecJournalTitleContentNode = (set: SpecJournalSet): ReactNode =>
+const buildSpecJournalTitleContentNode = (set: SpecJournalFormModel): ReactNode =>
 {
-    const title = set.SpecJournal?.Title ?? "";
-    const titleEn = set.SpecJournal?.Title_en ?? "";
+    const title = set.Title ?? "";
+    const titleEn = set.Title_en ?? "";
 
     return (
         <>
@@ -56,11 +56,11 @@ const buildSpecJournalTitleContentNode = (set: SpecJournalSet): ReactNode =>
 
 
 /** 渲染中英文作者欄位內容 */
-const buildSpecJournalAuthorContentNode = (set: SpecJournalSet): ReactNode =>
+const buildSpecJournalAuthorContentNode = (set: SpecJournalFormModel): ReactNode =>
 {
     return (
         <ul className="m-0 p-0" style={authorListStyle}>
-            {set.SpecJournalAuthor?.map((author, index) =>
+            {set._SpecJournalAuthor?.map((author, index) =>
             {
                 return <li key={buildSpecJournalAuthorKey(author, index)} className="m-0 p-0">{formatSpecJournalAuthorName(author)}</li>;
             })}
@@ -70,7 +70,7 @@ const buildSpecJournalAuthorContentNode = (set: SpecJournalSet): ReactNode =>
 
 
 /** 建立作者列表 key */
-const buildSpecJournalAuthorKey = (author: NonNullable<SpecJournalSet["SpecJournalAuthor"]>[number], index: number): string =>
+const buildSpecJournalAuthorKey = (author: NonNullable<SpecJournalFormModel["_SpecJournalAuthor"]>[number], index: number): string =>
 {
     return `${author.AuthorName ?? ""}-${author.AuthorName_en ?? ""}-${index}`;
 };
@@ -78,7 +78,7 @@ const buildSpecJournalAuthorKey = (author: NonNullable<SpecJournalSet["SpecJourn
 
 // #region Private
 /** 格式化作者顯示名稱 */
-const formatSpecJournalAuthorName = (author: NonNullable<SpecJournalSet["SpecJournalAuthor"]>[number]): string | undefined =>
+const formatSpecJournalAuthorName = (author: NonNullable<SpecJournalFormModel["_SpecJournalAuthor"]>[number]): string | undefined =>
 {
     if (author.AuthorName && author.AuthorName_en) return `${author.AuthorName} (${author.AuthorName_en})`;
     return author.AuthorName || author.AuthorName_en || "";

@@ -1,4 +1,4 @@
-﻿using WCMS.SpecFeatures.Spec1819.WEB.SpecJournal;
+using WCMS.SpecFeatures.Spec1819.WEB.SpecJournal;
 using WCMS.SpecFeatures.Spec1819.WEB.SpecJournalIndex;
 namespace WCMS.SpecFeatures.Spec1819._Resx;
 
@@ -18,7 +18,7 @@ public static class SpecModelDisplayName
     /// <summary>
     /// 期刊目次表單
     /// </summary>
-    public const string SpecJournalIndexSet = nameof(SpecJournalIndexSet);
+    public const string SpecJournalIndexSet = nameof(SpecJournalIndex);
 
     /// <summary>
     /// 期刊目次代號

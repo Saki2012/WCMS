@@ -3,14 +3,14 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { components } from "@/types/api";
 
 // #region Property
-type HomePageModel = components["schemas"]["SpecHomePage1820Model_DTO"];
+type HomePageFormModel = components["schemas"]["SpecHomePage1820"];
 
-type Resources = components["schemas"]["SpecHomePage1820_Resource_DTO"];
+type Resources = components["schemas"]["SpecHomePage1820_Resource"];
 // #endregion
 
 // #region Public
 /** 1820 首頁資源區塊 */
-export const Section6 = (props: { header: HomePageModel; data: Resources[]; }) =>
+export const Section6 = (props: { header: HomePageFormModel; data: Resources[]; }) =>
 {
     const header = props.header;
     const data = props.data;

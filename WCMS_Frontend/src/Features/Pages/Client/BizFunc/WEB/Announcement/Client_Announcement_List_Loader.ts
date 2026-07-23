@@ -80,6 +80,7 @@ export interface AnnouncementListLoaderRes
     categoryRes: CategoryFormModel[];
     tagRes: TagFormModel[];
     viewCountRes: SiteViewCountFormModel[];
+    viewCountModelRes: ApiLoaderData<null, ModelDisplaySchema[]>;
 }
 
 export interface AnnouncementListLoaderData
@@ -275,10 +276,10 @@ const loadAnnouncementSpecData = async (context: AnnouncementListLoaderSpecConte
 /** 建立 Announcement SSR Loader 回傳資料。 */
 const buildAnnouncementLoaderResult = (p: {
     finalArgs: AnnouncementListLoaderArgs;
-    gridRes: ApiGridLoaderData<AnnouncementSet>;
-    categoryLD: ApiLoaderData<QueryListParam, CategorySet[]>;
-    tagLD: ApiLoaderData<QueryListParam, TagSet[]>;
-    viewCountLD: ApiLoaderData<QueryListParam, SiteViewCountSet[]>;
+    gridRes: ApiGridLoaderData<AnnouncementFormModel>;
+    categoryLD: ApiLoaderData<QueryListParam, CategoryFormModel[]>;
+    tagLD: ApiLoaderData<QueryListParam, TagFormModel[]>;
+    viewCountLD: ApiLoaderData<QueryListParam, SiteViewCountFormModel[]>;
     viewCountModelLD: ApiLoaderData<null, ModelDisplaySchema[]>;
     spec: unknown | null;
 }): AnnouncementListLoaderData =>
@@ -596,7 +597,7 @@ const buildAnnouncementGridColumns = (lang: Lang, model: ModelDisplaySchema | nu
         { key: AnnouncementFields.Validate_Start, title: getModelColumnDisplayName(model, ["Announcement_DTO", "Announcement"], AnnouncementFields.Validate_Start, isEnglish ? "Announcement Date" : "日期") },
         { key: AnnouncementFields.Categories, title: getModelColumnDisplayName(model, ["Announcement_DTO", "Announcement"], AnnouncementFields.Categories, isEnglish ? "Category" : "分類") },
         { key: AnnouncementFields.Tags, title: getModelColumnDisplayName(model, ["Announcement_DTO", "Announcement"], AnnouncementFields.Tags, isEnglish ? "Tag" : "標籤") },
-        { key: ANNOUNCEMENT_VIEW_COUNT_COL_KEY, title: getModelColumnDisplayName(viewCountModel, ["SiteViewCountDetailModel_DTO", "SiteViewCountDetailModel"], SiteViewCountDetailModelFields.PageViewCount, isEnglish ? "View Count" : "瀏覽次數") },
+        { key: ANNOUNCEMENT_VIEW_COUNT_COL_KEY, title: getModelColumnDisplayName(viewCountModel, ["SiteViewCountDetailModel_DTO", "SiteViewCountDetailModel"], SiteViewCountDetailFields.PageViewCount, isEnglish ? "View Count" : "瀏覽次數") },
     ];
 };
 
@@ -605,7 +606,7 @@ const buildGridPropsFromList = (p: {
     lang: Lang;
     modelDisplayName: ModelDisplaySchema | null;
     viewCountModelDisplayName: ModelDisplaySchema | null;
-    listData: AnnouncementSet[];
+    listData: AnnouncementFormModel[];
     viewCountMap: Record<string, number>;
     pageNumber: number;
     totalPages: number;
@@ -618,28 +619,28 @@ const buildGridPropsFromList = (p: {
 };
 
 /** 建立公告 Grid 單列。 */
-const buildAnnouncementGridRow = (lang: Lang, item: AnnouncementSet, columns: ColumnConfig[], viewCountMap: Record<string, number>): GridRow =>
+const buildAnnouncementGridRow = (lang: Lang, item: AnnouncementFormModel, columns: ColumnConfig[], viewCountMap: Record<string, number>): GridRow =>
 {
-    const detail = item.AnnouncementDetail?.find(x => x.Lang === lang);
-    const internalId = item.Announcement?.InternalId ?? "";
+    const detail = item._AnnouncementDetail?.find(x => x.Lang === lang);
+    const internalId = item?.InternalId ?? "";
     const finalCount = Number(viewCountMap[internalId] ?? 0);
     const cells = columns.map(col => ({ col, content: resolveGridCellContent({ colKey: col.key, item, detailTitle: detail?.Title ?? "", finalCount }) }));
     return { keyId: internalId, cells };
 };
 
 /** 處理 grid cell 顯示內容。 */
-const resolveGridCellContent = (p: { colKey: string; item: AnnouncementSet; detailTitle: string; finalCount: number; }): string =>
+const resolveGridCellContent = (p: { colKey: string; item: AnnouncementFormModel; detailTitle: string; finalCount: number; }): string =>
 {
     switch (p.colKey)
     {
         case AnnouncementDetailFields.Title:
             return p.detailTitle;
         case AnnouncementFields.Validate_Start:
-            return formatDate(p.item.Announcement?.Validate_Start) ?? "";
+            return formatDate(p.item?.Validate_Start) ?? "";
         case AnnouncementFields.Categories:
-            return p.item.Announcement?.Categories ?? "";
+            return p.item?.Categories ?? "";
         case AnnouncementFields.Tags:
-            return p.item.Announcement?.Tags ?? "";
+            return p.item?.Tags ?? "";
         case ANNOUNCEMENT_VIEW_COUNT_COL_KEY:
             return String(p.finalCount);
         default:
@@ -654,7 +655,7 @@ const useAnnouncementDataSource = (p: { queryParam: AnnouncementQueryParam; load
     const currentArgs = p.queryParam;
     const announcement = useMemo(() => AnnouncementAdapter(), []);
     const siteView = useMemo(() => SiteViewCountAdapter(), []);
-    const gridInitial = useMemo<ApiGridInitial<AnnouncementSet>>(() => buildAnnouncementGridInitial(currentArgs.listParam, initial), [currentArgs.listParam, initial.res.gridRes]);
+    const gridInitial = useMemo<ApiGridInitial<AnnouncementFormModel>>(() => buildAnnouncementGridInitial(currentArgs.listParam, initial), [currentArgs.listParam, initial.res.gridRes]);
     const grid = announcement.hooks.useQueryGridData({ baseParam: currentArgs.listParam, deps: [currentArgs.condition, currentArgs.pageSize], modelDeps: [currentArgs.lang], initial: gridInitial });
     const viewCountModel = siteView.hooks.useModelDisplayName({ initial: initial.res.viewCountModelRes ?? null, deps: [currentArgs.lang] });
     const viewCountParam = useMemo(() => buildViewCountQuery(getAnnouncementInternalIds(grid.list ?? [])), [grid.list]);
@@ -666,7 +667,7 @@ const useAnnouncementDataSource = (p: { queryParam: AnnouncementQueryParam; load
 };
 
 /** 建立 Announcement Grid SSR initial。 */
-const buildAnnouncementGridInitial = (listParam: QueryListParam, initial: AnnouncementListLoaderData): ApiGridInitial<AnnouncementSet> =>
+const buildAnnouncementGridInitial = (listParam: QueryListParam, initial: AnnouncementListLoaderData): ApiGridInitial<AnnouncementFormModel> =>
 {
     const countInitial = isSameClientDataQueryParam(listParam, initial.res.gridRes.count?.args) ? initial.res.gridRes.count : null;
     const listInitial = isSameClientDataQueryParam(listParam, initial.res.gridRes.list?.args) ? initial.res.gridRes.list : null;
@@ -674,7 +675,7 @@ const buildAnnouncementGridInitial = (listParam: QueryListParam, initial: Announ
 };
 
 /** 建立 Announcement 瀏覽數 SSR initial。 */
-const buildAnnouncementViewCountInitial = (viewCountParam: QueryListParam, initial: AnnouncementListLoaderData): ApiLoaderData<QueryListParam, SiteViewCountSet[]> | null =>
+const buildAnnouncementViewCountInitial = (viewCountParam: QueryListParam, initial: AnnouncementListLoaderData): ApiLoaderData<QueryListParam, SiteViewCountFormModel[]> | null =>
 {
     if (!isSameClientDataQueryParam(viewCountParam, initial.args.viewCountParam)) return null;
     return buildQueryInitial(initial.args.viewCountParam, initial.res.viewCountRes);

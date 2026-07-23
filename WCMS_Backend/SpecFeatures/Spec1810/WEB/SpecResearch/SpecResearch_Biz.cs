@@ -31,13 +31,13 @@ public class SpecResearchBiz(BizDeps bizDeps) : BizService<SpecResearch>(bizDeps
     }
     private void SetData(SpecResearch set)
     {
-        DoRemergeData(set.SpecResearch);
+        DoRemergeData(set);
     }
 
 
     private void CheckIsEmpty(SpecResearch set)
     {
-        if (set.SpecResearch.CategoryId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<SpecResearch>(x => x.CategoryId));
+        if (set.CategoryId.IsNullOrEmpty()) Message.AddMessage(MessageStatus.Error, SysMessageCode.BECode00012, I18n.GetLabel<SpecResearch>(x => x.CategoryId));
     }
     /// <summary>
     /// 重新組合多筆資料(類別、狀態、標籤)

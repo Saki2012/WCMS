@@ -2,8 +2,9 @@ import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import { createGridCrudActions, enhanceGridWithAdjustCell, type GridConfirmFn } from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
 import {
     buildServerListColumns,
+    getServerColumnTitle as getColumnTitle,
     getServerSearchStringValue as getSearchStringValue,
-    getServerTableColumnTitle as getColumnTitle,
+    type ServerListVisibleColumn,
 } from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Helper";
 import type {
     ServerListGridDataSourceContext,
@@ -15,25 +16,27 @@ import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Compon
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import { DefaultLang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
-import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { formatDate, formatDateTime, LibCondition } from "@/SysCore/Utils/Library/LibData";
+import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { AccountFields, PGID, SpecOpenScheduleRuleModelFields, SpecOpenScheduleRuleSetFields } from "@/types/SchemaFields";
+import { AccountFields, PGID, SpecOpenScheduleRuleFields } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
 import { type NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type SpecOpenScheduleRuleSet = components["schemas"]["SpecOpenScheduleRuleSet_DTO"];
+type SpecOpenScheduleRuleFormModel = components["schemas"]["SpecOpenScheduleRule"];
 
 type ScheduleRuleApiAdapter = ReturnType<typeof SpecOpenScheduleRuleAdapter>;
 
 type ScheduleRuleCudActions = ReturnType<ScheduleRuleApiAdapter["hooks"]["useCudActions"]>;
 
-export interface ScheduleRuleListPageState
+type ScheduleRuleGridQuery = ReturnType<ScheduleRuleApiAdapter["hooks"]["useQueryGridData"]>;
+
+interface ScheduleRuleListPageState
 {
     /** SearchBar 已送出的搜尋值。 */
     searchValues: SearchValues;
@@ -42,107 +45,106 @@ export interface ScheduleRuleListPageState
     pageNumber: number;
 }
 
-export interface ScheduleRuleSearchParams
+interface ScheduleRuleSearchParams
 {
-    /** 學年度搜尋關鍵字 */
+    /** 學年度搜尋關鍵字。 */
     academicYearId?: string;
 }
 
-export interface ScheduleRuleListRawData
+interface ScheduleRuleListRawData
 {
-    /** 後端 ModelDisplayName 欄位顯示設定 */
+    /** 後端 ModelDisplayName 欄位顯示設定。 */
     modelDisplayName: ModelDisplaySchema | null;
 
-    /** 總筆數 */
+    /** 總筆數。 */
     count: number;
 
-    /** 學年度開放規則列表資料 */
-    list: SpecOpenScheduleRuleSet[];
+    /** 學年度開館規則 FormModel 列表。 */
+    list: SpecOpenScheduleRuleFormModel[];
 
-    /** 目前頁碼 */
+    /** 目前頁碼。 */
     pageNumber: number;
 
-    /** 總頁數 */
+    /** 總頁數。 */
     totalPages: number;
 
-    /** 換頁事件 */
+    /** 換頁事件。 */
     onPageChange: (page: number) => void;
 
-    /** 實際送出的 QueryListParam */
+    /** 實際送出的 QueryListParam。 */
     param: QueryListParam;
 }
 
-export interface ScheduleRuleListAdapter
+interface ScheduleRuleListAdapter
 {
-    /** 學年度開放規則 API adapter */
+    /** 學年度開館規則 API Adapter。 */
     ScheduleRule: ScheduleRuleApiAdapter;
 
-    /** 學年度開放規則新增、修改、刪除操作 */
+    /** 學年度開館規則新增、修改、刪除操作。 */
     cudActions: ScheduleRuleCudActions;
 
-    /** React Router 導頁方法 */
+    /** React Router 導頁方法。 */
     navigate: NavigateFunction;
 
-    /** 目前 List 對應的 Form 路徑 */
+    /** 目前 List 對應的 Form 路徑。 */
     dirUrl: string;
 }
 
-export type ScheduleRuleListGridTemplate = ServerListGridTemplate<ScheduleRuleSearchParams, ScheduleRuleListRawData, ScheduleRuleListAdapter, QueryListParam, ScheduleRuleListPageState>;
+type ScheduleRuleListGridTemplate = ServerListGridTemplate<ScheduleRuleSearchParams, ScheduleRuleListRawData, ScheduleRuleListAdapter, QueryListParam, ScheduleRuleListPageState>;
 
-type CrudDeps = {
-    /** React Router 導頁方法 */
-    navigate: NavigateFunction;
+interface BuildScheduleRuleGridOptions
+{
+    /** 列表查詢結果。 */
+    raw: ScheduleRuleListRawData;
 
-    /** 目前 List 對應的 Form 路徑 */
-    dirUrl: string;
+    /** 列表 Adapter 與 CRUD 操作。 */
+    adapter?: ScheduleRuleListAdapter;
 
-    /** 刪除資料方法 */
-    deleteAsync: ScheduleRuleCudActions["deleteAsync"];
+    /** 重新查詢列表。 */
+    refetchData: () => Promise<void>;
 
-    /** 刪除後重新查詢 */
-    afterDelete: () => Promise<void>;
-};
+    /** 權限判斷。 */
+    can?: (mask: number) => boolean;
 
-type ScheduleRuleVisibleColumn = {
-    /** Grid 欄位 key */
-    key: string;
+    /** 無權限提示。 */
+    notifyNoPermission?: (msg: string) => void;
 
-    /** ModelDisplayName 對應表格代號 */
-    tableId: string;
-
-    /** ModelDisplayName 對應欄位代號 */
-    columnId: string;
-
-    /** 找不到 ModelDisplayName 時的預設標題 */
-    fallback: string;
-};
+    /** Grid 確認方法。 */
+    confirm?: GridConfirmFn;
+}
 // #endregion
 
-// #region Public
-export const SCHEDULE_RULE_ACADEMIC_YEAR_SEARCH_KEY = "academicYearId";
+// #region Initialization
+/** ScheduleRule 學年度搜尋欄位 key。 */
+const SCHEDULE_RULE_ACADEMIC_YEAR_SEARCH_KEY = "academicYearId";
 
+/** ScheduleRule 列表狀態記憶 key。 */
 const SCHEDULE_RULE_LIST_STATE_KEY = "server-schedule-rule-list";
 
+/** ScheduleRule 列表預設記憶狀態。 */
 const DEFAULT_SCHEDULE_RULE_LIST_PAGE_STATE: ScheduleRuleListPageState = {
     searchValues: {},
     pageNumber: 1,
 };
+// #endregion
 
-/** 建立學年度開放規則純 Spec ListGridTemplate 設定 */
+// #region Public
+/** 建立學年度開館規則純 Spec ListGridTemplate 設定。 */
 export const useScheduleRuleListGridTemplate = (): ScheduleRuleListGridTemplate =>
 {
-        const pageState = usePageStateMemory<ScheduleRuleListPageState>({
+    const pageState = usePageStateMemory<ScheduleRuleListPageState>({
         stateKey: SCHEDULE_RULE_LIST_STATE_KEY,
         defaultState: DEFAULT_SCHEDULE_RULE_LIST_PAGE_STATE,
     });
-return useMemo<ScheduleRuleListGridTemplate>(() =>
+
+    return useMemo<ScheduleRuleListGridTemplate>(() =>
     {
         return {
             featureKey: PGID.SpecOpenScheduleRule,
             pageStateMemory: {
                 controller: pageState,
-                getSearchValues: (state) => state.searchValues,
-                getPageNumber: (state) => state.pageNumber,
+                getSearchValues: state => state.searchValues,
+                getPageNumber: state => state.pageNumber,
                 updateSearchValues: updateScheduleRuleSearchValues,
                 updatePageNumber: updateScheduleRulePageNumber,
                 getPagination: getScheduleRulePagination,
@@ -153,7 +155,7 @@ return useMemo<ScheduleRuleListGridTemplate>(() =>
                 buildSearchConditions: buildScheduleRuleSearchConditions,
                 buildQueryParam: buildScheduleRuleQueryParam,
                 useDataSource: useScheduleRuleListGridDataSource,
-                buildGridProps: (ctx) => buildScheduleRuleGridProps({ raw: ctx.rawData, adapter: ctx.adapter, refetchData: ctx.refetchData }),
+                buildGridProps: ctx => buildScheduleRuleGridProps({ raw: ctx.rawData, adapter: ctx.adapter, refetchData: ctx.refetchData }),
             },
         };
     }, [pageState]);
@@ -161,25 +163,25 @@ return useMemo<ScheduleRuleListGridTemplate>(() =>
 // #endregion
 
 // #region Private
-/** 搜尋送出時更新ScheduleRule記憶狀態，並固定回到第一頁。 */
+/** 搜尋送出時更新 ScheduleRule 記憶狀態，並固定回到第一頁。 */
 const updateScheduleRuleSearchValues = (state: ScheduleRuleListPageState, searchValues: SearchValues): ScheduleRuleListPageState =>
 {
     return { ...state, searchValues, pageNumber: 1 };
 };
 
-/** 更新ScheduleRule列表記憶頁碼。 */
+/** 更新 ScheduleRule 列表記憶頁碼。 */
 const updateScheduleRulePageNumber = (state: ScheduleRuleListPageState, pageNumber: number): ScheduleRuleListPageState =>
 {
     return { ...state, pageNumber };
 };
 
-/** 提供 Template 校正頁碼所需的ScheduleRule分頁資訊。 */
+/** 提供 Template 校正頁碼所需的 ScheduleRule 分頁資訊。 */
 const getScheduleRulePagination = (rawData: ScheduleRuleListRawData): { count: number; totalPages: number; } =>
 {
     return { count: rawData.count, totalPages: rawData.totalPages };
 };
 
-/** 執行學年度開放規則列表資料來源 Hook */
+/** 執行學年度開館規則列表資料來源 Hook。 */
 const useScheduleRuleListGridDataSource = (
     ctx: ServerListGridDataSourceContext<ScheduleRuleSearchParams, QueryListParam>,
 ): ServerListGridDataSourceResult<ScheduleRuleListRawData, ScheduleRuleListAdapter> =>
@@ -188,12 +190,10 @@ const useScheduleRuleListGridDataSource = (
     const navigate = useNavigate();
     const pathname = useLocation().pathname;
     const dirUrl = useMemo(() => pathname.replace(/\/List$/, "/Form"), [pathname]);
-
-    const onError = useCallback((e: ApiAdapterError): void =>
+    const onError = useCallback((error: ApiAdapterError): void =>
     {
-        publish({ level: MessageStatus.Error, title: e.messageText });
+        publish({ level: MessageStatus.Error, title: error.messageText });
     }, [publish]);
-
     const apiAdapter = useMemo(() => ({ ScheduleRule: SpecOpenScheduleRuleAdapter() }), []);
     const cudActions = apiAdapter.ScheduleRule.hooks.useCudActions({ onError });
     const grid = apiAdapter.ScheduleRule.hooks.useQueryGridData({
@@ -201,228 +201,160 @@ const useScheduleRuleListGridDataSource = (
         deps: [ctx.queryParam.Condition ?? "", ctx.queryParam.PageSize ?? 0],
         onError,
     });
-
-    const rawData = useMemo<ScheduleRuleListRawData>(() =>
-    {
-        return {
-            modelDisplayName: grid.modelDisplayName,
-            count: grid.count ?? 0,
-            list: grid.list ?? [],
-            pageNumber: grid.pageNumber ?? 1,
-            totalPages: grid.totalPages ?? 1,
-            onPageChange: grid.onPageChange,
-            param: grid.param,
-        };
-    }, [grid.modelDisplayName, grid.count, grid.list, grid.pageNumber, grid.totalPages, grid.onPageChange, grid.param]);
-
-    const refetchData = useCallback(async (): Promise<void> =>
-    {
-        await grid.refetchData();
-    }, [grid]);
+    const rawData = useMemo(
+        () => buildScheduleRuleRawData(grid),
+        [grid.modelDisplayName, grid.count, grid.list, grid.pageNumber, grid.totalPages, grid.onPageChange, grid.param],
+    );
+    const refetchData = useCallback(async (): Promise<void> => await grid.refetchData(), [grid]);
 
     return { adapter: { ...apiAdapter, cudActions, navigate, dirUrl }, rawData, isLoading: grid.isLoading, errors: grid.errors ?? [], refetchData };
 };
 
-/** 建立學年度開放規則搜尋欄位設定 */
-const buildScheduleRuleSearchFields = (rawData: ScheduleRuleListRawData): SearchFieldConfig[] =>
-{
-    const academicYearTitle = getColumnTitle(
-        rawData.modelDisplayName,
-        SpecOpenScheduleRuleSetFields.SpecOpenScheduleRule,
-        SpecOpenScheduleRuleModelFields.AcademicYearId,
-        "學年度",
-    );
-
-    return [{ key: SCHEDULE_RULE_ACADEMIC_YEAR_SEARCH_KEY, title: academicYearTitle, type: "text", placeholder: `請輸入${academicYearTitle}` }];
-};
-
-/** 將 SearchValues 轉為學年度開放規則查詢參數 */
-const toScheduleRuleSearchParams = (values: SearchValues): ScheduleRuleSearchParams =>
+/** 將 API Grid 查詢結果整理為 ScheduleRule List raw data。 */
+const buildScheduleRuleRawData = (grid: ScheduleRuleGridQuery): ScheduleRuleListRawData =>
 {
     return {
-        academicYearId: getSearchStringValue(values[SCHEDULE_RULE_ACADEMIC_YEAR_SEARCH_KEY]),
+        modelDisplayName: grid.modelDisplayName,
+        count: grid.count ?? 0,
+        list: grid.list ?? [],
+        pageNumber: grid.pageNumber ?? 1,
+        totalPages: grid.totalPages ?? 1,
+        onPageChange: grid.onPageChange,
+        param: grid.param,
     };
 };
 
-/** 建立學年度開放規則搜尋條件 */
-const buildScheduleRuleSearchConditions = (ctx: { searchParams: ScheduleRuleSearchParams; }): string[] =>
+/** 建立學年度開館規則搜尋欄位設定。 */
+const buildScheduleRuleSearchFields = (rawData: ScheduleRuleListRawData): SearchFieldConfig[] =>
 {
-    const conditions: string[] = [];
-
-    if (ctx.searchParams.academicYearId)
-    {
-        conditions.push(`${SpecOpenScheduleRuleModelFields.AcademicYearId} Like ${ctx.searchParams.academicYearId}`);
-    }
-
-    return conditions;
+    const title = getColumnTitle(rawData.modelDisplayName, SpecOpenScheduleRuleFields.AcademicYearId, "學年度");
+    return [{ key: SCHEDULE_RULE_ACADEMIC_YEAR_SEARCH_KEY, title, type: "text", placeholder: `請輸入${title}` }];
 };
 
-/** 建立學年度開放規則列表完整 QueryParam */
-const buildScheduleRuleQueryParam = (ctx: { searchCondition: string; }): QueryListParam =>
+/** 將 SearchValues 轉為學年度開館規則查詢參數。 */
+const toScheduleRuleSearchParams = (values: SearchValues): ScheduleRuleSearchParams =>
+{
+    return { academicYearId: getSearchStringValue(values[SCHEDULE_RULE_ACADEMIC_YEAR_SEARCH_KEY]) };
+};
+
+/** 建立學年度開館規則搜尋條件。 */
+const buildScheduleRuleSearchConditions = (ctx: { searchParams: ScheduleRuleSearchParams; }): string[] =>
+{
+    const academicYearId = ctx.searchParams.academicYearId;
+    if (!academicYearId) return [];
+    return [`${SpecOpenScheduleRuleFields.AcademicYearId} Like ${academicYearId}`];
+};
+
+/** 建立學年度開館規則列表完整 QueryParam。 */
+const buildScheduleRuleQueryParam = (ctx: { pageNumber: number; searchCondition: string; }): QueryListParam =>
 {
     return {
         Fields: buildScheduleRuleQueryFields(),
         Condition: LibCondition.joinConditions([ctx.searchCondition]),
-        OrderBy: [{ Col: SpecOpenScheduleRuleModelFields.CreateTime, Desc: true }],
+        OrderBy: [{ Col: SpecOpenScheduleRuleFields.CreateTime, Desc: true }],
         PageNumber: ctx.pageNumber,
         PageSize: 10,
     };
 };
 
-/** 建立學年度開放規則列表查詢欄位 */
+/** 建立學年度開館規則列表查詢欄位。 */
 const buildScheduleRuleQueryFields = (): string[] =>
 {
     return [
-        SpecOpenScheduleRuleModelFields.AcademicYearId,
-        SpecOpenScheduleRuleModelFields.AcademicStart,
-        SpecOpenScheduleRuleModelFields.AcademicEnd,
-        SpecOpenScheduleRuleModelFields.CreateTime,
-        SpecOpenScheduleRuleModelFields.ModifyUserId,
-        `${SpecOpenScheduleRuleModelFields.ModifyUser}.${AccountFields.AccountName}`,
-        SpecOpenScheduleRuleModelFields.ModifyTime,
-        SpecOpenScheduleRuleModelFields.InternalId,
+        SpecOpenScheduleRuleFields.AcademicYearId,
+        SpecOpenScheduleRuleFields.AcademicStart,
+        SpecOpenScheduleRuleFields.AcademicEnd,
+        SpecOpenScheduleRuleFields.CreateTime,
+        SpecOpenScheduleRuleFields.ModifyUserId,
+        `${SpecOpenScheduleRuleFields.ModifyUser}.${AccountFields.AccountName}`,
+        SpecOpenScheduleRuleFields.ModifyTime,
+        SpecOpenScheduleRuleFields.InternalId,
     ];
 };
 
-/** 將學年度開放規則資料轉為 GridProps */
-const buildScheduleRuleGridProps = (
-    opt: {
-        raw: ScheduleRuleListRawData;
-        adapter?: ScheduleRuleListAdapter;
-        refetchData: () => Promise<void>;
-        can?: (mask: number) => boolean;
-        notifyNoPermission?: (msg: string) => void;
-        confirm?: GridConfirmFn;
-    },
-): GridProps =>
+/** 將學年度開館規則 FormModel 轉為 GridProps。 */
+const buildScheduleRuleGridProps = (opt: BuildScheduleRuleGridOptions): GridProps =>
 {
-    const visibleCols = buildScheduleRuleVisibleColumns();
-    const columns = buildServerListColumns(visibleCols, opt.raw.modelDisplayName);
+    const columns = buildServerListColumns(buildScheduleRuleVisibleColumns(), opt.raw.modelDisplayName);
     const rows = buildScheduleRuleRows(opt.raw, columns);
-    const baseGrid: GridProps = { columns, rows, CurrentPage: opt.raw.pageNumber ?? 1, TotalPage: opt.raw.totalPages ?? 1, onPageChange: opt.raw.onPageChange };
-
+    const baseGrid: GridProps = {
+        columns,
+        rows,
+        CurrentPage: opt.raw.pageNumber,
+        TotalPage: opt.raw.totalPages,
+        onPageChange: opt.raw.onPageChange,
+    };
     if (!opt.adapter) return baseGrid;
-
-    return enhanceScheduleRuleGrid({
-        baseGrid,
-        raw: opt.raw,
-        crud: { navigate: opt.adapter.navigate, dirUrl: opt.adapter.dirUrl, deleteAsync: opt.adapter.cudActions.deleteAsync, afterDelete: opt.refetchData },
-        can: opt.can,
-        notifyNoPermission: opt.notifyNoPermission,
-        confirm: opt.confirm,
-    });
+    return enhanceScheduleRuleGrid(baseGrid, opt);
 };
 
-/** 注入學年度開放規則 Grid 編輯與刪除動作 */
-const enhanceScheduleRuleGrid = (
-    opt: {
-        baseGrid: GridProps;
-        raw: ScheduleRuleListRawData;
-        crud: CrudDeps;
-        can?: (mask: number) => boolean;
-        notifyNoPermission?: (msg: string) => void;
-        confirm?: GridConfirmFn;
-    },
-): GridProps =>
+/** 注入學年度開館規則 Grid 編輯與刪除動作。 */
+const enhanceScheduleRuleGrid = (baseGrid: GridProps, opt: BuildScheduleRuleGridOptions): GridProps =>
 {
-    const actions = createGridCrudActions<SpecOpenScheduleRuleSet>({
-        onEdit: (internalId) => opt.crud.navigate(`${opt.crud.dirUrl}/${internalId}`),
-        deleteAsync: opt.crud.deleteAsync,
-        afterDelete: opt.crud.afterDelete,
+    const adapter = opt.adapter;
+    if (!adapter) return baseGrid;
+    const actions = createGridCrudActions<SpecOpenScheduleRuleFormModel>({
+        onEdit: internalId => adapter.navigate(`${adapter.dirUrl}/${internalId}`),
+        deleteAsync: adapter.cudActions.deleteAsync,
+        afterDelete: opt.refetchData,
     });
-
-    return enhanceGridWithAdjustCell(opt.baseGrid, {
+    return enhanceGridWithAdjustCell(baseGrid, {
         lang: DefaultLang,
-        rawList: opt.raw.list ?? [],
+        rawList: opt.raw.list,
         actions,
         can: opt.can,
         notifyNoPermission: opt.notifyNoPermission,
         confirm: opt.confirm,
-        getInternalId: (set) => set.SpecOpenScheduleRule?.InternalId ?? "",
+        getInternalId: formModel => formModel.InternalId ?? "",
     });
 };
 
-/** 建立學年度開放規則列表顯示欄位設定 */
-const buildScheduleRuleVisibleColumns = (): ScheduleRuleVisibleColumn[] =>
+/** 建立學年度開館規則列表顯示欄位設定。 */
+const buildScheduleRuleVisibleColumns = (): ServerListVisibleColumn[] =>
 {
     return [
-        {
-            key: SpecOpenScheduleRuleModelFields.AcademicYearId,
-            tableId: SpecOpenScheduleRuleSetFields.SpecOpenScheduleRule,
-            columnId: SpecOpenScheduleRuleModelFields.AcademicYearId,
-            fallback: "學年度",
-        },
-        {
-            key: SpecOpenScheduleRuleModelFields.AcademicStart,
-            tableId: SpecOpenScheduleRuleSetFields.SpecOpenScheduleRule,
-            columnId: SpecOpenScheduleRuleModelFields.AcademicStart,
-            fallback: "學年開始日",
-        },
-        {
-            key: SpecOpenScheduleRuleModelFields.AcademicEnd,
-            tableId: SpecOpenScheduleRuleSetFields.SpecOpenScheduleRule,
-            columnId: SpecOpenScheduleRuleModelFields.AcademicEnd,
-            fallback: "學年結束日",
-        },
-        {
-            key: SpecOpenScheduleRuleModelFields.CreateTime,
-            tableId: SpecOpenScheduleRuleSetFields.SpecOpenScheduleRule,
-            columnId: SpecOpenScheduleRuleModelFields.CreateTime,
-            fallback: "建立時間",
-        },
-        {
-            key: AccountFields.AccountName,
-            tableId: SpecOpenScheduleRuleModelFields.ModifyUser,
-            columnId: AccountFields.AccountName,
-            fallback: "修改者",
-        },
-        {
-            key: SpecOpenScheduleRuleModelFields.ModifyTime,
-            tableId: SpecOpenScheduleRuleSetFields.SpecOpenScheduleRule,
-            columnId: SpecOpenScheduleRuleModelFields.ModifyTime,
-            fallback: "修改時間",
-        },
+        { key: SpecOpenScheduleRuleFields.AcademicYearId, fallback: "學年度" },
+        { key: SpecOpenScheduleRuleFields.AcademicStart, fallback: "學年開始日" },
+        { key: SpecOpenScheduleRuleFields.AcademicEnd, fallback: "學年結束日" },
+        { key: SpecOpenScheduleRuleFields.CreateTime, fallback: "建立時間" },
+        { key: AccountFields.AccountName, tableId: SpecOpenScheduleRuleFields.ModifyUser, columnId: AccountFields.AccountName, fallback: "修改者" },
+        { key: SpecOpenScheduleRuleFields.ModifyTime, fallback: "修改時間" },
     ];
 };
 
-/** 建立學年度開放規則列表列資料 */
-const buildScheduleRuleRows = (raw: ScheduleRuleListRawData, columns: ColumnConfig[]): GridRow[] =>
+/** 建立學年度開館規則列表列資料。 */
+const buildScheduleRuleRows = (rawData: ScheduleRuleListRawData, columns: ColumnConfig[]): GridRow[] =>
 {
-    return (raw.list ?? []).map((set) => buildScheduleRuleRow(set, columns));
+    return rawData.list.map(formModel => buildScheduleRuleRow(formModel, columns));
 };
 
-/** 建立學年度開放規則列表單列資料 */
-const buildScheduleRuleRow = (set: SpecOpenScheduleRuleSet, columns: ColumnConfig[]): GridRow =>
+/** 建立學年度開館規則列表單列資料。 */
+const buildScheduleRuleRow = (formModel: SpecOpenScheduleRuleFormModel, columns: ColumnConfig[]): GridRow =>
 {
-    const scheduleRule = set.SpecOpenScheduleRule;
-    const keyId = scheduleRule?.InternalId ?? `${scheduleRule?.AcademicYearId ?? ""}`;
-    const cells = columns.map((col) => ({ col, content: getScheduleRuleCellContent(col.key, set) }));
-
+    const keyId = formModel.InternalId ?? formModel.AcademicYearId ?? "";
+    const cells = columns.map(col => ({ col, content: getScheduleRuleCellContent(col.key, formModel) }));
     return { keyId, cells };
 };
 
-/** 依欄位 key 取得學年度開放規則 Grid 內容 */
-const getScheduleRuleCellContent = (key: string, set: SpecOpenScheduleRuleSet): RowCell["content"] =>
+/** 依欄位 key 取得學年度開館規則 Grid 內容。 */
+const getScheduleRuleCellContent = (key: string, formModel: SpecOpenScheduleRuleFormModel): RowCell["content"] =>
 {
-    const scheduleRule = set.SpecOpenScheduleRule;
-
     switch (key)
     {
-        case SpecOpenScheduleRuleModelFields.AcademicYearId:
-            return scheduleRule?.AcademicYearId ?? "";
-        case SpecOpenScheduleRuleModelFields.AcademicStart:
-            return formatDate(scheduleRule?.AcademicStart);
-        case SpecOpenScheduleRuleModelFields.AcademicEnd:
-            return formatDate(scheduleRule?.AcademicEnd);
-        case SpecOpenScheduleRuleModelFields.CreateTime:
-            return formatDateTime(scheduleRule?.CreateTime);
+        case SpecOpenScheduleRuleFields.AcademicYearId:
+            return formModel.AcademicYearId ?? "";
+        case SpecOpenScheduleRuleFields.AcademicStart:
+            return formatDate(formModel.AcademicStart);
+        case SpecOpenScheduleRuleFields.AcademicEnd:
+            return formatDate(formModel.AcademicEnd);
+        case SpecOpenScheduleRuleFields.CreateTime:
+            return formatDateTime(formModel.CreateTime);
         case AccountFields.AccountName:
-            return scheduleRule?.ModifyUser?.AccountName ?? "";
-        case SpecOpenScheduleRuleModelFields.ModifyTime:
-            return formatDateTime(scheduleRule?.ModifyTime);
+            return formModel.ModifyUser?.AccountName ?? "";
+        case SpecOpenScheduleRuleFields.ModifyTime:
+            return formatDateTime(formModel.ModifyTime);
         default:
             return "";
     }
 };
-
 // #endregion

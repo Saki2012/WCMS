@@ -7,7 +7,7 @@ import type { AxiosInstance } from "axios";
 import { useCallback, useMemo, useState } from "react";
 
 // #region Property
-type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
+type SpecJournalFormModel = components["schemas"]["SpecJournal"];
 
 type ORCIDData = components["schemas"]["ORCIDData"];
 
@@ -49,7 +49,7 @@ type ExtraHooks = {
 // #endregion
 
 // #region Public
-class SpecJournalService extends ApiDataService<SpecJournalSet>
+class SpecJournalService extends ApiDataService<SpecJournalFormModel>
 {
     // #region Public
     constructor(apiInstance?: AxiosInstance)
@@ -82,12 +82,12 @@ class SpecJournalService extends ApiDataService<SpecJournalSet>
     // #endregion
 }
 
-class SpecJournalAdapterImpl extends ApiDataAdapter<SpecJournalSet, SpecJournalService>
+class SpecJournalAdapterImpl extends ApiDataAdapter<SpecJournalFormModel, SpecJournalService>
 {
     // #region Property
-    declare public loader: ApiDataLoaderGroup<SpecJournalSet> & ExtraLoaders;
+    declare public loader: ApiDataLoaderGroup<SpecJournalFormModel> & ExtraLoaders;
 
-    declare public hooks: ApiDataHookGroup<SpecJournalSet> & ExtraHooks;
+    declare public hooks: ApiDataHookGroup<SpecJournalFormModel> & ExtraHooks;
 
 
     /** hook：依 ORCID 查作者資訊 */
@@ -233,15 +233,15 @@ class SpecJournalAdapterImpl extends ApiDataAdapter<SpecJournalSet, SpecJournalS
 
     // #region Public
     /** 擴充 loader 入口，目前 SpecJournal 暫無額外 loader */
-    protected override buildExtendedLoader(base: ApiDataLoaderGroup<SpecJournalSet>): ApiDataLoaderGroup<SpecJournalSet> & ExtraLoaders
+    protected override buildExtendedLoader(base: ApiDataLoaderGroup<SpecJournalFormModel>): ApiDataLoaderGroup<SpecJournalFormModel> & ExtraLoaders
     {
-        const merged: ApiDataLoaderGroup<SpecJournalSet> & ExtraLoaders = { ...base };
+        const merged: ApiDataLoaderGroup<SpecJournalFormModel> & ExtraLoaders = { ...base };
         return merged;
     }
 
 
     /** 擴充 hooks 入口，掛入 ORCID / 出刊 / 退回預刊 */
-    protected override buildExtendedHooks(base: ApiDataHookGroup<SpecJournalSet>): ApiDataHookGroup<SpecJournalSet> & ExtraHooks
+    protected override buildExtendedHooks(base: ApiDataHookGroup<SpecJournalFormModel>): ApiDataHookGroup<SpecJournalFormModel> & ExtraHooks
     {
         // 宣告變數
         const wrapUseGetAuthorByOrcid: ExtraHooks["useGetAuthorByOrcid"] = (opt) =>
@@ -256,7 +256,7 @@ class SpecJournalAdapterImpl extends ApiDataAdapter<SpecJournalSet, SpecJournalS
         {
             return this.useUnpublishJournal(opt);
         };
-        const merged: ApiDataHookGroup<SpecJournalSet> & ExtraHooks = {
+        const merged: ApiDataHookGroup<SpecJournalFormModel> & ExtraHooks = {
             ...base,
             useGetAuthorByOrcid: wrapUseGetAuthorByOrcid,
             usePublishJournal: wrapUsePublishJournal,

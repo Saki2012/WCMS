@@ -10,7 +10,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSpecJournalIndexData } from "./SpecJournalIndex_Loader";
 
 // #region Property
-type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
+type SpecJournalIndexFormModel = components["schemas"]["SpecJournalIndex"];
 
 const ACCORDION_ANIMATION_MS = 280;
 // #endregion
@@ -157,7 +157,7 @@ const animateAccordionPanel = (el: HTMLDivElement, isOpen: boolean): void =>
     el.dataset.timerId = String(timerId);
 };
 
-const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalIndexSet[]; lang: Lang; }) =>
+const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalIndexFormModel[]; lang: Lang; }) =>
 {
     // 宣告變數：目前開啟中的 IndexId
     const [openIndexId, setOpenIndexId] = useState<string | null>(null);
@@ -181,7 +181,7 @@ const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalInde
     useEffect(() =>
     {
         // 宣告變數：目前頁面上的所有 panel id
-        const panelIds = (props.data ?? []).map((group) => group.SpecJournalIndex?.IndexId ?? "").filter((id): id is string => id !== "");
+        const panelIds = (props.data ?? []).map((group) => group.IndexId ?? "").filter((id): id is string => id !== "");
 
         panelIds.forEach((panelId) =>
         {
@@ -271,8 +271,8 @@ const SpecJournalIndexContent = (props: { title?: string; data?: SpecJournalInde
                             <ul className="Journal_info">
                                 {props.data?.map((group) =>
                                 {
-                                    const masterData = group.SpecJournalIndex;
-                                    const detailDatas = group.SpecJournalIndexDetail ?? [];
+                                    const masterData = group;
+                                    const detailDatas = group._SpecJournalIndexDetail ?? [];
                                     const indexId = masterData?.IndexId ?? "";
                                     const indexTitle = buildIndexTitle(props.lang, masterData?.IndexName);
                                     const volTitle = buildVolumeText(props.lang, detailDatas[0]?.Volume);

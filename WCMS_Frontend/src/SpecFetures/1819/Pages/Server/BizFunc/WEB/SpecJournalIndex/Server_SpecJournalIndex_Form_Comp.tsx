@@ -9,18 +9,18 @@ import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/Sy
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
 import { LibTextBox } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
-import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
+import { useFormModelField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import { type Lang } from "@/SysCore/i18n/lang";
 import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
 import type { components } from "@/types/api";
-import { SpecJournalIndexModelFields, SpecJournalIndexSetFields } from "@/types/SchemaFields";
+import { SpecJournalIndexModelFields } from "@/types/SchemaFields";
 import { useSpecJournalIndexDetailEditGrid, useSpecJournalIndexFormTemplate } from "./Server_SpecJournalIndex_Form_Hook";
 
 // #region Property
-type SpecJournalIndexSet = components["schemas"]["SpecJournalIndexSet_DTO"];
+type SpecJournalIndexFormModel = components["schemas"]["SpecJournalIndex"];
 
-const emptyData: SpecJournalIndexSet = {};
+const emptyData: SpecJournalIndexFormModel = { _SpecJournalIndexDetail: [] };
 
 
 const editGridStyle: IEditGridView_Style = {
@@ -66,20 +66,20 @@ export const Server_SpecJournalIndex_Form_Comp = (prop: { theme: IBETheme; lang:
 
 // #region Section
 /** 期刊目次主表單頁籤，負責組合基本資料與系統資訊。 */
-const MainFormComp = (prop: { theme: IBETheme; formData: ServerFormBinding<SpecJournalIndexSet>; }) =>
+const MainFormComp = (prop: { theme: IBETheme; formData: ServerFormBinding<SpecJournalIndexFormModel>; }) =>
 {
     const tabInfo: LibTabsProp = { Style: prop.theme.Tabs, item: { "Basic": "基本資料", "System": "系統資訊" } };
     const components: Record<string, React.ReactNode[]> = {
         Basic: [<BasicComp theme={prop.theme} formData={prop.formData} />],
-        System: [<SystemInfoTabComp theme={prop.theme} formData={prop.formData} setKey={SpecJournalIndexSetFields.SpecJournalIndex} />],
+        System: [<SystemInfoTabComp theme={prop.theme} formData={prop.formData} />],
     };
     return <TabContentComp tabInfos={tabInfo} components={components}></TabContentComp>;
 };
 
 
-const BasicComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalIndexSet>; }) =>
+const BasicComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalIndexFormModel>; }) =>
 {
-    const setField = useSetTableField<SpecJournalIndexSet>(props.formData);
+    const setField = useFormModelField<SpecJournalIndexFormModel>(props.formData);
 
     return (
         <>
@@ -87,7 +87,7 @@ const BasicComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJou
                 <LibTextBox
                     Style={props.theme.TextBox}
                     DefaultInputDisplay="請輸入"
-                    {...setField(SpecJournalIndexSetFields.SpecJournalIndex, SpecJournalIndexModelFields.IndexName, "string")}
+                    {...setField(SpecJournalIndexModelFields.IndexName, "string")}
                 />
             </div>
             <DetailComp theme={props.theme} formData={props.formData} />
@@ -96,7 +96,7 @@ const BasicComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJou
 };
 
 
-const DetailComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalIndexSet>; }) =>
+const DetailComp = (props: { theme: IBETheme; formData: ServerFormBinding<SpecJournalIndexFormModel>; }) =>
 {
     const detailGrid = useSpecJournalIndexDetailEditGrid({ binding: props.formData, style: editGridStyle });
 

@@ -15,7 +15,7 @@ import { useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router-dom";
 
 // #region Property
-type SpecHomePage1820Set = components["schemas"]["SpecHomePage1820Set_DTO"];
+type SpecHomePage1820FormModel = components["schemas"]["SpecHomePage1820"];
 
 type SpecHomePageWeather = components["schemas"]["SpecHomePageWeather_DTO"];
 
@@ -62,7 +62,7 @@ type ExtraHooks = {
 // #endregion
 
 // #region Public
-export class SpecHomePage1820Service extends ApiDataService<SpecHomePage1820Set>
+export class SpecHomePage1820Service extends ApiDataService<SpecHomePage1820FormModel>
 {
     // #region Public
     constructor(apiInstance?: AxiosInstance)
@@ -81,12 +81,12 @@ export class SpecHomePage1820Service extends ApiDataService<SpecHomePage1820Set>
 }
 
 
-export class SpecHomePage1820AdapterImpl extends ApiDataAdapter<SpecHomePage1820Set, SpecHomePage1820Service>
+export class SpecHomePage1820AdapterImpl extends ApiDataAdapter<SpecHomePage1820FormModel, SpecHomePage1820Service>
 {
     // #region Property
-    declare public loader: ApiDataLoaderGroup<SpecHomePage1820Set> & ExtraLoaders;
+    declare public loader: ApiDataLoaderGroup<SpecHomePage1820FormModel> & ExtraLoaders;
 
-    declare public hooks: ApiDataHookGroup<SpecHomePage1820Set> & ExtraHooks;
+    declare public hooks: ApiDataHookGroup<SpecHomePage1820FormModel> & ExtraHooks;
 
 
     /** loader：建立首頁 weather loader */
@@ -136,7 +136,7 @@ export class SpecHomePage1820AdapterImpl extends ApiDataAdapter<SpecHomePage1820
     // #endregion
 
     // #region Public
-    protected override buildExtendedLoader(base: ApiDataLoaderGroup<SpecHomePage1820Set>): ApiDataLoaderGroup<SpecHomePage1820Set> & ExtraLoaders
+    protected override buildExtendedLoader(base: ApiDataLoaderGroup<SpecHomePage1820FormModel>): ApiDataLoaderGroup<SpecHomePage1820FormModel> & ExtraLoaders
     {
         const wrapCreateWeatherLoader: ExtraLoaders["createWeatherLoader"] = (opt) =>
         {
@@ -146,7 +146,7 @@ export class SpecHomePage1820AdapterImpl extends ApiDataAdapter<SpecHomePage1820
     }
 
 
-    protected override buildExtendedHooks(base: ApiDataHookGroup<SpecHomePage1820Set>): ApiDataHookGroup<SpecHomePage1820Set> & ExtraHooks
+    protected override buildExtendedHooks(base: ApiDataHookGroup<SpecHomePage1820FormModel>): ApiDataHookGroup<SpecHomePage1820FormModel> & ExtraHooks
     {
         const wrapUseWeatherData: ExtraHooks["useWeatherData"] = (opt) =>
         {

@@ -5,11 +5,11 @@ import { LangLink } from "@/SysCore/i18n/LangLink";
 import type { components } from "@/types/api";
 
 // #region Property
-type HomePageModel = components["schemas"]["SpecHomePage1820Model_DTO"];
+type HomePageFormModel = components["schemas"]["SpecHomePage1820"];
 // #endregion
 
 // #region Public
-export const Section2 = (props: { lang: Lang; homePage: HomePageModel; }) =>
+export const Section2 = (props: { lang: Lang; homePage: HomePageFormModel; }) =>
 {
     const data = props.homePage;
     const textMap: Record<string, { ViewMoreText: string; }> = { en: { ViewMoreText: "View More" }, "zh-tw": { ViewMoreText: "查看更多" } };

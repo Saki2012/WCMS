@@ -48,7 +48,7 @@ public class SpecHomePageBannerSection_DTO
     /// <summary>
     /// Banner 主資料。
     /// </summary>
-    public BannerSet_DTO? Banner { get; set; }
+    public Banner? Banner { get; set; }
     #endregion
 }
 
@@ -61,42 +61,42 @@ public class SpecHomePageCategoryTabsSection_DTO
     /// <summary>
     /// 最新公告資料，置頂優先後由一般資料補滿。
     /// </summary>
-    public List<AnnouncementSet_DTO> AllNews { get; set; } = [];
+    public List<Announcement> AllNews { get; set; } = [];
 
     /// <summary>
     /// 計畫徵求資料，置頂優先後由一般資料補滿。
     /// </summary>
-    public List<AnnouncementSet_DTO> ProjectNews { get; set; } = [];
+    public List<Announcement> ProjectNews { get; set; } = [];
 
     /// <summary>
     /// 法規公告資料，置頂優先後由一般資料補滿。
     /// </summary>
-    public List<AnnouncementSet_DTO> LegalNews { get; set; } = [];
+    public List<Announcement> LegalNews { get; set; } = [];
 
     /// <summary>
     /// 活動公告資料，置頂優先後由一般資料補滿。
     /// </summary>
-    public List<AnnouncementSet_DTO> EventNews { get; set; } = [];
+    public List<Announcement> EventNews { get; set; } = [];
 
     /// <summary>
     /// 獲獎公告資料，置頂優先後由一般資料補滿。
     /// </summary>
-    public List<AnnouncementSet_DTO> AwardNews { get; set; } = [];
+    public List<Announcement> AwardNews { get; set; } = [];
 
     /// <summary>
     /// 專題與媒體報導資料，置頂優先後由一般資料補滿。
     /// </summary>
-    public List<AnnouncementSet_DTO> MediaNews { get; set; } = [];
+    public List<Announcement> MediaNews { get; set; } = [];
 
     /// <summary>
     /// 公告類別資料。
     /// </summary>
-    public List<CategoryDataSet_DTO> Categories { get; set; } = [];
+    public List<Category> Categories { get; set; } = [];
 
     /// <summary>
     /// 公告標籤資料。
     /// </summary>
-    public List<TagSet_DTO> Tags { get; set; } = [];
+    public List<TagData> Tags { get; set; } = [];
     #endregion
 }
 
@@ -109,12 +109,12 @@ public class SpecHomePageEventSection_DTO
     /// <summary>
     /// 活動公告資料。
     /// </summary>
-    public List<AnnouncementSet_DTO> Announcements { get; set; } = [];
+    public List<Announcement> Announcements { get; set; } = [];
 
     /// <summary>
     /// 活動標籤資料。
     /// </summary>
-    public List<TagSet_DTO> Tags { get; set; } = [];
+    public List<TagData> Tags { get; set; } = [];
     #endregion
 }
 
@@ -127,12 +127,12 @@ public class SpecHomePageGallerySection_DTO
     /// <summary>
     /// 相簿資料。
     /// </summary>
-    public List<GallerySet_DTO> Galleries { get; set; } = [];
+    public List<Gallery> Galleries { get; set; } = [];
 
     /// <summary>
     /// 相簿分類資料。
     /// </summary>
-    public List<CategoryDataSet_DTO> Categories { get; set; } = [];
+    public List<Category> Categories { get; set; } = [];
     #endregion
 }
 
@@ -145,6 +145,6 @@ public class SpecHomePageVideoSection_DTO
     /// <summary>
     /// 影音網站資源資料。
     /// </summary>
-    public List<WebResourceSet_DTO> WebResources { get; set; } = [];
+    public List<WebResource> WebResources { get; set; } = [];
     #endregion
 }

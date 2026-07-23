@@ -9,7 +9,7 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import type { ReactNode } from "react";
 import {
     type SpecMusicalListRenderers,
-    type SpecMusicalSet,
+    type SpecMusicalFormModel,
     useSpecMusicalListGridTemplate,
 } from "./Server_SpecMusical_List_Hook";
 
@@ -45,12 +45,12 @@ const SpecMusicalSearchBarSection = (props: ServerListGridSearchRenderProps) =>
 
 // #region Protected
 /** 渲染樂器封面圖 */
-const buildSpecMusicalCoverContentNode = (set: SpecMusicalSet): ReactNode =>
+const buildSpecMusicalCoverContentNode = (set: SpecMusicalFormModel): ReactNode =>
 {
-    const fileId = set.SpecMusical?.CoverPicId;
+    const fileId = set.CoverPicId;
     if (!fileId) return "";
 
-    const musicalName = set.SpecMusical?.MusicalName ?? "樂器";
+    const musicalName = set.MusicalName ?? "樂器";
     return <img src={FileManagementAPI.get_Server_Preview_Url(fileId)} style={coverImageStyle} alt={`${musicalName}封面圖`} />;
 };
 // #endregion

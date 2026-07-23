@@ -7,7 +7,7 @@ import { useLocation } from "react-router-dom";
 import { useSpecMusicalListData } from "./SpecMusicalList_Loader";
 
 // #region Property
-type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"];
+type SpecMusicalFormModel = components["schemas"]["SpecMusical"];
 
 export interface ISpecMusicalOptions
 {
@@ -16,7 +16,7 @@ export interface ISpecMusicalOptions
 // #endregion
 
 // #region Section
-const GridList_Comp = (props: { title: string; data: SpecMusicalSet[]; }) =>
+const GridList_Comp = (props: { title: string; data: SpecMusicalFormModel[]; }) =>
 {
     // 宣告變數：取得目前目錄網址
     const dirUrl = useLocation().pathname.replace(/\/List$/, ``);
@@ -27,9 +27,9 @@ const GridList_Comp = (props: { title: string; data: SpecMusicalSet[]; }) =>
             {props.data.map((item) =>
             {
                 // 宣告變數：組合連結與顯示資料
-                const internalId = item.SpecMusical?.InternalId ?? "";
-                const picSrc = FileManagementAPI.get_Public_Preview_Url(item.SpecMusical?.CoverPicId);
-                const title = item.SpecMusical?.MusicalName ?? "觀看詳細內容";
+                const internalId = item.InternalId ?? "";
+                const picSrc = FileManagementAPI.get_Public_Preview_Url(item.CoverPicId);
+                const title = item.MusicalName ?? "觀看詳細內容";
                 const href = `${dirUrl}/${internalId}`;
                 // return：單筆卡片
                 return (

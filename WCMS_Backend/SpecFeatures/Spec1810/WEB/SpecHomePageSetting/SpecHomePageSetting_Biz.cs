@@ -152,7 +152,7 @@ public class SpecHomePageSettingBiz(
     /// </summary>
     private async Task<SpecHomePageBannerSection_DTO> GetBannerSliderAsync(CancellationToken ct)
     {
-        List<Banner_DTO> banners = await QueryListAsync<Banner, Banner_DTO>(_bannerService, BuildBannerSliderParam(), ct);
+        List<Banner> banners = await QueryListAsync(_bannerService, BuildBannerSliderParam(), ct);
         SpecHomePageBannerSection_DTO result = new() { Banner = banners.FirstOrDefault() };
 
         return result;
@@ -185,7 +185,7 @@ public class SpecHomePageSettingBiz(
     {
         SpecHomePageEventSection_DTO result = new()
         {
-            Announcements = await QueryListAsync<Announcement, Announcement_DTO>(_announcementService, BuildEventListParam(nowIsoLocal), ct),
+            Announcements = await QueryListAsync(_announcementService, BuildEventListParam(nowIsoLocal), ct),
             Tags = await QueryTagDatasAsync(ProgKeys.WEB.Announcement, ct),
         };
 
@@ -199,7 +199,7 @@ public class SpecHomePageSettingBiz(
     {
         SpecHomePageGallerySection_DTO result = new()
         {
-            Galleries = await QueryListAsync<Gallery, Gallery_DTO>(_galleryService, BuildGalleryListParam(), ct),
+            Galleries = await QueryListAsync(_galleryService, BuildGalleryListParam(), ct),
             Categories = await QueryCategorySetsAsync(ProgKeys.WEB.Gallery, ct),
         };
 
@@ -213,7 +213,7 @@ public class SpecHomePageSettingBiz(
     {
         SpecHomePageVideoSection_DTO result = new()
         {
-            WebResources = await QueryListAsync<WebResource, WebResource_DTO>(_webResourceService, BuildVideoListParam(), ct),
+            WebResources = await QueryListAsync(_webResourceService, BuildVideoListParam(), ct),
         };
 
         return result;
@@ -222,10 +222,10 @@ public class SpecHomePageSettingBiz(
     /// <summary>
     /// 查詢最新消息分頁資料。
     /// </summary>
-    private async Task<List<Announcement_DTO>> QueryCategoryTabsNewsAsync(string nowIsoLocal, string? categories, CancellationToken ct)
+    private async Task<List<Announcement>> QueryCategoryTabsNewsAsync(string nowIsoLocal, string? categories, CancellationToken ct)
     {
         QueryListParam param = BuildCategoryTabsNewsParam(nowIsoLocal, categories);
-        List<Announcement_DTO> result = await QueryListAsync<Announcement, Announcement_DTO>(_announcementService, param, ct);
+        List<Announcement> result = await QueryListAsync(_announcementService, param, ct);
 
         return result;
     }
@@ -233,10 +233,10 @@ public class SpecHomePageSettingBiz(
     /// <summary>
     /// 查詢公告或相簿分類資料。
     /// </summary>
-    private async Task<List<Category_DTO>> QueryCategorySetsAsync(string progId, CancellationToken ct)
+    private async Task<List<Category>> QueryCategorySetsAsync(string progId, CancellationToken ct)
     {
         QueryListParam param = BuildCategoryParam(progId);
-        List<Category_DTO> result = await QueryListAsync<Category, Category_DTO>(_categoryService, param, ct);
+        List<Category> result = await QueryListAsync(_categoryService, param, ct);
 
         return result;
     }
@@ -244,10 +244,10 @@ public class SpecHomePageSettingBiz(
     /// <summary>
     /// 查詢公告標籤資料。
     /// </summary>
-    private async Task<List<TagData_DTO>> QueryTagDatasAsync(string progId, CancellationToken ct)
+    private async Task<List<TagData>> QueryTagDatasAsync(string progId, CancellationToken ct)
     {
         QueryListParam param = BuildTagParam(progId);
-        List<TagData_DTO> result = await QueryListAsync<TagData, TagData_DTO>(_tagService, param, ct);
+        List<TagData> result = await QueryListAsync(_tagService, param, ct);
 
         return result;
     }
@@ -255,14 +255,11 @@ public class SpecHomePageSettingBiz(
     /// <summary>
     /// 查詢資料並轉換成 DTO 清單。
     /// </summary>
-    private static async Task<List<TSet_DTO>> QueryListAsync<TSet, TSet_DTO>(BizService<TSet> service, QueryListParam param, CancellationToken ct)
-        where TSet : DbModel, ITSet
-        where TSet_DTO : ITSet_DTO
+    private static async Task<List<TData>> QueryListAsync<TData>(BizService<TData> service, QueryListParam param, CancellationToken ct)
+        where TData : DbModel
     {
-        IList<TSet> queryResult = await service.BizQueryListAsync(param, ct);
-        List<TSet_DTO> result = queryResult.Select(DTOHelper.MapToDTO<TSet, TSet_DTO>).ToList();
-
-        return result;
+        IList<TData> queryResult = await service.BizQueryListAsync(param, ct);
+        return queryResult.ToList();
     }
 
     /// <summary>

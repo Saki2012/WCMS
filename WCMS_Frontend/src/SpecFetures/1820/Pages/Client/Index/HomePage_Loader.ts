@@ -6,35 +6,33 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { LibCondition, Operator } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
-import { AnnouncementDetailFields, AnnouncementFields, PGID } from "@/types/SchemaFields";
+import { AnnouncementDetailFields, AnnouncementFields, PGID, SpecHomePage1820Fields } from "@/types/SchemaFields";
 import { useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router-dom";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type SpecHomePage1820Set = components["schemas"]["SpecHomePage1820Set_DTO"];
+type HomePageFormModel = components["schemas"]["SpecHomePage1820"];
 
-type HomePageModel = components["schemas"]["SpecHomePage1820Model_DTO"];
+type BannerModel = components["schemas"]["SpecHomePage1820_BannerMedia"];
 
-type BannerModel = components["schemas"]["SpecHomePage1820_BannerMedia_DTO"];
+type DetailModel = components["schemas"]["SpecHomePage1820_Detail"];
 
-type DetailModel = components["schemas"]["SpecHomePage1820_Detail_DTO"];
+type MarqueeModel = components["schemas"]["SpecHomePage1820_Marquee"];
 
-type MarqueeModel = components["schemas"]["SpecHomePage1820_Marquee_DTO"];
+type ResourceModel = components["schemas"]["SpecHomePage1820_Resource"];
 
-type ResourceModel = components["schemas"]["SpecHomePage1820_Resource_DTO"];
-
-type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
+type AnnouncementFormModel = components["schemas"]["Announcement"];
 
 export interface HomePageRawData
 {
-    homePage: HomePageModel | null;
+    homePage: HomePageFormModel | null;
     banners: BannerModel[];
     details: DetailModel[];
     marquees: MarqueeModel[];
     resources: ResourceModel[];
-    announcements: AnnouncementSet[];
+    announcements: AnnouncementFormModel[];
     announcementCategoryMap: Record<string, string>;
 }
 
@@ -47,7 +45,7 @@ export interface HomePageLoaderArgs
 export interface HomePageLoaderRes
 {
     rawData: HomePageRawData;
-    setData: SpecHomePage1820Set | null;
+    formModelData: HomePageFormModel | null;
     weatherInitial: WeatherLoaderData | null;
 }
 
@@ -72,9 +70,7 @@ export const buildHomePageLoaderArgs = (p: { lang: Lang; internalId: string; }):
     return { lang: p.lang, internalId: getSafeString(p.internalId) };
 };
 
-/** 1820 首頁 loader */
-/** 1820 首頁 loader */
-
+/** 1820 首頁 loader。 */
 export const HomePageLoader = (props: { lang: Lang; }) => async (args: LoaderFunctionArgs): Promise<HomePageLoaderData> =>
 {
     const api = getSsrApi(args.request);
@@ -87,11 +83,11 @@ export const HomePageLoader = (props: { lang: Lang; }) => async (args: LoaderFun
 
     if (!loaderArgs.internalId)
     {
-        return { args: loaderArgs, res: { rawData: createEmptyRawData(), setData: null, weatherInitial: null } };
+        return { args: loaderArgs, res: { rawData: createEmptyRawData(), formModelData: null, weatherInitial: null } };
     }
 
-    const setData = await loadHomePageSet(args, adapter, loaderArgs.internalId);
-    const rawData = normalizeSetData(setData);
+    const formModelData = await loadHomePageFormModel(args, adapter, loaderArgs.internalId);
+    const rawData = normalizeFormModelData(formModelData);
 
     const announcementParam = buildAnnouncementQueryParam({ lang: props.lang, categoryIds: rawData.homePage?.AnnouncementCategoryIds });
 
@@ -101,7 +97,7 @@ export const HomePageLoader = (props: { lang: Lang; }) => async (args: LoaderFun
         loadWeatherInitial(args, adapter),
     ]);
 
-    return { args: loaderArgs, res: { rawData: { ...rawData, announcements, announcementCategoryMap }, setData, weatherInitial } };
+    return { args: loaderArgs, res: { rawData: { ...rawData, announcements, announcementCategoryMap }, formModelData, weatherInitial } };
 };
 
 /** CSR Hook：首頁統一透過 Client_DataQueryTemplate 取資料 */
@@ -131,10 +127,10 @@ const escapeQueryValue = (value?: string | null) =>
     return getSafeString(value).replace(/"/g, `""`);
 };
 
-/** 依 RowId 排序 */
-const sortByRowId = <T extends { RowId?: number | null; }>(rows?: T[] | null) =>
+/** 依 RowNo、RowId 排序 FormModel 明細。 */
+const sortByRowNo = <T extends { RowNo?: number | null; RowId?: number | null; }>(rows?: T[] | null) =>
 {
-    return [...(rows ?? [])].sort((a, b) => (a.RowId ?? 0) - (b.RowId ?? 0));
+    return [...(rows ?? [])].sort((a, b) => Number(a.RowNo ?? a.RowId ?? 0) - Number(b.RowNo ?? b.RowId ?? 0));
 };
 
 /** 建立空資料 */
@@ -143,17 +139,16 @@ const createEmptyRawData = (): HomePageRawData =>
     return { homePage: null, banners: [], details: [], marquees: [], resources: [], announcements: [], announcementCategoryMap: {} };
 };
 
-/** 正規化首頁 set */
-const normalizeSetData = (setData: SpecHomePage1820Set | null): HomePageRawData =>
+/** 將首頁 FormModel 拆成各畫面區塊需要的資料。 */
+const normalizeFormModelData = (formModelData: HomePageFormModel | null): HomePageRawData =>
 {
-    if (!setData) return createEmptyRawData();
-
+    if (!formModelData) return createEmptyRawData();
     return {
-        homePage: setData.SpecHomePage1820 ?? null,
-        banners: sortByRowId(setData.SpecHomePage1820_BannerMedia),
-        details: sortByRowId(setData.SpecHomePage1820_Detail),
-        marquees: sortByRowId(setData.SpecHomePage1820_Marquee),
-        resources: sortByRowId(setData.SpecHomePage1820_Resource),
+        homePage: formModelData,
+        banners: sortByRowNo(formModelData._SpecHomePage1820_BannerMedia),
+        details: sortByRowNo(formModelData._SpecHomePage1820_Detail),
+        marquees: sortByRowNo(formModelData._SpecHomePage1820_Marquee),
+        resources: sortByRowNo(formModelData._SpecHomePage1820_Resource),
         announcements: [],
         announcementCategoryMap: {},
     };
@@ -180,7 +175,7 @@ const buildHomePageQueryParam = (lang?: Lang): QueryListParam =>
     const safeLang = escapeQueryValue(lang);
 
     return {
-        Fields: ["InternalId", "Lang", "CreateTime", "ModifyTime"],
+        Fields: [SpecHomePage1820Fields.InternalId, SpecHomePage1820Fields.Lang, SpecHomePage1820Fields.CreateTime, SpecHomePage1820Fields.ModifyTime],
         Condition: safeLang ? `Lang = "${safeLang}"` : "",
         OrderBy: [{ Col: "ModifyTime", Desc: true }, { Col: "CreateTime", Desc: true }],
         PageNumber: 1,
@@ -189,12 +184,9 @@ const buildHomePageQueryParam = (lang?: Lang): QueryListParam =>
 };
 
 /** 從 queryList 的列資料取出 InternalId */
-const getInternalIdFromListRow = (row?: SpecHomePage1820Set | null) =>
+const getInternalIdFromListRow = (row?: HomePageFormModel | null) =>
 {
-    if (!row) return "";
-
-    if ("InternalId" in row) return getSafeString(row.SpecHomePage1820?.InternalId);
-    return getSafeString(row.SpecHomePage1820?.InternalId);
+    return getSafeString(row?.InternalId);
 };
 
 /** 讀首頁第一筆清單資料 */
@@ -202,24 +194,24 @@ const loadFirstHomePageRow = async (
     args: LoaderFunctionArgs,
     adapter: ReturnType<typeof SpecHomePage1820Adapter>,
     condition: QueryListParam,
-): Promise<SpecHomePage1820Set | null> =>
+): Promise<HomePageFormModel | null> =>
 {
     const api = getSsrApi(args.request);
 
     const queryListLoader = adapter.loader.createQueryListLoader({ getApiInstance: () => api, getCondition: () => condition });
 
     const env = await queryListLoader(args);
-    const list = (env.apiRes.IsSuccess ? (env.apiRes.Data ?? []) : []) as SpecHomePage1820Set[];
+    const list = (env.apiRes.IsSuccess ? (env.apiRes.Data ?? []) : []) as HomePageFormModel[];
 
     return list[0] ?? null;
 };
 
-/** 依 InternalId 讀首頁完整資料 */
-const loadHomePageSet = async (
+/** 依 InternalId 讀取首頁完整 FormModel。 */
+const loadHomePageFormModel = async (
     args: LoaderFunctionArgs,
     adapter: ReturnType<typeof SpecHomePage1820Adapter>,
     internalId: string,
-): Promise<SpecHomePage1820Set | null> =>
+): Promise<HomePageFormModel | null> =>
 {
     if (!internalId) return null;
 
@@ -319,7 +311,7 @@ const loadAnnouncementList = async (
     args: LoaderFunctionArgs,
     adapter: ReturnType<typeof AnnouncementAdapter>,
     condition: QueryListParam | null,
-): Promise<AnnouncementSet[]> =>
+): Promise<AnnouncementFormModel[]> =>
 {
     if (!condition) return [];
 

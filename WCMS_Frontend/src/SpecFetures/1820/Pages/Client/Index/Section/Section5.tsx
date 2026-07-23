@@ -3,7 +3,7 @@ import type { components } from "@/types/api";
 import { type KeyboardEvent, type MouseEvent, useMemo, useState } from "react";
 
 // #region Property
-type Marquee = components["schemas"]["SpecHomePage1820_Marquee_DTO"];
+type Marquee = components["schemas"]["SpecHomePage1820_Marquee"];
 
 type RenderMarquee = Marquee & { KeyId: string; IsClone: boolean; };
 // #endregion

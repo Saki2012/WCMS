@@ -7,6 +7,7 @@ import {
 import type {
     ServerListGridDataSourceContext,
     ServerListGridDataSourceResult,
+    ServerListGridQueryContext,
     ServerListGridTemplate,
 } from "@/Features/Pages/Server/Scaffold/Content/ListGridTemplate/Server_ListGridTemplate_Hook";
 import { SpecJournalAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/WEB/SpecJournal_Api";
@@ -27,7 +28,7 @@ import type { SpecJournalMode } from "./Server_SpecJournal_Form_Hook";
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-export type SpecJournalSet = components["schemas"]["SpecJournalSet_DTO"];
+export type SpecJournalFormModel = components["schemas"]["SpecJournal"];
 
 type SpecJournalApiAdapter = ReturnType<typeof SpecJournalAdapter>;
 
@@ -36,10 +37,10 @@ type SpecJournalCudActions = ReturnType<SpecJournalApiAdapter["hooks"]["useCudAc
 export interface SpecJournalListRenderers
 {
     /** 渲染期刊標題欄位內容，JSX 請留在 Comp 實作 */
-    buildTitleContentNode: (set: SpecJournalSet) => RowCell["content"];
+    buildTitleContentNode: (set: SpecJournalFormModel) => RowCell["content"];
 
     /** 渲染期刊作者欄位內容，JSX 請留在 Comp 實作 */
-    buildAuthorContentNode: (set: SpecJournalSet) => RowCell["content"];
+    buildAuthorContentNode: (set: SpecJournalFormModel) => RowCell["content"];
 }
 
 export interface SpecJournalListPageState
@@ -78,7 +79,7 @@ export interface SpecJournalListRawData
     count: number;
 
     /** 期刊列表資料 */
-    list: SpecJournalSet[];
+    list: SpecJournalFormModel[];
 
     /** 目前頁碼 */
     pageNumber: number;
@@ -142,12 +143,12 @@ const DEFAULT_SPEC_JOURNAL_LIST_PAGE_STATE: SpecJournalListPageState = {
 /** 建立期刊後台純 Spec ListGridTemplate 設定 */
 export const useSpecJournalListGridTemplate = (opt: { lang: Lang; mode: SpecJournalMode; renderers: SpecJournalListRenderers; }): SpecJournalListGridTemplate =>
 {
-        const pageState = usePageStateMemory<SpecJournalListPageState>({
+    const pageState = usePageStateMemory<SpecJournalListPageState>({
         stateKey: SPEC_JOURNAL_LIST_STATE_KEY,
         defaultState: DEFAULT_SPEC_JOURNAL_LIST_PAGE_STATE,
         scopeKeys: [opt.lang],
     });
-return useMemo<SpecJournalListGridTemplate>(() =>
+    return useMemo<SpecJournalListGridTemplate>(() =>
     {
         return {
             featureKey: PGID.SpecJournal,
@@ -330,7 +331,7 @@ const buildSpecJournalAuthorCondition = (author: string): string =>
 };
 
 /** 建立期刊列表完整 QueryParam */
-const buildSpecJournalQueryParam = (ctx: { searchParams: SpecJournalSearchParams; searchCondition: string; }): QueryListParam =>
+const buildSpecJournalQueryParam = (ctx: ServerListGridQueryContext<SpecJournalSearchParams>): QueryListParam =>
 {
     return {
         Fields: buildSpecJournalQueryFields(),
@@ -416,7 +417,7 @@ const enhanceSpecJournalGrid = (
     },
 ): GridProps =>
 {
-    const actions = createGridCrudActions<SpecJournalSet>({
+    const actions = createGridCrudActions<SpecJournalFormModel>({
         onEdit: (internalId) => opt.crud.navigate(`${opt.crud.dirUrl}/${internalId}`),
         deleteAsync: opt.crud.deleteAsync,
         afterDelete: opt.crud.afterDelete,
@@ -429,7 +430,7 @@ const enhanceSpecJournalGrid = (
         can: opt.can,
         notifyNoPermission: opt.notifyNoPermission,
         confirm: opt.confirm,
-        getInternalId: (set) => set.SpecJournal?.InternalId ?? "",
+        getInternalId: (set) => set.InternalId ?? "",
     });
 };
 
@@ -461,9 +462,9 @@ const buildSpecJournalRows = (raw: SpecJournalListRawData, columns: ColumnConfig
 };
 
 /** 建立單筆期刊 Grid row */
-const buildSpecJournalRow = (set: SpecJournalSet, columns: ColumnConfig[], mode: SpecJournalMode, renderers: SpecJournalListRenderers): GridRow =>
+const buildSpecJournalRow = (set: SpecJournalFormModel, columns: ColumnConfig[], mode: SpecJournalMode, renderers: SpecJournalListRenderers): GridRow =>
 {
-    const keyId = LibText.Merge("|", false, set.SpecJournal?.JournalId, set.SpecJournal?.InternalId);
+    const keyId = LibText.Merge("|", false, set.JournalId, set.InternalId);
     const cells: RowCell[] = [];
     let colIdx = 0;
 
@@ -471,17 +472,17 @@ const buildSpecJournalRow = (set: SpecJournalSet, columns: ColumnConfig[], mode:
 
     cells.push({ col: columns[colIdx++], content: renderers.buildTitleContentNode(set) });
     cells.push({ col: columns[colIdx++], content: renderers.buildAuthorContentNode(set) });
-    cells.push({ col: columns[colIdx++], content: formatDateTime(set.SpecJournal?.CreateTime) });
-    cells.push({ col: columns[colIdx++], content: set.SpecJournal?.ModifyUser?.AccountName ?? "" });
-    cells.push({ col: columns[colIdx++], content: formatDateTime(set.SpecJournal?.ModifyTime) });
+    cells.push({ col: columns[colIdx++], content: formatDateTime(set.CreateTime) });
+    cells.push({ col: columns[colIdx++], content: set.ModifyUser?.AccountName ?? "" });
+    cells.push({ col: columns[colIdx++], content: formatDateTime(set.ModifyTime) });
 
     return { keyId, cells };
 };
 
 /** 顯示卷期文字 */
-const renderVolIssue = (set: SpecJournalSet): string =>
+const renderVolIssue = (set: SpecJournalFormModel): string =>
 {
-    const detail = set.SpecJournal?._JournalIndexDetail;
+    const detail = set._JournalIndexDetail;
     const volume = detail?.Volume ?? "";
     const issue = detail?.Issue ?? "";
     const hasValue = Boolean(volume) || Boolean(issue);

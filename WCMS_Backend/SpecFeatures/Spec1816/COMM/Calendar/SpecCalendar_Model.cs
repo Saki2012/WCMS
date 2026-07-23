@@ -1,42 +1,42 @@
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WCMS.SpecFeatures.Spec1816._Resx;
 using WCMS.SpecFeatures.Spec1816.WEB.SpecOpenScheduleRule;
-using WCMS.SysCore.FeatureDriver.Resx;
-using WCMS.SpecFeatures.Spec1817._Resx;
 using WCMS.SysCore.FeatureDriver.Model.Metadata;
-namespace WCMS.Features.SystemSetting.Calendar;
+using WCMS.SysCore.FeatureDriver.Model.Validation;
+using WCMS.SysCore.FeatureDriver.Resx;
+namespace WCMS.Features.COMM.Calendar;
 
-public partial class CalendarDetail 
+/// <summary>
+/// 擴充行事曆每日資料的圖書館開館資訊。
+/// </summary>
+public partial class CalendarDetail
 {
+    #region Property
     /// <summary>
-    /// 學年度(關聯SpecOpenScheduleRule)
+    /// 對應的學年度開館規則。
     /// </summary>
-[ForeignKey(nameof(Spec_AcademicYearId))]
-[LibField(ApiFieldMode.ReadOnly)]
-public SpecOpenScheduleRule? Spec_AcademicYear { get; set; }
-[StringLength(SysLengthParam.ID)]
-[LibField(ApiFieldMode.ReadWrite)]
-public string? Spec_AcademicYearId { get; set; }
+    [ForeignKey(nameof(Spec_AcademicYearId))]
+    [LibField(ApiFieldMode.ReadOnly)]
+    public SpecOpenScheduleRule? Spec_AcademicYear { get; set; }
     /// <summary>
-    /// 開館時間
-    /// (為null時代表閉館)
+    /// 對應的學年度代碼。
     /// </summary>
-[LibField(ApiFieldMode.ReadWrite, SpecDisplayName.Spec_OpenTime)]
-public TimeOnly Spec_OpenTime { get; set; }
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.ID, SpecModelDisplayName.SpecAcademicYearId)]
+    public string? Spec_AcademicYearId { get; set; }
     /// <summary>
-    /// 閉館時間
-    /// (為null時代表閉館)
+    /// 當日開館時間；空值代表閉館。
     /// </summary>
-[LibField(ApiFieldMode.ReadWrite, SpecDisplayName.Spec_CloseTime)]
-public TimeOnly Spec_CloseTime { get; set; }
+    [LibField(ApiFieldMode.ReadWrite, SpecModelDisplayName.Spec_OpenTime)]
+    public TimeOnly? Spec_OpenTime { get; set; }
     /// <summary>
-    /// 修改備註
-    /// 注:大備註，每一次輸入完都會記錄成
-    /// 時間:使用者:備註內容
-    /// 每次紀錄就往下追加一行
+    /// 當日閉館時間；空值代表閉館。
     /// </summary>
-[LibStr(ApiFieldMode.ReadWrite, SysLengthParam.Memo, DisplayName.Common_Memo)]
-public string Spec_ModifyMemo { get; set; }= string.Empty;
-
+    [LibField(ApiFieldMode.ReadWrite, SpecModelDisplayName.Spec_CloseTime)]
+    public TimeOnly? Spec_CloseTime { get; set; }
+    /// <summary>
+    /// 當日人工修改備註。
+    /// </summary>
+    [LibStr(ApiFieldMode.ReadWrite, DbStrLen.Memo, DisplayName.Common_Memo)]
+    public string Spec_ModifyMemo { get; set; } = string.Empty;
+    #endregion
 }

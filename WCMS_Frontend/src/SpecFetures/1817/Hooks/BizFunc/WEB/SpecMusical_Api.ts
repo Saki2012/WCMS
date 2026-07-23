@@ -5,11 +5,11 @@ import { PGID } from "@/types/SchemaFields";
 import type { AxiosInstance } from "axios";
 
 // #region Property
-type SpecMusicalSet = components["schemas"]["SpecMusicalSet_DTO"];
+type SpecMusicalFormModel = components["schemas"]["SpecMusical"];
 // #endregion
 
 // #region Public
-class SpecMusicalService extends ApiDataService<SpecMusicalSet>
+class SpecMusicalService extends ApiDataService<SpecMusicalFormModel>
 {
     // #region Public
     constructor(apiInstance?: AxiosInstance)
@@ -20,5 +20,5 @@ class SpecMusicalService extends ApiDataService<SpecMusicalSet>
 }
 
 export const SpecMusicalAdapter = (apiInstance?: AxiosInstance) =>
-    new ApiDataAdapter<SpecMusicalSet, SpecMusicalService>((api?: AxiosInstance) => new SpecMusicalService(api ?? apiInstance));
+    new ApiDataAdapter<SpecMusicalFormModel, SpecMusicalService>((api?: AxiosInstance) => new SpecMusicalService(api ?? apiInstance));
 // #endregion
