@@ -68,4 +68,34 @@ export const applyFileLinkToSelection = (
     if (wrapped) setAttrs(wrapped as HTMLElement);
     ed.nodeChanged();
 };
+
+export const registerDownloadLinkTargetFieldBehavior = (ed: TinyMCEEditor) =>
+{
+    ed.on("BeforeExecCommand", (event) =>
+    {
+        if (event.command.toLowerCase() !== "mcelink" || !isDownloadLinkSelected(ed)) return;
+
+        const targetList = ed.options.get<boolean | Array<Record<string, unknown>>>("link_target_list");
+        if (targetList === false) return;
+
+        const isUpdated = ed.options.set("link_target_list", false);
+        if (!isUpdated) return;
+
+        // TinyMCE 會在非同步收集連結資料後才建立對話框；建立完成後立即還原，
+        // 讓一般連結仍保有「開啟連結於」選項。
+        ed.once("OpenWindow", () =>
+        {
+            ed.options.set("link_target_list", targetList);
+        });
+    });
+};
+// #endregion
+
+// #region Private
+const isDownloadLinkSelected = (ed: TinyMCEEditor): boolean =>
+{
+    const node = ed.selection.getNode();
+    const anchor = node.nodeName.toLowerCase() === "a" ? node : ed.dom.getParent(node, "a");
+    return Boolean(anchor?.hasAttribute("download"));
+};
 // #endregion

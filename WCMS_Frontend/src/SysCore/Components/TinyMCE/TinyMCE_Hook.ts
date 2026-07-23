@@ -9,7 +9,7 @@ import { useCallback, useMemo, useRef } from "react";
 import { INTERNAL_ATTR } from "./Core/tinyMceConstants";
 import type { TinyMCEEditor } from "./Core/tinyMceTypes";
 import { useContentTransform } from "./Core/useContentTransform";
-import { applyFileLinkToSelection, pickLocalFile } from "./Features/File/tinyMceFileFeature";
+import { applyFileLinkToSelection, pickLocalFile, registerDownloadLinkTargetFieldBehavior } from "./Features/File/tinyMceFileFeature";
 import { registerTinyMceFormatControls } from "./Features/Format/tinyMceFormatFeature";
 import { registerTinyMceParagraphIndentFeature } from "./Features/Format/tinyMceParagraphIndentFeature";
 import { openInsertIframeDialog } from "./Features/Iframe/tinyMceIframeFeature";
@@ -224,6 +224,7 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                 registerTinyMceTableFeature(editor);
                 registerTinyMceFormatControls(editor);
                 registerTinyMceParagraphIndentFeature(editor);
+                registerDownloadLinkTargetFieldBehavior(editor);
                 registerInternalImageSync(editor, (internalId) => toUrl(internalId, "image"));
 
                 // insertiframe 按鈕
