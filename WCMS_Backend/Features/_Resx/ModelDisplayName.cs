@@ -851,7 +851,7 @@ public static class ModelDisplayName
     /// </summary>
     public const string AnnouncementDetailFile = nameof(AnnouncementDetailFile);
 
-    
+
 
 
     /// <summary>
@@ -1024,7 +1024,7 @@ public static class ModelDisplayName
     /// 超連結明細
     /// </summary>
     public const string FileArchiveUrlDetail = nameof(FileArchiveUrlDetail);
-    
+
 
     /// <summary>
     /// 中：檔案室代碼
@@ -1296,7 +1296,7 @@ public static class ModelDisplayName
     /// 中：事件內容
     /// 英：Timeline Content
     /// </summary>
-    public const string Timeline_Content= nameof(Timeline_Content);
+    public const string Timeline_Content = nameof(Timeline_Content);
     #endregion
     #region 問卷設計
     /// <summary>
@@ -1459,12 +1459,255 @@ public static class ModelDisplayName
 
     #endregion
 
-    #region FileManagement
+    #region FileManagement / SiteViewCount
+    // FileManagement
+    /// <summary>
+    /// 中：檔案管理
+    /// 英：File Management
+    /// </summary>
+    public const string FileManageSet = nameof(FileManageSet);
+    /// <summary>
+    /// 中：檔案資料
+    /// 英：File Information
+    /// </summary>
+    public const string FileManageModel = nameof(FileManageModel);
+    /// <summary>
+    /// 中：檔案路徑
+    /// 英：File Path
+    /// </summary>
+    public const string FileManage_Path = nameof(FileManage_Path);
+    /// <summary>
+    /// 中：檔案名稱
+    /// 英：File Name
+    /// </summary>
+    public const string FileManage_FileName = nameof(FileManage_FileName);
+    /// <summary>
+    /// 中：副檔名
+    /// 英：File Extension
+    /// </summary>
+    public const string FileManage_FileExtension = nameof(FileManage_FileExtension);
+    /// <summary>
+    /// 中：檔案說明
+    /// 英：File Description
+    /// </summary>
+    public const string FileManage_FileDescription = nameof(FileManage_FileDescription);
+    /// <summary>
+    /// 中：媒體類型
+    /// 英：Media Type
+    /// </summary>
+    public const string FileManage_MimeType = nameof(FileManage_MimeType);
+    /// <summary>
+    /// 中：檔案 SHA-256
+    /// 英：File SHA-256
+    /// </summary>
+    public const string FileManage_FileSHA256 = nameof(FileManage_FileSHA256);
+    /// <summary>
+    /// 中：檔案大小
+    /// 英：File Size
+    /// </summary>
+    public const string FileManage_FileSize = nameof(FileManage_FileSize);
+    /// <summary>
+    /// 中：功能代碼
+    /// 英：Program ID
+    /// </summary>
+    public const string FileManage_ProgId = nameof(FileManage_ProgId);
+    /// <summary>
+    /// 中：匯入標籤
+    /// 英：Import Label
+    /// </summary>
+    public const string FileManage_ImportLabel = nameof(FileManage_ImportLabel);
+    /// <summary>
+    /// 中：檔案狀態
+    /// 英：File Status
+    /// </summary>
+    public const string FileManage_FileStatus = nameof(FileManage_FileStatus);
     /// <summary>
     /// 中：下載次數
     /// 英：Download Count
     /// </summary>
     public const string FileManage_DownloadCount = nameof(FileManage_DownloadCount);
+    /// <summary>
+    /// 中：是否公開下載
+    /// 英：Public Download
+    /// </summary>
+    public const string FileManage_IsPublic = nameof(FileManage_IsPublic);
+    /// <summary>
+    /// 中：下載計次紀錄
+    /// 英：Download Count Record
+    /// </summary>
+    public const string FileManageDownloadRecent = nameof(FileManageDownloadRecent);
+    /// <summary>
+    /// 中：訪客識別碼
+    /// 英：Visitor Identifier
+    /// </summary>
+    public const string FileManage_VisitorKey = nameof(FileManage_VisitorKey);
+    /// <summary>
+    /// 中：來源頁面網址
+    /// 英：Referrer URL
+    /// </summary>
+    public const string FileManage_RefererUrl = nameof(FileManage_RefererUrl);
+    /// <summary>
+    /// 中：最後計次時間
+    /// 英：Last Count Time
+    /// </summary>
+    public const string FileManage_LastCountTime = nameof(FileManage_LastCountTime);
+    /// <summary>
+    /// 中：檔案同步資訊
+    /// 英：File Synchronization Information
+    /// </summary>
+    public const string FileManageSyncInfo = nameof(FileManageSyncInfo);
+    /// <summary>
+    /// 中：來源 IP
+    /// 英：Source IP
+    /// </summary>
+    public const string FileManage_SrcIp = nameof(FileManage_SrcIp);
+    /// <summary>
+    /// 中：來源主機
+    /// 英：Source Host
+    /// </summary>
+    public const string FileManage_SrcNode = nameof(FileManage_SrcNode);
+    /// <summary>
+    /// 中：來源完整路徑
+    /// 英：Source Full Path
+    /// </summary>
+    public const string FileManage_SrcFullPath = nameof(FileManage_SrcFullPath);
+    /// <summary>
+    /// 中：目的地 IP
+    /// 英：Destination IP
+    /// </summary>
+    public const string FileManage_DestIp = nameof(FileManage_DestIp);
+    /// <summary>
+    /// 中：目的地主機
+    /// 英：Destination Host
+    /// </summary>
+    public const string FileManage_DestNode = nameof(FileManage_DestNode);
+    /// <summary>
+    /// 中：目的地完整路徑
+    /// 英：Destination Full Path
+    /// </summary>
+    public const string FileManage_DestFullPath = nameof(FileManage_DestFullPath);
+    /// <summary>
+    /// 中：錯誤代碼
+    /// 英：Error Code
+    /// </summary>
+    public const string FileManage_ErrorCode = nameof(FileManage_ErrorCode);
+    /// <summary>
+    /// 中：錯誤訊息
+    /// 英：Error Message
+    /// </summary>
+    public const string FileManage_ErrorMessage = nameof(FileManage_ErrorMessage);
+    /// <summary>
+    /// 中：執行時間
+    /// 英：Execution Time
+    /// </summary>
+    public const string FileManage_ExecuteTime = nameof(FileManage_ExecuteTime);
+    /// <summary>
+    /// 中：檔案使用紀錄
+    /// 英：File Usage Record
+    /// </summary>
+    public const string FileManageUsed = nameof(FileManageUsed);
+    /// <summary>
+    /// 中：使用資料表
+    /// 英：Source Table
+    /// </summary>
+    public const string FileManage_TableName = nameof(FileManage_TableName);
+    /// <summary>
+    /// 中：使用欄位
+    /// 英：Source Column
+    /// </summary>
+    public const string FileManage_ColumnName = nameof(FileManage_ColumnName);
+    /// <summary>
+    /// 中：對應資料主鍵
+    /// 英：Related Data Key
+    /// </summary>
+    public const string FileManage_CompositeKey = nameof(FileManage_CompositeKey);
+
+    // SiteViewCount
+    /// <summary>
+    /// 中：網站瀏覽統計
+    /// 英：Site View Statistics
+    /// </summary>
+    public const string SiteViewCountSet = nameof(SiteViewCountSet);
+    /// <summary>
+    /// 中：站台瀏覽統計
+    /// 英：Site View Statistics
+    /// </summary>
+    public const string SiteViewCountHeader = nameof(SiteViewCountHeader);
+    /// <summary>
+    /// 中：內容瀏覽統計
+    /// 英：Content View Statistics
+    /// </summary>
+    public const string SiteViewCountDetail = nameof(SiteViewCountDetail);
+    /// <summary>
+    /// 中：最近計次紀錄
+    /// 英：Recent Count Record
+    /// </summary>
+    public const string SiteViewCountRecently = nameof(SiteViewCountRecently);
+    /// <summary>
+    /// 中：站台代碼
+    /// 英：Site Code
+    /// </summary>
+    public const string SiteViewCount_SiteIndex = nameof(SiteViewCount_SiteIndex);
+    /// <summary>
+    /// 中：網站瀏覽次數
+    /// 英：Site View Count
+    /// </summary>
+    public const string SiteViewCount_PublicViewCount = nameof(SiteViewCount_PublicViewCount);
+    /// <summary>
+    /// 中：功能代碼
+    /// 英：Program ID
+    /// </summary>
+    public const string SiteViewCount_ProgId = nameof(SiteViewCount_ProgId);
+    /// <summary>
+    /// 中：目標資料內部識別碼
+    /// 英：Target Internal ID
+    /// </summary>
+    public const string SiteViewCount_TargetInternalId = nameof(SiteViewCount_TargetInternalId);
+    /// <summary>
+    /// 中：瀏覽次數
+    /// 英：View Count
+    /// </summary>
+    public const string SiteViewCount_PageViewCount = nameof(SiteViewCount_PageViewCount);
+    /// <summary>
+    /// 中：檔案預覽次數
+    /// 英：File Preview Count
+    /// </summary>
+    public const string SiteViewCount_FilePreviewCount = nameof(SiteViewCount_FilePreviewCount);
+    /// <summary>
+    /// 中：檔案下載次數
+    /// 英：File Download Count
+    /// </summary>
+    public const string SiteViewCount_FileDownloadCount = nameof(SiteViewCount_FileDownloadCount);
+    /// <summary>
+    /// 中：連結點擊次數
+    /// 英：Link Click Count
+    /// </summary>
+    public const string SiteViewCount_LinkClickCount = nameof(SiteViewCount_LinkClickCount);
+    /// <summary>
+    /// 中：統計目標類型
+    /// 英：Statistics Target Type
+    /// </summary>
+    public const string SiteViewCount_TargetType = nameof(SiteViewCount_TargetType);
+    /// <summary>
+    /// 中：計次事件類型
+    /// 英：Count Action Type
+    /// </summary>
+    public const string SiteViewCount_ActionType = nameof(SiteViewCount_ActionType);
+    /// <summary>
+    /// 中：訪客識別碼
+    /// 英：Visitor Identifier
+    /// </summary>
+    public const string SiteViewCount_VisitorKey = nameof(SiteViewCount_VisitorKey);
+    /// <summary>
+    /// 中：最後瀏覽時間
+    /// 英：Last View Time
+    /// </summary>
+    public const string SiteViewCount_LastViewTime = nameof(SiteViewCount_LastViewTime);
+    /// <summary>
+    /// 中：來源頁面網址
+    /// 英：Referrer URL
+    /// </summary>
+    public const string SiteViewCount_RefererUrl = nameof(SiteViewCount_RefererUrl);
     #endregion
 
     #region MAT
@@ -1478,7 +1721,7 @@ public static class ModelDisplayName
     /// 物件類別欄位明細
     /// </summary>
     public const string MatCategoryInfoField = nameof(MatCategoryInfoField);
-    
+
     /// <summary>
     /// 物件表單
     /// </summary>

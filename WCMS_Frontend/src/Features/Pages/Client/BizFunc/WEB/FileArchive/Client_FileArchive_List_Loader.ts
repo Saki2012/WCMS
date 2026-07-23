@@ -13,6 +13,7 @@ import {
     useClientDataQueryTemplate,
 } from "@/Features/Pages/Client/Scaffold/DataQueryTemplate/Client_DataQueryTemplate_Hook";
 import { getClientSlotPath } from "@/Features/Pages/Client/Scaffold/Slot/Client_SlotPath";
+import { getClientSearchBarText } from "@/Features/Pages/Client/Scaffold/SubPages/Module/SearchBar/Client_SearchBar_I18n";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
@@ -146,10 +147,14 @@ const getResolvedFileArchiveListDataQuerySpec = (): FileArchiveListDataQuerySpec
 
 // #region Private
 /** 建立 FileArchive 前台搜尋欄位，標籤選單由 tag map 動態提供 */
-const buildFileArchiveSearchFields = (tagOptions: FileArchiveTagOption[] = []): SearchFieldConfig[] =>
+const buildFileArchiveSearchFields = (lang: Lang, tagOptions: FileArchiveTagOption[] = []): SearchFieldConfig[] =>
 {
+    const isEnglish = lang === "en";
     const options = tagOptions.map(item => ({ value: item.id, title: item.name }));
-    return [{ key: SEARCH_TITLE_KEY, title: "標題", label: "標題", type: "text", placeholder: "請輸入標題", maxLength: 100 }, { key: SEARCH_TAG_KEY, title: "標籤", type: "select", options }] as SearchFieldConfig[];
+    return [
+        { key: SEARCH_TITLE_KEY, title: isEnglish ? "Title" : "標題", type: "text", placeholder: isEnglish ? "Enter a title" : "請輸入標題", maxLength: 100 },
+        { key: SEARCH_TAG_KEY, title: isEnglish ? "Tag" : "標籤", type: "select", options },
+    ] as SearchFieldConfig[];
 };
 /** 建立 FileArchive 搜尋初始值 */
 const buildFileArchiveSearchValues = (p?: { title?: string; tagIds?: string; }): SearchValues =>
@@ -240,6 +245,7 @@ const createFileArchiveDataQueryTemplate = (
 {
     const initialViewState = buildFileArchiveInitialViewState(p.overrides);
     const initialSearchValues = buildFileArchiveSearchValues({ title: p.overrides?.title, tagIds: p.overrides?.tagIds });
+    const searchBarText = getClientSearchBarText(p.lang);
     return {
         featureKey: "FileArchiveList",
         dataMode: "multiple",
@@ -258,10 +264,10 @@ const createFileArchiveDataQueryTemplate = (
         initialSearchValues,
         initialViewState,
         pagination: { defaultPageNumber: initialViewState.pageNumber, defaultPageSize: initialViewState.pageSize, resetPageOnSearch: true },
-        searchBar: { title: "搜尋條件", actionAlign: "right", columnCount: 3 },
+        searchBar: { ...searchBarText, actionAlign: "right", columnCount: 3 },
         spec: getResolvedFileArchiveListDataQuerySpec(),
         feature: {
-            buildSearchFields: (ctx) => buildFileArchiveSearchFields(ctx.rawData.tagOptions),
+            buildSearchFields: (ctx) => buildFileArchiveSearchFields(p.lang, ctx.rawData.tagOptions),
             toSearchParams: (values, viewState) => buildFileArchiveSearchParams({ ...p, values, viewState }),
             buildSearchConditions: (ctx) => [buildFileArchiveCondition(ctx.searchParams)],
             buildQueryParam: (ctx) => buildFileArchiveQueryArgs({ ...ctx.searchParams, condition: ctx.searchCondition }),

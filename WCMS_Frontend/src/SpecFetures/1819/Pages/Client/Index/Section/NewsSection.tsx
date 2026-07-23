@@ -11,18 +11,16 @@ type QueryListParam = components["schemas"]["QueryListParam"];
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 
-
 interface NewsSectionProps
 {
     lang: Lang;
     topParam: QueryListParam;
     listParam: QueryListParam;
-    initialData: Pick<HomePageRawData, "newsTopList" | "newsList" | "newsMergedList">;
+    categoryId: string;
+    initialData: Pick<HomePageRawData, "newsTopList" | "newsList" | "newsMergedList" | "newsCategoryMap">;
 }
 
-
 type InitialListCompat<TArgs, TItem> = { args: TArgs; apiRes: { IsSuccess: true; Data: TItem[]; SysMessage: never[]; }; };
-
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 // #endregion
@@ -52,6 +50,8 @@ export const NewsSection = (props: NewsSectionProps) =>
     {
         return takeTopThenFill(useTopNews.data ?? [], useNormalNews.data ?? [], 5);
     }, [useTopNews.data, useNormalNews.data]);
+
+    const categoryTitle = props.initialData.newsCategoryMap[props.categoryId] ?? "";
 
     // 執行 function
     if (!merged || merged.length === 0) return null;
@@ -104,7 +104,7 @@ export const NewsSection = (props: NewsSectionProps) =>
                                                                                     <div className="card_cat">
                                                                                         <div className="card_cat_link">
                                                                                             <i className="fas fa-tasks-alt me-2" aria-hidden="true" />
-                                                                                            <span className="cat_title">系所公告</span>
+                                                                                            <span className="cat_title">{categoryTitle}</span>
                                                                                         </div>
                                                                                     </div>
                                                                                     <div className="CustomState">
@@ -115,12 +115,8 @@ export const NewsSection = (props: NewsSectionProps) =>
                                                                                         )}
                                                                                         {data.Announcement?.ContentStatus != 0 && (
                                                                                             <>
-                                                                                                {Boolean((data.Announcement?.ContentStatus ?? 0) & 1) && (
-                                                                                                    <div className="icon-small top-bg">置頂</div>
-                                                                                                )}
-                                                                                                {Boolean((data.Announcement?.ContentStatus ?? 0) & 2) && (
-                                                                                                    <div className="icon-small hot-bg">熱門</div>
-                                                                                                )}
+                                                                                                {Boolean((data.Announcement?.ContentStatus ?? 0) & 1) && <div className="icon-small top-bg">置頂</div>}
+                                                                                                {Boolean((data.Announcement?.ContentStatus ?? 0) & 2) && <div className="icon-small hot-bg">熱門</div>}
                                                                                             </>
                                                                                         )}
                                                                                     </div>
@@ -173,7 +169,6 @@ const toListInitial = <TArgs, TItem>(args: TArgs, data: TItem[]): InitialListCom
     return { args, apiRes: { IsSuccess: true, Data: data, SysMessage: [] } };
 };
 
-
 const takeTopThenFill = (top: AnnouncementSet[] | undefined, rest: AnnouncementSet[] | undefined, limit: number = 5): AnnouncementSet[] =>
 {
     // 宣告變數
@@ -204,7 +199,6 @@ const takeTopThenFill = (top: AnnouncementSet[] | undefined, rest: AnnouncementS
     // return
     return out;
 };
-
 
 const isWithinLastNDaysFromMD = (month1to12?: number, day1to31?: number, n: number = 8): boolean =>
 {

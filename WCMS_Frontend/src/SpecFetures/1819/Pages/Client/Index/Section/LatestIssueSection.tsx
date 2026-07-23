@@ -14,7 +14,6 @@ type SpecJournalIndexDetail = components["schemas"]["SpecJournalIndexDetail_DTO"
 
 type BannerSet = components["schemas"]["BannerSet_DTO"];
 
-
 interface LatestIssueSectionProps
 {
     lang: Lang;
@@ -43,8 +42,8 @@ export const LatestIssueSection = (props: LatestIssueSectionProps) =>
                                     <div className="col-md-6 col-sm-12 col-12 + Left_Textbox + order-md-1 + order-sm-2 + order-2">
                                         <div className="FV_Box">
                                             <div className="TS_wrapper">
-                                                <LastIssueComp data={latestPublished} />
-                                                <PreprintComp />
+                                                <LastIssueComp data={latestPublished} lang={props.lang} />
+                                                <PreprintComp lang={props.lang} />
                                                 <SpecJournalKeywordSearch_Comp basePath="/Issues/List" lang={props.lang} />
                                             </div>
                                         </div>
@@ -78,7 +77,7 @@ export const LatestIssueSection = (props: LatestIssueSectionProps) =>
 
 // #region Section
 /** 最新期刊 */
-const LastIssueComp = (props: { data: SpecJournalIndexSet | null; }) =>
+const LastIssueComp = (props: { data: SpecJournalIndexSet | null; lang: Lang; }) =>
 {
     // 宣告變數
     const getPublishDateTime = (publishDate?: string | null): number =>
@@ -87,8 +86,9 @@ const LastIssueComp = (props: { data: SpecJournalIndexSet | null; }) =>
     };
     const detailData = [...(props.data?.SpecJournalIndexDetail ?? [])].sort((a, b) => getPublishDateTime(b.PublishDate) - getPublishDateTime(a.PublishDate))[0]
         ?? null;
-    const title = buildIssueTitle(detailData);
+    const title = buildIssueTitle(detailData, props.lang);
     const issueTo = buildIssueTo(detailData);
+    const sectionTitle = getLatestIssueText(props.lang);
     const downloadHref = buildSummaryDownloadHref(detailData);
     const fileName = detailData?.SummaryFileName ?? "";
     return (
@@ -102,7 +102,7 @@ const LastIssueComp = (props: { data: SpecJournalIndexSet | null; }) =>
                 </div>
             </div>
             <div className="CENTER_FILE + CENTER_After">
-                <div className="HD-txt">最新卷期</div>
+                <div className="HD-txt">{sectionTitle}</div>
                 <div className="TW-file + my-1" style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <i className="fas fa-link" aria-hidden="true" />
                     <LangNavLink to={issueTo} title={title} style={{ color: "inherit", textDecoration: "none" }}>{title}</LangNavLink>
@@ -125,17 +125,18 @@ const LastIssueComp = (props: { data: SpecJournalIndexSet | null; }) =>
     );
 };
 
-
 /** 預刊本 */
-const PreprintComp = () =>
+const PreprintComp = (props: { lang: Lang; }) =>
 {
     const issueTo = "/Issues/Preprint"; // 寫死，針對預刊本路徑
+    const sectionTitle = getForesightText(props.lang);
+    const linkText = getArticleInPressText(props.lang);
     return (
         <div className="DOWN_TXT">
-            <div className="HD-txt">先知先覺</div>
+            <div className="HD-txt">{sectionTitle}</div>
             <div className="TW-file + my-1" style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <i className="fas fa-link" aria-hidden="true" />
-                <LangNavLink to={issueTo} style={{ color: "inherit", textDecoration: "none" }} title={"預刊本"}>預刊本</LangNavLink>
+                <LangNavLink to={issueTo} style={{ color: "inherit", textDecoration: "none" }} title={linkText}>{linkText}</LangNavLink>
             </div>
         </div>
     );
@@ -144,16 +145,40 @@ const PreprintComp = () =>
 
 // #region Protected
 /** 組卷期顯示字串 */
-const buildIssueTitle = (detail?: SpecJournalIndexDetail): string =>
+const buildIssueTitle = (detail: SpecJournalIndexDetail | undefined, lang: Lang): string =>
 {
     if (!detail) return "";
-    const vol = detail?.Volume ?? "";
-    const iss = detail?.Issue ?? "";
-    const dateText = detail?.PublishDate ? formatYyyyMm(detail.PublishDate) : "預刊本";
-    const special = detail?.IsSpecial ? " - 特刊" : "";
+    const vol = detail.Volume ?? "";
+    const iss = detail.Issue ?? "";
+    const dateText = detail.PublishDate ? formatYyyyMm(detail.PublishDate) : getArticleInPressText(lang);
+    const special = detail.IsSpecial ? getSpecialIssueText(lang) : "";
+    if (lang === "en") return `Vol. ${vol}, No. ${iss} ( ${dateText} )${special}`;
     return `${vol}卷${iss}期 ( ${dateText} )${special}`;
 };
 
+/** 取得最新卷期標題文字 */
+const getLatestIssueText = (lang: Lang): string =>
+{
+    return lang === "en" ? "Latest Issue" : "最新卷期";
+};
+
+/** 取得先知先覺標題文字 */
+const getForesightText = (lang: Lang): string =>
+{
+    return lang === "en" ? "Foresight" : "先知先覺";
+};
+
+/** 取得預刊本連結文字 */
+const getArticleInPressText = (lang: Lang): string =>
+{
+    return lang === "en" ? "Article in Press" : "預刊本";
+};
+
+/** 取得特刊顯示文字 */
+const getSpecialIssueText = (lang: Lang): string =>
+{
+    return lang === "en" ? " - Special Issue" : " - 特刊";
+};
 
 /** 站內卷期連結 */
 const buildIssueTo = (detail?: SpecJournalIndexDetail): string =>
@@ -164,7 +189,6 @@ const buildIssueTo = (detail?: SpecJournalIndexDetail): string =>
     // return
     return `/Issues/List/${index}/${rowId}`;
 };
-
 
 /** Summary 檔案下載連結 */
 const buildSummaryDownloadHref = (detail?: SpecJournalIndexDetail): string =>
@@ -180,13 +204,11 @@ const getBannerImageUrl = (banner: BannerSet | null): string =>
     return FileManagementAPI.get_Public_Preview_Url(banner?.BannerDetail?.[0]?.PicSrcId);
 };
 
-
 /** 取第一筆卷期資料 */
 const getFirstIssue = (list: SpecJournalIndexSet[] | undefined): SpecJournalIndexSet | null =>
 {
     return list?.[0] ?? null;
 };
-
 
 /** 只取 yyyy/MM */
 const formatYyyyMm = (publishDate: unknown): string =>

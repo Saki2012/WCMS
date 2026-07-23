@@ -9,181 +9,149 @@ using static WCMS.SysCore.Enum.SysEnum;
 
 namespace WCMS.SysCore.SystemFunc.FileManagement
 {
-
+    [LibDesc(ModelDisplayName.FileManageSet)]
     public class FileManageSet_DTO : ITSet_DTO
     {
         public FileManageModel_DTO? FileManage { get; set; } = new();
         public List<FileManage_DownloadRecentModel_DTO>? FileManage_DownloadRecent { get; set; } = [];
         public List<FileManage_SyncInfoModel_DTO>? FileManage_SyncInfo { get; set; } = [];
     }
+
     /// <summary>
     /// 檔案管理
     /// </summary>
+    [LibDesc(ModelDisplayName.FileManageModel)]
     public class FileManageModel_DTO : DTOBasicDataModel
     {
-        /// <summary>
-        /// 路徑
-        /// </summary>
-        [LibDesc] public string? Path { get; set; }
-        /// <summary>
-        /// 檔案名稱
-        /// </summary>
-        [LibDesc, StringLength(SysLengthParam.FileName)] public string? FileName { get; set; }
-        /// <summary>
-        /// 副檔名
-        /// </summary>
-        [LibDesc, StringLength(SysLengthParam.FileExt)] public string? FileExtension { get; set; }
-        /// <summary>
-        /// 檔案描述
-        /// (後續可透過帶出，其他表可修改對應的顯示說明)
-        /// </summary>
-        [LibDesc] public string? FileDescription { get; set; } = string.Empty;
-        /// <summary>
-        /// 網際網路媒體型式
-        /// </summary>
-        [LibDesc,StringLength(SysLengthParam.FileMineType)] public string? MimeType { get; set; } = string.Empty;
-        /// <summary>
-        /// 檔案SHA256值 
-        /// 用來檢查Server是否已有該檔案，若有就不用再次上傳，但是要更新其他欄位
-        /// </summary>
-        [LibDesc, StringLength(SysLengthParam.FileSHA256)] public string? FileSHA256 { get; set; }
-        /// <summary>
-        /// 檔案大小
-        /// </summary>
-        [LibDesc] public long? FileSize { get; set; }
-        /// <summary>
-        /// 功能Id
-        /// </summary>
-        [LibDesc] public string? ProgId { get; set; }
-        /// <summary>
-        /// 匯入標籤(
-        /// (供初始化的，例如1810專案的檔案匯入，資料夾就為1810(ImportLabel名就為1810)，底下結構不變的紀錄至Path)
-        /// </summary>
-        [LibDesc] public string? ImportLabel { get; set; } = string.Empty;
-        /// <summary>
-        /// 檔案狀態
-        /// </summary>
-        [LibDesc] public FileStatus? FileStatus { get; set; }
-        /// <summary>
-        /// 前台網站下載次數
-        /// </summary>
-        [LibDesc(ModelDisplayName.FileManage_DownloadCount)] public int PublicDownloadCount { get; set; } = 0;
-        /// <summary>
-        /// 是否公開檔案
-        /// 2026.03.17新增，因為有些檔案可能只是內部使用，或是已經不想被下載了，但又不想刪除，所以先加個欄位來控制是否公開下載
-        /// </summary>
-        [LibDesc] public bool IsPublic { get; set; } = true;
+        [LibDesc(ModelDisplayName.FileManage_Path)]
+        public string? Path { get; set; }
+
+        [LibDesc(ModelDisplayName.FileManage_FileName), StringLength(SysLengthParam.FileName)]
+        public string? FileName { get; set; }
+
+        [LibDesc(ModelDisplayName.FileManage_FileExtension), StringLength(SysLengthParam.FileExt)]
+        public string? FileExtension { get; set; }
+
+        [LibDesc(ModelDisplayName.FileManage_FileDescription)]
+        public string? FileDescription { get; set; } = string.Empty;
+
+        [LibDesc(ModelDisplayName.FileManage_MimeType), StringLength(SysLengthParam.FileMineType)]
+        public string? MimeType { get; set; } = string.Empty;
+
+        [LibDesc(ModelDisplayName.FileManage_FileSHA256), StringLength(SysLengthParam.FileSHA256)]
+        public string? FileSHA256 { get; set; }
+
+        [LibDesc(ModelDisplayName.FileManage_FileSize)]
+        public long? FileSize { get; set; }
+
+        [LibDesc(ModelDisplayName.FileManage_ProgId)]
+        public string? ProgId { get; set; }
+
+        [LibDesc(ModelDisplayName.FileManage_ImportLabel)]
+        public string? ImportLabel { get; set; } = string.Empty;
+
+        [LibDesc(ModelDisplayName.FileManage_FileStatus)]
+        public FileStatus? FileStatus { get; set; }
+
+        [LibDesc(ModelDisplayName.FileManage_DownloadCount)]
+        public int PublicDownloadCount { get; set; } = 0;
+
+        [LibDesc(ModelDisplayName.FileManage_IsPublic)]
+        public bool IsPublic { get; set; } = true;
+
         #region 主子表關聯
         public List<FileManage_DownloadRecentModel_DTO>? _FileManage_DownloadRecent { get; set; } = [];
         public List<FileManage_SyncInfoModel_DTO>? _FileManage_SyncInfo { get; set; }
         #endregion
     }
-    /// <summary>
-    /// 檔案被下載資訊
-    /// </summary>
+
+    [LibDesc(ModelDisplayName.FileManageDownloadRecent)]
     public class FileManage_DownloadRecentModel_DTO
     {
-        [LibDesc, Key]
+        [Key]
         public string? InternalId { get; set; }
-        [LibDesc, Key]
+
+        [Key]
         public int? RowId { get; set; }
-        [LibDesc]
+
+        [LibDesc(ModelDisplayName.FileManage_VisitorKey)]
         public string? VisitorKey { get; set; }
-        [LibDesc]
+
+        [LibDesc(ModelDisplayName.FileManage_RefererUrl)]
         public string? RefererURL { get; set; }
-        [LibDesc]
+
+        [LibDesc(ModelDisplayName.FileManage_LastCountTime)]
         public DateTime? LastCountTime { get; set; }
+
         #region 主子表關聯
         public FileManageModel_DTO? _FileManage { get; set; } = null!;
         #endregion
     }
-    /// <summary>
-    /// 檔案同步資訊
-    /// </summary>
+
+    [LibDesc(ModelDisplayName.FileManageSyncInfo)]
     public class FileManage_SyncInfoModel_DTO
     {
-        /// <summary>
-        /// 檔案識別碼
-        /// </summary>
-        [LibDesc, Key] public string? InternalId { get; set; }
-        /// <summary>
-        /// 行代碼
-        /// </summary>
-        [LibDesc, Key] public int? RowId { get; set; }
-        /// <summary>
-        /// 同步狀態
-        /// </summary>
+        [Key]
+        public string? InternalId { get; set; }
+
+        [Key]
+        public int? RowId { get; set; }
+
+        [LibDesc(ModelDisplayName.FileManage_FileStatus)]
         public FileStatus FileStatus { get; set; } = FileStatus.None;
-        /// <summary>
-        /// 來源IP
-        /// </summary>
+
+        [LibDesc(ModelDisplayName.FileManage_SrcIp)]
         public string? SrcIP { get; set; } = string.Empty;
-        /// <summary>
-        /// 來源機器
-        /// </summary>
+
+        [LibDesc(ModelDisplayName.FileManage_SrcNode)]
         public string? SrcNode { get; set; } = string.Empty;
-        /// <summary>
-        /// 來源完整路徑
-        /// </summary>
+
+        [LibDesc(ModelDisplayName.FileManage_SrcFullPath)]
         public string? SrcFullPath { get; set; } = string.Empty;
-        /// <summary>
-        /// 目的地IP
-        /// </summary>
+
+        [LibDesc(ModelDisplayName.FileManage_DestIp)]
         public string? DestIP { get; set; } = string.Empty;
-        /// <summary>
-        /// 目的地機器
-        /// </summary>
+
+        [LibDesc(ModelDisplayName.FileManage_DestNode)]
         public string? DestNode { get; set; } = string.Empty;
-        /// <summary>
-        /// 目的地完整路徑
-        /// </summary>
+
+        [LibDesc(ModelDisplayName.FileManage_DestFullPath)]
         public string? DestFullPath { get; set; } = string.Empty;
-        /// <summary>
-        /// 錯誤訊息碼
-        /// </summary>
+
+        [LibDesc(ModelDisplayName.FileManage_ErrorCode)]
         public string? ErrorCode { get; set; } = string.Empty;
-        /// <summary>
-        /// 錯誤訊息
-        /// </summary>
+
+        [LibDesc(ModelDisplayName.FileManage_ErrorMessage)]
         public string? ErrorMessage { get; set; } = string.Empty;
-        /// <summary>
-        /// 執行時間
-        /// </summary>
+
+        [LibDesc(ModelDisplayName.FileManage_ExecuteTime)]
         public DateTime? ExecuteTime { get; set; } = DateTime.UtcNow;
 
         #region 主子表關聯
         public FileManageModel_DTO? _FileManage { get; set; } = null!;
         #endregion
     }
-    /// <summary>
-    /// 檔案被用表 (之後再來做邏輯，先開表)
-    /// </summary>
+
+    [LibDesc(ModelDisplayName.FileManageUsed)]
     public class FileManage_UsedModel_DTO
     {
-        /// <summary>
-        /// 檔案識別碼
-        /// </summary>
-        [LibDesc, Key] public string? InternalId { get; set; }
-        /// <summary>
-        /// 行代碼
-        /// </summary>
-        [LibDesc, Key] public int? RowId { get; set; }
-        /// <summary>
-        /// 使用的功能表名
-        /// </summary>
-        [LibDesc] public string? TableName { get; set; }
-        /// <summary>
-        /// 使用的功能欄位名稱
-        /// </summary>
-        [LibDesc] public string? ColumnName { get; set; }
-        /// <summary>
-        /// 對應資料主鍵
-        /// </summary>
+        [Key]
+        public string? InternalId { get; set; }
+
+        [Key]
+        public int? RowId { get; set; }
+
+        [LibDesc(ModelDisplayName.FileManage_TableName)]
+        public string? TableName { get; set; }
+
+        [LibDesc(ModelDisplayName.FileManage_ColumnName)]
+        public string? ColumnName { get; set; }
+
+        [LibDesc(ModelDisplayName.FileManage_CompositeKey)]
         public string? CompositeKey { get; set; }
 
-
         #region 主子表關聯
-      public FileManageModel_DTO? _FileManage { get; set; } = null!;
+        public FileManageModel_DTO? _FileManage { get; set; } = null!;
         #endregion
     }
 }

@@ -1026,4 +1026,150 @@
   <data name="AACheck_MailtoTitle" xml:space="preserve">
     <value>電子郵件連結title不足，請使用姓名加電子郵件作為title</value>
   </data>
+  <!-- #region FileManagement / SiteViewCount -->
+  <data name="FileManageSet" xml:space="preserve">
+    <value>檔案管理</value>
+  </data>
+  <data name="FileManageModel" xml:space="preserve">
+    <value>檔案資料</value>
+  </data>
+  <data name="FileManage_Path" xml:space="preserve">
+    <value>檔案路徑</value>
+  </data>
+  <data name="FileManage_FileName" xml:space="preserve">
+    <value>檔案名稱</value>
+  </data>
+  <data name="FileManage_FileExtension" xml:space="preserve">
+    <value>副檔名</value>
+  </data>
+  <data name="FileManage_FileDescription" xml:space="preserve">
+    <value>檔案說明</value>
+  </data>
+  <data name="FileManage_MimeType" xml:space="preserve">
+    <value>媒體類型</value>
+  </data>
+  <data name="FileManage_FileSHA256" xml:space="preserve">
+    <value>檔案 SHA-256</value>
+  </data>
+  <data name="FileManage_FileSize" xml:space="preserve">
+    <value>檔案大小</value>
+  </data>
+  <data name="FileManage_ProgId" xml:space="preserve">
+    <value>功能代碼</value>
+  </data>
+  <data name="FileManage_ImportLabel" xml:space="preserve">
+    <value>匯入標籤</value>
+  </data>
+  <data name="FileManage_FileStatus" xml:space="preserve">
+    <value>檔案狀態</value>
+  </data>
+  <data name="FileManage_IsPublic" xml:space="preserve">
+    <value>是否公開下載</value>
+  </data>
+  <data name="FileManageDownloadRecent" xml:space="preserve">
+    <value>下載計次紀錄</value>
+  </data>
+  <data name="FileManage_VisitorKey" xml:space="preserve">
+    <value>訪客識別碼</value>
+  </data>
+  <data name="FileManage_RefererUrl" xml:space="preserve">
+    <value>來源頁面網址</value>
+  </data>
+  <data name="FileManage_LastCountTime" xml:space="preserve">
+    <value>最後計次時間</value>
+  </data>
+  <data name="FileManageSyncInfo" xml:space="preserve">
+    <value>檔案同步資訊</value>
+  </data>
+  <data name="FileManage_SrcIp" xml:space="preserve">
+    <value>來源 IP</value>
+  </data>
+  <data name="FileManage_SrcNode" xml:space="preserve">
+    <value>來源主機</value>
+  </data>
+  <data name="FileManage_SrcFullPath" xml:space="preserve">
+    <value>來源完整路徑</value>
+  </data>
+  <data name="FileManage_DestIp" xml:space="preserve">
+    <value>目的地 IP</value>
+  </data>
+  <data name="FileManage_DestNode" xml:space="preserve">
+    <value>目的地主機</value>
+  </data>
+  <data name="FileManage_DestFullPath" xml:space="preserve">
+    <value>目的地完整路徑</value>
+  </data>
+  <data name="FileManage_ErrorCode" xml:space="preserve">
+    <value>錯誤代碼</value>
+  </data>
+  <data name="FileManage_ErrorMessage" xml:space="preserve">
+    <value>錯誤訊息</value>
+  </data>
+  <data name="FileManage_ExecuteTime" xml:space="preserve">
+    <value>執行時間</value>
+  </data>
+  <data name="FileManageUsed" xml:space="preserve">
+    <value>檔案使用紀錄</value>
+  </data>
+  <data name="FileManage_TableName" xml:space="preserve">
+    <value>使用資料表</value>
+  </data>
+  <data name="FileManage_ColumnName" xml:space="preserve">
+    <value>使用欄位</value>
+  </data>
+  <data name="FileManage_CompositeKey" xml:space="preserve">
+    <value>對應資料主鍵</value>
+  </data>
+  <data name="SiteViewCountSet" xml:space="preserve">
+    <value>網站瀏覽統計</value>
+  </data>
+  <data name="SiteViewCountHeader" xml:space="preserve">
+    <value>站台瀏覽統計</value>
+  </data>
+  <data name="SiteViewCountDetail" xml:space="preserve">
+    <value>內容瀏覽統計</value>
+  </data>
+  <data name="SiteViewCountRecently" xml:space="preserve">
+    <value>最近計次紀錄</value>
+  </data>
+  <data name="SiteViewCount_SiteIndex" xml:space="preserve">
+    <value>站台代碼</value>
+  </data>
+  <data name="SiteViewCount_PublicViewCount" xml:space="preserve">
+    <value>網站瀏覽次數</value>
+  </data>
+  <data name="SiteViewCount_ProgId" xml:space="preserve">
+    <value>功能代碼</value>
+  </data>
+  <data name="SiteViewCount_TargetInternalId" xml:space="preserve">
+    <value>目標資料內部識別碼</value>
+  </data>
+  <data name="SiteViewCount_PageViewCount" xml:space="preserve">
+    <value>瀏覽次數</value>
+  </data>
+  <data name="SiteViewCount_FilePreviewCount" xml:space="preserve">
+    <value>檔案預覽次數</value>
+  </data>
+  <data name="SiteViewCount_FileDownloadCount" xml:space="preserve">
+    <value>檔案下載次數</value>
+  </data>
+  <data name="SiteViewCount_LinkClickCount" xml:space="preserve">
+    <value>連結點擊次數</value>
+  </data>
+  <data name="SiteViewCount_TargetType" xml:space="preserve">
+    <value>統計目標類型</value>
+  </data>
+  <data name="SiteViewCount_ActionType" xml:space="preserve">
+    <value>計次事件類型</value>
+  </data>
+  <data name="SiteViewCount_VisitorKey" xml:space="preserve">
+    <value>訪客識別碼</value>
+  </data>
+  <data name="SiteViewCount_LastViewTime" xml:space="preserve">
+    <value>最後瀏覽時間</value>
+  </data>
+  <data name="SiteViewCount_RefererUrl" xml:space="preserve">
+    <value>來源頁面網址</value>
+  </data>
+  <!-- #endregion -->
 </root>

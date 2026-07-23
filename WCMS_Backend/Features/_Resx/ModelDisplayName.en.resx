@@ -1026,4 +1026,150 @@
   <data name="AACheck_MailtoTitle" xml:space="preserve">
     <value>電子郵件連結title不足，請使用姓名加電子郵件作為title</value>
   </data>
+  <!-- #region FileManagement / SiteViewCount -->
+  <data name="FileManageSet" xml:space="preserve">
+    <value>File Management</value>
+  </data>
+  <data name="FileManageModel" xml:space="preserve">
+    <value>File Information</value>
+  </data>
+  <data name="FileManage_Path" xml:space="preserve">
+    <value>File Path</value>
+  </data>
+  <data name="FileManage_FileName" xml:space="preserve">
+    <value>File Name</value>
+  </data>
+  <data name="FileManage_FileExtension" xml:space="preserve">
+    <value>File Extension</value>
+  </data>
+  <data name="FileManage_FileDescription" xml:space="preserve">
+    <value>File Description</value>
+  </data>
+  <data name="FileManage_MimeType" xml:space="preserve">
+    <value>Media Type</value>
+  </data>
+  <data name="FileManage_FileSHA256" xml:space="preserve">
+    <value>File SHA-256</value>
+  </data>
+  <data name="FileManage_FileSize" xml:space="preserve">
+    <value>File Size</value>
+  </data>
+  <data name="FileManage_ProgId" xml:space="preserve">
+    <value>Program ID</value>
+  </data>
+  <data name="FileManage_ImportLabel" xml:space="preserve">
+    <value>Import Label</value>
+  </data>
+  <data name="FileManage_FileStatus" xml:space="preserve">
+    <value>File Status</value>
+  </data>
+  <data name="FileManage_IsPublic" xml:space="preserve">
+    <value>Public Download</value>
+  </data>
+  <data name="FileManageDownloadRecent" xml:space="preserve">
+    <value>Download Count Record</value>
+  </data>
+  <data name="FileManage_VisitorKey" xml:space="preserve">
+    <value>Visitor Identifier</value>
+  </data>
+  <data name="FileManage_RefererUrl" xml:space="preserve">
+    <value>Referrer URL</value>
+  </data>
+  <data name="FileManage_LastCountTime" xml:space="preserve">
+    <value>Last Count Time</value>
+  </data>
+  <data name="FileManageSyncInfo" xml:space="preserve">
+    <value>File Synchronization Information</value>
+  </data>
+  <data name="FileManage_SrcIp" xml:space="preserve">
+    <value>Source IP</value>
+  </data>
+  <data name="FileManage_SrcNode" xml:space="preserve">
+    <value>Source Host</value>
+  </data>
+  <data name="FileManage_SrcFullPath" xml:space="preserve">
+    <value>Source Full Path</value>
+  </data>
+  <data name="FileManage_DestIp" xml:space="preserve">
+    <value>Destination IP</value>
+  </data>
+  <data name="FileManage_DestNode" xml:space="preserve">
+    <value>Destination Host</value>
+  </data>
+  <data name="FileManage_DestFullPath" xml:space="preserve">
+    <value>Destination Full Path</value>
+  </data>
+  <data name="FileManage_ErrorCode" xml:space="preserve">
+    <value>Error Code</value>
+  </data>
+  <data name="FileManage_ErrorMessage" xml:space="preserve">
+    <value>Error Message</value>
+  </data>
+  <data name="FileManage_ExecuteTime" xml:space="preserve">
+    <value>Execution Time</value>
+  </data>
+  <data name="FileManageUsed" xml:space="preserve">
+    <value>File Usage Record</value>
+  </data>
+  <data name="FileManage_TableName" xml:space="preserve">
+    <value>Source Table</value>
+  </data>
+  <data name="FileManage_ColumnName" xml:space="preserve">
+    <value>Source Column</value>
+  </data>
+  <data name="FileManage_CompositeKey" xml:space="preserve">
+    <value>Related Data Key</value>
+  </data>
+  <data name="SiteViewCountSet" xml:space="preserve">
+    <value>Site View Statistics</value>
+  </data>
+  <data name="SiteViewCountHeader" xml:space="preserve">
+    <value>Site View Statistics</value>
+  </data>
+  <data name="SiteViewCountDetail" xml:space="preserve">
+    <value>Content View Statistics</value>
+  </data>
+  <data name="SiteViewCountRecently" xml:space="preserve">
+    <value>Recent Count Record</value>
+  </data>
+  <data name="SiteViewCount_SiteIndex" xml:space="preserve">
+    <value>Site Code</value>
+  </data>
+  <data name="SiteViewCount_PublicViewCount" xml:space="preserve">
+    <value>Site View Count</value>
+  </data>
+  <data name="SiteViewCount_ProgId" xml:space="preserve">
+    <value>Program ID</value>
+  </data>
+  <data name="SiteViewCount_TargetInternalId" xml:space="preserve">
+    <value>Target Internal ID</value>
+  </data>
+  <data name="SiteViewCount_PageViewCount" xml:space="preserve">
+    <value>View Count</value>
+  </data>
+  <data name="SiteViewCount_FilePreviewCount" xml:space="preserve">
+    <value>File Preview Count</value>
+  </data>
+  <data name="SiteViewCount_FileDownloadCount" xml:space="preserve">
+    <value>File Download Count</value>
+  </data>
+  <data name="SiteViewCount_LinkClickCount" xml:space="preserve">
+    <value>Link Click Count</value>
+  </data>
+  <data name="SiteViewCount_TargetType" xml:space="preserve">
+    <value>Statistics Target Type</value>
+  </data>
+  <data name="SiteViewCount_ActionType" xml:space="preserve">
+    <value>Count Action Type</value>
+  </data>
+  <data name="SiteViewCount_VisitorKey" xml:space="preserve">
+    <value>Visitor Identifier</value>
+  </data>
+  <data name="SiteViewCount_LastViewTime" xml:space="preserve">
+    <value>Last View Time</value>
+  </data>
+  <data name="SiteViewCount_RefererUrl" xml:space="preserve">
+    <value>Referrer URL</value>
+  </data>
+  <!-- #endregion -->
 </root>

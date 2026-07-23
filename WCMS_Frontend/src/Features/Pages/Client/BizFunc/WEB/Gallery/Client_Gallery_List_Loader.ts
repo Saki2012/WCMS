@@ -11,6 +11,7 @@ import {
     isSameClientDataQueryParam,
     useClientDataQueryTemplate,
 } from "@/Features/Pages/Client/Scaffold/DataQueryTemplate/Client_DataQueryTemplate_Hook";
+import { getClientSearchBarText } from "@/Features/Pages/Client/Scaffold/SubPages/Module/SearchBar/Client_SearchBar_I18n";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
@@ -125,9 +126,16 @@ export const useGalleryListData = (p: { lang: Lang; opts?: IGalleryListOptions; 
 
 // #region Private
 /** 建立 Gallery 前台搜尋欄位，目前只提供標題查詢 */
-const buildGallerySearchFields = (): SearchFieldConfig[] =>
+const buildGallerySearchFields = (lang: Lang): SearchFieldConfig[] =>
 {
-    return [{ key: SEARCH_TITLE_KEY, title: "標題", label: "標題", type: "text", placeholder: "請輸入標題", maxLength: 100 }] as unknown as SearchFieldConfig[];
+    const isEnglish = lang === "en";
+    return [{
+        key: SEARCH_TITLE_KEY,
+        title: isEnglish ? "Title" : "標題",
+        type: "text",
+        placeholder: isEnglish ? "Enter a title" : "請輸入標題",
+        maxLength: 100,
+    }] as SearchFieldConfig[];
 };
 /** 建立 Gallery 搜尋初始值 */
 const buildGallerySearchValues = (title?: string): SearchValues =>
@@ -198,6 +206,7 @@ const createGalleryDataQueryTemplate = (p: { pageState?: ReturnType<typeof usePa
 {
     const initialViewState = buildGalleryInitialViewState(p.overrides);
     const initialSearchValues = buildGallerySearchValues(p.overrides?.title ?? p.opts?.Title);
+    const searchBarText = getClientSearchBarText(p.lang);
     return {
         featureKey: "GalleryList",
         dataMode: "multiple",
@@ -212,9 +221,9 @@ const createGalleryDataQueryTemplate = (p: { pageState?: ReturnType<typeof usePa
         initialSearchValues,
         initialViewState,
         pagination: { defaultPageNumber: initialViewState.pageNumber, defaultPageSize: initialViewState.pageSize, resetPageOnSearch: true },
-        searchBar: { title: "搜尋條件", actionAlign: "right", columnCount: 3 },
+        searchBar: { ...searchBarText, actionAlign: "right", columnCount: 3 },
         feature: {
-            searchFields: buildGallerySearchFields(),
+            searchFields: buildGallerySearchFields(p.lang),
             toSearchParams: (values, viewState) => buildGallerySearchParams({ ...p, values, viewState }),
             buildSearchConditions: (ctx) => [buildGalleryCondition(ctx.searchParams)],
             buildQueryParam: (ctx) => buildGalleryQueryArgs({ ...ctx.searchParams, condition: ctx.searchCondition }),

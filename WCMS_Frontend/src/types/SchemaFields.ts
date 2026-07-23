@@ -390,6 +390,7 @@ export const FileArchiveFields = {
   ContentStatus: 'ContentStatus',
   CategoriesId: 'CategoriesId',
   TagsId: 'TagsId',
+  Validate_Start: 'Validate_Start',
   _FileArchiveInfo: '_FileArchiveInfo',
 } as const;
 
@@ -686,6 +687,27 @@ export const MaterialFields = {
 
 export type MaterialFieldKey = keyof typeof MaterialFields;
 
+export const ORCIDDataFields = {
+  ORCID: 'ORCID',
+  AuthorName: 'AuthorName',
+  AuthorName_en: 'AuthorName_en',
+  JobTitle: 'JobTitle',
+  Unit: 'Unit',
+  Unit_en: 'Unit_en',
+  Email: 'Email',
+  Country: 'Country',
+} as const;
+
+export type ORCIDDataFieldKey = keyof typeof ORCIDDataFields;
+
+export const ORCIDDataApiResponseFields = {
+  IsSuccess: 'IsSuccess',
+  SysMessage: 'SysMessage',
+  Data: 'Data',
+} as const;
+
+export type ORCIDDataApiResponseFieldKey = keyof typeof ORCIDDataApiResponseFields;
+
 export const OrderBySpecFields = {
   Col: 'Col',
   Desc: 'Desc',
@@ -803,6 +825,14 @@ export const PersonSet_DTOApiRequestFields = {
 } as const;
 
 export type PersonSet_DTOApiRequestFieldKey = keyof typeof PersonSet_DTOApiRequestFields;
+
+export const PublishReqFields = {
+  InternalId: 'InternalId',
+  JournalIndexId: 'JournalIndexId',
+  JournalIndexRowId: 'JournalIndexRowId',
+} as const;
+
+export type PublishReqFieldKey = keyof typeof PublishReqFields;
 
 export const QueryListParamFields = {
   Fields: 'Fields',
@@ -1156,7 +1186,55 @@ export const SiteViewCountSet_DTOApiResponseFields = {
 
 export type SiteViewCountSet_DTOApiResponseFieldKey = keyof typeof SiteViewCountSet_DTOApiResponseFields;
 
-export const SpecHomePage1820ModelFields = {
+export const SpecJournalAuthorFields = {
+  RowState: 'RowState',
+  JournalId: 'JournalId',
+  RowId: 'RowId',
+  AuthorType: 'AuthorType',
+  ORCID: 'ORCID',
+  AuthorName: 'AuthorName',
+  AuthorName_en: 'AuthorName_en',
+  JobTitle: 'JobTitle',
+  Unit: 'Unit',
+  Unit_en: 'Unit_en',
+  Email: 'Email',
+  Country: 'Country',
+  _SpecJournal: '_SpecJournal',
+} as const;
+
+export type SpecJournalAuthorFieldKey = keyof typeof SpecJournalAuthorFields;
+
+export const SpecJournalDocumentFields = {
+  RowState: 'RowState',
+  JournalId: 'JournalId',
+  RowId: 'RowId',
+  DocumentType: 'DocumentType',
+  DocumentName: 'DocumentName',
+  Document: 'Document',
+  DocumentId: 'DocumentId',
+  _SpecJournal: '_SpecJournal',
+} as const;
+
+export type SpecJournalDocumentFieldKey = keyof typeof SpecJournalDocumentFields;
+
+export const SpecJournalIndexDetailFields = {
+  RowState: 'RowState',
+  IndexId: 'IndexId',
+  RowId: 'RowId',
+  Volume: 'Volume',
+  Issue: 'Issue',
+  IsSpecial: 'IsSpecial',
+  PublishDate: 'PublishDate',
+  SeasonNo: 'SeasonNo',
+  SummaryFile: 'SummaryFile',
+  SummaryFileId: 'SummaryFileId',
+  SummaryFileName: 'SummaryFileName',
+  _SpecJournalIndex: '_SpecJournalIndex',
+} as const;
+
+export type SpecJournalIndexDetailFieldKey = keyof typeof SpecJournalIndexDetailFields;
+
+export const SpecJournalIndexModelFields = {
   CreateTime: 'CreateTime',
   CreateUserId: 'CreateUserId',
   CreateUser: 'CreateUser',
@@ -1169,132 +1247,147 @@ export const SpecHomePage1820ModelFields = {
   InvalidUserId: 'InvalidUserId',
   InternalId: 'InternalId',
   OrgLvId: 'OrgLvId',
-  HomePageId: 'HomePageId',
-  Lang: 'Lang',
-  Section1Title_L: 'Section1Title_L',
-  Section1Title_M: 'Section1Title_M',
-  Section1Title_R: 'Section1Title_R',
-  HeroText: 'HeroText',
-  HeroText_ViewMoreLink: 'HeroText_ViewMoreLink',
-  AnnouncementTitle: 'AnnouncementTitle',
-  AnnouncementSubTitle: 'AnnouncementSubTitle',
-  AnnouncementCategoryIds: 'AnnouncementCategoryIds',
-  Announcement_ViewMoreLink: 'Announcement_ViewMoreLink',
-  Resource_Title: 'Resource_Title',
-  Resource_SubTitle: 'Resource_SubTitle',
-  _SpecHomePage1820_BannerMedia: '_SpecHomePage1820_BannerMedia',
-  _SpecHomePage1820_Detail: '_SpecHomePage1820_Detail',
-  _SpecHomePage1820_Marquee: '_SpecHomePage1820_Marquee',
-  _SpecHomePage1820_Resource: '_SpecHomePage1820_Resource',
+  IndexId: 'IndexId',
+  IndexName: 'IndexName',
+  _SpecJournalIndexDetail: '_SpecJournalIndexDetail',
 } as const;
 
-export type SpecHomePage1820ModelFieldKey = keyof typeof SpecHomePage1820ModelFields;
+export type SpecJournalIndexModelFieldKey = keyof typeof SpecJournalIndexModelFields;
 
-export const SpecHomePage1820SetFields = {
-  SpecHomePage1820: 'SpecHomePage1820',
-  SpecHomePage1820_BannerMedia: 'SpecHomePage1820_BannerMedia',
-  SpecHomePage1820_Detail: 'SpecHomePage1820_Detail',
-  SpecHomePage1820_Marquee: 'SpecHomePage1820_Marquee',
-  SpecHomePage1820_Resource: 'SpecHomePage1820_Resource',
+export const SpecJournalIndexSetFields = {
+  SpecJournalIndex: 'SpecJournalIndex',
+  SpecJournalIndexDetail: 'SpecJournalIndexDetail',
 } as const;
 
-export type SpecHomePage1820SetFieldKey = keyof typeof SpecHomePage1820SetFields;
+export type SpecJournalIndexSetFieldKey = keyof typeof SpecJournalIndexSetFields;
 
-export const SpecHomePage1820Set_DTOApiRequestFields = {
+export const SpecJournalIndexSet_DTOApiRequestFields = {
   InternalId: 'InternalId',
   Data: 'Data',
 } as const;
 
-export type SpecHomePage1820Set_DTOApiRequestFieldKey = keyof typeof SpecHomePage1820Set_DTOApiRequestFields;
+export type SpecJournalIndexSet_DTOApiRequestFieldKey = keyof typeof SpecJournalIndexSet_DTOApiRequestFields;
 
-export const SpecHomePage1820_BannerMediaFields = {
+export const SpecJournalKeywordsFields = {
   RowState: 'RowState',
-  HomePageId: 'HomePageId',
+  JournalId: 'JournalId',
   RowId: 'RowId',
-  BannerFile: 'BannerFile',
-  BannerFileId: 'BannerFileId',
-  BannerFileDescription: 'BannerFileDescription',
-  _SpecHomePage1820: '_SpecHomePage1820',
+  LangCode: 'LangCode',
+  Keyword: 'Keyword',
+  _SpecJournal: '_SpecJournal',
 } as const;
 
-export type SpecHomePage1820_BannerMediaFieldKey = keyof typeof SpecHomePage1820_BannerMediaFields;
+export type SpecJournalKeywordsFieldKey = keyof typeof SpecJournalKeywordsFields;
 
-export const SpecHomePage1820_DetailFields = {
+export const SpecJournalModelFields = {
+  CreateTime: 'CreateTime',
+  CreateUserId: 'CreateUserId',
+  CreateUser: 'CreateUser',
+  ModifyTime: 'ModifyTime',
+  ModifyUserId: 'ModifyUserId',
+  ModifyUser: 'ModifyUser',
+  FormStatus: 'FormStatus',
+  DataStatus: 'DataStatus',
+  InvalidTime: 'InvalidTime',
+  InvalidUserId: 'InvalidUserId',
+  InternalId: 'InternalId',
+  OrgLvId: 'OrgLvId',
+  JournalId: 'JournalId',
+  _JournalIndex: '_JournalIndex',
+  JournalIndexId: 'JournalIndexId',
+  _JournalIndexDetail: '_JournalIndexDetail',
+  JournalIndexRowId: 'JournalIndexRowId',
+  Title: 'Title',
+  Title_en: 'Title_en',
+  PageStart: 'PageStart',
+  PageEnd: 'PageEnd',
+  DOIUrl: 'DOIUrl',
+  JournalFile: 'JournalFile',
+  JournalFileId: 'JournalFileId',
+  JournalFileName: 'JournalFileName',
+  InsightPointFile: 'InsightPointFile',
+  InsightPointFileId: 'InsightPointFileId',
+  InsightPointFileName: 'InsightPointFileName',
+  ArticleLang: 'ArticleLang',
+  Memo: 'Memo',
+  Memo_en: 'Memo_en',
+  Bibliography: 'Bibliography',
+  _SpecJournalAuthor: '_SpecJournalAuthor',
+  _SpecJournalRefFormat: '_SpecJournalRefFormat',
+  _SpecJournalOpenPointFiles: '_SpecJournalOpenPointFiles',
+  _SpecJournalRefFiles: '_SpecJournalRefFiles',
+  _SpecJournalDocument: '_SpecJournalDocument',
+  _SpecJournalTypes: '_SpecJournalTypes',
+  _SpecJournalKeywords: '_SpecJournalKeywords',
+} as const;
+
+export type SpecJournalModelFieldKey = keyof typeof SpecJournalModelFields;
+
+export const SpecJournalOpenPointFilesFields = {
   RowState: 'RowState',
-  HomePageId: 'HomePageId',
+  JournalId: 'JournalId',
+  RowId: 'RowId',
+  OpenPointFileName: 'OpenPointFileName',
+  OpenPointFile: 'OpenPointFile',
+  OpenPointFileId: 'OpenPointFileId',
+  _SpecJournal: '_SpecJournal',
+} as const;
+
+export type SpecJournalOpenPointFilesFieldKey = keyof typeof SpecJournalOpenPointFilesFields;
+
+export const SpecJournalRefFilesFields = {
+  RowState: 'RowState',
+  JournalId: 'JournalId',
+  RowId: 'RowId',
+  RefFileName: 'RefFileName',
+  RefFile: 'RefFile',
+  RefFileId: 'RefFileId',
+  _SpecJournal: '_SpecJournal',
+} as const;
+
+export type SpecJournalRefFilesFieldKey = keyof typeof SpecJournalRefFilesFields;
+
+export const SpecJournalRefFormatFields = {
+  RowState: 'RowState',
+  JournalId: 'JournalId',
   RowId: 'RowId',
   Title: 'Title',
-  SubTitle: 'SubTitle',
-  MainPicture: 'MainPicture',
-  MainPictureId: 'MainPictureId',
-  MainPictureDescription: 'MainPictureDescription',
-  SubPicture: 'SubPicture',
-  SubPictureId: 'SubPictureId',
-  SubPictureDescription: 'SubPictureDescription',
-  Intro: 'Intro',
-  MainLinkTitle: 'MainLinkTitle',
-  MainLink: 'MainLink',
-  SubLinkTitle1: 'SubLinkTitle1',
-  SubLink1: 'SubLink1',
-  SubLinkTitle2: 'SubLinkTitle2',
-  SubLink2: 'SubLink2',
-  SubLinkTitle3: 'SubLinkTitle3',
-  SubLink3: 'SubLink3',
-  _SpecHomePage1820: '_SpecHomePage1820',
+  Content: 'Content',
+  _SpecJournal: '_SpecJournal',
 } as const;
 
-export type SpecHomePage1820_DetailFieldKey = keyof typeof SpecHomePage1820_DetailFields;
+export type SpecJournalRefFormatFieldKey = keyof typeof SpecJournalRefFormatFields;
 
-export const SpecHomePage1820_MarqueeFields = {
-  RowState: 'RowState',
-  HomePageId: 'HomePageId',
-  RowId: 'RowId',
-  Picture: 'Picture',
-  PictureId: 'PictureId',
-  PictureTitle: 'PictureTitle',
-  IsHide: 'IsHide',
-  _SpecHomePage1820: '_SpecHomePage1820',
+export const SpecJournalSetFields = {
+  SpecJournal: 'SpecJournal',
+  SpecJournalAuthor: 'SpecJournalAuthor',
+  SpecJournalRefFormat: 'SpecJournalRefFormat',
+  SpecJournalOpenPointFiles: 'SpecJournalOpenPointFiles',
+  SpecJournalRefFiles: 'SpecJournalRefFiles',
+  SpecJournalDocument: 'SpecJournalDocument',
+  SpecJournalTypes: 'SpecJournalTypes',
+  SpecJournalKeywords: 'SpecJournalKeywords',
 } as const;
 
-export type SpecHomePage1820_MarqueeFieldKey = keyof typeof SpecHomePage1820_MarqueeFields;
+export type SpecJournalSetFieldKey = keyof typeof SpecJournalSetFields;
 
-export const SpecHomePage1820_ResourceFields = {
-  RowState: 'RowState',
-  HomePageId: 'HomePageId',
-  RowId: 'RowId',
-  PicTitle: 'PicTitle',
-  PicSubTitle: 'PicSubTitle',
-  PicFile: 'PicFile',
-  PicFileId: 'PicFileId',
-  PicFileDescription: 'PicFileDescription',
-  Link: 'Link',
-  _SpecHomePage1820: '_SpecHomePage1820',
-} as const;
-
-export type SpecHomePage1820_ResourceFieldKey = keyof typeof SpecHomePage1820_ResourceFields;
-
-export const SpecHomePageWeatherFields = {
-  CityCode: 'CityCode',
-  LocationName: 'LocationName',
-  Weather: 'Weather',
-  Temperature: 'Temperature',
-  ApparentTemperature: 'ApparentTemperature',
-  RelativeHumidity: 'RelativeHumidity',
-  ProbabilityOfPrecipitation: 'ProbabilityOfPrecipitation',
-  StartTime: 'StartTime',
-  EndTime: 'EndTime',
-  FetchTime: 'FetchTime',
-} as const;
-
-export type SpecHomePageWeatherFieldKey = keyof typeof SpecHomePageWeatherFields;
-
-export const SpecHomePageWeather_DTOApiResponseFields = {
-  IsSuccess: 'IsSuccess',
-  SysMessage: 'SysMessage',
+export const SpecJournalSet_DTOApiRequestFields = {
+  InternalId: 'InternalId',
   Data: 'Data',
 } as const;
 
-export type SpecHomePageWeather_DTOApiResponseFieldKey = keyof typeof SpecHomePageWeather_DTOApiResponseFields;
+export type SpecJournalSet_DTOApiRequestFieldKey = keyof typeof SpecJournalSet_DTOApiRequestFields;
+
+export const SpecJournalTypesFields = {
+  RowState: 'RowState',
+  JournalId: 'JournalId',
+  RowId: 'RowId',
+  Tag: 'Tag',
+  TagId: 'TagId',
+  _SpecJournal: '_SpecJournal',
+} as const;
+
+export type SpecJournalTypesFieldKey = keyof typeof SpecJournalTypesFields;
 
 export const StringApiResponseFields = {
   IsSuccess: 'IsSuccess',
@@ -1634,7 +1727,8 @@ export const PGID = {
     RolePermission: "RolePermission",
     SiteMenu: "SiteMenu",
     SiteViewCount: "SiteViewCount",
-    SpecHomePageApi: "SpecHomePageApi",
+    SpecJournal: "SpecJournal",
+    SpecJournalIndex: "SpecJournalIndex",
     Survey: "Survey",
     SurveySubmission: "SurveySubmission",
     SystemAPI: "SystemAPI",

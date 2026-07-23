@@ -1,3 +1,4 @@
+import { CategoryAdapter, type CategoryMapLoaderData } from "@/Features/Hooks/BizFunc/COMM/Category_Api";
 import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WEB/Announcement_Api";
 import { BannerSliderAdapter } from "@/Features/Hooks/BizFunc/WEB/BannerSlider_Api";
 import { WebResourceAdapter } from "@/Features/Hooks/BizFunc/WEB/WebResource_Api";
@@ -14,6 +15,7 @@ import {
     BannerDetailFields,
     BannerDetailInfoFields,
     BannerFields,
+    PGID,
     SpecJournalIndexDetailFields,
     SpecJournalIndexModelFields,
     WebResourceFields,
@@ -47,6 +49,7 @@ export interface HomePageRawData
     newsTopList: AnnouncementSet[];
     newsList: AnnouncementSet[];
     newsMergedList: AnnouncementSet[];
+    newsCategoryMap: Record<string, string>;
     aboutPublicationBanner: BannerSet | null;
     relatedLinksList: WebResourceSet[];
 }
@@ -133,6 +136,7 @@ export const HomePageLoader = (p: { lang: Lang; }) => async ({ request }: Loader
     const banner = BannerSliderAdapter(ssrApi);
     const journalIndex = SpecJournalIndexAdapter(ssrApi);
     const announcement = AnnouncementAdapter(ssrApi);
+    const category = CategoryAdapter(ssrApi);
     const webResource = WebResourceAdapter(ssrApi);
 
     // 執行 function：建立 loaders
@@ -155,6 +159,11 @@ export const HomePageLoader = (p: { lang: Lang; }) => async ({ request }: Loader
     const indexedLoader = banner.loader.createQueryListLoader({ getCondition: () => args.indexedBannerParam, getApiInstance: () => ssrApi });
     const newsTopLoader = announcement.loader.createQueryListLoader({ getCondition: () => args.newsTopParam, getApiInstance: () => ssrApi });
     const newsListLoader = announcement.loader.createQueryListLoader({ getCondition: () => args.newsListParam, getApiInstance: () => ssrApi });
+    const newsCategoryLoader = category.loader.createMapByProgIdLoader({
+        progId: PGID.Announcement,
+        lang: args.lang,
+        getApiInstance: () => ssrApi,
+    });
     const aboutPublicationLoader = banner.loader.createQueryListLoader({ getCondition: () => args.aboutPublicationParam, getApiInstance: () => ssrApi });
     const relatedLinksLoader = webResource.loader.createQueryListLoader({ getCondition: () => args.relatedLinksParam, getApiInstance: () => ssrApi });
 
@@ -167,6 +176,7 @@ export const HomePageLoader = (p: { lang: Lang; }) => async ({ request }: Loader
         indexedLD,
         newsTopLD,
         newsListLD,
+        newsCategoryLD,
         aboutPublicationLD,
         relatedLinksLD,
     ] = await Promise.all([
@@ -177,6 +187,7 @@ export const HomePageLoader = (p: { lang: Lang; }) => async ({ request }: Loader
         indexedLoader({ request } as LoaderFunctionArgs),
         newsTopLoader({ request } as LoaderFunctionArgs),
         newsListLoader({ request } as LoaderFunctionArgs),
+        newsCategoryLoader({ request } as LoaderFunctionArgs),
         aboutPublicationLoader({ request } as LoaderFunctionArgs),
         relatedLinksLoader({ request } as LoaderFunctionArgs),
     ]);
@@ -189,6 +200,7 @@ export const HomePageLoader = (p: { lang: Lang; }) => async ({ request }: Loader
     const indexedBanner = takeFirstOrNull<BannerSet>(getEnv(indexedLD).Data);
     const newsTopList = getEnv(newsTopLD).Data ?? [];
     const newsList = getEnv(newsListLD).Data ?? [];
+    const newsCategoryMap = getEnv(newsCategoryLD).Data ?? {};
     const newsMergedList = takeTopThenFill(
         newsTopList,
         newsList,
@@ -210,6 +222,7 @@ export const HomePageLoader = (p: { lang: Lang; }) => async ({ request }: Loader
                 newsTopList,
                 newsList,
                 newsMergedList,
+                newsCategoryMap,
                 aboutPublicationBanner,
                 relatedLinksList,
             },
@@ -510,6 +523,7 @@ const useHomePageDataLegacy = (props: UseHomePageDataProps): UseHomePageDataResu
     const bannerAdapter = useMemo(() => BannerSliderAdapter(), []);
     const journalIndexAdapter = useMemo(() => SpecJournalIndexAdapter(), []);
     const announcementAdapter = useMemo(() => AnnouncementAdapter(), []);
+    const categoryAdapter = useMemo(() => CategoryAdapter(), []);
     const webResourceAdapter = useMemo(() => WebResourceAdapter(), []);
 
     const latestIssueBgParam = useMemo(() =>
@@ -556,6 +570,15 @@ const useHomePageDataLegacy = (props: UseHomePageDataProps): UseHomePageDataResu
     {
         return toInitialByLoader(hasLoaderRaw, args.newsListParam, rawInitial?.newsList ?? []);
     }, [hasLoaderRaw, args.newsListParam, rawInitial?.newsList]);
+
+    const newsCategoryInitial = useMemo<CategoryMapLoaderData | null>(() =>
+    {
+        if (!hasLoaderRaw) return null;
+        return {
+            args: { progId: PGID.Announcement, lang: props.lang },
+            apiRes: toOkEnv(rawInitial?.newsCategoryMap ?? {}),
+        };
+    }, [hasLoaderRaw, props.lang, rawInitial?.newsCategoryMap]);
 
     const aboutPublicationInitial = useMemo(() =>
     {
@@ -609,6 +632,13 @@ const useHomePageDataLegacy = (props: UseHomePageDataProps): UseHomePageDataResu
         deps: [args.newsListParam.Condition ?? "", props.lang],
     });
 
+    const newsCategoryQuery = categoryAdapter.hooks.useMapByProgId({
+        progId: PGID.Announcement,
+        lang: props.lang,
+        initial: newsCategoryInitial,
+        deps: [PGID.Announcement, props.lang],
+    });
+
     const aboutPublicationQuery = bannerAdapter.hooks.useQueryList({
         condition: args.aboutPublicationParam,
         initial: aboutPublicationInitial,
@@ -631,6 +661,7 @@ const useHomePageDataLegacy = (props: UseHomePageDataProps): UseHomePageDataResu
             || Boolean(indexedQuery.apiRes)
             || Boolean(newsTopQuery.apiRes)
             || Boolean(newsListQuery.apiRes)
+            || Boolean(newsCategoryQuery.apiRes)
             || Boolean(aboutPublicationQuery.apiRes)
             || Boolean(relatedLinksQuery.apiRes);
     }, [
@@ -642,6 +673,7 @@ const useHomePageDataLegacy = (props: UseHomePageDataProps): UseHomePageDataResu
         indexedQuery.apiRes,
         newsTopQuery.apiRes,
         newsListQuery.apiRes,
+        newsCategoryQuery.apiRes,
         aboutPublicationQuery.apiRes,
         relatedLinksQuery.apiRes,
     ]);
@@ -665,6 +697,7 @@ const useHomePageDataLegacy = (props: UseHomePageDataProps): UseHomePageDataResu
             {
                 return item.Announcement?.InternalId ?? String(item.Announcement?.AnnouncementId ?? "");
             }),
+            newsCategoryMap: newsCategoryQuery.map,
             aboutPublicationBanner: takeFirstOrNull<BannerSet>(aboutPublicationQuery.data),
             relatedLinksList: relatedLinksQuery.data ?? [],
         };
@@ -677,6 +710,7 @@ const useHomePageDataLegacy = (props: UseHomePageDataProps): UseHomePageDataResu
         indexedQuery.data,
         newsTopQuery.data,
         newsListQuery.data,
+        newsCategoryQuery.map,
         aboutPublicationQuery.data,
         relatedLinksQuery.data,
         args.newsTake,
@@ -689,6 +723,7 @@ const useHomePageDataLegacy = (props: UseHomePageDataProps): UseHomePageDataResu
         || indexedQuery.isLoading
         || newsTopQuery.isLoading
         || newsListQuery.isLoading
+        || newsCategoryQuery.isLoading
         || aboutPublicationQuery.isLoading
         || relatedLinksQuery.isLoading;
 
@@ -702,6 +737,7 @@ const useHomePageDataLegacy = (props: UseHomePageDataProps): UseHomePageDataResu
             indexedQuery.errorText,
             newsTopQuery.errorText,
             newsListQuery.errorText,
+            newsCategoryQuery.errorText,
             aboutPublicationQuery.errorText,
             relatedLinksQuery.errorText,
         ]);
@@ -713,6 +749,7 @@ const useHomePageDataLegacy = (props: UseHomePageDataProps): UseHomePageDataResu
         indexedQuery.errorText,
         newsTopQuery.errorText,
         newsListQuery.errorText,
+        newsCategoryQuery.errorText,
         aboutPublicationQuery.errorText,
         relatedLinksQuery.errorText,
     ]);

@@ -45,7 +45,13 @@ export const HomePage = (props: { lang: Lang; }) =>
                     lang={props.lang}
                     topParam={args.newsTopParam}
                     listParam={args.newsListParam}
-                    initialData={{ newsTopList: rawData.newsTopList, newsList: rawData.newsList, newsMergedList: rawData.newsMergedList }}
+                    categoryId={args.newsCategoryId}
+                    initialData={{
+                        newsTopList: rawData.newsTopList,
+                        newsList: rawData.newsList,
+                        newsMergedList: rawData.newsMergedList,
+                        newsCategoryMap: rawData.newsCategoryMap,
+                    }}
                 />
 
                 <AboutPublicationSection
