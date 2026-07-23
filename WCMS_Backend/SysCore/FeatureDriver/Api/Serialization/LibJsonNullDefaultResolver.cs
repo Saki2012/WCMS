@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
 using System.Text.Json.Serialization.Metadata;
+using WCMS.SysCore.FeatureDriver.Api.Metadata;
+using WCMS.SysCore.FeatureDriver.Model.Metadata;
 namespace WCMS.SysCore.FeatureDriver.Api.Serialization;
 
 /// <summary>
@@ -24,16 +26,29 @@ internal sealed class LibJsonNullDefaultResolver : DefaultJsonTypeInfoResolver
 
     #region Private
     /// <summary>
-    /// 套用目前 Object Type 的 Property Converter 與完成後正規化。
+    /// 套用 API 欄位政策與 null 預設值處理。
     /// </summary>
     private void ApplyNullDefaultHandling(JsonTypeInfo typeInfo)
     {
         if (typeInfo.Kind != JsonTypeInfoKind.Object) return;
+        RemoveApiIgnoredProperties(typeInfo);
         JsonPropertyInfo[] properties = GetNormalizableProperties(typeInfo);
         foreach (JsonPropertyInfo property in typeInfo.Properties) ApplyPropertyConverter(property);
         ApplyObjectNormalizer(typeInfo, properties);
     }
-
+    /// <summary>
+    /// 從對外 JSON Contract 移除 API Ignore 欄位。
+    /// </summary>
+    private static void RemoveApiIgnoredProperties(JsonTypeInfo typeInfo)
+    {
+        for (int index = typeInfo.Properties.Count - 1; index >= 0; index--)
+        {
+            JsonPropertyInfo jsonProperty = typeInfo.Properties[index];
+            if (jsonProperty.AttributeProvider is not PropertyInfo property) continue;
+            if (LibApiFieldPolicyHelper.GetApiMode(property) != ApiFieldMode.Ignore) continue;
+            typeInfo.Properties.RemoveAt(index);
+        }
+    }
     /// <summary>
     /// 對非 Nullable 且可建立預設值的 Property 套用 Converter。
     /// </summary>
@@ -43,7 +58,6 @@ internal sealed class LibJsonNullDefaultResolver : DefaultJsonTypeInfoResolver
         if (!CanNormalize(property)) return;
         jsonProperty.CustomConverter = RuntimeCache.GetConverter(property.PropertyType, jsonProperty.CustomConverter);
     }
-
     /// <summary>
     /// 加入反序列化完成後的遺漏欄位正規化。
     /// </summary>

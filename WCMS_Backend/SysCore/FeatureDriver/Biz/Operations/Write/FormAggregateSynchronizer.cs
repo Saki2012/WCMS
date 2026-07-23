@@ -76,18 +76,17 @@ internal sealed class FormAggregateSynchronizer<TFormModel>(
         return items.ToDictionary(item => BuildKey(item, keyProperties));
     }
     /// <summary>
-    /// 更新兩側皆存在且內容不同的 Detail。
+    /// 更新前後內容不同的既有 Detail。
     /// </summary>
-    private async Task UpdateExistingAsync(
-        dynamic repo,
-        Dictionary<string, object> oldItems,
-        Dictionary<string, object> newItems,
-        IReadOnlyList<PropertyInfo> compareProperties,
-        CancellationToken ct)
+    private async Task UpdateExistingAsync(dynamic repo, Dictionary<string, object> oldItems, Dictionary<string, object> newItems, IReadOnlyList<PropertyInfo> compareProperties, CancellationToken ct)
     {
         foreach (string key in oldItems.Keys.Intersect(newItems.Keys))
-            if (HasDifferentValue(oldItems[key], newItems[key], compareProperties))
-                await repo.UpdateAsync(oldItems[key], newItems[key], ct);
+        {
+            if (!HasDifferentValue(oldItems[key], newItems[key], compareProperties)) continue;
+            dynamic oldItem = oldItems[key];
+            dynamic newItem = newItems[key];
+            await repo.UpdateAsync(oldItem, newItem, ct);
+        }
     }
     /// <summary>
     /// 刪除新資料中已不存在的 Detail。

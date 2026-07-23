@@ -59,7 +59,7 @@ public class PageManagementDetail : FormDetailModel
 
     #region 主子表關聯
     [ForeignKey(nameof(PageId))]
-    [LibField(ApiFieldMode.ReadOnly)]
+    [LibField(ApiFieldMode.Ignore)]
     public PageManagement _PageManagement { get; set; }
     #endregion
 }
