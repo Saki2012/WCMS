@@ -11,6 +11,7 @@ import {
     isSameClientDataQueryParam,
     useClientDataQueryTemplate,
 } from "@/Features/Pages/Client/Scaffold/DataQueryTemplate/Client_DataQueryTemplate_Hook";
+import { getClientSearchBarText } from "@/Features/Pages/Client/Scaffold/SubPages/Module/SearchBar/Client_SearchBar_I18n";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
@@ -26,7 +27,7 @@ import { type LoaderFunctionArgs, useLoaderData } from "react-router-dom";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
-type GallerySet = components["schemas"]["GallerySet_DTO"];
+type GalleryFormModel = components["schemas"]["Gallery"];
 const SEARCH_TITLE_KEY = "title";
 const DEFAULT_PAGE_SIZE = 12;
 
@@ -51,7 +52,7 @@ interface GalleryListLoaderArgs
 }
 interface GalleryListLoaderRes
 {
-    gridData: ApiGridLoaderData<GallerySet>;
+    gridData: ApiGridLoaderData<GalleryFormModel>;
     categoryMap: Record<string, string>;
 }
 interface GalleryListLoaderData
@@ -61,7 +62,7 @@ interface GalleryListLoaderData
 }
 interface GalleryListRawData
 {
-    list: GallerySet[];
+    list: GalleryFormModel[];
     categoryMap: Record<string, string>;
     count: number;
     pageNumber: number;
@@ -125,9 +126,16 @@ export const useGalleryListData = (p: { lang: Lang; opts?: IGalleryListOptions; 
 
 // #region Private
 /** 建立 Gallery 前台搜尋欄位，目前只提供標題查詢 */
-const buildGallerySearchFields = (): SearchFieldConfig[] =>
+const buildGallerySearchFields = (lang: Lang): SearchFieldConfig[] =>
 {
-    return [{ key: SEARCH_TITLE_KEY, title: "標題", label: "標題", type: "text", placeholder: "請輸入標題", maxLength: 100 }] as unknown as SearchFieldConfig[];
+    const isEnglish = lang === "en";
+    return [{
+        key: SEARCH_TITLE_KEY,
+        title: isEnglish ? "Title" : "標題",
+        type: "text",
+        placeholder: isEnglish ? "Enter a title" : "請輸入標題",
+        maxLength: 100,
+    }] as SearchFieldConfig[];
 };
 /** 建立 Gallery 搜尋初始值 */
 const buildGallerySearchValues = (title?: string): SearchValues =>
@@ -169,8 +177,8 @@ const buildGalleryQuery = (p: { condition: string; pageNumber: number; pageSize:
             `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Lang}`,
             `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Title}`,
             `${GalleryFields._GalleryPhotos}.${GalleryPhotosFields.PicSrcId}`,
-            `${GalleryFields._GalleryPhotos}.${GalleryPhotosFields.GalleryPhotosInfo}.${GalleryPhotosInfoFields.Lang}`,
-            `${GalleryFields._GalleryPhotos}.${GalleryPhotosFields.GalleryPhotosInfo}.${GalleryPhotosInfoFields.Title}`,
+            `${GalleryFields._GalleryPhotos}.${GalleryPhotosFields._GalleryPhotosInfo}.${GalleryPhotosInfoFields.Lang}`,
+            `${GalleryFields._GalleryPhotos}.${GalleryPhotosFields._GalleryPhotosInfo}.${GalleryPhotosInfoFields.Title}`,
         ],
         Condition: p.condition,
         RankGroups: [{ Condition: `${GalleryFields.ContentStatus} & 1` }],
@@ -198,6 +206,7 @@ const createGalleryDataQueryTemplate = (p: { pageState?: ReturnType<typeof usePa
 {
     const initialViewState = buildGalleryInitialViewState(p.overrides);
     const initialSearchValues = buildGallerySearchValues(p.overrides?.title ?? p.opts?.Title);
+    const searchBarText = getClientSearchBarText(p.lang);
     return {
         featureKey: "GalleryList",
         dataMode: "multiple",
@@ -212,9 +221,9 @@ const createGalleryDataQueryTemplate = (p: { pageState?: ReturnType<typeof usePa
         initialSearchValues,
         initialViewState,
         pagination: { defaultPageNumber: initialViewState.pageNumber, defaultPageSize: initialViewState.pageSize, resetPageOnSearch: true },
-        searchBar: { title: "搜尋條件", actionAlign: "right", columnCount: 3 },
+        searchBar: { ...searchBarText, actionAlign: "right", columnCount: 3 },
         feature: {
-            searchFields: buildGallerySearchFields(),
+            searchFields: buildGallerySearchFields(p.lang),
             toSearchParams: (values, viewState) => buildGallerySearchParams({ ...p, values, viewState }),
             buildSearchConditions: (ctx) => [buildGalleryCondition(ctx.searchParams)],
             buildQueryParam: (ctx) => buildGalleryQueryArgs({ ...ctx.searchParams, condition: ctx.searchCondition }),
@@ -240,7 +249,7 @@ const buildCategoryInitial = (p: { loaderData: GalleryListLoaderData | null; arg
     return { args: { progId: p.args.progId, lang: p.args.lang }, apiRes };
 };
 /** 取得 SSR initial grid，條件一致才沿用 count/list */
-const buildGridInitial = (p: { queryParam: GalleryQueryParam; loaderData: GalleryListLoaderData | null; }): ApiGridInitial<GallerySet> | undefined =>
+const buildGridInitial = (p: { queryParam: GalleryQueryParam; loaderData: GalleryListLoaderData | null; }): ApiGridInitial<GalleryFormModel> | undefined =>
 {
     const initial = p.loaderData?.res?.gridData;
     const matched = isSameClientDataQueryParam(p.loaderData?.args?.listParam, p.queryParam.listParam);

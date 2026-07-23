@@ -27,9 +27,9 @@ import { useLoaderData } from "react-router-dom";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
-type MaterialSet = components["schemas"]["MaterialSet_DTO"];
-type PageManagementSet = components["schemas"]["PageManagementSet_DTO"];
-type PageManagementDetail = NonNullable<PageManagementSet["PageManagementDetail"]>[number];
+type MaterialFormModel = components["schemas"]["Material"];
+type PageManagementFormModel = components["schemas"]["PageManagement"];
+type PageManagementDetail = NonNullable<PageManagementFormModel["_PageManagementDetail"]>[number];
 export interface IMaterialListOptions
 {
     PageId: string;
@@ -49,10 +49,10 @@ export interface MaterialListLoaderArgs
 }
 export interface MaterialListLoaderRes
 {
-    gridRes: ApiGridLoaderData<MaterialSet>;
+    gridRes: ApiGridLoaderData<MaterialFormModel>;
     categoryRes: CategoryMapLoaderData;
     tagRes: TagMapLoaderData;
-    pageRes: ApiLoaderData<string, PageManagementSet>;
+    pageRes: ApiLoaderData<string, PageManagementFormModel>;
 }
 export interface MaterialListLoaderData
 {
@@ -69,10 +69,10 @@ export type MaterialListRawData = {
     pageNumber: number;
     totalPages: number;
     totalCount: number;
-    listData: MaterialSet[];
+    listData: MaterialFormModel[];
     categoryMap: Record<string, string>;
     tagMap: Record<string, string>;
-    pageData: PageManagementSet;
+    pageData: PageManagementFormModel;
     pageDetail: PageManagementDetail | null;
     pageTitle: string;
 };
@@ -102,7 +102,7 @@ type MaterialListDataQueryTemplate = ClientDataQueryTemplate<
     ClientDataQueryMemoryState
 >;
 const DEFAULT_PAGE_SIZE = 12;
-const emptyPageData: PageManagementSet = { PageManagement: {}, PageManagementDetail: [] };
+const emptyPageData: PageManagementFormModel = { _PageManagementDetail: [] };
 // #endregion
 
 // #region Public
@@ -189,6 +189,7 @@ const buildMaterialQuery = (p: { condition: string; pageNumber: number; pageSize
             `${MaterialFields._MaterialLangInfo}.${MaterialLangInfoFields.Lang}`,
             `${MaterialFields._MaterialLangInfo}.${MaterialLangInfoFields.MaterialName}`,
             `${MaterialFields._MaterialLangInfo}.${MaterialLangInfoFields.MaterialInfoJson}`,
+            `${MaterialFields._MaterialPicture}.${MaterialPictureFields.RowNo}`,
             `${MaterialFields._MaterialPicture}.${MaterialPictureFields.PictureId}`,
             `${MaterialFields._MaterialPicture}.${MaterialPictureFields.PictureName}`,
         ],
@@ -262,12 +263,12 @@ const buildLoaderArgs = (
     return buildClientDataQueryState(template, {} as SearchValues, viewState).queryParam;
 };
 /** 建立空的 PageManagement loader data，避免未設定 PageId 時仍打 API */
-const buildEmptyPageLoaderData = (pageId: string): ApiLoaderData<string, PageManagementSet> =>
+const buildEmptyPageLoaderData = (pageId: string): ApiLoaderData<string, PageManagementFormModel> =>
 {
     return { args: pageId, apiRes: { IsSuccess: true, Data: emptyPageData, SysMessage: [] } };
 };
 /** 取得 SSR initial grid，條件一致才沿用 count/list */
-const buildGridInitial = (p: { queryParam: MaterialListLoaderArgs; loaderData: MaterialListLoaderData | null; }): ApiGridInitial<MaterialSet> | undefined =>
+const buildGridInitial = (p: { queryParam: MaterialListLoaderArgs; loaderData: MaterialListLoaderData | null; }): ApiGridInitial<MaterialFormModel> | undefined =>
 {
     const initial = p.loaderData?.res?.gridRes;
     const matched = isSameClientDataQueryParam(p.loaderData?.args?.matParam, p.queryParam.matParam);
@@ -280,10 +281,10 @@ const matchDataInitial = <TData>(currentArg: string, initial: ApiLoaderData<stri
     return currentArg === (initial?.args ?? "") ? (initial ?? null) : null;
 };
 /** 依語系取得頁面內容明細 */
-const findPageDetail = (data: PageManagementSet, lang: Lang): PageManagementDetail | null =>
+const findPageDetail = (data: PageManagementFormModel, lang: Lang): PageManagementDetail | null =>
 {
-    const detail = data.PageManagementDetail?.find(p => (p.Lang ?? "").toLowerCase() === lang.toLowerCase());
-    return detail ?? data.PageManagementDetail?.[0] ?? null;
+    const detail = data._PageManagementDetail?.find(p => (p.Lang ?? "").toLowerCase() === lang.toLowerCase());
+    return detail ?? data._PageManagementDetail?.[0] ?? null;
 };
 /** 組合重置 Key，Tab 或節點固定條件改變時回到第一頁 */
 const buildResetKey = (args: Pick<MaterialListLoaderArgs, "lang" | "pageId" | "categoryId" | "tagIds" | "pageSize">): string =>
@@ -329,8 +330,8 @@ const useMaterialListDataSource = (
         initial: p.loaderData?.res.tagRes ?? null,
         deps: [currentArgs.lang],
     });
-    const pageSet = useMemo(() => pageData.data ?? emptyPageData, [pageData.data]);
-    const pageDetail = useMemo(() => findPageDetail(pageSet, currentArgs.lang), [pageSet, currentArgs.lang]);
+    const pageModel = useMemo(() => pageData.data ?? emptyPageData, [pageData.data]);
+    const pageDetail = useMemo(() => findPageDetail(pageModel, currentArgs.lang), [pageModel, currentArgs.lang]);
     const paginator = useMemo<ClientDataQueryPaginatorModel>(() =>
     {
         return {
@@ -351,11 +352,11 @@ const useMaterialListDataSource = (
             listData: grid.list ?? [],
             categoryMap: category.map ?? {},
             tagMap: tag.map ?? {},
-            pageData: pageSet,
+            pageData: pageModel,
             pageDetail,
             pageTitle: pageDetail?.Title ?? "",
         };
-    }, [currentArgs.pageSize, grid.pageNumber, grid.totalPages, grid.count, grid.list, category.map, tag.map, pageSet, pageDetail]);
+    }, [currentArgs.pageSize, grid.pageNumber, grid.totalPages, grid.count, grid.list, category.map, tag.map, pageModel, pageDetail]);
     const errors = useMemo(() =>
     {
         return [...(grid.errors ?? []), category.errorText, tag.errorText, pageData.errorText].filter((item): item is string => Boolean(item));

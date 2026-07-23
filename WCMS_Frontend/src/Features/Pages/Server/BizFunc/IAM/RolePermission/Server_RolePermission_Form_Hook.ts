@@ -9,9 +9,10 @@ import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { type CSSProperties, type Dispatch, type SetStateAction, useCallback, useEffect, useId, useMemo, useState } from "react";
 
 // #region Property
-type RolePermissionSet = components["schemas"]["RolePermissionSet_DTO"];
+type RolePermissionFormModel = components["schemas"]["RoleData"];
 
-type RolePermissionRow = { PermissionKey?: string | null; GrantMask?: number | string | null; RoleId?: string | null; };
+/** 權限明細編輯列，允許將 API enum 遮罩以 number 進行位元運算。 */
+type RolePermissionRow = Omit<components["schemas"]["RolePermission"], "GrantMask"> & { GrantMask?: number | string | null; };
 
 type PermissionCatalogModule = components["schemas"]["PermissionCatalogModuleDTO"];
 
@@ -62,7 +63,7 @@ export interface UseRolePermissionFormTemplateOptions
     internalId: string;
 
     /** 新增模式預設資料 */
-    emptyData: RolePermissionSet;
+    emptyData: RolePermissionFormModel;
 
     /** Form Template 標準動作設定 */
     actionsOpt: RolePermissionFormActionsOpt;
@@ -75,7 +76,7 @@ export type RolePermissionFormActionsOpt = {
 
 export type RolePermissionFormAdapter = ReturnType<typeof RolePermissionAdapter>;
 
-export type RolePermissionFormRawData = ServerFormDefaultRawData<RolePermissionSet, RolePermissionFormRefs>;
+export type RolePermissionFormRawData = ServerFormDefaultRawData<RolePermissionFormModel, RolePermissionFormRefs>;
 
 export interface UseRolePermissionGrantBindingResult
 {
@@ -149,8 +150,6 @@ export interface UseRolePermissionPermissionUIResult
     onToggleModuleAll: (module: PermissionCatalogModuleDTO, checked: boolean) => void;
 }
 
-const rolePermissionEmptyRoleData = {} as NonNullable<RolePermissionSet["RoleData"]>;
-
 const actionBase: { key: string; value: FuncAction; fallbackLabel: string; }[] = [
     { key: "use", value: FuncAction.Use, fallbackLabel: "使用" },
     { key: "query", value: FuncAction.Query, fallbackLabel: "查詢" },
@@ -163,13 +162,13 @@ const actionBase: { key: string; value: FuncAction; fallbackLabel: string; }[] =
 // #endregion
 
 // #region Public
-
-export const rolePermissionEmptyData: RolePermissionSet = { RoleData: rolePermissionEmptyRoleData, RolePermission: [] };
+/** RolePermission 新增模式使用的空白 FormModel。 */
+export const rolePermissionEmptyData: RolePermissionFormModel = { _RolePermission: [] };
 
 /** 建立 RolePermission Form Template，交給 Server_FormTemplate 統一處理查詢、CUD 與 toast。 */
 export const useRolePermissionFormTemplate = (
     opt: UseRolePermissionFormTemplateOptions,
-): ServerFormTemplate<RolePermissionSet, RolePermissionFormAdapter, RolePermissionFormRefs, RolePermissionFormRawData, RolePermissionFormActionsOpt> =>
+): ServerFormTemplate<RolePermissionFormModel, RolePermissionFormAdapter, RolePermissionFormRefs, RolePermissionFormRawData, RolePermissionFormActionsOpt> =>
 {
     return useMemo(() =>
     {
@@ -191,7 +190,7 @@ export const useRolePermissionFormTemplate = (
 };
 
 /** 建立 RolePermission 權限資料 binding，將 checkbox map 同步回 Form DTO。 */
-export const useRolePermissionGrantBinding = (binding: ServerFormBinding<RolePermissionSet>): UseRolePermissionGrantBindingResult =>
+export const useRolePermissionGrantBinding = (binding: ServerFormBinding<RolePermissionFormModel>): UseRolePermissionGrantBindingResult =>
 {
     const [grantMap, setGrantMap] = useState<Record<string, number>>({});
 
@@ -260,7 +259,7 @@ const buildRolePermissionFormTitle = (ctx: { mode: "new" | "edit"; displayName: 
 };
 
 /** 建立新增模式 initial data，避免保留舊 top-level initial 入口。 */
-const buildRolePermissionInitialData = (ctx: { mode: "new" | "edit"; emptyData: RolePermissionSet; }): ApiFormInitial<RolePermissionSet> | undefined =>
+const buildRolePermissionInitialData = (ctx: { mode: "new" | "edit"; emptyData: RolePermissionFormModel; }): ApiFormInitial<RolePermissionFormModel> | undefined =>
 {
     if (ctx.mode !== "new") return undefined;
     return { data: { args: "__new__", apiRes: { IsSuccess: true, Data: ctx.emptyData, SysMessage: [] } } };
@@ -329,9 +328,9 @@ const toMaskNumber = (value: number | string | null | undefined): number =>
 };
 
 /** 從表單資料建立 grantMap。 */
-const buildGrantMapFromForm = (set?: RolePermissionSet | null): Record<string, number> =>
+const buildGrantMapFromForm = (form?: RolePermissionFormModel | null): Record<string, number> =>
 {
-    const list = (set?.RolePermission ?? []) as RolePermissionRow[];
+    const list = (form?._RolePermission ?? []) as RolePermissionRow[];
     const map: Record<string, number> = {};
 
     for (const row of list)
@@ -354,45 +353,50 @@ const buildNextGrantMap = (prev: Record<string, number>, key: string, nextGrantM
 };
 
 /** 寫回單一 progId 對應的 GrantMask。 */
-const applyGrantToForm = (prev: RolePermissionSet, progId: string, nextGrantMask: number): RolePermissionSet =>
+const applyGrantToForm = (prev: RolePermissionFormModel, progId: string, nextGrantMask: number): RolePermissionFormModel =>
 {
-    const next: RolePermissionSet = { ...(prev ?? {}) };
-    const roleId = next?.RoleData?.RoleId ?? null;
-    const list = Array.isArray(next?.RolePermission) ? ([...next.RolePermission] as RolePermissionRow[]) : [];
+    const next: RolePermissionFormModel = { ...(prev ?? {}) };
+    const list = Array.isArray(next._RolePermission) ? ([...next._RolePermission] as RolePermissionRow[]) : [];
     const index = list.findIndex(item => String(item?.PermissionKey ?? "").trim() === progId);
 
     return nextGrantMask
-        ? upsertGrantRow(next, list, index, roleId, progId, nextGrantMask)
+        ? upsertGrantRow(next, list, index, progId, nextGrantMask)
         : removeGrantRow(next, list, index);
 };
 
 /** 新增或更新權限列。 */
 const upsertGrantRow = (
-    next: RolePermissionSet,
+    next: RolePermissionFormModel,
     list: RolePermissionRow[],
     index: number,
-    roleId: string | null,
     progId: string,
     grantMask: number,
-): RolePermissionSet =>
+): RolePermissionFormModel =>
 {
     const row: RolePermissionRow = index >= 0 ? { ...list[index] } : {};
     row.PermissionKey = progId;
     row.GrantMask = grantMask;
-    if (!row.RoleId && roleId) row.RoleId = roleId;
+    if (index < 0) row.RowNo = getNextRolePermissionRowNo(list);
 
     if (index >= 0) list[index] = row;
     else list.push(row);
 
-    next.RolePermission = list as RolePermissionSet["RolePermission"];
+    next._RolePermission = list as RolePermissionFormModel["_RolePermission"];
     return next;
 };
 
+/** 取得新增權限列使用的下一個 RowNo。 */
+const getNextRolePermissionRowNo = (list: RolePermissionRow[]): number =>
+{
+    const maxRowNo = list.reduce((max, item) => Math.max(max, Number(item.RowNo ?? 0)), 0);
+    return maxRowNo + 1;
+};
+
 /** 移除權限列。 */
-const removeGrantRow = (next: RolePermissionSet, list: RolePermissionRow[], index: number): RolePermissionSet =>
+const removeGrantRow = (next: RolePermissionFormModel, list: RolePermissionRow[], index: number): RolePermissionFormModel =>
 {
     if (index >= 0) list.splice(index, 1);
-    next.RolePermission = list as RolePermissionSet["RolePermission"];
+    next._RolePermission = list as RolePermissionFormModel["_RolePermission"];
     return next;
 };
 

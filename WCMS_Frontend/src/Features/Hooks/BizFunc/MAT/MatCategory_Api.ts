@@ -9,7 +9,7 @@ import { useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 
 // #region Property
-type MatCategorySet = components["schemas"]["MatCategoryDataSet_DTO"];
+type MatCategoryFormModel = components["schemas"]["MatCategoryFormModel"];
 type MatCateInfoFieldsApiData = Record<string, string>[];
 const ActionGetMatCateInfoFields = "MatCategory.GetMatCateInfoFields";
 interface MatCateInfoFieldsArgs
@@ -49,7 +49,7 @@ type ExtraHooks = { useMatCateInfoFields: (opt: IUseMatCateInfoFields) => MatCat
 // #endregion
 
 // #region Public
-export class MatCategoryService extends ApiDataService<MatCategorySet>
+export class MatCategoryService extends ApiDataService<MatCategoryFormModel>
 {
     // #region Public
     constructor(apiInstance?: AxiosInstance)
@@ -66,19 +66,19 @@ export class MatCategoryService extends ApiDataService<MatCategorySet>
     }
     // #endregion
 }
-export class MatCategoryAdapterImpl extends ApiDataAdapter<MatCategorySet, MatCategoryService>
+export class MatCategoryAdapterImpl extends ApiDataAdapter<MatCategoryFormModel, MatCategoryService>
 {
     // #region Property
-    declare public loader: ApiDataLoaderGroup<MatCategorySet> & ExtraLoaders;
-    declare public hooks: ApiDataHookGroup<MatCategorySet> & ExtraHooks;
+    declare public loader: ApiDataLoaderGroup<MatCategoryFormModel> & ExtraLoaders;
+    declare public hooks: ApiDataHookGroup<MatCategoryFormModel> & ExtraHooks;
     // #endregion
 
     // #region protected Virtual
-    protected override buildExtendedLoader(base: ApiDataLoaderGroup<MatCategorySet>): ApiDataLoaderGroup<MatCategorySet> & ExtraLoaders
+    protected override buildExtendedLoader(base: ApiDataLoaderGroup<MatCategoryFormModel>): ApiDataLoaderGroup<MatCategoryFormModel> & ExtraLoaders
     {
         return { ...base, createMatCateInfoFieldsLoader: (opt) => this.createMatCateInfoFieldsLoader(opt) };
     }
-    protected override buildExtendedHooks(base: ApiDataHookGroup<MatCategorySet>): ApiDataHookGroup<MatCategorySet> & ExtraHooks
+    protected override buildExtendedHooks(base: ApiDataHookGroup<MatCategoryFormModel>): ApiDataHookGroup<MatCategoryFormModel> & ExtraHooks
     {
         return { ...base, useMatCateInfoFields: (opt) => this.useMatCateInfoFields(opt) };
     }

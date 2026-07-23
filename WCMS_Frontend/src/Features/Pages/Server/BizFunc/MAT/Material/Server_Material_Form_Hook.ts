@@ -22,6 +22,7 @@ import type {
 import {
     buildEditGridCell,
     getEditGridCellValue,
+    getEditGridRowId,
     getEditGridStringCellValue,
     getSelectedEditGridFile,
     useEditGridBinding,
@@ -38,9 +39,10 @@ import {
     CategoryFields,
     MatCategoryInfoFieldDisplayFields,
     MatCategoryInfoFieldFields,
+    MatCategoryFormModelFields,
+    MaterialFields,
     MaterialLangInfoFields,
     MaterialPictureFields,
-    MaterialSetFields,
     PGID,
 } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
@@ -49,21 +51,21 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type MaterialSet = components["schemas"]["MaterialSet_DTO"];
+type MaterialFormModel = components["schemas"]["Material"];
 
-type MaterialLangInfo = components["schemas"]["MaterialLangInfo_DTO"];
+type MaterialLangInfo = components["schemas"]["MaterialLangInfo"];
 
-type MaterialPicture = components["schemas"]["MaterialPicture_DTO"];
+type MaterialPicture = components["schemas"]["MaterialPicture"];
 
-type MaterialTags = components["schemas"]["MaterialTags_DTO"];
+type MaterialTag = components["schemas"]["MaterialTags"];
 
-type MatCategorySet = components["schemas"]["MatCategoryDataSet_DTO"];
+type MatCategoryFormModel = components["schemas"]["MatCategoryFormModel"];
 
-type InfoField = components["schemas"]["MatCategoryInfoField_DTO"];
+type InfoField = components["schemas"]["MatCategoryInfoField"];
 
-type InfoFieldDisplay = components["schemas"]["MatCategoryInfoFieldDisplay_DTO"];
+type InfoFieldDisplay = components["schemas"]["MatCategoryInfoFieldDisplay"];
 
-type FileManage = components["schemas"]["FileManageModel_DTO"];
+type FileManage = components["schemas"]["FileManage"];
 
 type UploadFileHandler = ReturnType<typeof useUploadFile>["handleFileChange"];
 
@@ -83,13 +85,11 @@ interface InfoFieldKeySource extends InfoField
 interface InfoFieldWithDisplay extends InfoField
 {
     _MatCategoryInfoFieldDisplay?: InfoFieldDisplay[] | null;
-    MatCategoryInfoFieldDisplay?: InfoFieldDisplay[] | null;
 }
 
-interface MatCategorySetLike extends MatCategorySet
+interface MatCategoryFormModelLike extends MatCategoryFormModel
 {
     MatCategoryInfoField?: InfoFieldWithDisplay[] | null;
-    MatCategoryInfoFieldDisplay?: InfoFieldDisplay[] | null;
 }
 
 export interface UseMaterialFormTemplateOptions
@@ -104,7 +104,7 @@ export interface UseMaterialFormTemplateOptions
     internalId: string;
 
     /** 新增模式預設資料 */
-    emptyData: MaterialSet;
+    emptyData: MaterialFormModel;
 
     /** Form Template 標準動作設定 */
     actionsOpt: MaterialFormActionsOpt;
@@ -113,7 +113,7 @@ export interface UseMaterialFormTemplateOptions
 export interface UseMaterialLangTabsOptions
 {
     /** 新版 Form Template 提供的資料 binding */
-    binding: ServerFormBinding<MaterialSet>;
+    binding: ServerFormBinding<MaterialFormModel>;
 
     /** 目前語系，會優先排在第一個 Tab */
     lang: Lang;
@@ -128,7 +128,7 @@ export interface UseMaterialLangTabsOptions
 export interface UseMaterialPictureEditGridOptions
 {
     /** 新版 Form Template 提供的資料 binding */
-    binding: ServerFormBinding<MaterialSet>;
+    binding: ServerFormBinding<MaterialFormModel>;
 
     /** EditGrid UI 樣式，仍由 Comp 決定 */
     style: IEditGridView_Style;
@@ -140,13 +140,13 @@ export interface UseMaterialPictureEditGridOptions
 export interface UseMaterialBatchPictureUploadOptions
 {
     /** 新版 Form Template 提供的資料 binding */
-    binding: ServerFormBinding<MaterialSet>;
+    binding: ServerFormBinding<MaterialFormModel>;
 }
 
 export interface UseMaterialTagSelectionOptions
 {
     /** 新版 Form Template 提供的資料 binding */
-    binding: ServerFormBinding<MaterialSet>;
+    binding: ServerFormBinding<MaterialFormModel>;
 }
 
 export interface MaterialLangTabItem
@@ -157,7 +157,7 @@ export interface MaterialLangTabItem
     /** Tab 顯示文字 */
     label: string;
 
-    /** Detail 原始 DTO */
+    /** 目前語系明細資料 */
     detail: MaterialLangInfo;
 
     /** Detail row keys，給 useSetTableField 綁定欄位 */
@@ -258,7 +258,7 @@ export type MaterialFormRefs = {
 export interface MaterialPreviewPayload
 {
     /** 物件預覽主資料。 */
-    formData: MaterialSet;
+    formData: MaterialFormModel;
     /** 物件分類顯示文字。 */
     categoryNameText: string;
     /** 物件標籤顯示文字。 */
@@ -271,8 +271,8 @@ export type MaterialFormActionsOpt = {
     /** 儲存成功後要回到列表（或其他導頁） */
     onBackToList: () => void;
 
-    /** 以目前 DTO 觸發 preview（由 Component 決定怎麼開 modal） */
-    onPreviewFromDto: (payload: MaterialPreviewPayload) => void;
+    /** 以目前 FormModel 觸發 preview（由 Component 決定怎麼開 modal） */
+    onPreviewFromFormModel: (payload: MaterialPreviewPayload) => void;
 };
 
 export type MaterialFormAdapter = {
@@ -284,7 +284,7 @@ export type MaterialFormAdapter = {
 // #endregion
 
 // #region Public
-export const materialEmptyData: MaterialSet = { Material: {}, MaterialLangInfo: [], MaterialPicture: [], MaterialTags: [] };
+export const materialEmptyData: MaterialFormModel = { _MaterialLangInfo: [], _MaterialPicture: [], _MaterialTags: [] };
 
 /** 單張物件相片上傳限制。 */
 export const MaterialPictureUploadLimit = {
@@ -303,7 +303,7 @@ export const MaterialBatchPictureUploadLimit = {
 /** 建立 Material Form Template，統一交給 Server_FormTemplate 處理資料流程。 */
 export const useMaterialFormTemplate = (
     opt: UseMaterialFormTemplateOptions,
-): ServerFormTemplate<MaterialSet, MaterialFormAdapter, MaterialFormRefs, ServerFormDefaultRawData<MaterialSet, MaterialFormRefs>, MaterialFormActionsOpt> =>
+): ServerFormTemplate<MaterialFormModel, MaterialFormAdapter, MaterialFormRefs, ServerFormDefaultRawData<MaterialFormModel, MaterialFormRefs>, MaterialFormActionsOpt> =>
 {
     return useMemo(() =>
     {
@@ -329,7 +329,7 @@ export const useMaterialFormTemplate = (
 /** 建立物件語系 Tabs 與動態欄位顯示資料，避免 Comp 處理語系排序。 */
 export const useMaterialLangTabs = (opt: UseMaterialLangTabsOptions): MaterialLangTabsResult =>
 {
-    const details = opt.binding.data?.MaterialLangInfo;
+    const details = opt.binding.data?._MaterialLangInfo;
 
     return useMemo(() =>
     {
@@ -347,16 +347,16 @@ export const useMaterialPictureEditGrid = (opt: UseMaterialPictureEditGridOption
         uploadFile.handleFileChange,
     ]);
 
-    return useEditGridBinding<MaterialSet, MaterialPicture, MaterialPictureGridRow>({
+    return useEditGridBinding<MaterialFormModel, MaterialPicture, MaterialPictureGridRow>({
         binding: opt.binding,
         emptyData: materialEmptyData,
-        collectionName: MaterialSetFields.MaterialPicture,
+        collectionName: MaterialFields._MaterialPicture,
         columns,
         getItemRowId: picture => picture.RowId,
         sortItems: sortMaterialPictures,
-        createItem: ctx => buildNewMaterialPictureItem(ctx.data, ctx.nextRowId),
+        createItem: ctx => buildNewMaterialPictureItem(ctx.data, ctx.nextRowId, ctx.nextRowNo),
         toRow: (picture, index) => buildMaterialPictureGridRow(picture, index, opt, handlePictureValueChange, displayName),
-        toItem: (row, index, ctx) => toMaterialPictureDto(ctx.data, row, index),
+        toItem: (row, index, ctx) => toMaterialPictureModel(ctx.data, row, index),
         editGridProps: buildMaterialPictureGridProps(opt.style, displayName),
     });
 };
@@ -385,10 +385,10 @@ export const useMaterialBatchPictureUpload = (opt: UseMaterialBatchPictureUpload
     return { selectedFiles, isUploading, error, setSelectedFiles, clearSelectedFiles, uploadSelectedFiles };
 };
 
-/** 建立標籤勾選資料與更新行為，避免 Comp 自行操作 MaterialTags DTO。 */
+/** 建立標籤勾選資料與更新行為，避免 Comp 自行組裝標籤明細。 */
 export const useMaterialTagSelection = (opt: UseMaterialTagSelectionOptions): MaterialTagSelectionResult =>
 {
-    const selectedTagIds = useMemo(() => getSelectedMaterialTagIds(opt.binding), [opt.binding, opt.binding.data?.MaterialTags]);
+    const selectedTagIds = useMemo(() => getSelectedMaterialTagIds(opt.binding), [opt.binding, opt.binding.data?._MaterialTags]);
     const onChange = useCallback((value: unknown) => updateMaterialTagsByInput(opt.binding, value), [opt.binding]);
 
     return { selectedTagIds, onChange };
@@ -429,11 +429,11 @@ export const toMaterialPictureCellValue = (value: EditGridCellValue): MaterialPi
 
 /** 建立 Toolbar 動作，保留Material預覽行為。 */
 const buildMaterialActions = (
-    ctx: { binding: ServerFormDefaultRawData<MaterialSet, MaterialFormRefs>["formData"]; refs: MaterialFormRefs; actionsOpt: MaterialFormActionsOpt; },
+    ctx: { binding: ServerFormDefaultRawData<MaterialFormModel, MaterialFormRefs>["formData"]; refs: MaterialFormRefs; actionsOpt: MaterialFormActionsOpt; },
     defaultActions: ServerFormActions,
 ): ServerFormActions =>
 {
-    return { ...defaultActions, Preview: () => ctx.actionsOpt.onPreviewFromDto(buildMaterialPreviewPayload(ctx.binding.data, ctx.refs)) };
+    return { ...defaultActions, Preview: () => ctx.actionsOpt.onPreviewFromFormModel(buildMaterialPreviewPayload(ctx.binding.data, ctx.refs)) };
 };
 /** 建立 Material Form 標題，功能名稱優先讀 ModelDisplayName。 */
 const buildMaterialFormTitle = (ctx: { mode: "new" | "edit"; displayName: ModelDisplaySchema; }): string =>
@@ -443,7 +443,7 @@ const buildMaterialFormTitle = (ctx: { mode: "new" | "edit"; displayName: ModelD
 };
 
 /** 建立新增模式的 initial data，統一由 Feature Timing 交給 Template。 */
-const buildMaterialInitialData = (ctx: { mode: "new" | "edit"; emptyData: MaterialSet; }): ApiFormInitial<MaterialSet> | undefined =>
+const buildMaterialInitialData = (ctx: { mode: "new" | "edit"; emptyData: MaterialFormModel; }): ApiFormInitial<MaterialFormModel> | undefined =>
 {
     if (ctx.mode !== "new") return undefined;
     return { data: { args: "__new__", apiRes: { IsSuccess: true, Data: ctx.emptyData, SysMessage: [] } } };
@@ -456,7 +456,7 @@ const buildMaterialFormAdapter = (): MaterialFormAdapter =>
 };
 
 /** 取得 Header / Detail 需要的參照資料、語系明細與動態欄位。 */
-const useMaterialReferenceData = (ctx: { adapter: MaterialFormAdapter; binding: ServerFormBinding<MaterialSet>; lang: Lang; }) =>
+const useMaterialReferenceData = (ctx: { adapter: MaterialFormAdapter; binding: ServerFormBinding<MaterialFormModel>; lang: Lang; }) =>
 {
     useEnsureMaterialLangDetails(ctx.binding, ctx.lang);
 
@@ -509,11 +509,10 @@ const getMaterialModelTitle = (displayName: ModelDisplaySchema, fallback: string
 };
 
 /** 補齊物件多語資料，避免語系 Tab 缺列。 */
-const useEnsureMaterialLangDetails = (binding: ServerFormBinding<MaterialSet>, lang: Lang): void =>
+const useEnsureMaterialLangDetails = (binding: ServerFormBinding<MaterialFormModel>, lang: Lang): void =>
 {
     useEnsureLangDetails(binding, {
-        headerName: MaterialSetFields.Material,
-        detailName: MaterialSetFields.MaterialLangInfo,
+        detailName: MaterialFields._MaterialLangInfo,
         parentKeys: [MaterialLangInfoFields.MaterialId],
         langs: SUPPORTED_LANGS,
         preferFirstLang: lang,
@@ -521,9 +520,9 @@ const useEnsureMaterialLangDetails = (binding: ServerFormBinding<MaterialSet>, l
 };
 
 /** 取得目前選定的物件類別 Id。 */
-const useSelectedMaterialCategoryId = (binding: ServerFormBinding<MaterialSet>): string =>
+const useSelectedMaterialCategoryId = (binding: ServerFormBinding<MaterialFormModel>): string =>
 {
-    const categoryId = binding.data?.Material?.CategoryId ?? "";
+    const categoryId = binding.data?.CategoryId ?? "";
     return String(categoryId);
 };
 
@@ -537,42 +536,40 @@ const escapeQueryString = (value: string): string =>
 const buildMatCategoryInfoBaseParam = (categoryId: string): QueryListParam =>
 {
     const safeCategoryId = escapeQueryString(categoryId.trim());
+    const categoryPath = MatCategoryFormModelFields.Category;
+    const fieldPath = MatCategoryFormModelFields.MatCategoryInfoField;
     const condition = safeCategoryId
-        ? `${CategoryFields.ProgId} = "${PGID.Material}" And ${CategoryFields.CategoryId} = "${safeCategoryId}"`
-        : `${CategoryFields.CategoryId} = "__NONE__"`;
+        ? `${categoryPath}.${CategoryFields.ProgId} = "${PGID.Material}" And ${categoryPath}.${CategoryFields.CategoryId} = "${safeCategoryId}"`
+        : `${categoryPath}.${CategoryFields.CategoryId} = "__NONE__"`;
 
     return {
         Fields: [
-            CategoryFields.CategoryId,
-            `${CategoryFields._MatCategoryInfoField}.${MatCategoryInfoFieldFields.RowId}`,
-            `${CategoryFields._MatCategoryInfoField}.${MatCategoryInfoFieldFields.Field}`,
-            `${CategoryFields._MatCategoryInfoField}.${MatCategoryInfoFieldFields._MatCategoryInfoFieldDisplay}.${MatCategoryInfoFieldDisplayFields.ParentRowId}`,
-            `${CategoryFields._MatCategoryInfoField}.${MatCategoryInfoFieldFields._MatCategoryInfoFieldDisplay}.${MatCategoryInfoFieldDisplayFields.Lang}`,
-            `${CategoryFields._MatCategoryInfoField}.${MatCategoryInfoFieldFields._MatCategoryInfoFieldDisplay}.${MatCategoryInfoFieldDisplayFields.FieldDisplayName}`,
+            `${categoryPath}.${CategoryFields.CategoryId}`,
+            `${fieldPath}.${MatCategoryInfoFieldFields.RowId}`,
+            `${fieldPath}.${MatCategoryInfoFieldFields.Field}`,
+            `${fieldPath}.${MatCategoryInfoFieldFields._MatCategoryInfoFieldDisplay}.${MatCategoryInfoFieldDisplayFields.ParentRowId}`,
+            `${fieldPath}.${MatCategoryInfoFieldFields._MatCategoryInfoFieldDisplay}.${MatCategoryInfoFieldDisplayFields.Lang}`,
+            `${fieldPath}.${MatCategoryInfoFieldFields._MatCategoryInfoFieldDisplay}.${MatCategoryInfoFieldDisplayFields.FieldDisplayName}`,
         ],
         Condition: condition,
-        OrderBy: [{ Col: CategoryFields.ModifyTime, Desc: true }],
+        OrderBy: [{ Col: `${categoryPath}.${CategoryFields.ModifyTime}`, Desc: true }],
         PageNumber: 1,
         PageSize: 1,
     };
 };
 
-/** 從 MatCategorySet 抽出欄位定義。 */
-const getInfoFields = (list: MatCategorySet[] | null | undefined): InfoField[] =>
+/** 從 MatCategory FormModel 抽出欄位定義。 */
+const getInfoFields = (list: MatCategoryFormModel[] | null | undefined): InfoField[] =>
 {
-    const first = (list?.[0] ?? null) as MatCategorySetLike | null;
+    const first = (list?.[0] ?? null) as MatCategoryFormModelLike | null;
     return first?.MatCategoryInfoField ?? [];
 };
 
-/** 從 MatCategorySet 抽出欄位顯示名稱。 */
-const getInfoFieldDisplays = (list: MatCategorySet[] | null | undefined): InfoFieldDisplay[] =>
+/** 從 MatCategory FormModel 抽出欄位顯示名稱。 */
+const getInfoFieldDisplays = (list: MatCategoryFormModel[] | null | undefined): InfoFieldDisplay[] =>
 {
-    const first = (list?.[0] ?? null) as MatCategorySetLike | null;
-    const topRows = first?.MatCategoryInfoFieldDisplay ?? [];
-    if (topRows.length > 0) return topRows;
-
     const rows = getInfoFields(list) as InfoFieldWithDisplay[];
-    return rows.flatMap(row => row._MatCategoryInfoFieldDisplay ?? row.MatCategoryInfoFieldDisplay ?? []);
+    return rows.flatMap(row => row._MatCategoryInfoFieldDisplay ?? []);
 };
 
 /** 建立物件語系分頁資料。 */
@@ -686,12 +683,12 @@ const getInfoFieldTitle = (field: InfoField, displays: InfoFieldDisplay[], lang:
 /** 取得指定欄位的多語顯示列。 */
 const getInfoFieldDisplayRows = (field: InfoField, displays: InfoFieldDisplay[], rowId: string): InfoFieldDisplay[] =>
 {
-    const nested = (field as InfoFieldWithDisplay)._MatCategoryInfoFieldDisplay ?? (field as InfoFieldWithDisplay).MatCategoryInfoFieldDisplay ?? [];
+    const nested = (field as InfoFieldWithDisplay)._MatCategoryInfoFieldDisplay ?? [];
     const merged = nested.length > 0 ? nested : displays;
     return merged.filter(x => String(x.ParentRowId ?? "") === rowId);
 };
 
-/** 將 DTO 的 null key 轉成 binding 可接受的 undefined。 */
+/** 將明細的 null key 轉成 binding 可接受的 undefined。 */
 const toBindingRowKey = (value: string | number | null | undefined): MaterialRowKeyValue =>
 {
     return value;
@@ -700,7 +697,7 @@ const toBindingRowKey = (value: string | number | null | undefined): MaterialRow
 /** 建立物件相片 EditGrid 固定設定，Grid 標題優先讀 ModelDisplayName。 */
 const buildMaterialPictureGridProps = (style: IEditGridView_Style, displayName: ModelDisplaySchema) =>
 {
-    const gridTitle = getMaterialTableTitle(displayName, MaterialSetFields.MaterialPicture, "物件照片");
+    const gridTitle = getMaterialTableTitle(displayName, MaterialFields._MaterialPicture, "物件照片");
 
     return {
         title: gridTitle,
@@ -721,17 +718,17 @@ const buildMaterialPictureGridProps = (style: IEditGridView_Style, displayName: 
     };
 };
 
-/** 依 RowId 排序物件相片。 */
+/** 依 RowNo、RowId 排序物件相片。 */
 const sortMaterialPictures = (pictures: MaterialPicture[]): MaterialPicture[] =>
 {
-    return [...pictures].sort((a, b) => Number(a.RowId ?? 0) - Number(b.RowId ?? 0));
+    return [...pictures].sort((a, b) => Number(a.RowNo ?? a.RowId ?? 0) - Number(b.RowNo ?? b.RowId ?? 0));
 };
 
 /** 建立物件相片 Grid 欄位設定，欄位名稱優先讀 ModelDisplayName。 */
 const buildMaterialPictureColumns = (displayName: ModelDisplaySchema): ColumnConfig[] =>
 {
-    const picTitle = getMaterialColumnTitle(displayName, MaterialSetFields.MaterialPicture, MaterialPictureFields.PictureId, "圖片");
-    const nameTitle = getMaterialColumnTitle(displayName, MaterialSetFields.MaterialPicture, MaterialPictureFields.PictureName, "圖片名稱");
+    const picTitle = getMaterialColumnTitle(displayName, MaterialFields._MaterialPicture, MaterialPictureFields.PictureId, "圖片");
+    const nameTitle = getMaterialColumnTitle(displayName, MaterialFields._MaterialPicture, MaterialPictureFields.PictureName, "圖片名稱");
 
     return [{
         key: MaterialPictureFields.PictureId,
@@ -746,7 +743,7 @@ const buildMaterialPictureColumns = (displayName: ModelDisplaySchema): ColumnCon
     }, { key: MaterialPictureFields.PictureName, title: nameTitle, width: 300, inputType: "text", editable: true, maxLength: 200 }];
 };
 
-/** 將物件相片 DTO 轉成 EditGrid Row。 */
+/** 將物件相片明細轉成 EditGrid Row。 */
 const buildMaterialPictureGridRow = (
     picture: MaterialPicture,
     index: number,
@@ -761,14 +758,14 @@ const buildMaterialPictureGridRow = (
         keyId: buildMaterialPictureRowKey(picture, index),
         rowId,
         RowId: rowId,
-        RowNo: index + 1,
+        RowNo: picture.RowNo ?? index + 1,
         MaterialId: picture.MaterialId,
         Picture: picture.Picture ?? null,
         cells: buildMaterialPictureCells(picture, opt, onPictureValueChange, displayName),
     };
 };
 
-/** 建立物件相片列 cells，避免 Comp 介入 DTO 與 CellValue 轉換。 */
+/** 建立物件相片列 cells，避免 Comp 介入明細與 CellValue 轉換。 */
 const buildMaterialPictureCells = (
     picture: MaterialPicture,
     opt: UseMaterialPictureEditGridOptions,
@@ -776,8 +773,8 @@ const buildMaterialPictureCells = (
     displayName: ModelDisplaySchema,
 ): RowCell[] =>
 {
-    const picTitle = getMaterialColumnTitle(displayName, MaterialSetFields.MaterialPicture, MaterialPictureFields.PictureId, "圖片");
-    const nameTitle = getMaterialColumnTitle(displayName, MaterialSetFields.MaterialPicture, MaterialPictureFields.PictureName, "圖片名稱");
+    const picTitle = getMaterialColumnTitle(displayName, MaterialFields._MaterialPicture, MaterialPictureFields.PictureId, "圖片");
+    const nameTitle = getMaterialColumnTitle(displayName, MaterialFields._MaterialPicture, MaterialPictureFields.PictureName, "圖片名稱");
 
     return [
         buildEditGridCell(MaterialPictureFields.PictureId, picTitle, buildMaterialPictureCellValue(picture), {
@@ -812,21 +809,22 @@ const getMaterialColumnTitle = (displayName: ModelDisplaySchema, tableId: string
     return columnHit?.ColumnDisplayName ?? fallbackHit?.ColumnDisplayName ?? fallback;
 };
 
-/** 建立新物件相片 DTO，RowId 由共用 Hook 推算。 */
-const buildNewMaterialPictureItem = (data: MaterialSet, rowId: number): MaterialPicture =>
+/** 建立新物件相片明細，RowId 與 RowNo 由共用 Hook 推算。 */
+const buildNewMaterialPictureItem = (data: MaterialFormModel, rowId: number, rowNo: number): MaterialPicture =>
 {
-    return { MaterialId: data.Material?.MaterialId, RowId: rowId, PictureId: "", PictureName: "" };
+    return { MaterialId: data.MaterialId, RowId: rowId, RowNo: rowNo, PictureId: "", PictureName: "" };
 };
 
-/** 將物件相片 Grid Row 轉回 DTO，RowId 依畫面排序重算。 */
-const toMaterialPictureDto = (source: MaterialSet, row: GridRow, index: number): MaterialPicture =>
+/** 將物件相片 Grid Row 轉回明細，保留 RowId 並重排 RowNo。 */
+const toMaterialPictureModel = (source: MaterialFormModel, row: GridRow, index: number): MaterialPicture =>
 {
     const pictureValue = toMaterialPictureCellValue(getEditGridCellValue(row, MaterialPictureFields.PictureId));
-    const rowId = index + 1;
+    const rowId = getEditGridRowId(row, index);
 
     return {
-        MaterialId: source.Material?.MaterialId ?? (row as MaterialPictureGridRow).MaterialId,
+        MaterialId: source.MaterialId ?? (row as MaterialPictureGridRow).MaterialId,
         RowId: rowId,
+        RowNo: index + 1,
         PictureId: pictureValue.internalId ?? "",
         PictureName: getNullableStringCellValue(row, MaterialPictureFields.PictureName) ?? LibAttachment.getDisplayFileNameWithoutExtension(pictureValue.originalFileName),
         Picture: (row as MaterialPictureGridRow).Picture ?? undefined,
@@ -866,7 +864,7 @@ const uploadMaterialPictureValue = async (args: EditGridCellValueChangeArgs, han
 /** 批次上傳所有選取檔案，成功後一次寫入 Form data。 */
 const uploadMaterialBatchFiles = async (
     opt: {
-        binding: ServerFormBinding<MaterialSet>;
+        binding: ServerFormBinding<MaterialFormModel>;
         files: File[];
         uploadFile: UploadFileHandler;
         setError: (error: string | null) => void;
@@ -924,31 +922,45 @@ const uploadSingleMaterialFile = async (file: File, uploadFile: UploadFileHandle
 };
 
 /** 將批次上傳結果追加成 MaterialPicture。 */
-const appendMaterialUploadedPictures = (binding: ServerFormBinding<MaterialSet>, uploaded: MaterialUploadedPicture[]): void =>
+const appendMaterialUploadedPictures = (binding: ServerFormBinding<MaterialFormModel>, uploaded: MaterialUploadedPicture[]): void =>
 {
     binding.setFormData(prev => appendMaterialUploadedPicturesToData(prev ?? materialEmptyData, uploaded));
 };
 
 /** 將批次圖片寫入資料，圖片名稱預設為檔案名稱。 */
-const appendMaterialUploadedPicturesToData = (data: MaterialSet, uploaded: MaterialUploadedPicture[]): MaterialSet =>
+const appendMaterialUploadedPicturesToData = (data: MaterialFormModel, uploaded: MaterialUploadedPicture[]): MaterialFormModel =>
 {
-    const materialId = data.Material?.MaterialId;
-    const startRowId = getNextMaterialPictureRowId(data.MaterialPicture ?? []);
-    const newPictures = uploaded.map((item, index) => buildUploadedMaterialPictureDto(materialId, startRowId + index, item));
+    const materialId = data.MaterialId;
+    const pictures = data._MaterialPicture ?? [];
+    const startRowId = getNextMaterialPictureRowId(pictures);
+    const startRowNo = getNextMaterialPictureRowNo(pictures);
+    const newPictures = uploaded.map((item, index) =>
+        buildUploadedMaterialPicture(materialId, startRowId + index, startRowNo + index, item));
 
-    return { ...data, MaterialPicture: [...data.MaterialPicture ?? [], ...newPictures] };
+    return { ...data, _MaterialPicture: [...pictures, ...newPictures] };
 };
 
-/** 建立批次上傳後的物件相片 DTO。 */
-const buildUploadedMaterialPictureDto = (materialId: string | null | undefined, rowId: number, item: MaterialUploadedPicture): MaterialPicture =>
+/** 建立批次上傳後的物件相片明細。 */
+const buildUploadedMaterialPicture = (
+    materialId: string | null | undefined,
+    rowId: number,
+    rowNo: number,
+    item: MaterialUploadedPicture,
+): MaterialPicture =>
 {
-    return { MaterialId: materialId, RowId: rowId, PictureId: item.internalId, PictureName: item.title };
+    return { MaterialId: materialId, RowId: rowId, RowNo: rowNo, PictureId: item.internalId, PictureName: item.title };
 };
 
 /** 取得下一個相片 RowId。 */
 const getNextMaterialPictureRowId = (pictures: MaterialPicture[]): number =>
 {
     return pictures.reduce((max, picture) => Math.max(max, Number(picture.RowId ?? 0)), 0) + 1;
+};
+
+/** 取得下一個相片 RowNo。 */
+const getNextMaterialPictureRowNo = (pictures: MaterialPicture[]): number =>
+{
+    return pictures.reduce((max, picture) => Math.max(max, Number(picture.RowNo ?? 0)), 0) + 1;
 };
 
 /** 取得本次選圖的原始檔名，避免上傳 callback 未帶檔名時只剩 internalId。 */
@@ -1005,7 +1017,7 @@ const buildMaterialPictureFieldDisplayName = (originalName?: string | null, inte
     return name || id;
 };
 
-/** 從 FileManageModel 取得原始檔名。 */
+/** 從檔案資料取得原始檔名。 */
 const getManagedFileOriginalName = (file?: FileManage | null): string =>
 {
     const name = String(file?.FileName ?? "").trim();
@@ -1029,40 +1041,40 @@ const getNullableStringCellValue = (row: GridRow, key: string): string | null =>
 };
 
 /** 取得目前已選標籤 Id。 */
-const getSelectedMaterialTagIds = (binding: ServerFormBinding<MaterialSet>): string[] =>
+const getSelectedMaterialTagIds = (binding: ServerFormBinding<MaterialFormModel>): string[] =>
 {
-    return (binding.data?.MaterialTags ?? []).map(x => String(x.TagId ?? "").trim()).filter(Boolean);
+    return (binding.data?._MaterialTags ?? []).map(x => String(x.TagId ?? "").trim()).filter(Boolean);
 };
 
 /** 依 CheckBox 回傳值同步 MaterialTags。 */
-const updateMaterialTagsByInput = (binding: ServerFormBinding<MaterialSet>, value: unknown): void =>
+const updateMaterialTagsByInput = (binding: ServerFormBinding<MaterialFormModel>, value: unknown): void =>
 {
     const nextIds = Array.isArray(value) ? value.map(x => String(x ?? "").trim()).filter(Boolean) : [];
 
     binding.setFormData(prev => syncMaterialTags(prev ?? materialEmptyData, nextIds));
 };
 
-/** 將選取的 TagId 轉成 MaterialTags DTO。 */
-const syncMaterialTags = (data: MaterialSet, tagIds: string[]): MaterialSet =>
+/** 將選取的 TagId 轉成物件標籤明細。 */
+const syncMaterialTags = (data: MaterialFormModel, tagIds: string[]): MaterialFormModel =>
 {
-    const materialId = data.Material?.MaterialId ?? "";
-    const prevRows = data.MaterialTags ?? [];
+    const materialId = data.MaterialId ?? "";
+    const prevRows = data._MaterialTags ?? [];
     const nextRows = tagIds.map((tagId, index) => buildMaterialTagRow(prevRows, materialId, tagId, index));
 
-    return { ...data, MaterialTags: nextRows };
+    return { ...data, _MaterialTags: nextRows };
 };
 
 /** 建立或沿用 MaterialTags 單列資料。 */
-const buildMaterialTagRow = (rows: MaterialTags[], materialId: string, tagId: string, index: number): MaterialTags =>
+const buildMaterialTagRow = (rows: MaterialTag[], materialId: string, tagId: string, index: number): MaterialTag =>
 {
     const exists = rows.find(row => String(row.TagId ?? "") === tagId);
-    return { ...(exists ?? {}), MaterialId: exists?.MaterialId ?? materialId, RowId: exists?.RowId ?? index + 1, TagId: tagId };
+    return { ...(exists ?? {}), MaterialId: exists?.MaterialId ?? materialId, RowId: exists?.RowId ?? index + 1, RowNo: index + 1, TagId: tagId };
 };
 /** 建立物件預覽 payload，補上前台顯示需要的分類、標籤與動態欄位名稱。 */
-const buildMaterialPreviewPayload = (formData: MaterialSet, refs: MaterialFormRefs): MaterialPreviewPayload =>
+const buildMaterialPreviewPayload = (formData: MaterialFormModel, refs: MaterialFormRefs): MaterialPreviewPayload =>
 {
-    const categoryNameText = mapMaterialCategoryToText(formData.Material?.CategoryId, refs.categoryMap);
-    const tagNameText = mapMaterialTagsToText(formData.MaterialTags, refs.tagMap);
+    const categoryNameText = mapMaterialCategoryToText(formData.CategoryId, refs.categoryMap);
+    const tagNameText = mapMaterialTagsToText(formData._MaterialTags, refs.tagMap);
     const matCateInfoFieldsMap = buildMaterialInfoFieldTitleMap(refs.infoFields, refs.infoFieldDisplays);
     return { formData, categoryNameText, tagNameText, matCateInfoFieldsMap };
 };
@@ -1075,7 +1087,7 @@ const mapMaterialCategoryToText = (categoryId: string | null | undefined, map: R
 };
 
 /** 將物件標籤列轉成顯示文字。 */
-const mapMaterialTagsToText = (tags: MaterialTags[] | null | undefined, map: Record<string, string>): string =>
+const mapMaterialTagsToText = (tags: MaterialTag[] | null | undefined, map: Record<string, string>): string =>
 {
     const keys = (tags ?? []).map(tag => String(tag.TagId ?? "").trim()).filter(Boolean);
     return LibText.mapKeysToDisplayText(keys, map ?? {}, "、");

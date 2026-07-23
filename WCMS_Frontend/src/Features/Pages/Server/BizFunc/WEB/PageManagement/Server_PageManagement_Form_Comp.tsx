@@ -6,13 +6,13 @@ import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/Sy
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
 import { LibDropList, LibTextBox, LibTinyMCE } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
-import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
+import { useFormModelField, useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
 import type { components } from "@/types/api";
-import { PageManagementDetailFields, PageManagementFields, PageManagementSetFields, PGID } from "@/types/SchemaFields";
+import { PageManagementDetailFields, PageManagementFields, PGID } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -26,7 +26,7 @@ import {
 } from "./Server_PageManagement_Form_Hook";
 
 // #region Property
-type PageManagementSet = components["schemas"]["PageManagementSet_DTO"];
+type PageManagementFormModel = components["schemas"]["PageManagement"];
 
 interface PageManagementFormCompProps
 {
@@ -43,7 +43,7 @@ interface HeaderSectionProps
     theme: IBETheme;
 
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<PageManagementSet>;
+    binding: ServerFormBinding<PageManagementFormModel>;
 
     /** PageManagement Hook 整理後的參照資料 */
     refs: PageManagementFormRefs;
@@ -58,13 +58,13 @@ interface DetailSectionProps
     lang: Lang;
 
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<PageManagementSet>;
+    binding: ServerFormBinding<PageManagementFormModel>;
 }
 
 interface HeaderTabContentOptions extends HeaderSectionProps
 {
     /** 欄位 binding helper */
-    setField: ReturnType<typeof useSetTableField<PageManagementSet>>;
+    setField: ReturnType<typeof useFormModelField<PageManagementFormModel>>;
 
     /** 頁面分類下拉選項 */
     categoryOptions: Map<string, string>;
@@ -79,7 +79,7 @@ interface DetailTabContentOptions
     tabItems: PageManagementDetailTabItem[];
 
     /** 欄位 binding helper */
-    setField: ReturnType<typeof useSetTableField<PageManagementSet>>;
+    setField: ReturnType<typeof useSetTableField<PageManagementFormModel>>;
 }
 
 interface DetailFieldsOptions
@@ -88,7 +88,7 @@ interface DetailFieldsOptions
     theme: IBETheme;
 
     /** 欄位 binding helper */
-    setField: ReturnType<typeof useSetTableField<PageManagementSet>>;
+    setField: ReturnType<typeof useSetTableField<PageManagementFormModel>>;
 
     /** Detail row keys，給 useSetTableField 綁定欄位 */
     rowKeys: PageManagementDetailRowKeys;
@@ -102,7 +102,7 @@ export const Server_PageManagement_Form_Comp = (props: PageManagementFormCompPro
     const { internalId } = useParams();
     const navigate = useNavigate();
     const pathname = useLocation().pathname;
-    const preview = useServerPreviewFrame<PageManagementSet>({ ProgId: PGID.PageManagement });
+    const preview = useServerPreviewFrame<PageManagementFormModel>({ ProgId: PGID.PageManagement });
     const onBackToList = useCallback(() =>
     {
         const listPath = LibRoutePath.buildServerBackToListPath(pathname);
@@ -145,7 +145,7 @@ export const Server_PageManagement_Form_Comp = (props: PageManagementFormCompPro
 /** 頁面管理 Header 區塊，直接使用新版 Template Binding 與 Refs。 */
 const HeaderComp = (props: HeaderSectionProps) =>
 {
-    const setField = useSetTableField<PageManagementSet>(props.binding);
+    const setField = useFormModelField<PageManagementFormModel>(props.binding);
     const categoryOptions = useMemo(() => buildCategoryOptions(props.refs.categoryMap), [props.refs.categoryMap]);
     const tabInfo: LibTabsProp = { Style: props.theme.Tabs, item: { Basic: "基本", System: "系統資訊" } };
     const tabContent = buildHeaderTabContent({ ...props, setField, categoryOptions });
@@ -156,7 +156,7 @@ const HeaderComp = (props: HeaderSectionProps) =>
 /** 頁面管理多語 Detail 區塊，語系資料由 Hook 統一整理。 */
 const DetailComp = (props: DetailSectionProps) =>
 {
-    const setField = useSetTableField<PageManagementSet>(props.binding);
+    const setField = useSetTableField<PageManagementFormModel>(props.binding);
     const detailTabs = usePageManagementDetailTabs({ binding: props.binding, lang: props.lang });
     const tabInfo: LibTabsProp = { Style: props.theme.Tabs, item: detailTabs.tabItems };
     const tabContent = buildDetailTabContent({ theme: props.theme, tabItems: detailTabs.items, setField });
@@ -171,7 +171,7 @@ const buildHeaderTabContent = (opt: HeaderTabContentOptions): Record<string, Rea
 {
     return {
         Basic: buildBasicFields(opt),
-        System: [<SystemInfoTabComp theme={opt.theme} formData={opt.binding} setKey={PageManagementSetFields.PageManagement} />],
+        System: [<SystemInfoTabComp theme={opt.theme} formData={opt.binding} />],
     };
 };
 
@@ -182,13 +182,13 @@ const buildBasicFields = (opt: HeaderTabContentOptions): ReactNode[] =>
         <LibDropList
             Style={opt.theme.DropList}
             Options={opt.categoryOptions}
-            {...opt.setField(PageManagementSetFields.PageManagement, PageManagementFields.CategoryId, "string")}
+            {...opt.setField(PageManagementFields.CategoryId, "string")}
         />,
         <LibDropList
             Style={opt.theme.DropList}
             Options={opt.refs.usedProgMap}
             ShowPlaceholder={false}
-            {...opt.setField(PageManagementSetFields.PageManagement, PageManagementFields.ProgId, "string")}
+            {...opt.setField(PageManagementFields.ProgId, "string")}
         />,
     ];
 };
@@ -210,11 +210,11 @@ const buildDetailFields = (opt: DetailFieldsOptions): ReactNode[] =>
         <LibTextBox
             Style={opt.theme.TextBox}
             DefaultInputDisplay="請輸入"
-            {...opt.setField(PageManagementSetFields.PageManagementDetail, PageManagementDetailFields.Title, "string", opt.rowKeys)}
+            {...opt.setField(PageManagementFields._PageManagementDetail, PageManagementDetailFields.Title, "string", opt.rowKeys)}
         />,
         <LibTinyMCE
             Style={opt.theme.TinyMCE}
-            {...opt.setField(PageManagementSetFields.PageManagementDetail, PageManagementDetailFields.Content, "string", opt.rowKeys)}
+            {...opt.setField(PageManagementFields._PageManagementDetail, PageManagementDetailFields.Content, "string", opt.rowKeys)}
         />,
     ];
 };

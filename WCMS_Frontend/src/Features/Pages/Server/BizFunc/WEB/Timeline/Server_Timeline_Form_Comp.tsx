@@ -16,26 +16,27 @@ import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
 import { LibTextBox, LibTinyMCE } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
 import type { ILibTinyMCEStyle } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
-import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
+import { useFormModelField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
 import type { components } from "@/types/api";
-import { PGID, TimelineFields, TimelineLangDetailFields, TimelineSetFields } from "@/types/SchemaFields";
+import { PGID, TimelineFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
     timelineEmptyData,
     type TimelineLangDetailGridRow,
+    useTimelineContentField,
     useTimelineFormTemplate,
     useTimelineItemEditGrid,
     useTimelineLangDetailEditGrid,
 } from "./Server_Timeline_Form_Hook";
 
 // #region Property
-type TimelineSet = components["schemas"]["TimelineSet_DTO"];
+type TimelineFormModel = components["schemas"]["Timeline"];
 
 interface TimelineFormCompProps
 {
@@ -52,7 +53,7 @@ interface HeaderSectionProps
     theme: IBETheme;
 
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<TimelineSet>;
+    binding: ServerFormBinding<TimelineFormModel>;
 }
 
 interface DetailSectionProps
@@ -64,13 +65,13 @@ interface DetailSectionProps
     lang: Lang;
 
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<TimelineSet>;
+    binding: ServerFormBinding<TimelineFormModel>;
 }
 
 interface HeaderTabContentOptions extends HeaderSectionProps
 {
     /** 欄位 binding helper */
-    setField: ReturnType<typeof useSetTableField<TimelineSet>>;
+    setField: ReturnType<typeof useFormModelField<TimelineFormModel>>;
 }
 
 interface LangDetailGridProps extends DetailSectionProps
@@ -106,7 +107,7 @@ export const Server_Timeline_Form_Comp = (props: TimelineFormCompProps) =>
     const { internalId } = useParams();
     const navigate = useNavigate();
     const pathname = useLocation().pathname;
-    const preview = useServerPreviewFrame<TimelineSet>({ ProgId: PGID.Timeline });
+    const preview = useServerPreviewFrame<TimelineFormModel>({ ProgId: PGID.Timeline });
     const onBackToList = useCallback(() =>
     {
         const listPath = LibRoutePath.buildServerBackToListPath(pathname);
@@ -116,7 +117,7 @@ export const Server_Timeline_Form_Comp = (props: TimelineFormCompProps) =>
 
     const actionsOpt = useMemo(() =>
     {
-        return { onBackToList, onPreviewFromDto: preview.openPreview };
+        return { onBackToList, onPreviewFromFormModel: preview.openPreview };
     }, [onBackToList, preview.openPreview]);
 
     const template = useTimelineFormTemplate({ lang: props.lang, theme: props.theme, internalId: internalId ?? "", emptyData: timelineEmptyData, actionsOpt });
@@ -153,7 +154,7 @@ const TimelineContentComp = (props: DetailSectionProps) =>
 /** 紀事表 Header 區塊，保留舊版 Header input 並改用 Template Binding。 */
 const HeaderComp = (props: HeaderSectionProps) =>
 {
-    const setField = useSetTableField<TimelineSet>(props.binding);
+    const setField = useFormModelField<TimelineFormModel>(props.binding);
     const tabInfo: LibTabsProp = { Style: props.theme.Tabs, item: { Basic: "基本", System: "系統資訊" } };
     const tabContent = buildHeaderTabContent({ ...props, setField });
 
@@ -240,9 +241,7 @@ const TimelineLangDetailGridComp = (props: LangDetailGridProps) =>
 /** TinyMCE 內容編輯區，移除前置 Label 並讓編輯器吃滿展開區。 */
 const TimelineContentEditorComp = (props: ContentEditorProps) =>
 {
-    const setField = useSetTableField<TimelineSet>(props.binding);
-    const rowKeys = buildTimelineLangDetailRowKeys(props.row as TimelineLangDetailGridRow);
-    const contentField = setField(TimelineSetFields.TimelineLangDetail, TimelineLangDetailFields.Content, "string", rowKeys);
+    const contentField = useTimelineContentField(props.binding, props.row as TimelineLangDetailGridRow);
 
     return (
         <div className="p-3 w-100" style={{ backgroundColor: "#fff", border: "1px solid #e9ecef" }}>
@@ -256,7 +255,7 @@ const TimelineContentEditorComp = (props: ContentEditorProps) =>
 /** 建立紀事表 Header 的各分頁欄位。 */
 const buildHeaderTabContent = (opt: HeaderTabContentOptions): Record<string, ReactNode[]> =>
 {
-    return { Basic: buildBasicFields(opt), System: [<SystemInfoTabComp theme={opt.theme} formData={opt.binding} setKey={TimelineSetFields.Timeline} />] };
+    return { Basic: buildBasicFields(opt), System: [<SystemInfoTabComp theme={opt.theme} formData={opt.binding} />] };
 };
 
 /** 建立基本資料欄位。 */
@@ -266,30 +265,11 @@ const buildBasicFields = (opt: HeaderTabContentOptions): ReactNode[] =>
         <LibTextBox
             Style={opt.theme.TextBox}
             DefaultInputDisplay="請輸入"
-            {...opt.setField(TimelineSetFields.Timeline, TimelineFields.TimelineName, "string")}
+            {...opt.setField(TimelineFields.TimelineName, "string")}
         />,
     ];
 };
 
-/** 建立返回列表頁路徑。 */
-/** 建立 TimelineLangDetail 的 Binding row keys，避免 undefined/null 主鍵造成 upsert 追加空白列。 */
-const buildTimelineLangDetailRowKeys = (row: TimelineLangDetailGridRow): Record<string, string | number> =>
-{
-    const rowKeys = buildTimelineLangDetailBaseRowKeys(row);
-    if (row.TimelineId) rowKeys[TimelineLangDetailFields.TimelineId] = row.TimelineId;
-
-    return rowKeys;
-};
-
-/** 建立語系明細必要主鍵，使用 ParentRowId + RowId + Lang 精準定位資料列。 */
-const buildTimelineLangDetailBaseRowKeys = (row: TimelineLangDetailGridRow): Record<string, string | number> =>
-{
-    return {
-        [TimelineLangDetailFields.ParentRowId]: Number(row.ParentRowId ?? 0),
-        [TimelineLangDetailFields.RowId]: Number(row.DetailRowId ?? row.RowId ?? row.rowId ?? 0),
-        [TimelineLangDetailFields.Lang]: String(row.Lang ?? ""),
-    };
-};
 // #endregion
 
 // #region Private

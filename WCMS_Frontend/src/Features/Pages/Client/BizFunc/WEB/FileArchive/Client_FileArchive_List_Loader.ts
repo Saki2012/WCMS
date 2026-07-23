@@ -13,6 +13,7 @@ import {
     useClientDataQueryTemplate,
 } from "@/Features/Pages/Client/Scaffold/DataQueryTemplate/Client_DataQueryTemplate_Hook";
 import { getClientSlotPath } from "@/Features/Pages/Client/Scaffold/Slot/Client_SlotPath";
+import { getClientSearchBarText } from "@/Features/Pages/Client/Scaffold/SubPages/Module/SearchBar/Client_SearchBar_I18n";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
@@ -29,7 +30,7 @@ import {
     FileArchiveFields,
     FileArchiveInfoFields,
     FileArchiveUrlDetailFields,
-    FileManageModelFields,
+    FileManageFields,
     PGID,
 } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
@@ -38,7 +39,7 @@ import type { IFileArchiveOptions } from "./Client_FileArchive_List_Comp";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
-type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];
+type FileArchiveFormModel = components["schemas"]["FileArchive"];
 const SEARCH_TITLE_KEY = "title";
 const SEARCH_TAG_KEY = "tag";
 interface FileArchiveTagOption
@@ -59,7 +60,7 @@ interface FileArchiveListLoaderArgs
 }
 interface FileArchiveListLoaderInitial
 {
-    grid: ApiGridLoaderData<FileArchiveSet>;
+    grid: ApiGridLoaderData<FileArchiveFormModel>;
     category: CategoryMapLoaderData;
     tag: TagMapLoaderData;
 }
@@ -71,7 +72,7 @@ interface FileArchiveListLoaderData
 type FileArchiveListRawData = {
     modelDisplayName: ModelDisplaySchema | null;
     count: number;
-    list: FileArchiveSet[];
+    list: FileArchiveFormModel[];
     pageNumber: number;
     totalPages: number;
     onPageChange: (page: number) => void;
@@ -146,10 +147,14 @@ const getResolvedFileArchiveListDataQuerySpec = (): FileArchiveListDataQuerySpec
 
 // #region Private
 /** 建立 FileArchive 前台搜尋欄位，標籤選單由 tag map 動態提供 */
-const buildFileArchiveSearchFields = (tagOptions: FileArchiveTagOption[] = []): SearchFieldConfig[] =>
+const buildFileArchiveSearchFields = (lang: Lang, tagOptions: FileArchiveTagOption[] = []): SearchFieldConfig[] =>
 {
+    const isEnglish = lang === "en";
     const options = tagOptions.map(item => ({ value: item.id, title: item.name }));
-    return [{ key: SEARCH_TITLE_KEY, title: "標題", label: "標題", type: "text", placeholder: "請輸入標題", maxLength: 100 }, { key: SEARCH_TAG_KEY, title: "標籤", type: "select", options }] as SearchFieldConfig[];
+    return [
+        { key: SEARCH_TITLE_KEY, title: isEnglish ? "Title" : "標題", type: "text", placeholder: isEnglish ? "Enter a title" : "請輸入標題", maxLength: 100 },
+        { key: SEARCH_TAG_KEY, title: isEnglish ? "Tag" : "標籤", type: "select", options },
+    ] as SearchFieldConfig[];
 };
 /** 建立 FileArchive 搜尋初始值 */
 const buildFileArchiveSearchValues = (p?: { title?: string; tagIds?: string; }): SearchValues =>
@@ -194,16 +199,21 @@ const buildFileArchiveQuery = (p: { condition: string; pageNumber: number; pageS
             FileArchiveFields.ContentStatus,
             `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.FileArchiveId}`,
             `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.RowId}`,
+            `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.RowNo}`,
             `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.Lang}`,
             `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.Title}`,
             `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.FileArchiveId}`,
+            `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.RowId}`,
+            `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.RowNo}`,
             `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.ParentRowId}`,
             `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.FileSrcId}`,
             `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.FileName}`,
-            `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.FileSrc}.${FileManageModelFields.InternalId}`,
-            `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.FileSrc}.${FileManageModelFields.FileExtension}`,
-            `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.FileSrc}.${FileManageModelFields.PublicDownloadCount}`,
+            `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.FileSrc}.${FileManageFields.InternalId}`,
+            `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.FileSrc}.${FileManageFields.FileExtension}`,
+            `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.FileSrc}.${FileManageFields.PublicDownloadCount}`,
             `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveUrlDetail}.${FileArchiveUrlDetailFields.FileArchiveId}`,
+            `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveUrlDetail}.${FileArchiveUrlDetailFields.RowId}`,
+            `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveUrlDetail}.${FileArchiveUrlDetailFields.RowNo}`,
             `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveUrlDetail}.${FileArchiveUrlDetailFields.ParentRowId}`,
             `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveUrlDetail}.${FileArchiveUrlDetailFields.Url}`,
             `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveUrlDetail}.${FileArchiveUrlDetailFields.UrlDescription}`,
@@ -240,6 +250,7 @@ const createFileArchiveDataQueryTemplate = (
 {
     const initialViewState = buildFileArchiveInitialViewState(p.overrides);
     const initialSearchValues = buildFileArchiveSearchValues({ title: p.overrides?.title, tagIds: p.overrides?.tagIds });
+    const searchBarText = getClientSearchBarText(p.lang);
     return {
         featureKey: "FileArchiveList",
         dataMode: "multiple",
@@ -258,10 +269,10 @@ const createFileArchiveDataQueryTemplate = (
         initialSearchValues,
         initialViewState,
         pagination: { defaultPageNumber: initialViewState.pageNumber, defaultPageSize: initialViewState.pageSize, resetPageOnSearch: true },
-        searchBar: { title: "搜尋條件", actionAlign: "right", columnCount: 3 },
+        searchBar: { ...searchBarText, actionAlign: "right", columnCount: 3 },
         spec: getResolvedFileArchiveListDataQuerySpec(),
         feature: {
-            buildSearchFields: (ctx) => buildFileArchiveSearchFields(ctx.rawData.tagOptions),
+            buildSearchFields: (ctx) => buildFileArchiveSearchFields(p.lang, ctx.rawData.tagOptions),
             toSearchParams: (values, viewState) => buildFileArchiveSearchParams({ ...p, values, viewState }),
             buildSearchConditions: (ctx) => [buildFileArchiveCondition(ctx.searchParams)],
             buildQueryParam: (ctx) => buildFileArchiveQueryArgs({ ...ctx.searchParams, condition: ctx.searchCondition }),
@@ -296,7 +307,7 @@ const isValidTagOption = (item: FileArchiveTagOption): boolean =>
     return Boolean(item.id && item.name);
 };
 /** 取得 SSR initial grid，條件一致才沿用 count/list */
-const buildGridInitial = (p: { queryParam: FileArchiveQueryParam; loaderData: FileArchiveListLoaderData | null; }): ApiGridInitial<FileArchiveSet> | undefined =>
+const buildGridInitial = (p: { queryParam: FileArchiveQueryParam; loaderData: FileArchiveListLoaderData | null; }): ApiGridInitial<FileArchiveFormModel> | undefined =>
 {
     const initial = p.loaderData?.initial?.grid;
     const matched = isSameClientDataQueryParam(p.loaderData?.args?.listParam, p.queryParam.listParam);

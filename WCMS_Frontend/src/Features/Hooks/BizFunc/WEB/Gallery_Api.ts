@@ -5,11 +5,11 @@ import { PGID } from "@/types/SchemaFields";
 import type { AxiosInstance } from "axios";
 
 // #region Property
-type GallerySet = components["schemas"]["GallerySet_DTO"];
+type GalleryFormModel = components["schemas"]["Gallery"];
 // #endregion
 
 // #region Public
-class GalleryService extends ApiDataService<GallerySet>
+class GalleryService extends ApiDataService<GalleryFormModel>
 {
     // #region Public
     constructor(apiInstance?: AxiosInstance)
@@ -18,7 +18,7 @@ class GalleryService extends ApiDataService<GallerySet>
     }
     // #endregion
 }
-export class GalleryAdapterImpl extends ApiDataAdapter<GallerySet, GalleryService>
+export class GalleryAdapterImpl extends ApiDataAdapter<GalleryFormModel, GalleryService>
 {}
 export const GalleryAdapter = (apiInstance?: AxiosInstance) => new GalleryAdapterImpl((api?: AxiosInstance) => new GalleryService(api ?? apiInstance));
 // #endregion

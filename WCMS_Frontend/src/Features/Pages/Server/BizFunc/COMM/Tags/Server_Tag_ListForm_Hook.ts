@@ -16,16 +16,16 @@ import { useNavigate } from "react-router";
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type TagSet = components["schemas"]["TagSet_DTO"];
+type TagFormModel = components["schemas"]["TagData"];
 
-type TagListFormRawData = { editForm: UseFetchFormDataResult<TagSet>; actions: UseActionsResult; list: TagSet[]; param: QueryListParam; };
+type TagListFormRawData = { editForm: UseFetchFormDataResult<TagFormModel>; actions: UseActionsResult; list: TagFormModel[]; param: QueryListParam; };
 
 type TagListFormAdapter = { Tag: ReturnType<typeof TagAdapter>; };
 // #endregion
 
 // #region Public
 export const useTagListFormFetchData = (
-    opt: { dirUrl: string; internalId: string; emptyData: TagSet; lang: Lang; pgId: PGID; },
+    opt: { dirUrl: string; internalId: string; emptyData: TagFormModel; lang: Lang; pgId: PGID; },
 ): UseFetchDataResult<TagListFormRawData, TagListFormAdapter> =>
 {
     const { publish } = useToast();
@@ -66,21 +66,21 @@ export const useTagListFormFetchData = (
 const useTagListFormDataByAdapter = (
     adapter: ReturnType<typeof TagAdapter>,
     internalId: string,
-    empty: TagSet,
+    empty: TagFormModel,
     onError: (e: ApiAdapterError) => void,
-): UseFetchFormDataResult<TagSet> =>
+): UseFetchFormDataResult<TagFormModel> =>
 {
     const internalKey = internalId || "__new__";
     const isNew = useMemo(() => !internalId, [internalId]);
-    const initial = useMemo<ApiLoaderData<string, TagSet> | null>(() =>
+    const initial = useMemo<ApiLoaderData<string, TagFormModel> | null>(() =>
     {
         if (!isNew) return null;
-        const apiRes: ApiResponse<TagSet> = { IsSuccess: true, Data: empty, SysMessage: [] };
+        const apiRes: ApiResponse<TagFormModel> = { IsSuccess: true, Data: empty, SysMessage: [] };
         return { args: internalKey, apiRes };
     }, [isNew, empty, internalKey]);
     const model = adapter.hooks.useModelDisplayName({ deps: [], onError });
     const query = adapter.hooks.useQueryData({ internalId: internalKey, initial, deps: [internalKey], onError });
-    const [data, setData] = useState<TagSet>(empty);
+    const [data, setData] = useState<TagFormModel>(empty);
     useEffect(() =>
     {
         if (query.data) setData(query.data);
@@ -106,8 +106,8 @@ const useTagListFormActionsFromAdapter = (
     dirUrl: string,
     adapter: ReturnType<typeof TagAdapter>,
     internalId: string,
-    formData: UseFetchFormDataResult<TagSet>,
-    emptyData: TagSet,
+    formData: UseFetchFormDataResult<TagFormModel>,
+    emptyData: TagFormModel,
     refetchList: () => Promise<void>,
 ): UseActionsResult =>
 {

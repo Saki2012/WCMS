@@ -10,11 +10,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { KeyboardEvent, MouseEvent } from "react";
 
 // #region Property
-type BannerSet = components["schemas"]["BannerSet_DTO"];
+type BannerFormModel = components["schemas"]["Banner"];
 
-type BannerDetail = NonNullable<BannerSet["BannerDetail"]>[number];
+type BannerDetail = NonNullable<BannerFormModel["_BannerDetail"]>[number];
 
-type BannerDetailInfo = NonNullable<BannerSet["BannerDetailInfo"]>[number];
+type BannerDetailInfo = components["schemas"]["BannerDetailInfo"];
 
 type SlideDirection = "next" | "prev";
 
@@ -23,7 +23,7 @@ export interface CarouselDataProps
 {
     lang: Lang;
     internalId: string;
-    initialBanner: BannerSet | null;
+    initialBanner: BannerFormModel | null;
 }
 
 
@@ -364,7 +364,7 @@ export const CarouselData = (props: CarouselDataProps) =>
                             <div className="carousel-inner">
                                 {sortedDetails.map((p, i) =>
                                 {
-                                    const info = findBannerInfo(banner, p, props.lang);
+                                    const info = findBannerInfo(p, props.lang);
                                     const alt = info?.Title ?? "";
                                     const url = info?.URL;
                                     const tar = info?.URL_Open === 0 ? "_self" : "_blank";
@@ -404,11 +404,11 @@ export const CarouselData = (props: CarouselDataProps) =>
 // #endregion
 
 // #region Protected
-const buildBannerSetting = (banner: BannerSet | null) =>
+const buildBannerSetting = (banner: BannerFormModel | null) =>
 {
     // 宣告變數：後端 interval 為秒，前端轉 ms
-    const intervalRaw = banner?.Banner?.Interval;
-    const speedRaw = banner?.Banner?.Speed;
+    const intervalRaw = banner?.Interval;
+    const speedRaw = banner?.Speed;
     const intervalNum = typeof intervalRaw === "number" ? intervalRaw : Number(intervalRaw);
     const speedNum = typeof speedRaw === "number" ? speedRaw : Number(speedRaw);
 
@@ -504,10 +504,10 @@ const toInitial = <TArgs, TData>(args: TArgs, data: TData): ApiLoaderData<TArgs,
 };
 
 
-const sortBannerDetails = (banner: BannerSet | null): BannerDetail[] =>
+const sortBannerDetails = (banner: BannerFormModel | null): BannerDetail[] =>
 {
     // 宣告變數
-    const list = banner?.BannerDetail ?? [];
+    const list = banner?._BannerDetail ?? [];
 
     // return：依 Sort 穩定排序
     return [...list].sort((a, b) =>
@@ -519,10 +519,10 @@ const sortBannerDetails = (banner: BannerSet | null): BannerDetail[] =>
 };
 
 
-const findBannerInfo = (banner: BannerSet | null, detail: BannerDetail, lang: Lang): BannerDetailInfo | undefined =>
+const findBannerInfo = (detail: BannerDetail, lang: Lang): BannerDetailInfo | undefined =>
 {
     // return：找對應語系資料
-    return banner?.BannerDetailInfo?.find((x) => x.BannerId === detail.BannerId && x.ParentRowId === detail.RowId && x.Lang === lang);
+    return detail._BannerDetailInfo?.find(x => x.Lang === lang);
 };
 
 

@@ -5,7 +5,6 @@ import { useToast } from "@/Features/Hooks/Common/useToastCenter";
 import { GetDataStatusContent } from "@/Features/Pages/Server/Scaffold/CommUnitComp/CommonComp";
 import { createGridCrudActions, enhanceGridWithAdjustCell, type GridConfirmFn } from "@/Features/Pages/Server/Scaffold/Content/GridAdjustCellEnhance";
 import type {
-    ServerListGridBuildGridContext,
     ServerListGridDataSourceContext,
     ServerListGridDataSourceResult,
     ServerListGridSpecTiming,
@@ -33,7 +32,7 @@ import {
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
-type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
+type AnnouncementFormModel = components["schemas"]["Announcement"];
 type AnnouncementApiAdapter = ReturnType<typeof AnnouncementAdapter>;
 type CategoryApiAdapter = ReturnType<typeof CategoryAdapter>;
 type TagApiAdapter = ReturnType<typeof TagAdapter>;
@@ -69,7 +68,7 @@ export interface AnnouncementListRawData
     count: number;
 
     /** 公告列表資料 */
-    list: AnnouncementSet[];
+    list: AnnouncementFormModel[];
 
     /** 目前頁碼 */
     pageNumber: number;
@@ -390,7 +389,7 @@ const enhanceAnnouncementGrid = (
     },
 ): GridProps =>
 {
-    const actions = createGridCrudActions<AnnouncementSet>({
+    const actions = createGridCrudActions<AnnouncementFormModel>({
         onEdit: (internalId) => opt.crud.navigate(`${opt.crud.dirUrl}/${internalId}`),
         deleteAsync: opt.crud.deleteAsync,
         afterDelete: opt.crud.afterDelete,
@@ -403,7 +402,7 @@ const enhanceAnnouncementGrid = (
         can: opt.can,
         notifyNoPermission: opt.notifyNoPermission,
         confirm: opt.confirm,
-        getInternalId: (set) => set.Announcement?.InternalId ?? "",
+        getInternalId: (formModel) => formModel?.InternalId ?? "",
     });
 };
 
@@ -411,24 +410,24 @@ const enhanceAnnouncementGrid = (
 /** 建立公告列表列資料 */
 const buildAnnouncementRows = (raw: AnnouncementListRawData, lang: Lang, columns: ColumnConfig[]): GridRow[] =>
 {
-    return (raw.list ?? []).map((set) =>
+    return (raw.list ?? []).map((formModel) =>
     {
-        const keyId = LibText.Merge("|", false, set.Announcement?.AnnouncementId);
-        const a = set.Announcement;
+        const keyId = LibText.Merge("|", false, formModel?.AnnouncementId);
+        const announcement = formModel;
         const detail = createElement(
             Fragment,
             null,
-            createElement("span", null, (set.AnnouncementDetail ?? []).find(d => d?.Lang === lang)?.Title ?? ""),
-            GetDataStatusContent(set.Announcement?.ContentStatus ?? 0),
+            createElement("span", null, (formModel._AnnouncementDetail ?? []).find(d => d?.Lang === lang)?.Title ?? ""),
+            GetDataStatusContent(formModel?.ContentStatus ?? 0),
         );
 
         const cells: RowCell[] = [
-            { col: columns[0], content: mapIdsToText(a?.Categories, raw.categoryMap) },
+            { col: columns[0], content: mapIdsToText(announcement?.Categories, raw.categoryMap) },
             { col: columns[1], content: detail },
-            { col: columns[2], content: formatDate(a?.Validate_Start) },
-            { col: columns[3], content: formatDate(a?.Validate_End) },
-            { col: columns[4], content: a?.ModifyUser?.AccountName ?? "" },
-            { col: columns[5], content: formatDateTime(a?.ModifyTime) },
+            { col: columns[2], content: formatDate(announcement?.Validate_Start) },
+            { col: columns[3], content: formatDate(announcement?.Validate_End) },
+            { col: columns[4], content: announcement?.ModifyUser?.AccountName ?? "" },
+            { col: columns[5], content: formatDateTime(announcement?.ModifyTime) },
         ];
 
         return { keyId, cells };

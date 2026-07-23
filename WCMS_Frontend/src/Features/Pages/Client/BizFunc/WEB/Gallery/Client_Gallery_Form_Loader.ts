@@ -25,7 +25,7 @@ import { GalleryFields, GalleryInfoFields, GalleryPhotosFields, GalleryPhotosInf
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
-type GallerySet = components["schemas"]["GallerySet_DTO"];
+type GalleryFormModel = components["schemas"]["Gallery"];
 interface GalleryFormLoaderArgs
 {
     internalId: string;
@@ -35,7 +35,7 @@ interface GalleryFormLoaderArgs
 }
 interface GalleryFormLoaderRes
 {
-    listRes: GallerySet[];
+    listRes: GalleryFormModel[];
     categoryMap: Record<string, string>;
     tagMap: Record<string, string>;
 }
@@ -46,7 +46,7 @@ interface GalleryFormLoaderData
 }
 type GalleryFormRawData = {
     internalId: string;
-    data: GallerySet;
+    data: GalleryFormModel;
     title: string;
     categoryMap: Record<string, string>;
     tagMap: Record<string, string>;
@@ -78,7 +78,7 @@ type GalleryFormDataQueryTemplate = ClientDataQueryTemplate<
     QueryListParam,
     GalleryFormLoaderData
 >;
-const defaultEmptyData: GallerySet = { Gallery: {}, GalleryInfo: [], GalleryPhotos: [], GalleryPhotosInfo: [] };
+const defaultEmptyData: GalleryFormModel = { GalleryId: "", _GalleryInfo: [], _GalleryPhotos: [] };
 // #endregion
 
 // #region Public
@@ -110,7 +110,7 @@ export const Client_Gallery_Form_Loader = (p: { lang: Lang; }) => async ({ reque
     return { args, res: { listRes, categoryMap: cateLD.apiRes.Data ?? {}, tagMap: tagLD.apiRes.Data ?? {} } };
 };
 /** CSR Hook：新版 Form 入口，資料查詢流程交給 Client_DataQueryTemplate */
-export const useGalleryFormData = (opt: { lang: Lang; internalId: string; emptyData?: GallerySet; }): GalleryFormFetchDataResult =>
+export const useGalleryFormData = (opt: { lang: Lang; internalId: string; emptyData?: GalleryFormModel; }): GalleryFormFetchDataResult =>
 {
     const fallbackData = opt.emptyData ?? defaultEmptyData;
     const templateVm = useGalleryFormTemplate({ lang: opt.lang, internalId: opt.internalId, emptyData: fallbackData });
@@ -119,7 +119,7 @@ export const useGalleryFormData = (opt: { lang: Lang; internalId: string; emptyD
 };
 
 /** CSR Hook：保留舊入口相容尚未調整的客製覆寫 */
-export const useGalleryFormFetchData = (p: { lang: Lang; emptyData?: GallerySet; }): GalleryFormFetchDataResult =>
+export const useGalleryFormFetchData = (p: { lang: Lang; emptyData?: GalleryFormModel; }): GalleryFormFetchDataResult =>
 {
     const { internalId: routeInternalId } = useParams();
     const internalId = LibText.safeTrim(routeInternalId);
@@ -147,7 +147,7 @@ const buildGalleryFormCondition = (internalId: string): string =>
 /** 建立 Gallery Form QueryList 欄位清單 */
 const buildGalleryFormFields = (): string[] =>
 {
-    const photoInfoPrefix = `${GalleryFields._GalleryPhotos}.${GalleryPhotosFields.GalleryPhotosInfo}`;
+    const photoInfoPrefix = `${GalleryFields._GalleryPhotos}.${GalleryPhotosFields._GalleryPhotosInfo}`;
     return [
         GalleryFields.InternalId,
         GalleryFields.GalleryId,
@@ -157,16 +157,19 @@ const buildGalleryFormFields = (): string[] =>
         GalleryFields.Validate_Start,
         `${GalleryFields._GalleryInfo}.${GalleryInfoFields.GalleryId}`,
         `${GalleryFields._GalleryInfo}.${GalleryInfoFields.RowId}`,
+        `${GalleryFields._GalleryInfo}.${GalleryInfoFields.RowNo}`,
         `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Lang}`,
         `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Title}`,
         `${GalleryFields._GalleryInfo}.${GalleryInfoFields.Content}`,
         `${GalleryFields._GalleryPhotos}.${GalleryPhotosFields.GalleryId}`,
         `${GalleryFields._GalleryPhotos}.${GalleryPhotosFields.RowId}`,
+        `${GalleryFields._GalleryPhotos}.${GalleryPhotosFields.RowNo}`,
         `${GalleryFields._GalleryPhotos}.${GalleryPhotosFields.PicSrcId}`,
         `${GalleryFields._GalleryPhotos}.${GalleryPhotosFields.Sort}`,
         `${photoInfoPrefix}.${GalleryPhotosInfoFields.GalleryId}`,
         `${photoInfoPrefix}.${GalleryPhotosInfoFields.ParentRowId}`,
         `${photoInfoPrefix}.${GalleryPhotosInfoFields.RowId}`,
+        `${photoInfoPrefix}.${GalleryPhotosInfoFields.RowNo}`,
         `${photoInfoPrefix}.${GalleryPhotosInfoFields.Lang}`,
         `${photoInfoPrefix}.${GalleryPhotosInfoFields.Title}`,
         `${photoInfoPrefix}.${GalleryPhotosInfoFields.Description}`,
@@ -178,7 +181,7 @@ const buildGalleryFormQueryParam = (p: { condition: string; }): QueryListParam =
     return { Fields: buildGalleryFormFields(), Condition: p.condition, PageNumber: 1, PageSize: 1 };
 };
 /** 建立主資料 list initial，避免 hydration 首次重抓 */
-const buildListInitial = (p: { loaderData: GalleryFormLoaderData | null; queryParam: QueryListParam; fallbackData: GallerySet; }): ApiLoaderData<QueryListParam, GallerySet[]> | null =>
+const buildListInitial = (p: { loaderData: GalleryFormLoaderData | null; queryParam: QueryListParam; fallbackData: GalleryFormModel; }): ApiLoaderData<QueryListParam, GalleryFormModel[]> | null =>
 {
     const loaderParam = p.loaderData?.args?.queryParam;
     if (!loaderParam) return null;
@@ -216,7 +219,7 @@ const buildGalleryFormSearchParams = (p: { lang: Lang; internalId: string; }): G
     return { internalId: LibText.safeTrim(p.internalId), progId: PGID.Gallery, lang: p.lang };
 };
 /** 建立 Gallery Form DataQueryTemplate */
-const createGalleryFormDataQueryTemplate = (p: { lang: Lang; internalId: string; emptyData: GallerySet; }): GalleryFormDataQueryTemplate =>
+const createGalleryFormDataQueryTemplate = (p: { lang: Lang; internalId: string; emptyData: GalleryFormModel; }): GalleryFormDataQueryTemplate =>
 {
     const initialViewState = buildGalleryFormInitialViewState();
     return {
@@ -236,13 +239,13 @@ const createGalleryFormDataQueryTemplate = (p: { lang: Lang; internalId: string;
     };
 };
 /** 建立 Loader 與 Hook 共用的 Query 狀態 */
-const buildGalleryFormQueryState = (p: { lang: Lang; internalId: string; emptyData: GallerySet; }) =>
+const buildGalleryFormQueryState = (p: { lang: Lang; internalId: string; emptyData: GalleryFormModel; }) =>
 {
     const template = createGalleryFormDataQueryTemplate(p);
     return buildClientDataQueryState(template, {} as SearchValues, buildGalleryFormInitialViewState());
 };
 /** Gallery Form DataSource：統一處理 QueryList 單筆資料、分類與標籤 map */
-const useGalleryFormDataSource = (p: { queryParam: QueryListParam; loaderData: GalleryFormLoaderData | null; lang: Lang; internalId: string; emptyData: GallerySet; }): ClientDataQueryDataSourceResult<GalleryFormRawData, GalleryFormAdapter> =>
+const useGalleryFormDataSource = (p: { queryParam: QueryListParam; loaderData: GalleryFormLoaderData | null; lang: Lang; internalId: string; emptyData: GalleryFormModel; }): ClientDataQueryDataSourceResult<GalleryFormRawData, GalleryFormAdapter> =>
 {
     const adapter = useMemo<GalleryFormAdapter>(() => ({ Gallery: GalleryAdapter(), Category: CategoryAdapter(), Tag: TagAdapter() }), []);
     const currentArgs = useMemo(() => buildGalleryFormLoaderArgs({ lang: p.lang, internalId: p.internalId, queryParam: p.queryParam }), [p.lang, p.internalId, p.queryParam]);
@@ -254,8 +257,8 @@ const useGalleryFormDataSource = (p: { queryParam: QueryListParam; loaderData: G
     const useData = adapter.Gallery.hooks.useQueryList({ condition: p.queryParam, initial: listInitial, deps: [queryKey] });
     const useCategory = adapter.Category.hooks.useMapByProgId({ progId: currentArgs.progId, lang: currentArgs.lang, initial: cateInitial, deps: [currentArgs.progId, currentArgs.lang] });
     const useTag = adapter.Tag.hooks.useMapByProgId({ progId: currentArgs.progId, lang: currentArgs.lang, initial: tagInitial, deps: [currentArgs.progId, currentArgs.lang] });
-    const data = useMemo<GallerySet>(() => useData.data?.[0] ?? p.emptyData, [useData.data, p.emptyData]);
-    const title = useMemo(() => LibText.findTextByKey(data.GalleryInfo, (item) => LibText.safeTrim(item?.Lang).toLowerCase(), LibText.safeTrim(p.lang).toLowerCase(), (item) => item?.Title), [data, p.lang]);
+    const data = useMemo<GalleryFormModel>(() => useData.data?.[0] ?? p.emptyData, [useData.data, p.emptyData]);
+    const title = useMemo(() => LibText.findTextByKey(data._GalleryInfo, (item) => LibText.safeTrim(item?.Lang).toLowerCase(), LibText.safeTrim(p.lang).toLowerCase(), (item) => item?.Title), [data, p.lang]);
     const errors = useMemo(() => [useData.errorText, useCategory.errorText, useTag.errorText], [useData.errorText, useCategory.errorText, useTag.errorText]);
     const rawData = useMemo<GalleryFormRawData>(() => ({ internalId: currentArgs.internalId, data, title, categoryMap: useCategory.map ?? {}, tagMap: useTag.map ?? {}, args: currentArgs }), [currentArgs, data, title, useCategory.map, useTag.map]);
     const refetchData = useCallback(async (): Promise<void> => void (await Promise.resolve(useData.refetch())), [useData]);
@@ -263,7 +266,7 @@ const useGalleryFormDataSource = (p: { queryParam: QueryListParam; loaderData: G
     return { adapter, rawData, isLoading: Boolean(useData.isLoading || useCategory.isLoading || useTag.isLoading), errors, paginator: null, refetchData, refetchRefData };
 };
 /** 內部共用：建立 Gallery Form Template VM */
-const useGalleryFormTemplate = (opt: { lang: Lang; internalId: string; emptyData: GallerySet; }) =>
+const useGalleryFormTemplate = (opt: { lang: Lang; internalId: string; emptyData: GalleryFormModel; }) =>
 {
     const template = useMemo(() => createGalleryFormDataQueryTemplate({ lang: opt.lang, internalId: opt.internalId, emptyData: opt.emptyData }), [opt.lang, opt.internalId, opt.emptyData]);
     return useClientDataQueryTemplate(template);

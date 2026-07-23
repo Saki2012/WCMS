@@ -8,7 +8,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import type { ReactNode } from "react";
 import {
     type MatCategoryListRenderers,
-    type MatCategorySet,
+    type MatCategoryFormModel,
     useMatCategoryListGridTemplate,
 } from "./Server_MatCategory_List_Hook";
 
@@ -40,9 +40,11 @@ const MatCategorySearchBarSection = (props: ServerListGridSearchRenderProps) =>
 
 // #region Protected
 /** 渲染自定義欄位資訊 */
-const buildMatCategoryInfoFieldContentNode = (set: MatCategorySet, lang: Lang): ReactNode =>
+const buildMatCategoryInfoFieldContentNode = (formModel: MatCategoryFormModel, lang: Lang): ReactNode =>
 {
-    const items = (set.MatCategoryInfoFieldDisplay ?? []).filter((item) => item?.Lang === lang && Boolean(item.FieldDisplayName));
+    const items = (formModel.MatCategoryInfoField ?? [])
+        .flatMap(field => field._MatCategoryInfoFieldDisplay ?? [])
+        .filter(item => item?.Lang === lang && Boolean(item.FieldDisplayName));
     if (items.length <= 0) return "";
 
     return (

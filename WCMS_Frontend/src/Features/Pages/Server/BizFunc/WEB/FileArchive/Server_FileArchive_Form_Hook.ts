@@ -37,17 +37,17 @@ import { LibAttachment, LibText } from "@/SysCore/Utils/Library/LibData";
 import { useUploadFile } from "@/SysCore/Utils/UI_Hooks/useUploadFile";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { FileArchiveDetailFields, FileArchiveInfoFields, FileArchiveSetFields, FileArchiveUrlDetailFields, PGID } from "@/types/SchemaFields";
+import { FileArchiveDetailFields, FileArchiveInfoFields, FileArchiveFields, FileArchiveUrlDetailFields, PGID } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
 
 // #region Property
-type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];
+type FileArchiveFormModel = components["schemas"]["FileArchive"];
 
-type FileArchiveInfo = NonNullable<FileArchiveSet["FileArchiveInfo"]>[number];
+type FileArchiveInfo = NonNullable<FileArchiveFormModel["_FileArchiveInfo"]>[number];
 
-type FileArchiveDetail = components["schemas"]["FileArchiveDetail_DTO"];
+type FileArchiveDetail = components["schemas"]["FileArchiveDetail"];
 
-type FileArchiveUrlDetail = components["schemas"]["FileArchiveUrlDetail_DTO"];
+type FileArchiveUrlDetail = components["schemas"]["FileArchiveUrlDetail"];
 
 type UploadFileHandler = ReturnType<typeof useUploadFile>["handleFileChange"];
 
@@ -71,7 +71,7 @@ export interface UseFileArchiveFormTemplateOptions
     internalId: string;
 
     /** 新增模式預設資料 */
-    emptyData: FileArchiveSet;
+    emptyData: FileArchiveFormModel;
 
     /** Form Template 標準動作設定 */
     actionsOpt: FileArchiveFormActionsOpt;
@@ -80,7 +80,7 @@ export interface UseFileArchiveFormTemplateOptions
 export interface UseFileArchiveDetailTabsOptions
 {
     /** 新版 Form Template 提供的資料 binding */
-    binding: ServerFormBinding<FileArchiveSet>;
+    binding: ServerFormBinding<FileArchiveFormModel>;
 
     /** 目前語系，會優先排在第一個 Tab */
     lang: Lang;
@@ -89,7 +89,7 @@ export interface UseFileArchiveDetailTabsOptions
 export interface UseFileArchiveFileEditGridOptions
 {
     /** 新版 Form Template 提供的資料 binding */
-    binding: ServerFormBinding<FileArchiveSet>;
+    binding: ServerFormBinding<FileArchiveFormModel>;
 
     /** 目前語系明細 RowId，檔案用它綁 ParentRowId */
     parentRowId: number;
@@ -101,7 +101,7 @@ export interface UseFileArchiveFileEditGridOptions
 export interface UseFileArchiveUrlEditGridOptions
 {
     /** 新版 Form Template 提供的資料 binding */
-    binding: ServerFormBinding<FileArchiveSet>;
+    binding: ServerFormBinding<FileArchiveFormModel>;
 
     /** 目前語系明細 RowId，外部連結用它綁 ParentRowId */
     parentRowId: number;
@@ -167,16 +167,16 @@ export type FileArchiveFormAdapter = {
 // #endregion
 
 // #region Public
-export const fileArchiveEmptyData: FileArchiveSet = { FileArchive: {}, FileArchiveInfo: [], FileArchiveDetail: [], FileArchiveUrlDetail: [] };
+export const fileArchiveEmptyData: FileArchiveFormModel = { FileArchiveId: "", _FileArchiveInfo: [] };
 
 /** 建立 FileArchive Form Template，統一交給 Server_FormTemplate 處理資料流程。 */
 export const useFileArchiveFormTemplate = (
     opt: UseFileArchiveFormTemplateOptions,
 ): ServerFormTemplate<
-    FileArchiveSet,
+    FileArchiveFormModel,
     FileArchiveFormAdapter,
     FileArchiveFormRefs,
-    ServerFormDefaultRawData<FileArchiveSet, FileArchiveFormRefs>,
+    ServerFormDefaultRawData<FileArchiveFormModel, FileArchiveFormRefs>,
     FileArchiveFormActionsOpt
 > =>
 {
@@ -203,7 +203,7 @@ export const useFileArchiveFormTemplate = (
 /** 建立檔案室 Detail 語系 Tabs，避免 Comp 處理語系過濾與 Unknown fallback。 */
 export const useFileArchiveDetailTabs = (opt: UseFileArchiveDetailTabsOptions): FileArchiveDetailTabsResult =>
 {
-    const details = opt.binding.data?.FileArchiveInfo;
+    const details = opt.binding.data?._FileArchiveInfo;
 
     return useMemo(() =>
     {
@@ -221,15 +221,15 @@ export const useFileArchiveFileEditGrid = (opt: UseFileArchiveFileEditGridOption
         uploadFile.handleFileChange,
     ]);
 
-    return useEditGridBinding<FileArchiveSet, FileArchiveDetail, FileArchiveFileGridRow>({
+    return useEditGridBinding<FileArchiveFormModel, FileArchiveDetail, FileArchiveFileGridRow>({
         binding: opt.binding,
         emptyData: fileArchiveEmptyData,
-        collectionName: FileArchiveSetFields.FileArchiveDetail,
-        parent: buildFileArchiveFileParent(opt.parentRowId),
+        getItems: data => getFileArchiveFiles(data, opt.parentRowId),
+        setItems: (data, items) => setFileArchiveFiles(data, opt.parentRowId, items),
         columns,
         getItemRowId: file => file.RowId,
         sortItems: sortFileArchiveFiles,
-        createItem: ctx => buildNewFileArchiveFileItem(ctx.data, opt.parentRowId, ctx.nextRowId),
+        createItem: ctx => buildNewFileArchiveFileItem(ctx.data, opt.parentRowId, ctx.nextRowId, ctx.nextRowNo),
         toRow: (file, index) => buildFileArchiveFileGridRow(file, index, handleFileValueChange, displayName),
         toItem: (row, index, ctx) => toFileArchiveFileDto(ctx.data, opt.parentRowId, row, index),
         editGridProps: buildFileArchiveFileGridProps(opt.parentRowId, opt.style, displayName),
@@ -242,15 +242,15 @@ export const useFileArchiveUrlEditGrid = (opt: UseFileArchiveUrlEditGridOptions)
     const displayName = opt.binding.displayName;
     const columns = useMemo(() => buildFileArchiveUrlColumns(displayName, opt.windowTargetOpts), [displayName, opt.windowTargetOpts]);
 
-    return useEditGridBinding<FileArchiveSet, FileArchiveUrlDetail, FileArchiveUrlGridRow>({
+    return useEditGridBinding<FileArchiveFormModel, FileArchiveUrlDetail, FileArchiveUrlGridRow>({
         binding: opt.binding,
         emptyData: fileArchiveEmptyData,
-        collectionName: FileArchiveSetFields.FileArchiveUrlDetail,
-        parent: buildFileArchiveUrlParent(opt.parentRowId),
+        getItems: data => getFileArchiveUrls(data, opt.parentRowId),
+        setItems: (data, items) => setFileArchiveUrls(data, opt.parentRowId, items),
         columns,
         getItemRowId: url => url.RowId,
         sortItems: sortFileArchiveUrls,
-        createItem: ctx => buildNewFileArchiveUrlItem(ctx.data, opt.parentRowId, ctx.nextRowId),
+        createItem: ctx => buildNewFileArchiveUrlItem(ctx.data, opt.parentRowId, ctx.nextRowId, ctx.nextRowNo),
         toRow: (url, index) => buildFileArchiveUrlGridRow(url, index, displayName, opt.windowTargetOpts),
         toItem: (row, index, ctx) => toFileArchiveUrlDto(ctx.data, opt.parentRowId, row, index),
         editGridProps: buildFileArchiveUrlGridProps(opt.parentRowId, opt.style, displayName),
@@ -308,7 +308,7 @@ const buildFileArchiveFormTitle = (ctx: { mode: "new" | "edit"; displayName: Mod
 };
 
 /** 建立新增模式的 initial data，統一由 Feature Timing 交給 Template。 */
-const buildFileArchiveInitialData = (ctx: { mode: "new" | "edit"; emptyData: FileArchiveSet; }): ApiFormInitial<FileArchiveSet> | undefined =>
+const buildFileArchiveInitialData = (ctx: { mode: "new" | "edit"; emptyData: FileArchiveFormModel; }): ApiFormInitial<FileArchiveFormModel> | undefined =>
 {
     if (ctx.mode !== "new") return undefined;
     return { data: { args: "__new__", apiRes: { IsSuccess: true, Data: ctx.emptyData, SysMessage: [] } } };
@@ -322,12 +322,11 @@ const buildFileArchiveFormAdapter = (): FileArchiveFormAdapter =>
 
 /** 取得 Header / Detail 需要的參照資料與語系明細補齊。 */
 const useFileArchiveReferenceData = (
-    ctx: { adapter: FileArchiveFormAdapter; binding: ServerFormDefaultRawData<FileArchiveSet, FileArchiveFormRefs>["formData"]; lang: Lang; },
+    ctx: { adapter: FileArchiveFormAdapter; binding: ServerFormDefaultRawData<FileArchiveFormModel, FileArchiveFormRefs>["formData"]; lang: Lang; },
 ) =>
 {
     useEnsureLangDetails(ctx.binding, {
-        headerName: FileArchiveSetFields.FileArchive,
-        detailName: FileArchiveSetFields.FileArchiveInfo,
+        detailName: FileArchiveFields._FileArchiveInfo,
         parentKeys: [FileArchiveInfoFields.FileArchiveId],
         langs: SUPPORTED_LANGS,
         preferFirstLang: ctx.lang,
@@ -471,30 +470,48 @@ const toBindingRowKey = (value: string | number | null | undefined): string | nu
     return value;
 };
 
-/** 建立檔案 parent 綁定，讓共用 Hook 自動過濾同語系檔案。 */
-const buildFileArchiveFileParent = (parentRowId: number) =>
+
+/** 取得指定語系明細的檔案子資料。 */
+const getFileArchiveFiles = (data: FileArchiveFormModel, parentRowId: number): FileArchiveDetail[] =>
 {
-    return {
-        field: FileArchiveDetailFields.ParentRowId,
-        value: parentRowId,
-        compare: (itemValue: unknown, parentValue: string | number | null | undefined) => Number(itemValue ?? 0) === Number(parentValue ?? 0),
-    };
+    return findFileArchiveInfo(data, parentRowId)?._FileArchiveDetail ?? [];
 };
 
-/** 建立外部連結 parent 綁定，讓共用 Hook 自動過濾同語系連結。 */
-const buildFileArchiveUrlParent = (parentRowId: number) =>
+/** 寫回指定語系明細的檔案子資料。 */
+const setFileArchiveFiles = (data: FileArchiveFormModel, parentRowId: number, files: FileArchiveDetail[]): FileArchiveFormModel =>
 {
-    return {
-        field: FileArchiveUrlDetailFields.ParentRowId,
-        value: parentRowId,
-        compare: (itemValue: unknown, parentValue: string | number | null | undefined) => Number(itemValue ?? 0) === Number(parentValue ?? 0),
-    };
+    return updateFileArchiveInfo(data, parentRowId, info => ({ ...info, _FileArchiveDetail: files }));
+};
+
+/** 取得指定語系明細的網址子資料。 */
+const getFileArchiveUrls = (data: FileArchiveFormModel, parentRowId: number): FileArchiveUrlDetail[] =>
+{
+    return findFileArchiveInfo(data, parentRowId)?._FileArchiveUrlDetail ?? [];
+};
+
+/** 寫回指定語系明細的網址子資料。 */
+const setFileArchiveUrls = (data: FileArchiveFormModel, parentRowId: number, urls: FileArchiveUrlDetail[]): FileArchiveFormModel =>
+{
+    return updateFileArchiveInfo(data, parentRowId, info => ({ ...info, _FileArchiveUrlDetail: urls }));
+};
+
+/** 依 RowId 取得檔案室語系明細。 */
+const findFileArchiveInfo = (data: FileArchiveFormModel, rowId: number): FileArchiveInfo | undefined =>
+{
+    return data._FileArchiveInfo?.find(info => Number(info.RowId ?? 0) === rowId);
+};
+
+/** 更新指定檔案室語系明細。 */
+const updateFileArchiveInfo = (data: FileArchiveFormModel, rowId: number, updater: (info: FileArchiveInfo) => FileArchiveInfo): FileArchiveFormModel =>
+{
+    const infos = (data._FileArchiveInfo ?? []).map(info => Number(info.RowId ?? 0) === rowId ? updater(info) : info);
+    return { ...data, _FileArchiveInfo: infos };
 };
 
 /** 建立檔案 EditGrid 固定設定，Grid 標題優先讀 ModelDisplayName。 */
 const buildFileArchiveFileGridProps = (parentRowId: number, style: IEditGridView_Style, displayName: ModelDisplaySchema) =>
 {
-    const gridTitle = getFileArchiveDetailTableTitle(displayName, FileArchiveSetFields.FileArchiveDetail, "檔案上傳");
+    const gridTitle = getFileArchiveDetailTableTitle(displayName, FileArchiveInfoFields._FileArchiveDetail, "檔案上傳");
 
     return {
         title: gridTitle,
@@ -518,7 +535,7 @@ const buildFileArchiveFileGridProps = (parentRowId: number, style: IEditGridView
 /** 建立外部連結 EditGrid 固定設定，Grid 標題優先讀 ModelDisplayName。 */
 const buildFileArchiveUrlGridProps = (parentRowId: number, style: IEditGridView_Style, displayName: ModelDisplaySchema) =>
 {
-    const gridTitle = getFileArchiveDetailTableTitle(displayName, FileArchiveSetFields.FileArchiveUrlDetail, "外部連結");
+    const gridTitle = getFileArchiveDetailTableTitle(displayName, FileArchiveInfoFields._FileArchiveUrlDetail, "外部連結");
 
     return {
         title: gridTitle,
@@ -539,23 +556,30 @@ const buildFileArchiveUrlGridProps = (parentRowId: number, style: IEditGridView_
     };
 };
 
-/** 依 RowId 排序檔案。 */
+/** 依 RowNo 排序檔案，缺值時以 RowId 維持穩定順序。 */
 const sortFileArchiveFiles = (files: FileArchiveDetail[]): FileArchiveDetail[] =>
 {
-    return [...files].sort((a, b) => Number(a.RowId ?? 0) - Number(b.RowId ?? 0));
+    return [...files].sort(compareFileArchiveRowOrder);
 };
 
-/** 依 RowId 排序外部連結。 */
+/** 依 RowNo 排序外部連結，缺值時以 RowId 維持穩定順序。 */
 const sortFileArchiveUrls = (urls: FileArchiveUrlDetail[]): FileArchiveUrlDetail[] =>
 {
-    return [...urls].sort((a, b) => Number(a.RowId ?? 0) - Number(b.RowId ?? 0));
+    return [...urls].sort(compareFileArchiveRowOrder);
+};
+
+/** 比較檔案室子資料顯示順序。 */
+const compareFileArchiveRowOrder = (a: { RowId?: number; RowNo?: number | null; }, b: { RowId?: number; RowNo?: number | null; }): number =>
+{
+    const rowNoDiff = Number(a.RowNo ?? a.RowId ?? 0) - Number(b.RowNo ?? b.RowId ?? 0);
+    return rowNoDiff || Number(a.RowId ?? 0) - Number(b.RowId ?? 0);
 };
 
 /** 建立檔案 Grid 欄位設定，欄位名稱優先讀 ModelDisplayName。 */
 const buildFileArchiveFileColumns = (displayName: ModelDisplaySchema): ColumnConfig[] =>
 {
-    const fileNameTitle = getFileArchiveDetailColumnTitle(displayName, FileArchiveSetFields.FileArchiveDetail, FileArchiveDetailFields.FileName, "檔案名稱");
-    const fileIdTitle = getFileArchiveDetailColumnTitle(displayName, FileArchiveSetFields.FileArchiveDetail, FileArchiveDetailFields.FileSrcId, "檔案");
+    const fileNameTitle = getFileArchiveDetailColumnTitle(displayName, FileArchiveInfoFields._FileArchiveDetail, FileArchiveDetailFields.FileName, "檔案名稱");
+    const fileIdTitle = getFileArchiveDetailColumnTitle(displayName, FileArchiveInfoFields._FileArchiveDetail, FileArchiveDetailFields.FileSrcId, "檔案");
 
     return [{ key: FileArchiveDetailFields.FileName, title: fileNameTitle, width: 260, inputType: "text", editable: true, maxLength: 200 }, {
         key: FileArchiveDetailFields.FileSrcId,
@@ -575,14 +599,14 @@ const buildFileArchiveUrlColumns = (displayName: ModelDisplaySchema, windowTarge
 {
     const descTitle = getFileArchiveDetailColumnTitle(
         displayName,
-        FileArchiveSetFields.FileArchiveUrlDetail,
+        FileArchiveInfoFields._FileArchiveUrlDetail,
         FileArchiveUrlDetailFields.UrlDescription,
         "網址描述",
     );
-    const urlTitle = getFileArchiveDetailColumnTitle(displayName, FileArchiveSetFields.FileArchiveUrlDetail, FileArchiveUrlDetailFields.Url, "網址");
+    const urlTitle = getFileArchiveDetailColumnTitle(displayName, FileArchiveInfoFields._FileArchiveUrlDetail, FileArchiveUrlDetailFields.Url, "網址");
     const targetTitle = getFileArchiveDetailColumnTitle(
         displayName,
-        FileArchiveSetFields.FileArchiveUrlDetail,
+        FileArchiveInfoFields._FileArchiveUrlDetail,
         FileArchiveUrlDetailFields.WindowTarget,
         "開啟方式",
     );
@@ -619,7 +643,7 @@ const buildFileArchiveFileGridRow = (
         keyId: buildFileArchiveFileRowKey(file, index),
         rowId,
         RowId: rowId,
-        RowNo: index + 1,
+        RowNo: file.RowNo ?? index + 1,
         FileArchiveId: file.FileArchiveId,
         ParentRowId: file.ParentRowId,
         FileRowId: rowId,
@@ -641,7 +665,7 @@ const buildFileArchiveUrlGridRow = (
         keyId: buildFileArchiveUrlRowKey(url, index),
         rowId,
         RowId: rowId,
-        RowNo: index + 1,
+        RowNo: url.RowNo ?? index + 1,
         FileArchiveId: url.FileArchiveId,
         ParentRowId: url.ParentRowId,
         UrlRowId: rowId,
@@ -652,8 +676,8 @@ const buildFileArchiveUrlGridRow = (
 /** 建立檔案列 cells，避免 Comp 介入 DTO 與 CellValue 轉換。 */
 const buildFileArchiveFileCells = (file: FileArchiveDetail, onFileValueChange: EditGridCellValueChangeHandler, displayName: ModelDisplaySchema): RowCell[] =>
 {
-    const fileNameTitle = getFileArchiveDetailColumnTitle(displayName, FileArchiveSetFields.FileArchiveDetail, FileArchiveDetailFields.FileName, "檔案名稱");
-    const fileIdTitle = getFileArchiveDetailColumnTitle(displayName, FileArchiveSetFields.FileArchiveDetail, FileArchiveDetailFields.FileSrcId, "檔案");
+    const fileNameTitle = getFileArchiveDetailColumnTitle(displayName, FileArchiveInfoFields._FileArchiveDetail, FileArchiveDetailFields.FileName, "檔案名稱");
+    const fileIdTitle = getFileArchiveDetailColumnTitle(displayName, FileArchiveInfoFields._FileArchiveDetail, FileArchiveDetailFields.FileSrcId, "檔案");
 
     return [
         buildEditGridCell(FileArchiveDetailFields.FileName, fileNameTitle, file.FileName ?? "", { inputType: "text", editable: true, maxLength: 200 }),
@@ -674,14 +698,14 @@ const buildFileArchiveUrlCells = (url: FileArchiveUrlDetail, displayName: ModelD
 {
     const descTitle = getFileArchiveDetailColumnTitle(
         displayName,
-        FileArchiveSetFields.FileArchiveUrlDetail,
+        FileArchiveInfoFields._FileArchiveUrlDetail,
         FileArchiveUrlDetailFields.UrlDescription,
         "網址描述",
     );
-    const urlTitle = getFileArchiveDetailColumnTitle(displayName, FileArchiveSetFields.FileArchiveUrlDetail, FileArchiveUrlDetailFields.Url, "網址");
+    const urlTitle = getFileArchiveDetailColumnTitle(displayName, FileArchiveInfoFields._FileArchiveUrlDetail, FileArchiveUrlDetailFields.Url, "網址");
     const targetTitle = getFileArchiveDetailColumnTitle(
         displayName,
-        FileArchiveSetFields.FileArchiveUrlDetail,
+        FileArchiveInfoFields._FileArchiveUrlDetail,
         FileArchiveUrlDetailFields.WindowTarget,
         "開啟方式",
     );
@@ -722,43 +746,47 @@ const getModelColumnTitle = (displayName: ModelDisplaySchema, tableId: string, c
     return columnHit?.ColumnDisplayName ?? fallbackHit?.ColumnDisplayName ?? fallback;
 };
 
-/** 建立新檔案 DTO，RowId 由共用 Hook 推算。 */
-const buildNewFileArchiveFileItem = (data: FileArchiveSet, parentRowId: number, rowId: number): FileArchiveDetail =>
+/** 建立新檔案 FormModel，分開保存穩定 RowId 與顯示 RowNo。 */
+const buildNewFileArchiveFileItem = (data: FileArchiveFormModel, parentRowId: number, rowId: number, rowNo: number): FileArchiveDetail =>
 {
-    return { FileArchiveId: data.FileArchive?.FileArchiveId, ParentRowId: parentRowId, RowId: rowId, FileSrcId: "", FileName: "" };
+    return { FileArchiveId: data.FileArchiveId, ParentRowId: parentRowId, RowId: rowId, RowNo: rowNo, FileSrcId: "", FileName: "" };
 };
 
-/** 建立新外部連結 DTO，RowId 由共用 Hook 推算。 */
-const buildNewFileArchiveUrlItem = (data: FileArchiveSet, parentRowId: number, rowId: number): FileArchiveUrlDetail =>
+/** 建立新外部連結 FormModel，分開保存穩定 RowId 與顯示 RowNo。 */
+const buildNewFileArchiveUrlItem = (data: FileArchiveFormModel, parentRowId: number, rowId: number, rowNo: number): FileArchiveUrlDetail =>
 {
-    return { FileArchiveId: data.FileArchive?.FileArchiveId, ParentRowId: parentRowId, RowId: rowId, UrlDescription: "", Url: "", WindowTarget: 0 };
+    return { FileArchiveId: data.FileArchiveId, ParentRowId: parentRowId, RowId: rowId, RowNo: rowNo, UrlDescription: "", Url: "", WindowTarget: 0 };
 };
 
 /** 將檔案 Grid Row 轉回 DTO，儲存時只送 FileSrcId，避免 FileManage 被 EF 當新資料重複新增。 */
-const toFileArchiveFileDto = (source: FileArchiveSet, parentRowId: number, row: GridRow, index: number): FileArchiveDetail =>
+const toFileArchiveFileDto = (source: FileArchiveFormModel, parentRowId: number, row: GridRow, index: number): FileArchiveDetail =>
 {
     // 宣告變數
     const fileValue = toFileArchiveFileCellValue(getEditGridCellValue(row, FileArchiveDetailFields.FileSrcId));
     const fileName = getEditGridStringCellValue(row, FileArchiveDetailFields.FileName).trim();
     const fileSrcId = String(fileValue.internalId ?? "").trim();
+    const rowId = Number((row as FileArchiveFileGridRow).FileRowId ?? row.RowId ?? row.rowId ?? index + 1);
 
     // return
     return {
-        FileArchiveId: source.FileArchive?.FileArchiveId ?? (row as FileArchiveFileGridRow).FileArchiveId,
+        FileArchiveId: source.FileArchiveId || (row as FileArchiveFileGridRow).FileArchiveId || "",
         ParentRowId: parentRowId,
-        RowId: index + 1,
+        RowId: rowId,
+        RowNo: index + 1,
         FileSrcId: fileSrcId,
         FileName: fileName,
     };
 };
 
 /** 將外部連結 Grid Row 轉回 DTO，RowId 依目前排序重新編號。 */
-const toFileArchiveUrlDto = (source: FileArchiveSet, parentRowId: number, row: GridRow, index: number): FileArchiveUrlDetail =>
+const toFileArchiveUrlDto = (source: FileArchiveFormModel, parentRowId: number, row: GridRow, index: number): FileArchiveUrlDetail =>
 {
+    const rowId = Number((row as FileArchiveUrlGridRow).UrlRowId ?? row.RowId ?? row.rowId ?? index + 1);
     return {
-        FileArchiveId: source.FileArchive?.FileArchiveId ?? (row as FileArchiveUrlGridRow).FileArchiveId,
+        FileArchiveId: source.FileArchiveId || (row as FileArchiveUrlGridRow).FileArchiveId || "",
         ParentRowId: parentRowId,
-        RowId: index + 1,
+        RowId: rowId,
+        RowNo: index + 1,
         UrlDescription: getEditGridStringCellValue(row, FileArchiveUrlDetailFields.UrlDescription).trim(),
         Url: getEditGridStringCellValue(row, FileArchiveUrlDetailFields.Url).trim(),
         WindowTarget: getEditGridNumberCellValue(row, FileArchiveUrlDetailFields.WindowTarget, 0) as components["schemas"]["WindowTarget"],
@@ -771,7 +799,13 @@ const uploadFileArchiveFileValue = async (args: EditGridCellValueChangeArgs, han
     const current = toFileArchiveFileCellValue(args.value);
     const selectedFile = getSelectedEditGridFile(args.nextValue);
 
-    if (!selectedFile?.file) return { value: buildEmptyFileArchiveFileCellValue() };
+    if (!selectedFile?.file)
+    {
+        return {
+            value: buildEmptyFileArchiveFileCellValue(),
+            rowValues: { [FileArchiveDetailFields.FileName]: "" },
+        };
+    }
 
     let uploadedValue: FileArchiveFileCellValue = current;
     const selectedOriginalName = getSelectedFileArchiveFileName(selectedFile);

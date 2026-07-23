@@ -5,11 +5,11 @@ import { PGID } from "@/types/SchemaFields";
 import type { AxiosInstance } from "axios";
 
 // #region Property
-type PersonSet = components["schemas"]["PersonSet_DTO"];
+type PersonFormModel = components["schemas"]["Person"];
 // #endregion
 
 // #region Public
-export class PersonService extends ApiDataService<PersonSet>
+export class PersonService extends ApiDataService<PersonFormModel>
 {
     // #region Public
     constructor(apiInstance?: AxiosInstance)
@@ -18,7 +18,7 @@ export class PersonService extends ApiDataService<PersonSet>
     }
     // #endregion
 }
-export class PersonAdapterImpl extends ApiDataAdapter<PersonSet, PersonService>
+export class PersonAdapterImpl extends ApiDataAdapter<PersonFormModel, PersonService>
 {}
 export const PersonAdapter = (apiInstance?: AxiosInstance) => new PersonAdapterImpl((api?: AxiosInstance) => new PersonService(api ?? apiInstance));
 // #endregion

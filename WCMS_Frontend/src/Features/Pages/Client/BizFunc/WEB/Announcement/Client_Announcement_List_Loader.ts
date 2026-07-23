@@ -2,13 +2,12 @@ import { CategoryAdapter } from "@/Features/Hooks/BizFunc/COMM/Category_Api";
 import { TagAdapter } from "@/Features/Hooks/BizFunc/COMM/Tag_Api";
 import { AnnouncementAdapter } from "@/Features/Hooks/BizFunc/WEB/Announcement_Api";
 import { SiteViewCountAdapter } from "@/Features/Hooks/BizFunc/WEB/SiteViewCount_Api";
-
 import {
     buildClientDataQueryState,
     type ClientDataQueryDataSourceResult,
+    type ClientDataQueryMemoryState,
     type ClientDataQueryPaginatorModel,
     type ClientDataQuerySearchBarModel,
-    type ClientDataQueryMemoryState,
     type ClientDataQueryTemplate,
     getClientSearchStringValue,
     isSameClientDataQueryParam,
@@ -16,24 +15,26 @@ import {
 } from "@/Features/Pages/Client/Scaffold/DataQueryTemplate/Client_DataQueryTemplate_Hook";
 import { getClientSearchBarText } from "@/Features/Pages/Client/Scaffold/SubPages/Module/SearchBar/Client_SearchBar_I18n";
 import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Components/Grid/Grid_Data";
+import { getModelColumnDisplayName } from "@/SysCore/Components/Grid/Grid_ModelDisplay";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { IListViewState } from "@/SysCore/Interface/IListViewState";
-import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import type { ApiGridInitial, ApiGridLoaderData, ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { formatDate, getTodayRange, LibCondition, LibText } from "@/SysCore/Utils/Library/LibData";
 import { resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
+import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import type { components } from "@/types/api";
+import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import {
     AnnouncementDetailFields,
     AnnouncementFields,
     CategoryDetailFields,
     CategoryFields,
     PGID,
-    SiteViewCountDetailModelFields,
-    SiteViewCountHeaderModelFields,
+    SiteViewCountDetailFields,
+    SiteViewCountHeaderFields,
     TagDataFields,
     TagDetailFields,
 } from "@/types/SchemaFields";
@@ -45,16 +46,17 @@ import { getClientSlotPath } from "../../../Scaffold/Slot/Client_SlotPath";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
-type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
-type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
-type TagSet = components["schemas"]["TagSet_DTO"];
-type SiteViewCountSet = components["schemas"]["SiteViewCountSet_DTO"];
+type AnnouncementFormModel = components["schemas"]["Announcement"];
+type CategoryFormModel = components["schemas"]["Category"];
+type TagFormModel = components["schemas"]["TagData"];
+type SiteViewCountFormModel = components["schemas"]["SiteViewCountHeader"];
 export interface IAnnouncementListOptions
 {
     Category?: string;
     Tag?: string;
     Style?: number;
 }
+
 export interface AnnouncementListLoaderArgs
 {
     lang: Lang;
@@ -71,13 +73,15 @@ export interface AnnouncementListLoaderArgs
     tagParam: QueryListParam;
     viewCountParam: QueryListParam;
 }
+
 export interface AnnouncementListLoaderRes
 {
-    gridRes: ApiGridLoaderData<AnnouncementSet>;
-    categoryRes: CategorySet[];
-    tagRes: TagSet[];
-    viewCountRes: SiteViewCountSet[];
+    gridRes: ApiGridLoaderData<AnnouncementFormModel>;
+    categoryRes: CategoryFormModel[];
+    tagRes: TagFormModel[];
+    viewCountRes: SiteViewCountFormModel[];
 }
+
 export interface AnnouncementListLoaderData
 {
     args: AnnouncementListLoaderArgs;
@@ -85,6 +89,7 @@ export interface AnnouncementListLoaderData
     /** Spec 額外 SSR initial data，供客製列表在首屏沿用。 */
     spec?: unknown | null;
 }
+
 export interface AnnouncementListLoaderSpecContext
 {
     /** SSR request，提供 Spec loader 沿用目前請求。 */
@@ -98,20 +103,22 @@ export interface AnnouncementListLoaderSpecContext
     /** 外部覆寫查詢參數，供 Spec 與 Feature 首屏一致。 */
     overrides?: Partial<{ pageNumber: number; pageSize: number; keyword: string; categoryIds: string; tagIds: string; }>;
 }
+
 export interface AnnouncementListLoaderSpecSlot
 {
     /** 載入 Spec 額外 SSR initial data，例如第二組客製 Grid。 */
     loadExtraData?: (context: AnnouncementListLoaderSpecContext) => Promise<unknown>;
 }
+
 export interface UseAnnouncementListDataResult
 {
     pageSize: number;
     pageNumber: number;
     totalPages: number;
     totalCount: number;
-    listData: AnnouncementSet[];
-    categoryData: CategorySet[];
-    tagData: TagSet[];
+    listData: AnnouncementFormModel[];
+    categoryData: CategoryFormModel[];
+    tagData: TagFormModel[];
     viewCountMap: Record<string, number>;
     gridPropsFromList: GridProps;
     paginatorProps: PaginatorProps | null;
@@ -120,11 +127,13 @@ export interface UseAnnouncementListDataResult
     errorList: string[];
     onPageChange: (page: number) => void;
 }
-/** 前端 grid 專用欄位 key，避免再依賴 Announcement.ViewCount */
+
+/** 前端 grid 專用欄位 key，避免再依賴 Announcement.ViewCount。 */
 const ANNOUNCEMENT_VIEW_COUNT_COL_KEY = "__announcementViewCount__";
 type SiteViewCountDetailRow = { ProgId?: string | null; TargetInternalId?: string | null; PageViewCount?: number | null; };
-type SiteViewCountSetLike = SiteViewCountSet & { SiteViewCountDetail?: SiteViewCountDetailRow[] | null; };
+type SiteViewCountFormModelLike = SiteViewCountFormModel & { SiteViewCountDetail?: SiteViewCountDetailRow[] | null; };
 const SEARCH_KEYWORD_KEY = "keyword";
+
 type AnnouncementSearchParams = {
     lang: Lang;
     dayStart: number;
@@ -135,9 +144,19 @@ type AnnouncementSearchParams = {
     categoryIds: string;
     tagIds: string;
 };
+
 type AnnouncementQueryParam = Omit<AnnouncementListLoaderArgs, "viewCountParam">;
 type AnnouncementListViewModel = Omit<UseAnnouncementListDataResult, "isLoading" | "errorList" | "searchBar">;
-type AnnouncementDataQueryTemplate = ClientDataQueryTemplate<AnnouncementSearchParams, AnnouncementListViewModel, AnnouncementListViewModel, unknown, AnnouncementQueryParam, AnnouncementListLoaderData, ClientDataQueryMemoryState>;
+type AnnouncementDataQueryTemplate = ClientDataQueryTemplate<
+    AnnouncementSearchParams,
+    AnnouncementListViewModel,
+    AnnouncementListViewModel,
+    unknown,
+    AnnouncementQueryParam,
+    AnnouncementListLoaderData,
+    ClientDataQueryMemoryState
+>;
+
 export type AnnouncementListDataQuerySpecSlot = NonNullable<AnnouncementDataQueryTemplate["spec"]>;
 let _resolvedAnnouncementListDataQuerySpec: AnnouncementListDataQuerySpecSlot | null = null;
 let _resolvedAnnouncementListLoaderSpec: AnnouncementListLoaderSpecSlot | null = null;
@@ -148,9 +167,10 @@ export const extendAnnouncementListLoaderSpec: AnnouncementListLoaderSpecSlot = 
 // #endregion
 
 // #region Public
-/** SSR Loader：首屏撈 announcement + category + tag + siteviewcount */
+/** SSR Loader：首屏撈 announcement + category + tag + siteviewcount。 */
 export const AnnouncementListLoader = (
     p: {
+        pageState?: ReturnType<typeof usePageStateMemory<ClientDataQueryMemoryState>>;
         lang: Lang;
         opts?: IAnnouncementListOptions;
         overrides?: Partial<{ pageNumber: number; pageSize: number; keyword: string; categoryIds: string; tagIds: string; }>;
@@ -158,93 +178,54 @@ export const AnnouncementListLoader = (
 ) =>
 async ({ request }: LoaderFunctionArgs): Promise<AnnouncementListLoaderData> =>
 {
-    // 宣告變數
     const ssrApi = getSsrApi(request);
     const announcement = AnnouncementAdapter(ssrApi);
     const category = CategoryAdapter(ssrApi);
     const tag = TagAdapter(ssrApi);
     const siteView = SiteViewCountAdapter(ssrApi);
     const { dayStart, dayEnd } = getTodayRange();
-    const baseArgs = buildLoaderArgs({
-        lang: p.lang,
-        opts: p.opts,
-        dayStart,
-        dayEnd,
-        overrides: {
-            pageNumber: p.overrides?.pageNumber,
-            pageSize: p.overrides?.pageSize,
-            keyword: p.overrides?.keyword,
-            categoryIds: p.overrides?.categoryIds,
-            tagIds: p.overrides?.tagIds,
-        },
-    });
-    const gridLoader = announcement.loader.createQueryGridDataLoader({ getCondition: () => baseArgs.listParam, getApiInstance: () => ssrApi });
-    const cateLoader = category.loader.createQueryListLoader({ getCondition: () => baseArgs.cateParam, getApiInstance: () => ssrApi });
-    const tagLoader = tag.loader.createQueryListLoader({ getCondition: () => baseArgs.tagParam, getApiInstance: () => ssrApi });
-    const [gridRes, categoryLD, tagLD] = await Promise.all([
-        gridLoader({ request } as LoaderFunctionArgs),
-        cateLoader({ request } as LoaderFunctionArgs),
-        tagLoader({ request } as LoaderFunctionArgs),
+    const baseArgs = buildLoaderArgs({ ...p, dayStart, dayEnd });
+    const loaders = buildAnnouncementSsrLoaders({ announcement, category, tag, siteView, baseArgs, ssrApi });
+    const [gridRes, categoryLD, tagLD, viewCountModelLD] = await Promise.all([
+        loaders.grid({ request } as LoaderFunctionArgs),
+        loaders.category({ request } as LoaderFunctionArgs),
+        loaders.tag({ request } as LoaderFunctionArgs),
+        loaders.viewCountModel({ request } as LoaderFunctionArgs),
     ]);
-    const listRes = gridRes.list.apiRes.Data ?? [];
-    const viewCountParam = buildViewCountQuery(getAnnouncementInternalIds(listRes));
+    const viewCountParam = buildViewCountQuery(getAnnouncementInternalIds(gridRes.list.apiRes.Data ?? []));
     const viewCountLoader = siteView.loader.createQueryListLoader({ getCondition: () => viewCountParam, getApiInstance: () => ssrApi });
     const viewCountLD = await viewCountLoader({ request } as LoaderFunctionArgs);
     const finalArgs: AnnouncementListLoaderArgs = { ...baseArgs, viewCountParam };
-    const spec = await getResolvedAnnouncementListLoaderSpec().loadExtraData?.({
-        request,
-        apiInstance: ssrApi,
-        args: finalArgs,
-        opts: p.opts,
-        overrides: p.overrides,
-    }) ?? null;
-    return {
-        args: finalArgs,
-        res: { gridRes, categoryRes: categoryLD.apiRes.Data ?? [], tagRes: tagLD.apiRes.Data ?? [], viewCountRes: viewCountLD.apiRes.Data ?? [] },
-        spec,
-    };
+    const spec = await loadAnnouncementSpecData({ request, apiInstance: ssrApi, args: finalArgs, opts: p.opts, overrides: p.overrides });
+    return buildAnnouncementLoaderResult({ finalArgs, gridRes, categoryLD, tagLD, viewCountLD, viewCountModelLD, spec });
 };
-/** CSR Hook：Component 只拿 VM，資料查詢流程交給 Client_DataQueryTemplate */
+
+/** CSR Hook：Component 只拿 VM，資料查詢流程交給 Client_DataQueryTemplate。 */
 export const useAnnouncementListData = (p: { lang: Lang; opts?: IAnnouncementListOptions; kw?: string; }): UseAnnouncementListDataResult =>
 {
     const initial = useLoaderData() as AnnouncementListLoaderData;
-    const defaultPageState = useMemo<ClientDataQueryMemoryState>(() => ({ searchValues: buildAnnouncementSearchValues(p.kw), viewState: buildAnnouncementInitialViewState({ opts: p.opts, overrides: { pageNumber: initial.args.pageNumber, pageSize: initial.args.pageSize } }) }), [p.lang, initial.args.pageNumber, initial.args.pageSize]);
+    const defaultPageState = useMemo<ClientDataQueryMemoryState>(() => ({
+        searchValues: buildAnnouncementSearchValues(p.kw),
+        viewState: buildAnnouncementInitialViewState({ opts: p.opts, overrides: { pageNumber: initial.args.pageNumber, pageSize: initial.args.pageSize } }),
+    }), [p.lang, initial.args.pageNumber, initial.args.pageSize]);
     const pageState = usePageStateMemory<ClientDataQueryMemoryState>({ stateKey: "Client.AnnouncementList", scopeKeys: [p.lang], defaultState: defaultPageState });
-    const template = useMemo(
-        () =>
-            createAnnouncementDataQueryTemplate({
-                pageState,
-                lang: p.lang,
-                opts: p.opts,
-                dayStart: initial.args.dayStart,
-                dayEnd: initial.args.dayEnd,
-                overrides: {
-                    pageNumber: initial.args.pageNumber,
-                    pageSize: initial.args.pageSize,
-                    keyword: p.kw,
-                    categoryIds: initial.args.categoryIds,
-                    tagIds: initial.args.tagIds,
-                },
-            }),
-        [
-            p.lang,
-            p.opts,
-            p.kw,
-            initial.args.dayStart,
-            initial.args.dayEnd,
-            initial.args.pageNumber,
-            initial.args.pageSize,
-            initial.args.categoryIds,
-            initial.args.tagIds, pageState],
-    );
+    const template = useMemo(() =>
+        createAnnouncementDataQueryTemplate({
+            pageState,
+            lang: p.lang,
+            opts: p.opts,
+            dayStart: initial.args.dayStart,
+            dayEnd: initial.args.dayEnd,
+            overrides: {
+                pageNumber: initial.args.pageNumber,
+                pageSize: initial.args.pageSize,
+                keyword: p.kw,
+                categoryIds: initial.args.categoryIds,
+                tagIds: initial.args.tagIds,
+            },
+        }), [p.lang, p.opts, p.kw, initial.args.dayStart, initial.args.dayEnd, initial.args.pageNumber, initial.args.pageSize, initial.args.categoryIds, initial.args.tagIds, pageState]);
     const templateVm = useClientDataQueryTemplate(template);
-    return {
-        ...templateVm.viewModel,
-        paginatorProps: templateVm.paginatorProps,
-        searchBar: templateVm.searchBar,
-        isLoading: templateVm.isLoading,
-        errorList: templateVm.errorList,
-    };
+    return { ...templateVm.viewModel, paginatorProps: templateVm.paginatorProps, searchBar: templateVm.searchBar, isLoading: templateVm.isLoading, errorList: templateVm.errorList };
 };
 // #endregion
 
@@ -256,6 +237,7 @@ const getResolvedAnnouncementListLoaderSpec = (): AnnouncementListLoaderSpecSlot
     _resolvedAnnouncementListLoaderSpec = resolveSpecFunc<AnnouncementListLoaderSpecSlot>(getClientSlotPath("Slot_Announcement_List_Loader"), extendAnnouncementListLoaderSpec, ["extendAnnouncementListLoaderSpec"]);
     return _resolvedAnnouncementListLoaderSpec;
 };
+
 /** 取得 Announcement List DataQuery Spec，有 Spec 時調整查詢流程。 */
 const getResolvedAnnouncementListDataQuerySpec = (): AnnouncementListDataQuerySpecSlot =>
 {
@@ -266,21 +248,66 @@ const getResolvedAnnouncementListDataQuerySpec = (): AnnouncementListDataQuerySp
 // #endregion
 
 // #region Private
-const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`);
-/** 將 timestamp 轉查詢用本地時間字串 */
+/** 建立 Announcement SSR Loader 集合。 */
+const buildAnnouncementSsrLoaders = (p: {
+    announcement: ReturnType<typeof AnnouncementAdapter>;
+    category: ReturnType<typeof CategoryAdapter>;
+    tag: ReturnType<typeof TagAdapter>;
+    siteView: ReturnType<typeof SiteViewCountAdapter>;
+    baseArgs: AnnouncementQueryParam;
+    ssrApi: AxiosInstance;
+}) =>
+{
+    return {
+        grid: p.announcement.loader.createQueryGridDataLoader({ getCondition: () => p.baseArgs.listParam, getApiInstance: () => p.ssrApi }),
+        category: p.category.loader.createQueryListLoader({ getCondition: () => p.baseArgs.cateParam, getApiInstance: () => p.ssrApi }),
+        tag: p.tag.loader.createQueryListLoader({ getCondition: () => p.baseArgs.tagParam, getApiInstance: () => p.ssrApi }),
+        viewCountModel: p.siteView.loader.createModelDisplayNameLoader({ getApiInstance: () => p.ssrApi }),
+    };
+};
+
+/** 載入 Announcement Spec 額外 SSR 資料。 */
+const loadAnnouncementSpecData = async (context: AnnouncementListLoaderSpecContext): Promise<unknown | null> =>
+{
+    return await getResolvedAnnouncementListLoaderSpec().loadExtraData?.(context) ?? null;
+};
+
+/** 建立 Announcement SSR Loader 回傳資料。 */
+const buildAnnouncementLoaderResult = (p: {
+    finalArgs: AnnouncementListLoaderArgs;
+    gridRes: ApiGridLoaderData<AnnouncementSet>;
+    categoryLD: ApiLoaderData<QueryListParam, CategorySet[]>;
+    tagLD: ApiLoaderData<QueryListParam, TagSet[]>;
+    viewCountLD: ApiLoaderData<QueryListParam, SiteViewCountSet[]>;
+    viewCountModelLD: ApiLoaderData<null, ModelDisplaySchema[]>;
+    spec: unknown | null;
+}): AnnouncementListLoaderData =>
+{
+    return {
+        args: p.finalArgs,
+        res: {
+            gridRes: p.gridRes,
+            categoryRes: p.categoryLD.apiRes.Data ?? [],
+            tagRes: p.tagLD.apiRes.Data ?? [],
+            viewCountRes: p.viewCountLD.apiRes.Data ?? [],
+            viewCountModelRes: p.viewCountModelLD,
+        },
+        spec: p.spec,
+    };
+};
+
+const pad = (n: number): string => n < 10 ? `0${n}` : `${n}`;
+
+/** 將 timestamp 轉查詢用本地時間字串。 */
 const formatQueryDateTime = (value: number): string =>
 {
-    // 宣告變數
     const d = new Date(value);
-    const y = d.getFullYear();
-    const m = pad(d.getMonth() + 1);
-    const day = pad(d.getDate());
-    const hh = pad(d.getHours());
-    const mm = pad(d.getMinutes());
-    const ss = pad(d.getSeconds());
-    return `${y}-${m}-${day}T${hh}:${mm}:${ss}`;
+    const dateText = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    const timeText = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    return `${dateText}T${timeText}`;
 };
-/** 依 Style 計算每頁筆數 */
+
+/** 依 Style 計算每頁筆數。 */
 const calcPageSize = (style?: number): number =>
 {
     const currentStyle = style ?? 0;
@@ -288,18 +315,31 @@ const calcPageSize = (style?: number): number =>
     if (currentStyle === 8) return 0;
     return 10;
 };
-/** 組成 In 查詢可用字串 */
+
+/** 組成 In 查詢可用字串。 */
 const buildQuotedValues = (values: string[]): string =>
 {
-    const quoted = LibText.toTrimmedStringArray(values).map(value => `"${LibCondition.escapeConditionValue(value)}"`);
-    return quoted.join(",");
+    return LibText.toTrimmedStringArray(values)
+        .map(value => `"${LibCondition.escapeConditionValue(value)}"`)
+        .join(",");
 };
-/** 建公告查詢條件 */
+
+/** 建公告查詢條件。 */
 const buildAnnouncementCondition = (p: { lang: Lang; dayStart: number; dayEnd: number; categoryIds: string; tagIds: string; keyword?: string; }): string =>
+{
+    let condition = buildAnnouncementBaseCondition(p);
+    if (p.keyword) condition = LibText.Merge(" And ", false, condition, `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title} Like ${p.keyword}`);
+    if (LibText.safeTrim(p.categoryIds) !== "") condition = LibText.Merge(" And ", false, condition, `${AnnouncementFields.Categories} HasAny [${p.categoryIds}]`);
+    if (LibText.safeTrim(p.tagIds) !== "") condition = LibText.Merge(" And ", false, condition, `${AnnouncementFields.Tags} HasAny [${p.tagIds}]`);
+    return condition;
+};
+
+/** 建立公告固定條件。 */
+const buildAnnouncementBaseCondition = (p: { lang: Lang; dayStart: number; dayEnd: number; }): string =>
 {
     const dayStartText = formatQueryDateTime(p.dayStart);
     const dayEndText = formatQueryDateTime(p.dayEnd);
-    let condition = LibText.Merge(
+    return LibText.Merge(
         " And ",
         false,
         `${AnnouncementFields.Validate_Start} <= ${dayEndText}`,
@@ -308,21 +348,9 @@ const buildAnnouncementCondition = (p: { lang: Lang; dayStart: number; dayEnd: n
         `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang} = ${p.lang}`,
         `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title} != ''`,
     );
-    if (p.keyword)
-    {
-        condition = LibText.Merge(" And ", false, condition, `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title} Like ${p.keyword}`);
-    }
-    if (LibText.safeTrim(p.categoryIds) !== "")
-    {
-        condition = LibText.Merge(" And ", false, condition, `${AnnouncementFields.Categories} HasAny [${p.categoryIds}]`);
-    }
-    if (LibText.safeTrim(p.tagIds) !== "")
-    {
-        condition = LibText.Merge(" And ", false, condition, `${AnnouncementFields.Tags} HasAny [${p.tagIds}]`);
-    }
-    return condition;
 };
-/** 建公告 QueryListParam */
+
+/** 建公告 QueryListParam。 */
 const buildAnnouncementQuery = (p: { condition: string; pageNumber: number; pageSize: number; }): QueryListParam =>
 {
     return {
@@ -348,7 +376,7 @@ const buildAnnouncementQuery = (p: { condition: string; pageNumber: number; page
     };
 };
 
-/** 建分類 QueryListParam */
+/** 建分類 QueryListParam。 */
 const buildCategoryQuery = (progId: string): QueryListParam =>
 {
     return {
@@ -365,7 +393,8 @@ const buildCategoryQuery = (progId: string): QueryListParam =>
         PageSize: 0,
     };
 };
-/** 建標籤 QueryListParam */
+
+/** 建標籤 QueryListParam。 */
 const buildTagQuery = (progId: string): QueryListParam =>
 {
     return {
@@ -383,32 +412,35 @@ const buildTagQuery = (progId: string): QueryListParam =>
     };
 };
 /** 取公告 internalIds */
-const getAnnouncementInternalIds = (rows: AnnouncementSet[]): string[] =>
+const getAnnouncementInternalIds = (rows: AnnouncementFormModel[]): string[] =>
 {
-    return rows.map(p => p.Announcement?.InternalId ?? "").filter(Boolean);
+    return rows.map(p => p?.InternalId ?? "").filter(Boolean);
 };
-/** 建瀏覽數條件 */
+
+/** 建瀏覽數條件。 */
 const buildViewCountCondition = (internalIds: string[]): string =>
 {
     const idText = buildQuotedValues(internalIds);
     if (!idText) return "1=0";
-    return `${SiteViewCountHeaderModelFields._SiteViewCountDetail}.${SiteViewCountDetailModelFields.ProgId} = ${PGID.Announcement} And ${SiteViewCountHeaderModelFields._SiteViewCountDetail}.${SiteViewCountDetailModelFields.TargetInternalId} In [${idText}]`;
+    return `${SiteViewCountHeaderFields._SiteViewCountDetail}.${SiteViewCountDetailFields.ProgId} = ${PGID.Announcement} And ${SiteViewCountHeaderFields._SiteViewCountDetail}.${SiteViewCountDetailFields.TargetInternalId} In [${idText}]`;
 };
-/** 建瀏覽數 QueryListParam */
+
+/** 建瀏覽數 QueryListParam。 */
 const buildViewCountQuery = (internalIds: string[]): QueryListParam =>
 {
     return {
         Fields: [
-            `${SiteViewCountHeaderModelFields._SiteViewCountDetail}.${SiteViewCountDetailModelFields.ProgId}`,
-            `${SiteViewCountHeaderModelFields._SiteViewCountDetail}.${SiteViewCountDetailModelFields.TargetInternalId}`,
-            `${SiteViewCountHeaderModelFields._SiteViewCountDetail}.${SiteViewCountDetailModelFields.PageViewCount}`,
+            `${SiteViewCountHeaderFields._SiteViewCountDetail}.${SiteViewCountDetailFields.ProgId}`,
+            `${SiteViewCountHeaderFields._SiteViewCountDetail}.${SiteViewCountDetailFields.TargetInternalId}`,
+            `${SiteViewCountHeaderFields._SiteViewCountDetail}.${SiteViewCountDetailFields.PageViewCount}`,
         ],
         Condition: buildViewCountCondition(internalIds),
         PageNumber: 0,
         PageSize: 0,
     };
 };
-/** 建立 Announcement 前台搜尋欄位 */
+
+/** 建立 Announcement 前台搜尋欄位。 */
 const buildAnnouncementSearchFields = (lang: Lang): SearchFieldConfig[] =>
 {
     const isEnglish = lang === "en";
@@ -421,48 +453,39 @@ const buildAnnouncementSearchFields = (lang: Lang): SearchFieldConfig[] =>
         maxLength: 100,
     }] as unknown as SearchFieldConfig[];
 };
-/** 建立 Announcement 搜尋初始值 */
+
+/** 建立 Announcement 搜尋初始值。 */
 const buildAnnouncementSearchValues = (keyword?: string): SearchValues =>
 {
     return { [SEARCH_KEYWORD_KEY]: LibText.safeTrim(keyword) } as SearchValues;
 };
-/** 建立 Announcement 初始 ViewState */
-const buildAnnouncementInitialViewState = (
-    p: { opts?: IAnnouncementListOptions; overrides?: Partial<{ pageNumber: number; pageSize: number; }>; },
-): IListViewState =>
+
+/** 建立 Announcement 初始 ViewState。 */
+const buildAnnouncementInitialViewState = (p: { opts?: IAnnouncementListOptions; overrides?: Partial<{ pageNumber: number; pageSize: number; }>; }): IListViewState =>
 {
     const pageNumber = p.overrides?.pageNumber ?? 1;
     const pageSize = p.overrides?.pageSize ?? calcPageSize(p.opts?.Style);
     return { pageNumber, pageSize } as IListViewState;
 };
-/** 建立 Announcement 查詢參數 */
-const buildAnnouncementSearchParams = (
-    p: {
-        lang: Lang;
-        opts?: IAnnouncementListOptions;
-        dayStart: number;
-        dayEnd: number;
-        overrides?: Partial<{ keyword: string; categoryIds: string; tagIds: string; }>;
-        values: SearchValues;
-        viewState: IListViewState;
-    },
-): AnnouncementSearchParams =>
+
+/** 建立 Announcement 搜尋參數。 */
+const buildAnnouncementSearchParams = (p: {
+    lang: Lang;
+    opts?: IAnnouncementListOptions;
+    dayStart: number;
+    dayEnd: number;
+    overrides?: Partial<{ keyword: string; categoryIds: string; tagIds: string; }>;
+    values: SearchValues;
+    viewState: IListViewState;
+}): AnnouncementSearchParams =>
 {
     const keyword = getClientSearchStringValue(p.values, SEARCH_KEYWORD_KEY) ?? p.overrides?.keyword;
     const categoryIds = p.overrides?.categoryIds ?? (p.opts?.Category ?? "");
     const tagIds = p.overrides?.tagIds ?? (p.opts?.Tag ?? "");
-    return {
-        lang: p.lang,
-        dayStart: p.dayStart,
-        dayEnd: p.dayEnd,
-        pageNumber: p.viewState.pageNumber,
-        pageSize: p.viewState.pageSize,
-        keyword,
-        categoryIds,
-        tagIds,
-    };
+    return { lang: p.lang, dayStart: p.dayStart, dayEnd: p.dayEnd, pageNumber: p.viewState.pageNumber, pageSize: p.viewState.pageSize, keyword, categoryIds, tagIds };
 };
-/** 建立 Announcement QueryParam，Loader / Hook 都統一走這裡 */
+
+/** 建立 Announcement QueryParam，Loader / Hook 都統一走這裡。 */
 const buildAnnouncementQueryArgs = (p: AnnouncementSearchParams & { condition: string; }): AnnouncementQueryParam =>
 {
     return {
@@ -483,6 +506,7 @@ const buildAnnouncementQueryArgs = (p: AnnouncementSearchParams & { condition: s
 /** 建立 Announcement DataQueryTemplate */
 const createAnnouncementDataQueryTemplate = (
     p: {
+        pageState?: ReturnType<typeof usePageStateMemory<ClientDataQueryMemoryState>>;
         lang: Lang;
         opts?: IAnnouncementListOptions;
         dayStart: number;
@@ -493,21 +517,23 @@ const createAnnouncementDataQueryTemplate = (
 {
     const initialViewState = buildAnnouncementInitialViewState({ opts: p.opts, overrides: p.overrides });
     const initialSearchValues = buildAnnouncementSearchValues(p.overrides?.keyword);
-    const pagination = p.opts?.Style === 8
-        ? null
-        : { defaultPageNumber: initialViewState.pageNumber, defaultPageSize: initialViewState.pageSize, resetPageOnSearch: true };
+    const pagination = p.opts?.Style === 8 ? null : { defaultPageNumber: initialViewState.pageNumber, defaultPageSize: initialViewState.pageSize, resetPageOnSearch: true };
     const searchBarText = getClientSearchBarText(p.lang);
     return {
         featureKey: "AnnouncementList",
         dataMode: "multiple",
-        ...(p.pageState ? { pageStateMemory: {
-            controller: p.pageState,
-            getSearchValues: state => state.searchValues,
-            getViewState: state => state.viewState,
-            updateSearchValues: (state, values, pageNumber) => ({ ...state, searchValues: values, viewState: { ...state.viewState, pageNumber } }),
-            updateViewState: (state, nextViewState) => ({ ...state, viewState: nextViewState }),
-            getPagination: raw => ({ count: raw.totalCount, totalPages: raw.totalPages }),
-        } } : {}),
+        ...(p.pageState
+            ? {
+                pageStateMemory: {
+                    controller: p.pageState,
+                    getSearchValues: state => state.searchValues,
+                    getViewState: state => state.viewState,
+                    updateSearchValues: (state, values, pageNumber) => ({ ...state, searchValues: values, viewState: { ...state.viewState, pageNumber } }),
+                    updateViewState: (state, nextViewState) => ({ ...state, viewState: nextViewState }),
+                    getPagination: raw => ({ count: raw.totalCount, totalPages: raw.totalPages }),
+                },
+            }
+            : {}),
         initialSearchValues,
         initialViewState,
         pagination,
@@ -516,23 +542,22 @@ const createAnnouncementDataQueryTemplate = (
         feature: {
             searchFields: buildAnnouncementSearchFields(p.lang),
             toSearchParams: (values, viewState) => buildAnnouncementSearchParams({ ...p, values, viewState }),
-            buildSearchConditions: (ctx) => [buildAnnouncementCondition(ctx.searchParams)],
-            buildQueryParam: (ctx) => buildAnnouncementQueryArgs({ ...ctx.searchParams, condition: ctx.searchCondition }),
-            useDataSource: (ctx) => useAnnouncementDataSource({ queryParam: ctx.queryParam, loaderData: ctx.loaderData }),
-            buildViewModel: (ctx) => ctx.rawData,
+            buildSearchConditions: ctx => [buildAnnouncementCondition(ctx.searchParams)],
+            buildQueryParam: ctx => buildAnnouncementQueryArgs({ ...ctx.searchParams, condition: ctx.searchCondition }),
+            useDataSource: ctx => useAnnouncementDataSource({ queryParam: ctx.queryParam, loaderData: ctx.loaderData }),
+            buildViewModel: ctx => ctx.rawData,
         },
     } as AnnouncementDataQueryTemplate;
 };
-/** 組 loader / hook 共用參數 */
-const buildLoaderArgs = (
-    p: {
-        lang: Lang;
-        opts?: IAnnouncementListOptions;
-        dayStart: number;
-        dayEnd: number;
-        overrides?: Partial<{ pageNumber: number; pageSize: number; keyword: string; categoryIds: string; tagIds: string; }>;
-    },
-): AnnouncementQueryParam =>
+
+/** 組 loader / hook 共用參數。 */
+const buildLoaderArgs = (p: {
+    lang: Lang;
+    opts?: IAnnouncementListOptions;
+    dayStart: number;
+    dayEnd: number;
+    overrides?: Partial<{ pageNumber: number; pageSize: number; keyword: string; categoryIds: string; tagIds: string; }>;
+}): AnnouncementQueryParam =>
 {
     const template = createAnnouncementDataQueryTemplate(p);
     const viewState = buildAnnouncementInitialViewState({ opts: p.opts, overrides: p.overrides });
@@ -540,63 +565,70 @@ const buildLoaderArgs = (
     return buildClientDataQueryState(template, searchValues, viewState).queryParam;
 };
 /** 取瀏覽數明細列 */
-const getSiteViewCountDetails = (item: SiteViewCountSet): SiteViewCountDetailRow[] =>
+const getSiteViewCountDetails = (item: SiteViewCountFormModel): SiteViewCountDetailRow[] =>
 {
-    const detailRows = (item as SiteViewCountSetLike).SiteViewCountDetail;
+    const detailRows = (item as SiteViewCountFormModelLike)._SiteViewCountDetail;
     if (!Array.isArray(detailRows)) return [];
     return detailRows;
 };
 /** 組公告瀏覽數 map */
-const buildViewCountMap = (rows: SiteViewCountSet[]): Record<string, number> =>
+const buildViewCountMap = (rows: SiteViewCountFormModel[]): Record<string, number> =>
 {
     const result: Record<string, number> = {};
-    rows.forEach((item) =>
-    {
-        const detailRows = getSiteViewCountDetails(item);
-        detailRows.forEach((detail) =>
-        {
-            const key = detail.TargetInternalId ?? "";
-            if (!key) return;
-            result[key] = (result[key] ?? 0) + Number(detail.PageViewCount ?? 0);
-        });
-    });
+    rows.forEach(item => getSiteViewCountDetails(item).forEach(detail => addViewCount(result, detail)));
     return result;
 };
-/** 由資料組 gridProps */
-const buildGridPropsFromList = (
-    p: {
-        lang: Lang;
-        listData: AnnouncementSet[];
-        viewCountMap: Record<string, number>;
-        pageNumber: number;
-        totalPages: number;
-        onPageChange: (page: number) => void;
-    },
-): GridProps =>
+
+/** 將一筆瀏覽數累加至 Map。 */
+const addViewCount = (result: Record<string, number>, detail: SiteViewCountDetailRow): void =>
 {
-    const columns: ColumnConfig[] = [
-        { key: AnnouncementDetailFields.Title, title: "標題" },
-        { key: AnnouncementFields.Validate_Start, title: "日期" },
-        { key: AnnouncementFields.Categories, title: "分類" },
-        { key: AnnouncementFields.Tags, title: "標籤" },
-        { key: ANNOUNCEMENT_VIEW_COUNT_COL_KEY, title: "瀏覽" },
+    const key = detail.TargetInternalId ?? "";
+    if (!key) return;
+    result[key] = (result[key] ?? 0) + Number(detail.PageViewCount ?? 0);
+};
+
+/** 依後端 Model Metadata 建立公告 Grid 欄位。 */
+const buildAnnouncementGridColumns = (lang: Lang, model: ModelDisplaySchema | null, viewCountModel: ModelDisplaySchema | null): ColumnConfig[] =>
+{
+    const isEnglish = lang === "en";
+    return [
+        { key: AnnouncementDetailFields.Title, title: getModelColumnDisplayName(model, ["AnnouncementDetail_DTO", "AnnouncementDetail"], AnnouncementDetailFields.Title, isEnglish ? "Title" : "標題") },
+        { key: AnnouncementFields.Validate_Start, title: getModelColumnDisplayName(model, ["Announcement_DTO", "Announcement"], AnnouncementFields.Validate_Start, isEnglish ? "Announcement Date" : "日期") },
+        { key: AnnouncementFields.Categories, title: getModelColumnDisplayName(model, ["Announcement_DTO", "Announcement"], AnnouncementFields.Categories, isEnglish ? "Category" : "分類") },
+        { key: AnnouncementFields.Tags, title: getModelColumnDisplayName(model, ["Announcement_DTO", "Announcement"], AnnouncementFields.Tags, isEnglish ? "Tag" : "標籤") },
+        { key: ANNOUNCEMENT_VIEW_COUNT_COL_KEY, title: getModelColumnDisplayName(viewCountModel, ["SiteViewCountDetailModel_DTO", "SiteViewCountDetailModel"], SiteViewCountDetailModelFields.PageViewCount, isEnglish ? "View Count" : "瀏覽次數") },
     ];
-    const rows: GridRow[] = p.listData.map((item) =>
-    {
-        const detail = item.AnnouncementDetail?.find(x => x.Lang === p.lang);
-        const internalId = item.Announcement?.InternalId ?? "";
-        const finalCount = Number(p.viewCountMap[internalId] ?? 0);
-        const cells: RowCell[] = columns.map((col) =>
-        {
-            const content = resolveGridCellContent({ colKey: col.key, item, detailTitle: detail?.Title ?? "", finalCount });
-            return { col, content };
-        });
-        return { keyId: internalId, cells };
-    });
+};
+
+/** 由資料組 gridProps。 */
+const buildGridPropsFromList = (p: {
+    lang: Lang;
+    modelDisplayName: ModelDisplaySchema | null;
+    viewCountModelDisplayName: ModelDisplaySchema | null;
+    listData: AnnouncementSet[];
+    viewCountMap: Record<string, number>;
+    pageNumber: number;
+    totalPages: number;
+    onPageChange: (page: number) => void;
+}): GridProps =>
+{
+    const columns = buildAnnouncementGridColumns(p.lang, p.modelDisplayName, p.viewCountModelDisplayName);
+    const rows = p.listData.map(item => buildAnnouncementGridRow(p.lang, item, columns, p.viewCountMap));
     return { columns, rows, CurrentPage: p.pageNumber, TotalPage: p.totalPages, onPageChange: p.onPageChange };
 };
-/** 處理 grid cell 顯示內容 */
-const resolveGridCellContent = (p: { pageState?: ReturnType<typeof usePageStateMemory<ClientDataQueryMemoryState>>; colKey: string; item: AnnouncementSet; detailTitle: string; finalCount: number; }): string =>
+
+/** 建立公告 Grid 單列。 */
+const buildAnnouncementGridRow = (lang: Lang, item: AnnouncementSet, columns: ColumnConfig[], viewCountMap: Record<string, number>): GridRow =>
+{
+    const detail = item.AnnouncementDetail?.find(x => x.Lang === lang);
+    const internalId = item.Announcement?.InternalId ?? "";
+    const finalCount = Number(viewCountMap[internalId] ?? 0);
+    const cells = columns.map(col => ({ col, content: resolveGridCellContent({ colKey: col.key, item, detailTitle: detail?.Title ?? "", finalCount }) }));
+    return { keyId: internalId, cells };
+};
+
+/** 處理 grid cell 顯示內容。 */
+const resolveGridCellContent = (p: { colKey: string; item: AnnouncementSet; detailTitle: string; finalCount: number; }): string =>
 {
     switch (p.colKey)
     {
@@ -614,96 +646,96 @@ const resolveGridCellContent = (p: { pageState?: ReturnType<typeof usePageStateM
             return "";
     }
 };
-/** Announcement DataSource：統一處理 CSR 查詢與 SSR initial 沿用 */
-const useAnnouncementDataSource = (
-    p: { queryParam: AnnouncementQueryParam; loaderData: AnnouncementListLoaderData | null; },
-): ClientDataQueryDataSourceResult<AnnouncementListViewModel> =>
+
+/** Announcement DataSource：統一處理 CSR 查詢與 SSR initial 沿用。 */
+const useAnnouncementDataSource = (p: { queryParam: AnnouncementQueryParam; loaderData: AnnouncementListLoaderData | null; }): ClientDataQueryDataSourceResult<AnnouncementListViewModel> =>
 {
     const initial = p.loaderData as AnnouncementListLoaderData;
     const currentArgs = p.queryParam;
     const announcement = useMemo(() => AnnouncementAdapter(), []);
     const siteView = useMemo(() => SiteViewCountAdapter(), []);
-    const gridInitial = useMemo<ApiGridInitial<AnnouncementSet>>(() =>
-    {
-        const countInitial = isSameClientDataQueryParam(currentArgs.listParam, initial.res.gridRes.count?.args) ? initial.res.gridRes.count : null;
-        const listInitial = isSameClientDataQueryParam(currentArgs.listParam, initial.res.gridRes.list?.args) ? initial.res.gridRes.list : null;
-        return { model: initial.res.gridRes.model, count: countInitial, list: listInitial };
-    }, [currentArgs.listParam, initial.res.gridRes]);
-    const grid = announcement.hooks.useQueryGridData({
-        baseParam: currentArgs.listParam,
-        deps: [currentArgs.condition, currentArgs.pageSize],
-        initial: gridInitial,
-    });
+    const gridInitial = useMemo<ApiGridInitial<AnnouncementSet>>(() => buildAnnouncementGridInitial(currentArgs.listParam, initial), [currentArgs.listParam, initial.res.gridRes]);
+    const grid = announcement.hooks.useQueryGridData({ baseParam: currentArgs.listParam, deps: [currentArgs.condition, currentArgs.pageSize], modelDeps: [currentArgs.lang], initial: gridInitial });
+    const viewCountModel = siteView.hooks.useModelDisplayName({ initial: initial.res.viewCountModelRes ?? null, deps: [currentArgs.lang] });
     const viewCountParam = useMemo(() => buildViewCountQuery(getAnnouncementInternalIds(grid.list ?? [])), [grid.list]);
-    const viewCountInitial = useMemo(() =>
-    {
-        if (!isSameClientDataQueryParam(viewCountParam, initial.args.viewCountParam)) return null;
-        return buildQueryInitial(initial.args.viewCountParam, initial.res.viewCountRes);
-    }, [viewCountParam, initial.args.viewCountParam, initial.res.viewCountRes]);
+    const viewCountInitial = useMemo(() => buildAnnouncementViewCountInitial(viewCountParam, initial), [viewCountParam, initial.args.viewCountParam, initial.res.viewCountRes]);
     const viewCountParamKey = useMemo(() => JSON.stringify(viewCountParam ?? null), [viewCountParam]);
     const useViewCount = siteView.hooks.useQueryList({ condition: viewCountParam, initial: viewCountInitial, deps: [viewCountParamKey] });
     const viewCountMap = useMemo(() => buildViewCountMap(useViewCount.data ?? []), [useViewCount.data]);
-    const categoryData = useMemo(() => initial.res.categoryRes ?? [], [initial.res.categoryRes]);
-    const tagData = useMemo(() => initial.res.tagRes ?? [], [initial.res.tagRes]);
-    const gridPropsFromList = useMemo(
-        () =>
-            buildGridPropsFromList({
-                lang: currentArgs.lang,
-                listData: grid.list ?? [],
-                viewCountMap,
-                pageNumber: grid.pageNumber,
-                totalPages: grid.totalPages,
-                onPageChange: grid.onPageChange,
-            }),
-        [currentArgs.lang, grid.list, grid.pageNumber, grid.totalPages, grid.onPageChange, viewCountMap],
-    );
-    const paginatorProps = useMemo<PaginatorProps | null>(() =>
-    {
-        if (currentArgs.pageSize === 0) return null;
-        return { currentPage: grid.pageNumber, totalPages: grid.totalPages, onPageChange: grid.onPageChange };
-    }, [currentArgs.pageSize, grid.pageNumber, grid.totalPages, grid.onPageChange]);
-    const paginator = useMemo<ClientDataQueryPaginatorModel | null>(() =>
-    {
-        if (!paginatorProps) return null;
-        return {
-            currentPage: paginatorProps.currentPage,
-            pageSize: currentArgs.pageSize,
-            totalPages: paginatorProps.totalPages,
-            totalCount: grid.count,
-            onPageChange: paginatorProps.onPageChange,
-        };
-    }, [paginatorProps, currentArgs.pageSize, grid.count]);
-    const rawData = useMemo<AnnouncementListViewModel>(
-        () => ({
-            pageSize: currentArgs.pageSize,
-            pageNumber: grid.pageNumber,
-            totalPages: grid.totalPages,
-            totalCount: grid.count,
-            listData: grid.list ?? [],
-            categoryData,
-            tagData,
-            viewCountMap,
-            gridPropsFromList,
-            paginatorProps,
-            onPageChange: grid.onPageChange,
-        }),
-        [
-            currentArgs.pageSize,
-            grid.pageNumber,
-            grid.totalPages,
-            grid.count,
-            grid.list,
-            categoryData,
-            tagData,
-            viewCountMap,
-            gridPropsFromList,
-            paginatorProps,
-            grid.onPageChange,
-        ],
-    );
-    const errors = useMemo(() => [grid.errorText, useViewCount.errorText], [grid.errorText, useViewCount.errorText]);
-    return { rawData, isLoading: Boolean(grid.isLoading || useViewCount.isLoading), errors, paginator };
+    return buildAnnouncementDataSourceResult({ currentArgs, initial, grid, viewCountModel, useViewCount, viewCountMap });
 };
+
+/** 建立 Announcement Grid SSR initial。 */
+const buildAnnouncementGridInitial = (listParam: QueryListParam, initial: AnnouncementListLoaderData): ApiGridInitial<AnnouncementSet> =>
+{
+    const countInitial = isSameClientDataQueryParam(listParam, initial.res.gridRes.count?.args) ? initial.res.gridRes.count : null;
+    const listInitial = isSameClientDataQueryParam(listParam, initial.res.gridRes.list?.args) ? initial.res.gridRes.list : null;
+    return { model: initial.res.gridRes.model, count: countInitial, list: listInitial };
+};
+
+/** 建立 Announcement 瀏覽數 SSR initial。 */
+const buildAnnouncementViewCountInitial = (viewCountParam: QueryListParam, initial: AnnouncementListLoaderData): ApiLoaderData<QueryListParam, SiteViewCountSet[]> | null =>
+{
+    if (!isSameClientDataQueryParam(viewCountParam, initial.args.viewCountParam)) return null;
+    return buildQueryInitial(initial.args.viewCountParam, initial.res.viewCountRes);
+};
+
+/** 整理 Announcement DataSource 回傳資料。 */
+const buildAnnouncementDataSourceResult = (p: {
+    currentArgs: AnnouncementQueryParam;
+    initial: AnnouncementListLoaderData;
+    grid: ReturnType<ReturnType<typeof AnnouncementAdapter>["hooks"]["useQueryGridData"]>;
+    viewCountModel: ReturnType<ReturnType<typeof SiteViewCountAdapter>["hooks"]["useModelDisplayName"]>;
+    useViewCount: ReturnType<ReturnType<typeof SiteViewCountAdapter>["hooks"]["useQueryList"]>;
+    viewCountMap: Record<string, number>;
+}): ClientDataQueryDataSourceResult<AnnouncementListViewModel> =>
+{
+    const categoryData = p.initial.res.categoryRes ?? [];
+    const tagData = p.initial.res.tagRes ?? [];
+    const gridPropsFromList = buildGridPropsFromList({
+        lang: p.currentArgs.lang,
+        modelDisplayName: p.grid.modelDisplayName,
+        viewCountModelDisplayName: p.viewCountModel.data,
+        listData: p.grid.list ?? [],
+        viewCountMap: p.viewCountMap,
+        pageNumber: p.grid.pageNumber,
+        totalPages: p.grid.totalPages,
+        onPageChange: p.grid.onPageChange,
+    });
+    const paginatorProps = buildAnnouncementPaginatorProps(p.currentArgs.pageSize, p.grid.pageNumber, p.grid.totalPages, p.grid.onPageChange);
+    const rawData: AnnouncementListViewModel = {
+        pageSize: p.currentArgs.pageSize,
+        pageNumber: p.grid.pageNumber,
+        totalPages: p.grid.totalPages,
+        totalCount: p.grid.count,
+        listData: p.grid.list ?? [],
+        categoryData,
+        tagData,
+        viewCountMap: p.viewCountMap,
+        gridPropsFromList,
+        paginatorProps,
+        onPageChange: p.grid.onPageChange,
+    };
+    const paginator = buildAnnouncementPaginator(p.currentArgs.pageSize, p.grid.count, paginatorProps);
+    const errors = [p.grid.errorText, p.viewCountModel.errorText, p.useViewCount.errorText];
+    return { rawData, isLoading: Boolean(p.grid.isLoading || p.viewCountModel.isLoading || p.useViewCount.isLoading), errors, paginator };
+};
+
+/** 建立 Announcement PaginatorProps。 */
+const buildAnnouncementPaginatorProps = (pageSize: number, pageNumber: number, totalPages: number, onPageChange: (page: number) => void): PaginatorProps | null =>
+{
+    if (pageSize === 0) return null;
+    return { currentPage: pageNumber, totalPages, onPageChange };
+};
+
+/** 建立 Announcement DataQuery paginator。 */
+const buildAnnouncementPaginator = (pageSize: number, count: number, paginatorProps: PaginatorProps | null): ClientDataQueryPaginatorModel | null =>
+{
+    if (!paginatorProps) return null;
+    return { currentPage: paginatorProps.currentPage, pageSize, totalPages: paginatorProps.totalPages, totalCount: count, onPageChange: paginatorProps.onPageChange };
+};
+
+/** 建立標準 Query initial。 */
 const buildQueryInitial = <TData>(args: QueryListParam, data: TData): ApiLoaderData<QueryListParam, TData> =>
 {
     return { args, apiRes: { IsSuccess: true, Data: data, SysMessage: [] } };

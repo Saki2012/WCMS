@@ -19,15 +19,13 @@ import {
     useEditGridBinding,
 } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { DefaultLang, type Lang, LangLabelMap, normalizeSupportedLang, useEnsureLangDetails } from "@/SysCore/i18n/lang";
+import { buildSupportedLangOrder, DefaultLang, type Lang, LangLabelMap, normalizeSupportedLang } from "@/SysCore/i18n/lang";
 import type { ApiFormInitial } from "@/SysCore/Utils/API/APIAdapter";
 import { LibText, LibType, Merge } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import {
-    CategoryDataSetFields,
-    CategoryFields,
-    MatCategoryDataSetFields,
+    MatCategoryFormModelFields,
     MatCategoryInfoFieldDisplayFields,
     MatCategoryInfoFieldFields,
     type PGID,
@@ -36,11 +34,13 @@ import type { ReactNode } from "react";
 import { useEffect, useMemo } from "react";
 
 // #region Property
-type MatCategorySet = components["schemas"]["MatCategoryDataSet_DTO"];
+type MatCategoryFormModel = components["schemas"]["MatCategoryFormModel"];
 
-type MatCategoryInfoField = components["schemas"]["MatCategoryInfoField_DTO"];
+type CategoryDetail = components["schemas"]["CategoryDetail"];
 
-type MatCategoryInfoFieldDisplay = components["schemas"]["MatCategoryInfoFieldDisplay_DTO"];
+type MatCategoryInfoField = components["schemas"]["MatCategoryInfoField"];
+
+type MatCategoryInfoFieldDisplay = components["schemas"]["MatCategoryInfoFieldDisplay"];
 
 export interface UseMatCategoryFormTemplateOptions
 {
@@ -54,7 +54,7 @@ export interface UseMatCategoryFormTemplateOptions
     internalId: string;
 
     /** 新增模式預設資料 */
-    emptyData: MatCategorySet;
+    emptyData: MatCategoryFormModel;
 
     /** 舊 Route 傳入的功能標題，ModelDisplayName 無資料時才 fallback */
     title?: string;
@@ -66,7 +66,7 @@ export interface UseMatCategoryFormTemplateOptions
 export interface UseMatCategoryInfoFieldEditGridOptions
 {
     /** 新版 Form Template 提供的資料 binding */
-    binding: ServerFormBinding<MatCategorySet>;
+    binding: ServerFormBinding<MatCategoryFormModel>;
 
     /** 目前語系，欄位名稱會優先顯示此語系 */
     lang: Lang;
@@ -89,7 +89,7 @@ export interface UseMatCategoryInfoFieldEditGridOptions
 export interface UseMatCategoryInfoFieldDisplayEditGridOptions
 {
     /** 新版 Form Template 提供的資料 binding */
-    binding: ServerFormBinding<MatCategorySet>;
+    binding: ServerFormBinding<MatCategoryFormModel>;
 
     /** 父層物件欄位 RowId */
     parentRowId: number;
@@ -111,6 +111,9 @@ export interface MatCategoryInfoFieldGridRow extends GridRow
 
     /** 欄位設定 RowId */
     FieldRowId?: number;
+
+    /** 父層列攜帶的巢狀語系顯示資料。 */
+    InfoFieldDisplays?: MatCategoryInfoFieldDisplay[];
 }
 
 export interface MatCategoryInfoFieldDisplayGridRow extends GridRow
@@ -137,27 +140,28 @@ export type MatCategoryFormAdapter = {
     MatCategory: ReturnType<typeof MatCategoryAdapter>;
 };
 
+const MatCategoryInfoFieldTableId = MatCategoryFormModelFields.MatCategoryInfoField;
+const MatCategoryInfoFieldDisplayTableId = MatCategoryInfoFieldFields._MatCategoryInfoFieldDisplay.replace(/^_/, "");
 const MatCategoryInfoFieldDisplayNameColumnKey = "__MatCategoryInfoFieldDisplayName";
 const MatCategoryInfoFieldDisplayNameColumnTitle = "【欄位名稱】";
 const MatCategoryInfoFieldSubDetailColumnKey = "__MatCategoryInfoFieldDisplay";
 // #endregion
 
 // #region Public
-export const matCategoryEmptyData = (progId: PGID | string): MatCategorySet => ({
-    Category: { ProgId: progId },
-    CategoryDetail: [],
+/** 建立 MatCategory 新增模式預設 FormModel。 */
+export const matCategoryEmptyData = (progId: PGID | string): MatCategoryFormModel => ({
+    Category: { ProgId: progId, _CategoryDetail: [] },
     MatCategoryInfoField: [],
-    MatCategoryInfoFieldDisplay: [],
 });
 
 /** 建立 MatCategory Form Template，統一交給 Server_FormTemplate 處理資料流程。 */
 export const useMatCategoryFormTemplate = (
     opt: UseMatCategoryFormTemplateOptions,
 ): ServerFormTemplate<
-    MatCategorySet,
+    MatCategoryFormModel,
     MatCategoryFormAdapter,
     MatCategoryFormRefs,
-    ServerFormDefaultRawData<MatCategorySet, MatCategoryFormRefs>,
+    ServerFormDefaultRawData<MatCategoryFormModel, MatCategoryFormRefs>,
     MatCategoryFormActionsOpt
 > =>
 {
@@ -187,18 +191,17 @@ export const useMatCategoryInfoFieldEditGrid = (opt: UseMatCategoryInfoFieldEdit
     const displayName = opt.binding.displayName;
     const columns = useMemo(() => buildMatCategoryInfoFieldColumns(displayName), [displayName]);
 
-    return useEditGridBinding<MatCategorySet, MatCategoryInfoField, MatCategoryInfoFieldGridRow>({
+    return useEditGridBinding<MatCategoryFormModel, MatCategoryInfoField, MatCategoryInfoFieldGridRow>({
         binding: opt.binding,
         emptyData: matCategoryEmptyData(opt.binding.data?.Category?.ProgId ?? ""),
-        collectionName: MatCategoryDataSetFields.MatCategoryInfoField,
+        getItems: data => data.MatCategoryInfoField,
+        setItems: syncMatCategoryInfoFieldCollection,
         columns,
         getItemRowId: field => field.RowId,
         sortItems: sortMatCategoryInfoFields,
-        createItem: ctx => buildNewMatCategoryInfoField(ctx.data, ctx.nextRowId),
+        createItem: ctx => buildNewMatCategoryInfoField(ctx.data, ctx.nextRowId, ctx.nextRowNo, opt.lang),
         toRow: (field, index) => buildMatCategoryInfoFieldGridRow(field, index, opt, displayName),
-        toItem: (row, index, ctx) => toMatCategoryInfoFieldDto(ctx.data, row, index),
-        beforeCommit: ctx => syncMatCategoryInfoFieldCommit(ctx.data, ctx.nextVisibleItems),
-        onDeleteRow: ctx => removeMatCategoryInfoFieldDisplayByRow(opt.binding, ctx.row),
+        toItem: (row, index, ctx) => toMatCategoryInfoFieldModel(ctx.data, row, index, opt.lang),
         editGridProps: buildMatCategoryInfoFieldGridProps(opt.style, displayName, opt),
     });
 };
@@ -209,17 +212,17 @@ export const useMatCategoryInfoFieldDisplayEditGrid = (opt: UseMatCategoryInfoFi
     const displayName = opt.binding.displayName;
     const columns = useMemo(() => buildMatCategoryInfoFieldDisplayColumns(displayName), [displayName]);
 
-    return useEditGridBinding<MatCategorySet, MatCategoryInfoFieldDisplay, MatCategoryInfoFieldDisplayGridRow>({
+    return useEditGridBinding<MatCategoryFormModel, MatCategoryInfoFieldDisplay, MatCategoryInfoFieldDisplayGridRow>({
         binding: opt.binding,
         emptyData: matCategoryEmptyData(opt.binding.data?.Category?.ProgId ?? ""),
-        collectionName: MatCategoryDataSetFields.MatCategoryInfoFieldDisplay,
-        parent: buildMatCategoryInfoFieldDisplayParent(opt.parentRowId),
+        getItems: data => getMatCategoryInfoFieldDisplays(data, opt.parentRowId),
+        setItems: (data, items) => setMatCategoryInfoFieldDisplays(data, opt.parentRowId, items),
         columns,
         getItemRowId: display => display.RowId,
         sortItems: displays => sortMatCategoryInfoFieldDisplays(displays, opt.lang),
-        createItem: ctx => buildNewMatCategoryInfoFieldDisplay(ctx.data, opt.parentRowId, ctx.nextRowId, opt.lang),
+        createItem: ctx => buildNewMatCategoryInfoFieldDisplay(ctx.data, opt.parentRowId, ctx.nextRowId, ctx.nextRowNo, opt.lang),
         toRow: (display, index) => buildMatCategoryInfoFieldDisplayGridRow(display, index, displayName),
-        toItem: (row, index, ctx) => toMatCategoryInfoFieldDisplayDto(ctx.data, opt.parentRowId, row, index),
+        toItem: (row, index, ctx) => toMatCategoryInfoFieldDisplayModel(ctx.data, opt.parentRowId, row, index),
         editGridProps: buildMatCategoryInfoFieldDisplayGridProps(opt.parentRowId, opt.style, displayName, opt.disabled),
     });
 };
@@ -234,7 +237,7 @@ const buildMatCategoryFormTitle = (ctx: { mode: "new" | "edit"; displayName: Mod
 };
 
 /** 建立新增模式的 initial data，統一由 Feature Timing 交給 Template。 */
-const buildMatCategoryInitialData = (ctx: { mode: "new" | "edit"; emptyData: MatCategorySet; }): ApiFormInitial<MatCategorySet> | undefined =>
+const buildMatCategoryInitialData = (ctx: { mode: "new" | "edit"; emptyData: MatCategoryFormModel; }): ApiFormInitial<MatCategoryFormModel> | undefined =>
 {
     if (ctx.mode !== "new") return undefined;
     return { data: { args: "__new__", apiRes: { IsSuccess: true, Data: ctx.emptyData, SysMessage: [] } } };
@@ -247,7 +250,7 @@ const buildMatCategoryFormAdapter = (): MatCategoryFormAdapter =>
 };
 
 /** 取得 Header / Detail 需要的參照資料與語系補齊。 */
-const useMatCategoryReferenceData = (ctx: { binding: ServerFormBinding<MatCategorySet>; lang: Lang; }) =>
+const useMatCategoryReferenceData = (ctx: { binding: ServerFormBinding<MatCategoryFormModel>; lang: Lang; }) =>
 {
     useEnsureMatCategoryDetails(ctx.binding, ctx.lang);
     useEnsureMatCategoryInfoFieldDisplays(ctx.binding, ctx.lang);
@@ -264,56 +267,89 @@ const getMatCategoryModelTitle = (displayName: ModelDisplaySchema, fallback: str
     return displayName.ModelDisplayName || fallback;
 };
 
-/** 補齊共用 Category 多語資料。 */
-const useEnsureMatCategoryDetails = (binding: ServerFormBinding<MatCategorySet>, lang: Lang): void =>
+/** 補齊內嵌 Category 多語明細。 */
+const useEnsureMatCategoryDetails = (binding: ServerFormBinding<MatCategoryFormModel>, preferLang: Lang): void =>
 {
-    useEnsureLangDetails(binding, {
-        headerName: CategoryDataSetFields.Category,
-        detailName: CategoryDataSetFields.CategoryDetail,
-        parentKeys: [CategoryFields.CategoryId],
-        preferFirstLang: lang,
-    });
-};
-
-/** 補齊物件欄位語系顯示資料，避免子層 Grid 缺列。 */
-const useEnsureMatCategoryInfoFieldDisplays = (binding: ServerFormBinding<MatCategorySet>, preferLang: Lang): void =>
-{
+    const setFormData = binding.setFormData;
     useEffect(() =>
     {
-        const data = binding.data;
-        if (!data) return;
-
-        const nextData = syncMatCategoryInfoFieldData(data, preferLang);
-        if (nextData === data) return;
-
-        binding.setFormData(() => nextData);
-    }, [binding, binding.data, preferLang]);
+        setFormData(prev => ensureMatCategoryDetails(prev ?? matCategoryEmptyData(""), preferLang));
+    }, [binding.data, preferLang, setFormData]);
 };
 
-/** 同步欄位設定 CategoryId 與缺少的語系顯示資料。 */
-const syncMatCategoryInfoFieldData = (data: MatCategorySet, preferLang: Lang): MatCategorySet =>
+/** 補齊物件欄位的語系顯示名稱並正規化 Graph 關聯。 */
+const useEnsureMatCategoryInfoFieldDisplays = (binding: ServerFormBinding<MatCategoryFormModel>, preferLang: Lang): void =>
 {
-    const categoryId = data.Category?.CategoryId ?? "";
-    const fields = normalizeMatCategoryInfoFields(data.MatCategoryInfoField ?? [], categoryId);
-    const displays = normalizeMatCategoryInfoFieldDisplays(data.MatCategoryInfoFieldDisplay ?? [], categoryId);
-    const nextDisplays = syncMatCategoryInfoFieldDisplays(data, fields, displays, preferLang);
-
-    if (fields === data.MatCategoryInfoField && nextDisplays === data.MatCategoryInfoFieldDisplay) return data;
-    return { ...data, MatCategoryInfoField: fields, MatCategoryInfoFieldDisplay: nextDisplays };
+    const setFormData = binding.setFormData;
+    useEffect(() =>
+    {
+        setFormData(prev => syncMatCategoryInfoFieldData(prev ?? matCategoryEmptyData(""), preferLang));
+    }, [binding.data, preferLang, setFormData]);
 };
 
-/** 取得目前類別支援語系，沒有資料時以目前語系為優先。 */
-const getMatCategoryLangs = (data: MatCategorySet | null | undefined, preferLang: Lang): Lang[] =>
+/** 補齊 Category 支援語系並維持目前語系優先。 */
+const ensureMatCategoryDetails = (data: MatCategoryFormModel, preferLang: Lang): MatCategoryFormModel =>
 {
-    const langs = (data?.CategoryDetail ?? []).map(p => p.Lang as Lang).filter(Boolean);
-    const uniqueLangs = Array.from(new Set([preferLang, ...langs]));
-    return uniqueLangs.length > 0 ? uniqueLangs : [preferLang];
+    const category = data.Category ?? {};
+    const details = category._CategoryDetail ?? [];
+    const normalized = normalizeMatCategoryDetails(details, category.CategoryId ?? "", preferLang);
+    if (normalized === details && data.Category) return data;
+    return { ...data, Category: { ...category, _CategoryDetail: normalized } };
+};
+
+/** 正規化 Category 多語明細並補上缺少語系。 */
+const normalizeMatCategoryDetails = (details: CategoryDetail[], categoryId: string, preferLang: Lang): CategoryDetail[] =>
+{
+    const langs = buildSupportedLangOrder(preferLang);
+    const existing = new Set(details.map(detail => String(detail.Lang ?? "").toLowerCase()));
+    const maxRowId = details.reduce((max, detail) => Math.max(max, Number(detail.RowId ?? 0)), 0);
+    const normalized = details.map((detail, index) => normalizeMatCategoryDetail(detail, categoryId, index + 1));
+    const missing = langs.filter(lang => !existing.has(lang)).map((lang, index) => ({
+        CategoryId: categoryId,
+        RowId: maxRowId + index + 1,
+        RowNo: normalized.length + index + 1,
+        Lang: lang,
+    }));
+    const sorted = sortMatCategoryDetails([...normalized, ...missing], preferLang)
+        .map((detail, index) => Number(detail.RowNo ?? 0) === index + 1 ? detail : { ...detail, RowNo: index + 1 });
+    const isSame = missing.length === 0 && sorted.every((detail, index) => detail === details[index]);
+    return isSame ? details : sorted;
+};
+
+/** 正規化單筆 Category 語系明細。 */
+const normalizeMatCategoryDetail = (detail: CategoryDetail, categoryId: string, rowNo: number): CategoryDetail =>
+{
+    if ((detail.CategoryId ?? "") === categoryId && Number(detail.RowNo ?? 0) === rowNo) return detail;
+    return { ...detail, CategoryId: categoryId, RowNo: rowNo };
+};
+
+/** 依目前語系排序 Category 語系明細。 */
+const sortMatCategoryDetails = (details: CategoryDetail[], preferLang: Lang): CategoryDetail[] =>
+{
+    const order = buildSupportedLangOrder(preferLang);
+    return [...details].sort((a, b) => order.indexOf(a.Lang as Lang) - order.indexOf(b.Lang as Lang));
+};
+
+/** 同步欄位設定與巢狀語系顯示名稱。 */
+const syncMatCategoryInfoFieldData = (data: MatCategoryFormModel, preferLang: Lang): MatCategoryFormModel =>
+{
+    const fields = data.MatCategoryInfoField ?? [];
+    const normalized = normalizeMatCategoryInfoFieldCollection(data, fields, preferLang);
+    const isSame = normalized.every((field, index) => field === fields[index]);
+    return isSame ? data : { ...data, MatCategoryInfoField: normalized };
+};
+
+/** 取得目前類別支援語系。 */
+const getMatCategoryLangs = (data: MatCategoryFormModel | null | undefined, preferLang: Lang): Lang[] =>
+{
+    const detailLangs = (data?.Category?._CategoryDetail ?? []).map(detail => normalizeSupportedLang(detail.Lang as Lang)).filter((lang): lang is Lang => lang !== null);
+    return Array.from(new Set([...buildSupportedLangOrder(preferLang), ...detailLangs]));
 };
 
 /** 建立物件欄位設定父層 Grid 固定設定。 */
 const buildMatCategoryInfoFieldGridProps = (style: IEditGridView_Style, displayName: ModelDisplaySchema, opt: UseMatCategoryInfoFieldEditGridOptions) =>
 {
-    const gridTitle = getMatCategoryTableTitle(displayName, MatCategoryDataSetFields.MatCategoryInfoField, "物件欄位設定");
+    const gridTitle = getMatCategoryTableTitle(displayName, MatCategoryInfoFieldTableId, "物件欄位設定");
 
     return {
         title: gridTitle,
@@ -341,7 +377,7 @@ const buildMatCategoryInfoFieldGridProps = (style: IEditGridView_Style, displayN
 /** 建立語系顯示名稱 Grid 固定設定。 */
 const buildMatCategoryInfoFieldDisplayGridProps = (parentRowId: number, style: IEditGridView_Style, displayName: ModelDisplaySchema, disabled?: boolean) =>
 {
-    const gridTitle = getMatCategoryTableTitle(displayName, MatCategoryDataSetFields.MatCategoryInfoFieldDisplay, "欄位顯示名稱");
+    const gridTitle = getMatCategoryTableTitle(displayName, MatCategoryInfoFieldDisplayTableId, "欄位顯示名稱");
 
     return {
         title: gridTitle,
@@ -364,7 +400,7 @@ const buildMatCategoryInfoFieldDisplayGridProps = (parentRowId: number, style: I
 /** 建立物件欄位設定欄位定義。 */
 const buildMatCategoryInfoFieldColumns = (displayName: ModelDisplaySchema): ColumnConfig[] =>
 {
-    const fieldTitle = getMatCategoryColumnTitle(displayName, MatCategoryDataSetFields.MatCategoryInfoField, MatCategoryInfoFieldFields.Field, "欄位代號");
+    const fieldTitle = getMatCategoryColumnTitle(displayName, MatCategoryInfoFieldTableId, MatCategoryInfoFieldFields.Field, "欄位代號");
 
     return [{
         key: MatCategoryInfoFieldFields.Field,
@@ -394,7 +430,7 @@ const buildMatCategoryInfoFieldDisplayColumns = (displayName: ModelDisplaySchema
 {
     return [{
         key: MatCategoryInfoFieldDisplayFields.Lang,
-        title: getMatCategoryColumnTitle(displayName, MatCategoryDataSetFields.MatCategoryInfoFieldDisplay, MatCategoryInfoFieldDisplayFields.Lang, "語系"),
+        title: getMatCategoryColumnTitle(displayName, MatCategoryInfoFieldDisplayTableId, MatCategoryInfoFieldDisplayFields.Lang, "語系"),
         width: 120,
         inputType: "readonly",
         editable: false,
@@ -402,7 +438,7 @@ const buildMatCategoryInfoFieldDisplayColumns = (displayName: ModelDisplaySchema
         key: MatCategoryInfoFieldDisplayFields.FieldDisplayName,
         title: getMatCategoryColumnTitle(
             displayName,
-            MatCategoryDataSetFields.MatCategoryInfoFieldDisplay,
+            MatCategoryInfoFieldDisplayTableId,
             MatCategoryInfoFieldDisplayFields.FieldDisplayName,
             "欄位顯示名稱",
         ),
@@ -431,6 +467,7 @@ const buildMatCategoryInfoFieldGridRow = (
         RowNo: index + 1,
         CategoryId: field.CategoryId,
         FieldRowId: rowId,
+        InfoFieldDisplays: field._MatCategoryInfoFieldDisplay ?? [],
         cells: buildMatCategoryInfoFieldCells(field, opt, displayName),
     };
 };
@@ -459,7 +496,7 @@ const buildMatCategoryInfoFieldDisplayGridRow = (
 /** 建立物件欄位設定 Row cells。 */
 const buildMatCategoryInfoFieldCells = (field: MatCategoryInfoField, opt: UseMatCategoryInfoFieldEditGridOptions, displayName: ModelDisplaySchema): RowCell[] =>
 {
-    const fieldTitle = getMatCategoryColumnTitle(displayName, MatCategoryDataSetFields.MatCategoryInfoField, MatCategoryInfoFieldFields.Field, "欄位代號");
+    const fieldTitle = getMatCategoryColumnTitle(displayName, MatCategoryInfoFieldTableId, MatCategoryInfoFieldFields.Field, "欄位代號");
     const rowId = LibType.toSafeNumber(field.RowId);
     return [
         buildEditGridCell(MatCategoryInfoFieldFields.Field, fieldTitle, field.Field ?? "", {
@@ -486,7 +523,7 @@ const buildMatCategoryInfoFieldDisplayCells = (display: MatCategoryInfoFieldDisp
     return [
         buildEditGridCell(
             MatCategoryInfoFieldDisplayFields.Lang,
-            getMatCategoryColumnTitle(displayName, MatCategoryDataSetFields.MatCategoryInfoFieldDisplay, MatCategoryInfoFieldDisplayFields.Lang, "語系"),
+            getMatCategoryColumnTitle(displayName, MatCategoryInfoFieldDisplayTableId, MatCategoryInfoFieldDisplayFields.Lang, "語系"),
             display.Lang ?? "zh-tw",
             {
                 inputType: "readonly",
@@ -498,7 +535,7 @@ const buildMatCategoryInfoFieldDisplayCells = (display: MatCategoryInfoFieldDisp
             MatCategoryInfoFieldDisplayFields.FieldDisplayName,
             getMatCategoryColumnTitle(
                 displayName,
-                MatCategoryDataSetFields.MatCategoryInfoFieldDisplay,
+                MatCategoryInfoFieldDisplayTableId,
                 MatCategoryInfoFieldDisplayFields.FieldDisplayName,
                 "欄位顯示名稱",
             ),
@@ -508,120 +545,228 @@ const buildMatCategoryInfoFieldDisplayCells = (display: MatCategoryInfoFieldDisp
     ];
 };
 
-/** 建立新物件欄位設定 DTO。 */
-const buildNewMatCategoryInfoField = (data: MatCategorySet, rowId: number): MatCategoryInfoField =>
+/** 建立新物件欄位設定 Model，並同步建立支援語系顯示名稱。 */
+const buildNewMatCategoryInfoField = (
+    data: MatCategoryFormModel,
+    rowId: number,
+    rowNo: number,
+    preferLang: Lang,
+): MatCategoryInfoField =>
 {
-    return { CategoryId: data.Category?.CategoryId ?? "", RowId: rowId, Field: "" };
+    const categoryId = data.Category?.CategoryId ?? "";
+    const nextDisplayRowId = getMaxMatCategoryDisplayRowId(data) + 1;
+    const displays = getMatCategoryLangs(data, preferLang).map((lang, index) => ({
+        CategoryId: categoryId,
+        ParentRowId: rowId,
+        RowId: nextDisplayRowId + index,
+        RowNo: index + 1,
+        Lang: lang,
+        FieldDisplayName: "",
+    }));
+    return { CategoryId: categoryId, RowId: rowId, RowNo: rowNo, Field: "", _MatCategoryInfoFieldDisplay: displays };
 };
 
-/** 建立新物件欄位顯示 DTO。 */
-const buildNewMatCategoryInfoFieldDisplay = (data: MatCategorySet, parentRowId: number, rowId: number, lang: Lang): MatCategoryInfoFieldDisplay =>
-{
-    return { CategoryId: data.Category?.CategoryId ?? "", ParentRowId: parentRowId, RowId: rowId, Lang: lang, FieldDisplayName: "" };
-};
-
-/** 將欄位設定 Grid Row 轉回 DTO。 */
-const toMatCategoryInfoFieldDto = (source: MatCategorySet, row: GridRow, index: number): MatCategoryInfoField =>
+/** 建立新物件欄位顯示名稱 Model。 */
+const buildNewMatCategoryInfoFieldDisplay = (
+    data: MatCategoryFormModel,
+    parentRowId: number,
+    rowId: number,
+    rowNo: number,
+    lang: Lang,
+): MatCategoryInfoFieldDisplay =>
 {
     return {
-        CategoryId: source.Category?.CategoryId ?? (row as MatCategoryInfoFieldGridRow).CategoryId ?? "",
-        RowId: getEditGridRowId(row, index),
-        Field: getEditGridStringCellValue(row, MatCategoryInfoFieldFields.Field).trim(),
+        CategoryId: data.Category?.CategoryId ?? "",
+        ParentRowId: parentRowId,
+        RowId: rowId,
+        RowNo: rowNo,
+        Lang: lang,
+        FieldDisplayName: "",
     };
 };
 
-/** 將欄位顯示名稱 Grid Row 轉回 DTO。 */
-const toMatCategoryInfoFieldDisplayDto = (source: MatCategorySet, parentRowId: number, row: GridRow, index: number): MatCategoryInfoFieldDisplay =>
+/** 將欄位設定 Grid Row 轉回 FormModel，保留巢狀語系明細。 */
+const toMatCategoryInfoFieldModel = (
+    source: MatCategoryFormModel,
+    row: GridRow,
+    index: number,
+    preferLang: Lang,
+): MatCategoryInfoField =>
 {
+    const rowId = getEditGridRowId(row, index);
+    const gridRow = row as MatCategoryInfoFieldGridRow;
+    const current = getMatCategoryInfoFieldByRowId(source, rowId);
+    const displays = current?._MatCategoryInfoFieldDisplay
+        ?? gridRow.InfoFieldDisplays
+        ?? buildNewMatCategoryInfoField(source, rowId, index + 1, preferLang)._MatCategoryInfoFieldDisplay
+        ?? [];
     return {
+        ...current,
+        CategoryId: source.Category?.CategoryId ?? gridRow.CategoryId ?? "",
+        RowId: rowId,
+        RowNo: index + 1,
+        Field: getEditGridStringCellValue(row, MatCategoryInfoFieldFields.Field).trim(),
+        _MatCategoryInfoFieldDisplay: displays,
+    };
+};
+
+/** 將欄位顯示名稱 Grid Row 轉回巢狀 Model。 */
+const toMatCategoryInfoFieldDisplayModel = (
+    source: MatCategoryFormModel,
+    parentRowId: number,
+    row: GridRow,
+    index: number,
+): MatCategoryInfoFieldDisplay =>
+{
+    const rowId = getEditGridRowId(row, index);
+    const current = getMatCategoryInfoFieldDisplays(source, parentRowId)
+        .find(display => Number(display.RowId ?? 0) === rowId);
+    return {
+        ...current,
         CategoryId: source.Category?.CategoryId ?? (row as MatCategoryInfoFieldDisplayGridRow).CategoryId ?? "",
         ParentRowId: parentRowId,
-        RowId: getEditGridRowId(row, index),
+        RowId: rowId,
+        RowNo: index + 1,
         Lang: getMatCategoryLangCellValue(row),
         FieldDisplayName: getEditGridStringCellValue(row, MatCategoryInfoFieldDisplayFields.FieldDisplayName).trim(),
     };
 };
 
-/** 主欄位 Commit 前同步 CategoryId、清理孤兒語系明細，並補齊缺少語系。 */
-const syncMatCategoryInfoFieldCommit = (data: MatCategorySet, nextFields: MatCategoryInfoField[]): MatCategoryInfoField[] =>
+/** 寫回物件欄位集合，移除被刪除欄位的巢狀語系資料。 */
+const syncMatCategoryInfoFieldCollection = (data: MatCategoryFormModel, fields: MatCategoryInfoField[]): MatCategoryFormModel =>
+{
+    const normalized = normalizeMatCategoryInfoFieldCollection(data, fields, getFirstMatCategoryLang(data));
+    return { ...data, MatCategoryInfoField: normalized };
+};
+
+/** 取得指定物件欄位的語系顯示名稱。 */
+const getMatCategoryInfoFieldDisplays = (data: MatCategoryFormModel, parentRowId: number): MatCategoryInfoFieldDisplay[] =>
+{
+    return getMatCategoryInfoFieldByRowId(data, parentRowId)?._MatCategoryInfoFieldDisplay ?? [];
+};
+
+/** 寫回指定物件欄位的語系顯示名稱。 */
+const setMatCategoryInfoFieldDisplays = (
+    data: MatCategoryFormModel,
+    parentRowId: number,
+    displays: MatCategoryInfoFieldDisplay[],
+): MatCategoryFormModel =>
 {
     const categoryId = data.Category?.CategoryId ?? "";
-    const normalizedFields = normalizeMatCategoryInfoFields(nextFields, categoryId);
-    const normalizedDisplays = normalizeMatCategoryInfoFieldDisplays(data.MatCategoryInfoFieldDisplay ?? [], categoryId);
-    data.MatCategoryInfoFieldDisplay = syncMatCategoryInfoFieldDisplays(data, normalizedFields, normalizedDisplays, getFirstMatCategoryLang(data));
-
-    return normalizedFields;
+    const fields = (data.MatCategoryInfoField ?? []).map(field =>
+    {
+        if (Number(field.RowId ?? 0) !== parentRowId) return field;
+        const normalized = normalizeMatCategoryInfoFieldDisplayRows(displays, categoryId, parentRowId, getFirstMatCategoryLang(data));
+        return { ...field, _MatCategoryInfoFieldDisplay: normalized };
+    });
+    return { ...data, MatCategoryInfoField: fields };
 };
 
-/** 同步欄位顯示資料：移除孤兒、補齊語系。 */
-const syncMatCategoryInfoFieldDisplays = (
-    data: MatCategorySet,
+/** 依 RowId 取得物件欄位。 */
+const getMatCategoryInfoFieldByRowId = (data: MatCategoryFormModel | undefined, rowId: number): MatCategoryInfoField | undefined =>
+{
+    return (data?.MatCategoryInfoField ?? []).find(field => Number(field.RowId ?? 0) === rowId);
+};
+
+/** 正規化完整物件欄位集合與所有巢狀顯示名稱。 */
+const normalizeMatCategoryInfoFieldCollection = (
+    data: MatCategoryFormModel,
     fields: MatCategoryInfoField[],
-    displays: MatCategoryInfoFieldDisplay[],
     preferLang: Lang,
-): MatCategoryInfoFieldDisplay[] =>
+): MatCategoryInfoField[] =>
 {
-    const fieldKeys = new Set(fields.map(field => String(field.RowId ?? 0)));
-    const keptDisplays = displays.filter(display => fieldKeys.has(String(display.ParentRowId ?? 0)));
-    const missingDisplays = fields.flatMap(field => buildMissingMatCategoryInfoFieldDisplays(data, field, keptDisplays, preferLang));
-    const hasRemovedOrphan = keptDisplays.length !== displays.length;
-
-    if (!hasRemovedOrphan && missingDisplays.length === 0) return displays;
-    return [...keptDisplays, ...missingDisplays];
+    const categoryId = data.Category?.CategoryId ?? "";
+    let nextDisplayRowId = getMaxMatCategoryDisplayRowId(data);
+    return fields.map((field, index) =>
+    {
+        const rowId = Number(field.RowId ?? index + 1);
+        const result = normalizeMatCategoryInfoFieldWithNextId(data, field, rowId, index + 1, preferLang, nextDisplayRowId);
+        nextDisplayRowId = result.nextDisplayRowId;
+        return result.field;
+    });
 };
 
-/** 建立指定欄位缺少的語系顯示資料。 */
-const buildMissingMatCategoryInfoFieldDisplays = (
-    data: MatCategorySet,
+/** 正規化單一物件欄位並回傳下一個顯示名稱 RowId。 */
+const normalizeMatCategoryInfoFieldWithNextId = (
+    data: MatCategoryFormModel,
     field: MatCategoryInfoField,
-    displays: MatCategoryInfoFieldDisplay[],
+    rowId: number,
+    rowNo: number,
     preferLang: Lang,
+    currentDisplayRowId: number,
+): { field: MatCategoryInfoField; nextDisplayRowId: number; } =>
+{
+    const categoryId = data.Category?.CategoryId ?? field.CategoryId ?? "";
+    const normalized = normalizeMatCategoryInfoFieldDisplayRows(
+        field._MatCategoryInfoFieldDisplay ?? [],
+        categoryId,
+        rowId,
+        preferLang,
+        currentDisplayRowId,
+    );
+    const nextDisplayRowId = normalized.reduce((max, display) => Math.max(max, Number(display.RowId ?? 0)), currentDisplayRowId);
+    const isSame = field.CategoryId === categoryId
+        && Number(field.RowId ?? 0) === rowId
+        && Number(field.RowNo ?? 0) === rowNo
+        && normalized === field._MatCategoryInfoFieldDisplay;
+    const nextField = isSame ? field : { ...field, CategoryId: categoryId, RowId: rowId, RowNo: rowNo, _MatCategoryInfoFieldDisplay: normalized };
+    return { field: nextField, nextDisplayRowId };
+};
+
+/** 正規化欄位顯示名稱的關聯鍵、排序與缺少語系。 */
+const normalizeMatCategoryInfoFieldDisplayRows = (
+    displays: MatCategoryInfoFieldDisplay[],
+    categoryId: string,
+    parentRowId: number,
+    preferLang: Lang,
+    currentMaxRowId?: number,
 ): MatCategoryInfoFieldDisplay[] =>
 {
-    const siblings = displays.filter(display => Number(display.ParentRowId ?? 0) === Number(field.RowId ?? 0));
-    const existLangs = new Set(siblings.map(display => String(display.Lang ?? "").toLowerCase()));
-    const maxRowId = siblings.reduce((max, display) => Math.max(max, Number(display.RowId ?? 0)), 0);
-    const langs = getMatCategoryLangs(data, preferLang);
-
-    return langs.filter(lang => !existLangs.has(lang.toLowerCase())).map((lang, index) => ({
-        CategoryId: data.Category?.CategoryId ?? field.CategoryId ?? "",
-        ParentRowId: field.RowId,
-        RowId: maxRowId + index + 1,
+    const langs = buildSupportedLangOrder(preferLang);
+    const existingLangs = new Set(displays.map(display => String(display.Lang ?? "").toLowerCase()));
+    let nextRowId = currentMaxRowId ?? displays.reduce((max, display) => Math.max(max, Number(display.RowId ?? 0)), 0);
+    const normalized = displays.map((display, index) => normalizeMatCategoryInfoFieldDisplay(display, categoryId, parentRowId, index + 1));
+    const missing = langs.filter(lang => !existingLangs.has(lang)).map((lang) => ({
+        CategoryId: categoryId,
+        ParentRowId: parentRowId,
+        RowId: ++nextRowId,
+        RowNo: normalized.length + 1,
         Lang: lang,
         FieldDisplayName: "",
     }));
+    const sorted = sortMatCategoryInfoFieldDisplays([...normalized, ...missing], preferLang)
+        .map((display, index) => Number(display.RowNo ?? 0) === index + 1 ? display : { ...display, RowNo: index + 1 });
+    const isSame = missing.length === 0 && sorted.every((display, index) => display === displays[index]);
+    return isSame ? displays : sorted;
 };
 
-/** 刪除欄位設定時，同步刪除該欄位語系顯示資料。 */
-const removeMatCategoryInfoFieldDisplayByRow = (binding: ServerFormBinding<MatCategorySet>, row: GridRow): void =>
+/** 正規化單筆欄位顯示名稱。 */
+const normalizeMatCategoryInfoFieldDisplay = (
+    display: MatCategoryInfoFieldDisplay,
+    categoryId: string,
+    parentRowId: number,
+    rowNo: number,
+): MatCategoryInfoFieldDisplay =>
 {
-    const parentRowId = getEditGridRowId(row, 0);
-    binding.setFormData(prev => removeMatCategoryInfoFieldDisplayFromData(prev ?? matCategoryEmptyData(binding.data?.Category?.ProgId ?? ""), parentRowId));
+    const isSame = (display.CategoryId ?? "") === categoryId
+        && Number(display.ParentRowId ?? 0) === parentRowId
+        && Number(display.RowNo ?? 0) === rowNo;
+    return isSame ? display : { ...display, CategoryId: categoryId, ParentRowId: parentRowId, RowNo: rowNo };
 };
 
-/** 從資料中移除指定欄位的語系顯示資料。 */
-const removeMatCategoryInfoFieldDisplayFromData = (data: MatCategorySet, parentRowId: number): MatCategorySet =>
+/** 取得目前 FormModel 內最大的欄位顯示名稱 RowId。 */
+const getMaxMatCategoryDisplayRowId = (data: MatCategoryFormModel): number =>
 {
-    const nextDisplays = (data.MatCategoryInfoFieldDisplay ?? []).filter(display => Number(display.ParentRowId ?? 0) !== parentRowId);
-    return { ...data, MatCategoryInfoFieldDisplay: nextDisplays };
+    return (data.MatCategoryInfoField ?? []).flatMap(field => field._MatCategoryInfoFieldDisplay ?? [])
+        .reduce((max, display) => Math.max(max, Number(display.RowId ?? 0)), 0);
 };
 
-/** 建立欄位顯示資料 parent 綁定，讓共用 Hook 自動過濾同欄位語系。 */
-const buildMatCategoryInfoFieldDisplayParent = (parentRowId: number) =>
-{
-    return {
-        field: MatCategoryInfoFieldDisplayFields.ParentRowId,
-        value: parentRowId,
-        compare: (itemValue: unknown, parentValue: string | number | null | undefined) => Number(itemValue ?? 0) === Number(parentValue ?? 0),
-    };
-};
 /** 取得父層欄位名稱，優先目前語系，找不到時回退 DefaultLang。 */
-const getMatCategoryInfoFieldDisplayName = (data: MatCategorySet | undefined, parentRowId: number, lang: Lang): string =>
+const getMatCategoryInfoFieldDisplayName = (data: MatCategoryFormModel | undefined, parentRowId: number, lang: Lang): string =>
 {
-    const displays = data?.MatCategoryInfoFieldDisplay ?? [];
+    const displays = getMatCategoryInfoFieldDisplays(data ?? matCategoryEmptyData(""), parentRowId);
     const langs = buildMatCategoryInfoFieldDisplayNameLangs(lang);
-    const names = langs.map(item => findMatCategoryInfoFieldDisplayName(displays, parentRowId, item));
-
+    const names = langs.map(item => findMatCategoryInfoFieldDisplayName(displays, item));
     return LibText.getFirstNonEmptyText(...names);
 };
 
@@ -632,67 +777,31 @@ const buildMatCategoryInfoFieldDisplayNameLangs = (lang: Lang): Lang[] =>
     return Array.from(new Set(langs.filter((item): item is Lang => item !== null)));
 };
 
-/** 依 parent row 與語系取得欄位顯示名稱。 */
-const findMatCategoryInfoFieldDisplayName = (displays: MatCategoryInfoFieldDisplay[], parentRowId: number, lang: Lang): string =>
+/** 依語系取得欄位顯示名稱。 */
+const findMatCategoryInfoFieldDisplayName = (displays: MatCategoryInfoFieldDisplay[], lang: Lang): string =>
 {
-    const parentKey = LibType.toSafeNumber(parentRowId);
     const langKey = normalizeSupportedLang(lang);
-    const display = displays.find(item => isMatCategoryInfoFieldDisplayMatched(item, parentKey, langKey));
-
+    const display = displays.find(item => normalizeSupportedLang((item.Lang ?? undefined) as Lang | undefined) === langKey);
     return LibText.safeTrim(display?.FieldDisplayName);
 };
 
-/** 判斷欄位顯示資料是否符合父層與語系。 */
-const isMatCategoryInfoFieldDisplayMatched = (display: MatCategoryInfoFieldDisplay, parentRowId: number, lang: Lang | null): boolean =>
-{
-    return LibType.toSafeNumber(display.ParentRowId) === parentRowId
-        && normalizeSupportedLang((display.Lang ?? undefined) as Lang | undefined) === lang;
-};
-/** 依 RowId 排序物件欄位設定。 */
+/** 依 RowNo 與 RowId 排序物件欄位設定。 */
 const sortMatCategoryInfoFields = (fields: MatCategoryInfoField[]): MatCategoryInfoField[] =>
 {
-    return [...fields].sort((a, b) => Number(a.RowId ?? 0) - Number(b.RowId ?? 0));
+    return [...fields].sort((a, b) => Number(a.RowNo ?? a.RowId ?? 0) - Number(b.RowNo ?? b.RowId ?? 0));
 };
 
 /** 依目前語系與支援語系順序排序欄位顯示名稱。 */
 const sortMatCategoryInfoFieldDisplays = (displays: MatCategoryInfoFieldDisplay[], preferLang: Lang): MatCategoryInfoFieldDisplay[] =>
 {
-    const order = [preferLang, ...Object.keys(LangLabelMap)].map(lang => lang.toLowerCase());
-    return [...displays].sort((a, b) => order.indexOf(String(a.Lang ?? "").toLowerCase()) - order.indexOf(String(b.Lang ?? "").toLowerCase()));
-};
-
-/** 將欄位設定的 CategoryId 正規化成目前 Header CategoryId。 */
-const normalizeMatCategoryInfoFields = (fields: MatCategoryInfoField[], categoryId: string): MatCategoryInfoField[] =>
-{
-    let isChanged = false;
-    const nextFields = fields.map(field =>
-    {
-        if ((field.CategoryId ?? "") === categoryId) return field;
-        isChanged = true;
-        return { ...field, CategoryId: categoryId };
-    });
-
-    return isChanged ? nextFields : fields;
-};
-
-/** 將欄位顯示資料的 CategoryId 正規化成目前 Header CategoryId。 */
-const normalizeMatCategoryInfoFieldDisplays = (displays: MatCategoryInfoFieldDisplay[], categoryId: string): MatCategoryInfoFieldDisplay[] =>
-{
-    let isChanged = false;
-    const nextDisplays = displays.map(display =>
-    {
-        if ((display.CategoryId ?? "") === categoryId) return display;
-        isChanged = true;
-        return { ...display, CategoryId: categoryId };
-    });
-
-    return isChanged ? nextDisplays : displays;
+    const order = buildSupportedLangOrder(preferLang);
+    return [...displays].sort((a, b) => order.indexOf(a.Lang as Lang) - order.indexOf(b.Lang as Lang));
 };
 
 /** 取得第一個可用語系作為補列預設。 */
-const getFirstMatCategoryLang = (data: MatCategorySet): Lang =>
+const getFirstMatCategoryLang = (data: MatCategoryFormModel): Lang =>
 {
-    return (data.CategoryDetail?.find(detail => Boolean(detail.Lang))?.Lang as Lang) ?? "zh-tw";
+    return (data.Category?._CategoryDetail?.find(detail => Boolean(detail.Lang))?.Lang as Lang) ?? DefaultLang;
 };
 
 /** 取得子表顯示名稱，避免 Grid 標題寫死。 */

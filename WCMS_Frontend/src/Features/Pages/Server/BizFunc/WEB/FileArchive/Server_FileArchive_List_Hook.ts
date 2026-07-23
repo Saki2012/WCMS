@@ -34,7 +34,7 @@ import { type NavigateFunction, useLocation, useNavigate } from "react-router-do
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];
+type FileArchiveFormModel = components["schemas"]["FileArchive"];
 
 type FileArchiveApiAdapter = ReturnType<typeof FileArchiveAdapter>;
 
@@ -74,7 +74,7 @@ export interface FileArchiveListRawData
     count: number;
 
     /** 檔案室列表資料 */
-    list: FileArchiveSet[];
+    list: FileArchiveFormModel[];
 
     /** 目前頁碼 */
     pageNumber: number;
@@ -381,7 +381,7 @@ const enhanceFileArchiveGrid = (
     },
 ): GridProps =>
 {
-    const actions = createGridCrudActions<FileArchiveSet>({
+    const actions = createGridCrudActions<FileArchiveFormModel>({
         onEdit: (internalId) => opt.crud.navigate(`${opt.crud.dirUrl}/${internalId}`),
         deleteAsync: opt.crud.deleteAsync,
         afterDelete: opt.crud.afterDelete,
@@ -394,21 +394,21 @@ const enhanceFileArchiveGrid = (
         can: opt.can,
         notifyNoPermission: opt.notifyNoPermission,
         confirm: opt.confirm,
-        getInternalId: (set) => set.FileArchive?.InternalId ?? "",
+        getInternalId: (formModel) => formModel?.InternalId ?? "",
     });
 };
 
 /** 建立檔案室列表列資料 */
 const buildFileArchiveRows = (raw: FileArchiveListRawData, lang: Lang, columns: ColumnConfig[]): GridRow[] =>
 {
-    return (raw.list ?? []).map((set) =>
+    return (raw.list ?? []).map((formModel) =>
     {
-        const keyId = set.FileArchive?.InternalId ?? LibText.Merge("|", false, set.FileArchive?.FileArchiveId);
+        const keyId = formModel?.InternalId ?? LibText.Merge("|", false, formModel?.FileArchiveId);
         const cells: RowCell[] = [
-            { col: columns[0], content: mapIdsToList(set.FileArchive?.CategoriesId, raw.categoryMap) },
-            { col: columns[1], content: buildTitleCell(set, lang) },
-            { col: columns[2], content: set.FileArchive?.ModifyUser?.AccountName ?? "" },
-            { col: columns[3], content: formatDateTime(set.FileArchive?.ModifyTime) },
+            { col: columns[0], content: mapIdsToList(formModel?.CategoriesId, raw.categoryMap) },
+            { col: columns[1], content: buildTitleCell(formModel, lang) },
+            { col: columns[2], content: formModel?.ModifyUser?.AccountName ?? "" },
+            { col: columns[3], content: formatDateTime(formModel?.ModifyTime) },
         ];
 
         return { keyId, cells };
@@ -416,11 +416,11 @@ const buildFileArchiveRows = (raw: FileArchiveListRawData, lang: Lang, columns: 
 };
 
 /** 建立標題與資料狀態欄位內容 */
-const buildTitleCell = (set: FileArchiveSet, lang: Lang): ReactNode =>
+const buildTitleCell = (formModel: FileArchiveFormModel, lang: Lang): ReactNode =>
 {
-    const title = findTextByKey(set.FileArchiveInfo, (d) => d?.Lang, lang, (d) => d?.Title);
+    const title = findTextByKey(formModel._FileArchiveInfo, (d) => d?.Lang, lang, (d) => d?.Title);
 
-    return createElement(Fragment, null, createElement("span", { key: "title" }, title), GetDataStatusContent(set.FileArchive?.ContentStatus ?? 0));
+    return createElement(Fragment, null, createElement("span", { key: "title" }, title), GetDataStatusContent(formModel?.ContentStatus ?? 0));
 };
 
 // #endregion

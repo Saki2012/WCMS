@@ -31,7 +31,7 @@ import { type NavigateFunction, useLocation, useNavigate } from "react-router-do
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type PageManagementSet = components["schemas"]["PageManagementSet_DTO"];
+type PageManagementFormModel = components["schemas"]["PageManagement"];
 
 type PageManagementApiAdapter = ReturnType<typeof PageManagementAdapter>;
 
@@ -69,7 +69,7 @@ export interface PageManagementListRawData
     count: number;
 
     /** 頁面列表資料 */
-    list: PageManagementSet[];
+    list: PageManagementFormModel[];
 
     /** 目前頁碼 */
     pageNumber: number;
@@ -357,7 +357,7 @@ const enhancePageManagementGrid = (
     },
 ): GridProps =>
 {
-    const actions = createGridCrudActions<PageManagementSet>({
+    const actions = createGridCrudActions<PageManagementFormModel>({
         onEdit: (internalId) => opt.crud.navigate(`${opt.crud.dirUrl}/${internalId}`),
         deleteAsync: opt.crud.deleteAsync,
         afterDelete: opt.crud.afterDelete,
@@ -370,20 +370,20 @@ const enhancePageManagementGrid = (
         can: opt.can,
         notifyNoPermission: opt.notifyNoPermission,
         confirm: opt.confirm,
-        getInternalId: (set) => set.PageManagement?.InternalId ?? "",
+        getInternalId: (formModel) => formModel?.InternalId ?? "",
     });
 };
 
 /** 建立頁面管理列表列資料 */
 const buildPageManagementRows = (raw: PageManagementListRawData, lang: Lang, columns: ColumnConfig[]): GridRow[] =>
 {
-    return (raw.list ?? []).map((set) =>
+    return (raw.list ?? []).map((formModel) =>
     {
-        const pageManagement = set.PageManagement;
+        const pageManagement = formModel;
         const keyId = pageManagement?.InternalId ?? LibText.Merge("|", false, pageManagement?.PageId);
         const cells: RowCell[] = [
             { col: columns[0], content: mapIdsToList(pageManagement?.CategoryId, raw.categoryMap) },
-            { col: columns[1], content: getPageManagementTitle(set, lang) },
+            { col: columns[1], content: getPageManagementTitle(formModel, lang) },
             { col: columns[2], content: pageManagement?.ModifyUser?.AccountName ?? "" },
             { col: columns[3], content: formatDateTime(pageManagement?.ModifyTime) },
         ];
@@ -393,9 +393,9 @@ const buildPageManagementRows = (raw: PageManagementListRawData, lang: Lang, col
 };
 
 /** 取得頁面目前語系標題 */
-const getPageManagementTitle = (set: PageManagementSet, lang: Lang): string =>
+const getPageManagementTitle = (formModel: PageManagementFormModel, lang: Lang): string =>
 {
-    return findTextByKey(set.PageManagementDetail, (detail) => detail?.Lang, lang, (detail) => detail?.Title);
+    return findTextByKey(formModel._PageManagementDetail, (detail) => detail?.Lang, lang, (detail) => detail?.Title);
 };
 
 // #endregion

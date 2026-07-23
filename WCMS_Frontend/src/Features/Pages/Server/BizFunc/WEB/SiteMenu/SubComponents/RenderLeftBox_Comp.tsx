@@ -6,24 +6,20 @@ import Nestable from "react-nestable";
 import type { SiteMenuActions, SiteMenuEditTarget, SiteMenuItem } from "../SiteMenu_Hook";
 
 // #region Property
-type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"];
+type SiteMenuFormModel = components["schemas"]["SiteMenu_Index"];
 
-type SiteMenu_Item = components["schemas"]["SiteMenu_Item_DTO"];
+type SiteMenu_Item = components["schemas"]["SiteMenu_Item"];
 
-type SiteMenu_IndexInfo = components["schemas"]["SiteMenu_IndexInfo_DTO"];
+type SiteMenu_IndexInfo = components["schemas"]["SiteMenu_IndexInfo"];
 
-type SiteMenu_Item_Title = components["schemas"]["SiteMenu_Item_Title_DTO"];
-
-type SiteMenu_Item_Module = components["schemas"]["SiteMenu_Item_Module_DTO"];
-
-type SiteMenu_Item_Url = components["schemas"]["SiteMenu_Item_Url_DTO"];
+type SiteMenu_Item_Title = components["schemas"]["SiteMenu_Item_Title"];
 
 
 type RenderLeftBoxProp = {
     setSelectedItemEdit: Dispatch<SiteMenuEditTarget>;
     siteMenuItems: SiteMenuItem[];
     lang: Lang;
-    formData: UseFetchFormDataResult<SiteMenuSet>;
+    formData: UseFetchFormDataResult<SiteMenuFormModel>;
     action: SiteMenuActions;
 };
 
@@ -111,7 +107,7 @@ export const RenderLeftBox = (prop: RenderLeftBoxProp) =>
     {
         const nextRowId = createTempRowId();
         const nextTitleRowId = 1;
-        const sampleSiteIndex = prop.formData.data?.SiteMenu_Item?.[0]?.SiteIndex ?? prop.formData.data?.SiteMenu_Index?.SiteIndex ?? "";
+        const sampleSiteIndex = prop.formData.data?._SiteMenu_Item?.[0]?.SiteIndex ?? prop.formData.data?.SiteIndex ?? "";
         const level = parent ? Number(parent.menuItem?.Level ?? 1) + 1 : 1;
         const displayOrder = parent ? (parent.children?.length ?? 0) + 1 : items.length + 1;
 
@@ -125,28 +121,21 @@ export const RenderLeftBox = (prop: RenderLeftBoxProp) =>
             FullUrl: "",
             ItemType: 1,
             WindowTarget: 0,
+            _SiteMenu_Item_Title: [{
+                SiteIndex: sampleSiteIndex,
+                ItemRowId: nextRowId,
+                RowId: nextTitleRowId,
+                RowNo: nextTitleRowId,
+                Lang: prop.lang,
+                Title: "",
+                IsShowOnMenu: true,
+            } as SiteMenu_Item_Title],
         } as SiteMenu_Item;
 
-        prop.formData.setFormData((prev) =>
-        {
-            const next = { ...(prev ?? {}) } as SiteMenuSet;
-
-            next.SiteMenu_Item = [...(next.SiteMenu_Item ?? []), newMenuItem];
-
-            next.SiteMenu_Item_Title = [
-                ...(next.SiteMenu_Item_Title ?? []),
-                {
-                    SiteIndex: sampleSiteIndex,
-                    ItemRowId: nextRowId,
-                    RowId: nextTitleRowId,
-                    Lang: prop.lang,
-                    Title: "",
-                    IsShowOnMenu: true,
-                } as SiteMenu_Item_Title,
-            ];
-
-            return next;
-        });
+        prop.formData.setFormData(prev => ({
+            ...prev,
+            _SiteMenu_Item: [...(prev._SiteMenu_Item ?? []), newMenuItem],
+        }));
 
         const newNode: SiteMenuItem = { id: nextRowId, name: "", menuItem: newMenuItem, children: [] };
 
@@ -163,8 +152,10 @@ export const RenderLeftBox = (prop: RenderLeftBoxProp) =>
     }, [items.length, prop]);
 
     /** 新增子層 */
+    /** 已儲存的選單項目才可新增子層，避免送出無效的負數 ParentRowId。 */
     const handleAddChildItem = useCallback((item: SiteMenuItem) =>
     {
+        if (item.id <= 0) return;
         handleAddMenuItem(item);
     }, [handleAddMenuItem]);
 
@@ -374,7 +365,13 @@ const Item_Comp = (
                 <div className="all-btn Edit Icon">
                     <CheckFrontBtn fullPath={item.menuItem?.FullUrl ?? ""} disabled={isDraft} />
                     <div className="icon">
-                        <button type="button" title="新增子層" className="Icogs btn btn-ctm btn-ctm-rounded" onClick={handleAddChildClick}>
+                        <button
+                            type="button"
+                            title={isDraft ? "請先儲存此項目後再新增子層" : "新增子層"}
+                            className="Icogs btn btn-ctm btn-ctm-rounded"
+                            disabled={isDraft}
+                            onClick={handleAddChildClick}
+                        >
                             <i className="far fa-plus" />
                         </button>
                     </div>
@@ -492,7 +489,7 @@ const CheckFrontBtn = (prop: { fullPath: string; disabled?: boolean; }) =>
                 title={prop.disabled ? "暫存項目尚未建立前台網址" : "查看前台"}
                 className="Ieye btn btn-ctm btn-ctm-rounded"
                 disabled={prop.disabled}
-                onClick={(e) =>
+                onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
                 {
                     e.stopPropagation();
                     openInNewTab(prop.fullPath);
@@ -574,26 +571,22 @@ const appendChildNode = (nodes: SiteMenuItem[], parentId: number, newNode: SiteM
 };
 
 
-const applyRemovalToForm = (formData: UseFetchFormDataResult<SiteMenuSet>, idsToRemove: Set<number>) =>
+const applyRemovalToForm = (formData: UseFetchFormDataResult<SiteMenuFormModel>, idsToRemove: Set<number>) =>
 {
     formData.setFormData((prev) =>
     {
         if (!prev) return prev;
 
-        const next = { ...(prev ?? {}) } as SiteMenuSet;
-
-        next.SiteMenu_Item = (next.SiteMenu_Item ?? []).filter((x) => !idsToRemove.has(Number((x as SiteMenu_Item).RowId)));
-        next.SiteMenu_Item_Title = (next.SiteMenu_Item_Title ?? []).filter((t) => !idsToRemove.has(Number((t as SiteMenu_Item_Title).ItemRowId)));
-        next.SiteMenu_Item_Module = (next.SiteMenu_Item_Module ?? []).filter((m) => !idsToRemove.has(Number((m as SiteMenu_Item_Module).ItemRowId)));
-        next.SiteMenu_Item_Url = (next.SiteMenu_Item_Url ?? []).filter((u) => !idsToRemove.has(Number((u as SiteMenu_Item_Url).ItemRowId)));
-
-        return next;
+        return {
+            ...prev,
+            _SiteMenu_Item: (prev._SiteMenu_Item ?? []).filter(item => !idsToRemove.has(Number(item.RowId))),
+        };
     });
 };
 
 
 /** 將樹的資料同步更新回 formData */
-const syncTreeToForm = (tree: SiteMenuItem[], formData: UseFetchFormDataResult<SiteMenuSet>) =>
+const syncTreeToForm = (tree: SiteMenuItem[], formData: UseFetchFormDataResult<SiteMenuFormModel>) =>
 {
     const updates = new Map<number, { ParentRowId: number | null; Level: number; DisplayOrder: number; }>();
 
@@ -615,10 +608,10 @@ const syncTreeToForm = (tree: SiteMenuItem[], formData: UseFetchFormDataResult<S
     {
         if (!prev) return prev;
 
-        const next: SiteMenuSet = { ...prev };
-        const list = [...(next.SiteMenu_Item ?? [])];
+        const next: SiteMenuFormModel = { ...prev };
+        const list = [...(next._SiteMenu_Item ?? [])];
 
-        next.SiteMenu_Item = list.map((it) =>
+        next._SiteMenu_Item = list.map((it) =>
         {
             const rowId = Number(it.RowId);
             const u = updates.get(rowId);
@@ -632,10 +625,10 @@ const syncTreeToForm = (tree: SiteMenuItem[], formData: UseFetchFormDataResult<S
 };
 
 
-const resolveSiteInfoTitle = (data: SiteMenuSet, lang: Lang): string =>
+const resolveSiteInfoTitle = (data: SiteMenuFormModel, lang: Lang): string =>
 {
-    const siteIndex = data?.SiteMenu_Index?.SiteIndex ?? "";
-    const details = (data?.SiteMenu_IndexInfo ?? []).filter((item: SiteMenu_IndexInfo) =>
+    const siteIndex = data?.SiteIndex ?? "";
+    const details = (data?._SiteMenu_IndexInfo ?? []).filter((item: SiteMenu_IndexInfo) =>
     {
         return item.SiteIndex === siteIndex;
     });

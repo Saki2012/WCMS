@@ -7,15 +7,15 @@ import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { LibPicture, useUploadPicture } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibPicture_Comp";
 import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
 import { LibCheckBox, LibFile, LibTextBox } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
-import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
+import { useFormModelField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { LoadingErrorHandler } from "@/SysCore/Components/LoadingErrorHandler";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import { type Lang, LangLabelMap, SUPPORTED_LANGS } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
-import { SpecHomePage1821ModelFields, SpecHomePage1821SetFields } from "@/types/SchemaFields";
+import { SpecHomePage1821Fields } from "@/types/SchemaFields";
 import { type ReactNode, useCallback, useMemo, useState } from "react";
 import {
-    createEmptyHomePage1821Set,
+    createEmptyHomePage1821FormModel,
     getHomePageFilePreviewUrl,
     type HomePage1821FormRefs,
     toHomePageFileCellValue,
@@ -27,7 +27,7 @@ import {
 } from "./Server_HomePageSetting_Form_Hook";
 
 // #region Property
-type HomePageSet = components["schemas"]["SpecHomePage1821Set_DTO"];
+type HomePageFormModel = components["schemas"]["SpecHomePage1821"];
 
 type UploadPictureHandler = ReturnType<typeof useUploadPicture>["handleFileChange"];
 
@@ -51,8 +51,8 @@ interface HeaderPictureFieldProps
 {
     theme: IBETheme;
     lang: Lang;
-    formData: ServerFormBinding<HomePageSet>;
-    fieldName: typeof SpecHomePage1821ModelFields.Card1PicId | typeof SpecHomePage1821ModelFields.Card2PicId;
+    formData: ServerFormBinding<HomePageFormModel>;
+    fieldName: typeof SpecHomePage1821Fields.Card1PicId | typeof SpecHomePage1821Fields.Card2PicId;
     label: string;
 }
 
@@ -111,12 +111,12 @@ const LangFormTabComp = (prop: { theme: IBETheme; lang: Lang; summary: ReturnTyp
         <Server_FormTemplate_Comp
             key={`${prop.lang}_${internalId || "new"}`}
             template={template}
-            renderContent={({ vm }) => <LangSetTabComp theme={prop.theme} lang={prop.lang} binding={vm.rawData.formData} refs={vm.refs} />}
+            renderContent={({ vm }) => <LangFormModelTabComp theme={prop.theme} lang={prop.lang} binding={vm.rawData.formData} refs={vm.refs} />}
         />
     );
 };
 
-const LangSetTabComp = (prop: { theme: IBETheme; lang: Lang; binding: ServerFormBinding<HomePageSet>; refs: HomePage1821FormRefs; }) =>
+const LangFormModelTabComp = (prop: { theme: IBETheme; lang: Lang; binding: ServerFormBinding<HomePageFormModel>; refs: HomePage1821FormRefs; }) =>
 {
     const buildSectionKey = (section: string) => `${prop.lang}_${section}`;
 
@@ -144,7 +144,7 @@ const LangSetTabComp = (prop: { theme: IBETheme; lang: Lang; binding: ServerForm
     );
 };
 
-const BannerSectionComp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; lang: string; }) =>
+const BannerSectionComp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageFormModel>; lang: string; }) =>
 {
     const { renderPicturePreview } = useHomePageEditGridRenderers();
     const bannerGrid = useHomePage1821BannerEditGrid({ binding: prop.formData, lang: prop.lang, style: editGridStyle, renderPicturePreview });
@@ -156,7 +156,7 @@ const BannerSectionComp = (prop: { theme: IBETheme; formData: ServerFormBinding<
     );
 };
 
-const ShortcutItemsSectionComp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; lang: string; refs: HomePage1821FormRefs; }) =>
+const ShortcutItemsSectionComp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageFormModel>; lang: string; refs: HomePage1821FormRefs; }) =>
 {
     return (
         <div className="col-12">
@@ -165,7 +165,7 @@ const ShortcutItemsSectionComp = (prop: { theme: IBETheme; formData: ServerFormB
     );
 };
 
-const ShortcutSectionComp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; lang: string; refs: HomePage1821FormRefs; }) =>
+const ShortcutSectionComp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageFormModel>; lang: string; refs: HomePage1821FormRefs; }) =>
 {
     const subDetail = useEditGridSubDetailState();
     const { renderPicturePreview } = useHomePageEditGridRenderers();
@@ -209,7 +209,7 @@ const ShortcutSectionComp = (prop: { theme: IBETheme; formData: ServerFormBindin
 const ModuleItemSubDetailComp = (
     prop: {
         theme: IBETheme;
-        formData: ServerFormBinding<HomePageSet>;
+        formData: ServerFormBinding<HomePageFormModel>;
         lang: string;
         refs: HomePage1821FormRefs;
         parentRowId: number;
@@ -232,76 +232,76 @@ const ModuleItemSubDetailComp = (
     );
 };
 
-const CardsSectionComp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; lang: Lang; }) =>
+const CardsSectionComp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageFormModel>; lang: Lang; }) =>
 {
-    const setField = useSetTableField<HomePageSet>(prop.formData);
+    const setField = useFormModelField<HomePageFormModel>(prop.formData);
 
     return (
         <>
             <LibTextBox
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入區塊標題"
-                {...setField(SpecHomePage1821SetFields.SpecHomePage1821, SpecHomePage1821ModelFields.Section3Title, "string")}
+                {...setField(SpecHomePage1821Fields.Section3Title, "string")}
             />
             <LibTextBox
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入區塊副標題"
-                {...setField(SpecHomePage1821SetFields.SpecHomePage1821, SpecHomePage1821ModelFields.Section3SubTitle, "string")}
+                {...setField(SpecHomePage1821Fields.Section3SubTitle, "string")}
             />
             <LibTextBox
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入卡片 1 標題"
-                {...setField(SpecHomePage1821SetFields.SpecHomePage1821, SpecHomePage1821ModelFields.Card1Title, "string")}
+                {...setField(SpecHomePage1821Fields.Card1Title, "string")}
             />
             <LibTextBox
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入卡片 1 連結"
-                {...setField(SpecHomePage1821SetFields.SpecHomePage1821, SpecHomePage1821ModelFields.Card1Link, "string")}
+                {...setField(SpecHomePage1821Fields.Card1Link, "string")}
             />
             <HeaderPictureField
                 theme={prop.theme}
                 lang={prop.lang}
                 formData={prop.formData}
-                fieldName={SpecHomePage1821ModelFields.Card1PicId}
+                fieldName={SpecHomePage1821Fields.Card1PicId}
                 label="卡片 1 圖片"
             />
             <LibTextBox
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入卡片 2 標題"
-                {...setField(SpecHomePage1821SetFields.SpecHomePage1821, SpecHomePage1821ModelFields.Card2Title, "string")}
+                {...setField(SpecHomePage1821Fields.Card2Title, "string")}
             />
             <LibTextBox
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入卡片 2 連結"
-                {...setField(SpecHomePage1821SetFields.SpecHomePage1821, SpecHomePage1821ModelFields.Card2Link, "string")}
+                {...setField(SpecHomePage1821Fields.Card2Link, "string")}
             />
             <HeaderPictureField
                 theme={prop.theme}
                 lang={prop.lang}
                 formData={prop.formData}
-                fieldName={SpecHomePage1821ModelFields.Card2PicId}
+                fieldName={SpecHomePage1821Fields.Card2PicId}
                 label="卡片 2 圖片"
             />
         </>
     );
 };
 
-const LinksSectionComp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageSet>; lang: Lang; refs: HomePage1821FormRefs; }) =>
+const LinksSectionComp = (prop: { theme: IBETheme; formData: ServerFormBinding<HomePageFormModel>; lang: Lang; refs: HomePage1821FormRefs; }) =>
 {
-    const setField = useSetTableField<HomePageSet>(prop.formData);
-    const options = parseOptionsText(prop.formData.data?.SpecHomePage1821?.LinkOptions);
+    const setField = useFormModelField<HomePageFormModel>(prop.formData);
+    const options = parseOptionsText(prop.formData.data?.LinkOptions);
 
     return (
         <>
             <LibTextBox
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入相關連結標題"
-                {...setField(SpecHomePage1821SetFields.SpecHomePage1821, SpecHomePage1821ModelFields.Section4Title, "string")}
+                {...setField(SpecHomePage1821Fields.Section4Title, "string")}
             />
             <LibTextBox
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入相關連結副標題"
-                {...setField(SpecHomePage1821SetFields.SpecHomePage1821, SpecHomePage1821ModelFields.Section4SubTitle, "string")}
+                {...setField(SpecHomePage1821Fields.Section4SubTitle, "string")}
             />
             <LibCheckBox
                 Style={prop.theme.CheckBox}
@@ -320,7 +320,7 @@ const LinksSectionComp = (prop: { theme: IBETheme; formData: ServerFormBinding<H
             <LibTextBox
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入查看更多連結"
-                {...setField(SpecHomePage1821SetFields.SpecHomePage1821, SpecHomePage1821ModelFields.LinkViewMore, "string")}
+                {...setField(SpecHomePage1821Fields.LinkViewMore, "string")}
             />
         </>
     );
@@ -415,7 +415,7 @@ const parseOptionsText = (value?: string | null): HomePageOptionsJson =>
 };
 
 const updateHeaderOptions = (
-    binding: ServerFormBinding<HomePageSet>,
+    binding: ServerFormBinding<HomePageFormModel>,
     lang: Lang,
     key: HomePageOptionsKey,
     value: unknown,
@@ -423,16 +423,13 @@ const updateHeaderOptions = (
 {
     binding.setFormData(prev =>
     {
-        const base = prev ?? createEmptyHomePage1821Set(lang);
-        const currentOptions = parseOptionsText(base.SpecHomePage1821?.LinkOptions);
+        const base = prev ?? createEmptyHomePage1821FormModel(lang);
+        const currentOptions = parseOptionsText(base.LinkOptions);
         const nextOptions = { ...currentOptions, [key]: toCsvText(value) };
 
         return {
             ...base,
-            SpecHomePage1821: {
-                ...base.SpecHomePage1821,
-                LinkOptions: JSON.stringify(nextOptions),
-            },
+            LinkOptions: JSON.stringify(nextOptions),
         };
     });
 };
@@ -472,15 +469,15 @@ const useHomePageEditGridRenderers = () =>
     return { renderPicturePreview };
 };
 
-const getHeaderFieldValue = (data: HomePageSet | undefined, fieldName: HeaderPictureFieldProps["fieldName"]): string =>
+const getHeaderFieldValue = (data: HomePageFormModel | undefined, fieldName: HeaderPictureFieldProps["fieldName"]): string =>
 {
-    return String(data?.SpecHomePage1821?.[fieldName] ?? "");
+    return String(data?.[fieldName] ?? "");
 };
 
 /** 上傳或清除卡片圖片，並同步圖片欄位資料。 */
 const handleHeaderPictureChange = (
     files: File[],
-    binding: ServerFormBinding<HomePageSet>,
+    binding: ServerFormBinding<HomePageFormModel>,
     lang: Lang,
     fieldName: HeaderPictureFieldProps["fieldName"],
     handleFileChange: UploadPictureHandler,
@@ -497,7 +494,7 @@ const handleHeaderPictureChange = (
 };
 
 const updateHeaderPictureId = (
-    binding: ServerFormBinding<HomePageSet>,
+    binding: ServerFormBinding<HomePageFormModel>,
     lang: Lang,
     fieldName: HeaderPictureFieldProps["fieldName"],
     internalId: string,
@@ -507,8 +504,8 @@ const updateHeaderPictureId = (
 
     binding.setFormData(prev =>
     {
-        const base = prev ?? createEmptyHomePage1821Set(lang);
-        return { ...base, SpecHomePage1821: { ...base.SpecHomePage1821, [fieldName]: nextId } };
+        const base = prev ?? createEmptyHomePage1821FormModel(lang);
+        return { ...base, [fieldName]: nextId };
     });
 };
 

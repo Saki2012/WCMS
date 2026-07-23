@@ -16,15 +16,15 @@ import { Classic_FETheme } from "../Theme/ClassicTheme_Clsx";
 
 // #region Property
 /** SiteMenu API 回傳的完整站台資料型別。 */
-type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"];
+type SiteMenuFormModel = components["schemas"]["SiteMenu_Index"];
 /** SiteMenu 節點主資料型別。 */
-type SiteMenu_Item = components["schemas"]["SiteMenu_Item_DTO"];
+type SiteMenu_Item = components["schemas"]["SiteMenu_Item"];
 /** SiteMenu 節點語系標題資料型別。 */
-type SiteMenu_Item_Title = components["schemas"]["SiteMenu_Item_Title_DTO"];
+type SiteMenu_Item_Title = components["schemas"]["SiteMenu_Item_Title"];
 /** SiteMenu 節點模組設定資料型別。 */
-type SiteMenu_Item_Module = components["schemas"]["SiteMenu_Item_Module_DTO"];
+type SiteMenu_Item_Module = components["schemas"]["SiteMenu_Item_Module"];
 /** SiteMenu 節點轉址設定資料型別。 */
-type SiteMenu_Item_Url = components["schemas"]["SiteMenu_Item_Url_DTO"];
+type SiteMenu_Item_Url = components["schemas"]["SiteMenu_Item_Url"];
 /** 選單連結開啟方式型別。 */
 type WindowTarget = components["schemas"]["WindowTarget"];
 /** 模組頁面型態型別。 */
@@ -164,7 +164,7 @@ interface ICreateSiteRouteChildrenArgs
 
 // #region Public
 /** 將 SiteMenu API 資料正規化成前台站台路由資料。 */
-export const normalizeSite = (siteMenu: SiteMenuSet): INormSite =>
+export const normalizeSite = (siteMenu: SiteMenuFormModel): INormSite =>
 {
     const indexInfoByLang = buildIndexInfoByLang(siteMenu);
     const relationMap = buildSiteMenuRelationMap(siteMenu);
@@ -196,10 +196,10 @@ export const createRoutesFromSite = (site: INormSite): RouteObject[] =>
 
 // #region Protected
 /** 建立站台首頁資訊語系對照資料。 */
-const buildIndexInfoByLang = (siteMenu: SiteMenuSet): INormSite["indexInfoByLang"] =>
+const buildIndexInfoByLang = (siteMenu: SiteMenuFormModel): INormSite["indexInfoByLang"] =>
 {
     const indexInfoByLang: INormSite["indexInfoByLang"] = {};
-    for (const info of siteMenu.SiteMenu_IndexInfo ?? [])
+    for (const info of siteMenu._SiteMenu_IndexInfo ?? [])
     {
         const lang = LibText.safeTrim(info.Lang).toLowerCase();
         if (!lang) continue;
@@ -208,25 +208,29 @@ const buildIndexInfoByLang = (siteMenu: SiteMenuSet): INormSite["indexInfoByLang
     return ensureDefaultIndexInfo(indexInfoByLang);
 };
 /** 建立 SiteMenu 轉址與模組關聯資料 Map。 */
-const buildSiteMenuRelationMap = (siteMenu: SiteMenuSet): ISiteMenuRelationMap =>
+const buildSiteMenuRelationMap = (siteMenu: SiteMenuFormModel): ISiteMenuRelationMap =>
 {
     const urlMap = new Map<number, SiteMenu_Item_Url>();
     const moduleMap = new Map<number, SiteMenu_Item_Module>();
-    for (const itemUrl of siteMenu.SiteMenu_Item_Url ?? []) urlMap.set(itemUrl.ItemRowId ?? 0, itemUrl);
-    for (const itemModule of siteMenu.SiteMenu_Item_Module ?? []) moduleMap.set(itemModule.ItemRowId ?? 0, itemModule);
+    for (const item of siteMenu._SiteMenu_Item ?? [])
+    {
+        const rowId = Number(item.RowId ?? 0);
+        if (item._SiteMenu_Item_Url) urlMap.set(rowId, item._SiteMenu_Item_Url);
+        if (item._SiteMenu_Item_Module) moduleMap.set(rowId, item._SiteMenu_Item_Module);
+    }
     return { urlMap, moduleMap };
 };
 /** 依語系分組 SiteMenu 建樹資料。 */
-const groupSiteMenuItemsByLang = (siteMenu: SiteMenuSet): Map<Lang, SiteMenuTreeItem[]> =>
+const groupSiteMenuItemsByLang = (siteMenu: SiteMenuFormModel): Map<Lang, SiteMenuTreeItem[]> =>
 {
     const byLang = new Map<Lang, SiteMenuTreeItem[]>();
-    const itemByRowId = buildItemByRowIdMap(siteMenu.SiteMenu_Item ?? []);
-    for (const title of siteMenu.SiteMenu_Item_Title ?? [])
+    for (const item of siteMenu._SiteMenu_Item ?? [])
     {
-        const lang = LibRouteLang.normalizeRouteLang(title.Lang);
-        const item = itemByRowId.get(title.ItemRowId ?? 0);
-        const treeItem = item ? { ...item, ...title } : null;
-        appendSiteMenuTreeItem(byLang, lang, treeItem);
+        for (const title of item._SiteMenu_Item_Title ?? [])
+        {
+            const lang = LibRouteLang.normalizeRouteLang(title.Lang);
+            appendSiteMenuTreeItem(byLang, lang, { ...item, ...title });
+        }
     }
     return byLang;
 };
@@ -343,9 +347,9 @@ const createEmptyTreeByLang = (): INormSite["treeByLang"] =>
     return { "zh-tw": [], "zh-cn": [], en: [] };
 };
 /** 建立正規化後的站台資料。 */
-const buildNormSite = (siteMenu: SiteMenuSet, indexInfoByLang: INormSite["indexInfoByLang"], treeByLang: INormSite["treeByLang"]): INormSite =>
+const buildNormSite = (siteMenu: SiteMenuFormModel, indexInfoByLang: INormSite["indexInfoByLang"], treeByLang: INormSite["treeByLang"]): INormSite =>
 {
-    return { siteIndex: LibText.safeTrim(siteMenu.SiteMenu_Index?.SiteIndex), indexInfoByLang, treeByLang };
+    return { siteIndex: LibText.safeTrim(siteMenu.SiteIndex), indexInfoByLang, treeByLang };
 };
 /** 確保首頁資訊至少有預設語系資料。 */
 const ensureDefaultIndexInfo = (indexInfoByLang: INormSite["indexInfoByLang"]): INormSite["indexInfoByLang"] =>
@@ -354,11 +358,6 @@ const ensureDefaultIndexInfo = (indexInfoByLang: INormSite["indexInfoByLang"]): 
     return { [DefaultLang]: { title: "", description: "", footerContent: "" } };
 };
 
-/** 建立 SiteMenu Item RowId 對照 Map。 */
-const buildItemByRowIdMap = (items: SiteMenu_Item[]): Map<number, SiteMenu_Item> =>
-{
-    return new Map(items.map((item) => [item.RowId ?? 0, item]));
-};
 /** 將建樹資料加入指定語系分組。 */
 const appendSiteMenuTreeItem = (byLang: Map<Lang, SiteMenuTreeItem[]>, lang: Lang, item: SiteMenuTreeItem | null): void =>
 {
@@ -499,7 +498,7 @@ const createHomeRoute = (_site: INormSite): RouteObject =>
     return {
         index: true,
         element: <WithCtxLang element={<HomePage lang={DefaultLang} />} />,
-        loader: async (args) => HomePageLoader({ lang: resolveLangFromArgs(args) })(args),
+        loader: async (args: LoaderFunctionArgs) => HomePageLoader({ lang: resolveLangFromArgs(args) })(args),
     };
 };
 

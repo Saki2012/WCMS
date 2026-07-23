@@ -14,17 +14,21 @@ import type { KeyboardEvent, MouseEvent } from "react";
 import { PerformancesPage } from "./PerformancesPage";
 
 // #region Property
-type BannerSet = components["schemas"]["BannerSet_DTO"];
+type BannerFormModel = components["schemas"]["Banner"];
 
-type BannerDetail = NonNullable<BannerSet["BannerDetail"]>[number];
+type BannerDetail = NonNullable<BannerFormModel["_BannerDetail"]>[number];
 
-type BannerDetailInfo = NonNullable<BannerSet["BannerDetailInfo"]>[number];
+type BannerDetailInfo = components["schemas"]["BannerDetailInfo"] & {
+    SpecLatestShows?: string | null;
+    SpecShowLocation?: string | null;
+    SpecShowDate?: string | null;
+};
 
 interface CarouselDataProps
 {
     lang: Lang;
     internalId: string;
-    initialBanner: BannerSet | null;
+    initialBanner: BannerFormModel | null;
 }
 
 type BootstrapCarouselConfig = { interval: number; ride: "carousel"; pause: false; };
@@ -83,7 +87,7 @@ export const CarouselData = (props: CarouselDataProps) =>
     // 宣告變數：下方展演資訊
     const performanceData = useMemo(() =>
     {
-        return getPerformanceData(banner, currentDetail, props.lang);
+        return getPerformanceData(currentDetail, props.lang);
     }, [banner, currentDetail, props.lang]);
 
     // 宣告變數：播放按鈕文字
@@ -224,7 +228,7 @@ export const CarouselData = (props: CarouselDataProps) =>
                                             <div className="carousel-inner">
                                                 {sortedDetails.map((detail, index) =>
                                                 {
-                                                    const info = findBannerInfo(banner, detail, props.lang);
+                                                    const info = findBannerInfo(detail, props.lang);
                                                     const alt = info?.Title ?? "";
                                                     const url = info?.URL;
                                                     const target = info?.URL_Open === 0 ? "_self" : "_blank";
@@ -345,10 +349,10 @@ const toInitial = <TArgs, TData>(args: TArgs, data: TData): ApiLoaderData<TArgs,
     return { args, apiRes: toOkEnv(data) };
 };
 
-const resolveIntervalMs = (banner: BannerSet | null): number =>
+const resolveIntervalMs = (banner: BannerFormModel | null): number =>
 {
     // 宣告變數：後端 interval 單位為秒
-    const sec = banner?.Banner?.Interval;
+    const sec = banner?.Interval;
     const num = Number(sec);
 
     // return：前端 Bootstrap 需要毫秒
@@ -356,10 +360,10 @@ const resolveIntervalMs = (banner: BannerSet | null): number =>
     return Math.round(num * 1000);
 };
 
-const sortBannerDetails = (banner: BannerSet | null): BannerDetail[] =>
+const sortBannerDetails = (banner: BannerFormModel | null): BannerDetail[] =>
 {
     // 宣告變數：原始明細
-    const list = banner?.BannerDetail ?? [];
+    const list = banner?._BannerDetail ?? [];
 
     // return：依 Sort 與 RowId 穩定排序
     return [...list].sort((a, b) =>
@@ -371,15 +375,12 @@ const sortBannerDetails = (banner: BannerSet | null): BannerDetail[] =>
     });
 };
 
-const findBannerInfo = (banner: BannerSet | null, detail: BannerDetail | undefined, lang: Lang): BannerDetailInfo | undefined =>
+const findBannerInfo = (detail: BannerDetail | undefined, lang: Lang): BannerDetailInfo | undefined =>
 {
     // return：依當前 slide + 語系找對應資訊
     if (!detail) return undefined;
 
-    return banner?.BannerDetailInfo?.find((item) =>
-    {
-        return (item.BannerId === detail.BannerId && item.ParentRowId === detail.RowId && item.Lang === lang);
-    });
+    return detail._BannerDetailInfo?.find(item => item.Lang === lang);
 };
 
 const getSafeIndex = (index: number, total: number): number =>
@@ -391,10 +392,10 @@ const getSafeIndex = (index: number, total: number): number =>
     return index;
 };
 
-const getPerformanceData = (banner: BannerSet | null, detail: BannerDetail | undefined, lang: Lang) =>
+const getPerformanceData = (detail: BannerDetail | undefined, lang: Lang) =>
 {
     // 宣告變數：語系明細
-    const info = findBannerInfo(banner, detail, lang);
+    const info = findBannerInfo(detail, lang);
 
     // return：下方展演資訊
     return { title: info?.SpecLatestShows ?? "", subTitle: info?.SpecShowLocation ?? "", showtime: info?.SpecShowDate ?? "" };

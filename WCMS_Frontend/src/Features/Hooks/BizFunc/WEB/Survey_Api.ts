@@ -5,11 +5,11 @@ import { PGID } from "@/types/SchemaFields";
 import type { AxiosInstance } from "axios";
 
 // #region Property
-type SurveySet = components["schemas"]["SurveySet_DTO"];
+type SurveyFormModel = components["schemas"]["Survey"];
 // #endregion
 
 // #region Public
-export class SurveyService extends ApiDataService<SurveySet>
+export class SurveyService extends ApiDataService<SurveyFormModel>
 {
     // #region Public
     constructor(apiInstance?: AxiosInstance)
@@ -18,7 +18,7 @@ export class SurveyService extends ApiDataService<SurveySet>
     }
     // #endregion
 }
-export class SurveyAdapterImpl extends ApiDataAdapter<SurveySet, SurveyService>
+export class SurveyAdapterImpl extends ApiDataAdapter<SurveyFormModel, SurveyService>
 {}
 export const SurveyAdapter = (apiInstance?: AxiosInstance) => new SurveyAdapterImpl((api?: AxiosInstance) => new SurveyService(api ?? apiInstance));
 // #endregion

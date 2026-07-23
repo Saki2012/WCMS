@@ -9,7 +9,7 @@ import type React from "react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 
 // #region Property
-type BannerSet = components["schemas"]["BannerSet_DTO"];
+type BannerFormModel = components["schemas"]["Banner"];
 
 
 type SwiperOptions = {
@@ -44,8 +44,8 @@ export interface LinkDataProps
     lang: Lang;
     /** BannerSlider QueryData 的 internalId */
     internalId: string;
-    /** SSR loader 已抓到的 BannerSet（可為 null） */
-    initialBanner: BannerSet | null;
+    /** SSR loader 已抓到的 BannerFormModel（可為 null） */
+    initialBanner: BannerFormModel | null;
 }
 
 
@@ -119,14 +119,14 @@ export const LinkData = (props: LinkDataProps) =>
     // 宣告變數：依 Sort 排序（穩定排序）
     const sortedDetails = useMemo(() =>
     {
-        const list = useBanner.data?.BannerDetail ?? [];
+        const list = useBanner.data?._BannerDetail ?? [];
         return [...list].sort((a, b) =>
         {
             const as = Number.isFinite(a?.Sort) ? Number(a.Sort) : Number.MAX_SAFE_INTEGER;
             const bs = Number.isFinite(b?.Sort) ? Number(b.Sort) : Number.MAX_SAFE_INTEGER;
             return as - bs || (a.RowId ?? 0) - (b.RowId ?? 0);
         });
-    }, [useBanner.data?.BannerDetail]);
+    }, [useBanner.data?._BannerDetail]);
 
     // 宣告變數：Swiper root + instance
     const swiperRootRef = useRef<HTMLDivElement | null>(null);
@@ -212,8 +212,8 @@ export const LinkData = (props: LinkDataProps) =>
                                     <div className="swiper-wrapper">
                                         {sortedDetails.map((p, i) =>
                                         {
-                                            const info = useBanner.data?.BannerDetailInfo?.find((x) =>
-                                                x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang
+                                            const info = p._BannerDetailInfo?.find((x) =>
+                                                x.Lang === props.lang
                                             );
                                             const title = info?.Title ?? "";
                                             const url = info?.URL ?? "";
@@ -285,13 +285,13 @@ export const LinkData = (props: LinkDataProps) =>
 // --------------------
 // helpers（避免 effect 過長）
 // --------------------
-const buildQueryDataInitial = (internalId: string, banner: BannerSet | null): ApiLoaderData<string, BannerSet> | null =>
+const buildQueryDataInitial = (internalId: string, banner: BannerFormModel | null): ApiLoaderData<string, BannerFormModel> | null =>
 {
     // 宣告變數：沒有 initial 就回 null
     if (!banner) return null;
 
     // 宣告變數：組出 env（QueryData 單筆）
-    const apiRes: ApiResponse<BannerSet> = { IsSuccess: true, Data: banner, SysMessage: [] };
+    const apiRes: ApiResponse<BannerFormModel> = { IsSuccess: true, Data: banner, SysMessage: [] };
 
     // return
     return { args: internalId, apiRes };

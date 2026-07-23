@@ -86,6 +86,84 @@ type RangeBind = Omit<ILibDatetimeRangeProp, "Style" | "valueType" | "disabled">
 // #endregion
 
 // #region Public
+/** 建立 FormModel 根欄位綁定器，直接讀寫根 Model 欄位。 */
+export const useFormModelField = <T extends Record<string, any>>(form: FormDataLike<T>) =>
+{
+    const appliedDefaultsRef = useRef<Set<string>>(new Set());
+    const pendingWritesRef = useRef<Array<() => void>>([]);
+
+    useEffect(() =>
+    {
+        if (pendingWritesRef.current.length === 0) return;
+        const jobs = pendingWritesRef.current.splice(0);
+        for (const job of jobs) job();
+    });
+
+    return useCallback(<FieldName extends keyof T>(
+        field: FieldName,
+        mode: CoerceMode = "string",
+        setType?: SetOptions,
+    ) =>
+    {
+        const raw = form.data?.[field];
+        const strategy = typeof setType === "string" ? setType : (setType?.strategy ?? "default");
+        const sumKeys = typeof setType === "object" ? setType.sumKeys : undefined;
+        const delimiter = typeof setType === "object" ? (setType.csvDelimiter ?? ",") : ",";
+        const label = getColumnDisplayName(form.displayName ?? null, "", String(field)) || `【${String(field)}】`;
+        const inputValue = resolveInputValue(raw, mode, strategy, sumKeys, delimiter);
+        ensureDefaultOnce(appliedDefaultsRef, {
+            key: `${resolveFormModelIdentity(form.data)}|root|${String(field)}`,
+            current: raw,
+            mode,
+            strategy,
+            setType,
+            table: "",
+            field: String(field),
+            writeBack: (defaultValue) =>
+            {
+                pendingWritesRef.current.push(() =>
+                {
+                    const nextValue = strategy === "sum"
+                        ? defaultValue
+                        : strategy === "csv" ? String(defaultValue ?? "") : coerce(mode, defaultValue);
+                    form.setFormData(prev => Object.is(prev?.[field], nextValue) ? prev : { ...prev, [field]: nextValue });
+                });
+            },
+        });
+        const onChange = (value: unknown): void =>
+        {
+            const nextValue = resolveNextCellValue(value, mode, strategy, delimiter);
+            form.setFormData(prev => Object.is(prev?.[field], nextValue) ? prev : { ...prev, [field]: nextValue });
+        };
+        const bind = { ColumnDisplayName: label, InputValue: inputValue, OnChange: onChange } as const;
+        return { ...bind, Input: bind.InputValue, onChange: bind.OnChange };
+    }, [form.data, form.displayName, form.setFormData]);
+};
+
+/** 建立 FormModel 內嵌 object 欄位綁定器，避免把 object 誤當成 Set table array。 */
+export const useFormModelObjectField = <TFormModel extends Record<string, any>>(
+    form: FormDataLike<TFormModel>,
+    objectField?: keyof TFormModel,
+) =>
+{
+    return useCallback((field: string, mode: CoerceMode = "string") =>
+    {
+        const currentObject = objectField ? form.data?.[objectField] as Record<string, unknown> | null | undefined : undefined;
+        const raw = currentObject?.[field];
+        const tableName = String(objectField ?? "");
+        const label = getColumnDisplayName(form.displayName ?? null, tableName, field) || `【${field}】`;
+        const inputValue = resolveInputValue(raw, mode, "default", undefined, ",");
+        const onChange = (value: unknown): void =>
+        {
+            if (!objectField) return;
+            const nextValue = resolveNextCellValue(value, mode, "default", ",");
+            form.setFormData(prev => updateFormModelObject(prev, objectField, field, nextValue));
+        };
+        const bind = { ColumnDisplayName: label, InputValue: inputValue, OnChange: onChange } as const;
+        return { ...bind, Input: bind.InputValue, onChange: bind.OnChange };
+    }, [form.data, form.displayName, form.setFormData, objectField]);
+};
+
 /** 建立 table field 綁定器，提供欄位讀寫與預設值套用。 */
 export const useSetTableField = <T>(form: FormDataLike<T>) =>
 {
@@ -118,11 +196,14 @@ export const useSetTableField = <T>(form: FormDataLike<T>) =>
         const inputValue = resolveInputValue(raw, mode, strategy, sumKeys, csvDelimiter);
 
         ensureDefaultOnce(appliedDefaultsRef, {
-            key: `${String(table)}|${String(field)}|${buildRowKeysSignature(rowKeys)}`,
+            key: `${resolveFormModelIdentity(form.data)}|${String(table)}|${String(field)}|${buildRowKeysSignature(rowKeys)}`,
             current: raw,
             mode,
             strategy,
             setType,
+            table: String(table),
+            field: String(field),
+            rowKeys,
             writeBack: (dv) =>
             {
                 pendingWritesRef.current.push(() =>
@@ -162,7 +243,7 @@ export const useSetTableField = <T>(form: FormDataLike<T>) =>
 };
 
 /** 建立 table file field 綁定器，提供檔案 internalId 與檔名欄位同步。 */
-export const useSetTableFileField = <TSet>(formData: FormDataLike<TSet>) =>
+export const useSetTableFileField = <TFormModel>(formData: FormDataLike<TFormModel>) =>
 {
     const fileWritesRef = useRef<Array<() => void>>([]);
     const fileDefaultKeysRef = useRef<Set<string>>(new Set());
@@ -192,7 +273,7 @@ export const useSetTableFileField = <TSet>(formData: FormDataLike<TSet>) =>
             const currentName: string = fileNameField ? String(currentRow?.[fileNameField] ?? "") : "";
             const fileDefaultWhen: DefaultWhen = opts?.defaultWhen ?? "nullish";
             const shouldDefault = (v: unknown): boolean => isDefaultRequired(v, fileDefaultWhen);
-            const fileDefaultKey = `${tableName}|${fileIdField}|${fileNameField ?? ""}|${buildRowKeysSignature(rowKeys)}`;
+            const fileDefaultKey = `${resolveFormModelIdentity(formData.data)}|${tableName}|${fileIdField}|${fileNameField ?? ""}|${buildRowKeysSignature(rowKeys)}`;
             const needFileDefault = shouldDefault(currentId) || shouldDefault(currentName);
 
             if (needFileDefault && !fileDefaultKeysRef.current.has(fileDefaultKey))
@@ -329,15 +410,15 @@ export const useSetTableFileField = <TSet>(formData: FormDataLike<TSet>) =>
 };
 
 /** 建立 JSON 欄位綁定器，提供 JSON object 安全解析與欄位綁定。 */
-export const useSetJsonField = <TSet, TJson extends Record<string, any>>(
-    formData: UseFetchFormDataResult<TSet>,
+export const useSetJsonField = <TFormModel, TJson extends Record<string, any>>(
+    formData: UseFetchFormDataResult<TFormModel>,
     tableName: string,
     fieldName: string,
     rowKeys: Record<string, any>,
     defaults: TJson,
 ): JsonFieldBinder<TJson> =>
 {
-    const setField = useSetTableField<TSet>(formData);
+    const setField = useSetTableField<TFormModel>(formData);
     const base = useMemo(() => setField(tableName as any, fieldName as any, "string", rowKeys), [setField, tableName, fieldName, rowKeys]);
 
     const get = (): TJson =>
@@ -388,12 +469,12 @@ export const useSetJsonField = <TSet, TJson extends Record<string, any>>(
 };
 
 /** 建立日期區間欄位綁定器，將起訖欄位合成 Range Field props。 */
-export const useSetDateRangeField = <TSet>(formData: UseFetchFormDataResult<TSet>) =>
+export const useSetDateRangeField = <TFormModel>(formData: UseFetchFormDataResult<TFormModel>) =>
 {
-    const setField = useSetTableField<TSet>(formData);
+    const setField = useSetTableField<TFormModel>(formData);
 
     return (
-        table: keyof NonNullable<TSet> | string,
+        table: keyof NonNullable<TFormModel> | string,
         startField: string,
         endField: string,
         mode: "string" | "number" | "boolean" | "datetime" | ((v: unknown) => any) = "datetime",
@@ -446,6 +527,28 @@ const resolveCurrentRow = (table: any, rowKeys?: Record<string, string | number 
     return undefined;
 };
 
+/** 更新 FormModel 內嵌 object 欄位，內容未變時保留原 reference。 */
+const updateFormModelObject = <TFormModel extends Record<string, any>>(
+    formModel: TFormModel,
+    objectField: keyof TFormModel,
+    field: string,
+    value: unknown,
+): TFormModel =>
+{
+    const current = formModel?.[objectField] as Record<string, unknown> | null | undefined;
+    if (current && Object.is(current[field], value)) return formModel;
+    const nextObject = { ...(current ?? {}), [field]: value };
+    return { ...formModel, [objectField]: nextObject };
+};
+
+/** 取得 FormModel 穩定識別，讓不同資料列可各自套用一次預設值。 */
+const resolveFormModelIdentity = (formModel: unknown): string =>
+{
+    if (!formModel || typeof formModel !== "object") return "new";
+    const record = formModel as Record<string, unknown>;
+    return String(record.InternalId ?? record.SiteIndex ?? record.RowId ?? "new");
+};
+
 /** 解析欄位顯示用輸入值。 */
 const resolveInputValue = (
     raw: any,
@@ -483,6 +586,13 @@ const upsertRow = (currentTable: any, rowKeys: Record<string, any> | undefined, 
         if (currentTable && Object.is(currentObj[fieldKey], value)) return currentTable;
 
         return { ...currentObj, [fieldKey]: value };
+    }
+
+    if (currentTable && !Array.isArray(currentTable) && typeof currentTable === "object")
+    {
+        if (!matchRowKeys(currentTable as RowLike, rowKeys)) return currentTable;
+        if (Object.is(currentTable[fieldKey], value)) return currentTable;
+        return { ...currentTable, [fieldKey]: value };
     }
 
     const rows: RowLike[] = Array.isArray(currentTable) ? (currentTable as RowLike[]) : currentTable ? [currentTable as RowLike] : [];
@@ -576,10 +686,20 @@ const computeAutoDefault = (mode: CoerceMode, strategy: SetStrategy): unknown =>
 /** 確認欄位預設值只套用一次，避免 render 中重複寫入。 */
 const ensureDefaultOnce = (
     ref: React.MutableRefObject<Set<string>>,
-    args: { key: string; current: unknown; mode: CoerceMode; strategy: SetStrategy; setType?: SetOptions; writeBack: (v: unknown) => void; },
+    args: {
+        key: string;
+        current: unknown;
+        mode: CoerceMode;
+        strategy: SetStrategy;
+        setType?: SetOptions;
+        table: string;
+        field: string;
+        rowKeys?: Record<string, unknown>;
+        writeBack: (v: unknown) => void;
+    },
 ): void =>
 {
-    const { key, current, mode, strategy, setType, writeBack } = args;
+    const { key, current, mode, strategy, setType, table, field, rowKeys, writeBack } = args;
     if (ref.current.has(key)) return;
 
     const cfg = (typeof setType === "object" ? setType : undefined) ?? {};
@@ -600,7 +720,7 @@ const ensureDefaultOnce = (
         return;
     }
 
-    let dv = typeof cfg.defaultValue === "function" ? (cfg.defaultValue as any)({ current, table: "", field: "", rowKeys: undefined }) : cfg.defaultValue;
+    let dv = typeof cfg.defaultValue === "function" ? cfg.defaultValue({ current, table, field, rowKeys }) : cfg.defaultValue;
 
     if (dv === undefined) dv = computeAutoDefault(mode, strategy);
     if (dv === undefined)

@@ -14,13 +14,13 @@ import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import { LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { PGID, WebResourceFields, WebResourceInfoFields, WebResourceSetFields } from "@/types/SchemaFields";
+import { PGID, WebResourceFields, WebResourceInfoFields } from "@/types/SchemaFields";
 import { useMemo } from "react";
 
 // #region Property
-type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
+type WebResourceFormModel = components["schemas"]["WebResource"];
 
-type WebResourceInfo = NonNullable<WebResourceSet["WebResourceInfo"]>[number];
+type WebResourceInfo = NonNullable<WebResourceFormModel["_WebResourceInfo"]>[number];
 
 export interface UseWebResourceFormTemplateOptions
 {
@@ -34,7 +34,7 @@ export interface UseWebResourceFormTemplateOptions
     internalId: string;
 
     /** 新增模式預設資料 */
-    emptyData: WebResourceSet;
+    emptyData: WebResourceFormModel;
 
     /** Form Template 標準動作設定 */
     actionsOpt: WebResourceFormActionsOpt;
@@ -43,7 +43,7 @@ export interface UseWebResourceFormTemplateOptions
 export interface UseWebResourceDetailTabsOptions
 {
     /** 新版 Form Template 提供的資料 binding */
-    binding: ServerFormBinding<WebResourceSet>;
+    binding: ServerFormBinding<WebResourceFormModel>;
 
     /** 目前語系，會優先排在第一個 Tab */
     lang: Lang;
@@ -100,7 +100,7 @@ export type WebResourceFormAdapter = {
 // #endregion
 
 // #region Public
-export const webResourceEmptyData: WebResourceSet = { WebResource: {}, WebResourceInfo: [] };
+export const webResourceEmptyData: WebResourceFormModel = { WebResourceId: "", _WebResourceInfo: [] };
 
 /** 網路資源圖片上傳限制。 */
 export const WebResourceImageUploadLimit = {
@@ -114,10 +114,10 @@ export const WebResourceImageUploadLimit = {
 export const useWebResourceFormTemplate = (
     opt: UseWebResourceFormTemplateOptions,
 ): ServerFormTemplate<
-    WebResourceSet,
+    WebResourceFormModel,
     WebResourceFormAdapter,
     WebResourceFormRefs,
-    ServerFormDefaultRawData<WebResourceSet, WebResourceFormRefs>,
+    ServerFormDefaultRawData<WebResourceFormModel, WebResourceFormRefs>,
     WebResourceFormActionsOpt
 > =>
 {
@@ -144,7 +144,7 @@ export const useWebResourceFormTemplate = (
 /** 建立 WebResource Detail 語系 Tabs，避免 Comp 處理語系過濾與 Unknown fallback。 */
 export const useWebResourceDetailTabs = (opt: UseWebResourceDetailTabsOptions): WebResourceDetailTabsResult =>
 {
-    const details = opt.binding.data?.WebResourceInfo;
+    const details = opt.binding.data?._WebResourceInfo;
 
     return useMemo(() =>
     {
@@ -162,7 +162,7 @@ const buildWebResourceFormTitle = (ctx: { mode: "new" | "edit"; displayName: Mod
 };
 
 /** 建立新增模式的 initial data，統一由 Feature Timing 交給 Template。 */
-const buildWebResourceInitialData = (ctx: { mode: "new" | "edit"; emptyData: WebResourceSet; }): ApiFormInitial<WebResourceSet> | undefined =>
+const buildWebResourceInitialData = (ctx: { mode: "new" | "edit"; emptyData: WebResourceFormModel; }): ApiFormInitial<WebResourceFormModel> | undefined =>
 {
     if (ctx.mode !== "new") return undefined;
     return { data: { args: "__new__", apiRes: { IsSuccess: true, Data: ctx.emptyData, SysMessage: [] } } };
@@ -175,12 +175,11 @@ const buildWebResourceFormAdapter = (): WebResourceFormAdapter =>
 };
 
 /** 取得 Header / Detail 需要的參照資料與語系明細補齊。 */
-const useWebResourceReferenceData = (ctx: { adapter: WebResourceFormAdapter; binding: ServerFormBinding<WebResourceSet>; lang: Lang; }) =>
+const useWebResourceReferenceData = (ctx: { adapter: WebResourceFormAdapter; binding: ServerFormBinding<WebResourceFormModel>; lang: Lang; }) =>
 {
     useEnsureLangDetails(ctx.binding, {
-        headerName: WebResourceSetFields.WebResource,
-        detailName: WebResourceSetFields.WebResourceInfo,
-        parentKeys: [WebResourceFields.WebResourceId],
+        detailName: WebResourceFields._WebResourceInfo,
+        parentKeys: [WebResourceInfoFields.WebResourceId],
         langs: SUPPORTED_LANGS,
         preferFirstLang: ctx.lang,
     });

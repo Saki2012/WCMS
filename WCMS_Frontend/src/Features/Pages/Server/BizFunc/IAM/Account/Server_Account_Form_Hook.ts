@@ -12,16 +12,16 @@ import { useFetchEnumOptions } from "@/SysCore/Utils/API/SystemAPI_Hook";
 import { LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { AccountFields, PersonModelFields, RoleDataModelFields } from "@/types/SchemaFields";
+import { AccountFields, PersonFields, RoleDataFields } from "@/types/SchemaFields";
 import type { MutableRefObject } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 // #region Property
-type AccountSet = components["schemas"]["AccountSet_DTO"];
+type AccountFormModel = components["schemas"]["Account"];
 
-type PersonSet = components["schemas"]["PersonSet_DTO"];
+type PersonFormModel = components["schemas"]["Person"];
 
-type RoleSet = components["schemas"]["RolePermissionSet_DTO"];
+type RolePermissionFormModel = components["schemas"]["RoleData"];
 
 type QueryListParam = components["schemas"]["QueryListParam"];
 
@@ -34,7 +34,7 @@ export interface UseAccountFormTemplateOptions
     internalId: string;
 
     /** 新增模式預設資料 */
-    emptyData: AccountSet;
+    emptyData: AccountFormModel;
 
     /** Form Template 標準動作設定 */
     actionsOpt: AccountFormActionsOpt;
@@ -52,7 +52,7 @@ export interface AccountFormRefs
     roleIds: Record<string, string>;
 }
 
-export interface AccountFormRawData extends ServerFormDefaultRawData<AccountSet, AccountFormRefs>
+export interface AccountFormRawData extends ServerFormDefaultRawData<AccountFormModel, AccountFormRefs>
 {
     /** 是否為新增模式 */
     isAddNew: boolean;
@@ -88,12 +88,13 @@ export type AccountFormAdapter = {
 // #endregion
 
 // #region Public
-export const accountEmptyData: AccountSet = { Account: {} };
+/** Account 新增模式使用的空白 FormModel。 */
+export const accountEmptyData: AccountFormModel = {};
 
 /** 建立 Account Form Template，統一交給 Server_FormTemplate 處理 CUD 與 toast。 */
 export const useAccountFormTemplate = (
     opt: UseAccountFormTemplateOptions,
-): ServerFormTemplate<AccountSet, AccountFormAdapter, AccountFormRefs, AccountFormRawData, AccountFormActionsOpt> =>
+): ServerFormTemplate<AccountFormModel, AccountFormAdapter, AccountFormRefs, AccountFormRawData, AccountFormActionsOpt> =>
 {
     const [, setConfirmPwd] = useState<string>("");
     const [, setValidationErrors] = useState<string[]>([]);
@@ -110,7 +111,7 @@ export const useAccountFormTemplate = (
         updateConfirmPassword(value, setConfirmPwd, confirmPwdRef, setValidationErrors, validationErrorsRef);
     }, []);
 
-    const validateBeforeSave = useCallback((data: AccountSet, isAddNew: boolean): boolean =>
+    const validateBeforeSave = useCallback((data: AccountFormModel, isAddNew: boolean): boolean =>
     {
         return validateAccountBeforeSave(data, isAddNew, confirmPwdRef.current, setValidationErrors, validationErrorsRef);
     }, []);
@@ -146,7 +147,7 @@ const buildAccountFormTitle = (ctx: { mode: "new" | "edit"; displayName: ModelDi
 };
 
 /** 建立新增模式的 initial data，統一由 Feature Timing 交給 Template。 */
-const buildAccountInitialData = (ctx: { mode: "new" | "edit"; emptyData: AccountSet; }): ApiFormInitial<AccountSet> | undefined =>
+const buildAccountInitialData = (ctx: { mode: "new" | "edit"; emptyData: AccountFormModel; }): ApiFormInitial<AccountFormModel> | undefined =>
 {
     if (ctx.mode !== "new") return undefined;
     return { data: { args: "__new__", apiRes: { IsSuccess: true, Data: ctx.emptyData, SysMessage: [] } } };
@@ -220,9 +221,9 @@ const updateConfirmPassword = (
 
 /** 建立儲存前檢核後的 Actions，讓 Template 仍負責真正 CUD。 */
 const buildAccountFormActions = (
-    ctx: { binding: ServerFormBinding<AccountSet>; mode: "new" | "edit"; },
+    ctx: { binding: ServerFormBinding<AccountFormModel>; mode: "new" | "edit"; },
     actions: ServerFormActions,
-    validateBeforeSave: (data: AccountSet, isAddNew: boolean) => boolean,
+    validateBeforeSave: (data: AccountFormModel, isAddNew: boolean) => boolean,
 ): ServerFormActions =>
 {
     return {
@@ -238,7 +239,7 @@ const buildAccountFormActions = (
 
 /** 建立 Account FormComp 會額外使用的 rawData。 */
 const buildAccountRawData = (
-    binding: ServerFormBinding<AccountSet>,
+    binding: ServerFormBinding<AccountFormModel>,
     refs: AccountFormRefs,
     actions: ServerFormActions,
     confirmPwd: string,
@@ -255,13 +256,13 @@ const buildAccountRawData = (
         confirmPwd,
         onConfirmPwdChange,
         validationErrors,
-        userPicId: String(binding.data?.Account?.Person?.PersonImgId ?? ""),
+        userPicId: String(binding.data?.Person?.PersonImgId ?? ""),
     };
 };
 
 /** 檢查新增帳號時密碼與確認密碼是否正確。 */
 const validateAccountBeforeSave = (
-    data: AccountSet,
+    data: AccountFormModel,
     isAddNew: boolean,
     confirmPwd: string,
     setValidationErrors: (errors: string[]) => void,
@@ -275,10 +276,10 @@ const validateAccountBeforeSave = (
 };
 
 /** 建立 Account 儲存前本地檢核訊息。 */
-const buildAccountValidationErrors = (data: AccountSet, isAddNew: boolean, confirmPwd: string): string[] =>
+const buildAccountValidationErrors = (data: AccountFormModel, isAddNew: boolean, confirmPwd: string): string[] =>
 {
     if (!isAddNew) return [];
-    const pwd = LibText.safeTrim(data?.Account?.Password);
+    const pwd = LibText.safeTrim(data?.Password);
     const confirm = LibText.safeTrim(confirmPwd);
     if (!pwd || !confirm) return ["請輸入密碼並再次確認"];
     if (pwd !== confirm) return ["兩次密碼不一致"];
@@ -291,15 +292,15 @@ const usePersonListByAdapter = (adapter: ReturnType<typeof PersonAdapter>) =>
     const condition = useMemo<QueryListParam>(() =>
     {
         return {
-            Fields: [PersonModelFields.PersonId, PersonModelFields.PersonName, PersonModelFields.InternalId],
+            Fields: [PersonFields.PersonId, PersonFields.PersonName, PersonFields.InternalId],
             Condition: "",
-            OrderBy: [{ Col: PersonModelFields.CreateTime, Desc: false }],
+            OrderBy: [{ Col: PersonFields.CreateTime, Desc: false }],
             PageNumber: 0,
             PageSize: 0,
         };
     }, []);
     const query = adapter.hooks.useQueryList({ condition, deps: [] });
-    return { rawData: (query.data ?? []) as PersonSet[], isLoading: Boolean(query.isLoading), error: query.errorText ?? null, refetch: query.refetch };
+    return { rawData: (query.data ?? []) as PersonFormModel[], isLoading: Boolean(query.isLoading), error: query.errorText ?? null, refetch: query.refetch };
 };
 
 /** 建立 role 清單查詢。 */
@@ -308,15 +309,15 @@ const useRoleListByAdapter = (adapter: ReturnType<typeof RolePermissionAdapter>)
     const condition = useMemo<QueryListParam>(() =>
     {
         return {
-            Fields: [RoleDataModelFields.RoleId, RoleDataModelFields.RoleName, RoleDataModelFields.InternalId],
+            Fields: [RoleDataFields.RoleId, RoleDataFields.RoleName, RoleDataFields.InternalId],
             Condition: "",
-            OrderBy: [{ Col: RoleDataModelFields.CreateTime, Desc: false }],
+            OrderBy: [{ Col: RoleDataFields.CreateTime, Desc: false }],
             PageNumber: 0,
             PageSize: 0,
         };
     }, []);
     const query = adapter.hooks.useQueryList({ condition, deps: [] });
-    return { rawData: (query.data ?? []) as RoleSet[], isLoading: Boolean(query.isLoading), error: query.errorText ?? null, refetch: query.refetch };
+    return { rawData: (query.data ?? []) as RolePermissionFormModel[], isLoading: Boolean(query.isLoading), error: query.errorText ?? null, refetch: query.refetch };
 };
 
 /** 建立帳號與人員關聯查詢，避免同一人員被重複綁定。 */
@@ -327,11 +328,11 @@ const useAccountPersonListByAdapter = (adapter: ReturnType<typeof AccountAdapter
         return { Fields: [AccountFields.InternalId, AccountFields.PersonId], Condition: "", OrderBy: [], PageNumber: 0, PageSize: 0 };
     }, []);
     const query = adapter.hooks.useQueryList({ condition, deps: [] });
-    return { rawData: (query.data ?? []) as AccountSet[], isLoading: Boolean(query.isLoading), error: query.errorText ?? null, refetch: query.refetch };
+    return { rawData: (query.data ?? []) as AccountFormModel[], isLoading: Boolean(query.isLoading), error: query.errorText ?? null, refetch: query.refetch };
 };
 
 /** 建立可選人員下拉字典。 */
-const useAvailablePersonDict = (personRawData: PersonSet[], accountRawData: AccountSet[], currentAccountInternalId: string): Record<string, string> =>
+const useAvailablePersonDict = (personRawData: PersonFormModel[], accountRawData: AccountFormModel[], currentAccountInternalId: string): Record<string, string> =>
 {
     return useMemo(() =>
     {
@@ -341,14 +342,14 @@ const useAvailablePersonDict = (personRawData: PersonSet[], accountRawData: Acco
 };
 
 /** 建立其他帳號已使用的人員代號。 */
-const buildUsedPersonIds = (rawData: AccountSet[], currentAccountInternalId: string): Set<string> =>
+const buildUsedPersonIds = (rawData: AccountFormModel[], currentAccountInternalId: string): Set<string> =>
 {
     const usedIds = new Set<string>();
 
     for (const item of rawData ?? [])
     {
-        const accountInternalId = String(item?.Account?.InternalId ?? "").trim();
-        const personId = String(item?.Account?.PersonId ?? "").trim();
+        const accountInternalId = String(item?.InternalId ?? "").trim();
+        const personId = String(item?.PersonId ?? "").trim();
 
         if (!personId) continue;
         if (accountInternalId === currentAccountInternalId) continue;
@@ -360,13 +361,13 @@ const buildUsedPersonIds = (rawData: AccountSet[], currentAccountInternalId: str
 };
 
 /** 建立尚可選的人員下拉資料。 */
-const buildAvailablePersonDict = (rawData: PersonSet[], usedPersonIds: Set<string>): Record<string, string> =>
+const buildAvailablePersonDict = (rawData: PersonFormModel[], usedPersonIds: Set<string>): Record<string, string> =>
 {
     const dict: Record<string, string> = {};
 
     for (const item of rawData ?? [])
     {
-        const personId = String(item?.Person?.PersonId ?? "").trim();
+        const personId = String(item?.PersonId ?? "").trim();
         if (!personId || usedPersonIds.has(personId)) continue;
         dict[personId] = personId;
     }
@@ -375,16 +376,16 @@ const buildAvailablePersonDict = (rawData: PersonSet[], usedPersonIds: Set<strin
 };
 
 /** 將 role 資料轉為下拉字典。 */
-const useRoleDict = (rawData: RoleSet[]): Record<string, string> =>
+const useRoleDict = (rawData: RolePermissionFormModel[]): Record<string, string> =>
 {
     return useMemo(() =>
     {
         const dict: Record<string, string> = {};
         for (const item of rawData ?? [])
         {
-            const roleId = String(item?.RoleData?.RoleId ?? "").trim();
+            const roleId = String(item?.RoleId ?? "").trim();
             if (!roleId) continue;
-            dict[roleId] = String(item?.RoleData?.RoleName ?? "").trim();
+            dict[roleId] = String(item?.RoleName ?? "").trim();
         }
         return dict;
     }, [rawData]);

@@ -23,20 +23,20 @@ import { buildServerPreviewToolbarButton, useServerPreviewFrame } from "@/Featur
 import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
-import { LibCheckBox, LibDropList, LibFile, LibModal, LibPicturePreview, LibTextBox, LibTinyMCE }  from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
-import { useSetJsonField, useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
+import { LibCheckBox, LibDropList, LibFile, LibModal, LibPicturePreview, LibTextBox, LibTinyMCE } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
+import { useFormModelField, useSetJsonField, useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
 import type { components } from "@/types/api";
-import { MaterialFields, MaterialLangInfoFields, MaterialPictureFields, MaterialSetFields, PGID } from "@/types/SchemaFields";
+import { MaterialFields, MaterialLangInfoFields, MaterialPictureFields, PGID } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 // #region Property
-type MaterialSet = components["schemas"]["MaterialSet_DTO"];
+type MaterialFormModel = components["schemas"]["Material"];
 
 type MaterialInfoJson = Record<string, string>;
 
@@ -61,7 +61,7 @@ interface MaterialContentProps
     lang: Lang;
 
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<MaterialSet>;
+    binding: ServerFormBinding<MaterialFormModel>;
 
     /** Material Hook 整理後的參照資料 */
     refs: MaterialFormRefs;
@@ -79,7 +79,7 @@ interface MaterialLangProps
     lang: Lang;
 
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<MaterialSet>;
+    binding: ServerFormBinding<MaterialFormModel>;
 
     /** Material Hook 整理後的參照資料 */
     refs: MaterialFormRefs;
@@ -91,7 +91,7 @@ interface MaterialLangItemProps
     theme: IBETheme;
 
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<MaterialSet>;
+    binding: ServerFormBinding<MaterialFormModel>;
 
     /** Detail row keys，給 useSetTableField 綁定欄位 */
     rowKeys: MaterialRowKeys;
@@ -109,7 +109,7 @@ interface MaterialInfoJsonEditorProps
     theme: IBETheme;
 
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<MaterialSet>;
+    binding: ServerFormBinding<MaterialFormModel>;
 
     /** Detail row keys，給 useSetJsonField 綁定欄位 */
     rowKeys: MaterialRowKeys;
@@ -127,7 +127,7 @@ interface MaterialPictureProps
     theme: IBETheme;
 
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<MaterialSet>;
+    binding: ServerFormBinding<MaterialFormModel>;
 }
 
 interface MaterialBatchUploadProps extends MaterialPictureProps
@@ -154,7 +154,7 @@ interface MaterialPicturePreviewProps
 interface MaterialBasicRenderOptions extends MaterialBasicProps
 {
     /** 欄位 binding helper */
-    setField: ReturnType<typeof useSetTableField<MaterialSet>>;
+    formField: ReturnType<typeof useFormModelField<MaterialFormModel>>;
 }
 
 const editGridStyle: IEditGridView_Style = {
@@ -183,7 +183,7 @@ export const Server_Material_Form_Comp = (props: MaterialFormCompProps) =>
 
     const actionsOpt = useMemo(() =>
     {
-        return { onBackToList, onPreviewFromDto: preview.openPreview };
+        return { onBackToList, onPreviewFromFormModel: preview.openPreview };
     }, [onBackToList, preview.openPreview]);
 
     const template = useMaterialFormTemplate({ lang: props.lang, theme: props.theme, internalId: internalId ?? "", emptyData: materialEmptyData, actionsOpt });
@@ -218,8 +218,8 @@ const MaterialContentComp = (props: MaterialContentProps) =>
 /** 物件基本資料區塊，類別、標籤、語系內容維持同一頁顯示。 */
 const MaterialBasicComp = (props: MaterialBasicProps) =>
 {
-    const setField = useSetTableField<MaterialSet>(props.binding);
-    const renderOpt = useMemo(() => ({ ...props, setField }), [props, setField]);
+    const formField = useFormModelField<MaterialFormModel>(props.binding);
+    const renderOpt = useMemo(() => ({ ...props, formField }), [props, formField]);
 
     return (
         <div className="row g-3">
@@ -277,8 +277,8 @@ const MaterialPictureGridComp = (props: MaterialPictureProps) =>
     );
 };
 
-/** 標籤編輯區，DTO 異動交給 Hook 處理。 */
-const MaterialTagEditorComp = (props: { theme: IBETheme; binding: ServerFormBinding<MaterialSet>; tagMap: Record<string, string>; }) =>
+/** 標籤編輯區，標籤明細異動交給 Hook 處理。 */
+const MaterialTagEditorComp = (props: { theme: IBETheme; binding: ServerFormBinding<MaterialFormModel>; tagMap: Record<string, string>; }) =>
 {
     const tagSelection = useMaterialTagSelection({ binding: props.binding });
 
@@ -296,16 +296,17 @@ const MaterialTagEditorComp = (props: { theme: IBETheme; binding: ServerFormBind
 /** 單一語系內容區。 */
 const MaterialLangItemComp = (props: MaterialLangItemProps) =>
 {
-    const setField = useSetTableField<MaterialSet>(props.binding);
+    const formField = useFormModelField<MaterialFormModel>(props.binding);
+    const detailField = useSetTableField<MaterialFormModel>(props.binding);
 
     return (
         <div className="row g-3">
             <LibTextBox
                 Style={props.theme.TextBox3}
                 DefaultInputDisplay="請輸入"
-                {...setField(MaterialSetFields.MaterialLangInfo, MaterialLangInfoFields.MaterialName, "string", props.rowKeys)}
+                {...detailField(MaterialFields._MaterialLangInfo, MaterialLangInfoFields.MaterialName, "string", props.rowKeys)}
             />
-            <LibTextBox Style={props.theme.TextBox3} DefaultInputDisplay="請輸入" {...setField(MaterialSetFields.Material, MaterialFields.Price, "number")} />
+            <LibTextBox Style={props.theme.TextBox3} DefaultInputDisplay="請輸入" {...formField(MaterialFields.Price, "number")} />
             <MaterialInfoJsonEditorComp
                 theme={props.theme}
                 binding={props.binding}
@@ -313,7 +314,7 @@ const MaterialLangItemComp = (props: MaterialLangItemProps) =>
                 infoItems={props.infoItems}
                 infoDefaults={props.infoDefaults}
             />
-            <LibTinyMCE Style={props.theme.TinyMCE} {...setField(MaterialSetFields.MaterialLangInfo, MaterialLangInfoFields.Memo, "string", props.rowKeys)} />
+            <LibTinyMCE Style={props.theme.TinyMCE} {...detailField(MaterialFields._MaterialLangInfo, MaterialLangInfoFields.Memo, "string", props.rowKeys)} />
         </div>
     );
 };
@@ -321,9 +322,9 @@ const MaterialLangItemComp = (props: MaterialLangItemProps) =>
 /** 動態物件資訊 JSON 編輯器。 */
 const MaterialInfoJsonEditorComp = (props: MaterialInfoJsonEditorProps) =>
 {
-    const binder = useSetJsonField<MaterialSet, MaterialInfoJson>(
+    const binder = useSetJsonField<MaterialFormModel, MaterialInfoJson>(
         props.binding,
-        MaterialSetFields.MaterialLangInfo,
+        MaterialFields._MaterialLangInfo,
         MaterialLangInfoFields.MaterialInfoJson,
         props.rowKeys,
         props.infoDefaults,
@@ -411,10 +412,6 @@ const MaterialBatchPreviewComp = (props: MaterialBatchPreviewProps) =>
 };
 // #endregion
 
-// #region EntityComp
-/** 建立返回列表路徑。 */
-// #endregion
-
 // #region Protected
 /** 清除 EditGrid 圖片欄位與連動圖片名稱。 */
 const clearMaterialPictureCell = (args: EditGridCellRenderArgs): void =>
@@ -431,7 +428,7 @@ const buildMaterialMainTabContent = (props: MaterialContentProps): Record<string
     return {
         Basic: [<MaterialBasicComp key="Basic" theme={props.theme} lang={props.lang} binding={props.binding} refs={props.refs} />],
         Picture: [<MaterialPictureGridComp key="Picture" theme={props.theme} binding={props.binding} />],
-        System: [<SystemInfoTabComp key="System" theme={props.theme} formData={props.binding} setKey={MaterialSetFields.Material} />],
+        System: [<SystemInfoTabComp key="System" theme={props.theme} formData={props.binding} />],
     };
 };
 
@@ -446,7 +443,7 @@ const buildMaterialBasicFields = (opt: MaterialBasicRenderOptions): ReactNode[] 
             Style={opt.theme.DropList}
             Options={categoryOpts}
             AutoDefaultFirst={false}
-            {...opt.setField(MaterialSetFields.Material, MaterialFields.CategoryId, "string")}
+            {...opt.formField(MaterialFields.CategoryId, "string")}
         />,
     ];
 };
@@ -460,7 +457,7 @@ const buildMaterialTagFields = (opt: MaterialBasicRenderOptions): ReactNode[] =>
 /** 建立動態資訊欄位。 */
 const buildMaterialInfoField = (
     theme: IBETheme,
-    binder: ReturnType<typeof useSetJsonField<MaterialSet, MaterialInfoJson>>,
+    binder: ReturnType<typeof useSetJsonField<MaterialFormModel, MaterialInfoJson>>,
     item: MaterialInfoFieldItem,
 ): ReactNode =>
 {

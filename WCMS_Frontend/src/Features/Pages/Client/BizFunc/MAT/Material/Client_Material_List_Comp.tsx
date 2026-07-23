@@ -16,7 +16,7 @@ import { useLocation } from "react-router-dom";
 import { type IMaterialListOptions, useMaterialListData } from "./Client_Material_List_Loader";
 
 // #region Property
-type MaterialSet = components["schemas"]["MaterialSet_DTO"];
+type MaterialFormModel = components["schemas"]["Material"];
 export interface IMaterialListProps
 {
     theme: IFETheme;
@@ -134,7 +134,7 @@ const MaterialCardList_Comp = (
     props: {
         dirUrl: string;
         lang: Lang;
-        listData: MaterialSet[];
+        listData: MaterialFormModel[];
         categoryMap: Record<string, string>;
         tagList: MaterialTabView[];
         activeTabId: string;
@@ -296,16 +296,24 @@ const getMaterialListView = (): typeof Client_Material_List_FeatureView =>
 // #endregion
 
 // #region Private
-/** 組成卡片顯示資料 */
-const buildMaterialCardView = (item: MaterialSet, lang: Lang, dirUrl: string, categoryMap: Record<string, string>, defaultPic: string): MaterialCardView =>
+/** 依 RowNo 與 RowId 穩定排序物件圖片。 */
+const compareMaterialPictureOrder = (
+    left: NonNullable<MaterialFormModel["_MaterialPicture"]>[number],
+    right: NonNullable<MaterialFormModel["_MaterialPicture"]>[number],
+): number =>
 {
-    const main = item.Material;
-    const langInfo = item.MaterialLangInfo?.find(p => p.Lang === lang) ?? item.MaterialLangInfo?.[0];
-    const internalId = main?.InternalId ?? "";
-    const price = item.Material?.Price ?? 0;
+    return Number(left.RowNo ?? left.RowId ?? 0) - Number(right.RowNo ?? right.RowId ?? 0);
+};
+
+/** 組成卡片顯示資料 */
+const buildMaterialCardView = (item: MaterialFormModel, lang: Lang, dirUrl: string, categoryMap: Record<string, string>, defaultPic: string): MaterialCardView =>
+{
+    const langInfo = item._MaterialLangInfo?.find(p => p.Lang === lang) ?? item._MaterialLangInfo?.[0];
+    const internalId = item.InternalId ?? "";
+    const price = item.Price ?? 0;
     const title = langInfo?.MaterialName ?? "";
-    const categoryName = main?.CategoryId ? categoryMap[main.CategoryId] ?? "" : "";
-    const picData = item.MaterialPicture?.[0];
+    const categoryName = item.CategoryId ? categoryMap[item.CategoryId] ?? "" : "";
+    const picData = [...(item._MaterialPicture ?? [])].sort(compareMaterialPictureOrder)[0];
     const picAlt = picData?.PictureName ?? title;
     const picUrl = picData?.PictureId ? FileManagementAPI.get_Public_Preview_Url(picData.PictureId, picAlt) : defaultPic;
     return { key: internalId, linkUrl: `${dirUrl}/${internalId}`, title, price, categoryName, picUrl, picAlt };

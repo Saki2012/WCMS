@@ -20,20 +20,20 @@ import {
     useEditGridBinding,
 } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
-import { buildSupportedLangOrder, type Lang, LangLabelMap, SUPPORTED_LANGS, useEnsureLangDetails } from "@/SysCore/i18n/lang";
+import { buildSupportedLangOrder, DefaultLang, type Lang, LangLabelMap, SUPPORTED_LANGS } from "@/SysCore/i18n/lang";
 import type { ApiFormInitial, ServerFormActions } from "@/SysCore/Utils/API/APIAdapter";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { TimelineItemFields, TimelineLangDetailFields, TimelineSetFields } from "@/types/SchemaFields";
+import { PGID, TimelineFields, TimelineItemFields, TimelineLangDetailFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 
 // #region Property
-type TimelineSet = components["schemas"]["TimelineSet_DTO"];
+type TimelineFormModel = components["schemas"]["Timeline"];
 
-type TimelineItem = NonNullable<TimelineSet["TimelineItem"]>[number];
+type TimelineItem = components["schemas"]["TimelineItem"];
 
-type TimelineLangDetail = NonNullable<TimelineSet["TimelineLangDetail"]>[number];
+type TimelineLangDetail = components["schemas"]["TimelineLangDetail"];
 
 export type TimelineItemGridRow = GridRow & { TimelineId?: string | null; DetailRowId?: number | null; };
 
@@ -56,7 +56,7 @@ export interface UseTimelineFormTemplateOptions
     internalId: string;
 
     /** 新增模式預設資料 */
-    emptyData: TimelineSet;
+    emptyData: TimelineFormModel;
 
     /** Form Template 標準動作設定 */
     actionsOpt: TimelineFormActionsOpt;
@@ -65,7 +65,7 @@ export interface UseTimelineFormTemplateOptions
 export interface UseTimelineItemEditGridOptions
 {
     /** 新版 Form Template 提供的資料 binding */
-    binding: ServerFormBinding<TimelineSet>;
+    binding: ServerFormBinding<TimelineFormModel>;
 
     /** EditGrid UI 樣式，仍由 Comp 決定 */
     style: IEditGridView_Style;
@@ -86,7 +86,7 @@ export interface UseTimelineItemEditGridOptions
 export interface UseTimelineLangDetailEditGridOptions
 {
     /** 新版 Form Template 提供的資料 binding */
-    binding: ServerFormBinding<TimelineSet>;
+    binding: ServerFormBinding<TimelineFormModel>;
 
     /** TimelineItem 的 RowId */
     parentRowId: number;
@@ -107,18 +107,29 @@ export type TimelineFormActionsOpt = {
     /** 儲存成功後要回到列表（或其他導頁） */
     onBackToList: () => void;
 
-    /** 以目前 DTO 觸發 preview（由 Component 決定怎麼開 modal） */
-    onPreviewFromDto: (dto: TimelineSet) => void;
+    /** 以目前 FormModel 觸發 Preview，由 Component 決定顯示方式。 */
+    onPreviewFromFormModel: (formModel: TimelineFormModel) => void;
 };
 
 export type TimelineFormAdapter = {
     /** Timeline 主資料 Adapter */
     Timeline: ReturnType<typeof TimelineAdapter>;
 };
+
+interface TimelineLangDetailKey
+{
+    parentRowId: number;
+    rowId: number;
+    lang: string;
+}
+
+const TimelineItemTableId = TimelineFields._TimelineItem.replace(/^_/, "");
+
+const TimelineLangDetailTableId = TimelineItemFields._TimelineLangDetail.replace(/^_/, "");
 // #endregion
 
 // #region Public
-export const timelineEmptyData: TimelineSet = { Timeline: {}, TimelineItem: [{ RowId: 1, Date: null }], TimelineLangDetail: [] };
+export const timelineEmptyData: TimelineFormModel = { _TimelineItem: [] };
 
 export const TimelineLangDetailColumnKey = "__TimelineLangDetail";
 
@@ -127,12 +138,12 @@ export const TimelineContentColumnKey = "__TimelineContent";
 /** 建立 Timeline Form Template，統一交給 Server_FormTemplate 處理資料流程。 */
 export const useTimelineFormTemplate = (
     opt: UseTimelineFormTemplateOptions,
-): ServerFormTemplate<TimelineSet, TimelineFormAdapter, TimelineFormRefs, ServerFormDefaultRawData<TimelineSet, TimelineFormRefs>, TimelineFormActionsOpt> =>
+): ServerFormTemplate<TimelineFormModel, TimelineFormAdapter, TimelineFormRefs, ServerFormDefaultRawData<TimelineFormModel, TimelineFormRefs>, TimelineFormActionsOpt> =>
 {
     return useMemo(() =>
     {
         return {
-            featureKey: "Timeline",
+            featureKey: PGID.Timeline,
             theme: opt.theme,
             lang: opt.lang,
             internalId: opt.internalId,
@@ -156,17 +167,17 @@ export const useTimelineItemEditGrid = (opt: UseTimelineItemEditGridOptions) =>
     const displayName = opt.binding.displayName;
     const columns = useMemo(() => buildTimelineItemColumns(displayName), [displayName]);
 
-    return useEditGridBinding<TimelineSet, TimelineItem, TimelineItemGridRow>({
+    return useEditGridBinding<TimelineFormModel, TimelineItem, TimelineItemGridRow>({
         binding: opt.binding,
         emptyData: timelineEmptyData,
-        getItems: data => data.TimelineItem,
+        getItems: data => data._TimelineItem,
         setItems: syncTimelineItemCollection,
         columns,
         getItemRowId: item => item.RowId,
         sortItems: sortTimelineItems,
-        createItem: ctx => buildNewTimelineItem(ctx.data, ctx.nextRowId),
+        createItem: ctx => buildNewTimelineItem(ctx.data, ctx.nextRowId, ctx.nextRowNo),
         toRow: (item, index) => buildTimelineItemGridRow(item, index, opt, displayName),
-        toItem: (row, index, ctx) => toTimelineItemDto(ctx.data, row, index),
+        toItem: (row, index, ctx) => toTimelineItemModel(ctx.data, row, index),
         editGridProps: buildTimelineItemGridProps(opt.style, displayName, opt),
     });
 };
@@ -177,19 +188,32 @@ export const useTimelineLangDetailEditGrid = (opt: UseTimelineLangDetailEditGrid
     const displayName = opt.binding.displayName;
     const columns = useMemo(() => buildTimelineLangDetailColumns(displayName), [displayName]);
 
-    return useEditGridBinding<TimelineSet, TimelineLangDetail, TimelineLangDetailGridRow>({
+    return useEditGridBinding<TimelineFormModel, TimelineLangDetail, TimelineLangDetailGridRow>({
         binding: opt.binding,
         emptyData: timelineEmptyData,
-        collectionName: TimelineSetFields.TimelineLangDetail,
-        parent: buildTimelineLangDetailParent(opt.parentRowId),
+        getItems: data => getTimelineLangDetails(data, opt.parentRowId),
+        setItems: (data, items) => setTimelineLangDetails(data, opt.parentRowId, items),
         columns,
         getItemRowId: detail => detail.RowId,
         sortItems: details => sortTimelineLangDetails(details, opt.lang),
-        createItem: ctx => buildNewTimelineLangDetailItem(ctx.data, opt.parentRowId, ctx.nextRowId, opt.lang),
+        createItem: ctx => buildNewTimelineLangDetailItem(ctx.data, opt.parentRowId, ctx.nextRowId, ctx.nextRowNo, opt.lang),
         toRow: (detail, index) => buildTimelineLangDetailGridRow(detail, index, opt, displayName),
-        toItem: (row, index, ctx) => toTimelineLangDetailDto(ctx.data, opt.parentRowId, row, index),
+        toItem: (row, index, ctx) => toTimelineLangDetailModel(ctx.data, opt.parentRowId, row, index),
         editGridProps: buildTimelineLangDetailGridProps(opt.parentRowId, opt.style, displayName),
     });
+};
+
+/** 建立 Timeline 事件內容欄位 binding，直接讀寫父項目內的語系子明細。 */
+export const useTimelineContentField = (binding: ServerFormBinding<TimelineFormModel>, row: TimelineLangDetailGridRow) =>
+{
+    const key = useMemo(() => resolveTimelineLangDetailKey(row), [row.DetailRowId, row.Lang, row.ParentRowId, row.RowId, row.rowId]);
+    const content = getTimelineLangDetailByKey(binding.data, key)?.Content ?? "";
+    const onChange = useCallback((value: unknown): void =>
+    {
+        binding.setFormData(prev => setTimelineLangDetailContent(prev, key, String(value ?? "")));
+    }, [binding.setFormData, key]);
+    const label = getTimelineColumnTitle(binding.displayName, TimelineLangDetailTableId, TimelineLangDetailFields.Content, "事件內容");
+    return useMemo(() => ({ ColumnDisplayName: label, InputValue: content, OnChange: onChange, Input: content, onChange }), [content, label, onChange]);
 };
 // #endregion
 
@@ -197,11 +221,11 @@ export const useTimelineLangDetailEditGrid = (opt: UseTimelineLangDetailEditGrid
 
 /** 建立 Toolbar 動作，保留Timeline預覽行為。 */
 const buildTimelineActions = (
-    ctx: { binding: ServerFormDefaultRawData<TimelineSet, TimelineFormRefs>["formData"]; actionsOpt: TimelineFormActionsOpt; },
+    ctx: { binding: ServerFormDefaultRawData<TimelineFormModel, TimelineFormRefs>["formData"]; actionsOpt: TimelineFormActionsOpt; },
     defaultActions: ServerFormActions,
 ): ServerFormActions =>
 {
-    return { ...defaultActions, Preview: () => ctx.actionsOpt.onPreviewFromDto(ctx.binding.data) };
+    return { ...defaultActions, Preview: () => ctx.actionsOpt.onPreviewFromFormModel(ctx.binding.data) };
 };
 /** 建立 Timeline Form 標題，功能名稱優先讀 ModelDisplayName。 */
 const buildTimelineFormTitle = (ctx: { mode: "new" | "edit"; displayName: ModelDisplaySchema; }): string =>
@@ -211,7 +235,7 @@ const buildTimelineFormTitle = (ctx: { mode: "new" | "edit"; displayName: ModelD
 };
 
 /** 建立新增模式的 initial data，統一由 Feature Timing 交給 Template。 */
-const buildTimelineInitialData = (ctx: { mode: "new" | "edit"; emptyData: TimelineSet; }): ApiFormInitial<TimelineSet> | undefined =>
+const buildTimelineInitialData = (ctx: { mode: "new" | "edit"; emptyData: TimelineFormModel; }): ApiFormInitial<TimelineFormModel> | undefined =>
 {
     if (ctx.mode !== "new") return undefined;
     return { data: { args: "__new__", apiRes: { IsSuccess: true, Data: ctx.emptyData, SysMessage: [] } } };
@@ -223,21 +247,11 @@ const buildTimelineFormAdapter = (): TimelineFormAdapter =>
     return { Timeline: TimelineAdapter() };
 };
 
-/** 補齊 TimelineItem 底下的語系明細，參照資料目前不需額外查詢。 */
-const useTimelineReferenceData = (ctx: { binding: ServerFormBinding<TimelineSet>; lang: Lang; }) =>
+/** 補齊 TimelineItem 底下的語系子明細，參照資料目前不需額外查詢。 */
+const useTimelineReferenceData = (ctx: { binding: ServerFormBinding<TimelineFormModel>; lang: Lang; }) =>
 {
-    useEnsureLangDetails(ctx.binding, {
-        headerName: TimelineSetFields.TimelineItem,
-        detailName: TimelineSetFields.TimelineLangDetail,
-        parentKeys: [TimelineLangDetailFields.TimelineId, TimelineLangDetailFields.ParentRowId],
-        langs: SUPPORTED_LANGS,
-        preferFirstLang: ctx.lang,
-    });
-
-    return useMemo(() =>
-    {
-        return { refs: {}, isLoading: false, errors: [], refetchRefData: undefined };
-    }, []);
+    useEnsureTimelineLangDetails(ctx.binding, ctx.lang);
+    return useMemo(() => ({ refs: {}, isLoading: false, errors: [], refetchRefData: undefined }), []);
 };
 
 /** 取得 Timeline Model 顯示名稱，避免 Form 標題寫死功能名稱。 */
@@ -251,13 +265,13 @@ const buildTimelineItemColumns = (displayName: ModelDisplaySchema): ColumnConfig
 {
     return [{
         key: TimelineItemFields.Date,
-        title: getTimelineColumnTitle(displayName, TimelineSetFields.TimelineItem, TimelineItemFields.Date, "日期"),
+        title: getTimelineColumnTitle(displayName, TimelineItemTableId, TimelineItemFields.Date, "日期"),
         inputType: "date",
         editable: true,
         width: 180,
     }, {
         key: TimelineLangDetailColumnKey,
-        title: getTimelineTableTitle(displayName, TimelineSetFields.TimelineLangDetail, "語系明細"),
+        title: getTimelineTableTitle(displayName, TimelineLangDetailTableId, "語系明細"),
         inputType: "readonly",
         editable: false,
         width: 140,
@@ -269,19 +283,19 @@ const buildTimelineLangDetailColumns = (displayName: ModelDisplaySchema): Column
 {
     return [{
         key: TimelineLangDetailFields.Lang,
-        title: getTimelineColumnTitle(displayName, TimelineSetFields.TimelineLangDetail, TimelineLangDetailFields.Lang, "語系"),
+        title: getTimelineColumnTitle(displayName, TimelineLangDetailTableId, TimelineLangDetailFields.Lang, "語系"),
         inputType: "readonly",
         editable: false,
         width: 120,
     }, {
         key: TimelineLangDetailFields.Title,
-        title: getTimelineColumnTitle(displayName, TimelineSetFields.TimelineLangDetail, TimelineLangDetailFields.Title, "事件標題"),
+        title: getTimelineColumnTitle(displayName, TimelineLangDetailTableId, TimelineLangDetailFields.Title, "事件標題"),
         inputType: "text",
         editable: true,
         maxLength: 200,
     }, {
         key: TimelineContentColumnKey,
-        title: getTimelineColumnTitle(displayName, TimelineSetFields.TimelineLangDetail, TimelineLangDetailFields.Content, "事件內容"),
+        title: getTimelineColumnTitle(displayName, TimelineLangDetailTableId, TimelineLangDetailFields.Content, "事件內容"),
         inputType: "readonly",
         editable: false,
         width: 140,
@@ -314,11 +328,11 @@ const buildTimelineItemCells = (item: TimelineItem, rowId: number, opt: UseTimel
     return [
         buildEditGridCell(
             TimelineItemFields.Date,
-            getTimelineColumnTitle(displayName, TimelineSetFields.TimelineItem, TimelineItemFields.Date, "日期"),
+            getTimelineColumnTitle(displayName, TimelineItemTableId, TimelineItemFields.Date, "日期"),
             item.Date ?? "",
             { inputType: "date", editable: true },
         ),
-        buildEditGridCell(TimelineLangDetailColumnKey, getTimelineTableTitle(displayName, TimelineSetFields.TimelineLangDetail, "語系明細"), rowId, {
+        buildEditGridCell(TimelineLangDetailColumnKey, getTimelineTableTitle(displayName, TimelineLangDetailTableId, "語系明細"), rowId, {
             inputType: "readonly",
             editable: false,
             render: opt.renderSubDetailToggle,
@@ -355,19 +369,19 @@ const buildTimelineLangDetailCells = (detail: TimelineLangDetail, opt: UseTimeli
     return [
         buildEditGridCell(
             TimelineLangDetailFields.Lang,
-            getTimelineColumnTitle(displayName, TimelineSetFields.TimelineLangDetail, TimelineLangDetailFields.Lang, "語系"),
+            getTimelineColumnTitle(displayName, TimelineLangDetailTableId, TimelineLangDetailFields.Lang, "語系"),
             detail.Lang ?? "",
             { inputType: "readonly", editable: false, render: args => getTimelineLangText(args.value) },
         ),
         buildEditGridCell(
             TimelineLangDetailFields.Title,
-            getTimelineColumnTitle(displayName, TimelineSetFields.TimelineLangDetail, TimelineLangDetailFields.Title, "事件標題"),
+            getTimelineColumnTitle(displayName, TimelineLangDetailTableId, TimelineLangDetailFields.Title, "事件標題"),
             detail.Title ?? "",
             { inputType: "text", editable: true, maxLength: 200 },
         ),
         buildEditGridCell(
             TimelineContentColumnKey,
-            getTimelineColumnTitle(displayName, TimelineSetFields.TimelineLangDetail, TimelineLangDetailFields.Content, "事件內容"),
+            getTimelineColumnTitle(displayName, TimelineLangDetailTableId, TimelineLangDetailFields.Content, "事件內容"),
             detail.Content ?? "",
             { inputType: "readonly", editable: false, render: opt.renderContentToggle },
         ),
@@ -378,7 +392,7 @@ const buildTimelineLangDetailCells = (detail: TimelineLangDetail, opt: UseTimeli
 const buildTimelineItemGridProps = (style: IEditGridView_Style, displayName: ModelDisplaySchema, opt: UseTimelineItemEditGridOptions) =>
 {
     return {
-        title: getTimelineTableTitle(displayName, TimelineSetFields.TimelineItem, "紀事項目"),
+        title: getTimelineTableTitle(displayName, TimelineItemTableId, "紀事項目"),
         style,
         canAdd: true,
         canEdit: true,
@@ -389,7 +403,7 @@ const buildTimelineItemGridProps = (style: IEditGridView_Style, displayName: Mod
         addButtonText: "新增紀事項目",
         actionColumnTitle: "操作",
         emptyText: "目前沒有紀事項目",
-        ariaLabel: `${getTimelineTableTitle(displayName, TimelineSetFields.TimelineItem, "紀事項目")}可編輯清單`,
+        ariaLabel: `${getTimelineTableTitle(displayName, TimelineItemTableId, "紀事項目")}可編輯清單`,
         expandedRowKey: opt.expandedRowKey,
         disabled: opt.isSubDetailEditing,
         subDetailRowClassName: "edit-grid-sub-detail-row",
@@ -401,7 +415,7 @@ const buildTimelineItemGridProps = (style: IEditGridView_Style, displayName: Mod
 const buildTimelineLangDetailGridProps = (parentRowId: number, style: IEditGridView_Style, displayName: ModelDisplaySchema) =>
 {
     return {
-        title: getTimelineTableTitle(displayName, TimelineSetFields.TimelineLangDetail, "語系明細"),
+        title: getTimelineTableTitle(displayName, TimelineLangDetailTableId, "語系明細"),
         style,
         canAdd: false,
         canEdit: true,
@@ -415,91 +429,126 @@ const buildTimelineLangDetailGridProps = (parentRowId: number, style: IEditGridV
     };
 };
 
-/** 將父層 Grid Row 轉回 DTO。 */
-const toTimelineItemDto = (source: TimelineSet, row: GridRow, index: number): TimelineItem =>
+/** 將父層 Grid Row 轉回 TimelineItem，並保留語系子明細。 */
+const toTimelineItemModel = (source: TimelineFormModel, row: GridRow, index: number): TimelineItem =>
 {
     const rowId = getEditGridRowId(row, index);
+    const current = getTimelineItemByRowId(source, rowId);
     return {
-        TimelineId: source.Timeline?.TimelineId ?? (row as TimelineItemGridRow).TimelineId,
+        TimelineId: source.TimelineId ?? (row as TimelineItemGridRow).TimelineId,
         RowId: rowId,
+        RowNo: index + 1,
         Date: getEditGridNullableStringCellValue(row, TimelineItemFields.Date),
+        _TimelineLangDetail: current?._TimelineLangDetail ?? [],
     };
 };
 
-/** 將語系 Grid Row 轉回 DTO，Content 以目前 binding 最新資料為準。 */
-const toTimelineLangDetailDto = (source: TimelineSet, parentRowId: number, row: GridRow, index: number): TimelineLangDetail =>
+/** 將語系 Grid Row 轉回 TimelineLangDetail，並保留最新內容。 */
+const toTimelineLangDetailModel = (source: TimelineFormModel, parentRowId: number, row: GridRow, index: number): TimelineLangDetail =>
 {
     const rowId = getEditGridRowId(row, index);
     const existing = findTimelineLangDetail(source, parentRowId, row, rowId);
     return {
-        TimelineId: source.Timeline?.TimelineId ?? (row as TimelineLangDetailGridRow).TimelineId,
+        TimelineId: source.TimelineId ?? (row as TimelineLangDetailGridRow).TimelineId,
         ParentRowId: parentRowId,
         RowId: rowId,
+        RowNo: index + 1,
         Lang: getTimelineLangCellValue(row),
         Title: getEditGridNullableStringCellValue(row, TimelineLangDetailFields.Title),
         Content: existing?.Content ?? null,
     };
 };
 
-/** 建立新的 TimelineItem。 */
-const buildNewTimelineItem = (data: TimelineSet, rowId: number): TimelineItem =>
+/** 建立新的 TimelineItem，並立即補齊所有支援語系。 */
+const buildNewTimelineItem = (data: TimelineFormModel, rowId: number, rowNo: number): TimelineItem =>
 {
-    return { TimelineId: data.Timeline?.TimelineId, RowId: rowId, Date: null };
+    const item: TimelineItem = { TimelineId: data.TimelineId, RowId: rowId, RowNo: rowNo, Date: null };
+    return { ...item, _TimelineLangDetail: buildMissingTimelineLangDetails(item, [], data.TimelineId) };
 };
 
 /** 建立新的 TimelineLangDetail。 */
-const buildNewTimelineLangDetailItem = (data: TimelineSet, parentRowId: number, rowId: number, lang: Lang): TimelineLangDetail =>
+const buildNewTimelineLangDetailItem = (data: TimelineFormModel, parentRowId: number, rowId: number, rowNo: number, lang: Lang): TimelineLangDetail =>
 {
-    return { TimelineId: data.Timeline?.TimelineId, ParentRowId: parentRowId, RowId: rowId, Lang: lang, Title: "", Content: "" };
+    return { TimelineId: data.TimelineId, ParentRowId: parentRowId, RowId: rowId, RowNo: rowNo, Lang: lang, Title: "", Content: "" };
 };
 
-/** 父層 Grid 寫回時，同步保留有效語系明細並補齊缺少語系。 */
-const syncTimelineItemCollection = (data: TimelineSet, items: TimelineItem[]): TimelineSet =>
+/** 父層 Grid 寫回時，保留各紀事項目的語系子明細並補齊缺少語系。 */
+const syncTimelineItemCollection = (data: TimelineFormModel, items: TimelineItem[]): TimelineFormModel =>
 {
-    return { ...data, TimelineItem: items, TimelineLangDetail: syncTimelineLangDetailParents(data.TimelineLangDetail ?? [], items, data.Timeline?.TimelineId) };
+    const nextItems = items.map((item, index) => ensureTimelineItemLanguages(item, data.TimelineId, index + 1));
+    return { ...data, _TimelineItem: nextItems };
 };
 
-/** 清理孤兒語系明細，並替每個 TimelineItem 補齊支援語系。 */
-const syncTimelineLangDetailParents = (details: TimelineLangDetail[], parents: TimelineItem[], timelineId?: string | null): TimelineLangDetail[] =>
+/** 取得指定紀事項目的語系子明細。 */
+const getTimelineLangDetails = (data: TimelineFormModel, parentRowId: number): TimelineLangDetail[] =>
 {
-    const parentKeys = new Set(parents.map(parent => String(parent.RowId ?? 0)));
-    const keptDetails = details.filter(detail => parentKeys.has(String(detail.ParentRowId ?? 0)));
-    const missingDetails = parents.flatMap(parent => buildMissingTimelineLangDetails(parent, keptDetails, timelineId));
+    return getTimelineItemByRowId(data, parentRowId)?._TimelineLangDetail ?? [];
+};
 
-    return [...keptDetails, ...missingDetails];
+/** 寫回指定紀事項目的語系子明細，不改動其他紀事項目。 */
+const setTimelineLangDetails = (data: TimelineFormModel, parentRowId: number, details: TimelineLangDetail[]): TimelineFormModel =>
+{
+    const normalized = normalizeTimelineLangDetails(data, parentRowId, details);
+    const items = (data._TimelineItem ?? []).map(item => Number(item.RowId ?? 0) === parentRowId ? { ...item, _TimelineLangDetail: normalized } : item);
+    return { ...data, _TimelineItem: items };
+};
+
+/** 正規化語系子明細的父鍵與顯示順序。 */
+const normalizeTimelineLangDetails = (data: TimelineFormModel, parentRowId: number, details: TimelineLangDetail[]): TimelineLangDetail[] =>
+{
+    return details.map((detail, index) => ({
+        ...detail,
+        TimelineId: detail.TimelineId ?? data.TimelineId,
+        ParentRowId: parentRowId,
+        RowNo: index + 1,
+    }));
+};
+
+/** 依 RowId 取得紀事項目。 */
+const getTimelineItemByRowId = (data: TimelineFormModel, rowId: number): TimelineItem | undefined =>
+{
+    return (data._TimelineItem ?? []).find(item => Number(item.RowId ?? 0) === rowId);
+};
+
+/** 載入 FormModel 後補齊每一筆紀事項目的支援語系。 */
+const useEnsureTimelineLangDetails = (binding: ServerFormBinding<TimelineFormModel>, preferLang: Lang): void =>
+{
+    const setFormData = binding.setFormData;
+    useEffect(() =>
+    {
+        setFormData(prev => ({ ...prev, _TimelineItem: (prev._TimelineItem ?? []).map((item, index) => ensureTimelineItemLanguages(item, prev.TimelineId, index + 1, preferLang)) }));
+    }, [preferLang, setFormData]);
+};
+
+/** 補齊單一紀事項目的語系子明細與排序欄位。 */
+const ensureTimelineItemLanguages = (item: TimelineItem, timelineId?: string | null, rowNo?: number, preferLang: Lang = DefaultLang): TimelineItem =>
+{
+    const details = item._TimelineLangDetail ?? [];
+    const missing = buildMissingTimelineLangDetails(item, details, timelineId);
+    const sorted = sortTimelineLangDetails([...details, ...missing], preferLang).map((detail, index) => ({ ...detail, RowNo: index + 1 }));
+    return { ...item, TimelineId: item.TimelineId ?? timelineId, RowNo: rowNo ?? item.RowNo, _TimelineLangDetail: sorted };
 };
 
 /** 建立指定 TimelineItem 缺少的語系明細。 */
 const buildMissingTimelineLangDetails = (parent: TimelineItem, details: TimelineLangDetail[], timelineId?: string | null): TimelineLangDetail[] =>
 {
-    const siblings = details.filter(detail => Number(detail.ParentRowId ?? 0) === Number(parent.RowId ?? 0));
-    const existLangs = new Set(siblings.map(detail => String(detail.Lang ?? "").toLowerCase()));
-    const maxRowId = siblings.reduce((max, detail) => Math.max(max, Number(detail.RowId ?? 0)), 0);
-
+    const existLangs = new Set(details.map(detail => String(detail.Lang ?? "").toLowerCase()));
+    const maxRowId = details.reduce((max, detail) => Math.max(max, Number(detail.RowId ?? 0)), 0);
     return SUPPORTED_LANGS.filter(lang => !existLangs.has(lang.toLowerCase())).map((lang, index) => ({
         TimelineId: parent.TimelineId ?? timelineId,
         ParentRowId: parent.RowId,
         RowId: maxRowId + index + 1,
+        RowNo: details.length + index + 1,
         Lang: lang,
         Title: "",
         Content: "",
     }));
 };
 
-/** 建立語系明細 parent 綁定，讓共用 Hook 自動過濾同一筆紀事項目。 */
-const buildTimelineLangDetailParent = (parentRowId: number) =>
-{
-    return {
-        field: TimelineLangDetailFields.ParentRowId,
-        value: parentRowId,
-        compare: (itemValue: unknown, parentValue: string | number | null | undefined) => Number(itemValue ?? 0) === Number(parentValue ?? 0),
-    };
-};
-
-/** 依 RowId 排序 TimelineItem。 */
+/** 依顯示順序排序 TimelineItem。 */
 const sortTimelineItems = (items: TimelineItem[]): TimelineItem[] =>
 {
-    return [...items].sort((a, b) => Number(a.RowId ?? 0) - Number(b.RowId ?? 0));
+    return [...items].sort((a, b) => Number(a.RowNo ?? a.RowId ?? 0) - Number(b.RowNo ?? b.RowId ?? 0));
 };
 
 /** 依目前語系優先排序 TimelineLangDetail。 */
@@ -519,7 +568,7 @@ const getTimelineLangOrder = (lang: string | null | undefined, order: string[]):
 /** 取得語系 Cell 文字值。 */
 const getTimelineLangCellValue = (row: GridRow): Lang =>
 {
-    return (getEditGridStringCellValue(row, TimelineLangDetailFields.Lang) || (row as TimelineLangDetailGridRow).Lang || "zh-tw") as Lang;
+    return (getEditGridStringCellValue(row, TimelineLangDetailFields.Lang) || (row as TimelineLangDetailGridRow).Lang || DefaultLang) as Lang;
 };
 
 /** 取得語系顯示文字。 */
@@ -530,14 +579,43 @@ const getTimelineLangText = (value: unknown): string =>
 };
 
 /** 找出目前 binding 中最新的語系明細，避免 TinyMCE 內容被 Grid 儲存覆蓋。 */
-const findTimelineLangDetail = (source: TimelineSet, parentRowId: number, row: GridRow, rowId: number): TimelineLangDetail | undefined =>
+const findTimelineLangDetail = (source: TimelineFormModel, parentRowId: number, row: GridRow, rowId: number): TimelineLangDetail | undefined =>
 {
     const lang = getTimelineLangCellValue(row);
-    return (source.TimelineLangDetail ?? []).find(detail =>
-        Number(detail.ParentRowId ?? 0) === Number(parentRowId)
-        && Number(detail.RowId ?? 0) === Number(rowId)
+    return getTimelineLangDetails(source, parentRowId).find(detail =>
+        Number(detail.RowId ?? 0) === Number(rowId)
         && String(detail.Lang ?? "").toLowerCase() === String(lang).toLowerCase()
     );
+};
+
+/** 由 Grid Row 建立語系子明細定位鍵。 */
+const resolveTimelineLangDetailKey = (row: TimelineLangDetailGridRow): TimelineLangDetailKey =>
+{
+    return {
+        parentRowId: Number(row.ParentRowId ?? 0),
+        rowId: Number(row.DetailRowId ?? row.RowId ?? row.rowId ?? 0),
+        lang: String(row.Lang ?? "").toLowerCase(),
+    };
+};
+
+/** 依定位鍵取得語系子明細。 */
+const getTimelineLangDetailByKey = (data: TimelineFormModel, key: TimelineLangDetailKey): TimelineLangDetail | undefined =>
+{
+    return getTimelineLangDetails(data, key.parentRowId).find(detail =>
+        Number(detail.RowId ?? 0) === key.rowId
+        && String(detail.Lang ?? "").toLowerCase() === key.lang
+    );
+};
+
+/** 寫回指定語系子明細的事件內容。 */
+const setTimelineLangDetailContent = (data: TimelineFormModel, key: TimelineLangDetailKey, content: string): TimelineFormModel =>
+{
+    const details = getTimelineLangDetails(data, key.parentRowId).map(detail =>
+        Number(detail.RowId ?? 0) === key.rowId && String(detail.Lang ?? "").toLowerCase() === key.lang
+            ? { ...detail, Content: content }
+            : detail
+    );
+    return setTimelineLangDetails(data, key.parentRowId, details);
 };
 
 /** 取得子表顯示名稱，避免 Grid 標題寫死。 */

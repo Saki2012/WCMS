@@ -7,13 +7,13 @@ import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/Sy
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
 import { LibTextBox, LibTinyMCE } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
-import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
+import { useFormModelField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
 import type { components } from "@/types/api";
-import { SurveyFields, SurveySetFields } from "@/types/SchemaFields";
+import { SurveyFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -25,7 +25,7 @@ import {
 } from "./Server_Survey_Form_Hook";
 
 // #region Property
-type SurveySet = components["schemas"]["SurveySet_DTO"];
+type SurveyFormModel = components["schemas"]["Survey"];
 
 interface SurveyFormCompProps
 {
@@ -45,7 +45,7 @@ interface SurveyContentProps
     lang: Lang;
 
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<SurveySet>;
+    binding: ServerFormBinding<SurveyFormModel>;
 
     /** 問卷欄位型別選項 */
     inputOpts: Record<string, string>;
@@ -57,13 +57,13 @@ interface HeaderSectionProps
     theme: IBETheme;
 
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<SurveySet>;
+    binding: ServerFormBinding<SurveyFormModel>;
 }
 
 interface HeaderTabContentOptions extends HeaderSectionProps
 {
     /** 欄位 binding helper */
-    setField: ReturnType<typeof useSetTableField<SurveySet>>;
+    setField: ReturnType<typeof useFormModelField<SurveyFormModel>>;
 }
 
 interface SurveyItemLangGridProps extends SurveyContentProps
@@ -153,7 +153,7 @@ const SurveyContentComp = (props: SurveyContentProps) =>
 /** 問卷 Header 區塊，保留舊版 Header input 並改用 Template Binding。 */
 const HeaderComp = (props: HeaderSectionProps) =>
 {
-    const setField = useSetTableField<SurveySet>(props.binding);
+    const setField = useFormModelField<SurveyFormModel>(props.binding);
     const tabInfo: LibTabsProp = { Style: props.theme.Tabs, item: { Basic: "基本", System: "系統資訊" } };
     const tabContent = buildHeaderTabContent({ ...props, setField });
 
@@ -230,9 +230,6 @@ const SurveyItemLangGridComp = (props: SurveyItemLangGridProps) =>
 };
 // #endregion
 
-// #region EntityComp
-/** 建立返回列表頁路徑。 */
-// #endregion
 
 // #region Protected
 /** 建立問卷 Header 的各分頁欄位。 */
@@ -244,7 +241,6 @@ const buildHeaderTabContent = (opt: HeaderTabContentOptions): Record<string, Rea
             <SystemInfoTabComp
                 theme={opt.theme}
                 formData={opt.binding}
-                setKey={SurveySetFields.Survey}
             />,
         ],
     };
@@ -257,15 +253,15 @@ const buildBasicFields = (opt: HeaderTabContentOptions): ReactNode[] =>
         <LibTextBox
             Style={opt.theme.TextBox}
             DefaultInputDisplay="請輸入"
-            {...opt.setField(SurveySetFields.Survey, SurveyFields.SurveyName, "string")}
+            {...opt.setField(SurveyFields.SurveyName, "string")}
         />,
         <LibTinyMCE
             Style={opt.theme.TinyMCE}
-            {...opt.setField(SurveySetFields.Survey, SurveyFields.SurveyDescription, "string")}
+            {...opt.setField(SurveyFields.SurveyDescription, "string")}
         />,
         <LibTinyMCE
             Style={opt.theme.TinyMCE}
-            {...opt.setField(SurveySetFields.Survey, SurveyFields.SurveySuccessContent, "string")}
+            {...opt.setField(SurveyFields.SurveySuccessContent, "string")}
         />,
     ];
 };

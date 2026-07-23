@@ -12,11 +12,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "./Banner.css";
 
 // #region Property
-type BannerSet = components["schemas"]["BannerSet_DTO"];
+type BannerFormModel = components["schemas"]["Banner"];
 
-type BannerDetail = components["schemas"]["BannerDetail_DTO"];
+type BannerDetail = components["schemas"]["BannerDetail"];
 
-type BannerDetailInfo = components["schemas"]["BannerDetailInfo_DTO"];
+type BannerDetailInfo = components["schemas"]["BannerDetailInfo"];
 
 type QueryListParam = components["schemas"]["QueryListParam"];
 
@@ -24,7 +24,7 @@ type BootstrapCarouselInstance = { cycle: () => void; pause: () => void; dispose
 // #endregion
 
 // #region Public
-export const Banner_Comp = (props: { lang: Lang; node: INormNode; initialBanner?: ApiLoaderData<QueryListParam, BannerSet[]> | null; }) =>
+export const Banner_Comp = (props: { lang: Lang; node: INormNode; initialBanner?: ApiLoaderData<QueryListParam, BannerFormModel[]> | null; }) =>
 {
     // 變數宣告
     const bannerId = props.node.bannerId ?? "";
@@ -38,13 +38,12 @@ export const Banner_Comp = (props: { lang: Lang; node: INormNode; initialBanner?
     const validDetails = useMemo(() =>
     {
         const now = Date.now();
-        const list = banner?.BannerDetail ?? [];
+        const list = banner?._BannerDetail ?? [];
 
         return [...list].filter(d =>
         {
             const start = d.Validate_Start ? new Date(d.Validate_Start).getTime() : -Infinity;
             const end = d.Validate_End ? new Date(d.Validate_End).getTime() : Infinity;
-            const info = pickBannerDetailInfo(d, props.lang);
             return start <= now && now <= end && !!d.PicSrcId;
         }).sort((a, b) => (a.Sort ?? 0) - (b.Sort ?? 0));
     }, [banner, props.lang]);
@@ -52,23 +51,23 @@ export const Banner_Comp = (props: { lang: Lang; node: INormNode; initialBanner?
     // function：長寬比（依資料來源設定）
     const ratioStyle = useMemo(() =>
     {
-        const w = banner?.Banner?.Width ?? 0;
-        const h = banner?.Banner?.Height ?? 0;
+        const w = banner?.Width ?? 0;
+        const h = banner?.Height ?? 0;
         if (!w || !h) return undefined;
         return { aspectRatio: `${w} / ${h}` } as React.CSSProperties;
-    }, [banner?.Banner?.Width, banner?.Banner?.Height]);
+    }, [banner?.Width, banner?.Height]);
 
     // function：輪播間隔（後台欄位為秒，Bootstrap 需要毫秒）
     const intervalMs = useMemo(() =>
     {
-        return toCarouselIntervalMs(banner?.Banner?.Interval);
-    }, [banner?.Banner?.Interval]);
+        return toCarouselIntervalMs(banner?.Interval);
+    }, [banner?.Interval]);
 
     // function：輪播轉場速度（後台欄位為毫秒）
     const speedMs = useMemo(() =>
     {
-        return toCarouselSpeedMs(banner?.Banner?.Speed);
-    }, [banner?.Banner?.Speed]);
+        return toCarouselSpeedMs(banner?.Speed);
+    }, [banner?.Speed]);
 
     // function：套用 Bootstrap carousel 轉場速度
     const carouselStyle = useMemo(() =>
@@ -130,8 +129,7 @@ export const Banner_Comp = (props: { lang: Lang; node: INormNode; initialBanner?
             <div className="LR_VLine_Div">
                 <div className="VLine_inner">
                     <div className="VLine_wrapper">
-                        {/* <div className="subpage_banner_wrapper w-100" style={ratioStyle}> */}
-                        <div className="subpage_banner_wrapper w-100">
+                        <div className="subpage_banner_wrapper w-100" style={ratioStyle}>
                             <div className="carousel slide h-100" id={carouselId} ref={carouselRef} data-bs-interval={intervalMs} style={carouselStyle}>
                                 <div className="carousel-inner h-100">
                                     {validDetails.map((d, i) =>
@@ -201,7 +199,7 @@ const BannerFetch = (
     adapter: ReturnType<typeof BannerSliderAdapter>,
     lang: Lang,
     bannerId: string,
-    initial: ApiLoaderData<QueryListParam, BannerSet[]> | null,
+    initial: ApiLoaderData<QueryListParam, BannerFormModel[]> | null,
 ) =>
 {
     // function：優先使用 loader 提供的 condition（initial.args）

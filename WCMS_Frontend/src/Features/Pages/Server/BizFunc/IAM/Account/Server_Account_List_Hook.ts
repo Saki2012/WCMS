@@ -16,22 +16,22 @@ import type { ColumnConfig, GridProps, GridRow, RowCell } from "@/SysCore/Compon
 import type { SearchFieldConfig, SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
+import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import { MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { formatDateTime, LibCondition, LibText } from "@/SysCore/Utils/Library/LibData";
-import { usePageStateMemory } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Hook";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { AccountFields, PersonModelFields, PGID, RoleDataModelFields } from "@/types/SchemaFields";
+import { AccountFields, PersonFields, PGID, RoleDataFields } from "@/types/SchemaFields";
 import { createElement, type ReactNode, useCallback, useMemo } from "react";
 import { type NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type AccountSet = components["schemas"]["AccountSet_DTO"];
+type AccountFormModel = components["schemas"]["Account"];
 
-type RolePermissionSet = components["schemas"]["RolePermissionSet_DTO"];
+type RolePermissionFormModel = components["schemas"]["RoleData"];
 
 type AccountApiAdapter = ReturnType<typeof AccountAdapter>;
 
@@ -69,7 +69,7 @@ export interface AccountListRawData
     count: number;
 
     /** 帳號列表資料 */
-    list: AccountSet[];
+    list: AccountFormModel[];
 
     /** 目前頁碼 */
     pageNumber: number;
@@ -126,6 +126,7 @@ type CrudDeps = {
 export const ACCOUNT_USER_NAME_SEARCH_KEY = "userName";
 
 export const ACCOUNT_ROLE_ID_SEARCH_KEY = "roleId";
+
 
 const ACCOUNT_LIST_STATE_KEY = "server-account-list";
 
@@ -300,8 +301,8 @@ const buildAccountQueryFields = (): string[] =>
         AccountFields.RoleId,
         AccountFields.ModifyTime,
         AccountFields.CreateTime,
-        `${AccountFields.Person}.${PersonModelFields.PersonImgId}`,
-        `${AccountFields.Role}.${RoleDataModelFields.RoleName}`,
+        `${AccountFields.Person}.${PersonFields.PersonImgId}`,
+        `${AccountFields.Role}.${RoleDataFields.RoleName}`,
     ];
 };
 
@@ -309,9 +310,9 @@ const buildAccountQueryFields = (): string[] =>
 const buildRoleQueryParam = (): QueryListParam =>
 {
     return {
-        Fields: [RoleDataModelFields.RoleId, RoleDataModelFields.RoleName],
-        OrderBy: [{ Col: RoleDataModelFields.RoleId, Desc: false }],
-        PageNumber: 1,
+        Fields: [RoleDataFields.RoleId, RoleDataFields.RoleName],
+        OrderBy: [{ Col: RoleDataFields.RoleId, Desc: false }],
+        PageNumber: 0,
         PageSize: 0,
     };
 };
@@ -335,7 +336,7 @@ const buildAccountGridProps = (
     },
 ): GridProps =>
 {
-    const visibleCols = [PersonModelFields.PersonImgId, AccountFields.AccountId, AccountFields.AccountName, AccountFields.RoleId, AccountFields.ModifyTime];
+    const visibleCols = [PersonFields.PersonImgId, AccountFields.AccountId, AccountFields.AccountName, AccountFields.RoleId, AccountFields.ModifyTime];
     const columns = buildServerListColumns(visibleCols, opt.raw.modelDisplayName, { buildFallback: getAccountColumnFallback });
     const rows = buildAccountRows(opt.raw, columns);
     const baseGrid: GridProps = { columns, rows, CurrentPage: opt.raw.pageNumber ?? 1, TotalPage: opt.raw.totalPages ?? 1, onPageChange: opt.raw.onPageChange };
@@ -366,7 +367,7 @@ const enhanceAccountGrid = (
     },
 ): GridProps =>
 {
-    const actions = createGridCrudActions<AccountSet>({
+    const actions = createGridCrudActions<AccountFormModel>({
         onEdit: (internalId) => opt.crud.navigate(`${opt.crud.dirUrl}/${internalId}`),
         deleteAsync: opt.crud.deleteAsync,
         afterDelete: opt.crud.afterDelete,
@@ -379,36 +380,35 @@ const enhanceAccountGrid = (
         can: opt.can,
         notifyNoPermission: opt.notifyNoPermission,
         confirm: opt.confirm,
-        getInternalId: (set) => set.Account?.InternalId ?? "",
+        getInternalId: (form) => form.InternalId ?? "",
     });
 };
 
 /** 建立帳號列表列資料 */
 const buildAccountRows = (raw: AccountListRawData, columns: ColumnConfig[]): GridRow[] =>
 {
-    return (raw.list ?? []).map((set) => buildAccountRow(set, columns, raw.roleMap));
+    return (raw.list ?? []).map((form) => buildAccountRow(form, columns, raw.roleMap));
 };
 
 /** 建立帳號列表單列資料 */
-const buildAccountRow = (set: AccountSet, columns: ColumnConfig[], roleMap: Record<string, string>): GridRow =>
+const buildAccountRow = (form: AccountFormModel, columns: ColumnConfig[], roleMap: Record<string, string>): GridRow =>
 {
-    const account = set.Account;
-    const keyId = account?.InternalId ?? LibText.Merge("|", false, account?.AccountId);
+    const keyId = form.InternalId ?? LibText.Merge("|", false, form.AccountId);
     const cells: RowCell[] = [
-        { col: columns[0], content: buildAccountImage(set) },
-        { col: columns[1], content: account?.AccountId ?? "" },
-        { col: columns[2], content: account?.AccountName ?? "" },
-        { col: columns[3], content: buildRoleContent(account?.RoleId, account?.Role?.RoleName, roleMap) },
-        { col: columns[4], content: formatDateTime(account?.ModifyTime) },
+        { col: columns[0], content: buildAccountImage(form) },
+        { col: columns[1], content: form.AccountId ?? "" },
+        { col: columns[2], content: form.AccountName ?? "" },
+        { col: columns[3], content: buildRoleContent(form.RoleId, form.Role?.RoleName, roleMap) },
+        { col: columns[4], content: formatDateTime(form.ModifyTime) },
     ];
 
     return { keyId, cells };
 };
 
 /** 建立帳號圖片預覽 */
-const buildAccountImage = (set: AccountSet): RowCell["content"] =>
+const buildAccountImage = (form: AccountFormModel): RowCell["content"] =>
 {
-    const personImgId = set.Account?.Person?.PersonImgId;
+    const personImgId = form.Person?.PersonImgId;
     if (!personImgId) return null;
 
     return createElement("img", {
@@ -431,14 +431,14 @@ const buildRoleContent = (roleId: string | null | undefined, roleName: string | 
 };
 
 /** 將角色資料轉成下拉 map */
-const buildRoleMap = (roles: RolePermissionSet[]): Record<string, string> =>
+const buildRoleMap = (roles: RolePermissionFormModel[]): Record<string, string> =>
 {
-    return roles.reduce<Record<string, string>>((acc, set) =>
+    return roles.reduce<Record<string, string>>((acc, formModel) =>
     {
-        const roleId = set.RoleData?.RoleId ?? "";
+        const roleId = formModel.RoleId ?? "";
         if (!roleId) return acc;
 
-        const roleName = set.RoleData?.RoleName ?? "";
+        const roleName = formModel.RoleName ?? "";
         acc[roleId] = roleName ? `${roleName}（${roleId}）` : roleId;
         return acc;
     }, {});
@@ -448,7 +448,7 @@ const buildRoleMap = (roles: RolePermissionSet[]): Record<string, string> =>
 const getAccountColumnFallback = (columnId: string): string =>
 {
     const map: Record<string, string> = {
-        [PersonModelFields.PersonImgId]: "圖片",
+        [PersonFields.PersonImgId]: "圖片",
         [AccountFields.AccountId]: "帳號",
         [AccountFields.AccountName]: "使用者名稱",
         [AccountFields.RoleId]: "角色代號",

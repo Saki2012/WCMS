@@ -28,7 +28,7 @@ import { type NavigateFunction, useLocation, useNavigate } from "react-router-do
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type BannerSet = components["schemas"]["BannerSet_DTO"];
+type BannerFormModel = components["schemas"]["Banner"];
 
 type BannerSliderApiAdapter = ReturnType<typeof BannerSliderAdapter>;
 
@@ -61,7 +61,7 @@ export interface BannerSliderListRawData
     count: number;
 
     /** 廣告輪播列表資料 */
-    list: BannerSet[];
+    list: BannerFormModel[];
 
     /** 目前頁碼 */
     pageNumber: number;
@@ -320,7 +320,7 @@ const enhanceBannerSliderGrid = (
     },
 ): GridProps =>
 {
-    const actions = createGridCrudActions<BannerSet>({
+    const actions = createGridCrudActions<BannerFormModel>({
         onEdit: (internalId) => opt.crud.navigate(`${opt.crud.dirUrl}/${internalId}`),
         deleteAsync: opt.crud.deleteAsync,
         afterDelete: opt.crud.afterDelete,
@@ -333,21 +333,21 @@ const enhanceBannerSliderGrid = (
         can: opt.can,
         notifyNoPermission: opt.notifyNoPermission,
         confirm: opt.confirm,
-        getInternalId: (set) => set.Banner?.InternalId ?? "",
+        getInternalId: (formModel) => formModel.InternalId ?? "",
     });
 };
 
 /** 建立廣告輪播列表列資料 */
 const buildBannerSliderRows = (raw: BannerSliderListRawData, columns: ColumnConfig[]): GridRow[] =>
 {
-    return (raw.list ?? []).map((set) =>
+    return (raw.list ?? []).map((formModel) =>
     {
-        const keyId = LibText.Merge("|", false, set.Banner?.BannerId);
+        const keyId = LibText.Merge("|", false, formModel.BannerId);
         const cells: RowCell[] = [
-            { col: columns[0], content: buildBannerSliderImage(set) },
-            { col: columns[1], content: set.Banner?.BannerCategoryName ?? "" },
-            { col: columns[2], content: set.Banner?.ModifyUser?.AccountName ?? "" },
-            { col: columns[3], content: formatDateTime(set.Banner?.ModifyTime) },
+            { col: columns[0], content: buildBannerSliderImage(formModel) },
+            { col: columns[1], content: formModel.BannerCategoryName ?? "" },
+            { col: columns[2], content: formModel.ModifyUser?.AccountName ?? "" },
+            { col: columns[3], content: formatDateTime(formModel.ModifyTime) },
         ];
 
         return { keyId, cells };
@@ -355,9 +355,9 @@ const buildBannerSliderRows = (raw: BannerSliderListRawData, columns: ColumnConf
 };
 
 /** 建立廣告輪播圖片預覽 */
-const buildBannerSliderImage = (set: BannerSet): RowCell["content"] =>
+const buildBannerSliderImage = (formModel: BannerFormModel): RowCell["content"] =>
 {
-    const picSrcId = set.BannerDetail?.[0]?.PicSrcId;
+    const picSrcId = formModel._BannerDetail?.[0]?.PicSrcId;
     if (!picSrcId) return null;
 
     return createElement("img", { src: FileManagementAPI.get_Server_Preview_Url(picSrcId), alt: "廣告輪播圖片預覽", style: { width: "145px", height: "80px", objectFit: "fill" } });

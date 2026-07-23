@@ -18,8 +18,8 @@ import type { LoaderFunctionArgs } from "react-router-dom";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
-type TagSet = components["schemas"]["TagSet_DTO"];
-type TagDetail = components["schemas"]["TagDetail_DTO"];
+type TagFormModel = components["schemas"]["TagData"];
+type TagDetail = components["schemas"]["TagDetail"];
 export type TagMapArgs = { progId: PGID | string; lang: Lang; pageSize?: number; };
 export type TagMapLoaderData = ApiLoaderData<TagMapArgs, Record<string, string>>;
 interface IBuildTagQueryByProgIdParam
@@ -64,7 +64,7 @@ type ExtraHooks = {
 // #endregion
 
 // #region Public
-export class TagService extends ApiDataService<TagSet>
+export class TagService extends ApiDataService<TagFormModel>
 {
     // #region Public
     constructor(apiInstance?: AxiosInstance)
@@ -74,20 +74,20 @@ export class TagService extends ApiDataService<TagSet>
     // #endregion
 }
 
-export class TagAdapterImpl extends ApiDataAdapter<TagSet, TagService>
+export class TagAdapterImpl extends ApiDataAdapter<TagFormModel, TagService>
 {
     // #region Property
-    declare public loader: ApiDataLoaderGroup<TagSet> & ExtraLoaders;
-    declare public hooks: ApiDataHookGroup<TagSet> & ExtraHooks;
+    declare public loader: ApiDataLoaderGroup<TagFormModel> & ExtraLoaders;
+    declare public hooks: ApiDataHookGroup<TagFormModel> & ExtraHooks;
     // #endregion
 
     // #region Protected Virtual
-    protected override buildExtendedLoader(base: ApiDataLoaderGroup<TagSet>): ApiDataLoaderGroup<TagSet> & ExtraLoaders
+    protected override buildExtendedLoader(base: ApiDataLoaderGroup<TagFormModel>): ApiDataLoaderGroup<TagFormModel> & ExtraLoaders
     {
         const wrapCreateMapByProgIdLoader: ExtraLoaders["createMapByProgIdLoader"] = (opt) => this.createMapByProgIdLoader(opt);
         return { ...base, createMapByProgIdLoader: wrapCreateMapByProgIdLoader };
     }
-    protected override buildExtendedHooks(base: ApiDataHookGroup<TagSet>): ApiDataHookGroup<TagSet> & ExtraHooks
+    protected override buildExtendedHooks(base: ApiDataHookGroup<TagFormModel>): ApiDataHookGroup<TagFormModel> & ExtraHooks
     {
         const wrapUseMapByProgId: ExtraHooks["useMapByProgId"] = (opt) => this.useMapByProgId(opt);
         return { ...base, useMapByProgId: wrapUseMapByProgId };
@@ -165,13 +165,13 @@ export class TagAdapterImpl extends ApiDataAdapter<TagSet, TagService>
         };
     };
     /** 依語系把 Tag 清單轉成 id-name map */
-    private buildTagMap = (data: TagSet[], lang: Lang): Record<string, string> =>
+    private buildTagMap = (data: TagFormModel[], lang: Lang): Record<string, string> =>
     {
         return data.reduce<Record<string, string>>((acc, item) =>
         {
-            const id = item.TagData?.TagId;
+            const id = item.TagId;
             if (!id) return acc;
-            const matched = (item.TagDetail ?? []).find((detail: TagDetail) => detail.Lang === lang);
+            const matched = (item._TagDetail ?? []).find((detail: TagDetail) => detail.Lang === lang);
             acc[String(id)] = matched?.TagName ?? "";
             return acc;
         }, {});
@@ -183,11 +183,11 @@ export const TagAdapter = (apiInstance?: AxiosInstance) => new TagAdapterImpl((a
 
 /** 純格式化：把 "1,2,3" 轉成 "標籤A、標籤B" */
 // TODO:這一支看是如何移除掉好
-export const formatTagsName = (content: string, tagData: TagSet[], lang: Lang): string =>
+export const formatTagsName = (content: string, tagData: TagFormModel[], lang: Lang): string =>
 {
     const raw = (content?.toString?.() ?? "").trim();
     if (!raw) return "";
     return raw.split(",").map(s => s.trim()).filter(Boolean).map(tagId =>
-        tagData?.find(s => String(s.TagData?.TagId) === tagId)?.TagDetail?.find(d => d.Lang === lang)?.TagName
+        tagData?.find(s => String(s.TagId) === tagId)?._TagDetail?.find(d => d.Lang === lang)?.TagName
     ).filter((x): x is string => Boolean(x)).join("、");
 };

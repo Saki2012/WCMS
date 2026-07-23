@@ -18,8 +18,8 @@ import type { LoaderFunctionArgs } from "react-router-dom";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
-type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
-type CategoryDetail = components["schemas"]["CategoryDetail_DTO"];
+type CategoryFormModel = components["schemas"]["Category"];
+type CategoryDetail = components["schemas"]["CategoryDetail"];
 export type CategoryMapArgs = { progId: PGID | string; lang: Lang; pageSize?: number; };
 export type CategoryMapLoaderData = ApiLoaderData<CategoryMapArgs, Record<string, string>>;
 interface IBuildCategoryQueryByProgIdParam
@@ -58,7 +58,7 @@ type ExtraHooks = { useMapByProgId: (opt: IUseCategoryMapByProgId) => CategoryMa
 // #endregion
 
 // #region Public
-export class CategoryService extends ApiDataService<CategorySet>
+export class CategoryService extends ApiDataService<CategoryFormModel>
 {
     // #region Public
     constructor(apiInstance?: AxiosInstance)
@@ -67,20 +67,20 @@ export class CategoryService extends ApiDataService<CategorySet>
     }
     // #endregion
 }
-export class CategoryAdapterImpl extends ApiDataAdapter<CategorySet, CategoryService>
+export class CategoryAdapterImpl extends ApiDataAdapter<CategoryFormModel, CategoryService>
 {
     // #region Property
-    declare public loader: ApiDataLoaderGroup<CategorySet> & ExtraLoaders;
-    declare public hooks: ApiDataHookGroup<CategorySet> & ExtraHooks;
+    declare public loader: ApiDataLoaderGroup<CategoryFormModel> & ExtraLoaders;
+    declare public hooks: ApiDataHookGroup<CategoryFormModel> & ExtraHooks;
     // #endregion
 
     // #region Protected Virtual
-    protected override buildExtendedLoader(base: ApiDataLoaderGroup<CategorySet>): ApiDataLoaderGroup<CategorySet> & ExtraLoaders
+    protected override buildExtendedLoader(base: ApiDataLoaderGroup<CategoryFormModel>): ApiDataLoaderGroup<CategoryFormModel> & ExtraLoaders
     {
         const wrapCreateMapByProgIdLoader: ExtraLoaders["createMapByProgIdLoader"] = (opt) => this.createMapByProgIdLoader(opt);
         return { ...base, createMapByProgIdLoader: wrapCreateMapByProgIdLoader };
     }
-    protected override buildExtendedHooks(base: ApiDataHookGroup<CategorySet>): ApiDataHookGroup<CategorySet> & ExtraHooks
+    protected override buildExtendedHooks(base: ApiDataHookGroup<CategoryFormModel>): ApiDataHookGroup<CategoryFormModel> & ExtraHooks
     {
         const wrapUseMapByProgId: ExtraHooks["useMapByProgId"] = (opt) => this.useMapByProgId(opt);
         return { ...base, useMapByProgId: wrapUseMapByProgId };
@@ -162,13 +162,13 @@ export class CategoryAdapterImpl extends ApiDataAdapter<CategorySet, CategorySer
         };
     };
     /** 依語系把 Category 清單轉成 id-name map */
-    private buildCategoryMap = (data: CategorySet[], lang: Lang): Record<string, string> =>
+    private buildCategoryMap = (data: CategoryFormModel[], lang: Lang): Record<string, string> =>
     {
         return data.reduce<Record<string, string>>((acc, item) =>
         {
-            const id = item.Category?.CategoryId;
+            const id = item.CategoryId;
             if (!id) return acc;
-            const matched = (item.CategoryDetail ?? []).find((detail: CategoryDetail) => detail.Lang === lang);
+            const matched = (item._CategoryDetail ?? []).find((detail: CategoryDetail) => detail.Lang === lang);
             acc[String(id)] = matched?.CategoryName ?? "";
             return acc;
         }, {});
@@ -180,11 +180,11 @@ export const CategoryAdapter = (apiInstance?: AxiosInstance) => new CategoryAdap
 
 /** 純格式化：把 "1,2,3" 轉成 "分類A、分類B" */
 // TODO:這一支看是如何移除掉好
-export const formatCategoriesName = (content: string, categoryData: CategorySet[], lang: Lang): string =>
+export const formatCategoriesName = (content: string, categoryData: CategoryFormModel[], lang: Lang): string =>
 {
     const raw = (content?.toString?.() ?? "").trim();
     if (!raw) return "";
     return raw.split(",").map(s => s.trim()).filter(Boolean).map(catId =>
-        categoryData?.find(s => String(s.Category?.CategoryId) === catId)?.CategoryDetail?.find(d => d.Lang === lang)?.CategoryName
+        categoryData?.find(s => String(s.CategoryId) === catId)?._CategoryDetail?.find(d => d.Lang === lang)?.CategoryName
     ).filter((x): x is string => Boolean(x)).join("、");
 };

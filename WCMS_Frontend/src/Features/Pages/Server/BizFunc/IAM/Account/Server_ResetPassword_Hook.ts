@@ -13,7 +13,7 @@ import { useMatches } from "react-router";
 import { useLocation, useNavigate } from "react-router-dom";
 
 // #region Property
-type AccountSet = components["schemas"]["AccountSet_DTO"];
+type AccountFormModel = components["schemas"]["Account"];
 
 type ResetPassword = components["schemas"]["ResetPassword"];
 
@@ -57,10 +57,10 @@ export const useServerResetPassword = (theme: IBETheme): UseServerResetPasswordR
         // 執行 function：轉為下拉選單格式
         for (const item of accountList.rawData ?? [])
         {
-            const id = String(item?.Account?.InternalId ?? "").trim();
+            const id = String(item?.InternalId ?? "").trim();
             if (!id) continue;
 
-            dict[id] = `${item?.Account?.AccountId ?? ""}, ${item?.Account?.AccountName ?? ""}`;
+            dict[id] = `${item?.AccountId ?? ""}, ${item?.AccountName ?? ""}`;
         }
 
         // return
@@ -205,6 +205,6 @@ const useAccountListDataByAdapter = (adapter: ReturnType<typeof AccountAdapter>)
     const query = adapter.hooks.useQueryList({ condition, deps: [], onError });
 
     // return
-    return { rawData: (query.data ?? []) as AccountSet[], isLoading: Boolean(query.isLoading), error: query.errorText ?? null };
+    return { rawData: (query.data ?? []) as AccountFormModel[], isLoading: Boolean(query.isLoading), error: query.errorText ?? null };
 };
 // #endregion

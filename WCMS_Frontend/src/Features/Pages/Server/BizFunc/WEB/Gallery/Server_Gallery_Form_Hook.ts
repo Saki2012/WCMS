@@ -36,18 +36,18 @@ import { LibAttachment, LibText } from "@/SysCore/Utils/Library/LibData";
 import { useUploadFile } from "@/SysCore/Utils/UI_Hooks/useUploadFile";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { GalleryInfoFields, GalleryPhotosFields, GalleryPhotosInfoFields, GallerySetFields, PGID } from "@/types/SchemaFields";
+import { GalleryInfoFields, GalleryPhotosFields, GalleryPhotosInfoFields, GalleryFields, PGID } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 // #region Property
-type GallerySet = components["schemas"]["GallerySet_DTO"];
+type GalleryFormModel = components["schemas"]["Gallery"];
 
-type GalleryInfo = NonNullable<GallerySet["GalleryInfo"]>[number];
+type GalleryInfo = NonNullable<GalleryFormModel["_GalleryInfo"]>[number];
 
-type GalleryPhoto = components["schemas"]["GalleryPhotos_DTO"];
+type GalleryPhoto = components["schemas"]["GalleryPhotos"];
 
-type GalleryPhotoInfo = components["schemas"]["GalleryPhotosInfo_DTO"];
+type GalleryPhotoInfo = components["schemas"]["GalleryPhotosInfo"];
 
 type UploadFileHandler = ReturnType<typeof useUploadFile>["handleFileChange"];
 
@@ -71,7 +71,7 @@ export interface UseGalleryFormTemplateOptions
     internalId: string;
 
     /** 新增模式預設資料 */
-    emptyData: GallerySet;
+    emptyData: GalleryFormModel;
 
     /** Form Template 標準動作設定 */
     actionsOpt: GalleryFormActionsOpt;
@@ -80,7 +80,7 @@ export interface UseGalleryFormTemplateOptions
 export interface UseGalleryInfoTabsOptions
 {
     /** 新版 Form Template 提供的資料 binding */
-    binding: ServerFormBinding<GallerySet>;
+    binding: ServerFormBinding<GalleryFormModel>;
 
     /** 目前語系，會優先排在第一個 Tab */
     lang: Lang;
@@ -89,7 +89,7 @@ export interface UseGalleryInfoTabsOptions
 export interface UseGalleryPhotoEditGridOptions
 {
     /** 新版 Form Template 提供的資料 binding */
-    binding: ServerFormBinding<GallerySet>;
+    binding: ServerFormBinding<GalleryFormModel>;
 
     /** EditGrid UI 樣式，仍由 Comp 決定 */
     style: IEditGridView_Style;
@@ -116,7 +116,7 @@ export interface UseGalleryPhotoEditGridOptions
 export interface UseGalleryPhotoInfoEditGridOptions
 {
     /** 新版 Form Template 提供的資料 binding */
-    binding: ServerFormBinding<GallerySet>;
+    binding: ServerFormBinding<GalleryFormModel>;
 
     /** 目前相片 RowId，語系明細用它綁 ParentRowId */
     parentRowId: number;
@@ -131,7 +131,7 @@ export interface UseGalleryPhotoInfoEditGridOptions
 export interface UseGalleryBatchPhotoUploadOptions
 {
     /** 新版 Form Template 提供的資料 binding */
-    binding: ServerFormBinding<GallerySet>;
+    binding: ServerFormBinding<GalleryFormModel>;
 }
 
 export interface GalleryInfoTabItem
@@ -215,7 +215,7 @@ export type GalleryFormAdapter = {
 // #endregion
 
 // #region Public
-export const galleryEmptyData: GallerySet = { Gallery: {}, GalleryInfo: [], GalleryPhotos: [], GalleryPhotosInfo: [] };
+export const galleryEmptyData: GalleryFormModel = { GalleryId: "", _GalleryInfo: [], _GalleryPhotos: [] };
 
 /** 單張相簿相片上傳限制。 */
 export const GalleryPhotoUploadLimit = {
@@ -239,7 +239,7 @@ export const GalleryPhotoCoverColumnKey = "__GalleryCover";
 /** 建立 Gallery Form Template，統一交給 Server_FormTemplate 處理資料流程。 */
 export const useGalleryFormTemplate = (
     opt: UseGalleryFormTemplateOptions,
-): ServerFormTemplate<GallerySet, GalleryFormAdapter, GalleryFormRefs, ServerFormDefaultRawData<GallerySet, GalleryFormRefs>, GalleryFormActionsOpt> =>
+): ServerFormTemplate<GalleryFormModel, GalleryFormAdapter, GalleryFormRefs, ServerFormDefaultRawData<GalleryFormModel, GalleryFormRefs>, GalleryFormActionsOpt> =>
 {
     return useMemo(() =>
     {
@@ -264,7 +264,7 @@ export const useGalleryFormTemplate = (
 /** 建立相簿語系 Tabs，避免 Comp 處理語系過濾與 Unknown fallback。 */
 export const useGalleryInfoTabs = (opt: UseGalleryInfoTabsOptions): GalleryInfoTabsResult =>
 {
-    const details = opt.binding.data?.GalleryInfo;
+    const details = opt.binding.data?._GalleryInfo;
 
     return useMemo(() =>
     {
@@ -283,18 +283,17 @@ export const useGalleryPhotoEditGrid = (opt: UseGalleryPhotoEditGridOptions) =>
         uploadFile.handleFileChange,
     ]);
 
-    return useEditGridBinding<GallerySet, GalleryPhoto, GalleryPhotoGridRow>({
+    return useEditGridBinding<GalleryFormModel, GalleryPhoto, GalleryPhotoGridRow>({
         binding: opt.binding,
         emptyData: galleryEmptyData,
-        collectionName: GallerySetFields.GalleryPhotos,
+        collectionName: GalleryFields._GalleryPhotos,
         columns,
         getItemRowId: photo => photo.RowId,
         sortItems: sortGalleryPhotos,
-        createItem: ctx => buildNewGalleryPhotoItem(ctx.data, ctx.nextRowId),
+        createItem: ctx => buildNewGalleryPhotoItem(ctx.data, ctx.nextRowId, ctx.nextRowNo),
         toRow: (photo, index) => buildGalleryPhotoGridRow(photo, index, opt, handlePictureValueChange, displayName),
         toItem: (row, index, ctx) => toGalleryPhotoDto(ctx.data, row, index),
         beforeCommit: ctx => syncGalleryPhotoCommit(ctx.data, ctx.nextVisibleItems, ctx.rows),
-        onDeleteRow: ctx => removeGalleryPhotoInfoByRow(opt.binding, ctx.row),
         editGridProps: buildGalleryPhotoGridProps(opt.style, displayName, opt),
     });
 };
@@ -305,15 +304,15 @@ export const useGalleryPhotoInfoEditGrid = (opt: UseGalleryPhotoInfoEditGridOpti
     const displayName = opt.binding.displayName;
     const columns = useMemo(() => buildGalleryPhotoInfoColumns(displayName), [displayName]);
 
-    return useEditGridBinding<GallerySet, GalleryPhotoInfo, GalleryPhotoInfoGridRow>({
+    return useEditGridBinding<GalleryFormModel, GalleryPhotoInfo, GalleryPhotoInfoGridRow>({
         binding: opt.binding,
         emptyData: galleryEmptyData,
-        collectionName: GallerySetFields.GalleryPhotosInfo,
-        parent: buildGalleryPhotoInfoParent(opt.parentRowId),
+        getItems: data => getGalleryPhotoInfos(data, opt.parentRowId),
+        setItems: (data, items) => setGalleryPhotoInfos(data, opt.parentRowId, items),
         columns,
         getItemRowId: info => info.RowId,
         sortItems: infos => sortGalleryPhotoInfos(infos, opt.lang),
-        createItem: ctx => buildNewGalleryPhotoInfoItem(ctx.data, opt.parentRowId, ctx.nextRowId, opt.lang),
+        createItem: ctx => buildNewGalleryPhotoInfoItem(ctx.data, opt.parentRowId, ctx.nextRowId, ctx.nextRowNo, opt.lang),
         toRow: (info, index) => buildGalleryPhotoInfoGridRow(info, index, displayName),
         toItem: (row, index, ctx) => toGalleryPhotoInfoDto(ctx.data, opt.parentRowId, row, index),
         editGridProps: buildGalleryPhotoInfoGridProps(opt.parentRowId, opt.style, displayName),
@@ -321,9 +320,9 @@ export const useGalleryPhotoInfoEditGrid = (opt: UseGalleryPhotoInfoEditGridOpti
 };
 
 /** 管理相簿封面選取，封面仍寫在 Header 的 CoverPicSrcId。 */
-export const useGalleryCoverSelector = (binding: ServerFormBinding<GallerySet>) =>
+export const useGalleryCoverSelector = (binding: ServerFormBinding<GalleryFormModel>) =>
 {
-    const bindingSelected = normalizeGalleryCoverPicId(binding.data?.Gallery?.CoverPicSrcId);
+    const bindingSelected = normalizeGalleryCoverPicId(binding.data?.CoverPicSrcId);
     const [selected, setSelected] = useState<string | null>(bindingSelected);
 
     /** 後端資料或表單資料刷新時，同步目前封面狀態。 */
@@ -336,8 +335,6 @@ export const useGalleryCoverSelector = (binding: ServerFormBinding<GallerySet>) 
     const select = useCallback((picId: string) =>
     {
         const safePicId = normalizeGalleryCoverPicId(picId);
-        if (!safePicId) return;
-
         setSelected(safePicId);
         setGalleryCoverPic(binding, safePicId);
     }, [binding]);
@@ -415,7 +412,7 @@ const buildGalleryFormTitle = (ctx: { mode: "new" | "edit"; displayName: ModelDi
 };
 
 /** 建立新增模式的 initial data，統一由 Feature Timing 交給 Template。 */
-const buildGalleryInitialData = (ctx: { mode: "new" | "edit"; emptyData: GallerySet; }): ApiFormInitial<GallerySet> | undefined =>
+const buildGalleryInitialData = (ctx: { mode: "new" | "edit"; emptyData: GalleryFormModel; }): ApiFormInitial<GalleryFormModel> | undefined =>
 {
     if (ctx.mode !== "new") return undefined;
     return { data: { args: "__new__", apiRes: { IsSuccess: true, Data: ctx.emptyData, SysMessage: [] } } };
@@ -429,7 +426,7 @@ const buildGalleryFormAdapter = (): GalleryFormAdapter =>
 
 /** 取得 Header / Detail 需要的參照資料與語系明細補齊。 */
 const useGalleryReferenceData = (
-    ctx: { adapter: GalleryFormAdapter; binding: ServerFormDefaultRawData<GallerySet, GalleryFormRefs>["formData"]; lang: Lang; },
+    ctx: { adapter: GalleryFormAdapter; binding: ServerFormDefaultRawData<GalleryFormModel, GalleryFormRefs>["formData"]; lang: Lang; },
 ) =>
 {
     useEnsureGalleryLangDetails(ctx.binding, ctx.lang);
@@ -464,6 +461,25 @@ const useGalleryReferenceData = (
     ]);
 };
 
+/** 載入 FormModel 後補齊各相片語系子明細。 */
+const useEnsureGalleryPhotoInfos = (binding: ServerFormBinding<GalleryFormModel>, preferLang: Lang): void =>
+{
+    useEffect(() =>
+    {
+        binding.setFormData(prev =>
+        {
+            const photos = (prev._GalleryPhotos ?? []).map(photo => ensureGalleryPhotoLanguages(photo, prev.GalleryId));
+            return { ...prev, _GalleryPhotos: sortGalleryPhotoLanguages(photos, preferLang) };
+        });
+    }, [binding.setFormData, preferLang]);
+};
+
+/** 依目前語系排序各相片語系子明細。 */
+const sortGalleryPhotoLanguages = (photos: GalleryPhoto[], preferLang: Lang): GalleryPhoto[] =>
+{
+    return photos.map(photo => ({ ...photo, _GalleryPhotosInfo: sortGalleryPhotoInfos(photo._GalleryPhotosInfo ?? [], preferLang) }));
+};
+
 /** 取得 Gallery Model 顯示名稱，避免 Form 標題寫死功能名稱。 */
 const getGalleryModelTitle = (displayName: ModelDisplaySchema, fallback: string): string =>
 {
@@ -471,23 +487,15 @@ const getGalleryModelTitle = (displayName: ModelDisplaySchema, fallback: string)
 };
 
 /** 補齊相簿與相片多語資料，避免語系 Tab / SubDetail 缺列。 */
-const useEnsureGalleryLangDetails = (binding: ServerFormBinding<GallerySet>, lang: Lang): void =>
+const useEnsureGalleryLangDetails = (binding: ServerFormBinding<GalleryFormModel>, lang: Lang): void =>
 {
     useEnsureLangDetails(binding, {
-        headerName: GallerySetFields.Gallery,
-        detailName: GallerySetFields.GalleryInfo,
+        detailName: GalleryFields._GalleryInfo,
         parentKeys: [GalleryInfoFields.GalleryId],
         langs: SUPPORTED_LANGS,
         preferFirstLang: lang,
     });
-
-    useEnsureLangDetails(binding, {
-        headerName: GallerySetFields.GalleryPhotos,
-        detailName: GallerySetFields.GalleryPhotosInfo,
-        parentKeys: [GalleryPhotosInfoFields.GalleryId, GalleryPhotosInfoFields.ParentRowId],
-        langs: SUPPORTED_LANGS,
-        preferFirstLang: lang,
-    });
+    useEnsureGalleryPhotoInfos(binding, lang);
 };
 
 /** ContentStatus enum options，去掉 key=0。 */
@@ -575,7 +583,7 @@ const toBindingRowKey = (value: string | number | null | undefined): string | nu
 /** 建立相片 EditGrid 固定設定，Grid 標題優先讀 ModelDisplayName。 */
 const buildGalleryPhotoGridProps = (style: IEditGridView_Style, displayName: ModelDisplaySchema, opt: UseGalleryPhotoEditGridOptions) =>
 {
-    const gridTitle = getGalleryTableTitle(displayName, GallerySetFields.GalleryPhotos, "相片");
+    const gridTitle = getGalleryTableTitle(displayName, GalleryFields._GalleryPhotos, "相片");
 
     return {
         title: gridTitle,
@@ -603,7 +611,7 @@ const buildGalleryPhotoGridProps = (style: IEditGridView_Style, displayName: Mod
 /** 建立相片語系 EditGrid 固定設定，語系列不開放新增刪除。 */
 const buildGalleryPhotoInfoGridProps = (parentRowId: number, style: IEditGridView_Style, displayName: ModelDisplaySchema) =>
 {
-    const gridTitle = getGalleryTableTitle(displayName, GallerySetFields.GalleryPhotosInfo, "相片語系明細");
+    const gridTitle = getGalleryTableTitle(displayName, GalleryPhotosFields._GalleryPhotosInfo, "相片語系明細");
     return {
         title: gridTitle,
         ariaLabel: `相片 ${parentRowId} ${gridTitle}`,
@@ -637,8 +645,8 @@ const sortGalleryPhotoInfos = (infos: GalleryPhotoInfo[], preferLang: Lang): Gal
 /** 建立相片 Grid 欄位設定，欄位名稱優先讀 ModelDisplayName。 */
 const buildGalleryPhotoColumns = (displayName: ModelDisplaySchema): ColumnConfig[] =>
 {
-    const picTitle = getGalleryColumnTitle(displayName, GallerySetFields.GalleryPhotos, GalleryPhotosFields.PicSrcId, "相片");
-    const sortTitle = getGalleryColumnTitle(displayName, GallerySetFields.GalleryPhotos, GalleryPhotosFields.Sort, "排序編號");
+    const picTitle = getGalleryColumnTitle(displayName, GalleryFields._GalleryPhotos, GalleryPhotosFields.PicSrcId, "相片");
+    const sortTitle = getGalleryColumnTitle(displayName, GalleryFields._GalleryPhotos, GalleryPhotosFields.Sort, "排序編號");
 
     return [
         {
@@ -661,9 +669,9 @@ const buildGalleryPhotoColumns = (displayName: ModelDisplaySchema): ColumnConfig
 /** 建立相片語系 Grid 欄位設定，欄位名稱優先讀 ModelDisplayName。 */
 const buildGalleryPhotoInfoColumns = (displayName: ModelDisplaySchema): ColumnConfig[] =>
 {
-    const langTitle = getGalleryColumnTitle(displayName, GallerySetFields.GalleryPhotosInfo, GalleryPhotosInfoFields.Lang, "語系");
-    const titleTitle = getGalleryColumnTitle(displayName, GallerySetFields.GalleryPhotosInfo, GalleryPhotosInfoFields.Title, "標題");
-    const descTitle = getGalleryColumnTitle(displayName, GallerySetFields.GalleryPhotosInfo, GalleryPhotosInfoFields.Description, "描述");
+    const langTitle = getGalleryColumnTitle(displayName, GalleryPhotosFields._GalleryPhotosInfo, GalleryPhotosInfoFields.Lang, "語系");
+    const titleTitle = getGalleryColumnTitle(displayName, GalleryPhotosFields._GalleryPhotosInfo, GalleryPhotosInfoFields.Title, "標題");
+    const descTitle = getGalleryColumnTitle(displayName, GalleryPhotosFields._GalleryPhotosInfo, GalleryPhotosInfoFields.Description, "描述");
 
     return [{ key: GalleryPhotosInfoFields.Lang, title: langTitle, width: 110, inputType: "readonly", editable: false }, {
         key: GalleryPhotosInfoFields.Title,
@@ -685,13 +693,13 @@ const buildGalleryPhotoGridRow = (
 ): GalleryPhotoGridRow =>
 {
     const rowId = Number(photo.RowId ?? index + 1);
-    const selectedCoverPicId = String(opt.binding.data?.Gallery?.CoverPicSrcId ?? "").trim();
+    const selectedCoverPicId = String(opt.binding.data?.CoverPicSrcId ?? "").trim();
 
     return {
         keyId: buildGalleryPhotoRowKey(photo, index),
         rowId,
         RowId: rowId,
-        RowNo: index + 1,
+        RowNo: photo.RowNo ?? index + 1,
         GalleryId: photo.GalleryId,
         PhotoRowId: rowId,
         cells: buildGalleryPhotoCells(photo, rowId, opt, onPictureValueChange, displayName, selectedCoverPicId),
@@ -707,7 +715,7 @@ const buildGalleryPhotoInfoGridRow = (info: GalleryPhotoInfo, index: number, dis
         keyId: buildGalleryPhotoInfoRowKey(info, index),
         rowId,
         RowId: rowId,
-        RowNo: index + 1,
+        RowNo: info.RowNo ?? index + 1,
         GalleryId: info.GalleryId,
         ParentRowId: info.ParentRowId,
         InfoRowId: rowId,
@@ -725,8 +733,8 @@ const buildGalleryPhotoCells = (
     selectedCoverPicId: string,
 ): RowCell[] =>
 {
-    const picTitle = getGalleryColumnTitle(displayName, GallerySetFields.GalleryPhotos, GalleryPhotosFields.PicSrcId, "相片");
-    const sortTitle = getGalleryColumnTitle(displayName, GallerySetFields.GalleryPhotos, GalleryPhotosFields.Sort, "排序編號");
+    const picTitle = getGalleryColumnTitle(displayName, GalleryFields._GalleryPhotos, GalleryPhotosFields.PicSrcId, "相片");
+    const sortTitle = getGalleryColumnTitle(displayName, GalleryFields._GalleryPhotos, GalleryPhotosFields.Sort, "排序編號");
 
     return [
         buildEditGridCell(GalleryPhotosFields.PicSrcId, picTitle, buildGalleryPhotoCellValue(photo), {
@@ -752,9 +760,9 @@ const buildGalleryPhotoCells = (
 /** 建立相片語系列 cells，語系不可手動修改。 */
 const buildGalleryPhotoInfoCells = (info: GalleryPhotoInfo, displayName: ModelDisplaySchema): RowCell[] =>
 {
-    const langTitle = getGalleryColumnTitle(displayName, GallerySetFields.GalleryPhotosInfo, GalleryPhotosInfoFields.Lang, "語系");
-    const titleTitle = getGalleryColumnTitle(displayName, GallerySetFields.GalleryPhotosInfo, GalleryPhotosInfoFields.Title, "標題");
-    const descTitle = getGalleryColumnTitle(displayName, GallerySetFields.GalleryPhotosInfo, GalleryPhotosInfoFields.Description, "描述");
+    const langTitle = getGalleryColumnTitle(displayName, GalleryPhotosFields._GalleryPhotosInfo, GalleryPhotosInfoFields.Lang, "語系");
+    const titleTitle = getGalleryColumnTitle(displayName, GalleryPhotosFields._GalleryPhotosInfo, GalleryPhotosInfoFields.Title, "標題");
+    const descTitle = getGalleryColumnTitle(displayName, GalleryPhotosFields._GalleryPhotosInfo, GalleryPhotosInfoFields.Description, "描述");
 
     return [
         buildEditGridCell(GalleryPhotosInfoFields.Lang, langTitle, info.Lang ?? "zh-tw", {
@@ -791,134 +799,107 @@ const getGalleryColumnTitle = (displayName: ModelDisplaySchema, tableId: string,
 };
 
 /** 建立新相片 DTO，RowId 由共用 Hook 推算。 */
-const buildNewGalleryPhotoItem = (data: GallerySet, rowId: number): GalleryPhoto =>
+const buildNewGalleryPhotoItem = (data: GalleryFormModel, rowId: number, rowNo: number): GalleryPhoto =>
 {
-    return { GalleryId: data.Gallery?.GalleryId, RowId: rowId, PicSrcId: "", Sort: rowId };
+    return { GalleryId: data.GalleryId ?? "", RowId: rowId, RowNo: rowNo, PicSrcId: "", Sort: rowNo, _GalleryPhotosInfo: [] };
 };
 
 /** 建立新相片語系 DTO，通常只在特殊手動補列時使用。 */
-const buildNewGalleryPhotoInfoItem = (data: GallerySet, parentRowId: number, rowId: number, lang: Lang): GalleryPhotoInfo =>
+const buildNewGalleryPhotoInfoItem = (data: GalleryFormModel, parentRowId: number, rowId: number, rowNo: number, lang: Lang): GalleryPhotoInfo =>
 {
-    return { GalleryId: data.Gallery?.GalleryId, ParentRowId: parentRowId, RowId: rowId, Lang: lang, Title: "", Description: "" };
+    return { GalleryId: data.GalleryId ?? "", ParentRowId: parentRowId, RowId: rowId, RowNo: rowNo, Lang: lang, Title: "", Description: "" };
 };
 
-/** 建立相片語系 parent 綁定，讓共用 Hook 自動過濾同相片語系。 */
-const buildGalleryPhotoInfoParent = (parentRowId: number) =>
-{
-    return {
-        field: GalleryPhotosInfoFields.ParentRowId,
-        value: parentRowId,
-        compare: (itemValue: unknown, parentValue: string | number | null | undefined) => Number(itemValue ?? 0) === Number(parentValue ?? 0),
-    };
-};
 
 /** 將相片 Grid Row 轉回 DTO，RowId 保持穩定，Sort 依目前畫面順序重算。 */
-const toGalleryPhotoDto = (source: GallerySet, row: GridRow, index: number): GalleryPhoto =>
+const toGalleryPhotoDto = (source: GalleryFormModel, row: GridRow, index: number): GalleryPhoto =>
 {
     const photoValue = toGalleryPhotoCellValue(getEditGridCellValue(row, GalleryPhotosFields.PicSrcId));
     const rowId = getEditGridRowId(row, index);
 
     return {
-        GalleryId: source.Gallery?.GalleryId ?? (row as GalleryPhotoGridRow).GalleryId,
+        GalleryId: source.GalleryId ?? (row as GalleryPhotoGridRow).GalleryId ?? "",
         RowId: rowId,
+        RowNo: index + 1,
         PicSrcId: photoValue.internalId ?? "",
         Sort: index + 1,
+        _GalleryPhotosInfo: getGalleryPhotoInfos(source, rowId),
     };
 };
 
 /** 將相片語系 Grid Row 轉回 DTO。 */
-const toGalleryPhotoInfoDto = (source: GallerySet, parentRowId: number, row: GridRow, index: number): GalleryPhotoInfo =>
+const toGalleryPhotoInfoDto = (source: GalleryFormModel, parentRowId: number, row: GridRow, index: number): GalleryPhotoInfo =>
 {
     return {
-        GalleryId: source.Gallery?.GalleryId ?? (row as GalleryPhotoInfoGridRow).GalleryId,
+        GalleryId: source.GalleryId ?? (row as GalleryPhotoInfoGridRow).GalleryId ?? "",
         ParentRowId: parentRowId,
         RowId: getEditGridRowId(row, index),
+        RowNo: index + 1,
         Lang: getEditGridStringCellValue(row, GalleryPhotosInfoFields.Lang) as components["schemas"]["LangCode"],
         Title: getNullableStringCellValue(row, GalleryPhotosInfoFields.Title),
         Description: getNullableStringCellValue(row, GalleryPhotosInfoFields.Description),
     };
 };
 
-/** 主相片 Commit 前清理孤兒語系明細，並補齊缺少語系。 */
-const syncGalleryPhotoCommit = (data: GallerySet, nextPhotos: GalleryPhoto[], rows: GridRow[]): GalleryPhoto[] =>
+/** 主相片 Commit 前補齊語系明細並同步封面。 */
+const syncGalleryPhotoCommit = (data: GalleryFormModel, nextPhotos: GalleryPhoto[], rows: GridRow[]): GalleryPhoto[] =>
 {
-    const cleanedInfos = syncGalleryPhotoInfoParents(data.GalleryPhotosInfo ?? [], nextPhotos, data.Gallery?.GalleryId);
-    const titledInfos = syncGalleryPhotoInfoTitlesFromRows(cleanedInfos, data.Gallery?.GalleryId, rows);
-    const coverHeader = syncGalleryCoverFromPhotos(data.Gallery ?? {}, nextPhotos);
-
-    (data as GallerySet).GalleryPhotosInfo = titledInfos;
-    (data as GallerySet).Gallery = coverHeader;
-    return nextPhotos;
+    const titled = nextPhotos.map((photo, index) => syncGalleryPhotoFromRow(data, photo, rows[index]));
+    const header = syncGalleryCoverFromPhotos(data, titled);
+    data.CoverPicSrcId = header.CoverPicSrcId;
+    return titled;
 };
 
-/** 從本次 Grid rows 裡的上傳檔名，同步所有語系標題。 */
-const syncGalleryPhotoInfoTitlesFromRows = (infos: GalleryPhotoInfo[], galleryId: string | null | undefined, rows: GridRow[]): GalleryPhotoInfo[] =>
+/** 依 Grid Row 的檔名補齊單張相片語系標題。 */
+const syncGalleryPhotoFromRow = (data: GalleryFormModel, photo: GalleryPhoto, row?: GridRow): GalleryPhoto =>
 {
-    return rows.reduce<GalleryPhotoInfo[]>((nextInfos, row, index) =>
-    {
-        const fileValue = toGalleryPhotoCellValue(getEditGridCellValue(row, GalleryPhotosFields.PicSrcId));
-        const title = LibAttachment.getDisplayFileNameWithoutExtension(fileValue.originalFileName);
-        if (!title) return nextInfos;
-        return upsertGalleryPhotoInfos(nextInfos, galleryId, getEditGridRowId(row, index), title);
-    }, infos);
+    const ensured = ensureGalleryPhotoLanguages(photo, data.GalleryId);
+    if (!row) return ensured;
+    const fileValue = toGalleryPhotoCellValue(getEditGridCellValue(row, GalleryPhotosFields.PicSrcId));
+    const title = LibAttachment.getDisplayFileNameWithoutExtension(fileValue.originalFileName);
+    if (!title) return ensured;
+    return { ...ensured, _GalleryPhotosInfo: upsertGalleryPhotoInfos(ensured._GalleryPhotosInfo ?? [], data.GalleryId, Number(photo.RowId ?? 0), title) };
 };
 
 /** 若封面空白或指向不存在相片，改指向目前第一張相片。 */
-const syncGalleryCoverFromPhotos = (header: NonNullable<GallerySet["Gallery"]>, photos: GalleryPhoto[]): NonNullable<GallerySet["Gallery"]> =>
+const syncGalleryCoverFromPhotos = (header: GalleryFormModel, photos: GalleryPhoto[]): GalleryFormModel =>
 {
     const currentCover = String(header.CoverPicSrcId ?? "").trim();
-    const hasCurrentCover = photos.some(photo => String(photo.PicSrcId ?? "") === currentCover);
-    if (currentCover && hasCurrentCover) return header;
-
+    if (currentCover && photos.some(photo => String(photo.PicSrcId ?? "") === currentCover)) return header;
     return { ...header, CoverPicSrcId: photos[0]?.PicSrcId ?? null };
 };
 
-/** 依相片主列清理孤兒語系明細，並補齊缺少的支援語系。 */
-const syncGalleryPhotoInfoParents = (infos: GalleryPhotoInfo[], photos: GalleryPhoto[], galleryId?: string | null): GalleryPhotoInfo[] =>
+/** 取得指定相片的語系子明細。 */
+const getGalleryPhotoInfos = (data: GalleryFormModel, parentRowId: number): GalleryPhotoInfo[] =>
 {
-    const parentKeys = new Set(photos.map(photo => String(photo.RowId ?? 0)));
-    const keptInfos = infos.filter(info => parentKeys.has(String(info.ParentRowId ?? 0)));
-    const missingInfos = photos.flatMap(photo => buildMissingGalleryPhotoInfos(photo, keptInfos, galleryId));
-
-    return [...keptInfos, ...missingInfos];
+    const photo = data._GalleryPhotos?.find(item => Number(item.RowId ?? 0) === parentRowId);
+    return photo?._GalleryPhotosInfo ?? [];
 };
 
-/** 建立指定相片缺少的語系明細。 */
-const buildMissingGalleryPhotoInfos = (photo: GalleryPhoto, infos: GalleryPhotoInfo[], galleryId?: string | null): GalleryPhotoInfo[] =>
+/** 寫回指定相片的語系子明細。 */
+const setGalleryPhotoInfos = (data: GalleryFormModel, parentRowId: number, infos: GalleryPhotoInfo[]): GalleryFormModel =>
 {
-    const siblings = infos.filter(info => Number(info.ParentRowId ?? 0) === Number(photo.RowId ?? 0));
-    const existLangs = new Set(siblings.map(info => String(info.Lang ?? "").toLowerCase()));
-    const maxRowId = siblings.reduce((max, info) => Math.max(max, Number(info.RowId ?? 0)), 0);
+    const photos = (data._GalleryPhotos ?? []).map(photo => Number(photo.RowId ?? 0) === parentRowId ? { ...photo, _GalleryPhotosInfo: infos } : photo);
+    return { ...data, _GalleryPhotos: photos };
+};
 
-    return SUPPORTED_LANGS.filter(lang => !existLangs.has(lang.toLowerCase())).map((lang, index) => ({
-        GalleryId: photo.GalleryId ?? galleryId,
+/** 補齊單張相片缺少的支援語系。 */
+const ensureGalleryPhotoLanguages = (photo: GalleryPhoto, galleryId?: string | null): GalleryPhoto =>
+{
+    const infos = photo._GalleryPhotosInfo ?? [];
+    const existLangs = new Set(infos.map(info => String(info.Lang ?? "").toLowerCase()));
+    const maxRowId = infos.reduce((max, info) => Math.max(max, Number(info.RowId ?? 0)), 0);
+    const maxRowNo = infos.reduce((max, info) => Math.max(max, Number(info.RowNo ?? 0)), 0);
+    const missing = SUPPORTED_LANGS.filter(lang => !existLangs.has(lang)).map((lang, index) => ({
+        GalleryId: photo.GalleryId ?? galleryId ?? "",
         ParentRowId: photo.RowId,
         RowId: maxRowId + index + 1,
+        RowNo: maxRowNo + index + 1,
         Lang: lang,
         Title: "",
         Description: "",
     }));
-};
-
-/** 刪除相片時，同步刪除該相片語系明細與封面設定。 */
-const removeGalleryPhotoInfoByRow = (binding: ServerFormBinding<GallerySet>, row: GridRow): void =>
-{
-    const parentRowId = getEditGridRowId(row, 0);
-    const picId = toGalleryPhotoCellValue(getEditGridCellValue(row, GalleryPhotosFields.PicSrcId)).internalId;
-
-    binding.setFormData(prev => removeGalleryPhotoInfoFromData(prev ?? galleryEmptyData, parentRowId, picId));
-};
-
-/** 從資料中移除相片子明細，並於刪除封面時改指向第一張相片。 */
-const removeGalleryPhotoInfoFromData = (data: GallerySet, parentRowId: number, picId?: string): GallerySet =>
-{
-    const nextInfos = (data.GalleryPhotosInfo ?? []).filter(info => Number(info.ParentRowId ?? 0) !== parentRowId);
-    const header = data.Gallery ?? {};
-    const nextHeader = { ...header };
-
-    if (picId && header.CoverPicSrcId === picId) nextHeader.CoverPicSrcId = getFirstOtherPhotoId(data.GalleryPhotos ?? [], parentRowId);
-
-    return { ...data, Gallery: nextHeader, GalleryPhotosInfo: nextInfos };
+    return { ...photo, _GalleryPhotosInfo: [...infos, ...missing] };
 };
 
 /** 取得刪除目前列後的第一張相片 id，給封面 fallback 使用。 */
@@ -931,7 +912,7 @@ const getFirstOtherPhotoId = (photos: GalleryPhoto[], removedRowId: number): str
 const uploadGalleryPhotoValue = async (
     args: EditGridCellValueChangeArgs,
     handleFileChange: UploadFileHandler,
-    binding: ServerFormBinding<GallerySet>,
+    binding: ServerFormBinding<GalleryFormModel>,
 ): Promise<EditGridCellValueChangeResult> =>
 {
     const current = toGalleryPhotoCellValue(args.value);
@@ -964,7 +945,7 @@ const uploadGalleryPhotoValue = async (
 
 /** 依相片 file 異動同步所有語系標題。 */
 const syncGalleryPhotoTitleByFileChange = (
-    binding: ServerFormBinding<GallerySet>,
+    binding: ServerFormBinding<GalleryFormModel>,
     parentRowId: number,
     title: string,
 ): void =>
@@ -974,22 +955,23 @@ const syncGalleryPhotoTitleByFileChange = (
 
 /** 寫入相片語系標題，清除 file 時也同步清空標題。 */
 const syncGalleryPhotoTitleByFileChangeToData = (
-    data: GallerySet,
+    data: GalleryFormModel,
     parentRowId: number,
     title: string,
-): GallerySet =>
+): GalleryFormModel =>
 {
-    const nextInfos = upsertGalleryPhotoInfos(data.GalleryPhotosInfo ?? [], data.Gallery?.GalleryId, parentRowId, title);
-
-    return {
-        ...data,
-        GalleryPhotosInfo: nextInfos,
-    };
+    const photos = (data._GalleryPhotos ?? []).map(photo =>
+    {
+        if (Number(photo.RowId ?? 0) !== parentRowId) return photo;
+        const infos = upsertGalleryPhotoInfos(photo._GalleryPhotosInfo ?? [], data.GalleryId, parentRowId, title);
+        return { ...photo, _GalleryPhotosInfo: infos };
+    });
+    return { ...data, _GalleryPhotos: photos };
 };
 
 /** 依相片 file 異動同步封面欄位。 */
 const syncGalleryCoverByFileChange = (
-    binding: ServerFormBinding<GallerySet>,
+    binding: ServerFormBinding<GalleryFormModel>,
     parentRowId: number,
     oldPicId?: string | null,
     nextPicId?: string | null,
@@ -1000,31 +982,25 @@ const syncGalleryCoverByFileChange = (
 
 /** 若目前封面是被清除或替換的相片，封面也要一起更新。 */
 const syncGalleryCoverByFileChangeToData = (
-    data: GallerySet,
+    data: GalleryFormModel,
     parentRowId: number,
     oldPicId?: string | null,
     nextPicId?: string | null,
-): GallerySet =>
+): GalleryFormModel =>
 {
-    const currentCover = String(data.Gallery?.CoverPicSrcId ?? "").trim();
+    const currentCover = String(data?.CoverPicSrcId ?? "").trim();
     const oldId = String(oldPicId ?? "").trim();
     const nextId = String(nextPicId ?? "").trim();
 
     if (!currentCover || currentCover !== oldId) return data;
 
-    return {
-        ...data,
-        Gallery: {
-            ...data.Gallery,
-            CoverPicSrcId: nextId || getFirstOtherPhotoId(data.GalleryPhotos ?? [], parentRowId),
-        },
-    };
+    return { ...data, CoverPicSrcId: nextId || getFirstOtherPhotoId(data._GalleryPhotos ?? [], parentRowId) };
 };
 
 /** 批次上傳所有選取檔案，成功後一次寫入 Form data。 */
 const uploadGalleryBatchFiles = async (
     opt: {
-        binding: ServerFormBinding<GallerySet>;
+        binding: ServerFormBinding<GalleryFormModel>;
         files: File[];
         uploadFile: UploadFileHandler;
         setError: (error: string | null) => void;
@@ -1082,36 +1058,31 @@ const uploadSingleGalleryFile = async (file: File, uploadFile: UploadFileHandler
 };
 
 /** 將批次上傳結果追加成 GalleryPhotos 與 GalleryPhotosInfo。 */
-const appendGalleryUploadedPhotos = (binding: ServerFormBinding<GallerySet>, uploaded: GalleryUploadedPhoto[]): void =>
+const appendGalleryUploadedPhotos = (binding: ServerFormBinding<GalleryFormModel>, uploaded: GalleryUploadedPhoto[]): void =>
 {
     binding.setFormData(prev => appendGalleryUploadedPhotosToData(prev ?? galleryEmptyData, uploaded));
 };
 
 /** 將批次圖片寫入資料，所有語系 Title 預設為檔案名稱。 */
-const appendGalleryUploadedPhotosToData = (data: GallerySet, uploaded: GalleryUploadedPhoto[]): GallerySet =>
+const appendGalleryUploadedPhotosToData = (data: GalleryFormModel, uploaded: GalleryUploadedPhoto[]): GalleryFormModel =>
 {
-    const galleryId = data.Gallery?.GalleryId;
-    const startRowId = getNextGalleryPhotoRowId(data.GalleryPhotos ?? []);
-    const newPhotos = uploaded.map((item, index) => buildUploadedGalleryPhotoDto(galleryId, startRowId + index, item));
-    const newInfos = uploaded.flatMap((item, index) => buildGalleryPhotoInfosForTitle(galleryId, startRowId + index, item.title));
-    const header = buildGalleryHeaderWithCover(data.Gallery ?? {}, uploaded[0]?.internalId ?? "");
-
-    return {
-        ...data,
-        Gallery: header,
-        GalleryPhotos: [...data.GalleryPhotos ?? [], ...newPhotos],
-        GalleryPhotosInfo: [...data.GalleryPhotosInfo ?? [], ...newInfos],
-    };
+    const galleryId = data?.GalleryId;
+    const photos = data._GalleryPhotos ?? [];
+    const startRowId = getNextGalleryPhotoRowId(photos);
+    const startRowNo = getNextGalleryPhotoRowNo(photos);
+    const newPhotos = uploaded.map((item, index) => buildUploadedGalleryPhotoDto(galleryId, startRowId + index, startRowNo + index, item));
+    const header = buildGalleryHeaderWithCover(data, uploaded[0]?.internalId ?? "");
+    return { ...header, _GalleryPhotos: [...data._GalleryPhotos ?? [], ...newPhotos] };
 };
 
 /** 建立批次上傳後的相片 DTO。 */
-const buildUploadedGalleryPhotoDto = (galleryId: string | null | undefined, rowId: number, item: GalleryUploadedPhoto): GalleryPhoto =>
+const buildUploadedGalleryPhotoDto = (galleryId: string | null | undefined, rowId: number, rowNo: number, item: GalleryUploadedPhoto): GalleryPhoto =>
 {
-    return { GalleryId: galleryId, RowId: rowId, PicSrcId: item.internalId, Sort: rowId };
+    return { GalleryId: galleryId ?? "", RowId: rowId, RowNo: rowNo, PicSrcId: item.internalId, Sort: rowNo, _GalleryPhotosInfo: buildGalleryPhotoInfosForTitle(galleryId, rowId, item.title) };
 };
 
 /** 若目前尚未設定封面，使用本次上傳的第一張圖當封面。 */
-const buildGalleryHeaderWithCover = (header: NonNullable<GallerySet["Gallery"]>, picId: string): NonNullable<GallerySet["Gallery"]> =>
+const buildGalleryHeaderWithCover = (header: GalleryFormModel, picId: string): GalleryFormModel =>
 {
     if (!picId || header.CoverPicSrcId) return header;
     return { ...header, CoverPicSrcId: picId };
@@ -1125,22 +1096,12 @@ const normalizeGalleryCoverPicId = (picId?: string | null): string | null =>
 };
 
 /** 直接指定相簿封面圖片。 */
-const setGalleryCoverPic = (binding: ServerFormBinding<GallerySet>, picId: string): void =>
+const setGalleryCoverPic = (binding: ServerFormBinding<GalleryFormModel>, picId: string | null): void =>
 {
-    const safePicId = String(picId ?? "").trim();
-    if (!safePicId) return;
-
     binding.setFormData(prev =>
     {
         const data = prev ?? galleryEmptyData;
-
-        return {
-            ...data,
-            Gallery: {
-                ...data.Gallery,
-                CoverPicSrcId: safePicId,
-            },
-        };
+        return { ...data, CoverPicSrcId: picId };
     });
 };
 
@@ -1148,9 +1109,10 @@ const setGalleryCoverPic = (binding: ServerFormBinding<GallerySet>, picId: strin
 const buildGalleryPhotoInfosForTitle = (galleryId: string | null | undefined, parentRowId: number, title: string): GalleryPhotoInfo[] =>
 {
     return SUPPORTED_LANGS.map((lang, index) => ({
-        GalleryId: galleryId,
+        GalleryId: galleryId ?? "",
         ParentRowId: parentRowId,
         RowId: index + 1,
+        RowNo: index + 1,
         Lang: lang,
         Title: title,
         Description: "",
@@ -1178,13 +1140,19 @@ const buildGalleryPhotoInfoWithTitle = (
 ): GalleryPhotoInfo =>
 {
     const exist = infos.find(info => String(info.Lang ?? "").toLowerCase() === lang.toLowerCase());
-    return { ...(exist ?? {}), GalleryId: exist?.GalleryId ?? galleryId, ParentRowId: parentRowId, RowId: exist?.RowId ?? index + 1, Lang: lang, Title: title };
+    return { ...(exist ?? {}), GalleryId: exist?.GalleryId ?? galleryId ?? "", ParentRowId: parentRowId, RowId: exist?.RowId ?? index + 1, RowNo: index + 1, Lang: lang, Title: title };
 };
 
 /** 取得下一個相片 RowId。 */
 const getNextGalleryPhotoRowId = (photos: GalleryPhoto[]): number =>
 {
     return photos.reduce((max, photo) => Math.max(max, Number(photo.RowId ?? 0)), 0) + 1;
+};
+
+/** 取得下一個相片 RowNo，避免刪除後把 RowNo 當成穩定主鍵。 */
+const getNextGalleryPhotoRowNo = (photos: GalleryPhoto[]): number =>
+{
+    return photos.reduce((max, photo) => Math.max(max, Number(photo.RowNo ?? 0)), 0) + 1;
 };
 
 /** 取得本次選圖的原始檔名，避免上傳 callback 未帶檔名時只剩 internalId。 */

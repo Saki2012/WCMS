@@ -22,8 +22,8 @@ import {
     FileArchiveFields,
     FileArchiveInfoFields,
     FileArchiveUrlDetailFields,
-    FileManageModelFields,
-    SpecHomePage1821ModelFields,
+    FileManageFields,
+    SpecHomePage1821Fields,
     WebResourceFields,
     WebResourceInfoFields,
 } from "@/types/SchemaFields";
@@ -32,14 +32,13 @@ import type { LoaderFunctionArgs } from "react-router-dom";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
-type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
-type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];
-type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
-type SpecHomePage1821Model = components["schemas"]["SpecHomePage1821Model_DTO"];
-type SpecHomePage1821Set = components["schemas"]["SpecHomePage1821Set_DTO"];
-type SpecHomePage1821Banner = components["schemas"]["SpecHomePage1821_Banner_DTO"];
-type SpecHomePage1821Shortcut = components["schemas"]["SpecHomePage1821_Shortcut_DTO"];
-type SpecHomePage1821ShortcutModuleItem = components["schemas"]["SpecHomePage1821_ShortcutModuleItem_DTO"];
+type AnnouncementFormModel = components["schemas"]["Announcement"];
+type FileArchiveFormModel = components["schemas"]["FileArchive"];
+type WebResourceFormModel = components["schemas"]["WebResource"];
+type SpecHomePage1821FormModel = components["schemas"]["SpecHomePage1821"];
+type SpecHomePage1821Banner = components["schemas"]["SpecHomePage1821_Banner"];
+type SpecHomePage1821Shortcut = components["schemas"]["SpecHomePage1821_Shortcut"];
+type SpecHomePage1821ShortcutModuleItem = components["schemas"]["SpecHomePage1821_ShortcutModuleItem"];
 type SpecHomePageModuleType = components["schemas"]["SpecHomePageModuleType"];
 type HomePageModuleTypeValue = Exclude<SpecHomePageModuleType, 0>;
 
@@ -53,8 +52,8 @@ interface HomePageShortcutModuleViewModel
 {
     setting: SpecHomePage1821ShortcutModuleItem;
     moduleType: HomePageModuleTypeValue;
-    announcementList: AnnouncementSet[];
-    fileArchiveList: FileArchiveSet[];
+    announcementList: AnnouncementFormModel[];
+    fileArchiveList: FileArchiveFormModel[];
 }
 
 interface HomePageShortcutViewModel
@@ -103,7 +102,7 @@ interface HomePageTemplateQueryParam
 
 export interface HomePageRawData
 {
-    homePage: SpecHomePage1821Model | null;
+    homePage: SpecHomePage1821FormModel | null;
     banners: SpecHomePage1821Banner[];
     shortcuts: HomePageShortcutViewModel[];
     featureCards: HomePageFeatureCardViewModel[];
@@ -119,7 +118,7 @@ export interface HomePageLoaderArgs
 export interface HomePageLoaderRes
 {
     rawData: HomePageRawData;
-    setData: SpecHomePage1821Set | null;
+    formModelData: SpecHomePage1821FormModel | null;
 }
 
 export interface HomePageLoaderData
@@ -157,10 +156,10 @@ export const HomePageLoader = (props: { lang: Lang; }) => async (args: LoaderFun
 
     if (!loaderArgs.internalId) return buildEmptyLoaderData(loaderArgs);
 
-    const setData = await loadHomePageSet(args, adapter, loaderArgs.internalId);
-    const rawData = await normalizeSetData(args, setData, props.lang);
+    const formModelData = await loadHomePageFormModel(args, adapter, loaderArgs.internalId);
+    const rawData = await normalizeFormModelData(args, formModelData, props.lang);
 
-    return { args: loaderArgs, res: { rawData, setData } };
+    return { args: loaderArgs, res: { rawData, formModelData } };
 };
 
 export const useHomePageTemplateData = (lang: Lang) =>
@@ -200,23 +199,23 @@ const createEmptyRawData = (): HomePageRawData =>
 
 const buildEmptyLoaderData = (args: HomePageLoaderArgs): HomePageLoaderData =>
 {
-    return { args, res: { rawData: createEmptyRawData(), setData: null } };
+    return { args, res: { rawData: createEmptyRawData(), formModelData: null } };
 };
 
-const normalizeSetData = async (args: LoaderFunctionArgs, setData: SpecHomePage1821Set | null, lang: Lang): Promise<HomePageRawData> =>
+const normalizeFormModelData = async (args: LoaderFunctionArgs, formModelData: SpecHomePage1821FormModel | null, lang: Lang): Promise<HomePageRawData> =>
 {
-    if (!setData) return createEmptyRawData();
-    const homePage = setData.SpecHomePage1821 ?? null;
-    const banners = sortByRowNo(setData.SpecHomePage1821_Banner);
-    const shortcuts = sortByRowNo(setData.SpecHomePage1821_Shortcut).slice(0, MAX_SHORTCUT_ITEMS);
-    const moduleItems = sortByRowNo(setData.SpecHomePage1821_ShortcutModuleItem);
+    if (!formModelData) return createEmptyRawData();
+    const homePage = formModelData;
+    const banners = sortByRowNo(formModelData._SpecHomePage1821_Banner);
+    const shortcuts = sortByRowNo(formModelData._SpecHomePage1821_Shortcut).slice(0, MAX_SHORTCUT_ITEMS);
+    const moduleItems = shortcuts.flatMap((shortcut) => sortByRowNo(shortcut._SpecHomePage1821_ShortcutModuleItem));
     const nowIsoLocal = formatLocalIso(new Date());
     const shortcutViewModels = await buildShortcutViewModels(args, lang, shortcuts, moduleItems, nowIsoLocal);
     const linkList = await loadSection4Links(args, lang, homePage);
     return { homePage, banners, shortcuts: shortcutViewModels, featureCards: buildFeatureCards(homePage), linkList };
 };
 
-const buildFeatureCards = (homePage: SpecHomePage1821Model | null): HomePageFeatureCardViewModel[] =>
+const buildFeatureCards = (homePage: SpecHomePage1821FormModel | null): HomePageFeatureCardViewModel[] =>
 {
     if (!homePage) return [];
     return [
@@ -350,7 +349,7 @@ const loadAnnouncementList = async (
     lang: Lang,
     options: HomePageOptions,
     nowIsoLocal: string,
-): Promise<AnnouncementSet[]> =>
+): Promise<AnnouncementFormModel[]> =>
 {
     const api = getSsrApi(args.request);
     const adapter = AnnouncementAdapter(api);
@@ -455,7 +454,7 @@ const loadFileArchiveList = async (
     args: LoaderFunctionArgs,
     lang: Lang,
     options: HomePageOptions,
-): Promise<FileArchiveSet[]> =>
+): Promise<FileArchiveFormModel[]> =>
 {
     const api = getSsrApi(args.request);
     const adapter = FileArchiveAdapter(api);
@@ -524,15 +523,20 @@ const buildFileArchiveHomeQuery = (p: {
             FileArchiveFields.ContentStatus,
             `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.FileArchiveId}`,
             `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.RowId}`,
+            `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.RowNo}`,
             `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.Lang}`,
             `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields.Title}`,
             `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.FileArchiveId}`,
+            `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.RowId}`,
+            `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.RowNo}`,
             `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.ParentRowId}`,
             `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.FileSrcId}`,
             `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.FileName}`,
-            `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.FileSrc}.${FileManageModelFields.InternalId}`,
-            `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.FileSrc}.${FileManageModelFields.FileExtension}`,
+            `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.FileSrc}.${FileManageFields.InternalId}`,
+            `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveDetail}.${FileArchiveDetailFields.FileSrc}.${FileManageFields.FileExtension}`,
             `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveUrlDetail}.${FileArchiveUrlDetailFields.FileArchiveId}`,
+            `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveUrlDetail}.${FileArchiveUrlDetailFields.RowId}`,
+            `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveUrlDetail}.${FileArchiveUrlDetailFields.RowNo}`,
             `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveUrlDetail}.${FileArchiveUrlDetailFields.ParentRowId}`,
             `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveUrlDetail}.${FileArchiveUrlDetailFields.Url}`,
             `${FileArchiveFields._FileArchiveInfo}.${FileArchiveInfoFields._FileArchiveUrlDetail}.${FileArchiveUrlDetailFields.UrlDescription}`,
@@ -553,7 +557,7 @@ const buildFileArchiveHomeQuery = (p: {
 const loadSection4Links = async (
     args: LoaderFunctionArgs,
     lang: Lang,
-    homePage: SpecHomePage1821Model | null,
+    homePage: SpecHomePage1821FormModel | null,
 ): Promise<HomePageLinkViewModel[]> =>
 {
     if (!homePage) return [];
@@ -650,25 +654,25 @@ const buildWebResourceHomeQuery = (p: {
 };
 
 const toLinkViewModel = (
-    item: WebResourceSet,
+    item: WebResourceFormModel,
     lang: Lang,
 ): HomePageLinkViewModel | null =>
 {
-    const detail = item.WebResourceInfo?.find((info) => info.Lang === lang)
-        ?? item.WebResourceInfo?.[0];
+    const detail = item._WebResourceInfo?.find((info) => info.Lang === lang)
+        ?? item._WebResourceInfo?.[0];
     const title = getSafeString(detail?.Title);
     const url = getSafeString(detail?.ResUrl);
     if (!title && !url) return null;
 
     return {
         key: getSafeString(
-            item.WebResource?.InternalId ?? item.WebResource?.WebResourceId ?? title,
+            item?.InternalId ?? item?.WebResourceId ?? title,
         ),
         title,
         url,
-        pictureId: getSafeString(item.WebResource?.PicId),
+        pictureId: getSafeString(item?.PicId),
         pictureDescription: getSafeString(
-            item.WebResource?.PicDescription ?? title,
+            item?.PicDescription ?? title,
         ),
     };
 };
@@ -679,26 +683,26 @@ const buildHomePageQueryParam = (lang?: Lang): QueryListParam =>
 
     return {
         Fields: [
-            SpecHomePage1821ModelFields.InternalId,
-            SpecHomePage1821ModelFields.Lang,
-            SpecHomePage1821ModelFields.CreateTime,
-            SpecHomePage1821ModelFields.ModifyTime,
+            SpecHomePage1821Fields.InternalId,
+            SpecHomePage1821Fields.Lang,
+            SpecHomePage1821Fields.CreateTime,
+            SpecHomePage1821Fields.ModifyTime,
         ],
         Condition: safeLang
-            ? `${SpecHomePage1821ModelFields.Lang} = "${safeLang}"`
+            ? `${SpecHomePage1821Fields.Lang} = "${safeLang}"`
             : "",
         OrderBy: [
-            { Col: SpecHomePage1821ModelFields.ModifyTime, Desc: true },
-            { Col: SpecHomePage1821ModelFields.CreateTime, Desc: true },
+            { Col: SpecHomePage1821Fields.ModifyTime, Desc: true },
+            { Col: SpecHomePage1821Fields.CreateTime, Desc: true },
         ],
         PageNumber: 1,
         PageSize: 1,
     };
 };
 
-const getInternalIdFromListRow = (row?: SpecHomePage1821Set | null) =>
+const getInternalIdFromListRow = (row?: SpecHomePage1821FormModel | null) =>
 {
-    return getSafeString(row?.SpecHomePage1821?.InternalId);
+    return getSafeString(row?.InternalId);
 };
 
 const loadFirstHomePageRow = async (
@@ -718,7 +722,7 @@ const loadFirstHomePageRow = async (
     return list[0] ?? null;
 };
 
-const loadHomePageSet = async (
+const loadHomePageFormModel = async (
     args: LoaderFunctionArgs,
     adapter: ReturnType<typeof SpecHomePage1821Adapter>,
     internalId: string,

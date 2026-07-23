@@ -17,13 +17,13 @@ import { type LoaderFunctionArgs, redirect } from "react-router-dom";
 // #region Property
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 
-type BannerSet = components["schemas"]["BannerSet_DTO"];
+type BannerFormModel = components["schemas"]["Banner"];
 
-type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"];
+type CategoryFormModel = components["schemas"]["Category"];
 
 type GallerySet = components["schemas"]["GallerySet_DTO"];
 
-type TagSet = components["schemas"]["TagSet_DTO"];
+type TagFormModel = components["schemas"]["TagData"];
 
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
 
@@ -35,7 +35,7 @@ interface HomePageQueryState
 
 export interface HomePageRawData
 {
-    bannerSliderBanner: BannerSet | null;
+    bannerSliderBanner: BannerFormModel | null;
 
     categoryTabsTopAllNews: AnnouncementSet[];
     categoryTabsTopProjectNews: AnnouncementSet[];
@@ -51,14 +51,14 @@ export interface HomePageRawData
     categoryTabsAwardNews: AnnouncementSet[];
     categoryTabsMediaNews: AnnouncementSet[];
 
-    categoryTabsCategories: CategoryDataSet[];
-    categoryTabsTags: TagSet[];
+    categoryTabsCategories: CategoryFormModel[];
+    categoryTabsTags: TagFormModel[];
 
     eventAnnouncements: AnnouncementSet[];
-    eventTags: TagSet[];
+    eventTags: TagFormModel[];
 
     galleryList: GallerySet[];
-    galleryCategories: CategoryDataSet[];
+    galleryCategories: CategoryFormModel[];
 
     videoList: WebResourceSet[];
 }
@@ -103,8 +103,8 @@ export interface HomePageCategoryTabsHookResult
     awardRawData: AnnouncementSet[];
     mediaRawData: AnnouncementSet[];
 
-    categoryData: CategoryDataSet[];
-    tagData: TagSet[];
+    categoryData: CategoryFormModel[];
+    tagData: TagFormModel[];
     categoryDict: Record<string, string>;
     tagDict: Record<string, string>;
     loadingList: boolean[];
@@ -114,7 +114,7 @@ export interface HomePageCategoryTabsHookResult
 export interface HomePageEventHookResult
 {
     announcementData: AnnouncementSet[];
-    tagData: TagSet[];
+    tagData: TagFormModel[];
     tagDict: Record<string, string>;
     loadingList: boolean[];
     errorList: Array<string | null>;
@@ -123,7 +123,7 @@ export interface HomePageEventHookResult
 export interface HomePageGalleryHookResult
 {
     galleryData: GallerySet[];
-    categoryData: CategoryDataSet[];
+    categoryData: CategoryFormModel[];
     categoryDict: Record<string, string>;
     loadingList: boolean[];
     errorList: Array<string | null>;
@@ -334,8 +334,8 @@ const toVideoRawData = (data: SpecHomePageInitialDataDTO): Pick<HomePageRawData,
 
 const buildCategoryTabsResult = (
     data: HomePageRawData,
-    categoryData: CategoryDataSet[],
-    tagData: TagSet[],
+    categoryData: CategoryFormModel[],
+    tagData: TagFormModel[],
     categoryDict: Record<string, string>,
     tagDict: Record<string, string>,
     queryState: HomePageQueryState,

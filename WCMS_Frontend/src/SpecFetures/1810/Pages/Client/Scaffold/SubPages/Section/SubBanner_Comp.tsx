@@ -9,8 +9,8 @@ import { BannerDetailFields, BannerDetailInfoFields, BannerFields } from "@/type
 import { useMemo } from "react";
 
 // #region Property
-type BannerSet = components["schemas"]["BannerSet_DTO"];
-type BannerDetail = components["schemas"]["BannerDetail_DTO"];
+type BannerFormModel = components["schemas"]["Banner"];
+type BannerDetail = components["schemas"]["BannerDetail"];
 type QueryListParam = components["schemas"]["QueryListParam"];
 
 interface SubBannerCompProps
@@ -71,7 +71,7 @@ const useSubBannerData = (
     adapter: ReturnType<typeof BannerSliderAdapter>,
     lang: Lang,
     bannerId: string,
-    initial: ApiLoaderData<QueryListParam, BannerSet[]> | null,
+    initial: ApiLoaderData<QueryListParam, BannerFormModel[]> | null,
 ) =>
 {
     // 宣告變數
@@ -82,7 +82,7 @@ const useSubBannerData = (
 };
 
 /** 建立 Banner 查詢條件。 */
-const buildBannerQueryCondition = (initial: ApiLoaderData<QueryListParam, BannerSet[]> | null, bannerId: string): QueryListParam =>
+const buildBannerQueryCondition = (initial: ApiLoaderData<QueryListParam, BannerFormModel[]> | null, bannerId: string): QueryListParam =>
 {
     // 執行 function
     if (initial?.args) return initial.args;
@@ -105,11 +105,11 @@ const buildBannerQueryCondition = (initial: ApiLoaderData<QueryListParam, Banner
 };
 
 /** 選出第一張有效 Banner 圖。 */
-const resolveSubBannerDetail = (banner: BannerSet | undefined): BannerDetail | null =>
+const resolveSubBannerDetail = (banner: BannerFormModel | undefined): BannerDetail | null =>
 {
     // 宣告變數
     const now = Date.now();
-    const list = banner?.BannerDetail ?? [];
+    const list = banner?._BannerDetail ?? [];
 
     // return
     return [...list].filter(d => isValidBannerDetail(d, now)).sort((a, b) => (a.Sort ?? 0) - (b.Sort ?? 0))[0] ?? null;

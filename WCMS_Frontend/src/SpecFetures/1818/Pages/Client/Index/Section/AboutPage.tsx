@@ -13,7 +13,7 @@ type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
 
 type PageManagementSet = components["schemas"]["PageManagementSet_DTO"];
 
-type BannerSet = components["schemas"]["BannerSet_DTO"];
+type BannerFormModel = components["schemas"]["Banner"];
 // #endregion
 
 // #region Public
@@ -27,7 +27,7 @@ export const AboutPage = (
 
         initialWebResource: WebResourceSet | null;
         initialPage: PageManagementSet | null;
-        initialAdmissionsBanner: BannerSet | null;
+        initialAdmissionsBanner: BannerFormModel | null;
     },
 ) =>
 {

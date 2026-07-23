@@ -2,10 +2,10 @@ import { Server_FormTemplate_Comp } from "@/Features/Pages/Server/Scaffold/Conte
 import type { ServerFormBinding } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { LibTextBox } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
-import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
+import { useFormModelField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
-import { RoleDataModelFields, RolePermissionSetFields } from "@/types/SchemaFields";
+import { RoleDataFields } from "@/types/SchemaFields";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
 import { useCallback, useMemo } from "react";
@@ -23,15 +23,15 @@ import {
 } from "./Server_RolePermission_Form_Hook";
 
 // #region Property
-type RolePermissionSet = components["schemas"]["RolePermissionSet_DTO"];
+type RolePermissionFormModel = components["schemas"]["RoleData"];
 
-type RolePermissionBinding = ServerFormBinding<RolePermissionSet>;
+type RolePermissionBinding = ServerFormBinding<RolePermissionFormModel>;
 
 
 type RolePermissionUI = ReturnType<typeof useRolePermissionPermissionUI>;
 
 
-type SetRolePermissionField = ReturnType<typeof useSetTableField<RolePermissionSet>>;
+type SetRolePermissionField = ReturnType<typeof useFormModelField<RolePermissionFormModel>>;
 
 
 interface RolePermissionFormCompProps
@@ -186,7 +186,7 @@ const RolePermissionContentComp = (props: RolePermissionContentProps) =>
 /** 角色基本資料區。 */
 const HeaderSectionComp = (props: HeaderSectionProps) =>
 {
-    const setField = useSetTableField<RolePermissionSet>(props.binding);
+    const setField = useFormModelField<RolePermissionFormModel>(props.binding);
 
     return (
         <div className="row">
@@ -235,13 +235,13 @@ const RoleFieldGroupComp = (props: RoleFieldGroupProps) =>
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
-                    {...props.setField(RolePermissionSetFields.RoleData, RoleDataModelFields.RoleId, "string")}
+                    {...props.setField(RoleDataFields.RoleId, "string")}
                     disabled={!props.isAddNew}
                 />
                 <LibTextBox
                     Style={props.theme.TextBox3}
                     DefaultInputDisplay="請輸入"
-                    {...props.setField(RolePermissionSetFields.RoleData, RoleDataModelFields.RoleName, "string")}
+                    {...props.setField(RoleDataFields.RoleName, "string")}
                 />
             </div>
         </div>

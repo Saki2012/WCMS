@@ -32,7 +32,7 @@ type ServerListColumnSource = string | ServerListVisibleColumn;
 type ServerListCategoryTextValue =
     | string
     | {
-        CategoryDetail?: ({ Lang?: Lang | string | null; CategoryName?: string | null; } | null)[] | null;
+        _CategoryDetail?: ({ Lang?: Lang | string | null; CategoryName?: string | null; } | null)[] | null;
     }
     | null
     | undefined;
@@ -40,7 +40,7 @@ type ServerListCategoryTextValue =
 type ServerListTagTextValue =
     | string
     | {
-        TagDetail?: ({ Lang?: Lang | string | null; TagName?: string | null; } | null)[] | null;
+        _TagDetail?: ({ Lang?: Lang | string | null; TagName?: string | null; } | null)[] | null;
     }
     | null
     | undefined;
@@ -158,7 +158,7 @@ const getServerCategoryText = (value: ServerListCategoryTextValue, lang: Lang): 
 {
     if (!value) return "";
     if (typeof value === "string") return value;
-    return findTextByKey(value.CategoryDetail, (detail) => detail?.Lang, lang, (detail) => detail?.CategoryName);
+    return findTextByKey(value._CategoryDetail, (detail) => detail?.Lang, lang, (detail) => detail?.CategoryName);
 };
 
 /** 取得標籤顯示文字 */
@@ -166,6 +166,6 @@ const getServerTagText = (value: ServerListTagTextValue, lang: Lang): string =>
 {
     if (!value) return "";
     if (typeof value === "string") return value;
-    return findTextByKey(value.TagDetail, (detail) => detail?.Lang, lang, (detail) => detail?.TagName);
+    return findTextByKey(value._TagDetail, (detail) => detail?.Lang, lang, (detail) => detail?.TagName);
 };
 // #endregion

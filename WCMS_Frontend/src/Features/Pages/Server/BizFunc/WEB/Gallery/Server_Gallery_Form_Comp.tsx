@@ -12,11 +12,11 @@ import { getEditGridCellValue, getEditGridRowId, getEditGridRowKey, useEditGridS
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
 import { LibCalendar, LibCheckBox, LibFile, LibModal, LibPicturePreview, LibTextBox, LibTinyMCE } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
-import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
+import { useFormModelField, useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
 import type { components } from "@/types/api";
-import { GalleryFields, GalleryInfoFields, GalleryPhotosFields, GallerySetFields } from "@/types/SchemaFields";
+import { GalleryFields, GalleryInfoFields, GalleryPhotosFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
@@ -38,7 +38,7 @@ import {
 } from "./Server_Gallery_Form_Hook";
 
 // #region Property
-type GallerySet = components["schemas"]["GallerySet_DTO"];
+type GalleryFormModel = components["schemas"]["Gallery"];
 
 interface GalleryFormCompProps
 {
@@ -58,7 +58,7 @@ interface GalleryContentProps
     lang: Lang;
 
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<GallerySet>;
+    binding: ServerFormBinding<GalleryFormModel>;
 
     /** Gallery Hook 整理後的參照資料 */
     refs: GalleryFormRefs;
@@ -70,7 +70,7 @@ interface GalleryHeaderProps
     theme: IBETheme;
 
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<GallerySet>;
+    binding: ServerFormBinding<GalleryFormModel>;
 
     /** Gallery Hook 整理後的參照資料 */
     refs: GalleryFormRefs;
@@ -85,7 +85,7 @@ interface GalleryInfoProps
     lang: Lang;
 
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<GallerySet>;
+    binding: ServerFormBinding<GalleryFormModel>;
 }
 
 interface PhotoGridProps
@@ -97,7 +97,7 @@ interface PhotoGridProps
     lang: Lang;
 
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<GallerySet>;
+    binding: ServerFormBinding<GalleryFormModel>;
 }
 
 interface PhotoInfoSubDetailProps extends PhotoGridProps
@@ -133,7 +133,7 @@ interface GalleryPicturePreviewProps
 interface GalleryHeaderTabContentOptions extends GalleryHeaderProps
 {
     /** 欄位 binding helper */
-    setField: ReturnType<typeof useSetTableField<GallerySet>>;
+    setField: ReturnType<typeof useFormModelField<GalleryFormModel>>;
 }
 
 const editGridStyle: IEditGridView_Style = {
@@ -189,7 +189,7 @@ const GalleryContentComp = (props: GalleryContentProps) =>
 /** 相簿 Header 區塊，維持舊版 Header input。 */
 const GalleryHeaderComp = (props: GalleryHeaderProps) =>
 {
-    const setField = useSetTableField<GallerySet>(props.binding);
+    const setField = useFormModelField<GalleryFormModel>(props.binding);
     const tabInfo: LibTabsProp = { Style: props.theme.Tabs, item: { Basic: "基本", Status: "狀態", Tags: "標籤" } };
     const components = buildGalleryHeaderTabContent({ ...props, setField });
 
@@ -199,7 +199,7 @@ const GalleryHeaderComp = (props: GalleryHeaderProps) =>
 /** 相簿語系 Detail 區塊，語系資料由 Hook 統一整理。 */
 const GalleryInfoComp = (props: GalleryInfoProps) =>
 {
-    const setField = useSetTableField<GallerySet>(props.binding);
+    const setField = useSetTableField<GalleryFormModel>(props.binding);
     const detailTabs = useGalleryInfoTabs({ binding: props.binding, lang: props.lang });
     const tabInfo: LibTabsProp = { Style: props.theme.Tabs, item: detailTabs.tabItems };
     const components = detailTabs.items.reduce<Record<string, ReactNode[]>>((compMap, item) =>
@@ -302,7 +302,7 @@ const PhotoInfoSubDetailGridComp = (props: PhotoInfoSubDetailProps) =>
 };
 
 /** 批次上傳圖片，和 EditGrid 內建新增單筆按鈕分離。 */
-const GalleryBatchUploadComp = (props: { theme: IBETheme; binding: ServerFormBinding<GallerySet>; }) =>
+const GalleryBatchUploadComp = (props: { theme: IBETheme; binding: ServerFormBinding<GalleryFormModel>; }) =>
 {
     const batch = useGalleryBatchPhotoUpload({ binding: props.binding });
     /** 移除批次上傳前的單張預覽圖片。 */
@@ -381,9 +381,9 @@ const buildGalleryBasicFields = (opt: GalleryHeaderTabContentOptions): ReactNode
         <LibCheckBox
             Style={opt.theme.CheckBox}
             options={opt.refs.categoryMap}
-            {...opt.setField(GallerySetFields.Gallery, GalleryFields.Categories, "string", undefined, "csv")}
+            {...opt.setField(GalleryFields.Categories, "string", "csv")}
         />,
-        <LibCalendar {...opt.setField(GallerySetFields.Gallery, GalleryFields.Validate_Start, "datetime")}></LibCalendar>,
+        <LibCalendar {...opt.setField(GalleryFields.Validate_Start, "datetime")}></LibCalendar>,
     ];
 };
 
@@ -394,7 +394,7 @@ const buildGalleryStatusFields = (opt: GalleryHeaderTabContentOptions): ReactNod
         <LibCheckBox
             Style={opt.theme.CheckBox}
             options={opt.refs.statusOpts}
-            {...opt.setField(GallerySetFields.Gallery, GalleryFields.ContentStatus, "number", undefined, {
+            {...opt.setField(GalleryFields.ContentStatus, "number", {
                 strategy: "sum",
                 sumKeys: Object.keys(opt.refs.statusOpts ?? {}).map(Number),
             })}
@@ -409,21 +409,21 @@ const buildGalleryTagFields = (opt: GalleryHeaderTabContentOptions): ReactNode[]
         <LibCheckBox
             Style={opt.theme.CheckBox}
             options={opt.refs.tagMap}
-            {...opt.setField(GallerySetFields.Gallery, GalleryFields.Tags, "string", undefined, "csv")}
+            {...opt.setField(GalleryFields.Tags, "string", "csv")}
         />,
     ];
 };
 
 /** 建立相簿語系欄位。 */
-const buildGalleryInfoFields = (theme: IBETheme, setField: ReturnType<typeof useSetTableField<GallerySet>>, rowKeys: GalleryInfoRowKeys): ReactNode[] =>
+const buildGalleryInfoFields = (theme: IBETheme, setField: ReturnType<typeof useSetTableField<GalleryFormModel>>, rowKeys: GalleryInfoRowKeys): ReactNode[] =>
 {
     return [
         <LibTextBox
             Style={theme.TextBox}
             DefaultInputDisplay="請輸入標題 ..."
-            {...setField(GallerySetFields.GalleryInfo, GalleryInfoFields.Title, "string", rowKeys)}
+            {...setField(GalleryFields._GalleryInfo, GalleryInfoFields.Title, "string", rowKeys)}
         />,
-        <LibTinyMCE Style={theme.TinyMCE} {...setField(GallerySetFields.GalleryInfo, GalleryInfoFields.Content, "string", rowKeys)} />,
+        <LibTinyMCE Style={theme.TinyMCE} {...setField(GalleryFields._GalleryInfo, GalleryInfoFields.Content, "string", rowKeys)} />,
     ];
 };
 // #endregion

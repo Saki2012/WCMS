@@ -19,13 +19,13 @@ import type { LoaderFunctionArgs } from "react-router-dom";
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type BannerSet = components["schemas"]["BannerSet_DTO"];
+type BannerFormModel = components["schemas"]["Banner"];
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 
-type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
+type CategoryFormModel = components["schemas"]["Category"];
 
-type TagSet = components["schemas"]["TagSet_DTO"];
+type TagFormModel = components["schemas"]["TagData"];
 
 type CurrentOpenTime = components["schemas"]["SpecCurrentOpenTime_DTO"];
 
@@ -33,11 +33,11 @@ type ApiLoaderDataCompat<TArgs, TData> = { args: TArgs; env: ApiResponse<TData>;
 
 export interface HomePageRawData
 {
-    linkIconsBanner: BannerSet | null;
-    carouselBanner: BannerSet | null;
-    collectionsBanner: BannerSet | null;
-    specialLinkBanner: BannerSet | null;
-    quickLinksBanner: BannerSet | null;
+    linkIconsBanner: BannerFormModel | null;
+    carouselBanner: BannerFormModel | null;
+    collectionsBanner: BannerFormModel | null;
+    specialLinkBanner: BannerFormModel | null;
+    quickLinksBanner: BannerFormModel | null;
 
     currentOpenTime: CurrentOpenTime | null;
 
@@ -45,8 +45,8 @@ export interface HomePageRawData
     newsList02: AnnouncementSet[];
     newsList03: AnnouncementSet[];
     newsList04: AnnouncementSet[];
-    newsCategories: CategorySet[];
-    newsTags: TagSet[];
+    newsCategories: CategoryFormModel[];
+    newsTags: TagFormModel[];
 }
 
 export interface HomePageLoaderArgs
@@ -153,11 +153,11 @@ export const HomePageLoader = (p: { lang: Lang; }) => async ({ request }: Loader
     ]);
 
     // 宣告變數：整理資料（只保留 Data）
-    const linkIconsBanner = takeFirstOrNull<BannerSet>(getEnv(linkLD).Data);
-    const carouselBanner = takeFirstOrNull<BannerSet>(getEnv(carouselLD).Data);
-    const collectionsBanner = takeFirstOrNull<BannerSet>(getEnv(collectionsLD).Data);
-    const specialLinkBanner = takeFirstOrNull<BannerSet>(getEnv(specialLD).Data);
-    const quickLinksBanner = takeFirstOrNull<BannerSet>(getEnv(quickLD).Data);
+    const linkIconsBanner = takeFirstOrNull<BannerFormModel>(getEnv(linkLD).Data);
+    const carouselBanner = takeFirstOrNull<BannerFormModel>(getEnv(carouselLD).Data);
+    const collectionsBanner = takeFirstOrNull<BannerFormModel>(getEnv(collectionsLD).Data);
+    const specialLinkBanner = takeFirstOrNull<BannerFormModel>(getEnv(specialLD).Data);
+    const quickLinksBanner = takeFirstOrNull<BannerFormModel>(getEnv(quickLD).Data);
 
     const newsList01 = getEnv(news01LD).Data ?? [];
     const newsList02 = getEnv(news02LD).Data ?? [];

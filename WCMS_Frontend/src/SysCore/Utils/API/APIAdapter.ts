@@ -15,10 +15,10 @@ export type ServerFormActions = { Save: () => Promise<void>; Delete: () => Promi
 
 export type ApiLoaderData<TArgs, TData> = { args: TArgs; apiRes: ApiResponse<TData>; };
 
-export type ApiGridLoaderData<TSet> = {
+export type ApiGridLoaderData<TModel> = {
     model: ApiLoaderData<null, ModelDisplaySchema[]>;
     count: ApiLoaderData<QueryListParam, number>;
-    list: ApiLoaderData<QueryListParam, TSet[]>;
+    list: ApiLoaderData<QueryListParam, TModel[]>;
 };
 
 export type ApiAdapterError = { messageText: string; sysMessages: SysMessageModel[]; httpStatus?: number; action?: string; };
@@ -37,12 +37,12 @@ export type ApiActionResult<TArgs, TData> = { execute: (args: TArgs) => Promise<
 /** 後台標準動作：用來區分成功後是哪個 action */
 export type ServerActionMode = "create" | "update" | "delete" | "invalid";
 
-export type UseServerActionsResult<TSet> = {
+export type UseServerActionsResult<TModel> = {
     isSaving: boolean;
-    createAsync: (data: TSet) => Promise<ApiResponse<TSet>>;
-    updateAsync: (internalId: string, data: TSet) => Promise<ApiResponse<TSet>>;
-    deleteAsync: (internalId: string) => Promise<ApiResponse<TSet>>;
-    invalidAsync: (internalId: string, isInvalid: boolean) => Promise<ApiResponse<TSet>>;
+    createAsync: (data: TModel) => Promise<ApiResponse<TModel>>;
+    updateAsync: (internalId: string, data: TModel) => Promise<ApiResponse<TModel>>;
+    deleteAsync: (internalId: string) => Promise<ApiResponse<TModel>>;
+    invalidAsync: (internalId: string, isInvalid: boolean) => Promise<ApiResponse<TModel>>;
 };
 
 /** useServerActions 的可選參數：完全不傳也可（只做 toast） */
@@ -59,27 +59,27 @@ type MaybeArray<T> = T | ReadonlyArray<T>;
 // 2) ApiDataAdapter（資料型共用：Query/Count/Data + CUD hooks）
 // ============================================================================
 
-export interface ApiDataService<TSet>
+export interface ApiDataService<TModel>
 {
     getModelDisplayName: () => Promise<ApiResponse<ModelDisplaySchema[]>>;
-    queryData: (internalId: string) => Promise<ApiResponse<TSet>>;
-    queryList: (condition: QueryListParam) => Promise<ApiResponse<TSet[]>>;
+    queryData: (internalId: string) => Promise<ApiResponse<TModel>>;
+    queryList: (condition: QueryListParam) => Promise<ApiResponse<TModel[]>>;
     queryCount: (condition: QueryListParam) => Promise<ApiResponse<number>>;
 
-    create?: (data: TSet) => Promise<ApiResponse<TSet>>;
-    update?: (internalId: string, data: TSet) => Promise<ApiResponse<TSet>>;
-    delete?: (internalId: string) => Promise<ApiResponse<TSet>>;
-    invalid?: (internalId: string, isInvalid: boolean) => Promise<ApiResponse<TSet>>;
+    create?: (data: TModel) => Promise<ApiResponse<TModel>>;
+    update?: (internalId: string, data: TModel) => Promise<ApiResponse<TModel>>;
+    delete?: (internalId: string) => Promise<ApiResponse<TModel>>;
+    invalid?: (internalId: string, isInvalid: boolean) => Promise<ApiResponse<TModel>>;
 }
 
-export type ApiDataLoaderGroup<TSet> = {
+export type ApiDataLoaderGroup<TModel> = {
     createModelDisplayNameLoader: (
         opt?: { getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; },
     ) => (args: LoaderFunctionArgs) => Promise<ApiLoaderData<null, ModelDisplaySchema[]>>;
 
     createQueryListLoader: (
         opt: { getCondition: (args: LoaderFunctionArgs) => QueryListParam; getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; },
-    ) => (args: LoaderFunctionArgs) => Promise<ApiLoaderData<QueryListParam, TSet[]>>;
+    ) => (args: LoaderFunctionArgs) => Promise<ApiLoaderData<QueryListParam, TModel[]>>;
 
     createQueryCountLoader: (
         opt: { getCondition: (args: LoaderFunctionArgs) => QueryListParam; getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; },
@@ -87,23 +87,23 @@ export type ApiDataLoaderGroup<TSet> = {
 
     createQueryDataLoader: (
         opt: { getInternalId: (args: LoaderFunctionArgs) => string; getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; },
-    ) => (args: LoaderFunctionArgs) => Promise<ApiLoaderData<string, TSet>>;
+    ) => (args: LoaderFunctionArgs) => Promise<ApiLoaderData<string, TModel>>;
     createQueryGridDataLoader: (
         opt: { getCondition: (args: LoaderFunctionArgs) => QueryListParam; getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; },
-    ) => (args: LoaderFunctionArgs) => Promise<ApiGridLoaderData<TSet>>;
+    ) => (args: LoaderFunctionArgs) => Promise<ApiGridLoaderData<TModel>>;
 };
 
-export type ApiGridInitial<TSet> = {
+export type ApiGridInitial<TModel> = {
     model?: ApiLoaderData<null, ModelDisplaySchema[]> | null;
     count?: ApiLoaderData<QueryListParam, number> | null;
-    list?: ApiLoaderData<QueryListParam, TSet[]> | null;
+    list?: ApiLoaderData<QueryListParam, TModel[]> | null;
 };
 
-export type ApiFormInitial<TSet> = { model?: ApiLoaderData<null, ModelDisplaySchema[]> | null; data?: ApiLoaderData<string, TSet> | null; };
+export type ApiFormInitial<TModel> = { model?: ApiLoaderData<null, ModelDisplaySchema[]> | null; data?: ApiLoaderData<string, TModel> | null; };
 
 export type ApiFormMode = "new" | "edit";
 
-export type ApiDataHookGroup<TSet> = {
+export type ApiDataHookGroup<TModel> = {
     useModelDisplayName: (
         opt?: {
             initial?: ApiLoaderData<null, ModelDisplaySchema[]> | null;
@@ -122,12 +122,12 @@ export type ApiDataHookGroup<TSet> = {
     useQueryList: (
         opt: {
             condition: QueryListParam;
-            initial?: ApiLoaderData<QueryListParam, TSet[]> | null;
+            initial?: ApiLoaderData<QueryListParam, TModel[]> | null;
             deps: EffectDeps;
             onError?: (err: ApiAdapterError) => void;
             apiInstance?: AxiosInstance;
         },
-    ) => { data: TSet[]; apiRes: ApiResponse<TSet[]> | null; isLoading: boolean; errorText: string | null; refetch: () => Promise<void>; };
+    ) => { data: TModel[]; apiRes: ApiResponse<TModel[]> | null; isLoading: boolean; errorText: string | null; refetch: () => Promise<void>; };
 
     useQueryCount: (
         opt: {
@@ -143,14 +143,14 @@ export type ApiDataHookGroup<TSet> = {
         opt: {
             baseParam: QueryListParam;
             count: number;
-            initial?: ApiLoaderData<QueryListParam, TSet[]> | null;
+            initial?: ApiLoaderData<QueryListParam, TModel[]> | null;
             deps: EffectDeps;
             onError?: (err: ApiAdapterError) => void;
             apiInstance?: AxiosInstance;
         },
     ) => {
-        data: TSet[];
-        apiRes: ApiResponse<TSet[]> | null;
+        data: TModel[];
+        apiRes: ApiResponse<TModel[]> | null;
         isLoading: boolean;
         errorText: string | null;
         refetch: () => Promise<void>;
@@ -165,35 +165,35 @@ export type ApiDataHookGroup<TSet> = {
     useQueryData: (
         opt: {
             internalId: string;
-            initial?: ApiLoaderData<string, TSet> | null;
+            initial?: ApiLoaderData<string, TModel> | null;
             deps: EffectDeps;
             onError?: (err: ApiAdapterError) => void;
             apiInstance?: AxiosInstance;
         },
-    ) => { data: TSet | null; apiRes: ApiResponse<TSet> | null; isLoading: boolean; errorText: string | null; refetch: () => Promise<void>; };
+    ) => { data: TModel | null; apiRes: ApiResponse<TModel> | null; isLoading: boolean; errorText: string | null; refetch: () => Promise<void>; };
 
     useCudActions: (
         opt?: { onError?: (err: ApiAdapterError) => void; apiInstance?: AxiosInstance; },
     ) => {
         isSaving: boolean;
-        createAsync: (data: TSet) => Promise<ApiResponse<TSet>>;
-        updateAsync: (internalId: string, data: TSet) => Promise<ApiResponse<TSet>>;
-        deleteAsync: (internalId: string) => Promise<ApiResponse<TSet>>;
-        invalidAsync: (internalId: string, isInvalid: boolean) => Promise<ApiResponse<TSet>>;
+        createAsync: (data: TModel) => Promise<ApiResponse<TModel>>;
+        updateAsync: (internalId: string, data: TModel) => Promise<ApiResponse<TModel>>;
+        deleteAsync: (internalId: string) => Promise<ApiResponse<TModel>>;
+        invalidAsync: (internalId: string, isInvalid: boolean) => Promise<ApiResponse<TModel>>;
     };
     useQueryGridData: (
         opt: {
             baseParam: QueryListParam;
             deps: EffectDeps;
             modelDeps?: EffectDeps;
-            initial?: ApiGridInitial<TSet>;
+            initial?: ApiGridInitial<TModel>;
             onError?: (err: ApiAdapterError) => void;
             apiInstance?: AxiosInstance;
         },
     ) => {
         modelDisplayName: ModelDisplaySchema | null;
         count: number;
-        list: TSet[];
+        list: TModel[];
         isLoading: boolean;
         errors: string[];
         errorText: string | null;
@@ -208,16 +208,16 @@ export type ApiDataHookGroup<TSet> = {
         opt: {
             mode: ApiFormMode;
             internalId?: string;
-            empty?: TSet;
+            empty?: TModel;
             deps: EffectDeps;
             modelDeps?: EffectDeps;
-            initial?: ApiFormInitial<TSet>;
+            initial?: ApiFormInitial<TModel>;
             onError?: (err: ApiAdapterError) => void;
             apiInstance?: AxiosInstance;
         },
     ) => {
         modelDisplayName: ModelDisplaySchema | null;
-        data: TSet | null;
+        data: TModel | null;
         isLoading: boolean;
         errors: string[];
         errorText: string | null;
@@ -389,12 +389,12 @@ export class ApiBaseAdapter<TService>
     // #endregion
 }
 
-export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends ApiBaseAdapter<TSvc>
+export class ApiDataAdapter<TModel, TSvc extends ApiDataService<TModel>> extends ApiBaseAdapter<TSvc>
 {
     // #region Property
-    public loader: ApiDataLoaderGroup<TSet>;
+    public loader: ApiDataLoaderGroup<TModel>;
 
-    public hooks: ApiDataHookGroup<TSet>;
+    public hooks: ApiDataHookGroup<TModel>;
     // #endregion
 
     // #region Public
@@ -405,18 +405,18 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
         this.hooks = this.buildHookGroup();
     }
 
-    protected buildExtendedLoader(base: ApiDataLoaderGroup<TSet>): ApiDataLoaderGroup<TSet>
+    protected buildExtendedLoader(base: ApiDataLoaderGroup<TModel>): ApiDataLoaderGroup<TModel>
     {
         return base;
     }
 
-    protected buildExtendedHooks(base: ApiDataHookGroup<TSet>): ApiDataHookGroup<TSet>
+    protected buildExtendedHooks(base: ApiDataHookGroup<TModel>): ApiDataHookGroup<TModel>
     {
         return base;
     }
 
     /** 後台標準行為：CUD + Toast + Success / Error callback */
-    public useServerActions(opt?: UseServerActionsOptions): UseServerActionsResult<TSet>
+    public useServerActions(opt?: UseServerActionsOptions): UseServerActionsResult<TModel>
     {
         const { publish } = useToast();
         const cud = this.hooks.useCudActions({ apiInstance: opt?.apiInstance, onError: opt?.onError });
@@ -437,14 +437,14 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
         // return
         return {
             isSaving: cud.isSaving,
-            createAsync: async (data: TSet) =>
+            createAsync: async (data: TModel) =>
             {
                 const env = await cud.createAsync(data);
                 emitMessages(env);
                 if (env.IsSuccess) await runSuccess("create");
                 return env;
             },
-            updateAsync: async (internalId: string, data: TSet) =>
+            updateAsync: async (internalId: string, data: TModel) =>
             {
                 const env = await cud.updateAsync(internalId, data);
                 emitMessages(env);
@@ -472,9 +472,9 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
     // #endregion
 
     // #region Private
-    private buildLoaderGroup(): ApiDataLoaderGroup<TSet>
+    private buildLoaderGroup(): ApiDataLoaderGroup<TModel>
     {
-        const createModelDisplayNameLoader: ApiDataLoaderGroup<TSet>["createModelDisplayNameLoader"] = (opt) =>
+        const createModelDisplayNameLoader: ApiDataLoaderGroup<TModel>["createModelDisplayNameLoader"] = (opt) =>
         {
             return this.createApiLoader<null, ModelDisplaySchema[]>({
                 action: "Query.ModelDisplayName",
@@ -483,16 +483,16 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
                 getApiInstance: opt?.getApiInstance,
             });
         };
-        const createQueryListLoader: ApiDataLoaderGroup<TSet>["createQueryListLoader"] = (opt) =>
+        const createQueryListLoader: ApiDataLoaderGroup<TModel>["createQueryListLoader"] = (opt) =>
         {
-            return this.createApiLoader<QueryListParam, TSet[]>({
+            return this.createApiLoader<QueryListParam, TModel[]>({
                 action: "Query.QueryList",
                 getArgs: opt.getCondition,
                 call: (svc, c) => svc.queryList(c),
                 getApiInstance: opt.getApiInstance,
             });
         };
-        const createQueryCountLoader: ApiDataLoaderGroup<TSet>["createQueryCountLoader"] = (opt) =>
+        const createQueryCountLoader: ApiDataLoaderGroup<TModel>["createQueryCountLoader"] = (opt) =>
         {
             return this.createApiLoader<QueryListParam, number>({
                 action: "Query.QueryCount",
@@ -501,9 +501,9 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
                 getApiInstance: opt.getApiInstance,
             });
         };
-        const createQueryDataLoader: ApiDataLoaderGroup<TSet>["createQueryDataLoader"] = (opt) =>
+        const createQueryDataLoader: ApiDataLoaderGroup<TModel>["createQueryDataLoader"] = (opt) =>
         {
-            return this.createApiLoader<string, TSet>({
+            return this.createApiLoader<string, TModel>({
                 action: "Query.QueryData",
                 getArgs: opt.getInternalId,
                 call: async (svc, id) =>
@@ -515,12 +515,12 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
             });
         };
 
-        const createQueryGridDataLoader: ApiDataLoaderGroup<TSet>["createQueryGridDataLoader"] = (opt) =>
+        const createQueryGridDataLoader: ApiDataLoaderGroup<TModel>["createQueryGridDataLoader"] = (opt) =>
         {
             const loadModel = createModelDisplayNameLoader({ getApiInstance: opt.getApiInstance });
             const loadList = createQueryListLoader({ getCondition: opt.getCondition, getApiInstance: opt.getApiInstance });
             const loadCount = createQueryCountLoader({ getCondition: opt.getCondition, getApiInstance: opt.getApiInstance });
-            return async (args: LoaderFunctionArgs): Promise<ApiGridLoaderData<TSet>> =>
+            return async (args: LoaderFunctionArgs): Promise<ApiGridLoaderData<TModel>> =>
             {
                 const cdt = opt.getCondition(args);
                 const pageSize = cdt.PageSize ?? 0;
@@ -546,9 +546,9 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
         });
     }
 
-    private buildHookGroup(): ApiDataHookGroup<TSet>
+    private buildHookGroup(): ApiDataHookGroup<TModel>
     {
-        const useModelDisplayName: ApiDataHookGroup<TSet>["useModelDisplayName"] = (opt) =>
+        const useModelDisplayName: ApiDataHookGroup<TModel>["useModelDisplayName"] = (opt) =>
         {
             const r = this.useApiQuery<null, ModelDisplaySchema[]>({
                 action: "Query.ModelDisplayName",
@@ -566,9 +566,9 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
             }, [r.apiRes]);
             return { ...r, data };
         };
-        const useQueryList: ApiDataHookGroup<TSet>["useQueryList"] = (opt) =>
+        const useQueryList: ApiDataHookGroup<TModel>["useQueryList"] = (opt) =>
         {
-            const r = this.useApiQuery<QueryListParam, TSet[]>({
+            const r = this.useApiQuery<QueryListParam, TModel[]>({
                 action: "Query.QueryList",
                 args: opt.condition,
                 initial: opt.initial ?? null,
@@ -580,7 +580,7 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
             });
             return { ...r, data: r.data ?? [] };
         };
-        const useQueryCount: ApiDataHookGroup<TSet>["useQueryCount"] = (opt) =>
+        const useQueryCount: ApiDataHookGroup<TModel>["useQueryCount"] = (opt) =>
         {
             const r = this.useApiQuery<QueryListParam, number>({
                 action: "Query.QueryCount",
@@ -594,7 +594,7 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
             });
             return { ...r, data: r.data ?? 0 };
         };
-        const usePagedQueryList: ApiDataHookGroup<TSet>["usePagedQueryList"] = (opt) =>
+        const usePagedQueryList: ApiDataHookGroup<TModel>["usePagedQueryList"] = (opt) =>
         {
             const defaultPageNumber = opt.baseParam.PageNumber ?? 1;
             const resetKey = useMemo(() => buildPagedQueryResetKey(opt.baseParam, opt.deps), [opt.baseParam, opt.deps]);
@@ -632,7 +632,7 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
                 return matchedInitial ? (opt.initial ?? null) : null;
             }, [matchedInitial, opt.initial]);
 
-            const r = this.useApiQuery<QueryListParam, TSet[]>({
+            const r = this.useApiQuery<QueryListParam, TModel[]>({
                 action: "Query.QueryList",
                 args: param,
                 initial: effectiveInitial,
@@ -658,9 +658,9 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
 
             return { ...r, data: r.data ?? [], pageNumber: effectivePageNumber, totalPages, onPageChange, param };
         };
-        const useQueryData: ApiDataHookGroup<TSet>["useQueryData"] = (opt) =>
+        const useQueryData: ApiDataHookGroup<TModel>["useQueryData"] = (opt) =>
         {
-            return this.useApiQuery<string, TSet>({
+            return this.useApiQuery<string, TModel>({
                 action: "Query.QueryData",
                 args: opt.internalId,
                 initial: opt.initial ?? null,
@@ -675,9 +675,9 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
                 apiInstance: opt.apiInstance,
             });
         };
-        const useCudActions: ApiDataHookGroup<TSet>["useCudActions"] = (opt) =>
+        const useCudActions: ApiDataHookGroup<TModel>["useCudActions"] = (opt) =>
         {
-            const createAction = this.useApiAction<TSet, TSet>({
+            const createAction = this.useApiAction<TModel, TModel>({
                 action: "CUD.Create",
                 fallbackError: "新增失敗",
                 apiInstance: opt?.apiInstance,
@@ -688,7 +688,7 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
                     return svc.create(data);
                 },
             });
-            const updateAction = this.useApiAction<{ internalId: string; data: TSet; }, TSet>({
+            const updateAction = this.useApiAction<{ internalId: string; data: TModel; }, TModel>({
                 action: "CUD.Update",
                 fallbackError: "更新失敗",
                 apiInstance: opt?.apiInstance,
@@ -699,7 +699,7 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
                     return svc.update(args.internalId, args.data);
                 },
             });
-            const deleteAction = this.useApiAction<string, TSet>({
+            const deleteAction = this.useApiAction<string, TModel>({
                 action: "CUD.Delete",
                 fallbackError: "刪除失敗",
                 apiInstance: opt?.apiInstance,
@@ -710,7 +710,7 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
                     return svc.delete(internalId);
                 },
             });
-            const invalidAction = this.useApiAction<{ internalId: string; isInvalid: boolean; }, TSet>({
+            const invalidAction = this.useApiAction<{ internalId: string; isInvalid: boolean; }, TModel>({
                 action: "CUD.Invalid",
                 fallbackError: "失效操作失敗",
                 apiInstance: opt?.apiInstance,
@@ -722,11 +722,11 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
                 },
             });
 
-            const createAsync = useCallback(async (data: TSet) =>
+            const createAsync = useCallback(async (data: TModel) =>
             {
                 return await createAction.execute(data);
             }, [createAction.execute]);
-            const updateAsync = useCallback(async (internalId: string, data: TSet) =>
+            const updateAsync = useCallback(async (internalId: string, data: TModel) =>
             {
                 return await updateAction.execute({ internalId, data });
             }, [updateAction.execute]);
@@ -744,7 +744,7 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
             return { isSaving, createAsync, updateAsync, deleteAsync, invalidAsync };
         };
 
-        const useQueryGridData: ApiDataHookGroup<TSet>["useQueryGridData"] = (opt) =>
+        const useQueryGridData: ApiDataHookGroup<TModel>["useQueryGridData"] = (opt) =>
         {
             const pageSize = opt.baseParam.PageSize ?? 0;
             const isNoPaging = pageSize <= 0;
@@ -809,7 +809,7 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
                 param: paged.param,
             };
         };
-        const useQueryFormData: ApiDataHookGroup<TSet>["useQueryFormData"] = (opt) =>
+        const useQueryFormData: ApiDataHookGroup<TModel>["useQueryFormData"] = (opt) =>
         {
             const model = useModelDisplayName({
                 initial: opt.initial?.model ?? null,
@@ -818,12 +818,12 @@ export class ApiDataAdapter<TSet, TSvc extends ApiDataService<TSet>> extends Api
                 apiInstance: opt.apiInstance,
             });
             const internalKey = opt.mode === "edit" ? (opt.internalId ?? "") : "__new__";
-            const initData = useMemo<ApiLoaderData<string, TSet> | null>(() =>
+            const initData = useMemo<ApiLoaderData<string, TModel> | null>(() =>
             {
                 if (opt.initial?.data) return opt.initial.data;
                 if (opt.mode !== "new") return null;
                 if (opt.empty === undefined) return null;
-                const apiRes: ApiResponse<TSet> = { IsSuccess: true, Data: opt.empty, SysMessage: [] };
+                const apiRes: ApiResponse<TModel> = { IsSuccess: true, Data: opt.empty, SysMessage: [] };
                 return { args: internalKey, apiRes };
             }, [opt.initial?.data, opt.mode, opt.empty, internalKey]);
             const data = useQueryData({ internalId: internalKey, initial: initData, deps: opt.deps, onError: opt.onError, apiInstance: opt.apiInstance });

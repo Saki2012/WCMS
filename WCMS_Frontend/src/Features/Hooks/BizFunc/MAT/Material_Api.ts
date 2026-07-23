@@ -5,20 +5,22 @@ import { PGID } from "@/types/SchemaFields";
 import type { AxiosInstance } from "axios";
 
 // #region Property
-type MaterialSet = components["schemas"]["MaterialSet_DTO"];
+type MaterialFormModel = components["schemas"]["Material"];
 // #endregion
 
 // #region Public
-export class MaterialService extends ApiDataService<MaterialSet>
+export class MaterialService extends ApiDataService<MaterialFormModel>
 {
     // #region Public
+    /** 建立 Material API Service。 */
     constructor(apiInstance?: AxiosInstance)
     {
         super(PGID.Material, apiInstance);
     }
     // #endregion
 }
-export class MatCategoryAdapterImpl extends ApiDataAdapter<MaterialSet, MaterialService>
+export class MaterialAdapterImpl extends ApiDataAdapter<MaterialFormModel, MaterialService>
 {}
-export const MaterialAdapter = (apiInstance?: AxiosInstance) => new MatCategoryAdapterImpl((api?: AxiosInstance) => new MaterialService(api ?? apiInstance));
+/** 建立 Material API Adapter。 */
+export const MaterialAdapter = (apiInstance?: AxiosInstance) => new MaterialAdapterImpl((api?: AxiosInstance) => new MaterialService(api ?? apiInstance));
 // #endregion

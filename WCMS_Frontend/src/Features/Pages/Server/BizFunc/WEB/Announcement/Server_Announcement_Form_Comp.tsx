@@ -23,7 +23,7 @@ import { LibCheckBox } from "@/Features/Pages/Server/Scaffold/InputComponets/Inp
 import { useUploadPicture } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibPicture_Comp";
 import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
 import { LibFile, LibPicture, LibTextBox, LibTinyMCE } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
-import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
+import { useFormModelField, useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
@@ -32,13 +32,13 @@ import { resolveSpecFunc } from "@/SysCore/Utils/Library/SlotResolver";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
 import type { components } from "@/types/api";
-import { AnnouncementDetailFields, AnnouncementFields, AnnouncementSetFields, PGID } from "@/types/SchemaFields";
+import { AnnouncementDetailFields, AnnouncementFields, PGID } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
 import { useCallback, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 // #region Property
-type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
+type AnnouncementFormModel = components["schemas"]["Announcement"];
 
 interface AnnouncementFormCompProps
 {
@@ -54,7 +54,7 @@ export interface HeaderSectionProps
     theme: IBETheme;
 
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<AnnouncementSet>;
+    binding: ServerFormBinding<AnnouncementFormModel>;
 
     /** Announcement Hook 整理後的參照資料 */
     refs: AnnouncementFormRefs;
@@ -69,13 +69,13 @@ interface DetailSectionProps
     lang: Lang;
 
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<AnnouncementSet>;
+    binding: ServerFormBinding<AnnouncementFormModel>;
 }
 
 interface SubDetailSectionProps
 {
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<AnnouncementSet>;
+    binding: ServerFormBinding<AnnouncementFormModel>;
 
     /** 目前 Detail RowId，給附件 Grid 綁 ParentRowId */
     parentRowId: number;
@@ -83,7 +83,7 @@ interface SubDetailSectionProps
 export interface HeaderTabContentOptions extends HeaderSectionProps
 {
     /** 欄位 binding helper */
-    setField: ReturnType<typeof useSetTableField<AnnouncementSet>>;
+    setField: ReturnType<typeof useFormModelField<AnnouncementFormModel>>;
 
     /** 圖片上傳 hook */
     uploadPic: ReturnType<typeof useUploadPicture>;
@@ -167,13 +167,13 @@ interface DetailTabContentOptions
     theme: IBETheme;
 
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<AnnouncementSet>;
+    binding: ServerFormBinding<AnnouncementFormModel>;
 
     /** Hook 整理後的 Detail tabs */
     tabItems: AnnouncementDetailTabItem[];
 
     /** 欄位 binding helper */
-    setField: ReturnType<typeof useSetTableField<AnnouncementSet>>;
+    setField: ReturnType<typeof useSetTableField<AnnouncementFormModel>>;
 }
 
 interface DetailFieldsOptions
@@ -182,10 +182,10 @@ interface DetailFieldsOptions
     theme: IBETheme;
 
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<AnnouncementSet>;
+    binding: ServerFormBinding<AnnouncementFormModel>;
 
     /** 欄位 binding helper */
-    setField: ReturnType<typeof useSetTableField<AnnouncementSet>>;
+    setField: ReturnType<typeof useSetTableField<AnnouncementFormModel>>;
 
     /** Detail row keys，給 useSetTableField 綁定欄位 */
     rowKeys: AnnouncementDetailRowKeys;
@@ -233,7 +233,7 @@ export const Server_Announcement_Form_Comp = (props: AnnouncementFormCompProps) 
 
     const actionsOpt = useMemo(() =>
     {
-        return { onBackToList, onPreviewFromDto: preview.openPreview };
+        return { onBackToList, onPreviewFromFormModel: preview.openPreview };
     }, [onBackToList, preview.openPreview]);
 
     const template = useAnnouncementFormTemplate({
@@ -272,7 +272,7 @@ export const Server_Announcement_Form_Comp = (props: AnnouncementFormCompProps) 
 /** 公告 Header 區塊，直接使用新版 Template Binding 與 Refs。 */
 const HeaderComp = (props: HeaderSectionProps) =>
 {
-    const setField = useSetTableField<AnnouncementSet>(props.binding);
+    const setField = useFormModelField<AnnouncementFormModel>(props.binding);
     const uploadPic = useUploadPicture();
     const [pictureInputResetKey, setPictureInputResetKey] = useState(0);
     const previewSrc = buildPicturePreviewSrc(props.binding, uploadPic);
@@ -289,7 +289,7 @@ const HeaderComp = (props: HeaderSectionProps) =>
 /** 公告多語 Detail 區塊，語系資料由 Announcement Hook 統一整理。 */
 const DetailComp = (props: DetailSectionProps) =>
 {
-    const setField = useSetTableField<AnnouncementSet>(props.binding);
+    const setField = useSetTableField<AnnouncementFormModel>(props.binding);
     const detailTabs = useAnnouncementDetailTabs({ binding: props.binding, lang: props.lang });
     const tabInfo: LibTabsProp = { Style: props.theme.Tabs, item: detailTabs.tabItems };
     const tabContent = buildDetailTabContent({ ...props, tabItems: detailTabs.items, setField });
@@ -362,9 +362,9 @@ const buildBasicFieldData = (opt: HeaderTabContentOptions): AnnouncementFormSlot
 {
     return {
         baseFieldMap: {
-            [AnnouncementBasicFieldKeys.Categories]: <LibCheckBox Style={opt.theme.CheckBox} options={opt.refs.categoryMap} {...opt.setField(AnnouncementSetFields.Announcement, AnnouncementFields.Categories, "string", undefined, "csv")} />,
-            [AnnouncementBasicFieldKeys.ValidateStart]: <LibCalendar {...opt.setField(AnnouncementSetFields.Announcement, AnnouncementFields.Validate_Start, "datetime")} />,
-            [AnnouncementBasicFieldKeys.ValidateEnd]: <LibCalendar {...opt.setField(AnnouncementSetFields.Announcement, AnnouncementFields.Validate_End, "datetime")} />,
+            [AnnouncementBasicFieldKeys.Categories]: <LibCheckBox Style={opt.theme.CheckBox} options={opt.refs.categoryMap} {...opt.setField(AnnouncementFields.Categories, "string", "csv")} />,
+            [AnnouncementBasicFieldKeys.ValidateStart]: <LibCalendar {...opt.setField(AnnouncementFields.Validate_Start, "datetime")} />,
+            [AnnouncementBasicFieldKeys.ValidateEnd]: <LibCalendar {...opt.setField(AnnouncementFields.Validate_End, "datetime")} />,
         },
         baseFieldOrder: [AnnouncementBasicFieldKeys.Categories, AnnouncementBasicFieldKeys.ValidateStart, AnnouncementBasicFieldKeys.ValidateEnd],
     };
@@ -379,7 +379,7 @@ const buildStatusFieldData = (opt: HeaderTabContentOptions): AnnouncementFormSlo
                 <LibCheckBox
                     Style={opt.theme.CheckBox}
                     options={opt.refs.statusOpts}
-                    {...opt.setField(AnnouncementSetFields.Announcement, AnnouncementFields.ContentStatus, "number", undefined, {
+                    {...opt.setField(AnnouncementFields.ContentStatus, "number", {
                         strategy: "sum",
                         sumKeys: Object.keys(opt.refs.statusOpts ?? {}).map(Number),
                     })}
@@ -395,7 +395,7 @@ const buildTagFieldData = (opt: HeaderTabContentOptions): AnnouncementFormSlotFi
 {
     return {
         baseFieldMap: {
-            [AnnouncementTagsFieldKeys.Tags]: <LibCheckBox Style={opt.theme.CheckBox} options={opt.refs.tagMap} {...opt.setField(AnnouncementSetFields.Announcement, AnnouncementFields.Tags, "string", undefined, "csv")} />,
+            [AnnouncementTagsFieldKeys.Tags]: <LibCheckBox Style={opt.theme.CheckBox} options={opt.refs.tagMap} {...opt.setField(AnnouncementFields.Tags, "string", "csv")} />,
         },
         baseFieldOrder: [AnnouncementTagsFieldKeys.Tags],
     };
@@ -407,7 +407,7 @@ const buildPictureFieldData = (opt: HeaderTabContentOptions): AnnouncementFormSl
     return {
         baseFieldMap: {
             [AnnouncementPictureFieldKeys.Picture]: buildPictureField(opt),
-            [AnnouncementPictureFieldKeys.PicDescription]: <LibTextBox Style={opt.theme.TextBox} DefaultInputDisplay="請輸入" {...opt.setField(AnnouncementSetFields.Announcement, AnnouncementFields.PicDescription, "string")} />,
+            [AnnouncementPictureFieldKeys.PicDescription]: <LibTextBox Style={opt.theme.TextBox} DefaultInputDisplay="請輸入" {...opt.setField(AnnouncementFields.PicDescription, "string")} />,
         },
         baseFieldOrder: [AnnouncementPictureFieldKeys.Picture, AnnouncementPictureFieldKeys.PicDescription],
     };
@@ -418,7 +418,7 @@ const buildSystemFieldData = (opt: HeaderTabContentOptions): AnnouncementFormSlo
 {
     return {
         baseFieldMap: {
-            [AnnouncementSystemFieldKeys.SystemInfo]: <SystemInfoTabComp theme={opt.theme} formData={opt.binding} setKey={AnnouncementSetFields.Announcement} />,
+            [AnnouncementSystemFieldKeys.SystemInfo]: <SystemInfoTabComp theme={opt.theme} formData={opt.binding} />,
         },
         baseFieldOrder: [AnnouncementSystemFieldKeys.SystemInfo],
     };
@@ -479,42 +479,42 @@ const buildDetailFields = (opt: DetailFieldsOptions): ReactNode[] =>
         <LibTextBox
             Style={opt.theme.TextBox}
             DefaultInputDisplay="請輸入"
-            {...opt.setField(AnnouncementSetFields.AnnouncementDetail, AnnouncementDetailFields.Title, "string", opt.rowKeys)}
+            {...opt.setField(AnnouncementFields._AnnouncementDetail, AnnouncementDetailFields.Title, "string", opt.rowKeys)}
         />,
         <LibTextBox
             Style={opt.theme.TextBox}
             DefaultInputDisplay="請輸入"
-            {...opt.setField(AnnouncementSetFields.AnnouncementDetail, AnnouncementDetailFields.SubTitle, "string", opt.rowKeys)}
+            {...opt.setField(AnnouncementFields._AnnouncementDetail, AnnouncementDetailFields.SubTitle, "string", opt.rowKeys)}
         />,
         <LibTinyMCE
             Style={opt.theme.TinyMCE}
-            {...opt.setField(AnnouncementSetFields.AnnouncementDetail, AnnouncementDetailFields.Content, "string", opt.rowKeys)}
+            {...opt.setField(AnnouncementFields._AnnouncementDetail, AnnouncementDetailFields.Content, "string", opt.rowKeys)}
         />,
         <LibTextBox
             Style={opt.theme.TextBox}
             DefaultInputDisplay="請輸入"
-            {...opt.setField(AnnouncementSetFields.AnnouncementDetail, AnnouncementDetailFields.Url, "string", opt.rowKeys)}
+            {...opt.setField(AnnouncementFields._AnnouncementDetail, AnnouncementDetailFields.Url, "string", opt.rowKeys)}
         />,
         <LibTextBox
             Style={opt.theme.TextBox}
             DefaultInputDisplay="請輸入"
-            {...opt.setField(AnnouncementSetFields.AnnouncementDetail, AnnouncementDetailFields.UrlDescription, "string", opt.rowKeys)}
+            {...opt.setField(AnnouncementFields._AnnouncementDetail, AnnouncementDetailFields.UrlDescription, "string", opt.rowKeys)}
         />,
         <SubDetailComp binding={opt.binding} parentRowId={opt.detailRowId} />,
     ];
 };
 
 /** 建立圖片預覽來源，沒有圖片時回傳預設圖。 */
-const buildPicturePreviewSrc = (binding: ServerFormBinding<AnnouncementSet>, uploadPic: ReturnType<typeof useUploadPicture>): string =>
+const buildPicturePreviewSrc = (binding: ServerFormBinding<AnnouncementFormModel>, uploadPic: ReturnType<typeof useUploadPicture>): string =>
 {
-    const initialPicId = binding.data?.Announcement?.PictureId;
+    const initialPicId = binding.data?.PictureId;
     return uploadPic.result.previewUrl || (FileManagementAPI.get_Server_Preview_Url(initialPicId) ?? "https://dummyimage.com/1920x550/555/fff.png");
 };
 
 /** 判斷公告主圖是否已有真實圖片來源。 */
-const hasAnnouncementPicture = (binding: ServerFormBinding<AnnouncementSet>, uploadPic: ReturnType<typeof useUploadPicture>): boolean =>
+const hasAnnouncementPicture = (binding: ServerFormBinding<AnnouncementFormModel>, uploadPic: ReturnType<typeof useUploadPicture>): boolean =>
 {
-    const pictureId = LibText.safeTrim(binding.data?.Announcement?.PictureId);
+    const pictureId = LibText.safeTrim(binding.data?.PictureId);
     return Boolean(uploadPic.result.previewUrl || pictureId);
 };
 
@@ -528,7 +528,7 @@ const handleAnnouncementPictureRemove = (opt: HeaderTabContentOptions): void =>
 
 // #region Private
 /** 上傳或清除公告主圖，並同步圖片 ID 與圖片說明。 */
-const handleAnnouncementPictureChange = (files: File[], binding: ServerFormBinding<AnnouncementSet>, handleFileChange: UploadPictureHandler): void =>
+const handleAnnouncementPictureChange = (files: File[], binding: ServerFormBinding<AnnouncementFormModel>, handleFileChange: UploadPictureHandler): void =>
 {
     if (files.length === 0)
     {
@@ -542,41 +542,27 @@ const handleAnnouncementPictureChange = (files: File[], binding: ServerFormBindi
 };
 
 /** 清除公告主圖 InternalId 與圖片說明。 */
-const clearAnnouncementPictureInfo = (binding: ServerFormBinding<AnnouncementSet>): void =>
+const clearAnnouncementPictureInfo = (binding: ServerFormBinding<AnnouncementFormModel>): void =>
 {
     binding.setFormData(prev => buildAnnouncementPictureClearData(prev ?? announcementEmptyData));
 };
 
 /** 回寫公告主圖 InternalId，並同步覆蓋圖片說明。 */
-const updateAnnouncementPictureInfo = (binding: ServerFormBinding<AnnouncementSet>, fileId: string, pictureDescription: string): void =>
+const updateAnnouncementPictureInfo = (binding: ServerFormBinding<AnnouncementFormModel>, fileId: string, pictureDescription: string): void =>
 {
     binding.setFormData(prev => buildAnnouncementPictureData(prev ?? announcementEmptyData, fileId, pictureDescription));
 };
 
 /** 建立公告主圖清除後資料，避免保留舊圖片與舊圖片說明。 */
-const buildAnnouncementPictureClearData = (source: AnnouncementSet): AnnouncementSet =>
+const buildAnnouncementPictureClearData = (source: AnnouncementFormModel): AnnouncementFormModel =>
 {
-    return {
-        ...source,
-        Announcement: {
-            ...source.Announcement,
-            PictureId: "",
-            PicDescription: "",
-        },
-    };
+    return { ...source, PictureId: "", PicDescription: "" };
 };
 
 /** 建立公告主圖更新後資料，圖片說明跟著新檔案同步更新。 */
-const buildAnnouncementPictureData = (source: AnnouncementSet, fileId: string, pictureDescription: string): AnnouncementSet =>
+const buildAnnouncementPictureData = (source: AnnouncementFormModel, fileId: string, pictureDescription: string): AnnouncementFormModel =>
 {
-    return {
-        ...source,
-        Announcement: {
-            ...source.Announcement,
-            PictureId: fileId,
-            PicDescription: pictureDescription,
-        },
-    };
+    return { ...source, PictureId: fileId, PicDescription: pictureDescription };
 };
 
 /** 從圖片檔案建立預設圖片說明，去除副檔名。 */

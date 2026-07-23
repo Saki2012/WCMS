@@ -8,13 +8,13 @@ import { useEffect, useMemo, useRef } from "react";
 import { delayMs as sleep } from "@/Features/Pages/Client/Index/HomePage_Helper";
 
 // #region Property
-type BannerSet = components["schemas"]["BannerSet_DTO"];
+type BannerFormModel = components["schemas"]["Banner"];
 
 type QueryListParam = components["schemas"]["QueryListParam"];
 // #endregion
 
 // #region Public
-export const LinkData = (props: { lang?: Lang; bannerParam: QueryListParam; initialBanner: BannerSet | null; }) =>
+export const LinkData = (props: { lang?: Lang; bannerParam: QueryListParam; initialBanner: BannerFormModel | null; }) =>
 {
     // 宣告變數：adapter
     const adapter = useMemo(() => BannerSliderAdapter(), []);
@@ -29,13 +29,13 @@ export const LinkData = (props: { lang?: Lang; bannerParam: QueryListParam; init
     // 執行 function：CSR 用 adapter hook 接手（SSR 有 initial → 不重抓；CSR 無 initial → 會自動抓）
     const useList = adapter.hooks.useQueryList({ condition: props.bannerParam, initial: listInitial ?? undefined, deps: [props.bannerParam.Condition ?? ""] });
 
-    // 宣告變數：本頁只需要第一筆 BannerSet
+    // 宣告變數：本頁只需要第一筆 BannerFormModel
     const bannerSet = useMemo(() => useList.data?.[0] ?? null, [useList.data]);
 
     // 宣告變數：排序 detail（維持你原本排序邏輯）
     const sortedDetails = useMemo(() =>
     {
-        const list = bannerSet?.BannerDetail ?? [];
+        const list = bannerSet?._BannerDetail ?? [];
         return [...list].sort((a, b) =>
         {
             const as = Number.isFinite(a?.Sort) ? Number(a.Sort) : Number.MAX_SAFE_INTEGER;
@@ -45,7 +45,7 @@ export const LinkData = (props: { lang?: Lang; bannerParam: QueryListParam; init
             const br = Number.isFinite(b?.RowId) ? Number(b.RowId) : Number.MAX_SAFE_INTEGER;
             return ar - br;
         });
-    }, [bannerSet?.BannerDetail]);
+    }, [bannerSet?._BannerDetail]);
 
     // 執行 function：初始化 owl（用長度當依賴即可）
     const { carouselRef, pauseRef, startRef } = useLinksCarousel(sortedDetails.length);
@@ -96,8 +96,8 @@ export const LinkData = (props: { lang?: Lang; bannerParam: QueryListParam; init
                                     <div className="owl-carousel owl-theme" id="Links_owl_carousel" ref={carouselRef}>
                                         {sortedDetails.map((p, i) =>
                                         {
-                                            const info = bannerSet?.BannerDetailInfo?.find(x =>
-                                                x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === (props.lang ?? "zh-tw")
+                                            const info = p._BannerDetailInfo?.find(x =>
+                                                x.Lang === (props.lang ?? "zh-tw")
                                             );
                                             const alt = info?.Title ?? "";
                                             const url = info?.URL ?? "";

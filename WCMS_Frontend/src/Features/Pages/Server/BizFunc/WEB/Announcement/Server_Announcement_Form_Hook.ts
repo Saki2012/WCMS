@@ -34,15 +34,15 @@ import { LibAttachment, LibText } from "@/SysCore/Utils/Library/LibData";
 import { useUploadFile } from "@/SysCore/Utils/UI_Hooks/useUploadFile";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { AnnouncementDetailFields, AnnouncementDetailFileFields, AnnouncementSetFields, PGID } from "@/types/SchemaFields";
+import { AnnouncementDetailFields, AnnouncementDetailFileFields, AnnouncementFields, PGID } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
 
 // #region Property
-type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
+type AnnouncementFormModel = components["schemas"]["Announcement"];
 
-type AnnouncementDetail = NonNullable<AnnouncementSet["AnnouncementDetail"]>[number];
+type AnnouncementDetailModel = components["schemas"]["AnnouncementDetail"];
 
-type AnnouncementDetailFile = components["schemas"]["AnnouncementDetailFile_DTO"];
+type AnnouncementDetailFileModel = components["schemas"]["AnnouncementDetailFile"];
 
 export type AnnouncementFileCellValue = EditGridFileValue & { internalId?: string; originalFileName?: string; };
 
@@ -55,7 +55,7 @@ export type AnnouncementDetailRowKeys = Record<string, string | number | boolean
 export interface UseAnnouncementFileEditGridOptions
 {
     /** 新版 Form Template 提供的資料 binding */
-    binding: ServerFormBinding<AnnouncementSet>;
+    binding: ServerFormBinding<AnnouncementFormModel>;
 
     /** 目前語系明細 RowId，附件用它綁 ParentRowId */
     parentRowId: number;
@@ -67,7 +67,7 @@ export interface UseAnnouncementFileEditGridOptions
 export interface UseAnnouncementDetailTabsOptions
 {
     /** 新版 Form Template 提供的資料 binding */
-    binding: ServerFormBinding<AnnouncementSet>;
+    binding: ServerFormBinding<AnnouncementFormModel>;
 
     /** 目前語系，會優先排在第一個 Tab */
     lang: Lang;
@@ -81,8 +81,8 @@ export interface AnnouncementDetailTabItem
     /** Tab 顯示文字 */
     label: string;
 
-    /** Detail 原始 DTO */
-    detail: AnnouncementDetail;
+    /** Detail 原始 FormModel */
+    detail: AnnouncementDetailModel;
 
     /** Detail row keys，給 useSetTableField 綁定欄位 */
     rowKeys: AnnouncementDetailRowKeys;
@@ -104,7 +104,7 @@ export type AnnouncementFormRefs = { categoryMap: Record<string, string>; tagMap
 export interface AnnouncementPreviewPayload
 {
     /** 公告預覽主資料。 */
-    formData: AnnouncementSet;
+    formData: AnnouncementFormModel;
     /** 公告分類顯示文字。 */
     categoryNameText: string;
     /** 公告標籤顯示文字。 */
@@ -114,8 +114,8 @@ export type AnnouncementFormActionsOpt = {
     /** 儲存成功後要回到列表（或其他導頁） */
     onBackToList: () => void;
 
-    /** 以目前 DTO 觸發 preview（由 Component 決定怎麼開 modal） */
-    onPreviewFromDto: (payload: AnnouncementPreviewPayload) => void;
+    /** 以目前 FormModel 觸發 preview（由 Component 決定怎麼開 modal） */
+    onPreviewFromFormModel: (payload: AnnouncementPreviewPayload) => void;
 };
 
 export type AnnouncementFormAdapter = {
@@ -126,7 +126,7 @@ export type AnnouncementFormAdapter = {
 // #endregion
 
 // #region Public
-export const announcementEmptyData: AnnouncementSet = { Announcement: {}, AnnouncementDetail: [], AnnouncementDetailFile: [] };
+export const announcementEmptyData: AnnouncementFormModel = { _AnnouncementDetail: [] };
 
 /** 公告主圖上傳限制。 */
 export const AnnouncementPictureUploadLimit = {
@@ -144,12 +144,12 @@ export const AnnouncementDetailFileUploadLimit = {
 
 /** 建立 Announcement Form Template，統一交給 Server_FormTemplate 處理資料流程 */
 export const useAnnouncementFormTemplate = (
-    opt: { lang: Lang; theme: IBETheme; internalId: string; emptyData: AnnouncementSet; actionsOpt: AnnouncementFormActionsOpt; },
+    opt: { lang: Lang; theme: IBETheme; internalId: string; emptyData: AnnouncementFormModel; actionsOpt: AnnouncementFormActionsOpt; },
 ): ServerFormTemplate<
-    AnnouncementSet,
+    AnnouncementFormModel,
     AnnouncementFormAdapter,
     AnnouncementFormRefs,
-    ServerFormDefaultRawData<AnnouncementSet, AnnouncementFormRefs>,
+    ServerFormDefaultRawData<AnnouncementFormModel, AnnouncementFormRefs>,
     AnnouncementFormActionsOpt
 > =>
 {
@@ -177,7 +177,7 @@ export const useAnnouncementFormTemplate = (
 /** 建立公告 Detail 語系 Tabs，避免 Comp 處理語系過濾與 Unknown fallback。 */
 export const useAnnouncementDetailTabs = (opt: UseAnnouncementDetailTabsOptions): AnnouncementDetailTabsResult =>
 {
-    const details = opt.binding.data?.AnnouncementDetail;
+    const details = opt.binding.data?._AnnouncementDetail;
 
     return useMemo(() =>
     {
@@ -195,23 +195,23 @@ export const useAnnouncementFileEditGrid = (opt: UseAnnouncementFileEditGridOpti
         uploadFile.handleFileChange,
     ]);
 
-    return useEditGridBinding<AnnouncementSet, AnnouncementDetailFile, AnnouncementFileGridRow>({
+    return useEditGridBinding<AnnouncementFormModel, AnnouncementDetailFileModel, AnnouncementFileGridRow>({
         binding: opt.binding,
         emptyData: announcementEmptyData,
-        collectionName: AnnouncementSetFields.AnnouncementDetailFile,
-        parent: buildAnnouncementFileParent(opt.parentRowId),
+        getItems: data => getAnnouncementDetailFiles(data, opt.parentRowId),
+        setItems: (data, items) => setAnnouncementDetailFiles(data, opt.parentRowId, items),
         columns,
         getItemRowId: file => file.RowId,
         sortItems: sortAnnouncementFiles,
-        createItem: ctx => buildNewAnnouncementFileItem(ctx.data, opt.parentRowId, ctx.nextRowId),
+        createItem: ctx => buildNewAnnouncementFileItem(ctx.data, opt.parentRowId, ctx.nextRowId, ctx.nextRowNo),
         toRow: (file, index) => buildAnnouncementFileGridRow(file, index, handleFileValueChange, displayName),
-        toItem: (row, index, ctx) => toAnnouncementFileDto(ctx.data, opt.parentRowId, row, index),
+        toItem: (row, index, ctx) => toAnnouncementDetailFileModel(ctx.data, opt.parentRowId, row, index),
         editGridProps: buildAnnouncementFileGridProps(opt.parentRowId, opt.style, displayName),
     });
 };
 
 /** 建立附件 CellValue，附件欄位顯示原始檔名與 internalId，不混用附件名稱。 */
-export const buildAnnouncementFileCellValue = (file: AnnouncementDetailFile): AnnouncementFileCellValue =>
+export const buildAnnouncementFileCellValue = (file: AnnouncementDetailFileModel): AnnouncementFileCellValue =>
 {
     const internalId = file.FileId ?? file.File?.InternalId ?? "";
     const originalName = file.File?.FileName ?? "";
@@ -281,7 +281,7 @@ const getAnnouncementModelTitle = (displayName: ModelDisplaySchema, fallback: st
 };
 
 /** 建立新增模式的 initial data，統一由 Feature Timing 交給 Template。 */
-const buildAnnouncementInitialData = (ctx: { mode: "new" | "edit"; emptyData: AnnouncementSet; }): ApiFormInitial<AnnouncementSet> | undefined =>
+const buildAnnouncementInitialData = (ctx: { mode: "new" | "edit"; emptyData: AnnouncementFormModel; }): ApiFormInitial<AnnouncementFormModel> | undefined =>
 {
     if (ctx.mode !== "new") return undefined;
     return { data: { args: "__new__", apiRes: { IsSuccess: true, Data: ctx.emptyData, SysMessage: [] } } };
@@ -295,12 +295,11 @@ const buildAnnouncementFormAdapter = (): AnnouncementFormAdapter =>
 
 /** 取得 Header / Detail 需要的參照資料 */
 const useAnnouncementReferenceData = (
-    ctx: { adapter: AnnouncementFormAdapter; binding: ServerFormDefaultRawData<AnnouncementSet, AnnouncementFormRefs>["formData"]; lang: Lang; },
+    ctx: { adapter: AnnouncementFormAdapter; binding: ServerFormDefaultRawData<AnnouncementFormModel, AnnouncementFormRefs>["formData"]; lang: Lang; },
 ) =>
 {
     useEnsureLangDetails(ctx.binding, {
-        headerName: AnnouncementSetFields.Announcement,
-        detailName: AnnouncementSetFields.AnnouncementDetail,
+        detailName: AnnouncementFields._AnnouncementDetail,
         parentKeys: [AnnouncementDetailFields.AnnouncementId],
         langs: SUPPORTED_LANGS,
         preferFirstLang: ctx.lang,
@@ -338,11 +337,11 @@ const useAnnouncementReferenceData = (
 
 /** 建立 Toolbar 動作，保留公告預覽行為 */
 const buildAnnouncementActions = (
-    ctx: { binding: ServerFormDefaultRawData<AnnouncementSet, AnnouncementFormRefs>["formData"]; refs: AnnouncementFormRefs; actionsOpt: AnnouncementFormActionsOpt; },
+    ctx: { binding: ServerFormDefaultRawData<AnnouncementFormModel, AnnouncementFormRefs>["formData"]; refs: AnnouncementFormRefs; actionsOpt: AnnouncementFormActionsOpt; },
     defaultActions: ServerFormActions,
 ): ServerFormActions =>
 {
-    return { ...defaultActions, Preview: () => ctx.actionsOpt.onPreviewFromDto(buildAnnouncementPreviewPayload(getLatestAnnouncementFormData(ctx.binding), ctx.refs)) };
+    return { ...defaultActions, Preview: () => ctx.actionsOpt.onPreviewFromFormModel(buildAnnouncementPreviewPayload(getLatestAnnouncementFormData(ctx.binding), ctx.refs)) };
 };
 /** ContentStatus enum options（去掉 key=0） */
 const useContentStatusOptions = (): { data: Record<string, string>; isLoading: boolean; error: string | null; } =>
@@ -358,7 +357,7 @@ const useContentStatusOptions = (): { data: Record<string, string>; isLoading: b
 };
 
 /** 建立 Announcement Detail 語系分頁資料。 */
-const buildAnnouncementDetailTabs = (details: AnnouncementDetail[], preferLang: Lang): AnnouncementDetailTabsResult =>
+const buildAnnouncementDetailTabs = (details: AnnouncementDetailModel[], preferLang: Lang): AnnouncementDetailTabsResult =>
 {
     const supportedDetails = filterSupportedDetailRows(details, preferLang);
     const tabItems = buildAnnouncementDetailTabItems(supportedDetails);
@@ -367,7 +366,7 @@ const buildAnnouncementDetailTabs = (details: AnnouncementDetail[], preferLang: 
 };
 
 /** 依支援語系排序並過濾 Detail，避免無效語系產生 Unknown Tab。 */
-const filterSupportedDetailRows = (details: AnnouncementDetail[], preferLang: Lang): AnnouncementDetailTabItem[] =>
+const filterSupportedDetailRows = (details: AnnouncementDetailModel[], preferLang: Lang): AnnouncementDetailTabItem[] =>
 {
     const detailMap = buildServerSupportedLangDetailMap(details);
     const langs = buildSupportedLangOrder(preferLang);
@@ -378,7 +377,7 @@ const filterSupportedDetailRows = (details: AnnouncementDetail[], preferLang: La
 };
 
 /** 建立單一 Detail Tab 項目。 */
-const buildAnnouncementDetailTabItem = (detail: AnnouncementDetail | undefined, index: number): AnnouncementDetailTabItem | null =>
+const buildAnnouncementDetailTabItem = (detail: AnnouncementDetailModel | undefined, index: number): AnnouncementDetailTabItem | null =>
 {
     if (!detail) return null;
 
@@ -394,7 +393,7 @@ const buildAnnouncementDetailTabItem = (detail: AnnouncementDetail | undefined, 
 };
 
 /** 建立 Detail RowKeys，統一將 null 轉成 undefined。 */
-const buildAnnouncementDetailRowKeys = (detail: AnnouncementDetail): AnnouncementDetailRowKeys =>
+const buildAnnouncementDetailRowKeys = (detail: AnnouncementDetailModel): AnnouncementDetailRowKeys =>
 {
     // 宣告變數
     const lang = normalizeSupportedLang(detail.Lang);
@@ -417,21 +416,25 @@ const buildAnnouncementDetailTabItems = (items: AnnouncementDetailTabItem[]): Re
     }, {});
 };
 
-/** 將 DTO 的 null key 轉成 binding 可接受的 undefined。 */
+/** 將 FormModel 的 null key 轉成 binding 可接受的值。 */
 const toBindingRowKey = (value: string | number | null | undefined): string | number | null | undefined =>
 {
     // return
     return value;
 };
 
-/** 建立附件 parent 綁定，讓共用 Hook 自動過濾同語系附件。 */
-const buildAnnouncementFileParent = (parentRowId: number) =>
+/** 取得指定公告語系明細的附件。 */
+const getAnnouncementDetailFiles = (data: AnnouncementFormModel, parentRowId: number): AnnouncementDetailFileModel[] =>
 {
-    return {
-        field: AnnouncementDetailFileFields.ParentRowId,
-        value: parentRowId,
-        compare: (itemValue: unknown, parentValue: string | number | null | undefined) => Number(itemValue ?? 0) === Number(parentValue ?? 0),
-    };
+    const detail = data._AnnouncementDetail?.find(item => Number(item.RowId ?? 0) === parentRowId);
+    return detail?._AnnouncementDetailFile ?? [];
+};
+
+/** 寫回指定公告語系明細的附件。 */
+const setAnnouncementDetailFiles = (data: AnnouncementFormModel, parentRowId: number, files: AnnouncementDetailFileModel[]): AnnouncementFormModel =>
+{
+    const details = (data._AnnouncementDetail ?? []).map(item => Number(item.RowId ?? 0) === parentRowId ? { ...item, _AnnouncementDetailFile: files } : item);
+    return { ...data, _AnnouncementDetail: details };
 };
 
 /** 建立附件 EditGrid 固定設定，Grid 標題優先讀 ModelDisplayName。 */
@@ -458,10 +461,14 @@ const buildAnnouncementFileGridProps = (parentRowId: number, style: IEditGridVie
     };
 };
 
-/** 依 RowId 排序附件。 */
-const sortAnnouncementFiles = (files: AnnouncementDetailFile[]): AnnouncementDetailFile[] =>
+/** 依 RowNo 排序附件，RowId 僅作為相同順序時的穩定鍵。 */
+const sortAnnouncementFiles = (files: AnnouncementDetailFileModel[]): AnnouncementDetailFileModel[] =>
 {
-    return [...files].sort((a, b) => Number(a.RowId ?? 0) - Number(b.RowId ?? 0));
+    return [...files].sort((a, b) =>
+    {
+        const rowNoDiff = Number(a.RowNo ?? 0) - Number(b.RowNo ?? 0);
+        return rowNoDiff !== 0 ? rowNoDiff : Number(a.RowId ?? 0) - Number(b.RowId ?? 0);
+    });
 };
 
 /** 建立附件 Grid 欄位設定，欄位名稱優先讀 ModelDisplayName。 */
@@ -483,9 +490,9 @@ const buildAnnouncementFileColumns = (displayName: ModelDisplaySchema): ColumnCo
     }];
 };
 
-/** 將附件 DTO 轉成 EditGrid Row。 */
+/** 將附件 FormModel 轉成 EditGrid Row。 */
 const buildAnnouncementFileGridRow = (
-    file: AnnouncementDetailFile,
+    file: AnnouncementDetailFileModel,
     index: number,
     onFileValueChange: EditGridCellValueChangeHandler,
     displayName: ModelDisplaySchema,
@@ -497,7 +504,7 @@ const buildAnnouncementFileGridRow = (
         keyId: buildAnnouncementFileRowKey(file, index),
         rowId,
         RowId: rowId,
-        RowNo: index + 1,
+        RowNo: Number(file.RowNo ?? index + 1),
         AnnouncementId: file.AnnouncementId,
         ParentRowId: file.ParentRowId,
         FileRowId: rowId,
@@ -505,9 +512,9 @@ const buildAnnouncementFileGridRow = (
     };
 };
 
-/** 建立附件列的 cells，避免 Comp 介入 DTO 與 CellValue 轉換。 */
+/** 建立附件列的 cells，避免 Comp 介入 FormModel 與 CellValue 轉換。 */
 const buildAnnouncementFileCells = (
-    file: AnnouncementDetailFile,
+    file: AnnouncementDetailFileModel,
     onFileValueChange: EditGridCellValueChangeHandler,
     displayName: ModelDisplaySchema,
 ): RowCell[] =>
@@ -532,14 +539,14 @@ const buildAnnouncementFileCells = (
 /** 取得附件 DetailFile 表格顯示名稱，避免 Grid 標題寫死。 */
 const getAnnouncementDetailFileTableTitle = (displayName: ModelDisplaySchema, fallback: string): string =>
 {
-    const tableHit = displayName.Tables?.find(table => table.TableId === AnnouncementSetFields.AnnouncementDetailFile);
+    const tableHit = displayName.Tables?.find(table => table.TableId === AnnouncementDetailFields._AnnouncementDetailFile);
     return tableHit?.TableDisplayName ?? fallback;
 };
 
 /** 取得附件 DetailFile 欄位顯示名稱，避免 EditGrid 欄位標題寫死。 */
 const getAnnouncementDetailFileColumnTitle = (displayName: ModelDisplaySchema, columnId: string, fallback: string): string =>
 {
-    return getModelColumnTitle(displayName, AnnouncementSetFields.AnnouncementDetailFile, columnId, fallback);
+    return getModelColumnTitle(displayName, AnnouncementDetailFields._AnnouncementDetailFile, columnId, fallback);
 };
 
 /** 依資料表與欄位代碼取得 ModelDisplayName 顯示文字。 */
@@ -553,25 +560,25 @@ const getModelColumnTitle = (displayName: ModelDisplaySchema, tableId: string, c
     return columnHit?.ColumnDisplayName ?? fallbackHit?.ColumnDisplayName ?? fallback;
 };
 
-/** 建立新附件 DTO，RowId 由共用 Hook 推算。 */
-const buildNewAnnouncementFileItem = (data: AnnouncementSet, parentRowId: number, rowId: number): AnnouncementDetailFile =>
+/** 建立新附件 FormModel，RowId 與 RowNo 分別表示穩定鍵與顯示順序。 */
+const buildNewAnnouncementFileItem = (data: AnnouncementFormModel, parentRowId: number, rowId: number, rowNo: number): AnnouncementDetailFileModel =>
 {
-    return { AnnouncementId: data.Announcement?.AnnouncementId, ParentRowId: parentRowId, RowId: rowId, FileId: "", FileName: "" };
+    return { AnnouncementId: data?.AnnouncementId, ParentRowId: parentRowId, RowId: rowId, RowNo: rowNo, FileId: "", FileName: "" };
 };
 
-/** 將附件 Grid Row 轉回 DTO，RowId 依目前排序重新編號。 */
-const toAnnouncementFileDto = (source: AnnouncementSet, parentRowId: number, row: GridRow, index: number): AnnouncementDetailFile =>
+/** 將附件 Grid Row 轉回 FormModel，保留 RowId 並只更新 RowNo。 */
+const toAnnouncementDetailFileModel = (source: AnnouncementFormModel, parentRowId: number, row: GridRow, index: number): AnnouncementDetailFileModel =>
 {
-    // 宣告變數
     const fileValue = toAnnouncementFileCellValue(getEditGridCellValue(row, AnnouncementDetailFileFields.FileId));
     const fileName = getEditGridStringCellValue(row, AnnouncementDetailFileFields.FileName).trim();
     const fileId = String(fileValue.internalId ?? "").trim();
+    const rowId = Number((row as AnnouncementFileGridRow).FileRowId ?? row.RowId ?? row.rowId ?? index + 1);
 
-    // return
     return {
-        AnnouncementId: source.Announcement?.AnnouncementId ?? (row as AnnouncementFileGridRow).AnnouncementId,
+        AnnouncementId: source?.AnnouncementId ?? (row as AnnouncementFileGridRow).AnnouncementId,
         ParentRowId: parentRowId,
-        RowId: index + 1,
+        RowId: rowId,
+        RowNo: index + 1,
         FileId: fileId,
         FileName: fileName,
     };
@@ -650,33 +657,35 @@ const getAnnouncementFileDownloadUrl = (fileId?: string | null): string | undefi
 };
 
 /** 建立附件 Row key。 */
-const buildAnnouncementFileRowKey = (file: AnnouncementDetailFile, index: number): string =>
+const buildAnnouncementFileRowKey = (file: AnnouncementDetailFileModel, index: number): string =>
 {
     return `announcement-file-${file.AnnouncementId ?? "new"}-${file.ParentRowId ?? 0}-${file.RowId ?? index + 1}`;
 };
 /** 建立公告預覽 payload，補上前台顯示需要的分類與標籤文字。 */
-const buildAnnouncementPreviewPayload = (formData: AnnouncementSet, refs: AnnouncementFormRefs): AnnouncementPreviewPayload =>
+const buildAnnouncementPreviewPayload = (formData: AnnouncementFormModel, refs: AnnouncementFormRefs): AnnouncementPreviewPayload =>
 {
     const previewData = cloneAnnouncementPreviewData(formData);
-    const categoryNameText = mapAnnouncementIdsToText(previewData.Announcement?.Categories, refs.categoryMap);
-    const tagNameText = mapAnnouncementIdsToText(previewData.Announcement?.Tags, refs.tagMap);
+    const categoryNameText = mapAnnouncementIdsToText(previewData?.Categories, refs.categoryMap);
+    const tagNameText = mapAnnouncementIdsToText(previewData?.Tags, refs.tagMap);
 
     return { formData: previewData, categoryNameText, tagNameText };
 };
 
 /** 取得目前最新的公告表單資料，避免 Preview action 拿到舊 closure。 */
-const getLatestAnnouncementFormData = (binding: ServerFormDefaultRawData<AnnouncementSet, AnnouncementFormRefs>["formData"]): AnnouncementSet =>
+const getLatestAnnouncementFormData = (binding: ServerFormDefaultRawData<AnnouncementFormModel, AnnouncementFormRefs>["formData"]): AnnouncementFormModel =>
 {
     return binding.getData?.() ?? binding.data;
 };
 
 /** 複製公告預覽資料，避免 iframe payload 與後台編輯狀態共用同一個 reference。 */
-const cloneAnnouncementPreviewData = (formData: AnnouncementSet): AnnouncementSet =>
+const cloneAnnouncementPreviewData = (formData: AnnouncementFormModel): AnnouncementFormModel =>
 {
     return {
-        Announcement: { ...(formData.Announcement ?? {}) },
-        AnnouncementDetail: (formData.AnnouncementDetail ?? []).map(item => ({ ...item })),
-        AnnouncementDetailFile: (formData.AnnouncementDetailFile ?? []).map(item => ({ ...item })),
+        ...formData,
+        _AnnouncementDetail: (formData._AnnouncementDetail ?? []).map(item => ({
+            ...item,
+            _AnnouncementDetailFile: (item._AnnouncementDetailFile ?? []).map(file => ({ ...file })),
+        })),
     };
 };
 

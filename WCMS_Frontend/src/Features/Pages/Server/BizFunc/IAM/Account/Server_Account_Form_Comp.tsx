@@ -6,20 +6,20 @@ import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { LibPwdTextBox } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibPwdTextBox_Comp";
 import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
 import { LibCheckBox, LibDropList, LibTextBox, LibUserCard } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
-import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
+import { useFormModelField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
 import type { components } from "@/types/api";
-import { AccountFields, AccountSetFields } from "@/types/SchemaFields";
+import { AccountFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { accountEmptyData, type AccountFormRawData, type AccountFormRefs, useAccountFormTemplate } from "./Server_Account_Form_Hook";
 
 // #region Property
-type AccountSet = components["schemas"]["AccountSet_DTO"];
+type AccountFormModel = components["schemas"]["Account"];
 
 interface AccountFormCompProps
 {
@@ -33,7 +33,7 @@ interface AccountContentProps
     theme: IBETheme;
 
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<AccountSet>;
+    binding: ServerFormBinding<AccountFormModel>;
 
     /** Account Hook 整理後的參照資料 */
     refs: AccountFormRefs;
@@ -45,7 +45,7 @@ interface AccountContentProps
 interface AccountSectionProps extends AccountContentProps
 {
     /** 欄位 binding helper */
-    setField: ReturnType<typeof useSetTableField<AccountSet>>;
+    setField: ReturnType<typeof useFormModelField<AccountFormModel>>;
 
     /** AccountStatus 選項 */
     accountStatusOptions: Record<string, string>;
@@ -63,7 +63,7 @@ interface UserCardSectionProps
     theme: IBETheme;
 
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<AccountSet>;
+    binding: ServerFormBinding<AccountFormModel>;
 
     /** UserCard 使用的人員圖片 ID */
     userPicId: string;
@@ -136,7 +136,7 @@ const AccountContentComp = (props: AccountContentProps) =>
 /** 帳號資料右側 Panel 區塊。 */
 const AccountPanelComp = (props: AccountContentProps) =>
 {
-    const setField = useSetTableField<AccountSet>(props.binding);
+    const setField = useFormModelField<AccountFormModel>(props.binding);
     const personOptions = useMemo(() => buildOptionsMap(props.refs.personIds), [props.refs.personIds]);
     const roleOptions = useMemo(() => buildOptionsMap(props.refs.roleIds), [props.refs.roleIds]);
     const tabInfo = useMemo(() => buildAccountTabInfo(props.theme), [props.theme]);
@@ -169,8 +169,8 @@ const UserCardComp = (props: UserCardSectionProps) =>
 
     return (
         <LibUserCard
-            DisplayNameEN={props.binding.data?.Account?.AccountId ?? ""}
-            DisplayNameTW={props.binding.data?.Account?.AccountName ?? ""}
+            DisplayNameEN={props.binding.data?.AccountId ?? ""}
+            DisplayNameTW={props.binding.data?.AccountName ?? ""}
             DisplayRole={"角色"}
             PicSrc={userPic}
             Style={props.theme.UserCard}
@@ -216,13 +216,11 @@ const buildAccountTabContent = (props: AccountSectionProps): Record<string, Reac
                 key="System"
                 theme={props.theme}
                 formData={props.binding}
-                setKey={AccountSetFields.Account}
             />,
         ],
     };
 };
 
-/** 建立返回帳號列表路徑。 */
 /** 建立 Tab 設定。 */
 const buildAccountTabInfo = (theme: IBETheme): LibTabsProp =>
 {
@@ -245,13 +243,13 @@ const buildAccountIdFields = (props: AccountSectionProps): ReactNode =>
                     <LibTextBox
                         Style={props.theme.TextBox3}
                         DefaultInputDisplay="請輸入"
-                        {...props.setField(AccountSetFields.Account, AccountFields.AccountId, "string")}
+                        {...props.setField(AccountFields.AccountId, "string")}
                         disabled={!props.rawData.isAddNew}
                     />
                     <LibTextBox
                         Style={props.theme.TextBox3}
                         DefaultInputDisplay="請輸入"
-                        {...props.setField(AccountSetFields.Account, AccountFields.AccountName, "string")}
+                        {...props.setField(AccountFields.AccountName, "string")}
                     />
                 </div>
             </div>
@@ -270,13 +268,13 @@ const buildAccountRefFields = (props: AccountSectionProps): ReactNode =>
                         Style={props.theme.DropList2}
                         Options={props.personOptions}
                         AutoDefaultFirst={false}
-                        {...props.setField(AccountSetFields.Account, AccountFields.PersonId, "string")}
+                        {...props.setField(AccountFields.PersonId, "string")}
                     />
                     <LibDropList
                         Style={props.theme.DropList2}
                         Options={props.roleOptions}
                         AutoDefaultFirst={false}
-                        {...props.setField(AccountSetFields.Account, AccountFields.RoleId, "string")}
+                        {...props.setField(AccountFields.RoleId, "string")}
                     />
                 </div>
             </div>
@@ -294,7 +292,7 @@ const buildAccountPasswordFields = (props: AccountSectionProps): ReactNode =>
                     <LibPwdTextBox
                         Style={props.theme.TextBox3}
                         DefaultInputDisplay="請輸入"
-                        {...props.setField(AccountSetFields.Account, AccountFields.Password, "string")}
+                        {...props.setField(AccountFields.Password, "string")}
                     />
                     <LibPwdTextBox
                         Style={props.theme.TextBox3}
@@ -332,7 +330,7 @@ const buildAccountStatusFields = (props: AccountSectionProps): ReactNode =>
                     <LibCheckBox
                         Style={props.theme.RadioBox}
                         options={props.accountStatusOptions}
-                        {...props.setField(AccountSetFields.Account, AccountFields.AccountStatus, "number")}
+                        {...props.setField(AccountFields.AccountStatus, "number")}
                     />
                 </div>
             </div>

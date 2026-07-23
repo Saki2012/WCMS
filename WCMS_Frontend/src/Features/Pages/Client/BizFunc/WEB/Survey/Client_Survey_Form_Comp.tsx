@@ -175,8 +175,8 @@ export const Client_Survey_Form_Comp = (props: ISurveyProps) =>
     const surveyInternalId = LibText.safeTrim(props.options?.SurveyId);
     const vm = useSurveyFormData({ lang: props.lang, surveyId: surveyInternalId });
     const viewCountConfig = useViewCountConfig({ siteIndex: props.site.siteIndex, surveyId: surveyInternalId });
-    const surveyItems = useMemo(() => (vm.data.SurveyItem ?? []) as SurveyInputItem[], [vm.data.SurveyItem]);
-    const surveyItemLangs = useMemo(() => (vm.data.SurveyItemLang ?? []) as SurveyInputLangItem[], [vm.data.SurveyItemLang]);
+    const surveyItems = useMemo(() => buildSurveyItems(vm.data._SurveyItem ?? []), [vm.data._SurveyItem]);
+    const surveyItemLangs = useMemo(() => buildSurveyItemLangs(surveyItems), [surveyItems]);
     return <Client_Survey_Form {...props} surveyInternalId={surveyInternalId} vm={vm} surveyItems={surveyItems} surveyItemLangs={surveyItemLangs} viewCountConfig={viewCountConfig} />;
 };
 
@@ -201,7 +201,7 @@ const Client_Survey_Form_FeatureView = (props: SurveyFormViewProps) =>
         setIsSubmitSuccess(false);
     }, [props.surveyInternalId]);
     return (
-        <ModuleContent nodeTitle={props.node.title} title={props.vm.data.Survey?.SurveyName ?? ""} isLoading={props.vm.isLoading} errorList={props.vm.errorList} viewCountConfig={props.viewCountConfig}>
+        <ModuleContent nodeTitle={props.node.title} title={props.vm.data.SurveyName ?? ""} isLoading={props.vm.isLoading} errorList={props.vm.errorList} viewCountConfig={props.viewCountConfig}>
             {shouldShowSuccessContent
                 ? <section className="survey-submit-success-custom" role="status" aria-live="polite">{successContent}</section>
                 : (
@@ -211,7 +211,7 @@ const Client_Survey_Form_FeatureView = (props: SurveyFormViewProps) =>
                         {props.surveyItems.length > 0 && (
                             <SurveyInputForm_Comp
                                 lang={props.lang}
-                                surveyId={props.vm.data.Survey?.SurveyId ?? ""}
+                                surveyId={props.vm.data.SurveyId ?? ""}
                                 items={props.surveyItems}
                                 itemLangs={props.surveyItemLangs}
                                 disabled={props.vm.isLoading || props.vm.submitActions.isSubmitting}
@@ -285,13 +285,14 @@ const SurveyInputForm_Comp = (props: { lang: Lang; surveyId: string; items: Surv
         // 重置驗證碼
         resetCaptcha();
     }, [resetCaptcha]);
+    const { items, lang, onSubmitted, submitActions, surveyId } = props;
     const handleSubmit = useCallback(async (e: FormEvent<HTMLFormElement>) =>
     {
         e.preventDefault();
         // 驗證固定欄位
         const nextBaseErrorMap = validateSurveyBaseValues({ fields: baseFields, values: baseValues, text });
         // 驗證動態欄位
-        const nextErrorMap = validateSurveyValues({ items: props.items, values, text });
+        const nextErrorMap = validateSurveyValues({ items, values, text });
         setBaseErrorMap(nextBaseErrorMap);
         setErrorMap(nextErrorMap);
         if (Object.keys(nextBaseErrorMap).length > 0 || Object.keys(nextErrorMap).length > 0)
@@ -305,9 +306,9 @@ const SurveyInputForm_Comp = (props: { lang: Lang; surveyId: string; items: Surv
             return;
         }
         // 建立送出資料
-        const draft = buildSurveySubmissionDraft({ surveyId: props.surveyId, lang: props.lang, items: props.items, baseValues, values, captchaToken });
+        const draft = buildSurveySubmissionDraft({ surveyId, lang, items, baseValues, values, captchaToken });
         // 呼叫前台匿名提交 API
-        const apiRes = await props.submitActions.publicSubmitAsync(draft);
+        const apiRes = await submitActions.publicSubmitAsync(draft);
         if (!apiRes.IsSuccess)
         {
             resetCaptcha();
@@ -321,8 +322,8 @@ const SurveyInputForm_Comp = (props: { lang: Lang; surveyId: string; items: Surv
         setErrorMap({});
         resetCaptcha();
         setSubmitResult({ type: "success", text: text.submitOk });
-        props.onSubmitted?.();
-    }, [baseFields, baseValues, captchaToken, props.items, props.surveyId, props.lang, props.submitActions, props.onSubmitted, resetCaptcha, validateCaptcha, values, text]);
+        onSubmitted?.();
+    }, [baseFields, baseValues, captchaToken, items, lang, onSubmitted, resetCaptcha, submitActions, surveyId, text, validateCaptcha, values]);
 
     return (
         <form className="survey-form" aria-label={text.formTitle} noValidate onSubmit={handleSubmit}>
@@ -409,6 +410,18 @@ const getSurveyFormView = (): typeof Client_Survey_Form_FeatureView =>
 // #endregion
 
 // #region Private
+/** 依 RowNo 排序問卷題目，避免 Graph 回傳順序影響前台顯示。 */
+const buildSurveyItems = (items: SurveyInputItem[]): SurveyInputItem[] =>
+{
+    return [...items].sort((a, b) => Number(a.RowNo ?? a.RowId ?? 0) - Number(b.RowNo ?? b.RowId ?? 0));
+};
+
+/** 將各題目的語系子明細攤平，供問卷輸入元件依 ParentRowId 查找。 */
+const buildSurveyItemLangs = (items: SurveyInputItem[]): SurveyInputLangItem[] =>
+{
+    return items.flatMap(item => item._SurveyItemLang ?? []);
+};
+
 /** 建立送出草稿，送給 Public_Submit API */
 const buildSurveySubmissionDraft = (p: { surveyId: string; lang: Lang; items: SurveyInputItem[]; baseValues: SurveyBaseValues; values: SurveyInputValueMap; captchaToken: string | null; }): SurveySubmissionDraft =>
 {

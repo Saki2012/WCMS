@@ -8,7 +8,14 @@ import type { components } from "@/types/api";
 import { useCallback, useMemo, useState } from "react";
 
 // #region Property
-type CalendarDetail = components["schemas"]["CalendarDetail_DTO"];
+type CalendarDetail = components["schemas"]["CalendarDetail"] & {
+    /** Spec1816 開館時間延伸欄位。 */
+    Spec_OpenTime?: string | null;
+    /** Spec1816 閉館時間延伸欄位。 */
+    Spec_CloseTime?: string | null;
+    /** Spec1816 修改備註延伸欄位。 */
+    Spec_ModifyMemo?: string | null;
+};
 
 
 /** YYYY-MM-DD -> 單日 DTO */

@@ -16,7 +16,7 @@ import type { LoaderFunctionArgs } from "react-router";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
-type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"];
+type SiteMenuFormModel = components["schemas"]["SiteMenu_Index"];
 type SaveSiteInfoDTO = components["schemas"]["SaveSiteInfo_DTO"];
 type SaveMenuStructureDTO = components["schemas"]["SaveMenuStructure_DTO"];
 type SaveMenuItemDTO = components["schemas"]["SaveMenuItem_DTO"];
@@ -37,7 +37,7 @@ type ExtraLoaders = {
     /** SiteMenu Index List（SSR 用） */
     getSiteMenuIndexListLoader: (
         opt?: { getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; },
-    ) => (args: LoaderFunctionArgs) => Promise<ApiLoaderData<QueryListParam, SiteMenuSet[]>>;
+    ) => (args: LoaderFunctionArgs) => Promise<ApiLoaderData<QueryListParam, SiteMenuFormModel[]>>;
     /** 第一筆 InternalId（SSR 用） */
     getFirstSiteMenuInternalIdLoader: (
         opt?: { getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; },
@@ -49,10 +49,10 @@ type ExtraHooks = {
         opt?: {
             apiInstance?: AxiosInstance;
             deps?: EffectDeps;
-            initial?: ApiLoaderData<QueryListParam, SiteMenuSet[]> | null;
+            initial?: ApiLoaderData<QueryListParam, SiteMenuFormModel[]> | null;
             onError?: (err: ApiAdapterError) => void;
         },
-    ) => { data: SiteMenuSet[]; apiRes: ApiResponse<SiteMenuSet[]> | null; isLoading: boolean; errorText: string | null; refetch: () => Promise<void>; };
+    ) => { data: SiteMenuFormModel[]; apiRes: ApiResponse<SiteMenuFormModel[]> | null; isLoading: boolean; errorText: string | null; refetch: () => Promise<void>; };
     /** 第一筆 InternalId（CSR 用，支援 initial） */
     useFirstSiteMenuInternalId: (
         opt?: {
@@ -72,7 +72,7 @@ type ExtraHooks = {
 // #endregion
 
 // #region Public
-export class SiteMenuService extends ApiDataService<SiteMenuSet>
+export class SiteMenuService extends ApiDataService<SiteMenuFormModel>
 {
     // #region Public
     constructor(apiInstance?: AxiosInstance)
@@ -102,16 +102,16 @@ export class SiteMenuService extends ApiDataService<SiteMenuSet>
     }
     // #endregion
 }
-export class SiteMenuAdapterImpl extends ApiDataAdapter<SiteMenuSet, SiteMenuService>
+export class SiteMenuAdapterImpl extends ApiDataAdapter<SiteMenuFormModel, SiteMenuService>
 {
     // #region Property
-    declare public loader: ApiDataLoaderGroup<SiteMenuSet> & ExtraLoaders;
-    declare public hooks: ApiDataHookGroup<SiteMenuSet> & ExtraHooks;
+    declare public loader: ApiDataLoaderGroup<SiteMenuFormModel> & ExtraLoaders;
+    declare public hooks: ApiDataHookGroup<SiteMenuFormModel> & ExtraHooks;
     // #endregion
 
     // #region Protected Virtual
     /** 擴充 SiteMenu SSR loader。 */
-    protected override buildExtendedLoader(base: ApiDataLoaderGroup<SiteMenuSet>)
+    protected override buildExtendedLoader(base: ApiDataLoaderGroup<SiteMenuFormModel>)
     {
         const wrapGetSiteMenuIndexListLoader: ExtraLoaders["getSiteMenuIndexListLoader"] = (opt) => this.getSiteMenuIndexListLoader(opt);
         const wrapGetFirstSiteMenuInternalIdLoader: ExtraLoaders["getFirstSiteMenuInternalIdLoader"] = (opt) => this.getFirstSiteMenuInternalIdLoader(opt);
@@ -119,7 +119,7 @@ export class SiteMenuAdapterImpl extends ApiDataAdapter<SiteMenuSet, SiteMenuSer
         return { ...base, getSiteMenuIndexListLoader: wrapGetSiteMenuIndexListLoader, getFirstSiteMenuInternalIdLoader: wrapGetFirstSiteMenuInternalIdLoader };
     }
     /** 擴充 SiteMenu CSR hooks。 */
-    protected override buildExtendedHooks(base: ApiDataHookGroup<SiteMenuSet>)
+    protected override buildExtendedHooks(base: ApiDataHookGroup<SiteMenuFormModel>)
     {
         const wrapUseSiteMenuIndexList: ExtraHooks["useSiteMenuIndexList"] = (opt) => this.useSiteMenuIndexList(opt);
         const wrapUseFirstSiteMenuInternalId: ExtraHooks["useFirstSiteMenuInternalId"] = (opt) => this.useFirstSiteMenuInternalId(opt);
@@ -142,7 +142,7 @@ export class SiteMenuAdapterImpl extends ApiDataAdapter<SiteMenuSet, SiteMenuSer
     /** loader：查詢 SiteMenu Index List。 */
     protected getSiteMenuIndexListLoader(opt?: { getApiInstance?: (args: LoaderFunctionArgs) => AxiosInstance | undefined; })
     {
-        return this.createApiLoader<QueryListParam, SiteMenuSet[]>({
+        return this.createApiLoader<QueryListParam, SiteMenuFormModel[]>({
             action: "SiteMenu.Query.IndexList",
             getArgs: () => this.buildSiteMenuIndexListParam(),
             call: (svc, cdt) => svc.queryList(cdt),
@@ -164,14 +164,14 @@ export class SiteMenuAdapterImpl extends ApiDataAdapter<SiteMenuSet, SiteMenuSer
         opt?: {
             apiInstance?: AxiosInstance;
             deps?: EffectDeps;
-            initial?: ApiLoaderData<QueryListParam, SiteMenuSet[]> | null;
+            initial?: ApiLoaderData<QueryListParam, SiteMenuFormModel[]> | null;
             onError?: (err: ApiAdapterError) => void;
         },
     )
     {
         const deps = opt?.deps ?? [];
         const args = useMemo(() => this.buildSiteMenuIndexListParam(), []);
-        const r = this.useApiQuery<QueryListParam, SiteMenuSet[]>({
+        const r = this.useApiQuery<QueryListParam, SiteMenuFormModel[]>({
             action: "SiteMenu.Query.IndexList",
             args,
             initial: opt?.initial ?? null,
@@ -275,7 +275,7 @@ export class SiteMenuAdapterImpl extends ApiDataAdapter<SiteMenuSet, SiteMenuSer
         const ok = Boolean(env.IsSuccess) && env.Data !== null && env.Data !== undefined;
         if (!ok) return { IsSuccess: false, Data: null, SysMessage: env.SysMessage ?? [] };
 
-        const first = env.Data?.find(x => x?.SiteMenu_Index?.InternalId)?.SiteMenu_Index?.InternalId ?? null;
+        const first = env.Data?.find(x => x?.InternalId)?.InternalId ?? null;
         return { IsSuccess: true, Data: first, SysMessage: env.SysMessage ?? [] };
     }
     /** 由 action 回應推導錯誤文字，維持既有 hook 對外格式。 */

@@ -33,7 +33,7 @@ import { type NavigateFunction, useLocation, useNavigate } from "react-router-do
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type GallerySet = components["schemas"]["GallerySet_DTO"];
+type GalleryFormModel = components["schemas"]["Gallery"];
 
 type GalleryApiAdapter = ReturnType<typeof GalleryAdapter>;
 
@@ -70,7 +70,7 @@ export interface GalleryListRawData
     count: number;
 
     /** 相簿列表資料 */
-    list: GallerySet[];
+    list: GalleryFormModel[];
 
     /** 目前頁碼 */
     pageNumber: number;
@@ -352,7 +352,7 @@ const enhanceGalleryGrid = (
     },
 ): GridProps =>
 {
-    const actions = createGridCrudActions<GallerySet>({
+    const actions = createGridCrudActions<GalleryFormModel>({
         onEdit: (internalId) => opt.crud.navigate(`${opt.crud.dirUrl}/${internalId}`),
         deleteAsync: opt.crud.deleteAsync,
         afterDelete: opt.crud.afterDelete,
@@ -365,21 +365,21 @@ const enhanceGalleryGrid = (
         can: opt.can,
         notifyNoPermission: opt.notifyNoPermission,
         confirm: opt.confirm,
-        getInternalId: (set) => set.Gallery?.InternalId ?? "",
+        getInternalId: (formModel) => formModel?.InternalId ?? "",
     });
 };
 
 /** 建立相簿列表列資料 */
 const buildGalleryRows = (raw: GalleryListRawData, lang: Lang, columns: ColumnConfig[]): GridRow[] =>
 {
-    return (raw.list ?? []).map((set) =>
+    return (raw.list ?? []).map((formModel) =>
     {
-        const keyId = set.Gallery?.InternalId ?? LibText.Merge("|", false, set.Gallery?.GalleryId);
-        const gallery = set.Gallery;
-        const title = getGalleryTitle(set, lang);
+        const keyId = formModel?.InternalId ?? LibText.Merge("|", false, formModel?.GalleryId);
+        const gallery = formModel;
+        const title = getGalleryTitle(formModel, lang);
         const cells: RowCell[] = [
             { col: columns[0], content: buildCoverCell(gallery?.CoverPicSrcId, title) },
-            { col: columns[1], content: buildTitleCell(set, lang) },
+            { col: columns[1], content: buildTitleCell(formModel, lang) },
             { col: columns[2], content: gallery?.ModifyUser?.AccountName ?? "" },
             { col: columns[3], content: formatDateTime(gallery?.ModifyTime) },
         ];
@@ -401,17 +401,17 @@ const buildCoverCell = (coverPicSrcId: string | null | undefined, title: string)
 };
 
 /** 建立標題與資料狀態欄位內容 */
-const buildTitleCell = (set: GallerySet, lang: Lang): ReactNode =>
+const buildTitleCell = (formModel: GalleryFormModel, lang: Lang): ReactNode =>
 {
-    const title = getGalleryTitle(set, lang);
+    const title = getGalleryTitle(formModel, lang);
 
-    return createElement(Fragment, null, createElement("span", { key: "title" }, title), GetDataStatusContent(set.Gallery?.ContentStatus ?? 0));
+    return createElement(Fragment, null, createElement("span", { key: "title" }, title), GetDataStatusContent(formModel?.ContentStatus ?? 0));
 };
 
 /** 取得相簿目前語系標題 */
-const getGalleryTitle = (set: GallerySet, lang: Lang): string =>
+const getGalleryTitle = (formModel: GalleryFormModel, lang: Lang): string =>
 {
-    return findTextByKey(set.GalleryInfo, (detail) => detail?.Lang, lang, (detail) => detail?.Title);
+    return findTextByKey(formModel._GalleryInfo, (detail) => detail?.Lang, lang, (detail) => detail?.Title);
 };
 
 // #endregion

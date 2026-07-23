@@ -8,7 +8,7 @@ import type {
 } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { Lang } from "@/SysCore/i18n/lang";
-import type { ApiDataHookGroup, ApiFormInitial, ServerFormActions, UseServerActionsOptions, UseServerActionsResult } from "@/SysCore/Utils/API/APIAdapter";
+import type { ApiDataHookGroup, ApiFormInitial, ServerFormActions, UseServerActionsResult } from "@/SysCore/Utils/API/APIAdapter";
 import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
@@ -18,11 +18,11 @@ import { useCallback, useMemo } from "react";
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type SurveySubmissionSet = components["schemas"]["SurveySubmissionsSet_DTO"];
+type SurveySubmission = components["schemas"]["SurveySubmissions"];
 
-type SurveySubmissionQueryFormOptions = Parameters<ApiDataHookGroup<SurveySubmissionSet>["useQueryFormData"]>[0];
+type SurveySubmissionQueryFormOptions = Parameters<ApiDataHookGroup<SurveySubmission>["useQueryFormData"]>[0];
 
-type SurveySubmissionQueryFormResult = ReturnType<ApiDataHookGroup<SurveySubmissionSet>["useQueryFormData"]>;
+type SurveySubmissionQueryFormResult = ReturnType<ApiDataHookGroup<SurveySubmission>["useQueryFormData"]>;
 
 
 export interface UseSurveySubmissionFormTemplateOptions
@@ -41,13 +41,13 @@ export interface UseSurveySubmissionFormTemplateOptions
 }
 
 
-export interface SurveySubmissionFormRawData extends ServerFormDefaultRawData<SurveySubmissionSet, SurveySubmissionFormRefs>
+export interface SurveySubmissionFormRawData extends ServerFormDefaultRawData<SurveySubmission, SurveySubmissionFormRefs>
 {
     /** ModelDisplayName，給只讀畫面顯示欄位名稱 */
     modelDisplayName: ModelDisplaySchema | null;
 
     /** 問卷回應資料，無資料時畫面顯示查無資料 */
-    data: SurveySubmissionSet | null;
+    data: SurveySubmission | null;
 }
 
 
@@ -65,19 +65,19 @@ export type SurveySubmissionFormAdapter = {
     SurveySubmission: ReturnType<typeof SurveySubmissionAdapter>;
 
     /** 只讀表單 Adapter，將 Grid Query 包成 Form Query */
-    ReadonlySubmission: ServerFormDataAdapter<SurveySubmissionSet>;
+    ReadonlySubmission: ServerFormDataAdapter<SurveySubmission>;
 };
 // #endregion
 
 // #region Public
-export const surveySubmissionEmptyData: SurveySubmissionSet = { SurveySubmissions: {} };
+export const surveySubmissionEmptyData: SurveySubmission = {};
 
 
 /** 建立 SurveySubmission 只讀 Form Template，統一交給 Server_FormTemplate 處理 loading / error 外框。 */
 export const useSurveySubmissionFormTemplate = (
     opt: UseSurveySubmissionFormTemplateOptions,
 ): ServerFormTemplate<
-    SurveySubmissionSet,
+    SurveySubmission,
     SurveySubmissionFormAdapter,
     SurveySubmissionFormRefs,
     SurveySubmissionFormRawData,
@@ -119,7 +119,7 @@ const buildSurveySubmissionFormTitle = (ctx: { displayName: ModelDisplaySchema; 
 
 
 /** 只讀查詢不使用新增 initial，資料來源固定由 Readonly Adapter 查詢。 */
-const buildSurveySubmissionInitialData = (): ApiFormInitial<SurveySubmissionSet> | undefined =>
+const buildSurveySubmissionInitialData = (): ApiFormInitial<SurveySubmission> | undefined =>
 {
     return undefined;
 };
@@ -136,7 +136,7 @@ const buildSurveySubmissionFormAdapter = (): SurveySubmissionFormAdapter =>
 
 /** 建立只讀 rawData，讓 Comp 不需要知道 Template 內部資料流。 */
 const buildSurveySubmissionRawData = (
-    ctx: { binding: ServerFormBinding<SurveySubmissionSet>; refs: SurveySubmissionFormRefs; actions: ServerFormActions; },
+    ctx: { binding: ServerFormBinding<SurveySubmission>; refs: SurveySubmissionFormRefs; actions: ServerFormActions; },
 ): SurveySubmissionFormRawData =>
 {
     return {
@@ -152,7 +152,7 @@ const buildSurveySubmissionRawData = (
 /** 移除 Save / Delete Toolbar，並用問卷名稱補強只讀標題。 */
 const buildSurveySubmissionFormProp = (ctx: { rawData: SurveySubmissionFormRawData; }, baseProp: FormCompProp): FormCompProp =>
 {
-    const surveyName = ctx.rawData.data?.SurveySubmissions?.Survey?.SurveyName;
+    const surveyName = ctx.rawData.data?.Survey?.SurveyName;
     const title = surveyName ? `${baseProp.Title}：${surveyName}` : baseProp.Title;
 
     return { ...baseProp, Title: title, Actions: undefined };
@@ -160,7 +160,7 @@ const buildSurveySubmissionFormProp = (ctx: { rawData: SurveySubmissionFormRawDa
 
 
 /** 建立只讀 DataAdapter，把 QueryGridData 包成 QueryFormData。 */
-const buildReadonlySurveySubmissionDataAdapter = (adapter: ReturnType<typeof SurveySubmissionAdapter>): ServerFormDataAdapter<SurveySubmissionSet> =>
+const buildReadonlySurveySubmissionDataAdapter = (adapter: ReturnType<typeof SurveySubmissionAdapter>): ServerFormDataAdapter<SurveySubmission> =>
 {
     return { hooks: { useQueryFormData: opt => useReadonlySurveySubmissionFormData(adapter, opt) }, useServerActions: useReadonlySurveySubmissionActions };
 };
@@ -247,18 +247,18 @@ const buildSurveySubmissionCondition = (surveySubmissionId: string): string =>
 
 
 /** 判斷 binding 是否已取得有效回應資料。 */
-const hasSurveySubmissionData = (data: SurveySubmissionSet | null | undefined): boolean =>
+const hasSurveySubmissionData = (data: SurveySubmission | null | undefined): boolean =>
 {
-    return Boolean(data?.SurveySubmissions?.SurveySubmissionId);
+    return Boolean(data?.SurveySubmissionId);
 };
 
 
 /** 只讀頁不允許 CUD，保留 no-op action 只為滿足 FormTemplate 共用介面。 */
-const useReadonlySurveySubmissionActions = (_opt?: UseServerActionsOptions): UseServerActionsResult<SurveySubmissionSet> =>
+const useReadonlySurveySubmissionActions = (): UseServerActionsResult<SurveySubmission> =>
 {
-    const rejectAsync = useCallback(async (): Promise<ApiResponse<SurveySubmissionSet>> =>
+    const rejectAsync = useCallback(async (): Promise<ApiResponse<SurveySubmission>> =>
     {
-        return { IsSuccess: false, Data: null, SysMessage: [] } as ApiResponse<SurveySubmissionSet>;
+        return { IsSuccess: false, Data: null, SysMessage: [] } as ApiResponse<SurveySubmission>;
     }, []);
 
     return { isSaving: false, createAsync: rejectAsync, updateAsync: rejectAsync, deleteAsync: rejectAsync, invalidAsync: rejectAsync };

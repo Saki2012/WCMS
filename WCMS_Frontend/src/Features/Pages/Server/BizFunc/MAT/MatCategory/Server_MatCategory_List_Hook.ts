@@ -21,9 +21,10 @@ import { findTextByKey, formatDateTime, LibCondition, LibText, Operator } from "
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import {
-    AccountModelFields,
+    AccountFields,
     CategoryDetailFields,
     CategoryFields,
+    MatCategoryFormModelFields,
     MatCategoryInfoFieldDisplayFields,
     MatCategoryInfoFieldFields,
     PGID,
@@ -34,7 +35,12 @@ import { type NavigateFunction, useLocation, useNavigate } from "react-router-do
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-export type MatCategorySet = components["schemas"]["MatCategoryDataSet_DTO"];
+const MatCategoryCategoryPath = MatCategoryFormModelFields.Category;
+const MatCategoryInfoFieldPath = MatCategoryFormModelFields.MatCategoryInfoField;
+const MatCategoryDetailPath = `${MatCategoryCategoryPath}.${CategoryFields._CategoryDetail}`;
+const MatCategoryDisplayPath = `${MatCategoryInfoFieldPath}.${MatCategoryInfoFieldFields._MatCategoryInfoFieldDisplay}`;
+
+export type MatCategoryFormModel = components["schemas"]["MatCategoryFormModel"];
 
 type MatCategoryApiAdapter = ReturnType<typeof MatCategoryAdapter>;
 
@@ -43,7 +49,7 @@ type MatCategoryCudActions = ReturnType<MatCategoryApiAdapter["hooks"]["useCudAc
 export interface MatCategoryListRenderers
 {
     /** 渲染自定義欄位資訊，JSX 請留在 Comp 實作 */
-    buildInfoFieldContentNode: (set: MatCategorySet, lang: Lang) => RowCell["content"];
+    buildInfoFieldContentNode: (formModel: MatCategoryFormModel, lang: Lang) => RowCell["content"];
 }
 
 export interface MatCategoryListPageState
@@ -73,7 +79,7 @@ export interface MatCategoryListRawData
     count: number;
 
     /** 物件類別列表資料 */
-    list: MatCategorySet[];
+    list: MatCategoryFormModel[];
 
     /** 目前頁碼 */
     pageNumber: number;
@@ -259,7 +265,7 @@ const buildMatCategorySearchConditions = (ctx: { searchParams: MatCategorySearch
 
     if (ctx.searchParams.categoryName)
     {
-        conditions.push(`${CategoryFields._CategoryDetail}.${CategoryDetailFields.CategoryName} Like ${ctx.searchParams.categoryName}`);
+        conditions.push(`${MatCategoryDetailPath}.${CategoryDetailFields.CategoryName} Like ${ctx.searchParams.categoryName}`);
     }
 
     return conditions;
@@ -271,11 +277,11 @@ const buildMatCategoryQueryParam = (ctx: { pageNumber: number; searchParams: Mat
     return {
         Fields: buildMatCategoryQueryFields(),
         Condition: LibCondition.joinConditions([
-            LibCondition.createCondition(CategoryFields.ProgId, Operator.Equal, PGID.Material),
-            LibCondition.createCondition(`${CategoryFields._CategoryDetail}.${CategoryDetailFields.Lang}`, Operator.Equal, ctx.searchParams.lang),
+            LibCondition.createCondition(`${MatCategoryCategoryPath}.${CategoryFields.ProgId}`, Operator.Equal, PGID.Material),
+            LibCondition.createCondition(`${MatCategoryDetailPath}.${CategoryDetailFields.Lang}`, Operator.Equal, ctx.searchParams.lang),
             ctx.searchCondition,
         ]),
-        OrderBy: [{ Col: CategoryFields.ModifyTime, Desc: true }],
+        OrderBy: [{ Col: `${MatCategoryCategoryPath}.${CategoryFields.ModifyTime}`, Desc: true }],
         PageNumber: ctx.pageNumber,
         PageSize: 10,
     };
@@ -285,15 +291,16 @@ const buildMatCategoryQueryParam = (ctx: { pageNumber: number; searchParams: Mat
 const buildMatCategoryQueryFields = (): string[] =>
 {
     return [
-        CategoryFields.InternalId,
-        CategoryFields.CategoryId,
-        CategoryFields.ModifyTime,
-        CategoryFields.ModifyUserId,
-        `${CategoryFields.ModifyUser}.${AccountModelFields.AccountName}`,
-        `${CategoryFields._CategoryDetail}.${CategoryDetailFields.Lang}`,
-        `${CategoryFields._CategoryDetail}.${CategoryDetailFields.CategoryName}`,
-        `${CategoryFields._MatCategoryInfoField}.${MatCategoryInfoFieldFields._MatCategoryInfoFieldDisplay}.${MatCategoryInfoFieldDisplayFields.Lang}`,
-        `${CategoryFields._MatCategoryInfoField}.${MatCategoryInfoFieldFields._MatCategoryInfoFieldDisplay}.${MatCategoryInfoFieldDisplayFields.FieldDisplayName}`,
+        `${MatCategoryCategoryPath}.${CategoryFields.InternalId}`,
+        `${MatCategoryCategoryPath}.${CategoryFields.CategoryId}`,
+        `${MatCategoryCategoryPath}.${CategoryFields.ModifyTime}`,
+        `${MatCategoryCategoryPath}.${CategoryFields.ModifyUserId}`,
+        `${MatCategoryCategoryPath}.${CategoryFields.ModifyUser}.${AccountFields.AccountName}`,
+        `${MatCategoryDetailPath}.${CategoryDetailFields.Lang}`,
+        `${MatCategoryDetailPath}.${CategoryDetailFields.CategoryName}`,
+        `${MatCategoryInfoFieldPath}.${MatCategoryInfoFieldFields.Field}`,
+        `${MatCategoryDisplayPath}.${MatCategoryInfoFieldDisplayFields.Lang}`,
+        `${MatCategoryDisplayPath}.${MatCategoryInfoFieldDisplayFields.FieldDisplayName}`,
     ];
 };
 
@@ -342,7 +349,7 @@ const enhanceMatCategoryGrid = (
     },
 ): GridProps =>
 {
-    const actions = createGridCrudActions<MatCategorySet>({
+    const actions = createGridCrudActions<MatCategoryFormModel>({
         onEdit: (internalId) => opt.crud.navigate(`${opt.crud.dirUrl}/${internalId}`),
         deleteAsync: opt.crud.deleteAsync,
         afterDelete: opt.crud.afterDelete,
@@ -355,24 +362,24 @@ const enhanceMatCategoryGrid = (
         can: opt.can,
         notifyNoPermission: opt.notifyNoPermission,
         confirm: opt.confirm,
-        getInternalId: (set) => set.Category?.InternalId ?? "",
+        getInternalId: (formModel) => formModel.Category?.InternalId ?? "",
     });
 };
 
 /** 建立物件類別列表列資料 */
 const buildMatCategoryRows = (raw: MatCategoryListRawData, lang: Lang, columns: ColumnConfig[], renderers: MatCategoryListRenderers): GridRow[] =>
 {
-    return (raw.list ?? []).map((set) => buildMatCategoryRow(set, lang, columns, renderers));
+    return (raw.list ?? []).map((formModel) => buildMatCategoryRow(formModel, lang, columns, renderers));
 };
 
 /** 建立物件類別列表單列資料 */
-const buildMatCategoryRow = (set: MatCategorySet, lang: Lang, columns: ColumnConfig[], renderers: MatCategoryListRenderers): GridRow =>
+const buildMatCategoryRow = (formModel: MatCategoryFormModel, lang: Lang, columns: ColumnConfig[], renderers: MatCategoryListRenderers): GridRow =>
 {
-    const category = set.Category;
+    const category = formModel.Category;
     const keyId = category?.InternalId ?? LibText.Merge("|", false, category?.CategoryId);
     const cells: RowCell[] = [
-        { col: columns[0], content: getCategoryName(set, lang) },
-        { col: columns[1], content: renderers.buildInfoFieldContentNode(set, lang) },
+        { col: columns[0], content: getCategoryName(formModel, lang) },
+        { col: columns[1], content: renderers.buildInfoFieldContentNode(formModel, lang) },
         { col: columns[2], content: category?.ModifyUser?.AccountName ?? "" },
         { col: columns[3], content: formatDateTime(category?.ModifyTime) },
     ];
@@ -381,9 +388,9 @@ const buildMatCategoryRow = (set: MatCategorySet, lang: Lang, columns: ColumnCon
 };
 
 /** 取得指定語系的物件類別名稱 */
-const getCategoryName = (set: MatCategorySet, lang: Lang): string =>
+const getCategoryName = (formModel: MatCategoryFormModel, lang: Lang): string =>
 {
-    return findTextByKey(set.CategoryDetail, (detail) => detail?.Lang, lang, (detail) => detail?.CategoryName);
+    return findTextByKey(formModel.Category?._CategoryDetail, (detail) => detail?.Lang, lang, (detail) => detail?.CategoryName);
 };
 
 // #endregion

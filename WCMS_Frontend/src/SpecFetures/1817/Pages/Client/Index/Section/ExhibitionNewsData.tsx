@@ -25,9 +25,9 @@ type QueryListParam = components["schemas"]["QueryListParam"];
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 
-type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"];
+type CategoryFormModel = components["schemas"]["Category"];
 
-type TagSet = components["schemas"]["TagSet_DTO"];
+type TagFormModel = components["schemas"]["TagData"];
 
 interface ExhibitionNewsDataProps
 {
@@ -36,8 +36,8 @@ interface ExhibitionNewsDataProps
     cateParam: QueryListParam;
     tagParam: QueryListParam;
     initialList: AnnouncementSet[];
-    initialCategories: CategoryDataSet[];
-    initialTags: TagSet[];
+    initialCategories: CategoryFormModel[];
+    initialTags: TagFormModel[];
 }
 
 interface NewsItemViewModel
@@ -382,7 +382,7 @@ const useExhibitionList = (props: { listParam: QueryListParam; initialList: Anno
 };
 
 const useCategoryTagDict = (
-    props: { lang: Lang; cateParam: QueryListParam; tagParam: QueryListParam; initialCategories: CategoryDataSet[]; initialTags: TagSet[]; },
+    props: { lang: Lang; cateParam: QueryListParam; tagParam: QueryListParam; initialCategories: CategoryFormModel[]; initialTags: TagFormModel[]; },
 ) =>
 {
     // 宣告變數：adapter / initial

@@ -15,7 +15,7 @@ import { AnnouncementDetailFields, AnnouncementFields } from "@/types/SchemaFiel
 import { useMemo, useState } from "react";
 
 // #region Property
-type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
+type AnnouncementFormModel = components["schemas"]["Announcement"];
 const SPEC1821_LATEST_TITLE_MAP: Record<string, string> = { "zh-tw": "最新消息", "zh-cn": "最新消息", en: "News" };
 const SPEC1821_ARCHIVE_TITLE_MAP: Record<string, string> = { "zh-tw": "歷年消息", "zh-cn": "历年消息", en: "Archive News" };
 interface Spec1821ArchiveGridBuildParam
@@ -23,7 +23,7 @@ interface Spec1821ArchiveGridBuildParam
     lang: Lang;
     dirUrl: string;
     gridProps: GridProps;
-    rawData: AnnouncementSet[];
+    rawData: AnnouncementFormModel[];
     categoryData: AnnouncementListViewProps["vm"]["categoryData"];
     tagData: AnnouncementListViewProps["vm"]["tagData"];
 }
@@ -113,28 +113,28 @@ const buildSpec1821ArchiveGrid = (p: Spec1821ArchiveGridBuildParam): GridProps =
     return { ...p.gridProps, columns, rows };
 };
 /** 建立 SPEC1821 歷年消息單列資料。 */
-const buildSpec1821ArchiveGridRow = (p: Spec1821ArchiveGridBuildParam & { row: GridRow; rowData?: AnnouncementSet; rowIndex: number; columns: ColumnConfig[]; }): GridRow =>
+const buildSpec1821ArchiveGridRow = (p: Spec1821ArchiveGridBuildParam & { row: GridRow; rowData?: AnnouncementFormModel; rowIndex: number; columns: ColumnConfig[]; }): GridRow =>
 {
     const cells = p.row.cells.map(cell => buildSpec1821ArchiveGridCell({ ...p, cell }));
     return { ...p.row, cells };
 };
 /** 建立 SPEC1821 歷年消息 Cell。 */
-const buildSpec1821ArchiveGridCell = (p: Spec1821ArchiveGridBuildParam & { cell: RowCell; rowData?: AnnouncementSet; rowIndex: number; columns: ColumnConfig[]; }): RowCell =>
+const buildSpec1821ArchiveGridCell = (p: Spec1821ArchiveGridBuildParam & { cell: RowCell; rowData?: AnnouncementFormModel; rowIndex: number; columns: ColumnConfig[]; }): RowCell =>
 {
-    const internalId = p.rowData?.Announcement?.InternalId ?? "";
-    const rowTitle = p.rowData?.AnnouncementDetail?.find(item => item.Lang === p.lang)?.Title?.trim() ?? "";
+    const internalId = p.rowData?.InternalId ?? "";
+    const rowTitle = p.rowData?._AnnouncementDetail?.find(item => item.Lang === p.lang)?.Title?.trim() ?? "";
     const displayText = resolveSpec1821ArchiveCellText({ colKey: p.cell.col.key, rawContent: String(p.cell.content ?? ""), rowTitle, rowData: p.rowData, lang: p.lang, categoryData: p.categoryData, tagData: p.tagData });
     const content = buildSpec1821ArchiveCellContent({ colKey: p.cell.col.key, dirUrl: p.dirUrl, internalId, displayText });
     return { ...p.cell, content };
 };
 /** 解析 SPEC1821 歷年消息 Cell 文字。 */
 const resolveSpec1821ArchiveCellText = (
-    p: { colKey: string; rawContent: string; rowTitle: string; rowData?: AnnouncementSet; lang: Lang; categoryData: AnnouncementListViewProps["vm"]["categoryData"]; tagData: AnnouncementListViewProps["vm"]["tagData"]; },
+    p: { colKey: string; rawContent: string; rowTitle: string; rowData?: AnnouncementFormModel; lang: Lang; categoryData: AnnouncementListViewProps["vm"]["categoryData"]; tagData: AnnouncementListViewProps["vm"]["tagData"]; },
 ): string =>
 {
     if (p.colKey === AnnouncementDetailFields.Title) return p.rowTitle;
-    if (p.colKey === AnnouncementFields.Categories) return formatCategoriesName(p.rowData?.Announcement?.Categories ?? "", p.categoryData, p.lang);
-    if (p.colKey === AnnouncementFields.Tags) return formatTagsName(p.rowData?.Announcement?.Tags ?? "", p.tagData, p.lang);
+    if (p.colKey === AnnouncementFields.Categories) return formatCategoriesName(p.rowData?.Categories ?? "", p.categoryData, p.lang);
+    if (p.colKey === AnnouncementFields.Tags) return formatTagsName(p.rowData?.Tags ?? "", p.tagData, p.lang);
     return p.rawContent;
 };
 /** 建立 SPEC1821 歷年消息 Cell JSX。 */

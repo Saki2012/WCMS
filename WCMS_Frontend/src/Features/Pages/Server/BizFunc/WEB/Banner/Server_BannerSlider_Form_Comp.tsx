@@ -6,17 +6,17 @@ import type { EditGridCellRenderArgs, EditGridCellValue, EditGridEditingStateArg
 import { getEditGridRowId, useEditGridSubDetailState } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { LibTextBox } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
-import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
+import { useFormModelField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
 import type { components } from "@/types/api";
-import { BannerFields, BannerSetFields } from "@/types/SchemaFields";
+import { BannerFields } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 // #region Property
-type BannerSet = components["schemas"]["BannerSet_DTO"];
+type BannerFormModel = components["schemas"]["Banner"];
 interface BannerSliderFormCompProps
 {
     /** 後台主題設定 */
@@ -31,7 +31,7 @@ interface BannerContentProps
     /** 目前語系 */
     lang: Lang;
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<BannerSet>;
+    binding: ServerFormBinding<BannerFormModel>;
     /** Banner Hook 整理後的參照資料 */
     refs: BannerSliderFormRefs;
 }
@@ -40,7 +40,7 @@ interface HeaderSectionProps
     /** 後台主題設定 */
     theme: IBETheme;
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<BannerSet>;
+    binding: ServerFormBinding<BannerFormModel>;
 }
 interface DetailSectionProps extends BannerContentProps
 {
@@ -98,24 +98,24 @@ const BannerContentComp = (props: BannerContentProps) =>
 /** 表頭設定區塊，維持既有 Header input 綁定方式。 */
 const HeaderSectionComp = (props: HeaderSectionProps) =>
 {
-    const setField = useSetTableField<BannerSet>(props.binding);
+    const formField = useFormModelField<BannerFormModel>(props.binding);
     return (
         <>
             <div className="form-group">
                 <div className="row">
-                    <LibTextBox Style={props.theme.TextBox} DefaultInputDisplay="請輸入" {...setField(BannerSetFields.Banner, BannerFields.BannerCategoryName, "string")} />
+                    <LibTextBox Style={props.theme.TextBox} DefaultInputDisplay="請輸入" {...formField(BannerFields.BannerCategoryName, "string")} />
                 </div>
             </div>
             <div className="form-group">
                 <div className="row">
-                    <LibTextBox Style={props.theme.TextBox3} DefaultInputDisplay="請輸入" {...setField(BannerSetFields.Banner, BannerFields.Width, "number")} />
-                    <LibTextBox Style={props.theme.TextBox3} DefaultInputDisplay="請輸入" {...setField(BannerSetFields.Banner, BannerFields.Height, "number")} />
+                    <LibTextBox Style={props.theme.TextBox3} DefaultInputDisplay="請輸入" {...formField(BannerFields.Width, "number")} />
+                    <LibTextBox Style={props.theme.TextBox3} DefaultInputDisplay="請輸入" {...formField(BannerFields.Height, "number")} />
                 </div>
             </div>
             <div className="form-group">
                 <div className="row">
-                    <LibTextBox Style={props.theme.TextBox3} DefaultInputDisplay="請輸入" {...setField(BannerSetFields.Banner, BannerFields.Speed, "number")} />
-                    <LibTextBox Style={props.theme.TextBox3} DefaultInputDisplay="請輸入" {...setField(BannerSetFields.Banner, BannerFields.Interval, "number")} />
+                    <LibTextBox Style={props.theme.TextBox3} DefaultInputDisplay="請輸入" {...formField(BannerFields.Speed, "number")} />
+                    <LibTextBox Style={props.theme.TextBox3} DefaultInputDisplay="請輸入" {...formField(BannerFields.Interval, "number")} />
                 </div>
             </div>
         </>

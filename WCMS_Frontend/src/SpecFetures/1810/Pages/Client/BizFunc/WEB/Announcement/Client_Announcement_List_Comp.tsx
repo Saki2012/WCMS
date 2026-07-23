@@ -22,8 +22,8 @@ import { useEffect, useMemo, useState } from "react";
 
 // #region Property
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
-type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
-type TagSet = components["schemas"]["TagSet_DTO"];
+type CategoryFormModel = components["schemas"]["Category"];
+type TagFormModel = components["schemas"]["TagData"];
 interface WithinLastOptions
 {
     /** 當字串沒有時區資訊時，假定的時區位移（單位：分鐘）。預設 0 = 當成 UTC。例：台北(+08:00)傳 480 */
@@ -137,7 +137,7 @@ const PictureList_Comp = (
         lang: Lang;
         Theme: IFETheme;
         rawData: AnnouncementSet[];
-        categoryData: CategorySet[];
+        categoryData: CategoryFormModel[];
         dirUrl: string;
         currentPage: number;
         totalPages: number;
@@ -304,8 +304,8 @@ const SetAdjustFunction = (
     dirUrl: string,
     gridProps: GridProps,
     rawData: AnnouncementSet[],
-    catData: CategorySet[],
-    tagData: TagSet[],
+    catData: CategoryFormModel[],
+    tagData: TagFormModel[],
 ): GridProps =>
 {
     // 宣告變數

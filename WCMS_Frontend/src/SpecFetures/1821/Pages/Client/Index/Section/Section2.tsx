@@ -9,12 +9,12 @@ import type { components } from "@/types/api";
 import { type ReactNode, useEffect, useState } from "react";
 
 // #region Property
-type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
-type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];
-type FileArchiveDetail = components["schemas"]["FileArchiveDetail_DTO"];
-type FileArchiveUrlDetail = components["schemas"]["FileArchiveUrlDetail_DTO"];
-type SpecHomePage1821Shortcut = components["schemas"]["SpecHomePage1821_Shortcut_DTO"];
-type SpecHomePage1821ShortcutModuleItem = components["schemas"]["SpecHomePage1821_ShortcutModuleItem_DTO"];
+type AnnouncementFormModel = components["schemas"]["Announcement"];
+type FileArchiveFormModel = components["schemas"]["FileArchive"];
+type FileArchiveDetail = components["schemas"]["FileArchiveDetail"];
+type FileArchiveUrlDetail = components["schemas"]["FileArchiveUrlDetail"];
+type SpecHomePage1821Shortcut = components["schemas"]["SpecHomePage1821_Shortcut"];
+type SpecHomePage1821ShortcutModuleItem = components["schemas"]["SpecHomePage1821_ShortcutModuleItem"];
 type SpecHomePageModuleType = components["schemas"]["SpecHomePageModuleType"];
 type HomePageModuleTypeValue = Exclude<SpecHomePageModuleType, 0>;
 
@@ -22,8 +22,8 @@ interface HomePageShortcutModuleViewModel
 {
     setting: SpecHomePage1821ShortcutModuleItem;
     moduleType: HomePageModuleTypeValue;
-    announcementList: AnnouncementSet[];
-    fileArchiveList: FileArchiveSet[];
+    announcementList: AnnouncementFormModel[];
+    fileArchiveList: FileArchiveFormModel[];
 }
 
 interface HomePageShortcutViewModel
@@ -319,7 +319,7 @@ const AnnouncementModule = (props: { lang: Lang; module: HomePageShortcutModuleV
             <div className="col-12">
                 <div className="News_mainDIV">
                     <ul className="ListNews row row-cols-1 row-cols-sm-1 row-cols-md-1 row-cols-lg-2">
-                        {props.module.announcementList.map((item) => <AnnouncementItem key={item.Announcement?.InternalId ?? item.Announcement?.AnnouncementId} lang={props.lang} item={item} moreViewLink={props.module.setting.MoreViewLink} />)}
+                        {props.module.announcementList.map((item) => <AnnouncementItem key={item?.InternalId ?? item?.AnnouncementId} lang={props.lang} item={item} moreViewLink={props.module.setting.MoreViewLink} />)}
                     </ul>
                 </div>
                 <MoreButton lang={props.lang} to={props.module.setting.MoreViewLink} title={`更多${props.module.setting.Title ?? "公告"}`} />
@@ -388,16 +388,16 @@ const ModuleTitle = (props: { module: HomePageShortcutModuleViewModel; subTitle:
 };
 
 /** 公告列表項目。 */
-const AnnouncementItem = (props: { lang: Lang; item: AnnouncementSet; moreViewLink?: string | null; }) =>
+const AnnouncementItem = (props: { lang: Lang; item: AnnouncementFormModel; moreViewLink?: string | null; }) =>
 {
     const detail = getCurrentAnnouncementDetail(props.item, props.lang);
     const title = detail?.Title ?? "";
-    const link = buildDetailLink(props.moreViewLink, props.item.Announcement?.InternalId);
+    const link = buildDetailLink(props.moreViewLink, props.item?.InternalId);
     return (
         <li className="News_item">
             <LangLink to={link} lang={props.lang} className="d-block" title={title}>
                 <div className="item-inner">
-                    <NewsDate value={props.item.Announcement?.Validate_Start} />
+                    <NewsDate value={props.item?.Validate_Start} />
                     <NewsText title={title} item={props.item} />
                 </div>
             </LangLink>
@@ -420,7 +420,7 @@ const NewsDate = (props: { value?: string | null; }) =>
 };
 
 /** 公告文字。 */
-const NewsText = (props: { title: string; item: AnnouncementSet; }) =>
+const NewsText = (props: { title: string; item: AnnouncementFormModel; }) =>
 {
     return (
         <div className="rightBox">
@@ -442,14 +442,14 @@ const NewsText = (props: { title: string; item: AnnouncementSet; }) =>
 };
 
 /** 公告狀態標籤。 */
-const NewsState = (props: { item: AnnouncementSet; }) =>
+const NewsState = (props: { item: AnnouncementFormModel; }) =>
 {
-    const status = Number(props.item.Announcement?.ContentStatus ?? 0);
+    const status = Number(props.item?.ContentStatus ?? 0);
     return <div className="CustomState">{Boolean(status & 1) && <div className="icon-small top-bg">置頂</div>}{Boolean(status & 2) && <div className="icon-small hot-bg">熱門</div>}{Boolean(status & 4) && <div className="icon-small new-bg">最新</div>}</div>;
 };
 
 /** 檔案標題欄位。 */
-const FileArchiveTitleCell = (props: { lang: Lang; item: FileArchiveSet; }) =>
+const FileArchiveTitleCell = (props: { lang: Lang; item: FileArchiveFormModel; }) =>
 {
     const info = getCurrentFileInfo(props.item, props.lang);
     return (
@@ -461,16 +461,16 @@ const FileArchiveTitleCell = (props: { lang: Lang; item: FileArchiveSet; }) =>
 };
 
 /** 檔案下載欄位。 */
-const FileArchiveDownloadCell = (props: { lang: Lang; item: FileArchiveSet; }) =>
+const FileArchiveDownloadCell = (props: { lang: Lang; item: FileArchiveFormModel; }) =>
 {
     const downloads = getDownloadLinks(props.item, props.lang);
     return <div className="Standard_btnDiv">{downloads.map((item) => <DownloadButton key={`${item.url}-${item.ext}`} item={item} />)}</div>;
 };
 
 /** 檔案狀態標籤。 */
-const FileArchiveState = (props: { item: FileArchiveSet; }) =>
+const FileArchiveState = (props: { item: FileArchiveFormModel; }) =>
 {
-    const status = Number(props.item.FileArchive?.ContentStatus ?? 0);
+    const status = Number(props.item?.ContentStatus ?? 0);
     return (
         <div className="CustomState">
             {Boolean(status & 1) && <span className="label icon-small label-success">置頂</span>}
@@ -604,13 +604,13 @@ const buildDetailLink = (moreViewLink?: string | null, internalId?: string | nul
 };
 
 /** 取得目前語系公告明細。 */
-const getCurrentAnnouncementDetail = (item: AnnouncementSet, lang: Lang) =>
+const getCurrentAnnouncementDetail = (item: AnnouncementFormModel, lang: Lang) =>
 {
-    return item.AnnouncementDetail?.find((row) => row.Lang === lang) ?? item.AnnouncementDetail?.[0];
+    return item._AnnouncementDetail?.find((row) => row.Lang === lang) ?? item._AnnouncementDetail?.[0];
 };
 
 /** 建立檔案下載 Grid 資料。 */
-const buildFileArchiveGridProps = (lang: Lang, rows: FileArchiveSet[]): GridProps =>
+const buildFileArchiveGridProps = (lang: Lang, rows: FileArchiveFormModel[]): GridProps =>
 {
     const columns = buildFileArchiveColumns();
     const gridRows = rows.map((item, index) => buildFileArchiveGridRow(lang, item, columns, index));
@@ -630,41 +630,35 @@ const buildFileArchiveColumns = (): ColumnConfig[] =>
 };
 
 /** 建立檔案下載 Grid 單列。 */
-const buildFileArchiveGridRow = (lang: Lang, item: FileArchiveSet, columns: ColumnConfig[], index: number): GridRow =>
+const buildFileArchiveGridRow = (lang: Lang, item: FileArchiveFormModel, columns: ColumnConfig[], index: number): GridRow =>
 {
     const cells = columns.map((col) => buildFileArchiveGridCell(lang, item, col));
-    const keyId = item.FileArchive?.InternalId ?? item.FileArchive?.FileArchiveId ?? `filearchive-${index}`;
+    const keyId = item?.InternalId ?? item?.FileArchiveId ?? `filearchive-${index}`;
     return { keyId, cells };
 };
 
 /** 建立檔案下載 Grid 欄位內容。 */
-const buildFileArchiveGridCell = (lang: Lang, item: FileArchiveSet, col: ColumnConfig): RowCell =>
+const buildFileArchiveGridCell = (lang: Lang, item: FileArchiveFormModel, col: ColumnConfig): RowCell =>
 {
     return { col, content: getFileArchiveGridCellContent(lang, item, col.key) };
 };
 
 /** 取得檔案下載 Grid 欄位內容。 */
-const getFileArchiveGridCellContent = (lang: Lang, item: FileArchiveSet, key: string): ReactNode =>
+const getFileArchiveGridCellContent = (lang: Lang, item: FileArchiveFormModel, key: string): ReactNode =>
 {
     if (key === FileArchiveGridColumnKey.Category) return "檔案室";
     if (key === FileArchiveGridColumnKey.Sort) return "0";
     if (key === FileArchiveGridColumnKey.Title) return <FileArchiveTitleCell lang={lang} item={item} />;
     if (key === FileArchiveGridColumnKey.Download) return <FileArchiveDownloadCell lang={lang} item={item} />;
     if (key === FileArchiveGridColumnKey.DownloadCount) return String(getDownloadCount(item));
-    if (key === FileArchiveGridColumnKey.UploadDate) return formatDate(item.FileArchive?.CreateTime) ?? "";
+    if (key === FileArchiveGridColumnKey.UploadDate) return formatDate(item?.CreateTime) ?? "";
     return "";
 };
 
 /** 取得目前語系檔案資訊。 */
-const getCurrentFileInfo = (item: FileArchiveSet, lang: Lang) =>
+const getCurrentFileInfo = (item: FileArchiveFormModel, lang: Lang) =>
 {
-    return item.FileArchiveInfo?.find((row) => row.Lang === lang) ?? item.FileArchiveInfo?.[0];
-};
-
-/** 取得目前語系檔案資訊 RowId。 */
-const getCurrentFileInfoRowId = (item: FileArchiveSet, lang: Lang) =>
-{
-    return getCurrentFileInfo(item, lang)?.RowId;
+    return item._FileArchiveInfo?.find((row) => row.Lang === lang) ?? item._FileArchiveInfo?.[0];
 };
 
 /** 取得檔案下載項目。 */
@@ -686,18 +680,28 @@ const getUrlDownloadLinks = (rows: FileArchiveUrlDetail[]) =>
 };
 
 /** 取得所有下載項目。 */
-const getDownloadLinks = (item: FileArchiveSet, lang: Lang) =>
+const getDownloadLinks = (item: FileArchiveFormModel, lang: Lang) =>
 {
-    const rowId = getCurrentFileInfoRowId(item, lang);
-    const files = item.FileArchiveDetail?.filter((row) => row.ParentRowId === rowId) ?? item.FileArchiveDetail ?? [];
-    const urls = item.FileArchiveUrlDetail?.filter((row) => row.ParentRowId === rowId) ?? item.FileArchiveUrlDetail ?? [];
+    const info = item._FileArchiveInfo?.find((row) => row.Lang === lang);
+    const files = sortFileArchiveRows(info?._FileArchiveDetail);
+    const urls = sortFileArchiveRows(info?._FileArchiveUrlDetail);
     return [...getFileDownloadLinks(files), ...getUrlDownloadLinks(urls)];
 };
 
-/** 取得總下載數。 */
-const getDownloadCount = (item: FileArchiveSet) =>
+/** 依 RowNo 排序檔案室子資料，舊資料缺值時以 RowId 維持穩定順序。 */
+const sortFileArchiveRows = <TRow extends { RowId?: number; RowNo?: number | null; }>(rows?: TRow[] | null): TRow[] =>
 {
-    return (item.FileArchiveDetail ?? []).reduce((sum, row) => sum + Number(row.FileSrc?.PublicDownloadCount ?? 0), 0);
+    return [...(rows ?? [])].sort((a, b) =>
+    {
+        const rowNoDiff = Number(a.RowNo ?? a.RowId ?? 0) - Number(b.RowNo ?? b.RowId ?? 0);
+        return rowNoDiff || Number(a.RowId ?? 0) - Number(b.RowId ?? 0);
+    });
+};
+
+/** 取得總下載數。 */
+const getDownloadCount = (item: FileArchiveFormModel) =>
+{
+    return (item._FileArchiveInfo ?? []).flatMap((info) => info._FileArchiveDetail ?? []).reduce((sum, row) => sum + Number(row.FileSrc?.PublicDownloadCount ?? 0), 0);
 };
 
 /** 取得日期拆分。 */

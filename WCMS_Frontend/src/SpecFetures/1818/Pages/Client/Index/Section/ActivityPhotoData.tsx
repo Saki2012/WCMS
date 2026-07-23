@@ -22,9 +22,9 @@ type QueryListParam = components["schemas"]["QueryListParam"];
 
 type GallerySet = components["schemas"]["GallerySet_DTO"];
 
-type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"];
+type CategoryFormModel = components["schemas"]["Category"];
 
-type TagSet = components["schemas"]["TagSet_DTO"];
+type TagFormModel = components["schemas"]["TagData"];
 
 // ----- 以下保留你原本的 helper（沿用） -----
 
@@ -58,8 +58,8 @@ export const ActivityPhotoData = (
 
         initialTopList: GallerySet[];
         initialList: GallerySet[];
-        initialCategories: CategoryDataSet[];
-        initialTags: TagSet[];
+        initialCategories: CategoryFormModel[];
+        initialTags: TagFormModel[];
     },
 ) =>
 {

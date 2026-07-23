@@ -1,4 +1,4 @@
-import {
+﻿import {
     buildClientDataQueryKey,
     buildClientDataQueryState,
     type ClientDataQueryDataSourceResult,
@@ -9,10 +9,12 @@ import {
 import { SpecJournalAdapter } from "@/SpecFetures/1819/Hooks/BizFunc/WEB/SpecJournal_Api";
 import type { PaginatorProps } from "@/SysCore/Components/Paginator/Paginator_Data";
 import type { SearchValues } from "@/SysCore/Components/SearchBar/SearchBar_Data";
+import type { Lang } from "@/SysCore/i18n/lang";
 import type { IListViewState } from "@/SysCore/Interface/IListViewState";
 import type { ApiLoaderData } from "@/SysCore/Utils/API/APIAdapter";
 import { getSsrApi } from "@/SysCore/Utils/API/APIBase";
 import { LibText } from "@/SysCore/Utils/Library/LibData";
+import * as LibRouteLang from "@/SysCore/Utils/Route/LibRoute/LibRouteLang";
 import type { components } from "@/types/api";
 import {
     FileManageModelFields,
@@ -37,6 +39,8 @@ export interface SpecJournalListLoaderOptions
 {
     pageSize?: number;
     pageTitle?: string;
+    /** 依實際 Request route 語系提供標題，優先於 pageTitle。 */
+    pageTitleByLang?: Partial<Record<Lang, string>>;
     isPreprint?: boolean;
 }
 
@@ -123,7 +127,7 @@ export const SpecJournalList_Loader = (opt: SpecJournalListLoaderOptions) => asy
     const pageSize = opt.pageSize ?? 10;
     const indexId = `${params?.indexId ?? ""}`.trim();
     const rowId = `${params?.rowId ?? ""}`.trim();
-    const pageTitle = opt.pageTitle ?? "";
+    const pageTitle = resolvePageTitle(request, opt);
     const filters = parseFilters(request.url);
     const isPreprint = opt.isPreprint ?? false;
     const queryState = buildSpecJournalListQueryState({ indexId, rowId, isPreprint, pageSize, pageTitle, filters, baseParam: buildBaseParam({ indexId, rowId, isPreprint, pageSize, filters }) });
@@ -188,6 +192,17 @@ export const useSpecJournalListData = (p?: { pageSize?: number; }): UseSpecJourn
 // #endregion
 
 // #region Private
+
+/**
+ * 依目前 Request route 語系取得頁面標題。
+ */
+const resolvePageTitle = (request: Request, opt: SpecJournalListLoaderOptions): string =>
+{
+    const lang = LibRouteLang.resolveRouteLangFromRequest(request);
+    const pageTitle = opt.pageTitleByLang?.[lang] ?? opt.pageTitle ?? "";
+    return pageTitle;
+};
+
 /**
  * 解析網址查詢條件
  */

@@ -10,11 +10,11 @@ import { useEffect, useMemo, useRef } from "react";
 import { delayMs as sleep } from "@/Features/Pages/Client/Index/HomePage_Helper";
 
 // #region Property
-type BannerSet = components["schemas"]["BannerSet_DTO"];
+type BannerFormModel = components["schemas"]["Banner"];
 // #endregion
 
 // #region Public
-export const SpecialLinkData = (props: { lang: Lang; internalId: string; initialBanner: BannerSet | null; }) =>
+export const SpecialLinkData = (props: { lang: Lang; internalId: string; initialBanner: BannerFormModel | null; }) =>
 {
     // 宣告變數：Adapter（固定一次）
     const adapter = useMemo(() => BannerSliderAdapter(), []);
@@ -31,14 +31,14 @@ export const SpecialLinkData = (props: { lang: Lang; internalId: string; initial
     // 宣告變數：排序後的 Banner 明細
     const sortedDetails = useMemo(() =>
     {
-        const list = useBanner.data?.BannerDetail ?? [];
+        const list = useBanner.data?._BannerDetail ?? [];
         return [...list].sort((a, b) =>
         {
             const as = Number.isFinite(a?.Sort) ? Number(a.Sort) : Number.MAX_SAFE_INTEGER;
             const bs = Number.isFinite(b?.Sort) ? Number(b.Sort) : Number.MAX_SAFE_INTEGER;
             return as - bs || (a.RowId ?? 0) - (b.RowId ?? 0);
         });
-    }, [useBanner.data?.BannerDetail]);
+    }, [useBanner.data?._BannerDetail]);
 
     // 宣告變數：重建 Owl 用 key
     const depsKey = useMemo(() =>
@@ -280,8 +280,8 @@ export const SpecialLinkData = (props: { lang: Lang; internalId: string; initial
                                     <div id="Event_owl_carousel" className="owl-carousel owl-theme" ref={carouselRef}>
                                         {sortedDetails.map((p, idx) =>
                                         {
-                                            const info = useBanner.data?.BannerDetailInfo?.find((x) =>
-                                                x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang
+                                            const info = p._BannerDetailInfo?.find((x) =>
+                                                x.Lang === props.lang
                                             );
                                             const alt = info?.Title ?? "";
                                             const url = info?.URL ?? "#";
@@ -340,12 +340,12 @@ export const SpecialLinkData = (props: { lang: Lang; internalId: string; initial
 // #endregion
 
 // #region Protected
-const buildQueryDataInitial = (internalId: string, banner: BannerSet | null): ApiLoaderData<string, BannerSet> | null =>
+const buildQueryDataInitial = (internalId: string, banner: BannerFormModel | null): ApiLoaderData<string, BannerFormModel> | null =>
 {
     // 宣告變數：沒有 SSR initial 就回 null（CSR 會自己抓）
     if (!banner) return null;
     // 宣告變數：組成功 env
-    const apiRes: ApiResponse<BannerSet> = { IsSuccess: true, Data: banner, SysMessage: [] };
+    const apiRes: ApiResponse<BannerFormModel> = { IsSuccess: true, Data: banner, SysMessage: [] };
     // return
     return { args: internalId, apiRes };
 };

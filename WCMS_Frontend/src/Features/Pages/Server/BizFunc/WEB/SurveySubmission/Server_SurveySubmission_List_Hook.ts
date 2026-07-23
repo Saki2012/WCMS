@@ -27,7 +27,7 @@ import { type NavigateFunction, useLocation, useNavigate } from "react-router-do
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type SurveySubmissionSet = components["schemas"]["SurveySubmissionsSet_DTO"];
+type SurveySubmission = components["schemas"]["SurveySubmissions"];
 
 type SurveySubmissionApiAdapter = ReturnType<typeof SurveySubmissionAdapter>;
 
@@ -64,7 +64,7 @@ export interface SurveySubmissionListRawData
     count: number;
 
     /** 問卷回應列表資料 */
-    list: SurveySubmissionSet[];
+    list: SurveySubmission[];
 
     /** 目前頁碼 */
     pageNumber: number;
@@ -319,8 +319,8 @@ const buildSurveySubmissionGridProps = (opt: { raw: SurveySubmissionListRawData;
     return enhanceGridWithAdjustCell(baseGrid, {
         lang: opt.lang,
         rawList: opt.raw.list ?? [],
-        actions: buildViewActions<SurveySubmissionSet>(opt.adapter),
-        getInternalId: (set) => set.SurveySubmissions?.SurveySubmissionId ?? "",
+        actions: buildViewActions<SurveySubmission>(opt.adapter),
+        getInternalId: item => item.SurveySubmissionId ?? "",
     });
 };
 
@@ -343,9 +343,8 @@ const buildViewActions = <TItem>(adapter: SurveySubmissionListAdapter): GridAdju
 /** 建立問卷回應列表列資料 */
 const buildSurveySubmissionRows = (raw: SurveySubmissionListRawData, lang: Lang, columns: ColumnConfig[]): GridRow[] =>
 {
-    return (raw.list ?? []).map((set) =>
+    return (raw.list ?? []).map((item) =>
     {
-        const item = set.SurveySubmissions;
         const keyId = LibText.Merge("|", false, item?.SurveySubmissionId, item?.SurveyId);
         const cells: RowCell[] = [
             { col: columns[0], content: item?.Survey?.SurveyName ?? item?.SurveyId ?? "" },

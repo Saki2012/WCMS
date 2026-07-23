@@ -1,20 +1,18 @@
+import { type SiteMenuFormModel, useSiteMenuModuleJsonField } from "@/Features/Pages/Server/BizFunc/WEB/SiteMenu/SiteMenu_FormModel_Hook";
 import type { SiteMenuItem } from "@/Features/Pages/Server/BizFunc/WEB/SiteMenu/SiteMenu_Hook";
 import { LibCheckBox, LibDropList } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
-import { useSetJsonField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { SpecCategoryAdapter } from "@/SpecFetures/1810/Hooks/WEB/SpecCategory_Api";
 import { type Lang } from "@/SysCore/i18n/lang";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import type { components } from "@/types/api";
-import { PGID, SiteMenu_Item_ModuleFields, SiteMenuSetFields } from "@/types/SchemaFields";
+import { PGID } from "@/types/SchemaFields";
 import { useMemo } from "react";
 
 // #region Property
-type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"];
-
 type SpecCategorySet = components["schemas"]["SpecCategorySet_DTO"];
 
-type TagSet = components["schemas"]["TagSet_DTO"];
+type TagSet = components["schemas"]["TagData"];
 
 interface ModuleOptionsJson
 {
@@ -25,7 +23,7 @@ interface ModuleOptionsJson
 interface SpecModuleProps
 {
     theme: IBETheme;
-    formData: UseFetchFormDataResult<SiteMenuSet>;
+    formData: UseFetchFormDataResult<SiteMenuFormModel>;
     selectedItemEdit: SiteMenuItem | null;
     lang: Lang;
     tagSets: TagSet[];
@@ -61,13 +59,9 @@ export const Module_SpecUSR_Comp = (prop: SpecModuleProps): React.ReactNode =>
 /** 1810 Spec 模型共用參數 */
 const Module_SpecBase_Comp = (prop: SpecModuleBaseProps): React.ReactNode =>
 {
-    // 宣告變數
-    const curRowKeys = getModuleRowKeys(prop.selectedItemEdit);
-    const binder = useSetJsonField<SiteMenuSet, ModuleOptionsJson>(
+    const binder = useSiteMenuModuleJsonField<ModuleOptionsJson>(
         prop.formData,
-        SiteMenuSetFields.SiteMenu_Item_Module,
-        SiteMenu_Item_ModuleFields.ModuleOptions,
-        curRowKeys,
+        getModuleItemRowId(prop.selectedItemEdit),
         moduleOptionsDefaults,
     );
 
@@ -101,14 +95,10 @@ const Module_SpecBase_Comp = (prop: SpecModuleBaseProps): React.ReactNode =>
 // #endregion
 
 // #region Private
-/** 取得目前選取項目的 Module row key */
-const getModuleRowKeys = (selectedItemEdit: SiteMenuItem | null) =>
+/** 取得目前選取項目的 Item RowId。 */
+const getModuleItemRowId = (selectedItemEdit: SiteMenuItem | null): number =>
 {
-    // return
-    return {
-        [SiteMenu_Item_ModuleFields.SiteIndex]: selectedItemEdit?.menuItem.SiteIndex,
-        [SiteMenu_Item_ModuleFields.ItemRowId]: selectedItemEdit?.menuItem.RowId,
-    };
+    return Number(selectedItemEdit?.menuItem.RowId ?? selectedItemEdit?.id ?? 0);
 };
 
 /** 依 ProgId 取得 1810 SpecCategory 下拉資料 */
@@ -142,15 +132,15 @@ const useGetTagDict = (progId: PGID, lang: Lang, tagSets: TagSet[]): Record<stri
     const tagDic = useMemo<Record<string, string>>(() =>
     {
         // 宣告變數
-        const src = tagSets.filter(p => p.TagData?.ProgId === progId) ?? [];
+        const src = tagSets.filter(p => p.ProgId === progId) ?? [];
 
         // return
         return src.reduce<Record<string, string>>((acc, item) =>
         {
-            const key = item.TagData?.TagId?.toString?.();
+            const key = item.TagId?.toString?.();
             if (!key) return acc;
 
-            acc[key] = item.TagDetail?.find(p => p.Lang === lang)?.TagName ?? key;
+            acc[key] = item._TagDetail?.find(p => p.Lang === lang)?.TagName ?? key;
             return acc;
         }, {});
     }, [progId, lang, tagSets]);

@@ -1,37 +1,31 @@
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
 import { LibCheckBox, LibTextBox } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
-import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import { type Lang, LangLabelMap } from "@/SysCore/i18n/lang";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import { LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
-import { SiteMenu_Item_TitleFields, SiteMenu_ItemFields, SiteMenuSetFields } from "@/types/SchemaFields";
+import { SiteMenu_IndexFields, SiteMenu_Item_TitleFields, SiteMenu_ItemFields } from "@/types/SchemaFields";
 import { useMemo } from "react";
 import type { SiteMenuItem } from "../../SiteMenu_Hook";
+import { type SiteMenuFormModel, type SiteMenuGraphField, type SiteMenuItemModel, type SiteMenuItemTitle } from "../../SiteMenu_FormModel_Hook";
 
 // #region Property
-type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"];
-
-type SiteMenu_Item = components["schemas"]["SiteMenu_Item_DTO"];
-
-type SiteMenu_Item_Title = components["schemas"]["SiteMenu_Item_Title_DTO"];
-
 type MenuUrlType = components["schemas"]["MenuUrlType"];
 
 interface BasicSettingTab_Props
 {
     theme: IBETheme;
     selectedItemEdit: SiteMenuItem | null;
-    formData: UseFetchFormDataResult<SiteMenuSet>;
-    setField: ReturnType<typeof useSetTableField<SiteMenuSet>>;
+    formData: UseFetchFormDataResult<SiteMenuFormModel>;
+    setField: SiteMenuGraphField;
     itemType: Record<string, string>;
     windowTarget: Record<string, string>;
     setLinkType: React.Dispatch<React.SetStateAction<MenuUrlType>>;
 }
 
-type MenuTitleCompProps = BasicSettingTab_Props & { selectedMenuItem?: SiteMenu_Item | null; };
+type MenuTitleCompProps = BasicSettingTab_Props & { selectedMenuItem?: SiteMenuItemModel | null; };
 // #endregion
 
 // #region Public
@@ -43,20 +37,20 @@ export const BasicSettingTab = (prop: BasicSettingTab_Props) =>
         return { [SiteMenu_ItemFields.SiteIndex]: selectedMenuItem?.SiteIndex, [SiteMenu_ItemFields.RowId]: selectedMenuItem?.RowId };
     }, [selectedMenuItem?.RowId, selectedMenuItem?.SiteIndex]);
 
-    const itemTypeBind = prop.setField(SiteMenuSetFields.SiteMenu_Item, SiteMenu_ItemFields.ItemType, "number", curRowKeys);
+    const itemTypeBind = prop.setField(SiteMenu_IndexFields._SiteMenu_Item, SiteMenu_ItemFields.ItemType, "number", curRowKeys);
 
     return (
         <>
             <LibTextBox
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入數字或英文，不可使用空白的"
-                {...prop.setField(SiteMenuSetFields.SiteMenu_Item, SiteMenu_ItemFields.ItemSiteUrl, "string", curRowKeys)}
+                {...prop.setField(SiteMenu_IndexFields._SiteMenu_Item, SiteMenu_ItemFields.ItemSiteUrl, "string", curRowKeys)}
             />
             <LibTextBox
                 disabled={true}
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay=""
-                {...prop.setField(SiteMenuSetFields.SiteMenu_Item, SiteMenu_ItemFields.FullUrl, "string", curRowKeys)}
+                {...prop.setField(SiteMenu_IndexFields._SiteMenu_Item, SiteMenu_ItemFields.FullUrl, "string", curRowKeys)}
             />
             <LibCheckBox
                 Style={prop.theme.RadioBox}
@@ -72,7 +66,7 @@ export const BasicSettingTab = (prop: BasicSettingTab_Props) =>
             <LibCheckBox
                 Style={prop.theme.RadioBox}
                 options={prop.windowTarget}
-                {...prop.setField(SiteMenuSetFields.SiteMenu_Item, SiteMenu_ItemFields.WindowTarget, "number", curRowKeys)}
+                {...prop.setField(SiteMenu_IndexFields._SiteMenu_Item, SiteMenu_ItemFields.WindowTarget, "number", curRowKeys)}
             />
             <MenuTitle_Comp {...prop} selectedMenuItem={selectedMenuItem} />
         </>
@@ -91,7 +85,7 @@ const MenuTitle_Comp = (prop: MenuTitleCompProps) =>
     const dedupDetails = useMemo(() =>
     {
         const seen = new Set<string>();
-        const out: SiteMenu_Item_Title[] = [];
+        const out: SiteMenuItemTitle[] = [];
 
         for (const d of rawDetails)
         {
@@ -133,13 +127,13 @@ const MenuTitle_Comp = (prop: MenuTitleCompProps) =>
                     key={`${langKey}_title`}
                     Style={prop.theme.TextBox}
                     DefaultInputDisplay="請輸入"
-                    {...prop.setField(SiteMenuSetFields.SiteMenu_Item_Title, SiteMenu_Item_TitleFields.Title, "string", rowKeys)}
+                    {...prop.setField(SiteMenu_ItemFields._SiteMenu_Item_Title, SiteMenu_Item_TitleFields.Title, "string", rowKeys)}
                 />,
                 <LibCheckBox
                     key={`${langKey}_show`}
                     Style={prop.theme.CheckBox}
                     options={{ [SiteMenu_Item_TitleFields.IsShowOnMenu]: "" }}
-                    {...prop.setField(SiteMenuSetFields.SiteMenu_Item_Title, SiteMenu_Item_TitleFields.IsShowOnMenu, "boolean", rowKeys)}
+                    {...prop.setField(SiteMenu_ItemFields._SiteMenu_Item_Title, SiteMenu_Item_TitleFields.IsShowOnMenu, "boolean", rowKeys)}
                 />,
             ];
 
@@ -153,7 +147,7 @@ const MenuTitle_Comp = (prop: MenuTitleCompProps) =>
 
 // #region Protected
 /** 建立多語頁籤 key */
-const buildTitleTabKey = (info: SiteMenu_Item_Title): string =>
+const buildTitleTabKey = (info: SiteMenuItemTitle): string =>
 {
     return LibText.Merge("_", true, info.SiteIndex, info.ItemRowId, info.RowId, info.Lang);
 };
@@ -161,28 +155,24 @@ const buildTitleTabKey = (info: SiteMenu_Item_Title): string =>
 
 // #region Private
 /** 取得目前選取的最新 SiteMenu_Item */
-const useSelectedMenuItem = (data: SiteMenuSet, selected?: SiteMenuItem | null): SiteMenu_Item | null =>
+const useSelectedMenuItem = (data: SiteMenuFormModel, selected?: SiteMenuItem | null): SiteMenuItemModel | null =>
 {
     return useMemo(() =>
     {
         const selectedRowId = Number(selected?.id ?? selected?.menuItem?.RowId ?? 0);
         if (!selectedRowId) return null;
 
-        const current = (data.SiteMenu_Item ?? []).find(x => Number(x.RowId) === selectedRowId);
+        const current = (data._SiteMenu_Item ?? []).find(x => Number(x.RowId) === selectedRowId);
         return current ?? selected?.menuItem ?? null;
-    }, [data.SiteMenu_Item, selected]);
+    }, [data._SiteMenu_Item, selected]);
 };
 
 /** 取得目前選取 item 的多語標題列 */
-const getSelectedTitleRows = (data: SiteMenuSet, selected?: SiteMenu_Item | null): SiteMenu_Item_Title[] =>
+const getSelectedTitleRows = (data: SiteMenuFormModel, selected?: SiteMenuItemModel | null): SiteMenuItemTitle[] =>
 {
-    const siteIndex = selected?.SiteIndex ?? "";
     const itemRowId = Number(selected?.RowId ?? 0);
     if (!itemRowId) return [];
-
-    return (data.SiteMenu_Item_Title ?? []).filter((p) =>
-    {
-        return p.SiteIndex === siteIndex && Number(p.ItemRowId) === itemRowId;
-    });
+    const item = (data._SiteMenu_Item ?? []).find(row => Number(row.RowId) === itemRowId);
+    return item?._SiteMenu_Item_Title ?? [];
 };
 // #endregion

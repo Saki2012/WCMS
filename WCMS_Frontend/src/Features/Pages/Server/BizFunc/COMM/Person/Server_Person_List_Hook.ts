@@ -21,14 +21,14 @@ import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { formatDateTime, LibCondition, LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { PersonModelFields, PGID } from "@/types/SchemaFields";
+import { PersonFields, PGID } from "@/types/SchemaFields";
 import { createElement, useCallback, useMemo } from "react";
 import { type NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type PersonSet = components["schemas"]["PersonSet_DTO"];
+type PersonFormModel = components["schemas"]["Person"];
 
 type PersonApiAdapter = ReturnType<typeof PersonAdapter>;
 
@@ -64,7 +64,7 @@ export interface PersonListRawData
     count: number;
 
     /** 人員列表資料 */
-    list: PersonSet[];
+    list: PersonFormModel[];
 
     /** 目前頁碼 */
     pageNumber: number;
@@ -224,8 +224,8 @@ const usePersonListGridDataSource = (
 /** 建立人員搜尋欄位設定 */
 const buildPersonSearchFields = (rawData: PersonListRawData): SearchFieldConfig[] =>
 {
-    const nameTitle = getColumnTitle(rawData.modelDisplayName, PersonModelFields.PersonName, "姓名");
-    const emailTitle = getColumnTitle(rawData.modelDisplayName, PersonModelFields.Email, "Email");
+    const nameTitle = getColumnTitle(rawData.modelDisplayName, PersonFields.PersonName, "姓名");
+    const emailTitle = getColumnTitle(rawData.modelDisplayName, PersonFields.Email, "Email");
 
     return [
         { key: PERSON_NAME_SEARCH_KEY, title: nameTitle, type: "text", placeholder: `請輸入${nameTitle}` },
@@ -250,12 +250,12 @@ const buildPersonSearchConditions = (ctx: { searchParams: PersonSearchParams; })
 
     if (ctx.searchParams.personName)
     {
-        conditions.push(`${PersonModelFields.PersonName} Like ${ctx.searchParams.personName}`);
+        conditions.push(`${PersonFields.PersonName} Like ${ctx.searchParams.personName}`);
     }
 
     if (ctx.searchParams.email)
     {
-        conditions.push(`${PersonModelFields.Email} Like ${ctx.searchParams.email}`);
+        conditions.push(`${PersonFields.Email} Like ${ctx.searchParams.email}`);
     }
 
     return conditions;
@@ -266,21 +266,21 @@ const buildPersonQueryParam = (ctx: { pageNumber: number; searchParams: PersonSe
 {
     const fields = buildPersonQueryFields();
     const condition = LibCondition.joinConditions([ctx.searchCondition]);
-    return { Fields: fields, Condition: condition, OrderBy: [{ Col: PersonModelFields.CreateTime, Desc: true }], PageNumber: ctx.pageNumber, PageSize: 10 };
+    return { Fields: fields, Condition: condition, OrderBy: [{ Col: PersonFields.CreateTime, Desc: true }], PageNumber: ctx.pageNumber, PageSize: 10 };
 };
 
 /** 建立人員列表查詢欄位 */
 const buildPersonQueryFields = (): string[] =>
 {
     return [
-        PersonModelFields.InternalId,
-        PersonModelFields.PersonId,
-        PersonModelFields.PersonName,
-        PersonModelFields.PersonImgId,
-        PersonModelFields.Email,
-        PersonModelFields.MobilePhone,
-        PersonModelFields.ModifyTime,
-        PersonModelFields.CreateTime,
+        PersonFields.InternalId,
+        PersonFields.PersonId,
+        PersonFields.PersonName,
+        PersonFields.PersonImgId,
+        PersonFields.Email,
+        PersonFields.MobilePhone,
+        PersonFields.ModifyTime,
+        PersonFields.CreateTime,
     ];
 };
 
@@ -297,7 +297,7 @@ const buildPersonGridProps = (
     },
 ): GridProps =>
 {
-    const visibleCols = [PersonModelFields.PersonImgId, PersonModelFields.PersonId, PersonModelFields.PersonName, PersonModelFields.Email, PersonModelFields.MobilePhone, PersonModelFields.ModifyTime];
+    const visibleCols = [PersonFields.PersonImgId, PersonFields.PersonId, PersonFields.PersonName, PersonFields.Email, PersonFields.MobilePhone, PersonFields.ModifyTime];
     const columns = buildServerListColumns(visibleCols, opt.raw.modelDisplayName, { buildFallback: getPersonColumnFallback });
     const rows = buildPersonRows(opt.raw, columns);
     const baseGrid: GridProps = { columns, rows, CurrentPage: opt.raw.pageNumber ?? 1, TotalPage: opt.raw.totalPages ?? 1, onPageChange: opt.raw.onPageChange };
@@ -328,7 +328,7 @@ const enhancePersonGrid = (
     },
 ): GridProps =>
 {
-    const actions = createGridCrudActions<PersonSet>({
+    const actions = createGridCrudActions<PersonFormModel>({
         onEdit: (internalId) => opt.crud.navigate(`${opt.crud.dirUrl}/${internalId}`),
         deleteAsync: opt.crud.deleteAsync,
         afterDelete: opt.crud.afterDelete,
@@ -341,23 +341,23 @@ const enhancePersonGrid = (
         can: opt.can,
         notifyNoPermission: opt.notifyNoPermission,
         confirm: opt.confirm,
-        getInternalId: (set) => set.Person?.InternalId ?? "",
+        getInternalId: (formModel) => formModel.InternalId ?? "",
     });
 };
 
 /** 建立人員列表列資料 */
 const buildPersonRows = (raw: PersonListRawData, columns: ColumnConfig[]): GridRow[] =>
 {
-    return (raw.list ?? []).map((set) => buildPersonRow(set, columns));
+    return (raw.list ?? []).map((formModel) => buildPersonRow(formModel, columns));
 };
 
 /** 建立人員列表單列資料 */
-const buildPersonRow = (set: PersonSet, columns: ColumnConfig[]): GridRow =>
+const buildPersonRow = (formModel: PersonFormModel, columns: ColumnConfig[]): GridRow =>
 {
-    const person = set.Person;
+    const person = formModel;
     const keyId = person?.InternalId ?? LibText.Merge("|", false, person?.PersonId, person?.Email);
     const cells: RowCell[] = [
-        { col: columns[0], content: buildPersonImage(set) },
+        { col: columns[0], content: buildPersonImage(formModel) },
         { col: columns[1], content: person?.PersonId ?? "" },
         { col: columns[2], content: person?.PersonName ?? "" },
         { col: columns[3], content: person?.Email ?? "" },
@@ -369,9 +369,9 @@ const buildPersonRow = (set: PersonSet, columns: ColumnConfig[]): GridRow =>
 };
 
 /** 建立人員圖片預覽 */
-const buildPersonImage = (set: PersonSet): RowCell["content"] =>
+const buildPersonImage = (formModel: PersonFormModel): RowCell["content"] =>
 {
-    const personImgId = set.Person?.PersonImgId;
+    const personImgId = formModel.PersonImgId;
     if (!personImgId) return null;
 
     return createElement("img", {
@@ -385,12 +385,12 @@ const buildPersonImage = (set: PersonSet): RowCell["content"] =>
 const getPersonColumnFallback = (columnId: string): string =>
 {
     const map: Record<string, string> = {
-        [PersonModelFields.PersonImgId]: "圖片",
-        [PersonModelFields.PersonId]: "人員代號",
-        [PersonModelFields.PersonName]: "姓名",
-        [PersonModelFields.Email]: "Email",
-        [PersonModelFields.MobilePhone]: "手機",
-        [PersonModelFields.ModifyTime]: "修改時間",
+        [PersonFields.PersonImgId]: "圖片",
+        [PersonFields.PersonId]: "人員代號",
+        [PersonFields.PersonName]: "姓名",
+        [PersonFields.Email]: "Email",
+        [PersonFields.MobilePhone]: "手機",
+        [PersonFields.ModifyTime]: "修改時間",
     };
 
     return map[columnId] ?? `【${columnId}】`;

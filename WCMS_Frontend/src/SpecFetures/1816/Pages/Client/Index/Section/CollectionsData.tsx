@@ -15,11 +15,11 @@ import icon4 from "@/SpecFetures/1816/Assets/Client/images/collections/Collect-i
 import { delayMs as sleep } from "@/Features/Pages/Client/Index/HomePage_Helper";
 
 // #region Property
-type BannerSet = components["schemas"]["BannerSet_DTO"];
+type BannerFormModel = components["schemas"]["Banner"];
 // #endregion
 
 // #region Public
-export const CollectionsData = (props: { lang: Lang; internalId: string; initialBanner: BannerSet | null; }) =>
+export const CollectionsData = (props: { lang: Lang; internalId: string; initialBanner: BannerFormModel | null; }) =>
 {
     // 宣告變數：Adapter（固定一次）
     const adapter = useMemo(() => BannerSliderAdapter(), []);
@@ -39,9 +39,9 @@ export const CollectionsData = (props: { lang: Lang; internalId: string; initial
     // 執行 function：依 Rank 排序明細
     const sortedDetails = useMemo(() =>
     {
-        const list = useBanner.data?.BannerDetail ?? [];
+        const list = useBanner.data?._BannerDetail ?? [];
         return [...list].sort((a, b) => (a?.Sort ?? 0) - (b?.Sort ?? 0));
-    }, [useBanner.data?.BannerDetail]);
+    }, [useBanner.data?._BannerDetail]);
 
     const depsKey = useMemo(() =>
     {
@@ -318,8 +318,8 @@ export const CollectionsData = (props: { lang: Lang; internalId: string; initial
                                     <div className="owl-carousel owl-theme" id="Collections_owl_carousel" ref={carouselRef}>
                                         {sortedDetails.map((p, i) =>
                                         {
-                                            const detail = useBanner.data?.BannerDetailInfo?.find((x) =>
-                                                x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang
+                                            const detail = p._BannerDetailInfo?.find((x) =>
+                                                x.Lang === props.lang
                                             );
                                             const alt = detail?.Title ?? "";
                                             const url = detail?.URL ?? "#";
@@ -391,13 +391,13 @@ export const CollectionsData = (props: { lang: Lang; internalId: string; initial
 // #endregion
 
 // #region Protected
-const buildQueryDataInitial = (internalId: string, banner: BannerSet | null): ApiLoaderData<string, BannerSet> | null =>
+const buildQueryDataInitial = (internalId: string, banner: BannerFormModel | null): ApiLoaderData<string, BannerFormModel> | null =>
 {
     // 宣告變數：沒有 SSR initial 就回 null（CSR 會自己抓）
     if (!banner) return null;
 
     // 宣告變數：組成功 env
-    const apiRes: ApiResponse<BannerSet> = { IsSuccess: true, Data: banner, SysMessage: [] };
+    const apiRes: ApiResponse<BannerFormModel> = { IsSuccess: true, Data: banner, SysMessage: [] };
 
     // return
     return { args: internalId, apiRes };

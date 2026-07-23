@@ -16,8 +16,8 @@ import { useParams } from "react-router";
 import { useAnnouncementFormData } from "./Client_Announcement_Form_Loader";
 
 // #region Property
-type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
-const emptyData: AnnouncementSet = { Announcement: {}, AnnouncementDetail: [], AnnouncementDetailFile: [] };
+type AnnouncementFormModel = components["schemas"]["Announcement"];
+const emptyData: AnnouncementFormModel = { _AnnouncementDetail: [] };
 export interface IAnnouncementFormProps
 {
     site: INormSite;
@@ -27,7 +27,7 @@ export interface IAnnouncementFormProps
 }
 export interface AnnouncementFormViewProps extends IAnnouncementFormProps
 {
-    formData: AnnouncementSet;
+    formData: AnnouncementFormModel;
     categoryNameText?: string;
     tagNameText?: string;
     internalId?: string;
@@ -79,8 +79,8 @@ export const Client_Announcement_Form = (props: AnnouncementFormViewProps) =>
 /** 公告明細 Feature 預設 View，只負責輸出 DOM。 */
 const Client_Announcement_Form_FeatureView = (props: AnnouncementFormViewProps) =>
 {
-    const detail = useMemo(() => props.formData.AnnouncementDetail?.find(p => (p.Lang ?? "").toLowerCase() === props.lang), [props.formData.AnnouncementDetail, props.lang]);
-    const startDate = useMemo(() => formatDate(props.formData.Announcement?.Validate_Start), [props.formData.Announcement?.Validate_Start]);
+    const detail = useMemo(() => props.formData._AnnouncementDetail?.find(p => (p.Lang ?? "").toLowerCase() === props.lang), [props.formData._AnnouncementDetail, props.lang]);
+    const startDate = useMemo(() => formatDate(props.formData?.Validate_Start), [props.formData?.Validate_Start]);
     const subTitle = useMemo<SubTitleProps>(() => ({ cat: props.categoryNameText ?? "", tag: props.tagNameText ?? "", date: startDate }), [props.categoryNameText, props.tagNameText, startDate]);
     return (
         <ModuleContent
@@ -112,10 +112,10 @@ const getAnnouncementFormView = (): typeof Client_Announcement_Form_FeatureView 
 
 /** 取得 Announcement FormView，有 Spec View 時使用 Spec，否則使用 Feature View。 */
 
-const Content = (props: { lang: Lang; data: AnnouncementSet; }) =>
+const Content = (props: { lang: Lang; data: AnnouncementFormModel; }) =>
 {
-    const detail = props.data.AnnouncementDetail?.find(p => (p.Lang ?? "").toLowerCase() === props.lang);
-    const fileDetail = props.data.AnnouncementDetailFile?.filter(p => p.AnnouncementId === detail?.AnnouncementId && p.ParentRowId === detail?.RowId);
+    const detail = props.data._AnnouncementDetail?.find(p => (p.Lang ?? "").toLowerCase() === props.lang);
+    const fileDetail = detail?._AnnouncementDetailFile ?? [];
     const url = detail?.Url;
     return (
         <>

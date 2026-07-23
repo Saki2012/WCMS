@@ -18,7 +18,7 @@ import {
 } from "./Server_SurveySubmission_Form_Hook";
 
 // #region Property
-type SurveySubmissionSet = components["schemas"]["SurveySubmissionsSet_DTO"];
+type SurveySubmission = components["schemas"]["SurveySubmissions"];
 
 type SurveySubmissionAnswerValue = string | number | boolean | null | (string | number | boolean | null)[];
 
@@ -149,9 +149,6 @@ export const Server_SurveySubmission_Form_Comp = (
 };
 // #endregion
 
-// #region EntityComp
-/** 建立返回列表頁路徑。 */
-// #endregion
 
 // #region Protected
 /** 渲染回覆內容區塊，沒有快照時顯示提示。 */
@@ -198,7 +195,7 @@ const renderAnswerFields = (p: { theme: IBETheme; items: AnswerDisplayItem[]; })
 /** 建立基本資料欄位。 */
 const buildBasicItems = (raw: SurveySubmissionFormRawData, lang: Lang): ReadonlyFieldItem[] =>
 {
-    const item = raw.data?.SurveySubmissions;
+    const item = raw.data;
 
     return [
         {
@@ -236,9 +233,9 @@ const buildBasicItems = (raw: SurveySubmissionFormRawData, lang: Lang): Readonly
 
 
 /** 建立動態回覆欄位。 */
-const buildAnswerItems = (data: SurveySubmissionSet | null, lang: Lang): AnswerDisplayItem[] =>
+const buildAnswerItems = (data: SurveySubmission | null, lang: Lang): AnswerDisplayItem[] =>
 {
-    const item = data?.SurveySubmissions;
+    const item = data;
     const answerMap = parseAnswerMap(item?.FormDataJson);
     const snapshots = parseFieldSnapshots(item?.FieldSnapshotJson);
 
@@ -263,7 +260,7 @@ const buildAnswerItem = (
 /** 建立系統資訊欄位。 */
 const buildSystemItems = (raw: SurveySubmissionFormRawData): ReadonlyFieldItem[] =>
 {
-    const item = raw.data?.SurveySubmissions;
+    const item = raw.data;
 
     return [
         {

@@ -22,8 +22,8 @@ import { PageManagementDetailFields, PageManagementFields } from "@/types/Schema
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
-type PageManagementSet = components["schemas"]["PageManagementSet_DTO"];
-type PageManagementDetail = NonNullable<PageManagementSet["PageManagementDetail"]>[number];
+type PageManagementFormModel = components["schemas"]["PageManagement"];
+type PageManagementDetail = NonNullable<PageManagementFormModel["_PageManagementDetail"]>[number];
 export interface IPageManagementOptions
 {
     PageId?: string;
@@ -36,7 +36,7 @@ interface PageManagementFormLoaderArgs
 }
 interface PageManagementFormLoaderRes
 {
-    listRes: PageManagementSet[];
+    listRes: PageManagementFormModel[];
 }
 interface PageManagementFormLoaderData
 {
@@ -45,7 +45,7 @@ interface PageManagementFormLoaderData
 }
 type PageManagementFormRawData = {
     pageId: string;
-    data: PageManagementSet;
+    data: PageManagementFormModel;
     detail: PageManagementDetail | null;
     title: string;
     contentHtml: string;
@@ -63,7 +63,7 @@ interface PageManagementFormFetchDataResult extends PageManagementFormRawData
 type UsePageManagementFormDataResult = PageManagementFormFetchDataResult;
 type PageManagementFormSearchParams = { pageId: string; lang: Lang; };
 type PageManagementFormDataQueryTemplate = ClientDataQueryTemplate<PageManagementFormSearchParams, PageManagementFormRawData, PageManagementFormRawData, PageManagementFormAdapter, QueryListParam, PageManagementFormLoaderData>;
-const defaultEmptyData: PageManagementSet = { PageManagement: {}, PageManagementDetail: [] };
+const defaultEmptyData: PageManagementFormModel = { _PageManagementDetail: [] };
 // #endregion
 
 // #region Public
@@ -85,7 +85,7 @@ export const Client_PageManagement_Form_Loader = (p: { lang: Lang; opts: IPageMa
     return { args, res: { listRes } };
 };
 /** CSR Hook：新版 Form 入口，資料查詢流程交給 Client_DataQueryTemplate */
-export const usePageManagementFormData = (opt: { lang: Lang; pageId: string; emptyData?: PageManagementSet; }): UsePageManagementFormDataResult =>
+export const usePageManagementFormData = (opt: { lang: Lang; pageId: string; emptyData?: PageManagementFormModel; }): UsePageManagementFormDataResult =>
 {
     const fallbackData = opt.emptyData ?? defaultEmptyData;
     const templateVm = usePageManagementFormTemplate({ lang: opt.lang, pageId: opt.pageId, emptyData: fallbackData });
@@ -93,7 +93,7 @@ export const usePageManagementFormData = (opt: { lang: Lang; pageId: string; emp
     return { ...templateVm.viewModel, isLoading: templateVm.isLoading, errorText: errorList[0] ?? null, errorList, refetchData: templateVm.refetchData, refetchRefData: templateVm.refetchRefData };
 };
 /** CSR Hook：保留舊入口相容尚未調整的客製覆寫 */
-export const usePageManagementFormFetchData = (p: { lang: Lang; pageId: string; emptyData?: PageManagementSet; }): PageManagementFormFetchDataResult =>
+export const usePageManagementFormFetchData = (p: { lang: Lang; pageId: string; emptyData?: PageManagementFormModel; }): PageManagementFormFetchDataResult =>
 {
     return usePageManagementFormData({ lang: p.lang, pageId: p.pageId, emptyData: p.emptyData });
 };
@@ -135,7 +135,7 @@ const buildPageManagementFormQueryParam = (p: { condition: string; }): QueryList
     return { Fields: buildPageManagementFormFields(), Condition: p.condition, PageNumber: 1, PageSize: 1 };
 };
 /** 建立主資料 list initial，避免 hydration 首次重抓 */
-const buildListInitial = (p: { loaderData: PageManagementFormLoaderData | null; queryParam: QueryListParam; fallbackData: PageManagementSet; }): ApiLoaderData<QueryListParam, PageManagementSet[]> | null =>
+const buildListInitial = (p: { loaderData: PageManagementFormLoaderData | null; queryParam: QueryListParam; fallbackData: PageManagementFormModel; }): ApiLoaderData<QueryListParam, PageManagementFormModel[]> | null =>
 {
     const loaderParam = p.loaderData?.args?.queryParam;
     if (!loaderParam) return null;
@@ -143,11 +143,11 @@ const buildListInitial = (p: { loaderData: PageManagementFormLoaderData | null; 
     return buildClientLoaderInitial(loaderParam, p.loaderData?.res.listRes ?? [p.fallbackData]);
 };
 /** 依語系取目前 detail */
-const findLangDetail = (p: { data: PageManagementSet; lang: Lang; }): PageManagementDetail | null =>
+const findLangDetail = (p: { data: PageManagementFormModel; lang: Lang; }): PageManagementDetail | null =>
 {
     const langKey = LibText.safeTrim(p.lang).toLowerCase();
-    const detail = p.data.PageManagementDetail?.find((item) => LibText.safeTrim(item.Lang).toLowerCase() === langKey);
-    return detail ?? p.data.PageManagementDetail?.[0] ?? null;
+    const detail = p.data._PageManagementDetail?.find((item) => LibText.safeTrim(item.Lang).toLowerCase() === langKey);
+    return detail ?? p.data._PageManagementDetail?.[0] ?? null;
 };
 /** 建立 PageManagement Form 初始 ViewState */
 const buildPageManagementFormInitialViewState = (): IListViewState =>
@@ -160,7 +160,7 @@ const buildPageManagementFormSearchParams = (p: { lang: Lang; pageId: string; })
     return { pageId: LibText.safeTrim(p.pageId), lang: p.lang };
 };
 /** 建立 PageManagement Form DataQueryTemplate */
-const createPageManagementFormDataQueryTemplate = (p: { lang: Lang; pageId: string; emptyData: PageManagementSet; }): PageManagementFormDataQueryTemplate =>
+const createPageManagementFormDataQueryTemplate = (p: { lang: Lang; pageId: string; emptyData: PageManagementFormModel; }): PageManagementFormDataQueryTemplate =>
 {
     const initialViewState = buildPageManagementFormInitialViewState();
     return {
@@ -180,14 +180,14 @@ const createPageManagementFormDataQueryTemplate = (p: { lang: Lang; pageId: stri
     };
 };
 /** 建立 Loader 與 Hook 共用的 Query 狀態 */
-const buildPageManagementFormQueryState = (p: { lang: Lang; pageId: string; emptyData: PageManagementSet; }) =>
+const buildPageManagementFormQueryState = (p: { lang: Lang; pageId: string; emptyData: PageManagementFormModel; }) =>
 {
     const template = createPageManagementFormDataQueryTemplate(p);
     return buildClientDataQueryState(template, {} as SearchValues, buildPageManagementFormInitialViewState());
 };
 /** PageManagement Form DataSource：統一處理 QueryList 單筆資料 */
 const usePageManagementFormDataSource = (
-    p: { queryParam: QueryListParam; loaderData: PageManagementFormLoaderData | null; lang: Lang; pageId: string; emptyData: PageManagementSet; },
+    p: { queryParam: QueryListParam; loaderData: PageManagementFormLoaderData | null; lang: Lang; pageId: string; emptyData: PageManagementFormModel; },
 ): ClientDataQueryDataSourceResult<PageManagementFormRawData, PageManagementFormAdapter> =>
 {
     const adapter = useMemo<PageManagementFormAdapter>(() => ({ PageManagement: PageManagementAdapter() }), []);
@@ -196,7 +196,7 @@ const usePageManagementFormDataSource = (
     const queryKey = useMemo(() => buildClientDataQueryKey(p.queryParam), [p.queryParam]);
     /** 主資料：前台 Form 統一改用 QueryList 查單筆 */
     const useData = adapter.PageManagement.hooks.useQueryList({ condition: p.queryParam, initial: listInitial, deps: [queryKey] });
-    const data = useMemo<PageManagementSet>(() => useData.data?.[0] ?? p.emptyData, [useData.data, p.emptyData]);
+    const data = useMemo<PageManagementFormModel>(() => useData.data?.[0] ?? p.emptyData, [useData.data, p.emptyData]);
     const detail = useMemo(() => findLangDetail({ data, lang: p.lang }), [data, p.lang]);
     const errors = useMemo(() => [useData.errorText], [useData.errorText]);
     const rawData = useMemo<PageManagementFormRawData>(() => ({ pageId: currentArgs.pageId, data, detail, title: detail?.Title ?? "", contentHtml: detail?.Content ?? "", args: currentArgs }), [currentArgs, data, detail]);
@@ -208,7 +208,7 @@ const usePageManagementFormDataSource = (
     return { adapter, rawData, isLoading: Boolean(useData.isLoading), errors, paginator: null, refetchData, refetchRefData };
 };
 /** 內部共用：建立 PageManagement Form Template VM */
-const usePageManagementFormTemplate = (opt: { lang: Lang; pageId: string; emptyData: PageManagementSet; }) =>
+const usePageManagementFormTemplate = (opt: { lang: Lang; pageId: string; emptyData: PageManagementFormModel; }) =>
 {
     const template = useMemo(() => createPageManagementFormDataQueryTemplate({ lang: opt.lang, pageId: opt.pageId, emptyData: opt.emptyData }), [opt.lang, opt.pageId, opt.emptyData]);
     return useClientDataQueryTemplate(template);

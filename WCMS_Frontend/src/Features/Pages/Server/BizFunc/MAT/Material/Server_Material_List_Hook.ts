@@ -31,7 +31,7 @@ import { type NavigateFunction, useLocation, useNavigate } from "react-router-do
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type MaterialSet = components["schemas"]["MaterialSet_DTO"];
+type MaterialFormModel = components["schemas"]["Material"];
 
 type MaterialApiAdapter = ReturnType<typeof MaterialAdapter>;
 
@@ -69,7 +69,7 @@ export interface MaterialListRawData
     count: number;
 
     /** 物件列表資料 */
-    list: MaterialSet[];
+    list: MaterialFormModel[];
 
     /** 目前頁碼 */
     pageNumber: number;
@@ -362,7 +362,7 @@ const enhanceMaterialGrid = (
     },
 ): GridProps =>
 {
-    const actions = createGridCrudActions<MaterialSet>({
+    const actions = createGridCrudActions<MaterialFormModel>({
         onEdit: (internalId) => opt.crud.navigate(`${opt.crud.dirUrl}/${internalId}`),
         deleteAsync: opt.crud.deleteAsync,
         afterDelete: opt.crud.afterDelete,
@@ -375,36 +375,35 @@ const enhanceMaterialGrid = (
         can: opt.can,
         notifyNoPermission: opt.notifyNoPermission,
         confirm: opt.confirm,
-        getInternalId: (set) => set.Material?.InternalId ?? "",
+        getInternalId: (model) => model.InternalId ?? "",
     });
 };
 
 /** 建立物件列表列資料 */
 const buildMaterialRows = (raw: MaterialListRawData, lang: Lang, columns: ColumnConfig[]): GridRow[] =>
 {
-    return (raw.list ?? []).map((set) => buildMaterialRow(set, lang, columns, raw.categoryMap));
+    return (raw.list ?? []).map((model) => buildMaterialRow(model, lang, columns, raw.categoryMap));
 };
 
 /** 建立物件列表單列資料 */
-const buildMaterialRow = (set: MaterialSet, lang: Lang, columns: ColumnConfig[], categoryMap: Record<string, string>): GridRow =>
+const buildMaterialRow = (model: MaterialFormModel, lang: Lang, columns: ColumnConfig[], categoryMap: Record<string, string>): GridRow =>
 {
-    const material = set.Material;
-    const keyId = material?.InternalId ?? LibText.Merge("|", false, material?.MaterialId);
+    const keyId = model.InternalId ?? LibText.Merge("|", false, model.MaterialId);
     const cells: RowCell[] = [
-        { col: columns[0], content: material?.MaterialId ?? "" },
-        { col: columns[1], content: buildNameContent(set, lang) },
-        { col: columns[2], content: mapIdsToList(material?.CategoryId, categoryMap) },
-        { col: columns[3], content: material?.ModifyUser?.AccountName ?? "" },
-        { col: columns[4], content: formatDateTime(material?.ModifyTime) },
+        { col: columns[0], content: model.MaterialId ?? "" },
+        { col: columns[1], content: buildNameContent(model, lang) },
+        { col: columns[2], content: mapIdsToList(model.CategoryId, categoryMap) },
+        { col: columns[3], content: model.ModifyUser?.AccountName ?? "" },
+        { col: columns[4], content: formatDateTime(model.ModifyTime) },
     ];
 
     return { keyId, cells };
 };
 
 /** 建立物件名稱內容 */
-const buildNameContent = (set: MaterialSet, lang: Lang): ReactNode =>
+const buildNameContent = (model: MaterialFormModel, lang: Lang): ReactNode =>
 {
-    const title = findTextByKey(set.MaterialLangInfo, (detail) => detail?.Lang, lang, (detail) => detail?.MaterialName);
+    const title = findTextByKey(model._MaterialLangInfo, (detail) => detail?.Lang, lang, (detail) => detail?.MaterialName);
 
     return createElement("div", { className: "d-flex flex-column gap-1" }, createElement("span", null, title));
 };

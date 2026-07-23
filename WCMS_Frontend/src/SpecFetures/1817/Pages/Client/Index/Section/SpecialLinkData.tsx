@@ -9,17 +9,21 @@ import type { components } from "@/types/api";
 import { useEffect, useMemo, useRef } from "react";
 
 // #region Property
-type BannerSet = components["schemas"]["BannerSet_DTO"];
+type BannerFormModel = components["schemas"]["Banner"];
 
-type BannerDetail = NonNullable<BannerSet["BannerDetail"]>[number];
+type BannerDetail = NonNullable<BannerFormModel["_BannerDetail"]>[number];
 
-type BannerDetailInfo = NonNullable<BannerSet["BannerDetailInfo"]>[number];
+type BannerDetailInfo = components["schemas"]["BannerDetailInfo"] & {
+    SpecLatestShows?: string | null;
+    SpecShowLocation?: string | null;
+    SpecShowDate?: string | null;
+};
 
 interface SpecialLinkDataProps
 {
     lang: Lang;
     internalId: string;
-    initialBanner: BannerSet | null;
+    initialBanner: BannerFormModel | null;
 }
 
 type OwlResponsiveOption = { items: number; };
@@ -203,18 +207,18 @@ export const SpecialLinkData = (props: SpecialLinkDataProps) =>
 // #endregion
 
 // #region Protected
-const buildQueryDataInitial = (internalId: string, banner: BannerSet | null): ApiLoaderData<string, BannerSet> | null =>
+const buildQueryDataInitial = (internalId: string, banner: BannerFormModel | null): ApiLoaderData<string, BannerFormModel> | null =>
 {
     // 宣告變數：沒有 SSR 初始資料時直接回 null
     if (!banner) return null;
 
-    const apiRes: ApiResponse<BannerSet> = { IsSuccess: true, Data: banner, SysMessage: [] };
+    const apiRes: ApiResponse<BannerFormModel> = { IsSuccess: true, Data: banner, SysMessage: [] };
 
     // return：Hydration 初始資料
     return { args: internalId, apiRes };
 };
 
-const buildOwlKey = (lang: Lang, banner: BannerSet | null): string =>
+const buildOwlKey = (lang: Lang, banner: BannerFormModel | null): string =>
 {
     // 宣告變數：排序後資料
     const details = sortBannerDetails(banner);
@@ -292,10 +296,10 @@ const getJQuery = (): JQueryStatic | null =>
     return jqWindow.jQuery ?? jqWindow.$ ?? null;
 };
 
-const sortBannerDetails = (banner: BannerSet | null): BannerDetail[] =>
+const sortBannerDetails = (banner: BannerFormModel | null): BannerDetail[] =>
 {
     // 宣告變數：原始明細
-    const list = banner?.BannerDetail ?? [];
+    const list = banner?._BannerDetail ?? [];
 
     // return：依 Sort 與 RowId 穩定排序
     return [...list].sort((a, b) =>
@@ -372,16 +376,16 @@ const updateToggleButton = (toggleEl: HTMLAnchorElement, isPlaying: boolean): vo
 };
 
 const findBannerInfo = (
-    banner: BannerSet | null,
+    banner: BannerFormModel | null,
     bannerId: string | null | undefined,
     rowId: number | null | undefined,
     lang: Lang,
 ): BannerDetailInfo | undefined =>
 {
-    // return：依語系找對應資訊
-    return banner?.BannerDetailInfo?.find((item) =>
-    {
-        return (item.BannerId === bannerId && item.ParentRowId === rowId && item.Lang === lang);
-    });
+    // 宣告變數：先定位圖片，再從圖片內的語系子明細取值
+    const detail = banner?._BannerDetail?.find(item => item.BannerId === bannerId && item.RowId === rowId);
+
+    // return
+    return detail?._BannerDetailInfo?.find(item => item.Lang === lang);
 };
 // #endregion

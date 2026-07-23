@@ -15,8 +15,8 @@ import { useParams } from "react-router";
 import { useGalleryFormData } from "./Client_Gallery_Form_Loader";
 
 // #region Property
-type GallerySet = components["schemas"]["GallerySet_DTO"];
-type GalleryPhoto = NonNullable<GallerySet["GalleryPhotos"]>[number];
+type GalleryFormModel = components["schemas"]["Gallery"];
+type GalleryPhoto = NonNullable<GalleryFormModel["_GalleryPhotos"]>[number];
 export interface GalleryFormProps
 {
     site: INormSite;
@@ -27,14 +27,14 @@ export interface GalleryFormProps
 interface GalleryFormListProps
 {
     lang: Lang;
-    data: GallerySet;
+    data: GalleryFormModel;
 }
 export interface GalleryFormViewProps extends GalleryFormProps
 {
     /** 相簿標題 */
     title: string;
     /** 相簿資料 */
-    data: GallerySet;
+    data: GalleryFormModel;
     /** 分類名稱對照表，提供 Spec View 顯示分類文字 */
     categoryMap?: Record<string, string>;
     /** 是否載入中 */
@@ -44,7 +44,7 @@ export interface GalleryFormViewProps extends GalleryFormProps
     /** 瀏覽次數設定，Preview 不傳入 */
     viewCountConfig?: ModuleViewCountConfig;
 }
-const emptyData: GallerySet = { Gallery: {}, GalleryInfo: [], GalleryPhotos: [], GalleryPhotosInfo: [] };
+const emptyData: GalleryFormModel = { GalleryId: "", _GalleryInfo: [], _GalleryPhotos: [] };
 /** 相簿圖片 a11y 文案結構 */
 type GalleryImageA11yText = { openPreview: string; openImage: (title: string) => string; };
 /** 相簿圖片 a11y 文案表（用 xxx[lang] 讀；不足語系會 fallback） */
@@ -105,18 +105,18 @@ const Client_Gallery_Form_FeatureView = (props: GalleryFormViewProps) =>
 
 // #region Protected
 /** 建立單張相簿圖片的 Lightbox 資料 */
-const buildGallerySlide = (data: GallerySet, item: GalleryPhoto, lang: Lang): LibLightBoxSlide =>
+const buildGallerySlide = (data: GalleryFormModel, item: GalleryPhoto, lang: Lang): LibLightBoxSlide =>
 {
-    const infoDt = data.GalleryPhotosInfo?.find((p) => p.ParentRowId === item.RowId && p.Lang === lang);
+    const infoDt = item._GalleryPhotosInfo?.find((p) => p.Lang === lang);
     const title = infoDt?.Title ?? "";
     const url = FileManagementAPI.get_Public_Preview_Url(item.PicSrcId);
     const description = infoDt?.Description ?? "";
     return { src: url, title, description, download: url };
 };
 /** 將相簿圖片資料轉成共用 Lightbox 可吃的格式 */
-const buildGallerySlides = (data: GallerySet, lang: Lang): LibLightBoxSlide[] =>
+const buildGallerySlides = (data: GalleryFormModel, lang: Lang): LibLightBoxSlide[] =>
 {
-    const photos = sortGalleryPhotos(data?.GalleryPhotos);
+    const photos = sortGalleryPhotos(data?._GalleryPhotos);
     return photos.map((item) => buildGallerySlide(data, item, lang));
 };
 // #endregion

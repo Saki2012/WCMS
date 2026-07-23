@@ -7,7 +7,7 @@ import { useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 
 // #region Property
-type CalendarSet = components["schemas"]["CalendarSet_DTO"];
+type CalendarFormModel = components["schemas"]["Calendar"];
 
 type CurrentOpenTime = components["schemas"]["SpecCurrentOpenTime_DTO"];
 
@@ -58,7 +58,7 @@ class SpecCalendarAdapterImpl extends CalendarAdapterImpl
     // #endregion
 
     // #region Public
-    protected override buildExtendedLoader(base: ApiDataLoaderGroup<CalendarSet>)
+    protected override buildExtendedLoader(base: ApiDataLoaderGroup<CalendarFormModel>)
     {
         const merged = super.buildExtendedLoader(base);
         const wrapGetCurrentOpenTimeLoader: SpecExtraLoaders["getCurrentOpenTimeLoader"] = (opt) =>
@@ -68,7 +68,7 @@ class SpecCalendarAdapterImpl extends CalendarAdapterImpl
         return { ...merged, getCurrentOpenTimeLoader: wrapGetCurrentOpenTimeLoader };
     }
 
-    protected override buildExtendedHooks(base: ApiDataHookGroup<CalendarSet>)
+    protected override buildExtendedHooks(base: ApiDataHookGroup<CalendarFormModel>)
     {
         const merged = super.buildExtendedHooks(base);
         const wrapUseFetchCurrentOpenTime: SpecExtraHooks["useFetchCurrentOpenTime"] = (opt) =>

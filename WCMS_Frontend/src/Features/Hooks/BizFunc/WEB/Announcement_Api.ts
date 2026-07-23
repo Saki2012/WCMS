@@ -5,11 +5,11 @@ import { PGID } from "@/types/SchemaFields";
 import type { AxiosInstance } from "axios";
 
 // #region Property
-type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
+type AnnouncementFormModel = components["schemas"]["Announcement"];
 // #endregion
 
 // #region Public
-class AnnouncementService extends ApiDataService<AnnouncementSet>
+class AnnouncementService extends ApiDataService<AnnouncementFormModel>
 {
     // #region Public
     constructor(apiInstance?: AxiosInstance)
@@ -18,7 +18,7 @@ class AnnouncementService extends ApiDataService<AnnouncementSet>
     }
     // #endregion
 }
-export class AnnouncementAdapterImpl extends ApiDataAdapter<AnnouncementSet, AnnouncementService>
+export class AnnouncementAdapterImpl extends ApiDataAdapter<AnnouncementFormModel, AnnouncementService>
 {}
 export const AnnouncementAdapter = (apiInstance?: AxiosInstance) =>
     new AnnouncementAdapterImpl((api?: AxiosInstance) => new AnnouncementService(api ?? apiInstance));

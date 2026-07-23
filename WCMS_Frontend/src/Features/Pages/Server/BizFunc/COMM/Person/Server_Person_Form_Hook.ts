@@ -11,7 +11,7 @@ import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { useMemo } from "react";
 
 // #region Property
-type PersonSet = components["schemas"]["PersonSet_DTO"];
+type PersonFormModel = components["schemas"]["Person"];
 
 
 export interface UsePersonFormTemplateOptions
@@ -23,7 +23,7 @@ export interface UsePersonFormTemplateOptions
     internalId: string;
 
     /** 新增模式預設資料 */
-    emptyData: PersonSet;
+    emptyData: PersonFormModel;
 
     /** Form Template 標準動作設定 */
     actionsOpt: PersonFormActionsOpt;
@@ -46,17 +46,17 @@ export type PersonFormActionsOpt = {
 export type PersonFormAdapter = ReturnType<typeof PersonAdapter>;
 
 
-export type PersonFormRawData = ServerFormDefaultRawData<PersonSet, PersonFormRefs>;
+export type PersonFormRawData = ServerFormDefaultRawData<PersonFormModel, PersonFormRefs>;
 // #endregion
 
 // #region Public
-export const personEmptyData: PersonSet = { Person: {} };
+export const personEmptyData: PersonFormModel = {};
 
 
 /** 建立 Person Form Template，統一交給 Server_FormTemplate 處理資料查詢、CUD 與 toast。 */
 export const usePersonFormTemplate = (
     opt: UsePersonFormTemplateOptions,
-): ServerFormTemplate<PersonSet, PersonFormAdapter, PersonFormRefs, PersonFormRawData, PersonFormActionsOpt> =>
+): ServerFormTemplate<PersonFormModel, PersonFormAdapter, PersonFormRefs, PersonFormRawData, PersonFormActionsOpt> =>
 {
     return useMemo(() =>
     {
@@ -87,7 +87,7 @@ const buildPersonFormTitle = (ctx: { mode: "new" | "edit"; displayName: ModelDis
 
 
 /** 建立新增模式 initial data，避免保留舊 top-level initial 入口。 */
-const buildPersonInitialData = (ctx: { mode: "new" | "edit"; emptyData: PersonSet; }): ApiFormInitial<PersonSet> | undefined =>
+const buildPersonInitialData = (ctx: { mode: "new" | "edit"; emptyData: PersonFormModel; }): ApiFormInitial<PersonFormModel> | undefined =>
 {
     if (ctx.mode !== "new") return undefined;
     return { data: { args: "__new__", apiRes: { IsSuccess: true, Data: ctx.emptyData, SysMessage: [] } } };

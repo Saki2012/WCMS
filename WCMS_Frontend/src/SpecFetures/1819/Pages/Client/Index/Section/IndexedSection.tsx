@@ -8,9 +8,9 @@ import { useMemo } from "react";
 import type { HomePageRawData } from "../HomePage_Loader";
 
 // #region Property
-type BannerSet = components["schemas"]["BannerSet_DTO"];
+type BannerFormModel = components["schemas"]["Banner"];
 
-type BannerDetail = NonNullable<BannerSet["BannerDetail"]>[number];
+type BannerDetail = NonNullable<BannerFormModel["_BannerDetail"]>[number];
 
 type BannerDetailInfo = NonNullable<BannerDetail["_BannerDetailInfo"]>[number];
 
@@ -94,10 +94,10 @@ const getBannerInfo = (dt: BannerDetail, lang: Lang): BannerDetailInfo | null =>
 };
 
 /** 過濾可顯示的索引項目 */
-const getVisibleDetails = (banner: BannerSet | null, lang: Lang): BannerDetail[] =>
+const getVisibleDetails = (banner: BannerFormModel | null, lang: Lang): BannerDetail[] =>
 {
     // 宣告變數
-    const details = banner?.BannerDetail ?? [];
+    const details = banner?._BannerDetail ?? [];
 
     // return
     return details.filter(dt =>

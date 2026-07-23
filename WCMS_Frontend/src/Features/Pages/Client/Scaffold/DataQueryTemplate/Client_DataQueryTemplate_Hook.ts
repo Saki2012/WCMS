@@ -670,6 +670,7 @@ const buildSearchBarModel = (p: {
         actionAlign: p.config?.actionAlign ?? "left",
         searchButtonText: p.config?.searchButtonText ?? "搜尋",
         resetButtonText: p.config?.resetButtonText ?? "重置",
+        allOptionText: p.config?.allOptionText ?? "全部",
         columnCount: p.config?.columnCount ?? 3,
         fields: p.fields,
         values: p.submittedValues,

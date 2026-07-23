@@ -22,7 +22,7 @@ import type { LoaderFunctionArgs } from "react-router-dom";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
-type SurveySet = components["schemas"]["SurveySet_DTO"];
+type SurveyFormModel = components["schemas"]["Survey"];
 type SurveySubmissionRequest = components["schemas"]["SurveySubmissionRequest_DTO"];
 export interface ISurveyOptions
 {
@@ -36,7 +36,7 @@ export interface SurveyFormLoaderArgs
 }
 export interface SurveyFormLoaderRes
 {
-    listRes: SurveySet[];
+    listRes: SurveyFormModel[];
 }
 export interface SurveyFormLoaderData
 {
@@ -50,7 +50,7 @@ export interface SurveySubmitActions
 }
 export type SurveyFormRawData = {
     surveyId: string;
-    data: SurveySet;
+    data: SurveyFormModel;
     title: string;
     contentHtml: string;
     successContentHtml: string;
@@ -72,7 +72,7 @@ export interface SurveyFormFetchDataResult extends SurveyFormRawData
 export type UseSurveyFormDataResult = SurveyFormFetchDataResult;
 type SurveyFormSearchParams = { surveyId: string; lang: Lang; };
 type SurveyFormDataQueryTemplate = ClientDataQueryTemplate<SurveyFormSearchParams, SurveyFormRawData, SurveyFormRawData, SurveyFormAdapter, QueryListParam, SurveyFormLoaderData>;
-const defaultEmptyData: SurveySet = { Survey: {}, SurveyItem: [], SurveyItemLang: [] };
+const defaultEmptyData: SurveyFormModel = { _SurveyItem: [] };
 // #endregion
 
 // #region Public
@@ -102,7 +102,7 @@ export const Client_Survey_Form_Loader = (p: { lang: Lang; opts: ISurveyOptions;
     return { args, res: { listRes } };
 };
 /** CSR Hook：新版 Form 入口，資料查詢流程交給 Client_DataQueryTemplate */
-export const useSurveyFormData = (opt: { lang: Lang; surveyId: string; emptyData?: SurveySet; }): UseSurveyFormDataResult =>
+export const useSurveyFormData = (opt: { lang: Lang; surveyId: string; emptyData?: SurveyFormModel; }): UseSurveyFormDataResult =>
 {
     const fallbackData = opt.emptyData ?? defaultEmptyData;
     const templateVm = useSurveyFormTemplate({ lang: opt.lang, surveyId: opt.surveyId, emptyData: fallbackData });
@@ -110,14 +110,13 @@ export const useSurveyFormData = (opt: { lang: Lang; surveyId: string; emptyData
     return { ...templateVm.viewModel, isLoading: templateVm.isLoading, errorText: errorList[0] ?? null, errorList, refetchData: templateVm.refetchData, refetchRefData: templateVm.refetchRefData };
 };
 /** CSR Hook：保留舊入口相容尚未調整的客製覆寫 */
-export const useSurveyFormFetchData = (p: { lang: Lang; surveyId: string; emptyData?: SurveySet; }): SurveyFormFetchDataResult =>
+export const useSurveyFormFetchData = (p: { lang: Lang; surveyId: string; emptyData?: SurveyFormModel; }): SurveyFormFetchDataResult =>
 {
     return useSurveyFormData({ lang: p.lang, surveyId: p.surveyId, emptyData: p.emptyData });
 };
 // #endregion
 
 // #region Private
-/** 組出給 hydration 用的 initial 格式 */
 /** 建立 Survey Form 查詢條件 */
 const buildSurveyFormCondition = (surveyId: string): string =>
 {
@@ -137,6 +136,7 @@ const buildSurveyFormFields = (): string[] =>
         SurveyFields.SurveySuccessContent,
         `${itemPrefix}.${SurveyItemFields.SurveyId}`,
         `${itemPrefix}.${SurveyItemFields.RowId}`,
+        `${itemPrefix}.${SurveyItemFields.RowNo}`,
         `${itemPrefix}.${SurveyItemFields.FieldId}`,
         `${itemPrefix}.${SurveyItemFields.IsRequired}`,
         `${itemPrefix}.${SurveyItemFields.InputType}`,
@@ -144,6 +144,7 @@ const buildSurveyFormFields = (): string[] =>
         `${itemLangPrefix}.${SurveyItemLangFields.SurveyId}`,
         `${itemLangPrefix}.${SurveyItemLangFields.ParentRowId}`,
         `${itemLangPrefix}.${SurveyItemLangFields.RowId}`,
+        `${itemLangPrefix}.${SurveyItemLangFields.RowNo}`,
         `${itemLangPrefix}.${SurveyItemLangFields.Lang}`,
         `${itemLangPrefix}.${SurveyItemLangFields.FieldName}`,
     ];
@@ -154,7 +155,7 @@ const buildSurveyFormQueryParam = (p: { condition: string; }): QueryListParam =>
     return { Fields: buildSurveyFormFields(), Condition: p.condition, PageNumber: 1, PageSize: 1 };
 };
 /** 建立主資料 list initial，避免 hydration 首次重抓 */
-const buildListInitial = (p: { loaderData: SurveyFormLoaderData | null; queryParam: QueryListParam; fallbackData: SurveySet; }): ApiLoaderData<QueryListParam, SurveySet[]> | null =>
+const buildListInitial = (p: { loaderData: SurveyFormLoaderData | null; queryParam: QueryListParam; fallbackData: SurveyFormModel; }): ApiLoaderData<QueryListParam, SurveyFormModel[]> | null =>
 {
     const loaderParam = p.loaderData?.args?.queryParam;
     if (!loaderParam) return null;
@@ -172,7 +173,7 @@ const buildSurveyFormSearchParams = (p: { lang: Lang; surveyId: string; }): Surv
     return { surveyId: LibText.safeTrim(p.surveyId), lang: p.lang };
 };
 /** 建立 Survey Form DataQueryTemplate */
-const createSurveyFormDataQueryTemplate = (p: { lang: Lang; surveyId: string; emptyData: SurveySet; }): SurveyFormDataQueryTemplate =>
+const createSurveyFormDataQueryTemplate = (p: { lang: Lang; surveyId: string; emptyData: SurveyFormModel; }): SurveyFormDataQueryTemplate =>
 {
     const initialViewState = buildSurveyFormInitialViewState();
     return {
@@ -192,13 +193,13 @@ const createSurveyFormDataQueryTemplate = (p: { lang: Lang; surveyId: string; em
     };
 };
 /** 建立 Loader 與 Hook 共用的 Query 狀態 */
-const buildSurveyFormQueryState = (p: { lang: Lang; surveyId: string; emptyData: SurveySet; }) =>
+const buildSurveyFormQueryState = (p: { lang: Lang; surveyId: string; emptyData: SurveyFormModel; }) =>
 {
     const template = createSurveyFormDataQueryTemplate(p);
     return buildClientDataQueryState(template, {} as SearchValues, buildSurveyFormInitialViewState());
 };
 /** Survey Form DataSource：統一處理 QueryList 單筆資料與提交 actions */
-const useSurveyFormDataSource = (p: { queryParam: QueryListParam; loaderData: SurveyFormLoaderData | null; lang: Lang; surveyId: string; emptyData: SurveySet; }): ClientDataQueryDataSourceResult<SurveyFormRawData, SurveyFormAdapter> =>
+const useSurveyFormDataSource = (p: { queryParam: QueryListParam; loaderData: SurveyFormLoaderData | null; lang: Lang; surveyId: string; emptyData: SurveyFormModel; }): ClientDataQueryDataSourceResult<SurveyFormRawData, SurveyFormAdapter> =>
 {
     const adapter = useMemo<SurveyFormAdapter>(() => ({ Survey: SurveyAdapter(), SurveySubmission: SurveySubmissionAdapter() }), []);
     const currentArgs = useMemo(() => buildSurveyFormLoaderArgs({ lang: p.lang, surveyId: p.surveyId, queryParam: p.queryParam }), [p.lang, p.surveyId, p.queryParam]);
@@ -208,21 +209,21 @@ const useSurveyFormDataSource = (p: { queryParam: QueryListParam; loaderData: Su
     const useData = adapter.Survey.hooks.useQueryList({ condition: p.queryParam, initial: listInitial, deps: [queryKey] });
     /** 問卷提交 action：仍走 SurveySubmission Public_Submit */
     const submitActions = adapter.SurveySubmission.hooks.useSubmitActions();
-    const data = useMemo<SurveySet>(() => useData.data?.[0] ?? p.emptyData, [useData.data, p.emptyData]);
+    const data = useMemo<SurveyFormModel>(() => useData.data?.[0] ?? p.emptyData, [useData.data, p.emptyData]);
     const errors = useMemo(() => [useData.errorText], [useData.errorText]);
     const rawData = useMemo<SurveyFormRawData>(() => buildSurveyFormRawData({ args: currentArgs, data, submitActions }), [currentArgs, data, submitActions]);
-    const refetchData = useCallback(async (): Promise<void> => (await Promise.resolve(useData.refetch())), [useData.refetch]);
+    const refetch = useData.refetch;
+    const refetchData = useCallback(async (): Promise<void> => (await Promise.resolve(refetch())), [refetch]);
     const refetchRefData = useCallback(async (): Promise<void> => (await Promise.resolve()), []);
     return { adapter, rawData, isLoading: Boolean(useData.isLoading), errors, paginator: null, refetchData, refetchRefData };
 };
 /** 建立 Survey Form RawData */
-const buildSurveyFormRawData = (p: { args: SurveyFormLoaderArgs; data: SurveySet; submitActions: SurveySubmitActions; }): SurveyFormRawData =>
+const buildSurveyFormRawData = (p: { args: SurveyFormLoaderArgs; data: SurveyFormModel; submitActions: SurveySubmitActions; }): SurveyFormRawData =>
 {
-    const survey = p.data.Survey ?? {};
-    return { surveyId: p.args.surveyId, data: p.data, title: survey.SurveyName ?? "", contentHtml: survey.SurveyDescription ?? "", successContentHtml: survey.SurveySuccessContent ?? "", submitActions: p.submitActions, args: p.args };
+    return { surveyId: p.args.surveyId, data: p.data, title: p.data.SurveyName ?? "", contentHtml: p.data.SurveyDescription ?? "", successContentHtml: p.data.SurveySuccessContent ?? "", submitActions: p.submitActions, args: p.args };
 };
 /** 內部共用：建立 Survey Form Template VM */
-const useSurveyFormTemplate = (opt: { lang: Lang; surveyId: string; emptyData: SurveySet; }) =>
+const useSurveyFormTemplate = (opt: { lang: Lang; surveyId: string; emptyData: SurveyFormModel; }) =>
 {
     const template = useMemo(() => createSurveyFormDataQueryTemplate({ lang: opt.lang, surveyId: opt.surveyId, emptyData: opt.emptyData }), [opt.lang, opt.surveyId, opt.emptyData]);
     return useClientDataQueryTemplate(template);

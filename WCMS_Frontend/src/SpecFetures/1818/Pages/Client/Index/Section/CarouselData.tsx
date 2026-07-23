@@ -10,11 +10,11 @@ import clsx from "clsx";
 import { useMemo } from "react";
 
 // #region Property
-type BannerSet = components["schemas"]["BannerSet_DTO"];
+type BannerFormModel = components["schemas"]["Banner"];
 // #endregion
 
 // #region Public
-export const CarouselData = (props: { lang: Lang; internalId: string; initialBanner: BannerSet | null; }) =>
+export const CarouselData = (props: { lang: Lang; internalId: string; initialBanner: BannerFormModel | null; }) =>
 {
     const adapter = useMemo(() => BannerSliderAdapter(), []);
     const initial = useMemo(() =>
@@ -28,14 +28,14 @@ export const CarouselData = (props: { lang: Lang; internalId: string; initialBan
     // 宣告：排序 detail
     const sortedDetails = useMemo(() =>
     {
-        const list = banner?.BannerDetail ?? [];
+        const list = banner?._BannerDetail ?? [];
         return [...list].sort((a, b) =>
         {
             const as = Number.isFinite(a?.Sort) ? Number(a.Sort) : Number.MAX_SAFE_INTEGER;
             const bs = Number.isFinite(b?.Sort) ? Number(b.Sort) : Number.MAX_SAFE_INTEGER;
             return as - bs || (a.RowId ?? 0) - (b.RowId ?? 0);
         });
-    }, [banner?.BannerDetail]);
+    }, [banner?._BannerDetail]);
     const onClickLink = useAnchorPreventDefaultClick();
 
     return (
@@ -53,7 +53,7 @@ export const CarouselData = (props: { lang: Lang; internalId: string; initialBan
                             <div className="carousel-inner">
                                 {sortedDetails.map((p, i) =>
                                 {
-                                    const info = banner?.BannerDetailInfo?.find(x => x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang);
+                                    const info = p._BannerDetailInfo?.find(x => x.Lang === props.lang);
                                     const alt = info?.Title ?? "";
                                     const content = info?.Content ?? "";
                                     const url = info?.URL;

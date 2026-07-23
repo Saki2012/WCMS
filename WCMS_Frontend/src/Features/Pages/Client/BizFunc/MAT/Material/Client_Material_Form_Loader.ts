@@ -24,7 +24,7 @@ import type { LoaderFunctionArgs } from "react-router-dom";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
-type MaterialSet = components["schemas"]["MaterialSet_DTO"];
+type MaterialFormModel = components["schemas"]["Material"];
 
 interface MaterialFormLoaderArgs
 {
@@ -36,8 +36,8 @@ interface MaterialFormLoaderArgs
 
 interface MaterialFormLoaderRes
 {
-    listRes: MaterialSet[];
-    dataRes: MaterialSet | null;
+    listRes: MaterialFormModel[];
+    dataRes: MaterialFormModel | null;
     categoryMap: Record<string, string>;
     tagMap: Record<string, string>;
     matCateInfoFieldsMap: Array<[string, string]>;
@@ -50,7 +50,7 @@ interface MaterialFormLoaderData
 }
 
 type MaterialFormRawData = {
-    formData: MaterialSet;
+    formData: MaterialFormModel;
     categoryMap: Record<string, string>;
     tagMap: Record<string, string>;
     matCateInfoFieldsMap: Map<string, string>;
@@ -88,7 +88,7 @@ type MaterialFormDataQueryTemplate = ClientDataQueryTemplate<
     MaterialFormLoaderData
 >;
 
-const defaultEmptyData: MaterialSet = { Material: {}, MaterialLangInfo: [], MaterialPicture: [], MaterialTags: [] };
+const defaultEmptyData: MaterialFormModel = { _MaterialLangInfo: [], _MaterialPicture: [], _MaterialTags: [] };
 // #endregion
 
 // #region Public
@@ -111,7 +111,7 @@ export const Client_Material_Form_Loader = (props: { lang: Lang; }) => async ({ 
     ]);
     const listRes = listLD.apiRes.Data ?? [];
     const dataRes = listRes[0] ?? null;
-    const catId = LibText.safeTrim(dataRes?.Material?.CategoryId);
+    const catId = LibText.safeTrim(dataRes?.CategoryId);
     const matCateInfoFieldsLD = catId
         ? await adapter.MatCategory.loader.createMatCateInfoFieldsLoader({ catId, lang: args.lang, getApiInstance: () => ssrApi })(
             { request, params } as LoaderFunctionArgs,
@@ -130,7 +130,7 @@ export const Client_Material_Form_Loader = (props: { lang: Lang; }) => async ({ 
 };
 
 /** CSR Hook：Feature 版 MaterialForm 走 Client_DataQueryTemplate，不顯示 SearchBar / Paginator */
-export const useMaterialFormData = (opt: { lang: Lang; internalId: string; emptyData?: MaterialSet; }): UseMaterialFormDataResult =>
+export const useMaterialFormData = (opt: { lang: Lang; internalId: string; emptyData?: MaterialFormModel; }): UseMaterialFormDataResult =>
 {
     const emptyData = opt.emptyData ?? defaultEmptyData;
     const template = useMemo(() => createMaterialFormDataQueryTemplate({ lang: opt.lang, internalId: opt.internalId, emptyData }), [
@@ -178,16 +178,19 @@ const buildMaterialFormQueryParam = (p: { internalId: string; }): QueryListParam
             MaterialFields.Price,
             `${MaterialFields._MaterialLangInfo}.${MaterialLangInfoFields.MaterialId}`,
             `${MaterialFields._MaterialLangInfo}.${MaterialLangInfoFields.RowId}`,
+            `${MaterialFields._MaterialLangInfo}.${MaterialLangInfoFields.RowNo}`,
             `${MaterialFields._MaterialLangInfo}.${MaterialLangInfoFields.Lang}`,
             `${MaterialFields._MaterialLangInfo}.${MaterialLangInfoFields.MaterialName}`,
             `${MaterialFields._MaterialLangInfo}.${MaterialLangInfoFields.MaterialInfoJson}`,
             `${MaterialFields._MaterialLangInfo}.${MaterialLangInfoFields.Memo}`,
             `${MaterialFields._MaterialPicture}.${MaterialPictureFields.MaterialId}`,
             `${MaterialFields._MaterialPicture}.${MaterialPictureFields.RowId}`,
+            `${MaterialFields._MaterialPicture}.${MaterialPictureFields.RowNo}`,
             `${MaterialFields._MaterialPicture}.${MaterialPictureFields.PictureId}`,
             `${MaterialFields._MaterialPicture}.${MaterialPictureFields.PictureName}`,
             `${MaterialFields._MaterialTags}.${MaterialTagsFields.MaterialId}`,
             `${MaterialFields._MaterialTags}.${MaterialTagsFields.RowId}`,
+            `${MaterialFields._MaterialTags}.${MaterialTagsFields.RowNo}`,
             `${MaterialFields._MaterialTags}.${MaterialTagsFields.TagId}`,
         ],
         Condition: buildMaterialFormCondition(p.internalId),
@@ -198,8 +201,8 @@ const buildMaterialFormQueryParam = (p: { internalId: string; }): QueryListParam
 
 /** 建立主資料 list initial，避免 hydration 首次重抓 */
 const buildListInitial = (
-    p: { loaderData: MaterialFormLoaderData | null; queryParam: QueryListParam; fallbackData: MaterialSet; },
-): ApiLoaderData<QueryListParam, MaterialSet[]> | null =>
+    p: { loaderData: MaterialFormLoaderData | null; queryParam: QueryListParam; fallbackData: MaterialFormModel; },
+): ApiLoaderData<QueryListParam, MaterialFormModel[]> | null =>
 {
     const loaderParam = p.loaderData?.args?.queryParam;
     if (!loaderParam) return null;
@@ -231,7 +234,7 @@ const buildTagInitial = (p: { loaderData: MaterialFormLoaderData | null; args: M
 const buildMatCateInfoFieldsInitial = (p: { loaderData: MaterialFormLoaderData | null; args: MaterialFormLoaderArgs; }): MatCateInfoFieldsLoaderData | null =>
 {
     if (!p.loaderData) return null;
-    const catId = LibText.safeTrim(p.loaderData.res.dataRes?.Material?.CategoryId);
+    const catId = LibText.safeTrim(p.loaderData.res.dataRes?.CategoryId);
     if (!catId) return null;
     return matchInitialArgs({ catId, lang: p.args.lang }, { catId, lang: p.loaderData.args.lang }, toStringMap(p.loaderData.res.matCateInfoFieldsMap));
 };
@@ -254,7 +257,7 @@ const buildMaterialFormSearchParams = (p: { lang: Lang; internalId: string; }): 
     return { internalId: LibText.safeTrim(p.internalId), lang: p.lang };
 };
 /** 建立 Material Form DataQueryTemplate */
-const createMaterialFormDataQueryTemplate = (p: { lang: Lang; internalId: string; emptyData: MaterialSet; }): MaterialFormDataQueryTemplate =>
+const createMaterialFormDataQueryTemplate = (p: { lang: Lang; internalId: string; emptyData: MaterialFormModel; }): MaterialFormDataQueryTemplate =>
 {
     const initialViewState = buildMaterialFormInitialViewState();
     return {
@@ -281,14 +284,14 @@ const createMaterialFormDataQueryTemplate = (p: { lang: Lang; internalId: string
     };
 };
 /** 建立 Loader 與 Hook 共用的 Query 狀態 */
-const buildMaterialFormQueryState = (p: { lang: Lang; internalId: string; emptyData: MaterialSet; }) =>
+const buildMaterialFormQueryState = (p: { lang: Lang; internalId: string; emptyData: MaterialFormModel; }) =>
 {
     const template = createMaterialFormDataQueryTemplate(p);
     return buildClientDataQueryState(template, {} as SearchValues, buildMaterialFormInitialViewState());
 };
 /** Material Form DataSource：統一處理 CSR 查詢與 SSR initial 沿用 */
 const useMaterialFormDataSource = (
-    p: { queryParam: QueryListParam; loaderData: MaterialFormLoaderData | null; lang: Lang; internalId: string; emptyData: MaterialSet; },
+    p: { queryParam: QueryListParam; loaderData: MaterialFormLoaderData | null; lang: Lang; internalId: string; emptyData: MaterialFormModel; },
 ): ClientDataQueryDataSourceResult<MaterialFormRawData, MaterialFormAdapter> =>
 {
     const adapter = useMemo<MaterialFormAdapter>(
@@ -323,22 +326,22 @@ const useMaterialFormDataSource = (
         initial: tagInitial,
         deps: [currentArgs.progId, currentArgs.lang],
     });
-    const formData = useMemo<MaterialSet>(() => useData.data?.[0] ?? p.emptyData, [useData.data, p.emptyData]);
+    const formData = useMemo<MaterialFormModel>(() => useData.data?.[0] ?? p.emptyData, [useData.data, p.emptyData]);
     const useMatCateInfoFields = adapter.MatCategory.hooks.useMatCateInfoFields({
-        catId: formData.Material?.CategoryId,
+        catId: formData.CategoryId,
         lang: currentArgs.lang,
         initial: matCateInfoFieldsInitial ? toStringMap(matCateInfoFieldsInitial.apiRes.Data) : null,
-        deps: [formData.Material?.CategoryId ?? "", currentArgs.lang],
+        deps: [formData.CategoryId ?? "", currentArgs.lang],
     });
-    const categoryNameText = useMemo(() => (useCategory.map ?? {})[LibText.safeTrim(formData.Material?.CategoryId)] ?? "", [
-        formData.Material?.CategoryId,
+    const categoryNameText = useMemo(() => (useCategory.map ?? {})[LibText.safeTrim(formData.CategoryId)] ?? "", [
+        formData.CategoryId,
         useCategory.map,
     ]);
     const tagNameText = useMemo(() =>
     {
-        const tagIds = LibText.toTrimmedStringArray((formData.MaterialTags ?? []).map(p => p.TagId));
+        const tagIds = LibText.toTrimmedStringArray((formData._MaterialTags ?? []).map(p => p.TagId));
         return LibText.mapKeysToDisplayText(tagIds, useTag.map ?? {}, "、");
-    }, [formData.MaterialTags, useTag.map]);
+    }, [formData._MaterialTags, useTag.map]);
 
     const rawData = useMemo<MaterialFormRawData>(() =>
     {

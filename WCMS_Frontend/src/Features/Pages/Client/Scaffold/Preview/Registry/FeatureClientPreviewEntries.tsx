@@ -1,7 +1,7 @@
-import { Client_Material_Form, type MaterialFormViewData, type MaterialSet } from "@/Features/Pages/Client/BizFunc/MAT/Material/Client_Material_Form_Comp";
+import { Client_Material_Form, type MaterialFormViewData, type MaterialFormModel } from "@/Features/Pages/Client/BizFunc/MAT/Material/Client_Material_Form_Comp";
 import { Client_Announcement_Form } from "@/Features/Pages/Client/BizFunc/WEB/Announcement/Client_Announcement_Form_Comp";
-import { buildPageManagementPreviewViewData, Client_PageManagement_Form, type PageManagementSet } from "@/Features/Pages/Client/BizFunc/WEB/PageManagement/Client_PageManagement_Form_Comp";
-import { Client_Timeline_Form, type TimelineSet } from "@/Features/Pages/Client/BizFunc/WEB/Timeline/Client_Timeline_Form_Comp";
+import { buildPageManagementPreviewViewData, Client_PageManagement_Form, type PageManagementFormModel } from "@/Features/Pages/Client/BizFunc/WEB/PageManagement/Client_PageManagement_Form_Comp";
+import { Client_Timeline_Form, type TimelineFormModel } from "@/Features/Pages/Client/BizFunc/WEB/Timeline/Client_Timeline_Form_Comp";
 import type { INormNode } from "@/Features/Pages/Client/Route/Site-Routing";
 import { PreviewSubPageFrame } from "@/Features/Pages/Client/Scaffold/Preview/Frame/PreviewSubPageFrame";
 import type { ClientPreviewEntry, ClientPreviewRenderProps } from "@/Features/Pages/Client/Scaffold/Preview/Registry/ClientPreviewRegistry";
@@ -10,16 +10,16 @@ import type { components } from "@/types/api";
 import { PGID } from "@/types/SchemaFields";
 
 // #region Property
-type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
+type AnnouncementFormModel = components["schemas"]["Announcement"];
 interface AnnouncementPreviewPayload
 {
-    formData: AnnouncementSet;
+    formData: AnnouncementFormModel;
     categoryNameText?: string;
     tagNameText?: string;
 }
 interface MaterialPreviewPayload
 {
-    formData: MaterialSet;
+    formData: MaterialFormModel;
     categoryNameText?: string;
     tagNameText?: string;
     matCateInfoFieldsMap?: Record<string, string>;
@@ -63,7 +63,7 @@ const AnnouncementPreviewContent = (props: { props: ClientPreviewRenderProps; })
                 formData={previewPayload.formData}
                 categoryNameText={previewPayload.categoryNameText ?? ""}
                 tagNameText={previewPayload.tagNameText ?? ""}
-                internalId={previewPayload.formData.Announcement?.InternalId ?? ""}
+                internalId={previewPayload.formData?.InternalId ?? ""}
                 isLoading={false}
                 errorList={[]}
             />
@@ -74,7 +74,7 @@ const AnnouncementPreviewContent = (props: { props: ClientPreviewRenderProps; })
 /** 頁面管理預覽內容，負責把 Preview payload 轉成 FormView Entry props。 */
 const PageManagementPreviewContent = (props: { props: ClientPreviewRenderProps; }) =>
 {
-    const formData = resolvePreviewPayload<PageManagementSet>(props.props.payload, pageManagementEmptyPreviewData);
+    const formData = resolvePreviewPayload<PageManagementFormModel>(props.props.payload, pageManagementEmptyPreviewData);
     const viewData = buildPageManagementPreviewViewData(formData, props.props.lang);
 
     return (
@@ -93,7 +93,7 @@ const PageManagementPreviewContent = (props: { props: ClientPreviewRenderProps; 
 /** 紀事表預覽內容，負責把 Preview payload 轉成 TimelineFormView props。 */
 const TimelinePreviewContent = (props: { props: ClientPreviewRenderProps; }) =>
 {
-    const formData = resolvePreviewPayload<TimelineSet>(props.props.payload, timelineEmptyPreviewData);
+    const formData = resolvePreviewPayload<TimelineFormModel>(props.props.payload, timelineEmptyPreviewData);
     return (
         <PreviewSubPageFrame lang={props.props.lang} site={props.props.site} node={timelinePreviewNode}>
             <Client_Timeline_Form
@@ -166,7 +166,7 @@ const buildPreviewNode = (title: string, progId: PGID): INormNode =>
         level: 1,
     };
 };
-/** 解析公告 Preview payload，並保留舊版直接傳 AnnouncementSet 的相容性。 */
+/** 解析公告 Preview payload，並保留舊版直接傳 AnnouncementFormModel 的相容性。 */
 const resolveAnnouncementPreviewPayload = (payload: unknown): AnnouncementPreviewPayload =>
 {
     const unwrappedPayload = unwrapPreviewPayload(payload);
@@ -182,7 +182,7 @@ const resolveAnnouncementPreviewPayload = (payload: unknown): AnnouncementPrevie
         };
     }
 
-    return { formData: resolvePreviewPayload<AnnouncementSet>(unwrappedPayload, announcementEmptyPreviewData) };
+    return { formData: resolvePreviewPayload<AnnouncementFormModel>(unwrappedPayload, announcementEmptyPreviewData) };
 };
 
 /** 解開可能被外層 Preview message 包住的 payload。 */
@@ -198,9 +198,9 @@ const unwrapPreviewPayload = (payload: unknown): unknown =>
 
     return payload;
 };
-const announcementEmptyPreviewData: AnnouncementSet = { Announcement: {}, AnnouncementDetail: [], AnnouncementDetailFile: [] };
-const pageManagementEmptyPreviewData: PageManagementSet = { PageManagement: {}, PageManagementDetail: [] };
-const timelineEmptyPreviewData: TimelineSet = { Timeline: {}, TimelineItem: [], TimelineLangDetail: [] };
+const announcementEmptyPreviewData: AnnouncementFormModel = { _AnnouncementDetail: [] };
+const pageManagementEmptyPreviewData: PageManagementFormModel = { _PageManagementDetail: [] };
+const timelineEmptyPreviewData: TimelineFormModel = { _TimelineItem: [] };
 const resolveMaterialPreviewPayload = (payload: unknown): MaterialPreviewPayload =>
 {
     if (!payload || typeof payload !== "object") return { formData: materialEmptyPreviewData };
@@ -214,9 +214,9 @@ const resolveMaterialPreviewPayload = (payload: unknown): MaterialPreviewPayload
             matCateInfoFieldsMap: previewPayload.matCateInfoFieldsMap ?? {},
         };
     }
-    return { formData: resolvePreviewPayload<MaterialSet>(payload, materialEmptyPreviewData) };
+    return { formData: resolvePreviewPayload<MaterialFormModel>(payload, materialEmptyPreviewData) };
 };
-const materialEmptyPreviewData: MaterialSet = { Material: {}, MaterialLangInfo: [], MaterialPicture: [], MaterialTags: [] };
+const materialEmptyPreviewData: MaterialFormModel = { _MaterialLangInfo: [], _MaterialPicture: [], _MaterialTags: [] };
 const announcementPreviewNode = buildPreviewNode("公告預覽", PGID.Announcement);
 const pageManagementPreviewNode = buildPreviewNode("頁面預覽", PGID.PageManagement);
 const timelinePreviewNode = buildPreviewNode("紀事表預覽", PGID.Timeline);

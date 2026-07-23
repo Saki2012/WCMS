@@ -25,7 +25,7 @@ import { redirectClientNotFound } from "../../../Route/ClientRouteRedirect_Helpe
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
-type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
+type AnnouncementFormModel = components["schemas"]["Announcement"];
 export interface AnnouncementFormLoaderArgs
 {
     internalId: string;
@@ -35,8 +35,8 @@ export interface AnnouncementFormLoaderArgs
 }
 export interface AnnouncementFormLoaderRes
 {
-    listRes: AnnouncementSet[];
-    dataRes: AnnouncementSet | null;
+    listRes: AnnouncementFormModel[];
+    dataRes: AnnouncementFormModel | null;
     categoryMap: Record<string, string>;
     tagMap: Record<string, string>;
 }
@@ -46,7 +46,7 @@ export interface AnnouncementFormLoaderData
     res: AnnouncementFormLoaderRes;
 }
 export type AnnouncementFormRawData = {
-    formData: AnnouncementSet;
+    formData: AnnouncementFormModel;
     categoryMap: Record<string, string>;
     tagMap: Record<string, string>;
     categoryNameText: string;
@@ -83,7 +83,7 @@ export const AnnouncementFormLoader = (p: { lang: Lang; }) => async ({ request, 
     const internalId = LibText.safeTrim(params?.internalId);
     const ssrApi = getSsrApi(request);
     const adapter = { Announcement: AnnouncementAdapter(ssrApi), Category: CategoryAdapter(ssrApi), Tag: TagAdapter(ssrApi) };
-    const emptyData: AnnouncementSet = { Announcement: {}, AnnouncementDetail: [], AnnouncementDetailFile: [] };
+    const emptyData: AnnouncementFormModel = { _AnnouncementDetail: [] };
     const queryState = buildAnnouncementFormQueryState({ lang: p.lang, internalId, emptyData });
     const args = buildAnnouncementFormLoaderArgs({ lang: p.lang, internalId, queryParam: queryState.queryParam });
     if (!internalId)
@@ -117,7 +117,7 @@ export const AnnouncementFormLoader = (p: { lang: Lang; }) => async ({ request, 
     };
 };
 /** CSR Hook：新版 Form 入口，資料查詢流程交給 Client_DataQueryTemplate */
-export const useAnnouncementFormData = (opt: { lang: Lang; internalId: string; emptyData: AnnouncementSet; }): UseAnnouncementFormDataResult =>
+export const useAnnouncementFormData = (opt: { lang: Lang; internalId: string; emptyData: AnnouncementFormModel; }): UseAnnouncementFormDataResult =>
 {
     const templateVm = useAnnouncementFormTemplate(opt);
     return {
@@ -131,7 +131,7 @@ export const useAnnouncementFormData = (opt: { lang: Lang; internalId: string; e
 /** CSR Hook：保留舊入口相容尚未調整的客製覆寫 */
 // 注：現在卡在1810暫時不能刪除
 export const useAnnouncementFormFetchData = (
-    opt: { lang: Lang; internalId: string; emptyData: AnnouncementSet; },
+    opt: { lang: Lang; internalId: string; emptyData: AnnouncementFormModel; },
 ): UseFetchDataResult<AnnouncementFormRawData, AnnouncementFormAdapter> =>
 {
     const templateVm = useAnnouncementFormTemplate(opt);
@@ -165,8 +165,8 @@ const matchInitialArgs = <TArgs, TData>(currentArgs: TArgs, initialArgs: TArgs, 
 };
 /** 建立主資料 list initial，避免 hydration 首次重抓 */
 const buildListInitial = (
-    p: { loaderData: AnnouncementFormLoaderData | null; queryParam: QueryListParam; fallbackData: AnnouncementSet; },
-): ApiLoaderData<QueryListParam, AnnouncementSet[]> | null =>
+    p: { loaderData: AnnouncementFormLoaderData | null; queryParam: QueryListParam; fallbackData: AnnouncementFormModel; },
+): ApiLoaderData<QueryListParam, AnnouncementFormModel[]> | null =>
 {
     const loaderParam = p.loaderData?.args?.queryParam;
     if (!loaderParam) return null;
@@ -214,6 +214,7 @@ const buildAnnouncementFormQueryParam = (p: { internalId: string; }): QueryListP
             AnnouncementFields.Validate_Start,
             `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.AnnouncementId}`,
             `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.RowId}`,
+            `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.RowNo}`,
             `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Lang}`,
             `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.Title}`,
             `${AnnouncementFields._AnnouncementDetail}.${AnnouncementDetailFields.SubTitle}`,
@@ -223,6 +224,7 @@ const buildAnnouncementFormQueryParam = (p: { internalId: string; }): QueryListP
             `${detailFilePrefix}.${AnnouncementDetailFileFields.AnnouncementId}`,
             `${detailFilePrefix}.${AnnouncementDetailFileFields.ParentRowId}`,
             `${detailFilePrefix}.${AnnouncementDetailFileFields.RowId}`,
+            `${detailFilePrefix}.${AnnouncementDetailFileFields.RowNo}`,
             `${detailFilePrefix}.${AnnouncementDetailFileFields.FileId}`,
             `${detailFilePrefix}.${AnnouncementDetailFileFields.FileName}`,
         ],
@@ -242,7 +244,7 @@ const buildAnnouncementFormSearchParams = (p: { lang: Lang; internalId: string; 
     return { internalId: LibText.safeTrim(p.internalId), progId: PGID.Announcement, lang: p.lang };
 };
 /** 建立 Announcement Form DataQueryTemplate */
-const createAnnouncementFormDataQueryTemplate = (p: { lang: Lang; internalId: string; emptyData: AnnouncementSet; }): AnnouncementFormDataQueryTemplate =>
+const createAnnouncementFormDataQueryTemplate = (p: { lang: Lang; internalId: string; emptyData: AnnouncementFormModel; }): AnnouncementFormDataQueryTemplate =>
 {
     const initialViewState = buildAnnouncementFormInitialViewState();
     return {
@@ -269,14 +271,14 @@ const createAnnouncementFormDataQueryTemplate = (p: { lang: Lang; internalId: st
     };
 };
 /** 建立 Loader 與 Hook 共用的 Query 狀態 */
-const buildAnnouncementFormQueryState = (p: { lang: Lang; internalId: string; emptyData: AnnouncementSet; }) =>
+const buildAnnouncementFormQueryState = (p: { lang: Lang; internalId: string; emptyData: AnnouncementFormModel; }) =>
 {
     const template = createAnnouncementFormDataQueryTemplate(p);
     return buildClientDataQueryState(template, {} as SearchValues, buildAnnouncementFormInitialViewState());
 };
 /** Announcement Form DataSource：統一處理 QueryList 單筆資料、分類與標籤 map */
 const useAnnouncementFormDataSource = (
-    p: { queryParam: QueryListParam; loaderData: AnnouncementFormLoaderData | null; lang: Lang; internalId: string; emptyData: AnnouncementSet; },
+    p: { queryParam: QueryListParam; loaderData: AnnouncementFormLoaderData | null; lang: Lang; internalId: string; emptyData: AnnouncementFormModel; },
 ): ClientDataQueryDataSourceResult<AnnouncementFormRawData, AnnouncementFormAdapter> =>
 {
     const adapter = useMemo<AnnouncementFormAdapter>(() => ({ Announcement: AnnouncementAdapter(), Category: CategoryAdapter(), Tag: TagAdapter() }), []);
@@ -306,17 +308,17 @@ const useAnnouncementFormDataSource = (
         initial: tagInitial,
         deps: [currentArgs.progId, currentArgs.lang],
     });
-    const formData = useMemo<AnnouncementSet>(() => useData.data?.[0] ?? p.emptyData, [useData.data, p.emptyData]);
+    const formData = useMemo<AnnouncementFormModel>(() => useData.data?.[0] ?? p.emptyData, [useData.data, p.emptyData]);
     const categoryNameText = useMemo(() =>
     {
-        const categoryIds = LibText.splitTrimToArray(formData.Announcement?.Categories, ",", true);
+        const categoryIds = LibText.splitTrimToArray(formData?.Categories, ",", true);
         return LibText.mapKeysToDisplayText(categoryIds, useCategory.map ?? {}, "、");
-    }, [formData.Announcement?.Categories, useCategory.map]);
+    }, [formData?.Categories, useCategory.map]);
     const tagNameText = useMemo(() =>
     {
-        const tagIds = LibText.splitTrimToArray(formData.Announcement?.Tags, ",", true);
+        const tagIds = LibText.splitTrimToArray(formData?.Tags, ",", true);
         return LibText.mapKeysToDisplayText(tagIds, useTag.map ?? {}, "、");
-    }, [formData.Announcement?.Tags, useTag.map]);
+    }, [formData?.Tags, useTag.map]);
     const errors = useMemo(() => [useData.errorText, useCategory.errorText, useTag.errorText], [useData.errorText, useCategory.errorText, useTag.errorText]);
     const rawData = useMemo<AnnouncementFormRawData>(
         () => ({ formData, categoryMap: useCategory.map ?? {}, tagMap: useTag.map ?? {}, categoryNameText, tagNameText, args: currentArgs }),
@@ -341,7 +343,7 @@ const useAnnouncementFormDataSource = (
     };
 };
 /** 內部共用：建立 Announcement Form Template VM */
-const useAnnouncementFormTemplate = (opt: { lang: Lang; internalId: string; emptyData: AnnouncementSet; }) =>
+const useAnnouncementFormTemplate = (opt: { lang: Lang; internalId: string; emptyData: AnnouncementFormModel; }) =>
 {
     const template = useMemo(() => createAnnouncementFormDataQueryTemplate({ lang: opt.lang, internalId: opt.internalId, emptyData: opt.emptyData }), [
         opt.lang,

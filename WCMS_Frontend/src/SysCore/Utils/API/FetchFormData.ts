@@ -3,11 +3,11 @@ import type { ModelDisplaySchema } from "@/types/IApiSchema";
 import { useCallback, useEffect, useState } from "react";
 // #region Property
 type ApiSysMessage = components["schemas"]["SysMessageModel"];
-export interface UseFetchFormDataResult<T>
+export interface UseFetchFormDataResult<TFormModel>
 {
-    data: T;
+    data: TFormModel;
     displayName: ModelDisplaySchema;
-    setFormData: React.Dispatch<React.SetStateAction<T>>;
+    setFormData: React.Dispatch<React.SetStateAction<TFormModel>>;
     isLoading: boolean;
     error: string | null;
     refetch: () => void;
@@ -21,9 +21,9 @@ export interface UseFetchFormDataResult<T>
  * @param internalId 資料的 key，若為 undefined/null 則為新增模式
  * @param emptyData 當 internalId 為 null 時回傳的預設資料
  */
-export const useFetchFormData = <T>(provider: any, internalId?: string | null, emptyData?: T): UseFetchFormDataResult<T> =>
+export const useFetchFormData = <TFormModel>(provider: any, internalId?: string | null, emptyData?: TFormModel): UseFetchFormDataResult<TFormModel> =>
 {
-    const [data, setFormData] = useState<T>(null as T);
+    const [data, setFormData] = useState<TFormModel>(null as TFormModel);
     const [displayName, setDisplayName] = useState<ModelDisplaySchema>(null as unknown as ModelDisplaySchema);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
@@ -47,7 +47,7 @@ export const useFetchFormData = <T>(provider: any, internalId?: string | null, e
                 const msg = res.SysMessage?.map((m: ApiSysMessage) => `${m.MessageCode}:${m.Message}`).join("；") ?? "查詢失敗";
                 throw new Error(msg);
             }
-            setFormData((res.Data as T[])?.[0] ?? null as T);
+            setFormData(resolveFormModelResponse(res.Data, emptyData));
         } catch (err: any)
         {
             setError(err.message ?? "資料讀取失敗");
@@ -58,8 +58,17 @@ export const useFetchFormData = <T>(provider: any, internalId?: string | null, e
     }, [internalId, provider, emptyData]);
     useEffect(() =>
     {
-        fetchData();
-    }, [internalId]);
+        void fetchData();
+    }, [fetchData]);
     return { displayName, data, setFormData, isLoading, error, refetch: fetchData };
+};
+// #endregion
+
+// #region Private
+/** 解析 QueryData 的 FormModel；僅保留舊陣列回應作為過渡相容。 */
+const resolveFormModelResponse = <TFormModel>(data: TFormModel | TFormModel[] | null | undefined, emptyData?: TFormModel): TFormModel =>
+{
+    if (Array.isArray(data)) return data[0] ?? emptyData ?? null as TFormModel;
+    return data ?? emptyData ?? null as TFormModel;
 };
 // #endregion

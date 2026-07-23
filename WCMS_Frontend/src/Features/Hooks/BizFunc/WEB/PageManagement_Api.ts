@@ -7,7 +7,7 @@ import type { AxiosInstance } from "axios";
 import { useMemo } from "react";
 
 // #region Property
-type PageManagementSet = components["schemas"]["PageManagementSet_DTO"];
+type PageManagementFormModel = components["schemas"]["PageManagement"];
 interface PageManagementUsedProgRaw
 {
     [key: string]: string;
@@ -30,7 +30,7 @@ type ExtraHooks = { useUsedProgList: (opt?: IUseUsedProgList) => UsedProgListHoo
 // #endregion
 
 // #region Public
-export class PageManagementService extends ApiDataService<PageManagementSet>
+export class PageManagementService extends ApiDataService<PageManagementFormModel>
 {
     // #region Public
     constructor(apiInstance?: AxiosInstance)
@@ -44,14 +44,14 @@ export class PageManagementService extends ApiDataService<PageManagementSet>
     }
     // #endregion
 }
-export class PageManagementAdapterImpl extends ApiDataAdapter<PageManagementSet, PageManagementService>
+export class PageManagementAdapterImpl extends ApiDataAdapter<PageManagementFormModel, PageManagementService>
 {
     // #region Property
-    declare public hooks: ApiDataHookGroup<PageManagementSet> & ExtraHooks;
+    declare public hooks: ApiDataHookGroup<PageManagementFormModel> & ExtraHooks;
     // #endregion
 
     // #region Protected Virtual
-    protected override buildExtendedHooks(base: ApiDataHookGroup<PageManagementSet>): ApiDataHookGroup<PageManagementSet> & ExtraHooks
+    protected override buildExtendedHooks(base: ApiDataHookGroup<PageManagementFormModel>): ApiDataHookGroup<PageManagementFormModel> & ExtraHooks
     {
         return { ...base, useUsedProgList: (opt) => this.useUsedProgList(opt) };
     }

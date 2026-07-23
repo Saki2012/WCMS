@@ -24,9 +24,9 @@ type QueryListParam = components["schemas"]["QueryListParam"];
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 
-type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"];
+type CategoryFormModel = components["schemas"]["Category"];
 
-type TagSet = components["schemas"]["TagSet_DTO"];
+type TagFormModel = components["schemas"]["TagData"];
 
 interface getDataProp
 {
@@ -59,8 +59,8 @@ export const NewsData = (
 
         initialTopList: AnnouncementSet[];
         initialList: AnnouncementSet[];
-        initialCategories: CategoryDataSet[];
-        initialTags: TagSet[];
+        initialCategories: CategoryFormModel[];
+        initialTags: TagFormModel[];
     },
 ) =>
 {

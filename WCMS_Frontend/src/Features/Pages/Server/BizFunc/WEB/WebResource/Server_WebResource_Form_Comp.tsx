@@ -5,7 +5,7 @@ import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { useUploadPicture } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibPicture_Comp";
 import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
 import { LibCheckBox, LibDropList, LibFile, LibPicture, LibTextArea, LibTextBox } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
-import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
+import { useFormModelField, useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
@@ -13,7 +13,7 @@ import { LibAttachment } from "@/SysCore/Utils/Library/LibData";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
 import type { components } from "@/types/api";
-import { WebResourceFields, WebResourceInfoFields, WebResourceSetFields } from "@/types/SchemaFields";
+import { WebResourceFields, WebResourceInfoFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
 import { useCallback, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -27,7 +27,7 @@ import {
 } from "./Server_WebResource_Form_Hook";
 
 // #region Property
-type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
+type WebResourceFormModel = components["schemas"]["WebResource"];
 
 type UploadPictureHandler = ReturnType<typeof useUploadPicture>["handleFileChange"];
 
@@ -52,7 +52,7 @@ interface HeaderSectionProps
     theme: IBETheme;
 
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<WebResourceSet>;
+    binding: ServerFormBinding<WebResourceFormModel>;
 
     /** WebResource Hook 整理後的參照資料 */
     refs: WebResourceFormRefs;
@@ -67,7 +67,7 @@ interface DetailSectionProps
     lang: Lang;
 
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<WebResourceSet>;
+    binding: ServerFormBinding<WebResourceFormModel>;
 
     /** WebResource Hook 整理後的參照資料 */
     refs: WebResourceFormRefs;
@@ -76,7 +76,7 @@ interface DetailSectionProps
 interface HeaderTabContentOptions extends HeaderSectionProps
 {
     /** 欄位 binding helper */
-    setField: ReturnType<typeof useSetTableField<WebResourceSet>>;
+    setField: ReturnType<typeof useFormModelField<WebResourceFormModel>>;
 
     /** 圖片上傳 helper，維持 Hook 在 Component 階段呼叫 */
     uploadPic: ReturnType<typeof useUploadPicture>;
@@ -97,7 +97,7 @@ interface DetailTabContentOptions
     tabItems: WebResourceDetailTabItem[];
 
     /** 欄位 binding helper */
-    setField: ReturnType<typeof useSetTableField<WebResourceSet>>;
+    setField: ReturnType<typeof useSetTableField<WebResourceFormModel>>;
 
     /** WindowTarget 下拉選項 */
     windowTargetOptions: Map<string, string>;
@@ -167,7 +167,7 @@ export const WebResourceFormComp = (
 /** 網路資源 Header 區塊，保留舊版 Header input 並改用 Template Binding。 */
 const HeaderComp = (props: HeaderSectionProps) =>
 {
-    const setField = useSetTableField<WebResourceSet>(props.binding);
+    const setField = useFormModelField<WebResourceFormModel>(props.binding);
     const uploadPic = useUploadPicture();
     const [pictureInputResetKey, setPictureInputResetKey] = useState(0);
     const handlePictureRemove = useCallback(() =>
@@ -190,7 +190,7 @@ const HeaderComp = (props: HeaderSectionProps) =>
 /** 網路資源多語 Detail 區塊，語系資料由 Hook 統一整理。 */
 const DetailComp = (props: DetailSectionProps) =>
 {
-    const setField = useSetTableField<WebResourceSet>(props.binding);
+    const setField = useSetTableField<WebResourceFormModel>(props.binding);
     const detailTabs = useWebResourceDetailTabs({ binding: props.binding, lang: props.lang });
     const windowTargetOptions = useMemo(() => buildWindowTargetOptions(props.refs.windowTargetOpts), [props.refs.windowTargetOpts]);
     const tabInfo: LibTabsProp = { Style: props.theme.Tabs, item: detailTabs.tabItems };
@@ -215,13 +215,7 @@ const buildHeaderTabContent = (opt: HeaderTabContentOptions): Record<string, Rea
         Status: buildStatusFields(opt),
         Tags: buildTagFields(opt),
         Img: buildImageFields(opt),
-        System: [
-            <SystemInfoTabComp
-                theme={opt.theme}
-                formData={opt.binding}
-                setKey={WebResourceSetFields.WebResource}
-            />,
-        ],
+        System: [<SystemInfoTabComp theme={opt.theme} formData={opt.binding} />],
     };
 };
 
@@ -232,7 +226,7 @@ const buildBasicFields = (opt: HeaderTabContentOptions): ReactNode[] =>
         <LibCheckBox
             Style={opt.theme.CheckBox}
             options={opt.refs.categoryMap}
-            {...opt.setField(WebResourceSetFields.WebResource, WebResourceFields.Categories, "string", undefined, "csv")}
+            {...opt.setField(WebResourceFields.Categories, "string", "csv")}
         />,
     ];
 };
@@ -244,7 +238,7 @@ const buildStatusFields = (opt: HeaderTabContentOptions): ReactNode[] =>
         <LibCheckBox
             Style={opt.theme.CheckBox}
             options={opt.refs.statusOpts}
-            {...opt.setField(WebResourceSetFields.WebResource, WebResourceFields.ContentStatus, "number", undefined, {
+            {...opt.setField(WebResourceFields.ContentStatus, "number", {
                 strategy: "sum",
                 sumKeys: Object.keys(opt.refs.statusOpts ?? {}).map(Number),
             })}
@@ -259,7 +253,7 @@ const buildTagFields = (opt: HeaderTabContentOptions): ReactNode[] =>
         <LibCheckBox
             Style={opt.theme.CheckBox}
             options={opt.refs.tagMap}
-            {...opt.setField(WebResourceSetFields.WebResource, WebResourceFields.Tags, "string", undefined, "csv")}
+            {...opt.setField(WebResourceFields.Tags, "string", "csv")}
         />,
     ];
 };
@@ -267,7 +261,7 @@ const buildTagFields = (opt: HeaderTabContentOptions): ReactNode[] =>
 /** 建立圖片上傳與圖片說明欄位。 */
 const buildImageFields = (opt: HeaderTabContentOptions): ReactNode[] =>
 {
-    const picId = opt.binding.data?.WebResource?.PicId;
+    const picId = opt.binding.data?.PicId;
     const previewSrc = buildPicturePreviewSrc(opt.uploadPic.result.previewUrl, picId);
     const hasPicture = hasHeaderPicture(opt.uploadPic.result.previewUrl, picId);
 
@@ -296,7 +290,7 @@ const buildImageFields = (opt: HeaderTabContentOptions): ReactNode[] =>
         <LibTextBox
             Style={opt.theme.TextBox}
             DefaultInputDisplay="請輸入"
-            {...opt.setField(WebResourceSetFields.WebResource, WebResourceFields.PicDescription, "string")}
+            {...opt.setField(WebResourceFields.PicDescription, "string")}
         />,
     ];
 };
@@ -319,23 +313,23 @@ const buildDetailFields = (opt: DetailFieldsOptions): ReactNode[] =>
         <LibTextBox
             Style={opt.theme.TextBox}
             DefaultInputDisplay="請輸入"
-            {...opt.setField(WebResourceSetFields.WebResourceInfo, WebResourceInfoFields.Title, "string", opt.rowKeys)}
+            {...opt.setField(WebResourceFields._WebResourceInfo, WebResourceInfoFields.Title, "string", opt.rowKeys)}
         />,
         <LibTextArea
             Style={opt.theme.TextArea}
             DefaultInputDisplay="請輸入"
-            {...opt.setField(WebResourceSetFields.WebResourceInfo, WebResourceInfoFields.Content, "string", opt.rowKeys)}
+            {...opt.setField(WebResourceFields._WebResourceInfo, WebResourceInfoFields.Content, "string", opt.rowKeys)}
         />,
         <LibTextBox
             Style={opt.theme.TextBox}
             DefaultInputDisplay="請輸入"
-            {...opt.setField(WebResourceSetFields.WebResourceInfo, WebResourceInfoFields.ResUrl, "string", opt.rowKeys)}
+            {...opt.setField(WebResourceFields._WebResourceInfo, WebResourceInfoFields.ResUrl, "string", opt.rowKeys)}
         />,
         <LibDropList
             Style={opt.theme.DropList}
             Options={opt.windowTargetOptions}
             ShowPlaceholder={false}
-            {...opt.setField(WebResourceSetFields.WebResourceInfo, WebResourceInfoFields.Url_OpenType, "number", opt.rowKeys)}
+            {...opt.setField(WebResourceFields._WebResourceInfo, WebResourceInfoFields.Url_OpenType, "number", opt.rowKeys)}
         />,
     ];
 };
@@ -377,7 +371,7 @@ const normalizeDetailRowKey = (value: DetailRowKeyValue): string | number | unde
 };
 
 /** 上傳或清除 Header 圖片，並同步圖片 ID 與圖片說明。 */
-const handleHeaderPictureChange = (files: File[], binding: ServerFormBinding<WebResourceSet>, handleFileChange: UploadPictureHandler): void =>
+const handleHeaderPictureChange = (files: File[], binding: ServerFormBinding<WebResourceFormModel>, handleFileChange: UploadPictureHandler): void =>
 {
     if (files.length === 0)
     {
@@ -391,40 +385,34 @@ const handleHeaderPictureChange = (files: File[], binding: ServerFormBinding<Web
 };
 
 /** 清除 Header 圖片 internalId 與圖片說明。 */
-const clearHeaderPictureInfo = (binding: ServerFormBinding<WebResourceSet>): void =>
+const clearHeaderPictureInfo = (binding: ServerFormBinding<WebResourceFormModel>): void =>
 {
     binding.setFormData(prev => buildHeaderPictureClearData(prev ?? webResourceEmptyData));
 };
 
 /** 回寫 Header 圖片 internalId，並同步覆蓋圖片說明。 */
-const updateHeaderPictureInfo = (binding: ServerFormBinding<WebResourceSet>, internalId: string, pictureDescription: string): void =>
+const updateHeaderPictureInfo = (binding: ServerFormBinding<WebResourceFormModel>, internalId: string, pictureDescription: string): void =>
 {
     binding.setFormData(prev => buildHeaderPictureData(prev ?? webResourceEmptyData, internalId, pictureDescription));
 };
 
 /** 建立 Header 圖片清除後資料，避免保留舊圖片與舊圖片說明。 */
-const buildHeaderPictureClearData = (source: WebResourceSet): WebResourceSet =>
+const buildHeaderPictureClearData = (source: WebResourceFormModel): WebResourceFormModel =>
 {
     return {
         ...source,
-        WebResource: {
-            ...source.WebResource,
-            PicId: "",
-            PicDescription: "",
-        },
+        PicId: "",
+        PicDescription: "",
     };
 };
 
 /** 建立 Header 圖片更新後資料，圖片說明跟著新檔案同步更新。 */
-const buildHeaderPictureData = (source: WebResourceSet, internalId: string, pictureDescription: string): WebResourceSet =>
+const buildHeaderPictureData = (source: WebResourceFormModel, internalId: string, pictureDescription: string): WebResourceFormModel =>
 {
     return {
         ...source,
-        WebResource: {
-            ...source.WebResource,
-            PicId: internalId,
-            PicDescription: pictureDescription,
-        },
+        PicId: internalId,
+        PicDescription: pictureDescription,
     };
 };
 

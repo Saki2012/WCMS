@@ -11,9 +11,9 @@ import { useMemo } from "react";
 import { type ITimelineOptions, useTimelineFormData } from "./Client_Timeline_Form_Loader";
 
 // #region Property
-export type TimelineSet = components["schemas"]["TimelineSet_DTO"];
-type TimelineItem = components["schemas"]["TimelineItem_DTO"];
-type TimelineLangDetail = components["schemas"]["TimelineLangDetail_DTO"];
+export type TimelineFormModel = components["schemas"]["Timeline"];
+type TimelineItem = components["schemas"]["TimelineItem"];
+type TimelineLangDetail = components["schemas"]["TimelineLangDetail"];
 export interface ITimelineFormProps
 {
     site: INormSite;
@@ -28,7 +28,7 @@ export interface TimelineFormViewProps extends ITimelineFormProps
     title: string;
 
     /** Timeline 資料清單 */
-    listData: TimelineSet[];
+    listData: TimelineFormModel[];
 
     /** 是否倒序顯示 */
     isDesc?: boolean;
@@ -175,10 +175,10 @@ const TimelineRow_Comp = (props: { lang: Lang; row: ITimelineEntryVm; }) =>
 
 // #region Protected
 /** 依 listData 組出年份區塊 */
-const buildTimelineBlocksFromList = (listData: TimelineSet[], lang: Lang, isDesc?: boolean): ITimelineYearBlockVm[] =>
+const buildTimelineBlocksFromList = (listData: TimelineFormModel[], lang: Lang, isDesc?: boolean): ITimelineYearBlockVm[] =>
 {
     const yearMap = new Map<string, ITimelineYearBlockVm>();
-    listData.forEach((setData) => appendTimelineSetBlocks({ yearMap, setData, lang, isDesc }));
+    listData.forEach((formModel) => appendTimelineFormModelBlocks({ yearMap, formModel, lang, isDesc }));
     return Array.from(yearMap.values());
 };
 // #endregion
@@ -200,8 +200,6 @@ const getTimelineFormView = (): typeof Client_Timeline_Form_FeatureView =>
 
     return timelineFormViewCache;
 };
-/** 取得 Timeline FormView，有 Spec View 時使用 Spec，否則使用 Feature View。 */
-
 /** 解析年份文字 */
 const resolveYearText = (date: TimelineItem["Date"]): string =>
 {
@@ -218,16 +216,16 @@ const sortTimelineItems = (items: TimelineItem[], isDescOverride?: boolean): Tim
     {
         const aTime = LibDate.toDateOrNull(a.Date)?.getTime() ?? 0;
         const bTime = LibDate.toDateOrNull(b.Date)?.getTime() ?? 0;
-        if (aTime === bTime) return Number(a.RowId ?? 0) - Number(b.RowId ?? 0);
+        if (aTime === bTime) return Number(a.RowNo ?? a.RowId ?? 0) - Number(b.RowNo ?? b.RowId ?? 0);
         return isDesc ? bTime - aTime : aTime - bTime;
     });
 };
-/** 依 TimelineItem 取出目前語系明細 */
-const getDetailRowsByItem = (item: TimelineItem, details: TimelineLangDetail[], lang: Lang): TimelineLangDetail[] =>
+/** 依 TimelineItem 取出目前語系明細。 */
+const getDetailRowsByItem = (item: TimelineItem, lang: Lang): TimelineLangDetail[] =>
 {
-    return (details ?? [])
-        .filter(p => Number(p.ParentRowId ?? 0) === Number(item.RowId ?? 0) && isSameTimelineLang(p.Lang, lang))
-        .sort((a, b) => Number(a.RowId ?? 0) - Number(b.RowId ?? 0));
+    return (item._TimelineLangDetail ?? [])
+        .filter(detail => isSameTimelineLang(detail.Lang, lang))
+        .sort((a, b) => Number(a.RowNo ?? a.RowId ?? 0) - Number(b.RowNo ?? b.RowId ?? 0));
 };
 /** 判斷 Timeline 明細語系是否相同 */
 const isSameTimelineLang = (source: string | null | undefined, lang: Lang): boolean =>
@@ -255,19 +253,18 @@ const appendDetailRows = (p: { block: ITimelineYearBlockVm; item: TimelineItem; 
         });
     });
 };
-/** 依單筆 Timeline set 補入年份區塊 */
-const appendTimelineSetBlocks = (p: { yearMap: Map<string, ITimelineYearBlockVm>; setData: TimelineSet; lang: Lang; isDesc?: boolean; }): void =>
+/** 依單筆 Timeline FormModel 補入年份區塊。 */
+const appendTimelineFormModelBlocks = (p: { yearMap: Map<string, ITimelineYearBlockVm>; formModel: TimelineFormModel; lang: Lang; isDesc?: boolean; }): void =>
 {
-    const items = sortTimelineItems(p.setData.TimelineItem ?? [], p.isDesc);
-    const details = p.setData.TimelineLangDetail ?? [];
-    items.forEach((item) =>
-    {
-        const yearText = resolveYearText(item.Date);
-        if (!yearText) return;
-        const matched = getDetailRowsByItem(item, details, p.lang);
-        if (matched.length === 0) return;
-        const block = getOrCreateYearBlock(p.yearMap, yearText);
-        appendDetailRows({ block, item, details: matched });
-    });
+    const items = sortTimelineItems(p.formModel._TimelineItem ?? [], p.isDesc);
+    items.forEach((item) => appendTimelineItemBlock(p.yearMap, item, p.lang));
+};
+/** 將單一紀事項目加入對應年份區塊。 */
+const appendTimelineItemBlock = (yearMap: Map<string, ITimelineYearBlockVm>, item: TimelineItem, lang: Lang): void =>
+{
+    const yearText = resolveYearText(item.Date);
+    const details = getDetailRowsByItem(item, lang);
+    if (!yearText || details.length === 0) return;
+    appendDetailRows({ block: getOrCreateYearBlock(yearMap, yearText), item, details });
 };
 // #endregion

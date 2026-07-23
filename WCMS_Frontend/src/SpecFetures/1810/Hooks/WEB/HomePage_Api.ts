@@ -15,13 +15,13 @@ import type { LoaderFunctionArgs } from "react-router-dom";
 // #region Property
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 
-type BannerSet = components["schemas"]["BannerSet_DTO"];
+type BannerFormModel = components["schemas"]["Banner"];
 
-type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"];
+type CategoryFormModel = components["schemas"]["Category"];
 
 type GallerySet = components["schemas"]["GallerySet_DTO"];
 
-type TagSet = components["schemas"]["TagSet_DTO"];
+type TagFormModel = components["schemas"]["TagData"];
 
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
 
@@ -36,7 +36,7 @@ export interface SpecHomePageInitialDataDTO
 
 export interface SpecHomePageBannerSectionDTO
 {
-    Banner?: BannerSet | null;
+    Banner?: BannerFormModel | null;
 }
 
 export interface SpecHomePageCategoryTabsSectionDTO
@@ -47,20 +47,20 @@ export interface SpecHomePageCategoryTabsSectionDTO
     EventNews?: AnnouncementSet[] | null;
     AwardNews?: AnnouncementSet[] | null;
     MediaNews?: AnnouncementSet[] | null;
-    Categories?: CategoryDataSet[] | null;
-    Tags?: TagSet[] | null;
+    Categories?: CategoryFormModel[] | null;
+    Tags?: TagFormModel[] | null;
 }
 
 export interface SpecHomePageEventSectionDTO
 {
     Announcements?: AnnouncementSet[] | null;
-    Tags?: TagSet[] | null;
+    Tags?: TagFormModel[] | null;
 }
 
 export interface SpecHomePageGallerySectionDTO
 {
     Galleries?: GallerySet[] | null;
-    Categories?: CategoryDataSet[] | null;
+    Categories?: CategoryFormModel[] | null;
 }
 
 export interface SpecHomePageVideoSectionDTO

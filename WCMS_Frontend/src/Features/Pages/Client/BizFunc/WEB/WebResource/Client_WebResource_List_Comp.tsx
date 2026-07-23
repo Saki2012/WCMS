@@ -17,7 +17,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useWebResourceListData } from "./Client_WebResource_List_Loader";
 
 // #region Property
-type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
+type WebResourceFormModel = components["schemas"]["WebResource"];
 type WindowTarget = components["schemas"]["WindowTarget"];
 export interface IWebResourceListOptions
 {
@@ -155,13 +155,13 @@ const formatCategoriesNameByMap = (content: string, categoryMap: Record<string, 
     const ids = LibText.splitTrimToArray(content);
     return LibText.mapKeysToDisplayText(ids, categoryMap);
 };
-const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: WebResourceSet[], catMap: Record<string, string>): GridProps =>
+const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: WebResourceFormModel[], catMap: Record<string, string>): GridProps =>
 {
     const newRows: GridRow[] = (gridProps.rows ?? []).map((row, index) =>
     {
         const curRow = rawData?.[index];
-        const contentStatus = curRow?.WebResource?.ContentStatus ?? 0;
-        const curDt = curRow?.WebResourceInfo?.find(p => p.Lang === lang);
+        const contentStatus = curRow?.ContentStatus ?? 0;
+        const curDt = curRow?._WebResourceInfo?.find(p => p.Lang === lang);
         const newCells = (row.cells ?? []).map(cell =>
         {
             const isTitle = cell.col.key === WebResourceInfoFields.Title;
@@ -169,7 +169,7 @@ const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: WebResourc
             switch (cell.col.key)
             {
                 case WebResourceFields.Categories:
-                    nextContent = formatCategoriesNameByMap(curRow?.WebResource?.Categories ?? "", catMap);
+                    nextContent = formatCategoriesNameByMap(curRow?.Categories ?? "", catMap);
                     break;
 
                 case WebResourceInfoFields.ResUrl:
@@ -181,7 +181,7 @@ const SetAdjustFunction = (lang: Lang, gridProps: GridProps, rawData: WebResourc
                     {nextContent}
                     {isTitle && (
                         <>
-                            {LibDate.isWithinLastDays(curRow?.WebResource?.CreateTime, 8) && <span className="label label-warning">最新</span>}
+                            {LibDate.isWithinLastDays(curRow?.CreateTime, 8) && <span className="label label-warning">最新</span>}
                             {Boolean(contentStatus & 1) && <span className="label label-success">置頂</span>}
                             {Boolean(contentStatus & 2) && <span className="label label-danger">熱門</span>}
                         </>
@@ -204,23 +204,23 @@ const SetUrlIcon = (url: string, descript: string, target: WindowTarget) =>
     );
 };
 /** YT要做自動解析 */
-const PictureListContent = (prop: { lang: Lang; datas: WebResourceSet[]; cateMap: Record<string, string>; }) =>
+const PictureListContent = (prop: { lang: Lang; datas: WebResourceFormModel[]; cateMap: Record<string, string>; }) =>
 {
     return (
         <div id="Row_Colitem" className="SubPage_Standard_itemBoxs">
             {prop.datas.map(item =>
             {
-                const detail = item.WebResourceInfo?.find(p => p.Lang === prop.lang);
+                const detail = item._WebResourceInfo?.find(p => p.Lang === prop.lang);
                 const title = detail?.Title ?? "";
-                const validate = formatDate(item.WebResource?.CreateTime);
-                const picUrl = FileManagementAPI.get_Public_Preview_Url(item.WebResource?.PicId, title);
+                const validate = formatDate(item.CreateTime);
+                const picUrl = FileManagementAPI.get_Public_Preview_Url(item.PicId, title);
                 const urlRaw = detail?.ResUrl ?? "";
                 const tar = detail?.Url_OpenType === 0 ? "_self" : "_blank";
                 const { isYoutube, url } = LibMedia.resolveYoutubeEmbedUrl(urlRaw);
                 const isVideo = false;
-                const contentStatus = item.WebResource?.ContentStatus ?? 0;
-                const catName = formatCategoriesNameByMap(item.WebResource?.Categories ?? "", prop.cateMap);
-                const key = item.WebResource?.InternalId ?? item.WebResource?.WebResourceId ?? detail?.ResUrl ?? title;
+                const contentStatus = item.ContentStatus ?? 0;
+                const catName = formatCategoriesNameByMap(item.Categories ?? "", prop.cateMap);
+                const key = item.InternalId ?? item.WebResourceId ?? detail?.ResUrl ?? title;
                 return (
                     <div key={key} className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 Standard_ItemDiv">
                         <article className="cardbox">

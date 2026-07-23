@@ -21,7 +21,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
 import type { components } from "@/types/api";
-import { CategoryDataSetFields, MatCategoryInfoFieldFields, type PGID } from "@/types/SchemaFields";
+import { MatCategoryFormModelFields, MatCategoryInfoFieldFields, type PGID } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -34,7 +34,7 @@ import {
 } from "./Server_MatCategory_Form_Hook";
 
 // #region Property
-type MatCategorySet = components["schemas"]["MatCategoryDataSet_DTO"];
+type MatCategoryFormModel = components["schemas"]["MatCategoryFormModel"];
 
 interface MatCategoryFormCompProps
 {
@@ -60,7 +60,7 @@ interface MatCategoryContentProps
     lang: Lang;
 
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<MatCategorySet>;
+    binding: ServerFormBinding<MatCategoryFormModel>;
 }
 
 interface MatCategoryInfoFieldGridProps extends MatCategoryContentProps
@@ -220,9 +220,9 @@ const MatCategoryInfoFieldDisplayGridComp = (props: MatCategoryInfoFieldDisplayG
 const buildMatCategoryMainTabContent = (props: MatCategoryContentProps): Record<string, ReactNode[]> =>
 {
     return {
-        Category: [<CategorySharedEditorComp<MatCategorySet> key="CategorySharedEditor" theme={props.theme} formData={props.binding} />],
+        Category: [<CategorySharedEditorComp<MatCategoryFormModel> key="CategorySharedEditor" theme={props.theme} formData={props.binding} />],
         MatField: [<MatCategoryInfoFieldGridComp key="MatCategoryInfoFieldGrid" theme={props.theme} lang={props.lang} binding={props.binding} />],
-        System: [<SystemInfoTabComp key="SystemInfo" theme={props.theme} formData={props.binding} setKey={CategoryDataSetFields.Category} />],
+        System: [<SystemInfoTabComp key="SystemInfo" theme={props.theme} formData={props.binding} modelField={MatCategoryFormModelFields.Category} />],
     };
 };
 

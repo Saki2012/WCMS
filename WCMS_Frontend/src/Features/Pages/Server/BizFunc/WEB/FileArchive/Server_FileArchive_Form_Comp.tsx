@@ -4,7 +4,7 @@ import { EditGrid } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGr
 import type { IEditGridView_Style } from "@/Features/Pages/Server/Scaffold/InputComponets/EditGrid/EditGrid_Data";
 import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
 import { LibCalendar, LibCheckBox, LibTextBox } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
-import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
+import { useFormModelField, useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/SystemTab";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { DividerComp } from "@/SysCore/Components/Divider/Divider_Comp";
@@ -13,7 +13,7 @@ import type { Lang } from "@/SysCore/i18n/lang";
 import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import type { components } from "@/types/api";
-import { FileArchiveFields, FileArchiveInfoFields, FileArchiveSetFields } from "@/types/SchemaFields";
+import { FileArchiveFields, FileArchiveInfoFields } from "@/types/SchemaFields";
 import type { ReactNode } from "react";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -29,7 +29,7 @@ import {
 } from "./Server_FileArchive_Form_Hook";
 
 // #region Property
-type FileArchiveSet = components["schemas"]["FileArchiveSet_DTO"];
+type FileArchiveFormModel = components["schemas"]["FileArchive"];
 
 interface FileArchiveFormCompProps
 {
@@ -46,7 +46,7 @@ interface HeaderSectionProps
     theme: IBETheme;
 
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<FileArchiveSet>;
+    binding: ServerFormBinding<FileArchiveFormModel>;
 
     /** FileArchive Hook 整理後的參照資料 */
     refs: FileArchiveFormRefs;
@@ -61,7 +61,7 @@ interface DetailSectionProps
     lang: Lang;
 
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<FileArchiveSet>;
+    binding: ServerFormBinding<FileArchiveFormModel>;
 
     /** FileArchive Hook 整理後的參照資料 */
     refs: FileArchiveFormRefs;
@@ -70,7 +70,7 @@ interface DetailSectionProps
 interface SubDetailSectionProps
 {
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<FileArchiveSet>;
+    binding: ServerFormBinding<FileArchiveFormModel>;
 
     /** 目前 Detail RowId，給 SubDetail Grid 綁 ParentRowId */
     parentRowId: number;
@@ -85,7 +85,7 @@ interface UrlSubDetailSectionProps extends SubDetailSectionProps
 interface HeaderTabContentOptions extends HeaderSectionProps
 {
     /** 欄位 binding helper */
-    setField: ReturnType<typeof useSetTableField<FileArchiveSet>>;
+    setField: ReturnType<typeof useFormModelField<FileArchiveFormModel>>;
 }
 
 interface DetailTabContentOptions
@@ -94,13 +94,13 @@ interface DetailTabContentOptions
     theme: IBETheme;
 
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<FileArchiveSet>;
+    binding: ServerFormBinding<FileArchiveFormModel>;
 
     /** Hook 整理後的 Detail tabs */
     tabItems: FileArchiveDetailTabItem[];
 
     /** 欄位 binding helper */
-    setField: ReturnType<typeof useSetTableField<FileArchiveSet>>;
+    setField: ReturnType<typeof useSetTableField<FileArchiveFormModel>>;
 
     /** FileArchive Hook 整理後的參照資料 */
     refs: FileArchiveFormRefs;
@@ -112,10 +112,10 @@ interface DetailFieldsOptions
     theme: IBETheme;
 
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<FileArchiveSet>;
+    binding: ServerFormBinding<FileArchiveFormModel>;
 
     /** 欄位 binding helper */
-    setField: ReturnType<typeof useSetTableField<FileArchiveSet>>;
+    setField: ReturnType<typeof useSetTableField<FileArchiveFormModel>>;
 
     /** Detail row keys，給 useSetTableField 綁定欄位 */
     rowKeys: FileArchiveInfoRowKeys;
@@ -182,7 +182,7 @@ export const Server_FileArchive_Form_Comp = (props: FileArchiveFormCompProps) =>
 /** 檔案室 Header 區塊，直接使用新版 Template Binding 與 Refs。 */
 const HeaderComp = (props: HeaderSectionProps) =>
 {
-    const setField = useSetTableField<FileArchiveSet>(props.binding);
+    const setField = useFormModelField<FileArchiveFormModel>(props.binding);
     const tabInfo: LibTabsProp = { Style: props.theme.Tabs, item: { Basic: "基本", Status: "狀態", Tags: "標籤", System: "系統資訊" } };
     const tabContent = buildHeaderTabContent({ ...props, setField });
 
@@ -192,7 +192,7 @@ const HeaderComp = (props: HeaderSectionProps) =>
 /** 檔案室多語 Detail 區塊，語系資料由 Hook 統一整理。 */
 const DetailComp = (props: DetailSectionProps) =>
 {
-    const setField = useSetTableField<FileArchiveSet>(props.binding);
+    const setField = useSetTableField<FileArchiveFormModel>(props.binding);
     const detailTabs = useFileArchiveDetailTabs({ binding: props.binding, lang: props.lang });
     const tabInfo: LibTabsProp = { Style: props.theme.Tabs, item: detailTabs.tabItems };
     const tabContent = buildDetailTabContent({ ...props, tabItems: detailTabs.items, setField });
@@ -238,7 +238,7 @@ const buildHeaderTabContent = (opt: HeaderTabContentOptions): Record<string, Rea
         Basic: buildBasicFields(opt),
         Status: buildStatusFields(opt),
         Tags: buildTagFields(opt),
-        System: [<SystemInfoTabComp theme={opt.theme} formData={opt.binding} setKey={FileArchiveSetFields.FileArchive} />],
+        System: [<SystemInfoTabComp theme={opt.theme} formData={opt.binding} />],
     };
 };
 
@@ -249,9 +249,9 @@ const buildBasicFields = (opt: HeaderTabContentOptions): ReactNode[] =>
         <LibCheckBox
             Style={opt.theme.CheckBox}
             options={opt.refs.categoryMap}
-            {...opt.setField(FileArchiveSetFields.FileArchive, FileArchiveFields.CategoriesId, "string", undefined, "csv")}
+            {...opt.setField(FileArchiveFields.CategoriesId, "string", "csv")}
         />,
-        <LibCalendar {...opt.setField(FileArchiveSetFields.FileArchive, FileArchiveFields.Validate_Start, "datetime")} />,
+        <LibCalendar {...opt.setField(FileArchiveFields.Validate_Start, "datetime")} />,
     ];
 };
 
@@ -262,7 +262,7 @@ const buildStatusFields = (opt: HeaderTabContentOptions): ReactNode[] =>
         <LibCheckBox
             Style={opt.theme.CheckBox}
             options={opt.refs.statusOpts}
-            {...opt.setField(FileArchiveSetFields.FileArchive, FileArchiveFields.ContentStatus, "number", undefined, {
+            {...opt.setField(FileArchiveFields.ContentStatus, "number", {
                 strategy: "sum",
                 sumKeys: Object.keys(opt.refs.statusOpts ?? {}).map(Number),
             })}
@@ -277,7 +277,7 @@ const buildTagFields = (opt: HeaderTabContentOptions): ReactNode[] =>
         <LibCheckBox
             Style={opt.theme.CheckBox}
             options={opt.refs.tagMap}
-            {...opt.setField(FileArchiveSetFields.FileArchive, FileArchiveFields.TagsId, "string", undefined, "csv")}
+            {...opt.setField(FileArchiveFields.TagsId, "string", "csv")}
         />,
     ];
 };
@@ -306,7 +306,7 @@ const buildDetailFields = (opt: DetailFieldsOptions): ReactNode[] =>
         <LibTextBox
             Style={opt.theme.TextBox}
             DefaultInputDisplay="請輸入標題 ..."
-            {...opt.setField(FileArchiveSetFields.FileArchiveInfo, FileArchiveInfoFields.Title, "string", opt.rowKeys)}
+            {...opt.setField(FileArchiveFields._FileArchiveInfo, FileArchiveInfoFields.Title, "string", opt.rowKeys)}
         />,
         <DividerComp />,
         <FileSubDetailComp binding={opt.binding} parentRowId={opt.detailRowId} />,

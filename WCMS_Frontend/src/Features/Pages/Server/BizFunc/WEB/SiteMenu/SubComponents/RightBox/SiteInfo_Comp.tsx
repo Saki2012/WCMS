@@ -2,25 +2,20 @@ import { SystemInfoTabComp } from "@/Features/Pages/Server/Scaffold/SystemTab/Sy
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
 import { LibTextArea, LibTextBox, LibTinyMCE } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
-import type { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import { type Lang, LangLabelMap } from "@/SysCore/i18n/lang";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
 import { LibText } from "@/SysCore/Utils/Library/LibData";
-import type { components } from "@/types/api";
-import { SiteMenu_IndexFields, SiteMenu_IndexInfoFields, SiteMenuSetFields } from "@/types/SchemaFields";
+import { SiteMenu_IndexFields, SiteMenu_IndexInfoFields } from "@/types/SchemaFields";
 import { useMemo } from "react";
+import { type SiteMenuFormModel, type SiteMenuGraphField, type SiteMenuIndexInfo } from "../../SiteMenu_FormModel_Hook";
 
 // #region Property
-type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"];
-
-type SiteMenu_IndexInfo = components["schemas"]["SiteMenu_IndexInfo_DTO"];
-
 interface SiteInfoCompProps
 {
     theme: IBETheme;
-    formData: UseFetchFormDataResult<SiteMenuSet>;
-    setField: ReturnType<typeof useSetTableField<SiteMenuSet>>;
+    formData: UseFetchFormDataResult<SiteMenuFormModel>;
+    setField: SiteMenuGraphField;
 }
 
 interface BasicSettingTabProps extends SiteInfoCompProps
@@ -36,7 +31,7 @@ export const SiteInfo_Comp = (prop: SiteInfoCompProps) =>
         return {
             basic: [<BasicSettingTab key="basic" theme={prop.theme} formData={prop.formData} setField={prop.setField} />],
             SEO: [<SEO_Comp key="seo" theme={prop.theme} formData={prop.formData} setField={prop.setField} />],
-            system: [<SystemInfoTabComp key="system" theme={prop.theme} formData={prop.formData} setKey={SiteMenuSetFields.SiteMenu_Index} />],
+            system: [<SystemInfoTabComp key="system" theme={prop.theme} formData={prop.formData}  />],
         };
     }, [prop.formData, prop.setField, prop.theme]);
     return <TabContentComp key="site-info-tabs" tabInfos={tabInfos} components={components} />;
@@ -46,15 +41,15 @@ export const SiteInfo_Comp = (prop: SiteInfoCompProps) =>
 // #region Section
 const SiteTitle_Comp = (prop: BasicSettingTabProps) =>
 {
-    const siteIndex = prop.formData.data?.SiteMenu_Index?.SiteIndex ?? "";
-    const rawDetails = prop.formData.data?.SiteMenu_IndexInfo?.filter((item: SiteMenu_IndexInfo) =>
+    const siteIndex = prop.formData.data?.SiteIndex ?? "";
+    const rawDetails = prop.formData.data?._SiteMenu_IndexInfo?.filter((item: SiteMenuIndexInfo) =>
     {
         return item.SiteIndex === siteIndex;
     }) ?? [];
     const dedupDetails = useMemo(() =>
     {
         const seen = new Set<string>();
-        const out: SiteMenu_IndexInfo[] = [];
+        const out: SiteMenuIndexInfo[] = [];
         for (const item of rawDetails)
         {
             const langKey = String(item?.Lang ?? "").toLowerCase();
@@ -82,18 +77,18 @@ const SiteTitle_Comp = (prop: BasicSettingTabProps) =>
                 key={`${langKey}_title`}
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入"
-                {...prop.setField(SiteMenuSetFields.SiteMenu_IndexInfo, SiteMenu_IndexInfoFields.Title, "string", rowKeys)}
+                {...prop.setField(SiteMenu_IndexFields._SiteMenu_IndexInfo, SiteMenu_IndexInfoFields.Title, "string", rowKeys)}
             />,
             <LibTextArea
                 key={`${langKey}_desc`}
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入"
-                {...prop.setField(SiteMenuSetFields.SiteMenu_IndexInfo, SiteMenu_IndexInfoFields.Description, "string", rowKeys)}
+                {...prop.setField(SiteMenu_IndexFields._SiteMenu_IndexInfo, SiteMenu_IndexInfoFields.Description, "string", rowKeys)}
             />,
             <LibTinyMCE
                 key={`${langKey}_footer`}
                 Style={prop.theme.CheckBox}
-                {...prop.setField(SiteMenuSetFields.SiteMenu_IndexInfo, SiteMenu_IndexInfoFields.SiteFooter, "string", rowKeys)}
+                {...prop.setField(SiteMenu_IndexFields._SiteMenu_IndexInfo, SiteMenu_IndexInfoFields.SiteFooter, "string", rowKeys)}
             />,
         ];
         return compMap;
@@ -109,7 +104,7 @@ const SEO_Comp = (prop: BasicSettingTabProps) =>
                 key="SEO"
                 Style={prop.theme.TextBox}
                 DefaultInputDisplay="請輸入"
-                {...prop.setField(SiteMenuSetFields.SiteMenu_Index, SiteMenu_IndexFields.GoogleAnalytics, "string")}
+                {...prop.setField("SiteMenu_Index", SiteMenu_IndexFields.GoogleAnalytics, "string")}
             />
         </>
     );
@@ -121,12 +116,6 @@ const BasicSettingTab = (prop: BasicSettingTabProps) =>
 {
     return (
         <>
-            {
-                /* <LibTextBox Style={prop.theme.TextBox} DefaultInputDisplay="" disabled={true} {...prop.setField(SiteMenuSetFields.SiteMenu_Index, SiteMenu_IndexFields.SiteIndex, "string")}/>
-      <LibCheckBox Style={prop.theme.CheckBox} options={{ [SiteMenu_IndexFields.Enable]: "" }} {...prop.setField(SiteMenuSetFields.SiteMenu_Index, SiteMenu_IndexFields.Enable, "boolean")}      />
-      <LibCheckBox Style={prop.theme.CheckBox} options={{}} {...prop.setField(SiteMenuSetFields.SiteMenu_Index, SiteMenu_IndexFields.SupportLangs, "string", undefined,"csv")}/>
-      <LibTextBox Style={prop.theme.TextBox} {...prop.setField(SiteMenuSetFields.SiteMenu_Index, SiteMenu_IndexFields.DefaultLang, "boolean")}/> */
-            }
             <SiteTitle_Comp theme={prop.theme} formData={prop.formData} setField={prop.setField} />
         </>
     );

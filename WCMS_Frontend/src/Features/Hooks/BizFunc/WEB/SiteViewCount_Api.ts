@@ -15,7 +15,7 @@ import { useCallback, useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router-dom";
 
 // #region Property
-type SiteViewCountSet = components["schemas"]["SiteViewCountSet_DTO"];
+type SiteViewCountModel = components["schemas"]["SiteViewCountHeader"];
 type TryCountSiteViewRequest = components["schemas"]["TryCountSiteViewRequest_DTO"];
 export type TryCountDetailViewRequest = components["schemas"]["TryCountDetailViewRequest_DTO"];
 type TryCountResult = components["schemas"]["TryCountResult_DTO"];
@@ -71,7 +71,7 @@ type ExtraHooks = {
 // #endregion
 
 // #region Public
-export class SiteViewCountService extends ApiDataService<SiteViewCountSet>
+export class SiteViewCountService extends ApiDataService<SiteViewCountModel>
 {
     // #region Public
     constructor(apiInstance?: AxiosInstance)
@@ -112,20 +112,20 @@ export class SiteViewCountService extends ApiDataService<SiteViewCountSet>
     }
     // #endregion
 }
-export class SiteViewCountAdapterImpl extends ApiDataAdapter<SiteViewCountSet, SiteViewCountService>
+export class SiteViewCountAdapterImpl extends ApiDataAdapter<SiteViewCountModel, SiteViewCountService>
 {
     // #region Property
-    declare public loader: ApiDataLoaderGroup<SiteViewCountSet> & ExtraLoaders;
-    declare public hooks: ApiDataHookGroup<SiteViewCountSet> & ExtraHooks;
+    declare public loader: ApiDataLoaderGroup<SiteViewCountModel> & ExtraLoaders;
+    declare public hooks: ApiDataHookGroup<SiteViewCountModel> & ExtraHooks;
     // #endregion
 
     // #region Protected Virtual
-    protected override buildExtendedLoader(base: ApiDataLoaderGroup<SiteViewCountSet>): ApiDataLoaderGroup<SiteViewCountSet> & ExtraLoaders
+    protected override buildExtendedLoader(base: ApiDataLoaderGroup<SiteViewCountModel>): ApiDataLoaderGroup<SiteViewCountModel> & ExtraLoaders
     {
         const wrapCreateRecentlySiteViewCountLoader: ExtraLoaders["createRecentlySiteViewCountLoader"] = (opt) => this.createRecentlySiteViewCountLoader(opt);
         return { ...base, createRecentlySiteViewCountLoader: wrapCreateRecentlySiteViewCountLoader };
     }
-    protected override buildExtendedHooks(base: ApiDataHookGroup<SiteViewCountSet>): ApiDataHookGroup<SiteViewCountSet> & ExtraHooks
+    protected override buildExtendedHooks(base: ApiDataHookGroup<SiteViewCountModel>): ApiDataHookGroup<SiteViewCountModel> & ExtraHooks
     {
         const wrapUseRecentlySiteViewCount: ExtraHooks["useRecentlySiteViewCount"] = (opt) => this.useRecentlySiteViewCount(opt);
         const wrapUseCountActions: ExtraHooks["useCountActions"] = (opt) => this.useCountActions(opt);

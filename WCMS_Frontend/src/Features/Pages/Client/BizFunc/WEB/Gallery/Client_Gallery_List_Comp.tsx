@@ -13,7 +13,7 @@ import { useLocation } from "react-router";
 import { type IGalleryListOptions, useGalleryListData } from "./Client_Gallery_List_Loader";
 
 // #region Property
-type GallerySet = components["schemas"]["GallerySet_DTO"];
+type GalleryFormModel = components["schemas"]["Gallery"];
 export interface IGalleryListProps
 {
     site: INormSite;
@@ -80,12 +80,12 @@ const Client_Gallery_List_FeatureView = (props: GalleryListViewProps) =>
 // #endregion
 
 // #region Section
-const GallerySection = (props: { lang: Lang; data: GallerySet[]; categoryMap: Record<string, string>; dirUrl: string; }) =>
+const GallerySection = (props: { lang: Lang; data: GalleryFormModel[]; categoryMap: Record<string, string>; dirUrl: string; }) =>
 {
     return (
         <>
             <div id="Row_Colitem" className="SubPage_Standard_itemBoxs">
-                {props.data.map((item, idx) => <GalleryCard key={item.Gallery?.InternalId ?? idx} lang={props.lang} item={item} categoryMap={props.categoryMap} dirUrl={props.dirUrl} />)}
+                {props.data.map((item, idx) => <GalleryCard key={item?.InternalId ?? idx} lang={props.lang} item={item} categoryMap={props.categoryMap} dirUrl={props.dirUrl} />)}
             </div>
             <hr className="hr-my-4" />
         </>
@@ -94,7 +94,7 @@ const GallerySection = (props: { lang: Lang; data: GallerySet[]; categoryMap: Re
 // #endregion
 
 // #region EntityComp
-const GalleryCard = (props: { lang: Lang; item: GallerySet; categoryMap: Record<string, string>; dirUrl: string; }) =>
+const GalleryCard = (props: { lang: Lang; item: GalleryFormModel; categoryMap: Record<string, string>; dirUrl: string; }) =>
 {
     const itemVm = buildGalleryCardViewModel(props);
     return (
@@ -177,15 +177,15 @@ const getGalleryListView = (): typeof Client_Gallery_List_FeatureView =>
 
 // #region Private
 /** 建立 Gallery 卡片畫面資料 */
-const buildGalleryCardViewModel = (p: { lang: Lang; item: GallerySet; categoryMap: Record<string, string>; dirUrl: string; }): GalleryCardViewModel =>
+const buildGalleryCardViewModel = (p: { lang: Lang; item: GalleryFormModel; categoryMap: Record<string, string>; dirUrl: string; }): GalleryCardViewModel =>
 {
-    const title = p.item.GalleryInfo?.find(item => item.Lang === p.lang)?.Title ?? "";
-    const coverPicDesc = p.item.GalleryPhotos?.find(item => item.PicSrcId)?.GalleryPhotosInfo?.find(item => item.Lang === p.lang)?.Title ?? title;
-    const coverPicUrl = FileManagementAPI.get_Public_Preview_Url(p.item.Gallery?.CoverPicSrcId, coverPicDesc);
-    const linkUrl = `${p.dirUrl}/${p.item.Gallery?.InternalId}`;
-    const categories = buildGalleryCategoryText(p.item.Gallery?.Categories, p.categoryMap);
-    const validateStart = formatDate(p.item.Gallery?.Validate_Start);
-    const contentStatus = p.item.Gallery?.ContentStatus ?? 0;
+    const title = p.item._GalleryInfo?.find(item => item.Lang === p.lang)?.Title ?? "";
+    const coverPicDesc = p.item._GalleryPhotos?.find(item => item.PicSrcId)?._GalleryPhotosInfo?.find(item => item.Lang === p.lang)?.Title ?? title;
+    const coverPicUrl = FileManagementAPI.get_Public_Preview_Url(p.item?.CoverPicSrcId, coverPicDesc);
+    const linkUrl = `${p.dirUrl}/${p.item?.InternalId}`;
+    const categories = buildGalleryCategoryText(p.item?.Categories, p.categoryMap);
+    const validateStart = formatDate(p.item?.Validate_Start);
+    const contentStatus = p.item?.ContentStatus ?? 0;
     return { title, content: title, coverPicDesc, coverPicUrl, linkUrl, categories, validateStart, contentStatus };
 };
 /** 建立分類顯示文字 */

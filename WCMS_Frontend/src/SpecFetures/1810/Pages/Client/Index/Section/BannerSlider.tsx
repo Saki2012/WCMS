@@ -7,7 +7,8 @@ import { useEffect, useMemo } from "react";
 // #region Property
 type BannerSliderHydrationData = ReturnType<typeof useBannerSliderHydrationData>;
 
-type BannerSet = NonNullable<BannerSliderHydrationData["banner"]>;
+type BannerFormModel = NonNullable<BannerSliderHydrationData["banner"]>;
+type BannerDetail = NonNullable<BannerFormModel["_BannerDetail"]>[number];
 
 
 interface BannerSliderProps
@@ -38,17 +39,18 @@ interface BootstrapWindow extends Window
 const SLIDE_INTERVAL = 5000;
 
 
-const emptyData: BannerSet = {
-    Banner: {},
-    BannerDetail: [{ RowId: 1, Validate_Start: "", Validate_End: "", PicSrcId: "", FontColor: "" }],
-    BannerDetailInfo: [{ ParentRowId: 1, RowId: 1, Lang: "zh-tw", Title: "", Content: "", URL: "", URL_Open: 1 }, {
-        ParentRowId: 1,
-        RowId: 2,
-        Lang: "en",
-        Title: "",
-        Content: "",
-        URL: "",
-        URL_Open: 1,
+const emptyData: BannerFormModel = {
+    _BannerDetail: [{
+        RowId: 1,
+        RowNo: 1,
+        Validate_Start: "",
+        Validate_End: "",
+        PicSrcId: "",
+        FontColor: "",
+        _BannerDetailInfo: [
+            { ParentRowId: 1, RowId: 1, RowNo: 1, Lang: "zh-tw", Title: "", Content: "", URL: "", URL_Open: 1 },
+            { ParentRowId: 1, RowId: 2, RowNo: 2, Lang: "en", Title: "", Content: "", URL: "", URL_Open: 1 },
+        ],
     }],
 };
 // #endregion
@@ -149,9 +151,9 @@ const handleCarouselControl = (id: string, action: "play" | "pause") =>
 
 
 /// 依排序欄位整理 banner 明細
-const getSortedDetails = (bannerData: BannerSet) =>
+const getSortedDetails = (bannerData: BannerFormModel) =>
 {
-    const list = bannerData?.BannerDetail ?? [];
+    const list = bannerData?._BannerDetail ?? [];
 
     return [...list].sort((a, b) =>
     {
@@ -167,9 +169,9 @@ const getSortedDetails = (bannerData: BannerSet) =>
 
 
 /// 依語系取得 banner 文字資料
-const getBannerInfo = (bannerData: BannerSet, rowId?: number | null, bannerId?: string | null, lang?: Lang) =>
+const getBannerInfo = (detail: BannerDetail, lang?: Lang) =>
 {
-    return bannerData?.BannerDetailInfo?.find((item) => item.BannerId === bannerId && item.ParentRowId === rowId && item.Lang === lang) ?? null;
+    return detail._BannerDetailInfo?.find(item => item.Lang === lang) ?? null;
 };
 
 
@@ -182,7 +184,7 @@ const getPreviewUrl = (picSrcId?: string | null) =>
 };
 
 
-const PCBanner = (props: { bannerData: BannerSet; lang: Lang; sortedDetails: BannerSet["BannerDetail"]; }) =>
+const PCBanner = (props: { bannerData: BannerFormModel; lang: Lang; sortedDetails: BannerFormModel["_BannerDetail"]; }) =>
 {
     return (
         <div
@@ -193,7 +195,7 @@ const PCBanner = (props: { bannerData: BannerSet; lang: Lang; sortedDetails: Ban
                 <div className="carousel-inner">
                     {props.sortedDetails?.map((item, index) =>
                     {
-                        const info = getBannerInfo(props.bannerData, item.RowId, item.BannerId, props.lang);
+                        const info = getBannerInfo(item, props.lang);
                         const alt = info?.Title ?? "";
                         const url = info?.URL ?? "";
                         const target = info?.URL_Open === 0 ? "_self" : "_blank";
@@ -281,7 +283,7 @@ const PCBanner = (props: { bannerData: BannerSet; lang: Lang; sortedDetails: Ban
 };
 
 
-const MobileBanner = (props: { bannerData: BannerSet; lang: Lang; sortedDetails: BannerSet["BannerDetail"]; }) =>
+const MobileBanner = (props: { bannerData: BannerFormModel; lang: Lang; sortedDetails: BannerFormModel["_BannerDetail"]; }) =>
 {
     return (
         <div className="customize_visualBox + animate__animated animate__slow wow fadeInRight d-xl-none d-lg-none d-md-none d-sm-block" data-wow-delay="0.05s">
@@ -289,7 +291,7 @@ const MobileBanner = (props: { bannerData: BannerSet; lang: Lang; sortedDetails:
                 <div className="carousel-inner">
                     {props.sortedDetails?.map((item, index) =>
                     {
-                        const alt = getBannerInfo(props.bannerData, item.RowId, item.BannerId, props.lang)?.Title ?? "";
+                        const alt = getBannerInfo(item, props.lang)?.Title ?? "";
                         const src = getPreviewUrl(item.PicSrcId);
 
                         return (

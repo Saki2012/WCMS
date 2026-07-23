@@ -1,6 +1,5 @@
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import type { LibTabsProp } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/FieldComponets/LibTabs_Comp";
-import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { TabContentComp } from "@/SysCore/Components/TabContent/TabContent";
 import { DefaultLang } from "@/SysCore/i18n/lang";
 import type { UseFetchFormDataResult } from "@/SysCore/Utils/API/FetchFormData";
@@ -8,41 +7,36 @@ import type { components } from "@/types/api";
 import type { PGID } from "@/types/SchemaFields";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { SiteMenuActions, SiteMenuEditTarget, SiteMenuItem } from "../SiteMenu_Hook";
+import { type SiteMenuFormModel, type SiteMenuGraphField, useSiteMenuGraphField } from "../SiteMenu_FormModel_Hook";
 import { HyperlinkSettingTab } from "./RightBox/Hyperlink_Comp";
 import { BasicSettingTab } from "./RightBox/MenuInfo_Comp";
 import { ModuleSettingTab } from "./RightBox/Module_Comp";
 import { SiteInfo_Comp } from "./RightBox/SiteInfo_Comp";
 
 // #region Property
-type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"];
+type CategoryFormModel = components["schemas"]["Category"];
 
-type SiteMenu_Item_Url = components["schemas"]["SiteMenu_Item_Url_DTO"];
-
-type SiteMenu_Item_Module = components["schemas"]["SiteMenu_Item_Module_DTO"];
-
-type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
-
-type TagSet = components["schemas"]["TagSet_DTO"];
+type TagFormModel = components["schemas"]["TagData"];
 
 type MenuUrlType = components["schemas"]["MenuUrlType"];
 
-type PageSet = components["schemas"]["PageManagementSet_DTO"];
+type PageManagementFormModel = components["schemas"]["PageManagement"];
 
 export type ModelKey = string | PGID;
 
 type RenderRightBoxProp = {
     theme: IBETheme;
     selectedItemEdit: SiteMenuEditTarget;
-    formData: UseFetchFormDataResult<SiteMenuSet>;
+    formData: UseFetchFormDataResult<SiteMenuFormModel>;
     siteMenuItems: SiteMenuItem[];
     windowTarget: Record<string, string>;
     menuUrlType: Record<string, string>;
     modulePageType: Record<string, string>;
     bannerDict: Record<string, string>;
     moduleDisplayStyle: Record<string, string>;
-    categorySets: CategorySet[];
-    tagSets: TagSet[];
-    pageSets: PageSet[];
+    categorySets: CategoryFormModel[];
+    tagSets: TagFormModel[];
+    pageSets: PageManagementFormModel[];
     timelineMap: Map<string, string>;
     surveyMap: Map<string, string>;
     action: SiteMenuActions;
@@ -51,17 +45,17 @@ type RenderRightBoxProp = {
 type MenuInfoCompProps = {
     theme: IBETheme;
     selectedItemEdit: SiteMenuItem;
-    formData: UseFetchFormDataResult<SiteMenuSet>;
-    setField: ReturnType<typeof useSetTableField<SiteMenuSet>>;
+    formData: UseFetchFormDataResult<SiteMenuFormModel>;
+    setField: SiteMenuGraphField;
     siteMenuItems: SiteMenuItem[];
     menuUrlType: Record<string, string>;
     windowTarget: Record<string, string>;
     modulePageType: Record<string, string>;
     bannerDict: Record<string, string>;
     moduleDisplayStyle: Record<string, string>;
-    categorySets: CategorySet[];
-    tagSets: TagSet[];
-    pageSets: PageSet[];
+    categorySets: CategoryFormModel[];
+    tagSets: TagFormModel[];
+    pageSets: PageManagementFormModel[];
     timelineMap: Map<string, string>;
     surveyMap: Map<string, string>;
     tabResetSeed: number;
@@ -78,7 +72,7 @@ type MenuInfoCompProps = {
 /** 右側編輯區：依目前選取項目切換對應設定頁籤 */
 export const RenderRightBox = (prop: RenderRightBoxProp) =>
 {
-    const setField = useSetTableField<SiteMenuSet>(prop.formData);
+    const setField = useSiteMenuGraphField(prop.formData);
     const [tabResetSeed, setTabResetSeed] = useState(0);
     const [linkType, setLinkType] = useState<MenuUrlType>(1);
     const [modelKey, setModelKey] = useState<ModelKey>("");
@@ -94,8 +88,8 @@ export const RenderRightBox = (prop: RenderRightBoxProp) =>
         if (!selectedMenuNode) return null;
         const rowId = Number(selectedMenuNode.id ?? selectedMenuNode.menuItem?.RowId ?? 0);
         if (!rowId) return selectedMenuNode.menuItem ?? null;
-        return (prop.formData.data?.SiteMenu_Item ?? []).find(x => Number(x.RowId) === rowId) ?? selectedMenuNode.menuItem ?? null;
-    }, [prop.formData.data?.SiteMenu_Item, selectedMenuNode]);
+        return (prop.formData.data?._SiteMenu_Item ?? []).find(x => Number(x.RowId) === rowId) ?? selectedMenuNode.menuItem ?? null;
+    }, [prop.formData.data?._SiteMenu_Item, selectedMenuNode]);
 
     const headerTitle = useMemo(() =>
     {
@@ -104,18 +98,9 @@ export const RenderRightBox = (prop: RenderRightBoxProp) =>
         return prop.selectedItemEdit.item.name;
     }, [prop.selectedItemEdit]);
 
-    const selectedSiteIndex = selectedMenuItem?.SiteIndex;
     const selectedRowId = selectedMenuItem?.RowId ?? selectedMenuNode?.id;
-
-    const selectedUrlRow = useMemo(() =>
-    {
-        return findSelectedUrlRow(prop.formData.data?.SiteMenu_Item_Url ?? [], selectedSiteIndex, selectedRowId);
-    }, [prop.formData.data?.SiteMenu_Item_Url, selectedSiteIndex, selectedRowId]);
-
-    const selectedModuleRow = useMemo(() =>
-    {
-        return findSelectedModuleRow(prop.formData.data?.SiteMenu_Item_Module ?? [], selectedSiteIndex, selectedRowId);
-    }, [prop.formData.data?.SiteMenu_Item_Module, selectedSiteIndex, selectedRowId]);
+    const selectedUrlRow = selectedMenuItem?._SiteMenu_Item_Url;
+    const selectedModuleRow = selectedMenuItem?._SiteMenu_Item_Module;
 
     /** 右側保存：網站資訊走 SaveSiteInfo；選單項目走 SaveMenuItem */
     const handleSave = useCallback(async () =>
@@ -308,16 +293,4 @@ const MenuInfoComp = (prop: MenuInfoCompProps) =>
 };
 // #endregion
 
-// #region Private
-/** 依目前選取項目取得對應的 Url 設定列 */
-const findSelectedUrlRow = (list: SiteMenu_Item_Url[], siteIndex?: string | null, itemRowId?: number | null): SiteMenu_Item_Url | undefined =>
-{
-    return list.find((row) => row.SiteIndex === siteIndex && row.ItemRowId === itemRowId);
-};
-
-/** 依目前選取項目取得對應的 Module 設定列 */
-const findSelectedModuleRow = (list: SiteMenu_Item_Module[], siteIndex?: string | null, itemRowId?: number | null): SiteMenu_Item_Module | undefined =>
-{
-    return list.find((row) => row.SiteIndex === siteIndex && row.ItemRowId === itemRowId);
-};
 // #endregion

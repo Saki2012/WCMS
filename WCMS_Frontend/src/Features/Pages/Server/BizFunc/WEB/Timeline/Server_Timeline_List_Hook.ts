@@ -27,7 +27,7 @@ import { type NavigateFunction, useLocation, useNavigate } from "react-router-do
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type TimelineSet = components["schemas"]["TimelineSet_DTO"];
+type TimelineFormModel = components["schemas"]["Timeline"];
 
 type TimelineApiAdapter = ReturnType<typeof TimelineAdapter>;
 
@@ -60,7 +60,7 @@ export interface TimelineListRawData
     count: number;
 
     /** 紀事表列表資料 */
-    list: TimelineSet[];
+    list: TimelineFormModel[];
 
     /** 目前頁碼 */
     pageNumber: number;
@@ -316,7 +316,7 @@ const enhanceTimelineGrid = (
     },
 ): GridProps =>
 {
-    const actions = createGridCrudActions<TimelineSet>({
+    const actions = createGridCrudActions<TimelineFormModel>({
         onEdit: (internalId) => opt.crud.navigate(`${opt.crud.dirUrl}/${internalId}`),
         deleteAsync: opt.crud.deleteAsync,
         afterDelete: opt.crud.afterDelete,
@@ -329,21 +329,21 @@ const enhanceTimelineGrid = (
         can: opt.can,
         notifyNoPermission: opt.notifyNoPermission,
         confirm: opt.confirm,
-        getInternalId: (set) => set.Timeline?.InternalId ?? "",
+        getInternalId: formModel => formModel.InternalId ?? "",
     });
 };
 
 /** 建立紀事表列表列資料 */
 const buildTimelineRows = (raw: TimelineListRawData, lang: Lang, columns: ColumnConfig[]): GridRow[] =>
 {
-    return (raw.list ?? []).map((set) =>
+    return (raw.list ?? []).map((formModel) =>
     {
-        const keyId = set.Timeline?.InternalId ?? LibText.Merge("|", false, set.Timeline?.TimelineId);
+        const keyId = formModel.InternalId ?? LibText.Merge("|", false, formModel.TimelineId);
         const cells: RowCell[] = [
-            { col: columns[0], content: set.Timeline?.TimelineName ?? "" },
-            { col: columns[1], content: buildTimelineItemList(set, lang) },
-            { col: columns[2], content: set.Timeline?.ModifyUser?.AccountName ?? "" },
-            { col: columns[3], content: formatDateTime(set.Timeline?.ModifyTime) },
+            { col: columns[0], content: formModel.TimelineName ?? "" },
+            { col: columns[1], content: buildTimelineItemList(formModel, lang) },
+            { col: columns[2], content: formModel.ModifyUser?.AccountName ?? "" },
+            { col: columns[3], content: formatDateTime(formModel.ModifyTime) },
         ];
 
         return { keyId, cells };
@@ -351,9 +351,9 @@ const buildTimelineRows = (raw: TimelineListRawData, lang: Lang, columns: Column
 };
 
 /** 建立紀事表事件預覽清單 */
-const buildTimelineItemList = (set: TimelineSet, lang: Lang): ReactNode =>
+const buildTimelineItemList = (formModel: TimelineFormModel, lang: Lang): ReactNode =>
 {
-    const items = buildTimelineItemTexts(set, lang);
+    const items = buildTimelineItemTexts(formModel, lang);
     const showItems = items.slice(0, 5);
     const hasMore = items.length > 5;
     const children = hasMore ? [...showItems, { key: "more", text: "..." }] : showItems;
@@ -366,9 +366,9 @@ const buildTimelineItemList = (set: TimelineSet, lang: Lang): ReactNode =>
 };
 
 /** 建立紀事表事件顯示文字 */
-const buildTimelineItemTexts = (set: TimelineSet, lang: Lang): { key: string; text: string; }[] =>
+const buildTimelineItemTexts = (formModel: TimelineFormModel, lang: Lang): { key: string; text: string; }[] =>
 {
-    return (set.TimelineItem ?? []).flatMap((item, itemIndex) =>
+    return (formModel._TimelineItem ?? []).flatMap((item, itemIndex) =>
     {
         const details = item._TimelineLangDetail?.filter((detail) => detail?.Lang === lang) ?? [];
 

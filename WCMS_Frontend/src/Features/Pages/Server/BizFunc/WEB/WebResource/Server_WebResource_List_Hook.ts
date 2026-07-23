@@ -33,7 +33,7 @@ import { type NavigateFunction, useLocation, useNavigate } from "react-router-do
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
+type WebResourceFormModel = components["schemas"]["WebResource"];
 
 type WebResourceApiAdapter = ReturnType<typeof WebResourceAdapter>;
 
@@ -71,7 +71,7 @@ export interface WebResourceListRawData
     count: number;
 
     /** 網路資源列表資料 */
-    list: WebResourceSet[];
+    list: WebResourceFormModel[];
 
     /** 目前頁碼 */
     pageNumber: number;
@@ -373,7 +373,7 @@ const enhanceWebResourceGrid = (
     },
 ): GridProps =>
 {
-    const actions = createGridCrudActions<WebResourceSet>({
+    const actions = createGridCrudActions<WebResourceFormModel>({
         onEdit: (internalId) => opt.crud.navigate(`${opt.crud.dirUrl}/${internalId}`),
         deleteAsync: opt.crud.deleteAsync,
         afterDelete: opt.crud.afterDelete,
@@ -386,21 +386,21 @@ const enhanceWebResourceGrid = (
         can: opt.can,
         notifyNoPermission: opt.notifyNoPermission,
         confirm: opt.confirm,
-        getInternalId: (set) => set.WebResource?.InternalId ?? "",
+        getInternalId: (formModel) => formModel.InternalId ?? "",
     });
 };
 
 /** 建立網路資源列表列資料 */
 const buildWebResourceRows = (raw: WebResourceListRawData, lang: Lang, columns: ColumnConfig[]): GridRow[] =>
 {
-    return (raw.list ?? []).map((set) =>
+    return (raw.list ?? []).map((formModel) =>
     {
-        const keyId = set.WebResource?.InternalId ?? LibText.Merge("|", false, set.WebResource?.WebResourceId);
-        const webResource = set.WebResource;
+        const keyId = formModel.InternalId ?? LibText.Merge("|", false, formModel.WebResourceId);
+        const webResource = formModel;
         const cells: RowCell[] = [
             { col: columns[0], content: buildPictureCell(webResource?.PicId, webResource?.PicDescription) },
             { col: columns[1], content: mapIdsToList(webResource?.Categories, raw.categoryMap) },
-            { col: columns[2], content: buildTitleCell(set, lang) },
+            { col: columns[2], content: buildTitleCell(formModel, lang) },
             { col: columns[3], content: webResource?.ModifyUser?.AccountName ?? "" },
             { col: columns[4], content: formatDateTime(webResource?.ModifyTime) },
         ];
@@ -422,11 +422,11 @@ const buildPictureCell = (picId: string | null | undefined, picDescription: stri
 };
 
 /** 建立標題與資料狀態欄位內容 */
-const buildTitleCell = (set: WebResourceSet, lang: Lang): ReactNode =>
+const buildTitleCell = (formModel: WebResourceFormModel, lang: Lang): ReactNode =>
 {
-    const title = findTextByKey(set.WebResourceInfo, (d) => d?.Lang, lang, (d) => d?.Title);
+    const title = findTextByKey(formModel._WebResourceInfo, (d) => d?.Lang, lang, (d) => d?.Title);
 
-    return createElement(Fragment, null, createElement("span", { key: "title" }, title), GetDataStatusContent(set.WebResource?.ContentStatus ?? 0));
+    return createElement(Fragment, null, createElement("span", { key: "title" }, title), GetDataStatusContent(formModel.ContentStatus ?? 0));
 };
 
 // #endregion

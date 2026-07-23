@@ -16,16 +16,16 @@ import { useNavigate } from "react-router";
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
+type CategoryFormModel = components["schemas"]["Category"];
 
-type CategoryListFormRawData = { editForm: UseFetchFormDataResult<CategorySet>; actions: UseActionsResult; list: CategorySet[]; param: QueryListParam; };
+type CategoryListFormRawData = { editForm: UseFetchFormDataResult<CategoryFormModel>; actions: UseActionsResult; list: CategoryFormModel[]; param: QueryListParam; };
 
 type CategoryListFormAdapter = { Category: ReturnType<typeof CategoryAdapter>; };
 // #endregion
 
 // #region Public
 export const useCategoryListFormFetchData = (
-    opt: { dirUrl: string; internalId: string; emptyData: CategorySet; lang: Lang; pgId: PGID; },
+    opt: { dirUrl: string; internalId: string; emptyData: CategoryFormModel; lang: Lang; pgId: PGID; },
 ): UseFetchDataResult<CategoryListFormRawData, CategoryListFormAdapter> =>
 {
     const { publish } = useToast();
@@ -71,21 +71,21 @@ export const useCategoryListFormFetchData = (
 const useCategoryListFormDataByAdapter = (
     adapter: ReturnType<typeof CategoryAdapter>,
     internalId: string,
-    empty: CategorySet,
+    empty: CategoryFormModel,
     onError: (e: ApiAdapterError) => void,
-): UseFetchFormDataResult<CategorySet> =>
+): UseFetchFormDataResult<CategoryFormModel> =>
 {
     const internalKey = internalId || "__new__";
     const isNew = useMemo(() => !internalId, [internalId]);
-    const initial = useMemo<ApiLoaderData<string, CategorySet> | null>(() =>
+    const initial = useMemo<ApiLoaderData<string, CategoryFormModel> | null>(() =>
     {
         if (!isNew) return null;
-        const apiRes: ApiResponse<CategorySet> = { IsSuccess: true, Data: empty, SysMessage: [] };
+        const apiRes: ApiResponse<CategoryFormModel> = { IsSuccess: true, Data: empty, SysMessage: [] };
         return { args: internalKey, apiRes };
     }, [isNew, empty, internalKey]);
     const model = adapter.hooks.useModelDisplayName({ deps: [], onError });
     const query = adapter.hooks.useQueryData({ internalId: internalKey, initial, deps: [internalKey], onError });
-    const [data, setData] = useState<CategorySet>(empty);
+    const [data, setData] = useState<CategoryFormModel>(empty);
     useEffect(() =>
     {
         if (query.data) setData(query.data);
@@ -111,8 +111,8 @@ const useCategoryListFormActionsFromAdapter = (
     dirUrl: string,
     adapter: ReturnType<typeof CategoryAdapter>,
     internalId: string,
-    formData: UseFetchFormDataResult<CategorySet>,
-    emptyData: CategorySet,
+    formData: UseFetchFormDataResult<CategoryFormModel>,
+    emptyData: CategoryFormModel,
     refetchList: () => Promise<void>,
 ): UseActionsResult =>
 {

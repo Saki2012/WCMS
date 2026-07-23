@@ -3,12 +3,12 @@ import { Server_FormTemplate_Comp } from "@/Features/Pages/Server/Scaffold/Conte
 import type { ServerFormBinding } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Hook";
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { LibCheckBox, LibTextBox, LibUserCard } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
-import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
+import { useFormModelField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { FileManagementAPI } from "@/SysCore/Utils/API/APIClient";
 import { LibRoutePath } from "@/SysCore/Utils/Route/LibRoute";
 import { markPageStateMemoryEntry } from "@/SysCore/Utils/PageStateMemory/PageStateMemory_Navigation";
 import type { components } from "@/types/api";
-import { PersonModelFields, PersonSetFields } from "@/types/SchemaFields";
+import { PersonFields } from "@/types/SchemaFields";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -18,7 +18,7 @@ import {
 } from "./Server_Person_Form_Hook";
 
 // #region Property
-type PersonSet = components["schemas"]["PersonSet_DTO"];
+type PersonFormModel = components["schemas"]["Person"];
 
 interface PersonFormCompProps
 {
@@ -32,7 +32,7 @@ interface PersonContentProps
     theme: IBETheme;
 
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<PersonSet>;
+    binding: ServerFormBinding<PersonFormModel>;
 
     /** Person Hook 整理後的參照資料 */
     refs: PersonFormRefs;
@@ -41,7 +41,7 @@ interface PersonContentProps
 interface PersonFieldSectionProps extends PersonContentProps
 {
     /** 欄位 binding helper */
-    setField: ReturnType<typeof useSetTableField<PersonSet>>;
+    setField: ReturnType<typeof useFormModelField<PersonFormModel>>;
 }
 
 interface PersonUserCardProps
@@ -50,7 +50,7 @@ interface PersonUserCardProps
     theme: IBETheme;
 
     /** Form Template 提供的主資料 binding */
-    binding: ServerFormBinding<PersonSet>;
+    binding: ServerFormBinding<PersonFormModel>;
 }
 // #endregion
 
@@ -115,7 +115,7 @@ const PersonContentComp = (props: PersonContentProps) =>
 /** 人員資料右側 Panel 區塊。 */
 const PersonPanelComp = (props: PersonContentProps) =>
 {
-    const setField = useSetTableField<PersonSet>(props.binding);
+    const setField = useFormModelField<PersonFormModel>(props.binding);
 
     return (
         <div className="panel">
@@ -131,9 +131,9 @@ const PersonPanelComp = (props: PersonContentProps) =>
 /** 左側人員頭像卡片，圖片上傳後回寫 PersonImgId。 */
 const PersonUserCardComp = (props: PersonUserCardProps) =>
 {
-    const userPic = FileManagementAPI.get_Server_Preview_Url(props.binding.data?.Person?.PersonImgId) ?? pic;
+    const userPic = FileManagementAPI.get_Server_Preview_Url(props.binding.data?.PersonImgId) ?? pic;
     const setPersonImgId = useCallback((id: string) => (props.binding.setFormData(prev => updatePersonImgId(prev, id))), [props.binding]);
-    return <LibUserCard DisplayNameEN={props.binding.data?.Person?.PersonId ?? ""} DisplayNameTW={props.binding.data?.Person?.PersonName ?? ""} DisplayRole={""} PicSrc={userPic} Style={props.theme.UserImageUploadCard} onUploadedTempId={setPersonImgId} />;
+    return <LibUserCard DisplayNameEN={props.binding.data?.PersonId ?? ""} DisplayNameTW={props.binding.data?.PersonName ?? ""} DisplayRole={""} PicSrc={userPic} Style={props.theme.UserImageUploadCard} onUploadedTempId={setPersonImgId} />;
 };
 
 /** 人員資料欄位區。 */
@@ -141,19 +141,15 @@ const PersonFieldSectionComp = (props: PersonFieldSectionProps) =>
 {
     return (
         <>
-            {buildPersonIdFields(props)}
-            {buildPersonGenderFields(props)}
-            {buildPersonEmailFields(props)}
-            {buildPersonPhoneFields(props)}
+            <PersonIdFields {...props} />
+            <PersonGenderFields {...props} />
+            <PersonEmailFields {...props} />
+            <PersonPhoneFields {...props} />
         </>
     );
 };
-// #endregion
-
-// #region Protected
-/** 建立返回人員列表路徑。 */
-/** 建立人員代碼與姓名欄位。 */
-const buildPersonIdFields = (props: PersonFieldSectionProps) =>
+/** 人員代碼與姓名欄位。 */
+const PersonIdFields = (props: PersonFieldSectionProps) =>
 {
     return (
         <div className="row mx-0">
@@ -162,12 +158,12 @@ const buildPersonIdFields = (props: PersonFieldSectionProps) =>
                     <LibTextBox
                         Style={props.theme.TextBox3}
                         DefaultInputDisplay="請輸入"
-                        {...props.setField(PersonSetFields.Person, PersonModelFields.PersonId, "string")}
+                        {...props.setField(PersonFields.PersonId, "string")}
                     />
                     <LibTextBox
                         Style={props.theme.TextBox3}
                         DefaultInputDisplay="請輸入"
-                        {...props.setField(PersonSetFields.Person, PersonModelFields.PersonName, "string")}
+                        {...props.setField(PersonFields.PersonName, "string")}
                     />
                 </div>
             </div>
@@ -175,8 +171,8 @@ const buildPersonIdFields = (props: PersonFieldSectionProps) =>
     );
 };
 
-/** 建立性別欄位。 */
-const buildPersonGenderFields = (props: PersonFieldSectionProps) =>
+/** 性別欄位。 */
+const PersonGenderFields = (props: PersonFieldSectionProps) =>
 {
     return (
         <div className="row mx-0">
@@ -185,7 +181,7 @@ const buildPersonGenderFields = (props: PersonFieldSectionProps) =>
                     <LibCheckBox
                         Style={props.theme.RadioBox}
                         options={props.refs.genderOpt}
-                        {...props.setField(PersonSetFields.Person, PersonModelFields.Gender, "number")}
+                        {...props.setField(PersonFields.Gender, "number")}
                     />
                 </div>
             </div>
@@ -193,8 +189,8 @@ const buildPersonGenderFields = (props: PersonFieldSectionProps) =>
     );
 };
 
-/** 建立 Email 欄位。 */
-const buildPersonEmailFields = (props: PersonFieldSectionProps) =>
+/** Email 欄位。 */
+const PersonEmailFields = (props: PersonFieldSectionProps) =>
 {
     return (
         <div className="row mx-0">
@@ -203,7 +199,7 @@ const buildPersonEmailFields = (props: PersonFieldSectionProps) =>
                     <LibTextBox
                         Style={props.theme.TextBox}
                         DefaultInputDisplay="請輸入"
-                        {...props.setField(PersonSetFields.Person, PersonModelFields.Email, "string")}
+                        {...props.setField(PersonFields.Email, "string")}
                     />
                 </div>
             </div>
@@ -211,8 +207,8 @@ const buildPersonEmailFields = (props: PersonFieldSectionProps) =>
     );
 };
 
-/** 建立電話欄位。 */
-const buildPersonPhoneFields = (props: PersonFieldSectionProps) =>
+/** 電話欄位。 */
+const PersonPhoneFields = (props: PersonFieldSectionProps) =>
 {
     return (
         <div className="row mx-0">
@@ -221,12 +217,12 @@ const buildPersonPhoneFields = (props: PersonFieldSectionProps) =>
                     <LibTextBox
                         Style={props.theme.TextBox3}
                         DefaultInputDisplay="請輸入"
-                        {...props.setField(PersonSetFields.Person, PersonModelFields.MobilePhone, "string")}
+                        {...props.setField(PersonFields.MobilePhone, "string")}
                     />
                     <LibTextBox
                         Style={props.theme.TextBox3}
                         DefaultInputDisplay="請輸入"
-                        {...props.setField(PersonSetFields.Person, PersonModelFields.HomePhone, "string")}
+                        {...props.setField(PersonFields.HomePhone, "string")}
                     />
                 </div>
             </div>
@@ -237,10 +233,9 @@ const buildPersonPhoneFields = (props: PersonFieldSectionProps) =>
 
 // #region Private
 /** 更新 PersonImgId，供左側人員頭像上傳後回寫。 */
-const updatePersonImgId = (prev: PersonSet, id: string): PersonSet =>
+const updatePersonImgId = (prev: PersonFormModel, id: string): PersonFormModel =>
 {
     const cur = prev ?? {};
-    const nextPerson = { ...(cur.Person ?? {}), PersonImgId: id };
-    return { ...cur, Person: nextPerson };
+    return { ...cur, PersonImgId: id };
 };
 // #endregion

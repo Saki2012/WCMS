@@ -9,13 +9,13 @@ import type { ApiResponse } from "@/SysCore/Utils/API/APIBase";
 import { SystemAPI } from "@/SysCore/Utils/API/APIClient";
 import { LibCondition, LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
-import { SiteMenu_IndexFields, SiteViewCountHeaderModelFields } from "@/types/SchemaFields";
+import { SiteMenu_IndexFields, SiteViewCountHeaderFields } from "@/types/SchemaFields";
 import type { INormSite } from "./Site-Routing";
 import { normalizeSite } from "./Site-Routing";
 
 // #region Property
 /** SiteMenu API 回傳的站台選單資料集合型別。 */
-type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"];
+type SiteMenuFormModel = components["schemas"]["SiteMenu_Index"];
 /** QueryList API 使用的查詢參數型別。 */
 type QueryListParam = components["schemas"]["QueryListParam"];
 /** SSR/CSR 建立 loader args 時使用的預設 Request URL。 */
@@ -66,7 +66,7 @@ let cachedSites: INormSite[] | null = null;
 /** Footer runtime 資訊的記憶體快取。 */
 let cachedFooterRuntimeBySiteIndex: Record<string, SiteFooterRuntimeInfo> | null = null;
 /** SiteViewCount API 回傳的站台瀏覽數資料集合型別。 */
-type SiteViewCountSet = components["schemas"]["SiteViewCountSet_DTO"];
+type SiteViewCountHeader = components["schemas"]["SiteViewCountHeader"];
 
 /** 最近在線人數 API 回傳資料型別。 */
 type CurrentSiteOnlineCountResult = components["schemas"]["GetCurrentSiteOnlineCountResult_DTO"];
@@ -258,9 +258,9 @@ const getFooterRuntimeFromInitial = (opt?: { initialState?: SiteRoutingInitialSt
     return fromOpt ?? fromWindow ?? fromCache ?? null;
 };
 /** 從 SiteMenu 清單取出可查詢明細的 InternalId 清單。 */
-const getIndexIdsFromRows = (rows: SiteMenuSet[]): string[] =>
+const getIndexIdsFromRows = (rows: SiteMenuFormModel[]): string[] =>
 {
-    const ids = LibText.toTrimmedStringArray(rows.map(row => row.SiteMenu_Index?.InternalId));
+    const ids = LibText.toTrimmedStringArray(rows.map(row => row.InternalId));
     return ids;
 };
 /** 透過 SiteMenu 查詢前台路由站台資料。 */
@@ -287,13 +287,13 @@ const fetchSitesByQuery = async (opt: { api?: AxiosInstance; args: LoaderFunctio
 const buildFooterViewCountCondition = (siteIndex: string): string =>
 {
     return LibCondition.joinConditions([
-        LibCondition.createCondition(SiteViewCountHeaderModelFields.SiteIndex, LibCondition.Operator.Equal, LibText.safeTrim(siteIndex)),
+        LibCondition.createCondition(SiteViewCountHeaderFields.SiteIndex, LibCondition.Operator.Equal, LibText.safeTrim(siteIndex)),
     ]);
 };
 /** 建立 Footer 瀏覽數 QueryList 查詢參數。 */
 const buildFooterViewCountQuery = (siteIndex: string): QueryListParam =>
 {
-    return { Fields: [SiteViewCountHeaderModelFields.SiteIndex, SiteViewCountHeaderModelFields.PublicViewCount], Condition: buildFooterViewCountCondition(siteIndex), PageNumber: 0, PageSize: 0 };
+    return { Fields: [SiteViewCountHeaderFields.SiteIndex, SiteViewCountHeaderFields.PublicViewCount], Condition: buildFooterViewCountCondition(siteIndex), PageNumber: 0, PageSize: 0 };
 };
 /** 預熱 Footer runtime cache 並避免失敗阻斷路由載入。 */
 const warmFooterRuntimeCache = async (opt: { request?: Request; initialState?: SiteRoutingInitialState; sites: INormSite[]; }): Promise<void> =>
@@ -321,11 +321,11 @@ const getRecentlyViewCount = (loaderData: LoaderApiResult<CurrentSiteOnlineCount
 };
 
 /** 取得 Footer 總瀏覽人數。 */
-const getViewCount = (loaderData: LoaderApiResult<SiteViewCountSet[]>): number =>
+const getViewCount = (loaderData: LoaderApiResult<SiteViewCountHeader[]>): number =>
 {
     const apiRes = getApiRes(loaderData);
     const rows = unwrapArrayOrEmpty(apiRes);
-    const count = rows?.[0]?.SiteViewCountHeader?.PublicViewCount ?? 0;
+    const count = rows?.[0]?.PublicViewCount ?? 0;
     return count;
 };
 

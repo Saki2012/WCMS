@@ -5,11 +5,11 @@ import { PGID } from "@/types/SchemaFields";
 import type { AxiosInstance } from "axios";
 
 // #region Property
-type TimelineSet = components["schemas"]["TimelineSet_DTO"];
+type TimelineFormModel = components["schemas"]["Timeline"];
 // #endregion
 
 // #region Public
-class TimelineService extends ApiDataService<TimelineSet>
+class TimelineService extends ApiDataService<TimelineFormModel>
 {
     // #region Public
     constructor(apiInstance?: AxiosInstance)
@@ -18,7 +18,7 @@ class TimelineService extends ApiDataService<TimelineSet>
     }
     // #endregion
 }
-export class TimelineAdapterImpl extends ApiDataAdapter<TimelineSet, TimelineService>
+export class TimelineAdapterImpl extends ApiDataAdapter<TimelineFormModel, TimelineService>
 {}
 export const TimelineAdapter = (apiInstance?: AxiosInstance) => new TimelineAdapterImpl((api?: AxiosInstance) => new TimelineService(api ?? apiInstance));
 // #endregion

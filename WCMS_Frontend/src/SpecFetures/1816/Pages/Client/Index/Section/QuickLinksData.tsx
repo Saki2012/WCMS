@@ -10,14 +10,14 @@ import { useEffect, useMemo } from "react";
 import { delayMs as sleep } from "@/Features/Pages/Client/Index/HomePage_Helper";
 
 // #region Property
-type BannerSet = components["schemas"]["BannerSet_DTO"];
+type BannerFormModel = components["schemas"]["Banner"];
 
 
 export interface QuickLinksDataProps
 {
     lang: Lang;
     internalId: string;
-    initialBanner: BannerSet | null;
+    initialBanner: BannerFormModel | null;
 }
 // #endregion
 
@@ -38,7 +38,7 @@ export const QuickLinksData = (props: QuickLinksDataProps) =>
 
     const sortedDetails = useMemo(() =>
     {
-        const list = useBanner.data?.BannerDetail ?? [];
+        const list = useBanner.data?._BannerDetail ?? [];
         return [...list].sort((a, b) =>
         {
             const as = Number.isFinite(a?.Sort) ? Number(a.Sort) : Number.MAX_SAFE_INTEGER;
@@ -48,7 +48,7 @@ export const QuickLinksData = (props: QuickLinksDataProps) =>
             const br = Number.isFinite(b?.RowId) ? Number(b.RowId) : Number.MAX_SAFE_INTEGER;
             return ar - br;
         });
-    }, [useBanner.data?.BannerDetail]);
+    }, [useBanner.data?._BannerDetail]);
 
     // ✅ 建議：不要只看 length，PicSrcId 換一批但數量相同也會重建
     const depsKey = useMemo(() =>
@@ -324,8 +324,8 @@ export const QuickLinksData = (props: QuickLinksDataProps) =>
                                     <div className="owl-carousel owl-theme" id="Links_owl_carousel">
                                         {sortedDetails.map((p, i) =>
                                         {
-                                            const info = useBanner.data?.BannerDetailInfo?.find((x) =>
-                                                x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang
+                                            const info = p._BannerDetailInfo?.find((x) =>
+                                                x.Lang === props.lang
                                             );
                                             const alt = info?.Title ?? "";
                                             const url = info?.URL ?? "";
@@ -380,13 +380,13 @@ export const QuickLinksData = (props: QuickLinksDataProps) =>
 // #endregion
 
 // #region Protected
-const buildQueryDataInitial = (internalId: string, banner: BannerSet | null): ApiLoaderData<string, BannerSet> | null =>
+const buildQueryDataInitial = (internalId: string, banner: BannerFormModel | null): ApiLoaderData<string, BannerFormModel> | null =>
 {
     // 宣告變數：沒有 SSR initial 就回 null（CSR 會自己抓）
     if (!banner) return null;
 
     // 宣告變數：組成功 env
-    const apiRes: ApiResponse<BannerSet> = { IsSuccess: true, Data: banner, SysMessage: [] };
+    const apiRes: ApiResponse<BannerFormModel> = { IsSuccess: true, Data: banner, SysMessage: [] };
 
     // return
     return { args: internalId, apiRes };

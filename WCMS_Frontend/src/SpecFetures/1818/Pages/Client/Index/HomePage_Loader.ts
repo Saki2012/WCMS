@@ -31,7 +31,7 @@ import { formatLocalIso, LibCondition, Operator } from "@/SysCore/Utils/Library/
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type BannerSet = components["schemas"]["BannerSet_DTO"];
+type BannerFormModel = components["schemas"]["Banner"];
 
 type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
 
@@ -41,15 +41,15 @@ type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 
 type GallerySet = components["schemas"]["GallerySet_DTO"];
 
-type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
+type CategoryFormModel = components["schemas"]["Category"];
 
-type TagSet = components["schemas"]["TagSet_DTO"];
+type TagFormModel = components["schemas"]["TagData"];
 
 export interface HomePageRawData
 {
-    heroBanner: BannerSet | null;
-    admissionsBanner: BannerSet | null;
-    linksBanner: BannerSet | null;
+    heroBanner: BannerFormModel | null;
+    admissionsBanner: BannerFormModel | null;
+    linksBanner: BannerFormModel | null;
 
     aboutWebResource: WebResourceSet | null;
     aboutPage: PageManagementSet | null;
@@ -57,14 +57,14 @@ export interface HomePageRawData
     newsTopList: AnnouncementSet[];
     newsList: AnnouncementSet[];
     newsMerged: AnnouncementSet[];
-    newsCategories: CategorySet[];
-    newsTags: TagSet[];
+    newsCategories: CategoryFormModel[];
+    newsTags: TagFormModel[];
 
     galleryTopList: GallerySet[];
     galleryList: GallerySet[];
     galleryMerged: GallerySet[];
-    galleryCategories: CategorySet[];
-    galleryTags: TagSet[];
+    galleryCategories: CategoryFormModel[];
+    galleryTags: TagFormModel[];
 }
 
 export interface HomePageLoaderArgs
@@ -208,9 +208,9 @@ export const HomePageLoader = (p: { lang: Lang; }) => async ({ request }: Loader
     ]);
 
     // 宣告：整理回傳資料（只拿 Data）
-    const heroBanner = takeFirstOrNull<BannerSet>(heroLD.apiRes.Data);
-    const admissionsBanner = takeFirstOrNull<BannerSet>(admissionsLD.apiRes.Data);
-    const linksBanner = (linksLD.apiRes.Data?.[0] ?? null) as BannerSet | null;
+    const heroBanner = takeFirstOrNull<BannerFormModel>(heroLD.apiRes.Data);
+    const admissionsBanner = takeFirstOrNull<BannerFormModel>(admissionsLD.apiRes.Data);
+    const linksBanner = (linksLD.apiRes.Data?.[0] ?? null) as BannerFormModel | null;
     const aboutWebResource = takeFirstOrNull<WebResourceSet>(aboutWebLD.apiRes.Data);
     const aboutPage = takeFirstOrNull<PageManagementSet>(aboutPageLD.apiRes.Data);
     const newsTopList = newsTopLD.apiRes.Data ?? [];

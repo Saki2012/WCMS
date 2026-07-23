@@ -7,7 +7,7 @@ import { SurveyAdapter } from "@/Features/Hooks/BizFunc/WEB/Survey_Api";
 import { TimelineAdapter } from "@/Features/Hooks/BizFunc/WEB/Timeline_Api";
 import type { UseActionsResult } from "@/Features/Hooks/Common/useActions";
 import { useToast } from "@/Features/Hooks/Common/useToastCenter";
-import { DefaultLang, type Lang, LangLabelMap, useEnsureLangDetails } from "@/SysCore/i18n/lang";
+import { DefaultLang, type Lang, LangLabelMap, SUPPORTED_LANGS, useEnsureLangDetails } from "@/SysCore/i18n/lang";
 import type { ApiAdapterError } from "@/SysCore/Utils/API/APIAdapter";
 import { type ApiResponse, MessageStatus } from "@/SysCore/Utils/API/APIBase";
 import type { UseFetchDataResult } from "@/SysCore/Utils/API/FetchDataType";
@@ -22,8 +22,6 @@ import {
     PageManagementFields,
     SiteMenu_IndexFields,
     SiteMenu_IndexInfoFields,
-    SiteMenu_Item_TitleFields,
-    SiteMenuSetFields,
     SurveyFields,
     TagDataFields,
     TagDetailFields,
@@ -32,9 +30,9 @@ import {
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 // #region Property
-type SiteMenuSet = components["schemas"]["SiteMenuSet_DTO"];
+type SiteMenuFormModel = components["schemas"]["SiteMenu_Index"];
 
-type SiteMenu_Item = components["schemas"]["SiteMenu_Item_DTO"];
+type SiteMenu_Item = components["schemas"]["SiteMenu_Item"];
 
 type SaveSiteInfoDTO = components["schemas"]["SaveSiteInfo_DTO"];
 
@@ -42,20 +40,20 @@ type SaveMenuStructureDTO = components["schemas"]["SaveMenuStructure_DTO"];
 
 type SaveMenuItemDTO = components["schemas"]["SaveMenuItem_DTO"];
 
-type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
+type CategoryFormModel = components["schemas"]["Category"];
 
-type TagSet = components["schemas"]["TagSet_DTO"];
+type TagFormModel = components["schemas"]["TagData"];
 
-type PageSet = components["schemas"]["PageManagementSet_DTO"];
+type PageManagementFormModel = components["schemas"]["PageManagement"];
 
-type BannerSet = components["schemas"]["BannerSet_DTO"];
+type BannerFormModel = components["schemas"]["Banner"];
 
-type TimelineSet = components["schemas"]["TimelineSet_DTO"];
+type TimelineFormModel = components["schemas"]["Timeline"];
 
-type SurveySet = components["schemas"]["SurveySet_DTO"];
+type SurveyFormModel = components["schemas"]["Survey"];
 
 
-const emptyData: SiteMenuSet = {};
+const emptyData: SiteMenuFormModel = {};
 
 
 export interface SiteMenuItem
@@ -79,7 +77,7 @@ export type SiteMenuActions = UseActionsResult & {
 
 export type SiteMenuFetchRawData = {
     internalId: string | null;
-    formData: UseFetchFormDataResult<SiteMenuSet>;
+    formData: UseFetchFormDataResult<SiteMenuFormModel>;
     siteMenuItems: SiteMenuItem[];
     actions: SiteMenuActions;
     windowTarget: Record<string, string>;
@@ -87,9 +85,9 @@ export type SiteMenuFetchRawData = {
     modulePageType: Record<string, string>;
     moduleDisplayStyle: Record<string, string>;
     bannerDict: Record<string, string>;
-    categorySets: CategorySet[];
-    tagSets: TagSet[];
-    pageSets: PageSet[];
+    categorySets: CategoryFormModel[];
+    tagSets: TagFormModel[];
+    pageSets: PageManagementFormModel[];
     timelineMap: Map<string, string>;
     surveyMap: Map<string, string>;
 };
@@ -108,7 +106,7 @@ export type SiteMenuFetchAdapter = {
 
 type SiteMenuMainDataResult = {
     internalId: string | null;
-    formData: UseFetchFormDataResult<SiteMenuSet>;
+    formData: UseFetchFormDataResult<SiteMenuFormModel>;
     isLoading: boolean;
     errors: Array<string | null | undefined>;
     refetchData: () => Promise<void>;
@@ -121,9 +119,9 @@ type SiteMenuRefDataResult = {
     modulePageType: Record<string, string>;
     moduleDisplayStyle: Record<string, string>;
     bannerDict: Record<string, string>;
-    categorySets: CategorySet[];
-    tagSets: TagSet[];
-    pageSets: PageSet[];
+    categorySets: CategoryFormModel[];
+    tagSets: TagFormModel[];
+    pageSets: PageManagementFormModel[];
     timelineMap: Map<string, string>;
     surveyMap: Map<string, string>;
     isLoading: boolean;
@@ -164,18 +162,11 @@ export const useSiteMenuFetchData = (opt: { lang: Lang; }): UseFetchDataResult<S
     const actions = useSiteMenuActionsByAdapter(adapter.SiteMenu, main.internalId, main.formData, main.refetchData);
 
     useEnsureLangDetails(main.formData, {
-        headerName: SiteMenuSetFields.SiteMenu_Index,
-        detailName: SiteMenuSetFields.SiteMenu_IndexInfo,
+        detailName: SiteMenu_IndexFields._SiteMenu_IndexInfo,
         parentKeys: [SiteMenu_IndexInfoFields.SiteIndex],
         preferFirstLang: opt.lang,
     });
-
-    useEnsureLangDetails(main.formData, {
-        headerName: SiteMenuSetFields.SiteMenu_Item,
-        detailName: SiteMenuSetFields.SiteMenu_Item_Title,
-        parentKeys: [SiteMenu_Item_TitleFields.SiteIndex, SiteMenu_Item_TitleFields.ItemRowId],
-        preferFirstLang: opt.lang,
-    });
+    useEnsureSiteMenuItemTitles(main.formData, opt.lang);
 
     const isLoading = useMemo(() =>
     {
@@ -233,8 +224,8 @@ const useSiteMenuMainDataByAdapter = (adapter: ReturnType<typeof SiteMenuAdapter
 
     const internalId = useMemo(() =>
     {
-        const first = (siteList.data ?? []).find((x) => x?.SiteMenu_Index?.InternalId);
-        return first?.SiteMenu_Index?.InternalId ?? null;
+        const first = (siteList.data ?? []).find((x) => x?.InternalId);
+        return first?.InternalId ?? null;
     }, [siteList.data]);
 
     const validInternalId = useMemo(() =>
@@ -252,7 +243,7 @@ const useSiteMenuMainDataByAdapter = (adapter: ReturnType<typeof SiteMenuAdapter
     const query = adapter.hooks.useQueryData({ internalId: validInternalId ?? "__skip__", initial: skipQueryInitial, deps: [validInternalId ?? ""], onError });
 
     const model = adapter.hooks.useModelDisplayName({ deps: [], onError });
-    const [data, setData] = useState<SiteMenuSet>(emptyData);
+    const [data, setData] = useState<SiteMenuFormModel>(emptyData);
 
     useEffect(() =>
     {
@@ -271,7 +262,7 @@ const useSiteMenuMainDataByAdapter = (adapter: ReturnType<typeof SiteMenuAdapter
         await query.refetch();
     }, [query, validInternalId]);
 
-    const formData = useMemo<UseFetchFormDataResult<SiteMenuSet>>(() =>
+    const formData = useMemo<UseFetchFormDataResult<SiteMenuFormModel>>(() =>
     {
         return {
             data,
@@ -317,7 +308,7 @@ const useSiteMenuMainDataByAdapter = (adapter: ReturnType<typeof SiteMenuAdapter
 const useSiteMenuActionsByAdapter = (
     adapter: ReturnType<typeof SiteMenuAdapter>,
     internalId: string | null,
-    formData: UseFetchFormDataResult<SiteMenuSet>,
+    formData: UseFetchFormDataResult<SiteMenuFormModel>,
     refetchData: () => Promise<void>,
 ): SiteMenuActions =>
 {
@@ -402,9 +393,20 @@ const useSiteMenuActionsByAdapter = (
 };
 
 
-const buildSaveSiteInfoRequest = (internalId: string, data: SiteMenuSet): SaveSiteInfoDTO =>
+/** 建立網站資訊專用 Payload，避免重複傳送整棵選單 Graph。 */
+const buildSaveSiteInfoRequest = (internalId: string, data: SiteMenuFormModel): SaveSiteInfoDTO =>
 {
-    return { InternalId: internalId, SiteMenu_Index: data.SiteMenu_Index ?? {}, SiteMenu_IndexInfo: data.SiteMenu_IndexInfo ?? [] } as SaveSiteInfoDTO;
+    const siteInfo = stripSiteMenuGraph(data);
+    return { InternalId: internalId, SiteMenu_Index: siteInfo, SiteMenu_IndexInfo: data._SiteMenu_IndexInfo ?? [] } as SaveSiteInfoDTO;
+};
+
+/** 移除網站資訊儲存不需要的選單 Graph。 */
+const stripSiteMenuGraph = (data: SiteMenuFormModel): SiteMenuFormModel =>
+{
+    const siteInfo = { ...data };
+    delete siteInfo._SiteMenu_IndexInfo;
+    delete siteInfo._SiteMenu_Item;
+    return siteInfo;
 };
 
 
@@ -432,15 +434,16 @@ const flattenStructureItems = (tree: SiteMenuItem[]): Array<{ RowId: number; Par
 };
 
 
-const buildSaveMenuItemRequest = (internalId: string, data: SiteMenuSet, node: SiteMenuItem): SaveMenuItemDTO =>
+const buildSaveMenuItemRequest = (internalId: string, data: SiteMenuFormModel, node: SiteMenuItem): SaveMenuItemDTO =>
 {
     const rowId = Number(node.id);
     const isNew = rowId <= 0;
     const sourceItem = findMenuItem(data, rowId) ?? node.menuItem;
     const itemRowId = isNew ? rowId : Number(sourceItem.RowId ?? rowId);
-    const titles = buildSaveMenuItemTitles(data, itemRowId);
-    const url = buildSaveMenuItemUrl(data, itemRowId);
-    const module = buildSaveMenuItemModule(data, itemRowId);
+    const titles = buildSaveMenuItemTitles(sourceItem);
+    const itemType = Number(sourceItem.ItemType ?? 0);
+    const url = itemType === 1 ? buildSaveMenuItemUrl(sourceItem) : null;
+    const module = itemType === 0 ? buildSaveMenuItemModule(sourceItem) : null;
 
     return {
         InternalId: internalId,
@@ -448,7 +451,7 @@ const buildSaveMenuItemRequest = (internalId: string, data: SiteMenuSet, node: S
         ParentRowId: toNullableNumber(sourceItem.ParentRowId),
         DisplayOrder: Number(sourceItem.DisplayOrder ?? 1),
         ItemSiteUrl: sourceItem.ItemSiteUrl ?? "",
-        ItemType: sourceItem.ItemType ?? 0,
+        ItemType: itemType,
         WindowTarget: sourceItem.WindowTarget ?? 0,
         Titles: titles,
         Url: url,
@@ -457,36 +460,33 @@ const buildSaveMenuItemRequest = (internalId: string, data: SiteMenuSet, node: S
 };
 
 
-const buildSaveMenuItemTitles = (data: SiteMenuSet, itemRowId: number) =>
+const buildSaveMenuItemTitles = (item: SiteMenu_Item) =>
 {
-    return (data.SiteMenu_Item_Title ?? []).filter(x => Number(x.ItemRowId) === itemRowId).map(x =>
+    return (item._SiteMenu_Item_Title ?? []).map(title =>
     {
-        return { RowId: x.RowId, Lang: x.Lang, Title: x.Title, IsShowOnMenu: x.IsShowOnMenu ?? false };
+        return { RowId: title.RowId, Lang: title.Lang, Title: title.Title, IsShowOnMenu: title.IsShowOnMenu ?? false };
     });
 };
 
 
-const buildSaveMenuItemUrl = (data: SiteMenuSet, itemRowId: number) =>
+const buildSaveMenuItemUrl = (item: SiteMenu_Item) =>
 {
-    const src = (data.SiteMenu_Item_Url ?? []).find(x => Number(x.ItemRowId) === itemRowId);
+    const src = item._SiteMenu_Item_Url;
     if (!src) return null;
-
     return { RedirectType: src.RedirectType, RedirectUrl: src.RedirectUrl };
 };
 
 
-const buildSaveMenuItemModule = (data: SiteMenuSet, itemRowId: number) =>
+const buildSaveMenuItemModule = (item: SiteMenu_Item) =>
 {
-    const src = (data.SiteMenu_Item_Module ?? []).find(x => Number(x.ItemRowId) === itemRowId);
+    const src = item._SiteMenu_Item_Module;
     if (!src) return null;
-
     return { BannerId: src.BannerId, PageType: src.PageType, ModuleProgId: src.ModuleProgId, ModuleOptions: src.ModuleOptions };
 };
 
-
-const findMenuItem = (data: SiteMenuSet, rowId: number): SiteMenu_Item | undefined =>
+const findMenuItem = (data: SiteMenuFormModel, rowId: number): SiteMenu_Item | undefined =>
 {
-    return (data.SiteMenu_Item ?? []).find(x => Number(x.RowId) === rowId);
+    return (data._SiteMenu_Item ?? []).find(x => Number(x.RowId) === rowId);
 };
 
 
@@ -504,6 +504,91 @@ const handleSaveResult = async <T>(res: ApiResponse<T>, refetchData: () => Promi
 
     await refetchData();
     return true;
+};
+
+
+/** 確保每一筆 SiteMenu Item 都具備系統支援語系標題。 */
+const useEnsureSiteMenuItemTitles = (formData: UseFetchFormDataResult<SiteMenuFormModel>, preferLang: Lang): void =>
+{
+    useEffect(() =>
+    {
+        const items = formData.data?._SiteMenu_Item ?? [];
+        if (items.length === 0) return;
+        const langs = resolveSiteMenuLangs(formData.data, preferLang);
+        const nextItems = items.map(item => ensureItemTitles(item, langs, preferLang));
+        const changed = nextItems.some((item, index) => item !== items[index]);
+        if (!changed) return;
+        formData.setFormData(prev => ({ ...prev, _SiteMenu_Item: nextItems }));
+    }, [formData.data?._SiteMenu_Item, formData.setFormData, preferLang]);
+};
+
+
+/** 依網站設定解析選單可維護語系，無設定時使用系統預設語系。 */
+const resolveSiteMenuLangs = (data: SiteMenuFormModel | null | undefined, preferLang: Lang): Lang[] =>
+{
+    const configured = parseSupportLangs(data?.SupportLangs);
+    const source = configured.length > 0 ? configured : SUPPORTED_LANGS;
+    return Array.from(new Set<Lang>([preferLang, ...source]));
+};
+
+/** 解析網站支援語系設定，兼容 JSON 陣列與逗號分隔字串。 */
+const parseSupportLangs = (value: unknown): Lang[] =>
+{
+    const text = String(value ?? "").trim();
+    if (!text) return [];
+    try
+    {
+        const parsed = JSON.parse(text);
+        if (Array.isArray(parsed)) return normalizeLangCodes(parsed);
+    } catch
+    {
+        return normalizeLangCodes(text.split(","));
+    }
+    return [];
+};
+
+/** 正規化語系代碼並排除未支援值。 */
+const normalizeLangCodes = (values: unknown[]): Lang[] =>
+{
+    return values.map(value => String(value ?? "").trim().toLowerCase()).filter(isLangCode);
+};
+
+/** 判斷字串是否為系統已知語系代碼。 */
+const isLangCode = (value: unknown): value is Lang =>
+{
+    return Object.prototype.hasOwnProperty.call(LangLabelMap, String(value ?? "").toLowerCase());
+};
+
+
+/** 補齊單一選單項目的語系標題並依目前語系排序。 */
+const ensureItemTitles = (item: SiteMenu_Item, langs: Lang[], preferLang: Lang): SiteMenu_Item =>
+{
+    const current = item._SiteMenu_Item_Title ?? [];
+    const existing = new Set(current.map(title => String(title.Lang ?? "").toLowerCase()));
+    const maxRowId = current.reduce((max, title) => Math.max(max, Number(title.RowId ?? 0)), 0);
+    const maxRowNo = current.reduce((max, title) => Math.max(max, Number(title.RowNo ?? 0)), 0);
+    const missing = langs.filter(lang => !existing.has(String(lang).toLowerCase())).map((lang, index) => ({
+        SiteIndex: item.SiteIndex,
+        ItemRowId: item.RowId,
+        RowId: maxRowId + index + 1,
+        RowNo: maxRowNo + index + 1,
+        Lang: lang,
+        Title: "",
+        IsShowOnMenu: true,
+    }));
+    const merged = [...current, ...missing].sort((left, right) => compareItemTitleLang(left.Lang, right.Lang, preferLang));
+    const changed = missing.length > 0 || merged.some((title, index) => title !== current[index]);
+    return changed ? { ...item, _SiteMenu_Item_Title: merged } as SiteMenu_Item : item;
+};
+
+
+/** 將目前語系標題排在同一選單項目的第一筆。 */
+const compareItemTitleLang = (left: unknown, right: unknown, preferLang: Lang): number =>
+{
+    const prefer = String(preferLang).toLowerCase();
+    const leftRank = String(left ?? "").toLowerCase() === prefer ? 0 : 1;
+    const rightRank = String(right ?? "").toLowerCase() === prefer ? 0 : 1;
+    return leftRank - rightRank;
 };
 
 
@@ -564,11 +649,11 @@ const useSiteMenuRefDataByAdapter = (adapter: SiteMenuFetchAdapter, lang: Lang, 
     const bannerDict = useMemo<Record<string, string>>(() =>
     {
         const src = banner.data ?? [];
-        return src.reduce<Record<string, string>>((acc, item: BannerSet) =>
+        return src.reduce<Record<string, string>>((acc, item: BannerFormModel) =>
         {
-            const key = item.Banner?.BannerId?.toString?.();
+            const key = item.BannerId?.toString?.();
             if (!key) return acc;
-            acc[key] = item.Banner?.BannerCategoryName ?? "";
+            acc[key] = item.BannerCategoryName ?? "";
             return acc;
         }, {});
     }, [banner.data]);
@@ -587,11 +672,11 @@ const useSiteMenuRefDataByAdapter = (adapter: SiteMenuFetchAdapter, lang: Lang, 
     const timelineMap = useMemo<Map<string, string>>(() =>
     {
         const src = timeline.data ?? [];
-        return src.reduce<Map<string, string>>((acc, item: TimelineSet) =>
+        return src.reduce<Map<string, string>>((acc, item: TimelineFormModel) =>
         {
-            const key = item.Timeline?.TimelineId?.toString?.();
+            const key = item.TimelineId?.toString?.();
             if (!key) return acc;
-            acc.set(key, item.Timeline?.TimelineName ?? "");
+            acc.set(key, item.TimelineName ?? "");
             return acc;
         }, new Map<string, string>());
     }, [timeline.data, lang]);
@@ -599,11 +684,11 @@ const useSiteMenuRefDataByAdapter = (adapter: SiteMenuFetchAdapter, lang: Lang, 
     const surveyMap = useMemo<Map<string, string>>(() =>
     {
         const src = survey.data ?? [];
-        return src.reduce<Map<string, string>>((acc, item: SurveySet) =>
+        return src.reduce<Map<string, string>>((acc, item: SurveyFormModel) =>
         {
-            const key = item.Survey?.InternalId?.toString?.();
+            const key = item.InternalId?.toString?.();
             if (!key) return acc;
-            acc.set(key, item.Survey?.SurveyName ?? "");
+            acc.set(key, item.SurveyName ?? "");
             return acc;
         }, new Map<string, string>());
     }, [survey.data, lang]);
@@ -662,8 +747,9 @@ const useSiteMenuRefDataByAdapter = (adapter: SiteMenuFetchAdapter, lang: Lang, 
             Promise.resolve(page.refetch()),
             Promise.resolve(banner.refetch()),
             Promise.resolve(timeline.refetch()),
+            Promise.resolve(survey.refetch()),
         ]);
-    }, [banner, category, page, tag]);
+    }, [banner, category, page, survey, tag, timeline]);
 
     return {
         windowTarget: windowTarget.data,
@@ -693,23 +779,21 @@ const useEnumOptions = (enumName: string): { data: Record<string, string>; isLoa
 };
 
 
-/** 將 SiteMenuSet 轉換成 SiteMenuItem 樹狀資料 */
-const transSetToItem = (data: SiteMenuSet, lang: Lang): SiteMenuItem[] =>
+/** 將 SiteMenuFormModel 轉換成 SiteMenuItem 樹狀資料 */
+const transSetToItem = (data: SiteMenuFormModel, lang: Lang): SiteMenuItem[] =>
 {
-    const items = data?.SiteMenu_Item ?? [];
-    const titles = data?.SiteMenu_Item_Title ?? [];
+    const items = data?._SiteMenu_Item ?? [];
     const titleDict = new Map<number, Map<string, string>>();
-
-    for (const t of titles)
+    for (const item of items)
     {
-        const itemRowId = Number(t.ItemRowId ?? 0);
+        const itemRowId = Number(item.RowId ?? 0);
         if (!itemRowId) continue;
-
-        const l = String(t.Lang ?? "").toLowerCase();
-        const title = String(t.Title ?? "");
-
-        if (!titleDict.has(itemRowId)) titleDict.set(itemRowId, new Map());
-        titleDict.get(itemRowId)?.set(l, title);
+        const langMap = new Map<string, string>();
+        for (const title of item._SiteMenu_Item_Title ?? [])
+        {
+            langMap.set(String(title.Lang ?? "").toLowerCase(), String(title.Title ?? ""));
+        }
+        titleDict.set(itemRowId, langMap);
     }
 
     const resolveTitle = (itemRowId: number): string =>

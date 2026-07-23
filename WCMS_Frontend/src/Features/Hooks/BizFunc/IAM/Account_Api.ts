@@ -6,7 +6,7 @@ import { PGID } from "@/types/SchemaFields";
 import type { AxiosInstance } from "axios";
 
 // #region Property
-type AccountSet = components["schemas"]["AccountSet_DTO"];
+type AccountFormModel = components["schemas"]["Account"];
 type ChangePassword = components["schemas"]["ChangePassword"];
 type ResetPassword = components["schemas"]["ResetPassword"];
 type ExtraLoaders = {};
@@ -21,7 +21,7 @@ type ExtraHooks = {
 // #endregion
 
 // #region Public
-export class AccountService extends ApiDataService<AccountSet>
+export class AccountService extends ApiDataService<AccountFormModel>
 {
     // #region Public
     constructor(apiInstance?: AxiosInstance)
@@ -40,26 +40,26 @@ export class AccountService extends ApiDataService<AccountSet>
     }
     // #endregion
 }
-export class AccountAdapterImpl extends ApiDataAdapter<AccountSet, AccountService>
+export class AccountAdapterImpl extends ApiDataAdapter<AccountFormModel, AccountService>
 {
     // #region Property
-    declare public loader: ApiDataLoaderGroup<AccountSet> & ExtraLoaders;
-    declare public hooks: ApiDataHookGroup<AccountSet> & ExtraHooks;
+    declare public loader: ApiDataLoaderGroup<AccountFormModel> & ExtraLoaders;
+    declare public hooks: ApiDataHookGroup<AccountFormModel> & ExtraHooks;
     // #endregion
 
     // #region Protected Virtual
     /** 擴充 loader 入口，目前 Account 暫無額外 loader */
-    protected override buildExtendedLoader(base: ApiDataLoaderGroup<AccountSet>): ApiDataLoaderGroup<AccountSet> & ExtraLoaders
+    protected override buildExtendedLoader(base: ApiDataLoaderGroup<AccountFormModel>): ApiDataLoaderGroup<AccountFormModel> & ExtraLoaders
     {
-        const merged: ApiDataLoaderGroup<AccountSet> & ExtraLoaders = { ...base };
+        const merged: ApiDataLoaderGroup<AccountFormModel> & ExtraLoaders = { ...base };
         return merged;
     }
     /** 擴充 hooks 入口，掛入修改密碼與重置密碼 */
-    protected override buildExtendedHooks(base: ApiDataHookGroup<AccountSet>): ApiDataHookGroup<AccountSet> & ExtraHooks
+    protected override buildExtendedHooks(base: ApiDataHookGroup<AccountFormModel>): ApiDataHookGroup<AccountFormModel> & ExtraHooks
     {
         const wrapUseChangePassword: ExtraHooks["useChangePassword"] = (opt) => this.useChangePassword(opt);
         const wrapUseResetPassword: ExtraHooks["useResetPassword"] = (opt) => this.useResetPassword(opt);
-        const merged: ApiDataHookGroup<AccountSet> & ExtraHooks = { ...base, useChangePassword: wrapUseChangePassword, useResetPassword: wrapUseResetPassword };
+        const merged: ApiDataHookGroup<AccountFormModel> & ExtraHooks = { ...base, useChangePassword: wrapUseChangePassword, useResetPassword: wrapUseResetPassword };
         return merged;
     }
     // #endregion

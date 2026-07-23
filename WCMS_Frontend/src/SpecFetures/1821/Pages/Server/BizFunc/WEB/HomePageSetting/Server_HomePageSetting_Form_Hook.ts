@@ -2,6 +2,7 @@ import { CategoryAdapter } from "@/Features/Hooks/BizFunc/COMM/Category_Api";
 import { TagAdapter } from "@/Features/Hooks/BizFunc/COMM/Tag_Api";
 import type {
     ServerFormActionContext,
+    ServerFormBinding,
     ServerFormDefaultRawData,
     ServerFormReferenceContext,
     ServerFormReferenceResult,
@@ -39,23 +40,22 @@ import {
     SpecHomePage1821_BannerFields,
     SpecHomePage1821_ShortcutFields,
     SpecHomePage1821_ShortcutModuleItemFields,
-    SpecHomePage1821ModelFields,
-    SpecHomePage1821SetFields,
+    SpecHomePage1821Fields,
 } from "@/types/SchemaFields";
 import { type SetStateAction, useCallback, useMemo } from "react";
 
 // #region Property
-type HomePageSet = components["schemas"]["SpecHomePage1821Set_DTO"];
+type HomePageFormModel = components["schemas"]["SpecHomePage1821"];
 
-type HomePageModel = components["schemas"]["SpecHomePage1821Model_DTO"];
+type HomePageModel = components["schemas"]["SpecHomePage1821"];
 
-type Banner = components["schemas"]["SpecHomePage1821_Banner_DTO"];
+type Banner = components["schemas"]["SpecHomePage1821_Banner"];
 
-type Shortcut = components["schemas"]["SpecHomePage1821_Shortcut_DTO"];
+type Shortcut = components["schemas"]["SpecHomePage1821_Shortcut"];
 
-type ShortcutModuleItem = components["schemas"]["SpecHomePage1821_ShortcutModuleItem_DTO"];
+type ShortcutModuleItem = components["schemas"]["SpecHomePage1821_ShortcutModuleItem"];
 
-type FileManageDto = components["schemas"]["FileManageModel_DTO"];
+type FileManageDto = components["schemas"]["FileManage"];
 
 type QueryListParam = components["schemas"]["QueryListParam"];
 
@@ -75,7 +75,7 @@ type HomePageImageRender = ColumnConfig["render"];
 
 interface HomePageEditGridBaseOptions
 {
-    binding: UseFetchFormDataResult<HomePageSet>;
+    binding: UseFetchFormDataResult<HomePageFormModel>;
     lang: string;
     style: IEditGridView_Style;
     renderPicturePreview?: HomePageImageRender;
@@ -95,9 +95,7 @@ export type HomePage1821FormRefs = {
     webResource: HomePageOptionMapSet;
 };
 
-export type HomePage1821FormRawData = Record<string, unknown> & ServerFormDefaultRawData<HomePageSet, HomePage1821FormRefs> & {
-    formData: UseFetchFormDataResult<HomePageSet>;
-};
+export type HomePage1821FormRawData = ServerFormDefaultRawData<HomePageFormModel, HomePage1821FormRefs>;
 
 export type HomePage1821FormAdapter = {
     HomePage: ReturnType<typeof SpecHomePage1821Adapter>;
@@ -136,13 +134,12 @@ const moduleTypeOptions = [
 // #endregion
 
 // #region Public
-export const createEmptyHomePage1821Set = (lang: string): HomePageSet =>
+export const createEmptyHomePage1821FormModel = (lang: string): HomePageFormModel =>
 {
     return {
-        SpecHomePage1821: createEmptyModel(lang),
-        SpecHomePage1821_Banner: [],
-        SpecHomePage1821_Shortcut: [],
-        SpecHomePage1821_ShortcutModuleItem: [],
+        ...createEmptyModel(lang),
+        _SpecHomePage1821_Banner: [],
+        _SpecHomePage1821_Shortcut: [],
     };
 };
 
@@ -156,7 +153,7 @@ export const useHomePage1821SummaryFetchData = (opt: { supportLangs: Lang[]; }):
     const listCondition = useMemo<QueryListParam>(() =>
     {
         return {
-            Fields: [SpecHomePage1821ModelFields.InternalId, SpecHomePage1821ModelFields.HomePageId, SpecHomePage1821ModelFields.Lang],
+            Fields: [SpecHomePage1821Fields.InternalId, SpecHomePage1821Fields.HomePageId, SpecHomePage1821Fields.Lang],
             Condition: "",
             PageNumber: 0,
             PageSize: 0,
@@ -193,9 +190,9 @@ export const useHomePage1821SummaryFetchData = (opt: { supportLangs: Lang[]; }):
 
 export const useHomePage1821LangFormTemplate = (
     opt: { theme: IBETheme; adapter: ReturnType<typeof SpecHomePage1821Adapter>; lang: Lang; internalId: string; onAfterSave: () => Promise<void> | void; },
-): ServerFormTemplate<HomePageSet, HomePage1821FormAdapter, HomePage1821FormRefs, HomePage1821FormRawData, HomePage1821FormActionsOpt> =>
+): ServerFormTemplate<HomePageFormModel, HomePage1821FormAdapter, HomePage1821FormRefs, HomePage1821FormRawData, HomePage1821FormActionsOpt> =>
 {
-    const emptyData = useMemo(() => createEmptyHomePage1821Set(opt.lang), [opt.lang]);
+    const emptyData = useMemo(() => createEmptyHomePage1821FormModel(opt.lang), [opt.lang]);
     const actionsOpt = useMemo<HomePage1821FormActionsOpt>(() =>
     {
         return {
@@ -238,10 +235,10 @@ export const useHomePage1821BannerEditGrid = (opt: HomePageEditGridBaseOptions) 
     );
     const columns = useMemo(() => buildBannerColumns(handleFileValueChange, opt.renderPicturePreview), [handleFileValueChange, opt.renderPicturePreview]);
 
-    return useEditGridBinding<HomePageSet, Banner>({
+    return useEditGridBinding<HomePageFormModel, Banner>({
         binding: buildHomePageEditGridBinding(opt.binding),
-        emptyData: createEmptyHomePage1821Set(opt.lang),
-        collectionName: SpecHomePage1821SetFields.SpecHomePage1821_Banner,
+        emptyData: createEmptyHomePage1821FormModel(opt.lang),
+        collectionName: SpecHomePage1821Fields._SpecHomePage1821_Banner,
         columns,
         getItemRowId: (item, index) => resolveHomePageRowId(item.RowId, index + 1),
         sortItems: sortHomePageRows,
@@ -268,10 +265,10 @@ export const useHomePage1821ShortcutEditGrid = (opt: HomePageEditGridBaseOptions
         [handleIconFileChange, handleLinkPicChange, opt.renderModuleDetailAction, opt.renderPicturePreview],
     );
 
-    return useEditGridBinding<HomePageSet, Shortcut>({
+    return useEditGridBinding<HomePageFormModel, Shortcut>({
         binding: buildHomePageEditGridBinding(opt.binding),
-        emptyData: createEmptyHomePage1821Set(opt.lang),
-        collectionName: SpecHomePage1821SetFields.SpecHomePage1821_Shortcut,
+        emptyData: createEmptyHomePage1821FormModel(opt.lang),
+        collectionName: SpecHomePage1821Fields._SpecHomePage1821_Shortcut,
         columns,
         getItemRowId: (item, index) => resolveHomePageRowId(item.RowId, index + 1),
         sortItems: sortHomePageRows,
@@ -285,13 +282,14 @@ export const useHomePage1821ShortcutEditGrid = (opt: HomePageEditGridBaseOptions
 export const useHomePage1821ShortcutModuleItemEditGrid = (opt: HomePageEditGridBaseOptions & { refs: HomePage1821FormRefs; parentRowId?: number | null; }) =>
 {
     const parentRowId = normalizeParentRowId(opt.parentRowId);
-    const shortcutOptions = useMemo(() => buildShortcutParentOptions(opt.binding.data?.SpecHomePage1821_Shortcut), [opt.binding.data?.SpecHomePage1821_Shortcut]);
+    const shortcutOptions = useMemo(() => buildShortcutParentOptions(opt.binding.data?._SpecHomePage1821_Shortcut), [opt.binding.data?._SpecHomePage1821_Shortcut]);
     const columns = useMemo(() => buildModuleItemColumns(shortcutOptions, !parentRowId), [parentRowId, shortcutOptions]);
 
-    return useEditGridBinding<HomePageSet, ShortcutModuleItem>({
+    return useEditGridBinding<HomePageFormModel, ShortcutModuleItem>({
         binding: buildHomePageEditGridBinding(opt.binding),
-        emptyData: createEmptyHomePage1821Set(opt.lang),
-        collectionName: SpecHomePage1821SetFields.SpecHomePage1821_ShortcutModuleItem,
+        emptyData: createEmptyHomePage1821FormModel(opt.lang),
+        getItems: getShortcutModuleItems,
+        setItems: setShortcutModuleItems,
         columns,
         getItemRowId: (item, index) => resolveHomePageRowId(item.RowId, index + 1),
         sortItems: sortModuleRows,
@@ -339,15 +337,26 @@ const createEmptyModel = (lang: string): HomePageModel =>
     };
 };
 
-const normalizeSet = (lang: string, data?: HomePageSet | null): HomePageSet =>
+const normalizeFormModel = (lang: string, data?: HomePageFormModel | null): HomePageFormModel =>
 {
-    const base = data ?? createEmptyHomePage1821Set(lang);
+    const base = data ?? createEmptyHomePage1821FormModel(lang);
+    const shortcuts = (base._SpecHomePage1821_Shortcut ?? []).map(normalizeShortcutGraph);
 
     return {
-        SpecHomePage1821: { ...createEmptyModel(lang), ...(base.SpecHomePage1821 ?? {}), Lang: base.SpecHomePage1821?.Lang || lang },
-        SpecHomePage1821_Banner: [...(base.SpecHomePage1821_Banner ?? [])],
-        SpecHomePage1821_Shortcut: [...(base.SpecHomePage1821_Shortcut ?? [])],
-        SpecHomePage1821_ShortcutModuleItem: [...(base.SpecHomePage1821_ShortcutModuleItem ?? [])],
+        ...createEmptyModel(lang),
+        ...base,
+        Lang: base.Lang || lang,
+        _SpecHomePage1821_Banner: [...(base._SpecHomePage1821_Banner ?? [])],
+        _SpecHomePage1821_Shortcut: shortcuts,
+    };
+};
+
+/** 補齊 Shortcut 的 SubDetail collection，維持 FormModel Graph 結構。 */
+const normalizeShortcutGraph = (shortcut: Shortcut): Shortcut =>
+{
+    return {
+        ...shortcut,
+        _SpecHomePage1821_ShortcutModuleItem: [...(shortcut._SpecHomePage1821_ShortcutModuleItem ?? [])],
     };
 };
 
@@ -379,26 +388,23 @@ const resolveLangKey = (supportLangs: string[], lang?: string) =>
     return supportLangs.find(a => normalizeLang(a) === target) ?? "";
 };
 
-const sanitizeSetBeforeSave = (lang: string, data: HomePageSet): HomePageSet =>
+const sanitizeFormModelBeforeSave = (lang: string, data: HomePageFormModel): HomePageFormModel =>
 {
-    const set = normalizeSet(lang, data);
-    const homePageId = normalizeText(set.SpecHomePage1821?.HomePageId);
+    const formModel = normalizeFormModel(lang, data);
+    const homePageId = normalizeText(formModel.HomePageId);
+    const shortcuts = normalizeShortcutForSave(formModel._SpecHomePage1821_Shortcut ?? []);
 
     return {
-        ...set,
-        SpecHomePage1821: {
-            ...set.SpecHomePage1821,
-            Lang: set.SpecHomePage1821?.Lang || lang,
-            HomePageId: homePageId,
-            Card1Link: normalizeText(set.SpecHomePage1821?.Card1Link),
-            Card1PicId: normalizeRelationId(set.SpecHomePage1821?.Card1PicId),
-            Card2Link: normalizeText(set.SpecHomePage1821?.Card2Link),
-            Card2PicId: normalizeRelationId(set.SpecHomePage1821?.Card2PicId),
-            LinkOptions: normalizeOptionsText(set.SpecHomePage1821?.LinkOptions),
-        },
-        SpecHomePage1821_Banner: normalizeBannerForSave(set.SpecHomePage1821_Banner ?? []),
-        SpecHomePage1821_Shortcut: normalizeShortcutForSave(set.SpecHomePage1821_Shortcut ?? []),
-        SpecHomePage1821_ShortcutModuleItem: normalizeModuleForSave(set.SpecHomePage1821_ShortcutModuleItem ?? []),
+        ...formModel,
+        Lang: formModel.Lang || lang,
+        HomePageId: homePageId,
+        Card1Link: normalizeText(formModel.Card1Link),
+        Card1PicId: normalizeRelationId(formModel.Card1PicId),
+        Card2Link: normalizeText(formModel.Card2Link),
+        Card2PicId: normalizeRelationId(formModel.Card2PicId),
+        LinkOptions: normalizeOptionsText(formModel.LinkOptions),
+        _SpecHomePage1821_Banner: normalizeBannerForSave(formModel._SpecHomePage1821_Banner ?? []),
+        _SpecHomePage1821_Shortcut: shortcuts,
     };
 };
 
@@ -420,9 +426,12 @@ const normalizeShortcutForSave = (rows: Shortcut[]): Shortcut[] =>
             ...row,
             RowNo: index + 1,
             IsLink: isLink,
-            IconFileId: normalizeRelationId(row.IconFileId),
-            Link: isLink ? row.Link ?? "" : "",
+            Link: isLink ? normalizeText(row.Link) : "",
             LinkPicId: isLink ? normalizeRelationId(row.LinkPicId) : null,
+            IconFileId: normalizeRelationId(row.IconFileId),
+            _SpecHomePage1821_ShortcutModuleItem: isLink
+                ? []
+                : normalizeModuleForSave(row._SpecHomePage1821_ShortcutModuleItem ?? []),
         };
     });
 };
@@ -446,13 +455,13 @@ const buildInitialSummaryMap = (supportLangs: string[]) =>
     return Object.fromEntries(supportLangs.map(lang => [lang, { InternalId: "", HomePageId: "", Lang: lang }])) as Record<string, HomePage1821SummaryRow>;
 };
 
-const buildSummaryMap = (supportLangs: string[], list?: HomePageSet[] | null) =>
+const buildSummaryMap = (supportLangs: string[], list?: HomePageFormModel[] | null) =>
 {
     const next = buildInitialSummaryMap(supportLangs);
 
     for (const item of list ?? [])
     {
-        const model = item?.SpecHomePage1821;
+        const model = item;
         const key = resolveLangKey(supportLangs, model?.Lang ?? DefaultLang);
         if (!key) continue;
 
@@ -462,10 +471,10 @@ const buildSummaryMap = (supportLangs: string[], list?: HomePageSet[] | null) =>
     return next;
 };
 
-const resolveNextFormData = (lang: string, prev: HomePageSet, next: SetStateAction<HomePageSet>) =>
+const resolveNextFormData = (lang: string, prev: HomePageFormModel, next: SetStateAction<HomePageFormModel>) =>
 {
-    const current = normalizeSet(lang, prev);
-    if (typeof next === "function") return (next as (prevState: HomePageSet) => HomePageSet)(current);
+    const current = normalizeFormModel(lang, prev);
+    if (typeof next === "function") return (next as (prevState: HomePageFormModel) => HomePageFormModel)(current);
     return next;
 };
 
@@ -526,14 +535,14 @@ const buildHomePage1821FormTitle = (): string =>
     return "招生首頁設定";
 };
 
-const buildHomePage1821InitialData = (ctx: { mode: "new" | "edit"; emptyData: HomePageSet; }): ApiFormInitial<HomePageSet> | undefined =>
+const buildHomePage1821InitialData = (ctx: { mode: "new" | "edit"; emptyData: HomePageFormModel; }): ApiFormInitial<HomePageFormModel> | undefined =>
 {
     if (ctx.mode !== "new") return undefined;
     return { data: { args: "__new__", apiRes: { IsSuccess: true, Data: ctx.emptyData, SysMessage: [] } } };
 };
 
 const useHomePage1821ReferenceData = (
-    ctx: ServerFormReferenceContext<HomePageSet, HomePage1821FormAdapter, HomePage1821FormActionsOpt, HomePage1821FormRefs>,
+    ctx: ServerFormReferenceContext<HomePageFormModel, HomePage1821FormAdapter, HomePage1821FormActionsOpt, HomePage1821FormRefs>,
 ): ServerFormReferenceResult<HomePage1821FormRefs> =>
 {
     const lang = ctx.actionsOpt.lang;
@@ -558,20 +567,20 @@ const useHomePage1821ReferenceData = (
 };
 
 const buildHomePage1821SuccessActions = (
-    ctx: ServerFormReferenceContext<HomePageSet, HomePage1821FormAdapter, HomePage1821FormActionsOpt, HomePage1821FormRefs>,
+    ctx: ServerFormReferenceContext<HomePageFormModel, HomePage1821FormAdapter, HomePage1821FormActionsOpt, HomePage1821FormRefs>,
 ) =>
 {
     return { create: ctx.actionsOpt.onAfterSave, update: ctx.actionsOpt.onAfterSave };
 };
 
 const buildHomePage1821Actions = (
-    ctx: ServerFormActionContext<HomePageSet, HomePage1821FormAdapter, HomePage1821FormRefs, HomePage1821FormRawData, HomePage1821FormActionsOpt>,
+    ctx: ServerFormActionContext<HomePageFormModel, HomePage1821FormAdapter, HomePage1821FormRefs, HomePage1821FormRawData, HomePage1821FormActionsOpt>,
     baseActions: ServerFormActions,
 ): ServerFormActions =>
 {
     const save = async () =>
     {
-        const payload = sanitizeSetBeforeSave(ctx.actionsOpt.lang, ctx.binding.data);
+        const payload = sanitizeFormModelBeforeSave(ctx.actionsOpt.lang, ctx.binding.data);
         if (ctx.mode === "new") await ctx.serverActions.createAsync(payload);
         else await ctx.serverActions.updateAsync(ctx.internalId, payload);
     };
@@ -587,22 +596,23 @@ const buildHomePage1821Actions = (
 };
 
 const buildHomePage1821RawData = (
-    ctx: { binding: UseFetchFormDataResult<HomePageSet>; refs: HomePage1821FormRefs; actions: ServerFormActions; },
-    baseRawData: ServerFormDefaultRawData<HomePageSet, HomePage1821FormRefs>,
+    ctx: { binding: ServerFormBinding<HomePageFormModel>; refs: HomePage1821FormRefs; actions: ServerFormActions; },
+    baseRawData: ServerFormDefaultRawData<HomePageFormModel, HomePage1821FormRefs>,
     lang: Lang,
 ): HomePage1821FormRawData =>
 {
     const langKey = normalizeLang(lang);
-    const formData: UseFetchFormDataResult<HomePageSet> = {
+    const formData: ServerFormBinding<HomePageFormModel> = {
         ...ctx.binding,
-        data: normalizeSet(langKey, ctx.binding.data),
+        data: normalizeFormModel(langKey, ctx.binding.data),
+        getData: () => normalizeFormModel(langKey, ctx.binding.getData()),
         setFormData: next => ctx.binding.setFormData(prev => resolveNextFormData(langKey, prev, next)),
     };
 
     return { ...baseRawData, formData, actions: ctx.actions };
 };
 
-const buildHomePageEditGridBinding = (binding: UseFetchFormDataResult<HomePageSet>) =>
+const buildHomePageEditGridBinding = (binding: UseFetchFormDataResult<HomePageFormModel>) =>
 {
     return { data: binding.data, setFormData: binding.setFormData };
 };
@@ -631,6 +641,22 @@ const buildHomePageGridProps = (title: string, itemName: string, storageKey: str
 const sortHomePageRows = <TItem extends { RowNo?: number | null; RowId?: number | null; }>(items: TItem[]): TItem[] =>
 {
     return [...items].sort((a, b) => compareNumber(a.RowNo, b.RowNo) || compareNumber(a.RowId, b.RowId));
+};
+
+/** 將 Shortcut SubDetail 攤平成 EditGrid 可使用的資料來源。 */
+const getShortcutModuleItems = (data: HomePageFormModel): ShortcutModuleItem[] =>
+{
+    return (data._SpecHomePage1821_Shortcut ?? []).flatMap(shortcut => shortcut._SpecHomePage1821_ShortcutModuleItem ?? []);
+};
+
+/** 將 EditGrid 的 ModuleItem 依 ParentRowId 寫回各 Shortcut SubDetail。 */
+const setShortcutModuleItems = (data: HomePageFormModel, items: ShortcutModuleItem[]): HomePageFormModel =>
+{
+    const shortcuts = (data._SpecHomePage1821_Shortcut ?? []).map(shortcut => ({
+        ...shortcut,
+        _SpecHomePage1821_ShortcutModuleItem: items.filter(item => item.ParentRowId === shortcut.RowId),
+    }));
+    return { ...data, _SpecHomePage1821_Shortcut: shortcuts };
 };
 
 const sortModuleRows = (items: ShortcutModuleItem[]): ShortcutModuleItem[] =>
@@ -734,15 +760,15 @@ const buildFileColumn = (
     };
 };
 
-const buildNewBannerItem = (data: HomePageSet, rowId: number): Banner =>
+const buildNewBannerItem = (data: HomePageFormModel, rowId: number): Banner =>
 {
-    return { HomePageId: data.SpecHomePage1821?.HomePageId ?? "", RowId: rowId, RowNo: rowId, BannerFileId: null, BannerFileDescription: "", Link: "" };
+    return { HomePageId: data.HomePageId ?? "", RowId: rowId, RowNo: rowId, BannerFileId: null, BannerFileDescription: "", Link: "" };
 };
 
-const buildNewShortcutItem = (data: HomePageSet, rowId: number): Shortcut =>
+const buildNewShortcutItem = (data: HomePageFormModel, rowId: number): Shortcut =>
 {
     return {
-        HomePageId: data.SpecHomePage1821?.HomePageId ?? "",
+        HomePageId: data.HomePageId ?? "",
         RowId: rowId,
         RowNo: rowId,
         Title: "",
@@ -752,14 +778,15 @@ const buildNewShortcutItem = (data: HomePageSet, rowId: number): Shortcut =>
         IsLink: false,
         Link: "",
         LinkPicId: null,
+        _SpecHomePage1821_ShortcutModuleItem: [],
     };
 };
 
-const buildNewModuleItem = (data: HomePageSet, rowId: number, parentRowId?: number): ShortcutModuleItem =>
+const buildNewModuleItem = (data: HomePageFormModel, rowId: number, parentRowId?: number): ShortcutModuleItem =>
 {
     return {
-        HomePageId: data.SpecHomePage1821?.HomePageId ?? "",
-        ParentRowId: parentRowId || getDefaultParentRowId(data.SpecHomePage1821_Shortcut),
+        HomePageId: data.HomePageId ?? "",
+        ParentRowId: parentRowId || getDefaultParentRowId(data._SpecHomePage1821_Shortcut),
         RowId: rowId,
         RowNo: rowId,
         Title: "",

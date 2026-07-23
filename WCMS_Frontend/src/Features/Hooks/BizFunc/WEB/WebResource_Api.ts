@@ -5,11 +5,11 @@ import { PGID } from "@/types/SchemaFields";
 import type { AxiosInstance } from "axios";
 
 // #region Property
-type WebResourceSet = components["schemas"]["WebResourceSet_DTO"];
+type WebResourceFormModel = components["schemas"]["WebResource"];
 // #endregion
 
 // #region Public
-export class WebResourceService extends ApiDataService<WebResourceSet>
+export class WebResourceService extends ApiDataService<WebResourceFormModel>
 {
     // #region Public
     constructor(apiInstance?: AxiosInstance)
@@ -18,7 +18,7 @@ export class WebResourceService extends ApiDataService<WebResourceSet>
     }
     // #endregion
 }
-export class WebResourceAdapterImpl extends ApiDataAdapter<WebResourceSet, WebResourceService>
+export class WebResourceAdapterImpl extends ApiDataAdapter<WebResourceFormModel, WebResourceService>
 {}
 export const WebResourceAdapter = (apiInstance?: AxiosInstance) =>
     new WebResourceAdapterImpl((api?: AxiosInstance) => new WebResourceService(api ?? apiInstance));

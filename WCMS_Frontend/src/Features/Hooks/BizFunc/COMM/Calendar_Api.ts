@@ -17,8 +17,8 @@ import type { LoaderFunctionArgs } from "react-router";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
-type CalendarSet = components["schemas"]["CalendarSet_DTO"];
-type CalendarDetail = components["schemas"]["CalendarDetail_DTO"];
+type CalendarFormModel = components["schemas"]["Calendar"];
+type CalendarDetail = components["schemas"]["CalendarDetail"];
 type CalendarYearArgs = { year: number; };
 type ExtraLoaders = {
     /** 依年份抓 CalendarDetail（先 QueryList 找 internalId，再 QueryData 拿明細） */
@@ -43,7 +43,7 @@ type ExtraHooks = {
 // #endregion
 
 // #region Public
-export class CalendarService extends ApiDataService<CalendarSet>
+export class CalendarService extends ApiDataService<CalendarFormModel>
 {
     // #region Public
     constructor(apiInstance?: AxiosInstance)
@@ -57,25 +57,25 @@ export class CalendarService extends ApiDataService<CalendarSet>
     }
     // #endregion
 }
-export class CalendarAdapterImpl extends ApiDataAdapter<CalendarSet, CalendarService>
+export class CalendarAdapterImpl extends ApiDataAdapter<CalendarFormModel, CalendarService>
 {
     // #region Property
-    declare public loader: ApiDataLoaderGroup<CalendarSet> & ExtraLoaders;
-    declare public hooks: ApiDataHookGroup<CalendarSet> & ExtraHooks;
+    declare public loader: ApiDataLoaderGroup<CalendarFormModel> & ExtraLoaders;
+    declare public hooks: ApiDataHookGroup<CalendarFormModel> & ExtraHooks;
     // #endregion
 
     // #region Protected Virtual
-    protected override buildExtendedLoader(base: ApiDataLoaderGroup<CalendarSet>): ApiDataLoaderGroup<CalendarSet> & ExtraLoaders
+    protected override buildExtendedLoader(base: ApiDataLoaderGroup<CalendarFormModel>): ApiDataLoaderGroup<CalendarFormModel> & ExtraLoaders
     {
         const wrapGetCalendarDetailsByYearLoader: ExtraLoaders["getCalendarDetailsByYearLoader"] = (opt) => this.getCalendarDetailsByYearLoader(opt);
-        const merged: ApiDataLoaderGroup<CalendarSet> & ExtraLoaders = { ...base, getCalendarDetailsByYearLoader: wrapGetCalendarDetailsByYearLoader };
+        const merged: ApiDataLoaderGroup<CalendarFormModel> & ExtraLoaders = { ...base, getCalendarDetailsByYearLoader: wrapGetCalendarDetailsByYearLoader };
         return merged;
     }
-    protected override buildExtendedHooks(base: ApiDataHookGroup<CalendarSet>): ApiDataHookGroup<CalendarSet> & ExtraHooks
+    protected override buildExtendedHooks(base: ApiDataHookGroup<CalendarFormModel>): ApiDataHookGroup<CalendarFormModel> & ExtraHooks
     {
         const wrapUseFetchCalendarDetailsByYear: ExtraHooks["useFetchCalendarDetailsByYear"] = (opt) => this.useFetchCalendarDetailsByYear(opt);
         const wrapUseUpdateDayInfo: ExtraHooks["useUpdateDayInfo"] = (opt) => this.useUpdateDayInfo(opt);
-        const merged: ApiDataHookGroup<CalendarSet> & ExtraHooks = {
+        const merged: ApiDataHookGroup<CalendarFormModel> & ExtraHooks = {
             ...base,
             useFetchCalendarDetailsByYear: wrapUseFetchCalendarDetailsByYear,
             useUpdateDayInfo: wrapUseUpdateDayInfo,
@@ -139,12 +139,12 @@ export class CalendarAdapterImpl extends ApiDataAdapter<CalendarSet, CalendarSer
         const listEnv = await svc.queryList(this.buildCalendarQueryByYearParam({ year: a.year }));
         const listOk = Boolean(listEnv.IsSuccess);
         if (!listOk) return { IsSuccess: false, Data: null, SysMessage: listEnv.SysMessage ?? [] };
-        const internalId = listEnv.Data?.[0]?.Calendar?.InternalId?.trim() ?? "";
+        const internalId = listEnv.Data?.[0]?.InternalId?.trim() ?? "";
         if (!internalId) return { IsSuccess: true, Data: [], SysMessage: listEnv.SysMessage ?? [] };
-        const dataEnv = await svc.queryData(internalId) as ApiResponse<CalendarSet[]>;
+        const dataEnv = await svc.queryData(internalId) as ApiResponse<CalendarFormModel[]>;
         const dataOk = Boolean(dataEnv.IsSuccess);
         if (!dataOk) return { IsSuccess: false, Data: null, SysMessage: dataEnv.SysMessage ?? [] };
-        return { IsSuccess: true, Data: dataEnv.Data?.[0]?.CalendarDetail ?? [], SysMessage: dataEnv.SysMessage ?? [] };
+        return { IsSuccess: true, Data: dataEnv.Data?.[0]?._CalendarDetail ?? [], SysMessage: dataEnv.SysMessage ?? [] };
     }
     // #endregion
 }

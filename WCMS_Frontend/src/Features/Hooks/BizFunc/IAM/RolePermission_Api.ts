@@ -7,7 +7,7 @@ import { PGID } from "@/types/SchemaFields";
 import type { AxiosInstance } from "axios";
 
 // #region Property
-type RolePermissionSet = components["schemas"]["RolePermissionSet_DTO"];
+type RolePermissionFormModel = components["schemas"]["RoleData"];
 type PermissionCatalog = components["schemas"]["PermissionCatalogModuleDTO"];
 type ExtraLoaders = {};
 type PermissionCatalogHookResult = {
@@ -25,7 +25,7 @@ type ExtraHooks = {
 // #endregion
 
 // #region Public
-export class RolePermissionService extends ApiDataService<RolePermissionSet>
+export class RolePermissionService extends ApiDataService<RolePermissionFormModel>
 {
     // #region Public
     constructor(apiInstance?: AxiosInstance)
@@ -39,25 +39,25 @@ export class RolePermissionService extends ApiDataService<RolePermissionSet>
     }
     // #endregion
 }
-export class RolePermissionAdapterImpl extends ApiDataAdapter<RolePermissionSet, RolePermissionService>
+export class RolePermissionAdapterImpl extends ApiDataAdapter<RolePermissionFormModel, RolePermissionService>
 {
     // #region Property
-    declare public loader: ApiDataLoaderGroup<RolePermissionSet> & ExtraLoaders;
-    declare public hooks: ApiDataHookGroup<RolePermissionSet> & ExtraHooks;
+    declare public loader: ApiDataLoaderGroup<RolePermissionFormModel> & ExtraLoaders;
+    declare public hooks: ApiDataHookGroup<RolePermissionFormModel> & ExtraHooks;
     // #endregion
 
     // #region Protected Virtual
     /** 擴充 loader 入口，目前 RolePermission 暫無額外 loader。 */
-    protected override buildExtendedLoader(base: ApiDataLoaderGroup<RolePermissionSet>): ApiDataLoaderGroup<RolePermissionSet> & ExtraLoaders
+    protected override buildExtendedLoader(base: ApiDataLoaderGroup<RolePermissionFormModel>): ApiDataLoaderGroup<RolePermissionFormModel> & ExtraLoaders
     {
-        const merged: ApiDataLoaderGroup<RolePermissionSet> & ExtraLoaders = { ...base };
+        const merged: ApiDataLoaderGroup<RolePermissionFormModel> & ExtraLoaders = { ...base };
         return merged;
     }
     /** 擴充 hooks 入口，掛入權限目錄查詢。 */
-    protected override buildExtendedHooks(base: ApiDataHookGroup<RolePermissionSet>): ApiDataHookGroup<RolePermissionSet> & ExtraHooks
+    protected override buildExtendedHooks(base: ApiDataHookGroup<RolePermissionFormModel>): ApiDataHookGroup<RolePermissionFormModel> & ExtraHooks
     {
         const wrapUsePermissionCatalog: ExtraHooks["usePermissionCatalog"] = (opt) => this.usePermissionCatalog(opt);
-        const merged: ApiDataHookGroup<RolePermissionSet> & ExtraHooks = { ...base, usePermissionCatalog: wrapUsePermissionCatalog };
+        const merged: ApiDataHookGroup<RolePermissionFormModel> & ExtraHooks = { ...base, usePermissionCatalog: wrapUsePermissionCatalog };
         return merged;
     }
     // #endregion

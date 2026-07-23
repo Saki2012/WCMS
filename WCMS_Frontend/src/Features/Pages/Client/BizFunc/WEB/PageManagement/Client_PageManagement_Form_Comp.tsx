@@ -13,8 +13,8 @@ import { useMemo } from "react";
 import { type IPageManagementOptions, usePageManagementFormData } from "./Client_PageManagement_Form_Loader";
 
 // #region Property
-export type PageManagementSet = components["schemas"]["PageManagementSet_DTO"];
-type PageManagementDetail = NonNullable<PageManagementSet["PageManagementDetail"]>[number];
+export type PageManagementFormModel = components["schemas"]["PageManagement"];
+type PageManagementDetail = NonNullable<PageManagementFormModel["_PageManagementDetail"]>[number];
 
 export interface IPageManagementProps
 {
@@ -90,7 +90,7 @@ const Client_PageManagement_Form_FeatureView = (props: PageManagementFormViewPro
 };
 
 /** 依 PageManagement DTO 建立 Preview / Entry 所需資料。 */
-export const buildPageManagementPreviewViewData = (formData: PageManagementSet, lang: Lang): PageManagementFormData =>
+export const buildPageManagementPreviewViewData = (formData: PageManagementFormModel, lang: Lang): PageManagementFormData =>
 {
     const detail = resolvePageManagementDetail(formData, lang);
     return { title: detail?.Title ?? "", contentHtml: detail?.Content ?? "", isLoading: false, errorList: [] };
@@ -126,10 +126,10 @@ const buildPageManagementViewCountConfig = (siteIndex: string, pageId: string): 
 };
 
 /** 取得目前語系 PageManagement 明細。 */
-const resolvePageManagementDetail = (formData: PageManagementSet, lang: Lang): PageManagementDetail | null =>
+const resolvePageManagementDetail = (formData: PageManagementFormModel, lang: Lang): PageManagementDetail | null =>
 {
     const langKey = LibText.safeTrim(lang).toLowerCase();
-    const detail = formData.PageManagementDetail?.find(item => LibText.safeTrim(item.Lang).toLowerCase() === langKey);
-    return detail ?? formData.PageManagementDetail?.[0] ?? null;
+    const detail = formData._PageManagementDetail?.find(item => LibText.safeTrim(item.Lang).toLowerCase() === langKey);
+    return detail ?? formData._PageManagementDetail?.[0] ?? null;
 };
 // #endregion

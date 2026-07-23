@@ -4,21 +4,23 @@ import { LibText } from "@/SysCore/Utils/Library/LibData";
 export type SurveyInputValue = string | string[];
 export type SurveyInputValueMap = Record<string, SurveyInputValue>;
 
-// #region Property
 export interface SurveyInputItem
 {
     SurveyId?: string | null;
     RowId?: number | null;
+    RowNo?: number | null;
     FieldId?: string | null;
     IsRequired?: boolean | null;
     InputType?: number | string | null;
     Options?: string | null;
+    _SurveyItemLang?: SurveyInputLangItem[] | null;
 }
 export interface SurveyInputLangItem
 {
     SurveyId?: string | null;
     ParentRowId?: number | null;
     RowId?: number | null;
+    RowNo?: number | null;
     Lang?: string | null;
     FieldName?: string | null;
 }

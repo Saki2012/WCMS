@@ -6,7 +6,7 @@ import { PGID } from "@/types/SchemaFields";
 import type { AxiosInstance } from "axios";
 
 // #region Property
-type SurveySubmissionSet = components["schemas"]["SurveySubmissionsSet_DTO"];
+type SurveySubmissionModel = components["schemas"]["SurveySubmissions"];
 type SurveySubmissionRequest = components["schemas"]["SurveySubmissionRequest_DTO"];
 type ExtraHooks = {
     /** CSR action：前台匿名提交問卷 */
@@ -17,7 +17,7 @@ type ExtraHooks = {
 // #endregion
 
 // #region Public
-export class SurveySubmissionService extends ApiDataService<SurveySubmissionSet>
+export class SurveySubmissionService extends ApiDataService<SurveySubmissionModel>
 {
     // #region Public
     constructor(apiInstance?: AxiosInstance)
@@ -32,14 +32,14 @@ export class SurveySubmissionService extends ApiDataService<SurveySubmissionSet>
     // #endregion
 }
 
-export class SurveySubmissionAdapterImpl extends ApiDataAdapter<SurveySubmissionSet, SurveySubmissionService>
+export class SurveySubmissionAdapterImpl extends ApiDataAdapter<SurveySubmissionModel, SurveySubmissionService>
 {
     // #region Property
-    declare public hooks: ApiDataHookGroup<SurveySubmissionSet> & ExtraHooks;
+    declare public hooks: ApiDataHookGroup<SurveySubmissionModel> & ExtraHooks;
     // #endregion
 
     // #region Public
-    protected override buildExtendedHooks(base: ApiDataHookGroup<SurveySubmissionSet>): ApiDataHookGroup<SurveySubmissionSet> & ExtraHooks
+    protected override buildExtendedHooks(base: ApiDataHookGroup<SurveySubmissionModel>): ApiDataHookGroup<SurveySubmissionModel> & ExtraHooks
     {
         return { ...base, useSubmitActions: (opt) => this.useSubmitActions(opt) };
     }

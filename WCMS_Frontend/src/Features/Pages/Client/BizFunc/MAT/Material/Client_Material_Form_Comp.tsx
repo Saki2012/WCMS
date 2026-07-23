@@ -15,12 +15,12 @@ import { useParams } from "react-router-dom";
 import { useMaterialFormData } from "./Client_Material_Form_Loader";
 
 // #region Property
-export type MaterialSet = components["schemas"]["MaterialSet_DTO"];
+export type MaterialFormModel = components["schemas"]["Material"];
 
 export interface MaterialFormViewData
 {
     /** 物件主資料 */
-    formData: MaterialSet;
+    formData: MaterialFormModel;
 
     /** 分類顯示名稱 */
     categoryNameText: string;
@@ -32,7 +32,6 @@ export interface MaterialFormViewData
     matCateInfoFieldsMap: Map<string, string> | Record<string, string> | Array<[string, string]>;
 }
 
-type MaterialFormRawData = ReturnType<typeof useMaterialFormData>["rawData"];
 type MaterialInfoJson = Record<string, string | number | boolean | null | undefined>;
 interface VenoBoxOption
 {
@@ -97,7 +96,7 @@ export const Client_Material_Form_Comp = (props: IMaterialFormProps) =>
 {
     const params = useParams();
     const internalId = `${params.internalId ?? ""}`;
-    const emptyData = useMemo<MaterialSet>(() => ({ Material: {}, MaterialLangInfo: [], MaterialPicture: [], MaterialTags: [] }), []);
+    const emptyData = useMemo<MaterialFormModel>(() => ({ _MaterialLangInfo: [], _MaterialPicture: [], _MaterialTags: [] }), []);
     const vm = useMaterialFormData({ lang: props.lang, internalId, emptyData });
     const viewCountConfig = useMemo<ModuleViewCountConfig>(() => buildMaterialViewCountConfig(props.site.siteIndex, internalId), [props.site.siteIndex, internalId]);
 
@@ -158,7 +157,7 @@ const MaterialDetailContent_Comp = (props: { rawData: MaterialFormViewData; lang
     const langInfo = getLangInfo(formData, props.lang);
     const json = parseMaterialInfoJson(langInfo?.MaterialInfoJson);
     const title = langInfo?.MaterialName ?? "";
-    const price = getFirstNonEmptyText(formData.Material?.Price, json.Price);
+    const price = getFirstNonEmptyText(formData.Price, json.Price);
     const description = getFirstNonEmptyText(json.Description);
     const pictures = buildPictures(formData, title);
     const specRows = buildSpecRows(props.rawData, json);
@@ -416,9 +415,10 @@ const MaterialInfoContent_Comp = (props: { rawData: MaterialFormViewData; lang: 
 
 // #region Protected
 /** 建立圖片清單 */
-const buildPictures = (data: MaterialSet, title: string): Array<{ url: string; alt: string; title: string; }> =>
+const buildPictures = (data: MaterialFormModel, title: string): Array<{ url: string; alt: string; title: string; }> =>
 {
-    const list = (data.MaterialPicture ?? []).map(pic =>
+    const pictures = [...(data._MaterialPicture ?? [])].sort(compareMaterialPictureOrder);
+    const list = pictures.map(pic =>
     {
         const alt = pic.PictureName ?? title;
         const url = FileManagementAPI.get_Public_Preview_Url(pic.PictureId, alt) ?? "";
@@ -426,6 +426,15 @@ const buildPictures = (data: MaterialSet, title: string): Array<{ url: string; a
     }).filter((p): p is { url: string; alt: string; title: string; } => Boolean(p));
     return list;
 };
+/** 依 RowNo 與 RowId 穩定排序物件圖片。 */
+const compareMaterialPictureOrder = (
+    left: NonNullable<MaterialFormModel["_MaterialPicture"]>[number],
+    right: NonNullable<MaterialFormModel["_MaterialPicture"]>[number],
+): number =>
+{
+    return Number(left.RowNo ?? left.RowId ?? 0) - Number(right.RowNo ?? right.RowId ?? 0);
+};
+
 /** 建立規格列 */
 const buildSpecRows = (rawData: MaterialFormViewData, json: MaterialInfoJson): Array<{ label: string; value: string; }> =>
 {
@@ -494,9 +503,9 @@ const handleThumbKeyDown = (e: KeyboardEvent<HTMLDivElement>, index: number, set
     setActiveIndex(index);
 };
 /** 取得目前語系資料 */
-const getLangInfo = (data: MaterialSet, lang: Lang) =>
+const getLangInfo = (data: MaterialFormModel, lang: Lang) =>
 {
-    const list = data.MaterialLangInfo ?? [];
+    const list = data._MaterialLangInfo ?? [];
     return list.find(p => p.Lang === lang) ?? list[0];
 };
 /** 取得動態欄位項目 */

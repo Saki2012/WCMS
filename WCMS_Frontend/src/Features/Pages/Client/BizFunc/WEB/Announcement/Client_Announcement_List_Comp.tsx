@@ -22,9 +22,9 @@ import { useLocation } from "react-router-dom";
 import { getClientSlotPath } from "../../../Scaffold/Slot/Client_SlotPath";
 
 // #region Property
-type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
-type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
-type TagSet = components["schemas"]["TagSet_DTO"];
+type AnnouncementFormModel = components["schemas"]["Announcement"];
+type CategoryFormModel = components["schemas"]["Category"];
+type TagFormModel = components["schemas"]["TagData"];
 export interface IAnnouncementListOptions
 {
     Category?: string;
@@ -58,14 +58,14 @@ export interface AnnouncementListGridContext
     lang: Lang;
     dirUrl: string;
     gridProps: GridProps;
-    rawData: AnnouncementSet[];
-    categoryData: CategorySet[];
-    tagData: TagSet[];
+    rawData: AnnouncementFormModel[];
+    categoryData: CategoryFormModel[];
+    tagData: TagFormModel[];
 }
 
 export interface AnnouncementListGridRowContext extends AnnouncementListGridContext
 {
-    rowData?: AnnouncementSet;
+    rowData?: AnnouncementFormModel;
     rowIndex: number;
     columns: ColumnConfig[];
 }
@@ -198,20 +198,20 @@ const GridList_Comp = (props: { lang: Lang; title: string; gridData: GridProps; 
         </>
     );
 };
-const PictureList_Row_Comp = (props: { dirUrl: string; lang: Lang; gridData: AnnouncementSet[]; categoryData: CategorySet[]; }) =>
+const PictureList_Row_Comp = (props: { dirUrl: string; lang: Lang; gridData: AnnouncementFormModel[]; categoryData: CategoryFormModel[]; }) =>
 {
     const defaultAnnouncePic = useOptionalSpecAssetUrl({ relativePath: "Assets/Client/Spec/DefaultEventPic.jpg", fallbackToDefault: true }) ?? "";
     return (
         <div id="Row_Colitem" className="SubPage_Standard_itemBoxs">
             {props.gridData && props.gridData.map((item) =>
             {
-                const linkUrl = `${props.dirUrl}/${item.Announcement?.InternalId}`;
-                const title = item.AnnouncementDetail?.find(p => p.Lang === props.lang)?.Title?.trim() ?? "";
-                const picUrl = FileManagementAPI.get_Public_Preview_Url(item.Announcement?.PictureId, item.Announcement?.PicDescription) || defaultAnnouncePic;
-                const validate = formatDate(item.Announcement?.Validate_Start);
-                const catName = formatCategoriesName(item.Announcement?.Categories ?? "", props.categoryData, props.lang);
+                const linkUrl = `${props.dirUrl}/${item?.InternalId}`;
+                const title = item._AnnouncementDetail?.find(p => p.Lang === props.lang)?.Title?.trim() ?? "";
+                const picUrl = FileManagementAPI.get_Public_Preview_Url(item?.PictureId, item?.PicDescription) || defaultAnnouncePic;
+                const validate = formatDate(item?.Validate_Start);
+                const catName = formatCategoriesName(item?.Categories ?? "", props.categoryData, props.lang);
                 return (
-                    <div key={item.Announcement?.InternalId} className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 + Standard_ItemDiv">
+                    <div key={item?.InternalId} className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 + Standard_ItemDiv">
                         <article className="cardbox">
                             <div className="card_content">
                                 <LangNavLink
@@ -260,7 +260,7 @@ const PictureList_Row_Comp = (props: { dirUrl: string; lang: Lang; gridData: Ann
         </div>
     );
 };
-const QAList_Comp = (props: { lang: Lang; gridData: AnnouncementSet[]; currentPage: number; pageSize: number; }) =>
+const QAList_Comp = (props: { lang: Lang; gridData: AnnouncementFormModel[]; currentPage: number; pageSize: number; }) =>
 {
     const startIndex = (props.currentPage - 1) * props.pageSize;
     const [openKey, setOpenKey] = useState<string | null>(null);
@@ -351,7 +351,7 @@ const QAList_Comp = (props: { lang: Lang; gridData: AnnouncementSet[]; currentPa
                         <ul className="QA_info" style={{ counterReset: `faq-counter ${startIndex}` }}>
                             {props.gridData.map((item, idx) => (
                                 <QAItem_Comp
-                                    key={`faq_item_${item.Announcement?.InternalId ?? `${startIndex}_${idx}`}`}
+                                    key={`faq_item_${item?.InternalId ?? `${startIndex}_${idx}`}`}
                                     item={item}
                                     idx={idx}
                                     lang={props.lang}
@@ -371,7 +371,7 @@ const QAList_Comp = (props: { lang: Lang; gridData: AnnouncementSet[]; currentPa
 };
 const QAItem_Comp = (
     props: {
-        item: AnnouncementSet;
+        item: AnnouncementFormModel;
         idx: number;
         lang: Lang;
         startIndex: number;
@@ -382,8 +382,8 @@ const QAItem_Comp = (
     },
 ) =>
 {
-    const detail = props.item.AnnouncementDetail?.find(p => p.Lang === props.lang);
-    const rawKey = props.item.Announcement?.InternalId ?? `${props.startIndex}_${props.idx}`;
+    const detail = props.item._AnnouncementDetail?.find(p => p.Lang === props.lang);
+    const rawKey = props.item?.InternalId ?? `${props.startIndex}_${props.idx}`;
     const key = rawKey.replace(/[^A-Za-z0-9_-]/g, "_");
     const collapseId = `collapse_${key}`;
     const isOpen = props.openKey === key;
@@ -428,7 +428,7 @@ const QAItem_Comp = (
         </li>
     );
 };
-const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementSet[]; }) =>
+const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementFormModel[]; }) =>
 {
     useEffect(() =>
     {
@@ -522,15 +522,15 @@ const TimelineSlider = (props: { dirUrl: string; lang: Lang; data: AnnouncementS
                         <div id="History_owl_carousel" className="owl-carousel owl-theme">
                             {props.data.map((item) =>
                             {
-                                const detail = item.AnnouncementDetail?.find(p => p.Lang === props.lang);
-                                const linkUrl = `${props.dirUrl}/${item.Announcement?.InternalId}`;
+                                const detail = item._AnnouncementDetail?.find(p => p.Lang === props.lang);
+                                const linkUrl = `${props.dirUrl}/${item?.InternalId}`;
                                 const title = detail?.Title?.trim() ?? "";
                                 const subTitle = detail?.SubTitle ?? "";
-                                const picUrl = FileManagementAPI.get_Public_Preview_Url(item.Announcement?.PictureId, item.Announcement?.PicDescription);
-                                const picAlt = LibText.getFirstNonEmptyText(item.Announcement?.PicDescription, title, "大事記圖片");
-                                const date = formatDate(item.Announcement?.Validate_Start);
+                                const picUrl = FileManagementAPI.get_Public_Preview_Url(item?.PictureId, item?.PicDescription);
+                                const picAlt = LibText.getFirstNonEmptyText(item?.PicDescription, title, "大事記圖片");
+                                const date = formatDate(item?.Validate_Start);
                                 return (
-                                    <div className="item" key={item.Announcement?.InternalId}>
+                                    <div className="item" key={item?.InternalId}>
                                         <LangLink to={linkUrl} title={title}>
                                             <article className="cardbox">
                                                 <div className="card_content">
@@ -606,17 +606,17 @@ const getAnnouncementListCompSpec = (): AnnouncementListCompSpecSlot =>
 
 // #region Private
 const resolveAdjustedCellText = (
-    p: { colKey: string; rawContent: string; rowTitle: string; curRow: AnnouncementSet; catData: CategorySet[]; tagData: TagSet[]; lang: Lang; },
+    p: { colKey: string; rawContent: string; rowTitle: string; curRow: AnnouncementFormModel; catData: CategoryFormModel[]; tagData: TagFormModel[]; lang: Lang; },
 ): string =>
 {
     if (p.colKey === AnnouncementDetailFields.Title) return p.rowTitle;
     if (p.colKey === AnnouncementFields.Categories)
     {
-        return formatCategoriesName(p.curRow.Announcement?.Categories ?? "", p.catData, p.lang);
+        return formatCategoriesName(p.curRow?.Categories ?? "", p.catData, p.lang);
     }
     if (p.colKey === AnnouncementFields.Tags)
     {
-        return formatTagsName(p.curRow.Announcement?.Tags ?? "", p.tagData, p.lang);
+        return formatTagsName(p.curRow?.Tags ?? "", p.tagData, p.lang);
     }
     return p.rawContent;
 };
@@ -651,10 +651,10 @@ const buildAnnouncementGridRow = (context: AnnouncementListGridContext, row: Gri
 const buildAnnouncementGridCell = (context: AnnouncementListGridContext, cell: RowCell, index: number): RowCell =>
 {
     const curRow = context.rawData?.[index];
-    const internalId = curRow?.Announcement?.InternalId ?? "";
-    const contentStatus = curRow?.Announcement?.ContentStatus ?? 0;
+    const internalId = curRow?.InternalId ?? "";
+    const contentStatus = curRow?.ContentStatus ?? 0;
     const titleId = `title-${internalId}`;
-    const rowTitle = curRow?.AnnouncementDetail?.find(p => p.Lang === context.lang)?.Title?.trim() ?? "";
+    const rowTitle = curRow?._AnnouncementDetail?.find(p => p.Lang === context.lang)?.Title?.trim() ?? "";
     const srLinkText = rowTitle ? `前往：${rowTitle}` : "前往內容";
     const isTitle = cell.col.key === AnnouncementDetailFields.Title;
     const displayText = resolveAdjustedCellText({ colKey: cell.col.key, rawContent: typeof cell.content === "string" ? cell.content : "", rowTitle, curRow, catData: context.categoryData, tagData: context.tagData, lang: context.lang });
@@ -666,7 +666,7 @@ const buildAnnouncementGridCellContent = (p: { context: AnnouncementListGridCont
     if (!p.isTitle) return buildAnnouncementNonTitleCellContent(p.colKey, p.displayText);
     return (
         <>
-            {LibDate.isWithinLastDays(p.context.rawData.find(x => x.Announcement?.InternalId === p.internalId)?.Announcement?.Validate_Start, 8) && <span className="label label-warning">最新</span>}
+            {LibDate.isWithinLastDays(p.context.rawData.find(x => x?.InternalId === p.internalId)?.Validate_Start, 8) && <span className="label label-warning">最新</span>}
             {Boolean(p.contentStatus & 1) && <span className="label label-success">置頂</span>}
             {Boolean(p.contentStatus & 2) && <span className="label label-danger">熱門</span>}
             <LangLink to={`${p.context.dirUrl}/${p.internalId}`} className="link-cell" id={p.titleId}>

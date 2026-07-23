@@ -1,4 +1,4 @@
-import { type INormNode, type INormSite, type ModuleEntry } from "@/Features/Pages/Client/Route/Site-Routing";
+﻿import { type INormNode, type INormSite, type ModuleEntry } from "@/Features/Pages/Client/Route/Site-Routing";
 import { SubPage } from "@/Features/Pages/Client/Scaffold/SubPages/SubPage";
 import { Classic_FETheme } from "@/Features/Pages/Client/Theme/ClassicTheme_Clsx";
 import { SpecJournalForm_Comp } from "@/SpecFetures/1819/Pages/Client/BizFunc/WEB/SpecJournal/SpecJournalForm";
@@ -10,6 +10,20 @@ import { SpecJournalList_Loader } from "@/SpecFetures/1819/Pages/Client/BizFunc/
 import type { IHeaderMetaProps } from "@/SysCore/Components/HeaderMeta/HeaderMeta_Comp";
 import type { Lang } from "@/SysCore/i18n/lang";
 import { AutoRedirect } from "@/SysCore/Utils/Route/AutoRedirect";
+
+// #region Property
+/** 期刊列表頁標題，由 Loader 依 Request route 語系解析。 */
+const journalListPageTitleByLang: Partial<Record<Lang, string>> = {
+    "zh-tw": "所有期刊",
+    en: "All Issues",
+};
+
+/** 預刊列表頁標題，由 Loader 依 Request route 語系解析。 */
+const journalPreprintPageTitleByLang: Partial<Record<Lang, string>> = {
+    "zh-tw": "預刊本",
+    en: "Article in Press",
+};
+// #endregion
 
 // #region Public
 export const specClientEntries: Record<string, ModuleEntry> = {
@@ -30,14 +44,14 @@ export const specClientEntries: Record<string, ModuleEntry> = {
             // List：某一期
             {
                 path: "List/:indexId?/:rowId?",
-                loader: SpecJournalList_Loader({ pageSize: 10, pageTitle: "所有期刊" }),
+                loader: SpecJournalList_Loader({ pageSize: 10, pageTitleByLang: journalListPageTitleByLang }),
                 element: <SpecJournalList site={site} node={node} lang={lang} />,
                 handle: { breadcrumb: "journal-issue" },
             },
             // 預刊列表
             {
                 path: "Preprint",
-                loader: SpecJournalList_Loader({ pageSize: 10, pageTitle: "預刊本", isPreprint: true }),
+                loader: SpecJournalList_Loader({ pageSize: 10, pageTitleByLang: journalPreprintPageTitleByLang, isPreprint: true }),
                 element: <SpecJournalList site={site} node={node} lang={lang} />,
                 handle: { breadcrumb: "journal-preprint" },
             },

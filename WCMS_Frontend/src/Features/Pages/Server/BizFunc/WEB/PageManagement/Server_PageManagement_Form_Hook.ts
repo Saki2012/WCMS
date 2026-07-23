@@ -11,14 +11,14 @@ import type { ApiFormInitial, ServerFormActions } from "@/SysCore/Utils/API/APIA
 import { LibText } from "@/SysCore/Utils/Library/LibData";
 import type { components } from "@/types/api";
 import type { ModelDisplaySchema } from "@/types/IApiSchema";
-import { PageManagementDetailFields, PageManagementSetFields, PGID } from "@/types/SchemaFields";
+import { PageManagementDetailFields, PageManagementFields, PGID } from "@/types/SchemaFields";
 import { useMemo } from "react";
 import { buildServerSupportedLangDetailMap } from "@/Features/Pages/Server/Scaffold/Content/FormTemplate/Server_FormTemplate_Helper";
 
 // #region Property
-type PageManagementSet = components["schemas"]["PageManagementSet_DTO"];
+type PageManagementFormModel = components["schemas"]["PageManagement"];
 
-type PageManagementDetail = NonNullable<PageManagementSet["PageManagementDetail"]>[number];
+type PageManagementDetail = NonNullable<PageManagementFormModel["_PageManagementDetail"]>[number];
 
 export type PageManagementDetailRowKeys = Record<string, string | number | boolean | null | undefined>;
 
@@ -34,7 +34,7 @@ export interface UsePageManagementFormTemplateOptions
     internalId: string;
 
     /** 新增模式預設資料 */
-    emptyData: PageManagementSet;
+    emptyData: PageManagementFormModel;
 
     /** Form Template 標準動作設定 */
     actionsOpt: PageManagementFormActionsOpt;
@@ -43,7 +43,7 @@ export interface UsePageManagementFormTemplateOptions
 export interface UsePageManagementDetailTabsOptions
 {
     /** 新版 Form Template 提供的資料 binding */
-    binding: ServerFormBinding<PageManagementSet>;
+    binding: ServerFormBinding<PageManagementFormModel>;
 
     /** 目前語系，會優先排在第一個 Tab */
     lang: Lang;
@@ -86,7 +86,7 @@ export type PageManagementFormActionsOpt = {
     onBackToList: () => void;
 
     /** 以目前 DTO 觸發 preview（由 Component 決定怎麼開 modal） */
-    onPreviewFromDto: (dto: PageManagementSet) => void;
+    onPreviewFromDto: (dto: PageManagementFormModel) => void;
 };
 
 export type PageManagementFormAdapter = { PageManagement: ReturnType<typeof PageManagementAdapter>; Category: ReturnType<typeof CategoryAdapter>; };
@@ -95,16 +95,16 @@ const emptyUsedProgMap = new Map<string, string>();
 // #endregion
 
 // #region Public
-export const pageManagementEmptyData: PageManagementSet = { PageManagement: {}, PageManagementDetail: [] };
+export const pageManagementEmptyData: PageManagementFormModel = { _PageManagementDetail: [] };
 
 /** 建立 PageManagement Form Template，統一交給 Server_FormTemplate 處理資料流程。 */
 export const usePageManagementFormTemplate = (
     opt: UsePageManagementFormTemplateOptions,
 ): ServerFormTemplate<
-    PageManagementSet,
+    PageManagementFormModel,
     PageManagementFormAdapter,
     PageManagementFormRefs,
-    ServerFormDefaultRawData<PageManagementSet, PageManagementFormRefs>,
+    ServerFormDefaultRawData<PageManagementFormModel, PageManagementFormRefs>,
     PageManagementFormActionsOpt
 > =>
 {
@@ -132,7 +132,7 @@ export const usePageManagementFormTemplate = (
 /** 建立 PageManagement Detail 語系 Tabs，避免 Comp 處理語系過濾與 Unknown fallback。 */
 export const usePageManagementDetailTabs = (opt: UsePageManagementDetailTabsOptions): PageManagementDetailTabsResult =>
 {
-    const details = opt.binding.data?.PageManagementDetail;
+    const details = opt.binding.data?._PageManagementDetail;
 
     return useMemo(() =>
     {
@@ -145,7 +145,7 @@ export const usePageManagementDetailTabs = (opt: UsePageManagementDetailTabsOpti
 
 /** 建立 Toolbar 動作，保留PageManagement預覽行為。 */
 const buildPageManagementActions = (
-    ctx: { binding: ServerFormDefaultRawData<PageManagementSet, PageManagementFormRefs>["formData"]; actionsOpt: PageManagementFormActionsOpt; },
+    ctx: { binding: ServerFormDefaultRawData<PageManagementFormModel, PageManagementFormRefs>["formData"]; actionsOpt: PageManagementFormActionsOpt; },
     defaultActions: ServerFormActions,
 ): ServerFormActions =>
 {
@@ -159,7 +159,7 @@ const buildPageManagementFormTitle = (ctx: { mode: "new" | "edit"; displayName: 
 };
 
 /** 建立新增模式的 initial data，統一由 Feature Timing 交給 Template。 */
-const buildPageManagementInitialData = (ctx: { mode: "new" | "edit"; emptyData: PageManagementSet; }): ApiFormInitial<PageManagementSet> | undefined =>
+const buildPageManagementInitialData = (ctx: { mode: "new" | "edit"; emptyData: PageManagementFormModel; }): ApiFormInitial<PageManagementFormModel> | undefined =>
 {
     if (ctx.mode !== "new") return undefined;
     return { data: { args: "__new__", apiRes: { IsSuccess: true, Data: ctx.emptyData, SysMessage: [] } } };
@@ -173,12 +173,11 @@ const buildPageManagementFormAdapter = (): PageManagementFormAdapter =>
 
 /** 取得 Header / Detail 需要的參照資料與語系明細補齊。 */
 const usePageManagementReferenceData = (
-    ctx: { adapter: PageManagementFormAdapter; binding: ServerFormDefaultRawData<PageManagementSet, PageManagementFormRefs>["formData"]; lang: Lang; },
+    ctx: { adapter: PageManagementFormAdapter; binding: ServerFormDefaultRawData<PageManagementFormModel, PageManagementFormRefs>["formData"]; lang: Lang; },
 ) =>
 {
     useEnsureLangDetails(ctx.binding, {
-        headerName: PageManagementSetFields.PageManagement,
-        detailName: PageManagementSetFields.PageManagementDetail,
+        detailName: PageManagementFields._PageManagementDetail,
         parentKeys: [PageManagementDetailFields.PageId],
         langs: SUPPORTED_LANGS,
         preferFirstLang: ctx.lang,

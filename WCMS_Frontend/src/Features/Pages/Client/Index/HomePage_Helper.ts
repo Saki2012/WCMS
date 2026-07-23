@@ -6,19 +6,19 @@ import { findTextByKey } from "@/SysCore/Utils/Library/LibData";
 interface ClientCategoryDictRow
 {
     /** 分類主資料 */
-    Category?: { CategoryId?: string | number | null; } | null;
+    CategoryId?: string | number | null;
 
     /** 分類多語明細 */
-    CategoryDetail?: ({ Lang?: Lang | string | null; CategoryName?: string | null; } | null)[] | null;
+    _CategoryDetail?: ({ Lang?: Lang | string | null; CategoryName?: string | null; } | null)[] | null;
 }
 
 interface ClientTagDictRow
 {
     /** 標籤主資料 */
-    TagData?: { TagId?: string | number | null; } | null;
+    TagId?: string | number | null;
 
     /** 標籤多語明細 */
-    TagDetail?: ({ Lang?: Lang | string | null; TagName?: string | null; } | null)[] | null;
+    _TagDetail?: ({ Lang?: Lang | string | null; TagName?: string | null; } | null)[] | null;
 }
 
 interface ClientAnnouncementKeySource
@@ -109,8 +109,8 @@ const pushUniqueItem = <T>(result: T[], seen: Set<string>, item: T, limit: numbe
 /** 建立分類字典 pair */
 const buildCategoryPair = (item: ClientCategoryDictRow, lang: Lang): readonly [string, string] =>
 {
-    const id = `${item.Category?.CategoryId ?? ""}`;
-    const name = findTextByKey(item.CategoryDetail, (detail) => detail?.Lang, lang, (detail) => detail?.CategoryName);
+    const id = `${item.CategoryId ?? ""}`;
+    const name = findTextByKey(item._CategoryDetail, (detail) => detail?.Lang, lang, (detail) => detail?.CategoryName);
 
     return [id, name] as const;
 };
@@ -118,8 +118,8 @@ const buildCategoryPair = (item: ClientCategoryDictRow, lang: Lang): readonly [s
 /** 建立標籤字典 pair */
 const buildTagPair = (item: ClientTagDictRow, lang: Lang): readonly [string, string] =>
 {
-    const id = `${item.TagData?.TagId ?? ""}`;
-    const name = findTextByKey(item.TagDetail, (detail) => detail?.Lang, lang, (detail) => detail?.TagName);
+    const id = `${item.TagId ?? ""}`;
+    const name = findTextByKey(item._TagDetail, (detail) => detail?.Lang, lang, (detail) => detail?.TagName);
 
     return [id, name] as const;
 };

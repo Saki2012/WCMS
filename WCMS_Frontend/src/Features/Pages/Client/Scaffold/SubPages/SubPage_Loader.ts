@@ -7,14 +7,14 @@ import { BannerDetailFields, BannerDetailInfoFields, BannerFields } from "@/type
 import type { LoaderFunctionArgs } from "react-router-dom";
 
 // #region Property
-type BannerSet = components["schemas"]["BannerSet_DTO"];
+type BannerFormModel = components["schemas"]["Banner"];
 
 type QueryListParam = components["schemas"]["QueryListParam"];
 
 
 export interface ISubPageLoaderData
 {
-    bannerInitial: ApiLoaderData<QueryListParam, BannerSet[]> | null;
+    bannerInitial: ApiLoaderData<QueryListParam, BannerFormModel[]> | null;
 }
 // #endregion
 

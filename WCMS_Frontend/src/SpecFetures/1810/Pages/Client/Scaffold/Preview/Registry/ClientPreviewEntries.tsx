@@ -1,4 +1,4 @@
-import { Client_Material_Form, type MaterialFormViewData, type MaterialSet } from "@/Features/Pages/Client/BizFunc/MAT/Material/Client_Material_Form_Comp";
+import { Client_Material_Form, type MaterialFormModel, type MaterialFormViewData } from "@/Features/Pages/Client/BizFunc/MAT/Material/Client_Material_Form_Comp";
 import { Client_Announcement_Form } from "@/Features/Pages/Client/BizFunc/WEB/Announcement/Client_Announcement_Form_Comp";
 import { buildPageManagementPreviewViewData, Client_PageManagement_Form, type PageManagementSet } from "@/Features/Pages/Client/BizFunc/WEB/PageManagement/Client_PageManagement_Form_Comp";
 import { Client_Timeline_Form, type TimelineSet } from "@/Features/Pages/Client/BizFunc/WEB/Timeline/Client_Timeline_Form_Comp";
@@ -24,7 +24,7 @@ interface AnnouncementPreviewPayload
 
 interface MaterialPreviewPayload
 {
-    formData: MaterialSet;
+    formData: MaterialFormModel;
     categoryNameText?: string;
     tagNameText?: string;
     matCateInfoFieldsMap?: Record<string, string>;
@@ -223,7 +223,7 @@ const buildMaterialPreviewRawData = (payload: MaterialPreviewPayload): MaterialF
     };
 };
 
-/** 解析 Material Preview payload，並保留舊版直接傳 MaterialSet 的相容性。 */
+/** 解析 Material Preview payload，並保留舊版直接傳 Material FormModel 的相容性。 */
 const resolveMaterialPreviewPayload = (payload: unknown): MaterialPreviewPayload =>
 {
     // 執行 function
@@ -241,7 +241,7 @@ const resolveMaterialPreviewPayload = (payload: unknown): MaterialPreviewPayload
     }
 
     // return
-    return { formData: resolvePreviewPayload<MaterialSet>(payload, materialEmptyPreviewData) };
+    return { formData: resolvePreviewPayload<MaterialFormModel>(payload, materialEmptyPreviewData) };
 };
 
 /** 解析 SpecUSR Preview payload。 */
@@ -302,7 +302,7 @@ const buildPreviewNode = (title: string, progId: PGID): INormNode =>
 const announcementEmptyPreviewData: AnnouncementSet = { Announcement: {}, AnnouncementDetail: [], AnnouncementDetailFile: [] };
 const pageManagementEmptyPreviewData: PageManagementSet = { PageManagement: {}, PageManagementDetail: [] };
 const timelineEmptyPreviewData: TimelineSet = { Timeline: {}, TimelineItem: [], TimelineLangDetail: [] };
-const materialEmptyPreviewData: MaterialSet = { Material: {}, MaterialLangInfo: [], MaterialPicture: [], MaterialTags: [] };
+const materialEmptyPreviewData: MaterialFormModel = { _MaterialLangInfo: [], _MaterialPicture: [], _MaterialTags: [] };
 const specUSREmptyPreviewData: SpecUSRSet = { SpecUSR: {}, SpecUSRDetail: [], SpecUSRFile: [], SpecUSRUrl: [], SpecUSRPhoto: [], SpecUSRPhotoInfo: [] };
 const announcementPreviewNode = buildPreviewNode("公告預覽", PGID.Announcement);
 const pageManagementPreviewNode = buildPreviewNode("頁面預覽", PGID.PageManagement);

@@ -20,9 +20,9 @@ type QueryListParam = components["schemas"]["QueryListParam"];
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 
-type CategoryDataSet = components["schemas"]["CategoryDataSet_DTO"];
+type CategoryFormModel = components["schemas"]["Category"];
 
-type TagSet = components["schemas"]["TagSet_DTO"];
+type TagFormModel = components["schemas"]["TagData"];
 
 export interface NewsDataProps
 {
@@ -39,8 +39,8 @@ export interface NewsDataProps
     initialList02: AnnouncementSet[];
     initialList03: AnnouncementSet[];
     initialList04: AnnouncementSet[];
-    initialCategories: CategoryDataSet[];
-    initialTags: TagSet[];
+    initialCategories: CategoryFormModel[];
+    initialTags: TagFormModel[];
 }
 
 interface GetDataProp
@@ -409,7 +409,7 @@ const useAnnouncementLists = (
 };
 
 const useCategoryTagDict = (
-    p: { lang: Lang; cateParam: QueryListParam; tagParam: QueryListParam; initialCategories: CategoryDataSet[]; initialTags: TagSet[]; },
+    p: { lang: Lang; cateParam: QueryListParam; tagParam: QueryListParam; initialCategories: CategoryFormModel[]; initialTags: TagFormModel[]; },
 ) =>
 {
     // 宣告變數

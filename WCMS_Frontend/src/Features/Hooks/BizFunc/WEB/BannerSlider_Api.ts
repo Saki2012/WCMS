@@ -5,11 +5,11 @@ import { PGID } from "@/types/SchemaFields";
 import type { AxiosInstance } from "axios";
 
 // #region Property
-type BannerSliderSet = components["schemas"]["BannerSet_DTO"];
+type BannerFormModel = components["schemas"]["Banner"];
 // #endregion
 
 // #region Public
-export class BannerSliderService extends ApiDataService<BannerSliderSet>
+export class BannerSliderService extends ApiDataService<BannerFormModel>
 {
     // #region Public
     constructor(apiInstance?: AxiosInstance)
@@ -18,7 +18,7 @@ export class BannerSliderService extends ApiDataService<BannerSliderSet>
     }
     // #endregion
 }
-export class BannerSliderAdapterImpl extends ApiDataAdapter<BannerSliderSet, BannerSliderService>
+export class BannerSliderAdapterImpl extends ApiDataAdapter<BannerFormModel, BannerSliderService>
 {}
 export const BannerSliderAdapter = (apiInstance?: AxiosInstance) =>
     new BannerSliderAdapterImpl((api?: AxiosInstance) => new BannerSliderService(api ?? apiInstance));

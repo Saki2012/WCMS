@@ -6,7 +6,7 @@ import { LibText } from "@/SysCore/Utils/Library/LibData";
 import { useState } from "react";
 
 // #region Property
-type BannerModel = components["schemas"]["SpecHomePage1821_Banner_DTO"];
+type BannerModel = components["schemas"]["SpecHomePage1821_Banner"];
 const CAROUSEL_ID = "B5_default_carousel";
 // #endregion
 

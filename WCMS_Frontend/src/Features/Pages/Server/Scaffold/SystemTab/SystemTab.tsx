@@ -1,12 +1,15 @@
 import type { IBETheme } from "@/Features/Pages/Server/Theme/ITheme";
 import { LibTextBox } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/LibFormField";
-import { useSetTableField } from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
+import {
+    type FormDataLike,
+    useFormModelField,
+    useFormModelObjectField,
+} from "@/Features/Pages/Server/Scaffold/InputComponets/InputField/FormField/useSetTableField";
 import { formatDateTime } from "@/SysCore/Utils/Library/LibData";
 import { useMemo } from "react";
 
 // #region Property
-// DTOBasicDataModelFields.ts
-const DTOBasicDataModelFields = {
+const BasicDataFields = {
     CreateTime: "CreateTime",
     CreateUserId: "CreateUserId",
     CreateUser: "CreateUser",
@@ -15,70 +18,38 @@ const DTOBasicDataModelFields = {
     ModifyUser: "ModifyUser",
 } as const;
 
-
 type AnyObj = Record<string, any>;
 
-
-type Props = { theme: IBETheme; formData: any; setKey: string; };
+interface SystemInfoTabProps<TFormModel extends AnyObj>
+{
+    theme: IBETheme;
+    formData: FormDataLike<TFormModel>;
+    /** 系統欄位位於內嵌 Model 時指定該 Root property，例如 MatCategory.Category。 */
+    modelField?: keyof TFormModel;
+}
 // #endregion
 
 // #region Public
-/** ✅ 後台共用：系統資訊頁籤（新增/修改人員與時間） */
-export const SystemInfoTabComp = <TSet extends AnyObj>(props: Props) =>
+/** 後台共用系統資訊頁籤，支援 FormModel Root 或內嵌 object。 */
+export const SystemInfoTabComp = <TFormModel extends AnyObj>(props: SystemInfoTabProps<TFormModel>) =>
 {
-    const setField = useSetTableField<TSet>(props.formData);
-
-    const mainRow = useMemo(() =>
-    {
-        // NOTE: 嘗試從 rawData 取出主表資料（用來組 user display）
-        const raw = props.formData?.data as AnyObj | undefined;
-        const row = (raw?.[props.setKey] ?? null) as AnyObj | null;
-        return row;
-    }, [props.formData?.data, props.setKey]);
-
-    const createUserDisplay = useMemo(() =>
-    {
-        // NOTE: 依 DTOBasicDataModel：CreateUser 導覽屬性
-        return formatUserDisplay(mainRow?.[DTOBasicDataModelFields.CreateUser]);
-    }, [mainRow]);
-
-    const modifyUserDisplay = useMemo(() =>
-    {
-        // NOTE: 依 DTOBasicDataModel：ModifyUser 導覽屬性
-        return formatUserDisplay(mainRow?.[DTOBasicDataModelFields.ModifyUser]);
-    }, [mainRow]);
-
+    const rootField = useFormModelField(props.formData);
+    const objectField = useFormModelObjectField(props.formData, props.modelField);
+    const bindField = (field: string, mode: "string" | "datetime") => props.modelField
+        ? objectField(field, mode)
+        : rootField(field as keyof TFormModel, mode);
+    const mainRow = useMemo(() => resolveSystemInfoModel(props.formData.data, props.modelField), [props.formData.data, props.modelField]);
+    const createUserDisplay = useMemo(() => formatUserDisplay(mainRow?.[BasicDataFields.CreateUser]), [mainRow]);
+    const modifyUserDisplay = useMemo(() => formatUserDisplay(mainRow?.[BasicDataFields.ModifyUser]), [mainRow]);
     return (
         <>
-            {/* 新增人員/新增時間 */}
             <div className="col-12 form-group">
-                <LibTextBox
-                    Style={props.theme.TextBox3}
-                    {...setField(props.setKey, DTOBasicDataModelFields.CreateUserId, "string")}
-                    InputValue={createUserDisplay}
-                    disabled={true}
-                />
-                <LibTextBox
-                    Style={props.theme.TextBox3}
-                    {...setField(props.setKey, DTOBasicDataModelFields.ModifyUserId, "string")}
-                    InputValue={modifyUserDisplay}
-                    disabled={true}
-                />
+                <LibTextBox Style={props.theme.TextBox3} {...bindField(BasicDataFields.CreateUserId, "string")} InputValue={createUserDisplay} disabled={true} />
+                <LibTextBox Style={props.theme.TextBox3} {...bindField(BasicDataFields.ModifyUserId, "string")} InputValue={modifyUserDisplay} disabled={true} />
             </div>
-            {/* 修改人員/修改時間 */}
             <div className="col-12 form-group">
-                <LibTextBox
-                    Style={props.theme.TextBox3}
-                    {...setField(props.setKey, DTOBasicDataModelFields.CreateTime, "datetime")}
-                    InputValue={formatDateTime(mainRow?.[DTOBasicDataModelFields.CreateTime])}
-                    disabled={true}
-                />
-                <LibTextBox
-                    Style={props.theme.TextBox3}
-                    {...setField(props.setKey, DTOBasicDataModelFields.ModifyTime, "datetime")}
-                    InputValue={formatDateTime(mainRow?.[DTOBasicDataModelFields.ModifyTime])}
-                    disabled={true}
-                />
+                <LibTextBox Style={props.theme.TextBox3} {...bindField(BasicDataFields.CreateTime, "datetime")} InputValue={formatDateTime(mainRow?.[BasicDataFields.CreateTime])} disabled={true} />
+                <LibTextBox Style={props.theme.TextBox3} {...bindField(BasicDataFields.ModifyTime, "datetime")} InputValue={formatDateTime(mainRow?.[BasicDataFields.ModifyTime])} disabled={true} />
             </div>
         </>
     );
@@ -86,30 +57,21 @@ export const SystemInfoTabComp = <TSet extends AnyObj>(props: Props) =>
 // #endregion
 
 // #region Private
-const pickUserId = (u: AnyObj | null | undefined): string =>
+/** 取得系統資訊實際所在的 FormModel object。 */
+const resolveSystemInfoModel = <TFormModel extends AnyObj>(formModel: TFormModel, modelField?: keyof TFormModel): AnyObj | null =>
 {
-    const id = u?.AccountId;
-    return String(id ?? "");
+    if (!modelField) return formModel;
+    const value = formModel?.[modelField];
+    return value && typeof value === "object" && !Array.isArray(value) ? value as AnyObj : null;
 };
 
-
-const pickUserName = (u: AnyObj | null | undefined): string =>
+/** 格式化帳號識別與名稱。 */
+const formatUserDisplay = (user: AnyObj | null | undefined): string =>
 {
-    const name = u?.AccountName;
-    return String(name ?? "");
-};
-
-
-const formatUserDisplay = (u: AnyObj | null | undefined): string =>
-{
-    // NOTE: 顯示成 "id, name"
-    const id = pickUserId(u);
-    const name = pickUserName(u);
-
-    if (!id && !name) return "";
-    if (id && !name) return id;
-    if (!id && name) return name;
-
+    const id = String(user?.AccountId ?? "");
+    const name = String(user?.AccountName ?? "");
+    if (!id) return name;
+    if (!name) return id;
     return `${id}, ${name}`;
 };
 // #endregion

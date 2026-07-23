@@ -22,7 +22,7 @@ import type { LoaderFunctionArgs } from "react-router-dom";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
-type TimelineSet = components["schemas"]["TimelineSet_DTO"];
+type TimelineFormModel = components["schemas"]["Timeline"];
 export interface ITimelineOptions
 {
     TimelineId?: string;
@@ -37,7 +37,7 @@ export interface TimelineFormLoaderArgs
 }
 export interface TimelineFormLoaderRes
 {
-    listRes: TimelineSet[];
+    listRes: TimelineFormModel[];
 }
 export interface TimelineFormLoaderData
 {
@@ -48,8 +48,8 @@ export type TimelineFormRawData = {
     lang: Lang;
     timelineId: string;
     isDesc: boolean;
-    data: TimelineSet;
-    listData: TimelineSet[];
+    data: TimelineFormModel;
+    listData: TimelineFormModel[];
     title: string;
     args: TimelineFormLoaderArgs;
 };
@@ -74,7 +74,7 @@ type TimelineFormSearchParams = { lang: Lang; timelineId: string; isDesc: boolea
 type TimelineFormDataQueryTemplate = ClientDataQueryTemplate<TimelineFormSearchParams, TimelineFormRawData, TimelineFormRawData, TimelineFormAdapter, QueryListParam, TimelineFormLoaderData>;
 const FORM_PAGE_NUMBER = 1;
 const FORM_PAGE_SIZE = 1;
-const defaultEmptyData: TimelineSet = { Timeline: {}, TimelineItem: [], TimelineLangDetail: [] };
+const defaultEmptyData: TimelineFormModel = { _TimelineItem: [] };
 // #endregion
 
 // #region Public
@@ -105,7 +105,7 @@ export const Client_TimelineForm_Loader = (p: { lang: Lang; opts?: ITimelineOpti
     return { args, res: { listRes } };
 };
 /** CSR Hook：新版 Form 入口，資料查詢流程交給 Client_DataQueryTemplate */
-export const useTimelineFormData = (opt: { lang: Lang; opts?: ITimelineOptions; emptyData?: TimelineSet; }): UseTimelineFormDataResult =>
+export const useTimelineFormData = (opt: { lang: Lang; opts?: ITimelineOptions; emptyData?: TimelineFormModel; }): UseTimelineFormDataResult =>
 {
     const fallbackData = opt.emptyData ?? defaultEmptyData;
     const timelineId = LibText.safeTrim(opt.opts?.TimelineId);
@@ -135,7 +135,6 @@ export const useTimelineFormFetchData = (p: { lang: Lang; opts?: ITimelineOption
 // #endregion
 
 // #region Private
-/** 組出給 hydration 用的 initial 格式 */
 /** 建立 Timeline Form 查詢條件 */
 const buildTimelineFormCondition = (p: { lang: Lang; timelineId: string; }): string =>
 {
@@ -155,10 +154,12 @@ const buildTimelineFormFields = (): string[] =>
         TimelineFields.TimelineName,
         `${TimelineFields._TimelineItem}.${TimelineItemFields.TimelineId}`,
         `${TimelineFields._TimelineItem}.${TimelineItemFields.RowId}`,
+        `${TimelineFields._TimelineItem}.${TimelineItemFields.RowNo}`,
         `${TimelineFields._TimelineItem}.${TimelineItemFields.Date}`,
         `${TimelineFields._TimelineItem}.${TimelineItemFields._TimelineLangDetail}.${TimelineLangDetailFields.TimelineId}`,
         `${TimelineFields._TimelineItem}.${TimelineItemFields._TimelineLangDetail}.${TimelineLangDetailFields.ParentRowId}`,
         `${TimelineFields._TimelineItem}.${TimelineItemFields._TimelineLangDetail}.${TimelineLangDetailFields.RowId}`,
+        `${TimelineFields._TimelineItem}.${TimelineItemFields._TimelineLangDetail}.${TimelineLangDetailFields.RowNo}`,
         `${TimelineFields._TimelineItem}.${TimelineItemFields._TimelineLangDetail}.${TimelineLangDetailFields.Lang}`,
         `${TimelineFields._TimelineItem}.${TimelineItemFields._TimelineLangDetail}.${TimelineLangDetailFields.Title}`,
         `${TimelineFields._TimelineItem}.${TimelineItemFields._TimelineLangDetail}.${TimelineLangDetailFields.Content}`,
@@ -170,7 +171,7 @@ const buildTimelineFormQueryParam = (p: { condition: string; isDesc: boolean; })
     return { Fields: buildTimelineFormFields(), Condition: p.condition, OrderBy: [{ Col: `${TimelineFields._TimelineItem}.${TimelineItemFields.Date}`, Desc: p.isDesc }], PageNumber: FORM_PAGE_NUMBER, PageSize: FORM_PAGE_SIZE };
 };
 /** 建立主資料 list initial，避免 hydration 首次重抓 */
-const buildListInitial = (p: { loaderData: TimelineFormLoaderData | null; queryParam: QueryListParam; fallbackData: TimelineSet; }): ApiLoaderData<QueryListParam, TimelineSet[]> | null =>
+const buildListInitial = (p: { loaderData: TimelineFormLoaderData | null; queryParam: QueryListParam; fallbackData: TimelineFormModel; }): ApiLoaderData<QueryListParam, TimelineFormModel[]> | null =>
 {
     const loaderParam = p.loaderData?.args?.queryParam;
     if (!loaderParam) return null;
@@ -188,7 +189,7 @@ const buildTimelineFormSearchParams = (p: { lang: Lang; timelineId: string; isDe
     return { lang: p.lang, timelineId: LibText.safeTrim(p.timelineId), isDesc: p.isDesc };
 };
 /** 建立 Timeline Form DataQueryTemplate */
-const createTimelineFormDataQueryTemplate = (p: { lang: Lang; timelineId: string; isDesc: boolean; emptyData: TimelineSet; }): TimelineFormDataQueryTemplate =>
+const createTimelineFormDataQueryTemplate = (p: { lang: Lang; timelineId: string; isDesc: boolean; emptyData: TimelineFormModel; }): TimelineFormDataQueryTemplate =>
 {
     const initialViewState = buildTimelineFormInitialViewState();
     return {
@@ -216,14 +217,14 @@ const createTimelineFormDataQueryTemplate = (p: { lang: Lang; timelineId: string
     };
 };
 /** 建立 Loader 與 Hook 共用的 Query 狀態 */
-const buildTimelineFormQueryState = (p: { lang: Lang; timelineId: string; isDesc: boolean; emptyData: TimelineSet; }) =>
+const buildTimelineFormQueryState = (p: { lang: Lang; timelineId: string; isDesc: boolean; emptyData: TimelineFormModel; }) =>
 {
     const template = createTimelineFormDataQueryTemplate(p);
     return buildClientDataQueryState(template, {} as SearchValues, buildTimelineFormInitialViewState());
 };
 /** Timeline Form DataSource：統一處理 QueryList 單筆資料 */
 const useTimelineFormDataSource = (
-    p: { queryParam: QueryListParam; loaderData: TimelineFormLoaderData | null; lang: Lang; timelineId: string; isDesc: boolean; emptyData: TimelineSet; },
+    p: { queryParam: QueryListParam; loaderData: TimelineFormLoaderData | null; lang: Lang; timelineId: string; isDesc: boolean; emptyData: TimelineFormModel; },
 ): ClientDataQueryDataSourceResult<TimelineFormRawData, TimelineFormAdapter> =>
 {
     const adapter = useMemo<TimelineFormAdapter>(() => ({ Timeline: TimelineAdapter() }), []);
@@ -232,15 +233,15 @@ const useTimelineFormDataSource = (
     const queryKey = useMemo(() => buildClientDataQueryKey(p.queryParam), [p.queryParam]);
     /** 主資料：前台 Form 統一改用 QueryList 查單筆 */
     const useData = adapter.Timeline.hooks.useQueryList({ condition: p.queryParam, initial: listInitial, deps: [queryKey] });
-    const listData = useMemo<TimelineSet[]>(() => useData.data ?? [], [useData.data]);
-    const data = useMemo<TimelineSet>(() => listData[0] ?? p.emptyData, [listData, p.emptyData]);
-    const title = useMemo(() => LibText.safeTrim(data.Timeline?.TimelineName), [data.Timeline?.TimelineName]);
+    const listData = useMemo<TimelineFormModel[]>(() => useData.data ?? [], [useData.data]);
+    const data = useMemo<TimelineFormModel>(() => listData[0] ?? p.emptyData, [listData, p.emptyData]);
+    const title = useMemo(() => LibText.safeTrim(data.TimelineName), [data.TimelineName]);
     const rawData = useMemo<TimelineFormRawData>(() => ({ lang: currentArgs.lang, timelineId: currentArgs.timelineId, isDesc: currentArgs.isDesc, data, listData, title, args: currentArgs }), [currentArgs, data, listData, title]);
     const refetchData = useCallback(async (): Promise<void> => (await Promise.resolve(useData.refetch())), [useData.refetch]);
     return { adapter, rawData, isLoading: Boolean(useData.isLoading), errors: [useData.errorText], paginator: null, refetchData };
 };
 /** 內部共用：建立 Timeline Form Template VM */
-const useTimelineFormTemplate = (opt: { lang: Lang; timelineId: string; isDesc: boolean; emptyData: TimelineSet; }) =>
+const useTimelineFormTemplate = (opt: { lang: Lang; timelineId: string; isDesc: boolean; emptyData: TimelineFormModel; }) =>
 {
     const template = useMemo(() => createTimelineFormDataQueryTemplate({ lang: opt.lang, timelineId: opt.timelineId, isDesc: opt.isDesc, emptyData: opt.emptyData }), [opt.lang, opt.timelineId, opt.isDesc, opt.emptyData]);
     return useClientDataQueryTemplate(template);

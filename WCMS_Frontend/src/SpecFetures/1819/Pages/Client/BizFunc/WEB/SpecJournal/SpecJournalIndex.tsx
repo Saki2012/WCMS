@@ -381,7 +381,7 @@ const SPEC_JOURNAL_INDEX_LANG_TEXT_MAP: Record<string, SpecJournalIndexLangText>
         goToIssueList: (value: string) => `前往 ${value} 期刊列表`,
     },
     en: {
-        preprintTitle: "Preprints",
+        preprintTitle: "Article in Press",
         goToIssueList: (value: string) => `Go to ${value} journal list`,
     },
 };

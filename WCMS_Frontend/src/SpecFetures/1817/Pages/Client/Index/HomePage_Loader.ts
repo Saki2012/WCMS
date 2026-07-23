@@ -16,24 +16,24 @@ import { formatLocalIsoByMinute, LibCondition, Operator } from "@/SysCore/Utils/
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type BannerSet = components["schemas"]["BannerSet_DTO"];
+type BannerFormModel = components["schemas"]["Banner"];
 
 type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
 
-type CategorySet = components["schemas"]["CategoryDataSet_DTO"];
+type CategoryFormModel = components["schemas"]["Category"];
 
-type TagSet = components["schemas"]["TagSet_DTO"];
+type TagFormModel = components["schemas"]["TagData"];
 
 type ApiLoaderDataCompat<TArgs, TData> = { args: TArgs; env: ApiResponse<TData>; } | { args: TArgs; apiRes: ApiResponse<TData>; };
 
 export interface HomePageRawData
 {
-    carouselBanner: BannerSet | null;
-    specialLinkBanner: BannerSet | null;
+    carouselBanner: BannerFormModel | null;
+    specialLinkBanner: BannerFormModel | null;
     newsList: AnnouncementSet[];
     exhibitionList: AnnouncementSet[];
-    announcementCategories: CategorySet[];
-    announcementTags: TagSet[];
+    announcementCategories: CategoryFormModel[];
+    announcementTags: TagFormModel[];
 }
 
 export interface HomePageLoaderArgs
@@ -107,9 +107,9 @@ export const HomePageLoader = (props: { lang: Lang; }) => async ({ request }: Lo
     ]);
 
     // 宣告變數：整理 data
-    const carouselBanner = takeFirstOrNull<BannerSet>(getEnv(carouselLoaderData).Data);
+    const carouselBanner = takeFirstOrNull<BannerFormModel>(getEnv(carouselLoaderData).Data);
 
-    const specialLinkBanner = takeFirstOrNull<BannerSet>(getEnv(specialLinkLoaderData).Data);
+    const specialLinkBanner = takeFirstOrNull<BannerFormModel>(getEnv(specialLinkLoaderData).Data);
 
     const newsList = getEnv(newsLoaderData).Data ?? [];
     const exhibitionList = getEnv(exhibitionLoaderData).Data ?? [];

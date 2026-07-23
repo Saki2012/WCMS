@@ -22,8 +22,8 @@ import {
     AnnouncementDetailFields,
     AnnouncementFields,
     PGID,
-    SiteViewCountDetailModelFields,
-    SiteViewCountHeaderModelFields,
+    SiteViewCountDetailFields,
+    SiteViewCountHeaderFields,
 } from "@/types/SchemaFields";
 import { useEffect, useMemo, useRef } from "react";
 import type { LoaderFunctionArgs } from "react-router-dom";
@@ -31,10 +31,10 @@ import { useLoaderData } from "react-router-dom";
 
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
-type AnnouncementSet = components["schemas"]["AnnouncementSet_DTO"];
-type SiteViewCountSet = components["schemas"]["SiteViewCountSet_DTO"];
+type AnnouncementFormModel = components["schemas"]["Announcement"];
+type SiteViewCountModel = components["schemas"]["SiteViewCountHeader"];
 type SiteViewCountDetailRow = { ProgId?: string | null; TargetInternalId?: string | null; PageViewCount?: number | null; };
-type SiteViewCountSetLike = SiteViewCountSet & { SiteViewCountDetail?: SiteViewCountDetailRow[] | null; };
+type SiteViewCountFormModelLike = SiteViewCountModel & { SiteViewCountDetail?: SiteViewCountDetailRow[] | null; };
 type Spec1821ArchiveQueryParam = Omit<Spec1821ArchiveLoaderArgs, "viewCountParam">;
 const SEARCH_KEYWORD_KEY = "keyword";
 const SPEC1821_ARCHIVE_VIEW_COUNT_COL_KEY = "__spec1821ArchiveViewCount__";
@@ -54,8 +54,8 @@ export interface Spec1821ArchiveLoaderArgs
 }
 export interface Spec1821ArchiveLoaderRes
 {
-    gridRes: ApiGridLoaderData<AnnouncementSet>;
-    viewCountRes: SiteViewCountSet[];
+    gridRes: ApiGridLoaderData<AnnouncementFormModel>;
+    viewCountRes: SiteViewCountModel[];
 }
 export interface Spec1821ArchiveLoaderData
 {
@@ -68,7 +68,7 @@ export interface Spec1821ArchiveListVm
     pageNumber: number;
     totalPages: number;
     totalCount: number;
-    listData: AnnouncementSet[];
+    listData: AnnouncementFormModel[];
     viewCountMap: Record<string, number>;
     gridPropsFromList: GridProps;
     paginatorProps: PaginatorProps | null;
@@ -83,7 +83,7 @@ export interface UseSpec1821ArchiveListParam
 }
 interface Spec1821ArchiveGridQueryResult
 {
-    list?: AnnouncementSet[] | null;
+    list?: AnnouncementFormModel[] | null;
     pageNumber: number;
     totalPages: number;
     count: number;
@@ -250,9 +250,9 @@ const buildSpec1821ArchiveQuery = (p: { condition: string; pageNumber: number; p
     };
 };
 /** 取公告 internalIds。 */
-const getAnnouncementInternalIds = (rows: AnnouncementSet[]): string[] =>
+const getAnnouncementInternalIds = (rows: AnnouncementFormModel[]): string[] =>
 {
-    return rows.map(p => p.Announcement?.InternalId ?? "").filter(Boolean);
+    return rows.map(p => p?.InternalId ?? "").filter(Boolean);
 };
 /** 組成 In 查詢可用字串。 */
 const buildQuotedValues = (values: string[]): string =>
@@ -265,16 +265,16 @@ const buildSpec1821ViewCountCondition = (internalIds: string[]): string =>
 {
     const idText = buildQuotedValues(internalIds);
     if (!idText) return "1=0";
-    return `${SiteViewCountHeaderModelFields._SiteViewCountDetail}.${SiteViewCountDetailModelFields.ProgId} = ${PGID.Announcement} And ${SiteViewCountHeaderModelFields._SiteViewCountDetail}.${SiteViewCountDetailModelFields.TargetInternalId} In [${idText}]`;
+    return `${SiteViewCountHeaderFields._SiteViewCountDetail}.${SiteViewCountDetailFields.ProgId} = ${PGID.Announcement} And ${SiteViewCountHeaderFields._SiteViewCountDetail}.${SiteViewCountDetailFields.TargetInternalId} In [${idText}]`;
 };
 /** 建立瀏覽數 QueryListParam。 */
 const buildSpec1821ViewCountQuery = (internalIds: string[]): QueryListParam =>
 {
     return {
         Fields: [
-            `${SiteViewCountHeaderModelFields._SiteViewCountDetail}.${SiteViewCountDetailModelFields.ProgId}`,
-            `${SiteViewCountHeaderModelFields._SiteViewCountDetail}.${SiteViewCountDetailModelFields.TargetInternalId}`,
-            `${SiteViewCountHeaderModelFields._SiteViewCountDetail}.${SiteViewCountDetailModelFields.PageViewCount}`,
+            `${SiteViewCountHeaderFields._SiteViewCountDetail}.${SiteViewCountDetailFields.ProgId}`,
+            `${SiteViewCountHeaderFields._SiteViewCountDetail}.${SiteViewCountDetailFields.TargetInternalId}`,
+            `${SiteViewCountHeaderFields._SiteViewCountDetail}.${SiteViewCountDetailFields.PageViewCount}`,
         ],
         Condition: buildSpec1821ViewCountCondition(internalIds),
         PageNumber: 0,
@@ -282,13 +282,13 @@ const buildSpec1821ViewCountQuery = (internalIds: string[]): QueryListParam =>
     };
 };
 /** 建立歷年消息 Grid SSR initial。 */
-const buildArchiveGridInitial = (queryParam: Spec1821ArchiveQueryParam, initial: Spec1821ArchiveLoaderData | null): ApiGridInitial<AnnouncementSet> =>
+const buildArchiveGridInitial = (queryParam: Spec1821ArchiveQueryParam, initial: Spec1821ArchiveLoaderData | null): ApiGridInitial<AnnouncementFormModel> =>
 {
     const isSameParam = Boolean(initial && isSameClientDataQueryParam(queryParam.listParam, initial.args.listParam));
     return { model: initial?.res.gridRes.model ?? null, count: isSameParam ? initial?.res.gridRes.count ?? null : null, list: isSameParam ? initial?.res.gridRes.list ?? null : null };
 };
 /** 建立歷年消息瀏覽數 SSR initial。 */
-const buildArchiveViewCountInitial = (viewCountParam: QueryListParam, initial: Spec1821ArchiveLoaderData | null): ApiLoaderData<QueryListParam, SiteViewCountSet[]> | null =>
+const buildArchiveViewCountInitial = (viewCountParam: QueryListParam, initial: Spec1821ArchiveLoaderData | null): ApiLoaderData<QueryListParam, SiteViewCountModel[]> | null =>
 {
     if (!initial || !isSameClientDataQueryParam(viewCountParam, initial.args.viewCountParam)) return null;
     return { args: initial.args.viewCountParam, apiRes: { IsSuccess: true, Data: initial.res.viewCountRes, SysMessage: [] } };
@@ -318,11 +318,11 @@ const useResetArchivePageOnSearchChange = (p: { queryParam: Spec1821ArchiveQuery
     }, [resetKey, p.onPageChange]);
 };
 /** 組歷年消息瀏覽數 map。 */
-const buildViewCountMap = (rows: SiteViewCountSet[]): Record<string, number> =>
+const buildViewCountMap = (rows: SiteViewCountModel[]): Record<string, number> =>
 {
     const result: Record<string, number> = {};
     rows.forEach((item) =>
-        (item as SiteViewCountSetLike).SiteViewCountDetail?.forEach((detail) =>
+        (item as SiteViewCountFormModelLike)._SiteViewCountDetail?.forEach((detail) =>
         {
             const key = detail.TargetInternalId ?? "";
             if (!key) return;
@@ -332,7 +332,7 @@ const buildViewCountMap = (rows: SiteViewCountSet[]): Record<string, number> =>
     return result;
 };
 /** 由歷年消息資料組 GridProps。 */
-const buildSpec1821ArchiveGridProps = (p: { lang: Lang; listData: AnnouncementSet[]; viewCountMap: Record<string, number>; pageNumber: number; totalPages: number; onPageChange: (page: number) => void; }): GridProps =>
+const buildSpec1821ArchiveGridProps = (p: { lang: Lang; listData: AnnouncementFormModel[]; viewCountMap: Record<string, number>; pageNumber: number; totalPages: number; onPageChange: (page: number) => void; }): GridProps =>
 {
     const columns = buildSpec1821ArchiveColumns();
     const rows: GridRow[] = p.listData.map((item) => buildSpec1821ArchiveGridRow({ item, lang: p.lang, columns, viewCountMap: p.viewCountMap }));
@@ -347,26 +347,26 @@ const buildSpec1821ArchiveColumns = (): ColumnConfig[] =>
     }];
 };
 /** 建立歷年消息單列 GridRow。 */
-const buildSpec1821ArchiveGridRow = (p: { item: AnnouncementSet; lang: Lang; columns: ColumnConfig[]; viewCountMap: Record<string, number>; }): GridRow =>
+const buildSpec1821ArchiveGridRow = (p: { item: AnnouncementFormModel; lang: Lang; columns: ColumnConfig[]; viewCountMap: Record<string, number>; }): GridRow =>
 {
-    const internalId = p.item.Announcement?.InternalId ?? "";
-    const detail = p.item.AnnouncementDetail?.find(x => x.Lang === p.lang);
+    const internalId = p.item?.InternalId ?? "";
+    const detail = p.item._AnnouncementDetail?.find(x => x.Lang === p.lang);
     const finalCount = Number(p.viewCountMap[internalId] ?? 0);
     const cells: RowCell[] = p.columns.map(col => ({ col, content: resolveSpec1821ArchiveCellText({ colKey: col.key, item: p.item, detailTitle: detail?.Title ?? "", finalCount }) }));
     return { keyId: internalId, cells };
 };
 /** 建立歷年消息 Cell 文字。 */
-const resolveSpec1821ArchiveCellText = (p: { colKey: string; item: AnnouncementSet; detailTitle: string; finalCount: number; }): string =>
+const resolveSpec1821ArchiveCellText = (p: { colKey: string; item: AnnouncementFormModel; detailTitle: string; finalCount: number; }): string =>
 {
     if (p.colKey === AnnouncementDetailFields.Title) return p.detailTitle;
-    if (p.colKey === AnnouncementFields.Validate_Start) return formatDate(p.item.Announcement?.Validate_Start) ?? "";
-    if (p.colKey === AnnouncementFields.Categories) return p.item.Announcement?.Categories ?? "";
-    if (p.colKey === AnnouncementFields.Tags) return p.item.Announcement?.Tags ?? "";
+    if (p.colKey === AnnouncementFields.Validate_Start) return formatDate(p.item?.Validate_Start) ?? "";
+    if (p.colKey === AnnouncementFields.Categories) return p.item?.Categories ?? "";
+    if (p.colKey === AnnouncementFields.Tags) return p.item?.Tags ?? "";
     if (p.colKey === SPEC1821_ARCHIVE_VIEW_COUNT_COL_KEY) return String(p.finalCount);
     return "";
 };
 /** 建立歷年消息 ViewModel。 */
-const buildSpec1821ArchiveVm = (p: { queryParam: Spec1821ArchiveQueryParam; grid: Spec1821ArchiveGridQueryResult; viewCountRows: SiteViewCountSet[]; viewCountLoading: boolean; viewCountError: string | null; }): Spec1821ArchiveListVm =>
+const buildSpec1821ArchiveVm = (p: { queryParam: Spec1821ArchiveQueryParam; grid: Spec1821ArchiveGridQueryResult; viewCountRows: SiteViewCountModel[]; viewCountLoading: boolean; viewCountError: string | null; }): Spec1821ArchiveListVm =>
 {
     const viewCountMap = buildViewCountMap(p.viewCountRows);
     const paginatorProps = p.queryParam.pageSize === 0 ? null : { currentPage: p.grid.pageNumber, totalPages: p.grid.totalPages, onPageChange: p.grid.onPageChange };

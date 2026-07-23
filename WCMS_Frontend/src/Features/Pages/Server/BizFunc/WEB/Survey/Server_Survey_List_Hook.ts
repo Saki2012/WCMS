@@ -27,7 +27,7 @@ import {
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type SurveySet = components["schemas"]["SurveySet_DTO"];
+type SurveyFormModel = components["schemas"]["Survey"];
 
 type SurveyApiAdapter = ReturnType<typeof SurveyAdapter>;
 
@@ -62,7 +62,7 @@ export interface SurveyListRawData
     count: number;
 
     /** 問卷列表資料 */
-    list: SurveySet[];
+    list: SurveyFormModel[];
 
     /** 目前頁碼 */
     pageNumber: number;
@@ -320,7 +320,7 @@ const enhanceSurveyGrid = (
     },
 ): GridProps =>
 {
-    const actions = createGridCrudActions<SurveySet>({
+    const actions = createGridCrudActions<SurveyFormModel>({
         onEdit: (internalId) => opt.crud.navigate(`${opt.crud.dirUrl}/${internalId}`),
         deleteAsync: opt.crud.deleteAsync,
         afterDelete: opt.crud.afterDelete,
@@ -333,7 +333,7 @@ const enhanceSurveyGrid = (
         can: opt.can,
         notifyNoPermission: opt.notifyNoPermission,
         confirm: opt.confirm,
-        getInternalId: (set) => set.Survey?.InternalId ?? "",
+        getInternalId: item => item.InternalId ?? "",
     });
 };
 
@@ -342,13 +342,13 @@ const enhanceSurveyGrid = (
 /** 建立問卷列表列資料 */
 const buildSurveyRows = (raw: SurveyListRawData, columns: ColumnConfig[]): GridRow[] =>
 {
-    return (raw.list ?? []).map((set) =>
+    return (raw.list ?? []).map((item) =>
     {
-        const keyId = set.Survey?.InternalId ?? set.Survey?.SurveyId ?? "";
+        const keyId = item.InternalId ?? item.SurveyId ?? "";
         const cells: RowCell[] = [
-            { col: columns[0], content: set.Survey?.SurveyName ?? "" },
-            { col: columns[1], content: set.Survey?.ModifyUser?.AccountName ?? "" },
-            { col: columns[2], content: formatDateTime(set.Survey?.ModifyTime) },
+            { col: columns[0], content: item.SurveyName ?? "" },
+            { col: columns[1], content: item.ModifyUser?.AccountName ?? "" },
+            { col: columns[2], content: formatDateTime(item.ModifyTime) },
         ];
 
         return { keyId, cells };

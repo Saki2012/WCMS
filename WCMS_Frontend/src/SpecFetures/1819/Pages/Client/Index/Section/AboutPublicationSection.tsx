@@ -11,15 +11,15 @@ import { useMemo } from "react";
 // #region Property
 type QueryListParam = components["schemas"]["QueryListParam"];
 
-type BannerSet = components["schemas"]["BannerSet_DTO"];
+type BannerFormModel = components["schemas"]["Banner"];
 
-type BannerDetailInfo = NonNullable<BannerSet["BannerDetailInfo"]>[number];
+type BannerDetailInfo = components["schemas"]["BannerDetailInfo"];
 
 interface AboutPublicationSectionProps
 {
     lang: Lang;
     aboutPublicationParam: QueryListParam;
-    initialAboutPublicationBanner: BannerSet | null;
+    initialAboutPublicationBanner: BannerFormModel | null;
 }
 // #endregion
 
@@ -173,35 +173,35 @@ const toListInitial = <T,>(args: QueryListParam, data: T[]) =>
     return { args, apiRes: toOkEnv(data) };
 };
 
-const getBanner = (data?: BannerSet[]): BannerSet | null =>
+const getBanner = (data?: BannerFormModel[]): BannerFormModel | null =>
 {
     // return
     return data?.[0] ?? null;
 };
 
-const getBannerContent = (banner: BannerSet | null, lang: Lang): string =>
+const getBannerContent = (banner: BannerFormModel | null, lang: Lang): string =>
 {
     // 宣告變數
-    const infoList = banner?.BannerDetailInfo ?? [];
+    const infoList = (banner?._BannerDetail ?? []).flatMap(detail => detail._BannerDetailInfo ?? []);
     const content = infoList.find((p) => p.Lang === lang && (p.Content ?? "").trim() !== "")?.Content ?? "";
 
     // return
     return content;
 };
 
-const getBannerTitleByParentRowId = (banner: BannerSet | null, parentRowId: BannerDetailInfo["ParentRowId"], lang: Lang): string =>
+const getBannerTitleByParentRowId = (banner: BannerFormModel | null, parentRowId: BannerDetailInfo["ParentRowId"], lang: Lang): string =>
 {
     // 宣告變數
-    const infoList = banner?.BannerDetailInfo ?? [];
-    const title = infoList.find((p) => p.ParentRowId === parentRowId && p.Lang === lang)?.Title ?? "";
+    const detail = banner?._BannerDetail?.find(item => item.RowId === parentRowId);
+    const title = detail?._BannerDetailInfo?.find(info => info.Lang === lang)?.Title ?? "";
 
     // return
     return title;
 };
 
-const getIssueImage = (banner: BannerSet | null, idx: number, lang: Lang) =>
+const getIssueImage = (banner: BannerFormModel | null, idx: number, lang: Lang) =>
 {
-    const detail = banner?.BannerDetail?.[idx];
+    const detail = banner?._BannerDetail?.[idx];
     const title = detail ? getBannerTitleByParentRowId(banner, detail.RowId, lang) : "";
     const src = FileManagementAPI.get_Public_Preview_Url(detail?.PicSrcId, title);
     return { title, src };

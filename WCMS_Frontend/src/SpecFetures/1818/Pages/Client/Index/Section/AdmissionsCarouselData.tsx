@@ -8,11 +8,11 @@ import { useEffect, useMemo, useRef } from "react";
 import { delayMs as sleep } from "@/Features/Pages/Client/Index/HomePage_Helper";
 
 // #region Property
-type BannerSet = components["schemas"]["BannerSet_DTO"];
+type BannerFormModel = components["schemas"]["Banner"];
 // #endregion
 
 // #region Public
-export const AdmissionsCarouselData = (props: { lang: Lang; internalId: string; initialBanner: BannerSet | null; }) =>
+export const AdmissionsCarouselData = (props: { lang: Lang; internalId: string; initialBanner: BannerFormModel | null; }) =>
 {
     // 宣告變數：adapter
     const adapter = useMemo(() => BannerSliderAdapter(), []);
@@ -30,14 +30,14 @@ export const AdmissionsCarouselData = (props: { lang: Lang; internalId: string; 
     // 宣告變數：排序 detail
     const sortedDetails = useMemo(() =>
     {
-        const list = q.data?.BannerDetail ?? [];
+        const list = q.data?._BannerDetail ?? [];
         return [...list].sort((a, b) =>
         {
             const as = Number.isFinite(a?.Sort) ? Number(a.Sort) : Number.MAX_SAFE_INTEGER;
             const bs = Number.isFinite(b?.Sort) ? Number(b.Sort) : Number.MAX_SAFE_INTEGER;
             return as - bs || (a.RowId ?? 0) - (b.RowId ?? 0);
         });
-    }, [q.data?.BannerDetail]);
+    }, [q.data?._BannerDetail]);
 
     type OwlOptions = Record<string, unknown>;
 
@@ -172,8 +172,8 @@ export const AdmissionsCarouselData = (props: { lang: Lang; internalId: string; 
                                             <div className="owl-carousel owl-theme" id="Admissions_owl_carousel" ref={carouselRef}>
                                                 {sortedDetails.map((p, i) =>
                                                 {
-                                                    const info = q.data?.BannerDetailInfo?.find(x =>
-                                                        x.BannerId === p.BannerId && x.ParentRowId === p.RowId && x.Lang === props.lang
+                                                    const info = p._BannerDetailInfo?.find(x =>
+                                                        x.Lang === props.lang
                                                     );
 
                                                     const alt = info?.Title ?? "";
