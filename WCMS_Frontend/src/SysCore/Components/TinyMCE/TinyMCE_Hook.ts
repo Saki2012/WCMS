@@ -116,6 +116,11 @@ export const useTinyMCE = (p: TinyMceHookOptions) =>
                 "fullscreen code",
             ].join(" "),
             contextmenu: "link image table",
+            link_target_list: [
+                { text: "Default", value: "" },
+                { text: "Current window", value: "_self" },
+                { text: "New window", value: "_blank" },
+            ],
             visualblocks_default_state: true,
             toolbar_mode: "wrap",
 
